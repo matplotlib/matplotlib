@@ -170,6 +170,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import itertools
+import logging
 import locale
 import math
 import numpy as np
@@ -180,6 +181,7 @@ from matplotlib.cbook import mplDeprecation
 
 import warnings
 
+_log = logging.getLogger(__name__)
 
 __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
@@ -2115,6 +2117,7 @@ class LogLocator(Locator):
                     "Data has no positive values, and therefore can not be "
                     "log-scaled.")
 
+        _log.debug('vmin %s vmax %s', vmin, vmax)
         vmin = math.log(vmin) / math.log(b)
         vmax = math.log(vmax) / math.log(b)
 
@@ -2135,8 +2138,8 @@ class LogLocator(Locator):
         else:
             subs = self._subs
 
+        # get decades between major ticks.
         stride = 1
-
         if rcParams['_internal.classic_mode']:
             # Leave the bug left over from the PY2-PY3 transition.
             while numdec / stride + 1 > numticks:
@@ -2157,6 +2160,8 @@ class LogLocator(Locator):
                 if stride == 1:
                     ticklocs = np.ravel(np.outer(subs, ticklocs))
                 else:
+                    # no ticklocs if we have more than one decade
+                    # between major ticks.
                     ticklocs = []
         else:
             if have_subs:
@@ -2167,6 +2172,7 @@ class LogLocator(Locator):
             else:
                 ticklocs = b ** decades
 
+        _log.debug('ticklocs %r', ticklocs)
         return self.raise_if_exceeds(np.asarray(ticklocs))
 
     def view_limits(self, vmin, vmax):

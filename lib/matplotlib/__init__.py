@@ -743,14 +743,11 @@ get_data_path = _wrap('matplotlib data path %s', _get_data_path_cached,
 
 
 def get_py2exe_datafiles():
-    datapath = get_data_path()
-    _, tail = os.path.split(datapath)
+    data_path = Path(get_data_path())
     d = {}
-    for root, _, files in os.walk(datapath):
-        files = [os.path.join(root, filename) for filename in files]
-        root = root.replace(tail, 'mpl-data')
-        root = root[root.index('mpl-data'):]
-        d[root] = files
+    for path in filter(Path.is_file, data_path.glob("**/*")):
+        (d.setdefault(str(path.parent.relative_to(data_path.parent)), [])
+         .append(str(path)))
     return list(d.items())
 
 

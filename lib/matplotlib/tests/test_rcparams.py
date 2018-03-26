@@ -181,6 +181,18 @@ def test_legend_colors(color_type, param_dict, target):
         assert getattr(leg.legendPatch, get_func)() == target
 
 
+def test_mfc_rcparams():
+    mpl.rcParams['lines.markerfacecolor'] = 'r'
+    ln = mpl.lines.Line2D([1, 2], [1, 2])
+    assert ln.get_markerfacecolor() == 'r'
+
+
+def test_mec_rcparams():
+    mpl.rcParams['lines.markeredgecolor'] = 'r'
+    ln = mpl.lines.Line2D([1, 2], [1, 2])
+    assert ln.get_markeredgecolor() == 'r'
+
+
 def test_Issue_1713():
     utf32_be = os.path.join(os.path.dirname(__file__),
                            'test_utf32_be_rcparams.rc')

@@ -17,10 +17,6 @@ plot generation::
 
 The object-oriented API is recommended for more complex plots.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import inspect
 from numbers import Number
@@ -489,7 +485,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     figLabel = ''
     if num is None:
         num = next_num
-    elif isinstance(num, six.string_types):
+    elif isinstance(num, str):
         figLabel = num
         allLabels = get_figlabels()
         if figLabel not in allLabels:
@@ -640,13 +636,13 @@ def close(*args):
         arg = args[0]
         if arg == 'all':
             _pylab_helpers.Gcf.destroy_all()
-        elif isinstance(arg, six.integer_types):
+        elif isinstance(arg, int):
             _pylab_helpers.Gcf.destroy(arg)
         elif hasattr(arg, 'int'):
             # if we are dealing with a type UUID, we
             # can use its integer representation
             _pylab_helpers.Gcf.destroy(arg.int)
-        elif isinstance(arg, six.string_types):
+        elif isinstance(arg, str):
             allLabels = get_figlabels()
             if arg in allLabels:
                 num = get_fignums()[allLabels.index(arg)]
@@ -2434,7 +2430,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     def getname_val(identifier):
         'return the name and column data for identifier'
-        if isinstance(identifier, six.string_types):
+        if isinstance(identifier, str):
             return identifier, r[identifier]
         elif isinstance(identifier, Number):
             name = r.dtype.names[int(identifier)]

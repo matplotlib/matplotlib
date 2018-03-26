@@ -35,6 +35,7 @@ from collections import Iterable
 from functools import lru_cache
 import json
 import os
+from pathlib import Path
 import subprocess
 import sys
 from threading import Timer
@@ -150,12 +151,13 @@ def get_fontext_synonyms(fontext):
 
 def list_fonts(directory, extensions):
     """
-    Return a list of all fonts matching any of the extensions,
-    possibly upper-cased, found recursively under the directory.
+    Return a list of all fonts matching any of the extensions, found
+    recursively under the directory.
     """
-    pattern = ';'.join(['*.%s;*.%s' % (ext, ext.upper())
-                        for ext in extensions])
-    return cbook.listFiles(directory, pattern)
+    extensions = ["." + ext for ext in extensions]
+    return [str(path)
+            for path in filter(Path.is_file, Path(directory).glob("**/*.*"))
+            if path.suffix in extensions]
 
 
 def win32FontDirectory():
@@ -218,11 +220,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                     direc = os.path.abspath(direc).lower()
                     if os.path.splitext(direc)[1][1:] in fontext:
                         items.add(direc)
-                except EnvironmentError:
-                    continue
-                except WindowsError:
-                    continue
-                except MemoryError:
+                except (EnvironmentError, MemoryError, WindowsError):
                     continue
             return list(items)
         finally:
@@ -231,21 +229,13 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
 
 
 def OSXInstalledFonts(directories=None, fontext='ttf'):
-    """
-    Get list of font files on OS X - ignores font suffix by default.
-    """
+    """Get list of font files on OS X."""
     if directories is None:
         directories = OSXFontDirectories
-
-    fontext = get_fontext_synonyms(fontext)
-
-    files = []
-    for path in directories:
-        if fontext is None:
-            files.extend(cbook.listFiles(path, '*'))
-        else:
-            files.extend(list_fonts(path, fontext))
-    return files
+    return [path
+            for directory in directories
+            for ext in get_fontext_synonyms(fontext)
+            for path in list_fonts(directory, ext)]
 
 
 @lru_cache()
@@ -520,17 +510,14 @@ def createFontList(fontfiles, fontext='ttf'):
             seen.add(fname)
         if fontext == 'afm':
             try:
-                fh = open(fpath, 'rb')
+                with open(fpath, 'rb') as fh:
+                    font = afm.AFM(fh)
             except EnvironmentError:
                 _log.info("Could not open font file %s", fpath)
                 continue
-            try:
-                font = afm.AFM(fh)
             except RuntimeError:
                 _log.info("Could not parse font file %s", fpath)
                 continue
-            finally:
-                fh.close()
             try:
                 prop = afmFontProperty(fpath, font)
             except KeyError:

@@ -10,10 +10,6 @@
 # ===========================================================================
 # Place all imports after here.
 #
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 import operator
 import math
 import datetime as DT
@@ -68,16 +64,18 @@ class Epoch(object):
                 (daynum is not None and dt is not None) or
                 (dt is not None and (sec is not None or jd is not None)) or
                 ((dt is not None) and not isinstance(dt, DT.datetime))):
-            msg = "Invalid inputs.  Must enter sec and jd together, " \
-                    "daynum by itself, or dt (must be a python datetime).\n" \
-                    "Sec = %s\nJD  = %s\ndnum= %s\ndt  = %s" \
-                    % (str(sec), str(jd), str(daynum), str(dt))
-            raise ValueError(msg)
+            raise ValueError(
+                "Invalid inputs.  Must enter sec and jd together, "
+                "daynum by itself, or dt (must be a python datetime).\n"
+                "Sec = %s\n"
+                "JD  = %s\n"
+                "dnum= %s\n"
+                "dt  = %s" % (sec, jd, daynum, dt))
 
         if frame not in self.allowed:
-            msg = "Input frame '%s' is not one of the supported frames of %s" \
-                    % (frame, str(list(six.iterkeys(self.allowed))))
-            raise ValueError(msg)
+            raise ValueError(
+                "Input frame '%s' is not one of the supported frames of %s" %
+                (frame, list(self.allowed.keys())))
 
         self._frame = frame
 

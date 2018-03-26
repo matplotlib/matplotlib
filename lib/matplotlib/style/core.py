@@ -141,11 +141,6 @@ def context(style, after_reset=False):
         mpl.rcdefaults()
     try:
         use(style)
-    except:
-        # Restore original settings before raising errors during the update.
-        mpl.rcParams.update(initial_settings)
-        raise
-    else:
         yield
     finally:
         mpl.rcParams.update(initial_settings)

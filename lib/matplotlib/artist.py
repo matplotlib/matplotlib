@@ -880,13 +880,8 @@ class Artist(object):
                     raise AttributeError('Unknown property %s' % k)
                 return func(v)
 
-        store = self.eventson
-        self.eventson = False
-        try:
-            ret = [_update_property(self, k, v)
-                   for k, v in props.items()]
-        finally:
-            self.eventson = store
+        with cbook._setattr_cm(self, eventson=False):
+            ret = [_update_property(self, k, v) for k, v in props.items()]
 
         if len(ret):
             self.pchanged()
@@ -1042,8 +1037,9 @@ class Artist(object):
             data[0]
         except (TypeError, IndexError):
             data = [data]
-        return ', '.join('{:0.3g}'.format(item) for item in data if
-                isinstance(item, (np.floating, np.integer, int, float)))
+        data_str = ', '.join('{:0.3g}'.format(item) for item in data if
+                   isinstance(item, (np.floating, np.integer, int, float)))
+        return "[" + data_str + "]"
 
     @property
     def mouseover(self):

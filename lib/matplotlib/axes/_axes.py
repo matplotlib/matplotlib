@@ -1,9 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip, zip_longest
-
 import functools
 import itertools
 import logging
@@ -55,7 +49,11 @@ def _plot_args_replacer(args, data):
         return ["y"]
     elif len(args) == 2:
         # this can be two cases: x,y or y,c
-        if not args[1] in data:
+        if (not args[1] in data and
+            not (hasattr(data, 'dtype') and
+                 hasattr(data.dtype, 'names') and
+                 data.dtype.names is not None and
+                 args[1] in data.dtype.names)):
             # this is not in data, so just assume that it is something which
             # will not get replaced (color spec or array like).
             return ["y", "c"]
@@ -1671,7 +1669,7 @@ class Axes(_AxesBase):
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs):
-        """
+        r"""
         Plot the cross correlation between *x* and *y*.
 
         The correlation with lag k is defined as
@@ -2766,7 +2764,7 @@ class Axes(_AxesBase):
             if autopct is not None:
                 xt = x + pctdistance * radius * math.cos(thetam)
                 yt = y + pctdistance * radius * math.sin(thetam)
-                if isinstance(autopct, six.string_types):
+                if isinstance(autopct, str):
                     s = autopct % (100. * frac)
                 elif callable(autopct):
                     s = autopct(100. * frac)
@@ -5605,8 +5603,7 @@ class Axes(_AxesBase):
         # makes artifacts that are often disturbing.
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
-        if 'antialiaseds' not in kwargs and (
-                isinstance(ec, six.string_types) and ec.lower() == "none"):
+        if 'antialiaseds' not in kwargs and cbook._str_lower_equal(ec, "none"):
             kwargs['antialiaseds'] = False
 
         kwargs.setdefault('snap', False)
@@ -6528,12 +6525,12 @@ class Axes(_AxesBase):
 
         if label is None:
             labels = [None]
-        elif isinstance(label, six.string_types):
+        elif isinstance(label, str):
             labels = [label]
         else:
-            labels = [six.text_type(lab) for lab in label]
+            labels = [str(lab) for lab in label]
 
-        for patch, lbl in zip_longest(patches, labels, fillvalue=None):
+        for patch, lbl in itertools.zip_longest(patches, labels):
             if patch:
                 p = patch[0]
                 p.update(kwargs)

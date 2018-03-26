@@ -10,10 +10,6 @@
 # ==========================================================================
 # Place all imports after here.
 #
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 import operator
 #
 # Place all imports before here.
@@ -66,19 +62,8 @@ class Duration(object):
         return self._seconds
 
     # ----------------------------------------------------------------------
-    def __nonzero__(self):
-        """Compare two Durations.
-
-        = INPUT VARIABLES
-        - rhs     The Duration to compare against.
-
-        = RETURN VALUE
-        - Returns -1 if self < rhs, 0 if self == rhs, +1 if self > rhs.
-        """
+    def __bool__(self):
         return self._seconds != 0
-
-    if six.PY3:
-        __bool__ = __nonzero__
 
     # ----------------------------------------------------------------------
     def __eq__(self, rhs):

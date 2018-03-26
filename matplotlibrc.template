@@ -78,6 +78,8 @@ backend      : $TEMPLATE_BACKEND
 #lines.linestyle   : -       ## solid line
 #lines.color       : C0      ## has no affect on plot(); see axes.prop_cycle
 #lines.marker      : None    ## the default marker
+#lines.markerfacecolor  : auto    ## the default markerfacecolor
+#lines.markeredgecolor  : auto    ## the default markeredgecolor
 #lines.markeredgewidth  : 1.0     ## the line width around the marker symbol
 #lines.markersize  : 6            ## markersize, in points
 #lines.dash_joinstyle : round        ## miter|round|bevel

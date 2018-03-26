@@ -8,7 +8,6 @@ it imports matplotlib only at runtime.
 
 import six
 from six.moves import xrange, zip
-import bz2
 import collections
 import contextlib
 import datetime
@@ -478,6 +477,9 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
             flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
+            # python may not be complied with bz2 support,
+            # bury import until we need it
+            import bz2
             # get rid of 'U' in flag for bz2 files
             flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
@@ -676,6 +678,7 @@ def dedent(s):
     return result
 
 
+@deprecated("3.0")
 def listFiles(root, patterns='*', recurse=1, return_folders=0):
     """
     Recursively list files
@@ -2068,3 +2071,21 @@ def _define_aliases(alias_d, cls=None):
         raise NotImplementedError("Parent class already defines aliases")
     cls._alias_map = alias_d
     return cls
+
+
+@contextlib.contextmanager
+def _setattr_cm(obj, **kwargs):
+    """Temporarily set some attributes; restore original state at context exit.
+    """
+    sentinel = object()
+    origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]
+    try:
+        for attr, val in kwargs.items():
+            setattr(obj, attr, val)
+        yield
+    finally:
+        for attr, orig in origs:
+            if orig is sentinel:
+                delattr(obj, attr)
+            else:
+                setattr(obj, attr, orig)
