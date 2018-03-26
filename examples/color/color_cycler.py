@@ -24,15 +24,15 @@ yy = np.transpose([np.sin(x + phi) for phi in offsets])
 
 # 1. Setting prop cycle on default rc parameter
 plt.rc('lines', linewidth=4)
-plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y']) +
-                           cycler('linestyle', ['-', '--', ':', '-.'])))
+plt.rc('axes', prop_cycle=(cycler(color=['r', 'g', 'b', 'y']) +
+                           cycler(linestyle=['-', '--', ':', '-.'])))
 fig, (ax0, ax1) = plt.subplots(nrows=2)
 ax0.plot(yy)
 ax0.set_title('Set default color cycle to rgby')
 
 # 2. Define prop cycle for single set of axes
-ax1.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']) +
-                   cycler('lw', [1, 2, 3, 4]))
+ax1.set_prop_cycle(cycler(color=['c', 'm', 'y', 'k']) +
+                   cycler(lw=[1, 2, 3, 4]))
 ax1.plot(yy)
 ax1.set_title('Set axes color cycle to cmyk')
 

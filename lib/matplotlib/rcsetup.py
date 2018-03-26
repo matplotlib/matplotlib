@@ -786,7 +786,7 @@ def cycler(*args, **kwargs):
     Creating a cycler for a single property:
 
     >>> c = cycler(color=['red', 'green', 'blue'])  # or
-    >>> c = cycler('color', ['red', 'green', 'blue'])  # deprecated
+    >>> c = cycler(color=['red', 'green', 'blue'])  # deprecated
 
     Creating a cycler for simultaneously cycling over multiple properties
     (e.g. red circle, green plus, blue cross):

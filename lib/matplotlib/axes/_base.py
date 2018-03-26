@@ -1236,7 +1236,7 @@ class _AxesBase(martist.Artist):
             # set_prop_cycle('color', None). So we are special-casing this.
             self.set_prop_cycle(None)
         else:
-            self.set_prop_cycle('color', clist)
+            self.set_prop_cycle(color=clist)
 
     @cbook.deprecated("2.0")
     def ishold(self):

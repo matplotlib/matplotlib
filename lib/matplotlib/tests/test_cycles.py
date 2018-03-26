@@ -14,7 +14,7 @@ from cycler import cycler
 def test_colorcycle_basic():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_prop_cycle(cycler('color', ['r', 'g', 'y']))
+    ax.set_prop_cycle(cycler(color=['r', 'g', 'y']))
     xs = np.arange(10)
     ys = 0.25 * xs + 2
     ax.plot(xs, ys, label='red', lw=4)
@@ -32,8 +32,8 @@ def test_colorcycle_basic():
 def test_marker_cycle():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_prop_cycle(cycler('c', ['r', 'g', 'y']) +
-                      cycler('marker', ['.', '*', 'x']))
+    ax.set_prop_cycle(cycler(c=['r', 'g', 'y']) +
+                      cycler(marker=['.', '*', 'x']))
     xs = np.arange(10)
     ys = 0.25 * xs + 2
     ax.plot(xs, ys, label='red dot', lw=4, ms=16)
@@ -67,7 +67,7 @@ def test_marker_cycle():
 def test_linestylecycle_basic():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_prop_cycle(cycler('ls', ['-', '--', ':']))
+    ax.set_prop_cycle(cycler(ls=['-', '--', ':']))
     xs = np.arange(10)
     ys = 0.25 * xs + 2
     ax.plot(xs, ys, label='solid', lw=4, color='k')
@@ -85,9 +85,9 @@ def test_linestylecycle_basic():
 def test_fillcycle_basic():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_prop_cycle(cycler('c',  ['r', 'g', 'y']) +
-                      cycler('hatch', ['xx', 'O', '|-']) +
-                      cycler('linestyle', ['-', '--', ':']))
+    ax.set_prop_cycle(cycler(c=['r', 'g', 'y']) +
+                      cycler(hatch=['xx', 'O', '|-']) +
+                      cycler(linestyle=['-', '--', ':']))
     xs = np.arange(10)
     ys = 0.25 * xs**.5 + 2
     ax.fill(xs, ys, label='red, xx', linewidth=3)
@@ -105,9 +105,9 @@ def test_fillcycle_basic():
 def test_fillcycle_ignore():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_prop_cycle(cycler('color',  ['r', 'g', 'y']) +
-                      cycler('hatch', ['xx', 'O', '|-']) +
-                      cycler('marker', ['.', '*', 'D']))
+    ax.set_prop_cycle(cycler(color=['r', 'g', 'y']) +
+                      cycler(hatch=['xx', 'O', '|-']) +
+                      cycler(marker=['.', '*', 'D']))
     xs = np.arange(10)
     ys = 0.25 * xs**.5 + 2
     # Should not advance the cycler, even though there is an
@@ -128,7 +128,7 @@ def test_fillcycle_ignore():
                   remove_text=True, extensions=['png'])
 def test_property_collision_plot():
     fig, ax = plt.subplots()
-    ax.set_prop_cycle('linewidth', [2, 4])
+    ax.set_prop_cycle(linewidth=[2, 4])
     for c in range(1, 4):
         ax.plot(np.arange(10), c * np.arange(10), lw=0.1, color='k')
     ax.plot(np.arange(10), 4 * np.arange(10), color='k')
@@ -152,16 +152,16 @@ def test_valid_input_forms():
     fig, ax = plt.subplots()
     # These should not raise an error.
     ax.set_prop_cycle(None)
-    ax.set_prop_cycle(cycler('linewidth', [1, 2]))
-    ax.set_prop_cycle('color', 'rgywkbcm')
-    ax.set_prop_cycle('lw', (1, 2))
-    ax.set_prop_cycle('linewidth', [1, 2])
-    ax.set_prop_cycle('linewidth', iter([1, 2]))
-    ax.set_prop_cycle('linewidth', np.array([1, 2]))
-    ax.set_prop_cycle('color', np.array([[1, 0, 0],
-                                         [0, 1, 0],
-                                         [0, 0, 1]]))
-    ax.set_prop_cycle('dashes', [[], [13, 2], [8, 3, 1, 3], [None, None]])
+    ax.set_prop_cycle(cycler(linewidth=[1, 2]))
+    ax.set_prop_cycle(color='rgywkbcm')
+    ax.set_prop_cycle(lw=(1, 2))
+    ax.set_prop_cycle(linewidth=[1, 2])
+    ax.set_prop_cycle(linewidth=iter([1, 2]))
+    ax.set_prop_cycle(linewidth=np.array([1, 2]))
+    ax.set_prop_cycle(color=np.array([[1, 0, 0],
+                                      [0, 1, 0],
+                                      [0, 0, 1]]))
+    ax.set_prop_cycle(dashes=[[], [13, 2], [8, 3, 1, 3], [None, None]])
     ax.set_prop_cycle(lw=[1, 2], color=['k', 'w'], ls=['-', '--'])
     ax.set_prop_cycle(lw=np.array([1, 2]),
                       color=np.array(['k', 'w']),
@@ -202,17 +202,17 @@ def test_invalid_input_forms():
         ax.set_prop_cycle([1, 2])
 
     with pytest.raises((TypeError, ValueError)):
-        ax.set_prop_cycle('color', 'fish')
+        ax.set_prop_cycle(color='fish')
 
     with pytest.raises((TypeError, ValueError)):
-        ax.set_prop_cycle('linewidth', 1)
+        ax.set_prop_cycle(linewidth=1)
     with pytest.raises((TypeError, ValueError)):
-        ax.set_prop_cycle('linewidth', {'1': 1, '2': 2})
+        ax.set_prop_cycle(linewidth={'1': 1, '2': 2})
     with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle(linewidth=1, color='r')
 
     with pytest.raises((TypeError, ValueError)):
-        ax.set_prop_cycle('foobar', [1, 2])
+        ax.set_prop_cycle(foobar=[1, 2])
     with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle(foobar=[1, 2])
 
