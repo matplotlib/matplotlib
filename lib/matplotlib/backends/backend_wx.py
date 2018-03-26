@@ -1349,24 +1349,18 @@ def _load_bitmap(filename):
     return bmp
 
 
-_FRAME_ICON = None
-
-
 def _set_frame_icon(frame):
     # set frame icon
-    global _FRAME_ICON
-    if not _FRAME_ICON:
-        _FRAME_ICON = bundle = wx.IconBundle()
-        for image in ('matplotlib.png', 'matplotlib_large.png'):
-            image = os.path.join(matplotlib.rcParams['datapath'], 'images',
-                                 image)
-            if not os.path.exists(image):
-                continue
-            icon = wx.Icon(_load_bitmap(image))
-            if not icon.IsOk():
-                return
-            bundle.AddIcon(icon)
-    frame.SetIcons(_FRAME_ICON)
+    bundle = wx.IconBundle()
+    for image in ('matplotlib.png', 'matplotlib_large.png'):
+        image = os.path.join(matplotlib.rcParams['datapath'], 'images', image)
+        if not os.path.exists(image):
+            continue
+        icon = wx.Icon(_load_bitmap(image))
+        if not icon.IsOk():
+            return
+        bundle.AddIcon(icon)
+    frame.SetIcons(bundle)
 
 
 class MenuButtonWx(wx.Button):
