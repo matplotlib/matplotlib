@@ -9,7 +9,6 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from cycler import cycler
 import numpy as np
 
 __all__ = ['stackplot']
@@ -66,7 +65,7 @@ def stackplot(axes, x, *args, **kwargs):
 
     colors = kwargs.pop('colors', None)
     if colors is not None:
-        axes.set_prop_cycle(cycler('color', colors))
+        axes.set_prop_cycle(color=colors)
 
     baseline = kwargs.pop('baseline', 'zero')
     # Assume data passed has not been 'stacked', so stack it here.

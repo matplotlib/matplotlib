@@ -1158,16 +1158,22 @@ class _AxesBase(martist.Artist):
         Call signatures::
 
           set_prop_cycle(cycler)
-          set_prop_cycle(label, values)
           set_prop_cycle(label=values[, label2=values2[, ...]])
+          set_prop_cycle(label, values)
 
-        Form 1 simply sets given `Cycler` object.
+        Form 1 sets given `~cycler.Cycler` object.
 
-        Form 2 creates and sets a `Cycler` from a label and an iterable.
+        Form 2 creates a `~cycler.Cycler` which cycles over one or more
+        properties simultaneously and set it as the property cycle of the
+        axes. If multiple properties are given, their value lists must have
+        the same length. This is just a shortcut for explicitly creating a
+        cycler and passing it to the function, i.e. it's short for
+        ``set_prop_cycle(cycler(label=values label2=values2, ...))``.
 
-        Form 3 composes and sets a `Cycler` as an inner product of the
-        pairs of keyword arguments. In other words, all of the
-        iterables are cycled simultaneously, as if through zip().
+        Form 3 creates a `~cycler.Cycler` for a single property and set it
+        as the property cycle of the axes. This form exists for compatibility
+        with the original `cycler.cycler` interface. Its use is discouraged
+        in favor of the kwarg form, i.e. ``set_prop_cycle(label=values)``.
 
         Parameters
         ----------
@@ -1188,8 +1194,7 @@ class _AxesBase(martist.Artist):
         --------
         Setting the property cycle for a single property:
 
-        >>> ax.set_prop_cycle(color=['red', 'green', 'blue'])  # or
-        >>> ax.set_prop_cycle('color', ['red', 'green', 'blue'])
+        >>> ax.set_prop_cycle(color=['red', 'green', 'blue'])
 
         Setting the property cycle for simultaneously cycling over multiple
         properties (e.g. red circle, green plus, blue cross):
@@ -1200,7 +1205,9 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.rcsetup.cycler
-            Convenience function for creating your own cyclers.
+            Convenience function for creating validated cyclers for properties.
+        cycler.cycler
+            The original function for creating unvalidated cyclers.
 
         """
         if args and kwargs:
