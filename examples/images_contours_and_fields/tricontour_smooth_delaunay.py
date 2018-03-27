@@ -114,26 +114,26 @@ plot_expected = False    # plot of analytical function values for comparison
 levels = np.arange(0., 1., 0.025)
 cmap = cm.get_cmap(name='Blues', lut=None)
 
-plt.figure()
-plt.gca().set_aspect('equal')
-plt.title("Filtering a Delaunay mesh\n" +
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+ax.set_title("Filtering a Delaunay mesh\n" +
           "(application to high-resolution tricontouring)")
 
 # 1) plot of the refined (computed) data contours:
-plt.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
+ax.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
                linewidths=[2.0, 0.5, 1.0, 0.5])
 # 2) plot of the expected (analytical) data contours (dashed):
 if plot_expected:
-    plt.tricontour(tri_refi, z_expected, levels=levels, cmap=cmap,
+    ax.tricontour(tri_refi, z_expected, levels=levels, cmap=cmap,
                    linestyles='--')
 # 3) plot of the fine mesh on which interpolation was done:
 if plot_refi_tri:
-    plt.triplot(tri_refi, color='0.97')
+    ax.triplot(tri_refi, color='0.97')
 # 4) plot of the initial 'coarse' mesh:
 if plot_tri:
-    plt.triplot(tri, color='0.7')
+    ax.triplot(tri, color='0.7')
 # 4) plot of the unvalidated triangles from naive Delaunay Triangulation:
 if plot_masked_tri:
-    plt.triplot(flat_tri, color='red')
+    ax.triplot(flat_tri, color='red')
 
 plt.show()

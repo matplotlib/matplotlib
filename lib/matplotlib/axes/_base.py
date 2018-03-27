@@ -53,7 +53,7 @@ def _process_plot_format(fmt):
     .. seealso::
 
         :func:`~matplotlib.Line2D.lineStyles` and
-        :func:`~matplotlib.pyplot.colors`
+        :attr:`~matplotlib.colors.cnames`
             for all possible styles and color format string.
     """
 

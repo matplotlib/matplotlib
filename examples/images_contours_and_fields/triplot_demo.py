@@ -37,10 +37,10 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
 ###############################################################################
 # Plot the triangulation.
 
-plt.figure()
-plt.gca().set_aspect('equal')
-plt.triplot(triang, 'bo-', lw=1)
-plt.title('triplot of Delaunay triangulation')
+fig1, ax1 = plt.subplots()
+ax1.set_aspect('equal')
+ax1.triplot(triang, 'bo-', lw=1)
+ax1.set_title('triplot of Delaunay triangulation')
 
 
 ###############################################################################
@@ -96,11 +96,11 @@ triangles = np.asarray([
 # if the same triangulation was to be used more than once to save duplicated
 # calculations.
 
-plt.figure()
-plt.gca().set_aspect('equal')
-plt.triplot(x, y, triangles, 'go-', lw=1.0)
-plt.title('triplot of user-specified triangulation')
-plt.xlabel('Longitude (degrees)')
-plt.ylabel('Latitude (degrees)')
+fig2, ax2 = plt.subplots()
+ax2.set_aspect('equal')
+ax2.triplot(x, y, triangles, 'go-', lw=1.0)
+ax2.set_title('triplot of user-specified triangulation')
+ax2.set_xlabel('Longitude (degrees)')
+ax2.set_ylabel('Latitude (degrees)')
 
 plt.show()

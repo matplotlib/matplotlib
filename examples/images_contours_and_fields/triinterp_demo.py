@@ -29,33 +29,32 @@ zi_cubic_geom = interp_cubic_geom(xi, yi)
 interp_cubic_min_E = mtri.CubicTriInterpolator(triang, z, kind='min_E')
 zi_cubic_min_E = interp_cubic_min_E(xi, yi)
 
+# Set up the figure
+fig, axs = plt.subplots(nrows=2, ncols=2)
+axs = axs.flatten()
 
 # Plot the triangulation.
-plt.subplot(221)
-plt.tricontourf(triang, z)
-plt.triplot(triang, 'ko-')
-plt.title('Triangular grid')
+axs[0].tricontourf(triang, z)
+axs[0].triplot(triang, 'ko-')
+axs[0].set_title('Triangular grid')
 
 # Plot linear interpolation to quad grid.
-plt.subplot(222)
-plt.contourf(xi, yi, zi_lin)
-plt.plot(xi, yi, 'k-', lw=0.5, alpha=0.5)
-plt.plot(xi.T, yi.T, 'k-', lw=0.5, alpha=0.5)
-plt.title("Linear interpolation")
+axs[1].contourf(xi, yi, zi_lin)
+axs[1].plot(xi, yi, 'k-', lw=0.5, alpha=0.5)
+axs[1].plot(xi.T, yi.T, 'k-', lw=0.5, alpha=0.5)
+axs[1].set_title("Linear interpolation")
 
 # Plot cubic interpolation to quad grid, kind=geom
-plt.subplot(223)
-plt.contourf(xi, yi, zi_cubic_geom)
-plt.plot(xi, yi, 'k-', lw=0.5, alpha=0.5)
-plt.plot(xi.T, yi.T, 'k-', lw=0.5, alpha=0.5)
-plt.title("Cubic interpolation,\nkind='geom'")
+axs[2].contourf(xi, yi, zi_cubic_geom)
+axs[2].plot(xi, yi, 'k-', lw=0.5, alpha=0.5)
+axs[2].plot(xi.T, yi.T, 'k-', lw=0.5, alpha=0.5)
+axs[2].set_title("Cubic interpolation,\nkind='geom'")
 
 # Plot cubic interpolation to quad grid, kind=min_E
-plt.subplot(224)
-plt.contourf(xi, yi, zi_cubic_min_E)
-plt.plot(xi, yi, 'k-', lw=0.5, alpha=0.5)
-plt.plot(xi.T, yi.T, 'k-', lw=0.5, alpha=0.5)
-plt.title("Cubic interpolation,\nkind='min_E'")
+axs[3].contourf(xi, yi, zi_cubic_min_E)
+axs[3].plot(xi, yi, 'k-', lw=0.5, alpha=0.5)
+axs[3].plot(xi.T, yi.T, 'k-', lw=0.5, alpha=0.5)
+axs[3].set_title("Cubic interpolation,\nkind='min_E'")
 
-plt.tight_layout()
+fig.tight_layout()
 plt.show()

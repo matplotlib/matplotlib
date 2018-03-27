@@ -26,7 +26,7 @@ Z = (Z - Z.min()) / (Z.max() - Z.min())
 # The color array can include masked values.
 Zm = np.ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
 
-fig, axs = plt.subplots(1, 3)
+fig, axs = plt.subplots(nrows=1, ncols=3)
 axs[0].pcolormesh(Qx, Qz, Z, shading='gouraud')
 axs[0].set_title('Without masked values')
 
@@ -42,5 +42,4 @@ axs[2].pcolormesh(Qx, Qz, Zm, shading='gouraud')
 axs[2].set_title('With masked values')
 
 fig.tight_layout()
-
 plt.show()
