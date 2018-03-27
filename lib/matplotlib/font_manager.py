@@ -556,7 +556,7 @@ class FontProperties(object):
         The items may include a generic font family name, either
         'serif', 'sans-serif', 'cursive', 'fantasy', or 'monospace'.
         In that case, the actual font to be used will be looked up
-        from the associated rcParam in :file:`matplotlibrc`.
+        from the associated rcParam.
 
       - style: Either 'normal', 'italic' or 'oblique'.
 
@@ -577,7 +577,7 @@ class FontProperties(object):
         absolute font size, e.g., 12
 
     The default font property for TrueType fonts (as specified in the
-    default :file:`matplotlibrc` file) is::
+    default rcParams) is::
 
       sans-serif, normal, normal, normal, normal, scalable.
 
@@ -596,9 +596,9 @@ class FontProperties(object):
     This support does not require fontconfig to be installed.  We are merely
     borrowing its pattern syntax for use here.
 
-    Note that matplotlib's internal font manager and fontconfig use a
+    Note that Matplotlib's internal font manager and fontconfig use a
     different algorithm to lookup fonts, so the results of the same pattern
-    may be different in matplotlib than in other applications that use
+    may be different in Matplotlib than in other applications that use
     fontconfig.
     """
 

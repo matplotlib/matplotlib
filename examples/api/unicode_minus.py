@@ -3,13 +3,15 @@
 Unicode minus
 =============
 
-You can use the proper typesetting Unicode minus (see
-https://en.wikipedia.org/wiki/Plus_sign#Plus_sign) or the ASCII hyphen
-for minus, which some people prefer.  The matplotlibrc param
-axes.unicode_minus controls the default behavior.
+You can use the proper typesetting `Unicode minus`__ or the ASCII hyphen for
+minus, which some people prefer.  :rc:`axes.unicode_minus` controls the default
+behavior.
+
+__ https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
 
 The default is to use the Unicode minus.
 """
+
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt

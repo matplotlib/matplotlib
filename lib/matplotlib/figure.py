@@ -1809,8 +1809,7 @@ default: 'top'
 
             If *format* is *None* and *fname* is a string, the output
             format is deduced from the extension of the filename. If
-            the filename has no extension, the value of the rc parameter
-            ``savefig.format`` is used.
+            the filename has no extension, :rc:`savefig.format` is used.
 
             If *fname* is not a string, remember to specify *format* to
             ensure that the correct backend is used.
@@ -1818,19 +1817,20 @@ default: 'top'
         Other Parameters
         ----------------
 
-        dpi : [ *None* | scalar > 0 | 'figure']
-            The resolution in dots per inch.  If *None* it will default to
-            the value ``savefig.dpi`` in the matplotlibrc file. If 'figure'
-            it will set the dpi to be the value of the figure.
+        dpi : [ *None* | scalar > 0 | 'figure' ]
+            The resolution in dots per inch.  If *None*, defaults to
+            :rc:`savefig.dpi`.  If 'figure', uses the figure's dpi value.
 
         facecolor : color spec or None, optional
-            the facecolor of the figure; if None, defaults to savefig.facecolor
+            The facecolor of the figure; if *None*, defaults to
+            :rc:`savefig.facecolor`.
 
         edgecolor : color spec or None, optional
-            the edgecolor of the figure; if None, defaults to savefig.edgecolor
+            The edgecolor of the figure; if *None*, defaults to
+            :rc:`savefig.edgecolor`
 
         orientation : {'landscape', 'portrait'}
-            not supported on all backends; currently only on postscript output
+            Currently only supported by the postscript backend.
 
         papertype : str
             One of 'letter', 'legal', 'executive', 'ledger', 'a0' through

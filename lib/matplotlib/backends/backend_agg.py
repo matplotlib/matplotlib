@@ -521,11 +521,10 @@ class FigureCanvasAgg(FigureCanvasBase):
             Other Parameters
             ----------------
             quality : int
-                The image quality, on a scale from 1 (worst) to
-                95 (best). The default is 95, if not given in the
-                matplotlibrc file in the savefig.jpeg_quality parameter.
-                Values above 95 should be avoided; 100 completely
-                disables the JPEG quantization stage.
+                The image quality, on a scale from 1 (worst) to 100 (best).
+                The default is :rc:`savefig.jpeg_quality`.  Values above
+                95 should be avoided; 100 completely disables the JPEG
+                quantization stage.
 
             optimize : bool
                 If present, indicates that the encoder should
@@ -543,7 +542,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             # handle any transparency
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             rgba = mcolors.to_rgba(rcParams['savefig.facecolor'])
-            color = tuple([int(x * 255.0) for x in rgba[:3]])
+            color = tuple([int(x * 255) for x in rgba[:3]])
             background = Image.new('RGB', size, color)
             background.paste(image, image)
             options = {k: kwargs[k]

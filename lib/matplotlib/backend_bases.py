@@ -2454,7 +2454,7 @@ def key_press_handler(event, canvas, toolbar=None):
     if event.key is None:
         return
 
-    # Load key-mappings from your matplotlibrc file.
+    # Load key-mappings from rcParams.
     fullscreen_keys = rcParams['keymap.fullscreen']
     home_keys = rcParams['keymap.home']
     back_keys = rcParams['keymap.back']

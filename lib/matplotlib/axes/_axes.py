@@ -3369,8 +3369,7 @@ class Axes(_AxesBase):
 
         """
 
-        # If defined in matplotlibrc, apply the value from rc file
-        # Overridden if argument is passed
+        # Missing arguments default to rcParams.
         if whis is None:
             whis = rcParams['boxplot.whiskers']
         if bootstrap is None:
