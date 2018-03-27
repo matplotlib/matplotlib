@@ -60,20 +60,3 @@ def test_get_default_filename():
         assert filename == 'image.png'
     finally:
         shutil.rmtree(test_dir)
-
-
-def test_get_default_filename_already_exists():
-    # From #3068: Suggest non-existing default filename
-    try:
-        test_dir = tempfile.mkdtemp()
-        plt.rcParams['savefig.directory'] = test_dir
-        fig = plt.figure()
-        canvas = FigureCanvasBase(fig)
-
-        # create 'image.png' in figure's save dir
-        open(os.path.join(test_dir, 'image.png'), 'w').close()
-
-        filename = canvas.get_default_filename()
-        assert filename == 'image-1.png'
-    finally:
-        shutil.rmtree(test_dir)
