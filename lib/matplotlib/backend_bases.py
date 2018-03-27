@@ -2337,13 +2337,7 @@ class FigureCanvasBase(object):
                 print('you pressed', event.button, event.xdata, event.ydata)
 
             cid = canvas.mpl_connect('button_press_event', on_press)
-
         """
-        if s == 'idle_event':
-            cbook.warn_deprecated(1.5,
-                "idle_event is only implemented for the wx backend, and will "
-                "be removed in matplotlib 2.1. Use the animations module "
-                "instead.")
 
         return self.callbacks.connect(s, func)
 
@@ -2427,11 +2421,6 @@ class FigureCanvasBase(object):
         `start_event_loop`
         """
         self._looping = False
-
-    start_event_loop_default = cbook.deprecated(
-        "2.1", name="start_event_loop_default")(start_event_loop)
-    stop_event_loop_default = cbook.deprecated(
-        "2.1", name="stop_event_loop_default")(stop_event_loop)
 
 
 def key_press_handler(event, canvas, toolbar=None):

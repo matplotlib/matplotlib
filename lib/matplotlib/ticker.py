@@ -1253,43 +1253,31 @@ class EngFormatter(Formatter):
         '1.0 M'
 
         >>> format_eng("-1e-6") # for self.places = 2
-        u'-1.00 \N{GREEK SMALL LETTER MU}'
-
-        `num` may be a numeric value or a string that can be converted
-        to a numeric value with ``float(num)``.
+        '-1.00 \N{GREEK SMALL LETTER MU}'
         """
-        if isinstance(num, six.string_types):
-            warnings.warn(
-                "Passing a string as *num* argument is deprecated since"
-                "Matplotlib 2.1, and is expected to be removed in 2.3.",
-                mplDeprecation)
-
-        dnum = float(num)
         sign = 1
         fmt = "g" if self.places is None else ".{:d}f".format(self.places)
 
-        if dnum < 0:
+        if num < 0:
             sign = -1
-            dnum = -dnum
+            num = -num
 
-        if dnum != 0:
-            pow10 = int(math.floor(math.log10(dnum) / 3) * 3)
+        if num != 0:
+            pow10 = int(math.floor(math.log10(num) / 3) * 3)
         else:
             pow10 = 0
-            # Force dnum to zero, to avoid inconsistencies like
+            # Force num to zero, to avoid inconsistencies like
             # format_eng(-0) = "0" and format_eng(0.0) = "0"
             # but format_eng(-0.0) = "-0.0"
-            dnum = 0.0
+            num = 0.0
 
         pow10 = np.clip(pow10, min(self.ENG_PREFIXES), max(self.ENG_PREFIXES))
 
-        mant = sign * dnum / (10.0 ** pow10)
-        # Taking care of the cases like 999.9..., which
-        # may be rounded to 1000 instead of 1 k.  Beware
-        # of the corner case of values that are beyond
+        mant = sign * num / (10.0 ** pow10)
+        # Taking care of the cases like 999.9..., which may be rounded to 1000
+        # instead of 1 k.  Beware of the corner case of values that are beyond
         # the range of SI prefixes (i.e. > 'Y').
-        _fmant = float("{mant:{fmt}}".format(mant=mant, fmt=fmt))
-        if _fmant >= 1000 and pow10 != max(self.ENG_PREFIXES):
+        if float(format(mant, fmt)) >= 1000 and pow10 < max(self.ENG_PREFIXES):
             mant /= 1000
             pow10 += 3
 
