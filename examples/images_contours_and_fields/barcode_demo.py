@@ -20,12 +20,12 @@ barprops = dict(aspect='auto', cmap=plt.cm.binary, interpolation='nearest')
 fig = plt.figure()
 
 # a vertical barcode -- this is broken at present
-ax = fig.add_axes([0.1, 0.3, 0.1, 0.6], **axprops)
-ax.imshow(x.reshape((-1, 1)), **barprops)
+ax1 = fig.add_axes([0.1, 0.3, 0.1, 0.6], **axprops)
+ax1.imshow(x.reshape((-1, 1)), **barprops)
 
 # a horizontal barcode
-ax = fig.add_axes([0.3, 0.1, 0.6, 0.1], **axprops)
-ax.imshow(x.reshape((1, -1)), **barprops)
+ax2 = fig.add_axes([0.3, 0.1, 0.6, 0.1], **axprops)
+ax2.imshow(x.reshape((1, -1)), **barprops)
 
 
 plt.show()

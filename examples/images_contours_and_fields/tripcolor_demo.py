@@ -38,20 +38,20 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
 ###############################################################################
 # tripcolor plot.
 
-plt.figure()
-plt.gca().set_aspect('equal')
-plt.tripcolor(triang, z, shading='flat')
-plt.colorbar()
-plt.title('tripcolor of Delaunay triangulation, flat shading')
+fig1, ax1 = plt.subplots()
+ax1.set_aspect('equal')
+tpc = ax1.tripcolor(triang, z, shading='flat')
+fig1.colorbar(tpc)
+ax1.set_title('tripcolor of Delaunay triangulation, flat shading')
 
 ###############################################################################
 # Illustrate Gouraud shading.
 
-plt.figure()
-plt.gca().set_aspect('equal')
-plt.tripcolor(triang, z, shading='gouraud')
-plt.colorbar()
-plt.title('tripcolor of Delaunay triangulation, gouraud shading')
+fig2, ax2 = plt.subplots()
+ax2.set_aspect('equal')
+tpc = ax2.tripcolor(triang, z, shading='gouraud')
+fig2.colorbar(tpc)
+ax2.set_title('tripcolor of Delaunay triangulation, gouraud shading')
 
 
 ###############################################################################
@@ -115,12 +115,12 @@ zfaces = np.exp(-0.01 * ((xmid - x0) * (xmid - x0) +
 # Can specify one color value per face rather than one per point by using the
 # facecolors kwarg.
 
-plt.figure()
-plt.gca().set_aspect('equal')
-plt.tripcolor(x, y, triangles, facecolors=zfaces, edgecolors='k')
-plt.colorbar()
-plt.title('tripcolor of user-specified triangulation')
-plt.xlabel('Longitude (degrees)')
-plt.ylabel('Latitude (degrees)')
+fig3, ax3 = plt.subplots()
+ax3.set_aspect('equal')
+tpc = ax3.tripcolor(x, y, triangles, facecolors=zfaces, edgecolors='k')
+fig3.colorbar(tpc)
+ax3.set_title('tripcolor of user-specified triangulation')
+ax3.set_xlabel('Longitude (degrees)')
+ax3.set_ylabel('Latitude (degrees)')
 
 plt.show()

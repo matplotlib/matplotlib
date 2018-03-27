@@ -62,17 +62,17 @@ tri_refi, z_test_refi = refiner.refine_field(z, subdiv=3)
 #-----------------------------------------------------------------------------
 # Plot the triangulation and the high-res iso-contours
 #-----------------------------------------------------------------------------
-plt.figure()
-plt.gca().set_aspect('equal')
-plt.triplot(triang, lw=0.5, color='white')
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+ax.triplot(triang, lw=0.5, color='white')
 
 levels = np.arange(0., 1., 0.025)
 cmap = cm.get_cmap(name='terrain', lut=None)
-plt.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
-plt.tricontour(tri_refi, z_test_refi, levels=levels,
+ax.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
+ax.tricontour(tri_refi, z_test_refi, levels=levels,
                colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
                linewidths=[1.0, 0.5, 0.5, 0.5, 0.5])
 
-plt.title("High-resolution tricontouring")
+ax.set_title("High-resolution tricontouring")
 
 plt.show()
