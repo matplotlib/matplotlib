@@ -592,6 +592,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
                 ):
         super().__init__(title, parent, action, buttons)
         self.set_default_response(Gtk.ResponseType.OK)
+        self.set_do_overwrite_confirmation(True)
 
         if not path:
             path = os.getcwd()
