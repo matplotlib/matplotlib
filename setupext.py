@@ -1,7 +1,11 @@
+import builtins
+import configparser
 from distutils import sysconfig, version
 from distutils.core import Extension
 import distutils.command.build_ext
 import glob
+import hashlib
+import importlib
 import multiprocessing
 import os
 import pathlib
@@ -9,10 +13,10 @@ import platform
 import re
 import shutil
 import subprocess
-from subprocess import check_output
 import sys
+import textwrap
+import urllib.request
 import warnings
-from textwrap import fill
 
 import setuptools
 import versioneer
@@ -50,12 +54,6 @@ _freetype_hashes = {
 # embedded windows build script (grep for "REMINDER" in this file)
 LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
-
-if sys.platform != 'win32':
-    from subprocess import getstatusoutput
-
-
-import configparser
 
 
 # matplotlib build options, which can be altered using setup.cfg
@@ -201,15 +199,15 @@ if options['display_status']:
     def print_status(package, status):
         initial_indent = "%22s: " % package
         indent = ' ' * 24
-        print(fill(str(status), width=76,
-                   initial_indent=initial_indent,
-                   subsequent_indent=indent))
+        print(textwrap.fill(str(status), width=76,
+                            initial_indent=initial_indent,
+                            subsequent_indent=indent))
 
     def print_message(message):
         indent = ' ' * 24 + "* "
-        print(fill(str(message), width=76,
-                   initial_indent=indent,
-                   subsequent_indent=indent))
+        print(textwrap.fill(str(message), width=76,
+                            initial_indent=indent,
+                            subsequent_indent=indent))
 
     def print_raw(section):
         print(section)
@@ -265,7 +263,6 @@ def get_file_hash(filename):
     """
     Get the SHA256 hash of a given filename.
     """
-    import hashlib
     BLOCKSIZE = 1 << 16
     hasher = hashlib.sha256()
     with open(filename, 'rb') as fd:
@@ -293,13 +290,11 @@ class PkgConfig(object):
                 self.pkg_config = 'pkg-config'
 
             self.set_pkgconfig_path()
-            status, output = getstatusoutput(self.pkg_config + " --help")
-            self.has_pkgconfig = (status == 0)
+            self.has_pkgconfig = shutil.which(self.pkg_config) is not None
             if not self.has_pkgconfig:
-                print("IMPORTANT WARNING:")
-                print(
-                    "    pkg-config is not installed.\n"
-                    "    matplotlib may not be able to find some of its dependencies")
+                print("IMPORTANT WARNING:\n"
+                      "    pkg-config is not installed.\n"
+                      "    matplotlib may not be able to find some of its dependencies")
 
     def set_pkgconfig_path(self):
         pkgconfig_path = sysconfig.get_config_var('LIBDIR')
@@ -334,8 +329,8 @@ class PkgConfig(object):
             command = "{0} --libs --cflags ".format(executable)
 
             try:
-                output = check_output(command, shell=True,
-                                      stderr=subprocess.STDOUT)
+                output = subprocess.check_output(
+                    command, shell=True, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError:
                 pass
             else:
@@ -369,7 +364,7 @@ class PkgConfig(object):
         if not self.has_pkgconfig:
             return None
 
-        status, output = getstatusoutput(
+        status, output = subprocess.getstatusoutput(
             self.pkg_config + " %s --modversion" % (package))
         if status == 0:
             return output
@@ -878,12 +873,10 @@ class Numpy(SetupPackage):
 
     @staticmethod
     def include_dirs_hook():
-        import builtins
         if hasattr(builtins, '__NUMPY_SETUP__'):
             del builtins.__NUMPY_SETUP__
-        import imp
         import numpy
-        imp.reload(numpy)
+        importlib.reload(numpy)
 
         ext = Extension('test', [])
         ext.include_dirs.append(numpy.get_include())
@@ -984,7 +977,8 @@ class FreeType(SetupPackage):
                 check_include_file(get_include_dirs(), 'freetype2\\ft2build.h', 'freetype')
             return 'Using unknown version found on system.'
 
-        status, output = getstatusoutput("freetype-config --ftversion")
+        status, output = subprocess.getstatusoutput(
+            "freetype-config --ftversion")
         if status == 0:
             version = output
         else:
@@ -1090,8 +1084,6 @@ class FreeType(SetupPackage):
                         pass
 
             if not os.path.isfile(tarball_path):
-                from urllib.request import urlretrieve
-
                 if not os.path.exists('build'):
                     os.makedirs('build')
 
@@ -1107,7 +1099,7 @@ class FreeType(SetupPackage):
 
                     print("Downloading {0}".format(tarball_url))
                     try:
-                        urlretrieve(tarball_url, tarball_path)
+                        urllib.request.urlretrieve(tarball_url, tarball_path)
                     except IOError:  # URLError (a subclass) on Py3.
                         print("Failed to download {0}".format(tarball_url))
                     else:
@@ -1214,7 +1206,7 @@ class Png(SetupPackage):
             check_include_file(get_include_dirs(), 'png.h', 'png')
             return 'Using unknown version found on system.'
 
-        status, output = getstatusoutput("libpng-config --version")
+        status, output = subprocess.getstatusoutput("libpng-config --version")
         if status == 0:
             version = output
         else:
