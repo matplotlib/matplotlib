@@ -10,14 +10,13 @@ out what caused the breakage and how to fix it by updating your code.
 For new features that were added to Matplotlib, please see
 :ref:`whats-new`.
 
-.. for a release comment out the toctree below
+.. ifconfig:: __import__('pkg_resources').parse_version(version).local
 
+   .. toctree::
+      :glob:
+      :maxdepth: 1
 
-.. toctree::
-   :glob:
-   :maxdepth: 1
-
-   next_api_changes/*
+      next_api_changes/*
 
 
 API Changes in 2.2.0

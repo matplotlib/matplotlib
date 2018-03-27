@@ -9,7 +9,9 @@ When adding an entry please look at the currently existing files to
 see if you can extend any of them.  If you create a file, name it
 something like :file:`cool_new_feature.rst` if you have added a brand new
 feature or something like :file:`updated_feature.rst` for extensions of
-existing features.  Include contents of the form: ::
+existing features.  Include contents of the form:
+
+.. code-block:: rst
 
     Section Title for Feature
     -------------------------
