@@ -43,7 +43,7 @@ colors = ['#1f77b4',
 
 # Create two different cyclers to use with axes.prop_cycle
 markevery_cycler = cycler(markevery=cases)
-color_cycler = cycler('color', colors)
+color_cycler = cycler(color=colors)
 
 # Configure rcParams axes.prop_cycle with custom cycler
 custom_cycler = color_cycler + markevery_cycler

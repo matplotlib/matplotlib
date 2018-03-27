@@ -631,7 +631,7 @@ def test_cn():
     assert mcolors.to_hex("C0") == '#0343df'
     assert mcolors.to_hex("C1") == '#ff0000'
 
-    matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['8e4585', 'r'])
+    matplotlib.rcParams['axes.prop_cycle'] = cycler(color=['8e4585', 'r'])
 
     assert mcolors.to_hex("C0") == '#8e4585'
     # if '8e4585' gets parsed as a float before it gets detected as a hex

@@ -756,6 +756,7 @@ def cycler(*args, **kwargs):
     Form 1 simply copies a given `Cycler` object.
 
     Form 2 creates a `Cycler` from a label and an iterable.
+    *Note*: This API is deprecated. Please use keywords instead.
 
     Form 3 composes a `Cycler` as an inner product of the
     pairs of keyword arguments. In other words, all of the
@@ -785,7 +786,7 @@ def cycler(*args, **kwargs):
     Creating a cycler for a single property:
 
     >>> c = cycler(color=['red', 'green', 'blue'])  # or
-    >>> c = cycler('color', ['red', 'green', 'blue'])
+    >>> c = cycler(color=['red', 'green', 'blue'])  # deprecated
 
     Creating a cycler for simultaneously cycling over multiple properties
     (e.g. red circle, green plus, blue cross):
@@ -806,6 +807,9 @@ def cycler(*args, **kwargs):
                             " be a Cycler instance.")
         return validate_cycler(args[0])
     elif len(args) == 2:
+        cbook.warn_deprecated(
+            "3.0", "The two-argument form cycler(name, values) is deprecated. "
+            "Please use the keyword form cycler(name=values) instead.")
         pairs = [(args[0], args[1])]
     elif len(args) > 2:
         raise TypeError("No more than 2 positional arguments allowed")

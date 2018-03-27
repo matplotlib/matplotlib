@@ -249,21 +249,21 @@ def generate_validator_testcases(valid):
         {'validator': validate_cycler,
          'success': (('cycler("color", "rgb")',
                       cycler("color", 'rgb')),
-                     (cycler('linestyle', ['-', '--']),
-                      cycler('linestyle', ['-', '--'])),
+                     (cycler(linestyle=['-', '--']),
+                      cycler(linestyle=['-', '--'])),
                      ("""(cycler("color", ["r", "g", "b"]) +
                           cycler("mew", [2, 3, 5]))""",
                       (cycler("color", 'rgb') +
                           cycler("markeredgewidth", [2, 3, 5]))),
                      ("cycler(c='rgb', lw=[1, 2, 3])",
-                      cycler('color', 'rgb') + cycler('linewidth', [1, 2, 3])),
-                     ("cycler('c', 'rgb') * cycler('linestyle', ['-', '--'])",
-                      (cycler('color', 'rgb') *
-                          cycler('linestyle', ['-', '--']))),
-                     (cycler('ls', ['-', '--']),
-                      cycler('linestyle', ['-', '--'])),
+                      cycler(color='rgb') + cycler(linewidth=[1, 2, 3])),
+                     ("cycler(c='rgb') * cycler(linestyle=['-', '--'])",
+                      (cycler(color='rgb') *
+                          cycler(linestyle=['-', '--']))),
+                     (cycler(ls=['-', '--']),
+                      cycler(linestyle=['-', '--'])),
                      (cycler(mew=[2, 5]),
-                      cycler('markeredgewidth', [2, 5])),
+                      cycler(markeredgewidth=[2, 5])),
                     ),
          # This is *so* incredibly important: validate_cycler() eval's
          # an arbitrary string! I think I have it locked down enough,
@@ -285,8 +285,8 @@ def generate_validator_testcases(valid):
                   ('cycler("waka", [1, 2, 3])', ValueError),  # not a property
                   ('cycler(c=[1, 2, 3])', ValueError),  # invalid values
                   ("cycler(lw=['a', 'b', 'c'])", ValueError),  # invalid values
-                  (cycler('waka', [1, 3, 5]), ValueError),  # not a property
-                  (cycler('color', ['C1', 'r', 'g']), ValueError)  # no CN
+                  (cycler(waka=[1, 3, 5]), ValueError),  # not a property
+                  (cycler(color=['C1', 'r', 'g']), ValueError)  # no CN
                  )
         },
         {'validator': validate_hatch,
