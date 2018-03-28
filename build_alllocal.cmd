@@ -1,6 +1,6 @@
 :: This assumes you have installed all the dependencies via conda packages:
 :: # create a new environment with the required packages
-:: conda create  -n "matplotlib_build" python=3.4 numpy python-dateutil pyparsing pytz tornado "cycler>=0.10" tk libpng zlib freetype
+:: conda create -n "matplotlib_build" python=3.5 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
 :: activate matplotlib_build
 :: if you want qt backend, you also have to install pyqt
 :: conda install pyqt
