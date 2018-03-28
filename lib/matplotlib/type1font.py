@@ -275,7 +275,7 @@ class Type1Font(object):
             newmatrix = np.dot(modifier, oldmatrix)
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
-            as_string = u'[' + u' '.join(str(x) for x in array) + u']'
+            as_string = '[' + ' '.join(str(x) for x in array) + ']'
             return as_string.encode('latin-1')
 
         def replace(fun):
