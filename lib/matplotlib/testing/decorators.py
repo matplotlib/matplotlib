@@ -26,27 +26,6 @@ from . import is_called_from_pytest
 from .exceptions import ImageComparisonFailure
 
 
-def _knownfailureif(fail_condition, msg=None, known_exception_class=None):
-    """
-
-    Assume a will fail if *fail_condition* is True. *fail_condition*
-    may also be False or the string 'indeterminate'.
-
-    *msg* is the error message displayed for the test.
-
-    If *known_exception_class* is not None, the failure is only known
-    if the exception is an instance of this class. (Default = None)
-
-    """
-    import pytest
-    if fail_condition == 'indeterminate':
-        fail_condition, strict = True, False
-    else:
-        fail_condition, strict = bool(fail_condition), True
-    return pytest.mark.xfail(condition=fail_condition, reason=msg,
-                             raises=known_exception_class, strict=strict)
-
-
 def _do_cleanup(original_units_registry, original_settings):
     plt.close('all')
 
@@ -151,14 +130,13 @@ def check_freetype_version(ver):
 
 
 def _checked_on_freetype_version(required_freetype_version):
-    if check_freetype_version(required_freetype_version):
-        return lambda f: f
-
+    import pytest
     reason = ("Mismatched version of freetype. "
               "Test requires '%s', you have '%s'" %
               (required_freetype_version, ft2font.__freetype_version__))
-    return _knownfailureif('indeterminate', msg=reason,
-                           known_exception_class=ImageComparisonFailure)
+    return pytest.mark.xfail(
+        not check_freetype_version(required_freetype_version),
+        reason=reason, raises=ImageComparisonFailure, strict=False)
 
 
 def remove_ticks_and_titles(figure):
@@ -194,14 +172,11 @@ def _raise_on_image_difference(expected, actual, tol):
 
 
 def _xfail_if_format_is_uncomparable(extension):
-    will_fail = extension not in comparable_formats()
-    if will_fail:
-        fail_msg = 'Cannot compare %s files on this system' % extension
-    else:
-        fail_msg = 'No failure expected'
-
-    return _knownfailureif(will_fail, fail_msg,
-                           known_exception_class=ImageComparisonFailure)
+    import pytest
+    return pytest.mark.xfail(
+        extension not in comparable_formats(),
+        reason='Cannot compare {} files on this system'.format(extension),
+        raises=ImageComparisonFailure, strict=True)
 
 
 def _mark_xfail_if_format_is_uncomparable(extension):
