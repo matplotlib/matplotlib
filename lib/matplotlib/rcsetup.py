@@ -24,7 +24,7 @@ import os
 import warnings
 import re
 
-from matplotlib import cbook, testing
+from matplotlib import cbook
 from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
