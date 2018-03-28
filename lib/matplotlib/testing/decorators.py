@@ -1,6 +1,5 @@
 from distutils.version import StrictVersion
 import functools
-import inspect
 import os
 from pathlib import Path
 import shutil
@@ -23,7 +22,7 @@ from matplotlib import pyplot as plt
 from matplotlib import ft2font
 from matplotlib.testing.compare import (
     comparable_formats, compare_images, make_test_filename)
-from . import _copy_metadata, is_called_from_pytest
+from . import is_called_from_pytest
 from .exceptions import ImageComparisonFailure
 
 
@@ -250,9 +249,9 @@ class _ImageComparisonBase(object):
         if os.path.exists(orig_expected_fname):
             shutil.copyfile(orig_expected_fname, expected_fname)
         else:
-            reason = ("Do not have baseline image {0} because this "
-                      "file does not exist: {1}".format(expected_fname,
-                                                        orig_expected_fname))
+            reason = ("Do not have baseline image {} because this "
+                      "file does not exist: {}".format(expected_fname,
+                                                       orig_expected_fname))
             raise ImageComparisonFailure(reason)
         return expected_fname
 
@@ -327,11 +326,12 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
         self.delayed_init(func)
         import nose.tools
 
+        @functools.wraps(func)
         @nose.tools.with_setup(self.setup, self.teardown)
         def runner_wrapper():
             yield from self.nose_runner()
 
-        return _copy_metadata(func, runner_wrapper)
+        return runner_wrapper
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -350,6 +350,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     extensions = map(_mark_xfail_if_format_is_uncomparable, extensions)
 
     def decorator(func):
+        @functools.wraps(func)
         # Parameter indirection; see docstring above and comment below.
         @pytest.mark.usefixtures('mpl_image_comparison_parameters')
         @pytest.mark.parametrize('extension', extensions)
@@ -379,8 +380,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
             for idx, baseline in enumerate(baseline_images):
                 img.compare(idx, baseline, extension)
 
-        wrapper.__wrapped__ = func  # For Python 2.7.
-        return _copy_metadata(func, wrapper)
+        return wrapper
 
     return decorator
 
@@ -408,7 +408,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     extensions : [ None | list ]
 
         If None, defaults to all supported extensions.
-        Otherwise, a list of extensions to test. For example ['png','pdf'].
+        Otherwise, a list of extensions to test, e.g. ``['png', 'pdf']``.
 
     tol : float, optional, default: 0
         The RMS threshold above which the test is considered failed.
@@ -464,10 +464,10 @@ def _image_directories(func):
         # FIXME: this won't work for nested packages in matplotlib.tests
         warnings.warn(
             'Test module run as script. Guessing baseline image locations.')
-        script_name = sys.argv[0]
-        basedir = os.path.abspath(os.path.dirname(script_name))
-        subdir = os.path.splitext(os.path.split(script_name)[1])[0]
+        module_path = Path(sys.argv[0]).resolve()
+        subdir = module_path.stem
     else:
+        module_path = Path(sys.modules[func.__module__].__file__)
         mods = module_name.split('.')
         if len(mods) >= 3:
             mods.pop(0)
@@ -486,50 +486,29 @@ def _image_directories(func):
                 "file (can be empty).".format(module_name))
         subdir = os.path.join(*mods)
 
-        import imp
-        def find_dotted_module(module_name, path=None):
-            """A version of imp which can handle dots in the module name.
-               As for imp.find_module(), the return value is a 3-element
-               tuple (file, pathname, description)."""
-            res = None
-            for sub_mod in module_name.split('.'):
-                try:
-                    res = file, path, _ = imp.find_module(sub_mod, path)
-                    path = [path]
-                    if file is not None:
-                        file.close()
-                except ImportError:
-                    # assume namespace package
-                    path = list(sys.modules[sub_mod].__path__)
-                    res = None, path, None
-            return res
+    baseline_dir = module_path.parent / 'baseline_images' / subdir
+    result_dir = Path().resolve() / 'result_images' / subdir
+    result_dir.mkdir(parents=True, exist_ok=True)
 
-        mod_file = find_dotted_module(func.__module__)[1]
-        basedir = os.path.dirname(mod_file)
-
-    baseline_dir = os.path.join(basedir, 'baseline_images', subdir)
-    result_dir = os.path.abspath(os.path.join('result_images', subdir))
-    Path(result_dir).mkdir(parents=True, exist_ok=True)
-
-    return baseline_dir, result_dir
+    return str(baseline_dir), str(result_dir)
 
 
 def switch_backend(backend):
-    # Local import to avoid a hard nose dependency and only incur the
-    # import time overhead at actual test-time.
+
     def switch_backend_decorator(func):
+
         @functools.wraps(func)
         def backend_switcher(*args, **kwargs):
             try:
                 prev_backend = mpl.get_backend()
                 matplotlib.testing.setup()
                 plt.switch_backend(backend)
-                result = func(*args, **kwargs)
+                return func(*args, **kwargs)
             finally:
                 plt.switch_backend(prev_backend)
-            return result
 
-        return _copy_metadata(func, backend_switcher)
+        return backend_switcher
+
     return switch_backend_decorator
 
 

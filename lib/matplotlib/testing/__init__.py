@@ -10,13 +10,6 @@ def is_called_from_pytest():
     return getattr(mpl, '_called_from_pytest', False)
 
 
-def _copy_metadata(src_func, tgt_func):
-    """Replicates metadata of the function. Returns target function."""
-    functools.update_wrapper(tgt_func, src_func)
-    tgt_func.__wrapped__ = src_func  # Python2 compatibility.
-    return tgt_func
-
-
 def set_font_settings_for_testing():
     mpl.rcParams['font.family'] = 'DejaVu Sans'
     mpl.rcParams['text.hinting'] = False
