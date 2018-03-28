@@ -11,7 +11,7 @@ The following modules are deprecated:
 The following classes, methods, functions, and attributes are deprecated:
 
 - ``afm.parse_afm``,
-- ``Annotation.arrow``,
+- ``backend_wx.FigureCanvasWx.macros``,
 - ``cbook.GetRealpathAndStat``, ``cbook.Locked``,
 - ``cbook.is_numlike`` (use ``isinstance(..., numbers.Number)`` instead),
   ``cbook.listFiles``, ``cbook.unicode_safe``
@@ -19,8 +19,9 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``,
 - ``font_manager.TempCache``,
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
-- ``FigureCanvasWx.macros``,
+- ``testing.ImageComparisonTest``,
 - ``texmanager.dvipng_hack_alpha``,
+- ``text.Annotation.arrow``,
 
 The following rcParams are deprecated:
 - ``pgf.debug`` (the pgf backend relies on logging),
