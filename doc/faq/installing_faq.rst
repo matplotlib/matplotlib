@@ -74,7 +74,7 @@ of NumPy, Scipy and Matplotlib means that these packages are difficult to
 upgrade (see `system python packages`_).  For that reason we strongly suggest
 that you install a fresh version of Python and use that as the basis for
 installing libraries such as NumPy and Matplotlib.  One convenient way to
-install matplotlib with other useful Python software is to use one of the
+install Matplotlib with other useful Python software is to use one of the
 excellent Python scientific software collections that are now available:
 
 .. _system python packages:
@@ -108,62 +108,24 @@ or Python.org Python.
 Installing OSX binary wheels
 ----------------------------
 
-If you are using recent Python from https://www.python.org, Macports or
-Homebrew, then you can use the standard pip installer to install Matplotlib
-binaries in the form of wheels.
+If you are using Python from https://www.python.org, Homebrew, or Macports,
+then you can use the standard pip installer to install Matplotlib binaries in
+the form of wheels.
 
-Python.org Python
-^^^^^^^^^^^^^^^^^
-
-Install pip following the `standard pip install instructions
-<https://pip.readthedocs.io/en/latest/installing/>`_.  For the impatient,
-open a new Terminal.app window and::
-
-   curl -O https://bootstrap.pypa.io/get-pip.py
-
-Then (Python 2)::
-
-   python get-pip.py
-
-or (Python 3)::
-
-   python3 get-pip.py
-
-You can now install matplotlib and all its dependencies with ::
-
-   python -mpip install matplotlib
-
-or ::
-
-   python3 -mpip install matplotlib
-
-Macports Python
-^^^^^^^^^^^^^^^
-
-For Python 2::
-
-   sudo port install py27-pip
-   sudo python2 -mpip install matplotlib
-
-For Python 3::
+pip is installed by default with python.org and Homebrew Python, but needs to
+be manually installed on Macports with ::
 
    sudo port install py36-pip
-   sudo python3.6 -mpip install matplotlib
 
-Homebrew Python
-^^^^^^^^^^^^^^^
-
-For Python 2::
-
-   python2 -mpip install matplotlib
-
-For Python 3::
+Once pip is installed, you can install Matplotlib and all its dependencies with
+from the Terminal.app command line::
 
    python3 -mpip install matplotlib
 
-You might also want to install IPython or the Jupyter notebook (``pythonX -mpip
-install ipython``, ``pythonX -mpip install notebook``, where ``pythonX`` is set
-as above).
+(``sudo python3.6 ...`` on Macports).
+
+You might also want to install IPython or the Jupyter notebook (``python3 -mpip
+install ipython notebook``).
 
 pip problems
 ^^^^^^^^^^^^
@@ -178,39 +140,30 @@ Checking your installation
 --------------------------
 
 The new version of Matplotlib should now be on your Python "path".  Check this
-with one of these commands at the Terminal.app command line::
-
-  python2 -c 'import matplotlib; print matplotlib.__version__, matplotlib.__file__'
-
-(Python 2) or::
+at the Terminal.app command line::
 
   python3 -c 'import matplotlib; print(matplotlib.__version__, matplotlib.__file__)'
 
-(Python 3).  You should see something like this::
+You should see something like ::
 
-  2.1.0 /Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/matplotlib/__init__.pyc
+  3.0.0 /Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/matplotlib/__init__.py
 
-where ``2.1.0`` is the Matplotlib version you just installed, and the path
+where ``3.0.0`` is the Matplotlib version you just installed, and the path
 following depends on whether you are using Python.org Python, Homebrew or
-Macports.  If you see another version, or you get an error like this::
+Macports.  If you see another version, or you get an error like ::
 
     Traceback (most recent call last):
       File "<string>", line 1, in <module>
     ImportError: No module named matplotlib
 
-then check that the Python binary is the one you expected by doing one of
-these commands in Terminal.app::
-
-  which python2
-
-or::
+then check that the Python binary is the one you expected by running ::
 
   which python3
 
-If you get the result ``/usr/bin/python2.7``, then you are getting the Python
-installed with OSX, which is probably not what you want.  Try closing and
-restarting Terminal.app before running the check again. If that doesn't fix the
-problem, depending on which Python you wanted to use, consider reinstalling
+If you get a result like ``/usr/bin/python...``, then you are getting the
+Python installed with OSX, which is probably not what you want.  Try closing
+and restarting Terminal.app before running the check again. If that doesn't fix
+the problem, depending on which Python you wanted to use, consider reinstalling
 Python.org Python, or check your homebrew or macports setup.  Remember that
 the disk image installer only works for Python.org Python, and will not get
 picked up by other Pythons.  If all these fail, please :ref:`let us know
