@@ -495,11 +495,10 @@ def test_legend_proper_window_extent():
     fig, ax = plt.subplots(dpi=100)
     ax.plot(range(10), label='Aardvark')
     leg = ax.legend()
-    x0 = leg.get_window_extent(fig.canvas.get_renderer()).x0
-    assert pytest.approx(x0, 0.01) == 1094.375
+    x01 = leg.get_window_extent(fig.canvas.get_renderer()).x0
 
     fig, ax = plt.subplots(dpi=200)
     ax.plot(range(10), label='Aardvark')
     leg = ax.legend()
-    x0 = leg.get_window_extent(fig.canvas.get_renderer()).x0
-    assert pytest.approx(x0, 0.01) == 2189.015625
+    x02 = leg.get_window_extent(fig.canvas.get_renderer()).x0
+    assert pytest.approx(x01*2, 0.1) == x02
