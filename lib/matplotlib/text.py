@@ -1837,21 +1837,25 @@ class _AnnotationBase(object):
         draggable is on.
         """
         from matplotlib.offsetbox import DraggableAnnotation
-        is_draggable = self._draggable is not None
 
         # if state is None we'll toggle
         if state is None:
-            state = not is_draggable
+            state = self._draggable is None
 
         if state:
             if self._draggable is None:
                 self._draggable = DraggableAnnotation(self, use_blit)
+                self._on_remove.append(self._set_undraggable)
         else:
-            if self._draggable is not None:
-                self._draggable.disconnect()
-            self._draggable = None
+            self._set_undraggable()
 
         return self._draggable
+
+    def _set_undraggable(self, _=None):
+        if self._draggable is not None:
+            self._on_remove.remove(self._set_undraggable)
+            self._draggable.disconnect()
+            self._draggable = None
 
 
 class Annotation(Text, _AnnotationBase):
