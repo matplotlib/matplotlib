@@ -952,7 +952,7 @@ class Legend(Artist):
 
     def get_window_extent(self, *args, **kwargs):
         'Return extent of the legend.'
-        return self.legendPatch.get_window_extent(*args, **kwargs)
+        return self._legend_box.get_window_extent(*args, **kwargs)
 
     def get_frame_on(self):
         """Get whether the legend box patch is drawn."""
