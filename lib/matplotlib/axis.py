@@ -2063,18 +2063,47 @@ class XAxis(Axis):
     def set_view_interval(self, vmin, vmax, ignore=False, emit=True,
                           auto=False):
         """
-        If *ignore* is *False*, the order of vmin, vmax
-        does not matter; the original axis orientation will
-        be preserved. In addition, the view limits can be
-        expanded, but will not be reduced.
-        If *emit* is *True*, observers will be notified of
-        limit change. If *auto* is *True*, it turns on
-        autoscaling of the x-axis, and if *auto* is *False*,
-        it turns off autoscaling of the x-axis, while *None*
-        leaves autoscaling unchanged. This method is
-        for mpl internal use; for normal use, see
-        :meth:`~matplotlib.axes.Axes.set_xlim`.
+        Set the x-axis view limits for the parent Axes instance.
 
+        .. ACCEPTS: (vmin: float, vmax: float)
+
+        Parameters
+        ----------
+        vmin : scalar
+            The smaller value of viewLim.
+
+        vmax : scalar
+            The higher value of viewLim.
+
+        ignore : bool, optional
+            Whether we should take (vmin, vmax) literally (default: False).
+            If this is False, the order of vmin, vmax does not matter; the
+            original axis orientation will be preserved.
+
+        emit : bool, optional
+            Whether to notify observers of limit change (default: True).
+
+        auto : bool or None, optional
+            Whether to turn on autoscaling of this axis. True turns on,
+            False turns off (default action), None leaves unchanged.
+
+        Notes
+        -----
+        If `ignore` is False (default), the view limits can be expanded, but
+        will not be reduced. Otherwise, if `ignore` is True, the `vmin` value
+        may be greater than the `vmax` value, in which case the viewLim will
+        decrease from left to right.
+
+        Examples
+        --------
+        >>> set_view_interval(vmin, vmax, ignore=True)
+
+        Sets the new view interval to (vmin, vmax).
+
+        >>> set_view_interval(vmin, vmax)
+
+        Expands the view interval to the minimum of the current interval
+        and vmin, and the maximum of the current interval and vmax.
         """
         if ignore:
             self.axes.viewLim.intervalx = (vmin, vmax)
@@ -2460,18 +2489,47 @@ class YAxis(Axis):
     def set_view_interval(self, vmin, vmax, ignore=False, emit=True,
                           auto=False):
         """
-        If *ignore* is *False*, the order of vmin, vmax
-        does not matter; the original axis orientation will
-        be preserved. In addition, the view limits can be
-        expanded, but will not be reduced.
-        If *emit* is *True*, observers will be notified of
-        limit change. If *auto* is *True*, it turns on
-        autoscaling of the y-axis, and if *auto* is *False*,
-        it turns off autoscaling of the y-axis, while *None*
-        leaves autoscaling unchanged. This method is
-        for mpl internal use; for normal use, see
-        :meth:`~matplotlib.axes.Axes.set_ylim`.
+        Set the y-axis view limits for the parent Axes instance.
 
+        .. ACCEPTS: (vmin: float, vmax: float)
+
+        Parameters
+        ----------
+        vmin : scalar
+            The smaller value of viewLim.
+
+        vmax : scalar
+            The higher value of viewLim.
+
+        ignore : bool, optional
+            Whether we should take (vmin, vmax) literally (default: False).
+            If this is False, the order of vmin, vmax does not matter; the
+            original axis orientation will be preserved.
+
+        emit : bool, optional
+            Whether to notify observers of limit change (default: True).
+
+        auto : bool or None, optional
+            Whether to turn on autoscaling of this axis. True turns on,
+            False turns off (default action), None leaves unchanged.
+
+        Notes
+        -----
+        If `ignore` is False (default), the view limits can be expanded, but
+        will not be reduced. Otherwise, if `ignore` is True, the `vmin` value
+        may be greater than the `vmax` value, in which case the viewLim will
+        decrease from left to right.
+
+        Examples
+        --------
+        >>> set_view_interval(vmin, vmax, ignore=True)
+
+        Sets the new view interval to (vmin, vmax).
+
+        >>> set_view_interval(vmin, vmax)
+
+        Expands the view interval to the minimum of the current interval
+        and vmin, and the maximum of the current interval and vmax.
         """
         if ignore:
             self.axes.viewLim.intervaly = (vmin, vmax)
