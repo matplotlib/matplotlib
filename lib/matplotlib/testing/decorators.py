@@ -251,6 +251,7 @@ class _ImageComparisonBase(object):
         _raise_on_image_difference(expected_fname, actual_fname, self.tol)
 
 
+@cbook.deprecated("3.0")
 class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
     """
     Nose-based image comparison class
