@@ -1,0 +1,7 @@
+Hold machinery removed
+----------------------
+
+Setting or unsetting ``hold`` (deprecated in version 2.1) has now
+been completely removed. Matplotlib now always behaves as if ``hold=True``.
+To clear an axes you can manually use :meth:`~.axes.Axes.cla()`,
+or to clear an entire figure use :meth:`~.figure.Figure.clf()`.

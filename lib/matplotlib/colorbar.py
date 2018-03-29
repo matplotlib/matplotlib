@@ -647,15 +647,9 @@ class ColorbarBase(cm.ScalarMappable):
                   norm=self.norm,
                   alpha=self.alpha,
                   edgecolors='None')
-        # Save, set, and restore hold state to keep pcolor from
-        # clearing the axes. Ordinarily this will not be needed,
-        # since the axes object should already have hold set.
-        _hold = self.ax._hold
-        self.ax._hold = True
         _log.debug('Setting pcolormesh')
         col = self.ax.pcolormesh(*args, **kw)
-        self.ax._hold = _hold
-        #self.add_observer(col) # We should observe, not be observed...
+        # self.add_observer(col) # We should observe, not be observed...
 
         if self.solids is not None:
             self.solids.remove()
@@ -1443,12 +1437,6 @@ class ColorbarPatch(Colorbar):
         Draw the colors using :class:`~matplotlib.patches.Patch`;
         optionally add separators.
         """
-        # Save, set, and restore hold state to keep pcolor from
-        # clearing the axes. Ordinarily this will not be needed,
-        # since the axes object should already have hold set.
-        _hold = self.ax._hold
-        self.ax._hold = True
-
         kw = {'alpha': self.alpha, }
 
         n_segments = len(C)
@@ -1493,8 +1481,6 @@ class ColorbarPatch(Colorbar):
                     colors=(mpl.rcParams['axes.edgecolor'],),
                     linewidths=(0.5 * mpl.rcParams['axes.linewidth'],))
             self.ax.add_collection(self.dividers)
-
-        self.ax._hold = _hold
 
 
 def colorbar_factory(cax, mappable, **kwargs):
