@@ -136,14 +136,11 @@ def context(style, after_reset=False):
         If True, apply style after resetting settings to their defaults;
         otherwise, apply style on top of the current settings.
     """
-    initial_settings = mpl.rcParams.copy()
-    if after_reset:
-        mpl.rcdefaults()
-    try:
+    with mpl.rc_context():
+        if after_reset:
+            mpl.rcdefaults()
         use(style)
         yield
-    finally:
-        mpl.rcParams.update(initial_settings)
 
 
 def load_base_library():
