@@ -57,36 +57,37 @@ class ContourLabeler(object):
 
         Call signature::
 
-          clabel(cs, **kwargs)
+          clabel(cs, [levels,] **kwargs)
 
         Adds labels to line contours in *cs*, where *cs* is a
         :class:`~matplotlib.contour.ContourSet` object returned by
-        contour.
-
-        ::
-
-          clabel(cs, v, **kwargs)
-
-        only labels contours listed in *v*.
+        ``contour()``.
 
         Parameters
         ----------
+        cs : `.ContourSet`
+            The ContourSet to label.
+
+        levels : array-like, optional
+            A list of level values, that should be labeled. The list must be
+            a subset of ``cs.levels``. If not given, all levels are labeled.
+
         fontsize : string or float, optional
             Size in points or relative size e.g., 'smaller', 'x-large'.
-            See `Text.set_size` for accepted string values.
+            See `.Text.set_size` for accepted string values.
 
-        colors :
-            Color of each label
+        colors : color-spec, optional
+            The label colors:
 
-            - if *None*, the color of each label matches the color of
-              the corresponding contour
+            - If *None*, the color of each label matches the color of
+              the corresponding contour.
 
-            - if one string color, e.g., *colors* = 'r' or *colors* =
-              'red', all labels will be plotted in this color
+            - If one string color, e.g., *colors* = 'r' or *colors* =
+              'red', all labels will be plotted in this color.
 
-            - if a tuple of matplotlib color args (string, float, rgb, etc),
+            - If a tuple of matplotlib color args (string, float, rgb, etc),
               different labels will be plotted in different colors in the order
-              specified
+              specified.
 
         inline : bool, optional
             If ``True`` the underlying contour is removed where the label is
@@ -128,10 +129,15 @@ class ContourLabeler(object):
             or minus 90 degrees from level. Default is ``True``.
 
         use_clabeltext : bool, optional
-            If ``True``, `ClabelText` class (instead of `Text`) is used to
+            If ``True``, `.ClabelText` class (instead of `.Text`) is used to
             create labels. `ClabelText` recalculates rotation angles
             of texts during the drawing time, therefore this can be used if
             aspect of the axes changes. Default is ``False``.
+
+        Returns
+        -------
+        labels
+            A list of `.Text` instances for the labels.
         """
 
         """
