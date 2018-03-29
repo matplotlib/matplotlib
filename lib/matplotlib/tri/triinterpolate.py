@@ -679,7 +679,7 @@ class _ReducedHCT_Element():
                           [ 4./18.,  1./18., 13./18.],
                           [13./18.,  1./18.,  4./18.],
                           [ 7./18.,  4./18.,  7./18.]], dtype=np.float64)
-    gauss_w = np.ones([9], dtype=np.float64) / 9.
+    gauss_w = np.full(9, 1 / 9)
 
     #  4) Stiffness matrix for curvature energy
     E = np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., 2.]])

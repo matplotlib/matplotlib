@@ -454,7 +454,7 @@ def test_EllipseCollection():
 
     ww = X / x[-1]
     hh = Y / y[-1]
-    aa = np.ones_like(ww) * 20  # first axis is 20 degrees CCW from x axis
+    aa = np.full_like(ww, 20)  # first axis is 20 degrees CCW from x axis
 
     ec = mcollections.EllipseCollection(ww, hh, aa,
                                         units='x',

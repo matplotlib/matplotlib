@@ -14,7 +14,7 @@ np.random.seed(19680801)
 
 # fake up some data
 spread = np.random.rand(50) * 100
-center = np.ones(25) * 50
+center = np.full(25, 50)
 flier_high = np.random.rand(10) * 100 + 100
 flier_low = np.random.rand(10) * -100
 data = np.concatenate((spread, center, flier_high, flier_low))
@@ -61,7 +61,7 @@ ax6.boxplot(data, flierprops=red_square, vert=False, whis=0.75)
 # Fake up some more data
 
 spread = np.random.rand(50) * 100
-center = np.ones(25) * 40
+center = np.full(25, 40)
 flier_high = np.random.rand(10) * 100 + 100
 flier_low = np.random.rand(10) * -100
 d2 = np.concatenate((spread, center, flier_high, flier_low))

@@ -20,7 +20,7 @@ np.random.seed(19680801)
 
 # fake up some data
 spread = np.random.rand(50) * 100
-center = np.ones(25) * 50
+center = np.full(25, 50)
 flier_high = np.random.rand(10) * 100 + 100
 flier_low = np.random.rand(10) * -100
 data = np.concatenate((spread, center, flier_high, flier_low))
@@ -56,7 +56,7 @@ fig.subplots_adjust(left=0.08, right=0.98, bottom=0.05, top=0.9,
 
 # fake up some more data
 spread = np.random.rand(50) * 100
-center = np.ones(25) * 40
+center = np.full(25, 40)
 flier_high = np.random.rand(10) * 100 + 100
 flier_low = np.random.rand(10) * -100
 d2 = np.concatenate((spread, center, flier_high, flier_low))

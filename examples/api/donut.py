@@ -32,8 +32,7 @@ fig, ax = plt.subplots()
 
 inside_vertices = make_circle(0.5)
 outside_vertices = make_circle(1.0)
-codes = np.ones(
-    len(inside_vertices), dtype=mpath.Path.code_type) * mpath.Path.LINETO
+codes = np.full(len(inside_vertices), mpath.Path.LINETO)
 codes[0] = mpath.Path.MOVETO
 
 for i, (inside, outside) in enumerate(((1, 1), (1, -1), (-1, 1), (-1, -1))):

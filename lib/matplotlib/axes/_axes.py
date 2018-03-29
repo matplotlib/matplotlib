@@ -3801,7 +3801,7 @@ class Axes(_AxesBase):
             datalabels.append(stats.get('label', pos))
 
             # whisker coords
-            whisker_x = np.ones(2) * pos
+            whisker_x = np.full(2, pos)
             whiskerlo_y = np.array([stats['q1'], stats['whislo']])
             whiskerhi_y = np.array([stats['q3'], stats['whishi']])
 
@@ -3809,8 +3809,8 @@ class Axes(_AxesBase):
             cap_left = pos - width * 0.25
             cap_right = pos + width * 0.25
             cap_x = np.array([cap_left, cap_right])
-            cap_lo = np.ones(2) * stats['whislo']
-            cap_hi = np.ones(2) * stats['whishi']
+            cap_lo = np.full(2, stats['whislo'])
+            cap_hi = np.full(2, stats['whishi'])
 
             # box and median coords
             box_left = pos - width * 0.5
@@ -3873,7 +3873,7 @@ class Axes(_AxesBase):
             # maybe draw the fliers
             if showfliers:
                 # fliers coords
-                flier_x = np.ones(len(stats['fliers'])) * pos
+                flier_x = np.full(len(stats['fliers']), pos)
                 flier_y = stats['fliers']
 
                 fliers.extend(doplot(

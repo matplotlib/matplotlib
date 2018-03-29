@@ -315,10 +315,10 @@ class Path(object):
             raise ValueError("The third dimension of 'XY' must be 2")
         stride = numsides + 1
         nverts = numpolys * stride
-        verts = np.zeros((nverts, 2))
-        codes = np.ones(nverts, int) * cls.LINETO
+        codes = np.full(nverts, cls.LINETO)
         codes[0::stride] = cls.MOVETO
         codes[numsides::stride] = cls.CLOSEPOLY
+        verts = np.zeros((nverts, 2))
         for i in range(numsides):
             verts[i::stride] = XY[:, i]
 
@@ -566,7 +566,7 @@ class Path(object):
         vertices = simple_linear_interpolation(self.vertices, steps)
         codes = self.codes
         if codes is not None:
-            new_codes = Path.LINETO * np.ones(((len(codes) - 1) * steps + 1, ))
+            new_codes = np.full((len(codes) - 1) * steps + 1, Path.LINETO)
             new_codes[0::steps] = codes
         else:
             new_codes = None
@@ -886,8 +886,8 @@ class Path(object):
 
         if is_wedge:
             length = n * 3 + 4
-            vertices = np.zeros((length, 2), float)
-            codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
+            vertices = np.zeros((length, 2))
+            codes = np.full(length, cls.CURVE4, cls.code_type)
             vertices[1] = [xA[0], yA[0]]
             codes[0:2] = [cls.MOVETO, cls.LINETO]
             codes[-2:] = [cls.LINETO, cls.CLOSEPOLY]
@@ -895,8 +895,8 @@ class Path(object):
             end = length - 2
         else:
             length = n * 3 + 1
-            vertices = np.empty((length, 2), float)
-            codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
+            vertices = np.empty((length, 2))
+            codes = np.full(length, cls.CURVE4, cls.code_type)
             vertices[0] = [xA[0], yA[0]]
             codes[0] = cls.MOVETO
             vertex_offset = 1

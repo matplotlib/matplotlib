@@ -343,8 +343,7 @@ class Text(Artist):
         # get the rotation matrix
         M = Affine2D().rotate_deg(self.get_rotation())
 
-        offsetLayout = np.zeros((len(lines), 2))
-        offsetLayout[:] = horizLayout[:, 0:2]
+        offsetLayout = horizLayout[:, 0:2].copy()
         # now offset the individual text lines within the box
         if len(lines) > 1:  # do the multiline aligment
             malign = self._get_multialignment()

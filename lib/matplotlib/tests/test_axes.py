@@ -1517,7 +1517,7 @@ def test_hist_steplog():
     data += -2.0 - np.min(data)
     data_pos = data + 2.1
     data_big = data_pos + 30
-    weights = np.ones_like(data) * 1.e-5
+    weights = np.full_like(data, 1e-5)
 
     ax = plt.subplot(4, 1, 1)
     plt.hist(data, 100, histtype='stepfilled', log=True)
@@ -4948,7 +4948,7 @@ def test_violin_point_mass():
 
 
 def generate_errorbar_inputs():
-    base_xy = cycler('x', [np.arange(5)]) + cycler('y', [np.ones((5, ))])
+    base_xy = cycler('x', [np.arange(5)]) + cycler('y', [np.ones(5)])
     err_cycler = cycler('err', [1,
                                 [1, 1, 1, 1, 1],
                                 [[1, 1, 1, 1, 1],

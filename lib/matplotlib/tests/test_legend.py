@@ -84,7 +84,7 @@ def test_labels_first():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(np.arange(10), '-o', label=1)
-    ax.plot(np.ones(10)*5, ':x', label="x")
+    ax.plot(np.full(10, 5), ':x', label="x")
     ax.plot(np.arange(20, 10, -1), 'd', label="diamond")
     ax.legend(loc=0, markerfirst=False)
 
