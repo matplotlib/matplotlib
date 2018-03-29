@@ -175,7 +175,13 @@ def auto_adjust_subplotpars(
         margin_left = 0.4999
         margin_right = 0.4999
         warnings.warn('The left and right margins cannot be made large '
-                      'enough to accomodate all axes decorations. ')
+                      'enough to accommodate all axes decorations. ')
+    if margin_bottom + margin_top >= 1:
+        margin_bottom = 0.4999
+        margin_top = 0.4999
+        warnings.warn('The bottom and top margins cannot be made large '
+                      'enough to accommodate all axes decorations. ')
+
     kwargs = dict(left=margin_left,
                   right=1 - margin_right,
                   bottom=margin_bottom,
@@ -188,9 +194,9 @@ def auto_adjust_subplotpars(
             + hpad_inches / fig_width_inch)
         # axes widths:
         h_axes = (1 - margin_right - margin_left - hspace * (cols - 1)) / cols
-        if h_axes < 0.:
+        if h_axes < 0:
             warnings.warn('tight_layout cannot make axes width small enough '
-                          'to accomodate all axes decorations')
+                          'to accommodate all axes decorations')
             kwargs["wspace"] = 0.5
         else:
             kwargs["wspace"] = hspace / h_axes
@@ -201,7 +207,7 @@ def auto_adjust_subplotpars(
         v_axes = (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows
         if v_axes < 0:
             warnings.warn('tight_layout cannot make axes height small enough '
-                          'to accomodate all axes decorations')
+                          'to accommodate all axes decorations')
             kwargs["hspace"] = 0.5
         else:
             kwargs["hspace"] = vspace / v_axes
