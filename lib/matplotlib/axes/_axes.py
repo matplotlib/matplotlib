@@ -2674,7 +2674,7 @@ class Axes(_AxesBase):
         """
         # This method sets the aspect ratio of the axis to "equal".
         self.set_aspect('equal')
-        
+
         x = np.array(x, np.float32)
 
         sx = x.sum()
