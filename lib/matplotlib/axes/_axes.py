@@ -1368,7 +1368,8 @@ class Axes(_AxesBase):
 
         return colls
 
-    # ### Basic plotting
+    #### Basic plotting
+
     # The label_naming happens in `matplotlib.axes._base._plot_args`
     @_preprocess_data(replace_names=["x", "y"],
                       positional_parameter_names=_plot_args_replacer,
@@ -1601,14 +1602,10 @@ class Axes(_AxesBase):
             'k^:'  # black triangle_up markers connected by a dotted line
 
         """
-        lines = []
-
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
-
-        for line in self._get_lines(*args, **kwargs):
+        lines = [*self._get_lines(*args, **kwargs)]
+        for line in lines:
             self.add_line(line)
-            lines.append(line)
-
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
 

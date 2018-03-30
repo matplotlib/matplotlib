@@ -178,8 +178,12 @@ class _process_plot_var_args(object):
             if yunits != self.axes.yaxis.units:
                 self.axes.yaxis.set_units(yunits)
 
-        ret = self._grab_next_args(*args, **kwargs)
-        return ret
+        while args:
+            this, args = args[:2], args[2:]
+            if args and isinstance(args[0], str):
+                this += args[0],
+                args = args[1:]
+            yield from self._plot_args(this, kwargs)
 
     def get_next_color(self):
         """Return the next color in the cycle."""
@@ -380,14 +384,6 @@ class _process_plot_var_args(object):
             seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
             ret.append(seg)
         return ret
-
-    def _grab_next_args(self, *args, **kwargs):
-        while args:
-            this, args = args[:2], args[2:]
-            if args and isinstance(args[0], str):
-                this += args[0],
-                args = args[1:]
-            yield from self._plot_args(this, kwargs)
 
 
 class _AxesBase(martist.Artist):
