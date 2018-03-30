@@ -1059,6 +1059,14 @@ class RadioButtons(AxesWidget):
         for cid, func in self.observers.items():
             func(self.labels[index].get_text())
 
+
+    def clear(self):
+        """Deactivate any previously activated button."""
+        ax_facecolor = self.ax.get_facecolor()
+        index_active = self.labels.index(self.value_selected)
+        self.circles[index_active].set_facecolor(ax_facecolor)
+        self.value_selected = None
+
     def on_clicked(self, func):
         """
         When the button is clicked, call *func* with button label
