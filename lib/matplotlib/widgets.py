@@ -600,6 +600,16 @@ class CheckButtons(AxesWidget):
         for cid, func in self.observers.items():
             func(self.labels[index].get_text())
 
+    def clear(self):
+        """Clears all the checkboxes"""
+
+        for l1, l2 in self.lines:
+            l1.set_visible(False)
+            l2.set_visible(False)
+
+        if self.drawon:
+            self.ax.figure.canvas.draw()
+
     def get_status(self):
         """
         returns a tuple of the status (True/False) of all of the check buttons
