@@ -259,6 +259,13 @@ def test_CheckButtons():
     cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
 
+def test_RadioButtons():
+    ax = get_ax()
+    radio = widgets.RadioButtons(ax, ('Radio 1', 'Radio 2', 'Radio 3'))
+    radio.set_active(1)
+    assert radio.value_selected == 'Radio 2'
+    radio.clear()
+    assert radio.value_selected is None
 
 @image_comparison(baseline_images=['check_radio_buttons'], extensions=['png'],
                   style='default')
