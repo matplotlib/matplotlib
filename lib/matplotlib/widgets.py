@@ -623,6 +623,11 @@ class CheckButtons(AxesWidget):
         """
         return [l1.get_visible() for (l1, l2) in self.lines]
 
+    def get_checked(self):
+        """Returns a list of labels currently checked by user."""
+        from itertools import compress
+        return compress(self.labels, self.get_status())
+
     def on_clicked(self, func):
         """
         When the button is clicked, call *func* with button label
