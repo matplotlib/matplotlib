@@ -2672,7 +2672,7 @@ class Axes(_AxesBase):
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.
         This method sets the aspect ratio of the axis to "equal".
-        The axes aspect ratio can be controlled with `.Axes.set_aspect`.
+        The axes aspect ratio can be controlled with `Axes.set_aspect`.
         """
         self.set_aspect('equal')
         x = np.array(x, np.float32)
