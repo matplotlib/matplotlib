@@ -574,13 +574,19 @@ class CheckButtons(AxesWidget):
                 self.set_active(i)
                 break
 
-    def set_active(self, index):
+    def set_active(self, index, state=None):
         """
         Directly (de)activate a check button by index.
+            Default behaviour is to toggle the state,
+            which can be controlled with state=bool flag.
 
         *index* is an index into the original label list
             that this object was constructed with.
             Raises ValueError if *index* is invalid.
+
+        *state* is a boolean value to set the target state
+            of the button, regardless of its current state.
+            If None, button state gets toggled (checked or not).
 
         Callbacks will be triggered if :attr:`eventson` is True.
 
@@ -589,8 +595,9 @@ class CheckButtons(AxesWidget):
             raise ValueError("Invalid CheckButton index: %d" % index)
 
         l1, l2 = self.lines[index]
-        l1.set_visible(not l1.get_visible())
-        l2.set_visible(not l2.get_visible())
+        target_state = bool(state) if state is not None else not l1.get_visible()
+        l1.set_visible(target_state)
+        l2.set_visible(target_state)
 
         if self.drawon:
             self.ax.figure.canvas.draw()
