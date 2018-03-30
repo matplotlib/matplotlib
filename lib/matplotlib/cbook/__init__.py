@@ -1732,6 +1732,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     return ret
 
 
+@deprecated("3.1")
 def get_label(y, default_name):
     try:
         return y.name
