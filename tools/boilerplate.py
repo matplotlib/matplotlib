@@ -71,24 +71,6 @@ def {name}():
 
 '''
 
-CMAP_TEMPLATE_DEPRECATED = AUTOGEN_MSG + '''
-def {name}():
-    """
-    Set the colormap to "{name}".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    from matplotlib.cbook import warn_deprecated
-    warn_deprecated(
-                    "2.0",
-                    name="{name}",
-                    obj_type="colormap"
-                    )
-    set_cmap("{name}")
-
-'''
-
 
 def boilerplate_gen():
     """Generator of lines for the automated part of pyplot."""
@@ -308,12 +290,9 @@ def boilerplate_gen():
         'viridis',
         "nipy_spectral"
     )
-    deprecated_cmaps = ("spectral", )
     # add all the colormaps (autumn, hsv, ....)
     for name in cmaps:
         yield CMAP_TEMPLATE.format(name=name)
-    for name in deprecated_cmaps:
-        yield CMAP_TEMPLATE_DEPRECATED.format(name=name)
 
     yield ''
     yield '_setup_pyplot_info_docstrings()'

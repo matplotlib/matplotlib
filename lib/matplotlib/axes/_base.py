@@ -1208,24 +1208,6 @@ class _AxesBase(martist.Artist):
         self._get_lines.set_prop_cycle(prop_cycle)
         self._get_patches_for_fill.set_prop_cycle(prop_cycle)
 
-    @cbook.deprecated('1.5', alternative='`.set_prop_cycle`')
-    def set_color_cycle(self, clist):
-        """
-        Set the color cycle for any future plot commands on this Axes.
-
-        Parameters
-        ----------
-        clist
-            A list of mpl color specifiers.
-        """
-        if clist is None:
-            # Calling set_color_cycle() or set_prop_cycle() with None
-            # effectively resets the cycle, but you can't do
-            # set_prop_cycle('color', None). So we are special-casing this.
-            self.set_prop_cycle(None)
-        else:
-            self.set_prop_cycle('color', clist)
-
     def get_aspect(self):
         return self._aspect
 
