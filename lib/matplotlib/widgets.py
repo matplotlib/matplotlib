@@ -625,8 +625,8 @@ class CheckButtons(AxesWidget):
 
     def get_checked(self):
         """Returns a list of labels currently checked by user."""
-        from itertools import compress
-        return compress(self.labels, self.get_status())
+
+        return [ l.get_text() for l, checked in zip(self.labels, self.get_status()) if checked]
 
     def on_clicked(self, func):
         """
