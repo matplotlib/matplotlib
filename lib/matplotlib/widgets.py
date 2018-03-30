@@ -14,8 +14,8 @@ import copy
 import numpy as np
 from matplotlib import rcParams
 
-from .patches import Circle, Rectangle, Ellipse
 from .lines import Line2D
+from .patches import Circle, Ellipse, Rectangle
 from .transforms import blended_transform_factory
 
 
@@ -976,6 +976,9 @@ class RadioButtons(AxesWidget):
      *value_selected*
         A string listing the current value selected
 
+     *index_selected*
+        An index into *labels* identifying the value selected.
+
     Connect to the RadioButtons with the :meth:`on_clicked` method
     """
     def __init__(self, ax, labels, active=0, activecolor='blue'):
@@ -1012,6 +1015,7 @@ class RadioButtons(AxesWidget):
 
             if cnt == active:
                 self.value_selected = label
+                self.index_selected = active
                 facecolor = activecolor
             else:
                 facecolor = axcolor
@@ -1055,6 +1059,7 @@ class RadioButtons(AxesWidget):
             raise ValueError("Invalid RadioButton index: %d" % index)
 
         self.value_selected = self.labels[index].get_text()
+        self.index_selected = index
 
         for i, p in enumerate(self.circles):
             if i == index:
