@@ -1079,10 +1079,11 @@ class RadioButtons(AxesWidget):
 
     def clear(self):
         """Deactivate any previously activated button."""
-        ax_facecolor = self.ax.get_facecolor()
-        index_active = self.labels.index(self.value_selected)
-        self.circles[index_active].set_facecolor(ax_facecolor)
+        if self.index_selected is not None:
+            ax_facecolor = self.ax.get_facecolor()
+            self.circles[self.index_selected].set_facecolor(ax_facecolor)
         self.value_selected = None
+        self.index_selected = None
 
     def on_clicked(self, func):
         """
