@@ -2,16 +2,10 @@
 A module providing some utility functions regarding bezier path manipulation.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import warnings
 
 import numpy as np
 from matplotlib.path import Path
-
-from operator import xor
-import warnings
 
 
 class NonIntersectingPathException(ValueError):
@@ -139,7 +133,7 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
         middle = bezier_point_at_t(middle_t)
         middle_inside = inside_closedpath(middle)
 
-        if xor(start_inside, middle_inside):
+        if start_inside ^ middle_inside:
             t1 = middle_t
             end = middle
             end_inside = middle_inside

@@ -99,21 +99,17 @@ def report(issues, show_urls=False):
     if show_urls:
         for i in issues:
             role = 'ghpull' if 'merged_at' in i else 'ghissue'
-            print(u'* :%s:`%d`: %s' % (role, i['number'],
-                                        i['title'].replace(u'`', u'``')))
+            print('* :%s:`%d`: %s' % (role, i['number'],
+                                      i['title'].replace('`', '``')))
     else:
         for i in issues:
-            print(u'* %d: %s' % (i['number'], i['title'].replace(u'`', u'``')))
+            print('* %d: %s' % (i['number'], i['title'].replace('`', '``')))
 
 #-----------------------------------------------------------------------------
 # Main script
 #-----------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    # deal with unicode
-    if sys.version_info < (3,):
-        sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-
     # Whether to add reST urls for all issues in printout.
     show_urls = True
 
@@ -211,7 +207,7 @@ if __name__ == "__main__":
     ncommits = len(pr_authors) + ncommits - len(pulls)
     author_cmd = ['git', 'check-mailmap'] + pr_authors
     with_email = check_output(author_cmd).decode('utf-8', 'replace').splitlines()
-    all_authors.extend([ u'* ' + a.split(' <')[0] for a in with_email ])
+    all_authors.extend(['* ' + a.split(' <')[0] for a in with_email])
     unique_authors = sorted(set(all_authors), key=lambda s: s.lower())
 
     print("We closed %d issues and merged %d pull requests." % (n_issues, n_pulls))

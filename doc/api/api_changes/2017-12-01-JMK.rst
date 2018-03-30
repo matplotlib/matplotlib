@@ -1,0 +1,8 @@
+The ticks for colorbar now adjust for the size of the colorbar
+--------------------------------------------------------------
+
+Colorbar ticks now adjust for the size of the colorbar if the
+colorbar is made from a mappable that is not a contour or
+doesn't have a BoundaryNorm, or boundaries are not specified.
+If boundaries, etc are specified, the colorbar maintains the
+original behaviour.

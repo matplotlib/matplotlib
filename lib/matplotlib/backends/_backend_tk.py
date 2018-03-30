@@ -336,11 +336,10 @@ class FigureCanvasTk(FigureCanvasBase):
         y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
 
-        if sys.platform=='darwin':
-            # 2 and 3 were reversed on the OSX platform I
-            # tested under tkagg
-            if   num==2: num=3
-            elif num==3: num=2
+        if sys.platform == 'darwin':
+            # 2 and 3 were reversed on the OSX platform I tested under tkagg.
+            if num == 2: num = 3
+            elif num == 3: num = 2
 
         FigureCanvasBase.button_press_event(self, x, y, num, dblclick=dblclick, guiEvent=event)
 
@@ -354,11 +353,10 @@ class FigureCanvasTk(FigureCanvasBase):
 
         num = getattr(event, 'num', None)
 
-        if sys.platform=='darwin':
-            # 2 and 3 were reversed on the OSX platform I
-            # tested under tkagg
-            if   num==2: num=3
-            elif num==3: num=2
+        if sys.platform == 'darwin':
+            # 2 and 3 were reversed on the OSX platform I tested under tkagg.
+            if num == 2: num = 3
+            elif num == 3: num = 2
 
         FigureCanvasBase.button_release_event(self, x, y, num, guiEvent=event)
 
@@ -387,8 +385,8 @@ class FigureCanvasTk(FigureCanvasBase):
         val = event.keysym_num
         if val in self.keyvald:
             key = self.keyvald[val]
-        elif val == 0 and sys.platform == 'darwin' and \
-                                        event.keycode in self._keycode_lookup:
+        elif (val == 0 and sys.platform == 'darwin'
+              and event.keycode in self._keycode_lookup):
             key = self._keycode_lookup[event.keycode]
         elif val < 256:
             key = chr(val)
@@ -977,7 +975,7 @@ class _BackendTk(_Backend):
             rcParams['datapath'], 'images', 'matplotlib.ppm')
         icon_img = Tk.PhotoImage(file=icon_fname)
         try:
-            window.tk.call('wm', 'foobar', window._w, icon_img)
+            window.tk.call('wm', 'iconphoto', window._w, icon_img)
         except Exception as exc:
             # log the failure (due e.g. to Tk version), but carry on
             _log.info('Could not load matplotlib icon: %s', exc)

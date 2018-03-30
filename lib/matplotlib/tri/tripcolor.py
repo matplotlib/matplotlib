@@ -1,12 +1,8 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import numpy as np
 
 from matplotlib.collections import PolyCollection, TriMesh
 from matplotlib.colors import Normalize
 from matplotlib.tri.triangulation import Triangulation
-import numpy as np
 
 
 def tripcolor(ax, *args, **kwargs):
@@ -49,9 +45,6 @@ def tripcolor(ax, *args, **kwargs):
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
     """
-    if not ax._hold:
-        ax.cla()
-
     alpha = kwargs.pop('alpha', 1.0)
     norm = kwargs.pop('norm', None)
     cmap = kwargs.pop('cmap', None)

@@ -206,11 +206,11 @@ def get_authors(pr):
 
 def iter_fields(fields):
     fields = fields.copy()
-    for key in ('key', 'acl', 'Filename', 'success_action_status', 'AWSAccessKeyId',
-        'Policy', 'Signature', 'Content-Type', 'file'):
-        yield (key, fields.pop(key))
-    for (k,v) in fields.items():
-        yield k,v
+    for key in [
+            'key', 'acl', 'Filename', 'success_action_status',
+            'AWSAccessKeyId', 'Policy', 'Signature', 'Content-Type', 'file']:
+        yield key, fields.pop(key)
+    yield from fields.items()
 
 def encode_multipart_formdata(fields, boundary=None):
     """

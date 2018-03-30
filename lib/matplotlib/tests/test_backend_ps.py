@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import absolute_import, division, print_function
-
 import io
+import os
+from pathlib import Path
 import re
+import tempfile
 
 import numpy as np
 import pytest
-import six
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import patheffects
+from matplotlib import cbook, patheffects
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
@@ -31,13 +29,14 @@ needs_usetex = pytest.mark.xfail(
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
-    needs_ghostscript(('ps', False, {'ps.usedistiller': 'ghostscript'})),
-    needs_usetex(needs_ghostscript(('ps', False, {'text.latex.unicode': True,
-                                                  'text.usetex': True}))),
+    needs_ghostscript(
+        ('ps', False, {'ps.usedistiller': 'ghostscript'})),
+    needs_usetex(needs_ghostscript(
+        ('ps', False, {'text.latex.unicode': True, 'text.usetex': True}))),
     ('eps', False, {}),
     ('eps', True, {'ps.useafm': True}),
-    needs_usetex(needs_ghostscript(('eps', False, {'text.latex.unicode': True,
-                                                   'text.usetex': True}))),
+    needs_usetex(needs_ghostscript(
+        ('eps', False, {'text.latex.unicode': True, 'text.usetex': True}))),
 ], ids=[
     'ps',
     'ps with distiller',
@@ -50,35 +49,25 @@ def test_savefig_to_stringio(format, use_log, rcParams):
     matplotlib.rcParams.update(rcParams)
 
     fig, ax = plt.subplots()
-    buffers = [
-        six.moves.StringIO(),
-        io.StringIO(),
-        io.BytesIO()]
 
-    if use_log:
-        ax.set_yscale('log')
+    with io.StringIO() as s_buf, io.BytesIO() as b_buf:
 
-    ax.plot([1, 2], [1, 2])
-    ax.set_title(u"Déjà vu")
-    for buffer in buffers:
-        fig.savefig(buffer, format=format)
+        if use_log:
+            ax.set_yscale('log')
 
-    values = [x.getvalue() for x in buffers]
+        ax.plot([1, 2], [1, 2])
+        ax.set_title("Déjà vu")
+        fig.savefig(s_buf, format=format)
+        fig.savefig(b_buf, format=format)
 
-    if six.PY3:
-        values = [
-            values[0].encode('ascii'),
-            values[1].encode('ascii'),
-            values[2]]
+        s_val = s_buf.getvalue().encode('ascii')
+        b_val = b_buf.getvalue()
 
-    # Remove comments from the output.  This includes things that
-    # could change from run to run, such as the time.
-    values = [re.sub(b'%%.*?\n', b'', x) for x in values]
+        # Remove comments from the output.  This includes things that could
+        # change from run to run, such as the time.
+        s_val, b_val = [re.sub(b'%%.*?\n', b'', x) for x in [s_val, b_val]]
 
-    assert values[0] == values[1]
-    assert values[1] == values[2].replace(b'\r\n', b'\n')
-    for buffer in buffers:
-        buffer.close()
+        assert s_val == b_val.replace(b'\r\n', b'\n')
 
 
 def test_patheffects():
@@ -93,40 +82,22 @@ def test_patheffects():
 
 @needs_usetex
 @needs_ghostscript
-def test_tilde_in_tempfilename():
+def test_tilde_in_tempfilename(tmpdir):
     # Tilde ~ in the tempdir path (e.g. TMPDIR, TMP or TEMP on windows
     # when the username is very long and windows uses a short name) breaks
     # latex before https://github.com/matplotlib/matplotlib/pull/5928
-    import tempfile
-    import shutil
-    import os
-    import os.path
-
-    tempdir = None
-    old_tempdir = tempfile.tempdir
-    try:
-        # change the path for new tempdirs, which is used
-        # internally by the ps backend to write a file
-        tempdir = tempfile.mkdtemp()
-        base_tempdir = os.path.join(tempdir, "short~1")
-        os.makedirs(base_tempdir)
-        tempfile.tempdir = base_tempdir
-
+    base_tempdir = Path(str(tmpdir), "short-1")
+    base_tempdir.mkdir()
+    # Change the path for new tempdirs, which is used internally by the ps
+    # backend to write a file.
+    with cbook._setattr_cm(tempfile, tempdir=str(base_tempdir)):
         # usetex results in the latex call, which does not like the ~
         plt.rc('text', usetex=True)
         plt.plot([1, 2, 3, 4])
         plt.xlabel(r'\textbf{time} (s)')
-        output_eps = os.path.join(base_tempdir, 'tex_demo.eps')
+        output_eps = os.path.join(str(base_tempdir), 'tex_demo.eps')
         # use the PS backend to write the file...
         plt.savefig(output_eps, format="ps")
-    finally:
-        tempfile.tempdir = old_tempdir
-        if tempdir:
-            try:
-                shutil.rmtree(tempdir)
-            except Exception as e:
-                # do not break if this is not removable...
-                print(e)
 
 
 def test_source_date_epoch():

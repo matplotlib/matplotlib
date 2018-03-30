@@ -24,9 +24,8 @@ Keys:
     R:          Reject test.  Copy the expected result to the source tree.
 """
 
-from __future__ import unicode_literals
-
 import os
+from pathlib import Path
 import shutil
 import sys
 
@@ -272,11 +271,7 @@ class Entry(object):
         """
         Returns True if two files have the same content.
         """
-        with open(a, 'rb') as fd:
-            a_content = fd.read()
-        with open(b, 'rb') as fd:
-            b_content = fd.read()
-        return a_content == b_content
+        return Path(a).read_bytes() == Path(b).read_bytes()
 
     def copy_file(self, a, b):
         """
@@ -334,16 +329,10 @@ def find_failing_tests(result_images, source):
     Find all of the failing tests by looking for files with
     `-failed-diff` at the end of the basename.
     """
-    entries = []
-    for root, dirs, files in os.walk(result_images):
-        for fname in files:
-            basename, ext = os.path.splitext(fname)
-            if basename.endswith('-failed-diff'):
-                path = os.path.join(root, fname)
-                entry = Entry(path, result_images, source)
-                entries.append(entry)
-    entries.sort(key=lambda x: x.name)
-    return entries
+    return sorted(
+        (Entry(path, result_images, source)
+         for path in Path(result_images).glob("**/*-failed-diff.*")),
+        key=lambda x: x.name)
 
 
 def launch(result_images, source):

@@ -1,9 +1,5 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
+from distutils.version import StrictVersion
 import functools
-import inspect
 import os
 from pathlib import Path
 import shutil
@@ -26,29 +22,8 @@ from matplotlib import pyplot as plt
 from matplotlib import ft2font
 from matplotlib.testing.compare import (
     comparable_formats, compare_images, make_test_filename)
-from . import _copy_metadata, is_called_from_pytest
+from . import is_called_from_pytest
 from .exceptions import ImageComparisonFailure
-
-
-def _knownfailureif(fail_condition, msg=None, known_exception_class=None):
-    """
-
-    Assume a will fail if *fail_condition* is True. *fail_condition*
-    may also be False or the string 'indeterminate'.
-
-    *msg* is the error message displayed for the test.
-
-    If *known_exception_class* is not None, the failure is only known
-    if the exception is an instance of this class. (Default = None)
-
-    """
-    import pytest
-    if fail_condition == 'indeterminate':
-        fail_condition, strict = True, False
-    else:
-        fail_condition, strict = bool(fail_condition), True
-    return pytest.mark.xfail(condition=fail_condition, reason=msg,
-                             raises=known_exception_class, strict=strict)
 
 
 def _do_cleanup(original_units_registry, original_settings):
@@ -119,8 +94,7 @@ def cleanup(style=None):
                 try:
                     yield from func(*args, **kwargs)
                 finally:
-                    _do_cleanup(original_units_registry,
-                                original_settings)
+                    _do_cleanup(original_units_registry, original_settings)
         else:
             @functools.wraps(func)
             def wrapped_callable(*args, **kwargs):
@@ -130,12 +104,11 @@ def cleanup(style=None):
                 try:
                     func(*args, **kwargs)
                 finally:
-                    _do_cleanup(original_units_registry,
-                                original_settings)
+                    _do_cleanup(original_units_registry, original_settings)
 
         return wrapped_callable
 
-    if isinstance(style, six.string_types):
+    if isinstance(style, str):
         return make_cleanup
     else:
         result = make_cleanup(style)
@@ -148,24 +121,22 @@ def check_freetype_version(ver):
     if ver is None:
         return True
 
-    from distutils import version
-    if isinstance(ver, six.string_types):
+    if isinstance(ver, str):
         ver = (ver, ver)
-    ver = [version.StrictVersion(x) for x in ver]
-    found = version.StrictVersion(ft2font.__freetype_version__)
+    ver = [StrictVersion(x) for x in ver]
+    found = StrictVersion(ft2font.__freetype_version__)
 
-    return found >= ver[0] and found <= ver[1]
+    return ver[0] <= found <= ver[1]
 
 
 def _checked_on_freetype_version(required_freetype_version):
-    if check_freetype_version(required_freetype_version):
-        return lambda f: f
-
+    import pytest
     reason = ("Mismatched version of freetype. "
               "Test requires '%s', you have '%s'" %
               (required_freetype_version, ft2font.__freetype_version__))
-    return _knownfailureif('indeterminate', msg=reason,
-                           known_exception_class=ImageComparisonFailure)
+    return pytest.mark.xfail(
+        not check_freetype_version(required_freetype_version),
+        reason=reason, raises=ImageComparisonFailure, strict=False)
 
 
 def remove_ticks_and_titles(figure):
@@ -201,18 +172,15 @@ def _raise_on_image_difference(expected, actual, tol):
 
 
 def _xfail_if_format_is_uncomparable(extension):
-    will_fail = extension not in comparable_formats()
-    if will_fail:
-        fail_msg = 'Cannot compare %s files on this system' % extension
-    else:
-        fail_msg = 'No failure expected'
-
-    return _knownfailureif(will_fail, fail_msg,
-                           known_exception_class=ImageComparisonFailure)
+    import pytest
+    return pytest.mark.xfail(
+        extension not in comparable_formats(),
+        reason='Cannot compare {} files on this system'.format(extension),
+        raises=ImageComparisonFailure, strict=True)
 
 
 def _mark_xfail_if_format_is_uncomparable(extension):
-    if isinstance(extension, six.string_types):
+    if isinstance(extension, str):
         will_fail = extension not in comparable_formats()
     else:
         # Extension might be a pytest marker instead of a plain string.
@@ -256,9 +224,9 @@ class _ImageComparisonBase(object):
         if os.path.exists(orig_expected_fname):
             shutil.copyfile(orig_expected_fname, expected_fname)
         else:
-            reason = ("Do not have baseline image {0} because this "
-                      "file does not exist: {1}".format(expected_fname,
-                                                        orig_expected_fname))
+            reason = ("Do not have baseline image {} because this "
+                      "file does not exist: {}".format(expected_fname,
+                                                       orig_expected_fname))
             raise ImageComparisonFailure(reason)
         return expected_fname
 
@@ -283,6 +251,7 @@ class _ImageComparisonBase(object):
         _raise_on_image_difference(expected_fname, actual_fname, self.tol)
 
 
+@cbook.deprecated("3.0")
 class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
     """
     Nose-based image comparison class
@@ -333,11 +302,12 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
         self.delayed_init(func)
         import nose.tools
 
+        @functools.wraps(func)
         @nose.tools.with_setup(self.setup, self.teardown)
         def runner_wrapper():
             yield from self.nose_runner()
 
-        return _copy_metadata(func, runner_wrapper)
+        return runner_wrapper
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -356,6 +326,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     extensions = map(_mark_xfail_if_format_is_uncomparable, extensions)
 
     def decorator(func):
+        @functools.wraps(func)
         # Parameter indirection; see docstring above and comment below.
         @pytest.mark.usefixtures('mpl_image_comparison_parameters')
         @pytest.mark.parametrize('extension', extensions)
@@ -385,8 +356,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
             for idx, baseline in enumerate(baseline_images):
                 img.compare(idx, baseline, extension)
 
-        wrapper.__wrapped__ = func  # For Python 2.7.
-        return _copy_metadata(func, wrapper)
+        return wrapper
 
     return decorator
 
@@ -414,7 +384,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     extensions : [ None | list ]
 
         If None, defaults to all supported extensions.
-        Otherwise, a list of extensions to test. For example ['png','pdf'].
+        Otherwise, a list of extensions to test, e.g. ``['png', 'pdf']``.
 
     tol : float, optional, default: 0
         The RMS threshold above which the test is considered failed.
@@ -470,10 +440,10 @@ def _image_directories(func):
         # FIXME: this won't work for nested packages in matplotlib.tests
         warnings.warn(
             'Test module run as script. Guessing baseline image locations.')
-        script_name = sys.argv[0]
-        basedir = os.path.abspath(os.path.dirname(script_name))
-        subdir = os.path.splitext(os.path.split(script_name)[1])[0]
+        module_path = Path(sys.argv[0]).resolve()
+        subdir = module_path.stem
     else:
+        module_path = Path(sys.modules[func.__module__].__file__)
         mods = module_name.split('.')
         if len(mods) >= 3:
             mods.pop(0)
@@ -492,50 +462,29 @@ def _image_directories(func):
                 "file (can be empty).".format(module_name))
         subdir = os.path.join(*mods)
 
-        import imp
-        def find_dotted_module(module_name, path=None):
-            """A version of imp which can handle dots in the module name.
-               As for imp.find_module(), the return value is a 3-element
-               tuple (file, pathname, description)."""
-            res = None
-            for sub_mod in module_name.split('.'):
-                try:
-                    res = file, path, _ = imp.find_module(sub_mod, path)
-                    path = [path]
-                    if file is not None:
-                        file.close()
-                except ImportError:
-                    # assume namespace package
-                    path = list(sys.modules[sub_mod].__path__)
-                    res = None, path, None
-            return res
+    baseline_dir = module_path.parent / 'baseline_images' / subdir
+    result_dir = Path().resolve() / 'result_images' / subdir
+    result_dir.mkdir(parents=True, exist_ok=True)
 
-        mod_file = find_dotted_module(func.__module__)[1]
-        basedir = os.path.dirname(mod_file)
-
-    baseline_dir = os.path.join(basedir, 'baseline_images', subdir)
-    result_dir = os.path.abspath(os.path.join('result_images', subdir))
-    Path(result_dir).mkdir(parents=True, exist_ok=True)
-
-    return baseline_dir, result_dir
+    return str(baseline_dir), str(result_dir)
 
 
 def switch_backend(backend):
-    # Local import to avoid a hard nose dependency and only incur the
-    # import time overhead at actual test-time.
+
     def switch_backend_decorator(func):
+
         @functools.wraps(func)
         def backend_switcher(*args, **kwargs):
             try:
                 prev_backend = mpl.get_backend()
                 matplotlib.testing.setup()
                 plt.switch_backend(backend)
-                result = func(*args, **kwargs)
+                return func(*args, **kwargs)
             finally:
                 plt.switch_backend(prev_backend)
-            return result
 
-        return _copy_metadata(func, backend_switcher)
+        return backend_switcher
+
     return switch_backend_decorator
 
 

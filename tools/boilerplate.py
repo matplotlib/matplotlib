@@ -44,19 +44,7 @@ PLOT_TEMPLATE = AUTOGEN_MSG + """
 @_autogen_docstring(Axes.%(func)s)
 def %(func)s(%(argspec)s):
     %(ax)s = gca()
-    # Deprecated: allow callers to override the hold state
-    # by passing hold=True|False
-    %(washold)s = %(ax)s._hold
-%(sethold)s
-    if hold is not None:
-        %(ax)s._hold = hold
-        from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
-                      mplDeprecation)
-    try:
-        %(ret)s = %(ax)s.%(func)s(%(call)s)
-    finally:
-        %(ax)s._hold = %(washold)s
+    %(ret)s = %(ax)s.%(func)s(%(call)s)
 %(mappable)s
     return %(ret)s
 """
@@ -268,19 +256,9 @@ def boilerplate_gen():
             join_with = '\n' + ' ' * (18 + len(func))
             call = join_with.join(text_wrapper.wrap(call))
 
-            # Add a hold keyword argument if needed (fmt is PLOT_TEMPLATE) and
-            # possible (if *args is used, we can't just add a hold
-            # argument in front of it since it would gobble one of the
-            # arguments the user means to pass via *args)
-            if varargs:
-                sethold = "    hold = %(varkw)s.pop('hold', None)" % locals()
-            elif fmt is PLOT_TEMPLATE:
-                args.append('hold')
+            if not varargs and fmt is PLOT_TEMPLATE and has_data:
+                args.append('data')
                 defaults = defaults + (None,)
-                if has_data:
-                    args.append('data')
-                    defaults = defaults + (None,)
-                sethold = ''
 
             # Now we can build the argspec for defining the wrapper
             argspec = inspect.formatargspec(args, varargs, varkw, defaults,
@@ -294,7 +272,7 @@ def boilerplate_gen():
             # A gensym-like facility in case some function takes an
             # argument named washold, ax, or ret
             washold, ret, ax = 'washold', 'ret', 'ax'
-            bad = set(args) | {varargs, varkw}
+            bad = {*args, varargs, varkw}
             while washold in bad or ret in bad or ax in bad:
                 washold = 'washold' + str(random.randrange(10 ** 12))
                 ret = 'ret' + str(random.randrange(10 ** 12))

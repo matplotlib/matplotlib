@@ -11,15 +11,15 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
     `matplotlib.backend_managers.ToolManager`
 """
 
+import time
+import warnings
+from weakref import WeakKeyDictionary
+
+import numpy as np
 
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
-from weakref import WeakKeyDictionary
-import six
-import time
-import warnings
-import numpy as np
 
 
 class Cursors(object):
@@ -344,7 +344,9 @@ class ToolCursorPosition(ToolBase):
                     if a is not event.inaxes.patch:
                         data = a.get_cursor_data(event)
                         if data is not None:
-                            s += ' [%s]' % a.format_cursor_data(data)
+                            data_str = a.format_cursor_data(data)
+                            if data_str is not None:
+                                s = s + ' ' + data_str
 
                 message = s
         self.toolmanager.message_event(message, self)
@@ -1057,7 +1059,7 @@ def add_tools_to_manager(toolmanager, tools=default_tools):
         info.
     """
 
-    for name, tool in six.iteritems(tools):
+    for name, tool in tools.items():
         toolmanager.add_tool(name, tool)
 
 

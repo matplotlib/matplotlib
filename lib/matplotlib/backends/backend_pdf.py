@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 A PDF matplotlib backend
 Author: Jouni K Seppänen <jks@iki.fi>
@@ -1647,7 +1645,7 @@ class RendererPdf(RendererBase):
         realpath, stat_key = get_realpath_and_stat(fname)
         used_characters = self.file.used_characters.setdefault(
             stat_key, (realpath, set()))
-        used_characters[1].update([ord(x) for x in s])
+        used_characters[1].update(map(ord, s))
 
     def merge_used_characters(self, other):
         for stat_key, (realpath, charset) in other.items():
@@ -2288,7 +2286,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         if rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_stroke]
         else:
-            return list(rgb[:3]) + [Op.setrgb_stroke]
+            return [*rgb[:3], Op.setrgb_stroke]
 
     def fillcolor_cmd(self, rgb):
         if rgb is None or rcParams['pdf.inheritcolor']:
@@ -2296,7 +2294,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         elif rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_nonstroke]
         else:
-            return list(rgb[:3]) + [Op.setrgb_nonstroke]
+            return [*rgb[:3], Op.setrgb_nonstroke]
 
     def push(self):
         parent = GraphicsContextPdf(self.file)

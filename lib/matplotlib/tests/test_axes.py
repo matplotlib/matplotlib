@@ -584,6 +584,16 @@ def test_shaped_data():
     plt.plot(xdata[:, 1], xdata[1, :], 'o')
 
 
+def test_structured_data():
+    # support for stuctured data
+    pts = np.array([(1, 1), (2, 2)], dtype=[("ones", float), ("twos", float)])
+
+    # this should not read second name as a format and raise ValueError
+    fig, ax = plt.subplots(2)
+    ax[0].plot("ones", "twos", data=pts)
+    ax[1].plot("ones", "twos", "r", data=pts)
+
+
 @image_comparison(baseline_images=['const_xy'])
 def test_const_xy():
     fig = plt.figure()
@@ -865,11 +875,8 @@ def test_inverted_limits():
 def test_nonfinite_limits():
     x = np.arange(0., np.e, 0.01)
     # silence divide by zero warning from log(0)
-    olderr = np.seterr(divide='ignore')
-    try:
+    with np.errstate(divide='ignore'):
         y = np.log(x)
-    finally:
-        np.seterr(**olderr)
     x[len(x)//2] = np.nan
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -5149,6 +5156,23 @@ def test_shared_axes_retick():
     assert ax_lst[0][0].get_xlim() == ax_lst[0][1].get_xlim()
     assert ax_lst[0][0].get_ylim() == ax_lst[1][0].get_ylim()
 
+
+def test_shared_axes_autoscale():
+    l = np.arange(-80, 90, 40)
+    t = np.random.random_sample((l.size, l.size))
+
+    ax1 = plt.subplot(211)
+    ax1.set_xlim(-1000, 1000)
+    ax1.set_ylim(-1000, 1000)
+    ax1.contour(l, l, t)
+
+    ax2 = plt.subplot(212, sharex=ax1, sharey=ax1)
+    ax2.contour(l, l, t)
+    assert not ax1.get_autoscalex_on() and not ax2.get_autoscalex_on()
+    assert not ax1.get_autoscaley_on() and not ax2.get_autoscaley_on()
+    assert ax1.get_xlim() == ax2.get_xlim() == (-1000, 1000)
+    assert ax1.get_ylim() == ax2.get_ylim() == (-1000, 1000)
+    
 
 def test_adjust_numtick_aspect():
     fig, ax = plt.subplots()

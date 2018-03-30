@@ -6,10 +6,6 @@ effectively disabled.
 
 It uses a tiny C++ extension module to access MS Win functions.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 from matplotlib import rcParams
 

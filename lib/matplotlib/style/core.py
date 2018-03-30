@@ -1,7 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 """
 Core functions and attributes for the matplotlib style library:
 
@@ -14,9 +10,10 @@ Core functions and attributes for the matplotlib style library:
 ``library``
     A dictionary of style names and matplotlib settings.
 """
+
+import contextlib
 import os
 import re
-import contextlib
 import warnings
 
 import matplotlib as mpl
@@ -89,18 +86,16 @@ def use(style):
     """
     style_alias = {'mpl20': 'default',
                    'mpl15': 'classic'}
-    if isinstance(style, six.string_types) or hasattr(style, 'keys'):
+    if isinstance(style, str) or hasattr(style, 'keys'):
         # If name is a single str or dict, make it a single element list.
         styles = [style]
     else:
         styles = style
 
-    styles = (style_alias.get(s, s)
-              if isinstance(s, six.string_types)
-              else s
+    styles = (style_alias.get(s, s) if isinstance(s, str) else s
               for s in styles)
     for style in styles:
-        if not isinstance(style, six.string_types):
+        if not isinstance(style, str):
             _apply_style(style)
         elif style == 'default':
             _apply_style(rcParamsDefault, warn=False)
@@ -141,25 +136,16 @@ def context(style, after_reset=False):
         If True, apply style after resetting settings to their defaults;
         otherwise, apply style on top of the current settings.
     """
-    initial_settings = mpl.rcParams.copy()
-    if after_reset:
-        mpl.rcdefaults()
-    try:
+    with mpl.rc_context():
+        if after_reset:
+            mpl.rcdefaults()
         use(style)
-    except:
-        # Restore original settings before raising errors during the update.
-        mpl.rcParams.update(initial_settings)
-        raise
-    else:
         yield
-    finally:
-        mpl.rcParams.update(initial_settings)
 
 
 def load_base_library():
     """Load style library defined in this package."""
-    library = dict()
-    library.update(read_style_directory(BASE_LIBRARY_PATH))
+    library = read_style_directory(BASE_LIBRARY_PATH)
     return library
 
 
@@ -211,11 +197,8 @@ def update_nested_dict(main_dict, new_dict):
     already exists. Instead you should update the sub-dict.
     """
     # update named styles specified by user
-    for name, rc_dict in six.iteritems(new_dict):
-        if name in main_dict:
-            main_dict[name].update(rc_dict)
-        else:
-            main_dict[name] = rc_dict
+    for name, rc_dict in new_dict.items():
+        main_dict.setdefault(name, {}).update(rc_dict)
     return main_dict
 
 

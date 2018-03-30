@@ -14,15 +14,11 @@ deviation ellipses, which can and will be derived very easily from
 the Quiver code.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import math
 import weakref
 
 import numpy as np
+
 from numpy import ma
 import matplotlib.collections as mcollections
 import matplotlib.transforms as transforms
@@ -407,9 +403,9 @@ def _parse_args(*args):
 
 
 def _check_consistent_shapes(*arrays):
-    all_shapes = set(a.shape for a in arrays)
+    all_shapes = {a.shape for a in arrays}
     if len(all_shapes) != 1:
-        raise ValueError('The shapes of the passed in arrays do not match.')
+        raise ValueError('The shapes of the passed in arrays do not match')
 
 
 class Quiver(mcollections.PolyCollection):
@@ -626,7 +622,7 @@ class Quiver(mcollections.PolyCollection):
 
     def _make_verts(self, U, V, angles):
         uv = (U + V * 1j)
-        str_angles = angles if isinstance(angles, six.string_types) else ''
+        str_angles = angles if isinstance(angles, str) else ''
         if str_angles == 'xy' and self.scale_units == 'xy':
             # Here eps is 1 so that if we get U, V by diffing
             # the X, Y arrays, the vectors will connect the

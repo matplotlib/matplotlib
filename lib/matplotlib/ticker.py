@@ -170,6 +170,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import itertools
+import logging
 import locale
 import math
 import numpy as np
@@ -180,6 +181,7 @@ from matplotlib.cbook import mplDeprecation
 
 import warnings
 
+_log = logging.getLogger(__name__)
 
 __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
@@ -737,7 +739,7 @@ class ScalarFormatter(Formatter):
         # set the format string to format all the ticklabels
         if len(self.locs) < 2:
             # Temporarily augment the locations with the axis end points.
-            _locs = list(self.locs) + [vmin, vmax]
+            _locs = [*self.locs, vmin, vmax]
         else:
             _locs = self.locs
         locs = (np.asarray(_locs) - self.offset) / 10. ** self.orderOfMagnitude
@@ -929,7 +931,7 @@ class LogFormatter(Formatter):
             # It's probably a colorbar with
             # a format kwarg setting a LogFormatter in the manner
             # that worked with 1.5.x, but that doesn't work now.
-            self._sublabels = set((1,))  # label powers of base
+            self._sublabels = {1}  # label powers of base
             return
 
         b = self._base
@@ -1251,43 +1253,31 @@ class EngFormatter(Formatter):
         '1.0 M'
 
         >>> format_eng("-1e-6") # for self.places = 2
-        u'-1.00 \N{GREEK SMALL LETTER MU}'
-
-        `num` may be a numeric value or a string that can be converted
-        to a numeric value with ``float(num)``.
+        '-1.00 \N{GREEK SMALL LETTER MU}'
         """
-        if isinstance(num, six.string_types):
-            warnings.warn(
-                "Passing a string as *num* argument is deprecated since"
-                "Matplotlib 2.1, and is expected to be removed in 2.3.",
-                mplDeprecation)
-
-        dnum = float(num)
         sign = 1
         fmt = "g" if self.places is None else ".{:d}f".format(self.places)
 
-        if dnum < 0:
+        if num < 0:
             sign = -1
-            dnum = -dnum
+            num = -num
 
-        if dnum != 0:
-            pow10 = int(math.floor(math.log10(dnum) / 3) * 3)
+        if num != 0:
+            pow10 = int(math.floor(math.log10(num) / 3) * 3)
         else:
             pow10 = 0
-            # Force dnum to zero, to avoid inconsistencies like
+            # Force num to zero, to avoid inconsistencies like
             # format_eng(-0) = "0" and format_eng(0.0) = "0"
             # but format_eng(-0.0) = "-0.0"
-            dnum = 0.0
+            num = 0.0
 
         pow10 = np.clip(pow10, min(self.ENG_PREFIXES), max(self.ENG_PREFIXES))
 
-        mant = sign * dnum / (10.0 ** pow10)
-        # Taking care of the cases like 999.9..., which
-        # may be rounded to 1000 instead of 1 k.  Beware
-        # of the corner case of values that are beyond
+        mant = sign * num / (10.0 ** pow10)
+        # Taking care of the cases like 999.9..., which may be rounded to 1000
+        # instead of 1 k.  Beware of the corner case of values that are beyond
         # the range of SI prefixes (i.e. > 'Y').
-        _fmant = float("{mant:{fmt}}".format(mant=mant, fmt=fmt))
-        if _fmant >= 1000 and pow10 != max(self.ENG_PREFIXES):
+        if float(format(mant, fmt)) >= 1000 and pow10 < max(self.ENG_PREFIXES):
             mant /= 1000
             pow10 += 3
 
@@ -2115,6 +2105,7 @@ class LogLocator(Locator):
                     "Data has no positive values, and therefore can not be "
                     "log-scaled.")
 
+        _log.debug('vmin %s vmax %s', vmin, vmax)
         vmin = math.log(vmin) / math.log(b)
         vmax = math.log(vmax) / math.log(b)
 
@@ -2135,8 +2126,8 @@ class LogLocator(Locator):
         else:
             subs = self._subs
 
+        # get decades between major ticks.
         stride = 1
-
         if rcParams['_internal.classic_mode']:
             # Leave the bug left over from the PY2-PY3 transition.
             while numdec / stride + 1 > numticks:
@@ -2157,6 +2148,8 @@ class LogLocator(Locator):
                 if stride == 1:
                     ticklocs = np.ravel(np.outer(subs, ticklocs))
                 else:
+                    # no ticklocs if we have more than one decade
+                    # between major ticks.
                     ticklocs = []
         else:
             if have_subs:
@@ -2167,6 +2160,7 @@ class LogLocator(Locator):
             else:
                 ticklocs = b ** decades
 
+        _log.debug('ticklocs %r', ticklocs)
         return self.raise_if_exceeds(np.asarray(ticklocs))
 
     def view_limits(self, vmin, vmax):

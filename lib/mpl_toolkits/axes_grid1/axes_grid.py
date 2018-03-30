@@ -47,7 +47,6 @@ class CbarAxesBase(object):
             else:
                 kwargs["ticks"] = locator
 
-        self._hold = True
         if self.orientation in ["top", "bottom"]:
             orientation = "horizontal"
         else:
@@ -769,4 +768,3 @@ class ImageGrid(Grid):
 
 
 AxesGrid = ImageGrid
-

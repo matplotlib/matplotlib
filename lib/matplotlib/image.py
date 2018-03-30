@@ -4,14 +4,13 @@ operations.
 
 """
 
-import six
-from six.moves.urllib.parse import urlparse
-from six.moves.urllib.request import urlopen
 from io import BytesIO
-
 from math import ceil
 import os
 import logging
+import urllib.parse
+import urllib.request
+import warnings
 
 import numpy as np
 
@@ -264,8 +263,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         and magnified by the magnification factor.
 
         `A` may be a greyscale image (MxN) with a dtype of `float32`,
-        `float64`, `uint16` or `uint8`, or an RGBA image (MxNx4) with
-        a dtype of `float32`, `float64`, or `uint8`.
+        `float64`, `float128`, `uint16` or `uint8`, or an RGBA image (MxNx4)
+        with a dtype of `float32`, `float64`, `float128`, or `uint8`.
 
         If `unsampled` is True, the image will not be scaled, but an
         appropriate affine transformation will be returned instead.
@@ -361,6 +360,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     a_min, a_max = np.int32(0), np.int32(1)
                 if inp_dtype.kind == 'f':
                     scaled_dtype = A.dtype
+                    # Cast to float64
+                    if A.dtype not in (np.float32, np.float16):
+                        if A.dtype != np.float64:
+                            warnings.warn(
+                                "Casting input data from '{0}' to 'float64'"
+                                "for imshow".format(A.dtype))
+                        scaled_dtype = np.float64
                 else:
                     # probably an integer of some type.
                     da = a_max.astype(np.float64) - a_min.astype(np.float64)
@@ -386,7 +392,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # of over numbers.
                 if self.norm.vmin is not None and self.norm.vmax is not None:
                     dv = (np.float64(self.norm.vmax) -
-                            np.float64(self.norm.vmin))
+                          np.float64(self.norm.vmin))
                     vmid = self.norm.vmin + dv / 2
                     newmin = vmid - dv * 1.e7
                     if newmin < a_min:
@@ -920,7 +926,7 @@ class NonUniformImage(AxesImage):
             if A.dtype != np.uint8:
                 A = (255*A).astype(np.uint8)
             if A.shape[2] == 3:
-                B = np.zeros(tuple(list(A.shape[0:2]) + [4]), np.uint8)
+                B = np.zeros(tuple([*A.shape[0:2], 4]), np.uint8)
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
@@ -1319,8 +1325,8 @@ def imread(fname, format=None):
 
     handlers = {'png': _png.read_png, }
     if format is None:
-        if isinstance(fname, six.string_types):
-            parsed = urlparse(fname)
+        if isinstance(fname, str):
+            parsed = urllib.parse.urlparse(fname)
             # If the string is a URL, assume png
             if len(parsed.scheme) > 1:
                 ext = 'png'
@@ -1348,11 +1354,11 @@ def imread(fname, format=None):
     # To handle Unicode filenames, we pass a file object to the PNG
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
-    if isinstance(fname, six.string_types):
-        parsed = urlparse(fname)
+    if isinstance(fname, str):
+        parsed = urllib.parse.urlparse(fname)
         # If fname is a URL, download the data
         if len(parsed.scheme) > 1:
-            fd = BytesIO(urlopen(fname).read())
+            fd = BytesIO(urllib.request.urlopen(fname).read())
             return handler(fd)
         else:
             with open(fname, 'rb') as fd:
@@ -1401,7 +1407,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         fname = os.fspath(fname)
     if (format == 'png'
         or (format is None
-            and isinstance(fname, six.string_types)
+            and isinstance(fname, str)
             and fname.lower().endswith('.png'))):
         image = AxesImage(None, cmap=cmap, origin=origin)
         image.set_data(arr)

@@ -1,12 +1,8 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import numpy as np
 
 from matplotlib.contour import ContourSet
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib._tri as _tri
-import numpy as np
 
 
 class TriContourSet(ContourSet):
@@ -269,15 +265,13 @@ def tricontour(ax, *args, **kwargs):
     the minimum value of the *z* array, then that minimum value
     will be included in the lowest interval.
     """
-    if not ax._hold:
-        ax.cla()
     kwargs['filled'] = False
     return TriContourSet(ax, *args, **kwargs)
 
 
 def tricontourf(ax, *args, **kwargs):
-    if not ax._hold:
-        ax.cla()
     kwargs['filled'] = True
     return TriContourSet(ax, *args, **kwargs)
+
+
 tricontourf.__doc__ = tricontour.__doc__

@@ -1,7 +1,5 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
+import os
+from pathlib import Path
 import sys
 import tempfile
 
@@ -42,29 +40,35 @@ class NullMovieWriter(animation.AbstractMovieWriter):
         pass
 
 
-def test_null_movie_writer():
-    # Test running an animation with NullMovieWriter.
-
-    fig = plt.figure()
+def make_animation(**kwargs):
+    fig, ax = plt.subplots()
+    line, = ax.plot([])
 
     def init():
         pass
 
     def animate(i):
-        pass
+        line.set_data([0, 1], [0, i])
+        return line,
+
+    return animation.FuncAnimation(fig, animate, **kwargs)
+
+
+def test_null_movie_writer():
+    # Test running an animation with NullMovieWriter.
 
     num_frames = 5
+    anim = make_animation(frames=num_frames)
+
     filename = "unused.null"
     dpi = 50
     savefig_kwargs = dict(foo=0)
-
-    anim = animation.FuncAnimation(fig, animate, init_func=init,
-                                   frames=num_frames)
     writer = NullMovieWriter()
+
     anim.save(filename, dpi=dpi, writer=writer,
               savefig_kwargs=savefig_kwargs)
 
-    assert writer.fig == fig
+    assert writer.fig == plt.figure(1)  # The figure used by make_animation.
     assert writer.outfile == filename
     assert writer.dpi == dpi
     assert writer.args == ()
@@ -178,23 +182,8 @@ def test_save_animation_smoketest(tmpdir, writer, output):
 
 
 def test_no_length_frames():
-    fig, ax = plt.subplots()
-    line, = ax.plot([], [])
-
-    def init():
-        line.set_data([], [])
-        return line,
-
-    def animate(i):
-        x = np.linspace(0, 10, 100)
-        y = np.sin(x + i)
-        line.set_data(x, y)
-        return line,
-
-    anim = animation.FuncAnimation(fig, animate, init_func=init,
-                                   frames=iter(range(5)))
-    writer = NullMovieWriter()
-    anim.save('unused.null', writer=writer)
+    (make_animation(frames=iter(range(5)))
+     .save('unused.null', writer=NullMovieWriter()))
 
 
 def test_movie_writer_registry():
@@ -205,17 +194,69 @@ def test_movie_writer_registry():
     assert len(animation.writers._registered) > 0
     animation.writers.list()  # resets dirty state
     assert not animation.writers._dirty
-    mpl.rcParams['animation.ffmpeg_path'] = u"not_available_ever_xxxx"
+    mpl.rcParams['animation.ffmpeg_path'] = "not_available_ever_xxxx"
     assert animation.writers._dirty
     animation.writers.list()  # resets
     assert not animation.writers._dirty
     assert not animation.writers.is_available("ffmpeg")
     # something which is guaranteed to be available in path
     # and exits immediately
-    bin = u"true" if sys.platform != 'win32' else u"where"
+    bin = "true" if sys.platform != 'win32' else "where"
     mpl.rcParams['animation.ffmpeg_path'] = bin
     assert animation.writers._dirty
     animation.writers.list()  # resets
     assert not animation.writers._dirty
     assert animation.writers.is_available("ffmpeg")
     mpl.rcParams['animation.ffmpeg_path'] = ffmpeg_path
+
+
+@pytest.mark.skipif(
+    not animation.writers.is_available(mpl.rcParams["animation.writer"]),
+    reason="animation writer not installed")
+@pytest.mark.parametrize("method_name", ["to_html5_video", "to_jshtml"])
+def test_embed_limit(method_name, caplog):
+    with mpl.rc_context({"animation.embed_limit": 1e-6}):  # ~1 byte.
+        getattr(make_animation(frames=1), method_name)()
+    assert len(caplog.records) == 1
+    record, = caplog.records
+    assert (record.name == "matplotlib.animation"
+            and record.levelname == "WARNING")
+
+
+@pytest.mark.skipif(
+    not animation.writers.is_available(mpl.rcParams["animation.writer"]),
+    reason="animation writer not installed")
+@pytest.mark.parametrize(
+    "method_name",
+    ["to_html5_video",
+     pytest.mark.xfail("to_jshtml")])  # Needs to be fixed.
+def test_cleanup_temporaries(method_name, tmpdir):
+    with tmpdir.as_cwd():
+        getattr(make_animation(frames=1), method_name)()
+        assert list(Path(str(tmpdir)).iterdir()) == []
+
+
+# Currently, this fails with a ValueError after we try to communicate() twice
+# with the Popen.
+@pytest.mark.xfail
+@pytest.mark.skipif(os.name != "posix", reason="requires a POSIX OS")
+def test_failing_ffmpeg(tmpdir, monkeypatch):
+    """
+    Test that we correctly raise an OSError when ffmpeg fails.
+
+    To do so, mock ffmpeg using a simple executable shell script that
+    succeeds when called with no arguments (so that it gets registered by
+    `isAvailable`), but fails otherwise, and add it to the $PATH.
+    """
+    try:
+        with tmpdir.as_cwd():
+            monkeypatch.setenv("PATH", ".:" + os.environ["PATH"])
+            exe_path = Path(tmpdir, "ffmpeg")
+            exe_path.write_text("#!/bin/sh\n"
+                                "[[ $@ -eq 0 ]]\n")
+            os.chmod(str(exe_path), 0o755)
+            animation.writers.reset_available_writers()
+            with pytest.raises(OSError):
+                make_animation().save("test.mpeg")
+    finally:
+        animation.writers.reset_available_writers()

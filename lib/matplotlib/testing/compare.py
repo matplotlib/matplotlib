@@ -2,9 +2,6 @@
 Provides a collection of utilities for comparing (image) results.
 
 """
-from __future__ import absolute_import, division, print_function
-
-import six
 
 import atexit
 import functools
@@ -184,15 +181,14 @@ class _SVGConverter(object):
             # reported as a regular exception below).
             env.pop("DISPLAY", None)  # May already be unset.
             # Do not load any user options.
-            # `os.environ` needs native strings on Py2+Windows.
-            env[str("INKSCAPE_PROFILE_DIR")] = os.devnull
+            env["INKSCAPE_PROFILE_DIR"] = os.devnull
             # Old versions of Inkscape (0.48.3.1, used on Travis as of now)
             # seem to sometimes deadlock when stderr is redirected to a pipe,
             # so we redirect it to a temporary file instead.  This is not
             # necessary anymore as of Inkscape 0.92.1.
             self._stderr = TemporaryFile()
             self._proc = subprocess.Popen(
-                [str("inkscape"), "--without-gui", "--shell"],
+                ["inkscape", "--without-gui", "--shell"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=self._stderr, env=env)
             if not self._read_to_prompt():
@@ -213,7 +209,7 @@ class _SVGConverter(object):
             # slow solution (Inkscape uses `fgets` so it will always stop at a
             # newline).
             return make_external_conversion_command(lambda old, new: [
-                str('inkscape'), '-z', old, '--export-png', new])(orig, dest)
+                'inkscape', '-z', old, '--export-png', new])(orig, dest)
         self._proc.stdin.write(orig_b + b" --export-png=" + dest_b + b"\n")
         self._proc.stdin.flush()
         if not self._read_to_prompt():
@@ -263,7 +259,7 @@ def comparable_formats():
     on this system.
 
     """
-    return ['png'] + list(converter)
+    return ['png', *converter]
 
 
 def convert(filename, cache):
@@ -332,8 +328,8 @@ def calculate_rms(expectedImage, actualImage):
     "Calculate the per-pixel errors, then compute the root mean square error."
     if expectedImage.shape != actualImage.shape:
         raise ImageComparisonFailure(
-            "Image sizes do not match expected size: {0} "
-            "actual size {1}".format(expectedImage.shape, actualImage.shape))
+            "Image sizes do not match expected size: {} "
+            "actual size {}".format(expectedImage.shape, actualImage.shape))
     # Convert to float to avoid overflowing finite integer types.
     return np.sqrt(((expectedImage - actualImage).astype(float) ** 2).mean())
 
@@ -364,7 +360,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
     --------
     img1 = "./baseline/plot.png"
     img2 = "./output/plot.png"
-    compare_images( img1, img2, 0.001 ):
+    compare_images(img1, img2, 0.001):
 
     """
     if not os.path.exists(actual):
@@ -394,7 +390,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
     diff_image = make_test_filename(actual, 'failed-diff')
 
-    if tol <= 0.0:
+    if tol <= 0:
         if np.array_equal(expectedImage, actualImage):
             return None
 
@@ -434,8 +430,8 @@ def save_diff_image(expected, actual, output):
     actualImage = np.array(actualImage).astype(float)
     if expectedImage.shape != actualImage.shape:
         raise ImageComparisonFailure(
-            "Image sizes do not match expected size: {0} "
-            "actual size {1}".format(expectedImage.shape, actualImage.shape))
+            "Image sizes do not match expected size: {} "
+            "actual size {}".format(expectedImage.shape, actualImage.shape))
     absDiffImage = np.abs(expectedImage - actualImage)
 
     # expand differences in luminance domain

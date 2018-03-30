@@ -1,29 +1,19 @@
 """
- A wxPython backend for matplotlib, based (very heavily) on
- backend_template.py and backend_gtk.py
+A wxPython backend for matplotlib.
 
- Author: Jeremy O'Donoghue (jeremy@o-donoghue.com)
+Originally contributed by Jeremy O'Donoghue (jeremy@o-donoghue.com) and John
+Hunter (jdhunter@ace.bsd.uchicago.edu).
 
- Derived from original copyright work by John Hunter
- (jdhunter@ace.bsd.uchicago.edu)
-
- Copyright (C) Jeremy O'Donoghue & John Hunter, 2003-4
-
- License: This work is licensed under a PSF compatible license. A copy
- should be included with this source code.
-
+Copyright (C) Jeremy O'Donoghue & John Hunter, 2003-4.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import six
 
-import sys
-import os
 import os.path
 import math
-import weakref
+import sys
 import warnings
+import weakref
 
 import matplotlib
 from matplotlib.backend_bases import (
@@ -39,7 +29,6 @@ from matplotlib.transforms import Affine2D
 from matplotlib.widgets import SubplotTool
 from matplotlib import cbook, rcParams, backend_tools
 
-from . import wx_compat as wxc
 import wx
 
 # Debugging settings here...
@@ -173,14 +162,45 @@ class RendererWx(RendererBase):
     # describes the colour and weight of any lines drawn, and a wxBrush
     # which describes the fill colour of any closed polygon.
 
-    fontweights = wxc.fontweights
-    fontangles = wxc.fontangles
+    # Font styles, families and weight.
+    fontweights = {
+        100: wx.FONTWEIGHT_LIGHT,
+        200: wx.FONTWEIGHT_LIGHT,
+        300: wx.FONTWEIGHT_LIGHT,
+        400: wx.FONTWEIGHT_NORMAL,
+        500: wx.FONTWEIGHT_NORMAL,
+        600: wx.FONTWEIGHT_NORMAL,
+        700: wx.FONTWEIGHT_BOLD,
+        800: wx.FONTWEIGHT_BOLD,
+        900: wx.FONTWEIGHT_BOLD,
+        'ultralight': wx.FONTWEIGHT_LIGHT,
+        'light': wx.FONTWEIGHT_LIGHT,
+        'normal': wx.FONTWEIGHT_NORMAL,
+        'medium': wx.FONTWEIGHT_NORMAL,
+        'semibold': wx.FONTWEIGHT_NORMAL,
+        'bold': wx.FONTWEIGHT_BOLD,
+        'heavy': wx.FONTWEIGHT_BOLD,
+        'ultrabold': wx.FONTWEIGHT_BOLD,
+        'black': wx.FONTWEIGHT_BOLD,
+    }
+    fontangles = {
+        'italic': wx.FONTSTYLE_ITALIC,
+        'normal': wx.FONTSTYLE_NORMAL,
+        'oblique': wx.FONTSTYLE_SLANT,
+    }
 
-    # wxPython allows for portable font styles, choosing them appropriately
-    # for the target platform. Map some standard font names to the portable
-    # styles
+    # wxPython allows for portable font styles, choosing them appropriately for
+    # the target platform. Map some standard font names to the portable styles.
     # QUESTION: Is it be wise to agree standard fontnames across all backends?
-    fontnames = wxc.fontnames
+    fontnames = {
+        'Sans': wx.FONTFAMILY_SWISS,
+        'Roman': wx.FONTFAMILY_ROMAN,
+        'Script': wx.FONTFAMILY_SCRIPT,
+        'Decorative': wx.FONTFAMILY_DECORATIVE,
+        'Modern': wx.FONTFAMILY_MODERN,
+        'Courier': wx.FONTFAMILY_MODERN,
+        'courier': wx.FONTFAMILY_MODERN,
+    }
 
     def __init__(self, bitmap, dpi):
         """
@@ -285,7 +305,7 @@ class RendererWx(RendererBase):
             w = self.width
             h = self.height
         rows, cols = im.shape[:2]
-        bitmap = wxc.BitmapFromBuffer(cols, rows, im.tostring())
+        bitmap = wx.Bitmap.FromBufferRGBA(cols, rows, im.tostring())
         gc = self.get_gc()
         gc.select()
         gc.gfx_ctx.DrawBitmap(bitmap, int(l), int(self.height - b),
@@ -606,32 +626,13 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # Set preferred window size hint - helps the sizer (if one is
         # connected)
         l, b, w, h = figure.bbox.bounds
-        w = int(math.ceil(w))
-        h = int(math.ceil(h))
+        w = math.ceil(w)
+        h = math.ceil(h)
 
         wx.Panel.__init__(self, parent, id, size=wx.Size(w, h))
 
-        def do_nothing(*args, **kwargs):
-            warnings.warn(
-                "could not find a setinitialsize function for backend_wx; "
-                "please report your wxpython version=%s "
-                "to the matplotlib developers list" %
-                wxc.backend_version)
-            pass
-
-        # try to find the set size func across wx versions
-        try:
-            getattr(self, 'SetInitialSize')
-        except AttributeError:
-            self.SetInitialSize = getattr(self, 'SetBestFittingSize',
-                                          do_nothing)
-
-        if not hasattr(self, 'IsShownOnScreen'):
-            self.IsShownOnScreen = getattr(self, 'IsVisible',
-                                           lambda *args: True)
-
         # Create the drawing bitmap
-        self.bitmap = wxc.EmptyBitmap(w, h)
+        self.bitmap = wx.Bitmap(w, h)
         DEBUG_MSG("__init__() - bitmap w:%d h:%d" % (w, h), 2, self)
         # TODO: Add support for 'point' inspection and plot navigation.
         self._isDrawn = False
@@ -661,7 +662,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.SetBackgroundStyle(wx.BG_STYLE_PAINT)  # Reduce flicker.
         self.SetBackgroundColour(wx.WHITE)
 
-        self.macros = {}  # dict from wx id to seq of macros
+    @property
+    @cbook.deprecated("3.0")
+    def macros(self):
+        return {}
 
     def Destroy(self, *args, **kwargs):
         wx.Panel.Destroy(self, *args, **kwargs)
@@ -733,7 +737,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             self.Bind(wx.EVT_TIMER, self.stop_event_loop, id=id)
 
         # Event loop handler for start/stop event loop
-        self._event_loop = wxc.EventLoop()
+        self._event_loop = wx.GUIEventLoop()
         self._event_loop.Run()
         timer.Stop()
 
@@ -790,15 +794,17 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             else:
                 drawDC.DrawBitmap(self.bitmap, 0, 0)
 
-    filetypes = FigureCanvasBase.filetypes.copy()
-    filetypes['bmp'] = 'Windows bitmap'
-    filetypes['jpeg'] = 'JPEG'
-    filetypes['jpg'] = 'JPEG'
-    filetypes['pcx'] = 'PCX'
-    filetypes['png'] = 'Portable Network Graphics'
-    filetypes['tif'] = 'Tagged Image Format File'
-    filetypes['tiff'] = 'Tagged Image Format File'
-    filetypes['xpm'] = 'X pixmap'
+    filetypes = {
+        **FigureCanvasBase.filetypes,
+        'bmp': 'Windows bitmap',
+        'jpeg': 'JPEG',
+        'jpg': 'JPEG',
+        'pcx': 'PCX',
+        'png': 'Portable Network Graphics',
+        'tif': 'Tagged Image Format File',
+        'tiff': 'Tagged Image Format File',
+        'xpm': 'X pixmap',
+    }
 
     def print_figure(self, filename, *args, **kwargs):
         super().print_figure(filename, *args, **kwargs)
@@ -845,7 +851,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 return
         self._width, self._height = size
         # Create a new, correctly sized bitmap
-        self.bitmap = wxc.EmptyBitmap(self._width, self._height)
+        self.bitmap = wx.Bitmap(self._width, self._height)
 
         self._isDrawn = False
 
@@ -1080,10 +1086,10 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         origBitmap = self.bitmap
 
         l, b, width, height = self.figure.bbox.bounds
-        width = int(math.ceil(width))
-        height = int(math.ceil(height))
+        width = math.ceil(width)
+        height = math.ceil(height)
 
-        self.bitmap = wxc.EmptyBitmap(width, height)
+        self.bitmap = wx.Bitmap(width, height)
 
         renderer = RendererWx(self.bitmap, self.figure.dpi)
 
@@ -1172,12 +1178,8 @@ class FigureFrameWx(wx.Frame):
             self.toolbar.Realize()
             # On Windows platform, default window size is incorrect, so set
             # toolbar width to figure width.
-            if wxc.is_phoenix:
-                tw, th = self.toolbar.GetSize()
-                fw, fh = self.canvas.GetSize()
-            else:
-                tw, th = self.toolbar.GetSizeTuple()
-                fw, fh = self.canvas.GetSizeTuple()
+            tw, th = self.toolbar.GetSize()
+            fw, fh = self.canvas.GetSize()
             # By adding toolbar in sizer, we are able to put it at the bottom
             # of the frame - so appearance is closer to GTK version.
             self.toolbar.SetSize(wx.Size(fw, th))
@@ -1368,12 +1370,8 @@ class MenuButtonWx(wx.Button):
 
     def _onMenuButton(self, evt):
         """Handle menu button pressed."""
-        if wxc.is_phoenix:
-            x, y = self.GetPosition()
-            w, h = self.GetSize()
-        else:
-            x, y = self.GetPositionTuple()
-            w, h = self.GetSizeTuple()
+        x, y = self.GetPosition()
+        w, h = self.GetSize()
         self.PopupMenuXY(self._menu, x, y + h - 4)
         # When menu returned, indicate selection in button
         evt.Skip()
@@ -1500,11 +1498,15 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             if text is None:
                 self.AddSeparator()
                 continue
-            self.wx_ids[text] = wx.NewId()
-            wxc._AddTool(self, self.wx_ids, text,
-                         _load_bitmap(image_file + '.png'),
-                         tooltip_text)
-
+            self.wx_ids[text] = (
+                self.AddTool(
+                    -1,
+                    bitmap=_load_bitmap(image_file + ".png"),
+                    bmpDisabled=wx.NullBitmap,
+                    label=text, shortHelp=text, longHelp=tooltip_text,
+                    kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
+                          else wx.ITEM_NORMAL))
+                .Id)
             self.Bind(wx.EVT_TOOL, getattr(self, callback),
                       id=self.wx_ids[text])
 
@@ -1569,7 +1571,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 error_msg_wx(str(e))
 
     def set_cursor(self, cursor):
-        cursor = wxc.Cursor(cursord[cursor])
+        cursor = wx.Cursor(cursord[cursor])
         self.canvas.SetCursor(cursor)
         self.canvas.Update()
 
@@ -1645,17 +1647,14 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         rubberBandColor = '#C0C0FF'  # or load from config?
 
         # Set a pen for the border
-        color = wxc.NamedColour(rubberBandColor)
+        color = wx.Colour(rubberBandColor)
         dc.SetPen(wx.Pen(color, 1))
 
         # use the same color, plus alpha for the brush
         r, g, b, a = color.Get(True)
         color.Set(r, g, b, 0x60)
         dc.SetBrush(wx.Brush(color))
-        if wxc.is_phoenix:
-            dc.DrawRectangle(rect)
-        else:
-            dc.DrawRectangleRect(rect)
+        dc.DrawRectangle(rect)
 
     def set_status_bar(self, statbar):
         self.statbar = statbar
@@ -1742,7 +1741,7 @@ class SaveFigureWx(backend_tools.SaveFigureBase):
 
 class SetCursorWx(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
-        cursor = wxc.Cursor(cursord[cursor])
+        cursor = wx.Cursor(cursord[cursor])
         self.canvas.SetCursor(cursor)
         self.canvas.Update()
 
@@ -1780,17 +1779,14 @@ if 'wxMac' not in wx.PlatformInfo:
             rubberBandColor = '#C0C0FF'  # or load from config?
 
             # Set a pen for the border
-            color = wxc.NamedColour(rubberBandColor)
+            color = wx.Colour(rubberBandColor)
             dc.SetPen(wx.Pen(color, 1))
 
             # use the same color, plus alpha for the brush
             r, g, b, a = color.Get(True)
             color.Set(r, g, b, 0x60)
             dc.SetBrush(wx.Brush(color))
-            if wxc.is_phoenix:
-                dc.DrawRectangle(rect)
-            else:
-                dc.DrawRectangleRect(rect)
+            dc.DrawRectangle(rect)
 
         def remove_rubberband(self):
             if self.wxoverlay is None:
@@ -1821,10 +1817,7 @@ else:
             dc.SetPen(wx.Pen(wx.BLACK, 1, wx.SOLID))
             dc.SetBrush(wx.TRANSPARENT_BRUSH)
             self._rect = (x0, self.canvas._height-y0, x1-x0, -y1+y0)
-            if wxc.is_phoenix:
-                dc.DrawRectangle(self._rect)
-            else:
-                dc.DrawRectangleRect(self._rect)
+            dc.DrawRectangle(self._rect)
 
         def remove_rubberband(self, dc=None):
             if not self._rect:
@@ -1872,13 +1865,10 @@ class PrintoutWx(wx.Printout):
         self.canvas.draw()
 
         dc = self.GetDC()
-        (ppw, pph) = self.GetPPIPrinter()      # printer's pixels per in
-        (pgw, pgh) = self.GetPageSizePixels()  # page size in pixels
-        (dcw, dch) = dc.GetSize()
-        if wxc.is_phoenix:
-            (grw, grh) = self.canvas.GetSize()
-        else:
-            (grw, grh) = self.canvas.GetSizeTuple()
+        ppw, pph = self.GetPPIPrinter()      # printer's pixels per in
+        pgw, pgh = self.GetPageSizePixels()  # page size in pixels
+        dcw, dch = dc.GetSize()
+        grw, grh = self.canvas.GetSize()
 
         # save current figure dpi resolution and bg color,
         # so that we can temporarily set them to the dpi of

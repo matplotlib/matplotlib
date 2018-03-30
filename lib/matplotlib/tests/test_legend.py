@@ -14,40 +14,6 @@ from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
 
 
-# test that docstrigs are the same
-def get_docstring_section(func, section):
-    """ extract a section from the docstring of a function """
-    ll = inspect.getdoc(func)
-    lines = ll.splitlines()
-    insec = False
-    st = ''
-    for ind in range(len(lines)):
-        if lines[ind][:len(section)] == section and lines[ind+1][:3] == '---':
-            insec = True
-            ind = ind+1
-        if insec:
-            if len(lines[ind + 1]) > 3 and lines[ind + 1][0:3] == '---':
-                insec = False
-                break
-            else:
-                st += lines[ind] + '\n'
-    return st
-
-
-def test_legend_kwdocstrings():
-    stax = get_docstring_section(mpl.axes.Axes.legend, 'Parameters')
-    stfig = get_docstring_section(mpl.figure.Figure.legend, 'Parameters')
-    assert stfig == stax
-
-    stleg = get_docstring_section(mpl.legend.Legend.__init__,
-                                  'Other Parameters')
-    stax = get_docstring_section(mpl.axes.Axes.legend, 'Other Parameters')
-    stfig = get_docstring_section(mpl.figure.Figure.legend, 'Other Parameters')
-    assert stleg == stax
-    assert stfig == stax
-    assert stleg == stfig
-
-
 def test_legend_ordereddict():
     # smoketest that ordereddict inputs work...
 
@@ -106,7 +72,7 @@ def test_various_labels():
     fig = plt.figure()
     ax = fig.add_subplot(121)
     ax.plot(np.arange(4), 'o', label=1)
-    ax.plot(np.linspace(4, 4.1), 'o', label=u'D\xe9velopp\xe9s')
+    ax.plot(np.linspace(4, 4.1), 'o', label='Développés')
     ax.plot(np.arange(4, 1, -1), 'o', label='__nolegend__')
     ax.legend(numpoints=1, loc=0)
 

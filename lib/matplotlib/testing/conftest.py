@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import pytest
 
 import matplotlib
+from matplotlib import cbook
 
 
 def pytest_configure(config):
@@ -50,8 +51,7 @@ def mpl_test_settings(request):
     finally:
         if backend is not None:
             plt.switch_backend(prev_backend)
-        _do_cleanup(original_units_registry,
-                    original_settings)
+        _do_cleanup(original_units_registry, original_settings)
 
 
 @pytest.fixture
@@ -71,11 +71,9 @@ def mpl_image_comparison_parameters(request, extension):
         baseline_images = request.getfixturevalue('baseline_images')
 
     func = request.function
-    func.__wrapped__.parameters = (baseline_images, extension)
-    try:
+    with cbook._setattr_cm(func.__wrapped__,
+                           parameters=(baseline_images, extension)):
         yield
-    finally:
-        delattr(func.__wrapped__, 'parameters')
 
 
 @pytest.fixture

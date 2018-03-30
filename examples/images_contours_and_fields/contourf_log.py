@@ -42,9 +42,7 @@ cs = ax.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
 # lev_exp = np.arange(np.floor(np.log10(z.min())-1),
 #                    np.ceil(np.log10(z.max())+1))
 # levs = np.power(10, lev_exp)
-# cs = P.contourf(X, Y, z, levs, norm=colors.LogNorm())
-
-# The 'extend' kwarg does not work yet with a log scale.
+# cs = ax.contourf(X, Y, z, levs, norm=colors.LogNorm())
 
 cbar = fig.colorbar(cs)
 

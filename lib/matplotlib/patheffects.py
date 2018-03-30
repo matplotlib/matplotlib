@@ -4,11 +4,6 @@ Defines classes for path effects. The path effects are supported in
 and :class:`~matplotlib.patches.Patch`.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from matplotlib.backend_bases import RendererBase
 from matplotlib import colors as mcolors
 from matplotlib import patches as mpatches
@@ -53,7 +48,7 @@ class AbstractPathEffect(object):
         if dashes:
             gc.set_dashes(**dashes)
 
-        for k, v in six.iteritems(new_gc_dict):
+        for k, v in new_gc_dict.items():
             set_method = getattr(gc, 'set_' + k, None)
             if not callable(set_method):
                 raise AttributeError('Unknown property {0}'.format(k))

@@ -124,7 +124,6 @@ class Artist(object):
         d = self.__dict__.copy()
         # remove the unpicklable remove method, this will get re-added on load
         # (by the axes) if the artist lives on an axes.
-        d['_remove_method'] = None
         d['stale_callback'] = None
         return d
 
@@ -881,13 +880,8 @@ class Artist(object):
                     raise AttributeError('Unknown property %s' % k)
                 return func(v)
 
-        store = self.eventson
-        self.eventson = False
-        try:
-            ret = [_update_property(self, k, v)
-                   for k, v in props.items()]
-        finally:
-            self.eventson = store
+        with cbook._setattr_cm(self, eventson=False):
+            ret = [_update_property(self, k, v) for k, v in props.items()]
 
         if len(ret):
             self.pchanged()
@@ -1043,8 +1037,9 @@ class Artist(object):
             data[0]
         except (TypeError, IndexError):
             data = [data]
-        return ', '.join('{:0.3g}'.format(item) for item in data if
-                isinstance(item, (np.floating, np.integer, int, float)))
+        data_str = ', '.join('{:0.3g}'.format(item) for item in data if
+                   isinstance(item, (np.floating, np.integer, int, float)))
+        return "[" + data_str + "]"
 
     @property
     def mouseover(self):
@@ -1076,11 +1071,11 @@ class ArtistInspector(object):
         :class:`Artists` are of the same type) and it is your responsibility
         to make sure this is so.
         """
-        if cbook.iterable(o):
-            # Wrapped in list instead of doing try-except around next(iter(o))
-            o = list(o)
-            if len(o):
-                o = o[0]
+        if not isinstance(o, Artist):
+            if cbook.iterable(o):
+                o = list(o)
+                if len(o):
+                    o = o[0]
 
         self.oorig = o
         if not inspect.isclass(o):
@@ -1437,7 +1432,7 @@ def setp(obj, *args, **kwargs):
       >>> setp(lines, linewidth=2, color='r')        # python style
     """
 
-    if not cbook.iterable(obj):
+    if isinstance(obj, Artist):
         objs = [obj]
     else:
         objs = list(cbook.flatten(obj))

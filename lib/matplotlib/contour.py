@@ -1,15 +1,13 @@
 """
 These are classes to support contour plotting and labelling for the Axes class.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import warnings
-import matplotlib as mpl
+
 import numpy as np
 from numpy import ma
+
+import matplotlib as mpl
 import matplotlib._contour as _contour
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
@@ -59,36 +57,37 @@ class ContourLabeler(object):
 
         Call signature::
 
-          clabel(cs, **kwargs)
+          clabel(cs, [levels,] **kwargs)
 
         Adds labels to line contours in *cs*, where *cs* is a
         :class:`~matplotlib.contour.ContourSet` object returned by
-        contour.
-
-        ::
-
-          clabel(cs, v, **kwargs)
-
-        only labels contours listed in *v*.
+        ``contour()``.
 
         Parameters
         ----------
+        cs : `.ContourSet`
+            The ContourSet to label.
+
+        levels : array-like, optional
+            A list of level values, that should be labeled. The list must be
+            a subset of ``cs.levels``. If not given, all levels are labeled.
+
         fontsize : string or float, optional
             Size in points or relative size e.g., 'smaller', 'x-large'.
-            See `Text.set_size` for accepted string values.
+            See `.Text.set_size` for accepted string values.
 
-        colors :
-            Color of each label
+        colors : color-spec, optional
+            The label colors:
 
-            - if *None*, the color of each label matches the color of
-              the corresponding contour
+            - If *None*, the color of each label matches the color of
+              the corresponding contour.
 
-            - if one string color, e.g., *colors* = 'r' or *colors* =
-              'red', all labels will be plotted in this color
+            - If one string color, e.g., *colors* = 'r' or *colors* =
+              'red', all labels will be plotted in this color.
 
-            - if a tuple of matplotlib color args (string, float, rgb, etc),
+            - If a tuple of matplotlib color args (string, float, rgb, etc),
               different labels will be plotted in different colors in the order
-              specified
+              specified.
 
         inline : bool, optional
             If ``True`` the underlying contour is removed where the label is
@@ -130,10 +129,15 @@ class ContourLabeler(object):
             or minus 90 degrees from level. Default is ``True``.
 
         use_clabeltext : bool, optional
-            If ``True``, `ClabelText` class (instead of `Text`) is used to
+            If ``True``, `.ClabelText` class (instead of `.Text`) is used to
             create labels. `ClabelText` recalculates rotation angles
             of texts during the drawing time, therefore this can be used if
             aspect of the axes changes. Default is ``False``.
+
+        Returns
+        -------
+        labels
+            A list of `.Text` instances for the labels.
         """
 
         """
@@ -262,7 +266,7 @@ class ContourLabeler(object):
         """
         Return the width of the label in points.
         """
-        if not isinstance(lev, six.string_types):
+        if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
 
         lev, ismath = text.Text.is_math_text(lev)
@@ -319,7 +323,7 @@ class ContourLabeler(object):
 
     def get_text(self, lev, fmt):
         "get the text of the label"
-        if isinstance(lev, six.string_types):
+        if isinstance(lev, str):
             return lev
         else:
             if isinstance(fmt, dict):
@@ -440,7 +444,7 @@ class ContourLabeler(object):
             # Actually break contours
             if closed:
                 # This will remove contour if shorter than label
-                if np.all(I != -1):
+                if all(i != -1 for i in I):
                     nlc.append(np.row_stack([xy2, lc[I[1]:I[0]+1], xy1]))
             else:
                 # These will remove pieces of contour if they have length zero
@@ -823,9 +827,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.logscale = True
             if norm is None:
                 norm = colors.LogNorm()
-            if self.extend is not 'neither':
-                raise ValueError('extend kwarg does not work yet with log '
-                                 ' scale')
         else:
             self.logscale = False
 
@@ -1206,7 +1207,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # ...except that extended layers must be outside the
         # normed range:
         if self.extend in ('both', 'min'):
-            self.layers[0] = -1e150
+            if self.logscale:
+                self.layers[0] = 1e-150
+            else:
+                self.layers[0] = -1e150
         if self.extend in ('both', 'max'):
             self.layers[-1] = 1e150
 
@@ -1285,7 +1289,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     if lev < eps:
                         tlinestyles[i] = neg_ls
         else:
-            if isinstance(linestyles, six.string_types):
+            if isinstance(linestyles, str):
                 tlinestyles = [linestyles] * Nlev
             elif cbook.iterable(linestyles):
                 tlinestyles = list(linestyles)

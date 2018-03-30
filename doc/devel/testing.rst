@@ -25,7 +25,7 @@ local FreeType build
 
 The following software is required to run the tests:
 
-  - pytest_ (>=3.1)
+  - pytest_ (>=3.4)
   - Ghostscript_ (to render PDF files)
   - Inkscape_ (to render SVG files)
 

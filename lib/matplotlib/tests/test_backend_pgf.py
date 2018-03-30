@@ -1,6 +1,3 @@
-# -*- encoding: utf-8 -*-
-from __future__ import absolute_import, division, print_function
-
 import os
 import shutil
 import subprocess
@@ -73,7 +70,7 @@ def create_figure():
 
     # text and typesetting
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, u'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
+    plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
              ha='right', fontsize=20)
     plt.ylabel('sans-serif, blue, $\\frac{\\sqrt{x}}{y^2}$..',
                family='sans-serif', color='blue')
@@ -120,30 +117,26 @@ def test_pdflatex():
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
 def test_rcupdate():
-    rc_sets = []
-    rc_sets.append({'font.family': 'sans-serif',
-                    'font.size': 30,
-                    'figure.subplot.left': .2,
-                    'lines.markersize': 10,
-                    'pgf.rcfonts': False,
-                    'pgf.texsystem': 'xelatex'})
-    rc_sets.append({'font.family': 'monospace',
-                    'font.size': 10,
-                    'figure.subplot.left': .1,
-                    'lines.markersize': 20,
-                    'pgf.rcfonts': False,
-                    'pgf.texsystem': 'pdflatex',
-                    'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
-                                     '\\usepackage[T1]{fontenc}',
-                                     '\\usepackage{sfmath}']})
-    tol = (6, 0)
-    original_params = mpl.rcParams.copy()
+    rc_sets = [{'font.family': 'sans-serif',
+                'font.size': 30,
+                'figure.subplot.left': .2,
+                'lines.markersize': 10,
+                'pgf.rcfonts': False,
+                'pgf.texsystem': 'xelatex'},
+               {'font.family': 'monospace',
+                'font.size': 10,
+                'figure.subplot.left': .1,
+                'lines.markersize': 20,
+                'pgf.rcfonts': False,
+                'pgf.texsystem': 'pdflatex',
+                'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
+                                 '\\usepackage[T1]{fontenc}',
+                                 '\\usepackage{sfmath}']}]
+    tol = [6, 0]
     for i, rc_set in enumerate(rc_sets):
-        mpl.rcParams.clear()
-        mpl.rcParams.update(original_params)
-        mpl.rcParams.update(rc_set)
-        create_figure()
-        compare_figure('pgf_rcupdate%d.pdf' % (i + 1), tol=tol[i])
+        with mpl.rc_context(rc_set):
+            create_figure()
+            compare_figure('pgf_rcupdate%d.pdf' % (i + 1), tol=tol[i])
 
 
 # test backend-side clipping, since large numbers are not supported by TeX

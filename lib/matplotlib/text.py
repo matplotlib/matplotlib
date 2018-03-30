@@ -1,10 +1,6 @@
 """
 Classes for including text in a figure.
 """
-from __future__ import absolute_import, division, print_function
-
-import six
-from six.moves import zip
 
 import contextlib
 import logging
@@ -63,10 +59,9 @@ def get_rotation(rotation):
     try:
         angle = float(rotation)
     except (ValueError, TypeError):
-        isString = isinstance(rotation, six.string_types)
-        if ((isString and rotation == 'horizontal') or rotation is None):
+        if cbook._str_equal(rotation, 'horizontal') or rotation is None:
             angle = 0.
-        elif (isString and rotation == 'vertical'):
+        elif cbook._str_equal(rotation, 'vertical'):
             angle = 90.
         else:
             raise ValueError("rotation is {0} expected either 'horizontal'"
@@ -116,6 +111,19 @@ def _get_textbox(text, renderer):
     return x_box, y_box, w_box, h_box
 
 
+@cbook._define_aliases({
+    "family": ["fontfamily"],
+    "fontproperties": ["font_properties"],
+    "horizontalalignment": ["ha"],
+    "multialignment": ["ma"],
+    "name": ["fontname"],
+    "size": ["fontsize"],
+    "stretch": ["fontstretch"],
+    "style": ["fontstyle"],
+    "variant": ["fontvariant"],
+    "verticalalignment": ["va"],
+    "weight": ["fontweight"],
+})
 class Text(Artist):
     """
     Handle storing and drawing of text in window or data coordinates.
@@ -155,7 +163,7 @@ class Text(Artist):
             color = rcParams['text.color']
         if fontproperties is None:
             fontproperties = FontProperties()
-        elif isinstance(fontproperties, six.string_types):
+        elif isinstance(fontproperties, str):
             fontproperties = FontProperties(fontproperties)
 
         self._text = ''
@@ -163,8 +171,8 @@ class Text(Artist):
         self.set_color(color)
         self.set_usetex(usetex)
         self.set_wrap(wrap)
-        self._verticalalignment = verticalalignment
-        self._horizontalalignment = horizontalalignment
+        self.set_verticalalignment(verticalalignment)
+        self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
         self._rotation = rotation
         self._fontproperties = fontproperties
@@ -454,8 +462,7 @@ class Text(Artist):
                     pad = 0.3
 
             # boxstyle could be a callable or a string
-            if (isinstance(boxstyle, six.string_types)
-                    and "pad" not in boxstyle):
+            if isinstance(boxstyle, str) and "pad" not in boxstyle:
                 boxstyle += ",pad=%0.2f" % pad
 
             bbox_transmuter = props.pop("bbox_transmuter", None)
@@ -767,17 +774,9 @@ class Text(Artist):
         "Return the :class:`~font_manager.FontProperties` object"
         return self._fontproperties
 
-    def get_font_properties(self):
-        'alias for get_fontproperties'
-        return self.get_fontproperties()
-
     def get_family(self):
         "Return the list of font families used for font lookup"
         return self._fontproperties.get_family()
-
-    def get_fontfamily(self):
-        'alias for get_family'
-        return self.get_family()
 
     def get_name(self):
         "Return the font name as string"
@@ -795,41 +794,13 @@ class Text(Artist):
         "Return the font variant as a string"
         return self._fontproperties.get_variant()
 
-    def get_fontvariant(self):
-        'alias for get_variant'
-        return self.get_variant()
-
     def get_weight(self):
         "Get the font weight as string or number"
         return self._fontproperties.get_weight()
 
-    def get_fontname(self):
-        'alias for get_name'
-        return self.get_name()
-
-    def get_fontstyle(self):
-        'alias for get_style'
-        return self.get_style()
-
-    def get_fontsize(self):
-        'alias for get_size'
-        return self.get_size()
-
-    def get_fontweight(self):
-        'alias for get_weight'
-        return self.get_weight()
-
     def get_stretch(self):
         'Get the font stretch as a string or number'
         return self._fontproperties.get_stretch()
-
-    def get_fontstretch(self):
-        'alias for get_stretch'
-        return self.get_stretch()
-
-    def get_ha(self):
-        'alias for get_horizontalalignment'
-        return self.get_horizontalalignment()
 
     def get_horizontalalignment(self):
         """
@@ -873,10 +844,6 @@ class Text(Artist):
     def get_text(self):
         "Get the text as string"
         return self._text
-
-    def get_va(self):
-        'alias for :meth:`getverticalalignment`'
-        return self.get_verticalalignment()
 
     def get_verticalalignment(self):
         """
@@ -961,10 +928,6 @@ class Text(Artist):
         self._color = color
         self.stale = True
 
-    def set_ha(self, align):
-        'alias for set_horizontalalignment'
-        self.set_horizontalalignment(align)
-
     def set_horizontalalignment(self, align):
         """
         Set the horizontal alignment to one of
@@ -977,10 +940,6 @@ class Text(Artist):
                              str(legal))
         self._horizontalalignment = align
         self.stale = True
-
-    def set_ma(self, align):
-        'alias for set_multialignment'
-        self.set_multialignment(align)
 
     def set_multialignment(self, align):
         """
@@ -1031,18 +990,6 @@ class Text(Artist):
         self._fontproperties.set_variant(variant)
         self.stale = True
 
-    def set_fontvariant(self, variant):
-        'alias for set_variant'
-        return self.set_variant(variant)
-
-    def set_name(self, fontname):
-        """alias for set_family"""
-        return self.set_family(fontname)
-
-    def set_fontname(self, fontname):
-        """alias for set_family"""
-        self.set_family(fontname)
-
     def set_style(self, fontstyle):
         """
         Set the font style.
@@ -1051,10 +998,6 @@ class Text(Artist):
         """
         self._fontproperties.set_style(fontstyle)
         self.stale = True
-
-    def set_fontstyle(self, fontstyle):
-        'alias for set_style'
-        return self.set_style(fontstyle)
 
     def set_size(self, fontsize):
         """
@@ -1066,10 +1009,6 @@ class Text(Artist):
         """
         self._fontproperties.set_size(fontsize)
         self.stale = True
-
-    def set_fontsize(self, fontsize):
-        'alias for set_size'
-        return self.set_size(fontsize)
 
     def set_weight(self, weight):
         """
@@ -1083,10 +1022,6 @@ class Text(Artist):
         self._fontproperties.set_weight(weight)
         self.stale = True
 
-    def set_fontweight(self, weight):
-        'alias for set_weight'
-        return self.set_weight(weight)
-
     def set_stretch(self, stretch):
         """
         Set the font stretch (horizontal condensation or expansion).
@@ -1098,10 +1033,6 @@ class Text(Artist):
         """
         self._fontproperties.set_stretch(stretch)
         self.stale = True
-
-    def set_fontstretch(self, stretch):
-        'alias for set_stretch'
-        return self.set_stretch(stretch)
 
     def set_position(self, xy):
         """
@@ -1139,17 +1070,14 @@ class Text(Artist):
         self._rotation = s
         self.stale = True
 
-    def set_va(self, align):
-        'alias for set_verticalalignment'
-        self.set_verticalalignment(align)
-
     def set_verticalalignment(self, align):
         """
         Set the vertical alignment
 
-        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' ]
+        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' |
+                   'center_baseline' ]
         """
-        legal = ('top', 'bottom', 'center', 'baseline')
+        legal = ('top', 'bottom', 'center', 'baseline', 'center_baseline')
         if align not in legal:
             raise ValueError('Vertical alignment must be one of %s' %
                              str(legal))
@@ -1202,14 +1130,10 @@ class Text(Artist):
 
         ACCEPTS: a :class:`matplotlib.font_manager.FontProperties` instance
         """
-        if isinstance(fp, six.string_types):
+        if isinstance(fp, str):
             fp = FontProperties(fp)
         self._fontproperties = fp.copy()
         self.stale = True
-
-    def set_font_properties(self, fp):
-        'alias for set_fontproperties'
-        self.set_fontproperties(fp)
 
     def set_usetex(self, usetex):
         """
@@ -1238,6 +1162,11 @@ class Text(Artist):
             return rcParams['text.usetex']
         else:
             return self._usetex
+
+    def set_name(self, fontname):  # One-way alias only: the getter differs.
+        """alias for set_family"""
+        return self.set_family(fontname)
+
 
 docstring.interpd.update(Text=artist.kwdoc(Text))
 docstring.dedent_interpd(Text.__init__)
@@ -1762,8 +1691,8 @@ class _AnnotationBase(object):
             return BboxTransformTo(s)
         elif isinstance(s, Transform):
             return s
-        elif not isinstance(s, six.string_types):
-            raise RuntimeError("unknown coordinate type : %s" % (s,))
+        elif not isinstance(s, str):
+            raise RuntimeError("unknown coordinate type : %s" % s)
 
         if s == 'data':
             return self.axes.transData
@@ -1826,20 +1755,18 @@ class _AnnotationBase(object):
         return x, y (in display coordinate) that is to be used for a reference
         of any offset coordinate
         """
+        def is_offset(s):
+            return isinstance(s, str) and s.split()[0] == "offset"
 
         if isinstance(self.xycoords, tuple):
             s1, s2 = self.xycoords
-            if ((isinstance(s1, six.string_types)
-                 and s1.split()[0] == "offset")
-                    or (isinstance(s2, six.string_types)
-                        and s2.split()[0] == "offset")):
+            if is_offset(s1) or is_offset(s2):
                 raise ValueError("xycoords should not be an offset coordinate")
             x, y = self.xy
             x1, y1 = self._get_xy(renderer, x, y, s1)
             x2, y2 = self._get_xy(renderer, x, y, s2)
             return x1, y2
-        elif (isinstance(self.xycoords, six.string_types) and
-              self.xycoords.split()[0] == "offset"):
+        elif is_offset(self.xycoords):
             raise ValueError("xycoords should not be an offset coordinate")
         else:
             x, y = self.xy
@@ -2116,8 +2043,6 @@ class Annotation(Text, _AnnotationBase):
 
         self.arrowprops = arrowprops
 
-        self.arrow = None
-
         if arrowprops is not None:
             if "arrowstyle" in arrowprops:
                 arrowprops = self.arrowprops.copy()
@@ -2137,9 +2062,6 @@ class Annotation(Text, _AnnotationBase):
 
     def contains(self, event):
         contains, tinfo = Text.contains(self, event)
-        if self.arrow is not None:
-            in_arrow, _ = self.arrow.contains(event)
-            contains = contains or in_arrow
         if self.arrow_patch is not None:
             in_patch, _ = self.arrow_patch.contains(event)
             contains = contains or in_patch
@@ -2163,9 +2085,6 @@ class Annotation(Text, _AnnotationBase):
         self._textcoords = coords
 
     def set_figure(self, fig):
-
-        if self.arrow is not None:
-            self.arrow.set_figure(fig)
         if self.arrow_patch is not None:
             self.arrow_patch.set_figure(fig)
         Artist.set_figure(self, fig)
@@ -2322,18 +2241,19 @@ class Annotation(Text, _AnnotationBase):
         '''
         if not self.get_visible():
             return Bbox.unit()
-        arrow = self.arrow
-        arrow_patch = self.arrow_patch
 
         text_bbox = Text.get_window_extent(self, renderer=renderer)
         bboxes = [text_bbox]
 
-        if self.arrow is not None:
-            bboxes.append(arrow.get_window_extent(renderer=renderer))
-        elif self.arrow_patch is not None:
-            bboxes.append(arrow_patch.get_window_extent(renderer=renderer))
+        if self.arrow_patch is not None:
+            bboxes.append(
+                self.arrow_patch.get_window_extent(renderer=renderer))
 
         return Bbox.union(bboxes)
+
+    arrow = property(
+        fget=cbook.deprecated("3.0")(lambda self: None),
+        fset=cbook.deprecated("3.0")(lambda self, value: None))
 
 
 docstring.interpd.update(Annotation=Annotation.__init__.__doc__)

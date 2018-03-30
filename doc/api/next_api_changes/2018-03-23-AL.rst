@@ -1,0 +1,4 @@
+``font_manager.list_fonts`` now follows the platform's casefolding semantics
+````````````````````````````````````````````````````````````````````````````
+
+i.e., it behaves case-insensitively on Windows only.

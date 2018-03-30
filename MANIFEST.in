@@ -1,9 +1,9 @@
 include INSTALL.rst README.rst
-include CONTRIBUTING.md
 include pytest.ini
-include Makefile MANIFEST.in
+include MANIFEST.in
 include matplotlibrc.template setup.cfg.template
-include setupext.py setup.py distribute_setup.py
+include setupext.py setup.py
+include lib/matplotlib/mpl-data/lineprops.glade
 include lib/matplotlib/mpl-data/matplotlibrc
 include lib/matplotlib/mpl-data/images/*
 include lib/matplotlib/mpl-data/fonts/ttf/*

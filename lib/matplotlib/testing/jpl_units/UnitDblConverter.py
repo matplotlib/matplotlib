@@ -9,11 +9,6 @@
 # ==========================================================================
 # Place all imports after here.
 #
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import numpy as np
 import matplotlib.units as units
 import matplotlib.projections.polar as polar
@@ -75,11 +70,8 @@ class UnitDblConverter(units.ConversionInterface):
         # Check to see if the value used for units is a string unit value
         # or an actual instance of a UnitDbl so that we can use the unit
         # value for the default axis label value.
-        if (unit):
-            if (isinstance(unit, six.string_types)):
-                label = unit
-            else:
-                label = unit.label()
+        if unit:
+            label = unit if isinstance(unit, str) else unit.label()
         else:
             label = None
 
@@ -109,8 +101,8 @@ class UnitDblConverter(units.ConversionInterface):
 
         isNotUnitDbl = True
 
-        if (iterable(value) and not isinstance(value, six.string_types)):
-            if (len(value) == 0):
+        if iterable(value) and not isinstance(value, str):
+            if len(value) == 0:
                 return []
             else:
                 return [UnitDblConverter.convert(x, unit, axis) for x in value]
@@ -153,7 +145,7 @@ class UnitDblConverter(units.ConversionInterface):
 
         # Determine the default units based on the user preferences set for
         # default units when printing a UnitDbl.
-        if (iterable(value) and not isinstance(value, six.string_types)):
+        if iterable(value) and not isinstance(value, str):
             return UnitDblConverter.default_units(value[0], axis)
         else:
             return UnitDblConverter.defaults[value.type()]

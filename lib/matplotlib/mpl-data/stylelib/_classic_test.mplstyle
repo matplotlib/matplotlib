@@ -441,7 +441,6 @@ pdf.inheritcolor   : False
 pdf.use14corefonts : False
 
 # pgf backend params
-pgf.debug           : False
 pgf.texsystem       : xelatex
 pgf.rcfonts         : True
 pgf.preamble        :

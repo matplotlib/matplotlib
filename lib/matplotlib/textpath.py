@@ -1,13 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 from collections import OrderedDict
-
-import six
-from six.moves import zip
-
+import urllib.parse
 import warnings
 
 import numpy as np
@@ -21,7 +13,6 @@ from matplotlib.mathtext import MathTextParser
 import matplotlib.dviread as dviread
 from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.transforms import Affine2D
-from six.moves.urllib.parse import quote as urllib_quote
 
 
 class TextToPath(object):
@@ -70,7 +61,7 @@ class TextToPath(object):
             ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')
         except KeyError:
             ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
-        char_id = urllib_quote('%s-%x' % (ps_name, ccode))
+        char_id = urllib.parse.quote('%s-%x' % (ps_name, ccode))
         return char_id
 
     def _get_char_id_ps(self, font, ccode):
@@ -78,7 +69,7 @@ class TextToPath(object):
         Return a unique id for the given font and character-code set (for tex).
         """
         ps_name = font.get_ps_font_info()[2]
-        char_id = urllib_quote('%s-%d' % (ps_name, ccode))
+        char_id = urllib.parse.quote('%s-%d' % (ps_name, ccode))
         return char_id
 
     def glyph_to_path(self, font, currx=0.):

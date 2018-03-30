@@ -32,26 +32,24 @@ It is pretty easy to use, and requires only built-in python libs:
     >>> afm.get_bbox_char('!')
     [130, -9, 238, 676]
 
+As in the Adobe Font Metrics File Format Specification, all dimensions
+are given in units of 1/1000 of the scale factor (point size) of the font
+being used.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import map
-
-import sys
+from collections import namedtuple
 import re
-from ._mathtext_data import uni2type1
+import sys
 
-# Convert string the a python type
+from ._mathtext_data import uni2type1
+from matplotlib.cbook import deprecated
+
 
 # some afm files have floats where we are expecting ints -- there is
 # probably a better way to handle this (support floats, round rather
 # than truncate).  But I don't know what the best approach is now and
 # this change to _to_int should at least prevent mpl from crashing on
 # these JDH (2009-11-06)
-
 
 def _to_int(x):
     return int(float(x))
@@ -174,16 +172,42 @@ def _parse_header(fh):
     raise RuntimeError('Bad parse')
 
 
+CharMetrics = namedtuple('CharMetrics', 'width, name, bbox')
+CharMetrics.__doc__ = """
+    Represents the character metrics of a single character.
+
+    Notes
+    -----
+    The fields do currently only describe a subset of character metrics
+    information defined in the AFM standard.
+    """
+CharMetrics.width.__doc__ = """The character width (WX)."""
+CharMetrics.name.__doc__ = """The character name (N)."""
+CharMetrics.bbox.__doc__ = """
+    The bbox of the character (B) as a tuple (*llx*, *lly*, *urx*, *ury*)."""
+
+
 def _parse_char_metrics(fh):
     """
-    Return a character metric dictionary.  Keys are the ASCII num of
-    the character, values are a (*wx*, *name*, *bbox*) tuple, where
-    *wx* is the character width, *name* is the postscript language
-    name, and *bbox* is a (*llx*, *lly*, *urx*, *ury*) tuple.
+    Parse the given filehandle for character metrics information and return
+    the information as dicts.
 
+    It is assumed that the file cursor is on the line behind
+    'StartCharMetrics'.
+
+    Returns
+    -------
+    ascii_d : dict
+         A mapping "ASCII num of the character" to `.CharMetrics`.
+    name_d : dict
+         A mapping "character name" to `.CharMetrics`.
+
+    Notes
+    -----
     This function is incomplete per the standard, but thus far parses
     all the sample afm files tried.
     """
+    required_keys = {'C', 'WX', 'N', 'B'}
 
     ascii_d = {}
     name_d = {}
@@ -196,21 +220,22 @@ def _parse_char_metrics(fh):
         # Split the metric line into a dictionary, keyed by metric identifiers
         vals = dict(s.strip().split(' ', 1) for s in line.split(';') if s)
         # There may be other metrics present, but only these are needed
-        if not {'C', 'WX', 'N', 'B'}.issubset(vals):
+        if not required_keys.issubset(vals):
             raise RuntimeError('Bad char metrics line: %s' % line)
         num = _to_int(vals['C'])
         wx = _to_float(vals['WX'])
         name = vals['N']
         bbox = _to_list_of_floats(vals['B'])
         bbox = list(map(int, bbox))
+        metrics = CharMetrics(wx, name, bbox)
         # Workaround: If the character name is 'Euro', give it the
         # corresponding character code, according to WinAnsiEncoding (see PDF
         # Reference).
         if name == 'Euro':
             num = 128
         if num != -1:
-            ascii_d[num] = (wx, name, bbox)
-        name_d[name] = (wx, bbox)
+            ascii_d[num] = metrics
+        name_d[name] = metrics
     raise RuntimeError('Bad parse')
 
 
@@ -246,55 +271,80 @@ def _parse_kern_pairs(fh):
     raise RuntimeError('Bad kern pairs parse')
 
 
+CompositePart = namedtuple('CompositePart', 'name, dx, dy')
+CompositePart.__doc__ = """
+    Represents the information on a composite element of a composite char."""
+CompositePart.name.__doc__ = """Name of the part, e.g. 'acute'."""
+CompositePart.dx.__doc__ = """x-displacement of the part from the origin."""
+CompositePart.dy.__doc__ = """y-displacement of the part from the origin."""
+
+
 def _parse_composites(fh):
     """
-    Return a composites dictionary.  Keys are the names of the
-    composites.  Values are a num parts list of composite information,
-    with each element being a (*name*, *dx*, *dy*) tuple.  Thus a
-    composites line reading:
+    Parse the given filehandle for composites information return them as a
+    dict.
+
+    It is assumed that the file cursor is on the line behind 'StartComposites'.
+
+    Returns
+    -------
+    composites : dict
+        A dict mapping composite character names to a parts list. The parts
+        list is a list of `.CompositePart` entries describing the parts of
+        the composite.
+
+    Example
+    -------
+    A composite definition line::
 
       CC Aacute 2 ; PCC A 0 0 ; PCC acute 160 170 ;
 
     will be represented as::
 
-      d['Aacute'] = [ ('A', 0, 0), ('acute', 160, 170) ]
+      composites['Aacute'] = [CompositePart(name='A', dx=0, dy=0),
+                              CompositePart(name='acute', dx=160, dy=170)]
 
     """
-    d = {}
+    composites = {}
     for line in fh:
         line = line.rstrip()
         if not line:
             continue
         if line.startswith(b'EndComposites'):
-            return d
+            return composites
         vals = line.split(b';')
         cc = vals[0].split()
         name, numParts = cc[1], _to_int(cc[2])
         pccParts = []
         for s in vals[1:-1]:
             pcc = s.split()
-            name, dx, dy = pcc[1], _to_float(pcc[2]), _to_float(pcc[3])
-            pccParts.append((name, dx, dy))
-        d[name] = pccParts
+            part = CompositePart(pcc[1], _to_float(pcc[2]), _to_float(pcc[3]))
+            pccParts.append(part)
+        composites[name] = pccParts
 
     raise RuntimeError('Bad composites parse')
 
 
 def _parse_optional(fh):
     """
-    Parse the optional fields for kern pair data and composites
+    Parse the optional fields for kern pair data and composites.
 
-    return value is a (*kernDict*, *compositeDict*) which are the
-    return values from :func:`_parse_kern_pairs`, and
-    :func:`_parse_composites` if the data exists, or empty dicts
-    otherwise
+    Returns
+    -------
+    kern_data : dict
+        A dict containing kerning information. May be empty.
+        See `._parse_kern_pairs`.
+    composites : dict
+        A dict containing composite information. May be empty.
+        See `._parse_composites`.
     """
     optional = {
         b'StartKernData': _parse_kern_pairs,
         b'StartComposites':  _parse_composites,
         }
 
-    d = {b'StartKernData': {}, b'StartComposites': {}}
+    d = {b'StartKernData': {},
+         b'StartComposites': {}}
     for line in fh:
         line = line.rstrip()
         if not line:
@@ -304,47 +354,53 @@ def _parse_optional(fh):
         if key in optional:
             d[key] = optional[key](fh)
 
-    l = (d[b'StartKernData'], d[b'StartComposites'])
-    return l
+    return d[b'StartKernData'], d[b'StartComposites']
 
 
+@deprecated("3.0", "Use the class AFM instead.")
 def parse_afm(fh):
+    return _parse_afm(fh)
+
+
+def _parse_afm(fh):
     """
-    Parse the Adobe Font Metics file in file handle *fh*. Return value
-    is a (*dhead*, *dcmetrics_ascii*, *dmetrics_name*, *dkernpairs*,
-    *dcomposite*) tuple where
-    *dhead* is a :func:`_parse_header` dict,
-    *dcmetrics_ascii* and *dcmetrics_name* are the two resulting dicts
-    from :func:`_parse_char_metrics`,
-    *dkernpairs* is a :func:`_parse_kern_pairs` dict (possibly {}) and
-    *dcomposite* is a :func:`_parse_composites` dict (possibly {})
+    Parse the Adobe Font Metrics file in file handle *fh*.
+
+    Returns
+    -------
+    header : dict
+        A header dict. See :func:`_parse_header`.
+    cmetrics_by_ascii : dict
+        From :func:`_parse_char_metrics`.
+    cmetrics_by_name : dict
+        From :func:`_parse_char_metrics`.
+    kernpairs : dict
+        From :func:`_parse_kern_pairs`.
+    composites : dict
+        From :func:`_parse_composites`
+
     """
     _sanity_check(fh)
-    dhead = _parse_header(fh)
-    dcmetrics_ascii, dcmetrics_name = _parse_char_metrics(fh)
-    doptional = _parse_optional(fh)
-    return dhead, dcmetrics_ascii, dcmetrics_name, doptional[0], doptional[1]
+    header = _parse_header(fh)
+    cmetrics_by_ascii, cmetrics_by_name = _parse_char_metrics(fh)
+    kernpairs, composites = _parse_optional(fh)
+    return header, cmetrics_by_ascii, cmetrics_by_name, kernpairs, composites
 
 
 class AFM(object):
 
     def __init__(self, fh):
-        """
-        Parse the AFM file in file object *fh*
-        """
-        (dhead, dcmetrics_ascii, dcmetrics_name, dkernpairs, dcomposite) = \
-            parse_afm(fh)
-        self._header = dhead
-        self._kern = dkernpairs
-        self._metrics = dcmetrics_ascii
-        self._metrics_by_name = dcmetrics_name
-        self._composite = dcomposite
+        """Parse the AFM file in file object *fh*."""
+        (self._header,
+         self._metrics,
+         self._metrics_by_name,
+         self._kern,
+         self._composite) = _parse_afm(fh)
 
     def get_bbox_char(self, c, isord=False):
         if not isord:
             c = ord(c)
-        wx, name, bbox = self._metrics[c]
-        return bbox
+        return self._metrics[c].bbox
 
     def string_width_height(self, s):
         """
@@ -353,7 +409,7 @@ class AFM(object):
         """
         if not len(s):
             return 0, 0
-        totalw = 0
+        total_width = 0
         namelast = None
         miny = 1e9
         maxy = 0
@@ -361,119 +417,77 @@ class AFM(object):
             if c == '\n':
                 continue
             wx, name, bbox = self._metrics[ord(c)]
+
+            total_width += wx + self._kern.get((namelast, name), 0)
             l, b, w, h = bbox
+            miny = min(miny, b)
+            maxy = max(maxy, b + h)
 
-            # find the width with kerning
-            try:
-                kp = self._kern[(namelast, name)]
-            except KeyError:
-                kp = 0
-            totalw += wx + kp
-
-            # find the max y
-            thismax = b + h
-            if thismax > maxy:
-                maxy = thismax
-
-            # find the min y
-            thismin = b
-            if thismin < miny:
-                miny = thismin
             namelast = name
 
-        return totalw, maxy - miny
+        return total_width, maxy - miny
 
     def get_str_bbox_and_descent(self, s):
-        """
-        Return the string bounding box
-        """
+        """Return the string bounding box and the maximal descent."""
         if not len(s):
-            return 0, 0, 0, 0
-        totalw = 0
+            return 0, 0, 0, 0, 0
+        total_width = 0
         namelast = None
         miny = 1e9
         maxy = 0
         left = 0
-        if not isinstance(s, six.text_type):
+        if not isinstance(s, str):
             s = _to_str(s)
         for c in s:
             if c == '\n':
                 continue
             name = uni2type1.get(ord(c), 'question')
             try:
-                wx, bbox = self._metrics_by_name[name]
+                wx, _, bbox = self._metrics_by_name[name]
             except KeyError:
                 name = 'question'
-                wx, bbox = self._metrics_by_name[name]
+                wx, _, bbox = self._metrics_by_name[name]
+            total_width += wx + self._kern.get((namelast, name), 0)
             l, b, w, h = bbox
-            if l < left:
-                left = l
-            # find the width with kerning
-            try:
-                kp = self._kern[(namelast, name)]
-            except KeyError:
-                kp = 0
-            totalw += wx + kp
+            left = min(left, l)
+            miny = min(miny, b)
+            maxy = max(maxy, b + h)
 
-            # find the max y
-            thismax = b + h
-            if thismax > maxy:
-                maxy = thismax
-
-            # find the min y
-            thismin = b
-            if thismin < miny:
-                miny = thismin
             namelast = name
 
-        return left, miny, totalw, maxy - miny, -miny
+        return left, miny, total_width, maxy - miny, -miny
 
     def get_str_bbox(self, s):
-        """
-        Return the string bounding box
-        """
+        """Return the string bounding box."""
         return self.get_str_bbox_and_descent(s)[:4]
 
     def get_name_char(self, c, isord=False):
-        """
-        Get the name of the character, i.e., ';' is 'semicolon'
-        """
+        """Get the name of the character, i.e., ';' is 'semicolon'."""
         if not isord:
             c = ord(c)
-        wx, name, bbox = self._metrics[c]
-        return name
+        return self._metrics[c].name
 
     def get_width_char(self, c, isord=False):
         """
-        Get the width of the character from the character metric WX
-        field
+        Get the width of the character from the character metric WX field.
         """
         if not isord:
             c = ord(c)
-        wx, name, bbox = self._metrics[c]
-        return wx
+        return self._metrics[c].width
 
     def get_width_from_char_name(self, name):
-        """
-        Get the width of the character from a type1 character name
-        """
-        wx, bbox = self._metrics_by_name[name]
-        return wx
+        """Get the width of the character from a type1 character name."""
+        return self._metrics_by_name[name].width
 
     def get_height_char(self, c, isord=False):
-        """
-        Get the height of character *c* from the bounding box.  This
-        is the ink height (space is 0)
-        """
+        """Get the bounding box (ink) height of character *c* (space is 0)."""
         if not isord:
             c = ord(c)
-        wx, name, bbox = self._metrics[c]
-        return bbox[-1]
+        return self._metrics[c].bbox[-1]
 
     def get_kern_dist(self, c1, c2):
         """
-        Return the kerning pair distance (possibly 0) for chars *c1*
-        and *c2*
+        Return the kerning pair distance (possibly 0) for chars *c1* and *c2*.
         """
         name1, name2 = self.get_name_char(c1), self.get_name_char(c2)
         return self.get_kern_dist_from_name(name1, name2)
@@ -481,23 +495,23 @@ class AFM(object):
     def get_kern_dist_from_name(self, name1, name2):
         """
         Return the kerning pair distance (possibly 0) for chars
-        *name1* and *name2*
+        *name1* and *name2*.
         """
         return self._kern.get((name1, name2), 0)
 
     def get_fontname(self):
-        "Return the font name, e.g., 'Times-Roman'"
+        """Return the font name, e.g., 'Times-Roman'."""
         return self._header[b'FontName']
 
     def get_fullname(self):
-        "Return the font full name, e.g., 'Times-Roman'"
+        """Return the font full name, e.g., 'Times-Roman'."""
         name = self._header.get(b'FullName')
         if name is None:  # use FontName as a substitute
             name = self._header[b'FontName']
         return name
 
     def get_familyname(self):
-        "Return the font family name, e.g., 'Times'"
+        """Return the font family name, e.g., 'Times'."""
         name = self._header.get(b'FamilyName')
         if name is not None:
             return name
@@ -510,26 +524,27 @@ class AFM(object):
 
     @property
     def family_name(self):
+        """The font family name, e.g., 'Times'."""
         return self.get_familyname()
 
     def get_weight(self):
-        "Return the font weight, e.g., 'Bold' or 'Roman'"
+        """Return the font weight, e.g., 'Bold' or 'Roman'."""
         return self._header[b'Weight']
 
     def get_angle(self):
-        "Return the fontangle as float"
+        """Return the fontangle as float."""
         return self._header[b'ItalicAngle']
 
     def get_capheight(self):
-        "Return the cap height as float"
+        """Return the cap height as float."""
         return self._header[b'CapHeight']
 
     def get_xheight(self):
-        "Return the xheight as float"
+        """Return the xheight as float."""
         return self._header[b'XHeight']
 
     def get_underline_thickness(self):
-        "Return the underline thickness as float"
+        """Return the underline thickness as float."""
         return self._header[b'UnderlineThickness']
 
     def get_horizontal_stem_width(self):

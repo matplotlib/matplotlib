@@ -23,6 +23,7 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_cycler,
                                 validate_hatch,
                                 validate_hist_bins,
+                                validate_markevery,
                                 _validate_linestyle)
 
 
@@ -180,6 +181,18 @@ def test_legend_colors(color_type, param_dict, target):
         assert getattr(leg.legendPatch, get_func)() == target
 
 
+def test_mfc_rcparams():
+    mpl.rcParams['lines.markerfacecolor'] = 'r'
+    ln = mpl.lines.Line2D([1, 2], [1, 2])
+    assert ln.get_markerfacecolor() == 'r'
+
+
+def test_mec_rcparams():
+    mpl.rcParams['lines.markeredgecolor'] = 'r'
+    ln = mpl.lines.Line2D([1, 2], [1, 2])
+    assert ln.get_markeredgecolor() == 'r'
+
+
 def test_Issue_1713():
     utf32_be = os.path.join(os.path.dirname(__file__),
                            'test_utf32_be_rcparams.rc')
@@ -326,6 +339,35 @@ def generate_validator_testcases(valid):
                      ),
          'fail': (('aardvark', ValueError),
                   )
+         },
+         {'validator': validate_markevery,
+          'success': ((None, None),
+                      (1, 1),
+                      (0.1, 0.1),
+                      ((1, 1), (1, 1)),
+                      ((0.1, 0.1), (0.1, 0.1)),
+                      ([1, 2, 3], [1, 2, 3]),
+                      (slice(2), slice(None, 2, None)),
+                      (slice(1, 2, 3), slice(1, 2, 3))
+                      ),
+          'fail': (((1, 2, 3), TypeError),
+                   ([1, 2, 0.3], TypeError),
+                   (['a', 2, 3], TypeError),
+                   ([1, 2, 'a'], TypeError),
+                   ((0.1, 0.2, 0.3), TypeError),
+                   ((0.1, 2, 3), TypeError),
+                   ((1, 0.2, 0.3), TypeError),
+                   ((1, 0.1), TypeError),
+                   ((0.1, 1), TypeError),
+                   (('abc'), TypeError),
+                   ((1, 'a'), TypeError),
+                   ((0.1, 'b'), TypeError),
+                   (('a', 1), TypeError),
+                   (('a', 0.1), TypeError),
+                   ('abc', TypeError),
+                   ('a', TypeError),
+                   (object(), TypeError)
+                   )
          }
     )
 

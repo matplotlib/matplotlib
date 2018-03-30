@@ -279,8 +279,8 @@ Date handling
 You can plot timeseries data with major and minor ticks and custom
 tick formatters for both.
 
-.. figure:: ../../gallery/api/images/sphx_glr_date_001.png
-   :target: ../../gallery/api/date.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_date_001.png
+   :target: ../../gallery/text_labels_and_annotations/date.html
    :align: center
    :scale: 50
 

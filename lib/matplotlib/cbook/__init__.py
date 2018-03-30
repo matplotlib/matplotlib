@@ -6,11 +6,8 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import six
 from six.moves import xrange, zip
-import bz2
 import collections
 import contextlib
 import datetime
@@ -24,6 +21,7 @@ import locale
 import numbers
 import operator
 import os
+from pathlib import Path
 import re
 import sys
 import time
@@ -39,6 +37,7 @@ from .deprecation import deprecated, warn_deprecated
 from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
 
 
+@deprecated("3.0")
 def unicode_safe(s):
 
     if isinstance(s, bytes):
@@ -330,8 +329,7 @@ class silent_list(list):
     def __repr__(self):
         return '<a list of %d %s objects>' % (len(self), self.type)
 
-    def __str__(self):
-        return repr(self)
+    __str__ = __repr__
 
     def __getstate__(self):
         # store a dictionary of this SilentList's state
@@ -469,7 +467,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
-    if hasattr(os, "PathLike") and isinstance(fname, os.PathLike):
+    if isinstance(fname, getattr(os, "PathLike", ())):
         return to_filehandle(
             os.fspath(fname),
             flag=flag, return_opened=return_opened, encoding=encoding)
@@ -479,6 +477,9 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
             flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
+            # python may not be complied with bz2 support,
+            # bury import until we need it
+            import bz2
             # get rid of 'U' in flag for bz2 files
             flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
@@ -546,8 +547,7 @@ def get_sample_data(fname, asfileobj=True):
     path = os.path.join(root, fname)
 
     if asfileobj:
-        if (os.path.splitext(fname)[-1].lower() in
-                ('.csv', '.xrc', '.txt')):
+        if os.path.splitext(fname)[-1].lower() in ['.csv', '.xrc', '.txt']:
             mode = 'r'
         else:
             mode = 'rb'
@@ -678,6 +678,7 @@ def dedent(s):
     return result
 
 
+@deprecated("3.0")
 def listFiles(root, patterns='*', recurse=1, return_folders=0):
     """
     Recursively list files
@@ -828,34 +829,34 @@ def report_memory(i=0):  # argument may go away
     pid = os.getpid()
     if sys.platform == 'sunos5':
         try:
-            a2 = Popen(str('ps -p %d -o osz') % pid, shell=True,
+            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Sun OS only if "
                 "the 'ps' program is found")
         mem = int(a2[-1].strip())
-    elif sys.platform.startswith('linux'):
+    elif sys.platform == 'linux':
         try:
-            a2 = Popen(str('ps -p %d -o rss,sz') % pid, shell=True,
+            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Linux only if "
                 "the 'ps' program is found")
         mem = int(a2[1].split()[1])
-    elif sys.platform.startswith('darwin'):
+    elif sys.platform == 'darwin':
         try:
-            a2 = Popen(str('ps -p %d -o rss,vsz') % pid, shell=True,
+            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Mac OS only if "
                 "the 'ps' program is found")
         mem = int(a2[1].split()[0])
-    elif sys.platform.startswith('win'):
+    elif sys.platform == 'win32':
         try:
-            a2 = Popen([str("tasklist"), "/nh", "/fi", "pid eq %d" % pid],
+            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
                        stdout=PIPE).stdout.read()
         except OSError:
             raise NotImplementedError(
@@ -918,14 +919,14 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             # next "wraps around"
             next = path[(i + 1) % len(path)]
 
-            outstream.write("   %s -- " % str(type(step)))
+            outstream.write("   %s -- " % type(step))
             if isinstance(step, dict):
                 for key, val in six.iteritems(step):
                     if val is next:
-                        outstream.write("[%s]" % repr(key))
+                        outstream.write("[{!r}]".format(key))
                         break
                     if key is next:
-                        outstream.write("[key] = %s" % repr(val))
+                        outstream.write("[key] = {!r}".format(val))
                         break
             elif isinstance(step, list):
                 outstream.write("[%d]" % step.index(next))
@@ -1612,44 +1613,6 @@ def violin_stats(X, method, points=100):
     return vpstats
 
 
-class _NestedClassGetter(object):
-    # recipe from http://stackoverflow.com/a/11493777/741316
-    """
-    When called with the containing class as the first argument,
-    and the name of the nested class as the second argument,
-    returns an instance of the nested class.
-    """
-    def __call__(self, containing_class, class_name):
-        nested_class = getattr(containing_class, class_name)
-
-        # make an instance of a simple object (this one will do), for which we
-        # can change the __class__ later on.
-        nested_instance = _NestedClassGetter()
-
-        # set the class of the instance, the __init__ will never be called on
-        # the class but the original state will be set later on by pickle.
-        nested_instance.__class__ = nested_class
-        return nested_instance
-
-
-class _InstanceMethodPickler(object):
-    """
-    Pickle cannot handle instancemethod saving. _InstanceMethodPickler
-    provides a solution to this.
-    """
-    def __init__(self, instancemethod):
-        """Takes an instancemethod as its only argument."""
-        if six.PY3:
-            self.parent_obj = instancemethod.__self__
-            self.instancemethod_name = instancemethod.__func__.__name__
-        else:
-            self.parent_obj = instancemethod.im_self
-            self.instancemethod_name = instancemethod.im_func.__name__
-
-    def get_instancemethod(self):
-        return getattr(self.parent_obj, self.instancemethod_name)
-
-
 def pts_to_prestep(x, *args):
     """
     Convert continuous line to pre-steps.
@@ -1941,6 +1904,7 @@ removing these folders and trying again.
 """
 
 
+@deprecated("3.0")
 class Locked(object):
     """
     Context manager to handle locks.
@@ -1996,6 +1960,40 @@ class Locked(object):
                     pass
 
 
+@contextlib.contextmanager
+def _lock_path(path):
+    """
+    Context manager for locking a path.
+
+    Usage::
+
+        with _lock_path(path):
+            ...
+
+    Another thread or process that attempts to lock the same path will wait
+    until this context manager is exited.
+
+    The lock is implemented by creating a temporary file in the parent
+    directory, so that directory must exist and be writable.
+    """
+    path = Path(path)
+    lock_path = path.with_name(path.name + ".matplotlib-lock")
+    retries = 50
+    sleeptime = 0.1
+    for _ in range(retries):
+        try:
+            with lock_path.open("xb"):
+                break
+        except FileExistsError:
+            time.sleep(sleeptime)
+    else:
+        raise TimeoutError(_lockstr.format(lock_path))
+    try:
+        yield
+    finally:
+        lock_path.unlink()
+
+
 def _topmost_artist(
         artists,
         _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))):
@@ -2027,3 +2025,67 @@ def _str_lower_equal(obj, s):
     cannot be used in a boolean context.
     """
     return isinstance(obj, six.string_types) and obj.lower() == s
+
+
+def _define_aliases(alias_d, cls=None):
+    """Class decorator for defining property aliases.
+
+    Use as ::
+
+        @cbook._define_aliases({"property": ["alias", ...], ...})
+        class C: ...
+
+    For each property, if the corresponding ``get_property`` is defined in the
+    class so far, an alias named ``get_alias`` will be defined; the same will
+    be done for setters.  If neither the getter nor the setter exists, an
+    exception will be raised.
+
+    The alias map is stored as the ``_alias_map`` attribute on the class and
+    can be used by `~.normalize_kwargs` (which assumes that higher priority
+    aliases come last).
+    """
+    if cls is None:
+        return functools.partial(_define_aliases, alias_d)
+
+    def make_alias(name):  # Enforce a closure over *name*.
+        def method(self, *args, **kwargs):
+            return getattr(self, name)(*args, **kwargs)
+        return method
+
+    for prop, aliases in alias_d.items():
+        exists = False
+        for prefix in ["get_", "set_"]:
+            if prefix + prop in vars(cls):
+                exists = True
+                for alias in aliases:
+                    method = make_alias(prefix + prop)
+                    method.__name__ = prefix + alias
+                    method.__doc__ = "alias for `{}`".format(prefix + prop)
+                    setattr(cls, prefix + alias, method)
+        if not exists:
+            raise ValueError(
+                "Neither getter nor setter exists for {!r}".format(prop))
+
+    if hasattr(cls, "_alias_map"):
+        # Need to decide on conflict resolution policy.
+        raise NotImplementedError("Parent class already defines aliases")
+    cls._alias_map = alias_d
+    return cls
+
+
+@contextlib.contextmanager
+def _setattr_cm(obj, **kwargs):
+    """Temporarily set some attributes; restore original state at context exit.
+    """
+    sentinel = object()
+    origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]
+    try:
+        for attr, val in kwargs.items():
+            setattr(obj, attr, val)
+        yield
+    finally:
+        for attr, orig in origs:
+            if orig is sentinel:
+                delattr(obj, attr)
+            else:
+                setattr(obj, attr, orig)

@@ -26,8 +26,12 @@ The following deprecated API elements have been removed:
 - ``_AxesBase.axesPatch``, ``_AxesBase.get_cursor_props``,
   ``_AxesBase.set_cursor_props``,
 - ``_ImageBase.iterpnames``,
+- ``FigureCanvasBase.start_event_loop_default``;
+- ``FigureCanvasBase.stop_event_loop_default``;
 - ``Figure.figurePatch``,
 - ``FigureCanvasBase.dynamic_update``, ``FigureCanvasBase.idle_event``,
   ``FigureCanvasBase.get_linestyle``, ``FigureCanvasBase.set_linestyle``,
 - ``FigureCanvasQTAgg.blitbox``,
+- passing non-numbers to ``EngFormatter.format_eng``,
 - passing ``frac`` to ``PolarAxes.set_theta_grids``,
+- any mention of idle events,

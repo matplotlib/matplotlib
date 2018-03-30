@@ -33,27 +33,23 @@ your script::
 
 """
 
-import six
-
 import copy
+import distutils.version
 import glob
 import hashlib
 import logging
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
 import warnings
 
-import distutils.version
 import numpy as np
+
 import matplotlib as mpl
-from matplotlib import rcParams
-from matplotlib._png import read_png
-from matplotlib.cbook import Locked
-import matplotlib.dviread as dviread
-import re
+from matplotlib import _png, cbook, dviread, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -104,9 +100,9 @@ class TexManager(object):
         'computer modern typewriter': ('cmtt', '')}
 
     _rc_cache = None
-    _rc_cache_keys = (('text.latex.preamble', ) +
-                      tuple(['font.' + n for n in ('family', ) +
-                             font_families]))
+    _rc_cache_keys = (
+        ('text.latex.preamble', 'text.latex.unicode', 'text.latex.preview',
+         'font.family') + tuple('font.' + n for n in font_families))
 
     def __init__(self):
 
@@ -118,8 +114,7 @@ class TexManager(object):
         ff = rcParams['font.family']
         if len(ff) == 1 and ff[0].lower() in self.font_families:
             self.font_family = ff[0].lower()
-        elif (isinstance(ff, six.string_types)
-              and ff.lower() in self.font_families):
+        elif isinstance(ff, str) and ff.lower() in self.font_families:
             self.font_family = ff.lower()
         else:
             _log.info('font.family must be one of (%s) when text.usetex is '
@@ -338,7 +333,7 @@ class TexManager(object):
         dvifile = '%s.dvi' % basefile
         if not os.path.exists(dvifile):
             texfile = self.make_tex(tex, fontsize)
-            with Locked(self.texcache):
+            with cbook._lock_path(texfile):
                 self._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
                      texfile], tex)
@@ -434,7 +429,7 @@ class TexManager(object):
         alpha = self.grey_arrayd.get(key)
         if alpha is None:
             pngfile = self.make_png(tex, fontsize, dpi)
-            X = read_png(os.path.join(self.texcache, pngfile))
+            X = _png.read_png(os.path.join(self.texcache, pngfile))
             self.grey_arrayd[key] = alpha = X[:, :, -1]
         return alpha
 
