@@ -268,8 +268,10 @@ def test_RadioButtons():
     radio = widgets.RadioButtons(ax, ('Radio 1', 'Radio 2', 'Radio 3'))
     radio.set_active(1)
     assert radio.value_selected == 'Radio 2'
+    assert radio.index_selected == 1
     radio.clear()
     assert radio.value_selected is None
+    assert radio.index_selected is None
 
 @image_comparison(baseline_images=['check_radio_buttons'], extensions=['png'],
                   style='default')
