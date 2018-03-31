@@ -430,12 +430,11 @@ def test_if_rctemplate_is_up_to_date():
     dep1 = mpl._all_deprecated
     dep2 = mpl._deprecated_set
     deprecated = list(dep1.union(dep2))
-    #print(deprecated)
-    path_to_rc = mpl.matplotlib_fname()
+    path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
     missing = {}
-    for k,v in mpl.defaultParams.items():
+    for k, v in mpl.defaultParams.items():
         if k[0] == "_":
             continue
         if k in deprecated:
@@ -447,7 +446,7 @@ def test_if_rctemplate_is_up_to_date():
             if k in line:
                 found = True
         if not found:
-            missing.update({k:v})
+            missing.update({k: v})
     if missing:
         raise ValueError("The following params are missing " +
                          "in the matplotlibrc.template file: {}"
@@ -457,7 +456,7 @@ def test_if_rctemplate_is_up_to_date():
 def test_if_rctemplate_would_be_valid(tmpdir):
     # This tests if the matplotlibrc.template file would result in a valid
     # rc file if all lines are uncommented.
-    path_to_rc = mpl.matplotlib_fname()
+    path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
     newlines = []
@@ -476,10 +475,7 @@ def test_if_rctemplate_would_be_valid(tmpdir):
     with open(fname, "w") as f:
         f.writelines(newlines)
     with pytest.warns(None) as record:
-        dic = mpl.rc_params_from_file(fname,
-                                      fail_on_error=True,
-                                      use_default_template=False)
+        mpl.rc_params_from_file(fname,
+                                fail_on_error=True,
+                                use_default_template=False)
         assert len(record) == 0
-    #d1 = set(dic.keys())
-    #d2 = set(matplotlib.defaultParams.keys())
-    #print(d2-d1)
