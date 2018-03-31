@@ -5172,7 +5172,7 @@ def test_shared_axes_autoscale():
     assert not ax1.get_autoscaley_on() and not ax2.get_autoscaley_on()
     assert ax1.get_xlim() == ax2.get_xlim() == (-1000, 1000)
     assert ax1.get_ylim() == ax2.get_ylim() == (-1000, 1000)
-    
+
 
 def test_adjust_numtick_aspect():
     fig, ax = plt.subplots()
