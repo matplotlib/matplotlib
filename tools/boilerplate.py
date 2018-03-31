@@ -218,18 +218,22 @@ def boilerplate_gen():
             param.replace(default=value_formatter(param.default))
             if param.default is not param.empty else param
             for param in params]))
-        # Move opening parenthesis before newline.
-        sig = '(\n' + text_wrapper.fill(sig).replace('(', '', 1)
+        if len('def ' + func + sig) >= 80:
+            # Move opening parenthesis before newline.
+            sig = '(\n' + text_wrapper.fill(sig).replace('(', '', 1)
 
         # How to call the wrapped function.
-        call = '(\n' + text_wrapper.fill(', '.join(
+        call = '(' + ', '.join(
             ('{0}={0}' if param.kind in [Parameter.POSITIONAL_OR_KEYWORD,
                                          Parameter.KEYWORD_ONLY] else
              '*{0}' if param.kind is Parameter.VAR_POSITIONAL else
              '**{0}' if param.kind is Parameter.VAR_KEYWORD else
              # Intentionally crash for Parameter.POSITIONAL_ONLY.
              None).format(param.name)
-            for param in params) + ')')
+            for param in params) + ')'
+        MAX_CALL_PREFIX = 18  # len('    __ret = gca().')
+        if MAX_CALL_PREFIX + len(func) + len(call) >= 80:
+            call = '(\n' + text_wrapper.fill(call[1:])
 
         # Bail out in case of name collision.
         for reserved in ('gca', 'gci', '__ret'):
