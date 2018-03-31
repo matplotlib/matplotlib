@@ -1529,8 +1529,8 @@ _DATA_DOC_APPENDIX = """
     following arguments are replaced by **data[<arg>]**:
 
     {replaced}
-    
-    Objects passed as **data** must support item access (``data[<arg>]``) and 
+
+    Objects passed as **data** must support item access (``data[<arg>]``) and
     membership test (``<arg> in data``).
 """
 
@@ -1557,7 +1557,7 @@ def _add_data_doc(docstring, replace_names, replace_all_args):
     if docstring is None:
         docstring = ''
     else:
-        docstring = dedent(docstring)git
+        docstring = dedent(docstring)
     _repl = ""
     if replace_names is None:
         _repl = "* All positional and all keyword arguments."
