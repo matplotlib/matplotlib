@@ -607,6 +607,7 @@ class CheckButtons(AxesWidget):
         for cid, func in self.observers.items():
             func(self.labels[index].get_text())
 
+
     def clear(self):
         """Clears all the checkboxes"""
 
@@ -617,16 +618,20 @@ class CheckButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
+
     def get_status(self):
         """
         returns a tuple of the status (True/False) of all of the check buttons
         """
         return [l1.get_visible() for (l1, l2) in self.lines]
 
+
     def get_checked(self):
         """Returns a list of labels currently checked by user."""
 
-        return [ l.get_text() for l, checked in zip(self.labels, self.get_status()) if checked]
+        return [l.get_text() for l, checked in zip(self.labels, self.get_status()) if
+                checked]
+
 
     def on_clicked(self, func):
         """
@@ -1084,6 +1089,7 @@ class RadioButtons(AxesWidget):
             self.circles[self.index_selected].set_facecolor(ax_facecolor)
         self.value_selected = None
         self.index_selected = None
+
 
     def on_clicked(self, func):
         """
