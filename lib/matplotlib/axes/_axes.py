@@ -2579,7 +2579,7 @@ class Axes(_AxesBase):
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, rotatelabels=False):
+            frame=False, rotatelabels=False, donut=None):
         """
         Plot a pie chart.
 
@@ -2654,6 +2654,9 @@ class Axes(_AxesBase):
         rotatelabels : bool, optional, default: False
             Rotate each label to the angle of the corresponding slice if true.
 
+        donut : dict, optional, default: 0
+            Dict of arguments to alter chart apperence to that of a  donut graph.
+
         Returns
         -------
         patches : list
@@ -2716,17 +2719,38 @@ class Axes(_AxesBase):
         slices = []
         autotexts = []
 
+        dw = 1
+        breaks = []
+        break_ind = 0
+        layer_lvl = 0
+        num_layers = 1
+
+        if donut is not None:
+            # donut width is set based on number of layers and set width parameter
+            num_layers = len(donut.get('breaks', [])) + 1
+            dw = 1/(num_layers + 1) * (donut.get('width', 1))
+            breaks = donut.get('breaks', [-1])
+            # draw the callout
+            t = self.text(center[0],center[1],
+                          donut.get('callout', ''),
+                          size=rcParams['xtick.labelsize'],
+                          horizontalalignment = 'center',
+                          verticalalignment = 'center',
+                          wrap = 'true')
+            texts.append(t)
+
         i = 0
         for frac, label, expl in zip(x, labels, explode):
             x, y = center
-            theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
+            theta2 = (theta1 + (frac * num_layers)) if counterclock else (theta1 - (frac * num_layers))
             thetam = 2 * np.pi * 0.5 * (theta1 + theta2)
             x += expl * math.cos(thetam)
             y += expl * math.sin(thetam)
 
-            w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
+            w = mpatches.Wedge((x, y), radius * (1 - dw * layer_lvl), 360. * min(theta1, theta2),
                                360. * max(theta1, theta2),
                                facecolor=get_next_color(),
+                               width=dw,
                                **wedgeprops)
             slices.append(w)
             self.add_patch(w)
@@ -2741,8 +2765,8 @@ class Axes(_AxesBase):
                 shad.set_label('_nolegend_')
                 self.add_patch(shad)
 
-            xt = x + labeldistance * radius * math.cos(thetam)
-            yt = y + labeldistance * radius * math.sin(thetam)
+            xt = x + labeldistance * (radius * (1 - dw * layer_lvl) - (0.17 * layer_lvl)) * math.cos(thetam)
+            yt = y + labeldistance * (radius * (1 - dw * layer_lvl) - (0.17 * layer_lvl)) * math.sin(thetam)
             label_alignment_h = xt > 0 and 'left' or 'right'
             label_alignment_v = 'center'
             label_rotation = 'horizontal'
@@ -2758,6 +2782,15 @@ class Axes(_AxesBase):
                           **textprops)
 
             texts.append(t)
+
+            # for donut charts, move to the next donut layer according to
+            # breakpoints set in dict parameter. Reset theta2 to 0.
+            if len(breaks) > 0 and i == breaks[break_ind]:
+                layer_lvl += 1
+                break_ind += 1
+                theta2 = 0
+                if break_ind >= len(breaks):
+                    break_ind = 0;
 
             if autopct is not None:
                 xt = x + pctdistance * radius * math.cos(thetam)
