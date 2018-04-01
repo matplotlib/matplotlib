@@ -181,17 +181,6 @@ def test_cycle_reset():
     got = next(ax._get_lines.prop_cycler)
     assert prop == got
 
-    fig, ax = plt.subplots()
-    # Need to double-check the old set/get_color_cycle(), too
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
-        prop = next(ax._get_lines.prop_cycler)
-        ax.set_color_cycle(['c', 'm', 'y', 'k'])
-        assert prop != next(ax._get_lines.prop_cycler)
-        ax.set_color_cycle(None)
-        got = next(ax._get_lines.prop_cycler)
-        assert prop == got
-
 
 def test_invalid_input_forms():
     fig, ax = plt.subplots()

@@ -15,7 +15,7 @@ The following deprecated API elements have been removed:
   ``cbook.recursive_remove``, ``cbook.unmasked_index_ranges``,
   ``cbook.Null``, ``cbook.RingBuffer``, ``cbook.Sorter``, ``cbook.Xlator``,
 - ``font_manager.weight_as_number``, ``font_manager.ttfdict_to_fnames``,
-- ``pyplot.colors``,
+- ``pyplot.colors``, ``pyplot.spectral``,
 - ``rcsetup.validate_negative_linestyle``,
   ``rcsetup.validate_negative_linestyle_legacy``,
 - ``testing.compare.verifiers``, ``testing.compare.verify``,
@@ -23,8 +23,8 @@ The following deprecated API elements have been removed:
   ``testing.decorators.ImageComparisonTest.remove_text``,
 - ``tests.assert_str_equal``, ``tests.test_tinypages.file_same``,
 - ``texmanager.dvipng_hack_alpha``,
-- ``_AxesBase.axesPatch``, ``_AxesBase.get_cursor_props``,
-  ``_AxesBase.set_cursor_props``,
+- ``_AxesBase.axesPatch``, ``_AxesBase.set_color_cycle``,
+  ``_AxesBase.get_cursor_props``, ``_AxesBase.set_cursor_props``,
 - ``_ImageBase.iterpnames``,
 - ``FigureCanvasBase.start_event_loop_default``;
 - ``FigureCanvasBase.stop_event_loop_default``;

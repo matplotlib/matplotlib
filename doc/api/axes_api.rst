@@ -229,7 +229,6 @@ Property cycle
    :nosignatures:
 
    Axes.set_prop_cycle
-   Axes.set_color_cycle
 
 
 Axis / limits
