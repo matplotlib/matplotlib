@@ -43,12 +43,14 @@ class ServerThread(threading.Thread):
     def run(self):
         tornado.ioloop.IOLoop.instance().start()
 
+
 webagg_server_thread = ServerThread()
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
     def show(self):
         # show the figure window
+        global show  # placates pyflakes: created by @_Backend.export below
         show()
 
     def new_timer(self, *args, **kwargs):

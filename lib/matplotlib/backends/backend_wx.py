@@ -1454,6 +1454,7 @@ cursord = {
 @cbook.deprecated("2.2")
 class SubplotToolWX(wx.Frame):
     def __init__(self, targetfig):
+        global FigureManager  # placates pyflakes: created by @_Backend.export
         wx.Frame.__init__(self, None, -1, "Configure subplots")
 
         toolfig = Figure((6, 3))
@@ -1521,6 +1522,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         NavigationToolbar2.pan(self, *args)
 
     def configure_subplots(self, evt):
+        global FigureManager  # placates pyflakes: created by @_Backend.export
         frame = wx.Frame(None, -1, "Configure subplots")
 
         toolfig = Figure((6, 3))
