@@ -149,7 +149,7 @@ def boilerplate_gen():
         'pcolormesh': 'sci(__ret)',
         'hist2d': 'sci(__ret[-1])',
         'imshow': 'sci(__ret)',
-        'spy': 'if isinstance(ret, cm.ScalarMappable): sci(__ret)',
+        'spy': 'if isinstance(__ret, cm.ScalarMappable): sci(__ret)',
         'quiver': 'sci(__ret)',
         'specgram': 'sci(__ret[-1])',
         'streamplot': 'sci(__ret.lines)',
