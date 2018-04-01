@@ -525,11 +525,12 @@ grestore
 
         if rgbFace:
             if len(rgbFace) == 4 and rgbFace[3] == 0:
-                return
-            if rgbFace[0] == rgbFace[1] == rgbFace[2]:
-                ps_color = '%1.3f setgray' % rgbFace[0]
+                ps_color = None
             else:
-                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
+                if rgbFace[0] == rgbFace[1] == rgbFace[2]:
+                    ps_color = '%1.3f setgray' % rgbFace[0]
+                else:
+                    ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
 
         # construct the generic marker command:
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # don't want the translate to be global
@@ -549,7 +550,8 @@ grestore
         if rgbFace:
             if stroke:
                 ps_cmd.append('gsave')
-            ps_cmd.extend([ps_color, 'fill'])
+            if ps_color:
+                ps_cmd.extend([ps_color, 'fill'])
             if stroke:
                 ps_cmd.append('grestore')
 
