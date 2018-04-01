@@ -555,9 +555,9 @@ def get_home():
         return None
 
 
-def _create_tmp_config_dir():
+def _create_tmp_config_or_cache_dir():
     """
-    If the config directory can not be created, create a temporary directory.
+    If the config or cache directory cannot be created, create a temporary one.
     """
     configdir = os.environ['MPLCONFIGDIR'] = (
         tempfile.mkdtemp(prefix='matplotlib-'))
@@ -609,7 +609,7 @@ def _get_config_or_cache_dir(xdg_base):
             if os.access(str(configdir), os.W_OK) and configdir.is_dir():
                 return str(configdir)
 
-    return _create_tmp_config_dir()
+    return _create_tmp_config_or_cache_dir()
 
 
 @_logged_cached('CONFIGDIR=%s')
