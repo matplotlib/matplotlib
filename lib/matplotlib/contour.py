@@ -1749,8 +1749,7 @@ class QuadContourSet(ContourSet):
         contour-only keyword arguments:
 
           *linewidths*: [ *None* | number | tuple of numbers ]
-            If *linewidths* is *None*, the default width in
-            ``lines.linewidth`` in ``matplotlibrc`` is used.
+            If *None*, defaults to :rc:`lines.linewidth`.
 
             If a number, all levels will be plotted with this linewidth.
 
@@ -1758,10 +1757,9 @@ class QuadContourSet(ContourSet):
             linewidths in the order specified.
 
           *linestyles*: [ *None* | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
-            If *linestyles* is *None*, the default is 'solid' unless
-            the lines are monochrome.  In that case, negative
-            contours will take their linestyle from the ``matplotlibrc``
-            ``contour.negative_linestyle`` setting.
+            If *linestyles* is *None*, the default is 'solid' unless the lines
+            are monochrome.  In that case, negative contours will take their
+            linestyle from :rc:`contour.negative_linestyle` setting.
 
             *linestyles* can also be an iterable of the above strings
             specifying a set of linestyles to be used. If this

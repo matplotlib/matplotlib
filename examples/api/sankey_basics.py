@@ -67,10 +67,9 @@ diagrams[0].text.set_fontweight('bold')
 # Notice:
 #
 # 1. Since the sum of the flows is nonzero, the width of the trunk isn't
-#    uniform.  If verbose.level is helpful (in matplotlibrc), a message is
-#    given in the terminal window.
-# 2. The second flow doesn't appear because its value is zero.  Again, if
-#    verbose.level is helpful, a message is given in the terminal window.
+#    uniform.  The matplotlib logging system logs this at the DEBUG level.
+# 2. The second flow doesn't appear because its value is zero.  Again, this is
+#    logged at the DEBUG level.
 
 
 ###############################################################################

@@ -467,8 +467,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     to properly clean up the memory.
 
     rcParams defines the default values, which can be modified in the
-    matplotlibrc file
-
+    matplotlibrc file.
     """
 
     if figsize is None:
