@@ -2725,17 +2725,17 @@ class Axes(_AxesBase):
         layer_lvl = 0
         num_layers = 1
 
-        if donut is not None:
-            # donut width is set based on number of layers and set width parameter
+        if donut:
+            # donut width set based on number of 'breaks and 'width' parameter
             num_layers = len(donut.get('breaks', [])) + 1
             dw = 1/(num_layers + 1) * (donut.get('width', 1))
             breaks = donut.get('breaks', [-1])
-            # draw the callout
-            t = self.text(center[0],center[1],
+            # draw the callout text in center of chart
+            t = self.text(center[0], center[1],
                           donut.get('callout', ''),
                           size=rcParams['xtick.labelsize'],
-                          horizontalalignment = 'center',
-                          verticalalignment = 'center',
+                          horizontalalignment='center',
+                          verticalalignment='center',
                           wrap = 'true')
             texts.append(t)
 
