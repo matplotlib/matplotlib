@@ -9,6 +9,7 @@ import numpy as np
 import os
 import shutil
 import tempfile
+import pytest
 
 
 def test_uses_per_path():
@@ -60,3 +61,21 @@ def test_get_default_filename():
         assert filename == 'image.png'
     finally:
         shutil.rmtree(test_dir)
+
+
+@pytest.mark.backend('pdf')
+def test_non_gui_warning():
+    plt.subplots()
+    with pytest.warns(UserWarning) as rec:
+        plt.show()
+        assert len(rec) == 1
+        assert 'matplotlib is currently using pdf, ' \
+               'which is a non-GUI backend' \
+               in str(rec[0].message)
+
+    with pytest.warns(UserWarning) as rec:
+        plt.gcf().show()
+        assert len(rec) == 1
+        assert 'matplotlib is currently using pdf, ' \
+               'which is a non-GUI backend' \
+               in str(rec[0].message)

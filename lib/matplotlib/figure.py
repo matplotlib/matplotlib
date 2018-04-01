@@ -19,6 +19,7 @@ import numpy as np
 from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib import __version__ as _mpl_version
+from matplotlib import get_backend
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
@@ -414,7 +415,7 @@ class Figure(Artist):
 
         Parameters
         ----------
-        warm : bool
+        warn : bool
             If ``True``, issue warning when called on a non-GUI backend
 
         Notes
@@ -437,10 +438,10 @@ class Figure(Artist):
             except NonGuiException:
                 pass
         if warn:
-            import warnings
             warnings.warn(
-                "matplotlib is currently using a non-GUI backend, "
-                "so cannot show the figure")
+                ('matplotlib is currently using %s, which is a ' +
+                 'non-GUI backend, so cannot show the figure.')
+                % get_backend())
 
     def _get_axes(self):
         return self._axstack.as_list()
