@@ -628,7 +628,7 @@ class CheckButtons(AxesWidget):
 
         return [l.get_text() for l, box_checked in
                 zip(self.labels, self.get_status())
-                if box_checked ]
+                if box_checked]
 
     def on_clicked(self, func):
         """
