@@ -67,7 +67,10 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            MaxNLocator
 from matplotlib.backends import pylab_setup
 
+
 ## Backend detection ##
+
+
 def _backend_selection():
     """
     If rcParams['backend_fallback'] is true, check to see if the
@@ -103,7 +106,9 @@ def _backend_selection():
 
 _backend_selection()
 
+
 ## Global ##
+
 
 _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
@@ -306,9 +311,9 @@ def rcdefaults():
         draw_all()
 
 
-# The current "image" (ScalarMappable) is retrieved or set
-# only via the pyplot interface using the following two
-# functions:
+## Current image ##
+
+
 def gci():
     """
     Get the current colorable artist.  Specifically, returns the
@@ -326,18 +331,9 @@ def gci():
     return gcf()._gci()
 
 
-def sci(im):
-    """
-    Set the current image.  This image will be the target of colormap
-    commands like :func:`~matplotlib.pyplot.jet`,
-    :func:`~matplotlib.pyplot.hot` or
-    :func:`~matplotlib.pyplot.clim`).  The current image is an
-    attribute of the current axes.
-    """
-    gca()._sci(im)
-
-
 ## Any Artist ##
+
+
 # (getp is simply imported)
 @docstring.copy(_setp)
 def setp(obj, *args, **kwargs):
@@ -649,7 +645,8 @@ def close(*args):
         elif isinstance(arg, Figure):
             _pylab_helpers.Gcf.destroy_fig(arg)
         else:
-            raise TypeError('Unrecognized argument type %s to close' % type(arg))
+            raise TypeError('Unrecognized argument type %s to close'
+                            % type(arg))
     else:
         raise TypeError('close takes 0 or 1 arguments')
 
@@ -712,7 +709,8 @@ def waitforbuttonpress(*args, **kwargs):
     return gcf().waitforbuttonpress(*args, **kwargs)
 
 
-# Putting things in figures
+## Putting things in figures ##
+
 
 @docstring.copy_dedent(Figure.text)
 def figtext(x, y, s, *args, **kwargs):
@@ -768,6 +766,8 @@ def figlegend(*args, **kwargs):
 
 
 ## Axes ##
+
+
 def axes(arg=None, **kwargs):
     """
     Add an axes to the current figure and make it the current axes.
@@ -845,7 +845,8 @@ def axes(arg=None, **kwargs):
 def delaxes(ax=None):
     """
     Remove the given `Axes` *ax* from the current figure. If *ax* is *None*,
-    the current axes is removed. A KeyError is raised if the axes doesn't exist.
+    the current axes is removed. A KeyError is raised if the axes doesn't
+    exist.
     """
     if ax is None:
         ax = gca()
@@ -887,7 +888,8 @@ def gca(**kwargs):
     """
     return gcf().gca(**kwargs)
 
-# More ways of creating axes:
+
+## More ways of creating axes ##
 
 
 def subplot(*args, **kwargs):
@@ -1183,7 +1185,7 @@ def twinx(ax=None):
           For an example
     """
     if ax is None:
-        ax=gca()
+        ax = gca()
     ax1 = ax.twinx()
     return ax1
 
@@ -1196,7 +1198,7 @@ def twiny(ax=None):
     returned.
     """
     if ax is None:
-        ax=gca()
+        ax = gca()
     ax1 = ax.twiny()
     return ax1
 
@@ -1287,148 +1289,7 @@ def box(on=None):
     ax.set_frame_on(on)
 
 
-def title(s, *args, **kwargs):
-    """
-    Set a title of the current axes.
-
-    Set one of the three available axes titles. The available titles are
-    positioned above the axes in the center, flush with the left edge,
-    and flush with the right edge.
-
-    .. seealso::
-        See :func:`~matplotlib.pyplot.text` for adding text
-        to the current axes
-
-    Parameters
-    ----------
-    label : str
-        Text to use for the title
-
-    fontdict : dict
-        A dictionary controlling the appearance of the title text,
-        the default `fontdict` is:
-
-            {'fontsize': rcParams['axes.titlesize'],
-            'fontweight' : rcParams['axes.titleweight'],
-            'verticalalignment': 'baseline',
-            'horizontalalignment': loc}
-
-    loc : {'center', 'left', 'right'}, str, optional
-        Which title to set, defaults to 'center'
-
-    Returns
-    -------
-    text : :class:`~matplotlib.text.Text`
-        The matplotlib text instance representing the title
-
-    Other parameters
-    ----------------
-    kwargs : text properties
-        Other keyword arguments are text properties, see
-        :class:`~matplotlib.text.Text` for a list of valid text
-        properties.
-
-    """
-    return gca().set_title(s, *args, **kwargs)
-
 ## Axis ##
-
-
-def axis(*v, **kwargs):
-    """
-    Convenience method to get or set axis properties.
-
-    Calling with no arguments::
-
-      >>> axis()
-
-    returns the current axes limits ``[xmin, xmax, ymin, ymax]``.::
-
-      >>> axis(v)
-
-    sets the min and max of the x and y axes, with
-    ``v = [xmin, xmax, ymin, ymax]``.::
-
-      >>> axis('off')
-
-    turns off the axis lines and labels.::
-
-      >>> axis('equal')
-
-    changes limits of *x* or *y* axis so that equal increments of *x*
-    and *y* have the same length; a circle is circular.::
-
-      >>> axis('scaled')
-
-    achieves the same result by changing the dimensions of the plot box instead
-    of the axis data limits.::
-
-      >>> axis('tight')
-
-    changes *x* and *y* axis limits such that all data is shown. If
-    all data is already shown, it will move it to the center of the
-    figure without modifying (*xmax* - *xmin*) or (*ymax* -
-    *ymin*). Note this is slightly different than in MATLAB.::
-
-      >>> axis('image')
-
-    is 'scaled' with the axis limits equal to the data limits.::
-
-      >>> axis('auto')
-
-    and::
-
-      >>> axis('normal')
-
-    are deprecated. They restore default behavior; axis limits are automatically
-    scaled to make the data fit comfortably within the plot box.
-
-    if ``len(*v)==0``, you can pass in *xmin*, *xmax*, *ymin*, *ymax*
-    as kwargs selectively to alter just those limits without changing
-    the others.
-
-      >>> axis('square')
-
-    changes the limit ranges (*xmax*-*xmin*) and (*ymax*-*ymin*) of
-    the *x* and *y* axes to be the same, and have the same scaling,
-    resulting in a square plot.
-
-    The xmin, xmax, ymin, ymax tuple is returned
-
-    .. seealso::
-
-        :func:`xlim`, :func:`ylim`
-           For setting the x- and y-limits individually.
-    """
-    return gca().axis(*v, **kwargs)
-
-
-def xlabel(s, *args, **kwargs):
-    """
-    Set the x-axis label of the current axes.
-
-    Call signature::
-
-        xlabel(label, fontdict=None, labelpad=None, **kwargs)
-
-    This is the pyplot equivalent of calling `.set_xlabel` on the current axes.
-    See there for a full parameter description.
-    """
-    return gca().set_xlabel(s, *args, **kwargs)
-
-
-def ylabel(s, *args, **kwargs):
-    """
-    Set the y-axis label of the current axes.
-
-    Call signature::
-
-        ylabel(label, fontdict=None, labelpad=None, **kwargs)
-
-    This is the pyplot equivalent of calling `.set_ylabel` on the current axes.
-    See there for a full parameter description.
-    """
-    return gca().set_ylabel(s, *args, **kwargs)
 
 
 def xlim(*args, **kwargs):
@@ -1504,54 +1365,6 @@ def ylim(*args, **kwargs):
     return ret
 
 
-@docstring.dedent_interpd
-def xscale(scale, **kwargs):
-    """
-    Set the scaling of the x-axis.
-
-    Parameters
-    ----------
-    scale : [%(scale)s]
-        The scaling type.
-    **kwargs
-        Additional parameters depend on *scale*. See Notes.
-
-    Notes
-    -----
-    This is the pyplot equivalent of calling `~.Axes.set_xscale` on the
-    current axes.
-
-    Different keywords may be accepted, depending on the scale:
-
-    %(scale_docs)s
-    """
-    gca().set_xscale(scale, **kwargs)
-
-
-@docstring.dedent_interpd
-def yscale(scale, **kwargs):
-    """
-    Set the scaling of the y-axis.
-
-    Parameters
-    ----------
-    scale : [%(scale)s]
-        The scaling type.
-    **kwargs
-        Additional parameters depend on *scale*. See Notes.
-
-    Notes
-    -----
-    This is the pyplot equivalent of calling `~.Axes.set_yscale` on the
-    current axes.
-
-    Different keywords may be accepted, depending on the scale:
-
-    %(scale_docs)s
-    """
-    gca().set_yscale(scale, **kwargs)
-
-
 def xticks(*args, **kwargs):
     """
     Get or set the current tick locations and labels of the x-axis.
@@ -1614,19 +1427,19 @@ def xticks(*args, **kwargs):
     """
     ax = gca()
 
-    if len(args)==0:
+    if len(args) == 0:
         locs = ax.get_xticks()
         labels = ax.get_xticklabels()
-    elif len(args)==1:
+    elif len(args) == 1:
         locs = ax.set_xticks(args[0])
         labels = ax.get_xticklabels()
-    elif len(args)==2:
+    elif len(args) == 2:
         locs = ax.set_xticks(args[0])
         labels = ax.set_xticklabels(args[1], **kwargs)
-    else: raise TypeError('Illegal number of arguments to xticks')
-    if len(kwargs):
-        for l in labels:
-            l.update(kwargs)
+    else:
+        raise TypeError('Illegal number of arguments to xticks')
+    for l in labels:
+        l.update(kwargs)
 
     return locs, silent_list('Text xticklabel', labels)
 
@@ -1693,41 +1506,21 @@ def yticks(*args, **kwargs):
     """
     ax = gca()
 
-    if len(args)==0:
+    if len(args) == 0:
         locs = ax.get_yticks()
         labels = ax.get_yticklabels()
-    elif len(args)==1:
+    elif len(args) == 1:
         locs = ax.set_yticks(args[0])
         labels = ax.get_yticklabels()
-    elif len(args)==2:
+    elif len(args) == 2:
         locs = ax.set_yticks(args[0])
         labels = ax.set_yticklabels(args[1], **kwargs)
-    else: raise TypeError('Illegal number of arguments to yticks')
-    if len(kwargs):
-        for l in labels:
-            l.update(kwargs)
+    else:
+        raise TypeError('Illegal number of arguments to yticks')
+    for l in labels:
+        l.update(kwargs)
 
-
-    return ( locs,
-             silent_list('Text yticklabel', labels)
-             )
-
-
-def minorticks_on():
-    """
-    Display minor ticks on the current plot.
-
-    Displaying minor ticks reduces performance; turn them off using
-    minorticks_off() if drawing speed is a problem.
-    """
-    gca().minorticks_on()
-
-
-def minorticks_off():
-    """
-    Remove minor ticks from the current plot.
-    """
-    gca().minorticks_off()
+    return locs, silent_list('Text yticklabel', labels)
 
 
 def rgrids(*args, **kwargs):
@@ -1836,6 +1629,7 @@ def thetagrids(*args, **kwargs):
 
 
 ## Plotting Info ##
+
 
 def plotting():
     pass
@@ -2144,7 +1938,9 @@ def _setup_pyplot_info_docstrings():
 
     plotting.__doc__ = '\n'.join(lines)
 
+
 ## Plotting part 1: manually generated functions and wrappers ##
+
 
 def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
@@ -2461,6 +2257,11 @@ def axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs):
     return gca().axhspan(ymin=ymin, ymax=ymax, xmin=xmin, xmax=xmax, **kwargs)
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy_dedent(Axes.axis)
+def axis(*v, **kwargs):
+    return gca().axis(*v, **kwargs)
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @docstring.copy_dedent(Axes.axvline)
 def axvline(x=0, ymin=0, ymax=1, **kwargs):
     return gca().axvline(x=x, ymin=ymin, ymax=ymax, **kwargs)
@@ -2713,6 +2514,16 @@ def margins(*args, **kw):
     return gca().margins(*args, **kw)
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy_dedent(Axes.minorticks_off)
+def minorticks_off():
+    return gca().minorticks_off()
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy_dedent(Axes.minorticks_on)
+def minorticks_on():
+    return gca().minorticks_on()
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_autogen_docstring(Axes.pcolor)
 def pcolor(*args, data=None, **kwargs):
     __ret = gca().pcolor(*args, data=data, **kwargs)
@@ -2946,6 +2757,39 @@ def xcorr(
     return gca().xcorr(
         x=x, y=y, normed=normed, detrend=detrend, usevlines=usevlines,
         maxlags=maxlags, data=data, **kwargs)
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy_dedent(Axes._sci)
+def sci(im):
+    return gca()._sci(im=im)
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy_dedent(Axes.set_title)
+def title(label, fontdict=None, loc='center', pad=None, **kwargs):
+    return gca().set_title(
+        label=label, fontdict=fontdict, loc=loc, pad=pad, **kwargs)
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy_dedent(Axes.set_xlabel)
+def xlabel(xlabel, fontdict=None, labelpad=None, **kwargs):
+    return gca().set_xlabel(
+        xlabel=xlabel, fontdict=fontdict, labelpad=labelpad, **kwargs)
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy_dedent(Axes.set_ylabel)
+def ylabel(ylabel, fontdict=None, labelpad=None, **kwargs):
+    return gca().set_ylabel(
+        ylabel=ylabel, fontdict=fontdict, labelpad=labelpad, **kwargs)
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy_dedent(Axes.set_xscale)
+def xscale(value, **kwargs):
+    return gca().set_xscale(value=value, **kwargs)
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy_dedent(Axes.set_yscale)
+def yscale(value, **kwargs):
+    return gca().set_yscale(value=value, **kwargs)
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 def autumn():
