@@ -595,9 +595,9 @@ class CheckButtons(AxesWidget):
             raise ValueError("Invalid CheckButton index: %d" % index)
 
         l1, l2 = self.lines[index]
-        target_state = bool(state) if state is not None else not l1.get_visible()
-        l1.set_visible(target_state)
-        l2.set_visible(target_state)
+        target_vis = bool(state) if state is not None else not l1.get_visible()
+        l1.set_visible(target_vis)
+        l2.set_visible(target_vis)
 
         if self.drawon:
             self.ax.figure.canvas.draw()
@@ -606,7 +606,6 @@ class CheckButtons(AxesWidget):
             return
         for cid, func in self.observers.items():
             func(self.labels[index].get_text())
-
 
     def clear(self):
         """Clears all the checkboxes"""
@@ -618,20 +617,18 @@ class CheckButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
-
     def get_status(self):
         """
         returns a tuple of the status (True/False) of all of the check buttons
         """
         return [l1.get_visible() for (l1, l2) in self.lines]
 
-
     def get_checked(self):
         """Returns a list of labels currently checked by user."""
 
-        return [l.get_text() for l, checked in zip(self.labels, self.get_status()) if
-                checked]
-
+        return [l.get_text() for l, box_checked in
+                zip(self.labels, self.get_status())
+                if box_checked ]
 
     def on_clicked(self, func):
         """
@@ -1081,7 +1078,6 @@ class RadioButtons(AxesWidget):
         for cid, func in self.observers.items():
             func(self.labels[index].get_text())
 
-
     def clear(self):
         """Deactivate any previously activated button."""
         if self.index_selected is not None:
@@ -1089,7 +1085,6 @@ class RadioButtons(AxesWidget):
             self.circles[self.index_selected].set_facecolor(ax_facecolor)
         self.value_selected = None
         self.index_selected = None
-
 
     def on_clicked(self, func):
         """

@@ -258,10 +258,11 @@ def test_CheckButtons():
     assert check.get_checked() == ['c']
     check.clear()
     assert not(any(check.get_status()))
-    assert len(check.get_checked())==0
+    assert len(check.get_checked()) == 0
 
     cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
+
 
 def test_RadioButtons():
     ax = get_ax()
@@ -272,6 +273,7 @@ def test_RadioButtons():
     radio.clear()
     assert radio.value_selected is None
     assert radio.index_selected is None
+
 
 @image_comparison(baseline_images=['check_radio_buttons'], extensions=['png'],
                   style='default')
