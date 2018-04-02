@@ -2770,10 +2770,10 @@ class Axes(_AxesBase):
                     raise TypeError(
                         'autopct must be callable or a format string')
 
-                t = self.text(xt, yt, s,
-                              horizontalalignment='center',
-                              verticalalignment='center',
-                              **textprops)
+                props = dict(horizontalalignment='center',
+                             verticalalignment='center')
+                props.update(textprops)
+                t = self.text(xt, yt, s, **props)
 
                 autotexts.append(t)
 
