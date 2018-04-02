@@ -2705,13 +2705,13 @@ class Axes(_AxesBase):
             if rotatelabels:
                 label_alignment_v = yt > 0 and 'bottom' or 'top'
                 label_rotation = np.rad2deg(thetam) + (0 if xt > 0 else 180)
-
-            t = self.text(xt, yt, label,
-                          size=rcParams['xtick.labelsize'],
-                          horizontalalignment=label_alignment_h,
+            props = dict(horizontalalignment=label_alignment_h,
                           verticalalignment=label_alignment_v,
                           rotation=label_rotation,
-                          **textprops)
+                          size=rcParams['xtick.labelsize'])
+            props.update(textprops)
+
+            t = self.text(xt, yt, label, **props)
 
             texts.append(t)
 
@@ -2726,10 +2726,10 @@ class Axes(_AxesBase):
                     raise TypeError(
                         'autopct must be callable or a format string')
 
-                t = self.text(xt, yt, s,
-                              horizontalalignment='center',
-                              verticalalignment='center',
-                              **textprops)
+                props = dict(horizontalalignment='center',
+                             verticalalignment='center')
+                props.update(textprops)
+                t = self.text(xt, yt, s, **props)
 
                 autotexts.append(t)
 
