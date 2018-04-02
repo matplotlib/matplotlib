@@ -623,7 +623,7 @@ class CheckButtons(AxesWidget):
         """
         return [l1.get_visible() for (l1, l2) in self.lines]
 
-    def get_checked(self):
+    def get_checked_labels(self):
         """Returns a list of labels currently checked by user."""
 
         return [l.get_text() for l, box_checked in
