@@ -2,4 +2,4 @@
 
 pandas<0.21.0
 jupyter
-pytest-pep8
+pytest-flake8

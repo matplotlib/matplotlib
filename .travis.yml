@@ -63,8 +63,7 @@ env:
     - NPROC=2
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
-    - PYTEST_ADDOPTS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
-    - RUN_PEP8=
+    - PYTEST_ADDOPTS="-rawR --maxfail=50 --timeout=350 --durations=25 --cov-report= --cov=lib -n $NPROC"
 
 matrix:
   include:
@@ -78,7 +77,7 @@ matrix:
     - python: 3.6
       env:
         - DELETE_FONT_CACHE=1
-        - PYTEST_ADDOPTS="$PYTEST_ADDOPTS --pep8"
+        - PYTEST_ADDOPTS="$PYTEST_ADDOPTS --flake8"
         - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: "nightly"
       env: PRE=--pre
