@@ -257,7 +257,7 @@ def test_CheckButtons():
     assert check.get_status() == [False, False, True]
     assert check.get_checked() == ['c']
     check.clear()
-    assert not(any(check.get_status()))
+    assert not any(check.get_status())
     assert len(check.get_checked()) == 0
 
     cid = check.on_clicked(lambda: None)
