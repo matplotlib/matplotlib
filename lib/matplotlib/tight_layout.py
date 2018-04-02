@@ -12,7 +12,6 @@ for some cases (for example, left or right margin is affected by xlabel).
 import warnings
 
 import matplotlib
-import matplotlib.gridspec as gridspec
 from matplotlib.transforms import TransformedBbox, Bbox
 
 from matplotlib.font_manager import FontProperties
@@ -241,6 +240,7 @@ def get_subplotspec_list(axes_list, grid_spec=None):
             warnings.warn("The Axes %s in this figure are not "
                           "compatible with tight_layout, so its "
                           "results might be incorrect." % axes_or_locator)
+            import matplotlib.gridspec as gridspec
             subplotspec = gridspec.GridSpec(1, 1)
 
         subplotspec_list.append(subplotspec)

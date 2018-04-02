@@ -303,11 +303,8 @@ class GridSpec(GridSpecBase):
             fit into.  Default is (0, 0, 1, 1).
         """
 
-        from .tight_layout import (get_subplotspec_list,
-                                   get_tight_layout_figure,
-                                   get_renderer)
-
-        subplotspec_list = get_subplotspec_list(fig.axes, grid_spec=self)
+        subplotspec_list = tight_layout.get_subplotspec_list(figure.axes,
+                                                             grid_spec=self)
 
         if renderer is None:
             renderer = tight_layout.get_renderer(figure)
