@@ -11,8 +11,12 @@ The following modules are deprecated:
 The following classes, methods, functions, and attributes are deprecated:
 
 - ``afm.parse_afm``,
+- ``backend_pdf.PdfFile.texFontMap``,
 - ``backend_pgf.get_texcommand``,
 - ``backend_ps.get_bbox``,
+- ``backend_qt5.FigureCanvasQT.keyAutoRepeat`` (directly check
+  ``event.guiEvent.isAutoRepeat()`` in the event handler to decide whether to
+  handle autorepeated key presses).
 - ``backend_qt5.error_msg_qt``, ``backend_qt5.exception_handler``,
 - ``backend_wx.FigureCanvasWx.macros``,
 - ``cbook.GetRealpathAndStat``, ``cbook.Locked``,
@@ -22,7 +26,11 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``contour.ContourLabeler.cl``, ``.cl_xy``, and ``.cl_cvalues``,
 - ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``,
 - ``font_manager.TempCache``,
+- ``image._ImageBase.iterpnames``, use the ``interpolation_names`` property
+  instead. (this affects classes that inherit from ``_ImageBase`` including
+  :class:`FigureImage`, :class:`BboxImage`, and :class:`AxesImage`),
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
+- ``patches.Polygon.xy``,
 - ``table.Table.get_child_artists`` (use ``get_children`` instead),
 - ``testing.compare.ImageComparisonTest``, ``testing.compare.compare_float``,
 - ``testing.decorators.CleanupTest``,
@@ -30,13 +38,9 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``FigureCanvasQT.keyAutoRepeat`` (directly check
   ``event.guiEvent.isAutoRepeat()`` in the event handler to decide whether to
   handle autorepeated key presses).
-- ``FigureCanvasWx.macros``,
-- ``_ImageBase.iterpnames``, use the ``interpolation_names`` property instead.
-  (this affects classes that inherit from ``_ImageBase`` including
-  :class:`FigureImage`, :class:`BboxImage`, and :class:`AxesImage`),
-- ``patches.Polygon.xy``,
 - ``texmanager.dvipng_hack_alpha``,
 - ``text.Annotation.arrow``,
+- ``textpath.TextToPath.tex_font_map``,
 
 The following rcParams are deprecated:
 - ``pgf.debug`` (the pgf backend relies on logging),

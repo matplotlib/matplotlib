@@ -29,17 +29,13 @@ To enable tex rendering of all text in your matplotlib figure, set
 """
 
 import copy
-import distutils.version
 import glob
 import hashlib
 import logging
 import os
 from pathlib import Path
 import re
-import shutil
 import subprocess
-import sys
-import warnings
 
 import numpy as np
 
