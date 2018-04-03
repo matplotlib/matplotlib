@@ -2485,7 +2485,7 @@ class _AxesBase(martist.Artist):
                     if (ax.xaxis.get_label_position() == 'top'
                             or ax.xaxis.get_ticks_position() == 'top'):
                         bb = ax.xaxis.get_tightbbox(renderer)
-                        top = bb.y1
+                        top = bb.ymax
                         # we don't need to pad because the padding is already
                         # in __init__: titleOffsetTrans
                         yn = self.transAxes.inverted().transform((0., top))[1]
