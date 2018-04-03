@@ -23,6 +23,6 @@ x = np.arange(10)
 fig, ax = plt.subplots()
 
 ax.plot(x)
-ax.set_title('xlabel top', pad=24)  # increase padding to make room for labels
+ax.set_title('xlabel top')  # Note title moves to make room for ticks
 
 plt.show()

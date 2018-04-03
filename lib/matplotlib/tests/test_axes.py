@@ -5411,6 +5411,42 @@ def test_axisbelow():
         ax.set_axisbelow(setting)
 
 
+@image_comparison(baseline_images=['titletwiny'], style='mpl20',
+        extensions=['png'])
+def test_titletwiny():
+    # Test that title is put above xlabel if xlabel at top
+    fig, ax = plt.subplots()
+    fig.subplots_adjust(top=0.8)
+    ax2 = ax.twiny()
+    ax.set_xlabel('Xlabel')
+    ax2.set_xlabel('Xlabel2')
+    ax.set_title('Title')
+
+
+def test_titlesetpos():
+    # Test that title stays put if we set it manually
+    fig, ax = plt.subplots()
+    fig.subplots_adjust(top=0.8)
+    ax2 = ax.twiny()
+    ax.set_xlabel('Xlabel')
+    ax2.set_xlabel('Xlabel2')
+    ax.set_title('Title')
+    pos = (0.5, 1.11)
+    ax.title.set_position(pos)
+    renderer = fig.canvas.get_renderer()
+    ax._update_title_position(renderer)
+    assert ax.title.get_position() == pos
+
+
+def test_title_xticks_top():
+    # Test that title moves if xticks on top of axes.
+    fig, ax = plt.subplots()
+    ax.xaxis.set_ticks_position('top')
+    ax.set_title('xlabel top')
+    fig.canvas.draw()
+    assert ax.title.get_position()[1] > 1.04
+
+
 def test_offset_label_color():
     # Tests issue 6440
     fig = plt.figure()

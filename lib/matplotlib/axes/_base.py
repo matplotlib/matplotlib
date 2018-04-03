@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import itertools
+import logging
 import math
 from operator import attrgetter
 import types
@@ -31,6 +32,8 @@ from matplotlib.legend import Legend
 
 from matplotlib.rcsetup import cycler
 from matplotlib.rcsetup import validate_axisbelow
+
+_log = logging.getLogger(__name__)
 
 rcParams = matplotlib.rcParams
 
@@ -1077,6 +1080,8 @@ class _AxesBase(martist.Artist):
         # refactor this out so it can be called in ax.set_title if
         # pad argument used...
         self._set_title_offset_trans(title_offset_points)
+        # determine if the title position has been set manually:
+        self._autotitlepos = None
 
         for _title in (self.title, self._left_title, self._right_title):
             self._set_artist_props(_title)
@@ -2446,6 +2451,50 @@ class _AxesBase(martist.Artist):
     def _get_axis_list(self):
         return (self.xaxis, self.yaxis)
 
+    def _update_title_position(self, renderer):
+        """
+        Update the title position based on the bounding box enclosing
+        all the ticklabels and x-axis spine and xlabel...
+        """
+        _log.debug('update_title_pos')
+
+        if self._autotitlepos is not None and not self._autotitlepos:
+            _log.debug('title position was updated manually, not adjusting')
+            return
+
+        titles = (self.title, self._left_title, self._right_title)
+
+        if self._autotitlepos is None:
+            for title in titles:
+                x, y = title.get_position()
+                if not np.isclose(y, 1.0):
+                    self._autotitlepos = False
+                    _log.debug('not adjusting title pos because title was'
+                             ' already placed manually: %f', y)
+                    return
+            self._autotitlepos = True
+
+        for title in titles:
+            x, y0 = title.get_position()
+            y = 1.0
+            # need to check all our twins too...
+            axs = self._twinned_axes.get_siblings(self)
+
+            for ax in axs:
+                try:
+                    if (ax.xaxis.get_label_position() == 'top'
+                            or ax.xaxis.get_ticks_position() == 'top'):
+                        bb = ax.xaxis.get_tightbbox(renderer)
+                        top = bb.ymax
+                        # we don't need to pad because the padding is already
+                        # in __init__: titleOffsetTrans
+                        yn = self.transAxes.inverted().transform((0., top))[1]
+                        y = max(y, yn)
+                except AttributeError:
+                    pass
+
+            title.set_position((x, y))
+
     # Drawing
 
     @allow_rasterization
@@ -2459,6 +2508,7 @@ class _AxesBase(martist.Artist):
         if not self.get_visible():
             return
         renderer.open_group('axes')
+
         # prevent triggering call backs during the draw process
         self._stale = True
         locator = self.get_axes_locator()
@@ -2478,6 +2528,8 @@ class _AxesBase(martist.Artist):
         if not (self.axison and self._frameon):
             for spine in self.spines.values():
                 artists.remove(spine)
+
+        self._update_title_position(renderer)
 
         if self.axison and not inframe:
             if self._axisbelow is True:
@@ -2507,6 +2559,7 @@ class _AxesBase(martist.Artist):
         # rasterize artists with negative zorder
         # if the minimum zorder is negative, start rasterization
         rasterization_zorder = self._rasterization_zorder
+
         if (rasterization_zorder is not None and
                 artists and artists[0].zorder < rasterization_zorder):
             renderer.start_rasterizing()
@@ -4051,6 +4104,12 @@ class _AxesBase(martist.Artist):
         else:
             self.apply_aspect()
 
+        bb_xaxis = self.xaxis.get_tightbbox(renderer)
+        if bb_xaxis:
+            bb.append(bb_xaxis)
+
+        self._update_title_position(renderer)
+
         bb.append(self.get_window_extent(renderer))
 
         if self.title.get_visible():
@@ -4059,10 +4118,6 @@ class _AxesBase(martist.Artist):
             bb.append(self._left_title.get_window_extent(renderer))
         if self._right_title.get_visible():
             bb.append(self._right_title.get_window_extent(renderer))
-
-        bb_xaxis = self.xaxis.get_tightbbox(renderer)
-        if bb_xaxis:
-            bb.append(bb_xaxis)
 
         bb_yaxis = self.yaxis.get_tightbbox(renderer)
         if bb_yaxis:
