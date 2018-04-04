@@ -6,8 +6,6 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-import six
-from six.moves import xrange, zip
 import collections
 import contextlib
 import datetime
@@ -57,9 +55,9 @@ def unicode_safe(s):
             preferredencoding = None
 
         if preferredencoding is None:
-            return six.text_type(s)
+            return str(s)
         else:
-            return six.text_type(s, preferredencoding)
+            return str(s, preferredencoding)
     return s
 
 
@@ -81,18 +79,11 @@ class _BoundMethodProxy(object):
         self._destroy_callbacks = []
         try:
             try:
-                if six.PY3:
-                    self.inst = ref(cb.__self__, self._destroy)
-                else:
-                    self.inst = ref(cb.im_self, self._destroy)
+                self.inst = ref(cb.__self__, self._destroy)
             except TypeError:
                 self.inst = None
-            if six.PY3:
-                self.func = cb.__func__
-                self.klass = cb.__self__.__class__
-            else:
-                self.func = cb.im_func
-                self.klass = cb.im_class
+            self.func = cb.__func__
+            self.klass = cb.__self__.__class__
         except AttributeError:
             self.inst = None
             self.func = cb
@@ -157,12 +148,6 @@ class _BoundMethodProxy(object):
                 return self.func == other.func and self.inst() == other.inst()
         except Exception:
             return False
-
-    def __ne__(self, other):
-        """
-        Inverse of __eq__.
-        """
-        return not self.__eq__(other)
 
     def __hash__(self):
         return self._hash
@@ -267,7 +252,7 @@ class CallbackRegistry(object):
         return cid
 
     def _remove_proxy(self, proxy):
-        for signal, proxies in list(six.iteritems(self._func_cid_map)):
+        for signal, proxies in list(self._func_cid_map.items()):
             try:
                 del self.callbacks[signal][proxies[proxy]]
             except KeyError:
@@ -280,15 +265,14 @@ class CallbackRegistry(object):
     def disconnect(self, cid):
         """Disconnect the callback registered with callback id *cid*.
         """
-        for eventname, callbackd in list(six.iteritems(self.callbacks)):
+        for eventname, callbackd in list(self.callbacks.items()):
             try:
                 del callbackd[cid]
             except KeyError:
                 continue
             else:
-                for signal, functions in list(
-                        six.iteritems(self._func_cid_map)):
-                    for function, value in list(six.iteritems(functions)):
+                for signal, functions in list(self._func_cid_map.items()):
+                    for function, value in list(functions.items()):
                         if value == cid:
                             del functions[function]
                 return
@@ -301,7 +285,7 @@ class CallbackRegistry(object):
         called with ``*args`` and ``**kwargs``.
         """
         if s in self.callbacks:
-            for cid, proxy in list(six.iteritems(self.callbacks[s])):
+            for cid, proxy in list(self.callbacks[s].items()):
                 try:
                     proxy(*args, **kwargs)
                 except ReferenceError:
@@ -471,7 +455,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
         return to_filehandle(
             os.fspath(fname),
             flag=flag, return_opened=return_opened, encoding=encoding)
-    if isinstance(fname, six.string_types):
+    if isinstance(fname, str):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U', '')
@@ -509,12 +493,12 @@ def open_file_cm(path_or_file, mode="r", encoding=None):
 
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
-    return isinstance(val, six.string_types) or not iterable(val)
+    return isinstance(val, str) or not iterable(val)
 
 
 def _string_to_bool(s):
     """Parses the string argument as a boolean"""
-    if not isinstance(s, six.string_types):
+    if not isinstance(s, str):
         return bool(s)
     warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
                     "boolean is deprecated; use an actual boolean "
@@ -593,14 +577,7 @@ def mkdirs(newdir, mode=0o777):
     """
     # this functionality is now in core python as of 3.2
     # LPY DROP
-    if six.PY3:
-        os.makedirs(newdir, mode=mode, exist_ok=True)
-    else:
-        try:
-            os.makedirs(newdir, mode=mode)
-        except OSError as exception:
-            if exception.errno != errno.EEXIST:
-                raise
+    os.makedirs(newdir, mode=mode, exist_ok=True)
 
 
 @deprecated('3.0')
@@ -921,7 +898,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
             outstream.write("   %s -- " % type(step))
             if isinstance(step, dict):
-                for key, val in six.iteritems(step):
+                for key, val in step.items():
                     if val is next:
                         outstream.write("[{!r}]".format(key))
                         break
@@ -1072,13 +1049,13 @@ class Grouper(object):
 
         # Mark each group as we come across if by appending a token,
         # and don't yield it twice
-        for group in six.itervalues(self._mapping):
+        for group in self._mapping.values():
             if group[-1] is not token:
                 yield [x() for x in group]
                 group.append(token)
 
         # Cleanup the tokens
-        for group in six.itervalues(self._mapping):
+        for group in self._mapping.values():
             if group[-1] is token:
                 del group[-1]
 
@@ -1149,14 +1126,13 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if (isinstance(args[0], six.string_types) or not iterable(args[0])):
+    if isinstance(args[0], str) or not iterable(args[0]):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if (not isinstance(x, six.string_types) and iterable(x)
-                and len(x) == nrecs):
+        if not isinstance(x, str) and iterable(x) and len(x) == nrecs:
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
@@ -1313,7 +1289,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         raise ValueError("Dimensions of labels and X must be compatible")
 
     input_whis = whis
-    for ii, (x, label) in enumerate(zip(X, labels), start=0):
+    for ii, (x, label) in enumerate(zip(X, labels)):
 
         # empty dict
         stats = {}
@@ -1403,7 +1379,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 # The ls_mapper maps short codes for line style to their full name used by
 # backends; the reverse mapper is for mapping full names to short ones.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
-ls_mapper_r = {v: k for k, v in six.iteritems(ls_mapper)}
+ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 
 @deprecated('2.2')
@@ -1480,16 +1456,9 @@ def contiguous_regions(mask):
 def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
-    try:
-        s = six.text_type(s)
-    except UnicodeDecodeError:
-        raise ValueError(
-            "matplotlib display text must have all code points < 128 or use "
-            "Unicode strings")
-
+    s = str(s)
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
-
     return even_dollars
 
 
@@ -1833,7 +1802,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     ret = dict()
 
     # hit all alias mappings
-    for canonical, alias_list in six.iteritems(alias_mapping):
+    for canonical, alias_list in alias_mapping.items():
 
         # the alias lists are ordered from lowest to highest priority
         # so we know to use the last value in this list
@@ -1879,11 +1848,10 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         allowed_set = set(required) | set(allowed)
         fail_keys = [k for k in ret if k not in allowed_set]
         if fail_keys:
-            raise TypeError("kwargs contains {keys!r} which are not in "
-                            "the required {req!r} or "
-                            "allowed {allow!r} keys".format(
-                                keys=fail_keys, req=required,
-                                allow=allowed))
+            raise TypeError(
+                "kwargs contains {keys!r} which are not in the required "
+                "{req!r} or allowed {allow!r} keys".format(
+                    keys=fail_keys, req=required, allow=allowed))
 
     return ret
 
@@ -2014,7 +1982,7 @@ def _str_equal(obj, s):
     because in such cases, a naive ``obj == s`` would yield an array, which
     cannot be used in a boolean context.
     """
-    return isinstance(obj, six.string_types) and obj == s
+    return isinstance(obj, str) and obj == s
 
 
 def _str_lower_equal(obj, s):
@@ -2024,7 +1992,7 @@ def _str_lower_equal(obj, s):
     because in such cases, a naive ``obj == s`` would yield an array, which
     cannot be used in a boolean context.
     """
-    return isinstance(obj, six.string_types) and obj.lower() == s
+    return isinstance(obj, str) and obj.lower() == s
 
 
 def _define_aliases(alias_d, cls=None):

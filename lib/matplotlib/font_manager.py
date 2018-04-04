@@ -661,9 +661,6 @@ class FontProperties(object):
     def __eq__(self, other):
         return hash(self) == hash(other)
 
-    def __ne__(self, other):
-        return hash(self) != hash(other)
-
     def __str__(self):
         return self.get_fontconfig_pattern()
 
