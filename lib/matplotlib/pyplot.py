@@ -78,7 +78,7 @@ def _backend_selection():
     if not rcParams['backend_fallback'] or backend not in _interactive_bk:
         return
     is_agg_backend = rcParams['backend'].endswith('Agg')
-    if 'wx' in sys.modules and not backend in ('WX', 'WXAgg'):
+    if 'wx' in sys.modules and backend not in ('WX', 'WXAgg'):
         import wx
         if wx.App.IsMainLoopRunning():
             rcParams['backend'] = 'wx' + 'Agg' * is_agg_backend

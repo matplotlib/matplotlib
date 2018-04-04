@@ -1,32 +1,31 @@
-from __future__ import print_function
 import sys
 
 
 def parse_results(filename):
     results = {}
-    fd = open(filename, 'r')
     section = "???"
-    for line in fd.readlines():
-        line = line.strip()
-        if line.startswith("testing"):
-            section = line.split(" ", 1)[1]
-            results.setdefault(section, {})
-        elif line.startswith("driving"):
-            driving, test, time = [x.strip() for x in line.split()]
-            time = float(time)
-            results[section][test] = time
-    fd.close()
+    with open(filename, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line.startswith("testing"):
+                section = line.split(" ", 1)[1]
+                results.setdefault(section, {})
+            elif line.startswith("driving"):
+                driving, test, time = [x.strip() for x in line.split()]
+                time = float(time)
+                results[section][test] = time
     return results
 
 
 def check_results_are_compatible(results_a, results_b):
-    for section in results_a.keys():
-        if not section in results_b:
-            raise RuntimeError("Backend '%s' in first set, but not in second" % section)
-
-    for section in results_b.keys():
-        if not section in results_a:
-            raise RuntimeError("Backend '%s' in second set, but not in first" % section)
+    a_minus_b = {*results_a} - {*results_b}
+    if a_minus_b:
+        raise RuntimeError(
+            "Backends {} in first set, but not in second".format(a_minus_b))
+    b_minus_a = {*results_b} - {*results_a}
+    if b_minus_a:
+        raise RuntimeError(
+            "Backends {} in second set, but not in first".format(b_minus_a))
 
 
 def compare_results(results_a, results_b):
