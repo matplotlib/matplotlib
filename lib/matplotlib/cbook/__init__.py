@@ -979,17 +979,13 @@ class Grouper(object):
 
     """
     def __init__(self, init=()):
-        mapping = self._mapping = {}
-        for x in init:
-            mapping[ref(x)] = [ref(x)]
+        self._mapping = {ref(x): [ref(x)] for x in init}
 
     def __contains__(self, item):
         return ref(item) in self._mapping
 
     def clean(self):
-        """
-        Clean dead weak references from the dictionary
-        """
+        """Clean dead weak references from the dictionary."""
         mapping = self._mapping
         to_drop = [key for key in mapping if key() is None]
         for key in to_drop:
@@ -998,18 +994,14 @@ class Grouper(object):
 
     def join(self, a, *args):
         """
-        Join given arguments into the same set.  Accepts one or more
-        arguments.
+        Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
         set_a = mapping.setdefault(ref(a), [ref(a)])
 
         for arg in args:
-            set_b = mapping.get(ref(arg))
-            if set_b is None:
-                set_a.append(ref(arg))
-                mapping[ref(arg)] = set_a
-            elif set_b is not set_a:
+            set_b = mapping.get(ref(arg), [ref(arg)])
+            if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
                 set_a.extend(set_b)
@@ -1019,24 +1011,15 @@ class Grouper(object):
         self.clean()
 
     def joined(self, a, b):
-        """
-        Returns True if *a* and *b* are members of the same set.
-        """
+        """Returns True if *a* and *b* are members of the same set."""
         self.clean()
-
-        mapping = self._mapping
-        try:
-            return mapping[ref(a)] is mapping[ref(b)]
-        except KeyError:
-            return False
+        return self._mapping.get(ref(a), object()) is self._mapping.get(ref(b))
 
     def remove(self, a):
         self.clean()
-
-        mapping = self._mapping
-        seta = mapping.pop(ref(a), None)
-        if seta is not None:
-            seta.remove(ref(a))
+        set_a = self._mapping.pop(ref(a), None)
+        if set_a:
+            set_a.remove(ref(a))
 
     def __iter__(self):
         """
@@ -1045,26 +1028,13 @@ class Grouper(object):
         The iterator is invalid if interleaved with calls to join().
         """
         self.clean()
-        token = object()
-
-        # Mark each group as we come across if by appending a token,
-        # and don't yield it twice
-        for group in self._mapping.values():
-            if group[-1] is not token:
-                yield [x() for x in group]
-                group.append(token)
-
-        # Cleanup the tokens
-        for group in self._mapping.values():
-            if group[-1] is token:
-                del group[-1]
+        unique_groups = {id(group): group for group in self._mapping.values()}
+        for group in unique_groups.values():
+            yield [x() for x in group]
 
     def get_siblings(self, a):
-        """
-        Returns all of the items joined with *a*, including itself.
-        """
+        """Returns all of the items joined with *a*, including itself."""
         self.clean()
-
         siblings = self._mapping.get(ref(a), [ref(a)])
         return [x() for x in siblings]
 
