@@ -1266,12 +1266,6 @@ class FigureManagerWx(FigureManagerBase):
         self.tb = frame.GetToolBar()
         self.toolbar = self.tb  # consistent with other backends
 
-        def notify_axes_change(fig):
-            'this will be called whenever the current axes is changed'
-            if self.tb is not None:
-                self.tb.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
-
     def show(self):
         self.frame.Show()
         self.canvas.draw()

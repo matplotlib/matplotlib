@@ -512,14 +512,6 @@ class FigureManagerTk(FigureManagerBase):
 
         self._shown = False
 
-        def notify_axes_change(fig):
-            'this will be called whenever the current axes is changed'
-            if self.toolmanager is not None:
-                pass
-            elif self.toolbar is not None:
-                self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
-
     def _get_toolbar(self):
         if matplotlib.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2Tk(self.canvas, self.window)

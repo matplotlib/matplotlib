@@ -616,11 +616,6 @@ class FigureManagerQT(FigureManagerBase):
             self.window.show()
             self.canvas.draw_idle()
 
-        def notify_axes_change(fig):
-            # This will be called whenever the current axes is changed
-            if self.toolbar is not None:
-                self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
         self.window.raise_()
 
     def full_screen_toggle(self):
