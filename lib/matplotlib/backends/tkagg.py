@@ -2,7 +2,13 @@ import tkinter as Tk
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.backends import _tkagg
+
+
+cbook.warn_deprecated(
+    "3.0", "The matplotlib.backends.tkagg module is deprecated.")
+
 
 def blit(photoimage, aggimage, bbox=None, colormode=1):
     tk = photoimage.tk
