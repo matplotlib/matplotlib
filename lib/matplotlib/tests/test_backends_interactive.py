@@ -34,6 +34,13 @@ def _get_testable_interactive_backends():
     return backends
 
 
+# 1. Using a timer not only allows testing of timers (on other backends), but
+#    is also necessary on gtk3 and wx, where a direct call to
+#    key_press_event("q") from draw_event causes breakage due to the canvas
+#    widget being deleted too early.
+# 2. On gtk3, we cannot even test the timer setup (on Travis, which uses pgi)
+#    due to https://github.com/pygobject/pgi/issues/45.  So we just cleanly
+#    exit from the draw_event.
 _test_script = """\
 import sys
 from matplotlib import pyplot as plt, rcParams
@@ -44,8 +51,16 @@ rcParams.update({
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.plot([1, 2], [2, 3])
-fig.canvas.mpl_connect("draw_event", lambda event: sys.exit())
+ax.plot([0, 1], [2, 3])
+
+if rcParams["backend"].startswith("GTK3"):
+    fig.canvas.mpl_connect("draw_event", lambda event: sys.exit(0))
+else:
+    timer = fig.canvas.new_timer(1)
+    timer.add_callback(fig.canvas.key_press_event, "q")
+    # Trigger quitting upon draw.
+    fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
+
 plt.show()
 """
 _test_timeout = 10  # Empirically, 1s is not enough on Travis.

@@ -48,6 +48,7 @@ env:
     - secure: RgJI7BBL8aX5FTOQe7xiXqWHMxWokd6GNUWp1NUV2mRLXPb9dI0RXqZt3UJwKTAzf1z/OtlHDmEkBoTVK81E9iUxK5npwyyjhJ8yTJmwfQtQF2n51Q1Ww9p+XSLORrOzZc7kAo6Kw6FIXN1pfctgYq2bQkrwJPRx/oPR8f6hcbY=
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
+    # Variables controlling Python dependencies.
     - CYCLER=cycler
     - DATEUTIL=python-dateutil
     - NOSE=
@@ -58,12 +59,15 @@ env:
     - PYTEST_COV=pytest-cov
     - PYTEST_PEP8=
     - SPHINX=sphinx
-    - OPENBLAS_NUM_THREADS=1
+    # Variables controlling the test run.
+    - DELETE_FONT_CACHE=
+    - NO_AT_BRIDGE=1  # Necessary for GTK3 interactive test.
     - NPROC=2
-    - RUN_PEP8=
+    - OPENBLAS_NUM_THREADS=1
+    - PYTHONFAULTHANDLER=1
     - PYTEST_ARGS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
-    - DELETE_FONT_CACHE=
+    - RUN_PEP8=
 
 matrix:
   include:
