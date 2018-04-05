@@ -2088,9 +2088,6 @@ default: 'top'
             get_renderer, get_subplotspec_list, get_tight_layout_figure)
 
         subplotspec_list = get_subplotspec_list(self.axes)
-        if None in subplotspec_list:
-            warnings.warn("This figure includes Axes that are not compatible "
-                          "with tight_layout, so results might be incorrect.")
 
         if renderer is None:
             renderer = get_renderer(self)

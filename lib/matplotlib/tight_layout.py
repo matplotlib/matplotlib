@@ -215,8 +215,8 @@ def get_renderer(fig):
 def get_subplotspec_list(axes_list, grid_spec=None):
     """Return a list of subplotspec from the given list of axes.
 
-    For an instance of axes that does not support subplotspec, None is inserted
-    in the list.
+    For an instance of axes that does not support subplotspec, GridSpec(1, 1)
+    is inserted and a warning emited.
 
     If grid_spec is given, None is inserted for those not from the given
     grid_spec.
@@ -237,7 +237,11 @@ def get_subplotspec_list(axes_list, grid_spec=None):
             elif gs.locally_modified_subplot_params():
                 subplotspec = None
         else:
-            subplotspec = None
+            warnings.warn("The Axes %s in this figure are not "
+                          "compatible with tight_layout, so its "
+                          "results might be incorrect." % axes_or_locator)
+            import matplotlib.gridspec as gridspec
+            subplotspec = gridspec.GridSpec(1, 1)
 
         subplotspec_list.append(subplotspec)
 

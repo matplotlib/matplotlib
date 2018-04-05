@@ -19,6 +19,19 @@ def example_plot(ax, fontsize=12):
     ax.set_title('Title', fontsize=fontsize)
 
 
+def example_contourf(ax, fontsize=12):
+    x = np.linspace(0, 10, 100)
+    y = np.linspace(0, 10, 100)
+    X, Y = np.meshgrid(x, y)
+    Z = X**2 + Y**2
+    im = ax.contourf(X, Y, Z)
+    ax.locator_params(nbins=3)
+    ax.set_xlabel('x-label', fontsize=fontsize)
+    ax.set_ylabel('y-label', fontsize=fontsize)
+    ax.set_title('Title', fontsize=fontsize)
+    return im
+
+
 @image_comparison(baseline_images=['tight_layout1'])
 def test_tight_layout1():
     'Test tight_layout for a single subplot'
@@ -272,3 +285,14 @@ def test_empty_layout():
 
     fig = plt.gcf()
     fig.tight_layout()
+
+
+@image_comparison(baseline_images=['tight_layout_colorbar1'])
+def test_tight_colorbar1():
+    """Tests tight_layout for a single subplot with colorbar right of it.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    im = example_contourf(ax, fontsize=24)
+    plt.colorbar(im)
+    plt.tight_layout()
