@@ -4,7 +4,7 @@ Nested pie charts
 =================
 
 The following examples show two ways to build a nested pie chart
-in Matplotlib.
+in Matplotlib. Such charts are often referred to as donut charts.
 
 """
 
@@ -17,17 +17,30 @@ import numpy as np
 #
 # In this case, pie takes values corresponding to counts in a group.
 # We'll first generate some fake data, corresponding to three groups.
-# In the outer circle, we'll treat each number as belonging to its
-# own group. In the inner circle, we'll plot them as members of their
+# In the inner circle, we'll treat each number as belonging to its
+# own group. In the outer circle, we'll plot them as members of their
 # original 3 groups.
+#
+# The effect of the donut shape is achieved by setting a `width` to
+# the pie's wedges through the `wedgeprops` argument.
 
-vals = np.array([[1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]])
+
 fig, ax = plt.subplots()
-ax.pie(vals.flatten(), radius=1.2,
-       colors=plt.rcParams["axes.prop_cycle"].by_key()["color"][:vals.shape[1]])
-ax.pie(vals.sum(axis=1), radius=1)
-ax.set(aspect="equal", title='Pie plot with `ax.pie`')
 
+size = 0.3
+vals = np.array([[60., 32.], [37., 40.], [29., 10.]])
+
+cmap = plt.get_cmap("tab20c")
+outer_colors = cmap(np.arange(3)*4)
+inner_colors = cmap(np.array([1, 2, 5, 6, 9, 10]))
+
+ax.pie(vals.sum(axis=1), radius=1, colors=outer_colors,
+       wedgeprops=dict(width=size, edgecolor='w'))
+
+ax.pie(vals.flatten(), radius=1-size, colors=inner_colors,
+       wedgeprops=dict(width=size, edgecolor='w'))
+
+ax.set(aspect="equal", title='Pie plot with `ax.pie`')
 plt.show()
 
 ###############################################################################
@@ -36,28 +49,29 @@ plt.show()
 # the exact design of the plot.
 #
 # In this case, we need to map x-values of the bar chart onto radians of
-# a circle.
+# a circle. The cumulative sum of the values are used as the edges
+# of the bars.
 
 fig, ax = plt.subplots(subplot_kw=dict(polar=True))
 
-left_inner = np.arange(0.0, 2 * np.pi, 2 * np.pi / 6)
-left_middle = np.arange(0.0, 2 * np.pi, 2 * np.pi / 12)
-left_outer = np.arange(0.0, 2 * np.pi, 2 * np.pi / 9)
+size = 0.3
+vals = np.array([[60., 32.], [37., 40.], [29., 10.]])
+#normalize vals to 2 pi
+valsnorm = vals/np.sum(vals)*2*np.pi
+#obtain the ordinates of the bar edges
+valsleft = np.cumsum(np.append(0, valsnorm.flatten()[:-1])).reshape(vals.shape)
 
-ax.bar(x=left_inner,
-       width=2 * np.pi / 6, bottom=0, color='C0',
-       linewidth=2, edgecolor='w',
-       height=np.zeros_like(left_inner) + 5)
+cmap = plt.get_cmap("tab20c")
+outer_colors = cmap(np.arange(3)*4)
+inner_colors = cmap(np.array([1, 2, 5, 6, 9, 10]))
 
-ax.bar(x=left_middle,
-       width=2 * np.pi / 12, bottom=5, color='C1',
-       linewidth=2, edgecolor='w',
-       height=np.zeros_like(left_middle) + 2)
+ax.bar(x=valsleft[:, 0],
+       width=valsnorm.sum(axis=1), bottom=1-size, height=size,
+       color=outer_colors, edgecolor='w', linewidth=1, align="edge")
 
-ax.bar(x=left_outer,
-       width=2 * np.pi / 9, bottom=7, color='C2',
-       linewidth=2, edgecolor='w',
-       height=np.zeros_like(left_outer) + 3)
+ax.bar(x=valsleft.flatten(),
+       width=valsnorm.flatten(), bottom=1-2*size, height=size,
+       color=inner_colors, edgecolor='w', linewidth=1, align="edge")
 
 ax.set(title="Pie plot with `ax.bar` and polar coordinates")
 ax.set_axis_off()
