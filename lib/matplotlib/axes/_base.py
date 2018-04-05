@@ -1496,8 +1496,9 @@ class _AxesBase(martist.Artist):
         fig_aspect = figH / figW
         if self._adjustable in ['box', 'box-forced']:
             if self in self._twinned_axes:
-                raise RuntimeError("Adjustable 'box' is not allowed in a"
-                                   " twinned Axes.  Use 'datalim' instead.")
+                warnings.warn("Using adjustable 'box'  on a twin Axes "
+                              "can lead to an overcontrained system. "
+                              "Consider using 'datalim' instead.")
             if aspect_scale_mode == "log":
                 box_aspect = A * self.get_data_ratio_log()
             else:
