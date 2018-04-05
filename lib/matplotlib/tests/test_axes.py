@@ -182,7 +182,7 @@ def test_twinx_cla():
     assert ax.patch.get_visible()
     assert ax.yaxis.get_visible()
 
-@cleanup
+
 def test_twin_xy_sharing():
     fig, ax = plt.subplots()
 
