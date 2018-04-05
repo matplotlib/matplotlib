@@ -191,20 +191,20 @@ def test_twin_xy_sharing():
     ax3 = ax2.twiny()
     plt.draw()
 
+    # Check that major and minor tickers are the same by default
     assert ax.xaxis.major is ax2.xaxis.major
     assert ax.xaxis.minor is ax2.xaxis.minor
     assert ax2.yaxis.major is ax3.yaxis.major
     assert ax2.yaxis.minor is ax3.yaxis.minor
 
-    # Verify that for share_tickers=True, the formatters and locators
-    # are identical no matter what
+    # Check that the tickers remain identical after setting new
+    # locators and formatters
     ax2.xaxis.set_major_formatter(mticker.PercentFormatter())
     ax3.yaxis.set_major_locator(mticker.MaxNLocator())
-
     assert ax.xaxis.get_major_formatter() is ax2.xaxis.get_major_formatter()
     assert ax2.yaxis.get_major_locator() is ax3.yaxis.get_major_locator()
 
-    # Make some more twinned axes to play with (with share_tickers=False)
+    # Now check that twinned axes with share_tickers=False don't share tickers
     ax4 = ax.twinx(share_tickers=False)
     ax5 = ax2.twiny(share_tickers=False)
     plt.draw()
@@ -228,11 +228,16 @@ def test_twin_xy_sharing():
 
     # Verify that for share_tickers=False, the formatters and locators
     # can be changed independently
+    old_formatter = ax.xaxis.get_minor_formatter()
+    old_locator = ax2.yaxis.get_minor_locator()
     ax4.xaxis.set_minor_formatter(mticker.PercentFormatter())
     ax5.yaxis.set_minor_locator(mticker.MaxNLocator())
 
-    assert ax.xaxis.get_minor_formatter() is not ax4.xaxis.get_minor_formatter()
+    assert (ax.xaxis.get_minor_formatter() is not
+            ax4.xaxis.get_minor_formatter())
     assert ax2.yaxis.get_minor_locator() is not ax4.yaxis.get_minor_locator()
+    assert ax.xaxis.get_minor_formatter() is old_formatter
+    assert ax2.yaxis.get_minor_locator() is old_locator
 
 
 @image_comparison(baseline_images=['twin_autoscale'], extensions=['png'])
