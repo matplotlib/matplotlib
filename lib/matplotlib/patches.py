@@ -775,7 +775,7 @@ class Rectangle(Patch):
 
         ACCEPTS: (left, bottom, width, height)
         """
-        if len(args) == 0:
+        if len(args) == 1:
             l, b, w, h = args[0]
         else:
             l, b, w, h = args
@@ -2628,7 +2628,7 @@ class FancyBboxPatch(Patch):
 
         ACCEPTS: (left, bottom, width, height)
         """
-        if len(args) == 0:
+        if len(args) == 1:
             l, b, w, h = args[0]
         else:
             l, b, w, h = args
