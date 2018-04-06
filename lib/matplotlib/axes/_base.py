@@ -156,6 +156,7 @@ class _process_plot_var_args(object):
         self.set_prop_cycle()
 
     def set_prop_cycle(self, *args, **kwargs):
+        # Can't do `args == (None,)` as that crashes cycler.
         if not (args or kwargs) or (len(args) == 1 and args[0] is None):
             prop_cycler = rcParams['axes.prop_cycle']
         else:
@@ -1206,6 +1207,7 @@ class _AxesBase(martist.Artist):
         if args and kwargs:
             raise TypeError("Cannot supply both positional and keyword "
                             "arguments to this method.")
+        # Can't do `args == (None,)` as that crashes cycler.
         if len(args) == 1 and args[0] is None:
             prop_cycle = None
         else:

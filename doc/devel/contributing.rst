@@ -410,26 +410,6 @@ local arguments and the rest are passed on as
           self.add_line(line)
           lines.append(line)
 
-Note: there is a use case when ``kwargs`` are meant to be used locally
-in the function (not passed on), but you still need the ``**kwargs``
-idiom.  That is when you want to use ``*args`` to allow variable
-numbers of non-keyword args.  In this case, python will not allow you
-to use named keyword args after the ``*args`` usage, so you will be
-forced to use ``**kwargs``.  An example is
-:meth:`matplotlib.contour.ContourLabeler.clabel`::
-
-  # in contour.py
-  def clabel(self, *args, **kwargs):
-      fontsize = kwargs.get('fontsize', None)
-      inline = kwargs.get('inline', 1)
-      self.fmt = kwargs.get('fmt', '%1.3f')
-      colors = kwargs.get('colors', None)
-      if len(args) == 0:
-          levels = self.levels
-          indices = range(len(self.levels))
-      elif len(args) == 1:
-         ...etc...
-
 .. _using_logging:
 
 Using logging for debug messages
