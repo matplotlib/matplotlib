@@ -690,7 +690,7 @@ class RendererPgf(RendererBase):
         interp = str(transform is None).lower()  # interpolation in PDF reader
         writeln(self.fh,
                 r"\pgftext[left,bottom]"
-                r"{\pgfimage[interpolate=%s,width=%fin,height=%fin]{%s}}" %
+                r"{\includegraphics[interpolate=%s,width=%fin,height=%fin]{%s}}" %
                 (interp, w, h, fname_img))
         writeln(self.fh, r"\end{pgfscope}")
 
