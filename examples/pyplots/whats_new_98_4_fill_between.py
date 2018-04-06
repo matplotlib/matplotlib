@@ -1,9 +1,8 @@
 """
-=============================
+======================
 Whats New 0.98.4 Fill Between
-=============================
-generates an example of using the fill_between() method with opposing
-two quadratics
+======================
+
 """
 import matplotlib.pyplot as plt
 import numpy as np
