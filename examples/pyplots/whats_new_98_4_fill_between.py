@@ -16,6 +16,6 @@ fig, ax = plt.subplots()
 ax.plot(x, y1, x, y2, color='black')
 ax.fill_between(x, y1, y2, where=y2>y1, facecolor='yellow', alpha=0.5)
 ax.fill_between(x, y1, y2, where=y2<=y1, facecolor='red', alpha=0.5)
-ax.set_title('Highlight Between and Intercept')
+ax.set_title('Fill Between')
 
 plt.show()
