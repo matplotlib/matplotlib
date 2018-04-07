@@ -9,8 +9,8 @@ import six
 from datetime import datetime
 
 import numpy as np
-from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
-                                 assert_array_almost_equal)
+from numpy.testing import (assert_array_equal, assert_approx_equal,
+                           assert_array_almost_equal)
 import pytest
 
 import matplotlib.cbook as cbook
