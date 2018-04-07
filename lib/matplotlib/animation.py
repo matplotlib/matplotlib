@@ -607,9 +607,10 @@ class PillowWriter(MovieWriter):
             buf.getvalue()))
 
     def finish(self):
-        self._frames[0].save(
-            self._outfile, save_all=True, append_images=self._frames[1:],
-            duration=int(1000 / self.fps))
+        if self._frames:
+            self._frames[0].save(
+                self._outfile, save_all=True, append_images=self._frames[1:],
+                duration=int(1000 / self.fps))
 
 
 # Base class of ffmpeg information. Has the config keys and the common set
