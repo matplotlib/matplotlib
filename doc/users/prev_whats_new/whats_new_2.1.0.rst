@@ -403,6 +403,16 @@ keyword.
     ax.xaxis.set_tick_params(which='both', rotation=90)
 
 
+Ticklabels are turned off instead of being invisible
+----------------------------------------------------
+
+Internally, :func:`~matplotlib.axis.Axis.set_tick_params` is now used to
+hide tick labels instead of setting the visibility on the tick label objects.
+This improves overall performance and fixes some issues.
+As a consequence, in case those labels ought to be shown, `set_tick_params`
+needs to be used, e.g. `ax.xaxis.set_tick_params(labelbottom=True)`.
+
+
 Shading in 3D bar plots
 -----------------------
 

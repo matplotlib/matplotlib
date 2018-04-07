@@ -1012,9 +1012,10 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             - 'col': each subplot column will share an x- or y-axis.
 
         When subplots have a shared x-axis along a column, only the x tick
-        labels of the bottom subplot are visible.  Similarly, when subplots
+        labels of the bottom subplot are created. Similarly, when subplots
         have a shared y-axis along a row, only the y tick labels of the first
-        column subplot are visible.
+        column subplot are created. To later turn other subplots' ticklabels
+        on, use :meth:`~matplotlib.axis.Axis.set_tick_params`.
 
     squeeze : bool, optional, default: True
         - If True, extra dimensions are squeezed out from the returned Axes
@@ -1022,9 +1023,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
             - if only one subplot is constructed (nrows=ncols=1), the
               resulting single Axes object is returned as a scalar.
-            - for Nx1 or 1xN subplots, the returned object is a 1D numpy
-              object array of Axes objects are returned as numpy 1D arrays.
-            - for NxM, subplots with N>1 and M>1 are returned as a 2D arrays.
+            - for Nx1 or 1xM subplots, the returned object is a 1D numpy
+              object array of Axes objects.
+            - for NxM, subplots with N>1 and M>1 are returned as a 2D array.
 
         - If False, no squeezing at all is done: the returned Axes object is
           always a 2D array containing Axes instances, even if it ends up
