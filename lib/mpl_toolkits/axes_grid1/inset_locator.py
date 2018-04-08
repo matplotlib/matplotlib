@@ -6,10 +6,11 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib import docstring
 import six
+import matplotlib.cbook as cbook
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
-from matplotlib.transforms import Bbox, BboxTransformTo
+from matplotlib.transforms import Bbox, BboxBase, BboxTransformTo
 from matplotlib.transforms import IdentityTransform, TransformedBbox
 
 from . import axes_size as Size
@@ -420,11 +421,12 @@ def inset_axes(parent_axes, width, height, loc=1,
             'center'       : 10
 
     bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
-        Bbox that the inset axes will be anchored. Can be a tuple of
-        [left, bottom, width, height], or a tuple of [left, bottom].
+        Bbox that the inset axes will be anchored. Should be a tuple of
+        [left, bottom, width, height] in axes-relative units.
 
     bbox_transform : `matplotlib.transforms.Transform`, optional
-        Transformation for the bbox. if None, `parent_axes.transAxes` is used.
+        Transformation for the bbox. If None, and *bbox_to_anchor* is
+        specified, then `parent_axes.transAxes` is used.
 
     axes_class : `matplotlib.axes.Axes` type, optional
         If specified, the inset axes created with be created with this class's
@@ -455,9 +457,17 @@ def inset_axes(parent_axes, width, height, loc=1,
 
     if bbox_to_anchor is None:
         bbox_to_anchor = parent_axes.bbox
-
-    if bbox_transform is None:
-        bbox_transform = parent_axes.transAxes
+    else:
+        if not isinstance(bbox_to_anchor, BboxBase):
+            if len(bbox_to_anchor) < 4:
+                cbook.warn_deprecated('3.0',
+                        "bbox_to_anchor should be a tupple "
+                        "[left, bottom, width, height].  Using "
+                        "[left, bottom, 1-left, 1-bottom].")
+                bbox_to_anchor = [bbox_to_anchor[0], bbox_to_anchor[1],
+                        1 - bbox_to_anchor[0], 1 - bbox_to_anchor[1]]
+            if bbox_transform is None:
+                bbox_transform = parent_axes.transAxes
 
     axes_locator = AnchoredSizeLocator(bbox_to_anchor,
                                        width, height,
