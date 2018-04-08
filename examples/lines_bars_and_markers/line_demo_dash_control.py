@@ -1,25 +1,37 @@
 """
-=======================================
-A simple plot with a custom dashed line
-=======================================
+==============================
+Customizing dashed line styles
+==============================
 
-A Line object's ``set_dashes`` method allows you to specify dashes with
-a series of on/off lengths (in points).
+The dashing of a line is controlled via a dash sequence. It can be modified
+using `.Line2D.set_dashes`.
+
+The dash sequence is a series of on/off lengths in points, e.g.
+``[3, 1]`` would be 3pt long lines separated by 1pt spaces.
+
+Some functions like `.Axes.plot` support passing Line properties as keyword
+arguments. In such a case, you can already set the dashing when creating the
+line.
+
+*Note*: The dash style can also be configured via a
+:ref:`property_cycle <sphx_glr_tutorials_intermediate_color_cycle.py>`
+by passing a list of dash sequences using the keyword *dashes* to the
+cycler. This is not shown within this example.
 """
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 x = np.linspace(0, 10, 500)
-dashes = [10, 5, 100, 5]  # 10 points on, 5 off, 100 on, 5 off
+y = np.sin(x)
 
 fig, ax = plt.subplots()
-line1, = ax.plot(x, np.sin(x), '--', linewidth=2,
-                 label='Dashes set retroactively')
-line1.set_dashes(dashes)
 
-line2, = ax.plot(x, -1 * np.sin(x), dashes=[30, 5, 10, 5],
-                 label='Dashes set proactively')
+# Using set_dashes() to modify dashing of an existing line
+line1, = ax.plot(x, y, label='Using set_dashes()')
+line1.set_dashes([2, 2, 10, 2])  # 2pt line, 2pt break, 10pt line, 2pt break
 
-ax.legend(loc='lower right')
+# Using plot(..., dashes=...) to set the dashing when creating a line
+line2, = ax.plot(x, y - 0.2, dashes=[6, 2], label='Using the dashes parameter')
+
+ax.legend()
 plt.show()
