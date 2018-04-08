@@ -56,16 +56,13 @@ plt.tight_layout()
 # A new figure, with individually ordered items
 
 x = np.linspace(0, 2*np.pi, 100)
+plt.rcParams['lines.linewidth'] = 10
 plt.figure()
-plt.plot(x, np.sin(x), linewidth=10, label='zorder=10',
-         zorder=10)  # on top
-plt.plot(x, np.cos(1.3*x), linewidth=10, label='zorder=1',
-         zorder=1)  # bottom
-plt.plot(x, np.sin(2.1*x), linewidth=10, label='zorder=3',
-         zorder=3)
-plt.axhline(0, linewidth=10, label='zorder=2',
-            zorder=2)
+plt.plot(x, np.sin(x), label='zorder=10', zorder=10)  # on top
+plt.plot(x, np.sin(1.1*x), label='zorder=1', zorder=1)  # bottom
+plt.plot(x, np.sin(1.2*x), label='zorder=3',  zorder=3)
+plt.axhline(0, label='zorder=2', color='grey', zorder=2)
 plt.title('Custom order of elements')
-l = plt.legend()
+l = plt.legend(loc='upper right')
 l.set_zorder(20)  # put the legend on top
 plt.show()
