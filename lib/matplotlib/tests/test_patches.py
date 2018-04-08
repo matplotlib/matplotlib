@@ -416,8 +416,10 @@ def test_when_update_from_and_set_alpha_then_only_alpha_changes():
     # given
     source_facecolor = (0.234, 0.123, 0.135, 0.322)
     source_egdecolor = (0.728, 0.682, 0.945, 0.268)
-    source = mpatches.Rectangle((0, 0), 1., 1., facecolor=source_facecolor, edgecolor=source_egdecolor)
-    updated = mpatches.Rectangle((1., 0), 1., 1., facecolor='pink', edgecolor="green")
+    source = mpatches.Rectangle((0, 0), 1., 1., 
+                                facecolor=source_facecolor, edgecolor=source_egdecolor)
+    updated = mpatches.Rectangle((1., 0), 1., 1., 
+                                 facecolor='pink', edgecolor="green")
     # when
     updated.update_from(source)
     # then
