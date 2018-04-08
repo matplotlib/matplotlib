@@ -20,6 +20,7 @@ addons:
   apt:
     sources:
       - sourceline: ppa:jonathonf/ffmpeg-3
+      - sourceline: ppa:jonathonf/texlive-2015
     packages:
       - cm-super
       - dvipng
