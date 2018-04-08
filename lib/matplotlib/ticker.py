@@ -50,6 +50,9 @@ The Locator subclasses defined here are
 :class:`LogLocator`
     Space ticks logarithmically from min to max.
 
+:class:`InvLogLocator`
+    Space ticks logarithmically from min to max, but from right to left.
+
 :class:`MultipleLocator`
     Ticks and range are a multiple of base; either integer or float.
 
@@ -138,6 +141,9 @@ operates on a single tick value and returns a string to the axis.
 :class:`LogFormatterSciNotation`
     Format values for log axis using scientific notation.
 
+:class:`InvLogFormatter`
+    Formatter for inverted log axes.
+
 :class:`LogitFormatter`
     Probability formatter.
 
@@ -187,10 +193,10 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
            'StrMethodFormatter', 'ScalarFormatter', 'LogFormatter',
            'LogFormatterExponent', 'LogFormatterMathtext',
-           'IndexFormatter', 'LogFormatterSciNotation',
+           'IndexFormatter', 'LogFormatterSciNotation', 'InvLogFormatter',
            'LogitFormatter', 'EngFormatter', 'PercentFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
-           'LinearLocator', 'LogLocator', 'AutoLocator',
+           'LinearLocator', 'LogLocator', 'InvLogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
            'SymmetricalLogLocator', 'LogitLocator')
 
@@ -1148,6 +1154,95 @@ class LogFormatterSciNotation(LogFormatterMathtext):
         else:
             return ('$%s$' % _mathdefault(r'%s%g\times%s^{%d}' %
                                         (sign_string, coeff, base, exponent)))
+
+
+class InvLogFormatter(LogFormatter):
+    """
+    Base class for formatting ticks on an inverted log scale. Being a
+    subclass of LogFormatter, it inherits most of its attributes, methods and
+    instantiation parameters (base, labelOnlyBase, minor_thresholds and
+    linthresh; see LogFormatter documentation for more on those). Note that
+    symlog mode does not work.
+
+    It may be instantiated directly, or subclassed.
+
+    Parameters
+    ----------
+    inv_base : float, optional, default: 10.
+        Base of the logarithm used in all calculations for the inverse scale.
+
+    inv_factor : float, optional, default: 1.
+        Multiply the data on the inverted axis by this number. This can be
+        useful when one wants to compare data on a logarithmic axis ``x`` not
+        to the reciprocal axis ``1/x``, but rather to an axis ``inv_factor/x``.
+        This is common for instance in Fourier analysis where the inverse axis
+        could be ``2*np.pi/x`` (depending on the choice of frequency/scale
+        space coordinates).
+
+    Examples
+    --------
+    To label a subset of minor ticks when the view limits span up
+    to 2 decades, and all of the ticks when zoomed in to 0.5 decades
+    or less, use ``minor_thresholds=(2, 0.5)``.
+
+    To label all minor ticks when the view limits span up to 1.5
+    decades, use ``minor_thresholds=(1.5, 1.5)``.
+
+    """
+    def __init__(self, inv_base=10.0, inv_factor=1., **kwargs):
+        """
+        *base* kwarg is used to locate the decade tick,
+        which will be the only one to be labeled if *labelOnlyBase*
+        is ``False``
+        """
+        super(InvLogFormatter, self).__init__(**kwargs)
+        self.inv_base(inv_base)
+        self.inv_factor(inv_factor)
+
+    def inv_base(self, inv_base):
+        """
+        set the base of the log scaling (major tick every base**i, i integer)
+        for the inverse of the data - warning: should always match the
+        base used for :class:`InvLogLocator`.
+        """
+        self._inv_base = inv_base + 0.0
+
+    def inv_factor(self, inv_factor):
+        """
+        After inverting the data, it can be multiplied by this factor. This
+        way, any inverse logarithmic quantity can be computed from a
+        logarithmic input quantity - warning: should always match the base used
+        for :class:`InvLogLocator`.
+        """
+        self._inv_factor = inv_factor + 0.0
+
+    def __call__(self, x, pos=None):
+        """
+        Return the format for tick val `x`.
+        """
+        ix = abs(self._inv_factor / x)
+
+        if ix == 0.0:  # Symlog
+            return '0'
+
+        ib = self._inv_base
+        # only label the decades
+        fx = math.log(ix) / math.log(ib)
+        is_ix_decade = is_close_to_int(fx)
+        exponent = np.round(fx) if is_ix_decade else np.floor(fx)
+        coeff = np.round(ix / ib ** exponent)
+
+        if self.labelOnlyBase and not is_ix_decade:
+            return ''
+        if self._sublabels is not None and coeff not in self._sublabels:
+            return ''
+
+        vmin, vmax = self.axis.get_view_interval()
+        # N.B.: max and min swapped
+        ivmax = self._inv_factor / vmin
+        ivmin = self._inv_factor / vmax
+        s = self._num_to_string(ix, ivmin, ivmax)
+        return self.fix_minus(s)
 
 
 class LogitFormatter(Formatter):
@@ -2375,6 +2470,142 @@ class SymmetricalLogLocator(Locator):
 
         result = mtransforms.nonsingular(vmin, vmax)
         return result
+
+
+class InvLogLocator(LogLocator):
+    """
+    Determine the tick locations for inverse log axes. Being a subclass of
+    LogLocator, it shares most of its characteristics, except for two added
+    instantiation keyword arguments: inv_base and inv_factor. See the docstring
+    of InvLogFormatter for a description of these parameters.
+    """
+
+    def __init__(self, inv_base=10.0, inv_factor=1., **kwargs):
+        """
+        place ticks on the location= inv_base**i*subs[j]
+        Set subs to None for autosub (for minor locator).
+        """
+        super(InvLogLocator, self).__init__(**kwargs)
+        self.inv_base(inv_base)
+        self.inv_factor(inv_factor)
+
+    def set_params(self, inv_base=None, inv_factor=None, **kwargs):
+        """Set parameters within this locator."""
+        super(InvLogLocator, self).set_params(**kwargs)
+        if inv_base is not None:
+            self.inv_base = inv_base
+        if inv_factor is not None:
+            self.inv_factor = inv_factor
+
+    def inv_base(self, inv_base):
+        """
+        set the base of the log scaling (major tick every base**i, i integer)
+        for the inverse of the data
+        """
+        self._inv_base = inv_base + 0.0
+
+    def inv_factor(self, inv_factor):
+        """
+        After inverting the data, it can be multiplied by this factor. This
+        way, any inverse logarithmic quantity can be computed from a
+        logarithmic input quantity.
+        """
+        self._inv_factor = inv_factor + 0.0
+
+    def __call__(self):
+        'Return the locations of the ticks'
+        vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
+
+    def tick_values(self, vmin, vmax):
+        if self.numticks == 'auto':
+            if self.axis is not None:
+                numticks = np.clip(self.axis.get_tick_space(), 2, 9)
+            else:
+                numticks = 9
+        else:
+            numticks = self.numticks
+
+        ib = self._inv_base
+        # max and min swapped
+        ivmax = self._inv_factor / vmin
+        ivmin = self._inv_factor / vmax
+        # dummy axis has no axes attribute
+        if hasattr(self.axis, 'axes') and self.axis.axes.name == 'polar':
+            ivmax = math.ceil(math.log(ivmax) / math.log(ib))
+            decades = np.arange(ivmax - self.numdecs, ivmax)
+            i_ticklocs = ib ** decades
+
+            ticklocs = self._inv_factor / i_ticklocs
+
+            return ticklocs
+
+        if ivmax <= 0.0:
+            if self.axis is not None:
+                ivmax = self._inv_factor / self.axis.get_minpos()
+
+            if ivmax <= 0.0 or not np.isfinite(ivmax):
+                raise ValueError(
+                    "Data has no positive values, and therefore can not be "
+                    "log-scaled.")
+
+        ivmin = math.log(ivmin) / math.log(ib)
+        ivmax = math.log(ivmax) / math.log(ib)
+
+        if ivmax < ivmin:
+            ivmin, ivmax = ivmax, ivmin
+
+        numdec = math.floor(ivmax) - math.ceil(ivmin)
+
+        if isinstance(self._subs, six.string_types):
+            _first = 2.0 if self._subs == 'auto' else 1.0
+            if numdec > 10 or ib < 3:
+                if self._subs == 'auto':
+                    return np.array([])  # no minor or major ticks
+                else:
+                    subs = np.array([1.0])  # major ticks
+            else:
+                subs = np.arange(_first, ib)
+        else:
+            subs = self._subs
+
+        # get decades between major ticks.
+        stride = 1
+        if rcParams['_internal.classic_mode']:
+            # Leave the bug left over from the PY2-PY3 transition.
+            while numdec / stride + 1 > numticks:
+                stride += 1
+        else:
+            while numdec // stride + 1 > numticks:
+                stride += 1
+
+        # Does subs include anything other than 1?
+        have_subs = len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0)
+
+        decades = np.arange(math.floor(ivmin) - stride,
+                            math.ceil(ivmax) + 2 * stride, stride)
+        if hasattr(self, '_transform'):
+            i_ticklocs = self._transform.inverted().transform(decades)
+            if have_subs:
+                if stride == 1:
+                    i_ticklocs = np.ravel(np.outer(subs, i_ticklocs))
+                else:
+                    # no ticklocs if we have more than one decade
+                    # between major ticks.
+                    i_ticklocs = []
+        else:
+            if have_subs:
+                i_ticklocs = []
+                if stride == 1:
+                    for decadeStart in ib ** decades:
+                        i_ticklocs.extend(subs * decadeStart)
+            else:
+                i_ticklocs = ib ** decades
+
+        ticklocs = self._inv_factor / np.asarray(i_ticklocs)
+
+        _log.debug('ticklocs %r', ticklocs)
+        return self.raise_if_exceeds(np.asarray(ticklocs))
 
 
 class LogitLocator(Locator):
