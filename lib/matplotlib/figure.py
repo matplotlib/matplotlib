@@ -1268,11 +1268,11 @@ default: 'top'
             labels of the bottom subplot are created. Similarly, when subplots
             have a shared y-axis along a row, only the y tick labels of the
             first column subplot are created. To later turn other subplots'
-            ticklabels on, use :meth:`~matplotlib.axis.Axis.set_tick_params`.
+            ticklabels on, use :meth:`~matplotlib.axes.Axes.tick_params`.
 
         squeeze : bool, optional, default: True
-            - If True, extra dimensions are squeezed out from the returned Axes
-              object:
+            - If True, extra dimensions are squeezed out from the returned
+              array of Axes:
 
                 - if only one subplot is constructed (nrows=ncols=1), the
                   resulting single Axes object is returned as a scalar.
