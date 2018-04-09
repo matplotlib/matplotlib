@@ -43,9 +43,11 @@ ax2.spines['right'].set_visible(True)
 
 ax2.set_xscale('log')
 ax2.xaxis.set_major_locator(ticker.InvLogLocator(inv_factor=2*np.pi))
-ax2.xaxis.set_minor_locator(ticker.InvLogLocator(inv_factor=2*np.pi, subs='auto'))
+ax2.xaxis.set_minor_locator(ticker.InvLogLocator(inv_factor=2*np.pi,
+                                                 subs='auto'))
 ax2.xaxis.set_major_formatter(ticker.InvLogFormatter(inv_factor=2*np.pi))
-ax2.xaxis.set_minor_formatter(ticker.InvLogFormatter(inv_factor=2*np.pi, labelOnlyBase=False))
+ax2.xaxis.set_minor_formatter(ticker.InvLogFormatter(inv_factor=2*np.pi,
+                                                     labelOnlyBase=False))
 
 ax2.set_xlim(xlim)
 ax2.set_xlabel(r'scale')
