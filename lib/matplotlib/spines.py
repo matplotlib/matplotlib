@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib
 from matplotlib import cbook, docstring, rcParams
 from matplotlib.artist import allow_rasterization
+import matplotlib.cbook as cbook
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
@@ -56,7 +57,7 @@ class Spine(mpatches.Patch):
         self.set_transform(self.axes.transData)  # default transform
 
         self._bounds = None  # default bounds
-        self._smart_bounds = False
+        self._smart_bounds = False  # deprecated in 3.2
 
         # Defer initial position determination. (Not much support for
         # non-rectangular axes is currently implemented, and this lets
@@ -77,6 +78,7 @@ class Spine(mpatches.Patch):
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = mtransforms.IdentityTransform()
 
+    @cbook.deprecated("3.2")
     def set_smart_bounds(self, value):
         """Set the spine and associated axis to have smart bounds."""
         self._smart_bounds = value
@@ -88,6 +90,7 @@ class Spine(mpatches.Patch):
             self.axes.xaxis.set_smart_bounds(value)
         self.stale = True
 
+    @cbook.deprecated("3.2")
     def get_smart_bounds(self):
         """Return whether the spine has smart bounds."""
         return self._smart_bounds
@@ -268,7 +271,7 @@ class Spine(mpatches.Patch):
                 raise ValueError('unknown spine spine_type: %s' %
                                  self.spine_type)
 
-            if self._smart_bounds:
+            if self._smart_bounds:  # deprecated in 3.2
                 # attempt to set bounds in sophisticated way
 
                 # handle inverted limits
