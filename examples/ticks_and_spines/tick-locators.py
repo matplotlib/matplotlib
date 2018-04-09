@@ -99,8 +99,11 @@ ax = plt.subplot(n, 1, 9)
 setup(ax)
 ax.set_xlim(10**3, 10**10)
 ax.set_xscale('log')
-ax.xaxis.set_major_locator(ticker.InvLogLocator(inv_base=10.0, numticks=15))
-ax.text(0.0, 0.1, "InvLogLocator(inv_base=10, numticks=15)",
+ax.xaxis.set_major_locator(ticker.InvLogLocator())
+ax.xaxis.set_minor_locator(ticker.InvLogLocator(subs='auto'))
+ax.xaxis.set_major_formatter(ticker.InvLogFormatter())
+ax.xaxis.set_minor_formatter(ticker.InvLogFormatter(labelOnlyBase=False))
+ax.text(0.0, 0.1, "InvLogLocator()",
         fontsize=15, transform=ax.transAxes)
 
 # Push the top of the top axes outside the figure because we only show the
