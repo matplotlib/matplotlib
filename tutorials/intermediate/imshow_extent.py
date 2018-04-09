@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 
-def generate_imshow_demo_grid(auto_limits, extents):
+def generate_imshow_demo_grid(extents, auto_limits):
     N = len(extents)
     fig = plt.figure(tight_layout=True)
     fig.set_size_inches(6, N * (11.25) / 5)
@@ -29,8 +29,8 @@ def generate_imshow_demo_grid(auto_limits, extents):
     columns = {'label': [fig.add_subplot(gs[j, 0]) for j in range(N)],
                'upper': [fig.add_subplot(gs[j, 1:3]) for j in range(N)],
                'lower': [fig.add_subplot(gs[j, 3:5]) for j in range(N)]}
-
-    d = np.arange(42).reshape(6, 7)
+    x, y = np.ogrid[0:6, 0:7]
+    d = x + y
 
     for origin in ['upper', 'lower']:
         for ax, extent in zip(columns[origin], extents):
@@ -69,7 +69,6 @@ def generate_imshow_demo_grid(auto_limits, extents):
                         ha='center', va='top', **ann_kwargs)
             ax.annotate(lower_string, xy=(.5, 0), xytext=(0, 1),
                         ha='center', va='bottom', **ann_kwargs)
-
             ax.annotate(port_string, xy=(0, .5), xytext=(1, 0),
                         ha='left', va='center', rotation=90,
                         **ann_kwargs)
@@ -125,12 +124,8 @@ extents = (None,
 #   ``(left, top)`` moves along the ``[:, 0]`` axis of the array to
 #   lower index rows and moving towards ``(right, bottom)`` moves you
 #   along the ``[-1, :]`` axis of the array to higher indexed columns
-#
-# To demonstrate this we will plot a linear ramp
-# ``np.arange(42).reshape(6, 7)`` with varying parameters.
-#
 
-generate_imshow_demo_grid(True, extents[:1])
+generate_imshow_demo_grid(extents[:1], auto_limits=True)
 
 ###############################################################################
 #
@@ -151,10 +146,6 @@ generate_imshow_demo_grid(True, extents[:1])
 #    which defaults to ``'upper'`` to match the matrix indexing
 #    conventions in math and computer graphics image indexing
 #    conventions.
-
-generate_imshow_demo_grid(True, extents[1:])
-
-###############################################################################
 #
 # If the axes is set to autoscale, then view limits of the axes are set
 # to match the *extent* which ensures that the coordinate set by
@@ -162,7 +153,8 @@ generate_imshow_demo_grid(True, extents[1:])
 # may invert the axis so they do not increase in the 'natural' direction.
 #
 
-generate_imshow_demo_grid(False, extents)
+generate_imshow_demo_grid(extents[1:], auto_limits=True)
+
 
 ###############################################################################
 #
@@ -177,3 +169,5 @@ generate_imshow_demo_grid(False, extents)
 # - The image may be inverted along either direction.
 # - The 'left-right' and 'top-bottom' sense of the image is uncoupled from
 #   the orientation on the screen.
+
+generate_imshow_demo_grid(extents, auto_limits=False)
