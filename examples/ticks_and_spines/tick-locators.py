@@ -27,8 +27,8 @@ def setup(ax):
     ax.patch.set_alpha(0.0)
 
 
-plt.figure(figsize=(8, 6))
-n = 8
+plt.figure(figsize=(9, 6))
+n = 9
 
 # Null Locator
 ax = plt.subplot(n, 1, 1)
@@ -92,6 +92,15 @@ ax.set_xlim(10**3, 10**10)
 ax.set_xscale('log')
 ax.xaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=15))
 ax.text(0.0, 0.1, "LogLocator(base=10, numticks=15)",
+        fontsize=15, transform=ax.transAxes)
+
+# InvLog Locator
+ax = plt.subplot(n, 1, 9)
+setup(ax)
+ax.set_xlim(10**3, 10**10)
+ax.set_xscale('log')
+ax.xaxis.set_major_locator(ticker.InvLogLocator(inv_base=10.0, numticks=15))
+ax.text(0.0, 0.1, "InvLogLocator(inv_base=10, numticks=15)",
         fontsize=15, transform=ax.transAxes)
 
 # Push the top of the top axes outside the figure because we only show the
