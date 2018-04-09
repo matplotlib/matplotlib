@@ -2493,9 +2493,9 @@ class InvLogLocator(LogLocator):
         """Set parameters within this locator."""
         super(InvLogLocator, self).set_params(**kwargs)
         if inv_base is not None:
-            self.inv_base = inv_base
+            self.inv_base(inv_base)
         if inv_factor is not None:
-            self.inv_factor = inv_factor
+            self.inv_factor(inv_factor)
 
     def inv_base(self, inv_base):
         """
@@ -2527,9 +2527,24 @@ class InvLogLocator(LogLocator):
             numticks = self.numticks
 
         ib = self._inv_base
-        # max and min swapped
+
+        # max and min swapped: vmin determines ivmax and vice versa
         ivmax = self._inv_factor / vmin
         ivmin = self._inv_factor / vmax
+
+        if vmin <= 0.0:
+            if self.axis is not None:
+                ivmax = self._inv_factor / self.axis.get_minpos()
+
+        if vmax <= 0.0:
+            if self.axis is not None:
+                ivmin = self._inv_factor / self.axis.get_maxpos()
+
+            if ivmin <= 0.0 or not np.isfinite(ivmin):
+                raise ValueError(
+                    "Data has no positive values, and therefore can not be "
+                    "log-scaled.")
+    
         # dummy axis has no axes attribute
         if hasattr(self.axis, 'axes') and self.axis.axes.name == 'polar':
             ivmax = math.ceil(math.log(ivmax) / math.log(ib))
@@ -2539,15 +2554,6 @@ class InvLogLocator(LogLocator):
             ticklocs = self._inv_factor / i_ticklocs
 
             return ticklocs
-
-        if ivmax <= 0.0:
-            if self.axis is not None:
-                ivmax = self._inv_factor / self.axis.get_minpos()
-
-            if ivmax <= 0.0 or not np.isfinite(ivmax):
-                raise ValueError(
-                    "Data has no positive values, and therefore can not be "
-                    "log-scaled.")
 
         ivmin = math.log(ivmin) / math.log(ib)
         ivmax = math.log(ivmax) / math.log(ib)

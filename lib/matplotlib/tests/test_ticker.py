@@ -127,6 +127,44 @@ class TestLogLocator(object):
         assert list(loc._subs) == [2.0]
 
 
+class TestInvLogLocator(object):
+    def test_basic(self):
+        loc = mticker.InvLogLocator(numticks=5)
+        with pytest.raises(ZeroDivisionError):
+            loc.tick_values(0, 1000)
+        with pytest.raises(ZeroDivisionError):
+            loc.tick_values(-1000, 0)
+        with pytest.raises(ValueError):
+            loc.tick_values(-2, -1)
+
+        test_value = 1/np.array([1.00000000e-08, 1.00000000e-06,
+                                 1.00000000e-04, 1.00000000e-02,
+                                 1.00000000e+00, 1.00000000e+02,
+                                 1.00000000e+04, 1.00000000e+06])
+        assert_almost_equal(loc.tick_values(0.001, 1.1e5), test_value)
+
+        loc = mticker.InvLogLocator(inv_base=2)
+        test_value = np.array([256., 128., 64., 32., 16., 8., 4., 2., 1., 0.5])
+        assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+    def test_set_params(self):
+        """
+        Create invlog locator with default value, base=10.0, subs=[1.0],
+        numdecs=4, numticks=15, inv_base=10, inv_factor=1 and change it to
+        something else. See if change was successful. Should not raise
+        exception.
+        """
+        loc = mticker.InvLogLocator()
+        loc.set_params(numticks=7, numdecs=8, subs=[2.0], base=4, inv_base=3,
+                       inv_factor=102)
+        assert loc.numticks == 7
+        assert loc.numdecs == 8
+        assert loc._base == 4
+        assert list(loc._subs) == [2.0]
+        assert loc._inv_base == 3
+        assert loc._inv_factor == 102
+
+
 class TestNullLocator(object):
     def test_set_params(self):
         """
