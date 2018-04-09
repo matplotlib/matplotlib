@@ -496,3 +496,10 @@ def test_text_as_text_opacity():
     plt.text(0.25, 0.5, '50% using `alpha`', alpha=0.5)
     plt.text(0.25, 0.75, '50% using `alpha` and 100% `color`', alpha=0.5,
              color=(0, 0, 0, 1))
+
+
+def test_text_repr():
+    # smoketest to make sure text repr doesn't error for category
+    plt.plot(['A', 'B'], [1, 2])
+    txt = plt.text(['A'], 0.5, 'Boo')
+    print(txt)

@@ -9,7 +9,9 @@
 Status
 ======
 
-**Discussion**
+**Completed**
+
+We are currently enforcing a sub-set of pep8 on new code contributions.
 
 Branches and Pull requests
 ==========================

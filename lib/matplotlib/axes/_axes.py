@@ -7390,14 +7390,14 @@ class Axes(_AxesBase):
 
     def matshow(self, Z, **kwargs):
         """
-        Plot a matrix or array as an image.
+        Plot the values of a 2D matrix or array as color-coded image.
 
         The matrix will be shown the way it would be printed, with the first
         row at the top.  Row and column numbering is zero-based.
 
         Parameters
         ----------
-        Z : array_like shape (n, m)
+        Z : array-like(N, M)
             The matrix to be displayed.
 
         Returns
@@ -7407,12 +7407,21 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs : `~matplotlib.axes.Axes.imshow` arguments
-            Sets `origin` to 'upper', 'interpolation' to 'nearest' and
-            'aspect' to equal.
 
-        See also
+        See Also
         --------
-        imshow : plot an image
+        imshow : More general function to plot data on a 2D regular raster.
+
+        Notes
+        -----
+        This is just a convenience function wrapping `.imshow` to set useful
+        defaults for a displaying a matrix. In particular:
+
+        - Set ``origin='upper'``.
+        - Set ``interpolation='nearest'``.
+        - Set ``aspect='equal'``.
+        - Ticks are placed to the left and above.
+        - Ticks are formatted to show integer indices.
 
         """
         Z = np.asanyarray(Z)
