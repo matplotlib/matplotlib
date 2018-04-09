@@ -1664,7 +1664,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         if y1 < y0:
             y0, y1 = y1, y0
-        if x1 < y0:
+        if x1 < x0:
             x0, x1 = x1, x0
 
         w = x1 - x0
@@ -1799,7 +1799,7 @@ if 'wxMac' not in wx.PlatformInfo:
 
             if y1 < y0:
                 y0, y1 = y1, y0
-            if x1 < y0:
+            if x1 < x0:
                 x0, x1 = x1, x0
 
             w = x1 - x0
