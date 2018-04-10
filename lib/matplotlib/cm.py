@@ -252,7 +252,7 @@ class ScalarMappable(object):
                 else:
                     raise ValueError("third dimension must be 3 or 4")
                 if xx.dtype.kind == 'f':
-                    if norm and xx.max() > 1 or xx.min() < 0:
+                    if norm and (xx.max() > 1 or xx.min() < 0):
                         raise ValueError("Floating point image RGB values "
                                          "must be in the 0..1 range.")
                     if bytes:
