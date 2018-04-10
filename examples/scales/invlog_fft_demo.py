@@ -8,9 +8,9 @@ This is an example of assigning an inverse log-scale for the x-axis using
 analysis, especially when scales of Fourier modes are of interest.
 """
 
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 
 fig, (axsin, axfft) = plt.subplots(2, 1)
 
@@ -42,12 +42,12 @@ ax2.spines['top'].set_visible(True)
 ax2.spines['right'].set_visible(True)
 
 ax2.set_xscale('log')
-ax2.xaxis.set_major_locator(ticker.InvLogLocator(inv_factor=2*np.pi))
-ax2.xaxis.set_minor_locator(ticker.InvLogLocator(inv_factor=2*np.pi,
-                                                 subs='auto'))
-ax2.xaxis.set_major_formatter(ticker.InvLogFormatter(inv_factor=2*np.pi))
-ax2.xaxis.set_minor_formatter(ticker.InvLogFormatter(inv_factor=2*np.pi,
-                                                     labelOnlyBase=False))
+ax2.xaxis.set_major_locator(mticker.InvLogLocator(inv_factor=2*np.pi))
+ax2.xaxis.set_minor_locator(mticker.InvLogLocator(inv_factor=2*np.pi,
+                                                  subs='auto'))
+ax2.xaxis.set_major_formatter(mticker.InvLogFormatter(inv_factor=2*np.pi))
+ax2.xaxis.set_minor_formatter(mticker.InvLogFormatter(inv_factor=2*np.pi,
+                                                      labelOnlyBase=False))
 
 ax2.set_xlim(xlim)
 ax2.set_xlabel(r'scale')
