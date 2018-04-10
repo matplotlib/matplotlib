@@ -848,6 +848,7 @@ class _AxesBase(martist.Artist):
         if original:
             return self._originalPosition.frozen()
         else:
+            self.apply_aspect()
             return self._position.frozen()
 
     def set_position(self, pos, which='both'):
