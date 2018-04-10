@@ -85,4 +85,4 @@ You want to tell us about it – best of all!
 
 Start at the `contributing guide <http://matplotlib.org/devdocs/devel/contributing.html>`_!
 
-Developer notes are now at `_Developer Discussions <https://github.com/orgs/matplotlib/teams/developers/discussions>`_
+Developer notes are now at `Developer Discussions <https://github.com/orgs/matplotlib/teams/developers/discussions>`_
