@@ -16,11 +16,7 @@ y = [1, 2, 1, 0]
 
 fig, ax = plt.subplots()
 ax.fill(x, y)
-# Outline of the region we've filled in
-ax.plot([x[0], x[1]], [y[0], y[1]], c='k', linewidth=2.0)
-ax.plot([x[1], x[2]], [y[1], y[2]], c='k', linewidth=2.0)
-ax.plot([x[2], x[3]], [y[2], y[3]], c='k', linewidth=2.0)
-ax.plot([x[3], x[0]], [y[3], y[0]], c='k', linewidth=2.0)
+plt.show()
 
 ###############################################################################
 # Next, a few more optional features:
