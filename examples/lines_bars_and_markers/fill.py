@@ -11,15 +11,16 @@ Demo fill plot.
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-x = [0, 0, 1, 2, 2]
-y = [0, 1, 2, 1, 0]
+x = [0, 1, 2, 1]
+y = [1, 2, 1, 0]
 
 fig, ax = plt.subplots()
-ax.fill(x, y, zorder=10)
-ax.grid(True, zorder=5)
-
-
+ax.fill(x, y)
+# Outline of the region we've filled in
+ax.plot([x[0], x[1]], [y[0], y[1]], c='k', linewidth=2.0)
+ax.plot([x[1], x[2]], [y[1], y[2]], c='k', linewidth=2.0)
+ax.plot([x[2], x[3]], [y[2], y[3]], c='k', linewidth=2.0)
+ax.plot([x[3], x[0]], [y[3], y[0]], c='k', linewidth=2.0)
 
 ###############################################################################
 # Next, a few more optional features:
@@ -37,11 +38,10 @@ fig, ax = plt.subplots()
 
 ax.fill(x, y1, 'b', x, y2, 'r', alpha=0.3)
 
-# Also outline the region we've filled in
+# Outline of the region we've filled in
 ax.plot(x, y1, c='b', alpha=0.8)
 ax.plot(x, y2, c='r', alpha=0.8)
 ax.plot([x[0], x[-1]], [y1[0], y1[-1]], c='b', alpha=0.8)
 ax.plot([x[0], x[-1]], [y2[0], y2[-1]], c='r', alpha=0.8)
-
 
 plt.show()
