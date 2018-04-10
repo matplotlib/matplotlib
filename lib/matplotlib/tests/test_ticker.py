@@ -147,6 +147,18 @@ class TestInvLogLocator(object):
         test_value = np.array([256., 128., 64., 32., 16., 8., 4., 2., 1., 0.5])
         assert_almost_equal(loc.tick_values(1, 100), test_value)
 
+    def test_minor_ticks(self):
+        loc = mticker.InvLogLocator(inv_factor=2*np.pi, subs='auto')
+        test_value = np.array([31.41592654, 20.94395102, 15.70796327,
+                               12.56637061, 10.47197551, 8.97597901,
+                               7.85398163, 6.98131701, 3.14159265,
+                               2.0943951, 1.57079633, 1.25663706,
+                               1.04719755, 0.8975979, 0.78539816,
+                               0.6981317, 0.31415927, 0.20943951,
+                               0.15707963, 0.12566371, 0.10471976,
+                               0.08975979, 0.07853982, 0.06981317])
+        assert_almost_equal(loc.tick_values(2*np.pi, 2*np.pi), test_value)
+
     def test_set_params(self):
         """
         Create invlog locator with default value, base=10.0, subs=[1.0],
