@@ -3,16 +3,19 @@
 GitHub Stats
 ============
 
-GitHub stats for 2017/10/03 - 2018/02/11 (tag: v2.1.0)
+GitHub stats for 2017/10/03 - 2018/03/16 (tag: v2.1.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 315 issues and merged 458 pull requests.
+We closed 422 issues and merged 625 pull requests.
 
-The following 98 authors contributed 2045 commits.
+The following 125 authors contributed 2458 commits.
 
 * Adrien F. Vincent
 * ahed87
+* akrherz
+* Alexander Harnisch
+* AlexCav
 * Allan Haldane
 * Andy Mastbaum
 * Antony Lee
@@ -23,9 +26,12 @@ The following 98 authors contributed 2045 commits.
 * Atharva Khare
 * Ben Root
 * Blaise Thompson
+* Boaz Mohar
+* Brendan Zhang
 * Brennan Magee
 * cclauss
 * cgohlke
+* ch3rn0v
 * Chris Holdgraf
 * Christoph Gohlke
 * clintval
@@ -34,6 +40,7 @@ The following 98 authors contributed 2045 commits.
 * deepyaman
 * Derek Kim
 * Derek Tropf
+* Dietmar Schwertberger
 * DietmarSchwertberger
 * Divyam Madaan
 * Doug Blank
@@ -47,13 +54,19 @@ The following 98 authors contributed 2045 commits.
 * Fabian Kloosterman
 * Federico Ariza
 * Filip Dimitrovski
+* Franco Vaccari
 * fuzzythecat
+* gregorybchris
+* Hajoon Choi
 * hannah
+* Helder
 * Importance of Being Ernest
 * Jake Vanderplas
 * Jamie Nunez
+* JelsB
 * Jody Klymak
 * John Hoffman
+* Johnny Gill
 * Joseph Albert
 * Jouni K. Seppänen
 * Juan Nunez-Iglesias
@@ -61,12 +74,15 @@ The following 98 authors contributed 2045 commits.
 * Kevin Ji
 * Kexuan Sun
 * Kjell Le
+* Leo Singer
+* Lionel Miller
 * Luca Verginer
 * luz.paz
 * Matthew Brett
 * Matthias Bussonnier
 * Matti Picus
 * mattip
+* Maximilian Nöthe
 * mcquin
 * Michael Seifert
 * Mudit Surana
@@ -75,23 +91,32 @@ The following 98 authors contributed 2045 commits.
 * Nelle Varoquaux
 * nemanja
 * Nick Papior
+* Nik Quibin
 * Nikita Kniazev
 * Nis Martensen
 * nmartensen
 * Norman Fomferra
+* Osarumwense
+* Pastafarianist
 * Paul Ganssle
 * Paul Hobson
+* Paul Seyfert
 * Phil Ruffwind
 * Richard Gowers
 * Rob Harrigan
 * Robin Dunn
+* roonjoot
 * Roy Smith
 * Ryan May
 * Saket Choudhary
+* Salinder Sidhu
 * Sean Farley
 * Sergey B Kirpichev
 * settheory
 * simonpf
+* stone
+* stonebig
+* TD22057
 * tdpetrou
 * Ted Petrou
 * Thomas A Caswell
@@ -99,11 +124,13 @@ The following 98 authors contributed 2045 commits.
 * Thomas Robitaille
 * Thomas Spura
 * Thomas VINCENT
+* thuvejan
 * Tim Hoffmann
 * Tom
 * Tom Augspurger
 * Tom Dupré la Tour
 * TomDonoghue
+* WANG Aiyong
 * William Mallard
 * Yao-Yuan Mao
 * Yuval Langer
@@ -112,8 +139,175 @@ The following 98 authors contributed 2045 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (458):
+Pull Requests (625):
 
+* :ghpull:`10815`: API: shift deprecation of TempCache class to 3.0
+* :ghpull:`10725`: FIX/TST constrained_layout remove test8 duplication
+* :ghpull:`10805`: FIX: properties and setp on Table instances
+* :ghpull:`10806`: MNT: catch more illegal '\'
+* :ghpull:`10296`: Improve docstrings of pyplot axis-related functions
+* :ghpull:`10278`: improve docstring of Axes.loglog, Axes.semilogx, Axes.semilogy
+* :ghpull:`10705`: FIX: enable extend kwargs with log scale colorbar
+* :ghpull:`10400`: numpydoc-ify art3d docstrings
+* :ghpull:`10723`: repr style fixes.
+* :ghpull:`10592`: Rely on generalized * and ** unpackings where possible.
+* :ghpull:`10787`: Fix offsetbox expand mode
+* :ghpull:`9475`: Declare property aliases in a single place
+* :ghpull:`10793`: A hodgepodge of Py3 & style fixes.
+* :ghpull:`10781`: Mention Jupyter in matplotlib usage
+* :ghpull:`10794`: fixed comment typo
+* :ghpull:`10768`: Fix crash when imshow encounters longdouble data
+* :ghpull:`10774`: Remove dead wx testing code.
+* :ghpull:`10756`: Fixes png showing inconsistent inset_axes position
+* :ghpull:`10773`: Consider alpha channel from RGBA color of text for SVG backend text opacity rendering
+* :ghpull:`10772`: API: check locator and formatter args when passed
+* :ghpull:`10713`: Implemented support for 'markevery' in prop_cycle
+* :ghpull:`10751`: make centre_baseline legal for Text.set_verticalalignment
+* :ghpull:`10771`: FIX/TST OS X builds
+* :ghpull:`10754`: Fix image fmt detection for Path input.
+* :ghpull:`10739`: FIX: ffmpeg logging level
+* :ghpull:`10726`: FIX: re-instate verbose alias
+* :ghpull:`10752`: Update copyright date to 2018
+* :ghpull:`10742`: FIX: reorder linewidth setting before linestyle
+* :ghpull:`10714`: sys.platform is normalized to "linux" on Py3.
+* :ghpull:`10542`: Minor cleanup: PEP8, PEP257
+* :ghpull:`10636`: Remove some wx version checks.
+* :ghpull:`10736`: Avoid narrowing conversion in image_wrapper on 32-bit.
+* :ghpull:`10731`: Corrected mistitling on the annotation tutorial page
+* :ghpull:`10734`: Fix logging level type
+* :ghpull:`10728`: Set data limits for Axes3DSubplot.plot when zdir=y or zdir=x #5742
+* :ghpull:`10721`: sanitize norm extrema to be floats
+* :ghpull:`10710`: BUG: Fix UnboundLocalError in contour labelling
+* :ghpull:`10703`: Fix signature docstring in _png extension.
+* :ghpull:`10683`: Convert Tick attributes to numpydoc
+* :ghpull:`10690`: Improve lazy-ticks realization.
+* :ghpull:`10697`: Remove special-casing of _remove_method when pickling.
+* :ghpull:`10701`: Autoadd removal version to deprecation message.
+* :ghpull:`10699`: Remove incorrect warning in gca().
+* :ghpull:`10564`: Nested classes and instancemethods are directly picklable on Py3.5+.
+* :ghpull:`10107`: Fix stay_span to reset onclick in SpanSelector.
+* :ghpull:`10480`: Filter out invalid value warnings in log scaling
+* :ghpull:`10596`: Switch to per-file locking.
+* :ghpull:`10681`: Fix tk icon loading.
+* :ghpull:`10532`: Py3fy backend_pgf.
+* :ghpull:`10618`: Fixes #10501.  python3 support and pep8 in jpl_units
+* :ghpull:`10652`: Some py3fication for matplotlib/__init__, setupext.
+* :ghpull:`10522`: Py3fy font_manager.
+* :ghpull:`10666`: More figure-related doc updates
+* :ghpull:`10507`: Remove Python 2 code from C extensions
+* :ghpull:`10426`: Delete deprecated backends
+* :ghpull:`9814`: figure_enter_event uses now LocationEvent instead of Event. Fix issue #9812.
+* :ghpull:`10658`: FIX Speed up constrained layout
+* :ghpull:`9918`: Remove old nose testing code
+* :ghpull:`10672`: Deprecation fixes.
+* :ghpull:`10608`: Remove most APIs deprecated in 2.1.
+* :ghpull:`10599`: Axes doc updates
+* :ghpull:`10665`: Highlight deprecations in the docs
+* :ghpull:`10653`: Mock is in stdlib in Py3.
+* :ghpull:`10603`: Remove workarounds for numpy<1.10.
+* :ghpull:`10660`: Work towards removing reuse-of-axes-on-collision.
+* :ghpull:`10364`: Workaround property list indent
+* :ghpull:`10661`: Homebrew python is now python 3
+* :ghpull:`10613`: FIX: resolution of imshow for floats and 2-D greyscale PIL images
+* :ghpull:`10638`: WIP: ENH: autodecode pandas timestamps
+* :ghpull:`10595`: Improve Figure docstrings
+* :ghpull:`10656`: Minor fixes to event handling docs.
+* :ghpull:`10629`: FIX/ENH CL: Allow single parent colorbar w/ gridspec layout
+* :ghpull:`10635`: Simplify setupext by using globs.
+* :ghpull:`10632`: Support markers from Paths that consist of one line segment
+* :ghpull:`10558`: Remove if six.PY2 code paths from boilerplate.py
+* :ghpull:`10645`: Add mplcairo to 3rdparty docs.
+* :ghpull:`10640`: Fix extra and missing spaces in constrainedlayout warning.
+* :ghpull:`10631`: Convert NaT to nan in date2num
+* :ghpull:`10623`: Fix for failing bar plot w/ units
+* :ghpull:`10622`: make seaborn great again on Matplotlib-2.2
+* :ghpull:`10624`: Some trivial py3fications.
+* :ghpull:`10548`: Implement PdfPages for backend pgf
+* :ghpull:`10625`: Fixes to constrainedlayout tutorial markup.
+* :ghpull:`10614`: Use np.stack instead of list(zip()) in colorbar.py.
+* :ghpull:`10621`: Cleanup and py3fy backend_gtk3.
+* :ghpull:`10568`: Prevent ZeroDivisionError when devicePixelRatio() returns 0
+* :ghpull:`10615`: More style fixes.
+* :ghpull:`10604`: Minor style fixes.
+* :ghpull:`10531`: Update matplotlibrc.template
+* :ghpull:`10565`: Strip python 2 code from subprocess.py
+* :ghpull:`10605`: Bump a tolerance in test_axisartist_floating_axes.
+* :ghpull:`10554`: Make ax3d.get_xlim() return a tuple, as 2D axes do.
+* :ghpull:`7853`: Use exact types for Py_BuildValue.
+* :ghpull:`10594`: FIX: colorbar check for constrained layout
+* :ghpull:`10570`: Fix check_shared in test_subplots.
+* :ghpull:`10581`: Might be ``figure.constrained_layout.use``
+* :ghpull:`10569`: Various style fixes.
+* :ghpull:`10593`: Use 'yield from' where appropriate.
+* :ghpull:`10563`: Add some mlab alternatives
+* :ghpull:`10588`: Bugfix in axes3d not raising an exception
+* :ghpull:`10518`: Fix Wx inconsistencies
+* :ghpull:`10428`: Fix wx canvas type injection.
+* :ghpull:`10577`: Minor simplification to Figure.__getstate__ logic.
+* :ghpull:`10578`: Fix eventplot exception due to uninitiliazed ``_is_horizontal`` attribute
+* :ghpull:`10552`: Fix issue with clf not clearing constrainedlayout
+* :ghpull:`10549`: Source typos
+* :ghpull:`10525`: Convert six.moves.xrange() to range() for Python 3
+* :ghpull:`10551`: Simplify rst cross references by omitting the shortener ~ when not needed
+* :ghpull:`10538`: FIX: TypeError when using offset box in expand mode with tightlayout
+* :ghpull:`10541`: More argumentless (py3) super()
+* :ghpull:`10539`: TST: Replace assert_equal with plain asserts.
+* :ghpull:`10534`: Modernize cbook.get_realpath_and_stat.
+* :ghpull:`10524`: Remove unused private _StringFuncParser.
+* :ghpull:`10470`: Remove Python 2 code from setup
+* :ghpull:`10429`: Fix wxcairo byteorder.
+* :ghpull:`10462`: Fix add_subplot documentation regarding args
+* :ghpull:`10484`: Add libm when building Qhull.
+* :ghpull:`10509`: Move some logging calls down to DEBUG level.
+* :ghpull:`10528`: py3fy examples
+* :ghpull:`10520`: Py3fy mathtext.py.
+* :ghpull:`10527`: Switch to argumentless (py3) super().
+* :ghpull:`10523`: The current master branch is now python 3 only.
+* :ghpull:`10519`: _macosx.m fails to compile on Mac OS 10.6.8 Snow Leopard - Issue #10516
+* :ghpull:`10432`: Use some new Python3 types
+* :ghpull:`10475`: Use HTTP Secure for matplotlib.org
+* :ghpull:`10383`: Fix some C++ warnings
+* :ghpull:`10478`: Separate plots using #### in xkcd.py
+* :ghpull:`10505`: Remove backport of which()
+* :ghpull:`10486`: BUG: sscanf did not parse arguments in _tkagg.cpp
+* :ghpull:`10469`: FIX: DPI inconsistency of draggable legend
+* :ghpull:`10483`: Remove backports.functools_lru_cache
+* :ghpull:`10451`: renaming duplicated file names
+* :ghpull:`10492`: Avoid UnboundLocalError in drag_pan.
+* :ghpull:`10473`: DOC: Expending a bit about the "tableau-colorblind10" entry in What's new
+* :ghpull:`10491`: Simplify Mac builds on Travis
+* :ghpull:`10490`: DOC: added bounds and more description to margins
+* :ghpull:`10481`: Remove python 2 compatibility code from dviread
+* :ghpull:`10447`: Remove Python 2 compatibility code from backend_pdf.py
+* :ghpull:`10468`: Replace is_numlike by isinstance(..., numbers.Number).
+* :ghpull:`10454`: Set packet_ends = None before using in dviread.py
+* :ghpull:`10439`: mkdir is in the stdlib in Py3.
+* :ghpull:`10431`: Some font-related numpydoc changes
+* :ghpull:`10467`: update example docstring of afm.py
+* :ghpull:`10460`: DOC: remove sphinx markup that confsed SG
+* :ghpull:`10461`: fix broken link in lib/matplotlib/dates.py comment
+* :ghpull:`10463`: DOC: Add cividis to the tutorial about colormaps
+* :ghpull:`10392`: FIX: make set_text(None) keep string empty instead of "None"
+* :ghpull:`10450`: DOC: add active state to install docs
+* :ghpull:`10425`: API: only support python 3.5+
+* :ghpull:`10440`: Add canonical link to webpages
+* :ghpull:`10444`: DOC: s/xasis/xaxis/ in whats_new.rst
+* :ghpull:`10441`: Fix doc build error.
+* :ghpull:`10422`: Define RecursionError for Python versions < 3.5
+* :ghpull:`10437`: Add docstring to set_interpolation
+* :ghpull:`10427`: Cleanup old print statements
+* :ghpull:`10414`: Doc merge up api whats new
+* :ghpull:`10416`: Update some wx examples
+* :ghpull:`10423`: DOC/STY: whitespace and docstring fixes
+* :ghpull:`10208`: Add some wx specific tools for ToolManager
+* :ghpull:`9114`: Fix PdfPages+cairo.
+* :ghpull:`9074`: Don't abort on FT2Font weakref.
+* :ghpull:`10274`: doc: fix layout of tables within parameter lists
+* :ghpull:`10421`: remove string escapes from matplotlibrc.template
+* :ghpull:`9783`: Categorical: Unsorted, String only, fix overwrite bug
+* :ghpull:`10420`: Fix some broken links
+* :ghpull:`10395`: WxCairo backend.
+* :ghpull:`10415`: fix bug #3690: don't call evt.Skip() when window has just been destroyed
 * :ghpull:`10352`: Explicitely destroy created wx PaintDC
 * :ghpull:`10377`: FigureCanvasWx/Agg fixed size
 * :ghpull:`10399`: Avoid double draw in qt5cairo.
@@ -161,7 +355,7 @@ Pull Requests (458):
 * :ghpull:`10282`: Deprecate the backend.qt{4,5} rcParams.
 * :ghpull:`10281`: Move down logging levels in mpl/__init__ to DEBUG.
 * :ghpull:`10337`: Deprecate backend_tkagg.AxisMenu.
-* :ghpull:`10242`: Fix InvertedLog10Transform.inverted() 
+* :ghpull:`10242`: Fix InvertedLog10Transform.inverted()
 * :ghpull:`10331`: Remove unnecessary calls to float() before division.
 * :ghpull:`10327`: Don't call np.identity() in transforms.
 * :ghpull:`10325`: Minor improvements to quadmesh_demo.
@@ -547,7 +741,7 @@ Pull Requests (458):
 * :ghpull:`9395`: TST: Unblock Appveyor build by patching ``subprocess``
 * :ghpull:`9347`: Fix backend refactor
 * :ghpull:`9365`: If PIL.image is missing, tell user to install pillow
-* :ghpull:`9381`: Add tutorials to the Users Guide.  
+* :ghpull:`9381`: Add tutorials to the Users Guide.
 * :ghpull:`9343`: Fix broken link to proxy artists documentation
 * :ghpull:`9368`: Add link to Matplotlib paper on citing page
 * :ghpull:`9375`: Document get_{x,y}axis_transform more prominently.
@@ -573,8 +767,115 @@ Pull Requests (458):
 * :ghpull:`9278`: Remove scatter_profile example.
 * :ghpull:`9272`: Include the default of "plot_pre_code" of the plot directive in the documentation
 
-Issues (315):
+Issues (422):
 
+* :ghissue:`10740`: table.table fails with KeyError (legacy python and mpl 2.2.0 only)
+* :ghissue:`10722`: Duplicated test name in test_constrainedlayout
+* :ghissue:`10732`: Calling ``properties()`` on ``Table`` raises exception
+* :ghissue:`10784`: axes.legend TypeError in v2.2.0
+* :ghissue:`10410`: eventplot alters data in some cases
+* :ghissue:`10786`: ImportError, library not loaded for libc++abi.1.dylib
+* :ghissue:`10419`: svg backend does not respect alpha channel of text *when passed as rgba*
+* :ghissue:`10785`: TkAgg reports bad option 'foobar' for icon with ``logging`` set to INFO level
+* :ghissue:`10783`: Adding an empty matplotlibrc in cwd changes the rcparams
+* :ghissue:`10769`: DOC: set_major_locator could check that its getting a Locator (was EngFormatter broken?)
+* :ghissue:`10770`: subplots with qt5agg backend flashes frame on windows desktop
+* :ghissue:`10753`: PDF saved as raster graphic when plt.savefig is given a Path object
+* :ghissue:`10729`: Animation saving via ffmpeg stops after some 300 frames
+* :ghissue:`10716`: Removal of verbose not documented: AttributeError: module 'matplotlib' has no attribute 'verbose'
+* :ghissue:`10758`: [PyInstaller] Failed import of cbook due to upgrade to matplolib 2.2.0
+* :ghissue:`10755`: AttributeError: module 'matplotlib' has no attribute 'verbose'
+* :ghissue:`10727`: Doc issue: ConnectorPatch -> ConnectionPatch
+* :ghissue:`10719`: Need better type error checking for linewidth in ax.grid
+* :ghissue:`10749`: When I saved graph in JPG format it's outer axis are no longer present.
+* :ghissue:`10750`: Are there any methods to stop the moving point showing again  in python package matplotlib
+* :ghissue:`10644`: autoscaling only one side of an axis
+* :ghissue:`10698`: Build fails in clang i386
+* :ghissue:`10738`: Suggestion: improve mark_inset by letting user choose all four corners (locs)
+* :ghissue:`5742`: ``Axes3DSubplot.plot`` not setting data limits correctly when ``zdir='x'`` or ``zdir='y'``
+* :ghissue:`4413`: Long axis title alters xaxis length and direction with ``plt.tight_layout()``
+* :ghissue:`3926`: Feature request: place axes relative to other axes, with automatic updating
+* :ghissue:`10709`: How ._cntr should be imported on Matplotlib (LTS) 2.2.0
+* :ghissue:`10654`: PySmithPlot/Polar Plot update broken in 2.1.2 (works in 2.0.2)
+* :ghissue:`7776`: tex cache lockfile retries should be configurable
+* :ghissue:`10556`: Special conversions of xrange()
+* :ghissue:`10060`: Dragged legend moves upon resizing figure window
+* :ghissue:`10501`: cmp() is an undefined name in Python 3
+* :ghissue:`10655`: constrainedlayout is very slow for large number of subplots
+* :ghissue:`4749`: Incorrect dependency handling from local pip
+* :ghissue:`9812`: figure_enter_event generates base Event and not LocationEvent
+* :ghissue:`10677`: Bug: Example from matplotlib.afm not working
+* :ghissue:`10673`: Creating a 6 DoF plot of a quadcopter.
+* :ghissue:`10671`: %gui wx crashes jupyter notebook kernel
+* :ghissue:`10670`: matplotlib power spectral density (PSD) normalize
+* :ghissue:`10567`: imshow in 2.1: color resolution depends on outliers?
+* :ghissue:`10616`: get error when show a picture(image) : 'numpy.ndarray' object has no attribute 'mask'
+* :ghissue:`10627`: Surprising alignment of (multiple) colorbars with constrained layout active
+* :ghissue:`10647`: matplotlib with joblib with requests hangs
+* :ghissue:`10617`: Can't save pgfs with text and dates
+* :ghissue:`10630`: Adding NCL colortables to default matplotlib colormaps
+* :ghissue:`10641`: Take too much memory and too long to save into figure
+* :ghissue:`10619`: bar plot fails with units
+* :ghissue:`10637`: I have already installed matplotlib function using the command : sudo apt-get install python3-matplotlib.
+* :ghissue:`10585`: searborn adaptation need for Matptotlib-2.2.0rc1
+* :ghissue:`10620`: Error comparing label colors on duplicated labels
+* :ghissue:`10494`: Keeping matplotlibrc.templace up to date
+* :ghissue:`10382`: More documentation ``mlab`` deprecation.
+* :ghissue:`10555`: Initial plot window ignoring rcParams figure.figsize
+* :ghissue:`10611`: issue with matplotlib.add_subplot documentation
+* :ghissue:`10602`: Random image failures with test_curvelinear4
+* :ghissue:`10496`: exception after clicking ok when editing axis curve info on 3d plot
+* :ghissue:`10582`: Creating colorbar for manual axes broken
+* :ghissue:`6412`: EventCollection._is_horizontal remains uninitialized, causing eventplot error
+* :ghissue:`10583`: I have problems with display Arabic words in the plots, the words became backward, how can I solve it
+* :ghissue:`10580`: Figures plotting in local display
+* :ghissue:`10576`: legend in wrong place with wrong labels
+* :ghissue:`10560`: fig.savefig alters the dimensions of the figure
+* :ghissue:`10526`: In Axes.hist, 'range' kwarg shadows builtin 'range' needed for Py3
+* :ghissue:`10398`: plt.hist density argument does not function as described.
+* :ghissue:`10547`: set_xticks does not work with x data type str
+* :ghissue:`10543`: pyqt error while importing pyqt5
+* :ghissue:`10476`: Version 2.2.0rc1 triggers TypeError
+* :ghissue:`10516`: _macosx.m fails to compile on Mac OS 10.6.8 Snow Leopard
+* :ghissue:`10458`: Draggable legend changes position when saving figure with DPI value different from display
+* :ghissue:`10517`: overlapping lines in matplotlib library
+* :ghissue:`10500`: show() is an undefined name in backend_webagg.py
+* :ghissue:`10479`: TclError in TkAgg with version 2.2.0rc1
+* :ghissue:`10397`: wxPython Phoenix release 4.0.0 will not plot
+* :ghissue:`9972`: drag/pan error when mouse click is not 1 or 3
+* :ghissue:`9222`: Anaconda python spyder systematically crash when multiple plot savefig
+* :ghissue:`6269`: MemoryError In copy_from_bbox
+* :ghissue:`7795`: Incorrect uses of is_numlike
+* :ghissue:`10453`: broken link in lib/matplotlib/dates.py comment
+* :ghissue:`4319`: Documentation table of contents doesn't go deep enough
+* :ghissue:`5731`: Move from numpydoc to sphinxcontrib-napoleon
+* :ghissue:`3187`: moderize? boxplot demo
+* :ghissue:`7978`: Warnings in doc build
+* :ghissue:`10457`: Navigation history broken in matplotlib 2.1.0
+* :ghissue:`9065`: google indexes dev-docs
+* :ghissue:`10391`: ax.get_legend().get_title().get_visible() does not work
+* :ghissue:`9876`: Outlining of devel/documenting_matplotlib
+* :ghissue:`10358`: Clarify documentation for fig.add_subplot()
+* :ghissue:`10016`: Example of radar chart (matplotlib v.2.1.1) doesn't work
+* :ghissue:`9642`: contour_doc not rendered properly
+* :ghissue:`1109`: MEP for a matplotlib geometry manager
+* :ghissue:`10202`: error in construction of inverted log transforms
+* :ghissue:`10434`: ``pip install matplotlib`` when Matplotlib is already installed fails because it tries to get unnecessary dependencies
+* :ghissue:`6078`: mpl_event
+* :ghissue:`9543`: Image interpolation gives slightly different result on 32-bit Python
+* :ghissue:`10430`: find points which lies strictly inside the polygon
+* :ghissue:`9312`: categorical axis sorts its keys
+* :ghissue:`10424`: Confusing log message from GridSpec
+* :ghissue:`9336`: Integer Categorical Values Not Getting Mapped Correctly
+* :ghissue:`9350`: Data types not preserved in categoricals
+* :ghissue:`9843`: Are categorical plots with single letter strings limited to show 10 categories?
+* :ghissue:`9112`: PDFPages Errors on savefig (missing encode)
+* :ghissue:`10418`: wxagg is broken as of master
+* :ghissue:`10406`: Matplotlib stylesheet warnings: Key boxplot.medianprops.color: 'C1' does not look like a color arg``
+* :ghissue:`9147`: broken links in docs
+* :ghissue:`4974`: make color abbrivations configurable
+* :ghissue:`3690`: Using Ctrl-W to close a matplotlib window opened by exec-ing a script in wxpython causes a segfault under linux
+* :ghissue:`10386`: Make kiwisolver an optional dependency?
 * :ghissue:`10174`: Rendering problems with FigureCanvasWxAgg on OSX
 * :ghissue:`9035`: savefig does put the correct dpi in the metadata of jpeg
 * :ghissue:`5750`: whish for 2016: matplotlib can use only Pillow 3.0+ to create animated GIF
@@ -594,8 +895,8 @@ Issues (315):
 * :ghissue:`9974`: toolbar.update() breaks history
 * :ghissue:`10373`: cannot import matplotlib.pyplot
 * :ghissue:`10368`: constrained layout uneven gridspec layouts...
+* :ghissue:`9391`: imshow doesn't normalize the color range in RGB images
 * :ghissue:`5382`: imsave and imshow ignore vmin/vmax
-* :ghissue:`9391`: imshow doesn't normalize the color range in RGB images 
 * :ghissue:`10372`: Floating point image RGB values must be in the 0..1 range
 * :ghissue:`10349`: Rectangle patch added to a datetime x-axis is plotted with the wrong width
 * :ghissue:`10344`: matplotlib can not handle pandas dataframe correctly when the label of the columns/index is strings but the actual data are float.
@@ -653,7 +954,7 @@ Issues (315):
 * :ghissue:`10122`: Color bar has multiple labels for 0 if matplotlib.colors.SymLogNorm is used
 * :ghissue:`10130`: Bar plot does not work
 * :ghissue:`10135`: matplotlib installation from source and numpy incompatibility
-* :ghissue:`10123`: memory leak with histograms 
+* :ghissue:`10123`: memory leak with histograms
 * :ghissue:`9887`: polar limits not snapping to 0
 * :ghissue:`9429`: Undefined name ``baseline``?
 * :ghissue:`8547`: Allow scalar ``weights`` parameter to ``hist`` method
@@ -661,8 +962,8 @@ Issues (315):
 * :ghissue:`9200`: Documentation: File doc/users/whats_new/README does not exist
 * :ghissue:`10078`: updating to release 2.1.1 causes pip to stop working
 * :ghissue:`9597`: Plot with ``drawstyle="steps"`` fails if x and y are empty
-* :ghissue:`8872`: Build errors with existing qhull
 * :ghissue:`8390`: Can't install matplotlib from source due to recent addition of QHULL_LIB_CHECK to src/qhull_wrap.c
+* :ghissue:`8872`: Build errors with existing qhull
 * :ghissue:`10053`: Duplicate legend labels with different colors can often result in an error.
 * :ghissue:`10056`: Only one legend entry is rendered for items with the same label and color
 * :ghissue:`10037`: Documentation mistake in the pyplot introductory tutorial
@@ -721,17 +1022,17 @@ Issues (315):
 * :ghissue:`9866`: ValueError: ordinal must be >= 1
 * :ghissue:`9130`: axes.get_tightbbox doesn't include legends...
 * :ghissue:`9302`: ENH: Switch from verbose to logging for warnings and logging
-* :ghissue:`9531`: Improve Colormap example.  
+* :ghissue:`9531`: Improve Colormap example.
 * :ghissue:`9838`: YearLocator should prefer ticks at the turn of the decade
 * :ghissue:`9784`: plot(2D, 2D) will cycle through the input columns even with non-matching shapes
 * :ghissue:`9719`: Appveyor passing, even when tests are failing
 * :ghissue:`9849`: Crash when scroll on figure
 * :ghissue:`1257`: Support for hierarchical labeling of bar-plots
 * :ghissue:`9833`: Visibility of pane edges in 3d figures
-* :ghissue:`9840`: quiver angles array UnboundLocalError: local variable 'lengths' referenced before assignment 
+* :ghissue:`9840`: quiver angles array UnboundLocalError: local variable 'lengths' referenced before assignment
 * :ghissue:`9828`: Can't pickle plots with date axes (from pandas)
 * :ghissue:`9823`: Missing __init__.py file in mpl_toolkits
-* :ghissue:`9822`: Cloud any one experience the below error while installing 'pyplot' package 
+* :ghissue:`9822`: Cloud any one experience the below error while installing 'pyplot' package
 * :ghissue:`9788`: font_manager calls nonexistent method FT2Font.get_fontsize
 * :ghissue:`9436`: Instance of 'TextBox' has no 'observers' member?
 * :ghissue:`9820`: Borders appear only for the first bar in the bar plot.
@@ -769,7 +1070,7 @@ Issues (315):
 * :ghissue:`9651`: "block" keyword unrecognized in 2.1 in notebook backend
 * :ghissue:`9716`: Large size of plots saved as pdf
 * :ghissue:`9741`: Missing arguments in call to exception_handler
-* :ghissue:`9729`: plt.pause() with notebook backend causes error 
+* :ghissue:`9729`: plt.pause() with notebook backend causes error
 * :ghissue:`8122`: keyword labelrotation is not recognized
 * :ghissue:`9655`: Segmentation fault when starting a timer a second time (MacOS X backend)
 * :ghissue:`9699`: IndexError thrown by pyplot.legend()
@@ -824,13 +1125,13 @@ Issues (315):
 * :ghissue:`8426`: PcolorImage does not set ``_extent``
 * :ghissue:`9538`: How to avoid override pie
 * :ghissue:`9406`: 2.1.0 serious regression in Qt5 backend
-* :ghissue:`9361`: 2.1 change - Axis Limit Error 
+* :ghissue:`9361`: 2.1 change - Axis Limit Error
 * :ghissue:`9390`: Save to .pdf doesn't work in 2.1.0
 * :ghissue:`9485`: FileNotFoundError while import matplotlib (maybe pyplot)
 * :ghissue:`9332`: Qt backend figureoptions.py does not work due to change in image.py
 * :ghissue:`6516`: savefig to pdf: 'str' object has no attribute 'decode'
 * :ghissue:`9499`: A 3D object appears in front of another object, even though it is physically behind it.
-* :ghissue:`5474`: tight_layout puts axes title below twiny xlabel 
+* :ghissue:`5474`: tight_layout puts axes title below twiny xlabel
 * :ghissue:`9183`: X-axis doesn't show entirely
 * :ghissue:`8814`: 3D plot camera-rotation does not update with mouse movement when using the MacOS backend
 * :ghissue:`9491`: TextBox widget on MacOSX fails with RuntimeError: Cannot get window extent w/o renderer
@@ -841,7 +1142,7 @@ Issues (315):
 * :ghissue:`7092`: pyplot.scatter method is not working with Iterator types of an input arguments
 * :ghissue:`8131`: bad error message from pyplot.plot
 * :ghissue:`8333`: Rely on numpy to properly normalize histograms with unequal bin widths
-* :ghissue:`9334`: Remove restriction in ``plt.margins(m)`` to  0 <= m <= 1 
+* :ghissue:`9334`: Remove restriction in ``plt.margins(m)`` to  0 <= m <= 1
 * :ghissue:`9474`: [TST] qt5 backend test sometimes failing
 * :ghissue:`9377`: Shadow applied to a simple patch does not show
 * :ghissue:`9355`: DOC: developer tips guide incomplete (for complete newbie)
