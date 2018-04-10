@@ -2544,7 +2544,7 @@ class InvLogLocator(LogLocator):
                 raise ValueError(
                     "Data has no positive values, and therefore can not be "
                     "log-scaled.")
-    
+
         # dummy axis has no axes attribute
         if hasattr(self.axis, 'axes') and self.axis.axes.name == 'polar':
             ivmax = math.ceil(math.log(ivmax) / math.log(ib))
