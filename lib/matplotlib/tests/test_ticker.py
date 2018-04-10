@@ -127,6 +127,56 @@ class TestLogLocator(object):
         assert list(loc._subs) == [2.0]
 
 
+class TestInvLogLocator(object):
+    def test_basic(self):
+        loc = mticker.InvLogLocator(numticks=5)
+        with pytest.raises(ZeroDivisionError):
+            loc.tick_values(0, 1000)
+        with pytest.raises(ZeroDivisionError):
+            loc.tick_values(-1000, 0)
+        with pytest.raises(ValueError):
+            loc.tick_values(-2, -1)
+
+        test_value = 1/np.array([1.00000000e-08, 1.00000000e-06,
+                                 1.00000000e-04, 1.00000000e-02,
+                                 1.00000000e+00, 1.00000000e+02,
+                                 1.00000000e+04, 1.00000000e+06])
+        assert_almost_equal(loc.tick_values(0.001, 1.1e5), test_value)
+
+        loc = mticker.InvLogLocator(inv_base=2)
+        test_value = np.array([256., 128., 64., 32., 16., 8., 4., 2., 1., 0.5])
+        assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+    def test_minor_ticks(self):
+        loc = mticker.InvLogLocator(inv_factor=2*np.pi, subs='auto')
+        test_value = np.array([31.41592654, 20.94395102, 15.70796327,
+                               12.56637061, 10.47197551, 8.97597901,
+                               7.85398163, 6.98131701, 3.14159265,
+                               2.0943951, 1.57079633, 1.25663706,
+                               1.04719755, 0.8975979, 0.78539816,
+                               0.6981317, 0.31415927, 0.20943951,
+                               0.15707963, 0.12566371, 0.10471976,
+                               0.08975979, 0.07853982, 0.06981317])
+        assert_almost_equal(loc.tick_values(2*np.pi, 2*np.pi), test_value)
+
+    def test_set_params(self):
+        """
+        Create invlog locator with default value, base=10.0, subs=[1.0],
+        numdecs=4, numticks=15, inv_base=10, inv_factor=1 and change it to
+        something else. See if change was successful. Should not raise
+        exception.
+        """
+        loc = mticker.InvLogLocator()
+        loc.set_params(numticks=7, numdecs=8, subs=[2.0], base=4, inv_base=3,
+                       inv_factor=102)
+        assert loc.numticks == 7
+        assert loc.numdecs == 8
+        assert loc._base == 4
+        assert list(loc._subs) == [2.0]
+        assert loc._inv_base == 3
+        assert loc._inv_factor == 102
+
+
 class TestNullLocator(object):
     def test_set_params(self):
         """
@@ -346,6 +396,51 @@ class TestLogFormatterSciNotation(object):
         formatter.sublabel = {1, 2, 5, 1.2}
         with matplotlib.rc_context({'text.usetex': False}):
             assert formatter(value) == expected
+
+
+class TestInvLogFormatter(object):
+    test_data = [
+        (1, 2, 0.03125, '32'),
+        (1, 2, 1, '1'),
+        (1, 2, 32, '3e-02'),
+        (1, 2, 0.0375, '26.667'),
+        (1, 2, 1.2, '8e-01'),
+        (1, 2, 38.4, '3e-02'),
+        (1, 10, -1, '1'),
+        (1, 10, 1e-05, '1e+05'),
+        (1, 10, 1, '1'),
+        (1, 10, 100000, '1e-05'),
+        (1, 10, 2e-05, '5e+04'),
+        (1, 10, 2, '5e-01'),
+        (1, 10, 200000, '5e-06'),
+        (1, 10, 5e-05, '2e+04'),
+        (1, 10, 5, '2e-01'),
+        (1, 10, 500000, '2e-06'),
+        (2 * np.pi, 2, 0.03125, '201.06'),
+        (2 * np.pi, 2, 1, '6.28'),
+        (2 * np.pi, 2, 32, '2e-01'),
+        (2 * np.pi, 2, 0.0375, '167.55'),
+        (2 * np.pi, 2, 1.2, '5.24'),
+        (2 * np.pi, 2, 38.4, '2e-01'),
+        (2 * np.pi, 10, -1, '6.28'),
+        (2 * np.pi, 10, 1e-05, '6e+05'),
+        (2 * np.pi, 10, 1, '6.28'),
+        (2 * np.pi, 10, 100000, '6e-05'),
+        (2 * np.pi, 10, 2e-05, '3e+05'),
+        (2 * np.pi, 10, 2, '3.14'),
+        (2 * np.pi, 10, 200000, '3e-05'),
+        (2 * np.pi, 10, 5e-05, '1e+05'),
+        (2 * np.pi, 10, 5, '1.26'),
+        (2 * np.pi, 10, 500000, '1e-05'),
+    ]
+
+    @pytest.mark.parametrize('inv_factor, inv_base, value, expected',
+                             test_data)
+    def test_basic(self, inv_factor, inv_base, value, expected):
+        formatter = mticker.InvLogFormatter(inv_base=inv_base,
+                                            inv_factor=inv_factor)
+        formatter.axis = FakeAxis()
+        assert formatter(value) == expected
 
 
 class TestLogFormatter(object):
