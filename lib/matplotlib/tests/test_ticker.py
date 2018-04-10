@@ -386,6 +386,49 @@ class TestLogFormatterSciNotation(object):
             assert formatter(value) == expected
 
 
+class TestInvLogFormatter(object):
+    test_data = [
+        (1, 2, 0.03125, '32'),
+        (1, 2, 1, '1'),
+        (1, 2, 32, '3e-02'),
+        (1, 2, 0.0375, '26.667'),
+        (1, 2, 1.2, '8e-01'),
+        (1, 2, 38.4, '3e-02'),
+        (1, 10, -1, '1'),
+        (1, 10, 1e-05, '1e+05'),
+        (1, 10, 1, '1'),
+        (1, 10, 100000, '1e-05'),
+        (1, 10, 2e-05, '5e+04'),
+        (1, 10, 2, '5e-01'),
+        (1, 10, 200000, '5e-06'),
+        (1, 10, 5e-05, '2e+04'),
+        (1, 10, 5, '2e-01'),
+        (1, 10, 500000, '2e-06'),
+        (2 * np.pi, 2, 0.03125, '201.06'),
+        (2 * np.pi, 2, 1, '6.28'),
+        (2 * np.pi, 2, 32, '2e-01'),
+        (2 * np.pi, 2, 0.0375, '167.55'),
+        (2 * np.pi, 2, 1.2, '5.24'),
+        (2 * np.pi, 2, 38.4, '2e-01'),
+        (2 * np.pi, 10, -1, '6.28'),
+        (2 * np.pi, 10, 1e-05, '6e+05'),
+        (2 * np.pi, 10, 1, '6.28'),
+        (2 * np.pi, 10, 100000, '6e-05'),
+        (2 * np.pi, 10, 2e-05, '3e+05'),
+        (2 * np.pi, 10, 2, '3.14'),
+        (2 * np.pi, 10, 200000, '3e-05'),
+        (2 * np.pi, 10, 5e-05, '1e+05'),
+        (2 * np.pi, 10, 5, '1.26'),
+        (2 * np.pi, 10, 500000, '1e-05'),
+    ]
+
+    @pytest.mark.parametrize('inv_factor, inv_base, value, expected', test_data)
+    def test_basic(self, inv_factor, inv_base, value, expected):
+        formatter = mticker.InvLogFormatter(inv_base=inv_base, inv_factor=inv_factor)
+        formatter.axis = FakeAxis()
+        assert formatter(value) == expected
+
+
 class TestLogFormatter(object):
     pprint_data = [
         (3.141592654e-05, 0.001, '3.142e-5'),
