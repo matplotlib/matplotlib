@@ -434,9 +434,11 @@ class TestInvLogFormatter(object):
         (2 * np.pi, 10, 500000, '1e-05'),
     ]
 
-    @pytest.mark.parametrize('inv_factor, inv_base, value, expected', test_data)
+    @pytest.mark.parametrize('inv_factor, inv_base, value, expected',
+                             test_data)
     def test_basic(self, inv_factor, inv_base, value, expected):
-        formatter = mticker.InvLogFormatter(inv_base=inv_base, inv_factor=inv_factor)
+        formatter = mticker.InvLogFormatter(inv_base=inv_base,
+                                            inv_factor=inv_factor)
         formatter.axis = FakeAxis()
         assert formatter(value) == expected
 
