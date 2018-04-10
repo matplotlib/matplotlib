@@ -1646,7 +1646,8 @@ def test_contour_colorbar():
     cbar.add_lines(cs2, erase=False)
 
 
-@image_comparison(baseline_images=['hist2d', 'hist2d'])
+@image_comparison(baseline_images=['hist2d', 'hist2d'],
+        remove_text=True, style='mpl20')
 def test_hist2d():
     np.random.seed(0)
     # make it not symmetric in case we switch x and y axis
@@ -1654,16 +1655,17 @@ def test_hist2d():
     y = np.random.randn(100)-2
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist2d(x, y, bins=10)
+    ax.hist2d(x, y, bins=10, rasterized=True)
 
     # Reuse testcase from above for a labeled data test
     data = {"x": x, "y": y}
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist2d("x", "y", bins=10, data=data)
+    ax.hist2d("x", "y", bins=10, data=data, rasterized=True)
 
 
-@image_comparison(baseline_images=['hist2d_transpose'])
+@image_comparison(baseline_images=['hist2d_transpose'],
+        remove_text=True, style='mpl20')
 def test_hist2d_transpose():
     np.random.seed(0)
     # make sure the output from np.histogram is transposed before
@@ -1672,7 +1674,7 @@ def test_hist2d_transpose():
     y = np.random.randn(100)-2
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist2d(x, y, bins=10)
+    ax.hist2d(x, y, bins=10, rasterized=True)
 
 
 @image_comparison(baseline_images=['scatter', 'scatter'])
