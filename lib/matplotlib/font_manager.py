@@ -34,13 +34,13 @@ found.
 from collections import Iterable
 from functools import lru_cache
 import json
+import logging
 import os
 from pathlib import Path
 import subprocess
 import sys
 from threading import Timer
 import warnings
-import logging
 
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
 from matplotlib.fontconfig_pattern import (
@@ -130,13 +130,8 @@ OSXFontDirectories = [
 ]
 
 if not USE_FONTCONFIG and sys.platform != 'win32':
-    home = os.environ.get('HOME')
-    if home is not None:
-        # user fonts on OSX
-        path = os.path.join(home, 'Library', 'Fonts')
-        OSXFontDirectories.append(path)
-        path = os.path.join(home, '.fonts')
-        X11FontDirectories.append(path)
+    OSXFontDirectories.append(str(Path.home() / "Library/Fonts"))
+    X11FontDirectories.append(str(Path.home() / ".fonts"))
 
 
 def get_fontext_synonyms(fontext):
@@ -161,26 +156,20 @@ def list_fonts(directory, extensions):
 
 
 def win32FontDirectory():
-    """
+    r"""
     Return the user-specified font directory for Win32.  This is
     looked up from the registry key::
 
-      \\\\HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\\Fonts
+      \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
 
     If the key is not found, $WINDIR/Fonts will be returned.
     """
     import winreg
     try:
-        user = winreg.OpenKey(winreg.HKEY_CURRENT_USER, MSFolders)
-        try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, MSFolders) as user:
             return winreg.QueryValueEx(user, 'Fonts')[0]
-        except OSError:
-            pass  # Fall through to default
-        finally:
-            winreg.CloseKey(user)
     except OSError:
-        pass  # Fall through to default
-    return os.path.join(os.environ['WINDIR'], 'Fonts')
+        return os.path.join(os.environ['WINDIR'], 'Fonts')
 
 
 def win32InstalledFonts(directory=None, fontext='ttf'):
@@ -198,33 +187,23 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
 
     fontext = get_fontext_synonyms(fontext)
 
-    key, items = None, set()
+    items = set()
     for fontdir in MSFontDirectories:
         try:
-            local = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, fontdir)
-        except OSError:
-            continue
-        if not local:
-            return list_fonts(directory, fontext)
-        try:
-            for j in range(winreg.QueryInfoKey(local)[1]):
-                try:
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, fontdir) as local:
+                for j in range(winreg.QueryInfoKey(local)[1]):
                     key, direc, tp = winreg.EnumValue(local, j)
                     if not isinstance(direc, str):
                         continue
                     # Work around for https://bugs.python.org/issue25778, which
                     # is fixed in Py>=3.6.1.
                     direc = direc.split("\0", 1)[0]
-                    if not os.path.dirname(direc):
-                        direc = os.path.join(directory, direc)
-                    direc = os.path.abspath(direc).lower()
-                    if os.path.splitext(direc)[1][1:] in fontext:
-                        items.add(direc)
-                except (EnvironmentError, MemoryError, WindowsError):
-                    continue
-            return list(items)
-        finally:
-            winreg.CloseKey(local)
+                    path = Path(directory, direc).resolve()
+                    if path.suffix.lower() in fontext:
+                        items.add(str(path))
+                return list(items)
+        except (OSError, MemoryError):
+            continue
     return None
 
 
@@ -261,7 +240,7 @@ def get_fontconfig_fonts(fontext='ttf'):
     """
     fontext = get_fontext_synonyms(fontext)
     return [fname for fname in _call_fc_list()
-            if os.path.splitext(fname)[1][1:] in fontext]
+            if Path(fname).suffix[1:] in fontext]
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
@@ -277,31 +256,21 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
 
     if fontpaths is None:
         if sys.platform == 'win32':
-            fontdir = win32FontDirectory()
-
-            fontpaths = [fontdir]
+            fontpaths = [win32FontDirectory()]
             # now get all installed fonts directly...
-            for f in win32InstalledFonts(fontdir):
-                base, ext = os.path.splitext(f)
-                if len(ext)>1 and ext[1:].lower() in fontexts:
-                    fontfiles.add(f)
+            fontfiles.update(win32InstalledFonts(fontext=fontext))
         else:
             fontpaths = X11FontDirectories
+            fontfiles.update(get_fontconfig_fonts(fontext))
             # check for OS X & load its fonts if present
             if sys.platform == 'darwin':
-                for f in OSXInstalledFonts(fontext=fontext):
-                    fontfiles.add(f)
-
-            for f in get_fontconfig_fonts(fontext):
-                fontfiles.add(f)
+                fontfiles.update(OSXInstalledFonts(fontext=fontext))
 
     elif isinstance(fontpaths, str):
         fontpaths = [fontpaths]
 
     for path in fontpaths:
-        files = list_fonts(path, fontexts)
-        for fname in files:
-            fontfiles.add(os.path.abspath(fname))
+        fontfiles.update(map(os.path.abspath, list_fonts(path, fontexts)))
 
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
@@ -1222,16 +1191,12 @@ class FontManager(object):
         else:
             fontlist = self.ttflist
 
-        if directory is not None:
-            directory = os.path.normcase(directory)
-
         best_score = 1e64
         best_font = None
 
         for font in fontlist:
             if (directory is not None and
-                    os.path.commonprefix([os.path.normcase(font.fname),
-                                          directory]) != directory):
+                    Path(directory) not in Path(font.fname).parents):
                 continue
             # Matching family should have highest priority, so it is multiplied
             # by 10.0
