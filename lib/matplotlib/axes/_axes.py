@@ -5170,9 +5170,9 @@ class Axes(_AxesBase):
         shape : scalars (columns, rows), optional, default: None
             For raw buffer images
 
-        filternorm : scalar, optional, default: 1
-            A parameter for the antigrain image resize filter.  From the
-            antigrain documentation, if `filternorm` = 1, the filter
+        filternorm : bool, optional, default: True
+            A parameter for the antigrain image resize filter (see the
+            antigrain documentation).  If *filternorm* is set, the filter
             normalizes integer values and corrects the rounding errors. It
             doesn't do anything with the source floating point values, it
             corrects only integers according to the rule of 1.0 which means
