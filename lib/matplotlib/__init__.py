@@ -107,7 +107,6 @@ import atexit
 from collections import MutableMapping
 import contextlib
 import distutils.version
-import distutils.sysconfig
 import functools
 import io
 import inspect
