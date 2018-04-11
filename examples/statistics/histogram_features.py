@@ -19,6 +19,7 @@ select these parameters:
 http://docs.astropy.org/en/stable/visualization/histogram.html
 """
 
+import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -47,3 +48,17 @@ ax.set_title(r'Histogram of IQ: $\mu=100$, $\sigma=15$')
 # Tweak spacing to prevent clipping of ylabel
 fig.tight_layout()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+matplotlib.axes.Axes.hist
+matplotlib.axes.Axes.set_title
+matplotlib.axes.Axes.set_xlabel
+matplotlib.axes.Axes.set_ylabel
