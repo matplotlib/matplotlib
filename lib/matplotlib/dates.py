@@ -1200,12 +1200,20 @@ class AutoDateLocator(DateLocator):
         The interval is used to specify multiples that are appropriate for
         the frequency of ticking. For instance, every 7 days is sensible
         for daily ticks, but for minutes/seconds, 15 or 30 make sense.
-        You can customize this dictionary by doing::
+        You can customize this dictionary by doing:
 
           locator = AutoDateLocator()
           locator.intervald[HOURLY] = [3] # only show every 3 hours
+
+        In order to avoid overlapping dates, another dictionary was
+        created to map date intervals to the format of the date used in
+        rcParams. In addition, the figsize and font is used from the axis,
+        and a new setting in rcparams['autodatelocator.spacing'] is added
+        and used to let the user decide when spacing should be used. This
+        was done because rotation at this point in runtime is not known.
         """
         DateLocator.__init__(self, tz)
+
         self._locator = YearLocator()
         self._freq = YEARLY
         self._freqs = [YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY,
@@ -1234,6 +1242,16 @@ class AutoDateLocator(DateLocator):
             MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000,
                             5000, 10000, 20000, 50000, 100000, 200000, 500000,
                             1000000]}
+
+        self.eachtick = {
+                    YEARLY: rcParams['date.autoformatter.year'],
+                    MONTHLY: rcParams['date.autoformatter.month'],
+                    DAILY: rcParams['date.autoformatter.day'],
+                    HOURLY: rcParams['date.autoformatter.hour'],
+                    MINUTELY: rcParams['date.autoformatter.minute'],
+                    SECONDLY: rcParams['date.autoformatter.second'],
+                    MICROSECONDLY: rcParams['date.autoformatter.microsecond']}
+
         self._byranges = [None, range(1, 13), range(1, 32),
                           range(0, 24), range(0, 60), range(0, 60), None]
 
@@ -1306,11 +1324,34 @@ class AutoDateLocator(DateLocator):
         #  bysecond, unused (for microseconds)]
         byranges = [None, 1, 1, 0, 0, 0, None]
 
+        # Required attributes to get width from figure's normal points
+        axis_name = getattr(self.axis, 'axis_name', '')
+        axes = getattr(self.axis, 'axes', None)
+        label = getattr(self.axis, 'label', None)
+        figure = getattr(self.axis, 'figure', None)
+        transfig = getattr(figure, 'transFigure', None)
+        maxwid = rcParams['figure.figsize'][0]
+
+        # estimated font ratio on font size 10
+        if label is not None:
+            font_ratio = label.get_fontsize() / 10
+        else:
+            font_ratio = rcParams['font.size'] / 10
+
+        # a ratio of 8 date characters per inch is 'estimated'
+        if (axes is not None and transfig is not None):
+            bbox = axes.get_position(original=False)
+            figwidth = transfig.transform(bbox.get_points())[1][0]
+            dpi = figure.get_dpi()
+            maxwid = (figwidth / dpi) * 8
+
+        spacing = (rcParams["autodatelocator.spacing"] == "generous")
+
         # Loop over all the frequencies and try to find one that gives at
         # least a minticks tick positions.  Once this is found, look for
         # an interval from an list specific to that frequency that gives no
         # more than maxticks tick positions. Also, set up some ranges
-        # (bymonth, etc.) as appropriate to be passed to rrulewrapper.
+        # (bymonth, etc.) as appropriate to be passed to rrulewrapper
         for i, (freq, num) in enumerate(zip(self._freqs, nums)):
             # If this particular frequency doesn't give enough ticks, continue
             if num < self.minticks:
@@ -1320,11 +1361,24 @@ class AutoDateLocator(DateLocator):
                 byranges[i] = None
                 continue
 
+            # Compute at runtime the size of date label with given format
+            if (axis_name == 'x'):
+                datelen_ratio = \
+                    len(dmin.strftime(self.eachtick[freq])) * font_ratio
+            else:
+                datelen_ratio = 1 * font_ratio
+
             # Find the first available interval that doesn't give too many
             # ticks
             for interval in self.intervald[freq]:
-                if num <= interval * (self.maxticks[freq] - 1):
-                    break
+
+                # Using an estmation of characters per inch, reduce
+                # intervals untill we get no overlaps
+                apply_spread = (not spacing or
+                                ((num/interval) * datelen_ratio) <= maxwid)
+                if (num <= interval * (self.maxticks[freq] - 1)):
+                    if (apply_spread):
+                        break
             else:
                 # We went through the whole loop without breaking, default to
                 # the last interval in the list and raise a warning
@@ -1336,7 +1390,6 @@ class AutoDateLocator(DateLocator):
 
             # Set some parameters as appropriate
             self._freq = freq
-
             if self._byranges[i] and self.interval_multiples:
                 byranges[i] = self._byranges[i][::interval]
                 interval = 1

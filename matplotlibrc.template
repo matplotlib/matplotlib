@@ -354,6 +354,8 @@ backend      : $TEMPLATE_BACKEND
 #date.autoformatter.second   : %H:%M:%S
 #date.autoformatter.microsecond   : %M:%S.%f
 
+#autodatelocator.spacing : tight ## if generous, add extra spacing to avoid overlap, otherwise tight
+
 #### TICKS
 ## see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
 #xtick.top            : False  ## draw ticks on the top side

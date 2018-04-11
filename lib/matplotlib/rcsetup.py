@@ -1219,6 +1219,9 @@ defaultParams = {
     'date.autoformatter.second': ['%H:%M:%S', validate_string],
     'date.autoformatter.microsecond': ['%M:%S.%f', validate_string],
 
+    # To avoid overlapping date invervals, we can set the spacing in advance
+    # 'generous' is set to avoid overlapping, otherwise 'tight' by default
+    'autodatelocator.spacing' : ['tight', validate_string],
     #legend properties
     'legend.fancybox': [True, validate_bool],
     'legend.loc': ['best', validate_legend_loc],
