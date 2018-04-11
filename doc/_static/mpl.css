@@ -309,11 +309,11 @@ h2 {
     margin: 0.5em 0 0.2em 0;
     padding-top: 0.5em;
     font-size: 1.7em;
-    padding: 0;
 }
 
 h3 {
     margin: 0.2em 0 0.1em 0;
+    padding-top: 0.5em;
     font-size: 1.2em;
 }
 
@@ -846,14 +846,12 @@ figcaption {
 }
 
 #sidebar-donations {
-    margin-top: 28px;
+    margin-top: 40px;
 }
 
 .donate_button {
     background:#11557C;
     font-weight:normal;
-    border:solid 1px #fff;
-    outline: solid 1px #11557C;
     clear: both;
     display: block;
     width:200px;
@@ -864,6 +862,7 @@ figcaption {
     color:#fff;
     text-decoration: none;
     margin: 30px auto 0;
+    border-radius: 6px;
     z-index:1;
     transition: background .25s ease;
 }
@@ -972,3 +971,13 @@ p.sphx-glr-signature a.reference.external {
     font-weight: 400;
 }
 
+.sidebar-announcement {
+    border: 1px solid #11557C;
+    background: #eff9ff;
+    padding: 2px;
+    margin-top: 40px;
+}
+
+.sidebar-announcement p {
+    margin: 0.4em 0.4em 0.6em 0.4em;
+}
