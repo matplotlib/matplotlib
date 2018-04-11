@@ -1760,6 +1760,11 @@ class Axis(artist.Artist):
         raise NotImplementedError()
 
 
+def tick_space_heuristic(axis_length, label_fontsize, label_fontsize_factor):
+    size = label_fontsize * label_fontsize_factor
+    return int(np.floor(axis_length / size))
+
+
 class XAxis(Axis):
     __name__ = 'xaxis'
     axis_name = 'x'
@@ -2117,15 +2122,16 @@ class XAxis(Axis):
                 self.axes.viewLim.intervalx = xmin, xmax
         self.stale = True
 
-    def get_tick_space(self):
+    def get_tick_space(self,
+                       heuristic=lambda x, y: tick_space_heuristic(x, y, 3)):
         ends = self.axes.transAxes.transform([[0, 0], [1, 0]])
         length = ((ends[1][0] - ends[0][0]) / self.axes.figure.dpi) * 72
         tick = self._get_tick(True)
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
-        size = tick.label1.get_size() * 3
-        if size > 0:
-            return int(np.floor(length / size))
+        label_fontsize = tick.label1.get_size()
+        if label_fontsize > 0:
+            return heuristic(length, label_fontsize)
         else:
             return 2**31 - 1
 
@@ -2496,13 +2502,14 @@ class YAxis(Axis):
                 self.axes.viewLim.intervaly = ymin, ymax
         self.stale = True
 
-    def get_tick_space(self):
+    def get_tick_space(self,
+                       heuristic=lambda x, y: tick_space_heuristic(x, y, 2.0)):
         ends = self.axes.transAxes.transform([[0, 0], [0, 1]])
         length = ((ends[1][1] - ends[0][1]) / self.axes.figure.dpi) * 72
         tick = self._get_tick(True)
         # Having a spacing of at least 2 just looks good.
-        size = tick.label1.get_size() * 2.0
-        if size > 0:
-            return int(np.floor(length / size))
+        label_fontsize = tick.label1.get_size()
+        if label_fontsize > 0:
+            return heuristic(length, label_fontsize)
         else:
             return 2**31 - 1

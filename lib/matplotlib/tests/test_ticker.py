@@ -7,6 +7,7 @@ import pytest
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+import matplotlib.axis as maxis
 
 
 class TestMaxNLocator(object):
@@ -22,6 +23,13 @@ class TestMaxNLocator(object):
         (1, 55, [1, 1.5, 5, 6, 10], np.array([0, 15, 30, 45, 60])),
     ]
 
+    heuristic_data = [
+        (-0.5, 9.5, None, np.array([-5.,  0.,  5., 10.])),
+        (-0.5, 9.5,
+         lambda x, y: maxis.tick_space_heuristic(x, y, 2.),
+         np.array([-4.,  0.,  4.,  8., 12.]))
+    ]
+
     @pytest.mark.parametrize('vmin, vmax, expected', basic_data)
     def test_basic(self, vmin, vmax, expected):
         loc = mticker.MaxNLocator(nbins=5)
@@ -30,6 +38,13 @@ class TestMaxNLocator(object):
     @pytest.mark.parametrize('vmin, vmax, steps, expected', integer_data)
     def test_integer(self, vmin, vmax, steps, expected):
         loc = mticker.MaxNLocator(nbins=5, integer=True, steps=steps)
+        assert_almost_equal(loc.tick_values(vmin, vmax), expected)
+
+    @pytest.mark.parametrize('vmin, vmax, heuristic, expected', heuristic_data)
+    def test_tick_space(self, vmin, vmax, heuristic, expected):
+        fig, ax = plt.subplots(figsize=(2, 2))
+        loc = mticker.MaxNLocator(nbins='auto', tick_space_heuristic=heuristic)
+        loc.set_axis(ax.xaxis)
         assert_almost_equal(loc.tick_values(vmin, vmax), expected)
 
 

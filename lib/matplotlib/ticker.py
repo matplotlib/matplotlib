@@ -1779,7 +1779,8 @@ class MaxNLocator(Locator):
                           integer=False,
                           symmetric=False,
                           prune=None,
-                          min_n_ticks=2)
+                          min_n_ticks=2,
+                          tick_space_heuristic=None)
 
     def __init__(self, *args, **kwargs):
         """
@@ -1820,6 +1821,12 @@ class MaxNLocator(Locator):
         *min_n_ticks*
             Relax `nbins` and `integer` constraints if necessary to
             obtain this minimum number of ticks.
+
+        *tick_space_heuristic*
+            Controls spacing of ticks through `axis.get_tick_space`. This must
+            be a callable object that takes two parameters, the axis length and
+            the label font size, both in pt units. Default value `None` will
+            use the default x- or y-axis heuristic.
 
         """
         if args:
@@ -1882,11 +1889,17 @@ class MaxNLocator(Locator):
             self._extended_steps = self._staircase(self._steps)
         if 'integer' in kwargs:
             self._integer = kwargs['integer']
+        if 'tick_space_heuristic' in kwargs:
+            tick_space_heuristic = kwargs['tick_space_heuristic']
+            if tick_space_heuristic is not None:
+                self._tickspace_kw = {'heuristic': tick_space_heuristic}
+            else:
+                self._tickspace_kw = {}
 
     def _raw_ticks(self, vmin, vmax):
         if self._nbins == 'auto':
             if self.axis is not None:
-                nbins = np.clip(self.axis.get_tick_space(),
+                nbins = np.clip(self.axis.get_tick_space(**self._tickspace_kw),
                                 max(1, self._min_n_ticks - 1), 9)
             else:
                 nbins = 9
