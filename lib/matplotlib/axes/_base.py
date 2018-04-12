@@ -3525,7 +3525,7 @@ class _AxesBase(martist.Artist):
 
     def get_yticklabels(self, minor=False, which=None):
         """
-        Get the x tick labels as a list of :class:`~matplotlib.text.Text`
+        Get the y tick labels as a list of :class:`~matplotlib.text.Text`
         instances.
 
         Parameters
