@@ -591,6 +591,7 @@ backend      : $TEMPLATE_BACKEND
 #keymap.yscale : l                   ## toggle scaling of y-axes ('log'/'linear')
 #keymap.xscale : k, L                ## toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 ## enable all axes
+#keymap.copy : ctrl+c, cmd+c, shift+ctrl+c  ## Copy figure to clipboard
 
 ## Control location of examples data files
 #examples.directory :              ## directory to look in for custom installation
