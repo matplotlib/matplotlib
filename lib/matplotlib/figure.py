@@ -678,7 +678,7 @@ class Figure(Artist):
         """
         return self.bbox
 
-    def suptitle(self, t, *, x=.5, y=.98, **kwargs):
+    def suptitle(self, t, **kwargs):
         """
         Add a centered title to the figure.
 
@@ -732,6 +732,11 @@ default: 'top'
 
         >>> fig.suptitle('This is the figure title', fontsize=12)
         """
+        manual_position = ('x' in kwargs or 'y' in kwargs)
+
+        x = kwargs.pop('x', 0.5)
+        y = kwargs.pop('y', 0.98)
+
         if ('horizontalalignment' not in kwargs) and ('ha' not in kwargs):
             kwargs['horizontalalignment'] = 'center'
         if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
@@ -751,19 +756,22 @@ default: 'top'
             sup.remove()
         else:
             self._suptitle = sup
-        if self._layoutbox is not None:
-            # assign a layout box to the suptitle...
-            figlb = self._layoutbox
-            self._suptitle._layoutbox = layoutbox.LayoutBox(
-                                            parent=figlb,
-                                            name=figlb.name+'.suptitle')
-            for child in figlb.children:
-                if not (child == self._suptitle._layoutbox):
-                    w_pad, h_pad, wspace, hspace =  \
-                            self.get_constrained_layout_pads(
-                                    relative=True)
-                    layoutbox.vstack([self._suptitle._layoutbox, child],
-                                     padding=h_pad*2., strength='required')
+            self._suptitle._layoutbox = None
+            if self._layoutbox is not None and not manual_position:
+                w_pad, h_pad, wspace, hspace =  \
+                        self.get_constrained_layout_pads(relative=True)
+                figlb = self._layoutbox
+                self._suptitle._layoutbox = layoutbox.LayoutBox(
+                        parent=figlb, artist=self._suptitle,
+                        name=figlb.name+'.suptitle')
+                # stack the suptitle on top of all the children.
+                # Some day this should be on top of all the children in the
+                # gridspec only.
+                for child in figlb.children:
+                    if child is not self._suptitle._layoutbox:
+                        layoutbox.vstack([self._suptitle._layoutbox,
+                                          child],
+                                         padding=h_pad*2., strength='required')
         self.stale = True
         return self._suptitle
 
