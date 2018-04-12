@@ -1033,8 +1033,12 @@ class HelpTool(ToolToggleBase):
     def enable(self, *args):
         # Using custom axes label to prevent reuse of old axes
         # https://github.com/matplotlib/matplotlib/issues/9024
-        self.text_axes = self.figure.add_axes((0, 0, 1, 1),
-                                              label='help_tool_axes')
+        if not self.text_axes:
+            self.text_axes = self.figure.add_axes((0, 0, 1, 1),
+                                                  label='help_tool_axes')
+        self.text_axes.set_visible(True)
+        self.text_axes.clear()
+
         table = Table(self.text_axes, bbox=[0, 0, 1, 1])
         table.edges = 'B'
         self.text_axes.add_table(table)
@@ -1063,7 +1067,7 @@ class HelpTool(ToolToggleBase):
         return figwidth / charwidth
 
     def disable(self, *args):
-        self.text_axes.remove()
+        self.text_axes.set_visible(False)
         self.figure.canvas.draw_idle()
 
     def _get_content(self, w0, w1, w2):
