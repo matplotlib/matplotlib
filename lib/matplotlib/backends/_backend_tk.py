@@ -1,10 +1,11 @@
 import six
-from six.moves import tkinter as Tk
 
 import math
 import logging
 import os.path
 import sys
+import tkinter as Tk
+from tkinter.simpledialog import SimpleDialog
 
 import numpy as np
 
@@ -963,10 +964,18 @@ class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
         self.window = None
 
 
+class HelpTk(backend_tools.ToolHelpBase):
+    def trigger(self, *args):
+        dialog = SimpleDialog(
+            self.figure.canvas._tkcanvas, self._get_help_text(), ["OK"])
+        dialog.done = lambda num: dialog.frame.master.withdraw()
+
+
 backend_tools.ToolSaveFigure = SaveFigureTk
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsTk
 backend_tools.ToolSetCursor = SetCursorTk
 backend_tools.ToolRubberband = RubberbandTk
+backend_tools.ToolHelp = HelpTk
 Toolbar = ToolbarTk
 
 

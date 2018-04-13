@@ -583,6 +583,7 @@ backend      : $TEMPLATE_BACKEND
 #keymap.pan : p                      ## pan mnemonic
 #keymap.zoom : o                     ## zoom mnemonic
 #keymap.save : s, ctrl+s             ## saving current figure
+#keymap.help : f1                    ## display help about active tools
 #keymap.quit : ctrl+w, cmd+w, q      ## close the current figure
 #keymap.quit_all : W, cmd+W, Q       ## close all figures
 #keymap.grid : g                     ## switching on/off major grids in current axes

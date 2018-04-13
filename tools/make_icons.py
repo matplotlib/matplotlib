@@ -97,7 +97,8 @@ icon_defs = [
     ('move', 0xf047),
     ('filesave', 0xf0c7),
     ('subplots', 0xf1de),
-    ('qt4_editor_options', 0xf201)]
+    ('qt4_editor_options', 0xf201),
+    ('help', 0xf128)]
 
 
 def make_icons():

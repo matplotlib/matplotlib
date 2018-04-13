@@ -846,6 +846,16 @@ class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
         self.window.present()
 
 
+class HelpGTK3(backend_tools.ToolHelpBase):
+    def trigger(self, *args):
+        dialog = Gtk.MessageDialog(
+            self._figure.canvas.get_toplevel(),
+            0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, self._get_help_text(),
+            title="Help")
+        dialog.run()
+        dialog.destroy()
+
+
 # Define the file to use as the GTk icon
 if sys.platform == 'win32':
     icon_filename = 'matplotlib.png'
@@ -877,6 +887,7 @@ backend_tools.ToolSaveFigure = SaveFigureGTK3
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
 backend_tools.ToolSetCursor = SetCursorGTK3
 backend_tools.ToolRubberband = RubberbandGTK3
+backend_tools.ToolHelp = HelpGTK3
 
 Toolbar = ToolbarGTK3
 
