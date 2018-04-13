@@ -1245,7 +1245,7 @@ class Axis(artist.Artist):
 
     def get_ticklabels(self, minor=False, which=None):
         """
-        Get the x tick labels as a list of :class:`~matplotlib.text.Text`
+        Get the tick labels as a list of :class:`~matplotlib.text.Text`
         instances.
 
         Parameters
