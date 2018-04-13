@@ -390,12 +390,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # float64's ability to represent changes.  Applying
                 # a norm first would be good, but ruins the interpolation
                 # of over numbers.
-                vmin = self.norm.vmin if self.norm.vmin is not None else a_min
-                vmax = self.norm.vmax if self.norm.vmax is not None else a_max
-
-                dv = (np.float64(vmax) -
-                      np.float64(vmin))
-                vmid = vmin + dv / 2
+                self.norm.autoscale_None(A)
+                dv = (np.float64(self.norm.vmax) -
+                      np.float64(self.norm.vmin))
+                vmid = self.norm.vmin + dv / 2
                 newmin = vmid - dv * 1.e7
                 if newmin < a_min:
                     newmin = None
