@@ -52,19 +52,19 @@ pip-run:  &pip-install
   # Upgrade pip and setuptools and wheel to get as clean an install as possible
   name: Upgrade pip, setuptools, wheel
   command: |
-    pip install --upgrade --user pip
-    pip install --upgrade --user wheel
-    pip install --upgrade --user setuptools
+    python -mpip install --upgrade --user pip
+    python -mpip install --upgrade --user wheel
+    python -mpip install --upgrade --user setuptools
 
 deps-run: &deps-install
   name: Install Python dependencies
   command: |
-    pip install --user numpy${NUMPY_VERSION} codecov coverage
-    pip install --user -r doc-requirements.txt
+    python -mpip install --user numpy${NUMPY_VERSION} codecov coverage
+    python -mpip install --user -r doc-requirements.txt
 
 mpl-run: &mpl-install
   name: Install Matplotlib
-  command: pip install --user -ve .
+  command: python -mpip install --user -ve .
 
 doc-run: &doc-build
   name: Build documentation
