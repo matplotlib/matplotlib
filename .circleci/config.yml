@@ -131,7 +131,7 @@ jobs:
             NUMPY_VERSION: "==1.7.1"
       # Linkchecker only works with python 2.7 for the time being.
       # Linkchecker is currently broken with requests 2.10.0 so force an earlier version.
-      - run: pip install --user $PRE requests==2.9.2 linkchecker
+      - run: python -mpip install --user $PRE requests==2.9.2 linkchecker
       - run: *mpl-install
 
       - run: *doc-build
