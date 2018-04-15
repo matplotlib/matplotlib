@@ -659,6 +659,38 @@ class _AxesBase(martist.Artist):
         self._yaxis_transform = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
 
+    @property
+    def axes_transform(self):
+        return self.transAxes
+
+    @axes_transform.setter
+    def axes_transform(self, value):
+        self.transAxes = value
+
+    @property
+    def scale_transform(self):
+        return self.transScale
+
+    @scale_transform.setter
+    def scale_transform(self, value):
+        self.transScale = value
+
+    @property
+    def limits_transform(self):
+        return self.transLimits
+
+    @limits_transform.setter
+    def limits_transform(self, value):
+        self.transLimits = value
+
+    @property
+    def data_transform(self):
+        return self.transData
+
+    @data_transform.setter
+    def data_transform(self, value):
+        self.transData = value
+
     def get_xaxis_transform(self, which='grid'):
         """
         Get the transformation used for drawing x-axis labels, ticks
