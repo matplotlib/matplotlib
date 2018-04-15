@@ -1204,25 +1204,49 @@ def twiny(ax=None):
 
 
 def subplots_adjust(left=None, bottom=None, right=None, top=None,
-                    wspace=None, hspace=None):
+                    wspace=None, hspace=None, rc_default=False):
     """
-    Tune the subplot layout.
+    Tune the subplots layout by updating the subplots parameters and
+    the subplot locations.
 
-    The parameter meanings (and suggested defaults) are::
+    All dimensions are fractions of the figure width or height.
 
-      left  = 0.125  # the left side of the subplots of the figure
-      right = 0.9    # the right side of the subplots of the figure
-      bottom = 0.1   # the bottom of the subplots of the figure
-      top = 0.9      # the top of the subplots of the figure
-      wspace = 0.2   # the amount of width reserved for space between subplots,
-                     # expressed as a fraction of the average axis width
-      hspace = 0.2   # the amount of height reserved for space between subplots,
-                     # expressed as a fraction of the average axis height
+    Parameters
+    ----------
+    left : float, optional
+        The left side of the subplots of the figure.
 
-    The actual defaults are controlled by the rc file
+    right : float, optional
+        The right side of the subplots of the figure.
+
+    bottom : float, optional
+        The bottom of the subplots of the figure.
+
+    top : float, optional
+        The top of the subplots of the figure.
+
+    wspace : float, optional
+        The amount of width reserved for space between subplots,
+        expressed as a fraction of the average axis width.
+
+    hspace : float, optional
+        The amount of height reserved for space between subplots,
+        expressed as a fraction of the average axis height.
+
+    rc_default : bool, optional
+        Determine the defaults. *False*, the default, and the values
+        are unchanged. *True* and the values are taken from
+        :rc:`figure.subplot.*`
+
+
+    Notes
+    -----
+    The subplots parameters are stored in the `~.Figure` attribute
+    ``subplotpars`` as a `~.SubplotParams` object.
     """
+
     fig = gcf()
-    fig.subplots_adjust(left, bottom, right, top, wspace, hspace)
+    fig.subplots_adjust(left, bottom, right, top, wspace, hspace, rc_default)
 
 
 def subplot_tool(targetfig=None):

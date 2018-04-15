@@ -173,77 +173,82 @@ class SubplotParams(object):
                  wspace=None, hspace=None):
         """
         All dimensions are fractions of the figure width or height.
-        Defaults are given by :rc:`figure.subplot.[name]`.
+        Defaults are given by :rc:`figure.subplot.*`.
 
         Parameters
         ----------
-        left : float
+        left : float, optional
             The left side of the subplots of the figure.
 
-        right : float
+        right : float, optional
             The right side of the subplots of the figure.
 
-        bottom : float
+        bottom : float, optional
             The bottom of the subplots of the figure.
 
-        top : float
+        top : float, optional
             The top of the subplots of the figure.
 
-        wspace : float
+        wspace : float, optional
             The amount of width reserved for space between subplots,
             expressed as a fraction of the average axis width.
 
-        hspace : float
+        hspace : float, optional
             The amount of height reserved for space between subplots,
             expressed as a fraction of the average axis height.
         """
         self.validate = True
         self.update(left, bottom, right, top, wspace, hspace)
 
+    def __repr__(self):
+        return ("SubplotParams(left={}, bottom={}, right={}, top={}, "
+                "wspace={}, hspace={})").format(
+                    self.left, self.bottom, self.right, self.top,
+                    self.wspace, self.hspace)
+
     def update(self, left=None, bottom=None, right=None, top=None,
-               wspace=None, hspace=None):
+               wspace=None, hspace=None, rc_default=False):
         """
-        Update the dimensions of the passed parameters. *None* means unchanged.
+        Update the dimensions of the passed parameters. *None* means
+        unchanged if the attribute is set and *rc_default* is *False*, and
+        :rc:`figure.subplot.*` otherwise.
         """
-        thisleft = getattr(self, 'left', None)
-        thisright = getattr(self, 'right', None)
-        thistop = getattr(self, 'top', None)
-        thisbottom = getattr(self, 'bottom', None)
-        thiswspace = getattr(self, 'wspace', None)
-        thishspace = getattr(self, 'hspace', None)
 
-        self._update_this('left', left)
-        self._update_this('right', right)
-        self._update_this('bottom', bottom)
-        self._update_this('top', top)
-        self._update_this('wspace', wspace)
-        self._update_this('hspace', hspace)
+        varDict = dict(left=left, bottom=bottom, right=right, top=top,
+                       wspace=wspace, hspace=hspace)
+        oldVarDict = {key: getattr(self, key, None) for key in varDict.keys()}
 
-        def reset():
-            self.left = thisleft
-            self.right = thisright
-            self.top = thistop
-            self.bottom = thisbottom
-            self.wspace = thiswspace
-            self.hspace = thishspace
-
+        self._update(varDict, rc_default)
         if self.validate:
             if self.left >= self.right:
-                reset()
+                self._update(oldVarDict)
                 raise ValueError('left cannot be >= right')
 
             if self.bottom >= self.top:
-                reset()
+                self._update(oldVarDict)
                 raise ValueError('bottom cannot be >= top')
 
-    def _update_this(self, s, val):
-        if val is None:
-            val = getattr(self, s, None)
-            if val is None:
-                key = 'figure.subplot.' + s
-                val = rcParams[key]
+    def _update(self, varDict, rc_default=None):
+        for att, value in varDict.items():
+            if value is None:
+                if not rc_default:
+                    value = getattr(self, att, None)
+                if value is None:
+                    key = 'figure.subplot.' + att
+                    value = rcParams[key]
 
-        setattr(self, s, val)
+            setattr(self, att, value)
+
+    def get_subplot_params(self):
+        """
+        Returns
+        -------
+        subplot_params : dictionary
+            A dictionary with the subplot parameters
+        """
+        subplot_params = self.__dict__.copy()
+        del subplot_params['validate']
+        return subplot_params
 
 
 class Figure(Artist):
@@ -1406,8 +1411,11 @@ default: 'top'
         """
         Clear the figure.
 
-        Set *keep_observers* to True if, for example,
-        a gui widget is tracking the axes in the figure.
+        Parameters
+        ----------
+        keep_observers : bool, optional
+            Set *keep_observers* to True if, for example,
+            a gui widget is tracking the axes in the figure.
         """
         self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry()
@@ -1426,6 +1434,7 @@ default: 'top'
         self.texts = []
         self.images = []
         self.legends = []
+        self.subplotpars.update(rc_default=True)
         if not keep_observers:
             self._axobservers = []
         self._suptitle = None
@@ -1915,13 +1924,48 @@ default: 'top'
         return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
-                        wspace=None, hspace=None):
+                        wspace=None, hspace=None, rc_default=False):
         """
-        Update the :class:`SubplotParams` with *kwargs* (defaulting to rc when
-        *None*) and update the subplot locations.
+        Tune the subplots layout by updating the subplots parameters and
+        the subplot locations.
 
+        All dimensions are fractions of the figure width or height.
+
+        Parameters
+        ----------
+        left : float, optional
+            The left side of the subplots of the figure.
+
+        right : float, optional
+            The right side of the subplots of the figure.
+
+        bottom : float, optional
+            The bottom of the subplots of the figure.
+
+        top : float, optional
+            The top of the subplots of the figure.
+
+        wspace : float, optional
+            The amount of width reserved for space between subplots,
+            expressed as a fraction of the average axis width.
+
+        hspace : float, optional
+            The amount of height reserved for space between subplots,
+            expressed as a fraction of the average axis height.
+
+        rc_default : bool, optional
+            Determine the defaults. *False*, the default, and the values
+            are unchanged. *True* and the values are taken from
+            :rc:`figure.subplot.*`
+
+        Notes
+        -----
+        The subplots parameters are stored in the `~.Figure` attribute
+        ``subplotpars`` as a `~.SubplotParams` object.
         """
-        self.subplotpars.update(left, bottom, right, top, wspace, hspace)
+
+        self.subplotpars.update(left, bottom, right, top, wspace,
+                                hspace, rc_default)
         for ax in self.axes:
             if not isinstance(ax, SubplotBase):
                 # Check if sharing a subplots axis
