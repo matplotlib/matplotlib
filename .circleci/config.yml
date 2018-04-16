@@ -52,19 +52,19 @@ pip-run:  &pip-install
   # Upgrade pip and setuptools and wheel to get as clean an install as possible
   name: Upgrade pip, setuptools, wheel
   command: |
-    pip install --upgrade --user pip
-    pip install --upgrade --user wheel
-    pip install --upgrade --user setuptools
+    python -mpip install --upgrade --user pip
+    python -mpip install --upgrade --user wheel
+    python -mpip install --upgrade --user setuptools
 
 deps-run: &deps-install
   name: Install Python dependencies
   command: |
-    pip install --user numpy${NUMPY_VERSION} codecov coverage
-    pip install --user -r doc-requirements.txt
+    python -mpip install --user numpy${NUMPY_VERSION} codecov coverage
+    python -mpip install --user -r doc-requirements.txt
 
 mpl-run: &mpl-install
   name: Install Matplotlib
-  command: pip install --user -ve .
+  command: python -mpip install --user -ve .
 
 doc-run: &doc-build
   name: Build documentation
@@ -131,7 +131,7 @@ jobs:
             NUMPY_VERSION: "==1.7.1"
       # Linkchecker only works with python 2.7 for the time being.
       # Linkchecker is currently broken with requests 2.10.0 so force an earlier version.
-      - run: pip install --user $PRE requests==2.9.2 linkchecker
+      - run: python -mpip install --user $PRE requests==2.9.2 linkchecker
       - run: *mpl-install
 
       - run: *doc-build
