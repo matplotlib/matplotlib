@@ -1414,7 +1414,7 @@ class Ellipse(Patch):
     A scale-free ellipse.
     """
     def __str__(self):
-        pars = (self.xy[0], self.xy[1],
+        pars = (self._center[0], self._center[1],
                 self.width, self.height, self.angle)
         fmt = "Ellipse(xy=(%s, %s), width=%s, height=%s, angle=%s)"
         return fmt % pars
@@ -1439,7 +1439,7 @@ class Ellipse(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        self.xy = xy
+        self._center = xy
         self.width, self.height = width, height
         self.angle = angle
         self._path = Path.unit_circle()
@@ -1452,8 +1452,8 @@ class Ellipse(Patch):
                  makes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
-        center = (self.convert_xunits(self.xy[0]),
-                  self.convert_yunits(self.xy[1]))
+        center = (self.convert_xunits(self._center[0]),
+                  self.convert_yunits(self._center[1]))
         width = self.convert_xunits(self.width)
         height = self.convert_yunits(self.height)
         self._patch_transform = transforms.Affine2D() \
@@ -1477,14 +1477,14 @@ class Ellipse(Patch):
 
         ACCEPTS: (x, y)
         """
-        self.xy = xy
+        self._center = xy
         self.stale = True
 
     def get_center(self):
         """
         Return the center of the ellipse
         """
-        return self.xy
+        return self._center
 
     center = property(get_center, set_center)
 
