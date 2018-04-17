@@ -6510,16 +6510,15 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         cmap : Colormap or str, optional
-            A :class:`.colors.Colormap` instance.  If not set, use rc
-            settings.
+            A `.colors.Colormap` instance.  If not set, use rc settings.
 
         norm : Normalize, optional
-            A :class:`.colors.Normalize` instance is used to
+            A `.colors.Normalize` instance is used to
             scale luminance data to ``[0, 1]``. If not set, defaults to
-            :class:`.colors.Normalize()`.
+            `.colors.Normalize()`.
 
         vmin/vmax : None or scalar, optional
-            Arguments passed to the :class:`~.colors.Normalize` instance.
+            Arguments passed to the `~.colors.Normalize` instance.
 
         alpha : ``0 <= scalar <= 1`` or ``None``, optional
             The alpha blending value.
@@ -6533,10 +6532,10 @@ class Axes(_AxesBase):
         - Currently ``hist2d`` calculates it's own axis limits, and any limits
           previously set are ignored.
         - Rendering the histogram with a logarithmic color scale is
-          accomplished by passing a :class:`.colors.LogNorm` instance to
-          the *norm* keyword argument. Likewise, power-law normalization
-          (similar in effect to gamma correction) can be accomplished with
-          :class:`.colors.PowerNorm`.
+          accomplished by passing a `.colors.LogNorm` instance to the *norm*
+          keyword argument. Likewise, power-law normalization (similar
+          in effect to gamma correction) can be accomplished with
+          `.colors.PowerNorm`.
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
