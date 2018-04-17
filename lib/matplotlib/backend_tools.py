@@ -14,11 +14,12 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 import time
 import warnings
 from weakref import WeakKeyDictionary
-
+import textwrap
 import numpy as np
 
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.table import Table
 import matplotlib.cbook as cbook
 
 
@@ -403,7 +404,7 @@ class ToolQuitAll(ToolBase):
 class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for toolmanager interaction"""
 
-    description = 'Enables all axes toolmanager'
+    description = 'Enable all axes toolmanager'
     default_keymap = rcParams['keymap.all_axes']
 
     def trigger(self, sender, event, data=None):
@@ -419,7 +420,7 @@ class ToolEnableAllNavigation(ToolBase):
 class ToolEnableNavigation(ToolBase):
     """Tool to enable a specific axes for toolmanager interaction"""
 
-    description = 'Enables one axes toolmanager'
+    description = 'Enable one axes toolmanager'
     default_keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
     def trigger(self, sender, event, data=None):
@@ -470,7 +471,7 @@ class _ToolGridBase(ToolBase):
 class ToolGrid(_ToolGridBase):
     """Tool to toggle the major grids of the figure"""
 
-    description = 'Toogle major grids'
+    description = 'Toggle major grids'
     default_keymap = rcParams['keymap.grid']
 
     def _get_next_grid_states(self, ax):
@@ -491,7 +492,7 @@ class ToolGrid(_ToolGridBase):
 class ToolMinorGrid(_ToolGridBase):
     """Tool to toggle the major and minor grids of the figure"""
 
-    description = 'Toogle major and minor grids'
+    description = 'Toggle major and minor grids'
     default_keymap = rcParams['keymap.grid_minor']
 
     def _get_next_grid_states(self, ax):
@@ -511,7 +512,7 @@ class ToolMinorGrid(_ToolGridBase):
 class ToolFullScreen(ToolToggleBase):
     """Tool to toggle full screen"""
 
-    description = 'Toogle Fullscreen mode'
+    description = 'Toggle fullscreen mode'
     default_keymap = rcParams['keymap.fullscreen']
 
     def enable(self, event):
@@ -541,7 +542,7 @@ class AxisScaleBase(ToolToggleBase):
 class ToolYScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the Y axis"""
 
-    description = 'Toogle Scale Y axis'
+    description = 'Toggle scale Y axis'
     default_keymap = rcParams['keymap.yscale']
 
     def set_scale(self, ax, scale):
@@ -551,7 +552,7 @@ class ToolYScale(AxisScaleBase):
 class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the X axis"""
 
-    description = 'Toogle Scale X axis'
+    description = 'Toggle scale X axis'
     default_keymap = rcParams['keymap.xscale']
 
     def set_scale(self, ax, scale):
@@ -1020,6 +1021,75 @@ class ToolPan(ZoomPanBase):
         self.toolmanager.canvas.draw_idle()
 
 
+class HelpTool(ToolToggleBase):
+    description = 'Print tool list, shortcuts and description'
+    default_keymap = rcParams['keymap.help']
+    image = 'help.png'
+
+    def __init__(self, *args):
+        ToolToggleBase.__init__(self, *args)
+        self.text_axes = None
+
+    def enable(self, *args):
+        # Using custom axes label to prevent reuse of old axes
+        # https://github.com/matplotlib/matplotlib/issues/9024
+        if not self.text_axes:
+            self.text_axes = self.figure.add_axes((0, 0, 1, 1),
+                                                  label='help_tool_axes')
+        self.text_axes.set_visible(True)
+        self.text_axes.clear()
+
+        table = Table(self.text_axes, bbox=[0, 0, 1, 1])
+        table.edges = 'B'
+        self.text_axes.add_table(table)
+        chars_in_width = self._find_chars_in_width(table.FONTSIZE)
+        col_chars_width = int(chars_in_width / 6)
+        content = self._get_content(1 * col_chars_width - 2,
+                                    2 * col_chars_width - 2,
+                                    3 * col_chars_width - 2)
+        for i, v in enumerate(content):
+            h = v[0]
+            table.add_cell(i, 0, text=v[1], width=1, height=h, loc='left',
+                           fontproperties='monospace')
+            table.add_cell(i, 1, text=v[2], width=2, height=h, loc='left',
+                           fontproperties='monospace')
+            table.add_cell(i, 2, text=v[3], width=3, height=h, loc='left',
+                           fontproperties='monospace')
+        table.auto_set_font_size(True)
+        self.figure.canvas.draw_idle()
+
+    def _find_chars_in_width(self, fontsize):
+        """Number of characters in figure width approx"""
+        # https://web.archive.org/web/20010717031241/plainlanguagenetwork.org/type/utbo211.htmhttps://web.archive.org/web/20010717031241/plainlanguagenetwork.org/type/utbo211.htm
+        # Approximately width = 60% of height for monospace fonts
+        charwidth = 0.6 * fontsize / 72.0 * self.figure.dpi
+        figwidth = self.figure.get_figwidth() * self.figure.dpi
+        return figwidth / charwidth
+
+    def disable(self, *args):
+        self.text_axes.set_visible(False)
+        self.figure.canvas.draw_idle()
+
+    def _get_content(self, w0, w1, w2):
+        rows = [(1, 'NAME', 'KEYS', 'DESCRIPTION')]
+        tools = self.toolmanager.tools
+        for name in sorted(tools):
+            if not tools[name].description:
+                continue
+
+            keys = ', '.join(sorted(self.toolmanager.get_tool_keymap(name)))
+            name_lines = textwrap.wrap(name, w0)
+            keys_lines = textwrap.wrap(keys, w1)
+            desc_lines = textwrap.wrap(tools[name].description, w2)
+            # Height of the row is the maximum number of lines
+            height = max(len(name_lines), len(keys_lines), len(desc_lines))
+            rows.append((height,
+                         '\n'.join(name_lines),
+                         '\n'.join(keys_lines),
+                         '\n'.join(desc_lines)))
+        return rows
+
+
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'zoom': ToolZoom, 'pan': ToolPan,
                  'subplots': 'ToolConfigureSubplots',
@@ -1037,12 +1107,13 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  _views_positions: ToolViewsPositions,
                  'cursor': 'ToolSetCursor',
                  'rubberband': 'ToolRubberband',
+                 'help': HelpTool
                  }
 """Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                          ['zoompan', ['pan', 'zoom', 'subplots']],
-                         ['io', ['save']]]
+                         ['io', ['save', 'help']]]
 """Default tools in the toolbar"""
 
 
