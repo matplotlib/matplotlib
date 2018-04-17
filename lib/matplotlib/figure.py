@@ -2241,20 +2241,18 @@ class Figure(Artist):
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
                      rect=None):
         """
-        Adjust subplot parameters to give specified padding.
+        Automatically adjust subplot parameters to give specified padding.
 
         Parameters
         ----------
         pad : float
-            padding between the figure edge and the edges of subplots,
-            as a fraction of the font-size.
-
+            Padding between the figure edge and the edges of subplots,
+            as a fraction of the font size.
         h_pad, w_pad : float, optional
-            padding (height/width) between edges of adjacent subplots.
-            Defaults to `pad_inches`.
-
+            Padding (height/width) between edges of adjacent subplots,
+            as a fraction of the font size.  Defaults to *pad*.
         rect : tuple (left, bottom, right, top), optional
-            a rectangle (left, bottom, right, top) in the normalized
+            A rectangle (left, bottom, right, top) in the normalized
             figure coordinate that the whole subplots area (including
             labels) will fit into. Default is (0, 0, 1, 1).
         """
