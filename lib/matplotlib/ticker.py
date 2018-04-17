@@ -2413,25 +2413,25 @@ class LogitLocator(Locator):
         # major ticks
         if not self.minor:
             ticklocs = []
-            if (decade_min <= -1):
+            if decade_min <= -1:
                 expo = np.arange(decade_min, min(0, decade_max + 1))
                 ticklocs.extend(list(10**expo))
-            if (decade_min <= 0) and (decade_max >= 0):
+            if decade_min <= 0 <= decade_max:
                 ticklocs.append(0.5)
-            if (decade_max >= 1):
+            if decade_max >= 1:
                 expo = -np.arange(max(1, decade_min), decade_max + 1)
                 ticklocs.extend(list(1 - 10**expo))
 
         # minor ticks
         else:
             ticklocs = []
-            if (decade_min <= -2):
+            if decade_min <= -2:
                 expo = np.arange(decade_min, min(-1, decade_max))
                 newticks = np.outer(np.arange(2, 10), 10**expo).ravel()
                 ticklocs.extend(list(newticks))
-            if (decade_min <= 0) and (decade_max >= 0):
+            if decade_min <= 0 <= decade_max:
                 ticklocs.extend([0.2, 0.3, 0.4, 0.6, 0.7, 0.8])
-            if (decade_max >= 2):
+            if decade_max >= 2:
                 expo = -np.arange(max(2, decade_min), decade_max + 1)
                 newticks = 1 - np.outer(np.arange(2, 10), 10**expo).ravel()
                 ticklocs.extend(list(newticks))

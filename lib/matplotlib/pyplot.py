@@ -501,7 +501,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     if figManager is None:
         max_open_warning = rcParams['figure.max_open_warning']
 
-        if (max_open_warning >= 1 and len(allnums) >= max_open_warning):
+        if len(allnums) >= max_open_warning >= 1:
             warnings.warn(
                 "More than %d figures have been opened. Figures "
                 "created through the pyplot interface "
@@ -1256,15 +1256,15 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
     Parameters
     ----------
     pad : float
-        padding between the figure edge and the edges of subplots, as a fraction of the font-size.
-    h_pad, w_pad : float
-        padding (height/width) between edges of adjacent subplots.
-        Defaults to `pad_inches`.
-    rect : if rect is given, it is interpreted as a rectangle
-        (left, bottom, right, top) in the normalized figure
-        coordinate that the whole subplots area (including
+        Padding between the figure edge and the edges of subplots,
+        as a fraction of the font size.
+    h_pad, w_pad : float, optional
+        Padding (height/width) between edges of adjacent subplots,
+        as a fraction of the font size.  Defaults to *pad*.
+    rect : tuple (left, bottom, right, top), optional
+        A rectangle (left, bottom, right, top) in the normalized
+        figure coordinate that the whole subplots area (including
         labels) will fit into. Default is (0, 0, 1, 1).
-
     """
     fig = gcf()
     fig.tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)

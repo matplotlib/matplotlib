@@ -5170,9 +5170,9 @@ class Axes(_AxesBase):
         shape : scalars (columns, rows), optional, default: None
             For raw buffer images
 
-        filternorm : scalar, optional, default: 1
-            A parameter for the antigrain image resize filter.  From the
-            antigrain documentation, if `filternorm` = 1, the filter
+        filternorm : bool, optional, default: True
+            A parameter for the antigrain image resize filter (see the
+            antigrain documentation).  If *filternorm* is set, the filter
             normalizes integer values and corrects the rounding errors. It
             doesn't do anything with the source floating point values, it
             corrects only integers according to the rule of 1.0 which means
@@ -6505,7 +6505,7 @@ class Axes(_AxesBase):
             The bin edges along the x axis.
         yedges : 1D array
             The bin edges along the y axis.
-        image : AxesImage
+        image : `~.matplotlib.collections.QuadMesh`
 
         Other Parameters
         ----------------
@@ -6545,7 +6545,7 @@ class Axes(_AxesBase):
         if cmax is not None:
             h[h > cmax] = None
 
-        pc = self.pcolorfast(xedges, yedges, h.T, **kwargs)
+        pc = self.pcolormesh(xedges, yedges, h.T, **kwargs)
         self.set_xlim(xedges[0], xedges[-1])
         self.set_ylim(yedges[0], yedges[-1])
 
@@ -7390,14 +7390,14 @@ class Axes(_AxesBase):
 
     def matshow(self, Z, **kwargs):
         """
-        Plot a matrix or array as an image.
+        Plot the values of a 2D matrix or array as color-coded image.
 
         The matrix will be shown the way it would be printed, with the first
         row at the top.  Row and column numbering is zero-based.
 
         Parameters
         ----------
-        Z : array_like shape (n, m)
+        Z : array-like(N, M)
             The matrix to be displayed.
 
         Returns
@@ -7407,12 +7407,21 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs : `~matplotlib.axes.Axes.imshow` arguments
-            Sets `origin` to 'upper', 'interpolation' to 'nearest' and
-            'aspect' to equal.
 
-        See also
+        See Also
         --------
-        imshow : plot an image
+        imshow : More general function to plot data on a 2D regular raster.
+
+        Notes
+        -----
+        This is just a convenience function wrapping `.imshow` to set useful
+        defaults for a displaying a matrix. In particular:
+
+        - Set ``origin='upper'``.
+        - Set ``interpolation='nearest'``.
+        - Set ``aspect='equal'``.
+        - Ticks are placed to the left and above.
+        - Ticks are formatted to show integer indices.
 
         """
         Z = np.asanyarray(Z)

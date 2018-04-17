@@ -1000,7 +1000,7 @@ class StixFonts(UnicodeFonts):
                 else:
                     lo = mid + 1
 
-            if uniindex >= range[0] and uniindex <= range[1]:
+            if range[0] <= uniindex <= range[1]:
                 uniindex = uniindex - range[0] + range[3]
                 fontname = range[2]
             elif not doing_sans_conversion:

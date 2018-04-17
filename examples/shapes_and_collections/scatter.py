@@ -20,3 +20,16 @@ area = (30 * np.random.rand(N))**2  # 0 to 15 point radii
 
 plt.scatter(x, y, s=area, c=colors, alpha=0.5)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+import matplotlib
+
+matplotlib.axes.Axes.scatter
+matplotlib.pyplot.scatter

@@ -489,7 +489,7 @@ class GraphicsContextWx(GraphicsContextBase):
         w = float(w)
         DEBUG_MSG("set_linewidth()", 1, self)
         self.select()
-        if w > 0 and w < 1:
+        if 0 < w < 1:
             w = 1
         GraphicsContextBase.set_linewidth(self, w)
         lw = int(self.renderer.points_to_pixels(self._linewidth))

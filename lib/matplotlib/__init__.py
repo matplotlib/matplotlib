@@ -121,7 +121,6 @@ import atexit
 from collections import MutableMapping
 import contextlib
 import distutils.version
-import distutils.sysconfig
 import functools
 import io
 import importlib
@@ -395,6 +394,11 @@ class Verbose(object):
     def ge(self, level):
         'return true if self.level is >= level'
         return self.vald[self.level] >= self.vald[level]
+
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    verbose = Verbose()
 
 
 def _wrap(fmt, func, level=logging.DEBUG, always=True):

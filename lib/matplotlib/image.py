@@ -188,7 +188,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  norm=None,
                  interpolation=None,
                  origin=None,
-                 filternorm=1,
+                 filternorm=True,
                  filterrad=4.0,
                  resample=False,
                  **kwargs
@@ -424,7 +424,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                                 _interpd_[self.get_interpolation()],
                                 self.get_resample(), 1.0,
                                 self.get_filternorm(),
-                                self.get_filterrad() or 0.0)
+                                self.get_filterrad())
 
                 # we are done with A_scaled now, remove from namespace
                 # to be sure!
@@ -459,7 +459,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                                 _interpd_[self.get_interpolation()],
                                 True, 1,
                                 self.get_filternorm(),
-                                self.get_filterrad() or 0.0)
+                                self.get_filterrad())
                 # we are done with the mask, delete from namespace to be sure!
                 del mask
                 # Agg updates the out_mask in place.  If the pixel has
@@ -492,7 +492,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 _image.resample(
                     A, output, t, _interpd_[self.get_interpolation()],
                     self.get_resample(), alpha,
-                    self.get_filternorm(), self.get_filterrad() or 0.0)
+                    self.get_filternorm(), self.get_filterrad())
 
             # at this point output is either a 2D array of normed data
             # (of int or float)
@@ -735,20 +735,17 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_filternorm(self, filternorm):
         """
-        Set whether the resize filter norms the weights -- see
-        help for imshow
+        Set whether the resize filter normalizes the weights.
 
-        ACCEPTS: 0 or 1
+        See help for `~.Axes.imshow`.
+
+        .. ACCEPTS: bool
         """
-        if filternorm:
-            self._filternorm = 1
-        else:
-            self._filternorm = 0
-
+        self._filternorm = bool(filternorm)
         self.stale = True
 
     def get_filternorm(self):
-        """Return the filternorm setting."""
+        """Return whether the resize filter normalizes the weights."""
         return self._filternorm
 
     def set_filterrad(self, filterrad):

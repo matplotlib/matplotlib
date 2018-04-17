@@ -88,21 +88,21 @@ def _handle_key(key):
     code = int(key[key.index('k') + 1:])
     value = chr(code)
     # letter keys
-    if code >= 65 and code <= 90:
+    if 65 <= code <= 90:
         if 'shift+' in key:
             key = key.replace('shift+', '')
         else:
             value = value.lower()
     # number keys
-    elif code >= 48 and code <= 57:
+    elif 48 <= code <= 57:
         if 'shift+' in key:
             value = ')!@#$%^&*('[int(value)]
             key = key.replace('shift+', '')
     # function keys
-    elif code >= 112 and code <= 123:
+    elif 112 <= code <= 123:
         value = 'f%s' % (code - 111)
     # number pad keys
-    elif code >= 96 and code <= 105:
+    elif 96 <= code <= 105:
         value = '%s' % (code - 96)
     # keys with shift alternatives
     elif code in _SHIFT_LUT and 'shift+' in key:

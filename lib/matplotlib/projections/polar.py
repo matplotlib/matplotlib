@@ -1344,7 +1344,7 @@ class PolarAxes(Axes):
         if button == 1:
             epsilon = np.pi / 45.0
             t, r = self.transData.inverted().transform_point((x, y))
-            if t >= angle - epsilon and t <= angle + epsilon:
+            if angle - epsilon <= t <= angle + epsilon:
                 mode = 'drag_r_labels'
         elif button == 3:
             mode = 'zoom'

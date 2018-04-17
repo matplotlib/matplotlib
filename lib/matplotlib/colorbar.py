@@ -1286,7 +1286,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     # transform each of the axes in parents using the new transform
     for ax in parents:
-        new_posn = shrinking_trans.transform(ax.get_position())
+        new_posn = shrinking_trans.transform(ax.get_position(original=True))
         new_posn = mtransforms.Bbox(new_posn)
         ax._set_position(new_posn)
         if parent_anchor is not False:

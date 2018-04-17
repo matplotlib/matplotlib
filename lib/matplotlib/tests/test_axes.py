@@ -22,7 +22,8 @@ import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import (
+    assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.cbook import (
     IgnoredKeywordWarning, MatplotlibDeprecationWarning)
 
@@ -1646,7 +1647,8 @@ def test_contour_colorbar():
     cbar.add_lines(cs2, erase=False)
 
 
-@image_comparison(baseline_images=['hist2d', 'hist2d'])
+@image_comparison(baseline_images=['hist2d', 'hist2d'],
+        remove_text=True, style='mpl20')
 def test_hist2d():
     np.random.seed(0)
     # make it not symmetric in case we switch x and y axis
@@ -1654,16 +1656,17 @@ def test_hist2d():
     y = np.random.randn(100)-2
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist2d(x, y, bins=10)
+    ax.hist2d(x, y, bins=10, rasterized=True)
 
     # Reuse testcase from above for a labeled data test
     data = {"x": x, "y": y}
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist2d("x", "y", bins=10, data=data)
+    ax.hist2d("x", "y", bins=10, data=data, rasterized=True)
 
 
-@image_comparison(baseline_images=['hist2d_transpose'])
+@image_comparison(baseline_images=['hist2d_transpose'],
+        remove_text=True, style='mpl20')
 def test_hist2d_transpose():
     np.random.seed(0)
     # make sure the output from np.histogram is transposed before
@@ -1672,7 +1675,7 @@ def test_hist2d_transpose():
     y = np.random.randn(100)-2
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist2d(x, y, bins=10)
+    ax.hist2d(x, y, bins=10, rasterized=True)
 
 
 @image_comparison(baseline_images=['scatter', 'scatter'])
@@ -4938,6 +4941,12 @@ def test_square_plot():
     xlim, ylim = ax.get_xlim(), ax.get_ylim()
     assert np.diff(xlim) == np.diff(ylim)
     assert ax.get_aspect() == 'equal'
+    assert_array_almost_equal(
+            ax.get_position(original=True).extents,
+            np.array((0.125, 0.1, 0.9, 0.9)))
+    assert_array_almost_equal(
+        ax.get_position(original=False).extents,
+        np.array((0.2125, 0.1, 0.8125, 0.9)))
 
 
 def test_no_None():
