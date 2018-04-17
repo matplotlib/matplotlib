@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 A wx API adapter to hide differences between wxPython classic and phoenix.
 
