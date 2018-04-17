@@ -77,19 +77,13 @@ def get_axall_tightbbox(ax, renderer):
 
 
 def in_same_column(colnum0min, colnum0max, colnumCmin, colnumCmax):
-    if colnum0min >= colnumCmin and colnum0min <= colnumCmax:
-        return True
-    if colnum0max >= colnumCmin and colnum0max <= colnumCmax:
-        return True
-    return False
+    return (colnumCmin <= colnum0min <= colnumCmax
+            or colnumCmin <= colnum0max <= colnumCmax)
 
 
 def in_same_row(rownum0min, rownum0max, rownumCmin, rownumCmax):
-    if rownum0min >= rownumCmin and rownum0min <= rownumCmax:
-        return True
-    if rownum0max >= rownumCmin and rownum0max <= rownumCmax:
-        return True
-    return False
+    return (rownumCmin <= rownum0min <= rownumCmax
+            or rownumCmin <= rownum0max <= rownumCmax)
 
 
 ######################################################
