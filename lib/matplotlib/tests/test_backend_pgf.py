@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 import shutil
 import subprocess
+from tempfile import TemporaryDirectory
 
 import numpy as np
 import pytest
@@ -15,23 +17,23 @@ baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
 
 def check_for(texsystem):
-    header = """
-    \\documentclass{minimal}
-    \\usepackage{pgf}
-    \\begin{document}
-    \\typeout{pgfversion=\\pgfversion}
-    \\makeatletter
-    \\@@end
-    """
-    try:
-        latex = subprocess.Popen([str(texsystem), "-halt-on-error"],
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE)
-        stdout, stderr = latex.communicate(header.encode("utf8"))
-    except OSError:
-        return False
-
-    return latex.returncode == 0
+    with TemporaryDirectory() as tmpdir:
+        tex_path = Path(tmpdir, "test.tex")
+        tex_path.write_text(r"""
+            \documentclass{minimal}
+            \usepackage{pgf}
+            \begin{document}
+            \typeout{pgfversion=\pgfversion}
+            \makeatletter
+            \@@end
+        """)
+        try:
+            subprocess.check_call(
+                [texsystem, "-halt-on-error", str(tex_path)], cwd=tmpdir,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except (OSError, subprocess.CalledProcessError):
+            return False
+        return True
 
 
 needs_xelatex = pytest.mark.skipif(not check_for('xelatex'),
@@ -97,7 +99,6 @@ def test_xelatex():
 @image_comparison(baseline_images=['pgf_pdflatex'], extensions=['pdf'],
                   style='default')
 def test_pdflatex():
-    import os
     if os.environ.get('APPVEYOR', False):
         pytest.xfail("pdflatex test does not work on appveyor due to missing "
                      "LaTeX fonts")
