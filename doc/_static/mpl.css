@@ -1010,6 +1010,24 @@ p.sphx-glr-signature a.reference.external {
     font-weight: 400;
 }
 
+.viewcode-link {
+    float: right;
+}
+
+.viewcode-back {
+    float: right;
+    font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
+}
+
+div.viewcode-block:target {
+    margin: -1px -13px;
+    padding: 0 10px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background-color: #f4debf;
+
+}
+
 .sidebar-announcement {
     border: 1px solid #11557C;
     background: #eff9ff;
