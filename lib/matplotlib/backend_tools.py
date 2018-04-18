@@ -1026,20 +1026,14 @@ class ToolHelpBase(ToolBase):
     default_keymap = rcParams['keymap.help']
     image = 'help.png'
 
-
     @staticmethod
-    def format_shortcut(keysequence):
+    def format_shortcut(key_sequence):
         """
         Converts a shortcut string from the notation used in rc config to the
         standard notation for displaying shortcuts, e.g. 'ctrl+a' -> 'Ctrl+A'.
         """
-        def repl(match):
-            s = match.group(0)
-            return 'Shift+' + s if len(
-                s) == 1 and s.isupper() else s.capitalize()
-        if len(keysequence) == 1:
-            return keysequence  # do not modify single characters
-        return re.sub(r"\w{2,}|(?<=\+)\w", repl, keysequence)
+        return (key_sequence if len(key_sequence) == 1 else
+                re.sub(r"\+[A-Z]", r"+Shift\g<0>", key_sequence).title())
 
     def _format_tool_keymap(self, name):
         keymaps = self.toolmanager.get_tool_keymap(name)
