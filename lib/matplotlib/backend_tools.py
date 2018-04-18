@@ -1026,13 +1026,24 @@ class ToolHelpBase(ToolBase):
     default_keymap = rcParams['keymap.help']
     image = 'help.png'
 
+
+    @staticmethod
+    def format_shortcut(keysequence):
+        """
+        Converts a shortcut string from the notation used in rc config to the
+        standard notation for displaying shortcuts, e.g. 'ctrl+a' -> 'Ctrl+A'.
+        """
+        def repl(match):
+            s = match.group(0)
+            return 'Shift+' + s if len(
+                s) == 1 and s.isupper() else s.capitalize()
+        if len(keysequence) == 1:
+            return keysequence  # do not modify single characters
+        return re.sub(r"\w{2,}|(?<=\+)\w", repl, keysequence)
+
     def _format_tool_keymap(self, name):
         keymaps = self.toolmanager.get_tool_keymap(name)
-        # Capitalize "ctrl+a" -> "Ctrl+A" but leave "a" as is.
-        return ", ".join(re.sub(r"\w{2,}|(?<=\+)\w",
-                                lambda m: m.group(0).capitalize(),
-                                keymap)
-                         for keymap in keymaps)
+        return ", ".join(self.format_shortcut(keymap) for keymap in keymaps)
 
     def _get_help_text(self):
         entries = []
@@ -1053,7 +1064,8 @@ class ToolHelpBase(ToolBase):
                 continue
             rows.append(fmt.format(
                 name, self._format_tool_keymap(name), tool.description))
-        return ("<table><thead>" + rows[0] + "</thead>"
+        return ("<style>td {padding: 0px 4px}</style>"
+                "<table><thead>" + rows[0] + "</thead>"
                 "<tbody>".join(rows[1:]) + "</tbody></table>")
 
 
