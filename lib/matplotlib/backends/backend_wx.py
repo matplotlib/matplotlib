@@ -1826,9 +1826,53 @@ else:
             self._rect = None
 
 
+class _TableDialog(wx.Dialog):
+    def __init__(self, parent, help, title="Help"):
+        wx.Dialog.__init__(self, parent, title=title,
+                           style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        grid_sizer = wx.FlexGridSizer(0, 3, 8, 6)
+        # create and add the entries
+        widths = [100,140, 300]
+        bold = self.GetFont().MakeBold()
+        for r,row in enumerate(help):
+            for (col,width) in zip(row, widths):
+                label = wx.StaticText(self, label=col)
+                if r==0:
+                    label.SetFont(bold)
+                label.Wrap(width)
+                grid_sizer.Add(label, 0, 0, 0)
+        # finalize layout, create button
+        sizer.Add(grid_sizer, 0, wx.ALL, 6)
+        OK = wx.Button(self, wx.ID_OK)
+        sizer.Add(OK, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 8)
+        self.SetSizer(sizer)
+        sizer.Fit(self)
+        self.Layout()
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+
+    def OnClose(self, evt):
+        self.DestroyLater()
+        evt.Skip()
+
+
+class HelpWx(backend_tools.ToolHelpBase):
+    def trigger(self, *args):
+        wx.MessageBox(self._get_help_text().replace("\t", "        "),
+                      "Help", style=wx.OK|wx.CENTRE,
+                      parent=self.figure.canvas.GetTopLevelParent())
+    def trigger(self, *args):
+        help = [("Action","Shortcuts", "Description")]
+        help += self._get_help_entries()
+        dlg = _TableDialog(self.figure.canvas.GetTopLevelParent(), help)
+        dlg.Show()
+
+
 backend_tools.ToolSaveFigure = SaveFigureWx
 backend_tools.ToolSetCursor = SetCursorWx
 backend_tools.ToolRubberband = RubberbandWx
+backend_tools.ToolHelp = HelpWx
 
 
 # < Additions for printing support: Matt Newville
