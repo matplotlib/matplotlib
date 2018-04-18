@@ -19,7 +19,11 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``,
 - ``font_manager.TempCache``,
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
-- ``testing.ImageComparisonTest``,
+- ``testing.compare.ImageComparisonTest``, ``testing.compare.compare_float``,
+- ``testing.decorators.skip_if_command_unavailable``.
+- ``FigureCanvasQT.keyAutoRepeat`` (directly check
+  ``event.guiEvent.isAutoRepeat()`` in the event handler to decide whether to
+  handle autorepeated key presses).
 - ``FigureCanvasWx.macros``,
 - ``_ImageBase.iterpnames``, use the ``interpolation_names`` property instead.
   (this affects classes that inherit from ``_ImageBase`` including

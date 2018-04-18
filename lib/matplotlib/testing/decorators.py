@@ -434,39 +434,16 @@ def image_comparison(baseline_images, extensions=None, tol=0,
 def _image_directories(func):
     """
     Compute the baseline and result image directories for testing *func*.
-    Create the result directory if it doesn't exist.
+
+    For test module ``foo.bar.test_baz``, the baseline directory is at
+    ``foo/bar/baseline_images/test_baz`` and the result directory at
+    ``$(pwd)/result_images/test_baz``.  The result directory is created if it
+    doesn't exist.
     """
-    module_name = func.__module__
-    if module_name == '__main__':
-        # FIXME: this won't work for nested packages in matplotlib.tests
-        warnings.warn(
-            'Test module run as script. Guessing baseline image locations.')
-        module_path = Path(sys.argv[0]).resolve()
-        subdir = module_path.stem
-    else:
-        module_path = Path(sys.modules[func.__module__].__file__)
-        mods = module_name.split('.')
-        if len(mods) >= 3:
-            mods.pop(0)
-            # mods[0] will be the name of the package being tested (in
-            # most cases "matplotlib") However if this is a
-            # namespace package pip installed and run via the nose
-            # multiprocess plugin or as a specific test this may be
-            # missing. See https://github.com/matplotlib/matplotlib/issues/3314
-        if mods.pop(0) != 'tests':
-            warnings.warn(
-                "Module {!r} does not live in a parent module named 'tests'. "
-                "This is probably ok, but we may not be able to guess the "
-                "correct subdirectory containing the baseline images. If "
-                "things go wrong please make sure that there is a parent "
-                "directory named 'tests' and that it contains a __init__.py "
-                "file (can be empty).".format(module_name))
-        subdir = os.path.join(*mods)
-
-    baseline_dir = module_path.parent / 'baseline_images' / subdir
-    result_dir = Path().resolve() / 'result_images' / subdir
+    module_path = Path(sys.modules[func.__module__].__file__)
+    baseline_dir = module_path.parent / "baseline_images" / module_path.stem
+    result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
-
     return str(baseline_dir), str(result_dir)
 
 
@@ -489,6 +466,7 @@ def switch_backend(backend):
     return switch_backend_decorator
 
 
+@cbook.deprecated("3.0")
 def skip_if_command_unavailable(cmd):
     """
     skips a test if a command is unavailable.
