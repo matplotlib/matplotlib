@@ -145,7 +145,7 @@ def pdfRepr(obj):
     elif isinstance(obj, (float, np.floating)):
         if not np.isfinite(obj):
             raise ValueError("Can only output finite numbers in PDF")
-        r = ("%.10f" % obj).encode('ascii')
+        r = b"%.10f" % obj
         return r.rstrip(b'0').rstrip(b'.')
 
     # Booleans. Needs to be tested before integers since
@@ -155,7 +155,7 @@ def pdfRepr(obj):
 
     # Integers are written as such.
     elif isinstance(obj, (int, np.integer)):
-        return ("%d" % obj).encode('ascii')
+        return b"%d" % obj
 
     # Unicode strings are encoded in UTF-16BE with byte-order mark.
     elif isinstance(obj, str):
@@ -236,11 +236,11 @@ class Reference(object):
         return "<Reference %d>" % self.id
 
     def pdfRepr(self):
-        return ("%d 0 R" % self.id).encode('ascii')
+        return b"%d 0 R" % self.id
 
     def write(self, contents, file):
         write = file.write
-        write(("%d 0 obj\n" % self.id).encode('ascii'))
+        write(b"%d 0 obj\n" % self.id)
         write(pdfRepr(contents))
         write(b"\nendobj\n")
 
@@ -378,7 +378,7 @@ class Stream(object):
 
     def _writeHeader(self):
         write = self.file.write
-        write(("%d 0 obj\n" % self.id).encode('ascii'))
+        write(b"%d 0 obj\n" % self.id)
         dict = self.extra
         dict['Length'] = self.len
         if rcParams['pdf.compression']:
@@ -858,7 +858,7 @@ class PdfFile(object):
             os.path.splitext(os.path.basename(filename))[0],
             symbol_name)
 
-    _identityToUnicodeCMap = """/CIDInit /ProcSet findresource begin
+    _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
 12 dict begin
 begincmap
 /CIDSystemInfo
@@ -1096,18 +1096,17 @@ end"""
             unicode_bfrange = []
             for start, end in unicode_groups:
                 unicode_bfrange.append(
-                    "<%04x> <%04x> [%s]" %
+                    b"<%04x> <%04x> [%s]" %
                     (start, end,
-                     " ".join(["<%04x>" % x for x in range(start, end+1)])))
+                     b" ".join(b"<%04x>" % x for x in range(start, end+1))))
             unicode_cmap = (self._identityToUnicodeCMap %
-                            (len(unicode_groups),
-                             "\n".join(unicode_bfrange))).encode('ascii')
+                            (len(unicode_groups), b"\n".join(unicode_bfrange)))
 
             # CIDToGIDMap stream
             cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
             self.beginStream(cidToGidMapObject.id,
                              None,
-                             {'Length':  len(cid_to_gid_map)})
+                             {'Length': len(cid_to_gid_map)})
             self.currentstream.write(cid_to_gid_map)
             self.endStream()
 
@@ -1529,7 +1528,7 @@ end"""
         """Write out the xref table."""
 
         self.startxref = self.fh.tell() - self.tell_base
-        self.write(("xref\n0 %d\n" % self.nextObject).encode('ascii'))
+        self.write(b"xref\n0 %d\n" % self.nextObject)
         i = 0
         borken = False
         for offset, generation, name in self.xrefTable:
@@ -1538,12 +1537,9 @@ end"""
                       file=sys.stderr)
                 borken = True
             else:
-                if name == 'the zero object':
-                    key = "f"
-                else:
-                    key = "n"
-                text = "%010d %05d %s \n" % (offset, generation, key)
-                self.write(text.encode('ascii'))
+                key = b"f" if name == 'the zero object' else b"n"
+                text = b"%010d %05d %b \n" % (offset, generation, key)
+                self.write(text)
             i += 1
         if borken:
             raise AssertionError('Indirect object does not exist')
@@ -1588,8 +1584,7 @@ end"""
              'Root': self.rootObject,
              'Info': self.infoObject}))
         # Could add 'ID'
-        self.write(("\nstartxref\n%d\n%%%%EOF\n" %
-                    self.startxref).encode('ascii'))
+        self.write(b"\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
 
 
 class RendererPdf(RendererBase):
