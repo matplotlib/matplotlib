@@ -422,8 +422,9 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
 
 def save_diff_image(expected, actual, output):
-    expectedImage = _png.read_png(expected)
-    actualImage = _png.read_png(actual)
+    # Drop alpha channels, similarly to compare_images.
+    expectedImage = _png.read_png(expected)[..., :3]
+    actualImage = _png.read_png(actual)[..., :3]
     actualImage, expectedImage = crop_to_same(
         actual, actualImage, expected, expectedImage)
     expectedImage = np.array(expectedImage).astype(float)
