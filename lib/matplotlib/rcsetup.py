@@ -1420,6 +1420,7 @@ defaultParams = {
     'keymap.yscale':       [['l'], validate_stringlist],
     'keymap.xscale':       [['k', 'L'], validate_stringlist],
     'keymap.all_axes':     [['a'], validate_stringlist],
+    'keymap.help':         [['f1'], validate_stringlist],
 
     # sample data
     'examples.directory': ['', validate_string],

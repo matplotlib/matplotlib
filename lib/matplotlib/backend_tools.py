@@ -11,6 +11,7 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
     `matplotlib.backend_managers.ToolManager`
 """
 
+import re
 import time
 import warnings
 from weakref import WeakKeyDictionary
@@ -403,7 +404,7 @@ class ToolQuitAll(ToolBase):
 class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for toolmanager interaction"""
 
-    description = 'Enables all axes toolmanager'
+    description = 'Enable all axes toolmanager'
     default_keymap = rcParams['keymap.all_axes']
 
     def trigger(self, sender, event, data=None):
@@ -419,7 +420,7 @@ class ToolEnableAllNavigation(ToolBase):
 class ToolEnableNavigation(ToolBase):
     """Tool to enable a specific axes for toolmanager interaction"""
 
-    description = 'Enables one axes toolmanager'
+    description = 'Enable one axes toolmanager'
     default_keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
     def trigger(self, sender, event, data=None):
@@ -470,7 +471,7 @@ class _ToolGridBase(ToolBase):
 class ToolGrid(_ToolGridBase):
     """Tool to toggle the major grids of the figure"""
 
-    description = 'Toogle major grids'
+    description = 'Toggle major grids'
     default_keymap = rcParams['keymap.grid']
 
     def _get_next_grid_states(self, ax):
@@ -491,7 +492,7 @@ class ToolGrid(_ToolGridBase):
 class ToolMinorGrid(_ToolGridBase):
     """Tool to toggle the major and minor grids of the figure"""
 
-    description = 'Toogle major and minor grids'
+    description = 'Toggle major and minor grids'
     default_keymap = rcParams['keymap.grid_minor']
 
     def _get_next_grid_states(self, ax):
@@ -511,7 +512,7 @@ class ToolMinorGrid(_ToolGridBase):
 class ToolFullScreen(ToolToggleBase):
     """Tool to toggle full screen"""
 
-    description = 'Toogle Fullscreen mode'
+    description = 'Toggle fullscreen mode'
     default_keymap = rcParams['keymap.fullscreen']
 
     def enable(self, event):
@@ -541,7 +542,7 @@ class AxisScaleBase(ToolToggleBase):
 class ToolYScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the Y axis"""
 
-    description = 'Toogle Scale Y axis'
+    description = 'Toggle scale Y axis'
     default_keymap = rcParams['keymap.yscale']
 
     def set_scale(self, ax, scale):
@@ -551,7 +552,7 @@ class ToolYScale(AxisScaleBase):
 class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the X axis"""
 
-    description = 'Toogle Scale X axis'
+    description = 'Toggle scale X axis'
     default_keymap = rcParams['keymap.xscale']
 
     def set_scale(self, ax, scale):
@@ -1020,6 +1021,48 @@ class ToolPan(ZoomPanBase):
         self.toolmanager.canvas.draw_idle()
 
 
+class ToolHelpBase(ToolBase):
+    description = 'Print tool list, shortcuts and description'
+    default_keymap = rcParams['keymap.help']
+    image = 'help.png'
+
+    @staticmethod
+    def format_shortcut(key_sequence):
+        """
+        Converts a shortcut string from the notation used in rc config to the
+        standard notation for displaying shortcuts, e.g. 'ctrl+a' -> 'Ctrl+A'.
+        """
+        return (key_sequence if len(key_sequence) == 1 else
+                re.sub(r"\+[A-Z]", r"+Shift\g<0>", key_sequence).title())
+
+    def _format_tool_keymap(self, name):
+        keymaps = self.toolmanager.get_tool_keymap(name)
+        return ", ".join(self.format_shortcut(keymap) for keymap in keymaps)
+
+    def _get_help_text(self):
+        entries = []
+        for name, tool in sorted(self.toolmanager.tools.items()):
+            if not tool.description:
+                continue
+            entries.append(
+                "{}: {}\n\t{}".format(
+                    name, self._format_tool_keymap(name), tool.description))
+        return "\n".join(entries)
+
+    def _get_help_html(self):
+        fmt = "<tr><td>{}</td><td>{}</td><td>{}</td></tr>"
+        rows = [fmt.format(
+            "<b>Action</b>", "<b>Shortcuts</b>", "<b>Description</b>")]
+        for name, tool in sorted(self.toolmanager.tools.items()):
+            if not tool.description:
+                continue
+            rows.append(fmt.format(
+                name, self._format_tool_keymap(name), tool.description))
+        return ("<style>td {padding: 0px 4px}</style>"
+                "<table><thead>" + rows[0] + "</thead>"
+                "<tbody>".join(rows[1:]) + "</tbody></table>")
+
+
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'zoom': ToolZoom, 'pan': ToolPan,
                  'subplots': 'ToolConfigureSubplots',
@@ -1037,12 +1080,13 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  _views_positions: ToolViewsPositions,
                  'cursor': 'ToolSetCursor',
                  'rubberband': 'ToolRubberband',
+                 'help': 'ToolHelp',
                  }
 """Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                          ['zoompan', ['pan', 'zoom', 'subplots']],
-                         ['io', ['save']]]
+                         ['io', ['save', 'help']]]
 """Default tools in the toolbar"""
 
 

@@ -1064,10 +1064,16 @@ class RubberbandQt(backend_tools.RubberbandBase):
         self.canvas.drawRectangle(None)
 
 
+class HelpQt(backend_tools.ToolHelpBase):
+    def trigger(self, *args):
+        QtWidgets.QMessageBox.information(None, "Help", self._get_help_html())
+
+
 backend_tools.ToolSaveFigure = SaveFigureQt
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsQt
 backend_tools.ToolSetCursor = SetCursorQt
 backend_tools.ToolRubberband = RubberbandQt
+backend_tools.ToolHelp = HelpQt
 
 
 def error_msg_qt(msg, parent=None):
