@@ -41,13 +41,8 @@ colors = ['#1f77b4',
           '#17becf',
           '#1a55FF']
 
-# Create two different cyclers to use with axes.prop_cycle
-markevery_cycler = cycler(markevery=cases)
-color_cycler = cycler('color', colors)
-
-# Configure rcParams axes.prop_cycle with custom cycler
-custom_cycler = color_cycler + markevery_cycler
-mpl.rcParams['axes.prop_cycle'] = custom_cycler
+# Configure rcParams axes.prop_cycle to simultaneously cycle cases and colors.
+mpl.rcParams['axes.prop_cycle'] = cycler(markevery=cases, color=colors)
 
 # Create data points and offsets
 x = np.linspace(0, 2 * np.pi)
