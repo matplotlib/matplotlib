@@ -971,11 +971,18 @@ class HelpTk(backend_tools.ToolHelpBase):
         dialog.done = lambda num: dialog.frame.master.withdraw()
 
 
+class ToolCopyToClipboardTk(backend_tools.ToolCopyToClipboardBase):
+    def trigger(self, *args, **kwargs):
+        message = "Copy tool is not available for Tk backend"
+        self.toolmanager.message_event(message, self)
+
+
 backend_tools.ToolSaveFigure = SaveFigureTk
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsTk
 backend_tools.ToolSetCursor = SetCursorTk
 backend_tools.ToolRubberband = RubberbandTk
 backend_tools.ToolHelp = HelpTk
+backend_tools.ToolCopyToClipboard = ToolCopyToClipboardTk
 Toolbar = ToolbarTk
 
 
