@@ -1069,6 +1069,10 @@ class ToolCopyToClipboardBase(ToolBase):
     description = 'Copy the canvas figure to clipboard'
     default_keymap = rcParams['keymap.copy']
 
+    def trigger(self, *args, **kwargs):
+        message = "Copy tool is not available"
+        self.toolmanager.message_event(message, self)
+
 
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'zoom': ToolZoom, 'pan': ToolPan,

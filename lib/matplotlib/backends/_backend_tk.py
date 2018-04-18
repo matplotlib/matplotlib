@@ -972,9 +972,7 @@ class HelpTk(backend_tools.ToolHelpBase):
 
 
 class ToolCopyToClipboardTk(backend_tools.ToolCopyToClipboardBase):
-    def trigger(self, *args, **kwargs):
-        message = "Copy tool is not available for Tk backend"
-        self.toolmanager.message_event(message, self)
+    pass
 
 
 backend_tools.ToolSaveFigure = SaveFigureTk
