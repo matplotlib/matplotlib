@@ -871,6 +871,8 @@ class Axes(_AxesBase):
         self.autoscale_view(scalex=scalex, scaley=False)
         return l
 
+    @munits._accepts_units(convert_x=['xmin', 'xmax'],
+                           convert_y=['ymin', 'ymax'])
     @docstring.dedent_interpd
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
@@ -912,14 +914,6 @@ class Axes(_AxesBase):
         axvspan : Add a vertical span across the axes.
         """
         trans = self.get_yaxis_transform(which='grid')
-
-        # process the unit information
-        self._process_unit_info([xmin, xmax], [ymin, ymax], kwargs=kwargs)
-
-        # first we need to strip away the units
-        xmin, xmax = self.convert_xunits([xmin, xmax])
-        ymin, ymax = self.convert_yunits([ymin, ymax])
-
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -927,6 +921,8 @@ class Axes(_AxesBase):
         self.autoscale_view(scalex=False)
         return p
 
+    @munits._accepts_units(convert_x=['xmin', 'xmax'],
+                           convert_y=['ymin', 'ymax'])
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
         Add a vertical span (rectangle) across the axes.
@@ -977,14 +973,6 @@ class Axes(_AxesBase):
 
         """
         trans = self.get_xaxis_transform(which='grid')
-
-        # process the unit information
-        self._process_unit_info([xmin, xmax], [ymin, ymax], kwargs=kwargs)
-
-        # first we need to strip away the units
-        xmin, xmax = self.convert_xunits([xmin, xmax])
-        ymin, ymax = self.convert_yunits([ymin, ymax])
-
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -992,6 +980,7 @@ class Axes(_AxesBase):
         self.autoscale_view(scaley=False)
         return p
 
+    @munits._accepts_units(convert_x=['xmin', 'xmax'], convert_y=['y'])
     @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
                       label_namer="y")
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
@@ -1027,14 +1016,6 @@ class Axes(_AxesBase):
         vlines : vertical lines
         axhline: horizontal line across the axes
         """
-
-        # We do the conversion first since not all unitized data is uniform
-        # process the unit information
-        self._process_unit_info([xmin, xmax], y, kwargs=kwargs)
-        y = self.convert_yunits(y)
-        xmin = self.convert_xunits(xmin)
-        xmax = self.convert_xunits(xmax)
-
         if not np.iterable(y):
             y = [y]
         if not np.iterable(xmin):
@@ -1068,6 +1049,7 @@ class Axes(_AxesBase):
 
         return lines
 
+    @munits._accepts_units(convert_x=['x'], convert_y=['ymin', 'ymax'])
     @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
                       label_namer="x")
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
@@ -1105,14 +1087,6 @@ class Axes(_AxesBase):
         hlines : horizontal lines
         axvline: vertical line across the axes
         """
-
-        self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
-
-        # We do the conversion first since not all unitized data is uniform
-        x = self.convert_xunits(x)
-        ymin = self.convert_yunits(ymin)
-        ymax = self.convert_yunits(ymax)
-
         if not np.iterable(x):
             x = [x]
         if not np.iterable(ymin):
@@ -1145,6 +1119,8 @@ class Axes(_AxesBase):
 
         return lines
 
+    @munits._accepts_units(convert_x=['positions'],
+                           convert_y=['lineoffsets', 'linelengths'])
     @_preprocess_data(replace_names=["positions", "lineoffsets",
                                      "linelengths", "linewidths",
                                      "colors", "linestyles"],
@@ -1234,15 +1210,6 @@ class Axes(_AxesBase):
 
         .. plot:: gallery/lines_bars_and_markers/eventplot_demo.py
         """
-        self._process_unit_info(xdata=positions,
-                                ydata=[lineoffsets, linelengths],
-                                kwargs=kwargs)
-
-        # We do the conversion first since not all unitized data is uniform
-        positions = self.convert_xunits(positions)
-        lineoffsets = self.convert_yunits(lineoffsets)
-        linelengths = self.convert_yunits(linelengths)
-
         if not np.iterable(positions):
             positions = [positions]
         elif any(np.iterable(position) for position in positions):
@@ -4919,6 +4886,7 @@ class Axes(_AxesBase):
         self.autoscale_view()
         return patches
 
+    @munits._accepts_units(convert_x=['x'], convert_y=['y1', 'y2'])
     @_preprocess_data(replace_names=["x", "y1", "y2", "where"],
                       label_namer=None)
     @docstring.dedent_interpd
@@ -5012,14 +4980,10 @@ class Axes(_AxesBase):
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
 
-        # Handle united data, such as dates
-        self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
-        self._process_unit_info(ydata=y2)
-
         # Convert the arrays so we can work with them
-        x = ma.masked_invalid(self.convert_xunits(x))
-        y1 = ma.masked_invalid(self.convert_yunits(y1))
-        y2 = ma.masked_invalid(self.convert_yunits(y2))
+        x = ma.masked_invalid(x)
+        y1 = ma.masked_invalid(y1)
+        y2 = ma.masked_invalid(y2)
 
         for name, array in [('x', x), ('y1', y1), ('y2', y2)]:
             if array.ndim > 1:
@@ -5102,6 +5066,7 @@ class Axes(_AxesBase):
         self.autoscale_view()
         return collection
 
+    @munits._accepts_units(convert_x=['x1', 'x2'], convert_y=['y'])
     @_preprocess_data(replace_names=["y", "x1", "x2", "where"],
                       label_namer=None)
     @docstring.dedent_interpd
@@ -5195,14 +5160,10 @@ class Axes(_AxesBase):
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
 
-        # Handle united data, such as dates
-        self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
-        self._process_unit_info(xdata=x2)
-
         # Convert the arrays so we can work with them
-        y = ma.masked_invalid(self.convert_yunits(y))
-        x1 = ma.masked_invalid(self.convert_xunits(x1))
-        x2 = ma.masked_invalid(self.convert_xunits(x2))
+        y = ma.masked_invalid(y)
+        x1 = ma.masked_invalid(x1)
+        x2 = ma.masked_invalid(x2)
 
         for name, array in [('y', y), ('x1', x1), ('x2', x2)]:
             if array.ndim > 1:

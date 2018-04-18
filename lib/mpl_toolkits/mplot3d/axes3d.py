@@ -25,6 +25,7 @@ import matplotlib.docstring as docstring
 import matplotlib.projections as proj
 import matplotlib.scale as mscale
 import matplotlib.transforms as mtransforms
+import matplotlib.units as munits
 from matplotlib.axes import Axes, rcParams
 from matplotlib.colors import Normalize, LightSource
 from matplotlib.transforms import Bbox
@@ -595,6 +596,7 @@ class Axes3D(Axes):
             xmax += 0.05
         return (xmin, xmax)
 
+    @munits._accepts_units(convert_x=['left', 'right'])
     def set_xlim3d(self, left=None, right=None, emit=True, auto=False,
                    *, xmin=None, xmax=None):
         """
@@ -618,9 +620,8 @@ class Axes3D(Axes):
                 raise TypeError('Cannot pass both `xmax` and `right`')
             right = xmax
 
-        self._process_unit_info(xdata=(left, right))
-        left = self._validate_converted_limits(left, self.convert_xunits)
-        right = self._validate_converted_limits(right, self.convert_xunits)
+        self._validate_converted_limits(left)
+        self._validate_converted_limits(right)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -653,6 +654,7 @@ class Axes3D(Axes):
         return left, right
     set_xlim = set_xlim3d
 
+    @munits._accepts_units(convert_y=['bottom', 'top'])
     def set_ylim3d(self, bottom=None, top=None, emit=True, auto=False,
                    *, ymin=None, ymax=None):
         """
@@ -676,9 +678,8 @@ class Axes3D(Axes):
                 raise TypeError('Cannot pass both `ymax` and `top`')
             top = ymax
 
-        self._process_unit_info(ydata=(bottom, top))
-        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
-        top = self._validate_converted_limits(top, self.convert_yunits)
+        self._validate_converted_limits(bottom)
+        self._validate_converted_limits(top)
 
         old_bottom, old_top = self.get_ylim()
         if bottom is None:
@@ -735,8 +736,10 @@ class Axes3D(Axes):
             top = zmax
 
         self._process_unit_info(zdata=(bottom, top))
-        bottom = self._validate_converted_limits(bottom, self.convert_zunits)
-        top = self._validate_converted_limits(top, self.convert_zunits)
+        bottom = self.convert_zunits(bottom)
+        top = self.convert_zunits(top)
+        self._validate_converted_limits(bottom)
+        self._validate_converted_limits(top)
 
         old_bottom, old_top = self.get_zlim()
         if bottom is None:

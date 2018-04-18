@@ -51,7 +51,7 @@ import numpy as np
 from matplotlib import cbook
 
 
-def _accepts_units(convert_x, convert_y):
+def _accepts_units(convert_x=[], convert_y=[]):
     """
     A decorator for functions and methods that accept units. The parameters
     indicated in *convert_x* and *convert_y* are used to update the axis
@@ -69,6 +69,7 @@ def _accepts_units(convert_x, convert_y):
             axes = args[0]
             # Bind the incoming arguments to the function signature
             bound_args = inspect.signature(func).bind(*args, **kwargs)
+            bound_args.apply_defaults()
             # Get the original arguments - these will be modified later
             arguments = bound_args.arguments
             # Check for data kwarg

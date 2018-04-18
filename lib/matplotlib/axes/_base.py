@@ -27,6 +27,7 @@ import matplotlib.spines as mspines
 import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext
 import matplotlib.image as mimage
+import matplotlib.units as munits
 
 from matplotlib.rcsetup import cycler, validate_axisbelow
 
@@ -3041,19 +3042,19 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervalx)
 
-    def _validate_converted_limits(self, limit, convert):
+    def _validate_converted_limits(self, converted_limit):
         """
         Raise ValueError if converted limits are non-finite.
 
         Note that this function also accepts None as a limit argument.
         """
-        if limit is not None:
-            converted_limit = convert(limit)
-            if (isinstance(converted_limit, Real)
-                    and not np.isfinite(converted_limit)):
+        if converted_limit is not None:
+            if (isinstance(converted_limit, float) and
+                    (not np.isreal(converted_limit) or
+                        not np.isfinite(converted_limit))):
                 raise ValueError("Axis limits cannot be NaN or Inf")
-            return converted_limit
 
+    @munits._accepts_units(convert_x=['left', 'right'])
     def set_xlim(self, left=None, right=None, emit=True, auto=False,
                  *, xmin=None, xmax=None):
         """
@@ -3131,9 +3132,8 @@ class _AxesBase(martist.Artist):
                 raise TypeError('Cannot pass both `xmax` and `right`')
             right = xmax
 
-        self._process_unit_info(xdata=(left, right))
-        left = self._validate_converted_limits(left, self.convert_xunits)
-        right = self._validate_converted_limits(right, self.convert_xunits)
+        self._validate_converted_limits(left)
+        self._validate_converted_limits(right)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -3388,6 +3388,7 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervaly)
 
+    @munits._accepts_units(convert_y=['bottom', 'top'])
     def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
                  *, ymin=None, ymax=None):
         """
@@ -3464,8 +3465,8 @@ class _AxesBase(martist.Artist):
                 raise TypeError('Cannot pass both `ymax` and `top`')
             top = ymax
 
-        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
-        top = self._validate_converted_limits(top, self.convert_yunits)
+        self._validate_converted_limits(bottom)
+        self._validate_converted_limits(top)
 
         old_bottom, old_top = self.get_ylim()
 
