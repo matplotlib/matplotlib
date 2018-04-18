@@ -35,6 +35,7 @@ def make_test_filename(fname, purpose):
     return '%s-%s%s' % (base, purpose, ext)
 
 
+@cbook.deprecated("3.0")
 def compare_float(expected, actual, relTol=None, absTol=None):
     """
     Fail if the floating point values are not close enough, with
