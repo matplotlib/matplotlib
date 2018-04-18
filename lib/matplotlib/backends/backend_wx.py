@@ -1834,12 +1834,12 @@ class _TableDialog(wx.Dialog):
         sizer = wx.BoxSizer(wx.VERTICAL)
         grid_sizer = wx.FlexGridSizer(0, 3, 8, 6)
         # create and add the entries
-        widths = [100,140, 300]
+        widths = [100, 140, 300]
         bold = self.GetFont().MakeBold()
-        for r,row in enumerate(help):
-            for (col,width) in zip(row, widths):
+        for r, row in enumerate(help):
+            for (col, width) in zip(row, widths):
                 label = wx.StaticText(self, label=col)
-                if r==0:
+                if r == 0:
                     label.SetFont(bold)
                 label.Wrap(width)
                 grid_sizer.Add(label, 0, 0, 0)
@@ -1858,10 +1858,6 @@ class _TableDialog(wx.Dialog):
 
 
 class HelpWx(backend_tools.ToolHelpBase):
-    def trigger(self, *args):
-        wx.MessageBox(self._get_help_text().replace("\t", "        "),
-                      "Help", style=wx.OK|wx.CENTRE,
-                      parent=self.figure.canvas.GetTopLevelParent())
     def trigger(self, *args):
         help = [("Action","Shortcuts", "Description")]
         help += self._get_help_entries()
