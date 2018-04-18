@@ -74,5 +74,8 @@ Toolkits
 .. toctree::
    :maxdepth: 1
 
-   toolkits/axes_grid.rst
+   
    toolkits/mplot3d.rst
+   toolkits/axes_grid1.rst
+   toolkits/axisartist.rst
+   toolkits/axes_grid.rst
