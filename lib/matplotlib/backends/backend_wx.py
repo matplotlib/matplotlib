@@ -1830,6 +1830,7 @@ class _HelpDialog(wx.Dialog):
     _instance = None  # a reference to an open dialog singleton
     headers = [("Action", "Shortcuts", "Description")]
     widths = [100, 140, 300]
+
     def __init__(self, parent, help_entries):
         wx.Dialog.__init__(self, parent, title="Help",
                            style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
