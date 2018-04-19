@@ -1854,22 +1854,24 @@ class _HelpDialog(wx.Dialog):
         OK.Bind(wx.EVT_BUTTON, self.OnClose)
 
     def OnClose(self, evt):
-        HelpWx.dlg = None
+        HelpWx.dlg = None  # remove global reference
         self.DestroyLater()
         evt.Skip()
 
 
 class HelpWx(backend_tools.ToolHelpBase):
-    dlg = None
+    dlg = None  # a reference to the opened dialog, to avoid more than one
     def trigger(self, *args):
-        if self.dlg:
-            self.dlg.Raise()
+        if HelpWx.dlg:
+            # previous dialog is still open
+            HelpWx.dlg.Raise()
             return
+        # create new dialog and keep a reference
         help_entries = [("Action", "Shortcuts", "Description")]
         help_entries += self._get_help_entries()
-        self.dlg = _HelpDialog(self.figure.canvas.GetTopLevelParent(),
-                                help_entries)
-        self.dlg.Show()
+        HelpWx.dlg = _HelpDialog(self.figure.canvas.GetTopLevelParent(),
+                                 help_entries)
+        HelpWx.dlg.Show()
 
 
 backend_tools.ToolSaveFigure = SaveFigureWx
