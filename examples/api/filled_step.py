@@ -181,8 +181,8 @@ hist_func = partial(np.histogram, bins=edges)
 
 # set up style cycles
 color_cycle = cycler(facecolor=plt.rcParams['axes.prop_cycle'][:4])
-label_cycle = cycler('label', ['set {n}'.format(n=n) for n in range(4)])
-hatch_cycle = cycler('hatch', ['/', '*', '+', '|'])
+label_cycle = cycler(label=['set {n}'.format(n=n) for n in range(4)])
+hatch_cycle = cycler(hatch=['/', '*', '+', '|'])
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
