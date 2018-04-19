@@ -1063,7 +1063,6 @@ class ToolHelpBase(ToolBase):
                 "<tbody>".join(rows[1:]) + "</tbody></table>")
 
 
-
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'zoom': ToolZoom, 'pan': ToolPan,
                  'subplots': 'ToolConfigureSubplots',

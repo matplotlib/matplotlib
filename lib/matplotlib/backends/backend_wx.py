@@ -1826,8 +1826,8 @@ else:
             self._rect = None
 
 
-class _TableDialog(wx.Dialog):
-    def __init__(self, parent, help, title="Help"):
+class _HelpDialog(wx.Dialog):
+    def __init__(self, parent, help_entries, title="Help"):
         wx.Dialog.__init__(self, parent, title=title,
                            style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
 
@@ -1836,7 +1836,7 @@ class _TableDialog(wx.Dialog):
         # create and add the entries
         widths = [100, 140, 300]
         bold = self.GetFont().MakeBold()
-        for r, row in enumerate(help):
+        for r, row in enumerate(help_entries):
             for (col, width) in zip(row, widths):
                 label = wx.StaticText(self, label=col)
                 if r == 0:
@@ -1851,18 +1851,25 @@ class _TableDialog(wx.Dialog):
         sizer.Fit(self)
         self.Layout()
         self.Bind(wx.EVT_CLOSE, self.OnClose)
+        OK.Bind(wx.EVT_BUTTON, self.OnClose)
 
     def OnClose(self, evt):
+        HelpWx.dlg = None
         self.DestroyLater()
         evt.Skip()
 
 
 class HelpWx(backend_tools.ToolHelpBase):
+    dlg = None
     def trigger(self, *args):
-        help = [("Action","Shortcuts", "Description")]
-        help += self._get_help_entries()
-        dlg = _TableDialog(self.figure.canvas.GetTopLevelParent(), help)
-        dlg.Show()
+        if self.dlg:
+            self.dlg.Raise()
+            return
+        help_entries = [("Action", "Shortcuts", "Description")]
+        help_entries += self._get_help_entries()
+        self.dlg = _HelpDialog(self.figure.canvas.GetTopLevelParent(),
+                                help_entries)
+        self.dlg.Show()
 
 
 backend_tools.ToolSaveFigure = SaveFigureWx
