@@ -1827,17 +1827,19 @@ else:
 
 
 class _HelpDialog(wx.Dialog):
-    def __init__(self, parent, help_entries, title="Help"):
-        wx.Dialog.__init__(self, parent, title=title,
+    _instance = None  # a reference to an open dialog singleton
+    headers = [("Action", "Shortcuts", "Description")]
+    widths = [100, 140, 300]
+    def __init__(self, parent, help_entries):
+        wx.Dialog.__init__(self, parent, title="Help",
                            style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         grid_sizer = wx.FlexGridSizer(0, 3, 8, 6)
         # create and add the entries
-        widths = [100, 140, 300]
         bold = self.GetFont().MakeBold()
-        for r, row in enumerate(help_entries):
-            for (col, width) in zip(row, widths):
+        for r, row in enumerate(self.headers + help_entries):
+            for (col, width) in zip(row, self.widths):
                 label = wx.StaticText(self, label=col)
                 if r == 0:
                     label.SetFont(bold)
@@ -1854,24 +1856,24 @@ class _HelpDialog(wx.Dialog):
         OK.Bind(wx.EVT_BUTTON, self.OnClose)
 
     def OnClose(self, evt):
-        HelpWx.dlg = None  # remove global reference
+        _HelpDialog.instance = None  # remove global reference
         self.DestroyLater()
         evt.Skip()
 
+    @classmethod
+    def show(cls, parent, help_entries):
+        # if no dialog is shown, create one; otherwise just re-raise it
+        if cls._instance:
+            cls._instance.Raise()
+            return
+        cls._instance = cls(parent, help_entries)
+        cls._instance.Show()
+
 
 class HelpWx(backend_tools.ToolHelpBase):
-    dlg = None  # a reference to the opened dialog, to avoid more than one
     def trigger(self, *args):
-        if HelpWx.dlg:
-            # previous dialog is still open
-            HelpWx.dlg.Raise()
-            return
-        # create new dialog and keep a reference
-        help_entries = [("Action", "Shortcuts", "Description")]
-        help_entries += self._get_help_entries()
-        HelpWx.dlg = _HelpDialog(self.figure.canvas.GetTopLevelParent(),
-                                 help_entries)
-        HelpWx.dlg.Show()
+        _HelpDialog.show(self.figure.canvas.GetTopLevelParent(),
+                         self._get_help_entries())
 
 
 backend_tools.ToolSaveFigure = SaveFigureWx
