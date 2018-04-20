@@ -3,18 +3,29 @@
 Simple Anchored Artists
 =======================
 
+This example illustrates the use of the anchored helper classes found in
+:py:mod:`~matplotlib.offsetbox` and in the :ref:`toolkit_axesgrid1-index`.
+An implementation of a similar figure, but without use of the toolkit,
+can be found in :ref:`sphx_glr_gallery_misc_anchored_artists.py`.
 """
+
 import matplotlib.pyplot as plt
 
 
 def draw_text(ax):
+    """
+    Draw two text-boxes, anchored by different corners to the upper-left
+    corner of the figure.
+    """
     from matplotlib.offsetbox import AnchoredText
+    # loc=2 is equivalent to loc='upper left'
     at = AnchoredText("Figure 1a",
                       loc=2, prop=dict(size=8), frameon=True,
                       )
     at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
     ax.add_artist(at)
 
+    # loc=3 is eqivalent to loc='lower left'
     at2 = AnchoredText("Figure 1(b)",
                        loc=3, prop=dict(size=8), frameon=True,
                        bbox_to_anchor=(0., 1.),
@@ -24,7 +35,10 @@ def draw_text(ax):
     ax.add_artist(at2)
 
 
-def draw_circle(ax):  # circle in the canvas coordinate
+def draw_circle(ax):
+    """
+    Draw a circle in axis coordinates
+    """
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
     from matplotlib.patches import Circle
     ada = AnchoredDrawingArea(20, 20, 0, 0,
@@ -35,8 +49,10 @@ def draw_circle(ax):  # circle in the canvas coordinate
 
 
 def draw_ellipse(ax):
+    """
+    Draw an ellipse of width=0.1, height=0.15 in data coordinates
+    """
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredEllipse
-    # draw an ellipse of width=0.1, height=0.15 in the data coordinate
     ae = AnchoredEllipse(ax.transData, width=0.1, height=0.15, angle=0.,
                          loc=3, pad=0.5, borderpad=0.4, frameon=True)
 
@@ -44,9 +60,11 @@ def draw_ellipse(ax):
 
 
 def draw_sizebar(ax):
+    """
+    Draw a horizontal bar with length of 0.1 in data coordinates,
+    with a fixed label underneath.
+    """
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
-    # draw a horizontal bar with length of 0.1 in Data coordinate
-    # (ax.transData) with a label underneath.
     asb = AnchoredSizeBar(ax.transData,
                           0.1,
                           r"1$^{\prime}$",
@@ -56,13 +74,12 @@ def draw_sizebar(ax):
     ax.add_artist(asb)
 
 
-if 1:
-    ax = plt.gca()
-    ax.set_aspect(1.)
+ax = plt.gca()
+ax.set_aspect(1.)
 
-    draw_text(ax)
-    draw_circle(ax)
-    draw_ellipse(ax)
-    draw_sizebar(ax)
+draw_text(ax)
+draw_circle(ax)
+draw_ellipse(ax)
+draw_sizebar(ax)
 
-    plt.show()
+plt.show()

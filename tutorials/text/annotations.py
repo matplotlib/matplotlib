@@ -340,7 +340,7 @@ available in ``mpl_toolkits.axes_grid1.anchored_artists`` others in
 
     from matplotlib.offsetbox import AnchoredText
     at = AnchoredText("Figure 1a",
-                      prop=dict(size=8), frameon=True,
+                      prop=dict(size=15), frameon=True,
                       loc=2,
                       )
     at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
