@@ -3048,13 +3048,13 @@ class _AxesBase(martist.Artist):
         left, right = mtransforms.nonsingular(left, right, increasing=False)
 
         if self.get_xscale() == 'log':
-            if left <= 0.0:
+            if left <= 0:
                 warnings.warn(
                     'Attempted to set non-positive left xlim on a '
                     'log-scaled axis.\n'
                     'Invalid limit will be ignored.')
                 left = old_left
-            if right <= 0.0:
+            if right <= 0:
                 warnings.warn(
                     'Attempted to set non-positive right xlim on a '
                     'log-scaled axis.\n'
@@ -3378,13 +3378,13 @@ class _AxesBase(martist.Artist):
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
 
         if self.get_yscale() == 'log':
-            if bottom <= 0.0:
+            if bottom <= 0:
                 warnings.warn(
                     'Attempted to set non-positive bottom ylim on a '
                     'log-scaled axis.\n'
                     'Invalid limit will be ignored.')
                 bottom = old_bottom
-            if top <= 0.0:
+            if top <= 0:
                 warnings.warn(
                     'Attempted to set non-positive top ylim on a '
                     'log-scaled axis.\n'
