@@ -740,6 +740,41 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     User-callable method: clabel
 
+    Parameters
+    ----------
+    ax : `~.axes.Axes`
+
+    levels : [level0, level1, ..., leveln]
+        A list of floating point numbers indicating the contour
+        levels.
+
+    allsegs : [level0segs, level1segs, ...]
+        List of all the polygon segments for all the *levels*.
+        For contour lines ``len(allsegs) == len(levels)``, and for
+        filled contour regions ``len(allsegs) = len(levels)-1``. The lists
+        should look like::
+
+            level0segs = [polygon0, polygon1, ...]
+            polygon0 = array_like [[x0,y0], [x1,y1], ...]
+
+    allkinds : ``None`` or [level0kinds, level1kinds, ...]
+        Optional list of all the polygon vertex kinds (code types), as
+        described and used in Path. This is used to allow multiply-
+        connected paths such as holes within filled polygons.
+        If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
+        should look like::
+
+            level0kinds = [polygon0kinds, ...]
+            polygon0kinds = [vertexcode0, vertexcode1, ...]
+
+        If *allkinds* is not ``None``, usually all polygons for a
+        particular contour level are grouped together so that
+        ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
+
+    kwargs :
+        Keyword arguments are as described in the docstring of
+        `~.Axes.contour`.
+
     Attributes
     ----------
     ax:
@@ -757,44 +792,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
 
     def __init__(self, ax, *args, **kwargs):
-        """
-        Draw contour lines or filled regions, depending on
-        whether keyword arg *filled* is ``False`` (default) or ``True``.
-
-        The first three arguments must be:
-
-          *ax*: axes object.
-
-          *levels*: [level0, level1, ..., leveln]
-            A list of floating point numbers indicating the contour
-            levels.
-
-          *allsegs*: [level0segs, level1segs, ...]
-            List of all the polygon segments for all the *levels*.
-            For contour lines ``len(allsegs) == len(levels)``, and for
-            filled contour regions ``len(allsegs) = len(levels)-1``. The lists
-            should look like::
-
-                level0segs = [polygon0, polygon1, ...]
-                polygon0 = array_like [[x0,y0], [x1,y1], ...]
-
-          *allkinds*: *None* or [level0kinds, level1kinds, ...]
-            Optional list of all the polygon vertex kinds (code types), as
-            described and used in Path. This is used to allow multiply-
-            connected paths such as holes within filled polygons.
-            If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
-            should look like::
-
-                level0kinds = [polygon0kinds, ...]
-                polygon0kinds = [vertexcode0, vertexcode1, ...]
-
-            If *allkinds* is not ``None``, usually all polygons for a
-            particular contour level are grouped together so that
-            ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
-
-        Keyword arguments are as described in the docstring of
-        `~.Axes.contour`.
-        """
         self.ax = ax
         self.levels = kwargs.pop('levels', None)
         self.filled = kwargs.pop('filled', False)
