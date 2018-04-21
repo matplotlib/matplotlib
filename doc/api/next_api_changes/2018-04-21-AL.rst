@@ -1,0 +1,5 @@
+Markers can no longer return None from ``get_snap_threshold``
+`````````````````````````````````````````````````````````````
+
+The snap threshold must now always be a scalar value (possibly 0/inf, to always
+enable/disable snapping).

@@ -815,7 +815,12 @@ class Line2D(Artist):
                     subsampled = tpath
 
                 snap = marker.get_snap_threshold()
-                if type(snap) == float:
+                if snap is None:
+                    cbook.warn_deprecated(
+                        "3.0", "Returning None from get_snap_threshold is "
+                        "deprecated since Matplotlib 3.0; support will be "
+                        "removed in 3.2.")
+                else:
                     snap = renderer.points_to_pixels(self._markersize) >= snap
                 gc.set_snap(snap)
                 gc.set_joinstyle(marker.get_joinstyle())

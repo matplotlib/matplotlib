@@ -189,7 +189,7 @@ class MarkerStyle(object):
         self._transform = IdentityTransform()
         self._alt_path = None
         self._alt_transform = None
-        self._snap_threshold = None
+        self._snap_threshold = np.inf
         self._joinstyle = 'round'
         self._capstyle = 'butt'
         self._filled = True
@@ -382,7 +382,7 @@ class MarkerStyle(object):
         # backends are not aware of what marker is actually being used
         # beyond just its path data.
         self._transform = Affine2D().translate(-0.49999, -0.49999)
-        self._snap_threshold = None
+        self._snap_threshold = 0
 
     def _set_point(self):
         self._set_circle(reduction=self._point_size_reduction)
@@ -569,7 +569,7 @@ class MarkerStyle(object):
 
     def _set_hexagon1(self):
         self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = None
+        self._snap_threshold = np.inf
 
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
@@ -603,7 +603,7 @@ class MarkerStyle(object):
 
     def _set_hexagon2(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
-        self._snap_threshold = None
+        self._snap_threshold = np.inf
 
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
