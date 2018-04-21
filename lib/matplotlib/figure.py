@@ -1306,7 +1306,6 @@ default: 'top'
         pyplot.subplots : pyplot API; docstring includes examples.
         """
 
-        # for backwards compatibility
         if isinstance(sharex, bool):
             sharex = "all" if sharex else "none"
         if isinstance(sharey, bool):

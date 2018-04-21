@@ -215,15 +215,15 @@ class ContourLabeler(object):
         else:
             self.labels(inline, inline_spacing)
 
-        # Hold on to some old attribute names.  These are deprecated and will
-        # be removed in the near future (sometime after 2008-08-01), but
-        # keeping for now for backwards compatibility
-        self.cl = self.labelTexts
-        self.cl_xy = self.labelXYs
-        self.cl_cvalues = self.labelCValues
-
         self.labelTextsList = cbook.silent_list('text.Text', self.labelTexts)
         return self.labelTextsList
+
+    cl = property(cbook.deprecated("3.0", alternative="labelTexts")(
+        lambda self: self.labelTexts))
+    cl_xy = property(cbook.deprecated("3.0", alternative="labelXYs")(
+        lambda self: self.labelXYs))
+    cl_cvalues = property(cbook.deprecated("3.0", alternative="labelCValues")(
+        lambda self: self.labelCValues))
 
     def print_label(self, linecontour, labelwidth):
         "Return *False* if contours are too short for a label."
