@@ -6175,8 +6175,8 @@ class Axes(_AxesBase):
                              "Please only use 'density', since 'normed'"
                              "is deprecated.")
         if normed is not None:
-            warnings.warn("The 'normed' kwarg is deprecated, and has been "
-                          "replaced by the 'density' kwarg.")
+            cbook.warn_deprecated("2.1", name="'normed'", obj_type="kwarg",
+                                  alternative="'density'", removal="3.1")
 
         # basic input validation
         input_empty = np.size(x) == 0
