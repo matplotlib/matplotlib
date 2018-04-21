@@ -1814,24 +1814,18 @@ class Axes(_AxesBase):
                       replace_all_args=True
                       )
     @docstring.dedent_interpd
-    def bar(self, *args, **kwargs):
+    def bar(self, x, height, width=0.8, bottom=None, *, align="center",
+            **kwargs):
         r"""
         Make a bar plot.
 
-        Call signatures::
-
-           bar(x, height, *, align='center', **kwargs)
-           bar(x, height, width, *, align='center', **kwargs)
-           bar(x, height, width, bottom, *, align='center', **kwargs)
-
-        The bars are positioned at *x* with the given *align* ment. Their
+        The bars are positioned at *x* with the given *align*\ment. Their
         dimensions are given by *width* and *height*. The vertical baseline
         is *bottom* (default 0).
 
         Each of *x*, *height*, *width*, and *bottom* may either be a scalar
         applying to all bars, or it may be a sequence of length N providing a
         separate value for each bar.
-
 
         Parameters
         ----------
@@ -1927,54 +1921,21 @@ class Axes(_AxesBase):
 
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch._alias_map)
-        # this is using the lambdas to do the arg/kwarg unpacking rather
-        # than trying to re-implement all of that logic our selves.
-        matchers = [
-            (lambda x, height, width=0.8, bottom=None, **kwargs:
-             (False, x, height, width, bottom, kwargs)),
-            (lambda left, height, width=0.8, bottom=None, **kwargs:
-             (True, left, height, width, bottom, kwargs)),
-        ]
-        exps = []
-        for matcher in matchers:
-            try:
-                dp, x, height, width, y, kwargs = matcher(*args, **kwargs)
-            except TypeError as e:
-                # This can only come from a no-match as there is
-                # no other logic in the matchers.
-                exps.append(e)
-            else:
-                break
-        else:
-            raise exps[0]
-        # if we matched the second-case, then the user passed in
-        # left=val as a kwarg which we want to deprecate
-        if dp:
-            warnings.warn(
-                "The *left* kwarg to `bar` is deprecated use *x* instead. "
-                "Support for *left* will be removed in Matplotlib 3.0",
-                mplDeprecation, stacklevel=2)
         color = kwargs.pop('color', None)
         if color is None:
             color = self._get_patches_for_fill.get_next_color()
         edgecolor = kwargs.pop('edgecolor', None)
         linewidth = kwargs.pop('linewidth', None)
 
-        # Because xerr and yerr will be passed to errorbar,
-        # most dimension checking and processing will be left
-        # to the errorbar method.
+        # Because xerr and yerr will be passed to errorbar, most dimension
+        # checking and processing will be left to the errorbar method.
         xerr = kwargs.pop('xerr', None)
         yerr = kwargs.pop('yerr', None)
-        error_kw = kwargs.pop('error_kw', dict())
+        error_kw = kwargs.pop('error_kw', {})
         ecolor = kwargs.pop('ecolor', 'k')
         capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
-
-        if rcParams['_internal.classic_mode']:
-            align = kwargs.pop('align', 'edge')
-        else:
-            align = kwargs.pop('align', 'center')
 
         orientation = kwargs.pop('orientation', 'vertical')
         log = kwargs.pop('log', False)
@@ -1984,8 +1945,9 @@ class Axes(_AxesBase):
         adjust_ylim = False
         adjust_xlim = False
 
+        y = bottom  # Matches barh call signature.
         if orientation == 'vertical':
-            if y is None:
+            if bottom is None:
                 if self.get_yscale() == 'log':
                     adjust_ylim = True
                 y = 0
@@ -2126,24 +2088,18 @@ class Axes(_AxesBase):
         return bar_container
 
     @docstring.dedent_interpd
-    def barh(self, *args, **kwargs):
+    def barh(self, y, width, height=0.8, left=None, *, align="center",
+             **kwargs):
         r"""
         Make a horizontal bar plot.
 
-        Call signatures::
-
-           bar(y, width, *, align='center', **kwargs)
-           bar(y, width, height, *, align='center', **kwargs)
-           bar(y, width, height, left, *, align='center', **kwargs)
-
-        The bars are positioned at *y* with the given *align*. Their
+        The bars are positioned at *y* with the given *align*\ment. Their
         dimensions are given by *width* and *height*. The horizontal baseline
         is *left* (default 0).
 
         Each of *y*, *width*, *height*, and *left* may either be a scalar
         applying to all bars, or it may be a sequence of length N providing a
         separate value for each bar.
-
 
         Parameters
         ----------
@@ -2235,35 +2191,9 @@ class Axes(_AxesBase):
         %(Rectangle)s
 
         """
-        # this is using the lambdas to do the arg/kwarg unpacking rather
-        # than trying to re-implement all of that logic our selves.
-        matchers = [
-            (lambda y, width, height=0.8, left=None, **kwargs:
-             (False, y, width, height, left, kwargs)),
-            (lambda bottom, width, height=0.8, left=None, **kwargs:
-             (True, bottom, width, height, left, kwargs)),
-        ]
-        excs = []
-        for matcher in matchers:
-            try:
-                dp, y, width, height, left, kwargs = matcher(*args, **kwargs)
-            except TypeError as e:
-                # This can only come from a no-match as there is
-                # no other logic in the matchers.
-                excs.append(e)
-            else:
-                break
-        else:
-            raise excs[0]
-
-        if dp:
-            warnings.warn(
-                "The *bottom* kwarg to `barh` is deprecated use *y* instead. "
-                "Support for *bottom* will be removed in Matplotlib 3.0",
-                mplDeprecation, stacklevel=2)
         kwargs.setdefault('orientation', 'horizontal')
-        patches = self.bar(x=left, height=height, width=width,
-                           bottom=y, **kwargs)
+        patches = self.bar(x=left, height=height, width=width, bottom=y,
+                           align=align, **kwargs)
         return patches
 
     @_preprocess_data(label_namer=None)

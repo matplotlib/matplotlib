@@ -1441,14 +1441,14 @@ def test_marker_edges():
 def test_bar_tick_label_single():
     # From 2516: plot bar with array of string labels for x axis
     ax = plt.gca()
-    ax.bar(0, 1, tick_label='0')
+    ax.bar(0, 1, align='edge', tick_label='0')
 
     # Reuse testcase from above for a labeled data test
     data = {"a": 0, "b": 1}
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax = plt.gca()
-    ax.bar("a", "b", tick_label='0', data=data)
+    ax.bar("a", "b", align='edge', tick_label='0', data=data)
 
 
 def test_bar_ticklabel_fail():
@@ -5343,7 +5343,7 @@ def test_ls_ds_conflict():
 
 def test_bar_uint8():
     xs = [0, 1, 2, 3]
-    b = plt.bar(np.array(xs, dtype=np.uint8), [2, 3, 4, 5])
+    b = plt.bar(np.array(xs, dtype=np.uint8), [2, 3, 4, 5], align="edge")
     for (patch, x) in zip(b.patches, xs):
         assert patch.xy[0] == x
 
@@ -5637,38 +5637,6 @@ def test_twinx_knows_limits():
     ax2.plot([0, 0.5], [1, 2])
 
     assert_array_equal(xtwin.viewLim.intervalx, ax2.viewLim.intervalx)
-
-
-@pytest.mark.style('mpl20')
-@pytest.mark.parametrize('args, kwargs, warning_count',
-                         [((1, 1), {'width': 1, 'bottom': 1}, 0),
-                          ((1, ), {'height': 1, 'bottom': 1}, 0),
-                          ((), {'x': 1, 'height': 1}, 0),
-                          ((), {'left': 1, 'height': 1}, 1)])
-def test_bar_signature(args, kwargs, warning_count):
-    fig, ax = plt.subplots()
-    with warnings.catch_warnings(record=True) as w:
-        r, = ax.bar(*args, **kwargs)
-
-    assert r.get_width() == kwargs.get('width', 0.8)
-    assert r.get_y() == kwargs.get('bottom', 0)
-    assert len(w) == warning_count
-
-
-@pytest.mark.style('mpl20')
-@pytest.mark.parametrize('args, kwargs, warning_count',
-                         [((1, 1), {'height': 1, 'left': 1}, 0),
-                          ((1, ), {'width': 1, 'left': 1}, 0),
-                          ((), {'y': 1, 'width': 1}, 0),
-                          ((), {'bottom': 1, 'width': 1}, 1)])
-def test_barh_signature(args, kwargs, warning_count):
-    fig, ax = plt.subplots()
-    with warnings.catch_warnings(record=True) as w:
-        r, = ax.barh(*args, **kwargs)
-
-    assert r.get_height() == kwargs.get('height', 0.8)
-    assert r.get_x() == kwargs.get('left', 0)
-    assert len(w) == warning_count
 
 
 def test_zero_linewidth():
