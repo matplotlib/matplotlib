@@ -738,7 +738,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Store a set of contour lines or filled regions.
 
-    User-callable method: clabel
+    User-callable method: `~.Axes.clabel`
 
     Parameters
     ----------
@@ -1376,7 +1376,7 @@ class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
 
-    User-callable method: :meth:`clabel`
+    User-callable method: `~.Axes.clabel`
 
     Attributes
     ----------
