@@ -68,15 +68,15 @@ path                           a `~matplotlib.path.Path` instance.
                                      an asterisk
                                    3
                                      a circle (`numsides` and `angle` is
-                                     ignored)
+                                     ignored); deprecated.
 
                                `angle`:
                                    the angle of rotation of the symbol
 ============================== ===============================================
 
-For backward compatibility, the form (`verts`, 0) is also accepted,
-but it is equivalent to just `verts` for giving a raw set of vertices
-that define the shape.
+For backward compatibility, the form (`verts`, 0) is also accepted, but it is
+deprecated and equivalent to just `verts` for giving a raw set of vertices that
+define the shape.
 
 `None` is the default which means 'nothing', however this table is
 referred to from other docs for the valid inputs from marker inputs and in
@@ -307,9 +307,17 @@ class MarkerStyle(object):
                 self._filled = False
                 self._joinstyle = 'bevel'
             elif symstyle == 3:
+                cbook.warn_deprecated(
+                    "3.0", "Setting a circle marker using `(..., 3)` is "
+                    "deprecated since Matplotlib 3.0, and support for it will "
+                    "be removed in 3.2.  Directly pass 'o' instead.")
                 self._path = Path.unit_circle()
             self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
         else:
+            cbook.warn_deprecated(
+                "3.0", "Passing vertices as `(verts, 0)` is deprecated since "
+                "Matplotlib 3.0, and support for it will be removed in 3.2.  "
+                "Directly pass `verts` instead.")
             verts = np.asarray(marker[0])
             path = Path(verts)
             self._set_custom_marker(path)
