@@ -47,7 +47,7 @@ requirements that are needed to build the documentation. They are listed in
 * IPython
 * numpydoc>=0.4
 * Pillow
-* sphinx-gallery>=0.1.13
+* sphinx-gallery>=0.2.0
 * graphviz
 
 .. note::
@@ -72,13 +72,18 @@ Other useful invocations include
 
 .. code-block:: sh
 
-   # Delete built files.  May help if you get errors about missing paths or
-   # broken links.
+   # Delete built files.  May help if you get errors about 
+   # missing paths or broken links. 
    make clean
 
    # Build pdf docs.
    make latexpdf
 
+Linux, macOS
+~~~~~~~~~~~~
+The documentation is built using the ``Makefile`` file and parameters 
+can be set either in the ``Makefile`` or on the command line.
+ 
 The ``SPHINXOPTS`` variable is set to ``-W`` by default to turn warnings into
 errors.  To unset it, use
 
@@ -88,16 +93,89 @@ errors.  To unset it, use
 
 You can use the ``O`` variable to set additional options:
 
-* ``make O=-j4 html`` runs a parallel build with 4 processes.
-* ``make O=-Dplot_formats=png:100 html`` saves figures in low resolution.
-* ``make O=-Dplot_gallery=0 html`` skips the gallery build.
+.. code-block:: sh
+    
+    #runs a parallel build with 4 processes.
+    make O=-j4 html 
+    
+    #saves figures in low resolution.
+    make O=-Dplot_formats=png:100 html 
+    
+    #builds the gallery without executing the scripts
+    make O=-Dplot_gallery=0 html 
 
-Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
-html``.
+    #Multiple options can be combined using e.g.    
+    make O='-j4 -Dplot_gallery=0' html
+    
+Windows
+~~~~~~~
+   
+The documentation is build using the ``make.bat`` file. The options are set using 
+environment variables and variables can be set either in the 
+``make.bat`` file or set on the command line befor running ``make.bat``.
 
-On Windows, options needs to be set as environment variables, e.g. ``set O=-W
--j4 & make html``.
+Environment variables are set with
 
+.. code-block:: sh
+
+    #in cmd
+    set SPHINXOPTS=-W
+    set O=-Dplot_gallery=0  
+
+    #in powershell
+    Set-Item env:SPHINXOPTS "-W"
+    Set-Item env:O "-Dplot_gallery=0" 
+
+The ``SPHINXOPTS`` variable is set to ``-W`` by default to turn warnings into
+errors.  To unset it, set the ``SPHINXOPTS`` variable to any argument except 
+nothing. A space can used to overide the default.
+
+.. code-block:: sh
+    
+    #in cmd
+    #use the default -W option
+    make html 
+    set SPHINXOPTS=& make html
+    
+    #to not use the default
+    set SPHINXOPTS= & make html
+  
+You can use the ``O`` variable to set additional options, for example (see 
+linux, macOS above for more options) 
+
+.. code-block:: sh
+
+   set O=-j4 -Dplot_gallery=0
+   
+The total command is then run with 
+
+.. code-block:: sh
+
+    #in cmd
+    set O=-Dplot_gallery=0
+    make html
+    
+    #or on one line
+    set O=-Dplot_gallery=0 & make html
+     
+    #in powershell
+    Set-Item env:O "-Dplot_gallery=0"
+    .\make html
+    
+    #or on one line
+    Set-Item env:O "-Dplot_gallery=0"; .\make html
+         
+Both ``SPHINXOPTS`` and ``O`` are unset at the end of the ``make.bat`` file 
+if cmd is used but not if powershell is used. So a variable must be unset 
+manually with 
+
+.. code-block:: sh
+
+    Set-Item evn:O
+    
+in powershell before running ``make.bat`` again if the default behavior is 
+wanted.
+    
 .. _writing-rest-pages:
 
 Writing ReST pages

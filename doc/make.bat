@@ -10,9 +10,11 @@ if "%SPHINXBUILD%" == "" (
 set SOURCEDIR=.
 set BUILDDIR=build
 set SPHINXPROJ=matplotlib
-set SPHINXOPTS=-W
-set O=
 
+if "%SPHINXOPTS%" == "" (
+    set SPHINXOPTS=-W
+)
+ 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
 	echo.
@@ -28,11 +30,16 @@ if errorlevel 9009 (
 
 if "%1" == "" goto help
 
+echo %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end
 
 :help
+
 %SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 
 :end
+set SPHINXBUILD=
+set O=
+set SPHINXOPTS=
 popd
