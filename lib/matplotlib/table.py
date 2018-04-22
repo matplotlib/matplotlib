@@ -21,13 +21,12 @@ License   : matplotlib license
 """
 import warnings
 
-from . import artist
+from . import artist, cbook, docstring
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
-from matplotlib import docstring
 from .text import Text
 from .transforms import Bbox
-from matplotlib.path import Path
+from .path import Path
 
 
 class Cell(Rectangle):
@@ -382,7 +381,7 @@ class Table(Artist):
     def get_children(self):
         """Return the Artists contained by the table."""
         return list(self._cells.values())
-    get_child_artists = get_children  # backward compatibility
+    get_child_artists = cbook.deprecated("3.0")(get_children)
 
     def get_window_extent(self, renderer):
         """Return the bounding box of the table in window coords."""
