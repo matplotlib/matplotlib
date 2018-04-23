@@ -29,7 +29,7 @@ def test_bbox_inches_tight():
     # the bottom values for stacked bar chart
     fig, ax = plt.subplots(1, 1)
     for row in range(rows):
-        ax.bar(ind, data[row], width, bottom=yoff, color='b')
+        ax.bar(ind, data[row], width, bottom=yoff, align='edge', color='b')
         yoff = yoff + data[row]
         cellText.append([''])
     plt.xticks([])

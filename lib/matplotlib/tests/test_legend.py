@@ -48,8 +48,8 @@ def test_legend_auto2():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     x = np.arange(100)
-    b1 = ax.bar(x, x, color='m')
-    b2 = ax.bar(x, x[::-1], color='g')
+    b1 = ax.bar(x, x, align='edge', color='m')
+    b2 = ax.bar(x, x[::-1], align='edge', color='g')
     ax.legend([b1[0], b2[0]], ['up', 'down'], loc=0)
 
 
