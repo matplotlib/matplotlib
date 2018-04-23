@@ -455,6 +455,38 @@ def test_polar_coord_annotations():
     ax.set_ylim(-20, 20)
 
 
+@image_comparison(baseline_images=['polar_alignment'], extensions=['png'])
+def test_polar_alignment():
+    '''
+    Test that changing the vertical/horizontal alignment of a polar graph
+    works as expected '''
+    ranges = [(0, 5), (0, 5)]
+
+    angles = np.arange(0, 360, 90)
+
+    levels = 5
+
+    fig = plt.figure()
+
+    figureSize = [0.1, 0.1, 0.8, 0.8]
+
+    horizontal = fig.add_axes(figureSize, polar=True, label='horizontal')
+    vertical = fig.add_axes(figureSize, polar=True, label='vertical')
+
+    axes = [horizontal, vertical]
+
+    horizontal.set_thetagrids(angles)
+
+    vertical.patch.set_visible(False)
+
+    for i in range(2):
+        grid = np.linspace(*ranges[i], num=levels)
+        gridValues = [0, 0.2, 0.4, 0.6, 0.8, 1]
+        axes[i].set_rgrids(gridValues, angle=angles[i],
+                           horizontalalignment='left',
+                           verticalalignment='top')
+
+
 @image_comparison(baseline_images=['fill_units'], extensions=['png'],
                   savefig_kwarg={'dpi': 60})
 def test_fill_units():
