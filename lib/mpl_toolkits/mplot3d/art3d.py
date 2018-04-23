@@ -6,11 +6,6 @@
 Module containing 3D artist code and functions to convert 2D
 artists into 3D versions which can be added to an Axes3D.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
 
 import math
 
@@ -224,12 +219,6 @@ class Line3DCollection(LineCollection):
     """
     A collection of 3D lines.
     """
-
-    def __init__(self, segments, *args, **kwargs):
-        """
-        Keyword arguments are passed onto :func:`~matplotlib.collections.LineCollection`.
-        """
-        LineCollection.__init__(self, segments, *args, **kwargs)
 
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
