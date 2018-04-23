@@ -47,7 +47,7 @@ env:
     - ARTIFACTS_BUCKET=matplotlib-test-results
     - secure: RgJI7BBL8aX5FTOQe7xiXqWHMxWokd6GNUWp1NUV2mRLXPb9dI0RXqZt3UJwKTAzf1z/OtlHDmEkBoTVK81E9iUxK5npwyyjhJ8yTJmwfQtQF2n51Q1Ww9p+XSLORrOzZc7kAo6Kw6FIXN1pfctgYq2bQkrwJPRx/oPR8f6hcbY=
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
-    - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
+    - secure: dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU=
     # Variables controlling Python dependencies.
     - CYCLER=cycler
     - DATEUTIL=python-dateutil
@@ -156,7 +156,7 @@ install:
       python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
       echo 'pgi is available' ||
       echo 'pgi is not available'
-    python -mpip install pyqt5==5.9 &&
+    python -mpip install pyqt5 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
