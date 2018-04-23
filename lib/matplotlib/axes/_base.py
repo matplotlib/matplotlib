@@ -3103,10 +3103,20 @@ class _AxesBase(martist.Artist):
                  'left=%s, right=%s') % (left, right))
         left, right = mtransforms.nonsingular(left, right, increasing=False)
 
-        if self.get_xscale() == 'log' and (left <= 0.0 or right <= 0.0):
-            warnings.warn(
-                'Attempted to set non-positive xlimits for log-scale axis; '
-                'invalid limits will be ignored.')
+        if self.get_xscale() == 'log':
+            if left <= 0:
+                warnings.warn(
+                    'Attempted to set non-positive left xlim on a '
+                    'log-scaled axis.\n'
+                    'Invalid limit will be ignored.')
+                left = old_left
+            if right <= 0:
+                warnings.warn(
+                    'Attempted to set non-positive right xlim on a '
+                    'log-scaled axis.\n'
+                    'Invalid limit will be ignored.')
+                right = old_right
+
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
         self.viewLim.intervalx = (left, right)
@@ -3423,10 +3433,19 @@ class _AxesBase(martist.Artist):
 
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
 
-        if self.get_yscale() == 'log' and (bottom <= 0.0 or top <= 0.0):
-            warnings.warn(
-                'Attempted to set non-positive ylimits for log-scale axis; '
-                'invalid limits will be ignored.')
+        if self.get_yscale() == 'log':
+            if bottom <= 0:
+                warnings.warn(
+                    'Attempted to set non-positive bottom ylim on a '
+                    'log-scaled axis.\n'
+                    'Invalid limit will be ignored.')
+                bottom = old_bottom
+            if top <= 0:
+                warnings.warn(
+                    'Attempted to set non-positive top ylim on a '
+                    'log-scaled axis.\n'
+                    'Invalid limit will be ignored.')
+                top = old_top
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
         self.viewLim.intervaly = (bottom, top)
