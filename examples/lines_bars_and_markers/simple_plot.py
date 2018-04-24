@@ -6,6 +6,7 @@ Simple Plot
 Create a simple plot.
 """
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -24,3 +25,17 @@ ax.grid()
 
 fig.savefig("test.png")
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+matplotlib.axes.Axes.plot
+matplotlib.pyplot.plot
+matplotlib.pyplot.subplots
+matplotlib.figure.Figure.savefig

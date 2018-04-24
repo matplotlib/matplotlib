@@ -330,14 +330,14 @@ without fiddling with environment variables::
   conda install -c conda-forge backports.functools_lru_cache
 
   # copy the libs which have "wrong" names
-  set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib
+  set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
   mkdir lib || cmd /c "exit /b 0"
   copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
   copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
 
   # Make the header files and the rest of the static libs available during the build
   # CONDA_DEFAULT_ENV is a env variable which is set to the currently active environment path
-  set MPLBASEDIRLIST=%CONDA_DEFAULT_ENV%\Library\;.
+  set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
 
   # build the wheel
   python setup.py bdist_wheel

@@ -467,4 +467,4 @@ plt.show()
 # see how to make your own, since Matplotlib supports extensible axes
 # and projections.  Michael Droettboom has provided a nice tutorial
 # example of creating a Hammer projection axes; see
-# :ref:`sphx_glr_gallery_api_custom_projection_example.py`.
+# :ref:`sphx_glr_gallery_misc_custom_projection.py`.

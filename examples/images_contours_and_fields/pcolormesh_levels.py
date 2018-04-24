@@ -9,6 +9,7 @@ way to the levels keyword argument to contour/contourf.
 
 """
 
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
@@ -55,3 +56,16 @@ ax1.set_title('contourf with levels')
 fig.tight_layout()
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+matplotlib.axes.Axes.pcolormesh
+matplotlib.axes.Axes.contourf
+matplotlib.figure.Figure.colorbar

@@ -153,10 +153,17 @@ source_encoding = "utf-8"
 master_doc = 'contents'
 
 # General substitutions.
+from matplotlib.compat.subprocess import check_output
+SHA = check_output(['git', 'describe', '--dirty']).decode('utf-8').strip()
+
+html_context = {'sha': SHA}
+
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
              'team; 2012 - 2018 The Matplotlib development team')
+
+
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -243,9 +250,10 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-    'index': ['donate_sidebar.html', 'searchbox.html'],
-    '**': ['localtoc.html', 'relations.html',
-           'sourcelink.html', 'searchbox.html']
+    'index': ['searchbox.html', 'sidebar_announcement.html',
+              'donate_sidebar.html'],
+    '**': ['searchbox.html', 'localtoc.html', 'relations.html',
+           'pagesource.html']
 }
 
 # If false, no module index is generated.
