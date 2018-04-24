@@ -448,7 +448,7 @@ def checkdep_ghostscript():
         for gs_exec in gs_execs:
             try:
                 s = subprocess.Popen(
-                    [str(gs_exec), '--version'], stdout=subprocess.PIPE,
+                    [gs_exec, '--version'], stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
                 stdout, stderr = s.communicate()
                 if s.returncode == 0:
