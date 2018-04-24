@@ -34,8 +34,7 @@ def _tick_only(ax, bottom_on, left_on):
 
 class CbarAxesBase(object):
 
-    def colorbar(self, mappable, **kwargs):
-        locator = kwargs.pop("locator", None)
+    def colorbar(self, mappable, *, locator=None, **kwargs):
 
         if locator is None:
             if "ticks" not in kwargs:
@@ -107,15 +106,11 @@ class CbarAxesBase(object):
 
 
 class CbarAxes(CbarAxesBase, LocatableAxes):
-    def __init__(self, *kl, **kwargs):
-        orientation = kwargs.pop("orientation", None)
-        if orientation is None:
-            raise ValueError("orientation must be specified")
+    def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
         self._default_label_on = True
         self.locator = None
-
-        super().__init__(*kl, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def cla(self):
         super().cla()

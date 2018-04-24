@@ -353,7 +353,7 @@ class Patch3DCollection(PatchCollection):
     A collection of 3D patches.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, zs=0, zdir='z', depthshade=True, **kwargs):
         """
         Create a collection of flat 3D patches with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -369,10 +369,8 @@ class Patch3DCollection(PatchCollection):
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
         """
-        zs = kwargs.pop('zs', 0)
-        zdir = kwargs.pop('zdir', 'z')
-        self._depthshade = kwargs.pop('depthshade', True)
-        PatchCollection.__init__(self, *args, **kwargs)
+        self._depthshade = depthshade
+        super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_sort_zpos(self, val):
@@ -421,7 +419,7 @@ class Path3DCollection(PathCollection):
     A collection of 3D paths.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, zs=0, zdir='z', depthshade=True, **kwargs):
         """
         Create a collection of flat 3D paths with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -437,10 +435,8 @@ class Path3DCollection(PathCollection):
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
         """
-        zs = kwargs.pop('zs', 0)
-        zdir = kwargs.pop('zdir', 'z')
-        self._depthshade = kwargs.pop('depthshade', True)
-        PathCollection.__init__(self, *args, **kwargs)
+        self._depthshade = depthshade
+        super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_sort_zpos(self, val):
@@ -515,7 +511,7 @@ class Poly3DCollection(PolyCollection):
     A collection of 3D polygons.
     """
 
-    def __init__(self, verts, *args, **kwargs):
+    def __init__(self, verts, *args, zsort=True, **kwargs):
         """
         Create a Poly3DCollection.
 
@@ -527,8 +523,7 @@ class Poly3DCollection(PolyCollection):
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
         """
-        zsort = kwargs.pop('zsort', True)
-        PolyCollection.__init__(self, verts, *args, **kwargs)
+        super().__init__(verts, *args, **kwargs)
         self.set_zsort(zsort)
         self._codes3d = None
 

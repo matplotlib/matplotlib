@@ -1215,17 +1215,16 @@ class FigureCanvasSVG(FigureCanvasBase):
                 gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
             return self.print_svg(gzipwriter)
 
-    def _print_svg(self, filename, fh, **kwargs):
-        image_dpi = kwargs.pop("dpi", 72)
+    def _print_svg(
+            self, filename, fh, *, dpi=72, bbox_inches_restore=None, **kwargs):
         self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
         w, h = width * 72, height * 72
 
-        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         renderer = MixedModeRenderer(
-            self.figure, width, height, image_dpi,
-            RendererSVG(w, h, fh, filename, image_dpi),
-            bbox_inches_restore=_bbox_inches_restore)
+            self.figure, width, height, dpi,
+            RendererSVG(w, h, fh, filename, dpi),
+            bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)
         renderer.finalize()

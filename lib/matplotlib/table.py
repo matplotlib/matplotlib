@@ -145,7 +145,6 @@ class Cell(Rectangle):
 class CustomCell(Cell):
     """
     A subclass of Cell where the sides may be visibly toggled.
-
     """
 
     _edges = 'BRTL'
@@ -155,9 +154,8 @@ class CustomCell(Cell):
                      'vertical':     'RL'
                      }
 
-    def __init__(self, *args, **kwargs):
-        visible_edges = kwargs.pop('visible_edges')
-        Cell.__init__(self, *args, **kwargs)
+    def __init__(self, *args, visible_edges, **kwargs):
+        super().__init__(*args, **kwargs)
         self.visible_edges = visible_edges
 
     @property

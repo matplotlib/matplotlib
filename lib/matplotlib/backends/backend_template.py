@@ -185,7 +185,7 @@ def show(block=None):
         pass
 
 
-def new_figure_manager(num, *args, **kwargs):
+def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
     """
     Create a new figure manager instance
     """
@@ -195,7 +195,6 @@ def new_figure_manager(num, *args, **kwargs):
     # backend_wx, backend_wxagg and backend_tkagg for examples.  Not all GUIs
     # require explicit instantiation of a main-level app (egg backend_gtk,
     # backend_gtkagg) for pylab.
-    FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
 

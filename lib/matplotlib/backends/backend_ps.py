@@ -959,9 +959,11 @@ class FigureCanvasPS(FigureCanvasBase):
                                orientation, isLandscape, papertype,
                                **kwargs)
 
-    def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
-                      orientation='portrait', isLandscape=False, papertype=None,
-                      metadata=None, **kwargs):
+    def _print_figure(
+            self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
+            orientation='portrait', isLandscape=False, papertype=None,
+            metadata=None, *,
+            dryrun=False, bbox_inches_restore=None, **kwargs):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
@@ -1031,8 +1033,6 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-
-        dryrun = kwargs.get("dryrun", False)
         if dryrun:
             class NullWriter(object):
                 def write(self, *kl, **kwargs):
@@ -1042,14 +1042,12 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             self._pswriter = io.StringIO()
 
-
         # mixed mode rendering
-        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         ps_renderer = self._renderer_class(width, height, self._pswriter,
                                            imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
             width, height, dpi, ps_renderer,
-            bbox_inches_restore=_bbox_inches_restore)
+            bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)
 
@@ -1199,9 +1197,10 @@ class FigureCanvasPS(FigureCanvasBase):
                 with io.open(outfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
 
-    def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
-                          orientation, isLandscape, papertype, metadata=None,
-                          **kwargs):
+    def _print_figure_tex(
+            self, outfile, format, dpi, facecolor, edgecolor,
+            orientation, isLandscape, papertype, metadata=None, *,
+            dryrun=False, bbox_inches_restore=None, **kwargs):
         """
         If text.usetex is True in rc, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
@@ -1236,7 +1235,6 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        dryrun = kwargs.get("dryrun", False)
         if dryrun:
             class NullWriter(object):
                 def write(self, *kl, **kwargs):
@@ -1247,12 +1245,11 @@ class FigureCanvasPS(FigureCanvasBase):
             self._pswriter = io.StringIO()
 
         # mixed mode rendering
-        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         ps_renderer = self._renderer_class(width, height,
                                            self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
                                      width, height, dpi, ps_renderer,
-                                     bbox_inches_restore=_bbox_inches_restore)
+                                     bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)
 

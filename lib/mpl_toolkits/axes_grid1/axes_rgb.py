@@ -99,7 +99,7 @@ class RGBAxesBase(object):
     B : _defaultAxesClass
         The axes object for the blue channel imshow
     """
-    def __init__(self, *kl, **kwargs):
+    def __init__(self, *args, pad=0, add_all=True, **kwargs):
         """
         Parameters
         ----------
@@ -116,8 +116,6 @@ class RGBAxesBase(object):
         kwargs :
             Unpacked into axes_class() init for RGB, R, G, B axes
         """
-        pad = kwargs.pop("pad", 0.0)
-        add_all = kwargs.pop("add_all", True)
         try:
             axes_class = kwargs.pop("axes_class", self._defaultAxesClass)
         except AttributeError:
@@ -128,7 +126,7 @@ class RGBAxesBase(object):
             six.reraise(AttributeError, AttributeError(new_msg),
                         sys.exc_info()[2])
 
-        ax = axes_class(*kl, **kwargs)
+        ax = axes_class(*args, **kwargs)
 
         divider = make_axes_locatable(ax)
 

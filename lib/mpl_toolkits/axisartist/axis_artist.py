@@ -212,13 +212,13 @@ class Ticks(Line2D, AttributeCopier):
     set_tick_out(False).
     """
 
-    def __init__(self, ticksize, tick_out=False, **kwargs):
+    def __init__(self, ticksize, tick_out=False, *, axis=None, **kwargs):
         self._ticksize = ticksize
         self.locs_angles_labels = []
 
         self.set_tick_out(tick_out)
 
-        self._axis = kwargs.pop("axis", None)
+        self._axis = axis
         if self._axis is not None:
             if "color" not in kwargs:
                 kwargs["color"] = "auto"
@@ -455,11 +455,10 @@ class AxisLabel(LabelBase, AttributeCopier):
     To change the pad between ticklabels and axis label, use set_pad.
     """
 
-    def __init__(self, *kl, **kwargs):
+    def __init__(self, *args, axis_direction="bottom", axis=None, **kwargs):
 
-        axis_direction = kwargs.pop("axis_direction", "bottom")
-        self._axis = kwargs.pop("axis", None)
-        LabelBase.__init__(self, *kl, **kwargs)
+        self._axis = axis
+        LabelBase.__init__(self, *args, **kwargs)
         AttributeCopier.__init__(self, self._axis, klass=LabelBase)
 
         self.set_axis_direction(axis_direction)
@@ -600,15 +599,12 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
     To change the pad between ticks and ticklabels, use set_pad.
     """
 
-    def __init__(self, **kwargs):
-
-        axis_direction = kwargs.pop("axis_direction", "bottom")
+    def __init__(self, *, axis_direction="bottom", **kwargs):
         AxisLabel.__init__(self, **kwargs)
         self.set_axis_direction(axis_direction)
         #self._axis_direction = axis_direction
         self._axislabel_pad = 0
         #self._extra_pad = 0
-
 
     # attribute copier
     def get_ref_artist(self):
@@ -802,14 +798,14 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
 
 
 class GridlinesCollection(LineCollection):
-    def __init__(self, *kl, **kwargs):
+    def __init__(self, *args, which="major", axis="both", **kwargs):
         """
         *which* : "major" or "minor"
         *axis* : "both", "x" or "y"
         """
-        self._which = kwargs.pop("which", "major")
-        self._axis = kwargs.pop("axis", "both")
-        super().__init__(*kl, **kwargs)
+        self._which = which
+        self._axis = axis
+        super().__init__(*args, **kwargs)
         self.set_grid_helper(None)
 
     def set_which(self, which):
