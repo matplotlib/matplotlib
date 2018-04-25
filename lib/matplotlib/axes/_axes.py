@@ -5027,7 +5027,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4)
+        X : array_like, shape (M, N) or (M, N, 3) or (M, N, 4)
             Display the image in `X` to current axes.  `X` may be an
             array or a PIL image. If `X` is an array, it
             can have the following shapes and types:
@@ -5040,10 +5040,10 @@ class Axes(_AxesBase):
             scalar to scalar) and the `cmap` (mapping the normed scalar to
             a color).
 
-            Elements of RGB and RGBA arrays represent pixels of an MxN image.
-            All values should be in the range [0 .. 1] for floats or
-            [0 .. 255] for integers.  Out-of-range values will be clipped to
-            these bounds.
+            Elements of RGB and RGBA arrays represent pixels of an NxM
+            (width x height) image.  All values should be in the range
+            [0 .. 1] for floats or [0 .. 255] for integers.  Out-of-range
+            values will be clipped to these bounds.
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             If None, default to rc `image.cmap` value. `cmap` is ignored
