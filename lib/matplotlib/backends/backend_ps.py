@@ -984,6 +984,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if isinstance(outfile,
                       (six.string_types, getattr(os, "PathLike", ()),)):
             outfile = title = getattr(os, "fspath", lambda obj: obj)(outfile)
+            title = title.encode("latin-1", "replace").decode()
             passed_in_file_object = False
         elif is_writable_file_like(outfile):
             title = None
@@ -1071,7 +1072,7 @@ class FigureCanvasPS(FigureCanvasBase):
             else:
                 print("%!PS-Adobe-3.0", file=fh)
             if title:
-                print("%%Title: "+title, file=fh)
+                print("%%Title: " + title, file=fh)
             print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
@@ -1081,7 +1082,7 @@ class FigureCanvasPS(FigureCanvasBase):
                     int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
-            print("%%CreationDate: "+source_date, file=fh)
+            print("%%CreationDate: " + source_date, file=fh)
             print("%%Orientation: " + orientation, file=fh)
             if not isEPSF:
                 print("%%DocumentPaperSizes: "+papertype, file=fh)
