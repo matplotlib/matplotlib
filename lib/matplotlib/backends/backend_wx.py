@@ -1857,7 +1857,7 @@ class _HelpDialog(wx.Dialog):
         OK.Bind(wx.EVT_BUTTON, self.OnClose)
 
     def OnClose(self, evt):
-        _HelpDialog.instance = None  # remove global reference
+        _HelpDialog._instance = None  # remove global reference
         self.DestroyLater()
         evt.Skip()
 
