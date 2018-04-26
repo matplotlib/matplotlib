@@ -407,6 +407,22 @@ Both bindings are disabled if only a subset of the grid lines (in either
 direction) is visible, to avoid making irreversible changes to the figure.
 
 
+Ticklabels are turned off instead of being invisible
+----------------------------------------------------
+
+Internally, the `Tick`'s :func:`~matplotlib.axis.Tick.label1On` attribute
+is now used to hide tick labels instead of setting the visibility on the tick
+label objects.
+This improves overall performance and fixes some issues.
+As a consequence, in case those labels ought to be shown,
+:func:`~matplotlib.axes.Axes.tick_params`
+needs to be used, e.g.
+
+::
+
+    ax.tick_params(labelbottom=True)
+
+
 Removal of warning on empty legends
 -----------------------------------
 

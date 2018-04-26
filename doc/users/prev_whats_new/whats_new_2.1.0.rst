@@ -395,12 +395,28 @@ cases.
 ---------------------------------------------------
 
 Bulk setting of tick label rotation is now possible via
-:func:`~matplotlib.axis.Axis.set_tick_params` using the ``rotation``
+:func:`~matplotlib.axes.Axes.tick_params` using the ``rotation``
 keyword.
 
 ::
 
-    ax.xaxis.set_tick_params(which='both', rotation=90)
+    ax.tick_params(which='both', rotation=90)
+
+
+Ticklabels are turned off instead of being invisible
+----------------------------------------------------
+
+Internally, the `Tick`'s :func:`~matplotlib.axis.Tick.label1On` attribute
+is now used to hide tick labels instead of setting the visibility on the tick
+label objects.
+This improves overall performance and fixes some issues.
+As a consequence, in case those labels ought to be shown,
+:func:`~matplotlib.axes.Axes.tick_params`
+needs to be used, e.g.
+
+::
+
+    ax.tick_params(labelbottom=True)
 
 
 Shading in 3D bar plots
