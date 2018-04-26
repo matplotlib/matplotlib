@@ -20,6 +20,66 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 
+def index_to_coordinate(index, extent, origin):
+    """Return the pixel center of an index."""
+    left, right, bottom, top = extent
+
+    hshift = 0.5 * np.sign(right - left)
+    left, right = left + hshift, right - hshift
+    vshift = 0.5 * np.sign(top - bottom)
+    bottom, top = bottom + vshift, top - vshift
+
+    if origin == 'upper':
+        bottom, top = top, bottom
+
+    return {
+        "[0, 0]": (left, bottom),
+        "[N', 0]": (left, top),
+        "[0, M']": (right, bottom),
+        "[N', M']": (right, top),
+    }[index]
+
+
+def get_index_label_pos(index, extent, origin, inverted_xindex):
+    """
+    Return the desired position and horizontal alignment of an index label.
+    """
+    if extent is None:
+        extent = lookup_extent(origin)
+    left, right, bottom, top = extent
+    x, y = index_to_coordinate(index, extent, origin)
+
+    is_x0 = index[-2:] == "0]"
+    halign = 'left' if is_x0 ^ inverted_xindex else 'right'
+    hshift = 0.5 * np.sign(left - right)
+    x += hshift * (1 if is_x0 else -1)
+    return x, y, halign
+
+
+def get_color(index, data, cmap):
+    """Return the data color of an index."""
+    val = {
+        "[0, 0]": data[0, 0],
+        "[0, M']": data[0, -1],
+        "[N', 0]": data[-1, 0],
+        "[N', M']": data[-1, -1],
+    }[index]
+    return cmap(val / data.max())
+
+
+def lookup_extent(origin):
+    """Return extent for label positioning when not given explicitly."""
+    if origin == 'lower':
+        return (-0.5, 6.5, -0.5, 5.5)
+    else:
+        return (-0.5, 6.5, 5.5, -0.5)
+
+
+def set_extent_None_text(ax):
+    ax.text(3, 2.5, 'equals\nextent=None', size='large',
+            ha='center', va='center', color='w')
+
+
 def generate_imshow_demo_grid(extents, auto_limits):
     N = len(extents)
     fig = plt.figure(tight_layout=True)
@@ -37,18 +97,6 @@ def generate_imshow_demo_grid(extents, auto_limits):
 
             im = ax.imshow(d, origin=origin, extent=extent)
             left, right, bottom, top = im.get_extent()
-            arrow_style = {'arrowprops': {'arrowstyle': '-|>',
-                                          'shrinkA': 0,
-                                          'color': '0.5',
-                                          'linewidth': 3}}
-            ax.annotate('',
-                        (left, bottom + 2*np.sign(top - bottom)),
-                        (left, bottom),
-                        **arrow_style)
-            ax.annotate('',
-                        (left + 2*np.sign(right - left), bottom),
-                        (left, bottom),
-                        **arrow_style)
 
             if auto_limits or top > bottom:
                 upper_string, lower_string = 'top', 'bottom'
@@ -57,8 +105,10 @@ def generate_imshow_demo_grid(extents, auto_limits):
 
             if auto_limits or left < right:
                 port_string, starboard_string = 'left', 'right'
+                inverted_xindex = False
             else:
                 port_string, starboard_string = 'right', 'left'
+                inverted_xindex = True
 
             bbox_kwargs = {'fc': 'w', 'alpha': .75, 'boxstyle': "round4"}
             ann_kwargs = {'xycoords': 'axes fraction',
@@ -78,6 +128,13 @@ def generate_imshow_demo_grid(extents, auto_limits):
 
             ax.set_title('origin: {origin}'.format(origin=origin))
 
+            for index in ["[0, 0]", "[0, M']", "[N', 0]", "[N', M']"]:
+                tx, ty, halign = get_index_label_pos(index, extent, origin,
+                                                     inverted_xindex)
+                facecolor = get_color(index, d, im.get_cmap())
+                ax.text(tx, ty, index, color='white', ha=halign, va='center',
+                        bbox={'boxstyle': 'square', 'facecolor': facecolor})
+
             if not auto_limits:
                 ax.set_xlim(-1, 7)
                 ax.set_ylim(-1, 6)
@@ -89,7 +146,7 @@ def generate_imshow_demo_grid(extents, auto_limits):
                        'xy': (1, .5)}
         if extent is None:
             ax.annotate('None', **text_kwargs)
-            ax.set_title('`extent=`')
+            ax.set_title('extent=')
         else:
             left, right, bottom, top = extent
             text = ('left: {left:0.1f}\nright: {right:0.1f}\n' +
@@ -98,6 +155,7 @@ def generate_imshow_demo_grid(extents, auto_limits):
 
             ax.annotate(text, **text_kwargs)
         ax.axis('off')
+    return columns
 
 
 extents = (None,
@@ -105,6 +163,8 @@ extents = (None,
            (-0.5, 6.5, 5.5, -0.5),
            (6.5, -0.5, -0.5, 5.5),
            (6.5, -0.5, 5.5, -0.5))
+
+
 
 ###############################################################################
 #
@@ -153,7 +213,9 @@ generate_imshow_demo_grid(extents[:1], auto_limits=True)
 # may invert the axis so they do not increase in the 'natural' direction.
 #
 
-generate_imshow_demo_grid(extents[1:], auto_limits=True)
+columns = generate_imshow_demo_grid(extents[1:], auto_limits=True)
+set_extent_None_text(columns['upper'][1])
+set_extent_None_text(columns['lower'][0])
 
 
 ###############################################################################
@@ -170,4 +232,6 @@ generate_imshow_demo_grid(extents[1:], auto_limits=True)
 # - The 'left-right' and 'top-bottom' sense of the image is uncoupled from
 #   the orientation on the screen.
 
-generate_imshow_demo_grid(extents, auto_limits=False)
+columns = generate_imshow_demo_grid(extents, auto_limits=False)
+set_extent_None_text(columns['upper'][2])
+set_extent_None_text(columns['lower'][1])
