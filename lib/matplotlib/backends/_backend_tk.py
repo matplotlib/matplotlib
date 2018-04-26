@@ -976,6 +976,7 @@ backend_tools.ToolConfigureSubplots = ConfigureSubplotsTk
 backend_tools.ToolSetCursor = SetCursorTk
 backend_tools.ToolRubberband = RubberbandTk
 backend_tools.ToolHelp = HelpTk
+backend_tools.ToolCopyToClipboard = backend_tools.ToolCopyToClipboardBase
 Toolbar = ToolbarTk
 
 
