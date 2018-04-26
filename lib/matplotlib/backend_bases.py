@@ -55,7 +55,12 @@ from matplotlib.path import Path
 
 try:
     from PIL import Image
-    _has_pil = True
+    from PIL import PILLOW_VERSION
+    from distutils.version import LooseVersion
+    if LooseVersion(PILLOW_VERSION) >= LooseVersion("3.4"):
+        _has_pil = True
+    else:
+        _has_pil = False
     del Image
 except ImportError:
     _has_pil = False
