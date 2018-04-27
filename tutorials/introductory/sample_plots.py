@@ -333,8 +333,8 @@ The :func:`~matplotlib.pyplot.legend` function automatically
 generates figure legends, with MATLAB-compatible legend-placement
 functions.
 
-.. figure:: ../../gallery/api/images/sphx_glr_legend_001.png
-   :target: ../../gallery/api/legend.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_legend_001.png
+   :target: ../../gallery/text_labels_and_annotations/legend.html
    :align: center
    :scale: 50
 

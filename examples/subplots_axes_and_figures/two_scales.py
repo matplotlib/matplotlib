@@ -3,8 +3,7 @@
 Plots with different scales
 ===========================
 
-Demonstrate how to do two plots on the same axes with different left and
-right scales.
+Two plots on the same axes with different left and right scales.
 
 The trick is to use *two different axes* that share the same *x* axis.
 You can use separate `matplotlib.ticker` formatters and locators as

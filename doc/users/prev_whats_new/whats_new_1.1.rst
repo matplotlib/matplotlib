@@ -17,11 +17,12 @@ Sankey Diagrams
 
 Kevin Davies has extended Yannick Copin's original Sankey example into a module
 (:mod:`~matplotlib.sankey`) and provided new examples
-(:doc:`/gallery/api/sankey_basics`, :doc:`/gallery/api/sankey_links`,
-:doc:`/gallery/api/sankey_rankine`).
+(:doc:`/gallery/specialty_plots/sankey_basics`,
+:doc:`/gallery/specialty_plots/sankey_links`,
+:doc:`/gallery/specialty_plots/sankey_rankine`).
 
-.. figure:: ../../gallery/api/images/sphx_glr_sankey_rankine_001.png
-   :target: ../../gallery/api/sankey_rankine.html
+.. figure:: ../../gallery/specialty_plots/images/sphx_glr_sankey_rankine_001.png
+   :target: ../../gallery/specialty_plots/sankey_rankine.html
    :align: center
    :scale: 50
 

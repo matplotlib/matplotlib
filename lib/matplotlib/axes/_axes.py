@@ -368,7 +368,7 @@ class Axes(_AxesBase):
         Examples
         --------
 
-        .. plot:: gallery/api/legend.py
+        .. plot:: gallery/text_labels_and_annotations/legend.py
 
         """
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(

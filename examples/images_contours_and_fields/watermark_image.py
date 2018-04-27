@@ -3,7 +3,7 @@
 Watermark image
 ===============
 
-Use a PNG file as a watermark
+Using a PNG file as a watermark.
 """
 import numpy as np
 import matplotlib.cbook as cbook
