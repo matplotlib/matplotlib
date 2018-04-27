@@ -14,6 +14,13 @@ the image will fill specified as ``(left, right, bottom, top)`` in
 **data coordinates**, the *origin* kwarg controls how the image fills
 that bounding box, and the orientation in the final rendered image is
 also affected by the axes limits.
+
+.. hint:: Most of the code below is used for adding labels and informative
+   text to the plots. The described effects of *origin* and *extent* can be
+   seen in the plots without the need to follow all code details.
+
+   For a quick understanding, you may want to skip the code details below and
+   directly continue with the discussion of the results.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -34,9 +41,9 @@ def index_to_coordinate(index, extent, origin):
 
     return {
         "[0, 0]": (left, bottom),
-        "[N', 0]": (left, top),
-        "[0, M']": (right, bottom),
-        "[N', M']": (right, top),
+        "[M', 0]": (left, top),
+        "[0, N']": (right, bottom),
+        "[M', N']": (right, top),
     }[index]
 
 
@@ -60,9 +67,9 @@ def get_color(index, data, cmap):
     """Return the data color of an index."""
     val = {
         "[0, 0]": data[0, 0],
-        "[0, M']": data[0, -1],
-        "[N', 0]": data[-1, 0],
-        "[N', M']": data[-1, -1],
+        "[0, N']": data[0, -1],
+        "[M', 0]": data[-1, 0],
+        "[M', N']": data[-1, -1],
     }[index]
     return cmap(val / data.max())
 
@@ -80,7 +87,52 @@ def set_extent_None_text(ax):
             ha='center', va='center', color='w')
 
 
-def generate_imshow_demo_grid(extents, auto_limits):
+def plot_imshow_with_labels(ax, data, extent, origin, xlim, ylim):
+    """Actually run ``imshow()`` and add extent and index labels."""
+    im = ax.imshow(data, origin=origin, extent=extent)
+
+    # extent labels (left, right, bottom, top)
+    left, right, bottom, top = im.get_extent()
+    if xlim is None or top > bottom:
+        upper_string, lower_string = 'top', 'bottom'
+    else:
+        upper_string, lower_string = 'bottom', 'top'
+    if ylim is None or left < right:
+        port_string, starboard_string = 'left', 'right'
+        inverted_xindex = False
+    else:
+        port_string, starboard_string = 'right', 'left'
+        inverted_xindex = True
+    bbox_kwargs = {'fc': 'w', 'alpha': .75, 'boxstyle': "round4"}
+    ann_kwargs = {'xycoords': 'axes fraction',
+                  'textcoords': 'offset points',
+                  'bbox': bbox_kwargs}
+    ax.annotate(upper_string, xy=(.5, 1), xytext=(0, -1),
+                ha='center', va='top', **ann_kwargs)
+    ax.annotate(lower_string, xy=(.5, 0), xytext=(0, 1),
+                ha='center', va='bottom', **ann_kwargs)
+    ax.annotate(port_string, xy=(0, .5), xytext=(1, 0),
+                ha='left', va='center', rotation=90,
+                **ann_kwargs)
+    ax.annotate(starboard_string, xy=(1, .5), xytext=(-1, 0),
+                ha='right', va='center', rotation=-90,
+                **ann_kwargs)
+    ax.set_title('origin: {origin}'.format(origin=origin))
+
+    # index labels
+    for index in ["[0, 0]", "[0, N']", "[M', 0]", "[M', N']"]:
+        tx, ty, halign = get_index_label_pos(index, extent, origin,
+                                             inverted_xindex)
+        facecolor = get_color(index, data, im.get_cmap())
+        ax.text(tx, ty, index, color='white', ha=halign, va='center',
+                bbox={'boxstyle': 'square', 'facecolor': facecolor})
+    if xlim:
+        ax.set_xlim(*xlim)
+    if ylim:
+        ax.set_ylim(*ylim)
+
+
+def generate_imshow_demo_grid(extents, xlim=None, ylim=None):
     N = len(extents)
     fig = plt.figure(tight_layout=True)
     fig.set_size_inches(6, N * (11.25) / 5)
@@ -90,54 +142,11 @@ def generate_imshow_demo_grid(extents, auto_limits):
                'upper': [fig.add_subplot(gs[j, 1:3]) for j in range(N)],
                'lower': [fig.add_subplot(gs[j, 3:5]) for j in range(N)]}
     x, y = np.ogrid[0:6, 0:7]
-    d = x + y
+    data = x + y
 
     for origin in ['upper', 'lower']:
         for ax, extent in zip(columns[origin], extents):
-
-            im = ax.imshow(d, origin=origin, extent=extent)
-            left, right, bottom, top = im.get_extent()
-
-            if auto_limits or top > bottom:
-                upper_string, lower_string = 'top', 'bottom'
-            else:
-                upper_string, lower_string = 'bottom', 'top'
-
-            if auto_limits or left < right:
-                port_string, starboard_string = 'left', 'right'
-                inverted_xindex = False
-            else:
-                port_string, starboard_string = 'right', 'left'
-                inverted_xindex = True
-
-            bbox_kwargs = {'fc': 'w', 'alpha': .75, 'boxstyle': "round4"}
-            ann_kwargs = {'xycoords': 'axes fraction',
-                          'textcoords': 'offset points',
-                          'bbox': bbox_kwargs}
-
-            ax.annotate(upper_string, xy=(.5, 1), xytext=(0, -1),
-                        ha='center', va='top', **ann_kwargs)
-            ax.annotate(lower_string, xy=(.5, 0), xytext=(0, 1),
-                        ha='center', va='bottom', **ann_kwargs)
-            ax.annotate(port_string, xy=(0, .5), xytext=(1, 0),
-                        ha='left', va='center', rotation=90,
-                        **ann_kwargs)
-            ax.annotate(starboard_string, xy=(1, .5), xytext=(-1, 0),
-                        ha='right', va='center', rotation=-90,
-                        **ann_kwargs)
-
-            ax.set_title('origin: {origin}'.format(origin=origin))
-
-            for index in ["[0, 0]", "[0, M']", "[N', 0]", "[N', M']"]:
-                tx, ty, halign = get_index_label_pos(index, extent, origin,
-                                                     inverted_xindex)
-                facecolor = get_color(index, d, im.get_cmap())
-                ax.text(tx, ty, index, color='white', ha=halign, va='center',
-                        bbox={'boxstyle': 'square', 'facecolor': facecolor})
-
-            if not auto_limits:
-                ax.set_xlim(-1, 7)
-                ax.set_ylim(-1, 6)
+            plot_imshow_with_labels(ax, data, extent, origin, xlim, ylim)
 
     for ax, extent in zip(columns['label'], extents):
         text_kwargs = {'ha': 'right',
@@ -158,80 +167,99 @@ def generate_imshow_demo_grid(extents, auto_limits):
     return columns
 
 
-extents = (None,
-           (-0.5, 6.5, -0.5, 5.5),
-           (-0.5, 6.5, 5.5, -0.5),
-           (6.5, -0.5, -0.5, 5.5),
-           (6.5, -0.5, 5.5, -0.5))
+###############################################################################
+#
+# Default extent
+# --------------
+#
+# First, let's have a look at the default `extent=None`
 
-
+generate_imshow_demo_grid(extents=[None])
 
 ###############################################################################
 #
+# Generally, for an array of shape (M, N), the first index runs along the
+# vertical, the second index runs along the horizontal.
+# The pixel centers are at integer positions ranging from 0 to ``N' = N - 1``
+# horizontally and from 0 to ``M' = M - 1`` vertically.
+# *origin* determines how to the data is filled in the bounding box.
 #
-# First, using *extent* we pick a bounding box in dataspace that the
-# image will fill and then interpolate/resample the underlying data to
-# fill that box.
+# For ``origin='lower'``:
 #
-# - If ``origin='lower'`` than the ``[0, 0]`` entry is closest to the
-#   ``(left, bottom)`` corner of the bounding box and moving closer to
-#   ``(left, top)`` moves along the ``[:, 0]`` axis of the array to
-#   higher indexed rows and moving towards ``(right, bottom)`` moves you
-#   along the ``[0, :]`` axis of the array to higher indexed columns
+#    - [0, 0] is at (left, bottom)
+#    - [M', 0] is at (left, top)
+#    - [0, N'] is at (right, bottom)
+#    - [M', N'] is at (right, top)
 #
-# - If ``origin='upper'`` then the ``[-1, 0]`` entry is closest to the
-#   ``(left, bottom)`` corner of the bounding box and moving towards
-#   ``(left, top)`` moves along the ``[:, 0]`` axis of the array to
-#   lower index rows and moving towards ``(right, bottom)`` moves you
-#   along the ``[-1, :]`` axis of the array to higher indexed columns
-
-generate_imshow_demo_grid(extents[:1], auto_limits=True)
-
-###############################################################################
+# ``origin='upper'`` reverses the vertical axes direction and filling:
 #
-# If we only specify *origin* we can see why it is so named.  For
-# ``origin='upper'`` the ``[0, 0]`` pixel is on the upper left and for
-# ``origin='lower'`` the ``[0, 0]`` pixel is in the lower left [#]_.
-# The gray arrows are attached to the ``(left, bottom)`` corner of the
-# image.  There are two tricky things going on here: first the default
-# value of *extent* depends on the value of *origin* and second the x
-# and y limits are adjusted to match the extent.  The default *extent*
-# is ``(-0.5, numcols-0.5, numrows-0.5, -0.5)`` when ``origin ==
-# 'upper'`` and ``(-0.5, numcols-0.5, -0.5, numrows-0.5)`` when ``origin
-# == 'lower'`` which puts the pixel centers on integer positions and the
-# ``[0, 0]`` pixel at ``(0, 0)`` in dataspace.
+#    - [0, 0] is at (left, top)
+#    - [M', 0] is at (left, bottom)
+#    - [0, N'] is at (right, top)
+#    - [M', N'] is at (right, bottom)
+#
+# In summary, the position of the [0, 0] index as well as the extent are
+# influenced by *origin*:
+#
+# ======  ===============  ==========================================
+# origin  [0, 0] position  extent
+# ======  ===============  ==========================================
+# upper   top left         ``(-0.5, numcols-0.5, numrows-0.5, -0.5)``
+# lower   bottom left      ``(-0.5, numcols-0.5, -0.5, numrows-0.5)``
+# ======  ===============  ==========================================
+#
+# The default value of *origin* is set by :rc:`image.origin` which defaults
+# to ``'upper'`` to match the matrix indexing conventions in math and
+# computer graphics image indexing conventions.
 #
 #
-# .. [#] The default value of *origin* is set by :rc:`image.origin`
-#    which defaults to ``'upper'`` to match the matrix indexing
-#    conventions in math and computer graphics image indexing
-#    conventions.
+# Explicit extent
+# ---------------
 #
-# If the axes is set to autoscale, then view limits of the axes are set
+# By setting *extent* we define the coordinates of the image area. The
+# underlying image data is interpolated/resampled to fill that area.
+#
+# If the axes is set to autoscale, then the view limits of the axes are set
 # to match the *extent* which ensures that the coordinate set by
 # ``(left, bottom)`` is at the bottom left of the axes!  However, this
 # may invert the axis so they do not increase in the 'natural' direction.
 #
 
-columns = generate_imshow_demo_grid(extents[1:], auto_limits=True)
+extents = [(-0.5, 6.5, -0.5, 5.5),
+           (-0.5, 6.5, 5.5, -0.5),
+           (6.5, -0.5, -0.5, 5.5),
+           (6.5, -0.5, 5.5, -0.5)]
+
+columns = generate_imshow_demo_grid(extents)
 set_extent_None_text(columns['upper'][1])
 set_extent_None_text(columns['lower'][0])
 
 
 ###############################################################################
 #
-# If we fix the axes limits so ``(0, 0)`` is at the bottom left and
-# increases to up and to the right (from the viewer point of view) then
-# we can see that:
+# Explicit extent and axes limits
+# -------------------------------
 #
-# - The ``(left, bottom)`` anchors the image which then fills the
+# If we fix the axes limits by explicity setting `set_xlim` / `set_ylim`, we
+# force a certain size and orientation of the axes.
+# This can decouple the 'left-right' and 'top-bottom' sense of the image from
+# the orientation on the screen.
+#
+# In the example below we have chosen the limits slightly larger than the
+# extent (note the white areas within the Axes).
+#
+# While we keep the extents as in the examples before, the coordinate (0, 0)
+# is now explicitly put at the bottom left and values increase to up and to
+# the right (from the viewer point of view).
+# We can see that:
+#
+# - The coordinate ``(left, bottom)`` anchors the image which then fills the
 #   box going towards the ``(right, top)`` point in data space.
 # - The first column is always closest to the 'left'.
 # - *origin* controls if the first row is closest to 'top' or 'bottom'.
 # - The image may be inverted along either direction.
-# - The 'left-right' and 'top-bottom' sense of the image is uncoupled from
+# - The 'left-right' and 'top-bottom' sense of the image may be uncoupled from
 #   the orientation on the screen.
 
-columns = generate_imshow_demo_grid(extents, auto_limits=False)
-set_extent_None_text(columns['upper'][2])
-set_extent_None_text(columns['lower'][1])
+generate_imshow_demo_grid(extents=[None] + extents,
+                          xlim=(-2, 8), ylim=(-1, 6))
