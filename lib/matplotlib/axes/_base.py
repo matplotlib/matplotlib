@@ -2756,8 +2756,6 @@ class _AxesBase(martist.Artist):
             sb = True
         elif style == 'plain':
             sb = False
-        elif style == 'comma':
-            raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:

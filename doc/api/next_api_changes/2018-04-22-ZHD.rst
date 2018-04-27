@@ -1,6 +1,10 @@
 Different exception types for undocumented options
 --------------------------------------------------
 
+- Passing ``style='comma'`` to :meth:`~matplotlib.axes.Axes.ticklabel_format`
+  was never supported.  It now raises ``ValueError`` like all other
+  unsupported styles, rather than ``NotImplementedError``.
+
 - Passing the undocumented ``xmin`` or ``xmax`` arguments to
   :meth:`~matplotlib.axes.Axes.set_xlim` would silently override the ``left``
   and ``right`` arguments.  :meth:`~matplotlib.axes.Axes.set_ylim` and the

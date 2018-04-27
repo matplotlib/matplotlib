@@ -532,9 +532,7 @@ class Axes3D(Axes):
             _tight = self._tight = bool(tight)
 
         if scalex and self._autoscaleXon:
-            xshared = self._shared_x_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in xshared]
-            bb = mtransforms.BboxBase.union(dl)
+            self._shared_x_axes.clean()
             x0, x1 = self.xy_dataLim.intervalx
             xlocator = self.xaxis.get_major_locator()
             try:
@@ -551,9 +549,7 @@ class Axes3D(Axes):
             self.set_xbound(x0, x1)
 
         if scaley and self._autoscaleYon:
-            yshared = self._shared_y_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in yshared]
-            bb = mtransforms.BboxBase.union(dl)
+            self._shared_y_axes.clean()
             y0, y1 = self.xy_dataLim.intervaly
             ylocator = self.yaxis.get_major_locator()
             try:
@@ -570,9 +566,7 @@ class Axes3D(Axes):
             self.set_ybound(y0, y1)
 
         if scalez and self._autoscaleZon:
-            zshared = self._shared_z_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in zshared]
-            bb = mtransforms.BboxBase.union(dl)
+            self._shared_z_axes.clean()
             z0, z1 = self.zz_dataLim.intervalx
             zlocator = self.zaxis.get_major_locator()
             try:
@@ -1366,13 +1360,8 @@ class Axes3D(Axes):
                 raise ValueError("scilimits must be a sequence of 2 integers")
         if style[:3] == 'sci':
             sb = True
-        elif style in ['plain', 'comma']:
+        elif style == 'plain':
             sb = False
-            if style == 'plain':
-                cb = False
-            else:
-                cb = True
-                raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:
@@ -1720,7 +1709,6 @@ class Axes3D(Axes):
                 # The construction leaves the array with duplicate points, which
                 # are removed here.
                 ps = list(zip(*ps))
-                lastp = np.array([])
                 ps2 = [ps[0]] + [ps[i] for i in range(1, len(ps)) if ps[i] != ps[i-1]]
                 avgzsum = sum(p[2] for p in ps2)
                 polys.append(ps2)
