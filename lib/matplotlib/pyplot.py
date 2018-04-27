@@ -1365,7 +1365,7 @@ def ylim(*args, **kwargs):
     return ret
 
 
-def xticks(*args, **kwargs):
+def xticks(ticks=None, labels=None, **kwargs):
     """
     Get or set the current tick locations and labels of the x-axis.
 
@@ -1373,11 +1373,11 @@ def xticks(*args, **kwargs):
 
         locs, labels = xticks()           # Get locations and labels
 
-        xticks(locs, [labels], **kwargs)  # Set locations and labels
+        xticks(ticks, [labels], **kwargs)  # Set locations and labels
 
     Parameters
     ----------
-    locs : array_like
+    ticks : array_like
         A list of positions at which ticks should be placed. You can pass an
         empty list to disable xticks.
 
@@ -1427,24 +1427,22 @@ def xticks(*args, **kwargs):
     """
     ax = gca()
 
-    if len(args) == 0:
+    if ticks is None and labels is None:
         locs = ax.get_xticks()
         labels = ax.get_xticklabels()
-    elif len(args) == 1:
-        locs = ax.set_xticks(args[0])
+    elif labels is None:
+        locs = ax.set_xticks(ticks)
         labels = ax.get_xticklabels()
-    elif len(args) == 2:
-        locs = ax.set_xticks(args[0])
-        labels = ax.set_xticklabels(args[1], **kwargs)
     else:
-        raise TypeError('Illegal number of arguments to xticks')
+        locs = ax.set_xticks(ticks)
+        labels = ax.set_xticklabels(labels, **kwargs)
     for l in labels:
         l.update(kwargs)
 
     return locs, silent_list('Text xticklabel', labels)
 
 
-def yticks(*args, **kwargs):
+def yticks(ticks=None, labels=None, **kwargs):
     """
     Get or set the current tick locations and labels of the y-axis.
 
@@ -1452,11 +1450,11 @@ def yticks(*args, **kwargs):
 
         locs, labels = yticks()           # Get locations and labels
 
-        yticks(locs, [labels], **kwargs)  # Set locations and labels
+        yticks(ticks, [labels], **kwargs)  # Set locations and labels
 
     Parameters
     ----------
-    locs : array_like
+    ticks : array_like
         A list of positions at which ticks should be placed. You can pass an
         empty list to disable yticks.
 
@@ -1506,17 +1504,15 @@ def yticks(*args, **kwargs):
     """
     ax = gca()
 
-    if len(args) == 0:
+    if ticks is None and labels is None:
         locs = ax.get_yticks()
         labels = ax.get_yticklabels()
-    elif len(args) == 1:
-        locs = ax.set_yticks(args[0])
+    elif labels is None:
+        locs = ax.set_yticks(ticks)
         labels = ax.get_yticklabels()
-    elif len(args) == 2:
-        locs = ax.set_yticks(args[0])
-        labels = ax.set_yticklabels(args[1], **kwargs)
     else:
-        raise TypeError('Illegal number of arguments to yticks')
+        locs = ax.set_yticks(ticks)
+        labels = ax.set_yticklabels(labels, **kwargs)
     for l in labels:
         l.update(kwargs)
 
