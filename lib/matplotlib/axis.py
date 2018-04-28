@@ -1102,6 +1102,17 @@ class Axis(artist.Artist):
             tick.set_label1(label)
             tick.set_label2(label)
             if not mtransforms.interval_contains(interval_expanded, loc):
+                tick.label1.set_visible(False)
+                tick.label2.set_visible(False)
+                tick.tick1line.set_visible(False)
+                try:
+                    self.tick2line.set_visible(False)
+                except AttributeError:
+                    pass
+                try:
+                    self.gridline.set_visible(False)
+                except AttributeError:
+                    pass
                 continue
             ticks_to_draw.append(tick)
 
