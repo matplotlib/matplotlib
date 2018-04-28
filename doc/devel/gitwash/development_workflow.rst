@@ -172,6 +172,73 @@ When you are ready to ask for someone to review your code and consider a merge:
    pull request message.  This is still a good way of getting some preliminary
    code review.
 
+Update your pull request
+========================
+
+Often, you'll want to update your contribution based on the feedback in the
+pull request. While it's possible to simply push additional commits to your
+feature branch, this will clutter the history. Not every step in the
+development of a feature is worth recording. In contrast, a clean history
+with one or a few thematically separated commits helps to keep it more
+understandable. Most small features will do with a single commit.
+
+There are two techniques to achieve this.
+
+Ammend an existing commit
+   Use this if you have don't need to keep track of the incremental changes
+   to your feature.
+Squash multiple commits
+   Use this to cleanup the history when you've already made multiple commits
+   to your feature branch.
+
+Both techniques rewrite the history of your feature branch. While generally
+one has to be careful with rewriting the history, this is intended and
+perfectly fine for commits that are currently on your feature branch only.
+Commits already merged into master should never be touched.
+
+The following descriptions apply the techniques to the last commits. This is
+slightly simpler than the general case, but the most common from when
+updating pull requests.
+
+Ammending the last commit
+-------------------------
+You have pushed a single commit for your feature and now want to update it.
+
+On your feature branch::
+
+   # make your updates
+   git add [your_changed_files]
+   git commit --amend --no-edit
+   git push --force
+
+`--amend` means that the last commit will be rewritten to include the changes
+instead of creating a new commit. If `--no-edit` is used the existing commit
+message will be used. Otherwise, you'll be asked if you want to modify the
+commit message.
+
+Since you are overwriting the last commit with the rewritten version, you
+have to add `--force` to the push command. Github will automatically update
+your pull request after the push.
+
+Squashing the last N commits
+----------------------------
+You have N commits in your feature branch (e.g. N=3) and want to turn them
+into a single commit.
+
+On your feature branch::
+
+    git reset --soft HEAD~3
+    git commit
+    git push --force
+
+The soft reset rolls back the commits, but keeps all their changes staged.
+`HEAD~3` means: Go back three commits before `HEAD`. Adapt the number by
+to the number of commits you want to join.
+
+Since all changes are staged, you can now commit them into a single new commit.
+After that you have to force-push your changes.
+
+
 Some other things you might want to do
 ======================================
 
