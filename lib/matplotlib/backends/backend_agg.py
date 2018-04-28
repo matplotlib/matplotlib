@@ -42,11 +42,10 @@ from matplotlib import colors as mcolors
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
 
-try:
+from matplotlib.backend_bases import _has_pil
+
+if _has_pil:
     from PIL import Image
-    _has_pil = True
-except ImportError:
-    _has_pil = False
 
 backend_version = 'v2.2'
 
