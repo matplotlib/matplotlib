@@ -6,9 +6,6 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 (http://stackoverflow.com/users/66549/doug)
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
 
 __all__ = ['stackplot']

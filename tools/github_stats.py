@@ -9,8 +9,6 @@ To generate a report for IPython 2.0, run:
 # Imports
 #-----------------------------------------------------------------------------
 
-from __future__ import print_function
-
 import codecs
 import sys
 

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import six
 from itertools import chain, product
 from distutils.version import LooseVersion

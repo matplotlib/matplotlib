@@ -22,9 +22,6 @@ Sources:
   v1.1, 1993. ISBN 0-201-57044-0.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 import binascii

@@ -19,7 +19,6 @@ For Python 3.3, 3.4:
 - VS 2010, 64 bit -- Windows SDK v7.1
 """
 
-from __future__ import print_function, absolute_import
 import sys
 import platform
 import os

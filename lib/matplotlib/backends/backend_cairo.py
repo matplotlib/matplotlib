@@ -7,9 +7,6 @@ This backend depends on `cairo <http://cairographics.org>`_, and either on
 cairocffi, or (Python 2 only) on pycairo.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 import gzip

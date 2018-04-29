@@ -6,7 +6,6 @@ http://www.mail-archive.com/matplotlib-devel@lists.sourceforge.net/msg04819.html
 and solved by JDH in git commit 175e3ec5bed9144.
 """
 
-from __future__ import print_function
 import os
 import threading
 import traceback

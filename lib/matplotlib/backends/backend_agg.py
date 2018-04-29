@@ -19,9 +19,6 @@ TODO:
   * integrate screen dpi w/ ppi and text
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 import threading

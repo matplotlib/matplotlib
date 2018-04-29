@@ -41,9 +41,6 @@ which obviously draws grid lines. The gridlines needs to be separated
 from the axis as some gridlines can never pass any axis.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 import warnings

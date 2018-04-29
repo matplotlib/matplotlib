@@ -13,8 +13,6 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
-from __future__ import absolute_import, division, print_function
-
 import six
 
 from collections import Iterable, Mapping

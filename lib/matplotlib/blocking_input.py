@@ -22,9 +22,6 @@ windows:
     Note: Subclass of BlockingMouseInput.  Used by clabel
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 import matplotlib.lines as mlines
 
