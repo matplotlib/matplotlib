@@ -384,7 +384,7 @@ class Axes3D(Axes):
         self._zmargin = m
         self.stale = True
 
-    def margins(self, *args, **kw):
+    def margins(self, *margins, x=None, y=None, z=None, tight=True):
         """
         Convenience method to set or retrieve autoscaling margins.
 
@@ -404,8 +404,12 @@ class Axes3D(Axes):
             margins(..., tight=False)
 
         All forms above set the xmargin, ymargin and zmargin
-        parameters. All keyword parameters are optional.  A single argument
-        specifies xmargin, ymargin and zmargin.  The *tight* parameter
+        parameters. All keyword parameters are optional.  A single
+        positional argument specifies xmargin, ymargin and zmargin.
+        Passing both positional and keyword arguments for xmargin,
+        ymargin, and/or zmargin is invalid.
+
+        The *tight* parameter
         is passed to :meth:`autoscale_view`, which is executed after
         a margin is changed; the default here is *True*, on the
         assumption that when margins are specified, no additional
@@ -420,41 +424,33 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        if not args and not kw:
+        if margins and x is not None and y is not None and z is not None:
+            raise TypeError('Cannot pass both positional and keyword '
+                            'arguments for x, y, and/or z.')
+        elif len(margins) == 1:
+            x = y = z = margins[0]
+        elif len(margins) == 3:
+            x, y, z = margins
+        elif margins:
+            raise TypeError('Must pass a single positional argument for all '
+                            'margins, or one for each margin (x, y, z).')
+
+        if x is None and y is None and z is None:
+            if tight is not True:
+                warnings.warn('ignoring tight=%r in get mode' % (tight,))
             return self._xmargin, self._ymargin, self._zmargin
 
-        tight = kw.pop('tight', True)
-        mx = kw.pop('x', None)
-        my = kw.pop('y', None)
-        mz = kw.pop('z', None)
-        if not args:
-            pass
-        elif len(args) == 1:
-            mx = my = mz = args[0]
-        elif len(args) == 2:
-            warnings.warn(
-                "Passing exactly two positional arguments to Axes3D.margins "
-                "is deprecated.  If needed, pass them as keyword arguments "
-                "instead", cbook.mplDeprecation)
-            mx, my = args
-        elif len(args) == 3:
-            mx, my, mz = args
-        else:
-            raise ValueError(
-                "Axes3D.margins takes at most three positional arguments")
-        if mx is not None:
-            self.set_xmargin(mx)
-        if my is not None:
-            self.set_ymargin(my)
-        if mz is not None:
-            self.set_zmargin(mz)
+        if x is not None:
+            self.set_xmargin(x)
+        if y is not None:
+            self.set_ymargin(y)
+        if z is not None:
+            self.set_zmargin(z)
 
-        scalex = mx is not None
-        scaley = my is not None
-        scalez = mz is not None
-
-        self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley,
-                                         scalez=scalez)
+        self.autoscale_view(
+            tight=tight, scalex=(x is not None), scaley=(y is not None),
+            scalez=(z is not None)
+        )
 
     def autoscale(self, enable=True, axis='both', tight=None):
         """
