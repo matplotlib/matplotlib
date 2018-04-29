@@ -101,7 +101,6 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for existing editable installs.
-from __future__ import absolute_import, division, print_function
 
 import six
 

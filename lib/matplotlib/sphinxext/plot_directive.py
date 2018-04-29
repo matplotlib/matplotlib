@@ -134,9 +134,6 @@ The plot directive has the following configuration options:
     plot_template
         Provide a customized template for preparing restructured text.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 from six.moves import xrange
 

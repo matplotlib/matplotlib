@@ -45,9 +45,6 @@ See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
 #   Todo:    AnchoredOffsetbox connected to gridspecs or axes.  This would
 #        be more general way to add extra-axes annotations.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
 import logging
 import warnings

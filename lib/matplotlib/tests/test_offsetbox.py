@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import pytest
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt

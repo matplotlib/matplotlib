@@ -1,8 +1,6 @@
 """
 Tests specific to the lines module.
 """
-from __future__ import absolute_import, division, print_function
-
 import itertools
 import matplotlib.lines as mlines
 import pytest

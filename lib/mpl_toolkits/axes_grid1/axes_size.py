@@ -10,9 +10,6 @@ floats. Take a look at the Divider class to see how these two
 values are used.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 
 from numbers import Number

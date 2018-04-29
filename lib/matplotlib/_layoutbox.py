@@ -15,9 +15,6 @@ other constrains.
 
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import itertools
 import kiwisolver as kiwi
 import logging

@@ -6,9 +6,6 @@ Documentation for each is in pyplot.colormaps().  Please update this
 with the purpose and type of your colormap if you add data for one here.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
 
 _binary_data = {

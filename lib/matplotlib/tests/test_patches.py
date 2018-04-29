@@ -1,8 +1,6 @@
 """
 Tests specific to the patches module.
 """
-from __future__ import absolute_import, division, print_function
-
 import six
 
 import numpy as np

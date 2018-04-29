@@ -1,10 +1,6 @@
 """
 A PostScript backend, which can produce both PostScript .ps and .eps
 """
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import six
 from six.moves import StringIO
 

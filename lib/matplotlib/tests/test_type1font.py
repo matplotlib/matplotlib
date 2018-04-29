@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import six
 
 import matplotlib.type1font as t1f
