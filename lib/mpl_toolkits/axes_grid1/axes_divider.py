@@ -359,7 +359,8 @@ class SubplotDivider(Divider):
     The Divider class whose rectangle area is specified as a subplot geometry.
     """
 
-    def __init__(self, fig, *args, **kwargs):
+    def __init__(self, fig, *args, horizontal=None, vertical=None,
+                 aspect=None, anchor='C'):
         """
         Parameters
         ----------
@@ -417,15 +418,7 @@ class SubplotDivider(Divider):
 
         pos = self.figbox.bounds
 
-        horizontal = kwargs.pop("horizontal", [])
-        vertical = kwargs.pop("vertical", [])
-        aspect = kwargs.pop("aspect", None)
-        anchor = kwargs.pop("anchor", "C")
-
-        if kwargs:
-            raise Exception("")
-
-        Divider.__init__(self, fig, pos, horizontal, vertical,
+        Divider.__init__(self, fig, pos, horizontal or [], vertical or [],
                          aspect=aspect, anchor=anchor)
 
     def get_position(self):

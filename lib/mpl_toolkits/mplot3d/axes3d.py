@@ -1528,7 +1528,7 @@ class Axes3D(Axes):
     text3D = text
     text2D = Axes.text
 
-    def plot(self, xs, ys, *args, **kwargs):
+    def plot(self, xs, ys, *args, zdir='z', **kwargs):
         '''
         Plot 2D or 3D data.
 
@@ -1558,7 +1558,6 @@ class Axes3D(Axes):
                 raise TypeError("plot() for multiple values for argument 'z'")
         else:
             zs = kwargs.pop('zs', 0)
-        zdir = kwargs.pop('zdir', 'z')
 
         # Match length
         zs = np.broadcast_to(zs, len(xs))
@@ -1573,7 +1572,8 @@ class Axes3D(Axes):
 
     plot3D = plot
 
-    def plot_surface(self, X, Y, Z, *args, **kwargs):
+    def plot_surface(self, X, Y, Z, *args, norm=None, vmin=None,
+                     vmax=None, lightsource=None, **kwargs):
         """
         Create a surface plot.
 
@@ -1672,12 +1672,7 @@ class Axes3D(Axes):
             fcolors = None
 
         cmap = kwargs.get('cmap', None)
-        norm = kwargs.pop('norm', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
-        linewidth = kwargs.get('linewidth', None)
         shade = kwargs.pop('shade', cmap is None)
-        lightsource = kwargs.pop('lightsource', None)
 
         # Shade the data
         if shade and cmap is not None and fcolors is not None:
@@ -1923,7 +1918,8 @@ class Axes3D(Axes):
 
         return linec
 
-    def plot_trisurf(self, *args, **kwargs):
+    def plot_trisurf(self, *args, color=None, norm=None, vmin=None, vmax=None,
+                     lightsource=None, **kwargs):
         """
         ============= ================================================
         Argument      Description
@@ -1975,18 +1971,12 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         # TODO: Support custom face colours
-        color = kwargs.pop('color', None)
         if color is None:
             color = self._get_lines.get_next_color()
         color = np.array(mcolors.to_rgba(color))
 
         cmap = kwargs.get('cmap', None)
-        norm = kwargs.pop('norm', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
-        linewidth = kwargs.get('linewidth', None)
         shade = kwargs.pop('shade', cmap is None)
-        lightsource = kwargs.pop('lightsource', None)
 
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
         if 'Z' in kwargs:

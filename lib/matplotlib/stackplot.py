@@ -11,7 +11,9 @@ import numpy as np
 __all__ = ['stackplot']
 
 
-def stackplot(axes, x, *args, **kwargs):
+def stackplot(axes, x, *args,
+              labels=(), colors=None, baseline='zero',
+              **kwargs):
     """
     Draws a stacked area plot.
 
@@ -58,13 +60,10 @@ def stackplot(axes, x, *args, **kwargs):
 
     y = np.row_stack(args)
 
-    labels = iter(kwargs.pop('labels', []))
-
-    colors = kwargs.pop('colors', None)
+    labels = iter(labels)
     if colors is not None:
         axes.set_prop_cycle(color=colors)
 
-    baseline = kwargs.pop('baseline', 'zero')
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))

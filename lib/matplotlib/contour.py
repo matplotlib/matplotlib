@@ -791,7 +791,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         levels for filled contours.  See :meth:`_process_colors`.
     """
 
-    def __init__(self, ax, *args, **kwargs):
+    def __init__(self, ax, *args,
+                 levels=None, filled=False, linewidths=None, linestyles=None,
+                 alpha=None, origin=None, extent=None,
+                 cmap=None, colors=None, norm=None, vmin=None, vmax=None,
+                 extend='neither', antialiased=None,
+                 **kwargs):
         """
         Draw contour lines or filled regions, depending on
         whether keyword arg *filled* is ``False`` (default) or ``True``.
@@ -837,23 +842,17 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             `~axes.Axes.contour`.
         """
         self.ax = ax
-        self.levels = kwargs.pop('levels', None)
-        self.filled = kwargs.pop('filled', False)
-        self.linewidths = kwargs.pop('linewidths', None)
-        self.linestyles = kwargs.pop('linestyles', None)
-
+        self.levels = levels
+        self.filled = filled
+        self.linewidths = linewidths
+        self.linestyles = linestyles
         self.hatches = kwargs.pop('hatches', [None])
-
-        self.alpha = kwargs.pop('alpha', None)
-        self.origin = kwargs.pop('origin', None)
-        self.extent = kwargs.pop('extent', None)
-        cmap = kwargs.pop('cmap', None)
-        self.colors = kwargs.pop('colors', None)
-        norm = kwargs.pop('norm', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
-        self.extend = kwargs.pop('extend', 'neither')
-        self.antialiased = kwargs.pop('antialiased', None)
+        self.alpha = alpha
+        self.origin = origin
+        self.extent = extent
+        self.colors = colors
+        self.extend = extend
+        self.antialiased = antialiased
         if self.antialiased is None and self.filled:
             self.antialiased = False  # eliminate artifacts; we are not
                                       # stroking the boundaries.

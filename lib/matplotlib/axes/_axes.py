@@ -1114,7 +1114,7 @@ class Axes(_AxesBase):
                       positional_parameter_names=_plot_args_replacer,
                       label_namer=None)
     @docstring.dedent_interpd
-    def plot(self, *args, **kwargs):
+    def plot(self, *args, scalex=True, scaley=True, **kwargs):
         """
         Plot y versus x as lines and/or markers.
 
@@ -1341,8 +1341,6 @@ class Axes(_AxesBase):
             'k^:'  # black triangle_up markers connected by a dotted line
 
         """
-        scalex = kwargs.pop('scalex', True)
-        scaley = kwargs.pop('scaley', True)
         lines = []
 
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
@@ -1734,7 +1732,7 @@ class Axes(_AxesBase):
     #### Specialized plotting
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    def step(self, x, y, *args, **kwargs):
+    def step(self, x, y, *args, where='pre', linestyle='', **kwargs):
         """
         Make a step plot.
 
@@ -1795,12 +1793,10 @@ class Axes(_AxesBase):
         -----
         .. [notes section required to get data note injection right]
         """
-        where = kwargs.pop('where', 'pre')
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
-        usr_linestyle = kwargs.pop('linestyle', '')
-        kwargs['linestyle'] = 'steps-' + where + usr_linestyle
+        kwargs['linestyle'] = 'steps-' + where + linestyle
 
         return self.plot(x, y, *args, **kwargs)
 
@@ -2268,7 +2264,8 @@ class Axes(_AxesBase):
         return col
 
     @_preprocess_data(replace_all_args=True, label_namer=None)
-    def stem(self, *args, **kwargs):
+    def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None,
+             bottom=0, label=None):
         """
         Create a stem plot.
 
@@ -2328,15 +2325,6 @@ class Axes(_AxesBase):
             The label to use for the stems in legends.
 
 
-        Other Parameters
-        ----------------
-        **kwargs
-            No other parameters are supported. They are currently ignored
-            silently for backward compatibility. This behavior is deprecated.
-            Future versions will not accept any other parameters and will
-            raise a TypeError instead.
-
-
         Returns
         -------
         :class:`~matplotlib.container.StemContainer`
@@ -2353,41 +2341,18 @@ class Axes(_AxesBase):
             which inspired this method.
 
         """
-
-        # kwargs handling
-        # We would like to have a signature with explicit kewords:
-        # stem(*args, linefmt=None, markerfmt=None, basefmt=None,
-        #      bottom=0, label=None)
-        # Unfortunately,  this is not supported in Python 2.x. There, *args
-        # can only exist after keyword arguments.
-        linefmt = kwargs.pop('linefmt', None)
-        markerfmt = kwargs.pop('markerfmt', None)
-        basefmt = kwargs.pop('basefmt', None)
-        bottom = kwargs.pop('bottom', None)
-        if bottom is None:
-            bottom = 0
-        label = kwargs.pop('label', None)
-        if kwargs:
-            warn_deprecated(since='2.2',
-                            message="stem() got an unexpected keyword "
-                                    "argument '%s'. This will raise a "
-                                    "TypeError in future versions." % (
-                                next(k for k in kwargs), )
-                            )
-
         # Assume there's at least one data array
         y = np.asarray(args[0])
         args = args[1:]
 
         # Try a second one
         try:
-            second = np.asarray(args[0], dtype=float)
-            x, y = y, second
-            args = args[1:]
+            x, y = y, np.asarray(args[0], dtype=float)
         except (IndexError, ValueError):
             # The second array doesn't make sense, or it doesn't exist
-            second = np.arange(len(y))
-            x = second
+            x = np.arange(len(y))
+        else:
+            args = args[1:]
 
         # defaults for formats
         if linefmt is None:
@@ -5242,7 +5207,8 @@ class Axes(_AxesBase):
 
     @_preprocess_data(label_namer=None)
     @docstring.dedent_interpd
-    def pcolor(self, *args, **kwargs):
+    def pcolor(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
+               vmax=None, **kwargs):
         """
         Create a pseudocolor plot of a 2-D array.
 
@@ -5381,12 +5347,6 @@ class Axes(_AxesBase):
         not specified, or if ``X`` and ``Y`` have one more row and column than
         ``C``.
         """
-        alpha = kwargs.pop('alpha', None)
-        norm = kwargs.pop('norm', None)
-        cmap = kwargs.pop('cmap', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
-
         X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
         Ny, Nx = X.shape
 
@@ -5488,7 +5448,8 @@ class Axes(_AxesBase):
 
     @_preprocess_data(label_namer=None)
     @docstring.dedent_interpd
-    def pcolormesh(self, *args, **kwargs):
+    def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
+                   vmax=None, shading='flat', antialiased=False, **kwargs):
         """
         Plot a quadrilateral mesh.
 
@@ -5564,13 +5525,7 @@ class Axes(_AxesBase):
 
         %(QuadMesh)s
         """
-        alpha = kwargs.pop('alpha', None)
-        norm = kwargs.pop('norm', None)
-        cmap = kwargs.pop('cmap', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
-        shading = kwargs.pop('shading', 'flat').lower()
-        antialiased = kwargs.pop('antialiased', False)
+        shading = shading.lower()
         kwargs.setdefault('edgecolors', 'None')
 
         allmatch = (shading == 'gouraud')
@@ -5625,7 +5580,8 @@ class Axes(_AxesBase):
 
     @_preprocess_data(label_namer=None)
     @docstring.dedent_interpd
-    def pcolorfast(self, *args, **kwargs):
+    def pcolorfast(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
+                   vmax=None, **kwargs):
         """
         pseudocolor plot of a 2-D array
 
@@ -5707,11 +5663,6 @@ class Axes(_AxesBase):
         collection in the general quadrilateral case.
 
         """
-        alpha = kwargs.pop('alpha', None)
-        norm = kwargs.pop('norm', None)
-        cmap = kwargs.pop('cmap', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
             raise ValueError(
                 "'norm' must be an instance of 'mcolors.Normalize'")

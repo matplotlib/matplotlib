@@ -267,9 +267,7 @@ class Patch3D(Patch):
     3D patch object.
     """
 
-    def __init__(self, *args, **kwargs):
-        zs = kwargs.pop('zs', [])
-        zdir = kwargs.pop('zdir', 'z')
+    def __init__(self, *args, zs=(), zdir='z', **kwargs):
         Patch.__init__(self, *args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
@@ -300,9 +298,7 @@ class PathPatch3D(Patch3D):
     3D PathPatch object.
     """
 
-    def __init__(self, path, **kwargs):
-        zs = kwargs.pop('zs', [])
-        zdir = kwargs.pop('zdir', 'z')
+    def __init__(self, path, *, zs=(), zdir='z', **kwargs):
         Patch.__init__(self, **kwargs)
         self.set_3d_properties(path, zs, zdir)
 
