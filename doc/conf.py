@@ -145,7 +145,7 @@ source_encoding = "utf-8"
 master_doc = 'contents'
 
 # General substitutions.
-from matplotlib.compat.subprocess import check_output
+from subprocess import check_output
 SHA = check_output(['git', 'describe', '--dirty']).decode('utf-8').strip()
 
 html_context = {'sha': SHA}
