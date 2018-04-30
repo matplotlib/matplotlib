@@ -5642,3 +5642,17 @@ def test_empty_errorbar_legend():
 def test_plot_columns_cycle_deprecation():
     with pytest.warns(MatplotlibDeprecationWarning):
         plt.plot(np.zeros((2, 2)), np.zeros((2, 3)))
+
+
+def test_markerfacecolor_none_alpha():
+    fig1, ax1 = plt.subplots()
+    ax1.plot(0, "o", mfc="none", alpha=.5)
+    buf1 = io.BytesIO()
+    fig1.savefig(buf1)
+
+    fig2, ax2 = plt.subplots()
+    ax2.plot(0, "o", mfc="w", alpha=.5)
+    buf2 = io.BytesIO()
+    fig2.savefig(buf2)
+
+    assert buf1.getvalue() == buf2.getvalue()
