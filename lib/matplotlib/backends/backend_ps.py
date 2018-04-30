@@ -532,7 +532,10 @@ grestore
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # don't want the translate to be global
 
         lw = gc.get_linewidth()
-        stroke = lw != 0.0
+        alpha = (gc.get_alpha()
+                 if gc.get_forced_alpha() or len(gc.get_rgb()) == 3
+                 else gc.get_rgb()[3])
+        stroke = lw > 0 and alpha > 0
         if stroke:
             ps_cmd.append('%.1f setlinewidth' % lw)
             jint = gc.get_joinstyle()
