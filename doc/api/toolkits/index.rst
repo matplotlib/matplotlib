@@ -24,8 +24,8 @@ lighter weight solution for some use cases. Check out the
 :doc:`mplot3d tutorial </tutorials/toolkits/mplot3d>` for more
 information.
 
-.. figure:: ../gallery/mplot3d/images/sphx_glr_contourf3d_2_001.png
-   :target: ../gallery/mplot3d/contourf3d_2.html
+.. figure:: ../../gallery/mplot3d/images/sphx_glr_contourf3d_2_001.png
+   :target: ../../gallery/mplot3d/contourf3d_2.html
    :align: center
    :scale: 50
 
@@ -41,37 +41,20 @@ Links
 -----
 * mpl3d API: :ref:`toolkit_mplot3d-api`
 
-.. _toolkit_axes_grid1:
+.. _toolkit_axes_grid1_incl:
 
-axes_grid1
-==========
+.. include:: axes_grid1.rst
+   :start-line: 1
 
-The :mod:`mpl_toolkits.axes_grid1` toolkit is a
-collection of helper classes for displaying multiple axes in Matplotlib.
+.. _toolkit_axisartist_incl:
+   
+.. include:: axisartist.rst
+   :start-line: 1
 
-.. image:: /_static/demo_axes_grid.png
-
-.. toctree::
-    :maxdepth: 2
-
-    axes_grid1/index.rst
-
-
-.. _toolkit_axisartist:
-
-axisartist
-==========
-
-The :mod:`mpl_toolkits.axisartist` toolkit contains
-a custom Axes class that is meant to support curvilinear grids.
-
-.. toctree::
-    :maxdepth: 2
-
-    axisartist/index.rst
+.. _toolkit_axes_grid_incl:
+   
+.. include:: axes_grid.rst
+   :start-line: 1
 
 
-API
----
-* Axes Grid and Axis Artist API: :ref:`axes_grid-api-index`
 

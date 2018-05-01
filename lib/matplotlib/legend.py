@@ -350,7 +350,7 @@ class Legend(Artist):
 
         Parameters
         ----------
-        parent : `.Axes` or `.Figure`
+        parent : `~matplotlib.axes.Axes` or `.Figure`
             The artist that contains the legend.
 
         handles : sequence of `.Artist`

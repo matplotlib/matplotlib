@@ -62,7 +62,8 @@ def _stale_figure_callback(self, val):
 
 class AxesStack(Stack):
     """
-    Specialization of the Stack to handle all tracking of Axes in a Figure.
+    Specialization of the `.Stack` to handle all tracking of
+    `~matplotlib.axes.Axes` in a `.Figure`.
     This stack stores ``key, (ind, axes)`` pairs, where:
 
         * **key** should be a hash of the args and kwargs
@@ -1011,7 +1012,8 @@ class Figure(Artist):
 
     def delaxes(self, ax):
         """
-        Remove the `.Axes` *ax* from the figure and update the current axes.
+        Remove the `~matplotlib.axes.Axes` *ax* from the figure and update the
+        current axes.
         """
         self._axstack.remove(ax)
         for func in self._axobservers:
@@ -2321,7 +2323,8 @@ class Figure(Artist):
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list of (or ndarray) `.Axes` to align the xlabels.
+            Optional list of (or ndarray) `~matplotlib.axes.Axes`
+            to align the xlabels.
             Default is to align all axes on the figure.
 
         See Also
@@ -2389,7 +2392,8 @@ class Figure(Artist):
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list (or ndarray) of `.Axes` to align the ylabels.
+            Optional list (or ndarray) of `~matplotlib.axes.Axes`
+            to align the ylabels.
             Default is to align all axes on the figure.
 
         See Also
@@ -2452,7 +2456,8 @@ class Figure(Artist):
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list (or ndarray) of `.Axes` to align the labels.
+            Optional list (or ndarray) of `~matplotlib.axes.Axes`
+            to align the labels.
             Default is to align all axes on the figure.
 
         See Also
