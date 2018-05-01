@@ -738,7 +738,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Store a set of contour lines or filled regions.
 
-    User-callable method: `~.Axes.clabel`
+    User-callable method: `~.axes.Axes.clabel`
 
     Parameters
     ----------
@@ -773,7 +773,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     kwargs :
         Keyword arguments are as described in the docstring of
-        `~.Axes.contour`.
+        `~.axes.Axes.contour`.
 
     Attributes
     ----------
@@ -803,7 +803,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Parameters
         ----------
         ax :
-            The `.Axes` object to draw on.
+            The `~.axes.Axes` object to draw on.
 
         levels : [level0, level1, ..., leveln]
             A list of floating point numbers indicating the contour
@@ -834,7 +834,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         **kwargs
             Keyword arguments are as described in the docstring of
-            `~.Axes.contour`.
+            `~axes.Axes.contour`.
         """
         self.ax = ax
         self.levels = kwargs.pop('levels', None)
@@ -1436,7 +1436,7 @@ class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
 
-    User-callable method: `~.Axes.clabel`
+    User-callable method: `~axes.Axes.clabel`
 
     Attributes
     ----------
@@ -1755,7 +1755,7 @@ class QuadContourSet(ContourSet):
         locator : ticker.Locator subclass, optional
             The locator is used to determine the contour levels if they
             are not given explicitly via *levels*.
-            Defaults to `.MaxNLocator`.
+            Defaults to `~.ticker.MaxNLocator`.
 
         extend : {'neither', 'both', 'min', 'max'}, optional
             Unless this is 'neither', contour levels are automatically

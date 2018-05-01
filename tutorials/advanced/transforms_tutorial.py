@@ -25,9 +25,9 @@ description of that system. In the `Transformation Object` column,
 |           |                             |controlled by xlim and ylim.       |
 +-----------+-----------------------------+-----------------------------------+
 |"axes"     |``ax.transAxes``             |The coordinate system of the       |
-|           |                             |`.Axes`; (0, 0) is bottom left of  |
-|           |                             |the axes, and (1, 1) is top right  |
-|           |                             |of the axes.                       |
+|           |                             |`~matplotlib.axes.Axes`; (0, 0)    |
+|           |                             |is bottom left of the axes, and    |
+|           |                             |(1, 1) is top right of the axes.   |
 +-----------+-----------------------------+-----------------------------------+
 |"figure"   |``fig.transFigure``          |The coordinate system of the       |
 |           |                             |`.Figure`; (0, 0) is bottom left   |
