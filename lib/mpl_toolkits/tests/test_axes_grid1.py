@@ -13,7 +13,9 @@ from mpl_toolkits.axes_grid1.inset_locator import (
     inset_axes,
     BboxConnectorPatch
 )
-from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+from mpl_toolkits.axes_grid1.anchored_artists import (
+    AnchoredSizeBar,
+    AnchoredDirectionArrows)
 
 from matplotlib.colors import LogNorm
 from matplotlib.transforms import Bbox, TransformedBbox, \
@@ -322,3 +324,27 @@ def test_zooming_with_inverted_axes():
     ax.axis([3, 1, 3, 1])
     inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc=4)
     inset_ax.axis([1.4, 1.1, 1.4, 1.1])
+
+
+@image_comparison(baseline_images=['anchored_direction_arrows'],
+                  extensions=['png'])
+def test_anchored_direction_arrows():
+    fig, ax = plt.subplots()
+    ax.imshow(np.zeros((10, 10)))
+
+    simple_arrow = AnchoredDirectionArrows(ax.transAxes, 'X', 'Y')
+    ax.add_artist(simple_arrow)
+
+
+@image_comparison(baseline_images=['anchored_direction_arrows_many_args'],
+                  extensions=['png'])
+def test_anchored_direction_arrows_many_args():
+    fig, ax = plt.subplots()
+    ax.imshow(np.ones((10, 10)))
+
+    direction_arrows = AnchoredDirectionArrows(
+            ax.transAxes, 'A', 'B', loc='upper right', color='red',
+            aspect_ratio=-0.5, pad=0.6, borderpad=2, frameon=True, alpha=0.7,
+            sep_x=-0.06, sep_y=-0.08, back_length=0.1, head_width=9,
+            head_length=10, tail_width=5)
+    ax.add_artist(direction_arrows)
