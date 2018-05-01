@@ -18,6 +18,6 @@ def samplemat(dims):
 
 
 # Display matrix
-plt.matshow(samplemat((15, 35)))
+plt.matshow(samplemat((15, 15)))
 
 plt.show()
