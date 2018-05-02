@@ -1679,7 +1679,7 @@ class QuadContourSet(ContourSet):
 
         Returns
         -------
-        :class:`~matplotlib.contour.QuadContourSet`
+        c : `~.contour.QuadContourSet`
 
         Other Parameters
         ----------------
