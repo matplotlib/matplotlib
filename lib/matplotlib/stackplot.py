@@ -53,7 +53,7 @@ def stackplot(axes, x, *args,
 
     Returns
     -------
-    list of `.PolyCollection`
+    list : list of `.PolyCollection`
         A list of `.PolyCollection` instances, one for each element in the
         stacked area plot.
     """
