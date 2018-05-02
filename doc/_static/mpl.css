@@ -416,7 +416,7 @@ div.deprecated span.versionmodified {
     font-weight: bold;
 }
 
-div.green {
+div.green, div.hint {
     color: #468847;
     background-color: #dff0d8;
     border: 1px solid #d6e9c6;
