@@ -1873,7 +1873,7 @@ class Axes(_AxesBase):
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): separate + and - values for each bar
+            - shape(2,N): First row lower errors, second row upper errors.
 
             Default: None
 
@@ -2148,7 +2148,7 @@ class Axes(_AxesBase):
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): separate + and - values for each bar
+            - shape(2,N): First row lower errors, second row upper errors.
 
             Default: None
 
@@ -2671,7 +2671,7 @@ class Axes(_AxesBase):
 
             - scalar: Symmetric +/- values for all data points.
             - shape(N,): Symmetric +/-values for each data point.
-            - shape(2,N): Separate + and - values for each data point.
+            - shape(2,N): First row lower errors, second row upper errors.
             - *None*: No errorbar.
 
         fmt : plot format string, optional, default: ''
