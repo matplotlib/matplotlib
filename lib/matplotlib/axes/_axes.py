@@ -1873,7 +1873,7 @@ class Axes(_AxesBase):
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): Separate +/- values for each bar,
+            - shape(2,N): separate +/- values for each bar,
                 the first row contains the - value, 
                 the second row contains the + value.
 
@@ -2150,7 +2150,7 @@ class Axes(_AxesBase):
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): Separate +/- values for each bar,
+            - shape(2,N): separate +/- values for each bar,
                 the first row contains the - value, 
                 the second row contains the + value.
 
