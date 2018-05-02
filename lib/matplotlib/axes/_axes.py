@@ -499,7 +499,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`~matplotlib.lines.Line2D`
+        line : :class:`~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
@@ -569,7 +569,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`~matplotlib.lines.Line2D`
+        line : :class:`~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
@@ -964,8 +964,9 @@ class Axes(_AxesBase):
         Returns
         -------
 
-        A list of :class:`matplotlib.collections.EventCollection` objects that
-        were added.
+        list : A list of :class:`~.collections.EventCollection` objects.
+            Contains the :class:`~.collections.EventCollection` that
+            were added.
 
         Notes
         -----
@@ -1849,7 +1850,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `.BarContainer`
+        container : `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -1873,9 +1874,13 @@ class Axes(_AxesBase):
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): separate + and - values for each bar
+            - shape(2,N): Separate - and + values for each bar. First row
+                contains the lower errors, the second row contains the
+                upper errors.
+            - *None*: No errorbar. (Default)
 
-            Default: None
+            See :ref:`sphx_glr_gallery_statistics_errorbar_features.py`
+            for an example on the usage of ``xerr`` and ``yerr``.
 
         ecolor : scalar or array-like, optional, default: 'black'
             The line color of the errorbars.
@@ -2124,7 +2129,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `.BarContainer`
+        container : `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2148,9 +2153,13 @@ class Axes(_AxesBase):
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): separate + and - values for each bar
+            - shape(2,N): Separate - and + values for each bar. First row
+                contains the lower errors, the second row contains the
+                upper errors.
+            - *None*: No errorbar. (default)
 
-            Default: None
+            See :ref:`sphx_glr_gallery_statistics_errorbar_features.py`
+            for an example on the usage of ``xerr`` and ``yerr``.
 
         ecolor : scalar or array-like, optional, default: 'black'
             The line color of the errorbars.
@@ -2235,7 +2244,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`matplotlib.collections.BrokenBarHCollection`
+        collection : A :class:`~.collections.BrokenBarHCollection`
 
         Notes
         -----
@@ -2327,8 +2336,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`~matplotlib.container.StemContainer`
-            The stemcontainer may be treated like a tuple
+        container : :class:`~matplotlib.container.StemContainer`
+            The container may be treated like a tuple
             (*markerline*, *stemlines*, *baseline*)
 
 
@@ -2671,8 +2680,13 @@ class Axes(_AxesBase):
 
             - scalar: Symmetric +/- values for all data points.
             - shape(N,): Symmetric +/-values for each data point.
-            - shape(2,N): Separate + and - values for each data point.
+            - shape(2,N): Separate - and + values for each bar. First row
+                contains the lower errors, the second row contains the
+                upper errors.
             - *None*: No errorbar.
+
+            See :ref:`sphx_glr_gallery_statistics_errorbar_features.py`
+            for an example on the usage of ``xerr`` and ``yerr``.
 
         fmt : plot format string, optional, default: ''
             The format for the data points / data lines. See `.plot` for
@@ -2719,7 +2733,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`~.container.ErrorbarContainer`
+        container : :class:`~.container.ErrorbarContainer`
             The container contains:
 
             - plotline: :class:`~matplotlib.lines.Line2D` instance of

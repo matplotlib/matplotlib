@@ -713,6 +713,9 @@ table.docutils.field-list {
     font-size: 13px;
     line-height: 18px;
 }
+.docutils.field-list td blockquote p ul li{
+    font-size: 13px;
+}
 p.rubric {
     font-weight: bold;
     font-size: 19px;
