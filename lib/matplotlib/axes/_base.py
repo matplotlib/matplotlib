@@ -2229,7 +2229,7 @@ class _AxesBase(martist.Artist):
         self._ymargin = m
         self.stale = True
 
-    def margins(self, *args, **kw):
+    def margins(self, *margins, x=None, y=None, tight=True):
         """
         Set or retrieve autoscaling margins.
 
@@ -2250,10 +2250,11 @@ class _AxesBase(martist.Artist):
             margins(..., tight=False)
 
         All three forms above set the xmargin and ymargin parameters.
-        All keyword parameters are optional.  A single argument
+        All keyword parameters are optional.  A single positional argument
         specifies both xmargin and ymargin. The padding added to the end of
         each interval is *margin* times the data interval. The *margin* must
-        be a float in the range [0, 1].
+        be a float in the range [0, 1].  Passing both positional and keyword
+        arguments for xmargin and/or ymargin is invalid.
 
         The *tight* parameter is passed to :meth:`autoscale_view`
         , which is executed after a margin is changed; the default here is
@@ -2267,27 +2268,30 @@ class _AxesBase(martist.Artist):
         it is used in autoscaling.
 
         """
-        if not args and not kw:
+        if margins and x is not None and y is not None:
+            raise TypeError('Cannot pass both positional and keyword '
+                            'arguments for x and/or y.')
+        elif len(margins) == 1:
+            x = y = margins[0]
+        elif len(margins) == 2:
+            x, y = margins
+        elif margins:
+            raise TypeError('Must pass a single positional argument for all '
+                            'margins, or one for each margin (x, y).')
+
+        if x is None and y is None:
+            if tight is not True:
+                warnings.warn('ignoring tight=%r in get mode' % (tight,))
             return self._xmargin, self._ymargin
 
-        tight = kw.pop('tight', True)
-        mx = kw.pop('x', None)
-        my = kw.pop('y', None)
-        if len(args) == 1:
-            mx = my = args[0]
-        elif len(args) == 2:
-            mx, my = args
-        elif len(args) > 2:
-            raise ValueError("more than two arguments were supplied")
-        if mx is not None:
-            self.set_xmargin(mx)
-        if my is not None:
-            self.set_ymargin(my)
+        if x is not None:
+            self.set_xmargin(x)
+        if y is not None:
+            self.set_ymargin(y)
 
-        scalex = (mx is not None)
-        scaley = (my is not None)
-
-        self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley)
+        self.autoscale_view(
+            tight=tight, scalex=(x is not None), scaley=(y is not None)
+        )
 
     def set_rasterization_zorder(self, z):
         """
