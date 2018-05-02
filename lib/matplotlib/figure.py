@@ -1758,7 +1758,7 @@ default: 'top'
         """Whenever the axes state change, ``func(self)`` will be called."""
         self._axobservers.append(func)
 
-    def savefig(self, fname, **kwargs):
+    def savefig(self, fname, *, frameon=None, transparent=None, **kwargs):
         """
         Save the current figure.
 
@@ -1842,9 +1842,10 @@ default: 'top'
 
         """
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
-        frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
-        transparent = kwargs.pop('transparent',
-                                 rcParams['savefig.transparent'])
+        if frameon is None:
+            frameon = rcParams['savefig.frameon']
+        if transparent is None:
+            transparent = rcParams['savefig.transparent']
 
         if transparent:
             kwargs.setdefault('facecolor', 'none')

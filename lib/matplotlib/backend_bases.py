@@ -2084,7 +2084,8 @@ class FigureCanvasBase(object):
             .format(fmt, ", ".join(sorted(self.get_supported_filetypes()))))
 
     def print_figure(self, filename, dpi=None, facecolor=None, edgecolor=None,
-                     orientation='portrait', format=None, **kwargs):
+                     orientation='portrait', format=None,
+                     *, bbox_inches=None, **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
         colors.  This is useful because some of the GUIs have a gray figure
@@ -2165,7 +2166,6 @@ class FigureCanvasBase(object):
             self.figure.set_facecolor(facecolor)
             self.figure.set_edgecolor(edgecolor)
 
-            bbox_inches = kwargs.pop("bbox_inches", None)
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
 

@@ -1,0 +1,13 @@
+Explicit arguments instead of \*args, \*\*kwargs
+------------------------------------------------
+
+:PEP:`3102` describes keyword-only arguments, which allow Matplotlib
+to provide explicit call signatures - where we previously used
+``*args, **kwargs`` and ``kwargs.pop``, we can now expose named
+arguments.  In some places, unknown kwargs were previously ignored but
+now raise ``TypeError`` because ``**kwargs`` has been removed.
+
+- :meth:`matplotlib.axes.Axes.stem` no longer accepts unknown keywords,
+  and raises ``TypeError`` instead of emitting a deprecation.
+- :meth:`mpl_toolkits.axes_grid1.axes_divider.SubPlotDivider` raises
+  ``TypeError`` instead of ``Exception`` when passed unknown kwargs.
