@@ -725,7 +725,8 @@ class RendererPgf(RendererBase):
                 mtext.get_va() != "center_baseline"):
             # if text anchoring can be supported, get the original coordinates
             # and add alignment information
-            x, y = mtext.get_transform().transform_point(mtext.get_position())
+            pos = mtext.get_unitless_position()
+            x, y = mtext.get_transform().transform_point(pos)
             text_args.append("x=%fin" % (x * f))
             text_args.append("y=%fin" % (y * f))
 
