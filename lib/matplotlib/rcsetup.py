@@ -420,13 +420,6 @@ def validate_aspect(s):
         raise ValueError('not a valid aspect specification')
 
 
-def validate_fontsize_None(s):
-    if s is None or s == 'None':
-        return None
-    else:
-        return validate_fontsize(s)
-
-
 def validate_fontsize(s):
     fontsizes = ['xx-small', 'x-small', 'small', 'medium', 'large',
                  'x-large', 'xx-large', 'smaller', 'larger']
@@ -1233,7 +1226,6 @@ defaultParams = {
     # the number of points in the legend line for scatter
     'legend.scatterpoints': [1, validate_int],
     'legend.fontsize': ['medium', validate_fontsize],
-    'legend.title_fontsize': [None, validate_fontsize_None],
      # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
