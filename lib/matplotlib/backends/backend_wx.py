@@ -1555,7 +1555,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 warnings.warn(
                     'extension %s did not match the selected '
                     'image type %s; going with %s' %
-                    (ext, format, ext), stacklevel=0)
+                    (ext, format, ext), stacklevel=2)
                 format = ext
             try:
                 self.canvas.figure.savefig(
@@ -1721,7 +1721,7 @@ class SaveFigureWx(backend_tools.SaveFigureBase):
             warnings.warn(
                 'extension %s did not match the selected '
                 'image type %s; going with %s' %
-                (ext, format, ext), stacklevel=0)
+                (ext, format, ext), stacklevel=2)
             format = ext
         if default_dir != "":
             matplotlib.rcParams['savefig.directory'] = dirname
