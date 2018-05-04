@@ -502,3 +502,11 @@ def test_legend_proper_window_extent():
     leg = ax.legend()
     x02 = leg.get_window_extent(fig.canvas.get_renderer()).x0
     assert pytest.approx(x01*2, 0.1) == x02
+
+
+def test_legend_title_fontsize():
+    # test the title_fontsize kwarg
+    fig, ax = plt.subplots()
+    ax.plot(range(10))
+    leg = ax.legend(title='Aardvark', title_fontsize=22)
+    assert leg.get_title().get_fontsize() == 22

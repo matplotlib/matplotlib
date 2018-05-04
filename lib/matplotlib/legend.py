@@ -333,7 +333,7 @@ class Legend(Artist):
                                  # box, none use rc
                  shadow=None,
                  title=None,  # set a title for the legend
-
+                 title_fontsize=None,  # set to ax.fontsize if None
                  framealpha=None,  # set frame alpha
                  edgecolor=None,  # frame patch edgecolor
                  facecolor=None,  # frame patch facecolor
@@ -539,7 +539,11 @@ class Legend(Artist):
             self.get_frame().set_alpha(framealpha)
 
         self._loc = loc
-        self.set_title(title)
+        # figure out title fontsize:
+        if title_fontsize is None:
+            title_fontsize = rcParams['legend.title_fontsize']
+        tprop = FontProperties(size=title_fontsize)
+        self.set_title(title, prop=tprop)
         self._last_fontsize_points = self._fontsize
         self._draggable = None
 
