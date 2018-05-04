@@ -327,6 +327,9 @@ class SymmetricalLogTransform(Transform):
         return InvertedSymmetricalLogTransform(self.base, self.linthresh,
                                                self.linscale)
 
+    def __str__(self):
+        return "{}".format(type(self).__name__)
+
 
 class InvertedSymmetricalLogTransform(Transform):
     input_dims = 1
@@ -358,6 +361,9 @@ class InvertedSymmetricalLogTransform(Transform):
     def inverted(self):
         return SymmetricalLogTransform(self.base,
                                        self.linthresh, self.linscale)
+
+    def __str__(self):
+        return "{}".format(type(self).__name__)
 
 
 class SymmetricalLogScale(ScaleBase):
