@@ -1598,9 +1598,10 @@ class _AxesBase(martist.Artist):
                 self.set_xbound((x0, x1))
 
     def axis(self, *v, **kwargs):
-        """Set axis properties.
+        """
+        Convenience method to get or set some axis properties.
 
-        Valid signatures::
+        Call signatures::
 
           xmin, xmax, ymin, ymax = axis()
           xmin, xmax, ymin, ymax = axis(list_arg)
@@ -1609,39 +1610,44 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        v : list of float or {'on', 'off', 'equal', 'tight', 'scaled',\
-            'normal', 'auto', 'image', 'square'}
-            Optional positional argument
+        v : List[float] or one of the strings listed below.
+            Optional positional-only argument
 
-            Axis data limits set from a list; or a command relating to axes:
+            If a list, set the axis data limits.  If a string:
 
-                ========== ================================================
-                Value      Description
-                ========== ================================================
-                'on'       Toggle axis lines and labels on
-                'off'      Toggle axis lines and labels off
-                'equal'    Equal scaling by changing limits
-                'scaled'   Equal scaling by changing box dimensions
-                'tight'    Limits set such that all data is shown
-                'auto'     Automatic scaling, fill rectangle with data
-                'normal'   Same as 'auto'; deprecated
-                'image'    'scaled' with axis limits equal to data limits
-                'square'   Square plot; similar to 'scaled', but initially\
-                           forcing xmax-xmin = ymax-ymin
-                ========== ================================================
+            ======== ==========================================================
+            Value    Description
+            ======== ==========================================================
+            'on'     Turn on axis lines and labels.
+            'off'    Turn off axis lines and labels.
+            'equal'  Set equal scaling (i.e., make circles circular) by
+                     changing axis limits.
+            'scaled' Set equal scaling (i.e., make circles circular) by
+                     changing dimensions of the plot box.
+            'tight'  Set limits just large enough to show all data.
+            'auto'   Automatic scaling (fill plot box with data).
+            'normal' Same as 'auto'; deprecated.
+            'image'  'scaled' with axis limits equal to data limits.
+            'square' Square plot; similar to 'scaled', but initially forcing
+                     ``xmax-xmin = ymax-ymin``.
+            ======== ==========================================================
 
         emit : bool, optional
-            Passed to set_{x,y}lim functions, if observers
-            are notified of axis limit change
+            Passed to set_{x,y}lim functions, if observers are notified of axis
+            limit change.
 
         xmin, ymin, xmax, ymax : float, optional
-            The axis limits to be set
+            The axis limits to be set.
 
         Returns
         -------
         xmin, xmax, ymin, ymax : float
-            The axis limits
+            The axis limits.
 
+        See also
+        --------
+        matplotlib.axes.Axes.set_xlim
+        matplotlib.axes.Axes.set_ylim
         """
 
         if len(v) == 0 and len(kwargs) == 0:
@@ -1762,18 +1768,18 @@ class _AxesBase(martist.Artist):
     # Adding and tracking artists
 
     def _sci(self, im):
-        """
-        helper for :func:`~matplotlib.pyplot.sci`;
-        do not use elsewhere.
+        """Set the current image.
+
+        This image will be the target of colormap functions like
+        `~.pyplot.viridis`, and other functions such as `~.pyplot.clim`.  The
+        current image is an attribute of the current axes.
         """
         if isinstance(im, matplotlib.contour.ContourSet):
             if im.collections[0] not in self.collections:
-                raise ValueError(
-                    "ContourSet must be in current Axes")
+                raise ValueError("ContourSet must be in current Axes")
         elif im not in self.images and im not in self.collections:
-            raise ValueError(
-                "Argument must be an image, collection, or ContourSet in "
-                "this Axes")
+            raise ValueError("Argument must be an image, collection, or "
+                             "ContourSet in this Axes")
         self._current_image = im
 
     def _gci(self):
@@ -3674,7 +3680,12 @@ class _AxesBase(martist.Artist):
         return 'x=%s y=%s' % (xs, ys)
 
     def minorticks_on(self):
-        'Add autoscaling minor ticks to the axes.'
+        """
+        Display minor ticks on the axes.
+
+        Displaying minor ticks may reduce performance; you may turn them off
+        using `minorticks_off()` if drawing speed is a problem.
+        """
         for ax in (self.xaxis, self.yaxis):
             scale = ax.get_scale()
             if scale == 'log':
