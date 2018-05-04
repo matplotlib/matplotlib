@@ -231,9 +231,10 @@ def switch_backend(newbackend):
     _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 
-def show(*args, **kw):
+def show(block=True):
     """
     Display a figure.
+
     When running in ipython with its pylab mode, display all
     figures and return to the ipython prompt.
 
@@ -243,12 +244,14 @@ def show(*args, **kw):
     non-interactive to interactive mode (not recommended).  In
     that case it displays the figures but does not block.
 
-    A single experimental keyword argument, *block*, may be
-    set to True or False to override the blocking behavior
-    described above.
+    Parameters
+    ----------
+    block : bool, optional
+        Experimental; set to ``False`` to override the blocking
+        behavior described above.
     """
     global _show
-    return _show(*args, **kw)
+    return _show(block=block)
 
 
 def isinteractive():
