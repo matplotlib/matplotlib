@@ -12,6 +12,12 @@ import matplotlib.pyplot as plt
 from matplotlib import transforms
 
 
+def test_empty_closed_path():
+    path = Path(np.zeros((0, 2)), closed=True)
+    assert path.vertices.shape == (0, 2)
+    assert path.codes is None
+
+
 def test_readonly_path():
     path = Path.unit_circle()
 
