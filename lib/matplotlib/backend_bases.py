@@ -177,12 +177,11 @@ class _Backend(object):
                 cls.trigger_manager_draw(manager)
 
     @classmethod
-    def show(cls, block=None):
+    def show(cls, block=True):
         """Show all figures.
 
-        `show` blocks by calling `mainloop` if *block* is ``True``, or if it
-        is ``None`` and we are neither in IPython's ``%pylab`` mode, nor in
-        `interactive` mode.
+        `show` blocks by calling `mainloop` if *block* is ``True`` and we are
+        neither in IPython's ``%pylab`` mode, nor in `interactive` mode.
         """
         managers = Gcf.get_all_fig_managers()
         if not managers:
@@ -198,7 +197,7 @@ class _Backend(object):
                 return
         if cls.mainloop is None:
             return
-        if block is None:
+        if block:
             # Hack: Are we in IPython's pylab mode?
             from matplotlib import pyplot
             try:
@@ -210,8 +209,6 @@ class _Backend(object):
             block = not ipython_pylab and not is_interactive()
             # TODO: The above is a hack to get the WebAgg backend working with
             # ipython's `%pylab` mode until proper integration is implemented.
-            if get_backend() == "WebAgg":
-                block = True
         if block:
             cls.mainloop()
 
@@ -244,7 +241,7 @@ class ShowBase(_Backend):
     Subclass must override mainloop() method.
     """
 
-    def __call__(self, block=None):
+    def __call__(self, block=True):
         return self.show(block=block)
 
 
@@ -2635,7 +2632,7 @@ class FigureManagerBase(object):
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
 
-    def show(self):
+    def show(self, block=True):
         """
         For GUI backends, show the figure window and redraw.
         For non-GUI backends, raise an exception to be caught

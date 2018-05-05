@@ -172,7 +172,7 @@ def draw_if_interactive():
     """
 
 
-def show(block=None):
+def show(block=True):
     """
     For image backends - is not required
     For GUI backends - show() is usually the last line of a pylab script and
