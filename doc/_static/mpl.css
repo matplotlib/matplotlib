@@ -770,25 +770,6 @@ figcaption {
 
 
 /* "Summer Fellowship" message. */
-#summer-fellowship {
-  background: #11557C;
-  box-sizing: border-box;
-  color: #fffa;
-  font-weight: bold;
-  left: 0;
-  min-height: 3em;
-  padding: 0.5em;
-  top: 0;
-  width: 100%;
-  z-index: 10000;
-}
-
-#summer-fellowship a {
-  color: #fff;
-  text-decoration:underline;
-}
-
-/* "Summer Fellowship" message. */
 #plotting-contest {
   background: #EE9816;
   box-sizing: border-box;
