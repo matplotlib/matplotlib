@@ -73,7 +73,8 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
         To display blue and red circles of different sizes in the upper right
         of an axes *ax*:
 
-        >>> ada = AnchoredDrawingArea(20, 20, 0, 0, loc=1, frameon=False)
+        >>> ada = AnchoredDrawingArea(20, 20, 0, 0,
+        ...                           loc='upper right', frameon=False)
         >>> ada.drawing_area.add_artist(Circle((10, 10), 10, fc="b"))
         >>> ada.drawing_area.add_artist(Circle((30, 10), 5, fc="r"))
         >>> ax.add_artist(ada)
@@ -146,7 +147,7 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
         To display an ellipse in the upper left, with a width of 0.1 and
         height of 0.4 in data coordinates:
 
-        >>> box = AnchoredAuxTransformBox(ax.transData, loc=2)
+        >>> box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
         >>> el = Ellipse((0,0), width=0.1, height=0.4, angle=30)
         >>> box.drawing_area.add_artist(el)
         >>> ax.add_artist(box)

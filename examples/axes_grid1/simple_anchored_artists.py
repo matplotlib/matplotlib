@@ -18,16 +18,14 @@ def draw_text(ax):
     corner of the figure.
     """
     from matplotlib.offsetbox import AnchoredText
-    # loc=2 is equivalent to loc='upper left'
     at = AnchoredText("Figure 1a",
-                      loc=2, prop=dict(size=8), frameon=True,
+                      loc='upper left', prop=dict(size=8), frameon=True,
                       )
     at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
     ax.add_artist(at)
 
-    # loc=3 is eqivalent to loc='lower left'
     at2 = AnchoredText("Figure 1(b)",
-                       loc=3, prop=dict(size=8), frameon=True,
+                       loc='lower left', prop=dict(size=8), frameon=True,
                        bbox_to_anchor=(0., 1.),
                        bbox_transform=ax.transAxes
                        )
@@ -42,7 +40,7 @@ def draw_circle(ax):
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
     from matplotlib.patches import Circle
     ada = AnchoredDrawingArea(20, 20, 0, 0,
-                              loc=1, pad=0., frameon=False)
+                              loc='upper right', pad=0., frameon=False)
     p = Circle((10, 10), 10)
     ada.da.add_artist(p)
     ax.add_artist(ada)
@@ -54,7 +52,8 @@ def draw_ellipse(ax):
     """
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredEllipse
     ae = AnchoredEllipse(ax.transData, width=0.1, height=0.15, angle=0.,
-                         loc=3, pad=0.5, borderpad=0.4, frameon=True)
+                         loc='lower left', pad=0.5, borderpad=0.4,
+                         frameon=True)
 
     ax.add_artist(ae)
 
@@ -68,7 +67,7 @@ def draw_sizebar(ax):
     asb = AnchoredSizeBar(ax.transData,
                           0.1,
                           r"1$^{\prime}$",
-                          loc=8,
+                          loc='lower center',
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)
