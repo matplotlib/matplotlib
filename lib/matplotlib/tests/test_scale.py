@@ -83,12 +83,15 @@ def test_logscale_invert_transform():
     assert isinstance(Log10Transform().inverted(), InvertedLog10Transform)
 
 
-def test_logscale_transform_repr():
+@pytest.mark.parametrize('scale', ['log', 'symlog'])
+def test_scale_transform_repr_1(scale):
     # check that repr of log transform succeeds
     fig, ax = plt.subplots()
-    ax.set_yscale('log')
+    ax.set_yscale(scale)
     s = repr(ax.transData)
 
+
+def test_scale_transform_repr_2():
     # check that repr of log transform returns correct string
     s = repr(Log10Transform(nonpos='clip'))
     assert s == "Log10Transform({!r})".format('clip')

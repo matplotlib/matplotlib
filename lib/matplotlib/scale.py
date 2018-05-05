@@ -110,7 +110,7 @@ class LogTransformBase(Transform):
                     out[a <= 0] = -1000
         return out
 
-    def __str__(self):
+    def __repr__(self):
         return "{}({!r})".format(
             type(self).__name__, "clip" if self._clip else "mask")
 
@@ -124,7 +124,7 @@ class InvertedLogTransformBase(Transform):
     def transform_non_affine(self, a):
         return ma.power(self.base, a)
 
-    def __str__(self):
+    def __repr__(self):
         return "{}()".format(type(self).__name__)
 
 
@@ -470,7 +470,7 @@ class LogitTransform(Transform):
     def inverted(self):
         return LogisticTransform(self._nonpos)
 
-    def __str__(self):
+    def __repr__(self):
         return "{}({!r})".format(type(self).__name__,
             "clip" if self._clip else "mask")
 
@@ -492,7 +492,7 @@ class LogisticTransform(Transform):
     def inverted(self):
         return LogitTransform(self._nonpos)
 
-    def __str__(self):
+    def __repr__(self):
         return "{}({!r})".format(type(self).__name__, self._nonpos)
 
 

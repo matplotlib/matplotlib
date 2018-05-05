@@ -34,7 +34,7 @@ class PolarTransform(mtransforms.Transform):
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                 "    use_rmin={},\n"
@@ -100,7 +100,7 @@ class PolarAffine(mtransforms.Affine2DBase):
         self.set_children(scale_transform, limits)
         self._mtx = None
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{})"
@@ -138,7 +138,7 @@ class InvertedPolarTransform(mtransforms.Transform):
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                 "    use_rmin={},\n"
@@ -483,7 +483,7 @@ class _ThetaShift(mtransforms.ScaledTranslation):
         self.mode = mode
         self.pad = pad
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{},\n"
@@ -778,7 +778,7 @@ class _WedgeBbox(mtransforms.Bbox):
         self._originLim = originLim
         self.set_children(viewLim, originLim)
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{},\n"
