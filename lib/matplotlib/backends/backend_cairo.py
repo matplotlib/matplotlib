@@ -3,8 +3,7 @@ A Cairo backend for matplotlib
 ==============================
 :Author: Steve Chaplin and others
 
-This backend depends on `cairo <http://cairographics.org>`_, and either on
-cairocffi, or (Python 2 only) on pycairo.
+This backend depends on cairocffi or pycairo.
 """
 
 import six
@@ -36,13 +35,14 @@ if cairo.version_info < (1, 4, 0):
                       "cairo>=1.4.0 is required".format(cairo.version))
 backend_version = cairo.version
 
+from matplotlib import cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
+from matplotlib.font_manager import ttfFontProperty
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-from matplotlib.font_manager import ttfFontProperty
 
 
 def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
@@ -94,7 +94,7 @@ _CAIRO_PATH_TYPE_SIZES[cairo.PATH_CURVE_TO] = 4
 _CAIRO_PATH_TYPE_SIZES[cairo.PATH_CLOSE_PATH] = 1
 
 
-def _convert_paths_slow(ctx, paths, transforms, clip=None):
+def _append_paths_slow(ctx, paths, transforms, clip=None):
     for path, transform in zip(paths, transforms):
         for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
@@ -112,7 +112,7 @@ def _convert_paths_slow(ctx, paths, transforms, clip=None):
                 ctx.curve_to(*points)
 
 
-def _convert_paths_fast(ctx, paths, transforms, clip=None):
+def _append_paths_fast(ctx, paths, transforms, clip=None):
     # We directly convert to the internal representation used by cairo, for
     # which ABI compatibility is guaranteed.  The layout for each item is
     # --CODE(4)--  -LENGTH(4)-  ---------PAD(8)---------
@@ -160,11 +160,11 @@ def _convert_paths_fast(ctx, paths, transforms, clip=None):
     cairo.cairo.cairo_append_path(ctx._pointer, ptr)
 
 
-_convert_paths = _convert_paths_fast if HAS_CAIRO_CFFI else _convert_paths_slow
+_append_paths = _append_paths_fast if HAS_CAIRO_CFFI else _append_paths_slow
 
 
-def _convert_path(ctx, path, transform, clip=None):
-    return _convert_paths(ctx, [path], [transform], clip)
+def _append_path(ctx, path, transform, clip=None):
+    return _append_paths(ctx, [path], [transform], clip)
 
 
 class RendererCairo(RendererBase):
@@ -226,6 +226,11 @@ class RendererCairo(RendererBase):
             ctx.restore()
         ctx.stroke()
 
+    @staticmethod
+    @cbook.deprecated("3.0")
+    def convert_path(ctx, path, transform, clip=None):
+        _append_path(ctx, path, transform, clip)
+
     def draw_path(self, gc, path, transform, rgbFace=None):
         ctx = gc.ctx
         # Clip the path to the actual rendering extents if it isn't filled.
@@ -235,7 +240,7 @@ class RendererCairo(RendererBase):
         transform = (transform
                      + Affine2D().scale(1, -1).translate(0, self.height))
         ctx.new_path()
-        _convert_path(ctx, path, transform, clip)
+        _append_path(ctx, path, transform, clip)
         self._fill_and_stroke(
             ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
 
@@ -245,7 +250,7 @@ class RendererCairo(RendererBase):
 
         ctx.new_path()
         # Create the path for the marker; it needs to be flipped here already!
-        _convert_path(ctx, marker_path, marker_trans + Affine2D().scale(1, -1))
+        _append_path(ctx, marker_path, marker_trans + Affine2D().scale(1, -1))
         marker_path = ctx.copy_path_flat()
 
         # Figure out whether the path has a fill
@@ -316,7 +321,7 @@ class RendererCairo(RendererBase):
             gc.ctx.new_path()
             paths, transforms = zip(*grouped_draw)
             grouped_draw.clear()
-            _convert_paths(gc.ctx, paths, transforms)
+            _append_paths(gc.ctx, paths, transforms)
             self._fill_and_stroke(
                 gc.ctx, rgb_fc, gc.get_alpha(), gc.get_forced_alpha())
 
@@ -529,7 +534,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         ctx.new_path()
         affine = (affine
                   + Affine2D().scale(1, -1).translate(0, self.renderer.height))
-        _convert_path(ctx, tpath, affine)
+        _append_path(ctx, tpath, affine)
         ctx.clip()
 
     def set_dashes(self, offset, dashes):
