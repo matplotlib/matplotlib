@@ -24,7 +24,7 @@ _log = logging.getLogger(__name__)
 
 
 def _process_text_args(override, fontdict=None, **kwargs):
-    "Return an override dict.  See :func:`~pyplot.text' docstring for info"
+    """Return an override dict.  See `~pyplot.text' docstring for info."""
 
     if fontdict is not None:
         override.update(fontdict)
@@ -51,24 +51,21 @@ def _wrap_text(textobj):
 # Extracted from Text's method to serve as a function
 def get_rotation(rotation):
     """
-    Return the text angle as float. The returned
-    angle is between 0 and 360 deg.
+    Return the text angle as float between 0 and 360 degrees.
 
     *rotation* may be 'horizontal', 'vertical', or a numeric value in degrees.
     """
     try:
-        angle = float(rotation)
+        return float(rotation) % 360
     except (ValueError, TypeError):
         if cbook._str_equal(rotation, 'horizontal') or rotation is None:
-            angle = 0.
+            return 0.
         elif cbook._str_equal(rotation, 'vertical'):
-            angle = 90.
+            return 90.
         else:
-            raise ValueError("rotation is {0} expected either 'horizontal'"
-                             " 'vertical', numeric value or"
-                             "None".format(rotation))
-
-    return angle % 360
+            raise ValueError("rotation is {!r}; expected either 'horizontal', "
+                             "'vertical', numeric value, or None"
+                             .format(rotation))
 
 
 def _get_textbox(text, renderer):
@@ -104,9 +101,7 @@ def _get_textbox(text, renderer):
     xt_box, yt_box = min(projected_xs), min(projected_ys)
     w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
 
-    tr = Affine2D().rotate(theta)
-
-    x_box, y_box = tr.transform_point((xt_box, yt_box))
+    x_box, y_box = Affine2D().rotate(theta).transform_point((xt_box, yt_box))
 
     return x_box, y_box, w_box, h_box
 
@@ -125,9 +120,8 @@ def _get_textbox(text, renderer):
     "weight": ["fontweight"],
 })
 class Text(Artist):
-    """
-    Handle storing and drawing of text in window or data coordinates.
-    """
+    """Handle storing and drawing of text in window or data coordinates."""
+
     zorder = 3
     _cached = cbook.maxdict(50)
 
@@ -149,8 +143,7 @@ class Text(Artist):
                  **kwargs
                  ):
         """
-        Create a :class:`~matplotlib.text.Text` instance at *x*, *y*
-        with string *text*.
+        Create a `Text` instance at *x*, *y* with string *text*.
 
         Valid kwargs are
         %(Text)s
@@ -232,7 +225,9 @@ class Text(Artist):
         return inside, cattr
 
     def _get_xy_display(self):
-        'get the (possibly unit converted) transformed x, y in display coords'
+        """
+        Get the (possibly unit converted) transformed x, y in display coords.
+        """
         x, y = self.get_unitless_position()
         return self.get_transform().transform_point((x, y))
 
@@ -243,7 +238,7 @@ class Text(Artist):
             return self._horizontalalignment
 
     def get_rotation(self):
-        'return the text angle as float in degrees'
+        """Return the text angle as float in degrees."""
         return get_rotation(self._rotation)  # string_or_number -> number
 
     def set_rotation_mode(self, m):
@@ -266,11 +261,11 @@ class Text(Artist):
         self.stale = True
 
     def get_rotation_mode(self):
-        "get text rotation mode"
+        """Get the text rotation mode."""
         return self._rotation_mode
 
     def update_from(self, other):
-        'Copy properties from other to self'
+        """Copy properties from other to self."""
         Artist.update_from(self, other)
         self._color = other._color
         self._multialignment = other._multialignment
@@ -481,16 +476,16 @@ class Text(Artist):
 
     def get_bbox_patch(self):
         """
-        Return the bbox Patch object. Returns None if the
-        FancyBboxPatch is not made.
+        Return the bbox Patch, or None if the FancyBboxPatch is not made.
         """
         return self._bbox_patch
 
     def update_bbox_position_size(self, renderer):
         """
-        Update the location and the size of the bbox. This method
-        should be used when the position and size of the bbox needs to
-        be updated before actually drawing the bbox.
+        Update the location and the size of the bbox.
+
+        This method should be used when the position and size of the bbox needs
+        to be updated before actually drawing the bbox.
         """
 
         if self._bbox_patch:
@@ -514,9 +509,8 @@ class Text(Artist):
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
 
     def _draw_bbox(self, renderer, posx, posy):
-
-        """ Update the location and the size of the bbox
-        (FancyBboxPatch), and draw
+        """
+        Update the location and size of the bbox (FancyBboxPatch), and draw.
         """
 
         x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
@@ -533,7 +527,6 @@ class Text(Artist):
         clipprops = dict(clip_box=self.clipbox,
                          clip_path=self._clippath,
                          clip_on=self._clipon)
-
         if self._bbox_patch:
             bbox = self._bbox_patch.update(clipprops)
 
@@ -586,11 +579,11 @@ class Text(Artist):
         self._update_clip_properties()
 
     def get_wrap(self):
-        """Returns the wrapping state for the text."""
+        """Return the wrapping state for the text."""
         return self._wrap
 
     def set_wrap(self, wrap):
-        """Sets the wrapping state for the text.
+        """Set the wrapping state for the text.
 
         Parameters
         ----------
@@ -601,8 +594,8 @@ class Text(Artist):
 
     def _get_wrap_line_width(self):
         """
-        Returns the maximum line width for wrapping text based on the
-        current orientation.
+        Return the maximum line width for wrapping text based on the current
+        orientation.
         """
         x0, y0 = self.get_transform().transform(self.get_position())
         figure_box = self.get_figure().get_window_extent()
@@ -614,10 +607,7 @@ class Text(Artist):
 
         left = self._get_dist_to_box(rotation, x0, y0, figure_box)
         right = self._get_dist_to_box(
-            (180 + rotation) % 360,
-            x0,
-            y0,
-            figure_box)
+            (180 + rotation) % 360, x0, y0, figure_box)
 
         if alignment == 'left':
             line_width = left
@@ -630,8 +620,8 @@ class Text(Artist):
 
     def _get_dist_to_box(self, rotation, x0, y0, figure_box):
         """
-        Returns the distance from the given points, to the boundaries
-        of a rotated box in pixels.
+        Return the distance from the given points to the boundaries of a
+        rotated box, in pixels.
         """
         if rotation > 270:
             quad = rotation - 270
@@ -653,7 +643,7 @@ class Text(Artist):
 
     def _get_rendered_text_width(self, text):
         """
-        Returns the width of a given text string, in pixels.
+        Return the width of a given text string, in pixels.
         """
         w, h, d = self._renderer.get_text_width_height_descent(
             text,
@@ -1228,7 +1218,7 @@ class TextWithDash(Text):
     __name__ = 'textwithdash'
 
     def __str__(self):
-        return "TextWithDash(%g,%g,%s)" % (self._x, self._y, repr(self._text))
+        return "TextWithDash(%g, %g, %r)" % (self._x, self._y, self._text)
 
     def __init__(self,
                  x=0, y=0, text='',
@@ -1855,9 +1845,7 @@ class _AnnotationBase(object):
 
 class Annotation(Text, _AnnotationBase):
     def __str__(self):
-        return "Annotation(%g,%g,%s)" % (self.xy[0],
-                                         self.xy[1],
-                                         repr(self._text))
+        return "Annotation(%g, %g, %r)" % (self.xy[0], self.xy[1], self._text)
 
     @docstring.dedent_interpd
     def __init__(self, s, xy,
@@ -1876,10 +1864,10 @@ class Annotation(Text, _AnnotationBase):
         ----------
 
         s : str
-            The text of the annotation
+            The text of the annotation.
 
         xy : iterable
-            Length 2 sequence specifying the *(x,y)* point to annotate
+            Length 2 sequence specifying the *(x,y)* point to annotate.
 
         xytext : iterable, optional
             Length 2 sequence specifying the *(x,y)* to place the text
@@ -2089,15 +2077,13 @@ class Annotation(Text, _AnnotationBase):
         Artist.set_figure(self, fig)
 
     def update_positions(self, renderer):
-        """"Update the pixel positions of the annotated point and the
-        text.
-        """
+        """Update the pixel positions of the annotated point and the text."""
         xy_pixel = self._get_position_xy(renderer)
         self._update_position_xytext(renderer, xy_pixel)
 
     def _update_position_xytext(self, renderer, xy_pixel):
-        """Update the pixel positions of the annotation text and the arrow
-        patch.
+        """
+        Update the pixel positions of the annotation text and the arrow patch.
         """
         # generate transformation,
         self.set_transform(self._get_xy_transform(renderer, self.anncoords))
@@ -2236,7 +2222,6 @@ class Annotation(Text, _AnnotationBase):
         simpler to call the method after saving the figure. The
         *dpi* used defaults to self.figure.dpi; the renderer dpi is
         irrelevant.
-
         '''
         if not self.get_visible():
             return Bbox.unit()
