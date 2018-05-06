@@ -9,10 +9,10 @@ your data:
 
   ax.legend(loc='upper right')
 
-Other times you don't know where your data is, and loc='best' will try
-and place the legend::
+Other times you don't know where your data is, and the default loc='best'
+will try and place the legend::
 
-  ax.legend(loc='best')
+  ax.legend()
 
 but still, your legend may overlap your data, and in these cases it's
 nice to make the legend frame transparent.
@@ -27,7 +27,7 @@ ax.plot(np.random.randn(300), 'o-', label='normal distribution')
 ax.plot(np.random.rand(300), 's-', label='uniform distribution')
 ax.set_ylim(-3, 3)
 
-ax.legend(loc='best', fancybox=True, framealpha=0.5)
+ax.legend(fancybox=True, framealpha=0.5)
 ax.set_title('fancy, transparent legends')
 
 plt.show()
