@@ -388,3 +388,43 @@ def test_constrained_layout20():
     ax = fig.add_axes([0, 0, 1, 1])
     mesh = ax.pcolormesh(gx, gx, img)
     fig.colorbar(mesh)
+
+
+def test_constrained_layout21():
+    '#11035: repeated calls to suptitle should not alter the layout'
+    fig, ax = plt.subplots(constrained_layout=True)
+
+    fig.suptitle("Suptitle0")
+    fig.canvas.draw()
+    extents0 = np.copy(ax.get_position().extents)
+
+    fig.suptitle("Suptitle1")
+    fig.canvas.draw()
+    extents1 = np.copy(ax.get_position().extents)
+
+    np.testing.assert_allclose(extents0, extents1)
+
+
+def test_constrained_layout22():
+    '#11035: suptitle should not be include in CL if manually positioned'
+    fig, ax = plt.subplots(constrained_layout=True)
+
+    fig.canvas.draw()
+    extents0 = np.copy(ax.get_position().extents)
+
+    fig.suptitle("Suptitle", y=0.5)
+    fig.canvas.draw()
+    extents1 = np.copy(ax.get_position().extents)
+
+    np.testing.assert_allclose(extents0, extents1)
+
+
+def test_constrained_layout23():
+    '''
+    Comment in #11035: suptitle used to cause an exception when
+    reusing a figure w/ CL with ``clear=True``.
+    '''
+
+    for i in range(2):
+        fig, ax = plt.subplots(num="123", constrained_layout=True, clear=True)
+        fig.suptitle("Suptitle{}".format(i))

@@ -244,7 +244,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                 ax._poslayoutbox.constrain_left_margin(0, strength='weak')
 
     # do layout for suptitle.
-    if fig._suptitle is not None:
+    if fig._suptitle is not None and fig._suptitle._layoutbox is not None:
         sup = fig._suptitle
         bbox = invTransFig(sup.get_window_extent(renderer=renderer))
         height = bbox.y1 - bbox.y0
