@@ -141,7 +141,8 @@ def _font_properties_str(prop):
     family = prop.get_family()[0]
     if family in families:
         commands.append(families[family])
-    elif family in system_fonts and rcParams["pgf.texsystem"] != "pdflatex":
+    elif (any(font.name == family for font in fm.fontManager.ttflist)
+          and rcParams["pgf.texsystem"] != "pdflatex"):
         commands.append(r"\setmainfont{%s}\rmfamily" % family)
     else:
         pass  # print warning?
