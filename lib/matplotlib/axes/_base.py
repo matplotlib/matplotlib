@@ -2719,6 +2719,8 @@ class _AxesBase(martist.Artist):
                            be used for numbers outside the range
                            10`m`:sup: to 10`n`:sup:.
                            Use (0,0) to include all numbers.
+                           Use (m,m) where m <> 0 to fix the order
+                           of magnitude to 10`m`:sup:.
           *useOffset*      [ bool | offset ]; if True,
                            the offset will be calculated as needed;
                            if False, no offset will be used; if a
