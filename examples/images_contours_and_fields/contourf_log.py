@@ -47,3 +47,22 @@ cs = ax.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
 cbar = fig.colorbar(cs)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.contourf
+matplotlib.pyplot.contourf
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.axes.Axes.legend
+matplotlib.pyplot.legend
+matplotlib.ticker.LogLocator
