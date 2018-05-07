@@ -44,7 +44,7 @@ fonts-run:  &fonts-install
       cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts
       rm -rf tmp
     else
-      echo "Not downloading Humor-Sans; file already exists."
+      echo 'Not downloading Humor-Sans; file already exists.'
     fi
     fc-cache -f -v
 
@@ -61,6 +61,7 @@ deps-run: &deps-install
   command: |
     python -mpip install --user numpy${NUMPY_VERSION} codecov coverage
     python -mpip install --user -r doc-requirements.txt
+    echo 'import coverage; coverage.process_startup()' >"$(python -msite --user-site)/custom-coverage.pth"
 
 mpl-run: &mpl-install
   name: Install Matplotlib
@@ -68,13 +69,16 @@ mpl-run: &mpl-install
 
 doc-run: &doc-build
   name: Build documentation
-  command: make html
-  working_directory: doc
+  command: COVERAGE_PROCESS_START="$(pwd)/.coveragerc" make -C doc html
 
 doc-bundle-run: &doc-bundle
   name: Bundle sphinx-gallery documentation artifacts
   command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
   when: always
+
+upload-coverage: &upload-coverage
+  name: Upload coverage
+  command: cd doc && PATH="$HOME/.local/bin:$PATH" codecov -e CIRCLECI_IMAGE
 
 
 ##########################################
@@ -85,6 +89,8 @@ jobs:
   docs-python36:
     docker:
       - image: circleci/python:3.6
+    environment:
+      CIRCLECI_IMAGE: "circleci/python:3.6"
     steps:
       - checkout
 
@@ -100,6 +106,8 @@ jobs:
       - run: *doc-bundle
       - store_artifacts:
           path: doc/build/sphinx-gallery-files.tar.gz
+
+      - run: *upload-coverage
 
       - store_artifacts:
           path: doc/build/html
@@ -118,6 +126,8 @@ jobs:
   docs-python35:
     docker:
       - image: circleci/python:3.5
+    environment:
+      CIRCLECI_IMAGE: "circleci/python:3.5"
     steps:
       - checkout
 
@@ -139,6 +149,8 @@ jobs:
       - run: *doc-bundle
       - store_artifacts:
           path: doc/build/sphinx-gallery-files.tar.gz
+
+      - run: *upload-coverage
 
       - store_artifacts:
           path: doc/build/html
