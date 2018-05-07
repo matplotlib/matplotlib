@@ -96,8 +96,8 @@ def _backend_selection():
             # The mainloop is running.
             rcParams['backend'] = 'qt5Agg'
     elif 'gtk' in sys.modules and 'gi' in sys.modules:
-        from gi.repository import GObject
-        if GObject.MainLoop().is_running():
+        from gi.repository import GLib
+        if GLib.MainLoop().is_running():
             rcParams['backend'] = 'GTK3Agg'
     elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
         # import Tkinter
