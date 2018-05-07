@@ -99,7 +99,7 @@ class TransformNode(object):
         self._shorthand_name = shorthand_name or ''
 
     if DEBUG:
-        def __str__(self):
+        def __repr__(self):
             # either just return the name of this TransformNode, or its repr
             return self._shorthand_name or repr(self)
 
@@ -1045,15 +1045,13 @@ class TransformedBbox(BboxBase):
         self.set_children(bbox, transform)
         self._points = None
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{})"
                 .format(type(self).__name__,
                         _indent_str(self._bbox),
                         _indent_str(self._transform)))
-
-    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
@@ -1132,15 +1130,13 @@ class LockableBbox(BboxBase):
         mask = [val is None for val in fp]
         self._locked_points = np.ma.array(fp, float, mask=mask).reshape((2, 2))
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{})"
                 .format(type(self).__name__,
                         _indent_str(self._bbox),
                         _indent_str(self._locked_points)))
-
-    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
@@ -1621,9 +1617,6 @@ class Transform(TransformNode):
         """
         raise NotImplementedError()
 
-    def __repr__(self):
-        return str(self)
-
 
 class TransformWrapper(Transform):
     """
@@ -1662,7 +1655,7 @@ class TransformWrapper(Transform):
     def __eq__(self, other):
         return self._child.__eq__(other)
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{})"
                 .format(type(self).__name__,
@@ -1891,7 +1884,7 @@ class Affine2D(Affine2DBase):
         self._mtx = matrix
         self._invalid = 0
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{})"
                 .format(type(self).__name__,
@@ -2099,7 +2092,7 @@ class IdentityTransform(Affine2DBase):
         return self
     frozen.__doc__ = Affine2DBase.frozen.__doc__
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}()"
                 .format(type(self).__name__))
 
@@ -2200,7 +2193,7 @@ class BlendedGenericTransform(Transform):
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
     frozen.__doc__ = Transform.frozen.__doc__
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{})"
@@ -2309,7 +2302,7 @@ class BlendedAffine2D(Affine2DBase):
         # Note, this is an exact copy of BlendedTransform.contains_branch_seperately
         return self._x.contains_branch(transform), self._y.contains_branch(transform)
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{})"
@@ -2429,7 +2422,7 @@ class CompositeGenericTransform(Transform):
         return self._a.is_separable and self._b.is_separable
     is_separable = property(_get_is_separable)
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{})"
@@ -2521,7 +2514,7 @@ class CompositeAffine2D(Affine2DBase):
         for left, right in self._b._iter_break_from_left_to_right():
             yield self._a + left, right
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{})"
@@ -2589,7 +2582,7 @@ class BboxTransform(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{},\n"
                     "{})"
@@ -2637,7 +2630,7 @@ class BboxTransformTo(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{})"
                 .format(type(self).__name__,
@@ -2696,7 +2689,7 @@ class BboxTransformFrom(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{})"
                 .format(type(self).__name__,
@@ -2732,7 +2725,7 @@ class ScaledTranslation(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
+    def __repr__(self):
         return ("{}(\n"
                     "{})"
                 .format(type(self).__name__,
