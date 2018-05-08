@@ -2756,8 +2756,6 @@ class _AxesBase(martist.Artist):
             sb = True
         elif style == 'plain':
             sb = False
-        elif style == 'comma':
-            raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:
@@ -3028,7 +3026,8 @@ class _AxesBase(martist.Artist):
                 raise ValueError("Axis limits cannot be NaN or Inf")
             return converted_limit
 
-    def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
+    def set_xlim(self, left=None, right=None, emit=True, auto=False,
+                 *, xmin=None, xmax=None):
         """
         Set the data limits for the x-axis
 
@@ -3039,6 +3038,9 @@ class _AxesBase(martist.Artist):
         left : scalar, optional
             The left xlim (default: None, which leaves the left limit
             unchanged).
+            The left and right xlims may be passed as the tuple
+            (`left`, `right`) as the first positional argument (or as
+            the `left` keyword argument).
 
         right : scalar, optional
             The right xlim (default: None, which leaves the right limit
@@ -3051,10 +3053,11 @@ class _AxesBase(martist.Artist):
             Whether to turn on autoscaling of the x-axis. True turns on,
             False turns off (default action), None leaves unchanged.
 
-        xlimits : tuple, optional
-            The left and right xlims may be passed as the tuple
-            (`left`, `right`) as the first positional argument (or as
-            the `left` keyword argument).
+        xmin, xmax : scalar, optional
+            These arguments are deprecated and will be removed in a future
+            version.  They are equivalent to left and right respectively,
+            and it is an error to pass both `xmin` and `left` or
+            `xmax` and `right`.
 
         Returns
         -------
@@ -3085,15 +3088,20 @@ class _AxesBase(martist.Artist):
         >>> set_xlim(5000, 0)
 
         """
-        if 'xmin' in kw:
-            left = kw.pop('xmin')
-        if 'xmax' in kw:
-            right = kw.pop('xmax')
-        if kw:
-            raise ValueError("unrecognized kwargs: %s" % list(kw))
-
         if right is None and iterable(left):
             left, right = left
+        if xmin is not None:
+            cbook.warn_deprecated('3.0', name='`xmin`',
+                                  alternative='`left`', obj_type='argument')
+            if left is not None:
+                raise TypeError('Cannot pass both `xmin` and `left`')
+            left = xmin
+        if xmax is not None:
+            cbook.warn_deprecated('3.0', name='`xmax`',
+                                  alternative='`right`', obj_type='argument')
+            if right is not None:
+                raise TypeError('Cannot pass both `xmax` and `right`')
+            right = xmax
 
         self._process_unit_info(xdata=(left, right))
         left = self._validate_converted_limits(left, self.convert_xunits)
@@ -3358,7 +3366,8 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervaly)
 
-    def set_ylim(self, bottom=None, top=None, emit=True, auto=False, **kw):
+    def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
+                 *, ymin=None, ymax=None):
         """
         Set the data limits for the y-axis
 
@@ -3369,6 +3378,9 @@ class _AxesBase(martist.Artist):
         bottom : scalar, optional
             The bottom ylim (default: None, which leaves the bottom
             limit unchanged).
+            The bottom and top ylims may be passed as the tuple
+            (`bottom`, `top`) as the first positional argument (or as
+            the `bottom` keyword argument).
 
         top : scalar, optional
             The top ylim (default: None, which leaves the top limit
@@ -3381,10 +3393,11 @@ class _AxesBase(martist.Artist):
             Whether to turn on autoscaling of the y-axis. True turns on,
             False turns off (default action), None leaves unchanged.
 
-        ylimits : tuple, optional
-            The bottom and top yxlims may be passed as the tuple
-            (`bottom`, `top`) as the first positional argument (or as
-            the `bottom` keyword argument).
+        ymin, ymax : scalar, optional
+            These arguments are deprecated and will be removed in a future
+            version.  They are equivalent to bottom and top respectively,
+            and it is an error to pass both `xmin` and `bottom` or
+            `xmax` and `top`.
 
         Returns
         -------
@@ -3414,15 +3427,20 @@ class _AxesBase(martist.Artist):
 
         >>> set_ylim(5000, 0)
         """
-        if 'ymin' in kw:
-            bottom = kw.pop('ymin')
-        if 'ymax' in kw:
-            top = kw.pop('ymax')
-        if kw:
-            raise ValueError("unrecognized kwargs: %s" % list(kw))
-
         if top is None and iterable(bottom):
             bottom, top = bottom
+        if ymin is not None:
+            cbook.warn_deprecated('3.0', name='`ymin`',
+                                  alternative='`bottom`', obj_type='argument')
+            if bottom is not None:
+                raise TypeError('Cannot pass both `ymin` and `bottom`')
+            bottom = ymin
+        if ymax is not None:
+            cbook.warn_deprecated('3.0', name='`ymax`',
+                                  alternative='`top`', obj_type='argument')
+            if top is not None:
+                raise TypeError('Cannot pass both `ymax` and `top`')
+            top = ymax
 
         bottom = self._validate_converted_limits(bottom, self.convert_yunits)
         top = self._validate_converted_limits(top, self.convert_yunits)

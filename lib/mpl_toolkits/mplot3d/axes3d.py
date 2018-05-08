@@ -532,9 +532,7 @@ class Axes3D(Axes):
             _tight = self._tight = bool(tight)
 
         if scalex and self._autoscaleXon:
-            xshared = self._shared_x_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in xshared]
-            bb = mtransforms.BboxBase.union(dl)
+            self._shared_x_axes.clean()
             x0, x1 = self.xy_dataLim.intervalx
             xlocator = self.xaxis.get_major_locator()
             try:
@@ -551,9 +549,7 @@ class Axes3D(Axes):
             self.set_xbound(x0, x1)
 
         if scaley and self._autoscaleYon:
-            yshared = self._shared_y_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in yshared]
-            bb = mtransforms.BboxBase.union(dl)
+            self._shared_y_axes.clean()
             y0, y1 = self.xy_dataLim.intervaly
             ylocator = self.yaxis.get_major_locator()
             try:
@@ -570,9 +566,7 @@ class Axes3D(Axes):
             self.set_ybound(y0, y1)
 
         if scalez and self._autoscaleZon:
-            zshared = self._shared_z_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in zshared]
-            bb = mtransforms.BboxBase.union(dl)
+            self._shared_z_axes.clean()
             z0, z1 = self.zz_dataLim.intervalx
             zlocator = self.zaxis.get_major_locator()
             try:
@@ -603,22 +597,28 @@ class Axes3D(Axes):
             xmax += 0.05
         return (xmin, xmax)
 
-    def set_xlim3d(self, left=None, right=None, emit=True, auto=False, **kw):
+    def set_xlim3d(self, left=None, right=None, emit=True, auto=False,
+                   *, xmin=None, xmax=None):
         """
         Set 3D x limits.
 
         See :meth:`matplotlib.axes.Axes.set_xlim` for full documentation.
 
         """
-        if 'xmin' in kw:
-            left = kw.pop('xmin')
-        if 'xmax' in kw:
-            right = kw.pop('xmax')
-        if kw:
-            raise ValueError("unrecognized kwargs: %s" % list(kw))
-
         if right is None and cbook.iterable(left):
             left, right = left
+        if xmin is not None:
+            cbook.warn_deprecated('3.0', name='`xmin`',
+                                  alternative='`left`', obj_type='argument')
+            if left is not None:
+                raise TypeError('Cannot pass both `xmin` and `left`')
+            left = xmin
+        if xmax is not None:
+            cbook.warn_deprecated('3.0', name='`xmax`',
+                                  alternative='`right`', obj_type='argument')
+            if right is not None:
+                raise TypeError('Cannot pass both `xmax` and `right`')
+            right = xmax
 
         self._process_unit_info(xdata=(left, right))
         left = self._validate_converted_limits(left, self.convert_xunits)
@@ -655,22 +655,28 @@ class Axes3D(Axes):
         return left, right
     set_xlim = set_xlim3d
 
-    def set_ylim3d(self, bottom=None, top=None, emit=True, auto=False, **kw):
+    def set_ylim3d(self, bottom=None, top=None, emit=True, auto=False,
+                   *, ymin=None, ymax=None):
         """
         Set 3D y limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation.
 
         """
-        if 'ymin' in kw:
-            bottom = kw.pop('ymin')
-        if 'ymax' in kw:
-            top = kw.pop('ymax')
-        if kw:
-            raise ValueError("unrecognized kwargs: %s" % list(kw))
-
         if top is None and cbook.iterable(bottom):
             bottom, top = bottom
+        if ymin is not None:
+            cbook.warn_deprecated('3.0', name='`ymin`',
+                                  alternative='`bottom`', obj_type='argument')
+            if bottom is not None:
+                raise TypeError('Cannot pass both `ymin` and `bottom`')
+            bottom = ymin
+        if ymax is not None:
+            cbook.warn_deprecated('3.0', name='`ymax`',
+                                  alternative='`top`', obj_type='argument')
+            if top is not None:
+                raise TypeError('Cannot pass both `ymax` and `top`')
+            top = ymax
 
         self._process_unit_info(ydata=(bottom, top))
         bottom = self._validate_converted_limits(bottom, self.convert_yunits)
@@ -707,22 +713,28 @@ class Axes3D(Axes):
         return bottom, top
     set_ylim = set_ylim3d
 
-    def set_zlim3d(self, bottom=None, top=None, emit=True, auto=False, **kw):
+    def set_zlim3d(self, bottom=None, top=None, emit=True, auto=False,
+                   *, zmin=None, zmax=None):
         """
         Set 3D z limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
 
         """
-        if 'zmin' in kw:
-            bottom = kw.pop('zmin')
-        if 'zmax' in kw:
-            top = kw.pop('zmax')
-        if kw:
-            raise ValueError("unrecognized kwargs: %s" % list(kw))
-
         if top is None and cbook.iterable(bottom):
             bottom, top = bottom
+        if zmin is not None:
+            cbook.warn_deprecated('3.0', name='`zmin`',
+                                  alternative='`bottom`', obj_type='argument')
+            if bottom is not None:
+                raise TypeError('Cannot pass both `zmin` and `bottom`')
+            bottom = zmin
+        if zmax is not None:
+            cbook.warn_deprecated('3.0', name='`zmax`',
+                                  alternative='`top`', obj_type='argument')
+            if top is not None:
+                raise TypeError('Cannot pass both `zmax` and `top`')
+            top = zmax
 
         self._process_unit_info(zdata=(bottom, top))
         bottom = self._validate_converted_limits(bottom, self.convert_zunits)
@@ -1348,13 +1360,8 @@ class Axes3D(Axes):
                 raise ValueError("scilimits must be a sequence of 2 integers")
         if style[:3] == 'sci':
             sb = True
-        elif style in ['plain', 'comma']:
+        elif style == 'plain':
             sb = False
-            if style == 'plain':
-                cb = False
-            else:
-                cb = True
-                raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:
@@ -1702,7 +1709,6 @@ class Axes3D(Axes):
                 # The construction leaves the array with duplicate points, which
                 # are removed here.
                 ps = list(zip(*ps))
-                lastp = np.array([])
                 ps2 = [ps[0]] + [ps[i] for i in range(1, len(ps)) if ps[i] != ps[i-1]]
                 avgzsum = sum(p[2] for p in ps2)
                 polys.append(ps2)
