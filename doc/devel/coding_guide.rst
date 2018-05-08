@@ -148,12 +148,26 @@ We do a backport from master to v2.2.x assuming:
 
 The ``TARGET_SHA`` is the hash of the merge commit you would like to
 backport.  This can be read off of the github PR page (in the UI with
-the merge notification) or through the git CLI tools.::
+the merge notification) or through the git CLI tools.
 
-  git fetch matplotlib
-  git checkout v2.2.x
-  git merge --ff-only matplotlib/v2.2.x
+Assuming that you already have a local branch ``v2.2.x`` (if not, then
+``git checkout -b v2.2.x``), and that your remote pointing to
+``https://github.com/matplotlib/matplotlib`` is called ``upstream``::
+
+  git fetch upstream
+  git checkout v2.2.x  # or include -b if you don't already have this.
+  git reset --hard upstream/v2.2.x
   git cherry-pick -m 1 TARGET_SHA
   # resolve conflicts and commit if required
 
-Use your discretion to push directly to upstream or to open a PR.
+Files with conflicts can be listed by `git status`,
+and will have to be fixed by hand (search on ``>>>>>``).  Once
+the conflict is resolved, you will have to re-add the file(s) to the branch
+and then continue the cherry pick::
+
+  git add lib/matplotlib/conflicted_file.py
+  git add lib/matplotlib/conflicted_file2.py
+  git cherry-pick --continue
+
+Use your discretion to push directly to upstream or to open a PR; be
+sure to push or PR against the `v2.2.x` upstream branch, not `master`!
