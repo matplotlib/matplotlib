@@ -19,19 +19,19 @@ rcParams = matplotlib.rcParams
 
 
 def _get_left(tight_bbox, axes_bbox):
-    return axes_bbox.xmin - tight_bbox.xmin
+    return max(0, axes_bbox.xmin - tight_bbox.xmin)
 
 
 def _get_right(tight_bbox, axes_bbox):
-    return tight_bbox.xmax - axes_bbox.xmax
+    return max(0, tight_bbox.xmax - axes_bbox.xmax)
 
 
 def _get_bottom(tight_bbox, axes_bbox):
-    return axes_bbox.ymin - tight_bbox.ymin
+    return max(0, axes_bbox.ymin - tight_bbox.ymin)
 
 
 def _get_top(tight_bbox, axes_bbox):
-    return tight_bbox.ymax - axes_bbox.ymax
+    return max(0, tight_bbox.ymax - axes_bbox.ymax)
 
 
 def auto_adjust_subplotpars(
