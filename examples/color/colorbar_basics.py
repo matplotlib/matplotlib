@@ -3,8 +3,9 @@
 Colorbar
 ========
 
-Use colorbar by specifying the mappable object (here
-the imshow returned object) and the axes to attach the colorbar to.
+Use `~.figure.Figure.colorbar` by specifying the mappable object (here
+the `~.matplotlib.image.AxesImage` returned by `~.axes.Axes.imshow`)
+and the axes to attach the colorbar to.
 """
 
 import numpy as np
@@ -35,3 +36,19 @@ neg = ax2.imshow(Zneg, cmap='Reds_r', interpolation='none')
 fig.colorbar(neg, ax=ax2)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar

@@ -5,7 +5,7 @@ Reference for matplotlib artists
 
 This example displays several of matplotlib's graphics primitives (artists)
 drawn using matplotlib API. A full list of artists and the documentation is
-available at http://matplotlib.org/api/artist_api.html.
+available at :ref:`the artist API <artist-api>`.
 
 Copyright (c) 2010, Bartosz Telenczuk
 BSD License
@@ -16,9 +16,6 @@ import matplotlib.path as mpath
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 from matplotlib.collections import PatchCollection
-
-
-plt.rcdefaults()
 
 
 def label(xy, text):
@@ -104,3 +101,33 @@ plt.axis('off')
 plt.tight_layout()
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.path
+matplotlib.path.Path
+matplotlib.lines
+matplotlib.lines.Line2D
+matplotlib.patches
+matplotlib.patches.Circle
+matplotlib.patches.Ellipse
+matplotlib.patches.Wedge
+matplotlib.patches.Rectangle
+matplotlib.patches.Arrow
+matplotlib.patches.PathPatch
+matplotlib.patches.FancyBboxPatch
+matplotlib.patches.RegularPolygon
+matplotlib.collections
+matplotlib.collections.PatchCollection
+matplotlib.cm.ScalarMappable.set_array
+matplotlib.axes.Axes.add_collection
+matplotlib.axes.Axes.add_line
