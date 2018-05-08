@@ -1,3 +1,4 @@
+import functools
 import warnings
 
 from matplotlib import docstring
@@ -183,9 +184,8 @@ class SubplotBase(object):
         self._twinned_axes.join(self, ax2)
         return ax2
 
-_subplot_classes = {}
 
-
+@functools.lru_cache(None)
 def subplot_class_factory(axes_class=None):
     # This makes a new class that inherits from SubplotBase and the
     # given axes_class (which is assumed to be a subclass of Axes).
@@ -194,15 +194,10 @@ def subplot_class_factory(axes_class=None):
     # not have to be created for every type of Axes.
     if axes_class is None:
         axes_class = Axes
+    return type("%sSubplot" % axes_class.__name__,
+                (SubplotBase, axes_class),
+                {'_axes_class': axes_class})
 
-    new_class = _subplot_classes.get(axes_class)
-    if new_class is None:
-        new_class = type(str("%sSubplot") % (axes_class.__name__),
-                         (SubplotBase, axes_class),
-                         {'_axes_class': axes_class})
-        _subplot_classes[axes_class] = new_class
-
-    return new_class
 
 # This is provided for backward compatibility
 Subplot = subplot_class_factory()
