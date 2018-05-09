@@ -1275,6 +1275,7 @@ class FancyArrow(Polygon):
 docstring.interpd.update({"FancyArrow": FancyArrow.__init__.__doc__})
 
 
+@cbook.deprecated("3.0", alternative="FancyArrowPatch")
 class YAArrow(Patch):
     """
     Yet another arrow class.
