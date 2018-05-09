@@ -583,8 +583,12 @@ class _AxesBase(martist.Artist):
         *kwargs* are empty
         """
         bbox = self.bbox
-        x_pad = self.xaxis.get_tick_padding()
-        y_pad = self.yaxis.get_tick_padding()
+        x_pad = 0
+        if self.axison and self.xaxis.get_visible():
+            x_pad = self.xaxis.get_tick_padding()
+        y_pad = 0
+        if self.axison and self.yaxis.get_visible():
+            y_pad = self.yaxis.get_tick_padding()
         return mtransforms.Bbox([[bbox.x0 - x_pad, bbox.y0 - y_pad],
                                  [bbox.x1 + x_pad, bbox.y1 + y_pad]])
 
@@ -4145,7 +4149,6 @@ class _AxesBase(martist.Artist):
             bb.append(bb_xaxis)
 
         self._update_title_position(renderer)
-
         bb.append(self.get_window_extent(renderer))
 
         if self.title.get_visible():
