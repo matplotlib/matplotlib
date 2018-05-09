@@ -63,7 +63,7 @@ class ValidateInStrings(object):
             s = s.lower()
         if s in self.valid:
             return self.valid[s]
-        raise ValueError('Unrecognized %s string "%s": valid strings are %s'
+        raise ValueError('Unrecognized %s string %r: valid strings are %s'
                          % (self.key, s, list(six.itervalues(self.valid))))
 
 
@@ -935,25 +935,13 @@ def _validate_linestyle(ls):
     A validator for all possible line styles, the named ones *and*
     the on-off ink sequences.
     """
-    # Look first for a valid named line style, like '--' or 'solid'
-    if isinstance(ls, six.string_types):
-        try:
-            return _validate_named_linestyle(ls)
-        except (UnicodeDecodeError, KeyError):
-            # On Python 2, string-like *ls*, like for example
-            # 'solid'.encode('utf-16'), may raise a unicode error.
-            raise ValueError("the linestyle string {!r} is not a valid "
-                             "string.".format(ls))
-
-    if isinstance(ls, (bytes, bytearray)):
-        # On Python 2, a string-like *ls* should already have lead to a
-        # successful return or to raising an exception. On Python 3, we have
-        # to manually raise an exception in the case of a byte-like *ls*.
-        # Otherwise, if *ls* is of even-length, it will be passed to the
-        # instance of validate_nseq_float, which will return an absurd on-off
-        # ink sequence...
-        raise ValueError("linestyle {!r} neither looks like an on-off ink "
-                         "sequence nor a valid string.".format(ls))
+    # Look first for a valid named line style, like '--' or 'solid' Also
+    # includes bytes(-arrays) here (they all fail _validate_named_linestyle);
+    # otherwise, if *ls* is of even-length, it will be passed to the instance
+    # of validate_nseq_float, which will return an absurd on-off ink
+    # sequence...
+    if isinstance(ls, (str, bytes, bytearray)):
+        return _validate_named_linestyle(ls)
 
     # Look for an on-off ink sequence (in points) *of even length*.
     # Offset is set to None.

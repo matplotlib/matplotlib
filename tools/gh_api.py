@@ -1,17 +1,12 @@
 """Functions for Github API requests."""
 
-try:
-    input = raw_input
-except NameError:
-    pass
-
+import getpass
+import json
 import os
 import re
 import sys
 
 import requests
-import getpass
-import json
 
 try:
     import requests_cache

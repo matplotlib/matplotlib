@@ -284,11 +284,7 @@ class PkgConfig(object):
         if sys.platform == 'win32':
             self.has_pkgconfig = False
         else:
-            try:
-                self.pkg_config = os.environ['PKG_CONFIG']
-            except KeyError:
-                self.pkg_config = 'pkg-config'
-
+            self.pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
             self.set_pkgconfig_path()
             self.has_pkgconfig = shutil.which(self.pkg_config) is not None
             if not self.has_pkgconfig:

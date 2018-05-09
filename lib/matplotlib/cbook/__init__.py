@@ -1815,7 +1815,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                         "are in kwargs".format(keys=fail_keys))
 
     if allowed is not None:
-        allowed_set = set(required) | set(allowed)
+        allowed_set = {*required, *allowed}
         fail_keys = [k for k in ret if k not in allowed_set]
         if fail_keys:
             raise TypeError(
