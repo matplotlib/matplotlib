@@ -1733,7 +1733,7 @@ class Axes(_AxesBase):
     #### Specialized plotting
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    def step(self, x, y, *args, where='pre', linestyle='', **kwargs):
+    def step(self, x, y, *args, where='pre', **kwargs):
         """
         Make a step plot.
 
@@ -1797,7 +1797,7 @@ class Axes(_AxesBase):
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
-        kwargs['linestyle'] = 'steps-' + where + linestyle
+        kwargs['linestyle'] = 'steps-' + where + kwargs.get('linestyle', '')
 
         return self.plot(x, y, *args, **kwargs)
 
