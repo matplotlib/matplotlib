@@ -465,7 +465,7 @@ class RendererBase(object):
         is not the same for every path.
         """
         Npaths = len(paths)
-        if Npaths == 0 or (len(facecolors) == 0 and len(edgecolors) == 0):
+        if Npaths == 0 or len(facecolors) == len(edgecolors) == 0:
             return 0
         Npath_ids = max(Npaths, len(all_transforms))
         N = max(Npath_ids, len(offsets))

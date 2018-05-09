@@ -267,7 +267,7 @@ def get_file_hash(filename):
     hasher = hashlib.sha256()
     with open(filename, 'rb') as fd:
         buf = fd.read(BLOCKSIZE)
-        while len(buf) > 0:
+        while buf:
             hasher.update(buf)
             buf = fd.read(BLOCKSIZE)
     return hasher.hexdigest()

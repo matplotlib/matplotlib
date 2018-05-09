@@ -82,7 +82,7 @@ class Type1Font(object):
             return rawdata
 
         data = b''
-        while len(rawdata) > 0:
+        while rawdata:
             if not rawdata.startswith(b'\x80'):
                 raise RuntimeError('Broken pfb file (expected byte 128, '
                                    'got %d)' % ord(rawdata[0]))
