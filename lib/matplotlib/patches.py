@@ -794,7 +794,9 @@ class RegularPolygon(Patch):
     A regular polygon patch.
     """
     def __str__(self):
-        return "Poly%d(%g,%g)" % (self._numVertices, self._xy[0], self._xy[1])
+        s = "RegularPolygon((%g, %g), %d, radius=%g, orientation=%g)"
+        return s % (self._xy[0], self._xy[1], self._numVertices, self._radius,
+                    self._orientation)
 
     @docstring.dedent_interpd
     def __init__(self, xy, numVertices, radius=5, orientation=0,
@@ -880,7 +882,8 @@ class PathPatch(Patch):
     _edge_default = True
 
     def __str__(self):
-        return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
+        s = "PathPatch%d((%g, %g) ...)"
+        return s % (len(self._path.vertices), *tuple(self._path.vertices[0]))
 
     @docstring.dedent_interpd
     def __init__(self, path, **kwargs):
@@ -908,7 +911,8 @@ class Polygon(Patch):
     A general polygon patch.
     """
     def __str__(self):
-        return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
+        s = "Polygon%d((%g, %g) ...)"
+        return s % (len(self._path.vertices), *tuple(self._path.vertices[0]))
 
     @docstring.dedent_interpd
     def __init__(self, xy, closed=True, **kwargs):
@@ -1381,7 +1385,8 @@ class CirclePolygon(RegularPolygon):
     A polygon-approximation of a circle patch.
     """
     def __str__(self):
-        return "CirclePolygon(%d,%d)" % self.center
+        s = "CirclePolygon((%g, %g), radius=%g, resolution=%d)"
+        return s % (self._xy[0], self._xy[1], self._radius, self._numVertices)
 
     @docstring.dedent_interpd
     def __init__(self, xy, radius=5,
@@ -2451,9 +2456,8 @@ class FancyBboxPatch(Patch):
     _edge_default = True
 
     def __str__(self):
-        return self.__class__.__name__ \
-                           + "(%g,%g;%gx%g)" % (self._x, self._y,
-                                                self._width, self._height)
+        s = self.__class__.__name__ + "((%g, %g), width=%g, height=%g)"
+        return s % (self._x, self._y, self._width, self._height)
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height,
@@ -3966,7 +3970,7 @@ class FancyArrowPatch(Patch):
         if self._posA_posB is not None:
             (x1, y1), (x2, y2) = self._posA_posB
             return self.__class__.__name__ \
-                + "(%g,%g->%g,%g)" % (x1, y1, x2, y2)
+                + "((%g, %g)->(%g, %g))" % (x1, y1, x2, y2)
         else:
             return self.__class__.__name__ \
                 + "(%s)" % (str(self._path_original),)
@@ -4374,7 +4378,7 @@ class ConnectionPatch(FancyArrowPatch):
     connecting lines between two points (possibly in different axes).
     """
     def __str__(self):
-        return "ConnectionPatch((%g,%g),(%g,%g))" % \
+        return "ConnectionPatch((%g, %g), (%g, %g))" % \
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @docstring.dedent_interpd
