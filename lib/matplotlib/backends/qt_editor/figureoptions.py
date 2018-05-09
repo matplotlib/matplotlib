@@ -93,6 +93,8 @@ def figure_edit(axes, parent=None):
         FormLayout combobox, namely `[initial_name, (shorthand,
         style_name), (shorthand, style_name), ...]`.
         """
+        if init not in d:
+            d = {**d, init: str(init)}
         # Drop duplicate shorthands from dict (by overwriting them during
         # the dict comprehension).
         name2short = {name: short for short, name in d.items()}
