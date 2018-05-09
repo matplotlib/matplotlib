@@ -286,7 +286,7 @@ for cmap_category, cmap_list in cmaps.items():
             if cmap_category in ('Perceptually Uniform Sequential',
                                  'Sequential'):
                 locs.append(x[-1] + j*dc)
-            elif cmap_category in ('Diverging', 'Qualitative',
+            elif cmap_category in ('Diverging', 'Qualitative', 'Wrapping',
                                    'Miscellaneous', 'Sequential (2)'):
                 locs.append(x[int(x.size/2.)] + j*dc)
 
