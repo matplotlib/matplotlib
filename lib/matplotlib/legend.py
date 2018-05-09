@@ -130,12 +130,26 @@ loc : int or string or pair of floats, default: 'upper right'
     corner of the legend in axes coordinates (in which case
     ``bbox_to_anchor`` will be ignored).
 
-bbox_to_anchor : `.BboxBase` or pair of floats
-    Specify any arbitrary location for the legend in `bbox_transform`
-    coordinates (default Axes coordinates).
+bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
+    Box that is used to position the legend in conjunction with *loc*.
+    Defaults to `axes.bbox` (if called as a method to `.Axes.legend`) or
+    `figure.bbox` (if `.Figure.legend`).  This argument allows arbitrary
+    placement of the legend.
 
-    For example, to put the legend's upper right hand corner in the
-    center of the axes the following keywords can be used::
+    Bbox coordinates are interpreted in the coordinate system given by
+    `bbox_transform`, with the default transform
+    Axes or Figure coordinates, depending on which ``legend`` is called.
+
+    If a 4-tuple or `.BboxBase` is given, then it specifies the bbox
+    ``(x, y, width, height)`` that the legend is placed in.
+    To put the legend in the best location in the bottom right
+    quadrant of the axes (or figure)::
+
+        loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5)
+
+    A 2-tuple ``(x, y)`` places the corner of the legend specified by *loc* at
+    x, y.  For example, to put the legend's upper right-hand corner in the
+    center of the axes (or figure) the following keywords can be used::
 
         loc='upper right', bbox_to_anchor=(0.5, 0.5)
 
