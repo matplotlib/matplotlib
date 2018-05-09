@@ -242,7 +242,7 @@ ax.add_patch(circ)
 plt.show()
 
 ###############################################################################
-# .. blended_transformations:
+# .. _blended_transformations:
 #
 # Blended transformations
 # =======================
@@ -303,7 +303,7 @@ plt.show()
 #
 #     trans = ax.get_xaxis_transform()
 #
-# .. offset-transforms-shadow:
+# .. _offset-transforms-shadow:
 #
 # Using offset transforms to create a shadow effect
 # =================================================
@@ -371,7 +371,7 @@ ax.set_title('creating a shadow effect with an offset transform')
 plt.show()
 
 ###############################################################################
-# .. transformation-pipeline:
+# .. _transformation-pipeline:
 #
 # The transformation pipeline
 # ===========================

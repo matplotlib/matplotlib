@@ -3,6 +3,7 @@
 Barcode Demo
 ============
 
+This demo shows how to produce a one-dimensional image, or "bar code".
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,7 +20,7 @@ barprops = dict(aspect='auto', cmap=plt.cm.binary, interpolation='nearest')
 
 fig = plt.figure()
 
-# a vertical barcode -- this is broken at present
+# a vertical barcode
 ax1 = fig.add_axes([0.1, 0.3, 0.1, 0.6], **axprops)
 ax1.imshow(x.reshape((-1, 1)), **barprops)
 
@@ -29,3 +30,17 @@ ax2.imshow(x.reshape((1, -1)), **barprops)
 
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow

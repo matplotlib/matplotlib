@@ -3,16 +3,17 @@
 Interpolations for imshow/matshow
 =================================
 
-This example displays the difference between interpolation methods for imshow
-and matshow.
+This example displays the difference between interpolation methods for
+:meth:`~.axes.Axes.imshow` and :meth:`~.axes.Axes.matshow`.
 
-If `interpolation` is None, it defaults to the rc image.interpolation
-parameter. If the interpolation is `none`, then no interpolation is performed
-for the Agg, ps and pdf backends. Other backends will default to 'nearest'.
+If `interpolation` is None, it defaults to the ``image.interpolation``
+:ref:`rc parameter <sphx_glr_tutorials_introductory_customizing.py>`.
+If the interpolation is ``'none'``, then no interpolation is performed
+for the Agg, ps and pdf backends. Other backends will default to ``'nearest'``.
 
-For the Agg, ps and pdf backends, interpolation = 'none' works well when a big
-image is scaled down, while interpolation = 'nearest' works well when a small
-image is scaled up.
+For the Agg, ps and pdf backends, ``interpolation = 'none'`` works well when a
+big image is scaled down, while ``interpolation = 'nearest'`` works well when
+a small image is scaled up.
 """
 
 import matplotlib.pyplot as plt
@@ -27,10 +28,10 @@ np.random.seed(19680801)
 
 grid = np.random.rand(4, 4)
 
-fig, axs = plt.subplots(nrows=3, ncols=6, figsize=(9, 4.5),
+fig, axs = plt.subplots(nrows=3, ncols=6, figsize=(9.3, 6),
                         subplot_kw={'xticks': [], 'yticks': []})
 
-fig.subplots_adjust(hspace=0.3, wspace=0.05)
+fig.subplots_adjust(left=0.03, right=0.97, hspace=0.3, wspace=0.05)
 
 for ax, interp_method in zip(axs.flat, methods):
     ax.imshow(grid, interpolation=interp_method, cmap='viridis')
@@ -38,3 +39,17 @@ for ax, interp_method in zip(axs.flat, methods):
 
 plt.tight_layout()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
