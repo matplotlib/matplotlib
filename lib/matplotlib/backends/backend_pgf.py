@@ -4,7 +4,7 @@ import errno
 import logging
 import math
 import os
-from pathlib import Path
+import pathlib
 import re
 import shutil
 import subprocess
@@ -69,7 +69,7 @@ def get_fontspec():
         for family, command in zip(families, commands):
             # 1) Forward slashes also work on Windows, so don't mess with
             # backslashes.  2) The dirname needs to include a separator.
-            path = Path(fm.findfont(family))
+            path = pathlib.Path(fm.findfont(family))
             latex_fontspec.append(r"\%s{%s}[Path=%s]" % (
                 command, path.name, path.parent.as_posix() + "/"))
 
@@ -1119,9 +1119,9 @@ class PdfPages:
             open(self._outputfile, 'wb').close()
 
     def _run_latex(self):
-        texcommand = get_texcommand()
+        texcommand = rcParams["pgf.texsystem"]
         cmdargs = [
-            str(texcommand),
+            texcommand,
             "-interaction=nonstopmode",
             "-halt-on-error",
             os.path.basename(self._fname_tex),
@@ -1183,12 +1183,11 @@ class PdfPages:
         so we need to check the lualatex version and use `\pagewidth` if
         the version is 0.85 or newer
         '''
-        texcommand = get_texcommand()
+        texcommand = rcParams["pgf.texsystem"]
         if texcommand == 'lualatex' and _get_lualatex_version() >= (0, 85, 0):
             cmd = r'\page'
         else:
             cmd = r'\pdfpage'
-
         newpage = r'\newpage{cmd}width={w}in,{cmd}height={h}in%' + '\n'
         return newpage.format(cmd=cmd, w=width, h=height).encode('utf-8')
 
