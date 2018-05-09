@@ -1810,9 +1810,9 @@ def colormaps():
 
     A set of cyclic color maps:
 
-      ==========  ========================================================
+      ==========  =========================================================
       Colormap    Description
-      ==========  ========================================================
+      ==========  =========================================================
       hsv         red-yellow-green-cyan-blue-magenta-red, formed by changing
                   the hue component in the HSV color space
       twilight    perceptually uniform shades of white-blue-black-red-white
