@@ -4,7 +4,7 @@ Tricontour Smooth Delaunay
 ==========================
 
 Demonstrates high-resolution tricontouring of a random set of points ;
-a matplotlib.tri.TriAnalyzer is used to improve the plot quality.
+a `matplotlib.tri.TriAnalyzer` is used to improve the plot quality.
 
 The initial data points and triangular grid for this demo are:
 
@@ -16,12 +16,12 @@ The initial data points and triangular grid for this demo are:
 The proposed generic procedure to obtain a high resolution contouring of such
 a data set is the following:
 
-1. Compute an extended mask with a matplotlib.tri.TriAnalyzer, which will
+1. Compute an extended mask with a `matplotlib.tri.TriAnalyzer`, which will
    exclude badly shaped (flat) triangles from the border of the
    triangulation. Apply the mask to the triangulation (using set_mask).
 2. Refine and interpolate the data using a
-   matplotlib.tri.UniformTriRefiner.
-3. Plot the refined data with tricontour.
+   `matplotlib.tri.UniformTriRefiner`.
+3. Plot the refined data with `~.axes.Axes.tricontour`.
 
 """
 from matplotlib.tri import Triangulation, TriAnalyzer, UniformTriRefiner
@@ -137,3 +137,25 @@ if plot_masked_tri:
     ax.triplot(flat_tri, color='red')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.tricontour
+matplotlib.pyplot.tricontour
+matplotlib.axes.Axes.tricontourf
+matplotlib.pyplot.tricontourf
+matplotlib.axes.Axes.triplot
+matplotlib.pyplot.triplot
+matplotlib.tri
+matplotlib.tri.Triangulation
+matplotlib.tri.TriAnalyzer
+matplotlib.tri.UniformTriRefiner
