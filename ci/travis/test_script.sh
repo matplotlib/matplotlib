@@ -15,6 +15,6 @@ if [[ $DELETE_FONT_CACHE == 1 ]]; then
   rm -rf ~/.cache/matplotlib
 fi
 
-echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
+echo The following args are passed to pytest $PYTEST_ARGS $RUN_FLAKE8
 
-python -mpytest $PYTEST_ARGS $RUN_PEP8
+python -mpytest $PYTEST_ARGS $RUN_FLAKE8

@@ -57,7 +57,7 @@ env:
     - PYPARSING=pyparsing
     - PYTEST='pytest>=3.4'
     - PYTEST_COV=pytest-cov
-    - PYTEST_PEP8=
+    - PYTEST_FLAKE8=
     - SPHINX=sphinx
     # Variables controlling the test run.
     - DELETE_FONT_CACHE=
@@ -65,9 +65,9 @@ env:
     - NPROC=2
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
-    - PYTEST_ARGS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - RUN_FLAKE8=
+    - PYTEST_ARGS="-rawR --maxfail=50 --timeout=350 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
-    - RUN_PEP8=
 
 matrix:
   include:
@@ -86,7 +86,7 @@ matrix:
     - python: 3.5
       env: PYTHON_ARGS=-OO
     - python: 3.6
-      env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
+      env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_FLAKE8=pytest-flake8 RUN_FLAKE8=--flake8
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -171,7 +171,7 @@ install:
         $PYTEST \
         $PYTEST_COV \
         pytest-faulthandler \
-        $PYTEST_PEP8 \
+        $PYTEST_FLAKE8 \
         pytest-rerunfailures \
         pytest-timeout \
         pytest-xdist
