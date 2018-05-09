@@ -38,9 +38,6 @@ class Patch(artist.Artist):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    def __str__(self):
-        return str(self.__class__).split('.')[-1]
-
     def __init__(self,
                  edgecolor=None,
                  facecolor=None,

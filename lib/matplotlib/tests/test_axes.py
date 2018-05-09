@@ -1779,6 +1779,7 @@ def test_as_mpl_axes_api():
         def _as_mpl_axes(self):
             # implement the matplotlib axes interface
             return PolarAxes, {'theta_offset': self.theta_offset}
+
     prj = Polar()
     prj2 = Polar()
     prj2.theta_offset = np.pi
@@ -1793,7 +1794,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with gca
     ax = plt.gca(projection=prj)
-    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes]
+    assert type(ax) == maxes._subplots.subplot_class_factory(PolarAxes)
     ax_via_gca = plt.gca(projection=prj)
     assert ax_via_gca is ax
     # try getting the axes given a different polar projection
@@ -1814,7 +1815,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with subplot
     ax = plt.subplot(121, projection=prj)
-    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes]
+    assert type(ax) == maxes._subplots.subplot_class_factory(PolarAxes)
     plt.close()
 
 
