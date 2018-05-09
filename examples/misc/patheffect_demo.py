@@ -41,7 +41,7 @@ if 1:
     # shadow as a path effect
     ax3 = plt.subplot(133)
     p1, = ax3.plot([0, 1], [0, 1])
-    leg = ax3.legend([p1], ["Line 1"], fancybox=True, loc=2)
+    leg = ax3.legend([p1], ["Line 1"], fancybox=True, loc='upper left')
     leg.legendPatch.set_path_effects([PathEffects.withSimplePatchShadow()])
 
     plt.show()

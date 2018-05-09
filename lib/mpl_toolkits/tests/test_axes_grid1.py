@@ -136,7 +136,7 @@ def test_inset_locator():
     ax.imshow(Z2, extent=extent, interpolation="nearest",
               origin="lower")
 
-    axins = zoomed_inset_axes(ax, 6, loc=1)  # zoom = 6
+    axins = zoomed_inset_axes(ax, zoom=6, loc='upper right')
     axins.imshow(Z2, extent=extent, interpolation="nearest",
                  origin="lower")
     axins.yaxis.get_major_locator().set_params(nbins=7)
@@ -156,7 +156,7 @@ def test_inset_locator():
     asb = AnchoredSizeBar(ax.transData,
                           0.5,
                           '0.5',
-                          loc=8,
+                          loc='lower center',
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)
@@ -208,7 +208,7 @@ def test_inset_axes():
     asb = AnchoredSizeBar(ax.transData,
                           0.5,
                           '0.5',
-                          loc=8,
+                          loc='lower center',
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)
@@ -250,7 +250,7 @@ def test_fill_facecolor():
     p.set_clip_on(False)
     ax[0].add_patch(p)
     # set color to marked area
-    axins = zoomed_inset_axes(ax[0], 1, loc=1)
+    axins = zoomed_inset_axes(ax[0], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
     plt.gca().axes.get_xaxis().set_ticks([])
@@ -267,7 +267,7 @@ def test_fill_facecolor():
     p.set_clip_on(False)
     ax[1].add_patch(p)
     # set color to marked area
-    axins = zoomed_inset_axes(ax[1], 1, loc=1)
+    axins = zoomed_inset_axes(ax[1], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
     plt.gca().axes.get_xaxis().set_ticks([])
@@ -284,7 +284,7 @@ def test_fill_facecolor():
     p.set_clip_on(False)
     ax[2].add_patch(p)
     # set color to marked area
-    axins = zoomed_inset_axes(ax[2], 1, loc=1)
+    axins = zoomed_inset_axes(ax[2], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
     plt.gca().axes.get_xaxis().set_ticks([])
@@ -301,7 +301,7 @@ def test_fill_facecolor():
     p.set_clip_on(False)
     ax[3].add_patch(p)
     # marked area won't show green
-    axins = zoomed_inset_axes(ax[3], 1, loc=1)
+    axins = zoomed_inset_axes(ax[3], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
     axins.get_xaxis().set_ticks([])
@@ -316,13 +316,13 @@ def test_zooming_with_inverted_axes():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
     ax.axis([1, 3, 1, 3])
-    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc=4)
+    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc='lower right')
     inset_ax.axis([1.1, 1.4, 1.1, 1.4])
 
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
     ax.axis([3, 1, 3, 1])
-    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc=4)
+    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc='lower right')
     inset_ax.axis([1.4, 1.1, 1.4, 1.1])
 
 

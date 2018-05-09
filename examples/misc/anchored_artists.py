@@ -29,8 +29,7 @@ def draw_text(ax):
     """
     Draw a text-box anchored to the upper-left corner of the figure.
     """
-    # loc=2 is equivalent to loc='upper left'
-    at = AnchoredText("Figure 1a", loc=2, frameon=True)
+    at = AnchoredText("Figure 1a", loc='upper left', frameon=True)
     at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
     ax.add_artist(at)
 
@@ -49,7 +48,7 @@ def draw_circle(ax):
     """
     from matplotlib.patches import Circle
     ada = AnchoredDrawingArea(20, 20, 0, 0,
-                              loc=1, pad=0., frameon=False)
+                              loc='upper right', pad=0., frameon=False)
     p = Circle((10, 10), 10)
     ada.da.add_artist(p)
     ax.add_artist(ada)
@@ -75,7 +74,8 @@ def draw_ellipse(ax):
     Draw an ellipse of width=0.1, height=0.15 in data coordinates
     """
     ae = AnchoredEllipse(ax.transData, width=0.1, height=0.15, angle=0.,
-                         loc=3, pad=0.5, borderpad=0.4, frameon=True)
+                         loc='lower left', pad=0.5, borderpad=0.4,
+                         frameon=True)
 
     ax.add_artist(ae)
 
@@ -111,7 +111,7 @@ def draw_sizebar(ax):
     asb = AnchoredSizeBar(ax.transData,
                           0.1,
                           r"1$^{\prime}$",
-                          loc=8,
+                          loc='lower center',
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)

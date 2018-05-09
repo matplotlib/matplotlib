@@ -50,7 +50,7 @@ def test_patheffect3():
                          path_effects.Normal()])
     plt.title(r'testing$^{123}$',
         path_effects=[path_effects.withStroke(linewidth=1, foreground="r")])
-    leg = plt.legend([p1], [r'Line 1$^2$'], fancybox=True, loc=2)
+    leg = plt.legend([p1], [r'Line 1$^2$'], fancybox=True, loc='upper left')
     leg.legendPatch.set_path_effects([path_effects.withSimplePatchShadow()])
 
     text = plt.text(2, 3, 'Drop test', color='white',

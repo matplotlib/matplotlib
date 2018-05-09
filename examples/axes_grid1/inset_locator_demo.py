@@ -14,7 +14,7 @@ def add_sizebar(ax, size):
     asb = AnchoredSizeBar(ax.transData,
                           size,
                           str(size),
-                          loc=8,
+                          loc='lower center',
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)
@@ -28,7 +28,7 @@ ax.set_aspect(1)
 axins = inset_axes(ax,
                    width="30%",  # width = 30% of parent_bbox
                    height=1.,  # height : 1 inch
-                   loc=3)
+                   loc='lower left')
 
 plt.xticks(visible=False)
 plt.yticks(visible=False)

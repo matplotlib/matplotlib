@@ -81,7 +81,8 @@ if 1:
     offsetbox.add_artist(p)
 
     # make anchored offset box
-    ao = AnchoredOffsetbox(loc=2, child=offsetbox, frameon=True, borderpad=0.2)
+    ao = AnchoredOffsetbox(loc='upper left', child=offsetbox, frameon=True,
+                           borderpad=0.2)
     ax.add_artist(ao)
 
     # another text

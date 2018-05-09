@@ -2188,7 +2188,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
                 ax.set_xlabel('')
 
     if not subplots:
-        ax.legend(ynamelist, loc='best')
+        ax.legend(ynamelist)
 
     if xname=='date':
         fig.autofmt_xdate()
