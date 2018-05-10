@@ -5,7 +5,7 @@ Line Collection
 
 Plotting lines with Matplotlib.
 
-:class:`matplotlib.collections.LineCollection` allows one to plot multiple
+:class:`~matplotlib.collections.LineCollection` allows one to plot multiple
 lines on a figure. Below we show off some of its properties.
 """
 import matplotlib.pyplot as plt
@@ -82,3 +82,22 @@ axcb.set_label('Line Number')
 ax.set_title('Line Collection with mapped colors')
 plt.sci(line_segments)  # This allows interactive changing of the colormap.
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.collections
+matplotlib.collections.LineCollection
+matplotlib.cm.ScalarMappable.set_array
+matplotlib.axes.Axes.add_collection
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.pyplot.sci
