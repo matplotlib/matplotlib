@@ -17,9 +17,6 @@ import sys
 import matplotlib
 import sphinx
 
-# This is only necessary to monkey patch the signature later on.
-from sphinx_gallery import gen_rst
-
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
@@ -76,6 +73,8 @@ _check_deps()
 
 # Import only after checking for dependencies.
 from sphinx_gallery.sorting import ExplicitOrder
+# This is only necessary to monkey patch the signature later on.
+from sphinx_gallery import gen_rst
 
 if shutil.which('dot') is None:
     raise OSError(
