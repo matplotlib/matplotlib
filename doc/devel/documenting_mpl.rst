@@ -42,12 +42,12 @@ using the Sphinx_ documentation generation tool. There are several extra
 requirements that are needed to build the documentation. They are listed in
 :file:`doc-requirements.txt` and listed below:
 
-* Sphinx>=1.3, !=1.5.0, !=1.6.4
+* Sphinx>=1.3, !=1.5.0, !=1.6.4, !=1.7.3
 * colorspacious
 * IPython
 * numpydoc>=0.4
 * Pillow
-* sphinx-gallery>=0.1.12
+* sphinx-gallery>=0.1.13
 * graphviz
 
 .. note::

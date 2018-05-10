@@ -12,4 +12,4 @@ ipython
 ipywidgets
 numpydoc>=0.4
 pillow
-sphinx-gallery>=0.1.12
+sphinx-gallery>=0.1.13

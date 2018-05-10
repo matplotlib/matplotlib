@@ -72,9 +72,10 @@ def _check_deps():
 _check_deps()
 
 # Import only after checking for dependencies.
-from sphinx_gallery.sorting import ExplicitOrder
+from sphinx_gallery.sorting import ExplicitOrder, FileNameSortKey
 # This is only necessary to monkey patch the signature later on.
 from sphinx_gallery import gen_rst
+
 
 if shutil.which('dot') is None:
     raise OSError(
@@ -129,6 +130,7 @@ sphinx_gallery_conf = {
     },
     'backreferences_dir': 'api/_as_gen',
     'subsection_order': ExplicitOrder(explicit_order_folders),
+    'within_subsection_order': FileNameSortKey,
     'min_reported_time': 1,
 }
 
