@@ -1230,10 +1230,10 @@ class FancyArrow(Polygon):
             # start by drawing horizontal arrow, point at (0,0)
             hw, hl, hs, lw = head_width, head_length, overhang, width
             left_half_arrow = np.array([
-                [0.0, 0.0],                  # tip
-                [-hl, -hw / 2.0],             # leftmost
-                [-hl * (1 - hs), -lw / 2.0],  # meets stem
-                [-length, -lw / 2.0],          # bottom left
+                [0.0, 0.0],                 # tip
+                [-hl, -hw / 2],             # leftmost
+                [-hl * (1 - hs), -lw / 2],  # meets stem
+                [-length, -lw / 2],         # bottom left
                 [-length, 0],
             ])
             # if we're not including the head, shift up by head length
@@ -1241,7 +1241,7 @@ class FancyArrow(Polygon):
                 left_half_arrow += [head_length, 0]
             # if the head starts at 0, shift up by another head length
             if head_starts_at_zero:
-                left_half_arrow += [head_length / 2.0, 0]
+                left_half_arrow += [head_length / 2, 0]
             # figure out the shape, and complete accordingly
             if shape == 'left':
                 coords = left_half_arrow
@@ -1266,7 +1266,7 @@ class FancyArrow(Polygon):
             M = [[cx, sx], [-sx, cx]]
             verts = np.dot(coords, M) + (x + dx, y + dy)
 
-        Polygon.__init__(self, list(map(tuple, verts)), closed=True, **kwargs)
+        super().__init__(verts, closed=True, **kwargs)
 
 
 docstring.interpd.update({"FancyArrow": FancyArrow.__init__.__doc__})

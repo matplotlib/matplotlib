@@ -26,7 +26,6 @@ import six
 
 import binascii
 import enum
-import io
 import itertools
 import re
 import struct
@@ -132,11 +131,10 @@ class Type1Font(object):
         if zeros:
             raise RuntimeError('Insufficiently many zeros in Type 1 font')
 
-        # Convert encrypted part to binary (if we read a pfb file, we
-        # may end up converting binary to hexadecimal to binary again;
-        # but if we read a pfa file, this part is already in hex, and
-        # I am not quite sure if even the pfb format guarantees that
-        # it will be in binary).
+        # Convert encrypted part to binary (if we read a pfb file, we may end
+        # up converting binary to hexadecimal to binary again; but if we read
+        # a pfa file, this part is already in hex, and I am not quite sure if
+        # even the pfb format guarantees that it will be in binary).
         binary = binascii.unhexlify(data[len1:idx+1])
 
         return data[:len1], binary, data[idx+1:]
@@ -321,10 +319,8 @@ class Type1Font(object):
         multiplier by which the font is to be extended (so values less
         than 1.0 condense). Returns a new :class:`Type1Font` object.
         """
-        with io.BytesIO() as buffer:
-            tokenizer = self._tokens(self.parts[0])
-            transformed =  self._transformer(tokenizer,
-                                             slant=effects.get('slant', 0.0),
-                                             extend=effects.get('extend', 1.0))
-            list(map(buffer.write, transformed))
-            return Type1Font((buffer.getvalue(), self.parts[1], self.parts[2]))
+        tokenizer = self._tokens(self.parts[0])
+        transformed = self._transformer(tokenizer,
+                                        slant=effects.get('slant', 0.0),
+                                        extend=effects.get('extend', 1.0))
+        return Type1Font((b"".join(transformed), self.parts[1], self.parts[2]))
