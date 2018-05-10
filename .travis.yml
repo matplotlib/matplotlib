@@ -115,8 +115,6 @@ matrix:
 
 before_install: |
   # test with non-ascii in path
-  mkdir /tmp/λ
-  export PATH=$PATH:/tmp/λ
   if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
     export PATH=/usr/lib/ccache:$PATH
   else
