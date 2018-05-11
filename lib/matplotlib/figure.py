@@ -357,6 +357,7 @@ class Figure(Artist):
         self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
         # do not use property as it will trigger
         self._dpi = dpi
+        self._original_dpi = dpi
         self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
 
         self.frameon = frameon
@@ -964,13 +965,44 @@ default: 'top'
         """
         self.patch.set_facecolor(color)
 
-    def set_dpi(self, val):
+    def set_dpi(self, dpi):
         """
-        Set the resolution of the figure in dots-per-inch.
+        Set the nominal resolution of the figure in dots-per-inch.
 
-        .. ACCEPTS: float
+        This is nominal because some screens have "hi-dpi" or "Retina",
+        where pixels are doubled.  This dpi is the non-doubled value.
+
+        Setting the dpi different from your screen dpi makes the figure larger
+        or smaller on the screen than the width and height specified in
+        `~.Figure.get_width_height`.
+
+        Parameters
+        ----------
+        dpi : float
+
+        Notes
+        -----
+        Some backends have the concept of "hi-dpi" displays (or "Retina")
+        where the resolution is doubled, but dimensions are traditionally
+        specified as if the resolution were not doubled.  Some Matplotlib
+        GUI backends respect this doubling (i.e. Qt5Agg), but Matplotlib still
+        specifies dimensions and dpi to matplotlib as if the resolution
+        were not doubled. The default figure
+        value is nominally 100 dpi, but displays that are deignated "hi-dpi"
+        will internally double this to 200 dpi.  We keep the "nominal" dpi
+        because some computer set ups have one display at normal dpi, and a
+        second at hi-dpi, so a nominal resolution must be stored to stop
+        figures from doubling or halving is size when moved between displays.
         """
-        self.dpi = val
+
+        # some backends set self._dpi to be a ratio times
+        # self._original_dpi:
+        ratio = self._dpi / self._original_dpi
+
+        # _original_dpi is the nominal dpi before any hi-dpi changes.
+        self._original_dpi = dpi
+        # calls _set_dpi with the actual display dpi...
+        self.dpi = dpi * ratio
         self.stale = True
 
     def set_figwidth(self, val, forward=True):

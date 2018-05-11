@@ -948,7 +948,7 @@ class FigureCanvasPS(FigureCanvasBase):
         elif orientation == 'portrait': isLandscape = False
         else: raise RuntimeError('Orientation must be "portrait" or "landscape"')
 
-        self.figure.set_dpi(72) # Override the dpi kwarg
+        self.figure.dpi = 72 # Override the dpi kwarg
 
         if rcParams['text.usetex']:
             self._print_figure_tex(outfile, format, dpi, facecolor, edgecolor,

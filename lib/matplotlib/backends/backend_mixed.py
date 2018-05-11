@@ -95,7 +95,7 @@ class MixedModeRenderer(object):
         """
 
         # change the dpi of the figure temporarily.
-        self.figure.set_dpi(self.dpi)
+        self.figure.dpi = self.dpi
 
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
@@ -141,7 +141,7 @@ class MixedModeRenderer(object):
             self._rasterizing = False
 
             # restore the figure dpi.
-            self.figure.set_dpi(self._figdpi)
+            self.figure.dpi = self._figdpi
 
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
