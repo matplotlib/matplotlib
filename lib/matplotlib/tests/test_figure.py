@@ -383,3 +383,11 @@ def test_fspath(fmt, tmpdir):
         # All the supported formats include the format name (case-insensitive)
         # in the first 100 bytes.
         assert fmt.encode("ascii") in file.read(100).lower()
+
+
+def test_clf_subplotpars():
+    fig = plt.figure()
+    orig_subplot_vars = vars(fig.subplotpars).copy()
+    fig.subplots_adjust(left=0.1)
+    fig.clf()
+    assert vars(fig.subplotpars) == orig_subplot_vars

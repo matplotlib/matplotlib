@@ -15,17 +15,17 @@ parameter set listed here should also be visited to the
 """
 import six
 
+import ast
 from collections import Iterable, Mapping
 from functools import reduce
 import operator
 import os
-import warnings
 import re
+import warnings
 
 from matplotlib import cbook
-from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
-from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
+from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
@@ -926,7 +926,8 @@ def validate_webagg_address(s):
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
 _validate_named_linestyle = ValidateInStrings(
     'linestyle',
-    [*ls_mapper.keys(), *ls_mapper.values(), 'None', 'none', ' ', ''],
+    [*cbook.ls_mapper.keys(), *cbook.ls_mapper.values(),
+     'None', 'none', ' ', ''],
     ignorecase=True)
 
 
@@ -969,6 +970,45 @@ def _validate_linestyle(ls):
         # by wrong types passed to float(), like NoneType.
         raise ValueError("linestyle {!r} is not a valid on-off ink "
                          "sequence.".format(ls))
+
+
+def _validate_subplot(s):
+    d = ast.literal_eval(s) if isinstance(s, str) else s
+    try:
+        # These imports must be delayed because they are not available at
+        # startup (so we just assume that the default we provide ourselves are
+        # valid).
+        from matplotlib import rcParams
+        from matplotlib.figure import SubplotParams
+    except ImportError:
+        pass
+    else:
+        d = {**rcParams["figure.subplot"], **d}
+        SubplotParams(**d)
+        for key, value in d.items():
+            dict.__setitem__(rcParams, "figure.subplot.{}".format(key), value)
+    return d
+
+
+def _validate_subplot_key(key):
+    def validator(s):
+        val = ast.literal_eval(s) if isinstance(s, str) else s
+        try:
+            # See above re: delayed imports.
+            from matplotlib import rcParams
+            from matplotlib.figure import SubplotParams
+        except ImportError:
+            pass
+        else:
+            cbook.warn_deprecated(
+                "3.0", "figure.subplot.{} is deprecated; set the "
+                "corresponding key in figure.subplot instead.".format(key),
+                stacklevel=4)
+            d = {**rcParams["figure.subplot"], key: val}
+            SubplotParams(**d)
+            dict.__setitem__(rcParams, "figure.subplot", d)
+        return val
+    return validator
 
 
 # a map from key -> value, converter
@@ -1317,18 +1357,16 @@ defaultParams = {
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
 
-    'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
-                                                       closedmax=True)],
-    'figure.subplot.right': [0.9, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.bottom': [0.11, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.top': [0.88, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.wspace': [0.2, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=False)],
-    'figure.subplot.hspace': [0.2, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=False)],
+    'figure.subplot': [{'left': 0.125, 'right': 0.9,
+                        'bottom': 0.11, 'top': 0.88,
+                        'wspace': 0.2, 'hspace': 0.2},
+                       _validate_subplot],
+    'figure.subplot.left': [0.125, _validate_subplot_key('left')],
+    'figure.subplot.right': [0.9, _validate_subplot_key('right')],
+    'figure.subplot.bottom': [0.11, _validate_subplot_key('bottom')],
+    'figure.subplot.top': [0.88, _validate_subplot_key('top')],
+    'figure.subplot.wspace': [0.2, _validate_subplot_key('wspace')],
+    'figure.subplot.hspace': [0.2, _validate_subplot_key('hspace')],
 
     # do constrained_layout.
     'figure.constrained_layout.use': [False, validate_bool],

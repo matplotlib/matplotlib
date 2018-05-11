@@ -36,4 +36,7 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``text.Annotation.arrow``,
 
 The following rcParams are deprecated:
+
+- ``figure.subplot.left``, ``figure.subplot.right``, etc (instead, set the
+  single ``figure.subplot`` rcParam to the appropriate dict value).
 - ``pgf.debug`` (the pgf backend relies on logging),

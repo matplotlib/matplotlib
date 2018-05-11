@@ -31,7 +31,7 @@ def _do_cleanup(original_units_registry, original_settings):
     plt.close('all')
 
     mpl.rcParams.clear()
-    mpl.rcParams.update(original_settings)
+    dict.update(mpl.rcParams, original_settings)
     matplotlib.units.registry.clear()
     matplotlib.units.registry.update(original_units_registry)
     warnings.resetwarnings()  # reset any warning filters set in tests

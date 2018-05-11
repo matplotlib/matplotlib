@@ -48,7 +48,7 @@ def _generate_deprecation_message(
 
 def warn_deprecated(
         since, message='', name='', alternative='', pending=False,
-        obj_type='attribute', addendum='', *, removal=''):
+        obj_type='attribute', addendum='', *, removal='', stacklevel=2):
     """
     Used to display deprecation warning in a standard way.
 
@@ -88,6 +88,9 @@ def warn_deprecated(
     addendum : str, optional
         Additional text appended directly to the final message.
 
+    stacklevel : int, optional
+        The stack level used by the `warnings.warn` call.
+
     Examples
     --------
 
@@ -100,7 +103,7 @@ def warn_deprecated(
     """
     message = _generate_deprecation_message(
         since, message, name, alternative, pending, obj_type, removal=removal)
-    warnings.warn(message, mplDeprecation, stacklevel=2)
+    warnings.warn(message, mplDeprecation, stacklevel=stacklevel)
 
 
 def deprecated(since, message='', name='', alternative='', pending=False,

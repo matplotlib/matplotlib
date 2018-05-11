@@ -436,15 +436,8 @@ backend      : $TEMPLATE_BACKEND
 #figure.max_open_warning : 20  ## The maximum number of figures to open through
                                ## the pyplot interface before emitting a warning.
                                ## If less than one this feature is disabled.
-## The figure subplot parameters.  All dimensions are a fraction of the
-#figure.subplot.left    : 0.125  ## the left side of the subplots of the figure
-#figure.subplot.right   : 0.9    ## the right side of the subplots of the figure
-#figure.subplot.bottom  : 0.11   ## the bottom of the subplots of the figure
-#figure.subplot.top     : 0.88   ## the top of the subplots of the figure
-#figure.subplot.wspace  : 0.2    ## the amount of width reserved for space between subplots,
-                                 ## expressed as a fraction of the average axis width
-#figure.subplot.hspace  : 0.2    ## the amount of height reserved for space between subplots,
-                                 ## expressed as a fraction of the average axis height
+## The figure subplot parameters (see matplotlib.figure.SubplotParams).
+#figure.subplot : {"left": 0.125, "right": 0.9, "bottom": 0.1, "top": 0.9, "wspace": 0.2, "hspace": 0.2}
 
 ## Figure layout
 #figure.autolayout : False     ## When True, automatically adjust subplot

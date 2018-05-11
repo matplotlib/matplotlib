@@ -311,16 +311,8 @@ figure.autolayout : False  # When True, automatically adjust subplot
                            # parameters to make the plot fit the figure
 figure.frameon : True
 
-# The figure subplot parameters.  All dimensions are a fraction of the
-# figure width or height
-figure.subplot.left    : 0.125  # the left side of the subplots of the figure
-figure.subplot.right   : 0.9    # the right side of the subplots of the figure
-figure.subplot.bottom  : 0.1    # the bottom of the subplots of the figure
-figure.subplot.top     : 0.9    # the top of the subplots of the figure
-figure.subplot.wspace  : 0.2    # the amount of width reserved for space between subplots,
-                                # expressed as a fraction of the average axis width
-figure.subplot.hspace  : 0.2    # the amount of height reserved for space between subplots,
-                                # expressed as a fraction of the average axis height
+# The figure subplot parameters (see matplotlib.figure.SubplotParams).
+figure.subplot : {"left": 0.125, "right": 0.9, "bottom": 0.1, "top": 0.9, "wspace": 0.2, "hspace": 0.2}
 
 ### IMAGES
 image.aspect : equal             # equal | auto | a number

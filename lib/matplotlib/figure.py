@@ -228,20 +228,18 @@ class SubplotParams(object):
             self.hspace = thishspace
 
         if self.validate:
-            if self.left >= self.right:
+            if not self.left < self.right:
                 reset()
-                raise ValueError('left cannot be >= right')
-
-            if self.bottom >= self.top:
+                raise ValueError('One must have right < left')
+            if not self.bottom < self.top:
                 reset()
-                raise ValueError('bottom cannot be >= top')
+                raise ValueError('One must have bottom < top')
 
     def _update_this(self, s, val):
         if val is None:
             val = getattr(self, s, None)
             if val is None:
-                key = 'figure.subplot.' + s
-                val = rcParams[key]
+                val = rcParams['figure.subplot'][s]
 
         setattr(self, s, val)
 
@@ -1406,8 +1404,11 @@ default: 'top'
         """
         Clear the figure.
 
-        Set *keep_observers* to True if, for example,
-        a gui widget is tracking the axes in the figure.
+        Parameters
+        ----------
+        keep_observers : bool, optional
+            Set *keep_observers* to True if, for example,
+            a gui widget is tracking the axes in the figure.
         """
         self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry()
@@ -1429,6 +1430,7 @@ default: 'top'
         if not keep_observers:
             self._axobservers = []
         self._suptitle = None
+        self.subplotpars.update(**rcParams['figure.subplot'])
         if self.get_constrained_layout():
             layoutbox.nonetree(self._layoutbox)
         self.stale = True

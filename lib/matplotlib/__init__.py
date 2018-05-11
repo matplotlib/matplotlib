@@ -906,6 +906,11 @@ class RcParams(MutableMapping, dict):
                           mplDeprecation)
             return None
 
+        elif key.startswith('figure.subplot.'):
+            cbook.warn_deprecated(
+                "3.0",
+                "{} is deprecated; use figure.subplot instead".format(key))
+
         val = dict.__getitem__(self, key)
         if inverse_alt is not None:
             return inverse_alt(val)
