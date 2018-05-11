@@ -1,5 +1,3 @@
-import six
-
 import matplotlib
 from matplotlib.font_manager import FontProperties
 from matplotlib.testing.decorators import image_comparison

@@ -102,8 +102,6 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for existing editable installs.
 
-import six
-
 import sys
 if sys.version_info < (3, 5):  # noqa: E402
     raise ImportError("""
@@ -195,11 +193,6 @@ try:
     import dateutil
 except ImportError:
     raise ImportError("Matplotlib requires dateutil")
-
-
-if not compare_versions(six.__version__, '1.10'):
-    raise ImportError(
-        "Matplotlib requires six>=1.10; you have %s" % six.__version__)
 
 
 try:

@@ -1,5 +1,3 @@
-import six
-
 import io
 import warnings
 

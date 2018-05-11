@@ -1,5 +1,3 @@
-import six
-
 import matplotlib.type1font as t1f
 import os.path
 import difflib

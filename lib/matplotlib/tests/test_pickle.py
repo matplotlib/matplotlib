@@ -1,6 +1,4 @@
-from six.moves import cPickle as pickle
-from six.moves import range
-
+import pickle
 from io import BytesIO
 
 import numpy as np

@@ -1,5 +1,3 @@
-from six.moves import zip
-
 import unittest
 
 import numpy as np

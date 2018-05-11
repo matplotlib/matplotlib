@@ -2,7 +2,6 @@
 A collection of functions and objects for creating or placing inset axes.
 """
 from matplotlib import docstring
-import six
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path

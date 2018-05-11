@@ -1,6 +1,3 @@
-import six
-from six.moves import zip
-
 import numpy as np
 from math import degrees
 import math

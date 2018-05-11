@@ -19,8 +19,6 @@ TODO:
   * integrate screen dpi w/ ppi and text
 
 """
-import six
-
 import threading
 import numpy as np
 from collections import OrderedDict

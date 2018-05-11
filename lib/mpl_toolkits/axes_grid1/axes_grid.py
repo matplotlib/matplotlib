@@ -1,5 +1,3 @@
-import six
-
 from numbers import Number
 
 import matplotlib.axes as maxes
