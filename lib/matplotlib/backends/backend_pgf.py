@@ -30,29 +30,12 @@ _log = logging.getLogger(__name__)
 ###############################################################################
 
 
-_luatex_version_re = re.compile(
-    r'This is LuaTeX, Version (?:beta-)?([0-9]+)\.([0-9]+)\.([0-9]+)'
-)
-
-
 @cbook.deprecated("3.0")
 def get_texcommand():
     """Get chosen TeX system from rc."""
     texsystem_options = ["xelatex", "lualatex", "pdflatex"]
     texsystem = rcParams["pgf.texsystem"]
     return texsystem if texsystem in texsystem_options else "xelatex"
-
-
-def _get_lualatex_version():
-    """Get version of luatex"""
-    output = subprocess.check_output(['lualatex', '--version'])
-    return _parse_lualatex_version(output.decode())
-
-
-def _parse_lualatex_version(output):
-    '''parse the lualatex version from the output of `lualatex --version`'''
-    match = _luatex_version_re.match(output)
-    return tuple(map(int, match.groups()))
 
 
 def get_fontspec():
@@ -1171,25 +1154,22 @@ class PdfPages:
             if self._n_figures == 0:
                 self._write_header(width, height)
             else:
-                self._file.write(self._build_newpage_command(width, height))
+                # \pdfpagewidth and \pdfpageheight exist on pdftex, xetex, and
+                # luatex<0.85; they were renamed to \pagewidth and \pageheight
+                # on luatex>=0.85.
+                self._file.write(
+                    br'\newpage'
+                    br'\ifdefined\pdfpagewidth\pdfpagewidth'
+                    br'\else\pagewidth\fi=%ain'
+                    br'\ifdefined\pdfpageheight\pdfpageheight'
+                    br'\else\pageheight\fi=%ain'
+                    b'%%\n' % (width, height)
+                )
 
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1
         finally:
             figure.canvas = orig_canvas
-
-    def _build_newpage_command(self, width, height):
-        r'''LuaLaTeX from version 0.85 removed the `\pdf*` primitives,
-        so we need to check the lualatex version and use `\pagewidth` if
-        the version is 0.85 or newer
-        '''
-        texcommand = rcParams["pgf.texsystem"]
-        if texcommand == 'lualatex' and _get_lualatex_version() >= (0, 85, 0):
-            cmd = r'\page'
-        else:
-            cmd = r'\pdfpage'
-        newpage = r'\newpage{cmd}width={w}in,{cmd}height={h}in%' + '\n'
-        return newpage.format(cmd=cmd, w=width, h=height).encode('utf-8')
 
     def get_pagecount(self):
         """
