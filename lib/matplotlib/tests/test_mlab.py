@@ -1,5 +1,3 @@
-import six
-
 import tempfile
 import warnings
 
@@ -210,11 +208,7 @@ class TestStride(object):
 
 @pytest.fixture
 def tempcsv():
-    if six.PY2:
-        fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
-    else:
-        fd = tempfile.TemporaryFile(suffix='csv', mode="w+", newline='')
-    with fd:
+    with tempfile.TemporaryFile(suffix='csv', mode="w+", newline='') as fd:
         yield fd
 
 

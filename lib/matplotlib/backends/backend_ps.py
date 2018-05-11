@@ -1,9 +1,6 @@
 """
 A PostScript backend, which can produce both PostScript .ps and .eps
 """
-import six
-from six.moves import StringIO
-
 import glob, os, shutil, sys, time, datetime
 import io
 import logging
@@ -77,10 +74,7 @@ class PsBackendHelper(object):
         s = subprocess.Popen(
             [self.gs_exe, "--version"], stdout=subprocess.PIPE)
         pipe, stderr = s.communicate()
-        if six.PY3:
-            ver = pipe.decode('ascii')
-        else:
-            ver = pipe
+        ver = pipe.decode('ascii')
         try:
             gs_version = tuple(map(int, ver.strip().split(".")))
         except ValueError:
@@ -133,7 +127,7 @@ def _get_papertype(w, h):
     return 'a0'
 
 def _num_to_str(val):
-    if isinstance(val, six.string_types):
+    if isinstance(val, str):
         return val
 
     ival = int(val)
@@ -229,7 +223,7 @@ class RendererPS(RendererBase):
         used_characters[1].update(map(ord, s))
 
     def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in six.iteritems(other):
+        for stat_key, (realpath, charset) in other.items():
             used_characters = self.used_characters.setdefault(
                 stat_key, (realpath, set()))
             used_characters[1].update(charset)
@@ -981,8 +975,7 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if isinstance(outfile,
-                      (six.string_types, getattr(os, "PathLike", ()),)):
+        if isinstance(outfile, (str, getattr(os, "PathLike", ()),)):
             outfile = title = getattr(os, "fspath", lambda obj: obj)(outfile)
             title = title.encode("latin-1", "replace").decode()
             passed_in_file_object = False
@@ -1102,8 +1095,8 @@ class FigureCanvasPS(FigureCanvasBase):
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             if not rcParams['ps.useafm']:
-                for font_filename, chars in six.itervalues(
-                        ps_renderer.used_characters):
+                for font_filename, chars in \
+                        ps_renderer.used_characters.values():
                     if len(chars):
                         font = get_font(font_filename)
                         glyph_ids = []
@@ -1148,7 +1141,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             # write the figure
             content = self._pswriter.getvalue()
-            if not isinstance(content, six.text_type):
+            if not isinstance(content, str):
                 content = content.decode('ascii')
             print(content, file=fh)
 
@@ -1181,8 +1174,7 @@ class FigureCanvasPS(FigureCanvasBase):
             if passed_in_file_object:
                 requires_unicode = file_requires_unicode(outfile)
 
-                if (not requires_unicode and
-                        (six.PY3 or not isinstance(outfile, StringIO))):
+                if not requires_unicode:
                     fh = io.TextIOWrapper(outfile, encoding="latin-1")
 
                     # Prevent the io.TextIOWrapper from closing the
@@ -1211,7 +1203,7 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if isinstance(outfile, six.string_types):
+        if isinstance(outfile, str):
             title = outfile
         elif is_writable_file_like(outfile):
             title = None

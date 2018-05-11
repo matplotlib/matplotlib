@@ -1,5 +1,3 @@
-import six
-
 import matplotlib.axes as maxes
 from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis
@@ -33,8 +31,7 @@ class Axes(maxes.Axes):
                 return r
             elif isinstance(k, slice):
                 if k.start is None and k.stop is None and k.step is None:
-                    r = SimpleChainedObjects(list(six.itervalues(self)))
-                    return r
+                    return SimpleChainedObjects(list(self.values()))
                 else:
                     raise ValueError("Unsupported slice")
             else:

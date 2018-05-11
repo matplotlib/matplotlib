@@ -13,8 +13,6 @@ Generates SVG, PDF in one size (size they are vectors) and PNG, PPM and GIF in
 import matplotlib
 matplotlib.use('agg')  # noqa
 
-import six
-
 import os
 
 from PIL import Image
@@ -55,7 +53,7 @@ def make_icon(fontfile, ccode):
 
     fig = plt.figure(figsize=(1, 1))
     fig.patch.set_alpha(0.0)
-    text = fig.text(0.5, 0.48, six.unichr(ccode), ha='center', va='center',
+    text = fig.text(0.5, 0.48, chr(ccode), ha='center', va='center',
                     fontproperties=prop)
     text.set_path_effects([PathEffects.Normal()])
 

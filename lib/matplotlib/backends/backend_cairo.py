@@ -6,8 +6,6 @@ A Cairo backend for matplotlib
 This backend depends on cairocffi or pycairo.
 """
 
-import six
-
 import copy
 import gzip
 import sys
@@ -395,13 +393,6 @@ class RendererCairo(RendererBase):
                 ctx.rotate(np.deg2rad(-angle))
             ctx.set_font_size(size)
 
-            if HAS_CAIRO_CFFI:
-                if not isinstance(s, six.text_type):
-                    s = six.text_type(s)
-            else:
-                if six.PY2 and isinstance(s, six.text_type):
-                    s = s.encode("utf-8")
-
             ctx.show_text(s)
             ctx.restore()
 
@@ -426,8 +417,6 @@ class RendererCairo(RendererBase):
 
             size = fontsize * self.dpi / 72.0
             ctx.set_font_size(size)
-            if not six.PY3 and isinstance(s, six.text_type):
-                s = s.encode("utf-8")
             ctx.show_text(s)
 
         for ox, oy, w, h in rects:
@@ -631,7 +620,7 @@ class FigureCanvasCairo(FigureCanvasBase):
                 raise RuntimeError('cairo has not been compiled with SVG '
                                    'support enabled')
             if fmt == 'svgz':
-                if isinstance(fo, six.string_types):
+                if isinstance(fo, str):
                     fo = gzip.GzipFile(fo, 'wb')
                 else:
                     fo = gzip.GzipFile(None, 'wb', fileobj=fo)

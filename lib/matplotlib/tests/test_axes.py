@@ -1,4 +1,3 @@
-import six
 from itertools import chain, product
 from distutils.version import LooseVersion
 import io
@@ -746,8 +745,7 @@ def test_polar_rlabel_position():
     ax.tick_params(rotation='auto')
 
 
-@image_comparison(baseline_images=['polar_theta_wedge'], style='default',
-                  tol=0.01 if six.PY2 else 0)
+@image_comparison(baseline_images=['polar_theta_wedge'], style='default')
 def test_polar_theta_limits():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -4370,7 +4368,7 @@ def test_twin_spines():
     def make_patch_spines_invisible(ax):
         ax.set_frame_on(True)
         ax.patch.set_visible(False)
-        for sp in six.itervalues(ax.spines):
+        for sp in ax.spines.values():
             sp.set_visible(False)
 
     fig = plt.figure(figsize=(4, 3))

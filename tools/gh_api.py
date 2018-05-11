@@ -225,7 +225,7 @@ def encode_multipart_formdata(fields, boundary=None):
     # copy requests imports in here:
     from io import BytesIO
     from requests.packages.urllib3.filepost import (
-        choose_boundary, six, writer, b, get_content_type
+        choose_boundary, writer, b, get_content_type
     )
     body = BytesIO()
     if boundary is None:
@@ -248,7 +248,7 @@ def encode_multipart_formdata(fields, boundary=None):
 
         if isinstance(data, int):
             data = str(data)  # Backwards compatibility
-        if isinstance(data, six.text_type):
+        if isinstance(data, str):
             writer(body).write(data)
         else:
             body.write(data)

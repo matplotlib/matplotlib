@@ -1,8 +1,5 @@
-import six
-
 import numpy as np
 from .axes_divider import make_axes_locatable, Size, locatable_axes_factory
-import sys
 from .mpl_axes import Axes
 
 
@@ -116,12 +113,11 @@ class RGBAxesBase(object):
         try:
             axes_class = kwargs.pop("axes_class", self._defaultAxesClass)
         except AttributeError:
-            new_msg = ("A subclass of RGBAxesBase must have a "
-                       "_defaultAxesClass attribute. If you are not sure which "
-                       "axes class to use, consider using "
-                       "mpl_toolkits.axes_grid1.mpl_axes.Axes.")
-            six.reraise(AttributeError, AttributeError(new_msg),
-                        sys.exc_info()[2])
+            raise AttributeError(
+                'A subclass of RGBAxesBase must have a _defaultAxesClass '
+                'attribute. If you are not sure which axes class to use, '
+                'consider using mpl_toolkits.axes_grid1.mpl_axes.Axes.'
+            )
 
         ax = axes_class(*args, **kwargs)
 
