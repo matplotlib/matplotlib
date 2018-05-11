@@ -164,8 +164,6 @@ example of setting major and minor ticks. See the :mod:`matplotlib.dates`
 module for more information and examples of using date locators and formatters.
 """
 
-import six
-
 import itertools
 import logging
 import locale
@@ -190,10 +188,6 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'LinearLocator', 'LogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
            'SymmetricalLogLocator', 'LogitLocator')
-
-
-if six.PY3:
-    long = int
 
 
 # Work around numpy/numpy#6127.
@@ -1978,12 +1972,11 @@ def decade_up(x, base=10):
 
 
 def nearest_long(x):
-    if x == 0:
-        return long(0)
-    elif x > 0:
-        return long(x + 0.5)
-    else:
-        return long(x - 0.5)
+    cbook.warn_deprecated('3.0', removal='3.1', name='`nearest_long`',
+                          obj_type='function', alternative='`round`')
+    if x >= 0:
+        return int(x + 0.5)
+    return int(x - 0.5)
 
 
 def is_decade(x, base=10):
