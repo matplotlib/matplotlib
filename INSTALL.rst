@@ -142,7 +142,6 @@ Matplotlib requires the following dependencies:
   * `pytz <http://pytz.sourceforge.net/>`__
   * FreeType (>= 2.3)
   * `cycler <http://matplotlib.org/cycler/>`__ (>= 0.10.0)
-  * `six <https://pypi.python.org/pypi/six>`_ (>= 1.10)
   * `kiwisolver <https://github.com/nucleic/kiwi>`__ (>= 1.0.0)
 
 Optionally, you can also install a number of packages to enable better user
