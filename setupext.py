@@ -14,6 +14,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import textwrap
 import urllib.request
 import warnings
@@ -1045,6 +1046,8 @@ class FreeType(SetupPackage):
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
+        from pathlib import Path
+
         # We're using a system freetype
         if not options.get('local_freetype'):
             return
@@ -1058,7 +1061,7 @@ class FreeType(SetupPackage):
         else:
             libfreetype = 'libfreetype.a'
 
-        if os.path.isfile(os.path.join(src_path, 'objs', '.libs', libfreetype)):
+        if Path(src_path, "objs", ".libs", libfreetype).is_file():
             return
 
         tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
@@ -1097,21 +1100,20 @@ class FreeType(SetupPackage):
                     tarball_url = url_fmt.format(
                         version=LOCAL_FREETYPE_VERSION, tarball=tarball)
 
-                    print("Downloading {0}".format(tarball_url))
+                    print("Downloading {}".format(tarball_url))
                     try:
                         urllib.request.urlretrieve(tarball_url, tarball_path)
-                    except IOError:  # URLError (a subclass) on Py3.
-                        print("Failed to download {0}".format(tarball_url))
+                    except IOError:
+                        print("Failed to download {}".format(tarball_url))
                     else:
                         if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
                             print("Invalid hash.")
                         else:
                             break
                 else:
-                    raise IOError("Failed to download freetype. "
-                                  "You can download the file by "
-                                  "alternative means and copy it "
-                                  " to '{0}'".format(tarball_path))
+                    raise IOError("Failed to download freetype; you can "
+                                  "download the file by alternative means and "
+                                  "copy it to '{}'".format(tarball_path))
                 os.makedirs(tarball_cache_dir, exist_ok=True)
                 try:
                     shutil.copy(tarball_path, tarball_cache_path)
@@ -1122,55 +1124,55 @@ class FreeType(SetupPackage):
 
             if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
                 raise IOError(
-                    "{0} does not match expected hash.".format(tarball))
+                    "{} does not match expected hash".format(tarball))
 
-        print("Building {0}".format(tarball))
+        print("Building {}".format(tarball))
+        with tarfile.open(tarball_path, "r:gz") as tgz:
+            tgz.extractall("build")
+
         if sys.platform != 'win32':
             # compilation on all other platforms than windows
-            cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
-
+            env={**os.environ,
+                 "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
             subprocess.check_call(
-                ['tar', 'zxf', tarball], cwd='build')
-            subprocess.check_call(
-                [cflags + './configure --with-zlib=no --with-bzip2=no '
-                 '--with-png=no --with-harfbuzz=no'], shell=True, cwd=src_path)
-            subprocess.check_call(
-                [cflags + 'make'], shell=True, cwd=src_path)
+                ["./configure", "--with-zlib=no", "--with-bzip2=no",
+                 "--with-png=no", "--with-harfbuzz=no"],
+                env=env, cwd=src_path)
+            subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
-            FREETYPE_BUILD_CMD = """\
-call "%ProgramFiles%\\Microsoft SDKs\\Windows\\v7.0\\Bin\\SetEnv.Cmd" /Release /{xXX} /xp
+            FREETYPE_BUILD_CMD = r"""
+call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
+  /Release /{xXX} /xp
 call "{vcvarsall}" {xXX}
-set MSBUILD=C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe
-rd /S /Q %FREETYPE%\\objs
-%MSBUILD% %FREETYPE%\\builds\\windows\\{vc20xx}\\freetype.sln /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
-echo Build completed, moving result"
-:: move to the "normal" path for the unix builds...
-mkdir %FREETYPE%\\objs\\.libs
-:: REMINDER: fix when changing the version
-copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-if errorlevel 1 (
-  rem This is a py27 version, which has a different location for the lib file :-/
-  copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-)
+set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
+%MSBUILD% "builds\windows\{vc20xx}\freetype.sln" ^
+  /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
 """
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
-            # Note: freetype has no build profile for 2014, so we don't bother...
-            vc = 'vc2010' if VS2010 else 'vc2008'
-            WinXX = 'x64' if X64 else 'Win32'
-            tar_extract(tarball_path, "build")
-            # This is only false for py2.7, even on py3.5...
-            if not VS2010:
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.vcproj'), WinXX)
-
-            cmdfile = os.path.join("build", 'build_freetype.cmd')
-            with open(cmdfile, 'w') as cmd:
-                cmd.write(prepare_build_cmd(FREETYPE_BUILD_CMD, vc20xx=vc, WinXX=WinXX,
-                                            config='Release' if VS2010 else 'LIB Release'))
-
-            os.environ['FREETYPE'] = src_path
-            subprocess.check_call([cmdfile], shell=True)
+            import distutils.msvc9compiler as msvc
+            # FreeType 2.6.1 has no build profile for 2014.
+            vcvarsall = msvc.find_vcvarsall(10.0)
+            if vcvarsall is None:
+                raise RuntimeError("Microsoft VS 2010 required")
+            X64 = sys.maxsize > 2 ** 32
+            vc20xx = "vc2010"
+            WinXX="x64" if X64 else "Win32"
+            xXX="x64" if X64 else "x86"
+            cmd_file = Path("build", "build_freetype.cmd")
+            cmd_file.write_text(FREETYPE_BUILD_CMD.format(
+                vcvarsall=msvc.find_vcvarsall(10.0),
+                vc20xx=vc20xx, WinXX=WinXX, xXX=xXX, config="Release"))
+            shutil.rmtree(str(Path(src_path, "objs")), ignore_errors=True)
+            subprocess.check_call(cmdfile, shell=True, cwd=src_path)
+            # Move to the corresponding Unix build path.
+            Path(src_path, "objs/.libs").mkdir()
+            # Be robust against change of FreeType version.
+            lib_path, = (Path(src_path, "objs", vc20xx, xXX).glob()
+                         .glob("freetype*.lib"))
+            shutil.copy2(
+                str(lib_path),
+                str(Path(src_path, "objs", ".libs", "libfreetype.lib"))
+            )
 
 
 class FT2Font(SetupPackage):
