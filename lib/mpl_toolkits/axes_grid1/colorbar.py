@@ -753,7 +753,7 @@ class Colorbar(ColorbarBase):
                 self.add_lines(mappable)
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes(parent, **kw):
+def make_axes(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     '''
     Resize and reposition a parent axes, and return a child
     axes suitable for a colorbar
@@ -774,9 +774,6 @@ def make_axes(parent, **kw):
     Returns (cax, kw), the child axes and the reduced kw dictionary.
     '''
     orientation = kw.setdefault('orientation', 'vertical')
-    fraction = kw.pop('fraction', 0.15)
-    shrink = kw.pop('shrink', 1.0)
-    aspect = kw.pop('aspect', 20)
     #pb = transforms.PBox(parent.get_position())
     pb = parent.get_position(original=True).frozen()
     if orientation == 'vertical':

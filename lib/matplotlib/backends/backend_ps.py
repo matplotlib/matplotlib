@@ -930,8 +930,12 @@ class FigureCanvasPS(FigureCanvasBase):
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
 
-    def _print_ps(self, outfile, format, *args, **kwargs):
-        papertype = kwargs.pop("papertype", rcParams['ps.papersize'])
+    def _print_ps(self, outfile, format, *args,
+                  papertype=None, dpi=72, facecolor='w', edgecolor='w',
+                  orientation='portrait',
+                  **kwargs):
+        if papertype is None:
+            papertype = rcParams['ps.papersize']
         papertype = papertype.lower()
         if papertype == 'auto':
             pass
@@ -939,22 +943,19 @@ class FigureCanvasPS(FigureCanvasBase):
             raise RuntimeError('%s is not a valid papertype. Use one of %s' %
                                (papertype, ', '.join(papersize)))
 
-        orientation = kwargs.pop("orientation", "portrait").lower()
+        orientation = orientation.lower()
         if orientation == 'landscape': isLandscape = True
         elif orientation == 'portrait': isLandscape = False
         else: raise RuntimeError('Orientation must be "portrait" or "landscape"')
 
         self.figure.set_dpi(72) # Override the dpi kwarg
-        imagedpi = kwargs.pop("dpi", 72)
-        facecolor = kwargs.pop("facecolor", "w")
-        edgecolor = kwargs.pop("edgecolor", "w")
 
         if rcParams['text.usetex']:
-            self._print_figure_tex(outfile, format, imagedpi, facecolor, edgecolor,
+            self._print_figure_tex(outfile, format, dpi, facecolor, edgecolor,
                                    orientation, isLandscape, papertype,
                                    **kwargs)
         else:
-            self._print_figure(outfile, format, imagedpi, facecolor, edgecolor,
+            self._print_figure(outfile, format, dpi, facecolor, edgecolor,
                                orientation, isLandscape, papertype,
                                **kwargs)
 

@@ -91,7 +91,7 @@ sankey.add(flows=[-0.25, 0.15, 0.1], label='two',
            orientations=[-1, -1, -1], prior=0, connect=(0, 0))
 diagrams = sankey.finish()
 diagrams[-1].patch.set_hatch('/')
-plt.legend(loc='best')
+plt.legend()
 
 ###############################################################################
 # Notice that only one connection is specified, but the systems form a

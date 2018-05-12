@@ -51,3 +51,18 @@ fig2, ax2 = plt.subplots()
 ax2.barbs(data['x'], data['y'], masked_u, data['v'], length=8, pivot='middle')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.barbs
+matplotlib.pyplot.barbs
+

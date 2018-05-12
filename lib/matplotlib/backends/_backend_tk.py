@@ -6,12 +6,11 @@ import os.path
 import sys
 import tkinter as Tk
 from tkinter.simpledialog import SimpleDialog
+from contextlib import contextmanager
 
 import numpy as np
 
 from . import _tkagg
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-import matplotlib.backends.windowing as windowing
 
 import matplotlib
 from matplotlib import backend_tools, rcParams
@@ -22,6 +21,22 @@ from matplotlib.backend_managers import ToolManager
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
+
+try:
+    from matplotlib._windowing import GetForegroundWindow, SetForegroundWindow
+except ImportError:
+    @contextmanager
+    def _restore_foreground_window_at_end():
+        yield
+else:
+    @contextmanager
+    def _restore_foreground_window_at_end():
+        foreground = GetForegroundWindow()
+        try:
+            yield
+        finally:
+            if rcParams['tk.window_focus']:
+                SetForegroundWindow(foreground)
 
 
 _log = logging.getLogger(__name__)
@@ -540,19 +555,19 @@ class FigureManagerTk(FigureManagerBase):
         this function doesn't segfault but causes the
         PyEval_RestoreThread: NULL state bug on win32
         """
-        _focus = windowing.FocusManager()
-        if not self._shown:
-            def destroy(*args):
-                self.window = None
-                Gcf.destroy(self._num)
-            self.canvas._tkcanvas.bind("<Destroy>", destroy)
-            self.window.deiconify()
-        else:
-            self.canvas.draw_idle()
-        # Raise the new window.
-        self.canvas.manager.window.attributes('-topmost', 1)
-        self.canvas.manager.window.attributes('-topmost', 0)
-        self._shown = True
+        with _restore_foreground_window_at_end():
+            if not self._shown:
+                def destroy(*args):
+                    self.window = None
+                    Gcf.destroy(self._num)
+                self.canvas._tkcanvas.bind("<Destroy>", destroy)
+                self.window.deiconify()
+            else:
+                self.canvas.draw_idle()
+            # Raise the new window.
+            self.canvas.manager.window.attributes('-topmost', 1)
+            self.canvas.manager.window.attributes('-topmost', 0)
+            self._shown = True
 
     def destroy(self, *args):
         if self.window is not None:
@@ -716,9 +731,9 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         self._active = [self._axes[i] for i in self._ind]
 
     def update(self):
-        _focus = windowing.FocusManager()
         self._axes = self.canvas.figure.axes
-        NavigationToolbar2.update(self)
+        with _restore_foreground_window_at_end():
+            NavigationToolbar2.update(self)
 
 
 class ToolTip(object):
@@ -989,29 +1004,29 @@ class _BackendTk(_Backend):
         """
         Create a new figure manager instance for the given figure.
         """
-        _focus = windowing.FocusManager()
-        window = Tk.Tk(className="matplotlib")
-        window.withdraw()
+        with _restore_foreground_window_at_end():
+            window = Tk.Tk(className="matplotlib")
+            window.withdraw()
 
-        # Put a mpl icon on the window rather than the default tk icon.
-        # Tkinter doesn't allow colour icons on linux systems, but tk>=8.5 has
-        # a iconphoto command which we call directly. Source:
-        # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
-        icon_fname = os.path.join(
-            rcParams['datapath'], 'images', 'matplotlib.ppm')
-        icon_img = Tk.PhotoImage(file=icon_fname)
-        try:
-            window.tk.call('wm', 'iconphoto', window._w, icon_img)
-        except Exception as exc:
-            # log the failure (due e.g. to Tk version), but carry on
-            _log.info('Could not load matplotlib icon: %s', exc)
+            # Put a mpl icon on the window rather than the default tk icon.
+            # Tkinter doesn't allow colour icons on linux systems, but tk>=8.5 has
+            # a iconphoto command which we call directly. Source:
+            # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
+            icon_fname = os.path.join(
+                rcParams['datapath'], 'images', 'matplotlib.ppm')
+            icon_img = Tk.PhotoImage(file=icon_fname)
+            try:
+                window.tk.call('wm', 'iconphoto', window._w, icon_img)
+            except Exception as exc:
+                # log the failure (due e.g. to Tk version), but carry on
+                _log.info('Could not load matplotlib icon: %s', exc)
 
-        canvas = cls.FigureCanvas(figure, master=window)
-        manager = cls.FigureManager(canvas, num, window)
-        if matplotlib.is_interactive():
-            manager.show()
-            canvas.draw_idle()
-        return manager
+            canvas = cls.FigureCanvas(figure, master=window)
+            manager = cls.FigureManager(canvas, num, window)
+            if matplotlib.is_interactive():
+                manager.show()
+                canvas.draw_idle()
+            return manager
 
     @staticmethod
     def trigger_manager_draw(manager):

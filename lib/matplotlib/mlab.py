@@ -3312,7 +3312,7 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
         fh.close()
 
 
-@cbook.deprecated('2.2')
+@cbook.deprecated('2.2', alternative='scipy.interpolate.griddata')
 def griddata(x, y, z, xi, yi, interp='nn'):
     """
     Interpolates from a nonuniformly spaced grid to some other grid.

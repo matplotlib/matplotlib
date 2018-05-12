@@ -416,7 +416,7 @@ div.deprecated span.versionmodified {
     font-weight: bold;
 }
 
-div.green {
+div.green, div.hint {
     color: #468847;
     background-color: #dff0d8;
     border: 1px solid #d6e9c6;
@@ -713,6 +713,9 @@ table.docutils.field-list {
     font-size: 13px;
     line-height: 18px;
 }
+.docutils.field-list td blockquote p ul li{
+    font-size: 13px;
+}
 p.rubric {
     font-weight: bold;
     font-size: 19px;
@@ -983,7 +986,7 @@ div.sphx-glr-download a {
    background-image: none !important;
 }
 
-p.sphx-glr-signature a.reference.external {
+p.sphx-glr-signature {
    display: none !important;
 }
 

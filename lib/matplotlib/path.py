@@ -137,7 +137,7 @@ class Path(object):
             if len(codes) and codes[0] != self.MOVETO:
                 raise ValueError("The first element of 'code' must be equal "
                                  "to 'MOVETO' ({})".format(self.MOVETO))
-        elif closed:
+        elif closed and len(vertices):
             codes = np.empty(len(vertices), dtype=self.code_type)
             codes[0] = self.MOVETO
             codes[1:-1] = self.LINETO
