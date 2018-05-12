@@ -420,7 +420,7 @@ class RendererPgf(RendererBase):
             if not hasattr(fh, 'name') or not os.path.exists(fh.name):
                 warnings.warn("streamed pgf-code does not support raster "
                               "graphics, consider using the pgf-to-pdf option",
-                              UserWarning)
+                              UserWarning, stacklevel=2)
                 self.__dict__["draw_image"] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,

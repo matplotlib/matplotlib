@@ -45,7 +45,7 @@ def _remove_blacklisted_style_params(d, warn=True):
             if warn:
                 warnings.warn(
                     "Style includes a parameter, '{0}', that is not related "
-                    "to style.  Ignoring".format(key))
+                    "to style.  Ignoring".format(key), stacklevel=2)
         else:
             o[key] = val
     return o
@@ -184,7 +184,7 @@ def read_style_directory(style_dir):
 
         for w in warns:
             message = 'In %s: %s' % (path, w.message)
-            warnings.warn(message)
+            warnings.warn(message, stacklevel=2)
 
     return styles
 
