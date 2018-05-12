@@ -111,11 +111,8 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         else:
             output = stream
         super().get_javascript(stream=output)
-        with io.open(os.path.join(
-                os.path.dirname(__file__),
-                "web_backend", 'js',
-                "nbagg_mpl.js"), encoding='utf8') as fd:
-            output.write(fd.read())
+        output.write((Path(__file__).parent / "web_backend/js/nbagg_mpl.js")
+                     .read_text(encoding="utf-8"))
         if stream is None:
             return output.getvalue()
 

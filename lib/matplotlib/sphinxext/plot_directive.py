@@ -134,10 +134,17 @@ The plot directive has the following configuration options:
     plot_template
         Provide a customized template for preparing restructured text.
 """
+
+import contextlib
+from io import StringIO
 import itertools
-import sys, os, shutil, io, re, textwrap
+import os
 from os.path import relpath
 from pathlib import Path
+import re
+import shutil
+import sys
+import textwrap
 import traceback
 import warnings
 
@@ -479,21 +486,8 @@ def run_code(code, code_path, ns=None, function_name=None):
         os.chdir(dirname)
         sys.path.insert(0, dirname)
 
-    # Reset sys.argv
-    old_sys_argv = sys.argv
-    sys.argv = [code_path]
-
-    # Redirect stdout
-    stdout = sys.stdout
-    sys.stdout = io.StringIO()
-
-    # Assign a do-nothing print function to the namespace.  There
-    # doesn't seem to be any other way to provide a way to (not) print
-    # that works correctly across Python 2 and 3.
-    def _dummy_print(*arg, **kwarg):
-        pass
-
-    try:
+    with cbook._setattr_cm(sys, argv=[code_path]), \
+            contextlib.redirect_stdout(StringIO()):
         try:
             code = unescape_doctest(code)
             if ns is None:
@@ -504,7 +498,6 @@ def run_code(code, code_path, ns=None, function_name=None):
                          'from matplotlib import pyplot as plt\n', ns)
                 else:
                     exec(str(setup.config.plot_pre_code), ns)
-            ns['print'] = _dummy_print
             if "__main__" in code:
                 ns['__name__'] = '__main__'
             exec(code, ns)
@@ -512,11 +505,9 @@ def run_code(code, code_path, ns=None, function_name=None):
                 exec(function_name + "()", ns)
         except (Exception, SystemExit) as err:
             raise PlotError(traceback.format_exc())
-    finally:
-        os.chdir(pwd)
-        sys.argv = old_sys_argv
-        sys.path[:] = old_sys_path
-        sys.stdout = stdout
+        finally:
+            os.chdir(pwd)
+            sys.path[:] = old_sys_path
     return ns
 
 
@@ -678,8 +669,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         else:
             function_name = None
 
-        with io.open(source_file_name, 'r', encoding='utf-8') as fd:
-            code = fd.read()
+        code = Path(source_file_name).read_text(encoding='utf-8')
         output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
@@ -831,12 +821,8 @@ def run(arguments, content, options, state_machine, state, lineno):
                     shutil.copyfile(fn, destimg)
 
     # copy script (if necessary)
-    target_name = os.path.join(dest_dir, output_base + source_ext)
-    with io.open(target_name, 'w', encoding="utf-8") as f:
-        if source_file_name == rst_file:
-            code_escaped = unescape_doctest(code)
-        else:
-            code_escaped = code
-        f.write(code_escaped)
+    Path(dest_dir, output_base + source_ext).write_text(
+        unescape_doctest(code) if source_file_name == rst_file else code,
+        encoding='utf-8')
 
     return errors

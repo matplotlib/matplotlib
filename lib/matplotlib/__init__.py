@@ -974,7 +974,7 @@ def _open_file_or_url(fname):
         encoding = locale.getpreferredencoding(do_setlocale=False)
         if encoding is None:
             encoding = "utf-8"
-        with io.open(fname, encoding=encoding) as f:
+        with open(fname, encoding=encoding) as f:
             yield f
 
 

@@ -834,7 +834,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
         # figure out where the pgf is to be written to
         if isinstance(fname_or_fh, str):
-            with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
+            with open(fname_or_fh, "w", encoding="utf-8") as fh:
                 self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
             fh = codecs.getwriter("utf-8")(fname_or_fh)
@@ -868,8 +868,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 \\centering
 \\input{figure.pgf}
 \\end{document}""" % (w, h, latex_preamble, latex_fontspec)
-            with codecs.open(fname_tex, "w", "utf-8") as fh_tex:
-                fh_tex.write(latexcode)
+            pathlib.Path(fname_tex).write_text(latexcode, encoding="utf-8")
 
             texcommand = rcParams["pgf.texsystem"]
             cmdargs = [texcommand, "-interaction=nonstopmode",
