@@ -1,4 +1,4 @@
-import sys
+import builtins
 
 import matplotlib
 
@@ -21,7 +21,6 @@ def test_override_builtins():
         'sum',
         'divmod'
     }
-    builtins = sys.modules['builtins']
     overridden = False
     for key in dir(pylab):
         if key in dir(builtins):

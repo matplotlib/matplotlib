@@ -1847,9 +1847,9 @@ def _pprint_styles(_styles):
     for name, cls in sorted(_styles.items()):
         spec = inspect.getfullargspec(cls.__init__)
         if spec.defaults:
-            argstr = ",".join("%s=%s" % pair
-                              for pair in zip(spec.args[-len(spec.defaults):],
-                                              spec.defaults))
+            argstr = ", ".join(map(
+                "{}={}".format, spec.args[-len(spec.defaults):], spec.defaults
+            ))
         else:
             argstr = 'None'
         # adding ``quotes`` since - and | have special meaning in reST

@@ -462,7 +462,7 @@ def run_code(code, code_path, ns=None, function_name=None):
     # it can get at its data files, if any.  Add its path to sys.path
     # so it can import any helper modules sitting beside it.
     pwd = os.getcwd()
-    old_sys_path = list(sys.path)
+    old_sys_path = sys.path.copy()
     if setup.config.plot_working_directory is not None:
         try:
             os.chdir(setup.config.plot_working_directory)
@@ -507,7 +507,7 @@ def run_code(code, code_path, ns=None, function_name=None):
                     exec(str(setup.config.plot_pre_code), ns)
             ns['print'] = _dummy_print
             if "__main__" in code:
-                exec("__name__ = '__main__'", ns)
+                ns['__name__'] = '__main__'
             exec(code, ns)
             if function_name is not None:
                 exec(function_name + "()", ns)
