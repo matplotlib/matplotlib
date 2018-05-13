@@ -7,3 +7,6 @@ The following API elements are deprecated:
 - ``backend_ps.PsBackendHelper``, ``backend_ps.ps_backend_helper``,
 - ``cbook.iterable``,
 - ``mlab.demean``,
+
+The following environment variables are deprecated:
+- ``MATPLOTLIBDATA``,
