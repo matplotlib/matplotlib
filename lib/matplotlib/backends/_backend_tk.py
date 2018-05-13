@@ -1004,7 +1004,6 @@ class _BackendTk(_Backend):
         """
         Create a new figure manager instance for the given figure.
         """
-        _focus = windowing.FocusManager()
         window = Tk.Tk(className="matplotlib")
         window.withdraw()
 
