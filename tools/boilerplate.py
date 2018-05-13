@@ -84,6 +84,7 @@ def boilerplate_gen():
         'axvline',
         'axvspan',
         'bar',
+        'multi_bar',
         'barbs',
         'barh',
         'boxplot',

@@ -2201,6 +2201,113 @@ class Axes(_AxesBase):
                            align=align, **kwargs)
         return patches
 
+    @docstring.dedent_interpd
+    def multi_bar(self, pos, length, thickness=0.8, *,
+                  style='grouped', orientation='vertical', **kwargs):
+        r"""
+        Make a bar plot from two dimensional data.
+
+        Call signatures::
+
+           multi_bar(pos, length, *, style='grouped', **kwargs)
+           multi_bar(pos, length, thickness, *, style='grouped', **kwargs)
+           multi_bar(pos, length, thickness, *,
+                     style='stacked', orientation='vertical', **kwargs)
+
+        The bars are positioned at *pos* with the given style and orientation.
+        Their dimensions are given by *length* and *thickness*.
+
+        *length* is a 2-dimensional array (N,M) where N is the numer of
+        positions a M is the number of bars per position.
+
+        Parameters
+        ----------
+        pos : sequence of scalars
+            The x or y coordinates of the bars, depending on orientation.
+
+        length : array-like of shape(N,M). The lengths of the bars.
+            N is the number of bar positions (same as the length of pos)
+            and M the number of bars per pos.
+
+        thickness : scalar or array-like, optional
+            The thickness(') of the bars (default: 0.8).
+
+        style : {'grouped', 'stacked'}, optional, default: 'grouped'
+            How of the bars at a pos are placed with respect to each other:
+
+            - 'grouped': Bars are placed next to eachother with *pos* being
+                         the midpoint.
+            - 'stacked': Bars are placed on on top of another.
+
+        orientation : {'vertical',  'horizontal'}, optional
+            How the bars are to be oriented.
+
+        Returns
+        -------
+        `List of .BarContainer`
+            There are M containers in the list.
+            Each container has the bars created from a column of *length*
+            and optionally errorbars.
+
+        Other Parameters
+        ----------------
+        color : scalar or array-like, optional
+            The colors of the bar faces.
+
+        edgecolor : scalar or array-like, optional
+            The colors of the bar edges.
+
+        linewidth : scalar or array-like, optional
+            Width of the bar edge(s). If 0, don't draw edges.
+
+        tick_label : string or array-like, optional
+            The tick labels of the bars.
+            Default: None (Use default numeric labels.)
+
+        xerr, yerr : scalar or array-like of shape(N,) or shape(2,N), optional
+            If not *None*, add horizontal / vertical errorbars to the bar tips.
+            The values are +/- sizes relative to the data:
+
+            - scalar: symmetric +/- values for all bars
+            - shape(N,): symmetric +/- values for each bar
+            - shape(2,N): separate + and - values for each bar
+
+            Default: None
+
+        ecolor : scalar or array-like, optional, default: 'black'
+            The line color of the errorbars.
+
+        capsize : scalar, optional
+           The length of the error bar caps in points.
+           Default: None, which will take the value from
+           :rc:`errorbar.capsize`.
+
+        error_kw : dict, optional
+            Dictionary of kwargs to be passed to the `~.Axes.errorbar`
+            method. Values of *ecolor* or *capsize* defined here take
+            precedence over the independent kwargs.
+
+        log : bool, optional, default: False
+            If *True*, set the y-axis to be log scale.
+
+        Notes
+        -----
+        The optional arguments *color*, *edgecolor*, *linewidth*,
+        *xerr*, and *yerr* can be either scalars or an array-like of shape(N,M)
+        matching the shape of *length*.
+        Detail: *xerr* and *yerr* are passed directly to
+        :meth:`errorbar`, so they can also have shape 2xN for
+        independent specification of lower and upper errors.
+
+        The optional argument *label* should be an array-like of length M.
+
+        Other optional kwargs:
+
+        %(Rectangle)s
+
+        """
+        pass
+
     @_preprocess_data(label_namer=None)
     @docstring.dedent_interpd
     def broken_barh(self, xranges, yrange, **kwargs):
