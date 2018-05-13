@@ -894,6 +894,10 @@ class RcParams(MutableMapping, dict):
                 cbook.warn_deprecated(
                     version, key, obj_type="rcparam", alternative=alt_key)
                 return
+            elif key == 'examples.directory':
+                cbook.warn_deprecated(
+                    "3.0", "{} is deprecated; in the future, examples will be "
+                    "found relative to the 'datapath' directory.".format(key))
             try:
                 cval = self.validate[key](val)
             except ValueError as ve:
@@ -916,6 +920,11 @@ class RcParams(MutableMapping, dict):
             cbook.warn_deprecated(
                 version, key, obj_type, alternative=alt_key)
             return dict.__getitem__(self, alt_key) if alt_key else None
+
+        elif key == 'examples.directory':
+            cbook.warn_deprecated(
+                "3.0", "{} is deprecated; in the future, examples will be "
+                "found relative to the 'datapath' directory.".format(key))
 
         return dict.__getitem__(self, key)
 
@@ -1116,7 +1125,8 @@ Please do not ask for support with these customizations active.
 # this is the instance used by the matplotlib classes
 rcParams = rc_params()
 
-if rcParams['examples.directory']:
+# Don't trigger deprecation warning when just fetching.
+if dict.__getitem__(rcParams, 'examples.directory'):
     # paths that are intended to be relative to matplotlib_fname()
     # are allowed for the examples.directory parameter.
     # However, we will need to fully qualify the path because

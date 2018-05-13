@@ -522,7 +522,8 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    if matplotlib.rcParams['examples.directory']:
+    # Don't trigger deprecation warning when just fetching.
+    if dict.__getitem__(matplotlib.rcParams, 'examples.directory'):
         root = matplotlib.rcParams['examples.directory']
     else:
         root = os.path.join(matplotlib._get_data_path(), 'sample_data')
