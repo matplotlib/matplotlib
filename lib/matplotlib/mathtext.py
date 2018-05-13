@@ -1360,9 +1360,6 @@ class Node(object):
         self.size = 0
 
     def __repr__(self):
-        return self.__internal_repr__()
-
-    def __internal_repr__(self):
         return self.__class__.__name__
 
     def get_kerning(self, next):
@@ -1449,7 +1446,7 @@ class Char(Node):
         # pack phase, after we know the real fontsize
         self._update_metrics()
 
-    def __internal_repr__(self):
+    def __repr__(self):
         return '`%s`' % self.c
 
     def _update_metrics(self):
@@ -1547,7 +1544,7 @@ class List(Box):
 
     def __repr__(self):
         return '[%s <%.02f %.02f %.02f %.02f> %s]' % (
-            self.__internal_repr__(),
+            super().__repr__(),
             self.width, self.height,
             self.depth, self.shift_amount,
             ' '.join([repr(x) for x in self.children]))

@@ -3,7 +3,7 @@
 Pie Demo2
 =========
 
-Make a pie charts using :meth:`.Axes.pie`.
+Make a pie charts using :meth:`~.axes.Axes.pie`.
 
 This example demonstrates some pie chart features like labels, varying size,
 autolabeling the percentage, offsetting a slice and adding a shadow.
@@ -44,3 +44,17 @@ plt.setp(autotexts, size='x-small')
 autotexts[0].set_color('white')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.pie
+matplotlib.pyplot.pie

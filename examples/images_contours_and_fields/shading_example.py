@@ -61,3 +61,17 @@ def compare(z, cmap, ve=1):
 
 if __name__ == '__main__':
     main()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown in this example:
+
+import matplotlib
+matplotlib.colors.LightSource
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow

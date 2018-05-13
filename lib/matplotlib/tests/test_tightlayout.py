@@ -211,7 +211,7 @@ def add_offsetboxes(ax, size=10, margin=.1, color='black'):
         da.add_artist(background)
 
         anchored_box = AnchoredOffsetbox(
-            loc=10,
+            loc='center',
             child=da,
             pad=0.,
             frameon=False,

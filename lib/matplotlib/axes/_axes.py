@@ -1733,7 +1733,7 @@ class Axes(_AxesBase):
     #### Specialized plotting
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    def step(self, x, y, *args, where='pre', linestyle='', **kwargs):
+    def step(self, x, y, *args, where='pre', **kwargs):
         """
         Make a step plot.
 
@@ -1797,7 +1797,7 @@ class Axes(_AxesBase):
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
-        kwargs['linestyle'] = 'steps-' + where + linestyle
+        kwargs['linestyle'] = 'steps-' + where + kwargs.get('linestyle', '')
 
         return self.plot(x, y, *args, **kwargs)
 
@@ -5002,82 +5002,117 @@ class Axes(_AxesBase):
                origin=None, extent=None, shape=None, filternorm=1,
                filterrad=4.0, imlim=None, resample=None, url=None, **kwargs):
         """
-        Display an image on the axes.
+        Display an image, i.e. data on a 2D regular raster.
 
         Parameters
         ----------
-        X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4)
-            Display the image in `X` to current axes.  `X` may be an
-            array or a PIL image. If `X` is an array, it
-            can have the following shapes and types:
+        X : array-like or PIL image
+            The image data. Supported array shapes are:
 
-            - MxN -- values to be mapped (float or int)
-            - MxNx3 -- RGB (float or uint8)
-            - MxNx4 -- RGBA (float or uint8)
+            - (M, N): an image with scalar data. The data is visualized
+              using a colormap.
+            - (M, N, 3): an image with RGB values (float or uint8).
+            - (M, N, 4): an image with RGBA values (float or uint8), i.e.
+              including transparency.
 
-            MxN arrays are mapped to colors based on the `norm` (mapping
-            scalar to scalar) and the `cmap` (mapping the normed scalar to
-            a color).
+            The first two dimensions (M, N) define the rows and columns of
+            the image.
 
-            Elements of RGB and RGBA arrays represent pixels of an MxN image.
-            All values should be in the range [0 .. 1] for floats or
+            The RGB(A) values should be in the range [0 .. 1] for floats or
             [0 .. 255] for integers.  Out-of-range values will be clipped to
             these bounds.
 
-        cmap : `~matplotlib.colors.Colormap`, optional, default: None
-            If None, default to rc `image.cmap` value. `cmap` is ignored
-            if `X` is 3-D, directly specifying RGB(A) values.
+        cmap : str or `~matplotlib.colors.Colormap`, optional
+            A Colormap instance or registered colormap name. The colormap
+            maps scalar data to colors. It is ignored for RGB(A) data.
+            Defaults to :rc:`image.cmap`.
 
-        aspect : ['auto' | 'equal' | scalar], optional, default: None
-            If 'auto', changes the image aspect ratio to match that of the
-            axes.
+        aspect : {'equal', 'auto'} or float, optional
+            Controls the aspect ratio of the axes. The aspect is of particular
+            relevance for images since it may distort the image, i.e. pixel
+            will not be square.
 
-            If 'equal', and `extent` is None, changes the axes aspect ratio to
-            match that of the image. If `extent` is not `None`, the axes
-            aspect ratio is changed to match that of the extent.
+            This parameter is a shortcut for explicitly calling
+            `.Axes.set_aspect`. See there for further details.
 
-            If None, default to rc ``image.aspect`` value.
+            - 'equal': Ensures an aspect ratio of 1. Pixels will be square
+              (unless pixel sizes are explicitly made non-square in data
+              coordinates using *extent*).
+            - 'auto': The axes is kept fixed and the aspect is adjusted so
+              that the data fit in the axes. In general, this will result in
+              non-square pixels.
 
-        interpolation : string, optional, default: None
-            Acceptable values are 'none', 'nearest', 'bilinear', 'bicubic',
+            Defaults to :rc:`image.aspect`.
+
+        interpolation : str, optional
+            The interpolation method used. If *None*
+            :rc:`image.interpolation` is used, which defaults to 'nearest'.
+
+            Supported values are 'none', 'nearest', 'bilinear', 'bicubic',
             'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser',
             'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
-            'lanczos'
+            'lanczos'.
 
-            If `interpolation` is None, default to rc `image.interpolation`.
-            See also the `filternorm` and `filterrad` parameters.
-            If `interpolation` is 'none', then no interpolation is performed
+            If *interpolation* is 'none', then no interpolation is performed
             on the Agg, ps and pdf backends. Other backends will fall back to
             'nearest'.
 
-        norm : `~matplotlib.colors.Normalize`, optional, default: None
-            A `~matplotlib.colors.Normalize` instance is used to scale
-            a 2-D float `X` input to the (0, 1) range for input to the
-            `cmap`. If `norm` is None, use the default func:`normalize`.
-            If `norm` is an instance of `~matplotlib.colors.NoNorm`,
-            `X` must be an array of integers that index directly into
-            the lookup table of the `cmap`.
+            See
+            :doc:`/gallery/images_contours_and_fields/interpolation_methods`
+            for an overview of the supported interpolation methods.
 
-        vmin, vmax : scalar, optional, default: None
-            `vmin` and `vmax` are used in conjunction with norm to normalize
-            luminance data.  Note if you pass a `norm` instance, your
-            settings for `vmin` and `vmax` will be ignored.
+            Some interpolation methods require an additional radius parameter,
+            which can be set by *filterrad*. Additionally, the antigrain image
+            resize filter is controlled by the parameter *filternorm*.
 
-        alpha : scalar, optional, default: None
+        norm : `~matplotlib.colors.Normalize`, optional
+            If scalar data are used, the Normalize instance scales the
+            data values to the canonical colormap range [0,1] for mapping
+            to colors. By default, the data range is mapped to the
+            colorbar range using linear scaling. This parameter is ignored for
+            RGB(A) data.
+
+        vmin, vmax : scalar, optional
+            When using scalar data and no explicit *norm*, *vmin* and *vmax*
+            define the data range that the colormap covers. By default,
+            the colormap covers the complete value range of the supplied
+            data. *vmin*, *vmax* are ignored if the *norm* parameter is used.
+
+        alpha : scalar, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
-            The ``alpha`` argument is ignored for RGBA input data.
+            This parameter is ignored for RGBA input data.
 
-        origin : ['upper' | 'lower'], optional, default: None
+        origin : {'upper', 'lower'}, optional
             Place the [0,0] index of the array in the upper left or lower left
-            corner of the axes. If None, default to rc `image.origin`.
+            corner of the axes. The convention 'upper' is typically used for
+            matrices and images.
+            If not given, :rc:`image.origin` is used, defaulting to 'upper'.
 
-        extent : scalars (left, right, bottom, top), optional, default: None
-            The location, in data-coordinates, of the lower-left and
-            upper-right corners. If `None`, the image is positioned such that
-            the pixel centers fall on zero-based (row, column) indices.
+            Note that the vertical axes points upward for 'lower'
+            but downward for 'upper'.
+
+        extent : scalars (left, right, bottom, top), optional
+            The bounding box in data coordinates that the image will fill.
+            The image is stretched individually along x and y to fill the box.
+
+            The default extent is determined by the following conditions.
+            Pixels have unit size in data coordinates. Their centers are on
+            integer coordinates, and their center coordinates range from 0 to
+            columns-1 horizontally and from 0 to rows-1 vertically.
+
+            Note that the direction of the vertical axis and thus the default
+            values for top and bottom depend on *origin*:
+
+            - For ``origin == 'upper'`` the default is
+              ``(-0.5, numcols-0.5, numrows-0.5, -0.5)``.
+            - For ``origin == 'lower'`` the default is
+              ``(-0.5, numcols-0.5, -0.5, numrows-0.5)``.
+
+            See the example :doc:`/tutorials/intermediate/imshow_extent` for a
+            more detailed description.
 
         shape : scalars (columns, rows), optional, default: None
-            For raw buffer images
+            For raw buffer images.
 
         filternorm : bool, optional, default: True
             A parameter for the antigrain image resize filter (see the
@@ -5088,9 +5123,16 @@ class Axes(_AxesBase):
             that any sum of pixel weights must be equal to 1.0.  So, the
             filter function must produce a graph of the proper shape.
 
-        filterrad : scalar, optional, default: 4.0
+        filterrad : float > 0, optional, default: 4.0
             The filter radius for filters that have a radius parameter, i.e.
-            when interpolation is one of: 'sinc', 'lanczos' or 'blackman'
+            when interpolation is one of: 'sinc', 'lanczos' or 'blackman'.
+
+        resample : bool, optional
+            When *True*, use a full resampling method.  When *False*, only
+            resample when the output image is larger than the input image.
+
+        url : str, optional
+            Set the url of the created `.AxesImage`. See `.Artist.set_url`.
 
         Returns
         -------
@@ -5098,7 +5140,9 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.artist.Artist` properties.
+        **kwargs : `~matplotlib.artist.Artist` properties
+            These parameters are passed on to the constructor of the
+            `.AxesImage` artist.
 
         See also
         --------
@@ -5110,7 +5154,7 @@ class Axes(_AxesBase):
         coordinates. In other words: the origin will coincide with the center
         of pixel (0, 0).
 
-        Two typical representations are used for RGB images with an alpha
+        There are two common representations for RGB images with an alpha
         channel:
 
         -   Straight (unassociated) alpha: R, G, and B channels represent the
@@ -5136,8 +5180,6 @@ class Axes(_AxesBase):
         if im.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
-        #if norm is None and shape is None:
-        #    im.set_clim(vmin, vmax)
         if vmin is not None or vmax is not None:
             im.set_clim(vmin, vmax)
         else:
@@ -7287,7 +7329,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        Z : array-like(N, M)
+        Z : array-like(M, N)
             The matrix to be displayed.
 
         Returns

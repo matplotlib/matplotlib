@@ -4,6 +4,7 @@ import errno
 import logging
 import math
 import os
+import pathlib
 import re
 import shutil
 import subprocess
@@ -13,7 +14,7 @@ import warnings
 import weakref
 
 import matplotlib as mpl
-from matplotlib import _png, rcParams, __version__
+from matplotlib import _png, cbook, font_manager as fm, __version__, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -28,33 +29,13 @@ _log = logging.getLogger(__name__)
 
 ###############################################################################
 
-# create a list of system fonts, all of these should work with xe/lua-latex
-system_fonts = []
-if sys.platform == 'win32':
-    from matplotlib import font_manager
-    for f in font_manager.win32InstalledFonts():
-        try:
-            system_fonts.append(font_manager.get_font(str(f)).family_name)
-        except:
-            pass # unknown error, skip this font
-else:
-    # assuming fontconfig is installed and the command 'fc-list' exists
-    try:
-        # list scalable (non-bitmap) fonts
-        fc_list = subprocess.check_output(
-            ['fc-list', ':outline,scalable', 'family'])
-        fc_list = fc_list.decode('utf8')
-        system_fonts = [f.split(',')[0] for f in fc_list.splitlines()]
-        system_fonts = list(set(system_fonts))
-    except:
-        warnings.warn('error getting fonts from fc-list', UserWarning)
-
 
 _luatex_version_re = re.compile(
     r'This is LuaTeX, Version (?:beta-)?([0-9]+)\.([0-9]+)\.([0-9]+)'
 )
 
 
+@cbook.deprecated("3.0")
 def get_texcommand():
     """Get chosen TeX system from rc."""
     texsystem_options = ["xelatex", "lualatex", "pdflatex"]
@@ -77,23 +58,20 @@ def _parse_lualatex_version(output):
 def get_fontspec():
     """Build fontspec preamble from rc."""
     latex_fontspec = []
-    texcommand = get_texcommand()
+    texcommand = rcParams["pgf.texsystem"]
 
     if texcommand != "pdflatex":
         latex_fontspec.append("\\usepackage{fontspec}")
 
     if texcommand != "pdflatex" and rcParams["pgf.rcfonts"]:
-        # try to find fonts from rc parameters
-        families = ["serif", "sans-serif", "monospace"]
-        fontspecs = [r"\setmainfont{%s}", r"\setsansfont{%s}",
-                     r"\setmonofont{%s}"]
-        for family, fontspec in zip(families, fontspecs):
-            matches = [f for f in rcParams["font." + family]
-                       if f in system_fonts]
-            if matches:
-                latex_fontspec.append(fontspec % matches[0])
-            else:
-                pass  # no fonts found, fallback to LaTeX defaule
+        families = ["serif", "sans\\-serif", "monospace"]
+        commands = ["setmainfont", "setsansfont", "setmonofont"]
+        for family, command in zip(families, commands):
+            # 1) Forward slashes also work on Windows, so don't mess with
+            # backslashes.  2) The dirname needs to include a separator.
+            path = pathlib.Path(fm.findfont(family))
+            latex_fontspec.append(r"\%s{%s}[Path=%s]" % (
+                command, path.name, path.parent.as_posix() + "/"))
 
     return "\n".join(latex_fontspec)
 
@@ -163,7 +141,8 @@ def _font_properties_str(prop):
     family = prop.get_family()[0]
     if family in families:
         commands.append(families[family])
-    elif family in system_fonts and get_texcommand() != "pdflatex":
+    elif (any(font.name == family for font in fm.fontManager.ttflist)
+          and rcParams["pgf.texsystem"] != "pdflatex"):
         commands.append(r"\setmainfont{%s}\rmfamily" % family)
     else:
         pass  # print warning?
@@ -232,7 +211,7 @@ class LatexManagerFactory:
 
     @staticmethod
     def get_latex_manager():
-        texcommand = get_texcommand()
+        texcommand = rcParams["pgf.texsystem"]
         latex_header = LatexManager._build_latex_header()
         prev = LatexManagerFactory.previous_instance
 
@@ -307,7 +286,7 @@ class LatexManager:
         LatexManager._unclean_instances.add(self)
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
-        self.texcommand = get_texcommand()
+        self.texcommand = rcParams["pgf.texsystem"]
         self.latex_header = LatexManager._build_latex_header()
         latex_end = "\n\\makeatletter\n\\@@end\n"
         try:
@@ -909,7 +888,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             with codecs.open(fname_tex, "w", "utf-8") as fh_tex:
                 fh_tex.write(latexcode)
 
-            texcommand = get_texcommand()
+            texcommand = rcParams["pgf.texsystem"]
             cmdargs = [texcommand, "-interaction=nonstopmode",
                        "-halt-on-error", "figure.tex"]
             try:
@@ -1140,9 +1119,9 @@ class PdfPages:
             open(self._outputfile, 'wb').close()
 
     def _run_latex(self):
-        texcommand = get_texcommand()
+        texcommand = rcParams["pgf.texsystem"]
         cmdargs = [
-            str(texcommand),
+            texcommand,
             "-interaction=nonstopmode",
             "-halt-on-error",
             os.path.basename(self._fname_tex),
@@ -1204,12 +1183,11 @@ class PdfPages:
         so we need to check the lualatex version and use `\pagewidth` if
         the version is 0.85 or newer
         '''
-        texcommand = get_texcommand()
+        texcommand = rcParams["pgf.texsystem"]
         if texcommand == 'lualatex' and _get_lualatex_version() >= (0, 85, 0):
             cmd = r'\page'
         else:
             cmd = r'\pdfpage'
-
         newpage = r'\newpage{cmd}width={w}in,{cmd}height={h}in%' + '\n'
         return newpage.format(cmd=cmd, w=width, h=height).encode('utf-8')
 

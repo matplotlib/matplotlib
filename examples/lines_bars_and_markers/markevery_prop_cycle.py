@@ -55,7 +55,7 @@ ax = fig.add_axes([0.1, 0.1, 0.6, 0.75])
 
 for i in range(len(cases)):
     ax.plot(yy[:, i], marker='o', label=str(cases[i]))
-    ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
 plt.title('Support for axes.prop_cycle cycler with markevery')
 

@@ -26,3 +26,19 @@ ax.plot(0.5 * theta, r, color='blue', ls='--', lw=3, label='another line')
 ax.legend()
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.plot
+matplotlib.axes.Axes.legend
+matplotlib.projections.polar
+matplotlib.projections.polar.PolarAxes

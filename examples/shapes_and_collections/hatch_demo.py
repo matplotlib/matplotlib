@@ -33,3 +33,22 @@ ax3.set_xlim((0, 6))
 ax3.set_ylim((0, 2.5))
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.patches
+matplotlib.patches.Ellipse
+matplotlib.patches.Polygon
+matplotlib.axes.Axes.add_patch
+matplotlib.patches.Patch.set_hatch
+matplotlib.axes.Axes.bar
+matplotlib.pyplot.bar

@@ -1,3 +1,4 @@
+import functools
 import warnings
 
 from matplotlib import docstring
@@ -87,18 +88,13 @@ class SubplotBase(object):
                     pos=True, subplot=True, artist=self)
 
     def __reduce__(self):
-        # get the first axes class which does not
-        # inherit from a subplotbase
-
-        def not_subplotbase(c):
-            return issubclass(c, Axes) and not issubclass(c, SubplotBase)
-
-        axes_class = [c for c in self.__class__.mro()
-                      if not_subplotbase(c)][0]
-        r = [_PicklableSubplotClassConstructor(),
-             (axes_class,),
-             self.__getstate__()]
-        return tuple(r)
+        # get the first axes class which does not inherit from a subplotbase
+        axes_class = next(
+            c for c in type(self).__mro__
+            if issubclass(c, Axes) and not issubclass(c, SubplotBase))
+        return (_picklable_subplot_class_constructor,
+                (axes_class,),
+                self.__getstate__())
 
     def get_geometry(self):
         """get the subplot geometry, e.g., 2,2,3"""
@@ -188,9 +184,8 @@ class SubplotBase(object):
         self._twinned_axes.join(self, ax2)
         return ax2
 
-_subplot_classes = {}
 
-
+@functools.lru_cache(None)
 def subplot_class_factory(axes_class=None):
     # This makes a new class that inherits from SubplotBase and the
     # given axes_class (which is assumed to be a subclass of Axes).
@@ -199,62 +194,23 @@ def subplot_class_factory(axes_class=None):
     # not have to be created for every type of Axes.
     if axes_class is None:
         axes_class = Axes
+    return type("%sSubplot" % axes_class.__name__,
+                (SubplotBase, axes_class),
+                {'_axes_class': axes_class})
 
-    new_class = _subplot_classes.get(axes_class)
-    if new_class is None:
-        new_class = type(str("%sSubplot") % (axes_class.__name__),
-                         (SubplotBase, axes_class),
-                         {'_axes_class': axes_class})
-        _subplot_classes[axes_class] = new_class
-
-    return new_class
 
 # This is provided for backward compatibility
 Subplot = subplot_class_factory()
 
 
-class _PicklableSubplotClassConstructor(object):
+def _picklable_subplot_class_constructor(axes_class):
     """
-    This stub class exists to return the appropriate subplot
-    class when __call__-ed with an axes class. This is purely to
-    allow Pickling of Axes and Subplots.
+    This stub class exists to return the appropriate subplot class when called
+    with an axes class. This is purely to allow pickling of Axes and Subplots.
     """
-    def __call__(self, axes_class):
-        # create a dummy object instance
-        subplot_instance = _PicklableSubplotClassConstructor()
-        subplot_class = subplot_class_factory(axes_class)
-        # update the class to the desired subplot class
-        subplot_instance.__class__ = subplot_class
-        return subplot_instance
+    subplot_class = subplot_class_factory(axes_class)
+    return subplot_class.__new__(subplot_class)
 
 
 docstring.interpd.update(Axes=martist.kwdoc(Axes))
 docstring.interpd.update(Subplot=martist.kwdoc(Axes))
-
-"""
-# this is some discarded code I was using to find the minimum positive
-# data point for some log scaling fixes.  I realized there was a
-# cleaner way to do it, but am keeping this around as an example for
-# how to get the data out of the axes.  Might want to make something
-# like this a method one day, or better yet make get_verts an Artist
-# method
-
-            minx, maxx = self.get_xlim()
-            if minx<=0 or maxx<=0:
-                # find the min pos value in the data
-                xs = []
-                for line in self.lines:
-                    xs.extend(line.get_xdata(orig=False))
-                for patch in self.patches:
-                    xs.extend([x for x,y in patch.get_verts()])
-                for collection in self.collections:
-                    xs.extend([x for x,y in collection.get_verts()])
-                posx = [x for x in xs if x>0]
-                if len(posx):
-
-                    minx = min(posx)
-                    maxx = max(posx)
-                    # warning, probably breaks inverted axis
-                    self.set_xlim((0.1*minx, maxx))
-
-"""

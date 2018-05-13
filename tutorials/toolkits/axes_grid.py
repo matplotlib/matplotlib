@@ -341,7 +341,7 @@ of the parent axes. For example,::
     inset_axes = inset_axes(parent_axes,
                             width="30%", # width = 30% of parent_bbox
                             height=1., # height : 1 inch
-                            loc=3)
+                            loc='lower left')
 
 creates an inset axes whose width is 30% of the parent axes and whose
 height is fixed at 1 inch.
@@ -352,7 +352,7 @@ some factor. For example, ::
 
     inset_axes = zoomed_inset_axes(ax,
                                    0.5, # zoom = 0.5
-                                   loc=1)
+                                   loc='upper right')
 
 creates an inset axes whose data scale is half of the parent axes.
 Here is complete examples.

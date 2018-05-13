@@ -383,7 +383,7 @@ def _add_inset_axes(parent_axes, inset_axes):
 
 
 @docstring.dedent_interpd
-def inset_axes(parent_axes, width, height, loc=1,
+def inset_axes(parent_axes, width, height, loc='upper right',
                bbox_to_anchor=None, bbox_transform=None,
                axes_class=None,
                axes_kwargs=None,
@@ -470,7 +470,7 @@ def inset_axes(parent_axes, width, height, loc=1,
 
 
 @docstring.dedent_interpd
-def zoomed_inset_axes(parent_axes, zoom, loc=1,
+def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       bbox_to_anchor=None, bbox_transform=None,
                       axes_class=None,
                       axes_kwargs=None,
