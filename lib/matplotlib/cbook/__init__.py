@@ -1925,7 +1925,12 @@ def _lock_path(path):
         except FileExistsError:
             time.sleep(sleeptime)
     else:
-        raise TimeoutError(_lockstr.format(lock_path))
+        raise TimeoutError("""\
+Lock error: Matplotlib failed to acquire the following lock file:
+    {}
+This maybe due to another process holding this lock file.  If you are sure no
+other Matplotlib process is running, remove this file and try again.""".format(
+            lock_path))
     try:
         yield
     finally:
