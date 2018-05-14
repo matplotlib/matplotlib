@@ -7,9 +7,6 @@ setup.cfg.template for more information.
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
 import sys
-from setuptools import setup
-from setuptools.command.test import test as TestCommand
-from setuptools.command.build_ext import build_ext as BuildExtCommand
 
 if sys.version_info < (3, 6):
     error = """
@@ -20,6 +17,18 @@ This may be due to an out of date pip.
 Make sure you have pip >= 9.0.1.
 """
     sys.exit(error)
+
+from io import BytesIO
+import os
+from string import Template
+import urllib.request
+from zipfile import ZipFile
+
+from setuptools import setup
+from setuptools.command.build_ext import build_ext as BuildExtCommand
+from setuptools.command.develop import develop as DevelopCommand
+from setuptools.command.install_lib import install_lib as InstallLibCommand
+from setuptools.command.test import test as TestCommand
 
 # The setuptools version of sdist adds a setup.cfg file to the tree.
 # We don't want that, so we simply remove it, and it will fall back to
@@ -106,6 +115,53 @@ class BuildExtraLibraries(BuildExtCommand):
 cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
 cmdclass['build_ext'] = BuildExtraLibraries
+
+
+def _download_jquery_to(dest):
+    # Note: When bumping the jquery-ui version, also update the versions in
+    # single_figure.html and all_figures.html.
+    url = "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip"
+    if not os.path.exists(os.path.join(dest, "jquery-ui-1.12.1")):
+        try:
+            os.makedirs(dest)
+        except OSError:
+            pass
+        print("DOWNLOADING JQUERY TO {}".format(dest))
+        # jQueryUI's website blocks direct downloads from urllib.request's
+        # default User-Agent, but not (for example) wget; so I don't feel too
+        # bad passing in an empty User-Agent.
+        with urllib.request.urlopen(
+                urllib.request.Request(url, headers={"User-Agent": ""})) \
+                as req:
+            ZipFile(BytesIO(req.read())).extractall(dest)
+
+
+# Relying on versioneer's implementation detail.
+class sdist_with_jquery(cmdclass['sdist']):
+    def make_release_tree(self, base_dir, files):
+        super(sdist_with_jquery, self).make_release_tree(base_dir, files)
+        _download_jquery_to(
+            os.path.join(base_dir, "lib/matplotlib/backends/web_backend/"))
+
+
+# Affects install and bdist_wheel.
+class install_lib_with_jquery(InstallLibCommand):
+    def run(self):
+        super(install_lib_with_jquery, self).run()
+        _download_jquery_to(
+            os.path.join(self.install_dir, "matplotlib/backends/web_backend/"))
+
+
+class develop_with_jquery(DevelopCommand):
+    def run(self):
+        super(develop_with_jquery, self).run()
+        _download_jquery_to("lib/matplotlib/backends/web_backend/")
+
+
+cmdclass['sdist'] = sdist_with_jquery
+cmdclass['install_lib'] = install_lib_with_jquery
+cmdclass['develop'] = develop_with_jquery
+
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses

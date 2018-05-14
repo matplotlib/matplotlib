@@ -95,3 +95,8 @@ lib/z.lib
 #################
 
 .ipynb_checkpoints/
+
+# Vendored dependencies #
+#########################
+
+jquery-ui-*/
