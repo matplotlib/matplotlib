@@ -90,19 +90,6 @@ lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
 
 
-def get_win32_compiler():
-    """
-    Determine the compiler being used on win32.
-    """
-    # Used to determine mingw32 or msvc
-    # This is pretty bad logic, someone know a better way?
-    for v in sys.argv:
-        if 'mingw32' in v:
-            return 'mingw32'
-    return 'msvc'
-win32_compiler = get_win32_compiler()
-
-
 def extract_versions():
     """
     Extracts version values from the main matplotlib __init__.py and
@@ -110,23 +97,20 @@ def extract_versions():
     """
     with open('lib/matplotlib/__init__.py') as fd:
         for line in fd.readlines():
-            if (line.startswith('__version__numpy__')):
+            if line.startswith('__version__numpy__'):
                 exec(line.strip())
     return locals()
 
 
 def has_include_file(include_dirs, filename):
     """
-    Returns `True` if `filename` can be found in one of the
-    directories in `include_dirs`.
+    Returns `True` if *filename* can be found in one of the
+    directories in *include_dirs*.
     """
     if sys.platform == 'win32':
-        include_dirs = list(include_dirs)  # copy before modify
-        include_dirs += os.environ.get('INCLUDE', '.').split(os.pathsep)
-    for dir in include_dirs:
-        if os.path.exists(os.path.join(dir, filename)):
-            return True
-    return False
+        include_dirs = [*include_dirs,  # Don't modify it in-place.
+                        *os.environ.get('INCLUDE', '.').split(os.pathsep)]
+    return any(pathlib.Path(dir, filename).exists() for dir in include_dirs)
 
 
 def check_include_file(include_dirs, filename, package):
@@ -150,7 +134,7 @@ def get_base_dirs():
     if os.environ.get('MPLBASEDIRLIST'):
         return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
 
-    win_bases = ['win32_static', ]
+    win_bases = ['win32_static']
     # on conda windows, we also add the <conda_env_dir>\Library,
     # as conda installs libs/includes there
     # env var names mess: https://github.com/conda/conda/issues/2312
