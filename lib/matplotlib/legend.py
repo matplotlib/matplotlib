@@ -543,10 +543,9 @@ class Legend(Artist):
 
         self._loc = loc
         # figure out title fontsize:
-        if title_fontsize is not None:
-            tprop = FontProperties(size=title_fontsize)
-        else:
-            tprop = None
+        if title_fontsize is None:
+            title_fontsize = rcParams['legend.title_fontsize']
+        tprop = FontProperties(size=title_fontsize)
         self.set_title(title, prop=tprop)
         self._last_fontsize_points = self._fontsize
         self._draggable = None
