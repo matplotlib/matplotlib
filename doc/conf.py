@@ -9,7 +9,6 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-from glob import glob
 import os
 import shutil
 import sys
@@ -72,8 +71,10 @@ def _check_deps():
 _check_deps()
 
 # Import only after checking for dependencies.
-from sphinx_gallery.sorting import ExplicitOrder
-# This is only necessary to monkey patch the signature later on.
+# gallery_order.py from the sphinxext folder provides the classes that
+# allow custom ordering of sections and subsections of the gallery
+import sphinxext.gallery_order as gallery_order
+# The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
 
 if shutil.which('dot') is None:
@@ -94,27 +95,7 @@ intersphinx_mapping = {
     'cycler': ('https://matplotlib.org/cycler', None),
 }
 
-explicit_order_folders = [
-                          '../examples/api',
-                          '../examples/pyplots',
-                          '../examples/subplots_axes_and_figures',
-                          '../examples/color',
-                          '../examples/statistics',
-                          '../examples/lines_bars_and_markers',
-                          '../examples/images_contours_and_fields',
-                          '../examples/shapes_and_collections',
-                          '../examples/text_labels_and_annotations',
-                          '../examples/pie_and_polar_charts',
-                          '../examples/style_sheets',
-                          '../examples/axes_grid',
-                          '../examples/showcase',
-                          '../tutorials/introductory',
-                          '../tutorials/intermediate',
-                          '../tutorials/advanced']
-for folder in sorted(glob('../examples/*') + glob('../tutorials/*')):
-    if not os.path.isdir(folder) or folder in explicit_order_folders:
-        continue
-    explicit_order_folders.append(folder)
+
 
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
@@ -128,7 +109,8 @@ sphinx_gallery_conf = {
         'scipy': 'https://docs.scipy.org/doc/scipy/reference',
     },
     'backreferences_dir': 'api/_as_gen',
-    'subsection_order': ExplicitOrder(explicit_order_folders),
+    'subsection_order': gallery_order.sectionorder,
+    'within_subsection_order': gallery_order.subsectionorder,
     'min_reported_time': 1,
 }
 
