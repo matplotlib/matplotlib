@@ -463,7 +463,8 @@ def test_if_rctemplate_is_up_to_date():
             continue
         if k in deprecated:
             continue
-        if k.startswith(("verbose.", "examples.directory")):
+        if k.startswith(
+                ("verbose.", "examples.directory", "text.latex.unicode")):
             continue
         found = False
         for line in rclines:

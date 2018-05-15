@@ -820,7 +820,9 @@ _deprecated_remain_as_none = {
     'axes.hold': ('2.1',),
     'backend.qt4': ('2.2',),
     'backend.qt5': ('2.2',),
+    'text.latex.unicde': ('3.0',),
 }
+
 
 _all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
 

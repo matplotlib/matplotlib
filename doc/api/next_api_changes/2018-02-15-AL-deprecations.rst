@@ -44,6 +44,7 @@ The following classes, methods, functions, and attributes are deprecated:
 The following rcParams are deprecated:
 - ``examples.directory`` (use ``datapath`` instead),
 - ``pgf.debug`` (the pgf backend relies on logging),
+- ``text.latex.unicode``,
 
 The following keyword arguments are deprecated:
 - passing ``verts`` to ``Axes.scatter`` (use ``marker`` instead),
