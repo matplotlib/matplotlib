@@ -64,7 +64,6 @@ def {name}():
     image if there is one. See ``help(colormaps)`` for more information.
     """
     set_cmap("{name}")
-
 '''
 
 
