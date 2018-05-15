@@ -140,7 +140,8 @@ import warnings
 # definitions, so it is safe to import from it here.
 from . import cbook
 from matplotlib.cbook import (
-    mplDeprecation, dedent, get_label, sanitize_sequence)
+    MatplotlibDeprecationWarning, dedent, get_label, sanitize_sequence)
+from matplotlib.cbook import mplDeprecation  # deprecated
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
 import numpy
@@ -1092,7 +1093,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
 
     iter_params = defaultParams.items()
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore", mplDeprecation)
+        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
         config = RcParams([(key, default) for key, (default, _) in iter_params
                            if key not in _all_deprecated])
     config.update(config_from_file)
@@ -1133,7 +1134,7 @@ if rcParams['examples.directory']:
 rcParamsOrig = rcParams.copy()
 
 with warnings.catch_warnings():
-    warnings.simplefilter("ignore", mplDeprecation)
+    warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                                 defaultParams.items()
                                 if key not in _all_deprecated])

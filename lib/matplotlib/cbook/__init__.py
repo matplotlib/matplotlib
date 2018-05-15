@@ -31,8 +31,8 @@ from weakref import ref, WeakKeyDictionary
 import numpy as np
 
 import matplotlib
-from .deprecation import deprecated, warn_deprecated
-from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
+from .deprecation import (
+    mplDeprecation, deprecated, warn_deprecated, MatplotlibDeprecationWarning)
 
 
 @deprecated("3.0")

@@ -1,0 +1,7 @@
+``matplotlib.cbook.deprecation.mplDeprecation`` is deprecated
+-------------------------------------------------------------
+
+:class:`matplotlib.cbook.deprecation.mplDeprecation` will be removed in
+future versions. It is just an alias for
+:class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
+Please use the :class:`~.MatplotlibDeprecationWarning` directly if neccessary.

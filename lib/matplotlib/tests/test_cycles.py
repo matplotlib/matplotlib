@@ -1,7 +1,6 @@
 import warnings
 
 from matplotlib.testing.decorators import image_comparison
-from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest

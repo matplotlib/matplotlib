@@ -2276,9 +2276,9 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     if plotfuncs is None:
         plotfuncs = dict()
-    from matplotlib.cbook import mplDeprecation
+    from matplotlib.cbook import MatplotlibDeprecationWarning
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore', mplDeprecation)
+        warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
         r = mlab.csv2rec(fname, comments=comments, skiprows=skiprows,
                          checkrows=checkrows, delimiter=delimiter, names=names)
 
