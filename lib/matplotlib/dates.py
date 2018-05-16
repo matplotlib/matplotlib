@@ -132,6 +132,9 @@ Here all all the date formatters:
 
     * :class:`DateFormatter`: use :func:`strftime` format strings
 
+    * :class:`IsoDateFormatter`: like :class:`DateFormatter`,
+      but use :meth:`datetime.datetime.isoformat`.
+
     * :class:`IndexDateFormatter`: date plots with implicit *x*
       indexing.
 """
@@ -160,7 +163,7 @@ import matplotlib.ticker as ticker
 _log = logging.getLogger(__name__)
 
 __all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
-           'num2epoch', 'mx2num', 'DateFormatter',
+           'num2epoch', 'mx2num', 'DateFormatter', 'IsoDateFormatter',
            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
            'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
@@ -594,6 +597,65 @@ def drange(dstart, dend, delta):
     return np.linspace(f1, f2, num + 1)
 
 ### date tickers and formatters ###
+
+
+class IsoDateFormatter(ticker.Formatter):
+    """
+    Use ISO 8601 format for tick format.
+    """
+
+    def __init__(self, fmt=None, tz=None, show_only=None):
+        """
+        *tz* is the :class:`tzinfo` instance.
+        *fmt* is ignored and kept for compatibility with `DateFormatter`.
+        """
+        if show_only is not None:
+            if show_only not in ['date', 'time']:
+                raise ValueError('show_only can only be "date", "time", or'
+                                 'None.')
+            if show_only:
+                self.fmt = show_only
+        if tz is None:
+            tz = _get_rc_timezone()
+        self.tz = tz
+
+    def __call__(self, x, pos=0):
+        if x == 0:
+            raise ValueError('IsoDateFormatter found a value of x=0, which is '
+                             'an illegal date.  This usually occurs because '
+                             'you have not informed the axis that it is '
+                             'plotting dates, e.g., with ax.xaxis_date()')
+        dt = num2date(x, self.tz)
+        return self.isoformat(dt)
+
+    def set_tzinfo(self, tz):
+        self.tz = tz
+
+    def isoformat(self, dt):
+        """
+        Return the isoformat() of a datetime object.
+        Refer to documentation for :meth:`datetime.datetime.isoformat`
+        """
+        # no special treatment for years before 1900 because isoformat appears
+        # to "just work" for datetimes before 1900.
+
+        if self.fmt == "date":
+            to_print = dt.date()
+        elif self.fmt == "time":
+            to_print = dt.time()
+        else:
+            to_print = dt
+
+        return cbook.unicode_safe(to_print.isoformat())
+
+    def strftime(self, dt, fmt=None):
+        """
+        Print isoformat of datetime object
+        (for compatibility with `DateFormatter` interface)
+
+        *fmt* argument is ignored.
+        """
+        return self.isoformat(dt)
 
 
 class DateFormatter(ticker.Formatter):
