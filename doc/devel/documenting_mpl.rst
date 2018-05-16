@@ -42,12 +42,12 @@ using the Sphinx_ documentation generation tool. There are several extra
 requirements that are needed to build the documentation. They are listed in
 :file:`doc-requirements.txt` and listed below:
 
-* Sphinx>=1.3, !=1.5.0, !=1.6.4
+* Sphinx>=1.3, !=1.5.0, !=1.6.4, !=1.7.3
 * colorspacious
 * IPython
 * numpydoc>=0.4
 * Pillow
-* sphinx-gallery>=0.1.12
+* sphinx-gallery>=0.1.13
 * graphviz
 
 .. note::
@@ -679,6 +679,28 @@ are delimited by a line of `###` characters:
     ax.plot(np.sin(range(50)))
 
 In this way text, code, and figures are output in a "notebook" style.
+
+Order of examples in the gallery
+--------------------------------
+
+The order of the sections of the :ref:`tutorials` and the :ref:`gallery`, as
+well as the order of the examples within each section are determined in a
+two step process from within the :file:`/doc/sphinxext/gallery_order.py`:
+
+* *Explicit order*: This file contains a list of folders for the section order
+  and a list of examples for the subsection order. The order of the items
+  shown in the doc pages is the order those items appear in those lists.
+* *Implicit order*: If a folder or example is not in those lists, it will be
+  appended after the explicitely ordered items and all of those additional
+  items will be ordered by pathname (for the sections) or by filename
+  (for the subsections).
+
+As a consequence, if you want to let your example appear in a certain
+position in the gallery, extend those lists with your example.
+In case no explicit order is desired or necessary, still make sure
+to name your example consistently, i.e. use the main function or subject
+of the example as first word in the filename; e.g. an image example
+should ideally be named similar to :file:`imshow_mynewexample.py`.
 
 Miscellaneous
 =============
