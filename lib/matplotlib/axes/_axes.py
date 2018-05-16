@@ -2085,6 +2085,28 @@ class Axes(_AxesBase):
             tick_labels = np.broadcast_to(tick_labels, len(patches))
             tick_label_axis.set_ticks(tick_label_position)
             tick_label_axis.set_ticklabels(tick_labels)
+            if orientation == 'vertical':
+                edges = [(r.get_x(), r.get_width()) for r in patches]
+            else:
+                edges = [(r.get_y(), r.get_height()) for r in patches]
+            edges = [(start, start+extent) for start, extent in edges]
+            lower_edge, upper_edge = [np.array(v) for v in zip(*edges)]
+
+            def format_cursor(v):
+                low = np.searchsorted(lower_edge, v)
+                high = np.searchsorted(upper_edge, v)
+                if high + 1 == low:
+                    return tick_labels[high]
+                # raise TypeError to fall back to default
+                # behavior in format_xdata / format_ydata
+                raise TypeError
+
+            if orientation == 'horizontal':
+                if self.fmt_ydata is None:
+                    self.fmt_ydata = format_cursor
+            else:
+                if self.fmt_xdata is None:
+                    self.fmt_xdata = format_cursor
 
         return bar_container
 
