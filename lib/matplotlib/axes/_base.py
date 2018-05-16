@@ -1650,7 +1650,7 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_ylim
         """
 
-        if len(v) == 0 and len(kwargs) == 0:
+        if len(v) == len(kwargs) == 0:
             xmin, xmax = self.get_xlim()
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax

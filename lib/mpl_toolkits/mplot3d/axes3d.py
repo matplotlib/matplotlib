@@ -525,9 +525,9 @@ class Axes3D(Axes):
         # of data and decides how to scale the view portal to fit it.
         if tight is None:
             # if image data only just use the datalim
-            _tight = self._tight or (len(self.images)>0 and
-                                     len(self.lines)==0 and
-                                     len(self.patches)==0)
+            _tight = self._tight or (
+                len(self.images) > 0
+                and len(self.lines) == len(self.patches) == 0)
         else:
             _tight = self._tight = bool(tight)
 

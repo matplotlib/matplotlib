@@ -137,7 +137,7 @@ class Triangulation(object):
             # Check triangles in kwargs then args.
             triangles = kwargs.pop('triangles', None)
             from_args = False
-            if triangles is None and len(args) > 0:
+            if triangles is None and args:
                 triangles = args[0]
                 from_args = True
 

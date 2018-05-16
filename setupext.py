@@ -251,7 +251,7 @@ def get_file_hash(filename):
     hasher = hashlib.sha256()
     with open(filename, 'rb') as fd:
         buf = fd.read(BLOCKSIZE)
-        while len(buf) > 0:
+        while buf:
             hasher.update(buf)
             buf = fd.read(BLOCKSIZE)
     return hasher.hexdigest()
@@ -268,11 +268,7 @@ class PkgConfig(object):
         if sys.platform == 'win32':
             self.has_pkgconfig = False
         else:
-            try:
-                self.pkg_config = os.environ['PKG_CONFIG']
-            except KeyError:
-                self.pkg_config = 'pkg-config'
-
+            self.pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
             self.set_pkgconfig_path()
             self.has_pkgconfig = shutil.which(self.pkg_config) is not None
             if not self.has_pkgconfig:

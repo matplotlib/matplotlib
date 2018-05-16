@@ -248,7 +248,7 @@ def to_rgba_array(c, alpha=None):
     # Note that this occurs *after* handling inputs that are already arrays, as
     # `to_rgba(c, alpha)` (below) is expensive for such inputs, due to the need
     # to format the array in the ValueError message(!).
-    if isinstance(c, str) and c.lower() == "none":
+    if cbook._str_lower_equal(c, "none"):
         return np.zeros((0, 4), float)
     try:
         return np.array([to_rgba(c, alpha)], float)

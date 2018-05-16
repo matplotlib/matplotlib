@@ -855,8 +855,7 @@ class ColorbarBase(cm.ScalarMappable):
         if isinstance(frac, str):
             if frac.lower() == 'auto':
                 # Use the provided values when 'auto' is required.
-                extendlength[0] = automin
-                extendlength[1] = automax
+                extendlength[:] = [automin, automax]
             else:
                 # Any other string is invalid.
                 raise ValueError('invalid value for extendfrac')
