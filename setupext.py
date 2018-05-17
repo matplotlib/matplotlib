@@ -14,6 +14,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import textwrap
 import urllib.request
 import warnings
@@ -1025,6 +1026,8 @@ class FreeType(SetupPackage):
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
+        from pathlib import Path
+
         # We're using a system freetype
         if not options.get('local_freetype'):
             return
@@ -1077,45 +1080,45 @@ class FreeType(SetupPackage):
                     tarball_url = url_fmt.format(
                         version=LOCAL_FREETYPE_VERSION, tarball=tarball)
 
-                    print("Downloading {0}".format(tarball_url))
+                    print("Downloading {}".format(tarball_url))
                     try:
                         urllib.request.urlretrieve(tarball_url, tarball_path)
                     except IOError:  # URLError (a subclass) on Py3.
-                        print("Failed to download {0}".format(tarball_url))
+                        print("Failed to download {}".format(tarball_url))
                     else:
                         if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
                             print("Invalid hash.")
                         else:
                             break
                 else:
-                    raise IOError("Failed to download freetype. "
-                                  "You can download the file by "
-                                  "alternative means and copy it "
-                                  " to '{0}'".format(tarball_path))
+                    raise IOError("Failed to download FreeType. You can "
+                                  "download the file by alternative means and "
+                                  "copy it to {}".format(tarball_path))
                 os.makedirs(tarball_cache_dir, exist_ok=True)
                 try:
                     shutil.copy(tarball_path, tarball_cache_path)
-                    print('Cached tarball at: {}'.format(tarball_cache_path))
+                    print('Cached tarball at {}'.format(tarball_cache_path))
                 except OSError:
                     # If this fails, we can always re-download.
                     pass
 
             if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
                 raise IOError(
-                    "{0} does not match expected hash.".format(tarball))
+                    "{} does not match expected hash.".format(tarball))
 
-        print("Building {0}".format(tarball))
+        print("Building {}".format(tarball))
+        with tarfile.open(tarball_path, "r:gz") as tgz:
+            tgz.extractall("build")
+
         if sys.platform != 'win32':
             # compilation on all other platforms than windows
-            cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
-
+            env={**os.environ,
+                 "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
             subprocess.check_call(
-                ['tar', 'zxf', tarball], cwd='build')
-            subprocess.check_call(
-                [cflags + './configure --with-zlib=no --with-bzip2=no '
-                 '--with-png=no --with-harfbuzz=no'], shell=True, cwd=src_path)
-            subprocess.check_call(
-                [cflags + 'make'], shell=True, cwd=src_path)
+                ["./configure", "--with-zlib=no", "--with-bzip2=no",
+                 "--with-png=no", "--with-harfbuzz=no"],
+                env=env, cwd=src_path)
+            subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
             FREETYPE_BUILD_CMD = """\
@@ -1134,11 +1137,10 @@ if errorlevel 1 (
   copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
 )
 """
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
+            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64
             # Note: freetype has no build profile for 2014, so we don't bother...
             vc = 'vc2010' if VS2010 else 'vc2008'
             WinXX = 'x64' if X64 else 'Win32'
-            tar_extract(tarball_path, "build")
             # This is only false for py2.7, even on py3.5...
             if not VS2010:
                 fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
