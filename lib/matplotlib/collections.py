@@ -1688,14 +1688,18 @@ class PatchCollection(Collection):
             kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
 
         Collection.__init__(self, **kwargs)
-
+        self._patches = patches
         self.set_paths(patches)
+
 
     def set_paths(self, patches):
         paths = [p.get_transform().transform_path(p.get_path())
                  for p in patches]
         self._paths = paths
-
+    #Override the set_visible function
+    def set_visible(self, bool):
+        for element in self._patches:
+            element.set_visible(bool)
 
 class TriMesh(Collection):
     """
