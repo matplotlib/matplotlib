@@ -23,7 +23,7 @@ An introduction to the pyplot interface.
 # the current figure and plotting area, and the plotting
 # functions are directed to the current axes (please note that "axes" here
 # and in most places in the documentation refers to the *axes*
-# `part of a figure <http://matplotlib.org/faq/usage_faq.html#parts-of-a-figure>`__
+# :ref:`part of a figure <figure_parts>`
 # and not the strict mathematical term for more than one axis).
 #
 # .. note::

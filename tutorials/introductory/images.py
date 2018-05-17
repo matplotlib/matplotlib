@@ -42,8 +42,8 @@ useful for quickly and easily experimenting with various plot
 settings.  The alternative is the object-oriented interface, which is also
 very powerful, and generally more suitable for large application
 development.  If you'd like to learn about the object-oriented
-interface, a great place to start is our `FAQ on usage
-<http://matplotlib.org/faq/usage_faq.html>`_.  For now, let's get on
+interface, a great place to start is our :doc:`Usage guide
+</tutorials/introductory/usage>`.  For now, let's get on
 with the imperative-style approach:
 """
 
