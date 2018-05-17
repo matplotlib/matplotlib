@@ -1593,6 +1593,7 @@ def get_bbox_header(lbrt, rotated=False):
 
 # get_bbox is deprecated. I don't see any reason to use ghostscript to
 # find the bounding box, as the required bounding box is alread known.
+@cbook.deprecated("3.0")
 def get_bbox(tmpfile, bbox):
     """
     Use ghostscript's bbox device to find the center of the bounding box.

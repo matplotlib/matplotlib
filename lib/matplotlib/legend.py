@@ -1124,7 +1124,7 @@ class Legend(Artist):
         Parameters
         ----------
         state : bool
-            ``True`` / ``False`` enables / disables mouse dragging.
+            Whether mouse dragging is enabled.
         use_blit : bool, optional
             Use blitting for faster image composition. For details see
             :ref:`func-animation`.
