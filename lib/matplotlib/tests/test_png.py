@@ -1,5 +1,4 @@
-import six
-from six import BytesIO
+from io import BytesIO
 import glob
 import os
 import numpy as np

@@ -1,5 +1,3 @@
-import six
-
 from .axislines import (
     Axes, AxesZero, AxisArtistHelper, AxisArtistHelperRectlinear,
     GridHelperBase, GridHelperRectlinear, Subplot, SubplotZero)

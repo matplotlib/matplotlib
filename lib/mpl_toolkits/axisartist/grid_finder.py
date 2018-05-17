@@ -1,5 +1,3 @@
-import six
-
 import numpy as np
 from matplotlib.transforms import Bbox
 from . import clip_path

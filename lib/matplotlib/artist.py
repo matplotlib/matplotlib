@@ -1,5 +1,3 @@
-import six
-
 from collections import OrderedDict, namedtuple
 from functools import wraps
 import inspect
@@ -286,7 +284,7 @@ class Artist(object):
         Fire an event when property changed, calling all of the
         registered callbacks.
         """
-        for oid, func in six.iteritems(self._propobservers):
+        for oid, func in self._propobservers.items():
             func(self)
 
     def is_transform_set(self):
@@ -902,7 +900,7 @@ class Artist(object):
             .. ACCEPTS: object
         """
         if s is not None:
-            self._label = six.text_type(s)
+            self._label = str(s)
         else:
             self._label = None
         self.pchanged()
@@ -1152,10 +1150,7 @@ class ArtistInspector(object):
             func = getattr(self.o, name)
             if not callable(func):
                 continue
-            if six.PY2:
-                nargs = len(inspect.getargspec(func)[0])
-            else:
-                nargs = len(inspect.getfullargspec(func)[0])
+            nargs = len(inspect.getfullargspec(func).args)
             if nargs < 2 or self.is_alias(func):
                 continue
             source_class = self.o.__module__ + "." + self.o.__name__
@@ -1325,7 +1320,7 @@ class ArtistInspector(object):
         """
 
         lines = []
-        for name, val in sorted(six.iteritems(self.properties())):
+        for name, val in sorted(self.properties().items()):
             if getattr(val, 'shape', ()) != () and len(val) > 6:
                 s = str(val[:6]) + '...'
             else:

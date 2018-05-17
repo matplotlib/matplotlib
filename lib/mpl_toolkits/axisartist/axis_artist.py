@@ -84,8 +84,6 @@ Following attributes can be customized (use set_xxx method)
 
 """
 
-import six
-
 # FIXME :
 # angles are given in data coordinate - need to convert it to canvas coordinate
 

@@ -1,6 +1,3 @@
-import six
-from six.moves import map, zip
-
 import math
 from numbers import Number
 import warnings
@@ -1848,24 +1845,13 @@ def _pprint_styles(_styles):
     _table = [["Class", "Name", "Attrs"]]
 
     for name, cls in sorted(_styles.items()):
-        if six.PY2:
-            args, varargs, varkw, defaults = inspect.getargspec(cls.__init__)
+        spec = inspect.getfullargspec(cls.__init__)
+        if spec.defaults:
+            argstr = ", ".join(map(
+                "{}={}".format, spec.args[-len(spec.defaults):], spec.defaults
+            ))
         else:
-            (args, varargs, varkw, defaults, kwonlyargs, kwonlydefs,
-                annotations) = inspect.getfullargspec(cls.__init__)
-        if defaults:
-            args = [(argname, argdefault)
-                    for argname, argdefault in zip(args[1:], defaults)]
-        else:
-            args = None
-
-        if args is None:
             argstr = 'None'
-        else:
-            argstr = ",".join([("%s=%s" % (an, av))
-                               for an, av
-                               in args])
-
         # adding ``quotes`` since - and | have special meaning in reST
         _table.append([cls.__name__, "``%s``" % name, argstr])
 

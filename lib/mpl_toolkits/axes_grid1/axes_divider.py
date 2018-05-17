@@ -10,9 +10,6 @@ multiple axes at drawing time.
     object that can be used to set the axes_locator of the axes.
 
 """
-import six
-from six.moves import map
-
 import matplotlib.transforms as mtransforms
 
 from matplotlib.axes import SubplotBase

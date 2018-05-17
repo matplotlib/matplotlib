@@ -13,8 +13,6 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
-import six
-
 from collections import Iterable, Mapping
 from functools import reduce
 import operator
@@ -64,12 +62,12 @@ class ValidateInStrings(object):
         if s in self.valid:
             return self.valid[s]
         raise ValueError('Unrecognized %s string %r: valid strings are %s'
-                         % (self.key, s, list(six.itervalues(self.valid))))
+                         % (self.key, s, list(self.valid.values())))
 
 
 def _listify_validator(scalar_validator, allow_stringlist=False):
     def f(s):
-        if isinstance(s, six.string_types):
+        if isinstance(s, str):
             try:
                 return [scalar_validator(v.strip()) for v in s.split(',')
                         if v.strip()]
@@ -90,7 +88,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
             # from the original validate_stringlist()), while allowing
             # any non-string/text scalar values such as numbers and arrays.
             return [scalar_validator(v) for v in s
-                    if not isinstance(v, six.string_types) or v]
+                    if not isinstance(v, str) or v]
         else:
             raise ValueError("{!r} must be of type: string or non-dictionary "
                              "iterable".format(s))
@@ -119,7 +117,7 @@ def validate_path_exists(s):
 
 def validate_bool(b):
     """Convert b to a boolean or raise"""
-    if isinstance(b, six.string_types):
+    if isinstance(b, str):
         b = b.lower()
     if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
         return True
@@ -131,7 +129,7 @@ def validate_bool(b):
 
 def validate_bool_maybe_none(b):
     'Convert b to a boolean or raise'
-    if isinstance(b, six.string_types):
+    if isinstance(b, str):
         b = b.lower()
     if b is None or b == 'none':
         return None
@@ -181,7 +179,7 @@ def validate_axisbelow(s):
     try:
         return validate_bool(s)
     except ValueError:
-        if isinstance(s, six.string_types):
+        if isinstance(s, str):
             s = s.lower()
             if s.startswith('line'):
                 return 'line'
@@ -236,10 +234,10 @@ def validate_fonttype(s):
             raise ValueError(
                 'Supported Postscript/PDF font types are %s' % list(fonttypes))
     else:
-        if fonttype not in six.itervalues(fonttypes):
+        if fonttype not in fonttypes.values():
             raise ValueError(
                 'Supported Postscript/PDF font types are %s' %
-                list(six.itervalues(fonttypes)))
+                list(fonttypes.values()))
         return fonttype
 
 
@@ -288,7 +286,7 @@ class validate_nseq_float(object):
 
     def __call__(self, s):
         """return a seq of n floats or raise"""
-        if isinstance(s, six.string_types):
+        if isinstance(s, str):
             s = [x.strip() for x in s.split(',')]
             err_msg = _str_err_msg
         else:
@@ -312,7 +310,7 @@ class validate_nseq_int(object):
 
     def __call__(self, s):
         """return a seq of n ints or raise"""
-        if isinstance(s, six.string_types):
+        if isinstance(s, str):
             s = [x.strip() for x in s.split(',')]
             err_msg = _str_err_msg
         else:
@@ -348,7 +346,7 @@ def validate_color_for_prop_cycle(s):
         if match is not None:
             raise ValueError('Can not put cycle reference ({cn!r}) in '
                              'prop_cycler'.format(cn=s))
-    elif isinstance(s, six.string_types):
+    elif isinstance(s, str):
         match = re.match('^C[0-9]$', s)
         if match is not None:
             raise ValueError('Can not put cycle reference ({cn!r}) in '
@@ -364,7 +362,7 @@ def validate_color(s):
     except AttributeError:
         pass
 
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         if len(s) == 6 or len(s) == 8:
             stmp = '#' + s
             if is_color_like(stmp):
@@ -398,7 +396,7 @@ validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
 validate_colorlist.__doc__ = 'return a list of colorspecs'
 
 def validate_string(s):
-    if isinstance(s, (str, six.text_type)):
+    if isinstance(s, (str, str)):
         # Always leave str as str and unicode as unicode
         return s
     else:
@@ -430,7 +428,7 @@ def validate_fontsize_None(s):
 def validate_fontsize(s):
     fontsizes = ['xx-small', 'x-small', 'small', 'medium', 'large',
                  'x-large', 'xx-large', 'smaller', 'larger']
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         s = s.lower()
     if s in fontsizes:
         return s
@@ -500,7 +498,7 @@ validate_ps_papersize = ValidateInStrings(
 
 
 def validate_ps_distiller(s):
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         s = s.lower()
     if s in ('none', None):
         return None
@@ -630,7 +628,7 @@ validate_movie_html_fmt = ValidateInStrings('animation.html',
     ['html5', 'jshtml', 'none'])
 
 def validate_bbox(s):
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         s = s.lower()
         if s == 'tight':
             return s
@@ -643,11 +641,11 @@ def validate_bbox(s):
     return s
 
 def validate_sketch(s):
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         s = s.lower()
     if s == 'none' or s is None:
         return None
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         result = tuple([float(v.strip()) for v in s.split(',')])
     elif isinstance(s, (list, tuple)):
         result = tuple([float(v) for v in s])
@@ -696,7 +694,7 @@ def validate_hatch(s):
     characters: ``\\ / | - + * . x o O``.
 
     """
-    if not isinstance(s, six.string_types):
+    if not isinstance(s, str):
         raise ValueError("Hatch pattern must be a string")
     unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
     if unknown:
@@ -807,7 +805,7 @@ def cycler(*args, **kwargs):
     elif len(args) > 2:
         raise TypeError("No more than 2 positional arguments allowed")
     else:
-        pairs = six.iteritems(kwargs)
+        pairs = kwargs.items()
 
     validated = []
     for prop, vals in pairs:
@@ -825,7 +823,7 @@ def cycler(*args, **kwargs):
 
 def validate_cycler(s):
     'return a Cycler object from a string repr or the object itself'
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         try:
             # TODO: We might want to rethink this...
             # While I think I have it quite locked down,
@@ -908,7 +906,7 @@ def validate_animation_writer_path(p):
     # Make sure it's a string and then figure out if the animations
     # are already loaded and reset the writers (which will validate
     # the path on next call)
-    if not isinstance(p, six.string_types):
+    if not isinstance(p, str):
         raise ValueError("path must be a (unicode) string")
     from sys import modules
     # set dirty, so that the next call to the registry will re-evaluate

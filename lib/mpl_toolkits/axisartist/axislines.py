@@ -41,8 +41,6 @@ which obviously draws grid lines. The gridlines needs to be separated
 from the axis as some gridlines can never pass any axis.
 
 """
-import six
-
 import warnings
 
 import numpy as np
@@ -522,7 +520,7 @@ class Axes(maxes.Axes):
                     [dict.__getitem__(self, k1) for k1 in k])
             elif isinstance(k, slice):
                 if k == slice(None):
-                    return SimpleChainedObjects(list(six.itervalues(self)))
+                    return SimpleChainedObjects(list(self.values()))
                 else:
                     raise ValueError("Unsupported slice")
             else:

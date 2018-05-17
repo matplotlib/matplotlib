@@ -1,5 +1,3 @@
-import six
-
 from collections import OrderedDict
 import os
 from unittest import mock
@@ -400,10 +398,7 @@ def generate_validator_testcases(valid):
                 }
     # Add some cases of bytes arguments that Python 2 can convert silently:
     ls_bytes_args = (b'dotted', 'dotted'.encode('ascii'))
-    if six.PY3:
-        ls_test['fail'] += tuple((arg, ValueError) for arg in ls_bytes_args)
-    else:
-        ls_test['success'] += tuple((arg, 'dotted') for arg in ls_bytes_args)
+    ls_test['fail'] += tuple((arg, ValueError) for arg in ls_bytes_args)
     # Update the validation test sequence.
     validation_tests += (ls_test,)
 

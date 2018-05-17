@@ -1,5 +1,3 @@
-import six
-
 import math
 import logging
 import os.path
@@ -58,14 +56,14 @@ cursord = {
 
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines"""
-    if not isinstance(msg, six.string_types):
+    if not isinstance(msg, str):
         msg = '\n'.join(map(str, msg))
     return msg
 
 
 def error_msg_tkpaint(msg, parent=None):
-    from six.moves import tkinter_messagebox as tkMessageBox
-    tkMessageBox.showerror("matplotlib", msg)
+    import tkinter.messagebox
+    tkinter.messagebox.showerror("matplotlib", msg)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):
@@ -686,7 +684,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         window.grab_set()
 
     def save_figure(self, *args):
-        from six.moves import tkinter_tkfiledialog, tkinter_messagebox
+        import tkinter.filedialog, tkinter.messagebox
         filetypes = self.canvas.get_supported_filetypes().copy()
         default_filetype = self.canvas.get_default_filetype()
 
@@ -694,7 +692,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         # so we just have to put it first
         default_filetype_name = filetypes.pop(default_filetype)
         sorted_filetypes = ([(default_filetype, default_filetype_name)]
-                            + sorted(six.iteritems(filetypes)))
+                            + sorted(filetypes.items()))
         tk_filetypes = [(name, '*.%s' % ext) for ext, name in sorted_filetypes]
 
         # adding a default extension seems to break the
@@ -705,7 +703,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         defaultextension = ''
         initialdir = os.path.expanduser(rcParams['savefig.directory'])
         initialfile = self.canvas.get_default_filename()
-        fname = tkinter_tkfiledialog.asksaveasfilename(
+        fname = tkinter.filedialog.asksaveasfilename(
             master=self.window,
             title='Save the figure',
             filetypes=tk_filetypes,
@@ -719,12 +717,12 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         # Save dir for next time, unless empty str (i.e., use cwd).
         if initialdir != "":
             rcParams['savefig.directory'] = (
-                os.path.dirname(six.text_type(fname)))
+                os.path.dirname(str(fname)))
         try:
             # This method will handle the delegation to the correct type
             self.canvas.figure.savefig(fname)
         except Exception as e:
-            tkinter_messagebox.showerror("Error saving file", str(e))
+            tkinter.messagebox.showerror("Error saving file", str(e))
 
     def set_active(self, ind):
         self._ind = ind
@@ -906,7 +904,7 @@ class StatusbarTk(StatusbarBase, Tk.Frame):
 
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
-        from six.moves import tkinter_tkfiledialog, tkinter_messagebox
+        import tkinter.filedialog, tkinter.messagebox
         filetypes = self.figure.canvas.get_supported_filetypes().copy()
         default_filetype = self.figure.canvas.get_default_filetype()
 
@@ -914,7 +912,7 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
         # so we just have to put it first
         default_filetype_name = filetypes.pop(default_filetype)
         sorted_filetypes = ([(default_filetype, default_filetype_name)]
-                            + sorted(six.iteritems(filetypes)))
+                            + sorted(filetypes.items()))
         tk_filetypes = [(name, '*.%s' % ext) for ext, name in sorted_filetypes]
 
         # adding a default extension seems to break the
@@ -925,7 +923,7 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
         defaultextension = ''
         initialdir = os.path.expanduser(rcParams['savefig.directory'])
         initialfile = self.figure.canvas.get_default_filename()
-        fname = tkinter_tkfiledialog.asksaveasfilename(
+        fname = tkinter.filedialog.asksaveasfilename(
             master=self.figure.canvas.manager.window,
             title='Save the figure',
             filetypes=tk_filetypes,
@@ -942,13 +940,12 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
                 rcParams['savefig.directory'] = initialdir
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(
-                    six.text_type(fname))
+                rcParams['savefig.directory'] = os.path.dirname(str(fname))
             try:
                 # This method will handle the delegation to the correct type
                 self.figure.savefig(fname)
             except Exception as e:
-                tkinter_messagebox.showerror("Error saving file", str(e))
+                tkinter.messagebox.showerror("Error saving file", str(e))
 
 
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):

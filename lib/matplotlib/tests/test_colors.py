@@ -1,5 +1,4 @@
 import copy
-import six
 import itertools
 import warnings
 
@@ -103,7 +102,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 1, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert isinstance(ret, six.integer_types)
+        assert isinstance(ret, int)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -112,7 +111,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 2, 3]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert isinstance(ret, six.integer_types)
+        assert isinstance(ret, int)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -121,7 +120,7 @@ def test_BoundaryNorm():
     expected = [0, 0, 2, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert isinstance(ret, six.integer_types)
+        assert isinstance(ret, int)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 

@@ -1,5 +1,3 @@
-import six
-
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison

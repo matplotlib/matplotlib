@@ -4,8 +4,6 @@ variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
-import six
-
 from numbers import Number
 import warnings
 
@@ -33,7 +31,7 @@ def _get_dash_pattern(style):
     """Convert linestyle -> dash pattern
     """
     # go from short hand -> full strings
-    if isinstance(style, six.string_types):
+    if isinstance(style, str):
         style = ls_mapper.get(style, style)
     # un-dashed styles
     if style in ['solid', 'None']:
@@ -351,7 +349,7 @@ class Line2D(Artist):
         if solid_joinstyle is None:
             solid_joinstyle = rcParams['lines.solid_joinstyle']
 
-        if isinstance(linestyle, six.string_types):
+        if isinstance(linestyle, str):
             ds, ls = self._split_drawstyle_linestyle(linestyle)
             if ds is not None and drawstyle is not None and ds != drawstyle:
                 raise ValueError("Inconsistent drawstyle ({!r}) and linestyle "
@@ -1074,7 +1072,7 @@ class Line2D(Artist):
         ls : { ``'-'``,  ``'--'``, ``'-.'``, ``':'``} and more see description
             The line style.
         """
-        if isinstance(ls, six.string_types):
+        if isinstance(ls, str):
             ds, ls = self._split_drawstyle_linestyle(ls)
             if ds is not None:
                 self.set_drawstyle(ds)

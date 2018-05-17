@@ -1340,7 +1340,6 @@ class InstallRequires(SetupPackage):
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
             "pytz",
-            "six>=1.10",
         ]
 
 

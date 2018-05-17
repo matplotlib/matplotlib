@@ -179,7 +179,7 @@ class Dvi(object):
 
     >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
     >>>     for page in dvi:
-    >>>         print(''.join(unichr(t.glyph) for t in page.text))
+    >>>         print(''.join(chr(t.glyph) for t in page.text))
     """
     # dispatch table
     _dtable = [None] * 256
