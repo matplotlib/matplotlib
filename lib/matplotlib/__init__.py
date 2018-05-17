@@ -445,7 +445,8 @@ def get_executable_info(name):
     -------
     If the executable is found, a namedtuple with fields ``executable`` (`str`)
     and ``version`` (`distutils.version.LooseVersion`, or ``None`` if the
-    version cannot be determined); ``None`` if the executable is not found.
+    version cannot be determined); ``None`` if the executable is not found or
+    older that the oldest version supported by Matplotlib.
     """
 
     def impl(args, regex, min_ver=None):
@@ -519,14 +520,16 @@ def get_all_executable_infos():
 
 @cbook.deprecated("3.0")
 def checkdep_dvipng():
-    return str(get_executable_info("dvipng").version)
+    info = get_executable_info("dvipng")
+    return str(info.version) if info else None
 
 
 @cbook.deprecated("3.0")
 def checkdep_ghostscript():
     info = get_executable_info("gs")
-    checkdep_ghostscript.executable = info.executable
-    checkdep_ghostscript.version = str(info.version)
+    if info:
+        checkdep_ghostscript.executable = info.executable
+        checkdep_ghostscript.version = str(info.version)
     return checkdep_ghostscript.executable, checkdep_ghostscript.version
 checkdep_ghostscript.executable = None
 checkdep_ghostscript.version = None
@@ -534,12 +537,15 @@ checkdep_ghostscript.version = None
 
 @cbook.deprecated("3.0")
 def checkdep_pdftops():
-    return str(get_executable_info("pdftops").version)
+    info = get_executable_info("pdftops")
+    return str(info.version) if info else None
 
 
 @cbook.deprecated("3.0")
 def checkdep_inkscape():
-    checkdep_inkscape.version = str(get_executable_info("inkscape").version)
+    info = get_executable_info("inkscape")
+    if info:
+        checkdep_inkscape.version = str(info.version)
     return checkdep_inkscape.version
 checkdep_inkscape.version = None
 
