@@ -48,7 +48,10 @@ from collections import Iterable
 import json
 import os
 import sys
-from threading import Timer
+try:
+    from threading import Timer
+except ImportError:
+    from dummy_threading import Timer
 import warnings
 import logging
 
