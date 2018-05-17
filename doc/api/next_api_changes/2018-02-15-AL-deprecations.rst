@@ -12,6 +12,7 @@ The following classes, methods, functions, and attributes are deprecated:
 
 - ``afm.parse_afm``,
 - ``backend_pgf.get_texcommand``,
+- ``backend_ps.get_bbox``,
 - ``backend_qt5.error_msg_qt``, ``backend_qt5.exception_handler``,
 - ``backend_wx.FigureCanvasWx.macros``,
 - ``cbook.GetRealpathAndStat``, ``cbook.Locked``,

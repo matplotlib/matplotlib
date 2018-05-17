@@ -457,11 +457,8 @@ def test_rcparams_reset_after_fail():
 
 
 def test_if_rctemplate_is_up_to_date():
-    # This tests if the matplotlibrc.template file
-    # contains all valid rcParams.
-    dep1 = mpl._all_deprecated
-    dep2 = mpl._deprecated_set
-    deprecated = list(dep1.union(dep2))
+    # This tests if the matplotlibrc.template file contains all valid rcParams.
+    deprecated = {*mpl._all_deprecated, *mpl._deprecated_set}
     path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
