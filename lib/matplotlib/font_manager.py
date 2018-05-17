@@ -323,17 +323,25 @@ def ttfFontProperty(font):
     """
     name = font.family_name
 
+    def decode_name(name):
+        try:
+            name = name.decode('mac_roman')
+        except LookupError:
+            name = name.decode('ascii', errors='replace')
+        return name
+
     #  Styles are: italic, oblique, and normal (default)
 
     sfnt = font.get_sfnt()
     sfnt2 = sfnt.get((1,0,0,2))
     sfnt4 = sfnt.get((1,0,0,4))
     if sfnt2:
-        sfnt2 = sfnt2.decode('mac_roman').lower()
+        sfnt2 = decode_name(sfnt2).lower()
     else:
         sfnt2 = ''
+    sfnt2 = sfnt2.lower()
     if sfnt4:
-        sfnt4 = sfnt4.decode('mac_roman').lower()
+        sfnt4 = decode_name(sfnt4).lower()
     else:
         sfnt4 = ''
     if sfnt4.find('oblique') >= 0:
