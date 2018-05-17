@@ -242,7 +242,7 @@ def figure_edit(axes, parent=None):
                 ncol = old_legend._ncol
             new_legend = axes.legend(ncol=ncol)
             if new_legend:
-                new_legend.draggable(draggable)
+                new_legend.set_draggable(draggable)
 
         # Redraw
         figure = axes.get_figure()

@@ -12,6 +12,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
+from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 
 
 def test_legend_ordereddict():
@@ -511,3 +512,30 @@ def test_legend_title_fontsize():
     ax.plot(range(10))
     leg = ax.legend(title='Aardvark', title_fontsize=22)
     assert leg.get_title().get_fontsize() == 22
+
+
+def test_get_set_draggable():
+    legend = plt.legend()
+    assert not legend.get_draggable()
+    legend.set_draggable(True)
+    assert legend.get_draggable()
+    legend.set_draggable(False)
+    assert not legend.get_draggable()
+
+
+def test_draggable():
+    legend = plt.legend()
+    with pytest.warns(MatplotlibDeprecationWarning):
+        legend.draggable(True)
+    assert legend.get_draggable()
+    with pytest.warns(MatplotlibDeprecationWarning):
+        legend.draggable(False)
+    assert not legend.get_draggable()
+
+    # test toggle
+    with pytest.warns(MatplotlibDeprecationWarning):
+        legend.draggable()
+    assert legend.get_draggable()
+    with pytest.warns(MatplotlibDeprecationWarning):
+        legend.draggable()
+    assert not legend.get_draggable()
