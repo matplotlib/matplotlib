@@ -147,7 +147,7 @@ cmaps['Diverging'] = [
 # for viewers to see perceptually. See an extension on this idea at
 # [mycarta-jet]_.
 
-cmaps['Wrapping'] = ['twilight', 'sunlight', 'hsv']
+cmaps['Wrapping'] = ['twilight', 'twilight_shifted', 'hsv']
 
 ###############################################################################
 # Qualitative

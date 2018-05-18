@@ -1797,8 +1797,8 @@ _twilight_data = [
     [0.88554714811952384, 0.84987174283631584,  0.88336206121170946],
     [0.88571155122845646, 0.85002186115856315,  0.88572538990087124]]
 
-_sunlight_data = (_twilight_data[len(_twilight_data)//2:] +
-                  _twilight_data[:len(_twilight_data)//2])
+_twilight_shifted_data = (_twilight_data[len(_twilight_data)//2:] +
+                          _twilight_data[:len(_twilight_data)//2])
 
 cmaps = {}
 for (name, data) in (('magma', _magma_data),
@@ -1807,7 +1807,7 @@ for (name, data) in (('magma', _magma_data),
                      ('viridis', _viridis_data),
                      ('cividis', _cividis_data),
                      ('twilight', _twilight_data),
-                     ('sunlight', _sunlight_data)):
+                     ('twilight_shifted', _twilight_shifted_data)):
 
     cmaps[name] = ListedColormap(data, name=name)
     # generate reversed colormap
