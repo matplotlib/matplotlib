@@ -418,15 +418,11 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         toolbar = self.toolbar
         try:
-            # if toolbar:
-            #     toolbar.set_cursor(cursors.WAIT)
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so
             # don't forget to call the superclass.
             super().draw()
         finally:
-            # if toolbar:
-            #     toolbar.set_cursor(toolbar._lastCursor)
             RendererAgg.lock.release()
 
     def get_renderer(self, cleared=False):
