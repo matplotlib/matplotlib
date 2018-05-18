@@ -1799,6 +1799,7 @@ _twilight_data = [
 
 _twilight_shifted_data = (_twilight_data[len(_twilight_data)//2:] +
                           _twilight_data[:len(_twilight_data)//2])
+_twilight_shifted_data.reverse()
 
 cmaps = {}
 for (name, data) in (('magma', _magma_data),

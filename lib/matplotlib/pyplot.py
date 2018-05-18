@@ -1816,7 +1816,7 @@ def colormaps():
       hsv               red-yellow-green-cyan-blue-magenta-red, formed by changing
                         the hue component in the HSV color space
       twilight          perceptually uniform shades of white-blue-black-red-white
-      twilight_shifted  perceptually uniform shades of black-red-white-blue-black
+      twilight_shifted  perceptually uniform shades of black-blue-white-red-black
       ================  =========================================================
 
 
