@@ -31,7 +31,6 @@ found.
 #   - 'light' is an invalid weight value, remove it.
 #   - update_fonts not implemented
 
-from collections import Iterable
 from functools import lru_cache
 import json
 import logging

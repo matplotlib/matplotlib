@@ -101,8 +101,6 @@ from matplotlib import rcParams
 
 from matplotlib.artist import allow_rasterization
 
-import warnings
-
 import numpy as np
 
 

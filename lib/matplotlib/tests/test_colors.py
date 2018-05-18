@@ -1,6 +1,5 @@
 import copy
 import itertools
-import warnings
 
 import numpy as np
 import pytest

@@ -1,12 +1,8 @@
-import warnings
-
 import numpy as np
 import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
-from matplotlib.patches import Rectangle
 import matplotlib.gridspec as gridspec
 from matplotlib import ticker, rcParams
 

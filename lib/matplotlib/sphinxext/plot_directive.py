@@ -155,7 +155,6 @@ sphinx_version = tuple([int(re.split('[^0-9]', x)[0])
 import jinja2  # Sphinx dependency.
 
 import matplotlib
-import matplotlib.cbook as cbook
 try:
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("error", UserWarning)
