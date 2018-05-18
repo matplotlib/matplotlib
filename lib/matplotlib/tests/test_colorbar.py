@@ -188,12 +188,8 @@ def test_gridspec_make_colorbar():
     plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
 
 
-@image_comparison(baseline_images=['colorbar_join',
-                                   'colorbar_join_frac', ],
-                  extensions=['png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
 def test_join_colorbar():
-    data = np.arange(1200).reshape(30, 40)
+    test_points = [0.1, 0.3, 0.5, 0.7, 0.9]
 
     # Jet is a LinearSegmentedColormap
     cmap1 = plt.get_cmap('viridis', 5)
@@ -201,51 +197,75 @@ def test_join_colorbar():
 
     # This should be a listed colormap.
     cmap = cmap1.join(cmap2)
-
-    plt.figure()
-    plt.pcolormesh(data, cmap=cmap)
-    plt.colorbar(orientation='vertical')
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.229739, 0.322361, 0.545706, 1. ],
+         [0.369214, 0.788888, 0.382914, 1. ],
+         [0., 0., 0.5, 1. ],
+         [0.48387097, 1., 0.48387097, 1., ],
+         [0.5, 0., 0, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
 
     # Use the 'frac_self' kwarg for the listed cmap
     cmap = cmap1.join(cmap2, frac_self=0.7, N=50)
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.267004, 0.004874, 0.329415, 1., ],
+         [0.127568, 0.566949, 0.550556, 1., ],
+         [0.369214, 0.788888, 0.382914, 1., ],
+         [0., 0., 0.5, 1., ],
+         [1., 0.59259259, 0., 1., ]]
+    )
+    assert np.allclose(vals, _vals)
 
-    plt.figure()
-    plt.pcolormesh(data, cmap=cmap)
-    plt.colorbar(orientation='vertical')
 
-
-@image_comparison(baseline_images=['colorbar_truncate',
-                                   'colorbar_trunc-getitem',
-                                   'colorbar_trunc-getitem-int',
-                                   'colorbar_trunc-getitem-int-1jN', ],
-                  extensions=['png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
 def test_truncate_colorbar():
-    data = np.arange(1200).reshape(30, 40)
-
+    test_points = [0.1, 0.3, 0.5, 0.7, 0.9]
+    
     cmap = plt.get_cmap('viridis', 32).truncate(0.2, 0.7)
-
-    plt.figure()
-    plt.pcolormesh(data, cmap=cmap)
-    plt.colorbar(orientation='vertical')
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.243113, 0.292092, 0.538516, 1. ],
+         [0.19586, 0.395433, 0.555276, 1. ],
+         [0.144759, 0.519093, 0.556572, 1. ],
+         [0.12478, 0.640461, 0.527068, 1. ],
+         [0.226397, 0.728888, 0.462789, 1. ]]
+    )
+    assert np.allclose(vals, _vals)
 
     cmap = plt.get_cmap('viridis', 128)[0.2:-0.3:16 * 1j]
-
-    plt.figure()
-    plt.pcolormesh(data, cmap=cmap)
-    plt.colorbar(orientation='vertical')
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.241237, 0.296485, 0.539709, 1. ], 
+         [0.192357, 0.403199, 0.555836, 1. ], 
+         [0.140536, 0.530132, 0.555659, 1. ],
+         [0.12138, 0.629492, 0.531973, 1. ],
+         [0.214, 0.722114, 0.469588, 1. ]]
+        )
+    assert np.allclose(vals, _vals)
 
     cmap = plt.get_cmap('viridis', 128)[25:90]
-
-    plt.figure()
-    plt.pcolormesh(data, cmap=cmap)
-    plt.colorbar(orientation='vertical')
-
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.233603, 0.313828, 0.543914, 1. ], 
+         [0.185556, 0.41857, 0.556753, 1. ], 
+         [0.14618, 0.515413, 0.556823, 1. ],
+         [0.119483, 0.614817, 0.537692, 1. ],
+         [0.19109, 0.708366, 0.482284, 1. ]]
+        )
+    assert np.allclose(vals, _vals)
+    
     cmap = plt.get_cmap('viridis', 128)[25:90:16 * 1j]
-
-    plt.figure()
-    plt.pcolormesh(data, cmap=cmap)
-    plt.colorbar(orientation='vertical')
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.241237, 0.296485, 0.539709, 1. ], 
+         [0.192357, 0.403199, 0.555836, 1. ], 
+         [0.140536, 0.530132, 0.555659, 1. ],
+         [0.12138, 0.629492, 0.531973, 1. ],
+         [0.214, 0.722114, 0.469588, 1. ]]
+        )
+    assert np.allclose(vals, _vals)
 
 
 @image_comparison(baseline_images=['colorbar_single_scatter'],
