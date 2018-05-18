@@ -15,6 +15,7 @@ the buttons at the bottom of the toolbar
 
 .. image:: ../../lib/matplotlib/mpl-data/images/forward_large.png
 
+
 The ``Home``, ``Forward`` and ``Back`` buttons
     These are akin to a web browser's home, forward and back controls.
     ``Forward`` and ``Back`` are used to navigate back and forth between
@@ -74,6 +75,12 @@ The ``Save`` button
     Click this button to launch a file save dialog.  You can save
     files with the following extensions: ``png``, ``ps``, ``eps``,
     ``svg`` and ``pdf``.
+
+.. image:: ../../lib/matplotlib/mpl-data/images/fileprint_large.png
+
+The ``Print`` button   
+    Click this button to be able to print the current figure to a 
+    physical printer. 
 
 
 .. _key-event-handling:
