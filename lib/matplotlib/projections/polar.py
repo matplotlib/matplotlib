@@ -631,8 +631,8 @@ class RadialTick(maxis.YTick):
             text_angle = user_angle
         if self.label1On:
             if full:
-                ha = 'left'
-                va = 'bottom'
+                ha = self.label1.get_ha()
+                va = self.label1.get_va()
             else:
                 ha, va = self._determine_anchor(mode, angle, direction > 0)
             self.label1.set_ha(ha)
@@ -838,16 +838,17 @@ class PolarAxes(Axes):
     """
     name = 'polar'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args,
+                 theta_offset=0, theta_direction=1, rlabel_position=22.5,
+                 **kwargs):
         """
         Create a new Polar Axes for a polar plot.
         """
-        self._default_theta_offset = kwargs.pop('theta_offset', 0)
-        self._default_theta_direction = kwargs.pop('theta_direction', 1)
-        self._default_rlabel_position = np.deg2rad(
-            kwargs.pop('rlabel_position', 22.5))
+        self._default_theta_offset = theta_offset
+        self._default_theta_direction = theta_direction
+        self._default_rlabel_position = np.deg2rad(rlabel_position)
 
-        Axes.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()

@@ -68,10 +68,9 @@ class WebAggApplication(tornado.web.Application):
             self.write(image_path.read_bytes())
 
     class SingleFigurePage(tornado.web.RequestHandler):
-        def __init__(self, application, request, **kwargs):
-            self.url_prefix = kwargs.pop('url_prefix', '')
-            tornado.web.RequestHandler.__init__(self, application,
-                                                request, **kwargs)
+        def __init__(self, application, request, *, url_prefix='', **kwargs):
+            self.url_prefix = url_prefix
+            super().__init__(application, request, **kwargs)
 
         def get(self, fignum):
             fignum = int(fignum)
@@ -88,10 +87,9 @@ class WebAggApplication(tornado.web.Application):
                 canvas=manager.canvas)
 
     class AllFiguresPage(tornado.web.RequestHandler):
-        def __init__(self, application, request, **kwargs):
-            self.url_prefix = kwargs.pop('url_prefix', '')
-            tornado.web.RequestHandler.__init__(self, application,
-                                                request, **kwargs)
+        def __init__(self, application, request, *, url_prefix='', **kwargs):
+            self.url_prefix = url_prefix
+            super().__init__(application, request, **kwargs)
 
         def get(self):
             ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,

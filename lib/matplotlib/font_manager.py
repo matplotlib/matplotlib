@@ -39,7 +39,10 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from threading import Timer
+try:
+    from threading import Timer
+except ImportError:
+    from dummy_threading import Timer
 import warnings
 
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
@@ -951,7 +954,7 @@ class FontManager(object):
                     paths.extend(ttfpath.split(':'))
                 else:
                     paths.append(ttfpath)
-        _log.info('font search path %s', str(paths))
+        _log.debug('font search path %s', str(paths))
         #  Load TrueType fonts and create font dictionary.
 
         self.ttffiles = findSystemFonts(paths) + findSystemFonts()
@@ -1327,7 +1330,7 @@ else:
         if _fmcache:
             with cbook._lock_path(_fmcache):
                 json_dump(fontManager, _fmcache)
-        _log.info("generated new fontManager")
+        _log.debug("generated new fontManager")
 
     if _fmcache:
         try:

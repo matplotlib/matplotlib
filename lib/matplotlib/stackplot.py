@@ -6,16 +6,14 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 (http://stackoverflow.com/users/66549/doug)
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-from cycler import cycler
 import numpy as np
 
 __all__ = ['stackplot']
 
 
-def stackplot(axes, x, *args, **kwargs):
+def stackplot(axes, x, *args,
+              labels=(), colors=None, baseline='zero',
+              **kwargs):
     """
     Draws a stacked area plot.
 
@@ -55,20 +53,17 @@ def stackplot(axes, x, *args, **kwargs):
 
     Returns
     -------
-    list of `.PolyCollection`
+    list : list of `.PolyCollection`
         A list of `.PolyCollection` instances, one for each element in the
         stacked area plot.
     """
 
     y = np.row_stack(args)
 
-    labels = iter(kwargs.pop('labels', []))
-
-    colors = kwargs.pop('colors', None)
+    labels = iter(labels)
     if colors is not None:
-        axes.set_prop_cycle(cycler('color', colors))
+        axes.set_prop_cycle(color=colors)
 
-    baseline = kwargs.pop('baseline', 'zero')
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))

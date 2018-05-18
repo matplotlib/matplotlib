@@ -154,12 +154,6 @@ Example usage::
 
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import map, zip
-
 import copy
 import csv
 import operator
@@ -172,10 +166,6 @@ import matplotlib.cbook as cbook
 from matplotlib import docstring
 from matplotlib.path import Path
 import math
-
-
-if six.PY3:
-    long = int
 
 
 @cbook.deprecated("2.2", alternative='numpy.logspace or numpy.geomspace')
@@ -304,7 +294,7 @@ def detrend(x, key=None, axis=None):
         return detrend(x, key=detrend_linear, axis=axis)
     elif key == 'none':
         return detrend(x, key=detrend_none, axis=axis)
-    elif isinstance(key, six.string_types):
+    elif isinstance(key, str):
         raise ValueError("Unknown value for key %s, must be one of: "
                          "'default', 'constant', 'mean', "
                          "'linear', or a function" % key)
@@ -2230,7 +2220,7 @@ def base_repr(number, base=2, padding=0):
     if number < base:
         return (padding - 1) * chars[0] + chars[int(number)]
     max_exponent = int(math.log(number)/math.log(base))
-    max_power = long(base) ** max_exponent
+    max_power = int(base) ** max_exponent
     lead_digit = int(number/max_power)
     return (chars[lead_digit] +
             base_repr(number - max_power * lead_digit, base,
@@ -2314,7 +2304,7 @@ def isvector(X):
 @cbook.deprecated("2.2", 'numpy.isnan')
 def safe_isnan(x):
     ':func:`numpy.isnan` for arbitrary types'
-    if isinstance(x, six.string_types):
+    if isinstance(x, str):
         return False
     try:
         b = np.isnan(x)
@@ -2329,7 +2319,7 @@ def safe_isnan(x):
 @cbook.deprecated("2.2", 'numpy.isinf')
 def safe_isinf(x):
     ':func:`numpy.isinf` for arbitrary types'
-    if isinstance(x, six.string_types):
+    if isinstance(x, str):
         return False
     try:
         b = np.isinf(x)
@@ -2349,8 +2339,8 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     *arrs* and *dtypes* do not have to be lists. They can just be the
     values themselves.
     """
-    if (not isinstance(names, six.string_types) and cbook.iterable(names)
-            and len(names) and isinstance(names[0], six.string_types)):
+    if (not isinstance(names, str) and cbook.iterable(names)
+            and len(names) and isinstance(names[0], str)):
         if len(names) != len(arrs):
             raise ValueError("number of arrays do not match number of names")
     else:  # we have only 1 name and 1 array
@@ -2367,8 +2357,6 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
         else:
             raise ValueError("dtypes must be None, a single dtype or a list")
     old_dtypes = rec.dtype.descr
-    if six.PY2:
-        old_dtypes = [(name.encode('utf-8'), dt) for name, dt in old_dtypes]
     newdtype = np.dtype(old_dtypes + list(zip(names, dtypes)))
     newrec = np.recarray(rec.shape, dtype=newdtype)
     for field in rec.dtype.fields:
@@ -2402,7 +2390,7 @@ def rec_keep_fields(rec, names):
     Return a new numpy record array with only fields listed in names
     """
 
-    if isinstance(names, six.string_types):
+    if isinstance(names, str):
         names = names.split(',')
 
     arrays = []
@@ -2502,7 +2490,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
     (other than keys) that are both in *r1* and *r2*.
     """
 
-    if isinstance(key, six.string_types):
+    if isinstance(key, str):
         key = (key, )
 
     for name in key:
@@ -2579,8 +2567,6 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
     r2desc = [(mapped_r2field(desc[0]), desc[1]) for desc in r2.dtype.descr
               if desc[0] not in key]
     all_dtypes = keydesc + r1desc + r2desc
-    if six.PY2:
-        all_dtypes = [(name.encode('utf-8'), dt) for name, dt in all_dtypes]
     newdtype = np.dtype(all_dtypes)
     newrec = np.recarray((common_len + left_len + right_len,), dtype=newdtype)
 
@@ -2598,7 +2584,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
     if jointype != 'inner' and defaults is not None:
         # fill in the defaults enmasse
         newrec_fields = list(newrec.dtype.fields)
-        for k, v in six.iteritems(defaults):
+        for k, v in defaults.items():
             if k in newrec_fields:
                 newrec[k] = v
 
@@ -2914,7 +2900,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             seen[item] = cnt+1
 
     else:
-        if isinstance(names, six.string_types):
+        if isinstance(names, str):
             names = [n.strip() for n in names.split(',')]
 
     # get the converter functions by inspecting checkrows
@@ -3315,7 +3301,7 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
         fh.close()
 
 
-@cbook.deprecated('2.2')
+@cbook.deprecated('2.2', alternative='scipy.interpolate.griddata')
 def griddata(x, y, z, xi, yi, interp='nn'):
     """
     Interpolates from a nonuniformly spaced grid to some other grid.
@@ -3680,7 +3666,7 @@ class GaussianKDE(object):
             raise ValueError("`dataset` input should have multiple elements.")
 
         self.dim, self.num_dp = np.array(self.dataset).shape
-        isString = isinstance(bw_method, six.string_types)
+        isString = isinstance(bw_method, str)
 
         if bw_method is None:
             pass

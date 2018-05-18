@@ -21,17 +21,18 @@ installed.
 
 Otherwise, the situation (at the time of writing) is as follows:
 
-============= ========================== =================================
-GUI framework pip-installable?           conda or conda-forge-installable?
-============= ========================== =================================
-PyQt5         yes                        yes
-------------- -------------------------- ---------------------------------
-PyQt4         PySide: on Windows and OSX yes
-------------- -------------------------- ---------------------------------
-PyGObject     yes [#]_                   on Linux
-------------- -------------------------- ---------------------------------
-wxPython      yes [#]_                   yes
-============= ========================== =================================
+========= ========= ================ =================================
+framework bindings  pip-installable? conda or conda-forge-installable?
+========= ========= ================ =================================
+Qt5       PyQt5     yes              yes
+Qt5       PySide2   yes [#]_         yes
+Qt4       PyQt4     no               yes
+Qt4       PySide    OSX and Windows  yes
+GTK3      PyGObject yes [#]_         Linux and OSX
+wxWidgets wxPython  yes [#]_         yes
+========= ========= ================ =================================
+
+.. [#] See http://lists.qt-project.org/pipermail/pyside/2018-March/002537.html.
 
 .. [#] No wheels available, see
        https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html

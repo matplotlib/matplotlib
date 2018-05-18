@@ -315,7 +315,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
 
         subplots.append(ax)
 
-    if (len(nrows_list) == 0) or (len(ncols_list) == 0):
+    if len(nrows_list) == 0 or len(ncols_list) == 0:
         return {}
 
     max_nrows = max(nrows_list)

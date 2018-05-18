@@ -3,12 +3,6 @@
 """
 Various transforms used for by the 3D code
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
 import numpy as np
 import numpy.linalg as linalg
 

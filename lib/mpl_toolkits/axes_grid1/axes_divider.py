@@ -10,12 +10,6 @@ multiple axes at drawing time.
     object that can be used to set the axes_locator of the axes.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import map
-
 import matplotlib.transforms as mtransforms
 
 from matplotlib.axes import SubplotBase
@@ -362,7 +356,8 @@ class SubplotDivider(Divider):
     The Divider class whose rectangle area is specified as a subplot geometry.
     """
 
-    def __init__(self, fig, *args, **kwargs):
+    def __init__(self, fig, *args, horizontal=None, vertical=None,
+                 aspect=None, anchor='C'):
         """
         Parameters
         ----------
@@ -420,15 +415,7 @@ class SubplotDivider(Divider):
 
         pos = self.figbox.bounds
 
-        horizontal = kwargs.pop("horizontal", [])
-        vertical = kwargs.pop("vertical", [])
-        aspect = kwargs.pop("aspect", None)
-        anchor = kwargs.pop("anchor", "C")
-
-        if kwargs:
-            raise Exception("")
-
-        Divider.__init__(self, fig, pos, horizontal, vertical,
+        Divider.__init__(self, fig, pos, horizontal or [], vertical or [],
                          aspect=aspect, anchor=anchor)
 
     def get_position(self):
@@ -521,21 +508,15 @@ class AxesDivider(Divider):
                          horizontal=[self._xref], vertical=[self._yref],
                          aspect=None, anchor="C")
 
-    def _get_new_axes(self, **kwargs):
+    def _get_new_axes(self, *, axes_class=None, **kwargs):
         axes = self._axes
-
-        axes_class = kwargs.pop("axes_class", None)
-
         if axes_class is None:
             if isinstance(axes, SubplotBase):
                 axes_class = axes._axes_class
             else:
                 axes_class = type(axes)
-
-        ax = axes_class(axes.get_figure(),
-                        axes.get_position(original=True), **kwargs)
-
-        return ax
+        return axes_class(axes.get_figure(), axes.get_position(original=True),
+                          **kwargs)
 
     def new_horizontal(self, size, pad=None, pack_start=False, **kwargs):
         """

@@ -1160,16 +1160,22 @@ class _AxesBase(martist.Artist):
         Call signatures::
 
           set_prop_cycle(cycler)
-          set_prop_cycle(label, values)
           set_prop_cycle(label=values[, label2=values2[, ...]])
+          set_prop_cycle(label, values)
 
-        Form 1 simply sets given `Cycler` object.
+        Form 1 sets given `~cycler.Cycler` object.
 
-        Form 2 creates and sets a `Cycler` from a label and an iterable.
+        Form 2 creates a `~cycler.Cycler` which cycles over one or more
+        properties simultaneously and set it as the property cycle of the
+        axes. If multiple properties are given, their value lists must have
+        the same length. This is just a shortcut for explicitly creating a
+        cycler and passing it to the function, i.e. it's short for
+        ``set_prop_cycle(cycler(label=values label2=values2, ...))``.
 
-        Form 3 composes and sets a `Cycler` as an inner product of the
-        pairs of keyword arguments. In other words, all of the
-        iterables are cycled simultaneously, as if through zip().
+        Form 3 creates a `~cycler.Cycler` for a single property and set it
+        as the property cycle of the axes. This form exists for compatibility
+        with the original `cycler.cycler` interface. Its use is discouraged
+        in favor of the kwarg form, i.e. ``set_prop_cycle(label=values)``.
 
         Parameters
         ----------
@@ -1190,8 +1196,7 @@ class _AxesBase(martist.Artist):
         --------
         Setting the property cycle for a single property:
 
-        >>> ax.set_prop_cycle(color=['red', 'green', 'blue'])  # or
-        >>> ax.set_prop_cycle('color', ['red', 'green', 'blue'])
+        >>> ax.set_prop_cycle(color=['red', 'green', 'blue'])
 
         Setting the property cycle for simultaneously cycling over multiple
         properties (e.g. red circle, green plus, blue cross):
@@ -1202,7 +1207,9 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.rcsetup.cycler
-            Convenience function for creating your own cyclers.
+            Convenience function for creating validated cyclers for properties.
+        cycler.cycler
+            The original function for creating unvalidated cyclers.
 
         """
         if args and kwargs:
@@ -1591,9 +1598,10 @@ class _AxesBase(martist.Artist):
                 self.set_xbound((x0, x1))
 
     def axis(self, *v, **kwargs):
-        """Set axis properties.
+        """
+        Convenience method to get or set some axis properties.
 
-        Valid signatures::
+        Call signatures::
 
           xmin, xmax, ymin, ymax = axis()
           xmin, xmax, ymin, ymax = axis(list_arg)
@@ -1602,42 +1610,47 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        v : list of float or {'on', 'off', 'equal', 'tight', 'scaled',\
-            'normal', 'auto', 'image', 'square'}
-            Optional positional argument
+        v : List[float] or one of the strings listed below.
+            Optional positional-only argument
 
-            Axis data limits set from a list; or a command relating to axes:
+            If a list, set the axis data limits.  If a string:
 
-                ========== ================================================
-                Value      Description
-                ========== ================================================
-                'on'       Toggle axis lines and labels on
-                'off'      Toggle axis lines and labels off
-                'equal'    Equal scaling by changing limits
-                'scaled'   Equal scaling by changing box dimensions
-                'tight'    Limits set such that all data is shown
-                'auto'     Automatic scaling, fill rectangle with data
-                'normal'   Same as 'auto'; deprecated
-                'image'    'scaled' with axis limits equal to data limits
-                'square'   Square plot; similar to 'scaled', but initially\
-                           forcing xmax-xmin = ymax-ymin
-                ========== ================================================
+            ======== ==========================================================
+            Value    Description
+            ======== ==========================================================
+            'on'     Turn on axis lines and labels.
+            'off'    Turn off axis lines and labels.
+            'equal'  Set equal scaling (i.e., make circles circular) by
+                     changing axis limits.
+            'scaled' Set equal scaling (i.e., make circles circular) by
+                     changing dimensions of the plot box.
+            'tight'  Set limits just large enough to show all data.
+            'auto'   Automatic scaling (fill plot box with data).
+            'normal' Same as 'auto'; deprecated.
+            'image'  'scaled' with axis limits equal to data limits.
+            'square' Square plot; similar to 'scaled', but initially forcing
+                     ``xmax-xmin = ymax-ymin``.
+            ======== ==========================================================
 
         emit : bool, optional
-            Passed to set_{x,y}lim functions, if observers
-            are notified of axis limit change
+            Passed to set_{x,y}lim functions, if observers are notified of axis
+            limit change.
 
         xmin, ymin, xmax, ymax : float, optional
-            The axis limits to be set
+            The axis limits to be set.
 
         Returns
         -------
         xmin, xmax, ymin, ymax : float
-            The axis limits
+            The axis limits.
 
+        See also
+        --------
+        matplotlib.axes.Axes.set_xlim
+        matplotlib.axes.Axes.set_ylim
         """
 
-        if len(v) == 0 and len(kwargs) == 0:
+        if len(v) == len(kwargs) == 0:
             xmin, xmax = self.get_xlim()
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax
@@ -1755,18 +1768,18 @@ class _AxesBase(martist.Artist):
     # Adding and tracking artists
 
     def _sci(self, im):
-        """
-        helper for :func:`~matplotlib.pyplot.sci`;
-        do not use elsewhere.
+        """Set the current image.
+
+        This image will be the target of colormap functions like
+        `~.pyplot.viridis`, and other functions such as `~.pyplot.clim`.  The
+        current image is an attribute of the current axes.
         """
         if isinstance(im, matplotlib.contour.ContourSet):
             if im.collections[0] not in self.collections:
-                raise ValueError(
-                    "ContourSet must be in current Axes")
+                raise ValueError("ContourSet must be in current Axes")
         elif im not in self.images and im not in self.collections:
-            raise ValueError(
-                "Argument must be an image, collection, or ContourSet in "
-                "this Axes")
+            raise ValueError("Argument must be an image, collection, or "
+                             "ContourSet in this Axes")
         self._current_image = im
 
     def _gci(self):
@@ -2222,7 +2235,7 @@ class _AxesBase(martist.Artist):
         self._ymargin = m
         self.stale = True
 
-    def margins(self, *args, **kw):
+    def margins(self, *margins, x=None, y=None, tight=True):
         """
         Set or retrieve autoscaling margins.
 
@@ -2243,10 +2256,11 @@ class _AxesBase(martist.Artist):
             margins(..., tight=False)
 
         All three forms above set the xmargin and ymargin parameters.
-        All keyword parameters are optional.  A single argument
+        All keyword parameters are optional.  A single positional argument
         specifies both xmargin and ymargin. The padding added to the end of
         each interval is *margin* times the data interval. The *margin* must
-        be a float in the range [0, 1].
+        be a float in the range [0, 1].  Passing both positional and keyword
+        arguments for xmargin and/or ymargin is invalid.
 
         The *tight* parameter is passed to :meth:`autoscale_view`
         , which is executed after a margin is changed; the default here is
@@ -2260,27 +2274,30 @@ class _AxesBase(martist.Artist):
         it is used in autoscaling.
 
         """
-        if not args and not kw:
+        if margins and x is not None and y is not None:
+            raise TypeError('Cannot pass both positional and keyword '
+                            'arguments for x and/or y.')
+        elif len(margins) == 1:
+            x = y = margins[0]
+        elif len(margins) == 2:
+            x, y = margins
+        elif margins:
+            raise TypeError('Must pass a single positional argument for all '
+                            'margins, or one for each margin (x, y).')
+
+        if x is None and y is None:
+            if tight is not True:
+                warnings.warn('ignoring tight=%r in get mode' % (tight,))
             return self._xmargin, self._ymargin
 
-        tight = kw.pop('tight', True)
-        mx = kw.pop('x', None)
-        my = kw.pop('y', None)
-        if len(args) == 1:
-            mx = my = args[0]
-        elif len(args) == 2:
-            mx, my = args
-        elif len(args) > 2:
-            raise ValueError("more than two arguments were supplied")
-        if mx is not None:
-            self.set_xmargin(mx)
-        if my is not None:
-            self.set_ymargin(my)
+        if x is not None:
+            self.set_xmargin(x)
+        if y is not None:
+            self.set_ymargin(y)
 
-        scalex = (mx is not None)
-        scaley = (my is not None)
-
-        self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley)
+        self.autoscale_view(
+            tight=tight, scalex=(x is not None), scaley=(y is not None)
+        )
 
     def set_rasterization_zorder(self, z):
         """
@@ -2683,7 +2700,8 @@ class _AxesBase(martist.Artist):
         if axis == 'y' or axis == 'both':
             self.yaxis.grid(b, which=which, **kwargs)
 
-    def ticklabel_format(self, **kwargs):
+    def ticklabel_format(self, *, axis='both', style='', scilimits=None,
+                         useOffset=None, useLocale=None, useMathText=None):
         """
         Change the `~matplotlib.ticker.ScalarFormatter` used by
         default for linear axes.
@@ -2693,6 +2711,7 @@ class _AxesBase(martist.Artist):
           ==============   =========================================
           Keyword          Description
           ==============   =========================================
+          *axis*           [ 'x' | 'y' | 'both' ]
           *style*          [ 'sci' (or 'scientific') | 'plain' ]
                            plain turns off scientific notation
           *scilimits*      (m, n), pair of integers; if *style*
@@ -2700,12 +2719,13 @@ class _AxesBase(martist.Artist):
                            be used for numbers outside the range
                            10`m`:sup: to 10`n`:sup:.
                            Use (0,0) to include all numbers.
+                           Use (m,m) where m <> 0 to fix the order
+                           of magnitude to 10`m`:sup:.
           *useOffset*      [ bool | offset ]; if True,
                            the offset will be calculated as needed;
                            if False, no offset will be used; if a
                            numeric offset is specified, it will be
                            used.
-          *axis*           [ 'x' | 'y' | 'both' ]
           *useLocale*      If True, format the number according to
                            the current locale.  This affects things
                            such as the character used for the
@@ -2724,12 +2744,8 @@ class _AxesBase(martist.Artist):
         :exc:`AttributeError` will be raised.
 
         """
-        style = kwargs.pop('style', '').lower()
-        scilimits = kwargs.pop('scilimits', None)
-        useOffset = kwargs.pop('useOffset', None)
-        useLocale = kwargs.pop('useLocale', None)
-        useMathText = kwargs.pop('useMathText', None)
-        axis = kwargs.pop('axis', 'both').lower()
+        style = style.lower()
+        axis = axis.lower()
         if scilimits is not None:
             try:
                 m, n = scilimits
@@ -2740,8 +2756,6 @@ class _AxesBase(martist.Artist):
             sb = True
         elif style == 'plain':
             sb = False
-        elif style == 'comma':
-            raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:
@@ -3012,7 +3026,8 @@ class _AxesBase(martist.Artist):
                 raise ValueError("Axis limits cannot be NaN or Inf")
             return converted_limit
 
-    def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
+    def set_xlim(self, left=None, right=None, emit=True, auto=False,
+                 *, xmin=None, xmax=None):
         """
         Set the data limits for the x-axis
 
@@ -3023,6 +3038,9 @@ class _AxesBase(martist.Artist):
         left : scalar, optional
             The left xlim (default: None, which leaves the left limit
             unchanged).
+            The left and right xlims may be passed as the tuple
+            (`left`, `right`) as the first positional argument (or as
+            the `left` keyword argument).
 
         right : scalar, optional
             The right xlim (default: None, which leaves the right limit
@@ -3035,10 +3053,11 @@ class _AxesBase(martist.Artist):
             Whether to turn on autoscaling of the x-axis. True turns on,
             False turns off (default action), None leaves unchanged.
 
-        xlimits : tuple, optional
-            The left and right xlims may be passed as the tuple
-            (`left`, `right`) as the first positional argument (or as
-            the `left` keyword argument).
+        xmin, xmax : scalar, optional
+            These arguments are deprecated and will be removed in a future
+            version.  They are equivalent to left and right respectively,
+            and it is an error to pass both `xmin` and `left` or
+            `xmax` and `right`.
 
         Returns
         -------
@@ -3069,15 +3088,20 @@ class _AxesBase(martist.Artist):
         >>> set_xlim(5000, 0)
 
         """
-        if 'xmin' in kw:
-            left = kw.pop('xmin')
-        if 'xmax' in kw:
-            right = kw.pop('xmax')
-        if kw:
-            raise ValueError("unrecognized kwargs: %s" % list(kw))
-
         if right is None and iterable(left):
             left, right = left
+        if xmin is not None:
+            cbook.warn_deprecated('3.0', name='`xmin`',
+                                  alternative='`left`', obj_type='argument')
+            if left is not None:
+                raise TypeError('Cannot pass both `xmin` and `left`')
+            left = xmin
+        if xmax is not None:
+            cbook.warn_deprecated('3.0', name='`xmax`',
+                                  alternative='`right`', obj_type='argument')
+            if right is not None:
+                raise TypeError('Cannot pass both `xmax` and `right`')
+            right = xmax
 
         self._process_unit_info(xdata=(left, right))
         left = self._validate_converted_limits(left, self.convert_xunits)
@@ -3096,10 +3120,20 @@ class _AxesBase(martist.Artist):
                  'left=%s, right=%s') % (left, right))
         left, right = mtransforms.nonsingular(left, right, increasing=False)
 
-        if self.get_xscale() == 'log' and (left <= 0.0 or right <= 0.0):
-            warnings.warn(
-                'Attempted to set non-positive xlimits for log-scale axis; '
-                'invalid limits will be ignored.')
+        if self.get_xscale() == 'log':
+            if left <= 0:
+                warnings.warn(
+                    'Attempted to set non-positive left xlim on a '
+                    'log-scaled axis.\n'
+                    'Invalid limit will be ignored.')
+                left = old_left
+            if right <= 0:
+                warnings.warn(
+                    'Attempted to set non-positive right xlim on a '
+                    'log-scaled axis.\n'
+                    'Invalid limit will be ignored.')
+                right = old_right
+
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
         self.viewLim.intervalx = (left, right)
@@ -3332,7 +3366,8 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervaly)
 
-    def set_ylim(self, bottom=None, top=None, emit=True, auto=False, **kw):
+    def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
+                 *, ymin=None, ymax=None):
         """
         Set the data limits for the y-axis
 
@@ -3343,6 +3378,9 @@ class _AxesBase(martist.Artist):
         bottom : scalar, optional
             The bottom ylim (default: None, which leaves the bottom
             limit unchanged).
+            The bottom and top ylims may be passed as the tuple
+            (`bottom`, `top`) as the first positional argument (or as
+            the `bottom` keyword argument).
 
         top : scalar, optional
             The top ylim (default: None, which leaves the top limit
@@ -3355,10 +3393,11 @@ class _AxesBase(martist.Artist):
             Whether to turn on autoscaling of the y-axis. True turns on,
             False turns off (default action), None leaves unchanged.
 
-        ylimits : tuple, optional
-            The bottom and top yxlims may be passed as the tuple
-            (`bottom`, `top`) as the first positional argument (or as
-            the `bottom` keyword argument).
+        ymin, ymax : scalar, optional
+            These arguments are deprecated and will be removed in a future
+            version.  They are equivalent to bottom and top respectively,
+            and it is an error to pass both `xmin` and `bottom` or
+            `xmax` and `top`.
 
         Returns
         -------
@@ -3388,15 +3427,20 @@ class _AxesBase(martist.Artist):
 
         >>> set_ylim(5000, 0)
         """
-        if 'ymin' in kw:
-            bottom = kw.pop('ymin')
-        if 'ymax' in kw:
-            top = kw.pop('ymax')
-        if kw:
-            raise ValueError("unrecognized kwargs: %s" % list(kw))
-
         if top is None and iterable(bottom):
             bottom, top = bottom
+        if ymin is not None:
+            cbook.warn_deprecated('3.0', name='`ymin`',
+                                  alternative='`bottom`', obj_type='argument')
+            if bottom is not None:
+                raise TypeError('Cannot pass both `ymin` and `bottom`')
+            bottom = ymin
+        if ymax is not None:
+            cbook.warn_deprecated('3.0', name='`ymax`',
+                                  alternative='`top`', obj_type='argument')
+            if top is not None:
+                raise TypeError('Cannot pass both `ymax` and `top`')
+            top = ymax
 
         bottom = self._validate_converted_limits(bottom, self.convert_yunits)
         top = self._validate_converted_limits(top, self.convert_yunits)
@@ -3416,10 +3460,19 @@ class _AxesBase(martist.Artist):
 
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
 
-        if self.get_yscale() == 'log' and (bottom <= 0.0 or top <= 0.0):
-            warnings.warn(
-                'Attempted to set non-positive ylimits for log-scale axis; '
-                'invalid limits will be ignored.')
+        if self.get_yscale() == 'log':
+            if bottom <= 0:
+                warnings.warn(
+                    'Attempted to set non-positive bottom ylim on a '
+                    'log-scaled axis.\n'
+                    'Invalid limit will be ignored.')
+                bottom = old_bottom
+            if top <= 0:
+                warnings.warn(
+                    'Attempted to set non-positive top ylim on a '
+                    'log-scaled axis.\n'
+                    'Invalid limit will be ignored.')
+                top = old_top
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
         self.viewLim.intervaly = (bottom, top)
@@ -3647,7 +3700,12 @@ class _AxesBase(martist.Artist):
         return 'x=%s y=%s' % (xs, ys)
 
     def minorticks_on(self):
-        'Add autoscaling minor ticks to the axes.'
+        """
+        Display minor ticks on the axes.
+
+        Displaying minor ticks may reduce performance; you may turn them off
+        using `minorticks_off()` if drawing speed is a problem.
+        """
         for ax in (self.xaxis, self.yaxis):
             scale = ax.get_scale()
             if scale == 'log':

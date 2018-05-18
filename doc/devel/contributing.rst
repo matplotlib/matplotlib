@@ -394,17 +394,16 @@ on, use the key/value keyword args in the function definition rather
 than the ``**kwargs`` idiom.
 
 In some cases, you may want to consume some keys in the local
-function, and let others pass through.  You can ``pop`` the ones to be
-used locally and pass on the rest.  For example, in
+function, and let others pass through.  Instead of poping arguments to
+use off ``**kwargs``, specify them as keyword-only arguments to the local
+function.  This makes it obvious at a glance which arguments will be
+consumed in the function.  For example, in
 :meth:`~matplotlib.axes.Axes.plot`, ``scalex`` and ``scaley`` are
 local arguments and the rest are passed on as
 :meth:`~matplotlib.lines.Line2D` keyword arguments::
 
   # in axes/_axes.py
-  def plot(self, *args, **kwargs):
-      scalex = kwargs.pop('scalex', True)
-      scaley = kwargs.pop('scaley', True)
-      if not self._hold: self.cla()
+  def plot(self, *args, scalex=True, scaley=True, **kwargs):
       lines = []
       for line in self._get_lines(*args, **kwargs):
           self.add_line(line)

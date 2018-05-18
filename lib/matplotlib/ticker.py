@@ -164,11 +164,6 @@ example of setting major and minor ticks. See the :mod:`matplotlib.dates`
 module for more information and examples of using date locators and formatters.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import itertools
 import logging
 import locale
@@ -195,17 +190,13 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'SymmetricalLogLocator', 'LogitLocator')
 
 
-if six.PY3:
-    long = int
-
-
 # Work around numpy/numpy#6127.
 def _divmod(x, y):
     if isinstance(x, np.generic):
         x = x.item()
     if isinstance(y, np.generic):
         y = y.item()
-    return six.moves.builtins.divmod(x, y)
+    return divmod(x, y)
 
 
 def _mathdefault(s):
@@ -712,9 +703,13 @@ class ScalarFormatter(Formatter):
     def _set_orderOfMagnitude(self, range):
         # if scientific notation is to be used, find the appropriate exponent
         # if using an numerical offset, find the exponent after applying the
-        # offset
+        # offset. When lower power limit = upper <> 0, use provided exponent.
         if not self._scientific:
             self.orderOfMagnitude = 0
+            return
+        if self._powerlimits[0] == self._powerlimits[1] != 0:
+            # fixed scaling when lower power limit = upper <> 0.
+            self.orderOfMagnitude = self._powerlimits[0]
             return
         locs = np.abs(self.locs)
         if self.offset:
@@ -1098,7 +1093,7 @@ class LogFormatterMathtext(LogFormatter):
         exponent = np.round(fx) if is_x_decade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
         if is_x_decade:
-            fx = nearest_long(fx)
+            fx = round(fx)
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
@@ -1119,15 +1114,10 @@ class LogFormatterMathtext(LogFormatter):
                     '{0}{1:g}'.format(sign_string, x)))
         elif not is_x_decade:
             return self._non_decade_format(sign_string, base, fx, usetex)
+        elif usetex:
+            return r'$%s%s^{%d}$' % (sign_string, base, fx)
         else:
-            if usetex:
-                return (r'$%s%s^{%d}$') % (sign_string,
-                                           base,
-                                           nearest_long(fx))
-            else:
-                return ('$%s$' % _mathdefault(
-                    '%s%s^{%d}' %
-                    (sign_string, base, nearest_long(fx))))
+            return '$%s$' % _mathdefault('%s%s^{%d}' % (sign_string, base, fx))
 
 
 class LogFormatterSciNotation(LogFormatterMathtext):
@@ -1141,7 +1131,7 @@ class LogFormatterSciNotation(LogFormatterMathtext):
         exponent = math.floor(fx)
         coeff = b ** fx / b ** exponent
         if is_close_to_int(coeff):
-            coeff = nearest_long(coeff)
+            coeff = round(coeff)
         if usetex:
             return (r'$%s%g\times%s^{%d}$') % \
                                         (sign_string, coeff, base, exponent)
@@ -1236,7 +1226,7 @@ class EngFormatter(Formatter):
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
         # Remove the trailing separator when there is neither prefix nor unit
-        if len(self.sep) > 0 and s.endswith(self.sep):
+        if self.sep and s.endswith(self.sep):
             s = s[:-len(self.sep)]
         return self.fix_minus(s)
 
@@ -1982,12 +1972,11 @@ def decade_up(x, base=10):
 
 
 def nearest_long(x):
-    if x == 0:
-        return long(0)
-    elif x > 0:
-        return long(x + 0.5)
-    else:
-        return long(x - 0.5)
+    cbook.warn_deprecated('3.0', removal='3.1', name='`nearest_long`',
+                          obj_type='function', alternative='`round`')
+    if x >= 0:
+        return int(x + 0.5)
+    return int(x - 0.5)
 
 
 def is_decade(x, base=10):
@@ -2002,7 +1991,7 @@ def is_decade(x, base=10):
 def is_close_to_int(x):
     if not np.isfinite(x):
         return False
-    return abs(x - nearest_long(x)) < 1e-10
+    return abs(x - round(x)) < 1e-10
 
 
 class LogLocator(Locator):
@@ -2065,7 +2054,7 @@ class LogLocator(Locator):
         """
         if subs is None:  # consistency with previous bad API
             self._subs = 'auto'
-        elif isinstance(subs, six.string_types):
+        elif isinstance(subs, str):
             if subs not in ('all', 'auto'):
                 raise ValueError("A subs string must be 'all' or 'auto'; "
                                  "found '%s'." % subs)
@@ -2114,7 +2103,7 @@ class LogLocator(Locator):
 
         numdec = math.floor(vmax) - math.ceil(vmin)
 
-        if isinstance(self._subs, six.string_types):
+        if isinstance(self._subs, str):
             _first = 2.0 if self._subs == 'auto' else 1.0
             if numdec > 10 or b < 3:
                 if self._subs == 'auto':

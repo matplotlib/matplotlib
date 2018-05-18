@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.scale import Log10Transform, InvertedLog10Transform
@@ -91,9 +89,8 @@ def test_logscale_transform_repr():
     ax.set_yscale('log')
     s = repr(ax.transData)
 
-    # check that repr of log transform returns correct string
+    # check that repr of log transform succeeds
     s = repr(Log10Transform(nonpos='clip'))
-    assert s == "Log10Transform({!r})".format('clip')
 
 
 @image_comparison(baseline_images=['logscale_nonpos_values'], remove_text=True,
@@ -121,3 +118,27 @@ def test_logscale_nonpos_values():
 
     ax4.set_yscale('log')
     ax4.set_xscale('log')
+
+
+def test_invalid_log_lims():
+    # Check that invalid log scale limits are ignored
+    fig, ax = plt.subplots()
+    ax.scatter(range(0, 4), range(0, 4))
+
+    ax.set_xscale('log')
+    original_xlim = ax.get_xlim()
+    with pytest.warns(UserWarning):
+        ax.set_xlim(left=0)
+    assert ax.get_xlim() == original_xlim
+    with pytest.warns(UserWarning):
+        ax.set_xlim(right=-1)
+    assert ax.get_xlim() == original_xlim
+
+    ax.set_yscale('log')
+    original_ylim = ax.get_ylim()
+    with pytest.warns(UserWarning):
+        ax.set_ylim(bottom=0)
+    assert ax.get_ylim() == original_ylim
+    with pytest.warns(UserWarning):
+        ax.set_ylim(top=-1)
+    assert ax.get_ylim() == original_ylim

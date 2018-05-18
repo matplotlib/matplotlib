@@ -20,22 +20,15 @@ class Axes(maxes.Axes):
     usetex=False in the same figure. It does not work in the ps backend.
     """
 
-    def __init__(self, *kl, **kw):
-        self.usetex = kw.pop("usetex", "False")
-        self.preview = kw.pop("preview", "False")
-
-        maxes.Axes.__init__(self, *kl, **kw)
+    def __init__(self, *args, usetex=False, preview=False, **kwargs):
+        self.usetex = usetex
+        self.preview = preview
+        super().__init__(*args, **kwargs)
 
     def draw(self, renderer):
-        usetex = plt.rcParams["text.usetex"]
-        preview = plt.rcParams["text.latex.preview"]
-        plt.rcParams["text.usetex"] = self.usetex
-        plt.rcParams["text.latex.preview"] = self.preview
-
-        maxes.Axes.draw(self, renderer)
-
-        plt.rcParams["text.usetex"] = usetex
-        plt.rcParams["text.latex.preview"] = preview
+        with plt.rc_context({"text.usetex": self.usetex,
+                             "text.latex.preview": self.preview}):
+            super().draw(renderer)
 
 
 subplot = maxes.subplot_class_factory(Axes)

@@ -134,21 +134,12 @@ The plot directive has the following configuration options:
     plot_template
         Provide a customized template for preparing restructured text.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange
-
 import itertools
 import sys, os, shutil, io, re, textwrap
 from os.path import relpath
 from pathlib import Path
 import traceback
 import warnings
-
-if not six.PY3:
-    import cStringIO
 
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.images import Image
@@ -224,7 +215,7 @@ def mark_plot_labels(app, document):
     the "htmlonly" (or "latexonly") node to the actual figure node
     itself.
     """
-    for name, explicit in six.iteritems(document.nametypes):
+    for name, explicit in document.nametypes.items():
         if not explicit:
             continue
         labelid = document.nameids[name]
@@ -348,6 +339,7 @@ def remove_coding(text):
     r"""
     Remove the coding comment, which six.exec\_ doesn't like.
     """
+    cbook.warn_deprecated('3.0', name='remove_coding', removal='3.1')
     sub_re = re.compile("^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
     return sub_re.sub("", text)
 
@@ -469,11 +461,8 @@ def run_code(code, code_path, ns=None, function_name=None):
     # Change the working directory to the directory of the example, so
     # it can get at its data files, if any.  Add its path to sys.path
     # so it can import any helper modules sitting beside it.
-    if six.PY2:
-        pwd = os.getcwdu()
-    else:
-        pwd = os.getcwd()
-    old_sys_path = list(sys.path)
+    pwd = os.getcwd()
+    old_sys_path = sys.path.copy()
     if setup.config.plot_working_directory is not None:
         try:
             os.chdir(setup.config.plot_working_directory)
@@ -497,10 +486,7 @@ def run_code(code, code_path, ns=None, function_name=None):
 
     # Redirect stdout
     stdout = sys.stdout
-    if six.PY3:
-        sys.stdout = io.StringIO()
-    else:
-        sys.stdout = cStringIO.StringIO()
+    sys.stdout = io.StringIO()
 
     # Assign a do-nothing print function to the namespace.  There
     # doesn't seem to be any other way to provide a way to (not) print
@@ -515,17 +501,16 @@ def run_code(code, code_path, ns=None, function_name=None):
                 ns = {}
             if not ns:
                 if setup.config.plot_pre_code is None:
-                    six.exec_(six.text_type("import numpy as np\n" +
-                    "from matplotlib import pyplot as plt\n"), ns)
+                    exec('import numpy as np\n'
+                         'from matplotlib import pyplot as plt\n', ns)
                 else:
-                    six.exec_(six.text_type(setup.config.plot_pre_code), ns)
+                    exec(str(setup.config.plot_pre_code), ns)
             ns['print'] = _dummy_print
             if "__main__" in code:
-                six.exec_("__name__ = '__main__'", ns)
-            code = remove_coding(code)
-            six.exec_(code, ns)
+                ns['__name__'] = '__main__'
+            exec(code, ns)
             if function_name is not None:
-                six.exec_(function_name + "()", ns)
+                exec(function_name + "()", ns)
         except (Exception, SystemExit) as err:
             raise PlotError(traceback.format_exc())
     finally:
@@ -547,13 +532,13 @@ def get_plot_formats(config):
     default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
     plot_formats = config.plot_formats
-    if isinstance(plot_formats, six.string_types):
+    if isinstance(plot_formats, str):
         # String Sphinx < 1.3, Split on , to mimic
         # Sphinx 1.3 and later. Sphinx 1.3 always
         # returns a list.
         plot_formats = plot_formats.split(',')
     for fmt in plot_formats:
-        if isinstance(fmt, six.string_types):
+        if isinstance(fmt, str):
             if ':' in fmt:
                 suffix, dpi = fmt.split(':')
                 formats.append((str(suffix), int(dpi)))
@@ -704,7 +689,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
-        code = textwrap.dedent("\n".join(map(six.text_type, content)))
+        code = textwrap.dedent("\n".join(map(str, content)))
         counter = document.attributes.get('_plot_counter', 0) + 1
         document.attributes['_plot_counter'] = counter
         base, ext = os.path.splitext(os.path.basename(source_file_name))
@@ -808,7 +793,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             images = []
 
         opts = [
-            ':%s: %s' % (key, val) for key, val in six.iteritems(options)
+            ':%s: %s' % (key, val) for key, val in options.items()
             if key in ('alt', 'height', 'width', 'scale', 'align', 'class')]
 
         only_html = ".. only:: html"

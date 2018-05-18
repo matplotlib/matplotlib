@@ -1,8 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-from six.moves import map, zip
-
 import math
 from numbers import Number
 import warnings
@@ -39,9 +34,6 @@ class Patch(artist.Artist):
     # Whether to draw an edge by default.  Set on a
     # subclass-by-subclass basis.
     _edge_default = False
-
-    def __str__(self):
-        return str(self.__class__).split('.')[-1]
 
     def __init__(self,
                  edgecolor=None,
@@ -799,7 +791,9 @@ class RegularPolygon(Patch):
     A regular polygon patch.
     """
     def __str__(self):
-        return "Poly%d(%g,%g)" % (self._numVertices, self._xy[0], self._xy[1])
+        s = "RegularPolygon((%g, %g), %d, radius=%g, orientation=%g)"
+        return s % (self._xy[0], self._xy[1], self._numVertices, self._radius,
+                    self._orientation)
 
     @docstring.dedent_interpd
     def __init__(self, xy, numVertices, radius=5, orientation=0,
@@ -885,7 +879,8 @@ class PathPatch(Patch):
     _edge_default = True
 
     def __str__(self):
-        return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
+        s = "PathPatch%d((%g, %g) ...)"
+        return s % (len(self._path.vertices), *tuple(self._path.vertices[0]))
 
     @docstring.dedent_interpd
     def __init__(self, path, **kwargs):
@@ -913,7 +908,8 @@ class Polygon(Patch):
     A general polygon patch.
     """
     def __str__(self):
-        return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
+        s = "Polygon%d((%g, %g) ...)"
+        return s % (len(self._path.vertices), *tuple(self._path.vertices[0]))
 
     @docstring.dedent_interpd
     def __init__(self, xy, closed=True, **kwargs):
@@ -1235,10 +1231,10 @@ class FancyArrow(Polygon):
             # start by drawing horizontal arrow, point at (0,0)
             hw, hl, hs, lw = head_width, head_length, overhang, width
             left_half_arrow = np.array([
-                [0.0, 0.0],                  # tip
-                [-hl, -hw / 2.0],             # leftmost
-                [-hl * (1 - hs), -lw / 2.0],  # meets stem
-                [-length, -lw / 2.0],          # bottom left
+                [0.0, 0.0],                 # tip
+                [-hl, -hw / 2],             # leftmost
+                [-hl * (1 - hs), -lw / 2],  # meets stem
+                [-length, -lw / 2],         # bottom left
                 [-length, 0],
             ])
             # if we're not including the head, shift up by head length
@@ -1246,7 +1242,7 @@ class FancyArrow(Polygon):
                 left_half_arrow += [head_length, 0]
             # if the head starts at 0, shift up by another head length
             if head_starts_at_zero:
-                left_half_arrow += [head_length / 2.0, 0]
+                left_half_arrow += [head_length / 2, 0]
             # figure out the shape, and complete accordingly
             if shape == 'left':
                 coords = left_half_arrow
@@ -1271,7 +1267,7 @@ class FancyArrow(Polygon):
             M = [[cx, sx], [-sx, cx]]
             verts = np.dot(coords, M) + (x + dx, y + dy)
 
-        Polygon.__init__(self, list(map(tuple, verts)), closed=True, **kwargs)
+        super().__init__(verts, closed=True, **kwargs)
 
 
 docstring.interpd.update({"FancyArrow": FancyArrow.__init__.__doc__})
@@ -1386,7 +1382,8 @@ class CirclePolygon(RegularPolygon):
     A polygon-approximation of a circle patch.
     """
     def __str__(self):
-        return "CirclePolygon(%d,%d)" % self.center
+        s = "CirclePolygon((%g, %g), radius=%g, resolution=%d)"
+        return s % (self._xy[0], self._xy[1], self._radius, self._numVertices)
 
     @docstring.dedent_interpd
     def __init__(self, xy, radius=5,
@@ -1848,24 +1845,13 @@ def _pprint_styles(_styles):
     _table = [["Class", "Name", "Attrs"]]
 
     for name, cls in sorted(_styles.items()):
-        if six.PY2:
-            args, varargs, varkw, defaults = inspect.getargspec(cls.__init__)
+        spec = inspect.getfullargspec(cls.__init__)
+        if spec.defaults:
+            argstr = ", ".join(map(
+                "{}={}".format, spec.args[-len(spec.defaults):], spec.defaults
+            ))
         else:
-            (args, varargs, varkw, defaults, kwonlyargs, kwonlydefs,
-                annotations) = inspect.getfullargspec(cls.__init__)
-        if defaults:
-            args = [(argname, argdefault)
-                    for argname, argdefault in zip(args[1:], defaults)]
-        else:
-            args = None
-
-        if args is None:
             argstr = 'None'
-        else:
-            argstr = ",".join([("%s=%s" % (an, av))
-                               for an, av
-                               in args])
-
         # adding ``quotes`` since - and | have special meaning in reST
         _table.append([cls.__name__, "``%s``" % name, argstr])
 
@@ -2456,9 +2442,8 @@ class FancyBboxPatch(Patch):
     _edge_default = True
 
     def __str__(self):
-        return self.__class__.__name__ \
-                           + "(%g,%g;%gx%g)" % (self._x, self._y,
-                                                self._width, self._height)
+        s = self.__class__.__name__ + "((%g, %g), width=%g, height=%g)"
+        return s % (self._x, self._y, self._width, self._height)
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height,
@@ -3971,7 +3956,7 @@ class FancyArrowPatch(Patch):
         if self._posA_posB is not None:
             (x1, y1), (x2, y2) = self._posA_posB
             return self.__class__.__name__ \
-                + "(%g,%g->%g,%g)" % (x1, y1, x2, y2)
+                + "((%g, %g)->(%g, %g))" % (x1, y1, x2, y2)
         else:
             return self.__class__.__name__ \
                 + "(%s)" % (str(self._path_original),)
@@ -4379,7 +4364,7 @@ class ConnectionPatch(FancyArrowPatch):
     connecting lines between two points (possibly in different axes).
     """
     def __str__(self):
-        return "ConnectionPatch((%g,%g),(%g,%g))" % \
+        return "ConnectionPatch((%g, %g), (%g, %g))" % \
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @docstring.dedent_interpd

@@ -18,7 +18,7 @@ def test_bar3d():
         ys = np.arange(20)
         cs = [c] * len(xs)
         cs[0] = 'c'
-        ax.bar(xs, ys, zs=z, zdir='y', color=cs, alpha=0.8)
+        ax.bar(xs, ys, zs=z, zdir='y', align='edge', color=cs, alpha=0.8)
 
 
 @image_comparison(

@@ -142,7 +142,6 @@ Matplotlib requires the following dependencies:
   * `pytz <http://pytz.sourceforge.net/>`__
   * FreeType (>= 2.3)
   * `cycler <http://matplotlib.org/cycler/>`__ (>= 0.10.0)
-  * `six <https://pypi.python.org/pypi/six>`_
   * `kiwisolver <https://github.com/nucleic/kiwi>`__ (>= 1.0.0)
 
 Optionally, you can also install a number of packages to enable better user
@@ -166,7 +165,7 @@ etc., you can install the following:
     <https://libav.org/avconv.html>`_: for saving movies;
   * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
     animated gifs;
-  * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>=2.0): for a larger selection of
+  * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>=3.4): for a larger selection of
     image file formats: JPEG, BMP, and TIFF image files;
   * `LaTeX <https://miktex.org/>`_ and `GhostScript
     <https://ghostscript.com/download/>`_ (for rendering text with LaTeX).

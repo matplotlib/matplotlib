@@ -1,6 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-import six
 import warnings
 
 import numpy as np
@@ -213,7 +210,7 @@ def add_offsetboxes(ax, size=10, margin=.1, color='black'):
         da.add_artist(background)
 
         anchored_box = AnchoredOffsetbox(
-            loc=10,
+            loc='center',
             child=da,
             pad=0.,
             frameon=False,

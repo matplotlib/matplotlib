@@ -31,7 +31,7 @@ import numpy as np
 from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import silent_list, is_hashable
+from matplotlib.cbook import silent_list, is_hashable, warn_deprecated
 import matplotlib.colors as colors
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
@@ -52,11 +52,18 @@ from . import legend_handler
 class DraggableLegend(DraggableOffsetBox):
     def __init__(self, legend, use_blit=False, update="loc"):
         """
+        Wrapper around a `.Legend` to support mouse dragging.
+
         Parameters
         ----------
-        update : string
-            If "loc", update *loc* parameter of legend upon finalizing.
-            If "bbox", update *bbox_to_anchor* parameter.
+        legend : `.Legend`
+            The `.Legend` instance to wrap.
+        use_blit : bool, optional
+            Use blitting for faster image composition. For details see
+            :ref:`func-animation`.
+        update : {'loc', 'bbox'}, optional
+            If "loc", update the *loc* parameter of the legend upon finalizing.
+            If "bbox", update the *bbox_to_anchor* parameter.
         """
         self.legend = legend
 
@@ -130,12 +137,26 @@ loc : int or string or pair of floats, default: 'upper right'
     corner of the legend in axes coordinates (in which case
     ``bbox_to_anchor`` will be ignored).
 
-bbox_to_anchor : `.BboxBase` or pair of floats
-    Specify any arbitrary location for the legend in `bbox_transform`
-    coordinates (default Axes coordinates).
+bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
+    Box that is used to position the legend in conjunction with *loc*.
+    Defaults to `axes.bbox` (if called as a method to `.Axes.legend`) or
+    `figure.bbox` (if `.Figure.legend`).  This argument allows arbitrary
+    placement of the legend.
 
-    For example, to put the legend's upper right hand corner in the
-    center of the axes the following keywords can be used::
+    Bbox coordinates are interpreted in the coordinate system given by
+    `bbox_transform`, with the default transform
+    Axes or Figure coordinates, depending on which ``legend`` is called.
+
+    If a 4-tuple or `.BboxBase` is given, then it specifies the bbox
+    ``(x, y, width, height)`` that the legend is placed in.
+    To put the legend in the best location in the bottom right
+    quadrant of the axes (or figure)::
+
+        loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5)
+
+    A 2-tuple ``(x, y)`` places the corner of the legend specified by *loc* at
+    x, y.  For example, to put the legend's upper right-hand corner in the
+    center of the axes (or figure) the following keywords can be used::
 
         loc='upper right', bbox_to_anchor=(0.5, 0.5)
 
@@ -231,6 +252,9 @@ bbox_transform : None or :class:`matplotlib.transforms.Transform`
 
 title : str or None
     The legend's title. Default is no title (``None``).
+
+title_fontsize: str or None
+    The fontsize of the legend's title.  Default is the default fontsize.
 
 borderpad : float or None
     The fractional whitespace inside the legend border.
@@ -333,7 +357,7 @@ class Legend(Artist):
                                  # box, none use rc
                  shadow=None,
                  title=None,  # set a title for the legend
-
+                 title_fontsize=None,  # set to ax.fontsize if None
                  framealpha=None,  # set frame alpha
                  edgecolor=None,  # frame patch edgecolor
                  facecolor=None,  # frame patch facecolor
@@ -346,7 +370,7 @@ class Legend(Artist):
         """
         Parameters
         ----------
-        parent : `.Axes` or `.Figure`
+        parent : `~matplotlib.axes.Axes` or `.Figure`
             The artist that contains the legend.
 
         handles : sequence of `.Artist`
@@ -539,7 +563,11 @@ class Legend(Artist):
             self.get_frame().set_alpha(framealpha)
 
         self._loc = loc
-        self.set_title(title)
+        # figure out title fontsize:
+        if title_fontsize is None:
+            title_fontsize = rcParams['legend.title_fontsize']
+        tprop = FontProperties(size=title_fontsize)
+        self.set_title(title, prop=tprop)
         self._last_fontsize_points = self._fontsize
         self._draggable = None
 
@@ -1089,6 +1117,43 @@ class Legend(Artist):
     def contains(self, event):
         return self.legendPatch.contains(event)
 
+    def set_draggable(self, state, use_blit=False, update='loc'):
+        """
+        Enable or disable mouse dragging support of the legend.
+
+        Parameters
+        ----------
+        state : bool
+            Whether mouse dragging is enabled.
+        use_blit : bool, optional
+            Use blitting for faster image composition. For details see
+            :ref:`func-animation`.
+        update : ['loc' | 'bbox'], optional
+            The legend parameter to be changed when dragged:
+
+            - 'loc': update the *loc* parameter of the legend
+            - 'bbox': update the *bbox_to_anchor* parameter of the legend
+
+        Returns
+        -------
+        If *state* is ``True`` this returns the `~.DraggableLegend` helper
+        instance. Otherwise this returns ``None``.
+        """
+        if state:
+            if self._draggable is None:
+                self._draggable = DraggableLegend(self,
+                                                  use_blit,
+                                                  update=update)
+        else:
+            if self._draggable is not None:
+                self._draggable.disconnect()
+            self._draggable = None
+        return self._draggable
+
+    def get_draggable(self):
+        """Return ``True`` if the legend is draggable, ``False`` otherwise."""
+        return self._draggable is not None
+
     def draggable(self, state=None, use_blit=False, update="loc"):
         """
         Set the draggable state -- if state is
@@ -1107,21 +1172,16 @@ class Legend(Artist):
         when dragged. If update is "loc", the *loc* parameter of the legend
         is changed. If "bbox", the *bbox_to_anchor* parameter is changed.
         """
-        is_draggable = self._draggable is not None
+        warn_deprecated("2.2",
+                        message="Legend.draggable() is drepecated in "
+                                "favor of Legend.set_draggable(). "
+                                "Legend.draggable may be reintroduced as a "
+                                "property in future releases.")
 
-        # if state is None we'll toggle
         if state is None:
-            state = not is_draggable
+            state = not self.get_draggable()  # toggle state
 
-        if state:
-            if self._draggable is None:
-                self._draggable = DraggableLegend(self,
-                                                  use_blit,
-                                                  update=update)
-        else:
-            if self._draggable is not None:
-                self._draggable.disconnect()
-            self._draggable = None
+        self.set_draggable(state, use_blit, update)
 
         return self._draggable
 
@@ -1174,7 +1234,7 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
     return handles, labels
 
 
-def _parse_legend_args(axs, *args, **kwargs):
+def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     """
     Get the handles and labels from the calls to either ``figure.legend``
     or ``axes.legend``.
@@ -1184,17 +1244,11 @@ def _parse_legend_args(axs, *args, **kwargs):
     log = logging.getLogger(__name__)
 
     handlers = kwargs.get('handler_map', {}) or {}
-
-    # Support handles and labels being passed as keywords.
-    handles = kwargs.pop('handles', None)
-    labels = kwargs.pop('labels', None)
-
     extra_args = ()
 
-    if (handles is not None or labels is not None) and len(args):
-        warnings.warn("You have mixed positional and keyword "
-                      "arguments, some input may be "
-                      "discarded.")
+    if (handles is not None or labels is not None) and args:
+        warnings.warn("You have mixed positional and keyword arguments, some "
+                      "input may be discarded.")
 
     # if got both handles and labels as kwargs, make same length
     if handles and labels:

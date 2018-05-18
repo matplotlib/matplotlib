@@ -2,11 +2,6 @@
 # Created: 23 Sep 2005
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import copy
 
 from matplotlib import (
@@ -66,7 +61,8 @@ class Axis(maxis.XAxis):
             'color': (0.925, 0.925, 0.925, 0.5)},
     }
 
-    def __init__(self, adir, v_intervalx, d_intervalx, axes, *args, **kwargs):
+    def __init__(self, adir, v_intervalx, d_intervalx, axes, *args,
+                 rotate_label=None, **kwargs):
         # adir identifies which axes this is
         self.adir = adir
         # data and viewing intervals for this direction
@@ -110,7 +106,7 @@ class Axis(maxis.XAxis):
                  })
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
-        self.set_rotate_label(kwargs.get('rotate_label', None))
+        self.set_rotate_label(rotate_label)
 
     def init3d(self):
         self.line = mlines.Line2D(

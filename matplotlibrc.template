@@ -415,6 +415,7 @@ backend      : $TEMPLATE_BACKEND
 #legend.scatterpoints : 1        ## number of scatter points
 #legend.markerscale   : 1.0      ## the relative size of legend markers vs. original
 #legend.fontsize      : medium
+#legend.title_fontsize    : None ## None sets to the same as the default axes.  
 ## Dimensions as fraction of fontsize:
 #legend.borderpad     : 0.4      ## border whitespace
 #legend.labelspacing  : 0.5      ## the vertical space between the legend entries
@@ -591,6 +592,7 @@ backend      : $TEMPLATE_BACKEND
 #keymap.yscale : l                   ## toggle scaling of y-axes ('log'/'linear')
 #keymap.xscale : k, L                ## toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 ## enable all axes
+#keymap.copy : ctrl+c, cmd+c         ## Copy figure to clipboard
 
 ## Control location of examples data files
 #examples.directory :              ## directory to look in for custom installation

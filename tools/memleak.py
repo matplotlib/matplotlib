@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-
 import gc
 from io import BytesIO
-
-try:
-    import tracemalloc
-except ImportError:
-    raise ImportError("This script requires Python 3.4 or later")
+import tracemalloc
 
 try:
     import psutil

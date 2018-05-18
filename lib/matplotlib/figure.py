@@ -58,8 +58,9 @@ def _stale_figure_callback(self, val):
 
 class AxesStack(Stack):
     """
-    Specialization of the `.Stack` to handle all tracking of `.Axes` in a
-    `.Figure`. This stack stores ``key, (ind, axes)`` pairs, where:
+    Specialization of the `.Stack` to handle all tracking of
+    `~matplotlib.axes.Axes` in a `.Figure`.
+    This stack stores ``key, (ind, axes)`` pairs, where:
 
         * **key** should be a hash of the args and kwargs
           used in generating the Axes.
@@ -731,6 +732,8 @@ default: 'top'
 
         >>> fig.suptitle('This is the figure title', fontsize=12)
         """
+        manual_position = ('x' in kwargs or 'y' in kwargs)
+
         x = kwargs.pop('x', 0.5)
         y = kwargs.pop('y', 0.98)
 
@@ -753,19 +756,22 @@ default: 'top'
             sup.remove()
         else:
             self._suptitle = sup
-        if self._layoutbox is not None:
-            # assign a layout box to the suptitle...
-            figlb = self._layoutbox
-            self._suptitle._layoutbox = layoutbox.LayoutBox(
-                                            parent=figlb,
-                                            name=figlb.name+'.suptitle')
-            for child in figlb.children:
-                if not (child == self._suptitle._layoutbox):
-                    w_pad, h_pad, wspace, hspace =  \
-                            self.get_constrained_layout_pads(
-                                    relative=True)
-                    layoutbox.vstack([self._suptitle._layoutbox, child],
-                                     padding=h_pad*2., strength='required')
+            self._suptitle._layoutbox = None
+            if self._layoutbox is not None and not manual_position:
+                w_pad, h_pad, wspace, hspace =  \
+                        self.get_constrained_layout_pads(relative=True)
+                figlb = self._layoutbox
+                self._suptitle._layoutbox = layoutbox.LayoutBox(
+                        parent=figlb, artist=self._suptitle,
+                        name=figlb.name+'.suptitle')
+                # stack the suptitle on top of all the children.
+                # Some day this should be on top of all the children in the
+                # gridspec only.
+                for child in figlb.children:
+                    if child is not self._suptitle._layoutbox:
+                        layoutbox.vstack([self._suptitle._layoutbox,
+                                          child],
+                                         padding=h_pad*2., strength='required')
         self.stale = True
         return self._suptitle
 
@@ -994,7 +1000,8 @@ default: 'top'
 
     def delaxes(self, ax):
         """
-        Remove the `.Axes` *ax* from the figure and update the current axes.
+        Remove the `~matplotlib.axes.Axes` *ax* from the figure and update the
+        current axes.
         """
         self._axstack.remove(ax)
         for func in self._axobservers:
@@ -1265,21 +1272,21 @@ default: 'top'
                 - 'col': each subplot column will share an x- or y-axis.
 
             When subplots have a shared x-axis along a column, only the x tick
-            labels of the bottom subplot are visible.  Similarly, when
-            subplots have a shared y-axis along a row, only the y tick labels
-            of the first column subplot are visible.
+            labels of the bottom subplot are created. Similarly, when subplots
+            have a shared y-axis along a row, only the y tick labels of the
+            first column subplot are created. To later turn other subplots'
+            ticklabels on, use :meth:`~matplotlib.axes.Axes.tick_params`.
 
-        squeeze : bool, default: True
+        squeeze : bool, optional, default: True
             - If True, extra dimensions are squeezed out from the returned
-              axis object:
+              array of Axes:
 
                 - if only one subplot is constructed (nrows=ncols=1), the
                   resulting single Axes object is returned as a scalar.
-                - for Nx1 or 1xN subplots, the returned object is a 1D numpy
-                  object array of Axes objects are returned as numpy 1D
-                  arrays.
-                - for NxM, subplots with N>1 and M>1 are returned as a 2D
-                  arrays.
+                - for Nx1 or 1xM subplots, the returned object is a 1D numpy
+                  object array of Axes objects.
+                - for NxM, subplots with N>1 and M>1 are returned
+                  as a 2D array.
 
             - If False, no squeezing at all is done: the returned Axes object
               is always a 2D array containing Axes instances, even if it ends
@@ -1306,7 +1313,6 @@ default: 'top'
         pyplot.subplots : pyplot API; docstring includes examples.
         """
 
-        # for backwards compatibility
         if isinstance(sharex, bool):
             sharex = "all" if sharex else "none"
         if isinstance(sharey, bool):
@@ -1760,7 +1766,7 @@ default: 'top'
         """Whenever the axes state change, ``func(self)`` will be called."""
         self._axobservers.append(func)
 
-    def savefig(self, fname, **kwargs):
+    def savefig(self, fname, *, frameon=None, transparent=None, **kwargs):
         """
         Save the current figure.
 
@@ -1844,9 +1850,10 @@ default: 'top'
 
         """
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
-        frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
-        transparent = kwargs.pop('transparent',
-                                 rcParams['savefig.transparent'])
+        if frameon is None:
+            frameon = rcParams['savefig.frameon']
+        if transparent is None:
+            transparent = rcParams['savefig.transparent']
 
         if transparent:
             kwargs.setdefault('facecolor', 'none')
@@ -2114,7 +2121,8 @@ default: 'top'
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list of (or ndarray) `.Axes` to align the xlabels.
+            Optional list of (or ndarray) `~matplotlib.axes.Axes`
+            to align the xlabels.
             Default is to align all axes on the figure.
 
         See Also
@@ -2182,7 +2190,8 @@ default: 'top'
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list (or ndarray) of `.Axes` to align the ylabels.
+            Optional list (or ndarray) of `~matplotlib.axes.Axes`
+            to align the ylabels.
             Default is to align all axes on the figure.
 
         See Also
@@ -2245,7 +2254,8 @@ default: 'top'
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list (or ndarray) of `.Axes` to align the labels.
+            Optional list (or ndarray) of `~matplotlib.axes.Axes`
+            to align the labels.
             Default is to align all axes on the figure.
 
         See Also

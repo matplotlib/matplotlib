@@ -65,3 +65,19 @@ for cmap_category, cmap_list in cmaps:
     plot_color_gradients(cmap_category, cmap_list, nrows)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.colors
+matplotlib.axes.Axes.imshow
+matplotlib.figure.Figure.text
+matplotlib.axes.Axes.set_axis_off

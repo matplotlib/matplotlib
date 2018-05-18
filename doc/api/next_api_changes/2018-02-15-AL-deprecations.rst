@@ -11,14 +11,19 @@ The following modules are deprecated:
 The following classes, methods, functions, and attributes are deprecated:
 
 - ``afm.parse_afm``,
+- ``backend_pgf.get_texcommand``,
+- ``backend_ps.get_bbox``,
+- ``backend_qt5.error_msg_qt``, ``backend_qt5.exception_handler``,
 - ``backend_wx.FigureCanvasWx.macros``,
 - ``cbook.GetRealpathAndStat``, ``cbook.Locked``,
 - ``cbook.is_numlike`` (use ``isinstance(..., numbers.Number)`` instead),
-  ``cbook.listFiles``, ``cbook.unicode_safe``
+  ``cbook.listFiles``, ``cbook.unicode_safe``,
 - ``container.Container.set_remove_method``,
+- ``contour.ContourLabeler.cl``, ``.cl_xy``, and ``.cl_cvalues``,
 - ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``,
 - ``font_manager.TempCache``,
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
+- ``table.Table.get_child_artists`` (use ``get_children`` instead),
 - ``testing.compare.ImageComparisonTest``, ``testing.compare.compare_float``,
 - ``testing.decorators.skip_if_command_unavailable``.
 - ``FigureCanvasQT.keyAutoRepeat`` (directly check

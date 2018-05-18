@@ -19,12 +19,10 @@ TODO:
   * integrate screen dpi w/ ppi and text
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
-import threading
+try:
+    import threading
+except ImportError:
+    import dummy_threading as threading
 import numpy as np
 from collections import OrderedDict
 from math import radians, cos, sin
@@ -42,11 +40,10 @@ from matplotlib import colors as mcolors
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
 
-try:
+from matplotlib.backend_bases import _has_pil
+
+if _has_pil:
     from PIL import Image
-    _has_pil = True
-except ImportError:
-    _has_pil = False
 
 backend_version = 'v2.2'
 
@@ -516,7 +513,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     if _has_pil:
         # add JPEG support
-        def print_jpg(self, filename_or_obj, *args, **kwargs):
+        def print_jpg(self, filename_or_obj, *args, dryrun=False, **kwargs):
             """
             Other Parameters
             ----------------
@@ -536,7 +533,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 should be stored as a progressive JPEG file.
             """
             buf, size = self.print_to_buffer()
-            if kwargs.pop("dryrun", False):
+            if dryrun:
                 return
             # The image is "pasted" onto a white background image to safely
             # handle any transparency
@@ -557,9 +554,9 @@ class FigureCanvasAgg(FigureCanvasBase):
         print_jpeg = print_jpg
 
         # add TIFF support
-        def print_tif(self, filename_or_obj, *args, **kwargs):
+        def print_tif(self, filename_or_obj, *args, dryrun=False, **kwargs):
             buf, size = self.print_to_buffer()
-            if kwargs.pop("dryrun", False):
+            if dryrun:
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             dpi = (self.figure.dpi, self.figure.dpi)

@@ -3,7 +3,7 @@
 Contourf Demo
 =============
 
-How to use the ``contourf`` function to create filled contour plots.
+How to use the :meth:`.axes.Axes.contourf` method to create filled contour plots.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -105,3 +105,27 @@ for ax, extend in zip(axs.ravel(), extends):
     ax.locator_params(nbins=4)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.contour
+matplotlib.pyplot.contour
+matplotlib.axes.Axes.contourf
+matplotlib.pyplot.contourf
+matplotlib.axes.Axes.clabel
+matplotlib.pyplot.clabel
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.colors.Colormap
+matplotlib.colors.Colormap.set_bad
+matplotlib.colors.Colormap.set_under
+matplotlib.colors.Colormap.set_over

@@ -62,7 +62,7 @@ Changed function signatures
 kwarg ``fig`` to `.GridSpec.get_subplot_params` is
 deprecated,  use ``figure`` instead.
 
-Using `.pyplot.axes` with an `.Axes` as argument is deprecated. This sets
+Using `.pyplot.axes` with an `~matplotlib.axes.Axes` as argument is deprecated. This sets
 the current axes, i.e. it has the same effect as `.pyplot.sca`. For clarity
 ``plt.sca(ax)`` should be preferred over ``plt.axes(ax)``.
 
@@ -405,6 +405,22 @@ The new `G` key binding switches the states of the minor grids.
 
 Both bindings are disabled if only a subset of the grid lines (in either
 direction) is visible, to avoid making irreversible changes to the figure.
+
+
+Ticklabels are turned off instead of being invisible
+----------------------------------------------------
+
+Internally, the `Tick`'s :func:`~matplotlib.axis.Tick.label1On` attribute
+is now used to hide tick labels instead of setting the visibility on the tick
+label objects.
+This improves overall performance and fixes some issues.
+As a consequence, in case those labels ought to be shown,
+:func:`~matplotlib.axes.Axes.tick_params`
+needs to be used, e.g.
+
+::
+
+    ax.tick_params(labelbottom=True)
 
 
 Removal of warning on empty legends
@@ -848,7 +864,7 @@ Deprecation and removal
 
 Color of Axes
 ~~~~~~~~~~~~~
-The ``axisbg`` and ``axis_bgcolor`` properties on ``Axes`` have been
+The ``axisbg`` and ``axis_bgcolor`` properties on *Axes* have been
 deprecated in favor of ``facecolor``.
 
 GTK and GDK backends deprecated
@@ -1281,8 +1297,8 @@ algorithm that was not necessarily applicable to custom Axes. Three new private
 methods, :meth:`~matplotlib.axes._base._AxesBase._get_view`,
 :meth:`~matplotlib.axes._base._AxesBase._set_view`, and
 :meth:`~matplotlib.axes._base._AxesBase._set_view_from_bbox`, allow for custom
-``Axes`` classes to override the pan and zoom algorithms. Implementors of
-custom ``Axes`` who override these methods may provide suitable behaviour for
+*Axes* classes to override the pan and zoom algorithms. Implementors of
+custom *Axes* who override these methods may provide suitable behaviour for
 both pan and zoom as well as the view navigation buttons on the interactive
 toolbars.
 

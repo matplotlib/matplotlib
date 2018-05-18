@@ -40,18 +40,18 @@ AUTOGEN_MSG = """
 
 
 CMAPPABLE_TEMPLATE = AUTOGEN_MSG + """
-@_autogen_docstring(Axes.%(func)s)
+@_autogen_docstring(Axes.%(real_name)s)
 def %(func)s%(sig)s:
-    __ret = gca().%(func)s%(call)s
+    __ret = gca().%(real_name)s%(call)s
 %(mappable)s
     return __ret
 """
 
 
 NON_CMAPPABLE_TEMPLATE = AUTOGEN_MSG + """
-@docstring.copy_dedent(Axes.%(func)s)
+@docstring.copy_dedent(Axes.%(real_name)s)
 def %(func)s%(sig)s:
-    return gca().%(func)s%(call)s
+    return gca().%(real_name)s%(call)s
 """
 
 # Used for colormap functions
@@ -64,7 +64,6 @@ def {name}():
     image if there is one. See ``help(colormaps)`` for more information.
     """
     set_cmap("{name}")
-
 '''
 
 
@@ -80,6 +79,7 @@ def boilerplate_gen():
         'autoscale',
         'axhline',
         'axhspan',
+        'axis',
         'axvline',
         'axvspan',
         'bar',
@@ -109,6 +109,8 @@ def boilerplate_gen():
         'loglog',
         'magnitude_spectrum',
         'margins',
+        'minorticks_off',
+        'minorticks_on',
         'pcolor',
         'pcolormesh',
         'phase_spectrum',
@@ -138,6 +140,13 @@ def boilerplate_gen():
         'violinplot',
         'vlines',
         'xcorr',
+        # pyplot name : real name
+        'sci:_sci',
+        'title:set_title',
+        'xlabel:set_xlabel',
+        'ylabel:set_ylabel',
+        'xscale:set_xscale',
+        'yscale:set_yscale',
     )
 
     cmappable = {
@@ -182,7 +191,12 @@ def boilerplate_gen():
         break_long_words=False, width=70,
         initial_indent=' ' * 8, subsequent_indent=' ' * 8)
 
-    for func in _commands:
+    for spec in _commands:
+        if ':' in spec:
+            func, real_name = spec.split(':')
+        else:
+            func = real_name = spec
+
         # For some commands, an additional line is needed to set the color map.
         if func in cmappable:
             fmt = CMAPPABLE_TEMPLATE
@@ -191,7 +205,7 @@ def boilerplate_gen():
             fmt = NON_CMAPPABLE_TEMPLATE
 
         # Get signature of wrapped function.
-        sig = inspect.signature(getattr(Axes, func))
+        sig = inspect.signature(getattr(Axes, real_name))
 
         # Replace self argument.
         params = list(sig.parameters.values())[1:]

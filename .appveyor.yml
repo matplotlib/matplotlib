@@ -83,7 +83,7 @@ install:
   - del %LIBRARY_LIB%\z.lib
   - set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
   # enables the local freetype build
-  - copy ci\travis\setup.cfg .
+  - set MPLLOCALFREETYPE=1
   # Show the installed packages + versions
   - conda list
 

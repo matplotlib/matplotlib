@@ -334,12 +334,10 @@ class Tick(artist.Artist):
         raise NotImplementedError('Derived must override')
 
     def _apply_params(self, **kw):
-        switchkw = ['gridOn', 'tick1On', 'tick2On', 'label1On', 'label2On']
-        switches = [k for k in kw if k in switchkw]
-        for k in switches:
-            setattr(self, k, kw.pop(k))
-        newmarker = [k for k in kw if k in ['size', 'width', 'pad', 'tickdir']]
-        if newmarker:
+        for name in ['gridOn', 'tick1On', 'tick2On', 'label1On', 'label2On']:
+            if name in kw:
+                setattr(self, name, kw.pop(name))
+        if any(k in kw for k in ['size', 'width', 'pad', 'tickdir']):
             self._size = kw.pop('size', self._size)
             # Width could be handled outside this block, but it is
             # convenient to leave it here.
@@ -1616,7 +1614,7 @@ class Axis(artist.Artist):
         """
         self.pickradius = pickradius
 
-    def set_ticklabels(self, ticklabels, *args, **kwargs):
+    def set_ticklabels(self, ticklabels, *args, minor=False, **kwargs):
         """
         Set the text values of the tick labels. Return a list of Text
         instances.  Use *kwarg* *minor=True* to select minor ticks.
@@ -1645,7 +1643,6 @@ class Axis(artist.Artist):
         # replace the ticklabels list with the processed one
         ticklabels = get_labels
 
-        minor = kwargs.pop('minor', False)
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
             ticks = self.get_minor_ticks()

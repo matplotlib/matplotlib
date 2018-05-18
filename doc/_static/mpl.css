@@ -416,7 +416,7 @@ div.deprecated span.versionmodified {
     font-weight: bold;
 }
 
-div.green {
+div.green, div.hint {
     color: #468847;
     background-color: #dff0d8;
     border: 1px solid #d6e9c6;
@@ -713,6 +713,9 @@ table.docutils.field-list {
     font-size: 13px;
     line-height: 18px;
 }
+.docutils.field-list td blockquote p ul li{
+    font-size: 13px;
+}
 p.rubric {
     font-weight: bold;
     font-size: 19px;
@@ -766,6 +769,26 @@ figure img {
 
 figcaption {
   text-align: center;
+}
+
+
+/* "Summer Fellowship" message. */
+#summer-fellowship {
+  background: #11557C;
+  box-sizing: border-box;
+  color: #fffa;
+  font-weight: bold;
+  left: 0;
+  min-height: 3em;
+  padding: 0.5em;
+  top: 0;
+  width: 100%;
+  z-index: 10000;
+}
+
+#summer-fellowship a {
+  color: #fff;
+  text-decoration:underline;
 }
 
 /* "Go to released version" message. */
@@ -963,12 +986,30 @@ div.sphx-glr-download a {
    background-image: none !important;
 }
 
-p.sphx-glr-signature a.reference.external {
+p.sphx-glr-signature {
    display: none !important;
 }
 
 .sphx-glr-thumbcontainer a.internal {
     font-weight: 400;
+}
+
+.viewcode-link {
+    float: right;
+}
+
+.viewcode-back {
+    float: right;
+    font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
+}
+
+div.viewcode-block:target {
+    margin: -1px -13px;
+    padding: 0 10px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background-color: #f4debf;
+
 }
 
 .sidebar-announcement {

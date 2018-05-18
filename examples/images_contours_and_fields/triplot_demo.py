@@ -104,3 +104,19 @@ ax2.set_xlabel('Longitude (degrees)')
 ax2.set_ylabel('Latitude (degrees)')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.triplot
+matplotlib.pyplot.triplot
+matplotlib.tri
+matplotlib.tri.Triangulation

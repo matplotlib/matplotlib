@@ -855,8 +855,7 @@ class ColorbarBase(cm.ScalarMappable):
         if isinstance(frac, str):
             if frac.lower() == 'auto':
                 # Use the provided values when 'auto' is required.
-                extendlength[0] = automin
-                extendlength[1] = automax
+                extendlength[:] = [automin, automax]
             else:
                 # Any other string is invalid.
                 raise ValueError('invalid value for extendfrac')
@@ -1323,7 +1322,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes_gridspec(parent, **kw):
+def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     '''
     Resize and reposition a parent axes, and return a child axes
     suitable for a colorbar. This function is similar to
@@ -1359,10 +1358,6 @@ def make_axes_gridspec(parent, **kw):
 
     orientation = kw.setdefault('orientation', 'vertical')
     kw['ticklocation'] = 'auto'
-
-    fraction = kw.pop('fraction', 0.15)
-    shrink = kw.pop('shrink', 1.0)
-    aspect = kw.pop('aspect', 20)
 
     x1 = 1 - fraction
 

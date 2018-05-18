@@ -101,9 +101,6 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for existing editable installs.
-from __future__ import absolute_import, division, print_function
-
-import six
 
 import sys
 if sys.version_info < (3, 5):  # noqa: E402
@@ -196,11 +193,6 @@ try:
     import dateutil
 except ImportError:
     raise ImportError("Matplotlib requires dateutil")
-
-
-if not compare_versions(six.__version__, '1.10'):
-    raise ImportError(
-        "Matplotlib requires six>=1.10; you have %s" % six.__version__)
 
 
 try:
@@ -448,7 +440,7 @@ def checkdep_ghostscript():
         for gs_exec in gs_execs:
             try:
                 s = subprocess.Popen(
-                    [str(gs_exec), '--version'], stdout=subprocess.PIPE,
+                    [gs_exec, '--version'], stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
                 stdout, stderr = s.communicate()
                 if s.returncode == 0:
@@ -1703,7 +1695,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 pass
 
         @functools.wraps(func)
-        def inner(ax, *args, **kwargs):
+        def inner(ax, *args, data=None, **kwargs):
             # this is needed because we want to change these values if
             # arg_names_at_runtime==True, but python does not allow assigning
             # to a variable in a outer scope. So use some new local ones and
@@ -1713,8 +1705,6 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
             _arg_names = arg_names
 
             label = None
-
-            data = kwargs.pop('data', None)
 
             if data is None:  # data validation
                 args = tuple(sanitize_sequence(a) for a in args)

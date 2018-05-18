@@ -10,11 +10,6 @@ floats. Take a look at the Divider class to see how these two
 values are used.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from numbers import Number
 
 from matplotlib.axes import Axes
@@ -273,7 +268,7 @@ def from_any(size, fraction_ref=None):
     """
     if isinstance(size, Number):
         return Fixed(size)
-    elif isinstance(size, six.string_types):
+    elif isinstance(size, str):
         if size[-1] == "%":
             return Fraction(float(size[:-1]) / 100, fraction_ref)
 

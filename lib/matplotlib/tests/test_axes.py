@@ -1,6 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-import six
 from itertools import chain, product
 from distutils.version import LooseVersion
 import io
@@ -455,6 +452,38 @@ def test_polar_coord_annotations():
     ax.set_ylim(-20, 20)
 
 
+@image_comparison(baseline_images=['polar_alignment'], extensions=['png'])
+def test_polar_alignment():
+    '''
+    Test that changing the vertical/horizontal alignment of a polar graph
+    works as expected '''
+    ranges = [(0, 5), (0, 5)]
+
+    angles = np.arange(0, 360, 90)
+
+    levels = 5
+
+    fig = plt.figure()
+
+    figureSize = [0.1, 0.1, 0.8, 0.8]
+
+    horizontal = fig.add_axes(figureSize, polar=True, label='horizontal')
+    vertical = fig.add_axes(figureSize, polar=True, label='vertical')
+
+    axes = [horizontal, vertical]
+
+    horizontal.set_thetagrids(angles)
+
+    vertical.patch.set_visible(False)
+
+    for i in range(2):
+        grid = np.linspace(*ranges[i], num=levels)
+        gridValues = [0, 0.2, 0.4, 0.6, 0.8, 1]
+        axes[i].set_rgrids(gridValues, angle=angles[i],
+                           horizontalalignment='left',
+                           verticalalignment='top')
+
+
 @image_comparison(baseline_images=['fill_units'], extensions=['png'],
                   savefig_kwarg={'dpi': 60})
 def test_fill_units():
@@ -716,8 +745,7 @@ def test_polar_rlabel_position():
     ax.tick_params(rotation='auto')
 
 
-@image_comparison(baseline_images=['polar_theta_wedge'], style='default',
-                  tol=0.01 if six.PY2 else 0)
+@image_comparison(baseline_images=['polar_theta_wedge'], style='default')
 def test_polar_theta_limits():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -1441,14 +1469,14 @@ def test_marker_edges():
 def test_bar_tick_label_single():
     # From 2516: plot bar with array of string labels for x axis
     ax = plt.gca()
-    ax.bar(0, 1, tick_label='0')
+    ax.bar(0, 1, align='edge', tick_label='0')
 
     # Reuse testcase from above for a labeled data test
     data = {"a": 0, "b": 1}
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax = plt.gca()
-    ax.bar("a", "b", tick_label='0', data=data)
+    ax.bar("a", "b", align='edge', tick_label='0', data=data)
 
 
 def test_bar_ticklabel_fail():
@@ -1749,6 +1777,7 @@ def test_as_mpl_axes_api():
         def _as_mpl_axes(self):
             # implement the matplotlib axes interface
             return PolarAxes, {'theta_offset': self.theta_offset}
+
     prj = Polar()
     prj2 = Polar()
     prj2.theta_offset = np.pi
@@ -1763,7 +1792,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with gca
     ax = plt.gca(projection=prj)
-    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes]
+    assert type(ax) == maxes._subplots.subplot_class_factory(PolarAxes)
     ax_via_gca = plt.gca(projection=prj)
     assert ax_via_gca is ax
     # try getting the axes given a different polar projection
@@ -1784,7 +1813,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with subplot
     ax = plt.subplot(121, projection=prj)
-    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes]
+    assert type(ax) == maxes._subplots.subplot_class_factory(PolarAxes)
     plt.close()
 
 
@@ -4339,7 +4368,7 @@ def test_twin_spines():
     def make_patch_spines_invisible(ax):
         ax.set_frame_on(True)
         ax.patch.set_visible(False)
-        for sp in six.itervalues(ax.spines):
+        for sp in ax.spines.values():
             sp.set_visible(False)
 
     fig = plt.figure(figsize=(4, 3))
@@ -5343,7 +5372,7 @@ def test_ls_ds_conflict():
 
 def test_bar_uint8():
     xs = [0, 1, 2, 3]
-    b = plt.bar(np.array(xs, dtype=np.uint8), [2, 3, 4, 5])
+    b = plt.bar(np.array(xs, dtype=np.uint8), [2, 3, 4, 5], align="edge")
     for (patch, x) in zip(b.patches, xs):
         assert patch.xy[0] == x
 
@@ -5639,38 +5668,6 @@ def test_twinx_knows_limits():
     assert_array_equal(xtwin.viewLim.intervalx, ax2.viewLim.intervalx)
 
 
-@pytest.mark.style('mpl20')
-@pytest.mark.parametrize('args, kwargs, warning_count',
-                         [((1, 1), {'width': 1, 'bottom': 1}, 0),
-                          ((1, ), {'height': 1, 'bottom': 1}, 0),
-                          ((), {'x': 1, 'height': 1}, 0),
-                          ((), {'left': 1, 'height': 1}, 1)])
-def test_bar_signature(args, kwargs, warning_count):
-    fig, ax = plt.subplots()
-    with warnings.catch_warnings(record=True) as w:
-        r, = ax.bar(*args, **kwargs)
-
-    assert r.get_width() == kwargs.get('width', 0.8)
-    assert r.get_y() == kwargs.get('bottom', 0)
-    assert len(w) == warning_count
-
-
-@pytest.mark.style('mpl20')
-@pytest.mark.parametrize('args, kwargs, warning_count',
-                         [((1, 1), {'height': 1, 'left': 1}, 0),
-                          ((1, ), {'width': 1, 'left': 1}, 0),
-                          ((), {'y': 1, 'width': 1}, 0),
-                          ((), {'bottom': 1, 'width': 1}, 1)])
-def test_barh_signature(args, kwargs, warning_count):
-    fig, ax = plt.subplots()
-    with warnings.catch_warnings(record=True) as w:
-        r, = ax.barh(*args, **kwargs)
-
-    assert r.get_height() == kwargs.get('height', 0.8)
-    assert r.get_x() == kwargs.get('left', 0)
-    assert len(w) == warning_count
-
-
 def test_zero_linewidth():
     # Check that setting a zero linewidth doesn't error
     plt.plot([0, 1], [0, 1], ls='--', lw=0)
@@ -5702,3 +5699,17 @@ def test_empty_errorbar_legend():
 def test_plot_columns_cycle_deprecation():
     with pytest.warns(MatplotlibDeprecationWarning):
         plt.plot(np.zeros((2, 2)), np.zeros((2, 3)))
+
+
+def test_markerfacecolor_none_alpha():
+    fig1, ax1 = plt.subplots()
+    ax1.plot(0, "o", mfc="none", alpha=.5)
+    buf1 = io.BytesIO()
+    fig1.savefig(buf1)
+
+    fig2, ax2 = plt.subplots()
+    ax2.plot(0, "o", mfc="w", alpha=.5)
+    buf2 = io.BytesIO()
+    fig2.savefig(buf2)
+
+    assert buf1.getvalue() == buf2.getvalue()

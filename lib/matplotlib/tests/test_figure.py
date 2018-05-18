@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import sys
 import warnings
 
@@ -215,7 +213,7 @@ def test_iterability_axes_argument():
 
     # This is a regression test for matplotlib/matplotlib#3196. If one of the
     # arguments returned by _as_mpl_axes defines __getitem__ but is not
-    # iterable, this would raise an execption. This is because we check
+    # iterable, this would raise an exception. This is because we check
     # whether the arguments are iterable, and if so we try and convert them
     # to a tuple. However, the ``iterable`` function returns True if
     # __getitem__ is present, but some classes can define __getitem__ without
@@ -223,8 +221,7 @@ def test_iterability_axes_argument():
     # case it fails.
 
     class MyAxes(Axes):
-        def __init__(self, *args, **kwargs):
-            kwargs.pop('myclass', None)
+        def __init__(self, *args, myclass=None, **kwargs):
             return Axes.__init__(self, *args, **kwargs)
 
     class MyClass(object):

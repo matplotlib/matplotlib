@@ -22,23 +22,13 @@ Sources:
   v1.1, 1993. ISBN 0-201-57044-0.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import binascii
 import enum
-import io
 import itertools
 import re
 import struct
 
 import numpy as np
-
-if six.PY3:
-    def ord(x):
-        return x
 
 
 # token types
@@ -85,11 +75,11 @@ class Type1Font(object):
             return rawdata
 
         data = b''
-        while len(rawdata) > 0:
+        while rawdata:
             if not rawdata.startswith(b'\x80'):
                 raise RuntimeError('Broken pfb file (expected byte 128, '
-                                   'got %d)' % ord(rawdata[0]))
-            type = ord(rawdata[1])
+                                   'got %d)' % rawdata[0])
+            type = rawdata[1]
             if type in (1, 2):
                 length, = struct.unpack(str('<i'), rawdata[2:6])
                 segment = rawdata[6:6 + length]
@@ -135,11 +125,10 @@ class Type1Font(object):
         if zeros:
             raise RuntimeError('Insufficiently many zeros in Type 1 font')
 
-        # Convert encrypted part to binary (if we read a pfb file, we
-        # may end up converting binary to hexadecimal to binary again;
-        # but if we read a pfa file, this part is already in hex, and
-        # I am not quite sure if even the pfb format guarantees that
-        # it will be in binary).
+        # Convert encrypted part to binary (if we read a pfb file, we may end
+        # up converting binary to hexadecimal to binary again; but if we read
+        # a pfa file, this part is already in hex, and I am not quite sure if
+        # even the pfb format guarantees that it will be in binary).
         binary = binascii.unhexlify(data[len1:idx+1])
 
         return data[:len1], binary, data[idx+1:]
@@ -324,10 +313,8 @@ class Type1Font(object):
         multiplier by which the font is to be extended (so values less
         than 1.0 condense). Returns a new :class:`Type1Font` object.
         """
-        with io.BytesIO() as buffer:
-            tokenizer = self._tokens(self.parts[0])
-            transformed =  self._transformer(tokenizer,
-                                             slant=effects.get('slant', 0.0),
-                                             extend=effects.get('extend', 1.0))
-            list(map(buffer.write, transformed))
-            return Type1Font((buffer.getvalue(), self.parts[1], self.parts[2]))
+        tokenizer = self._tokens(self.parts[0])
+        transformed = self._transformer(tokenizer,
+                                        slant=effects.get('slant', 0.0),
+                                        extend=effects.get('extend', 1.0))
+        return Type1Font((b"".join(transformed), self.parts[1], self.parts[2]))

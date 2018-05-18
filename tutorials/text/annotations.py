@@ -340,8 +340,8 @@ available in ``mpl_toolkits.axes_grid1.anchored_artists`` others in
 
     from matplotlib.offsetbox import AnchoredText
     at = AnchoredText("Figure 1a",
-                      prop=dict(size=8), frameon=True,
-                      loc=2,
+                      prop=dict(size=15), frameon=True,
+                      loc='upper left',
                       )
     at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
     ax.add_artist(at)
@@ -370,7 +370,7 @@ area itself. Only the initial size matters. ::
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
 
     ada = AnchoredDrawingArea(20, 20, 0, 0,
-                              loc=1, pad=0., frameon=False)
+                              loc='upper right', pad=0., frameon=False)
     p1 = Circle((10, 10), 10)
     ada.drawing_area.add_artist(p1)
     p2 = Circle((30, 10), 5, fc="r")
@@ -396,7 +396,7 @@ determined during the drawing time respecting the specified transform. ::
 
   from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
 
-  box = AnchoredAuxTransformBox(ax.transData, loc=2)
+  box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
   el = Ellipse((0,0), width=0.1, height=0.4, angle=30)  # in data coordinates!
   box.drawing_area.add_artist(el)
 

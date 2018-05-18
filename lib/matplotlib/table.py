@@ -21,13 +21,12 @@ License   : matplotlib license
 """
 import warnings
 
-from . import artist
+from . import artist, cbook, docstring
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
-from matplotlib import docstring
 from .text import Text
 from .transforms import Bbox
-from matplotlib.path import Path
+from .path import Path
 
 
 class Cell(Rectangle):
@@ -146,7 +145,6 @@ class Cell(Rectangle):
 class CustomCell(Cell):
     """
     A subclass of Cell where the sides may be visibly toggled.
-
     """
 
     _edges = 'BRTL'
@@ -156,9 +154,8 @@ class CustomCell(Cell):
                      'vertical':     'RL'
                      }
 
-    def __init__(self, *args, **kwargs):
-        visible_edges = kwargs.pop('visible_edges')
-        Cell.__init__(self, *args, **kwargs)
+    def __init__(self, *args, visible_edges, **kwargs):
+        super().__init__(*args, **kwargs)
         self.visible_edges = visible_edges
 
     @property
@@ -244,13 +241,13 @@ class Table(Artist):
 
         Artist.__init__(self)
 
-        if isinstance(loc, str) and loc not in self.codes:
-            warnings.warn('Unrecognized location %s. Falling back on '
-                          'bottom; valid locations are\n%s\t' %
-                          (loc, '\n\t'.join(self.codes)))
-            loc = 'bottom'
         if isinstance(loc, str):
-            loc = self.codes.get(loc, 1)
+            if loc not in self.codes:
+                warnings.warn('Unrecognized location %s. Falling back on '
+                              'bottom; valid locations are\n%s\t' %
+                              (loc, '\n\t'.join(self.codes)))
+                loc = 'bottom'
+            loc = self.codes[loc]
         self.set_figure(ax.figure)
         self._axes = ax
         self._loc = loc
@@ -382,7 +379,7 @@ class Table(Artist):
     def get_children(self):
         """Return the Artists contained by the table."""
         return list(self._cells.values())
-    get_child_artists = get_children  # backward compatibility
+    get_child_artists = cbook.deprecated("3.0")(get_children)
 
     def get_window_extent(self, renderer):
         """Return the bounding box of the table in window coords."""

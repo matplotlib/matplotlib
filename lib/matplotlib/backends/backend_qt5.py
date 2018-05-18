@@ -1,11 +1,8 @@
-import six
-
 import functools
 import os
 import re
 import signal
 import sys
-from six import unichr
 import traceback
 
 import matplotlib
@@ -439,7 +436,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             if event_key > MAX_UNICODE:
                 return None
 
-            key = unichr(event_key)
+            key = chr(event_key)
             # qt delivers capitalized letters.  fix capitalization
             # note that capslock is ignored
             if 'shift' in mods:
@@ -608,8 +605,7 @@ class FigureManagerQT(FigureManagerBase):
         # requested size:
         cs = canvas.sizeHint()
         sbs = self.window.statusBar().sizeHint()
-        self._status_and_tool_height = tbs_height + sbs.height()
-        height = cs.height() + self._status_and_tool_height
+        height = cs.height() + tbs_height + sbs.height()
         self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
@@ -657,8 +653,11 @@ class FigureManagerQT(FigureManagerBase):
         return toolmanager
 
     def resize(self, width, height):
-        'set the canvas size in pixels'
-        self.window.resize(width, height + self._status_and_tool_height)
+        # these are Qt methods so they return sizes in 'virtual' pixels
+        # so we do not need to worry about dpi scaling here.
+        extra_width = self.window.width() - self.canvas.width()
+        extra_height = self.window.height() - self.canvas.height()
+        self.window.resize(width+extra_width, height+extra_height)
 
     def show(self):
         self.window.show()
@@ -678,7 +677,7 @@ class FigureManagerQT(FigureManagerBase):
         self.window.close()
 
     def get_window_title(self):
-        return six.text_type(self.window.windowTitle())
+        return self.window.windowTitle()
 
     def set_window_title(self, title):
         self.window.setWindowTitle(title)
@@ -779,7 +778,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             item, ok = QtWidgets.QInputDialog.getItem(
                 self.parent, 'Customize', 'Select axes:', titles, 0, False)
             if ok:
-                axes = allaxes[titles.index(six.text_type(item))]
+                axes = allaxes[titles.index(item)]
             else:
                 return
 
@@ -825,7 +824,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
-        sorted_filetypes = sorted(six.iteritems(filetypes))
+        sorted_filetypes = sorted(filetypes.items())
         default_filetype = self.canvas.get_default_filetype()
 
         startpath = os.path.expanduser(
@@ -848,12 +847,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
                 matplotlib.rcParams['savefig.directory'] = (
-                    os.path.dirname(six.text_type(fname)))
+                    os.path.dirname(fname))
             try:
-                self.canvas.figure.savefig(six.text_type(fname))
+                self.canvas.figure.savefig(fname)
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
-                    self, "Error saving file", six.text_type(e),
+                    self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
 
 
@@ -931,7 +930,6 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         QtWidgets.QToolBar.__init__(self, parent)
         self._toolitems = {}
         self._groups = {}
-        self._last = None
 
     @property
     def _icon_extension(self):
@@ -956,7 +954,6 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         else:
             button.clicked.connect(handler)
 
-        self._last = button
         self._toolitems.setdefault(name, [])
         self._add_to_group(group, name, button, position)
         self._toolitems[name].append((button, handler))
@@ -1014,7 +1011,7 @@ class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):
 class SaveFigureQt(backend_tools.SaveFigureBase):
     def trigger(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
-        sorted_filetypes = sorted(six.iteritems(filetypes))
+        sorted_filetypes = sorted(filetypes.items())
         default_filetype = self.canvas.get_default_filetype()
 
         startpath = os.path.expanduser(
@@ -1038,12 +1035,12 @@ class SaveFigureQt(backend_tools.SaveFigureBase):
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
                 matplotlib.rcParams['savefig.directory'] = (
-                    os.path.dirname(six.text_type(fname)))
+                    os.path.dirname(fname))
             try:
-                self.canvas.figure.savefig(six.text_type(fname))
+                self.canvas.figure.savefig(fname)
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
-                    self, "Error saving file", six.text_type(e),
+                    self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
 
 
@@ -1069,21 +1066,30 @@ class HelpQt(backend_tools.ToolHelpBase):
         QtWidgets.QMessageBox.information(None, "Help", self._get_help_html())
 
 
+class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
+    def trigger(self, *args, **kwargs):
+        pixmap = self.canvas.grab()
+        qApp.clipboard().setPixmap(pixmap)
+
+
 backend_tools.ToolSaveFigure = SaveFigureQt
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsQt
 backend_tools.ToolSetCursor = SetCursorQt
 backend_tools.ToolRubberband = RubberbandQt
 backend_tools.ToolHelp = HelpQt
+backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
 
 
+@cbook.deprecated("3.0")
 def error_msg_qt(msg, parent=None):
-    if not isinstance(msg, six.string_types):
+    if not isinstance(msg, str):
         msg = ','.join(map(str, msg))
 
     QtWidgets.QMessageBox.warning(None, "Matplotlib",
                                   msg, QtGui.QMessageBox.Ok)
 
 
+@cbook.deprecated("3.0")
 def exception_handler(type, value, tb):
     """Handle uncaught exceptions
     It does not catch SystemExit
@@ -1095,7 +1101,7 @@ def exception_handler(type, value, tb):
     if hasattr(value, 'strerror') and value.strerror is not None:
         msg += value.strerror
     else:
-        msg += six.text_type(value)
+        msg += str(value)
 
     if len(msg):
         error_msg_qt(msg)

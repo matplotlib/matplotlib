@@ -499,7 +499,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`~matplotlib.lines.Line2D`
+        line : :class:`~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
@@ -569,7 +569,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`~matplotlib.lines.Line2D`
+        line : :class:`~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
@@ -964,8 +964,9 @@ class Axes(_AxesBase):
         Returns
         -------
 
-        A list of :class:`matplotlib.collections.EventCollection` objects that
-        were added.
+        list : A list of :class:`~.collections.EventCollection` objects.
+            Contains the :class:`~.collections.EventCollection` that
+            were added.
 
         Notes
         -----
@@ -1114,7 +1115,7 @@ class Axes(_AxesBase):
                       positional_parameter_names=_plot_args_replacer,
                       label_namer=None)
     @docstring.dedent_interpd
-    def plot(self, *args, **kwargs):
+    def plot(self, *args, scalex=True, scaley=True, **kwargs):
         """
         Plot y versus x as lines and/or markers.
 
@@ -1341,8 +1342,6 @@ class Axes(_AxesBase):
             'k^:'  # black triangle_up markers connected by a dotted line
 
         """
-        scalex = kwargs.pop('scalex', True)
-        scaley = kwargs.pop('scaley', True)
         lines = []
 
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
@@ -1734,7 +1733,7 @@ class Axes(_AxesBase):
     #### Specialized plotting
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    def step(self, x, y, *args, **kwargs):
+    def step(self, x, y, *args, where='pre', **kwargs):
         """
         Make a step plot.
 
@@ -1795,12 +1794,10 @@ class Axes(_AxesBase):
         -----
         .. [notes section required to get data note injection right]
         """
-        where = kwargs.pop('where', 'pre')
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
-        usr_linestyle = kwargs.pop('linestyle', '')
-        kwargs['linestyle'] = 'steps-' + where + usr_linestyle
+        kwargs['linestyle'] = 'steps-' + where + kwargs.get('linestyle', '')
 
         return self.plot(x, y, *args, **kwargs)
 
@@ -1814,24 +1811,18 @@ class Axes(_AxesBase):
                       replace_all_args=True
                       )
     @docstring.dedent_interpd
-    def bar(self, *args, **kwargs):
+    def bar(self, x, height, width=0.8, bottom=None, *, align="center",
+            **kwargs):
         r"""
         Make a bar plot.
 
-        Call signatures::
-
-           bar(x, height, *, align='center', **kwargs)
-           bar(x, height, width, *, align='center', **kwargs)
-           bar(x, height, width, bottom, *, align='center', **kwargs)
-
-        The bars are positioned at *x* with the given *align* ment. Their
+        The bars are positioned at *x* with the given *align*\ment. Their
         dimensions are given by *width* and *height*. The vertical baseline
         is *bottom* (default 0).
 
         Each of *x*, *height*, *width*, and *bottom* may either be a scalar
         applying to all bars, or it may be a sequence of length N providing a
         separate value for each bar.
-
 
         Parameters
         ----------
@@ -1859,7 +1850,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `.BarContainer`
+        container : `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -1883,9 +1874,13 @@ class Axes(_AxesBase):
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): separate + and - values for each bar
+            - shape(2,N): Separate - and + values for each bar. First row
+                contains the lower errors, the second row contains the
+                upper errors.
+            - *None*: No errorbar. (Default)
 
-            Default: None
+            See :ref:`sphx_glr_gallery_statistics_errorbar_features.py`
+            for an example on the usage of ``xerr`` and ``yerr``.
 
         ecolor : scalar or array-like, optional, default: 'black'
             The line color of the errorbars.
@@ -1927,54 +1922,21 @@ class Axes(_AxesBase):
 
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch._alias_map)
-        # this is using the lambdas to do the arg/kwarg unpacking rather
-        # than trying to re-implement all of that logic our selves.
-        matchers = [
-            (lambda x, height, width=0.8, bottom=None, **kwargs:
-             (False, x, height, width, bottom, kwargs)),
-            (lambda left, height, width=0.8, bottom=None, **kwargs:
-             (True, left, height, width, bottom, kwargs)),
-        ]
-        exps = []
-        for matcher in matchers:
-            try:
-                dp, x, height, width, y, kwargs = matcher(*args, **kwargs)
-            except TypeError as e:
-                # This can only come from a no-match as there is
-                # no other logic in the matchers.
-                exps.append(e)
-            else:
-                break
-        else:
-            raise exps[0]
-        # if we matched the second-case, then the user passed in
-        # left=val as a kwarg which we want to deprecate
-        if dp:
-            warnings.warn(
-                "The *left* kwarg to `bar` is deprecated use *x* instead. "
-                "Support for *left* will be removed in Matplotlib 3.0",
-                mplDeprecation, stacklevel=2)
         color = kwargs.pop('color', None)
         if color is None:
             color = self._get_patches_for_fill.get_next_color()
         edgecolor = kwargs.pop('edgecolor', None)
         linewidth = kwargs.pop('linewidth', None)
 
-        # Because xerr and yerr will be passed to errorbar,
-        # most dimension checking and processing will be left
-        # to the errorbar method.
+        # Because xerr and yerr will be passed to errorbar, most dimension
+        # checking and processing will be left to the errorbar method.
         xerr = kwargs.pop('xerr', None)
         yerr = kwargs.pop('yerr', None)
-        error_kw = kwargs.pop('error_kw', dict())
+        error_kw = kwargs.pop('error_kw', {})
         ecolor = kwargs.pop('ecolor', 'k')
         capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
-
-        if rcParams['_internal.classic_mode']:
-            align = kwargs.pop('align', 'edge')
-        else:
-            align = kwargs.pop('align', 'center')
 
         orientation = kwargs.pop('orientation', 'vertical')
         log = kwargs.pop('log', False)
@@ -1984,8 +1946,9 @@ class Axes(_AxesBase):
         adjust_ylim = False
         adjust_xlim = False
 
+        y = bottom  # Matches barh call signature.
         if orientation == 'vertical':
-            if y is None:
+            if bottom is None:
                 if self.get_yscale() == 'log':
                     adjust_ylim = True
                 y = 0
@@ -2126,24 +2089,18 @@ class Axes(_AxesBase):
         return bar_container
 
     @docstring.dedent_interpd
-    def barh(self, *args, **kwargs):
+    def barh(self, y, width, height=0.8, left=None, *, align="center",
+             **kwargs):
         r"""
         Make a horizontal bar plot.
 
-        Call signatures::
-
-           bar(y, width, *, align='center', **kwargs)
-           bar(y, width, height, *, align='center', **kwargs)
-           bar(y, width, height, left, *, align='center', **kwargs)
-
-        The bars are positioned at *y* with the given *align*. Their
+        The bars are positioned at *y* with the given *align*\ment. Their
         dimensions are given by *width* and *height*. The horizontal baseline
         is *left* (default 0).
 
         Each of *y*, *width*, *height*, and *left* may either be a scalar
         applying to all bars, or it may be a sequence of length N providing a
         separate value for each bar.
-
 
         Parameters
         ----------
@@ -2172,7 +2129,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `.BarContainer`
+        container : `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2196,9 +2153,13 @@ class Axes(_AxesBase):
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): separate + and - values for each bar
+            - shape(2,N): Separate - and + values for each bar. First row
+                contains the lower errors, the second row contains the
+                upper errors.
+            - *None*: No errorbar. (default)
 
-            Default: None
+            See :ref:`sphx_glr_gallery_statistics_errorbar_features.py`
+            for an example on the usage of ``xerr`` and ``yerr``.
 
         ecolor : scalar or array-like, optional, default: 'black'
             The line color of the errorbars.
@@ -2235,35 +2196,9 @@ class Axes(_AxesBase):
         %(Rectangle)s
 
         """
-        # this is using the lambdas to do the arg/kwarg unpacking rather
-        # than trying to re-implement all of that logic our selves.
-        matchers = [
-            (lambda y, width, height=0.8, left=None, **kwargs:
-             (False, y, width, height, left, kwargs)),
-            (lambda bottom, width, height=0.8, left=None, **kwargs:
-             (True, bottom, width, height, left, kwargs)),
-        ]
-        excs = []
-        for matcher in matchers:
-            try:
-                dp, y, width, height, left, kwargs = matcher(*args, **kwargs)
-            except TypeError as e:
-                # This can only come from a no-match as there is
-                # no other logic in the matchers.
-                excs.append(e)
-            else:
-                break
-        else:
-            raise excs[0]
-
-        if dp:
-            warnings.warn(
-                "The *bottom* kwarg to `barh` is deprecated use *y* instead. "
-                "Support for *bottom* will be removed in Matplotlib 3.0",
-                mplDeprecation, stacklevel=2)
         kwargs.setdefault('orientation', 'horizontal')
-        patches = self.bar(x=left, height=height, width=width,
-                           bottom=y, **kwargs)
+        patches = self.bar(x=left, height=height, width=width, bottom=y,
+                           align=align, **kwargs)
         return patches
 
     @_preprocess_data(label_namer=None)
@@ -2309,7 +2244,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`matplotlib.collections.BrokenBarHCollection`
+        collection : A :class:`~.collections.BrokenBarHCollection`
 
         Notes
         -----
@@ -2338,7 +2273,8 @@ class Axes(_AxesBase):
         return col
 
     @_preprocess_data(replace_all_args=True, label_namer=None)
-    def stem(self, *args, **kwargs):
+    def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None,
+             bottom=0, label=None):
         """
         Create a stem plot.
 
@@ -2398,19 +2334,10 @@ class Axes(_AxesBase):
             The label to use for the stems in legends.
 
 
-        Other Parameters
-        ----------------
-        **kwargs
-            No other parameters are supported. They are currently ignored
-            silently for backward compatibility. This behavior is deprecated.
-            Future versions will not accept any other parameters and will
-            raise a TypeError instead.
-
-
         Returns
         -------
-        :class:`~matplotlib.container.StemContainer`
-            The stemcontainer may be treated like a tuple
+        container : :class:`~matplotlib.container.StemContainer`
+            The container may be treated like a tuple
             (*markerline*, *stemlines*, *baseline*)
 
 
@@ -2423,41 +2350,18 @@ class Axes(_AxesBase):
             which inspired this method.
 
         """
-
-        # kwargs handling
-        # We would like to have a signature with explicit kewords:
-        # stem(*args, linefmt=None, markerfmt=None, basefmt=None,
-        #      bottom=0, label=None)
-        # Unfortunately,  this is not supported in Python 2.x. There, *args
-        # can only exist after keyword arguments.
-        linefmt = kwargs.pop('linefmt', None)
-        markerfmt = kwargs.pop('markerfmt', None)
-        basefmt = kwargs.pop('basefmt', None)
-        bottom = kwargs.pop('bottom', None)
-        if bottom is None:
-            bottom = 0
-        label = kwargs.pop('label', None)
-        if kwargs:
-            warn_deprecated(since='2.2',
-                            message="stem() got an unexpected keyword "
-                                    "argument '%s'. This will raise a "
-                                    "TypeError in future versions." % (
-                                next(k for k in kwargs), )
-                            )
-
         # Assume there's at least one data array
         y = np.asarray(args[0])
         args = args[1:]
 
         # Try a second one
         try:
-            second = np.asarray(args[0], dtype=float)
-            x, y = y, second
-            args = args[1:]
+            x, y = y, np.asarray(args[0], dtype=float)
         except (IndexError, ValueError):
             # The second array doesn't make sense, or it doesn't exist
-            second = np.arange(len(y))
-            x = second
+            x = np.arange(len(y))
+        else:
+            args = args[1:]
 
         # defaults for formats
         if linefmt is None:
@@ -2776,8 +2680,13 @@ class Axes(_AxesBase):
 
             - scalar: Symmetric +/- values for all data points.
             - shape(N,): Symmetric +/-values for each data point.
-            - shape(2,N): Separate + and - values for each data point.
+            - shape(2,N): Separate - and + values for each bar. First row
+                contains the lower errors, the second row contains the
+                upper errors.
             - *None*: No errorbar.
+
+            See :ref:`sphx_glr_gallery_statistics_errorbar_features.py`
+            for an example on the usage of ``xerr`` and ``yerr``.
 
         fmt : plot format string, optional, default: ''
             The format for the data points / data lines. See `.plot` for
@@ -2824,7 +2733,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`~.container.ErrorbarContainer`
+        container : :class:`~.container.ErrorbarContainer`
             The container contains:
 
             - plotline: :class:`~matplotlib.lines.Line2D` instance of
@@ -5093,82 +5002,117 @@ class Axes(_AxesBase):
                origin=None, extent=None, shape=None, filternorm=1,
                filterrad=4.0, imlim=None, resample=None, url=None, **kwargs):
         """
-        Display an image on the axes.
+        Display an image, i.e. data on a 2D regular raster.
 
         Parameters
         ----------
-        X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4)
-            Display the image in `X` to current axes.  `X` may be an
-            array or a PIL image. If `X` is an array, it
-            can have the following shapes and types:
+        X : array-like or PIL image
+            The image data. Supported array shapes are:
 
-            - MxN -- values to be mapped (float or int)
-            - MxNx3 -- RGB (float or uint8)
-            - MxNx4 -- RGBA (float or uint8)
+            - (M, N): an image with scalar data. The data is visualized
+              using a colormap.
+            - (M, N, 3): an image with RGB values (float or uint8).
+            - (M, N, 4): an image with RGBA values (float or uint8), i.e.
+              including transparency.
 
-            MxN arrays are mapped to colors based on the `norm` (mapping
-            scalar to scalar) and the `cmap` (mapping the normed scalar to
-            a color).
+            The first two dimensions (M, N) define the rows and columns of
+            the image.
 
-            Elements of RGB and RGBA arrays represent pixels of an MxN image.
-            All values should be in the range [0 .. 1] for floats or
+            The RGB(A) values should be in the range [0 .. 1] for floats or
             [0 .. 255] for integers.  Out-of-range values will be clipped to
             these bounds.
 
-        cmap : `~matplotlib.colors.Colormap`, optional, default: None
-            If None, default to rc `image.cmap` value. `cmap` is ignored
-            if `X` is 3-D, directly specifying RGB(A) values.
+        cmap : str or `~matplotlib.colors.Colormap`, optional
+            A Colormap instance or registered colormap name. The colormap
+            maps scalar data to colors. It is ignored for RGB(A) data.
+            Defaults to :rc:`image.cmap`.
 
-        aspect : ['auto' | 'equal' | scalar], optional, default: None
-            If 'auto', changes the image aspect ratio to match that of the
-            axes.
+        aspect : {'equal', 'auto'} or float, optional
+            Controls the aspect ratio of the axes. The aspect is of particular
+            relevance for images since it may distort the image, i.e. pixel
+            will not be square.
 
-            If 'equal', and `extent` is None, changes the axes aspect ratio to
-            match that of the image. If `extent` is not `None`, the axes
-            aspect ratio is changed to match that of the extent.
+            This parameter is a shortcut for explicitly calling
+            `.Axes.set_aspect`. See there for further details.
 
-            If None, default to rc ``image.aspect`` value.
+            - 'equal': Ensures an aspect ratio of 1. Pixels will be square
+              (unless pixel sizes are explicitly made non-square in data
+              coordinates using *extent*).
+            - 'auto': The axes is kept fixed and the aspect is adjusted so
+              that the data fit in the axes. In general, this will result in
+              non-square pixels.
 
-        interpolation : string, optional, default: None
-            Acceptable values are 'none', 'nearest', 'bilinear', 'bicubic',
+            Defaults to :rc:`image.aspect`.
+
+        interpolation : str, optional
+            The interpolation method used. If *None*
+            :rc:`image.interpolation` is used, which defaults to 'nearest'.
+
+            Supported values are 'none', 'nearest', 'bilinear', 'bicubic',
             'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser',
             'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
-            'lanczos'
+            'lanczos'.
 
-            If `interpolation` is None, default to rc `image.interpolation`.
-            See also the `filternorm` and `filterrad` parameters.
-            If `interpolation` is 'none', then no interpolation is performed
+            If *interpolation* is 'none', then no interpolation is performed
             on the Agg, ps and pdf backends. Other backends will fall back to
             'nearest'.
 
-        norm : `~matplotlib.colors.Normalize`, optional, default: None
-            A `~matplotlib.colors.Normalize` instance is used to scale
-            a 2-D float `X` input to the (0, 1) range for input to the
-            `cmap`. If `norm` is None, use the default func:`normalize`.
-            If `norm` is an instance of `~matplotlib.colors.NoNorm`,
-            `X` must be an array of integers that index directly into
-            the lookup table of the `cmap`.
+            See
+            :doc:`/gallery/images_contours_and_fields/interpolation_methods`
+            for an overview of the supported interpolation methods.
 
-        vmin, vmax : scalar, optional, default: None
-            `vmin` and `vmax` are used in conjunction with norm to normalize
-            luminance data.  Note if you pass a `norm` instance, your
-            settings for `vmin` and `vmax` will be ignored.
+            Some interpolation methods require an additional radius parameter,
+            which can be set by *filterrad*. Additionally, the antigrain image
+            resize filter is controlled by the parameter *filternorm*.
 
-        alpha : scalar, optional, default: None
+        norm : `~matplotlib.colors.Normalize`, optional
+            If scalar data are used, the Normalize instance scales the
+            data values to the canonical colormap range [0,1] for mapping
+            to colors. By default, the data range is mapped to the
+            colorbar range using linear scaling. This parameter is ignored for
+            RGB(A) data.
+
+        vmin, vmax : scalar, optional
+            When using scalar data and no explicit *norm*, *vmin* and *vmax*
+            define the data range that the colormap covers. By default,
+            the colormap covers the complete value range of the supplied
+            data. *vmin*, *vmax* are ignored if the *norm* parameter is used.
+
+        alpha : scalar, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
-            The ``alpha`` argument is ignored for RGBA input data.
+            This parameter is ignored for RGBA input data.
 
-        origin : ['upper' | 'lower'], optional, default: None
+        origin : {'upper', 'lower'}, optional
             Place the [0,0] index of the array in the upper left or lower left
-            corner of the axes. If None, default to rc `image.origin`.
+            corner of the axes. The convention 'upper' is typically used for
+            matrices and images.
+            If not given, :rc:`image.origin` is used, defaulting to 'upper'.
 
-        extent : scalars (left, right, bottom, top), optional, default: None
-            The location, in data-coordinates, of the lower-left and
-            upper-right corners. If `None`, the image is positioned such that
-            the pixel centers fall on zero-based (row, column) indices.
+            Note that the vertical axes points upward for 'lower'
+            but downward for 'upper'.
+
+        extent : scalars (left, right, bottom, top), optional
+            The bounding box in data coordinates that the image will fill.
+            The image is stretched individually along x and y to fill the box.
+
+            The default extent is determined by the following conditions.
+            Pixels have unit size in data coordinates. Their centers are on
+            integer coordinates, and their center coordinates range from 0 to
+            columns-1 horizontally and from 0 to rows-1 vertically.
+
+            Note that the direction of the vertical axis and thus the default
+            values for top and bottom depend on *origin*:
+
+            - For ``origin == 'upper'`` the default is
+              ``(-0.5, numcols-0.5, numrows-0.5, -0.5)``.
+            - For ``origin == 'lower'`` the default is
+              ``(-0.5, numcols-0.5, -0.5, numrows-0.5)``.
+
+            See the example :doc:`/tutorials/intermediate/imshow_extent` for a
+            more detailed description.
 
         shape : scalars (columns, rows), optional, default: None
-            For raw buffer images
+            For raw buffer images.
 
         filternorm : bool, optional, default: True
             A parameter for the antigrain image resize filter (see the
@@ -5179,9 +5123,16 @@ class Axes(_AxesBase):
             that any sum of pixel weights must be equal to 1.0.  So, the
             filter function must produce a graph of the proper shape.
 
-        filterrad : scalar, optional, default: 4.0
+        filterrad : float > 0, optional, default: 4.0
             The filter radius for filters that have a radius parameter, i.e.
-            when interpolation is one of: 'sinc', 'lanczos' or 'blackman'
+            when interpolation is one of: 'sinc', 'lanczos' or 'blackman'.
+
+        resample : bool, optional
+            When *True*, use a full resampling method.  When *False*, only
+            resample when the output image is larger than the input image.
+
+        url : str, optional
+            Set the url of the created `.AxesImage`. See `.Artist.set_url`.
 
         Returns
         -------
@@ -5189,7 +5140,9 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.artist.Artist` properties.
+        **kwargs : `~matplotlib.artist.Artist` properties
+            These parameters are passed on to the constructor of the
+            `.AxesImage` artist.
 
         See also
         --------
@@ -5201,7 +5154,7 @@ class Axes(_AxesBase):
         coordinates. In other words: the origin will coincide with the center
         of pixel (0, 0).
 
-        Two typical representations are used for RGB images with an alpha
+        There are two common representations for RGB images with an alpha
         channel:
 
         -   Straight (unassociated) alpha: R, G, and B channels represent the
@@ -5227,8 +5180,6 @@ class Axes(_AxesBase):
         if im.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
-        #if norm is None and shape is None:
-        #    im.set_clim(vmin, vmax)
         if vmin is not None or vmax is not None:
             im.set_clim(vmin, vmax)
         else:
@@ -5243,20 +5194,14 @@ class Axes(_AxesBase):
         return im
 
     @staticmethod
-    def _pcolorargs(funcname, *args, **kw):
-        # This takes one kwarg, allmatch.
-        # If allmatch is True, then the incoming X, Y, C must
-        # have matching dimensions, taking into account that
-        # X and Y can be 1-D rather than 2-D.  This perfect
-        # match is required for Gouroud shading.  For flat
-        # shading, X and Y specify boundaries, so we need
-        # one more boundary than color in each direction.
-        # For convenience, and consistent with Matlab, we
-        # discard the last row and/or column of C if necessary
-        # to meet this condition.  This is done if allmatch
-        # is False.
-
-        allmatch = kw.pop("allmatch", False)
+    def _pcolorargs(funcname, *args, allmatch=False):
+        # If allmatch is True, then the incoming X, Y, C must have matching
+        # dimensions, taking into account that X and Y can be 1-D rather than
+        # 2-D.  This perfect match is required for Gouroud shading.  For flat
+        # shading, X and Y specify boundaries, so we need one more boundary
+        # than color in each direction.  For convenience, and consistent with
+        # Matlab, we discard the last row and/or column of C if necessary to
+        # meet this condition.  This is done if allmatch is False.
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
@@ -5303,7 +5248,7 @@ class Axes(_AxesBase):
                 'Incompatible X, Y inputs to %s; see help(%s)' % (
                 funcname, funcname))
         if allmatch:
-            if not (Nx == numCols and Ny == numRows):
+            if (Nx, Ny) != (numCols, numRows):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
@@ -5318,7 +5263,8 @@ class Axes(_AxesBase):
 
     @_preprocess_data(label_namer=None)
     @docstring.dedent_interpd
-    def pcolor(self, *args, **kwargs):
+    def pcolor(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
+               vmax=None, **kwargs):
         """
         Create a pseudocolor plot of a 2-D array.
 
@@ -5457,12 +5403,6 @@ class Axes(_AxesBase):
         not specified, or if ``X`` and ``Y`` have one more row and column than
         ``C``.
         """
-        alpha = kwargs.pop('alpha', None)
-        norm = kwargs.pop('norm', None)
-        cmap = kwargs.pop('cmap', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
-
         X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
         Ny, Nx = X.shape
 
@@ -5564,7 +5504,8 @@ class Axes(_AxesBase):
 
     @_preprocess_data(label_namer=None)
     @docstring.dedent_interpd
-    def pcolormesh(self, *args, **kwargs):
+    def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
+                   vmax=None, shading='flat', antialiased=False, **kwargs):
         """
         Plot a quadrilateral mesh.
 
@@ -5640,13 +5581,7 @@ class Axes(_AxesBase):
 
         %(QuadMesh)s
         """
-        alpha = kwargs.pop('alpha', None)
-        norm = kwargs.pop('norm', None)
-        cmap = kwargs.pop('cmap', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
-        shading = kwargs.pop('shading', 'flat').lower()
-        antialiased = kwargs.pop('antialiased', False)
+        shading = shading.lower()
         kwargs.setdefault('edgecolors', 'None')
 
         allmatch = (shading == 'gouraud')
@@ -5701,7 +5636,8 @@ class Axes(_AxesBase):
 
     @_preprocess_data(label_namer=None)
     @docstring.dedent_interpd
-    def pcolorfast(self, *args, **kwargs):
+    def pcolorfast(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
+                   vmax=None, **kwargs):
         """
         pseudocolor plot of a 2-D array
 
@@ -5783,11 +5719,6 @@ class Axes(_AxesBase):
         collection in the general quadrilateral case.
 
         """
-        alpha = kwargs.pop('alpha', None)
-        norm = kwargs.pop('norm', None)
-        cmap = kwargs.pop('cmap', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
             raise ValueError(
                 "'norm' must be an instance of 'mcolors.Normalize'")
@@ -6175,8 +6106,8 @@ class Axes(_AxesBase):
                              "Please only use 'density', since 'normed'"
                              "is deprecated.")
         if normed is not None:
-            warnings.warn("The 'normed' kwarg is deprecated, and has been "
-                          "replaced by the 'density' kwarg.")
+            cbook.warn_deprecated("2.1", name="'normed'", obj_type="kwarg",
+                                  alternative="'density'", removal="3.1")
 
         # basic input validation
         input_empty = np.size(x) == 0
@@ -7398,7 +7329,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        Z : array-like(N, M)
+        Z : array-like(M, N)
             The matrix to be displayed.
 
         Returns

@@ -1,13 +1,6 @@
 """
 A PostScript backend, which can produce both PostScript .ps and .eps
 """
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import StringIO
-
 import glob, os, shutil, sys, time, datetime
 import io
 import logging
@@ -81,10 +74,7 @@ class PsBackendHelper(object):
         s = subprocess.Popen(
             [self.gs_exe, "--version"], stdout=subprocess.PIPE)
         pipe, stderr = s.communicate()
-        if six.PY3:
-            ver = pipe.decode('ascii')
-        else:
-            ver = pipe
+        ver = pipe.decode('ascii')
         try:
             gs_version = tuple(map(int, ver.strip().split(".")))
         except ValueError:
@@ -137,7 +127,7 @@ def _get_papertype(w, h):
     return 'a0'
 
 def _num_to_str(val):
-    if isinstance(val, six.string_types):
+    if isinstance(val, str):
         return val
 
     ival = int(val)
@@ -233,7 +223,7 @@ class RendererPS(RendererBase):
         used_characters[1].update(map(ord, s))
 
     def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in six.iteritems(other):
+        for stat_key, (realpath, charset) in other.items():
             used_characters = self.used_characters.setdefault(
                 stat_key, (realpath, set()))
             used_characters[1].update(charset)
@@ -536,7 +526,10 @@ grestore
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # don't want the translate to be global
 
         lw = gc.get_linewidth()
-        stroke = lw != 0.0
+        alpha = (gc.get_alpha()
+                 if gc.get_forced_alpha() or len(gc.get_rgb()) == 3
+                 else gc.get_rgb()[3])
+        stroke = lw > 0 and alpha > 0
         if stroke:
             ps_cmd.append('%.1f setlinewidth' % lw)
             jint = gc.get_joinstyle()
@@ -931,8 +924,12 @@ class FigureCanvasPS(FigureCanvasBase):
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
 
-    def _print_ps(self, outfile, format, *args, **kwargs):
-        papertype = kwargs.pop("papertype", rcParams['ps.papersize'])
+    def _print_ps(self, outfile, format, *args,
+                  papertype=None, dpi=72, facecolor='w', edgecolor='w',
+                  orientation='portrait',
+                  **kwargs):
+        if papertype is None:
+            papertype = rcParams['ps.papersize']
         papertype = papertype.lower()
         if papertype == 'auto':
             pass
@@ -940,28 +937,27 @@ class FigureCanvasPS(FigureCanvasBase):
             raise RuntimeError('%s is not a valid papertype. Use one of %s' %
                                (papertype, ', '.join(papersize)))
 
-        orientation = kwargs.pop("orientation", "portrait").lower()
+        orientation = orientation.lower()
         if orientation == 'landscape': isLandscape = True
         elif orientation == 'portrait': isLandscape = False
         else: raise RuntimeError('Orientation must be "portrait" or "landscape"')
 
         self.figure.set_dpi(72) # Override the dpi kwarg
-        imagedpi = kwargs.pop("dpi", 72)
-        facecolor = kwargs.pop("facecolor", "w")
-        edgecolor = kwargs.pop("edgecolor", "w")
 
         if rcParams['text.usetex']:
-            self._print_figure_tex(outfile, format, imagedpi, facecolor, edgecolor,
+            self._print_figure_tex(outfile, format, dpi, facecolor, edgecolor,
                                    orientation, isLandscape, papertype,
                                    **kwargs)
         else:
-            self._print_figure(outfile, format, imagedpi, facecolor, edgecolor,
+            self._print_figure(outfile, format, dpi, facecolor, edgecolor,
                                orientation, isLandscape, papertype,
                                **kwargs)
 
-    def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
-                      orientation='portrait', isLandscape=False, papertype=None,
-                      metadata=None, **kwargs):
+    def _print_figure(
+            self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
+            orientation='portrait', isLandscape=False, papertype=None,
+            metadata=None, *,
+            dryrun=False, bbox_inches_restore=None, **kwargs):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
@@ -979,9 +975,9 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if isinstance(outfile,
-                      (six.string_types, getattr(os, "PathLike", ()),)):
+        if isinstance(outfile, (str, getattr(os, "PathLike", ()),)):
             outfile = title = getattr(os, "fspath", lambda obj: obj)(outfile)
+            title = title.encode("latin-1", "replace").decode()
             passed_in_file_object = False
         elif is_writable_file_like(outfile):
             title = None
@@ -1031,8 +1027,6 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-
-        dryrun = kwargs.get("dryrun", False)
         if dryrun:
             class NullWriter(object):
                 def write(self, *kl, **kwargs):
@@ -1042,14 +1036,12 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             self._pswriter = io.StringIO()
 
-
         # mixed mode rendering
-        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         ps_renderer = self._renderer_class(width, height, self._pswriter,
                                            imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
             width, height, dpi, ps_renderer,
-            bbox_inches_restore=_bbox_inches_restore)
+            bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)
 
@@ -1073,7 +1065,7 @@ class FigureCanvasPS(FigureCanvasBase):
             else:
                 print("%!PS-Adobe-3.0", file=fh)
             if title:
-                print("%%Title: "+title, file=fh)
+                print("%%Title: " + title, file=fh)
             print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
@@ -1083,7 +1075,7 @@ class FigureCanvasPS(FigureCanvasBase):
                     int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
-            print("%%CreationDate: "+source_date, file=fh)
+            print("%%CreationDate: " + source_date, file=fh)
             print("%%Orientation: " + orientation, file=fh)
             if not isEPSF:
                 print("%%DocumentPaperSizes: "+papertype, file=fh)
@@ -1103,8 +1095,8 @@ class FigureCanvasPS(FigureCanvasBase):
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             if not rcParams['ps.useafm']:
-                for font_filename, chars in six.itervalues(
-                        ps_renderer.used_characters):
+                for font_filename, chars in \
+                        ps_renderer.used_characters.values():
                     if len(chars):
                         font = get_font(font_filename)
                         glyph_ids = []
@@ -1149,7 +1141,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             # write the figure
             content = self._pswriter.getvalue()
-            if not isinstance(content, six.text_type):
+            if not isinstance(content, str):
                 content = content.decode('ascii')
             print(content, file=fh)
 
@@ -1182,8 +1174,7 @@ class FigureCanvasPS(FigureCanvasBase):
             if passed_in_file_object:
                 requires_unicode = file_requires_unicode(outfile)
 
-                if (not requires_unicode and
-                        (six.PY3 or not isinstance(outfile, StringIO))):
+                if not requires_unicode:
                     fh = io.TextIOWrapper(outfile, encoding="latin-1")
 
                     # Prevent the io.TextIOWrapper from closing the
@@ -1199,9 +1190,10 @@ class FigureCanvasPS(FigureCanvasBase):
                 with io.open(outfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
 
-    def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
-                          orientation, isLandscape, papertype, metadata=None,
-                          **kwargs):
+    def _print_figure_tex(
+            self, outfile, format, dpi, facecolor, edgecolor,
+            orientation, isLandscape, papertype, metadata=None, *,
+            dryrun=False, bbox_inches_restore=None, **kwargs):
         """
         If text.usetex is True in rc, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
@@ -1211,7 +1203,7 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if isinstance(outfile, six.string_types):
+        if isinstance(outfile, str):
             title = outfile
         elif is_writable_file_like(outfile):
             title = None
@@ -1236,7 +1228,6 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        dryrun = kwargs.get("dryrun", False)
         if dryrun:
             class NullWriter(object):
                 def write(self, *kl, **kwargs):
@@ -1247,12 +1238,11 @@ class FigureCanvasPS(FigureCanvasBase):
             self._pswriter = io.StringIO()
 
         # mixed mode rendering
-        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         ps_renderer = self._renderer_class(width, height,
                                            self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
                                      width, height, dpi, ps_renderer,
-                                     bbox_inches_restore=_bbox_inches_restore)
+                                     bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)
 
@@ -1603,6 +1593,7 @@ def get_bbox_header(lbrt, rotated=False):
 
 # get_bbox is deprecated. I don't see any reason to use ghostscript to
 # find the bounding box, as the required bounding box is alread known.
+@cbook.deprecated("3.0")
 def get_bbox(tmpfile, bbox):
     """
     Use ghostscript's bbox device to find the center of the bounding box.
