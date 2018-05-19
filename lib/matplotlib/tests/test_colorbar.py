@@ -4,7 +4,7 @@ import pytest
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm, LogNorm
+from matplotlib.colors import BoundaryNorm, LogNorm, join_colormaps
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
 
@@ -219,11 +219,25 @@ def test_join_colorbar():
     )
     assert np.allclose(vals, _vals)
 
+    # +code-coverage for name kwarg and when fractions is unspecified
+    cmap = join_colormaps([cmap1, cmap2, cmap1], name='test-map')
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.229739, 0.322361, 0.545706, 1., ],
+         [0.993248, 0.906157, 0.143936, 1., ],
+         [0.48387097, 1., 0.48387097, 1., ],
+         [0.267004, 0.004874, 0.329415, 1., ],
+         [0.369214, 0.788888, 0.382914, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
 
 def test_truncate_colorbar():
     test_points = [0.1, 0.3, 0.5, 0.7, 0.9]
+    vir32 = plt.get_cmap('viridis', 32)
+    vir128 = plt.get_cmap('viridis', 128)
 
-    cmap = plt.get_cmap('viridis', 32).truncate(0.2, 0.7)
+    cmap = vir32.truncate(0.2, 0.7)
     vals = cmap(test_points)
     _vals = np.array(
         [[0.243113, 0.292092, 0.538516, 1.],
@@ -234,7 +248,20 @@ def test_truncate_colorbar():
     )
     assert np.allclose(vals, _vals)
 
-    cmap = plt.get_cmap('viridis', 128)[0.2:-0.3:16j]
+    # +code-coverage
+    cmap = vir32.truncate(0.2, 0.7, name='test-map', N=128)
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.243113, 0.292092, 0.538516, 1., ],
+         [0.182256, 0.426184, 0.55712, 1., ],
+         [0.144759, 0.519093, 0.556572, 1., ],
+         [0.119423, 0.611141, 0.538982, 1., ],
+         [0.180653, 0.701402, 0.488189, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # Use __getitem__ fractional complex slicing
+    cmap = vir128[0.2:-0.3:16j]
     vals = cmap(test_points)
     _vals = np.array(
         [[0.241237, 0.296485, 0.539709, 1.],
@@ -245,7 +272,8 @@ def test_truncate_colorbar():
     )
     assert np.allclose(vals, _vals)
 
-    cmap = plt.get_cmap('viridis', 128)[25:90]
+    # Use __getitem__ fractional integer slicing
+    cmap = vir128[25:90]
     vals = cmap(test_points)
     _vals = np.array(
         [[0.233603, 0.313828, 0.543914, 1.],
@@ -256,7 +284,8 @@ def test_truncate_colorbar():
     )
     assert np.allclose(vals, _vals)
 
-    cmap = plt.get_cmap('viridis', 128)[25:90:16j]
+    # Use __getitem__ integer complex slicing
+    cmap = vir128[25:90:16j]
     vals = cmap(test_points)
     _vals = np.array(
         [[0.241237, 0.296485, 0.539709, 1.],
@@ -266,6 +295,46 @@ def test_truncate_colorbar():
          [0.214, 0.722114, 0.469588, 1.]]
     )
     assert np.allclose(vals, _vals)
+
+    # Use __getitem__ discrete slicing
+    cmap = vir128[[10, 12, 15, 35, 60, 97]]
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.283197, 0.11568, 0.436115, 1., ],
+         [0.282884, 0.13592, 0.453427, 1., ],
+         [0.21813, 0.347432, 0.550038, 1., ],
+         [0.13777, 0.537492, 0.554906, 1., ],
+         [0.395174, 0.797475, 0.367757, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
+
+def test_truncate_colorbar_fail():
+    vir128 = plt.get_cmap('viridis', 128)
+
+    with pytest.raises(ValueError, match='less than'):
+        vir128.truncate(0.7, 0.3)
+
+    with pytest.raises(ValueError, match='not a truncation'):
+        vir128.truncate(0, 1)
+
+    with pytest.raises(ValueError, match='interval'):
+        vir128.truncate(0.3, 1.1)
+
+    with pytest.raises(ValueError, match='interval'):
+        vir128.truncate(-0.1, 0.7)
+
+    with pytest.raises(IndexError, match='must contain >1 color'):
+        vir128[[3]]
+
+    with pytest.raises(IndexError, match='Invalid colorbar itemization'):
+        # Tuple indexing of colorbars not allowed.
+        vir128[3, 5, 9]
+
+    with pytest.raises(IndexError, match='Invalid colorbar itemization'):
+        # Currently you can't mix-match fractional and int style indexing.
+        # This could be changed...
+        vir128[0.3:100]
 
 
 @image_comparison(baseline_images=['colorbar_single_scatter'],

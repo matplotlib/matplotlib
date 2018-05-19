@@ -833,7 +833,7 @@ class Colormap(object):
                     sss[1] += 1
                 if sss[2] is None:
                     sss[2] = self.N * 1j * (sss[1] - sss[0])
-            else:
+            elif all([s is None or abs(s) > 1 for s in sss[:2]]):
                 # This is an integer-style itemization
                 if sss[0] is None:
                     sss[0] = 0
@@ -852,6 +852,8 @@ class Colormap(object):
                 if sss[0] < 0 or sss[0] >= 1 or sss[1] <= 0 or sss[1] > 1:
                     raise IndexError("Invalid colorbar itemization - outside "
                                      "bounds")
+            else:
+                raise IndexError("Invalid colorbar itemization")
             points = np.mgrid[slice(*sss)]
         elif isinstance(item, (list, np.ndarray)):
             name = self.name + '[<indexed>]'
