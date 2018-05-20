@@ -669,6 +669,7 @@ class Matplotlib(SetupPackage):
         return {
             'matplotlib':
             [
+                'mpl-data/matplotlibrc',
                 *iter_dir('mpl-data/fonts'),
                 *iter_dir('mpl-data/images'),
                 *iter_dir('mpl-data/stylelib'),
