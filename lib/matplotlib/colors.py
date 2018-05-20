@@ -833,7 +833,7 @@ class Colormap(object):
                     sss[1] += 1
                 if sss[2] is None:
                     sss[2] = self.N * 1j * (sss[1] - sss[0])
-            elif all([s is None or abs(s) > 1 for s in sss[:2]]):
+            elif all([s is None or (s % 1 == 0) for s in sss[:2]]):
                 # This is an integer-style itemization
                 if sss[0] is None:
                     sss[0] = 0
