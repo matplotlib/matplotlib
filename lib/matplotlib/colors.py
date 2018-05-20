@@ -515,8 +515,7 @@ class Colormap(object):
             lut = self._lut.copy()  # Don't let alpha modify original _lut.
 
         if alpha is not None:
-            alpha = min(alpha, 1.0)  # alpha must be between 0 and 1
-            alpha = max(alpha, 0.0)
+            alpha = np.clip(alpha, 0, 1)
             if bytes:
                 alpha = int(alpha * 255)
             if (lut[-1] == 0).all():

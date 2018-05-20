@@ -779,12 +779,10 @@ def run(arguments, content, options, state_machine, state, lineno):
     for j, (code_piece, images) in enumerate(results):
         if options['include-source']:
             if is_doctest:
-                lines = ['']
-                lines += [row.rstrip() for row in code_piece.split('\n')]
+                lines = ['', *code_piece.splitlines()]
             else:
-                lines = ['.. code-block:: python', '']
-                lines += ['    %s' % row.rstrip()
-                          for row in code_piece.split('\n')]
+                lines = ['.. code-block:: python', '',
+                         *textwrap.indent(code_piece, '    ').splitlines()]
             source_code = "\n".join(lines)
         else:
             source_code = ""

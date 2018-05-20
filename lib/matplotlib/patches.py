@@ -1,5 +1,6 @@
 import math
 from numbers import Number
+import textwrap
 import warnings
 
 import numpy as np
@@ -1797,41 +1798,23 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.draw(renderer)
 
 
-def _pprint_table(_table, leadingspace=2):
+def _pprint_table(table, leadingspace=2):
     """
     Given the list of list of strings, return a string of REST table format.
     """
-    if leadingspace:
-        pad = ' ' * leadingspace
-    else:
-        pad = ''
-
-    columns = [[] for cell in _table[0]]
-
-    for row in _table:
-        for column, cell in zip(columns, row):
-            column.append(cell)
-
-    col_len = [max(len(cell) for cell in column) for column in columns]
-
-    lines = []
-    table_formatstr = pad + '   '.join([('=' * cl) for cl in col_len])
-
-    lines.append('')
-    lines.append(table_formatstr)
-    lines.append(pad + '   '.join([cell.ljust(cl)
-                                   for cell, cl
-                                   in zip(_table[0], col_len)]))
-    lines.append(table_formatstr)
-
-    lines.extend([(pad + '   '.join([cell.ljust(cl)
-                                     for cell, cl
-                                     in zip(row, col_len)]))
-                  for row in _table[1:]])
-
-    lines.append(table_formatstr)
-    lines.append('')
-    return "\n".join(lines)
+    col_len = [max(len(cell) for cell in column) for column in zip(*table)]
+    table_formatstr = '   '.join('=' * cl for cl in col_len)
+    lines = [
+        '',
+        table_formatstr,
+        '   '.join(cell.ljust(cl) for cell, cl in zip(table[0], col_len)),
+        table_formatstr,
+        *['   '.join(cell.ljust(cl) for cell, cl in zip(row, col_len))
+          for row in table[1:]],
+        table_formatstr,
+        '',
+    ]
+    return textwrap.indent('\n'.join(lines), ' ' * leadingspace)
 
 
 def _pprint_styles(_styles):
