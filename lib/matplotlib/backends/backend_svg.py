@@ -19,7 +19,7 @@ from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
-from matplotlib.font_manager import findfont, get_font
+from matplotlib.font_manager import findfont, get_font, get_sfnt_name
 from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
@@ -492,8 +492,8 @@ class RendererSVG(RendererBase):
         for font_fname, chars in six.iteritems(self._fonts):
             font = get_font(font_fname)
             font.set_size(72, 72)
-            sfnt = font.get_sfnt()
-            writer.start('font', id=sfnt[1, 0, 0, 4].decode("mac_roman"))
+            name = get_sfnt_name(font, 4)
+            writer.start('font', id=name)
             writer.element(
                 'font-face',
                 attrib={

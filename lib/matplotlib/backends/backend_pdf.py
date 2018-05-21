@@ -30,7 +30,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import (get_realpath_and_stat,
                               is_writable_file_like, maxdict)
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
+from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font, get_sfnt_name
 from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
@@ -1130,13 +1130,7 @@ end"""
         # Beginning of main embedTTF function...
 
         # You are lost in a maze of TrueType tables, all different...
-        sfnt = font.get_sfnt()
-        try:
-            ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')  # Macintosh scheme
-        except KeyError:
-            # Microsoft scheme:
-            ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
-            # (see freetype/ttnameid.h)
+        ps_name = font_manager.get_sfnt_name(font, 6)
         ps_name = ps_name.encode('ascii', 'replace')
         ps_name = Name(ps_name)
         pclt = font.get_sfnt_table('pclt') or {'capHeight': 0, 'xHeight': 0}

@@ -19,7 +19,7 @@ from matplotlib.backend_bases import (
 from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
                               maxdict, file_requires_unicode)
 
-from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
+from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font, get_sfnt_name
 from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
@@ -714,11 +714,7 @@ grestore
             self.track_characters(font, s)
 
             self.set_color(*gc.get_rgb())
-            sfnt = font.get_sfnt()
-            try:
-                ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')
-            except KeyError:
-                ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
+            ps_name = get_sfnt_name(font, 6)
             ps_name = ps_name.encode('ascii', 'replace').decode('ascii')
             self.set_font(ps_name, prop.get_size_in_points())
 
