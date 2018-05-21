@@ -137,6 +137,32 @@ if not USE_FONTCONFIG and sys.platform != 'win32':
     X11FontDirectories.append(str(Path.home() / ".fonts"))
 
 
+def get_sfnt_name(font, sfnt_id):
+    """
+    Get a sfnt string entry by from the font, given by sfnt_id.
+
+    The possibly IDs are documented `here
+    <https://www.freetype.org/freetype2/docs/reference/ft2-truetype_tables.html#TT_NAME_ID_XXX>`__.
+
+    This will first attempt to find a Unicode name in the file, and if one
+    doesn't exist, will use a MacRoman-encoded entry. If the MacRoman encoding
+    isn't available in your Python, a ValueError exception is raised.
+    """
+    sfnt = font.get_sfnt()
+    # 0x0409 == TT_MS_LANGID_ENGLISH_UNITED_STATES
+    unicode_id = (3, 1, 0x0409, sfnt_id)
+    if unicode_id in sfnt:
+        return sfnt[unicode_id].decode('utf-16be')
+    else:
+        mac_roman_id = (1, 0, 0, sfnt_id)
+        if mac_roman_id in sfnt:
+            try:
+                return sfnt[mac_roman_id].decode('mac_roman')
+            except LookupError:
+                pass
+    raise ValueError('Can not decode sfnt_id {}'.format(sfnt_id))
+
+
 def get_fontext_synonyms(fontext):
     """
     Return a list of file extensions extensions that are synonyms for
@@ -329,16 +355,8 @@ def ttfFontProperty(font):
     #  Styles are: italic, oblique, and normal (default)
 
     sfnt = font.get_sfnt()
-    sfnt2 = sfnt.get((1,0,0,2))
-    sfnt4 = sfnt.get((1,0,0,4))
-    if sfnt2:
-        sfnt2 = sfnt2.decode('mac_roman').lower()
-    else:
-        sfnt2 = ''
-    if sfnt4:
-        sfnt4 = sfnt4.decode('mac_roman').lower()
-    else:
-        sfnt4 = ''
+    sfnt2 = get_sfnt_name(font, 2)
+    sfnt4 = get_sfnt_name(font, 4)
     if sfnt4.find('oblique') >= 0:
         style = 'oblique'
     elif sfnt4.find('italic') >= 0:

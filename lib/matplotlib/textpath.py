@@ -11,7 +11,7 @@ from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ft2font import LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
 import matplotlib.dviread as dviread
-from matplotlib.font_manager import FontProperties, get_font
+from matplotlib.font_manager import FontProperties, get_font, get_sfnt_name
 from matplotlib.transforms import Affine2D
 
 
@@ -56,11 +56,7 @@ class TextToPath(object):
         """
         Return a unique id for the given font and character-code set.
         """
-        sfnt = font.get_sfnt()
-        try:
-            ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')
-        except KeyError:
-            ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
+        sfnt = font_manager.get_sfnt_name(font, 6)
         char_id = urllib.parse.quote('%s-%x' % (ps_name, ccode))
         return char_id
 
