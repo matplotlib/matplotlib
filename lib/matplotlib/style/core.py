@@ -45,7 +45,7 @@ def _remove_blacklisted_style_params(d, warn=True):
             if warn:
                 warnings.warn(
                     "Style includes a parameter, '{0}', that is not related "
-                    "to style.  Ignoring".format(key), stacklevel=2)
+                    "to style.  Ignoring".format(key), stacklevel=3)
         else:
             o[key] = val
     return o
