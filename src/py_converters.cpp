@@ -158,45 +158,36 @@ int convert_rect(PyObject *rectobj, void *rectp)
         rect->x2 = 0.0;
         rect->y2 = 0.0;
     } else {
-        try
-        {
-            numpy::array_view<const double, 2> rect_arr(rectobj);
+        PyArrayObject *rect_arr = (PyArrayObject *)PyArray_ContiguousFromAny(
+                rectobj, NPY_DOUBLE, 1, 2);
+        if (rect_arr == NULL) {
+            return 0;
+        }
 
-            if (rect_arr.dim(0) != 2 || rect_arr.dim(1) != 2) {
+        if (PyArray_NDIM(rect_arr) == 2) {
+            if (PyArray_DIM(rect_arr, 0) != 2 ||
+                PyArray_DIM(rect_arr, 1) != 2) {
                 PyErr_SetString(PyExc_ValueError, "Invalid bounding box");
+                Py_DECREF(rect_arr);
                 return 0;
             }
 
-            rect->x1 = rect_arr(0, 0);
-            rect->y1 = rect_arr(0, 1);
-            rect->x2 = rect_arr(1, 0);
-            rect->y2 = rect_arr(1, 1);
-        }
-        catch (py::exception &)
-        {
-            PyErr_Clear();
-
-            try
-            {
-                numpy::array_view<const double, 1> rect_arr(rectobj);
-
-                if (rect_arr.dim(0) != 4) {
-                    PyErr_SetString(PyExc_ValueError, "Invalid bounding box");
-                    return 0;
-                }
-
-                rect->x1 = rect_arr(0);
-                rect->y1 = rect_arr(1);
-                rect->x2 = rect_arr(2);
-                rect->y2 = rect_arr(3);
-            }
-            catch (py::exception &)
-            {
+        } else {  // PyArray_NDIM(rect_arr) == 1
+            if (PyArray_DIM(rect_arr, 0) != 4) {
+                PyErr_SetString(PyExc_ValueError, "Invalid bounding box");
+                Py_DECREF(rect_arr);
                 return 0;
             }
         }
+
+        double *buff = (double *)PyArray_DATA(rect_arr);
+        rect->x1 = buff[0];
+        rect->y1 = buff[1];
+        rect->x2 = buff[2];
+        rect->y2 = buff[3];
+
+        Py_DECREF(rect_arr);
     }
-
     return 1;
 }
 
