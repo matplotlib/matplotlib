@@ -15,6 +15,20 @@ needs_sphinx = pytest.mark.skipif(
     reason="'{} -msphinx' does not return 0".format(sys.executable))
 
 
+try:
+    import multiprocessing
+    HAS_MULTIPROCESSING = True
+except ImportError:
+    HAS_MULTIPROCESSING = False
+
+
+needs_multiprocessing = pytest.mark.skipif(
+    not HAS_MULTIPROCESSING,
+    reason="needs multiprocessing")
+
+
+@needs_sphinx
+@needs_multiprocessing
 def test_tinypages(tmpdir):
     html_dir = pjoin(str(tmpdir), 'html')
     doctree_dir = pjoin(str(tmpdir), 'doctrees')

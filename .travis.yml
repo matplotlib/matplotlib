@@ -72,6 +72,7 @@ env:
     - PYTHONFAULTHANDLER=1
     - PYTEST_ADDOPTS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - RUN_PEP8=
+    - MINIMAL_PYTHON=
 
 matrix:
   include:
@@ -87,6 +88,11 @@ matrix:
         - PYTEST=pytest==3.4
         - PYTEST_COV=pytest-cov==2.3.1
         - SPHINX=sphinx==1.3
+        # Build a minimal Python configuration where the optional modules have
+        # been removed. The file in tools/Setup.dist should be updated from the
+        # CPython repository when the version of Python being tested has
+        # changed.
+        - MINIMAL_PYTHON=true
     - python: 3.5
       env:
         # - PYTHONOPTIMIZE=2  # This currently doesn't work.
@@ -182,6 +188,12 @@ install:
   - |
     # Install matplotlib
     python -mpip install -ve .
+  - |
+    # If this is meant to be a minimal python, remove optional modules now
+    if [[ $MINIMAL_PYTHON == 'true' ]] then
+      python tools/create_minimal_python.py
+      export PATH=$PWD/minimal_python/bin:$PATH
+    fi
 
 before_script: |
   if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
