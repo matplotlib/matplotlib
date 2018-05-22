@@ -1529,9 +1529,7 @@ class FixedLocator(Locator):
 
     def __init__(self, locs, nbins=None):
         self.locs = np.asarray(locs)
-        self.nbins = nbins
-        if self.nbins is not None:
-            self.nbins = max(self.nbins, 2)
+        self.nbins = max(nbins, 2) if nbins is not None else None
 
     def set_params(self, nbins=None):
         """Set parameters within this locator."""
