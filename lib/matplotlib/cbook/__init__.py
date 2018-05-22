@@ -2047,3 +2047,24 @@ def _warn_external(message, category=None):
             break
         frame = frame.f_back
     warnings.warn(message, category, stacklevel)
+
+
+class _OrderedSet(collections.MutableSet):
+    def __init__(self):
+        self._od = collections.OrderedDict()
+
+    def __contains__(self, key):
+        return key in self._od
+
+    def __iter__(self):
+        return iter(self._od)
+
+    def __len__(self):
+        return len(self._od)
+
+    def add(self, key):
+        self._od.pop(key, None)
+        self._od[key] = None
+
+    def discard(self, key):
+        self._od.pop(key, None)

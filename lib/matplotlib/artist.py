@@ -148,7 +148,7 @@ class Artist(object):
             _ax_flag = False
             if hasattr(self, 'axes') and self.axes:
                 # remove from the mouse hit list
-                self.axes.mouseover_set.discard(self)
+                self.axes._mouseover_set.discard(self)
                 # mark the axes as stale
                 self.axes.stale = True
                 # decouple the artist from the axes
@@ -1028,9 +1028,9 @@ class Artist(object):
         ax = self.axes
         if ax:
             if val:
-                ax.mouseover_set.add(self)
+                ax._mouseover_set.add(self)
             else:
-                ax.mouseover_set.discard(self)
+                ax._mouseover_set.discard(self)
 
 
 class ArtistInspector(object):

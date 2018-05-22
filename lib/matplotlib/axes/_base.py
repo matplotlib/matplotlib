@@ -12,8 +12,8 @@ import numpy as np
 import matplotlib
 
 from matplotlib import cbook, rcParams
-from matplotlib.cbook import (_check_1d, _string_to_bool, iterable,
-                              index_of, get_label)
+from matplotlib.cbook import (
+    _OrderedSet, _check_1d, _string_to_bool, iterable, index_of, get_label)
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -907,7 +907,7 @@ class _AxesBase(martist.Artist):
 
         a.axes = self
         if a.mouseover:
-            self.mouseover_set.add(a)
+            self._mouseover_set.add(a)
 
     def _gen_axes_patch(self):
         """
@@ -1022,7 +1022,7 @@ class _AxesBase(martist.Artist):
         self.tables = []
         self.artists = []
         self.images = []
-        self.mouseover_set = set()
+        self._mouseover_set = _OrderedSet()
         self._current_image = None  # strictly for pyplot via _sci, _gci
         self.legend_ = None
         self.collections = []  # collection.Collection instances
@@ -1088,6 +1088,11 @@ class _AxesBase(martist.Artist):
             self.patch.set_visible(patch_visible)
 
         self.stale = True
+
+    @property
+    @cbook.deprecated("3.0")
+    def mouseover_set(self):
+        return frozenset(self._mouseover_set)
 
     def clear(self):
         """Clear the axes."""

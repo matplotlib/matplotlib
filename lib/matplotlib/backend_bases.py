@@ -2705,7 +2705,7 @@ class NavigationToolbar2(object):
             except (ValueError, OverflowError):
                 pass
             else:
-                artists = [a for a in event.inaxes.mouseover_set
+                artists = [a for a in event.inaxes._mouseover_set
                            if a.contains(event) and a.get_visible()]
 
                 if artists:
