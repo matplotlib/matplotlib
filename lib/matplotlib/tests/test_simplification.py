@@ -33,7 +33,7 @@ def test_overflow():
 
     fig, ax = plt.subplots()
     ax.plot(x, y)
-    ax.set_xlim(xmin=2, xmax=6)
+    ax.set_xlim(2, 6)
 
 
 @image_comparison(baseline_images=['clipping_diamond'], remove_text=True)
@@ -43,8 +43,8 @@ def test_diamond():
 
     fig, ax = plt.subplots()
     ax.plot(x, y)
-    ax.set_xlim(xmin=-0.6, xmax=0.6)
-    ax.set_ylim(ymin=-0.6, ymax=0.6)
+    ax.set_xlim(-0.6, 0.6)
+    ax.set_ylim(-0.6, 0.6)
 
 
 def test_noise():
