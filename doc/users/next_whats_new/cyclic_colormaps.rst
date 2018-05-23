@@ -1,5 +1,5 @@
-Wrapping colormaps
-------------------
+Cyclic colormaps
+----------------
 
 Two new colormaps named 'twilight' and 'twilight_shifted' were added.
 These colormaps start and end on the same color, and have two

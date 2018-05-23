@@ -56,7 +56,7 @@ Colormaps are often split into several categories based on their function (see,
    middle value, such as topography or when the data deviates around
    zero.
 
-3. Wrapping: change in lightness of two different colors that meet in
+3. Cyclic: change in lightness of two different colors that meet in
    the middle and beginning/end at an unsaturated color; should be
    used for values that wrap around at the endpoints, such as phase
    angle, wind direction, or time of day.
@@ -130,16 +130,16 @@ cmaps['Diverging'] = [
             'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic']
 
 ###############################################################################
-# Wrapping
-# --------
+# Cyclic
+# ------
 #
-# For Wrapping maps, we want to start and end on the same color, and meet a
+# For Cyclic maps, we want to start and end on the same color, and meet a
 # symmetric center point in the middle. :math:`L^*` should change monotonically
 # from start to middle, and inversely from middle to end. It should be symmetric
 # on the increasing and decreasing side, and only differ in hue. At the ends and
 # middle, :math:`L^*` will reverse direction, which should be smoothed in
 # :math:`L^*` space to reduce artifacts. See [kovesi-colormaps]_ for more
-# information on the design of wrapping maps.
+# information on the design of cyclic maps.
 #
 # The often-used HSV colormap is included in this set of colormaps, although it
 # is not symmetric to a center point. Additionally, the :math:`L^*` values vary
@@ -147,7 +147,7 @@ cmaps['Diverging'] = [
 # for viewers to see perceptually. See an extension on this idea at
 # [mycarta-jet]_.
 
-cmaps['Wrapping'] = ['twilight', 'twilight_shifted', 'hsv']
+cmaps['Cyclic'] = ['twilight', 'twilight_shifted', 'hsv']
 
 ###############################################################################
 # Qualitative
@@ -231,12 +231,12 @@ mpl.rcParams.update({'font.size': 12})
 
 # Number of colormap per subplot for particular cmap categories
 _DSUBS = {'Perceptually Uniform Sequential': 5, 'Sequential': 6,
-          'Sequential (2)': 6, 'Diverging': 6, 'Wrapping': 3,
+          'Sequential (2)': 6, 'Diverging': 6, 'Cyclic': 3,
           'Qualitative': 4, 'Miscellaneous': 6}
 
 # Spacing between the colormaps of a subplot
 _DC = {'Perceptually Uniform Sequential': 1.4, 'Sequential': 0.7,
-       'Sequential (2)': 1.4, 'Diverging': 1.4, 'Wrapping': 1.4,
+       'Sequential (2)': 1.4, 'Diverging': 1.4, 'Cyclic': 1.4,
        'Qualitative': 1.4, 'Miscellaneous': 1.4}
 
 # Indices to step through colormap
@@ -286,7 +286,7 @@ for cmap_category, cmap_list in cmaps.items():
             if cmap_category in ('Perceptually Uniform Sequential',
                                  'Sequential'):
                 locs.append(x[-1] + j*dc)
-            elif cmap_category in ('Diverging', 'Qualitative', 'Wrapping',
+            elif cmap_category in ('Diverging', 'Qualitative', 'Cyclic',
                                    'Miscellaneous', 'Sequential (2)'):
                 locs.append(x[int(x.size/2.)] + j*dc)
 
