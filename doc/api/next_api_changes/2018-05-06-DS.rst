@@ -1,0 +1,7 @@
+Default value for ``block`` keyword arg standardised to ``True``
+----------------------------------------------------------------
+
+The ``block`` keyword argument that can be supplied to `.pyplot.show()` now
+takes a default value of ``True`` instead of ``None``. The behaviour is
+otherwise the same, and the `.backend_bases.FigureManagerBase.show()` has
+also had this change applied.

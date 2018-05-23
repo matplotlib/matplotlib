@@ -319,7 +319,10 @@ class _BackendWebAgg(_Backend):
         manager.canvas.draw_idle()
 
     @staticmethod
-    def show():
+    def show(block=True):
+        if not block:
+            warnings.warn('The webagg backend does not support "block=False"')
+            block = True
         WebAggApplication.initialize()
 
         url = "http://127.0.0.1:{port}{prefix}".format(

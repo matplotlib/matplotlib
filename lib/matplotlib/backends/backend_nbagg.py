@@ -242,7 +242,7 @@ class _BackendNbAgg(_Backend):
         manager.show()
 
     @staticmethod
-    def show(*args, **kwargs):
+    def show(block=True):
         ## TODO: something to do when keyword block==False ?
         from matplotlib._pylab_helpers import Gcf
 
