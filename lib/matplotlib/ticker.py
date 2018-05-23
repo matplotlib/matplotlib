@@ -172,7 +172,6 @@ import numpy as np
 from matplotlib import rcParams
 from matplotlib import cbook
 from matplotlib import transforms as mtransforms
-from matplotlib.cbook import mplDeprecation
 
 import warnings
 

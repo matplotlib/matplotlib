@@ -33,7 +33,6 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from contextlib import contextmanager
-from functools import partial
 import importlib
 import io
 import os
