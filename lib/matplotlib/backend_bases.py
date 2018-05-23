@@ -32,10 +32,7 @@ graphics contexts must implement to serve as a matplotlib backend
     The base class for the messaging area.
 """
 
-import six
-
 from contextlib import contextmanager
-from functools import partial
 import importlib
 import io
 import os
@@ -121,7 +118,7 @@ def get_registered_canvas_class(format):
     if format not in _default_backends:
         return None
     backend_class = _default_backends[format]
-    if isinstance(backend_class, six.string_types):
+    if isinstance(backend_class, str):
         backend_class = importlib.import_module(backend_class).FigureCanvas
         _default_backends[format] = backend_class
     return backend_class
@@ -465,7 +462,7 @@ class RendererBase(object):
         is not the same for every path.
         """
         Npaths = len(paths)
-        if Npaths == 0 or (len(facecolors) == 0 and len(edgecolors) == 0):
+        if Npaths == 0 or len(facecolors) == len(edgecolors) == 0:
             return 0
         Npath_ids = max(Npaths, len(all_transforms))
         N = max(Npath_ids, len(offsets))
@@ -2059,7 +2056,7 @@ class FigureCanvasBase(object):
         Experts Group', and the values are a list of filename extensions used
         for that filetype, such as ['jpg', 'jpeg']."""
         groupings = {}
-        for ext, name in six.iteritems(cls.filetypes):
+        for ext, name in cls.filetypes.items():
             groupings.setdefault(name, []).append(ext)
             groupings[name].sort()
         return groupings
@@ -2130,11 +2127,11 @@ class FigureCanvasBase(object):
             # get format from filename, or from backend's default filetype
             if isinstance(filename, getattr(os, "PathLike", ())):
                 filename = os.fspath(filename)
-            if isinstance(filename, six.string_types):
+            if isinstance(filename, str):
                 format = os.path.splitext(filename)[1][1:]
             if format is None or format == '':
                 format = self.get_default_filetype()
-                if isinstance(filename, six.string_types):
+                if isinstance(filename, str):
                     filename = filename.rstrip('.') + '.' + format
         format = format.lower()
 

@@ -22,8 +22,6 @@ Sources:
   v1.1, 1993. ISBN 0-201-57044-0.
 """
 
-import six
-
 import binascii
 import enum
 import itertools
@@ -31,10 +29,6 @@ import re
 import struct
 
 import numpy as np
-
-if six.PY3:
-    def ord(x):
-        return x
 
 
 # token types
@@ -81,11 +75,11 @@ class Type1Font(object):
             return rawdata
 
         data = b''
-        while len(rawdata) > 0:
+        while rawdata:
             if not rawdata.startswith(b'\x80'):
                 raise RuntimeError('Broken pfb file (expected byte 128, '
-                                   'got %d)' % ord(rawdata[0]))
-            type = ord(rawdata[1])
+                                   'got %d)' % rawdata[0])
+            type = rawdata[1]
             if type in (1, 2):
                 length, = struct.unpack(str('<i'), rawdata[2:6])
                 segment = rawdata[6:6 + length]

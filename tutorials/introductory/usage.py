@@ -481,11 +481,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # GTK and Cairo
 # -------------
 #
-# Both `GTK2` and `GTK3` have implicit dependencies on PyCairo regardless of the
-# specific Matplotlib backend used. Unfortunately the latest release of PyCairo
-# for Python3 does not implement the Python wrappers needed for the `GTK3Agg`
-# backend. `Cairocffi` can be used as a replacement which implements the correct
-# wrapper.
+# `GTK3` backends (*both* `GTK3Agg` and `GTK3Cairo`) depend on Cairo
+# (pycairo>=1.11.0 or cairocffi).
 #
 # How do I select PyQt4 or PySide?
 # --------------------------------

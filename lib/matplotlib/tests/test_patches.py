@@ -1,8 +1,6 @@
 """
 Tests specific to the patches module.
 """
-import six
-
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
@@ -255,10 +253,10 @@ def test_wedge_movement():
                   'theta1': (0, 30, 'set_theta1'),
                   'theta2': (45, 50, 'set_theta2')}
 
-    init_args = dict((k, v[0]) for (k, v) in six.iteritems(param_dict))
+    init_args = dict((k, v[0]) for (k, v) in param_dict.items())
 
     w = mpatches.Wedge(**init_args)
-    for attr, (old_v, new_v, func) in six.iteritems(param_dict):
+    for attr, (old_v, new_v, func) in param_dict.items():
         assert getattr(w, attr) == old_v
         getattr(w, func)(new_v)
         assert getattr(w, attr) == new_v

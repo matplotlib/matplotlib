@@ -1,4 +1,3 @@
-import six
 import matplotlib.pyplot as plt
 
 

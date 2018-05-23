@@ -31,7 +31,6 @@ found.
 #   - 'light' is an invalid weight value, remove it.
 #   - update_fonts not implemented
 
-from collections import Iterable
 from functools import lru_cache
 import json
 import logging
@@ -39,7 +38,10 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from threading import Timer
+try:
+    from threading import Timer
+except ImportError:
+    from dummy_threading import Timer
 import warnings
 
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir

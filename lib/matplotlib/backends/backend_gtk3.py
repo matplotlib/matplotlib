@@ -71,7 +71,7 @@ class TimerGTK3(TimerBase):
 
         # Gtk timeout_add() requires that the callback returns True if it
         # is to be called again.
-        if len(self.callbacks) > 0 and not self._single:
+        if self.callbacks and not self._single:
             return True
         else:
             self._timer = None

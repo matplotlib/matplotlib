@@ -1,10 +1,6 @@
 from collections import OrderedDict
 
-import six
-from six import unichr
-
 import base64
-import codecs
 import gzip
 import hashlib
 import io
@@ -238,7 +234,7 @@ def generate_transform(transform_list=[]):
 def generate_css(attrib={}):
     if attrib:
         output = io.StringIO()
-        attrib = sorted(six.iteritems(attrib))
+        attrib = sorted(attrib.items())
         for k, v in attrib:
             k = escape_attrib(k)
             v = escape_attrib(v)
@@ -304,17 +300,12 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
     def _make_id(self, type, content):
-        content = str(content)
-        if rcParams['svg.hashsalt'] is None:
+        salt = rcParams['svg.hashsalt']
+        if salt is None:
             salt = str(uuid.uuid4())
-        else:
-            salt = rcParams['svg.hashsalt']
-        if six.PY3:
-            content = content.encode('utf8')
-            salt = salt.encode('utf8')
         m = hashlib.md5()
-        m.update(salt)
-        m.update(content)
+        m.update(salt.encode('utf8'))
+        m.update(str(content).encode('utf8'))
         return '%s%s' % (type, m.hexdigest()[:10])
 
     def _make_flip_transform(self, transform):
@@ -355,13 +346,13 @@ class RendererSVG(RendererBase):
         HATCH_SIZE = 72
         writer = self.writer
         writer.start('defs')
-        for ((path, face, stroke), oid) in six.itervalues(self._hatchd):
+        for (path, face, stroke), oid in self._hatchd.values():
             writer.start(
                 'pattern',
                 id=oid,
                 patternUnits="userSpaceOnUse",
-                x="0", y="0", width=six.text_type(HATCH_SIZE),
-                height=six.text_type(HATCH_SIZE))
+                x="0", y="0", width=str(HATCH_SIZE),
+                height=str(HATCH_SIZE))
             path_data = self._convert_path(
                 path,
                 Affine2D().scale(HATCH_SIZE).scale(1.0, -1.0).translate(0, HATCH_SIZE),
@@ -372,8 +363,8 @@ class RendererSVG(RendererBase):
                 fill = rgb2hex(face)
             writer.element(
                 'rect',
-                x="0", y="0", width=six.text_type(HATCH_SIZE+1),
-                height=six.text_type(HATCH_SIZE+1),
+                x="0", y="0", width=str(HATCH_SIZE+1),
+                height=str(HATCH_SIZE+1),
                 fill=fill)
             writer.element(
                 'path',
@@ -381,7 +372,7 @@ class RendererSVG(RendererBase):
                 style=generate_css({
                     'fill': rgb2hex(stroke),
                     'stroke': rgb2hex(stroke),
-                    'stroke-width': six.text_type(rcParams['hatch.linewidth']),
+                    'stroke-width': str(rcParams['hatch.linewidth']),
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
                     })
@@ -466,7 +457,7 @@ class RendererSVG(RendererBase):
             return
         writer = self.writer
         writer.start('defs')
-        for clip, oid in six.itervalues(self._clipd):
+        for clip, oid in self._clipd.values():
             writer.start('clipPath', id=oid)
             if len(clip) == 2:
                 clippath, clippath_trans = clip
@@ -489,7 +480,7 @@ class RendererSVG(RendererBase):
 
         writer = self.writer
         writer.start('defs')
-        for font_fname, chars in six.iteritems(self._fonts):
+        for font_fname, chars in self._fonts.items():
             font = get_font(font_fname)
             font.set_size(72, 72)
             sfnt = font.get_sfnt()
@@ -513,7 +504,7 @@ class RendererSVG(RendererBase):
                     d=path_data,
                     attrib={
                         # 'glyph-name': name,
-                        'unicode': unichr(char),
+                        'unicode': chr(char),
                         'horiz-adv-x':
                         short_float_fmt(glyph.linearHoriAdvance / 65536.0)})
             writer.end('font')
@@ -583,7 +574,7 @@ class RendererSVG(RendererBase):
         style = self._get_style_dict(gc, rgbFace)
         dictkey = (path_data, generate_css(style))
         oid = self._markers.get(dictkey)
-        style = generate_css({k: v for k, v in six.iteritems(style)
+        style = generate_css({k: v for k, v in style.items()
                               if k.startswith('stroke')})
 
         if oid is None:
@@ -907,7 +898,7 @@ class RendererSVG(RendererBase):
 
             if glyph_map_new:
                 writer.start('defs')
-                for char_id, glyph_path in six.iteritems(glyph_map_new):
+                for char_id, glyph_path in glyph_map_new.items():
                     path = Path(*glyph_path)
                     path_data = self._convert_path(path, simplify=False)
                     writer.element('path', id=char_id, d=path_data)
@@ -950,7 +941,7 @@ class RendererSVG(RendererBase):
             # used.
             if glyph_map_new:
                 writer.start('defs')
-                for char_id, glyph_path in six.iteritems(glyph_map_new):
+                for char_id, glyph_path in glyph_map_new.items():
                     char_id = self._adjust_char_id(char_id)
                     # Some characters are blank
                     if not len(glyph_path[0]):
@@ -1014,9 +1005,9 @@ class RendererSVG(RendererBase):
             attrib = {}
             # Must add "px" to workaround a Firefox bug
             style['font-size'] = short_float_fmt(fontsize) + 'px'
-            style['font-family'] = six.text_type(fontfamily)
+            style['font-family'] = str(fontfamily)
             style['font-style'] = prop.get_style().lower()
-            style['font-weight'] = six.text_type(prop.get_weight()).lower()
+            style['font-weight'] = str(prop.get_weight()).lower()
             attrib['style'] = generate_css(style)
 
             if mtext and (angle == 0 or mtext.get_rotation_mode() == "anchor"):
@@ -1097,7 +1088,7 @@ class RendererSVG(RendererBase):
                     fontset = self._fonts.setdefault(font.fname, set())
                     fontset.add(thetext)
 
-            for style, chars in six.iteritems(spans):
+            for style, chars in spans.items():
                 chars.sort()
 
                 same_y = True
@@ -1108,9 +1099,9 @@ class RendererSVG(RendererBase):
                             same_y = False
                             break
                 if same_y:
-                    ys = six.text_type(chars[0][1])
+                    ys = str(chars[0][1])
                 else:
-                    ys = ' '.join(six.text_type(c[1]) for c in chars)
+                    ys = ' '.join(str(c[1]) for c in chars)
 
                 attrib = {
                     'style': style,
@@ -1120,7 +1111,7 @@ class RendererSVG(RendererBase):
 
                 writer.element(
                     'tspan',
-                    ''.join(unichr(c[2]) for c in chars),
+                    ''.join(chr(c[2]) for c in chars),
                     attrib=attrib)
 
             writer.end('text')
@@ -1182,16 +1173,13 @@ class FigureCanvasSVG(FigureCanvasBase):
         with cbook.open_file_cm(filename, "w", encoding="utf-8") as fh:
 
             filename = getattr(fh, 'name', '')
-            if not isinstance(filename, six.string_types):
+            if not isinstance(filename, str):
                 filename = ''
 
             if cbook.file_requires_unicode(fh):
                 detach = False
             else:
-                if six.PY3:
-                    fh = io.TextIOWrapper(fh, 'utf-8')
-                else:
-                    fh = codecs.getwriter('utf-8')(fh)
+                fh = io.TextIOWrapper(fh, 'utf-8')
                 detach = True
 
             result = self._print_svg(filename, fh, **kwargs)
@@ -1199,11 +1187,7 @@ class FigureCanvasSVG(FigureCanvasBase):
             # Detach underlying stream from wrapper so that it remains open in
             # the caller.
             if detach:
-                if six.PY3:
-                    fh.detach()
-                else:
-                    fh.reset()
-                    fh.stream = io.BytesIO()
+                fh.detach()
 
         return result
 

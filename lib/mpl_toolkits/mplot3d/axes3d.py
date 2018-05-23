@@ -9,9 +9,7 @@ Significant updates and revisions by Ben Root <ben.v.root@gmail.com>
 Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
 """
-import six
-from six.moves import map, zip, reduce
-
+from functools import reduce
 from collections import defaultdict
 import math
 import warnings
@@ -525,9 +523,9 @@ class Axes3D(Axes):
         # of data and decides how to scale the view portal to fit it.
         if tight is None:
             # if image data only just use the datalim
-            _tight = self._tight or (len(self.images)>0 and
-                                     len(self.lines)==0 and
-                                     len(self.patches)==0)
+            _tight = self._tight or (
+                len(self.images) > 0
+                and len(self.lines) == len(self.patches) == 0)
         else:
             _tight = self._tight = bool(tight)
 
@@ -1554,7 +1552,7 @@ class Axes3D(Axes):
         # `zs` can be passed positionally or as keyword; checking whether
         # args[0] is a string matches the behavior of 2D `plot` (via
         # `_process_plot_var_args`).
-        if args and not isinstance(args[0], six.string_types):
+        if args and not isinstance(args[0], str):
             zs = args[0]
             args = args[1:]
             if 'zs' in kwargs:

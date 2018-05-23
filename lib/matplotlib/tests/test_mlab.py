@@ -1,5 +1,3 @@
-import six
-
 import tempfile
 import warnings
 
@@ -210,11 +208,7 @@ class TestStride(object):
 
 @pytest.fixture
 def tempcsv():
-    if six.PY2:
-        fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
-    else:
-        fd = tempfile.TemporaryFile(suffix='csv', mode="w+", newline='')
-    with fd:
+    with tempfile.TemporaryFile(suffix='csv', mode="w+", newline='') as fd:
         yield fd
 
 
@@ -1125,7 +1119,7 @@ class TestDetrend(object):
         res = mlab.detrend(input, key=mlab.detrend_linear, axis=0)
         assert_allclose(res, targ, atol=self.atol)
 
-    def test_detrend_str_linear_2d_slope_off_axis0(self):
+    def test_detrend_str_linear_2d_slope_off_axis0_notranspose(self):
         arri = [self.sig_off,
                 self.sig_slope,
                 self.sig_slope + self.sig_off]
@@ -1137,7 +1131,7 @@ class TestDetrend(object):
         res = mlab.detrend(input, key='linear', axis=1)
         assert_allclose(res, targ, atol=self.atol)
 
-    def test_detrend_detrend_linear_1d_slope_off_axis1(self):
+    def test_detrend_detrend_linear_1d_slope_off_axis1_notranspose(self):
         arri = [self.sig_off,
                 self.sig_slope,
                 self.sig_slope + self.sig_off]

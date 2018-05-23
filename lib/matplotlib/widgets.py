@@ -917,7 +917,7 @@ class TextBox(AxesWidget):
 
     def on_submit(self, func):
         """
-        When the user hits enter or leaves the submision box, call this
+        When the user hits enter or leaves the submission box, call this
         *func* with event.
 
         A connection id is returned which can be used to disconnect.
@@ -928,8 +928,8 @@ class TextBox(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
-        for reg in (self.change_observers, self.submit_observers):
+        """Remove the observer with connection id *cid*."""
+        for reg in [self.change_observers, self.submit_observers]:
             try:
                 del reg[cid]
             except KeyError:

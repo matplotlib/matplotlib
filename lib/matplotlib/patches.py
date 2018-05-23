@@ -1,8 +1,6 @@
-import six
-from six.moves import map, zip
-
 import math
 from numbers import Number
+import textwrap
 import warnings
 
 import numpy as np
@@ -1800,41 +1798,23 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.draw(renderer)
 
 
-def _pprint_table(_table, leadingspace=2):
+def _pprint_table(table, leadingspace=2):
     """
     Given the list of list of strings, return a string of REST table format.
     """
-    if leadingspace:
-        pad = ' ' * leadingspace
-    else:
-        pad = ''
-
-    columns = [[] for cell in _table[0]]
-
-    for row in _table:
-        for column, cell in zip(columns, row):
-            column.append(cell)
-
-    col_len = [max(len(cell) for cell in column) for column in columns]
-
-    lines = []
-    table_formatstr = pad + '   '.join([('=' * cl) for cl in col_len])
-
-    lines.append('')
-    lines.append(table_formatstr)
-    lines.append(pad + '   '.join([cell.ljust(cl)
-                                   for cell, cl
-                                   in zip(_table[0], col_len)]))
-    lines.append(table_formatstr)
-
-    lines.extend([(pad + '   '.join([cell.ljust(cl)
-                                     for cell, cl
-                                     in zip(row, col_len)]))
-                  for row in _table[1:]])
-
-    lines.append(table_formatstr)
-    lines.append('')
-    return "\n".join(lines)
+    col_len = [max(len(cell) for cell in column) for column in zip(*table)]
+    table_formatstr = '   '.join('=' * cl for cl in col_len)
+    lines = [
+        '',
+        table_formatstr,
+        '   '.join(cell.ljust(cl) for cell, cl in zip(table[0], col_len)),
+        table_formatstr,
+        *['   '.join(cell.ljust(cl) for cell, cl in zip(row, col_len))
+          for row in table[1:]],
+        table_formatstr,
+        '',
+    ]
+    return textwrap.indent('\n'.join(lines), ' ' * leadingspace)
 
 
 def _pprint_styles(_styles):
@@ -1848,24 +1828,13 @@ def _pprint_styles(_styles):
     _table = [["Class", "Name", "Attrs"]]
 
     for name, cls in sorted(_styles.items()):
-        if six.PY2:
-            args, varargs, varkw, defaults = inspect.getargspec(cls.__init__)
+        spec = inspect.getfullargspec(cls.__init__)
+        if spec.defaults:
+            argstr = ", ".join(map(
+                "{}={}".format, spec.args[-len(spec.defaults):], spec.defaults
+            ))
         else:
-            (args, varargs, varkw, defaults, kwonlyargs, kwonlydefs,
-                annotations) = inspect.getfullargspec(cls.__init__)
-        if defaults:
-            args = [(argname, argdefault)
-                    for argname, argdefault in zip(args[1:], defaults)]
-        else:
-            args = None
-
-        if args is None:
             argstr = 'None'
-        else:
-            argstr = ",".join([("%s=%s" % (an, av))
-                               for an, av
-                               in args])
-
         # adding ``quotes`` since - and | have special meaning in reST
         _table.append([cls.__name__, "``%s``" % name, argstr])
 

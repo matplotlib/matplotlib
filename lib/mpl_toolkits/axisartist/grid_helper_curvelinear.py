@@ -1,9 +1,6 @@
 """
 An experimental support for curvilinear grid.
 """
-import six
-from six.moves import zip
-
 from itertools import chain
 from .grid_finder import GridFinder
 

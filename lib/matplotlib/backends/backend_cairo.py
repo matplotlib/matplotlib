@@ -6,8 +6,6 @@ A Cairo backend for matplotlib
 This backend depends on cairocffi or pycairo.
 """
 
-import six
-
 import copy
 import gzip
 import sys
@@ -27,15 +25,17 @@ except ImportError:
                           "is installed")
     else:
         HAS_CAIRO_CFFI = False
+        if cairo.version_info < (1, 11, 0):
+            # Introduced create_for_data for Py3.
+            raise ImportError(
+                "cairo {} is installed; cairo>=1.11.0 is required"
+                .format(cairo.version))
 else:
     HAS_CAIRO_CFFI = True
 
-if cairo.version_info < (1, 4, 0):
-    raise ImportError("cairo {} is installed; "
-                      "cairo>=1.4.0 is required".format(cairo.version))
 backend_version = cairo.version
 
-from matplotlib import cbook
+from .. import cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -65,6 +65,23 @@ def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
     return rgba
 
 
+if HAS_CAIRO_CFFI:
+    # Convert a pycairo context to a cairocffi one.
+    def _to_context(ctx):
+        if not isinstance(ctx, cairo.Context):
+            ctx = cairo.Context._from_pointer(
+                cairo.ffi.cast(
+                    'cairo_t **',
+                    id(ctx) + object.__basicsize__)[0],
+                incref=True)
+        return ctx
+else:
+    # Pass-through a pycairo context.
+    def _to_context(ctx):
+        return ctx
+
+
+@cbook.deprecated("3.0")
 class ArrayWrapper:
     """Thin wrapper around numpy ndarray to expose the interface
        expected by cairocffi. Basically replicates the
@@ -348,21 +365,9 @@ class RendererCairo(RendererBase):
             im = im[:, :, (2, 1, 0, 3)]
         else:
             im = im[:, :, (3, 0, 1, 2)]
-        if HAS_CAIRO_CFFI:
-            # cairocffi tries to use the buffer_info from array.array
-            # that we replicate in ArrayWrapper and alternatively falls back
-            # on ctypes to get a pointer to the numpy array. This works
-            # correctly on a numpy array in python3 but not 2.7. We replicate
-            # the array.array functionality here to get cross version support.
-            imbuffer = ArrayWrapper(im.ravel())
-        else:
-            # py2cairo uses PyObject_AsWriteBuffer to get a pointer to the
-            # numpy array; this works correctly on a regular numpy array but
-            # not on a memory view.
-            imbuffer = im.ravel()
         surface = cairo.ImageSurface.create_for_data(
-            imbuffer, cairo.FORMAT_ARGB32,
-            im.shape[1], im.shape[0], im.shape[1]*4)
+            im.ravel().data, cairo.FORMAT_ARGB32,
+            im.shape[1], im.shape[0], im.shape[1] * 4)
         ctx = gc.ctx
         y = self.height - y - im.shape[0]
 
@@ -395,13 +400,6 @@ class RendererCairo(RendererBase):
                 ctx.rotate(np.deg2rad(-angle))
             ctx.set_font_size(size)
 
-            if HAS_CAIRO_CFFI:
-                if not isinstance(s, six.text_type):
-                    s = six.text_type(s)
-            else:
-                if six.PY2 and isinstance(s, six.text_type):
-                    s = s.encode("utf-8")
-
             ctx.show_text(s)
             ctx.restore()
 
@@ -426,8 +424,6 @@ class RendererCairo(RendererBase):
 
             size = fontsize * self.dpi / 72.0
             ctx.set_font_size(size)
-            if not six.PY3 and isinstance(s, six.text_type):
-                s = s.encode("utf-8")
             ctx.show_text(s)
 
         for ox, oy, w, h in rects:
@@ -631,7 +627,7 @@ class FigureCanvasCairo(FigureCanvasBase):
                 raise RuntimeError('cairo has not been compiled with SVG '
                                    'support enabled')
             if fmt == 'svgz':
-                if isinstance(fo, six.string_types):
+                if isinstance(fo, str):
                     fo = gzip.GzipFile(fo, 'wb')
                 else:
                     fo = gzip.GzipFile(None, 'wb', fileobj=fo)

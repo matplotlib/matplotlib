@@ -4,8 +4,6 @@ variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
-import six
-
 from numbers import Number
 import warnings
 
@@ -33,7 +31,7 @@ def _get_dash_pattern(style):
     """Convert linestyle -> dash pattern
     """
     # go from short hand -> full strings
-    if isinstance(style, six.string_types):
+    if isinstance(style, str):
         style = ls_mapper.get(style, style)
     # un-dashed styles
     if style in ['solid', 'None']:
@@ -351,13 +349,11 @@ class Line2D(Artist):
         if solid_joinstyle is None:
             solid_joinstyle = rcParams['lines.solid_joinstyle']
 
-        if isinstance(linestyle, six.string_types):
+        if isinstance(linestyle, str):
             ds, ls = self._split_drawstyle_linestyle(linestyle)
             if ds is not None and drawstyle is not None and ds != drawstyle:
-                raise ValueError("Inconsistent drawstyle ({0!r}) and "
-                                 "linestyle ({1!r})".format(drawstyle,
-                                                            linestyle)
-                                 )
+                raise ValueError("Inconsistent drawstyle ({!r}) and linestyle "
+                                 "({!r})".format(drawstyle, linestyle))
             linestyle = ls
 
             if ds is not None:
@@ -863,7 +859,7 @@ class Line2D(Artist):
 
     def get_markeredgecolor(self):
         mec = self._markeredgecolor
-        if isinstance(mec, six.string_types) and mec == 'auto':
+        if cbook._str_equal(mec, 'auto'):
             if rcParams['_internal.classic_mode']:
                 if self._marker.get_marker() in ('.', ','):
                     return self._color
@@ -1076,7 +1072,7 @@ class Line2D(Artist):
         ls : { ``'-'``,  ``'--'``, ``'-.'``, ``':'``} and more see description
             The line style.
         """
-        if isinstance(ls, six.string_types):
+        if isinstance(ls, str):
             ds, ls = self._split_drawstyle_linestyle(ls)
             if ds is not None:
                 self.set_drawstyle(ds)
@@ -1088,10 +1084,9 @@ class Line2D(Artist):
                 try:
                     ls = ls_mapper_r[ls]
                 except KeyError:
-                    raise ValueError(("You passed in an invalid linestyle, "
-                                      "`{0}`.  See "
-                                      "docs of Line2D.set_linestyle for "
-                                      "valid values.").format(ls))
+                    raise ValueError("Invalid linestyle {!r}; see docs of "
+                                     "Line2D.set_linestyle for valid values"
+                                     .format(ls))
             self._linestyle = ls
         else:
             self._linestyle = '--'
@@ -1128,8 +1123,8 @@ class Line2D(Artist):
         """
         if ec is None:
             ec = 'auto'
-        if self._markeredgecolor is None or \
-           np.any(self._markeredgecolor != ec):
+        if (self._markeredgecolor is None
+                or np.any(self._markeredgecolor != ec)):
             self.stale = True
         self._markeredgecolor = ec
 

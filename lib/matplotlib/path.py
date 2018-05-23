@@ -125,7 +125,7 @@ class Path(object):
             and codes as read-only arrays.
         """
         vertices = _to_unmasked_float_array(vertices)
-        if (vertices.ndim != 2) or (vertices.shape[1] != 2):
+        if vertices.ndim != 2 or vertices.shape[1] != 2:
             raise ValueError(
                 "'vertices' must be a 2D list or array with shape Nx2")
 

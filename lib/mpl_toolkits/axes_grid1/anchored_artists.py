@@ -1,5 +1,3 @@
-import six
-
 from matplotlib import docstring, transforms
 from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox,
                                   DrawingArea, TextArea, VPacker)
