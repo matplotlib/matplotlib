@@ -1297,20 +1297,21 @@ def xlim(*args, **kwargs):
 
     Call signatures::
 
-        xmin, xmax = xlim()  # return the current xlim
-        xlim((xmin, xmax))   # set the xlim to xmin, xmax
-        xlim(xmin, xmax)     # set the xlim to xmin, xmax
+        left, right = xlim()  # return the current xlim
+        xlim((left, right))   # set the xlim to left, right
+        xlim(left, right)     # set the xlim to left, right
 
-    If you do not specify args, you can pass *xmin* or *xmax* as kwargs, i.e.::
+    If you do not specify args, you can pass *left* or *right* as kwargs,
+    i.e.::
 
-        xlim(xmax=3)  # adjust the max leaving min unchanged
-        xlim(xmin=1)  # adjust the min leaving max unchanged
+        xlim(right=3)  # adjust the right leaving left unchanged
+        xlim(left=1)  # adjust the left leaving right unchanged
 
     Setting limits turns autoscaling off for the x-axis.
 
     Returns
     -------
-    xmin, xmax
+    left, right
         A tuple of the new x-axis limits.
 
     Notes
@@ -1333,21 +1334,21 @@ def ylim(*args, **kwargs):
 
     Call signatures::
 
-        ymin, ymax = ylim()  # return the current ylim
-        ylim((ymin, ymax))   # set the ylim to ymin, ymax
-        ylim(ymin, ymax)     # set the ylim to ymin, ymax
+        bottom, top = ylim()  # return the current ylim
+        ylim((bottom, top))   # set the ylim to bottom, top
+        ylim(bottom, top)     # set the ylim to bottom, top
 
-    If you do not specify args, you can alternatively pass *ymin* or *ymax* as
-    kwargs, i.e.::
+    If you do not specify args, you can alternatively pass *bottom* or
+    *top* as kwargs, i.e.::
 
-        ylim(ymax=3)  # adjust the max leaving min unchanged
-        ylim(ymin=1)  # adjust the min leaving max unchanged
+        ylim(top=3)  # adjust the top leaving bottom unchanged
+        ylim(bottom=1)  # adjust the top leaving bottom unchanged
 
     Setting limits turns autoscaling off for the y-axis.
 
     Returns
     -------
-    ymin, ymax
+    bottom, top
         A tuple of the new y-axis limits.
 
     Notes
