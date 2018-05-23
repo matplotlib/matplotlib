@@ -221,7 +221,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #     ``\mathrm{\mathsf{sansserif}}``        :math-stix:`\mathrm{\mathsf{sansserif}}`
 #     ====================================== =========================================
 #
-#   .. htmlonly::
+#   .. only:: html
 #
 #     ====================================== =========================================
 #     ``\mathcircled{circled}``              :math-stix:`\mathcircled{circled}`

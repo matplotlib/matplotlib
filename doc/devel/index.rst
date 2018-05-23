@@ -4,7 +4,7 @@
 The Matplotlib Developers' Guide
 ################################
 
-.. htmlonly::
+.. only:: html
 
    :Release: |version|
    :Date: |today|
