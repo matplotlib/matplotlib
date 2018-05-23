@@ -2350,17 +2350,19 @@ class Axes(_AxesBase):
             which inspired this method.
 
         """
-        # Assume there's at least one data array
+        if not 1 <= len(args) <= 5:
+            raise TypeError('stem expected between 1 and 5 positional '
+                            'arguments, got {}'.format(args))
+
         y = np.asarray(args[0])
         args = args[1:]
 
         # Try a second one
-        try:
-            x, y = y, np.asarray(args[0], dtype=float)
-        except (IndexError, ValueError):
-            # The second array doesn't make sense, or it doesn't exist
+        if not args:
             x = np.arange(len(y))
         else:
+            x = y
+            y = np.asarray(args[0], dtype=float)
             args = args[1:]
 
         # defaults for formats
