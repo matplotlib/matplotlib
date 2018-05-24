@@ -1706,6 +1706,18 @@ def test_hist2d_transpose():
     ax.hist2d(x, y, bins=10, rasterized=True)
 
 
+@image_comparison(baseline_images=['scatter_invalid_color'], remove_text=True,
+                  extensions=['png'])
+def test_scatter_invalid_color():
+    fig, ax = plt.subplots()
+    data = {"x": [0, 1, 2, 3], "c": [1, np.nan, 9, np.nan],
+            "s": 1e4}
+    cmap = plt.get_cmap('jet', 16)
+    cmap.set_bad("k", 1)
+    ax.scatter(data["x"], data["x"], c=data["c"], s=data["s"],
+               cmap=cmap, plotinvalid=True)
+
+
 @image_comparison(baseline_images=['scatter', 'scatter'])
 def test_scatter_plot():
     fig, ax = plt.subplots()
