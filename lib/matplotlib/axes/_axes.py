@@ -6160,8 +6160,8 @@ class Axes(_AxesBase):
             xmax = -np.inf
             for xi in x:
                 if len(xi) > 0:
-                    xmin = min(xmin, xi.min())
-                    xmax = max(xmax, xi.max())
+                    xmin = min(xmin, np.nanmin(xi))
+                    xmax = max(xmax, np.nanmax(xi))
             bin_range = (xmin, xmax)
         density = bool(density) or bool(normed)
         if density and not stacked:
