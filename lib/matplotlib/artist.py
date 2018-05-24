@@ -796,6 +796,9 @@ class Artist(object):
             .. ACCEPTS: a filter function, which takes a (m, n, 3) float array
                 and a dpi value, and returns a (m, n, 3) array
         """
+        if isinstance(filter_func, six.string_types):
+            from . import colors
+            filter_func = colors.get_color_filter(filter_func)
         self._agg_filter = filter_func
         self.stale = True
 
