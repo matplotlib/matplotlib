@@ -1054,17 +1054,16 @@ class Artist(object):
 
 class ArtistInspector(object):
     """
-    A helper class to inspect an :class:`~matplotlib.artist.Artist`
-    and return information about it's settable properties and their
-    current values.
+    A helper class to inspect an :class:`~matplotlib.artist.Artist` and return
+    information about its settable properties and their current values.
     """
+
     def __init__(self, o):
         """
-        Initialize the artist inspector with an
-        :class:`~matplotlib.artist.Artist` or iterable of :class:`Artists`.
-        If an iterable is used, we assume it is a homogeneous sequence (all
-        :class:`Artists` are of the same type) and it is your responsibility
-        to make sure this is so.
+        Initialize the artist inspector with an `Artist` or an iterable of
+        `Artist`\s.  If an iterable is used, we assume it is a homogeneous
+        sequence (all `Artists` are of the same type) and it is your
+        responsibility to make sure this is so.
         """
         if not isinstance(o, Artist):
             if cbook.iterable(o):
@@ -1135,6 +1134,14 @@ class ArtistInspector(object):
         match = self._get_valid_values_regex.search(docstring)
         if match is not None:
             return re.sub("\n *", " ", match.group(1))
+
+        # Much faster than list(inspect.signature(func).parameters)[1],
+        # although barely relevant wrt. matplotlib's total import time.
+        param_name = func.__code__.co_varnames[1]
+        match = re.search("(?m)^ *{} : (.+)".format(param_name), docstring)
+        if match:
+            return match.group(1)
+
         return 'unknown'
 
     def _get_setters_and_targets(self):
