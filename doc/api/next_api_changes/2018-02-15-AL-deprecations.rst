@@ -33,6 +33,7 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``_ImageBase.iterpnames``, use the ``interpolation_names`` property instead.
   (this affects classes that inherit from ``_ImageBase`` including
   :class:`FigureImage`, :class:`BboxImage`, and :class:`AxesImage`),
+- ``patches.Polygon.xy``,
 - ``texmanager.dvipng_hack_alpha``,
 - ``text.Annotation.arrow``,
 
