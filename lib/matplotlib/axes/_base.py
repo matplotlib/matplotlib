@@ -1310,8 +1310,8 @@ class _AxesBase(martist.Artist):
         and independently on each Axes as it is drawn.
         """
         if adjustable == 'box-forced':
-            warnings.warn("The 'box-forced' keyword argument is deprecated"
-                          " since 2.2.", cbook.mplDeprecation, stacklevel=2)
+            cbook.warn_deprecated(
+                "2.2", "box-forced", obj_type="keyword argument")
         if adjustable not in ('box', 'datalim', 'box-forced'):
             raise ValueError("argument must be 'box', or 'datalim'")
         if share:

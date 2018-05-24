@@ -23,7 +23,6 @@ import matplotlib as mpl
 from matplotlib import _pylab_helpers, tight_layout, rcParams
 from matplotlib.transforms import Bbox
 import matplotlib._layoutbox as layoutbox
-from matplotlib.cbook import mplDeprecation
 
 _log = logging.getLogger(__name__)
 
@@ -277,8 +276,8 @@ class GridSpec(GridSpecBase):
         parameters are from rcParams unless a figure attribute is set.
         """
         if fig is not None:
-            warnings.warn("the 'fig' kwarg is deprecated "
-                          "use 'figure' instead", mplDeprecation)
+            cbook.warn_deprecated("2.2", "fig", obj_type="keyword argument",
+                                  alternative="figure")
         if figure is None:
             figure = fig
 
@@ -367,8 +366,8 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         """Return a dictionary of subplot layout parameters.
         """
         if fig is not None:
-            warnings.warn("the 'fig' kwarg is deprecated "
-                          "use 'figure' instead", mplDeprecation)
+            cbook.warn_deprecated("2.2", "fig", obj_type="keyword argument",
+                                  alternative="figure")
         if figure is None:
             figure = fig
 
