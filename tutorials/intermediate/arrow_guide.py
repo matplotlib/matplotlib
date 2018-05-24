@@ -3,7 +3,7 @@
 Arrow guide
 ===========
 
-Adding arrows to plots Matplotlib.
+Adding arrow patches to plots.
 
 Arrows are often used to annotate plots. This tutorial shows how to plot arrows
 that behave differently when the data limits on a plot are changed. In general,
@@ -18,9 +18,9 @@ start point and and end point, called 'anchor points' from now on.
 Here we show three use cases for plotting arrows, depending on whether the
 head or anchor points need to be fixed in data or display space:
 
-    1. Head fixed in display space, anchor points fixed in data space
-    2. Head and anchor points fixed in display space
-    3. Head and anchor points fixed in data space
+    1. Head shape fixed in display space, anchor points fixed in data space
+    2. Head shape and anchor points fixed in display space
+    3. Entire patch fixed in data space
 
 Below each use case is presented in turn.
 """
@@ -35,7 +35,7 @@ dy = y_head - y_tail
 
 
 ###############################################################################
-# Head fixed in display space and anchor points fixed in data space
+# Head shape fixed in display space and anchor points fixed in data space
 # -----------------------------------------------------------------
 #
 # This is useful if you are annotating a plot, and don't want the arrow to
@@ -59,8 +59,8 @@ axs[1].set_xlim(0, 2)
 axs[1].set_ylim(0, 2)
 
 ###############################################################################
-# Head and anchor points fixed in display space
-# ---------------------------------------------
+# Head shape and anchor points fixed in display space
+# ---------------------------------------------------
 #
 # This is useful if you are annotating a plot, and don't want the arrow to
 # to change shape or position if you pan or scale the plot.
@@ -87,8 +87,8 @@ axs[1].set_ylim(0, 2)
 
 
 ###############################################################################
-# Head and anchor points fixed in data space
-# ------------------------------------------
+# Head shape and anchor points fixed in data space
+# ------------------------------------------------
 #
 # In this case we use `.patches.Arrow`
 #
