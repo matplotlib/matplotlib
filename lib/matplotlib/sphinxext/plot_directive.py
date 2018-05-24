@@ -164,7 +164,7 @@ except UserWarning:
     plt.switch_backend("Agg")
 else:
     import matplotlib.pyplot as plt
-from matplotlib import _pylab_helpers
+from matplotlib import _pylab_helpers, cbook
 
 __version__ = 2
 
