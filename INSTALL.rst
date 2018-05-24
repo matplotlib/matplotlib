@@ -136,16 +136,15 @@ Dependencies
 Matplotlib requires the following dependencies:
 
 * `Python <https://www.python.org/downloads/>`_ (>= 3.5)
+* `FreeType <https://www.freetype.org/>`_ (>= 2.3)
+* `libpng <http://www.libpng.org>`_ (>= 1.2)
 * `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
-* `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
-* `pyparsing <https://pyparsing.wikispaces.com/>`_
-* `libpng <http://www.libpng.org>`_ (>= 1.2)
-* `pytz <http://pytz.sourceforge.net/>`_
-* `FreeType <https://www.freetype.org/>`_ (>= 2.3)
 * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
-* `six <https://pypi.python.org/pypi/six>`_ (>= 1.10)
+* `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.0)
+* `pyparsing <https://pyparsing.wikispaces.com/>`_
+* `pytz <http://pytz.sourceforge.net/>`_
 
 Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
