@@ -5,7 +5,7 @@ Demonstration of advanced quiver and quiverkey functions
 
 Demonstrates some more advanced options for `~.axes.Axes.quiver`. 
 For a simple example refer to 
-:ref:`sphx_glr_gallery_images_contours_and_fields_quiver_simple_demo.py`.
+:doc:`/gallery/images_contours_and_fields/quiver_simple_demo`.
 
 Known problem: the plot autoscaling does not take into account
 the arrows, so those on the boundaries are often out of the picture.

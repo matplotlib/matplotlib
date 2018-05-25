@@ -21,7 +21,7 @@ mplot3d
 plotting (scatter, surf, line, mesh) tools.  Not the fastest or most feature
 complete 3D library out there, but it ships with Matplotlib and thus may be a
 lighter weight solution for some use cases. Check out the
-:ref:`mplot3d tutorial <sphx_glr_tutorials_toolkits_mplot3d.py>` for more
+:doc:`mplot3d tutorial </tutorials/toolkits/mplot3d>` for more
 information.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_contourf3d_2_001.png

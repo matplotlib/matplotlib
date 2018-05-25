@@ -7,7 +7,7 @@ A simple example of a `~.axes.Axes.quiver` plot with a
 `~.axes.Axes.quiverkey`.
 
 For more advanced options refer to 
-:ref:`sphx_glr_gallery_images_contours_and_fields_quiver_demo.py`.
+:doc:`/gallery/images_contours_and_fields/quiver_demo`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

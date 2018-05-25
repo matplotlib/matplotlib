@@ -1724,7 +1724,7 @@ class SpanSelector(_SelectorWidget):
                                      rectprops=rectprops)
     >>> fig.show()
 
-    See also: :ref:`sphx_glr_gallery_widgets_span_selector.py`
+    See also: :doc:`/gallery/widgets/span_selector`
 
     """
 
@@ -2576,7 +2576,7 @@ class PolygonSelector(_SelectorWidget):
 
     See Also
     --------
-    :ref:`sphx_glr_gallery_widgets_polygon_selector_demo.py`
+    :doc:`/gallery/widgets/polygon_selector_demo`
     """
 
     def __init__(self, ax, onselect, useblit=False,

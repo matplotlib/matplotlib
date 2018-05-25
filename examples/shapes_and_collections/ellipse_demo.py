@@ -5,7 +5,7 @@ Ellipse Demo
 
 Draw many ellipses. Here individual ellipses are drawn. Compare this
 to the :ref:`Ellipse collection example
-<sphx_glr_gallery_shapes_and_collections_ellipse_collection.py>`.
+</gallery/shapes_and_collections/ellipse_collection>`.
 """
 import matplotlib.pyplot as plt
 import numpy as np
