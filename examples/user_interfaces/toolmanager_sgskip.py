@@ -11,6 +11,8 @@ This example demonstrates how to:
 * Remove tools
 
 Using `matplotlib.backend_managers.ToolManager`
+
+.. exhibit-skip::
 """
 
 import matplotlib.pyplot as plt

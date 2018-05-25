@@ -3,6 +3,7 @@
 Pgf Preamble
 ============
 
+.. exhibit-skip::
 """
 
 import matplotlib as mpl

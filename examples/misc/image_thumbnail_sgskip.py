@@ -7,7 +7,7 @@ You can use matplotlib to generate thumbnails from existing images.
 matplotlib natively supports PNG files on the input side, and other
 image types transparently if your have PIL installed
 
-
+.. exhibit-skip::
 """
 
 # build thumbnails of all images in a directory

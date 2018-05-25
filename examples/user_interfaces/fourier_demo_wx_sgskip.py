@@ -3,6 +3,7 @@
 Fourier Demo WX
 ===============
 
+.. exhibit-skip::
 """
 
 import numpy as np

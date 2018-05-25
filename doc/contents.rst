@@ -1,5 +1,3 @@
-
-
 Overview
 ========
 
@@ -9,7 +7,6 @@ Overview
     :Date: |today|
 
     Download `PDF <Matplotlib.pdf>`_
-
 
 .. toctree::
    :maxdepth: 2
@@ -21,6 +18,12 @@ Overview
    thirdpartypackages/index.rst
    devel/index.rst
    glossary/index.rst
+
+.. toctree::
+   :hidden:
+
+   gallery/index
+   tutorials/index
 
 .. only:: html
 

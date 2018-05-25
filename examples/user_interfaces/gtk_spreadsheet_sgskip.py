@@ -7,6 +7,7 @@ Example of embedding matplotlib in an application and interacting with
 a treeview to store data.  Double click on an entry to update plot
 data
 
+.. exhibit-skip::
 """
 import gi
 gi.require_version('Gtk', '3.0')

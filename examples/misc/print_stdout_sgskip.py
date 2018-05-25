@@ -7,6 +7,7 @@ print png to standard out
 
 usage: python print_stdout.py > somefile.png
 
+.. exhibit-skip::
 """
 
 import sys

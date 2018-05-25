@@ -20,6 +20,8 @@ the appearance by the CSS.
 
 
 :author: David Huard
+
+.. exhibit-skip::
 """
 
 

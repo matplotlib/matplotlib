@@ -4,6 +4,8 @@ Embedding In Wx4
 ================
 
 An example of how to use wx or wxagg in an application with a custom toolbar.
+
+.. exhibit-skip::
 """
 
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas

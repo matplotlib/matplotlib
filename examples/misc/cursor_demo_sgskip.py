@@ -15,6 +15,8 @@ similar effect.  See
 
     https://github.com/joferkington/mpldatacursor
     https://github.com/anntzer/mplcursors
+
+.. exhibit-skip::
 """
 import matplotlib.pyplot as plt
 import numpy as np

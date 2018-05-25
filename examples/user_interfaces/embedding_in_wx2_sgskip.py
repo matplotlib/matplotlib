@@ -5,6 +5,8 @@ Embedding In Wx2
 
 An example of how to use wxagg in an application with the new
 toolbar - comment out the add_toolbar line for no toolbar
+
+.. exhibit-skip::
 """
 
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas

@@ -4,6 +4,8 @@ WXcursor Demo
 =============
 
 Example to draw a cursor and report the data coords in wx.
+
+.. exhibit-skip::
 """
 
 

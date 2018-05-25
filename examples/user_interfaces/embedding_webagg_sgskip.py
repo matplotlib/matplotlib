@@ -10,6 +10,8 @@ browser or use matplotlib's built-in Tornado-based server "on the
 side".
 
 The framework being used must support web sockets.
+
+.. exhibit-skip::
 """
 
 import io

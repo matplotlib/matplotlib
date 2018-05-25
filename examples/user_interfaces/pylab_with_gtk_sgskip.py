@@ -5,6 +5,8 @@ Pyplot With GTK
 
 An example of how to use pyplot to manage your figure windows, but
 modify the GUI by accessing the underlying gtk widgets
+
+.. exhibit-skip::
 """
 import matplotlib
 matplotlib.use('GTK3Agg')  # or 'GTK3Cairo'

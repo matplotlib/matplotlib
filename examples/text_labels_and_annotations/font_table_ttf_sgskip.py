@@ -9,6 +9,7 @@ by character code.
 
 Usage python font_table_ttf.py somefile.ttf
 
+.. exhibit-skip::
 """
 
 import sys

@@ -3,6 +3,7 @@
 Embedding In Wx5
 ================
 
+.. exhibit-skip::
 """
 
 import wx

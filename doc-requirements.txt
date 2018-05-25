@@ -13,3 +13,5 @@ ipywidgets
 numpydoc>=0.4
 pillow
 sphinx-gallery>=0.1.13
+git+https://github.com/anntzer/sphinx-exhibit
+sphinx-jinja>=1.1.0

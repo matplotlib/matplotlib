@@ -31,6 +31,7 @@ throughout the generated SVG.
 
 Author: david.huard@gmail.com
 
+.. exhibit-skip::
 """
 
 

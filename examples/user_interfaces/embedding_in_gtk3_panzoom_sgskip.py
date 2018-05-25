@@ -4,6 +4,8 @@ Embedding In GTK3 Panzoom
 =========================
 
 Demonstrate NavigationToolbar with GTK3 accessed via pygobject.
+
+.. exhibit-skip::
 """
 
 import gi

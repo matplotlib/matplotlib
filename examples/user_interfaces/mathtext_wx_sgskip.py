@@ -5,6 +5,8 @@ MathText WX
 
 Demonstrates how to convert mathtext to a wx.Bitmap for display in various
 controls on wxPython.
+
+.. exhibit-skip::
 """
 
 import matplotlib

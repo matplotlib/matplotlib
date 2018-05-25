@@ -3,6 +3,7 @@
 Matplotlib With Glade 3
 =======================
 
+.. exhibit-skip::
 """
 
 import os

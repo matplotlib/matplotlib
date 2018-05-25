@@ -3,6 +3,7 @@
 Embedding In Tk
 ===============
 
+.. exhibit-skip::
 """
 
 import tkinter

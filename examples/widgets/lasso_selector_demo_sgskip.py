@@ -8,6 +8,8 @@ Interactively selecting data points with the lasso tool.
 This examples plots a scatter plot. You can then select a few points by drawing
 a lasso loop around the points on the graph. To draw, just click
 on the graph, hold, and drag it around the points you need to select.
+
+.. exhibit-skip::
 """
 
 

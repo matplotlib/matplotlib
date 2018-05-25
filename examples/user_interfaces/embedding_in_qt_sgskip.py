@@ -7,6 +7,8 @@ Simple Qt application embedding Matplotlib canvases.  This program will work
 equally well using Qt4 and Qt5.  Either version of Qt can be selected (for
 example) by setting the ``MPLBACKEND`` environment variable to "Qt4Agg" or
 "Qt5Agg", or by first importing the desired version of PyQt.
+
+.. exhibit-skip::
 """
 
 import sys

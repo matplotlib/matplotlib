@@ -6,6 +6,8 @@ Frame grabbing
 Use a MovieWriter directly to grab individual frames and write them to a
 file.  This avoids any event loop integration, and thus works even with the Agg
 backend.  This is not recommended for use in an interactive setting.
+
+.. exhibit-skip::
 """
 
 import numpy as np

@@ -7,6 +7,8 @@ Demo of using multiprocessing for generating data in one process and
 plotting in another.
 
 Written by Robert Cimrman
+
+.. exhibit-skip::
 """
 
 import multiprocessing as mp

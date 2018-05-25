@@ -18,6 +18,7 @@ in order::
   rcParams['font.sans-serif'] = ['Tahoma', 'DejaVu Sans',
                                  'Lucida Grande', 'Verdana']
 
+.. exhibit-skip::
 """
 
 
