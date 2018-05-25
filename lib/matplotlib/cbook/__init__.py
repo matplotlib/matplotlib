@@ -452,9 +452,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
     read/write flag for :func:`file`
     """
     if isinstance(fname, getattr(os, "PathLike", ())):
-        return to_filehandle(
-            os.fspath(fname),
-            flag=flag, return_opened=return_opened, encoding=encoding)
+        fname = os.fspath(fname)
     if isinstance(fname, str):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
