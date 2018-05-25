@@ -69,13 +69,11 @@ def test_non_gui_warning():
     with pytest.warns(UserWarning) as rec:
         plt.show()
         assert len(rec) == 1
-        assert 'matplotlib is currently using pdf, ' \
-               'which is a non-GUI backend' \
-               in str(rec[0].message)
+        assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
+                in str(rec[0].message))
 
     with pytest.warns(UserWarning) as rec:
         plt.gcf().show()
         assert len(rec) == 1
-        assert 'matplotlib is currently using pdf, ' \
-               'which is a non-GUI backend' \
-               in str(rec[0].message)
+        assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
+                in str(rec[0].message))

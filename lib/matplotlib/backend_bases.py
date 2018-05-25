@@ -185,14 +185,8 @@ class _Backend(object):
         if not managers:
             return
         for manager in managers:
-            try:
-                manager.show()
-            except NonGuiException:
-                warnings.warn(
-                    ('matplotlib is currently using %s, which is a ' +
-                     'non-GUI backend, so cannot show the figure.')
-                    % get_backend())
-                return
+            # Emits a warning if the backend is non-interactive.
+            manager.canvas.figure.show()
         if cls.mainloop is None:
             return
         if block is None:
