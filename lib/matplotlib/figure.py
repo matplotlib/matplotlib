@@ -439,10 +439,9 @@ class Figure(Artist):
             except NonGuiException:
                 pass
         if warn:
-            warnings.warn(
-                ('matplotlib is currently using %s, which is a ' +
-                 'non-GUI backend, so cannot show the figure.')
-                % get_backend())
+            warnings.warn('Matplotlib is currently using %s, which is a '
+                          'non-GUI backend, so cannot show the figure.'
+                          % get_backend())
 
     def _get_axes(self):
         return self._axstack.as_list()
