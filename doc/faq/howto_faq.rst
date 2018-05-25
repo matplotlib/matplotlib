@@ -350,7 +350,7 @@ and patches, respectively::
 
     line, = ax.plot(x, y, zorder=10)
 
-.. htmlonly::
+.. only:: html
 
     See :ref:`sphx_glr_gallery_misc_zorder_demo.py` for a complete example.
 
@@ -369,7 +369,7 @@ some ratio which controls the ratio::
 
   ax = fig.add_subplot(111, aspect='equal')
 
-.. htmlonly::
+.. only:: html
 
     See :ref:`sphx_glr_gallery_subplots_axes_and_figures_axis_equal_demo.py` for a
     complete example.
@@ -413,7 +413,7 @@ locators as desired because the two axes are independent.
     plt.show()
 
 
-.. htmlonly::
+.. only:: html
 
     See :ref:`sphx_glr_gallery_api_two_scales.py` for a complete example
 

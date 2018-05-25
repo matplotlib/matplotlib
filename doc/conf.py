@@ -38,7 +38,6 @@ extensions = [
     'numpydoc',  # Needs to be loaded *after* autodoc.
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
-    'matplotlib.sphinxext.only_directives',
     'matplotlib.sphinxext.plot_directive',
     'sphinxext.custom_roles',
     'sphinxext.github',
