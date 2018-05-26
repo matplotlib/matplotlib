@@ -1,0 +1,11 @@
+Change to the output of `.image.thumbnail`
+``````````````````````````````````````````
+
+When called with ``preview=False``, ``image.thumbnail`` previously returned an
+figure whose canvas class was set according to the output file extension.  It
+now returns a figure whose canvas class is the base `FigureCanvasBase` (and
+relies on `FigureCanvasBase.print_figure`) to handle the canvas switching
+properly).
+
+As a side effect of this change, `image.thumbnail` now also supports .ps, .eps,
+and .svgz output.

@@ -1,7 +1,6 @@
 """
 The image module supports basic image loading, rescaling and display
 operations.
-
 """
 
 from io import BytesIO
@@ -17,6 +16,7 @@ import numpy as np
 from matplotlib import rcParams
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
+from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
@@ -1447,81 +1447,58 @@ def pil_to_array(pilImage):
 def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
               preview=False):
     """
-    make a thumbnail of image in *infile* with output filename
-    *thumbfile*.
+    Make a thumbnail of image in *infile* with output filename *thumbfile*.
 
-      *infile* the image file -- must be PNG or Pillow-readable if you
-         have `Pillow <http://python-pillow.org/>`_ installed
+    See :doc:`/gallery/misc/image_thumbnail_sgskip`.
 
-      *thumbfile*
-        the thumbnail filename
+    Parameters
+    ----------
+    infile
+        The image file -- must be PNG, Pillow-readable if you have `Pillow
+        <http://python-pillow.org/>`_ installed.
 
-      *scale*
-        the scale factor for the thumbnail
+    thumbfile
+        The thumbnail filename.
 
-      *interpolation*
-        the interpolation scheme used in the resampling
+    scale
+        The scale factor for the thumbnail.
 
+    interpolation
+        The interpolation scheme used in the resampling.
 
-      *preview*
-        if True, the default backend (presumably a user interface
-        backend) will be used which will cause a figure to be raised
-        if :func:`~matplotlib.pyplot.show` is called.  If it is False,
-        a pure image backend will be used depending on the extension,
-        'png'->FigureCanvasAgg, 'pdf'->FigureCanvasPdf,
-        'svg'->FigureCanvasSVG
+    preview
+        If True, the default backend (presumably a user interface
+        backend) will be used which will cause a figure to be raised if
+        `~matplotlib.pyplot.show` is called.  If it is False, the figure is
+        created using `FigureCanvasBase` and the drawing backend is selected
+        as `~matplotlib.figure.savefig` would normally do.
 
-
-    See examples/misc/image_thumbnail.py.
-
-    .. only:: html
-
-        :ref:`sphx_glr_gallery_misc_image_thumbnail_sgskip.py`
-
-    Return value is the figure instance containing the thumbnail
-
+    Returns
+    -------
+    figure :
+        The figure instance containing the thumbnail.
     """
-    basedir, basename = os.path.split(infile)
-    baseout, extout = os.path.splitext(thumbfile)
 
     im = imread(infile)
     rows, cols, depth = im.shape
 
-    # this doesn't really matter, it will cancel in the end, but we
-    # need it for the mpl API
+    # This doesn't really matter (it cancels in the end) but the API needs it.
     dpi = 100
 
     height = rows / dpi * scale
     width = cols / dpi * scale
 
-    extension = extout.lower()
-
     if preview:
-        # let the UI backend do everything
+        # Let the UI backend do everything.
         import matplotlib.pyplot as plt
         fig = plt.figure(figsize=(width, height), dpi=dpi)
     else:
-        if extension == '.png':
-            from matplotlib.backends.backend_agg \
-                import FigureCanvasAgg as FigureCanvas
-        elif extension == '.pdf':
-            from matplotlib.backends.backend_pdf \
-                import FigureCanvasPdf as FigureCanvas
-        elif extension == '.svg':
-            from matplotlib.backends.backend_svg \
-                import FigureCanvasSVG as FigureCanvas
-        else:
-            raise ValueError("Can only handle "
-                             "extensions 'png', 'svg' or 'pdf'")
-
         from matplotlib.figure import Figure
         fig = Figure(figsize=(width, height), dpi=dpi)
-        FigureCanvas(fig)
+        FigureCanvasBase(fig)
 
     ax = fig.add_axes([0, 0, 1, 1], aspect='auto',
                       frameon=False, xticks=[], yticks=[])
-
-    basename, ext = os.path.splitext(basename)
     ax.imshow(im, aspect='auto', resample=True, interpolation=interpolation)
     fig.savefig(thumbfile, dpi=dpi)
     return fig
