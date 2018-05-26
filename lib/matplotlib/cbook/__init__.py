@@ -14,7 +14,7 @@ import functools
 import glob
 import gzip
 import io
-from itertools import repeat
+import itertools
 import locale
 import numbers
 import operator
@@ -1252,7 +1252,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     ncols = len(X)
     if labels is None:
-        labels = repeat(None)
+        labels = itertools.repeat(None)
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 
@@ -2030,3 +2030,21 @@ def _setattr_cm(obj, **kwargs):
                 delattr(obj, attr)
             else:
                 setattr(obj, attr, orig)
+
+
+def _warn_external(message, category=None):
+    """
+    `warnings.warn` wrapper that sets *stacklevel* to "outside Matplotlib".
+
+    The original emitter of the warning can be obtained by patching this
+    function back to `warnings.warn`, i.e. ``cbook._warn_external =
+    warnings.warn`` (or ``functools.partial(warnings.warn, stacklevel=2)``,
+    etc.).
+    """
+    frame = sys._getframe()
+    for stacklevel in itertools.count(1):
+        if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
+                        frame.f_globals["__name__"]):
+            break
+        frame = frame.f_back
+    warnings.warn(message, category, stacklevel)

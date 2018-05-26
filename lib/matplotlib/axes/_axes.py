@@ -64,11 +64,11 @@ def _plot_args_replacer(args, data):
         except ValueError:
             pass
         else:
-            warnings.warn(
+            cbook._warn_external(
                 "Second argument {!r} is ambiguous: could be a color spec but "
                 "is in data; using as data.  Either rename the entry in data "
                 "or use three arguments to plot.".format(args[1]),
-                RuntimeWarning, stacklevel=3)
+                RuntimeWarning)
         return ["x", "y"]
     elif len(args) == 3:
         return ["x", "y", "c"]
