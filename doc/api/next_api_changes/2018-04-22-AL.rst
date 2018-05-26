@@ -1,5 +1,5 @@
 Deprecation of certain marker styles
-````````````````````````````````````
+------------------------------------
 
 Using ``(n, 3)`` as marker style to specify a circle marker is deprecated.  Use
 ``"o"`` instead.
