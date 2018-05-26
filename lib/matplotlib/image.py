@@ -1291,24 +1291,33 @@ def imread(fname, format=None):
     """
     Read an image from a file into an array.
 
-    *fname* may be a string path, a valid URL, or a Python
-    file-like object.  If using a file object, it must be opened in binary
-    mode.
+    Parameters
+    ----------
+    fname : str or file-like
+        The image file to read. This can be a filename, a URL or a Python
+        file-like object opened in read-binary mode.
+    format : str, optional
+        The image file format assumed for reading the data. If not
+        given, the format is deduced from the filename.  If nothing can
+        be deduced, PNG is tried.
 
-    If *format* is provided, will try to read file of that type,
-    otherwise the format is deduced from the filename.  If nothing can
-    be deduced, PNG is tried.
+    Returns
+    -------
+    imagedata : :class:`numpy.array`
+        The image data. The returned array has shape
 
-    Return value is a :class:`numpy.array`.  For grayscale images, the
-    return array is MxN.  For RGB images, the return value is MxNx3.
-    For RGBA images the return value is MxNx4.
+        - (M, N) for grayscale images.
+        - (M, N, 3) for RGB images.
+        - (M, N, 4) for RGBA images.
 
-    matplotlib can only read PNGs natively, but if `PIL
-    <http://www.pythonware.com/products/pil/>`_ is installed, it will
-    use it to load the image and return an array (if possible) which
-    can be used with :func:`~matplotlib.pyplot.imshow`. Note, URL strings
-    may not be compatible with PIL. Check the PIL documentation for more
-    information.
+    Notes
+    -----
+    Matplotlib can only read PNGs natively. Further image formats are
+    supported via the optional dependency on Pillow. Note, URL strings
+    are not compatible with Pillow. Check the `Pillow documentation`_
+    for more information.
+
+    .. _Pillow documentation: http://pillow.readthedocs.io/en/latest/
     """
 
     def pilread(fname):
@@ -1374,26 +1383,29 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     Parameters
     ----------
     fname : str or file-like
-        Path string to a filename, or a Python file-like object.
-        If *format* is *None* and *fname* is a string, the output
-        format is deduced from the extension of the filename.
+        The filename or a Python file-like object to store the image in.
+        The necessary output format is inferred from the filename extension
+        but may be explicitly overwritten using *format*.
     arr : array-like
-        An MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA) array.
-    vmin, vmax: [ None | scalar ]
+        The image data. The shape can be one of
+        MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA).
+    vmin, vmax : scalar, optional
         *vmin* and *vmax* set the color scaling for the image by fixing the
         values that map to the colormap color limits. If either *vmin*
         or *vmax* is None, that limit is determined from the *arr*
         min/max value.
-    cmap : matplotlib.colors.Colormap, optional
-        For example, ``cm.viridis``.  If ``None``, defaults to the
-        ``image.cmap`` rcParam.
-    format : str
-        One of the file extensions supported by the active backend.  Most
-        backends support png, pdf, ps, eps and svg.
-    origin : [ 'upper' | 'lower' ]
-        Indicates whether the ``(0, 0)`` index of the array is in the
-        upper left or lower left corner of the axes.  Defaults to the
-        ``image.origin`` rcParam.
+    cmap : str or `~matplotlib.colors.Colormap`, optional
+        A Colormap instance or registered colormap name. The colormap
+        maps scalar data to colors. It is ignored for RGB(A) data.
+        Defaults to :rc:`image.cmap` ('viridis').
+    format : str, optional
+        The file format, e.g. 'png', 'pdf', 'svg', ... . If not given, the
+        format is deduced form the filename extension in *fname*.
+        See `.Figure.savefig` for details.
+    origin : {'upper', 'lower'}, optional
+        Indicates whether the ``(0, 0)`` index of the array is in the upper
+        left or lower left corner of the axes.  Defaults to :rc:`image.origin`
+        ('upper').
     dpi : int
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.
