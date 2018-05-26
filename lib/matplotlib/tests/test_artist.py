@@ -262,10 +262,12 @@ def test_None_zorder():
     ("ACCEPTS: [ '-' | '--' | '-.' ]", "[ '-' | '--' | '-.' ] "),
     ('ACCEPTS: Some description.', 'Some description. '),
     ('.. ACCEPTS: Some description.', 'Some description. '),
+    ('arg : int', 'int'),
+    ('arg : int\nACCEPTS: Something else.', 'Something else. '),
 ])
 def test_artist_inspector_get_valid_values(accept_clause, expected):
     class TestArtist(martist.Artist):
-        def set_f(self):
+        def set_f(self, arg):
             pass
 
     TestArtist.set_f.__doc__ = """

@@ -602,8 +602,6 @@ class _AxesBase(martist.Artist):
         """
         Set the `.Figure` for this `.Axes`.
 
-        .. ACCEPTS: `.Figure`
-
         Parameters
         ----------
         fig : `.Figure`
@@ -907,14 +905,9 @@ class _AxesBase(martist.Artist):
         """
         Set the axes locator.
 
-        .. ACCEPTS: a callable object which takes an axes instance and
-           renderer and returns a bbox.
-
         Parameters
         ----------
-        locator : callable
-            A locator function, which takes an axes and a renderer and returns
-            a bbox.
+        locator : Callable[[Axes, Renderer], Bbox]
         """
         self._axes_locator = locator
         self.stale = True
@@ -1022,10 +1015,10 @@ class _AxesBase(martist.Artist):
             except TypeError:
                 pass
         # update the minor locator for x and y axis based on rcParams
-        if (rcParams['xtick.minor.visible']):
+        if rcParams['xtick.minor.visible']:
             self.xaxis.set_minor_locator(mticker.AutoMinorLocator())
 
-        if (rcParams['ytick.minor.visible']):
+        if rcParams['ytick.minor.visible']:
             self.yaxis.set_minor_locator(mticker.AutoMinorLocator())
 
         if self._sharex is None:
@@ -1125,9 +1118,8 @@ class _AxesBase(martist.Artist):
     get_fc = get_facecolor
 
     def set_facecolor(self, color):
-        """Set the Axes facecolor.
-
-        .. ACCEPTS: color
+        """
+        Set the Axes facecolor.
 
         Parameters
         ----------
@@ -1313,8 +1305,6 @@ class _AxesBase(martist.Artist):
         share : bool, optional
             If ``True``, apply the settings to all shared Axes.
             Default is ``False``.
-
-        .. ACCEPTS: [ 'box' | 'datalim']
 
         See Also
         --------
@@ -2132,8 +2122,6 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling is applied on plot commands
 
-        .. ACCEPTS: bool
-
         Parameters
         ----------
         b : bool
@@ -2145,8 +2133,6 @@ class _AxesBase(martist.Artist):
         """
         Set whether autoscaling for the x-axis is applied on plot commands
 
-        .. ACCEPTS: bool
-
         Parameters
         ----------
         b : bool
@@ -2156,8 +2142,6 @@ class _AxesBase(martist.Artist):
     def set_autoscaley_on(self, b):
         """
         Set whether autoscaling for the y-axis is applied on plot commands
-
-        .. ACCEPTS: bool
 
         Parameters
         ----------
@@ -2200,8 +2184,6 @@ class _AxesBase(martist.Artist):
         I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
         a range [0.2, 1.8].
 
-        .. ACCEPTS: float greater than -0.5
-
         Parameters
         ----------
         m : float greater than -0.5
@@ -2223,8 +2205,6 @@ class _AxesBase(martist.Artist):
         Negative values -0.5 < m < 0 will result in clipping of the data range.
         I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
         a range [0.2, 1.8].
-
-        .. ACCEPTS: float greater than -0.5
 
         Parameters
         ----------
@@ -2306,8 +2286,6 @@ class _AxesBase(martist.Artist):
         z : float or None
             zorder below which artists are rasterized.  ``None`` means that
             artists do not get rasterized based on zorder.
-
-            .. ACCEPTS: float or None
         """
         self._rasterization_zorder = z
         self.stale = True
@@ -2636,8 +2614,6 @@ class _AxesBase(martist.Artist):
         """
         Set whether the axes rectangle patch is drawn.
 
-        .. ACCEPTS: bool
-
         Parameters
         ----------
         b : bool
@@ -2654,8 +2630,6 @@ class _AxesBase(martist.Artist):
     def set_axisbelow(self, b):
         """
         Set whether axis ticks and gridlines are above or below most artists.
-
-        .. ACCEPTS: [ bool | 'line' ]
 
         Parameters
         ----------
@@ -3268,11 +3242,9 @@ class _AxesBase(martist.Artist):
         """
         Set the x-tick labels with list of string labels.
 
-        .. ACCEPTS: list of string labels
-
         Parameters
         ----------
-        labels : list of str
+        labels : List[str]
             List of string labels.
 
         fontdict : dict, optional
@@ -3605,11 +3577,9 @@ class _AxesBase(martist.Artist):
         """
         Set the y-tick labels with list of strings labels.
 
-        .. ACCEPTS: list of string labels
-
         Parameters
         ----------
-        labels : list of str
+        labels : List[str]
             list of string labels
 
         fontdict : dict, optional
@@ -3746,8 +3716,6 @@ class _AxesBase(martist.Artist):
     def set_navigate(self, b):
         """
         Set whether the axes responds to navigation toolbar commands
-
-        .. ACCEPTS: bool
 
         Parameters
         ----------
