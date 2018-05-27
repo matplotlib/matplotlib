@@ -395,100 +395,114 @@ div.sphinxsidebar ul.toc ul li {
     padding: 0;
 }
 
-div.admonition, div.warning {
-    font-size: 0.9em;
-}
-
-div.warning {
-    color: #b94a48;
-    background-color: #F3E5E5;
-    border: 1px solid #eed3d7;
-}
-
-div.deprecated {
-    color: #606060;
-    background-color: #f0f0f0;
-    border: 1px solid #404040;
-}
-
-div.deprecated span.versionmodified {
-    color: #606060;
-    font-weight: bold;
-}
-
-div.green, div.hint {
-    color: #468847;
-    background-color: #dff0d8;
-    border: 1px solid #d6e9c6;
-}
-
-div.admonition p, div.warning p, div.deprecated p {
-    margin: 0.5em 1em 0.5em 1em;
-    padding: 0;
-}
-
-div.admonition pre, div.warning pre {
-    margin: 0.4em 1em 0.4em 1em;
-}
-
-div.admonition p.admonition-title + p {
-    display: inline;
-}
-
-
-div.admonition p.admonition-title,
-div.warning p.admonition-title {
-    margin: 0;
-    font-weight: bold;
-    font-size: 14px;
-}
+/* admonitions */
 
 div.admonition, div.deprecated {
-    margin-bottom: 10px;
-    margin-top: 10px;
-    padding: 7px;
-    border-radius: 4px;
-    -moz-border-radius: 4px;
+    margin: 10px 0px;
+    padding: 0.7em 1.4em;
+    border-left: 5px solid;
   }
 
 div.note {
     background-color: #eee;
-    border: 1px solid #ccc;
-}
-
-div.topic {
-    background-color: #eee;
-    border: 1px solid #CCC;
-    margin: 10px 0px;
-    padding: 7px 7px 0px;
-    border-radius: 4px;
-    -moz-border-radius: 4px;
-}
-
-p.topic-title {
-    font-size: 1.1em;
-    font-weight: bold;
+    border-color: #ccc;
 }
 
 div.seealso {
-    background-color: #FFFBE8;
-    border: 1px solid #fbeed5;
-    color: #AF8A4B;
+    background-color: #EAF1F7;
+    border-color: #8EADCC;
+    color: #3F5E7F;
   }
 
 div.warning {
-    border: 1px solid #940000;
+    background-color: #F3E5E5;
+    border-color: #CC8E8E;
+    color: #7F1919;
 }
 
-div.warning p.admonition-title {
-    border-bottom-color: #940000;
+div.deprecated {
+    background-color: #f0f0f0;
+    border-color: #404040;
+    color: #606060;
 }
 
-div.admonition ul, div.admonition ol,
-div.warning ul, div.warning ol {
-    margin: 0.1em 0.5em 0.5em 3em;
+div.deprecated span.versionmodified {
+    font-weight: bold;
+}
+
+div.green, div.hint {
+    background-color: #E1F2DA;
+    border-color: #A1CC8E;
+    color: #3F7F3F;
+}
+
+div.admonition p.admonition-title {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+div.admonition p, div.deprecated p {
+    margin: 0.6em 0;
     padding: 0;
 }
+
+div.admonition pre {
+    margin: 0.6em 0;
+}
+
+div.admonition ul, div.admonition ol {
+    margin: 0.1em 0.5em 0.5em 2em;
+    padding: 0;
+}
+
+div.topic {
+    background-color: #f4f4f4;
+    border: 2px solid #ccc;
+    border-left: 0px;
+    border-right: 0px;
+    margin: 10px 0px;
+    padding: 1em 1.4em;
+}
+
+p.topic-title {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.contents ul {
+    list-style-type: none;
+    padding-left: 2em;
+}
+
+/* first level */
+.contents > ul {
+    padding-left: 0;
+}
+
+.multicol-toc > ul {
+    column-width: 250px;
+    column-gap: 60px;
+    -webkit-column-width: 250px;
+    -moz-column-width: 250px;
+    column-rule: 1px solid #ccc;
+}
+
+.multicol-toc > li {
+       /* break inside is not yet broadly supported, but we just try */
+    break-inside: avoid-column;
+    -moz-break-inside: avoid-column;
+    -webkit-break-inside: avoid-column;
+}
+
+.contents > ul > li {
+    padding-top: 0.7em;
+}
+
+.contents > ul > li > a {
+    font-size: 1.0em;
+}
+
+
 
 div.versioninfo {
     margin: 1em 0 0 0;
@@ -498,7 +512,6 @@ div.versioninfo {
     line-height: 1.3em;
     font-size: 0.9em;
 }
-
 
 a.headerlink {
     color: #c60f0f!important;
@@ -721,11 +734,6 @@ p.rubric {
     font-size: 19px;
     margin: 15px 0 10px 0;
 }
-p.admonition-title {
-    font-weight: bold;
-    text-decoration: underline;
-}
-
 
 #matplotlib-examples ul li{
   font-size: large;
