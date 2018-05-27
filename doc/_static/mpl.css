@@ -426,8 +426,13 @@ div.deprecated {
     color: #606060;
 }
 
+span.versionmodified {
+    font-style: italic;
+}
+
 div.deprecated span.versionmodified {
     font-weight: bold;
+    font-style: normal;
 }
 
 div.green, div.hint {
