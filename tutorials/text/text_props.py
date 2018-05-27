@@ -217,7 +217,7 @@ plt.show()
 #    font.sans-serif: Source Han Sans TW, Arial, sans-serif
 #
 # To control the font used on per-artist basis use the ``'name'``,
-# ``'fontname'`` or ``'fontproperties'`` kwargs documented :ref:`above
+# ``'fontname'`` or ``'fontproperties'`` kwargs documented :doc:`above
 # </tutorials/text/text_props>`.
 #
 #

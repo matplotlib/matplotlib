@@ -2574,7 +2574,7 @@ class PolygonSelector(_SelectorWidget):
         if the mouse click is within `vertex_select_radius` pixels of the
         vertex. The default radius is 15 pixels.
 
-    See Also
+    Examples
     --------
     :doc:`/gallery/widgets/polygon_selector_demo`
     """

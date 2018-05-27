@@ -63,7 +63,7 @@ to generate their text (see :doc:`/tutorials/text/usetex`).
 #
 #    have special meaning outside of math mode in TeX.  Therefore, these
 #    characters will behave differently depending on the rcParam
-#    ``text.usetex`` flag.  See the :ref:`usetex tutorial
+#    ``text.usetex`` flag.  See the :doc:`usetex tutorial
 #    </tutorials/text/usetex>` for more information.
 #
 # Subscripts and superscripts

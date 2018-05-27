@@ -1,7 +1,7 @@
 """
 This module defines default legend handlers.
 
-It is strongly encouraged to have read the :ref:`legend guide
+It is strongly encouraged to have read the :doc:`legend guide
 </tutorials/intermediate/legend_guide>` before this documentation.
 
 Legend handlers are expected to be a callable object with a following

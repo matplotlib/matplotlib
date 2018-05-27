@@ -3,10 +3,9 @@
 Quiver Simple Demo
 ==================
 
-A simple example of a `~.axes.Axes.quiver` plot with a
-`~.axes.Axes.quiverkey`.
+A simple example of a `~.axes.Axes.quiver` plot with a `~.axes.Axes.quiverkey`.
 
-For more advanced options refer to 
+For more advanced options refer to
 :doc:`/gallery/images_contours_and_fields/quiver_demo`.
 """
 import matplotlib.pyplot as plt

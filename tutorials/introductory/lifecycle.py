@@ -23,11 +23,10 @@ Matplotlib has two interfaces. The first is an object-oriented (OO)
 interface. In this case, we utilize an instance of :class:`axes.Axes`
 in order to render visualizations on an instance of :class:`figure.Figure`.
 
-The second is based on MATLAB and uses
-a state-based interface. This is encapsulated in the :mod:`pyplot`
-module. See the :ref:`pyplot tutorials
-</tutorials/introductory/pyplot>`
-for a more in-depth look at the pyplot interface.
+The second is based on MATLAB and uses a state-based interface. This is
+encapsulated in the :mod:`pyplot` module. See the :doc:`pyplot tutorials
+</tutorials/introductory/pyplot>` for a more in-depth look at the pyplot
+interface.
 
 Most of the terms are straightforward but the main thing to remember
 is that:
@@ -85,7 +84,7 @@ group_mean = np.mean(group_data)
 # .. note::
 #
 #    Figures can have multiple axes on them. For information on how to do this,
-#    see the :ref:`Tight Layout tutorial
+#    see the :doc:`Tight Layout tutorial
 #    </tutorials/intermediate/tight_layout_guide>`.
 
 fig, ax = plt.subplots()

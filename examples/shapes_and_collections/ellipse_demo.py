@@ -4,7 +4,7 @@ Ellipse Demo
 ============
 
 Draw many ellipses. Here individual ellipses are drawn. Compare this
-to the :ref:`Ellipse collection example
+to the :doc:`Ellipse collection example
 </gallery/shapes_and_collections/ellipse_collection>`.
 """
 import matplotlib.pyplot as plt
