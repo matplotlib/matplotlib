@@ -1,3 +1,4 @@
+import pytest
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.patches as mpatches
@@ -133,3 +134,34 @@ def test_arrow_styles():
                                          arrowstyle=stylename,
                                          mutation_scale=25)
         ax.add_patch(patch)
+
+
+@image_comparison(baseline_images=['connection_styles'], extensions=['png'],
+                  style='mpl20', remove_text=True)
+def test_connection_styles():
+    styles = mpatches.ConnectionStyle.get_styles()
+
+    n = len(styles)
+    fig, ax = plt.subplots(figsize=(6, 10))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-1, n)
+
+    for i, stylename in enumerate(sorted(styles)):
+        patch = mpatches.FancyArrowPatch((0.1, i), (0.8, i + 0.5),
+                                         arrowstyle="->",
+                                         connectionstyle=stylename,
+                                         mutation_scale=25)
+        ax.add_patch(patch)
+
+
+def test_invalid_intersection():
+    conn_style_1 = mpatches.ConnectionStyle.Angle3(angleA=20, angleB=200)
+    p1 = mpatches.FancyArrowPatch((.2, .2), (.5, .5),
+                                  connectionstyle=conn_style_1)
+    with pytest.raises(ValueError):
+        plt.gca().add_patch(p1)
+
+    conn_style_2 = mpatches.ConnectionStyle.Angle3(angleA=20, angleB=199.9)
+    p2 = mpatches.FancyArrowPatch((.2, .2), (.5, .5),
+                                  connectionstyle=conn_style_2)
+    plt.gca().add_patch(p2)

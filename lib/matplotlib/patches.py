@@ -2789,8 +2789,8 @@ class ConnectionStyle(_Style):
         """
         Creates a simple quadratic Bezier curve between two
         points. The middle control points is placed at the
-        intersecting point of two lines which crosses the start (or
-        end) point and has a angle of angleA (or angleB).
+        intersecting point of two lines which cross the start and
+        end point, and have a slope of angleA and angleB, respectively.
         """
 
         def __init__(self, angleA=90, angleB=0):
@@ -2827,9 +2827,9 @@ class ConnectionStyle(_Style):
         """
         Creates a piecewise continuous quadratic Bezier path between
         two points. The path has a one passing-through point placed at
-        the intersecting point of two lines which crosses the start
-        (or end) point and has a angle of angleA (or angleB).  The
-        connecting edges are rounded with *rad*.
+        the intersecting point of two lines which cross the start
+        and end point, and have a slope of angleA and angleB, respectively.
+        The connecting edges are rounded with *rad*.
         """
 
         def __init__(self, angleA=90, angleB=0, rad=0.):
