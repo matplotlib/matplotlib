@@ -1,5 +1,5 @@
 Deprecations
-````````````
+------------
 The following modules are deprecated:
 
 - :mod:`matplotlib.compat.subprocess`. This was a python 2 workaround, but all

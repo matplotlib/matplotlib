@@ -1,5 +1,6 @@
 Removal of deprecated APIs
-``````````````````````````
+--------------------------
+
 The following deprecated API elements have been removed:
 
 - ``matplotlib.checkdep_tex``, ``matplotlib.checkdep_xmllint``,
