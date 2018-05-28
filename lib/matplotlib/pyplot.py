@@ -28,6 +28,7 @@ import warnings
 from cycler import cycler
 import matplotlib
 import matplotlib.colorbar
+import matplotlib.image
 from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import (
@@ -36,8 +37,6 @@ from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec
-from matplotlib.image import imread as _imread
-from matplotlib.image import imsave as _imsave
 from matplotlib import rcParams, rcParamsDefault, get_backend
 from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
@@ -1998,14 +1997,14 @@ def set_cmap(cmap):
         im.set_cmap(cmap)
 
 
-@docstring.copy_dedent(_imread)
+@docstring.copy_dedent(matplotlib.image.imread)
 def imread(fname, format=None):
-    return _imread(fname, format)
+    return matplotlib.image.imread(fname, format)
 
 
-@docstring.copy_dedent(_imsave)
+@docstring.copy_dedent(matplotlib.image.imsave)
 def imsave(fname, arr, **kwargs):
-    return _imsave(fname, arr, **kwargs)
+    return matplotlib.image.imsave(fname, arr, **kwargs)
 
 
 def matshow(A, fignum=None, **kw):
