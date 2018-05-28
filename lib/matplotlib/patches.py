@@ -1000,13 +1000,8 @@ class Polygon(Patch):
 
     _get_xy = get_xy
     _set_xy = set_xy
-    xy = property(
-        cbook.deprecated("3.0")(get_xy), cbook.deprecated("3.0")(set_xy),
-        doc="""Set/get the vertices of the polygon.  This property is
-               provided for backward compatibility with matplotlib 0.91.x
-               only.  New code should use
-               :meth:`~matplotlib.patches.Polygon.get_xy` and
-               :meth:`~matplotlib.patches.Polygon.set_xy` instead.""")
+    xy = property(get_xy, set_xy,
+                  doc='The vertices of the path as (N, 2) numpy array.')
 
 
 class Wedge(Patch):
