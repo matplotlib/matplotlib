@@ -1680,8 +1680,8 @@ def colormaps():
       for bipolar data that emphasizes positive or negative deviations from a
       central value
     Cyclic schemes
-      meant for plotting values that wrap around at the
-      endpoints, such as phase angle, wind direction, or time of day
+      for plotting values that wrap around at the endpoints, such as phase
+      angle, wind direction, or time of day
     Qualitative schemes
       for nominal data that has no inherent ordering, where color is used
       only to distinguish categories
@@ -1776,8 +1776,6 @@ def colormaps():
                   grayscale
       hot         sequential black-red-yellow-white, to emulate blackbody
                   radiation from an object at increasing temperatures
-      hsv         cyclic red-yellow-green-cyan-blue-magenta-red, formed
-                  by changing the hue component in the HSV color space
       jet         a spectral map with dark endpoints, blue-cyan-yellow-red;
                   based on a fluid-jet simulation by NCSA [#]_
       pink        sequential increasing pastel black-pink-white, meant
@@ -1808,6 +1806,17 @@ def colormaps():
       gist_stern    "Stern special" color table from Interactive Data
                     Language software
       ============  =======================================================
+
+    A set of cyclic color maps:
+
+      ================  =========================================================
+      Colormap          Description
+      ================  =========================================================
+      hsv               red-yellow-green-cyan-blue-magenta-red, formed by changing
+                        the hue component in the HSV color space
+      twilight          perceptually uniform shades of white-blue-black-red-white
+      twilight_shifted  perceptually uniform shades of black-blue-white-red-black
+      ================  =========================================================
 
 
     Other miscellaneous schemes:
