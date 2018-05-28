@@ -92,7 +92,7 @@ def to_qcolor(color):
     try:
         rgba = mcolors.to_rgba(color)
     except ValueError:
-        warnings.warn('Ignoring invalid color %r' % color)
+        warnings.warn('Ignoring invalid color %r' % color, stacklevel=2)
         return qcolor  # return invalid QColor
     qcolor.setRgbF(*rgba)
     return qcolor
@@ -259,7 +259,7 @@ class FormWidget(QtWidgets.QWidget):
                 elif not isinstance(selindex, int):
                     warnings.warn(
                         "index '%s' is invalid (label: %s, value: %s)" %
-                        (selindex, label, value))
+                        (selindex, label, value), stacklevel=2)
                     selindex = 0
                 field.setCurrentIndex(selindex)
             elif isinstance(value, bool):

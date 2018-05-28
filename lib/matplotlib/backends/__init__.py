@@ -71,7 +71,7 @@ def pylab_setup(name=None):
 Your currently selected backend, '%s' does not support show().
 Please select a GUI backend in your matplotlibrc file ('%s')
 or with matplotlib.use()""" %
-                          (name, matplotlib.matplotlib_fname()))
+                          (name, matplotlib.matplotlib_fname()), stacklevel=2)
 
     def do_nothing(*args, **kwargs):
         pass

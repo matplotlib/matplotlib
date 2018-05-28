@@ -1325,7 +1325,7 @@ class _AxesBase(martist.Artist):
         """
         if adjustable == 'box-forced':
             warnings.warn("The 'box-forced' keyword argument is deprecated"
-                          " since 2.2.", cbook.mplDeprecation)
+                          " since 2.2.", cbook.mplDeprecation, stacklevel=2)
         if adjustable not in ('box', 'datalim', 'box-forced'):
             raise ValueError("argument must be 'box', or 'datalim'")
         if share:
@@ -1476,7 +1476,7 @@ class _AxesBase(martist.Artist):
                 if aspect != "auto":
                     warnings.warn(
                         'aspect is not supported for Axes with xscale=%s, '
-                        'yscale=%s' % (xscale, yscale))
+                        'yscale=%s' % (xscale, yscale), stacklevel=2)
                     aspect = "auto"
             else:  # some custom projections have their own scales.
                 pass
@@ -2267,7 +2267,8 @@ class _AxesBase(martist.Artist):
 
         if x is None and y is None:
             if tight is not True:
-                warnings.warn('ignoring tight=%r in get mode' % (tight,))
+                warnings.warn('ignoring tight=%r in get mode' % (tight,),
+                              stacklevel=2)
             return self._xmargin, self._ymargin
 
         if x is not None:
@@ -3091,7 +3092,7 @@ class _AxesBase(martist.Artist):
             warnings.warn(
                 ('Attempting to set identical left==right results\n'
                  'in singular transformations; automatically expanding.\n'
-                 'left=%s, right=%s') % (left, right))
+                 'left=%s, right=%s') % (left, right), stacklevel=2)
         left, right = mtransforms.nonsingular(left, right, increasing=False)
 
         if self.get_xscale() == 'log':
@@ -3099,13 +3100,13 @@ class _AxesBase(martist.Artist):
                 warnings.warn(
                     'Attempted to set non-positive left xlim on a '
                     'log-scaled axis.\n'
-                    'Invalid limit will be ignored.')
+                    'Invalid limit will be ignored.', stacklevel=2)
                 left = old_left
             if right <= 0:
                 warnings.warn(
                     'Attempted to set non-positive right xlim on a '
                     'log-scaled axis.\n'
-                    'Invalid limit will be ignored.')
+                    'Invalid limit will be ignored.', stacklevel=2)
                 right = old_right
 
         left, right = self.xaxis.limit_range_for_scale(left, right)
@@ -3428,7 +3429,7 @@ class _AxesBase(martist.Artist):
             warnings.warn(
                 ('Attempting to set identical bottom==top results\n'
                  'in singular transformations; automatically expanding.\n'
-                 'bottom=%s, top=%s') % (bottom, top))
+                 'bottom=%s, top=%s') % (bottom, top), stacklevel=2)
 
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
 
@@ -3437,13 +3438,13 @@ class _AxesBase(martist.Artist):
                 warnings.warn(
                     'Attempted to set non-positive bottom ylim on a '
                     'log-scaled axis.\n'
-                    'Invalid limit will be ignored.')
+                    'Invalid limit will be ignored.', stacklevel=2)
                 bottom = old_bottom
             if top <= 0:
                 warnings.warn(
                     'Attempted to set non-positive top ylim on a '
                     'log-scaled axis.\n'
-                    'Invalid limit will be ignored.')
+                    'Invalid limit will be ignored.', stacklevel=2)
                 top = old_top
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
@@ -3847,7 +3848,7 @@ class _AxesBase(martist.Artist):
             # should be len 3 or 4 but nothing else
             warnings.warn(
                 "Warning in _set_view_from_bbox: bounding box is not a tuple "
-                "of length 3 or 4. Ignoring the view change.")
+                "of length 3 or 4. Ignoring the view change.", stacklevel=2)
             return
 
         # Just grab bounding box
@@ -4034,7 +4035,7 @@ class _AxesBase(martist.Artist):
                 result = (mtransforms.Bbox(newpoints)
                           .transformed(p.trans_inverse))
             except OverflowError:
-                warnings.warn('Overflow while panning')
+                warnings.warn('Overflow while panning', stacklevel=2)
                 return
         else:
             return
