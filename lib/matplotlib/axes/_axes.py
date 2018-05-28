@@ -5596,62 +5596,73 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def pcolor(self, *args, **kwargs):
         """
-        Create a pseudocolor plot of a 2-D array.
+        Create a pseudocolor plot with a non-regular rectangular grid.
 
-        Call signatures::
+        Call signature::
 
-            pcolor(C, **kwargs)
-            pcolor(X, Y, C, **kwargs)
+            pcolor([X, Y,] C, **kwargs)
 
-        pcolor can be very slow for large arrays; consider
-        using the similar but much faster
-        :func:`~matplotlib.pyplot.pcolormesh` instead.
+        *X* and *Y* can be used to specify the corners of the quadrilaterals.
+
+        .. hint::
+
+            ``pcolor()`` can be very slow for large arrays. In most
+            cases you should use the the similar but much faster
+            `~.Axes.pcolormesh` instead. See there for a discussion of the
+            differences.
 
         Parameters
         ----------
         C : array_like
-            An array of color values.
+            A scalar 2-D array. The values will be color-mapped.
 
         X, Y : array_like, optional
-            If given, specify the (x, y) coordinates of the colored
-            quadrilaterals; the quadrilateral for ``C[i,j]`` has corners at::
+            The coordinates of the quadrilateral corners. The quadrilateral
+            for ``C[i,j]`` has corners at::
 
-                (X[i,   j],   Y[i,   j]),
-                (X[i,   j+1], Y[i,   j+1]),
-                (X[i+1, j],   Y[i+1, j]),
-                (X[i+1, j+1], Y[i+1, j+1])
-
-            Ideally the dimensions of ``X`` and ``Y`` should be one greater
-            than those of ``C``; if the dimensions are the same, then the last
-            row and column of ``C`` will be ignored.
+                (X[i+1, j], Y[i+1, j])          (X[i+1, j+1], Y[i+1, j+1])
+                                      +--------+
+                                      | C[i,j] |
+                                      +--------+
+                    (X[i, j], Y[i, j])          (X[i, j+1], Y[i, j+1]),
 
             Note that the column index corresponds to the
-            x-coordinate, and the row index corresponds to y; for
-            details, see the :ref:`Grid Orientation
-            <axes-pcolor-grid-orientation>` section below.
+            x-coordinate, and the row index corresponds to y. For
+            details, see the :ref:`Notes <axes-pcolor-grid-orientation>`
+            section below.
 
-            If either or both of ``X`` and ``Y`` are 1-D arrays or column
-            vectors, they will be expanded as needed into the appropriate 2-D
-            arrays, making a rectangular grid.
+            The dimensions of *X* and *Y* should be one greater than those of
+            *C*. Alternatively, *X*, *Y* and *C* may have equal dimensions, in
+            which case the last row and column of *C* will be ignored.
 
-        cmap : `~matplotlib.colors.Colormap`, optional, default: None
-            If `None`, default to rc settings.
+            If *X* and/or *Y* are 1-D arrays or column vectors they will be
+            expanded as needed into the appropriate 2-D arrays, making a
+            rectangular grid.
 
-        norm : `matplotlib.colors.Normalize`, optional, default: None
-            An instance is used to scale luminance data to (0, 1).
-            If `None`, defaults to :func:`normalize`.
+        cmap : str or `~matplotlib.colors.Colormap`, optional
+            A Colormap instance or registered colormap name. The colormap
+            maps the *C* values to colors. Defaults to :rc:`image.cmap`.
+
+        norm : `~matplotlib.colors.Normalize`, optional
+            The Normalize instance scales the data values to the canonical
+            colormap range [0, 1] for mapping to colors. By default, the data
+            range is mapped to the colorbar range using linear scaling.
 
         vmin, vmax : scalar, optional, default: None
-            ``vmin`` and ``vmax`` are used in conjunction with ``norm`` to
-            normalize luminance data.  If either is `None`, it is autoscaled to
-            the respective min or max of the color array ``C``.  If not `None`,
-            ``vmin`` or ``vmax`` passed in here override any pre-existing
-            values supplied in the ``norm`` instance.
+            The colorbar range. If *None*, suitable min/max values are
+            automatically chosen by the `~.Normalize` instance (defaults to
+            the respective min/max values of *C* in case of the default linear
+            scaling).
 
-        edgecolors : {None, 'none', color, color sequence}
-            If None, the rc setting is used by default.
-            If 'none', edges will not be visible.
-            An mpl color or sequence of colors will set the edge color.
+        edgecolors : {'none', None, color, color sequence}, optional
+            The color of the edges. Defaults to 'none'. Possible values:
+
+            - 'none' or '': No edge.
+            - *None*: :rc:`patch.edgecolor` will be used. Note that currently
+              :rc:`patch.force_edgecolor` has to be True for this to work.
+            - An mpl color or sequence of colors will set the edge color.
+
+            The singular form *edgecolor* works as an alias.
 
         alpha : scalar, optional, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -5666,18 +5677,17 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         antialiaseds : bool, optional, default: False
-            The default ``antialiaseds`` is False if the default
-            ``edgecolors="none"`` is used.  This eliminates artificial lines
+            The default *antialiaseds* is False if the default
+            *edgecolors*\ ="none" is used.  This eliminates artificial lines
             at patch boundaries, and works regardless of the value of alpha.
-            If ``edgecolors`` is not "none", then the default ``antialiaseds``
+            If *edgecolors* is not "none", then the default *antialiaseds*
             is taken from :rc:`patch.antialiased`, which defaults to True.
-            Stroking the edges may be preferred if ``alpha`` is 1, but will
+            Stroking the edges may be preferred if *alpha* is 1, but will
             cause artifacts otherwise.
 
         **kwargs :
-
-            Any unused keyword arguments are passed along to the
-            `~matplotlib.collections.PolyCollection` constructor:
+            Additionally, the following arguments are allowed. They are passed
+            along to the `~matplotlib.collections.PolyCollection` constructor:
 
         %(PolyCollection)s
 
@@ -5685,53 +5695,36 @@ class Axes(_AxesBase):
         --------
         pcolormesh : for an explanation of the differences between
             pcolor and pcolormesh.
+        imshow : If *X* and *Y* are each equidistant, `~.Axes.imshow` can be a
+            faster alternative.
 
         Notes
         -----
+
+        **Masked arrays**
+
+        *X*, *Y* and *C* may be masked arrays. If either ``C[i, j]``, or one
+        of the vertices surrounding ``C[i,j]`` (*X* or *Y* at
+        ``[i, j], [i+1, j], [i, j+1], [i+1, j+1]``) is masked, nothing is
+        plotted.
+
         .. _axes-pcolor-grid-orientation:
 
-        ``X``, ``Y`` and ``C`` may be masked arrays. If either C[i, j], or one
-        of the vertices surrounding C[i,j] (``X`` or ``Y`` at [i, j], [i+1, j],
-        [i, j+1], [i+1, j+1]) is masked, nothing is plotted.
+        **Grid orientation**
 
-        The grid orientation follows the MATLAB convention: an array ``C`` with
-        shape (nrows, ncolumns) is plotted with the column number as ``X`` and
-        the row number as ``Y``, increasing up; hence it is plotted the way the
-        array would be printed, except that the ``Y`` axis is reversed. That
-        is, ``C`` is taken as ``C`` (y, x).
+        The grid orientation follows the standard matrix convention: An array
+        *C* with shape (nrows, ncolumns) is plotted with the column number as
+        *X* and the row number as *Y*.
 
-        Similarly for :func:`meshgrid`::
+        **Handling of pcolor() end-cases**
 
-            x = np.arange(5)
-            y = np.arange(3)
-            X, Y = np.meshgrid(x, y)
+        ``pcolor()`` displays all columns of *C* if *X* and *Y* are not
+        specified, or if *X* and *Y* have one more column than *C*.
+        If *X* and *Y* have the same number of columns as *C* then the last
+        column of *C* is dropped. Similarly for the rows.
 
-        is equivalent to::
-
-            X = array([[0, 1, 2, 3, 4],
-                       [0, 1, 2, 3, 4],
-                       [0, 1, 2, 3, 4]])
-
-            Y = array([[0, 0, 0, 0, 0],
-                       [1, 1, 1, 1, 1],
-                       [2, 2, 2, 2, 2]])
-
-        so if you have::
-
-            C = rand(len(x), len(y))
-
-        then you need to transpose C::
-
-            pcolor(X, Y, C.T)
-
-        or::
-
-            pcolor(C.T)
-
-        MATLAB :func:`pcolor` always discards the last row and column of ``C``,
-        but Matplotlib displays the last row and column if ``X`` and ``Y`` are
-        not specified, or if ``X`` and ``Y`` have one more row and column than
-        ``C``.
+        Note: This behavior is different from MATLAB's ``pcolor()``, which
+        always discards the last row and column of *C*.
         """
 
         if not self._hold:
