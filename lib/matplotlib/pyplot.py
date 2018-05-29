@@ -38,10 +38,8 @@ from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec
 from matplotlib import rcParams, rcParamsDefault, get_backend
-from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
-from matplotlib.artist import getp, get, Artist
-from matplotlib.artist import setp as _setp
+from matplotlib.artist import Artist
 from matplotlib.axes import Axes, Subplot
 from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for csv2rec, detrend_none, window_hanning
@@ -250,9 +248,12 @@ def show(*args, **kw):
     return _show(*args, **kw)
 
 
-def isinteractive():
-    """Return the status of interactive mode."""
-    return matplotlib.is_interactive()
+# Note: While one could directly import these (``from matplotlib import ...``),
+# explicitly writing the alias makes it clear to linters that these are
+# intended as part of the API.  Same below.
+isinteractive = matplotlib.is_interactive
+rc = matplotlib.rc
+rc_context = matplotlib.rc_context
 
 
 def ioff():
@@ -293,16 +294,6 @@ def pause(interval):
         time.sleep(interval)
 
 
-@docstring.copy_dedent(matplotlib.rc)
-def rc(group, **kwargs):
-    matplotlib.rc(group, **kwargs)
-
-
-@docstring.copy_dedent(matplotlib.rc_context)
-def rc_context(rc=None, fname=None):
-    return matplotlib.rc_context(rc, fname)
-
-
 @docstring.copy_dedent(matplotlib.rcdefaults)
 def rcdefaults():
     matplotlib.rcdefaults()
@@ -333,10 +324,9 @@ def gci():
 ## Any Artist ##
 
 
-# (getp is simply imported)
-@docstring.copy(_setp)
-def setp(obj, *args, **kwargs):
-    return _setp(obj, *args, **kwargs)
+get = matplotlib.artist.get
+getp = matplotlib.artist.getp
+setp = matplotlib.artist.setp
 
 
 def xkcd(scale=1, length=100, randomness=2):
@@ -1997,14 +1987,8 @@ def set_cmap(cmap):
         im.set_cmap(cmap)
 
 
-@docstring.copy_dedent(matplotlib.image.imread)
-def imread(fname, format=None):
-    return matplotlib.image.imread(fname, format)
-
-
-@docstring.copy_dedent(matplotlib.image.imsave)
-def imsave(fname, arr, **kwargs):
-    return matplotlib.image.imsave(fname, arr, **kwargs)
+imread = matplotlib.image.imread
+imsave = matplotlib.image.imsave
 
 
 def matshow(A, fignum=None, **kw):
