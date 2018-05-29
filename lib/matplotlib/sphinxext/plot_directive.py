@@ -468,7 +468,6 @@ def run_code(code, code_path, ns=None, function_name=None):
     # it can get at its data files, if any.  Add its path to sys.path
     # so it can import any helper modules sitting beside it.
     pwd = os.getcwd()
-    old_sys_path = sys.path.copy()
     if setup.config.plot_working_directory is not None:
         try:
             os.chdir(setup.config.plot_working_directory)
@@ -480,13 +479,12 @@ def run_code(code, code_path, ns=None, function_name=None):
             raise TypeError(str(err) + '\n`plot_working_directory` option in '
                             'Sphinx configuration file must be a string or '
                             'None')
-        sys.path.insert(0, setup.config.plot_working_directory)
     elif code_path is not None:
         dirname = os.path.abspath(os.path.dirname(code_path))
         os.chdir(dirname)
-        sys.path.insert(0, dirname)
 
-    with cbook._setattr_cm(sys, argv=[code_path]), \
+    with cbook._setattr_cm(
+            sys, argv=[code_path], path=[os.getcwd(), *sys.path]), \
             contextlib.redirect_stdout(StringIO()):
         try:
             code = unescape_doctest(code)
@@ -507,7 +505,6 @@ def run_code(code, code_path, ns=None, function_name=None):
             raise PlotError(traceback.format_exc())
         finally:
             os.chdir(pwd)
-            sys.path[:] = old_sys_path
     return ns
 
 
