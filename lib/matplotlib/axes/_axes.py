@@ -5267,7 +5267,7 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def pcolor(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
                vmax=None, **kwargs):
-        """
+        r"""
         Create a pseudocolor plot with a non-regular rectangular grid.
 
         Call signature::
