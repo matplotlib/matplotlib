@@ -1059,7 +1059,7 @@ class ArtistInspector(object):
     """
 
     def __init__(self, o):
-        """
+        r"""
         Initialize the artist inspector with an `Artist` or an iterable of
         `Artist`\s.  If an iterable is used, we assume it is a homogeneous
         sequence (all `Artists` are of the same type) and it is your
