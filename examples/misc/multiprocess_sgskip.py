@@ -102,5 +102,5 @@ def main():
 
 if __name__ == '__main__':
     if plt.get_backend() == "MacOSX":
-        multiprocessing.set_start_method("forkserver")
+        mp.set_start_method("forkserver")
     main()
