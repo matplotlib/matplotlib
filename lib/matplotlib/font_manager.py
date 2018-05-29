@@ -976,7 +976,7 @@ def json_dump(data, filename):
         try:
             json.dump(data, fh, cls=JSONEncoder, indent=2)
         except IOError as e:
-            warnings.warn('Could not save font_manager cache ', e)
+            warnings.warn('Could not save font_manager cache {}'.format(e))
 
 def json_load(filename):
     """Loads a data structure as JSON from the named file.
