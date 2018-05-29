@@ -1,0 +1,7 @@
+Non-interactive FigureManager classes are now aliases of FigureManagerBase
+``````````````````````````````````````````````````````````````````````````
+
+The `FigureManagerPdf`, `FigureManagerPS`, and `FigureManagerSVG` classes,
+which were previously empty subclasses of `FigureManagerBase` (i.e., not
+adding or overriding any attribute or method), are now direct aliases for
+`FigureManagerBase`.
