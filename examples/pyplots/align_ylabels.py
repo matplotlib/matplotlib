@@ -3,6 +3,7 @@
 Align Ylabels
 =============
 
+Align the axis labels between subplots.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,3 +37,21 @@ ax4.set_ylabel('aligned 2', bbox=box)
 ax4.yaxis.set_label_coords(labelx, 0.5)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axis.Axis.set_label_coords
+matplotlib.axes.Axes.plot
+matplotlib.pyplot.plot
+matplotlib.axes.Axes.set_title
+matplotlib.axes.Axes.set_ylabel
+matplotlib.axes.Axes.set_ylim

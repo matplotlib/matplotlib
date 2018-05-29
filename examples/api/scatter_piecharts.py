@@ -46,3 +46,17 @@ ax.scatter(range(3), range(3), marker=xy3,
            s=s3 ** 2 * sizes, facecolor='red')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.scatter
+matplotlib.pyplot.scatter

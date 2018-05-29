@@ -221,3 +221,18 @@ ax1.set_ylabel('x')
 ax2.set_ylabel('x')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.fill_betweenx
+matplotlib.axes.Axes.fill_between
+matplotlib.axis.Axis.set_major_locator

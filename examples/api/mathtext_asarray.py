@@ -26,3 +26,20 @@ fig.figimage(rgba1, 100, 100)
 fig.figimage(rgba2, 100, 300)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.mathtext
+matplotlib.mathtext.MathTextParser
+matplotlib.mathtext.MathTextParser.to_png
+matplotlib.mathtext.MathTextParser.to_rgba
+matplotlib.figure.Figure.figimage

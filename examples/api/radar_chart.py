@@ -202,3 +202,24 @@ if __name__ == '__main__':
              size='large')
 
     plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.path
+matplotlib.path.Path
+matplotlib.spines
+matplotlib.spines.Spine
+matplotlib.projections
+matplotlib.projections.polar
+matplotlib.projections.polar.PolarAxes
+matplotlib.projections.register_projection

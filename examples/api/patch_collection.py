@@ -3,7 +3,8 @@
 Circles, Wedges and Polygons
 ============================
 
-This example demonstrates how to use patch collections.
+This example demonstrates how to use
+:class:`patch collections<~.collections.PatchCollection>`.
 """
 
 import numpy as np
@@ -56,3 +57,23 @@ ax.add_collection(p)
 fig.colorbar(p, ax=ax)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.patches
+matplotlib.patches.Circle
+matplotlib.patches.Wedge
+matplotlib.patches.Polygon
+matplotlib.collections.PatchCollection
+matplotlib.collections.Collection.set_array
+matplotlib.axes.Axes.add_collection
+matplotlib.figure.Figure.colorbar
