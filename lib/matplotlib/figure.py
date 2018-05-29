@@ -1715,7 +1715,7 @@ class Figure(Artist):
         Notes
         -----
         Not all kinds of artist are supported by the legend command. See
-        :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` for details.
+        :doc:`/tutorials/intermediate/legend_guide` for details.
         """
 
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(

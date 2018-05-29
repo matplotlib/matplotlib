@@ -4,23 +4,21 @@ drawing legends associated with axes and/or figures.
 
 .. important::
 
-    It is unlikely that you would ever create a Legend instance manually.
-    Most users would normally create a legend via the
+    It is unlikely that you would ever create a Legend instance
+    manually.  Most users would normally create a legend via the
     :meth:`~matplotlib.axes.Axes.legend` function. For more details on legends
-    there is also a :ref:`legend guide
-    <sphx_glr_tutorials_intermediate_legend_guide.py>`.
+    there is also a :doc:`legend guide </tutorials/intermediate/legend_guide>`.
 
-The Legend class can be considered as a container of legend handles
-and legend texts. Creation of corresponding legend handles from the
-plot elements in the axes or figures (e.g., lines, patches, etc.) are
-specified by the handler map, which defines the mapping between the
-plot elements and the legend handlers to be used (the default legend
-handlers are defined in the :mod:`~matplotlib.legend_handler` module).
-Note that not all kinds of artist are supported by the legend yet by default
-but it is possible to extend the legend handler's capabilities to support
-arbitrary objects. See the :ref:`legend guide
-<sphx_glr_tutorials_intermediate_legend_guide.py>` for more information.
-
+The Legend class can be considered as a container of legend handles and
+legend texts. Creation of corresponding legend handles from the plot elements
+in the axes or figures (e.g., lines, patches, etc.) are specified by the
+handler map, which defines the mapping between the plot elements and the
+legend handlers to be used (the default legend handlers are defined in the
+:mod:`~matplotlib.legend_handler` module).  Note that not all kinds of
+artist are supported by the legend yet by default but it is possible to
+extend the legend handler's capabilities to support arbitrary objects. See
+the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
+information.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)

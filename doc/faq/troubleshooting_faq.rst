@@ -104,7 +104,7 @@ provide the following information in your e-mail to the `mailing list
   `Enthought Canopy <https://www.enthought.com/products/canopy/>`_).
 
 * Any customizations to your ``matplotlibrc`` file (see
-  :ref:`sphx_glr_tutorials_introductory_customizing.py`).
+  :doc:`/tutorials/introductory/customizing`).
 
 * If the problem is reproducible, please try to provide a *minimal*, standalone
   Python script that demonstrates the problem.  This is *the* critical step.

@@ -679,7 +679,7 @@ mutually exclusive inside that group.  For tools derived from
 that are called automatically whenever it is toggled.
 
 
-A full example is located in :ref:`sphx_glr_gallery_user_interfaces_toolmanager_sgskip.py`
+A full example is located in :doc:`/gallery/user_interfaces/toolmanager_sgskip`
 
 
 cbook.is_sequence_of_strings recognizes string objects

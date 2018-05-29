@@ -14,7 +14,7 @@ arguments. In such a case, you can already set the dashing when creating the
 line.
 
 *Note*: The dash style can also be configured via a
-:ref:`property_cycle <sphx_glr_tutorials_intermediate_color_cycle.py>`
+:doc:`property_cycle </tutorials/intermediate/color_cycle>`
 by passing a list of dash sequences using the keyword *dashes* to the
 cycler. This is not shown within this example.
 """

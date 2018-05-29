@@ -30,7 +30,7 @@ New dependency
 
 `kiwisolver <https://github.com/nucleic/kiwi>`__ is now a required
 dependency to support the new constrained_layout,  see
-:ref:`sphx_glr_tutorials_intermediate_constrainedlayout_guide.py` for
+:doc:`/tutorials/intermediate/constrainedlayout_guide` for
 more details.
 
 
@@ -1603,7 +1603,7 @@ original location:
 * The legend handler interface has changed from a callable, to any object
   which implements the ``legend_artists`` method (a deprecation phase will
   see this interface be maintained for v1.4). See
-  :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` for further details. Further legend changes
+  :doc:`/tutorials/intermediate/legend_guide` for further details. Further legend changes
   include:
 
    * :func:`matplotlib.axes.Axes._get_legend_handles` now returns a generator
