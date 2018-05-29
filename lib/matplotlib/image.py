@@ -1431,11 +1431,20 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
 
 def pil_to_array(pilImage):
-    """Load a PIL image and return it as a numpy array.
+    """Load a `PIL image`_ and return it as a numpy array.
 
-    Grayscale images are returned as ``(M, N)`` arrays.  RGB images are
-    returned as ``(M, N, 3)`` arrays.  RGBA images are returned as ``(M, N,
-    4)`` arrays.
+    .. _PIL image: https://pillow.readthedocs.io/en/latest/reference/Image.html
+
+    Returns
+    -------
+    numpy.array
+
+        The array shape depends on the image type:
+
+        - (M, N) for grayscale images.
+        - (M, N, 3) for RGB images.
+        - (M, N, 4) for RGBA images.
+
     """
     if pilImage.mode in ['RGBA', 'RGBX', 'RGB', 'L']:
         # return MxNx4 RGBA, MxNx3 RBA, or MxN luminance array
@@ -1465,20 +1474,21 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
 
     Parameters
     ----------
-    infile
+    infile : str or file-like
         The image file -- must be PNG, Pillow-readable if you have `Pillow
         <http://python-pillow.org/>`_ installed.
 
-    thumbfile
+    thumbfile : str or file-like
         The thumbnail filename.
 
-    scale
+    scale : float, optional
         The scale factor for the thumbnail.
 
-    interpolation
-        The interpolation scheme used in the resampling.
+    interpolation : str, optional
+        The interpolation scheme used in the resampling. See the
+        *interpolation* parameter of `~.Axes.imshow` for possible values.
 
-    preview
+    preview : bool, optional
         If True, the default backend (presumably a user interface
         backend) will be used which will cause a figure to be raised if
         `~matplotlib.pyplot.show` is called.  If it is False, the figure is
@@ -1487,7 +1497,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
 
     Returns
     -------
-    figure :
+    figure : `~.figure.Figure`
         The figure instance containing the thumbnail.
     """
 
