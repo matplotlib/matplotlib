@@ -455,8 +455,7 @@ def _arrange_subplotspecs(gs, hspace=0, wspace=0):
         if child._is_subplotspec_layoutbox():
             for child2 in child.children:
                 # check for gridspec children...
-                name = (child2.name).split('.')[-1][:-3]
-                if name == 'gridspec':
+                if child2._is_gridspec_layoutbox():
                     _arrange_subplotspecs(child2, hspace=hspace, wspace=wspace)
             sschildren += [child]
     # now arrange the subplots...
