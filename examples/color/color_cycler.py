@@ -8,11 +8,10 @@ properties for multi-line plots.
 
 This example demonstrates two different APIs:
 
-    1. Setting the default 
-       :ref:`rc parameter<sphx_glr_tutorials_introductory_customizing.py>`
-       specifying the property cycle. This affects all subsequent axes
-       (but not axes already created).
-    2. Setting the property cycle for a single pair of axes.
+1. Setting the default :doc:`rc parameter</tutorials/introductory/customizing>`
+   specifying the property cycle. This affects all subsequent axes (but not
+   axes already created).
+2. Setting the property cycle for a single pair of axes.
 """
 from cycler import cycler
 import numpy as np

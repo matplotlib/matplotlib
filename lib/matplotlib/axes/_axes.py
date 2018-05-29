@@ -363,7 +363,7 @@ class Axes(_AxesBase):
         -----
 
         Not all kinds of artist are supported by the legend command. See
-        :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` for details.
+        :doc:`/tutorials/intermediate/legend_guide` for details.
 
         Examples
         --------
@@ -1879,7 +1879,7 @@ class Axes(_AxesBase):
                 upper errors.
             - *None*: No errorbar. (Default)
 
-            See :ref:`sphx_glr_gallery_statistics_errorbar_features.py`
+            See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
         ecolor : scalar or array-like, optional, default: 'black'
@@ -2158,7 +2158,7 @@ class Axes(_AxesBase):
                 upper errors.
             - *None*: No errorbar. (default)
 
-            See :ref:`sphx_glr_gallery_statistics_errorbar_features.py`
+            See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
         ecolor : scalar or array-like, optional, default: 'black'
@@ -2687,7 +2687,7 @@ class Axes(_AxesBase):
                 upper errors.
             - *None*: No errorbar.
 
-            See :ref:`sphx_glr_gallery_statistics_errorbar_features.py`
+            See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
         fmt : plot format string, optional, default: ''

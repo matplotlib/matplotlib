@@ -6,9 +6,8 @@ Contour Demo
 Illustrate simple contour plotting, contours on an image with
 a colorbar for the contours, and labelled contours.
 
-See also the
-:ref:`contour image example
-<sphx_glr_gallery_images_contours_and_fields_contour_image.py>`.
+See also the :doc:`contour image example
+</gallery/images_contours_and_fields/contour_image>`.
 """
 import matplotlib
 import numpy as np

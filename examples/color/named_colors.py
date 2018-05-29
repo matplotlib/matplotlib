@@ -7,9 +7,9 @@ Simple plot example with the named colors and its visual representation.
 
 For more information on colors in matplotlib see
 
-* the :ref:`sphx_glr_tutorials_colors_colors.py` tutorial;
+* the :doc:`/tutorials/colors/colors` tutorial;
 * the `matplotlib.colors` API;
-* the :ref:`sphx_glr_gallery_color_color_demo.py`.
+* the :doc:`/gallery/color/color_demo`.
 """
 
 import matplotlib.pyplot as plt

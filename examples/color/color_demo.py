@@ -26,9 +26,9 @@ Matplotlib gives you 8 ways to specify colors,
 
 For more information on colors in matplotlib see
 
-* the :ref:`sphx_glr_tutorials_colors_colors.py` tutorial;
+* the :doc:`/tutorials/colors/colors` tutorial;
 * the `matplotlib.colors` API;
-* the :ref:`sphx_glr_gallery_color_named_colors.py` example.
+* the :doc:`/gallery/color/named_colors` example.
 """
 
 import matplotlib.pyplot as plt
