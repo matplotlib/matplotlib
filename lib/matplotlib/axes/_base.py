@@ -1811,6 +1811,10 @@ class _AxesBase(martist.Artist):
         to manually update the dataLim if the artist is to be included in
         autoscaling.
 
+        If no ``transform`` has been specified when creating the artist (e.g.
+        ``artist.get_transform() == None``) then the transform is set to
+        ``ax.transData``.
+
         Returns the artist.
         """
         a.axes = self
