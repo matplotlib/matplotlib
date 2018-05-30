@@ -74,7 +74,7 @@ plt.show()
 # ``.matplotlibrc`` file or a style file (``style.mplstyle``), you can set the
 # ``axes.prop_cycle`` property:
 #
-# ..code-block:: python
+# .. code-block:: python
 #
 #    axes.prop_cycle    : cycler('color', 'bgrcmyk')
 #
