@@ -4594,7 +4594,7 @@ class Axes(_AxesBase):
         ----------
         args : sequence of x, y, [color]
             Each polygon is defined by the lists of *x* and *y* positions of
-            its nodes, optionally followed by by a *color* specifier. See
+            its nodes, optionally followed by a *color* specifier. See
             :mod:`matplotlib.colors` for supported color specifiers. The
             standard color cycle is used for polygons without a color
             specifier.
@@ -5279,7 +5279,7 @@ class Axes(_AxesBase):
         .. hint::
 
             ``pcolor()`` can be very slow for large arrays. In most
-            cases you should use the the similar but much faster
+            cases you should use the similar but much faster
             `~.Axes.pcolormesh` instead. See there for a discussion of the
             differences.
 

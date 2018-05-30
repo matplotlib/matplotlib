@@ -171,8 +171,8 @@ class UnitData(object):
     def update(self, data):
         """Maps new values to integer identifiers.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         data: iterable
               sequence of string values
 
