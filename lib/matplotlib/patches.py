@@ -1407,7 +1407,7 @@ class Ellipse(Patch):
         return fmt % pars
 
     @docstring.dedent_interpd
-    def __init__(self, xy, width, height, angle=0.0, **kwargs):
+    def __init__(self, xy, width, height, angle=0, **kwargs):
         """
         Parameters
         ----------
@@ -1417,7 +1417,7 @@ class Ellipse(Patch):
             Total length (diameter) of horizontal axis.
         height : scalar
             Total length (diameter) of vertical axis.
-        angle : scalar
+        angle : scalar, optional
             Rotation in degrees anti-clockwise.
 
         Notes
