@@ -1409,19 +1409,20 @@ class Ellipse(Patch):
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
-        *xy*
-          center of ellipse
+        Parameters
+        ----------
+        xy : tuple of (scalar, scalar)
+            xy coordinates of ellipse centre.
+        width : scalar
+            Total length (diameter) of horizontal axis.
+        height : scalar
+            Total length (diameter) of vertical axis.
+        angle : scalar
+            Rotation in degrees anti-clockwise.
 
-        *width*
-          total length (diameter) of horizontal axis
-
-        *height*
-          total length (diameter) of vertical axis
-
-        *angle*
-          rotation in degrees (anti-clockwise)
-
-        Valid kwargs are:
+        Notes
+        -----
+        Valid keyword arguments are
         %(Patch)s
         """
         Patch.__init__(self, **kwargs)
