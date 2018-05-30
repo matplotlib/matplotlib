@@ -245,7 +245,7 @@ def _make_ghost_gridspec_slots(fig, gs):
 def _make_layout_margins(ax, renderer, h_pad, w_pad):
     """
     For each axes, make a margin between the *pos* layoutbox and the
-    *axes* layoutbox be a minimum size that can accomodate the
+    *axes* layoutbox be a minimum size that can accommodate the
     decorations on the axis.
     """
     fig = ax.figure

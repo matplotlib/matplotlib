@@ -240,7 +240,7 @@ set_extent_None_text(columns['lower'][0])
 # Explicit extent and axes limits
 # -------------------------------
 #
-# If we fix the axes limits by explicity setting `set_xlim` / `set_ylim`, we
+# If we fix the axes limits by explicitly setting `set_xlim` / `set_ylim`, we
 # force a certain size and orientation of the axes.
 # This can decouple the 'left-right' and 'top-bottom' sense of the image from
 # the orientation on the screen.
