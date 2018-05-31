@@ -5654,18 +5654,21 @@ class Axes(_AxesBase):
             the respective min/max values of *C* in case of the default linear
             scaling).
 
-        edgecolors : {'none', None, color, color sequence}, optional
+        edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
 
             - 'none' or '': No edge.
             - *None*: :rc:`patch.edgecolor` will be used. Note that currently
               :rc:`patch.force_edgecolor` has to be True for this to work.
+            - 'face': Use the adjacent face color.
             - An mpl color or sequence of colors will set the edge color.
 
             The singular form *edgecolor* works as an alias.
 
         alpha : scalar, optional, default: None
-            The alpha blending value, between 0 (transparent) and 1 (opaque).
+            The alpha blending value of the face color, between 0 (transparent)
+            and 1 (opaque). Note: The edgecolor is currently not affected by
+            this.
 
         snap : bool, optional, default: False
             Whether to snap the mesh to pixel boundaries.
@@ -5846,79 +5849,160 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def pcolormesh(self, *args, **kwargs):
         """
-        Plot a quadrilateral mesh.
+        Create a pseudocolor plot with a non-regular rectangular grid.
 
-        Call signatures::
+        Call signature::
 
-          pcolormesh(C)
-          pcolormesh(X, Y, C)
-          pcolormesh(C, **kwargs)
+            pcolor([X, Y,] C, **kwargs)
 
-        Create a pseudocolor plot of a 2-D array.
+        *X* and *Y* can be used to specify the corners of the quadrilaterals.
 
-        pcolormesh is similar to :func:`~matplotlib.pyplot.pcolor`,
-        but uses a different mechanism and returns a different
-        object; pcolor returns a
-        :class:`~matplotlib.collections.PolyCollection` but pcolormesh
-        returns a
-        :class:`~matplotlib.collections.QuadMesh`.  It is much faster,
-        so it is almost always preferred for large arrays.
+        .. note::
 
-        *C* may be a masked array, but *X* and *Y* may not.  Masked
-        array support is implemented via *cmap* and *norm*; in
-        contrast, :func:`~matplotlib.pyplot.pcolor` simply does not
-        draw quadrilaterals with masked colors or vertices.
+           ``pcolormesh()`` is similar to :func:`~Axes.pcolor`. It's much
+           faster and preferred in most cases. For a detailed discussion on
+           the differences see
+           :ref:`Differences between pcolor() and pcolormesh()
+           <differences-pcolor-pcolormesh>`.
 
-        Other Parameters
-        ----------------
-        cmap : Colormap, optional
-            A :class:`matplotlib.colors.Colormap` instance. If ``None``, use
-            rc settings.
+        Parameters
+        ----------
+        C : array_like
+            A scalar 2-D array. The values will be color-mapped.
 
-        norm : Normalize, optional
-            A :class:`matplotlib.colors.Normalize` instance is used to
-            scale luminance data to 0,1. If ``None``, defaults to
-            :func:`normalize`.
+        X, Y : array_like, optional
+            The coordinates of the quadrilateral corners. The quadrilateral
+            for ``C[i,j]`` has corners at::
 
-        vmin, vmax : scalar, optional
-            *vmin* and *vmax* are used in conjunction with *norm* to
-            normalize luminance data. If either is ``None``, it is autoscaled
-            to the respective min or max of the color array *C*.
-            If not ``None``, *vmin* or *vmax* passed in here override any
-            pre-existing values supplied in the *norm* instance.
+                (X[i+1, j], Y[i+1, j])          (X[i+1, j+1], Y[i+1, j+1])
+                                      +--------+
+                                      | C[i,j] |
+                                      +--------+
+                    (X[i, j], Y[i, j])          (X[i, j+1], Y[i, j+1]),
 
-        shading : [ 'flat' | 'gouraud' ], optional
-            'flat' indicates a solid color for each quad. When
-            'gouraud', each quad will be Gouraud shaded. When gouraud
-            shading, *edgecolors* is ignored.
+            Note that the column index corresponds to the
+            x-coordinate, and the row index corresponds to y. For
+            details, see the :ref:`Notes <axes-pcolormesh-grid-orientation>`
+            section below.
 
-        edgecolors : string, color, color sequence, optional
-            - If ``None``, the rc setting is used by default.
-            - If ``'None'``, edges will not be visible.
-            - If ``'face'``, edges will have the same color as the faces.
+            The dimensions of *X* and *Y* should be one greater than those of
+            *C*. Alternatively, *X*, *Y* and *C* may have equal dimensions, in
+            which case the last row and column of *C* will be ignored.
 
-            An mpl color or sequence of colors will also set the edge color.
+            If *X* and/or *Y* are 1-D arrays or column vectors they will be
+            expanded as needed into the appropriate 2-D arrays, making a
+            rectangular grid.
 
-        alpha : scalar, optional
-            Alpha blending value. Must be between 0 and 1.
+        cmap : str or `~matplotlib.colors.Colormap`, optional
+            A Colormap instance or registered colormap name. The colormap
+            maps the *C* values to colors. Defaults to :rc:`image.cmap`.
+
+        norm : `~matplotlib.colors.Normalize`, optional
+            The Normalize instance scales the data values to the canonical
+            colormap range [0, 1] for mapping to colors. By default, the data
+            range is mapped to the colorbar range using linear scaling.
+
+        vmin, vmax : scalar, optional, default: None
+            The colorbar range. If *None*, suitable min/max values are
+            automatically chosen by the `~.Normalize` instance (defaults to
+            the respective min/max values of *C* in case of the default linear
+            scaling).
+
+        edgecolors : {'none', None, 'face', color, color sequence}, optional
+            The color of the edges. Defaults to 'none'. Possible values:
+
+            - 'none' or '': No edge.
+            - *None*: :rc:`patch.edgecolor` will be used. Note that currently
+              :rc:`patch.force_edgecolor` has to be True for this to work.
+            - 'face': Use the adjacent face color.
+            - An mpl color or sequence of colors will set the edge color.
+
+            The singular form *edgecolor* works as an alias.
+
+        alpha : scalar, optional, default: None
+            The alpha blending value, between 0 (transparent) and 1 (opaque).
+
+        shading : {'flat', 'gouraud'}, optional
+            The fill style, Possible values:
+
+            - 'flat': A solid color is used for each quad. The color of the
+              quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
+              ``C[i,j]``.
+            - 'gouraud': Each quad will be Gouraud shaded: The color of the
+              corners (i', j') are given by ``C[i',j']``. The color values of
+              the area in between is interpolated from the corner values.
+              When Gouraud shading is used, *edgecolors* is ignored.
+
+        snap : bool, optional, default: False
+            Whether to snap the mesh to pixel boundaries.
 
         Returns
         -------
-        matplotlib.collections.QuadMesh
+        mesh : `matplotlib.collections.QuadMesh`
+
+        Other Parameters
+        ----------------
+        **kwargs
+            Additionally, the following arguments are allowed. They are passed
+            along to the `~matplotlib.collections.QuadMesh` constructor:
+
+        %(QuadMesh)s
+
 
         See Also
         --------
-        matplotlib.pyplot.pcolor :
-            For an explanation of the grid orientation
-            (:ref:`Grid Orientation <axes-pcolor-grid-orientation>`)
-            and the expansion of 1-D *X* and/or *Y* to 2-D arrays.
+        pcolor : An alternative implementation with slightly different
+            features. For a detailed discussion on the differences see
+            :ref:`Differences between pcolor() and pcolormesh()
+            <differences-pcolor-pcolormesh>`.
+        imshow : If *X* and *Y* are each equidistant, `~.Axes.imshow` can be a
+            faster alternative.
 
         Notes
         -----
-        kwargs can be used to control the
-        :class:`matplotlib.collections.QuadMesh` properties:
 
-        %(QuadMesh)s
+        **Masked arrays**
+
+        *C* may be a masked array. If ``C[i, j]`` is masked, the corresponding
+        quadrilateral will be transparent. Masking of *X* and *Y* is not
+        supported. Use `~.Axes.pcolor` if you need this functionality.
+
+        .. _axes-pcolormesh-grid-orientation:
+
+        **Grid orientation**
+
+        The grid orientation follows the standard matrix convention: An array
+        *C* with shape (nrows, ncolumns) is plotted with the column number as
+        *X* and the row number as *Y*.
+
+        .. _differences-pcolor-pcolormesh:
+
+        **Differences between pcolor() and pcolormesh()**
+
+        Both methods are used to create a pseudocolor plot of a 2-D array
+        using quadrilaterals.
+
+        The main difference lies in the created object and internal data
+        handling:
+        While `~.Axes.pcolor` returns a `.PolyCollection`, `~.Axes.pcolormesh`
+        returns a `.QuadMesh`. The latter is more specialized for the given
+        purpose and thus is faster. It should almost always be preferred.
+
+        There is also a slight difference in the handling of masked arrays.
+        Both `~.Axes.pcolor` and `~.Axes.pcolormesh` support masked arrays
+        for *C*. However, only `~.Axes.pcolor` supports masked arrays for *X*
+        and *Y*. The reason lies in the internal handling of the masked values.
+        `~.Axes.pcolor` leaves out the respective polygons from the
+        PolyCollection. `~.Axes.pcolormesh` sets the facecolor of the masked
+        elements to transparent. You can see the difference when using
+        edgecolors. While all edges are drawn irrespective of masking in a
+        QuadMesh, the edge between two adjacent masked quadrilaterals in
+        `~.Axes.pcolor` is not drawn as the corresponding polygons do not
+        exist in the PolyCollection.
+
+        Another difference is the support of Gouraud shading in
+        `~.Axes.pcolormesh`, which is not available with `~.Axes.pcolor`.
+
         """
         if not self._hold:
             self.cla()
