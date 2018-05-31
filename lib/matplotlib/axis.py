@@ -1644,7 +1644,7 @@ class Axis(artist.Artist):
         
         ticklabels = []
         if(rcParams['text.usetex'] and
-            r'\usepackage{amsmath}' in rcParams['text.latex.preamble']):
+            'amsmath' in rcParams['text.latex.preamble'][0]):
             # check text.usetex and amsmath package in text.latex.preamble
             # if True use amsmath package for the negative sign
             for t in get_labels:
