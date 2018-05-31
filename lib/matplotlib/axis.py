@@ -1649,6 +1649,8 @@ class Axis(artist.Artist):
             for t in get_labels:
                 # replace latex "-" sign with latex.amsmath "-" sign
                 ticklabels.append(t.replace('-','\\text{-}'))
+        else:
+            ticklabels = get_labels
 
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
