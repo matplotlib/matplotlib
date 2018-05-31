@@ -813,8 +813,7 @@ _obsolete_set = {'pgf.debug', 'plugins.directory', 'text.dvipnghack'}
 # do NOT include in _all_deprecated
 _deprecated_set = {'axes.hold',
                    'backend.qt4',
-                   'backend.qt5',
-                   'text.latex.unicode'}
+                   'backend.qt5'}
 
 _all_deprecated = set(itertools.chain(
     _deprecated_ignore_map, _deprecated_map, _obsolete_set))

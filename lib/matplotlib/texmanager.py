@@ -203,7 +203,8 @@ class TexManager(object):
 
         if rcParams['text.latex.unicode']:
             unicode_preamble = r"""
-\usepackage[utf8]{inputenc}"""
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}"""
         else:
             unicode_preamble = ''
 
@@ -254,7 +255,8 @@ class TexManager(object):
 
         if rcParams['text.latex.unicode']:
             unicode_preamble = r"""
-\usepackage[utf8]{inputenc}"""
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}"""
         else:
             unicode_preamble = ''
 
