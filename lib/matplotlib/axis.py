@@ -1641,8 +1641,6 @@ class Axis(artist.Artist):
             except AttributeError:
                 get_labels.append(t)
         # replace the ticklabels list with the processed one
-        ticklabels = get_labels
-        
         get_labels = []
         if(rcParams['text.usetex'] and
             r'\usepackage{amsmath}' in rcParams['text.latex.preamble']):
