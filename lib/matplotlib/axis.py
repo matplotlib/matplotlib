@@ -1641,7 +1641,14 @@ class Axis(artist.Artist):
             except AttributeError:
                 get_labels.append(t)
         # replace the ticklabels list with the processed one
-        ticklabels = get_labels
+        ticklabels = []
+        if(rcParams['text.usetex'] and
+            r'\usepackage{amsmath}' in rcParams['text.latex.preamble']):
+            # check text.usetex and amsmath package in text.latex.preamble
+            # if True use amsmath package for the negative sign
+            for t in get_labels:
+                # replace latex "-" sign with latex.amsmath "-" sign
+                ticklabels.append(t.replace('-','\\text{-}'))
 
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
