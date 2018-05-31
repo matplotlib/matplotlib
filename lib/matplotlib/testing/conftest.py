@@ -1,7 +1,10 @@
+import warnings
+
 import pytest
 
 import matplotlib
 from matplotlib import cbook
+from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 def pytest_configure(config):
@@ -41,7 +44,9 @@ def mpl_test_settings(request):
             # default backend prematurely.
             import matplotlib.pyplot as plt
             plt.switch_backend(backend)
-        matplotlib.style.use(style)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+            matplotlib.style.use(style)
         try:
             yield
         finally:

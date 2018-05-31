@@ -3,6 +3,7 @@ import warnings
 
 import matplotlib as mpl
 from matplotlib import cbook
+from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 def is_called_from_pytest():
@@ -38,10 +39,11 @@ def setup():
 
     mpl.use('Agg', warn=False)  # use Agg backend for these tests
 
-    # These settings *must* be hardcoded for running the comparison
-    # tests and are not necessarily the default values as specified in
-    # rcsetup.py
-    mpl.rcdefaults()  # Start with all defaults
+    # These settings *must* be hardcoded for running the comparison tests and
+    # are not necessarily the default values as specified in rcsetup.py
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+        mpl.rcdefaults()  # Start with all defaults
 
     set_font_settings_for_testing()
     set_reproducibility_for_testing()
