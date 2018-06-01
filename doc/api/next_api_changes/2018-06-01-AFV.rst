@@ -1,0 +1,32 @@
+Change of the (default) legend handler for Line2D instances
+-----------------------------------------------------------
+
+The default legend handler for Line2D instances (`.HandlerLine2D`) now
+consistently exposes all the attributes and methods related to the line
+marker (:ghissue:`11358`). This makes easy to change the marker features
+after instantiating a legend.
+
+.. code::
+
+  import matplotlib.pyplot as plt
+
+  fig, ax = plt.subplots()
+
+  ax.plot([1, 3, 2], marker="s", label="Line", color="pink", mec="red", ms=8)
+  leg = ax.legend()
+
+  leg.legendHandles[0].set_color("lightgray")
+  leg.legendHandles[0].set_mec("black")  # marker edge color
+
+The former legend handler for Line2D objects has been renamed
+`.HandlerLine2DCompound`. To revert to the behavior that was used before
+Matplotlib 3, one can use
+
+.. code::
+
+  import matplotlib.legend as mlegend
+  from matplotlib.legend_handler import HandlerLine2DCompound
+  from matplotlib.lines import Line2D
+
+  mlegend.Legend.update_default_handler_map({Line2D: HandlerLine2DCompound()})
+
