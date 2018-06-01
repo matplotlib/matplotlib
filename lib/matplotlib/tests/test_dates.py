@@ -9,6 +9,7 @@ import pytz
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
+from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.dates as mdates
 
 
@@ -239,7 +240,8 @@ def test_date_formatter_strftime():
                 minute=dt.minute,
                 second=dt.second,
                 microsecond=dt.microsecond))
-        assert formatter.strftime(dt) == formatted_date_str
+        with pytest.warns(MatplotlibDeprecationWarning):
+            assert formatter.strftime(dt) == formatted_date_str
 
         try:
             # Test strftime("%x") with the current locale.
@@ -247,8 +249,9 @@ def test_date_formatter_strftime():
             locale_formatter = mdates.DateFormatter("%x")
             locale_d_fmt = locale.nl_langinfo(locale.D_FMT)
             expanded_formatter = mdates.DateFormatter(locale_d_fmt)
-            assert locale_formatter.strftime(dt) == \
-                expanded_formatter.strftime(dt)
+            with pytest.warns(MatplotlibDeprecationWarning):
+                assert locale_formatter.strftime(dt) == \
+                    expanded_formatter.strftime(dt)
         except (ImportError, AttributeError):
             pass
 
