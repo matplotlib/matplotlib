@@ -801,8 +801,13 @@ class Line2D(Artist):
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
                 if markevery is not None:
+                    try:
+                        transform = self.axes.transAxes
+                    except AttributeError:
+                        # Typically in the case of a **figure** legend.
+                        transform = self.get_transform()
                     subsampled = _mark_every_path(markevery, tpath,
-                                                  affine, self.axes.transAxes)
+                                                  affine, transform)
                 else:
                     subsampled = tpath
 
