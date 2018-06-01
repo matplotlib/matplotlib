@@ -204,9 +204,10 @@ class HandlerNpointsYoffsets(HandlerNpoints):
         return ydata
 
 
-class HandlerLine2D(HandlerNpoints):
+class HandlerLine2DCompound(HandlerNpoints):
     """
-    Handler for `.Line2D` instances.
+    Original handler for `.Line2D` instances, that relies on combining
+    a line-only with a marker-only artist.
     """
     def __init__(self, marker_pad=0.3, numpoints=None, **kwargs):
         """
@@ -250,6 +251,62 @@ class HandlerLine2D(HandlerNpoints):
         legline_marker.set_transform(trans)
 
         return [legline, legline_marker]
+
+
+class HandlerLine2D(HandlerNpoints):
+    """
+    Handler for `.Line2D` instances.
+
+    A class similar to the original handler for `.Line2D` instances but
+    that uses a monolithic artist rather than using one artist for the
+    line and another one for the marker(s).  NB: the former handler, in
+    use before Matplotlib 3, is still available as `.HandlerLine2DCompound`.
+
+    """
+    def __init__(self, marker_pad=0.3, numpoints=None, **kw):
+        """
+        Parameters
+        ----------
+        marker_pad : float
+            Padding between points in legend entry.
+
+        numpoints : int
+            Number of points to show in legend entry.
+
+        Notes
+        -----
+        Any other keyword arguments are given to `HandlerNpoints`.
+        """
+        HandlerNpoints.__init__(self, marker_pad=marker_pad,
+                                numpoints=numpoints, **kw)
+
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize,
+                       trans):
+
+        xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
+                                             width, height, fontsize)
+
+        markevery = None
+        if self.get_numpoints(legend) == 1:
+            # Special case: one wants a single marker in the center
+            # and a line that extends on both sides. One will use a
+            # 3 points line, but only mark the #1 (i.e. middle) point.
+            xdata = np.linspace(xdata[0], xdata[-1], 3)
+            markevery = [1]
+
+        ydata = ((height - ydescent) / 2.) * np.ones(xdata.shape, float)
+        legline = Line2D(xdata, ydata, markevery=markevery)
+
+        self.update_prop(legline, orig_handle, legend)
+
+        if legend.markerscale != 1:
+            newsz = legline.get_markersize() * legend.markerscale
+            legline.set_markersize(newsz)
+
+        legline.set_transform(trans)
+
+        return [legline]
 
 
 class HandlerPatch(HandlerBase):
