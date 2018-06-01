@@ -5718,14 +5718,7 @@ class Axes(_AxesBase):
     def pcolorfast(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
                    vmax=None, **kwargs):
         """
-        pseudocolor plot of a 2-D array
-
-        Experimental; this is a pcolor-type method that
-        provides the fastest possible rendering with the Agg
-        backend, and that can handle any quadrilateral grid.
-        It supports only flat shading (no outlines), it lacks
-        support for log scaling of the axes, and it does not
-        have a pyplot wrapper.
+        Create a pseudocolor plot with a non-regular rectangular grid.
 
         Call signatures::
 
@@ -5734,68 +5727,93 @@ class Axes(_AxesBase):
           ax.pcolorfast(x, y, C, **kwargs)
           ax.pcolorfast(X, Y, C, **kwargs)
 
-        C is the 2D array of color values corresponding to quadrilateral
-        cells. Let (nr, nc) be its shape.  C may be a masked array.
+        This method is similar to ~.Axes.pcolor` and `~.Axes.pcolormesh`.
+        It's designed to provide the fastest pcolor-type plotting with the
+        Agg backend. To achieve this, it uses different algorithms internally
+        depending on the complexity of the input grid (regular rectangular,
+        non-regular rectangular or arbitrary  quadrilateral).
 
-        ``ax.pcolorfast(C, **kwargs)`` is equivalent to
-        ``ax.pcolorfast([0,nc], [0,nr], C, **kwargs)``
+        .. warning::
 
-        *xr*, *yr* specify the ranges of *x* and *y* corresponding to the
-        rectangular region bounding *C*.  If::
+           This method is experimental. Compared to `~.Axes.pcolor` or
+           `~.Axes.pcolormesh` it has some limitations:
 
-            xr = [x0, x1]
+           - It supports only flat shading (no outlines)
+           - It lacks support for log scaling of the axes.
+           - It does not have a have a pyplot wrapper.
 
-        and::
+        Parameters
+        ----------
+        C : array-like(M, N)
+            A scalar 2D array. The values will be color-mapped.
+            *C* may be a masked array.
 
-            yr = [y0,y1]
+        x, y : tuple or array-like
+            *X* and *Y* are used to specify the coordinates of the
+            quadilaterals. There are different ways to do this:
 
-        then *x* goes from *x0* to *x1* as the second index of *C* goes
-        from 0 to *nc*, etc.  (*x0*, *y0*) is the outermost corner of
-        cell (0,0), and (*x1*, *y1*) is the outermost corner of cell
-        (*nr*-1, *nc*-1).  All cells are rectangles of the same size.
-        This is the fastest version.
+            - Use tuples ``xr=(xmin, xmax)`` and ``yr=(ymin, ymax)`` to define
+              a *uniform rectiangular grid*.
 
-        *x*, *y* are monotonic 1D arrays of length *nc* +1 and *nr* +1,
-        respectively, giving the x and y boundaries of the cells.  Hence
-        the cells are rectangular but the grid may be nonuniform.  The
-        speed is intermediate.  (The grid is checked, and if found to be
-        uniform the fast version is used.)
+              The tuples define the outer edges of the grid. All individual
+              quadrilaterals will be of the same size. This is the fastest
+              version.
 
-        *X* and *Y* are 2D arrays with shape (*nr* +1, *nc* +1) that specify
-        the (x,y) coordinates of the corners of the colored
-        quadrilaterals; the quadrilateral for C[i,j] has corners at
-        (X[i,j],Y[i,j]), (X[i,j+1],Y[i,j+1]), (X[i+1,j],Y[i+1,j]),
-        (X[i+1,j+1],Y[i+1,j+1]).  The cells need not be rectangular.
-        This is the most general, but the slowest to render.  It may
-        produce faster and more compact output using ps, pdf, and
-        svg backends, however.
+            - Use 1D arrays *x*, *y* to specify a *non-uniform rectangular
+              grid*.
 
-        Note that the column index corresponds to the x-coordinate,
-        and the row index corresponds to y; for details, see
-        :ref:`Grid Orientation <axes-pcolor-grid-orientation>`.
+              In this case *x* and *y* have to be monotonic 1D arrays of length
+              *N+1* and *M+1*, specifying the x and y boundaries of the cells.
 
-        Optional keyword arguments:
+              The speed is intermediate. Note: The grid is checked, and if
+              found to be uniform the fast version is used.
 
-          *cmap*: [ *None* | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance from cm. If *None*,
-            use rc settings.
+            - Use 2D arrays *X*, *Y* if you need an *arbitrary quadrilateral
+              grid* (i.e. if the quadrilaterals are not rectangular).
 
-          *norm*: [ *None* | Normalize ]
-            A :class:`matplotlib.colors.Normalize` instance is used to scale
-            luminance data to 0,1. If *None*, defaults to normalize()
+              In this case *X* and *Y* are 2D arrays with shape (M, N),
+              specifying the x and y coordinates of the corners of the colored
+              quadrilaterals. See `~.Axes.pcolormesh` for details.
 
-          *vmin*/*vmax*: [ *None* | scalar ]
-            *vmin* and *vmax* are used in conjunction with norm to normalize
-            luminance data.  If either are *None*, the min and max
-            of the color array *C* is used.  If you pass a norm instance,
-            *vmin* and *vmax* will be *None*.
+              This is the most general, but the slowest to render.  It may
+              produce faster and more compact output using ps, pdf, and
+              svg backends, however.
 
-          *alpha*: ``0 <= scalar <= 1``  or *None*
-            the alpha blending value
+            Leaving out *x* and *y* defaults to ``xr=(0, N)``, ``yr=(O, M)``.
 
-        Return value is an image if a regular or rectangular grid
-        is specified, and a :class:`~matplotlib.collections.QuadMesh`
-        collection in the general quadrilateral case.
+        cmap : str or `~matplotlib.colors.Colormap`, optional
+            A Colormap instance or registered colormap name. The colormap
+            maps the *C* values to colors. Defaults to :rc:`image.cmap`.
+
+        norm : `~matplotlib.colors.Normalize`, optional
+            The Normalize instance scales the data values to the canonical
+            colormap range [0, 1] for mapping to colors. By default, the data
+            range is mapped to the colorbar range using linear scaling.
+
+        vmin, vmax : scalar, optional, default: None
+            The colorbar range. If *None*, suitable min/max values are
+            automatically chosen by the `~.Normalize` instance (defaults to
+            the respective min/max values of *C* in case of the default linear
+            scaling).
+
+        alpha : scalar, optional, default: None
+            The alpha blending value, between 0 (transparent) and 1 (opaque).
+
+        snap : bool, optional, default: False
+            Whether to snap the mesh to pixel boundaries.
+
+        Returns
+        -------
+        image : `.AxesImage` or `.PcolorImage` or `.QuadMesh`
+            The return type depends on the type of grid:
+
+            - `.AxesImage` for a regular rectangular grid.
+            - `.PcolorImage` for a non-regular rectangular grid.
+            - `.QuadMesh` for a non-rectangular grid.
+
+        Notes
+        -----
+        .. [notes section required to get data note injection right]
 
         """
         if norm is not None and not isinstance(norm, mcolors.Normalize):
