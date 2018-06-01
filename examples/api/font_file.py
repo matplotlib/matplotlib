@@ -27,3 +27,18 @@ ax.set_title('This is a special font: {}'.format(fname), fontproperties=prop)
 ax.set_xlabel('This is the default font')
 
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.font_manager.FontProperties
+matplotlib.axes.Axes.set_title

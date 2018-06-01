@@ -4,7 +4,10 @@ Modifying the coordinate formatter
 ==================================
 
 Modify the coordinate formatter to report the image "z"
-value of the nearest pixel given x and y
+value of the nearest pixel given x and y.
+This functionality is built in by default, but it
+is still useful to show how to customize the
+`~.axes.Axes.format_coord` function.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -32,3 +35,17 @@ def format_coord(x, y):
 
 ax.format_coord = format_coord
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.format_coord
+matplotlib.axes.Axes.imshow
