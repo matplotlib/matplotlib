@@ -3,6 +3,7 @@
 Whats New 0.99 Axes Grid
 ========================
 
+Create RGB composite images.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -50,3 +51,17 @@ ax.RGB.set_ylim(0.9, 10.6)
 
 plt.draw()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import mpl_toolkits
+mpl_toolkits.axes_grid1.axes_rgb.RGBAxes
+mpl_toolkits.axes_grid1.axes_rgb.RGBAxes.imshow_rgb

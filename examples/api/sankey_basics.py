@@ -100,3 +100,20 @@ plt.legend(loc='best')
 # orientation and ordering of the flows is mirrored.
 
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.sankey
+matplotlib.sankey.Sankey
+matplotlib.sankey.Sankey.add
+matplotlib.sankey.Sankey.finish

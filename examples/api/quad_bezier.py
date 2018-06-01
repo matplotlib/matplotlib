@@ -3,8 +3,8 @@
 Bezier Curve
 ============
 
-This example showcases the PathPatch object to create a Bezier polycurve path
-patch.
+This example showcases the `~.patches.PathPatch` object to create a Bezier
+polycurve path patch.
 """
 
 import matplotlib.path as mpath
@@ -24,3 +24,20 @@ ax.plot([0.75], [0.25], "ro")
 ax.set_title('The red point should be on the path')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.path
+matplotlib.path.Path
+matplotlib.patches
+matplotlib.patches.PathPatch
+matplotlib.axes.Axes.add_patch
