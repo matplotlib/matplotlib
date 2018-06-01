@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
+import matplotlib.lines as mlines
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
 from matplotlib import rc_context
@@ -861,3 +862,14 @@ def test_legend_text_axes():
 
     assert leg.axes is ax
     assert leg.get_texts()[0].axes is ax
+
+
+def test_handlerline2d():
+    '''Test consistency of the marker for the (monolithic) Line2D legend
+    handler (see #11357).
+    '''
+    fig, ax = plt.subplots()
+    ax.scatter([0, 1], [0, 1], marker="v")
+    handles = [mlines.Line2D([0], [0], marker="v")]
+    leg = ax.legend(handles, ["Aardvark"], numpoints=1)
+    assert handles[0].get_marker() == leg.legendHandles[0].get_marker()
