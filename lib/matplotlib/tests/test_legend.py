@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
+import matplotlib.lines as mlines
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
 from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
@@ -539,3 +540,14 @@ def test_draggable():
     with pytest.warns(MatplotlibDeprecationWarning):
         legend.draggable()
     assert not legend.get_draggable()
+
+
+def test_handlerline2d():
+    '''Test consistency of the marker for the (monolithic) Line2D legend
+    handler (see #11357).
+    '''
+    fig, ax = plt.subplots()
+    ax.scatter([0, 1], [0, 1], marker="v")
+    handles = [mlines.Line2D([0], [0], marker="v")]
+    leg = ax.legend(handles, ["Aardvark"], numpoints=1)
+    assert handles[0].get_marker() == leg.legendHandles[0].get_marker()
