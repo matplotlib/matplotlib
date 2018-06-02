@@ -1723,7 +1723,7 @@ class FuncAnimation(TimedAnimation):
 
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
-        self._drawn_artists = self._func(framedata, *self._args)
+        self._drawn_artists = sorted(self._func(framedata, *self._args), key=lambda x: x.get_zorder())
         if self._blit:
             if self._drawn_artists is None:
                 raise RuntimeError('The animation function must return a '
