@@ -1607,8 +1607,10 @@ class FuncAnimation(TimedAnimation):
        of frames is completed.  Defaults to ``True``.
 
     blit : bool, optional
-       Controls whether blitting is used to optimize drawing.  Defaults
-       to ``False``.
+       Controls whether blitting is used to optimize drawing. Note: when using
+       blitting any animated artists will be drawn according to their zorder.
+       However, they will be drawn on top of any previous artists, regardless
+       of their zorder.  Defaults to ``False``.
 
     '''
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
