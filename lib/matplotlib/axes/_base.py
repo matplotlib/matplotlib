@@ -999,7 +999,6 @@ class _AxesBase(martist.Artist):
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry()
 
-
         if self._sharex is not None:
             # major and minor are axis.Ticker class instances with
             # locator and formatter attributes
