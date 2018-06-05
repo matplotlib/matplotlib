@@ -25,7 +25,8 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``mathtext.unichr_safe`` (use ``chr`` instead),
 - ``table.Table.get_child_artists`` (use ``get_children`` instead),
 - ``testing.compare.ImageComparisonTest``, ``testing.compare.compare_float``,
-- ``testing.decorators.skip_if_command_unavailable``.
+- ``testing.decorators.CleanupTest``,
+  ``testing.decorators.skip_if_command_unavailable``,
 - ``FigureCanvasQT.keyAutoRepeat`` (directly check
   ``event.guiEvent.isAutoRepeat()`` in the event handler to decide whether to
   handle autorepeated key presses).
