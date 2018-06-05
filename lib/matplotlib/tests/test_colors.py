@@ -212,6 +212,12 @@ def test_Normalize():
     assert 0 < norm(1 + 50 * eps) < 1
 
 
+def test_Normalize_data():
+    vals = np.linspace(-1, 2, 5)
+    norm = mcolors.Normalize(data=vals)
+    assert_array_equal([norm.vmin, norm.vmax], [vals.min(), vals.max()])
+
+
 def test_SymLogNorm():
     """
     Test SymLogNorm behavior

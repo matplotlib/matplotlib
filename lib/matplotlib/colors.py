@@ -859,7 +859,7 @@ class Normalize(object):
     the ``[0.0, 1.0]`` interval.
 
     """
-    def __init__(self, vmin=None, vmax=None, clip=False):
+    def __init__(self, vmin=None, vmax=None, clip=False, *, data=None):
         """
         If *vmin* or *vmax* is not given, they are initialized from the
         minimum and maximum value respectively of the first input
@@ -876,10 +876,16 @@ class Normalize(object):
         the over, under, and masked colors in the colormap, so it is
         likely to lead to surprises; therefore the default is
         *clip* = *False*.
+
+        You can pass an array-like object to *data*, e.g. a list of
+        numpy arrays. If *vmin* or *vmax* are *None*, the respective min/max
+        of the array is taken as *vmin* / *vmax*.
         """
         self.vmin = _sanitize_extrema(vmin)
         self.vmax = _sanitize_extrema(vmax)
         self.clip = clip
+        if data is not None:
+            self.autoscale_None(data)
 
     @staticmethod
     def process_value(value):
@@ -1061,8 +1067,8 @@ class SymLogNorm(Normalize):
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
     """
-    def __init__(self,  linthresh, linscale=1.0,
-                 vmin=None, vmax=None, clip=False):
+    def __init__(self, linthresh, linscale=1.0,
+                 vmin=None, vmax=None, clip=False, *, data=None):
         """
         *linthresh*:
         The range within which the plot is linear (to
@@ -1076,11 +1082,15 @@ class SymLogNorm(Normalize):
         default), the space used for the positive and negative
         halves of the linear range will be equal to one decade in
         the logarithmic range. Defaults to 1.
+
+        You can pass an array-like object to *data*, e.g. a list of
+        numpy arrays. If *vmin* or *vmax* are *None*, the respective min/max
+        of the array is taken as *vmin* / *vmax*.
         """
-        Normalize.__init__(self, vmin, vmax, clip)
+        Normalize.__init__(self, vmin, vmax, clip, data=data)
         self.linthresh = float(linthresh)
         self._linscale_adj = (linscale / (1.0 - np.e ** -1))
-        if vmin is not None and vmax is not None:
+        if self.vmin is not None and self.vmax is not None:
             self._transform_vmin_vmax()
 
     def __call__(self, value, clip=None):
@@ -1173,8 +1183,8 @@ class PowerNorm(Normalize):
     Normalize a given value to the ``[0, 1]`` interval with a power-law
     scaling. This will clip any negative data points to 0.
     """
-    def __init__(self, gamma, vmin=None, vmax=None, clip=False):
-        Normalize.__init__(self, vmin, vmax, clip)
+    def __init__(self, gamma, vmin=None, vmax=None, clip=False, *, data=None):
+        Normalize.__init__(self, vmin, vmax, clip, data=data)
         self.gamma = gamma
 
     def __call__(self, value, clip=None):

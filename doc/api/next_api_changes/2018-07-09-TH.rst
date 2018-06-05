@@ -1,0 +1,7 @@
+Added data argument to `.Normalize`
+-----------------------------------
+
+`.Normalize` got a data keyword argument to easy generation of normalized
+plots. `Normalize(data=d)` is equivalent to
+`Normalize(vmin=np.min(d), vmax=np.max(d))`. For an example see
+:doc:`examples/images_contours_and_fields/multi_image.py`.
