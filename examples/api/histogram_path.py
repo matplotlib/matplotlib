@@ -15,9 +15,11 @@ objects.
 """
 
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.path as path
+
 
 fig, ax = plt.subplots()
 
@@ -65,14 +67,14 @@ verts = np.zeros((nverts, 2))
 codes = np.ones(nverts, int) * path.Path.LINETO
 codes[0::5] = path.Path.MOVETO
 codes[4::5] = path.Path.CLOSEPOLY
-verts[0::5,0] = left
-verts[0::5,1] = bottom
-verts[1::5,0] = left
-verts[1::5,1] = top
-verts[2::5,0] = right
-verts[2::5,1] = top
-verts[3::5,0] = right
-verts[3::5,1] = bottom
+verts[0::5, 0] = left
+verts[0::5, 1] = bottom
+verts[1::5, 0] = left
+verts[1::5, 1] = top
+verts[2::5, 0] = right
+verts[2::5, 1] = top
+verts[3::5, 0] = right
+verts[3::5, 1] = bottom
 
 barpath = path.Path(verts, codes)
 
@@ -86,7 +88,6 @@ barpath = path.Path(verts, codes)
 # The use of the following functions, methods, classes and modules is shown
 # in this example:
 
-import matplotlib
 matplotlib.patches
 matplotlib.patches.PathPatch
 matplotlib.path
@@ -95,6 +96,6 @@ matplotlib.path.Path.make_compound_path_from_polys
 matplotlib.axes.Axes.add_patch
 matplotlib.collections.PathCollection
 
-# This example shows an alternative to 
+# This example shows an alternative to
 matplotlib.collections.PolyCollection
 matplotlib.axes.Axes.hist
