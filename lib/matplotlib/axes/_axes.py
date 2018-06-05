@@ -5044,7 +5044,7 @@ class Axes(_AxesBase):
               that the data fit in the axes. In general, this will result in
               non-square pixels.
 
-            Defaults to :rc:`image.aspect`.
+            If not given, use :rc:`image.aspect` (default: 'equal').
 
         interpolation : str, optional
             The interpolation method used. If *None*
@@ -7290,64 +7290,88 @@ class Axes(_AxesBase):
 
         return spec, freqs, t, im
 
+    @docstring.dedent_interpd
     def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal', origin="upper", **kwargs):
         """
-        Plot the sparsity pattern on a 2-D array.
+        Plot the sparsity pattern of a 2D array.
 
-        ``spy(Z)`` plots the sparsity pattern of the 2-D array *Z*.
+        This visualizes the non-zero values of the array.
+
+        Two plotting styles are available: image and marker. Both
+        are available for full arrays, but only the marker style
+        works for `scipy.sparse.spmatrix` instances.
+
+        **Image style**
+
+        If *marker* and *markersize* are *None*, `~.Axes.imshow` is used. Any
+        extra remaining kwargs are passed to this method.
+
+        **Marker style**
+
+        If *Z* is a `scipy.sparse.spmatrix` or *marker* or *markersize* are
+        *None*, a `~matplotlib.lines.Line2D` object will be returned with
+        the value of marker determining the marker type, and any
+        remaining kwargs passed to `~.Axes.plot`.
 
         Parameters
         ----------
-
-        Z : sparse array (n, m)
+        Z : array-like (M, N)
             The array to be plotted.
 
-        precision : float, optional, default: 0
-            If *precision* is 0, any non-zero value will be plotted; else,
+        precision : float or 'present', optional, default: 0
+            If *precision* is 0, any non-zero value will be plotted. Otherwise,
             values of :math:`|Z| > precision` will be plotted.
 
-            For :class:`scipy.sparse.spmatrix` instances, there is a special
-            case: if *precision* is 'present', any value present in the array
+            For :class:`scipy.sparse.spmatrix` instances, you can also
+            pass 'present'. In this case any value present in the array
             will be plotted, even if it is identically zero.
 
-        origin : ["upper", "lower"], optional, default: "upper"
+        origin : {'upper', 'lower'}, optional
             Place the [0,0] index of the array in the upper left or lower left
-            corner of the axes.
-
-        aspect : ['auto' | 'equal' | scalar], optional, default: "equal"
-
-            If 'equal', and `extent` is None, changes the axes aspect ratio to
-            match that of the image. If `extent` is not `None`, the axes
-            aspect ratio is changed to match that of the extent.
+            corner of the axes. The convention 'upper' is typically used for
+            matrices and images.
+            If not given, :rc:`image.origin` is used, defaulting to 'upper'.
 
 
-            If 'auto', changes the image aspect ratio to match that of the
-            axes.
+        aspect : {'equal', 'auto', None} or float, optional
+            Controls the aspect ratio of the axes. The aspect is of particular
+            relevance for images since it may distort the image, i.e. pixel
+            will not be square.
 
-            If None, default to rc ``image.aspect`` value.
+            This parameter is a shortcut for explicitly calling
+            `.Axes.set_aspect`. See there for further details.
 
-        Two plotting styles are available: image or marker. Both
-        are available for full arrays, but only the marker style
-        works for :class:`scipy.sparse.spmatrix` instances.
+            - 'equal': Ensures an aspect ratio of 1. Pixels will be square.
+            - 'auto': The axes is kept fixed and the aspect is adjusted so
+              that the data fit in the axes. In general, this will result in
+              non-square pixels.
+            - *None*: Use :rc:`image.aspect` (default: 'equal').
 
-        If *marker* and *markersize* are *None*, an image will be
-        returned and any remaining kwargs are passed to
-        :func:`~matplotlib.pyplot.imshow`; else, a
-        :class:`~matplotlib.lines.Line2D` object will be returned with
-        the value of marker determining the marker type, and any
-        remaining kwargs passed to the
-        :meth:`~matplotlib.axes.Axes.plot` method.
+            Default: 'equal'
 
-        If *marker* and *markersize* are *None*, useful kwargs include:
+        Returns
+        -------
+        ret : `~matplotlib.image.AxesImage` or `.Line2D`
+            The return type depends on the plotting style (see above).
 
-        * *cmap*
-        * *alpha*
+        Other Parameters
+        ----------------
+        **kwargs
+            The supported additional parameters depend on the plotting style.
 
-        See also
-        --------
-        imshow : for image options.
-        plot : for plotting options
+            For the image style, you can pass the following additional
+            parameters of `~.Axes.imshow`:
+
+            - *cmap*
+            - *alpha*
+            - *url*
+            - any `.Artist` properties (passed on to the `.AxesImage`)
+
+            For the marker style, you can pass any `.Line2D` property except
+            for *linestyle*:
+
+            %(Line2D)s
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
