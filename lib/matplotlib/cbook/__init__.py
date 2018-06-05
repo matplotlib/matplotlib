@@ -466,7 +466,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
             flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = io.open(fname, flag, encoding=encoding)
+            fh = open(fname, flag, encoding=encoding)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
