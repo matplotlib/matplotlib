@@ -426,43 +426,46 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         `num`.
 
     figsize : tuple of integers, optional, default: None
-        width, height in inches. If not provided, defaults to rc
-        figure.figsize.
+        width, height in inches. If not provided, defaults to
+        :rc:`figure.figsize` = ``[6.4, 4.8]``.
 
     dpi : integer, optional, default: None
-        resolution of the figure. If not provided, defaults to rc figure.dpi.
+        resolution of the figure. If not provided, defaults to
+        :rc:`figure.dpi` = ``100``.
 
     facecolor :
-        the background color. If not provided, defaults to rc figure.facecolor.
+        the background color. If not provided, defaults to
+        :rc:`figure.facecolor` = ``'w'``.
 
     edgecolor :
-        the border color. If not provided, defaults to rc figure.edgecolor.
+        the border color. If not provided, defaults to
+        :rc:`figure.edgecolor` = ``'w'``.
 
     frameon : bool, optional, default: True
         If False, suppress drawing the figure frame.
 
-    FigureClass : class derived from matplotlib.figure.Figure
-        Optionally use a custom Figure instance.
+    FigureClass : subclass of `~matplotlib.figure.Figure`
+        Optionally use a custom `.Figure` instance.
 
     clear : bool, optional, default: False
         If True and the figure already exists, then it is cleared.
 
     Returns
     -------
-    figure : Figure
-        The Figure instance returned will also be passed to new_figure_manager
-        in the backends, which allows to hook custom Figure classes into the
-        pylab interface. Additional kwargs will be passed to the figure init
-        function.
+    figure : `~matplotlib.figure.Figure`
+        The `.Figure` instance returned will also be passed to new_figure_manager
+        in the backends, which allows to hook custom `.Figure` classes into the
+        pyplot interface. Additional kwargs will be passed to the `.Figure`
+        init function.
 
     Notes
     -----
-    If you are creating many figures, make sure you explicitly call "close"
-    on the figures you are not using, because this will enable pylab
-    to properly clean up the memory.
+    If you are creating many figures, make sure you explicitly call
+    :func:`.pyplot.close` on the figures you are not using, because this will
+    enable pyplot to properly clean up the memory.
 
-    rcParams defines the default values, which can be modified in the
-    matplotlibrc file.
+    `~matplotlib.rcParams` defines the default values, which can be modified
+    in the matplotlibrc file.
     """
 
     if figsize is None:
@@ -1020,7 +1023,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     squeeze : bool, optional, default: True
         - If True, extra dimensions are squeezed out from the returned
-          array of Axes:
+          array of `~matplotlib.axes.Axes`:
 
             - if only one subplot is constructed (nrows=ncols=1), the
               resulting single Axes object is returned as a scalar.
@@ -1038,20 +1041,19 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         subplot.
 
     gridspec_kw : dict, optional
-        Dict with keywords passed to the
-        :class:`~matplotlib.gridspec.GridSpec` constructor used to create the
-        grid the subplots are placed on.
+        Dict with keywords passed to the `~matplotlib.gridspec.GridSpec`
+        constructor used to create the grid the subplots are placed on.
 
     **fig_kw :
-        All additional keyword arguments are passed to the :func:`figure` call.
+        All additional keyword arguments are passed to the
+        :func:`.pyplot.figure` call.
 
     Returns
     -------
-    fig : :class:`matplotlib.figure.Figure` object
+    fig : `~matplotlib.figure.Figure`
 
     ax : Axes object or array of Axes objects.
-
-        ax can be either a single :class:`matplotlib.axes.Axes` object or an
+        *ax* can be either a single `~matplotlib.axes.Axes` object or an
         array of Axes objects if more than one subplot was created.  The
         dimensions of the resulting array can be controlled with the squeeze
         keyword, see above.
@@ -1098,10 +1100,17 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     >>> plt.subplots(2, 2, sharex=True, sharey=True)
 
+    Creates figure number 10 with a single subplot
+    and clears it if it already exists.
+
+    >>> fig, ax=plt.subplots(num=10, clear=True)
+
     See Also
     --------
-    figure
-    subplot
+    :func:`.pyplot.figure`
+    :func:`.pyplot.subplot`
+    :meth:`.Figure.add_subplot`
+    :meth:`.Figure.subplots`
     """
     fig = figure(**fig_kw)
     axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,

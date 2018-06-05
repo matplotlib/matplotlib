@@ -1254,10 +1254,13 @@ default: 'top'
         """
         Add a set of subplots to this figure.
 
+        This utility wrapper makes it convenient to create common layouts of
+        subplots in a single call.
+
         Parameters
         ----------
-        nrows, ncols : int, default: 1
-            Number of rows/cols of the subplot grid.
+        nrows, ncols : int, optional, default: 1
+            Number of rows/columns of the subplot grid.
 
         sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
             Controls sharing of properties among x (`sharex`) or y (`sharey`)
@@ -1291,25 +1294,27 @@ default: 'top'
               is always a 2D array containing Axes instances, even if it ends
               up being 1x1.
 
-        subplot_kw : dict, default: {}
+        subplot_kw : dict, optional
             Dict with keywords passed to the
             :meth:`~matplotlib.figure.Figure.add_subplot` call used to create
-            each subplots.
+            each subplot.
 
-        gridspec_kw : dict, default: {}
+        gridspec_kw : dict, optional
             Dict with keywords passed to the
-            :class:`~matplotlib.gridspec.GridSpec` constructor used to create
+            `~matplotlib.gridspec.GridSpec` constructor used to create
             the grid the subplots are placed on.
 
         Returns
         -------
-        ax : single Axes object or array of Axes objects
-            The added axes.  The dimensions of the resulting array can be
-            controlled with the squeeze keyword, see above.
+        ax : Axes object or array of Axes objects.
+            *ax* can be either a single `~matplotlib.axes.Axes` object or
+            an array of Axes objects if more than one subplot was created. The
+            dimensions of the resulting array can be controlled with the
+            squeeze keyword, see above.
 
         See Also
         --------
-        pyplot.subplots : pyplot API; docstring includes examples.
+        :func:`.pyplot.subplots`: docstring includes examples.
         """
 
         if isinstance(sharex, bool):
