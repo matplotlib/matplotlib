@@ -1180,10 +1180,10 @@ class Axis(artist.Artist):
 
         for tick in ticks_to_draw:
             if tick.label1On and tick.label1.get_usetex():
-                lb = tick.label1._text.replace('-', '\\operatorname{-}')
+                lb = tick.label1._text.replace('-', '\operatorname{-}')
                 tick.label1._text = lb
             if tick.label2On and tick.label2.get_usetex():
-                lb = tick.label2._text.replace('-', '\\operatorname{-}')
+                lb = tick.label2._text.replace('-', '\operatorname{-}')
                 tick.label2._text = lb
             tick.draw(renderer)
 
