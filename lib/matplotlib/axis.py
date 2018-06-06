@@ -1179,6 +1179,12 @@ class Axis(artist.Artist):
                                                                 renderer)
 
         for tick in ticks_to_draw:
+            if tick.label1On and tick.label1.get_usetex():
+                lb = tick.label1._text.replace('-', '\\operatorname{-}')
+                tick.label1._text = lb
+            if tick.label2On and tick.label2.get_usetex():
+                lb = tick.label2._text.replace('-', '\\operatorname{-}')
+                tick.label2._text = lb
             tick.draw(renderer)
 
         # scale up the axis label box to also find the neighbors, not
@@ -1642,19 +1648,6 @@ class Axis(artist.Artist):
                 get_labels.append(t)
         # replace the ticklabels list with the processed one
         ticklabels = get_labels
-
-        get_labels = []
-        if(rcParams['text.usetex'] and
-            len(rcParams['text.latex.preamble']) != 0):
-            for presemble in rcParams['text.latex.preamble']:
-                if('usepackage{'  in presemble and 'amsmath' in presemble):
-                    # check text.usetex and amsmath package 
-                    # if True use amsmath package for the negative sign
-                    for t in ticklabels:
-                        # replace latex "-" sign with latex.amsmath "-" sign
-                        get_labels.append(t.replace('-','\\text{-}'))
-                    ticklabels = get_labels
-                    break
 
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
