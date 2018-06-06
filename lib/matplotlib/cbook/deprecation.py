@@ -24,16 +24,16 @@ mplDeprecation = MatplotlibDeprecationWarning
 def _generate_deprecation_warning(
         since, message='', name='', alternative='', pending=False,
         obj_type='attribute', addendum='', *, removal=''):
-
-    if removal == "":
-        removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
-            since, "two minor releases later")
-    elif removal:
-        if pending:
+    if pending:
+        if removal:
             raise ValueError(
                 "A pending deprecation cannot have a scheduled removal")
-        removal = "in {}".format(removal)
-
+    else:
+        if removal:
+            removal = "in {}".format(removal)
+        else:
+            removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
+                since, "two minor releases later")
     if not message:
         message = (
             "\nThe %(name)s %(obj_type)s"
@@ -46,10 +46,8 @@ def _generate_deprecation_warning(
             + "."
             + (" Use %(alternative)s instead." if alternative else "")
             + (" %(addendum)s" if addendum else ""))
-
     warning_cls = (PendingDeprecationWarning if pending
                    else MatplotlibDeprecationWarning)
-
     return warning_cls(message % dict(
         func=name, name=name, obj_type=obj_type, since=since, removal=removal,
         alternative=alternative, addendum=addendum))
