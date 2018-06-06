@@ -197,18 +197,23 @@ class Axes3D(Axes):
 
     def _init_axis(self):
         '''Init 3D axes; overrides creation of regular X/Y axes'''
-        self.w_xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
-                                    self.xy_dataLim.intervalx, self)
-        self.xaxis = self.w_xaxis
-        self.w_yaxis = axis3d.YAxis('y', self.xy_viewLim.intervaly,
-                                    self.xy_dataLim.intervaly, self)
-        self.yaxis = self.w_yaxis
-        self.w_zaxis = axis3d.ZAxis('z', self.zz_viewLim.intervalx,
-                                    self.zz_dataLim.intervalx, self)
-        self.zaxis = self.w_zaxis
+        self.xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
+                                  self.xy_dataLim.intervalx, self)
+        self.yaxis = axis3d.YAxis('y', self.xy_viewLim.intervaly,
+                                  self.xy_dataLim.intervaly, self)
+        self.zaxis = axis3d.ZAxis('z', self.zz_viewLim.intervalx,
+                                  self.zz_dataLim.intervalx, self)
+        # Provide old aliases
+        self.w_xaxis = self.xaxis
+        self.w_yaxis = self.yaxis
+        self.w_zaxis = self.zaxis
 
         for ax in self.xaxis, self.yaxis, self.zaxis:
             ax.init3d()
+
+    def get_zaxis(self):
+        '''Return the ``ZAxis`` (`~.axis3d.Axis`) instance.'''
+        return self.zaxis
 
     def _get_axis_list(self):
         return super()._get_axis_list() + (self.zaxis, )
@@ -2446,8 +2451,7 @@ class Axes3D(Axes):
               6. +X
 
         zsort : str, optional
-            The z-axis sorting scheme passed onto
-            :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+            The z-axis sorting scheme passed onto `~.art3d.Poly3DCollection`
 
         shade : bool, optional (default = True)
             When true, this shades the dark sides of the bars (relative
@@ -2455,11 +2459,11 @@ class Axes3D(Axes):
 
         **kwargs
             Any additional keyword arguments are passed onto
-            :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+            `~.art3d.Poly3DCollection`.
 
         Returns
         -------
-        collection : Poly3DCollection
+        collection : `~.art3d.Poly3DCollection`
             A collection of three dimensional polygons representing
             the bars.
         """
