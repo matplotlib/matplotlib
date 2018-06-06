@@ -10,6 +10,9 @@ subplot(s) fits in to the figure area. This is an experimental
 feature and may not work for some cases. It only checks the extents
 of ticklabels, axis labels, and titles.
 
+An alternative to *tight_layout* is 
+:doc:`constrained_layout</tutorials/intermediate/constrainedlayout_guide>`.
+
 
 Simple Example
 ==============

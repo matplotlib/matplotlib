@@ -91,6 +91,8 @@ with plt.style.context(('dark_background')):
 plt.show()
 
 ###############################################################################
+# .. _matplotlib-rcparams:
+#
 # matplotlib rcParams
 # ===================
 #
