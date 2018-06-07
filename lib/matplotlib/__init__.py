@@ -216,13 +216,6 @@ if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
 
-def _is_writable_dir(p):
-    """
-    p is a string pointing to a putative writable dir -- return True p
-    is such a string, else False
-    """
-    return os.access(p, os.W_OK) and os.path.isdir(p)
-
 _verbose_msg = """\
 matplotlib.verbose is deprecated;
 Command line argument --verbose-LEVEL is deprecated.
@@ -552,34 +545,27 @@ def checkdep_usetex(s):
 
 
 def _get_home():
-    """Find user's home directory if possible.
-    Otherwise, returns None.
-
-    :see:
-        http://mail.python.org/pipermail/python-list/2005-February/325395.html
     """
-    path = os.path.expanduser("~")
-    if os.path.isdir(path):
-        return path
-    for evar in ('HOME', 'USERPROFILE', 'TMP'):
-        path = os.environ.get(evar)
-        if path is not None and os.path.isdir(path):
-            return path
-    return None
+    Return the user's home directory.
+
+    If the user's home directory cannot be found, return None.
+    """
+    try:
+        return str(Path.home())
+    except Exception:
+        return None
+
+get_home = _wrap('$HOME=%s', _get_home, always=False)
 
 
 def _create_tmp_config_dir():
     """
-    If the config directory can not be created, create a temporary
-    directory.
+    If the config directory can not be created, create a temporary directory.
     """
     configdir = os.environ['MPLCONFIGDIR'] = (
         tempfile.mkdtemp(prefix='matplotlib-'))
     atexit.register(shutil.rmtree, configdir)
     return configdir
-
-
-get_home = _wrap('$HOME=%s', _get_home, always=False)
 
 
 def _get_xdg_config_dir():
@@ -588,12 +574,10 @@ def _get_xdg_config_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    path = os.environ.get('XDG_CONFIG_HOME')
-    if path is None:
-        path = get_home()
-        if path is not None:
-            path = os.path.join(path, '.config')
-    return path
+    return (os.environ.get('XDG_CONFIG_HOME')
+            or (Path(get_home(), ".config")
+                if get_home()
+                else None))
 
 
 def _get_xdg_cache_dir():
@@ -602,43 +586,31 @@ def _get_xdg_cache_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    path = os.environ.get('XDG_CACHE_HOME')
-    if path is None:
-        path = get_home()
-        if path is not None:
-            path = os.path.join(path, '.cache')
-    return path
+    return (os.environ.get('XDG_CACHE_HOME')
+            or (Path(get_home(), ".cache")
+                if get_home()
+                else None))
 
 
 def _get_config_or_cache_dir(xdg_base):
     configdir = os.environ.get('MPLCONFIGDIR')
-    if configdir is not None:
-        configdir = os.path.abspath(configdir)
-        Path(configdir).mkdir(parents=True, exist_ok=True)
-        if not _is_writable_dir(configdir):
-            return _create_tmp_config_dir()
-        return configdir
+    configdir = (
+        Path(configdir).resolve()
+        if configdir
+        else Path(xdg_base, "matplotlib")
+        if sys.platform.startswith(('linux', 'freebsd')) and xdg_base
+        else Path(get_home(), ".matplotlib")
+        if get_home()
+        else None)
 
-    p = None
-    h = get_home()
-    if h is not None:
-        p = os.path.join(h, '.matplotlib')
-    if sys.platform.startswith(('linux', 'freebsd')):
-        p = None
-        if xdg_base is not None:
-            p = os.path.join(xdg_base, 'matplotlib')
-
-    if p is not None:
-        if os.path.exists(p):
-            if _is_writable_dir(p):
-                return p
+    if configdir:
+        try:
+            configdir.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            pass
         else:
-            try:
-                Path(p).mkdir(parents=True, exist_ok=True)
-            except OSError:
-                pass
-            else:
-                return p
+            if os.access(str(configdir), os.W_OK) and configdir.is_dir():
+                return str(configdir)
 
     return _create_tmp_config_dir()
 
@@ -650,12 +622,9 @@ def _get_configdir():
     The directory is chosen as follows:
 
     1. If the MPLCONFIGDIR environment variable is supplied, choose that.
-
     2a. On Linux, follow the XDG specification and look first in
         `$XDG_CONFIG_HOME`, if defined, or `$HOME/.config`.
-
     2b. On other platforms, choose `$HOME/.matplotlib`.
-
     3. If the chosen directory exists and is writable, use that as the
        configuration directory.
     4. If possible, create a temporary directory, and use it as the
