@@ -894,8 +894,7 @@ class Artist(object):
         Parameters
         ----------
         s : object
-            *s* will be converted to a string by calling `str` (`unicode` on
-            Py2).
+            *s* will be converted to a string by calling `str`.
 
             .. ACCEPTS: object
         """
