@@ -3930,7 +3930,7 @@ class Axes(_AxesBase):
 
         # Convenience vars to track shape mismatch *and* conversion failures.
         valid_shape = True  # will be put to the test!
-        n_elem = 0  # used only for (some) exceptions
+        n_elem = -1  # used only for (some) exceptions
 
         if c_none or co is not None:
             c_array = None
@@ -3960,8 +3960,9 @@ class Axes(_AxesBase):
             try:  # Then is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
                 n_elem = colors.shape[0]
-                if colors.shape[0] not in (1, x.size, y.size):
+                if colors.shape[0] not in (0, 1, x.size, y.size):
                     # NB: remember that a single color is also acceptable.
+                    # Besides *colors* will be an empty array if c == 'none'.
                     valid_shape = False
                     raise ValueError
             except ValueError:
