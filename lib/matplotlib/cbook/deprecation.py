@@ -75,7 +75,7 @@ def warn_deprecated(
 
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
-        DeprecationWarning.
+        MatplotlibDeprecationWarning.
 
     removal : str, optional
         The expected removal version.  With the default (an empty string), a
@@ -100,7 +100,8 @@ def warn_deprecated(
     """
     message = _generate_deprecation_message(
         since, message, name, alternative, pending, obj_type, removal=removal)
-    warnings.warn(message, mplDeprecation, stacklevel=2)
+    warn_cls = PendingDeprecationWarning if pending else mplDeprecation
+    warnings.warn(message, warn_cls, stacklevel=2)
 
 
 def deprecated(since, message='', name='', alternative='', pending=False,
@@ -140,7 +141,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
-        DeprecationWarning.
+        MatplotlibDeprecationWarning.
 
     removal : str, optional
         The expected removal version.  With the default (an empty string), a
@@ -205,7 +206,8 @@ def deprecated(since, message='', name='', alternative='', pending=False,
             removal=removal)
 
         def wrapper(*args, **kwargs):
-            warnings.warn(message, mplDeprecation, stacklevel=2)
+            warn_cls = PendingDeprecationWarning if pending else mplDeprecation
+            warnings.warn(message, warn_cls, stacklevel=2)
             return func(*args, **kwargs)
 
         old_doc = textwrap.dedent(old_doc or '').strip('\n')
