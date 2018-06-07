@@ -295,7 +295,7 @@ class HandlerLine2D(HandlerNpoints):
             xdata = np.linspace(xdata[0], xdata[-1], 3)
             markevery = [1]
 
-        ydata = ((height - ydescent) / 2.) * np.ones(xdata.shape, float)
+        ydata = np.full_like(xdata, (height - ydescent) / 2)
         legline = Line2D(xdata, ydata, markevery=markevery)
 
         self.update_prop(legline, orig_handle, legend)
