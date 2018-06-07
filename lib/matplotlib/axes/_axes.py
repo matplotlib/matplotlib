@@ -1332,7 +1332,7 @@ class Axes(_AxesBase):
     # Uses a custom implementation of data-kwarg handling in
     # _process_plot_var_args.
     @docstring.dedent_interpd
-    def plot(self, *args, scalex=True, scaley=True, **kwargs):
+    def plot(self, *args, scalex=True, scaley=True, data=None, **kwargs):
         """
         Plot y versus x as lines and/or markers.
 
@@ -1557,7 +1557,7 @@ class Axes(_AxesBase):
 
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
-        lines = [*self._get_lines(*args, **kwargs)]
+        lines = [*self._get_lines(*args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
         self.autoscale_view(scalex=scalex, scaley=scaley)
@@ -1943,7 +1943,7 @@ class Axes(_AxesBase):
     #### Specialized plotting
 
     # @_preprocess_data() # let 'plot' do the unpacking..
-    def step(self, x, y, *args, where='pre', **kwargs):
+    def step(self, x, y, *args, where='pre', data=None, **kwargs):
         """
         Make a step plot.
 
@@ -2008,7 +2008,7 @@ class Axes(_AxesBase):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
         kwargs['drawstyle'] = 'steps-' + where
-        return self.plot(x, y, *args, **kwargs)
+        return self.plot(x, y, *args, data=data, **kwargs)
 
     @_preprocess_data()
     @docstring.dedent_interpd
@@ -4836,7 +4836,7 @@ class Axes(_AxesBase):
 
     # Uses a custom implementation of data-kwarg handling in
     # _process_plot_var_args.
-    def fill(self, *args, **kwargs):
+    def fill(self, *args, data=None, **kwargs):
         """
         Plot filled polygons.
 
@@ -4859,6 +4859,13 @@ class Axes(_AxesBase):
                 ax.fill(x, y, x2, y2)            # two polygons
                 ax.fill(x, y, "b", x2, y2, "r")  # a blue and a red polygon
 
+        data : indexable object, optional
+            An object with labelled data. If given, provide the label names to
+            plot in *x* and *y*, e.g.::
+
+                ax.fill("time", "signal",
+                        data={"time": [0, 1, 2], "signal": [0, 1, 0]})
+
         Returns
         -------
         a list of :class:`~matplotlib.patches.Polygon`
@@ -4876,7 +4883,7 @@ class Axes(_AxesBase):
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
 
         patches = []
-        for poly in self._get_patches_for_fill(*args, **kwargs):
+        for poly in self._get_patches_for_fill(*args, data=data, **kwargs):
             self.add_patch(poly)
             patches.append(poly)
         self.autoscale_view()
