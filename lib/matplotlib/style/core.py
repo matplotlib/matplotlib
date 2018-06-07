@@ -25,7 +25,7 @@ __all__ = ['use', 'context', 'available', 'library', 'reload_library']
 
 BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
-USER_LIBRARY_PATHS = [os.path.join(mpl._get_configdir(), 'stylelib')]
+USER_LIBRARY_PATHS = [os.path.join(mpl.get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
 STYLE_FILE_PATTERN = re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
 

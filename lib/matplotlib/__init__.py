@@ -386,27 +386,22 @@ with warnings.catch_warnings():
     verbose = Verbose()
 
 
-def _wrap(fmt, func, level=logging.DEBUG, always=True):
-    """
-    return a callable function that wraps func and reports its
-    output through logger
+def _logged_cached(fmt, func=None):
+    if func is None:
+        return functools.partial(_logged_cached, fmt)
 
-    if always is True, the report will occur on every function
-    call; otherwise only on the first time the function is called
-    """
-    assert callable(func)
+    called = False
+    ret = None
 
-    def wrapper(*args, **kwargs):
-        ret = func(*args, **kwargs)
-
-        if (always or not wrapper._spoke):
-            _log.log(level, fmt % ret)
-            spoke = True
-            if not wrapper._spoke:
-                wrapper._spoke = spoke
+    @functools.wraps(func)
+    def wrapper():
+        nonlocal called, ret
+        if not called:
+            ret = func()
+            called = True
+            _log.debug(fmt, ret)
         return ret
-    wrapper._spoke = False
-    wrapper.__doc__ = func.__doc__
+
     return wrapper
 
 
@@ -544,7 +539,8 @@ def checkdep_usetex(s):
     return flag
 
 
-def _get_home():
+@_logged_cached('$HOME=%s')
+def get_home():
     """
     Return the user's home directory.
 
@@ -554,8 +550,6 @@ def _get_home():
         return str(Path.home())
     except Exception:
         return None
-
-get_home = _wrap('$HOME=%s', _get_home, always=False)
 
 
 def _create_tmp_config_dir():
@@ -615,7 +609,8 @@ def _get_config_or_cache_dir(xdg_base):
     return _create_tmp_config_dir()
 
 
-def _get_configdir():
+@_logged_cached('CONFIGDIR=%s')
+def get_configdir():
     """
     Return the string representing the configuration directory.
 
@@ -633,10 +628,9 @@ def _get_configdir():
     """
     return _get_config_or_cache_dir(_get_xdg_config_dir())
 
-get_configdir = _wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
-
-def _get_cachedir():
+@_logged_cached('CACHEDIR=%s')
+def get_cachedir():
     """
     Return the location of the cache directory.
 
@@ -644,8 +638,6 @@ def _get_cachedir():
     _get_config_dir, except using `$XDG_CACHE_HOME`/`~/.cache` instead.
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir())
-
-get_cachedir = _wrap('CACHEDIR=%s', _get_cachedir, always=False)
 
 
 def _decode_filesystem_path(path):
@@ -698,13 +690,11 @@ def _get_data_path():
     raise RuntimeError('Could not find the matplotlib data files')
 
 
-def _get_data_path_cached():
+@_logged_cached('matplotlib data path: %s')
+def get_data_path():
     if defaultParams['datapath'][0] is None:
         defaultParams['datapath'][0] = _get_data_path()
     return defaultParams['datapath'][0]
-
-get_data_path = _wrap('matplotlib data path %s', _get_data_path_cached,
-                      always=False)
 
 
 def get_py2exe_datafiles():
@@ -756,7 +746,7 @@ def matplotlib_fname():
         else:
             yield matplotlibrc
             yield os.path.join(matplotlibrc, 'matplotlibrc')
-        yield os.path.join(_get_configdir(), 'matplotlibrc')
+        yield os.path.join(get_configdir(), 'matplotlibrc')
         yield os.path.join(get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
