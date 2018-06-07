@@ -3,6 +3,9 @@
 # This script generates credits.rst with an up-to-date list of contributors
 # to the matplotlib github repository.
 
+from collections import Counter
+import locale
+import re
 import subprocess
 
 TEMPLATE = """.. Note: This file is auto-generated using generate_credits.py
@@ -54,15 +57,30 @@ proposed changes, or otherwise contributed to Matplotlib's
 development and usefulness.
 """
 
+def check_duplicates():
+    text = subprocess.check_output(['git', 'shortlog', '--summary', '--email'])
+    lines = text.decode('utf8').split('\n')
+    contributors = [line.split('\t', 1)[1].strip() for line in lines if line]
+    emails = [re.match('.*<(.*)>', line).group(1) for line in contributors]
+    email_counter = Counter(emails)
+    
+    if email_counter.most_common(1)[0][1] > 1:
+        print('DUPLICATE CHECK: The following email addesses are used with more '
+              'than one name.\nConsider adding them to .mailmap.\n')
+        for email, count in email_counter.items():
+            if count > 1:
+                print('%s\n%s' % (email, '\n'.join(l for l in lines if email in l)))
 
-def main():
+
+def generate_credits():
     text = subprocess.check_output(['git', 'shortlog', '--summary'])
-    contributors = [line.split('\t', 1)[1].strip()
-                    for line in text.decode('utf8').split('\n')
-                    if line]
+    lines = text.decode('utf8').split('\n')
+    contributors = [line.split('\t', 1)[1].strip() for line in lines if line]
+    contributors.sort(key=locale.strxfrm)
     with open('credits.rst', 'w') as f:
         f.write(TEMPLATE.format(contributors=',\n'.join(contributors)))
 
 
 if __name__ == '__main__':
-    main()
+    check_duplicates()
+    generate_credits()
