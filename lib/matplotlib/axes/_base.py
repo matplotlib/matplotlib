@@ -1363,11 +1363,9 @@ class _AxesBase(martist.Artist):
         anchor defines where the drawing area will be located within the
         available space.
 
-        .. ACCEPTS: [ 'C' | 'SW' | 'S' | 'SE' | 'E' | 'NE' | 'N' | 'NW' | 'W' ]
-
         Parameters
         ----------
-        anchor : str or 2-tuple of floats
+        anchor : 2-tuple of floats or {'C', 'SW', 'S', 'SE', ...}
             The anchor position may be either:
 
             - a sequence (*cx*, *cy*). *cx* and *cy* may range from 0
@@ -3145,11 +3143,9 @@ class _AxesBase(martist.Artist):
         """
         Set the x-axis scale.
 
-        .. ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
-
         Parameters
         ----------
-        value : {"linear", "log", "symlog", "logit"}
+        value : {"linear", "log", "symlog", "logit", ...}
             scaling strategy to apply
 
         Notes
@@ -3182,8 +3178,6 @@ class _AxesBase(martist.Artist):
     def set_xticks(self, ticks, minor=False):
         """
         Set the x ticks with list of *ticks*
-
-        .. ACCEPTS: list of tick locations.
 
         Parameters
         ----------
@@ -3482,11 +3476,9 @@ class _AxesBase(martist.Artist):
         """
         Set the y-axis scale.
 
-        .. ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
-
         Parameters
         ----------
-        value : {"linear", "log", "symlog", "logit"}
+        value : {"linear", "log", "symlog", "logit", ...}
             scaling strategy to apply
 
         Notes
@@ -3519,11 +3511,9 @@ class _AxesBase(martist.Artist):
         """
         Set the y ticks with list of *ticks*
 
-        .. ACCEPTS: list of tick locations.
-
         Parameters
         ----------
-        ticks : sequence
+        ticks : list
             List of y-axis tick locations
 
         minor : bool, optional

@@ -275,8 +275,6 @@ class ScalarMappable(object):
     def set_array(self, A):
         """Set the image array from numpy array *A*.
 
-        .. ACCEPTS: ndarray
-
         Parameters
         ----------
         A : ndarray
@@ -320,7 +318,9 @@ class ScalarMappable(object):
         """
         set the colormap for luminance data
 
-        ACCEPTS: a colormap or registered colormap name
+        Parameters
+        ----------
+        cmap : colormap or registered colormap name
         """
         cmap = get_cmap(cmap)
         self.cmap = cmap
@@ -328,8 +328,6 @@ class ScalarMappable(object):
 
     def set_norm(self, norm):
         """Set the normalization instance.
-
-        .. ACCEPTS: `.Normalize`
 
         Parameters
         ----------

@@ -245,11 +245,9 @@ class Text(Artist):
         """
         Set text rotation mode.
 
-        .. ACCEPTS: [ None | "default" | "anchor" ]
-
         Parameters
         ----------
-        m : ``None`` or ``"default"`` or ``"anchor"``
+        m : {None, 'default', 'anchor'}
             If ``None`` or ``"default"``, the text will be first rotated, then
             aligned according to their horizontal and vertical alignments.  If
             ``"anchor"``, then alignment occurs before rotation.
@@ -440,7 +438,9 @@ class Text(Artist):
         The default boxstyle is 'square'. The mutation
         scale of the FancyBboxPatch is set to the fontsize.
 
-        ACCEPTS: FancyBboxPatch prop dict
+        Parameters
+        ----------
+        rectprops : FancyBboxPatch prop dict
         """
 
         if rectprops is not None:
@@ -534,7 +534,9 @@ class Text(Artist):
         """
         Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
 
-        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+        Parameters
+        ----------
+        clipbox : matplotlib.transforms.Bbox
         """
         super().set_clip_box(clipbox)
         self._update_clip_properties()
@@ -573,7 +575,6 @@ class Text(Artist):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         super().set_clip_on(b)
         self._update_clip_properties()
@@ -588,7 +589,6 @@ class Text(Artist):
         Parameters
         ----------
         wrap : bool
-            .. ACCEPTS: bool
         """
         self._wrap = wrap
 
@@ -894,7 +894,9 @@ class Text(Artist):
             :meth:`set_bbox`
                To change the position of the bounding box.
 
-        ACCEPTS: any matplotlib color
+        Parameters
+        ----------
+        color : color
         """
         if self._bbox_patch is None:
             self.set_bbox(dict(facecolor=color, edgecolor=color))
@@ -908,7 +910,9 @@ class Text(Artist):
         """
         Set the foreground color of the text
 
-        ACCEPTS: any matplotlib color
+        Parameters
+        ----------
+        color : color
         """
         # Make sure it is hashable, or get_prop_tup will fail.
         try:
@@ -922,7 +926,9 @@ class Text(Artist):
         """
         Set the horizontal alignment to one of
 
-        ACCEPTS: [ 'center' | 'right' | 'left' ]
+        Parameters
+        ----------
+        align : {'center', 'right', 'left'}
         """
         legal = ('center', 'right', 'left')
         if align not in legal:
@@ -938,7 +944,9 @@ class Text(Artist):
         and verticalalignment properties, but the multiline text within that
         box can be
 
-        ACCEPTS: ['left' | 'right' | 'center' ]
+        Parameters
+        ----------
+        align: {'left', 'right', 'center'}
         """
         legal = ('center', 'right', 'left')
         if align not in legal:
@@ -952,7 +960,9 @@ class Text(Artist):
         Set the line spacing as a multiple of the font size.
         Default is 1.2.
 
-        ACCEPTS: float (multiple of font size)
+        Parameters
+        ----------
+        spacing : float (multiple of font size)
         """
         self._linespacing = spacing
         self.stale = True
@@ -964,8 +974,10 @@ class Text(Artist):
         name or a generic font class name.  If the latter, the specific font
         names will be looked up in the corresponding rcParams.
 
-        ACCEPTS: [FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' |
-                  'monospace' ]
+        Parameters
+        ----------
+        fontname : {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', \
+'monospace'}
         """
         self._fontproperties.set_family(fontname)
         self.stale = True
@@ -974,7 +986,9 @@ class Text(Artist):
         """
         Set the font variant, either 'normal' or 'small-caps'.
 
-        ACCEPTS: [ 'normal' | 'small-caps' ]
+        Parameters
+        ----------
+        variant : {'normal', 'small-caps'}
         """
         self._fontproperties.set_variant(variant)
         self.stale = True
@@ -983,7 +997,9 @@ class Text(Artist):
         """
         Set the font style.
 
-        ACCEPTS: [ 'normal' | 'italic' | 'oblique']
+        Parameters
+        ----------
+        fontstyle : {'normal', 'italic', 'oblique'}
         """
         self._fontproperties.set_style(fontstyle)
         self.stale = True
@@ -993,8 +1009,10 @@ class Text(Artist):
         Set the font size.  May be either a size string, relative to
         the default font size, or an absolute font size in points.
 
-        ACCEPTS: [size in points | 'xx-small' | 'x-small' | 'small' |
-                  'medium' | 'large' | 'x-large' | 'xx-large' ]
+        Parameters
+        ----------
+        fontsize : {size in points, 'xx-small', 'x-small', 'small', 'medium', \
+'large', 'x-large', 'xx-large'}
         """
         self._fontproperties.set_size(fontsize)
         self.stale = True
@@ -1003,10 +1021,11 @@ class Text(Artist):
         """
         Set the font weight.
 
-        ACCEPTS: [a numeric value in range 0-1000 | 'ultralight' | 'light' |
-                  'normal' | 'regular' | 'book' | 'medium' | 'roman' |
-                  'semibold' | 'demibold' | 'demi' | 'bold' | 'heavy' |
-                  'extra bold' | 'black' ]
+        Parameters
+        ----------
+        weight : {a numeric value in range 0-1000, 'ultralight', 'light', \
+'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', \
+'demi', 'bold', 'heavy', 'extra bold', 'black'}
         """
         self._fontproperties.set_weight(weight)
         self.stale = True
@@ -1015,46 +1034,55 @@ class Text(Artist):
         """
         Set the font stretch (horizontal condensation or expansion).
 
-        ACCEPTS: [a numeric value in range 0-1000 | 'ultra-condensed' |
-                  'extra-condensed' | 'condensed' | 'semi-condensed' |
-                  'normal' | 'semi-expanded' | 'expanded' | 'extra-expanded' |
-                  'ultra-expanded' ]
+        Parameters
+        ----------
+        stretch : {a numeric value in range 0-1000, 'ultra-condensed', \
+'extra-condensed', 'condensed', 'semi-condensed', 'normal', 'semi-expanded', \
+'expanded', 'extra-expanded', 'ultra-expanded'}
         """
         self._fontproperties.set_stretch(stretch)
         self.stale = True
 
     def set_position(self, xy):
         """
-        Set the (*x*, *y*) position of the text
+        Set the (*x*, *y*) position of the text.
 
-        ACCEPTS: (x,y)
+        Parameters
+        ----------
+        xy : (float, float)
         """
         self.set_x(xy[0])
         self.set_y(xy[1])
 
     def set_x(self, x):
         """
-        Set the *x* position of the text
+        Set the *x* position of the text.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        x : float
         """
         self._x = x
         self.stale = True
 
     def set_y(self, y):
         """
-        Set the *y* position of the text
+        Set the *y* position of the text.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        y : float
         """
         self._y = y
         self.stale = True
 
     def set_rotation(self, s):
         """
-        Set the rotation of the text
+        Set the rotation of the text.
 
-        ACCEPTS: [ angle in degrees | 'vertical' | 'horizontal' ]
+        Parameters
+        ----------
+        s : {angle in degrees, 'vertical', 'horizontal'}
         """
         self._rotation = s
         self.stale = True
@@ -1063,8 +1091,9 @@ class Text(Artist):
         """
         Set the vertical alignment
 
-        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' |
-                   'center_baseline' ]
+        Parameters
+        ----------
+        align : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
         """
         legal = ('top', 'bottom', 'center', 'baseline', 'center_baseline')
         if align not in legal:
@@ -1080,8 +1109,9 @@ class Text(Artist):
 
         It may contain newlines (``\\n``) or math in LaTeX syntax.
 
-        ACCEPTS: string or object castable to string, except
-        ``None``, which is set to an empty string.
+        Parameters
+        ----------
+        s : string or object castable to string (but ``None`` becomes ``''``)
         """
         if s is None:
             s = ''
@@ -1117,7 +1147,9 @@ class Text(Artist):
         Set the font properties that control the text.  *fp* must be a
         :class:`matplotlib.font_manager.FontProperties` object.
 
-        ACCEPTS: a :class:`matplotlib.font_manager.FontProperties` instance
+        Parameters
+        ----------
+        fp : matplotlib.font_manager.FontProperties
         """
         if isinstance(fp, str):
             fp = FontProperties(fp)
@@ -1131,8 +1163,6 @@ class Text(Artist):
         usetex : bool or None
             Whether to render using TeX, ``None`` means to use
             :rc:`text.usetex`.
-
-            .. ACCEPTS: bool or None
         """
         if usetex is None:
             self._usetex = rcParams['text.usetex']
@@ -1414,9 +1444,11 @@ class TextWithDash(Text):
 
     def set_dashlength(self, dl):
         """
-        Set the length of the dash.
+        Set the length of the dash, in canvas units.
 
-        ACCEPTS: float (canvas units)
+        Parameters
+        ----------
+        dl : float
         """
         self._dashlength = dl
         self.stale = True
@@ -1429,12 +1461,13 @@ class TextWithDash(Text):
 
     def set_dashdirection(self, dd):
         """
-        Set the direction of the dash following the text.
-        1 is before the text and 0 is after. The default
-        is 0, which is what you'd want for the typical
-        case of ticks below and on the left of the figure.
+        Set the direction of the dash following the text.  1 is before the text
+        and 0 is after. The default is 0, which is what you'd want for the
+        typical case of ticks below and on the left of the figure.
 
-        ACCEPTS: int (1 is before, 0 is after)
+        Parameters
+        ----------
+        dd : int (1 is before, 0 is after)
         """
         self._dashdirection = dd
         self.stale = True
@@ -1450,9 +1483,11 @@ class TextWithDash(Text):
 
     def set_dashrotation(self, dr):
         """
-        Set the rotation of the dash, in degrees
+        Set the rotation of the dash, in degrees.
 
-        ACCEPTS: float (degrees)
+        Parameters
+        ----------
+        dr : float
         """
         self._dashrotation = dr
         self.stale = True
@@ -1468,7 +1503,9 @@ class TextWithDash(Text):
         Set the "pad" of the TextWithDash, which is the extra spacing
         between the dash and the text, in canvas units.
 
-        ACCEPTS: float (canvas units)
+        Parameters
+        ----------
+        dp : float
         """
         self._dashpad = dp
         self.stale = True
@@ -1482,11 +1519,12 @@ class TextWithDash(Text):
 
     def set_dashpush(self, dp):
         """
-        Set the "push" of the TextWithDash, which
-        is the extra spacing between the beginning
-        of the dash and the specified position.
+        Set the "push" of the TextWithDash, which is the extra spacing between
+        the beginning of the dash and the specified position.
 
-        ACCEPTS: float (canvas units)
+        Parameters
+        ----------
+        dp : float
         """
         self._dashpush = dp
         self.stale = True
@@ -1495,7 +1533,9 @@ class TextWithDash(Text):
         """
         Set the (*x*, *y*) position of the :class:`TextWithDash`.
 
-        ACCEPTS: (x, y)
+        Parameters
+        ----------
+        xy : (float, float)
         """
         self.set_x(xy[0])
         self.set_y(xy[1])
@@ -1504,7 +1544,9 @@ class TextWithDash(Text):
         """
         Set the *x* position of the :class:`TextWithDash`.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        x : float
         """
         self._dashx = float(x)
         self.stale = True
@@ -1513,7 +1555,9 @@ class TextWithDash(Text):
         """
         Set the *y* position of the :class:`TextWithDash`.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        y : float
         """
         self._dashy = float(y)
         self.stale = True
@@ -1523,7 +1567,9 @@ class TextWithDash(Text):
         Set the :class:`matplotlib.transforms.Transform` instance used
         by this artist.
 
-        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+        Parameters
+        ----------
+        t : matplotlib.transforms.Transform
         """
         Text.set_transform(self, t)
         self.dashline.set_transform(t)
@@ -1535,9 +1581,11 @@ class TextWithDash(Text):
 
     def set_figure(self, fig):
         """
-        Set the figure instance the artist belong to.
+        Set the figure instance the artist belongs to.
 
-        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
+        Parameters
+        ----------
+        fig : matplotlib.figure.Figure
         """
         Text.set_figure(self, fig)
         self.dashline.set_figure(fig)

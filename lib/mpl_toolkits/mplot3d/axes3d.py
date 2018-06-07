@@ -346,7 +346,6 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         super().set_autoscale_on(b)
         self.set_autoscalez_on(b)
@@ -361,7 +360,6 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._autoscaleZon = b
 
@@ -1281,7 +1279,6 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._frameon = bool(b)
         self.stale = True
@@ -1309,7 +1306,6 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._axisbelow = True
         self.stale = True

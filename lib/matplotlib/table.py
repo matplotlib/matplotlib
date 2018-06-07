@@ -497,9 +497,11 @@ class Table(Artist):
 
     def set_fontsize(self, size):
         """
-        Set the fontsize of the cell text
+        Set the font size, in points, of the cell text.
 
-        ACCEPTS: a float in points
+        Parameters
+        ----------
+        size : float
         """
 
         for cell in self._cells.values():

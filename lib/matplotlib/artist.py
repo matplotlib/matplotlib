@@ -301,7 +301,6 @@ class Artist(object):
         Parameters
         ----------
         t : `.Transform`
-            .. ACCEPTS: `.Transform`
         """
         self._transform = t
         self._transformSet = True
@@ -373,7 +372,6 @@ class Artist(object):
         Parameters
         ----------
         picker : callable
-            .. ACCEPTS: a callable function
         """
         self._contains = picker
 
@@ -453,7 +451,6 @@ class Artist(object):
         Parameters
         ----------
         picker : None or bool or float or callable
-            .. ACCEPTS: [None | bool | float | callable]
         """
         self._picker = picker
 
@@ -477,7 +474,6 @@ class Artist(object):
         Parameters
         ----------
         url : str
-            .. ACCEPTS: a url string
         """
         self._url = url
 
@@ -492,7 +488,6 @@ class Artist(object):
         Parameters
         ----------
         gid : str
-            .. ACCEPTS: an id string
         """
         self._gid = gid
 
@@ -530,7 +525,6 @@ class Artist(object):
         Parameters
         ----------
         snap : bool or None
-            .. ACCEPTS: bool or None
         """
         self._snap = snap
         self.stale = True
@@ -591,7 +585,6 @@ class Artist(object):
         Parameters
         ----------
         path_effects : `.AbstractPathEffect`
-            .. ACCEPTS: `.AbstractPathEffect`
         """
         self._path_effects = path_effects
         self.stale = True
@@ -610,7 +603,6 @@ class Artist(object):
         Parameters
         ----------
         fig : `.Figure`
-            .. ACCEPTS: a `.Figure` instance
         """
         # if this is a no-op just return
         if self.figure is fig:
@@ -635,7 +627,6 @@ class Artist(object):
         Parameters
         ----------
         clipbox : `.Bbox`
-            .. ACCEPTS: a `.Bbox` instance
         """
         self.clipbox = clipbox
         self.pchanged()
@@ -742,7 +733,6 @@ class Artist(object):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._clipon = b
         # This may result in the callbacks being hit twice, but ensures they
@@ -773,7 +763,6 @@ class Artist(object):
         Parameters
         ----------
         rasterized : bool or None
-            .. ACCEPTS: bool or None
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
             warnings.warn("Rasterization of '%s' will be ignored" % self)
@@ -807,13 +796,11 @@ class Artist(object):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha value used for blending - not supported on
-        all backends.
+        Set the alpha value used for blending - not supported on all backends.
 
         Parameters
         ----------
         alpha : float
-            .. ACCEPTS: float (0.0 transparent through 1.0 opaque)
         """
         self._alpha = alpha
         self.pchanged()
@@ -826,7 +813,6 @@ class Artist(object):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._visible = b
         self.pchanged()
@@ -839,7 +825,6 @@ class Artist(object):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         if self._animated != b:
             self._animated = b
@@ -895,8 +880,6 @@ class Artist(object):
         ----------
         s : object
             *s* will be converted to a string by calling `str`.
-
-            .. ACCEPTS: object
         """
         if s is not None:
             self._label = str(s)
@@ -917,7 +900,6 @@ class Artist(object):
         Parameters
         ----------
         level : float
-            .. ACCEPTS: float
         """
         if level is None:
             level = self.__class__.zorder

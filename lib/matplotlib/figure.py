@@ -488,11 +488,6 @@ class Figure(Artist):
             If ``None``, use the ``figure.autolayout`` rcparam instead.
             If a dict, pass it as kwargs to `.tight_layout`, overriding the
             default paddings.
-
-            ..
-                ACCEPTS: [ bool
-                         | dict with keys "pad", "w_pad", "h_pad", "rect"
-                         | None ]
         """
         if tight is None:
             tight = rcParams['figure.autolayout']
@@ -518,9 +513,11 @@ class Figure(Artist):
         overridden.  These pads are in inches and default to 3.0/72.0.
         ``w_pad`` is the width padding and ``h_pad`` is the height padding.
 
-        ACCEPTS: [True | False | dict | None ]
-
         See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+
+        Parameters
+        ----------
+        constrained : bool or dict or None
         """
         self._constrained_layout_pads = dict()
         self._constrained_layout_pads['w_pad'] = None
@@ -778,7 +775,9 @@ default: 'top'
         """
         Set the canvas that contains the figure
 
-        ACCEPTS: a FigureCanvas instance
+        Parameters
+        ----------
+        canvas : FigureCanvas
         """
         self.canvas = canvas
 
@@ -951,7 +950,9 @@ default: 'top'
         """
         Set the edge color of the Figure rectangle.
 
-        ACCEPTS: any matplotlib color - see help(colors)
+        Parameters
+        ----------
+        color : color
         """
         self.patch.set_edgecolor(color)
 
@@ -959,7 +960,9 @@ default: 'top'
         """
         Set the face color of the Figure rectangle.
 
-        ACCEPTS: any matplotlib color - see help(colors)
+        Parameters
+        ----------
+        color : color
         """
         self.patch.set_facecolor(color)
 
@@ -967,7 +970,9 @@ default: 'top'
         """
         Set the resolution of the figure in dots-per-inch.
 
-        .. ACCEPTS: float
+        Parameters
+        ----------
+        val : float
         """
         self.dpi = val
         self.stale = True
@@ -992,7 +997,9 @@ default: 'top'
         """
         Set whether the figure frame (background) is displayed or invisible.
 
-        ACCEPTS: boolean
+        Parameters
+        ----------
+        b : bool
         """
         self.frameon = b
         self.stale = True

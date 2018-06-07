@@ -1182,7 +1182,9 @@ class Barbs(mcollections.PolyCollection):
         in and actually sets version masked as appropriate for the existing
         U/V data. *offsets* should be a sequence.
 
-        ACCEPTS: sequence of pairs of floats
+        Parameters
+        ----------
+        offsets : sequence of pairs of floats
         """
         self.x = xy[:, 0]
         self.y = xy[:, 1]

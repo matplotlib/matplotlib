@@ -523,7 +523,9 @@ class Spine(mpatches.Patch):
         """
         Set the edgecolor.
 
-        ACCEPTS: matplotlib color arg or sequence of rgba tuples
+        Parameters
+        ----------
+        c : color or sequence of rgba tuples
 
         .. seealso::
 

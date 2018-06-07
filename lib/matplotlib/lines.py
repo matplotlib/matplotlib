@@ -504,8 +504,6 @@ class Line2D(Artist):
     def set_pickradius(self, d):
         """Set the pick radius used for containment tests.
 
-        .. ACCEPTS: float distance in points
-
         Parameters
         ----------
         d : float
@@ -524,7 +522,9 @@ class Line2D(Artist):
         Set the marker fill style; 'full' means fill the whole marker.
         'none' means no filling; other options are for half-filled markers.
 
-        ACCEPTS: ['full' | 'left' | 'right' | 'bottom' | 'top' | 'none']
+        Parameters
+        ----------
+        fs : {'full', 'left', 'right', 'bottom', 'top', 'none'}
         """
         self._marker.set_fillstyle(fs)
         self.stale = True
@@ -534,13 +534,10 @@ class Line2D(Artist):
 
         e.g., if `every=5`, every 5-th marker will be plotted.
 
-        ACCEPTS: [None | int | length-2 tuple of int | slice |
-        list/array of int | float | length-2 tuple of float]
-
         Parameters
         ----------
-        every: None | int | length-2 tuple of int | slice | list/array of int \
-| float | length-2 tuple of float
+        every: None or int or (int, int) or slice or List[int] or float or \
+(float, float)
             Which markers to plot.
 
             - every=None, every point will be plotted.
@@ -549,7 +546,7 @@ class Line2D(Artist):
             - every=(start, N), every N-th marker, starting at point
               start, will be plotted.
             - every=slice(start, end, N), every N-th marker, starting at
-              point start, upto but not including point end, will be plotted.
+              point start, up to but not including point end, will be plotted.
             - every=[i, j, m, n], only markers at points i, j, m, and n
               will be plotted.
             - every=0.1, (i.e. a float) then markers will be spaced at
@@ -591,8 +588,10 @@ class Line2D(Artist):
     def set_picker(self, p):
         """Sets the event picker details for the line.
 
-        ACCEPTS: float distance in points or callable pick function
-        ``fn(artist, event)``
+        Parameters
+        ----------
+        p : float or callable[[Artist, Event], Tuple[bool, dict]]
+            If a float, it is used as the pick radius in points.
         """
         if callable(p):
             self._contains = p
@@ -711,7 +710,9 @@ class Line2D(Artist):
         """
         set the Transformation instance used by this artist
 
-        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+        Parameters
+        ----------
+        t : matplotlib.transforms.Transform
         """
         Artist.set_transform(self, t)
         self._invalidx = True
@@ -952,7 +953,6 @@ class Line2D(Artist):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         if self._antialiased != b:
             self.stale = True
@@ -962,7 +962,9 @@ class Line2D(Artist):
         """
         Set the color of the line
 
-        ACCEPTS: any matplotlib color
+        Parameters
+        ----------
+        color : color
         """
         self._color = color
         self.stale = True
@@ -975,8 +977,10 @@ class Line2D(Artist):
         produce step-plots. 'steps' is equivalent to 'steps-pre' and
         is maintained for backward-compatibility.
 
-        ACCEPTS: ['default' | 'steps' | 'steps-pre' | 'steps-mid' |
-                  'steps-post']
+        Parameters
+        ----------
+        drawstyle : {'default', 'steps', 'steps-pre', 'steps-mid', \
+'steps-post'}
         """
         if drawstyle is None:
             drawstyle = 'default'
@@ -992,7 +996,9 @@ class Line2D(Artist):
         """
         Set the line width in points
 
-        ACCEPTS: float value in points
+        Parameters
+        ----------
+        w : float
         """
         w = float(w)
 
@@ -1053,14 +1059,7 @@ class Line2D(Artist):
 
             (offset, onoffseq),
 
-        where ``onoffseq`` is an even length tuple of on and off ink
-        in points.
-
-
-        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
-                   (offset, on-off-dash-seq) |
-                   ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
-                   ``' '`` | ``''``]
+        where ``onoffseq`` is an even length tuple of on and off ink in points.
 
         .. seealso::
 
@@ -1069,7 +1068,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        ls : { ``'-'``,  ``'--'``, ``'-.'``, ``':'``} and more see description
+        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
             The line style.
         """
         if isinstance(ls, str):
@@ -1100,26 +1099,24 @@ class Line2D(Artist):
     @docstring.dedent_interpd
     def set_marker(self, marker):
         """
-        Set the line marker
-
-        ACCEPTS: :mod:`A valid marker style <matplotlib.markers>`
+        Set the line marker.
 
         Parameters
         ----------
-
         marker: marker style
             See `~matplotlib.markers` for full description of possible
-            argument
-
+            arguments.
         """
         self._marker.set_marker(marker)
         self.stale = True
 
     def set_markeredgecolor(self, ec):
         """
-        Set the marker edge color
+        Set the marker edge color.
 
-        ACCEPTS: any matplotlib color
+        Parameters
+        ----------
+        ec : color
         """
         if ec is None:
             ec = 'auto'
@@ -1130,9 +1127,11 @@ class Line2D(Artist):
 
     def set_markeredgewidth(self, ew):
         """
-        Set the marker edge width in points
+        Set the marker edge width in points.
 
-        ACCEPTS: float value in points
+        Parameters
+        ----------
+        ew : float
         """
         if ew is None:
             ew = rcParams['lines.markeredgewidth']
@@ -1144,7 +1143,9 @@ class Line2D(Artist):
         """
         Set the marker face color.
 
-        ACCEPTS: any matplotlib color
+        Parameters
+        ----------
+        fc : color
         """
         if fc is None:
             fc = 'auto'
@@ -1156,7 +1157,9 @@ class Line2D(Artist):
         """
         Set the alternate marker face color.
 
-        ACCEPTS: any matplotlib color
+        Parameters
+        ----------
+        fc : color
         """
         if fc is None:
             fc = 'auto'
@@ -1166,9 +1169,11 @@ class Line2D(Artist):
 
     def set_markersize(self, sz):
         """
-        Set the marker size in points
+        Set the marker size in points.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        sz : float
         """
         sz = float(sz)
         if self._markersize != sz:
@@ -1177,9 +1182,11 @@ class Line2D(Artist):
 
     def set_xdata(self, x):
         """
-        Set the data np.array for x
+        Set the data array for x.
 
-        ACCEPTS: 1D array
+        Parameters
+        ----------
+        x : 1D array
         """
         self._xorig = x
         self._invalidx = True
@@ -1187,9 +1194,11 @@ class Line2D(Artist):
 
     def set_ydata(self, y):
         """
-        Set the data np.array for y
+        Set the data array for y.
 
-        ACCEPTS: 1D array
+        Parameters
+        ----------
+        y : 1D array
         """
         self._yorig = y
         self._invalidy = True
@@ -1201,7 +1210,9 @@ class Line2D(Artist):
         points.  If seq is empty or if seq = (None, None), the
         linestyle will be set to solid.
 
-        ACCEPTS: sequence of on/off ink in points
+        Parameters
+        ----------
+        seq : sequence of floats (on/off ink in points) or (None, None)
         """
         if seq == (None, None) or len(seq) == 0:
             self.set_linestyle('-')
@@ -1238,8 +1249,11 @@ class Line2D(Artist):
 
     def set_dash_joinstyle(self, s):
         """
-        Set the join style for dashed linestyles
-        ACCEPTS: ['miter' | 'round' | 'bevel']
+        Set the join style for dashed linestyles.
+
+        Parameters
+        ----------
+        s : {'miter', 'round', 'bevel'}
         """
         s = s.lower()
         if s not in self.validJoin:
@@ -1251,8 +1265,11 @@ class Line2D(Artist):
 
     def set_solid_joinstyle(self, s):
         """
-        Set the join style for solid linestyles
-        ACCEPTS: ['miter' | 'round' | 'bevel']
+        Set the join style for solid linestyles.
+
+        Parameters
+        ----------
+        s : {'miter', 'round', 'bevel'}
         """
         s = s.lower()
         if s not in self.validJoin:
@@ -1277,9 +1294,11 @@ class Line2D(Artist):
 
     def set_dash_capstyle(self, s):
         """
-        Set the cap style for dashed linestyles
+        Set the cap style for dashed linestyles.
 
-        ACCEPTS: ['butt' | 'round' | 'projecting']
+        Parameters
+        ----------
+        s : {'butt', 'round', 'projecting'}
         """
         s = s.lower()
         if s not in self.validCap:
@@ -1291,9 +1310,11 @@ class Line2D(Artist):
 
     def set_solid_capstyle(self, s):
         """
-        Set the cap style for solid linestyles
+        Set the cap style for solid linestyles.
 
-        ACCEPTS: ['butt' | 'round' |  'projecting']
+        Parameters
+        ----------
+        s : {'butt', 'round', 'projecting'}
         """
         s = s.lower()
         if s not in self.validCap:

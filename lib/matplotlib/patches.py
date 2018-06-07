@@ -246,7 +246,6 @@ class Patch(artist.Artist):
         Parameters
         ----------
         b : bool or None
-            .. ACCEPTS: bool or None
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
@@ -270,9 +269,11 @@ class Patch(artist.Artist):
 
     def set_edgecolor(self, color):
         """
-        Set the patch edge color
+        Set the patch edge color.
 
-        ACCEPTS: mpl color spec, None, 'none', or 'auto'
+        Parameters
+        ----------
+        color : color or None or 'auto'
         """
         self._original_edgecolor = color
         self._set_edgecolor(color)
@@ -286,9 +287,11 @@ class Patch(artist.Artist):
 
     def set_facecolor(self, color):
         """
-        Set the patch face color
+        Set the patch face color.
 
-        ACCEPTS: mpl color spec, or None for default, or 'none' for no color
+        Parameters
+        ----------
+        color : color or None
         """
         self._original_facecolor = color
         self._set_facecolor(color)
@@ -297,12 +300,14 @@ class Patch(artist.Artist):
         """
         Set both the edgecolor and the facecolor.
 
-        ACCEPTS: matplotlib color spec
-
         .. seealso::
 
             :meth:`set_facecolor`, :meth:`set_edgecolor`
                For setting the edge or face color individually.
+
+        Parameters
+        ----------
+        c : color
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
@@ -311,7 +316,9 @@ class Patch(artist.Artist):
         """
         Set the alpha transparency of the patch.
 
-        ACCEPTS: float or None
+        Parameters
+        ----------
+        alpha : float or None
         """
         if alpha is not None:
             try:
@@ -343,7 +350,7 @@ class Patch(artist.Artist):
 
     def set_linestyle(self, ls):
         """
-        Set the patch linestyle
+        Set the patch linestyle.
 
         ===========================   =================
         linestyle                     description
@@ -358,17 +365,11 @@ class Patch(artist.Artist):
 
             (offset, onoffseq),
 
-        where ``onoffseq`` is an even length tuple of on and off ink
-        in points.
-
-        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
-                   (offset, on-off-dash-seq) |
-                   ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
-                   ``' '`` | ``''``]
+        where ``onoffseq`` is an even length tuple of on and off ink in points.
 
         Parameters
         ----------
-        ls : { '-',  '--', '-.', ':'} and more see description
+        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
             The line style.
         """
         if ls is None:
@@ -388,7 +389,6 @@ class Patch(artist.Artist):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._fill = bool(b)
         self._set_facecolor(self._original_facecolor)
@@ -408,7 +408,9 @@ class Patch(artist.Artist):
         """
         Set the patch capstyle
 
-        ACCEPTS: ['butt' | 'round' | 'projecting']
+        Parameters
+        ----------
+        s : {'butt', 'round', 'projecting'}
         """
         s = s.lower()
         if s not in self.validCap:
@@ -425,7 +427,9 @@ class Patch(artist.Artist):
         """
         Set the patch joinstyle
 
-        ACCEPTS: ['miter' | 'round' | 'bevel']
+        Parameters
+        ----------
+        s : {'miter', 'round', 'bevel'}
         """
         s = s.lower()
         if s not in self.validJoin:
@@ -439,13 +443,13 @@ class Patch(artist.Artist):
         return self._joinstyle
 
     def set_hatch(self, hatch):
-        """
+        r"""
         Set the hatching pattern
 
         *hatch* can be one of::
 
           /   - diagonal hatching
-          \\   - back diagonal
+          \   - back diagonal
           |   - vertical
           -   - horizontal
           +   - crossed
@@ -462,7 +466,9 @@ class Patch(artist.Artist):
         Hatching is supported in the PostScript, PDF, SVG and Agg
         backends only.
 
-        ACCEPTS: ['/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*']
+        Parameters
+        ----------
+        hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
         self._hatch = hatch
         self.stale = True
@@ -738,9 +744,11 @@ class Rectangle(Patch):
 
     def set_xy(self, xy):
         """
-        Set the left and bottom coords of the rectangle
+        Set the left and bottom coords of the rectangle.
 
-        ACCEPTS: 2-item sequence
+        Parameters
+        ----------
+        xy : 2-item sequence
         """
         self._x0, self._y0 = xy
         self._update_x1()
@@ -1462,9 +1470,11 @@ class Ellipse(Patch):
 
     def set_center(self, xy):
         """
-        Set the center of the ellipse
+        Set the center of the ellipse.
 
-        ACCEPTS: (x, y)
+        Parameters
+        ----------
+        xy : (float, float)
         """
         self._center = xy
         self.stale = True
@@ -1506,7 +1516,9 @@ class Circle(Ellipse):
         """
         Set the radius of the circle
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        radius : float
         """
         self.width = self.height = 2 * radius
         self.stale = True
@@ -2495,7 +2507,9 @@ class FancyBboxPatch(Patch):
         """
         Set the mutation scale.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        scale : float
         """
         self._mutation_scale = scale
         self.stale = True
@@ -2510,7 +2524,9 @@ class FancyBboxPatch(Patch):
         """
         Set the aspect ratio of the bbox mutation.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        aspect : float
         """
         self._mutation_aspect = aspect
         self.stale = True
@@ -2556,36 +2572,44 @@ class FancyBboxPatch(Patch):
 
     def set_x(self, x):
         """
-        Set the left coord of the rectangle
+        Set the left coord of the rectangle.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        x : float
         """
         self._x = x
         self.stale = True
 
     def set_y(self, y):
         """
-        Set the bottom coord of the rectangle
+        Set the bottom coord of the rectangle.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        y : float
         """
         self._y = y
         self.stale = True
 
     def set_width(self, w):
         """
-        Set the width rectangle
+        Set the rectangle width.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        w : float
         """
         self._width = w
         self.stale = True
 
     def set_height(self, h):
         """
-        Set the width rectangle
+        Set the rectangle height.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        h : float
         """
         self._height = h
         self.stale = True

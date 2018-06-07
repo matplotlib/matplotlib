@@ -680,10 +680,11 @@ class Poly3DCollection(PolyCollection):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha transparencies of the collection.  *alpha* must be
-        a float or *None*.
+        Set the alpha transparencies of the collection.
 
-        .. ACCEPTS: float or None
+        Parameters
+        ----------
+        alpha : float or None
         """
         if alpha is not None:
             try:

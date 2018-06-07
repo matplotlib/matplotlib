@@ -901,13 +901,15 @@ class AxisArtist(martist.Artist):
         self.label.set_axis_direction(axis_direction)
 
     def set_ticklabel_direction(self, tick_direction):
-        """
+        r"""
         Adjust the direction of the ticklabel.
 
-         ACCEPTS: [ "+" | "-" ]
-
-        Note that the label_direction '+' and '-' are relative to the
+        Note that the *label_direction*\s '+' and '-' are relative to the
         direction of the increasing coordinate.
+
+        Parameters
+        ----------
+        tick_direction : {"+", "-"}
         """
 
         if tick_direction not in ["+", "-"]:
@@ -924,13 +926,15 @@ class AxisArtist(martist.Artist):
         self.minor_ticklabels.invert_axis_direction()
 
     def set_axislabel_direction(self, label_direction):
-        """
+        r"""
         Adjust the direction of the axislabel.
 
-         ACCEPTS: [ "+" | "-" ]
-
-        Note that the label_direction '+' and '-' are relative to the
+        Note that the *label_direction*\s '+' and '-' are relative to the
         direction of the increasing coordinate.
+
+        Parameters
+        ----------
+        tick_direction : {"+", "-"}
         """
         if label_direction not in ["+", "-"]:
             raise ValueError('direction must be one of "+", "-"')

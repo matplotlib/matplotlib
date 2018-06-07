@@ -244,7 +244,7 @@ def test_setp():
     # Check `file` argument
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
-    assert sio.getvalue() == '  zorder: float \n'
+    assert sio.getvalue() == '  zorder: float\n'
 
 
 def test_None_zorder():
