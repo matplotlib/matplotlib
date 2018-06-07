@@ -820,7 +820,7 @@ _deprecated_remain_as_none = {
     'axes.hold': ('2.1',),
     'backend.qt4': ('2.2',),
     'backend.qt5': ('2.2',),
-    'text.latex.unicde': ('3.0',),
+    'text.latex.unicode': ('3.0',),
 }
 
 
@@ -883,7 +883,7 @@ class RcParams(MutableMapping, dict):
                 val = alt_val(val)
             elif key in _deprecated_remain_as_none and val is not None:
                 version, = _deprecated_remain_as_none[key]
-                addendum = None
+                addendum = ''
                 if key.startswith('backend'):
                     addendum = (
                         "In order to force the use of a specific Qt binding, "
@@ -1243,21 +1243,33 @@ def rcdefaults():
         Use a specific style file.  Call ``style.use('default')`` to restore
         the default style.
     """
-    rcParams.clear()
-    rcParams.update(rcParamsDefault)
+    # Deprecation warnings were already handled when creating rcParamsDefault,
+    # no need to reemit them here.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", mplDeprecation)
+        rcParams.clear()
+        rcParams.update(rcParamsDefault)
 
 
 def rc_file_defaults():
     """Restore the rc params from the original rc file loaded by Matplotlib.
     """
-    rcParams.update(rcParamsOrig)
+    # Deprecation warnings were already handled when creating rcParamsOrig, no
+    # need to reemit them here.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", mplDeprecation)
+        rcParams.update(rcParamsOrig)
 
 
 def rc_file(fname):
     """
     Update rc params from file.
     """
-    rcParams.update(rc_params_from_file(fname))
+    # Deprecation warnings were already handled in rc_params_from_file, no need
+    # to reemit them here.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", mplDeprecation)
+        rcParams.update(rc_params_from_file(fname))
 
 
 class rc_context:
