@@ -1660,63 +1660,61 @@ def test_hist2d_transpose():
     ax.hist2d(x, y, bins=10, rasterized=True)
 
 
-@image_comparison(baseline_images=['scatter', 'scatter'])
-def test_scatter_plot():
-    fig, ax = plt.subplots()
-    data = {"x": [3, 4, 2, 6], "y": [2, 5, 2, 3], "c": ['r', 'y', 'b', 'lime'],
-            "s": [24, 15, 19, 29]}
+class TestScatter(object):
+    @image_comparison(baseline_images=['scatter', 'scatter'])
+    def test_scatter_plot(self):
+        fig, ax = plt.subplots()
+        data = {"x": [3, 4, 2, 6], "y": [2, 5, 2, 3],
+                "c": ['r', 'y', 'b', 'lime'], "s": [24, 15, 19, 29]}
 
-    ax.scatter(data["x"], data["y"], c=data["c"], s=data["s"])
+        ax.scatter(data["x"], data["y"], c=data["c"], s=data["s"])
 
-    # Reuse testcase from above for a labeled data test
-    fig, ax = plt.subplots()
-    ax.scatter("x", "y", c="c", s="s", data=data)
+        # Reuse testcase from above for a labeled data test
+        fig, ax = plt.subplots()
+        ax.scatter("x", "y", c="c", s="s", data=data)
 
+    @image_comparison(baseline_images=['scatter_marker'], remove_text=True,
+                      extensions=['png'])
+    def test_scatter_marker(self):
+        fig, (ax0, ax1, ax2) = plt.subplots(ncols=3)
+        ax0.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+                    c=[(1, 0, 0), 'y', 'b', 'lime'],
+                    s=[60, 50, 40, 30],
+                    edgecolors=['k', 'r', 'g', 'b'],
+                    marker='s')
+        ax1.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+                    c=[(1, 0, 0), 'y', 'b', 'lime'],
+                    s=[60, 50, 40, 30],
+                    edgecolors=['k', 'r', 'g', 'b'],
+                    marker=mmarkers.MarkerStyle('o', fillstyle='top'))
+        # unit area ellipse
+        rx, ry = 3, 1
+        area = rx * ry * np.pi
+        theta = np.linspace(0, 2 * np.pi, 21)
+        verts = np.column_stack([np.cos(theta) * rx / area,
+                                 np.sin(theta) * ry / area])
+        ax2.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+                    c=[(1, 0, 0), 'y', 'b', 'lime'],
+                    s=[60, 50, 40, 30],
+                    edgecolors=['k', 'r', 'g', 'b'],
+                    verts=verts)
 
-@image_comparison(baseline_images=['scatter_marker'], remove_text=True,
-                  extensions=['png'])
-def test_scatter_marker():
-    fig, (ax0, ax1, ax2) = plt.subplots(ncols=3)
-    ax0.scatter([3, 4, 2, 6], [2, 5, 2, 3],
-                c=[(1, 0, 0), 'y', 'b', 'lime'],
-                s=[60, 50, 40, 30],
-                edgecolors=['k', 'r', 'g', 'b'],
-                marker='s')
-    ax1.scatter([3, 4, 2, 6], [2, 5, 2, 3],
-                c=[(1, 0, 0), 'y', 'b', 'lime'],
-                s=[60, 50, 40, 30],
-                edgecolors=['k', 'r', 'g', 'b'],
-                marker=mmarkers.MarkerStyle('o', fillstyle='top'))
-    # unit area ellipse
-    rx, ry = 3, 1
-    area = rx * ry * np.pi
-    theta = np.linspace(0, 2 * np.pi, 21)
-    verts = np.column_stack([np.cos(theta) * rx / area,
-                             np.sin(theta) * ry / area])
-    ax2.scatter([3, 4, 2, 6], [2, 5, 2, 3],
-                c=[(1, 0, 0), 'y', 'b', 'lime'],
-                s=[60, 50, 40, 30],
-                edgecolors=['k', 'r', 'g', 'b'],
-                marker=verts)
+    @image_comparison(baseline_images=['scatter_2D'], remove_text=True,
+                      extensions=['png'])
+    def test_scatter_2D(self):
+        x = np.arange(3)
+        y = np.arange(2)
+        x, y = np.meshgrid(x, y)
+        z = x + y
+        fig, ax = plt.subplots()
+        ax.scatter(x, y, c=z, s=200, edgecolors='face')
 
-
-@image_comparison(baseline_images=['scatter_2D'], remove_text=True,
-                  extensions=['png'])
-def test_scatter_2D():
-    x = np.arange(3)
-    y = np.arange(2)
-    x, y = np.meshgrid(x, y)
-    z = x + y
-    fig, ax = plt.subplots()
-    ax.scatter(x, y, c=z, s=200, edgecolors='face')
-
-
-def test_scatter_color():
-    # Try to catch cases where 'c' kwarg should have been used.
-    with pytest.raises(ValueError):
-        plt.scatter([1, 2], [1, 2], color=[0.1, 0.2])
-    with pytest.raises(ValueError):
-        plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
+    def test_scatter_color(self):
+        # Try to catch cases where 'c' kwarg should have been used.
+        with pytest.raises(ValueError):
+            plt.scatter([1, 2], [1, 2], color=[0.1, 0.2])
+        with pytest.raises(ValueError):
+            plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
 
 def test_as_mpl_axes_api():
