@@ -683,7 +683,7 @@ class Axes(_AxesBase):
         spans the yrange, regardless of the ylim settings, even if you
         change them, e.g., with the :meth:`set_ylim` command.  That is,
         the vertical extent is in axes coords: 0=bottom, 0.5=middle,
-        1.0=top but the y location is in data coordinates.
+        1.0=top but the x location is in data coordinates.
 
         Parameters
         ----------
