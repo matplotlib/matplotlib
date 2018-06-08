@@ -1716,6 +1716,64 @@ class TestScatter(object):
         with pytest.raises(ValueError):
             plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
+    # Parameters for *test_scatter_c_kwarg*. NB: assuming that
+    # the scatter plot will have 4 elements. The tuple scheme is:
+    # (*c* parameter case, exception regexp key or None if no exception)
+    params_scatter_c_kwarg = [
+        # Single letter-sequences
+        ("rgby", None),
+        ("rgb", "shape"),
+        ("rgbrgb", "shape"),
+        (["rgby"], "conversion"),
+        # Special cases
+        ("red", None),
+        ("none", None),
+        (None, None),
+        (["r", "g", "b", "none"], None),
+        # Non-valid color spec (FWIW, 'jaune' means yellow in French)
+        ("jaune", "conversion"),
+        (["jaune"], "conversion"),  # wrong type before wrong size
+        (["jaune"]*4, "conversion"),
+        # Value-mapping like
+        ([0.5]*3, None),  # should emit a warning for user's eyes though
+        ([0.5]*4, None),  # NB: no warning as matching size allows mapping
+        ([0.5]*5, "shape"),
+        # RGB values
+        ([[1, 0, 0]], None),
+        ([[1, 0, 0]]*3, "shape"),
+        ([[1, 0, 0]]*4, None),
+        ([[1, 0, 0]]*5, "shape"),
+        # RGBA values
+        ([[1, 0, 0, 0.5]], None),
+        ([[1, 0, 0, 0.5]]*3, "shape"),
+        ([[1, 0, 0, 0.5]]*4, None),
+        ([[1, 0, 0, 0.5]]*5, "shape"),
+        # Mix of valid color specs
+        ([[1, 0, 0, 0.5]]*3 + [[1, 0, 0]], None),
+        ([[1, 0, 0, 0.5], "red", "0.0"], "shape"),
+        ([[1, 0, 0, 0.5], "red", "0.0", "C5"], None),
+        ([[1, 0, 0, 0.5], "red", "0.0", "C5", [0, 1, 0]], "shape"),
+        # Mix of valid and non valid color specs
+        ([[1, 0, 0, 0.5], "red", "jaune"], "conversion"),
+        ([[1, 0, 0, 0.5], "red", "0.0", "jaune"], "conversion"),
+        ([[1, 0, 0, 0.5], "red", "0.0", "C5", "jaune"], "conversion"),
+    ]
+
+    @pytest.mark.parametrize('c_case, re_key', params_scatter_c_kwarg)
+    def test_scatter_c_kwarg(self, c_case, re_key):
+        # Additional checking of *c* (introduced in #11383).
+        REGEXP = {"shape": "^'c' kwarg has [0-9]+ elements",  # shape mismatch
+                  "conversion": "^'c' kwarg must either be valid",  # bad vals
+                  }
+        x = y = [0, 1, 2, 3]
+        fig, ax = plt.subplots()
+
+        if re_key is None:
+            ax.scatter(x, y, c=c_case, edgecolors="black")
+        else:
+            with pytest.raises(ValueError, match=REGEXP[re_key]):
+                ax.scatter(x, y, c=c_case, edgecolors="black")
+
 
 def test_as_mpl_axes_api():
     # tests the _as_mpl_axes api
