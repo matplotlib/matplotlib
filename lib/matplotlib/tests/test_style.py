@@ -29,7 +29,7 @@ def temp_style(style_name, settings=None):
         with TemporaryDirectory() as tmpdir:
             # Write style settings to file in the tmpdir.
             Path(tmpdir, temp_file).write_text(
-                "\n".join(map("{0[0]}: {0[1]}".format, settings.items())))
+                "\n".join("{}: {}".format(k, v) for k, v in settings.items()))
             # Add tmpdir to style path and reload so we can access this style.
             USER_LIBRARY_PATHS.append(tmpdir)
             style.reload_library()

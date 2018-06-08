@@ -13,7 +13,7 @@ import re
 import shutil
 import subprocess
 import sys
-from tempfile import mkstemp
+from tempfile import TemporaryDirectory
 import time
 
 import numpy as np
@@ -1150,19 +1150,15 @@ class FigureCanvasPS(FigureCanvasBase):
         if rcParams['ps.usedistiller']:
             # We are going to use an external program to process the output.
             # Write to a temporary file.
-            fd, tmpfile = mkstemp()
-            try:
-                with open(fd, 'w', encoding='latin-1') as fh:
+            with TemporaryDirectory() as tmpdir:
+                tmpfile = os.path.join(tmpdir, "tmp.ps")
+                with open(tmpfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
                 if rcParams['ps.usedistiller'] == 'ghostscript':
                     gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
                 elif rcParams['ps.usedistiller'] == 'xpdf':
                     xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-
                 _move_path_to_path_or_stream(tmpfile, outfile)
-            finally:
-                if os.path.isfile(tmpfile):
-                    os.unlink(tmpfile)
 
         else:
             # Write directly to outfile.
@@ -1255,9 +1251,9 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
 
-        fd, tmpfile = mkstemp()
-        try:
-            with open(fd, 'w', encoding='latin-1') as fh:
+        with TemporaryDirectory() as tmpdir:
+            tmpfile = os.path.join(tmpdir, "tmp.ps")
+            with open(tmpfile, 'w', encoding='latin-1') as fh:
                 # write the Encapsulated PostScript headers
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
                 if title:
@@ -1344,9 +1340,6 @@ class FigureCanvasPS(FigureCanvasBase):
                              rotated=psfrag_rotated)
 
             _move_path_to_path_or_stream(tmpfile, outfile)
-        finally:
-            if os.path.isfile(tmpfile):
-                os.unlink(tmpfile)
 
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
