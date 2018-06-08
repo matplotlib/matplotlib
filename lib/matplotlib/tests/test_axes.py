@@ -1716,10 +1716,10 @@ class TestScatter(object):
         with pytest.raises(ValueError):
             plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
-    # Parameters for *test_scatter_c_kwarg*. NB: assuming that
-    # the scatter plot will have 4 elements. The tuple scheme is:
+    # Parameters for *test_scatter_c*. NB: assuming that the
+    # scatter plot will have 4 elements. The tuple scheme is:
     # (*c* parameter case, exception regexp key or None if no exception)
-    params_scatter_c_kwarg = [
+    params_test_scatter_c = [
         # Single letter-sequences
         ("rgby", None),
         ("rgb", "shape"),
@@ -1759,12 +1759,13 @@ class TestScatter(object):
         ([[1, 0, 0, 0.5], "red", "0.0", "C5", "jaune"], "conversion"),
     ]
 
-    @pytest.mark.parametrize('c_case, re_key', params_scatter_c_kwarg)
-    def test_scatter_c_kwarg(self, c_case, re_key):
+    @pytest.mark.parametrize('c_case, re_key', params_test_scatter_c)
+    def test_scatter_c(self, c_case, re_key):
         # Additional checking of *c* (introduced in #11383).
-        REGEXP = {"shape": "^'c' kwarg has [0-9]+ elements",  # shape mismatch
-                  "conversion": "^'c' kwarg must either be valid",  # bad vals
-                  }
+        REGEXP = {
+            "shape": "^'c' argument has [0-9]+ elements",  # shape mismatch
+            "conversion": "^'c' argument must either be valid",  # bad vals
+            }
         x = y = [0, 1, 2, 3]
         fig, ax = plt.subplots()
 

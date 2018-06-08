@@ -3878,15 +3878,15 @@ class Axes(_AxesBase):
             except ValueError:
                 raise ValueError("'color' kwarg must be an mpl color"
                                  " spec or sequence of color specs.\n"
-                                 "For a sequence of values to be"
-                                 " color-mapped, use the 'c' kwarg instead.")
+                                 "For a sequence of values to be color-mapped,"
+                                 " use the 'c' argument instead.")
             if edgecolors is None:
                 edgecolors = co
             if facecolors is None:
                 facecolors = co
             if c is not None:
-                raise ValueError("Supply a 'c' kwarg or a 'color' kwarg"
-                                 " but not both; they differ but"
+                raise ValueError("Supply a 'c' argument or a 'color'"
+                                 " kwarg but not both; they differ but"
                                  " their functionalities overlap.")
         if c is None:
             if facecolors is not None:
@@ -3943,7 +3943,7 @@ class Axes(_AxesBase):
                 else:
                     if c_array.shape in ((3,), (4,)):
                         _log.warning(
-                            "'c' kwarg looks like a **single** numeric RGB or "
+                            "'c' argument looks like a single numeric RGB or "
                             "RGBA sequence, which should be avoided as value-"
                             "mapping will have precedence in case its length "
                             "matches with 'x' & 'y'.  Please use a 2-D array "
@@ -3968,15 +3968,16 @@ class Axes(_AxesBase):
             except ValueError:
                 if not valid_shape:  # but at least one conversion succeeded.
                     raise ValueError(
-                        "'c' kwarg has {nc} elements, which is not acceptable "
-                        "for use with 'x' with size {xs}, 'y' with size {ys}."
+                        "'c' argument has {nc} elements, which is not "
+                        "acceptable for use with 'x' with size {xs}, "
+                        "'y' with size {ys}."
                         .format(nc=n_elem, xs=x.size, ys=y.size)
                     )
                 # Both the mapping *and* the RGBA conversion failed: pretty
                 # severe failure => one may appreciate a verbose feedback.
                 raise ValueError(
-                    "'c' kwarg must either be valid as mpl color(s) or "
-                    "as numbers to be mapped to colors. "
+                    "'c' argument must either be valid as mpl color(s) "
+                    "or as numbers to be mapped to colors. "
                     "Here c = {}."  # <- beware, could be long depending on c.
                     .format(c)
                 )
