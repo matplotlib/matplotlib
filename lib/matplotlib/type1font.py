@@ -81,7 +81,7 @@ class Type1Font(object):
                                    'got %d)' % rawdata[0])
             type = rawdata[1]
             if type in (1, 2):
-                length, = struct.unpack(str('<i'), rawdata[2:6])
+                length, = struct.unpack('<i', rawdata[2:6])
                 segment = rawdata[6:6 + length]
                 rawdata = rawdata[6 + length:]
 

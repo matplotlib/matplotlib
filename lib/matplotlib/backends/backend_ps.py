@@ -1409,8 +1409,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     latexfile = latexfile.replace("\\", "/")
     # Replace ~ so Latex does not think it is line break
     latexfile = latexfile.replace("~", "\\string~")
-    command = [str("latex"), "-interaction=nonstopmode",
-               '"%s"' % latexfile]
+    command = ["latex", "-interaction=nonstopmode", '"%s"' % latexfile]
     _log.debug('%s', command)
     try:
         report = subprocess.check_output(command, cwd=tmpdir,
@@ -1424,7 +1423,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                        exc.output.decode("utf-8"))))
     _log.debug(report)
 
-    command = [str('dvips'), '-q', '-R0', '-o', os.path.basename(psfile),
+    command = ['dvips', '-q', '-R0', '-o', os.path.basename(psfile),
                os.path.basename(dvifile)]
     _log.debug(command)
     try:
@@ -1525,7 +1524,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
 
     # Pass options as `-foo#bar` instead of `-foo=bar` to keep Windows happy
     # (https://www.ghostscript.com/doc/9.22/Use.htm#MS_Windows).
-    command = [str("ps2pdf"),
+    command = ["ps2pdf",
                "-dAutoFilterColorImages#false",
                "-dAutoFilterGrayImages#false",
                "-dAutoRotatePages#false",
@@ -1544,7 +1543,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
              '\n\n' % exc.output.decode("utf-8")))
     _log.debug(report)
 
-    command = [str("pdftops"), "-paper", "match", "-level2", pdffile, psfile]
+    command = ["pdftops", "-paper", "match", "-level2", pdffile, psfile]
     _log.debug(command)
     try:
         report = subprocess.check_output(command, stderr=subprocess.STDOUT)

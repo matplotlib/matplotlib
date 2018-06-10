@@ -213,10 +213,7 @@ def tempcsv():
 
 
 def test_recarray_csv_roundtrip(tempcsv):
-    expected = np.recarray((99,),
-                           [(str('x'), float),
-                            (str('y'), float),
-                            (str('t'), float)])
+    expected = np.recarray((99,), [('x', float), ('y', float), ('t', float)])
     # initialising all values: uninitialised memory sometimes produces
     # floats that do not round-trip to string and back.
     expected['x'][:] = np.linspace(-1e9, -1, 99)
@@ -233,8 +230,7 @@ def test_recarray_csv_roundtrip(tempcsv):
 
 
 def test_rec2csv_bad_shape_ValueError(tempcsv):
-    bad = np.recarray((99, 4), [(str('x'), float),
-                                (str('y'), float)])
+    bad = np.recarray((99, 4), [('x', float), ('y', float)])
 
     # the bad recarray should trigger a ValueError for having ndim > 1.
     with pytest.warns(MatplotlibDeprecationWarning):
@@ -286,14 +282,12 @@ def test_csv2rec_dates(tempcsv, input, kwargs):
 
 
 def test_rec2txt_basic():
-    # str() calls around field names necessary b/c as of numpy 1.11
-    # dtype doesn't like unicode names (caused by unicode_literals import)
     a = np.array([(1.0, 2, 'foo', 'bing'),
                   (2.0, 3, 'bar', 'blah')],
-                 dtype=np.dtype([(str('x'), np.float32),
-                                 (str('y'), np.int8),
-                                 (str('s'), str, 3),
-                                 (str('s2'), str, 4)]))
+                 dtype=np.dtype([('x', np.float32),
+                                 ('y', np.int8),
+                                 ('s', str, 3),
+                                 ('s2', str, 4)]))
     truth = ('       x   y   s     s2\n'
              '   1.000   2   foo   bing   \n'
              '   2.000   3   bar   blah   ').splitlines()

@@ -276,7 +276,7 @@ def setup(app):
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
 
-    app.connect(str('doctree-read'), mark_plot_labels)
+    app.connect('doctree-read', mark_plot_labels)
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
