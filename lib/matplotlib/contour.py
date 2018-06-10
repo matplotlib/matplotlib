@@ -1180,6 +1180,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         """
+        self._auto = True
         if self.locator is None:
             if self.logscale:
                 self.locator = ticker.LogLocator()
@@ -1187,8 +1188,26 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
 
         lev = self.locator.tick_values(self.zmin, self.zmax)
-        self._auto = True
-        return lev
+
+        try:
+            if self.locator._symmetric:
+                return lev
+        except AttributeError:
+            pass
+
+        under = np.nonzero(lev < self.zmin)[0]
+        i0 = under[-1] if len(under) else 0
+        over = np.nonzero(lev > self.zmax)[0]
+        i1 = over[0] + 1 if len(over) else len(lev)
+        if self.extend in ('min', 'both'):
+            i0 += 1
+        if self.extend in ('max', 'both'):
+            i1 -= 1
+
+        if i1 - i0 < 3:
+            i0, i1 = 0, len(lev)
+
+        return lev[i0:i1]
 
     def _contour_level_args(self, z, args):
         """
@@ -1245,10 +1264,22 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # (Colorbar needs this even for line contours.)
         self._levels = list(self.levels)
 
+        if self.logscale:
+            def raised(x): return x * 1.1
+
+            def lowered(x): return x / 1.1
+
+        else:
+            def raised(x): return x + 1
+
+            def lowered(x): return x - 1
+
         if self.extend in ('both', 'min'):
-            self._levels.insert(0, min(self.levels[0], self.zmin) - 1)
+            lower = lowered(min(self.levels[0], self.zmin))
+            self._levels.insert(0, lower)
         if self.extend in ('both', 'max'):
-            self._levels.append(max(self.levels[-1], self.zmax) + 1)
+            upper = raised(max(self.levels[-1], self.zmax))
+            self._levels.append(upper)
         self._levels = np.asarray(self._levels)
 
         if not self.filled:
@@ -1260,10 +1291,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # ...except that extended layers must be outside the
         # normed range:
         if self.extend in ('both', 'min'):
-            if self.logscale:
-                self.layers[0] = 1e-150
-            else:
-                self.layers[0] = -1e150
+            self.layers[0] = 1e-150 if self.logscale else -1e150
         if self.extend in ('both', 'max'):
             self.layers[-1] = 1e150
 
