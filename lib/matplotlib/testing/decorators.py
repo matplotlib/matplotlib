@@ -407,6 +407,46 @@ def image_comparison(baseline_images, extensions=None, tol=0,
             savefig_kwargs=savefig_kwarg, style=style)
 
 
+def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
+    """
+    Decorator for test cases that generate and compare two figures.
+
+    The decorated function must take two arguments, *fig_test* and *fig_ref*,
+    and draw the test and reference images on them.  After the function
+    returns, the figures are saved and compared.
+
+    Arguments
+    ---------
+    extensions : list, default: ["png", "pdf", "svg"]
+        The extensions to test.
+    tol : float
+        The RMS threshold above which the test is considered failed.
+    """
+
+    def decorator(func):
+        import pytest
+
+        _, result_dir = map(Path, _image_directories(func))
+
+        @pytest.mark.parametrize("ext", extensions)
+        def wrapper(ext):
+            fig_test = plt.figure("test")
+            fig_ref = plt.figure("reference")
+            func(fig_test, fig_ref)
+            test_image_path = str(
+                result_dir / (func.__name__ + "." + ext))
+            ref_image_path = str(
+                result_dir / (func.__name__ + "-expected." + ext))
+            fig_test.savefig(test_image_path)
+            fig_ref.savefig(ref_image_path)
+            _raise_on_image_difference(
+                ref_image_path, test_image_path, tol=tol)
+
+        return wrapper
+
+    return decorator
+
+
 def _image_directories(func):
     """
     Compute the baseline and result image directories for testing *func*.

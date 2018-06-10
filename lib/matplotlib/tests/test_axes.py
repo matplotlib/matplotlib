@@ -14,7 +14,7 @@ import pytest
 import warnings
 
 import matplotlib
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
@@ -5702,18 +5702,11 @@ def test_plot_columns_cycle_deprecation():
         plt.plot(np.zeros((2, 2)), np.zeros((2, 3)))
 
 
-def test_markerfacecolor_none_alpha():
-    fig1, ax1 = plt.subplots()
-    ax1.plot(0, "o", mfc="none", alpha=.5)
-    buf1 = io.BytesIO()
-    fig1.savefig(buf1)
-
-    fig2, ax2 = plt.subplots()
-    ax2.plot(0, "o", mfc="w", alpha=.5)
-    buf2 = io.BytesIO()
-    fig2.savefig(buf2)
-
-    assert buf1.getvalue() == buf2.getvalue()
+# pdf and svg tests fail using travis' old versions of gs and inkscape.
+@check_figures_equal(extensions=["png"])
+def test_markerfacecolor_none_alpha(fig_test, fig_ref):
+    fig_test.subplots().plot(0, "o", mfc="none", alpha=.5)
+    fig_ref.subplots().plot(0, "o", mfc="w", alpha=.5)
 
 
 def test_tick_padding_tightbbox():
