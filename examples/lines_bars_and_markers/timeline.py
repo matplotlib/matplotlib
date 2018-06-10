@@ -14,21 +14,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.dates as mdates
 from datetime import datetime
-import urllib.request
-import json
 
-# Grab a list of Matplotlib releases
-url = 'https://api.github.com/repos/matplotlib/matplotlib/releases'
-data = json.loads(urllib.request.urlopen(url).read().decode())
+# A list of Matplotlib releases and their dates
+# Taken from https://api.github.com/repos/matplotlib/matplotlib/releases
+names = ['v2.2.2', 'v2.2.1', 'v2.2.0', 'v2.1.2', 'v2.1.1', 'v2.1.0', 'v2.0.2',
+         'v2.0.1', 'v2.0.0', 'v1.5.3', 'v1.5.2', 'v1.5.1', 'v1.5.0', 'v1.4.3',
+         'v1.4.2', 'v1.4.1', 'v1.4.0']
 
-names = []
-dates = []
-for irelease in data:
-    if 'rc' not in irelease['tag_name'] and 'b' not in irelease['tag_name']:
-        names.append(irelease['tag_name'])
-        # Convert date strings (e.g. 2014-10-18T18:56:23Z) to datetime
-        dates.append(datetime.strptime(irelease['published_at'],
-                     "%Y-%m-%dT%H:%M:%SZ"))
+dates = ['2018-03-17T03:00:07Z', '2018-03-16T22:06:39Z',
+         '2018-03-06T12:53:32Z', '2018-01-18T04:56:47Z',
+         '2017-12-10T04:47:38Z', '2017-10-07T22:35:12Z',
+         '2017-05-10T02:11:15Z', '2017-05-02T01:59:49Z',
+         '2017-01-17T02:59:36Z', '2016-09-09T03:00:52Z',
+         '2016-07-03T15:52:01Z', '2016-01-10T22:38:50Z',
+         '2015-10-29T21:40:23Z', '2015-02-16T04:22:54Z',
+         '2014-10-26T03:24:13Z', '2014-10-18T18:56:23Z',
+         '2014-08-26T21:06:04Z']
+dates = [datetime.strptime(ii, "%Y-%m-%dT%H:%M:%SZ") for ii in dates]
 
 ##############################################################################
 # Next, we'll iterate through each date and plot it on a horizontal line.
@@ -37,7 +39,7 @@ for irelease in data:
 # Note that Matplotlib will automatically plot datetime inputs.
 
 levels = np.array([-5, 5, -3, 3, -1, 1])
-fig, ax = plt.subplots(figsize=(20, 5))
+fig, ax = plt.subplots(figsize=(8, 5))
 
 # Create the base line
 start = min(dates)
