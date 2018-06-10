@@ -744,8 +744,8 @@ class Line2D(Artist):
             subslice = slice(max(i0 - 1, 0), i1 + 1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
-
-        transf_path = self._get_transformed_path()
+        else:
+            subslice = None
 
         if self.get_path_effects():
             from matplotlib.patheffects import PathEffectRenderer
@@ -753,7 +753,8 @@ class Line2D(Artist):
 
         renderer.open_group('line2d', self.get_gid())
         if self._lineStyles[self._linestyle] != '_draw_nothing':
-            tpath, affine = transf_path.get_transformed_path_and_affine()
+            tpath, affine = (self._get_transformed_path()
+                             .get_transformed_path_and_affine())
             if len(tpath.vertices):
                 gc = renderer.new_gc()
                 self._set_gc_clip(gc)
@@ -801,7 +802,20 @@ class Line2D(Artist):
             gc.set_foreground(ec_rgba, isRGBA=True)
 
             marker = self._marker
-            tpath, affine = transf_path.get_transformed_points_and_affine()
+
+            # Markers *must* be drawn ignoring the drawstyle (but don't pay the
+            # recaching if drawstyle is already "default").
+            if self.get_drawstyle() != "default":
+                with cbook._setattr_cm(
+                        self, _drawstyle="default", _transformed_path=None):
+                    self.recache()
+                    self._transform_path(subslice)
+                    tpath, affine = (self._get_transformed_path()
+                                    .get_transformed_path_and_affine())
+            else:
+                tpath, affine = (self._get_transformed_path()
+                                 .get_transformed_path_and_affine())
+
             if len(tpath.vertices):
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
