@@ -1145,8 +1145,10 @@ class Axis(artist.Artist):
         bb = []
 
         for a in [self.label, self.offsetText]:
-            if a.get_visible():
-                bb.append(a.get_window_extent(renderer))
+            bbox = a.get_window_extent(renderer)
+            if (np.isfinite(bbox.width) and np.isfinite(bbox.height) and
+                    a.get_visible()):
+                bb.append(bbox)
 
         bb.extend(ticklabelBoxes)
         bb.extend(ticklabelBoxes2)
