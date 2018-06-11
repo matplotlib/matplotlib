@@ -40,3 +40,6 @@ The following classes, methods, functions, and attributes are deprecated:
 
 The following rcParams are deprecated:
 - ``pgf.debug`` (the pgf backend relies on logging),
+
+The following keyword arguments are deprecated:
+- passing ``verts`` to ``scatter`` (use ``marker`` instead),

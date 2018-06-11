@@ -1743,7 +1743,7 @@ def test_scatter_marker():
                 c=[(1, 0, 0), 'y', 'b', 'lime'],
                 s=[60, 50, 40, 30],
                 edgecolors=['k', 'r', 'g', 'b'],
-                verts=verts)
+                marker=verts)
 
 
 @image_comparison(baseline_images=['scatter_2D'], remove_text=True,

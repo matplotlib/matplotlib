@@ -3818,11 +3818,6 @@ class Axes(_AxesBase):
             is 'face'. You may want to change this as well.
             If *None*, defaults to rcParams ``lines.linewidth``.
 
-        verts : sequence of (x, y), optional
-            If *marker* is *None*, these vertices will be used to construct
-            the marker.  The center of the marker is located at (0, 0) in
-            normalized units.  The overall marker is rescaled by *s*.
-
         edgecolors : color or sequence of color, optional, default: 'face'
             The edge color of the marker. Possible values:
 
@@ -3960,9 +3955,11 @@ class Axes(_AxesBase):
         scales = s   # Renamed for readability below.
 
         # to be API compatible
-        if marker is None and verts is not None:
-            marker = (verts, 0)
-            verts = None
+        if verts is not None:
+            cbook.warn_deprecated("3.0", name="'verts'", obj_type="kwarg",
+                                  alternative="'marker'")
+            if marker is None:
+                marker = verts
 
         # load default marker from rcParams
         if marker is None:
