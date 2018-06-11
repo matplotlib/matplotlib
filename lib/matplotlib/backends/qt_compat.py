@@ -133,7 +133,7 @@ if _sip_imported:
             _log.info(cond + res)
     if QT_API == QT_API_PYQT5:
         try:
-            from PyQt5 import QtCore, QtGui, QtWidgets
+            from PyQt5 import QtCore, QtGui, QtWidgets, QtDesigner
             _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
         except ImportError:
             if _fallback_to_qt4:
@@ -146,7 +146,7 @@ if _sip_imported:
     # needs to be if so we can re-test the value of QT_API which may
     # have been changed in the above if block
     if QT_API in [QT_API_PYQT, QT_API_PYQTv2]:  # PyQt4 API
-        from PyQt4 import QtCore, QtGui
+        from PyQt4 import QtCore, QtGui, QtDesigner
 
         try:
             if sip.getapi("QString") > 1:
