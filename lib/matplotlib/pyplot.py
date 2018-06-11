@@ -1354,17 +1354,23 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
 
 def box(on=None):
     """
-    Turn the axes box on or off.
+    Turn the axes box on or off on the current axes.
 
     Parameters
     ----------
     on : bool or None
-        The new axes box state.  If ``None``, toggle the state.
+        The new `~matplotlib.axes.Axes` box state. If ``None``, toggle
+        the state.
+
+    See Also
+    --------
+    :meth:`matplotlib.axes.Axes.set_frame_on`
+    :meth:`matplotlib.axes.Axes.get_frame_on`
     """
     ax = gca()
-    on = _string_to_bool(on)
     if on is None:
         on = not ax.get_frame_on()
+    on = _string_to_bool(on)
     ax.set_frame_on(on)
 
 
