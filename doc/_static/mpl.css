@@ -810,7 +810,7 @@ figcaption {
   font-weight: bold;
   left: 0;
   min-height: 3em;
-  padding: 0.5em;
+  padding: 0.7em;
   top: 0;
   width: 100%;
   z-index: 10000;
@@ -829,7 +829,7 @@ figcaption {
   font-weight: bold;
   left: 0;
   min-height: 3em;
-  padding: 0.5em;
+  padding: 0.7em;
   position: fixed;
   top: 0;
   width: 100%;
