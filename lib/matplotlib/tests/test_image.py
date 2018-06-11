@@ -1091,6 +1091,11 @@ def test_image_array_alpha(fig_test, fig_ref):
     ax.imshow(rgba, interpolation='nearest')
 
 
+def test_image_array_alpha_validation():
+    with pytest.raises(TypeError, match="alpha must be a float, two-d"):
+        plt.imshow(np.zeros((2, 2)), alpha=[1, 1])
+
+
 @pytest.mark.style('mpl20')
 def test_exact_vmin():
     cmap = copy(plt.cm.get_cmap("autumn_r"))

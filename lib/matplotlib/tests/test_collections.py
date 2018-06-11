@@ -543,9 +543,36 @@ def test_cap_and_joinstyle_image():
 def test_scatter_post_alpha():
     fig, ax = plt.subplots()
     sc = ax.scatter(range(5), range(5), c=range(5))
-    # this needs to be here to update internal state
-    fig.canvas.draw()
     sc.set_alpha(.1)
+
+
+def test_scatter_alpha_array():
+    x = np.arange(5)
+    alpha = x / 5
+    # With color mapping.
+    fig, (ax0, ax1) = plt.subplots(2)
+    sc0 = ax0.scatter(x, x, c=x, alpha=alpha)
+    sc1 = ax1.scatter(x, x, c=x)
+    sc1.set_alpha(alpha)
+    plt.draw()
+    assert_array_equal(sc0.get_facecolors()[:, -1], alpha)
+    assert_array_equal(sc1.get_facecolors()[:, -1], alpha)
+    # Without color mapping.
+    fig, (ax0, ax1) = plt.subplots(2)
+    sc0 = ax0.scatter(x, x, color=['r', 'g', 'b', 'c', 'm'], alpha=alpha)
+    sc1 = ax1.scatter(x, x, color='r', alpha=alpha)
+    plt.draw()
+    assert_array_equal(sc0.get_facecolors()[:, -1], alpha)
+    assert_array_equal(sc1.get_facecolors()[:, -1], alpha)
+    # Without color mapping, and set alpha afterward.
+    fig, (ax0, ax1) = plt.subplots(2)
+    sc0 = ax0.scatter(x, x, color=['r', 'g', 'b', 'c', 'm'])
+    sc0.set_alpha(alpha)
+    sc1 = ax1.scatter(x, x, color='r')
+    sc1.set_alpha(alpha)
+    plt.draw()
+    assert_array_equal(sc0.get_facecolors()[:, -1], alpha)
+    assert_array_equal(sc1.get_facecolors()[:, -1], alpha)
 
 
 def test_pathcollection_legend_elements():
@@ -660,6 +687,39 @@ def test_quadmesh_set_array():
     coll.set_array(np.ones(9))
     fig.canvas.draw()
     assert np.array_equal(coll.get_array(), np.ones(9))
+
+
+def test_quadmesh_alpha_array():
+    x = np.arange(4)
+    y = np.arange(4)
+    z = np.arange(9).reshape((3, 3))
+    alpha = z / z.max()
+    alpha_flat = alpha.ravel()
+    # Provide 2-D alpha:
+    fig, (ax0, ax1) = plt.subplots(2)
+    coll1 = ax0.pcolormesh(x, y, z, alpha=alpha)
+    coll2 = ax1.pcolormesh(x, y, z)
+    coll2.set_alpha(alpha)
+    plt.draw()
+    assert_array_equal(coll1.get_facecolors()[:, -1], alpha_flat)
+    assert_array_equal(coll2.get_facecolors()[:, -1], alpha_flat)
+    # Or provide 1-D alpha:
+    fig, (ax0, ax1) = plt.subplots(2)
+    coll1 = ax0.pcolormesh(x, y, z, alpha=alpha_flat)
+    coll2 = ax1.pcolormesh(x, y, z)
+    coll2.set_alpha(alpha_flat)
+    plt.draw()
+    assert_array_equal(coll1.get_facecolors()[:, -1], alpha_flat)
+    assert_array_equal(coll2.get_facecolors()[:, -1], alpha_flat)
+
+
+def test_alpha_validation():
+    # Most of the relevant testing is in test_artist and test_colors.
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh(np.arange(12).reshape((3, 4)))
+    with pytest.raises(ValueError, match="^Data array shape"):
+        pc.set_alpha([0.5, 0.6])
+        pc.update_scalarmappable()
 
 
 def test_legend_inverse_size_label_relationship():
