@@ -393,7 +393,7 @@ def list_colormaps():
     """
     Matplotlib provides a number of colormaps, and others can be added using
     :func:`~matplotlib.cm.register_cmap`.  This function documents the built-in
-    colormaps, and will also return a list of all registered colormaps if called.
+    colormaps, and returns a list of all registered colormaps.
 
     You can set the colormap for an image, pcolor, scatter, etc,
     using a keyword argument::
@@ -531,9 +531,9 @@ def list_colormaps():
     package <https://dhmunro.github.io/yorick-doc/>`_, an evolution of
     the GIST package, both by David H. Munro are included:
 
-      ============  =======================================================
+      ============  ========================================================
       Colormap      Description
-      ============  =======================================================
+      ============  ========================================================
       gist_earth    mapmaker's colors from dark blue deep ocean to green
                     lowlands to brown highlands to white mountains
       gist_heat     sequential increasing black-red-orange-white, to emulate
@@ -545,18 +545,18 @@ def list_colormaps():
                     violet at full saturation (like *hsv* but not cyclic)
       gist_stern    "Stern special" color table from Interactive Data
                     Language software
-      ============  =======================================================
+      ============  ========================================================
 
     A set of cyclic color maps:
 
-      ================  =========================================================
+      ================  =================================================
       Colormap          Description
-      ================  =========================================================
-      hsv               red-yellow-green-cyan-blue-magenta-red, formed by changing
-                        the hue component in the HSV color space
-      twilight          perceptually uniform shades of white-blue-black-red-white
-      twilight_shifted  perceptually uniform shades of black-blue-white-red-black
-      ================  =========================================================
+      ================  =================================================
+      hsv               red-yellow-green-cyan-blue-magenta-red, formed by
+                        changing the hue component in the HSV color space
+      twilight          perceptually uniform, white-blue-black-red-white
+      twilight_shifted  perceptually uniform, black-blue-white-red-black
+      ================  =================================================
 
 
     Other miscellaneous schemes:
