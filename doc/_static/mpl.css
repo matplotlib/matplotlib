@@ -1056,6 +1056,10 @@ p.sphx-glr-signature {
    display: none !important;
 }
 
+div.sphx-glr-download-link-note {
+   display: none !important;
+}
+
 .sphx-glr-thumbcontainer a.internal {
     font-weight: 400;
 }
