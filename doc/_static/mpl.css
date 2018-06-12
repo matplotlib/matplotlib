@@ -290,10 +290,6 @@ p {
     margin: 0.8em 0 0.8em 0;
 }
 
-p.rubric {
-    font-weight: bold;
-}
-
 h1 {
     margin: 0.5em 0em;
     padding-top: 0.5em;
@@ -618,11 +614,50 @@ ul.keywordmatches li.goodmatch a {
 table.docutils {
     border-spacing: 2px;
     border-collapse: collapse;
-    border-top-width: 1px;
-    border-right-width: 0px;
-    border-bottom-width: 1px;
-    border-left-width: 0px;
+    border: 0px;
 }
+
+table.docutils th {
+    border-width: 1px 0px;
+    border-color: #888;
+    background-color: #f0f0f0;
+    width: 100px;
+}
+
+table.docutils td {
+    border-width: 1px 0px;
+    border-color: #ccc;
+}
+
+table.docutils tr:last-of-type td {
+    border-bottom-color: #888;
+}
+
+/* Section titles within classes */
+dl.class p.rubric {
+    font-size: 16px;
+}
+
+/* Attribute tables */
+dl.class p.rubric + table.docutils {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-bottom: 1.5em;
+    border-top: 1px solid #888;
+    border-bottom: 1px solid #888;
+}
+
+dl.class p.rubric + table.docutils td {
+    padding-left: 0px;
+    border-color: #ccc;
+}
+
+dl.class p.rubric + table.docutils td:first-of-type > strong {
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: normal;
+}
+
 
 /* module summary table */
 .longtable.docutils {
@@ -640,16 +675,28 @@ table.docutils {
 /* tables inside parameter descriptions */
 td.field-body table.property-table {
     width: 100%;
+    border-spacing: 2px;
+    border-collapse: collapse;
+    border: 0px;
 }
 
 td.field-body table.property-table th {
     padding: 2px 10px;
-    border: 0;
+    border-width: 1px 0px;
+    border-color: #888;
+    background-color: #f0f0f0;
 }
 
 td.field-body table.property-table td {
     padding: 2px 10px;
+    border-width: 1px 0px;
+    border-color: #ccc;
 }
+
+td.field-body table.property-table tr:last-of-type td {
+    border-bottom-color: #888;
+}
+
 
 /* function and class description */
 .descclassname {
@@ -660,18 +707,6 @@ td.field-body table.property-table td {
 .descname {
     font-family: monospace;
 }
-
-
-table.docutils th {
-    padding: 1px 8px 1px 5px;
-    background-color: #eee;
-    width: 100px;
-}
-
-table.docutils td {
-    border-width: 1px 0 1px 0;
-}
-
 
 /*** function and class description ***/
 /* top-level definitions */
@@ -728,29 +763,30 @@ dl.class > dd {
     font-size: 14px;
 }
 
+/* parameter section table */
 table.docutils.field-list {
     width: 100%;
 }
-
-.docutils.field-list th {
+.docutils.field-list th.field-name {
     background-color: #eee;
     padding: 10px;
     text-align: left;
     vertical-align: top;
     width: 125px;
 }
-.docutils.field-list td {
+.docutils.field-list td.field-body {
     padding: 10px 10px 10px 20px;
     text-align: left;
     vertical-align: top;
 }
-.docutils.field-list td blockquote p {
+.docutils.field-list td.field-body blockquote p {
     font-size: 13px;
     line-height: 18px;
 }
-.docutils.field-list td blockquote p ul li{
+.docutils.field-list td.field-body blockquote p ul li{
     font-size: 13px;
 }
+
 p.rubric {
     font-weight: bold;
     font-size: 19px;
