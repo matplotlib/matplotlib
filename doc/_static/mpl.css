@@ -406,7 +406,7 @@ div.seealso {
     color: #3F5E7F;
   }
 
-div.warning {
+div.warning, div.important {
     background-color: #F3E5E5;
     border-color: #CC8E8E;
     color: #7F1919;
@@ -493,6 +493,12 @@ p.topic-title {
 
 .contents > ul > li {
     padding-top: 0.7em;
+}
+
+.contents ul > li::before {
+    content: "\25FE";
+    color: #bbb;
+    padding-right: .3em;
 }
 
 .contents > ul > li > a {
@@ -631,6 +637,10 @@ table.docutils td {
 
 table.docutils tr:last-of-type td {
     border-bottom-color: #888;
+}
+
+table.docutils tr:first-of-type td {
+    border-top-color: #888;
 }
 
 /* Section titles within classes */
