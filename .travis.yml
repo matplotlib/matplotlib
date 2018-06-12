@@ -54,6 +54,7 @@ env:
     - NOSE=
     - NUMPY=numpy
     - PANDAS=
+    - JUPYTER=
     - PYPARSING=pyparsing
     - PYTEST='pytest>=3.4'
     - PYTEST_COV=pytest-cov
@@ -94,6 +95,7 @@ matrix:
       env:
         - DELETE_FONT_CACHE=1
         - PANDAS='pandas<0.21.0'
+        - JUPYTER='jupyter'
         - PYTEST_PEP8=pytest-pep8
         - PYTEST_ADDOPTS="$PYTEST_ADDOPTS --pep8"
     - python: "nightly"
@@ -147,6 +149,7 @@ install:
         $NOSE \
         $NUMPY \
         $PANDAS \
+        $JUPYTER \
         pillow \
         $PYPARSING \
         $SPHINX \

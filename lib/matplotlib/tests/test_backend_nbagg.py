@@ -2,10 +2,12 @@
 import os
 import subprocess
 import tempfile
-import nbformat
+import pytest
 
+nbformat = pytest.importorskip('nbformat')
 
 # From https://blog.thedataincubator.com/2016/06/testing-jupyter-notebooks/
+
 
 def _notebook_run(nb_file):
     """Execute a notebook via nbconvert and collect output.
