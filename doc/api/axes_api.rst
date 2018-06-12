@@ -11,6 +11,7 @@
    :depth: 2
    :local:
    :backlinks: entry
+   :class: multicol-toc
 
 
 Plotting
