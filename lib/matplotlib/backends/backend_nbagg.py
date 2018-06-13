@@ -7,6 +7,7 @@ from base64 import b64encode
 import io
 import json
 import os
+import pathlib
 import uuid
 
 from IPython.display import display, Javascript, HTML
@@ -111,7 +112,8 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         else:
             output = stream
         super().get_javascript(stream=output)
-        output.write((Path(__file__).parent / "web_backend/js/nbagg_mpl.js")
+        output.write((pathlib.Path(__file__).parent
+                      / "web_backend/js/nbagg_mpl.js")
                      .read_text(encoding="utf-8"))
         if stream is None:
             return output.getvalue()
