@@ -74,7 +74,7 @@ class PathInteractor(object):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.pathpatch)
         self.ax.draw_artist(self.line)
-        self.canvas.blit(self.ax.bbox)
+        # Do not blit here, because this happens before the screen update 
 
     def pathpatch_changed(self, pathpatch):
         'this method is called whenever the pathpatchgon object is called'
