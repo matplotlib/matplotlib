@@ -415,7 +415,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     Parameters
     ----------
 
-    num : integer or string, optional, default: none
+    num : integer or string, optional, default: None
         If not provided, a new figure will be created, and the figure number
         will be incremented. The figure objects holds this number in a `number`
         attribute.
@@ -769,14 +769,20 @@ def figlegend(*args, **kwargs):
 
 ## Axes ##
 
-
+@docstring.dedent_interpd
 def axes(arg=None, **kwargs):
     """
     Add an axes to the current figure and make it the current axes.
 
+    Call signatures::
+
+        plt.axes()
+        plt.axes(rect, projection=None, polar=False, **kwargs)
+        plt.axes(ax)
+
     Parameters
     ----------
-    arg : None or 4-tuple or Axes
+    arg : { None, 4-tuple, Axes }
         The exact behavior of this function depends on the type:
 
         - *None*: A new full window axes is added using
@@ -784,48 +790,79 @@ def axes(arg=None, **kwargs):
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
-        - `~matplotlib.axes.Axes`: This is equivalent to `.pyplot.sca`.
+        - `~.axes.Axes`: This is equivalent to `.pyplot.sca`.
           It sets the current axes to *arg*. Note: This implicitly
           changes the current figure to the parent of *arg*.
 
-          .. note:: The use of an Axes as an argument is deprecated and will be
-                    removed in v3.0. Please use `.pyplot.sca` instead.
+          .. note:: The use of an `.axes.Axes` as an argument is deprecated
+                    and will be removed in v3.0. Please use `.pyplot.sca`
+                    instead.
+
+    projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
+'polar', 'rectilinear', str}, optional
+        The projection type of the `~.axes.Axes`. *str* is the name of
+        a costum projection, see `~matplotlib.projections`. The default
+        None results in a 'rectilinear' projection.
+
+    polar : boolean, optional
+        If True, equivalent to projection='polar'.
+
+    sharex, sharey : `~.axes.Axes`, optional
+        Share the x or y `~matplotlib.axis` with sharex and/or sharey.
+        The axis will have the same limits, ticks, and scale as the axis
+        of the shared axes.
+
+
+    label : str
+        A label for the returned axes.
 
     Other Parameters
     ----------------
-    **kwargs :
-        For allowed keyword arguments see `.pyplot.subplot` and
-        `.Figure.add_axes` respectively. Some common keyword arguments are
-        listed below:
-
-        ========= =========== =================================================
-        kwarg     Accepts     Description
-        ========= =========== =================================================
-        facecolor color       the axes background color
-        frameon   bool        whether to display the frame
-        sharex    otherax     share x-axis with *otherax*
-        sharey    otherax     share y-axis with *otherax*
-        polar     bool        whether to use polar axes
-        aspect    [str | num] ['equal', 'auto'] or a number.  If a number, the
-                              ratio of y-unit/x-unit in screen-space.  See also
-                              `~.Axes.set_aspect`.
-        ========= =========== =================================================
+    **kwargs
+        This method also takes the keyword arguments for
+        the returned axes class. The keyword arguments for the
+        rectilinear axes class `~.axes.Axes` can be found in
+        the following table but there might also be other keyword
+        arguments if another projection is used, see the actual axes
+        class.
+        %(Axes)s
 
     Returns
     -------
-    axes : Axes
-        The created or activated axes.
+    axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+        The returned axes class depends on the projection used. It is
+        `~.axes.Axes` if rectilinear projection are used and
+        `.projections.polar.PolarAxes` if polar projection
+        are used.
+
+    Notes
+    -----
+    If the figure already has a axes with key (*args*,
+    *kwargs*) then it will simply make that axes current and
+    return it.  This behavior is deprecated. Meanwhile, if you do
+    not want this behavior (i.e., you want to force the creation of a
+    new axes), you must use a unique set of args and kwargs.  The axes
+    *label* attribute has been exposed for this purpose: if you want
+    two axes that are otherwise identical to be added to the figure,
+    make sure you give them unique labels.
+
+    See Also
+    --------
+    .Figure.add_axes
+    .pyplot.subplot
+    .Figure.add_subplot
+    .Figure.subplots
+    .pyplot.subplots
 
     Examples
     --------
-    Creating a new full window axes::
+    ::
 
-        >>> plt.axes()
+        #Creating a new full window axes
+        plt.axes()
 
-    Creating a new axes with specified dimensions and some kwargs::
-
-        >>> plt.axes((left, bottom, width, height), facecolor='w')
-
+        #Creating a new axes with specified dimensions and some kwargs
+        plt.axes((left, bottom, width, height), facecolor='w')
     """
 
     if arg is None:
@@ -893,75 +930,135 @@ def gca(**kwargs):
 
 ## More ways of creating axes ##
 
-
+@docstring.dedent_interpd
 def subplot(*args, **kwargs):
     """
-    Return a subplot axes at the given grid position.
+    Add a subplot to the current figure.
 
-    Call signature::
+    Wrapper of `.Figure.add_subplot` with a difference in behavior
+    explained in the notes section.
+
+    Call signatures::
 
        subplot(nrows, ncols, index, **kwargs)
+       subplot(pos, **kwargs)
+       subplot(ax)
 
-    In the current figure, create and return an `~matplotlib.axes.Axes`,
-    at position *index* of a (virtual) grid of *nrows* by *ncols* axes.
-    Indexes go from 1 to ``nrows * ncols``, incrementing in row-major order.
+    Parameters
+    ----------
+    *args
+        Either a 3-digit integer or three separate integers
+        describing the position of the subplot. If the three
+        integers are *nrows*, *ncols*, and *index* in order, the
+        subplot will take the *index* position on a grid with *nrows*
+        rows and *ncols* columns. *index* starts at 1 in the upper left
+        corner and increases to the right.
 
-    If *nrows*, *ncols* and *index* are all less than 10, they can also be
-    given as a single, concatenated, three-digit number.
+        *pos* is a three digit integer, where the first digit is the
+        number of rows, the second the number of columns, and the third
+        the index of the subplot. i.e. fig.add_subplot(235) is the same as
+        fig.add_subplot(2, 3, 5). Note that all integers must be less than
+        10 for this form to work.
 
-    For example, ``subplot(2, 3, 3)`` and ``subplot(233)`` both create an
-    `matplotlib.axes.Axes` at the top right corner of the current figure,
-    occupying half of the figure height and a third of the figure width.
+    projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
+'polar', 'rectilinear', str}, optional
+        The projection type of the subplot (`~.axes.Axes`). *str* is the name
+        of a costum projection, see `~matplotlib.projections`. The default
+        None results in a 'rectilinear' projection.
 
-    .. note::
+    polar : boolean, optional
+        If True, equivalent to projection='polar'.
 
-       Creating a subplot will delete any pre-existing subplot that overlaps
-       with it beyond sharing a boundary::
+    sharex, sharey : `~.axes.Axes`, optional
+        Share the x or y `~matplotlib.axis` with sharex and/or sharey. The
+        axis will have the same limits, ticks, and scale as the axis of the
+        shared axes.
 
-          import matplotlib.pyplot as plt
-          # plot a line, implicitly creating a subplot(111)
-          plt.plot([1,2,3])
-          # now create a subplot which represents the top plot of a grid
-          # with 2 rows and 1 column. Since this subplot will overlap the
-          # first, the plot (and its axes) previously created, will be removed
-          plt.subplot(211)
-          plt.plot(range(12))
-          plt.subplot(212, facecolor='y') # creates 2nd subplot with yellow background
+    label : str
+        A label for the returned axes.
 
-       If you do not want this behavior, use the
-       :meth:`~matplotlib.figure.Figure.add_subplot` method or the
-       :func:`~matplotlib.pyplot.axes` function instead.
+    Other Parameters
+    ----------------
+    **kwargs
+        This method also takes the keyword arguments for
+        the returned axes base class. The keyword arguments for the
+        rectilinear base class `~.axes.Axes` can be found in
+        the following table but there might also be other keyword
+        arguments if another projection is used.
+        %(Axes)s
 
-    Keyword arguments:
+    Returns
+    -------
+    axes : an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass \
+    of `~.axes.Axes`)
 
-      *facecolor*:
-        The background color of the subplot, which can be any valid
-        color specifier.  See :mod:`matplotlib.colors` for more
-        information.
+        The axes of the subplot. The returned axes base class depends on
+        the projection used. It is `~.axes.Axes` if rectilinear projection
+        are used and `.projections.polar.PolarAxes` if polar projection
+        are used. The returned axes is then a subplot subclass of the
+        base class.
 
-      *polar*:
-        A boolean flag indicating whether the subplot plot should be
-        a polar projection.  Defaults to *False*.
+    Notes
+    -----
+    Creating a subplot will delete any pre-existing subplot that overlaps
+    with it beyond sharing a boundary::
 
-      *projection*:
-        A string giving the name of a custom projection to be used
-        for the subplot. This projection must have been previously
-        registered. See :mod:`matplotlib.projections`.
+        import matplotlib.pyplot as plt
+        # plot a line, implicitly creating a subplot(111)
+        plt.plot([1,2,3])
+        # now create a subplot which represents the top plot of a grid
+        # with 2 rows and 1 column. Since this subplot will overlap the
+        # first, the plot (and its axes) previously created, will be removed
+        plt.subplot(211)
 
-    .. seealso::
+    If you do not want this behavior, use the `.Figure.add_subplot` method
+    or the `.pyplot.axes` function instead.
 
-        :func:`~matplotlib.pyplot.axes`
-            For additional information on :func:`axes` and
-            :func:`subplot` keyword arguments.
+    If the figure already has a subplot with key (*args*,
+    *kwargs*) then it will simply make that subplot current and
+    return it.  This behavior is deprecated. Meanwhile, if you do
+    not want this behavior (i.e., you want to force the creation of a
+    new suplot), you must use a unique set of args and kwargs.  The axes
+    *label* attribute has been exposed for this purpose: if you want
+    two subplots that are otherwise identical to be added to the figure,
+    make sure you give them unique labels.
 
-        :file:`gallery/pie_and_polar_charts/polar_scatter.py`
-            For an example
+    In rare circumstances, `.add_subplot` may be called with a single
+    argument, a subplot axes instance already created in the
+    present figure but not in the figure's list of axes.
 
-    **Example:**
+    See Also
+    --------
+    .Figure.add_subplot
+    .pyplot.subplots
+    .pyplot.axes
+    .Figure.subplots
 
-    .. plot:: gallery/subplots_axes_and_figures/subplot.py
+    Examples
+    --------
+    ::
 
-    """
+        plt.subplot(221)
+
+        # equivalent but more general
+        ax1=plt.subplot(2, 2, 1)
+
+        # add a subplot with no frame
+        ax2=plt.subplot(222, frameon=False)
+
+        # add a polar subplot
+        plt.subplot(223, projection='polar')
+
+        # add a red subplot that shares the x-axis with ax1
+        plt.subplot(224, sharex=ax1, facecolor='red')
+
+        #delete ax2 from the figure
+        plt.delaxes(ax2)
+
+        #add ax2 to the figure again
+        plt.subplot(ax2)
+        """
+
     # if subplot called without arguments, create subplot(1,1,1)
     if len(args) == 0:
         args = (1, 1, 1)
@@ -1019,7 +1116,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         labels of the bottom subplot are created. Similarly, when subplots
         have a shared y-axis along a row, only the y tick labels of the first
         column subplot are created. To later turn other subplots' ticklabels
-        on, use :meth:`~matplotlib.axes.Axes.tick_params`.
+        on, use `~matplotlib.axes.Axes.tick_params`.
 
     squeeze : bool, optional, default: True
         - If True, extra dimensions are squeezed out from the returned
@@ -1035,9 +1132,12 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
           always a 2D array containing Axes instances, even if it ends up
           being 1x1.
 
+    num : integer or string, optional, default: None
+        A `.pyplot.figure` keyword that sets the figure number or label.
+
     subplot_kw : dict, optional
         Dict with keywords passed to the
-        :meth:`~matplotlib.figure.Figure.add_subplot` call used to create each
+        `~matplotlib.figure.Figure.add_subplot` call used to create each
         subplot.
 
     gridspec_kw : dict, optional
@@ -1046,13 +1146,13 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     **fig_kw :
         All additional keyword arguments are passed to the
-        :func:`.pyplot.figure` call.
+        `.pyplot.figure` call.
 
     Returns
     -------
-    fig : `~matplotlib.figure.Figure`
+    fig : `~.figure.Figure`
 
-    ax : Axes object or array of Axes objects.
+    ax : `.axes.Axes` object or array of Axes objects.
         *ax* can be either a single `~matplotlib.axes.Axes` object or an
         array of Axes objects if more than one subplot was created.  The
         dimensions of the resulting array can be controlled with the squeeze
@@ -1060,57 +1160,52 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     Examples
     --------
-    First create some toy data:
+    ::
 
-    >>> x = np.linspace(0, 2*np.pi, 400)
-    >>> y = np.sin(x**2)
+        #First create some toy data:
+        x = np.linspace(0, 2*np.pi, 400)
+        y = np.sin(x**2)
 
-    Creates just a figure and only one subplot
+        #Creates just a figure and only one subplot
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
+        ax.set_title('Simple plot')
 
-    >>> fig, ax = plt.subplots()
-    >>> ax.plot(x, y)
-    >>> ax.set_title('Simple plot')
+        #Creates two subplots and unpacks the output array immediately
+        f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+        ax1.plot(x, y)
+        ax1.set_title('Sharing Y axis')
+        ax2.scatter(x, y)
 
-    Creates two subplots and unpacks the output array immediately
+        #Creates four polar axes, and accesses them through the returned array
+        fig, axes = plt.subplots(2, 2, subplot_kw=dict(polar=True))
+        axes[0, 0].plot(x, y)
+        axes[1, 1].scatter(x, y)
 
-    >>> f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
-    >>> ax1.plot(x, y)
-    >>> ax1.set_title('Sharing Y axis')
-    >>> ax2.scatter(x, y)
+        #Share a X axis with each column of subplots
+        plt.subplots(2, 2, sharex='col')
 
-    Creates four polar axes, and accesses them through the returned array
+        #Share a Y axis with each row of subplots
+        plt.subplots(2, 2, sharey='row')
 
-    >>> fig, axes = plt.subplots(2, 2, subplot_kw=dict(polar=True))
-    >>> axes[0, 0].plot(x, y)
-    >>> axes[1, 1].scatter(x, y)
+        #Share both X and Y axes with all subplots
+        plt.subplots(2, 2, sharex='all', sharey='all')
 
-    Share a X axis with each column of subplots
+        #Note that this is the same as
+        plt.subplots(2, 2, sharex=True, sharey=True)
 
-    >>> plt.subplots(2, 2, sharex='col')
-
-    Share a Y axis with each row of subplots
-
-    >>> plt.subplots(2, 2, sharey='row')
-
-    Share both X and Y axes with all subplots
-
-    >>> plt.subplots(2, 2, sharex='all', sharey='all')
-
-    Note that this is the same as
-
-    >>> plt.subplots(2, 2, sharex=True, sharey=True)
-
-    Creates figure number 10 with a single subplot
-    and clears it if it already exists.
-
-    >>> fig, ax=plt.subplots(num=10, clear=True)
+        #Creates figure number 10 with a single subplot
+        #and clears it if it already exists.
+        fig, ax=plt.subplots(num=10, clear=True)
 
     See Also
     --------
-    :func:`.pyplot.figure`
-    :func:`.pyplot.subplot`
-    :meth:`.Figure.add_subplot`
-    :meth:`.Figure.subplots`
+    .pyplot.figure
+    .pyplot.subplot
+    .pyplot.axes
+    .Figure.subplots
+    .Figure.add_subplot
+
     """
     fig = figure(**fig_kw)
     axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
