@@ -48,7 +48,7 @@ marker                         symbol description
 ``"None"``, ``" "`` or  ``""``        nothing
 ``'$...$'``                    |m37|  Render the string using mathtext.
                                       E.g ``"$f$"`` for marker showing the
-                                      letter ``f``. 
+                                      letter ``f``.
 ``verts``                             A list of (x, y) pairs used for Path
                                       vertices. The center of the marker is
                                       located at (0,0) and the size is
@@ -58,10 +58,10 @@ path                                  A `~matplotlib.path.Path` instance.
 ``(numsides, style, angle)``          The marker can also be a tuple
                                       ``(numsides, style, angle)``, which
                                       will create a custom, regular symbol.
-                                      
+
                                       ``numsides``:
                                           the number of sides
-                                      
+
                                       ``style``:
                                           the style of the regular symbol:
 
@@ -76,7 +76,7 @@ path                                  A `~matplotlib.path.Path` instance.
                                           |   | ``angle`` is ignored);      |
                                           |   | deprecated.                 |
                                           +---+-----------------------------+
-                                      
+
                                       ``angle``:
                                           the angle of rotation of the symbol
 ============================== ====== =========================================
@@ -89,26 +89,26 @@ that define the shape.
 referred to from other docs for the valid inputs from marker inputs and in
 those cases ``None`` still means 'default'.
 
-Note that special symbols can be defined via the 
+Note that special symbols can be defined via the
 :doc:`STIX math font </tutorials/text/mathtext>`,
 e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer to the
 `STIX font table <http://www.stixfonts.org/allGlyphs.html>`_.
 Also see the :doc:`/gallery/text_labels_and_annotations/stix_fonts_demo`.
 
 Integer numbers from ``0`` to ``11`` create lines and triangles. Those are
-equally accessible via capitalied variables, like ``CARETDOWNBASE``.
+equally accessible via capitalized variables, like ``CARETDOWNBASE``.
 Hence the following are equivalent::
 
     plt.plot([1,2,3], marker=11)
-    plt.plot([1,2,3], marker=marker=matplotlib.markers.CARETDOWNBASE)
-    
+    plt.plot([1,2,3], marker=matplotlib.markers.CARETDOWNBASE)
+
 
 Examples showing the use of markers:
 
 * :doc:`/gallery/lines_bars_and_markers/marker_reference`
 * :doc:`/gallery/lines_bars_and_markers/marker_fillstyle_reference`
 * :doc:`/gallery/shapes_and_collections/marker_path`
- 
+
 
 .. |m00| image:: /_static/markers/m00.png
 .. |m01| image:: /_static/markers/m01.png
