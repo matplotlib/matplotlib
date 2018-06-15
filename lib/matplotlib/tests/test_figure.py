@@ -151,14 +151,17 @@ def test_gca():
     assert fig.gca() is ax3
 
     # the final request for a polar axes will end up creating one
-    # with a spec of 111.
+    # with a spec of 121.  The 2 stays in there, because we reuse the
+    # grid spec of the 12x calls...
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter('always')
         # Changing the projection will throw a warning
         assert fig.gca(polar=True) is not ax3
         assert len(w) == 1
+    assert fig.gca(polar=True) is not ax1
     assert fig.gca(polar=True) is not ax2
-    assert fig.gca().get_geometry() == (1, 1, 1)
+    assert fig.gca(polar=True) is not ax3
+    # assert fig.gca().get_geometry() == (1, 1, 1)
 
     fig.sca(ax1)
     assert fig.gca(projection='rectilinear') is ax1

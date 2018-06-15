@@ -394,7 +394,7 @@ class SubplotSpec(object):
         self._gridspec = gridspec
         self.num1 = num1
         self.num2 = num2
-        if gridspec._layoutbox is not None:
+        if hasattr(gridspec, '_layoutbox') and gridspec._layoutbox is not None:
             glb = gridspec._layoutbox
             # So note that here we don't assign any layout yet,
             # just make the layoutbox that will conatin all items
