@@ -45,7 +45,7 @@ class SubplotBase(object):
                 except ValueError:
                     raise ValueError('Single argument to subplot must be '
                         'a 3-digit integer')
-                num = [num, num]
+                num = [int(num), int(num)]
             elif len(args) == 3:
                 rows, cols, num = args
                 rows = int(rows)
@@ -57,7 +57,7 @@ class SubplotBase(object):
                         raise ValueError(
                             ("num must be 1 <= num <= {maxn}, not {num}"
                             ).format(maxn=rows*cols, num=num))
-                    num = [num, num]
+                    num = [int(num), int(num)]
             else:
                 raise ValueError('Illegal argument(s) to subplot: %s' %
                         (args,))
@@ -65,7 +65,6 @@ class SubplotBase(object):
                     figure=self.figure)
             self._subplotspec = gs[(num[0] - 1):num[1]]
                 # num - 1 for converting from MATLAB to python indexing
-
 
         self.update_params()
 
@@ -98,6 +97,14 @@ class SubplotBase(object):
         for ax in axs:
             if hasattr(ax, 'get_subplotspec'):
                 gs = ax.get_subplotspec().get_gridspec()
+                if hasattr(gs, 'get_topmost_subplotspec'):
+                    # This is needed for colorbar gridspec layouts.
+                    # This is probably OK becase this whole logic tree
+                    # is for when the user is doing simple things with the
+                    # add_subplot command.  Complicated stuff, the proper
+                    # gridspec is passed in...
+                    gs = gs.get_topmost_subplotspec().get_gridspec()
+
                 (nrow, ncol) = gs.get_geometry()
                 if (not (nrow % rows) and not (ncol % cols)):
                     # this gridspec "fits"...
