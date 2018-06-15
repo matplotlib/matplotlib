@@ -1,4 +1,5 @@
 import functools
+import numpy as np
 import warnings
 
 from matplotlib import docstring
@@ -31,39 +32,40 @@ class SubplotBase(object):
         """
 
         self.figure = fig
-
-        if len(args) == 1:
-            if isinstance(args[0], SubplotSpec):
-                self._subplotspec = args[0]
-            else:
+        if len(args) == 1 and isinstance(args[0], SubplotSpec):
+            self._subplotspec = args[0]
+        else:
+            # we need to make the subplotspec either from a new gridspec or
+            # an existing one:
+            if len(args) == 1:
+                # 223-style argument...
                 try:
                     s = str(int(args[0]))
                     rows, cols, num = map(int, s)
                 except ValueError:
                     raise ValueError('Single argument to subplot must be '
                         'a 3-digit integer')
-                self._subplotspec = GridSpec(rows, cols,
-                                             figure=self.figure)[num - 1]
-                # num - 1 for converting from MATLAB to python indexing
-        elif len(args) == 3:
-            rows, cols, num = args
-            rows = int(rows)
-            cols = int(cols)
-            if isinstance(num, tuple) and len(num) == 2:
-                num = [int(n) for n in num]
-                self._subplotspec = GridSpec(
-                        rows, cols,
-                        figure=self.figure)[(num[0] - 1):num[1]]
+                num = [num, num]
+            elif len(args) == 3:
+                rows, cols, num = args
+                rows = int(rows)
+                cols = int(cols)
+                if isinstance(num, tuple) and len(num) == 2:
+                    num = [int(n) for n in num]
+                else:
+                    if num < 1 or num > rows*cols:
+                        raise ValueError(
+                            ("num must be 1 <= num <= {maxn}, not {num}"
+                            ).format(maxn=rows*cols, num=num))
+                    num = [num, num]
             else:
-                if num < 1 or num > rows*cols:
-                    raise ValueError(
-                        ("num must be 1 <= num <= {maxn}, not {num}"
-                        ).format(maxn=rows*cols, num=num))
-                self._subplotspec = GridSpec(
-                        rows, cols, figure=self.figure)[int(num) - 1]
+                raise ValueError('Illegal argument(s) to subplot: %s' %
+                        (args,))
+            gs, num = self._make_subplotspec(rows, cols, num,
+                    figure=self.figure)
+            self._subplotspec = gs[(num[0] - 1):num[1]]
                 # num - 1 for converting from MATLAB to python indexing
-        else:
-            raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
+
 
         self.update_params()
 
@@ -86,6 +88,43 @@ class SubplotBase(object):
                     parent=self._layoutbox,
                     name=self._layoutbox.name+'.pos',
                     pos=True, subplot=True, artist=self)
+
+    def _make_subplotspec(self, rows, cols, num, figure=None):
+        """
+        Return the subplotspec for this subplot, but reuse an old
+        GridSpec if it exists and if the new gridspec "fits".
+        """
+        axs = figure.get_axes()
+        for ax in axs:
+            if hasattr(ax, 'get_subplotspec'):
+                gs = ax.get_subplotspec().get_gridspec()
+                (nrow, ncol) = gs.get_geometry()
+                if (not (nrow % rows) and not (ncol % cols)):
+                    # this gridspec "fits"...
+                    # now we have to see if we need to modify num...
+                    rowfac = int(nrow / rows)
+                    colfac = int(ncol / cols)
+                    if (not isinstance(num, tuple) and
+                        not isinstance(num, list)):
+                        num = [num, num]
+                    # converting between num and rows/cols is a PITA:
+                    newnum = num
+                    row = int(np.floor((num[0]-1) / cols))
+                    col = (num[0]-1) - row * cols
+                    row *= rowfac
+                    col *= colfac
+                    newnum[0] = row * ncol + col + 1
+                    row = int(np.floor((num[1]-1) / cols))
+                    col = (num[1]-1) - row * cols
+                    row *= rowfac
+                    col *= colfac
+                    row = row + (rowfac - 1)
+                    col = col + (colfac - 1)
+                    newnum[1] = row * ncol + col + 1
+                    return gs, newnum
+        # no axes fit with the new subplot specification so make a
+        # new one...
+        return GridSpec(rows, cols, figure=figure), num
 
     def __reduce__(self):
         # get the first axes class which does not inherit from a subplotbase

@@ -1197,6 +1197,8 @@ default: 'top'
             fig.add_subplot(111, projection='polar')
 
             # add Subplot instance sub
+            gs = gridspec.GridSpec(2, 3)
+            sub = gs[1, 1]
             fig.add_subplot(sub)
 
         See Also
