@@ -1035,7 +1035,7 @@ class Artist(object):
 
 class ArtistInspector(object):
     """
-    A helper class to inspect an :class:`~matplotlib.artist.Artist` and return
+    A helper class to inspect an `~matplotlib.artist.Artist` and return
     information about its settable properties and their current values.
     """
 
@@ -1146,8 +1146,22 @@ class ArtistInspector(object):
                 if name in cls.__dict__:
                     source_class = cls.__module__ + "." + cls.__name__
                     break
+            source_class = self._replace_path(source_class)
             setters.append((name[4:], source_class + "." + name))
         return setters
+
+    def _replace_path(self, source_class):
+        """
+        Changes the full path to the public API path that is used
+        in sphinx. This is needed for links to work.
+        """
+
+        replace_dict = {'_base._AxesBase': 'Axes',
+                      '_axes.Axes': 'Axes'}
+
+        for key, value in replace_dict.items():
+            source_class = source_class.replace(key, value)
+        return source_class
 
     def get_setters(self):
         """
@@ -1443,12 +1457,32 @@ def setp(obj, *args, **kwargs):
     return list(cbook.flatten(ret))
 
 
-def kwdoc(a):
+def kwdoc(artist):
+    """
+    Inspect an `~matplotlib.artist.Artist` class and return
+    information about its settable properties and their current values.
+
+    It use the class `.ArtistInspector`.
+
+    Parameters
+    ----------
+    artist : `~matplotlib.artist.Artist` or an iterable of `Artist`\s
+
+    Returns
+    -------
+    string
+        Returns a string with a list or rst table with the settable properties
+        of the *artist*. The formating depends on the value of
+        :rc:`docstring.hardcopy`. False result in a list that is intended for
+        easy reading as a docstring and True result in a rst table intended
+        for rendering the documentation with sphinx.
+    """
     hardcopy = matplotlib.rcParams['docstring.hardcopy']
     if hardcopy:
-        return '\n'.join(ArtistInspector(a).pprint_setters_rest(
+        return '\n'.join(ArtistInspector(artist).pprint_setters_rest(
                          leadingspace=4))
     else:
-        return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
+        return '\n'.join(ArtistInspector(artist).pprint_setters(
+                         leadingspace=2))
 
 docstring.interpd.update(Artist=kwdoc(Artist))
