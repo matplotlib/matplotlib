@@ -3973,6 +3973,20 @@ class FancyArrowPatch(Patch):
         Valid kwargs are:
         %(Patch)s
         """
+        if arrow_transmuter is not None:
+            cbook.warn_deprecated(
+                3.0,
+                message=('The "arrow_transmuter" keyword argument is not used,'
+                         ' and will be removed in Matplotlib 3.1'),
+                name='arrow_transmuter',
+                obj_type='keyword argument')
+        if connector is not None:
+            cbook.warn_deprecated(
+                3.0,
+                message=('The "connector" keyword argument is not used,'
+                         ' and will be removed in Matplotlib 3.1'),
+                name='connector',
+                obj_type='keyword argument')
         Patch.__init__(self, **kwargs)
 
         if posA is not None and posB is not None and path is None:

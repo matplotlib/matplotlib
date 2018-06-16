@@ -100,6 +100,7 @@ def warn_deprecated(
     """
     message = _generate_deprecation_message(
         since, message, name, alternative, pending, obj_type, removal=removal)
+    message = '\n' + message
     warnings.warn(message, mplDeprecation, stacklevel=2)
 
 
