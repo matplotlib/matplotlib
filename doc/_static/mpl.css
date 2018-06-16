@@ -245,7 +245,8 @@ div.sphinxsidebar h3 a {
 
 div.sphinxsidebar ul {
     padding-left: 1.5em;
-    margin-top: 7px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     list-style: none;
     padding: 0;
     line-height: 130%;
@@ -253,7 +254,9 @@ div.sphinxsidebar ul {
 
 div.sphinxsidebar ul ul {
     list-style: square;
-    margin-left: 20px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-left: 16px;
 }
 
 div.sphinxsidebar #searchbox input {
