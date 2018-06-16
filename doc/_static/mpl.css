@@ -23,6 +23,10 @@ a {
     text-decoration: none;
 }
 
+a:hover {
+    color: #2491CF;
+}
+
 div.highlight-python a {
     color: #CA7900;
 }
@@ -33,10 +37,6 @@ div.highlight-python a:hover {
 
 strong {
   font-weight: strong;
-}
-
-a:hover {
-    color: #2491CF;
 }
 
 pre {
