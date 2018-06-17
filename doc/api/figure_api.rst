@@ -18,6 +18,7 @@ Classes
 .. autosummary::
    :toctree: _as_gen/
    :template: autosummary.rst
+   :nosignatures:
 
    AxesStack
    Figure
@@ -29,6 +30,6 @@ Functions
 .. autosummary::
    :toctree: _as_gen/
    :template: autosummary.rst
+   :nosignatures:
 
    figaspect
-   
