@@ -1332,7 +1332,7 @@ class CloseEvent(Event):
 
 class LocationEvent(Event):
     """
-    An event that has a screen location
+    An event that has a screen location.
 
     The following additional attributes are defined and shown with
     their default values.
@@ -1356,28 +1356,23 @@ class LocationEvent(Event):
 
     ydata : scalar
         y coord of mouse in data coords
-
     """
-    x = None       # x position - pixels from left of canvas
-    y = None       # y position - pixels from right of canvas
-    inaxes = None  # the Axes instance if mouse us over axes
-    xdata = None   # x coord of mouse in data coords
-    ydata = None   # y coord of mouse in data coords
 
-    # the last event that was triggered before this one
-    lastevent = None
+    lastevent = None  # the last event that was triggered before this one
 
     def __init__(self, name, canvas, x, y, guiEvent=None):
         """
         *x*, *y* in figure coords, 0,0 = bottom, left
         """
         Event.__init__(self, name, canvas, guiEvent=guiEvent)
-        self.x = x
-        self.y = y
+        self.x = x          # x position - pixels from left of canvas
+        self.y = y          # y position - pixels from right of canvas
+        self.inaxes = None  # the Axes instance if mouse us over axes
+        self.xdata = None   # x coord of mouse in data coords
+        self.ydata = None   # y coord of mouse in data coords
 
         if x is None or y is None:
             # cannot check if event was in axes if no x,y info
-            self.inaxes = None
             self._update_enter_leave()
             return
 
@@ -1394,13 +1389,10 @@ class LocationEvent(Event):
                 trans = self.inaxes.transData.inverted()
                 xdata, ydata = trans.transform_point((x, y))
             except ValueError:
-                self.xdata = None
-                self.ydata = None
+                pass
             else:
                 self.xdata = xdata
                 self.ydata = ydata
-        else:
-            self.inaxes = None
 
         self._update_enter_leave()
 
@@ -1443,18 +1435,21 @@ class MouseEvent(LocationEvent):
 
     Attributes
     ----------
-    button : None, scalar, or str
-        button pressed None, 1, 2, 3, 'up', 'down' (up and down are used
-        for scroll events).  Note that in the nbagg backend, both the
-        middle and right clicks return 3 since right clicking will bring
-        up the context menu in some browsers.
+    button : {None, 1, 2, 3, 'up', 'down'}
+        The button pressed. 'up' and 'down' are used for scroll events.
+        Note that in the nbagg backend, both the middle and right clicks
+        return 3 since right clicking will bring up the context menu in
+        some browsers.
 
-    key : None, or str
-        the key depressed when the mouse event triggered (see
-        :class:`KeyEvent`)
+    key : None or str
+        The key pressed when the mouse event triggered, e.g. 'shift'.
+        See `KeyEvent`.
 
     step : scalar
-        number of scroll steps (positive for 'up', negative for 'down')
+        The Number of scroll steps (positive for 'up', negative for 'down').
+
+    dblclick : bool
+        *True* if the event is a double-click.
 
     Examples
     --------
@@ -1464,16 +1459,7 @@ class MouseEvent(LocationEvent):
             print('you pressed', event.button, event.xdata, event.ydata)
 
         cid = fig.canvas.mpl_connect('button_press_event', on_press)
-
     """
-    x = None         # x position - pixels from left of canvas
-    y = None         # y position - pixels from right of canvas
-    button = None    # button pressed None, 1, 2, 3
-    dblclick = None  # whether or not the event is the result of a double click
-    inaxes = None    # the Axes instance if mouse us over axes
-    xdata = None     # x coord of mouse in data coords
-    ydata = None     # y coord of mouse in data coords
-    step = None      # scroll steps for scroll events
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
                  step=0, dblclick=False, guiEvent=None):
