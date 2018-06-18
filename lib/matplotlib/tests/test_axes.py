@@ -1577,7 +1577,7 @@ def test_hist_step_filled():
     for kg, _type, ax in zip(kwargs, types, axes):
         ax.hist(x, n_bins, histtype=_type, stacked=True, **kg)
         ax.set_title('%s/%s' % (kg, _type))
-        ax.set_ylim(ymin=-50)
+        ax.set_ylim(bottom=-50)
 
     patches = axes[0].patches
     assert all(p.get_facecolor() == p.get_edgecolor() for p in patches)

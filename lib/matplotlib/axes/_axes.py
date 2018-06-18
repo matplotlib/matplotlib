@@ -7423,8 +7423,8 @@ class Axes(_AxesBase):
                          marker=marker, markersize=markersize, **kwargs)
             self.add_line(marks)
             nr, nc = Z.shape
-            self.set_xlim(xmin=-0.5, xmax=nc - 0.5)
-            self.set_ylim(ymin=nr - 0.5, ymax=-0.5)
+            self.set_xlim(-0.5, nc - 0.5)
+            self.set_ylim(nr - 0.5, -0.5)
             self.set_aspect(aspect)
             ret = marks
         self.title.set_y(1.05)
