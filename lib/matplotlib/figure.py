@@ -2296,7 +2296,7 @@ def figaspect(arg):
 
     Notes
     -----
-    If you want to create an axes within the figure, that still presevers the
+    If you want to create an axes within the figure, that still preserves the
     aspect ratio, be sure to create it with equal width and height. See
     examples below.
 
