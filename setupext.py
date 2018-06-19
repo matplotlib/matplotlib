@@ -162,8 +162,10 @@ def get_include_dirs():
     """
     include_dirs = [os.path.join(d, 'include') for d in get_base_dirs()]
     if sys.platform != 'win32':
-        # gcc includes this dir automatically, so also look for headers in
+        # gcc includes these dirs automatically, so also look for headers in
         # these dirs
+        include_dirs.extend(
+            os.environ.get('CPATH', '').split(os.pathsep))
         include_dirs.extend(
             os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
     return include_dirs
