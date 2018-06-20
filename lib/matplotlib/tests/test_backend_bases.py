@@ -9,6 +9,7 @@ import numpy as np
 import os
 import shutil
 import tempfile
+import pytest
 
 
 def test_uses_per_path():
@@ -62,18 +63,17 @@ def test_get_default_filename():
         shutil.rmtree(test_dir)
 
 
-def test_get_default_filename_already_exists():
-    # From #3068: Suggest non-existing default filename
-    try:
-        test_dir = tempfile.mkdtemp()
-        plt.rcParams['savefig.directory'] = test_dir
-        fig = plt.figure()
-        canvas = FigureCanvasBase(fig)
+@pytest.mark.backend('pdf')
+def test_non_gui_warning():
+    plt.subplots()
+    with pytest.warns(UserWarning) as rec:
+        plt.show()
+        assert len(rec) == 1
+        assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
+                in str(rec[0].message))
 
-        # create 'image.png' in figure's save dir
-        open(os.path.join(test_dir, 'image.png'), 'w').close()
-
-        filename = canvas.get_default_filename()
-        assert filename == 'image-1.png'
-    finally:
-        shutil.rmtree(test_dir)
+    with pytest.warns(UserWarning) as rec:
+        plt.gcf().show()
+        assert len(rec) == 1
+        assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
+                in str(rec[0].message))

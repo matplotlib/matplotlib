@@ -1,9 +1,5 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from collections import OrderedDict
+import types
 
 import numpy as np
 
@@ -291,22 +287,22 @@ class ThetaTick(maxis.XTick):
         self._text2_translate = mtransforms.ScaledTranslation(
             0, 0,
             axes.figure.dpi_scale_trans)
-        super(ThetaTick, self).__init__(axes, *args, **kwargs)
+        super().__init__(axes, *args, **kwargs)
 
     def _get_text1(self):
-        t = super(ThetaTick, self)._get_text1()
+        t = super()._get_text1()
         t.set_rotation_mode('anchor')
         t.set_transform(t.get_transform() + self._text1_translate)
         return t
 
     def _get_text2(self):
-        t = super(ThetaTick, self)._get_text2()
+        t = super()._get_text2()
         t.set_rotation_mode('anchor')
         t.set_transform(t.get_transform() + self._text2_translate)
         return t
 
     def _apply_params(self, **kw):
-        super(ThetaTick, self)._apply_params(**kw)
+        super()._apply_params(**kw)
 
         # Ensure transform is correct; sometimes this gets reset.
         trans = self.label1.get_transform()
@@ -325,7 +321,7 @@ class ThetaTick(maxis.XTick):
         self._text2_translate.invalidate()
 
     def update_position(self, loc):
-        super(ThetaTick, self).update_position(loc)
+        super().update_position(loc)
         axes = self.axes
         angle = loc * axes.get_theta_direction() + axes.get_theta_offset()
         text_angle = np.rad2deg(angle) % 360 - 90
@@ -398,19 +394,19 @@ class ThetaAxis(maxis.XAxis):
         self.isDefault_majfmt = True
 
     def cla(self):
-        super(ThetaAxis, self).cla()
+        super().cla()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
     def _set_scale(self, value, **kwargs):
-        super(ThetaAxis, self)._set_scale(value, **kwargs)
+        super()._set_scale(value, **kwargs)
         self._wrap_locator_formatter()
 
     def _copy_tick_props(self, src, dest):
         'Copy the props from src tick to dest tick'
         if src is None or dest is None:
             return
-        super(ThetaAxis, self)._copy_tick_props(src, dest)
+        super()._copy_tick_props(src, dest)
 
         # Ensure that tick transforms are independent so that padding works.
         trans = dest._get_text1_transform()[0]
@@ -533,12 +529,12 @@ class RadialTick(maxis.YTick):
     enabled.
     """
     def _get_text1(self):
-        t = super(RadialTick, self)._get_text1()
+        t = super()._get_text1()
         t.set_rotation_mode('anchor')
         return t
 
     def _get_text2(self):
-        t = super(RadialTick, self)._get_text2()
+        t = super()._get_text2()
         t.set_rotation_mode('anchor')
         return t
 
@@ -597,7 +593,7 @@ class RadialTick(maxis.YTick):
                     return 'center', 'bottom'
 
     def update_position(self, loc):
-        super(RadialTick, self).update_position(loc)
+        super().update_position(loc)
         axes = self.axes
         thetamin = axes.get_thetamin()
         thetamax = axes.get_thetamax()
@@ -635,8 +631,8 @@ class RadialTick(maxis.YTick):
             text_angle = user_angle
         if self.label1On:
             if full:
-                ha = 'left'
-                va = 'bottom'
+                ha = self.label1.get_ha()
+                va = self.label1.get_va()
             else:
                 ha, va = self._determine_anchor(mode, angle, direction > 0)
             self.label1.set_ha(ha)
@@ -717,7 +713,7 @@ class RadialAxis(maxis.YAxis):
     axis_name = 'radius'
 
     def __init__(self, *args, **kwargs):
-        super(RadialAxis, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sticky_edges.y.append(0)
 
     def _get_tick(self, major):
@@ -733,12 +729,12 @@ class RadialAxis(maxis.YAxis):
         self.isDefault_majloc = True
 
     def cla(self):
-        super(RadialAxis, self).cla()
+        super().cla()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
     def _set_scale(self, value, **kwargs):
-        super(RadialAxis, self)._set_scale(value, **kwargs)
+        super()._set_scale(value, **kwargs)
         self._wrap_locator_formatter()
 
 
@@ -842,16 +838,17 @@ class PolarAxes(Axes):
     """
     name = 'polar'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args,
+                 theta_offset=0, theta_direction=1, rlabel_position=22.5,
+                 **kwargs):
         """
         Create a new Polar Axes for a polar plot.
         """
-        self._default_theta_offset = kwargs.pop('theta_offset', 0)
-        self._default_theta_direction = kwargs.pop('theta_direction', 1)
-        self._default_rlabel_position = np.deg2rad(
-            kwargs.pop('rlabel_position', 22.5))
+        self._default_theta_offset = theta_offset
+        self._default_theta_direction = theta_direction
+        self._default_rlabel_position = np.deg2rad(rlabel_position)
 
-        Axes.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
@@ -1016,9 +1013,7 @@ class PolarAxes(Axes):
         return self._yaxis_text_transform + pad_shift, 'center', halign
 
     def draw(self, *args, **kwargs):
-        thetamin, thetamax = self._realViewLim.intervalx
-        thetamin *= 180 / np.pi
-        thetamax *= 180 / np.pi
+        thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
         if thetamin > thetamax:
             thetamin, thetamax = thetamax, thetamin
         rmin, rmax = self._realViewLim.intervaly - self.get_rorigin()
@@ -1227,8 +1222,7 @@ class PolarAxes(Axes):
         return Axes.set_yticks(self, *args, **kwargs)
 
     @docstring.dedent_interpd
-    def set_thetagrids(self, angles, labels=None, frac=None, fmt=None,
-                       **kwargs):
+    def set_thetagrids(self, angles, labels=None, fmt=None, **kwargs):
         """
         Set the angles at which to place the theta grids (these
         gridlines are equal along the theta dimension).  *angles* is in
@@ -1238,10 +1232,6 @@ class PolarAxes(Axes):
         the labels to use at each angle.
 
         If *labels* is None, the labels will be ``fmt %% angle``
-
-        *frac* is the fraction of the polar axes radius at which to
-        place the label (1 is the edge). e.g., 1.05 is outside the axes
-        and 0.95 is inside the axes.
 
         Return value is a list of tuples (*line*, *label*), where
         *line* is :class:`~matplotlib.lines.Line2D` instances and the
@@ -1253,15 +1243,11 @@ class PolarAxes(Axes):
 
         ACCEPTS: sequence of floats
         """
-        if frac is not None:
-            cbook.warn_deprecated('2.1', name='frac', obj_type='parameter',
-                                  alternative='tick padding via '
-                                              'Axes.tick_params')
 
         # Make sure we take into account unitized data
         angles = self.convert_yunits(angles)
-        angles = np.asarray(angles, float)
-        self.set_xticks(angles * (np.pi / 180.0))
+        angles = np.deg2rad(angles)
+        self.set_xticks(angles)
         if labels is not None:
             self.set_xticklabels(labels)
         elif fmt is not None:
@@ -1359,12 +1345,12 @@ class PolarAxes(Axes):
         if button == 1:
             epsilon = np.pi / 45.0
             t, r = self.transData.inverted().transform_point((x, y))
-            if t >= angle - epsilon and t <= angle + epsilon:
+            if angle - epsilon <= t <= angle + epsilon:
                 mode = 'drag_r_labels'
         elif button == 3:
             mode = 'zoom'
 
-        self._pan_start = cbook.Bunch(
+        self._pan_start = types.SimpleNamespace(
             rmax=self.get_rmax(),
             trans=self.transData.frozen(),
             trans_inverse=self.transData.inverted().frozen(),

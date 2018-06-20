@@ -27,3 +27,19 @@ legend = ax.legend(loc='upper center', shadow=True, fontsize='x-large')
 legend.get_frame().set_facecolor('#00FFCC')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.plot
+matplotlib.pyplot.plot
+matplotlib.axes.Axes.legend
+matplotlib.pyplot.legend

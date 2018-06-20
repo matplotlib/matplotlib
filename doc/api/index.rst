@@ -4,7 +4,7 @@
   The Matplotlib API
 ####################
 
-.. htmlonly::
+.. only:: html
 
    :Release: |version|
    :Date: |today|
@@ -21,6 +21,7 @@
    axes_api.rst
    axis_api.rst
    index_backend_api.rst
+   blocking_input_api.rst
    cbook_api.rst
    cm_api.rst
    collections_api.rst
@@ -49,6 +50,7 @@
    scale_api.rst
    spines_api.rst
    style_api.rst
+   table_api.rst
    text_api.rst
    ticker_api.rst
    tight_layout_api.rst
@@ -73,5 +75,8 @@ Toolkits
 .. toctree::
    :maxdepth: 1
 
-   toolkits/axes_grid.rst
+   
    toolkits/mplot3d.rst
+   toolkits/axes_grid1.rst
+   toolkits/axisartist.rst
+   toolkits/axes_grid.rst

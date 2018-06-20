@@ -44,12 +44,6 @@ Matplotlib recognizes the following formats to specify a color:
 All string specifications of color, other than "CN", are case-insensitive.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
 from collections import Sized
 import itertools
 import re
@@ -61,15 +55,15 @@ from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 class _ColorMapping(dict):
     def __init__(self, mapping):
-        super(_ColorMapping, self).__init__(mapping)
+        super().__init__(mapping)
         self.cache = {}
 
     def __setitem__(self, key, value):
-        super(_ColorMapping, self).__setitem__(key, value)
+        super().__setitem__(key, value)
         self.cache.clear()
 
     def __delitem__(self, key):
-        super(_ColorMapping, self).__delitem__(key)
+        super().__delitem__(key)
         self.cache.clear()
 
 
@@ -93,9 +87,19 @@ def get_named_colors_mapping():
     return _colors_full_map
 
 
+def _sanitize_extrema(ex):
+    if ex is None:
+        return ex
+    try:
+        ret = np.asscalar(ex)
+    except AttributeError:
+        ret = float(ex)
+    return ret
+
+
 def _is_nth_color(c):
     """Return whether *c* can be interpreted as an item in the color cycle."""
-    return isinstance(c, six.string_types) and re.match(r"\AC[0-9]\Z", c)
+    return isinstance(c, str) and re.match(r"\AC[0-9]\Z", c)
 
 
 def is_color_like(c):
@@ -168,7 +172,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
     """
     orig_c = c
-    if isinstance(c, six.string_types):
+    if isinstance(c, str):
         if c.lower() == "none":
             return (0., 0., 0., 0.)
         # Named color.
@@ -177,7 +181,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             c = _colors_full_map[c.lower()]
         except KeyError:
             pass
-    if isinstance(c, six.string_types):
+    if isinstance(c, str):
         # hex color with no alpha.
         match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
         if match:
@@ -243,7 +247,7 @@ def to_rgba_array(c, alpha=None):
     # Note that this occurs *after* handling inputs that are already arrays, as
     # `to_rgba(c, alpha)` (below) is expensive for such inputs, due to the need
     # to format the array in the ValueError message(!).
-    if isinstance(c, six.string_types) and c.lower() == "none":
+    if cbook._str_lower_equal(c, "none"):
         return np.zeros((0, 4), float)
     try:
         return np.array([to_rgba(c, alpha)], float)
@@ -376,7 +380,7 @@ def makeMappingArray(N, data, gamma=1.0):
     try:
         adata = np.array(data)
     except Exception:
-        raise TypeError("data must be convertable to an array")
+        raise TypeError("data must be convertible to an array")
     shape = adata.shape
     if len(shape) != 2 or shape[1] != 3:
         raise ValueError("data must be nx3 format")
@@ -461,7 +465,7 @@ class Colormap(object):
 
         Returns
         -------
-        Tuple of RGBA values if X is scalar, othewise an array of
+        Tuple of RGBA values if X is scalar, otherwise an array of
         RGBA values with a shape of ``X.shape + (4, )``.
 
         """
@@ -510,8 +514,7 @@ class Colormap(object):
             lut = self._lut.copy()  # Don't let alpha modify original _lut.
 
         if alpha is not None:
-            alpha = min(alpha, 1.0)  # alpha must be between 0 and 1
-            alpha = max(alpha, 0.0)
+            alpha = np.clip(alpha, 0, 1)
             if bytes:
                 alpha = int(alpha * 255)
             if (lut[-1] == 0).all():
@@ -706,7 +709,7 @@ class LinearSegmentedColormap(Colormap):
             raise ValueError('colors must be iterable')
 
         if (isinstance(colors[0], Sized) and len(colors[0]) == 2
-                and not isinstance(colors[0], six.string_types)):
+                and not isinstance(colors[0], str)):
             # List of value, color pairs
             vals, colors = zip(*colors)
         else:
@@ -752,13 +755,9 @@ class LinearSegmentedColormap(Colormap):
                 return dat(1.0 - x)
             return func_r
 
-        data_r = dict()
-        for key, data in six.iteritems(self._segmentdata):
-            if callable(data):
-                data_r[key] = factory(data)
-            else:
-                new_data = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)]
-                data_r[key] = new_data
+        data_r = {key: (factory(data) if callable(data) else
+                        [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)])
+                  for key, data in self._segmentdata.items()}
 
         return LinearSegmentedColormap(name, data_r, self.N, self._gamma)
 
@@ -799,7 +798,7 @@ class ListedColormap(Colormap):
             self.colors = colors
             N = len(colors)
         else:
-            if isinstance(colors, six.string_types):
+            if isinstance(colors, str):
                 self.colors = [colors] * N
                 self.monochrome = True
             elif cbook.iterable(colors):
@@ -877,8 +876,8 @@ class Normalize(object):
         likely to lead to surprises; therefore the default is
         *clip* = *False*.
         """
-        self.vmin = vmin
-        self.vmax = vmax
+        self.vmin = _sanitize_extrema(vmin)
+        self.vmax = _sanitize_extrema(vmax)
         self.clip = clip
 
     @staticmethod
@@ -943,11 +942,6 @@ class Normalize(object):
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
-        # Agg cannot handle float128.  We actually only need 32-bit of
-        # precision, but on Windows, `np.dtype(np.longdouble) == np.float64`,
-        # so casting to float32 would lose precision on float64s as well.
-        if result.dtype == np.longdouble:
-            result = result.astype(np.float64)
         if is_scalar:
             result = result[0]
         return result
@@ -1305,7 +1299,7 @@ class BoundaryNorm(Normalize):
         for i, b in enumerate(self.boundaries):
             iret[xx >= b] = i
         if self._interp:
-            scalefac = float(self.Ncmap - 1) / (self.N - 2)
+            scalefac = (self.Ncmap - 1) / (self.N - 2)
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col
@@ -1417,7 +1411,7 @@ def hsv_to_rgb(hsv):
         raise ValueError("Last dimension of input array must be 3; "
                          "shape {shp} was found.".format(shp=hsv.shape))
 
-    # if we got pased a 1D array, try to treat as
+    # if we got passed a 1D array, try to treat as
     # a single color and reshape as needed
     in_ndim = hsv.ndim
     if in_ndim == 1:
@@ -1475,8 +1469,7 @@ def hsv_to_rgb(hsv):
     g[idx] = v[idx]
     b[idx] = v[idx]
 
-    # `np.stack([r, g, b], axis=-1)` (numpy 1.10).
-    rgb = np.concatenate([r[..., None], g[..., None], b[..., None]], -1)
+    rgb = np.stack([r, g, b], axis=-1)
 
     if in_ndim == 1:
         rgb.shape = (3,)
@@ -1496,17 +1489,6 @@ def _vector_magnitude(arr):
     for i in range(arr.shape[-1]):
         sum_sq += np.square(arr[..., i, np.newaxis])
     return np.sqrt(sum_sq)
-
-
-def _vector_dot(a, b):
-    # things that don't work here:
-    #   * a.dot(b) - fails on masked arrays until 1.10
-    #   * np.ma.dot(a, b) - doesn't mask enough things
-    #   * np.ma.dot(a, b, strict=True) - returns a maskedarray with no mask
-    dot = 0
-    for i in range(a.shape[-1]):
-        dot += a[..., i] * b[..., i]
-    return dot
 
 
 class LightSource(object):
@@ -1645,7 +1627,7 @@ class LightSource(object):
             completely in shadow and 1 is completely illuminated.
         """
 
-        intensity = _vector_dot(normals, self.direction)
+        intensity = normals.dot(self.direction)
 
         # Apply contrast stretch
         imin, imax = intensity.min(), intensity.max()

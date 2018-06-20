@@ -1,11 +1,7 @@
 """
 A collection of functions and objects for creating or placing inset axes.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 from matplotlib import docstring
-import six
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
@@ -63,7 +59,7 @@ class InsetPosition(object):
 class AnchoredLocatorBase(AnchoredOffsetbox):
     def __init__(self, bbox_to_anchor, offsetbox, loc,
                  borderpad=0.5, bbox_transform=None):
-        super(AnchoredLocatorBase, self).__init__(
+        super().__init__(
             loc, pad=0., child=None, borderpad=borderpad,
             bbox_to_anchor=bbox_to_anchor, bbox_transform=bbox_transform
         )
@@ -90,8 +86,7 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
 class AnchoredSizeLocator(AnchoredLocatorBase):
     def __init__(self, bbox_to_anchor, x_size, y_size, loc,
                  borderpad=0.5, bbox_transform=None):
-
-        super(AnchoredSizeLocator, self).__init__(
+        super().__init__(
             bbox_to_anchor, None, loc,
             borderpad=borderpad, bbox_transform=bbox_transform
         )
@@ -105,16 +100,16 @@ class AnchoredSizeLocator(AnchoredLocatorBase):
         dpi = renderer.points_to_pixels(72.)
 
         r, a = self.x_size.get_size(renderer)
-        width = w*r + a*dpi
+        width = w * r + a * dpi
 
         r, a = self.y_size.get_size(renderer)
-        height = h*r + a*dpi
+        height = h * r + a * dpi
         xd, yd = 0, 0
 
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         pad = self.pad * fontsize
 
-        return width+2*pad, height+2*pad, xd+pad, yd+pad
+        return width + 2 * pad, height + 2 * pad, xd + pad, yd + pad
 
 
 class AnchoredZoomLocator(AnchoredLocatorBase):
@@ -122,14 +117,13 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
                  borderpad=0.5,
                  bbox_to_anchor=None,
                  bbox_transform=None):
-
         self.parent_axes = parent_axes
         self.zoom = zoom
 
         if bbox_to_anchor is None:
             bbox_to_anchor = parent_axes.bbox
 
-        super(AnchoredZoomLocator, self).__init__(
+        super().__init__(
             bbox_to_anchor, None, loc, borderpad=borderpad,
             bbox_transform=bbox_transform)
 
@@ -141,7 +135,7 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         pad = self.pad * fontsize
 
-        return abs(w*self.zoom)+2*pad, abs(h*self.zoom)+2*pad, pad, pad
+        return abs(w * self.zoom) + 2 * pad, abs(h * self.zoom) + 2 * pad, pad, pad
 
 
 class BboxPatch(Patch):
@@ -184,6 +178,7 @@ class BboxPatch(Patch):
                  Path.CLOSEPOLY]
 
         return Path(verts, codes)
+
     get_path.__doc__ = Patch.get_path.__doc__
 
 
@@ -254,7 +249,7 @@ class BboxConnector(Patch):
             corner of *bbox2*.
         """
         if isinstance(bbox1, Rectangle):
-            transform = bbox1.get_transfrom()
+            transform = bbox1.get_transform()
             bbox1 = Bbox.from_bounds(0, 0, 1, 1)
             bbox1 = TransformedBbox(bbox1, transform)
 
@@ -309,7 +304,11 @@ class BboxConnector(Patch):
             raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
-        Patch.__init__(self, fill=False, **kwargs)
+        if 'fill' in kwargs:
+            Patch.__init__(self, **kwargs)
+        else:
+            fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
+            Patch.__init__(self, fill=fill, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
         self.loc1 = loc1
@@ -318,6 +317,7 @@ class BboxConnector(Patch):
     def get_path(self):
         return self.connect_bbox(self.bbox1, self.bbox2,
                                  self.loc1, self.loc2)
+
     get_path.__doc__ = Patch.get_path.__doc__
 
 
@@ -369,10 +369,9 @@ class BboxConnectorPatch(BboxConnector):
         path1 = self.connect_bbox(self.bbox1, self.bbox2, self.loc1, self.loc2)
         path2 = self.connect_bbox(self.bbox2, self.bbox1,
                                   self.loc2b, self.loc1b)
-        path_merged = (list(path1.vertices) +
-                       list(path2.vertices) +
-                       [path1.vertices[0]])
+        path_merged = [*path1.vertices, *path2.vertices, path1.vertices[0]]
         return Path(path_merged)
+
     get_path.__doc__ = BboxConnector.get_path.__doc__
 
 
@@ -383,7 +382,7 @@ def _add_inset_axes(parent_axes, inset_axes):
 
 
 @docstring.dedent_interpd
-def inset_axes(parent_axes, width, height, loc=1,
+def inset_axes(parent_axes, width, height, loc='upper right',
                bbox_to_anchor=None, bbox_transform=None,
                axes_class=None,
                axes_kwargs=None,
@@ -453,6 +452,9 @@ def inset_axes(parent_axes, width, height, loc=1,
     if bbox_to_anchor is None:
         bbox_to_anchor = parent_axes.bbox
 
+    if bbox_transform is None:
+        bbox_transform = parent_axes.transAxes
+
     axes_locator = AnchoredSizeLocator(bbox_to_anchor,
                                        width, height,
                                        loc=loc,
@@ -467,7 +469,7 @@ def inset_axes(parent_axes, width, height, loc=1,
 
 
 @docstring.dedent_interpd
-def zoomed_inset_axes(parent_axes, zoom, loc=1,
+def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       bbox_to_anchor=None, bbox_transform=None,
                       axes_class=None,
                       axes_kwargs=None,
@@ -579,8 +581,11 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
     rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
 
-    fill = kwargs.pop("fill", False)
-    pp = BboxPatch(rect, fill=fill, **kwargs)
+    if 'fill' in kwargs:
+        pp = BboxPatch(rect, **kwargs)
+    else:
+        fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
+        pp = BboxPatch(rect, fill=fill, **kwargs)
     parent_axes.add_patch(pp)
 
     p1 = BboxConnector(inset_axes.bbox, rect, loc1=loc1, **kwargs)

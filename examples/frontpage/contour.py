@@ -8,7 +8,7 @@ This example reproduces the frontpage contour example.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import mlab, cm
+from matplotlib import cm
 
 extent = (-3, 3, -3, 3)
 
@@ -16,19 +16,19 @@ delta = 0.5
 x = np.arange(-3.0, 4.001, delta)
 y = np.arange(-4.0, 3.001, delta)
 X, Y = np.meshgrid(x, y)
-Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, -0.5)
-Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-Z = (Z1 - Z2) * 10
+Z1 = np.exp(-X**2 - Y**2)
+Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = Z1 - Z2
 
-levels = np.linspace(-2.0, 1.601, 40)
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
 
 fig, ax = plt.subplots()
 cset1 = ax.contourf(
-    X, Y, Z, levels,
+    X, Y, Z, 40,
     norm=norm)
-ax.set_xlim(-3, 3)
-ax.set_ylim(-3, 3)
+ax.set_xlim(-2, 2)
+ax.set_ylim(-2, 2)
 ax.set_xticks([])
 ax.set_yticks([])
 fig.savefig("contour_frontpage.png", dpi=25)  # results in 160x120 px image
+plt.show()

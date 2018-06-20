@@ -1,126 +1,161 @@
 """
-==============================================
-Customizing Location of Subplot Using GridSpec
-==============================================
+=============================================================
+Customizing Figure Layouts Using GridSpec and Other Functions
+=============================================================
 
 How to create grid-shaped combinations of axes.
 
+    :func:`~matplotlib.pyplot.subplots`
+        Perhaps the primary function used to create figures and axes.
+        It's also similar to :func:`~matplotlib.pyplot.subplot`,
+        but creates and places all axes on the figure at once.
+
     :class:`~matplotlib.gridspec.GridSpec`
-        specifies the geometry of the grid that a subplot will be
-        placed in. The number of rows and number of columns of the grid
+        Specifies the geometry of the grid that a subplot will be
+        placed. The number of rows and number of columns of the grid
         need to be set. Optionally, the subplot layout parameters
         (e.g., left, right, etc.) can be tuned.
 
     :class:`~matplotlib.gridspec.SubplotSpec`
-        specifies the location of the subplot in the given *GridSpec*.
+        Specifies the location of the subplot in the given *GridSpec*.
 
     :func:`~matplotlib.pyplot.subplot2grid`
-        a helper function that is similar to :func:`~matplotlib.pyplot.subplot`
+        A helper function that is similar to :func:`~matplotlib.pyplot.subplot`,
         but uses 0-based indexing and let subplot to occupy multiple cells.
+        This function is not covered in this tutorial.
+
 """
+
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
-###############################################################################
-# Basic Example of using subplot2grid
-# ===================================
-
-# To use :func:`~matplotlib.pyplot.subplot2grid`, you provide geometry of
-# the grid and the location of the subplot in the grid. For a simple
-# single-cell subplot
-
-fig = plt.figure()
-ax = plt.subplot2grid((2, 2), (0, 0))
-
-# is identical to
-
-fig = plt.figure()
-ax = plt.subplot(2, 2, 1)
-
-###############################################################################
-# Note that, unlike Matplotlib's subplot, the index starts from 0 in GridSpec.
-#
-# To create a subplot that spans multiple cells:
-
-fig = plt.figure()
-ax2 = plt.subplot2grid((3, 3), (1, 0), colspan=2)
-ax3 = plt.subplot2grid((3, 3), (1, 2), rowspan=2)
-
-###############################################################################
-# For example, see the output of the following commands:
-
-ax1 = plt.subplot2grid((3, 3), (0, 0), colspan=3)
-ax2 = plt.subplot2grid((3, 3), (1, 0), colspan=2)
-ax3 = plt.subplot2grid((3, 3), (1, 2), rowspan=2)
-ax4 = plt.subplot2grid((3, 3), (2, 0))
-ax5 = plt.subplot2grid((3, 3), (2, 1))
-
-###############################################################################
-# GridSpec and SubplotSpec
-# ========================
-#
-# You can create :class:`~matplotlib.gridspec.GridSpec` explicitly and use
-# them to create a subplot.
-#
-# For example:
-
-fig = plt.figure()
-ax = plt.subplot2grid((2, 2), (0, 0))
-
-# is equal to:
-
-fig = plt.figure()
-gs = gridspec.GridSpec(2, 2)
-ax = plt.subplot(gs[0, 0])
-
-# A GridSpec instance provides array-like (2d or 1d) indexing that
-# returns the SubplotSpec instance. For a SubplotSpec that spans multiple
-# cells, use slice.
-
-ax2 = plt.subplot(gs[1, :-1])
-ax3 = plt.subplot(gs[1:, -1])
-
-###############################################################################
-# The above example becomes
-
-fig = plt.figure()
-gs = gridspec.GridSpec(3, 3)
-ax1 = plt.subplot(gs[0, :])
-ax2 = plt.subplot(gs[1, :-1])
-ax3 = plt.subplot(gs[1:, -1])
-ax4 = plt.subplot(gs[-1, 0])
-ax5 = plt.subplot(gs[-1, -2])
-
-###############################################################################
-# Adjust GridSpec layout
+############################################################################
+# Basic Quickstart Guide
 # ======================
+#
+# These first two examples show how to create a basic 4-by-4 grid using
+# both :func:`~matplotlib.pyplot.subplots` and :mod:`~matplotlib.gridspec`.
+#
+# Using :func:`~matplotlib.pyplot.subplots` is quite simple.
+# It returns a :class:`~matplotlib.figure.Figure` instance and an array of
+# :class:`~matplotlib.axes.Axes` objects.
+
+fig1, f1_axes = plt.subplots(ncols=2, nrows=2)
+fig1.tight_layout()
+
+############################################################################
+# For a simple use case such as this, :mod:`~matplotlib.gridspec` is
+# perhaps overly verbose.
+# You have to create the figure and :class:`~matplotlib.gridspec.GridSpec`
+# instance separately, then pass elements of gridspec instance to the
+# :func:`~matplotlib.figure.Figure.add_subplot` method to create the axes
+# objects.
+# The elements of the gridspec are accessed in generally the same manner as
+# numpy arrays.
+
+fig2 = plt.figure()
+spec2 = gridspec.GridSpec(ncols=2, nrows=2)
+f2_ax1 = fig2.add_subplot(spec2[0, 0])
+f2_ax2 = fig2.add_subplot(spec2[0, 1])
+f2_ax3 = fig2.add_subplot(spec2[1, 0])
+f2_ax4 = fig2.add_subplot(spec2[1, 1])
+fig2.tight_layout()
+
+#############################################################################
+# When you want to have subplots of different sizes, however,
+# :mod:`~matplotlib.gridspec` becomes indispensable and provides a couple
+# of options.
+# The method shown here initializes a uniform grid specification,
+# and then uses typical numpy indexing and slices to allocate multiple
+# "cells" for a given subplot.
+
+fig3 = plt.figure()
+spec3 = gridspec.GridSpec(ncols=3, nrows=3)
+anno_opts = dict(xy=(0.5, 0.5), xycoords='axes fraction',
+                 va='center', ha='center')
+
+fig3.add_subplot(spec3[0, 0]).annotate('GridSpec[0, 0]', **anno_opts)
+fig3.add_subplot(spec3[0, 1:]).annotate('GridSpec[0, 1:]', **anno_opts)
+fig3.add_subplot(spec3[1:, 0]).annotate('GridSpec[1:, 0]', **anno_opts)
+fig3.add_subplot(spec3[1:, 1:]).annotate('GridSpec[1:, 1:]', **anno_opts)
+
+fig3.tight_layout()
+
+############################################################################
+# Other option is to use the ``width_ratios`` and ``height_ratios``
+# parameters. These keyword arguments are lists of numbers.
+# Note that absolute values are meaningless, only their relative ratios
+# matter. That means that ``width_ratios=[2, 4, 8]`` is equivalent to
+# ``width_ratios=[1, 2, 4]`` within equally wide figures.
+# For the sake of demonstration, we'll blindly create the axes within
+# ``for`` loops since we won't need them later.
+
+fig4 = plt.figure()
+widths = [2, 3, 1.5]
+heights = [1, 3, 2]
+spec4 = gridspec.GridSpec(ncols=3, nrows=3, width_ratios=widths,
+                          height_ratios=heights)
+for row in range(3):
+    for col in range(3):
+        ax = fig4.add_subplot(spec4[row, col])
+        label = 'Width: {}\nHeight: {}'.format(widths[col], heights[row])
+        ax.annotate(label, (0.1, 0.5), xycoords='axes fraction', va='center')
+
+fig4.tight_layout()
+
+############################################################################
+# Learning to use ``width_ratios`` and ``height_ratios`` is particularly
+# useful since the top-level function :func:`~matplotlib.pyplot.subplots`
+# accepts them within the ``gridspec_kw`` parameter.
+# For that matter, any parameter accepted by
+# :class:`~matplotlib.gridspec.GridSpec` can be passed to
+# :func:`~matplotlib.pyplot.subplots` via the ``gridspec_kw`` parameter.
+# This example recreates the previous figure without directly using a
+# gridspec instance.
+
+gs_kw = dict(width_ratios=widths, height_ratios=heights)
+fig5, f5_axes = plt.subplots(ncols=3, nrows=3, gridspec_kw=gs_kw)
+for r, row in enumerate(f5_axes):
+    for c, ax in enumerate(row):
+        label = 'Width: {}\nHeight: {}'.format(widths[c], heights[r])
+        ax.annotate(label, (0.1, 0.5), xycoords='axes fraction', va='center')
+
+fig5.tight_layout()
+
+
+###############################################################################
+# Fine Adjustments to a Gridspec Layout
+# =====================================
 #
 # When a GridSpec is explicitly used, you can adjust the layout
 # parameters of subplots that are created from the GridSpec.
 
 fig = plt.figure()
-gs1 = gridspec.GridSpec(3, 3)
-gs1.update(left=0.05, right=0.48, wspace=0.05)
+gs1 = gridspec.GridSpec(nrows=3, ncols=3, left=0.05, right=0.48, wspace=0.05)
+ax1 = fig.add_subplot(gs1[:-1, :])
+ax2 = fig.add_subplot(gs1[-1, :-1])
+ax3 = fig.add_subplot(gs1[-1, -1])
+
 
 ###############################################################################
 # This is similar to :func:`~matplotlib.pyplot.subplots_adjust`, but it only
 # affects the subplots that are created from the given GridSpec.
 #
-# For example, see this code and the resulting figure:
+# For example, compare the left and right sides of this figure:
 
 fig = plt.figure()
-gs1 = gridspec.GridSpec(3, 3)
-gs1.update(left=0.05, right=0.48, wspace=0.05)
-ax1 = plt.subplot(gs1[:-1, :])
-ax2 = plt.subplot(gs1[-1, :-1])
-ax3 = plt.subplot(gs1[-1, -1])
+gs1 = gridspec.GridSpec(nrows=3, ncols=3, left=0.05, right=0.48,
+                        wspace=0.05)
+ax1 = fig.add_subplot(gs1[:-1, :])
+ax2 = fig.add_subplot(gs1[-1, :-1])
+ax3 = fig.add_subplot(gs1[-1, -1])
 
-fig = plt.figure()
-gs2 = gridspec.GridSpec(3, 3)
-gs2.update(left=0.55, right=0.98, hspace=0.05)
-ax4 = plt.subplot(gs2[:, :-1])
-ax5 = plt.subplot(gs2[:-1, -1])
-ax6 = plt.subplot(gs2[-1, -1])
+
+gs2 = gridspec.GridSpec(nrows=3, ncols=3, left=0.55, right=0.98,
+                        hspace=0.05)
+ax4 = fig.add_subplot(gs2[:, :-1])
+ax5 = fig.add_subplot(gs2[:-1, -1])
+ax6 = fig.add_subplot(gs2[-1, -1])
 
 ###############################################################################
 # GridSpec using SubplotSpec
@@ -133,8 +168,15 @@ ax6 = plt.subplot(gs2[-1, -1])
 fig = plt.figure()
 gs0 = gridspec.GridSpec(1, 2)
 
-gs00 = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=gs0[0])
-gs01 = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=gs0[1])
+gs00 = gridspec.GridSpecFromSubplotSpec(2, 3, subplot_spec=gs0[0])
+gs01 = gridspec.GridSpecFromSubplotSpec(3, 2, subplot_spec=gs0[1])
+
+for a in range(2):
+    for b in range(3):
+        fig.add_subplot(gs00[a, b])
+        fig.add_subplot(gs01[b, a])
+
+fig.tight_layout()
 
 ###############################################################################
 # A Complex Nested GridSpec using SubplotSpec
@@ -183,21 +225,3 @@ for ax in all_axes:
         ax.spines['right'].set_visible(True)
 
 plt.show()
-
-# GridSpec with Varying Cell Sizes
-# ================================
-#
-# By default, GridSpec creates cells of equal sizes. You can adjust
-# relative heights and widths of rows and columns. Note that absolute
-# values are meaningless, only their relative ratios matter.
-
-fig = plt.figure()
-gs = gridspec.GridSpec(2, 2,
-                       width_ratios=[1, 2],
-                       height_ratios=[4, 1]
-                       )
-
-ax1 = plt.subplot(gs[0])
-ax2 = plt.subplot(gs[1])
-ax3 = plt.subplot(gs[2])
-ax4 = plt.subplot(gs[3])

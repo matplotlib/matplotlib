@@ -1,17 +1,14 @@
 """
 Interpolation inside triangular grids.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
-from six.moves import xrange
+import warnings
+
+import numpy as np
 
 from matplotlib.tri import Triangulation
 from matplotlib.tri.trifinder import TriFinder
 from matplotlib.tri.tritools import TriAnalyzer
-import numpy as np
-import warnings
 
 __all__ = ('TriInterpolator', 'LinearTriInterpolator', 'CubicTriInterpolator')
 
@@ -66,7 +63,7 @@ class TriInterpolator(object):
     # (except, if needed, relevant additions).
     # However these methods are only implemented in subclasses to avoid
     # confusion in the documentation.
-    docstring__call__ = """
+    _docstring__call__ = """
         Returns a masked array containing interpolated values at the specified
         x,y points.
 
@@ -85,7 +82,7 @@ class TriInterpolator(object):
 
         """
 
-    docstringgradient = """
+    _docstringgradient = """
         Returns a list of 2 masked arrays containing interpolated derivatives
         at the specified x,y points.
 
@@ -274,12 +271,12 @@ class LinearTriInterpolator(TriInterpolator):
     def __call__(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('z',))[0]
-    __call__.__doc__ = TriInterpolator.docstring__call__
+    __call__.__doc__ = TriInterpolator._docstring__call__
 
     def gradient(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('dzdx', 'dzdy'))
-    gradient.__doc__ = TriInterpolator.docstringgradient
+    gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
         if return_key == 'z':
@@ -433,12 +430,12 @@ class CubicTriInterpolator(TriInterpolator):
     def __call__(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('z',))[0]
-    __call__.__doc__ = TriInterpolator.docstring__call__
+    __call__.__doc__ = TriInterpolator._docstring__call__
 
     def gradient(self, x, y):
         return self._interpolate_multikeys(x, y, tri_index=None,
                                            return_keys=('dzdx', 'dzdy'))
-    gradient.__doc__ = TriInterpolator.docstringgradient
+    gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
         tris_pts = self._tris_pts[tri_index]
@@ -517,12 +514,9 @@ class CubicTriInterpolator(TriInterpolator):
 
         a = tris_pts[:, 1, :] - tris_pts[:, 0, :]
         b = tris_pts[:, 2, :] - tris_pts[:, 0, :]
-        abT = np.concatenate([np.expand_dims(a, ndim+1),
-                              np.expand_dims(b, ndim+1)], ndim+1)
+        abT = np.stack([a, b], axis=-1)
         ab = _transpose_vectorized(abT)
-        x = np.expand_dims(x, ndim)
-        y = np.expand_dims(y, ndim)
-        OM = np.concatenate([x, y], ndim) - tris_pts[:, 0, :]
+        OM = np.stack([x, y], axis=1) - tris_pts[:, 0, :]
 
         metric = _prod_vectorized(ab, abT)
         # Here we try to deal with the colinear cases.
@@ -784,7 +778,7 @@ class _ReducedHCT_Element():
         dsdksi = _roll_vectorized(prod, 3*subtri, axis=0)
         dfdksi = _prod_vectorized(dofs, dsdksi)
         # In global coordinates:
-        # Here we try to deal with the simpliest colinear cases, returning a
+        # Here we try to deal with the simplest colinear cases, returning a
         # null matrix.
         J_inv = _safe_inv22_vectorized(J)
         dfdx = _prod_vectorized(J_inv, _transpose_vectorized(dfdksi))
@@ -925,7 +919,7 @@ class _ReducedHCT_Element():
         to global coordinates.
         if *return_area* is True, returns also the triangle area (0.5*det(J))
         """
-        # Here we try to deal with the simpliest colinear cases ; a null
+        # Here we try to deal with the simplest colinear cases ; a null
         # energy and area is imposed.
         J_inv = _safe_inv22_vectorized(J)
         Ji00 = J_inv[:, 0, 0]
@@ -1162,7 +1156,7 @@ class _DOF_estimator_geom(_DOF_estimator):
         dM1 = tris_pts[:, 1, :] - tris_pts[:, 0, :]
         dM2 = tris_pts[:, 2, :] - tris_pts[:, 0, :]
         dM = np.dstack([dM1, dM2])
-        # Here we try to deal with the simpliest colinear cases: a null
+        # Here we try to deal with the simplest colinear cases: a null
         # gradient is assumed in this case.
         dM_inv = _safe_inv22_vectorized(dM)
 
@@ -1533,7 +1527,7 @@ def _prod_vectorized(M1, M2):
     assert sh1[-1] == sh2[-2]
 
     ndim1 = len(sh1)
-    t1_index = list(xrange(ndim1-2)) + [ndim1-1, ndim1-2]
+    t1_index = [*range(ndim1-2), ndim1-1, ndim1-2]
     return np.sum(np.transpose(M1, t1_index)[..., np.newaxis] *
                   M2[..., np.newaxis, :], -3)
 
@@ -1549,9 +1543,7 @@ def _transpose_vectorized(M):
     """
     Transposition of an array of matrices *M*.
     """
-    ndim = M.ndim
-    assert ndim == 3
-    return np.transpose(M, [0, ndim-1, ndim-2])
+    return np.transpose(M, [0, 2, 1])
 
 
 def _roll_vectorized(M, roll_indices, axis):
@@ -1593,7 +1585,7 @@ def _to_matrix_vectorized(M):
         M_res[...,i,j] = M[i][j]
     """
     assert isinstance(M, (tuple, list))
-    assert all([isinstance(item, (tuple, list)) for item in M])
+    assert all(isinstance(item, (tuple, list)) for item in M)
     c_vec = np.asarray([len(item) for item in M])
     assert np.all(c_vec-c_vec[0] == 0)
     r = len(M)

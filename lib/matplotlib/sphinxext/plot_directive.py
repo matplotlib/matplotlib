@@ -134,19 +134,19 @@ The plot directive has the following configuration options:
     plot_template
         Provide a customized template for preparing restructured text.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
-from six.moves import xrange
-
-import sys, os, shutil, io, re, textwrap
+import contextlib
+from io import StringIO
+import itertools
+import os
 from os.path import relpath
+from pathlib import Path
+import re
+import shutil
+import sys
+import textwrap
 import traceback
 import warnings
-
-if not six.PY3:
-    import cStringIO
 
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.images import Image
@@ -162,7 +162,6 @@ sphinx_version = tuple([int(re.split('[^0-9]', x)[0])
 import jinja2  # Sphinx dependency.
 
 import matplotlib
-import matplotlib.cbook as cbook
 try:
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("error", UserWarning)
@@ -172,7 +171,7 @@ except UserWarning:
     plt.switch_backend("Agg")
 else:
     import matplotlib.pyplot as plt
-from matplotlib import _pylab_helpers
+from matplotlib import _pylab_helpers, cbook
 
 __version__ = 2
 
@@ -222,7 +221,7 @@ def mark_plot_labels(app, document):
     the "htmlonly" (or "latexonly") node to the actual figure node
     itself.
     """
-    for name, explicit in six.iteritems(document.nametypes):
+    for name, explicit in document.nametypes.items():
         if not explicit:
             continue
         labelid = document.nameids[name]
@@ -277,7 +276,7 @@ def setup(app):
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
 
-    app.connect(str('doctree-read'), mark_plot_labels)
+    app.connect('doctree-read', mark_plot_labels)
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
@@ -346,6 +345,7 @@ def remove_coding(text):
     r"""
     Remove the coding comment, which six.exec\_ doesn't like.
     """
+    cbook.warn_deprecated('3.0', name='remove_coding', removal='3.1')
     sub_re = re.compile("^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
     return sub_re.sub("", text)
 
@@ -419,7 +419,7 @@ TEMPLATE = """
 """
 
 exception_template = """
-.. htmlonly::
+.. only:: html
 
    [`source code <%(linkdir)s/%(basename)s.py>`__]
 
@@ -467,11 +467,7 @@ def run_code(code, code_path, ns=None, function_name=None):
     # Change the working directory to the directory of the example, so
     # it can get at its data files, if any.  Add its path to sys.path
     # so it can import any helper modules sitting beside it.
-    if six.PY2:
-        pwd = os.getcwdu()
-    else:
-        pwd = os.getcwd()
-    old_sys_path = list(sys.path)
+    pwd = os.getcwd()
     if setup.config.plot_working_directory is not None:
         try:
             os.chdir(setup.config.plot_working_directory)
@@ -483,54 +479,32 @@ def run_code(code, code_path, ns=None, function_name=None):
             raise TypeError(str(err) + '\n`plot_working_directory` option in '
                             'Sphinx configuration file must be a string or '
                             'None')
-        sys.path.insert(0, setup.config.plot_working_directory)
     elif code_path is not None:
         dirname = os.path.abspath(os.path.dirname(code_path))
         os.chdir(dirname)
-        sys.path.insert(0, dirname)
 
-    # Reset sys.argv
-    old_sys_argv = sys.argv
-    sys.argv = [code_path]
-
-    # Redirect stdout
-    stdout = sys.stdout
-    if six.PY3:
-        sys.stdout = io.StringIO()
-    else:
-        sys.stdout = cStringIO.StringIO()
-
-    # Assign a do-nothing print function to the namespace.  There
-    # doesn't seem to be any other way to provide a way to (not) print
-    # that works correctly across Python 2 and 3.
-    def _dummy_print(*arg, **kwarg):
-        pass
-
-    try:
+    with cbook._setattr_cm(
+            sys, argv=[code_path], path=[os.getcwd(), *sys.path]), \
+            contextlib.redirect_stdout(StringIO()):
         try:
             code = unescape_doctest(code)
             if ns is None:
                 ns = {}
             if not ns:
                 if setup.config.plot_pre_code is None:
-                    six.exec_(six.text_type("import numpy as np\n" +
-                    "from matplotlib import pyplot as plt\n"), ns)
+                    exec('import numpy as np\n'
+                         'from matplotlib import pyplot as plt\n', ns)
                 else:
-                    six.exec_(six.text_type(setup.config.plot_pre_code), ns)
-            ns['print'] = _dummy_print
+                    exec(str(setup.config.plot_pre_code), ns)
             if "__main__" in code:
-                six.exec_("__name__ = '__main__'", ns)
-            code = remove_coding(code)
-            six.exec_(code, ns)
+                ns['__name__'] = '__main__'
+            exec(code, ns)
             if function_name is not None:
-                six.exec_(function_name + "()", ns)
+                exec(function_name + "()", ns)
         except (Exception, SystemExit) as err:
             raise PlotError(traceback.format_exc())
-    finally:
-        os.chdir(pwd)
-        sys.argv = old_sys_argv
-        sys.path[:] = old_sys_path
-        sys.stdout = stdout
+        finally:
+            os.chdir(pwd)
     return ns
 
 
@@ -545,19 +519,14 @@ def get_plot_formats(config):
     default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
     plot_formats = config.plot_formats
-    if isinstance(plot_formats, six.string_types):
-        # String Sphinx < 1.3, Split on , to mimic
-        # Sphinx 1.3 and later. Sphinx 1.3 always
-        # returns a list.
-        plot_formats = plot_formats.split(',')
     for fmt in plot_formats:
-        if isinstance(fmt, six.string_types):
+        if isinstance(fmt, str):
             if ':' in fmt:
                 suffix, dpi = fmt.split(':')
                 formats.append((str(suffix), int(dpi)))
             else:
                 formats.append((fmt, default_dpi.get(fmt, 80)))
-        elif type(fmt) in (tuple, list) and len(fmt) == 2:
+        elif isinstance(fmt, (tuple, list)) and len(fmt) == 2:
             formats.append((str(fmt[0]), int(fmt[1])))
         else:
             raise PlotError('invalid image format "%r" in plot_formats' % fmt)
@@ -582,21 +551,17 @@ def render_figures(code, code_path, output_dir, output_base, context,
     # Look for single-figure output files first
     all_exists = True
     img = ImageFile(output_base, output_dir)
-    for format, dpi in formats:
-        if out_of_date(code_path, img.filename(format)):
-            all_exists = False
-            break
-        img.formats.append(format)
-
-    if all_exists:
+    if not any(out_of_date(code_path, img.filename(fmt))
+               for fmt, dpi in formats):
         return [(code, [img])]
+    img.formats.extend(fmt for fmt, dpi in formats)
 
     # Then look for multi-figure output files
     results = []
     all_exists = True
     for i, code_piece in enumerate(code_pieces):
         images = []
-        for j in xrange(1000):
+        for j in itertools.count():
             if len(code_pieces) > 1:
                 img = ImageFile('%s_%02d_%02d' % (output_base, i, j),
                                 output_dir)
@@ -701,12 +666,11 @@ def run(arguments, content, options, state_machine, state, lineno):
         else:
             function_name = None
 
-        with io.open(source_file_name, 'r', encoding='utf-8') as fd:
-            code = fd.read()
+        code = Path(source_file_name).read_text(encoding='utf-8')
         output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
-        code = textwrap.dedent("\n".join(map(six.text_type, content)))
+        code = textwrap.dedent("\n".join(map(str, content)))
         counter = document.attributes.get('_plot_counter', 0) + 1
         document.attributes['_plot_counter'] = counter
         base, ext = os.path.splitext(os.path.basename(source_file_name))
@@ -796,12 +760,10 @@ def run(arguments, content, options, state_machine, state, lineno):
     for j, (code_piece, images) in enumerate(results):
         if options['include-source']:
             if is_doctest:
-                lines = ['']
-                lines += [row.rstrip() for row in code_piece.split('\n')]
+                lines = ['', *code_piece.splitlines()]
             else:
-                lines = ['.. code-block:: python', '']
-                lines += ['    %s' % row.rstrip()
-                          for row in code_piece.split('\n')]
+                lines = ['.. code-block:: python', '',
+                         *textwrap.indent(code_piece, '    ').splitlines()]
             source_code = "\n".join(lines)
         else:
             source_code = ""
@@ -810,7 +772,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             images = []
 
         opts = [
-            ':%s: %s' % (key, val) for key, val in six.iteritems(options)
+            ':%s: %s' % (key, val) for key, val in options.items()
             if key in ('alt', 'height', 'width', 'scale', 'align', 'class')]
 
         only_html = ".. only:: html"
@@ -846,8 +808,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         state_machine.insert_input(total_lines, source=source_file_name)
 
     # copy image files to builder's output directory, if necessary
-    if not os.path.exists(dest_dir):
-        cbook.mkdirs(dest_dir)
+    Path(dest_dir).mkdir(parents=True, exist_ok=True)
 
     for code_piece, images in results:
         for img in images:
@@ -857,12 +818,8 @@ def run(arguments, content, options, state_machine, state, lineno):
                     shutil.copyfile(fn, destimg)
 
     # copy script (if necessary)
-    target_name = os.path.join(dest_dir, output_base + source_ext)
-    with io.open(target_name, 'w', encoding="utf-8") as f:
-        if source_file_name == rst_file:
-            code_escaped = unescape_doctest(code)
-        else:
-            code_escaped = code
-        f.write(code_escaped)
+    Path(dest_dir, output_base + source_ext).write_text(
+        unescape_doctest(code) if source_file_name == rst_file else code,
+        encoding='utf-8')
 
     return errors

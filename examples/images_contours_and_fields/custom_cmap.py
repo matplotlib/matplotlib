@@ -3,9 +3,11 @@
 Creating a colormap from a list of colors
 =========================================
 
-Creating a colormap from a list of colors can be done with the `from_list`
-method of `LinearSegmentedColormap`. You must pass a list of RGB tuples that
-define the mixture of colors from 0 to 1.
+Creating a :doc:`colormap </tutorials/colors/colormaps>`
+from a list of colors can be done with the
+:meth:`~.colors.LinearSegmentedColormap.from_list` method of
+`LinearSegmentedColormap`. You must pass a list of RGB tuples that define the
+mixture of colors from 0 to 1.
 
 
 Creating custom colormaps
@@ -143,12 +145,13 @@ cdict3 = {'red':  ((0.0, 0.0, 0.0),
 
 # Make a modified version of cdict3 with some transparency
 # in the middle of the range.
-cdict4 = cdict3.copy()
-cdict4['alpha'] = ((0.0, 1.0, 1.0),
+cdict4 = {**cdict3,
+          'alpha': ((0.0, 1.0, 1.0),
                 #   (0.25,1.0, 1.0),
-                   (0.5, 0.3, 0.3),
+                    (0.5, 0.3, 0.3),
                 #   (0.75,1.0, 1.0),
-                   (1.0, 1.0, 1.0))
+                    (1.0, 1.0, 1.0)),
+          }
 
 
 ###############################################################################
@@ -222,3 +225,26 @@ fig.suptitle('Custom Blue-Red colormaps', fontsize=16)
 fig.subplots_adjust(top=0.9)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.colors
+matplotlib.colors.LinearSegmentedColormap
+matplotlib.colors.LinearSegmentedColormap.from_list
+matplotlib.cm
+matplotlib.cm.ScalarMappable.set_cmap
+matplotlib.pyplot.register_cmap
+matplotlib.cm.register_cmap

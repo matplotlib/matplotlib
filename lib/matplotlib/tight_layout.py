@@ -108,7 +108,7 @@ def auto_adjust_subplotpars(
     for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
                                                ax_bbox_list,
                                                num1num2_list):
-        if all([not ax.get_visible() for ax in subplots]):
+        if all(not ax.get_visible() for ax in subplots):
             continue
 
         tight_bbox_raw = union([ax.get_tightbbox(renderer) for ax in subplots
@@ -171,25 +171,46 @@ def auto_adjust_subplotpars(
         margin_bottom = max([sum(s) for s in vspaces[-cols:]] + [0])
         margin_bottom += pad_inches / fig_height_inch
 
+    if margin_left + margin_right >= 1:
+        margin_left = 0.4999
+        margin_right = 0.4999
+        warnings.warn('The left and right margins cannot be made large '
+                      'enough to accommodate all axes decorations. ')
+    if margin_bottom + margin_top >= 1:
+        margin_bottom = 0.4999
+        margin_top = 0.4999
+        warnings.warn('The bottom and top margins cannot be made large '
+                      'enough to accommodate all axes decorations. ')
+
     kwargs = dict(left=margin_left,
                   right=1 - margin_right,
                   bottom=margin_bottom,
                   top=1 - margin_top)
-
     if cols > 1:
         hspace = (
             max(sum(s)
                 for i in range(rows)
                 for s in hspaces[i * (cols + 1) + 1:(i + 1) * (cols + 1) - 1])
             + hpad_inches / fig_width_inch)
+        # axes widths:
         h_axes = (1 - margin_right - margin_left - hspace * (cols - 1)) / cols
-        kwargs["wspace"] = hspace / h_axes
+        if h_axes < 0:
+            warnings.warn('tight_layout cannot make axes width small enough '
+                          'to accommodate all axes decorations')
+            kwargs["wspace"] = 0.5
+        else:
+            kwargs["wspace"] = hspace / h_axes
 
     if rows > 1:
         vspace = (max(sum(s) for s in vspaces[cols:-cols])
                   + vpad_inches / fig_height_inch)
         v_axes = (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows
-        kwargs["hspace"] = vspace / v_axes
+        if v_axes < 0:
+            warnings.warn('tight_layout cannot make axes height small enough '
+                          'to accommodate all axes decorations')
+            kwargs["hspace"] = 0.5
+        else:
+            kwargs["hspace"] = vspace / v_axes
 
     return kwargs
 
@@ -253,7 +274,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     ----------
     fig : Figure
     axes_list : list of Axes
-    subplotspec_list : list of `~.SubplotSpec`
+    subplotspec_list : list of `.SubplotSpec`
         The subplotspecs of each axes.
     renderer : renderer
     pad : float
@@ -278,8 +299,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
 
     subplotspec_list2 = []
 
-    for ax, subplotspec in zip(axes_list,
-                               subplotspec_list):
+    for ax, subplotspec in zip(axes_list, subplotspec_list):
         if subplotspec is None:
             continue
 
@@ -295,7 +315,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
 
         subplots.append(ax)
 
-    if (len(nrows_list) == 0) or (len(ncols_list) == 0):
+    if len(nrows_list) == 0 or len(ncols_list) == 0:
         return {}
 
     max_nrows = max(nrows_list)

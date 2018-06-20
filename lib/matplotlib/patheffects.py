@@ -4,11 +4,6 @@ Defines classes for path effects. The path effects are supported in
 and :class:`~matplotlib.patches.Patch`.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from matplotlib.backend_bases import RendererBase
 from matplotlib import colors as mcolors
 from matplotlib import patches as mpatches
@@ -53,7 +48,7 @@ class AbstractPathEffect(object):
         if dashes:
             gc.set_dashes(**dashes)
 
-        for k, v in six.iteritems(new_gc_dict):
+        for k, v in new_gc_dict.items():
             set_method = getattr(gc, 'set_' + k, None)
             if not callable(set_method):
                 raise AttributeError('Unknown property {0}'.format(k))
@@ -183,7 +178,7 @@ class Stroke(AbstractPathEffect):
         keyword arguments, i.e., the keyword arguments should be valid
         gc parameter values.
         """
-        super(Stroke, self).__init__(offset)
+        super().__init__(offset)
         self._gc = kwargs
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
@@ -236,7 +231,7 @@ class SimplePatchShadow(AbstractPathEffect):
             :meth:`AbstractPathEffect._update_gc`.
 
         """
-        super(SimplePatchShadow, self).__init__(offset)
+        super().__init__(offset)
 
         if shadow_rgbFace is None:
             self._shadow_rgbFace = shadow_rgbFace
@@ -318,7 +313,7 @@ class SimpleLineShadow(AbstractPathEffect):
             :meth:`AbstractPathEffect._update_gc`.
 
         """
-        super(SimpleLineShadow, self).__init__(offset)
+        super().__init__(offset)
         if shadow_color is None:
             self._shadow_color = shadow_color
         else:
@@ -379,7 +374,7 @@ class PathPatchEffect(AbstractPathEffect):
             properties which cannot be overridden are "path", "clip_box"
             "transform" and "clip_path".
         """
-        super(PathPatchEffect, self).__init__(offset=offset)
+        super().__init__(offset=offset)
         self.patch = mpatches.PathPatch([], **kwargs)
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):

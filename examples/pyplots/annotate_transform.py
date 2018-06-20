@@ -3,6 +3,9 @@
 Annotate Transform
 ==================
 
+This example shows how to use different coordinate systems for annotations.
+For a complete overview of the annotation capabilities, also see the
+:doc:`annotation tutorial</tutorials/text/annotations>`.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -38,3 +41,18 @@ disp = ax.annotate('display = (%.1f, %.1f)'%(xdisplay, ydisplay),
 
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.transforms.Transform.transform_point
+matplotlib.axes.Axes.annotate
+matplotlib.pyplot.annotate

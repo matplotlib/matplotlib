@@ -3,13 +3,8 @@
 #include <sys/socket.h>
 #include <Python.h>
 
-#define PYOSINPUTHOOK_REPETITIVE 1 /* Remove this once Python is fixed */
-
-#if PY_MAJOR_VERSION >= 3
-#define PY3K 1
-#else
-#define PY3K 0
-#endif
+/* Remove this once Python is fixed: https://bugs.python.org/issue23237 */
+#define PYOSINPUTHOOK_REPETITIVE 1
 
 /* Proper way to check for the OS X version we are compiling for, from
    http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development */
@@ -325,13 +320,8 @@ FigureCanvas_dealloc(FigureCanvas* self)
 static PyObject*
 FigureCanvas_repr(FigureCanvas* self)
 {
-#if PY3K
     return PyUnicode_FromFormat("FigureCanvas object %p wrapping NSView %p",
                                (void*)self, (void*)(self->view));
-#else
-    return PyString_FromFormat("FigureCanvas object %p wrapping NSView %p",
-                               (void*)self, (void*)(self->view));
-#endif
 }
 
 static PyObject*
@@ -730,13 +720,8 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 static PyObject*
 FigureManager_repr(FigureManager* self)
 {
-#if PY3K
     return PyUnicode_FromFormat("FigureManager object %p wrapping NSWindow %p",
                                (void*) self, (void*)(self->window));
-#else
-    return PyString_FromFormat("FigureManager object %p wrapping NSWindow %p",
-                               (void*) self, (void*)(self->window));
-#endif
 }
 
 static void
@@ -1197,11 +1182,7 @@ NavigationToolbar_dealloc(NavigationToolbar *self)
 static PyObject*
 NavigationToolbar_repr(NavigationToolbar* self)
 {
-#if PY3K
     return PyUnicode_FromFormat("NavigationToolbar object %p", (void*)self);
-#else
-    return PyString_FromFormat("NavigationToolbar object %p", (void*)self);
-#endif
 }
 
 static char NavigationToolbar_doc[] =
@@ -1307,7 +1288,9 @@ NavigationToolbar_get_active (NavigationToolbar* self)
     }
     Py_ssize_t list_index = 0;
     PyObject* list = PyList_New(m);
-    for (size_t state_index = 0; state_index < n; state_index++)
+
+    size_t state_index;
+    for (state_index = 0; state_index < n; state_index++)
     {
         if(states[state_index]==1)
         {
@@ -1741,11 +1724,7 @@ NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 static PyObject*
 NavigationToolbar2_repr(NavigationToolbar2* self)
 {
-#if PY3K
     return PyUnicode_FromFormat("NavigationToolbar2 object %p", (void*)self);
-#else
-    return PyString_FromFormat("NavigationToolbar2 object %p", (void*)self);
-#endif
 }
 
 static char NavigationToolbar2_doc[] =
@@ -1756,11 +1735,7 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
 {
     const char* message;
 
-#if PY3K
     if(!PyArg_ParseTuple(args, "y", &message)) return NULL;
-#else
-    if(!PyArg_ParseTuple(args, "s", &message)) return NULL;
-#endif
 
     NSText* messagebox = self->messagebox;
 
@@ -1867,11 +1842,7 @@ choose_save_file(PyObject* unused, PyObject* args)
         unsigned int n = [filename length];
         unichar* buffer = malloc(n*sizeof(unichar));
         [filename getCharacters: buffer];
-#if PY3K
-        PyObject* string =  PyUnicode_FromKindAndData(PyUnicode_2BYTE_KIND, buffer, n);
-#else
-        PyObject* string =  PyUnicode_FromUnicode(buffer, n);
-#endif
+        PyObject* string = PyUnicode_FromKindAndData(PyUnicode_2BYTE_KIND, buffer, n);
         free(buffer);
         return string;
     }
@@ -2853,13 +2824,8 @@ Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 static PyObject*
 Timer_repr(Timer* self)
 {
-#if PY3K
     return PyUnicode_FromFormat("Timer object %p wrapping CFRunLoopTimerRef %p",
                                (void*) self, (void*)(self->timer));
-#else
-    return PyString_FromFormat("Timer object %p wrapping CFRunLoopTimerRef %p",
-                               (void*) self, (void*)(self->timer));
-#endif
 }
 
 static char Timer_doc[] =
@@ -3090,8 +3056,6 @@ static struct PyMethodDef methods[] = {
    {NULL,          NULL, 0, NULL}/* sentinel */
 };
 
-#if PY3K
-
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_macosx",
@@ -3105,11 +3069,6 @@ static struct PyModuleDef moduledef = {
 };
 
 PyObject* PyInit__macosx(void)
-
-#else
-
-void init_macosx(void)
-#endif
 {
     PyObject *module;
 
@@ -3118,31 +3077,15 @@ void init_macosx(void)
      || PyType_Ready(&NavigationToolbarType) < 0
      || PyType_Ready(&NavigationToolbar2Type) < 0
      || PyType_Ready(&TimerType) < 0)
-#if PY3K
         return NULL;
-#else
-        return;
-#endif
 
     NSApp = [NSApplication sharedApplication];
 
     if (!verify_framework())
-#if PY3K
         return NULL;
-#else
-        return;
-#endif
 
-#if PY3K
     module = PyModule_Create(&moduledef);
     if (module==NULL) return NULL;
-#else
-    module = Py_InitModule4("_macosx",
-                            methods,
-                            "Mac OS X native backend",
-                            NULL,
-                            PYTHON_API_VERSION);
-#endif
 
     Py_INCREF(&FigureCanvasType);
     Py_INCREF(&FigureManagerType);
@@ -3166,7 +3109,5 @@ void init_macosx(void)
                                name: NSWorkspaceDidLaunchApplicationNotification
                              object: nil];
     [pool release];
-#if PY3K
     return module;
-#endif
 }

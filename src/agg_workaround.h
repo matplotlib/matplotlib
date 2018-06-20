@@ -1,5 +1,5 @@
-#ifndef __AGG_WORKAROUND_H__
-#define __AGG_WORKAROUND_H__
+#ifndef MPL_AGG_WORKAROUND_H
+#define MPL_AGG_WORKAROUND_H
 
 #include "agg_pixfmt_rgba.h"
 

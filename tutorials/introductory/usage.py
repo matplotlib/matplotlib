@@ -296,11 +296,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # to the "backend" and many new users are confused by this term.
 # matplotlib targets many different use cases and output formats.  Some
 # people use matplotlib interactively from the python shell and have
-# plotting windows pop up when they type commands.  Some people embed
-# matplotlib into graphical user interfaces like wxpython or pygtk to
-# build rich applications.  Others use matplotlib in batch scripts to
-# generate postscript images from some numerical simulations, and still
-# others in web application servers to dynamically serve up graphs.
+# plotting windows pop up when they type commands.  Some people run
+# `Jupyter <https://jupyter.org>`_ notebooks and draw inline plots for
+# quick data analysis. Others embed matplotlib into graphical user
+# interfaces like wxpython or pygtk to build rich applications.  Some
+# people use matplotlib in batch scripts to generate postscript images
+# from numerical simulations, and still others run web application
+# servers to dynamically serve up graphs.
 #
 # To support all of these use cases, matplotlib can target different
 # outputs, and each of these capabilities is called a backend; the
@@ -317,17 +319,22 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 #
 # #. The ``backend`` parameter in your ``matplotlibrc`` file (see
-#    :ref:`sphx_glr_tutorials_introductory_customizing.py`)::
+#    :doc:`/tutorials/introductory/customizing`)::
 #
 #        backend : WXAgg   # use wxpython with antigrain (agg) rendering
 #
-# #. Setting the :envvar:`MPLBACKEND` environment
-#    variable, either for your current shell or for a single script::
+# #. Setting the :envvar:`MPLBACKEND` environment variable, either for your
+#    current shell or for a single script.  On Unix::
 #
-#         > export MPLBACKEND="module://my_backend"
+#         > export MPLBACKEND=module://my_backend
 #         > python simple_plot.py
 #
 #         > MPLBACKEND="module://my_backend" python simple_plot.py
+#
+#    On Windows, only the former is possible::
+#
+#         > set MPLBACKEND=module://my_backend
+#         > python simple_plot.py
 #
 #    Setting this environment variable will override the ``backend`` parameter
 #    in *any* ``matplotlibrc``, even if there is a ``matplotlibrc`` in your
@@ -349,8 +356,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    :func:`~matplotlib.use` unless absolutely necessary.
 #
 # .. note::
-#    Backend name specifications are not case-sensitive; e.g., 'GTKAgg'
-#    and 'gtkagg' are equivalent.
+#    Backend name specifications are not case-sensitive; e.g., 'GTK3Agg'
+#    and 'gtk3agg' are equivalent.
 #
 # With a typical installation of matplotlib, such as from a
 # binary installer or a linux distribution package, a good default
@@ -368,11 +375,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
 # Geometry`_ C++ library to make a raster (pixel) image of the figure.
 # All of the user interfaces except ``macosx`` can be used with
-# agg rendering, e.g.,
-# ``WXAgg``, ``GTKAgg``, ``QT4Agg``, ``QT5Agg``, ``TkAgg``.  In
-# addition, some of the user interfaces support other rendering engines.
-# For example, with GTK, you can also select GDK rendering (backend
-# ``GTK`` deprecated in 2.0) or Cairo rendering (backend ``GTKCairo``).
+# agg rendering, e.g., ``WXAgg``, ``GTK3Agg``, ``QT4Agg``, ``QT5Agg``,
+# ``TkAgg``.  In addition, some of the user interfaces support other rendering
+# engines.  For example, with GTK+ 3, you can also select Cairo rendering
+# (backend ``GTK3Cairo``).
 #
 # For the rendering engines, one can also distinguish between `vector
 # <https://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
@@ -397,11 +403,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #                                `Portable Document Format`_
 # SVG             :term:`svg`    :term:`vector graphics` --
 #                                `Scalable Vector Graphics`_
-# :term:`Cairo`   :term:`png`    :term:`vector graphics` --
-#                 :term:`ps`     `Cairo graphics`_
-#                 :term:`pdf`
+# :term:`Cairo`   :term:`png`    :term:`raster graphics` and
+#                 :term:`ps`     :term:`vector graphics` -- using the
+#                 :term:`pdf`    `Cairo graphics`_ library
 #                 :term:`svg`
-#                 ...
 # =============   ============   ================================================
 #
 # And here are the user interfaces and renderer combinations supported;
@@ -409,53 +414,40 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # and of using appropriate renderers from the table above to write to
 # a file:
 #
-# ============   ================================================================
-# Backend        Description
-# ============   ================================================================
-# Qt5Agg         Agg rendering in a :term:`Qt5` canvas (requires PyQt5_).  This
-#                backend can be activated in IPython with ``%matplotlib qt5``.
-# ipympl         Agg rendering embedded in a Jupyter widget.  (requires ipympl)
-#                This can be enabled in a Jupyter notebook with
-#                ``%matplotlib ipympl``
-# GTK3Agg        Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
-#                and pycairo_ or cairocffi_)
-#                This backend can be activated in IPython with
-#                ``%matplotlib gtk3``.
-# macosx         Agg rendering into a Cocoa canvas in OSX.
-#                This backend can be activated in IPython with
-#                ``%matplotlib osx``.
-# TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_).
-#                This backend can be activated in IPython with
-#                ``%matplotlib tk``.
-# nbAgg          Embed an interactive figure in a Jupyter classic notebook.  This
-#                backend can be enabled in Jupyter notebooks via
-#                ``%matplotlib notebook``.
-# WebAgg         On ``show()`` will start a tornado server with an interactive
-#                figure.
-# GTK3Cairo      Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
-#                and pycairo_ or cairocffi_)
-# Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_
-#                or ``pyside``).
-#                This backend can be activated in IPython with
-#                ``%matplotlib qt4``.
-# GTKAgg         Agg rendering to a :term:`GTK` 2.x canvas (requires PyGTK_ and
-#                pycairo_ or cairocffi_; Python2 only)
-#                This backend can be activated in IPython with
-#                ``%matplotlib gtk``.
-# GTKCairo       Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_
-#                and pycairo_ or cairocffi_; Python2 only)
-# WXAgg          Agg rendering to a :term:`wxWidgets` canvas
-#                (requires wxPython_.  v4.0 (in beta) is
-#                required for python3).
-#                This backend can be activated in IPython with
-#                ``%matplotlib wx``.
-# ============   ================================================================
+# ========= ================================================================
+# Backend   Description
+# ========= ================================================================
+# Qt5Agg    Agg rendering in a :term:`Qt5` canvas (requires PyQt5_).  This
+#           backend can be activated in IPython with ``%matplotlib qt5``.
+# ipympl    Agg rendering embedded in a Jupyter widget.  (requires ipympl).
+#           This backend can be enabled in a Jupyter notebook with
+#           ``%matplotlib ipympl``.
+# GTK3Agg   Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_,
+#           and pycairo_ or cairocffi_).  This backend can be activated in
+#           IPython with ``%matplotlib gtk3``.
+# macosx    Agg rendering into a Cocoa canvas in OSX.  This backend can be
+#           activated in IPython with ``%matplotlib osx``.
+# TkAgg     Agg rendering to a :term:`Tk` canvas (requires TkInter_). This
+#           backend can be activated in IPython with ``%matplotlib tk``.
+# nbAgg     Embed an interactive figure in a Jupyter classic notebook.  This
+#           backend can be enabled in Jupyter notebooks via
+#           ``%matplotlib notebook``.
+# WebAgg    On ``show()`` will start a tornado server with an interactive
+#           figure.
+# GTK3Cairo Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_,
+#           and pycairo_ or cairocffi_).
+# Qt4Agg    Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or
+#           ``pyside``).  This backend can be activated in IPython with
+#           ``%matplotlib qt4``.
+# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_ 4).
+#           This backend can be activated in IPython with ``%matplotlib wx``.
+# ========= ================================================================
 #
 # .. _`Anti-Grain Geometry`: http://antigrain.com/
 # .. _Postscript: https://en.wikipedia.org/wiki/PostScript
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
 # .. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
-# .. _`Cairo graphics`: https://en.wikipedia.org/wiki/Cairo_(graphics)
+# .. _`Cairo graphics`: https://wwW.cairographics.org
 # .. _`Gimp Drawing Kit`: https://en.wikipedia.org/wiki/GDK
 # .. _PyGTK: http://www.pygtk.org
 # .. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
@@ -489,22 +481,14 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # GTK and Cairo
 # -------------
 #
-# Both `GTK2` and `GTK3` have implicit dependencies on PyCairo regardless of the
-# specific Matplotlib backend used. Unfortunatly the latest release of PyCairo
-# for Python3 does not implement the Python wrappers needed for the `GTK3Agg`
-# backend. `Cairocffi` can be used as a replacement which implements the correct
-# wrapper.
+# `GTK3` backends (*both* `GTK3Agg` and `GTK3Cairo`) depend on Cairo
+# (pycairo>=1.11.0 or cairocffi).
 #
 # How do I select PyQt4 or PySide?
 # --------------------------------
 #
-# You can choose either PyQt4 or PySide when using the `qt4` backend by setting
-# the appropriate value for `backend.qt4` in your :file:`matplotlibrc` file. The
-# default value is `PyQt4`.
-#
-# The setting in your :file:`matplotlibrc` file can be overridden by setting the
-# `QT_API` environment variable to either `pyqt` or `pyside` to use `PyQt4` or
-# `PySide`, respectively.
+# The `QT_API` environment variable can be set to either `pyqt` or `pyside`
+# to use `PyQt4` or `PySide`, respectively.
 #
 # Since the default value for the bindings to be used is `PyQt4`,
 # :mod:`matplotlib` first tries to import it, if the import fails, it tries to
@@ -523,7 +507,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # that are called, and on a state variable that determines whether
 # matplotlib is in "interactive mode".  The default Boolean value is set
 # by the :file:`matplotlibrc` file, and may be customized like any other
-# configuration parameter (see :ref:`sphx_glr_tutorials_introductory_customizing.py`).  It
+# configuration parameter (see :doc:`/tutorials/introductory/customizing`).  It
 # may also be set via :func:`matplotlib.interactive`, and its
 # value may be queried via :func:`matplotlib.is_interactive`.  Turning
 # interactive mode on and off in the middle of a stream of plotting
@@ -653,7 +637,7 @@ for i in range(3):
 # Performance
 # ===========
 #
-# Whether exploring data in interactive mode or programatically
+# Whether exploring data in interactive mode or programmatically
 # saving lots of plots, rendering performance can be a painful
 # bottleneck in your pipeline. Matplotlib provides a couple
 # ways to greatly reduce rendering time at the cost of a slight
@@ -669,7 +653,7 @@ for i in range(3):
 # controlled by the ``path.simplify`` and
 # ``path.simplify_threshold`` parameters in your
 # ``matplotlibrc`` file (see
-# :ref:`sphx_glr_tutorials_introductory_customizing.py` for
+# :doc:`/tutorials/introductory/customizing` for
 # more information about the ``matplotlibrc`` file).
 # The ``path.simplify`` parameter is a boolean indicating whether
 # or not line segments are simplified at all. The
@@ -706,7 +690,7 @@ for i in range(3):
 # interactive plotting (with maximal simplification) and another
 # style for publication quality plotting (with minimal
 # simplification) and activate them as necessary. See
-# :ref:`sphx_glr_tutorials_introductory_customizing.py` for
+# :doc:`/tutorials/introductory/customizing` for
 # instructions on how to perform these actions.
 #
 # The simplification works by iteratively merging line segments
@@ -737,7 +721,7 @@ for i in range(3):
 #
 # The markevery argument allows for naive subsampling, or an
 # attempt at evenly spaced (along the *x* axis) sampling. See the
-# :ref:`sphx_glr_gallery_lines_bars_and_markers_markevery_demo.py`
+# :doc:`/gallery/lines_bars_and_markers/markevery_demo`
 # for more information.
 #
 # Splitting lines into smaller chunks

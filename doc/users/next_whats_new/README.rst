@@ -1,3 +1,5 @@
+:orphan:
+
 What's new in unreleased Matplotlib?
 ====================================
 

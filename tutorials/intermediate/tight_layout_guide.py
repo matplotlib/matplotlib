@@ -10,6 +10,9 @@ subplot(s) fits in to the figure area. This is an experimental
 feature and may not work for some cases. It only checks the extents
 of ticklabels, axis labels, and titles.
 
+An alternative to *tight_layout* is 
+:doc:`constrained_layout</tutorials/intermediate/constrainedlayout_guide>`.
+
 
 Simple Example
 ==============
@@ -20,6 +23,8 @@ titles (or sometimes even ticklabels) go outside the figure area, and are thus
 clipped.
 
 """
+
+# sphinx_gallery_thumbnail_number = 7
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -113,7 +118,7 @@ plt.tight_layout()
 ###############################################################################
 # It works with subplots created with
 # :func:`~matplotlib.pyplot.subplot2grid`. In general, subplots created
-# from the gridspec (:ref:`sphx_glr_tutorials_intermediate_gridspec.py`) will work.
+# from the gridspec (:doc:`/tutorials/intermediate/gridspec`) will work.
 
 plt.close('all')
 fig = plt.figure()

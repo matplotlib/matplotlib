@@ -1,4 +1,4 @@
-# This file is coppied from https://github.com/jbmohler/matplotlib-winbuild
+# This file is copied from https://github.com/jbmohler/matplotlib-winbuild
 # Only the needed functions were kept.
 """
 This file extracts and builds library dependencies libpng, zlib, & freetype2 on
@@ -19,7 +19,6 @@ For Python 3.3, 3.4:
 - VS 2010, 64 bit -- Windows SDK v7.1
 """
 
-from __future__ import print_function, absolute_import
 import sys
 import platform
 import os

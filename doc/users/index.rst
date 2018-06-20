@@ -4,7 +4,7 @@
 User's Guide
 ############
 
-.. htmlonly::
+.. only:: html
 
     :Release: |version|
     :Date: |today|

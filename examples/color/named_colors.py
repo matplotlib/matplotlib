@@ -4,8 +4,13 @@ Visualizing named colors
 ========================
 
 Simple plot example with the named colors and its visual representation.
+
+For more information on colors in matplotlib see
+
+* the :doc:`/tutorials/colors/colors` tutorial;
+* the `matplotlib.colors` API;
+* the :doc:`/gallery/color/color_demo`.
 """
-from __future__ import division
 
 import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors
@@ -53,3 +58,22 @@ fig.subplots_adjust(left=0, right=1,
                     top=1, bottom=0,
                     hspace=0, wspace=0)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.colors
+matplotlib.colors.rgb_to_hsv
+matplotlib.colors.to_rgba
+matplotlib.figure.Figure.get_size_inches
+matplotlib.figure.Figure.subplots_adjust
+matplotlib.axes.Axes.text
+matplotlib.axes.Axes.hlines

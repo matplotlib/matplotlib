@@ -18,7 +18,7 @@ def test_bar3d():
         ys = np.arange(20)
         cs = [c] * len(xs)
         cs[0] = 'c'
-        ax.bar(xs, ys, zs=z, zdir='y', color=cs, alpha=0.8)
+        ax.bar(xs, ys, zs=z, zdir='y', align='edge', color=cs, alpha=0.8)
 
 
 @image_comparison(
@@ -175,6 +175,17 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
+@image_comparison(baseline_images=['plot_3d_from_2d'], remove_text=True,
+                  extensions=['png'])
+def test_plot_3d_from_2d():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    xs = np.arange(0, 5)
+    ys = np.arange(5, 10)
+    ax.plot(xs, ys, zs=0, zdir='x')
+    ax.plot(xs, ys, zs=0, zdir='y')
+
+
 @image_comparison(baseline_images=['surface3d'], remove_text=True)
 def test_surface3d():
     fig = plt.figure()
@@ -230,6 +241,25 @@ def test_trisurf3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+
+
+@image_comparison(baseline_images=['trisurf3d_shaded'], remove_text=True,
+                  tol=0.03, extensions=['png'])
+def test_trisurf3d_shaded():
+    n_angles = 36
+    n_radii = 8
+    radii = np.linspace(0.125, 1.0, n_radii)
+    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+
+    x = np.append(0, (radii*np.cos(angles)).flatten())
+    y = np.append(0, (radii*np.sin(angles)).flatten())
+    z = np.sin(-x*y)
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
 
 
 @image_comparison(baseline_images=['wireframe3d'], remove_text=True)

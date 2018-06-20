@@ -1,10 +1,13 @@
-from __future__ import absolute_import, division, print_function
+import sys
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.transforms as mtransforms
+
+
+on_win = (sys.platform == 'win32')
 
 
 def velocity_field():
@@ -35,7 +38,7 @@ def test_startpoints():
 
 
 @image_comparison(baseline_images=['streamplot_colormap'],
-                  tol=0.002)
+                  tol=.04, remove_text=True)
 def test_colormap():
     X, Y, U, V = velocity_field()
     plt.streamplot(X, Y, U, V, color=U, density=0.6, linewidth=2,
@@ -53,7 +56,8 @@ def test_linewidth():
                    linewidth=lw)
 
 
-@image_comparison(baseline_images=['streamplot_masks_and_nans'])
+@image_comparison(baseline_images=['streamplot_masks_and_nans'],
+                  tol=0.04 if on_win else 0)
 def test_masks_and_nans():
     X, Y, U, V = velocity_field()
     mask = np.zeros(U.shape, dtype=bool)

@@ -3,37 +3,37 @@
 Whats New 0.99 Axes Grid
 ========================
 
+Create RGB composite images.
 """
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 
+
 def get_demo_image():
     # prepare image
     delta = 0.5
 
-    extent = (-3,4,-4,3)
+    extent = (-3, 4, -4, 3)
     x = np.arange(-3.0, 4.001, delta)
     y = np.arange(-4.0, 3.001, delta)
     X, Y = np.meshgrid(x, y)
-    import matplotlib.mlab as mlab
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-    Z = (Z1 - Z2) * 10
+    Z1 = np.exp(-X**2 - Y**2)
+    Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+    Z = (Z1 - Z2) * 2
 
     return Z, extent
-
 
 
 def get_rgb():
     Z, extent = get_demo_image()
 
-    Z[Z<0] = 0.
-    Z = Z/Z.max()
+    Z[Z < 0] = 0.
+    Z = Z / Z.max()
 
-    R = Z[:13,:13]
-    G = Z[2:,2:]
-    B = Z[:13,2:]
+    R = Z[:13, :13]
+    G = Z[2:, 2:]
+    B = Z[:13, 2:]
 
     return R, G, B
 
@@ -51,3 +51,17 @@ ax.RGB.set_ylim(0.9, 10.6)
 
 plt.draw()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import mpl_toolkits
+mpl_toolkits.axes_grid1.axes_rgb.RGBAxes
+mpl_toolkits.axes_grid1.axes_rgb.RGBAxes.imshow_rgb

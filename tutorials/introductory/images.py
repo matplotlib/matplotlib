@@ -32,7 +32,7 @@ This turns on inline plotting, where plot graphics will appear in your
 notebook.  This has important implications for interactivity.  For inline plotting, commands in
 cells below the cell that outputs a plot will not affect the plot.  For example,
 changing the color map is not possible from cells below the cell that creates a plot.
-However, for other backends, such as qt4, that open a separate window,
+However, for other backends, such as Qt5, that open a separate window,
 cells below those that create the plot will change the plot - it is a
 live object in memory.
 
@@ -42,8 +42,8 @@ useful for quickly and easily experimenting with various plot
 settings.  The alternative is the object-oriented interface, which is also
 very powerful, and generally more suitable for large application
 development.  If you'd like to learn about the object-oriented
-interface, a great place to start is our `FAQ on usage
-<http://matplotlib.org/faq/usage_faq.html>`_.  For now, let's get on
+interface, a great place to start is our :doc:`Usage guide
+</tutorials/introductory/usage>`.  For now, let's get on
 with the imperative-style approach:
 """
 
@@ -58,9 +58,9 @@ import numpy as np
 # ===============================================
 #
 # Loading image data is supported by the `Pillow
-# <https://python-pillow.org/>`_ library.  Natively, matplotlib only
-# supports PNG images.  The commands shown below fall back on Pillow if the
-# native read fails.
+# <https://pillow.readthedocs.io/en/latest/>`_ library.  Natively, Matplotlib
+# only supports PNG images.  The commands shown below fall back on Pillow if
+# the native read fails.
 #
 # The image used in this example is a PNG file, but keep that Pillow
 # requirement in mind for your own data.
@@ -136,7 +136,7 @@ imgplot = plt.imshow(img)
 lum_img = img[:, :, 0]
 
 # This is array slicing.  You can read more in the `Numpy tutorial
-# <https://docs.scipy.org/doc/numpy-dev/user/quickstart.html>`_.
+# <https://docs.scipy.org/doc/numpy/user/quickstart.html>`_.
 
 plt.imshow(lum_img)
 
@@ -266,7 +266,7 @@ imgplot = plt.imshow(img)
 imgplot = plt.imshow(img, interpolation="nearest")
 
 ###############################################################################
-# and bucibic:
+# and bicubic:
 
 imgplot = plt.imshow(img, interpolation="bicubic")
 

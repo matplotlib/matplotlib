@@ -4,17 +4,12 @@
 #include "py_converters.h"
 
 
-#ifndef NPY_1_7_API_VERSION
-#define NPY_ARRAY_C_CONTIGUOUS NPY_C_CONTIGUOUS
-#endif
-
-
 /**********************************************************************
  * Free functions
  * */
 
 const char* image_resample__doc__ =
-"resample(input_array, output_array, matrix, interpolation=NEAREST, alpha=1.0, norm=0, radius=1)\n\n"
+"resample(input_array, output_array, matrix, interpolation=NEAREST, alpha=1.0, norm=False, radius=1)\n\n"
 
 "Resample input_array, blending it in-place into output_array, using an\n"
 "affine transformation.\n\n"
@@ -48,8 +43,8 @@ const char* image_resample__doc__ =
 "    The level of transparency to apply.  1.0 is completely opaque.\n"
 "    0.0 is completely transparent.\n\n"
 
-"norm : float, optional\n"
-"    The norm for the interpolation function.  Default is 0.\n\n"
+"norm : bool, optional\n"
+"    Whether to norm the interpolation function.  Default is `False`.\n\n"
 
 "radius: float, optional\n"
 "    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.\n"
@@ -119,7 +114,6 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     PyObject *py_output_array = NULL;
     PyObject *py_transform = NULL;
     resample_params_t params;
-    int resample_;
 
     PyArrayObject *input_array = NULL;
     PyArrayObject *output_array = NULL;
@@ -132,10 +126,10 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         "resample", "alpha", "norm", "radius", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(
-            args, kwargs, "OOO|iiddd:resample", (char **)kwlist,
+            args, kwargs, "OOO|iO&dO&d:resample", (char **)kwlist,
             &py_input_array, &py_output_array, &py_transform,
-            &params.interpolation, &resample_, &params.alpha, &params.norm,
-            &params.radius)) {
+            &params.interpolation, &convert_bool, &params.resample,
+            &params.alpha, &convert_bool, &params.norm, &params.radius)) {
         return NULL;
     }
 
@@ -144,8 +138,6 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
                      params.interpolation);
         goto error;
     }
-
-    params.resample = (resample_ != 0);
 
     input_array = (PyArrayObject *)PyArray_FromAny(
         py_input_array, NULL, 2, 3, NPY_ARRAY_C_CONTIGUOUS, NULL);
@@ -360,13 +352,12 @@ static PyObject *image_pcolor(PyObject *self, PyObject *args, PyObject *kwds)
     numpy::array_view<const float, 1> x;
     numpy::array_view<const float, 1> y;
     numpy::array_view<const agg::int8u, 3> d;
-    unsigned int rows;
-    unsigned int cols;
+    npy_intp rows, cols;
     float bounds[4];
     int interpolation;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&II(ffff)i:pcolor",
+                          "O&O&O&nn(ffff)i:pcolor",
                           &x.converter,
                           &x,
                           &y.converter,
@@ -404,13 +395,12 @@ static PyObject *image_pcolor2(PyObject *self, PyObject *args, PyObject *kwds)
     numpy::array_view<const double, 1> x;
     numpy::array_view<const double, 1> y;
     numpy::array_view<const agg::int8u, 3> d;
-    unsigned int rows;
-    unsigned int cols;
+    npy_intp rows, cols;
     float bounds[4];
     numpy::array_view<const agg::int8u, 1> bg;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&II(ffff)O&:pcolor2",
+                          "O&O&O&nn(ffff)O&:pcolor2",
                           &x.converter_contiguous,
                           &x,
                           &y.converter_contiguous,
@@ -445,7 +435,6 @@ static PyMethodDef module_functions[] = {
 
 extern "C" {
 
-#if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_image",
@@ -458,27 +447,14 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
-#define INITERROR return NULL
-
 PyMODINIT_FUNC PyInit__image(void)
-
-#else
-#define INITERROR return
-
-PyMODINIT_FUNC init_image(void)
-#endif
-
 {
     PyObject *m;
 
-#if PY3K
     m = PyModule_Create(&moduledef);
-#else
-    m = Py_InitModule3("_image", module_functions, NULL);
-#endif
 
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     if (PyModule_AddIntConstant(m, "NEAREST", NEAREST) ||
@@ -499,14 +475,12 @@ PyMODINIT_FUNC init_image(void)
         PyModule_AddIntConstant(m, "LANCZOS", LANCZOS) ||
         PyModule_AddIntConstant(m, "BLACKMAN", BLACKMAN) ||
         PyModule_AddIntConstant(m, "_n_interpolation", _n_interpolation)) {
-        INITERROR;
+        return NULL;
     }
 
     import_array();
 
-#if PY3K
     return m;
-#endif
 }
 
 } // extern "C"

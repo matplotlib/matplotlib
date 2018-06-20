@@ -2,8 +2,8 @@
 
 /* Small utilities that are shared by most extension modules. */
 
-#ifndef _MPLUTILS_H
-#define _MPLUTILS_H
+#ifndef MPLUTILS_H
+#define MPLUTILS_H
 
 #if defined(_MSC_VER) && _MSC_VER <= 1600
 typedef unsigned __int8   uint8_t;
@@ -29,13 +29,6 @@ typedef unsigned __int8   uint8_t;
 #endif
 
 #include <Python.h>
-
-#if PY_MAJOR_VERSION >= 3
-#define PY3K 1
-#define Py_TPFLAGS_HAVE_NEWBUFFER 0
-#else
-#define PY3K 0
-#endif
 
 #undef CLAMP
 #define CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
@@ -63,7 +56,7 @@ extern "C" int add_dict_int(PyObject *dict, const char *key, long val);
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 namespace std {
-  inline bool isfinite(double num) { return _finite(num); }
+  inline bool isfinite(double num) { return _finite(num) != 0; }
 }
 #endif
 

@@ -1,8 +1,6 @@
 """
 Displays Agg images in the browser, with interactivity
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 # The WebAgg backend is divided into two modules:
 #
@@ -13,12 +11,12 @@ from __future__ import (absolute_import, division, print_function,
 # - `backend_webagg.py` contains a concrete implementation of a basic
 #   application, implemented with tornado.
 
-import six
-
 from contextlib import contextmanager
 import errno
+from io import BytesIO
 import json
 import os
+from pathlib import Path
 import random
 import sys
 import signal
@@ -45,12 +43,14 @@ class ServerThread(threading.Thread):
     def run(self):
         tornado.ioloop.IOLoop.instance().start()
 
+
 webagg_server_thread = ServerThread()
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
     def show(self):
         # show the figure window
+        global show  # placates pyflakes: created by @_Backend.export below
         show()
 
     def new_timer(self, *args, **kwargs):
@@ -63,20 +63,14 @@ class WebAggApplication(tornado.web.Application):
 
     class FavIcon(tornado.web.RequestHandler):
         def get(self):
-            image_path = os.path.join(
-                os.path.dirname(os.path.dirname(__file__)),
-                'mpl-data', 'images')
-
             self.set_header('Content-Type', 'image/png')
-            with open(os.path.join(image_path,
-                                   'matplotlib.png'), 'rb') as fd:
-                self.write(fd.read())
+            image_path = Path(rcParams["datapath"], "images", "matplotlib.png")
+            self.write(image_path.read_bytes())
 
     class SingleFigurePage(tornado.web.RequestHandler):
-        def __init__(self, application, request, **kwargs):
-            self.url_prefix = kwargs.pop('url_prefix', '')
-            tornado.web.RequestHandler.__init__(self, application,
-                                                request, **kwargs)
+        def __init__(self, application, request, *, url_prefix='', **kwargs):
+            self.url_prefix = url_prefix
+            super().__init__(application, request, **kwargs)
 
         def get(self, fignum):
             fignum = int(fignum)
@@ -93,10 +87,9 @@ class WebAggApplication(tornado.web.Application):
                 canvas=manager.canvas)
 
     class AllFiguresPage(tornado.web.RequestHandler):
-        def __init__(self, application, request, **kwargs):
-            self.url_prefix = kwargs.pop('url_prefix', '')
-            tornado.web.RequestHandler.__init__(self, application,
-                                                request, **kwargs)
+        def __init__(self, application, request, *, url_prefix='', **kwargs):
+            self.url_prefix = url_prefix
+            super().__init__(application, request, **kwargs)
 
         def get(self):
             ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,
@@ -135,7 +128,7 @@ class WebAggApplication(tornado.web.Application):
 
             self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
 
-            buff = six.BytesIO()
+            buff = BytesIO()
             manager.canvas.figure.savefig(buff, format=fmt)
             self.write(buff.getvalue())
 
@@ -183,7 +176,7 @@ class WebAggApplication(tornado.web.Application):
             assert url_prefix[0] == '/' and url_prefix[-1] != '/', \
                 'url_prefix must start with a "/" and not end with one.'
 
-        super(WebAggApplication, self).__init__(
+        super().__init__(
             [
                 # Static files for the CSS and JS
                 (url_prefix + r'/_static/(.*)',
@@ -237,8 +230,6 @@ class WebAggApplication(tornado.web.Application):
             for i in range(n - 5):
                 yield port + random.randint(-2 * n, 2 * n)
 
-        success = None
-
         if address is None:
             cls.address = rcParams['webagg.address']
         else:
@@ -252,10 +243,8 @@ class WebAggApplication(tornado.web.Application):
                     raise
             else:
                 cls.port = port
-                success = True
                 break
-
-        if not success:
+        else:
             raise SystemExit(
                 "The webagg server could not be started because an available "
                 "port could not be found")
@@ -308,13 +297,9 @@ def ipython_inline_display(figure):
     if not webagg_server_thread.is_alive():
         webagg_server_thread.start()
 
-    with open(os.path.join(
-            core.FigureManagerWebAgg.get_static_file_path(),
-            'ipython_inline_figure.html')) as fd:
-        tpl = fd.read()
-
     fignum = figure.number
-
+    tpl = Path(core.FigureManagerWebAgg.get_static_file_path(),
+               "ipython_inline_figure.html").read_text()
     t = tornado.template.Template(tpl)
     return t.generate(
         prefix=WebAggApplication.url_prefix,

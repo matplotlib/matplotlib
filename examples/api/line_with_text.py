@@ -20,7 +20,7 @@ class MyLine(lines.Line2D):
         lines.Line2D.__init__(self, *args, **kwargs)
 
         # we can't access the label attr until *after* the line is
-        # inited
+        # initiated
         self.text.set_text(self.get_label())
 
     def set_figure(self, figure):
@@ -59,8 +59,33 @@ line = MyLine(x, y, mfc='red', ms=12, label='line label')
 line.text.set_color('red')
 line.text.set_fontsize(16)
 
-
 ax.add_line(line)
 
-
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.lines
+matplotlib.lines.Line2D
+matplotlib.lines.Line2D.set_data
+matplotlib.artist
+matplotlib.artist.Artist
+matplotlib.artist.Artist.draw
+matplotlib.artist.Artist.set_transform
+matplotlib.text
+matplotlib.text.Text
+matplotlib.text.Text.set_color
+matplotlib.text.Text.set_fontsize
+matplotlib.text.Text.set_position
+matplotlib.axes.Axes.add_line
+matplotlib.transforms
+matplotlib.transforms.Affine2D

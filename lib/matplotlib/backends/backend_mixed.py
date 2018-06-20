@@ -1,9 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
-
-import six
 
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.tight_bbox import process_figure_for_rasterizing
@@ -139,8 +134,8 @@ class MixedModeRenderer(object):
                 #       backends support this.
                 self._renderer.draw_image(
                     gc,
-                    float(l) / self.dpi * self._figdpi,
-                    (float(height)-b-h) / self.dpi * self._figdpi,
+                    l * self._figdpi / self.dpi,
+                    (height-b-h) * self._figdpi / self.dpi,
                     image)
             self._raster_renderer = None
             self._rasterizing = False

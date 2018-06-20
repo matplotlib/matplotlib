@@ -14,7 +14,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from cycler import cycler
-from six.moves import zip
 
 
 def filled_hist(ax, edges, values, bottoms=None, orientation='v',
@@ -49,7 +48,7 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
         Artist added to the Axes
     """
     print(orientation)
-    if orientation not in set('hv'):
+    if orientation not in 'hv':
         raise ValueError("orientation must be in {{'h', 'v'}} "
                          "not {o}".format(o=orientation))
 
@@ -150,8 +149,8 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
             labels = itertools.repeat(None)
 
     if label_data:
-        loop_iter = enumerate((stacked_data[lab], lab, s) for lab, s in
-                              zip(labels, sty_cycle))
+        loop_iter = enumerate((stacked_data[lab], lab, s)
+                              for lab, s in zip(labels, sty_cycle))
     else:
         loop_iter = enumerate(zip(stacked_data, labels, sty_cycle))
 
@@ -181,8 +180,8 @@ hist_func = partial(np.histogram, bins=edges)
 
 # set up style cycles
 color_cycle = cycler(facecolor=plt.rcParams['axes.prop_cycle'][:4])
-label_cycle = cycler('label', ['set {n}'.format(n=n) for n in range(4)])
-hatch_cycle = cycler('hatch', ['/', '*', '+', '|'])
+label_cycle = cycler(label=['set {n}'.format(n=n) for n in range(4)])
+hatch_cycle = cycler(hatch=['/', '*', '+', '|'])
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -222,3 +221,18 @@ ax1.set_ylabel('x')
 ax2.set_ylabel('x')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.fill_betweenx
+matplotlib.axes.Axes.fill_between
+matplotlib.axis.Axis.set_major_locator

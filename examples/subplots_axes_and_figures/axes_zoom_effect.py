@@ -4,19 +4,21 @@ Axes Zoom Effect
 ================
 
 """
-from matplotlib.transforms import Bbox, TransformedBbox, \
-    blended_transform_factory
+from matplotlib.transforms import (
+    Bbox, TransformedBbox, blended_transform_factory)
 
-from mpl_toolkits.axes_grid1.inset_locator import BboxPatch, BboxConnector,\
-    BboxConnectorPatch
+from mpl_toolkits.axes_grid1.inset_locator import (
+    BboxPatch, BboxConnector, BboxConnectorPatch)
 
 
 def connect_bbox(bbox1, bbox2,
                  loc1a, loc2a, loc1b, loc2b,
                  prop_lines, prop_patches=None):
     if prop_patches is None:
-        prop_patches = prop_lines.copy()
-        prop_patches["alpha"] = prop_patches.get("alpha", 1) * 0.2
+        prop_patches = {
+            **prop_lines,
+            "alpha": prop_lines.get("alpha", 1) * 0.2,
+        }
 
     c1 = BboxConnector(bbox1, bbox2, loc1=loc1a, loc2=loc2a, **prop_lines)
     c1.set_clip_on(False)
@@ -55,14 +57,12 @@ def zoom_effect01(ax1, ax2, xmin, xmax, **kwargs):
     mybbox1 = TransformedBbox(bbox, trans1)
     mybbox2 = TransformedBbox(bbox, trans2)
 
-    prop_patches = kwargs.copy()
-    prop_patches["ec"] = "none"
-    prop_patches["alpha"] = 0.2
+    prop_patches = {**kwargs, "ec": "none", "alpha": 0.2}
 
-    c1, c2, bbox_patch1, bbox_patch2, p = \
-        connect_bbox(mybbox1, mybbox2,
-                     loc1a=3, loc2a=2, loc1b=4, loc2b=1,
-                     prop_lines=kwargs, prop_patches=prop_patches)
+    c1, c2, bbox_patch1, bbox_patch2, p = connect_bbox(
+        mybbox1, mybbox2,
+        loc1a=3, loc2a=2, loc1b=4, loc2b=1,
+        prop_lines=kwargs, prop_patches=prop_patches)
 
     ax1.add_patch(bbox_patch1)
     ax2.add_patch(bbox_patch2)
@@ -88,14 +88,12 @@ def zoom_effect02(ax1, ax2, **kwargs):
     mybbox1 = ax1.bbox
     mybbox2 = TransformedBbox(ax1.viewLim, trans)
 
-    prop_patches = kwargs.copy()
-    prop_patches["ec"] = "none"
-    prop_patches["alpha"] = 0.2
+    prop_patches = {**kwargs, "ec": "none", "alpha": 0.2}
 
-    c1, c2, bbox_patch1, bbox_patch2, p = \
-        connect_bbox(mybbox1, mybbox2,
-                     loc1a=3, loc2a=2, loc1b=4, loc2b=1,
-                     prop_lines=kwargs, prop_patches=prop_patches)
+    c1, c2, bbox_patch1, bbox_patch2, p = connect_bbox(
+        mybbox1, mybbox2,
+        loc1a=3, loc2a=2, loc1b=4, loc2b=1,
+        prop_lines=kwargs, prop_patches=prop_patches)
 
     ax1.add_patch(bbox_patch1)
     ax2.add_patch(bbox_patch2)

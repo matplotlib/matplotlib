@@ -23,7 +23,7 @@ Sophisticated subplot grid layout
 
 Jae-Joon Lee has written :mod:`~matplotlib.gridspec`, a new module for
 doing complex subplot layouts, featuring row and column spans and
-more.  See :ref:`sphx_glr_tutorials_intermediate_gridspec.py` for a tutorial overview.
+more.  See :doc:`/tutorials/intermediate/gridspec` for a tutorial overview.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_demo_gridspec01_000.png
    :target: ../../gallery/userdemo/demo_gridspec01.html
@@ -44,7 +44,7 @@ indexing (starts with 0).  e.g.::
   fig, axarr = plt.subplots(2, 2)
   axarr[0,0].plot([1,2,3])   # upper, left
 
-See :ref:`sphx_glr_gallery_subplots_axes_and_figures_subplot_demo.py` for several code examples.
+See :doc:`/gallery/subplots_axes_and_figures/subplot_demo` for several code examples.
 
 Contour fixes and and triplot
 ---------------------------------
@@ -129,7 +129,7 @@ Much improved software carpentry
 The matplotlib trunk is probably in as good a shape as it has ever
 been, thanks to improved `software carpentry
 <http://software-carpentry.org/>`__.  We now have a `buildbot
-<http://buildbot.net/trac>`__ which runs a suite of `nose
+<https://buildbot.net>`__ which runs a suite of `nose
 <http://code.google.com/p/python-nose/>`__ regression tests on every
 svn commit, auto-generating a set of images and comparing them against
 a set of known-goods, sending emails to developers on failures with a

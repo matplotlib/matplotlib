@@ -1,0 +1,13 @@
+Improved call signature for Axes.margins()
+------------------------------------------
+
+:meth:`matplotlib.axes.Axes.margins` and :meth:`mpl_toolkits.mplot3d.Axes3D.margins`
+no longer accept arbitrary keywords.  ``TypeError`` will therefore be raised
+if unknown kwargs are passed; previously they would be silently ignored.
+
+If too many positional arguments are passed, ``TypeError`` will be raised
+instead of ``ValueError``, for consistency with other call-signature violations.
+
+``Axes3D.margins`` now raises ``TypeError`` instead of emitting a deprecation
+warning if only two positional arguments are passed.  To supply only ``x`` and
+``y`` margins, use keyword arguments.

@@ -56,7 +56,12 @@ Colormaps are often split into several categories based on their function (see,
    middle value, such as topography or when the data deviates around
    zero.
 
-3. Qualitative: often are miscellaneous colors; should be used to
+3. Cyclic: change in lightness of two different colors that meet in
+   the middle and beginning/end at an unsaturated color; should be
+   used for values that wrap around at the endpoints, such as phase
+   angle, wind direction, or time of day.
+
+4. Qualitative: often are miscellaneous colors; should be used to
    represent information which does not have ordering or
    relationships.
 """
@@ -84,8 +89,8 @@ cmaps = OrderedDict()
 # amongst the colormaps: some are approximately linear in :math:`L^*` and others
 # are more curved.
 
-cmaps['Perceptually Uniform Sequential'] = ['viridis', 'plasma',
-                                            'inferno', 'magma']
+cmaps['Perceptually Uniform Sequential'] = [
+            'viridis', 'plasma', 'inferno', 'magma', 'cividis']
 
 cmaps['Sequential'] = [
             'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
@@ -125,6 +130,26 @@ cmaps['Diverging'] = [
             'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic']
 
 ###############################################################################
+# Cyclic
+# ------
+#
+# For Cyclic maps, we want to start and end on the same color, and meet a
+# symmetric center point in the middle. :math:`L^*` should change monotonically
+# from start to middle, and inversely from middle to end. It should be symmetric
+# on the increasing and decreasing side, and only differ in hue. At the ends and
+# middle, :math:`L^*` will reverse direction, which should be smoothed in
+# :math:`L^*` space to reduce artifacts. See [kovesi-colormaps]_ for more
+# information on the design of cyclic maps.
+#
+# The often-used HSV colormap is included in this set of colormaps, although it
+# is not symmetric to a center point. Additionally, the :math:`L^*` values vary
+# widely throughout the colormap, making it a poor choice for representing data
+# for viewers to see perceptually. See an extension on this idea at
+# [mycarta-jet]_.
+
+cmaps['Cyclic'] = ['twilight', 'twilight_shifted', 'hsv']
+
+###############################################################################
 # Qualitative
 # -----------
 #
@@ -158,7 +183,7 @@ cmaps['Qualitative'] = ['Pastel1', 'Pastel2', 'Paired', 'Accent',
 
 cmaps['Miscellaneous'] = [
             'flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
-            'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg', 'hsv',
+            'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
             'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar']
 
 ###############################################################################
@@ -205,14 +230,14 @@ plt.show()
 mpl.rcParams.update({'font.size': 12})
 
 # Number of colormap per subplot for particular cmap categories
-_DSUBS = {'Perceptually Uniform Sequential': 4, 'Sequential': 6,
-          'Sequential (2)': 6, 'Diverging': 6, 'Qualitative': 4,
-          'Miscellaneous': 6}
+_DSUBS = {'Perceptually Uniform Sequential': 5, 'Sequential': 6,
+          'Sequential (2)': 6, 'Diverging': 6, 'Cyclic': 3,
+          'Qualitative': 4, 'Miscellaneous': 6}
 
 # Spacing between the colormaps of a subplot
 _DC = {'Perceptually Uniform Sequential': 1.4, 'Sequential': 0.7,
-       'Sequential (2)': 1.4, 'Diverging': 1.4, 'Qualitative': 1.4,
-       'Miscellaneous': 1.4}
+       'Sequential (2)': 1.4, 'Diverging': 1.4, 'Cyclic': 1.4,
+       'Qualitative': 1.4, 'Miscellaneous': 1.4}
 
 # Indices to step through colormap
 x = np.linspace(0.0, 1.0, 100)
@@ -223,7 +248,7 @@ for cmap_category, cmap_list in cmaps.items():
     # Do subplots so that colormaps have enough space.
     # Default is 6 colormaps per subplot.
     dsub = _DSUBS.get(cmap_category, 6)
-    nsubplots = int(np.ceil(len(cmap_list) / float(dsub)))
+    nsubplots = int(np.ceil(len(cmap_list) / dsub))
 
     # squeeze=False to handle similarly the case of a single subplot
     fig, axes = plt.subplots(nrows=nsubplots, squeeze=False,
@@ -261,7 +286,7 @@ for cmap_category, cmap_list in cmaps.items():
             if cmap_category in ('Perceptually Uniform Sequential',
                                  'Sequential'):
                 locs.append(x[-1] + j*dc)
-            elif cmap_category in ('Diverging', 'Qualitative',
+            elif cmap_category in ('Diverging', 'Qualitative', 'Cyclic',
                                    'Miscellaneous', 'Sequential (2)'):
                 locs.append(x[int(x.size/2.)] + j*dc)
 
@@ -311,7 +336,7 @@ for cmap_category, cmap_list in cmaps.items():
 # have very little grayscale change. If a colormap like this was used in a plot
 # and then the plot was printed to grayscale, a lot of the information may map to
 # the same gray values. The Diverging colormaps mostly vary from darker gray on
-# the outer edges to white in the middle. Some (PuOr and seismic) have noticably
+# the outer edges to white in the middle. Some (PuOr and seismic) have noticeably
 # darker gray on one side than the other and therefore are not very symmetric.
 # coolwarm has little range of gray scale and would print to a more uniform plot,
 # losing a lot of detail. Note that overlaid, labeled contours could help
@@ -388,6 +413,7 @@ for cmap_category, cmap_list in cmaps.items():
 # .. [list-colormaps] https://gist.github.com/endolith/2719900#id7
 # .. [mycarta-banding] https://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
 # .. [mycarta-jet] https://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
+# .. [kovesi-colormaps] https://arxiv.org/abs/1509.03700
 # .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 # .. [colorblindness] http://www.color-blindness.com/
 # .. [vischeck] http://www.vischeck.com/vischeck/

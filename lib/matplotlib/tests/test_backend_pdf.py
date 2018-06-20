@@ -1,9 +1,3 @@
-# -*- encoding: utf-8 -*-
-
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import io
 import os
 import sys
@@ -34,7 +28,7 @@ def test_use14corefonts():
     rcParams['font.sans-serif'] = ['Helvetica']
     rcParams['pdf.compression'] = 0
 
-    text = u'''A three-line text positioned just above a blue line
+    text = '''A three-line text positioned just above a blue line
 and containing some French characters and the euro symbol:
 "Merci pépé pour les 10 €"'''
 
@@ -133,6 +127,13 @@ def test_composite_image():
     with PdfPages(io.BytesIO()) as pdf:
         fig.savefig(pdf, format="pdf")
         assert len(pdf._file._images) == 2
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
+def test_pdfpages_fspath():
+    from pathlib import Path
+    with PdfPages(Path(os.devnull)) as pdf:
+        pdf.savefig(plt.figure())
 
 
 def test_source_date_epoch():

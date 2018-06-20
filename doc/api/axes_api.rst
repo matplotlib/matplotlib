@@ -11,6 +11,7 @@
    :depth: 2
    :local:
    :backlinks: entry
+   :class: multicol-toc
 
 
 Plotting
@@ -229,7 +230,6 @@ Property cycle
    :nosignatures:
 
    Axes.set_prop_cycle
-   Axes.set_color_cycle
 
 
 Axis / limits
@@ -509,8 +509,6 @@ Interactive
    Axes.contains_point
 
    Axes.get_cursor_data
-   Axes.get_cursor_props
-   Axes.set_cursor_props
 
 Children
 ========
@@ -654,8 +652,6 @@ Other
    Axes.get_default_bbox_extra_artists
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data
-   Axes.hold
-   Axes.ishold
 
 
 Inheritance

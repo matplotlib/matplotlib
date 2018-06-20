@@ -1,10 +1,6 @@
 """
 Manage figures for pyplot interface.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import atexit
 import gc
@@ -63,7 +59,7 @@ class Gcf(object):
     @classmethod
     def destroy_fig(cls, fig):
         "*fig* is a Figure instance"
-        num = next((manager.num for manager in six.itervalues(cls.figs)
+        num = next((manager.num for manager in cls.figs.values()
                     if manager.canvas.figure == fig), None)
         if num is not None:
             cls.destroy(num)

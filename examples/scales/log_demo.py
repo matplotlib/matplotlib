@@ -40,7 +40,7 @@ ax4.set_yscale("log", nonposy='clip')
 ax4.set(title='Errorbars go negative')
 ax4.errorbar(x, y, xerr=0.1 * x, yerr=5.0 + 0.75 * y)
 # ylim must be set after errorbar to allow errorbar to autoscale limits
-ax4.set_ylim(ymin=0.1)
+ax4.set_ylim(bottom=0.1)
 
 fig.tight_layout()
 plt.show()

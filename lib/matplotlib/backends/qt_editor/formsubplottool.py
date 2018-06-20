@@ -4,7 +4,7 @@ from matplotlib.backends.qt_compat import QtWidgets
 class UiSubplotTool(QtWidgets.QDialog):
 
     def __init__(self, *args, **kwargs):
-        super(UiSubplotTool, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.setObjectName("SubplotTool")
         self._widgets = {}
 

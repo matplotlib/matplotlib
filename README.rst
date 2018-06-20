@@ -33,6 +33,9 @@ platforms. Matplotlib can be used in Python scripts, the Python and IPython
 shell (à la MATLAB or Mathematica), web application servers, and various
 graphical user interface toolkits.
 
+NOTE: The current master branch is now Python 3 only.  Python 2 support is
+being dropped.
+
 `Home page <http://matplotlib.org/>`_
 
 Installation
@@ -49,16 +52,16 @@ Testing
 
 After installation, you can launch the test suite::
 
-  py.test
+  pytest
 
 Or from the Python interpreter::
 
   import matplotlib
   matplotlib.test()
 
-Consider reading http://matplotlib.org/devel/coding_guide.html#testing for
-more information. Note that the test suite requires pytest and, on Python 2.7,
-mock. Please install with pip or your package manager of choice.
+Consider reading http://matplotlib.org/devel/coding_guide.html#testing for more
+information. Note that the test suite requires pytest. Please install with pip
+or your package manager of choice.
 
 Contact
 =======
@@ -81,3 +84,5 @@ You've worked out a way to fix it – even better!
 You want to tell us about it – best of all!
 
 Start at the `contributing guide <http://matplotlib.org/devdocs/devel/contributing.html>`_!
+
+Developer notes are now at `Developer Discussions <https://github.com/orgs/matplotlib/teams/developers/discussions>`_

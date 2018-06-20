@@ -67,10 +67,9 @@ diagrams[0].text.set_fontweight('bold')
 # Notice:
 #
 # 1. Since the sum of the flows is nonzero, the width of the trunk isn't
-#    uniform.  If verbose.level is helpful (in matplotlibrc), a message is
-#    given in the terminal window.
-# 2. The second flow doesn't appear because its value is zero.  Again, if
-#    verbose.level is helpful, a message is given in the terminal window.
+#    uniform.  The matplotlib logging system logs this at the DEBUG level.
+# 2. The second flow doesn't appear because its value is zero.  Again, this is
+#    logged at the DEBUG level.
 
 
 ###############################################################################
@@ -92,7 +91,7 @@ sankey.add(flows=[-0.25, 0.15, 0.1], label='two',
            orientations=[-1, -1, -1], prior=0, connect=(0, 0))
 diagrams = sankey.finish()
 diagrams[-1].patch.set_hatch('/')
-plt.legend(loc='best')
+plt.legend()
 
 ###############################################################################
 # Notice that only one connection is specified, but the systems form a
@@ -100,3 +99,20 @@ plt.legend(loc='best')
 # orientation and ordering of the flows is mirrored.
 
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.sankey
+matplotlib.sankey.Sankey
+matplotlib.sankey.Sankey.add
+matplotlib.sankey.Sankey.finish

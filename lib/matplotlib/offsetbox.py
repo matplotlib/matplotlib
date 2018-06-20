@@ -14,18 +14,14 @@ Text instance. The width and height of the TextArea instance is the
 width and height of the its child text.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange, zip
-
 import warnings
+
+import numpy as np
+
 import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 import matplotlib.path as mpath
-import numpy as np
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
 from matplotlib.font_manager import FontProperties
@@ -43,7 +39,7 @@ from matplotlib.text import _AnnotationBase
 DEBUG = False
 
 
-# for debuging use
+# for debugging use
 def bbox_artist(*args, **kwargs):
     if DEBUG:
         mbbox_artist(*args, **kwargs)
@@ -57,7 +53,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     """
     Geiven a list of (width, xdescent) of each boxes, calculate the
     total width and the x-offset positions of each items according to
-    *mode*. xdescent is analagous to the usual descent, but along the
+    *mode*. xdescent is analogous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
 
     *wd_list* : list of (width, xdescent) of boxes to be packed.
@@ -77,8 +73,12 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         return total, offsets
 
     elif mode == "expand":
+        # This is a bit of a hack to avoid a TypeError when *total*
+        # is None and used in conjugation with tight layout.
+        if total is None:
+            total = 1
         if len(w_list) > 1:
-            sep = (total - sum(w_list)) / (len(w_list) - 1.)
+            sep = (total - sum(w_list)) / (len(w_list) - 1)
         else:
             sep = 0
         offsets_ = np.cumsum([0] + [w + sep for w in w_list])
@@ -142,7 +142,7 @@ class OffsetBox(martist.Artist):
     """
     def __init__(self, *args, **kwargs):
 
-        super(OffsetBox, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Clipping has not been implemented in the OffesetBox family, so
         # disable the clip flag for consistency. It can always be turned back
@@ -151,25 +151,6 @@ class OffsetBox(martist.Artist):
 
         self._children = []
         self._offset = (0, 0)
-
-    def __getstate__(self):
-        state = martist.Artist.__getstate__(self)
-
-        # pickle cannot save instancemethods, so handle them here
-        from .cbook import _InstanceMethodPickler
-        import inspect
-
-        offset = state['_offset']
-        if inspect.ismethod(offset):
-            state['_offset'] = _InstanceMethodPickler(offset)
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-        from .cbook import _InstanceMethodPickler
-        if isinstance(self._offset, _InstanceMethodPickler):
-            self._offset = self._offset.get_instancemethod()
-        self.stale = True
 
     def set_figure(self, fig):
         """
@@ -314,7 +295,7 @@ class PackerBase(OffsetBox):
         the renderer dpi, while *width* and *height* need to be in
         pixels.
         """
-        super(PackerBase, self).__init__()
+        super().__init__()
 
         self.height = height
         self.width = width
@@ -362,9 +343,7 @@ class VPacker(PackerBase):
         the renderer dpi, while *width* and *height* need to be in
         pixels.
         """
-        super(VPacker, self).__init__(pad, sep, width, height,
-                                      align, mode,
-                                      children)
+        super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
         """
@@ -399,9 +378,9 @@ class VPacker(PackerBase):
 
         yoffsets = yoffsets - ydescent
 
-        return width + 2 * pad, height + 2 * pad, \
-               xdescent + pad, ydescent + pad, \
-               list(zip(xoffsets, yoffsets))
+        return (width + 2 * pad, height + 2 * pad,
+                xdescent + pad, ydescent + pad,
+                list(zip(xoffsets, yoffsets)))
 
 
 class HPacker(PackerBase):
@@ -439,8 +418,7 @@ class HPacker(PackerBase):
         the renderer dpi, while *width* and *height* need to be in
         pixels.
         """
-        super(HPacker, self).__init__(pad, sep, width, height,
-                                      align, mode, children)
+        super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
         """
@@ -478,9 +456,9 @@ class HPacker(PackerBase):
         xdescent = whd_list[0][2]
         xoffsets = xoffsets - xdescent
 
-        return width + 2 * pad, height + 2 * pad, \
-               xdescent + pad, ydescent + pad, \
-               list(zip(xoffsets, yoffsets))
+        return (width + 2 * pad, height + 2 * pad,
+                xdescent + pad, ydescent + pad,
+               list(zip(xoffsets, yoffsets)))
 
 
 class PaddedBox(OffsetBox):
@@ -494,7 +472,7 @@ class PaddedBox(OffsetBox):
           need to be in pixels.
         """
 
-        super(PaddedBox, self).__init__()
+        super().__init__()
 
         self.pad = pad
         self._children = [child]
@@ -582,7 +560,7 @@ class DrawingArea(OffsetBox):
         *clip* : Whether to clip the children
         """
 
-        super(DrawingArea, self).__init__()
+        super().__init__()
 
         self.width = width
         self.height = height
@@ -626,7 +604,7 @@ class DrawingArea(OffsetBox):
         """
         set offset of the container.
 
-        Accept : tuple of x,y cooridnate in disokay units.
+        Accept : tuple of x,y coordinate in display units.
         """
         self._offset = xy
 
@@ -915,7 +893,7 @@ class AuxTransformBox(OffsetBox):
         """
         set offset of the container.
 
-        Accept : tuple of x,y coordinate in disokay units.
+        Accept : tuple of x,y coordinate in display units.
         """
         self._offset = xy
 
@@ -1029,12 +1007,12 @@ class AnchoredOffsetbox(OffsetBox):
         bbox_transform : with which the bbox_to_anchor will be transformed.
 
         """
-        super(AnchoredOffsetbox, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
 
-        if isinstance(loc, six.string_types):
+        if isinstance(loc, str):
             try:
                 loc = self.codes[loc]
             except KeyError:
@@ -1197,7 +1175,7 @@ class AnchoredOffsetbox(OffsetBox):
         """
         assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = xrange(11)
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
 
         anchor_coefs = {UR: "NE",
                         UL: "NW",
@@ -1257,7 +1235,7 @@ class AnchoredText(AnchoredOffsetbox):
 
         self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
-        super(AnchoredText, self).__init__(
+        super().__init__(
             loc, pad=pad, borderpad=borderpad, child=self.txt, prop=fp,
             **kwargs)
 
@@ -1318,7 +1296,7 @@ class OffsetImage(OffsetBox):
 #         """
 #         set offset of the container.
 
-#         Accept : tuple of x,y coordinate in disokay units.
+#         Accept : tuple of x,y coordinate in display units.
 #         """
 #         self._offset = xy
 
@@ -1564,7 +1542,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
             # The arrow will be drawn from (ox0, oy0) to (ox1,
             # oy1). It will be first clipped by patchA and patchB.
-            # Then it will be shrinked by shirnkA and shrinkB
+            # Then it will be shrunk by shrinkA and shrinkB
             # (in points). If patch A is not set, self.bbox_patch
             # is used.
 
@@ -1611,14 +1589,14 @@ class DraggableBase(object):
     helper code for a draggable artist (legend, offsetbox)
     The derived class must override following two method.
 
-      def saveoffset(self):
+      def save_offset(self):
           pass
 
       def update_offset(self, dx, dy):
           pass
 
-    *saveoffset* is called when the object is picked for dragging and it is
-    meant to save reference position of the artist.
+    *save_offset* is called when the object is picked for dragging and it
+    is meant to save reference position of the artist.
 
     *update_offset* is called during the dragging. dx and dy is the pixel
      offset from the point where the mouse drag started.

@@ -1,12 +1,12 @@
 """
 The classes here provide support for using custom classes with
-matplotlib, e.g., those that do not expose the array interface but know
+Matplotlib, e.g., those that do not expose the array interface but know
 how to convert themselves to arrays.  It also supports classes with
 units and units conversion.  Use cases include converters for custom
 objects, e.g., a list of datetime objects, as well as for objects that
 are unit aware.  We don't assume any particular units implementation;
 rather a units implementation must provide the register with the Registry
-converter dictionary and a ConversionInterface.  For example,
+converter dictionary and a `ConversionInterface`.  For example,
 here is a complete implementation which supports plotting with native
 datetime objects::
 
@@ -19,12 +19,12 @@ datetime objects::
 
         @staticmethod
         def convert(value, unit, axis):
-            'convert value to a scalar or array'
+            'Convert a datetime value to a scalar or array'
             return dates.date2num(value)
 
         @staticmethod
         def axisinfo(unit, axis):
-            'return major and minor tick locators and formatters'
+            'Return major and minor tick locators and formatters'
             if unit!='date': return None
             majloc = dates.AutoDateLocator()
             majfmt = dates.AutoDateFormatter(majloc)
@@ -34,34 +34,47 @@ datetime objects::
 
         @staticmethod
         def default_units(x, axis):
-            'return the default unit for x or None'
+            'Return the default unit for x or None'
             return 'date'
 
-    # finally we register our object type with a converter
+    # Finally we register our object type with the Matplotlib units registry.
     units.registry[datetime.date] = DateConverter()
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
+from numbers import Number
 
-import six
-from matplotlib.cbook import iterable, is_numlike, safe_first_element
 import numpy as np
+
+from matplotlib.cbook import iterable, safe_first_element
 
 
 class AxisInfo(object):
-    """information to support default axis labeling and tick labeling, and
-       default limits"""
+    """
+    Information to support default axis labeling, tick labeling, and
+    default limits. An instance of this class must be returned by
+    :meth:`ConversionInterface.axisinfo`.
+    """
     def __init__(self, majloc=None, minloc=None,
                  majfmt=None, minfmt=None, label=None,
                  default_limits=None):
         """
-        majloc and minloc: TickLocators for the major and minor ticks
-        majfmt and minfmt: TickFormatters for the major and minor ticks
-        label: the default axis label
-        default_limits: the default min, max of the axis if no data is present
-        If any of the above are None, the axis will simply use the default
+        Parameters
+        ----------
+        majloc, minloc : Locator, optional
+            Tick locators for the major and minor ticks.
+        majfmt, minfmt : Formatter, optional
+            Tick formatters for the major and minor ticks.
+        label : str, optional
+            The default axis label.
+        default_limits : optional
+            The default min and max limits of the axis if no data has
+            been plotted.
+
+        Notes
+        -----
+        If any of the above are ``None``, the axis will simply use the
+        default value.
         """
         self.majloc = majloc
         self.minloc = minloc
@@ -73,56 +86,62 @@ class AxisInfo(object):
 
 class ConversionInterface(object):
     """
-    The minimal interface for a converter to take custom instances (or
-    sequences) and convert them to values mpl can use
+    The minimal interface for a converter to take custom data types (or
+    sequences) and convert them to values Matplotlib can use.
     """
     @staticmethod
     def axisinfo(unit, axis):
-        'return an units.AxisInfo instance for axis with the specified units'
+        """
+        Return an `~units.AxisInfo` instance for the axis with the
+        specified units.
+        """
         return None
 
     @staticmethod
     def default_units(x, axis):
-        'return the default unit for x or None for the given axis'
+        """
+        Return the default unit for *x* or ``None`` for the given axis.
+        """
         return None
 
     @staticmethod
     def convert(obj, unit, axis):
         """
-        convert obj using unit for the specified axis.  If obj is a sequence,
-        return the converted sequence.  The output must be a sequence of
-        scalars that can be used by the numpy array layer
+        Convert *obj* using *unit* for the specified *axis*.
+        If *obj* is a sequence, return the converted sequence.
+        The output must be a sequence of scalars that can be used by the numpy
+        array layer.
         """
         return obj
 
     @staticmethod
     def is_numlike(x):
         """
-        The matplotlib datalim, autoscaling, locators etc work with
+        The Matplotlib datalim, autoscaling, locators etc work with
         scalars which are the units converted to floats given the
         current unit.  The converter may be passed these floats, or
-        arrays of them, even when units are set.  Derived conversion
-        interfaces may opt to pass plain-ol unitless numbers through
-        the conversion interface and this is a helper function for
-        them.
+        arrays of them, even when units are set.
         """
         if iterable(x):
             for thisx in x:
-                return is_numlike(thisx)
+                return isinstance(thisx, Number)
         else:
-            return is_numlike(x)
+            return isinstance(x, Number)
 
 
 class Registry(dict):
     """
-    register types with conversion interface
+    A register that maps types to conversion interfaces.
     """
     def __init__(self):
         dict.__init__(self)
         self._cached = {}
 
     def get_converter(self, x):
-        'get the converter interface instance for x, or None'
+        """
+        Get the converter for data that has the same type as *x*. If no
+        converters are registered for *x*, returns ``None``.
+        """
 
         if not len(self):
             return None  # nothing registered
@@ -136,6 +155,11 @@ class Registry(dict):
         if classx is not None:
             converter = self.get(classx)
 
+        if converter is None and hasattr(x, "values"):
+            # this unpacks pandas series or dataframes...
+            x = x.values
+
+        # If x is an array, look inside the array for data with units
         if isinstance(x, np.ndarray) and x.size:
             xravel = x.ravel()
             try:
@@ -153,10 +177,11 @@ class Registry(dict):
                 # not ever return a non-subclass for a single element.
                 next_item = xravel[0]
                 if (not isinstance(next_item, np.ndarray) or
-                    next_item.shape != x.shape):
+                        next_item.shape != x.shape):
                     converter = self.get_converter(next_item)
                 return converter
 
+        # If we haven't found a converter yet, try to get the first element
         if converter is None:
             try:
                 thisx = safe_first_element(x)

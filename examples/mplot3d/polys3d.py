@@ -30,7 +30,7 @@ def polygon_under_graph(xlist, ylist):
     Construct the vertex list which defines the polygon filling the space under
     the (xlist, ylist) line graph.  Assumes the xs are in ascending order.
     '''
-    return [(xlist[0], 0.)] + list(zip(xlist, ylist)) + [(xlist[-1], 0.)]
+    return [(xlist[0], 0.), *zip(xlist, ylist), (xlist[-1], 0.)]
 
 
 fig = plt.figure()

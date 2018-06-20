@@ -4,6 +4,10 @@ Marker filling-styles
 =====================
 
 Reference for marker fill-styles included with Matplotlib.
+
+Also refer to the
+:doc:`/gallery/lines_bars_and_markers/marker_fillstyle_reference`
+and :doc:`/gallery/shapes_and_collections/marker_path` examples.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,15 +26,11 @@ def format_axes(ax):
     ax.set_axis_off()
 
 
-def nice_repr(text):
-    return repr(text).lstrip('u')
-
-
 fig, ax = plt.subplots()
 
 # Plot all fill styles.
 for y, fill_style in enumerate(Line2D.fillStyles):
-    ax.text(-0.5, y, nice_repr(fill_style), **text_style)
+    ax.text(-0.5, y, repr(fill_style), **text_style)
     ax.plot(y * points, fillstyle=fill_style, **marker_style)
     format_axes(ax)
     ax.set_title('fill style')

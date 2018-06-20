@@ -2,13 +2,9 @@
 Streamline plotting for 2D vector fields.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange
 
 import numpy as np
+
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
@@ -262,8 +258,8 @@ class DomainMap(object):
         self.grid = grid
         self.mask = mask
         # Constants for conversion between grid- and mask-coordinates
-        self.x_grid2mask = float(mask.nx - 1) / grid.nx
-        self.y_grid2mask = float(mask.ny - 1) / grid.ny
+        self.x_grid2mask = (mask.nx - 1) / grid.nx
+        self.y_grid2mask = (mask.ny - 1) / grid.ny
 
         self.x_mask2grid = 1. / self.x_grid2mask
         self.y_mask2grid = 1. / self.y_grid2mask
@@ -553,7 +549,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
                 dmap.update_trajectory(xi, yi)
             except InvalidIndexError:
                 break
-            if (stotal + ds) > maxlength:
+            if stotal + ds > maxlength:
                 break
             stotal += ds
 
@@ -648,7 +644,7 @@ def _gen_starting_points(shape):
     x, y = 0, 0
     i = 0
     direction = 'right'
-    for i in xrange(nx * ny):
+    for i in range(nx * ny):
 
         yield x, y
 

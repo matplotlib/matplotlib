@@ -48,7 +48,8 @@ weights_low = -1 * np.array(np.meshgrid(gauss_x_low, gauss_y_low)).prod(0)
 weights = weights_high + weights_low
 
 # We'll also create a grey background into which the pixels will fade
-greys = np.ones(weights.shape + (3,)) * 70
+greys = np.empty(weights.shape + (3,), dtype=np.uint8)
+greys.fill(70)
 
 # First we'll plot these blobs using only ``imshow``.
 vmax = np.abs(weights).max()
@@ -123,3 +124,21 @@ plt.show()
 ax.contour(weights[::-1], levels=[-.0001, .0001], colors='k', linestyles='-')
 ax.set_axis_off()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
+matplotlib.axes.Axes.contour
+matplotlib.pyplot.contour
+matplotlib.colors.Normalize
+matplotlib.axes.Axes.set_axis_off

@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-The now unused ``mlab.less_simple_linear_interpolation`` function is
-deprecated.

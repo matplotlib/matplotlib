@@ -1,10 +1,6 @@
 """
 Mesh refinement for triangular grids.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import numpy as np
 from matplotlib.tri.triangulation import Triangulation
@@ -186,7 +182,7 @@ class UniformTriRefiner(TriRefiner):
         This function refines a matplotlib.tri *triangulation* by splitting
         each triangle into 4 child-masked_triangles built on the edges midside
         nodes.
-        The masked triangles, if present, are also splitted but their children
+        The masked triangles, if present, are also split but their children
         returned masked.
 
         If *ancestors* is not provided, returns only a new triangulation:
@@ -285,7 +281,7 @@ class UniformTriRefiner(TriRefiner):
 
         # Now dealing with slave elems.
         # for each slave element we identify the master and then the inode
-        # onces slave_masters is indentified, slave_masters_apex is such that:
+        # once slave_masters is identified, slave_masters_apex is such that:
         # neighbors[slaves_masters, slave_masters_apex] == slaves
         mask_slaves = np.logical_not(mask_masters)
         slaves = edge_elems[mask_slaves]

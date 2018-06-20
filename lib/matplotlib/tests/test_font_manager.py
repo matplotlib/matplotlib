@@ -1,8 +1,5 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import os
+import shutil
 import tempfile
 import warnings
 
@@ -14,13 +11,7 @@ from matplotlib.font_manager import (
     get_fontconfig_fonts, is_opentype_cff_font, fontManager as fm)
 from matplotlib import rc_context
 
-if six.PY2:
-    from distutils.spawn import find_executable
-    has_fclist = find_executable('fc-list') is not None
-else:
-    # py >= 3.3
-    from shutil import which
-    has_fclist = which('fc-list') is not None
+has_fclist = shutil.which('fc-list') is not None
 
 
 def test_font_priority():

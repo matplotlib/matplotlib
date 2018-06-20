@@ -1,12 +1,6 @@
 """
 An experimental support for curvilinear grid.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
 from itertools import chain
 from .grid_finder import GridFinder
 
@@ -28,7 +22,7 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
          nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
         """
 
-        super(FixedAxisArtistHelper, self).__init__(loc=side)
+        super().__init__(loc=side)
 
         self.grid_helper = grid_helper
         if nth_coord_ticks is None:
@@ -92,9 +86,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
          nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
         """
 
-        super(FloatingAxisArtistHelper, self).__init__(nth_coord,
-                                                       value,
-                                                       )
+        super().__init__(nth_coord, value)
         self.value = value
         self.grid_helper = grid_helper
         self._extremes = None, None
@@ -300,10 +292,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tr2ax.transform_point((x, y))
                 delta=0.00001
-                if (0. -delta<= c2[0] <= 1.+delta) and \
-                       (0. -delta<= c2[1] <= 1.+delta):
-                    d1 = d/3.14159*180.
-                    d2 = d2/3.14159*180.
+                if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
+                    d1, d2 = np.rad2deg([d, d2])
                     yield [x, y], d1, d2, lab
 
         return f1(), iter([])
@@ -341,7 +331,7 @@ class GridHelperCurveLinear(GridHelperBase):
 
         e.g., ``x2, y2 = trans(x1, y1)``
         """
-        super(GridHelperCurveLinear, self).__init__()
+        super().__init__()
 
         self.grid_info = None
         self._old_values = None
@@ -473,301 +463,3 @@ class GridHelperCurveLinear(GridHelperBase):
                 #    yield xy, a, ""
 
         return f()
-
-
-
-def test3():
-
-    import numpy as np
-    from matplotlib.transforms import Transform
-    from matplotlib.path import Path
-
-    class MyTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def __init__(self, resolution):
-            """
-            Create a new Aitoff transform.  Resolution is the number of steps
-            to interpolate between each input line segment to approximate its
-            path in curved Aitoff space.
-            """
-            Transform.__init__(self)
-            self._resolution = resolution
-
-        def transform(self, ll):
-            x = ll[:, 0:1]
-            y  = ll[:, 1:2]
-
-            return np.concatenate((x, y-x), 1)
-
-        transform.__doc__ = Transform.transform.__doc__
-
-        transform_non_affine = transform
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
-
-        def transform_path(self, path):
-            vertices = path.vertices
-            ipath = path.interpolated(self._resolution)
-            return Path(self.transform(ipath.vertices), ipath.codes)
-        transform_path.__doc__ = Transform.transform_path.__doc__
-
-        transform_path_non_affine = transform_path
-        transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
-
-        def inverted(self):
-            return MyTransformInv(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
-
-    class MyTransformInv(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def __init__(self, resolution):
-            Transform.__init__(self)
-            self._resolution = resolution
-
-        def transform(self, ll):
-            x = ll[:, 0:1]
-            y  = ll[:, 1:2]
-
-            return np.concatenate((x, y+x), 1)
-        transform.__doc__ = Transform.transform.__doc__
-
-        def inverted(self):
-            return MyTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
-
-
-
-    import matplotlib.pyplot as plt
-    fig = plt.figure(1)
-    fig.clf()
-    tr = MyTransform(1)
-    grid_helper = GridHelperCurveLinear(tr)
-
-
-    from mpl_toolkits.axes_grid1.parasite_axes import host_subplot_class_factory
-    from .axislines import Axes
-
-    SubplotHost = host_subplot_class_factory(Axes)
-
-    ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
-
-    fig.add_subplot(ax1)
-
-    ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
-    ax1.parasites.append(ax2)
-    ax2.plot([3, 6], [5.0, 10.])
-
-    ax1.set_aspect(1.)
-    ax1.set_xlim(0, 10)
-    ax1.set_ylim(0, 10)
-
-    ax1.grid(True)
-    plt.draw()
-
-
-
-def curvelinear_test2(fig):
-    """
-    polar projection, but in a rectangular box.
-    """
-    global ax1
-    import numpy as np
-    from . import angle_helper
-    from matplotlib.projections import PolarAxes
-    from matplotlib.transforms import Affine2D
-
-    from mpl_toolkits.axes_grid.parasite_axes import SubplotHost, \
-         ParasiteAxesAuxTrans
-    import matplotlib.cbook as cbook
-
-    # PolarAxes.PolarTransform takes radian. However, we want our coordinate
-    # system in degree
-    tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
-
-    # polar projection, which involves cycle, and also has limits in
-    # its coordinates, needs a special method to find the extremes
-    # (min, max of the coordinate within the view).
-
-    # 20, 20 : number of sampling points along x, y direction
-    extreme_finder = angle_helper.ExtremeFinderCycle(20, 20,
-                                                     lon_cycle = 360,
-                                                     lat_cycle = None,
-                                                     lon_minmax = None,
-                                                     lat_minmax = (0, np.inf),
-                                                     )
-
-    grid_locator1 = angle_helper.LocatorDMS(5)
-    # Find a grid values appropriate for the coordinate (degree,
-    # minute, second).
-
-    tick_formatter1 = angle_helper.FormatterDMS()
-    # And also uses an appropriate formatter.  Note that,the
-    # acceptable Locator and Formatter class is a bit different than
-    # that of mpl's, and you cannot directly use mpl's Locator and
-    # Formatter here (but may be possible in the future).
-
-    grid_helper = GridHelperCurveLinear(tr,
-                                        extreme_finder=extreme_finder,
-                                        grid_locator1=grid_locator1,
-                                        tick_formatter1=tick_formatter1
-                                        )
-
-
-    ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
-
-    # make ticklabels of right and top axis visible.
-    ax1.axis["right"].major_ticklabels.set_visible(True)
-    ax1.axis["top"].major_ticklabels.set_visible(True)
-
-    # let right axis shows ticklabels for 1st coordinate (angle)
-    ax1.axis["right"].get_helper().nth_coord_ticks=0
-    # let bottom axis shows ticklabels for 2nd coordinate (radius)
-    ax1.axis["bottom"].get_helper().nth_coord_ticks=1
-
-    fig.add_subplot(ax1)
-
-    grid_helper = ax1.get_grid_helper()
-    ax1.axis["lat"] = axis = grid_helper.new_floating_axis(0, 60, axes=ax1)
-    axis.label.set_text("Test")
-    axis.label.set_visible(True)
-    #axis._extremes = 2, 10
-    #axis.label.set_text("Test")
-    #axis.major_ticklabels.set_visible(False)
-    #axis.major_ticks.set_visible(False)
-    axis.get_helper()._extremes=2, 10
-
-    ax1.axis["lon"] = axis = grid_helper.new_floating_axis(1, 6, axes=ax1)
-    #axis.major_ticklabels.set_visible(False)
-    #axis.major_ticks.set_visible(False)
-    axis.label.set_text("Test 2")
-    axis.get_helper()._extremes=-180, 90
-
-    # A parasite axes with given transform
-    ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
-    # note that ax2.transData == tr + ax1.transData
-    # Anthing you draw in ax2 will match the ticks and grids of ax1.
-    ax1.parasites.append(ax2)
-    intp = cbook.simple_linear_interpolation
-    ax2.plot(intp(np.array([0, 30]), 50),
-             intp(np.array([10., 10.]), 50))
-
-    ax1.set_aspect(1.)
-    ax1.set_xlim(-5, 12)
-    ax1.set_ylim(-5, 10)
-
-    ax1.grid(True)
-
-
-def curvelinear_test3(fig):
-    """
-    polar projection, but in a rectangular box.
-    """
-    global ax1, axis
-    import numpy as np
-    from . import angle_helper
-    from matplotlib.projections import PolarAxes
-    from matplotlib.transforms import Affine2D
-
-    from mpl_toolkits.axes_grid.parasite_axes import SubplotHost
-
-    # PolarAxes.PolarTransform takes radian. However, we want our coordinate
-    # system in degree
-    tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
-
-    # polar projection, which involves cycle, and also has limits in
-    # its coordinates, needs a special method to find the extremes
-    # (min, max of the coordinate within the view).
-
-    # 20, 20 : number of sampling points along x, y direction
-    extreme_finder = angle_helper.ExtremeFinderCycle(20, 20,
-                                                     lon_cycle = 360,
-                                                     lat_cycle = None,
-                                                     lon_minmax = None,
-                                                     lat_minmax = (0, np.inf),
-                                                     )
-
-    grid_locator1 = angle_helper.LocatorDMS(12)
-    # Find a grid values appropriate for the coordinate (degree,
-    # minute, second).
-
-    tick_formatter1 = angle_helper.FormatterDMS()
-    # And also uses an appropriate formatter.  Note that,the
-    # acceptable Locator and Formatter class is a bit different than
-    # that of mpl's, and you cannot directly use mpl's Locator and
-    # Formatter here (but may be possible in the future).
-
-    grid_helper = GridHelperCurveLinear(tr,
-                                        extreme_finder=extreme_finder,
-                                        grid_locator1=grid_locator1,
-                                        tick_formatter1=tick_formatter1
-                                        )
-
-
-    ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
-
-    for axis in list(six.itervalues(ax1.axis)):
-        axis.set_visible(False)
-
-    fig.add_subplot(ax1)
-
-    grid_helper = ax1.get_grid_helper()
-    ax1.axis["lat1"] = axis = grid_helper.new_floating_axis(0, 130,
-                                                            axes=ax1,
-                                                            axis_direction="left"
-                                                            )
-    axis.label.set_text("Test")
-    axis.label.set_visible(True)
-    axis.get_helper()._extremes=0.001, 10
-
-
-
-    grid_helper = ax1.get_grid_helper()
-    ax1.axis["lat2"] = axis = grid_helper.new_floating_axis(0, 50, axes=ax1,
-                                                            axis_direction="right")
-    axis.label.set_text("Test")
-    axis.label.set_visible(True)
-    axis.get_helper()._extremes=0.001, 10
-
-    ax1.axis["lon"] = axis = grid_helper.new_floating_axis(1, 10,
-                                                           axes=ax1,
-                                                           axis_direction="bottom")
-    axis.label.set_text("Test 2")
-    axis.get_helper()._extremes= 50, 130
-    axis.major_ticklabels.set_axis_direction("top")
-    axis.label.set_axis_direction("top")
-
-    grid_helper.grid_finder.grid_locator1.den = 5
-    grid_helper.grid_finder.grid_locator2._nbins = 5
-
-
-#     # A parasite axes with given transform
-#     ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
-#     # note that ax2.transData == tr + ax1.transData
-#     # Anthing you draw in ax2 will match the ticks and grids of ax1.
-#     ax1.parasites.append(ax2)
-#     intp = cbook.simple_linear_interpolation
-#     ax2.plot(intp(np.array([0, 30]), 50),
-#              intp(np.array([10., 10.]), 50))
-
-    ax1.set_aspect(1.)
-    ax1.set_xlim(-5, 12)
-    ax1.set_ylim(-5, 10)
-
-    ax1.grid(True)
-
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    fig = plt.figure(1, figsize=(5, 5))
-    fig.clf()
-
-    #test3()
-    #curvelinear_test2(fig)
-    curvelinear_test3(fig)
-
-    #plt.draw()
-    plt.show()

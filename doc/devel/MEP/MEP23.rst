@@ -37,10 +37,9 @@ Sometimes when there are too many figures open at the same time, it is
 desirable to be able to group these under the same window
 [see](https://github.com/matplotlib/matplotlib/issues/2194).
 
-The proposed solution modifies `FigureManagerBase` to contain and
-manage more than one `canvas`.  The settings parameter
-`rcParams['backend.multifigure']` control when the **MultiFigure**
-behaviour is desired.
+The proposed solution modifies `FigureManagerBase` to contain and manage more
+than one `canvas`.  The settings parameter :rc:`backend.multifigure` control
+when the **MultiFigure** behaviour is desired.
 
 **Note**
 
@@ -109,8 +108,8 @@ implemented the **MultiFigure** magic yet.
 Alternatives
 ============
 
-Insted of modifing the `FigureManagerBase` it could be possible to add
+Insted of modifying the `FigureManagerBase` it could be possible to add
 a parallel class, that handles the cases where
 `rcParams['backend.multifigure'] = True`.  This will warranty that
 there won't be any problems with custom made backends, but also makes
-bigger the code, and more things to mantain.
+bigger the code, and more things to maintain.

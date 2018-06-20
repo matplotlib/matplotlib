@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef _NUMPY_CPP_H_
-#define _NUMPY_CPP_H_
+#ifndef MPL_NUMPY_CPP_H
+#define MPL_NUMPY_CPP_H
 
 /***************************************************************************
  * This file is based on original work by Mark Wiebe, available at:
@@ -398,6 +398,15 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         m_strides = strides;
     }
 
+    array_view(PyArrayObject *arr)
+    {
+        m_arr = arr;
+        Py_XINCREF(arr);
+        m_shape = PyArray_DIMS(m_arr);
+        m_strides = PyArray_STRIDES(m_arr);
+        m_data = (char *)PyArray_BYTES(m_arr);
+    }
+
     array_view(npy_intp shape[ND]) : m_arr(NULL), m_shape(NULL), m_strides(NULL), m_data(NULL)
     {
         PyObject *arr = PyArray_SimpleNew(ND, shape, type_num_of<T>::value);
@@ -456,18 +465,18 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
                 m_data = NULL;
                 m_shape = zeros;
                 m_strides = zeros;
-		if (PyArray_NDIM(tmp) == 0 && ND == 0) {
-		    m_arr = tmp;
-		    return 1;
-		}
+                if (PyArray_NDIM(tmp) == 0 && ND == 0) {
+                    m_arr = tmp;
+                    return 1;
+                }
             }
-	    if (PyArray_NDIM(tmp) != ND) {
-		PyErr_Format(PyExc_ValueError,
-			     "Expected %d-dimensional array, got %d",
-			     ND,
-			     PyArray_NDIM(tmp));
-		Py_DECREF(tmp);
-		return 0;
+            if (PyArray_NDIM(tmp) != ND) {
+                PyErr_Format(PyExc_ValueError,
+                             "Expected %d-dimensional array, got %d",
+                             ND,
+                             PyArray_NDIM(tmp));
+                Py_DECREF(tmp);
+                return 0;
             }
 
             /* Copy some of the data to the view object for faster access */

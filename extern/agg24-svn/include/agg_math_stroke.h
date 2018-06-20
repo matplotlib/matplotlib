@@ -391,7 +391,8 @@ namespace agg
         vc.remove_all();
 
         double cp = cross_product(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
-        if(cp != 0 && (cp > 0) == (m_width > 0))
+        if ((cp > agg::vertex_dist_epsilon && m_width > 0) ||
+            (cp < -agg::vertex_dist_epsilon && m_width < 0))
         {
             // Inner join
             //---------------

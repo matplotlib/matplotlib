@@ -1,0 +1,7 @@
+Consistent handling of \*args in Axes.stem
+------------------------------------------
+
+:meth:`matplotlib.axex.Axes.stem` now raises TypeError when passed
+unhandled positional arguments.  If two or more arguments are passed
+(ie X, Y, [linefmt], ...) and Y cannot be cast to an array, an error
+will be raised instead of treating X as Y and Y as linefmt.

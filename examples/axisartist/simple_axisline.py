@@ -29,7 +29,7 @@ ax.set_ylabel("Label Y")
 #ax.axis["bottom"].label.set_text("Label X")
 #ax.axis["left"].label.set_text("Label Y")
 
-# make new (right-side) yaxis, but wth some offset
+# make new (right-side) yaxis, but with some offset
 offset = (20, 0)
 new_axisline = ax.get_grid_helper().new_fixed_axis
 

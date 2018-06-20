@@ -38,11 +38,25 @@ xy3 = np.column_stack([x, y])
 s3 = np.abs(xy3).max()
 
 fig, ax = plt.subplots()
-ax.scatter(range(3), range(3), marker=(xy1, 0),
+ax.scatter(range(3), range(3), marker=xy1,
            s=s1 ** 2 * sizes, facecolor='blue')
-ax.scatter(range(3), range(3), marker=(xy2, 0),
+ax.scatter(range(3), range(3), marker=xy2,
            s=s2 ** 2 * sizes, facecolor='green')
-ax.scatter(range(3), range(3), marker=(xy3, 0),
+ax.scatter(range(3), range(3), marker=xy3,
            s=s3 ** 2 * sizes, facecolor='red')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.scatter
+matplotlib.pyplot.scatter

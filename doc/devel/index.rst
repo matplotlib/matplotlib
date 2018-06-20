@@ -4,7 +4,7 @@
 The Matplotlib Developers' Guide
 ################################
 
-.. htmlonly::
+.. only:: html
 
    :Release: |version|
    :Date: |today|
@@ -15,11 +15,12 @@ The Matplotlib Developers' Guide
    contributing.rst
    testing.rst
    documenting_mpl.rst
+   plot_directive.rst
    add_new_projection.rst
-   portable_code.rst
    gitwash/index.rst
    coding_guide.rst
    release_guide.rst
+   min_dep_policy.rst
    MEP/index
 
 .. toctree::

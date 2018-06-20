@@ -1,8 +1,8 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
 /* A python interface to FreeType */
-#ifndef _FT2FONT_H
-#define _FT2FONT_H
+#ifndef MPL_FT2FONT_H
+#define MPL_FT2FONT_H
 #include <vector>
 #include <stdint.h>
 
@@ -18,8 +18,8 @@ extern "C" {
 /*
  By definition, FT_FIXED as 2 16bit values stored in a single long.
  */
-#define FIXED_MAJOR(val) (long)((val & 0xffff000) >> 16)
-#define FIXED_MINOR(val) (long)(val & 0xffff)
+#define FIXED_MAJOR(val) (signed short)((val & 0xffff0000) >> 16)
+#define FIXED_MINOR(val) (unsigned short)(val & 0xffff)
 
 // the FreeType string rendered into a width, height buffer
 class FT2Image
@@ -124,7 +124,6 @@ class FT2Font
     std::vector<FT_Vector> pos;
     FT_BBox bbox;
     FT_Pos advance;
-    double angle;
     double ptsize;
     double dpi;
     long hinting_factor;

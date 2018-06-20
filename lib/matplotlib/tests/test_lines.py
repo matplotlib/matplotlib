@@ -1,8 +1,8 @@
 """
 Tests specific to the lines module.
 """
-from __future__ import absolute_import, division, print_function
 
+from io import BytesIO
 import itertools
 import matplotlib.lines as mlines
 import pytest
@@ -130,6 +130,19 @@ def test_valid_drawstyles():
         line.set_drawstyle('foobar')
 
 
+def test_set_drawstyle():
+    x = np.linspace(0, 2*np.pi, 10)
+    y = np.sin(x)
+
+    fig, ax = plt.subplots()
+    line, = ax.plot(x, y)
+    line.set_drawstyle("steps-pre")
+    assert len(line.get_path().vertices) == 2*len(x)-1
+
+    line.set_drawstyle("default")
+    assert len(line.get_path().vertices) == len(x)
+
+
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
 def test_set_line_coll_dash_image():
     fig = plt.figure()
@@ -184,3 +197,15 @@ def test_nan_is_sorted():
     assert line._is_sorted(np.array([1, 2, 3]))
     assert line._is_sorted(np.array([1, np.nan, 3]))
     assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
+
+
+def test_step_markers():
+    fig, ax = plt.subplots()
+    ax.step([0, 1], "-o")
+    buf1 = BytesIO()
+    fig.savefig(buf1)
+    fig, ax = plt.subplots()
+    ax.plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
+    buf2 = BytesIO()
+    fig.savefig(buf2)
+    assert buf1.getvalue() == buf2.getvalue()

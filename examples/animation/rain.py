@@ -8,6 +8,7 @@ of 50 scatter points.
 
 Author: Nicolas P. Rougier
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -65,7 +66,6 @@ def update(frame_number):
     scat.set_offsets(rain_drops['position'])
 
 
-# Construct the animation, using the update function as the animation
-# director.
+# Construct the animation, using the update function as the animation director.
 animation = FuncAnimation(fig, update, interval=10)
 plt.show()

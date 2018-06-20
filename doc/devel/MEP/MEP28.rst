@@ -246,7 +246,7 @@ Variations on the theme
 
 This MEP can be divided into a few loosely coupled components:
 
-#. Allowing pre- and post-computation tranformation function in ``cbook.boxplot_stats``
+#. Allowing pre- and post-computation transformation function in ``cbook.boxplot_stats``
 #. Exposing that transformation in the ``Axes.boxplot`` API
 #. Removing redundant statistical options in ``Axes.boxplot``
 #. Shifting all styling parameter processing from ``Axes.boxplot`` to ``Axes.bxp``.
@@ -254,13 +254,13 @@ This MEP can be divided into a few loosely coupled components:
 With this approach, #2 depends and #1, and #4 depends on #3.
 
 There are two possible approaches to #2. The first and most direct would
-be to mirror the new ``transform_in`` and ``tranform_out`` parameters of
+be to mirror the new ``transform_in`` and ``transform_out`` parameters of
 ``cbook.boxplot_stats`` in ``Axes.boxplot`` and pass them directly.
 
 The second approach would be to add ``statfxn`` and ``statfxn_args``
 parameters to ``Axes.boxplot``. Under this implementation, the default
 value of ``statfxn`` would be ``cbook.boxplot_stats``, but users could
-pass their own function. Then ``transform_in`` and ``tranform_out`` would
+pass their own function. Then ``transform_in`` and ``transform_out`` would
 then be passed as elements of the ``statfxn_args`` parameter.
 
 .. code:: python
@@ -334,7 +334,7 @@ Users could also pass their own function to compute the stats:
    ax1.boxplot(data, statfxn=my_box_stats, bootstrap_method='BCA',
                whisker_method='dynamic')
 
-From the examples above, Option Two seems to have only marginal benifit,
+From the examples above, Option Two seems to have only marginal benefit,
 but in the context of downstream libraries like seaborn, its advantage
 is more apparent as the following would be possible without any patches
 to seaborn:

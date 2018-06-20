@@ -1,11 +1,7 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import numpy as np
 
 import matplotlib._tri as _tri
 import matplotlib._qhull as _qhull
-import numpy as np
 
 
 class Triangulation(object):
@@ -141,7 +137,7 @@ class Triangulation(object):
             # Check triangles in kwargs then args.
             triangles = kwargs.pop('triangles', None)
             from_args = False
-            if triangles is None and len(args) > 0:
+            if triangles is None and args:
                 triangles = args[0]
                 from_args = True
 

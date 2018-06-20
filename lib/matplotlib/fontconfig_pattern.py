@@ -8,27 +8,16 @@ more information.
 
 # This class is defined here because it must be available in:
 #   - The old-style config framework (:file:`rcsetup.py`)
-#   - The traits-based config framework (:file:`mpltraits.py`)
 #   - The font manager (:file:`font_manager.py`)
 
-# It probably logically belongs in :file:`font_manager.py`, but
-# placing it in any of these places would have created cyclical
-# dependency problems, or an undesired dependency on traits even
-# when the traits-based config framework is not used.
+# It probably logically belongs in :file:`font_manager.py`, but placing it
+# there would have created cyclical dependency problems.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
+from functools import lru_cache
 import re
+
 from pyparsing import (Literal, ZeroOrMore, Optional, Regex, StringEnd,
                        ParseException, Suppress)
-
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub

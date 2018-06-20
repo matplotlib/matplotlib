@@ -1,18 +1,11 @@
-# -*- coding: utf-8 -*-
-#
 # Copyright © 2009 Pierre Raybaut
 # Licensed under the terms of the MIT License
 # see the mpl licenses directory for a copy of the license
 
 
-"""Module that provides a GUI-based editor for matplotlib's figure options"""
+"""Module that provides a GUI-based editor for matplotlib's figure options."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
-import os.path as osp
+import os.path
 import re
 
 import matplotlib
@@ -22,8 +15,8 @@ from matplotlib.backends.qt_compat import QtGui
 
 
 def get_icon(name):
-    basedir = osp.join(matplotlib.rcParams['datapath'], 'images')
-    return QtGui.QIcon(osp.join(basedir, name))
+    basedir = os.path.join(matplotlib.rcParams['datapath'], 'images')
+    return QtGui.QIcon(os.path.join(basedir, name))
 
 
 LINESTYLES = {'-': 'Solid',
@@ -100,6 +93,8 @@ def figure_edit(axes, parent=None):
         FormLayout combobox, namely `[initial_name, (shorthand,
         style_name), (shorthand, style_name), ...]`.
         """
+        if init not in d:
+            d = {**d, init: str(init)}
         # Drop duplicate shorthands from dict (by overwriting them during
         # the dict comprehension).
         name2short = {name: short for short, name in d.items()}
@@ -247,7 +242,7 @@ def figure_edit(axes, parent=None):
                 ncol = old_legend._ncol
             new_legend = axes.legend(ncol=ncol)
             if new_legend:
-                new_legend.draggable(draggable)
+                new_legend.set_draggable(draggable)
 
         # Redraw
         figure = axes.get_figure()

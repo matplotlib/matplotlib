@@ -56,16 +56,11 @@ Naming Conventions
 
   * classes Upper or MixedUpperCase
 
-  * varables lower or lowerUpper
+  * variables lower or lowerUpper
 
   * functions lower or underscore_separated
 
 """
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
@@ -190,7 +185,7 @@ def show(block=None):
         pass
 
 
-def new_figure_manager(num, *args, **kwargs):
+def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
     """
     Create a new figure manager instance
     """
@@ -200,7 +195,6 @@ def new_figure_manager(num, *args, **kwargs):
     # backend_wx, backend_wxagg and backend_tkagg for examples.  Not all GUIs
     # require explicit instantiation of a main-level app (egg backend_gtk,
     # backend_gtkagg) for pylab.
-    FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
 

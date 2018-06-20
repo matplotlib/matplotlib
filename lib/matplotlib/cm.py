@@ -4,13 +4,10 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 See :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
 See :doc:`/tutorials/colors/colormaps` for an in-depth discussion of colormaps.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import numpy as np
 from numpy import ma
+
 import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cbook as cbook
@@ -34,7 +31,7 @@ def _reverser(f):
 def revcmap(data):
     """Can only handle specification *data* in dictionary format."""
     data_r = {}
-    for key, val in six.iteritems(data):
+    for key, val in data.items():
         if callable(val):
             valnew = _reverser(val)
             # This doesn't work: lambda x: val(1-x)
@@ -83,7 +80,7 @@ LUTSIZE = mpl.rcParams['image.lut']
 # Generate the reversed specifications (all at once, to avoid
 # modify-when-iterating).
 datad.update({cmapname + '_r': _reverse_cmap_spec(spec)
-              for cmapname, spec in six.iteritems(datad)})
+              for cmapname, spec in datad.items()})
 
 # Precache the cmaps with ``lutsize = LUTSIZE``.
 # Also add the reversed ones added in the section above:
@@ -123,7 +120,7 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
         except AttributeError:
             raise ValueError("Arguments must include a name or a Colormap")
 
-    if not isinstance(name, six.string_types):
+    if not isinstance(name, str):
         raise ValueError("Colormap name must be a string")
 
     if isinstance(cmap, colors.Colormap):
@@ -252,14 +249,14 @@ class ScalarMappable(object):
                 else:
                     raise ValueError("third dimension must be 3 or 4")
                 if xx.dtype.kind == 'f':
-                    if norm and xx.max() > 1 or xx.min() < 0:
+                    if norm and (xx.max() > 1 or xx.min() < 0):
                         raise ValueError("Floating point image RGB values "
                                          "must be in the 0..1 range.")
                     if bytes:
                         xx = (xx * 255).astype(np.uint8)
                 elif xx.dtype == np.uint8:
                     if not bytes:
-                        xx = xx.astype(float) / 255
+                        xx = xx.astype(np.float32) / 255
                 else:
                     raise ValueError("Image RGB array must be uint8 or "
                                      "floating point; found %s" % xx.dtype)
@@ -278,8 +275,7 @@ class ScalarMappable(object):
     def set_array(self, A):
         """Set the image array from numpy array *A*.
 
-        ..
-            ACCEPTS: ndarray
+        .. ACCEPTS: ndarray
 
         Parameters
         ----------
@@ -306,7 +302,8 @@ class ScalarMappable(object):
         sequence, interpret it as ``(vmin, vmax)`` which is used to
         support setp
 
-        ACCEPTS: a length 2 sequence of floats
+        ACCEPTS: a length 2 sequence of floats; may be overridden in methods
+        that have ``vmin`` and ``vmax`` kwargs.
         """
         if vmax is None:
             try:
@@ -314,9 +311,9 @@ class ScalarMappable(object):
             except (TypeError, ValueError):
                 pass
         if vmin is not None:
-            self.norm.vmin = vmin
+            self.norm.vmin = colors._sanitize_extrema(vmin)
         if vmax is not None:
-            self.norm.vmax = vmax
+            self.norm.vmax = colors._sanitize_extrema(vmax)
         self.changed()
 
     def set_cmap(self, cmap):
@@ -332,12 +329,11 @@ class ScalarMappable(object):
     def set_norm(self, norm):
         """Set the normalization instance.
 
-        ..
-            ACCEPTS: `~.Normalize`
+        .. ACCEPTS: `.Normalize`
 
         Parameters
         ----------
-        norm : `~.Normalize`
+        norm : `.Normalize`
         """
         if norm is None:
             norm = colors.Normalize()

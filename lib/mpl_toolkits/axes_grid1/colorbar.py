@@ -1,4 +1,4 @@
-'''
+"""
 Colorbar toolkit with two classes and a function:
 
     :class:`ColorbarBase`
@@ -16,13 +16,7 @@ Colorbar toolkit with two classes and a function:
 The :meth:`~matplotlib.figure.Figure.colorbar` method uses :func:`make_axes`
 and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
-
-'''
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange, zip
+"""
 
 import numpy as np
 import matplotlib as mpl
@@ -132,9 +126,9 @@ keyword arguments:
 Additional keyword arguments are of two kinds:
 
   axes properties:
-%s
+    %s
   colorbar properties:
-%s
+    %s
 
 If *mappable* is a :class:`~matplotlib.contours.ContourSet`, its *extend*
 kwarg is included automatically.
@@ -175,7 +169,7 @@ the other hand, the shortest axis has a data limits of [1,2], whose
 unconventional value is to prevent underflow when log scale is used.
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 
-docstring.interpd.update(colorbar_doc=colorbar_doc)
+#docstring.interpd.update(colorbar_doc=colorbar_doc)
 
 
 class CbarAxesLocator(object):
@@ -380,7 +374,7 @@ class ColorbarBase(cm.ScalarMappable):
                 formatter = ticker.LogFormatter()
             else:
                 formatter = None
-        elif isinstance(format, six.string_types):
+        elif isinstance(format, str):
             formatter = ticker.FormatStrFormatter(format)
         else:
             formatter = format  # Assume it is a Formatter
@@ -529,9 +523,9 @@ class ColorbarBase(cm.ScalarMappable):
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
         if self.orientation == 'vertical':
-            return [list(zip(X[i], Y[i])) for i in xrange(1, N-1)]
+            return [list(zip(X[i], Y[i])) for i in range(1, N-1)]
         else:
-            return [list(zip(Y[i], X[i])) for i in xrange(1, N-1)]
+            return [list(zip(Y[i], X[i])) for i in range(1, N-1)]
 
     def _add_solids(self, X, Y, C):
         '''
@@ -565,10 +559,11 @@ class ColorbarBase(cm.ScalarMappable):
 
         self.solids = col
         if self.drawedges:
-            self.dividers = collections.LineCollection(self._edges(X,Y),
-                              colors=(mpl.rcParams['axes.edgecolor'],),
-                              linewidths=(0.5*mpl.rcParams['axes.linewidth'],),
-                              )
+            self.dividers = collections.LineCollection(
+                self._edges(X,Y),
+                colors=(mpl.rcParams['axes.edgecolor'],),
+                linewidths=(0.5*mpl.rcParams['axes.linewidth'],),
+            )
             self.ax.add_collection(self.dividers)
         else:
             self.dividers = None
@@ -577,21 +572,15 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         Draw lines on the colorbar. It deletes preexisting lines.
         '''
-        del self.lines
-
-        N = len(levels)
-        x = np.array([1.0, 2.0])
-        X, Y = np.meshgrid(x,levels)
+        X, Y = np.meshgrid([1, 2], levels)
         if self.orientation == 'vertical':
-            xy = [list(zip(X[i], Y[i])) for i in xrange(N)]
+            xy = np.stack([X, Y], axis=-1)
         else:
-            xy = [list(zip(Y[i], X[i])) for i in xrange(N)]
-        col = collections.LineCollection(xy, linewidths=linewidths,
-                                         )
+            xy = np.stack([Y, X], axis=-1)
+        col = collections.LineCollection(xy, linewidths=linewidths)
         self.lines = col
         col.set_color(colors)
         self.ax.add_collection(col)
-
 
     def _select_locator(self, formatter):
         '''
@@ -747,7 +736,6 @@ class Colorbar(ColorbarBase):
         # to make one object track another automatically.
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
-        #print 'tlinewidths:', tlinewidths
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
 
     def update_bruteforce(self, mappable):
@@ -762,10 +750,12 @@ class Colorbar(ColorbarBase):
                 self.add_lines(mappable)
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes(parent, **kw):
+def make_axes(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     '''
     Resize and reposition a parent axes, and return a child
-    axes suitable for a colorbar::
+    axes suitable for a colorbar
+
+    ::
 
         cax, kw = make_axes(parent, **kw)
 
@@ -781,9 +771,6 @@ def make_axes(parent, **kw):
     Returns (cax, kw), the child axes and the reduced kw dictionary.
     '''
     orientation = kw.setdefault('orientation', 'vertical')
-    fraction = kw.pop('fraction', 0.15)
-    shrink = kw.pop('shrink', 1.0)
-    aspect = kw.pop('aspect', 20)
     #pb = transforms.PBox(parent.get_position())
     pb = parent.get_position(original=True).frozen()
     if orientation == 'vertical':
@@ -807,20 +794,20 @@ def make_axes(parent, **kw):
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
 
-
+@docstring.Substitution(colorbar_doc)
 def colorbar(mappable, cax=None, ax=None, **kw):
     """
     Create a colorbar for a ScalarMappable instance.
 
     Documentation for the pylab thin wrapper:
-    %(colorbar_doc)s
+
+    %s
     """
     import matplotlib.pyplot as plt
     if ax is None:
         ax = plt.gca()
     if cax is None:
         cax, kw = make_axes(ax, **kw)
-    cax._hold = True
     cb = Colorbar(cax, mappable, **kw)
 
     def on_changed(m):

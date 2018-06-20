@@ -5,7 +5,6 @@ Watermark image
 
 Use a PNG file as a watermark
 """
-from __future__ import print_function
 import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.image as image
@@ -27,3 +26,19 @@ ax.grid()
 fig.figimage(im, 10, 10, zorder=3)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.image
+matplotlib.image.imread
+matplotlib.pyplot.imread
+matplotlib.figure.Figure.figimage

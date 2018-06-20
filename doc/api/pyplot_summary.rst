@@ -8,7 +8,7 @@ The Pyplot API
 The :mod:`matplotlib.pyplot` module contains functions that allow you to generate
 many kinds of plots quickly. For examples that showcase the use
 of the :mod:`matplotlib.pyplot` module, see the
-:ref:`sphx_glr_tutorials_introductory_pyplot.py`
+:doc:`/tutorials/introductory/pyplot`
 or the :ref:`pyplots_examples`. We also recommend that you look into
 the object-oriented approach to plotting, described below.
 
@@ -38,6 +38,6 @@ There are many colormaps you can use to map data onto color values.
 Below we list several ways in which color can be utilized in Matplotlib.
 
 For a more in-depth look at colormaps, see the
-:ref:`sphx_glr_tutorials_colors_colormaps.py` tutorial.
+:doc:`/tutorials/colors/colormaps` tutorial.
 
 .. autofunction:: colormaps

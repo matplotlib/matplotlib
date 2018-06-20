@@ -4,7 +4,7 @@ Demo Axes Divider
 =================
 
 Axes divider to calculate location of axes and
-create a divider for them using exisiting axes instances.
+create a divider for them using existing axes instances.
 """
 import matplotlib.pyplot as plt
 

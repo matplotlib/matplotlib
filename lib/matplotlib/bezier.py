@@ -2,16 +2,10 @@
 A module providing some utility functions regarding bezier path manipulation.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import warnings
 
 import numpy as np
 from matplotlib.path import Path
-
-from operator import xor
-import warnings
 
 
 class NonIntersectingPathException(ValueError):
@@ -37,8 +31,9 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     c, d = sin_t2, -cos_t2
 
     ad_bc = a * d - b * c
-    if ad_bc == 0.:
-        raise ValueError("Given lines do not intersect")
+    if np.abs(ad_bc) < 1.0e-12:
+        raise ValueError("Given lines do not intersect. Please verify that "
+                         "the angles are not equal or differ by 180 degrees.")
 
     # rhs_inverse
     a_, b_ = d, -b
@@ -139,7 +134,7 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
         middle = bezier_point_at_t(middle_t)
         middle_inside = inside_closedpath(middle)
 
-        if xor(start_inside, middle_inside):
+        if start_inside ^ middle_inside:
             t1 = middle_t
             end = middle
             end_inside = middle_inside
@@ -335,7 +330,7 @@ def get_parallels(bezier2, width):
     """
 
     # The parallel bezier lines are constructed by following ways.
-    #  c1 and  c2 are contol points representing the begin and end of the
+    #  c1 and c2 are control points representing the begin and end of the
     #  bezier line.
     #  cm is the middle point
 
@@ -358,7 +353,7 @@ def get_parallels(bezier2, width):
         cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c2x, c2y)
 
     # find c1_left, c1_right which are located along the lines
-    # throught c1 and perpendicular to the tangential lines of the
+    # through c1 and perpendicular to the tangential lines of the
     # bezier path at a distance of width. Same thing for c2_left and
     # c2_right with respect to c2.
     c1x_left, c1y_left, c1x_right, c1y_right = (
@@ -369,7 +364,7 @@ def get_parallels(bezier2, width):
     )
 
     # find cm_left which is the intersectng point of a line through
-    # c1_left with angle t1 and a line throught c2_left with angle
+    # c1_left with angle t1 and a line through c2_left with angle
     # t2. Same with cm_right.
     if parallel_test != 0:
         # a special case for a straight line, i.e., angle between two
@@ -389,7 +384,7 @@ def get_parallels(bezier2, width):
                                                 sin_t1, c2x_right, c2y_right,
                                                 cos_t2, sin_t2)
 
-    # the parralel bezier lines are created with control points of
+    # the parallel bezier lines are created with control points of
     # [c1_left, cm_left, c2_left] and [c1_right, cm_right, c2_right]
     path_left = [(c1x_left, c1y_left),
                  (cmx_left, cmy_left),
@@ -402,7 +397,7 @@ def get_parallels(bezier2, width):
 
 
 def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
-    """ Find control points of the bezier line throught c1, mm, c2. We
+    """ Find control points of the bezier line through c1, mm, c2. We
     simply assume that c1, mm, c2 which have parametric value 0, 0.5, and 1.
     """
 
@@ -415,7 +410,7 @@ def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
 def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     """
     Being similar to get_parallels, returns control points of two quadrativ
-    bezier lines having a width roughly parralel to given one separated by
+    bezier lines having a width roughly parallel to given one separated by
     *width*.
     """
 
@@ -424,13 +419,13 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     cmx, cmy = bezier2[1]
     c3x, c3y = bezier2[2]
 
-    # t1 and t2 is the anlge between c1 and cm, cm, c3.
+    # t1 and t2 is the angle between c1 and cm, cm, c3.
     # They are also a angle of the tangential line of the path at c1 and c3
     cos_t1, sin_t1 = get_cos_sin(c1x, c1y, cmx, cmy)
     cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c3x, c3y)
 
     # find c1_left, c1_right which are located along the lines
-    # throught c1 and perpendicular to the tangential lines of the
+    # through c1 and perpendicular to the tangential lines of the
     # bezier path at a distance of width. Same thing for c3_left and
     # c3_right with respect to c3.
     c1x_left, c1y_left, c1x_right, c1y_right = (

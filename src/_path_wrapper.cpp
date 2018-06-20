@@ -310,12 +310,12 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
-    int filled;
+    bool filled;
     e_offset_position offset_position;
     std::vector<int> result;
 
     if (!PyArg_ParseTuple(args,
-                          "dddO&OO&O&O&iO&:point_in_path_collection",
+                          "dddO&OO&O&O&O&O&:point_in_path_collection",
                           &x,
                           &y,
                           &radius,
@@ -328,6 +328,7 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
                           &offsets,
                           &convert_trans_affine,
                           &offset_trans,
+                          &convert_bool,
                           &filled,
                           &convert_offset_position,
                           &offset_position)) {
@@ -402,15 +403,16 @@ static PyObject *Py_clip_path_to_rect(PyObject *self, PyObject *args, PyObject *
 {
     py::PathIterator path;
     agg::rect_d rect;
-    int inside;
+    bool inside;
     std::vector<Polygon> result;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&i:clip_path_to_rect",
+                          "O&O&O&:clip_path_to_rect",
                           &convert_path,
                           &path,
                           &convert_rect,
                           &rect,
+                          &convert_bool,
                           &inside)) {
         return NULL;
     }
@@ -435,23 +437,25 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
         return NULL;
     }
 
-    try {
-        numpy::array_view<double, 2> vertices(vertices_obj);
+    PyArrayObject* vertices_arr = (PyArrayObject *)PyArray_ContiguousFromAny(vertices_obj, NPY_DOUBLE, 1, 2);
+    if (vertices_arr == NULL) {
+        return NULL;
+    }
+
+    if (PyArray_NDIM(vertices_arr) == 2) {
+        numpy::array_view<double, 2> vertices(vertices_arr);
         npy_intp dims[] = { (npy_intp)vertices.size(), 2 };
         numpy::array_view<double, 2> result(dims);
         CALL_CPP("affine_transform", (affine_transform_2d(vertices, trans, result)));
+        Py_DECREF(vertices_arr);
         return result.pyobj();
-    } catch (py::exception) {
-        PyErr_Clear();
-        try {
-            numpy::array_view<double, 1> vertices(vertices_obj);
-            npy_intp dims[] = { (npy_intp)vertices.size() };
-            numpy::array_view<double, 1> result(dims);
-            CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
-            return result.pyobj();
-        } catch (py::exception) {
-            return NULL;
-        }
+    } else { // PyArray_NDIM(vertices_arr) == 1
+        numpy::array_view<double, 1> vertices(vertices_arr);
+        npy_intp dims[] = { (npy_intp)vertices.size() };
+        numpy::array_view<double, 1> result(dims);
+        CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
+        Py_DECREF(vertices_arr);
+        return result.pyobj();
     }
 }
 
@@ -527,13 +531,13 @@ static PyObject *Py_path_intersects_rectangle(PyObject *self, PyObject *args, Py
 {
     py::PathIterator path;
     double rect_x1, rect_y1, rect_x2, rect_y2;
-    int filled = 0;
+    bool filled = false;
     const char *names[] = { "path", "rect_x1", "rect_y1", "rect_x2", "rect_y2", "filled", NULL };
     bool result;
 
     if (!PyArg_ParseTupleAndKeywords(args,
                                      kwds,
-                                     "O&dddd|i:path_intersects_rectangle",
+                                     "O&dddd|O&:path_intersects_rectangle",
                                      (char **)names,
                                      &convert_path,
                                      &path,
@@ -541,6 +545,7 @@ static PyObject *Py_path_intersects_rectangle(PyObject *self, PyObject *args, Py
                                      &rect_y1,
                                      &rect_x2,
                                      &rect_y2,
+                                     &convert_bool,
                                      &filled)) {
         return NULL;
     }
@@ -594,21 +599,22 @@ static PyObject *Py_cleanup_path(PyObject *self, PyObject *args, PyObject *kwds)
 {
     py::PathIterator path;
     agg::trans_affine trans;
-    int remove_nans;
+    bool remove_nans;
     agg::rect_d clip_rect;
     e_snap_mode snap_mode;
     double stroke_width;
     PyObject *simplifyobj;
     bool simplify = false;
-    int return_curves;
+    bool return_curves;
     SketchParams sketch;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&iO&O&dOiO&:cleanup_path",
+                          "O&O&O&O&O&dOO&O&:cleanup_path",
                           &convert_path,
                           &path,
                           &convert_trans_affine,
                           &trans,
+                          &convert_bool,
                           &remove_nans,
                           &convert_rect,
                           &clip_rect,
@@ -616,6 +622,7 @@ static PyObject *Py_cleanup_path(PyObject *self, PyObject *args, PyObject *kwds)
                           &snap_mode,
                           &stroke_width,
                           &simplifyobj,
+                          &convert_bool,
                           &return_curves,
                           &convert_sketch_params,
                           &sketch)) {
@@ -675,14 +682,14 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     int precision;
     PyObject *codesobj;
     char *codes[5];
-    int postfix;
+    bool postfix;
     char *buffer = NULL;
     size_t buffersize;
     PyObject *result;
     int status;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&OO&iOi:convert_to_string",
+                          "O&O&O&OO&iOO&:convert_to_string",
                           &convert_path,
                           &path,
                           &convert_trans_affine,
@@ -694,6 +701,7 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
                           &sketch,
                           &precision,
                           &codesobj,
+                          &convert_bool,
                           &postfix)) {
         return NULL;
     }
@@ -727,7 +735,7 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     CALL_CPP("convert_to_string",
              (status = convert_to_string(
                  path, trans, cliprect, simplify, sketch,
-                 precision, codes, (bool)postfix, &buffer,
+                 precision, codes, postfix, &buffer,
                  &buffersize)));
 
     if (status) {
@@ -860,7 +868,6 @@ extern "C" {
         {NULL}
     };
 
-#if PY3K
     static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "_path",
@@ -873,28 +880,17 @@ extern "C" {
         NULL
     };
 
-#define INITERROR return NULL
     PyMODINIT_FUNC PyInit__path(void)
-#else
-#define INITERROR return
-    PyMODINIT_FUNC init_path(void)
-#endif
     {
         PyObject *m;
-#if PY3K
         m = PyModule_Create(&moduledef);
-#else
-        m = Py_InitModule3("_path", module_functions, NULL);
-#endif
 
         if (m == NULL) {
-            INITERROR;
+            return NULL;
         }
 
         import_array();
 
-#if PY3K
         return m;
-#endif
     }
 }

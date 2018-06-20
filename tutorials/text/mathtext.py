@@ -12,7 +12,7 @@ ships its own TeX expression parser, layout engine and fonts.  The
 layout engine is a fairly direct adaptation of the layout algorithms
 in Donald Knuth's TeX, so the quality is quite good (matplotlib also
 provides a ``usetex`` option for those who do want to call out to TeX
-to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
+to generate their text (see :doc:`/tutorials/text/usetex`).
 """
 
 ###############################################################################
@@ -23,7 +23,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 # (from (La)TeX), `STIX <http://www.stixfonts.org/>`_ fonts (with are designed
 # to blend well with Times), or a Unicode font that you provide.  The mathtext
 # font can be selected with the customization variable ``mathtext.fontset`` (see
-# :ref:`sphx_glr_tutorials_introductory_customizing.py`)
+# :doc:`/tutorials/introductory/customizing`)
 #
 # .. note::
 #    On `"narrow" <http://wordaligned.org/articles/narrow-python>`_ builds
@@ -63,8 +63,8 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #
 #    have special meaning outside of math mode in TeX.  Therefore, these
 #    characters will behave differently depending on the rcParam
-#    ``text.usetex`` flag.  See the :ref:`usetex tutorial
-#    <sphx_glr_tutorials_text_usetex.py>` for more information.
+#    ``text.usetex`` flag.  See the :doc:`usetex tutorial
+#    </tutorials/text/usetex>` for more information.
 #
 # Subscripts and superscripts
 # ---------------------------
@@ -186,7 +186,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #
 # Here "s" and "t" are variable in italics font (default), "sin" is in
 # Roman font, and the amplitude "A" is in calligraphy font.  Note in the
-# example above the caligraphy ``A`` is squished into the ``sin``.  You
+# example above the calligraphy ``A`` is squished into the ``sin``.  You
 # can use a spacing command to add a little whitespace between them::
 #
 #     s(t) = \mathcal{A}\/\sin(2 \omega t)
@@ -221,7 +221,7 @@ to generate their text (see :ref:`sphx_glr_tutorials_text_usetex.py`).
 #     ``\mathrm{\mathsf{sansserif}}``        :math-stix:`\mathrm{\mathsf{sansserif}}`
 #     ====================================== =========================================
 #
-#   .. htmlonly::
+#   .. only:: html
 #
 #     ====================================== =========================================
 #     ``\mathcircled{circled}``              :math-stix:`\mathcircled{circled}`

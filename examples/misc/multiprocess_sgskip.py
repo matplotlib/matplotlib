@@ -8,20 +8,12 @@ plotting in another.
 
 Written by Robert Cimrman
 """
-from __future__ import print_function
 
+import multiprocessing as mp
 import time
-import numpy as np
-
-from multiprocessing import Process, Pipe
-
-# This example will likely not work with the native OSX backend.
-# Uncomment the following lines to use the qt5 backend instead.
-#
-# import matplotlib
-# matplotlib.use('qt5Agg')
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -31,7 +23,7 @@ np.random.seed(19680801)
 # Processing Class
 # ================
 #
-# This class plots data it recieves from a pipe.
+# This class plots data it receives from a pipe.
 #
 
 
@@ -43,22 +35,18 @@ class ProcessPlotter(object):
     def terminate(self):
         plt.close('all')
 
-    def poll_draw(self):
-
-        def call_back():
-            while self.pipe.poll():
-                command = self.pipe.recv()
-                if command is None:
-                    self.terminate()
-                    return False
-                else:
-                    self.x.append(command[0])
-                    self.y.append(command[1])
-                    self.ax.plot(self.x, self.y, 'ro')
-            self.fig.canvas.draw()
-            return True
-
-        return call_back
+    def call_back(self):
+        while self.pipe.poll():
+            command = self.pipe.recv()
+            if command is None:
+                self.terminate()
+                return False
+            else:
+                self.x.append(command[0])
+                self.y.append(command[1])
+                self.ax.plot(self.x, self.y, 'ro')
+        self.fig.canvas.draw()
+        return True
 
     def __call__(self, pipe):
         print('starting plotter...')
@@ -66,7 +54,7 @@ class ProcessPlotter(object):
         self.pipe = pipe
         self.fig, self.ax = plt.subplots()
         timer = self.fig.canvas.new_timer(interval=1000)
-        timer.add_callback(self.poll_draw())
+        timer.add_callback(self.call_back)
         timer.start()
 
         print('...done')
@@ -89,13 +77,10 @@ class ProcessPlotter(object):
 
 class NBPlot(object):
     def __init__(self):
-        self.plot_pipe, plotter_pipe = Pipe()
+        self.plot_pipe, plotter_pipe = mp.Pipe()
         self.plotter = ProcessPlotter()
-        self.plot_process = Process(
-            target=self.plotter,
-            args=(plotter_pipe,)
-        )
-        self.plot_process.daemon = True
+        self.plot_process = mp.Process(
+            target=self.plotter, args=(plotter_pipe,), daemon=True)
         self.plot_process.start()
 
     def plot(self, finished=False):
@@ -116,4 +101,6 @@ def main():
 
 
 if __name__ == '__main__':
+    if plt.get_backend() == "MacOSX":
+        mp.set_start_method("forkserver")
     main()

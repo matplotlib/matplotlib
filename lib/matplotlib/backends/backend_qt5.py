@@ -1,23 +1,21 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-import six
-
 import functools
 import os
 import re
 import signal
 import sys
-from six import unichr
+import traceback
 
 import matplotlib
 
+from matplotlib import backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, cursors)
+    TimerBase, cursors, ToolContainerBase, StatusbarBase)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 from matplotlib.figure import Figure
+from matplotlib.backend_managers import ToolManager
 
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _getSaveFileName, is_pyqt5, __version__, QT_API)
@@ -166,12 +164,9 @@ def _allow_super_init(__init__):
 
         @functools.wraps(__init__)
         def wrapper(self, **kwargs):
-            try:
-                QtWidgets.QWidget.__init__ = cooperative_qwidget_init
+            with cbook._setattr_cm(QtWidgets.QWidget,
+                                   __init__=cooperative_qwidget_init):
                 __init__(self, **kwargs)
-            finally:
-                # Restore __init__
-                QtWidgets.QWidget.__init__ = qwidget_init
 
         return wrapper
 
@@ -226,19 +221,16 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                # QtCore.Qt.XButton2: None,
                }
 
-    def _update_figure_dpi(self):
-        dpi = self._dpi_ratio * self.figure._original_dpi
-        self.figure._set_dpi(dpi, forward=False)
-
     @_allow_super_init
     def __init__(self, figure):
         _create_qApp()
-        super(FigureCanvasQT, self).__init__(figure=figure)
+        super().__init__(figure=figure)
 
-        figure._original_dpi = figure.dpi
         self.figure = figure
+        # We don't want to scale up the figure DPI more than once.
+        # Note, we don't handle a signal for changing DPI yet.
+        figure._original_dpi = figure.dpi
         self._update_figure_dpi()
-        self.resize(*self.get_width_height())
         # In cases with mixed resolution displays, we need to be careful if the
         # dpi_ratio changes - in this case we need to resize the canvas
         # accordingly. We could watch for screenChanged events from Qt, but
@@ -248,27 +240,59 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # needed.
         self._dpi_ratio_prev = None
 
+        self._draw_pending = False
+        self._is_drawing = False
+        self._draw_rect_callback = lambda painter: None
+
+        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
         self.setMouseTracking(True)
+        self.resize(*self.get_width_height())
         # Key auto-repeat enabled by default
         self._keyautorepeat = True
 
         palette = QtGui.QPalette(QtCore.Qt.white)
         self.setPalette(palette)
 
+    def _update_figure_dpi(self):
+        dpi = self._dpi_ratio * self.figure._original_dpi
+        self.figure._set_dpi(dpi, forward=False)
+
     @property
     def _dpi_ratio(self):
         # Not available on Qt4 or some older Qt5.
         try:
-            return self.devicePixelRatio()
+            # self.devicePixelRatio() returns 0 in rare cases
+            return self.devicePixelRatio() or 1
         except AttributeError:
             return 1
+
+    def _update_dpi(self):
+        # As described in __init__ above, we need to be careful in cases with
+        # mixed resolution displays if dpi_ratio is changing between painting
+        # events.
+        # Return whether we triggered a resizeEvent (and thus a paintEvent)
+        # from within this function.
+        if self._dpi_ratio != self._dpi_ratio_prev:
+            # We need to update the figure DPI.
+            self._update_figure_dpi()
+            self._dpi_ratio_prev = self._dpi_ratio
+            # The easiest way to resize the canvas is to emit a resizeEvent
+            # since we implement all the logic for resizing the canvas for
+            # that event.
+            event = QtGui.QResizeEvent(self.size(), self.size())
+            self.resizeEvent(event)
+            # resizeEvent triggers a paintEvent itself, so we exit this one
+            # (after making sure that the event is immediately handled).
+            return True
+        return False
 
     def get_width_height(self):
         w, h = FigureCanvasBase.get_width_height(self)
         return int(w / self._dpi_ratio), int(h / self._dpi_ratio)
 
     def enterEvent(self, event):
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event)
+        x, y = self.mouseEventCoords(event.pos())
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -349,6 +373,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
     @property
+    @cbook.deprecated("3.0", "Manually check `event.guiEvent.isAutoRepeat()` "
+                      "in the event handler.")
     def keyAutoRepeat(self):
         """
         If True, enable auto-repeat for key events.
@@ -356,6 +382,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return self._keyautorepeat
 
     @keyAutoRepeat.setter
+    @cbook.deprecated("3.0", "Manually check `event.guiEvent.isAutoRepeat()` "
+                      "in the event handler.")
     def keyAutoRepeat(self, val):
         self._keyautorepeat = bool(val)
 
@@ -408,7 +436,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             if event_key > MAX_UNICODE:
                 return None
 
-            key = unichr(event_key)
+            key = chr(event_key)
             # qt delivers capitalized letters.  fix capitalization
             # note that capslock is ignored
             if 'shift' in mods:
@@ -452,6 +480,57 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def stop_event_loop(self, event=None):
         if hasattr(self, "_event_loop"):
             self._event_loop.quit()
+
+    def draw(self):
+        """Render the figure, and queue a request for a Qt draw.
+        """
+        # The renderer draw is done here; delaying causes problems with code
+        # that uses the result of the draw() to update plot elements.
+        if self._is_drawing:
+            return
+        with cbook._setattr_cm(self, _is_drawing=True):
+            super().draw()
+        self.update()
+
+    def draw_idle(self):
+        """Queue redraw of the Agg buffer and request Qt paintEvent.
+        """
+        # The Agg draw needs to be handled by the same thread matplotlib
+        # modifies the scene graph from. Post Agg draw request to the
+        # current event loop in order to ensure thread affinity and to
+        # accumulate multiple draw requests from event handling.
+        # TODO: queued signal connection might be safer than singleShot
+        if not (self._draw_pending or self._is_drawing):
+            self._draw_pending = True
+            QtCore.QTimer.singleShot(0, self._draw_idle)
+
+    def _draw_idle(self):
+        if self.height() < 0 or self.width() < 0:
+            self._draw_pending = False
+        if not self._draw_pending:
+            return
+        try:
+            self.draw()
+        except Exception:
+            # Uncaught exceptions are fatal for PyQt5, so catch them instead.
+            traceback.print_exc()
+        finally:
+            self._draw_pending = False
+
+    def drawRectangle(self, rect):
+        # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
+        # to be called at the end of paintEvent.
+        if rect is not None:
+            def _draw_rect_callback(painter):
+                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
+                                 QtCore.Qt.DotLine)
+                painter.setPen(pen)
+                painter.drawRect(*(pt / self._dpi_ratio for pt in rect))
+        else:
+            def _draw_rect_callback(painter):
+                return
+        self._draw_rect_callback = _draw_rect_callback
+        self.update()
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -501,14 +580,23 @@ class FigureManagerQT(FigureManagerBase):
 
         self.window._destroying = False
 
-        # add text label to status bar
-        self.statusbar_label = QtWidgets.QLabel()
-        self.window.statusBar().addWidget(self.statusbar_label)
-
+        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar(self.canvas, self.window)
+        self.statusbar = None
+
+        if self.toolmanager:
+            backend_tools.add_tools_to_manager(self.toolmanager)
+            if self.toolbar:
+                backend_tools.add_tools_to_container(self.toolbar)
+                self.statusbar = StatusbarQt(self.window, self.toolmanager)
+
         if self.toolbar is not None:
             self.window.addToolBar(self.toolbar)
-            self.toolbar.message.connect(self.statusbar_label.setText)
+            if not self.toolmanager:
+                # add text label to status bar
+                statusbar_label = QtWidgets.QLabel()
+                self.window.statusBar().addWidget(statusbar_label)
+                self.toolbar.message.connect(statusbar_label.setText)
             tbs_height = self.toolbar.sizeHint().height()
         else:
             tbs_height = 0
@@ -517,8 +605,7 @@ class FigureManagerQT(FigureManagerBase):
         # requested size:
         cs = canvas.sizeHint()
         sbs = self.window.statusBar().sizeHint()
-        self._status_and_tool_height = tbs_height + sbs.height()
-        height = cs.height() + self._status_and_tool_height
+        height = cs.height() + tbs_height + sbs.height()
         self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
@@ -527,11 +614,6 @@ class FigureManagerQT(FigureManagerBase):
             self.window.show()
             self.canvas.draw_idle()
 
-        def notify_axes_change(fig):
-            # This will be called whenever the current axes is changed
-            if self.toolbar is not None:
-                self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
         self.window.raise_()
 
     def full_screen_toggle(self):
@@ -557,13 +639,25 @@ class FigureManagerQT(FigureManagerBase):
         # attrs are set
         if matplotlib.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2QT(canvas, parent, False)
+        elif matplotlib.rcParams['toolbar'] == 'toolmanager':
+            toolbar = ToolbarQt(self.toolmanager, self.window)
         else:
             toolbar = None
         return toolbar
 
+    def _get_toolmanager(self):
+        if matplotlib.rcParams['toolbar'] == 'toolmanager':
+            toolmanager = ToolManager(self.canvas.figure)
+        else:
+            toolmanager = None
+        return toolmanager
+
     def resize(self, width, height):
-        'set the canvas size in pixels'
-        self.window.resize(width, height + self._status_and_tool_height)
+        # these are Qt methods so they return sizes in 'virtual' pixels
+        # so we do not need to worry about dpi scaling here.
+        extra_width = self.window.width() - self.canvas.width()
+        extra_height = self.window.height() - self.canvas.height()
+        self.window.resize(width+extra_width, height+extra_height)
 
     def show(self):
         self.window.show()
@@ -583,7 +677,7 @@ class FigureManagerQT(FigureManagerBase):
         self.window.close()
 
     def get_window_title(self):
-        return six.text_type(self.window.windowTitle())
+        return self.window.windowTitle()
 
     def set_window_title(self, title):
         self.window.setWindowTitle(title)
@@ -660,7 +754,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         # the actual sizeHint, so override it instead in order to make the
         # aesthetic adjustments noted above.
         def sizeHint(self):
-            size = super(NavigationToolbar2QT, self).sizeHint()
+            size = super().sizeHint()
             size.setHeight(max(48, size.height()))
             return size
 
@@ -684,7 +778,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             item, ok = QtWidgets.QInputDialog.getItem(
                 self.parent, 'Customize', 'Select axes:', titles, 0, False)
             if ok:
-                axes = allaxes[titles.index(six.text_type(item))]
+                axes = allaxes[titles.index(item)]
             else:
                 return
 
@@ -696,11 +790,11 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._actions['zoom'].setChecked(self._active == 'ZOOM')
 
     def pan(self, *args):
-        super(NavigationToolbar2QT, self).pan(*args)
+        super().pan(*args)
         self._update_buttons_checked()
 
     def zoom(self, *args):
-        super(NavigationToolbar2QT, self).zoom(*args)
+        super().zoom(*args)
         self._update_buttons_checked()
 
     def set_message(self, s):
@@ -730,7 +824,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
-        sorted_filetypes = sorted(six.iteritems(filetypes))
+        sorted_filetypes = sorted(filetypes.items())
         default_filetype = self.canvas.get_default_filetype()
 
         startpath = os.path.expanduser(
@@ -753,12 +847,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
                 matplotlib.rcParams['savefig.directory'] = (
-                    os.path.dirname(six.text_type(fname)))
+                    os.path.dirname(fname))
             try:
-                self.canvas.figure.savefig(six.text_type(fname))
+                self.canvas.figure.savefig(fname)
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
-                    self, "Error saving file", six.text_type(e),
+                    self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
 
 
@@ -830,14 +924,172 @@ class SubplotToolQt(UiSubplotTool):
             self._widgets[attr].setValue(value)
 
 
+class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
+    def __init__(self, toolmanager, parent):
+        ToolContainerBase.__init__(self, toolmanager)
+        QtWidgets.QToolBar.__init__(self, parent)
+        self._toolitems = {}
+        self._groups = {}
+
+    @property
+    def _icon_extension(self):
+        if is_pyqt5():
+            return '_large.png'
+        return '.png'
+
+    def add_toolitem(
+            self, name, group, position, image_file, description, toggle):
+
+        button = QtWidgets.QToolButton(self)
+        button.setIcon(self._icon(image_file))
+        button.setText(name)
+        if description:
+            button.setToolTip(description)
+
+        def handler():
+            self.trigger_tool(name)
+        if toggle:
+            button.setCheckable(True)
+            button.toggled.connect(handler)
+        else:
+            button.clicked.connect(handler)
+
+        self._toolitems.setdefault(name, [])
+        self._add_to_group(group, name, button, position)
+        self._toolitems[name].append((button, handler))
+
+    def _add_to_group(self, group, name, button, position):
+        gr = self._groups.get(group, [])
+        if not gr:
+            sep = self.addSeparator()
+            gr.append(sep)
+        before = gr[position]
+        widget = self.insertWidget(before, button)
+        gr.insert(position, widget)
+        self._groups[group] = gr
+
+    def _icon(self, name):
+        pm = QtGui.QPixmap(name)
+        if hasattr(pm, 'setDevicePixelRatio'):
+            pm.setDevicePixelRatio(self.toolmanager.canvas._dpi_ratio)
+        return QtGui.QIcon(pm)
+
+    def toggle_toolitem(self, name, toggled):
+        if name not in self._toolitems:
+            return
+        for button, handler in self._toolitems[name]:
+            button.toggled.disconnect(handler)
+            button.setChecked(toggled)
+            button.toggled.connect(handler)
+
+    def remove_toolitem(self, name):
+        for button, handler in self._toolitems[name]:
+            button.setParent(None)
+        del self._toolitems[name]
+
+
+class StatusbarQt(StatusbarBase, QtWidgets.QLabel):
+    def __init__(self, window, *args, **kwargs):
+        StatusbarBase.__init__(self, *args, **kwargs)
+        QtWidgets.QLabel.__init__(self)
+        window.statusBar().addWidget(self)
+
+    def set_message(self, s):
+        self.setText(s)
+
+
+class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):
+    def trigger(self, *args):
+        image = os.path.join(matplotlib.rcParams['datapath'],
+                             'images', 'matplotlib.png')
+        parent = self.canvas.manager.window
+        dia = SubplotToolQt(self.figure, parent)
+        dia.setWindowIcon(QtGui.QIcon(image))
+        dia.exec_()
+
+
+class SaveFigureQt(backend_tools.SaveFigureBase):
+    def trigger(self, *args):
+        filetypes = self.canvas.get_supported_filetypes_grouped()
+        sorted_filetypes = sorted(filetypes.items())
+        default_filetype = self.canvas.get_default_filetype()
+
+        startpath = os.path.expanduser(
+            matplotlib.rcParams['savefig.directory'])
+        start = os.path.join(startpath, self.canvas.get_default_filename())
+        filters = []
+        selectedFilter = None
+        for name, exts in sorted_filetypes:
+            exts_list = " ".join(['*.%s' % ext for ext in exts])
+            filter = '%s (%s)' % (name, exts_list)
+            if default_filetype in exts:
+                selectedFilter = filter
+            filters.append(filter)
+        filters = ';;'.join(filters)
+
+        parent = self.canvas.manager.window
+        fname, filter = _getSaveFileName(parent,
+                                         "Choose a filename to save to",
+                                         start, filters, selectedFilter)
+        if fname:
+            # Save dir for next time, unless empty str (i.e., use cwd).
+            if startpath != "":
+                matplotlib.rcParams['savefig.directory'] = (
+                    os.path.dirname(fname))
+            try:
+                self.canvas.figure.savefig(fname)
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(
+                    self, "Error saving file", str(e),
+                    QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+
+
+class SetCursorQt(backend_tools.SetCursorBase):
+    def set_cursor(self, cursor):
+        self.canvas.setCursor(cursord[cursor])
+
+
+class RubberbandQt(backend_tools.RubberbandBase):
+    def draw_rubberband(self, x0, y0, x1, y1):
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
+        self.canvas.drawRectangle(rect)
+
+    def remove_rubberband(self):
+        self.canvas.drawRectangle(None)
+
+
+class HelpQt(backend_tools.ToolHelpBase):
+    def trigger(self, *args):
+        QtWidgets.QMessageBox.information(None, "Help", self._get_help_html())
+
+
+class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
+    def trigger(self, *args, **kwargs):
+        pixmap = self.canvas.grab()
+        qApp.clipboard().setPixmap(pixmap)
+
+
+backend_tools.ToolSaveFigure = SaveFigureQt
+backend_tools.ToolConfigureSubplots = ConfigureSubplotsQt
+backend_tools.ToolSetCursor = SetCursorQt
+backend_tools.ToolRubberband = RubberbandQt
+backend_tools.ToolHelp = HelpQt
+backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
+
+
+@cbook.deprecated("3.0")
 def error_msg_qt(msg, parent=None):
-    if not isinstance(msg, six.string_types):
+    if not isinstance(msg, str):
         msg = ','.join(map(str, msg))
 
     QtWidgets.QMessageBox.warning(None, "Matplotlib",
                                   msg, QtGui.QMessageBox.Ok)
 
 
+@cbook.deprecated("3.0")
 def exception_handler(type, value, tb):
     """Handle uncaught exceptions
     It does not catch SystemExit
@@ -849,7 +1101,7 @@ def exception_handler(type, value, tb):
     if hasattr(value, 'strerror') and value.strerror is not None:
         msg += value.strerror
     else:
-        msg += six.text_type(value)
+        msg += str(value)
 
     if len(msg):
         error_msg_qt(msg)

@@ -131,7 +131,7 @@ _Matrix commands
   cumsum    - the cumulative sum along a dimension
   detrend   - remove the mean or besdt fit line from an array
   diag      - the k-th diagonal of matrix
-  diff      - the n-th differnce of an array
+  diff      - the n-th difference of an array
   eig       - the eigenvalues and eigen vectors of v
   eye       - a matrix where the k-th diagonal is ones, else zero
   find      - return the indices where a condition is nonzero
@@ -212,15 +212,8 @@ __end
 
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
-
-import warnings
-
-from matplotlib.cbook import (
-    flatten, exception_to_str, silent_list, iterable, dedent)
+from matplotlib.cbook import flatten, silent_list, iterable, dedent
 
 import matplotlib as mpl
 
@@ -265,4 +258,4 @@ import datetime
 
 # This is needed, or bytes will be numpy.random.bytes from
 # "from numpy.random import *" above
-bytes = six.moves.builtins.bytes
+bytes = __import__("builtins").bytes

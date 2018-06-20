@@ -1,0 +1,8 @@
+Deprecation of certain marker styles
+------------------------------------
+
+Using ``(n, 3)`` as marker style to specify a circle marker is deprecated.  Use
+``"o"`` instead.
+
+Using ``([(x0, y0), (x1, y1), ...], 0)`` as marker style to specify a custom
+marker path is deprecated.  Use ``[(x0, y0), (x1, y1), ...]`` instead.

@@ -1,10 +1,6 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+from numbers import Number
 
 import matplotlib.axes as maxes
-import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 
@@ -33,8 +29,7 @@ def _tick_only(ax, bottom_on, left_on):
 
 class CbarAxesBase(object):
 
-    def colorbar(self, mappable, **kwargs):
-        locator = kwargs.pop("locator", None)
+    def colorbar(self, mappable, *, locator=None, **kwargs):
 
         if locator is None:
             if "ticks" not in kwargs:
@@ -46,7 +41,6 @@ class CbarAxesBase(object):
             else:
                 kwargs["ticks"] = locator
 
-        self._hold = True
         if self.orientation in ["top", "bottom"]:
             orientation = "horizontal"
         else:
@@ -56,7 +50,6 @@ class CbarAxesBase(object):
         self._config_axes()
 
         def on_changed(m):
-            #print 'calling on changed', m.get_cmap().name
             cb.set_cmap(m.get_cmap())
             cb.set_clim(m.get_clim())
             cb.update_bruteforce(m)
@@ -108,18 +101,14 @@ class CbarAxesBase(object):
 
 
 class CbarAxes(CbarAxesBase, LocatableAxes):
-    def __init__(self, *kl, **kwargs):
-        orientation = kwargs.pop("orientation", None)
-        if orientation is None:
-            raise ValueError("orientation must be specified")
+    def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
         self._default_label_on = True
         self.locator = None
-
-        super(LocatableAxes, self).__init__(*kl, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def cla(self):
-        super(LocatableAxes, self).cla()
+        super().cla()
         self._config_axes()
 
 
@@ -209,7 +198,7 @@ class Grid(object):
 
         h = []
         v = []
-        if isinstance(rect, six.string_types) or cbook.is_numlike(rect):
+        if isinstance(rect, (str, Number)):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=False)
         elif isinstance(rect, SubplotSpec):
@@ -530,7 +519,7 @@ class ImageGrid(Grid):
 
         h = []
         v = []
-        if isinstance(rect, six.string_types) or cbook.is_numlike(rect):
+        if isinstance(rect, (str, Number)):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=aspect)
         elif isinstance(rect, SubplotSpec):
@@ -769,4 +758,3 @@ class ImageGrid(Grid):
 
 
 AxesGrid = ImageGrid
-

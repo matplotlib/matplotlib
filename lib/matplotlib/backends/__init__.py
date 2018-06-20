@@ -1,13 +1,9 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import importlib
+import logging
+import traceback
 
 import matplotlib
-import inspect
-import traceback
-import warnings
-import logging
+from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
@@ -19,16 +15,17 @@ _backend_loading_tb = "".join(
 
 
 def pylab_setup(name=None):
-    '''return new_figure_manager, draw_if_interactive and show for pyplot
+    """
+    Return new_figure_manager, draw_if_interactive and show for pyplot.
 
-    This provides the backend-specific functions that are used by
-    pyplot to abstract away the difference between interactive backends.
+    This provides the backend-specific functions that are used by pyplot to
+    abstract away the difference between backends.
 
     Parameters
     ----------
     name : str, optional
         The name of the backend to use.  If `None`, falls back to
-        ``matplotlib.get_backend()`` (which return ``rcParams['backend']``)
+        ``matplotlib.get_backend()`` (which return :rc:`backend`).
 
     Returns
     -------
@@ -43,54 +40,25 @@ def pylab_setup(name=None):
 
     show : function
         Show (and possibly block) any unshown figures.
-
-    '''
-    # Import the requested backend into a generic module object
+    """
+    # Import the requested backend into a generic module object.
     if name is None:
-        # validates, to match all_backends
         name = matplotlib.get_backend()
-    if name.startswith('module://'):
-        backend_name = name[9:]
-    else:
-        backend_name = 'backend_' + name
-        backend_name = backend_name.lower()  # until we banish mixed case
-        backend_name = 'matplotlib.backends.%s' % backend_name.lower()
+    backend_name = (name[9:] if name.startswith("module://")
+                    else "matplotlib.backends.backend_{}".format(name.lower()))
+    backend_mod = importlib.import_module(backend_name)
+    # Create a local Backend class whose body corresponds to the contents of
+    # the backend module.  This allows the Backend class to fill in the missing
+    # methods through inheritance.
+    Backend = type("Backend", (_Backend,), vars(backend_mod))
 
-    # the last argument is specifies whether to use absolute or relative
-    # imports. 0 means only perform absolute imports.
-    backend_mod = __import__(backend_name, globals(), locals(),
-                             [backend_name], 0)
-
-    # Things we pull in from all backends
-    new_figure_manager = backend_mod.new_figure_manager
-
-    # image backends like pdf, agg or svg do not need to do anything
-    # for "show" or "draw_if_interactive", so if they are not defined
-    # by the backend, just do nothing
-    def do_nothing_show(*args, **kwargs):
-        frame = inspect.currentframe()
-        fname = frame.f_back.f_code.co_filename
-        if fname in ('<stdin>', '<ipython console>'):
-            warnings.warn("""
-Your currently selected backend, '%s' does not support show().
-Please select a GUI backend in your matplotlibrc file ('%s')
-or with matplotlib.use()""" %
-                          (name, matplotlib.matplotlib_fname()))
-
-    def do_nothing(*args, **kwargs):
-        pass
-
-    backend_version = getattr(backend_mod, 'backend_version', 'unknown')
-
-    show = getattr(backend_mod, 'show', do_nothing_show)
-
-    draw_if_interactive = getattr(backend_mod, 'draw_if_interactive',
-                                  do_nothing)
-
-    _log.info('backend %s version %s' % (name, backend_version))
-
-    # need to keep a global reference to the backend for compatibility
-    # reasons. See https://github.com/matplotlib/matplotlib/issues/6092
+    # Need to keep a global reference to the backend for compatibility reasons.
+    # See https://github.com/matplotlib/matplotlib/issues/6092
     global backend
     backend = name
-    return backend_mod, new_figure_manager, draw_if_interactive, show
+
+    _log.debug('backend %s version %s', name, Backend.backend_version)
+    return (backend_mod,
+            Backend.new_figure_manager,
+            Backend.draw_if_interactive,
+            Backend.show)

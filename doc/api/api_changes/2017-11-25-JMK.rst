@@ -1,0 +1,8 @@
+`.Axes.get_position` now returns actual position if aspect changed
+------------------------------------------------------------------
+
+`.Axes.get_position` used to return the original position unless a
+draw had been triggered or `.Axes.apply_aspect` had been called, even
+if the kwarg *original* was set to *False*.   Now `.Axes.apply_aspect`
+is called so ``ax.get_position()`` will return the new modified position.
+To get the old behaviour, ``ax.get_position(original=True)``.  

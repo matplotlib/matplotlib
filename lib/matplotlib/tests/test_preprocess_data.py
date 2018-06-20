@@ -1,5 +1,3 @@
-from __future__ import (absolute_import, division, print_function)
-
 import re
 
 import numpy as np
@@ -91,7 +89,7 @@ def test_label_problems_at_runtime():
 
     # This is a programming mistake: the parameter which should add the
     # label is not present in the function call. Unfortunately this was masked
-    # due to the **kwargs useage
+    # due to the **kwargs usage
     # This would be nice to handle as a compiletime check (see above...)
     with pytest.warns(RuntimeWarning):
         func(None, x="a", y="b")

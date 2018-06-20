@@ -3,12 +3,11 @@
 # lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
 # that changes made maintain expected behaviour.
 
-import six
-
 from base64 import b64encode
 import io
 import json
 import os
+import pathlib
 import uuid
 
 from IPython.display import display, Javascript, HTML
@@ -112,12 +111,10 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
             output = io.StringIO()
         else:
             output = stream
-        super(FigureManagerNbAgg, cls).get_javascript(stream=output)
-        with io.open(os.path.join(
-                os.path.dirname(__file__),
-                "web_backend", 'js',
-                "nbagg_mpl.js"), encoding='utf8') as fd:
-            output.write(fd.read())
+        super().get_javascript(stream=output)
+        output.write((pathlib.Path(__file__).parent
+                      / "web_backend/js/nbagg_mpl.js")
+                     .read_text(encoding="utf-8"))
         if stream is None:
             return output.getvalue()
 
@@ -135,15 +132,15 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def clearup_closed(self):
         """Clear up any closed Comms."""
-        self.web_sockets = set([socket for socket in self.web_sockets
-                                if socket.is_open()])
+        self.web_sockets = {socket for socket in self.web_sockets
+                            if socket.is_open()}
 
         if len(self.web_sockets) == 0:
             self.canvas.close_event()
 
     def remove_comm(self, comm_id):
-        self.web_sockets = set([socket for socket in self.web_sockets
-                                if not socket.comm.comm_id == comm_id])
+        self.web_sockets = {socket for socket in self.web_sockets
+                            if not socket.comm.comm_id == comm_id}
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
@@ -204,9 +201,7 @@ class CommSocket(object):
     def send_binary(self, blob):
         # The comm is ascii, so we always send the image in base64
         # encoded data URL form.
-        data = b64encode(blob)
-        if six.PY3:
-            data = data.decode('ascii')
+        data = b64encode(blob).decode('ascii')
         data_uri = "data:image/png;base64,{0}".format(data)
         self.comm.send({'data': data_uri})
 
@@ -234,8 +229,6 @@ class _BackendNbAgg(_Backend):
     @staticmethod
     def new_figure_manager_given_figure(num, figure):
         canvas = FigureCanvasNbAgg(figure)
-        if rcParams['nbagg.transparent']:
-            figure.patch.set_alpha(0)
         manager = FigureManagerNbAgg(canvas, num)
         if is_interactive():
             manager.show()

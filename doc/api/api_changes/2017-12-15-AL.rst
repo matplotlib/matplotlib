@@ -1,5 +1,0 @@
-Deprecation of the ``nbagg.transparent`` rcParam
-````````````````````````````````````````````````
-
-To control transparency of figure patches in the nbagg (or any other) backend,
-directly set ``figure.patch.facecolor``, or the ``figure.facecolor`` rcParam.
