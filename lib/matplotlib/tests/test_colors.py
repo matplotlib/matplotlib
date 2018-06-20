@@ -192,6 +192,15 @@ def test_PowerNorm():
     assert pnorm(a[-1], clip=True) == expected[-1]
 
 
+def test_PowerNorm_translation_invariance():
+    a = np.array([0, 1/2, 1], dtype=float)
+    expected = [0, 1/8, 1]
+    pnorm = mcolors.PowerNorm(vmin=0, vmax=1, gamma=3)
+    assert_array_almost_equal(pnorm(a), expected)
+    pnorm = mcolors.PowerNorm(vmin=-2, vmax=-1, gamma=3)
+    assert_array_almost_equal(pnorm(a - 2), expected)
+
+
 def test_Normalize():
     norm = mcolors.Normalize()
     vals = np.arange(-10, 10, 1, dtype=float)
@@ -711,13 +720,7 @@ def test_ndarray_subclass_norm(recwarn):
                  mcolors.SymLogNorm(3, vmax=5, linscale=1),
                  mcolors.PowerNorm(1)]:
         assert_array_equal(norm(data.view(MyArray)), norm(data))
-        if isinstance(norm, mcolors.PowerNorm):
-            assert len(recwarn) == 1
-            warn = recwarn.pop(UserWarning)
-            assert ('Power-law scaling on negative values is ill-defined'
-                    in str(warn.message))
-        else:
-            assert len(recwarn) == 0
+        assert len(recwarn) == 0
         recwarn.clear()
 
 

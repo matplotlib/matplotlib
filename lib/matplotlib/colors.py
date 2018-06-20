@@ -1202,6 +1202,7 @@ class PowerNorm(Normalize):
                                      mask=mask)
             resdat = result.data
             resdat -= vmin
+            resdat[resdat < 0] = 0
             np.power(resdat, gamma, resdat)
             resdat /= (vmax - vmin) ** gamma
 
