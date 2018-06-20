@@ -107,17 +107,17 @@ def _get_textbox(text, renderer):
 
 
 @cbook._define_aliases({
-    "family": ["fontfamily"],
+    "fontfamily": ["family"],
     "fontproperties": ["font_properties"],
     "horizontalalignment": ["ha"],
     "multialignment": ["ma"],
-    "name": ["fontname"],
-    "size": ["fontsize"],
-    "stretch": ["fontstretch"],
-    "style": ["fontstyle"],
-    "variant": ["fontvariant"],
+    "fontname": ["name"],
+    "fontsize": ["size"],
+    "fontstretch": ["stretch"],
+    "fontstyle": ["style"],
+    "fontvariant": ["variant"],
     "verticalalignment": ["va"],
-    "weight": ["fontweight"],
+    "fontweight": ["weight"],
 })
 class Text(Artist):
     """Handle storing and drawing of text in window or data coordinates."""
@@ -764,27 +764,27 @@ class Text(Artist):
         "Return the :class:`~font_manager.FontProperties` object"
         return self._fontproperties
 
-    def get_family(self):
+    def get_fontfamily(self):
         "Return the list of font families used for font lookup"
         return self._fontproperties.get_family()
 
-    def get_name(self):
+    def get_fontname(self):
         "Return the font name as string"
         return self._fontproperties.get_name()
 
-    def get_style(self):
+    def get_fontstyle(self):
         "Return the font style as string"
         return self._fontproperties.get_style()
 
-    def get_size(self):
+    def get_fontsize(self):
         "Return the font size as integer"
         return self._fontproperties.get_size_in_points()
 
-    def get_variant(self):
+    def get_fontvariant(self):
         "Return the font variant as a string"
         return self._fontproperties.get_variant()
 
-    def get_weight(self):
+    def get_fontweight(self):
         "Get the font weight as string or number"
         return self._fontproperties.get_weight()
 
@@ -957,7 +957,7 @@ class Text(Artist):
         self._linespacing = spacing
         self.stale = True
 
-    def set_family(self, fontname):
+    def set_fontfamily(self, fontname):
         """
         Set the font family.  May be either a single string, or a list of
         strings in decreasing priority.  Each string may be either a real font
@@ -970,7 +970,7 @@ class Text(Artist):
         self._fontproperties.set_family(fontname)
         self.stale = True
 
-    def set_variant(self, variant):
+    def set_fontvariant(self, variant):
         """
         Set the font variant, either 'normal' or 'small-caps'.
 
@@ -979,7 +979,7 @@ class Text(Artist):
         self._fontproperties.set_variant(variant)
         self.stale = True
 
-    def set_style(self, fontstyle):
+    def set_fontstyle(self, fontstyle):
         """
         Set the font style.
 
@@ -988,7 +988,7 @@ class Text(Artist):
         self._fontproperties.set_style(fontstyle)
         self.stale = True
 
-    def set_size(self, fontsize):
+    def set_fontsize(self, fontsize):
         """
         Set the font size.  May be either a size string, relative to
         the default font size, or an absolute font size in points.
@@ -999,7 +999,7 @@ class Text(Artist):
         self._fontproperties.set_size(fontsize)
         self.stale = True
 
-    def set_weight(self, weight):
+    def set_fontweight(self, weight):
         """
         Set the font weight.
 
@@ -1011,7 +1011,7 @@ class Text(Artist):
         self._fontproperties.set_weight(weight)
         self.stale = True
 
-    def set_stretch(self, stretch):
+    def set_fontstretch(self, stretch):
         """
         Set the font stretch (horizontal condensation or expansion).
 
@@ -1152,8 +1152,12 @@ class Text(Artist):
         else:
             return self._usetex
 
-    def set_name(self, fontname):  # One-way alias only: the getter differs.
-        """alias for set_family"""
+    def set_fontname(self, fontname):
+        """
+        alias for set_family
+
+        One-way alias only: the getter differs.
+        """
         return self.set_family(fontname)
 
 
