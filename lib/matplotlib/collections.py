@@ -189,7 +189,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         paths = self.get_paths()
 
         if not transform.is_affine:
-            paths = [transform.transform_path_non_affine(p) for p in paths]
+            paths = self._non_affine_transform_paths(paths, transform)
             transform = transform.get_affine()
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
@@ -212,6 +212,22 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # TODO:check to ensure that this does not fail for
         # cases other than scatter plot legend
         return self.get_datalim(transforms.IdentityTransform())
+
+    def _non_affine_transform_paths(self, paths, transform):
+        """
+        Sometimes there will be many paths, and the transform is
+        slow to run.  This helper concatenates the paths, transforms,
+        the points, and then splits them back into the individual paths.
+        """
+        vertices = np.vstack(path.vertices for path in paths)
+        pos = np.cumsum([len(x) for x in paths])
+        vertices = transform.transform_non_affine(vertices)
+        # repopulate paths
+        verts = np.split(vertices, pos[:-1])
+        for nn, verti in enumerate(verts):
+            paths[nn].vertices = verti
+
+        return paths
 
     def _prepare_points(self):
         """Point prep for drawing and hit testing"""
@@ -236,8 +252,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 offsets = np.column_stack([xs, ys])
 
         if not transform.is_affine:
-            paths = [transform.transform_path_non_affine(path)
-                     for path in paths]
+            paths = self._non_affine_transform_paths(paths, transform)
             transform = transform.get_affine()
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
