@@ -229,7 +229,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self.figure = figure
         # We don't want to scale up the figure DPI more than once.
         # Note, we don't handle a signal for changing DPI yet.
-        figure._original_dpi = figure.dpi
         self._update_figure_dpi()
         # In cases with mixed resolution displays, we need to be careful if the
         # dpi_ratio changes - in this case we need to resize the canvas
