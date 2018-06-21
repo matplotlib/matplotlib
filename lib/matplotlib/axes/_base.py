@@ -408,6 +408,8 @@ class _AxesBase(martist.Artist):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
 
+    @docstring.Substitution(scale=' | '.join(
+        [repr(x) for x in mscale.get_scale_names()]))
     def __init__(self, fig, rect,
                  facecolor=None,  # defaults to rc axes.facecolor
                  frameon=True,
@@ -419,10 +421,10 @@ class _AxesBase(martist.Artist):
                  **kwargs
                  ):
         """
-        Build an :class:`Axes` instance in
-        :class:`~matplotlib.figure.Figure` *fig* with
+        Build an `~axes.Axes` instance in
+        `~matplotlib.figure.Figure` *fig* with
         *rect=[left, bottom, width, height]* in
-        :class:`~matplotlib.figure.Figure` coordinates
+        `~matplotlib.figure.Figure` coordinates
 
         Optional keyword arguments:
 
@@ -465,8 +467,8 @@ class _AxesBase(martist.Artist):
           *yticklabels*      sequence of strings
           *yticks*           sequence of floats
           ================   =========================================
-        """ % {'scale': ' | '.join(
-            [repr(x) for x in mscale.get_scale_names()])}
+        """
+
         martist.Artist.__init__(self)
         if isinstance(rect, mtransforms.Bbox):
             self._position = rect
