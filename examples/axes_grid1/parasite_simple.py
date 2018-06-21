@@ -1,7 +1,13 @@
 """
-===============
-Parasite Simple
-===============
+=====================================================
+Plotting datasets in different units on the same axes
+=====================================================
+
+This example showcases how to plot two different related datasets with
+different units on the same axes. Here, we plot the density and temperature as
+a function of the distance on simulated data. The density y-axis is displayed
+on the left hand-side of the plot, while the temperature y-axis is on the
+right hand-side of the plot.
 
 """
 from mpl_toolkits.axes_grid1 import host_subplot
