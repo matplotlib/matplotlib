@@ -187,11 +187,13 @@ class SubplotBase(object):
 
 @functools.lru_cache(None)
 def subplot_class_factory(axes_class=None):
-    # This makes a new class that inherits from SubplotBase and the
-    # given axes_class (which is assumed to be a subclass of Axes).
-    # This is perhaps a little bit roundabout to make a new class on
-    # the fly like this, but it means that a new Subplot class does
-    # not have to be created for every type of Axes.
+    """
+    This makes a new class that inherits from `.SubplotBase` and the
+    given axes_class (which is assumed to be a subclass of `.axes.Axes`).
+    This is perhaps a little bit roundabout to make a new class on
+    the fly like this, but it means that a new Subplot class does
+    not have to be created for every type of Axes.
+    """
     if axes_class is None:
         axes_class = Axes
     return type("%sSubplot" % axes_class.__name__,
