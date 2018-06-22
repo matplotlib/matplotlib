@@ -2,7 +2,6 @@
 
 cycler==0.10
 python-dateutil==2.1
-nose
 numpy==1.10.0
 pandas<0.21.0
 pyparsing==2.0.1
