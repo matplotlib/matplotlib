@@ -48,19 +48,6 @@ env:
     - secure: RgJI7BBL8aX5FTOQe7xiXqWHMxWokd6GNUWp1NUV2mRLXPb9dI0RXqZt3UJwKTAzf1z/OtlHDmEkBoTVK81E9iUxK5npwyyjhJ8yTJmwfQtQF2n51Q1Ww9p+XSLORrOzZc7kAo6Kw6FIXN1pfctgYq2bQkrwJPRx/oPR8f6hcbY=
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
     - secure: dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU=
-    # Variables controlling Python dependencies.
-    - DATEUTIL=python-dateutil
-    - NOSE=
-    - PANDAS=
-    - JUPYTER=
-    - PYPARSING=pyparsing
-    # pytest-timeout master depends on pytest>=3.6.  Testing with pytest 3.4 is
-    # still supported; this is tested by the first matrix entry.
-    - PYTEST='pytest>=3.6'
-    - PYTEST_COV=pytest-cov
-    - PYTEST_PEP8=
-    - PYTEST_TIMEOUT=pytest-timeout
-    - SPHINX=sphinx
     # Variables controlling the build.
     - MPLLOCALFREETYPE=1
     # Variables controlling the test run.
@@ -80,16 +67,6 @@ matrix:
     - python: 3.5
       # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
       env:
-        - CYCLER=cycler==0.10
-        - DATEUTIL=python-dateutil==2.1
-        - NOSE=nose
-        - NUMPY=numpy==1.10.0
-        - PANDAS='pandas<0.21.0'
-        - PYPARSING=pyparsing==2.0.1
-        - PYTEST=pytest==3.4
-        - PYTEST_COV=pytest-cov==2.3.1
-        - PYTEST_TIMEOUT=pytest-timeout==1.2.1  # Newer pytest-timeouts don't support pytest 3.4.
-        - SPHINX=sphinx==1.3
         - EXTRAREQS='requirements/testing/travis35.txt'
     - python: 3.5
       env:
@@ -97,10 +74,8 @@ matrix:
     - python: 3.6
       env:
         - DELETE_FONT_CACHE=1
-        - PANDAS='pandas<0.21.0'
-        - JUPYTER='jupyter'
-        - PYTEST_PEP8=pytest-pep8
         - PYTEST_ADDOPTS="$PYTEST_ADDOPTS --pep8"
+        - EXTRAREQS='requirements/testing/travis36.txt'
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -145,16 +120,7 @@ install:
   - |
     # Install dependencies from PyPI.
     python -mpip install --upgrade $PRE -r requirements/testing/travis_all.txt
-    python -mpip install --upgrade -r $EXTRAREQS
-    python -mpip install --upgrade $PRE \
-        $CYCLER \
-        $DATEUTIL \
-        $NOSE \
-        $NUMPY \
-        $PANDAS \
-        $JUPYTER \
-        $PYPARSING \
-        $SPHINX \
+    python -mpip install --upgrade $PRE -r $EXTRAREQS
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the
@@ -175,14 +141,6 @@ install:
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
 
-    python -mpip install $PRE \
-        $PYTEST \
-        $PYTEST_COV \
-        pytest-faulthandler \
-        $PYTEST_PEP8 \
-        pytest-rerunfailures \
-        $PYTEST_TIMEOUT \
-        pytest-xdist
   - |
     # Install matplotlib
     python -mpip install -ve .
