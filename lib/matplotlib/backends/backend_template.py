@@ -23,7 +23,7 @@ matplotlib/__init__.py and you're off.  You can use your backend with::
   matplotlib.use('xxx')
   import matplotlib.pyplot as plt
   plt.plot([1,2,3])
-  show()
+  plt.show()
 
 matplotlib also supports external backends, so you can place you can
 use any module in your PYTHONPATH with the syntax::
