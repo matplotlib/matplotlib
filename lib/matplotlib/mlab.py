@@ -841,15 +841,15 @@ docstring.interpd.update(PSD=cbook.dedent("""
         The function applied to each segment before fft-ing,
         designed to remove the mean or linear trend.  Unlike in
         MATLAB, where the *detrend* parameter is a vector, in
-        matplotlib is it a function.  The :mod:`~matplotlib.pylab`
-        module defines :func:`~matplotlib.pylab.detrend_none`,
-        :func:`~matplotlib.pylab.detrend_mean`, and
-        :func:`~matplotlib.pylab.detrend_linear`, but you can use
+        matplotlib is it a function.  The :mod:`~matplotlib.mlab`
+        module defines :func:`~matplotlib.mlab.detrend_none`,
+        :func:`~matplotlib.mlab.detrend_mean`, and
+        :func:`~matplotlib.mlab.detrend_linear`, but you can use
         a custom function as well.  You can also use a string to choose
         one of the functions.  'default', 'constant', and 'mean' call
-        :func:`~matplotlib.pylab.detrend_mean`.  'linear' calls
-        :func:`~matplotlib.pylab.detrend_linear`.  'none' calls
-        :func:`~matplotlib.pylab.detrend_none`.
+        :func:`~matplotlib.mlab.detrend_mean`.  'linear' calls
+        :func:`~matplotlib.mlab.detrend_linear`.  'none' calls
+        :func:`~matplotlib.mlab.detrend_none`.
 
     scale_by_freq : bool, optional
         Specifies whether the resulting density values should be scaled

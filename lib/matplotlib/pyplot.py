@@ -2117,7 +2117,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     columns.
 
     *comments*, *skiprows*, *checkrows*, *delimiter*, and *names*
-    are all passed on to :func:`matplotlib.pylab.csv2rec` to
+    are all passed on to :func:`matplotlib.mlab.csv2rec` to
     load the data into a record array.
 
     If *newfig* is *True*, the plot always will be made in a new figure;
