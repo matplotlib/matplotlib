@@ -1,4 +1,6 @@
 codecov
 coverage
+cycler
+numpy
 pillow
 tornado
