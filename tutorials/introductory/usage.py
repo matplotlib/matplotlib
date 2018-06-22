@@ -184,7 +184,8 @@ plt.show()
 # :mod:`pylab` is a convenience module that bulk imports
 # :mod:`matplotlib.pyplot` (for plotting) and :mod:`numpy`
 # (for mathematics and working with arrays) in a single name space.
-# Although many examples use :mod:`pylab`, it is no longer recommended.
+# pylab is deprecated and its use is strongly discouraged because
+# of namespace pollution. Use pyplot instead.
 #
 # For non-interactive plotting it is suggested
 # to use pyplot to create the figures and then the OO interface for

@@ -4000,13 +4000,15 @@ def offset_line(y, yerr):
     * A tuple of length 2. In this case, yerr[0] is the error below *y* and
       yerr[1] is error above *y*. For example::
 
-        from pylab import *
-        x = linspace(0, 2*pi, num=100, endpoint=True)
-        y = sin(x)
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        x = np.linspace(0, 2*np.pi, num=100, endpoint=True)
+        y = np.sin(x)
         y_minus, y_plus = mlab.offset_line(y, 0.1)
-        plot(x, y)
-        fill_between(x, ym, y2=yp)
-        show()
+        plt.plot(x, y)
+        plt.fill_between(x, y_minus, y2=y_plus)
+        plt.show()
 
     """
     if cbook.is_numlike(yerr) or (cbook.iterable(yerr) and
