@@ -51,10 +51,14 @@ env:
     - NOSE=
     - NUMPY=numpy
     - PANDAS=
+    - PILLOW=pillow
     - PYPARSING=pyparsing
-    - PYTEST='pytest!=3.3.0,>=3.2.0'
+    # pytest-timeout master depends on pytest>=3.6.  Testing with pytest 3.1 is
+    # still supported; this is tested by the first matrix entry.
+    - PYTEST='pytest>=3.6'
     - PYTEST_COV=pytest-cov
     - PYTEST_PEP8=
+    - PYTEST_TIMEOUT=pytest-timeout
     - SPHINX=sphinx
     - OPENBLAS_NUM_THREADS=1
     - NPROC=2
@@ -77,6 +81,7 @@ matrix:
         - PYPARSING=pyparsing==2.0.1
         - PYTEST=pytest==3.1.0
         - PYTEST_COV=pytest-cov==2.3.1
+        - PYTEST_TIMEOUT=pytest-timeout==1.2.1  # Newer pytest-timeouts don't support pytest <3.4.
         - SPHINX=sphinx==1.3
     - python: 3.4
       env: PYTHON_ARGS=-OO
@@ -87,7 +92,9 @@ matrix:
     - os: osx
       osx_image: xcode7.3
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
-      env: MOCK=mock
+      env:
+        - MOCK=mock
+        - PILLOW='pillow!=5.1.0'
       only: master
       cache:
         # As for now travis caches only "$HOME/.cache/pip"
@@ -139,7 +146,7 @@ install:
         $PANDAS \
         codecov \
         coverage \
-        pillow \
+        $PILLOW \
         $PYPARSING \
         $DATEUTIL \
         $SPHINX
@@ -169,7 +176,7 @@ install:
         pytest-faulthandler \
         $PYTEST_PEP8 \
         pytest-rerunfailures \
-        pytest-timeout \
+        $PYTEST_TIMEOUT \
         pytest-xdist
 
     # Use the special local version of freetype for testing

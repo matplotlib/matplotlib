@@ -416,7 +416,7 @@ div.deprecated span.versionmodified {
     font-weight: bold;
 }
 
-div.green {
+div.green, div.hint {
     color: #468847;
     background-color: #dff0d8;
     border: 1px solid #d6e9c6;
@@ -773,8 +773,8 @@ figcaption {
 
 
 /* "Summer Fellowship" message. */
-#summer-fellowship {
-  background: #11557C;
+#plotting-contest {
+  background: #EE9816;
   box-sizing: border-box;
   color: #fffa;
   font-weight: bold;
@@ -786,7 +786,7 @@ figcaption {
   z-index: 10000;
 }
 
-#summer-fellowship a {
+#plotting-contest a {
   color: #fff;
   text-decoration:underline;
 }
@@ -986,12 +986,30 @@ div.sphx-glr-download a {
    background-image: none !important;
 }
 
-p.sphx-glr-signature a.reference.external {
+p.sphx-glr-signature {
    display: none !important;
 }
 
 .sphx-glr-thumbcontainer a.internal {
     font-weight: 400;
+}
+
+.viewcode-link {
+    float: right;
+}
+
+.viewcode-back {
+    float: right;
+    font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
+}
+
+div.viewcode-block:target {
+    margin: -1px -13px;
+    padding: 0 10px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background-color: #f4debf;
+
 }
 
 .sidebar-announcement {

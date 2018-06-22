@@ -136,7 +136,7 @@ imgplot = plt.imshow(img)
 lum_img = img[:, :, 0]
 
 # This is array slicing.  You can read more in the `Numpy tutorial
-# <https://docs.scipy.org/doc/numpy-dev/user/quickstart.html>`_.
+# <https://docs.scipy.org/doc/numpy/user/quickstart.html>`_.
 
 plt.imshow(lum_img)
 
