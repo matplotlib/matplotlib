@@ -237,10 +237,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha value used for blending - not supported on
-        all backends
+        Set the alpha value used for blending - not supported on all backends.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        alpha : float
         """
         martist.Artist.set_alpha(self, alpha)
         self._imcache = None
@@ -620,9 +621,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Set the image array.
 
-        ACCEPTS: numpy/PIL Image A
-
         Note that this function does *not* update the normalization used.
+
+        Parameters
+        ----------
+        A : array-like
         """
         # check if data is PIL Image without importing Image
         if hasattr(A, 'getpixel'):
@@ -665,13 +668,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_array(self, A):
         """
-        Retained for backwards compatibility - use set_data instead
+        Retained for backwards compatibility - use set_data instead.
 
-        ACCEPTS: numpy array A or PIL Image
+        Parameters
+        ----------
+        A : array-like
         """
         # This also needs to be here to override the inherited
-        # cm.ScalarMappable.set_array method so it is not invoked
-        # by mistake.
+        # cm.ScalarMappable.set_array method so it is not invoked by mistake.
 
         self.set_data(A)
 
@@ -695,10 +699,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         agg, ps and pdf backends and will fall back to 'nearest' mode
         for other backends.
 
-        .. ACCEPTS: ['nearest' | 'bilinear' | 'bicubic' | 'spline16' |
-           'spline36' | 'hanning' | 'hamming' | 'hermite' | 'kaiser' |
-           'quadric' | 'catrom' | 'gaussian' | 'bessel' | 'mitchell' |
-           'sinc' | 'lanczos' | 'none' ]
+        Parameters
+        ----------
+        s : {'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', \
+'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', \
+'bessel', 'mitchell', 'sinc', 'lanczos', 'none'}
 
         """
         if s is None:
@@ -723,7 +728,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Set whether or not image resampling is used.
 
-        ACCEPTS: True|False
+        Parameters
+        ----------
+        v : bool
         """
         if v is None:
             v = rcParams['image.resample']
@@ -740,7 +747,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         See help for `~.Axes.imshow`.
 
-        .. ACCEPTS: bool
+        Parameters
+        ----------
+        filternorm : bool
         """
         self._filternorm = bool(filternorm)
         self.stale = True
@@ -754,7 +763,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Set the resize filter radius only applicable to some
         interpolation schemes -- see help for imshow
 
-        ACCEPTS: positive float
+        Parameters
+        ----------
+        filterrad : positive float
         """
         r = float(filterrad)
         if r <= 0:
