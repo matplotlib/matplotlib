@@ -439,7 +439,7 @@ class Quiver(mcollections.PolyCollection):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
-        by the following pylab interface documentation:
+        by the following pyplot interface documentation:
         %s
         """
         self.ax = ax
@@ -912,7 +912,7 @@ class Barbs(mcollections.PolyCollection):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
-        by the following pylab interface documentation:
+        by the following pyplot interface documentation:
         %(barbs_doc)s
         """
         self.sizes = sizes or dict()

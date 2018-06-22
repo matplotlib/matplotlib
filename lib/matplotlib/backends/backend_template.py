@@ -21,8 +21,8 @@ matplotlib/__init__.py and you're off.  You can use your backend with::
 
   import matplotlib
   matplotlib.use('xxx')
-  from pylab import *
-  plot([1,2,3])
+  import matplotlib.pyplot as plt
+  plt.plot([1,2,3])
   show()
 
 matplotlib also supports external backends, so you can place you can
@@ -175,7 +175,7 @@ def draw_if_interactive():
 def show(block=None):
     """
     For image backends - is not required
-    For GUI backends - show() is usually the last line of a pylab script and
+    For GUI backends - show() is usually the last line of a pyplot script and
     tells the backend that it is time to draw.  In interactive mode, this may
     be a do nothing func.  See the GTK backend for an example of how to handle
     interactive versus batch mode

@@ -1892,7 +1892,7 @@ default: 'top'
         """
         Create a colorbar for a ScalarMappable instance, *mappable*.
 
-        Documentation for the pylab thin wrapper:
+        Documentation for the pyplot thin wrapper:
         %(colorbar_doc)s
         """
         if ax is None:

@@ -28,7 +28,7 @@ exceptions are the pyplot commands :func:`~matplotlib.pyplot.figure`,
 Modules include:
 
     :mod:`matplotlib.axes`
-        defines the :class:`~matplotlib.axes.Axes` class.  Most pylab
+        defines the :class:`~matplotlib.axes.Axes` class.  Most pyplot
         commands are wrappers for :class:`~matplotlib.axes.Axes`
         methods.  The axes module is the highest level of OO access to
         the library.
@@ -90,7 +90,7 @@ The base matplotlib namespace includes:
         a function for setting the matplotlib backend.  If used, this
         function must be called immediately after importing matplotlib
         for the first time.  In particular, it must be called
-        **before** importing pylab (if pylab is imported).
+        **before** importing pyplot (if pyplot is imported).
 
 matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
