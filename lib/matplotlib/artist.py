@@ -1080,7 +1080,7 @@ class ArtistInspector(object):
             if not self.is_alias(func):
                 continue
             docstring = func.__doc__
-            fullname = docstring[10:]
+            fullname = docstring.replace('`', '')[10:]
             aliases.setdefault(fullname[4:], {})[name[4:]] = None
         return aliases
 
