@@ -387,7 +387,19 @@ with warnings.catch_warnings():
 
 
 def _logged_cached(fmt, func=None):
-    if func is None:
+    """
+    Decorator that logs a function's return value, and memoizes that value.
+
+    After ::
+
+        @_logged_cached(fmt)
+        def func(): ...
+
+    the first call to *func* will log its return value at the DEBUG level using
+    %-format string *fmt*, and memoize it; later calls to *func* will directly
+    return that value.
+    """
+    if func is None:  # Return the actual decorator.
         return functools.partial(_logged_cached, fmt)
 
     called = False
@@ -569,7 +581,7 @@ def _get_xdg_config_dir():
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
     return (os.environ.get('XDG_CONFIG_HOME')
-            or (Path(get_home(), ".config")
+            or (str(Path(get_home(), ".config"))
                 if get_home()
                 else None))
 
@@ -581,21 +593,21 @@ def _get_xdg_cache_dir():
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
     return (os.environ.get('XDG_CACHE_HOME')
-            or (Path(get_home(), ".cache")
+            or (str(Path(get_home(), ".cache"))
                 if get_home()
                 else None))
 
 
 def _get_config_or_cache_dir(xdg_base):
     configdir = os.environ.get('MPLCONFIGDIR')
-    configdir = (
-        Path(configdir).resolve()
-        if configdir
-        else Path(xdg_base, "matplotlib")
-        if sys.platform.startswith(('linux', 'freebsd')) and xdg_base
-        else Path(get_home(), ".matplotlib")
-        if get_home()
-        else None)
+    if configdir:
+        configdir = Path(configdir).resolve()
+    elif sys.platform.startswith(('linux', 'freebsd')) and xdg_base:
+        configdir = Path(xdg_base, "matplotlib")
+    elif get_home():
+        configdir = Path(get_home(), ".matplotlib")
+    else:
+        configdir = None
 
     if configdir:
         try:
