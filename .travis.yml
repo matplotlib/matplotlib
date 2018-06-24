@@ -124,25 +124,16 @@ install:
   - |
     # Install dependencies from PyPI.
     python -mpip install --upgrade $PRE -r requirements/testing/travis_all.txt $EXTRAREQS $PINNEDVERS
-    # GUI toolkits are pip-installable only for some versions of Python so
-    # don't fail if we can't install them.  Make it easier to check whether the
-    # install was successful by trying to import the toolkit (sometimes, the
+    # Check for the successful installation of GUI toolkits (sometimes, the
     # install appears to be successful but shared libraries cannot be loaded at
     # runtime, so an actual import is a better check).
-    python -mpip install cairocffi pgi &&
-      python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
-      echo 'pgi is available' ||
-      echo 'pgi is not available'
-    python -mpip install pyqt5 &&
-      python -c 'import PyQt5.QtCore' &&
-      echo 'PyQt5 is available' ||
-      echo 'PyQt5 is not available'
-    python -mpip install -U \
-      -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
-      wxPython &&
-      python -c 'import wx' &&
-      echo 'wxPython is available' ||
-      echo 'wxPython is not available'
+    if [[ $TRAVIS_OS_NAME = linux ]]; then
+      # pgi is only installable on Linux.
+      python -mpip install --upgrade $PRE cairocffi pgi
+      python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk'
+    fi
+    python -c 'import PyQt5.QtCore'
+    python -c 'import wx'
 
   - |
     # Install matplotlib

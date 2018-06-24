@@ -1,13 +1,22 @@
 # pip requirements for all the travis builds
 
+--find-links https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04
+
 codecov
 coverage
-cycler
-numpy
 pillow
 pyparsing
+
+# GUI toolkits
+
+# pgi is only installable on Linux.
+pyqt5
+# wxpython 4.0.2 and 4.0.3 are broken on OSX.
+wxpython!=4.0.2,!=4.0.3
+
 # pytest-timeout master depends on pytest>=3.6. Testing with pytest 3.4 is
-# still supported; this is tested by the first travis python 3.5 build
+# still supported; this is tested by the first travis python 3.5 build.
+
 pytest>=3.6
 pytest-cov
 pytest-faulthandler
