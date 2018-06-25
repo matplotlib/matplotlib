@@ -1214,18 +1214,62 @@ class ArtistInspector(object):
         else:
             pad = ''
         if prop is not None:
-            accepts = self.get_valid_values(prop)
+            func = prop
+            for main, alias1 in self.aliasd.items():
+                for alias in alias1:
+                    if alias == prop:
+                        func = main
+            accepts = self.get_valid_values(func)
             return '%s%s: %s' % (pad, prop, accepts)
 
         attrs = self._get_setters_and_targets()
         attrs.sort()
         lines = []
 
+        max_length = 0
         for prop, path in attrs:
-            accepts = self.get_valid_values(prop)
-            name = self.aliased_name(prop)
+            alias_list = self.aliased_name(prop).split(' or ')
+            if len(alias_list) > 1:
+                alias_list[0] += ' or'
+            max_alias = max([len(alias) for alias in alias_list])
+            max_length = max(max_alias, max_length)
 
-            lines.append('%s%s: %s' % (pad, name, accepts))
+        for prop, path in attrs:
+            name = self.aliased_name(prop)
+            accepts = self.get_valid_values(prop).strip()
+            accepts = accepts.replace('`', '').replace('~', '')
+
+            alias_list = name.split(' or ')
+            if len(alias_list) > 1:
+                alias_list[0] += ' or'
+
+            words = accepts.split(' ')
+            n_words = 0
+            new_accepts = ''
+            alias_ind = 1
+            length_col1 = len(pad) + max_length+2
+            for word in words:
+                n_words += len(word) + 1
+                if n_words > 79 - length_col1:
+                    if alias_ind >= len(alias_list):
+                        add = '\n' + ' '*(length_col1)
+                    else:
+                        add = '\n{:{}s}'.format(pad + alias_list[alias_ind],
+                                                length_col1)
+                        alias_ind += 1
+                    n_words = len(word) + 1
+                else:
+                    add = ' '
+                new_accepts += add + word
+
+            add2 = ''
+            for ind in range(alias_ind, len(alias_list)):
+                add2 += '\n{}{}'.format(pad, alias_list[ind])
+
+            accepts = new_accepts + add2
+
+            lines.append('{}{:{}s}:{}'.format(pad, alias_list[0],
+                                              max_length, accepts))
         return lines
 
     def pprint_setters_rest(self, prop=None, leadingspace=4):
