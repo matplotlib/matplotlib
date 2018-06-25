@@ -578,7 +578,7 @@ class Path(object):
         polygon/polyline is an Nx2 array of vertices.  In other words,
         each polygon has no ``MOVETO`` instructions or curves.  This
         is useful for displaying in backends that do not support
-        compound paths or Bezier curves, such as GDK.
+        compound paths or Bezier curves.
 
         If *width* and *height* are both non-zero then the lines will
         be simplified so that vertices outside of (0, 0), (width,
