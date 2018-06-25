@@ -4,15 +4,16 @@ Tests specific to the lines module.
 
 from io import BytesIO
 import itertools
-import matplotlib.lines as mlines
-import pytest
-from timeit import repeat
-import numpy as np
+import timeit
+
 from cycler import cycler
+import numpy as np
+import pytest
 
 import matplotlib
+import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
 # Runtimes on a loaded system are inherently flaky. Not so much that a rerun
@@ -45,7 +46,7 @@ def test_invisible_Line_rendering():
 
     # [here Interactive panning and zooming is pretty responsive]
     # Time the canvas drawing:
-    t_no_line = min(repeat(fig.canvas.draw, number=1, repeat=3))
+    t_no_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
     # (gives about 25 ms)
 
     # Add the big invisible Line:
@@ -53,7 +54,7 @@ def test_invisible_Line_rendering():
 
     # [Now interactive panning and zooming is very slow]
     # Time the canvas drawing:
-    t_unvisible_line = min(repeat(fig.canvas.draw, number=1, repeat=3))
+    t_unvisible_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
     # gives about 290 ms for N = 10**7 pts
 
     slowdown_factor = (t_unvisible_line/t_no_line)
@@ -199,13 +200,7 @@ def test_nan_is_sorted():
     assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
 
 
-def test_step_markers():
-    fig, ax = plt.subplots()
-    ax.step([0, 1], "-o")
-    buf1 = BytesIO()
-    fig.savefig(buf1)
-    fig, ax = plt.subplots()
-    ax.plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
-    buf2 = BytesIO()
-    fig.savefig(buf2)
-    assert buf1.getvalue() == buf2.getvalue()
+@check_figures_equal()
+def test_step_markers(fig_test, fig_ref):
+    fig_test.subplots().step([0, 1], "-o")
+    fig_ref.subplots().plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
