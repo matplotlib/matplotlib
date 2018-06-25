@@ -1365,10 +1365,8 @@ def use(arg, warn=True, force=False):
         importlib.reload(sys.modules['matplotlib.backends'])
 
 
-try:
+if os.environ.get('MPLBACKEND'):
     use(os.environ['MPLBACKEND'])
-except KeyError:
-    pass
 
 
 def get_backend():
