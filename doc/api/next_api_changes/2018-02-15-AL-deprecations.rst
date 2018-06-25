@@ -42,4 +42,5 @@ The following rcParams are deprecated:
 - ``pgf.debug`` (the pgf backend relies on logging),
 
 The following keyword arguments are deprecated:
-- passing ``verts`` to ``scatter`` (use ``marker`` instead),
+- passing ``verts`` to ``Axes.scatter`` (use ``marker`` instead),
+- passing ``obj_type`` to ``cbook.deprecated``,
