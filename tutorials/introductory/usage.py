@@ -449,8 +449,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
 # .. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
 # .. _`Cairo graphics`: https://wwW.cairographics.org
-# .. _`Gimp Drawing Kit`: https://en.wikipedia.org/wiki/GDK
-# .. _PyGTK: http://www.pygtk.org
 # .. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
 # .. _pycairo: https://www.cairographics.org/pycairo/
 # .. _cairocffi: https://pythonhosted.org/cairocffi/
