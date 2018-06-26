@@ -143,7 +143,7 @@ class Text(Artist):
                  **kwargs
                  ):
         """
-        Create a `Text` instance at *x*, *y* with string *text*.
+        Create a `.Text` instance at *x*, *y* with string *text*.
 
         Valid kwargs are
         %(Text)s
@@ -200,7 +200,9 @@ class Text(Artist):
         In the case of text, a hit is true anywhere in the
         axis-aligned bounding-box containing the text.
 
-        Returns True or False.
+        Returns
+        -------
+        bool : bool
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
@@ -430,17 +432,19 @@ class Text(Artist):
 
     def set_bbox(self, rectprops):
         """
-        Draw a bounding box around self.  rectprops are any settable
-        properties for a FancyBboxPatch, e.g., facecolor='red', alpha=0.5.
-
-          t.set_bbox(dict(facecolor='red', alpha=0.5))
-
-        The default boxstyle is 'square'. The mutation
-        scale of the FancyBboxPatch is set to the fontsize.
+        Draw a bounding box around self.
 
         Parameters
         ----------
-        rectprops : FancyBboxPatch prop dict
+        rectprops : dict with properties for `.patches.FancyBboxPatch`
+             The default boxstyle is 'square'. The mutation
+             scale of the `.patches.FancyBboxPatch` is set to the fontsize.
+
+        Examples
+        --------
+        ::
+
+            t.set_bbox(dict(facecolor='red', alpha=0.5))
         """
 
         if rectprops is not None:
@@ -476,7 +480,8 @@ class Text(Artist):
 
     def get_bbox_patch(self):
         """
-        Return the bbox Patch, or None if the FancyBboxPatch is not made.
+        Return the bbox Patch, or None if the `.patches.FancyBboxPatch`
+        is not made.
         """
         return self._bbox_patch
 
@@ -510,7 +515,8 @@ class Text(Artist):
 
     def _draw_bbox(self, renderer, posx, posy):
         """
-        Update the location and size of the bbox (FancyBboxPatch), and draw.
+        Update the location and size of the bbox (`.patches.FancyBboxPatch`),
+        and draw.
         """
 
         x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
@@ -532,11 +538,11 @@ class Text(Artist):
 
     def set_clip_box(self, clipbox):
         """
-        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+        Set the artist's clip `~.transforms.Bbox`.
 
         Parameters
         ----------
-        clipbox : matplotlib.transforms.Bbox
+        clipbox : `matplotlib.transforms.Bbox`
         """
         super().set_clip_box(clipbox)
         self._update_clip_properties()
@@ -545,10 +551,10 @@ class Text(Artist):
         """
         Set the artist's clip path, which may be:
 
-          * a :class:`~matplotlib.patches.Patch` (or subclass) instance
+          * a `~matplotlib.patches.Patch` (or subclass) instance
 
-          * a :class:`~matplotlib.path.Path` instance, in which case
-             an optional :class:`~matplotlib.transforms.Transform`
+          * a `~matplotlib.path.Path` instance, in which case
+             an optional `~matplotlib.transforms.Transform`
              instance may be provided, which will be applied to the
              path before using it for clipping.
 
@@ -558,9 +564,8 @@ class Text(Artist):
         rectangle, this method will set the clipping box to the
         corresponding rectangle and set the clipping path to *None*.
 
-        ACCEPTS: [ (:class:`~matplotlib.path.Path`,
-        :class:`~matplotlib.transforms.Transform`) |
-        :class:`~matplotlib.patches.Patch` | None ]
+        ACCEPTS: { (`.path.Path`, `.transforms.Transform`),
+                  `.patches.Patch`, None }
         """
         super().set_clip_path(path, transform)
         self._update_clip_properties()
@@ -689,7 +694,7 @@ class Text(Artist):
     @artist.allow_rasterization
     def draw(self, renderer):
         """
-        Draws the :class:`Text` object to the given *renderer*.
+        Draws the `.Text` object to the given *renderer*.
         """
         if renderer is not None:
             self._renderer = renderer
@@ -761,35 +766,77 @@ class Text(Artist):
         return self._color
 
     def get_fontproperties(self):
-        "Return the :class:`~font_manager.FontProperties` object"
+        "Return the `.font_manager.FontProperties` object"
         return self._fontproperties
 
     def get_fontfamily(self):
-        "Return the list of font families used for font lookup"
+        """
+        Return the list of font families used for font lookup
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_family
+        """
         return self._fontproperties.get_family()
 
     def get_fontname(self):
-        "Return the font name as string"
+        """
+        Return the font name as string
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_name
+        """
         return self._fontproperties.get_name()
 
     def get_fontstyle(self):
-        "Return the font style as string"
+        """
+        Return the font style as string
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_style
+        """
         return self._fontproperties.get_style()
 
     def get_fontsize(self):
-        "Return the font size as integer"
+        """
+        Return the font size as integer
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_size_in_points
+        """
         return self._fontproperties.get_size_in_points()
 
     def get_fontvariant(self):
-        "Return the font variant as a string"
+        """
+        Return the font variant as a string
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_variant
+        """
         return self._fontproperties.get_variant()
 
     def get_fontweight(self):
-        "Get the font weight as string or number"
+        """
+        Get the font weight as string or number
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_weight
+        """
         return self._fontproperties.get_weight()
 
     def get_stretch(self):
-        'Get the font stretch as a string or number'
+        """
+        Get the font stretch as a string or number
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_stretch
+        """
         return self._fontproperties.get_stretch()
 
     def get_horizontalalignment(self):
@@ -844,7 +891,7 @@ class Text(Artist):
 
     def get_window_extent(self, renderer=None, dpi=None):
         '''
-        Return a :class:`~matplotlib.transforms.Bbox` object bounding
+        Return a `~matplotlib.transforms.Bbox` object bounding
         the text, in display units.
 
         In addition to being used internally, this is useful for
@@ -853,9 +900,9 @@ class Text(Artist):
         *renderer* defaults to the _renderer attribute of the text
         object.  This is not assigned until the first execution of
         :meth:`draw`, so you must use this kwarg if you want
-        to call :meth:`get_window_extent` prior to the first
-        :meth:`draw`.  For getting web page regions, it is
-        simpler to call the method after saving the figure.
+        to call `.get_window_extent` prior to the first `draw`.  For
+        getting web page regions, it is simpler to call the method after
+        saving the figure.
 
         *dpi* defaults to self.figure.dpi; the renderer dpi is
         irrelevant.  For the web application, if figure.dpi is not
@@ -889,14 +936,13 @@ class Text(Artist):
         """
         Set the background color of the text by updating the bbox.
 
-        .. seealso::
-
-            :meth:`set_bbox`
-               To change the position of the bounding box.
-
         Parameters
         ----------
         color : color
+
+        See Also
+        --------
+        .set_bbox : To change the position of the bounding box
         """
         if self._bbox_patch is None:
             self.set_bbox(dict(facecolor=color, edgecolor=color))
@@ -946,7 +992,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        align: {'left', 'right', 'center'}
+        align : {'left', 'right', 'center'}
         """
         legal = ('center', 'right', 'left')
         if align not in legal:
@@ -978,6 +1024,10 @@ class Text(Artist):
         ----------
         fontname : {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', \
 'monospace'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_family
         """
         self._fontproperties.set_family(fontname)
         self.stale = True
@@ -989,6 +1039,10 @@ class Text(Artist):
         Parameters
         ----------
         variant : {'normal', 'small-caps'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_variant
         """
         self._fontproperties.set_variant(variant)
         self.stale = True
@@ -1000,6 +1054,10 @@ class Text(Artist):
         Parameters
         ----------
         fontstyle : {'normal', 'italic', 'oblique'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_style
         """
         self._fontproperties.set_style(fontstyle)
         self.stale = True
@@ -1013,6 +1071,10 @@ class Text(Artist):
         ----------
         fontsize : {size in points, 'xx-small', 'x-small', 'small', 'medium', \
 'large', 'x-large', 'xx-large'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_size
         """
         self._fontproperties.set_size(fontsize)
         self.stale = True
@@ -1026,6 +1088,10 @@ class Text(Artist):
         weight : {a numeric value in range 0-1000, 'ultralight', 'light', \
 'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', \
 'demi', 'bold', 'heavy', 'extra bold', 'black'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_weight
         """
         self._fontproperties.set_weight(weight)
         self.stale = True
@@ -1039,6 +1105,10 @@ class Text(Artist):
         stretch : {a numeric value in range 0-1000, 'ultra-condensed', \
 'extra-condensed', 'condensed', 'semi-condensed', 'normal', 'semi-expanded', \
 'expanded', 'extra-expanded', 'ultra-expanded'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_stretch
         """
         self._fontproperties.set_stretch(stretch)
         self.stale = True
@@ -1144,12 +1214,11 @@ class Text(Artist):
 
     def set_fontproperties(self, fp):
         """
-        Set the font properties that control the text.  *fp* must be a
-        :class:`matplotlib.font_manager.FontProperties` object.
+        Set the font properties that control the text.
 
         Parameters
         ----------
-        fp : matplotlib.font_manager.FontProperties
+        fp : `.font_manager.FontProperties`
         """
         if isinstance(fp, str):
             fp = FontProperties(fp)
@@ -1184,9 +1253,19 @@ class Text(Artist):
 
     def set_fontname(self, fontname):
         """
-        alias for set_family
+        alias for `.set_family`
 
         One-way alias only: the getter differs.
+
+        Parameters
+        ----------
+        fontname : {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', \
+'monospace'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_family
+
         """
         return self.set_family(fontname)
 
