@@ -36,3 +36,7 @@ The following deprecated API elements have been removed:
 - passing non-numbers to ``EngFormatter.format_eng``,
 - passing ``frac`` to ``PolarAxes.set_theta_grids``,
 - any mention of idle events,
+
+The following API elements have been removed:
+
+- ``matplotlib.sphinxext.sphinx_version``,
