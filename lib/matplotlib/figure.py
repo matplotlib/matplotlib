@@ -700,7 +700,7 @@ default: 'top'
             The font size of the text. See `.Text.set_size` for possible
             values.
 
-        fontweight, weight : default: :rc:`figuretitleweight`
+        fontweight, weight : default: :rc:`figure.titleweight`
             The font weight of the text. See `.Text.set_weight` for possible
             values.
 
