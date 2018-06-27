@@ -2790,6 +2790,16 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 @end
 
 static PyObject*
+event_loop_is_running(PyObject* self)
+{
+    if ([NSApp isRunning]) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
+}
+
+static PyObject*
 show(PyObject* self)
 {
     [NSApp activateIgnoringOtherApps: YES];
@@ -3038,6 +3048,11 @@ static bool verify_framework(void)
 }
 
 static struct PyMethodDef methods[] = {
+   {"event_loop_is_running",
+    (PyCFunction)event_loop_is_running,
+    METH_NOARGS,
+    "Return whether the NSApp main event loop is currently running."
+   },
    {"show",
     (PyCFunction)show,
     METH_NOARGS,
