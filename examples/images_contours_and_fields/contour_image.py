@@ -10,7 +10,7 @@ For contour labelling, see See also the
 
 The emphasis in this demo is on showing how to make contours register
 correctly on images, and on how to get both of them oriented as
-desired.  In particular, note the usage of the 
+desired.  In particular, note the usage of the
 :ref:`"origin" and "extent"
 <sphx_glr_tutorials_intermediate_imshow_extent.py>`
 keyword arguments to imshow and contour.

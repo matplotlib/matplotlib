@@ -3,8 +3,8 @@
 Demonstration of advanced quiver and quiverkey functions
 ========================================================
 
-Demonstrates some more advanced options for `~.axes.Axes.quiver`. 
-For a simple example refer to 
+Demonstrates some more advanced options for `~.axes.Axes.quiver`.
+For a simple example refer to
 :ref:`sphx_glr_gallery_images_contours_and_fields_quiver_simple_demo.py`.
 
 Known problem: the plot autoscaling does not take into account
