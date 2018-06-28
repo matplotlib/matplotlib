@@ -4,6 +4,10 @@ axes
 
 .. currentmodule:: matplotlib.axes
 
+.. automodule:: matplotlib.axes
+   :no-members:
+   :no-undoc-members:
+
 .. autoclass:: Axes
    :no-members:
    :no-undoc-members:
