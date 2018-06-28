@@ -1812,7 +1812,7 @@ default: 'top'
             The resolution in dots per inch.  If *None*, defaults to
             :rc:`savefig.dpi`.  If 'figure', uses the figure's dpi value.
 
-        quality : [ *None* | 95 >= scalar >= 1 ]
+        quality : [ *None* | 1 <= scalar <= 100 ]
             The image quality, on a scale from 1 (worst) to 95 (best).
             Applicable only if *format* is jpg or jpeg, ignored otherwise.
             If *None*, defaults to :rc:`savefig.jpeg_quality` (95 by default).
