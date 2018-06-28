@@ -769,24 +769,6 @@ figcaption {
 }
 
 
-/* "Summer Fellowship" message. */
-#plotting-contest {
-  background: #EE9816;
-  box-sizing: border-box;
-  color: #fffa;
-  font-weight: bold;
-  left: 0;
-  min-height: 3em;
-  padding: 0.5em;
-  top: 0;
-  width: 100%;
-  z-index: 10000;
-}
-
-#plotting-contest a {
-  color: #fff;
-  text-decoration:underline;
-}
 
 /* "Go to released version" message. */
 #unreleased-message {
