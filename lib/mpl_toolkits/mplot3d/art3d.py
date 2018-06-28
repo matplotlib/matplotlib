@@ -380,7 +380,7 @@ class Patch3DCollection(PatchCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = zip(*offsets)
+            xs, ys = offsets.T
         else:
             xs = []
             ys = []
@@ -446,7 +446,7 @@ class Path3DCollection(PathCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = zip(*offsets)
+            xs, ys = offsets.T
         else:
             xs = []
             ys = []
