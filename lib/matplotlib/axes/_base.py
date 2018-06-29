@@ -2275,8 +2275,6 @@ class _AxesBase(martist.Artist):
         margins to be set, set :attr:`use_sticky_edges` to `False`
         before calling :meth:`margins`.
 
-        .. plot:: gallery/subplots_axes_and_figures/axes_margins.py
-
         """
 
         if margins and x is not None and y is not None:
