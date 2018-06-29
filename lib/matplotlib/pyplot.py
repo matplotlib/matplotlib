@@ -1531,36 +1531,62 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     return locs, silent_list('Text yticklabel', labels)
 
-
 def rgrids(*args, **kwargs):
     """
-    Get or set the radial gridlines on a polar plot.
+    Get or set the radial gridlines on the current polar plot.
 
-    call signatures::
+    Call signatures::
 
-      lines, labels = rgrids()
-      lines, labels = rgrids(radii, labels=None, angle=22.5, **kwargs)
+     lines, labels = rgrids()
+     lines, labels = rgrids(radii, labels=None, angle=22.5, fmt=None, **kwargs)
 
-    When called with no arguments, :func:`rgrid` simply returns the
-    tuple (*lines*, *labels*), where *lines* is an array of radial
-    gridlines (:class:`~matplotlib.lines.Line2D` instances) and
-    *labels* is an array of tick labels
-    (:class:`~matplotlib.text.Text` instances). When called with
-    arguments, the labels will appear at the specified radial
-    distances and angles.
+    When called with no arguments, `.rgrids` simply returns the tuple
+    (*lines*, *labels*). When called with arguments, the labels will
+    appear at the specified radial distances and angle.
 
-    *labels*, if not *None*, is a len(*radii*) list of strings of the
-    labels to use at each angle.
+    Parameters
+    ----------
+    radii : tuple with floats
+        The radii for the radial gridlines
 
-    If *labels* is None, the rformatter will be used
+    labels : tuple with strings or None
+        The labels to use at each radial gridline. The
+        `matplotlib.ticker.ScalarFormatter` will be used if None.
 
-    Examples::
+    angle : float
+        The angular position of the radius labels in degrees.
 
-      # set the locations of the radial gridlines and labels
+    fmt : str or None
+        Format string used in `matplotlib.ticker.FormatStrFormatter`.
+        For example '%f'.
+
+    Returns
+    -------
+    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+        *lines* are the radial gridlines and *labels* are the tick labels.
+
+    Other Parameters
+    ----------------
+    **kwargs
+        *kwargs* are optional `~.Text` properties for the labels.
+
+    Examples
+    --------
+    ::
+
+      # set the locations of the radial gridlines
       lines, labels = rgrids( (0.25, 0.5, 1.0) )
 
-      # set the locations and labels of the radial gridlines and labels
-      lines, labels = rgrids( (0.25, 0.5, 1.0), ('Tom', 'Dick', 'Harry' )
+      # set the locations and labels of the radial gridlines
+      lines, labels = rgrids( (0.25, 0.5, 1.0), ('Tom', 'Dick', 'Harry' ))
+
+    See Also
+    --------
+    .pyplot.thetagrids
+    .projections.polar.PolarAxes.set_rgrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
+
 
     """
     ax = gca()
@@ -1575,57 +1601,62 @@ def rgrids(*args, **kwargs):
     return ( silent_list('Line2D rgridline', lines),
              silent_list('Text rgridlabel', labels) )
 
-
 def thetagrids(*args, **kwargs):
     """
-    Get or set the theta locations of the gridlines in a polar plot.
+    Get or set the theta gridlines on the current polar plot.
 
-    If no arguments are passed, return a tuple (*lines*, *labels*)
-    where *lines* is an array of radial gridlines
-    (:class:`~matplotlib.lines.Line2D` instances) and *labels* is an
-    array of tick labels (:class:`~matplotlib.text.Text` instances)::
+    Call signatures::
 
-      lines, labels = thetagrids()
+     lines, labels = thetagrids()
+     lines, labels = thetagrids(angles, labels=None, fmt=None, **kwargs)
 
-    Otherwise the syntax is::
+    When called with no arguments, `.thetagrids` simply returns the tuple
+    (*lines*, *labels*). When called with arguments, the labels will
+    appear at the specified angles.
 
-      lines, labels = thetagrids(angles, labels=None, fmt='%d', frac = 1.1)
+    Parameters
+    ----------
+    angles : tuple with floats, degrees
+        The angles of the theta gridlines.
 
-    set the angles at which to place the theta grids (these gridlines
-    are equal along the theta dimension).
+    labels : tuple with strings or None
+        The labels to use at each radial gridline. The
+        `.projections.polar.ThetaFormatter` will be used if None.
 
-    *angles* is in degrees.
+    fmt : str or None
+        Format string used in `matplotlib.ticker.FormatStrFormatter`.
+        For example '%f'. Note that the angle in radians will be used.
 
-    *labels*, if not *None*, is a len(angles) list of strings of the
-    labels to use at each angle.
+    Returns
+    -------
+    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+        *lines* are the theta gridlines and *labels* are the tick labels.
 
-    If *labels* is *None*, the labels will be ``fmt%angle``.
+    Other Parameters
+    ----------------
+    **kwargs
+        *kwargs* are optional `~.Text` properties for the labels.
 
-    *frac* is the fraction of the polar axes radius at which to place
-    the label (1 is the edge). e.g., 1.05 is outside the axes and 0.95
-    is inside the axes.
+    Examples
+    --------
+    ::
 
-    Return value is a list of tuples (*lines*, *labels*):
-
-      - *lines* are :class:`~matplotlib.lines.Line2D` instances
-
-      - *labels* are :class:`~matplotlib.text.Text` instances.
-
-    Note that on input, the *labels* argument is a list of strings,
-    and on output it is a list of :class:`~matplotlib.text.Text`
-    instances.
-
-    Examples::
-
-      # set the locations of the radial gridlines and labels
+      # set the locations of the angular gridlines
       lines, labels = thetagrids( range(45,360,90) )
 
-      # set the locations and labels of the radial gridlines and labels
+      # set the locations and labels of the angular gridlines
       lines, labels = thetagrids( range(45,360,90), ('NE', 'NW', 'SW','SE') )
+
+    See Also
+    --------
+    .pyplot.rgrids
+    .projections.polar.PolarAxes.set_thetagrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
-        raise RuntimeError('rgrids only defined for polar axes')
+        raise RuntimeError('thetagrids only defined for polar axes')
     if len(args)==0:
         lines = ax.xaxis.get_ticklines()
         labels = ax.xaxis.get_ticklabels()
