@@ -4,6 +4,9 @@ Rotating 3D wireframe plot
 ==========================
 
 A very simple 'animation' of a 3D plot.  See also rotate_axes3d_demo.
+
+(This example is skipped when building the documentation gallery because it
+intentionally takes a long time to run)
 """
 
 
