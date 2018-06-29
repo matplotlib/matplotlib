@@ -3,7 +3,7 @@
 Spy Demos
 =========
 
-Plot the sparsity pattern of arrays
+Plot the sparsity pattern of arrays.
 """
 
 import matplotlib.pyplot as plt
@@ -26,3 +26,17 @@ ax3.spy(x)
 ax4.spy(x, precision=0.1)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.spy
+matplotlib.pyplot.spy

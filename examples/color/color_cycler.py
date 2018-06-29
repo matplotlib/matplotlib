@@ -8,8 +8,10 @@ properties for multi-line plots.
 
 This example demonstrates two different APIs:
 
-    1. Setting the default rc parameter specifying the property cycle.
-       This affects all subsequent axes (but not axes already created).
+    1. Setting the default
+       :ref:`rc parameter<sphx_glr_tutorials_introductory_customizing.py>`
+       specifying the property cycle. This affects all subsequent axes
+       (but not axes already created).
     2. Setting the property cycle for a single pair of axes.
 """
 from cycler import cycler
@@ -39,3 +41,17 @@ ax1.set_title('Set axes color cycle to cmyk')
 # Tweak spacing between subplots to prevent labels from overlapping
 fig.subplots_adjust(hspace=0.3)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.plot
+matplotlib.axes.Axes.set_prop_cycle
