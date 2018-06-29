@@ -137,7 +137,7 @@ Finally, the multipage pdf object has to be closed::
     pp.close()
 
 The same can be done using the pgf backend::
-    
+
     from matplotlib.backends.backend_pgf import PdfPages
 
 
@@ -415,7 +415,8 @@ locators as desired because the two axes are independent.
 
 .. only:: html
 
-    See :doc:`/gallery/api/two_scales` for a complete example
+    See :doc:`/gallery/subplots_axes_and_figures/two_scales` for a
+    complete example.
 
 .. _howto-batch:
 
@@ -661,7 +662,7 @@ For more on configuring your backend, see
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-:doc:`/gallery/api/agg_oo_sgskip`.
+:doc:`/gallery/misc/agg_oo_sgskip`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 

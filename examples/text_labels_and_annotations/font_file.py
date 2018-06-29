@@ -10,7 +10,8 @@ for a font instance, you can do so using the `font_manager.FontProperties`
 Here, we use the Computer Modern roman font (``cmr10``) shipped with
 Matplotlib.
 
-For a more flexible solution, see :doc:`/gallery/api/font_family_rc_sgskip` and
+For a more flexible solution, see
+:doc:`/gallery/text_labels_and_annotations/font_family_rc_sgskip` and
 :doc:`/gallery/text_labels_and_annotations/fonts_demo`.
 """
 

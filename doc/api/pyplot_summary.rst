@@ -28,8 +28,6 @@ While it is easy to quickly generate plots with the
 we recommend using the object-oriented approach for more control
 and customization of your plots. See the methods in the
 :meth:`matplotlib.axes.Axes` class for many of the same plotting functions.
-For examples of the OO approach to Matplotlib, see the
-:ref:`API Examples<api_examples>`.
 
 Colors in Matplotlib
 --------------------

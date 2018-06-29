@@ -36,9 +36,7 @@ is that:
   "axis", which refers to the x/y axis of a plot).
 
 We call methods that do the plotting directly from the Axes, which gives
-us much more flexibility and power in customizing our plot. See the
-:ref:`object-oriented examples <api_examples>` for many examples of how
-this approach is used.
+us much more flexibility and power in customizing our plot.
 
 .. note::
 

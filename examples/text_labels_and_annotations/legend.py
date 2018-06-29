@@ -24,7 +24,7 @@ ax.plot(a, c + d, 'k', label='Total message length')
 legend = ax.legend(loc='upper center', shadow=True, fontsize='x-large')
 
 # Put a nicer background color on the legend.
-legend.get_frame().set_facecolor('#00FFCC')
+legend.get_frame().set_facecolor('C0')
 
 plt.show()
 
