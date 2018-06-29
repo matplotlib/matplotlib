@@ -2429,7 +2429,13 @@ class _AxesBase(martist.Artist):
             do_upper_margin = not np.any(np.isclose(x1, stickies))
             x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minpos)
             x0t, x1t = transform.transform([x0, x1])
-            delta = (x1t - x0t) * margin
+
+            if (np.isfinite(x1t) and np.isfinite(x0t)):
+                delta = (x1t - x0t) * margin
+            else:
+                # If at least one bound isn't finite, set margin to zero
+                delta = 0
+
             if do_lower_margin:
                 x0t -= delta
             if do_upper_margin:
