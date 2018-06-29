@@ -79,4 +79,4 @@ matplotlib.pyplot.subplots_adjust
 matplotlib.pyplot.gca
 matplotlib.pyplot.yscale
 matplotlib.ticker.NullFormatter
-matplotlib.axis.Axis.set_minor_formatter 
+matplotlib.axis.Axis.set_minor_formatter

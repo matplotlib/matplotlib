@@ -14,7 +14,7 @@ the x-axis.
 
 Note that this approach uses the `mpl_toolkits.axes_grid1.parasite_axes`\'
 `~mpl_toolkits.axes_grid1.parasite_axes.host_subplot` and
-`mpl_toolkits.axisartist.axislines.Axes`. An alternative approach using the 
+`mpl_toolkits.axisartist.axislines.Axes`. An alternative approach using the
 `~mpl_toolkits.axes_grid1.parasite_axes`\'s
 `~.mpl_toolkits.axes_grid1.parasite_axes.HostAxes` and
 `~.mpl_toolkits.axes_grid1.parasite_axes.ParasiteAxes` is the
