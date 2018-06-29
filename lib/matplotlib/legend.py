@@ -110,7 +110,8 @@ class DraggableLegend(DraggableOffsetBox):
 
 
 _legend_kw_doc = '''
-loc : int or string or pair of floats, default: 'upper right'
+loc : int or string or pair of floats, default: :rc:`legend.loc` ('best' for \
+axes, 'upper right' for figures)
     The location of the legend. Possible codes are:
 
         ===============   =============
