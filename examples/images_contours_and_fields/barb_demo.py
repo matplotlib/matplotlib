@@ -65,4 +65,3 @@ plt.show()
 import matplotlib
 matplotlib.axes.Axes.barbs
 matplotlib.pyplot.barbs
-

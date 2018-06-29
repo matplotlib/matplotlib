@@ -4,7 +4,7 @@ Demo Parasite Axes
 ==================
 
 Create a parasite axes. Such axes would share the x scale with a host axes,
-but show a different scale in y direction. 
+but show a different scale in y direction.
 
 Note that this approach uses the `~mpl_toolkits.axes_grid1.parasite_axes`\'
 `~.mpl_toolkits.axes_grid1.parasite_axes.HostAxes` and

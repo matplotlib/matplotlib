@@ -45,7 +45,8 @@ plt.show()
 # The use of the following functions, methods, classes and modules is shown
 # in this example:
 
-import matplotlib, mpl_toolkits
+import matplotlib
+import mpl_toolkits
 matplotlib.figure.Figure.add_subplot
 mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface
 mpl_toolkits.mplot3d.axes3d.Axes3D.plot_wireframe
