@@ -1342,10 +1342,10 @@ class LocationEvent(Event):
 
     Attributes
     ----------
-    x : int
+    x : scalar
         x position - pixels from left of canvas
 
-    y : int
+    y : scalar
         y position - pixels from bottom of canvas
 
     inaxes : bool
