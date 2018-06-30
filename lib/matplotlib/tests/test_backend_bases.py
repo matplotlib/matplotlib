@@ -78,14 +78,14 @@ def test_non_gui_warning():
         assert len(rec) == 1
         assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
                 in str(rec[0].message))
-                
-                
+
+
 def test_location_event_position():
     # LocationEvent should cast its x and y arguments
     # to int unless it is None
     fig = plt.figure()
     canvas = FigureCanvasBase(fig)
-    test_positions = [(42, 24), (None, 42), (None, None), 
+    test_positions = [(42, 24), (None, 42), (None, None),
                       (200, 100.01), (205.75, 2.0)]
     for x, y in test_positions:
         event = LocationEvent("test_event", canvas, x, y)
@@ -99,4 +99,3 @@ def test_location_event_position():
         else:
             assert event.y == int(y)
             assert isinstance(event.y, int)
-    
