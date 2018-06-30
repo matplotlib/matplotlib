@@ -408,8 +408,6 @@ class _AxesBase(martist.Artist):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
 
-    @docstring.Substitution(scale=' | '.join(
-        [repr(x) for x in mscale.get_scale_names()]))
     def __init__(self, fig, rect,
                  facecolor=None,  # defaults to rc axes.facecolor
                  frameon=True,
@@ -421,52 +419,32 @@ class _AxesBase(martist.Artist):
                  **kwargs
                  ):
         """
-        Build an `~axes.Axes` instance in
-        `~matplotlib.figure.Figure` *fig* with
-        *rect=[left, bottom, width, height]* in
-        `~matplotlib.figure.Figure` coordinates
+        Build an axes in a figure.
 
-        Optional keyword arguments:
+        Parameters
+        ----------
+        fig : `~matplotlib.figure.Figure`
+            The axes is build in the `.Figure` *fig*.
 
-          ================   =========================================
-          Keyword            Description
-          ================   =========================================
-          *adjustable*       [ 'box' | 'datalim' ]
-          *alpha*            float: the alpha transparency (can be None)
-          *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
-                               'NW', 'W' ]
-          *aspect*           [ 'auto' | 'equal' | aspect_ratio ]
-          *autoscale_on*     bool; whether to autoscale the *viewlim*
-          *axisbelow*        [ bool | 'line' ] draw the grids
-                             and ticks below or above most other artists,
-                             or below lines but above patches
-          *cursor_props*     a (*float*, *color*) tuple
-          *figure*           a :class:`~matplotlib.figure.Figure`
-                             instance
-          *frame_on*         bool; whether to draw the axes frame
-          *label*            the axes label
-          *navigate*         bool
-          *navigate_mode*    [ 'PAN' | 'ZOOM' | None ] the navigation
-                             toolbar button status
-          *position*         [left, bottom, width, height] in
-                             class:`~matplotlib.figure.Figure` coords
-          *sharex*           an class:`~matplotlib.axes.Axes` instance
-                             to share the x-axis with
-          *sharey*           an class:`~matplotlib.axes.Axes` instance
-                             to share the y-axis with
-          *title*            the title string
-          *visible*          bool, whether the axes is visible
-          *xlabel*           the xlabel
-          *xlim*             (*xmin*, *xmax*) view limits
-          *xscale*           [%(scale)s]
-          *xticklabels*      sequence of strings
-          *xticks*           sequence of floats
-          *ylabel*           the ylabel strings
-          *ylim*             (*ymin*, *ymax*) view limits
-          *yscale*           [%(scale)s]
-          *yticklabels*      sequence of strings
-          *yticks*           sequence of floats
-          ================   =========================================
+        rect : [left, bottom, width, height]
+            The axes is build in the rectangle *rect*. *rect* is in
+            `.Figure` coordinates.
+
+        sharex, sharey : `~.axes.Axes`, optional
+            The x or y `~.matplotlib.axis` is shared with the x or
+            y axis in the input `~.axes.Axes`.
+
+        frameon : bool, optional
+            True means that the axes frame is visible.
+
+        **kwargs
+            Other optional keyword arguments:
+            %(Axes)s
+
+        Returns
+        -------
+        axes : `~.axes.Axes`
+            The new `~.axes.Axes` object.
         """
 
         martist.Artist.__init__(self)
