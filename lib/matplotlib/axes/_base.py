@@ -2632,12 +2632,12 @@ class _AxesBase(martist.Artist):
         """
         Set the zorder for the axes ticks and gridlines.
 
-        ``True`` corresponds to a zorder of 0.5, ``False`` to a zorder of 2.5,
-        and ``"line"`` to a zorder of 1.5.
-
         Parameters
         ----------
         b : bool or 'line'
+            ``True`` corresponds to a zorder of 0.5, ``False`` to a zorder of
+            2.5, and ``"line"`` to a zorder of 1.5.
+
         """
         self._axisbelow = axisbelow = validate_axisbelow(b)
         if axisbelow is True:
