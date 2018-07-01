@@ -1,7 +1,7 @@
 from . import backend_cairo, backend_gtk3
 from ._gtk3_compat import gi
 from .backend_cairo import cairo
-from .backend_gtk3 import _BackendGTK3
+from .backend_gtk3 import Gtk, _BackendGTK3
 from matplotlib.backend_bases import cursors
 
 
@@ -39,6 +39,9 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         #     toolbar.set_cursor(cursors.WAIT)
         self._renderer.set_context(ctx)
         allocation = self.get_allocation()
+        Gtk.render_background(
+            self.get_style_context(), ctx,
+            allocation.x, allocation.y, allocation.width, allocation.height)
         self._render_figure(allocation.width, allocation.height)
         # if toolbar:
         #     toolbar.set_cursor(toolbar._lastCursor)
