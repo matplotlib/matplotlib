@@ -1048,7 +1048,7 @@ class RegularPolyCollection(_CollectionWithSizes):
 
         %(Collection)s
 
-        Example: see :file:`examples/dynamic_collection.py` for
+        Example: see :doc:`/gallery/event_handling/lasso_demo` for a
         complete example::
 
             offsets = np.random.rand(20,2)
@@ -1058,11 +1058,11 @@ class RegularPolyCollection(_CollectionWithSizes):
             collection = RegularPolyCollection(
                 numsides=5, # a pentagon
                 rotation=0, sizes=(50,),
-                facecolors = facecolors,
-                edgecolors = (black,),
-                linewidths = (1,),
-                offsets = offsets,
-                transOffset = ax.transData,
+                facecolors=facecolors,
+                edgecolors=(black,),
+                linewidths=(1,),
+                offsets=offsets,
+                transOffset=ax.transData,
                 )
         """
         Collection.__init__(self, **kwargs)
