@@ -12,6 +12,7 @@ contains all the plot elements.  The following classes are defined
 """
 
 import logging
+from numbers import Integral
 import warnings
 
 import numpy as np
@@ -1292,7 +1293,7 @@ default: 'top'
         if not len(args):
             return
 
-        if len(args) == 1 and isinstance(args[0], int):
+        if len(args) == 1 and isinstance(args[0], Integral):
             if not 100 <= args[0] <= 999:
                 raise ValueError("Integer subplot specification must be a "
                                  "three-digit number, not {}".format(args[0]))
@@ -1456,7 +1457,7 @@ default: 'top'
             # In most cases, no error will ever occur, but mysterious behavior
             # will result because what was intended to be the subplot index is
             # instead treated as a bool for sharex.
-            if isinstance(sharex, int):
+            if isinstance(sharex, Integral):
                 warnings.warn(
                     "sharex argument to subplots() was an integer. "
                     "Did you intend to use subplot() (without 's')?")
