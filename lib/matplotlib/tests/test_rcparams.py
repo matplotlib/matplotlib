@@ -453,7 +453,7 @@ def test_rcparams_reset_after_fail():
 
 def test_if_rctemplate_is_up_to_date():
     # This tests if the matplotlibrc.template file contains all valid rcParams.
-    deprecated = {*mpl._all_deprecated, *mpl._deprecated_set}
+    deprecated = {*mpl._all_deprecated, *mpl._deprecated_remain_as_none}
     path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
@@ -472,8 +472,8 @@ def test_if_rctemplate_is_up_to_date():
         if not found:
             missing.update({k: v})
     if missing:
-        raise ValueError("The following params are missing " +
-                         "in the matplotlibrc.template file: {}"
+        raise ValueError("The following params are missing in the "
+                         "matplotlibrc.template file: {}"
                          .format(missing.items()))
 
 

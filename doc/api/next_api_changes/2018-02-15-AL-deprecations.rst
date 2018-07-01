@@ -10,6 +10,9 @@ The following modules are deprecated:
 
 The following classes, methods, functions, and attributes are deprecated:
 
+- ``RcParams.msg_depr``, ``RcParams.msg_depr_ignore``,
+  ``RcParams.msg_depr_set``, ``RcParams.msg_obsolete``,
+  ``RcParams.msg_backend_obsolete``,
 - ``afm.parse_afm``,
 - ``backend_pgf.get_texcommand``,
 - ``backend_ps.get_bbox``,

@@ -42,7 +42,8 @@ def _generate_deprecation_message(
                    if removal else
                    "")))
             + "."
-            + (" Use %(alternative)s instead." if alternative else ""))
+            + (" Use %(alternative)s instead." if alternative else "")
+            + (" %(addendum)s" if addendum else ""))
 
     return (
         message % dict(func=name, name=name, obj_type=obj_type, since=since,
@@ -103,9 +104,9 @@ def warn_deprecated(
                             obj_type='module')
 
     """
-    message = _generate_deprecation_message(
-        since, message, name, alternative, pending, obj_type, removal=removal)
-    message = '\n' + message
+    message = '\n' + _generate_deprecation_message(
+        since, message, name, alternative, pending, obj_type, addendum,
+        removal=removal)
     category = (PendingDeprecationWarning if pending
                 else MatplotlibDeprecationWarning)
     warnings.warn(message, category, stacklevel=2)

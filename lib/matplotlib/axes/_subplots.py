@@ -4,7 +4,6 @@ import warnings
 from matplotlib import docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
-from matplotlib.cbook import mplDeprecation
 from matplotlib.gridspec import GridSpec, SubplotSpec
 import matplotlib._layoutbox as layoutbox
 
