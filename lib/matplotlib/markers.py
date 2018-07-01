@@ -28,7 +28,7 @@ marker                         symbol description
 ``"H"``                        |m16|  hexagon2
 ``"+"``                        |m17|  plus
 ``"x"``                        |m18|  x
-``"X"``                        |m21|  x (filled)
+``"X"``                        |m24|  x (filled)
 ``"D"``                        |m19|  diamond
 ``"d"``                        |m20|  thin_diamond
 ``"|"``                        |m21|  vline
