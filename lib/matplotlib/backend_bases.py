@@ -1365,8 +1365,10 @@ class LocationEvent(Event):
         *x*, *y* in figure coords, 0,0 = bottom, left
         """
         Event.__init__(self, name, canvas, guiEvent=guiEvent)
-        self.x = x          # x position - pixels from left of canvas
-        self.y = y          # y position - pixels from right of canvas
+        # x position - pixels from left of canvas
+        self.x = int(x) if x is not None else x
+        # y position - pixels from right of canvas
+        self.y = int(y) if y is not None else y
         self.inaxes = None  # the Axes instance if mouse us over axes
         self.xdata = None   # x coord of mouse in data coords
         self.ydata = None   # y coord of mouse in data coords
