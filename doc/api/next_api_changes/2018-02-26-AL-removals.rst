@@ -1,3 +1,12 @@
+Modified APIs
+-------------
+
+The following APIs have been modified:
+
+- ``Axes.mouseover_set`` is now a frozenset, and deprecated.  Directly
+  manipulate the artist's ``.mouseover`` attribute to change their mouseover
+  status.
+
 Removal of deprecated APIs
 --------------------------
 

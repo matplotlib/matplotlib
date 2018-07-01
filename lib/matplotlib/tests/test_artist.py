@@ -185,8 +185,8 @@ def test_remove():
     assert not ax.stale
     assert not ln.stale
 
-    assert im in ax.mouseover_set
-    assert ln not in ax.mouseover_set
+    assert im in ax._mouseover_set
+    assert ln not in ax._mouseover_set
     assert im.axes is ax
 
     im.remove()
@@ -196,7 +196,7 @@ def test_remove():
         assert art.axes is None
         assert art.figure is None
 
-    assert im not in ax.mouseover_set
+    assert im not in ax._mouseover_set
     assert fig.stale
     assert ax.stale
 
