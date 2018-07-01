@@ -6,11 +6,6 @@
 Module containing 3D artist code and functions to convert 2D
 artists into 3D versions which can be added to an Axes3D.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
 
 import math
 
@@ -107,6 +102,7 @@ class Text3D(mtext.Text):
         self._dir_vec = get_dir_vector(zdir)
         self.stale = True
 
+    @artist.allow_rasterization
     def draw(self, renderer):
         proj = proj3d.proj_trans_points(
             [self._position3d, self._position3d + self._dir_vec], renderer.M)
@@ -155,6 +151,7 @@ class Line3D(lines.Line2D):
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
+    @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
@@ -223,12 +220,6 @@ class Line3DCollection(LineCollection):
     A collection of 3D lines.
     """
 
-    def __init__(self, segments, *args, **kwargs):
-        """
-        Keyword arguments are passed onto :func:`~matplotlib.collections.LineCollection`.
-        """
-        LineCollection.__init__(self, segments, *args, **kwargs)
-
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
@@ -257,6 +248,7 @@ class Line3DCollection(LineCollection):
             minz = min(minz, min(zs))
         return minz
 
+    @artist.allow_rasterization
     def draw(self, renderer, project=False):
         if project:
             self.do_3d_projection(renderer)
@@ -275,9 +267,7 @@ class Patch3D(Patch):
     3D patch object.
     """
 
-    def __init__(self, *args, **kwargs):
-        zs = kwargs.pop('zs', [])
-        zdir = kwargs.pop('zdir', 'z')
+    def __init__(self, *args, zs=(), zdir='z', **kwargs):
         Patch.__init__(self, *args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
@@ -302,18 +292,13 @@ class Patch3D(Patch):
         self._facecolor2d = self._facecolor3d
         return min(vzs)
 
-    def draw(self, renderer):
-        Patch.draw(self, renderer)
-
 
 class PathPatch3D(Patch3D):
     """
     3D PathPatch object.
     """
 
-    def __init__(self, path, **kwargs):
-        zs = kwargs.pop('zs', [])
-        zdir = kwargs.pop('zdir', 'z')
+    def __init__(self, path, *, zs=(), zdir='z', **kwargs):
         Patch.__init__(self, **kwargs)
         self.set_3d_properties(path, zs, zdir)
 
@@ -364,7 +349,7 @@ class Patch3DCollection(PatchCollection):
     A collection of 3D patches.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, zs=0, zdir='z', depthshade=True, **kwargs):
         """
         Create a collection of flat 3D patches with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -380,10 +365,8 @@ class Patch3DCollection(PatchCollection):
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
         """
-        zs = kwargs.pop('zs', 0)
-        zdir = kwargs.pop('zdir', 'z')
-        self._depthshade = kwargs.pop('depthshade', True)
-        PatchCollection.__init__(self, *args, **kwargs)
+        self._depthshade = depthshade
+        super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_sort_zpos(self, val):
@@ -397,7 +380,7 @@ class Patch3DCollection(PatchCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = zip(*offsets)
+            xs, ys = offsets.T
         else:
             xs = []
             ys = []
@@ -432,7 +415,7 @@ class Path3DCollection(PathCollection):
     A collection of 3D paths.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, zs=0, zdir='z', depthshade=True, **kwargs):
         """
         Create a collection of flat 3D paths with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -448,10 +431,8 @@ class Path3DCollection(PathCollection):
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
         """
-        zs = kwargs.pop('zs', 0)
-        zdir = kwargs.pop('zdir', 'z')
-        self._depthshade = kwargs.pop('depthshade', True)
-        PathCollection.__init__(self, *args, **kwargs)
+        self._depthshade = depthshade
+        super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_sort_zpos(self, val):
@@ -465,7 +446,7 @@ class Path3DCollection(PathCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = zip(*offsets)
+            xs, ys = offsets.T
         else:
             xs = []
             ys = []
@@ -526,7 +507,7 @@ class Poly3DCollection(PolyCollection):
     A collection of 3D polygons.
     """
 
-    def __init__(self, verts, *args, **kwargs):
+    def __init__(self, verts, *args, zsort=True, **kwargs):
         """
         Create a Poly3DCollection.
 
@@ -538,8 +519,7 @@ class Poly3DCollection(PolyCollection):
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
         """
-        zsort = kwargs.pop('zsort', True)
-        PolyCollection.__init__(self, verts, *args, **kwargs)
+        super().__init__(verts, *args, **kwargs)
         self.set_zsort(zsort)
         self._codes3d = None
 
@@ -700,10 +680,11 @@ class Poly3DCollection(PolyCollection):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha transparencies of the collection.  *alpha* must be
-        a float or *None*.
+        Set the alpha transparencies of the collection.
 
-        .. ACCEPTS: float or None
+        Parameters
+        ----------
+        alpha : float or None
         """
         if alpha is not None:
             try:
@@ -728,9 +709,6 @@ class Poly3DCollection(PolyCollection):
 
     def get_edgecolor(self):
         return self._edgecolors2d
-
-    def draw(self, renderer):
-        return Collection.draw(self, renderer)
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):

@@ -13,19 +13,14 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
-from __future__ import absolute_import, division, print_function
-
-import six
-
 from collections import Iterable, Mapping
 from functools import reduce
 import operator
 import os
-import warnings
 import re
 
-from matplotlib import cbook, testing
-from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
+from matplotlib import cbook
+from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -65,13 +60,13 @@ class ValidateInStrings(object):
             s = s.lower()
         if s in self.valid:
             return self.valid[s]
-        raise ValueError('Unrecognized %s string "%s": valid strings are %s'
-                         % (self.key, s, list(six.itervalues(self.valid))))
+        raise ValueError('Unrecognized %s string %r: valid strings are %s'
+                         % (self.key, s, list(self.valid.values())))
 
 
 def _listify_validator(scalar_validator, allow_stringlist=False):
     def f(s):
-        if isinstance(s, six.string_types):
+        if isinstance(s, str):
             try:
                 return [scalar_validator(v.strip()) for v in s.split(',')
                         if v.strip()]
@@ -92,7 +87,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
             # from the original validate_stringlist()), while allowing
             # any non-string/text scalar values such as numbers and arrays.
             return [scalar_validator(v) for v in s
-                    if not isinstance(v, six.string_types) or v]
+                    if not isinstance(v, str) or v]
         else:
             raise ValueError("{!r} must be of type: string or non-dictionary "
                              "iterable".format(s))
@@ -121,7 +116,7 @@ def validate_path_exists(s):
 
 def validate_bool(b):
     """Convert b to a boolean or raise"""
-    if isinstance(b, six.string_types):
+    if isinstance(b, str):
         b = b.lower()
     if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
         return True
@@ -133,7 +128,7 @@ def validate_bool(b):
 
 def validate_bool_maybe_none(b):
     'Convert b to a boolean or raise'
-    if isinstance(b, six.string_types):
+    if isinstance(b, str):
         b = b.lower()
     if b is None or b == 'none':
         return None
@@ -143,15 +138,6 @@ def validate_bool_maybe_none(b):
         return False
     else:
         raise ValueError('Could not convert "%s" to boolean' % b)
-
-
-def deprecate_axes_hold(value):
-    if value is None:
-        return None  # converted to True where accessed in figure.py,
-                     # axes/_base.py
-    warnings.warn("axes.hold is deprecated, will be removed in 3.0",
-                  mplDeprecation)
-    return validate_bool(value)
 
 
 def validate_float(s):
@@ -192,7 +178,7 @@ def validate_axisbelow(s):
     try:
         return validate_bool(s)
     except ValueError:
-        if isinstance(s, six.string_types):
+        if isinstance(s, str):
             s = s.lower()
             if s.startswith('line'):
                 return 'line'
@@ -247,10 +233,10 @@ def validate_fonttype(s):
             raise ValueError(
                 'Supported Postscript/PDF font types are %s' % list(fonttypes))
     else:
-        if fonttype not in six.itervalues(fonttypes):
+        if fonttype not in fonttypes.values():
             raise ValueError(
                 'Supported Postscript/PDF font types are %s' %
-                list(six.itervalues(fonttypes)))
+                list(fonttypes.values()))
         return fonttype
 
 
@@ -299,7 +285,7 @@ class validate_nseq_float(object):
 
     def __call__(self, s):
         """return a seq of n floats or raise"""
-        if isinstance(s, six.string_types):
+        if isinstance(s, str):
             s = [x.strip() for x in s.split(',')]
             err_msg = _str_err_msg
         else:
@@ -323,7 +309,7 @@ class validate_nseq_int(object):
 
     def __call__(self, s):
         """return a seq of n ints or raise"""
-        if isinstance(s, six.string_types):
+        if isinstance(s, str):
             s = [x.strip() for x in s.split(',')]
             err_msg = _str_err_msg
         else:
@@ -359,7 +345,7 @@ def validate_color_for_prop_cycle(s):
         if match is not None:
             raise ValueError('Can not put cycle reference ({cn!r}) in '
                              'prop_cycler'.format(cn=s))
-    elif isinstance(s, six.string_types):
+    elif isinstance(s, str):
         match = re.match('^C[0-9]$', s)
         if match is not None:
             raise ValueError('Can not put cycle reference ({cn!r}) in '
@@ -375,7 +361,7 @@ def validate_color(s):
     except AttributeError:
         pass
 
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         if len(s) == 6 or len(s) == 8:
             stmp = '#' + s
             if is_color_like(stmp):
@@ -409,7 +395,7 @@ validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
 validate_colorlist.__doc__ = 'return a list of colorspecs'
 
 def validate_string(s):
-    if isinstance(s, (str, six.text_type)):
+    if isinstance(s, (str, str)):
         # Always leave str as str and unicode as unicode
         return s
     else:
@@ -431,10 +417,17 @@ def validate_aspect(s):
         raise ValueError('not a valid aspect specification')
 
 
+def validate_fontsize_None(s):
+    if s is None or s == 'None':
+        return None
+    else:
+        return validate_fontsize(s)
+
+
 def validate_fontsize(s):
     fontsizes = ['xx-small', 'x-small', 'small', 'medium', 'large',
                  'x-large', 'xx-large', 'smaller', 'larger']
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         s = s.lower()
     if s in fontsizes:
         return s
@@ -504,7 +497,7 @@ validate_ps_papersize = ValidateInStrings(
 
 
 def validate_ps_distiller(s):
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         s = s.lower()
     if s in ('none', None):
         return None
@@ -634,7 +627,7 @@ validate_movie_html_fmt = ValidateInStrings('animation.html',
     ['html5', 'jshtml', 'none'])
 
 def validate_bbox(s):
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         s = s.lower()
         if s == 'tight':
             return s
@@ -647,11 +640,11 @@ def validate_bbox(s):
     return s
 
 def validate_sketch(s):
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         s = s.lower()
     if s == 'none' or s is None:
         return None
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         result = tuple([float(v.strip()) for v in s.split(',')])
     elif isinstance(s, (list, tuple)):
         result = tuple([float(v) for v in s])
@@ -700,7 +693,7 @@ def validate_hatch(s):
     characters: ``\\ / | - + * . x o O``.
 
     """
-    if not isinstance(s, six.string_types):
+    if not isinstance(s, str):
         raise ValueError("Hatch pattern must be a string")
     unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
     if unknown:
@@ -744,22 +737,24 @@ _prop_aliases = {
 
 def cycler(*args, **kwargs):
     """
-    Creates a :class:`cycler.Cycler` object much like :func:`cycler.cycler`,
+    Creates a `~cycler.Cycler` object much like :func:`cycler.cycler`,
     but includes input validation.
 
     Call signatures::
 
       cycler(cycler)
-      cycler(label, values)
       cycler(label=values[, label2=values2[, ...]])
+      cycler(label, values)
 
-    Form 1 simply copies a given `Cycler` object.
+    Form 1 copies a given `~cycler.Cycler` object.
 
-    Form 2 creates a `Cycler` from a label and an iterable.
+    Form 2 creates a `~cycler.Cycler` which cycles over one or more
+    properties simultaneously. If multiple properties are given, their
+    value lists must have the same length.
 
-    Form 3 composes a `Cycler` as an inner product of the
-    pairs of keyword arguments. In other words, all of the
-    iterables are cycled simultaneously, as if through zip().
+    Form 3 creates a `~cycler.Cycler` for a single property. This form
+    exists for compatibility with the original cycler. Its use is
+    discouraged in favor of the kwarg form, i.e. ``cycler(label=values)``.
 
     Parameters
     ----------
@@ -778,14 +773,13 @@ def cycler(*args, **kwargs):
     Returns
     -------
     cycler : Cycler
-        New :class:`cycler.Cycler` for the given properties
+        A new :class:`~cycler.Cycler` for the given properties.
 
     Examples
     --------
     Creating a cycler for a single property:
 
-    >>> c = cycler(color=['red', 'green', 'blue'])  # or
-    >>> c = cycler('color', ['red', 'green', 'blue'])
+    >>> c = cycler(color=['red', 'green', 'blue'])
 
     Creating a cycler for simultaneously cycling over multiple properties
     (e.g. red circle, green plus, blue cross):
@@ -810,7 +804,7 @@ def cycler(*args, **kwargs):
     elif len(args) > 2:
         raise TypeError("No more than 2 positional arguments allowed")
     else:
-        pairs = six.iteritems(kwargs)
+        pairs = kwargs.items()
 
     validated = []
     for prop, vals in pairs:
@@ -828,7 +822,7 @@ def cycler(*args, **kwargs):
 
 def validate_cycler(s):
     'return a Cycler object from a string repr or the object itself'
-    if isinstance(s, six.string_types):
+    if isinstance(s, str):
         try:
             # TODO: We might want to rethink this...
             # While I think I have it quite locked down,
@@ -892,7 +886,7 @@ def validate_cycler(s):
 
 
 def validate_hist_bins(s):
-    if isinstance(s, six.string_types) and s == 'auto':
+    if cbook._str_equal(s, "auto"):
         return s
     try:
         return int(s)
@@ -911,7 +905,7 @@ def validate_animation_writer_path(p):
     # Make sure it's a string and then figure out if the animations
     # are already loaded and reset the writers (which will validate
     # the path on next call)
-    if not isinstance(p, six.string_types):
+    if not isinstance(p, str):
         raise ValueError("path must be a (unicode) string")
     from sys import modules
     # set dirty, so that the next call to the registry will re-evaluate
@@ -945,25 +939,13 @@ def _validate_linestyle(ls):
     A validator for all possible line styles, the named ones *and*
     the on-off ink sequences.
     """
-    # Look first for a valid named line style, like '--' or 'solid'
-    if isinstance(ls, six.string_types):
-        try:
-            return _validate_named_linestyle(ls)
-        except (UnicodeDecodeError, KeyError):
-            # On Python 2, string-like *ls*, like for example
-            # 'solid'.encode('utf-16'), may raise a unicode error.
-            raise ValueError("the linestyle string {!r} is not a valid "
-                             "string.".format(ls))
-
-    if isinstance(ls, (bytes, bytearray)):
-        # On Python 2, a string-like *ls* should already have lead to a
-        # successful return or to raising an exception. On Python 3, we have
-        # to manually raise an exception in the case of a byte-like *ls*.
-        # Otherwise, if *ls* is of even-length, it will be passed to the
-        # instance of validate_nseq_float, which will return an absurd on-off
-        # ink sequence...
-        raise ValueError("linestyle {!r} neither looks like an on-off ink "
-                         "sequence nor a valid string.".format(ls))
+    # Look first for a valid named line style, like '--' or 'solid' Also
+    # includes bytes(-arrays) here (they all fail _validate_named_linestyle);
+    # otherwise, if *ls* is of even-length, it will be passed to the instance
+    # of validate_nseq_float, which will return an absurd on-off ink
+    # sequence...
+    if isinstance(ls, (str, bytes, bytearray)):
+        return _validate_named_linestyle(ls)
 
     # Look for an on-off ink sequence (in points) *of even length*.
     # Offset is set to None.
@@ -1008,6 +990,8 @@ defaultParams = {
     'lines.linestyle':       ['-', _validate_linestyle],  # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
     'lines.marker':          ['None', validate_string],  # marker name
+    'lines.markerfacecolor': ['auto', validate_color_or_auto],  # default color
+    'lines.markeredgecolor': ['auto', validate_color_or_auto],  # default color
     'lines.markeredgewidth': [1.0, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
     'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
@@ -1153,7 +1137,6 @@ defaultParams = {
 
     # axes props
     'axes.axisbelow':        ['line', validate_axisbelow],
-    'axes.hold':             [None, deprecate_axes_hold],
     'axes.facecolor':        ['white', validate_color],  # background color
     'axes.edgecolor':        ['black', validate_color],  # edge color
     'axes.linewidth':        [0.8, validate_float],  # edge linewidth
@@ -1235,6 +1218,7 @@ defaultParams = {
     # the number of points in the legend line for scatter
     'legend.scatterpoints': [1, validate_int],
     'legend.fontsize': ['medium', validate_fontsize],
+    'legend.title_fontsize': [None, validate_fontsize_None],
      # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
@@ -1428,6 +1412,8 @@ defaultParams = {
     'keymap.yscale':       [['l'], validate_stringlist],
     'keymap.xscale':       [['k', 'L'], validate_stringlist],
     'keymap.all_axes':     [['a'], validate_stringlist],
+    'keymap.help':         [['f1'], validate_stringlist],
+    'keymap.copy':         [['ctrl+c', 'cmd+c'], validate_stringlist],
 
     # sample data
     'examples.directory': ['', validate_string],

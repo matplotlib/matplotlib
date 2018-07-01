@@ -41,11 +41,6 @@ which obviously draws grid lines. The gridlines needs to be separated
 from the axis as some gridlines can never pass any axis.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import warnings
 
 import numpy as np
@@ -521,19 +516,18 @@ class Axes(maxes.Axes):
 
         def __getitem__(self, k):
             if isinstance(k, tuple):
-                r = SimpleChainedObjects([dict.__getitem__(self, k1) for k1 in k])
-                return r
+                return SimpleChainedObjects(
+                    [dict.__getitem__(self, k1) for k1 in k])
             elif isinstance(k, slice):
-                if k.start == None and k.stop == None and k.step == None:
-                    r = SimpleChainedObjects(list(six.itervalues(self)))
-                    return r
+                if k == slice(None):
+                    return SimpleChainedObjects(list(self.values()))
                 else:
                     raise ValueError("Unsupported slice")
             else:
                 return dict.__getitem__(self, k)
 
-        def __call__(self, *v, **kwargs):
-            return maxes.Axes.axis(self.axes, *v, **kwargs)
+        def __call__(self, *args, **kwargs):
+            return maxes.Axes.axis(self.axes, *args, **kwargs)
 
     def __init__(self, *args, grid_helper=None, **kwargs):
         self._axisline_on = True
@@ -557,9 +551,6 @@ class Axes(maxes.Axes):
                 s.set_visible(True)
             self.xaxis.set_visible(True)
             self.yaxis.set_visible(True)
-
-    def _init_axis(self):
-        super()._init_axis()
 
     def _init_axis_artists(self, axes=None):
         if axes is None:

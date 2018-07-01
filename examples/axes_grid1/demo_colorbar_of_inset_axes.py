@@ -28,7 +28,7 @@ ax.set(aspect=1,
        ylim=(-20, 5))
 
 
-axins = zoomed_inset_axes(ax, 2, loc=2)  # zoom = 6
+axins = zoomed_inset_axes(ax, zoom=2, loc='upper left')
 im = axins.imshow(Z, extent=extent, interpolation="nearest",
                   origin="lower")
 
@@ -40,7 +40,7 @@ plt.yticks(visible=False)
 cax = inset_axes(axins,
                  width="5%",  # width = 10% of parent_bbox width
                  height="100%",  # height : 50%
-                 loc=3,
+                 loc='lower left',
                  bbox_to_anchor=(1.05, 0., 1, 1),
                  bbox_transform=axins.transAxes,
                  borderpad=0,

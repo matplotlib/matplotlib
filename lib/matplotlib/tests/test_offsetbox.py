@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import pytest
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -29,7 +27,7 @@ def test_offsetbox_clipping():
                          color='black',
                          linewidth=10)
     anchored_box = AnchoredOffsetbox(
-        loc=10,
+        loc='center',
         child=da,
         pad=0.,
         frameon=False,
@@ -63,7 +61,7 @@ def test_offsetbox_clip_children():
                          color='black',
                          linewidth=10)
     anchored_box = AnchoredOffsetbox(
-        loc=10,
+        loc='center',
         child=da,
         pad=0.,
         frameon=False,

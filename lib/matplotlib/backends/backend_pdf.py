@@ -145,7 +145,7 @@ def pdfRepr(obj):
     elif isinstance(obj, (float, np.floating)):
         if not np.isfinite(obj):
             raise ValueError("Can only output finite numbers in PDF")
-        r = ("%.10f" % obj).encode('ascii')
+        r = b"%.10f" % obj
         return r.rstrip(b'0').rstrip(b'.')
 
     # Booleans. Needs to be tested before integers since
@@ -155,7 +155,7 @@ def pdfRepr(obj):
 
     # Integers are written as such.
     elif isinstance(obj, (int, np.integer)):
-        return ("%d" % obj).encode('ascii')
+        return b"%d" % obj
 
     # Unicode strings are encoded in UTF-16BE with byte-order mark.
     elif isinstance(obj, str):
@@ -236,11 +236,11 @@ class Reference(object):
         return "<Reference %d>" % self.id
 
     def pdfRepr(self):
-        return ("%d 0 R" % self.id).encode('ascii')
+        return b"%d 0 R" % self.id
 
     def write(self, contents, file):
         write = file.write
-        write(("%d 0 obj\n" % self.id).encode('ascii'))
+        write(b"%d 0 obj\n" % self.id)
         write(pdfRepr(contents))
         write(b"\nendobj\n")
 
@@ -378,7 +378,7 @@ class Stream(object):
 
     def _writeHeader(self):
         write = self.file.write
-        write(("%d 0 obj\n" % self.id).encode('ascii'))
+        write(b"%d 0 obj\n" % self.id)
         dict = self.extra
         dict['Length'] = self.len
         if rcParams['pdf.compression']:
@@ -858,7 +858,7 @@ class PdfFile(object):
             os.path.splitext(os.path.basename(filename))[0],
             symbol_name)
 
-    _identityToUnicodeCMap = """/CIDInit /ProcSet findresource begin
+    _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
 12 dict begin
 begincmap
 /CIDSystemInfo
@@ -1096,18 +1096,17 @@ end"""
             unicode_bfrange = []
             for start, end in unicode_groups:
                 unicode_bfrange.append(
-                    "<%04x> <%04x> [%s]" %
+                    b"<%04x> <%04x> [%s]" %
                     (start, end,
-                     " ".join(["<%04x>" % x for x in range(start, end+1)])))
+                     b" ".join(b"<%04x>" % x for x in range(start, end+1))))
             unicode_cmap = (self._identityToUnicodeCMap %
-                            (len(unicode_groups),
-                             "\n".join(unicode_bfrange))).encode('ascii')
+                            (len(unicode_groups), b"\n".join(unicode_bfrange)))
 
             # CIDToGIDMap stream
             cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
             self.beginStream(cidToGidMapObject.id,
                              None,
-                             {'Length':  len(cid_to_gid_map)})
+                             {'Length': len(cid_to_gid_map)})
             self.currentstream.write(cid_to_gid_map)
             self.endStream()
 
@@ -1130,15 +1129,7 @@ end"""
 
         # Beginning of main embedTTF function...
 
-        # You are lost in a maze of TrueType tables, all different...
-        sfnt = font.get_sfnt()
-        try:
-            ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')  # Macintosh scheme
-        except KeyError:
-            # Microsoft scheme:
-            ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
-            # (see freetype/ttnameid.h)
-        ps_name = ps_name.encode('ascii', 'replace')
+        ps_name = font.postscript_name.encode('ascii', 'replace')
         ps_name = Name(ps_name)
         pclt = font.get_sfnt_table('pclt') or {'capHeight': 0, 'xHeight': 0}
         post = font.get_sfnt_table('post') or {'italicAngle': (0, 0)}
@@ -1294,9 +1285,9 @@ end"""
 
             streamarr = np.empty(
                 (shape[0] * shape[1],),
-                dtype=[(str('flags'), str('u1')),
-                       (str('points'), str('>u4'), (2,)),
-                       (str('colors'), str('u1'), (3,))])
+                dtype=[('flags', 'u1'),
+                       ('points', '>u4', (2,)),
+                       ('colors', 'u1', (3,))])
             streamarr['flags'] = 0
             streamarr['points'] = (flat_points - points_min) * factor
             streamarr['colors'] = flat_colors[:, :3] * 255.0
@@ -1529,7 +1520,7 @@ end"""
         """Write out the xref table."""
 
         self.startxref = self.fh.tell() - self.tell_base
-        self.write(("xref\n0 %d\n" % self.nextObject).encode('ascii'))
+        self.write(b"xref\n0 %d\n" % self.nextObject)
         i = 0
         borken = False
         for offset, generation, name in self.xrefTable:
@@ -1538,12 +1529,9 @@ end"""
                       file=sys.stderr)
                 borken = True
             else:
-                if name == 'the zero object':
-                    key = "f"
-                else:
-                    key = "n"
-                text = "%010d %05d %s \n" % (offset, generation, key)
-                self.write(text.encode('ascii'))
+                key = b"f" if name == 'the zero object' else b"n"
+                text = b"%010d %05d %b \n" % (offset, generation, key)
+                self.write(text)
             i += 1
         if borken:
             raise AssertionError('Indirect object does not exist')
@@ -1571,10 +1559,11 @@ end"""
                     'Trapped': check_trapped}
         for k in self.infoDict:
             if k not in keywords:
-                warnings.warn('Unknown infodict keyword: %s' % k)
+                warnings.warn('Unknown infodict keyword: %s' % k, stacklevel=2)
             else:
                 if not keywords[k](self.infoDict[k]):
-                    warnings.warn('Bad value for infodict keyword %s' % k)
+                    warnings.warn('Bad value for infodict keyword %s' % k,
+                                  stacklevel=2)
 
         self.infoObject = self.reserveObject('info')
         self.writeObject(self.infoObject, self.infoDict)
@@ -1588,8 +1577,7 @@ end"""
              'Root': self.rootObject,
              'Info': self.infoObject}))
         # Could add 'ID'
-        self.write(("\nstartxref\n%d\n%%%%EOF\n" %
-                    self.startxref).encode('ascii'))
+        self.write(b"\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
 
 
 class RendererPdf(RendererBase):
@@ -2560,21 +2548,22 @@ class FigureCanvasPdf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    def print_pdf(self, filename, **kwargs):
-        image_dpi = kwargs.get('dpi', 72)  # dpi to use for images
+    def print_pdf(self, filename, *,
+                  dpi=72,  # dpi to use for images
+                  bbox_inches_restore=None, metadata=None,
+                  **kwargs):
         self.figure.set_dpi(72)            # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
         if isinstance(filename, PdfPages):
             file = filename._file
         else:
-            file = PdfFile(filename, metadata=kwargs.pop("metadata", None))
+            file = PdfFile(filename, metadata=metadata)
         try:
             file.newPage(width, height)
-            _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
             renderer = MixedModeRenderer(
-                self.figure, width, height, image_dpi,
-                RendererPdf(file, image_dpi, height, width),
-                bbox_inches_restore=_bbox_inches_restore)
+                self.figure, width, height, dpi,
+                RendererPdf(file, dpi, height, width),
+                bbox_inches_restore=bbox_inches_restore)
             self.figure.draw(renderer)
             renderer.finalize()
             if not isinstance(filename, PdfPages):
@@ -2586,11 +2575,9 @@ class FigureCanvasPdf(FigureCanvasBase):
                 file.close()
 
 
-class FigureManagerPdf(FigureManagerBase):
-    pass
+FigureManagerPdf = FigureManagerBase
 
 
 @_Backend.export
 class _BackendPdf(_Backend):
     FigureCanvas = FigureCanvasPdf
-    FigureManager = FigureManagerPdf

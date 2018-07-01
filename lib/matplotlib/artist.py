@@ -1,8 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from collections import OrderedDict, namedtuple
 from functools import wraps
 import inspect
@@ -153,7 +148,7 @@ class Artist(object):
             _ax_flag = False
             if hasattr(self, 'axes') and self.axes:
                 # remove from the mouse hit list
-                self.axes.mouseover_set.discard(self)
+                self.axes._mouseover_set.discard(self)
                 # mark the axes as stale
                 self.axes.stale = True
                 # decouple the artist from the axes
@@ -289,7 +284,7 @@ class Artist(object):
         Fire an event when property changed, calling all of the
         registered callbacks.
         """
-        for oid, func in six.iteritems(self._propobservers):
+        for oid, func in self._propobservers.items():
             func(self)
 
     def is_transform_set(self):
@@ -306,7 +301,6 @@ class Artist(object):
         Parameters
         ----------
         t : `.Transform`
-            .. ACCEPTS: `.Transform`
         """
         self._transform = t
         self._transformSet = True
@@ -378,7 +372,6 @@ class Artist(object):
         Parameters
         ----------
         picker : callable
-            .. ACCEPTS: a callable function
         """
         self._contains = picker
 
@@ -458,7 +451,6 @@ class Artist(object):
         Parameters
         ----------
         picker : None or bool or float or callable
-            .. ACCEPTS: [None | bool | float | callable]
         """
         self._picker = picker
 
@@ -482,7 +474,6 @@ class Artist(object):
         Parameters
         ----------
         url : str
-            .. ACCEPTS: a url string
         """
         self._url = url
 
@@ -497,7 +488,6 @@ class Artist(object):
         Parameters
         ----------
         gid : str
-            .. ACCEPTS: an id string
         """
         self._gid = gid
 
@@ -535,7 +525,6 @@ class Artist(object):
         Parameters
         ----------
         snap : bool or None
-            .. ACCEPTS: bool or None
         """
         self._snap = snap
         self.stale = True
@@ -548,17 +537,17 @@ class Artist(object):
         -------
         sketch_params : tuple or `None`
 
-        A 3-tuple with the following elements:
+            A 3-tuple with the following elements:
 
-          * `scale`: The amplitude of the wiggle perpendicular to the
-            source line.
+              * `scale`: The amplitude of the wiggle perpendicular to the
+                source line.
 
-          * `length`: The length of the wiggle along the line.
+              * `length`: The length of the wiggle along the line.
 
-          * `randomness`: The scale factor by which the length is
-            shrunken or expanded.
+              * `randomness`: The scale factor by which the length is
+                shrunken or expanded.
 
-        May return `None` if no sketch parameters were set.
+            May return `None` if no sketch parameters were set.
         """
         return self._sketch
 
@@ -596,7 +585,6 @@ class Artist(object):
         Parameters
         ----------
         path_effects : `.AbstractPathEffect`
-            .. ACCEPTS: `.AbstractPathEffect`
         """
         self._path_effects = path_effects
         self.stale = True
@@ -615,7 +603,6 @@ class Artist(object):
         Parameters
         ----------
         fig : `.Figure`
-            .. ACCEPTS: a `.Figure` instance
         """
         # if this is a no-op just return
         if self.figure is fig:
@@ -640,7 +627,6 @@ class Artist(object):
         Parameters
         ----------
         clipbox : `.Bbox`
-            .. ACCEPTS: a `.Bbox` instance
         """
         self.clipbox = clipbox
         self.pchanged()
@@ -747,7 +733,6 @@ class Artist(object):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._clipon = b
         # This may result in the callbacks being hit twice, but ensures they
@@ -778,7 +763,6 @@ class Artist(object):
         Parameters
         ----------
         rasterized : bool or None
-            .. ACCEPTS: bool or None
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
             warnings.warn("Rasterization of '%s' will be ignored" % self)
@@ -812,13 +796,11 @@ class Artist(object):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha value used for blending - not supported on
-        all backends.
+        Set the alpha value used for blending - not supported on all backends.
 
         Parameters
         ----------
         alpha : float
-            .. ACCEPTS: float (0.0 transparent through 1.0 opaque)
         """
         self._alpha = alpha
         self.pchanged()
@@ -831,7 +813,6 @@ class Artist(object):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._visible = b
         self.pchanged()
@@ -844,7 +825,6 @@ class Artist(object):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         if self._animated != b:
             self._animated = b
@@ -880,13 +860,8 @@ class Artist(object):
                     raise AttributeError('Unknown property %s' % k)
                 return func(v)
 
-        store = self.eventson
-        self.eventson = False
-        try:
-            ret = [_update_property(self, k, v)
-                   for k, v in props.items()]
-        finally:
-            self.eventson = store
+        with cbook._setattr_cm(self, eventson=False):
+            ret = [_update_property(self, k, v) for k, v in props.items()]
 
         if len(ret):
             self.pchanged()
@@ -904,13 +879,10 @@ class Artist(object):
         Parameters
         ----------
         s : object
-            *s* will be converted to a string by calling `str` (`unicode` on
-            Py2).
-
-            .. ACCEPTS: object
+            *s* will be converted to a string by calling `str`.
         """
         if s is not None:
-            self._label = six.text_type(s)
+            self._label = str(s)
         else:
             self._label = None
         self.pchanged()
@@ -928,7 +900,6 @@ class Artist(object):
         Parameters
         ----------
         level : float
-            .. ACCEPTS: float
         """
         if level is None:
             level = self.__class__.zorder
@@ -1042,8 +1013,9 @@ class Artist(object):
             data[0]
         except (TypeError, IndexError):
             data = [data]
-        return ', '.join('{:0.3g}'.format(item) for item in data if
-                isinstance(item, (np.floating, np.integer, int, float)))
+        data_str = ', '.join('{:0.3g}'.format(item) for item in data if
+                   isinstance(item, (np.floating, np.integer, int, float)))
+        return "[" + data_str + "]"
 
     @property
     def mouseover(self):
@@ -1056,24 +1028,23 @@ class Artist(object):
         ax = self.axes
         if ax:
             if val:
-                ax.mouseover_set.add(self)
+                ax._mouseover_set.add(self)
             else:
-                ax.mouseover_set.discard(self)
+                ax._mouseover_set.discard(self)
 
 
 class ArtistInspector(object):
     """
-    A helper class to inspect an :class:`~matplotlib.artist.Artist`
-    and return information about it's settable properties and their
-    current values.
+    A helper class to inspect an :class:`~matplotlib.artist.Artist` and return
+    information about its settable properties and their current values.
     """
+
     def __init__(self, o):
-        """
-        Initialize the artist inspector with an
-        :class:`~matplotlib.artist.Artist` or iterable of :class:`Artists`.
-        If an iterable is used, we assume it is a homogeneous sequence (all
-        :class:`Artists` are of the same type) and it is your responsibility
-        to make sure this is so.
+        r"""
+        Initialize the artist inspector with an `Artist` or an iterable of
+        `Artist`\s.  If an iterable is used, we assume it is a homogeneous
+        sequence (all `Artists` are of the same type) and it is your
+        responsibility to make sure this is so.
         """
         if not isinstance(o, Artist):
             if cbook.iterable(o):
@@ -1109,7 +1080,7 @@ class ArtistInspector(object):
             if not self.is_alias(func):
                 continue
             docstring = func.__doc__
-            fullname = docstring[10:]
+            fullname = docstring.replace('`', '')[10:]
             aliases.setdefault(fullname[4:], {})[name[4:]] = None
         return aliases
 
@@ -1144,6 +1115,14 @@ class ArtistInspector(object):
         match = self._get_valid_values_regex.search(docstring)
         if match is not None:
             return re.sub("\n *", " ", match.group(1))
+
+        # Much faster than list(inspect.signature(func).parameters)[1],
+        # although barely relevant wrt. matplotlib's total import time.
+        param_name = func.__code__.co_varnames[1]
+        match = re.search("(?m)^ *{} : (.+)".format(param_name), docstring)
+        if match:
+            return match.group(1)
+
         return 'unknown'
 
     def _get_setters_and_targets(self):
@@ -1159,10 +1138,7 @@ class ArtistInspector(object):
             func = getattr(self.o, name)
             if not callable(func):
                 continue
-            if six.PY2:
-                nargs = len(inspect.getargspec(func)[0])
-            else:
-                nargs = len(inspect.getfullargspec(func)[0])
+            nargs = len(inspect.getfullargspec(func).args)
             if nargs < 2 or self.is_alias(func):
                 continue
             source_class = self.o.__module__ + "." + self.o.__name__
@@ -1332,7 +1308,7 @@ class ArtistInspector(object):
         """
 
         lines = []
-        for name, val in sorted(six.iteritems(self.properties())):
+        for name, val in sorted(self.properties().items()):
             if getattr(val, 'shape', ()) != () and len(val) > 6:
                 s = str(val[:6]) + '...'
             else:

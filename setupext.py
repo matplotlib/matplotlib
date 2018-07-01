@@ -1,7 +1,11 @@
+import builtins
+import configparser
 from distutils import sysconfig, version
 from distutils.core import Extension
 import distutils.command.build_ext
 import glob
+import hashlib
+import importlib
 import multiprocessing
 import os
 import pathlib
@@ -9,10 +13,11 @@ import platform
 import re
 import shutil
 import subprocess
-from subprocess import check_output
 import sys
+import tarfile
+import textwrap
+import urllib.request
 import warnings
-from textwrap import fill
 
 import setuptools
 import versioneer
@@ -51,12 +56,6 @@ _freetype_hashes = {
 LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
-if sys.platform != 'win32':
-    from subprocess import getstatusoutput
-
-
-import configparser
-
 
 # matplotlib build options, which can be altered using setup.cfg
 options = {
@@ -92,19 +91,6 @@ lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
 
 
-def get_win32_compiler():
-    """
-    Determine the compiler being used on win32.
-    """
-    # Used to determine mingw32 or msvc
-    # This is pretty bad logic, someone know a better way?
-    for v in sys.argv:
-        if 'mingw32' in v:
-            return 'mingw32'
-    return 'msvc'
-win32_compiler = get_win32_compiler()
-
-
 def extract_versions():
     """
     Extracts version values from the main matplotlib __init__.py and
@@ -112,23 +98,20 @@ def extract_versions():
     """
     with open('lib/matplotlib/__init__.py') as fd:
         for line in fd.readlines():
-            if (line.startswith('__version__numpy__')):
+            if line.startswith('__version__numpy__'):
                 exec(line.strip())
     return locals()
 
 
 def has_include_file(include_dirs, filename):
     """
-    Returns `True` if `filename` can be found in one of the
-    directories in `include_dirs`.
+    Returns `True` if *filename* can be found in one of the
+    directories in *include_dirs*.
     """
     if sys.platform == 'win32':
-        include_dirs = list(include_dirs)  # copy before modify
-        include_dirs += os.environ.get('INCLUDE', '.').split(os.pathsep)
-    for dir in include_dirs:
-        if os.path.exists(os.path.join(dir, filename)):
-            return True
-    return False
+        include_dirs = [*include_dirs,  # Don't modify it in-place.
+                        *os.environ.get('INCLUDE', '.').split(os.pathsep)]
+    return any(pathlib.Path(dir, filename).exists() for dir in include_dirs)
 
 
 def check_include_file(include_dirs, filename, package):
@@ -152,7 +135,7 @@ def get_base_dirs():
     if os.environ.get('MPLBASEDIRLIST'):
         return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
 
-    win_bases = ['win32_static', ]
+    win_bases = ['win32_static']
     # on conda windows, we also add the <conda_env_dir>\Library,
     # as conda installs libs/includes there
     # env var names mess: https://github.com/conda/conda/issues/2312
@@ -179,8 +162,10 @@ def get_include_dirs():
     """
     include_dirs = [os.path.join(d, 'include') for d in get_base_dirs()]
     if sys.platform != 'win32':
-        # gcc includes this dir automatically, so also look for headers in
+        # gcc includes these dirs automatically, so also look for headers in
         # these dirs
+        include_dirs.extend(
+            os.environ.get('CPATH', '').split(os.pathsep))
         include_dirs.extend(
             os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
     return include_dirs
@@ -201,15 +186,15 @@ if options['display_status']:
     def print_status(package, status):
         initial_indent = "%22s: " % package
         indent = ' ' * 24
-        print(fill(str(status), width=76,
-                   initial_indent=initial_indent,
-                   subsequent_indent=indent))
+        print(textwrap.fill(str(status), width=76,
+                            initial_indent=initial_indent,
+                            subsequent_indent=indent))
 
     def print_message(message):
         indent = ' ' * 24 + "* "
-        print(fill(str(message), width=76,
-                   initial_indent=indent,
-                   subsequent_indent=indent))
+        print(textwrap.fill(str(message), width=76,
+                            initial_indent=indent,
+                            subsequent_indent=indent))
 
     def print_raw(section):
         print(section)
@@ -265,12 +250,11 @@ def get_file_hash(filename):
     """
     Get the SHA256 hash of a given filename.
     """
-    import hashlib
     BLOCKSIZE = 1 << 16
     hasher = hashlib.sha256()
     with open(filename, 'rb') as fd:
         buf = fd.read(BLOCKSIZE)
-        while len(buf) > 0:
+        while buf:
             hasher.update(buf)
             buf = fd.read(BLOCKSIZE)
     return hasher.hexdigest()
@@ -287,19 +271,13 @@ class PkgConfig(object):
         if sys.platform == 'win32':
             self.has_pkgconfig = False
         else:
-            try:
-                self.pkg_config = os.environ['PKG_CONFIG']
-            except KeyError:
-                self.pkg_config = 'pkg-config'
-
+            self.pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
             self.set_pkgconfig_path()
-            status, output = getstatusoutput(self.pkg_config + " --help")
-            self.has_pkgconfig = (status == 0)
+            self.has_pkgconfig = shutil.which(self.pkg_config) is not None
             if not self.has_pkgconfig:
-                print("IMPORTANT WARNING:")
-                print(
-                    "    pkg-config is not installed.\n"
-                    "    matplotlib may not be able to find some of its dependencies")
+                print("IMPORTANT WARNING:\n"
+                      "    pkg-config is not installed.\n"
+                      "    matplotlib may not be able to find some of its dependencies")
 
     def set_pkgconfig_path(self):
         pkgconfig_path = sysconfig.get_config_var('LIBDIR')
@@ -334,8 +312,8 @@ class PkgConfig(object):
             command = "{0} --libs --cflags ".format(executable)
 
             try:
-                output = check_output(command, shell=True,
-                                      stderr=subprocess.STDOUT)
+                output = subprocess.check_output(
+                    command, shell=True, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError:
                 pass
             else:
@@ -369,7 +347,7 @@ class PkgConfig(object):
         if not self.has_pkgconfig:
             return None
 
-        status, output = getstatusoutput(
+        status, output = subprocess.getstatusoutput(
             self.pkg_config + " %s --modversion" % (package))
         if status == 0:
             return output
@@ -693,6 +671,7 @@ class Matplotlib(SetupPackage):
         return {
             'matplotlib':
             [
+                'mpl-data/matplotlibrc',
                 *iter_dir('mpl-data/fonts'),
                 *iter_dir('mpl-data/images'),
                 *iter_dir('mpl-data/stylelib'),
@@ -878,12 +857,10 @@ class Numpy(SetupPackage):
 
     @staticmethod
     def include_dirs_hook():
-        import builtins
         if hasattr(builtins, '__NUMPY_SETUP__'):
             del builtins.__NUMPY_SETUP__
-        import imp
         import numpy
-        imp.reload(numpy)
+        importlib.reload(numpy)
 
         ext = Extension('test', [])
         ext.include_dirs.append(numpy.get_include())
@@ -984,7 +961,8 @@ class FreeType(SetupPackage):
                 check_include_file(get_include_dirs(), 'freetype2\\ft2build.h', 'freetype')
             return 'Using unknown version found on system.'
 
-        status, output = getstatusoutput("freetype-config --ftversion")
+        status, output = subprocess.getstatusoutput(
+            "freetype-config --ftversion")
         if status == 0:
             version = output
         else:
@@ -1051,6 +1029,8 @@ class FreeType(SetupPackage):
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
+        from pathlib import Path
+
         # We're using a system freetype
         if not options.get('local_freetype'):
             return
@@ -1090,8 +1070,6 @@ class FreeType(SetupPackage):
                         pass
 
             if not os.path.isfile(tarball_path):
-                from urllib.request import urlretrieve
-
                 if not os.path.exists('build'):
                     os.makedirs('build')
 
@@ -1105,45 +1083,45 @@ class FreeType(SetupPackage):
                     tarball_url = url_fmt.format(
                         version=LOCAL_FREETYPE_VERSION, tarball=tarball)
 
-                    print("Downloading {0}".format(tarball_url))
+                    print("Downloading {}".format(tarball_url))
                     try:
-                        urlretrieve(tarball_url, tarball_path)
+                        urllib.request.urlretrieve(tarball_url, tarball_path)
                     except IOError:  # URLError (a subclass) on Py3.
-                        print("Failed to download {0}".format(tarball_url))
+                        print("Failed to download {}".format(tarball_url))
                     else:
                         if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
                             print("Invalid hash.")
                         else:
                             break
                 else:
-                    raise IOError("Failed to download freetype. "
-                                  "You can download the file by "
-                                  "alternative means and copy it "
-                                  " to '{0}'".format(tarball_path))
+                    raise IOError("Failed to download FreeType. You can "
+                                  "download the file by alternative means and "
+                                  "copy it to {}".format(tarball_path))
                 os.makedirs(tarball_cache_dir, exist_ok=True)
                 try:
                     shutil.copy(tarball_path, tarball_cache_path)
-                    print('Cached tarball at: {}'.format(tarball_cache_path))
+                    print('Cached tarball at {}'.format(tarball_cache_path))
                 except OSError:
                     # If this fails, we can always re-download.
                     pass
 
             if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
                 raise IOError(
-                    "{0} does not match expected hash.".format(tarball))
+                    "{} does not match expected hash.".format(tarball))
 
-        print("Building {0}".format(tarball))
+        print("Building {}".format(tarball))
+        with tarfile.open(tarball_path, "r:gz") as tgz:
+            tgz.extractall("build")
+
         if sys.platform != 'win32':
             # compilation on all other platforms than windows
-            cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
-
+            env={**os.environ,
+                 "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
             subprocess.check_call(
-                ['tar', 'zxf', tarball], cwd='build')
-            subprocess.check_call(
-                [cflags + './configure --with-zlib=no --with-bzip2=no '
-                 '--with-png=no --with-harfbuzz=no'], shell=True, cwd=src_path)
-            subprocess.check_call(
-                [cflags + 'make'], shell=True, cwd=src_path)
+                ["./configure", "--with-zlib=no", "--with-bzip2=no",
+                 "--with-png=no", "--with-harfbuzz=no"],
+                env=env, cwd=src_path)
+            subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
             FREETYPE_BUILD_CMD = """\
@@ -1162,11 +1140,10 @@ if errorlevel 1 (
   copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
 )
 """
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
+            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64
             # Note: freetype has no build profile for 2014, so we don't bother...
             vc = 'vc2010' if VS2010 else 'vc2008'
             WinXX = 'x64' if X64 else 'Win32'
-            tar_extract(tarball_path, "build")
             # This is only false for py2.7, even on py3.5...
             if not VS2010:
                 fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
@@ -1214,7 +1191,7 @@ class Png(SetupPackage):
             check_include_file(get_include_dirs(), 'png.h', 'png')
             return 'Using unknown version found on system.'
 
-        status, output = getstatusoutput("libpng-config --version")
+        status, output = subprocess.getstatusoutput("libpng-config --version")
         if status == 0:
             version = output
         else:
@@ -1368,7 +1345,6 @@ class InstallRequires(SetupPackage):
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
             "pytz",
-            "six>=1.10",
         ]
 
 

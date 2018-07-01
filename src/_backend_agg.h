@@ -43,8 +43,8 @@
 
 /**********************************************************************/
 
-// a helper class to pass agg::buffer objects around.  agg::buffer is
-// a class in the swig wrapper
+// a helper class to pass agg::buffer objects around.  
+
 class BufferRegion
 {
   public:

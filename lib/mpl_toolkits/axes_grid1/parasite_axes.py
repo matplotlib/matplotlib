@@ -1,7 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import functools
 
 from matplotlib import (
     artist as martist, collections as mcoll, transforms as mtransforms,
@@ -43,31 +40,20 @@ class ParasiteAxesBase(object):
             self.yaxis.set_zorder(2.5)
 
 
-_parasite_axes_classes = {}
+@functools.lru_cache(None)
 def parasite_axes_class_factory(axes_class=None):
     if axes_class is None:
         axes_class = Axes
 
-    new_class = _parasite_axes_classes.get(axes_class)
-    if new_class is None:
-        def _get_base_axes_attr(self, attrname):
-            return getattr(axes_class, attrname)
+    def _get_base_axes_attr(self, attrname):
+        return getattr(axes_class, attrname)
 
-        new_class = type(str("%sParasite" % (axes_class.__name__)),
-                         (ParasiteAxesBase, axes_class),
-                         {'_get_base_axes_attr': _get_base_axes_attr})
-        _parasite_axes_classes[axes_class] = new_class
+    return type("%sParasite" % axes_class.__name__,
+                (ParasiteAxesBase, axes_class),
+                {'_get_base_axes_attr': _get_base_axes_attr})
 
-    return new_class
 
 ParasiteAxes = parasite_axes_class_factory()
-
-# #class ParasiteAxes(ParasiteAxesBase, Axes):
-
-#     @classmethod
-#     def _get_base_axes_attr(cls, attrname):
-#         return getattr(Axes, attrname)
-
 
 
 class ParasiteAxesAuxTransBase(object):
@@ -192,8 +178,7 @@ class ParasiteAxesAuxTransBase(object):
         #ParasiteAxes.apply_aspect()
 
 
-
-_parasite_axes_auxtrans_classes = {}
+@functools.lru_cache(None)
 def parasite_axes_auxtrans_class_factory(axes_class=None):
     if axes_class is None:
         parasite_axes_class = ParasiteAxes
@@ -201,21 +186,14 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
         parasite_axes_class = parasite_axes_class_factory(axes_class)
     else:
         parasite_axes_class = axes_class
-
-    new_class = _parasite_axes_auxtrans_classes.get(parasite_axes_class)
-    if new_class is None:
-        new_class = type(str("%sParasiteAuxTrans" % (parasite_axes_class.__name__)),
-                         (ParasiteAxesAuxTransBase, parasite_axes_class),
-                         {'_parasite_axes_class': parasite_axes_class,
-                         'name': 'parasite_axes'})
-        _parasite_axes_auxtrans_classes[parasite_axes_class] = new_class
-
-    return new_class
+    return type("%sParasiteAuxTrans" % parasite_axes_class.__name__,
+                (ParasiteAxesAuxTransBase, parasite_axes_class),
+                {'_parasite_axes_class': parasite_axes_class,
+                 'name': 'parasite_axes'})
 
 
-ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(axes_class=ParasiteAxes)
-
-
+ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(
+    axes_class=ParasiteAxes)
 
 
 def _get_handles(ax):
@@ -394,38 +372,34 @@ class HostAxesBase(object):
         return _bbox
 
 
-_host_axes_classes = {}
+@functools.lru_cache(None)
 def host_axes_class_factory(axes_class=None):
     if axes_class is None:
         axes_class = Axes
 
-    new_class = _host_axes_classes.get(axes_class)
-    if new_class is None:
-        def _get_base_axes(self):
-            return axes_class
+    def _get_base_axes(self):
+        return axes_class
 
-        def _get_base_axes_attr(self, attrname):
-            return getattr(axes_class, attrname)
+    def _get_base_axes_attr(self, attrname):
+        return getattr(axes_class, attrname)
 
-        new_class = type(str("%sHostAxes" % (axes_class.__name__)),
-                         (HostAxesBase, axes_class),
-                         {'_get_base_axes_attr': _get_base_axes_attr,
-                          '_get_base_axes': _get_base_axes})
+    return type("%sHostAxes" % axes_class.__name__,
+                (HostAxesBase, axes_class),
+                {'_get_base_axes_attr': _get_base_axes_attr,
+                 '_get_base_axes': _get_base_axes})
 
-        _host_axes_classes[axes_class] = new_class
-
-    return new_class
 
 def host_subplot_class_factory(axes_class):
     host_axes_class = host_axes_class_factory(axes_class=axes_class)
     subplot_host_class = subplot_class_factory(host_axes_class)
     return subplot_host_class
 
+
 HostAxes = host_axes_class_factory(axes_class=Axes)
 SubplotHost = subplot_class_factory(HostAxes)
 
 
-def host_axes(*args, **kwargs):
+def host_axes(*args, axes_class=None, figure=None, **kwargs):
     """
     Create axes that can act as a hosts to parasitic axes.
 
@@ -439,17 +413,15 @@ def host_axes(*args, **kwargs):
         Will be passed on to the underlying ``Axes`` object creation.
     """
     import matplotlib.pyplot as plt
-    axes_class = kwargs.pop("axes_class", None)
     host_axes_class = host_axes_class_factory(axes_class)
-    fig = kwargs.get("figure", None)
-    if fig is None:
-        fig = plt.gcf()
-    ax = host_axes_class(fig, *args, **kwargs)
-    fig.add_axes(ax)
+    if figure is None:
+        figure = plt.gcf()
+    ax = host_axes_class(figure, *args, **kwargs)
+    figure.add_axes(ax)
     plt.draw_if_interactive()
     return ax
 
-def host_subplot(*args, **kwargs):
+def host_subplot(*args, axes_class=None, figure=None, **kwargs):
     """
     Create a subplot that can act as a host to parasitic axes.
 
@@ -463,12 +435,10 @@ def host_subplot(*args, **kwargs):
         Will be passed on to the underlying ``Axes`` object creation.
     """
     import matplotlib.pyplot as plt
-    axes_class = kwargs.pop("axes_class", None)
     host_subplot_class = host_subplot_class_factory(axes_class)
-    fig = kwargs.get("figure", None)
-    if fig is None:
-        fig = plt.gcf()
-    ax = host_subplot_class(fig, *args, **kwargs)
-    fig.add_subplot(ax)
+    if figure is None:
+        figure = plt.gcf()
+    ax = host_subplot_class(figure, *args, **kwargs)
+    figure.add_subplot(ax)
     plt.draw_if_interactive()
     return ax

@@ -6,7 +6,7 @@ Image Demo
 Many ways to plot images in Matplotlib.
 
 The most common way to plot images in Matplotlib is with
-imshow. The following examples demonstrate much of the
+:meth:`~.axes.Axes.imshow`. The following examples demonstrate much of the
 functionality of imshow and the many images you can create.
 
 """
@@ -28,9 +28,10 @@ Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (Z1 - Z2) * 2
 
-im = plt.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
-                origin='lower', extent=[-3, 3, -3, 3],
-                vmax=abs(Z).max(), vmin=-abs(Z).max())
+fig, ax = plt.subplots()
+im = ax.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
+               origin='lower', extent=[-3, 3, -3, 3],
+               vmax=abs(Z).max(), vmin=-abs(Z).max())
 
 plt.show()
 
@@ -44,7 +45,7 @@ with cbook.get_sample_data('ada.png') as image_file:
 
 fig, ax = plt.subplots()
 ax.imshow(image)
-ax.axis('off')  # clear x- and y-axes
+ax.axis('off')  # clear x-axis and y-axis
 
 
 # And another image
@@ -113,7 +114,8 @@ plt.show()
 # This allows you to plot the full range of your array w/o edge effects,
 # and for example to layer multiple images of different sizes over one
 # another with different interpolation methods - see
-# examples/layer_images.py.  It also implies a performance hit, as this
+# :doc:`/gallery/images_contours_and_fields/layer_images`.
+# It also implies a performance hit, as this
 # new temporary, padded array must be created.  Sophisticated
 # interpolation also implies a performance hit, so if you need maximal
 # performance or have very large images, interpolation='nearest' is
@@ -134,7 +136,9 @@ plt.show()
 # You can specify whether images should be plotted with the array origin
 # x[0,0] in the upper left or lower right by using the origin parameter.
 # You can also control the default setting image.origin in your
-# :ref:`matplotlibrc file <customizing-with-matplotlibrc-files>`
+# :ref:`matplotlibrc file <customizing-with-matplotlibrc-files>`. For more on
+# this topic see the :doc:`complete guide on origin and extent
+# </tutorials/intermediate/imshow_extent>`.
 
 x = np.arange(120).reshape((10, 12))
 
@@ -170,3 +174,19 @@ im = ax.imshow(Z, interpolation='bilinear', cmap=cm.gray,
 im.set_clip_path(patch)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
+matplotlib.artist.Artist.set_clip_path
+matplotlib.patches.PathPatch

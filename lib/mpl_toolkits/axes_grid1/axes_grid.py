@@ -1,8 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from numbers import Number
 
 import matplotlib.axes as maxes
@@ -34,8 +29,7 @@ def _tick_only(ax, bottom_on, left_on):
 
 class CbarAxesBase(object):
 
-    def colorbar(self, mappable, **kwargs):
-        locator = kwargs.pop("locator", None)
+    def colorbar(self, mappable, *, locator=None, **kwargs):
 
         if locator is None:
             if "ticks" not in kwargs:
@@ -47,7 +41,6 @@ class CbarAxesBase(object):
             else:
                 kwargs["ticks"] = locator
 
-        self._hold = True
         if self.orientation in ["top", "bottom"]:
             orientation = "horizontal"
         else:
@@ -108,15 +101,11 @@ class CbarAxesBase(object):
 
 
 class CbarAxes(CbarAxesBase, LocatableAxes):
-    def __init__(self, *kl, **kwargs):
-        orientation = kwargs.pop("orientation", None)
-        if orientation is None:
-            raise ValueError("orientation must be specified")
+    def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
         self._default_label_on = True
         self.locator = None
-
-        super().__init__(*kl, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def cla(self):
         super().cla()
@@ -196,9 +185,9 @@ class Grid(object):
             axes_class = self._defaultLocatableAxesClass
             axes_class_args = {}
         else:
-            if (type(axes_class)) == type and \
-                   issubclass(axes_class,
-                              self._defaultLocatableAxesClass.Axes):
+            if (isinstance(axes_class, type)
+                    and issubclass(axes_class,
+                                   self._defaultLocatableAxesClass.Axes)):
                 axes_class_args = {}
             else:
                 axes_class, axes_class_args = axes_class
@@ -769,4 +758,3 @@ class ImageGrid(Grid):
 
 
 AxesGrid = ImageGrid
-

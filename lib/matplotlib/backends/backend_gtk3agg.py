@@ -1,15 +1,23 @@
-import numpy as np
+import sys
 import warnings
 
-from . import backend_agg, backend_gtk3
-from .backend_cairo import cairo, HAS_CAIRO_CFFI
-from .backend_gtk3 import _BackendGTK3
+import numpy as np
+
+from . import backend_agg, backend_cairo, backend_gtk3
+from ._gtk3_compat import gi
+from .backend_cairo import cairo
+from .backend_gtk3 import Gtk, _BackendGTK3
 from matplotlib import transforms
 
-if not HAS_CAIRO_CFFI:
-    warnings.warn(
-        "The Gtk3Agg backend is known to not work on Python 3.x with pycairo. "
-        "Try installing cairocffi.")
+# The following combinations are allowed:
+#   gi + pycairo
+#   gi + cairocffi
+#   pgi + cairocffi
+# (pgi doesn't work with pycairo)
+# We always try to import cairocffi first so if a check below fails it means
+# that cairocffi was unavailable to start with.
+if gi.__name__ == "pgi" and cairo.__name__ == "cairo":
+    raise ImportError("pgi and pycairo are not compatible")
 
 
 class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
@@ -25,38 +33,47 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         backend_agg.FigureCanvasAgg.draw(self)
 
     def on_draw_event(self, widget, ctx):
-        """ GtkDrawable draw event, like expose_event in GTK 2.X
+        """GtkDrawable draw event, like expose_event in GTK 2.X.
         """
         allocation = self.get_allocation()
         w, h = allocation.width, allocation.height
 
         if not len(self._bbox_queue):
             self._render_figure(w, h)
+            Gtk.render_background(
+                self.get_style_context(), ctx,
+                allocation.x, allocation.y,
+                allocation.width, allocation.height)
             bbox_queue = [transforms.Bbox([[0, 0], [w, h]])]
         else:
             bbox_queue = self._bbox_queue
 
-        if HAS_CAIRO_CFFI and not isinstance(ctx, cairo.Context):
-            ctx = cairo.Context._from_pointer(
-                cairo.ffi.cast('cairo_t **',
-                               id(ctx) + object.__basicsize__)[0],
-                incref=True)
+        ctx = backend_cairo._to_context(ctx)
 
         for bbox in bbox_queue:
-            area = self.copy_from_bbox(bbox)
-            buf = np.fromstring(area.to_string_argb(), dtype='uint8')
-
             x = int(bbox.x0)
             y = h - int(bbox.y1)
             width = int(bbox.x1) - int(bbox.x0)
             height = int(bbox.y1) - int(bbox.y0)
 
-            if HAS_CAIRO_CFFI:
-                image = cairo.ImageSurface.create_for_data(
-                    buf.data, cairo.FORMAT_ARGB32, width, height)
+            buf = (np.fromstring(self.copy_from_bbox(bbox).to_string_argb(),
+                                 dtype='uint8')
+                   .reshape((width, height, 4)))
+            # cairo wants premultiplied alpha.  Only bother doing the
+            # conversion when the alpha channel is not fully opaque, as the
+            # cost is not negligible.  (The unsafe cast is needed to do the
+            # multiplication in-place in an integer buffer.)
+            if sys.byteorder == "little":
+                rgb24 = buf[..., :-1]
+                alpha8 = buf[..., -1:]
             else:
-                image = cairo.ImageSurface.create_for_data(
-                    buf, cairo.FORMAT_ARGB32, width, height)
+                alpha8 = buf[..., :1]
+                rgb24 = buf[..., 1:]
+            if alpha8.min() != 0xff:
+                np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
+
+            image = cairo.ImageSurface.create_for_data(
+                buf.ravel().data, cairo.FORMAT_ARGB32, width, height)
             ctx.set_source_surface(image, x, y)
             ctx.paint()
 

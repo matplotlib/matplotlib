@@ -1,0 +1,7 @@
+Remove lib/mpl_examples
+-----------------------
+
+The symlink from lib/mpl_examples to ../examples has been removed.
+This is not installed as an importable package and should not affect
+end users, however this may require down-stream packagers to adjust.
+The content is still available top-level examples directory.

@@ -36,6 +36,9 @@ To save an animation to disk use `Animation.save` or `Animation.to_html5_video`
 See :ref:`ani_writer_classes` below for details about what movie formats are
 supported.
 
+
+.. _func-animation:
+
 ``FuncAnimation``
 -----------------
 

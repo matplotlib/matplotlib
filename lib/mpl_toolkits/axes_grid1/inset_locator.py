@@ -1,11 +1,7 @@
 """
 A collection of functions and objects for creating or placing inset axes.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 from matplotlib import docstring
-import six
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
@@ -386,7 +382,7 @@ def _add_inset_axes(parent_axes, inset_axes):
 
 
 @docstring.dedent_interpd
-def inset_axes(parent_axes, width, height, loc=1,
+def inset_axes(parent_axes, width, height, loc='upper right',
                bbox_to_anchor=None, bbox_transform=None,
                axes_class=None,
                axes_kwargs=None,
@@ -473,7 +469,7 @@ def inset_axes(parent_axes, width, height, loc=1,
 
 
 @docstring.dedent_interpd
-def zoomed_inset_axes(parent_axes, zoom, loc=1,
+def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       bbox_to_anchor=None, bbox_transform=None,
                       axes_class=None,
                       axes_kwargs=None,

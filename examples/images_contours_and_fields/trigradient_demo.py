@@ -3,7 +3,8 @@
 Trigradient Demo
 ================
 
-Demonstrates computation of gradient with matplotlib.tri.CubicTriInterpolator.
+Demonstrates computation of gradient with
+`matplotlib.tri.CubicTriInterpolator`.
 """
 from matplotlib.tri import (
     Triangulation, UniformTriRefiner, CubicTriInterpolator)
@@ -85,3 +86,26 @@ ax.quiver(triang.x, triang.y, Ex/E_norm, Ey/E_norm,
 
 ax.set_title('Gradient plot: an electrical dipole')
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.tricontour
+matplotlib.pyplot.tricontour
+matplotlib.axes.Axes.triplot
+matplotlib.pyplot.triplot
+matplotlib.tri
+matplotlib.tri.Triangulation
+matplotlib.tri.CubicTriInterpolator
+matplotlib.tri.CubicTriInterpolator.gradient
+matplotlib.tri.UniformTriRefiner
+matplotlib.axes.Axes.quiver
+matplotlib.pyplot.quiver

@@ -1053,8 +1053,6 @@ class TransformedBbox(BboxBase):
                         _indent_str(self._bbox),
                         _indent_str(self._transform)))
 
-    __repr__ = __str__
-
     def get_points(self):
         if self._invalid:
             p = self._bbox.get_points()
@@ -1139,8 +1137,6 @@ class LockableBbox(BboxBase):
                 .format(type(self).__name__,
                         _indent_str(self._bbox),
                         _indent_str(self._locked_points)))
-
-    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
@@ -1620,9 +1616,6 @@ class Transform(TransformNode):
         ``x === self.inverted().transform(self.transform(x))``
         """
         raise NotImplementedError()
-
-    def __repr__(self):
-        return str(self)
 
 
 class TransformWrapper(Transform):

@@ -3,6 +3,10 @@
 Annotation Polar
 ================
 
+This example shows how to create an annotation on a polar graph.
+
+For a complete overview of the annotation capabilities, also see the
+:doc:`annotation tutorial</tutorials/text/annotations>`.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,3 +29,18 @@ ax.annotate('a polar annotation',
             verticalalignment='bottom',
             )
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.projections.polar
+matplotlib.axes.Axes.annotate
+matplotlib.pyplot.annotate

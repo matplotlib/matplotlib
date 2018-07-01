@@ -23,7 +23,6 @@
 
 # TODO 2013-04-08 ensure the menu files are as compact as possible by default, similar to subset.pl
 # TODO 2013-05-22 in Arimo, the latin subset doesn't include ; but the greek does. why on earth is this happening?
-from __future__ import print_function
 
 import getopt
 import os

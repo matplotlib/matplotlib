@@ -22,3 +22,17 @@ smiddle = np.ma.masked_where(np.logical_or(s < lower, s > upper), s)
 fig, ax = plt.subplots()
 ax.plot(t, smiddle, t, slower, t, supper)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.plot
+matplotlib.pyplot.plot

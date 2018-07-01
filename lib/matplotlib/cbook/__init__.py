@@ -6,8 +6,6 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-import six
-from six.moves import xrange, zip
 import collections
 import contextlib
 import datetime
@@ -16,7 +14,7 @@ import functools
 import glob
 import gzip
 import io
-from itertools import repeat
+import itertools
 import locale
 import numbers
 import operator
@@ -57,9 +55,9 @@ def unicode_safe(s):
             preferredencoding = None
 
         if preferredencoding is None:
-            return six.text_type(s)
+            return str(s)
         else:
-            return six.text_type(s, preferredencoding)
+            return str(s, preferredencoding)
     return s
 
 
@@ -81,18 +79,11 @@ class _BoundMethodProxy(object):
         self._destroy_callbacks = []
         try:
             try:
-                if six.PY3:
-                    self.inst = ref(cb.__self__, self._destroy)
-                else:
-                    self.inst = ref(cb.im_self, self._destroy)
+                self.inst = ref(cb.__self__, self._destroy)
             except TypeError:
                 self.inst = None
-            if six.PY3:
-                self.func = cb.__func__
-                self.klass = cb.__self__.__class__
-            else:
-                self.func = cb.im_func
-                self.klass = cb.im_class
+            self.func = cb.__func__
+            self.klass = cb.__self__.__class__
         except AttributeError:
             self.inst = None
             self.func = cb
@@ -157,12 +148,6 @@ class _BoundMethodProxy(object):
                 return self.func == other.func and self.inst() == other.inst()
         except Exception:
             return False
-
-    def __ne__(self, other):
-        """
-        Inverse of __eq__.
-        """
-        return not self.__eq__(other)
 
     def __hash__(self):
         return self._hash
@@ -267,7 +252,7 @@ class CallbackRegistry(object):
         return cid
 
     def _remove_proxy(self, proxy):
-        for signal, proxies in list(six.iteritems(self._func_cid_map)):
+        for signal, proxies in list(self._func_cid_map.items()):
             try:
                 del self.callbacks[signal][proxies[proxy]]
             except KeyError:
@@ -280,15 +265,14 @@ class CallbackRegistry(object):
     def disconnect(self, cid):
         """Disconnect the callback registered with callback id *cid*.
         """
-        for eventname, callbackd in list(six.iteritems(self.callbacks)):
+        for eventname, callbackd in list(self.callbacks.items()):
             try:
                 del callbackd[cid]
             except KeyError:
                 continue
             else:
-                for signal, functions in list(
-                        six.iteritems(self._func_cid_map)):
-                    for function, value in list(six.iteritems(functions)):
+                for signal, functions in list(self._func_cid_map.items()):
+                    for function, value in list(functions.items()):
                         if value == cid:
                             del functions[function]
                 return
@@ -301,7 +285,7 @@ class CallbackRegistry(object):
         called with ``*args`` and ``**kwargs``.
         """
         if s in self.callbacks:
-            for cid, proxy in list(six.iteritems(self.callbacks[s])):
+            for cid, proxy in list(self.callbacks[s].items()):
                 try:
                     proxy(*args, **kwargs)
                 except ReferenceError:
@@ -468,10 +452,8 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
     read/write flag for :func:`file`
     """
     if isinstance(fname, getattr(os, "PathLike", ())):
-        return to_filehandle(
-            os.fspath(fname),
-            flag=flag, return_opened=return_opened, encoding=encoding)
-    if isinstance(fname, six.string_types):
+        fname = os.fspath(fname)
+    if isinstance(fname, str):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U', '')
@@ -484,7 +466,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
             flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = io.open(fname, flag, encoding=encoding)
+            fh = open(fname, flag, encoding=encoding)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
@@ -509,12 +491,12 @@ def open_file_cm(path_or_file, mode="r", encoding=None):
 
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
-    return isinstance(val, six.string_types) or not iterable(val)
+    return isinstance(val, str) or not iterable(val)
 
 
 def _string_to_bool(s):
     """Parses the string argument as a boolean"""
-    if not isinstance(s, six.string_types):
+    if not isinstance(s, str):
         return bool(s)
     warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
                     "boolean is deprecated; use an actual boolean "
@@ -593,14 +575,7 @@ def mkdirs(newdir, mode=0o777):
     """
     # this functionality is now in core python as of 3.2
     # LPY DROP
-    if six.PY3:
-        os.makedirs(newdir, mode=mode, exist_ok=True)
-    else:
-        try:
-            os.makedirs(newdir, mode=mode)
-        except OSError as exception:
-            if exception.errno != errno.EEXIST:
-                raise
+    os.makedirs(newdir, mode=mode, exist_ok=True)
 
 
 @deprecated('3.0')
@@ -678,6 +653,7 @@ def dedent(s):
     return result
 
 
+@deprecated("3.0")
 def listFiles(root, patterns='*', recurse=1, return_folders=0):
     """
     Recursively list files
@@ -920,7 +896,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
             outstream.write("   %s -- " % type(step))
             if isinstance(step, dict):
-                for key, val in six.iteritems(step):
+                for key, val in step.items():
                     if val is next:
                         outstream.write("[{!r}]".format(key))
                         break
@@ -1001,17 +977,13 @@ class Grouper(object):
 
     """
     def __init__(self, init=()):
-        mapping = self._mapping = {}
-        for x in init:
-            mapping[ref(x)] = [ref(x)]
+        self._mapping = {ref(x): [ref(x)] for x in init}
 
     def __contains__(self, item):
         return ref(item) in self._mapping
 
     def clean(self):
-        """
-        Clean dead weak references from the dictionary
-        """
+        """Clean dead weak references from the dictionary."""
         mapping = self._mapping
         to_drop = [key for key in mapping if key() is None]
         for key in to_drop:
@@ -1020,18 +992,14 @@ class Grouper(object):
 
     def join(self, a, *args):
         """
-        Join given arguments into the same set.  Accepts one or more
-        arguments.
+        Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
         set_a = mapping.setdefault(ref(a), [ref(a)])
 
         for arg in args:
-            set_b = mapping.get(ref(arg))
-            if set_b is None:
-                set_a.append(ref(arg))
-                mapping[ref(arg)] = set_a
-            elif set_b is not set_a:
+            set_b = mapping.get(ref(arg), [ref(arg)])
+            if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
                 set_a.extend(set_b)
@@ -1041,24 +1009,15 @@ class Grouper(object):
         self.clean()
 
     def joined(self, a, b):
-        """
-        Returns True if *a* and *b* are members of the same set.
-        """
+        """Returns True if *a* and *b* are members of the same set."""
         self.clean()
-
-        mapping = self._mapping
-        try:
-            return mapping[ref(a)] is mapping[ref(b)]
-        except KeyError:
-            return False
+        return self._mapping.get(ref(a), object()) is self._mapping.get(ref(b))
 
     def remove(self, a):
         self.clean()
-
-        mapping = self._mapping
-        seta = mapping.pop(ref(a), None)
-        if seta is not None:
-            seta.remove(ref(a))
+        set_a = self._mapping.pop(ref(a), None)
+        if set_a:
+            set_a.remove(ref(a))
 
     def __iter__(self):
         """
@@ -1067,26 +1026,13 @@ class Grouper(object):
         The iterator is invalid if interleaved with calls to join().
         """
         self.clean()
-        token = object()
-
-        # Mark each group as we come across if by appending a token,
-        # and don't yield it twice
-        for group in six.itervalues(self._mapping):
-            if group[-1] is not token:
-                yield [x() for x in group]
-                group.append(token)
-
-        # Cleanup the tokens
-        for group in six.itervalues(self._mapping):
-            if group[-1] is token:
-                del group[-1]
+        unique_groups = {id(group): group for group in self._mapping.values()}
+        for group in unique_groups.values():
+            yield [x() for x in group]
 
     def get_siblings(self, a):
-        """
-        Returns all of the items joined with *a*, including itself.
-        """
+        """Returns all of the items joined with *a*, including itself."""
         self.clean()
-
         siblings = self._mapping.get(ref(a), [ref(a)])
         return [x() for x in siblings]
 
@@ -1148,14 +1094,13 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if (isinstance(args[0], six.string_types) or not iterable(args[0])):
+    if isinstance(args[0], str) or not iterable(args[0]):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if (not isinstance(x, six.string_types) and iterable(x)
-                and len(x) == nrecs):
+        if not isinstance(x, str) and iterable(x) and len(x) == nrecs:
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
@@ -1307,12 +1252,12 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     ncols = len(X)
     if labels is None:
-        labels = repeat(None)
+        labels = itertools.repeat(None)
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 
     input_whis = whis
-    for ii, (x, label) in enumerate(zip(X, labels), start=0):
+    for ii, (x, label) in enumerate(zip(X, labels)):
 
         # empty dict
         stats = {}
@@ -1402,7 +1347,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 # The ls_mapper maps short codes for line style to their full name used by
 # backends; the reverse mapper is for mapping full names to short ones.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
-ls_mapper_r = {v: k for k, v in six.iteritems(ls_mapper)}
+ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 
 @deprecated('2.2')
@@ -1479,16 +1424,9 @@ def contiguous_regions(mask):
 def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
-    try:
-        s = six.text_type(s)
-    except UnicodeDecodeError:
-        raise ValueError(
-            "matplotlib display text must have all code points < 128 or use "
-            "Unicode strings")
-
+    s = str(s)
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
-
     return even_dollars
 
 
@@ -1832,7 +1770,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     ret = dict()
 
     # hit all alias mappings
-    for canonical, alias_list in six.iteritems(alias_mapping):
+    for canonical, alias_list in alias_mapping.items():
 
         # the alias lists are ordered from lowest to highest priority
         # so we know to use the last value in this list
@@ -1875,14 +1813,13 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                         "are in kwargs".format(keys=fail_keys))
 
     if allowed is not None:
-        allowed_set = set(required) | set(allowed)
+        allowed_set = {*required, *allowed}
         fail_keys = [k for k in ret if k not in allowed_set]
         if fail_keys:
-            raise TypeError("kwargs contains {keys!r} which are not in "
-                            "the required {req!r} or "
-                            "allowed {allow!r} keys".format(
-                                keys=fail_keys, req=required,
-                                allow=allowed))
+            raise TypeError(
+                "kwargs contains {keys!r} which are not in the required "
+                "{req!r} or allowed {allow!r} keys".format(
+                    keys=fail_keys, req=required, allow=allowed))
 
     return ret
 
@@ -1986,7 +1923,12 @@ def _lock_path(path):
         except FileExistsError:
             time.sleep(sleeptime)
     else:
-        raise TimeoutError(_lockstr.format(lock_path))
+        raise TimeoutError("""\
+Lock error: Matplotlib failed to acquire the following lock file:
+    {}
+This maybe due to another process holding this lock file.  If you are sure no
+other Matplotlib process is running, remove this file and try again.""".format(
+            lock_path))
     try:
         yield
     finally:
@@ -1999,9 +1941,8 @@ def _topmost_artist(
     """Get the topmost artist of a list.
 
     In case of a tie, return the *last* of the tied artists, as it will be
-    drawn on top of the others. `max` returns the first maximum in case of ties
-    (on Py2 this is undocumented but true), so we need to iterate over the list
-    in reverse order.
+    drawn on top of the others. `max` returns the first maximum in case of
+    ties, so we need to iterate over the list in reverse order.
     """
     return _cached_max(reversed(artists))
 
@@ -2013,7 +1954,7 @@ def _str_equal(obj, s):
     because in such cases, a naive ``obj == s`` would yield an array, which
     cannot be used in a boolean context.
     """
-    return isinstance(obj, six.string_types) and obj == s
+    return isinstance(obj, str) and obj == s
 
 
 def _str_lower_equal(obj, s):
@@ -2023,7 +1964,7 @@ def _str_lower_equal(obj, s):
     because in such cases, a naive ``obj == s`` would yield an array, which
     cannot be used in a boolean context.
     """
-    return isinstance(obj, six.string_types) and obj.lower() == s
+    return isinstance(obj, str) and obj.lower() == s
 
 
 def _define_aliases(alias_d, cls=None):
@@ -2070,3 +2011,60 @@ def _define_aliases(alias_d, cls=None):
         raise NotImplementedError("Parent class already defines aliases")
     cls._alias_map = alias_d
     return cls
+
+
+@contextlib.contextmanager
+def _setattr_cm(obj, **kwargs):
+    """Temporarily set some attributes; restore original state at context exit.
+    """
+    sentinel = object()
+    origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]
+    try:
+        for attr, val in kwargs.items():
+            setattr(obj, attr, val)
+        yield
+    finally:
+        for attr, orig in origs:
+            if orig is sentinel:
+                delattr(obj, attr)
+            else:
+                setattr(obj, attr, orig)
+
+
+def _warn_external(message, category=None):
+    """
+    `warnings.warn` wrapper that sets *stacklevel* to "outside Matplotlib".
+
+    The original emitter of the warning can be obtained by patching this
+    function back to `warnings.warn`, i.e. ``cbook._warn_external =
+    warnings.warn`` (or ``functools.partial(warnings.warn, stacklevel=2)``,
+    etc.).
+    """
+    frame = sys._getframe()
+    for stacklevel in itertools.count(1):
+        if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
+                        frame.f_globals["__name__"]):
+            break
+        frame = frame.f_back
+    warnings.warn(message, category, stacklevel)
+
+
+class _OrderedSet(collections.MutableSet):
+    def __init__(self):
+        self._od = collections.OrderedDict()
+
+    def __contains__(self, key):
+        return key in self._od
+
+    def __iter__(self):
+        return iter(self._od)
+
+    def __len__(self):
+        return len(self._od)
+
+    def add(self, key):
+        self._od.pop(key, None)
+        self._od[key] = None
+
+    def discard(self, key):
+        self._od.pop(key, None)

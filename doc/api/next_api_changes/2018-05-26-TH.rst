@@ -1,0 +1,9 @@
+Removed proprietary sphinx directives
+-------------------------------------
+
+The matplotlib documentation used the proprietary sphinx directives
+`.. htmlonly::`, and `.. latexonly::`. These have been replaced with the
+standard sphinx directives `.. only:: html` and `.. only:: latex`. This
+change will not affect any users. Only downstream package maintainers, who
+have used the proprietary directives in their docs, will have to switch to the
+sphinx directives.

@@ -3,6 +3,13 @@
 Auto Subplots Adjust
 ====================
 
+Automatically adjust subplot parameters. This example shows a way to determine
+a subplot parameter from the extent of the ticklabels using a callback on the
+:doc:`draw_event</users/event_handling>`.
+
+Note that a similar result would be achieved using `~.Figure.tight_layout`
+or `~.Figure.contrained_layout`; this example shows how one could customize
+the subplot parameter adjustment.
 """
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
@@ -34,3 +41,21 @@ fig.canvas.mpl_connect('draw_event', on_draw)
 
 plt.show()
 
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.artist.Artist.get_window_extent
+matplotlib.transforms.Bbox
+matplotlib.transforms.Bbox.inverse_transformed
+matplotlib.transforms.Bbox.union
+matplotlib.figure.Figure.subplots_adjust
+matplotlib.figure.SubplotParams
+matplotlib.backend_bases.FigureCanvasBase.mpl_connect

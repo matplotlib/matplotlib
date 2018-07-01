@@ -124,3 +124,21 @@ plt.show()
 ax.contour(weights[::-1], levels=[-.0001, .0001], colors='k', linestyles='-')
 ax.set_axis_off()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
+matplotlib.axes.Axes.contour
+matplotlib.pyplot.contour
+matplotlib.colors.Normalize
+matplotlib.axes.Axes.set_axis_off

@@ -139,7 +139,7 @@ PolygonSelector
 
 A :class:`~matplotlib.widgets.PolygonSelector` class has been added to
 :mod:`matplotlib.widgets`.  See
-:ref:`sphx_glr_gallery_widgets_polygon_selector_demo.py` for details.
+:doc:`/gallery/widgets/polygon_selector_demo` for details.
 
 
 Added `matplotlib.ticker.PercentFormatter`
@@ -261,11 +261,11 @@ rectangle for the size bar.
 
     fig, ax = plt.subplots(figsize=(3, 3))
 
-    bar0 = AnchoredSizeBar(ax.transData, 0.3, 'unfilled', loc=3, frameon=False,
-                           size_vertical=0.05, fill_bar=False)
+    bar0 = AnchoredSizeBar(ax.transData, 0.3, 'unfilled', loc='lower left',
+                           frameon=False, size_vertical=0.05, fill_bar=False)
     ax.add_artist(bar0)
-    bar1 = AnchoredSizeBar(ax.transData, 0.3, 'filled', loc=4, frameon=False,
-                           size_vertical=0.05, fill_bar=True)
+    bar1 = AnchoredSizeBar(ax.transData, 0.3, 'filled', loc='lower right',
+                           frameon=False, size_vertical=0.05, fill_bar=True)
     ax.add_artist(bar1)
 
     plt.show()
@@ -395,12 +395,28 @@ cases.
 ---------------------------------------------------
 
 Bulk setting of tick label rotation is now possible via
-:func:`~matplotlib.axis.Axis.set_tick_params` using the ``rotation``
+:func:`~matplotlib.axes.Axes.tick_params` using the ``rotation``
 keyword.
 
 ::
 
-    ax.xaxis.set_tick_params(which='both', rotation=90)
+    ax.tick_params(which='both', rotation=90)
+
+
+Ticklabels are turned off instead of being invisible
+----------------------------------------------------
+
+Internally, the `Tick`'s :func:`~matplotlib.axis.Tick.label1On` attribute
+is now used to hide tick labels instead of setting the visibility on the tick
+label objects.
+This improves overall performance and fixes some issues.
+As a consequence, in case those labels ought to be shown,
+:func:`~matplotlib.axes.Axes.tick_params`
+needs to be used, e.g.
+
+::
+
+    ax.tick_params(labelbottom=True)
 
 
 Shading in 3D bar plots

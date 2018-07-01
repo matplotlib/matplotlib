@@ -647,15 +647,9 @@ class ColorbarBase(cm.ScalarMappable):
                   norm=self.norm,
                   alpha=self.alpha,
                   edgecolors='None')
-        # Save, set, and restore hold state to keep pcolor from
-        # clearing the axes. Ordinarily this will not be needed,
-        # since the axes object should already have hold set.
-        _hold = self.ax._hold
-        self.ax._hold = True
         _log.debug('Setting pcolormesh')
         col = self.ax.pcolormesh(*args, **kw)
-        self.ax._hold = _hold
-        #self.add_observer(col) # We should observe, not be observed...
+        # self.add_observer(col) # We should observe, not be observed...
 
         if self.solids is not None:
             self.solids.remove()
@@ -861,8 +855,7 @@ class ColorbarBase(cm.ScalarMappable):
         if isinstance(frac, str):
             if frac.lower() == 'auto':
                 # Use the provided values when 'auto' is required.
-                extendlength[0] = automin
-                extendlength[1] = automax
+                extendlength[:] = [automin, automax]
             else:
                 # Any other string is invalid.
                 raise ValueError('invalid value for extendfrac')
@@ -1292,7 +1285,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     # transform each of the axes in parents using the new transform
     for ax in parents:
-        new_posn = shrinking_trans.transform(ax.get_position())
+        new_posn = shrinking_trans.transform(ax.get_position(original=True))
         new_posn = mtransforms.Bbox(new_posn)
         ax._set_position(new_posn)
         if parent_anchor is not False:
@@ -1329,7 +1322,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes_gridspec(parent, **kw):
+def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     '''
     Resize and reposition a parent axes, and return a child axes
     suitable for a colorbar. This function is similar to
@@ -1365,10 +1358,6 @@ def make_axes_gridspec(parent, **kw):
 
     orientation = kw.setdefault('orientation', 'vertical')
     kw['ticklocation'] = 'auto'
-
-    fraction = kw.pop('fraction', 0.15)
-    shrink = kw.pop('shrink', 1.0)
-    aspect = kw.pop('aspect', 20)
 
     x1 = 1 - fraction
 
@@ -1443,12 +1432,6 @@ class ColorbarPatch(Colorbar):
         Draw the colors using :class:`~matplotlib.patches.Patch`;
         optionally add separators.
         """
-        # Save, set, and restore hold state to keep pcolor from
-        # clearing the axes. Ordinarily this will not be needed,
-        # since the axes object should already have hold set.
-        _hold = self.ax._hold
-        self.ax._hold = True
-
         kw = {'alpha': self.alpha, }
 
         n_segments = len(C)
@@ -1493,8 +1476,6 @@ class ColorbarPatch(Colorbar):
                     colors=(mpl.rcParams['axes.edgecolor'],),
                     linewidths=(0.5 * mpl.rcParams['axes.linewidth'],))
             self.ax.add_collection(self.dividers)
-
-        self.ax._hold = _hold
 
 
 def colorbar_factory(cax, mappable, **kwargs):

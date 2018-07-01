@@ -78,6 +78,8 @@ backend      : $TEMPLATE_BACKEND
 #lines.linestyle   : -       ## solid line
 #lines.color       : C0      ## has no affect on plot(); see axes.prop_cycle
 #lines.marker      : None    ## the default marker
+#lines.markerfacecolor  : auto    ## the default markerfacecolor
+#lines.markeredgecolor  : auto    ## the default markeredgecolor
 #lines.markeredgewidth  : 1.0     ## the line width around the marker symbol
 #lines.markersize  : 6            ## markersize, in points
 #lines.dash_joinstyle : round        ## miter|round|bevel
@@ -413,6 +415,7 @@ backend      : $TEMPLATE_BACKEND
 #legend.scatterpoints : 1        ## number of scatter points
 #legend.markerscale   : 1.0      ## the relative size of legend markers vs. original
 #legend.fontsize      : medium
+#legend.title_fontsize    : None ## None sets to the same as the default axes.  
 ## Dimensions as fraction of fontsize:
 #legend.borderpad     : 0.4      ## border whitespace
 #legend.labelspacing  : 0.5      ## the vertical space between the legend entries
@@ -581,6 +584,7 @@ backend      : $TEMPLATE_BACKEND
 #keymap.pan : p                      ## pan mnemonic
 #keymap.zoom : o                     ## zoom mnemonic
 #keymap.save : s, ctrl+s             ## saving current figure
+#keymap.help : f1                    ## display help about active tools
 #keymap.quit : ctrl+w, cmd+w, q      ## close the current figure
 #keymap.quit_all : W, cmd+W, Q       ## close all figures
 #keymap.grid : g                     ## switching on/off major grids in current axes
@@ -588,6 +592,7 @@ backend      : $TEMPLATE_BACKEND
 #keymap.yscale : l                   ## toggle scaling of y-axes ('log'/'linear')
 #keymap.xscale : k, L                ## toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 ## enable all axes
+#keymap.copy : ctrl+c, cmd+c         ## Copy figure to clipboard
 
 ## Control location of examples data files
 #examples.directory :              ## directory to look in for custom installation

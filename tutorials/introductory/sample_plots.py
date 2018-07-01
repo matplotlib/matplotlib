@@ -279,8 +279,8 @@ Date handling
 You can plot timeseries data with major and minor ticks and custom
 tick formatters for both.
 
-.. figure:: ../../gallery/api/images/sphx_glr_date_001.png
-   :target: ../../gallery/api/date.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_date_001.png
+   :target: ../../gallery/text_labels_and_annotations/date.html
    :align: center
    :scale: 50
 
@@ -333,8 +333,8 @@ The :func:`~matplotlib.pyplot.legend` function automatically
 generates figure legends, with MATLAB-compatible legend-placement
 functions.
 
-.. figure:: ../../gallery/api/images/sphx_glr_legend_001.png
-   :target: ../../gallery/api/legend.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_legend_001.png
+   :target: ../../gallery/text_labels_and_annotations/legend.html
    :align: center
    :scale: 50
 
@@ -362,7 +362,7 @@ fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
 Matplotlib's mathtext infrastructure is an independent implementation and
 does not require TeX or any external packages installed on your computer. See
-the tutorial at :ref:`sphx_glr_tutorials_text_mathtext.py`.
+the tutorial at :doc:`/tutorials/text/mathtext`.
 
 
 .. _screenshots_tex_demo:

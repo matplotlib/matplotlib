@@ -1,10 +1,6 @@
 """
 Tests specific to the patches module.
 """
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
@@ -257,10 +253,10 @@ def test_wedge_movement():
                   'theta1': (0, 30, 'set_theta1'),
                   'theta2': (45, 50, 'set_theta2')}
 
-    init_args = dict((k, v[0]) for (k, v) in six.iteritems(param_dict))
+    init_args = dict((k, v[0]) for (k, v) in param_dict.items())
 
     w = mpatches.Wedge(**init_args)
-    for attr, (old_v, new_v, func) in six.iteritems(param_dict):
+    for attr, (old_v, new_v, func) in param_dict.items():
         assert getattr(w, attr) == old_v
         getattr(w, func)(new_v)
         assert getattr(w, attr) == new_v
@@ -319,6 +315,43 @@ def test_patch_str():
     p = mpatches.Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)
     expected = 'Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)'
     assert str(p) == expected
+
+    p = mpatches.RegularPolygon((1, 2), 20, radius=5)
+    assert str(p) == "RegularPolygon((1, 2), 20, radius=5, orientation=0)"
+
+    p = mpatches.CirclePolygon(xy=(1, 2), radius=5, resolution=20)
+    assert str(p) == "CirclePolygon((1, 2), radius=5, resolution=20)"
+
+    p = mpatches.FancyBboxPatch((1, 2), width=3, height=4)
+    assert str(p) == "FancyBboxPatch((1, 2), width=3, height=4)"
+
+    # Further nice __str__ which cannot be `eval`uated:
+    path_data = [([1, 2], mpath.Path.MOVETO), ([2, 2], mpath.Path.LINETO),
+                 ([1, 2], mpath.Path.CLOSEPOLY)]
+    p = mpatches.PathPatch(mpath.Path(*zip(*path_data)))
+    assert str(p) == "PathPatch3((1, 2) ...)"
+
+    data = [[1, 2], [2, 2], [1, 2]]
+    p = mpatches.Polygon(data)
+    assert str(p) == "Polygon3((1, 2) ...)"
+
+    p = mpatches.FancyArrowPatch(path=mpath.Path(*zip(*path_data)))
+    assert str(p)[:27] == "FancyArrowPatch(Path(array("
+
+    p = mpatches.FancyArrowPatch((1, 2), (3, 4))
+    assert str(p) == "FancyArrowPatch((1, 2)->(3, 4))"
+
+    p = mpatches.ConnectionPatch((1, 2), (3, 4), 'data')
+    assert str(p) == "ConnectionPatch((1, 2), (3, 4))"
+
+    s = mpatches.Shadow(p, 1, 1)
+    assert str(s) == "Shadow(ConnectionPatch((1, 2), (3, 4)))"
+
+    p = mpatches.YAArrow(plt.gcf(), (1, 0), (2, 1), width=0.1)
+    assert str(p) == "YAArrow()"
+
+    # Not testing Arrow, FancyArrow here
+    # because they seem to exist only for historical reasons.
 
 
 @image_comparison(baseline_images=['multi_color_hatch'],

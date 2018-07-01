@@ -1,0 +1,5 @@
+Deprecations
+------------
+
+`.Legend.draggable()` is drepecated in favor of `.Legend.set_draggable()`.
+``Legend.draggable`` may be reintroduced as a property in future releases.

@@ -28,7 +28,7 @@ def test_use14corefonts():
     rcParams['font.sans-serif'] = ['Helvetica']
     rcParams['pdf.compression'] = 0
 
-    text = u'''A three-line text positioned just above a blue line
+    text = '''A three-line text positioned just above a blue line
 and containing some French characters and the euro symbol:
 "Merci pépé pour les 10 €"'''
 

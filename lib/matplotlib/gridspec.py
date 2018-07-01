@@ -23,7 +23,6 @@ import matplotlib as mpl
 from matplotlib import _pylab_helpers, tight_layout, rcParams
 from matplotlib.transforms import Bbox
 import matplotlib._layoutbox as layoutbox
-from matplotlib.cbook import mplDeprecation
 
 _log = logging.getLogger(__name__)
 
@@ -43,6 +42,18 @@ class GridSpecBase(object):
         self._nrows, self._ncols = nrows, ncols
         self.set_height_ratios(height_ratios)
         self.set_width_ratios(width_ratios)
+
+    def __repr__(self):
+        height_arg = (', height_ratios=%r' % self._row_height_ratios
+                      if self._row_height_ratios is not None else '')
+        width_arg = (', width_ratios=%r' % self._col_width_ratios
+                     if self._col_width_ratios is not None else '')
+        return '{clsname}({nrows}, {ncols}{optionals})'.format(
+            clsname=self.__class__.__name__,
+            nrows=self._nrows,
+            ncols=self._ncols,
+            optionals=height_arg + width_arg,
+            )
 
     def get_geometry(self):
         'get the geometry of the grid, e.g., 2,3'
@@ -265,8 +276,8 @@ class GridSpec(GridSpecBase):
         parameters are from rcParams unless a figure attribute is set.
         """
         if fig is not None:
-            warnings.warn("the 'fig' kwarg is deprecated "
-                          "use 'figure' instead", mplDeprecation)
+            cbook.warn_deprecated("2.2", "fig", obj_type="keyword argument",
+                                  alternative="figure")
         if figure is None:
             figure = fig
 
@@ -355,8 +366,8 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         """Return a dictionary of subplot layout parameters.
         """
         if fig is not None:
-            warnings.warn("the 'fig' kwarg is deprecated "
-                          "use 'figure' instead", mplDeprecation)
+            cbook.warn_deprecated("2.2", "fig", obj_type="keyword argument",
+                                  alternative="figure")
         if figure is None:
             figure = fig
 

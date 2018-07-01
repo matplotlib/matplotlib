@@ -203,9 +203,50 @@ static PyObject *_tkinit(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
+{
+    Tcl_Interp *interp;
+    char const *photo_name;
+    int height, width;
+    unsigned char *data_ptr;
+    int o0, o1, o2, o3;
+    int x1, x2, y1, y2;
+    Tk_PhotoHandle photo;
+    Tk_PhotoImageBlock block;
+    if (!PyArg_ParseTuple(args, "ns(iin)(iiii)(iiii):blit",
+                          &interp, &photo_name,
+                          &height, &width, &data_ptr,
+                          &o0, &o1, &o2, &o3,
+                          &x1, &x2, &y1, &y2)) {
+        goto exit;
+    }
+    if (!(photo = TK_FIND_PHOTO(interp, photo_name))) {
+        PyErr_SetString(PyExc_ValueError, "Failed to extract Tk_PhotoHandle");
+        goto exit;
+    }
+    block.pixelPtr = data_ptr + 4 * ((height - y2) * width + x1);
+    block.width = x2 - x1;
+    block.height = y2 - y1;
+    block.pitch = 4 * width;
+    block.pixelSize = 4;
+    block.offset[0] = o0;
+    block.offset[1] = o1;
+    block.offset[2] = o2;
+    block.offset[3] = o3;
+    TK_PHOTO_PUT_BLOCK_NO_COMPOSITE(
+        photo, &block, x1, height - y2, x2 - x1, y2 - y1);
+exit:
+    if (PyErr_Occurred()) {
+        return NULL;
+    } else {
+        Py_RETURN_NONE;
+    }
+}
+
 static PyMethodDef functions[] = {
     /* Tkinter interface stuff */
     { "tkinit", (PyCFunction)_tkinit, 1 },
+    { "blit", (PyCFunction)mpl_tk_blit, 1 },
     { NULL, NULL } /* sentinel */
 };
 
@@ -444,8 +485,9 @@ exit:
 }
 #endif // end not Windows
 
-static PyModuleDef _tkagg_module = { PyModuleDef_HEAD_INIT, "_tkagg", "",   -1,  functions,
-                                     NULL,                  NULL,     NULL, NULL };
+static PyModuleDef _tkagg_module = {
+    PyModuleDef_HEAD_INIT, "_tkagg", "", -1, functions, NULL, NULL, NULL, NULL
+};
 
 PyMODINIT_FUNC PyInit__tkagg(void)
 {

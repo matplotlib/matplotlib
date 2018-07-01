@@ -249,7 +249,7 @@ class ScalarMappable(object):
                 else:
                     raise ValueError("third dimension must be 3 or 4")
                 if xx.dtype.kind == 'f':
-                    if norm and xx.max() > 1 or xx.min() < 0:
+                    if norm and (xx.max() > 1 or xx.min() < 0):
                         raise ValueError("Floating point image RGB values "
                                          "must be in the 0..1 range.")
                     if bytes:
@@ -274,8 +274,6 @@ class ScalarMappable(object):
 
     def set_array(self, A):
         """Set the image array from numpy array *A*.
-
-        .. ACCEPTS: ndarray
 
         Parameters
         ----------
@@ -320,7 +318,9 @@ class ScalarMappable(object):
         """
         set the colormap for luminance data
 
-        ACCEPTS: a colormap or registered colormap name
+        Parameters
+        ----------
+        cmap : colormap or registered colormap name
         """
         cmap = get_cmap(cmap)
         self.cmap = cmap
@@ -328,8 +328,6 @@ class ScalarMappable(object):
 
     def set_norm(self, norm):
         """Set the normalization instance.
-
-        .. ACCEPTS: `.Normalize`
 
         Parameters
         ----------

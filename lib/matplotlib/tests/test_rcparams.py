@@ -1,6 +1,7 @@
-import six
-
 from collections import OrderedDict
+import copy
+from itertools import chain
+import locale
 import os
 from unittest import mock
 import warnings
@@ -11,7 +12,6 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_stringlist,
@@ -27,15 +27,13 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 _validate_linestyle)
 
 
-mpl.rc('text', usetex=False)
-mpl.rc('lines', linewidth=22)
-
-fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
-
-
 def test_rcparams():
+    mpl.rc('text', usetex=False)
+    mpl.rc('lines', linewidth=22)
+
     usetex = mpl.rcParams['text.usetex']
     linewidth = mpl.rcParams['lines.linewidth']
+    fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
 
     # test context given dictionary
     with mpl.rc_context(rc={'text.usetex': not usetex}):
@@ -53,11 +51,8 @@ def test_rcparams():
     assert mpl.rcParams['lines.linewidth'] == linewidth
 
     # test rc_file
-    try:
-        mpl.rc_file(fname)
-        assert mpl.rcParams['lines.linewidth'] == 33
-    finally:
-        mpl.rcParams['lines.linewidth'] = linewidth
+    mpl.rc_file(fname)
+    assert mpl.rcParams['lines.linewidth'] == 33
 
 
 def test_RcParams_class():
@@ -133,8 +128,7 @@ def test_Bug_2543():
                 mpl.rcParams[key] = _copy[key]
             mpl.rcParams['text.dvipnghack'] = None
         with mpl.rc_context():
-            from copy import deepcopy
-            _deep_copy = deepcopy(mpl.rcParams)
+            _deep_copy = copy.deepcopy(mpl.rcParams)
         # real test is that this does not raise
         assert validate_bool_maybe_none(None) is None
         assert validate_bool_maybe_none("none") is None
@@ -181,10 +175,21 @@ def test_legend_colors(color_type, param_dict, target):
         assert getattr(leg.legendPatch, get_func)() == target
 
 
+def test_mfc_rcparams():
+    mpl.rcParams['lines.markerfacecolor'] = 'r'
+    ln = mpl.lines.Line2D([1, 2], [1, 2])
+    assert ln.get_markerfacecolor() == 'r'
+
+
+def test_mec_rcparams():
+    mpl.rcParams['lines.markeredgecolor'] = 'r'
+    ln = mpl.lines.Line2D([1, 2], [1, 2])
+    assert ln.get_markeredgecolor() == 'r'
+
+
 def test_Issue_1713():
     utf32_be = os.path.join(os.path.dirname(__file__),
                            'test_utf32_be_rcparams.rc')
-    import locale
     with mock.patch('locale.getpreferredencoding', return_value='UTF-32-BE'):
         rc = mpl.rc_params_from_file(utf32_be, True, False)
     assert rc.get('timezone') == 'UTC'
@@ -388,10 +393,7 @@ def generate_validator_testcases(valid):
                 }
     # Add some cases of bytes arguments that Python 2 can convert silently:
     ls_bytes_args = (b'dotted', 'dotted'.encode('ascii'))
-    if six.PY3:
-        ls_test['fail'] += tuple((arg, ValueError) for arg in ls_bytes_args)
-    else:
-        ls_test['success'] += tuple((arg, 'dotted') for arg in ls_bytes_args)
+    ls_test['fail'] += tuple((arg, ValueError) for arg in ls_bytes_args)
     # Update the validation test sequence.
     validation_tests += (ls_test,)
 
@@ -450,17 +452,13 @@ def test_rcparams_reset_after_fail():
 
 
 def test_if_rctemplate_is_up_to_date():
-    # This tests if the matplotlibrc.template file
-    # contains all valid rcParams.
-    dep1 = mpl._all_deprecated
-    dep2 = mpl._deprecated_set
-    deprecated = list(dep1.union(dep2))
-    #print(deprecated)
-    path_to_rc = mpl.matplotlib_fname()
+    # This tests if the matplotlibrc.template file contains all valid rcParams.
+    deprecated = {*mpl._all_deprecated, *mpl._deprecated_remain_as_none}
+    path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
     missing = {}
-    for k,v in mpl.defaultParams.items():
+    for k, v in mpl.defaultParams.items():
         if k[0] == "_":
             continue
         if k in deprecated:
@@ -472,17 +470,17 @@ def test_if_rctemplate_is_up_to_date():
             if k in line:
                 found = True
         if not found:
-            missing.update({k:v})
+            missing.update({k: v})
     if missing:
-        raise ValueError("The following params are missing " +
-                         "in the matplotlibrc.template file: {}"
+        raise ValueError("The following params are missing in the "
+                         "matplotlibrc.template file: {}"
                          .format(missing.items()))
 
 
 def test_if_rctemplate_would_be_valid(tmpdir):
     # This tests if the matplotlibrc.template file would result in a valid
     # rc file if all lines are uncommented.
-    path_to_rc = mpl.matplotlib_fname()
+    path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
     newlines = []
@@ -501,10 +499,7 @@ def test_if_rctemplate_would_be_valid(tmpdir):
     with open(fname, "w") as f:
         f.writelines(newlines)
     with pytest.warns(None) as record:
-        dic = mpl.rc_params_from_file(fname,
-                                      fail_on_error=True,
-                                      use_default_template=False)
+        mpl.rc_params_from_file(fname,
+                                fail_on_error=True,
+                                use_default_template=False)
         assert len(record) == 0
-    #d1 = set(dic.keys())
-    #d2 = set(matplotlib.defaultParams.keys())
-    #print(d2-d1)

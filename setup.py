@@ -6,7 +6,6 @@ setup.cfg.template for more information.
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
-from __future__ import print_function, absolute_import
 from string import Template
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
@@ -242,10 +241,8 @@ if __name__ == '__main__':
         for mod in ext_modules:
             mod.finalize()
 
-    extra_args = {}
-
     # Finally, pass this all along to distutils to do the heavy lifting.
-    distrib = setup(
+    setup(
         name="matplotlib",
         version=__version__,
         description="Python plotting package",
@@ -256,8 +253,7 @@ if __name__ == '__main__':
         Matplotlib strives to produce publication quality 2D graphics
         for interactive graphing, scientific publishing, user interface
         development and web application servers targeting multiple user
-        interfaces and hardcopy output formats.  There is a 'pylab' mode
-        which emulates MATLAB graphics.
+        interfaces and hardcopy output formats.
         """,
         license="BSD",
         packages=packages,
@@ -280,5 +276,4 @@ if __name__ == '__main__':
         # check for zip safety.
         zip_safe=False,
         cmdclass=cmdclass,
-        **extra_args
     )

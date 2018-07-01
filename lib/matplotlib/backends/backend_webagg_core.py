@@ -11,9 +11,10 @@ Displays Agg images in the browser, with interactivity
 #   application, implemented with tornado.
 
 import datetime
-import io
+from io import StringIO
 import json
 import os
+from pathlib import Path
 import warnings
 
 import numpy as np
@@ -88,21 +89,21 @@ def _handle_key(key):
     code = int(key[key.index('k') + 1:])
     value = chr(code)
     # letter keys
-    if code >= 65 and code <= 90:
+    if 65 <= code <= 90:
         if 'shift+' in key:
             key = key.replace('shift+', '')
         else:
             value = value.lower()
     # number keys
-    elif code >= 48 and code <= 57:
+    elif 48 <= code <= 57:
         if 'shift+' in key:
             value = ')!@#$%^&*('[int(value)]
             key = key.replace('shift+', '')
     # function keys
-    elif code >= 112 and code <= 123:
+    elif 112 <= code <= 123:
         value = 'f%s' % (code - 111)
     # number pad keys
-    elif code >= 96 and code <= 105:
+    elif 96 <= code <= 105:
         value = '%s' % (code - 96)
     # keys with shift alternatives
     elif code in _SHIFT_LUT and 'shift+' in key:
@@ -241,7 +242,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_unknown_event(self, event):
         warnings.warn('Unhandled message type {0}. {1}'.format(
-            event['type'], event))
+            event['type'], event), stacklevel=2)
 
     def handle_ack(self, event):
         # Network latency tends to decrease if traffic is flowing
@@ -448,15 +449,12 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     @classmethod
     def get_javascript(cls, stream=None):
         if stream is None:
-            output = io.StringIO()
+            output = StringIO()
         else:
             output = stream
 
-        with io.open(os.path.join(
-                os.path.dirname(__file__),
-                "web_backend", "js",
-                "mpl.js"), encoding='utf8') as fd:
-            output.write(fd.read())
+        output.write((Path(__file__).parent / "web_backend/js/mpl.js")
+                     .read_text(encoding="utf-8"))
 
         toolitems = []
         for name, tooltip, image, method in cls.ToolbarCls.toolitems:

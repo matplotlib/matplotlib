@@ -7,8 +7,6 @@ Hunter (jdhunter@ace.bsd.uchicago.edu).
 Copyright (C) Jeremy O'Donoghue & John Hunter, 2003-4.
 """
 
-import six
-
 import os.path
 import math
 import sys
@@ -97,7 +95,7 @@ def error_msg_wx(msg, parent=None):
 
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines."""
-    if not isinstance(msg, six.string_types):
+    if not isinstance(msg, str):
         msg = '\n'.join(map(str, msg))
     return msg
 
@@ -489,7 +487,7 @@ class GraphicsContextWx(GraphicsContextBase):
         w = float(w)
         DEBUG_MSG("set_linewidth()", 1, self)
         self.select()
-        if w > 0 and w < 1:
+        if 0 < w < 1:
             w = 1
         GraphicsContextBase.set_linewidth(self, w)
         lw = int(self.renderer.points_to_pixels(self._linewidth))
@@ -666,9 +664,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     @cbook.deprecated("3.0")
     def macros(self):
         return {}
-
-    def Destroy(self, *args, **kwargs):
-        wx.Panel.Destroy(self, *args, **kwargs)
 
     def Copy_to_Clipboard(self, event=None):
         "copy bitmap of canvas to system clipboard"
@@ -1111,7 +1106,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
 
         # Now that we have rendered into the bitmap, save it
         # to the appropriate file type and clean up
-        if isinstance(filename, six.string_types):
+        if isinstance(filename, str):
             if not image.SaveFile(filename, filetype):
                 DEBUG_MSG('print_figure() file save error', 4, self)
                 raise RuntimeError(
@@ -1268,12 +1263,6 @@ class FigureManagerWx(FigureManagerBase):
 
         self.tb = frame.GetToolBar()
         self.toolbar = self.tb  # consistent with other backends
-
-        def notify_axes_change(fig):
-            'this will be called whenever the current axes is changed'
-            if self.tb is not None:
-                self.tb.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
 
     def show(self):
         self.frame.Show()
@@ -1454,6 +1443,7 @@ cursord = {
 @cbook.deprecated("2.2")
 class SubplotToolWX(wx.Frame):
     def __init__(self, targetfig):
+        global FigureManager  # placates pyflakes: created by @_Backend.export
         wx.Frame.__init__(self, None, -1, "Configure subplots")
 
         toolfig = Figure((6, 3))
@@ -1521,6 +1511,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         NavigationToolbar2.pan(self, *args)
 
     def configure_subplots(self, evt):
+        global FigureManager  # placates pyflakes: created by @_Backend.export
         frame = wx.Frame(None, -1, "Configure subplots")
 
         toolfig = Figure((6, 3))
@@ -1562,7 +1553,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 warnings.warn(
                     'extension %s did not match the selected '
                     'image type %s; going with %s' %
-                    (ext, format, ext), stacklevel=0)
+                    (ext, format, ext), stacklevel=2)
                 format = ext
             try:
                 self.canvas.figure.savefig(
@@ -1637,7 +1628,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         if y1 < y0:
             y0, y1 = y1, y0
-        if x1 < y0:
+        if x1 < x0:
             x0, x1 = x1, x0
 
         w = x1 - x0
@@ -1728,7 +1719,7 @@ class SaveFigureWx(backend_tools.SaveFigureBase):
             warnings.warn(
                 'extension %s did not match the selected '
                 'image type %s; going with %s' %
-                (ext, format, ext), stacklevel=0)
+                (ext, format, ext), stacklevel=2)
             format = ext
         if default_dir != "":
             matplotlib.rcParams['savefig.directory'] = dirname
@@ -1769,7 +1760,7 @@ if 'wxMac' not in wx.PlatformInfo:
 
             if y1 < y0:
                 y0, y1 = y1, y0
-            if x1 < y0:
+            if x1 < x0:
                 x0, x1 = x1, x0
 
             w = x1 - x0
@@ -1833,9 +1824,22 @@ else:
             self._rect = None
 
 
+class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
+    def trigger(self, *args, **kwargs):
+        if not self.canvas._isDrawn:
+            self.canvas.draw()
+        if not self.canvas.bitmap.IsOk() or not wx.TheClipboard.Open():
+            return
+        try:
+            wx.TheClipboard.SetData(wx.BitmapDataObject(self.canvas.bitmap))
+        finally:
+            wx.TheClipboard.Close()
+
+
 backend_tools.ToolSaveFigure = SaveFigureWx
 backend_tools.ToolSetCursor = SetCursorWx
 backend_tools.ToolRubberband = RubberbandWx
+backend_tools.ToolCopyToClipboard = ToolCopyToClipboardWx
 
 
 # < Additions for printing support: Matt Newville

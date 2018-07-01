@@ -5,8 +5,9 @@ Implemented support for prop_cycle property markevery in rcParams
 
 This example demonstrates a working solution to issue #8576, providing full
 support of the markevery property for axes.prop_cycle assignments through
-rcParams. Makes use of the same list of markevery cases from
-https://matplotlib.org/examples/pylab_examples/markevery_demo.html
+rcParams. Makes use of the same list of markevery cases from the
+:doc:`markevery demo
+</gallery/lines_bars_and_markers/markevery_demo>`.
 
 Renders a plot with shifted-sine curves along each column with
 a unique markevery value for each sine curve.
@@ -41,13 +42,8 @@ colors = ['#1f77b4',
           '#17becf',
           '#1a55FF']
 
-# Create two different cyclers to use with axes.prop_cycle
-markevery_cycler = cycler(markevery=cases)
-color_cycler = cycler('color', colors)
-
-# Configure rcParams axes.prop_cycle with custom cycler
-custom_cycler = color_cycler + markevery_cycler
-mpl.rcParams['axes.prop_cycle'] = custom_cycler
+# Configure rcParams axes.prop_cycle to simultaneously cycle cases and colors.
+mpl.rcParams['axes.prop_cycle'] = cycler(markevery=cases, color=colors)
 
 # Create data points and offsets
 x = np.linspace(0, 2 * np.pi)
@@ -60,7 +56,7 @@ ax = fig.add_axes([0.1, 0.1, 0.6, 0.75])
 
 for i in range(len(cases)):
     ax.plot(yy[:, i], marker='o', label=str(cases[i]))
-    ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
 plt.title('Support for axes.prop_cycle cycler with markevery')
 

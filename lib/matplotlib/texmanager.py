@@ -25,12 +25,7 @@ as follows::
   Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1,0,0))
 
 To enable tex rendering of all text in your matplotlib figure, set
-text.usetex in your matplotlibrc file or include these two lines in
-your script::
-
-  from matplotlib import rc
-  rc('text', usetex=True)
-
+:rc:`text.usetex` to True.
 """
 
 import copy
@@ -100,9 +95,9 @@ class TexManager(object):
         'computer modern typewriter': ('cmtt', '')}
 
     _rc_cache = None
-    _rc_cache_keys = (('text.latex.preamble', ) +
-                      tuple(['font.' + n for n in ('family', ) +
-                             font_families]))
+    _rc_cache_keys = (
+        ('text.latex.preamble', 'text.latex.unicode', 'text.latex.preview',
+         'font.family') + tuple('font.' + n for n in font_families))
 
     def __init__(self):
 

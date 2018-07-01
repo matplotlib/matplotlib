@@ -1,19 +1,24 @@
 from . import backend_cairo, backend_gtk3
-from .backend_cairo import cairo, HAS_CAIRO_CFFI
-from .backend_gtk3 import _BackendGTK3
+from ._gtk3_compat import gi
+from .backend_cairo import cairo
+from .backend_gtk3 import Gtk, _BackendGTK3
 from matplotlib.backend_bases import cursors
+
+
+# The following combinations are allowed:
+#   gi + pycairo
+#   gi + cairocffi
+#   pgi + cairocffi
+# (pgi doesn't work with pycairo)
+# We always try to import cairocffi first so if a check below fails it means
+# that cairocffi was unavailable to start with.
+if gi.__name__ == "pgi" and cairo.__name__ == "cairo":
+    raise ImportError("pgi and pycairo are not compatible")
 
 
 class RendererGTK3Cairo(backend_cairo.RendererCairo):
     def set_context(self, ctx):
-        if HAS_CAIRO_CFFI and not isinstance(ctx, cairo.Context):
-            ctx = cairo.Context._from_pointer(
-                cairo.ffi.cast(
-                    'cairo_t **',
-                    id(ctx) + object.__basicsize__)[0],
-                incref=True)
-
-        self.gc.ctx = ctx
+        self.gc.ctx = backend_cairo._to_context(ctx)
 
 
 class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
@@ -34,6 +39,9 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         #     toolbar.set_cursor(cursors.WAIT)
         self._renderer.set_context(ctx)
         allocation = self.get_allocation()
+        Gtk.render_background(
+            self.get_style_context(), ctx,
+            allocation.x, allocation.y, allocation.width, allocation.height)
         self._render_figure(allocation.width, allocation.height)
         # if toolbar:
         #     toolbar.set_cursor(toolbar._lastCursor)

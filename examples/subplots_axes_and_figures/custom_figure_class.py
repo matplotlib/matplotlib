@@ -12,12 +12,11 @@ from matplotlib.figure import Figure
 
 
 class MyFigure(Figure):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, figtitle='hi mom', **kwargs):
         """
         custom kwarg figtitle is a figure title
         """
-        figtitle = kwargs.pop('figtitle', 'hi mom')
-        Figure.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.text(0.5, 0.95, figtitle, ha='center')
 
 

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
@@ -29,7 +27,7 @@ def test_bbox_inches_tight():
     # the bottom values for stacked bar chart
     fig, ax = plt.subplots(1, 1)
     for row in range(rows):
-        ax.bar(ind, data[row], width, bottom=yoff, color='b')
+        ax.bar(ind, data[row], width, bottom=yoff, align='edge', color='b')
         yoff = yoff + data[row]
         cellText.append([''])
     plt.xticks([])
@@ -45,7 +43,7 @@ def test_bbox_inches_tight():
                   remove_text=False, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_suptile_legend():
     plt.plot(np.arange(10), label='a straight line')
-    plt.legend(bbox_to_anchor=(0.9, 1), loc=2, )
+    plt.legend(bbox_to_anchor=(0.9, 1), loc='upper left')
     plt.title('Axis title')
     plt.suptitle('Figure title')
 

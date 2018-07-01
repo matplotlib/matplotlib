@@ -28,7 +28,7 @@ exceptions are the pyplot commands :func:`~matplotlib.pyplot.figure`,
 Modules include:
 
     :mod:`matplotlib.axes`
-        defines the :class:`~matplotlib.axes.Axes` class.  Most pylab
+        defines the :class:`~matplotlib.axes.Axes` class.  Most pyplot
         commands are wrappers for :class:`~matplotlib.axes.Axes`
         methods.  The axes module is the highest level of OO access to
         the library.
@@ -90,7 +90,7 @@ The base matplotlib namespace includes:
         a function for setting the matplotlib backend.  If used, this
         function must be called immediately after importing matplotlib
         for the first time.  In particular, it must be called
-        **before** importing pylab (if pylab is imported).
+        **before** importing pyplot (if pyplot is imported).
 
 matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
@@ -101,9 +101,6 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for existing editable installs.
-from __future__ import absolute_import, division, print_function
-
-import six
 
 import sys
 if sys.version_info < (3, 5):  # noqa: E402
@@ -121,17 +118,16 @@ import atexit
 from collections import MutableMapping
 import contextlib
 import distutils.version
-import distutils.sysconfig
 import functools
 import io
 import importlib
 import inspect
 from inspect import Parameter
-import itertools
 import locale
 import logging
 import os
 from pathlib import Path
+import pprint
 import re
 import shutil
 import stat
@@ -199,11 +195,6 @@ except ImportError:
     raise ImportError("Matplotlib requires dateutil")
 
 
-if not compare_versions(six.__version__, '1.10'):
-    raise ImportError(
-        "Matplotlib requires six>=1.10; you have %s" % six.__version__)
-
-
 try:
     import pyparsing
 except ImportError:
@@ -222,7 +213,7 @@ if not compare_versions(numpy.__version__, __version__numpy__):
 
 
 if not hasattr(sys, 'argv'):  # for modpython
-    sys.argv = [str('modpython')]
+    sys.argv = ['modpython']
 
 
 def _is_writable_dir(p):
@@ -397,6 +388,11 @@ class Verbose(object):
         return self.vald[self.level] >= self.vald[level]
 
 
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    verbose = Verbose()
+
+
 def _wrap(fmt, func, level=logging.DEBUG, always=True):
     """
     return a callable function that wraps func and reports its
@@ -423,7 +419,7 @@ def _wrap(fmt, func, level=logging.DEBUG, always=True):
 
 def checkdep_dvipng():
     try:
-        s = subprocess.Popen([str('dvipng'), '-version'],
+        s = subprocess.Popen(['dvipng', '-version'],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
@@ -444,7 +440,7 @@ def checkdep_ghostscript():
         for gs_exec in gs_execs:
             try:
                 s = subprocess.Popen(
-                    [str(gs_exec), '--version'], stdout=subprocess.PIPE,
+                    [gs_exec, '--version'], stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
                 stdout, stderr = s.communicate()
                 if s.returncode == 0:
@@ -460,7 +456,7 @@ checkdep_ghostscript.version = None
 
 def checkdep_pdftops():
     try:
-        s = subprocess.Popen([str('pdftops'), '-v'], stdout=subprocess.PIPE,
+        s = subprocess.Popen(['pdftops', '-v'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
         lines = stderr.decode('ascii').split('\n')
@@ -475,7 +471,7 @@ def checkdep_pdftops():
 def checkdep_inkscape():
     if checkdep_inkscape.version is None:
         try:
-            s = subprocess.Popen([str('inkscape'), '-V'],
+            s = subprocess.Popen(['inkscape', '-V'],
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
             stdout, stderr = s.communicate()
@@ -743,14 +739,11 @@ get_data_path = _wrap('matplotlib data path %s', _get_data_path_cached,
 
 
 def get_py2exe_datafiles():
-    datapath = get_data_path()
-    _, tail = os.path.split(datapath)
+    data_path = Path(get_data_path())
     d = {}
-    for root, _, files in os.walk(datapath):
-        files = [os.path.join(root, filename) for filename in files]
-        root = root.replace(tail, 'mpl-data')
-        root = root[root.index('mpl-data'):]
-        d[root] = files
+    for path in filter(Path.is_file, data_path.glob("**/*")):
+        (d.setdefault(str(path.parent.relative_to(data_path.parent)), [])
+         .append(str(path)))
     return list(d.items())
 
 
@@ -807,23 +800,29 @@ def matplotlib_fname():
     return fname
 
 
-# names of keys to deprecate
-# the values are a tuple of (new_name, f_old_2_new, f_new_2_old)
-# the inverse function may be `None`
+# rcParams deprecated and automatically mapped to another key.
+# Values are tuples of (version, new_name, f_old2new, f_new2old).
 _deprecated_map = {}
 
-_deprecated_ignore_map = {'nbagg.transparent': 'figure.facecolor'}
+# rcParams deprecated; some can manually be mapped to another key.
+# Values are tuples of (version, new_name_or_None).
+_deprecated_ignore_map = {
+    'text.dvipnghack': ('2.1', None),
+    'nbagg.transparent': ('2.2', 'figure.facecolor'),
+    'plugins.directory': ('2.2', None),
+    'pgf.debug': ('3.0', None),
+}
 
-_obsolete_set = {'pgf.debug', 'plugins.directory', 'text.dvipnghack'}
+# rcParams deprecated; can use None to suppress warnings; remain actually
+# listed in the rcParams (not included in _all_deprecated).
+# Values are typles of (version,)
+_deprecated_remain_as_none = {
+    'axes.hold': ('2.1',),
+    'backend.qt4': ('2.2',),
+    'backend.qt5': ('2.2',),
+}
 
-# The following may use a value of None to suppress the warning.
-# do NOT include in _all_deprecated
-_deprecated_set = {'axes.hold',
-                   'backend.qt4',
-                   'backend.qt5'}
-
-_all_deprecated = set(itertools.chain(
-    _deprecated_ignore_map, _deprecated_map, _obsolete_set))
+_all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
 
 
 class RcParams(MutableMapping, dict):
@@ -838,16 +837,35 @@ class RcParams(MutableMapping, dict):
     validate = {key: converter
                 for key, (default, converter) in defaultParams.items()
                 if key not in _all_deprecated}
-    msg_depr = "%s is deprecated and replaced with %s; please use the latter."
-    msg_depr_set = ("%s is deprecated. Please remove it from your "
-                    "matplotlibrc and/or style files.")
-    msg_depr_ignore = "%s is deprecated and ignored. Use %s instead."
-    msg_obsolete = ("%s is obsolete. Please remove it from your matplotlibrc "
-                    "and/or style files.")
-    msg_backend_obsolete = ("The {} rcParam was deprecated in version 2.2.  In"
-                            " order to force the use of a specific Qt binding,"
-                            " either import that binding first, or set the "
-                            "QT_API environment variable.")
+
+    @property
+    @cbook.deprecated("3.0")
+    def msg_depr(self):
+        return "%s is deprecated and replaced with %s; please use the latter."
+
+    @property
+    @cbook.deprecated("3.0")
+    def msg_depr_ignore(self):
+        return "%s is deprecated and ignored. Use %s instead."
+
+    @property
+    @cbook.deprecated("3.0")
+    def msg_depr_set(self):
+        return ("%s is deprecated. Please remove it from your matplotlibrc "
+                "and/or style files.")
+
+    @property
+    @cbook.deprecated("3.0")
+    def msg_obsolete(self):
+        return ("%s is obsolete. Please remove it from your matplotlibrc "
+                "and/or style files.")
+
+    @property
+    @cbook.deprecated("3.0")
+    def msg_backend_obsolete(self):
+        return ("The {} rcParam was deprecated in version 2.2.  In order to "
+                "force the use of a specific Qt binding, either import that "
+                "binding first, or set the QT_API environment variable.")
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
@@ -856,26 +874,25 @@ class RcParams(MutableMapping, dict):
     def __setitem__(self, key, val):
         try:
             if key in _deprecated_map:
-                alt_key, alt_val, inverse_alt = _deprecated_map[key]
-                warnings.warn(self.msg_depr % (key, alt_key),
-                              mplDeprecation)
+                version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
+                cbook.warn_deprecated(
+                    version, key, obj_type="rcparam", alternative=alt_key)
                 key = alt_key
                 val = alt_val(val)
-            elif key in _deprecated_set and val is not None:
+            elif key in _deprecated_remain_as_none and val is not None:
+                version, = _deprecated_remain_as_none[key]
+                addendum = None
                 if key.startswith('backend'):
-                    warnings.warn(self.msg_backend_obsolete.format(key),
-                                  mplDeprecation)
-                else:
-                    warnings.warn(self.msg_depr_set % key,
-                                  mplDeprecation)
+                    addendum = (
+                        "In order to force the use of a specific Qt binding, "
+                        "either import that binding first, or set the QT_API "
+                        "environment variable.")
+                cbook.warn_deprecated(
+                    "2.2", key, obj_type="rcparam", addendum=addendum)
             elif key in _deprecated_ignore_map:
-                alt = _deprecated_ignore_map[key]
-                warnings.warn(self.msg_depr_ignore % (key, alt),
-                              mplDeprecation)
-                return
-            elif key in _obsolete_set:
-                warnings.warn(self.msg_obsolete % (key, ),
-                              mplDeprecation)
+                version, alt_key = _deprecated_ignore_map[key]
+                cbook.warn_deprecated(
+                    version, key, obj_type="rcparam", alternative=alt_key)
                 return
             try:
                 cval = self.validate[key](val)
@@ -888,42 +905,30 @@ class RcParams(MutableMapping, dict):
                 'list of valid parameters.' % (key,))
 
     def __getitem__(self, key):
-        inverse_alt = None
         if key in _deprecated_map:
-            alt_key, alt_val, inverse_alt = _deprecated_map[key]
-            warnings.warn(self.msg_depr % (key, alt_key),
-                          mplDeprecation)
-            key = alt_key
+            version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
+            cbook.warn_deprecated(
+                version, key, obj_type="rcparam", alternative=alt_key)
+            return inverse_alt(dict.__getitem__(self, alt_key))
 
         elif key in _deprecated_ignore_map:
-            alt = _deprecated_ignore_map[key]
-            warnings.warn(self.msg_depr_ignore % (key, alt),
-                          mplDeprecation)
-            key = alt
+            version, alt_key = _deprecated_ignore_map[key]
+            cbook.warn_deprecated(
+                version, key, obj_type, alternative=alt_key)
+            return dict.__getitem__(self, alt_key) if alt_key else None
 
-        elif key in _obsolete_set:
-            warnings.warn(self.msg_obsolete % (key, ),
-                          mplDeprecation)
-            return None
-
-        val = dict.__getitem__(self, key)
-        if inverse_alt is not None:
-            return inverse_alt(val)
-        else:
-            return val
+        return dict.__getitem__(self, key)
 
     def __repr__(self):
-        import pprint
         class_name = self.__class__.__name__
         indent = len(class_name) + 1
         repr_split = pprint.pformat(dict(self), indent=1,
                                     width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
-        return '{0}({1})'.format(class_name, repr_indented)
+        return '{}({})'.format(class_name, repr_indented)
 
     def __str__(self):
-        return '\n'.join('{0}: {1}'.format(k, v)
-                         for k, v in sorted(self.items()))
+        return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
 
     def __iter__(self):
         """Yield sorted list of keys."""
@@ -981,7 +986,7 @@ def _open_file_or_url(fname):
         encoding = locale.getpreferredencoding(do_setlocale=False)
         if encoding is None:
             encoding = "utf-8"
-        with io.open(fname, encoding=encoding) as f:
+        with open(fname, encoding=encoding) as f:
             yield f
 
 
@@ -1050,10 +1055,10 @@ def _rc_params_in_file(fname, fail_on_error=False):
                     warnings.warn('Bad val "%s" on %s\n\t%s' %
                                   (val, error_details, msg))
         elif key in _deprecated_ignore_map:
-            warnings.warn('%s is deprecated. Update your matplotlibrc to use '
-                          '%s instead.' % (key, _deprecated_ignore_map[key]),
-                          mplDeprecation)
-
+            version, alt_key = _deprecated_ignore_map[key]
+            cbook.warn_deprecated(
+                version, key, alternative=alt_key,
+                addendum="Please update your matplotlibrc.")
         else:
             print("""
 Bad key "%s" on line %d in
@@ -1372,10 +1377,8 @@ def use(arg, warn=True, force=False):
         importlib.reload(sys.modules['matplotlib.backends'])
 
 
-try:
+if os.environ.get('MPLBACKEND'):
     use(os.environ['MPLBACKEND'])
-except KeyError:
-    pass
 
 
 def get_backend():
@@ -1702,7 +1705,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 pass
 
         @functools.wraps(func)
-        def inner(ax, *args, **kwargs):
+        def inner(ax, *args, data=None, **kwargs):
             # this is needed because we want to change these values if
             # arg_names_at_runtime==True, but python does not allow assigning
             # to a variable in a outer scope. So use some new local ones and
@@ -1712,8 +1715,6 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
             _arg_names = arg_names
 
             label = None
-
-            data = kwargs.pop('data', None)
 
             if data is None:  # data validation
                 args = tuple(sanitize_sequence(a) for a in args)

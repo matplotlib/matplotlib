@@ -3,6 +3,7 @@
 Whats New 1 Subplot3d
 =====================
 
+Create two three-dimensional plots in the same figure.
 """
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 from matplotlib import cm
@@ -34,3 +35,19 @@ ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
 
 plt.show()
 
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+import mpl_toolkits
+matplotlib.figure.Figure.add_subplot
+mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface
+mpl_toolkits.mplot3d.axes3d.Axes3D.plot_wireframe
+mpl_toolkits.mplot3d.axes3d.Axes3D.set_zlim3d

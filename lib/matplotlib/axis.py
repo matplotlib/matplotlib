@@ -251,7 +251,9 @@ class Tick(artist.Artist):
         """
         Set the tick label pad in points
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        val : float
         """
         self._apply_params(pad=val)
         self.stale = True
@@ -308,9 +310,11 @@ class Tick(artist.Artist):
 
     def set_label1(self, s):
         """
-        Set the text of ticklabel
+        Set the label1 text.
 
-        ACCEPTS: str
+        Parameters
+        ----------
+        s : str
         """
         self.label1.set_text(s)
         self.stale = True
@@ -319,9 +323,11 @@ class Tick(artist.Artist):
 
     def set_label2(self, s):
         """
-        Set the text of ticklabel2
+        Set the label2 text.
 
-        ACCEPTS: str
+        Parameters
+        ----------
+        s : str
         """
         self.label2.set_text(s)
         self.stale = True
@@ -334,12 +340,10 @@ class Tick(artist.Artist):
         raise NotImplementedError('Derived must override')
 
     def _apply_params(self, **kw):
-        switchkw = ['gridOn', 'tick1On', 'tick2On', 'label1On', 'label2On']
-        switches = [k for k in kw if k in switchkw]
-        for k in switches:
-            setattr(self, k, kw.pop(k))
-        newmarker = [k for k in kw if k in ['size', 'width', 'pad', 'tickdir']]
-        if newmarker:
+        for name in ['gridOn', 'tick1On', 'tick2On', 'label1On', 'label2On']:
+            if name in kw:
+                setattr(self, name, kw.pop(name))
+        if any(k in kw for k in ['size', 'width', 'pad', 'tickdir']):
             self._size = kw.pop('size', self._size)
             # Width could be handled outside this block, but it is
             # convenient to leave it here.
@@ -1245,7 +1249,7 @@ class Axis(artist.Artist):
 
     def get_ticklabels(self, minor=False, which=None):
         """
-        Get the x tick labels as a list of :class:`~matplotlib.text.Text`
+        Get the tick labels as a list of :class:`~matplotlib.text.Text`
         instances.
 
         Parameters
@@ -1540,7 +1544,8 @@ class Axis(artist.Artist):
         return self.units
 
     def set_label_text(self, label, fontdict=None, **kwargs):
-        """  Sets the text value of the axis label
+        """
+        Set the text value of the axis label.
 
         ACCEPTS: A string value for the label
         """
@@ -1554,9 +1559,11 @@ class Axis(artist.Artist):
 
     def set_major_formatter(self, formatter):
         """
-        Set the formatter of the major ticker
+        Set the formatter of the major ticker.
 
-        ACCEPTS: A :class:`~matplotlib.ticker.Formatter` instance
+        Parameters
+        ----------
+        formatter : ~matplotlib.ticker.Formatter
         """
         if not isinstance(formatter, mticker.Formatter):
             raise TypeError("formatter argument should be instance of "
@@ -1568,9 +1575,11 @@ class Axis(artist.Artist):
 
     def set_minor_formatter(self, formatter):
         """
-        Set the formatter of the minor ticker
+        Set the formatter of the minor ticker.
 
-        ACCEPTS: A :class:`~matplotlib.ticker.Formatter` instance
+        Parameters
+        ----------
+        formatter : ~matplotlib.ticker.Formatter
         """
         if not isinstance(formatter, mticker.Formatter):
             raise TypeError("formatter argument should be instance of "
@@ -1582,9 +1591,11 @@ class Axis(artist.Artist):
 
     def set_major_locator(self, locator):
         """
-        Set the locator of the major ticker
+        Set the locator of the major ticker.
 
-        ACCEPTS: a :class:`~matplotlib.ticker.Locator` instance
+        Parameters
+        ----------
+        locator : ~matplotlib.ticker.Locator
         """
         if not isinstance(locator, mticker.Locator):
             raise TypeError("formatter argument should be instance of "
@@ -1596,9 +1607,11 @@ class Axis(artist.Artist):
 
     def set_minor_locator(self, locator):
         """
-        Set the locator of the minor ticker
+        Set the locator of the minor ticker.
 
-        ACCEPTS: a :class:`~matplotlib.ticker.Locator` instance
+        Parameters
+        ----------
+        locator : ~matplotlib.ticker.Locator
         """
         if not isinstance(locator, mticker.Locator):
             raise TypeError("formatter argument should be instance of "
@@ -1610,13 +1623,15 @@ class Axis(artist.Artist):
 
     def set_pickradius(self, pickradius):
         """
-        Set the depth of the axis used by the picker
+        Set the depth of the axis used by the picker.
 
-        ACCEPTS: a distance in points
+        Parameters
+        ----------
+        pickradius :  float
         """
         self.pickradius = pickradius
 
-    def set_ticklabels(self, ticklabels, *args, **kwargs):
+    def set_ticklabels(self, ticklabels, *args, minor=False, **kwargs):
         """
         Set the text values of the tick labels. Return a list of Text
         instances.  Use *kwarg* *minor=True* to select minor ticks.
@@ -1645,7 +1660,6 @@ class Axis(artist.Artist):
         # replace the ticklabels list with the processed one
         ticklabels = get_labels
 
-        minor = kwargs.pop('minor', False)
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
             ticks = self.get_minor_ticks()
@@ -1752,7 +1766,9 @@ class Axis(artist.Artist):
         """
         Set the label position (top or bottom)
 
-        ACCEPTS: [ 'top' | 'bottom' ]
+        Parameters
+        ----------
+        position : {'top', 'bottom'}
         """
         raise NotImplementedError()
 
@@ -1862,7 +1878,9 @@ class XAxis(Axis):
         """
         Set the label position (top or bottom)
 
-        ACCEPTS: [ 'top' | 'bottom' ]
+        Parameters
+        ----------
+        position : {'top', 'bottom'}
         """
         if position == 'top':
             self.label.set_verticalalignment('baseline')
@@ -1981,7 +1999,9 @@ class XAxis(Axis):
         can be used if you don't want any ticks. 'none' and 'both'
         affect only the ticks, not the labels.
 
-        ACCEPTS: [ 'top' | 'bottom' | 'both' | 'default' | 'none' ]
+        Parameters
+        ----------
+        position : {'top', 'bottom', 'both', 'default', 'none'}
         """
         if position == 'top':
             self.set_tick_params(which='both', top=True, labeltop=True,
@@ -2229,7 +2249,9 @@ class YAxis(Axis):
         """
         Set the label position (left or right)
 
-        ACCEPTS: [ 'left' | 'right' ]
+        Parameters
+        ----------
+        position : {'left', 'right'}
         """
         self.label.set_rotation_mode('anchor')
         self.label.set_horizontalalignment('center')
@@ -2316,7 +2338,9 @@ class YAxis(Axis):
 
     def set_offset_position(self, position):
         """
-        .. ACCEPTS: [ 'left' | 'right' ]
+        Parameters
+        ----------
+        position : {'left', 'right'}
         """
         x, y = self.offsetText.get_position()
         if position == 'left':
@@ -2357,7 +2381,9 @@ class YAxis(Axis):
         can be used if you don't want any ticks. 'none' and 'both'
         affect only the ticks, not the labels.
 
-        ACCEPTS: [ 'left' | 'right' | 'both' | 'default' | 'none' ]
+        Parameters
+        ----------
+        position : {'left', 'right', 'both', 'default', 'none'}
         """
         if position == 'right':
             self.set_tick_params(which='both', right=True, labelright=True,

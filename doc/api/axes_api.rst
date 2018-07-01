@@ -1,17 +1,34 @@
-================
- ``Axes`` class
-================
+====
+axes
+====
+
 .. currentmodule:: matplotlib.axes
+
+.. automodule:: matplotlib.axes
+   :no-members:
+   :no-undoc-members:
 
 .. autoclass:: Axes
    :no-members:
    :no-undoc-members:
+   :show-inheritance:
 
 .. contents:: Table of Contents
    :depth: 2
    :local:
    :backlinks: entry
+   :class: multicol-toc
 
+Subplots
+========
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   SubplotBase
+   subplot_class_factory
 
 Plotting
 ========
@@ -229,7 +246,6 @@ Property cycle
    :nosignatures:
 
    Axes.set_prop_cycle
-   Axes.set_color_cycle
 
 
 Axis / limits
@@ -652,8 +668,6 @@ Other
    Axes.get_default_bbox_extra_artists
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data
-   Axes.hold
-   Axes.ishold
 
 
 Inheritance

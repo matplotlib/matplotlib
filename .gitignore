@@ -74,8 +74,6 @@ examples/*/*.eps
 examples/*/*.svgz
 examples/tests/*
 !examples/tests/backend_driver.py
-texput.log
-texput.aux
 result_images
 
 # Nose/Pytest generated files #

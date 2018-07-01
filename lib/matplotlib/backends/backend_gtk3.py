@@ -23,13 +23,18 @@ backend_version = "%s.%s.%s" % (
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
 
-cursord = {
-    cursors.MOVE          : Gdk.Cursor.new(Gdk.CursorType.FLEUR),
-    cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
-    cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
-    cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
-    cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
+try:
+    cursord = {
+        cursors.MOVE          : Gdk.Cursor.new(Gdk.CursorType.FLEUR),
+        cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
+        cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
+        cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
+        cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
     }
+except TypeError as exc:
+    # Happens when running headless.  Convert to ImportError to cooperate with
+    # backend switching.
+    raise ImportError(exc)
 
 
 class TimerGTK3(TimerBase):
@@ -71,7 +76,7 @@ class TimerGTK3(TimerBase):
 
         # Gtk timeout_add() requires that the callback returns True if it
         # is to be called again.
-        if len(self.callbacks) > 0 and not self._single:
+        if self.callbacks and not self._single:
             return True
         else:
             self._timer = None
@@ -388,14 +393,6 @@ class FigureManagerGTK3(FigureManagerBase):
             self.window.show()
             self.canvas.draw_idle()
 
-        def notify_axes_change(fig):
-            'this will be called whenever the current axes is changed'
-            if self.toolmanager is not None:
-                pass
-            elif self.toolbar is not None:
-                self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
-
         self.canvas.grab_focus()
 
     def destroy(self, *args):
@@ -592,6 +589,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
                 ):
         super().__init__(title, parent, action, buttons)
         self.set_default_response(Gtk.ResponseType.OK)
+        self.set_do_overwrite_confirmation(True)
 
         if not path:
             path = os.getcwd()
@@ -853,6 +851,92 @@ class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
         self.window.present()
 
 
+class HelpGTK3(backend_tools.ToolHelpBase):
+    def _normalize_shortcut(self, key):
+        """
+        Convert Matplotlib key presses to GTK+ accelerator identifiers.
+
+        Related to `FigureCanvasGTK3._get_key`.
+        """
+        special = {
+            'backspace': 'BackSpace',
+            'pagedown': 'Page_Down',
+            'pageup': 'Page_Up',
+            'scroll_lock': 'Scroll_Lock',
+        }
+
+        parts = key.split('+')
+        mods = ['<' + mod + '>' for mod in parts[:-1]]
+        key = parts[-1]
+
+        if key in special:
+            key = special[key]
+        elif len(key) > 1:
+            key = key.capitalize()
+        elif key.isupper():
+            mods += ['<shift>']
+
+        return ''.join(mods) + key
+
+    def _show_shortcuts_window(self):
+        section = Gtk.ShortcutsSection()
+
+        for name, tool in sorted(self.toolmanager.tools.items()):
+            if not tool.description:
+                continue
+
+            # Putting everything in a separate group allows GTK to
+            # automatically split them into separate columns/pages, which is
+            # useful because we have lots of shortcuts, some with many keys
+            # that are very wide.
+            group = Gtk.ShortcutsGroup()
+            section.add(group)
+            # A hack to remove the title since we have no group naming.
+            group.forall(lambda widget, data: widget.set_visible(False), None)
+
+            shortcut = Gtk.ShortcutsShortcut(
+                accelerator=' '.join(
+                    self._normalize_shortcut(key)
+                    for key in self.toolmanager.get_tool_keymap(name)
+                    # Will never be sent:
+                    if 'cmd+' not in key),
+                title=tool.name,
+                subtitle=tool.description)
+            group.add(shortcut)
+
+        window = Gtk.ShortcutsWindow(
+            title='Help',
+            modal=True,
+            transient_for=self._figure.canvas.get_toplevel())
+        section.show()  # Must be done explicitly before add!
+        window.add(section)
+
+        window.show_all()
+
+    def _show_shortcuts_dialog(self):
+        dialog = Gtk.MessageDialog(
+            self._figure.canvas.get_toplevel(),
+            0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, self._get_help_text(),
+            title="Help")
+        dialog.run()
+        dialog.destroy()
+
+    def trigger(self, *args):
+        if Gtk.check_version(3, 20, 0) is None:
+            self._show_shortcuts_window()
+        else:
+            self._show_shortcuts_dialog()
+
+
+class ToolCopyToClipboardGTK3(backend_tools.ToolCopyToClipboardBase):
+    def trigger(self, *args, **kwargs):
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        window = self.canvas.get_window()
+        x, y, width, height = window.get_geometry()
+        pb = Gdk.pixbuf_get_from_window(window, x, y, width, height)
+        clipboard.set_image(pb)
+
+
 # Define the file to use as the GTk icon
 if sys.platform == 'win32':
     icon_filename = 'matplotlib.png'
@@ -884,6 +968,8 @@ backend_tools.ToolSaveFigure = SaveFigureGTK3
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
 backend_tools.ToolSetCursor = SetCursorGTK3
 backend_tools.ToolRubberband = RubberbandGTK3
+backend_tools.ToolHelp = HelpGTK3
+backend_tools.ToolCopyToClipboard = ToolCopyToClipboardGTK3
 
 Toolbar = ToolbarGTK3
 

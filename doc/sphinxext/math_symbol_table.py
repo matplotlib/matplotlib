@@ -1,4 +1,3 @@
-from __future__ import print_function
 symbols = [
     ["Lower-case Greek",
      6,

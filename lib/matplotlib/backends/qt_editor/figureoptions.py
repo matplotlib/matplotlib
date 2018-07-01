@@ -93,6 +93,8 @@ def figure_edit(axes, parent=None):
         FormLayout combobox, namely `[initial_name, (shorthand,
         style_name), (shorthand, style_name), ...]`.
         """
+        if init not in d:
+            d = {**d, init: str(init)}
         # Drop duplicate shorthands from dict (by overwriting them during
         # the dict comprehension).
         name2short = {name: short for short, name in d.items()}
@@ -240,7 +242,7 @@ def figure_edit(axes, parent=None):
                 ncol = old_legend._ncol
             new_legend = axes.legend(ncol=ncol)
             if new_legend:
-                new_legend.draggable(draggable)
+                new_legend.set_draggable(draggable)
 
         # Redraw
         figure = axes.get_figure()

@@ -32,7 +32,7 @@ Z2[30:30 + ny, 30:30 + nx] = Z
 ax.imshow(Z2, extent=extent, interpolation="nearest",
           origin="lower")
 
-axins = zoomed_inset_axes(ax, 6, loc=1)  # zoom = 6
+axins = zoomed_inset_axes(ax, zoom=6, loc='upper right')
 axins.imshow(Z2, extent=extent, interpolation="nearest",
              origin="lower")
 

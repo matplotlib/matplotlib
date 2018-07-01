@@ -1,0 +1,5 @@
+``bar``/``barh`` no longer accepts ``left``/``bottom`` as first named argument
+------------------------------------------------------------------------------
+
+These arguments were renamed in 2.0 to ``x``/``y`` following the change of the
+default alignment from ``edge`` to ``center``.

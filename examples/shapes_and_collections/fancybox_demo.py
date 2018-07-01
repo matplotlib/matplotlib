@@ -194,3 +194,20 @@ def test_all():
 
 
 test_all()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.patches
+matplotlib.patches.FancyBboxPatch
+matplotlib.patches.BoxStyle
+matplotlib.patches.BoxStyle.get_styles
+matplotlib.transforms.Bbox

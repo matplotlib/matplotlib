@@ -1,16 +1,13 @@
-from __future__ import absolute_import, division, print_function
 import itertools
 import pickle
 from weakref import ref
 import warnings
 
-import six
-
 from datetime import datetime
 
 import numpy as np
-from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
-                                 assert_array_almost_equal)
+from numpy.testing import (assert_array_equal, assert_approx_equal,
+                           assert_array_almost_equal)
 import pytest
 
 import matplotlib.cbook as cbook

@@ -185,8 +185,8 @@ def test_remove():
     assert not ax.stale
     assert not ln.stale
 
-    assert im in ax.mouseover_set
-    assert ln not in ax.mouseover_set
+    assert im in ax._mouseover_set
+    assert ln not in ax._mouseover_set
     assert im.axes is ax
 
     im.remove()
@@ -196,7 +196,7 @@ def test_remove():
         assert art.axes is None
         assert art.figure is None
 
-    assert im not in ax.mouseover_set
+    assert im not in ax._mouseover_set
     assert fig.stale
     assert ax.stale
 
@@ -244,7 +244,7 @@ def test_setp():
     # Check `file` argument
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
-    assert sio.getvalue() == '  zorder: float \n'
+    assert sio.getvalue() == '  zorder: float\n'
 
 
 def test_None_zorder():
@@ -262,10 +262,12 @@ def test_None_zorder():
     ("ACCEPTS: [ '-' | '--' | '-.' ]", "[ '-' | '--' | '-.' ] "),
     ('ACCEPTS: Some description.', 'Some description. '),
     ('.. ACCEPTS: Some description.', 'Some description. '),
+    ('arg : int', 'int'),
+    ('arg : int\nACCEPTS: Something else.', 'Something else. '),
 ])
 def test_artist_inspector_get_valid_values(accept_clause, expected):
     class TestArtist(martist.Artist):
-        def set_f(self):
+        def set_f(self, arg):
             pass
 
     TestArtist.set_f.__doc__ = """

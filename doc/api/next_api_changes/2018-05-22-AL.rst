@@ -1,0 +1,4 @@
+The cleanup decorators and test classes in matplotlib.testing.decorators no longer destroy the warnings filter on exit
+``````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+Instead, they restore the warnings filter that existed before the test started
+using ``warnings.catch_warnings``.

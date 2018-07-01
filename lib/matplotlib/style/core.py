@@ -45,7 +45,7 @@ def _remove_blacklisted_style_params(d, warn=True):
             if warn:
                 warnings.warn(
                     "Style includes a parameter, '{0}', that is not related "
-                    "to style.  Ignoring".format(key))
+                    "to style.  Ignoring".format(key), stacklevel=3)
         else:
             o[key] = val
     return o
@@ -136,19 +136,11 @@ def context(style, after_reset=False):
         If True, apply style after resetting settings to their defaults;
         otherwise, apply style on top of the current settings.
     """
-    initial_settings = mpl.rcParams.copy()
-    if after_reset:
-        mpl.rcdefaults()
-    try:
+    with mpl.rc_context():
+        if after_reset:
+            mpl.rcdefaults()
         use(style)
-    except:
-        # Restore original settings before raising errors during the update.
-        mpl.rcParams.update(initial_settings)
-        raise
-    else:
         yield
-    finally:
-        mpl.rcParams.update(initial_settings)
 
 
 def load_base_library():
@@ -192,7 +184,7 @@ def read_style_directory(style_dir):
 
         for w in warns:
             message = 'In %s: %s' % (path, w.message)
-            warnings.warn(message)
+            warnings.warn(message, stacklevel=2)
 
     return styles
 

@@ -1,19 +1,11 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
-import io
 import os
 import shutil
-import warnings
 
-from numpy.testing import assert_almost_equal
 import pytest
 from pytest import approx
 
 from matplotlib.testing.compare import compare_images
-from matplotlib.testing.decorators import _image_directories, image_comparison
-from matplotlib.testing.exceptions import ImageComparisonFailure
+from matplotlib.testing.decorators import _image_directories
 
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
