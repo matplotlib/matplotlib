@@ -234,8 +234,7 @@ class Patch(artist.Artist):
 
     def get_linestyle(self):
         """
-        Return the linestyle.  Will be one of ['solid' | 'dashed' |
-        'dashdot' | 'dotted']
+        Return the linestyle.
         """
         return self._linestyle
 

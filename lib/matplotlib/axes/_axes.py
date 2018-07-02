@@ -757,7 +757,7 @@ class Axes(_AxesBase):
 
         colors : array_like of colors, optional, default: 'k'
 
-        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
         label : string, optional, default: ''
 
@@ -835,7 +835,7 @@ class Axes(_AxesBase):
 
         colors : array_like of colors, optional, default: 'k'
 
-        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
         label : string, optional, default: ''
 
