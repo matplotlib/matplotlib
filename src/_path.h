@@ -839,8 +839,23 @@ inline bool segments_intersect(const double &x1,
                                const double &x4,
                                const double &y4)
 {
+    // determinant
     double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
-    if (den == 0.0) {
+    if (den == 0.0) {  // collinear segments
+        // check if any of segments' edges are contained
+        // in the other segment
+        if (segment_contains(x3, y3, x4, y4, x1, y1)) {
+            return true; 
+        }
+        if (segment_contains(x3, y3, x4, y4, x2, y2)) {
+            return true;   
+        }
+        if (segment_contains(x1, y1, x2, y2, x3, y3)) {
+            return true; 
+        }
+        if (segment_contains(x1, y1, x2, y2, x4, y4)) {
+            return true;  
+        }
         return false;
     }
 
