@@ -812,6 +812,24 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
     return count;
 }
 
+// returns true if a point (x0, y0) 
+// is on a segment [(x1, y1), (x2, y2)]
+inline bool segment_contains(const double &x1,
+                             const double &y1,
+                             const double &x2,
+                             const double &y2,
+                             const double &x0,
+                             const double &y0)
+{
+    // first check if (x0, y0) lies on the segment's line 
+    double intersect = (y0 - y1)*(x2 - x1) - (x0 - x1)*(y2 - y1);
+    if (intersect != 0.0) {
+        return false;
+    }
+    return fmin(x1, x2) <= x0 && x0 <= fmax(x1, x2) && 
+           fmin(y1, y2) <= y0 && y0 <= fmax(y1, y2);
+}
+
 inline bool segments_intersect(const double &x1,
                                const double &y1,
                                const double &x2,
