@@ -259,7 +259,7 @@ class Formatter(TickHelper):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick value `x` at position pos.
+        Return the format for tick value *x* at position pos.
         ``pos=None`` indicates an unspecified location.
         """
         raise NotImplementedError('Derived must override')
@@ -577,14 +577,16 @@ class ScalarFormatter(Formatter):
         """
         Sets size thresholds for scientific notation.
 
-        ``lims`` is a two-element sequence containing the powers of 10
-        that determine the switchover threshold. Numbers below
-        ``10**lims[0]`` and above ``10**lims[1]`` will be displayed in
-        scientific notation.
+        Parameters
+        ----------
+        lims : (min_exp, max_exp)
+            A tuple containing the powers of 10 that determine the switchover
+            threshold. Numbers below ``10**min_exp`` and above ``10**max_exp``
+            will be displayed in scientific notation.
 
-        For example, ``formatter.set_powerlimits((-3, 4))`` sets the
-        pre-2007 default in which scientific notation is used for
-        numbers less than 1e-3 or greater than 1e4.
+            For example, ``formatter.set_powerlimits((-3, 4))`` sets the
+            pre-2007 default in which scientific notation is used for
+            numbers less than 1e-3 or greater than 1e4.
 
         .. seealso:: Method :meth:`set_scientific`
         """
@@ -878,7 +880,7 @@ class LogFormatter(Formatter):
 
     def base(self, base):
         """
-        change the `base` for labeling.
+        Change the *base* for labeling.
 
         .. warning::
            Should always match the base used for :class:`LogLocator`
@@ -902,7 +904,7 @@ class LogFormatter(Formatter):
         """
         Use axis view limits to control which ticks are labeled.
 
-        The ``locs`` parameter is ignored in the present algorithm.
+        The *locs* parameter is ignored in the present algorithm.
 
         """
         if np.isinf(self.minor_thresholds[0]):
@@ -969,7 +971,7 @@ class LogFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick val `x`.
+        Return the format for tick val *x*.
         """
         if x == 0.0:  # Symlog
             return '0'
@@ -1069,9 +1071,9 @@ class LogFormatterMathtext(LogFormatter):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick value `x`.
+        Return the format for tick value *x*.
 
-        The position `pos` is ignored.
+        The position *pos* is ignored.
         """
         usetex = rcParams['text.usetex']
         min_exp = rcParams['axes.formatter.min_exponent']
@@ -1121,7 +1123,7 @@ class LogFormatterMathtext(LogFormatter):
 
 class LogFormatterSciNotation(LogFormatterMathtext):
     """
-    Format values following scientific notation in a logarithmic axis
+    Format values following scientific notation in a logarithmic axis.
     """
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
@@ -1282,20 +1284,27 @@ class PercentFormatter(Formatter):
     """
     Format numbers as a percentage.
 
-    How the number is converted into a percentage is determined by the
-    `xmax` parameter. `xmax` is the data value that corresponds to 100%.
-    Percentages are computed as ``x / xmax * 100``. So if the data is
-    already scaled to be percentages, `xmax` will be 100. Another common
-    situation is where `xmax` is 1.0.
+    Parameters
+    ----------
+    xmax : float
+        Determines how the number is converted into a percentage.
+        *xmax* is the data value that corresponds to 100%.
+        Percentages are computed as ``x / xmax * 100``. So if the data is
+        already scaled to be percentages, *xmax* will be 100. Another common
+        situation is where `xmax` is 1.0.
 
-    `symbol` is a string which will be appended to the label. It may be
-    `None` or empty to indicate that no symbol should be used. LaTeX
-    special characters are escaped in `symbol` whenever latex mode is
-    enabled, unless `is_latex` is `True`.
+    decimals : None or int
+        The number of decimal places to place after the point.
+        If *None* (the default), the number will be computed automatically.
 
-    `decimals` is the number of decimal places to place after the point.
-    If it is set to `None` (the default), the number will be computed
-    automatically.
+    symbol : string or None
+        A string that will be appended to the label. It may be
+        *None* or empty to indicate that no symbol should be used. LaTeX
+        special characters are escaped in *symbol* whenever latex mode is
+        enabled, unless *is_latex* is *True*.
+
+    is_latex : bool
+        If *False*, reserved LaTeX characters in *symbol* will be escaped.
     """
     def __init__(self, xmax=100, decimals=None, symbol='%', is_latex=False):
         self.xmax = xmax + 0.0
