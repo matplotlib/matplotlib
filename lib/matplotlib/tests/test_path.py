@@ -211,6 +211,42 @@ def test_path_deepcopy():
     path2 = Path(verts, codes)
     copy.deepcopy(path1)
     copy.deepcopy(path2)
+    
+    
+def test_path_intersect_path():
+    
+    # a and b are orthogonal and intersect at (0, 3)
+    a = Path([(0,1),(0,3)])
+    b = Path([(1,3),(0,3)])
+    assert a.intersects_path(b) and b.intersects_path(a)
+    
+    # a and b are collinear and intersect at (0, 3)
+    a = Path([(0,1),(0,3)])
+    b = Path([(0,5),(0,3)])
+    assert a.intersects_path(b) and b.intersects_path(a)
+    
+    # self-intersect
+    assert a.intersects_path(a)
+    
+    # a contains b
+    a = Path([(0,0),(5,5)])
+    b = Path([(1,1),(3,3)])
+    assert a.intersects_path(b) and b.intersects_path(a)
+    
+    # a and b are collinear but do not intersect
+    a = Path([(0,1),(0,5)])
+    b = Path([(3,0),(3,3)])
+    assert not a.intersects_path(b) and not b.intersects_path(a)
+    
+    # a and b are on the same line but do not intersect
+    a = Path([(0,1),(0,5)])
+    b = Path([(0,6),(0,7)])
+    assert not a.intersects_path(b) and not b.intersects_path(a)
+    
+    # b is the same as a but with extra point
+    a = Path([(0,1),(0,5)])
+    b = Path([(0,1),(0,2),(0,5)])
+    assert a.intersects_path(b) and b.intersects_path(a)
 
 
 @pytest.mark.parametrize('offset', range(-720, 361, 45))
