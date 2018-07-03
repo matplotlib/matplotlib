@@ -82,7 +82,7 @@ class TriInterpolator(object):
 
         """
 
-    _docstringgradient = """
+    _docstringgradient = r"""
         Returns a list of 2 masked arrays containing interpolated derivatives
         at the specified x,y points.
 
@@ -99,8 +99,8 @@ class TriInterpolator(object):
             corresponding to (x,y) points outside of the triangulation
             are masked out.
             The first returned array contains the values of
-            :math:`\\frac{\\partial z}{\\partial x}` and the second those of
-            :math:`\\frac{\\partial z}{\\partial y}`.
+            :math:`\frac{\partial z}{\partial x}` and the second those of
+            :math:`\frac{\partial z}{\partial y}`.
 
         """
 
@@ -292,7 +292,7 @@ class LinearTriInterpolator(TriInterpolator):
 
 
 class CubicTriInterpolator(TriInterpolator):
-    """
+    r"""
     A CubicTriInterpolator performs cubic interpolation on triangular grids.
 
     In one-dimension - on a segment - a cubic interpolating function is
@@ -367,11 +367,11 @@ class CubicTriInterpolator(TriInterpolator):
 
         .. math::
 
-            E(z) = \\ \\frac{1}{2} \\int_{\\Omega}   \\left(
-            \\left( \\frac{\\partial^2{z}}{\\partial{x}^2} \\right)^2 +
-            \\left( \\frac{\\partial^2{z}}{\\partial{y}^2} \\right)^2 +
-            2\\left( \\frac{\\partial^2{z}}{\\partial{y}\\partial{x}}
-            \\right)^2 \\right)  dx\\,dy
+            E(z) = \frac{1}{2} \int_{\Omega} \left(
+                \left( \frac{\partial^2{z}}{\partial{x}^2} \right)^2 +
+                \left( \frac{\partial^2{z}}{\partial{y}^2} \right)^2 +
+                2\left( \frac{\partial^2{z}}{\partial{y}\partial{x}} \right)^2
+            \right) dx\,dy
 
     If the case *kind* ='geom' is chosen by the user, a simple geometric
     approximation is used (weighted average of the triangle normal
@@ -1376,7 +1376,6 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 
 
 # The following private functions:
-#     :func:`_inv22_vectorized`
 #     :func:`_safe_inv22_vectorized`
 #     :func:`_pseudo_inv22sym_vectorized`
 #     :func:`_prod_vectorized`
@@ -1387,20 +1386,6 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 #     :func:`_extract_submatrices`
 # provide fast numpy implementation of some standard operations on arrays of
 # matrices - stored as (:, n_rows, n_cols)-shaped np.arrays.
-def _inv22_vectorized(M):
-    """
-    Inversion of arrays of (2,2) matrices.
-    """
-    assert (M.ndim == 3)
-    assert (M.shape[-2:] == (2, 2))
-    M_inv = np.empty_like(M)
-    delta_inv = np.reciprocal(M[:, 0, 0]*M[:, 1, 1] - M[:, 0, 1]*M[:, 1, 0])
-    M_inv[:, 0, 0] = M[:, 1, 1]*delta_inv
-    M_inv[:, 0, 1] = -M[:, 0, 1]*delta_inv
-    M_inv[:, 1, 0] = -M[:, 1, 0]*delta_inv
-    M_inv[:, 1, 1] = M[:, 0, 0]*delta_inv
-    return M_inv
-
 
 # Development note: Dealing with pathologic 'flat' triangles in the
 # CubicTriInterpolator code and impact on (2,2)-matrix inversion functions
