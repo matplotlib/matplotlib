@@ -1,0 +1,5 @@
+Streamplot last row and column fixed
+------------------------------------
+
+A bug was fixed where the last row and column of data in
+`~.Axes.axes.streamplot` were being dropped.  
