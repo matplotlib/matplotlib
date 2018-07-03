@@ -680,7 +680,6 @@ class FigureManagerQT(FigureManagerBase):
         if self.window._destroying:
             return
         self.window._destroying = True
-        self.window.destroyed.connect(self._widgetclosed)
         if self.toolbar:
             self.toolbar.destroy()
         self.window.close()
