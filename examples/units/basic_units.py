@@ -302,7 +302,7 @@ def rad_fn(x, pos=None):
         n = int((x / np.pi) * 2.0 + 0.25)
     else:
         n = int((x / np.pi) * 2.0 - 0.25)
-        
+
     if n == 0:
         return '0'
     elif n == 1:
