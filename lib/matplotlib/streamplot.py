@@ -607,11 +607,11 @@ def interpgrid(a, xi, yi):
         x = int(xi)
         y = int(yi)
         # conditional is faster than clipping for integers
-        if x == (Nx - 2):
+        if x == (Nx - 1):
             xn = x
         else:
             xn = x + 1
-        if y == (Ny - 2):
+        if y == (Ny - 1):
             yn = y
         else:
             yn = y + 1
