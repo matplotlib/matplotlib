@@ -1326,6 +1326,12 @@ class MultiCursor(Widget):
     """
     Provide a vertical (default) and/or horizontal line cursor shared between
     multiple axes.
+    
+    horizOn:{True, False, 'current'}
+    If 'current', only the current axes's horizontal line is visible.
+    
+    vertOn:{True, False, 'current'}
+    If 'current', only the current axes's vertical line is visible.
 
     For the cursor to remain responsive you must keep a reference to
     it.
@@ -1420,18 +1426,24 @@ class MultiCursor(Widget):
             for line in self.hlines:
                 line.set_ydata((event.ydata, event.ydata))
                 line.set_visible(self.visible)
-        self._update()
+        self._update(event)
 
-    def _update(self):
+    def _update(self,event):
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
             if self.vertOn:
-                for ax, line in zip(self.axes, self.vlines):
-                    ax.draw_artist(line)
+                if self.vertOn=='current':
+                    event.inaxes.draw_artist(self.vlines[self.axes.index(event.inaxes)])
+                else:
+                    for ax, line in zip(self.axes, self.vlines):
+                        ax.draw_artist(line)
             if self.horizOn:
-                for ax, line in zip(self.axes, self.hlines):
-                    ax.draw_artist(line)
+                if self.horizOn=='current':
+                    event.inaxes.draw_artist(self.hlines[self.axes.index(event.inaxes)])
+                else:
+                    for ax, line in zip(self.axes, self.hlines):
+                        ax.draw_artist(line)
             self.canvas.blit(self.canvas.figure.bbox)
         else:
             self.canvas.draw_idle()
