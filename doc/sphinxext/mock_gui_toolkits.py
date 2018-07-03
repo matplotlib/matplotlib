@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 
 class MyCairoCffi(MagicMock):
-    pass
+    __name__ = "cairocffi"
 
 
 class MyPyQt4(MagicMock):

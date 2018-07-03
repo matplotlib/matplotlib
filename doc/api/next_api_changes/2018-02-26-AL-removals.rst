@@ -48,4 +48,5 @@ The following deprecated API elements have been removed:
 
 The following API elements have been removed:
 
-- ``matplotlib.sphinxext.sphinx_version``,
+- ``backend_cairo.HAS_CAIRO_CFFI``,
+- ``sphinxext.sphinx_version``,
