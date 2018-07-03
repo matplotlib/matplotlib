@@ -608,49 +608,46 @@ def disconnect(cid):
     return get_current_fig_manager().canvas.mpl_disconnect(cid)
 
 
-def close(*args):
+def close(fig=None):
     """
     Close a figure window.
 
-    ``close()`` by itself closes the current figure
+    Parameters
+    ----------
+    fig : None or int or str or `.Figure`
+        The figure to close. There are a number of ways to specify this:
 
-    ``close(fig)`` closes the `.Figure` instance *fig*
+        - *None*: the current figure
+        - `.Figure`: the given `.Figure` instance
+        - ``int``: a figure number
+        - ``str``: a figure name
+        - 'all': all figures
 
-    ``close(num)`` closes the figure number *num*
-
-    ``close(name)`` where *name* is a string, closes figure with that label
-
-    ``close('all')`` closes all the figure windows
     """
-
-    if len(args) == 0:
+    if fig is None:
         figManager = _pylab_helpers.Gcf.get_active()
         if figManager is None:
             return
         else:
             _pylab_helpers.Gcf.destroy(figManager.num)
-    elif len(args) == 1:
-        arg = args[0]
-        if arg == 'all':
-            _pylab_helpers.Gcf.destroy_all()
-        elif isinstance(arg, int):
-            _pylab_helpers.Gcf.destroy(arg)
-        elif hasattr(arg, 'int'):
-            # if we are dealing with a type UUID, we
-            # can use its integer representation
-            _pylab_helpers.Gcf.destroy(arg.int)
-        elif isinstance(arg, str):
-            allLabels = get_figlabels()
-            if arg in allLabels:
-                num = get_fignums()[allLabels.index(arg)]
-                _pylab_helpers.Gcf.destroy(num)
-        elif isinstance(arg, Figure):
-            _pylab_helpers.Gcf.destroy_fig(arg)
-        else:
-            raise TypeError('Unrecognized argument type %s to close'
-                            % type(arg))
+    elif fig == 'all':
+        _pylab_helpers.Gcf.destroy_all()
+    elif isinstance(fig, int):
+        _pylab_helpers.Gcf.destroy(fig)
+    elif hasattr(fig, 'int'):
+        # if we are dealing with a type UUID, we
+        # can use its integer representation
+        _pylab_helpers.Gcf.destroy(fig.int)
+    elif isinstance(fig, str):
+        allLabels = get_figlabels()
+        if fig in allLabels:
+            num = get_fignums()[allLabels.index(fig)]
+            _pylab_helpers.Gcf.destroy(num)
+    elif isinstance(fig, Figure):
+        _pylab_helpers.Gcf.destroy_fig(fig)
     else:
-        raise TypeError('close takes 0 or 1 arguments')
+        raise TypeError("close() argument must be a Figure, an int, a string, "
+                        "or None, not '%s'")
 
 
 def clf():
