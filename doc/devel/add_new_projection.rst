@@ -62,7 +62,7 @@ Once the class is defined, it must be registered with matplotlib so
 that the user can select it.
 
 A full-fledged and heavily annotated example is in
-:file:`examples/api/custom_scale_example.py`.  There are also some classes
+:doc:`/gallery/scales/custom_scale`.  There are also some classes
 in :mod:`matplotlib.scale` that may be used as starting points.
 
 
@@ -123,7 +123,7 @@ Once the projection axes is defined, it can be used in one of two ways:
 
 
 A full-fledged and heavily annotated example is in
-:file:`examples/api/custom_projection_example.py`.  The polar plot
+:doc:`/gallery/misc/custom_projection`.  The polar plot
 functionality in :mod:`matplotlib.projections.polar` may also be of
 interest.
 

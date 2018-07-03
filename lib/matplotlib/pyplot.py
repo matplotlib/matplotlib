@@ -1284,8 +1284,8 @@ def twinx(ax=None):
 
     .. seealso::
 
-       :file:`examples/api_examples/two_scales.py`
-          For an example
+       :doc:`/gallery/subplots_axes_and_figures/two_scales`
+
     """
     if ax is None:
         ax = gca()
