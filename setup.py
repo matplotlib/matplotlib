@@ -208,10 +208,8 @@ if __name__ == '__main__':
             default_backend = setupext.options['backend']
         with open('matplotlibrc.template') as fd:
             template = fd.read()
-        template = Template(template)
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-            fd.write(
-                template.safe_substitute(TEMPLATE_BACKEND=default_backend))
+            fd.write(template)
 
         # Finalize the extension modules so they can get the Numpy include
         # dirs

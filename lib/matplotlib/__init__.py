@@ -1301,74 +1301,63 @@ class rc_context:
         dict.update(rcParams, self._orig)
 
 
-_use_error_msg = """
-This call to matplotlib.use() has no effect because the backend has already
-been chosen; matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
-or matplotlib.backends is imported for the first time.
-
-The backend was *originally* set to {backend!r} by the following code:
-{tb}
-"""
-
-
 def use(arg, warn=True, force=False):
     """
     Set the matplotlib backend to one of the known backends.
 
-    The argument is case-insensitive. *warn* specifies whether a
-    warning should be issued if a backend has already been set up.
-    *force* is an **experimental** flag that tells matplotlib to
-    attempt to initialize a new backend by reloading the backend
-    module.
-
-    .. note::
-
-        This function must be called *before* importing pyplot for
-        the first time; or, if you are not using pyplot, it must be called
-        before importing matplotlib.backends.  If warn is True, a warning
-        is issued if you try and call this after pylab or pyplot have been
-        loaded.  In certain black magic use cases, e.g.
-        :func:`pyplot.switch_backend`, we are doing the reloading necessary to
-        make the backend switch work (in some cases, e.g., pure image
-        backends) so one can set warn=False to suppress the warnings.
-
     To find out which backend is currently set, see
     :func:`matplotlib.get_backend`.
 
-    """
-    # Lets determine the proper backend name first
-    if arg.startswith('module://'):
-        name = arg
-    else:
-        # Lowercase only non-module backend names (modules are case-sensitive)
-        arg = arg.lower()
-        name = validate_backend(arg)
 
-    # Check if we've already set up a backend
-    if 'matplotlib.backends' in sys.modules:
-        # Warn only if called with a different name
-        if (rcParams['backend'] != name) and warn:
-            import matplotlib.backends
+    Parameters
+    ----------
+    arg : str
+        The backend to switch to.  This can either be one of the
+        'standard' backend names or a string of the form
+        ``module://my.module.name``.  This value is case-insensitive.
+
+    warn : bool, optional
+        If True, warn if this is called after pyplot has been imported
+        and a backend is set up.
+
+        defaults to True
+
+    force : bool, optional
+        If True, attempt to switch the backend.  This defaults to
+        false and using `.pyplot.switch_backend` is preferred.
+
+
+    """
+    name = validate_backend(arg)
+
+    # if setting back to the same thing, do nothing
+    if (rcParams['backend'] == name):
+        pass
+
+    # Check if we have already imported pyplot and triggered
+    # backend selection, do a bit more work
+    elif 'matplotlib.pyplot' in sys.modules:
+        # If we are here then the requested is different than the current.
+        # If we are going to force the switch, never warn, else, if warn
+        # is True, then direct users to `plt.switch_backend`
+        if (not force) and warn:
             warnings.warn(
-                _use_error_msg.format(
-                    backend=rcParams['backend'],
-                    tb=matplotlib.backends._backend_loading_tb),
+                ("matplotlib.pyplot as already been imported, "
+                 "this call will have no effect."),
                 stacklevel=2)
 
-        # Unless we've been told to force it, just return
-        if not force:
-            return
-        need_reload = True
+        # if we are going to force switching the backend, pull in
+        # `switch_backend` from pyplot.  This will only happen if
+        # pyplot is already imported.
+        if force:
+            from matplotlib.pyplot import switch_backend
+            switch_backend(name)
+    # Finally if pyplot is not imported update both rcParams and
+    # rcDefaults so restoring the defaults later with rcdefaults
+    # won't change the backend.  This is a bit of overkill as 'backend'
+    # is already in style.core.STYLE_BLACKLIST, but better to be safe.
     else:
-        need_reload = False
-
-    # Store the backend name
-    rcParams['backend'] = name
-
-    # If needed we reload here because a lot of setup code is triggered on
-    # module import. See backends/__init__.py for more detail.
-    if need_reload:
-        importlib.reload(sys.modules['matplotlib.backends'])
+        rcParams['backend'] = rcParamsDefault['backend'] = name
 
 
 if os.environ.get('MPLBACKEND'):

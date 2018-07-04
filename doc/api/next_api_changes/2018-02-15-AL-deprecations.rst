@@ -22,6 +22,7 @@ The following classes, methods, functions, and attributes are deprecated:
   handle autorepeated key presses).
 - ``backend_qt5.error_msg_qt``, ``backend_qt5.exception_handler``,
 - ``backend_wx.FigureCanvasWx.macros``,
+- ``backends.pylab_setup``,
 - ``cbook.GetRealpathAndStat``, ``cbook.Locked``,
 - ``cbook.is_numlike`` (use ``isinstance(..., numbers.Number)`` instead),
   ``cbook.listFiles``, ``cbook.unicode_safe``,

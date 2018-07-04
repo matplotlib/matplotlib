@@ -3183,6 +3183,10 @@ class _Backend(object):
     # class FooBackend(_Backend):
     #     # override the attributes and methods documented below.
 
+    # Set to one of {"qt5", "qt4", "gtk3", "wx", "tk", "macosx"} if an
+    # interactive framework is required, or None otherwise.
+    required_interactive_framework = None
+
     # `backend_version` may be overridden by the subclass.
     backend_version = "unknown"
 
@@ -3265,7 +3269,8 @@ class _Backend(object):
 
     @staticmethod
     def export(cls):
-        for name in ["backend_version",
+        for name in ["required_interactive_framework",
+                     "backend_version",
                      "FigureCanvas",
                      "FigureManager",
                      "new_figure_manager",

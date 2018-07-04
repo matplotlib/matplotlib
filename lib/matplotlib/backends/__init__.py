@@ -5,11 +5,13 @@ import sys
 import traceback
 
 import matplotlib
+from matplotlib import cbook
 from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
 backend = matplotlib.get_backend()
+# FIXME: Remove.
 _backend_loading_tb = "".join(
     line for line in traceback.format_stack()
     # Filter out line noise from importlib line.
@@ -64,6 +66,7 @@ def _get_running_interactive_framework():
     return None
 
 
+@cbook.deprecated("3.0")
 def pylab_setup(name=None):
     """
     Return new_figure_manager, draw_if_interactive and show for pyplot.
