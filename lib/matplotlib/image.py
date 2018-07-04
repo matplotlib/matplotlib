@@ -1331,15 +1331,6 @@ def imread(fname, format=None):
     .. _Pillow documentation: http://pillow.readthedocs.io/en/latest/
     """
 
-    def pilread(fname):
-        """try to load the image with PIL or return None"""
-        try:
-            from PIL import Image
-        except ImportError:
-            return None
-        with Image.open(fname) as image:
-            return pil_to_array(image)
-
     handlers = {'png': _png.read_png, }
     if format is None:
         if isinstance(fname, str):
@@ -1358,13 +1349,15 @@ def imread(fname, format=None):
     else:
         ext = format
 
-    if ext not in handlers:
-        im = pilread(fname)
-        if im is None:
+    if ext not in handlers:  # Try to load the image with PIL.
+        try:
+            from PIL import Image
+        except ImportError:
             raise ValueError('Only know how to handle extensions: %s; '
                              'with Pillow installed matplotlib can handle '
                              'more images' % list(handlers))
-        return im
+        with Image.open(fname) as image:
+            return pil_to_array(image)
 
     handler = handlers[ext]
 

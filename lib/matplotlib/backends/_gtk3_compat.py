@@ -14,7 +14,6 @@ Thus, to force usage of PGI when both bindings are installed, import it first.
 import importlib
 import sys
 
-
 if "gi" in sys.modules:
     import gi
 elif "pgi" in sys.modules:
@@ -28,6 +27,16 @@ else:
         except ImportError:
             raise ImportError("The Gtk3 backend requires PyGObject or pgi")
 
+from .backend_cairo import cairo  # noqa
+# The following combinations are allowed:
+#   gi + pycairo
+#   gi + cairocffi
+#   pgi + cairocffi
+# (pgi doesn't work with pycairo)
+# We always try to import cairocffi first so if a check below fails it means
+# that cairocffi was unavailable to start with.
+if gi.__name__ == "pgi" and cairo.__name__ == "cairo":
+    raise ImportError("pgi and pycairo are not compatible")
 
 gi.require_version("Gtk", "3.0")
 globals().update(
