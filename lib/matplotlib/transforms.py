@@ -1814,12 +1814,16 @@ class Affine2DBase(AffineBase):
     @staticmethod
     def matrix_from_values(a, b, c, d, e, f):
         """
-        (staticmethod) Create a new transformation matrix as a 3x3
-        numpy array of the form::
+        (staticmethod) Create a new transformation matrix.
 
-          a c e
-          b d f
-          0 0 1
+        Parameters
+        ----------
+        a, b, c, d, e, f: floats
+            The parameters in the transformation matrix of the form::
+
+              a c e
+              b d f
+              0 0 1
         """
         return np.array([[a, c, e], [b, d, f], [0.0, 0.0, 1.0]], float)
 
@@ -1869,13 +1873,18 @@ class Affine2D(Affine2DBase):
 
     def __init__(self, matrix=None, **kwargs):
         """
-        Initialize an Affine transform from a 3x3 numpy float array::
+        Initialize an Affine transform from a 3x3 numpy float array.
 
-          a c e
-          b d f
-          0 0 1
+        Parameters
+        ----------
+        matrix : 3 x 3 numpy float array, optional
+            The *matrix* should have the following form::
 
-        If *matrix* is None, initialize with the identity transform.
+              a c e
+              b d f
+              0 0 1
+
+            If *matrix* is None, initialize with the identity transform.
         """
         Affine2DBase.__init__(self, **kwargs)
         if matrix is None:
@@ -1893,40 +1902,48 @@ class Affine2D(Affine2DBase):
     @staticmethod
     def from_values(a, b, c, d, e, f):
         """
-        (staticmethod) Create a new Affine2D instance from the given
-        values::
+        (staticmethod) Create a new Affine2D instance.
 
-          a c e
-          b d f
-          0 0 1
+        Parameters
+        ----------
+        a, b, c, d, e, f: floats
+            The parameters in the transformation matrix of the form::
 
-        .
+              a c e
+              b d f
+              0 0 1
         """
         return Affine2D(
             np.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], float).reshape((3, 3)))
 
     def get_matrix(self):
         """
-        Get the underlying transformation matrix as a 3x3 numpy array::
+        Get the underlying transformation matrix.
 
-          a c e
-          b d f
-          0 0 1
+        Returns
+        -------
+        matrix: a 3x3 numpy array
+            The form of the matrix::
 
-        .
+              a c e
+              b d f
+              0 0 1
         """
         self._invalid = 0
         return self._mtx
 
     def set_matrix(self, mtx):
         """
-        Set the underlying transformation matrix from a 3x3 numpy array::
+        Set the underlying transformation matrix.
 
-          a c e
-          b d f
-          0 0 1
+        Parameters
+        ----------
+        mtx: a 3x3 numpy array
+            The transformation matrix of the form::
 
-        .
+              a c e
+              b d f
+              0 0 1
         """
         self._mtx = mtx
         self.invalidate()
