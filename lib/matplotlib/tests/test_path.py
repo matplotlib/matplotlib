@@ -247,6 +247,19 @@ def test_path_intersect_path():
     a = Path([(0, 1), (0, 5)])
     b = Path([(0, 1), (0, 2), (0, 5)])
     assert a.intersects_path(b) and b.intersects_path(a)
+    
+    # check a range of slopes
+    base = 10
+    a = Path([(-base, 0), (-base/2, base/2), (base/2, base/2), (base, 0)])
+    c = Path([(-base, -base/2), (base, -base/2)])
+    for phi in np.linspace(0, np.pi, 180):
+        x = base * np.cos(phi)
+        y = base * np.sin(phi)
+        b = Path([(0, 0), (x, y)])
+        # a and b should always intersect
+        assert a.intersects_path(b) and b.intersects_path(a)
+        # a and c should never intersect
+        assert not a.intersects_path(c) and not c.intersects_path(a)
 
 
 @pytest.mark.parametrize('offset', range(-720, 361, 45))
