@@ -542,17 +542,25 @@ class _AxesBase(martist.Artist):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
         state = super().__getstate__()
-        state['_cachedRenderer'] = None
-        state.pop('_layoutbox')
-        state.pop('_poslayoutbox')
-
+        for key in ['_cachedRenderer', '_layoutbox', '_poslayoutbox']:
+            state[key] = None
+        # Prune the sharing & twinning info to only contain the current group.
+        for grouper_name in [
+                '_shared_x_axes', '_shared_y_axes', '_twinned_axes']:
+            grouper = getattr(self, grouper_name)
+            state[grouper_name] = (grouper.get_siblings(self)
+                                   if self in grouper else None)
         return state
 
     def __setstate__(self, state):
+        # Merge the grouping info back into the global groupers.
+        for grouper_name in [
+                '_shared_x_axes', '_shared_y_axes', '_twinned_axes']:
+            siblings = state.pop(grouper_name)
+            if siblings:
+                getattr(self, grouper_name).join(*siblings)
         self.__dict__ = state
         self._stale = True
-        self._layoutbox = None
-        self._poslayoutbox = None
 
     def get_window_extent(self, *args, **kwargs):
         """
