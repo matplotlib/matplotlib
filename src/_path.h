@@ -825,19 +825,19 @@ inline bool segments_intersect(const double &x1,
     // determinant
     double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
     if (den == 0.0) {  // collinear segments
-        // check if any of segments' edges are contained
-        // in the other segment
-        double intercept = (y1*x2 - y2*x1)*(x4 - x3) - (y3*x4 - y4*x3)*(x1 - x2);
-        if (intercept == 0) {
-            if (x2 - x1 == 0) { // infinite slope
-                return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
-                       (fmin(y3, y4) <= fmin(y1, y1) && fmin(y1, y2) <= fmax(y3, y4));
-            }
-            else {
+        if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
+                                    // and lie on the same line
+            return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
+                   (fmin(y3, y4) <= fmin(y1, y2) && fmin(y1, y2) <= fmax(y3, y4));
+        }
+        else {
+            double intercept = (y1*x2 - y2*x1)*(x4 - x3) - (y3*x4 - y4*x3)*(x1 - x2);
+            if (intercept == 0.0) { // segments lie on the same line
                 return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
-                       (fmin(x3, x4) <= fmin(x1, x1) && fmin(x1, x2) <= fmax(x3, x4));
+                       (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
             }
         }
+       
         return false;
     }
 
