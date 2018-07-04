@@ -18,9 +18,7 @@ import matplotlib as mpl
 def _get_testable_interactive_backends():
     backends = []
     for deps, backend in [(["cairocffi", "pgi"], "gtk3agg"),
-                          (["cairocffi", "pgi"], "gtk3cairo"),
                           (["PyQt5"], "qt5agg"),
-                          (["cairocffi", "PyQt5"], "qt5cairo"),
                           (["tkinter"], "tkagg"),
                           (["wx"], "wx"),
                           (["wx"], "wxagg")]:
@@ -36,27 +34,68 @@ def _get_testable_interactive_backends():
     return backends
 
 
-# 1. Using a timer not only allows testing of timers (on other backends), but
-#    is also necessary on gtk3 and wx, where a direct call to
-#    key_press_event("q") from draw_event causes breakage due to the canvas
-#    widget being deleted too early.
-# 2. On gtk3, we cannot even test the timer setup (on Travis, which uses pgi)
-#    due to https://github.com/pygobject/pgi/issues/45.  So we just cleanly
-#    exit from the draw_event.
 _test_script = """\
+import importlib
 import sys
+from unittest import TestCase
+
+import matplotlib as mpl
 from matplotlib import pyplot as plt, rcParams
+
 rcParams.update({
     "webagg.open_in_browser": False,
     "webagg.port_retries": 1,
 })
+backend = plt.rcParams["backend"].lower()
+assert_equal = TestCase().assertEqual
+assert_raises = TestCase().assertRaises
+
+if backend.endswith("agg") and not backend.startswith(("gtk3", "web")):
+    # Force interactive framework setup.
+    plt.figure()
+
+    # Check that we cannot switch to a backend using another interactive
+    # framework, but can switch to a backend using cairo instead of agg, or a
+    # non-interactive backend.  In the first case, we use tkagg as the "other"
+    # interactive backend as it is (essentially) guaranteed to be present.
+    # Moreover, don't test switching away from gtk3 as Gtk.main_level() is
+    # not set up at this point yet, and webagg, which uses no interactive
+    # framework.
+
+    if backend != "tkagg":
+        with assert_raises(ImportError):
+            mpl.use("tkagg")
+
+    def check_alt_backend(alt_backend):
+        mpl.use(alt_backend)
+        fig = plt.figure()
+        assert_equal(
+            type(fig.canvas).__module__,
+            "matplotlib.backends.backend_{}".format(alt_backend))
+
+    if importlib.util.find_spec("cairocffi"):
+        check_alt_backend(backend[:-3] + "cairo")
+    check_alt_backend("svg")
+
+mpl.use(backend)
 
 fig, ax = plt.subplots()
+assert_equal(
+    type(fig.canvas).__module__,
+    "matplotlib.backends.backend_{}".format(backend))
+
 ax.plot([0, 1], [2, 3])
 
-if rcParams["backend"].startswith("GTK3"):
+if backend.startswith("gtk3"):
+    # On gtk3, we cannot even test the timer setup (on Travis, which uses pgi)
+    # due to https://github.com/pygobject/pgi/issues/45.  So we just cleanly
+    # exit from the draw_event.
     fig.canvas.mpl_connect("draw_event", lambda event: sys.exit(0))
 else:
+    # Using a timer not only allows testing of timers (on other backends), but
+    # is also necessary on gtk3 and wx, where a direct call to
+    # key_press_event("q") from draw_event causes breakage due to the canvas
+    # widget being deleted too early.
     timer = fig.canvas.new_timer(1)
     timer.add_callback(fig.canvas.key_press_event, "q")
     # Trigger quitting upon draw.
@@ -70,10 +109,10 @@ _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
 @pytest.mark.flaky(reruns=3)
 def test_interactive_backend(backend):
-    subprocess.run([sys.executable, "-c", _test_script],
-                   env={**os.environ, "MPLBACKEND": backend},
-                   check=True,  # Throw on failure.
-                   timeout=_test_timeout)
+    if subprocess.run([sys.executable, "-c", _test_script],
+                      env={**os.environ, "MPLBACKEND": backend},
+                      timeout=_test_timeout).returncode:
+        pytest.fail("The subprocess returned an error.")
 
 
 @pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
