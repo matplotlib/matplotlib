@@ -2,7 +2,7 @@ Add ``ax.get_gridspec`` to `.SubplotBase`
 -----------------------------------------
 
 New method `.SubplotBase.get_gridspec` is added so that users can
-easily get the gridspec that went into making as axes:
+easily get the gridspec that went into making an axes:
 
   .. code::
 
