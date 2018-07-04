@@ -1158,7 +1158,7 @@ class AutoDateLocator(DateLocator):
     locations.
     """
     def __init__(self, tz=None, minticks=5, maxticks=None,
-                 interval_multiples=False):
+                 interval_multiples=True):
         """
         *minticks* is the minimum number of ticks desired, which is used to
         select the type of ticking (yearly, monthly, etc.).
@@ -1234,6 +1234,12 @@ class AutoDateLocator(DateLocator):
             MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000,
                             5000, 10000, 20000, 50000, 100000, 200000, 500000,
                             1000000]}
+        if interval_multiples:
+            # Swap "3" for "4" in the DAILY list; If we use 3 we get bad
+            # tick loc for months w/ 31 days: 1, 4,..., 28, 31, 1
+            # If we use 4 then we get: 1, 5, ... 25, 29, 1
+            self.intervald[DAILY] = [1, 2, 4, 7, 14, 21]
+
         self._byranges = [None, range(1, 13), range(1, 32),
                           range(0, 24), range(0, 60), range(0, 60), None]
 
@@ -1338,7 +1344,11 @@ class AutoDateLocator(DateLocator):
             self._freq = freq
 
             if self._byranges[i] and self.interval_multiples:
-                byranges[i] = self._byranges[i][::interval]
+                if i == DAILY and interval == 14:
+                    # just make first and 15th.  Avoids 30th.
+                    byranges[i] = [1, 15]
+                else:
+                    byranges[i] = self._byranges[i][::interval]
                 interval = 1
             else:
                 byranges[i] = self._byranges[i]
