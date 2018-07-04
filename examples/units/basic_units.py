@@ -298,13 +298,21 @@ secs.add_conversion_factor(minutes, 1/60.0)
 
 # radians formatting
 def rad_fn(x, pos=None):
-    n = int((x / np.pi) * 2.0 + 0.25)
+    if x >= 0:
+        n = int((x / np.pi) * 2.0 + 0.25)
+    else:
+        n = int((x / np.pi) * 2.0 - 0.25)
+
     if n == 0:
         return '0'
     elif n == 1:
         return r'$\pi/2$'
     elif n == 2:
         return r'$\pi$'
+    elif n == -1:
+        return r'$-\pi/2$'
+    elif n == -2:
+        return r'$-\pi$'
     elif n % 2 == 0:
         return r'$%s\pi$' % (n//2,)
     else:
