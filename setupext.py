@@ -1124,23 +1124,15 @@ class FreeType(SetupPackage):
             subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
-            FREETYPE_BUILD_CMD = """\
-call "%ProgramFiles%\\Microsoft SDKs\\Windows\\v7.0\\Bin\\SetEnv.Cmd" /Release /{xXX} /xp
+            FREETYPE_BUILD_CMD = r"""
+call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
+    /Release /{xXX} /xp
 call "{vcvarsall}" {xXX}
-set MSBUILD=C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe
-rd /S /Q %FREETYPE%\\objs
-%MSBUILD% %FREETYPE%\\builds\\windows\\{vc20xx}\\freetype.sln /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
-echo Build completed, moving result"
-:: move to the "normal" path for the unix builds...
-mkdir %FREETYPE%\\objs\\.libs
-:: REMINDER: fix when changing the version
-copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-if errorlevel 1 (
-  rem This is a py27 version, which has a different location for the lib file :-/
-  copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-)
+set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
+%MSBUILD% "builds\windows\{vc20xx}\freetype.sln" ^
+    /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
 """
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64
+            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, xXX
             # Note: freetype has no build profile for 2014, so we don't bother...
             vc = 'vc2010' if VS2010 else 'vc2008'
             WinXX = 'x64' if X64 else 'Win32'
@@ -1149,13 +1141,21 @@ if errorlevel 1 (
                 fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
                 fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.vcproj'), WinXX)
 
-            cmdfile = os.path.join("build", 'build_freetype.cmd')
+            cmdfile = os.path.join("build", "build_freetype.cmd")
             with open(cmdfile, 'w') as cmd:
                 cmd.write(prepare_build_cmd(FREETYPE_BUILD_CMD, vc20xx=vc, WinXX=WinXX,
                                             config='Release' if VS2010 else 'LIB Release'))
 
-            os.environ['FREETYPE'] = src_path
-            subprocess.check_call([cmdfile], shell=True)
+            shutil.rmtree(str(Path(src_path, "objs")), ignore_errors=True)
+            subprocess.check_call([os.path.abspath(cmdfile)],
+                                  shell=True, cwd=src_path)
+            # Move to the corresponding Unix build path.
+            Path(src_path, "objs/.libs").mkdir()
+            # Be robust against change of FreeType version.
+            lib_path, = (Path(src_path, "objs", vc, xXX)
+                         .glob("freetype*.lib"))
+            shutil.copy2(str(lib_path),
+                         str(Path(src_path, "objs/.libs/libfreetype.lib")))
 
 
 class FT2Font(SetupPackage):

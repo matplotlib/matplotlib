@@ -53,6 +53,7 @@ DEPSBUILD = os.path.join(os.path.dirname(os.path.normpath(__file__)), 'build')
 X64 = platform.architecture()[0] == '64bit'
 PYVER = sys.version_info[:2]
 VS2010 = PYVER >= (3, 3)
+xXX = 'x64' if X64 else 'x86'
 # If not VS2010, then use VS2008
 
 VCVARSALL = None
@@ -68,4 +69,4 @@ def prepare_build_cmd(build_cmd, **kwargs):
             VCVARSALL = candidate
 
     return build_cmd.format(
-        vcvarsall=VCVARSALL, xXX='x64' if X64 else 'x86', **kwargs)
+        vcvarsall=VCVARSALL, xXX=xXX, **kwargs)
