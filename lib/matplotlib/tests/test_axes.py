@@ -1,4 +1,4 @@
-from itertools import chain, product
+from itertools import product
 from distutils.version import LooseVersion
 import io
 
@@ -357,7 +357,7 @@ def test_arrow_simple():
     shape = ('full', 'left', 'right')
     head_starts_at_zero = (True, False)
     # Create outer product of values
-    kwargs = list(product(length_includes_head, shape, head_starts_at_zero))
+    kwargs = product(length_includes_head, shape, head_starts_at_zero)
 
     fig, axs = plt.subplots(3, 4)
     for i, (ax, kwarg) in enumerate(zip(axs.flatten(), kwargs)):
@@ -5041,9 +5041,7 @@ def generate_errorbar_inputs():
     yerr_only = base_xy * yerr_cy
     both_err = base_xy * yerr_cy * xerr_cy
 
-    test_cyclers = chain(xerr_only, yerr_only, both_err, empty)
-
-    return test_cyclers
+    return [*xerr_only, *yerr_only, *both_err, *empty]
 
 
 @pytest.mark.parametrize('kwargs', generate_errorbar_inputs())
