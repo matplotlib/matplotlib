@@ -1132,19 +1132,15 @@ set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 %MSBUILD% "builds\windows\{vc20xx}\freetype.sln" ^
     /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
 """
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, xXX
+            from setup_external_compile import prepare_build_cmd, X64, xXX
             # Note: freetype has no build profile for 2014, so we don't bother...
-            vc = 'vc2010' if VS2010 else 'vc2008'
+            vc = 'vc2010'
             WinXX = 'x64' if X64 else 'Win32'
-            # This is only false for py2.7, even on py3.5...
-            if not VS2010:
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.vcproj'), WinXX)
 
             cmdfile = os.path.join("build", "build_freetype.cmd")
             with open(cmdfile, 'w') as cmd:
                 cmd.write(prepare_build_cmd(FREETYPE_BUILD_CMD, vc20xx=vc, WinXX=WinXX,
-                                            config='Release' if VS2010 else 'LIB Release'))
+                                            config='Release'))
 
             shutil.rmtree(str(Path(src_path, "objs")), ignore_errors=True)
             subprocess.check_call([os.path.abspath(cmdfile)],
