@@ -812,23 +812,6 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
     return count;
 }
 
-// returns true if a point (x0, y0) 
-// is on a segment [(x1, y1), (x2, y2)]
-inline bool segment_contains(const double &x1,
-                             const double &y1,
-                             const double &x2,
-                             const double &y2,
-                             const double &x0,
-                             const double &y0)
-{
-    // first check if (x0, y0) lies on the segment's line 
-    double intersect = (y0 - y1)*(x2 - x1) - (x0 - x1)*(y2 - y1);
-    if (intersect != 0.0) {
-        return false;
-    }
-    return fmin(x1, x2) <= x0 && x0 <= fmax(x1, x2) && 
-           fmin(y1, y2) <= y0 && y0 <= fmax(y1, y2);
-}
 
 inline bool segments_intersect(const double &x1,
                                const double &y1,
@@ -844,17 +827,16 @@ inline bool segments_intersect(const double &x1,
     if (den == 0.0) {  // collinear segments
         // check if any of segments' edges are contained
         // in the other segment
-        if (segment_contains(x3, y3, x4, y4, x1, y1)) {
-            return true; 
-        }
-        if (segment_contains(x3, y3, x4, y4, x2, y2)) {
-            return true;   
-        }
-        if (segment_contains(x1, y1, x2, y2, x3, y3)) {
-            return true; 
-        }
-        if (segment_contains(x1, y1, x2, y2, x4, y4)) {
-            return true;  
+        double intercept = (y1*x2 - y2*x1)*(x4 - x3) - (y3*x4 - y4*x3)*(x1 - x2);
+        if (intercept == 0) {
+            if (x2 - x1 == 0) { // infinite slope
+                return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
+                       (fmin(y3, y4) <= fmin(y1, y1) && fmin(y1, y2) <= fmax(y3, y4));
+            }
+            else {
+                return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
+                       (fmin(x3, x4) <= fmin(x1, x1) && fmin(x1, x2) <= fmax(x3, x4));
+            }
         }
         return false;
     }

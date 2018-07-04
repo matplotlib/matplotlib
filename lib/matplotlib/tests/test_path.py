@@ -247,7 +247,7 @@ def test_path_intersect_path():
     a = Path([(0, 1), (0, 5)])
     b = Path([(0, 1), (0, 2), (0, 5)])
     assert a.intersects_path(b) and b.intersects_path(a)
-    
+
     # check a range of slopes
     base = 10
     a = Path([(-base, 0), (-base/2, base/2), (base/2, base/2), (base, 0)])
