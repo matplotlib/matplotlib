@@ -979,6 +979,25 @@ class Grouper(object):
     def __init__(self, init=()):
         self._mapping = {ref(x): [ref(x)] for x in init}
 
+    def __getstate__(self):
+        mapping = {}
+        for k, vs in self._mapping.items():
+            k = k()
+            if k is None:
+                continue
+            mapping[k] = l = []
+            for v in vs:
+                v = v()
+                if v is None:
+                    continue
+                l.append(v)
+        return {"_mapping": mapping}
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        self._mapping = {ref(k): [ref(v) for v in vs]
+                         for k, vs in self._mapping.items()}
+
     def __contains__(self, item):
         return ref(item) in self._mapping
 
