@@ -240,7 +240,8 @@ class _ColorbarAutoLocator(ticker.MaxNLocator):
     def tick_values(self, vmin, vmax):
         vmin = max(vmin, self._colorbar.norm.vmin)
         vmax = min(vmax, self._colorbar.norm.vmax)
-        return ticker.MaxNLocator.tick_values(self, vmin, vmax)
+        ticks = ticker.MaxNLocator.tick_values(self, vmin, vmax)
+        return ticks[(ticks >= vmin) & (ticks <= vmax)]
 
 
 class _ColorbarLogLocator(ticker.LogLocator):
