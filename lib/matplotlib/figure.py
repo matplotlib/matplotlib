@@ -41,7 +41,7 @@ import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.projections import (get_projection_names,
                                     process_projection_requirements)
-from matplotlib.text import Text, _process_text_args
+from matplotlib.text import Text, TextWithDash
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 import matplotlib._layoutbox as layoutbox
@@ -1716,32 +1716,63 @@ default: 'top'
         return l
 
     @docstring.dedent_interpd
-    def text(self, x, y, s, *args, **kwargs):
+    def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
         Add text to figure.
 
-        Call signature::
+        Parameters
+        ----------
+        x, y : float
+            The position to place the text. By default, this is in figure
+            coordinates, floats in [0, 1]. The coordinate system can be changed
+            using the *transform* keyword.
 
-          text(x, y, s, fontdict=None, **kwargs)
+        s : str
+            The text string.
 
-        Add text to figure at location *x*, *y* (relative 0-1
-        coords). See :func:`~matplotlib.pyplot.text` for the meaning
-        of the other arguments.
+        fontdict : dictionary, optional, default: None
+            A dictionary to override the default text properties. If fontdict
+            is None, the defaults are determined by your rc parameters. A
+            property in *kwargs* override the same property in fontdict.
 
-        kwargs control the :class:`~matplotlib.text.Text` properties:
+        withdash : boolean, optional, default: False
+            Creates a `~matplotlib.text.TextWithDash` instance instead of a
+            `~matplotlib.text.Text` instance.
 
-        %(Text)s
+        Other Parameters
+        ----------------
+        **kwargs : `~matplotlib.text.Text` properties
+            Other miscellaneous text parameters.
+            %(Text)s
+
+        Returns
+        -------
+        text : `~.text.Text`
+
+        See Also
+        --------
+        .Axes.text
+        .pyplot.text
         """
+        default = dict(transform=self.transFigure)
 
-        override = _process_text_args({}, *args, **kwargs)
-        t = Text(x=x, y=y, text=s)
+        if withdash:
+            text = TextWithDash(x=x, y=y, text=s)
+        else:
+            text = Text(x=x, y=y, text=s)
 
-        t.update(override)
-        self._set_artist_props(t)
-        self.texts.append(t)
-        t._remove_method = self.texts.remove
+        text.update(default)
+        if fontdict is not None:
+            text.update(fontdict)
+        text.update(kwargs)
+
+        text.set_figure(self)
+        text.stale_callback = _stale_figure_callback
+
+        self.texts.append(text)
+        text._remove_method = self.texts.remove
         self.stale = True
-        return t
+        return text
 
     def _set_artist_props(self, a):
         if a != self:
