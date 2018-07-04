@@ -259,7 +259,7 @@ def test_path_intersect_path():
         # a and b should always intersect
         assert a.intersects_path(b) and b.intersects_path(a)
         # a and c should never intersect
-        assert not a.intersects_path(c) and not c.intersects_path(a)
+        assert not b.intersects_path(c) and not c.intersects_path(b)
 
 
 @pytest.mark.parametrize('offset', range(-720, 361, 45))
