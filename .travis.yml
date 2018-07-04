@@ -83,7 +83,6 @@ matrix:
     - python: "nightly"
       env: PRE=--pre
     - os: osx
-      python: 3.6
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       only: master
       cache:
@@ -104,7 +103,7 @@ before_install: |
     export PATH=/usr/lib/ccache:$PATH
   else
     ci/silence brew update
-    brew upgrade python
+    brew upgrade python3.6
     brew install ffmpeg imagemagick mplayer ccache
     hash -r
     which python
