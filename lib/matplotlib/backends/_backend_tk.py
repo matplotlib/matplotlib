@@ -995,6 +995,7 @@ Toolbar = ToolbarTk
 
 @_Backend.export
 class _BackendTk(_Backend):
+    required_interactive_framework = "tk"
     FigureManager = FigureManagerTk
 
     @classmethod

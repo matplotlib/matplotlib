@@ -4,3 +4,10 @@ Changes to backend loading
 Failure to load backend modules (``macosx`` on non-framework builds and
 ``gtk3`` when running headless) now raises `ImportError` (instead of
 `RuntimeError` and `TypeError`, respectively.
+
+Third-party backends that integrate with an interactive framework are now
+encouraged to define the ``required_interactive_framework`` global value to one
+of the following values: "qt5", "qt4", "gtk3", "wx", "tk", or "macosx". This
+information will be used to determine whether it is possible to switch from a
+backend to another (specifically, whether they use the same interactive
+framework).

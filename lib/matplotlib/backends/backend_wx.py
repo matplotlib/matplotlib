@@ -1930,6 +1930,7 @@ class PrintoutWx(wx.Printout):
 
 @_Backend.export
 class _BackendWx(_Backend):
+    required_interactive_framework = "wx"
     FigureCanvas = FigureCanvasWx
     FigureManager = FigureManagerWx
     _frame_class = FigureFrameWx
