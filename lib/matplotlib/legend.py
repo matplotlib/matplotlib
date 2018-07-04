@@ -1126,7 +1126,7 @@ class Legend(Artist):
         use_blit : bool, optional
             Use blitting for faster image composition. For details see
             :ref:`func-animation`.
-        update : ['loc' | 'bbox'], optional
+        update : {'loc', 'bbox'}, optional
             The legend parameter to be changed when dragged:
 
             - 'loc': update the *loc* parameter of the legend

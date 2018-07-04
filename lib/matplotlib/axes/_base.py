@@ -845,7 +845,7 @@ class _AxesBase(martist.Artist):
         pos : [left, bottom, width, height] or `~matplotlib.transforms.Bbox`
             The new position of the in `.Figure` coordinates.
 
-        which : ['both' | 'active' | 'original'], optional
+        which : {'both', 'active', 'original'}, optional
             Determines which position variables to change.
 
         """
@@ -1210,7 +1210,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        aspect : ['auto' | 'equal'] or num
+        aspect : {'auto', 'equal'} or num
             Possible values:
 
             ========   ================================================
@@ -1223,7 +1223,7 @@ class _AxesBase(martist.Artist):
                        aspect='equal'.
             ========   ================================================
 
-        adjustable : None or ['box' | 'datalim'], optional
+        adjustable : None or {'box', 'datalim'}, optional
             If not ``None``, this defines which parameter will be adjusted to
             meet the required aspect. See `.set_adjustable` for further
             details.
@@ -1284,7 +1284,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        adjustable : ['box' | 'datalim']
+        adjustable : {'box', 'datalim'}
             If 'box', change the physical dimensions of the Axes.
             If 'datalim', change the ``x`` or ``y`` data limits.
 
@@ -2313,7 +2313,7 @@ class _AxesBase(martist.Artist):
             True (default) turns autoscaling on, False turns it off.
             None leaves the autoscaling state unchanged.
 
-        axis : ['both' | 'x' | 'y'], optional
+        axis : {'both', 'x', 'y'}, optional
             which axis to operate on; default is 'both'
 
         tight: bool or None, optional
@@ -2782,7 +2782,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        axis : ['both' | 'x' | 'y'], optional
+        axis : {'both', 'x', 'y'}, optional
             The axis on which to operate.
 
         tight : bool or None, optional

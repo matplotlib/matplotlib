@@ -220,7 +220,7 @@ class LogScale(ScaleBase):
         *basex*/*basey*:
            The base of the logarithm
 
-        *nonposx*/*nonposy*: ['mask' | 'clip' ]
+        *nonposx*/*nonposy*: {'mask', 'clip'}
           non-positive values in *x* or *y* can be masked as
           invalid, or clipped to a very small positive number
 
@@ -507,7 +507,7 @@ class LogitScale(ScaleBase):
 
     def __init__(self, axis, nonpos='mask'):
         """
-        *nonpos*: ['mask' | 'clip' ]
+        *nonpos*: {'mask', 'clip'}
           values beyond ]0, 1[ can be masked as invalid, or clipped to a number
           very close to 0 or 1
         """
