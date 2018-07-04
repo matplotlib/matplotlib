@@ -13,11 +13,13 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
+
 from collections import Iterable, Mapping
 from functools import reduce
 import operator
 import os
 import re
+import sys
 
 from matplotlib import cbook
 from matplotlib.cbook import ls_mapper
@@ -242,13 +244,17 @@ def validate_fonttype(s):
 
 _validate_standard_backends = ValidateInStrings(
     'backend', all_backends, ignorecase=True)
+_auto_backend_sentinel = object()
 
 
 def validate_backend(s):
-    if s.startswith('module://'):
-        return s
-    else:
-        return _validate_standard_backends(s)
+    backend = (
+        s if s is _auto_backend_sentinel or s.startswith("module://")
+        else _validate_standard_backends(s))
+    pyplot = sys.modules.get("matplotlib.pyplot")
+    if pyplot:
+        pyplot.switch_backend(backend)
+    return backend
 
 
 def validate_qt4(s):
@@ -965,9 +971,8 @@ def _validate_linestyle(ls):
 
 # a map from key -> value, converter
 defaultParams = {
-    'backend':           ['Agg', validate_backend],  # agg is certainly
-                                                      # present
-    'backend_fallback':  [True, validate_bool],  # agg is certainly present
+    'backend':           [_auto_backend_sentinel, validate_backend],
+    'backend_fallback':  [True, validate_bool],
     'backend.qt4':       [None, validate_qt4],
     'backend.qt5':       [None, validate_qt5],
     'webagg.port':       [8988, validate_int],

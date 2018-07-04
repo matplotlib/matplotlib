@@ -35,9 +35,8 @@
 ## referring to the module name (which must be in the PYTHONPATH) as
 ## 'module://my_backend'.
 ##
-## If you omit this parameter, it will always default to "Agg", which is a
-## non-interactive backend.
-backend      : $TEMPLATE_BACKEND
+## If you omit this parameter, the backend will be determined by fallback.
+#backend      : Agg
 
 ## Note that this can be overridden by the environment variable
 ## QT_API used by Enthought Tool Suite (ETS); valid values are

@@ -1,6 +1,9 @@
 Changes to backend loading
 ``````````````````````````
 
+Assignment to ``rcParams["backend"]`` now sets the backend.  Backends can now
+be switched until a figure is actually created.
+
 Failure to load backend modules (``macosx`` on non-framework builds and
 ``gtk3`` when running headless) now raises `ImportError` (instead of
 `RuntimeError` and `TypeError`, respectively.
