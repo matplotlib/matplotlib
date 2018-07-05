@@ -141,8 +141,7 @@ class Line3D(lines.Line2D):
         xs = self.get_xdata()
         ys = self.get_ydata()
 
-        if not cbook.iterable(zs):
-            zs = np.ones(len(xs)) * zs
+        zs = np.broadcast_to(zs, len(xs))
         xyz = np.asarray([xs, ys, zs])
         self._verts3d = juggle_axes_vec(xyz, zdir)
         self.stale = True
@@ -170,7 +169,7 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
 
     # Works either if zs is array or scalar
     seg3d[2] *= zs
-       
+
     pathsegs = path.iter_segments(simplify=False, curves=False)
     for i, ((x, y), code) in enumerate(pathsegs):
         seg3d[0:2, i] = x, y
@@ -181,13 +180,11 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
 def paths_to_3d_segments(paths, zs=0, zdir='z'):
     """Convert paths from a collection object to 3D segments."""
 
-    if not cbook.iterable(zs):
-        zs = np.ones(len(paths)) * zs
+    zs = np.broadcast_to(zs, len(paths))
 
-    segments = []
-    for path, pathz in zip(paths, zs):
-        segments.append(path_to_3d_segment(path, pathz, zdir))
-    return np.asarray(segments)
+    segs = [path_to_3d_segment(path, pathz, zdir)
+            for path, pathz in zip(paths, zs)]
+    return np.asarray(segs)
 
 
 def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
@@ -196,7 +193,7 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     # XXX should we consider a 4d array?
     seg3d = np.ones((3, len(path)))
 
-    # Works either if zs is array or scalar
+    # Works both if zs is an array and a scalar
     seg3d[2] *= zs
 
     pathsegs = path.iter_segments(simplify=False, curves=False)
@@ -235,7 +232,7 @@ class Line3DCollection(LineCollection):
 
     def set_segments(self, segments):
         """
-        Set 3D segments
+        Set 3D segments.
         """
         self._seg_sizes = [len(c) for c in segments]
         self._segments3d = []
@@ -296,7 +293,8 @@ class Patch3D(Patch):
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
-        verts = np.hstack([verts, np.ones((len(verts), 1)) * zs])
+        zs = np.broadcast_to(zs, len(verts))
+        verts = np.hstack([verts, zs])
         self._segment3d = juggle_axes_vec(verts.T, zdir)
         self._facecolor3d = Patch.get_facecolor(self)
 
@@ -753,7 +751,7 @@ def juggle_axes_vec(xyz, zdir):
         return xyz[[2, 0, 1]]
     elif zdir == 'y':
         return xyz[[0, 2, 1]]
-    elif zdir[0] == '-':
+    elif zdir.startswith('-'):
         return rotate_axes_vec(xyz, zdir)
     else:
         return xyz
@@ -769,12 +767,10 @@ def rotate_axes(xs, ys, zs, zdir):
         return ys, zs, xs
     elif zdir == '-x':
         return zs, xs, ys
-
     elif zdir == 'y':
         return zs, xs, ys
     elif zdir == '-y':
         return ys, zs, xs
-
     else:
         return xs, ys, zs
 
