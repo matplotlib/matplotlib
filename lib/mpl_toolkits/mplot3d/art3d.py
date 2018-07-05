@@ -177,6 +177,7 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
     seg3d = juggle_axes_vec(seg3d, zdir)
     return seg3d.T
 
+
 def paths_to_3d_segments(paths, zs=0, zdir='z'):
     """Convert paths from a collection object to 3D segments."""
 
@@ -190,7 +191,7 @@ def paths_to_3d_segments(paths, zs=0, zdir='z'):
 
 
 def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
-    '''Convert a path to a 3D segment with path codes.'''
+    """Convert a path to a 3D segment with path codes."""
     # Pre allocate memory
     # XXX should we consider a 4d array?
     seg3d = np.ones((3, len(path)))
@@ -233,9 +234,9 @@ class Line3DCollection(LineCollection):
         self.stale = True
 
     def set_segments(self, segments):
-        '''
+        """
         Set 3D segments
-        '''
+        """
         self._seg_sizes = [len(c) for c in segments]
         self._segments3d = []
         if len(segments) > 0:
@@ -391,7 +392,7 @@ class Patch3DCollection(PatchCollection):
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
-    def set_sort_zpos(self, val):
+    def set_sort_zpos(self,val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True
@@ -796,11 +797,6 @@ def rotate_axes_vec(xyz, zdir):
 
     else:
         return xyz
-
-
-@cbook.deprecated('2.0', alternative='matplotlib.colors.is_color_like')
-def iscolor(c):
-    return mcolors.is_color_like(c)
 
 
 def get_colors(c, num):
