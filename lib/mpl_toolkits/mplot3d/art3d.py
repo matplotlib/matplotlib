@@ -141,7 +141,7 @@ class Line3D(lines.Line2D):
         xs = self.get_xdata()
         ys = self.get_ydata()
 
-        if not iterable(zs):
+        if not cbook.iterable(zs):
             zs = np.ones(len(xs)) * zs
         xyz = np.asarray([xs, ys, zs])
         self._verts3d = juggle_axes_vec(xyz, zdir)
@@ -181,7 +181,7 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
 def paths_to_3d_segments(paths, zs=0, zdir='z'):
     """Convert paths from a collection object to 3D segments."""
 
-    if not iterable(zs):
+    if not cbook.iterable(zs):
         zs = np.ones(len(paths)) * zs
 
     segments = []
@@ -401,7 +401,7 @@ class Patch3DCollection(PatchCollection):
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
-        offsets = np.vstack(self.get_offsets(), np.ones(len(verts)) * zs)
+        offsets = np.vstack(self.get_offsets(), np.atleast_1d(zs))
         self._offsets3d = juggle_axes_vec(offsets, zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
