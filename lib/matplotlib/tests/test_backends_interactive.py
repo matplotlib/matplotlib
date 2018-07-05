@@ -49,8 +49,7 @@ rcParams.update({
     "webagg.port_retries": 1,
 })
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot([0, 1], [2, 3])
 
 if rcParams["backend"].startswith("GTK3"):
