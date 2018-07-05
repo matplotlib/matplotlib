@@ -167,8 +167,8 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
     # Pre allocate memory
     seg3d = np.ones((3, len(path)))
 
-    # Works either if zs is array or scalar
-    seg3d[2] *= zs
+    # Works both if zs is and array and a scalar
+    seg3d[2, :] *= zs
 
     pathsegs = path.iter_segments(simplify=False, curves=False)
     for i, ((x, y), code) in enumerate(pathsegs):
@@ -181,7 +181,6 @@ def paths_to_3d_segments(paths, zs=0, zdir='z'):
     """Convert paths from a collection object to 3D segments."""
 
     zs = np.broadcast_to(zs, len(paths))
-
     segs = [path_to_3d_segment(path, pathz, zdir)
             for path, pathz in zip(paths, zs)]
     return np.asarray(segs)
@@ -194,7 +193,7 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     seg3d = np.ones((3, len(path)))
 
     # Works both if zs is an array and a scalar
-    seg3d[2] *= zs
+    seg3d[2, :] *= zs
 
     pathsegs = path.iter_segments(simplify=False, curves=False)
     codes = np.empty(len(path))
@@ -472,20 +471,21 @@ class Path3DCollection(PathCollection):
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
         vxyzis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        vzs = vxyzis[2]
 
-        fcs = (zalpha(self._facecolor3d, vxyzis[2]) if self._depthshade else
+        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vxyzis[2]) if self._depthshade else
+        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
         PathCollection.set_offsets(self, vxyzis[0:2].T)
 
-        if len(vxyzis) > 0:
-            return min(vxyzis[2])
+        if vzs.size > 0:
+            return min(vzs)
         else:
             return np.nan
 
@@ -580,9 +580,9 @@ class Poly3DCollection(PolyCollection):
             # Store the points in a single array for easier projection
             n_segments = np.sum(self._seg_sizes)
             # Put all segments in a big array
-            self._vec = np.vstack(segments3d)
+            _vec = np.vstack(segments3d)
             # Add a fourth dimension for quaternions
-            self._vec = np.hstack([self._vec, np.ones((n_segments, 1))]).T
+            self._vec = np.hstack([_vec, np.ones((n_segments, 1))]).T
 
     def set_verts(self, verts, closed=True):
         """Set 3D vertices."""
