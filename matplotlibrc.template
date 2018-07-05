@@ -594,9 +594,6 @@ backend      : $TEMPLATE_BACKEND
 #keymap.all_axes : a                 ## enable all axes
 #keymap.copy : ctrl+c, cmd+c         ## Copy figure to clipboard
 
-## Control location of examples data files
-#examples.directory :              ## directory to look in for custom installation
-
 ###ANIMATION settings
 #animation.html :  none            ## How to display the animation as HTML in
                                    ## the IPython notebook. 'html5' uses
