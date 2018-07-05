@@ -451,6 +451,16 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
 
 def save_diff_image(expected, actual, output):
+    '''
+    Parameters
+    ----------
+    expected : str
+        File path of expected image.
+    actual : str
+        File path of actual image.
+    output : str
+        File path to save difference image to.
+    '''
     # Drop alpha channels, similarly to compare_images.
     expectedImage = _png.read_png(expected)[..., :3]
     actualImage = _png.read_png(actual)[..., :3]
