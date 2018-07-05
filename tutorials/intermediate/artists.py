@@ -437,9 +437,7 @@ plt.show()
 #
 # .. sourcecode:: ipython
 #
-#     In [261]: fig = plt.figure()
-#
-#     In [262]: ax = fig.add_subplot(111)
+#     In [262]: fig, ax = plt.subplots()
 #
 #     # create a rectangle instance
 #     In [263]: rect = matplotlib.patches.Rectangle( (1,1), width=5, height=12)
@@ -683,8 +681,7 @@ import matplotlib.ticker as ticker
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(100*np.random.rand(20))
 
 formatter = ticker.FormatStrFormatter('$%1.2f')
