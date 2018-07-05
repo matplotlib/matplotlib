@@ -58,6 +58,8 @@ def _accepts_units(convert_x=[], convert_y=[]):
     unit information, are converted, and then handed on to the decorated
     function.
 
+    The first argument of the decorated function must be an Axes.
+
     Parameters
     ----------
     convert_x, convert_y : list
@@ -73,8 +75,7 @@ def _accepts_units(convert_x=[], convert_y=[]):
             # Get the original arguments - these will be modified later
             arguments = bound_args.arguments
             # Check for data kwarg
-            has_data = (('data' in arguments) and
-                        (arguments['data'] is not None))
+            has_data = arguments.get('data') is not None
             if has_data:
                 data = arguments['data']
 
