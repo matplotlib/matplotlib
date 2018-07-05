@@ -1124,26 +1124,27 @@ class FreeType(SetupPackage):
             subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
+            shutil.rmtree(str(Path(src_path, "objs")), ignore_errors=True)
             FREETYPE_BUILD_CMD = r"""
 call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
     /Release /{xXX} /xp
 call "{vcvarsall}" {xXX}
 set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 %MSBUILD% "builds\windows\{vc20xx}\freetype.sln" ^
-    /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
+    /t:Clean;Build /p:Configuration="Release";Platform={WinXX}
 """
-            from setup_external_compile import prepare_build_cmd, X64, xXX
+            import distutils.msvc9compiler as msvc
             # Note: freetype has no build profile for 2014, so we don't bother...
             vc = 'vc2010'
-            WinXX = 'x64' if X64 else 'Win32'
-
-            cmdfile = os.path.join("build", "build_freetype.cmd")
-            with open(cmdfile, 'w') as cmd:
-                cmd.write(prepare_build_cmd(FREETYPE_BUILD_CMD, vc20xx=vc, WinXX=WinXX,
-                                            config='Release'))
-
-            shutil.rmtree(str(Path(src_path, "objs")), ignore_errors=True)
-            subprocess.check_call([os.path.abspath(cmdfile)],
+            WinXX = 'x64' if platform.architecture()[0] == '64bit' else 'Win32'
+            xXX = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
+            vcvarsall = msvc.find_vcvarsall(10.0)
+            if vcvarsall is None:
+                raise RuntimeError('Microsoft VS 2010 required')
+            cmdfile = Path("build/build_freetype.cmd")
+            cmdfile.write_text(FREETYPE_BUILD_CMD.format(
+                vc20xx=vc, WinXX=WinXX, xXX=xXX, vcvarsall=vcvarsall))
+            subprocess.check_call([str(cmdfile.resolve())],
                                   shell=True, cwd=src_path)
             # Move to the corresponding Unix build path.
             Path(src_path, "objs/.libs").mkdir()
