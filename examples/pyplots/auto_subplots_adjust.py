@@ -6,8 +6,7 @@ Auto Subplots Adjust
 """
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(range(10))
 ax.set_yticks((2,5,7))
 labels = ax.set_yticklabels(('really, really, really', 'long', 'labels'))

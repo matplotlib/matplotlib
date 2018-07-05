@@ -16,8 +16,7 @@ def test_contour_shape_1d_valid():
     y = np.arange(9)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.contour(x, y, z)
 
 
@@ -28,8 +27,7 @@ def test_contour_shape_2d_valid():
     xg, yg = np.meshgrid(x, y)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.contour(xg, yg, z)
 
 
@@ -39,8 +37,7 @@ def test_contour_shape_mismatch_1():
     y = np.arange(9)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
@@ -53,8 +50,7 @@ def test_contour_shape_mismatch_2():
     y = np.arange(10)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
@@ -68,8 +64,7 @@ def test_contour_shape_mismatch_3():
     xg, yg = np.meshgrid(x, y)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(xg, y, z)
@@ -86,8 +81,7 @@ def test_contour_shape_mismatch_4():
     b = np.random.random((9, 9))
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(b, g, z)
@@ -106,8 +100,7 @@ def test_contour_shape_invalid_1():
     y = np.random.random((3, 3, 3))
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
@@ -120,8 +113,7 @@ def test_contour_shape_invalid_2():
     y = np.random.random((3, 3, 3))
     z = np.random.random((3, 3, 3))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)

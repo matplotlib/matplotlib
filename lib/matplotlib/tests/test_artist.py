@@ -131,8 +131,7 @@ def test_cull_markers():
     x = np.random.random(20000)
     y = np.random.random(20000)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.plot(x, y, 'k.')
     ax.set_xlim(2, 3)
 
