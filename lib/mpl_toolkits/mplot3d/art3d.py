@@ -143,7 +143,7 @@ class Line3D(lines.Line2D):
 
         zs = np.broadcast_to(zs, len(xs))
         xyz = np.asarray([xs, ys, zs])
-        self._verts3d = juggle_axes_vec(xyz, zdir)
+        self._verts3d = _juggle_axes_vec(xyz, zdir)
         self.stale = True
 
     @artist.allow_rasterization
@@ -173,7 +173,7 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
     pathsegs = path.iter_segments(simplify=False, curves=False)
     for i, ((x, y), code) in enumerate(pathsegs):
         seg3d[0:2, i] = x, y
-    seg3d = juggle_axes_vec(seg3d, zdir)
+    seg3d = _juggle_axes_vec(seg3d, zdir)
     return seg3d.T
 
 
@@ -200,7 +200,7 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     for i, ((x, y), code) in enumerate(pathsegs):
         seg3d[0:2, i] = x, y
         codes[i] = code
-    seg3d = juggle_axes_vec(seg3d, zdir)
+    seg3d = _juggle_axes_vec(seg3d, zdir)
     return seg3d.T, codes
 
 
@@ -294,7 +294,7 @@ class Patch3D(Patch):
     def set_3d_properties(self, verts, zs=0, zdir='z'):
         zs = np.broadcast_to(zs, len(verts))
         verts = np.hstack([verts, zs])
-        self._segment3d = juggle_axes_vec(verts.T, zdir)
+        self._segment3d = _juggle_axes_vec(verts.T, zdir)
         self._facecolor3d = Patch.get_facecolor(self)
 
     def get_path(self):
@@ -399,7 +399,7 @@ class Patch3DCollection(PatchCollection):
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
         offsets = np.vstack(self.get_offsets(), np.atleast_1d(zs))
-        self._offsets3d = juggle_axes_vec(offsets, zdir)
+        self._offsets3d = _juggle_axes_vec(offsets, zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
@@ -463,7 +463,7 @@ class Path3DCollection(PathCollection):
         offsets = self.get_offsets()
         offsets = np.hstack([offsets,
                              (np.ones(len(offsets)) * zs)[:, np.newaxis]])
-        self._offsets3d = juggle_axes_vec(offsets, zdir).T
+        self._offsets3d = _juggle_axes_vec(offsets, zdir).T
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
@@ -741,7 +741,7 @@ def juggle_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def juggle_axes_vec(xyz, zdir):
+def _juggle_axes_vec(xyz, zdir):
     """
     Reorder coordinates so that 2D xs, ys can be plotted in the plane
     orthogonal to zdir. zdir is normally x, y or z. However, if zdir
@@ -752,7 +752,7 @@ def juggle_axes_vec(xyz, zdir):
     elif zdir == 'y':
         return xyz[[0, 2, 1]]
     elif zdir.startswith('-'):
-        return rotate_axes_vec(xyz, zdir)
+        return _rotate_axes_vec(xyz, zdir)
     else:
         return xyz
 
@@ -775,7 +775,7 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def rotate_axes_vec(xyz, zdir):
+def _rotate_axes_vec(xyz, zdir):
     """
     Reorder coordinates so that the axes are rotated with zdir along
     the original z axis. Prepending the axis with a '-' does the
