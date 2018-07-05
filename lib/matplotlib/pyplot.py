@@ -2378,7 +2378,7 @@ def imsave(*args, **kwargs):
     return _imsave(*args, **kwargs)
 
 
-def matshow(A, fignum=None, **kw):
+def matshow(A, fignum=None, **kwargs):
     """
     Display an array as a matrix in a new figure window.
 
@@ -2389,21 +2389,34 @@ def matshow(A, fignum=None, **kw):
 
     Tick labels for the xaxis are placed on top.
 
-    With the exception of *fignum*, keyword arguments are passed to
-    :func:`~matplotlib.pyplot.imshow`.  You may set the *origin*
-    kwarg to "lower" if you want the first row in the array to be
-    at the bottom instead of the top.
+    Parameters
+    ----------
+    A : array-like(M, N)
+        The matrix to be displayed.
 
+    fignum : None or int or False
+        If *None*, create a new figure window with automatic numbering.
 
-    *fignum*: [ None | integer | False ]
-      By default, :func:`matshow` creates a new figure window with
-      automatic numbering.  If *fignum* is given as an integer, the
-      created figure will use this figure number.  Because of how
-      :func:`matshow` tries to set the figure aspect ratio to be the
-      one of the array, if you provide the number of an already
-      existing figure, strange things may happen.
+        If *fignum* is an integer, draw into the figure with the given number
+        (create it if it does not exist).
 
-      If *fignum* is *False* or 0, a new figure window will **NOT** be created.
+        If 0 or *False*, use the current axes if it exists instead of creating
+        a new figure.
+
+        .. note::
+
+           Because of how `.Axes.matshow` tries to set the figure aspect
+           ratio to be the one of the array, strange things may happen if you
+           reuse an existing figure.
+
+    Returns
+    -------
+    image : `~matplotlib.image.AxesImage`
+
+    Other Parameters
+    ----------------
+    **kwargs : `~matplotlib.axes.Axes.imshow` arguments
+
     """
     A = np.asanyarray(A)
     if fignum is False or fignum is 0:
@@ -2413,7 +2426,7 @@ def matshow(A, fignum=None, **kw):
         fig = figure(fignum, figsize=figaspect(A))
         ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
-    im = ax.matshow(A, **kw)
+    im = ax.matshow(A, **kwargs)
     sci(im)
 
     return im
