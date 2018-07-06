@@ -15,6 +15,5 @@ pytest-rerunfailures
 pytest-timeout
 pytest-xdist
 python-dateutil
-sphinx
 tornado
 tox
