@@ -16,6 +16,7 @@ needs_sphinx = pytest.mark.skipif(
 
 
 def test_tinypages(tmpdir):
+    pytest.importorskip('sphinx')
     html_dir = pjoin(str(tmpdir), 'html')
     doctree_dir = pjoin(str(tmpdir), 'doctrees')
     # Build the pages with warnings turned into errors
