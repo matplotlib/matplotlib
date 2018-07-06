@@ -678,7 +678,6 @@ class Axes(_AxesBase):
         self.add_child_axes(secondary_ax)
         return secondary_ax
 
-
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
         Add text to the axes.

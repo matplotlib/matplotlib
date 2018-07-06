@@ -9,6 +9,7 @@ from matplotlib.axes._base import _AxesBase, _process_plot_format
 
 # DUPE FROM AXES.  FIXME...
 
+
 def _make_inset_locator(rect, trans, parent):
     """
     Helper function to locate inset axes, used in
@@ -142,7 +143,7 @@ class Secondary_Xaxis(_AxesBase):
             shp = len(conversion)
             if shp < 2:
                 conversion = np.array([conversion, 0.])
-            self._convert = lambda x : np.polyval(conversion, x)
+            self._convert = lambda x: np.polyval(conversion, x)
 
     def draw(self, renderer=None, inframe=False):
         """
