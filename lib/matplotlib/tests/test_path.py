@@ -122,7 +122,8 @@ def test_xkcd():
         ax.plot(x, y)
 
 
-@image_comparison(baseline_images=['xkcd_marker'], remove_text=True)
+@image_comparison(baseline_images=['xkcd_marker'], extensions=['png'],
+                  remove_text=True)
 def test_xkcd_marker():
     np.random.seed(0)
 
