@@ -48,3 +48,6 @@ The following rcParams are deprecated:
 The following keyword arguments are deprecated:
 - passing ``verts`` to ``Axes.scatter`` (use ``marker`` instead),
 - passing ``obj_type`` to ``cbook.deprecated``,
+
+The following call signatures are deprecated:
+- passing a ``wx.EvtHandler`` as first argument to ``backend_wx.TimerWx``,
