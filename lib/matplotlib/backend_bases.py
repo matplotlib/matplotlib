@@ -2596,7 +2596,7 @@ class NavigationToolbar2(object):
     # )
     toolitems = (
         ('Home', 'Reset original view', 'home', 'home'),
-        ('Back', 'Back to  previous view', 'back', 'back'),
+        ('Back', 'Back to previous view', 'back', 'back'),
         ('Forward', 'Forward to next view', 'forward', 'forward'),
         (None, None, None, None),
         ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),

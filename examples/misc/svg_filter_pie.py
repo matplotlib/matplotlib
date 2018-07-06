@@ -58,7 +58,7 @@ import xml.etree.cElementTree as ET
 # that, Inkscape's exporting also may not support it.
 
 filter_def = """
-  <defs  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
+  <defs xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
     <filter id='dropshadow' height='1.2' width='1.2'>
       <feGaussianBlur result='blur' stdDeviation='2'/>
     </filter>

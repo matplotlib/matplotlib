@@ -1136,7 +1136,7 @@ class Axes(_AxesBase):
         >>> plot(y, 'r+')     # ditto, but with red plusses
 
         You can use `.Line2D` properties as keyword arguments for more
-        control on the  appearance. Line properties and *fmt* can be mixed.
+        control on the appearance. Line properties and *fmt* can be mixed.
         The following two calls yield identical results:
 
         >>> plot(x, y, 'go--', linewidth=2, markersize=12)
@@ -3155,16 +3155,15 @@ class Axes(_AxesBase):
 
         labels : sequence, optional
             Labels for each dataset. Length must be compatible with
-            dimensions  of ``x``.
+            dimensions of ``x``.
 
         manage_xticks : bool, optional (True)
             If the function should adjust the xlim and xtick locations.
 
         autorange : bool, optional (False)
-            When `True` and the data are distributed such that the  25th and
+            When `True` and the data are distributed such that the 25th and
             75th percentiles are equal, ``whis`` is set to ``'range'`` such
-            that the whisker ends are at the minimum and maximum of the
-            data.
+            that the whisker ends are at the minimum and maximum of the data.
 
         meanline : bool, optional (False)
             If `True` (and ``showmeans`` is `True`), will try to render
@@ -5728,7 +5727,7 @@ class Axes(_AxesBase):
         It's designed to provide the fastest pcolor-type plotting with the
         Agg backend. To achieve this, it uses different algorithms internally
         depending on the complexity of the input grid (regular rectangular,
-        non-regular rectangular or arbitrary  quadrilateral).
+        non-regular rectangular or arbitrary quadrilateral).
 
         .. warning::
 

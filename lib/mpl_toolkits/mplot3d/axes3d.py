@@ -1364,7 +1364,7 @@ class Axes3D(Axes):
         Convenience method for controlling tick locators.
 
         See :meth:`matplotlib.axes.Axes.locator_params` for full
-        documentation  Note that this is for Axes3D objects,
+        documentation.  Note that this is for Axes3D objects,
         therefore, setting *axis* to 'both' will result in the
         parameters being set for all three axes.  Also, *axis*
         can also take a value of 'z' to apply parameters to the

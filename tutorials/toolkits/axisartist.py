@@ -479,8 +479,8 @@ Alignment of TickLabels are treated specially. See below
 
    Demo Ticklabel Alignment
 
-Adjusting  pad
---------------
+Adjusting pad
+-------------
 
 To change the pad between ticks and ticklabels ::
 
@@ -509,7 +509,7 @@ while ticks and grids are drawn for curved coordinate, the data
 transform of the axes itself (ax.transData) is still rectilinear
 (image) coordinate. ::
 
-    from  mpl_toolkits.axisartist.grid_helper_curvelinear \
+    from mpl_toolkits.axisartist.grid_helper_curvelinear \
          import GridHelperCurveLinear
     from mpl_toolkits.axisartist import Subplot
 
@@ -535,7 +535,7 @@ curved coordinate system may have a limited range, or may have
 cycles. In those cases, a more customized version of grid helper is
 required. ::
 
-    import  mpl_toolkits.axisartist.angle_helper as angle_helper
+    import mpl_toolkits.axisartist.angle_helper as angle_helper
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree

@@ -2562,7 +2562,7 @@ class FancyBboxPatch(Patch):
         return self._y
 
     def get_width(self):
-        "Return the width of the  rectangle"
+        "Return the width of the rectangle"
         return self._width
 
     def get_height(self):

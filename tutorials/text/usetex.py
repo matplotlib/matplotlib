@@ -60,7 +60,7 @@ Here is the standard example, `tex_demo.py`:
 
    TeX Demo
 
-Note that display math mode (``$$ e=mc^2 $$``) is  not supported, but adding the
+Note that display math mode (``$$ e=mc^2 $$``) is not supported, but adding the
 command ``\displaystyle``, as in `tex_demo.py`, will produce the same
 results.
 

@@ -1177,10 +1177,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         dimensions of `X`.
 
     autorange : bool, optional (False)
-        When `True` and the data are distributed such that the  25th and
-        75th percentiles are equal, ``whis`` is set to ``'range'`` such
-        that the whisker ends are at the minimum and maximum of the
-        data.
+        When `True` and the data are distributed such that the 25th and 75th
+        percentiles are equal, ``whis`` is set to ``'range'`` such that the
+        whisker ends are at the minimum and maximum of the data.
 
     Returns
     -------
