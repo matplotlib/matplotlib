@@ -2510,7 +2510,16 @@ class _AxesBase(martist.Artist):
             y = 1.0
             # need to check all our twins too...
             axs = self._twinned_axes.get_siblings(self)
-
+            # and all the children
+            for ax in self.child_axes:
+                if ax is not None:
+                    locator = ax.get_axes_locator()
+                    if locator:
+                        pos = locator(self, renderer)
+                        ax.apply_aspect(pos)
+                    else:
+                        ax.apply_aspect()
+                    axs = axs + [ax]
             for ax in axs:
                 try:
                     if (ax.xaxis.get_label_position() == 'top'
@@ -2542,12 +2551,15 @@ class _AxesBase(martist.Artist):
 
         # prevent triggering call backs during the draw process
         self._stale = True
-        locator = self.get_axes_locator()
-        if locator:
-            pos = locator(self, renderer)
-            self.apply_aspect(pos)
-        else:
-            self.apply_aspect()
+
+        # loop over self and child axes...
+        for ax in [self]:
+            locator = ax.get_axes_locator()
+            if locator:
+                pos = locator(self, renderer)
+                ax.apply_aspect(pos)
+            else:
+                ax.apply_aspect()
 
         artists = self.get_children()
         artists.remove(self.patch)
