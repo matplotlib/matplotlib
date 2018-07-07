@@ -1815,7 +1815,9 @@ class Affine2DBase(AffineBase):
     def matrix_from_values(a, b, c, d, e, f):
         """
         (staticmethod) Create a new transformation matrix as a 3x3
-        numpy array of the form::
+        numpy array of the form:
+
+        ::
 
           a c e
           b d f
@@ -1869,7 +1871,9 @@ class Affine2D(Affine2DBase):
 
     def __init__(self, matrix=None, **kwargs):
         """
-        Initialize an Affine transform from a 3x3 numpy float array::
+        Initialize an Affine transform from a 3x3 numpy float array:
+
+        ::
 
           a c e
           b d f
@@ -1894,7 +1898,9 @@ class Affine2D(Affine2DBase):
     def from_values(a, b, c, d, e, f):
         """
         (staticmethod) Create a new Affine2D instance from the given
-        values::
+        values:
+
+        ::
 
           a c e
           b d f
@@ -1907,7 +1913,9 @@ class Affine2D(Affine2DBase):
 
     def get_matrix(self):
         """
-        Get the underlying transformation matrix as a 3x3 numpy array::
+        Get the underlying transformation matrix as a 3x3 numpy array:
+
+        ::
 
           a c e
           b d f
@@ -1920,7 +1928,9 @@ class Affine2D(Affine2DBase):
 
     def set_matrix(self, mtx):
         """
-        Set the underlying transformation matrix from a 3x3 numpy array::
+        Set the underlying transformation matrix from a 3x3 numpy array:
+
+        ::
 
           a c e
           b d f

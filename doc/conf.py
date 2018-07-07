@@ -29,6 +29,7 @@ sys.path.append(os.path.abspath('.'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    'sphinx_automodapi.automodapi',
     'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
@@ -48,6 +49,8 @@ extensions = [
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
+automodapi_toctreedirnm = 'api/_as_gen'
+automodsumm_inherited_members = True
 
 def _check_deps():
     names = {"colorspacious": 'colorspacious',
