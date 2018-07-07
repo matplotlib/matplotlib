@@ -38,7 +38,7 @@ from matplotlib.cbook import (
     safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
-from matplotlib.axes._secondary_axes import Secondary_Xaxis
+from matplotlib.axes._secondary_axes import Secondary_Xaxis, Secondary_Yaxis
 
 _log = logging.getLogger(__name__)
 
@@ -675,6 +675,46 @@ class Axes(_AxesBase):
 
         """
         secondary_ax = Secondary_Xaxis(self, loc, conversion, **kwargs)
+        self.add_child_axes(secondary_ax)
+        return secondary_ax
+
+
+    def secondary_yaxis(self, loc, conversion, **kwargs):
+        """
+        Add a second y-axis to this axes.
+
+        For example if we want to have a second scale for the data plotted on
+        the xaxis.
+
+        Parameters
+        ----------
+        loc : string or scalar
+            FIX
+            The position to put the secondary axis.  Strings can be 'top' or
+            'bottom', scalar can be a float indicating the relative position
+            on the axes to put the new axes (0 being the bottom, and 1.0 being
+            the top.)
+
+        conversion : tuple of floats or function
+            conversion between the parent xaxis values and the secondary xaxis
+            values.  If a tuple of floats, the floats are polynomial
+            co-efficients, with the first entry the highest exponent's
+            co-efficient (i.e. [2, 3, 1] is the same as
+            ``xnew = 2 x**2 + 3 * x + 1``).  If a function is specified it
+            should accept a float as input and return a float as the
+            result.
+
+        Other Parameters
+        ----------------
+        **kwargs : `~matplotlib.axes.Axes` properties.
+            Other miscellaneous axes parameters.
+
+        Returns
+        -------
+        ax : `~matplotlib.axes.Axes` (??)
+
+        """
+        secondary_ax = Secondary_Yaxis(self, loc, conversion, **kwargs)
         self.add_child_axes(secondary_ax)
         return secondary_ax
 
