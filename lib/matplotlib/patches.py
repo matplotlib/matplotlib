@@ -672,7 +672,7 @@ class Rectangle(Patch):
 
     def get_path(self):
         """
-        Return the vertices of the rectangle
+        Return the vertices of the rectangle.
         """
         return Path.unit_rectangle()
 
@@ -696,9 +696,9 @@ class Rectangle(Patch):
         self._y1 = self._y0 + self._height
 
     def _convert_units(self):
-        '''
-        Convert bounds of the rectangle
-        '''
+        """
+        Convert bounds of the rectangle.
+        """
         x0 = self.convert_xunits(self._x0)
         y0 = self.convert_yunits(self._y0)
         x1 = self.convert_xunits(self._x1)
@@ -710,33 +710,33 @@ class Rectangle(Patch):
         return self._rect_transform
 
     def get_x(self):
-        "Return the left coord of the rectangle"
+        "Return the left coord of the rectangle."
         return self._x0
 
     def get_y(self):
-        "Return the bottom coord of the rectangle"
+        "Return the bottom coord of the rectangle."
         return self._y0
 
     def get_xy(self):
-        "Return the left and bottom coords of the rectangle"
+        "Return the left and bottom coords of the rectangle."
         return self._x0, self._y0
 
     def get_width(self):
-        "Return the width of the rectangle"
+        "Return the width of the rectangle."
         return self._width
 
     def get_height(self):
-        "Return the height of the rectangle"
+        "Return the height of the rectangle."
         return self._height
 
     def set_x(self, x):
-        "Set the left coord of the rectangle"
+        "Set the left coord of the rectangle."
         self._x0 = x
         self._update_x1()
         self.stale = True
 
     def set_y(self, y):
-        "Set the bottom coord of the rectangle"
+        "Set the bottom coord of the rectangle."
         self._y0 = y
         self._update_y1()
         self.stale = True
@@ -755,13 +755,13 @@ class Rectangle(Patch):
         self.stale = True
 
     def set_width(self, w):
-        "Set the width of the rectangle"
+        "Set the width of the rectangle."
         self._width = w
         self._update_x1()
         self.stale = True
 
     def set_height(self, h):
-        "Set the height of the rectangle"
+        "Set the height of the rectangle."
         self._height = h
         self._update_y1()
         self.stale = True
