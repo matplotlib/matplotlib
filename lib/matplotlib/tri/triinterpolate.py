@@ -1138,8 +1138,8 @@ class _DOF_estimator_geom(_DOF_estimator):
             # modulo 1. is safer regarding round-off errors (flat triangles).
             angle = np.abs(np.mod((alpha2-alpha1) / np.pi, 1.))
             # Weight proportional to angle up np.pi/2; null weight for
-            # degenerated cases 0. and np.pi (Note that `angle` is normalized
-            # by np.pi)
+            # degenerated cases 0 and np.pi (note that `angle` is normalized
+            # by np.pi).
             weights[:, ipt] = 0.5 - np.abs(angle-0.5)
         return weights
 
