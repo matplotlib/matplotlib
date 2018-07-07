@@ -63,7 +63,7 @@ def check_duplicates():
     contributors = [line.split('\t', 1)[1].strip() for line in lines if line]
     emails = [re.match('.*<(.*)>', line).group(1) for line in contributors]
     email_counter = Counter(emails)
-    
+
     if email_counter.most_common(1)[0][1] > 1:
         print('DUPLICATE CHECK: The following email addesses are used with more '
               'than one name.\nConsider adding them to .mailmap.\n')
