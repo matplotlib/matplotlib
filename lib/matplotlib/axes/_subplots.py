@@ -116,6 +116,10 @@ class SubplotBase(object):
         """set the SubplotSpec instance associated with the subplot"""
         self._subplotspec = subplotspec
 
+    def get_gridspec(self):
+        """get the GridSpec instance associated with the subplot"""
+        return self._subplotspec.get_gridspec()
+
     def update_params(self):
         """update the subplot position from fig.subplotpars"""
 

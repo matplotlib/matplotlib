@@ -122,6 +122,22 @@ for r, row in enumerate(f5_axes):
 
 fig5.tight_layout()
 
+############################################################################
+# The ``subplots`` and ``gridspec`` methods can be combined since it is
+# sometimes more convenient to make most of the subplots using ``subplots``
+# and then remove some and combine them.  Here we create a layout with
+# the bottom two axes in the last column combined.
+
+fig, axs = plt.subplots(ncols=3, nrows=3)
+gs = axs[1, 2].get_gridspec()
+# remove the underlying axes
+for ax in axs[1:, -1]:
+    ax.remove()
+axbig = fig.add_subplot(gs[1:, -1])
+axbig.annotate('Big Axes \nGridSpec[1:, -1]', (0.1, 0.5),
+               xycoords='axes fraction', va='center')
+
+fig.tight_layout()
 
 ###############################################################################
 # Fine Adjustments to a Gridspec Layout
