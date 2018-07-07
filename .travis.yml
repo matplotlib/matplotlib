@@ -63,7 +63,8 @@ env:
     - NPROC=2
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
-    - PYTEST_ADDOPTS="-rawR --maxfail=50 --timeout=350 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - PYTEST_ADDOPTS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - RUN_FLAKE8=
 
 matrix:
   include:
@@ -77,8 +78,8 @@ matrix:
     - python: 3.6
       env:
         - DELETE_FONT_CACHE=1
-        - PYTEST_ADDOPTS="$PYTEST_ADDOPTS --flake8"
         - EXTRAREQS='-r requirements/testing/travis36.txt'
+        - RUN_FLAKE8=1
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -159,6 +160,9 @@ before_script: |
 script: |
   echo "Calling pytest with the following arguments: $PYTEST_ADDOPTS"
   python -mpytest
+  if [[ $RUN_FLAKE8 == 1 ]]; then
+    flake8 --statistics && echo "Flake8 passed without any issues!"
+  fi
 
 before_cache: |
   rm -rf $HOME/.cache/matplotlib/tex.cache
