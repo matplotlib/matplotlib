@@ -55,7 +55,7 @@ def warn_deprecated(
         since, message='', name='', alternative='', pending=False,
         obj_type='attribute', addendum='', *, removal=''):
     """
-    Used to display deprecation  in a standard way.
+    Used to display deprecation in a standard way.
 
     Parameters
     ----------

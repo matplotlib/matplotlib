@@ -117,7 +117,7 @@ A collection of helper methods for numpyrecord arrays
     Import record array from CSV file with type inspection
 
 :func:`rec_append_fields`
-    Adds  field(s)/array(s) to record array
+    Adds field(s)/array(s) to record array
 
 :func:`rec_drop_fields`
     Drop fields from record array

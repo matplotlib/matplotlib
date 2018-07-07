@@ -1564,7 +1564,7 @@ def get_bbox_header(lbrt, rotated=False):
 
     l, b, r, t = lbrt
     if rotated:
-        rotate = "%.2f %.2f  translate\n90 rotate" % (l+r, 0)
+        rotate = "%.2f %.2f translate\n90 rotate" % (l+r, 0)
     else:
         rotate = ""
     bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))

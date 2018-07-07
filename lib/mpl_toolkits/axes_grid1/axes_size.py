@@ -53,7 +53,7 @@ class AddList(_Base):
 
 
 class Fixed(_Base):
-    "Simple fixed size  with absolute part = *fixed_size* and relative part = 0"
+    "Simple fixed size with absolute part = *fixed_size* and relative part = 0"
     def __init__(self, fixed_size):
         self.fixed_size = fixed_size
 
