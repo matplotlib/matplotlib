@@ -4110,19 +4110,47 @@ class _AxesBase(martist.Artist):
         martist.Artist.pick(self, args[0])
 
     def get_default_bbox_extra_artists(self):
-        return [artist for artist in self.get_children()
-                if artist.get_visible()]
-
-    def get_tightbbox(self, renderer, call_axes_locator=True):
         """
-        Return the tight bounding box of the axes.
-        The dimension of the Bbox in canvas coordinate.
+        Return a default list of artists that are used for the bounding box
+        calculation.
 
-        If *call_axes_locator* is *False*, it does not call the
-        _axes_locator attribute, which is necessary to get the correct
-        bounding box. ``call_axes_locator==False`` can be used if the
-        caller is only intereted in the relative size of the tightbbox
-        compared to the axes bbox.
+        Artists are excluded either by not being visible or
+        ``artist.set_in_layout(False)``.
+        """
+        return [artist for artist in self.get_children()
+                if (artist.get_visible() and artist.get_in_layout())]
+
+    def get_tightbbox(self, renderer, call_axes_locator=True,
+            bbox_extra_artists=None):
+        """
+        Return the tight bounding box of the axes, including axis and their
+        decorators (xlabel, title, etc).
+
+        Artists that have ``artist.set_in_layout(False)`` are not included
+        in the bbox.
+
+        Parameters
+        ----------
+        renderer : `.RendererBase` instance
+            renderer that will be used to draw the figures (i.e.
+            ``fig.canvas.get_renderer()``)
+
+        bbox_extra_artists : list of `.Artist` or ``None``
+            List of artists to include in the tight bounding box.  If
+            ``None`` (default), then all artist children of the axes are
+            included in the tight bounding box.
+
+        call_axes_locator : boolean (default ``True``)
+            If *call_axes_locator* is ``False``, it does not call the
+            ``_axes_locator`` attribute, which is necessary to get the correct
+            bounding box. ``call_axes_locator=False`` can be used if the
+            caller is only interested in the relative size of the tightbbox
+            compared to the axes bbox.
+
+        Returns
+        -------
+        bbox : `.BboxBase`
+            bounding box in figure pixel coordinates.
         """
 
         bb = []
@@ -4155,11 +4183,14 @@ class _AxesBase(martist.Artist):
         if bb_yaxis:
             bb.append(bb_yaxis)
 
-        for child in self.get_children():
-            if isinstance(child, OffsetBox) and child.get_visible():
-                bb.append(child.get_window_extent(renderer))
-            elif isinstance(child, Legend) and child.get_visible():
-                bb.append(child._legend_box.get_window_extent(renderer))
+        bbox_artists = bbox_extra_artists
+        if bbox_artists is None:
+            bbox_artists = self.get_default_bbox_extra_artists()
+
+        for a in bbox_artists:
+            bbox = a.get_tightbbox(renderer)
+            if bbox is not None and (bbox.width != 0 or bbox.height != 0):
+                bb.append(bbox)
 
         _bbox = mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])

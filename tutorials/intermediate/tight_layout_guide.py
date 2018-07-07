@@ -284,6 +284,35 @@ gs2.tight_layout(fig, rect=[0.5, 0 + (bottom-gs2.bottom),
                  h_pad=0.5)
 
 ###############################################################################
+# Legends and Annotations
+# =======================
+#
+# Pre Matplotlih 2.2, legends and annotations were excluded from the bounding
+# box calculations that decide the layout.  Subsequently these artists were
+# added to the calculation, but sometimes it is undesirable to include them.
+# For instance in this case it might be good to have the axes shring a bit
+# to make room for the legend:
+
+fig, ax = plt.subplots(figsize=(4, 3))
+lines = ax.plot(range(10), label='A simple plot')
+ax.legend(bbox_to_anchor=(0.7, 0.5), loc='center left',)
+fig.tight_layout()
+plt.show()
+
+###############################################################################
+# However, sometimes this is not desired (quite often when using
+# ``fig.savefig('outname.png', bbox_inches='tight')``).  In order to
+# remove the legend from the bounding box calculation, we simply set its
+# bounding ``leg.set_in_layout(False)`` and the legend will be ignored.
+
+fig, ax = plt.subplots(figsize=(4, 3))
+lines = ax.plot(range(10), label='B simple plot')
+leg = ax.legend(bbox_to_anchor=(0.7, 0.5), loc='center left',)
+leg.set_in_layout(False)
+fig.tight_layout()
+plt.show()
+
+###############################################################################
 # Use with AxesGrid1
 # ==================
 #
