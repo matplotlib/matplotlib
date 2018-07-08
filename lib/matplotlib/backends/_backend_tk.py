@@ -1008,14 +1008,14 @@ class _BackendTk(_Backend):
             window.withdraw()
 
             # Put a mpl icon on the window rather than the default tk icon.
-            # Tkinter doesn't allow colour icons on linux systems, but tk>=8.5 has
-            # a iconphoto command which we call directly. Source:
+            # Tkinter doesn't allow colour icons on linux systems, but tk>=8.5
+            # has a iconphoto command which we call directly. Source:
             # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
             icon_fname = os.path.join(
                 rcParams['datapath'], 'images', 'matplotlib.ppm')
-            icon_img = Tk.PhotoImage(file=icon_fname)
+            icon_img = Tk.PhotoImage(file=icon_fname, master=window)
             try:
-                window.tk.call('wm', 'iconphoto', window._w, icon_img)
+                window.iconphoto(False, icon_img)
             except Exception as exc:
                 # log the failure (due e.g. to Tk version), but carry on
                 _log.info('Could not load matplotlib icon: %s', exc)
