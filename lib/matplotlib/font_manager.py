@@ -945,7 +945,7 @@ class FontManager(object):
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 201
+    __version__ = 300
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1333,7 +1333,8 @@ else:
 
     cachedir = get_cachedir()
     if cachedir is not None:
-        _fmcache = os.path.join(cachedir, 'fontList.json')
+        _fmcache = os.path.join(
+            cachedir, 'fontlist-v{}.json'.format(FontManager.__version__))
 
     fontManager = None
 
