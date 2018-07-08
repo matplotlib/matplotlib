@@ -1186,7 +1186,19 @@ class Axis(artist.Artist):
         ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
                                                                 renderer)
 
+        presemble_check = False
+        if len(rcParams['text.latex.preamble']) != 0:
+            for presemble in rcParams['text.latex.preamble']:
+                if('usepackage{' in presemble and 'amsmath' in presemble):
+                    presemble_check = True
+
         for tick in ticks_to_draw:
+            if tick.label1On and tick.label1.get_usetex() and presemble_check:
+                lb = tick.label1._text.replace('-', '\operatorname{-}')
+                tick.label1._text = lb
+            if tick.label2On and tick.label2.get_usetex() and presemble_check:
+                lb = tick.label2._text.replace('-', '\operatorname{-}')
+                tick.label2._text = lb
             tick.draw(renderer)
 
         # scale up the axis label box to also find the neighbors, not
