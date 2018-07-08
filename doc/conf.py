@@ -95,7 +95,6 @@ intersphinx_mapping = {
 }
 
 
-
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
     'examples_dirs': ['../examples', '../tutorials'],
@@ -147,7 +146,6 @@ project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
              'team; 2012 - 2018 The Matplotlib development team')
-
 
 
 # The default replacements for |version| and |release|, also used in various

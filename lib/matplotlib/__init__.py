@@ -918,7 +918,7 @@ class RcParams(MutableMapping, dict):
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(
-                version, key, obj_type, alternative=alt_key)
+                version, key, obj_type="rcparam", alternative=alt_key)
             return dict.__getitem__(self, alt_key) if alt_key else None
 
         elif key == 'examples.directory':

@@ -34,7 +34,7 @@ def nice_repr(text):
 
 def math_repr(text):
     tx = repr(text).lstrip('u').strip("'").strip("$")
-    return "'\${}\$'".format(tx)
+    return r"'\${}\$'".format(tx)
 
 
 def split_list(a_list):

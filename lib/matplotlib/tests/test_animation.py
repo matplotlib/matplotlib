@@ -109,7 +109,7 @@ class RegisteredNullMovieWriter(NullMovieWriter):
         pass
 
     @classmethod
-    def isAvailable(self):
+    def isAvailable(cls):
         return True
 
 
