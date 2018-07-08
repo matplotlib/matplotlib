@@ -1115,8 +1115,8 @@ class FreeType(SetupPackage):
 
         if sys.platform != 'win32':
             # compilation on all other platforms than windows
-            env={**os.environ,
-                 "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
+            env = {**os.environ,
+                   "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
             subprocess.check_call(
                 ["./configure", "--with-zlib=no", "--with-bzip2=no",
                  "--with-png=no", "--with-harfbuzz=no"],

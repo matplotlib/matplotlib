@@ -214,7 +214,6 @@ def auto_adjust_subplotpars(
 
     return kwargs
 
-
 def get_renderer(fig):
     if fig._cachedRenderer:
         renderer = fig._cachedRenderer

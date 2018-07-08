@@ -1858,7 +1858,7 @@ class _Style(object):
     where actual styles are declared as subclass of it, and it
     provides some helper functions.
     """
-    def __new__(self, stylename, **kw):
+    def __new__(cls, stylename, **kw):
         """
         return the instance of the subclass with the given style name.
         """
@@ -1869,7 +1869,7 @@ class _Style(object):
         _list = stylename.replace(" ", "").split(",")
         _name = _list[0].lower()
         try:
-            _cls = self._style_list[_name]
+            _cls = cls._style_list[_name]
         except KeyError:
             raise ValueError("Unknown style : %s" % stylename)
 
@@ -1883,29 +1883,29 @@ class _Style(object):
         return _cls(**_args)
 
     @classmethod
-    def get_styles(klass):
+    def get_styles(cls):
         """
         A class method which returns a dictionary of available styles.
         """
-        return klass._style_list
+        return cls._style_list
 
     @classmethod
-    def pprint_styles(klass):
+    def pprint_styles(cls):
         """
         A class method which returns a string of the available styles.
         """
-        return _pprint_styles(klass._style_list)
+        return _pprint_styles(cls._style_list)
 
     @classmethod
-    def register(klass, name, style):
+    def register(cls, name, style):
         """
         Register a new style.
         """
 
-        if not issubclass(style, klass._Base):
+        if not issubclass(style, cls._Base):
             raise ValueError("%s must be a subclass of %s" % (style,
-                                                              klass._Base))
-        klass._style_list[name] = style
+                                                              cls._Base))
+        cls._style_list[name] = style
 
 
 def _register_style(style_list, cls=None, *, name=None):

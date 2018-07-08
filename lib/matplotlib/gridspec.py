@@ -20,7 +20,7 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _pylab_helpers, tight_layout, rcParams
+from matplotlib import _pylab_helpers, cbook, tight_layout, rcParams
 from matplotlib.transforms import Bbox
 import matplotlib._layoutbox as layoutbox
 

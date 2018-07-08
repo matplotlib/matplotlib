@@ -1,5 +1,6 @@
 # Extra pip requirements for the travis python 3.6 build
 
-pandas<0.21.0
+flake8
+flake8-per-file-ignores
 jupyter
-pytest-pep8
+pandas<0.21.0
