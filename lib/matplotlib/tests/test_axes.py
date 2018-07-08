@@ -336,7 +336,7 @@ def test_use_sticky_edges():
 def test_basic_annotate():
     # Setup some data
     t = np.arange(0.0, 5.0, 0.01)
-    s = np.cos(2.0*np.pi * t)
+    s = np.cos(2.0*np.pi * t * 3.)
 
     # Offset Points
 
