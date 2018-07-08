@@ -144,7 +144,8 @@ def test_set_drawstyle():
     assert len(line.get_path().vertices) == len(x)
 
 
-@image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
+@image_comparison(baseline_images=['line_collection_dashes'],
+                  remove_text=True, style='mpl20')
 def test_set_line_coll_dash_image():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)

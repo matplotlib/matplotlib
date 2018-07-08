@@ -242,7 +242,7 @@ def test_contour_datetime_axis():
 
 
 @image_comparison(baseline_images=['contour_test_label_transforms'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True, style='mpl20')
 def test_labels():
     # Adapted from pylab_examples example code: contour_demo.py
     # see issues #2475, #2843, and #2818 for explanation
@@ -371,7 +371,7 @@ def test_contourf_log_extension():
     ax3 = fig.add_subplot(133)
 
     # make data set with large range e.g. between 1e-8 and 1e10
-    data_exp = np.linspace(-8, 10, 1200)
+    data_exp = np.linspace(-7.5, 9.5, 1200)
     data = np.power(10, data_exp).reshape(30, 40)
     # make manual levels e.g. between 1e-4 and 1e-6
     levels_exp = np.arange(-4., 7.)

@@ -1996,8 +1996,11 @@ class Axes3D(Axes):
         dz = (levels[1] - levels[0]) / 2
 
         for z, linec in zip(levels, colls):
-            topverts = art3d.paths_to_3d_segments(linec.get_paths(), z - dz)
-            botverts = art3d.paths_to_3d_segments(linec.get_paths(), z + dz)
+            paths = linec.get_paths()
+            if not paths:
+                continue
+            topverts = art3d.paths_to_3d_segments(paths, z - dz)
+            botverts = art3d.paths_to_3d_segments(paths, z + dz)
 
             color = linec.get_color()[0]
 
