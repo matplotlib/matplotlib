@@ -244,17 +244,26 @@ def validate_fonttype(s):
 
 _validate_standard_backends = ValidateInStrings(
     'backend', all_backends, ignorecase=True)
-_auto_backend_sentinel = object()
+
+
+def validate_default_backends(s):
+    return [validate_backend(b) for b in s]
 
 
 def validate_backend(s):
-    backend = (
-        s if s is _auto_backend_sentinel or s.startswith("module://")
-        else _validate_standard_backends(s))
-    pyplot = sys.modules.get("matplotlib.pyplot")
-    if pyplot:
-        pyplot.switch_backend(backend)
-    return backend
+    if s.startswith('module://'):
+        return s
+    else:
+        return _validate_standard_backends(s)
+
+
+def validate_backend_or_None(s):
+    if s is None or s == 'None':
+        return None
+    if s.startswith('module://'):
+        return s
+    else:
+        return _validate_standard_backends(s)
 
 
 def validate_qt4(s):
@@ -971,7 +980,10 @@ def _validate_linestyle(ls):
 
 # a map from key -> value, converter
 defaultParams = {
-    'backend':           [_auto_backend_sentinel, validate_backend],
+    'default_backends':  [["macosx", "qt5agg", "qt4agg", "gtk3agg",
+                           "gtk3cairo", "tkagg", "wxagg", "agg", "cairo"],
+                          validate_default_backends],
+    'backend':           [None, validate_backend_or_None],
     'backend_fallback':  [True, validate_bool],
     'backend.qt4':       [None, validate_qt4],
     'backend.qt5':       [None, validate_qt5],

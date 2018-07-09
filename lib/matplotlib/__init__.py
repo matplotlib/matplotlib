@@ -803,7 +803,9 @@ def matplotlib_fname():
 
 # rcParams deprecated and automatically mapped to another key.
 # Values are tuples of (version, new_name, f_old2new, f_new2old).
-_deprecated_map = {}
+_deprecated_map = {
+    'backend': (3.0, 'default_backends', lambda x: [x], lambda x: x[0])
+}
 
 # rcParams deprecated; some can manually be mapped to another key.
 # Values are tuples of (version, new_name_or_None).
@@ -909,8 +911,17 @@ class RcParams(MutableMapping, dict):
                 '%s is not a valid rc parameter. See rcParams.keys() for a '
                 'list of valid parameters.' % (key,))
 
+    def _set_current_backend(self, backend):
+        dict.__setitem__(self, 'backend', backend)
+
     def __getitem__(self, key):
-        if key in _deprecated_map:
+        if key == 'backend':
+            cbook.warn_deprecated('3.0',
+                "The rcParam 'backend' is deprecated. Use the rcParam "
+                "'default_backends' to access the defaults. Use get_backend() "
+                "to get the current backend.")
+            return dict.__getitem__(self, backend)
+        elif key in _deprecated_map:
             version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
             cbook.warn_deprecated(
                 version, key, obj_type="rcparam", alternative=alt_key)
@@ -1328,8 +1339,7 @@ The backend was *originally* set to {backend!r} by the following code:
 {tb}
 """
 
-
-def use(arg, warn=True, force=False):
+def set_backend(arg, warn=True, force=False):
     """
     Set the Matplotlib backend.
 
@@ -1348,6 +1358,11 @@ def use(arg, warn=True, force=False):
     # use(...) needs to force the default backend too.
     rcParams["backend"] = \
         rcParamsDefault["backend"] = rcParamsOrig["backend"] = arg
+
+
+@cbook.deprecated('3.0', alternative='matplotlib.set_backend')
+def use(arg, warn=True, force=False):
+    set_backend(arg, warn, force)
 
 
 if os.environ.get('MPLBACKEND'):
