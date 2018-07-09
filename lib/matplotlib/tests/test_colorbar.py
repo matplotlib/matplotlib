@@ -4,7 +4,7 @@ import pytest
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm, LogNorm
+from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
 
@@ -368,6 +368,14 @@ def test_colorbar_lognorm_extension():
     # Test that colorbar with lognorm is extended correctly
     f, ax = plt.subplots()
     cb = ColorbarBase(ax, norm=LogNorm(vmin=0.1, vmax=1000.0),
+                      orientation='vertical', extend='both')
+    assert cb._values[0] >= 0.0
+
+
+def test_colorbar_powernorm_extension():
+    # Test that colorbar with powernorm is extended correctly
+    f, ax = plt.subplots()
+    cb = ColorbarBase(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
                       orientation='vertical', extend='both')
     assert cb._values[0] >= 0.0
 
