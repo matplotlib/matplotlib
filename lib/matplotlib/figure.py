@@ -1471,6 +1471,9 @@ default: 'top'
             subplot_kw = {}
         if gridspec_kw is None:
             gridspec_kw = {}
+        # don't mutate kwargs passed by user...
+        subplot_kw = subplot_kw.copy()
+        gridspec_kw = gridspec_kw.copy()
 
         if self.get_constrained_layout():
             gs = GridSpec(nrows, ncols, figure=self, **gridspec_kw)
