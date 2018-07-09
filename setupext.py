@@ -1371,13 +1371,8 @@ class BackendTkAgg(OptionalBackendPackage):
         return "installing; run-time loading from Python Tcl / Tk"
 
     def runtime_check(self):
-        """ Checks whether TkAgg runtime dependencies are met
-        """
-        try:
-            import tkinter
-        except ImportError:
-            return False
-        return True
+        """Checks whether TkAgg runtime dependencies are met."""
+        return importlib.util.find_spec("tkinter") is not None
 
     def get_extension(self):
         sources = [
@@ -1398,142 +1393,42 @@ class BackendTkAgg(OptionalBackendPackage):
             ext.libraries.extend(['dl'])
 
 
-def backend_gtk3agg_internal_check(x):
-    try:
-        import gi
-    except ImportError:
-        return (False, "Requires pygobject to be installed.")
-
-    try:
-        gi.require_version("Gtk", "3.0")
-    except ValueError:
-        return (False, "Requires gtk3 development files to be installed.")
-    except AttributeError:
-        return (False, "pygobject version too old.")
-
-    try:
-        from gi.repository import Gtk, Gdk, GObject
-    except (ImportError, RuntimeError):
-        return (False, "Requires pygobject to be installed.")
-
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
-
-
 class BackendGtk3Agg(OptionalBackendPackage):
     name = "gtk3agg"
 
     def check_requirements(self):
-        if 'TRAVIS' in os.environ:
-            raise CheckFailed("Can't build with Travis")
+        if not any(map(importlib.util.find_spec, ["cairocffi", "cairo"])):
+            raise CheckFailed("Requires cairocffi or pycairo to be installed.")
 
-        # This check needs to be performed out-of-process, because
-        # importing gi and then importing regular old pygtk afterward
-        # segfaults the interpreter.
         try:
-            p = multiprocessing.Pool()
-        except:
-            return "unknown (can not use multiprocessing to determine)"
-        try:
-            res = p.map_async(backend_gtk3agg_internal_check, [0])
-            success, msg = res.get(timeout=10)[0]
-        except multiprocessing.TimeoutError:
-            p.terminate()
-            # No result returned. Probably hanging, terminate the process.
-            success = False
-            raise CheckFailed("Check timed out")
-        except:
-            p.close()
-            # Some other error.
-            success = False
-            msg = "Could not determine"
-            raise
-        else:
-            p.close()
-        finally:
-            p.join()
-
-        if success:
-            return msg
-        else:
-            raise CheckFailed(msg)
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-
-def backend_gtk3cairo_internal_check(x):
-    try:
-        import cairocffi
-    except ImportError:
-        try:
-            import cairo
+            import gi
         except ImportError:
-            return (False, "Requires cairocffi or pycairo to be installed.")
+            raise CheckFailed("Requires pygobject to be installed.")
 
-    try:
-        import gi
-    except ImportError:
-        return (False, "Requires pygobject to be installed.")
-
-    try:
-        gi.require_version("Gtk", "3.0")
-    except ValueError:
-        return (False, "Requires gtk3 development files to be installed.")
-    except AttributeError:
-        return (False, "pygobject version too old.")
-
-    try:
-        from gi.repository import Gtk, Gdk, GObject
-    except (RuntimeError, ImportError):
-        return (False, "Requires pygobject to be installed.")
-
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
-
-
-class BackendGtk3Cairo(OptionalBackendPackage):
-    name = "gtk3cairo"
-
-    def check_requirements(self):
-        if 'TRAVIS' in os.environ:
-            raise CheckFailed("Can't build with Travis")
-
-        # This check needs to be performed out-of-process, because
-        # importing gi and then importing regular old pygtk afterward
-        # segfaults the interpreter.
         try:
-            p = multiprocessing.Pool()
-        except:
-            return "unknown (can not use multiprocessing to determine)"
-        try:
-            res = p.map_async(backend_gtk3cairo_internal_check, [0])
-            success, msg = res.get(timeout=10)[0]
-        except multiprocessing.TimeoutError:
-            p.terminate()
-            # No result returned. Probably hanging, terminate the process.
-            success = False
-            raise CheckFailed("Check timed out")
-        except:
-            p.close()
-            success = False
-            raise
-        else:
-            p.close()
-        finally:
-            p.join()
+            gi.require_version("Gtk", "3.0")
+        except ValueError:
+            raise CheckFailed(
+                "Requires gtk3 development files to be installed.")
+        except AttributeError:
+            raise CheckFailed("pygobject version too old.")
 
-        if success:
-            return msg
-        else:
-            raise CheckFailed(msg)
+        try:
+            from gi.repository import Gtk, Gdk, GObject
+        except (ImportError, RuntimeError):
+            raise CheckFailed("Requires pygobject to be installed.")
+
+        return "version {}.{}.{}".format(
+            Gtk.get_major_version(),
+            Gtk.get_minor_version(),
+            Gtk.get_micro_version())
 
     def get_package_data(self):
         return {'matplotlib': ['mpl-data/*.glade']}
+
+
+class BackendGtk3Cairo(BackendGtk3Agg):
+    name = "gtk3cairo"
 
 
 class BackendWxAgg(OptionalBackendPackage):
