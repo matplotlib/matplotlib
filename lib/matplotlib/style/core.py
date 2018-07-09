@@ -18,6 +18,7 @@ import warnings
 
 import matplotlib as mpl
 from matplotlib import rc_params_from_file, rcParamsDefault
+from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
@@ -98,7 +99,11 @@ def use(style):
         if not isinstance(style, str):
             _apply_style(style)
         elif style == 'default':
-            _apply_style(rcParamsDefault, warn=False)
+            # Deprecation warnings were already handled when creating
+            # rcParamsDefault, no need to reemit them here.
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+                _apply_style(rcParamsDefault, warn=False)
         elif style in library:
             _apply_style(library[style])
         else:
