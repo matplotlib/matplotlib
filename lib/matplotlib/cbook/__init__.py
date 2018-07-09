@@ -1984,7 +1984,7 @@ def _define_aliases(alias_d, cls=None):
     can be used by `~.normalize_kwargs` (which assumes that higher priority
     aliases come last).
     """
-    if cls is None:
+    if cls is None:  # Return the actual class decorator.
         return functools.partial(_define_aliases, alias_d)
 
     def make_alias(name):  # Enforce a closure over *name*.
