@@ -34,7 +34,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 from matplotlib.cbook import (
-    mplDeprecation, warn_deprecated, STEP_LOOKUP_MAP, iterable,
+    MatplotlibDeprecationWarning, warn_deprecated, STEP_LOOKUP_MAP, iterable,
     safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
