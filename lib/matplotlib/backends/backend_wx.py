@@ -120,19 +120,15 @@ class TimerWx(TimerBase):
 
     '''
 
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        if isinstance(args[0], wx.EvtHandler):
+            cbook.warn_deprecated(
+                "3.0", "Passing a wx.EvtHandler as first argument to the "
+                "TimerWx constructor is deprecated since %(version)s.")
+            args = args[1:]
         TimerBase.__init__(self, *args, **kwargs)
-
-        # Create a new timer and connect the timer event to our handler.
-        # For WX, the events have to use a widget for binding.
-        self.parent = parent
-        self._timer = wx.Timer(self.parent, wx.NewId())
-        self.parent.Bind(wx.EVT_TIMER, self._on_timer, self._timer)
-
-     # Unbinding causes Wx to stop for some reason. Disabling for now.
-#    def __del__(self):
-#        TimerBase.__del__(self)
-#        self.parent.Bind(wx.EVT_TIMER, None, self._timer)
+        self._timer = wx.Timer()
+        self._timer.Notify = self._on_timer
 
     def _timer_start(self):
         self._timer.Start(self._interval, self._single)
@@ -145,9 +141,6 @@ class TimerWx(TimerBase):
 
     def _timer_set_single_shot(self):
         self._timer.Start()
-
-    def _on_timer(self, *args):
-        TimerBase._on_timer(self)
 
 
 class RendererWx(RendererBase):
@@ -706,7 +699,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             will be executed by the timer every *interval*.
 
         """
-        return TimerWx(self, *args, **kwargs)
+        return TimerWx(*args, **kwargs)
 
     def flush_events(self):
         wx.Yield()
