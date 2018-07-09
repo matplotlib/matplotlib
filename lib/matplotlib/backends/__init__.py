@@ -56,9 +56,6 @@ def _get_running_interactive_framework():
     except ImportError:
         pass
     else:
-        # Note that the NSApp event loop is also running when a non-native
-        # toolkit (e.g. Qt5) is active, but in that case we want to report the
-        # other toolkit; thus, this check comes after the other toolkits.
         if _macosx.event_loop_is_running():
             return "macosx"
     if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
