@@ -2,15 +2,23 @@ import datetime
 import tempfile
 from unittest.mock import Mock
 
-import dateutil
+import dateutil.tz
+import dateutil.rrule
 import numpy as np
 import pytest
-import pytz
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.dates as mdates
+
+
+def __has_pytz():
+    try:
+        import pytz
+        return True
+    except ImportError:
+        return False
 
 
 def test_date_numpyx():
@@ -180,8 +188,8 @@ def test_RRuleLocator():
 
 def test_RRuleLocator_dayrange():
     loc = mdates.DayLocator()
-    x1 = datetime.datetime(year=1, month=1, day=1, tzinfo=pytz.UTC)
-    y1 = datetime.datetime(year=1, month=1, day=16, tzinfo=pytz.UTC)
+    x1 = datetime.datetime(year=1, month=1, day=1, tzinfo=mdates.UTC)
+    y1 = datetime.datetime(year=1, month=1, day=16, tzinfo=mdates.UTC)
     loc.tick_values(x1, y1)
     # On success, no overflow error shall be thrown
 
@@ -482,8 +490,8 @@ def test_date_inverted_limit():
 
 def _test_date2num_dst(date_range, tz_convert):
     # Timezones
-    BRUSSELS = pytz.timezone('Europe/Brussels')
-    UTC = pytz.UTC
+    BRUSSELS = dateutil.tz.gettz('Europe/Brussels')
+    UTC = mdates.UTC
 
     # Create a list of timezone-aware datetime objects in UTC
     # Interval is 0b0.0000011 days, to prevent float rounding issues
@@ -575,10 +583,7 @@ def test_date2num_dst_pandas(pd):
     _test_date2num_dst(pd.date_range, tz_convert)
 
 
-@pytest.mark.parametrize("attach_tz, get_tz", [
-    (lambda dt, zi: zi.localize(dt), lambda n: pytz.timezone(n)),
-    (lambda dt, zi: dt.replace(tzinfo=zi), lambda n: dateutil.tz.gettz(n))])
-def test_rrulewrapper(attach_tz, get_tz):
+def _test_rrulewrapper(attach_tz, get_tz):
     SYD = get_tz('Australia/Sydney')
 
     dtstart = attach_tz(datetime.datetime(2017, 4, 1, 0), SYD)
@@ -591,6 +596,25 @@ def test_rrulewrapper(attach_tz, get_tz):
            datetime.datetime(2017, 4, 2, 14, tzinfo=dateutil.tz.tzutc())]
 
     assert act == exp
+
+
+def test_rrulewrapper():
+    def attach_tz(dt, zi):
+        return dt.replace(tzinfo=zi)
+
+    _test_rrulewrapper(attach_tz, dateutil.tz.gettz)
+
+
+@pytest.mark.pytz
+@pytest.mark.skipif(not __has_pytz(), reason="Requires pytz")
+def test_rrulewrapper_pytz():
+    # Test to make sure pytz zones are supported in rrules
+    import pytz
+
+    def attach_tz(dt, zi):
+        return zi.localize(dt)
+
+    _test_rrulewrapper(attach_tz, pytz.timezone)
 
 
 def test_DayLocator():

@@ -1747,8 +1747,8 @@ class Axis(artist.Artist):
         # the registered converter can be selected, and the "units" attribute,
         # which is the timezone, can be set.
         if isinstance(tz, str):
-            import pytz
-            tz = pytz.timezone(tz)
+            import dateutil.tz
+            tz = dateutil.tz.gettz(tz)
         self.update_units(datetime.datetime(2009, 1, 1, 0, 0, 0, 0, tz))
 
     def get_tick_space(self):

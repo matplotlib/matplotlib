@@ -4,7 +4,7 @@ import io
 
 import datetime
 
-import pytz
+import dateutil.tz as dutz
 
 import numpy as np
 from numpy import ma
@@ -5333,8 +5333,9 @@ def test_bar_uint8():
 @image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
 def test_date_timezone_x():
     # Tests issue 5575
-    time_index = [pytz.timezone('Canada/Eastern').localize(datetime.datetime(
-        year=2016, month=2, day=22, hour=x)) for x in range(3)]
+    time_index = [datetime.datetime(2016, 2, 22, hour=x,
+                                    tzinfo=dutz.gettz('Canada/Eastern'))
+                  for x in range(3)]
 
     # Same Timezone
     fig = plt.figure(figsize=(20, 12))
@@ -5350,8 +5351,9 @@ def test_date_timezone_x():
                   extensions=['png'])
 def test_date_timezone_y():
     # Tests issue 5575
-    time_index = [pytz.timezone('Canada/Eastern').localize(datetime.datetime(
-        year=2016, month=2, day=22, hour=x)) for x in range(3)]
+    time_index = [datetime.datetime(2016, 2, 22, hour=x,
+                                    tzinfo=dutz.gettz('Canada/Eastern'))
+                  for x in range(3)]
 
     # Same Timezone
     fig = plt.figure(figsize=(20, 12))
@@ -5368,8 +5370,9 @@ def test_date_timezone_y():
                   extensions=['png'])
 def test_date_timezone_x_and_y():
     # Tests issue 5575
-    time_index = [pytz.timezone('UTC').localize(datetime.datetime(
-        year=2016, month=2, day=22, hour=x)) for x in range(3)]
+    UTC = datetime.timezone.utc
+    time_index = [datetime.datetime(2016, 2, 22, hour=x, tzinfo=UTC)
+                  for x in range(3)]
 
     # Same Timezone
     fig = plt.figure(figsize=(20, 12))

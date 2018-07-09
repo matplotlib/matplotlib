@@ -1,7 +1,6 @@
 """
 Matplotlib provides sophisticated date plotting capabilities, standing on the
-shoulders of python :mod:`datetime`, the add-on modules :mod:`pytz` and
-:mod:`dateutil`.
+shoulders of python :mod:`datetime` and the add-on module :mod:`dateutil`.
 
 
 .. _date-format:
@@ -46,11 +45,9 @@ objects and Matplotlib dates:
 
 All the Matplotlib date converters, tickers and formatters are timezone aware.
 If no explicit timezone is provided, the rcParam ``timezone`` is assumend.  If
-you want to use a custom time zone, pass a :class:`pytz.timezone` instance
+you want to use a custom time zone, pass a :class:`datetime.tzinfo` instance
 with the tz keyword argument to :func:`num2date`, :func:`.plot_date`, and any
 custom date tickers or locators you create.
-See `pytz <http://pythonhosted.org/pytz/>`_ for information on :mod:`pytz` and
-timezone handling.
 
 A wide range of specific and general purpose date tick locators and
 formatters are provided in this module.  See
@@ -58,7 +55,7 @@ formatters are provided in this module.  See
 and formatters.  These are described below.
 
 
-The `dateutil module <https://dateutil.readthedocs.io/en/stable/>`_ provides
+The `dateutil module <https://dateutil.readthedocs.io>`_ provides
 additional code to handle date ticking, making it easy to place ticks
 on any kinds of dates.  See examples below.
 
@@ -110,7 +107,7 @@ Here are all the date tickers:
       :class:`matplotlib.dates.rrulewrapper`.  The
       :class:`rrulewrapper` is a simple wrapper around a
       :class:`dateutil.rrule` (`dateutil
-      <https://dateutil.readthedocs.io/en/stable/>`_) which allow almost
+      <https://dateutil.readthedocs.io>`_) which allow almost
       arbitrary date tick specifications.  See `rrule example
       <../gallery/ticks_and_spines/date_demo_rrule.html>`_.
 
@@ -149,6 +146,7 @@ from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             SECONDLY)
 from dateutil.relativedelta import relativedelta
 import dateutil.parser
+import dateutil.tz
 import numpy as np
 
 import matplotlib
@@ -175,23 +173,7 @@ __all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
 _log = logging.getLogger(__name__)
 
 
-# Make a simple UTC instance so we don't always have to import
-# pytz.  From the python datetime library docs:
-
-class _UTC(datetime.tzinfo):
-    """UTC"""
-
-    def utcoffset(self, dt):
-        return datetime.timedelta(0)
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return datetime.timedelta(0)
-
-
-UTC = _UTC()
+UTC = datetime.timezone.utc
 
 
 def _get_rc_timezone():
@@ -201,8 +183,7 @@ def _get_rc_timezone():
     s = matplotlib.rcParams['timezone']
     if s == 'UTC':
         return UTC
-    import pytz
-    return pytz.timezone(s)
+    return dateutil.tz.gettz(s)
 
 
 """

@@ -18,6 +18,8 @@ exclude =
     versioneer.py
     tools/gh_api.py
     tools/github_stats.py
+    .tox
+    .eggs
 
 per-file-ignores =
     setup.py: E402
