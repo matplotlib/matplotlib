@@ -2013,6 +2013,45 @@ def _define_aliases(alias_d, cls=None):
     return cls
 
 
+def _array_perimeter(arr):
+    """
+    Get the elements on the perimeter of ``arr``,
+
+    Parameters
+    ----------
+    arr : ndarray, shape (M, N)
+        The input array
+
+    Returns
+    -------
+    perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
+        The elements on the perimeter of the array::
+
+            [arr[0,0] ... arr[0,-1] ... arr[-1, -1] ... arr[-1,0] ...]
+
+    Examples
+    --------
+    >>> i, j = np.ogrid[:3,:4]
+    >>> a = i*10 + j
+    >>> a
+    array([[ 0,  1,  2,  3],
+           [10, 11, 12, 13],
+           [20, 21, 22, 23]])
+    >>> _array_perimeter(arr)
+    array([ 0,  1,  2,  3, 13, 23, 22, 21, 20, 10])
+    """
+    # note we use Python's half-open ranges to avoid repeating
+    # the corners
+    forward = np.s_[0:-1]      # [0 ... -1)
+    backward = np.s_[-1:0:-1]  # [-1 ... 0)
+    return np.concatenate((
+        arr[0, forward],
+        arr[forward, -1],
+        arr[-1, backward],
+        arr[backward, 0],
+    ))
+
+
 @contextlib.contextmanager
 def _setattr_cm(obj, **kwargs):
     """Temporarily set some attributes; restore original state at context exit.
