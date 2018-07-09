@@ -168,7 +168,7 @@ inline double conv(long v)
 FT_UInt ft_get_char_index_or_warn(FT_Face face, FT_ULong charcode)
 {
     FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
-    if (!glyph_index) {
+    if (charcode && !glyph_index) {
         PyErr_WarnEx(NULL, "Required glyph missing from current font.", 1);
     }
     return glyph_index;
