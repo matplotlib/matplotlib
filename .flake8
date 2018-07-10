@@ -92,7 +92,29 @@ per-file-ignores =
     doc/sphinxext/math_symbol_table.py: E302, E501
     doc/sphinxext/skip_deprecated.py: E302
     doc/users/generate_credits.py: E302, E501
-    tutorials/**: E402, E501
+    tutorials/advanced/path_tutorial.py: E402, E501
+    tutorials/advanced/patheffects_guide.py: E402, E501
+    tutorials/advanced/transforms_tutorial.py: E402, E501
+    tutorials/colors/colormaps.py: E501
+    tutorials/colors/colors.py: E402
+    tutorials/intermediate/artists.py: E402, E501
+    tutorials/intermediate/constrainedlayout_guide.py: E402, E501
+    tutorials/intermediate/gridspec.py: E402, E501
+    tutorials/intermediate/legend_guide.py: E402, E501
+    tutorials/intermediate/tight_layout_guide.py: E402, E501
+    tutorials/introductory/customizing.py: E501
+    tutorials/introductory/images.py: E402, E501
+    tutorials/introductory/pyplot.py: E402, E501
+    tutorials/introductory/sample_plots.py: E501
+    tutorials/introductory/usage.py: E402, E501
+    tutorials/text/annotations.py: E501
+    tutorials/text/mathtext.py: E501
+    tutorials/text/pgf.py: E501
+    tutorials/text/text_intro.py: E402
+    tutorials/text/text_props.py: E501
+    tutorials/text/usetex.py: E501
+    tutorials/toolkits/axes_grid.py: E501
+    tutorials/toolkits/axisartist.py: E501
 
     examples/**: E501, E402
     examples/images_contours_and_fields/tricontour_demo.py: E201
