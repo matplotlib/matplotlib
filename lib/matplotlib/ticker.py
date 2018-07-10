@@ -1420,9 +1420,9 @@ class Locator(TickHelper):
             automatically for the associated :attr:`axis` simply call
             the Locator instance::
 
-                >>> print((type(loc)))
+                >>> print(type(loc))
                 <type 'Locator'>
-                >>> print((loc()))
+                >>> print(loc())
                 [1, 2, 3, 4]
 
         """

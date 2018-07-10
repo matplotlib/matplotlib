@@ -2037,7 +2037,7 @@ def _array_perimeter(arr):
     array([[ 0,  1,  2,  3],
            [10, 11, 12, 13],
            [20, 21, 22, 23]])
-    >>> _array_perimeter(arr)
+    >>> _array_perimeter(a)
     array([ 0,  1,  2,  3, 13, 23, 22, 21, 20, 10])
     """
     # note we use Python's half-open ranges to avoid repeating

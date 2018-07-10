@@ -1147,7 +1147,7 @@ class Axes(_AxesBase):
 
         >>> plot(x, y, 'go--', linewidth=2, markersize=12)
         >>> plot(x, y, color='green', marker='o', linestyle='dashed',
-                linewidth=2, markersize=12)
+        ...      linewidth=2, markersize=12)
 
         When conflicting with *fmt*, keyword arguments take precedence.
 
