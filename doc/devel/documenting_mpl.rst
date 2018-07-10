@@ -5,7 +5,7 @@ Writing documentation
 =====================
 
 .. contents:: Contents
-   :depth: 2
+   :depth: 3
    :local:
    :backlinks: top
    :class: multicol-toc
@@ -387,123 +387,130 @@ and the Sphinx_ documentation.  Some Matplotlib-specific formatting conventions
 to keep in mind:
 
 Function arguments
-   Function arguments and keywords within docstrings should be referred to
-   using the ``*emphasis*`` role. This will keep Matplotlib's documentation
-   consistent with Python's documentation:
+~~~~~~~~~~~~~~~~~~
+Function arguments and keywords within docstrings should be referred to
+using the ``*emphasis*`` role. This will keep Matplotlib's documentation
+consistent with Python's documentation:
 
-   .. code-block:: rst
+.. code-block:: rst
 
-      If *linestyles* is *None*, the 'solid' is used.
+  If *linestyles* is *None*, the 'solid' is used.
 
-   Do not use the ```default role``` or the ````literal```` role:
+Do not use the ```default role``` or the ````literal```` role:
 
-   .. code-block:: rst
+.. code-block:: rst
 
-      Neither `argument` nor ``argument`` should be used.
+  Neither `argument` nor ``argument`` should be used.
 
 
 Quotes for strings
-   Matplotlib does not have a convention whether to use single-quotes or
-   double-quotes.  There is a mixture of both in the current code.
+~~~~~~~~~~~~~~~~~~
+Matplotlib does not have a convention whether to use single-quotes or
+double-quotes.  There is a mixture of both in the current code.
 
-   Use simple single or double quotes when giving string values, e.g.:: rst
+Use simple single or double quotes when giving string values, e.g.:: rst
 
-   .. code-block:: rst
+.. code-block:: rst
 
-      If 'tight', try to figure out the tight bbox of the figure.
+  If 'tight', try to figure out the tight bbox of the figure.
 
 Parameter type descriptions
-   The main goal for parameter type descriptions is to be readable and
-   understandable by humans. If the possible types are too complex use a
-   simplification for the type description and explain the type more
-   precisely in the text.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The main goal for parameter type descriptions is to be readable and
+understandable by humans. If the possible types are too complex use a
+simplification for the type description and explain the type more
+precisely in the text.
 
-   Generally, the `numpydoc docstring guide`_ conventions apply. The following
-   rules expand on them where the numpydoc conventions are not specific.
+Generally, the `numpydoc docstring guide`_ conventions apply. The following
+rules expand on them where the numpydoc conventions are not specific.
 
-   Use ``float`` for a type that can be any number.
+Use ``float`` for a type that can be any number.
 
-   Use ``array-like`` for homogeneous numeric sequences, which could
-   typically be a numpy.array. Dimensionality may be specified using ``2D``,
-   ``3D``, ``n-dimensional``. If you need to have variables denoting the
-   sizes of the dimensions, use capital letters in brackets
-   (``array-like (M, N)``). When refering to them in the text they are easier
-   read and no special formatting is needed.
+Use ``array-like`` for homogeneous numeric sequences, which could
+typically be a numpy.array. Dimensionality may be specified using ``2D``,
+``3D``, ``n-dimensional``. If you need to have variables denoting the
+sizes of the dimensions, use capital letters in brackets
+(``array-like (M, N)``). When refering to them in the text they are easier
+read and no special formatting is needed.
 
-   ``float`` is the implicit default dtype for array-likes. For other dtypes
-   use ``array-like of int``.
+``float`` is the implicit default dtype for array-likes. For other dtypes
+use ``array-like of int``.
 
-   Some possible uses::
+Some possible uses::
 
-      2D array-like
-      array-like (N)
-      array-like (M, N)
-      array-like (M, N, 3)
-      array-like of int
+  2D array-like
+  array-like (N)
+  array-like (M, N)
+  array-like (M, N, 3)
+  array-like of int
 
-   Non-numeric homogeneous sequences are described as lists, e.g.::
+Non-numeric homogeneous sequences are described as lists, e.g.::
 
-      list of str
-      list of `.Artist`
+  list of str
+  list of `.Artist`
 
 Referencing types
-   Generally, the rules from referring-to-other-code_ apply. More specifically:
+~~~~~~~~~~~~~~~~~
+Generally, the rules from referring-to-other-code_ apply. More specifically:
 
-   Use full references ```~matplotlib.colors.Normalize``` with an
-   abbreviation tilde in parameter types. While the full name helps the
-   reader of plain text docstrings, the HTML does not need to show the full
-   name as it links to it. Hence, the ``~``-shortening keeps it more readable.
+Use full references ```~matplotlib.colors.Normalize``` with an
+abbreviation tilde in parameter types. While the full name helps the
+reader of plain text docstrings, the HTML does not need to show the full
+name as it links to it. Hence, the ``~``-shortening keeps it more readable.
 
-   Use abbreviated links ```.Normalize``` in the text.
+Use abbreviated links ```.Normalize``` in the text.
 
-   .. code-block:: rst
+.. code-block:: rst
 
-      norm : `~matplotlib.colors.Normalize`, optional
-         A `.Normalize` instance is used to scale luminance data to 0, 1.
+  norm : `~matplotlib.colors.Normalize`, optional
+     A `.Normalize` instance is used to scale luminance data to 0, 1.
 
 ``See also`` sections
-   Sphinx automatically links code elements in the definition blocks of ``See
-   also`` sections. No need to use backticks there::
+~~~~~~~~~~~~~~~~~~~~~
+Sphinx automatically links code elements in the definition blocks of ``See
+also`` sections. No need to use backticks there::
 
-       See also
-       --------
-       vlines : vertical lines
-       axhline: horizontal line across the axes
+   See also
+   --------
+   vlines : vertical lines
+   axhline: horizontal line across the axes
 
 Wrapping parameter lists
-   Long parameter lists should be wrapped using a ``\`` for continuation and
-   starting on the new line without any indent:
+~~~~~~~~~~~~~~~~~~~~~~~~
+Long parameter lists should be wrapped using a ``\`` for continuation and
+starting on the new line without any indent:
 
-   .. code-block:: python
+.. code-block:: python
 
-      def add_axes(self, *args, **kwargs):
-          """
-          ...
+  def add_axes(self, *args, **kwargs):
+      """
+      ...
 
-          Parameters
-          ----------
-          projection :
-              {'aitoff', 'hammer', 'lambert', 'mollweide', 'polar', \
-      'rectilinear'}, optional
-              The projection type of the axes.
+      Parameters
+      ----------
+      projection :
+          {'aitoff', 'hammer', 'lambert', 'mollweide', 'polar', \
+  'rectilinear'}, optional
+          The projection type of the axes.
 
-          ...
-          """
+      ...
+      """
 
-   Alternatively, you can describe the valid parameter values in a dedicated
-   section of the docstring.
+Alternatively, you can describe the valid parameter values in a dedicated
+section of the docstring.
 
 rcParams
-   rcParams can be referenced with the custom ``:rc:`` role:
-   :literal:`:rc:\`foo\`` yields ``rcParams["foo"]``. Use `= [default-val]`
-   to indicate the default value of the parameter. The default value should be
-   literal, i.e. enclosed in double backticks. For simplicity these may be
-   omitted for string default values.
+~~~~~~~~
+rcParams can be referenced with the custom ``:rc:`` role:
+:literal:`:rc:\`foo\`` yields ``rcParams["foo"]``. Use `= [default-val]`
+to indicate the default value of the parameter. The default value should be
+literal, i.e. enclosed in double backticks. For simplicity these may be
+omitted for string default values.
 
-   .. code-block:: rst
+.. code-block:: rst
 
-      If not provided, defaults to :rc:`figure.figsize` = ``[6.4, 4.8]``.
-      If not provided, defaults to :rc:`figure.facecolor` = 'w'.
+  If not provided, defaults to :rc:`figure.figsize` = ``[6.4, 4.8]``.
+  If not provided, defaults to :rc:`figure.facecolor` = 'w'.
 
 Deprecated formatting conventions
 ---------------------------------
