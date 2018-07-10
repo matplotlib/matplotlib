@@ -505,8 +505,8 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         --------
         >>> import matplotlib.pyplot as plt
         >>> import numpy as np
-        >>> from mpl_toolkits.axes_grid1.anchored_artists import \
-        ...     AnchoredDirectionArrows
+        >>> from mpl_toolkits.axes_grid1.anchored_artists import (
+        ...     AnchoredDirectionArrows)
         >>> fig, ax = plt.subplots()
         >>> ax.imshow(np.random.random((10,10)))
         >>> arrows = AnchoredDirectionArrows(ax.transAxes, '111', '110')
