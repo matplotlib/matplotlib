@@ -1524,6 +1524,9 @@ _DATA_DOC_APPENDIX = """
     following arguments are replaced by **data[<arg>]**:
 
     {replaced}
+
+    Objects passed as **data** must support item access (``data[<arg>]``) and
+    membership test (``<arg> in data``).
 """
 
 

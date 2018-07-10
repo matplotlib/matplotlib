@@ -44,18 +44,24 @@ _log = logging.getLogger(__name__)
 rcParams = matplotlib.rcParams
 
 
+def _has_item(data, name):
+    """Return whether *data* can be item-accessed with *name*.
+
+    This supports data with a dict-like interface (`in` checks item
+    availability) and with numpy.arrays.
+    """
+    try:
+        return data.dtype.names is not None and name in data.dtype.names
+    except AttributeError:  # not a numpy array
+        return name in data
+
+
 def _plot_args_replacer(args, data):
     if len(args) == 1:
         return ["y"]
     elif len(args) == 2:
         # this can be two cases: x,y or y,c
-        if (not args[1] in data and
-            not (hasattr(data, 'dtype') and
-                 hasattr(data.dtype, 'names') and
-                 data.dtype.names is not None and
-                 args[1] in data.dtype.names)):
-            # this is not in data, so just assume that it is something which
-            # will not get replaced (color spec or array like).
+        if not _has_item(data, args[1]):
             return ["y", "c"]
         # it's data, but could be a color code like 'ro' or 'b--'
         # -> warn the user in that case...
