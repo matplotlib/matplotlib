@@ -5,7 +5,6 @@ Menu
 
 """
 import numpy as np
-import matplotlib
 import matplotlib.colors as colors
 import matplotlib.patches as patches
 import matplotlib.mathtext as mathtext

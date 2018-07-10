@@ -12,7 +12,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from matplotlib.figure import Figure
-from matplotlib.axes import Subplot
 from matplotlib.backends.backend_gtk3agg import (
     FigureCanvasGTK3Agg as FigureCanvas)
 import numpy as np

@@ -5,7 +5,6 @@ Usetex Baseline Test
 
 """
 
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.axes as maxes
 
