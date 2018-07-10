@@ -1,4 +1,4 @@
-.. _plotting-guide-interactive:
+.. _interactive_figures_and_eventloops:
 
 .. currentmodule:: matplotlib
 
@@ -7,16 +7,21 @@
  Interactive Figures and Asynchronous Programming
 ==================================================
 
-Matplotlib supports rich interactive figures.  At the most basic
-matplotlib has the ability to zoom and pan a figure to inspect your
-data 'baked in', but this is backed by a full mouse and keyboard event
-handling system to enable users to build sophisticated interactive
-graphs.
+Matplotlib supports rich interactive figures by embedding figures into
+a GUI window.  The basic interactions of panning and zooming in as
+Axis to inspect your data is 'baked in' to Matplotlib.  This is
+supported by a full mouse and keyboard event handling system to enable
+you to build sophisticated interactive graphs.
 
-This is meant to be a rapid introduction to the relevant details of
-integrating the matplotlib with a GUI event loop.  For further details
-see `Interactive Applications using Matplotlib
+This is meant to be an introduction to the low-level details of how
+integrating the Matplotlib with a GUI event loop works.  For a more
+practical introduction the Matplotlib event API see `Interactive
+Tutorial <https://github.com/matplotlib/interactive_tutorial>`__ and
+`Interactive Applications using Matplotlib
 <http://www.amazon.com/Interactive-Applications-using-Matplotlib-Benjamin/dp/1783988843>`__.
+
+Event Loops
+===========
 
 Fundamentally, all user interaction (and networking) is implemented as
 an infinite loop waiting for events from the user (via the OS) and
@@ -33,26 +38,29 @@ Print Loop (REPL) is ::
 
 This is missing many niceties (for example, it exits on the first
 exception!), but is representative of the event loops that underlie
-all terminals, GUIs, and servers [#f1]_.  In general the *Read* step is
-waiting on some sort of I/O, be it user input from a keyboard or mouse
-or the network while the *Evaluate* and *Print* are responsible for
-interpreting the input and then **doing** something about it.
+all terminals, GUIs, and servers [#f1]_.  In general the *Read* step
+is waiting on some sort of I/O -- be it user input or the network --
+while the *Evaluate* and *Print* are responsible for interpreting the
+input and then **doing** something about it.
 
 In practice users do not work directly with these loops and instead
-use a framework that provides a mechanism to register callbacks [#2]_.
-This allows users to write reactive, event-driven, programs without
-having to delve into the nity-grity [#f3]_ details of I/O.  Examples
-include ``observe`` and friends in `traitlets`, the ``Signal`` /
-``Slot`` framework in Qt (and the analogs in other GUI frameworks),
-the 'request' functions in web frameworks, and Matplotlib's native
+use a framework that provides a mechanism to register callbacks to be
+called in response to specific event.  For example "when the user
+clicks on this button, please run this function" or "when the user
+hits the 'z' key, please run this other function".  This allows users
+to write reactive, event-driven, programs without having to delve into
+the nity-gritty [#f2]_ details of I/O.  Examples of this pattern the
+``Signal`` / ``Slot`` framework in Qt (and the analogs in other GUI
+frameworks), the 'request' functions in flask, and Matplotlib's
 :ref:`event handling system <event-handling-tutorial>`.
 
-All GUI frameworks (Qt, Wx, Gtk, tk, QSX, or web) have some method of
+All GUI frameworks (Qt, Wx, Gtk, tk, OSX, or web) have some method of
 capturing user interactions and passing them back to the application,
-although the exact details vary between frameworks.  Matplotlib has a
-'backend' (see :ref:`what-is-a-backend`) for each GUI framework which
-converts the native UI events into Matplotlib events.  This allows
-Matplotlib user to write GUI-independent interactive figures.
+although the exact details vary.  Matplotlib has a :ref:`backnd
+<what-is-a-backend>` for each GUI framework which use these mechanisms
+to convert the native UI events into Matplotlib events so we can
+develop framework-independent interactive figures.
+
 
 references to trackdown:
  - link to cpython REPL loop (pythonrun.c::PyRunInteractiveLoopFlags)
@@ -62,26 +70,30 @@ references to trackdown:
  - Beazly talk or two on asyncio
 
 
-
-Interactive Mode
-================
-
 .. _cp_integration:
 
 Command Prompt Integration
 ==========================
 
-Integrating a GUI window and a CLI introduces a conflict: there are
-two infinite loops that want to be waiting for user input in the same
-process.  In order for both the prompt and the GUI widows to be responsive
-we need a method to allow the loops to 'timeshare'.
+Integrating a GUI window into a CLI introduces a conflict: there are
+two infinite loops that want to be waiting for user input on the main
+thread in the same process.  Python wants to be blocking the main
+thread it it's REPL loop and the GUI framework wants to be running
+it's event loop.  In order for both the prompt and the GUI widows to
+be responsive we need a method to allow the loops to 'timeshare' :
 
-1. let the GUI main loop block the python process
-2. intermittently run the GUI loop
+1. let the GUI main loop block the python process when you want
+   interactive windows
+2. let the CLI main loop block the python process and intermittently
+   run the GUI loop
+
+The inverse problem, embedding an interactive prompt into a GUI, is
+also a way out of this problem by letting the GUI event loop always
+run the show, but that is essentially writing a full application.
 
 
-Blocking
---------
+Blocking the Prompt
+-------------------
 
 The simplest "integration" is to start the GUI event loop in
 'blocking' mode and take over the CLI.  While the GUI event loop is
@@ -90,10 +102,10 @@ may show the charters entered into stdin, but they will not be
 processed by python), but the figure windows will be responsive.  Once
 the event loop is stopped (leaving any still open figure windows
 non-responsive) you will be able to use the prompt again.  Re-starting
-the event will make any open figure responsive again.
+the event loop will make any open figure responsive again.
 
 
-To start the event loop until all open figures are closed us
+To start the event loop until all open figures are closed use
 `pyplot.show(block=True)`.  To start the event loop for a fixed amount
 of time use `pyplot.pause`.
 
@@ -104,11 +116,13 @@ Without using ``pyplot`` you can start and stop the event loops via
 .. warning
 
    By using `Figure.show` it is possible to display a figure on the
-   screen with out starting the event loop and not being in
-   interactive mode.  This will likely result in a non-responsive
-   figure and may not even display the rendered plot.
+   screen without explicitly starting the event loop and not being in
+   interactive mode.  This may work but will likely result in a
+   non-responsive figure and may not even display the rendered plot.
 
 
+This technique can be very useful if you want to write a script that
+pauses for user interaction, see :ref:`interactive_script`.
 
 .. autosummary::
    :template: autosummary.rst
@@ -123,37 +137,94 @@ Without using ``pyplot`` you can start and stop the event loops via
    figure.Figure.show
 
 
-Explicitly
-----------
+Explicitly running the Event Loop
+---------------------------------
 
 If you have open windows (either due to a `plt.pause` timing out or
 from calling `figure.Figure.show`) that have pending UI events (mouse
 clicks, button presses, or draws) you can explicitly process them by
-calling ``fig.canvas.flush_events()``.  This will not run the GUI
-event loop, but instead synchronously processes all UI events current
-waiting to be processed.  The exact behavior is backend-dependent but
-typically events on all figure are processed and only events waiting
-to be processed (not those added during processing) will be handled.
+calling ``fig.canvas.flush_events()``.  This will run the GUI event
+loop, until all UI events currently waiting have been processed.  The
+exact behavior is backend-dependent but typically events on all figure
+are processed and only events waiting to be processed (not those added
+during processing) will be handled.
+
+For example ::
+
+   import time
+   import matplotlib.pyplot as plt
+   import numpy as np
+   plt.ion()
+
+   fig, ax = plt.subplots()
+   fig.canvas.show()
+   th = np.linspace(0, 2*np.pi, 512)
+   ax.set_ylim(-1.5, 1.5)
+
+   ln, = ax.plot(th, np.sin(th))
+
+   def slow_loop(N, ln):
+       for j in range(N):
+           time.sleep(.1)  # to simulate some work
+           ln.figure.canvas.flush_events()
+
+   slow_loop(100, ln)
+
+Will be a bit laggy, as we are only processing user input every 100ms
+(where as 20-30ms is what feels "responsive"), but it will respond.
+
+
+If you make changes to the plot and want it re-rendered you will need
+to call `~.FigureCanvasBase.draw_idle()` to request that the canvas be
+re-drawn.  This method can be thought of *draw_soon* in analogy to
+`asyncio.BaseEventLoop.call_soon`.
+
+We can add this our example above as ::
+
+   def slow_loop(N, ln):
+       for j in range(N):
+           time.sleep(.1)  # to simulate some work
+           if j % 10:
+               ln.set_ydata(np.sin(((j // 10) % 5 * th)))
+               ln.figure.canvas.draw_idle()
+
+           ln.figure.canvas.flush_events()
+
+   slow_loop(100, ln)
+
+
+
 
 .. autosummary::
    :template: autosummary.rst
    :nosignatures:
 
    backend_bases.FigureCanvasBase.flush_events
+   backend_bases.FigureCanvasBase.draw_idle
+
 
 Interactive
 -----------
 
 While running the GUI event loop in a blocking mode or explicitly
 handling UI events is useful, we can do better!  We really want to be
-able to have a usable prompt **and** interactive figure windows.  We
-can do this using the concept of 'input hook' (see :ref:`below
-<Eventloop integration mechanism>` for implementation details) that
-allows the GUI event loop to run and process events while the prompt
-is waiting for the user to type (even for an extremely fast typist, a
-vast majority of the time the prompt is simple idle waiting for human
-finders to move).  This effectively gives us a simultaneously GUI
-windows and prompt.
+able to have a usable prompt **and** interactive figure windows.
+
+We can do this using the 'input hook' feature of the interactive
+prompt.  This hook is called by the prompt as it waits for the user
+type (even for a fast typist the prompt is mostly waiting for the
+human to think and move their fingers).  Although the details vary
+between prompts the logic is roughly
+
+1. start to wait for keyboard input
+2. start the GUI event loop
+3. as soon as the user hits a key, exit the GUI event loop and handle the key
+4. repeat
+
+This gives us the illusion of simultaneously having an interactive GUI
+windows and an interactive prompt.  Most of the time the GUI event
+loop is running, but as soon as the user starts typing the prompt
+takes over again.
 
 This time-share technique only allows the event loop to run while
 python is otherwise idle and waiting for user input.  If you want the
@@ -173,6 +244,8 @@ be directly embedded in GUI applications (this is how the built-in
 windows are implemented!).  See :ref:`user_interfaces` for more details
 on how to do this.
 
+
+.. _interactive_scripts :
 
 Scripts
 =======
@@ -202,7 +275,7 @@ visualization and less on your computation.
 The second case is very much like :ref:`Blocking` above.  By using ``plt.show(block=True)`` or
 
 The third case you will have to integrate updating the ``Aritist``
-instances, calling ``draw_idle``, and the GUI event loop with your
+instances, calling ``draw_idle``, and flushing the GUI event loop with your
 data I/O.
 
 .. _stale_artists:
@@ -322,17 +395,12 @@ method.  The source for the prompt_toolkit input hooks lives at
 	 then the loop would look something like ::
 
 	   fds = [...]
-           while True:             # Loop
-               inp = select(fds)   # Read
-               eval(inp)           # Evaluate / Print
+           while True:                    # Loop
+               inp = select(fds).read()   # Read
+               eval(inp)                  # Evaluate / Print
 
 
-.. [#f2] asyncio has a fundamentally different paradigm that uses
-         coroutines instead of callbacks as the user-facing interface,
-         however at the core there is a select loop like the above
-	 footnote the multiplexes between the running tasks.
-
-.. [#f3] These examples are agressively dropping many of the
+.. [#f2] These examples are agressively dropping many of the
 	 complexities that must be dealt with in the real world such as
 	 keyboard interupts [link], timeouts, bad input, resource
 	 allocation and cleanup, etc.
