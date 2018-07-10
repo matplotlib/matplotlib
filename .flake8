@@ -240,6 +240,7 @@ per-file-ignores =
     examples/text_labels_and_annotations/tex_demo.py: E402
     examples/text_labels_and_annotations/watermark_text.py: E402
     examples/ticks_and_spines/auto_ticks.py: E501
+    examples/ticks_and_spines/date_concise_formatter.py: E402 
     examples/user_interfaces/canvasagg.py: E402
     examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py: E402
     examples/user_interfaces/embedding_in_gtk3_sgskip.py: E402
