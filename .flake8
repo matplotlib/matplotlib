@@ -81,7 +81,7 @@ per-file-ignores =
     mpl_toolkits/axisartist/grid_finder.py: E231, E261, E302, E303, E402
     mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E231, E261, E262, E271, E302, E303, E501
     mpl_toolkits/mplot3d/art3d.py: E203, E222, E225, E231
-    mpl_toolkits/mplot3d/axes3d.py: E203, E231, E303, E402, E501, E701
+    mpl_toolkits/mplot3d/axes3d.py: E203, E231, E402, E501, E701
     mpl_toolkits/mplot3d/axis3d.py: E231, E302
     mpl_toolkits/mplot3d/proj3d.py: E231, E302, E303
     mpl_toolkits/tests/test_axes_grid1.py: E201, E202
