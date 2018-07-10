@@ -2,6 +2,8 @@ import collections
 import numpy as np
 import numbers
 
+import warnings
+
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 
@@ -233,6 +235,11 @@ class Secondary_Xaxis(_AxesBase):
 
         return _bbox
 
+    def set_aspect(self, *args, **kwargs):
+        """
+        """
+        warnings.warn("Secondary axes can't set the aspect ratio")
+
 
 class Secondary_Yaxis(_AxesBase):
     """
@@ -431,3 +438,8 @@ class Secondary_Yaxis(_AxesBase):
             [b for b in bb if b.width != 0 or b.height != 0])
 
         return _bbox
+
+    def set_aspect(self, *args, **kwargs):
+        """
+        """
+        warnings.warn("Secondary axes can't set the aspect ratio")
