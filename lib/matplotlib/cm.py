@@ -1,8 +1,27 @@
 """
 Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
-See :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
-See :doc:`/tutorials/colors/colormaps` for an in-depth discussion of colormaps.
+See :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps
+and :doc:`/tutorials/colors/colormaps` for an in-depth discussion of colormaps.
+
+Attributes
+----------
+cmap_d : dict
+    A dictionary with all registred colormaps.
+
+cmap : for example viridis
+    Every registred colormap is an attribute in the module.
+
+See Also
+--------
+.pyplot.colormaps : Returns a list with the names of all available colormaps.
+.colors.Colormap : The colormap class.
+
+Examples
+--------
+The viridis colormap is returned by::
+
+    matplotlib.cm.viridis
 """
 
 import numpy as np

@@ -2,12 +2,14 @@
 colors
 ******
 
-For a visual representation of the Matplotlib colormaps, see:
+Tutorials and examples about matplotlib colors:
 
+* :doc:`/tutorials/colors/colors` tutorial.
+* :doc:`/tutorials/colors/colormaps` tutorial.
+* All :ref:`tutorials-colors` tutorials.
 * The :ref:`color_examples` examples for examples of controlling color with
   Matplotlib.
-* The :ref:`tutorials-colors` tutorial for an in-depth guide on controlling
-  color.
+
 
 :mod:`matplotlib.colors`
 ========================
