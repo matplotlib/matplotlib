@@ -17,6 +17,7 @@ class MatplotlibDeprecationWarning(UserWarning):
 
 
 mplDeprecation = MatplotlibDeprecationWarning
+"""mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead."""
 
 
 def _generate_deprecation_message(
@@ -55,7 +56,7 @@ def warn_deprecated(
         since, message='', name='', alternative='', pending=False,
         obj_type='attribute', addendum='', *, removal=''):
     """
-    Used to display deprecation  in a standard way.
+    Used to display deprecation in a standard way.
 
     Parameters
     ----------

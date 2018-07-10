@@ -41,7 +41,7 @@ import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.projections import (get_projection_names,
                                     process_projection_requirements)
-from matplotlib.text import Text, _process_text_args
+from matplotlib.text import Text, TextWithDash
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 import matplotlib._layoutbox as layoutbox
@@ -1471,6 +1471,9 @@ default: 'top'
             subplot_kw = {}
         if gridspec_kw is None:
             gridspec_kw = {}
+        # don't mutate kwargs passed by user...
+        subplot_kw = subplot_kw.copy()
+        gridspec_kw = gridspec_kw.copy()
 
         if self.get_constrained_layout():
             gs = GridSpec(nrows, ncols, figure=self, **gridspec_kw)
@@ -1593,10 +1596,7 @@ default: 'top'
         try:
             renderer.open_group('figure')
             if self.get_constrained_layout() and self.axes:
-                if True:
-                    self.execute_constrained_layout(renderer)
-                else:
-                    pass
+                self.execute_constrained_layout(renderer)
             if self.get_tight_layout() and self.axes:
                 try:
                     self.tight_layout(renderer,
@@ -1716,32 +1716,63 @@ default: 'top'
         return l
 
     @docstring.dedent_interpd
-    def text(self, x, y, s, *args, **kwargs):
+    def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
         Add text to figure.
 
-        Call signature::
+        Parameters
+        ----------
+        x, y : float
+            The position to place the text. By default, this is in figure
+            coordinates, floats in [0, 1]. The coordinate system can be changed
+            using the *transform* keyword.
 
-          text(x, y, s, fontdict=None, **kwargs)
+        s : str
+            The text string.
 
-        Add text to figure at location *x*, *y* (relative 0-1
-        coords). See :func:`~matplotlib.pyplot.text` for the meaning
-        of the other arguments.
+        fontdict : dictionary, optional, default: None
+            A dictionary to override the default text properties. If fontdict
+            is None, the defaults are determined by your rc parameters. A
+            property in *kwargs* override the same property in fontdict.
 
-        kwargs control the :class:`~matplotlib.text.Text` properties:
+        withdash : boolean, optional, default: False
+            Creates a `~matplotlib.text.TextWithDash` instance instead of a
+            `~matplotlib.text.Text` instance.
 
-        %(Text)s
+        Other Parameters
+        ----------------
+        **kwargs : `~matplotlib.text.Text` properties
+            Other miscellaneous text parameters.
+            %(Text)s
+
+        Returns
+        -------
+        text : `~.text.Text`
+
+        See Also
+        --------
+        .Axes.text
+        .pyplot.text
         """
+        default = dict(transform=self.transFigure)
 
-        override = _process_text_args({}, *args, **kwargs)
-        t = Text(x=x, y=y, text=s)
+        if withdash:
+            text = TextWithDash(x=x, y=y, text=s)
+        else:
+            text = Text(x=x, y=y, text=s)
 
-        t.update(override)
-        self._set_artist_props(t)
-        self.texts.append(t)
-        t._remove_method = self.texts.remove
+        text.update(default)
+        if fontdict is not None:
+            text.update(fontdict)
+        text.update(kwargs)
+
+        text.set_figure(self)
+        text.stale_callback = _stale_figure_callback
+
+        self.texts.append(text)
+        text._remove_method = self.texts.remove
         self.stale = True
-        return t
+        return text
 
     def _set_artist_props(self, a):
         if a != self:
@@ -2061,6 +2092,12 @@ default: 'top'
         *None*) and update the subplot locations.
 
         """
+        if self.get_constrained_layout():
+            self.set_constrained_layout(False)
+            warnings.warn("This figure was using constrained_layout==True, "
+                          "but that is incompatible with subplots_adjust and "
+                          "or tight_layout: setting "
+                          "constrained_layout==False. ")
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
             if not isinstance(ax, SubplotBase):
@@ -2144,7 +2181,7 @@ default: 'top'
 
     def get_default_bbox_extra_artists(self):
         bbox_artists = [artist for artist in self.get_children()
-                        if artist.get_visible()]
+                        if (artist.get_visible() and artist.get_in_layout())]
         for ax in self.axes:
             if ax.get_visible():
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
@@ -2152,18 +2189,44 @@ default: 'top'
         bbox_artists.remove(self.patch)
         return bbox_artists
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure in inches.
 
-        Currently, this takes only axes title, axis labels, and axis
-        ticklabels into account. Needs improvement.
+        Artists that have ``artist.set_in_layout(False)`` are not included
+        in the bbox.
+
+        Parameters
+        ----------
+        renderer : `.RendererBase` instance
+            renderer that will be used to draw the figures (i.e.
+            ``fig.canvas.get_renderer()``)
+
+        bbox_extra_artists : list of `.Artist` or ``None``
+            List of artists to include in the tight bounding box.  If
+            ``None`` (default), then all artist children of each axes are
+            included in the tight bounding box.
+
+        Returns
+        -------
+        bbox : `.BboxBase`
+            containing the bounding box (in figure inches).
         """
 
         bb = []
+        if bbox_extra_artists is None:
+            artists = self.get_default_bbox_extra_artists()
+        else:
+            artists = bbox_extra_artists
+
+        for a in artists:
+            bbox = a.get_tightbbox(renderer)
+            if bbox is not None and (bbox.width != 0 or bbox.height != 0):
+                bb.append(bbox)
+
         for ax in self.axes:
             if ax.get_visible():
-                bb.append(ax.get_tightbbox(renderer))
+                bb.append(ax.get_tightbbox(renderer, bbox_extra_artists))
 
         if len(bb) == 0:
             return self.bbox_inches
@@ -2214,6 +2277,10 @@ default: 'top'
                      rect=None):
         """
         Automatically adjust subplot parameters to give specified padding.
+
+        To exclude an artist on the axes from the bounding box calculation
+        that determines the subplot parameters (i.e. legend, or annotation),
+        then set `a.set_in_layout(False)` for that artist.
 
         Parameters
         ----------

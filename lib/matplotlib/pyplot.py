@@ -608,49 +608,46 @@ def disconnect(cid):
     return get_current_fig_manager().canvas.mpl_disconnect(cid)
 
 
-def close(*args):
+def close(fig=None):
     """
     Close a figure window.
 
-    ``close()`` by itself closes the current figure
+    Parameters
+    ----------
+    fig : None or int or str or `.Figure`
+        The figure to close. There are a number of ways to specify this:
 
-    ``close(fig)`` closes the `.Figure` instance *fig*
+        - *None*: the current figure
+        - `.Figure`: the given `.Figure` instance
+        - ``int``: a figure number
+        - ``str``: a figure name
+        - 'all': all figures
 
-    ``close(num)`` closes the figure number *num*
-
-    ``close(name)`` where *name* is a string, closes figure with that label
-
-    ``close('all')`` closes all the figure windows
     """
-
-    if len(args) == 0:
+    if fig is None:
         figManager = _pylab_helpers.Gcf.get_active()
         if figManager is None:
             return
         else:
             _pylab_helpers.Gcf.destroy(figManager.num)
-    elif len(args) == 1:
-        arg = args[0]
-        if arg == 'all':
-            _pylab_helpers.Gcf.destroy_all()
-        elif isinstance(arg, int):
-            _pylab_helpers.Gcf.destroy(arg)
-        elif hasattr(arg, 'int'):
-            # if we are dealing with a type UUID, we
-            # can use its integer representation
-            _pylab_helpers.Gcf.destroy(arg.int)
-        elif isinstance(arg, str):
-            allLabels = get_figlabels()
-            if arg in allLabels:
-                num = get_fignums()[allLabels.index(arg)]
-                _pylab_helpers.Gcf.destroy(num)
-        elif isinstance(arg, Figure):
-            _pylab_helpers.Gcf.destroy_fig(arg)
-        else:
-            raise TypeError('Unrecognized argument type %s to close'
-                            % type(arg))
+    elif fig == 'all':
+        _pylab_helpers.Gcf.destroy_all()
+    elif isinstance(fig, int):
+        _pylab_helpers.Gcf.destroy(fig)
+    elif hasattr(fig, 'int'):
+        # if we are dealing with a type UUID, we
+        # can use its integer representation
+        _pylab_helpers.Gcf.destroy(fig.int)
+    elif isinstance(fig, str):
+        allLabels = get_figlabels()
+        if fig in allLabels:
+            num = get_fignums()[allLabels.index(fig)]
+            _pylab_helpers.Gcf.destroy(num)
+    elif isinstance(fig, Figure):
+        _pylab_helpers.Gcf.destroy_fig(fig)
     else:
-        raise TypeError('close takes 0 or 1 arguments')
+        raise TypeError("close() argument must be a Figure, an int, a string, "
+                        "or None, not '%s'")
 
 
 def clf():
@@ -1284,8 +1281,8 @@ def twinx(ax=None):
 
     .. seealso::
 
-       :file:`examples/api_examples/two_scales.py`
-          For an example
+       :doc:`/gallery/subplots_axes_and_figures/two_scales`
+
     """
     if ax is None:
         ax = gca()
@@ -2148,7 +2145,7 @@ def imsave(fname, arr, **kwargs):
     return matplotlib.image.imsave(fname, arr, **kwargs)
 
 
-def matshow(A, fignum=None, **kw):
+def matshow(A, fignum=None, **kwargs):
     """
     Display an array as a matrix in a new figure window.
 
@@ -2159,21 +2156,34 @@ def matshow(A, fignum=None, **kw):
 
     Tick labels for the xaxis are placed on top.
 
-    With the exception of *fignum*, keyword arguments are passed to
-    :func:`~matplotlib.pyplot.imshow`.  You may set the *origin*
-    kwarg to "lower" if you want the first row in the array to be
-    at the bottom instead of the top.
+    Parameters
+    ----------
+    A : array-like(M, N)
+        The matrix to be displayed.
 
+    fignum : None or int or False
+        If *None*, create a new figure window with automatic numbering.
 
-    *fignum*: [ None | integer | False ]
-      By default, :func:`matshow` creates a new figure window with
-      automatic numbering.  If *fignum* is given as an integer, the
-      created figure will use this figure number.  Because of how
-      :func:`matshow` tries to set the figure aspect ratio to be the
-      one of the array, if you provide the number of an already
-      existing figure, strange things may happen.
+        If *fignum* is an integer, draw into the figure with the given number
+        (create it if it does not exist).
 
-      If *fignum* is *False* or 0, a new figure window will **NOT** be created.
+        If 0 or *False*, use the current axes if it exists instead of creating
+        a new figure.
+
+        .. note::
+
+           Because of how `.Axes.matshow` tries to set the figure aspect
+           ratio to be the one of the array, strange things may happen if you
+           reuse an existing figure.
+
+    Returns
+    -------
+    image : `~matplotlib.image.AxesImage`
+
+    Other Parameters
+    ----------------
+    **kwargs : `~matplotlib.axes.Axes.imshow` arguments
+
     """
     A = np.asanyarray(A)
     if fignum is False or fignum is 0:
@@ -2183,7 +2193,7 @@ def matshow(A, fignum=None, **kw):
         fig = figure(fignum, figsize=figaspect(A))
         ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
-    im = ax.matshow(A, **kw)
+    im = ax.matshow(A, **kwargs)
     sci(im)
 
     return im
@@ -2276,9 +2286,9 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     if plotfuncs is None:
         plotfuncs = dict()
-    from matplotlib.cbook import mplDeprecation
+    from matplotlib.cbook import MatplotlibDeprecationWarning
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore', mplDeprecation)
+        warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
         r = mlab.csv2rec(fname, comments=comments, skiprows=skiprows,
                          checkrows=checkrows, delimiter=delimiter, names=names)
 

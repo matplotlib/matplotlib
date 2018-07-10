@@ -144,7 +144,6 @@ Matplotlib requires the following dependencies:
 * `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.0)
 * `pyparsing <https://pyparsing.wikispaces.com/>`_
-* `pytz <http://pytz.sourceforge.net/>`_
 
 Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the

@@ -1,6 +1,0 @@
-Changes to backend loading
-``````````````````````````
-
-Failure to load backend modules (``macosx`` on non-framework builds and
-``gtk3`` when running headless) now raises `ImportError` (instead of
-`RuntimeError` and `TypeError`, respectively.

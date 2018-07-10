@@ -163,7 +163,6 @@ def test_constrained_layout9():
     'Test for handling suptitle and for sharex and sharey'
     fig, axs = plt.subplots(2, 2, constrained_layout=True,
                             sharex=False, sharey=False)
-    # ax = fig.add_subplot(111)
     for ax in axs.flatten():
         pcm = example_pcolor(ax, fontsize=24)
         ax.set_xlabel('')

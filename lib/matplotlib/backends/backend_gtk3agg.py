@@ -1,5 +1,4 @@
 import sys
-import warnings
 
 import numpy as np
 
@@ -8,16 +7,6 @@ from ._gtk3_compat import gi
 from .backend_cairo import cairo
 from .backend_gtk3 import Gtk, _BackendGTK3
 from matplotlib import transforms
-
-# The following combinations are allowed:
-#   gi + pycairo
-#   gi + cairocffi
-#   pgi + cairocffi
-# (pgi doesn't work with pycairo)
-# We always try to import cairocffi first so if a check below fails it means
-# that cairocffi was unavailable to start with.
-if gi.__name__ == "pgi" and cairo.__name__ == "cairo":
-    raise ImportError("pgi and pycairo are not compatible")
 
 
 class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,

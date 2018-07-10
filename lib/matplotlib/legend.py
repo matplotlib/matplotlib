@@ -981,6 +981,22 @@ class Legend(Artist):
         'Return extent of the legend.'
         return self._legend_box.get_window_extent(*args, **kwargs)
 
+    def get_tightbbox(self, renderer):
+        """
+        Like `.Legend.get_window_extent`, but uses the box for the legend.
+
+        Parameters
+        ----------
+        renderer : `.RendererBase` instance
+            renderer that will be used to draw the figures (i.e.
+            ``fig.canvas.get_renderer()``)
+
+        Returns
+        -------
+        `.BboxBase` : containing the bounding box in figure pixel co-ordinates.
+        """
+        return self._legend_box.get_window_extent(renderer)
+
     def get_frame_on(self):
         """Get whether the legend box patch is drawn."""
         return self._drawFrame
@@ -1126,7 +1142,7 @@ class Legend(Artist):
         use_blit : bool, optional
             Use blitting for faster image composition. For details see
             :ref:`func-animation`.
-        update : ['loc' | 'bbox'], optional
+        update : {'loc', 'bbox'}, optional
             The legend parameter to be changed when dragged:
 
             - 'loc': update the *loc* parameter of the legend

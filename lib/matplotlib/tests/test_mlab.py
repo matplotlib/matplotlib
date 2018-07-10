@@ -13,13 +13,6 @@ import matplotlib.cbook as cbook
 from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 
 
-try:
-    from mpl_toolkits.natgrid import _natgrid
-    HAS_NATGRID = True
-except ImportError:
-    HAS_NATGRID = False
-
-
 '''
 A lot of mlab.py has been deprecated in Matplotlib 2.2 and is scheduled for
 removal in the future. The tests that use deprecated methods have a block
@@ -2174,8 +2167,9 @@ def test_griddata_linear():
                                   np.ma.getmask(correct_zi_masked))
 
 
-@pytest.mark.xfail(not HAS_NATGRID, reason='natgrid not installed')
 def test_griddata_nn():
+    pytest.importorskip('mpl_toolkits.natgrid')
+
     # z is a linear function of x and y.
     def get_z(x, y):
         return 3.0*x - y

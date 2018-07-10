@@ -19,6 +19,7 @@ import matplotlib
 matplotlib.use('GTK3Cairo')
 # matplotlib.use('TkAgg')
 # matplotlib.use('QT5Agg')
+# matplotlib.use('WxAgg')
 matplotlib.rcParams['toolbar'] = 'toolmanager'
 import matplotlib.pyplot as plt
 from matplotlib.backend_tools import ToolBase, ToolToggleBase

@@ -24,14 +24,11 @@ except ImportError:
         raise ImportError("cairo backend requires that cairocffi or pycairo "
                           "is installed")
     else:
-        HAS_CAIRO_CFFI = False
         if cairo.version_info < (1, 11, 0):
             # Introduced create_for_data for Py3.
             raise ImportError(
                 "cairo {} is installed; cairo>=1.11.0 is required"
                 .format(cairo.version))
-else:
-    HAS_CAIRO_CFFI = True
 
 backend_version = cairo.version
 
@@ -65,7 +62,7 @@ def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
     return rgba
 
 
-if HAS_CAIRO_CFFI:
+if cairo.__name__ == "cairocffi":
     # Convert a pycairo context to a cairocffi one.
     def _to_context(ctx):
         if not isinstance(ctx, cairo.Context):
@@ -177,7 +174,8 @@ def _append_paths_fast(ctx, paths, transforms, clip=None):
     cairo.cairo.cairo_append_path(ctx._pointer, ptr)
 
 
-_append_paths = _append_paths_fast if HAS_CAIRO_CFFI else _append_paths_slow
+_append_paths = (_append_paths_fast if cairo.__name__ == "cairocffi"
+                 else _append_paths_slow)
 
 
 def _append_path(ctx, path, transform, clip=None):

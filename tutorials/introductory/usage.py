@@ -221,8 +221,7 @@ plt.show()
 
 x = np.arange(0, 10, 0.2)
 y = np.sin(x)
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(x, y)
 plt.show()
 

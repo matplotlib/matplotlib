@@ -1151,8 +1151,10 @@ class Axis(artist.Artist):
         bb = []
 
         for a in [self.label, self.offsetText]:
-            if a.get_visible():
-                bb.append(a.get_window_extent(renderer))
+            bbox = a.get_window_extent(renderer)
+            if (np.isfinite(bbox.width) and np.isfinite(bbox.height) and
+                    a.get_visible()):
+                bb.append(bbox)
 
         bb.extend(ticklabelBoxes)
         bb.extend(ticklabelBoxes2)
@@ -1745,8 +1747,8 @@ class Axis(artist.Artist):
         # the registered converter can be selected, and the "units" attribute,
         # which is the timezone, can be set.
         if isinstance(tz, str):
-            import pytz
-            tz = pytz.timezone(tz)
+            import dateutil.tz
+            tz = dateutil.tz.gettz(tz)
         self.update_units(datetime.datetime(2009, 1, 1, 0, 0, 0, 0, tz))
 
     def get_tick_space(self):

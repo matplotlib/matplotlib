@@ -210,8 +210,7 @@ def test_remove_from_figure(use_gridspec):
     """
     Test `remove_from_figure` with the specified ``use_gridspec`` setting
     """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     sc = ax.scatter([1, 2], [3, 4], cmap="spring")
     sc.set_array(np.array([5, 6]))
     pre_figbox = np.array(ax.figbox)
@@ -271,6 +270,31 @@ def test_colorbar_ticks():
     assert len(cbar.ax.xaxis.get_ticklocs()) == len(clevs)
 
 
+def test_colorbar_minorticks_on_off():
+    # test for github issue #11510 and PR #11584
+    np.random.seed(seed=12345)
+    data = np.random.randn(20, 20)
+    with rc_context({'_internal.classic_mode': False}):
+        fig, ax = plt.subplots()
+        # purposefully setting vmin and vmax to odd fractions
+        # so as to check for the correct locations of the minor ticks
+        im = ax.pcolormesh(data, vmin=-2.3, vmax=3.3)
+
+        cbar = fig.colorbar(im, extend='both')
+        cbar.minorticks_on()
+        correct_minorticklocs = np.array([-2.2, -1.8, -1.6, -1.4, -1.2, -0.8,
+                                          -0.6, -0.4, -0.2, 0.2, 0.4, 0.6,
+                                           0.8, 1.2, 1.4, 1.6, 1.8, 2.2, 2.4,
+                                           2.6, 2.8, 3.2])
+        # testing after minorticks_on()
+        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
+                                       correct_minorticklocs)
+        cbar.minorticks_off()
+        # testing after minorticks_off()
+        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
+                                       np.array([]))
+
+
 def test_colorbar_autoticks():
     # Test new autotick modes. Needs to be classic because
     # non-classic doesn't go this route.
@@ -288,9 +312,9 @@ def test_colorbar_autoticks():
         cbar2 = fig.colorbar(pcm, ax=ax[1], extend='both',
                             orientation='vertical', shrink=0.4)
         np.testing.assert_almost_equal(cbar.ax.yaxis.get_ticklocs(),
-                np.arange(-15, 16., 5.))
+                np.arange(-10, 11., 5.))
         np.testing.assert_almost_equal(cbar2.ax.yaxis.get_ticklocs(),
-                np.arange(-20, 21., 10.))
+                np.arange(-10, 11., 10.))
 
 
 def test_colorbar_autotickslog():

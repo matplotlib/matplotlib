@@ -29,6 +29,8 @@ def _get_testable_interactive_backends():
             reason = "No $DISPLAY"
         elif any(importlib.util.find_spec(dep) is None for dep in deps):
             reason = "Missing dependency"
+        elif "wx" in deps and sys.platform == "darwin":
+            reason = "wx backends known not to work on OSX"
         backends.append(pytest.mark.skip(reason=reason)(backend) if reason
                         else backend)
     return backends
@@ -49,8 +51,7 @@ rcParams.update({
     "webagg.port_retries": 1,
 })
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot([0, 1], [2, 3])
 
 if rcParams["backend"].startswith("GTK3"):

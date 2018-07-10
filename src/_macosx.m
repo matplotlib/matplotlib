@@ -877,485 +877,6 @@ static PyTypeObject FigureManagerType = {
     FigureManager_new,          /* tp_new */
 };
 
-@interface NavigationToolbarHandler : NSObject
-{   PyObject* toolbar;
-}
-- (NavigationToolbarHandler*)initWithToolbar:(PyObject*)toolbar;
--(void)left:(id)sender;
--(void)right:(id)sender;
--(void)up:(id)sender;
--(void)down:(id)sender;
--(void)zoominx:(id)sender;
--(void)zoominy:(id)sender;
--(void)zoomoutx:(id)sender;
--(void)zoomouty:(id)sender;
-@end
-
-typedef struct {
-    PyObject_HEAD
-    NSPopUpButton* menu;
-    NavigationToolbarHandler* handler;
-} NavigationToolbar;
-
-@implementation NavigationToolbarHandler
-- (NavigationToolbarHandler*)initWithToolbar:(PyObject*)theToolbar
-{   [self init];
-    toolbar = theToolbar;
-    return self;
-}
-
--(void)left:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "panx", "i", -1);
-    if(result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)right:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "panx", "i", 1);
-    if(result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)up:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "pany", "i", 1);
-    if(result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)down:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "pany", "i", -1);
-    if(result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)zoominx:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "zoomx", "i", 1);
-    if(result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)zoomoutx:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "zoomx", "i", -1);
-    if(result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)zoominy:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "zoomy", "i", 1);
-    if(result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)zoomouty:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "zoomy", "i", -1);
-    if(result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)save_figure:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "save_figure", "");
-    if(result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-@end
-
-static PyObject*
-NavigationToolbar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    NavigationToolbarHandler* handler = [NavigationToolbarHandler alloc];
-    if (!handler) return NULL;
-    NavigationToolbar *self = (NavigationToolbar*)type->tp_alloc(type, 0);
-    if (!self)
-    {   [handler release];
-        return NULL;
-    }
-    self->handler = handler;
-    return (PyObject*)self;
-}
-
-static int
-NavigationToolbar_init(NavigationToolbar *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    NSRect rect;
-
-    const float smallgap = 2;
-    const float biggap = 10;
-    const int height = 32;
-
-    PyObject* images;
-    PyObject* obj;
-
-    FigureCanvas* canvas;
-    View* view;
-
-    obj = PyObject_GetAttrString((PyObject*)self, "canvas");
-    if (obj==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "Attempt to install toolbar for NULL canvas");
-        return -1;
-    }
-    Py_DECREF(obj); /* Don't increase the reference count */
-    if (!PyObject_IsInstance(obj, (PyObject*) &FigureCanvasType))
-    {
-        PyErr_SetString(PyExc_TypeError, "Attempt to install toolbar for object that is not a FigureCanvas");
-        return -1;
-    }
-    canvas = (FigureCanvas*)obj;
-    view = canvas->view;
-    if(!view)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
-        return -1;
-    }
-
-    if(!PyArg_ParseTuple(args, "O", &images)) return -1;
-    if(!PyDict_Check(images)) return -1;
-
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    NSRect bounds = [view bounds];
-    NSWindow* window = [view window];
-
-    bounds.origin.y += height;
-    [view setFrame: bounds];
-
-    bounds.size.height += height;
-    [window setContentSize: bounds.size];
-
-    char* imagenames[9] = {"stock_left",
-                           "stock_right",
-                           "stock_zoom-in",
-                           "stock_zoom-out",
-                           "stock_up",
-                           "stock_down",
-                           "stock_zoom-in",
-                           "stock_zoom-out",
-                           "stock_save_as"};
-
-    NSString* tooltips[9] = {
-        @"Pan left with click or wheel mouse (bidirectional)",
-        @"Pan right with click or wheel mouse (bidirectional)",
-        @"Zoom In X (shrink the x axis limits) with click or wheel mouse (bidirectional)",
-        @"Zoom Out X (expand the x axis limits) with click or wheel mouse (bidirectional)",
-        @"Pan up with click or wheel mouse (bidirectional)",
-        @"Pan down with click or wheel mouse (bidirectional)",
-        @"Zoom in Y (shrink the y axis limits) with click or wheel mouse (bidirectional)",
-        @"Zoom Out Y (expand the y axis limits) with click or wheel mouse (bidirectional)",
-        @"Save the figure"};
-
-    SEL actions[9] = {@selector(left:),
-                      @selector(right:),
-                      @selector(zoominx:),
-                      @selector(zoomoutx:),
-                      @selector(up:),
-                      @selector(down:),
-                      @selector(zoominy:),
-                      @selector(zoomouty:),
-                      @selector(save_figure:)};
-
-    SEL scroll_actions[9][2] = {{@selector(left:),    @selector(right:)},
-                                {@selector(left:),    @selector(right:)},
-                                {@selector(zoominx:), @selector(zoomoutx:)},
-                                {@selector(zoominx:), @selector(zoomoutx:)},
-                                {@selector(up:),      @selector(down:)},
-                                {@selector(up:),      @selector(down:)},
-                                {@selector(zoominy:), @selector(zoomouty:)},
-                                {@selector(zoominy:), @selector(zoomouty:)},
-                                {nil,nil},
-                               };
-
-
-    rect.size.width = 120;
-    rect.size.height = 24;
-    rect.origin.x = biggap;
-    rect.origin.y = 0.5*(height - rect.size.height);
-    self->menu = [[NSPopUpButton alloc] initWithFrame: rect
-                                            pullsDown: YES];
-    [self->menu setAutoenablesItems: NO];
-    [[window contentView] addSubview: self->menu];
-    [self->menu release];
-    rect.origin.x += rect.size.width + biggap;
-    rect.size.width = 24;
-
-    self->handler = [self->handler initWithToolbar: (PyObject*)self];
-    for (i = 0; i < 9; i++)
-    {
-        NSButton* button;
-        SEL scrollWheelUpAction = scroll_actions[i][0];
-        SEL scrollWheelDownAction = scroll_actions[i][1];
-        if (scrollWheelUpAction && scrollWheelDownAction)
-        {
-            ScrollableButton* scrollable_button = [ScrollableButton alloc];
-            [scrollable_button initWithFrame: rect];
-            [scrollable_button setScrollWheelUpAction: scrollWheelUpAction];
-            [scrollable_button setScrollWheelDownAction: scrollWheelDownAction];
-            button = (NSButton*)scrollable_button;
-        }
-        else
-        {
-            button = [NSButton alloc];
-            [button initWithFrame: rect];
-        }
-        PyObject* imagedata = PyDict_GetItemString(images, imagenames[i]);
-        NSImage* image = _read_ppm_image(imagedata);
-        [button setBezelStyle: NSShadowlessSquareBezelStyle];
-        [button setButtonType: NSMomentaryLightButton];
-        if(image)
-        {
-            [button setImage: image];
-            [image release];
-        }
-        [button setToolTip: tooltips[i]];
-        [button setTarget: self->handler];
-        [button setAction: actions[i]];
-        [[window contentView] addSubview: button];
-        [button release];
-        rect.origin.x += rect.size.width + smallgap;
-    }
-    [[window contentView] display];
-    [pool release];
-
-    return 0;
-}
-
-static void
-NavigationToolbar_dealloc(NavigationToolbar *self)
-{
-    [self->handler release];
-    Py_TYPE(self)->tp_free((PyObject*)self);
-}
-
-static PyObject*
-NavigationToolbar_repr(NavigationToolbar* self)
-{
-    return PyUnicode_FromFormat("NavigationToolbar object %p", (void*)self);
-}
-
-static char NavigationToolbar_doc[] =
-"NavigationToolbar\n";
-
-static PyObject*
-NavigationToolbar_update (NavigationToolbar* self)
-{
-    int n;
-    NSPopUpButton* button = self->menu;
-    if (!button)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Menu button is NULL");
-        return NULL;
-    }
-
-    PyObject* canvas = PyObject_GetAttrString((PyObject*)self, "canvas");
-    if (canvas==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "Failed to find canvas");
-        return NULL;
-    }
-    Py_DECREF(canvas); /* Don't keep a reference here */
-    PyObject* figure = PyObject_GetAttrString(canvas, "figure");
-    if (figure==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "Failed to find figure");
-        return NULL;
-    }
-    Py_DECREF(figure); /* Don't keep a reference here */
-    PyObject* axes = PyObject_GetAttrString(figure, "axes");
-    if (axes==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "Failed to find figure axes");
-        return NULL;
-    }
-    Py_DECREF(axes); /* Don't keep a reference here */
-    if (!PyList_Check(axes))
-    {
-        PyErr_SetString(PyExc_TypeError, "Figure axes is not a list");
-        return NULL;
-    }
-    n = PyList_GET_SIZE(axes);
-
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    [button removeAllItems];
-
-    NSMenu* menu = [button menu];
-    [menu addItem: [MenuItem menuItemWithTitle: @"Axes"]];
-
-    if (n==0)
-    {
-        [button setEnabled: NO];
-    }
-    else
-    {
-        int i;
-        [menu addItem: [MenuItem menuItemSelectAll]];
-        [menu addItem: [MenuItem menuItemInvertAll]];
-        [menu addItem: [NSMenuItem separatorItem]];
-        for (i = 0; i < n; i++)
-        {
-            [menu addItem: [MenuItem menuItemForAxis: i]];
-        }
-        [button setEnabled: YES];
-    }
-    [pool release];
-    Py_RETURN_NONE;
-}
-
-static PyObject*
-NavigationToolbar_get_active (NavigationToolbar* self)
-{
-    NSPopUpButton* button = self->menu;
-    if (!button)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Menu button is NULL");
-        return NULL;
-    }
-    NSMenu* menu = [button menu];
-    NSArray* items = [menu itemArray];
-    size_t n = [items count];
-    int* states = calloc(n, sizeof(int));
-    if (!states)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "calloc failed");
-        return NULL;
-    }
-    int i;
-    unsigned int m = 0;
-    NSEnumerator* enumerator = [items objectEnumerator];
-    MenuItem* item;
-    while ((item = [enumerator nextObject]))
-    {
-        if ([item isSeparatorItem]) continue;
-        i = [item index];
-        if (i < 0) continue;
-        if ([item state]==NSOnState)
-        {
-            states[i] = 1;
-            m++;
-        }
-    }
-    Py_ssize_t list_index = 0;
-    PyObject* list = PyList_New(m);
-
-    size_t state_index;
-    for (state_index = 0; state_index < n; state_index++)
-    {
-        if(states[state_index]==1)
-        {
-            PyList_SET_ITEM(list, list_index++, PyLong_FromSize_t(state_index));
-        }
-    }
-    free(states);
-    return list;
-}
-
-static PyMethodDef NavigationToolbar_methods[] = {
-    {"update",
-     (PyCFunction)NavigationToolbar_update,
-     METH_NOARGS,
-     "Updates the toolbar menu."
-    },
-    {"get_active",
-     (PyCFunction)NavigationToolbar_get_active,
-     METH_NOARGS,
-     "Returns a list of integers identifying which items in the menu are selected."
-    },
-    {NULL}  /* Sentinel */
-};
-
-static PyTypeObject NavigationToolbarType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "_macosx.NavigationToolbar", /*tp_name*/
-    sizeof(NavigationToolbar), /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)NavigationToolbar_dealloc,     /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)NavigationToolbar_repr,     /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    NavigationToolbar_doc,     /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    NavigationToolbar_methods, /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)NavigationToolbar_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    NavigationToolbar_new,     /* tp_new */
-};
-
 @interface NavigationToolbar2Handler : NSObject
 {   PyObject* toolbar;
     NSButton* panbutton;
@@ -2790,6 +2311,16 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 @end
 
 static PyObject*
+event_loop_is_running(PyObject* self)
+{
+    if ([NSApp isRunning]) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
+}
+
+static PyObject*
 show(PyObject* self)
 {
     [NSApp activateIgnoringOtherApps: YES];
@@ -3038,6 +2569,11 @@ static bool verify_framework(void)
 }
 
 static struct PyMethodDef methods[] = {
+   {"event_loop_is_running",
+    (PyCFunction)event_loop_is_running,
+    METH_NOARGS,
+    "Return whether the NSApp main event loop is currently running."
+   },
    {"show",
     (PyCFunction)show,
     METH_NOARGS,
@@ -3077,7 +2613,6 @@ PyObject* PyInit__macosx(void)
 
     if (PyType_Ready(&FigureCanvasType) < 0
      || PyType_Ready(&FigureManagerType) < 0
-     || PyType_Ready(&NavigationToolbarType) < 0
      || PyType_Ready(&NavigationToolbar2Type) < 0
      || PyType_Ready(&TimerType) < 0)
         return NULL;
@@ -3092,12 +2627,10 @@ PyObject* PyInit__macosx(void)
 
     Py_INCREF(&FigureCanvasType);
     Py_INCREF(&FigureManagerType);
-    Py_INCREF(&NavigationToolbarType);
     Py_INCREF(&NavigationToolbar2Type);
     Py_INCREF(&TimerType);
     PyModule_AddObject(module, "FigureCanvas", (PyObject*) &FigureCanvasType);
     PyModule_AddObject(module, "FigureManager", (PyObject*) &FigureManagerType);
-    PyModule_AddObject(module, "NavigationToolbar", (PyObject*) &NavigationToolbarType);
     PyModule_AddObject(module, "NavigationToolbar2", (PyObject*) &NavigationToolbar2Type);
     PyModule_AddObject(module, "Timer", (PyObject*) &TimerType);
 
