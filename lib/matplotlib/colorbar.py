@@ -828,8 +828,9 @@ class ColorbarBase(cm.ScalarMappable):
 
             b = self.norm.inverse(self._uniform_y(self.cmap.N + 1))
 
-            if isinstance(self.norm, colors.LogNorm):
-                # If using a lognorm, ensure extensions don't go negative
+            if isinstance(self.norm, (colors.PowerNorm, colors.LogNorm)):
+                # If using a lognorm or powernorm, ensure extensions don't
+                # go negative
                 if self._extend_lower():
                     b[0] = 0.9 * b[0]
                 if self._extend_upper():
