@@ -87,8 +87,11 @@ per-file-ignores =
     mpl_toolkits/tests/test_axes_grid1.py: E201, E202
     mpl_toolkits/tests/test_mplot3d.py: E231, E302
 
-    doc/**: E302, E501
-    doc/conf.py: E402
+    doc/conf.py: E402, E501
+    doc/sphinxext/github.py: E302, E501
+    doc/sphinxext/math_symbol_table.py: E302, E501
+    doc/sphinxext/skip_deprecated.py: E302
+    doc/users/generate_credits.py: E302, E501
     tutorials/**: E402, E501
 
     examples/**: E501, E402
