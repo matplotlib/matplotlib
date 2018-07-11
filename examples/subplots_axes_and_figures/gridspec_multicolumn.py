@@ -3,7 +3,7 @@
 Using Gridspec to make multi-column/row subplot layouts
 =======================================================
 
-`~.matplotlib.gridspec.GridSpec` is a flexible way to layout
+`.GridSpec` is a flexible way to layout
 subplot grids.  Here is an example with a 3x3 grid, and
 axes spanning all three columns, two columns, and two rows.
 
