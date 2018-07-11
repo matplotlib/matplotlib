@@ -273,7 +273,7 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
-        Places a legend on the axes.
+        Place a legend on the axes.
 
         Call signatures::
 
