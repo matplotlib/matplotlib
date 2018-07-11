@@ -1300,7 +1300,7 @@ def report_memory(i=0):  # argument may go away
     pid = os.getpid()
     if sys.platform == 'sunos5':
         try:
-            a2 = Popen(str('ps -p %d -o osz') % pid, shell=True,
+            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'osz'],
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
@@ -1309,7 +1309,7 @@ def report_memory(i=0):  # argument may go away
         mem = int(a2[-1].strip())
     elif sys.platform.startswith('linux'):
         try:
-            a2 = Popen(str('ps -p %d -o rss,sz') % pid, shell=True,
+            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'rss,sz'],
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
@@ -1318,7 +1318,7 @@ def report_memory(i=0):  # argument may go away
         mem = int(a2[1].split()[1])
     elif sys.platform.startswith('darwin'):
         try:
-            a2 = Popen(str('ps -p %d -o rss,vsz') % pid, shell=True,
+            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'],
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
