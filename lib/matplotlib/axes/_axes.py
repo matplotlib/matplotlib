@@ -671,7 +671,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        ax : `~matplotlib.axes.Axes` (??)
+        ax : `~matplotlib.axes._secondary_axes.Secondary_Xaxis`
 
         """
         secondary_ax = Secondary_Xaxis(self, loc, conversion, **kwargs)
@@ -711,7 +711,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        ax : `~matplotlib.axes.Axes` (??)
+        ax : `~matplotlib.axes._secondary_axes.Secondary_Yaxis`
 
         """
         secondary_ax = Secondary_Yaxis(self, loc, conversion, **kwargs)
