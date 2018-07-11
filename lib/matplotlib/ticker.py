@@ -1661,12 +1661,12 @@ class LinearLocator(Locator):
         return mtransforms.nonsingular(vmin, vmax)
 
 
-# @cbook.deprecated("3.1")
+@cbook.deprecated("3.1")
 def closeto(x, y):
     return abs(x - y) < 1e-10
 
 
-# @cbook.deprecated("3.1")
+@cbook.deprecated("3.1")
 class Base(object):
     'this solution has some hacks to deal with floating point inaccuracies'
     def __init__(self, base):
@@ -1710,17 +1710,16 @@ class Base(object):
 
 class MultipleLocator(Locator):
     """
-    Set a tick on every integer that is multiple of base in the
-    view interval
+    Set a tick on each integer multiple of a base within the view interval.
     """
 
     def __init__(self, base=1.0):
-        self._base = Base(base)
+        self._edge = _Edge_integer(base, 0)
 
     def set_params(self, base):
         """Set parameters within this locator."""
         if base is not None:
-            self._base = base
+            self._edge = _Edge_integer(base, 0)
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1730,20 +1729,20 @@ class MultipleLocator(Locator):
     def tick_values(self, vmin, vmax):
         if vmax < vmin:
             vmin, vmax = vmax, vmin
-        vmin = self._base.ge(vmin)
-        base = self._base.get_base()
-        n = (vmax - vmin + 0.001 * base) // base
-        locs = vmin - base + np.arange(n + 3) * base
+        step = self._edge.step
+        vmin = self._edge.ge(vmin) * step
+        n = (vmax - vmin + 0.001 * step) // step
+        locs = vmin - step + np.arange(n + 3) * step
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
         """
         Set the view limits to the nearest multiples of base that
-        contain the data
+        contain the data.
         """
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            vmin = self._base.le(dmin)
-            vmax = self._base.ge(dmax)
+            vmin = self._edge.le(dmin) * self._edge.step
+            vmax = self._base.ge(dmax) * self._edge.step
             if vmin == vmax:
                 vmin -= 1
                 vmax += 1
@@ -1767,7 +1766,7 @@ def scale_range(vmin, vmax, n=1, threshold=100):
 
 class _Edge_integer:
     """
-    Helper for MaxNLocator.
+    Helper for MaxNLocator, MultipleLocator, etc.
 
     Take floating point precision limitations into account when calculating
     tick locations as integer multiples of a step.
@@ -1794,14 +1793,14 @@ class _Edge_integer:
         return abs(ms - edge) < tol
 
     def le(self, x):
-        'Return the largest n: n*base <= x'
+        'Return the largest n: n*step <= x.'
         d, m = _divmod(x, self.step)
         if self.closeto(m / self.step, 1):
             return (d + 1)
         return d
 
     def ge(self, x):
-        'Return the smallest n: n*base >= x'
+        'Return the smallest n: n*step >= x.'
         d, m = _divmod(x, self.step)
         if self.closeto(m / self.step, 0):
             return d

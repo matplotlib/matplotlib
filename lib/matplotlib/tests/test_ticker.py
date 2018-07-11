@@ -66,7 +66,7 @@ class TestMultipleLocator(object):
         """
         mult = mticker.MultipleLocator(base=0.7)
         mult.set_params(base=1.7)
-        assert mult._base == 1.7
+        assert mult._edge.step == 1.7
 
 
 class TestAutoMinorLocator(object):
