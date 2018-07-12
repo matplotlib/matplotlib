@@ -113,10 +113,10 @@ for ax in axs.flatten():
 #
 # .. note::
 #
-#   For the `~.axes.Axes.pcolormesh` kwargs (``pc_kwargs``) we use a dictionary.
-#   Below we will assign one colorbar to a number of axes each containing
-#   a `~.cm.ScalarMappable`; specifying the norm and colormap ensures
-#   the colorbar is accurate for all the axes.
+#   For the `~.axes.Axes.pcolormesh` kwargs (``pc_kwargs``) we use a
+#   dictionary. Below we will assign one colorbar to a number of axes each
+#   containing a `~.cm.ScalarMappable`; specifying the norm and colormap
+#   ensuresthe colorbar is accurate for all the axes.
 
 arr = np.arange(100).reshape((10, 10))
 norm = mcolors.Normalize(vmin=0., vmax=100.)
@@ -128,13 +128,24 @@ fig.colorbar(im, ax=ax, shrink=0.6)
 
 ############################################################################
 # If you specify a list of axes (or other iterable container) to the
-# ``ax`` argument of ``colorbar``, constrained_layout will take space from all
-# axes that share the same gridspec.
+# ``ax`` argument of ``colorbar``, constrained_layout will take space from
+# the specified axes.
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flatten():
     im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs, shrink=0.6)
+
+############################################################################
+# If you specify a list of axes from inside a grid of axes, the colorbar
+# will steal space appropriately, and leave a gap, but all subplots will
+# still be the same size.
+
+fig, axs = plt.subplots(3, 3, figsize=(4, 4), constrained_layout=True)
+for ax in axs.flatten():
+    im = ax.pcolormesh(arr, **pc_kwargs)
+fig.colorbar(im, ax=axs[1:, ][:, 1], shrink=0.8)
+fig.colorbar(im, ax=axs[:, -1], shrink=0.6)
 
 ############################################################################
 # Note that there is a bit of a subtlety when specifying a single axes
@@ -453,6 +464,21 @@ bb_ax2 = Bbox(fig_coords_ax2)
 ax2 = fig.add_axes(bb_ax2)
 
 ###############################################################################
+# Manually turning off ``constrained_layout``
+# ===========================================
+#
+# ``constrained_layout`` usually adjusts the axes positions on each draw
+# of the figure.  If you want to get the spacing provided by
+# ``constrained_layout`` but then not have it update, then do the initial
+# draw and then call ``fig.set_constrained_layout(False)``.
+# This is potentially useful for animations where the tick labels may
+# change length.
+#
+# Note that ``constrained_layout`` is turned off for ``ZOOM`` and ``PAN``
+# GUI events for the backends that use the toolbar.  This prevents the
+# axes from changing position during zooming and panning.
+#
+#
 # Limitations
 # ========================
 #
