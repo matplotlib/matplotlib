@@ -450,13 +450,6 @@ doesn't have a BoundaryNorm, or boundaries are not specified.
 If boundaries, etc are specified, the colorbar maintains the
 original behaviour.
 
-
-Deprecations
-------------
-
-`.Legend.draggable()` is drepecated in favor of `.Legend.set_draggable()`.
-``Legend.draggable`` may be reintroduced as a property in future releases.
-
 Colorbar for log-scaled hexbin
 ------------------------------
 
