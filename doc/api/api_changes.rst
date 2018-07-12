@@ -451,6 +451,12 @@ Deprecations
 `.Legend.draggable()` is drepecated in favor of `.Legend.set_draggable()`.
 ``Legend.draggable`` may be reintroduced as a property in future releases.
 
+Colorbar for log-scaled hexbin
+------------------------------
+
+When using `hexbin` and plotting with a logarithmic color scale, the colorbar
+ticks are now correctly log scaled. Previously the tick values were linear
+scaled log(number of counts).
 
 API Changes in 2.2.0
 ====================
