@@ -46,10 +46,9 @@ def _generate_deprecation_message(
             + (" Use %(alternative)s instead." if alternative else "")
             + (" %(addendum)s" if addendum else ""))
 
-    return (
-        message % dict(func=name, name=name, obj_type=obj_type, since=since,
-                       removal=removal, alternative=alternative)
-        + addendum)
+    return message % dict(
+        func=name, name=name, obj_type=obj_type, since=since, removal=removal,
+        alternative=alternative, addendum=addendum)
 
 
 def warn_deprecated(
