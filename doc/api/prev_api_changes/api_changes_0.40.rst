@@ -2,7 +2,7 @@
 Changes for 0.40
 ================
 
-::
+.. code-block:: text
 
   - Artist
       * __init__ takes a DPI instance and a Bound2D instance which is

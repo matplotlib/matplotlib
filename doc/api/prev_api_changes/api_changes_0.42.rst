@@ -1,7 +1,7 @@
 Changes for 0.42
 ================
 
-::
+.. code-block:: text
 
   * Refactoring AxisText to be backend independent.  Text drawing and
     get_window_extent functionality will be moved to the Renderer.

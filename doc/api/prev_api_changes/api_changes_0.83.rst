@@ -1,7 +1,7 @@
 Changes for 0.83
 ================
 
-::
+.. code-block:: text
 
   - Made HOME/.matplotlib the new config dir where the matplotlibrc
     file, the ttf.cache, and the tex.cache live.  The new default

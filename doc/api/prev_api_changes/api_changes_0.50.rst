@@ -2,7 +2,7 @@
 Changes for 0.50
 ================
 
-::
+.. code-block:: text
 
   * refactored Figure class so it is no longer backend dependent.
     FigureCanvasBackend takes over the backend specific duties of the

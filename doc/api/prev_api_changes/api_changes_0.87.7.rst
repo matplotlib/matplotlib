@@ -3,7 +3,7 @@
 Changes for 0.87.7
 ==================
 
-::
+.. code-block:: text
 
     Completely reworked the annotations API because I found the old
     API cumbersome.  The new design is much more legible and easy to

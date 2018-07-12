@@ -1,7 +1,7 @@
 Changes for 0.65
 ================
 
-::
+.. code-block:: text
 
 
   mpl_connect and mpl_disconnect in the MATLAB interface renamed to

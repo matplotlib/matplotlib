@@ -1,7 +1,7 @@
 Changes for 0.81
 ================
 
-::
+.. code-block:: text
 
   - pylab and artist "set" functions renamed to setp to avoid clash
     with python2.4 built-in set.  Current version will issue a

@@ -1,7 +1,7 @@
 Changes for 0.65.1
 ==================
 
-::
+.. code-block:: text
 
   removed add_axes and add_subplot from backend_bases.  Use
   figure.add_axes and add_subplot instead.  The figure now manages the

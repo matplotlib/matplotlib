@@ -1,7 +1,7 @@
 Changes for 0.84
 ================
 
-::
+.. code-block:: text
 
     Unified argument handling between hlines and vlines.  Both now
     take optionally a fmt argument (as in plot) and a keyword args

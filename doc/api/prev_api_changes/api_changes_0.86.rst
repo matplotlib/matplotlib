@@ -1,7 +1,7 @@
 Changes for 0.86
 ================
 
-::
+.. code-block:: text
 
      Matplotlib data is installed into the matplotlib module.
      This is similar to package_data.  This should get rid of

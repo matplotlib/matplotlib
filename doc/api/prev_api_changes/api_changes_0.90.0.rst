@@ -1,7 +1,7 @@
 Changes for 0.90.0
 ==================
 
-::
+.. code-block:: text
 
     All artists now implement a "pick" method which users should not
     call.  Rather, set the "picker" property of any artist you want to

@@ -1,7 +1,7 @@
 Changes for 0.85
 ================
 
-::
+.. code-block:: text
 
     Made xtick and ytick separate props in rc
 

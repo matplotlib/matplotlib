@@ -1,7 +1,7 @@
 Changes for 0.60
 ================
 
-::
+.. code-block:: text
 
   ColormapJet and Grayscale are deprecated.  For backwards
   compatibility, they can be obtained either by doing

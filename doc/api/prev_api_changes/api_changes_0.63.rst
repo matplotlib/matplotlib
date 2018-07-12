@@ -1,7 +1,7 @@
 Changes for 0.63
 ================
 
-::
+.. code-block:: text
 
   Dates are now represented internally as float days since 0001-01-01,
   UTC.

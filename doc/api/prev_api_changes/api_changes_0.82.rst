@@ -1,7 +1,7 @@
 Changes for 0.82
 ================
 
-::
+.. code-block:: text
 
   - toolbar import change in GTKAgg, GTKCairo and WXAgg
 

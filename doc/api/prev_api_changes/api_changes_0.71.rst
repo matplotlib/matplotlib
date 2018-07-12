@@ -1,7 +1,7 @@
 Changes for 0.71
 ================
 
-::
+.. code-block:: text
 
    Significant numerix namespace changes, introduced to resolve
    namespace clashes between python built-ins and mlab names.

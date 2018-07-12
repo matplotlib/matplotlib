@@ -1,7 +1,7 @@
 Changes for 0.72
 ================
 
-::
+.. code-block:: text
 
   - Line2D, Text, and Patch copy_properties renamed update_from and
     moved into artist base class

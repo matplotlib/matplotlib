@@ -1,7 +1,7 @@
 Changes for 0.73
 ================
 
-::
+.. code-block:: text
 
   - Removed deprecated ColormapJet and friends
 

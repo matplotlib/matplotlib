@@ -2,7 +2,7 @@
 Changes for 0.90.1
 ==================
 
-::
+.. code-block:: text
 
     The file dviread.py has a (very limited and fragile) dvi reader
     for usetex support. The API might change in the future so don't
