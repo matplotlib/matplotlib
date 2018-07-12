@@ -773,6 +773,13 @@ class UnicodeFonts(TruetypeFonts):
         prop = FontProperties('cmex10')
         font = findfont(prop)
         self.fontmap['ex'] = font
+        # include stix sized alternatives for glyphs if fallback is stix
+        if isinstance(self.cm_fallback, StixFonts):
+            stixsizedaltfonts = "STIXGeneral STIXSizeOneSym STIXSizeTwoSym "\
+                "STIXSizeThreeSym STIXSizeFourSym STIXSizeFiveSym".split()
+            for i, stixfont in enumerate(stixsizedaltfonts):
+                font = findfont(stixfont)
+                self.fontmap[i] = font
 
     _slanted_symbols = set(r"\int \oint".split())
 
@@ -831,14 +838,13 @@ class UnicodeFonts(TruetypeFonts):
                     warnings.warn(
                         "Substituting with a symbol from STIX.",
                         MathTextWarning)
-                # note sure whether this is still required...
-                # if (fontname in ('it', 'regular') and
-                        # isinstance(self.cm_fallback, StixFonts)):
-                    # return self.cm_fallback._get_glyph(
-                            # 'rm', font_class, sym, fontsize)
-                # else:
-                    # return self.cm_fallback._get_glyph(
-                        # fontname, font_class, sym, fontsize)
+                if (fontname in ('it', 'regular') and
+                        isinstance(self.cm_fallback, StixFonts)):
+                    return self.cm_fallback._get_glyph(
+                            'rm', font_class, sym, fontsize)
+                else:
+                    return self.cm_fallback._get_glyph(
+                        fontname, font_class, sym, fontsize)
 
                 return self.cm_fallback._get_glyph(
                     fontname, font_class, sym, fontsize)
