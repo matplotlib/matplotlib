@@ -446,6 +446,20 @@ def validate_font_properties(s):
     return s
 
 
+def validate_mathtext_fallback(s):
+    fallback_fonts = ['cm', 'stix']
+    if s is None:
+        return s
+
+    if isinstance(s, str):
+        s = s.lower()
+
+    if s in fallback_fonts:
+        return s
+
+    raise ValueError("%s is not a valid fallback font name. Valid fallback "
+                     "font names are %s." % (s, ", ".join(fallback_fonts)))
+
 validate_fontset = ValidateInStrings(
     'fontset',
     ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'])
@@ -1117,6 +1131,7 @@ defaultParams = {
     'mathtext.fontset':        ['dejavusans', validate_fontset],
     'mathtext.default':        ['it', validate_mathtext_default],
     'mathtext.fallback_to_cm': [True, validate_bool],
+    'mathtext.fallback':       [None, validate_mathtext_fallback],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation': ['nearest', validate_string],
@@ -1368,7 +1383,7 @@ defaultParams = {
     # ignore any color-setting commands from the frontend
     'pdf.inheritcolor': [False, validate_bool],
     # use only the 14 PDF core fonts embedded in every PDF viewing application
-    'pdf.use14corefonts': [False, validate_bool],
+     'pdf.use14corefonts': [False, validate_bool],
     'pdf.fonttype':     [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
 
     'pgf.debug':     [False, validate_bool],  # output debug information
