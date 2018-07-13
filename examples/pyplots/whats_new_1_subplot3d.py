@@ -5,7 +5,9 @@ Whats New 1 Subplot3d
 
 Create two three-dimensional plots in the same figure.
 """
-from mpl_toolkits.mplot3d.axes3d import Axes3D
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+
 from matplotlib import cm
 #from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter
 import matplotlib.pyplot as plt

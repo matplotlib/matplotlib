@@ -9,11 +9,11 @@ Demonstrate using pathpatch_2d_to_3d to 'draw' shapes and text on a 3D plot.
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, PathPatch
-# register Axes3D class with matplotlib by importing Axes3D
-from mpl_toolkits.mplot3d import Axes3D
-import mpl_toolkits.mplot3d.art3d as art3d
 from matplotlib.text import TextPath
 from matplotlib.transforms import Affine2D
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+import mpl_toolkits.mplot3d.art3d as art3d
 
 
 def text3d(ax, xyz, s, zdir="z", size=None, angle=0, usetex=False, **kwargs):
