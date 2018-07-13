@@ -2005,14 +2005,14 @@ class Axes(_AxesBase):
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
         color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
                                 # Fallback if color == "none".
-                                itertools.repeat([0, 0, 0, 0]))
+                                itertools.repeat('none'))
         if edgecolor is None:
             edgecolor = itertools.repeat(None)
         else:
             edgecolor = itertools.chain(
                 itertools.cycle(mcolors.to_rgba_array(edgecolor)),
                 # Fallback if edgecolor == "none".
-                itertools.repeat([0, 0, 0, 0]))
+                itertools.repeat('none'))
 
         # We will now resolve the alignment and really have
         # left, bottom, width, height vectors
