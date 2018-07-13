@@ -862,11 +862,11 @@ class RcParams(MutableMapping, dict):
                         "either import that binding first, or set the QT_API "
                         "environment variable.")
                 cbook.warn_deprecated(
-                    "2.2", key, obj_type="rcparam", addendum=addendum)
+                    "2.2", name=key, obj_type="rcparam", addendum=addendum)
             elif key in _deprecated_ignore_map:
                 version, alt_key = _deprecated_ignore_map[key]
                 cbook.warn_deprecated(
-                    version, key, obj_type="rcparam", alternative=alt_key)
+                    version, name=key, obj_type="rcparam", alternative=alt_key)
                 return
             elif key == 'examples.directory':
                 cbook.warn_deprecated(
@@ -1524,6 +1524,9 @@ _DATA_DOC_APPENDIX = """
     following arguments are replaced by **data[<arg>]**:
 
     {replaced}
+
+    Objects passed as **data** must support item access (``data[<arg>]``) and
+    membership test (``<arg> in data``).
 """
 
 

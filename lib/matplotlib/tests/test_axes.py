@@ -858,18 +858,18 @@ def test_hexbin_pickable():
 
 
 @image_comparison(baseline_images=['hexbin_log'],
-                  remove_text=True,
-                  extensions=['png'])
+                  extensions=['png'], style='mpl20')
 def test_hexbin_log():
-    # Issue #1636
-    np.random.seed(0)
+    # Issue #1636 (and also test log scaled colorbar)
+    np.random.seed(19680801)
     n = 100000
     x = np.random.standard_normal(n)
     y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
     y = np.power(2, y * 0.5)
 
     fig, ax = plt.subplots()
-    ax.hexbin(x, y, yscale='log')
+    h = ax.hexbin(x, y, yscale='log', bins='log')
+    plt.colorbar(h)
 
 
 def test_inverted_limits():

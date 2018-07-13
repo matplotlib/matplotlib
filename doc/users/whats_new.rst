@@ -1,8 +1,8 @@
 .. _whats-new:
 
-==========================
- What's new in Matplotlib
-==========================
+=============================
+ What's new in Matplotlib 3.0
+=============================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
@@ -26,10 +26,14 @@ Ability to scale axis by a fixed order of magnitude
 ---------------------------------------------------
 
 To scale an axis by a fixed order of magnitude, set the *scilimits* argument of
-``Axes.ticklabel_format`` to the same (non-zero) lower and upper limits. Say to scale
-the y axis by a million (1e6), use ``ax.ticklabel_format(style='sci', scilimits=(6, 6), axis='y')``.
+`.Axes.ticklabel_format` to the same (non-zero) lower and upper limits. Say to scale
+the y axis by a million (1e6), use
 
-The behavior of ``scilimits=(0, 0)`` is unchanged. With this setting, matplotlib will adjust
+.. code-block:: python
+
+  ax.ticklabel_format(style='sci', scilimits=(6, 6), axis='y')
+
+The behavior of ``scilimits=(0, 0)`` is unchanged. With this setting, Matplotlib will adjust
 the order of magnitude depending on the axis values, rather than keeping it fixed. Previously, setting
 ``scilimits=(m, m)`` was equivalent to setting ``scilimits=(0, 0)``.
 
@@ -39,12 +43,12 @@ Add ``AnchoredDirectionArrows`` feature to mpl_toolkits
 
 A new mpl_toolkits class
 :class:`~mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows`
-draws a pair of orthogonal arrows to inidcate directions on a 2D plot. A
+draws a pair of orthogonal arrows to indicate directions on a 2D plot. A
 minimal working example takes in the transformation object for the coordinate
 system (typically ax.transAxes), and arrow labels. There are several optional
 parameters that can be used to alter layout. For example, the arrow pairs can
 be rotated and the color can be changed. By default the labels and arrows have
-the same color, but the class may also pass arguments for costumizing arrow
+the same color, but the class may also pass arguments for customizing arrow
 and text layout, these are passed to :class:`matplotlib.text.TextPath` and
 `matplotlib.patches.FancyArrowPatch`. Location, length and width for both
 arrow tail and head can be adjusted, the the direction arrows and labels can
@@ -54,20 +58,20 @@ have a frame. Padding and separation parameters can be adjusted.
 Add ``minorticks_on()/off()`` methods for colorbar
 --------------------------------------------------
 
-A new method :meth:`.Colobar.minorticks_on` is
-introduced to correctly display minor ticks on the colorbar. This method
+A new method :meth:`.colorbar.Colobar.minorticks_on` has been added
+to correctly display minor ticks on a colorbar. This method
 doesn't allow the minor ticks to extend into the regions beyond vmin and vmax
 when the extend `kwarg` (used while creating the colorbar) is set to 'both',
 'max' or 'min'.
-A complementary method :meth:`.Colobar.minorticks_off`
-is introduced to remove the minor ticks on the colorbar.
+A complementary method :meth:`.colorbar.Colobar.minorticks_off`
+has also been added to remove the minor ticks on the colorbar.
 
 
 Colorbar ticks can now be automatic
 -----------------------------------
 
-The number of ticks on colorbars was appropriate for a large colorbar, but
-looked bad if the colorbar was made smaller (i.e. via the ``shrink`` kwarg).
+The number of ticks placed on colorbars was previously appropriate for a large
+colorbar, but looked bad if the colorbar was made smaller (i.e. via the ``shrink`` kwarg).
 This has been changed so that the number of ticks is now responsive to how
 large the colorbar is.
 
@@ -75,16 +79,16 @@ large the colorbar is.
 Cyclic colormaps
 ----------------
 
-Two new colormaps named 'twilight' and 'twilight_shifted' were added.
+Two new colormaps named 'twilight' and 'twilight_shifted' have been added.
 These colormaps start and end on the same color, and have two
 symmetric halves with equal lightness, but diverging color. Since they
 wrap around, they are a good choice for cyclic data such as phase
-angles, compass directions, or time of day. Like viridis, twilight is
+angles, compass directions, or time of day. Like *viridis*, *twilight* is
 perceptually uniform and colorblind friendly.
 
 
-Stop adding a suffix to suggest unique file name
-------------------------------------------------
+Don't automatically rename duplicate file names
+-----------------------------------------------
 
 Previously, when saving a figure to a file using the GUI's
 save dialog box, if the default filename (based on the
@@ -95,11 +99,11 @@ behaviour has been removed. Now if the file name exists on
 disk, the user is prompted whether or not to overwrite it.
 This eliminates guesswork, and allows intentional
 overwriting, especially when the figure name has been
-manually set using `fig.canvas.set_window_title()`.
+manually set using `.figure.Figure.canvas.set_window_title()`.
 
 
-Legend now has a title_fontsize kwarg (and rcParam)
----------------------------------------------------
+Legend now has a *title_fontsize* kwarg (and rcParam)
+-----------------------------------------------------
 
 The title for a `.Figure.legend` and `.Axes.legend` can now have its
 fontsize set via the ``title_fontsize`` kwarg.  There is also a new
@@ -109,13 +113,13 @@ the legend title will have the same fontsize as the axes default fontsize
 :rc:`legend.fontsize`).
 
 
-Implemented support for axes.prop_cycle property markevery in rcParams
-----------------------------------------------------------------------
+Support for axes.prop_cycle property *markevery* in rcParams
+------------------------------------------------------------
 
 The Matplotlib ``rcParams`` settings object now supports configuration
 of the attribute `axes.prop_cycle` with cyclers using the `markevery`
 Line2D object property. An example of this feature is provided at
-`~matplotlib/examples/lines_bars_and_markers/markevery_prop_cycle.py`
+`~/matplotlib/examples/lines_bars_and_markers/markevery_prop_cycle.py`
 
 Multipage PDF support for pgf backend
 -------------------------------------
@@ -144,8 +148,8 @@ We acknowledge that the majority of people do not like egg-shaped pies.
 Therefore, an axes to which a pie chart is plotted will be set to have
 equal aspect ratio by default. This ensures that the pie appears circular
 independent on the axes size or units. To revert to the previous behaviour
-you may set the axes' aspect to automatic, ax.set_aspect("auto") or
-plt.axis("auto").
+set the axes' aspect ratio to automatic by using ``ax.set_aspect("auto")`` or
+``plt.axis("auto")``.
 
 Add ``ax.get_gridspec`` to `.SubplotBase`
 -----------------------------------------
@@ -169,8 +173,8 @@ easily get the gridspec that went into making an axes:
     plt.show()
 
 
-Axes title will no longer overlap xaxis
----------------------------------------
+Axes titles will no longer overlap xaxis
+----------------------------------------
 
 Previously an axes title had to be moved manually if an xaxis overlapped
 (usually when the xaxis was put on the top of the axes).  Now, the title

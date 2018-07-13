@@ -28,6 +28,15 @@ Drop support for python 2
 Matplotlib 3 only supports python 3.5 and higher
 
 
+Hold machinery removed
+----------------------
+
+Setting or unsetting ``hold`` (deprecated in version 2.1) has now
+been completely removed. Matplotlib now always behaves as if ``hold=True``.
+To clear an axes you can manually use :meth:`~.axes.Axes.cla()`,
+or to clear an entire figure use :meth:`~.figure.Figure.clf()`.
+
+
 `.Axes.hist2d` now uses `~.Axes.pcolormesh` instead of `~.Axes.pcolorfast`
 --------------------------------------------------------------------------
 
@@ -61,46 +70,51 @@ The following classes, methods, functions, and attributes are deprecated:
 
 - ``RcParams.msg_depr``, ``RcParams.msg_depr_ignore``,
   ``RcParams.msg_depr_set``, ``RcParams.msg_obsolete``,
-  ``RcParams.msg_backend_obsolete``,
-- ``afm.parse_afm``,
-- ``backend_pgf.get_texcommand``,
-- ``backend_ps.get_bbox``,
-- ``backend_qt5.error_msg_qt``, ``backend_qt5.exception_handler``,
-- ``backend_wx.FigureCanvasWx.macros``,
-- ``cbook.GetRealpathAndStat``, ``cbook.Locked``,
+  ``RcParams.msg_backend_obsolete``
+- ``afm.parse_afm``
+- ``backend_pgf.get_texcommand``
+- ``backend_ps.get_bbox``
+- ``backend_qt5.error_msg_qt``, ``backend_qt5.exception_handler``
+- ``backend_wx.FigureCanvasWx.macros``
+- ``cbook.GetRealpathAndStat``, ``cbook.Locked``
 - ``cbook.is_numlike`` (use ``isinstance(..., numbers.Number)`` instead),
-  ``cbook.listFiles``, ``cbook.unicode_safe``,
-- ``container.Container.set_remove_method``,
-- ``contour.ContourLabeler.cl``, ``.cl_xy``, and ``.cl_cvalues``,
-- ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``,
-- ``font_manager.TempCache``,
-- ``mathtext.unichr_safe`` (use ``chr`` instead),
-- ``table.Table.get_child_artists`` (use ``get_children`` instead),
+  ``cbook.listFiles``, ``cbook.unicode_safe``
+- ``container.Container.set_remove_method``
+- ``contour.ContourLabeler.cl``, ``.cl_xy``, and ``.cl_cvalues``
+- ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``
+- ``font_manager.TempCache``
+- ``mathtext.unichr_safe`` (use ``chr`` instead)
+- ``table.Table.get_child_artists`` (use ``get_children`` instead)
 - ``testing.compare.ImageComparisonTest``, ``testing.compare.compare_float``,
-- ``testing.decorators.CleanupTest``,
-  ``testing.decorators.skip_if_command_unavailable``,
+- ``testing.decorators.CleanupTest``
+  ``testing.decorators.skip_if_command_unavailable``
 - ``FigureCanvasQT.keyAutoRepeat`` (directly check
   ``event.guiEvent.isAutoRepeat()`` in the event handler to decide whether to
-  handle autorepeated key presses).
-- ``FigureCanvasWx.macros``,
+  handle autorepeated key presses)
+- ``FigureCanvasWx.macros``
 - ``_ImageBase.iterpnames``, use the ``interpolation_names`` property instead.
   (this affects classes that inherit from ``_ImageBase`` including
-  :class:`FigureImage`, :class:`BboxImage`, and :class:`AxesImage`),
-- ``patches.Polygon.xy``,
-- ``texmanager.dvipng_hack_alpha``,
-- ``text.Annotation.arrow``,
+  :class:`FigureImage`, :class:`BboxImage`, and :class:`AxesImage`)
+- ``patches.Polygon.xy``
+- ``texmanager.dvipng_hack_alpha``
+- ``text.Annotation.arrow``
+- `.Legend.draggable()`, in favor of `.Legend.set_draggable()`
+   (``Legend.draggable`` may be reintroduced as a property in future releases)
+
 
 The following rcParams are deprecated:
-- ``examples.directory`` (use ``datapath`` instead),
-- ``pgf.debug`` (the pgf backend relies on logging),
-- ``text.latex.unicode``,
+
+- ``examples.directory`` (use ``datapath`` instead)
+- ``pgf.debug`` (the pgf backend relies on logging)
+- ``text.latex.unicode``
 
 The following keyword arguments are deprecated:
-- passing ``verts`` to ``Axes.scatter`` (use ``marker`` instead),
-- passing ``obj_type`` to ``cbook.deprecated``,
+
+- passing ``verts`` to ``Axes.scatter`` (use ``marker`` instead)
+- passing ``obj_type`` to ``cbook.deprecated``
 
 The following call signatures are deprecated:
-- passing a ``wx.EvtHandler`` as first argument to ``backend_wx.TimerWx``,
+- passing a ``wx.EvtHandler`` as first argument to ``backend_wx.TimerWx``
 
 Deprecated methods removed from `matplotlib.testing`
 ----------------------------------------------------
@@ -111,12 +125,31 @@ from :mod:`matplotlib.testing.decorators`.
 The entire contents of `testing.noseclasses` have also been removed.
 
 
+``matplotlib.cbook.deprecation.mplDeprecation`` is deprecated
+-------------------------------------------------------------
+
+:class:`matplotlib.cbook.deprecation.mplDeprecation` will be removed in
+future versions. It is just an alias for
+:class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
+Please use the :class:`~.MatplotlibDeprecationWarning` directly if neccessary.
+
+
 matplotlib.cbook.Bunch deprecated
 ---------------------------------
 
 The ``matplotlib.cbook.Bunch`` class has been deprecated. Instead, use
 `types.SimpleNamespace` from the standard library which provides the same
 functionality.
+
+
+Deprecation of certain marker styles
+------------------------------------
+
+Using ``(n, 3)`` as marker style to specify a circle marker is deprecated.  Use
+``"o"`` instead.
+
+Using ``([(x0, y0), (x1, y1), ...], 0)`` as marker style to specify a custom
+marker path is deprecated.  Use ``[(x0, y0), (x1, y1), ...]`` instead.
 
 
 Removal of deprecated backends
@@ -128,15 +161,6 @@ Deprecated backends have been removed:
     * GTKCairo
     * GTK
     * GDK
-
-
-Hold machinery removed
-----------------------
-
-Setting or unsetting ``hold`` (deprecated in version 2.1) has now
-been completely removed. Matplotlib now always behaves as if ``hold=True``.
-To clear an axes you can manually use :meth:`~.axes.Axes.cla()`,
-or to clear an entire figure use :meth:`~.figure.Figure.clf()`.
 
 
 ``Axes3D.get_xlim``, ``get_ylim`` and ``get_zlim`` now return a tuple
@@ -213,16 +237,6 @@ These arguments were renamed in 2.0 to ``x``/``y`` following the change of the
 default alignment from ``edge`` to ``center``.
 
 
-Deprecation of certain marker styles
-------------------------------------
-
-Using ``(n, 3)`` as marker style to specify a circle marker is deprecated.  Use
-``"o"`` instead.
-
-Using ``([(x0, y0), (x1, y1), ...], 0)`` as marker style to specify a custom
-marker path is deprecated.  Use ``[(x0, y0), (x1, y1), ...]`` instead.
-
-
 Different exception types for undocumented options
 --------------------------------------------------
 
@@ -243,7 +257,7 @@ Improved call signature for Axes.margins()
 ------------------------------------------
 
 :meth:`matplotlib.axes.Axes.margins` and :meth:`mpl_toolkits.mplot3d.Axes3D.margins`
-no longer accept arbitrary keywords.  ``TypeError`` will therefore be raised
+no longer accept arbitrary keywords. ``TypeError`` will therefore be raised
 if unknown kwargs are passed; previously they would be silently ignored.
 
 If too many positional arguments are passed, ``TypeError`` will be raised
@@ -254,8 +268,8 @@ warning if only two positional arguments are passed.  To supply only ``x`` and
 ``y`` margins, use keyword arguments.
 
 
-Remove lib/mpl_examples
------------------------
+lib/mpl_examples removed
+------------------------
 
 The symlink from lib/mpl_examples to ../examples has been removed.
 This is not installed as an importable package and should not affect
@@ -287,20 +301,12 @@ unhandled positional arguments.  If two or more arguments are passed
 will be raised instead of treating X as Y and Y as linefmt.
 
 
-``matplotlib.cbook.deprecation.mplDeprecation`` is deprecated
--------------------------------------------------------------
+Cleanup decorators and test classes no longer destroy warnings filter on exit
+-----------------------------------------------------------------------------
 
-:class:`matplotlib.cbook.deprecation.mplDeprecation` will be removed in
-future versions. It is just an alias for
-:class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
-Please use the :class:`~.MatplotlibDeprecationWarning` directly if neccessary.
-
-
-The cleanup decorators and test classes in matplotlib.testing.decorators no longer destroy the warnings filter on exit
-----------------------------------------------------------------------------------------------------------------------
-
-Instead, they restore the warnings filter that existed before the test started
-using ``warnings.catch_warnings``.
+The decorators and classes in matplotlib.testing.decorators no longer
+destroy the warnings filter on exit. Instead, they restore the warnings
+filter that existed before the test started using ``warnings.catch_warnings``.
 
 
 Non-interactive FigureManager classes are now aliases of FigureManagerBase
@@ -315,13 +321,13 @@ adding or overriding any attribute or method), are now direct aliases for
 Change to the output of `.image.thumbnail`
 ------------------------------------------
 
-When called with ``preview=False``, ``image.thumbnail`` previously returned an
+When called with ``preview=False``, `.image.thumbnail` previously returned an
 figure whose canvas class was set according to the output file extension.  It
 now returns a figure whose canvas class is the base `FigureCanvasBase` (and
 relies on `FigureCanvasBase.print_figure`) to handle the canvas switching
 properly).
 
-As a side effect of this change, `image.thumbnail` now also supports .ps, .eps,
+As a side effect of this change, `.image.thumbnail` now also supports .ps, .eps,
 and .svgz output.
 
 
@@ -376,7 +382,7 @@ Changes to backend loading
 
 Failure to load backend modules (``macosx`` on non-framework builds and
 ``gtk3`` when running headless) now raises `ImportError` (instead of
-`RuntimeError` and `TypeError`, respectively.
+`RuntimeError` and `TypeError`, respectively).
 
 Third-party backends that integrate with an interactive framework are now
 encouraged to define the ``required_interactive_framework`` global value to one
@@ -386,11 +392,11 @@ backend to another (specifically, whether they use the same interactive
 framework).
 
 
-Changed default `AutoDateLocator` kwarg ``interval_multiples`` to ``True``
---------------------------------------------------------------------------
+Changed default `AutoDateLocator` kwarg *interval_multiples* to ``True``
+------------------------------------------------------------------------
 
 The default value of the tick locator for dates, `.dates.AutoDateLocator`
-kwarg ``interval_multiples`` was set to ``False`` which leads to not-nice
+kwarg *interval_multiples* was set to ``False`` which leads to not-nice
 looking automatic ticks in many instances.  The much nicer
 ``interval_multiples=True`` is the new default.  See below to get the
 old behavior back:
@@ -430,9 +436,9 @@ old behavior back:
 
 `.Axes.get_position` used to return the original position unless a
 draw had been triggered or `.Axes.apply_aspect` had been called, even
-if the kwarg *original* was set to *False*.   Now `.Axes.apply_aspect`
+if the kwarg *original* was set to ``False``.   Now `.Axes.apply_aspect`
 is called so ``ax.get_position()`` will return the new modified position.
-To get the old behaviour, ``ax.get_position(original=True)``.
+To get the old behaviour use ``ax.get_position(original=True)``.
 
 
 The ticks for colorbar now adjust for the size of the colorbar
@@ -444,13 +450,12 @@ doesn't have a BoundaryNorm, or boundaries are not specified.
 If boundaries, etc are specified, the colorbar maintains the
 original behaviour.
 
+Colorbar for log-scaled hexbin
+------------------------------
 
-Deprecations
-------------
-
-`.Legend.draggable()` is drepecated in favor of `.Legend.set_draggable()`.
-``Legend.draggable`` may be reintroduced as a property in future releases.
-
+When using `hexbin` and plotting with a logarithmic color scale, the colorbar
+ticks are now correctly log scaled. Previously the tick values were linear
+scaled log(number of counts).
 
 API Changes in 2.2.0
 ====================
