@@ -1383,7 +1383,7 @@ defaultParams = {
     # ignore any color-setting commands from the frontend
     'pdf.inheritcolor': [False, validate_bool],
     # use only the 14 PDF core fonts embedded in every PDF viewing application
-     'pdf.use14corefonts': [False, validate_bool],
+    'pdf.use14corefonts': [False, validate_bool],
     'pdf.fonttype':     [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
 
     'pgf.debug':     [False, validate_bool],  # output debug information
