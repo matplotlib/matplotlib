@@ -760,7 +760,8 @@ class UnicodeFonts(TruetypeFonts):
         # This must come first so the backend's owner is set correctly
         if rcParams['mathtext.fallback'] == 'stix':
             self.cm_fallback = StixFonts(*args, **kwargs)
-        elif rcParams['mathtext.fallback'] == 'cm' or rcParams['mathtext.fallback_to_cm']:
+        elif (rcParams['mathtext.fallback'] == 'cm' or
+              rcParams['mathtext.fallback_to_cm']):
             self.cm_fallback = BakomaFonts(*args, **kwargs)
         else:
             self.cm_fallback = None
@@ -835,19 +836,16 @@ class UnicodeFonts(TruetypeFonts):
                         "Substituting with a symbol from Computer Modern.",
                         MathTextWarning)
                 elif isinstance(self.cm_fallback, StixFonts):
-                    warnings.warn(
-                        "Substituting with a symbol from STIX.",
-                        MathTextWarning)
+                    warnings.warn("Substituting with a symbol from STIX.",
+                                  MathTextWarning)
+
                 if (fontname in ('it', 'regular') and
                         isinstance(self.cm_fallback, StixFonts)):
-                    return self.cm_fallback._get_glyph(
-                            'rm', font_class, sym, fontsize)
-                else:
-                    return self.cm_fallback._get_glyph(
-                        fontname, font_class, sym, fontsize)
+                    fontname = 'rm'
 
                 return self.cm_fallback._get_glyph(
                     fontname, font_class, sym, fontsize)
+
             else:
                 if (fontname in ('it', 'regular')
                         and isinstance(self, StixFonts)):
