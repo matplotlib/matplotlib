@@ -8,7 +8,6 @@ This example demonstrates how to use
 """
 
 import numpy as np
-import matplotlib
 from matplotlib.patches import Circle, Wedge, Polygon
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt

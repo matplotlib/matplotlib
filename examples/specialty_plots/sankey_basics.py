@@ -5,7 +5,7 @@ The Sankey class
 
 Demonstrate the Sankey class by producing three basic diagrams.
 """
-import numpy as np
+
 import matplotlib.pyplot as plt
 
 from matplotlib.sankey import Sankey

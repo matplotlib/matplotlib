@@ -357,7 +357,6 @@ def drive(backend, directories, python=['python'], switches=[]):
     # Clear the destination directory for the examples
     path = backend
     if os.path.exists(path):
-        import glob
         for fname in os.listdir(path):
             os.unlink(os.path.join(path, fname))
     else:

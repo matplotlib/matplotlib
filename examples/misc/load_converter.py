@@ -7,7 +7,6 @@ Load Converter
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
-import matplotlib.dates as mdates
 from matplotlib.dates import bytespdate2num
 
 datafile = cbook.get_sample_data('msft.csv', asfileobj=False)

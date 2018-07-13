@@ -5,7 +5,6 @@ Figure Title
 
 Create a figure with separate subplot titles and a centered figure title.
 """
-from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
 import numpy as np
 
