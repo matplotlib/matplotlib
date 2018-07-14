@@ -27,7 +27,7 @@ n = len(sorted_names)
 ncols = 4
 nrows = n // ncols
 
-fig, ax = plt.subplots(figsize=(9, 7.5))
+fig, ax = plt.subplots(figsize=(9, 8))
 
 # Get height and width
 X, Y = fig.get_dpi() * fig.get_size_inches()
@@ -43,12 +43,12 @@ for i, name in enumerate(sorted_names):
     xf_line = w * (col + 0.25)
     xi_text = w * (col + 0.3)
 
-    ax.text(xi_text, y, name, fontsize=(h * 0.8),
+    ax.text(xi_text, y, name, fontsize=(h * 0.5),
             horizontalalignment='left',
             verticalalignment='center')
 
     ax.hlines(y + h * 0.1, xi_line, xf_line,
-              color=colors[name], linewidth=(h * 0.8))
+              color=colors[name], linewidth=(h * 0.6))
 
 ax.set_xlim(0, X)
 ax.set_ylim(0, Y)
