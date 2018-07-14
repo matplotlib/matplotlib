@@ -1,0 +1,4 @@
+# Requirement file for binder links
+# This file is currently not used, but needs to be present and found
+# by sphinx-gallery to hook into the binder-link generation mechanism.
+matplotlib>=2.2
