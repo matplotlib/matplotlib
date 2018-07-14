@@ -27,7 +27,7 @@ n = len(sorted_names)
 ncols = 4
 nrows = n // ncols
 
-fig, ax = plt.subplots(figsize=(12, 10))
+fig, ax = plt.subplots(figsize=(9, 7.5))
 
 # Get height and width
 X, Y = fig.get_dpi() * fig.get_size_inches()
