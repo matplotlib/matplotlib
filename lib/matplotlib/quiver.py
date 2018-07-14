@@ -18,7 +18,6 @@ import math
 import weakref
 
 import numpy as np
-import argparse
 from numpy import ma
 import matplotlib.collections as mcollections
 import matplotlib.transforms as transforms
@@ -392,7 +391,7 @@ def _parse_args(*args, **kw):
     (array([0]), array([0]), array([2]), array([2]), array([0, 0, 0]))
     >>> _parse_args(U = 2, V =  2, C = 1)
     (array([0]), array([0]), array([2]), array([2]), array([1]))
-    
+
     """
     X, Y, U, V, C = [None] * 5
     if len(kw) == 0:#No keyword arguments.
