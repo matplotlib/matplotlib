@@ -2354,7 +2354,7 @@ class Axes3D(Axes):
 
         verts = np.vstack([list(zip(*verts)), verts_zs])
 
-        xs, ys, verts_zs = art3d.juggle_axes_vec(verts, zdir)
+        xs, ys, verts_zs = art3d._juggle_axes_vec(verts, zdir)
         self.auto_scale_xyz(xs, ys, verts_zs, had_data)
 
         return patches
