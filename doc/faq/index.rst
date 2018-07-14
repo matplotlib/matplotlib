@@ -15,6 +15,7 @@ The Matplotlib FAQ
    :maxdepth: 2
 
    installing_faq.rst
+   best_practices.rst
    howto_faq.rst
    troubleshooting_faq.rst
    environment_variables_faq.rst

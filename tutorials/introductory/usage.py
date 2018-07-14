@@ -235,8 +235,9 @@ plt.show()
 # complete object-oriented interface will likely make the program easier
 # to write and maintain.
 #
+# .. _custom_plot_function::
 #
-# Typically one finds oneself making the same plots over and over
+# Typically, you will make the same plots over and over
 # again, but with different data sets, which leads to needing to write
 # specialized functions to do the plotting.  The recommended function
 # signature is something like:
