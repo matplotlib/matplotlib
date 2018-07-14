@@ -245,11 +245,8 @@ class Line3DCollection(LineCollection):
             self._segments3d_data[:, 3] = 1
 
             # For coveniency, store a view of the array in the original shape
-            cum_s = 0
-            for s in self._seg_sizes:
-                self._segments3d.append(
-                    self._segments3d_data[cum_s:cum_s + s, :3])
-                cum_s += s
+            self._segments3d = np.split(self._segments3d_data[:, :3],
+                                        np.cumsum(self._seg_sizes))
         else:
             self._seg_sizes = np.array([])
 
@@ -262,11 +259,8 @@ class Line3DCollection(LineCollection):
         if len(self._segments3d) == 0:
             return 1e9
         xys = proj3d.proj_transform_vec(self._segments3d_data.T, renderer.M).T
-        segments_2d = []
-        cum_s = 0
-        for s in self._seg_sizes:
-            segments_2d.append(xys[cum_s:cum_s + s, :2])
-            cum_s += s
+        segments_2d = np.split(xys[:, :2],
+                               np.cumsum(self._seg_sizes))
         LineCollection.set_segments(self, segments_2d)
         minz = np.min(xys[:, 2])
         return minz
