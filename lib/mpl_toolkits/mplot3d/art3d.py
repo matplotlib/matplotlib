@@ -235,7 +235,7 @@ class Line3DCollection(LineCollection):
         """
         self._segments3d = []
         if len(segments) > 0:
-            self._seg_sizes = np.full(len(segments), len(segments[0]))
+            self._seg_sizes = [len(c) for c in segments]
             # Store the points in a single array for easier projection
             n_segments = np.sum(self._seg_sizes)
 
@@ -670,11 +670,11 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif xys[2].size > 0:
+        elif xys[:, 2].size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
-            return np.min(xys[2])
+            return np.min(xys[:, 2])
         else:
             return np.nan
 
