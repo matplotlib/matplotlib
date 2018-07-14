@@ -233,16 +233,16 @@ class Line3DCollection(LineCollection):
         """
         Set 3D segments.
         """
-        self._seg_sizes = [len(c) for c in segments]
         self._segments3d = []
         if len(segments) > 0:
+            self._seg_sizes = np.full(len(segments), len(segments[0]))
             # Store the points in a single array for easier projection
             n_segments = np.sum(self._seg_sizes)
-            # Put all segments in a big array
-            self._segments3d_data = np.vstack(segments)
+
+            self._segments3d_data = np.empty((n_segments, 4))
+            self._segments3d_data[:, :3] = np.vstack(segments)
             # Add a fourth dimension for quaternions
-            self._segments3d_data = np.hstack([self._segments3d_data,
-                                               np.ones((n_segments, 1))])
+            self._segments3d_data[:, 3] = 1
 
             # For coveniency, store a view of the array in the original shape
             cum_s = 0
@@ -250,6 +250,9 @@ class Line3DCollection(LineCollection):
                 self._segments3d.append(
                     self._segments3d_data[cum_s:cum_s + s, :3])
                 cum_s += s
+        else:
+            self._seg_sizes = np.array([])
+
         LineCollection.set_segments(self, [])
 
     def do_3d_projection(self, renderer):
@@ -667,12 +670,12 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif xys[2].size > 0 :
+        elif xys[2].size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
             return np.min(xys[2])
-        else :
+        else:
             return np.nan
 
     def set_facecolor(self, colors):
