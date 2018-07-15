@@ -448,13 +448,10 @@ def validate_font_properties(s):
 
 def validate_mathtext_fallback(s):
     fallback_fonts = ['cm', 'stix']
-    if s is None:
-        return s
+    if s is None or s == 'None':
+        return None
 
-    if isinstance(s, str):
-        s = s.lower()
-
-    if s in fallback_fonts:
+    if s.lower() in fallback_fonts:
         return s
 
     raise ValueError("%s is not a valid fallback font name. Valid fallback "
