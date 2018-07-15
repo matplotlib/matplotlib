@@ -55,9 +55,9 @@ PR Review guidelines
   requests.  If you are the first to review a PR and approve of the
   changes use the github `'approve review'
   <https://help.github.com/articles/reviewing-changes-in-pull-requests/>`__
-  tool to mark it as such.  If you are a subsequent reviewer and you
-  approve, either merge (and backport if needed) or select ``'approve
-  review'`` if you think further review is required.
+  tool to mark it as such.  If you are a subsequent reviewer please
+  approve the review and if you think no more review is needed, merge
+  the PR.
 
   Ensure that all API changes are documented in
   :file:`doc/api/api_changes` and significant new features have and
@@ -86,6 +86,12 @@ PR Review guidelines
   small suggestions, either open a PR against the original branch,
   push changes to the contributor branch, or merge the PR and then
   open a new PR against upstream.
+
+* If you push to a contributor branch leave a comment explaining what
+  you did, ex "I took the liberty of pushing a small clean-up PR to
+  your branch, thanks for your work.".  If you are going to make
+  substantial changes to the code or intent of the PR please check
+  with the contributor first.
 
 
 
