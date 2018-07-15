@@ -3,6 +3,7 @@ import functools
 import itertools
 import logging
 import math
+import operator
 from numbers import Number
 import warnings
 
@@ -4012,6 +4013,150 @@ class Axes(_AxesBase):
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
 
+    def _parse_scatter_color_args(self, c, edgecolors, kwargs, xshape, yshape):
+        """
+        Helper function to process color related arguments of `.Axes.scatter`.
+
+        Argument precedence for facecolors:
+
+        - c (if not None)
+        - kwargs['facecolors']
+        - kwargs['facecolor']
+        - kwargs['color'] (==kwcolor)
+        - 'b' if in classic mode else next color from color cycle
+
+        Argument precedence for edgecolors:
+
+        - edgecolors (is an explicit kw argument in scatter())
+        - kwargs['edgecolor']
+        - kwargs['color'] (==kwcolor)
+        - 'face' if not in classic mode else None
+
+        Arguments
+        ---------
+        c : color or sequence or sequence of color or None
+            See argument description of `.Axes.scatter`.
+        edgecolors : color or sequence of color or {'face', 'none'} or None
+            See argument description of `.Axes.scatter`.
+        kwargs : dict
+            Additional kwargs. If these keys exist, we pop and process them:
+            'facecolors', 'facecolor', 'edgecolor', 'color'
+            Note: The dict is modified by this function.
+        xshape, yshape : tuple of int
+            The shape of the x and y arrays passed to `.Axes.scatter`.
+
+        Returns
+        -------
+        c
+            The input *c* if it was not *None*, else some color specification
+            derived from the other inputs or defaults.
+        colors : array(N, 4) or None
+            The facecolors as RGBA values or *None* if a colormap is used.
+        edgecolors
+            The edgecolor specification.
+
+        """
+        xsize = functools.reduce(operator.mul, xshape, 1)
+        ysize = functools.reduce(operator.mul, yshape, 1)
+
+        facecolors = kwargs.pop('facecolors', None)
+        facecolors = kwargs.pop('facecolor', facecolors)
+        edgecolors = kwargs.pop('edgecolor', edgecolors)
+
+        kwcolor = kwargs.pop('color', None)
+
+        if kwcolor is not None and c is not None:
+            raise ValueError("Supply a 'c' argument or a 'color'"
+                             " kwarg but not both; they differ but"
+                             " their functionalities overlap.")
+
+        if kwcolor is not None:
+            try:
+                mcolors.to_rgba_array(kwcolor)
+            except ValueError:
+                raise ValueError("'color' kwarg must be an mpl color"
+                                 " spec or sequence of color specs.\n"
+                                 "For a sequence of values to be color-mapped,"
+                                 " use the 'c' argument instead.")
+            if edgecolors is None:
+                edgecolors = kwcolor
+            if facecolors is None:
+                facecolors = kwcolor
+
+        if edgecolors is None and not rcParams['_internal.classic_mode']:
+            edgecolors = 'face'
+
+        c_was_none = c is None
+        if c is None:
+            c = (facecolors if facecolors is not None
+                 else "b" if rcParams['_internal.classic_mode']
+                 else self._get_patches_for_fill.get_next_color())
+
+        # After this block, c_array will be None unless
+        # c is an array for mapping.  The potential ambiguity
+        # with a sequence of 3 or 4 numbers is resolved in
+        # favor of mapping, not rgb or rgba.
+        # Convenience vars to track shape mismatch *and* conversion failures.
+        valid_shape = True  # will be put to the test!
+        n_elem = -1  # used only for (some) exceptions
+
+        if (c_was_none or
+                kwcolor is not None or
+                isinstance(c, str) or
+                (isinstance(c, collections.abc.Iterable) and
+                     len(c) > 0 and
+                     isinstance(cbook.safe_first_element(c), str))):
+            c_array = None
+        else:
+            try:  # First, does 'c' look suitable for value-mapping?
+                c_array = np.asanyarray(c, dtype=float)
+                n_elem = c_array.shape[0]
+                if c_array.shape in [xshape, yshape]:
+                    c = np.ma.ravel(c_array)
+                else:
+                    if c_array.shape in ((3,), (4,)):
+                        _log.warning(
+                            "'c' argument looks like a single numeric RGB or "
+                            "RGBA sequence, which should be avoided as value-"
+                            "mapping will have precedence in case its length "
+                            "matches with 'x' & 'y'.  Please use a 2-D array "
+                            "with a single row if you really want to specify "
+                            "the same RGB or RGBA value for all points.")
+                    # Wrong size; it must not be intended for mapping.
+                    valid_shape = False
+                    c_array = None
+            except ValueError:
+                # Failed to make a floating-point array; c must be color specs.
+                c_array = None
+        if c_array is None:
+            try:  # Then is 'c' acceptable as PathCollection facecolors?
+                colors = mcolors.to_rgba_array(c)
+                n_elem = colors.shape[0]
+                if colors.shape[0] not in (0, 1, xsize, ysize):
+                    # NB: remember that a single color is also acceptable.
+                    # Besides *colors* will be an empty array if c == 'none'.
+                    valid_shape = False
+                    raise ValueError
+            except ValueError:
+                if not valid_shape:  # but at least one conversion succeeded.
+                    raise ValueError(
+                        "'c' argument has {nc} elements, which is not "
+                        "acceptable for use with 'x' with size {xs}, "
+                        "'y' with size {ys}."
+                            .format(nc=n_elem, xs=xsize, ys=ysize)
+                    )
+                else:
+                    # Both the mapping *and* the RGBA conversion failed: pretty
+                    # severe failure => one may appreciate a verbose feedback.
+                    raise ValueError(
+                        "'c' argument must be a mpl color, a sequence of mpl "
+                        "colors or a sequence of numbers, not {}."
+                            .format(c)  # note: could be long depending on c
+                    )
+        else:
+            colors = None  # use cmap, norm after collection is created
+        return c, colors, edgecolors
+
     @_preprocess_data(replace_names=["x", "y", "s", "linewidths",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"],
@@ -4125,43 +4270,6 @@ class Axes(_AxesBase):
 
         """
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
-        facecolors = None
-        edgecolors = kwargs.pop('edgecolor', edgecolors)
-        fc = kwargs.pop('facecolors', None)
-        fc = kwargs.pop('facecolor', fc)
-        if fc is not None:
-            facecolors = fc
-        co = kwargs.pop('color', None)
-        if co is not None:
-            try:
-                mcolors.to_rgba_array(co)
-            except ValueError:
-                raise ValueError("'color' kwarg must be an mpl color"
-                                 " spec or sequence of color specs.\n"
-                                 "For a sequence of values to be color-mapped,"
-                                 " use the 'c' argument instead.")
-            if edgecolors is None:
-                edgecolors = co
-            if facecolors is None:
-                facecolors = co
-            if c is not None:
-                raise ValueError("Supply a 'c' argument or a 'color'"
-                                 " kwarg but not both; they differ but"
-                                 " their functionalities overlap.")
-        if c is None:
-            if facecolors is not None:
-                c = facecolors
-            else:
-                if rcParams['_internal.classic_mode']:
-                    c = 'b'  # The original default
-                else:
-                    c = self._get_patches_for_fill.get_next_color()
-            c_none = True
-        else:
-            c_none = False
-
-        if edgecolors is None and not rcParams['_internal.classic_mode']:
-            edgecolors = 'face'
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
@@ -4169,85 +4277,20 @@ class Axes(_AxesBase):
 
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
-        xy_shape = (np.shape(x), np.shape(y))
+        xshape, yshape = np.shape(x), np.shape(y)
         x = np.ma.ravel(x)
         y = np.ma.ravel(y)
         if x.size != y.size:
             raise ValueError("x and y must be the same size")
 
         if s is None:
-            if rcParams['_internal.classic_mode']:
-                s = 20
-            else:
-                s = rcParams['lines.markersize'] ** 2.0
-
+            s = (20 if rcParams['_internal.classic_mode'] else
+                 rcParams['lines.markersize'] ** 2.0)
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        # After this block, c_array will be None unless
-        # c is an array for mapping.  The potential ambiguity
-        # with a sequence of 3 or 4 numbers is resolved in
-        # favor of mapping, not rgb or rgba.
-
-        # Convenience vars to track shape mismatch *and* conversion failures.
-        valid_shape = True  # will be put to the test!
-        n_elem = -1  # used only for (some) exceptions
-
-        if (c_none or
-                co is not None or
-                isinstance(c, str) or
-                (isinstance(c, collections.Iterable) and
-                    len(c) > 0 and
-                    isinstance(cbook.safe_first_element(c), str))):
-            c_array = None
-        else:
-            try:  # First, does 'c' look suitable for value-mapping?
-                c_array = np.asanyarray(c, dtype=float)
-                n_elem = c_array.shape[0]
-                if c_array.shape in xy_shape:
-                    c = np.ma.ravel(c_array)
-                else:
-                    if c_array.shape in ((3,), (4,)):
-                        _log.warning(
-                            "'c' argument looks like a single numeric RGB or "
-                            "RGBA sequence, which should be avoided as value-"
-                            "mapping will have precedence in case its length "
-                            "matches with 'x' & 'y'.  Please use a 2-D array "
-                            "with a single row if you really want to specify "
-                            "the same RGB or RGBA value for all points.")
-                    # Wrong size; it must not be intended for mapping.
-                    valid_shape = False
-                    c_array = None
-            except ValueError:
-                # Failed to make a floating-point array; c must be color specs.
-                c_array = None
-
-        if c_array is None:
-            try:  # Then is 'c' acceptable as PathCollection facecolors?
-                colors = mcolors.to_rgba_array(c)
-                n_elem = colors.shape[0]
-                if colors.shape[0] not in (0, 1, x.size, y.size):
-                    # NB: remember that a single color is also acceptable.
-                    # Besides *colors* will be an empty array if c == 'none'.
-                    valid_shape = False
-                    raise ValueError
-            except ValueError:
-                if not valid_shape:  # but at least one conversion succeeded.
-                    raise ValueError(
-                        "'c' argument has {nc} elements, which is not "
-                        "acceptable for use with 'x' with size {xs}, "
-                        "'y' with size {ys}."
-                        .format(nc=n_elem, xs=x.size, ys=y.size)
-                    )
-                # Both the mapping *and* the RGBA conversion failed: pretty
-                # severe failure => one may appreciate a verbose feedback.
-                raise ValueError(
-                    "'c' argument must either be valid as mpl color(s) "
-                    "or as numbers to be mapped to colors. "
-                    "Here c = {}."  # <- beware, could be long depending on c.
-                    .format(c)
-                )
-        else:
-            colors = None  # use cmap, norm after collection is created
+        c, colors, edgecolors = \
+            self._parse_scatter_color_args(c, edgecolors, kwargs,
+                                           xshape, yshape)
 
         # `delete_masked_points` only modifies arguments of the same length as
         # `x`.
