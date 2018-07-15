@@ -14,7 +14,7 @@ import numpy as np
 from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
-    Collection, LineCollection, PolyCollection, PatchCollection,
+    LineCollection, PolyCollection, PatchCollection,
     PathCollection)
 from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
