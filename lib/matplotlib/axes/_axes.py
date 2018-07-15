@@ -3792,7 +3792,9 @@ class Axes(_AxesBase):
             Note that *c* should not be a single numeric RGB or RGBA sequence
             because that is indistinguishable from an array of values to be
             colormapped. If you want to specify the same RGB or RGBA value for
-            all points, use a 2-D array with a single row.
+            all points, use a 2-D array with a single row.  Otherwise, value-
+            matching will have precedence in case of a size matching with *x*
+            and *y*.
 
         marker : `~matplotlib.markers.MarkerStyle`, optional, default: 'o'
             The marker style. *marker* can be either an instance of the class
@@ -3876,15 +3878,15 @@ class Axes(_AxesBase):
             except ValueError:
                 raise ValueError("'color' kwarg must be an mpl color"
                                  " spec or sequence of color specs.\n"
-                                 "For a sequence of values to be"
-                                 " color-mapped, use the 'c' kwarg instead.")
+                                 "For a sequence of values to be color-mapped,"
+                                 " use the 'c' argument instead.")
             if edgecolors is None:
                 edgecolors = co
             if facecolors is None:
                 facecolors = co
             if c is not None:
-                raise ValueError("Supply a 'c' kwarg or a 'color' kwarg"
-                                 " but not both; they differ but"
+                raise ValueError("Supply a 'c' argument or a 'color'"
+                                 " kwarg but not both; they differ but"
                                  " their functionalities overlap.")
         if c is None:
             if facecolors is not None:
@@ -3925,29 +3927,60 @@ class Axes(_AxesBase):
         # c is an array for mapping.  The potential ambiguity
         # with a sequence of 3 or 4 numbers is resolved in
         # favor of mapping, not rgb or rgba.
+
+        # Convenience vars to track shape mismatch *and* conversion failures.
+        valid_shape = True  # will be put to the test!
+        n_elem = -1  # used only for (some) exceptions
+
         if c_none or co is not None:
             c_array = None
         else:
-            try:
+            try:  # First, does 'c' look suitable for value-mapping?
                 c_array = np.asanyarray(c, dtype=float)
+                n_elem = c_array.shape[0]
                 if c_array.shape in xy_shape:
                     c = np.ma.ravel(c_array)
                 else:
+                    if c_array.shape in ((3,), (4,)):
+                        _log.warning(
+                            "'c' argument looks like a single numeric RGB or "
+                            "RGBA sequence, which should be avoided as value-"
+                            "mapping will have precedence in case its length "
+                            "matches with 'x' & 'y'.  Please use a 2-D array "
+                            "with a single row if you really want to specify "
+                            "the same RGB or RGBA value for all points.")
                     # Wrong size; it must not be intended for mapping.
+                    valid_shape = False
                     c_array = None
             except ValueError:
                 # Failed to make a floating-point array; c must be color specs.
                 c_array = None
 
         if c_array is None:
-            try:
-                # must be acceptable as PathCollection facecolors
+            try:  # Then is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
+                n_elem = colors.shape[0]
+                if colors.shape[0] not in (0, 1, x.size, y.size):
+                    # NB: remember that a single color is also acceptable.
+                    # Besides *colors* will be an empty array if c == 'none'.
+                    valid_shape = False
+                    raise ValueError
             except ValueError:
-                # c not acceptable as PathCollection facecolor
-                raise ValueError("c of shape {} not acceptable as a color "
-                                 "sequence for x with size {}, y with size {}"
-                                 .format(c.shape, x.size, y.size))
+                if not valid_shape:  # but at least one conversion succeeded.
+                    raise ValueError(
+                        "'c' argument has {nc} elements, which is not "
+                        "acceptable for use with 'x' with size {xs}, "
+                        "'y' with size {ys}."
+                        .format(nc=n_elem, xs=x.size, ys=y.size)
+                    )
+                # Both the mapping *and* the RGBA conversion failed: pretty
+                # severe failure => one may appreciate a verbose feedback.
+                raise ValueError(
+                    "'c' argument must either be valid as mpl color(s) "
+                    "or as numbers to be mapped to colors. "
+                    "Here c = {}."  # <- beware, could be long depending on c.
+                    .format(c)
+                )
         else:
             colors = None  # use cmap, norm after collection is created
 
