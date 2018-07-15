@@ -5,7 +5,6 @@ Figure Title
 
 Create a figure with separate subplot titles and a centered figure title.
 """
-from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -20,19 +19,16 @@ t2 = np.arange(0.0, 5.0, 0.02)
 t3 = np.arange(0.0, 2.0, 0.01)
 
 
-plt.subplot(121)
-plt.plot(t1, f(t1), 'o', t2, f(t2), '-')
-plt.title('subplot 1')
-plt.ylabel('Damped oscillation')
-plt.suptitle('This is a somewhat long figure title', fontsize=16)
+fig, axs = plt.subplots(2, 1, constrained_layout=True)
+axs[0].plot(t1, f(t1), 'o', t2, f(t2), '-')
+axs[0].set_title('subplot 1')
+axs[0].set_xlabel('distance (m)')
+axs[0].set_ylabel('Damped oscillation')
+fig.suptitle('This is a somewhat long figure title', fontsize=16)
 
-
-plt.subplot(122)
-plt.plot(t3, np.cos(2*np.pi*t3), '--')
-plt.xlabel('time (s)')
-plt.title('subplot 2')
-plt.ylabel('Undamped')
-
-plt.subplots_adjust(left=0.2, wspace=0.8, top=0.8)
+axs[1].plot(t3, np.cos(2*np.pi*t3), '--')
+axs[1].set_xlabel('time (s)')
+axs[1].set_title('subplot 2')
+axs[1].set_ylabel('Undamped')
 
 plt.show()

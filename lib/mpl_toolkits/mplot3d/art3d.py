@@ -517,7 +517,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     Parameters
     ----------
     za
-        The location or locations to place the patches in the  collection along
+        The location or locations to place the patches in the collection along
         the *zdir* axis. Default: 0.
     zdir
         The axis in which to place the patches. Default: "z".

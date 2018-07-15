@@ -76,9 +76,8 @@ class TriInterpolator(object):
         Returns
         -------
         z : np.ma.array
-            Masked array of the same shape as *x* and *y* ; values
-            corresponding to (*x*, *y*) points outside of the triangulation
-            are masked out.
+            Masked array of the same shape as *x* and *y*; values corresponding
+            to (*x*, *y*) points outside of the triangulation are masked out.
 
         """
 
@@ -95,7 +94,7 @@ class TriInterpolator(object):
         Returns
         -------
         dzdx, dzdy : np.ma.array
-            2  masked arrays of the same shape as *x* and *y* ; values
+            2 masked arrays of the same shape as *x* and *y*; values
             corresponding to (x,y) points outside of the triangulation
             are masked out.
             The first returned array contains the values of
@@ -466,7 +465,7 @@ class CubicTriInterpolator(TriInterpolator):
             Choice of the _DOF_estimator subclass to perform the gradient
             estimation.
         dz: tuple of array_likes (dzdx, dzdy), optional
-            Used only if *kind=user ; in this case passed to the
+            Used only if *kind*=user; in this case passed to the
             :class:`_DOF_estimator_user`.
 
         Returns
@@ -486,7 +485,7 @@ class CubicTriInterpolator(TriInterpolator):
         elif kind == 'min_E':
             TE = _DOF_estimator_min_E(self)
         else:
-            raise ValueError("CubicTriInterpolator *kind* proposed: {0} ; "
+            raise ValueError("CubicTriInterpolator *kind* proposed: {0}; "
                              "should be one of: "
                              "'user', 'geom', 'min_E'".format(kind))
         return TE.compute_dof_from_df()
@@ -919,7 +918,7 @@ class _ReducedHCT_Element():
         to global coordinates.
         if *return_area* is True, returns also the triangle area (0.5*det(J))
         """
-        # Here we try to deal with the simplest colinear cases ; a null
+        # Here we try to deal with the simplest colinear cases; a null
         # energy and area is imposed.
         J_inv = _safe_inv22_vectorized(J)
         Ji00 = J_inv[:, 0, 0]
@@ -1138,9 +1137,9 @@ class _DOF_estimator_geom(_DOF_estimator):
             # In the below formula we could take modulo 2. but
             # modulo 1. is safer regarding round-off errors (flat triangles).
             angle = np.abs(np.mod((alpha2-alpha1) / np.pi, 1.))
-            # Weight proportional to angle up np.pi/2 ; null weight for
-            # degenerated cases 0. and np.pi (Note that `angle` is normalized
-            # by np.pi)
+            # Weight proportional to angle up np.pi/2; null weight for
+            # degenerated cases 0 and np.pi (note that `angle` is normalized
+            # by np.pi).
             weights[:, ipt] = 0.5 - np.abs(angle-0.5)
         return weights
 
@@ -1201,9 +1200,9 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
             J, eccs, triangles, Uc)
 
         # Building sparse matrix and solving minimization problem
-        # We could use scipy.sparse direct solver ; however to avoid this
+        # We could use scipy.sparse direct solver; however to avoid this
         # external dependency an implementation of a simple PCG solver with
-        # a simplendiagonal Jocabi preconditioner is implemented.
+        # a simple diagonal Jacobi preconditioner is implemented.
         tol = 1.e-10
         n_dof = Ff.shape[0]
         Kff_coo = _Sparse_Matrix_coo(Kff_vals, Kff_rows, Kff_cols,
@@ -1435,7 +1434,7 @@ def _safe_inv22_vectorized(M):
     prod1 = M[:, 0, 0]*M[:, 1, 1]
     delta = prod1 - M[:, 0, 1]*M[:, 1, 0]
 
-    # We set delta_inv to 0. in case of a rank deficient matrix ; a
+    # We set delta_inv to 0. in case of a rank deficient matrix; a
     # rank-deficient input matrix *M* will lead to a null matrix in output
     rank2 = (np.abs(delta) > 1e-8*np.abs(prod1))
     if np.all(rank2):
@@ -1455,7 +1454,7 @@ def _safe_inv22_vectorized(M):
 
 def _pseudo_inv22sym_vectorized(M):
     """
-    Inversion of arrays of (2,2) SYMMETRIC matrices ; returns the
+    Inversion of arrays of (2,2) SYMMETRIC matrices; returns the
     (Moore-Penrose) pseudo-inverse for rank-deficient matrices.
 
     In case M is of rank 1, we have M = trace(M) x P where P is the orthogonal

@@ -4,7 +4,7 @@ import io
 
 import datetime
 
-import pytz
+import dateutil.tz as dutz
 
 import numpy as np
 from numpy import ma
@@ -821,9 +821,7 @@ def test_axhspan_epoch():
                   remove_text=True, extensions=['png'])
 def test_hexbin_extent():
     # this test exposes sf bug 2856228
-    fig = plt.figure()
-
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     data = (np.arange(2000) / 2000).reshape((2, 1000))
     x, y = data
 
@@ -832,8 +830,7 @@ def test_hexbin_extent():
     # Reuse testcase from above for a labeled data test
     data = {"x": x, "y": y}
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.hexbin("x", "y", extent=[.1, .3, .6, .7], data=data)
 
 
@@ -852,9 +849,7 @@ def test_hexbin_pickable():
             self.x = x
             self.y = y
 
-    fig = plt.figure()
-
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     data = (np.arange(200) / 200).reshape((2, 100))
     x, y = data
     hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=-1)
@@ -863,27 +858,25 @@ def test_hexbin_pickable():
 
 
 @image_comparison(baseline_images=['hexbin_log'],
-                  remove_text=True,
-                  extensions=['png'])
+                  extensions=['png'], style='mpl20')
 def test_hexbin_log():
-    # Issue #1636
-    fig = plt.figure()
-
-    np.random.seed(0)
+    # Issue #1636 (and also test log scaled colorbar)
+    np.random.seed(19680801)
     n = 100000
     x = np.random.standard_normal(n)
     y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
     y = np.power(2, y * 0.5)
-    ax = fig.add_subplot(111)
-    ax.hexbin(x, y, yscale='log')
+
+    fig, ax = plt.subplots()
+    h = ax.hexbin(x, y, yscale='log', bins='log')
+    plt.colorbar(h)
 
 
 def test_inverted_limits():
     # Test gh:1553
     # Calling invert_xaxis prior to plotting should not disable autoscaling
     # while still maintaining the inverted direction
-    fig = plt.figure()
-    ax = fig.gca()
+    fig, ax = plt.subplots()
     ax.invert_xaxis()
     ax.plot([-5, -3, 2, 4], [1, 2, -3, 5])
 
@@ -891,8 +884,7 @@ def test_inverted_limits():
     assert ax.get_ylim() == (-3, 5)
     plt.close()
 
-    fig = plt.figure()
-    ax = fig.gca()
+    fig, ax = plt.subplots()
     ax.invert_yaxis()
     ax.plot([-5, -3, 2, 4], [1, 2, -3, 5])
 
@@ -908,8 +900,7 @@ def test_nonfinite_limits():
     with np.errstate(divide='ignore'):
         y = np.log(x)
     x[len(x)//2] = np.nan
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.plot(x, y)
 
 
@@ -924,9 +915,7 @@ def test_imshow():
     r = np.sqrt(x**2+y**2-x*y)
 
     # Create a contour plot at N/4 and extract both the clip path and transform
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
+    fig, ax = plt.subplots()
     ax.imshow(r)
 
     # Reuse testcase from above for a labeled data test
@@ -948,8 +937,7 @@ def test_imshow_clip():
     r = np.sqrt(x**2+y**2-x*y)
 
     # Create a contour plot at N/4 and extract both the clip path and transform
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     c = ax.contour(r, [N/4])
     x = c.collections[0]
@@ -970,8 +958,7 @@ def test_polycollection_joinstyle():
 
     from matplotlib import collections as mcoll
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     verts = np.array([[1, 1], [1, 2], [2, 2], [2, 1]])
     c = mcoll.PolyCollection([verts], linewidths=40)
     ax.add_collection(c)
@@ -991,8 +978,7 @@ def test_polycollection_joinstyle():
     ]
 )
 def test_fill_between_input(x, y1, y2):
-    fig = plt.figure()
-    ax = fig.add_subplot(211)
+    fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.fill_between(x, y1, y2)
 
@@ -1009,8 +995,7 @@ def test_fill_between_input(x, y1, y2):
     ]
 )
 def test_fill_betweenx_input(y, x1, x2):
-    fig = plt.figure()
-    ax = fig.add_subplot(211)
+    fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.fill_betweenx(y, x1, x2)
 
@@ -1022,23 +1007,21 @@ def test_fill_between_interpolate():
     y1 = np.sin(2*np.pi*x)
     y2 = 1.2*np.sin(4*np.pi*x)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(211)
-    ax.plot(x, y1, x, y2, color='black')
-    ax.fill_between(x, y1, y2, where=y2 >= y1, facecolor='white', hatch='/',
-                    interpolate=True)
-    ax.fill_between(x, y1, y2, where=y2 <= y1, facecolor='red',
-                    interpolate=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+    ax1.plot(x, y1, x, y2, color='black')
+    ax1.fill_between(x, y1, y2, where=y2 >= y1, facecolor='white', hatch='/',
+                     interpolate=True)
+    ax1.fill_between(x, y1, y2, where=y2 <= y1, facecolor='red',
+                     interpolate=True)
 
     # Test support for masked arrays.
     y2 = np.ma.masked_greater(y2, 1.0)
     # Test that plotting works for masked arrays with the first element masked
     y2[0] = np.ma.masked
-    ax1 = fig.add_subplot(212, sharex=ax)
-    ax1.plot(x, y1, x, y2, color='black')
-    ax1.fill_between(x, y1, y2, where=y2 >= y1, facecolor='green',
+    ax2.plot(x, y1, x, y2, color='black')
+    ax2.fill_between(x, y1, y2, where=y2 >= y1, facecolor='green',
                      interpolate=True)
-    ax1.fill_between(x, y1, y2, where=y2 <= y1, facecolor='red',
+    ax2.fill_between(x, y1, y2, where=y2 <= y1, facecolor='red',
                      interpolate=True)
 
 
@@ -1049,8 +1032,7 @@ def test_fill_between_interpolate_decreasing():
     t = np.array([9.4, 7, 2.2])
     prof = np.array([7.9, 6.6, 3.8])
 
-    fig = plt.figure(figsize=(9, 9))
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots(figsize=(9, 9))
 
     ax.plot(t, p, 'tab:red')
     ax.plot(prof, p, 'k')
@@ -1069,8 +1051,7 @@ def test_symlog():
     x = np.array([0, 1, 2, 4, 6, 9, 12, 24])
     y = np.array([1000000, 500000, 100000, 100, 5, 0, 0, 0])
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.plot(x, y)
     ax.set_yscale('symlog')
     ax.set_xscale('linear')
@@ -1083,37 +1064,12 @@ def test_symlog2():
     # Numbers from -50 to 50, with 0.1 as step
     x = np.arange(-50, 50, 0.001)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(511)
-    # Plots a simple linear function 'f(x) = x'
-    ax.plot(x, x)
-    ax.set_xscale('symlog', linthreshx=20.0)
-    ax.grid(True)
-
-    ax = fig.add_subplot(512)
-    # Plots a simple linear function 'f(x) = x'
-    ax.plot(x, x)
-    ax.set_xscale('symlog', linthreshx=2.0)
-    ax.grid(True)
-
-    ax = fig.add_subplot(513)
-    # Plots a simple linear function 'f(x) = x'
-    ax.plot(x, x)
-    ax.set_xscale('symlog', linthreshx=1.0)
-    ax.grid(True)
-
-    ax = fig.add_subplot(514)
-    # Plots a simple linear function 'f(x) = x'
-    ax.plot(x, x)
-    ax.set_xscale('symlog', linthreshx=0.1)
-    ax.grid(True)
-
-    ax = fig.add_subplot(515)
-    # Plots a simple linear function 'f(x) = x'
-    ax.plot(x, x)
-    ax.set_xscale('symlog', linthreshx=0.01)
-    ax.grid(True)
-    ax.set_ylim(-0.1, 0.1)
+    fig, axs = plt.subplots(5, 1)
+    for ax, linthreshx in zip(axs, [20., 2., 1., 0.1, 0.01]):
+        ax.plot(x, x)
+        ax.set_xscale('symlog', linthreshx=linthreshx)
+        ax.grid(True)
+    axs[-1].set_ylim(-0.1, 0.1)
 
 
 def test_pcolorargs_5205():
@@ -1145,15 +1101,10 @@ def test_pcolormesh():
     # The color array can include masked values:
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(131)
-    ax.pcolormesh(Qx, Qz, Z, lw=0.5, edgecolors='k')
-
-    ax = fig.add_subplot(132)
-    ax.pcolormesh(Qx, Qz, Z, lw=2, edgecolors=['b', 'w'])
-
-    ax = fig.add_subplot(133)
-    ax.pcolormesh(Qx, Qz, Z, shading="gouraud")
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    ax1.pcolormesh(Qx, Qz, Z, lw=0.5, edgecolors='k')
+    ax2.pcolormesh(Qx, Qz, Z, lw=2, edgecolors=['b', 'w'])
+    ax3.pcolormesh(Qx, Qz, Z, shading="gouraud")
 
 
 @image_comparison(baseline_images=['pcolormesh_datetime_axis'],
@@ -1505,6 +1456,22 @@ def test_bar_tick_label_multiple_old_alignment():
            align='center')
 
 
+def test_bar_color_none_alpha():
+    ax = plt.gca()
+    rects = ax.bar([1, 2], [2, 4], alpha=0.3, color='none', edgecolor='r')
+    for rect in rects:
+        assert rect.get_facecolor() == (0, 0, 0, 0)
+        assert rect.get_edgecolor() == (1, 0, 0, 0.3)
+
+
+def test_bar_edgecolor_none_alpha():
+    ax = plt.gca()
+    rects = ax.bar([1, 2], [2, 4], alpha=0.3, color='r', edgecolor='none')
+    for rect in rects:
+        assert rect.get_facecolor() == (1, 0, 0, 0.3)
+        assert rect.get_edgecolor() == (0, 0, 0, 0)
+
+
 @image_comparison(baseline_images=['barh_tick_label'],
                   extensions=['png'])
 def test_barh_tick_label():
@@ -1642,18 +1609,20 @@ def contour_dat():
     return x, y, z
 
 
-@image_comparison(baseline_images=['contour_hatching'])
+@image_comparison(baseline_images=['contour_hatching'],
+                  remove_text=True, style='mpl20')
 def test_contour_hatching():
     x, y, z = contour_dat()
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    cs = ax.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
+    cs = ax.contourf(x, y, z, 7, hatches=['/', '\\', '//', '-'],
                      cmap=plt.get_cmap('gray'),
                      extend='both', alpha=0.5)
 
 
-@image_comparison(baseline_images=['contour_colorbar'])
+@image_comparison(baseline_images=['contour_colorbar'],
+                  style='mpl20')
 def test_contour_colorbar():
     x, y, z = contour_dat()
 
@@ -5380,8 +5349,9 @@ def test_bar_uint8():
 @image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
 def test_date_timezone_x():
     # Tests issue 5575
-    time_index = [pytz.timezone('Canada/Eastern').localize(datetime.datetime(
-        year=2016, month=2, day=22, hour=x)) for x in range(3)]
+    time_index = [datetime.datetime(2016, 2, 22, hour=x,
+                                    tzinfo=dutz.gettz('Canada/Eastern'))
+                  for x in range(3)]
 
     # Same Timezone
     fig = plt.figure(figsize=(20, 12))
@@ -5397,8 +5367,9 @@ def test_date_timezone_x():
                   extensions=['png'])
 def test_date_timezone_y():
     # Tests issue 5575
-    time_index = [pytz.timezone('Canada/Eastern').localize(datetime.datetime(
-        year=2016, month=2, day=22, hour=x)) for x in range(3)]
+    time_index = [datetime.datetime(2016, 2, 22, hour=x,
+                                    tzinfo=dutz.gettz('Canada/Eastern'))
+                  for x in range(3)]
 
     # Same Timezone
     fig = plt.figure(figsize=(20, 12))
@@ -5415,8 +5386,9 @@ def test_date_timezone_y():
                   extensions=['png'])
 def test_date_timezone_x_and_y():
     # Tests issue 5575
-    time_index = [pytz.timezone('UTC').localize(datetime.datetime(
-        year=2016, month=2, day=22, hour=x)) for x in range(3)]
+    UTC = datetime.timezone.utc
+    time_index = [datetime.datetime(2016, 2, 22, hour=x, tzinfo=UTC)
+                  for x in range(3)]
 
     # Same Timezone
     fig = plt.figure(figsize=(20, 12))

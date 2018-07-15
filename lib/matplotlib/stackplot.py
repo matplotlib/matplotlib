@@ -15,7 +15,7 @@ def stackplot(axes, x, *args,
               labels=(), colors=None, baseline='zero',
               **kwargs):
     """
-    Draws a stacked area plot.
+    Draw a stacked area plot.
 
     Parameters
     ----------

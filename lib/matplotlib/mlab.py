@@ -117,7 +117,7 @@ A collection of helper methods for numpyrecord arrays
     Import record array from CSV file with type inspection
 
 :func:`rec_append_fields`
-    Adds  field(s)/array(s) to record array
+    Adds field(s)/array(s) to record array
 
 :func:`rec_drop_fields`
     Drop fields from record array
@@ -3876,8 +3876,7 @@ def cross_from_below(x, threshold):
         t = np.arange(0.0, 2.0, 0.1)
         s = np.sin(2*np.pi*t)
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        fig, ax = plt.subplots()
         ax.plot(t, s, '-o')
         ax.axhline(0.5)
         ax.axhline(-0.5)

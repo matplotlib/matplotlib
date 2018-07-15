@@ -5,7 +5,6 @@ Fig X
 
 Add lines to a figure (without axes).
 """
-import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as lines
 

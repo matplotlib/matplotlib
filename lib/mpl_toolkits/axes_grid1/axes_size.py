@@ -53,7 +53,7 @@ class AddList(_Base):
 
 
 class Fixed(_Base):
-    "Simple fixed size  with absolute part = *fixed_size* and relative part = 0"
+    "Simple fixed size with absolute part = *fixed_size* and relative part = 0"
     def __init__(self, fixed_size):
         self.fixed_size = fixed_size
 
@@ -290,17 +290,17 @@ class SizeFromFunc(_Base):
 
 
 class GetExtentHelper(object):
-    def _get_left(tight_bbox, axes_bbox):
-        return axes_bbox.xmin - tight_bbox.xmin
+    def _get_left(self, axes_bbox):
+        return axes_bbox.xmin - self.xmin
 
-    def _get_right(tight_bbox, axes_bbox):
-        return tight_bbox.xmax - axes_bbox.xmax
+    def _get_right(self, axes_bbox):
+        return self.xmax - axes_bbox.xmax
 
-    def _get_bottom(tight_bbox, axes_bbox):
-        return axes_bbox.ymin - tight_bbox.ymin
+    def _get_bottom(self, axes_bbox):
+        return axes_bbox.ymin - self.ymin
 
-    def _get_top(tight_bbox, axes_bbox):
-        return tight_bbox.ymax - axes_bbox.ymax
+    def _get_top(self, axes_bbox):
+        return self.ymax - axes_bbox.ymax
 
     _get_func_map = dict(left=_get_left,
                          right=_get_right,

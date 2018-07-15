@@ -341,7 +341,7 @@ def setp(obj, *args, **kwargs):
 
 def xkcd(scale=1, length=100, randomness=2):
     """
-    Turns on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
+    Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
     This will only have effect on things drawn after this function is
     called.
 
@@ -410,7 +410,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
            **kwargs
            ):
     """
-    Creates a new figure.
+    Create a new figure.
 
     Parameters
     ----------
@@ -575,6 +575,7 @@ def gcf():
 
 
 def fignum_exists(num):
+    """Return whether the figure with the given id exists."""
     return _pylab_helpers.Gcf.has_fignum(num) or num in get_figlabels()
 
 
@@ -591,6 +592,11 @@ def get_figlabels():
 
 
 def get_current_fig_manager():
+    """
+    Return the figure manager of the active figure.
+
+    If there is currently no active figure, a new one is created.
+    """
     figManager = _pylab_helpers.Gcf.get_active()
     if figManager is None:
         gcf()  # creates an active figure as a side effect
@@ -2286,9 +2292,9 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     if plotfuncs is None:
         plotfuncs = dict()
-    from matplotlib.cbook import mplDeprecation
+    from matplotlib.cbook import MatplotlibDeprecationWarning
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore', mplDeprecation)
+        warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
         r = mlab.csv2rec(fname, comments=comments, skiprows=skiprows,
                          checkrows=checkrows, delimiter=delimiter, names=names)
 

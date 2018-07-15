@@ -1372,8 +1372,7 @@ class VertexSelector(object):
                 self.markers.set_data(xs, ys)
                 self.canvas.draw()
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        fig, ax = plt.subplots()
         x, y = np.random.rand(2, 30)
         line, = ax.plot(x, y, 'bs-', picker=5)
 

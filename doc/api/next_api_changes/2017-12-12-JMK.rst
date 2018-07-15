@@ -1,7 +1,0 @@
-`.Axes.hist2d` now uses `~.Axes.pcolormesh` instead of `~.Axes.pcolorfast`
---------------------------------------------------------------------------
-
-`.Axes.hist2d` now uses `~.Axes.pcolormesh` instead of `~.Axes.pcolorfast`,
-which will improve the handling of log-axes.  Note that the
-returned *image* now is of type `~.matplotlib.collections.QuadMesh`
-instead of `~.matplotlib.image.AxesImage`.

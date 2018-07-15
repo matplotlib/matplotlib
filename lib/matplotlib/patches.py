@@ -175,6 +175,9 @@ class Patch(artist.Artist):
         self._us_dashes = other._us_dashes
         self.set_linewidth(other._linewidth)  # also sets dash properties
         self.set_transform(other.get_data_transform())
+        # If the transform of other needs further initialization, then it will
+        # be the case for this artist too.
+        self._transformSet = other.is_transform_set()
 
     def get_extents(self):
         """
@@ -584,14 +587,9 @@ class Shadow(Patch):
         if self.props is not None:
             self.update(self.props)
         else:
-            r, g, b, a = colors.to_rgba(self.patch.get_facecolor())
-            rho = 0.3
-            r = rho * r
-            g = rho * g
-            b = rho * b
-
-            self.set_facecolor((r, g, b, 0.5))
-            self.set_edgecolor((r, g, b, 0.5))
+            color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
+            self.set_facecolor(color)
+            self.set_edgecolor(color)
             self.set_alpha(0.5)
 
     def _update_transform(self, renderer):
@@ -672,7 +670,7 @@ class Rectangle(Patch):
 
     def get_path(self):
         """
-        Return the vertices of the rectangle
+        Return the vertices of the rectangle.
         """
         return Path.unit_rectangle()
 
@@ -696,9 +694,9 @@ class Rectangle(Patch):
         self._y1 = self._y0 + self._height
 
     def _convert_units(self):
-        '''
-        Convert bounds of the rectangle
-        '''
+        """
+        Convert bounds of the rectangle.
+        """
         x0 = self.convert_xunits(self._x0)
         y0 = self.convert_yunits(self._y0)
         x1 = self.convert_xunits(self._x1)
@@ -710,33 +708,33 @@ class Rectangle(Patch):
         return self._rect_transform
 
     def get_x(self):
-        "Return the left coord of the rectangle"
+        "Return the left coord of the rectangle."
         return self._x0
 
     def get_y(self):
-        "Return the bottom coord of the rectangle"
+        "Return the bottom coord of the rectangle."
         return self._y0
 
     def get_xy(self):
-        "Return the left and bottom coords of the rectangle"
+        "Return the left and bottom coords of the rectangle."
         return self._x0, self._y0
 
     def get_width(self):
-        "Return the width of the rectangle"
+        "Return the width of the rectangle."
         return self._width
 
     def get_height(self):
-        "Return the height of the rectangle"
+        "Return the height of the rectangle."
         return self._height
 
     def set_x(self, x):
-        "Set the left coord of the rectangle"
+        "Set the left coord of the rectangle."
         self._x0 = x
         self._update_x1()
         self.stale = True
 
     def set_y(self, y):
-        "Set the bottom coord of the rectangle"
+        "Set the bottom coord of the rectangle."
         self._y0 = y
         self._update_y1()
         self.stale = True
@@ -755,13 +753,13 @@ class Rectangle(Patch):
         self.stale = True
 
     def set_width(self, w):
-        "Set the width of the rectangle"
+        "Set the width of the rectangle."
         self._width = w
         self._update_x1()
         self.stale = True
 
     def set_height(self, h):
-        "Set the height of the rectangle"
+        "Set the height of the rectangle."
         self._height = h
         self._update_y1()
         self.stale = True
@@ -1858,7 +1856,7 @@ class _Style(object):
     where actual styles are declared as subclass of it, and it
     provides some helper functions.
     """
-    def __new__(self, stylename, **kw):
+    def __new__(cls, stylename, **kw):
         """
         return the instance of the subclass with the given style name.
         """
@@ -1869,7 +1867,7 @@ class _Style(object):
         _list = stylename.replace(" ", "").split(",")
         _name = _list[0].lower()
         try:
-            _cls = self._style_list[_name]
+            _cls = cls._style_list[_name]
         except KeyError:
             raise ValueError("Unknown style : %s" % stylename)
 
@@ -1883,29 +1881,29 @@ class _Style(object):
         return _cls(**_args)
 
     @classmethod
-    def get_styles(klass):
+    def get_styles(cls):
         """
         A class method which returns a dictionary of available styles.
         """
-        return klass._style_list
+        return cls._style_list
 
     @classmethod
-    def pprint_styles(klass):
+    def pprint_styles(cls):
         """
         A class method which returns a string of the available styles.
         """
-        return _pprint_styles(klass._style_list)
+        return _pprint_styles(cls._style_list)
 
     @classmethod
-    def register(klass, name, style):
+    def register(cls, name, style):
         """
         Register a new style.
         """
 
-        if not issubclass(style, klass._Base):
+        if not issubclass(style, cls._Base):
             raise ValueError("%s must be a subclass of %s" % (style,
-                                                              klass._Base))
-        klass._style_list[name] = style
+                                                              cls._Base))
+        cls._style_list[name] = style
 
 
 def _register_style(style_list, cls=None, *, name=None):
@@ -2562,7 +2560,7 @@ class FancyBboxPatch(Patch):
         return self._y
 
     def get_width(self):
-        "Return the width of the  rectangle"
+        "Return the width of the rectangle"
         return self._width
 
     def get_height(self):

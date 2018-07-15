@@ -1,4 +1,4 @@
-"""
+r"""
 ==============================
 Overview of axes_grid1 toolkit
 ==============================
@@ -127,10 +127,10 @@ ImageGrid takes following arguments,
   data limits (similar to aspect parameter in mpl).
 
  *share_all*
-  if True, xaxis  and yaxis of all axes are shared.
+  if True, xaxis and yaxis of all axes are shared.
 
  *direction*
-  direction of increasing axes number.   For "row",
+  direction of increasing axes number.  For "row",
 
    +---------+---------+
    | grid[0] | grid[1] |

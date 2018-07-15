@@ -177,9 +177,9 @@ class Dvi(object):
     file upon exit. Pages can be read via iteration. Here is an overly
     simple way to extract text without trying to detect whitespace::
 
-    >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
-    >>>     for page in dvi:
-    >>>         print(''.join(chr(t.glyph) for t in page.text))
+        >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
+        ...     for page in dvi:
+        ...         print(''.join(chr(t.glyph) for t in page.text))
     """
     # dispatch table
     _dtable = [None] * 256

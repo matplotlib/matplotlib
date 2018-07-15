@@ -1714,10 +1714,10 @@ class SpanSelector(_SelectorWidget):
     >>> fig, ax = plt.subplots()
     >>> ax.plot([1, 2, 3], [10, 50, 100])
     >>> def onselect(vmin, vmax):
-            print(vmin, vmax)
+    ...     print(vmin, vmax)
     >>> rectprops = dict(facecolor='blue', alpha=0.5)
     >>> span = mwidgets.SpanSelector(ax, onselect, 'horizontal',
-                                     rectprops=rectprops)
+    ...                              rectprops=rectprops)
     >>> fig.show()
 
     See also: :doc:`/gallery/widgets/span_selector`

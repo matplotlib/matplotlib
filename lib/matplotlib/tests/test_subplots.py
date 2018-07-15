@@ -143,3 +143,18 @@ def test_subplots_offsettext():
     axes[1, 0].plot(x, x)
     axes[0, 1].plot(y, x)
     axes[1, 1].plot(y, x)
+
+
+def test_get_gridspec():
+    # ahem, pretty trivial, but...
+    fig, ax = plt.subplots()
+    assert ax.get_subplotspec().get_gridspec() == ax.get_gridspec()
+
+
+def test_dont_mutate_kwargs():
+    subplot_kw = {'sharex': 'all'}
+    gridspec_kw = {'width_ratios': [1, 2]}
+    fig, ax = plt.subplots(1, 2, subplot_kw=subplot_kw,
+                           gridspec_kw=gridspec_kw)
+    assert subplot_kw == {'sharex': 'all'}
+    assert gridspec_kw == {'width_ratios': [1, 2]}

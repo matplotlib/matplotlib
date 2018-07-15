@@ -92,8 +92,7 @@ import matplotlib.patches as mpatches
 x = np.arange(0, 10, 0.005)
 y = np.exp(-x/2.) * np.sin(2*np.pi*x)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.set_xlim(0, 10)
 ax.set_ylim(-1, 1)
@@ -141,8 +140,7 @@ plt.show()
 x = np.arange(0, 10, 0.005)
 y = np.exp(-x/2.) * np.sin(2*np.pi*x)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.set_xlim(0, 10)
 ax.set_ylim(-1, 1)
@@ -244,8 +242,7 @@ plt.show()
 # move, but the circle will remain fixed because it is not in `data`
 # coordinates and will always remain at the center of the axes.
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 x, y = 10*np.random.rand(2, 1000)
 ax.plot(x, y, 'go', alpha=0.2)  # plot some data in data coordinates
 
@@ -278,9 +275,7 @@ plt.show()
 
 import matplotlib.transforms as transforms
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-
+fig, ax = plt.subplots()
 x = np.random.randn(1000)
 
 ax.hist(x, 30)
