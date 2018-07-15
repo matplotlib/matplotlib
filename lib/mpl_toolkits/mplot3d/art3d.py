@@ -414,20 +414,21 @@ class Patch3DCollection(PatchCollection):
         # pad ones
         s = np.vstack(self._offsets3d, np.ones(self._offsets3d.shape[1]))
         vxyzis = proj3d.proj_transform_vec_clip(s, renderer.M)
+        vzs = vxyzis[2]
 
-        fcs = (zalpha(self._facecolor3d, vxyzis[2]) if self._depthshade else
+        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vxyzis[2]) if self._depthshade else
+        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
         PatchCollection.set_offsets(self, vxyzis[0:2].T)
 
-        if len(vxyzis) > 0:
-            return min(vxyzis[2])
+        if vzs.size > 0:
+            return min(vzs)
         else:
             return np.nan
 
