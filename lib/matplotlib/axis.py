@@ -4,6 +4,8 @@ Classes for the ticks and x and y axis
 
 import datetime
 import logging
+import numbers
+import warnings
 
 import numpy as np
 
@@ -1477,9 +1479,14 @@ class Axis(martist.Artist):
         return self.converter is not None or self.units is not None
 
     def convert_units(self, x):
-        # If x is already a number, doesn't need converting
+        # If x is already a number, doesn't need converting, but
+        # some iterables need to be massaged a bit...
         if munits.ConversionInterface.is_numlike(x):
-            return x
+            if isinstance(x, list) or isinstance(x, numbers.Number):
+                return x
+            if issubclass(type(x), np.ma.MaskedArray):
+                return np.ma.asarray(x)
+            return np.asarray(x)
 
         if self.converter is None:
             self.converter = munits.registry.get_converter(x)

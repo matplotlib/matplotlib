@@ -3901,10 +3901,10 @@ class Axes(_AxesBase):
         N = len(bxpstats)
         datashape_message = ("List of boxplot statistics and `{0}` "
                              "values must have same the length")
-        # check position
         if positions is None:
             positions = list(range(1, N + 1))
-        elif len(positions) != N:
+        positions = self.convert_xunits(positions)
+        if len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
 
         # width
@@ -6048,7 +6048,7 @@ class Axes(_AxesBase):
 
         # convert to one dimensional arrays
         C = C.ravel()
-        coords = np.column_stack((X, Y)).astype(float, copy=False)
+        coords = np.column_stack((X, Y)).astype(float)
         collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
                                     antialiased=antialiased, shading=shading,
                                     **kwargs)
