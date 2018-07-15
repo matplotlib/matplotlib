@@ -14,7 +14,7 @@ import numpy as np
 from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
-    LineCollection, PolyCollection, PatchCollection,
+    Collection, LineCollection, PolyCollection, PatchCollection,
     PathCollection)
 from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
@@ -70,6 +70,26 @@ def get_dir_vector(zdir):
         return zdir
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
+
+
+def _array_split(arr, indices_or_sections, remove_empty=False):
+    """Fix numpy.split to preserve the dimension of empty subarrays.
+    """
+
+    arr_chunks = np.split(arr, indices_or_sections)
+
+    if arr_chunks[-1].size == 0:
+
+        if not remove_empty:
+            # Preserve the 2D dimensionality the last chunk that can be empty
+            # (numpy <=1.10 replaces empty chunks by a 1D empty array)
+            # TODO: The following can be removed when
+            #       support for numpy <=1.10 is dropped.
+            arr_chunks[-1] = np.empty(shape=(0, arr.shape[1]), dtype=arr.dtype)
+        else:
+            del arr_chunks[-1]
+
+    return arr_chunks
 
 
 class Text3D(mtext.Text):
@@ -245,8 +265,8 @@ class Line3DCollection(LineCollection):
             self._segments3d_data[:, 3] = 1
 
             # For coveniency, store a view of the array in the original shape
-            self._segments3d = np.split(self._segments3d_data[:, :3],
-                                        np.cumsum(self._seg_sizes))
+            self._segments3d = _array_split(self._segments3d_data[:, :3],
+                                            np.cumsum(self._seg_sizes))
         else:
             self._seg_sizes = np.array([])
 
@@ -259,8 +279,8 @@ class Line3DCollection(LineCollection):
         if len(self._segments3d) == 0:
             return 1e9
         xys = proj3d.proj_transform_vec(self._segments3d_data.T, renderer.M).T
-        segments_2d = np.split(xys[:, :2],
-                               np.cumsum(self._seg_sizes))
+        segments_2d = _array_split(xys[:, :2],
+                                   np.cumsum(self._seg_sizes))
         LineCollection.set_segments(self, segments_2d)
         minz = np.min(xys[:, 2])
         return minz
@@ -622,11 +642,10 @@ class Poly3DCollection(PolyCollection):
             self._facecolors3d = self._facecolors
 
         xys = proj3d.proj_transform_vec(self._vec, renderer.M).T
-        xyzlist = []
-        cum_s = 0
-        for s in self._seg_sizes:
-            xyzlist.append(xys[cum_s:cum_s + s, :3])
-            cum_s += s
+
+        xyzlist = _array_split(xys[:, :3],
+                               np.cumsum(self._seg_sizes),
+                               remove_empty=True)
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolors3d
