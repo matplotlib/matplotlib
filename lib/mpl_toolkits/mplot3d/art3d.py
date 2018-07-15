@@ -479,6 +479,7 @@ class Path3DCollection(PathCollection):
         vxyzis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
         vzs = vxyzis[2]
 
+
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
@@ -802,9 +803,12 @@ def _rotate_axes_vec(xyz, zdir):
 
 def get_colors(c, num):
     """Stretch the color argument to provide the required number *num*."""
-    return np.broadcast_to(
-        mcolors.to_rgba_array(c) if len(c) else [0, 0, 0, 0],
-        (num, 4))
+    if not len(c):
+        return np.zeros((num, 4))
+    elif len(c) < num:
+        return np.broadcast_to(mcolors.to_rgba_array(c), (num, 4))
+    else:
+        return mcolors.to_rgba_array(c)
 
 
 def zalpha(colors, zs):
