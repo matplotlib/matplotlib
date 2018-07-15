@@ -2,6 +2,7 @@ from copy import copy
 import io
 import os
 import sys
+import platform
 import urllib.request
 import warnings
 
@@ -759,6 +760,7 @@ def test_imshow_endianess():
 
 
 @image_comparison(baseline_images=['imshow_masked_interpolation'],
+                  tol={'aarch64':0.02}.get(platform.machine(), 0.0),
                   remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 

@@ -21,6 +21,7 @@ from matplotlib.transforms import Bbox, TransformedBbox, \
 from itertools import product
 
 import pytest
+import platform
 
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -358,6 +359,7 @@ def test_zooming_with_inverted_axes():
 
 
 @image_comparison(baseline_images=['anchored_direction_arrows'],
+                  tol={'aarch64':0.02}.get(platform.machine(), 0.0),
                   extensions=['png'])
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
