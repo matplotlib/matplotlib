@@ -86,4 +86,4 @@ class FigureDesignerPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         """Include a link to this file for reference"""
-        return __file__
+        return FigureCanvasQT.__module__
