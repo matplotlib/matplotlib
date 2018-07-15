@@ -616,6 +616,16 @@ def test_date2num_dst_pandas(pd):
     _test_date2num_dst(pd.date_range, tz_convert)
 
 
+def test_dateboxplot_pandas(pd):
+    # smoke test that this doesn't fail.
+    data = np.random.rand(5,2)
+    years = pd.date_range('1/1/2000',
+                          periods=2, freq=pd.DateOffset(years=1)).year
+    # Does not work
+    plt.figure()
+    plt.boxplot(data, positions=years)
+
+
 def _test_rrulewrapper(attach_tz, get_tz):
     SYD = get_tz('Australia/Sydney')
 
