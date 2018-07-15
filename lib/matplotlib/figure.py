@@ -2182,10 +2182,10 @@ default: 'top'
         coordinates of each click in a list.
 
         The buttons used for the various actions (adding points, removing
-        points, terminating the inputs) can be overridden via the
-        arguments *mouse_add*, *mouse_pop* and *mouse_stop*, that give
-        the associated mouse button: 1 for left, 2 for middle, 3 for
-        right.
+        points, terminating the inputs) can be overridden via the arguments
+        *mouse_add*, *mouse_pop* and *mouse_stop*, that set the associated
+        mouse button: 1 for left, 2 for middle, 3 for right.  Using a different
+        value (e.g. None) disables the corresponding mouse action.
 
         Parameters
         ----------
