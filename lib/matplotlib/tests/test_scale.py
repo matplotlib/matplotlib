@@ -99,7 +99,7 @@ def test_logscale_transform_repr():
 
 
 @image_comparison(baseline_images=['logscale_nonpos_values'], remove_text=True,
-                  tol={'aarch64':0.02}.get(platform.machine(), 0.0),
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'], style='mpl20')
 def test_logscale_nonpos_values():
     np.random.seed(19680801)

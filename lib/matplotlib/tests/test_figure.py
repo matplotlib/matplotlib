@@ -14,7 +14,7 @@ import pytest
 
 
 @image_comparison(baseline_images=['figure_align_labels'],
-                  tol={'aarch64':0.02}.get(platform.machine(), 0.0))
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_align_labels():
     # Check the figure.align_labels() command
     fig = plt.figure(tight_layout=True)

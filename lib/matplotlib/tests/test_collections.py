@@ -442,7 +442,7 @@ def test_barb_limits():
 
 @image_comparison(baseline_images=['EllipseCollection_test_image'],
                   extensions=['png'],
-                  tol={'aarch64':0.02}.get(platform.machine(), 0.0),
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   remove_text=True)
 def test_EllipseCollection():
     # Test basic functionality
