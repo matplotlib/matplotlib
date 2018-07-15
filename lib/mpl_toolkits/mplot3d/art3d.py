@@ -480,7 +480,6 @@ class Path3DCollection(PathCollection):
         vxyzis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
         vzs = vxyzis[2]
 
-
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
