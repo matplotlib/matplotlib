@@ -774,13 +774,21 @@ class UnicodeFonts(TruetypeFonts):
         prop = FontProperties('cmex10')
         font = findfont(prop)
         self.fontmap['ex'] = font
-        # include stix sized alternatives for glyphs if fallback is stix
+
+        # include STIZ sized alternatives for glyphs if fallback is STIX
         if isinstance(self.cm_fallback, StixFonts):
-            stixsizedaltfonts = "STIXGeneral STIXSizeOneSym STIXSizeTwoSym "\
-                "STIXSizeThreeSym STIXSizeFourSym STIXSizeFiveSym".split()
-            for i, stixfont in enumerate(stixsizedaltfonts):
-                font = findfont(stixfont)
-                self.fontmap[i] = font
+            stixsizedaltfonts = {
+                 0: 'STIXGeneral',
+                 1: 'STIXSizeOneSym',
+                 2: 'STIXSizeTwoSym',
+                 3: 'STIXSizeThreeSym',
+                 4: 'STIXSizeFourSym',
+                 5: 'STIXSizeFiveSym'}
+
+            for size, name in stixsizedaltfonts.items():
+                fullpath = findfont(name)
+                self.fontmap[size] = fullpath
+                self.fontmap[name] = fullpath
 
     _slanted_symbols = set(r"\int \oint".split())
 
