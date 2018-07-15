@@ -73,16 +73,14 @@ def get_dir_vector(zdir):
 
 
 def _array_split(arr, indices_or_sections, remove_empty=False):
-    """Fix numpy.split to preserve the dimension of empty subarrays.
-    """
-
+    """Fix numpy.split to preserve the dimension of empty subarrays."""
     arr_chunks = np.split(arr, indices_or_sections)
 
     if arr_chunks[-1].size == 0:
-
         if not remove_empty:
             # Preserve the 2D dimensionality the last chunk that can be empty
             # (numpy <=1.10 replaces empty chunks by a 1D empty array)
+
             # TODO: The following can be removed when
             #       support for numpy <=1.10 is dropped.
             arr_chunks[-1] = np.empty(shape=(0, arr.shape[1]), dtype=arr.dtype)
@@ -169,8 +167,8 @@ class Line3D(lines.Line2D):
     @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
-        xyz = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
-        self.set_data(xyz[0], xyz[1])
+        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+        self.set_data(xs, ys)
         lines.Line2D.draw(self, renderer)
         self.stale = False
 
@@ -184,9 +182,7 @@ def line_2d_to_3d(line, zs=0, zdir='z'):
 
 def path_to_3d_segment(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment."""
-    # Pre allocate memory
     seg3d = np.ones((3, len(path)))
-
     # Works both if zs is and array and a scalar
     seg3d[2, :] *= zs
 
@@ -208,10 +204,7 @@ def paths_to_3d_segments(paths, zs=0, zdir='z'):
 
 def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment with path codes."""
-    # Pre allocate memory
-    # XXX should we consider a 4d array?
     seg3d = np.ones((3, len(path)))
-
     # Works both if zs is an array and a scalar
     seg3d[2, :] *= zs
 
@@ -230,12 +223,11 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     """
 
     zs = np.broadcast_to(zs, len(paths))
-    segments = []
-    codes_list = []
-    for path, pathz in zip(paths, zs):
-        segs, codes = path_to_3d_segment_with_codes(path, pathz, zdir)
-        segments.append(segs)
-        codes_list.append(codes)
+
+    path_generator = (path_to_3d_segment_with_codes(path, pathz, zdir)
+                      for path, pathz in zip(paths, zs))
+    segments, codes_list = zip(*path_generator)
+
     return np.asarray(segments), np.asarray(codes_list)
 
 
@@ -261,14 +253,11 @@ class Line3DCollection(LineCollection):
 
             self._segments3d_data = np.empty((n_segments, 4))
             self._segments3d_data[:, :3] = np.vstack(segments)
-            # Add a fourth dimension for quaternions
             self._segments3d_data[:, 3] = 1
 
             # For coveniency, store a view of the array in the original shape
             self._segments3d = _array_split(self._segments3d_data[:, :3],
                                             np.cumsum(self._seg_sizes))
-        else:
-            self._seg_sizes = np.array([])
 
         LineCollection.set_segments(self, [])
 
@@ -598,7 +587,7 @@ class Poly3DCollection(PolyCollection):
             n_segments = np.sum(self._seg_sizes)
             # Put all segments in a big array
             _vec = np.vstack(segments3d)
-            # Add a fourth dimension for quaternions
+            # Add a fourth dimension
             self._vec = np.hstack([_vec, np.ones((n_segments, 1))]).T
 
     def set_verts(self, verts, closed=True):

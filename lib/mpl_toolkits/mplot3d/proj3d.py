@@ -137,8 +137,6 @@ def proj_transform_vec_clip(vec, M):
     vecw = np.dot(M, vec)
     # Determine clipping before rescaling
     tis = (0 <= vecw[0]) & (vecw[0] <= 1) & (0 <= vecw[1]) & (vecw[1] <= 1)
-    # clip here..
-    # Can anybody comment on this piece of code? I don't understand it...
     if np.any(tis):
         tis = vecw[1] < 1
     vecw /= vecw[3]
