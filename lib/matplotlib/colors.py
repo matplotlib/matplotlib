@@ -47,7 +47,6 @@ All string specifications of color, other than "CN", are case-insensitive.
 from collections import Sized
 import itertools
 import re
-import warnings
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -1170,8 +1169,8 @@ class SymLogNorm(Normalize):
 
 class PowerNorm(Normalize):
     """
-    Normalize a given value to the ``[0, 1]`` interval with a power-law
-    scaling. This will clip any negative data points to 0.
+    Linearly map a given value to the 0-1 range and then apply
+    a power-law normalization over that range.
     """
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
         Normalize.__init__(self, vmin, vmax, clip)
@@ -1191,18 +1190,17 @@ class PowerNorm(Normalize):
         elif vmin == vmax:
             result.fill(0)
         else:
-            res_mask = result.data < 0
             if clip:
                 mask = np.ma.getmask(result)
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                      mask=mask)
             resdat = result.data
             resdat -= vmin
+            resdat[resdat < 0] = 0
             np.power(resdat, gamma, resdat)
             resdat /= (vmax - vmin) ** gamma
 
             result = np.ma.array(resdat, mask=result.mask, copy=False)
-            result[res_mask] = 0
         if is_scalar:
             result = result[0]
         return result
@@ -1224,10 +1222,6 @@ class PowerNorm(Normalize):
         Set *vmin*, *vmax* to min, max of *A*.
         """
         self.vmin = np.ma.min(A)
-        if self.vmin < 0:
-            self.vmin = 0
-            warnings.warn("Power-law scaling on negative values is "
-                          "ill-defined, clamping to 0.")
         self.vmax = np.ma.max(A)
 
     def autoscale_None(self, A):
@@ -1235,10 +1229,6 @@ class PowerNorm(Normalize):
         A = np.asanyarray(A)
         if self.vmin is None and A.size:
             self.vmin = A.min()
-            if self.vmin < 0:
-                self.vmin = 0
-                warnings.warn("Power-law scaling on negative values is "
-                              "ill-defined, clamping to 0.")
         if self.vmax is None and A.size:
             self.vmax = A.max()
 

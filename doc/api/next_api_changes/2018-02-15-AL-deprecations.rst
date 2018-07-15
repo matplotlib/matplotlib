@@ -42,8 +42,13 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``text.Annotation.arrow``,
 
 The following rcParams are deprecated:
+- ``examples.directory`` (use ``datapath`` instead),
 - ``pgf.debug`` (the pgf backend relies on logging),
+- ``text.latex.unicode``,
 
 The following keyword arguments are deprecated:
 - passing ``verts`` to ``Axes.scatter`` (use ``marker`` instead),
 - passing ``obj_type`` to ``cbook.deprecated``,
+
+The following call signatures are deprecated:
+- passing a ``wx.EvtHandler`` as first argument to ``backend_wx.TimerWx``,

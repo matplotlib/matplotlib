@@ -5,7 +5,7 @@ Fig Axes Customize Simple
 
 Customize the background, labels and ticks of a simple plot.
 """
-import numpy as np
+
 import matplotlib.pyplot as plt
 
 ###############################################################################

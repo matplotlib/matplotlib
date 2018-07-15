@@ -34,7 +34,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 from matplotlib.cbook import (
-    mplDeprecation, warn_deprecated, STEP_LOOKUP_MAP, iterable,
+    MatplotlibDeprecationWarning, warn_deprecated, STEP_LOOKUP_MAP, iterable,
     safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
@@ -44,18 +44,24 @@ _log = logging.getLogger(__name__)
 rcParams = matplotlib.rcParams
 
 
+def _has_item(data, name):
+    """Return whether *data* can be item-accessed with *name*.
+
+    This supports data with a dict-like interface (`in` checks item
+    availability) and with numpy.arrays.
+    """
+    try:
+        return data.dtype.names is not None and name in data.dtype.names
+    except AttributeError:  # not a numpy array
+        return name in data
+
+
 def _plot_args_replacer(args, data):
     if len(args) == 1:
         return ["y"]
     elif len(args) == 2:
         # this can be two cases: x,y or y,c
-        if (not args[1] in data and
-            not (hasattr(data, 'dtype') and
-                 hasattr(data.dtype, 'names') and
-                 data.dtype.names is not None and
-                 args[1] in data.dtype.names)):
-            # this is not in data, so just assume that it is something which
-            # will not get replaced (color spec or array like).
+        if not _has_item(data, args[1]):
             return ["y", "c"]
         # it's data, but could be a color code like 'ro' or 'b--'
         # -> warn the user in that case...
@@ -273,7 +279,7 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
-        Places a legend on the axes.
+        Place a legend on the axes.
 
         Call signatures::
 
@@ -1136,12 +1142,12 @@ class Axes(_AxesBase):
         >>> plot(y, 'r+')     # ditto, but with red plusses
 
         You can use `.Line2D` properties as keyword arguments for more
-        control on the  appearance. Line properties and *fmt* can be mixed.
+        control on the appearance. Line properties and *fmt* can be mixed.
         The following two calls yield identical results:
 
         >>> plot(x, y, 'go--', linewidth=2, markersize=12)
         >>> plot(x, y, color='green', marker='o', linestyle='dashed',
-                linewidth=2, markersize=12)
+        ...      linewidth=2, markersize=12)
 
         When conflicting with *fmt*, keyword arguments take precedence.
 
@@ -1999,14 +2005,14 @@ class Axes(_AxesBase):
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
         color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
                                 # Fallback if color == "none".
-                                itertools.repeat([0, 0, 0, 0]))
+                                itertools.repeat('none'))
         if edgecolor is None:
             edgecolor = itertools.repeat(None)
         else:
             edgecolor = itertools.chain(
                 itertools.cycle(mcolors.to_rgba_array(edgecolor)),
                 # Fallback if edgecolor == "none".
-                itertools.repeat([0, 0, 0, 0]))
+                itertools.repeat('none'))
 
         # We will now resolve the alignment and really have
         # left, bottom, width, height vectors
@@ -3155,16 +3161,15 @@ class Axes(_AxesBase):
 
         labels : sequence, optional
             Labels for each dataset. Length must be compatible with
-            dimensions  of ``x``.
+            dimensions of ``x``.
 
         manage_xticks : bool, optional (True)
             If the function should adjust the xlim and xtick locations.
 
         autorange : bool, optional (False)
-            When `True` and the data are distributed such that the  25th and
+            When `True` and the data are distributed such that the 25th and
             75th percentiles are equal, ``whis`` is set to ``'range'`` such
-            that the whisker ends are at the minimum and maximum of the
-            data.
+            that the whisker ends are at the minimum and maximum of the data.
 
         meanline : bool, optional (False)
             If `True` (and ``showmeans`` is `True`), will try to render
@@ -4321,9 +4326,23 @@ class Axes(_AxesBase):
                 offset_position="data"
                 )
 
+        # Check for valid norm
+        if norm is not None and not isinstance(norm, mcolors.Normalize):
+            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            raise ValueError(msg)
+
+        # Set normalizer if bins is 'log'
+        if bins == 'log':
+            if norm is not None:
+                warnings.warn("Only one of 'bins' and 'norm' arguments can be "
+                              "supplied, ignoring bins={}".format(bins))
+            else:
+                norm = mcolors.LogNorm()
+            bins = None
+
         if isinstance(norm, mcolors.LogNorm):
             if (accum == 0).any():
-                # make sure we have not zeros
+                # make sure we have no zeros
                 accum += 1
 
         # autoscale the norm with curren accum values if it hasn't
@@ -4332,10 +4351,7 @@ class Axes(_AxesBase):
             if norm.vmin is None and norm.vmax is None:
                 norm.autoscale(accum)
 
-        # Transform accum if needed
-        if bins == 'log':
-            accum = np.log10(accum + 1)
-        elif bins is not None:
+        if bins is not None:
             if not iterable(bins):
                 minimum, maximum = min(accum), max(accum)
                 bins -= 1  # one less edge than bins
@@ -4343,9 +4359,6 @@ class Axes(_AxesBase):
             bins = np.sort(bins)
             accum = bins.searchsorted(accum)
 
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            raise ValueError(
-                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
@@ -5728,7 +5741,7 @@ class Axes(_AxesBase):
         It's designed to provide the fastest pcolor-type plotting with the
         Agg backend. To achieve this, it uses different algorithms internally
         depending on the complexity of the input grid (regular rectangular,
-        non-regular rectangular or arbitrary  quadrilateral).
+        non-regular rectangular or arbitrary quadrilateral).
 
         .. warning::
 

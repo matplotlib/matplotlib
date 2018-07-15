@@ -1607,8 +1607,10 @@ class FuncAnimation(TimedAnimation):
        of frames is completed.  Defaults to ``True``.
 
     blit : bool, optional
-       Controls whether blitting is used to optimize drawing.  Defaults
-       to ``False``.
+       Controls whether blitting is used to optimize drawing. Note: when using
+       blitting any animated artists will be drawn according to their zorder.
+       However, they will be drawn on top of any previous artists, regardless
+       of their zorder.  Defaults to ``False``.
 
     '''
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
@@ -1723,7 +1725,8 @@ class FuncAnimation(TimedAnimation):
 
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
-        self._drawn_artists = self._func(framedata, *self._args)
+        self._drawn_artists = sorted(self._func(framedata, *self._args),
+                                     key=lambda x: x.get_zorder())
         if self._blit:
             if self._drawn_artists is None:
                 raise RuntimeError('The animation function must return a '

@@ -1,4 +1,4 @@
-"""
+r"""
 *********************************
 Typesetting With XeLaTeX/LuaLaTeX
 *********************************
@@ -69,13 +69,11 @@ The pgf backend also supports multipage pdf files using ``PdfPages``
 
     with PdfPages('multipage.pdf', metadata={'author': 'Me'}) as pdf:
 
-        fig1 = plt.figure()
-        ax1 = fig1.add_subplot(1, 1, 1)
+        fig1, ax1 = plt.subplots()
         ax1.plot([1, 5, 3])
         pdf.savefig(fig1)
 
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot(1, 1, 1)
+        fig2, ax2 = plt.subplots()
         ax2.plot([1, 5, 3])
         pdf.savefig(fig2)
 

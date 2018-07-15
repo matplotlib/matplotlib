@@ -8,9 +8,7 @@ Set font properties using kwargs.
 See :doc:`fonts_demo` to achieve the same effect using setters.
 """
 
-from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
-import numpy as np
 
 plt.subplot(111, facecolor='w')
 alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}

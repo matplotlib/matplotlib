@@ -114,6 +114,7 @@ class Artist(object):
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
+        self._in_layout = True
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -250,6 +251,33 @@ class Artist(object):
         but will save incorrectly.
         """
         return Bbox([[0, 0], [0, 0]])
+
+    def get_tightbbox(self, renderer):
+        """
+        Like `Artist.get_window_extent`, but includes any clipping.
+
+        Parameters
+        ----------
+        renderer : `.RendererBase` instance
+            renderer that will be used to draw the figures (i.e.
+            ``fig.canvas.get_renderer()``)
+
+        Returns
+        -------
+        bbox : `.BboxBase`
+            containing the bounding box (in figure pixel co-ordinates).
+        """
+
+        bbox = self.get_window_extent(renderer)
+        if self.get_clip_on():
+            clip_box = self.get_clip_box()
+            if clip_box is not None:
+                bbox = Bbox.intersection(bbox, clip_box)
+            clip_path = self.get_clip_path()
+            if clip_path is not None and bbox is not None:
+                clip_path = clip_path.get_fully_transformed_path()
+                bbox = Bbox.intersection(bbox, clip_path.get_extents())
+        return bbox
 
     def add_callback(self, func):
         """
@@ -701,6 +729,17 @@ class Artist(object):
         "Return the artist's animated state"
         return self._animated
 
+    def get_in_layout(self):
+        """
+        Return boolean flag, ``True`` if artist is included in layout
+        calculations.
+
+        E.g. :doc:`/tutorials/intermediate/constrainedlayout_guide`,
+        `.Figure.tight_layout()`, and
+        ``fig.savefig(fname, bbox_inches='tight')``.
+        """
+        return self._in_layout
+
     def get_clip_on(self):
         'Return whether artist uses clipping'
         return self._clipon
@@ -829,6 +868,19 @@ class Artist(object):
         if self._animated != b:
             self._animated = b
             self.pchanged()
+
+    def set_in_layout(self, in_layout):
+        """
+        Set if artist is to be included in layout calculations,
+        E.g. :doc:`/tutorials/intermediate/constrainedlayout_guide`,
+        `.Figure.tight_layout()`, and
+        ``fig.savefig(fname, bbox_inches='tight')``.
+
+        Parameters
+        ----------
+        in_layout : bool
+        """
+        self._in_layout = in_layout
 
     def update(self, props):
         """
@@ -1035,7 +1087,7 @@ class Artist(object):
 
 class ArtistInspector(object):
     """
-    A helper class to inspect an :class:`~matplotlib.artist.Artist` and return
+    A helper class to inspect an `~matplotlib.artist.Artist` and return
     information about its settable properties and their current values.
     """
 
@@ -1146,8 +1198,22 @@ class ArtistInspector(object):
                 if name in cls.__dict__:
                     source_class = cls.__module__ + "." + cls.__name__
                     break
+            source_class = self._replace_path(source_class)
             setters.append((name[4:], source_class + "." + name))
         return setters
+
+    def _replace_path(self, source_class):
+        """
+        Changes the full path to the public API path that is used
+        in sphinx. This is needed for links to work.
+        """
+
+        replace_dict = {'_base._AxesBase': 'Axes',
+                      '_axes.Axes': 'Axes'}
+
+        for key, value in replace_dict.items():
+            source_class = source_class.replace(key, value)
+        return source_class
 
     def get_setters(self):
         """
@@ -1443,12 +1509,32 @@ def setp(obj, *args, **kwargs):
     return list(cbook.flatten(ret))
 
 
-def kwdoc(a):
+def kwdoc(artist):
+    """
+    Inspect an `~matplotlib.artist.Artist` class and return
+    information about its settable properties and their current values.
+
+    It use the class `.ArtistInspector`.
+
+    Parameters
+    ----------
+    artist : `~matplotlib.artist.Artist` or an iterable of `Artist`\s
+
+    Returns
+    -------
+    string
+        Returns a string with a list or rst table with the settable properties
+        of the *artist*. The formating depends on the value of
+        :rc:`docstring.hardcopy`. False result in a list that is intended for
+        easy reading as a docstring and True result in a rst table intended
+        for rendering the documentation with sphinx.
+    """
     hardcopy = matplotlib.rcParams['docstring.hardcopy']
     if hardcopy:
-        return '\n'.join(ArtistInspector(a).pprint_setters_rest(
+        return '\n'.join(ArtistInspector(artist).pprint_setters_rest(
                          leadingspace=4))
     else:
-        return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
+        return '\n'.join(ArtistInspector(artist).pprint_setters(
+                         leadingspace=2))
 
 docstring.interpd.update(Artist=kwdoc(Artist))

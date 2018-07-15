@@ -11,7 +11,6 @@ import numpy as np
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-from matplotlib.axes import Axes
 from matplotlib.cbook import iterable
 
 
@@ -25,13 +24,13 @@ class ProxyDelegate(object):
 
 
 class TaggedValueMeta(type):
-    def __init__(cls, name, bases, dict):
-        for fn_name in cls._proxies:
+    def __init__(self, name, bases, dict):
+        for fn_name in self._proxies:
             try:
-                dummy = getattr(cls, fn_name)
+                dummy = getattr(self, fn_name)
             except AttributeError:
-                setattr(cls, fn_name,
-                        ProxyDelegate(fn_name, cls._proxies[fn_name]))
+                setattr(self, fn_name,
+                        ProxyDelegate(fn_name, self._proxies[fn_name]))
 
 
 class PassThroughProxy(object):

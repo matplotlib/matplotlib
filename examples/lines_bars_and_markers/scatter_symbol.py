@@ -8,7 +8,6 @@ Scatter plot with clover symbols.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

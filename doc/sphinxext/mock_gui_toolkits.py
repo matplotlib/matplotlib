@@ -118,6 +118,9 @@ class MyWX(MagicMock):
     class Frame(object):
         pass
 
+    class StatusBar(object):
+        pass
+
 
 def setup(app):
     sys.modules.update(

@@ -32,11 +32,11 @@ needs_usetex = pytest.mark.xfail(
     needs_ghostscript(
         ('ps', False, {'ps.usedistiller': 'ghostscript'})),
     needs_usetex(needs_ghostscript(
-        ('ps', False, {'text.latex.unicode': True, 'text.usetex': True}))),
+        ('ps', False, {'text.usetex': True}))),
     ('eps', False, {}),
     ('eps', True, {'ps.useafm': True}),
     needs_usetex(needs_ghostscript(
-        ('eps', False, {'text.latex.unicode': True, 'text.usetex': True}))),
+        ('eps', False, {'text.usetex': True}))),
 ], ids=[
     'ps',
     'ps with distiller',

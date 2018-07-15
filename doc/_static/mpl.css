@@ -147,10 +147,6 @@ dl.glossary dt {
     font-size: 1.1em;
 }
 
-dl.docutils dt {
-    font-weight: bold;
-}
-
 pre a {
     color: inherit;
     text-decoration: none;

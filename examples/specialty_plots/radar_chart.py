@@ -121,7 +121,7 @@ def unit_poly_verts(theta):
 
 def example_data():
     # The following data is from the Denver Aerosol Sources and Health study.
-    # See  doi:10.1016/j.atmosenv.2008.12.017
+    # See doi:10.1016/j.atmosenv.2008.12.017
     #
     # The data are pollution source profile estimates for five modeled
     # pollution sources (e.g., cars, wood-burning, etc) that emit 7-9 chemical
