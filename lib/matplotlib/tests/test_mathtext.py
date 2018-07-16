@@ -55,7 +55,7 @@ math_tests = [
     '$\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota \\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon \\phi \\chi \\psi$',
 
     # The examples prefixed by 'mmltt' are from the MathML torture test here:
-        # http://www.mozilla.org/projects/mathml/demo/texvsmml.xhtml
+    # http://www.mozilla.org/projects/mathml/demo/texvsmml.xhtml
     r'${x}^{2}{y}^{2}$',
     r'${}_{2}F_{3}$',
     r'$\frac{x+{y}^{2}}{k+1}$',
@@ -87,26 +87,26 @@ math_tests = [
     r'${x}_{92}^{31415}+\pi $',
     r'${x}_{{y}_{b}^{a}}^{{z}_{c}^{d}}$',
     r'${y}_{3}^{\prime \prime \prime }$',
-    r"$\left( \xi \left( 1 - \xi \right) \right)$", # Bug 2969451
-    r"$\left(2 \, a=b\right)$", # Sage bug #8125
-    r"$? ! &$", # github issue #466
-    r'$\operatorname{cos} x$', # github issue #553
+    r"$\left( \xi \left( 1 - \xi \right) \right)$",  # Bug 2969451
+    r"$\left(2 \, a=b\right)$",  # Sage bug #8125
+    r"$? ! &$",  # github issue #466
+    r'$\operatorname{cos} x$',  # github issue #553
     r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
     r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
     r'$\mathring{A}  \stackrel{\circ}{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
     r'$\Cup$ $\Cap$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
     r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
-    r'$xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$', # github issue #4873
+    r'$xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$',  # github issue #4873
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
     ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._snowflake)),
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
-    r'$\overline{\omega}^x \frac{1}{2}_0^x$', # github issue #5444
-    r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$', # github issue 5799
-    r'$\left(X\right)_{a}^{b}$', # github issue 7615
-    r'$\dfrac{\$100.00}{y}$', # github issue #1888
+    r'$\overline{\omega}^x \frac{1}{2}_0^x$',  # github issue #5444
+    r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
+    r'$\left(X\right)_{a}^{b}$',  # github issue 7615
+    r'$\dfrac{\$100.00}{y}$',  # github issue #1888
 ]
 
 digits = "0123456789"
