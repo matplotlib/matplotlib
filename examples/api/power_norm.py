@@ -25,7 +25,7 @@ axes[0, 0].set_title('Linear normalization')
 axes[0, 0].hist2d(data[:, 0], data[:, 1], bins=100)
 
 for ax, gamma in zip(axes.flat[1:], gammas):
-    ax.set_title('Power law $(\gamma=%1.1f)$' % gamma)
+    ax.set_title(r'Power law $(\gamma=%1.1f)$' % gamma)
     ax.hist2d(data[:, 0], data[:, 1],
               bins=100, norm=mcolors.PowerNorm(gamma))
 

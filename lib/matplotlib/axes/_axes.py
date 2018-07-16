@@ -1844,7 +1844,7 @@ class Axes(_AxesBase):
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs):
-        """
+        r"""
         Plot the cross correlation between *x* and *y*.
 
         The correlation with lag k is defined as sum_n x[n+k] * conj(y[n]).
@@ -5595,7 +5595,7 @@ class Axes(_AxesBase):
     @_preprocess_data(label_namer=None)
     @docstring.dedent_interpd
     def pcolor(self, *args, **kwargs):
-        """
+        r"""
         Create a pseudocolor plot with a non-regular rectangular grid.
 
         Call signature::
