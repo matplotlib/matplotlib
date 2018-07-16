@@ -141,7 +141,7 @@ def proj_transform_vec_clip(vec, M):
         tis = vecw[1] < 1
     vecw /= vecw[3]
     # Integrating tis in the numpy array for optimization purposes
-    vecw[3, :] = tis
+    vecw[3] = tis
     return vecw
 
 def inv_transform(xs, ys, zs, M):

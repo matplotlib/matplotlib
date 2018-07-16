@@ -78,8 +78,8 @@ def _array_split(arr, indices_or_sections, remove_empty=False):
 
     if arr_chunks[-1].size == 0:
         if not remove_empty:
-            # Preserve the 2D dimensionality the last chunk that can be empty
-            # (numpy <=1.10 replaces empty chunks by a 1D empty array)
+            # Preserve the 2D dimensionality of the last chunk that can be
+            # empty (numpy <=1.10 replaces empty chunks by a 1D empty array)
 
             # TODO: The following can be removed when
             #       support for numpy <=1.10 is dropped.
@@ -182,9 +182,9 @@ def line_2d_to_3d(line, zs=0, zdir='z'):
 
 def path_to_3d_segment(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment."""
-    seg3d = np.ones((3, len(path)))
+    seg3d = np.empty((3, len(path)))
     # Works both if zs is and array and a scalar
-    seg3d[2, :] *= zs
+    seg3d[2, :] = zs
 
     pathsegs = path.iter_segments(simplify=False, curves=False)
     for i, ((x, y), code) in enumerate(pathsegs):
@@ -204,9 +204,9 @@ def paths_to_3d_segments(paths, zs=0, zdir='z'):
 
 def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment with path codes."""
-    seg3d = np.ones((3, len(path)))
+    seg3d = np.empty((3, len(path)))
     # Works both if zs is an array and a scalar
-    seg3d[2, :] *= zs
+    seg3d[2, :] = zs
 
     pathsegs = path.iter_segments(simplify=False, curves=False)
     codes = np.empty(len(path))
@@ -255,7 +255,7 @@ class Line3DCollection(LineCollection):
             self._segments3d_data[:, :3] = np.vstack(segments)
             self._segments3d_data[:, 3] = 1
 
-            # For coveniency, store a view of the array in the original shape
+            # For convenience, store a view of the array in the original shape
             self._segments3d = _array_split(self._segments3d_data[:, :3],
                                             np.cumsum(self._seg_sizes))
 
