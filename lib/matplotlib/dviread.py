@@ -812,6 +812,9 @@ class PsfontsMap(object):
     """
     __slots__ = ('_font', '_filename')
 
+    # Create a filename -> PsfontsMap cache, so that calling
+    # `PsfontsMap(filename)` with the same filename a second time immediately
+    # returns the same object.
     @lru_cache()
     def __new__(cls, filename):
         self = object.__new__(cls)
