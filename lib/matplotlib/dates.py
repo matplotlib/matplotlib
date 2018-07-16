@@ -419,6 +419,11 @@ def date2num(d):
             return _dt64_to_ordinalf(d)
         if not d.size:
             return d
+        if hasattr(d, 'dtype'):
+            if ((isinstance(d, np.ndarray) and
+                    np.issubdtype(d.dtype, np.datetime64)) or
+                    isinstance(d, np.datetime64)):
+                return _dt64_to_ordinalf(d)
         return _to_ordinalf_np_vectorized(d)
 
 

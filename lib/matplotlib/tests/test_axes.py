@@ -5422,6 +5422,18 @@ def test_pandas_bar_align_center(pd):
     fig.canvas.draw()
 
 
+def test_pandas_data_unpack(pd):
+    # smoke test for all these different calling methods.
+    dates = [datetime.datetime(2018, 7, i) for i in range(1, 5)]
+    values = np.cumsum(np.random.rand(len(dates)))
+    df = pd.DataFrame({"dates": dates, "values": values})
+    plt.plot(df["dates"].values,  df["values"])
+    plt.scatter(df["dates"],  df["values"])
+    plt.plot("dates", "values", data=df)
+    plt.scatter(x="dates", y="values", data=df)
+    plt.draw()
+
+
 def test_axis_set_tick_params_labelsize_labelcolor():
     # Tests fix for issue 4346
     axis_1 = plt.subplot()

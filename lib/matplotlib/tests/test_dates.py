@@ -618,7 +618,7 @@ def test_date2num_dst_pandas(pd):
 
 def test_dateboxplot_pandas(pd):
     # smoke test that this doesn't fail.
-    data = np.random.rand(5,2)
+    data = np.random.rand(5, 2)
     years = pd.date_range('1/1/2000',
                           periods=2, freq=pd.DateOffset(years=1)).year
     # Does not work
