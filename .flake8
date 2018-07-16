@@ -54,9 +54,8 @@ per-file-ignores =
     matplotlib/sphinxext/mathmpl.py: E302
     matplotlib/sphinxext/only_directives.py: E302
     matplotlib/sphinxext/plot_directive.py: E261, E302, E402
-    matplotlib/tests/test_image.py: E225, E231, E251, E302, E501
-    matplotlib/tests/test_lines.py: E231, E261
-    matplotlib/tests/test_mathtext.py: E261, E501
+    matplotlib/tests/test_image.py: E231
+    matplotlib/tests/test_mathtext.py: E501
     matplotlib/transforms.py: E201, E202, E203, E501
     matplotlib/tri/triinterpolate.py: E201, E221
     matplotlib/type1font.py: E731
