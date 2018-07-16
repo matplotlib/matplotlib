@@ -2051,7 +2051,7 @@ class LaTeX(SetupPackage):
             output = check_output('latex -version', shell=True,
                                   stderr=subprocess.STDOUT)
             line = output.splitlines()[0].decode()
-            pattern = '(3\.1\d+)|(MiKTeX \d+.\d+)'
+            pattern = r'(3\.1\d+)|(MiKTeX \d+.\d+)'
             match = re.search(pattern, line)
             return "version %s" % match.group(0)
         except (IndexError, ValueError, AttributeError, subprocess.CalledProcessError):
