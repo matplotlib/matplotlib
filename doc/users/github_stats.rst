@@ -452,7 +452,7 @@ Pull Requests (1064):
 * :ghpull:`11192`: Don't use deprecated get_texcommand in backend_pgf.
 * :ghpull:`11197`: Simplify demo_ribbon_box.py.
 * :ghpull:`11180`: DOC: Revive Irregularly spaced data contour example
-* :ghpull:`11137`: Convert **kwargs to named arguments for a clearer API
+* :ghpull:`11137`: Convert \**kwargs to named arguments for a clearer API
 * :ghpull:`11189`: FIX: remove recursive call to str in transform repr
 * :ghpull:`11186`: DOC: minor tweaks to manual backport instructions
 * :ghpull:`10982`: Improve docstring of Axes.imshow
