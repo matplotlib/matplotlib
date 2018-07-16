@@ -451,6 +451,9 @@ def validate_mathtext_fallback(s):
     if s is None or s == 'None':
         return None
 
+    if not isinstance(s, str):
+        raise ValueError("Must be a string or None.")
+
     if s.lower() in fallback_fonts:
         return s
 
