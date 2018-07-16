@@ -127,8 +127,8 @@ class Path(object):
         vertices = _to_unmasked_float_array(vertices)
         if vertices.ndim != 2 or vertices.shape[1] != 2:
             raise ValueError(
-                "'vertices' must be a 2D list or array with shape Nx2, "
-                "while provided vertices.shape={}.".format(vertices.shape))
+                "'vertices' must be an array-like of shape (N, 2) not {}"
+                .format(vertices.shape))
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
