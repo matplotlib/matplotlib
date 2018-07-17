@@ -75,7 +75,7 @@ class ParasiteAxesAuxTransBase:
 
     def set_viewlim_mode(self, mode):
         if mode not in [None, "equal", "transform"]:
-            raise ValueError("Unknown mode : %s" % (mode,))
+            raise ValueError("Unknown mode: %s" % (mode,))
         else:
             self._viewlim_mode = mode
 
@@ -90,17 +90,18 @@ class ParasiteAxesAuxTransBase:
         elif mode == "equal":
             self.axes.viewLim.set(viewlim)
         elif mode == "transform":
-            self.axes.viewLim.set(viewlim.transformed(self.transAux.inverted()))
+            self.axes.viewLim.set(
+                viewlim.transformed(self.transAux.inverted()))
         else:
-            raise ValueError("Unknown mode : %s" % (self._viewlim_mode,))
+            raise ValueError("Unknown mode: %s" % (self._viewlim_mode,))
 
     def _pcolor(self, super_pcolor, *XYC, **kwargs):
         if len(XYC) == 1:
             C = XYC[0]
             ny, nx = C.shape
 
-            gx = np.arange(-0.5, nx, 1.)
-            gy = np.arange(-0.5, ny, 1.)
+            gx = np.arange(-0.5, nx)
+            gy = np.arange(-0.5, ny)
 
             X, Y = np.meshgrid(gx, gy)
         else:
@@ -110,10 +111,10 @@ class ParasiteAxesAuxTransBase:
             mesh = super_pcolor(self, X, Y, C, **kwargs)
         else:
             orig_shape = X.shape
-            xy = np.vstack([X.flat, Y.flat])
-            xyt=xy.transpose()
+            xyt = np.column_stack([X.flat, Y.flat])
             wxy = self.transAux.transform(xyt)
-            gx, gy = wxy[:,0].reshape(orig_shape), wxy[:,1].reshape(orig_shape)
+            gx = wxy[:, 0].reshape(orig_shape)
+            gy = wxy[:, 1].reshape(orig_shape)
             mesh = super_pcolor(self, gx, gy, C, **kwargs)
             mesh.set_transform(self._parent_axes.transData)
 
@@ -131,10 +132,10 @@ class ParasiteAxesAuxTransBase:
             C = XYCL[0]
             ny, nx = C.shape
 
-            gx = np.arange(0., nx, 1.)
-            gy = np.arange(0., ny, 1.)
+            gx = np.arange(0., nx)
+            gy = np.arange(0., ny)
 
-            X,Y = np.meshgrid(gx, gy)
+            X, Y = np.meshgrid(gx, gy)
             CL = XYCL
         else:
             X, Y = XYCL[:2]
@@ -144,10 +145,10 @@ class ParasiteAxesAuxTransBase:
             cont = super_contour(self, X, Y, *CL, **kwargs)
         else:
             orig_shape = X.shape
-            xy = np.vstack([X.flat, Y.flat])
-            xyt=xy.transpose()
+            xyt = np.column_stack([X.flat, Y.flat])
             wxy = self.transAux.transform(xyt)
-            gx, gy = wxy[:,0].reshape(orig_shape), wxy[:,1].reshape(orig_shape)
+            gx = wxy[:, 0].reshape(orig_shape)
+            gy = wxy[:, 1].reshape(orig_shape)
             cont = super_contour(self, gx, gy, *CL, **kwargs)
             for c in cont.collections:
                 c.set_transform(self._parent_axes.transData)
@@ -181,19 +182,6 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
 
 ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(
     axes_class=ParasiteAxes)
-
-
-def _get_handles(ax):
-    handles = ax.lines[:]
-    handles.extend(ax.patches)
-    handles.extend([c for c in ax.collections
-                    if isinstance(c, mcoll.LineCollection)])
-    handles.extend([c for c in ax.collections
-                    if isinstance(c, mcoll.RegularPolyCollection)])
-    handles.extend([c for c in ax.collections
-                    if isinstance(c, mcoll.CircleCollection)])
-
-    return handles
 
 
 class HostAxesBase:
@@ -347,7 +335,7 @@ class HostAxesBase:
         bbs = [ax.get_tightbbox(renderer, call_axes_locator)
                for ax in self.parasites]
         bbs.append(super().get_tightbbox(renderer, call_axes_locator))
-        return Bbox.union([b for b in bbs if b.width!=0 or b.height!=0])
+        return Bbox.union([b for b in bbs if b.width != 0 or b.height != 0])
 
 
 @functools.lru_cache(None)
@@ -394,6 +382,7 @@ def host_axes(*args, axes_class=None, figure=None, **kwargs):
     figure.add_axes(ax)
     plt.draw_if_interactive()
     return ax
+
 
 def host_subplot(*args, axes_class=None, figure=None, **kwargs):
     """
