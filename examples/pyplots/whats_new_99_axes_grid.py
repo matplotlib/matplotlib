@@ -48,8 +48,6 @@ ax.imshow_rgb(r, g, b, **kwargs)
 ax.RGB.set_xlim(0., 9.5)
 ax.RGB.set_ylim(0.9, 10.6)
 
-
-plt.draw()
 plt.show()
 
 #############################################################################

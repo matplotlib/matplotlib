@@ -155,5 +155,4 @@ if 1:
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
 
-    plt.draw()
     plt.show()

@@ -126,7 +126,6 @@ def demo():
     ax = fig1.add_subplot(2, 2, 4)
     demo_images_side_by_side(ax)
 
-    plt.draw()
     plt.show()
 
 

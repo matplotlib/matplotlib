@@ -311,6 +311,4 @@ if __name__ == '__main__':
     make_arrow_plot(d, display=display, linewidth=0.001, edgecolor=None,
                     normalize_data=scaled, head_starts_at_zero=True, size=size)
 
-    plt.draw()
-
     plt.show()

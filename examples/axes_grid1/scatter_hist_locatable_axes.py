@@ -51,5 +51,4 @@ axHistx.set_yticks([0, 50, 100])
 
 axHisty.set_xticks([0, 50, 100])
 
-plt.draw()
 plt.show()

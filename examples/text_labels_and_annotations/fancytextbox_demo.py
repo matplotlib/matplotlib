@@ -22,6 +22,4 @@ plt.text(0.5, 0.4, "test", size=50, rotation=-30.,
                    )
          )
 
-
-plt.draw()
 plt.show()

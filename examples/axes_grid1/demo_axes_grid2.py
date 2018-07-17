@@ -116,5 +116,4 @@ if 1:
     grid2[0].set_xticks([-2, 0])
     grid2[0].set_yticks([-2, 0, 2])
 
-    plt.draw()
     plt.show()
