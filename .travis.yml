@@ -129,15 +129,15 @@ install:
     # install was successful by trying to import the toolkit (sometimes, the
     # install appears to be successful but shared libraries cannot be loaded at
     # runtime, so an actual import is a better check).
-    python -mpip install cairocffi pgi &&
+    python -mpip install --upgrade cairocffi>=0.8 pgi>=0.0.11.2 &&
       python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
       echo 'pgi is available' ||
       echo 'pgi is not available'
-    python -mpip install pyqt5 &&
+    python -mpip install --upgrade pyqt5 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
-    python -mpip install -U \
+    python -mpip install --upgrade \
       -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
       wxPython &&
       python -c 'import wx' &&

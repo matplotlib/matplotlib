@@ -498,3 +498,44 @@ class SubplotSpec(object):
 
     def __hash__(self):
         return hash((self._gridspec, self.num1, self.num2))
+
+    def subgridspec(self, nrows, ncols, **kwargs):
+        """
+        Return a `.GridSpecFromSubplotSpec` that has this subplotspec as
+        a parent.
+
+        Parameters
+        ----------
+        nrows : int
+            Number of rows in grid.
+
+        ncols : int
+            Number or columns in grid.
+
+        Returns
+        -------
+        gridspec : `.GridSpec`
+
+        Other Parameters
+        ----------------
+        **kwargs
+            All other parameters are passed to `.GridSpec`.
+
+        See Also
+        --------
+        matplotlib.pyplot.subplots
+
+        Examples
+        --------
+        Adding three subplots in the space occupied by a single subplot::
+
+            fig = plt.figure()
+            gs0 = fig.add_gridspec(3, 1)
+            ax1 = fig.add_subplot(gs0[0])
+            ax2 = fig.add_subplot(gs0[1])
+            gssub = gs0[2].subgridspec(1, 3)
+            for i in range(3):
+                fig.add_subplot(gssub[0, i])
+        """
+
+        return GridSpecFromSubplotSpec(nrows, ncols, self, **kwargs)

@@ -394,6 +394,9 @@ class Figure(Artist):
         self._align_xlabel_grp = cbook.Grouper()
         self._align_ylabel_grp = cbook.Grouper()
 
+        # list of child gridspecs for this figure
+        self._gridspecs = []
+
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
     # use it, for some reason.
@@ -1480,6 +1483,7 @@ default: 'top'
         else:
             # this should turn constrained_layout off if we don't want it
             gs = GridSpec(nrows, ncols, figure=None, **gridspec_kw)
+        self._gridspecs.append(gs)
 
         # Create array to hold all axes.
         axarr = np.empty((nrows, ncols), dtype=object)
@@ -2473,6 +2477,49 @@ default: 'top'
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
+
+    def add_gridspec(self, nrows, ncols, **kwargs):
+        """
+        Return a `.GridSpec` that has this figure as a parent.  This allows
+        complex layout of axes in the figure.
+
+        Parameters
+        ----------
+        nrows : int
+            Number of rows in grid.
+
+        ncols : int
+            Number or columns in grid.
+
+        Returns
+        -------
+        gridspec : `.GridSpec`
+
+        Other Parameters
+        ----------------
+        *kwargs* are passed to `.GridSpec`.
+
+        See Also
+        --------
+        matplotlib.pyplot.subplots
+
+        Examples
+        --------
+        Adding a subplot that spans two rows::
+
+            fig = plt.figure()
+            gs = fig.add_gridspec(2, 2)
+            ax1 = fig.add_subplot(gs[0, 0])
+            ax2 = fig.add_subplot(gs[1, 0])
+            # spans two rows:
+            ax3 = fig.add_subplot(gs[:, 1])
+
+        """
+
+        _ = kwargs.pop('figure', None)  # pop in case user has added this...
+        gs = GridSpec(nrows=nrows, ncols=ncols, figure=self, **kwargs)
+        self._gridspecs.append(gs)
+        return gs
 
 
 def figaspect(arg):

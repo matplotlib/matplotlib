@@ -305,3 +305,14 @@ def test_big_decorators_vertical():
     with warnings.catch_warnings(record=True) as w:
         fig.tight_layout()
         assert len(w) == 1
+
+
+def test_badsubplotgrid():
+    # test that we get warning for mismatched subplot grids rather
+    # than an error
+    ax1 = plt.subplot2grid((4, 5), (0, 0))
+    # this is the bad entry:
+    ax5 = plt.subplot2grid((5, 5), (0, 3), colspan=3, rowspan=5)
+    with warnings.catch_warnings(record=True) as w:
+        plt.tight_layout()
+        assert len(w) == 1

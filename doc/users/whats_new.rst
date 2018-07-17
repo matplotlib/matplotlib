@@ -15,7 +15,7 @@ revision, see the :ref:`github-stats`.
    For a release, add a new section after this, then comment out the include
    and toctree below by indenting them. Uncomment them after the release.
 
-   .. include:: next_whats_new/README.rst
+  .. include:: next_whats_new/README.rst
    .. toctree::
       :glob:
       :maxdepth: 1
@@ -196,6 +196,26 @@ Adjusted ``matplotlib.widgets.Slider`` to have vertical orientation
 The :class:`matplotlib.widgets.Slider` widget now takes an optional argument
 ``orientation`` which indicates the direction (``'horizontal'`` or
 ``'vertical'``) that the slider should take.
+
+
+New convenience methods for GridSpec
+------------------------------------
+
+There are new convenience methods for `.gridspec.GridSpec` and
+`.gridspec.GridSpecFromSubplotSpec`.  Instead of the former we can
+now call `.Figure.add_gridspec` and for the latter `.SubplotSpec.subgridspec`.
+
+.. code-block:: python
+
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    gs0 = fig.add_gridspec(3, 1)
+    ax1 = fig.add_subplot(gs0[0])
+    ax2 = fig.add_subplot(gs0[1])
+    gssub = gs0[2].subgridspec(1, 3)
+    for i in range(3):
+        fig.add_subplot(gssub[0, i])
 
 
 

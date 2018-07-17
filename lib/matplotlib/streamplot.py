@@ -20,7 +20,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
                maxlength=4.0, integration_direction='both'):
-    """Draws streamlines of a vector flow.
+    """Draw streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
         an *evenly spaced* grid.

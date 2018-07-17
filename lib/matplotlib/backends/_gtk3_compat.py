@@ -25,7 +25,7 @@ else:
         try:
             import pgi as gi
         except ImportError:
-            raise ImportError("The Gtk3 backend requires PyGObject or pgi")
+            raise ImportError("The GTK3 backends require PyGObject or pgi")
 
 from .backend_cairo import cairo  # noqa
 # The following combinations are allowed:
@@ -38,6 +38,8 @@ from .backend_cairo import cairo  # noqa
 if gi.__name__ == "pgi" and cairo.__name__ == "cairo":
     raise ImportError("pgi and pycairo are not compatible")
 
+if gi.__name__ == "pgi" and gi.version_info < (0, 0, 11, 2):
+    raise ImportError("The GTK3 backends are incompatible with pgi<0.0.11.2")
 gi.require_version("Gtk", "3.0")
 globals().update(
     {name:

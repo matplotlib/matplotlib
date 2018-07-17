@@ -149,14 +149,17 @@ Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
-* :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the TkAgg backend;
+* :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends;
 * `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4) or
-  `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
-* `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
-* :term:`wxpython` (>= 4): for the WX or WXAgg backend;
-* `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`_ (>=0.8) or
+  `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4-based backends;
+* `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5-based backends;
+* `PyGObject <https://pypi.org/project/PyGObject/>`_ or
+  `pgi <https://pypi.org/project/pgi/>`_ (>= 0.0.11.2): for the GTK3-based
+  backends;
+* :term:`wxpython` (>= 4): for the WX-based backends;
+* `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`_ (>= 0.8) or
   `pycairo <https://pypi.python.org/pypi/pycairo>`_: for the cairo-based
-  backends (the latter is required for GTK3Cairo);
+  backends;
 * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend;
 
 For better support of animation output format and image file formats, LaTeX,
@@ -166,7 +169,7 @@ etc., you can install the following:
   <https://libav.org/avconv.html>`_: for saving movies;
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
   animated gifs;
-* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>=3.4): for a larger
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 3.4): for a larger
   selection of image file formats: JPEG, BMP, and TIFF image files;
 * `LaTeX <https://miktex.org/>`_ and `GhostScript
   <https://ghostscript.com/download/>`_ (for rendering text with LaTeX).

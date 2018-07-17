@@ -1,24 +1,26 @@
 """
-===============
-Demo Gridspec04
-===============
+================
+Nested Gridspecs
+================
+
+GridSpecs can be nested, so that a subplot from a parent GridSpec can
+set the position for a nested grid of subplots.
 
 """
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
 
-def make_ticklabels_invisible(fig):
+def format_axes(fig):
     for i, ax in enumerate(fig.axes):
         ax.text(0.5, 0.5, "ax%d" % (i+1), va="center", ha="center")
         ax.tick_params(labelbottom=False, labelleft=False)
 
 
 # gridspec inside gridspec
-
 f = plt.figure()
 
-gs0 = gridspec.GridSpec(1, 2)
+gs0 = gridspec.GridSpec(1, 2, figure=f)
 
 gs00 = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=gs0[0])
 
@@ -40,6 +42,6 @@ ax6 = plt.Subplot(f, gs01[-1, -1])
 f.add_subplot(ax6)
 
 plt.suptitle("GridSpec Inside GridSpec")
-make_ticklabels_invisible(f)
+format_axes(f)
 
 plt.show()

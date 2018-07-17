@@ -6,7 +6,6 @@ Connectionstyle Demo
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 
 fig, axs = plt.subplots(3, 5, figsize=(8, 4.8))
