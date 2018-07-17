@@ -478,7 +478,7 @@ class SetupPackage(object):
                 "Requires patches that have not been merged upstream.")
 
         if min_version and version != 'unknown':
-            if (not is_min_version(version, min_version)):
+            if not is_min_version(version, min_version):
                 raise CheckFailed(
                     "Requires %s %s or later.  Found %s." %
                     (package, min_version, version))

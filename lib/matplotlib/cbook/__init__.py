@@ -1095,7 +1095,7 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if isinstance(args[0], str) or not iterable(args[0]):
+    if is_scalar_or_string(args[0]):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []

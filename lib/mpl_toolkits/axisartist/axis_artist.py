@@ -216,7 +216,7 @@ class Ticks(Line2D, AttributeCopier):
         if self._axis is not None:
             if "color" not in kwargs:
                 kwargs["color"] = "auto"
-            if ("mew" not in kwargs) and ("markeredgewidth" not in kwargs):
+            if "mew" not in kwargs and "markeredgewidth" not in kwargs:
                 kwargs["markeredgewidth"] = "auto"
 
         Line2D.__init__(self, [0.], [0.], **kwargs)
@@ -1125,8 +1125,8 @@ class AxisArtist(martist.Artist):
         self.minor_ticks.draw(renderer)
         self.minor_ticklabels.draw(renderer)
 
-
-        if (self.major_ticklabels.get_visible() or self.minor_ticklabels.get_visible()):
+        if (self.major_ticklabels.get_visible()
+                or self.minor_ticklabels.get_visible()):
             self._draw_offsetText(renderer)
 
         return extents
@@ -1169,8 +1169,8 @@ class AxisArtist(martist.Artist):
         self.minor_ticks.draw(renderer)
         self.minor_ticklabels.draw(renderer)
 
-
-        if (self.major_ticklabels.get_visible() or self.minor_ticklabels.get_visible()):
+        if (self.major_ticklabels.get_visible()
+                or self.minor_ticklabels.get_visible()):
             self._draw_offsetText(renderer)
 
         return self.major_ticklabels.get_window_extents(renderer)
