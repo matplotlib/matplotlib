@@ -70,5 +70,4 @@ for i, usetex, preview in [[0, False, False],
     test_window_extent(ax, usetex=usetex, preview=preview)
 
 
-plt.draw()
 plt.show()

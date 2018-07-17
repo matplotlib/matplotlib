@@ -189,7 +189,6 @@ def test_all():
     ax.set_ylim(0., 1.)
     ax.set_aspect(2.)
 
-    plt.draw()
     plt.show()
 
 
