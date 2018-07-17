@@ -1,4 +1,5 @@
 import pytest
+import platform
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.patches as mpatches
@@ -68,6 +69,7 @@ def __prepare_fancyarrow_dpi_cor_test():
 
 @image_comparison(baseline_images=['fancyarrow_dpi_cor_100dpi'],
                   remove_text=True, extensions=['png'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   savefig_kwarg=dict(dpi=100))
 def test_fancyarrow_dpi_cor_100dpi():
     """
@@ -83,6 +85,7 @@ def test_fancyarrow_dpi_cor_100dpi():
 
 @image_comparison(baseline_images=['fancyarrow_dpi_cor_200dpi'],
                   remove_text=True, extensions=['png'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   savefig_kwarg=dict(dpi=200))
 def test_fancyarrow_dpi_cor_200dpi():
     """

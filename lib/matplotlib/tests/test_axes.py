@@ -1,6 +1,7 @@
 from itertools import product
 from distutils.version import LooseVersion
 import io
+import platform
 
 import datetime
 
@@ -3349,7 +3350,8 @@ def test_vertex_markers():
 
 
 @image_comparison(baseline_images=['vline_hline_zorder',
-                                   'errorbar_zorder'])
+                                   'errorbar_zorder'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_eb_line_zorder():
     x = list(range(10))
 
@@ -5120,7 +5122,8 @@ def test_title_location_roundtrip():
 
 
 @image_comparison(baseline_images=["loglog"], remove_text=True,
-                  extensions=['png'])
+                  extensions=['png'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_loglog():
     fig, ax = plt.subplots()
     x = np.arange(1, 11)
