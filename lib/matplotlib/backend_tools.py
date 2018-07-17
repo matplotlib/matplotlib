@@ -25,7 +25,7 @@ import matplotlib.cbook as cbook
 
 class Cursors(object):
     """Simple namespace for cursor reference"""
-    HAND, POINTER, SELECT_REGION, MOVE, WAIT = list(range(5))
+    HAND, POINTER, SELECT_REGION, MOVE, WAIT = range(5)
 cursors = Cursors()
 
 # Views positions tool
