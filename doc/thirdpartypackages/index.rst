@@ -71,6 +71,13 @@ make up the plot.
 Specialty plots
 ***************
 
+Broken Axes
+===========
+`brokenaxes <https://github.com/bendichter/brokenaxes>`_ supplies an axes
+class that can have a visual break to indicate a discontinuous range.
+
+.. image:: /_static/brokenaxes.png
+
 DeCiDa
 ======
 
@@ -152,6 +159,7 @@ Windrose
 `Windrose <https://github.com/scls19fr/windrose>`_ is a Python Matplotlib,
 Numpy library to manage wind data, draw windroses (also known as polar rose
 plots), draw probability density functions and fit Weibull distributions.
+
 
 Interactivity
 *************
