@@ -651,33 +651,12 @@ class Axes(maxes.Axes):
                                  )
         return axis
 
-
     def new_floating_axis(self, nth_coord, value, axis_direction="bottom"):
         gh = self.get_grid_helper()
         axis = gh.new_floating_axis(nth_coord, value,
                                     axis_direction=axis_direction,
                                     axes=self)
         return axis
-
-    def draw(self, renderer, inframe=False):
-        if not self._axisline_on:
-            super().draw(renderer, inframe)
-            return
-        orig_artists = self.artists
-        self.artists = [
-            *self.artists, *self._axislines.values(), self.gridlines]
-        super().draw(renderer, inframe)
-        self.artists = orig_artists
-
-    def get_tightbbox(self, renderer, call_axes_locator=True):
-        bb0 = super().get_tightbbox(renderer, call_axes_locator)
-        if not self._axisline_on:
-            return bb0
-        bb = [bb0] + [axisline.get_tightbbox(renderer)
-                      for axisline in self._axislines.values()
-                      if axisline.get_visible()]
-        bbox = Bbox.union([b for b in bb if b and (b.width!=0 or b.height!=0)])
-        return bbox
 
 
 Subplot = maxes.subplot_class_factory(Axes)
