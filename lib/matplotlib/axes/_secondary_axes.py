@@ -6,9 +6,47 @@ import warnings
 
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
+import matplotlib.scale as mscale
 
 from matplotlib.axes._base import _AxesBase
 
+from matplotlib.ticker import (
+    AutoLocator,
+    FixedLocator,
+    NullLocator,
+    NullFormatter,
+    FuncFormatter,
+    ScalarFormatter,
+    AutoMinorLocator,
+)
+
+class ArbitraryScale(mscale.ScaleBase):
+
+    name = 'arbitrary'
+
+    def __init__(self, axis, transform=mtransforms.IdentityTransform()):
+        """
+        TODO
+        """
+        self._transform = transform
+
+    def get_transform(self):
+        """
+        The transform for linear scaling is just the
+        :class:`~matplotlib.transforms.IdentityTransform`.
+        """
+        return self._transform
+
+    def set_default_locators_and_formatters(self, axis):
+        """
+        Set the locators and formatters to reasonable defaults for
+        linear scaling.
+        """
+        axis.set_major_locator(AutoLocator())
+        axis.set_major_formatter(ScalarFormatter())
+        axis.set_minor_formatter(NullFormatter())
+
+mscale.register_scale(ArbitraryScale)
 
 def _make_inset_locator(rect, trans, parent):
     """
@@ -120,13 +158,34 @@ class Secondary_Xaxis(_AxesBase):
         self.set_axes_locator(secondary_locator)
         self._y = y
 
+    def set_xticks(self, ticks, minor=False):
+        """
+        Set the x ticks with list of *ticks*
+
+        Parameters
+        ----------
+        ticks : list
+            List of x-axis tick locations.
+
+        minor : bool, optional
+            If ``False`` sets major ticks, if ``True`` sets minor ticks.
+            Default is ``False``.
+        """
+        ret = self.xaxis.set_ticks(ticks, minor=minor)
+        self.stale = True
+
+        lims = self._parent.get_xlim()
+        self.set_xlim(self._convert.transform(lims))
+        return ret
+
+
     def set_conversion(self, conversion):
         """
         Set how the secondary axis converts limits from the parent axes.
 
         Parameters
         ----------
-        conversion : tuple of floats or function
+        conversion : tuple of floats, transform, or string
             conversion between the parent xaxis values and the secondary xaxis
             values.  If a tuple of floats, the floats are polynomial
             co-efficients, with the first entry the highest exponent's
@@ -137,8 +196,9 @@ class Secondary_Xaxis(_AxesBase):
         """
 
         # make the _convert function...
-        if callable(conversion):
+        if isinstance(conversion, mtransforms.Transform):
             self._convert = conversion
+            self.set_xscale('arbitrary', transform=conversion)
         else:
             if isinstance(conversion, numbers.Number):
                 conversion = np.asanyarray([conversion])
@@ -158,7 +218,13 @@ class Secondary_Xaxis(_AxesBase):
 
         """
         lims = self._parent.get_xlim()
-        self.set_xlim(self._convert(lims))
+        order = lims[0] < lims[1]
+        lims = self._convert.transform(lims)
+        neworder = lims[0] < lims[1]
+        if neworder != order:
+            # flip because the transform will take care of the flipping..
+            lims = lims[::-1]
+        self.set_xlim(lims)
         super().draw(renderer=renderer, inframe=inframe)
 
     def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
