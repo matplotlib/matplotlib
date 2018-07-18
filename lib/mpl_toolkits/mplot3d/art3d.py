@@ -183,7 +183,7 @@ def line_2d_to_3d(line, zs=0, zdir='z'):
 def path_to_3d_segment(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment."""
     seg3d = np.empty((3, len(path)))
-    # Works both if zs is and array and a scalar
+    # Works both if zs is an array or a scalar
     seg3d[2, :] = zs
 
     pathsegs = path.iter_segments(simplify=False, curves=False)
@@ -194,7 +194,11 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
 
 
 def paths_to_3d_segments(paths, zs=0, zdir='z'):
-    """Convert paths from a collection object to 3D segments."""
+    """Convert paths from a collection object to 3D segments.
+
+    .. versionchanged :: 1.3.1
+       This function returns a numpy array instead of a list
+    """
 
     zs = np.broadcast_to(zs, len(paths))
     segs = [path_to_3d_segment(path, pathz, zdir)
@@ -226,9 +230,12 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
 
     path_generator = (path_to_3d_segment_with_codes(path, pathz, zdir)
                       for path, pathz in zip(paths, zs))
-    segments, codes_list = zip(*path_generator)
+    if len(paths) and len(zs):
+        segments, codes_list = zip(*path_generator)
 
-    return np.asarray(segments), np.asarray(codes_list)
+        return np.asarray(segments), np.asarray(codes_list)
+    else:
+        return np.empty((3, 0)), np.array([])
 
 
 class Line3DCollection(LineCollection):
@@ -267,11 +274,11 @@ class Line3DCollection(LineCollection):
         """
         if len(self._segments3d) == 0:
             return 1e9
-        xys = proj3d.proj_transform_vec(self._segments3d_data.T, renderer.M).T
-        segments_2d = _array_split(xys[:, :2],
+        xys = proj3d.proj_transform_vec(self._segments3d_data.T, renderer.M)
+        segments_2d = _array_split(xys[:2].T,
                                    np.cumsum(self._seg_sizes))
         LineCollection.set_segments(self, segments_2d)
-        minz = np.min(xys[:, 2])
+        minz = np.min(xys[2])
         return minz
 
     @artist.allow_rasterization
@@ -458,7 +465,7 @@ class Path3DCollection(PathCollection):
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
-    def set_sort_zpos(self, val):
+    def set_sort_zpos(self,val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True
@@ -469,7 +476,7 @@ class Path3DCollection(PathCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         offsets = np.hstack([offsets,
-                             (np.ones(len(offsets)) * zs)[:, np.newaxis]])
+                             np.broadcast_to(zs, len(offsets))[:, np.newaxis]])
         self._offsets3d = _juggle_axes_vec(offsets, zdir).T
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()

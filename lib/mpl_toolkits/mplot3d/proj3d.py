@@ -128,10 +128,12 @@ def ortho_transformation(zfront, zback):
                      [0,0,a,b]
                      ])
 
+
 def proj_transform_vec(vec, M):
     vecw = np.dot(M, vec)
-    vecw /= vecw[3]
-    return vecw[0:3]
+    vecw[:3] /= vecw[3]
+    return vecw[:3]
+
 
 def proj_transform_vec_clip(vec, M):
     vecw = np.dot(M, vec)
@@ -139,10 +141,11 @@ def proj_transform_vec_clip(vec, M):
     tis = (0 <= vecw[0]) & (vecw[0] <= 1) & (0 <= vecw[1]) & (vecw[1] <= 1)
     if np.any(tis):
         tis = vecw[1] < 1
-    vecw /= vecw[3]
+    vecw[:3] /= vecw[3]
     # Integrating tis in the numpy array for optimization purposes
     vecw[3] = tis
     return vecw
+
 
 def inv_transform(xs, ys, zs, M):
     iM = linalg.inv(M)
