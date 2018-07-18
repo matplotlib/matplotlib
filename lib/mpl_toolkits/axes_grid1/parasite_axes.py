@@ -54,11 +54,9 @@ ParasiteAxes = parasite_axes_class_factory()
 class ParasiteAxesAuxTransBase:
     def __init__(self, parent_axes, aux_transform, viewlim_mode=None,
                  **kwargs):
-
         self.transAux = aux_transform
         self.set_viewlim_mode(viewlim_mode)
-
-        self._parasite_axes_class.__init__(self, parent_axes, **kwargs)
+        super().__init__(parent_axes, **kwargs)
 
     def _set_lim_and_transforms(self):
 
@@ -176,8 +174,7 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
         parasite_axes_class = axes_class
     return type("%sParasiteAuxTrans" % parasite_axes_class.__name__,
                 (ParasiteAxesAuxTransBase, parasite_axes_class),
-                {'_parasite_axes_class': parasite_axes_class,
-                 'name': 'parasite_axes'})
+                {'name': 'parasite_axes'})
 
 
 ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(
