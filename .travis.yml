@@ -63,7 +63,7 @@ env:
     - NPROC=2
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
-    - PYTEST_ADDOPTS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - PYTEST_ADDOPTS="-raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - RUN_FLAKE8=
 
 matrix:
