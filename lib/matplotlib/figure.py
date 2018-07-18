@@ -354,13 +354,12 @@ class Figure(Artist):
         self._dpi = dpi
         self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
 
-        self.frameon = frameon
-
         self.transFigure = BboxTransformTo(self.bbox)
 
         self.patch = Rectangle(
             xy=(0, 0), width=1, height=1,
-            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth)
+            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth,
+            visible=frameon)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
@@ -640,15 +639,14 @@ class Figure(Artist):
 
     def get_children(self):
         """Get a list of artists contained in the figure."""
-        children = [self.patch]
-        children.extend(self.artists)
-        children.extend(self.axes)
-        children.extend(self.lines)
-        children.extend(self.patches)
-        children.extend(self.texts)
-        children.extend(self.images)
-        children.extend(self.legends)
-        return children
+        return [self.patch,
+                *self.artists,
+                *self.axes,
+                *self.lines,
+                *self.patches,
+                *self.texts,
+                *self.images,
+                *self.legends]
 
     def contains(self, mouseevent):
         """
@@ -937,9 +935,10 @@ default: 'top'
         """Return the resolution in dots per inch as a float."""
         return self.dpi
 
+    @cbook.deprecated("3.1", alternative="figure.patch.get_visible")
     def get_frameon(self):
         """Return whether the figure frame will be drawn."""
-        return self.frameon
+        return self.patch.get_visible()
 
     def set_edgecolor(self, color):
         """
@@ -994,6 +993,7 @@ default: 'top'
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
+    @cbook.deprecated("3.1", alternative="figure.patch.set_visible")
     def set_frameon(self, b):
         """
         Set whether the figure frame (background) is displayed or invisible.
@@ -1002,8 +1002,10 @@ default: 'top'
         ----------
         b : bool
         """
-        self.frameon = b
+        self.patch.set_visible(b)
         self.stale = True
+
+    frameon = property(get_frameon, set_frameon)
 
     def delaxes(self, ax):
         """
@@ -1623,11 +1625,10 @@ default: 'top'
         if not self.get_visible():
             return
 
+        artists = self.get_children()
+        artists.remove(self.patch)
         artists = sorted(
-            (artist for artist in (self.patches + self.lines + self.artists
-                                   + self.images + self.axes + self.texts
-                                   + self.legends)
-             if not artist.get_animated()),
+            (artist for artist in artists if not artist.get_animated()),
             key=lambda artist: artist.get_zorder())
 
         try:
@@ -1642,9 +1643,7 @@ default: 'top'
                     pass
                     # ValueError can occur when resizing a window.
 
-            if self.frameon:
-                self.patch.draw(renderer)
-
+            self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
                 renderer, self, artists, self.suppressComposite)
 
@@ -2104,13 +2103,13 @@ default: 'top'
             kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
 
         if frameon:
-            original_frameon = self.get_frameon()
-            self.set_frameon(frameon)
+            original_frameon = self.patch.get_visible()
+            self.patch.set_visible(frameon)
 
         self.canvas.print_figure(fname, **kwargs)
 
         if frameon:
-            self.set_frameon(original_frameon)
+            self.patch.set_visible(original_frameon)
 
         if transparent:
             for ax, cc in zip(self.axes, original_axes_colors):
