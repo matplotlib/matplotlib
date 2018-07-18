@@ -20,34 +20,6 @@ from matplotlib.ticker import (
     AutoMinorLocator,
 )
 
-class ArbitraryScale(mscale.ScaleBase):
-
-    name = 'arbitrary'
-
-    def __init__(self, axis, transform=mtransforms.IdentityTransform()):
-        """
-        TODO
-        """
-        self._transform = transform
-
-    def get_transform(self):
-        """
-        The transform for linear scaling is just the
-        :class:`~matplotlib.transforms.IdentityTransform`.
-        """
-        return self._transform
-
-    def set_default_locators_and_formatters(self, axis):
-        """
-        Set the locators and formatters to reasonable defaults for
-        linear scaling.
-        """
-        axis.set_major_locator(AutoLocator())
-        axis.set_major_formatter(ScalarFormatter())
-        axis.set_minor_formatter(NullFormatter())
-
-mscale.register_scale(ArbitraryScale)
-
 def _make_inset_locator(rect, trans, parent):
     """
     Helper function to locate inset axes, used in
@@ -75,14 +47,31 @@ def _make_inset_locator(rect, trans, parent):
     return inset_locator
 
 
+def _parse_conversion(name, otherargs):
+    print(otherargs)
+    if name == 'inverted':
+        if otherargs is None:
+            otherargs = [1.]
+        otherargs = np.atleast_1d(otherargs)
+        return _InvertTransform(otherargs[0])
+    elif name == 'power':
+        otherargs = np.atleast_1d(otherargs)
+        return _PowerTransform(a=otherargs[0], b=otherargs[1])
+    elif name == 'linear':
+        otherargs = np.asarray(otherargs)
+        return _LinearTransform(slope=otherargs[0], offset=otherargs[1])
+    else:
+        raise ValueError(f'"{name}" not a possible conversion string')
+
 class Secondary_Xaxis(_AxesBase):
     """
     General class to hold a Secondary_X/Yaxis.
     """
 
-    def __init__(self, parent, location, conversion, **kwargs):
+    def __init__(self, parent, location, conversion, otherargs=None, **kwargs):
         self._conversion = conversion
         self._parent = parent
+        self._otherargs = otherargs
 
         super().__init__(self._parent.figure, [0, 1., 1, 0.0001], **kwargs)
 
@@ -97,7 +86,7 @@ class Secondary_Xaxis(_AxesBase):
             self.set_axis_orientation('top')
         else:
             self.set_axis_orientation('bottom')
-        self.set_conversion(conversion)
+        self.set_conversion(conversion, self._otherargs)
 
     def set_axis_orientation(self, orient):
         """
@@ -179,33 +168,55 @@ class Secondary_Xaxis(_AxesBase):
         return ret
 
 
-    def set_conversion(self, conversion):
+    def set_conversion(self, conversion, otherargs=None):
         """
         Set how the secondary axis converts limits from the parent axes.
 
         Parameters
         ----------
-        conversion : tuple of floats, transform, or string
-            conversion between the parent xaxis values and the secondary xaxis
-            values.  If a tuple of floats, the floats are polynomial
-            co-efficients, with the first entry the highest exponent's
-            co-efficient (i.e. [2, 3, 1] is the same as
-            ``xnew = 2 x**2 + 3 * x + 1``, passed to `numpy.polyval`).
-            If a function is specified it should accept a float as input and
-            return a float as the result.
+        conversion : float, two-tuple of floats, transform, or string
+            transform between the parent xaxis values and the secondary xaxis
+            values.  If a single floats, a linear transform with the
+            float as the slope is used.  If a 2-tuple of floats, the first
+            is the slope, and the second the offset.
+
+            If a transform is supplied, then the transform must have an
+            inverse.
+
+            For convenience a few common transforms are provided by using
+            a string:
+              - 'linear': as above.  ``otherargs = (slope, offset)`` must
+              be supplied.
+              - 'inverted': a/x where ``otherargs = a`` can be supplied
+              (defaults to 1)
+              - 'power': b x^a  where ``otherargs = (a, b)`` must be
+              supplied
+
         """
 
         # make the _convert function...
         if isinstance(conversion, mtransforms.Transform):
             self._convert = conversion
-            self.set_xscale('arbitrary', transform=conversion)
+            self.set_xscale('arbitrary', transform=conversion.inverted())
+        elif isinstance(conversion, str):
+            self._convert = _parse_conversion(conversion, otherargs)
+            self.set_xscale('arbitrary', transform=self._convert.inverted())
         else:
+            # linear conversion with offset
             if isinstance(conversion, numbers.Number):
                 conversion = np.asanyarray([conversion])
-            shp = len(conversion)
-            if shp < 2:
+            if len(conversion) > 2:
+                raise ValueError('secondary_axes conversion can be a '
+                                 'float, two-tuple of float, a transform '
+                                 'with an inverse, or a string.')
+            elif len(conversion) < 2:
                 conversion = np.array([conversion, 0.])
-            self._convert = lambda x: np.polyval(conversion, x)
+            conversion = _LinearTransform(slope=conversion[0],
+                                          offset=conversion[1])
+            self._convert = conversion
+            # this will track log/non log so long as the user sets...
+            self.set_xscale(self._parent.get_xscale())
+
 
     def draw(self, renderer=None, inframe=False):
         """
@@ -509,3 +520,182 @@ class Secondary_Yaxis(_AxesBase):
         """
         """
         warnings.warn("Secondary axes can't set the aspect ratio")
+
+
+class _LinearTransform(mtransforms.AffineBase):
+    """
+    Linear transform 1d
+    """
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
+    def __init__(self, slope, offset):
+        mtransforms.AffineBase.__init__(self)
+        self._slope = slope
+        self._offset = offset
+
+    def transform_affine(self, values):
+        return np.asarray(values) * self._slope + self._offset
+
+    def inverted(self):
+        return _InvertedLinearTransform(self._slope, self._offset)
+
+
+class _InverseLinearTransform(mtransforms.AffineBase):
+    """
+    Inverse linear transform 1d
+    """
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
+    def __init__(self, slope, offset):
+        mtransforms.AffineBase.__init__(self)
+        self._slope = slope
+        self._offset = offset
+
+    def transform_affine(self, values):
+        return (np.asarray(values) - self._offset) / self._slope
+
+    def inverted(self):
+        return _LinearTransform(self._slope, self._offset)
+
+def _mask_out_of_bounds(a):
+    """
+    Return a Numpy array where all values outside ]0, 1[ are
+    replaced with NaNs. If all values are inside ]0, 1[, the original
+    array is returned.
+    """
+    a = numpy.array(a, float)
+    mask = (a <= 0.0) | (a >= 1.0)
+    if mask.any():
+        return numpy.where(mask, numpy.nan, a)
+    return a
+
+class _InvertTransform(mtransforms.Transform):
+    """
+    Return a/x
+    """
+
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
+    def __init__(self, fac, out_of_bounds='mask'):
+        mtransforms.Transform.__init__(self)
+        self._fac = fac
+        self.out_of_bounds = out_of_bounds
+        if self.out_of_bounds == 'mask':
+            self._handle_out_of_bounds = _mask_out_of_bounds
+        elif self.out_of_bounds == 'clip':
+            self._handle_out_of_bounds = _clip_out_of_bounds
+        else:
+            raise ValueError("`out_of_bounds` muse be either 'mask' or 'clip'")
+
+    def transform_non_affine(self, values):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            q = self._fac / values
+        return q
+
+    def inverted(self):
+        """ we are just our own inverse """
+        return _InvertTransform(1 / self._fac)
+
+
+class _PowerTransform(mtransforms.Transform):
+    """
+    Return b * x^a
+    """
+
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
+    def __init__(self, a, b, out_of_bounds='mask'):
+        mtransforms.Transform.__init__(self)
+        self._a = a
+        self._b = b
+        self.out_of_bounds = out_of_bounds
+        if self.out_of_bounds == 'mask':
+            self._handle_out_of_bounds = _mask_out_of_bounds
+        elif self.out_of_bounds == 'clip':
+            self._handle_out_of_bounds = _clip_out_of_bounds
+        else:
+            raise ValueError("`out_of_bounds` muse be either 'mask' or 'clip'")
+
+    def transform_non_affine(self, values):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            q = self._b * (values ** self._a)
+            print('forward', values, q)
+        return q
+
+    def inverted(self):
+        """ we are just our own inverse """
+        return _InversePowerTransform(self._a, self._b)
+
+
+class _InversePowerTransform(mtransforms.Transform):
+    """
+    Return b * x^a
+    """
+
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
+    def __init__(self, a, b, out_of_bounds='mask'):
+        mtransforms.Transform.__init__(self)
+        self._a = a
+        self._b = b
+        self.out_of_bounds = out_of_bounds
+        if self.out_of_bounds == 'mask':
+            self._handle_out_of_bounds = _mask_out_of_bounds
+        elif self.out_of_bounds == 'clip':
+            self._handle_out_of_bounds = _clip_out_of_bounds
+        else:
+            raise ValueError("`out_of_bounds` must be either 'mask' or 'clip'")
+
+    def transform_non_affine(self, values):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            q =  (values / self._b) ** (1 / self._a)
+            print(values, q)
+        return q
+
+    def inverted(self):
+        """ we are just our own inverse """
+        return _PowerTransform(self._a, self._b)
+
+
+class ArbitraryScale(mscale.ScaleBase):
+
+    name = 'arbitrary'
+
+    def __init__(self, axis, transform=mtransforms.IdentityTransform()):
+        """
+        TODO
+        """
+        self._transform = transform
+
+    def get_transform(self):
+        """
+        The transform for linear scaling is just the
+        :class:`~matplotlib.transforms.IdentityTransform`.
+        """
+        return self._transform
+
+    def set_default_locators_and_formatters(self, axis):
+        """
+        Set the locators and formatters to reasonable defaults for
+        linear scaling.
+        """
+        axis.set_major_locator(AutoLocator())
+        axis.set_major_formatter(ScalarFormatter())
+        axis.set_minor_formatter(NullFormatter())
+
+mscale.register_scale(ArbitraryScale)
