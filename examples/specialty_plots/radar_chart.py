@@ -90,7 +90,7 @@ def radar_factory(num_vars, frame='circle'):
 
         def _gen_axes_spines(self):
             if frame == 'circle':
-                return PolarAxes._gen_axes_spines(self)
+                return super()._gen_axes_spines()
             # The following is a hack to get the spines (i.e. the axes frame)
             # to draw correctly for a polygon frame.
 

@@ -89,7 +89,6 @@ class MenuItem(artist.Artist):
         self.label.ox = x + self.padx
         self.label.oy = y - self.depth + self.pady/2.
 
-        self.rect._update_patch_transform()
         self.hover = False
 
     def draw(self, renderer):
