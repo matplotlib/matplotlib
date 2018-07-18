@@ -16,7 +16,7 @@ import matplotlib
 from matplotlib import dviread
 
 
-needs_usetex = pytest.mark.xfail(
+needs_usetex = pytest.mark.skipif(
     not matplotlib.checkdep_usetex(True),
     reason="This test needs a TeX installation")
 

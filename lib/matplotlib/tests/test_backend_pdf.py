@@ -20,7 +20,7 @@ from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 
 
-needs_usetex = pytest.mark.xfail(
+needs_usetex = pytest.mark.skipif(
     not checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
