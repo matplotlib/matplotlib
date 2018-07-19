@@ -25,16 +25,16 @@ local FreeType build
 
 The following software is required to run the tests:
 
-  - pytest_ (>=3.4)
-  - Ghostscript_ (to render PDF files)
-  - Inkscape_ (to render SVG files)
+- pytest_ (>=3.4)
+- Ghostscript_ (to render PDF files)
+- Inkscape_ (to render SVG files)
 
 Optionally you can install:
 
-  - pytest-cov_ (>=2.3.1) to collect coverage information
-  - pytest-pep8_ to test coding standards
-  - pytest-timeout_ to limit runtime in case of stuck tests
-  - pytest-xdist_ to run tests in parallel
+- pytest-cov_ (>=2.3.1) to collect coverage information
+- pytest-pep8_ to test coding standards
+- pytest-timeout_ to limit runtime in case of stuck tests
+- pytest-xdist_ to run tests in parallel
 
 
 Running the tests
@@ -188,16 +188,14 @@ a feature dependent on that backend.
 There are two optional keyword arguments to the `image_comparison`
 decorator:
 
-   - `extensions`: If you only wish to test additional image formats
-     (rather than just `png`), pass any additional file types in the
-     list of the extensions to test.  When copying the new
-     baseline files be sure to only copy the output files, not their
-     conversions to ``png``.  For example only copy the files
-     ending in ``pdf``, not in ``_pdf.png``.
+- `extensions`: If you only wish to test additional image formats (rather than
+  just `png`), pass any additional file types in the list of the extensions to
+  test.  When copying the new baseline files be sure to only copy the output
+  files, not their conversions to ``png``.  For example only copy the files
+  ending in ``pdf``, not in ``_pdf.png``.
 
-   - `tol`: This is the image matching tolerance, the default `1e-3`.
-     If some variation is expected in the image between runs, this
-     value may be adjusted.
+- `tol`: This is the image matching tolerance, the default `1e-3`. If some
+  variation is expected in the image between runs, this value may be adjusted.
 
 Known failing tests
 -------------------
