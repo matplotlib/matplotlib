@@ -1,5 +1,6 @@
 import numpy as np
-from .axes_divider import make_axes_locatable, Size, locatable_axes_factory
+
+from .axes_divider import make_axes_locatable, Size
 from .mpl_axes import Axes
 
 
@@ -23,9 +24,9 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
     ax_rgb = []
     if axes_class is None:
         try:
-            axes_class = locatable_axes_factory(ax._axes_class)
+            axes_class = ax._axes_class
         except AttributeError:
-            axes_class = locatable_axes_factory(type(ax))
+            axes_class = type(ax)
 
     for ny in [4, 2, 0]:
         ax1 = axes_class(ax.get_figure(),
