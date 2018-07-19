@@ -3,7 +3,7 @@ import warnings
 import platform
 
 from matplotlib import rcParams
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter
 import matplotlib.pyplot as plt
@@ -381,6 +381,32 @@ def test_warn_cl_plus_tl():
         # this should warn,
         fig.subplots_adjust(top=0.8)
     assert not(fig.get_constrained_layout())
+
+
+@check_figures_equal(extensions=["png", "pdf", "svg"])
+def test_add_artist(fig_test, fig_ref):
+    fig_test.set_dpi(100)
+    fig_ref.set_dpi(100)
+
+    ax = fig_test.subplots()
+    l1 = plt.Line2D([.2, .7], [.7, .7])
+    l2 = plt.Line2D([.2, .7], [.8, .8])
+    r1 = plt.Circle((20, 20), 100, transform=None)
+    r2 = plt.Circle((.7, .5), .05)
+    r3 = plt.Circle((4.5, .8), .55, transform=fig_test.dpi_scale_trans,
+                    facecolor='crimson')
+    for a in [l1, l2, r1, r2, r3]:
+        fig_test.add_artist(a)
+    l2.remove()
+
+    ax2 = fig_ref.subplots()
+    l1 = plt.Line2D([.2, .7], [.7, .7], transform=fig_ref.transFigure)
+    r1 = plt.Circle((20, 20), 100, transform=None, clip_on=False, zorder=20)
+    r2 = plt.Circle((.7, .5), .05, transform=fig_ref.transFigure)
+    r3 = plt.Circle((4.5, .8), .55, transform=fig_ref.dpi_scale_trans,
+                    facecolor='crimson', clip_on=False, zorder=20)
+    for a in [l1, r1, r2, r3]:
+        ax2.add_artist(a)
 
 
 @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")

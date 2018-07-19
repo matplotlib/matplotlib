@@ -190,6 +190,7 @@ specify a number that is close (i.e. ``ax.title.set_position(0.5, 1.01)``)
 and the title will not be moved via this algorithm.
 
 
+
 New convenience methods for GridSpec
 ------------------------------------
 
@@ -209,6 +210,23 @@ now call `.Figure.add_gridspec` and for the latter `.SubplotSpec.subgridspec`.
     for i in range(3):
         fig.add_subplot(gssub[0, i])
 
+
+Figure has an `~.figure.Figure.add_artist` method
+-------------------------------------------------
+
+A method `~.figure.Figure.add_artist` has been added to the
+:class:`~.figure.Figure` class, which allows artists to be added directly
+to a figure. E.g.
+
+::
+
+    circ = plt.Circle((.7, .5), .05)
+    fig.add_artist(circ)
+
+In case the added artist has no transform set previously, it will be set to
+the figure transform (``fig.transFigure``).
+This new method may be useful for adding artists to figures without axes or to
+easily position static elements in figure coordinates.
 
 
 
