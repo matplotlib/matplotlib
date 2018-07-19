@@ -472,12 +472,13 @@ class FigureManagerTk(FigureManagerBase):
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
         self.canvas = canvas
+        # If using toolmanager it has to be present when initializing the toolbar
+        self.toolmanager = self._get_toolmanager()
         # packing toolbar first, because if space is getting low, last packed widget is getting shrunk first (-> the canvas)
         self.toolbar = self._get_toolbar()
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self._num = num
 
-        self.toolmanager = self._get_toolmanager()
         self.statusbar = None
 
         if self.toolmanager:
