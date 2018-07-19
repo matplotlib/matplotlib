@@ -1249,9 +1249,6 @@ class Line2D(Artist):
                                    other._marker.get_fillstyle())
         self._drawstyle = other._drawstyle
 
-    def _get_rgba_face(self, alt=False):
-        return mcolors.to_rgba(self._get_markerfacecolor(alt=alt), self._alpha)
-
     def set_dash_joinstyle(self, s):
         """
         Set the join style for dashed linestyles.
