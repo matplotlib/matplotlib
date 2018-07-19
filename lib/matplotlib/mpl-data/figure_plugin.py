@@ -3,6 +3,7 @@ Plugin for drag and drop matplotlib.Figure in QtDesigner
 """
 import os.path
 
+import matplotlib
 from matplotlib.backends.backend_qt5agg import _FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -66,7 +67,8 @@ class FigureDesignerPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     def icon(self):
         """Icon displayed alongside Widget selection"""
         mpl_data = os.path.dirname(__file__)
-        mpl_icon = os.path.join(mpl_data, 'images/matplotlib_large.png')
+        mpl_icon = os.path.join(matplotlib.rcParams['datapath'],
+                                'images', 'matplotlib_large.png')
         return QtGui.QIcon(mpl_icon)
 
     def domXml(self):
