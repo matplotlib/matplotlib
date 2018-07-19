@@ -251,10 +251,6 @@ html_file_suffix = '.html'
 # using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-#html_use_smartypants = True
-
 # Content template for the index page.
 html_index = 'index.html'
 
@@ -282,6 +278,9 @@ html_use_opensearch = 'False'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Matplotlibdoc'
+
+# Use typographic quote characters.
+smartquotes = False
 
 # Path to favicon
 html_favicon = '_static/favicon.ico'

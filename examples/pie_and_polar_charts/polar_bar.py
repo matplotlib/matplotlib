@@ -27,3 +27,18 @@ for r, bar in zip(radii, bars):
     bar.set_alpha(0.5)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.bar
+matplotlib.pyplot.bar
+matplotlib.projections.polar

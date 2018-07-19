@@ -3,7 +3,7 @@
 Pcolor Demo
 ===========
 
-Generating images with pcolor.
+Generating images with :meth:`~.axes.Axes.pcolor`.
 
 Pcolor allows you to generate 2-D image-style plots. Below we will show how
 to do so in Matplotlib.
@@ -33,8 +33,9 @@ plt.show()
 # Comparing pcolor with similar functions
 # ---------------------------------------
 #
-# Demonstrates similarities between pcolor, pcolormesh, imshow and pcolorfast
-# for drawing quadrilateral grids.
+# Demonstrates similarities between :meth:`~.axes.Axes.pcolor`,
+# :meth:`~.axes.Axes.pcolormesh`, :meth:`~.axes.Axes.imshow` and
+# :meth:`~.axes.Axes.pcolorfast` for drawing quadrilateral grids.
 
 # make these smaller to increase the resolution
 dx, dy = 0.15, 0.05
@@ -106,3 +107,25 @@ c = ax1.pcolor(X, Y, Z, cmap='PuBu_r')
 fig.colorbar(c, ax=ax1)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.pcolor
+matplotlib.pyplot.pcolor
+matplotlib.axes.Axes.pcolormesh
+matplotlib.pyplot.pcolormesh
+matplotlib.axes.Axes.pcolorfast
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.colors.LogNorm

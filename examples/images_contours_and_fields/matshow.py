@@ -3,7 +3,7 @@
 Matshow
 =======
 
-Simple matshow() example.
+Simple `~.axes.Axes.matshow` example.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,3 +21,17 @@ def samplemat(dims):
 plt.matshow(samplemat((15, 15)))
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.matshow
+matplotlib.pyplot.matshow

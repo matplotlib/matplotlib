@@ -123,3 +123,20 @@ plt.show()
 # And here it is, the donut. Note however, that if we were to use this recipe,
 # the ingredients would suffice for around 6 donuts - producing one huge
 # donut is untested and might result in kitchen errors.
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.pie
+matplotlib.pyplot.pie
+matplotlib.axes.Axes.legend
+matplotlib.pyplot.legend

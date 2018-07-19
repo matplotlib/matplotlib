@@ -76,3 +76,22 @@ ax.bar(x=valsleft.flatten(),
 ax.set(title="Pie plot with `ax.bar` and polar coordinates")
 ax.set_axis_off()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.pie
+matplotlib.pyplot.pie
+matplotlib.axes.Axes.bar
+matplotlib.pyplot.bar
+matplotlib.projections.polar
+matplotlib.axes.Axes.set
+matplotlib.axes.Axes.set_axis_off
