@@ -10,6 +10,7 @@ from cycler import cycler, Cycler
 import pytest
 
 import matplotlib as mpl
+from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
@@ -120,8 +121,7 @@ def test_Bug_2543():
     # printed in the test suite.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
-                                message='.*(deprecated|obsolete)',
-                                category=UserWarning)
+                                category=MatplotlibDeprecationWarning)
         with mpl.rc_context():
             _copy = mpl.rcParams.copy()
             for key in _copy:
