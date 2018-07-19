@@ -3,7 +3,7 @@ Plugin for drag and drop matplotlib.Figure in QtDesigner
 """
 import os.path
 
-from matplotlib.backends.backend_qt5 import FigureCanvasQT
+from matplotlib.backends.backend_qt5agg import _FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 # Pyside and Pyside2 do not support the QtDesigner functionality that is
@@ -38,14 +38,12 @@ class FigureDesignerPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     def createWidget(self, parent):
         """Create a FigureCanvasQT instance"""
         # Create the Canvas with a new Figure
-        fig = FigureCanvasQT(Figure())
-        # Set the parent of the newly created widget
-        fig.setParent(parent)
+        fig = _FigureCanvasQTAgg(parent)
         return fig
 
     def name(self):
         """Name of plugin displayed in QtDesigner"""
-        return "FigureCanvasQT"
+        return "_FigureCanvasQTAgg"
 
     def group(self):
         """Name of plugin group header in QtDesigner"""
@@ -86,4 +84,4 @@ class FigureDesignerPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         """Include a link to this file for reference"""
-        return FigureCanvasQT.__module__
+        return _FigureCanvasQTAgg.__module__

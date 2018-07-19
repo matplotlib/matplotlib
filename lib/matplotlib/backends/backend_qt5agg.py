@@ -5,6 +5,7 @@ Render to qt from agg
 import ctypes
 
 from matplotlib.transforms import Bbox
+from matplotlib.figure import Figure
 
 from .backend_agg import FigureCanvasAgg
 from .backend_qt5 import (
@@ -88,3 +89,12 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 @_BackendQT5.export
 class _BackendQT5Agg(_BackendQT5):
     FigureCanvas = FigureCanvasQTAgg
+
+
+class _FigureCanvasQTAgg(FigureCanvasQTAgg):
+    """Subclass of FigureCanvasQTAgg that accepts a QWidget as its sole arg
+    """
+    def __init__(self, parent):
+        figure = Figure()
+        super().__init__(figure)
+        self.setParent(parent)
