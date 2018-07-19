@@ -18,6 +18,7 @@ import warnings
 
 import matplotlib as mpl
 from matplotlib import rc_params_from_file, rcParamsDefault
+from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
@@ -25,7 +26,7 @@ __all__ = ['use', 'context', 'available', 'library', 'reload_library']
 
 BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
-USER_LIBRARY_PATHS = [os.path.join(mpl._get_configdir(), 'stylelib')]
+USER_LIBRARY_PATHS = [os.path.join(mpl.get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
 STYLE_FILE_PATTERN = re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
 
@@ -98,7 +99,11 @@ def use(style):
         if not isinstance(style, str):
             _apply_style(style)
         elif style == 'default':
-            _apply_style(rcParamsDefault, warn=False)
+            # Deprecation warnings were already handled when creating
+            # rcParamsDefault, no need to reemit them here.
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+                _apply_style(rcParamsDefault, warn=False)
         elif style in library:
             _apply_style(library[style])
         else:

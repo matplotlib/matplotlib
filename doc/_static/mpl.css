@@ -23,6 +23,10 @@ a {
     text-decoration: none;
 }
 
+a:hover {
+    color: #2491CF;
+}
+
 div.highlight-python a {
     color: #CA7900;
 }
@@ -33,10 +37,6 @@ div.highlight-python a:hover {
 
 strong {
   font-weight: strong;
-}
-
-a:hover {
-    color: #2491CF;
 }
 
 pre {
@@ -245,7 +245,8 @@ div.sphinxsidebar h3 a {
 
 div.sphinxsidebar ul {
     padding-left: 1.5em;
-    margin-top: 7px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     list-style: none;
     padding: 0;
     line-height: 130%;
@@ -253,7 +254,9 @@ div.sphinxsidebar ul {
 
 div.sphinxsidebar ul ul {
     list-style: square;
-    margin-left: 20px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-left: 16px;
 }
 
 div.sphinxsidebar #searchbox input {
@@ -406,7 +409,7 @@ div.seealso {
     color: #3F5E7F;
   }
 
-div.warning {
+div.warning, div.important {
     background-color: #F3E5E5;
     border-color: #CC8E8E;
     color: #7F1919;
@@ -493,6 +496,12 @@ p.topic-title {
 
 .contents > ul > li {
     padding-top: 0.7em;
+}
+
+.contents ul > li::before {
+    content: "\25FE";
+    color: #bbb;
+    padding-right: .3em;
 }
 
 .contents > ul > li > a {
@@ -633,6 +642,10 @@ table.docutils tr:last-of-type td {
     border-bottom-color: #888;
 }
 
+table.docutils tr:first-of-type td {
+    border-top-color: #888;
+}
+
 /* Section titles within classes */
 dl.class p.rubric {
     font-size: 16px;
@@ -712,13 +725,23 @@ td.field-body table.property-table tr:last-of-type td {
 /* top-level definitions */
 dl.class, dl.function {
     border-top: 1px solid #888;
-    padding-top: 6px;
+    padding-top: 0px;
     margin-top: 20px;
 }
 
 dl.method, dl.classmethod, dl.staticmethod, dl.attribute {
     border-top: 1px solid #ccc;
-    padding-top: 6px;
+    padding-top: 0px;
+}
+
+
+dl.class > dt, dl.classmethod > dt, dl.method > dt, dl.function > dt, 
+dl.attribute > dt, dl.staticmethod > dt {
+    background-color: #eff3f4;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 2px;
+    padding-bottom: 1px;
 }
 
 em.property {
@@ -1053,6 +1076,10 @@ div.sphx-glr-download a {
 }
 
 p.sphx-glr-signature {
+   display: none !important;
+}
+
+div.sphx-glr-download-link-note {
    display: none !important;
 }
 

@@ -78,7 +78,7 @@ def example_plot(ax, fontsize=12, nodec=False):
         ax.set_yticklabels('')
 
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(constrained_layout=False)
 example_plot(ax, fontsize=24)
 
 ###############################################################################
@@ -126,7 +126,7 @@ for ax in axs.flatten():
 arr = np.arange(100).reshape((10, 10))
 norm = mcolors.Normalize(vmin=0., vmax=100.)
 # see note above: this makes all pcolormesh calls consistent:
-pc_kwargs = {'rasterized':True, 'cmap':'viridis', 'norm':norm}
+pc_kwargs = {'rasterized': True, 'cmap': 'viridis', 'norm': norm}
 fig, ax = plt.subplots(figsize=(4, 4), constrained_layout=True)
 im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=ax, shrink=0.6)
@@ -189,7 +189,7 @@ fig.suptitle('Big Suptitle')
 
 fig, ax = plt.subplots(constrained_layout=True)
 ax.plot(np.arange(10), label='This is a plot')
-ax.legend(loc='center left', bbox_to_anchor=(0.9, 0.5))
+ax.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 
 #############################################
 # However, this will steal space from a subplot layout:
@@ -198,7 +198,39 @@ fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flatten()[:-1]:
     ax.plot(np.arange(10))
 axs[1, 1].plot(np.arange(10), label='This is a plot')
-axs[1, 1].legend(loc='center left', bbox_to_anchor=(0.9, 0.5))
+axs[1, 1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
+
+#############################################
+# In order for a legend or other artist to *not* steal space
+# from the subplot layout, we can ``leg.set_in_layout(False)``.
+# Of course this can mean the legend ends up
+# cropped, but can be useful if the plot is subsequently called
+# with ``fig.savefig('outname.png', bbox_inches='tight')``.  Note,
+# however, that the legend's ``get_in_layout`` status will have to be
+# toggled again to make the saved file work:
+
+fig, axs = plt.subplots(2, 2, constrained_layout=True)
+for ax in axs.flatten()[:-1]:
+    ax.plot(np.arange(10))
+axs[1, 1].plot(np.arange(10), label='This is a plot')
+leg = axs[1, 1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
+leg.set_in_layout(False)
+wanttoprint = False
+if wanttoprint:
+    leg.set_in_layout(True)
+    fig.do_constrained_layout(False)
+    fig.savefig('outname.png', bbox_inches='tight')
+
+#############################################
+# A better way to get around this awkwardness is to simply
+# use a legend for the figure:
+fig, axs = plt.subplots(2, 2, constrained_layout=True)
+for ax in axs.flatten()[:-1]:
+    ax.plot(np.arange(10))
+lines = axs[1, 1].plot(np.arange(10), label='This is a plot')
+labels = [l.get_label() for l in lines]
+leg = fig.legend(lines, labels, loc='center left',
+                 bbox_to_anchor=(0.8, 0.5), bbox_transform=axs[1, 1].transAxes)
 
 ###############################################################################
 # Padding and Spacing
@@ -302,8 +334,10 @@ for ax in axs.flatten():
 # with :func:`~matplotlib.figure.Figure.subplots` or
 # :func:`~matplotlib.gridspec.GridSpec` and
 # :func:`~matplotlib.figure.Figure.add_subplot`.
+#
+# Note that in what follows ``constrained_layout=True``
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure()
 
 gs1 = gridspec.GridSpec(2, 1, figure=fig)
 ax1 = fig.add_subplot(gs1[0])
@@ -313,20 +347,21 @@ example_plot(ax1)
 example_plot(ax2)
 
 ###############################################################################
-# More complicated gridspec layouts are possible.
+# More complicated gridspec layouts are possible.  Note here we use the
+# convenenience functions ``add_gridspec`` and ``subgridspec``
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure()
 
-gs0 = gridspec.GridSpec(1, 2, figure=fig)
+gs0 = fig.add_gridspec(1, 2)
 
-gs1 = gridspec.GridSpecFromSubplotSpec(2, 1, gs0[0])
+gs1 = gs0[0].subgridspec(2, 1)
 ax1 = fig.add_subplot(gs1[0])
 ax2 = fig.add_subplot(gs1[1])
 
 example_plot(ax1)
 example_plot(ax2)
 
-gs2 = gridspec.GridSpecFromSubplotSpec(3, 1, gs0[1])
+gs2 = gs0[1].subgridspec(3, 1)
 
 for ss in gs2:
     ax = fig.add_subplot(ss)
@@ -341,9 +376,9 @@ ax.set_xlabel("x-label", fontsize=12)
 # extent.  If we want the top and bottom of the two grids to line up then
 # they need to be in the same gridspec:
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure()
 
-gs0 = gridspec.GridSpec(6, 2, figure=fig)
+gs0 = fig.add_gridspec(6, 2)
 
 ax1 = fig.add_subplot(gs0[:3, 0])
 ax2 = fig.add_subplot(gs0[3:, 0])
@@ -366,10 +401,10 @@ example_plot(ax)
 
 
 def docomplicated(suptitle=None):
-    fig = plt.figure(constrained_layout=True)
-    gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1., 2.])
-    gsl = gridspec.GridSpecFromSubplotSpec(2, 1, gs0[0])
-    gsr = gridspec.GridSpecFromSubplotSpec(2, 2, gs0[1])
+    fig = plt.figure()
+    gs0 = fig.add_gridspec(1, 2, figure=fig, width_ratios=[1., 2.])
+    gsl = gs0[0].subgridspec(2, 1)
+    gsr = gs0[1].subgridspec(2, 2)
 
     for gs in gsl:
         ax = fig.add_subplot(gs)
@@ -398,7 +433,7 @@ docomplicated()
 # no effect on it anymore. (Note that constrained_layout still leaves the
 # space for the axes that is moved).
 
-fig, axs = plt.subplots(1, 2, constrained_layout=True)
+fig, axs = plt.subplots(1, 2)
 example_plot(axs[0], fontsize=12)
 axs[1].set_position([0.2, 0.2, 0.4, 0.4])
 
@@ -412,7 +447,7 @@ axs[1].set_position([0.2, 0.2, 0.4, 0.4])
 
 from matplotlib.transforms import Bbox
 
-fig, axs = plt.subplots(1, 2, constrained_layout=True)
+fig, axs = plt.subplots(1, 2)
 example_plot(axs[0], fontsize=12)
 fig.execute_constrained_layout()
 # put into data-space:
@@ -436,7 +471,7 @@ ax2 = fig.add_axes(bb_ax2)
 # to yield a nice layout:
 
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure()
 
 ax1 = plt.subplot(221)
 ax2 = plt.subplot(223)
@@ -449,8 +484,8 @@ example_plot(ax3)
 ###############################################################################
 # Of course that layout is possible using a gridspec:
 
-fig = plt.figure(constrained_layout=True)
-gs = gridspec.GridSpec(2, 2, figure=fig)
+fig = plt.figure()
+gs = fig.add_gridspec(2, 2)
 
 ax1 = fig.add_subplot(gs[0, 0])
 ax2 = fig.add_subplot(gs[1, 0])
@@ -465,7 +500,7 @@ example_plot(ax3)
 # :func:`~matplotlib.pyplot.subplot2grid` doesn't work for the same reason:
 # each call creates a different parent gridspec.
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure()
 
 ax1 = plt.subplot2grid((3, 3), (0, 0))
 ax2 = plt.subplot2grid((3, 3), (0, 1), colspan=2)
@@ -481,8 +516,8 @@ example_plot(ax4)
 # The way to make this plot compatible with ``constrained_layout`` is again
 # to use ``gridspec`` directly
 
-fig = plt.figure(constrained_layout=True)
-gs = gridspec.GridSpec(3, 3, figure=fig)
+fig = plt.figure()
+gs = fig.add_gridspec(3, 3)
 
 ax1 = fig.add_subplot(gs[0, 0])
 ax2 = fig.add_subplot(gs[0, 1:])

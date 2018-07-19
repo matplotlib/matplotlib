@@ -13,7 +13,7 @@ import re
 import shutil
 import subprocess
 import sys
-from tempfile import mkstemp
+from tempfile import TemporaryDirectory
 import time
 
 import numpy as np
@@ -266,15 +266,16 @@ class RendererPS(RendererBase):
             self.linedash = (offset, seq)
 
     def set_font(self, fontname, fontsize, store=1):
-        if rcParams['ps.useafm']: return
-        if (fontname,fontsize) != (self.fontname,self.fontsize):
+        if rcParams['ps.useafm']:
+            return
+        if (fontname, fontsize) != (self.fontname,self.fontsize):
             out = ("/%s findfont\n"
                    "%1.3f scalefont\n"
                    "setfont\n" % (fontname, fontsize))
-
             self._pswriter.write(out)
-            if store: self.fontname = fontname
-            if store: self.fontsize = fontsize
+            if store:
+                self.fontname = fontname
+                self.fontsize = fontsize
 
     def create_hatch(self, hatch):
         sidelen = 72
@@ -1150,19 +1151,15 @@ class FigureCanvasPS(FigureCanvasBase):
         if rcParams['ps.usedistiller']:
             # We are going to use an external program to process the output.
             # Write to a temporary file.
-            fd, tmpfile = mkstemp()
-            try:
-                with open(fd, 'w', encoding='latin-1') as fh:
+            with TemporaryDirectory() as tmpdir:
+                tmpfile = os.path.join(tmpdir, "tmp.ps")
+                with open(tmpfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
                 if rcParams['ps.usedistiller'] == 'ghostscript':
                     gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
                 elif rcParams['ps.usedistiller'] == 'xpdf':
                     xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-
                 _move_path_to_path_or_stream(tmpfile, outfile)
-            finally:
-                if os.path.isfile(tmpfile):
-                    os.unlink(tmpfile)
 
         else:
             # Write directly to outfile.
@@ -1255,9 +1252,9 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
 
-        fd, tmpfile = mkstemp()
-        try:
-            with open(fd, 'w', encoding='latin-1') as fh:
+        with TemporaryDirectory() as tmpdir:
+            tmpfile = os.path.join(tmpdir, "tmp.ps")
+            with open(tmpfile, 'w', encoding='latin-1') as fh:
                 # write the Encapsulated PostScript headers
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
                 if title:
@@ -1344,9 +1341,6 @@ class FigureCanvasPS(FigureCanvasBase):
                              rotated=psfrag_rotated)
 
             _move_path_to_path_or_stream(tmpfile, outfile)
-        finally:
-            if os.path.isfile(tmpfile):
-                os.unlink(tmpfile)
 
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
@@ -1571,7 +1565,7 @@ def get_bbox_header(lbrt, rotated=False):
 
     l, b, r, t = lbrt
     if rotated:
-        rotate = "%.2f %.2f  translate\n90 rotate" % (l+r, 0)
+        rotate = "%.2f %.2f translate\n90 rotate" % (l+r, 0)
     else:
         rotate = ""
     bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))

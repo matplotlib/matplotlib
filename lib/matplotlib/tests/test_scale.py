@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.scale import Log10Transform, InvertedLog10Transform
 import numpy as np
 import io
+import platform
 import pytest
 
 
@@ -17,7 +18,7 @@ def test_log_scales():
 @image_comparison(baseline_images=['logit_scales'], remove_text=True,
                   extensions=['png'])
 def test_logit_scales():
-    ax = plt.figure().add_subplot(111, xscale='logit')
+    fig, ax = plt.subplots()
 
     # Typical extinction curve for logit
     x = np.array([0.001, 0.003, 0.01, 0.03, 0.1, 0.2, 0.3, 0.4, 0.5,
@@ -25,7 +26,11 @@ def test_logit_scales():
     y = 1.0 / x
 
     ax.plot(x, y)
+    ax.set_xscale('logit')
     ax.grid(True)
+    bbox = ax.get_tightbbox(fig.canvas.get_renderer())
+    assert np.isfinite(bbox.x0)
+    assert np.isfinite(bbox.y0)
 
 
 def test_log_scatter():
@@ -94,6 +99,7 @@ def test_logscale_transform_repr():
 
 
 @image_comparison(baseline_images=['logscale_nonpos_values'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'], style='mpl20')
 def test_logscale_nonpos_values():
     np.random.seed(19680801)

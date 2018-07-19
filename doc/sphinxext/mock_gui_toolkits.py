@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 
 class MyCairoCffi(MagicMock):
-    pass
+    __name__ = "cairocffi"
 
 
 class MyPyQt4(MagicMock):
@@ -116,6 +116,9 @@ class MyWX(MagicMock):
         pass
 
     class Frame(object):
+        pass
+
+    class StatusBar(object):
         pass
 
 

@@ -117,7 +117,7 @@ A collection of helper methods for numpyrecord arrays
     Import record array from CSV file with type inspection
 
 :func:`rec_append_fields`
-    Adds  field(s)/array(s) to record array
+    Adds field(s)/array(s) to record array
 
 :func:`rec_drop_fields`
     Drop fields from record array
@@ -841,15 +841,15 @@ docstring.interpd.update(PSD=cbook.dedent("""
         The function applied to each segment before fft-ing,
         designed to remove the mean or linear trend.  Unlike in
         MATLAB, where the *detrend* parameter is a vector, in
-        matplotlib is it a function.  The :mod:`~matplotlib.pylab`
-        module defines :func:`~matplotlib.pylab.detrend_none`,
-        :func:`~matplotlib.pylab.detrend_mean`, and
-        :func:`~matplotlib.pylab.detrend_linear`, but you can use
+        matplotlib is it a function.  The :mod:`~matplotlib.mlab`
+        module defines :func:`~matplotlib.mlab.detrend_none`,
+        :func:`~matplotlib.mlab.detrend_mean`, and
+        :func:`~matplotlib.mlab.detrend_linear`, but you can use
         a custom function as well.  You can also use a string to choose
         one of the functions.  'default', 'constant', and 'mean' call
-        :func:`~matplotlib.pylab.detrend_mean`.  'linear' calls
-        :func:`~matplotlib.pylab.detrend_linear`.  'none' calls
-        :func:`~matplotlib.pylab.detrend_none`.
+        :func:`~matplotlib.mlab.detrend_mean`.  'linear' calls
+        :func:`~matplotlib.mlab.detrend_linear`.  'none' calls
+        :func:`~matplotlib.mlab.detrend_none`.
 
     scale_by_freq : bool, optional
         Specifies whether the resulting density values should be scaled
@@ -3876,8 +3876,7 @@ def cross_from_below(x, threshold):
         t = np.arange(0.0, 2.0, 0.1)
         s = np.sin(2*np.pi*t)
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        fig, ax = plt.subplots()
         ax.plot(t, s, '-o')
         ax.axhline(0.5)
         ax.axhline(-0.5)
@@ -4000,13 +3999,15 @@ def offset_line(y, yerr):
     * A tuple of length 2. In this case, yerr[0] is the error below *y* and
       yerr[1] is error above *y*. For example::
 
-        from pylab import *
-        x = linspace(0, 2*pi, num=100, endpoint=True)
-        y = sin(x)
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        x = np.linspace(0, 2*np.pi, num=100, endpoint=True)
+        y = np.sin(x)
         y_minus, y_plus = mlab.offset_line(y, 0.1)
-        plot(x, y)
-        fill_between(x, ym, y2=yp)
-        show()
+        plt.plot(x, y)
+        plt.fill_between(x, y_minus, y2=y_plus)
+        plt.show()
 
     """
     if cbook.is_numlike(yerr) or (cbook.iterable(yerr) and

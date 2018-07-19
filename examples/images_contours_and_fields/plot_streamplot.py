@@ -85,4 +85,3 @@ matplotlib.axes.Axes.streamplot
 matplotlib.pyplot.streamplot
 matplotlib.gridspec
 matplotlib.gridspec.GridSpec
-

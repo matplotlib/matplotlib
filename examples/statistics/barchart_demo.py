@@ -77,9 +77,9 @@ def attach_ordinal(num):
     1 -> 1st
     56 -> 56th
     """
-    suffixes = dict((str(i), v) for i, v in
-                    enumerate(['th', 'st', 'nd', 'rd', 'th',
-                               'th', 'th', 'th', 'th', 'th']))
+    suffixes = {str(i): v
+                for i, v in enumerate(['th', 'st', 'nd', 'rd', 'th',
+                                       'th', 'th', 'th', 'th', 'th'])}
 
     v = str(num)
     # special case early teens
@@ -170,7 +170,7 @@ def plot_student_results(student, scores, cohort_size):
 
         rankStr = attach_ordinal(width)
         # The bars aren't wide enough to print the ranking inside
-        if (width < 5):
+        if width < 5:
             # Shift the text to the right side of the right edge
             xloc = width + 1
             # Black against white background

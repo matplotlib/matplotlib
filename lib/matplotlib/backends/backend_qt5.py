@@ -291,7 +291,11 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return int(w / self._dpi_ratio), int(h / self._dpi_ratio)
 
     def enterEvent(self, event):
-        x, y = self.mouseEventCoords(event.pos())
+        try:
+            x, y = self.mouseEventCoords(event.pos())
+        except AttributeError:
+            # the event from PyQt4 does not include the position
+            x = y = None
         FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def leaveEvent(self, event):
@@ -671,7 +675,6 @@ class FigureManagerQT(FigureManagerBase):
         if self.window._destroying:
             return
         self.window._destroying = True
-        self.window.destroyed.connect(self._widgetclosed)
         if self.toolbar:
             self.toolbar.destroy()
         self.window.close()
@@ -1109,6 +1112,7 @@ def exception_handler(type, value, tb):
 
 @_Backend.export
 class _BackendQT5(_Backend):
+    required_interactive_framework = "qt5"
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
 

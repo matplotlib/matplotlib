@@ -272,28 +272,28 @@ class Axes3D(Axes):
         renderer.eye = self.eye
         renderer.get_axis_position = self.get_axis_position
 
-        # Calculate projection of collections and zorder them
+        # Calculate projection of collections and patches and zorder them.
+        # Make sure they are drawn above the grids.
+        zorder_offset = max(axis.get_zorder()
+                            for axis in self._get_axis_list()) + 1
         for i, col in enumerate(
                 sorted(self.collections,
                        key=lambda col: col.do_3d_projection(renderer),
                        reverse=True)):
-            col.zorder = i
-
-        # Calculate projection of patches and zorder them
+            col.zorder = zorder_offset + i
         for i, patch in enumerate(
                 sorted(self.patches,
                        key=lambda patch: patch.do_3d_projection(renderer),
                        reverse=True)):
-            patch.zorder = i
+            patch.zorder = zorder_offset + i
 
         if self._axis3don:
-            axes = (self.xaxis, self.yaxis, self.zaxis)
             # Draw panes first
-            for ax in axes:
-                ax.draw_pane(renderer)
+            for axis in self._get_axis_list():
+                axis.draw_pane(renderer)
             # Then axes
-            for ax in axes:
-                ax.draw(renderer)
+            for axis in self._get_axis_list():
+                axis.draw(renderer)
 
         # Then rest
         super().draw(renderer)
@@ -346,7 +346,6 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         super().set_autoscale_on(b)
         self.set_autoscalez_on(b)
@@ -361,7 +360,6 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._autoscaleZon = b
 
@@ -1281,37 +1279,8 @@ class Axes3D(Axes):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._frameon = bool(b)
-        self.stale = True
-
-    def get_axisbelow(self):
-        """
-        Get whether axis below is true or not.
-
-        For axes3d objects, this will always be *True*
-
-        .. versionadded :: 1.1.0
-            This function was added for completeness.
-        """
-        return True
-
-    def set_axisbelow(self, b):
-        """
-        Set whether axis ticks and gridlines are above or below most artists.
-
-        For axes3d objects, this will ignore any settings and just use *True*
-
-        .. versionadded :: 1.1.0
-            This function was added for completeness.
-
-        Parameters
-        ----------
-        b : bool
-            .. ACCEPTS: bool
-        """
-        self._axisbelow = True
         self.stale = True
 
     def grid(self, b=True, **kwargs):
@@ -1395,7 +1364,7 @@ class Axes3D(Axes):
         Convenience method for controlling tick locators.
 
         See :meth:`matplotlib.axes.Axes.locator_params` for full
-        documentation  Note that this is for Axes3D objects,
+        documentation.  Note that this is for Axes3D objects,
         therefore, setting *axis* to 'both' will result in the
         parameters being set for all three axes.  Also, *axis*
         can also take a value of 'z' to apply parameters to the
@@ -1653,15 +1622,15 @@ class Axes3D(Axes):
             # Strides have priority over counts in classic mode.
             # So, only compute strides from counts
             # if counts were explicitly given
-            if has_count:
-                rstride = int(max(np.ceil(rows / rcount), 1))
-                cstride = int(max(np.ceil(cols / ccount), 1))
+            compute_strides = has_count
         else:
             # If the strides are provided then it has priority.
             # Otherwise, compute the strides from the counts.
-            if not has_stride:
-                rstride = int(max(np.ceil(rows / rcount), 1))
-                cstride = int(max(np.ceil(cols / ccount), 1))
+            compute_strides = not has_stride
+
+        if compute_strides:
+            rstride = int(max(np.ceil(rows / rcount), 1))
+            cstride = int(max(np.ceil(cols / ccount), 1))
 
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
@@ -1679,71 +1648,60 @@ class Axes3D(Axes):
         if shade and cmap is not None and fcolors is not None:
             fcolors = self._shade_colors_lightsource(Z, cmap, lightsource)
 
+        # evenly spaced, and including both endpoints
+        row_inds = list(range(0, rows-1, rstride)) + [rows-1]
+        col_inds = list(range(0, cols-1, cstride)) + [cols-1]
+
+        colset = []  # the sampled facecolor
         polys = []
-        # Only need these vectors to shade if there is no cmap
-        if cmap is None and shade :
-            totpts = int(np.ceil((rows - 1) / rstride) *
-                         np.ceil((cols - 1) / cstride))
-            v1 = np.empty((totpts, 3))
-            v2 = np.empty((totpts, 3))
-            # This indexes the vertex points
-            which_pt = 0
-
-
-        #colset contains the data for coloring: either average z or the facecolor
-        colset = []
-        for rs in range(0, rows-1, rstride):
-            for cs in range(0, cols-1, cstride):
-                ps = []
-                for a in (X, Y, Z):
-                    ztop = a[rs,cs:min(cols, cs+cstride+1)]
-                    zleft = a[rs+1:min(rows, rs+rstride+1),
-                              min(cols-1, cs+cstride)]
-                    zbase = a[min(rows-1, rs+rstride), cs:min(cols, cs+cstride+1):][::-1]
-                    zright = a[rs:min(rows-1, rs+rstride):, cs][::-1]
-                    z = np.concatenate((ztop, zleft, zbase, zright))
-                    ps.append(z)
-
-                # The construction leaves the array with duplicate points, which
-                # are removed here.
-                ps = list(zip(*ps))
-                ps2 = [ps[0]] + [ps[i] for i in range(1, len(ps)) if ps[i] != ps[i-1]]
-                avgzsum = sum(p[2] for p in ps2)
-                polys.append(ps2)
+        for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
+            for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
+                ps = [
+                    # +1 ensures we share edges between polygons
+                    cbook._array_perimeter(a[rs:rs_next+1, cs:cs_next+1])
+                    for a in (X, Y, Z)
+                ]
+                # ps = np.stack(ps, axis=-1)
+                ps = np.array(ps).T
+                polys.append(ps)
 
                 if fcolors is not None:
                     colset.append(fcolors[rs][cs])
-                else:
-                    colset.append(avgzsum / len(ps2))
 
-                # Only need vectors to shade if no cmap
-                if cmap is None and shade:
-                    i1, i2, i3 = 0, int(len(ps2)/3), int(2*len(ps2)/3)
-                    v1[which_pt] = np.array(ps2[i1]) - np.array(ps2[i2])
-                    v2[which_pt] = np.array(ps2[i2]) - np.array(ps2[i3])
-                    which_pt += 1
-        if cmap is None and shade:
-            normals = np.cross(v1, v2)
-        else :
-            normals = []
+        def get_normals(polygons):
+            """
+            Takes a list of polygons and return an array of their normals
+            """
+            v1 = np.empty((len(polygons), 3))
+            v2 = np.empty((len(polygons), 3))
+            for poly_i, ps in enumerate(polygons):
+                # pick three points around the polygon at which to find the normal
+                # doesn't vectorize because polygons is jagged
+                i1, i2, i3 = 0, len(ps)//3, 2*len(ps)//3
+                v1[poly_i, :] = ps[i1, :] - ps[i2, :]
+                v2[poly_i, :] = ps[i2, :] - ps[i3, :]
+            return np.cross(v1, v2)
 
+        # note that the striding causes some polygons to have more coordinates
+        # than others
         polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
 
         if fcolors is not None:
             if shade:
-                colset = self._shade_colors(colset, normals)
+                colset = self._shade_colors(colset, get_normals(polys))
             polyc.set_facecolors(colset)
             polyc.set_edgecolors(colset)
         elif cmap:
-            colset = np.array(colset)
-            polyc.set_array(colset)
+            # doesn't vectorize because polys is jagged
+            avg_z = np.array([ps[:,2].mean() for ps in polys])
+            polyc.set_array(avg_z)
             if vmin is not None or vmax is not None:
                 polyc.set_clim(vmin, vmax)
             if norm is not None:
                 polyc.set_norm(norm)
         else:
             if shade:
-                colset = self._shade_colors(color, normals)
+                colset = self._shade_colors(color, get_normals(polys))
             else:
                 colset = color
             polyc.set_facecolors(colset)
@@ -2027,8 +1985,11 @@ class Axes3D(Axes):
         dz = (levels[1] - levels[0]) / 2
 
         for z, linec in zip(levels, colls):
-            topverts = art3d.paths_to_3d_segments(linec.get_paths(), z - dz)
-            botverts = art3d.paths_to_3d_segments(linec.get_paths(), z + dz)
+            paths = linec.get_paths()
+            if not paths:
+                continue
+            topverts = art3d.paths_to_3d_segments(paths, z - dz)
+            botverts = art3d.paths_to_3d_segments(paths, z + dz)
 
             color = linec.get_color()[0]
 

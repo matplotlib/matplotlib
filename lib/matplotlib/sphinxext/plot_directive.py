@@ -153,12 +153,6 @@ from docutils.parsers.rst.directives.images import Image
 align = Image.align
 import sphinx
 
-sphinx_version = sphinx.__version__.split(".")
-# The split is necessary for sphinx beta versions where the string is
-# '6b1'
-sphinx_version = tuple([int(re.split('[^0-9]', x)[0])
-                        for x in sphinx_version[:2]])
-
 import jinja2  # Sphinx dependency.
 
 import matplotlib
@@ -346,7 +340,7 @@ def remove_coding(text):
     Remove the coding comment, which six.exec\_ doesn't like.
     """
     cbook.warn_deprecated('3.0', name='remove_coding', removal='3.1')
-    sub_re = re.compile("^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
+    sub_re = re.compile(r"^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
     return sub_re.sub("", text)
 
 #------------------------------------------------------------------------------

@@ -12,14 +12,13 @@ import matplotlib
 from matplotlib import dviread
 
 
-needs_usetex = pytest.mark.xfail(
+needs_usetex = pytest.mark.skipif(
     not matplotlib.checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
 
 def test_visibility():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     x = np.linspace(0, 4 * np.pi, 50)
     y = np.sin(x)

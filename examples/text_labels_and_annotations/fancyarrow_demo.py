@@ -51,6 +51,4 @@ for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
 ax.xaxis.set_visible(False)
 ax.yaxis.set_visible(False)
 
-
-plt.draw()
 plt.show()

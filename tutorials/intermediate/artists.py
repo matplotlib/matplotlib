@@ -218,7 +218,7 @@ plt.show()
 # If you are working interactively at the python shell, a handy way to
 # inspect the ``Artist`` properties is to use the
 # :func:`matplotlib.artist.getp` function (simply
-# :func:`~matplotlib.pylab.getp` in pylab), which lists the properties
+# :func:`~matplotlib.pyplot.getp` in pyplot), which lists the properties
 # and their values.  This works for classes derived from ``Artist`` as
 # well, e.g., ``Figure`` and ``Rectangle``.  Here are the ``Figure`` rectangle
 # properties mentioned above:
@@ -437,9 +437,7 @@ plt.show()
 #
 # .. sourcecode:: ipython
 #
-#     In [261]: fig = plt.figure()
-#
-#     In [262]: ax = fig.add_subplot(111)
+#     In [262]: fig, ax = plt.subplots()
 #
 #     # create a rectangle instance
 #     In [263]: rect = matplotlib.patches.Rectangle( (1,1), width=5, height=12)
@@ -556,9 +554,9 @@ plt.show()
 # the ticks are placed and how they are represented as strings.
 #
 # Each ``Axis`` object contains a :attr:`~matplotlib.axis.Axis.label` attribute
-# (this is what :mod:`~matplotlib.pylab` modifies in calls to
-# :func:`~matplotlib.pylab.xlabel` and :func:`~matplotlib.pylab.ylabel`) as well
-# as a list of major and minor ticks.  The ticks are
+# (this is what :mod:`~matplotlib.pyplot` modifies in calls to
+# :func:`~matplotlib.pyplot.xlabel` and :func:`~matplotlib.pyplot.ylabel`) as
+# well as a list of major and minor ticks.  The ticks are
 # :class:`~matplotlib.axis.XTick` and :class:`~matplotlib.axis.YTick` instances,
 # which contain the actual line and text primitives that render the ticks and
 # ticklabels.  Because the ticks are dynamically created as needed (e.g., when
@@ -683,8 +681,7 @@ import matplotlib.ticker as ticker
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(100*np.random.rand(20))
 
 formatter = ticker.FormatStrFormatter('$%1.2f')

@@ -1,4 +1,5 @@
 import numpy as np
+import platform
 
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
@@ -84,7 +85,8 @@ def test_custom_transform():
 
 
 @image_comparison(baseline_images=['polar_box'],
-                  extensions=['png'], style='default', tol=0.03)
+                  tol={'aarch64': 0.04}.get(platform.machine(), 0.03),
+                  extensions=['png'], style='default')
 def test_polar_box():
     fig = plt.figure(figsize=(5, 5))
 

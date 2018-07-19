@@ -52,7 +52,7 @@ def plot_color_gradients(cmap_category, cmap_list, nrows):
 
     for ax, name in zip(axes, cmap_list):
         ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
-        pos = list(ax.get_position().bounds)
+        pos = ax.get_position().bounds
         x_text = pos[0] - 0.01
         y_text = pos[1] + pos[3]/2.
         fig.text(x_text, y_text, name, va='center', ha='right', fontsize=10)

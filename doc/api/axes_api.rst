@@ -1,11 +1,17 @@
-================
- ``Axes`` class
-================
+====
+axes
+====
+
 .. currentmodule:: matplotlib.axes
+
+.. automodule:: matplotlib.axes
+   :no-members:
+   :no-undoc-members:
 
 .. autoclass:: Axes
    :no-members:
    :no-undoc-members:
+   :show-inheritance:
 
 .. contents:: Table of Contents
    :depth: 2
@@ -13,6 +19,16 @@
    :backlinks: entry
    :class: multicol-toc
 
+Subplots
+========
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   SubplotBase
+   subplot_class_factory
 
 Plotting
 ========

@@ -341,7 +341,7 @@ def setp(obj, *args, **kwargs):
 
 def xkcd(scale=1, length=100, randomness=2):
     """
-    Turns on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
+    Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
     This will only have effect on things drawn after this function is
     called.
 
@@ -410,12 +410,12 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
            **kwargs
            ):
     """
-    Creates a new figure.
+    Create a new figure.
 
     Parameters
     ----------
 
-    num : integer or string, optional, default: none
+    num : integer or string, optional, default: None
         If not provided, a new figure will be created, and the figure number
         will be incremented. The figure objects holds this number in a `number`
         attribute.
@@ -575,6 +575,7 @@ def gcf():
 
 
 def fignum_exists(num):
+    """Return whether the figure with the given id exists."""
     return _pylab_helpers.Gcf.has_fignum(num) or num in get_figlabels()
 
 
@@ -591,6 +592,11 @@ def get_figlabels():
 
 
 def get_current_fig_manager():
+    """
+    Return the figure manager of the active figure.
+
+    If there is currently no active figure, a new one is created.
+    """
     figManager = _pylab_helpers.Gcf.get_active()
     if figManager is None:
         gcf()  # creates an active figure as a side effect
@@ -608,49 +614,46 @@ def disconnect(cid):
     return get_current_fig_manager().canvas.mpl_disconnect(cid)
 
 
-def close(*args):
+def close(fig=None):
     """
     Close a figure window.
 
-    ``close()`` by itself closes the current figure
+    Parameters
+    ----------
+    fig : None or int or str or `.Figure`
+        The figure to close. There are a number of ways to specify this:
 
-    ``close(fig)`` closes the `.Figure` instance *fig*
+        - *None*: the current figure
+        - `.Figure`: the given `.Figure` instance
+        - ``int``: a figure number
+        - ``str``: a figure name
+        - 'all': all figures
 
-    ``close(num)`` closes the figure number *num*
-
-    ``close(name)`` where *name* is a string, closes figure with that label
-
-    ``close('all')`` closes all the figure windows
     """
-
-    if len(args) == 0:
+    if fig is None:
         figManager = _pylab_helpers.Gcf.get_active()
         if figManager is None:
             return
         else:
             _pylab_helpers.Gcf.destroy(figManager.num)
-    elif len(args) == 1:
-        arg = args[0]
-        if arg == 'all':
-            _pylab_helpers.Gcf.destroy_all()
-        elif isinstance(arg, int):
-            _pylab_helpers.Gcf.destroy(arg)
-        elif hasattr(arg, 'int'):
-            # if we are dealing with a type UUID, we
-            # can use its integer representation
-            _pylab_helpers.Gcf.destroy(arg.int)
-        elif isinstance(arg, str):
-            allLabels = get_figlabels()
-            if arg in allLabels:
-                num = get_fignums()[allLabels.index(arg)]
-                _pylab_helpers.Gcf.destroy(num)
-        elif isinstance(arg, Figure):
-            _pylab_helpers.Gcf.destroy_fig(arg)
-        else:
-            raise TypeError('Unrecognized argument type %s to close'
-                            % type(arg))
+    elif fig == 'all':
+        _pylab_helpers.Gcf.destroy_all()
+    elif isinstance(fig, int):
+        _pylab_helpers.Gcf.destroy(fig)
+    elif hasattr(fig, 'int'):
+        # if we are dealing with a type UUID, we
+        # can use its integer representation
+        _pylab_helpers.Gcf.destroy(fig.int)
+    elif isinstance(fig, str):
+        allLabels = get_figlabels()
+        if fig in allLabels:
+            num = get_fignums()[allLabels.index(fig)]
+            _pylab_helpers.Gcf.destroy(num)
+    elif isinstance(fig, Figure):
+        _pylab_helpers.Gcf.destroy_fig(fig)
     else:
-        raise TypeError('close takes 0 or 1 arguments')
+        raise TypeError("close() argument must be a Figure, an int, a string, "
+                        "or None, not '%s'")
 
 
 def clf():
@@ -769,14 +772,20 @@ def figlegend(*args, **kwargs):
 
 ## Axes ##
 
-
+@docstring.dedent_interpd
 def axes(arg=None, **kwargs):
     """
     Add an axes to the current figure and make it the current axes.
 
+    Call signatures::
+
+        plt.axes()
+        plt.axes(rect, projection=None, polar=False, **kwargs)
+        plt.axes(ax)
+
     Parameters
     ----------
-    arg : None or 4-tuple or Axes
+    arg : { None, 4-tuple, Axes }
         The exact behavior of this function depends on the type:
 
         - *None*: A new full window axes is added using
@@ -784,48 +793,79 @@ def axes(arg=None, **kwargs):
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
-        - `~matplotlib.axes.Axes`: This is equivalent to `.pyplot.sca`.
+        - `~.axes.Axes`: This is equivalent to `.pyplot.sca`.
           It sets the current axes to *arg*. Note: This implicitly
           changes the current figure to the parent of *arg*.
 
-          .. note:: The use of an Axes as an argument is deprecated and will be
-                    removed in v3.0. Please use `.pyplot.sca` instead.
+          .. note:: The use of an `.axes.Axes` as an argument is deprecated
+                    and will be removed in v3.0. Please use `.pyplot.sca`
+                    instead.
+
+    projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
+'polar', 'rectilinear', str}, optional
+        The projection type of the `~.axes.Axes`. *str* is the name of
+        a costum projection, see `~matplotlib.projections`. The default
+        None results in a 'rectilinear' projection.
+
+    polar : boolean, optional
+        If True, equivalent to projection='polar'.
+
+    sharex, sharey : `~.axes.Axes`, optional
+        Share the x or y `~matplotlib.axis` with sharex and/or sharey.
+        The axis will have the same limits, ticks, and scale as the axis
+        of the shared axes.
+
+
+    label : str
+        A label for the returned axes.
 
     Other Parameters
     ----------------
-    **kwargs :
-        For allowed keyword arguments see `.pyplot.subplot` and
-        `.Figure.add_axes` respectively. Some common keyword arguments are
-        listed below:
-
-        ========= =========== =================================================
-        kwarg     Accepts     Description
-        ========= =========== =================================================
-        facecolor color       the axes background color
-        frameon   bool        whether to display the frame
-        sharex    otherax     share x-axis with *otherax*
-        sharey    otherax     share y-axis with *otherax*
-        polar     bool        whether to use polar axes
-        aspect    [str | num] ['equal', 'auto'] or a number.  If a number, the
-                              ratio of y-unit/x-unit in screen-space.  See also
-                              `~.Axes.set_aspect`.
-        ========= =========== =================================================
+    **kwargs
+        This method also takes the keyword arguments for
+        the returned axes class. The keyword arguments for the
+        rectilinear axes class `~.axes.Axes` can be found in
+        the following table but there might also be other keyword
+        arguments if another projection is used, see the actual axes
+        class.
+        %(Axes)s
 
     Returns
     -------
-    axes : Axes
-        The created or activated axes.
+    axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+        The returned axes class depends on the projection used. It is
+        `~.axes.Axes` if rectilinear projection are used and
+        `.projections.polar.PolarAxes` if polar projection
+        are used.
+
+    Notes
+    -----
+    If the figure already has a axes with key (*args*,
+    *kwargs*) then it will simply make that axes current and
+    return it.  This behavior is deprecated. Meanwhile, if you do
+    not want this behavior (i.e., you want to force the creation of a
+    new axes), you must use a unique set of args and kwargs.  The axes
+    *label* attribute has been exposed for this purpose: if you want
+    two axes that are otherwise identical to be added to the figure,
+    make sure you give them unique labels.
+
+    See Also
+    --------
+    .Figure.add_axes
+    .pyplot.subplot
+    .Figure.add_subplot
+    .Figure.subplots
+    .pyplot.subplots
 
     Examples
     --------
-    Creating a new full window axes::
+    ::
 
-        >>> plt.axes()
+        #Creating a new full window axes
+        plt.axes()
 
-    Creating a new axes with specified dimensions and some kwargs::
-
-        >>> plt.axes((left, bottom, width, height), facecolor='w')
-
+        #Creating a new axes with specified dimensions and some kwargs
+        plt.axes((left, bottom, width, height), facecolor='w')
     """
 
     if arg is None:
@@ -893,75 +933,135 @@ def gca(**kwargs):
 
 ## More ways of creating axes ##
 
-
+@docstring.dedent_interpd
 def subplot(*args, **kwargs):
     """
-    Return a subplot axes at the given grid position.
+    Add a subplot to the current figure.
 
-    Call signature::
+    Wrapper of `.Figure.add_subplot` with a difference in behavior
+    explained in the notes section.
+
+    Call signatures::
 
        subplot(nrows, ncols, index, **kwargs)
+       subplot(pos, **kwargs)
+       subplot(ax)
 
-    In the current figure, create and return an `~matplotlib.axes.Axes`,
-    at position *index* of a (virtual) grid of *nrows* by *ncols* axes.
-    Indexes go from 1 to ``nrows * ncols``, incrementing in row-major order.
+    Parameters
+    ----------
+    *args
+        Either a 3-digit integer or three separate integers
+        describing the position of the subplot. If the three
+        integers are *nrows*, *ncols*, and *index* in order, the
+        subplot will take the *index* position on a grid with *nrows*
+        rows and *ncols* columns. *index* starts at 1 in the upper left
+        corner and increases to the right.
 
-    If *nrows*, *ncols* and *index* are all less than 10, they can also be
-    given as a single, concatenated, three-digit number.
+        *pos* is a three digit integer, where the first digit is the
+        number of rows, the second the number of columns, and the third
+        the index of the subplot. i.e. fig.add_subplot(235) is the same as
+        fig.add_subplot(2, 3, 5). Note that all integers must be less than
+        10 for this form to work.
 
-    For example, ``subplot(2, 3, 3)`` and ``subplot(233)`` both create an
-    `matplotlib.axes.Axes` at the top right corner of the current figure,
-    occupying half of the figure height and a third of the figure width.
+    projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
+'polar', 'rectilinear', str}, optional
+        The projection type of the subplot (`~.axes.Axes`). *str* is the name
+        of a costum projection, see `~matplotlib.projections`. The default
+        None results in a 'rectilinear' projection.
 
-    .. note::
+    polar : boolean, optional
+        If True, equivalent to projection='polar'.
 
-       Creating a subplot will delete any pre-existing subplot that overlaps
-       with it beyond sharing a boundary::
+    sharex, sharey : `~.axes.Axes`, optional
+        Share the x or y `~matplotlib.axis` with sharex and/or sharey. The
+        axis will have the same limits, ticks, and scale as the axis of the
+        shared axes.
 
-          import matplotlib.pyplot as plt
-          # plot a line, implicitly creating a subplot(111)
-          plt.plot([1,2,3])
-          # now create a subplot which represents the top plot of a grid
-          # with 2 rows and 1 column. Since this subplot will overlap the
-          # first, the plot (and its axes) previously created, will be removed
-          plt.subplot(211)
-          plt.plot(range(12))
-          plt.subplot(212, facecolor='y') # creates 2nd subplot with yellow background
+    label : str
+        A label for the returned axes.
 
-       If you do not want this behavior, use the
-       :meth:`~matplotlib.figure.Figure.add_subplot` method or the
-       :func:`~matplotlib.pyplot.axes` function instead.
+    Other Parameters
+    ----------------
+    **kwargs
+        This method also takes the keyword arguments for
+        the returned axes base class. The keyword arguments for the
+        rectilinear base class `~.axes.Axes` can be found in
+        the following table but there might also be other keyword
+        arguments if another projection is used.
+        %(Axes)s
 
-    Keyword arguments:
+    Returns
+    -------
+    axes : an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass \
+    of `~.axes.Axes`)
 
-      *facecolor*:
-        The background color of the subplot, which can be any valid
-        color specifier.  See :mod:`matplotlib.colors` for more
-        information.
+        The axes of the subplot. The returned axes base class depends on
+        the projection used. It is `~.axes.Axes` if rectilinear projection
+        are used and `.projections.polar.PolarAxes` if polar projection
+        are used. The returned axes is then a subplot subclass of the
+        base class.
 
-      *polar*:
-        A boolean flag indicating whether the subplot plot should be
-        a polar projection.  Defaults to *False*.
+    Notes
+    -----
+    Creating a subplot will delete any pre-existing subplot that overlaps
+    with it beyond sharing a boundary::
 
-      *projection*:
-        A string giving the name of a custom projection to be used
-        for the subplot. This projection must have been previously
-        registered. See :mod:`matplotlib.projections`.
+        import matplotlib.pyplot as plt
+        # plot a line, implicitly creating a subplot(111)
+        plt.plot([1,2,3])
+        # now create a subplot which represents the top plot of a grid
+        # with 2 rows and 1 column. Since this subplot will overlap the
+        # first, the plot (and its axes) previously created, will be removed
+        plt.subplot(211)
 
-    .. seealso::
+    If you do not want this behavior, use the `.Figure.add_subplot` method
+    or the `.pyplot.axes` function instead.
 
-        :func:`~matplotlib.pyplot.axes`
-            For additional information on :func:`axes` and
-            :func:`subplot` keyword arguments.
+    If the figure already has a subplot with key (*args*,
+    *kwargs*) then it will simply make that subplot current and
+    return it.  This behavior is deprecated. Meanwhile, if you do
+    not want this behavior (i.e., you want to force the creation of a
+    new suplot), you must use a unique set of args and kwargs.  The axes
+    *label* attribute has been exposed for this purpose: if you want
+    two subplots that are otherwise identical to be added to the figure,
+    make sure you give them unique labels.
 
-        :file:`gallery/pie_and_polar_charts/polar_scatter.py`
-            For an example
+    In rare circumstances, `.add_subplot` may be called with a single
+    argument, a subplot axes instance already created in the
+    present figure but not in the figure's list of axes.
 
-    **Example:**
+    See Also
+    --------
+    .Figure.add_subplot
+    .pyplot.subplots
+    .pyplot.axes
+    .Figure.subplots
 
-    .. plot:: gallery/subplots_axes_and_figures/subplot.py
+    Examples
+    --------
+    ::
 
-    """
+        plt.subplot(221)
+
+        # equivalent but more general
+        ax1=plt.subplot(2, 2, 1)
+
+        # add a subplot with no frame
+        ax2=plt.subplot(222, frameon=False)
+
+        # add a polar subplot
+        plt.subplot(223, projection='polar')
+
+        # add a red subplot that shares the x-axis with ax1
+        plt.subplot(224, sharex=ax1, facecolor='red')
+
+        #delete ax2 from the figure
+        plt.delaxes(ax2)
+
+        #add ax2 to the figure again
+        plt.subplot(ax2)
+        """
+
     # if subplot called without arguments, create subplot(1,1,1)
     if len(args) == 0:
         args = (1, 1, 1)
@@ -1019,7 +1119,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         labels of the bottom subplot are created. Similarly, when subplots
         have a shared y-axis along a row, only the y tick labels of the first
         column subplot are created. To later turn other subplots' ticklabels
-        on, use :meth:`~matplotlib.axes.Axes.tick_params`.
+        on, use `~matplotlib.axes.Axes.tick_params`.
 
     squeeze : bool, optional, default: True
         - If True, extra dimensions are squeezed out from the returned
@@ -1035,9 +1135,12 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
           always a 2D array containing Axes instances, even if it ends up
           being 1x1.
 
+    num : integer or string, optional, default: None
+        A `.pyplot.figure` keyword that sets the figure number or label.
+
     subplot_kw : dict, optional
         Dict with keywords passed to the
-        :meth:`~matplotlib.figure.Figure.add_subplot` call used to create each
+        `~matplotlib.figure.Figure.add_subplot` call used to create each
         subplot.
 
     gridspec_kw : dict, optional
@@ -1046,13 +1149,13 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     **fig_kw :
         All additional keyword arguments are passed to the
-        :func:`.pyplot.figure` call.
+        `.pyplot.figure` call.
 
     Returns
     -------
-    fig : `~matplotlib.figure.Figure`
+    fig : `~.figure.Figure`
 
-    ax : Axes object or array of Axes objects.
+    ax : `.axes.Axes` object or array of Axes objects.
         *ax* can be either a single `~matplotlib.axes.Axes` object or an
         array of Axes objects if more than one subplot was created.  The
         dimensions of the resulting array can be controlled with the squeeze
@@ -1060,57 +1163,52 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     Examples
     --------
-    First create some toy data:
+    ::
 
-    >>> x = np.linspace(0, 2*np.pi, 400)
-    >>> y = np.sin(x**2)
+        #First create some toy data:
+        x = np.linspace(0, 2*np.pi, 400)
+        y = np.sin(x**2)
 
-    Creates just a figure and only one subplot
+        #Creates just a figure and only one subplot
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
+        ax.set_title('Simple plot')
 
-    >>> fig, ax = plt.subplots()
-    >>> ax.plot(x, y)
-    >>> ax.set_title('Simple plot')
+        #Creates two subplots and unpacks the output array immediately
+        f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+        ax1.plot(x, y)
+        ax1.set_title('Sharing Y axis')
+        ax2.scatter(x, y)
 
-    Creates two subplots and unpacks the output array immediately
+        #Creates four polar axes, and accesses them through the returned array
+        fig, axes = plt.subplots(2, 2, subplot_kw=dict(polar=True))
+        axes[0, 0].plot(x, y)
+        axes[1, 1].scatter(x, y)
 
-    >>> f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
-    >>> ax1.plot(x, y)
-    >>> ax1.set_title('Sharing Y axis')
-    >>> ax2.scatter(x, y)
+        #Share a X axis with each column of subplots
+        plt.subplots(2, 2, sharex='col')
 
-    Creates four polar axes, and accesses them through the returned array
+        #Share a Y axis with each row of subplots
+        plt.subplots(2, 2, sharey='row')
 
-    >>> fig, axes = plt.subplots(2, 2, subplot_kw=dict(polar=True))
-    >>> axes[0, 0].plot(x, y)
-    >>> axes[1, 1].scatter(x, y)
+        #Share both X and Y axes with all subplots
+        plt.subplots(2, 2, sharex='all', sharey='all')
 
-    Share a X axis with each column of subplots
+        #Note that this is the same as
+        plt.subplots(2, 2, sharex=True, sharey=True)
 
-    >>> plt.subplots(2, 2, sharex='col')
-
-    Share a Y axis with each row of subplots
-
-    >>> plt.subplots(2, 2, sharey='row')
-
-    Share both X and Y axes with all subplots
-
-    >>> plt.subplots(2, 2, sharex='all', sharey='all')
-
-    Note that this is the same as
-
-    >>> plt.subplots(2, 2, sharex=True, sharey=True)
-
-    Creates figure number 10 with a single subplot
-    and clears it if it already exists.
-
-    >>> fig, ax=plt.subplots(num=10, clear=True)
+        #Creates figure number 10 with a single subplot
+        #and clears it if it already exists.
+        fig, ax=plt.subplots(num=10, clear=True)
 
     See Also
     --------
-    :func:`.pyplot.figure`
-    :func:`.pyplot.subplot`
-    :meth:`.Figure.add_subplot`
-    :meth:`.Figure.subplots`
+    .pyplot.figure
+    .pyplot.subplot
+    .pyplot.axes
+    .Figure.subplots
+    .Figure.add_subplot
+
     """
     fig = figure(**fig_kw)
     axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
@@ -1189,8 +1287,8 @@ def twinx(ax=None):
 
     .. seealso::
 
-       :file:`examples/api_examples/two_scales.py`
-          For an example
+       :doc:`/gallery/subplots_axes_and_figures/two_scales`
+
     """
     if ax is None:
         ax = gca()
@@ -1310,20 +1408,21 @@ def xlim(*args, **kwargs):
 
     Call signatures::
 
-        xmin, xmax = xlim()  # return the current xlim
-        xlim((xmin, xmax))   # set the xlim to xmin, xmax
-        xlim(xmin, xmax)     # set the xlim to xmin, xmax
+        left, right = xlim()  # return the current xlim
+        xlim((left, right))   # set the xlim to left, right
+        xlim(left, right)     # set the xlim to left, right
 
-    If you do not specify args, you can pass *xmin* or *xmax* as kwargs, i.e.::
+    If you do not specify args, you can pass *left* or *right* as kwargs,
+    i.e.::
 
-        xlim(xmax=3)  # adjust the max leaving min unchanged
-        xlim(xmin=1)  # adjust the min leaving max unchanged
+        xlim(right=3)  # adjust the right leaving left unchanged
+        xlim(left=1)  # adjust the left leaving right unchanged
 
     Setting limits turns autoscaling off for the x-axis.
 
     Returns
     -------
-    xmin, xmax
+    left, right
         A tuple of the new x-axis limits.
 
     Notes
@@ -1346,21 +1445,21 @@ def ylim(*args, **kwargs):
 
     Call signatures::
 
-        ymin, ymax = ylim()  # return the current ylim
-        ylim((ymin, ymax))   # set the ylim to ymin, ymax
-        ylim(ymin, ymax)     # set the ylim to ymin, ymax
+        bottom, top = ylim()  # return the current ylim
+        ylim((bottom, top))   # set the ylim to bottom, top
+        ylim(bottom, top)     # set the ylim to bottom, top
 
-    If you do not specify args, you can alternatively pass *ymin* or *ymax* as
-    kwargs, i.e.::
+    If you do not specify args, you can alternatively pass *bottom* or
+    *top* as kwargs, i.e.::
 
-        ylim(ymax=3)  # adjust the max leaving min unchanged
-        ylim(ymin=1)  # adjust the min leaving max unchanged
+        ylim(top=3)  # adjust the top leaving bottom unchanged
+        ylim(bottom=1)  # adjust the top leaving bottom unchanged
 
     Setting limits turns autoscaling off for the y-axis.
 
     Returns
     -------
-    ymin, ymax
+    bottom, top
         A tuple of the new y-axis limits.
 
     Notes
@@ -1530,36 +1629,62 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     return locs, silent_list('Text yticklabel', labels)
 
-
 def rgrids(*args, **kwargs):
     """
-    Get or set the radial gridlines on a polar plot.
+    Get or set the radial gridlines on the current polar plot.
 
-    call signatures::
+    Call signatures::
 
-      lines, labels = rgrids()
-      lines, labels = rgrids(radii, labels=None, angle=22.5, **kwargs)
+     lines, labels = rgrids()
+     lines, labels = rgrids(radii, labels=None, angle=22.5, fmt=None, **kwargs)
 
-    When called with no arguments, :func:`rgrid` simply returns the
-    tuple (*lines*, *labels*), where *lines* is an array of radial
-    gridlines (:class:`~matplotlib.lines.Line2D` instances) and
-    *labels* is an array of tick labels
-    (:class:`~matplotlib.text.Text` instances). When called with
-    arguments, the labels will appear at the specified radial
-    distances and angles.
+    When called with no arguments, `.rgrids` simply returns the tuple
+    (*lines*, *labels*). When called with arguments, the labels will
+    appear at the specified radial distances and angle.
 
-    *labels*, if not *None*, is a len(*radii*) list of strings of the
-    labels to use at each angle.
+    Parameters
+    ----------
+    radii : tuple with floats
+        The radii for the radial gridlines
 
-    If *labels* is None, the rformatter will be used
+    labels : tuple with strings or None
+        The labels to use at each radial gridline. The
+        `matplotlib.ticker.ScalarFormatter` will be used if None.
 
-    Examples::
+    angle : float
+        The angular position of the radius labels in degrees.
 
-      # set the locations of the radial gridlines and labels
+    fmt : str or None
+        Format string used in `matplotlib.ticker.FormatStrFormatter`.
+        For example '%f'.
+
+    Returns
+    -------
+    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+        *lines* are the radial gridlines and *labels* are the tick labels.
+
+    Other Parameters
+    ----------------
+    **kwargs
+        *kwargs* are optional `~.Text` properties for the labels.
+
+    Examples
+    --------
+    ::
+
+      # set the locations of the radial gridlines
       lines, labels = rgrids( (0.25, 0.5, 1.0) )
 
-      # set the locations and labels of the radial gridlines and labels
-      lines, labels = rgrids( (0.25, 0.5, 1.0), ('Tom', 'Dick', 'Harry' )
+      # set the locations and labels of the radial gridlines
+      lines, labels = rgrids( (0.25, 0.5, 1.0), ('Tom', 'Dick', 'Harry' ))
+
+    See Also
+    --------
+    .pyplot.thetagrids
+    .projections.polar.PolarAxes.set_rgrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
+
 
     """
     ax = gca()
@@ -1574,57 +1699,62 @@ def rgrids(*args, **kwargs):
     return ( silent_list('Line2D rgridline', lines),
              silent_list('Text rgridlabel', labels) )
 
-
 def thetagrids(*args, **kwargs):
     """
-    Get or set the theta locations of the gridlines in a polar plot.
+    Get or set the theta gridlines on the current polar plot.
 
-    If no arguments are passed, return a tuple (*lines*, *labels*)
-    where *lines* is an array of radial gridlines
-    (:class:`~matplotlib.lines.Line2D` instances) and *labels* is an
-    array of tick labels (:class:`~matplotlib.text.Text` instances)::
+    Call signatures::
 
-      lines, labels = thetagrids()
+     lines, labels = thetagrids()
+     lines, labels = thetagrids(angles, labels=None, fmt=None, **kwargs)
 
-    Otherwise the syntax is::
+    When called with no arguments, `.thetagrids` simply returns the tuple
+    (*lines*, *labels*). When called with arguments, the labels will
+    appear at the specified angles.
 
-      lines, labels = thetagrids(angles, labels=None, fmt='%d', frac = 1.1)
+    Parameters
+    ----------
+    angles : tuple with floats, degrees
+        The angles of the theta gridlines.
 
-    set the angles at which to place the theta grids (these gridlines
-    are equal along the theta dimension).
+    labels : tuple with strings or None
+        The labels to use at each radial gridline. The
+        `.projections.polar.ThetaFormatter` will be used if None.
 
-    *angles* is in degrees.
+    fmt : str or None
+        Format string used in `matplotlib.ticker.FormatStrFormatter`.
+        For example '%f'. Note that the angle in radians will be used.
 
-    *labels*, if not *None*, is a len(angles) list of strings of the
-    labels to use at each angle.
+    Returns
+    -------
+    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+        *lines* are the theta gridlines and *labels* are the tick labels.
 
-    If *labels* is *None*, the labels will be ``fmt%angle``.
+    Other Parameters
+    ----------------
+    **kwargs
+        *kwargs* are optional `~.Text` properties for the labels.
 
-    *frac* is the fraction of the polar axes radius at which to place
-    the label (1 is the edge). e.g., 1.05 is outside the axes and 0.95
-    is inside the axes.
+    Examples
+    --------
+    ::
 
-    Return value is a list of tuples (*lines*, *labels*):
-
-      - *lines* are :class:`~matplotlib.lines.Line2D` instances
-
-      - *labels* are :class:`~matplotlib.text.Text` instances.
-
-    Note that on input, the *labels* argument is a list of strings,
-    and on output it is a list of :class:`~matplotlib.text.Text`
-    instances.
-
-    Examples::
-
-      # set the locations of the radial gridlines and labels
+      # set the locations of the angular gridlines
       lines, labels = thetagrids( range(45,360,90) )
 
-      # set the locations and labels of the radial gridlines and labels
+      # set the locations and labels of the angular gridlines
       lines, labels = thetagrids( range(45,360,90), ('NE', 'NW', 'SW','SE') )
+
+    See Also
+    --------
+    .pyplot.rgrids
+    .projections.polar.PolarAxes.set_thetagrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
-        raise RuntimeError('rgrids only defined for polar axes')
+        raise RuntimeError('thetagrids only defined for polar axes')
     if len(args)==0:
         lines = ax.xaxis.get_ticklines()
         labels = ax.xaxis.get_ticklabels()
@@ -2021,7 +2151,7 @@ def imsave(fname, arr, **kwargs):
     return matplotlib.image.imsave(fname, arr, **kwargs)
 
 
-def matshow(A, fignum=None, **kw):
+def matshow(A, fignum=None, **kwargs):
     """
     Display an array as a matrix in a new figure window.
 
@@ -2032,21 +2162,34 @@ def matshow(A, fignum=None, **kw):
 
     Tick labels for the xaxis are placed on top.
 
-    With the exception of *fignum*, keyword arguments are passed to
-    :func:`~matplotlib.pyplot.imshow`.  You may set the *origin*
-    kwarg to "lower" if you want the first row in the array to be
-    at the bottom instead of the top.
+    Parameters
+    ----------
+    A : array-like(M, N)
+        The matrix to be displayed.
 
+    fignum : None or int or False
+        If *None*, create a new figure window with automatic numbering.
 
-    *fignum*: [ None | integer | False ]
-      By default, :func:`matshow` creates a new figure window with
-      automatic numbering.  If *fignum* is given as an integer, the
-      created figure will use this figure number.  Because of how
-      :func:`matshow` tries to set the figure aspect ratio to be the
-      one of the array, if you provide the number of an already
-      existing figure, strange things may happen.
+        If *fignum* is an integer, draw into the figure with the given number
+        (create it if it does not exist).
 
-      If *fignum* is *False* or 0, a new figure window will **NOT** be created.
+        If 0 or *False*, use the current axes if it exists instead of creating
+        a new figure.
+
+        .. note::
+
+           Because of how `.Axes.matshow` tries to set the figure aspect
+           ratio to be the one of the array, strange things may happen if you
+           reuse an existing figure.
+
+    Returns
+    -------
+    image : `~matplotlib.image.AxesImage`
+
+    Other Parameters
+    ----------------
+    **kwargs : `~matplotlib.axes.Axes.imshow` arguments
+
     """
     A = np.asanyarray(A)
     if fignum is False or fignum is 0:
@@ -2056,7 +2199,7 @@ def matshow(A, fignum=None, **kw):
         fig = figure(fignum, figsize=figaspect(A))
         ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
-    im = ax.matshow(A, **kw)
+    im = ax.matshow(A, **kwargs)
     sci(im)
 
     return im
@@ -2116,7 +2259,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     columns.
 
     *comments*, *skiprows*, *checkrows*, *delimiter*, and *names*
-    are all passed on to :func:`matplotlib.pylab.csv2rec` to
+    are all passed on to :func:`matplotlib.mlab.csv2rec` to
     load the data into a record array.
 
     If *newfig* is *True*, the plot always will be made in a new figure;
@@ -2149,9 +2292,9 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     if plotfuncs is None:
         plotfuncs = dict()
-    from matplotlib.cbook import mplDeprecation
+    from matplotlib.cbook import MatplotlibDeprecationWarning
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore', mplDeprecation)
+        warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
         r = mlab.csv2rec(fname, comments=comments, skiprows=skiprows,
                          checkrows=checkrows, delimiter=delimiter, names=names)
 

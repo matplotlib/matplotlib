@@ -2,6 +2,7 @@ from collections import OrderedDict
 import itertools
 import logging
 import math
+from numbers import Real
 from operator import attrgetter
 import types
 import warnings
@@ -10,9 +11,9 @@ import numpy as np
 
 import matplotlib
 
-from matplotlib import cbook
-from matplotlib.cbook import (_check_1d, _string_to_bool, iterable,
-                              index_of, get_label)
+from matplotlib import cbook, rcParams
+from matplotlib.cbook import (
+    _OrderedSet, _check_1d, _string_to_bool, iterable, index_of, get_label)
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -30,12 +31,9 @@ from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
 from matplotlib.legend import Legend
 
-from matplotlib.rcsetup import cycler
-from matplotlib.rcsetup import validate_axisbelow
+from matplotlib.rcsetup import cycler, validate_axisbelow
 
 _log = logging.getLogger(__name__)
-
-rcParams = matplotlib.rcParams
 
 
 def _process_plot_format(fmt):
@@ -419,54 +417,34 @@ class _AxesBase(martist.Artist):
                  **kwargs
                  ):
         """
-        Build an :class:`Axes` instance in
-        :class:`~matplotlib.figure.Figure` *fig* with
-        *rect=[left, bottom, width, height]* in
-        :class:`~matplotlib.figure.Figure` coordinates
+        Build an axes in a figure.
 
-        Optional keyword arguments:
+        Parameters
+        ----------
+        fig : `~matplotlib.figure.Figure`
+            The axes is build in the `.Figure` *fig*.
 
-          ================   =========================================
-          Keyword            Description
-          ================   =========================================
-          *adjustable*       [ 'box' | 'datalim' ]
-          *alpha*            float: the alpha transparency (can be None)
-          *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
-                               'NW', 'W' ]
-          *aspect*           [ 'auto' | 'equal' | aspect_ratio ]
-          *autoscale_on*     bool; whether to autoscale the *viewlim*
-          *axisbelow*        [ bool | 'line' ] draw the grids
-                             and ticks below or above most other artists,
-                             or below lines but above patches
-          *cursor_props*     a (*float*, *color*) tuple
-          *figure*           a :class:`~matplotlib.figure.Figure`
-                             instance
-          *frame_on*         bool; whether to draw the axes frame
-          *label*            the axes label
-          *navigate*         bool
-          *navigate_mode*    [ 'PAN' | 'ZOOM' | None ] the navigation
-                             toolbar button status
-          *position*         [left, bottom, width, height] in
-                             class:`~matplotlib.figure.Figure` coords
-          *sharex*           an class:`~matplotlib.axes.Axes` instance
-                             to share the x-axis with
-          *sharey*           an class:`~matplotlib.axes.Axes` instance
-                             to share the y-axis with
-          *title*            the title string
-          *visible*          bool, whether the axes is visible
-          *xlabel*           the xlabel
-          *xlim*             (*xmin*, *xmax*) view limits
-          *xscale*           [%(scale)s]
-          *xticklabels*      sequence of strings
-          *xticks*           sequence of floats
-          *ylabel*           the ylabel strings
-          *ylim*             (*ymin*, *ymax*) view limits
-          *yscale*           [%(scale)s]
-          *yticklabels*      sequence of strings
-          *yticks*           sequence of floats
-          ================   =========================================
-        """ % {'scale': ' | '.join(
-            [repr(x) for x in mscale.get_scale_names()])}
+        rect : [left, bottom, width, height]
+            The axes is build in the rectangle *rect*. *rect* is in
+            `.Figure` coordinates.
+
+        sharex, sharey : `~.axes.Axes`, optional
+            The x or y `~.matplotlib.axis` is shared with the x or
+            y axis in the input `~.axes.Axes`.
+
+        frameon : bool, optional
+            True means that the axes frame is visible.
+
+        **kwargs
+            Other optional keyword arguments:
+            %(Axes)s
+
+        Returns
+        -------
+        axes : `~.axes.Axes`
+            The new `~.axes.Axes` object.
+        """
+
         martist.Artist.__init__(self)
         if isinstance(rect, mtransforms.Bbox):
             self._position = rect
@@ -475,7 +453,6 @@ class _AxesBase(martist.Artist):
         if self._position.width < 0 or self._position.height < 0:
             raise ValueError('Width and height specified must be non-negative')
         self._originalPosition = self._position.frozen()
-        # self.set_axes(self)
         self.axes = self
         self._aspect = 'auto'
         self._adjustable = 'box'
@@ -499,7 +476,7 @@ class _AxesBase(martist.Artist):
             facecolor = rcParams['axes.facecolor']
         self._facecolor = facecolor
         self._frameon = frameon
-        self._axisbelow = rcParams['axes.axisbelow']
+        self.set_axisbelow(rcParams['axes.axisbelow'])
 
         self._rasterization_zorder = None
         self._connected = {}  # a dict from events to (id, func)
@@ -565,17 +542,25 @@ class _AxesBase(martist.Artist):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
         state = super().__getstate__()
-        state['_cachedRenderer'] = None
-        state.pop('_layoutbox')
-        state.pop('_poslayoutbox')
-
+        for key in ['_cachedRenderer', '_layoutbox', '_poslayoutbox']:
+            state[key] = None
+        # Prune the sharing & twinning info to only contain the current group.
+        for grouper_name in [
+                '_shared_x_axes', '_shared_y_axes', '_twinned_axes']:
+            grouper = getattr(self, grouper_name)
+            state[grouper_name] = (grouper.get_siblings(self)
+                                   if self in grouper else None)
         return state
 
     def __setstate__(self, state):
+        # Merge the grouping info back into the global groupers.
+        for grouper_name in [
+                '_shared_x_axes', '_shared_y_axes', '_twinned_axes']:
+            siblings = state.pop(grouper_name)
+            if siblings:
+                getattr(self, grouper_name).join(*siblings)
         self.__dict__ = state
         self._stale = True
-        self._layoutbox = None
-        self._poslayoutbox = None
 
     def get_window_extent(self, *args, **kwargs):
         """
@@ -868,7 +853,7 @@ class _AxesBase(martist.Artist):
         pos : [left, bottom, width, height] or `~matplotlib.transforms.Bbox`
             The new position of the in `.Figure` coordinates.
 
-        which : ['both' | 'active' | 'original'], optional
+        which : {'both', 'active', 'original'}, optional
             Determines which position variables to change.
 
         """
@@ -930,7 +915,7 @@ class _AxesBase(martist.Artist):
 
         a.axes = self
         if a.mouseover:
-            self.mouseover_set.add(a)
+            self._mouseover_set.add(a)
 
     def _gen_axes_patch(self):
         """
@@ -1045,7 +1030,7 @@ class _AxesBase(martist.Artist):
         self.tables = []
         self.artists = []
         self.images = []
-        self.mouseover_set = set()
+        self._mouseover_set = _OrderedSet()
         self._current_image = None  # strictly for pyplot via _sci, _gci
         self.legend_ = None
         self.collections = []  # collection.Collection instances
@@ -1111,6 +1096,11 @@ class _AxesBase(martist.Artist):
             self.patch.set_visible(patch_visible)
 
         self.stale = True
+
+    @property
+    @cbook.deprecated("3.0")
+    def mouseover_set(self):
+        return frozenset(self._mouseover_set)
 
     def clear(self):
         """Clear the axes."""
@@ -1228,7 +1218,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        aspect : ['auto' | 'equal'] or num
+        aspect : {'auto', 'equal'} or num
             Possible values:
 
             ========   ================================================
@@ -1241,7 +1231,7 @@ class _AxesBase(martist.Artist):
                        aspect='equal'.
             ========   ================================================
 
-        adjustable : None or ['box' | 'datalim'], optional
+        adjustable : None or {'box', 'datalim'}, optional
             If not ``None``, this defines which parameter will be adjusted to
             meet the required aspect. See `.set_adjustable` for further
             details.
@@ -1302,7 +1292,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        adjustable : ['box' | 'datalim']
+        adjustable : {'box', 'datalim'}
             If 'box', change the physical dimensions of the Axes.
             If 'datalim', change the ``x`` or ``y`` data limits.
 
@@ -1328,8 +1318,8 @@ class _AxesBase(martist.Artist):
         and independently on each Axes as it is drawn.
         """
         if adjustable == 'box-forced':
-            warnings.warn("The 'box-forced' keyword argument is deprecated"
-                          " since 2.2.", cbook.mplDeprecation, stacklevel=2)
+            cbook.warn_deprecated(
+                "2.2", "box-forced", obj_type="keyword argument")
         if adjustable not in ('box', 'datalim', 'box-forced'):
             raise ValueError("argument must be 'box', or 'datalim'")
         if share:
@@ -1363,11 +1353,9 @@ class _AxesBase(martist.Artist):
         anchor defines where the drawing area will be located within the
         available space.
 
-        .. ACCEPTS: [ 'C' | 'SW' | 'S' | 'SE' | 'E' | 'NE' | 'N' | 'NW' | 'W' ]
-
         Parameters
         ----------
-        anchor : str or 2-tuple of floats
+        anchor : 2-tuple of floats or {'C', 'SW', 'S', 'SE', ...}
             The anchor position may be either:
 
             - a sequence (*cx*, *cy*). *cx* and *cy* may range from 0
@@ -2227,41 +2215,56 @@ class _AxesBase(martist.Artist):
         """
         Set or retrieve autoscaling margins.
 
-        signatures::
-
-            margins()
-
-        returns xmargin, ymargin
-
-        ::
-
-            margins(margin)
-
-            margins(xmargin, ymargin)
-
-            margins(x=xmargin, y=ymargin)
-
-            margins(..., tight=False)
-
-        All three forms above set the xmargin and ymargin parameters.
-        All keyword parameters are optional.  A single positional argument
-        specifies both xmargin and ymargin. The padding added to the end of
-        each interval is *margin* times the data interval. The *margin* must
-        be a float in the range [0, 1].  Passing both positional and keyword
-        arguments for xmargin and/or ymargin is invalid.
-
-        The *tight* parameter is passed to :meth:`autoscale_view`
-        , which is executed after a margin is changed; the default here is
-        *True*, on the assumption that when margins are specified, no
-        additional padding to match tick marks is usually desired.  Setting
-        *tight* to *None* will preserve the previous setting.
+        The padding added to each limit of the axes is the *margin*
+        times the data interval. All input parameters must be floats
+        within the range [0, 1]. Passing both positional and keyword
+        arguments is invalid and will raise a TypeError. If no
+        arguments (positional or otherwise) are provided, the current
+        margins will remain in place and simply be returned.
 
         Specifying any margin changes only the autoscaling; for example,
         if *xmargin* is not None, then *xmargin* times the X data
         interval will be added to each end of that interval before
         it is used in autoscaling.
 
+        Parameters
+        ----------
+        args : float, optional
+            If a single positional argument is provided, it specifies
+            both margins of the x-axis and y-axis limits. If two
+            positional arguments are provided, they will be interpreted
+            as *xmargin*, *ymargin*. If setting the margin on a single
+            axis is desired, use the keyword arguments described below.
+
+        x, y : float, optional
+            Specific margin values for the x-axis and y-axis,
+            respectively. These cannot be used with positional
+            arguments, but can be used individually to alter on e.g.,
+            only the y-axis.
+
+        tight : bool, default is True
+            The *tight* parameter is passed to :meth:`autoscale_view`,
+            which is executed after a margin is changed; the default
+            here is *True*, on the assumption that when margins are
+            specified, no additional padding to match tick marks is
+            usually desired.  Set *tight* to *None* will preserve
+            the previous setting.
+
+
+        Returns
+        -------
+        xmargin, ymargin : float
+
+        Notes
+        -----
+        If a previously used Axes method such as :meth:`pcolor` has set
+        :attr:`use_sticky_edges` to `True`, only the limits not set by
+        the "sticky artists" will be modified. To force all of the
+        margins to be set, set :attr:`use_sticky_edges` to `False`
+        before calling :meth:`margins`.
+
         """
+
         if margins and x is not None and y is not None:
             raise TypeError('Cannot pass both positional and keyword '
                             'arguments for x and/or y.')
@@ -2318,7 +2321,7 @@ class _AxesBase(martist.Artist):
             True (default) turns autoscaling on, False turns it off.
             None leaves the autoscaling state unchanged.
 
-        axis : ['both' | 'x' | 'y'], optional
+        axis : {'both', 'x', 'y'}, optional
             which axis to operate on; default is 'both'
 
         tight: bool or None, optional
@@ -2429,7 +2432,13 @@ class _AxesBase(martist.Artist):
             do_upper_margin = not np.any(np.isclose(x1, stickies))
             x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minpos)
             x0t, x1t = transform.transform([x0, x1])
-            delta = (x1t - x0t) * margin
+
+            if (np.isfinite(x1t) and np.isfinite(x0t)):
+                delta = (x1t - x0t) * margin
+            else:
+                # If at least one bound isn't finite, set margin to zero
+                delta = 0
+
             if do_lower_margin:
                 x0t -= delta
             if do_upper_margin:
@@ -2531,18 +2540,7 @@ class _AxesBase(martist.Artist):
 
         self._update_title_position(renderer)
 
-        if self.axison and not inframe:
-            if self._axisbelow is True:
-                self.xaxis.set_zorder(0.5)
-                self.yaxis.set_zorder(0.5)
-            elif self._axisbelow is False:
-                self.xaxis.set_zorder(2.5)
-                self.yaxis.set_zorder(2.5)
-            else:
-                # 'line': above patches, below lines
-                self.xaxis.set_zorder(1.5)
-                self.yaxis.set_zorder(1.5)
-        else:
+        if not self.axison or inframe:
             for _axis in self._get_axis_list():
                 artists.remove(_axis)
 
@@ -2614,9 +2612,7 @@ class _AxesBase(martist.Artist):
     # Axes rectangle characteristics
 
     def get_frame_on(self):
-        """
-        Get whether the axes rectangle patch is drawn.
-        """
+        """Get whether the axes rectangle patch is drawn."""
         return self._frameon
 
     def set_frame_on(self, b):
@@ -2638,13 +2634,26 @@ class _AxesBase(martist.Artist):
 
     def set_axisbelow(self, b):
         """
-        Set whether axis ticks and gridlines are above or below most artists.
+        Set the zorder for the axes ticks and gridlines.
 
         Parameters
         ----------
         b : bool or 'line'
+            ``True`` corresponds to a zorder of 0.5, ``False`` to a zorder of
+            2.5, and ``"line"`` to a zorder of 1.5.
+
         """
-        self._axisbelow = validate_axisbelow(b)
+        self._axisbelow = axisbelow = validate_axisbelow(b)
+        if axisbelow is True:
+            zorder = 0.5
+        elif axisbelow is False:
+            zorder = 2.5
+        elif axisbelow == "line":
+            zorder = 1.5
+        else:
+            raise ValueError("Unexpected axisbelow value")
+        for axis in self._get_axis_list():
+            axis.set_zorder(zorder)
         self.stale = True
 
     @docstring.dedent_interpd
@@ -2672,6 +2681,8 @@ class _AxesBase(martist.Artist):
 
         %(Line2D)s
 
+        Note that the grid will be drawn according to the axes' zorder and not
+        its own.
         """
         if len(kwargs):
             b = True
@@ -2779,7 +2790,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        axis : ['both' | 'x' | 'y'], optional
+        axis : {'both', 'x', 'y'}, optional
             The axis on which to operate.
 
         tight : bool or None, optional
@@ -3003,9 +3014,8 @@ class _AxesBase(martist.Artist):
         """
         if limit is not None:
             converted_limit = convert(limit)
-            if (isinstance(converted_limit, float) and
-                    (not np.isreal(converted_limit) or
-                        not np.isfinite(converted_limit))):
+            if (isinstance(converted_limit, Real)
+                    and not np.isfinite(converted_limit)):
                 raise ValueError("Axis limits cannot be NaN or Inf")
             return converted_limit
 
@@ -3145,11 +3155,9 @@ class _AxesBase(martist.Artist):
         """
         Set the x-axis scale.
 
-        .. ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
-
         Parameters
         ----------
-        value : {"linear", "log", "symlog", "logit"}
+        value : {"linear", "log", "symlog", "logit", ...}
             scaling strategy to apply
 
         Notes
@@ -3182,8 +3190,6 @@ class _AxesBase(martist.Artist):
     def set_xticks(self, ticks, minor=False):
         """
         Set the x ticks with list of *ticks*
-
-        .. ACCEPTS: list of tick locations.
 
         Parameters
         ----------
@@ -3482,11 +3488,9 @@ class _AxesBase(martist.Artist):
         """
         Set the y-axis scale.
 
-        .. ACCEPTS: [ 'linear' | 'log' | 'symlog' | 'logit' | ... ]
-
         Parameters
         ----------
-        value : {"linear", "log", "symlog", "logit"}
+        value : {"linear", "log", "symlog", "logit", ...}
             scaling strategy to apply
 
         Notes
@@ -3519,11 +3523,9 @@ class _AxesBase(martist.Artist):
         """
         Set the y ticks with list of *ticks*
 
-        .. ACCEPTS: list of tick locations.
-
         Parameters
         ----------
-        ticks : sequence
+        ticks : list
             List of y-axis tick locations
 
         minor : bool, optional
@@ -4108,19 +4110,47 @@ class _AxesBase(martist.Artist):
         martist.Artist.pick(self, args[0])
 
     def get_default_bbox_extra_artists(self):
-        return [artist for artist in self.get_children()
-                if artist.get_visible()]
-
-    def get_tightbbox(self, renderer, call_axes_locator=True):
         """
-        Return the tight bounding box of the axes.
-        The dimension of the Bbox in canvas coordinate.
+        Return a default list of artists that are used for the bounding box
+        calculation.
 
-        If *call_axes_locator* is *False*, it does not call the
-        _axes_locator attribute, which is necessary to get the correct
-        bounding box. ``call_axes_locator==False`` can be used if the
-        caller is only intereted in the relative size of the tightbbox
-        compared to the axes bbox.
+        Artists are excluded either by not being visible or
+        ``artist.set_in_layout(False)``.
+        """
+        return [artist for artist in self.get_children()
+                if (artist.get_visible() and artist.get_in_layout())]
+
+    def get_tightbbox(self, renderer, call_axes_locator=True,
+            bbox_extra_artists=None):
+        """
+        Return the tight bounding box of the axes, including axis and their
+        decorators (xlabel, title, etc).
+
+        Artists that have ``artist.set_in_layout(False)`` are not included
+        in the bbox.
+
+        Parameters
+        ----------
+        renderer : `.RendererBase` instance
+            renderer that will be used to draw the figures (i.e.
+            ``fig.canvas.get_renderer()``)
+
+        bbox_extra_artists : list of `.Artist` or ``None``
+            List of artists to include in the tight bounding box.  If
+            ``None`` (default), then all artist children of the axes are
+            included in the tight bounding box.
+
+        call_axes_locator : boolean (default ``True``)
+            If *call_axes_locator* is ``False``, it does not call the
+            ``_axes_locator`` attribute, which is necessary to get the correct
+            bounding box. ``call_axes_locator=False`` can be used if the
+            caller is only interested in the relative size of the tightbbox
+            compared to the axes bbox.
+
+        Returns
+        -------
+        bbox : `.BboxBase`
+            bounding box in figure pixel coordinates.
         """
 
         bb = []
@@ -4153,11 +4183,14 @@ class _AxesBase(martist.Artist):
         if bb_yaxis:
             bb.append(bb_yaxis)
 
-        for child in self.get_children():
-            if isinstance(child, OffsetBox) and child.get_visible():
-                bb.append(child.get_window_extent(renderer))
-            elif isinstance(child, Legend) and child.get_visible():
-                bb.append(child._legend_box.get_window_extent(renderer))
+        bbox_artists = bbox_extra_artists
+        if bbox_artists is None:
+            bbox_artists = self.get_default_bbox_extra_artists()
+
+        for a in bbox_artists:
+            bbox = a.get_tightbbox(renderer)
+            if bbox is not None and (bbox.width != 0 or bbox.height != 0):
+                bb.append(bbox)
 
         _bbox = mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])

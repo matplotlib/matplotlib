@@ -216,7 +216,7 @@ class Ticks(Line2D, AttributeCopier):
         if self._axis is not None:
             if "color" not in kwargs:
                 kwargs["color"] = "auto"
-            if ("mew" not in kwargs) and ("markeredgewidth" not in kwargs):
+            if "mew" not in kwargs and "markeredgewidth" not in kwargs:
                 kwargs["markeredgewidth"] = "auto"
 
         Line2D.__init__(self, [0.], [0.], **kwargs)
@@ -901,13 +901,15 @@ class AxisArtist(martist.Artist):
         self.label.set_axis_direction(axis_direction)
 
     def set_ticklabel_direction(self, tick_direction):
-        """
+        r"""
         Adjust the direction of the ticklabel.
 
-         ACCEPTS: [ "+" | "-" ]
-
-        Note that the label_direction '+' and '-' are relative to the
+        Note that the *label_direction*\s '+' and '-' are relative to the
         direction of the increasing coordinate.
+
+        Parameters
+        ----------
+        tick_direction : {"+", "-"}
         """
 
         if tick_direction not in ["+", "-"]:
@@ -924,13 +926,15 @@ class AxisArtist(martist.Artist):
         self.minor_ticklabels.invert_axis_direction()
 
     def set_axislabel_direction(self, label_direction):
-        """
+        r"""
         Adjust the direction of the axislabel.
 
-         ACCEPTS: [ "+" | "-" ]
-
-        Note that the label_direction '+' and '-' are relative to the
+        Note that the *label_direction*\s '+' and '-' are relative to the
         direction of the increasing coordinate.
+
+        Parameters
+        ----------
+        tick_direction : {"+", "-"}
         """
         if label_direction not in ["+", "-"]:
             raise ValueError('direction must be one of "+", "-"')
@@ -1121,8 +1125,8 @@ class AxisArtist(martist.Artist):
         self.minor_ticks.draw(renderer)
         self.minor_ticklabels.draw(renderer)
 
-
-        if (self.major_ticklabels.get_visible() or self.minor_ticklabels.get_visible()):
+        if (self.major_ticklabels.get_visible()
+                or self.minor_ticklabels.get_visible()):
             self._draw_offsetText(renderer)
 
         return extents
@@ -1165,8 +1169,8 @@ class AxisArtist(martist.Artist):
         self.minor_ticks.draw(renderer)
         self.minor_ticklabels.draw(renderer)
 
-
-        if (self.major_ticklabels.get_visible() or self.minor_ticklabels.get_visible()):
+        if (self.major_ticklabels.get_visible()
+                or self.minor_ticklabels.get_visible()):
             self._draw_offsetText(renderer)
 
         return self.major_ticklabels.get_window_extents(renderer)

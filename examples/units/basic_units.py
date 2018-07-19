@@ -11,7 +11,6 @@ import numpy as np
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-from matplotlib.axes import Axes
 from matplotlib.cbook import iterable
 
 
@@ -25,13 +24,13 @@ class ProxyDelegate(object):
 
 
 class TaggedValueMeta(type):
-    def __init__(cls, name, bases, dict):
-        for fn_name in cls._proxies:
+    def __init__(self, name, bases, dict):
+        for fn_name in self._proxies:
             try:
-                dummy = getattr(cls, fn_name)
+                dummy = getattr(self, fn_name)
             except AttributeError:
-                setattr(cls, fn_name,
-                        ProxyDelegate(fn_name, cls._proxies[fn_name]))
+                setattr(self, fn_name,
+                        ProxyDelegate(fn_name, self._proxies[fn_name]))
 
 
 class PassThroughProxy(object):
@@ -250,13 +249,13 @@ class BasicUnit(object):
 class UnitResolver(object):
     def addition_rule(self, units):
         for unit_1, unit_2 in zip(units[:-1], units[1:]):
-            if (unit_1 != unit_2):
+            if unit_1 != unit_2:
                 return NotImplemented
         return units[0]
 
     def multiplication_rule(self, units):
         non_null = [u for u in units if u]
-        if (len(non_null) > 1):
+        if len(non_null) > 1:
             return NotImplemented
         return non_null[0]
 
@@ -269,7 +268,7 @@ class UnitResolver(object):
         '__rsub__': addition_rule}
 
     def __call__(self, operation, units):
-        if (operation not in self.op_dict):
+        if operation not in self.op_dict:
             return NotImplemented
 
         return self.op_dict[operation](self, units)
@@ -297,13 +296,21 @@ secs.add_conversion_factor(minutes, 1/60.0)
 
 # radians formatting
 def rad_fn(x, pos=None):
-    n = int((x / np.pi) * 2.0 + 0.25)
+    if x >= 0:
+        n = int((x / np.pi) * 2.0 + 0.25)
+    else:
+        n = int((x / np.pi) * 2.0 - 0.25)
+
     if n == 0:
         return '0'
     elif n == 1:
         return r'$\pi/2$'
     elif n == 2:
         return r'$\pi$'
+    elif n == -1:
+        return r'$-\pi/2$'
+    elif n == -2:
+        return r'$-\pi$'
     elif n % 2 == 0:
         return r'$%s\pi$' % (n//2,)
     else:

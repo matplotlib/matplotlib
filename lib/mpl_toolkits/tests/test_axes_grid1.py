@@ -20,7 +20,11 @@ from matplotlib.transforms import Bbox, TransformedBbox, \
      blended_transform_factory
 from itertools import product
 
+import pytest
+import platform
+
 import numpy as np
+from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 
 @image_comparison(baseline_images=['divider_append_axes'])
@@ -184,8 +188,9 @@ def test_inset_axes():
     ax.imshow(Z2, extent=extent, interpolation="nearest",
               origin="lower")
 
-    # creating our inset axes without a bbox_transform parameter
-    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1))
+    # creating our inset axes with a bbox_transform parameter
+    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1),
+                       bbox_transform=ax.transAxes)
 
     axins.imshow(Z2, extent=extent, interpolation="nearest",
                  origin="lower")
@@ -212,19 +217,48 @@ def test_inset_axes():
     ax.add_artist(asb)
 
 
-def test_inset_axes_without_transform_should_use_parent_axes():
-    # creating our figure
-    fig = plt.figure(dpi=150)
+def test_inset_axes_complete():
+    dpi = 100
+    figsize = (6, 5)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    fig.subplots_adjust(.1, .1, .9, .9)
 
-    # gca method gets current axes of the figure
-    ax = plt.gca()
-    ax.plot([0.0, 0.25, 0.50, 1.0], [0.1, 0.2, 0.4, 0.9], color='b')
+    ins = inset_axes(ax, width=2., height=2., borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array(((0.9*figsize[0]-2.)/figsize[0],
+                      (0.9*figsize[1]-2.)/figsize[1], 0.9, 0.9)))
 
-    # creating our inset_axes. without a bbox_transform parameter
-    ax_ins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1))
-    ax_ins.plot([0.0, 0.25, 0.50, 1.0], [0.9, 0.4, 0.2, 0.1], color='r')
+    ins = inset_axes(ax, width="40%", height="30%", borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array((.9-.8*.4, .9-.8*.3, 0.9, 0.9)))
 
-    assert ax.transAxes == ax_ins.transAxes
+    ins = inset_axes(ax, width=1., height=1.2, bbox_to_anchor=(200, 100),
+                     loc=3, borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array((200./dpi/figsize[0], 100./dpi/figsize[1],
+                     (200./dpi+1)/figsize[0], (100./dpi+1.2)/figsize[1])))
+
+    ins1 = inset_axes(ax, width="35%", height="60%", loc=3, borderpad=1)
+    ins2 = inset_axes(ax, width="100%", height="100%",
+                      bbox_to_anchor=(0, 0, .35, .60),
+                      bbox_transform=ax.transAxes, loc=3, borderpad=1)
+    fig.canvas.draw()
+    assert_array_equal(ins1.get_position().extents,
+                       ins2.get_position().extents)
+
+    with pytest.raises(ValueError):
+        ins = inset_axes(ax, width="40%", height="30%",
+                         bbox_to_anchor=(0.4, 0.5))
+
+    with pytest.warns(UserWarning):
+        ins = inset_axes(ax, width="40%", height="30%",
+                         bbox_transform=ax.transAxes)
 
 
 @image_comparison(
@@ -325,6 +359,7 @@ def test_zooming_with_inverted_axes():
 
 
 @image_comparison(baseline_images=['anchored_direction_arrows'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'])
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()

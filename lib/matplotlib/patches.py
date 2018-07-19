@@ -71,9 +71,9 @@ class Patch(artist.Artist):
         self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
         self._fill = True  # needed for set_facecolor call
         if color is not None:
-            if (edgecolor is not None or facecolor is not None):
+            if edgecolor is not None or facecolor is not None:
                 warnings.warn("Setting the 'color' property will override"
-                              "the edgecolor or facecolor properties. ")
+                              "the edgecolor or facecolor properties.")
             self.set_color(color)
         else:
             self.set_edgecolor(edgecolor)
@@ -175,6 +175,9 @@ class Patch(artist.Artist):
         self._us_dashes = other._us_dashes
         self.set_linewidth(other._linewidth)  # also sets dash properties
         self.set_transform(other.get_data_transform())
+        # If the transform of other needs further initialization, then it will
+        # be the case for this artist too.
+        self._transformSet = other.is_transform_set()
 
     def get_extents(self):
         """
@@ -234,8 +237,7 @@ class Patch(artist.Artist):
 
     def get_linestyle(self):
         """
-        Return the linestyle.  Will be one of ['solid' | 'dashed' |
-        'dashdot' | 'dotted']
+        Return the linestyle.
         """
         return self._linestyle
 
@@ -246,7 +248,6 @@ class Patch(artist.Artist):
         Parameters
         ----------
         b : bool or None
-            .. ACCEPTS: bool or None
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
@@ -270,9 +271,11 @@ class Patch(artist.Artist):
 
     def set_edgecolor(self, color):
         """
-        Set the patch edge color
+        Set the patch edge color.
 
-        ACCEPTS: mpl color spec, None, 'none', or 'auto'
+        Parameters
+        ----------
+        color : color or None or 'auto'
         """
         self._original_edgecolor = color
         self._set_edgecolor(color)
@@ -286,9 +289,11 @@ class Patch(artist.Artist):
 
     def set_facecolor(self, color):
         """
-        Set the patch face color
+        Set the patch face color.
 
-        ACCEPTS: mpl color spec, or None for default, or 'none' for no color
+        Parameters
+        ----------
+        color : color or None
         """
         self._original_facecolor = color
         self._set_facecolor(color)
@@ -297,12 +302,14 @@ class Patch(artist.Artist):
         """
         Set both the edgecolor and the facecolor.
 
-        ACCEPTS: matplotlib color spec
-
         .. seealso::
 
             :meth:`set_facecolor`, :meth:`set_edgecolor`
                For setting the edge or face color individually.
+
+        Parameters
+        ----------
+        c : color
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
@@ -311,7 +318,9 @@ class Patch(artist.Artist):
         """
         Set the alpha transparency of the patch.
 
-        ACCEPTS: float or None
+        Parameters
+        ----------
+        alpha : float or None
         """
         if alpha is not None:
             try:
@@ -343,7 +352,7 @@ class Patch(artist.Artist):
 
     def set_linestyle(self, ls):
         """
-        Set the patch linestyle
+        Set the patch linestyle.
 
         ===========================   =================
         linestyle                     description
@@ -358,17 +367,11 @@ class Patch(artist.Artist):
 
             (offset, onoffseq),
 
-        where ``onoffseq`` is an even length tuple of on and off ink
-        in points.
-
-        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
-                   (offset, on-off-dash-seq) |
-                   ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
-                   ``' '`` | ``''``]
+        where ``onoffseq`` is an even length tuple of on and off ink in points.
 
         Parameters
         ----------
-        ls : { '-',  '--', '-.', ':'} and more see description
+        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
             The line style.
         """
         if ls is None:
@@ -388,7 +391,6 @@ class Patch(artist.Artist):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._fill = bool(b)
         self._set_facecolor(self._original_facecolor)
@@ -408,7 +410,9 @@ class Patch(artist.Artist):
         """
         Set the patch capstyle
 
-        ACCEPTS: ['butt' | 'round' | 'projecting']
+        Parameters
+        ----------
+        s : {'butt', 'round', 'projecting'}
         """
         s = s.lower()
         if s not in self.validCap:
@@ -425,7 +429,9 @@ class Patch(artist.Artist):
         """
         Set the patch joinstyle
 
-        ACCEPTS: ['miter' | 'round' | 'bevel']
+        Parameters
+        ----------
+        s : {'miter', 'round', 'bevel'}
         """
         s = s.lower()
         if s not in self.validJoin:
@@ -439,13 +445,13 @@ class Patch(artist.Artist):
         return self._joinstyle
 
     def set_hatch(self, hatch):
-        """
+        r"""
         Set the hatching pattern
 
         *hatch* can be one of::
 
           /   - diagonal hatching
-          \\   - back diagonal
+          \   - back diagonal
           |   - vertical
           -   - horizontal
           +   - crossed
@@ -462,7 +468,9 @@ class Patch(artist.Artist):
         Hatching is supported in the PostScript, PDF, SVG and Agg
         backends only.
 
-        ACCEPTS: ['/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*']
+        Parameters
+        ----------
+        hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
         self._hatch = hatch
         self.stale = True
@@ -579,14 +587,9 @@ class Shadow(Patch):
         if self.props is not None:
             self.update(self.props)
         else:
-            r, g, b, a = colors.to_rgba(self.patch.get_facecolor())
-            rho = 0.3
-            r = rho * r
-            g = rho * g
-            b = rho * b
-
-            self.set_facecolor((r, g, b, 0.5))
-            self.set_edgecolor((r, g, b, 0.5))
+            color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
+            self.set_facecolor(color)
+            self.set_edgecolor(color)
             self.set_alpha(0.5)
 
     def _update_transform(self, renderer):
@@ -667,7 +670,7 @@ class Rectangle(Patch):
 
     def get_path(self):
         """
-        Return the vertices of the rectangle
+        Return the vertices of the rectangle.
         """
         return Path.unit_rectangle()
 
@@ -691,9 +694,9 @@ class Rectangle(Patch):
         self._y1 = self._y0 + self._height
 
     def _convert_units(self):
-        '''
-        Convert bounds of the rectangle
-        '''
+        """
+        Convert bounds of the rectangle.
+        """
         x0 = self.convert_xunits(self._x0)
         y0 = self.convert_yunits(self._y0)
         x1 = self.convert_xunits(self._x1)
@@ -705,42 +708,44 @@ class Rectangle(Patch):
         return self._rect_transform
 
     def get_x(self):
-        "Return the left coord of the rectangle"
+        "Return the left coord of the rectangle."
         return self._x0
 
     def get_y(self):
-        "Return the bottom coord of the rectangle"
+        "Return the bottom coord of the rectangle."
         return self._y0
 
     def get_xy(self):
-        "Return the left and bottom coords of the rectangle"
+        "Return the left and bottom coords of the rectangle."
         return self._x0, self._y0
 
     def get_width(self):
-        "Return the width of the rectangle"
+        "Return the width of the rectangle."
         return self._width
 
     def get_height(self):
-        "Return the height of the rectangle"
+        "Return the height of the rectangle."
         return self._height
 
     def set_x(self, x):
-        "Set the left coord of the rectangle"
+        "Set the left coord of the rectangle."
         self._x0 = x
         self._update_x1()
         self.stale = True
 
     def set_y(self, y):
-        "Set the bottom coord of the rectangle"
+        "Set the bottom coord of the rectangle."
         self._y0 = y
         self._update_y1()
         self.stale = True
 
     def set_xy(self, xy):
         """
-        Set the left and bottom coords of the rectangle
+        Set the left and bottom coords of the rectangle.
 
-        ACCEPTS: 2-item sequence
+        Parameters
+        ----------
+        xy : 2-item sequence
         """
         self._x0, self._y0 = xy
         self._update_x1()
@@ -748,13 +753,13 @@ class Rectangle(Patch):
         self.stale = True
 
     def set_width(self, w):
-        "Set the width of the rectangle"
+        "Set the width of the rectangle."
         self._width = w
         self._update_x1()
         self.stale = True
 
     def set_height(self, h):
-        "Set the height of the rectangle"
+        "Set the height of the rectangle."
         self._height = h
         self._update_y1()
         self.stale = True
@@ -1462,9 +1467,11 @@ class Ellipse(Patch):
 
     def set_center(self, xy):
         """
-        Set the center of the ellipse
+        Set the center of the ellipse.
 
-        ACCEPTS: (x, y)
+        Parameters
+        ----------
+        xy : (float, float)
         """
         self._center = xy
         self.stale = True
@@ -1506,7 +1513,9 @@ class Circle(Ellipse):
         """
         Set the radius of the circle
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        radius : float
         """
         self.width = self.height = 2 * radius
         self.stale = True
@@ -1847,7 +1856,7 @@ class _Style(object):
     where actual styles are declared as subclass of it, and it
     provides some helper functions.
     """
-    def __new__(self, stylename, **kw):
+    def __new__(cls, stylename, **kw):
         """
         return the instance of the subclass with the given style name.
         """
@@ -1858,7 +1867,7 @@ class _Style(object):
         _list = stylename.replace(" ", "").split(",")
         _name = _list[0].lower()
         try:
-            _cls = self._style_list[_name]
+            _cls = cls._style_list[_name]
         except KeyError:
             raise ValueError("Unknown style : %s" % stylename)
 
@@ -1872,29 +1881,29 @@ class _Style(object):
         return _cls(**_args)
 
     @classmethod
-    def get_styles(klass):
+    def get_styles(cls):
         """
         A class method which returns a dictionary of available styles.
         """
-        return klass._style_list
+        return cls._style_list
 
     @classmethod
-    def pprint_styles(klass):
+    def pprint_styles(cls):
         """
         A class method which returns a string of the available styles.
         """
-        return _pprint_styles(klass._style_list)
+        return _pprint_styles(cls._style_list)
 
     @classmethod
-    def register(klass, name, style):
+    def register(cls, name, style):
         """
         Register a new style.
         """
 
-        if not issubclass(style, klass._Base):
+        if not issubclass(style, cls._Base):
             raise ValueError("%s must be a subclass of %s" % (style,
-                                                              klass._Base))
-        klass._style_list[name] = style
+                                                              cls._Base))
+        cls._style_list[name] = style
 
 
 def _register_style(style_list, cls=None, *, name=None):
@@ -2495,7 +2504,9 @@ class FancyBboxPatch(Patch):
         """
         Set the mutation scale.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        scale : float
         """
         self._mutation_scale = scale
         self.stale = True
@@ -2510,7 +2521,9 @@ class FancyBboxPatch(Patch):
         """
         Set the aspect ratio of the bbox mutation.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        aspect : float
         """
         self._mutation_aspect = aspect
         self.stale = True
@@ -2547,7 +2560,7 @@ class FancyBboxPatch(Patch):
         return self._y
 
     def get_width(self):
-        "Return the width of the  rectangle"
+        "Return the width of the rectangle"
         return self._width
 
     def get_height(self):
@@ -2556,36 +2569,44 @@ class FancyBboxPatch(Patch):
 
     def set_x(self, x):
         """
-        Set the left coord of the rectangle
+        Set the left coord of the rectangle.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        x : float
         """
         self._x = x
         self.stale = True
 
     def set_y(self, y):
         """
-        Set the bottom coord of the rectangle
+        Set the bottom coord of the rectangle.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        y : float
         """
         self._y = y
         self.stale = True
 
     def set_width(self, w):
         """
-        Set the width rectangle
+        Set the rectangle width.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        w : float
         """
         self._width = w
         self.stale = True
 
     def set_height(self, h):
         """
-        Set the width rectangle
+        Set the rectangle height.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        h : float
         """
         self._height = h
         self.stale = True
@@ -3973,6 +3994,20 @@ class FancyArrowPatch(Patch):
         Valid kwargs are:
         %(Patch)s
         """
+        if arrow_transmuter is not None:
+            cbook.warn_deprecated(
+                3.0,
+                message=('The "arrow_transmuter" keyword argument is not used,'
+                         ' and will be removed in Matplotlib 3.1'),
+                name='arrow_transmuter',
+                obj_type='keyword argument')
+        if connector is not None:
+            cbook.warn_deprecated(
+                3.0,
+                message=('The "connector" keyword argument is not used,'
+                         ' and will be removed in Matplotlib 3.1'),
+                name='connector',
+                obj_type='keyword argument')
         Patch.__init__(self, **kwargs)
 
         if posA is not None and posB is not None and path is None:

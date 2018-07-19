@@ -13,7 +13,6 @@ expand the Axes objects.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import ma
 
 X, Y = np.meshgrid(np.arange(0, 2 * np.pi, .2), np.arange(0, 2 * np.pi, .2))
 U = np.cos(X)

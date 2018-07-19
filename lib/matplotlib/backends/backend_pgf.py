@@ -311,12 +311,12 @@ class LatexManager:
             self.latex.communicate()
             self.latex_stdin_utf8.close()
             self.latex.stdout.close()
-        except:
+        except Exception:
             pass
         try:
             self._shutil.rmtree(self.tmpdir)
             LatexManager._unclean_instances.discard(self)
-        except:
+        except Exception:
             sys.stderr.write("error deleting tmp directory %s\n" % self.tmpdir)
 
     def __del__(self):

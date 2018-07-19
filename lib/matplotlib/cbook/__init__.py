@@ -31,8 +31,8 @@ from weakref import ref, WeakKeyDictionary
 import numpy as np
 
 import matplotlib
-from .deprecation import deprecated, warn_deprecated
-from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
+from .deprecation import (
+    mplDeprecation, deprecated, warn_deprecated, MatplotlibDeprecationWarning)
 
 
 @deprecated("3.0")
@@ -522,7 +522,8 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    if matplotlib.rcParams['examples.directory']:
+    # Don't trigger deprecation warning when just fetching.
+    if dict.__getitem__(matplotlib.rcParams, 'examples.directory'):
         root = matplotlib.rcParams['examples.directory']
     else:
         root = os.path.join(matplotlib._get_data_path(), 'sample_data')
@@ -804,7 +805,7 @@ def report_memory(i=0):  # argument may go away
     pid = os.getpid()
     if sys.platform == 'sunos5':
         try:
-            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
+            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'osz'],
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
@@ -813,7 +814,7 @@ def report_memory(i=0):  # argument may go away
         mem = int(a2[-1].strip())
     elif sys.platform == 'linux':
         try:
-            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
+            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'rss,sz'],
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
@@ -822,7 +823,7 @@ def report_memory(i=0):  # argument may go away
         mem = int(a2[1].split()[1])
     elif sys.platform == 'darwin':
         try:
-            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
+            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'],
                        stdout=PIPE).stdout.readlines()
         except OSError:
             raise NotImplementedError(
@@ -1094,7 +1095,7 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if isinstance(args[0], str) or not iterable(args[0]):
+    if is_scalar_or_string(args[0]):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []
@@ -1176,10 +1177,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         dimensions of `X`.
 
     autorange : bool, optional (False)
-        When `True` and the data are distributed such that the  25th and
-        75th percentiles are equal, ``whis`` is set to ``'range'`` such
-        that the whisker ends are at the minimum and maximum of the
-        data.
+        When `True` and the data are distributed such that the 25th and 75th
+        percentiles are equal, ``whis`` is set to ``'range'`` such that the
+        whisker ends are at the minimum and maximum of the data.
 
     Returns
     -------
@@ -1984,7 +1984,7 @@ def _define_aliases(alias_d, cls=None):
     can be used by `~.normalize_kwargs` (which assumes that higher priority
     aliases come last).
     """
-    if cls is None:
+    if cls is None:  # Return the actual class decorator.
         return functools.partial(_define_aliases, alias_d)
 
     def make_alias(name):  # Enforce a closure over *name*.
@@ -2011,6 +2011,45 @@ def _define_aliases(alias_d, cls=None):
         raise NotImplementedError("Parent class already defines aliases")
     cls._alias_map = alias_d
     return cls
+
+
+def _array_perimeter(arr):
+    """
+    Get the elements on the perimeter of ``arr``,
+
+    Parameters
+    ----------
+    arr : ndarray, shape (M, N)
+        The input array
+
+    Returns
+    -------
+    perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
+        The elements on the perimeter of the array::
+
+            [arr[0,0] ... arr[0,-1] ... arr[-1, -1] ... arr[-1,0] ...]
+
+    Examples
+    --------
+    >>> i, j = np.ogrid[:3,:4]
+    >>> a = i*10 + j
+    >>> a
+    array([[ 0,  1,  2,  3],
+           [10, 11, 12, 13],
+           [20, 21, 22, 23]])
+    >>> _array_perimeter(a)
+    array([ 0,  1,  2,  3, 13, 23, 22, 21, 20, 10])
+    """
+    # note we use Python's half-open ranges to avoid repeating
+    # the corners
+    forward = np.s_[0:-1]      # [0 ... -1)
+    backward = np.s_[-1:0:-1]  # [-1 ... 0)
+    return np.concatenate((
+        arr[0, forward],
+        arr[forward, -1],
+        arr[-1, backward],
+        arr[backward, 0],
+    ))
 
 
 @contextlib.contextmanager
@@ -2047,3 +2086,24 @@ def _warn_external(message, category=None):
             break
         frame = frame.f_back
     warnings.warn(message, category, stacklevel)
+
+
+class _OrderedSet(collections.MutableSet):
+    def __init__(self):
+        self._od = collections.OrderedDict()
+
+    def __contains__(self, key):
+        return key in self._od
+
+    def __iter__(self):
+        return iter(self._od)
+
+    def __len__(self):
+        return len(self._od)
+
+    def add(self, key):
+        self._od.pop(key, None)
+        self._od[key] = None
+
+    def discard(self, key):
+        self._od.pop(key, None)

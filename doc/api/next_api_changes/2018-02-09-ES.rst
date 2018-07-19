@@ -1,0 +1,19 @@
+Deprecation of ``LocatableAxes`` in toolkits
+--------------------------------------------
+
+The ``LocatableAxes`` classes in toolkits have been deprecated. The base `Axes`
+classes provide the same functionality to all subclasses, thus these mixins are
+no longer necessary. Related functions have also been deprecated. Specifically:
+
+* ``mpl_toolkits.axes_grid1.axes_divider.LocatableAxesBase``: no specific
+  replacement; use any other ``Axes``-derived class directly instead.
+* ``mpl_toolkits.axes_grid1.axes_divider.locatable_axes_factory``: no specific
+  replacement; use any other ``Axes``-derived class directly instead.
+* ``mpl_toolkits.axes_grid1.axes_divider.Axes``: use
+  `mpl_toolkits.axes_grid1.mpl_axes.Axes` directly.
+* ``mpl_toolkits.axes_grid1.axes_divider.LocatableAxes``: use
+  `mpl_toolkits.axes_grid1.mpl_axes.Axes` directly.
+* ``mpl_toolkits.axisartist.axes_divider.Axes``: use
+  `mpl_toolkits.axisartist.axislines.Axes` directly.
+* ``mpl_toolkits.axisartist.axes_divider.LocatableAxes``: use
+  `mpl_toolkits.axisartist.axislines.Axes` directly.

@@ -111,7 +111,8 @@ class DraggableLegend(DraggableOffsetBox):
 
 
 _legend_kw_doc = '''
-loc : int or string or pair of floats, default: 'upper right'
+loc : int or string or pair of floats, default: :rc:`legend.loc` ('best' for \
+axes, 'upper right' for figures)
     The location of the legend. Possible codes are:
 
         ===============   =============
@@ -980,6 +981,22 @@ class Legend(Artist):
         'Return extent of the legend.'
         return self._legend_box.get_window_extent(*args, **kwargs)
 
+    def get_tightbbox(self, renderer):
+        """
+        Like `.Legend.get_window_extent`, but uses the box for the legend.
+
+        Parameters
+        ----------
+        renderer : `.RendererBase` instance
+            renderer that will be used to draw the figures (i.e.
+            ``fig.canvas.get_renderer()``)
+
+        Returns
+        -------
+        `.BboxBase` : containing the bounding box in figure pixel co-ordinates.
+        """
+        return self._legend_box.get_window_extent(renderer)
+
     def get_frame_on(self):
         """Get whether the legend box patch is drawn."""
         return self._drawFrame
@@ -991,7 +1008,6 @@ class Legend(Artist):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._drawFrame = b
         self.stale = True
@@ -1126,7 +1142,7 @@ class Legend(Artist):
         use_blit : bool, optional
             Use blitting for faster image composition. For details see
             :ref:`func-animation`.
-        update : ['loc' | 'bbox'], optional
+        update : {'loc', 'bbox'}, optional
             The legend parameter to be changed when dragged:
 
             - 'loc': update the *loc* parameter of the legend
@@ -1226,7 +1242,7 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
 
     for handle in _get_legend_handles(axs, legend_handler_map):
         label = handle.get_label()
-        if (label and not label.startswith('_')):
+        if label and not label.startswith('_'):
             handles.append(handle)
             labels.append(label)
     return handles, labels

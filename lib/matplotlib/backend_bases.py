@@ -54,7 +54,7 @@ try:
     from PIL import Image
     from PIL import PILLOW_VERSION
     from distutils.version import LooseVersion
-    if LooseVersion(PILLOW_VERSION) >= LooseVersion("3.4"):
+    if LooseVersion(PILLOW_VERSION) >= "3.4":
         _has_pil = True
     else:
         _has_pil = False
@@ -1332,7 +1332,7 @@ class CloseEvent(Event):
 
 class LocationEvent(Event):
     """
-    An event that has a screen location
+    An event that has a screen location.
 
     The following additional attributes are defined and shown with
     their default values.
@@ -1356,28 +1356,25 @@ class LocationEvent(Event):
 
     ydata : scalar
         y coord of mouse in data coords
-
     """
-    x = None       # x position - pixels from left of canvas
-    y = None       # y position - pixels from right of canvas
-    inaxes = None  # the Axes instance if mouse us over axes
-    xdata = None   # x coord of mouse in data coords
-    ydata = None   # y coord of mouse in data coords
 
-    # the last event that was triggered before this one
-    lastevent = None
+    lastevent = None  # the last event that was triggered before this one
 
     def __init__(self, name, canvas, x, y, guiEvent=None):
         """
         *x*, *y* in figure coords, 0,0 = bottom, left
         """
         Event.__init__(self, name, canvas, guiEvent=guiEvent)
-        self.x = x
-        self.y = y
+        # x position - pixels from left of canvas
+        self.x = int(x) if x is not None else x
+        # y position - pixels from right of canvas
+        self.y = int(y) if y is not None else y
+        self.inaxes = None  # the Axes instance if mouse us over axes
+        self.xdata = None   # x coord of mouse in data coords
+        self.ydata = None   # y coord of mouse in data coords
 
         if x is None or y is None:
             # cannot check if event was in axes if no x,y info
-            self.inaxes = None
             self._update_enter_leave()
             return
 
@@ -1394,13 +1391,10 @@ class LocationEvent(Event):
                 trans = self.inaxes.transData.inverted()
                 xdata, ydata = trans.transform_point((x, y))
             except ValueError:
-                self.xdata = None
-                self.ydata = None
+                pass
             else:
                 self.xdata = xdata
                 self.ydata = ydata
-        else:
-            self.inaxes = None
 
         self._update_enter_leave()
 
@@ -1443,18 +1437,21 @@ class MouseEvent(LocationEvent):
 
     Attributes
     ----------
-    button : None, scalar, or str
-        button pressed None, 1, 2, 3, 'up', 'down' (up and down are used
-        for scroll events).  Note that in the nbagg backend, both the
-        middle and right clicks return 3 since right clicking will bring
-        up the context menu in some browsers.
+    button : {None, 1, 2, 3, 'up', 'down'}
+        The button pressed. 'up' and 'down' are used for scroll events.
+        Note that in the nbagg backend, both the middle and right clicks
+        return 3 since right clicking will bring up the context menu in
+        some browsers.
 
-    key : None, or str
-        the key depressed when the mouse event triggered (see
-        :class:`KeyEvent`)
+    key : None or str
+        The key pressed when the mouse event triggered, e.g. 'shift'.
+        See `KeyEvent`.
 
     step : scalar
-        number of scroll steps (positive for 'up', negative for 'down')
+        The Number of scroll steps (positive for 'up', negative for 'down').
+
+    dblclick : bool
+        *True* if the event is a double-click.
 
     Examples
     --------
@@ -1464,16 +1461,7 @@ class MouseEvent(LocationEvent):
             print('you pressed', event.button, event.xdata, event.ydata)
 
         cid = fig.canvas.mpl_connect('button_press_event', on_press)
-
     """
-    x = None         # x position - pixels from left of canvas
-    y = None         # y position - pixels from right of canvas
-    button = None    # button pressed None, 1, 2, 3
-    dblclick = None  # whether or not the event is the result of a double click
-    inaxes = None    # the Axes instance if mouse us over axes
-    xdata = None     # x coord of mouse in data coords
-    ydata = None     # y coord of mouse in data coords
-    step = None      # scroll steps for scroll events
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
                  step=0, dblclick=False, guiEvent=None):
@@ -2060,36 +2048,9 @@ class FigureCanvasBase(object):
                         dryrun=True,
                         **kwargs)
                     renderer = self.figure._cachedRenderer
-                    bbox_inches = self.figure.get_tightbbox(renderer)
-
                     bbox_artists = kwargs.pop("bbox_extra_artists", None)
-                    if bbox_artists is None:
-                        bbox_artists = \
-                            self.figure.get_default_bbox_extra_artists()
-
-                    bbox_filtered = []
-                    for a in bbox_artists:
-                        bbox = a.get_window_extent(renderer)
-                        if a.get_clip_on():
-                            clip_box = a.get_clip_box()
-                            if clip_box is not None:
-                                bbox = Bbox.intersection(bbox, clip_box)
-                            clip_path = a.get_clip_path()
-                            if clip_path is not None and bbox is not None:
-                                clip_path = \
-                                    clip_path.get_fully_transformed_path()
-                                bbox = Bbox.intersection(
-                                    bbox, clip_path.get_extents())
-                        if bbox is not None and (
-                                bbox.width != 0 or bbox.height != 0):
-                            bbox_filtered.append(bbox)
-
-                    if bbox_filtered:
-                        _bbox = Bbox.union(bbox_filtered)
-                        trans = Affine2D().scale(1.0 / self.figure.dpi)
-                        bbox_extra = TransformedBbox(_bbox, trans)
-                        bbox_inches = Bbox.union([bbox_inches, bbox_extra])
-
+                    bbox_inches = self.figure.get_tightbbox(renderer,
+                            bbox_extra_artists=bbox_artists)
                     pad = kwargs.pop("pad_inches", None)
                     if pad is None:
                         pad = rcParams['savefig.pad_inches']
@@ -2608,7 +2569,7 @@ class NavigationToolbar2(object):
     # )
     toolitems = (
         ('Home', 'Reset original view', 'home', 'home'),
-        ('Back', 'Back to  previous view', 'back', 'back'),
+        ('Back', 'Back to previous view', 'back', 'back'),
         ('Forward', 'Forward to next view', 'forward', 'forward'),
         (None, None, None, None),
         ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
@@ -2719,7 +2680,7 @@ class NavigationToolbar2(object):
             except (ValueError, OverflowError):
                 pass
             else:
-                artists = [a for a in event.inaxes.mouseover_set
+                artists = [a for a in event.inaxes._mouseover_set
                            if a.contains(event) and a.get_visible()]
 
                 if artists:

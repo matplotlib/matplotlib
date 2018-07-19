@@ -4,8 +4,9 @@ import matplotlib.axes as maxes
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 
-from .axes_divider import Size, SubplotDivider, LocatableAxes, Divider
+from .axes_divider import Size, SubplotDivider, Divider
 from .colorbar import Colorbar
+from .mpl_axes import Axes
 
 
 def _extend_axes_pad(value):
@@ -100,7 +101,7 @@ class CbarAxesBase(object):
         #axis.label.set_visible(b)
 
 
-class CbarAxes(CbarAxesBase, LocatableAxes):
+class CbarAxes(CbarAxesBase, Axes):
     def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
         self._default_label_on = True
@@ -122,7 +123,7 @@ class Grid(object):
     be easily done in matplotlib. AxesGrid is used in such case.
     """
 
-    _defaultLocatableAxesClass = LocatableAxes
+    _defaultAxesClass = Axes
 
     def __init__(self, fig,
                  rect,
@@ -169,7 +170,7 @@ class Grid(object):
         if ngrids is None:
             ngrids = self._nrows * self._ncols
         else:
-            if (ngrids > self._nrows * self._ncols) or (ngrids <= 0):
+            if not 0 < ngrids <= self._nrows * self._ncols:
                 raise Exception("")
 
         self.ngrids = ngrids
@@ -182,12 +183,12 @@ class Grid(object):
         self._direction = direction
 
         if axes_class is None:
-            axes_class = self._defaultLocatableAxesClass
+            axes_class = self._defaultAxesClass
             axes_class_args = {}
         else:
-            if (type(axes_class)) == type and \
-                   issubclass(axes_class,
-                              self._defaultLocatableAxesClass.Axes):
+            if (isinstance(axes_class, type)
+                    and issubclass(axes_class,
+                                   self._defaultAxesClass.Axes)):
                 axes_class_args = {}
             else:
                 axes_class, axes_class_args = axes_class
@@ -503,7 +504,7 @@ class ImageGrid(Grid):
         self._direction = direction
 
         if axes_class is None:
-            axes_class = self._defaultLocatableAxesClass
+            axes_class = self._defaultAxesClass
             axes_class_args = {}
         else:
             if isinstance(axes_class, maxes.Axes):

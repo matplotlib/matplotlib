@@ -439,7 +439,7 @@ class Quiver(mcollections.PolyCollection):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
-        by the following pylab interface documentation:
+        by the following pyplot interface documentation:
         %s
         """
         self.ax = ax
@@ -912,7 +912,7 @@ class Barbs(mcollections.PolyCollection):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
-        by the following pylab interface documentation:
+        by the following pyplot interface documentation:
         %(barbs_doc)s
         """
         self.sizes = sizes or dict()
@@ -1182,7 +1182,9 @@ class Barbs(mcollections.PolyCollection):
         in and actually sets version masked as appropriate for the existing
         U/V data. *offsets* should be a sequence.
 
-        ACCEPTS: sequence of pairs of floats
+        Parameters
+        ----------
+        offsets : sequence of pairs of floats
         """
         self.x = xy[:, 0]
         self.y = xy[:, 1]

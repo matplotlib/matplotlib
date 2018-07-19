@@ -213,7 +213,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         coords = np.dot(orig_position, M) + [[x_pos, y_pos]]
         x, y = np.ravel(coords)
         orig_label = rate_labels[pair]
-        label = '$%s_{_{\mathrm{%s}}}$' % (orig_label[0], orig_label[1:])
+        label = r'$%s_{_{\mathrm{%s}}}$' % (orig_label[0], orig_label[1:])
 
         plt.text(x, y, label, size=label_text_size, ha='center', va='center',
                  color=labelcolor or fc)
@@ -310,7 +310,5 @@ if __name__ == '__main__':
 
     make_arrow_plot(d, display=display, linewidth=0.001, edgecolor=None,
                     normalize_data=scaled, head_starts_at_zero=True, size=size)
-
-    plt.draw()
 
     plt.show()
