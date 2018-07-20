@@ -6,9 +6,9 @@ Inset Locator Demo
 """
 
 ###############################################################################
-# The `.inset_locator`'s `~.inset_axes` allows to easily place insets in the
-# corners of the axes by specifying a width and height and optionally
-# a location (loc) which accepts locations as codes, similar to
+# The `.inset_locator`'s `~.axes_grid1.inset_axes` allows to easily place
+# insets in the corners of the axes by specifying a width and height and
+# optionally a location (loc) which accepts locations as codes, similar to
 # `~matplotlib.axes.Axes.legend`.
 # By default, the inset is offset by some points from the axes - this is
 # controlled via the `borderpad` parameter.

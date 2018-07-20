@@ -251,6 +251,7 @@ per-file-ignores =
     examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
     examples/subplots_axes_and_figures/demo_tight_layout.py: E402
     examples/subplots_axes_and_figures/two_scales.py: E402
+    examples/subplots_axes_and_figures/zoom_inset_axes.py: E402
     examples/tests/backend_driver_sgskip.py: E402, E501
     examples/text_labels_and_annotations/annotation_demo.py: E501
     examples/text_labels_and_annotations/custom_legends.py: E402
