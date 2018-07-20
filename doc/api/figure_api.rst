@@ -17,7 +17,7 @@ Classes
 
 .. autosummary::
    :toctree: _as_gen/
-   :template: autosummary.rst
+   :template: autoclass.rst
    :nosignatures:
 
    AxesStack
