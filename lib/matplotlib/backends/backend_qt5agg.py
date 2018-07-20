@@ -44,11 +44,14 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         height = rect.height()
         # See documentation of QRect: bottom() and right() are off by 1, so use
         # left() + width() and top() + height().
-        bbox = Bbox([[left, self.renderer.height - (top + height)],
-                     [left + width, self.renderer.height - top]])
+        bbox = Bbox(
+            [[left, self.renderer.height - (top + height * self._dpi_ratio)],
+             [left + width * self._dpi_ratio, self.renderer.height - top]])
         reg = self.copy_from_bbox(bbox)
         buf = reg.to_string_argb()
-        qimage = QtGui.QImage(buf, width, height, QtGui.QImage.Format_ARGB32)
+        qimage = QtGui.QImage(
+            buf, width * self._dpi_ratio, height * self._dpi_ratio,
+            QtGui.QImage.Format_ARGB32)
         if hasattr(qimage, 'setDevicePixelRatio'):
             # Not available on Qt4 or some older Qt5.
             qimage.setDevicePixelRatio(self._dpi_ratio)
