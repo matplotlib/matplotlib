@@ -230,24 +230,54 @@ def switch_backend(newbackend):
     _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 
-def show(*args, **kw):
+def show(block=None):
     """
-    Display a figure.
-    When running in ipython with its pylab mode, display all
-    figures and return to the ipython prompt.
+    Draw and display all figures.
 
-    In non-interactive mode, display all figures and block until
-    the figures have been closed; in interactive mode it has no
-    effect unless figures were created prior to a change from
-    non-interactive to interactive mode (not recommended).  In
-    that case it displays the figures but does not block.
+    Mainly used in non-interactive mode to draw and display
+    the figures. It usually does nothing in interactive mode.
 
-    A single experimental keyword argument, *block*, may be
-    set to True or False to override the blocking behavior
-    described above.
+    Parameters
+    ----------
+
+    block : bool or None
+        True means that the execution is blocked until the figures are closed
+        and False means that the python execution continues after the figures
+        are displayed.
+
+        The default behavior is different in interactive and non-interactive
+        mode and whether or not `%matplotlib`_ is used in IPython. The default
+        is False in interactive mode and True in non-interactive mode except
+        when `%matplotlib`_ has been used in IPython, it is False in that case.
+
+    Notes
+    -----
+    Blocking is necessary when running ``python script.py`` to be able to see
+    the figures before the python session finish but blocking is often not the
+    expected behavior when running Python interactively.
+
+    The difference between non-interactive and interactive mode is that the
+    figures are drawn and updated automatically after each plot command in
+    interactive mode.
+
+    Interactive mode can be set on and off with `.pyplot.ion` and
+    `.pyplot.ioff` in both vanilla Python and IPython and set to on with
+    `%matplotlib`_ in IPython.
+
+    .. _`%matplotlib`:
+        http://ipython.readthedocs.io/en/stable/interactive/plotting.html#id1
+
+    See Also
+    --------
+    .pyplot.ion
+    .pyplot.ioff
+    .pyplot.isinteractive
     """
     global _show
-    return _show(*args, **kw)
+    if block is not None:
+        if type(block) != bool:
+            raise TypeError('"block" should be a bool or None')
+    return _show(block=block)
 
 
 def isinteractive():

@@ -319,7 +319,10 @@ class _BackendWebAgg(_Backend):
         manager.canvas.draw_idle()
 
     @staticmethod
-    def show():
+    def show(block=True):
+        if not block:
+            block = True
+
         WebAggApplication.initialize()
 
         url = "http://127.0.0.1:{port}{prefix}".format(
