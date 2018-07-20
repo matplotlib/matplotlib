@@ -2324,7 +2324,10 @@ default: 'top'
 
         Parameters
         ----------
-        pad : float
+        renderer : subclass of `~.backend_bases.RendererBase`, optional
+            Defaults to the renderer for the figure.
+
+        pad : float, optional
             Padding between the figure edge and the edges of subplots,
             as a fraction of the font size.
         h_pad, w_pad : float, optional
@@ -2334,6 +2337,11 @@ default: 'top'
             A rectangle (left, bottom, right, top) in the normalized
             figure coordinate that the whole subplots area (including
             labels) will fit into. Default is (0, 0, 1, 1).
+
+        See Also
+        --------
+        .Figure.set_tight_layout
+        .pyplot.tight_layout
         """
 
         from .tight_layout import (
