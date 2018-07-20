@@ -1461,16 +1461,16 @@ def test_bar_color_none_alpha():
     ax = plt.gca()
     rects = ax.bar([1, 2], [2, 4], alpha=0.3, color='none', edgecolor='r')
     for rect in rects:
-        assert rect.get_facecolor() == (0, 0, 0, 0)
-        assert rect.get_edgecolor() == (1, 0, 0, 0.3)
+        assert rect._get_drawn_facecolor() == (0, 0, 0, 0)
+        assert rect._get_drawn_edgecolor() == (1, 0, 0, 0.3)
 
 
 def test_bar_edgecolor_none_alpha():
     ax = plt.gca()
     rects = ax.bar([1, 2], [2, 4], alpha=0.3, color='r', edgecolor='none')
     for rect in rects:
-        assert rect.get_facecolor() == (1, 0, 0, 0.3)
-        assert rect.get_edgecolor() == (0, 0, 0, 0)
+        assert rect._get_drawn_facecolor() == (1, 0, 0, 0.3)
+        assert rect._get_drawn_edgecolor() == (0, 0, 0, 0)
 
 
 @image_comparison(baseline_images=['barh_tick_label'],
@@ -5659,7 +5659,8 @@ def test_bar_broadcast_args():
     ax.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
     # Check that edgecolor gets broadcasted.
     rect1, rect2 = ax.bar([0, 1], [0, 1], edgecolor=(.1, .2, .3, .4))
-    assert rect1.get_edgecolor() == rect2.get_edgecolor() == (.1, .2, .3, .4)
+    assert rect1._get_drawn_edgecolor() == rect2._get_drawn_edgecolor() \
+        == (.1, .2, .3, .4)
 
 
 def test_invalid_axis_limits():

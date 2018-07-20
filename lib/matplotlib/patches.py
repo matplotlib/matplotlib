@@ -68,7 +68,6 @@ class Patch(artist.Artist):
         if antialiased is None:
             antialiased = mpl.rcParams['patch.antialiased']
 
-        self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
         self._fill = True  # needed for set_facecolor call
         if color is not None:
             if edgecolor is not None or facecolor is not None:
@@ -87,6 +86,7 @@ class Patch(artist.Artist):
         self.set_linewidth(linewidth)
         self.set_antialiased(antialiased)
         self.set_hatch(hatch)
+        self._orig_hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
         self._combined_transform = transforms.IdentityTransform()
@@ -115,7 +115,7 @@ class Patch(artist.Artist):
         if isinstance(self._picker, Number):
             _radius = self._picker
         else:
-            if self.get_edgecolor()[3] == 0:
+            if self._get_drawn_edgecolor()[3] == 0:
                 _radius = 0
             else:
                 _radius = self.get_linewidth()
@@ -170,7 +170,6 @@ class Patch(artist.Artist):
         self._facecolor = other._facecolor
         self._fill = other._fill
         self._hatch = other._hatch
-        self._hatch_color = other._hatch_color
         # copy the unscaled dash pattern
         self._us_dashes = other._us_dashes
         self.set_linewidth(other._linewidth)  # also sets dash properties
@@ -221,13 +220,23 @@ class Patch(artist.Artist):
         """
         Return the edge color of the :class:`Patch`.
         """
-        return self._edgecolor
+        ec = self._edgecolor
+        if ec is None:
+            if (mpl.rcParams['patch.force_edgecolor'] or
+                    not self._fill or self._edge_default):
+                ec = mpl.rcParams['patch.edgecolor']
+            else:
+                ec = 'none'
+        return ec
 
     def get_facecolor(self):
         """
         Return the face color of the :class:`Patch`.
         """
-        return self._facecolor
+        fc = self._facecolor
+        if fc is None:
+            fc = mpl.rcParams['patch.facecolor']
+        return fc
 
     def get_linewidth(self):
         """
@@ -254,21 +263,6 @@ class Patch(artist.Artist):
         self._antialiased = aa
         self.stale = True
 
-    def _set_edgecolor(self, color):
-        set_hatch_color = True
-        if color is None:
-            if (mpl.rcParams['patch.force_edgecolor'] or
-                    not self._fill or self._edge_default):
-                color = mpl.rcParams['patch.edgecolor']
-            else:
-                color = 'none'
-                set_hatch_color = False
-
-        self._edgecolor = colors.to_rgba(color, self._alpha)
-        if set_hatch_color:
-            self._hatch_color = self._edgecolor
-        self.stale = True
-
     def set_edgecolor(self, color):
         """
         Set the patch edge color.
@@ -277,14 +271,7 @@ class Patch(artist.Artist):
         ----------
         color : color or None or 'auto'
         """
-        self._original_edgecolor = color
-        self._set_edgecolor(color)
-
-    def _set_facecolor(self, color):
-        if color is None:
-            color = mpl.rcParams['patch.facecolor']
-        alpha = self._alpha if self._fill else 0
-        self._facecolor = colors.to_rgba(color, alpha)
+        self._edgecolor = color
         self.stale = True
 
     def set_facecolor(self, color):
@@ -295,8 +282,8 @@ class Patch(artist.Artist):
         ----------
         color : color or None
         """
-        self._original_facecolor = color
-        self._set_facecolor(color)
+        self._facecolor = color
+        self.stale = True
 
     def set_color(self, c):
         """
@@ -313,24 +300,6 @@ class Patch(artist.Artist):
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
-
-    def set_alpha(self, alpha):
-        """
-        Set the alpha transparency of the patch.
-
-        Parameters
-        ----------
-        alpha : float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
-        self._set_facecolor(self._original_facecolor)
-        self._set_edgecolor(self._original_edgecolor)
-        # stale is already True
 
     def set_linewidth(self, w):
         """
@@ -393,8 +362,7 @@ class Patch(artist.Artist):
         b : bool
         """
         self._fill = bool(b)
-        self._set_facecolor(self._original_facecolor)
-        self._set_edgecolor(self._original_edgecolor)
+        self.set_edgecolor(self._edgecolor)
         self.stale = True
 
     def get_fill(self):
@@ -479,6 +447,24 @@ class Patch(artist.Artist):
         'Return the current hatching pattern'
         return self._hatch
 
+    def _get_drawn_edgecolor(self):
+        return colors.to_rgba(self.get_edgecolor(), self._alpha)
+
+    def _get_drawn_facecolor(self):
+        return colors.to_rgba(self.get_facecolor(),
+                              self._alpha if self._fill else 0)
+
+    def _get_drawn_hatchcolor(self):
+        hc = self._edgecolor
+        if hc is None:
+            if (mpl.rcParams['patch.force_edgecolor'] or
+                    not self._fill or self._edge_default):
+                hc = mpl.rcParams['patch.edgecolor']
+            else:
+                # Not affected by alpha.
+                return self._orig_hatch_color
+        return colors.to_rgba(hc, self._alpha)
+
     @artist.allow_rasterization
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
@@ -488,10 +474,11 @@ class Patch(artist.Artist):
         renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
-        gc.set_foreground(self._edgecolor, isRGBA=True)
+        edgecolor = self._get_drawn_edgecolor()
+        gc.set_foreground(edgecolor, isRGBA=True)
 
         lw = self._linewidth
-        if self._edgecolor[3] == 0:
+        if edgecolor[3] == 0:
             lw = 0
         gc.set_linewidth(lw)
         gc.set_dashes(0, self._dashes)
@@ -503,7 +490,7 @@ class Patch(artist.Artist):
         gc.set_url(self._url)
         gc.set_snap(self.get_snap())
 
-        rgbFace = self._facecolor
+        rgbFace = self._get_drawn_facecolor()
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
@@ -512,7 +499,7 @@ class Patch(artist.Artist):
         if self._hatch:
             gc.set_hatch(self._hatch)
             try:
-                gc.set_hatch_color(self._hatch_color)
+                gc.set_hatch_color(self._get_drawn_hatchcolor())
             except AttributeError:
                 # if we end up with a GC that does not have this method
                 warnings.warn(
@@ -4259,10 +4246,11 @@ class FancyArrowPatch(Patch):
         renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
-        gc.set_foreground(self._edgecolor, isRGBA=True)
+        edgecolor = self._get_drawn_edgecolor()
+        gc.set_foreground(edgecolor, isRGBA=True)
 
         lw = self._linewidth
-        if self._edgecolor[3] == 0:
+        if edgecolor[3] == 0:
             lw = 0
         gc.set_linewidth(lw)
         gc.set_dashes(self._dashoffset, self._dashes)
@@ -4272,7 +4260,7 @@ class FancyArrowPatch(Patch):
         gc.set_capstyle('round')
         gc.set_snap(self.get_snap())
 
-        rgbFace = self._facecolor
+        rgbFace = self._get_drawn_facecolor()
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
@@ -4282,7 +4270,7 @@ class FancyArrowPatch(Patch):
             gc.set_hatch(self._hatch)
             if self._hatch_color is not None:
                 try:
-                    gc.set_hatch_color(self._hatch_color)
+                    gc.set_hatch_color(self._get_drawn_hatchcolor())
                 except AttributeError:
                     # if we end up with a GC that does not have this method
                     warnings.warn("Your backend does not support setting the "

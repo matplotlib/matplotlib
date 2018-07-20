@@ -1,0 +1,12 @@
+Lazy color resolution for patches
+`````````````````````````````````
+
+Patches now lazily resolve colors and apply alpha at draw time, similarly
+to Line2Ds.  In particular, this means that they will be affected by later
+modifications to :rc:`patch.facecolor` and :rc:`patch.edgecolor`, and that
+``patch.get_facecolor()`` and ``patch.get_edgecolor()`` no longer necessarily
+return RGBA tuples but rather whatever was passed in with the corresponding
+setters.
+
+:rc:`hatch.color` is still resolved at artist creation time as there is no
+other way to set the hatch color.

@@ -9,10 +9,11 @@ import pytest
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
-from matplotlib.legend_handler import HandlerTuple
+import matplotlib.colors as mcolors
 import matplotlib.legend as mlegend
+from matplotlib.legend_handler import HandlerTuple
+import matplotlib.transforms as mtransforms
 from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 
 
@@ -543,3 +544,14 @@ def test_draggable():
     with pytest.warns(MatplotlibDeprecationWarning):
         legend.draggable()
     assert not legend.get_draggable()
+
+
+def test_alpha_handles():
+    x, n, hh = plt.hist([1, 2, 3], alpha=0.25, label='data', color='red')
+    legend = plt.legend()
+    for lh in legend.legendHandles:
+        lh.set_alpha(1.0)
+    assert mcolors.to_rgb(lh.get_facecolor()) \
+        == mcolors.to_rgb(hh[1].get_facecolor())
+    assert mcolors.to_rgb(lh.get_edgecolor()) \
+        == mcolors.to_rgb(hh[1].get_edgecolor())

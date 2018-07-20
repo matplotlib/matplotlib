@@ -172,7 +172,7 @@ def test_legend_colors(color_type, param_dict, target):
         _, ax = plt.subplots()
         ax.plot(range(3), label='test')
         leg = ax.legend()
-        assert getattr(leg.legendPatch, get_func)() == target
+        assert mcolors.same_color(getattr(leg.legendPatch, get_func)(), target)
 
 
 def test_mfc_rcparams():
