@@ -84,8 +84,36 @@ def _plot_args_replacer(args, data):
                          "multiple plotting calls instead.")
 
 
+def _make_inset_locator(bounds, trans, parent):
+    """
+    Helper function to locate inset axes, used in
+    `.Axes.inset_axes`.
+
+    A locator gets used in `Axes.set_aspect` to override the default
+    locations...  It is a function that takes an axes object and
+    a renderer and tells `set_aspect` where it is to be placed.
+
+    Here *rect* is a rectangle [l, b, w, h] that specifies the
+    location for the axes in the transform given by *trans* on the
+    *parent*.
+    """
+    _bounds = mtransforms.Bbox.from_bounds(*bounds)
+    _trans = trans
+    _parent = parent
+
+    def inset_locator(ax, renderer):
+        bbox = _bounds
+        bb = mtransforms.TransformedBbox(bbox, _trans)
+        tr = _parent.figure.transFigure.inverted()
+        bb = mtransforms.TransformedBbox(bb, tr)
+        return bb
+
+    return inset_locator
+
+
 # The axes module contains all the wrappers to plotting functions.
 # All the other methods should go in the _AxesBase class.
+
 
 class Axes(_AxesBase):
     """
@@ -389,6 +417,227 @@ class Axes(_AxesBase):
 
     def _remove_legend(self, legend):
         self.legend_ = None
+
+    def inset_axes(self, bounds, *, transform=None, zorder=5,
+            **kwargs):
+        """
+        Add a child inset axes to this existing axes.
+
+        Warnings
+        --------
+
+        This method is experimental as of 3.0, and the API may change.
+
+        Parameters
+        ----------
+
+        bounds : [x0, y0, width, height]
+            Lower-left corner of inset axes, and its width and height.
+
+        transform : `.Transform`
+            Defaults to `ax.transAxes`, i.e. the units of *rect* are in
+            axes-relative coordinates.
+
+        zorder : number
+            Defaults to 5 (same as `.Axes.legend`).  Adjust higher or lower
+            to change whether it is above or below data plotted on the
+            parent axes.
+
+        **kwargs
+
+            Other *kwargs* are passed on to the `axes.Axes` child axes.
+
+        Returns
+        -------
+
+        Axes
+            The created `.axes.Axes` instance.
+
+        Examples
+        --------
+
+        This example makes two inset axes, the first is in axes-relative
+        coordinates, and the second in data-coordinates::
+
+            fig, ax = plt.suplots()
+            ax.plot(range(10))
+            axin1 = ax.inset_axes([0.8, 0.1, 0.15, 0.15])
+            axin2 = ax.inset_axes(
+                    [5, 7, 2.3, 2.3], transform=ax.transData)
+
+        """
+        if transform is None:
+            transform = self.transAxes
+        label = kwargs.pop('label', 'inset_axes')
+
+        # This puts the rectangle into figure-relative coordinates.
+        inset_locator = _make_inset_locator(bounds, transform, self)
+        bb = inset_locator(None, None)
+
+        inset_ax = Axes(self.figure, bb.bounds, zorder=zorder,
+                label=label, **kwargs)
+
+        # this locator lets the axes move if in data coordinates.
+        # it gets called in `ax.apply_aspect() (of all places)
+        inset_ax.set_axes_locator(inset_locator)
+
+        self.add_child_axes(inset_ax)
+
+        return inset_ax
+
+    def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
+            facecolor='none', edgecolor='0.5', alpha=0.5,
+            zorder=4.99, **kwargs):
+        """
+        Add an inset indicator to the axes.  This is a rectangle on the plot
+        at the position indicated by *bounds* that optionally has lines that
+        connect the rectangle to an inset axes
+        (`.Axes.inset_axes`).
+
+        Warnings
+        --------
+
+        This method is experimental as of 3.0, and the API may change.
+
+
+        Parameters
+        ----------
+
+        bounds : [x0, y0, width, height]
+            Lower-left corner of rectangle to be marked, and its width
+            and height.
+
+        inset_ax : `.Axes`
+            An optional inset axes to draw connecting lines to.  Two lines are
+            drawn connecting the indicator box to the inset axes on corners
+            chosen so as to not overlap with the indicator box.
+
+        transform : `.Transform`
+            Transform for the rectangle co-ordinates. Defaults to
+            `ax.transAxes`, i.e. the units of *rect* are in axes-relative
+            coordinates.
+
+        facecolor : Matplotlib color
+            Facecolor of the rectangle (default 'none').
+
+        edgecolor : Matplotlib color
+            Color of the rectangle and color of the connecting lines.  Default
+            is '0.5'.
+
+        alpha : number
+            Transparency of the rectangle and connector lines.  Default is 0.5.
+
+        zorder : number
+            Drawing order of the rectangle and connector lines. Default is 4.99
+            (just below the default level of inset axes).
+
+        **kwargs
+            Other *kwargs* are passed on to the rectangle patch.
+
+        Returns
+        -------
+
+        rectangle_patch: `.Patches.Rectangle`
+             Rectangle artist.
+
+        connector_lines: 4-tuple of `.Patches.ConnectionPatch`
+            One for each of four connector lines.  Two are set with visibility
+            to *False*,  but the user can set the visibility to True if the
+            automatic choice is not deemed correct.
+
+        """
+
+        # to make the axes connectors work, we need to apply the aspect to
+        # the parent axes.
+        self.apply_aspect()
+
+        if transform is None:
+            transform = self.transData
+        label = kwargs.pop('label', 'indicate_inset')
+
+        xy = (bounds[0], bounds[1])
+        rectpatch = mpatches.Rectangle(xy, bounds[2], bounds[3],
+                facecolor=facecolor, edgecolor=edgecolor, alpha=alpha,
+                zorder=zorder,  label=label, transform=transform, **kwargs)
+        self.add_patch(rectpatch)
+
+        if inset_ax is not None:
+            # want to connect the indicator to the rect....
+
+            pos = inset_ax.get_position()  # this is in fig-fraction.
+            coordsA = 'axes fraction'
+            connects = []
+            xr = [bounds[0], bounds[0]+bounds[2]]
+            yr = [bounds[1], bounds[1]+bounds[3]]
+            for xc in range(2):
+                for yc in range(2):
+                    xyA = (xc, yc)
+                    xyB = (xr[xc], yr[yc])
+                    connects += [mpatches.ConnectionPatch(xyA, xyB,
+                            'axes fraction', 'data',
+                            axesA=inset_ax, axesB=self, arrowstyle="-",
+                            zorder=zorder, edgecolor=edgecolor, alpha=alpha)]
+                    self.add_patch(connects[-1])
+            # decide which two of the lines to keep visible....
+            pos = inset_ax.get_position()
+            bboxins = pos.transformed(self.figure.transFigure)
+            rectbbox = mtransforms.Bbox.from_bounds(
+                        *bounds).transformed(transform)
+            if rectbbox.x0 < bboxins.x0:
+                sig = 1
+            else:
+                sig = -1
+            if sig*rectbbox.y0 < sig*bboxins.y0:
+                connects[0].set_visible(False)
+                connects[3].set_visible(False)
+            else:
+                connects[1].set_visible(False)
+                connects[2].set_visible(False)
+
+        return rectpatch, connects
+
+    def indicate_inset_zoom(self, inset_ax, **kwargs):
+        """
+        Add an inset indicator rectangle to the axes based on the axis
+        limits for an *inset_ax* and draw connectors between *inset_ax*
+        and the rectangle.
+
+        Warnings
+        --------
+
+        This method is experimental as of 3.0, and the API may change.
+
+        Parameters
+        ----------
+
+        inset_ax : `.Axes`
+            Inset axes to draw connecting lines to.  Two lines are
+            drawn connecting the indicator box to the inset axes on corners
+            chosen so as to not overlap with the indicator box.
+
+        **kwargs
+            Other *kwargs* are passed on to `.Axes.inset_rectangle`
+
+        Returns
+        -------
+
+        rectangle_patch: `.Patches.Rectangle`
+             Rectangle artist.
+
+        connector_lines: 4-tuple of `.Patches.ConnectionPatch`
+            One for each of four connector lines.  Two are set with visibility
+            to *False*,  but the user can set the visibility to True if the
+            automatic choice is not deemed correct.
+
+        """
+
+        xlim = inset_ax.get_xlim()
+        ylim = inset_ax.get_ylim()
+        rect = [xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0]]
+        rectpatch, connects = self.indicate_inset(
+                rect, inset_ax, **kwargs)
+
+        return rectpatch, connects
 
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """

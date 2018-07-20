@@ -1031,6 +1031,7 @@ class _AxesBase(martist.Artist):
         self.artists = []
         self.images = []
         self._mouseover_set = _OrderedSet()
+        self.child_axes = []
         self._current_image = None  # strictly for pyplot via _sci, _gci
         self.legend_ = None
         self.collections = []  # collection.Collection instances
@@ -1806,6 +1807,27 @@ class _AxesBase(martist.Artist):
         a.set_clip_path(self.patch)
         self.stale = True
         return a
+
+    def add_child_axes(self, ax):
+        """
+        Add a :class:`~matplotlib.axes.Axesbase` instance
+        as a child to the axes.
+
+        Returns the added axes.
+
+        This is the lowlevel version.  See `.axes.Axes.inset_axes`
+        """
+
+        # normally axes have themselves as the axes, but these need to have
+        # their parent...
+        # Need to bypass the getter...
+        ax._axes = self
+        ax.stale_callback = martist._stale_axes_callback
+
+        self.child_axes.append(ax)
+        ax._remove_method = self.child_axes.remove
+        self.stale = True
+        return ax
 
     def add_collection(self, collection, autolim=True):
         """
@@ -4073,9 +4095,12 @@ class _AxesBase(martist.Artist):
         children.append(self._right_title)
         children.extend(self.tables)
         children.extend(self.images)
+        children.extend(self.child_axes)
+
         if self.legend_ is not None:
             children.append(self.legend_)
         children.append(self.patch)
+
         return children
 
     def contains(self, mouseevent):

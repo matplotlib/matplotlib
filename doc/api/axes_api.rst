@@ -181,6 +181,9 @@ Text and Annotations
    Axes.text
    Axes.table
    Axes.arrow
+   Axes.inset_axes
+   Axes.indicate_inset
+   Axes.indicate_inset_zoom
 
 
 Fields
