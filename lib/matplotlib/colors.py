@@ -546,7 +546,7 @@ class Colormap(object):
     def set_bad(self, color='k', alpha=None):
         """Set color to be used for masked values.
         """
-        self._rgba_bad = colorConverter.to_rgba(color, alpha)
+        self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
@@ -554,7 +554,7 @@ class Colormap(object):
         """Set color to be used for low out-of-range values.
            Requires norm.clip = False
         """
-        self._rgba_under = colorConverter.to_rgba(color, alpha)
+        self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
@@ -562,7 +562,7 @@ class Colormap(object):
         """Set color to be used for high out-of-range values.
            Requires norm.clip = False
         """
-        self._rgba_over = colorConverter.to_rgba(color, alpha)
+        self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
@@ -717,7 +717,7 @@ class LinearSegmentedColormap(Colormap):
 
         cdict = dict(red=[], green=[], blue=[], alpha=[])
         for val, color in zip(vals, colors):
-            r, g, b, a = colorConverter.to_rgba(color)
+            r, g, b, a = to_rgba(color)
             cdict['red'].append((val, r, r))
             cdict['green'].append((val, g, g))
             cdict['blue'].append((val, b, b))
@@ -817,9 +817,8 @@ class ListedColormap(Colormap):
         Colormap.__init__(self, name, N)
 
     def _init(self):
-        rgba = colorConverter.to_rgba_array(self.colors)
         self._lut = np.zeros((self.N + 3, 4), float)
-        self._lut[:-3] = rgba
+        self._lut[:-3] = to_rgba_array(self.colors)
         self._isinit = True
         self._set_extremes()
 
