@@ -15,6 +15,10 @@ from .qt_compat import QT_API
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
+    def __init__(self, figure):
+        # Must pass 'figure' as kwarg to Qt base class.
+        super().__init__(figure=figure)
+
     def paintEvent(self, event):
         """Copy the image from the Agg canvas to the qt.drawable.
 
