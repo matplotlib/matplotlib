@@ -28,7 +28,7 @@ per-file-ignores =
     tools/compare_backend_driver_results.py: E501
     tools/subset.py: E221, E231, E251, E261, E302, E501, E701
 
-    matplotlib/_cm.py: E202, E203
+    matplotlib/_cm.py: E202, E203, E302
     matplotlib/_mathtext_data.py: E203, E261
     matplotlib/backend_bases.py: E225
     matplotlib/backends/_backend_tk.py: E203, E222, E225, E231, E271, E301, E303, E401, E501, E701
