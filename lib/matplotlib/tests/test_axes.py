@@ -5549,13 +5549,13 @@ def test_quiver_units():
 
 
 def test_bar_color_cycle():
-    ccov = mcolors.colorConverter.to_rgb
+    to_rgb = mcolors.to_rgb
     fig, ax = plt.subplots()
     for j in range(5):
         ln, = ax.plot(range(3))
         brs = ax.bar(range(3), range(3))
         for br in brs:
-            assert ccov(ln.get_color()) == ccov(br.get_facecolor())
+            assert to_rgb(ln.get_color()) == to_rgb(br.get_facecolor())
 
 
 def test_tick_param_label_rotation():
