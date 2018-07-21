@@ -9,14 +9,8 @@ convert it to an array and pass it to Pillow for rendering.
 
 import numpy as np
 
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-
-
-try:
-    from PIL import Image
-except ImportError:
-    raise SystemExit("Pillow must be installed to run this example")
+import matplotlib.pyplot as plt
 
 plt.plot([1, 2, 3])
 
@@ -24,19 +18,14 @@ canvas = plt.get_current_fig_manager().canvas
 
 agg = canvas.switch_backends(FigureCanvasAgg)
 agg.draw()
-s = agg.tostring_rgb()
+s, (width, height) = agg.print_to_buffer()
 
-# get the width and the height to resize the matrix
-l, b, w, h = agg.figure.bbox.bounds
-w, h = int(w), int(h)
+# Convert to a NumPy array.
+X = np.fromstring(s, np.uint8).reshape((height, width, 4))
 
-X = np.fromstring(s, np.uint8).reshape((h, w, 3))
+# Pass off to PIL.
+from PIL import Image
+im = Image.frombytes("RGBA", (width, height), s)
 
-try:
-    im = Image.fromstring("RGB", (w, h), s)
-except Exception:
-    im = Image.frombytes("RGB", (w, h), s)
-
-# Uncomment this line to display the image using ImageMagick's
-# `display` tool.
+# Uncomment this line to display the image using ImageMagick's `display` tool.
 # im.show()

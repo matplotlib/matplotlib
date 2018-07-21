@@ -662,7 +662,7 @@ For more on configuring your backend, see
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-:doc:`/gallery/misc/agg_oo_sgskip`.
+:doc:`/gallery/user_interfaces/canvasagg`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 
