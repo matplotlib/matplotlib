@@ -42,11 +42,13 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
 
+# Cairo's image buffers are premultiplied ARGB32,
+# Matplotlib's are unmultiplied RGBA8888.
+
+
 def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
     """
     Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
-
-    Cairo uses the former format, Matplotlib the latter.
     """
     rgba = np.take(  # .take() ensures C-contiguity of the result.
         buf,
@@ -60,6 +62,26 @@ def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
             (channel[mask].astype(int) * 255 + alpha[mask] // 2)
             // alpha[mask])
     return rgba
+
+
+def _unmultipled_rgba8888_to_premultiplied_argb32(rgba8888):
+    """
+    Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
+    """
+    if sys.byteorder == "little":
+        argb32 = np.take(rgba8888, [2, 1, 0, 3], axis=2)
+        rgb24 = argb32[..., :-1]
+        alpha8 = argb32[..., -1:]
+    else:
+        argb32 = np.take(rgba8888, [3, 0, 1, 2], axis=2)
+        alpha8 = argb32[..., :1]
+        rgb24 = argb32[..., 1:]
+    # Only bother premultiplying when the alpha channel is not fully opaque,
+    # as the cost is not negligible.  The unsafe cast is needed to do the
+    # multiplication in-place in an integer buffer.
+    if alpha8.min() != 0xff:
+        np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
+    return argb32
 
 
 if cairo.__name__ == "cairocffi":
@@ -358,11 +380,7 @@ class RendererCairo(RendererBase):
         _draw_paths()
 
     def draw_image(self, gc, x, y, im):
-        # bbox - not currently used
-        if sys.byteorder == 'little':
-            im = im[:, :, (2, 1, 0, 3)]
-        else:
-            im = im[:, :, (3, 0, 1, 2)]
+        im = _unmultipled_rgba8888_to_premultiplied_argb32(im[::-1])
         surface = cairo.ImageSurface.create_for_data(
             im.ravel().data, cairo.FORMAT_ARGB32,
             im.shape[1], im.shape[0], im.shape[1] * 4)
@@ -371,10 +389,7 @@ class RendererCairo(RendererBase):
 
         ctx.save()
         ctx.set_source_surface(surface, float(x), float(y))
-        if gc.get_alpha() != 1:
-            ctx.paint_with_alpha(gc.get_alpha())
-        else:
-            ctx.paint()
+        ctx.paint()
         ctx.restore()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
