@@ -72,6 +72,25 @@ results.
    Therefore, these characters will behave differently depending on
    the rcParam ``text.usetex`` flag.
 
+.. _usetex-mathsfont:
+
+text and maths font selection using tex
+=======================================
+
+Setting the text font in TeX does not (by default) change the maths font.
+It is recommended to use ``text.latex.preamble`` to set the font to ensure
+that both text and maths use the desired font settings when ``text.usetex : True``.
+
+.. figure:: ../../gallery/text_labels_and_annotations/images/usetex_maths_DejaVu-Sans.png
+   :target: ../../gallery/text_labels_and_annotations/usetex_maths_font.html
+   :align: center
+   :scale: 50
+
+.. figure:: ../../gallery/text_labels_and_annotations/images/usetex_maths_cmbright.png
+   :target: ../../gallery/text_labels_and_annotations/usetex_maths_font.html
+   :align: center
+   :scale: 50
+
 .. _usetex-unicode:
 
 usetex with unicode
