@@ -230,7 +230,9 @@ class Secondary_Xaxis(_AxesBase):
         """
         lims = self._parent.get_xlim()
         order = lims[0] < lims[1]
+        print('before', lims)
         lims = self._convert.transform(lims)
+        print(lims)
         neworder = lims[0] < lims[1]
         if neworder != order:
             # flip because the transform will take care of the flipping..
