@@ -277,6 +277,10 @@ day), generate the tarball ::
   git checkout v2.0.0
   git clean -xfd
   python setup.py sdist
+  # Generate test-only wheels.
+  for dir in sub-wheels/*; do
+    (cd "$dir" && python setup.py bdist_wheel)
+  done
 
 and copy all of the wheels into :file:`dist` directory.  First, check
 that the dist files are OK ::
