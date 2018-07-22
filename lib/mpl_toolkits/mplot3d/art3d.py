@@ -188,7 +188,9 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
 
     pathsegs = path.iter_segments(simplify=False, curves=False)
     for i, ((x, y), code) in enumerate(pathsegs):
-        seg3d[0:2, i] = x, y
+        seg3d[0, i] = x
+        seg3d[1, i] = y
+
     seg3d = _juggle_axes_vec(seg3d, zdir)
     return seg3d.T
 
@@ -215,7 +217,8 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     pathsegs = path.iter_segments(simplify=False, curves=False)
     codes = np.empty(len(path))
     for i, ((x, y), code) in enumerate(pathsegs):
-        seg3d[0:2, i] = x, y
+        seg3d[0, i] = x
+        seg3d[1, i] = y
         codes[i] = code
     seg3d = _juggle_axes_vec(seg3d, zdir)
     return seg3d.T, codes
@@ -402,7 +405,7 @@ class Patch3DCollection(PatchCollection):
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True
@@ -465,7 +468,7 @@ class Path3DCollection(PathCollection):
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True
