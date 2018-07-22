@@ -2344,9 +2344,15 @@ class Axes3D(Axes):
             if 'alpha' in kwargs:
                 p.set_alpha(kwargs['alpha'])
 
-        verts = np.vstack([list(zip(*verts)), verts_zs])
+        if len(verts) > 0:
+            # the following has to be skipped if verts is empty
+            # NOTE: Bugs could still occur if len(verts) > 0,
+            #       but the "2nd dimension" is empty.
+            xs, ys = zip(*verts)
+        else:
+            xs, ys = [], []
 
-        xs, ys, verts_zs = art3d._juggle_axes_vec(verts, zdir)
+        xs, ys, verts_zs = art3d.juggle_axes(xs, ys, verts_zs, zdir)
         self.auto_scale_xyz(xs, ys, verts_zs, had_data)
 
         return patches
