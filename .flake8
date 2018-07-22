@@ -32,7 +32,7 @@ per-file-ignores =
     matplotlib/_mathtext_data.py: E203, E261
     matplotlib/backend_bases.py: E225
     matplotlib/backends/_backend_tk.py: E203, E222, E225, E231, E271, E301, E303, E401, E501, E701
-    matplotlib/backends/backend_agg.py: E261, E302, E303, E701
+    matplotlib/backends/backend_agg.py: E261, E302, E701
     matplotlib/backends/backend_cairo.py: E203, E221, E261, E303, E402, E711
     matplotlib/backends/backend_gtk3.py: E203, E221, E222, E225, E251, E261, E501
     matplotlib/backends/backend_macosx.py: E231, E261

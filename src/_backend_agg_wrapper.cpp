@@ -557,22 +557,6 @@ static PyObject *PyRendererAgg_tostring_argb(PyRendererAgg *self, PyObject *args
     return buffobj;
 }
 
-static PyObject *PyRendererAgg_tostring_bgra(PyRendererAgg *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *buffobj = NULL;
-
-    buffobj = PyBytes_FromStringAndSize(NULL, self->x->get_width() * self->x->get_height() * 4);
-    if (buffobj == NULL) {
-        return NULL;
-    }
-
-    CALL_CPP_CLEANUP("to_string_bgra",
-                     (self->x->tostring_bgra((uint8_t *)PyBytes_AS_STRING(buffobj))),
-                     Py_DECREF(buffobj));
-
-    return buffobj;
-}
-
 static PyObject *
 PyRendererAgg_get_content_extents(PyRendererAgg *self, PyObject *args, PyObject *kwds)
 {
@@ -658,7 +642,7 @@ static PyObject *PyRendererAgg_restore_region(PyRendererAgg *self, PyObject *arg
     }
 
     if (PySequence_Size(args) == 1) {
-        CALL_CPP("restore_region", (self->x->restore_region(*(regobj->x))));
+        CALL_CPP("restore_region", self->x->restore_region(*(regobj->x)));
     } else {
         CALL_CPP("restore_region", self->x->restore_region(*(regobj->x), xx1, yy1, xx2, yy2, x, y));
     }
@@ -682,7 +666,6 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
 
         {"tostring_rgb", (PyCFunction)PyRendererAgg_tostring_rgb, METH_NOARGS, NULL},
         {"tostring_argb", (PyCFunction)PyRendererAgg_tostring_argb, METH_NOARGS, NULL},
-        {"tostring_bgra", (PyCFunction)PyRendererAgg_tostring_bgra, METH_NOARGS, NULL},
         {"get_content_extents", (PyCFunction)PyRendererAgg_get_content_extents, METH_NOARGS, NULL},
         {"buffer_rgba", (PyCFunction)PyRendererAgg_buffer_rgba, METH_NOARGS, NULL},
         {"clear", (PyCFunction)PyRendererAgg_clear, METH_NOARGS, NULL},

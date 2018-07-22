@@ -100,25 +100,13 @@ class RendererAgg(RendererBase):
     def __setstate__(self, state):
         self.__init__(state['width'], state['height'], state['dpi'])
 
-    def _get_hinting_flag(self):
-        if rcParams['text.hinting']:
-            return LOAD_FORCE_AUTOHINT
-        else:
-            return LOAD_NO_HINTING
-
-    # for filtering to work with rasterization, methods needs to be wrapped.
-    # maybe there is better way to do it.
-    def draw_markers(self, *kl, **kw):
-        return self._renderer.draw_markers(*kl, **kw)
-
-    def draw_path_collection(self, *kl, **kw):
-        return self._renderer.draw_path_collection(*kl, **kw)
-
     def _update_methods(self):
-        self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.draw_gouraud_triangle = self._renderer.draw_gouraud_triangle
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
+        self.draw_markers = self._renderer.draw_markers
+        self.draw_path_collection = self._renderer.draw_path_collection
+        self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.get_content_extents = self._renderer.get_content_extents
 
@@ -162,7 +150,6 @@ class RendererAgg(RendererBase):
             except OverflowError:
                 raise OverflowError("Exceeded cell block limit (set "
                                     "'agg.path.chunksize' rcparam)")
-
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
@@ -260,7 +247,7 @@ class RendererAgg(RendererBase):
 
     def _get_agg_font(self, prop):
         """
-        Get the font for text instance t, cacheing for efficiency
+        Get the font for text instance t, caching for efficiency
         """
         fname = findfont(prop)
         font = get_font(fname)
@@ -276,7 +263,7 @@ class RendererAgg(RendererBase):
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
-        return points*self.dpi/72.0
+        return points * self.dpi / 72
 
     def tostring_rgb(self):
         return self._renderer.tostring_rgb()
@@ -364,14 +351,9 @@ class RendererAgg(RendererBase):
         post_processing is plotted (using draw_image) on it.
         """
 
-        # WARNING:  For agg_filter to work, the renderer's method need to
-        # overridden in the class. See draw_markers and draw_path_collections.
-
         width, height = int(self.width), int(self.height)
 
-        buffer, bounds = self.tostring_rgba_minimized()
-
-        l, b, w, h = bounds
+        buffer, (l, b, w, h) = self.tostring_rgba_minimized()
 
         self._renderer = self._filter_renderers.pop()
         self._update_methods()
@@ -384,8 +366,7 @@ class RendererAgg(RendererBase):
             if img.dtype.kind == 'f':
                 img = np.asarray(img * 255., np.uint8)
             img = img[::-1]
-            self._renderer.draw_image(
-                gc, l + ox, height - b - h + oy, img)
+            self._renderer.draw_image(gc, l + ox, height - b - h + oy, img)
 
 
 class FigureCanvasAgg(FigureCanvasBase):
