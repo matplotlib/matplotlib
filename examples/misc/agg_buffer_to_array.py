@@ -15,7 +15,7 @@ ax.set_title('a simple figure')
 fig.canvas.draw()
 
 # grab the pixel buffer and dump it into a numpy array
-X = np.array(fig.canvas.renderer._renderer)
+X = np.array(fig.canvas.renderer.buffer_rgba())
 
 # now display the array X as an Axes in a new figure
 fig2 = plt.figure()
