@@ -5782,3 +5782,51 @@ def test_zoom_inset():
                    [0.8425, 0.907692]])
     np.testing.assert_allclose(axin1.get_position().get_points(),
             xx, rtol=1e-4)
+
+
+def test_inset_codes():
+    """
+    Test that the inset codes put the inset where we want...
+    """
+
+    fig, ax = plt.subplots()
+    poss = [[[0.415625, 0.686111],
+             [0.609375, 0.886111]],
+            [[0.695833, 0.686111],
+             [0.889583, 0.886111]],
+            [[0.695833, 0.4],
+             [0.889583, 0.6]],
+            [[0.695833, 0.113889],
+             [0.889583, 0.313889]],
+            [[0.415625, 0.113889],
+             [0.609375, 0.313889]],
+            [[0.135417, 0.113889],
+             [0.329167, 0.313889]],
+            [[0.135417, 0.4],
+             [0.329167, 0.6]],
+            [[0.135417, 0.686111],
+             [0.329167, 0.886111]],
+            [[0.415625, 0.4],
+             [0.609375, 0.6]]]
+    codes = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'C']
+    for pos, code in zip(poss, codes):
+        axin1 = ax.inset_axes(code)
+        np.testing.assert_allclose(axin1.get_position().get_points(),
+                pos, rtol=1e-4)
+        del axin1
+
+    # test synonyms
+    syns = ['top', 'upper right', 'center right', 'lower right', 'bottom',
+             'lower left', 'center left', 'upper left', 'center']
+    codes = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'C']
+    for syn, code in zip(syns, codes):
+        axin1 = ax.inset_axes(code)
+        axin2 = ax.inset_axes(syn)
+        np.testing.assert_allclose(axin1.get_position().get_points(),
+                axin2.get_position().get_points(), rtol=1e-4)
+
+    # test the borderaxespad
+    axin1 = ax.inset_axes('NE', borderaxespad=20)
+    pos = [[0.671528, 0.653704], [0.865278, 0.853704]]
+    np.testing.assert_allclose(axin1.get_position().get_points(),
+                pos, rtol=1e-4)

@@ -90,7 +90,7 @@ def _make_inset_locator(bounds, trans, parent):
     `.Axes.inset_axes`.
 
     A locator gets used in `Axes.set_aspect` to override the default
-    locations...  It is a function that takes an axes object and
+    locations.  It is a function that takes an axes object and
     a renderer and tells `set_aspect` where it is to be placed.
 
     Here *rect* is a rectangle [l, b, w, h] that specifies the
@@ -107,6 +107,80 @@ def _make_inset_locator(bounds, trans, parent):
         tr = _parent.figure.transFigure.inverted()
         bb = mtransforms.TransformedBbox(bb, tr)
         return bb
+
+    return inset_locator
+
+
+def _make_inset_locator_anchored(loc, borderpad, width, height,
+                                bbox_to_anchor, transform, parent):
+    """
+    Helper function to locate inset axes, used in
+    `.Axes.inset_axes`.
+
+    A locator gets used in `Axes.set_aspect` to override the default
+    locations.  It is a function that takes an axes object and
+    a renderer and tells `set_aspect` where it is to be placed.
+
+    Here *rect* is a rectangle [l, b, w, h] that specifies the
+    location for the axes in the transform given by *trans* on the
+    *parent*.
+    """
+    codes = {'upper right':  'NE',
+             'upper left':   'NW',
+             'lower left':   'SW',
+             'lower right':  'SE',
+             'right':        'E',
+             'left':         'W',
+             'bottom':       'S',
+             'top':          'N',
+             'center left':  'W',
+             'center right': 'E',
+             'lower center': 'S',
+             'upper center': 'N',
+             'center':       'C'
+             }
+
+    if loc in codes:
+        loc = codes[loc]
+    if loc not in ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW', 'C']:
+        warnings.warn('inset_axes location "{}" not recognized; '
+                       'Set to "NE".'.format(loc))
+        loc = 'NE'
+    _loc = loc
+    _parent = parent
+    _borderpadder = borderpad
+    if _borderpadder is None:
+        _borderpadder = _parent.xaxis.get_ticklabels()[0].get_size() * 0.5
+
+    _basebox = mtransforms.Bbox.from_bounds(0, 0, width, height)
+
+    _transform = transform
+    if _transform is None:
+        _transform = mtransforms.BboxTransformTo(_parent.bbox)
+
+    _bbox_to_anchor = bbox_to_anchor
+    if not isinstance(_bbox_to_anchor, mtransforms.BboxBase):
+        try:
+            l = len(_bbox_to_anchor)
+        except TypeError:
+            raise ValueError("Invalid argument for bbox_to_anchor : %s" %
+                            str(_bbox_to_anchor))
+        if l == 2:
+            _bbox_to_anchor = [_bbox_to_anchor[0], _bbox_to_anchor[1],
+                                width, height]
+        _bbox_to_anchor = mtransforms.Bbox.from_bounds(*_bbox_to_anchor)
+        _bbox_to_anchor = mtransforms.TransformedBbox(_bbox_to_anchor,
+                                           _transform)
+
+    def inset_locator(ax, renderer):
+        bbox = mtransforms.TransformedBbox(_basebox, _transform)
+        borderpad = renderer.points_to_pixels(_borderpadder)
+        anchored_box = bbox.anchored(loc,
+                container=_bbox_to_anchor.padded(-borderpad))
+        tr = _parent.figure.transFigure.inverted()
+        anchored_box = mtransforms.TransformedBbox(anchored_box, tr)
+
+        return anchored_box
 
     return inset_locator
 
@@ -419,7 +493,8 @@ class Axes(_AxesBase):
         self.legend_ = None
 
     def inset_axes(self, bounds, *, transform=None, zorder=5,
-            **kwargs):
+            borderaxespad=None, width=None, height=None,
+            bbox_to_anchor=None, **kwargs):
         """
         Add a child inset axes to this existing axes.
 
@@ -431,12 +506,27 @@ class Axes(_AxesBase):
         Parameters
         ----------
 
-        bounds : [x0, y0, width, height]
-            Lower-left corner of inset axes, and its width and height.
+        bounds : [x0, y0, width, height] or string.
+            If four-tupple: lower-left corner of inset axes, and its width and
+            height.
+
+            If a string, then locations such as "NE", "N", "NW", "W", etc,
+            or "upper right", "top", "upper left", etc (see `~.axes.legend`)
+            for codes.  (Note we do *not* support the numerical codes).
 
         transform : `.Transform`
             Defaults to `ax.transAxes`, i.e. the units of *rect* are in
             axes-relative coordinates.
+
+        width, height : number
+            width and height of the inset axes.  Only used if ``bounds`` is
+            a string. Units are set by ``transform``, and default to
+            axes-relative co-ordinates.
+
+        borderaxespad : number
+            If ``bounds`` is a string, this is the padding between the inset
+            axes and the parent axes in points.  Defaults to half the fontsize
+            of the tick labels.
 
         zorder : number
             Defaults to 5 (same as `.Axes.legend`).  Adjust higher or lower
@@ -470,9 +560,22 @@ class Axes(_AxesBase):
             transform = self.transAxes
         label = kwargs.pop('label', 'inset_axes')
 
-        # This puts the rectangle into figure-relative coordinates.
-        inset_locator = _make_inset_locator(bounds, transform, self)
-        bb = inset_locator(None, None)
+        if isinstance(bounds, str):
+            # i.e. NE, S, etc
+            if width is None:
+                width = 0.25
+            if height is None:
+                height = 0.25
+            if bbox_to_anchor is None:
+                bbox_to_anchor = self.bbox
+            inset_locator = _make_inset_locator_anchored(bounds,
+                    borderaxespad, width, height, bbox_to_anchor,
+                    transform, self)
+        else:
+            # This puts the rectangle into figure-relative coordinates.
+            inset_locator = _make_inset_locator(bounds, transform, self)
+
+        bb = inset_locator(None, self.figure.canvas.get_renderer())
 
         inset_ax = Axes(self.figure, bb.bounds, zorder=zorder,
                 label=label, **kwargs)
@@ -549,6 +652,7 @@ class Axes(_AxesBase):
 
         # to make the axes connectors work, we need to apply the aspect to
         # the parent axes.
+
         self.apply_aspect()
 
         if transform is None:
@@ -563,7 +667,7 @@ class Axes(_AxesBase):
 
         if inset_ax is not None:
             # want to connect the indicator to the rect....
-
+            inset_ax.apply_aspect()
             pos = inset_ax.get_position()  # this is in fig-fraction.
             coordsA = 'axes fraction'
             connects = []
