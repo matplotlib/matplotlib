@@ -1697,7 +1697,7 @@ def index_of(y):
 
 
 def safe_first_element(obj):
-    if isinstance(obj, collections.Iterator):
+    if isinstance(obj, collections.abc.Iterator):
         # needed to accept `array.flat` as input.
         # np.flatiter reports as an instance of collections.Iterator
         # but can still be indexed via [].
@@ -1714,7 +1714,7 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    return list(data) if isinstance(data, collections.MappingView) else data
+    return list(data) if isinstance(data, collections.abc.MappingView) else data
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
@@ -2088,9 +2088,9 @@ def _warn_external(message, category=None):
     warnings.warn(message, category, stacklevel)
 
 
-class _OrderedSet(collections.MutableSet):
+class _OrderedSet(collections.abc.MutableSet):
     def __init__(self):
-        self._od = collections.OrderedDict()
+        self._od = collections.abc.OrderedDict()
 
     def __contains__(self, key):
         return key in self._od
