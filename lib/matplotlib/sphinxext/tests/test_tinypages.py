@@ -1,4 +1,4 @@
-""" Tests for tinypages build using sphinx extensions """
+"""Tests for tinypages build using sphinx extensions."""
 
 import filecmp
 from os.path import join as pjoin, dirname, isdir
@@ -10,13 +10,10 @@ import pytest
 from matplotlib import cbook
 
 
-needs_sphinx = pytest.mark.skipif(
-    call([sys.executable, '-msphinx', '--help'], stdout=PIPE, stderr=PIPE),
-    reason="'{} -msphinx' does not return 0".format(sys.executable))
+pytest.importorskip('sphinx')
 
 
 def test_tinypages(tmpdir):
-    pytest.importorskip('sphinx')
     html_dir = pjoin(str(tmpdir), 'html')
     doctree_dir = pjoin(str(tmpdir), 'doctrees')
     # Build the pages with warnings turned into errors
