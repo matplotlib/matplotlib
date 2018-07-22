@@ -48,10 +48,9 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             [[left, self.renderer.height - (top + height * self._dpi_ratio)],
              [left + width * self._dpi_ratio, self.renderer.height - top]])
         reg = self.copy_from_bbox(bbox)
-        buf = reg.to_string_argb()
+        buf = memoryview(reg)
         qimage = QtGui.QImage(
-            buf, width * self._dpi_ratio, height * self._dpi_ratio,
-            QtGui.QImage.Format_ARGB32)
+            buf, buf.shape[1], buf.shape[0], QtGui.QImage.Format_RGBA8888)
         if hasattr(qimage, 'setDevicePixelRatio'):
             # Not available on Qt4 or some older Qt5.
             qimage.setDevicePixelRatio(self._dpi_ratio)
