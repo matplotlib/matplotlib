@@ -265,14 +265,14 @@ class RendererAgg(RendererBase):
         """
         return points * self.dpi / 72
 
-    def tostring_rgb(self):
-        return self._renderer.tostring_rgb()
-
-    def tostring_argb(self):
-        return self._renderer.tostring_argb()
-
     def buffer_rgba(self):
         return memoryview(self._renderer)
+
+    def tostring_argb(self):
+        return np.asarray(self._renderer).take([3, 0, 1, 2], axis=2).tobytes()
+
+    def tostring_rgb(self):
+        return np.asarray(self._renderer).take([0, 1, 2], axis=2).tobytes()
 
     def clear(self):
         self._renderer.clear()

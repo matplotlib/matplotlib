@@ -156,29 +156,6 @@ bool RendererAgg::render_clippath(py::PathIterator &clippath,
     return has_clippath;
 }
 
-void RendererAgg::tostring_rgb(uint8_t *buf)
-{
-    // "Return the rendered buffer as an RGB string"
-
-    int row_len = width * 3;
-
-    agg::rendering_buffer renderingBufferTmp;
-    renderingBufferTmp.attach(buf, width, height, row_len);
-
-    agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_rgb24());
-}
-
-void RendererAgg::tostring_argb(uint8_t *buf)
-{
-    //"Return the rendered buffer as an RGB string";
-
-    int row_len = width * 4;
-
-    agg::rendering_buffer renderingBufferTmp;
-    renderingBufferTmp.attach(buf, width, height, row_len);
-    agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_argb32());
-}
-
 agg::rect_i RendererAgg::get_content_extents()
 {
     agg::rect_i r(width, height, 0, 0);

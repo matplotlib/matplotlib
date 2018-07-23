@@ -203,8 +203,6 @@ class RendererAgg
                                 ColorArray &colors,
                                 agg::trans_affine &trans);
 
-    void tostring_rgb(uint8_t *buf);
-    void tostring_argb(uint8_t *buf);
     agg::rect_i get_content_extents();
     void clear();
 
