@@ -470,3 +470,11 @@ Colorbar for log-scaled hexbin
 When using `hexbin` and plotting with a logarithmic color scale, the colorbar
 ticks are now correctly log scaled. Previously the tick values were linear
 scaled log(number of counts).
+
+PGF backend now explicitly makes black text black
+-------------------------------------------------
+
+Previous behavior with the pgf backend was for text specified as black to
+actually be the default color of whatever was rendering the pgf file (which was
+of course usually black). The new behavior is that black text is black,
+regardless of the default color.
