@@ -612,7 +612,7 @@ class Poly3DCollection(PolyCollection):
     def get_vector(self, segments3d):
         """Optimize points for projection"""
 
-        self._seg_sizes = [len(c) for c in segments3d]
+        self._seg_sizes = np.array([len(c) for c in segments3d])
         self._vec = []
         if len(segments3d) > 0:
             # Store the points in a single array for easier projection
