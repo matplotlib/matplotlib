@@ -145,14 +145,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
     '''
 
-    try:
-        if fig.canvas.toolbar._active in ('PAN', 'ZOOM'):
-            # don't do constrained layout during zoom and pan.
-            return
-    except AttributeError:
-        # not toolbar, or no _active attribute..
-        pass
-
     invTransFig = fig.transFigure.inverted().transform_bbox
 
     # list of unique gridspecs that contain child axes:
