@@ -219,7 +219,6 @@ A method `~.figure.Figure.add_artist` has been added to the
 to a figure. E.g.
 
 ::
-
     circ = plt.Circle((.7, .5), .05)
     fig.add_artist(circ)
 
@@ -230,7 +229,7 @@ easily position static elements in figure coordinates.
 
 
 
-
+==================
 Previous Whats New
 ==================
 
