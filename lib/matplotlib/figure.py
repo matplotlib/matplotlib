@@ -1621,7 +1621,6 @@ default: 'top'
         Render the figure using :class:`matplotlib.backend_bases.RendererBase`
         instance *renderer*.
         """
-
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
             return
@@ -1635,6 +1634,12 @@ default: 'top'
 
         try:
             renderer.open_group('figure')
+            if self.frameon:
+                self.patch.draw(renderer)
+
+            mimage._draw_list_compositing_images(
+                renderer, self, artists, self.suppressComposite)
+
             if self.get_constrained_layout() and self.axes:
                 self.execute_constrained_layout(renderer)
             if self.get_tight_layout() and self.axes:
@@ -1644,12 +1649,6 @@ default: 'top'
                 except ValueError:
                     pass
                     # ValueError can occur when resizing a window.
-
-            if self.frameon:
-                self.patch.draw(renderer)
-
-            mimage._draw_list_compositing_images(
-                renderer, self, artists, self.suppressComposite)
 
             renderer.close_group('figure')
         finally:
