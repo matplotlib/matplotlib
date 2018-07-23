@@ -2681,30 +2681,35 @@ class _AxesBase(martist.Artist):
     @docstring.dedent_interpd
     def grid(self, b=None, which='major', axis='both', **kwargs):
         """
-        Turn the axes grids on or off.
+        Configure the grid lines.
 
-        Set the axes grids on or off; *b* is a boolean.
+        Parameters
+        ----------
+        b : bool or None
+            Whether to show the grid lines. If any *kwargs* are supplied,
+            it is assumed you want the grid on and *b* will be set to True.
 
-        If *b* is *None* and ``len(kwargs)==0``, toggle the grid state.  If
-        *kwargs* are supplied, it is assumed that you want a grid and *b*
-        is thus set to *True*.
+            If *b* is *None* and there are no *kwargs*, this toggles the
+            visibility of the lines.
 
-        *which* can be 'major' (default), 'minor', or 'both' to control
-        whether major tick grids, minor tick grids, or both are affected.
+        which : {'major', 'minor', 'both'}
+            The grid lines to apply the changes on.
 
-        *axis* can be 'both' (default), 'x', or 'y' to control which
-        set of gridlines are drawn.
+        axis : {'both', 'x', 'y'}
+            The axis to apply the changes on.
 
-        *kwargs* are used to set the grid line properties, e.g.,::
+        **kwargs : `.Line2D` properties
+            Define the line properties of the grid, e.g.::
 
-           ax.grid(color='r', linestyle='-', linewidth=2)
+                grid(color='r', linestyle='-', linewidth=2)
 
-        Valid :class:`~matplotlib.lines.Line2D` kwargs are
+            Valid *kwargs* are
 
-        %(Line2D)s
+            %(Line2D)s
 
-        Note that the grid will be drawn according to the axes' zorder and not
-        its own.
+        Notes
+        -----
+        The grid will be drawn according to the axes' zorder and not its own.
         """
         if len(kwargs):
             b = True

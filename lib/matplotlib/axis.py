@@ -1417,16 +1417,25 @@ class Axis(artist.Artist):
 
     def grid(self, b=None, which='major', **kwargs):
         """
-        Set the axis grid on or off; b is a boolean. Use *which* =
-        'major' | 'minor' | 'both' to set the grid for major or minor ticks.
+        Configure the grid lines.
 
-        If *b* is *None* and len(kwargs)==0, toggle the grid state.  If
-        *kwargs* are supplied, it is assumed you want the grid on and *b*
-        will be set to True.
+        Parameters
+        ----------
+        b : bool or None
+            Whether to show the grid lines. If any *kwargs* are supplied,
+            it is assumed you want the grid on and *b* will be set to True.
 
-        *kwargs* are used to set the line properties of the grids, e.g.,
+            If *b* is *None* and there are no *kwargs*, this toggles the
+            visibility of the lines.
 
-          xax.grid(color='r', linestyle='-', linewidth=2)
+        which : {'major', 'minor', 'both'}
+            The grid lines to apply the changes on.
+
+        **kwargs : `.Line2D` properties
+            Define the line properties of the grid, e.g.::
+
+                grid(color='r', linestyle='-', linewidth=2)
+
         """
         if len(kwargs):
             b = True
