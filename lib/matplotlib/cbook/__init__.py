@@ -7,6 +7,7 @@ it imports matplotlib only at runtime.
 """
 
 import collections
+import collections.abc
 import contextlib
 import datetime
 import errno
@@ -2090,7 +2091,7 @@ def _warn_external(message, category=None):
 
 class _OrderedSet(collections.abc.MutableSet):
     def __init__(self):
-        self._od = collections.abc.OrderedDict()
+        self._od = collections.OrderedDict()
 
     def __contains__(self, key):
         return key in self._od
