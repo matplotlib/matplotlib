@@ -38,7 +38,7 @@ from matplotlib.cbook import (
     safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
-from matplotlib.axes._secondary_axes import Secondary_Xaxis, Secondary_Yaxis
+from matplotlib.axes._secondary_axes import Secondary_Axis
 
 _log = logging.getLogger(__name__)
 
@@ -671,10 +671,10 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        ax : `~matplotlib.axes._secondary_axes.Secondary_Xaxis`
+        ax : `~matplotlib.axes._secondary_axes.Secondary_Axis`
 
         """
-        secondary_ax = Secondary_Xaxis(self, loc, conversion, **kwargs)
+        secondary_ax = Secondary_Axis(self, 'x', loc, conversion, **kwargs)
         self.add_child_axes(secondary_ax)
         return secondary_ax
 
@@ -711,10 +711,10 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        ax : `~matplotlib.axes._secondary_axes.Secondary_Yaxis`
+        ax : `~matplotlib.axes._secondary_axes.Secondary_Axis`
 
         """
-        secondary_ax = Secondary_Yaxis(self, loc, conversion, **kwargs)
+        secondary_ax = Secondary_Axis(self, 'y', loc, conversion, **kwargs)
         self.add_child_axes(secondary_ax)
         return secondary_ax
 
