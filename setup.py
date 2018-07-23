@@ -231,11 +231,6 @@ if __name__ == '__main__':
             fd.write(
                 template.safe_substitute(TEMPLATE_BACKEND=default_backend))
 
-        # Build in verbose mode if requested
-        if setupext.options['verbose']:
-            for mod in ext_modules:
-                mod.extra_compile_args.append('-DVERBOSE')
-
         # Finalize the extension modules so they can get the Numpy include
         # dirs
         for mod in ext_modules:

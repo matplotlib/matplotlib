@@ -60,7 +60,6 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 # matplotlib build options, which can be altered using setup.cfg
 options = {
     'display_status': True,
-    'verbose': False,
     'backend': None,
     'basedirlist': None
     }
