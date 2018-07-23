@@ -403,6 +403,25 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     cases, it is recommended to read
     :ref:`the examples <sphx_glr_gallery_axes_grid1_inset_locator_demo.py>`.
 
+    Notes
+    -----
+    The meaning of *bbox_to_anchor* and *bbox_to_transform* is interpreted
+    differently from that of legend. The value of bbox_to_anchor
+    (or the return value of its get_points method; the default is
+    *parent_axes.bbox*) is transformed by the bbox_transform (the default
+    is Identity transform) and then interpreted as points in the pixel
+    coordinate (which is dpi dependent).
+
+    Thus, following three calls are identical and creates an inset axes
+    with respect to the *parent_axes*::
+
+       axins = inset_axes(parent_axes, "30%%", "40%%")
+       axins = inset_axes(parent_axes, "30%%", "40%%",
+                          bbox_to_anchor=parent_axes.bbox)
+       axins = inset_axes(parent_axes, "30%%", "40%%",
+                          bbox_to_anchor=(0, 0, 1, 1),
+                          bbox_transform=parent_axes.transAxes)
+
     Parameters
     ----------
     parent_axes : `matplotlib.axes.Axes`
@@ -432,25 +451,26 @@ def inset_axes(parent_axes, width, height, loc='upper right',
 
     bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
         Bbox that the inset axes will be anchored to. If None,
-        *parent_axes.bbox* is used. If a tuple, can be either
+        a tuple of (0, 0, 1, 1) is used if *bbox_transform* is set
+        to *parent_axes.transAxes* or *parent_axes.figure.transFigure*.
+        Otherwise, *parent_axes.bbox* is used. If a tuple, can be either
         [left, bottom, width, height], or [left, bottom].
         If the kwargs *width* and/or *height* are specified in relative units,
-        the 2-tuple [left, bottom] cannot be used. Note that
-        the units of the bounding box are determined through the transform
-        in use. When using *bbox_to_anchor* it almost always makes sense to
-        also specify a *bbox_transform*. This might often be the axes transform
+        the 2-tuple [left, bottom] cannot be used. Note that,
+        unless *bbox_transform* is set, the units of the bounding box
+        are interpreted in the pixel coordinate. When using *bbox_to_anchor*
+        with tuple, it almost always makes sense to also specify
+        a *bbox_transform*. This might often be the axes transform
         *parent_axes.transAxes*.
 
     bbox_transform : `matplotlib.transforms.Transform`, optional
         Transformation for the bbox that contains the inset axes.
-        If None, a `.transforms.IdentityTransform` is used (i.e. pixel
-        coordinates). This is useful when not providing any argument to
-        *bbox_to_anchor*. When using *bbox_to_anchor* it almost always makes
-        sense to also specify a *bbox_transform*. This might often be the
-        axes transform *parent_axes.transAxes*. Inversely, when specifying
-        the axes- or figure-transform here, be aware that not specifying
-        *bbox_to_anchor* will use *parent_axes.bbox*, the units of which are
-        in display (pixel) coordinates.
+        If None, a `.transforms.IdentityTransform` is used. The value
+        of *bbox_to_anchor* (or the return value of its get_points method)
+        is transformed by the *bbox_transform* and then interpreted
+        as points in the pixel coordinate (which is dpi dependent).
+        You may provide *bbox_to_anchor* in some normalized coordinate,
+        and give an appropriate transform (e.g., *parent_axes.transAxes*).
 
     axes_class : `matplotlib.axes.Axes` type, optional
         If specified, the inset axes created will be created with this class's
