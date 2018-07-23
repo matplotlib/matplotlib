@@ -1979,7 +1979,7 @@ default: 'top'
           savefig(fname, dpi=None, facecolor='w', edgecolor='w',
                   orientation='portrait', papertype=None, format=None,
                   transparent=False, bbox_inches=None, pad_inches=0.1,
-                  frameon=None)
+                  frameon=None, metadata=None)
 
         The output formats available depend on the backend being used.
 
@@ -2058,6 +2058,16 @@ default: 'top'
         bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
             tight bbox is calculated.
+
+        metadata : dict, optional
+            Key/value pairs to store in the image metadata. The supported keys
+            and defaults depend on the image format and backend:
+
+            - 'png' with Agg backend: See the parameter ``metadata`` of
+              `~.FigureCanvasAgg.print_png`.
+            - 'pdf' with pdf backend: See the parameter ``metadata`` of
+              `~.backend_pdf.PdfPages`.
+            - 'eps' and 'ps' with PS backend: Only 'Creator' is supported.
 
         """
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
