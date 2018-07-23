@@ -1,0 +1,25 @@
+Metadata-Version: 1.2
+Name: matplotlib
+Version: 2.2.2+1772.gd9240e24b.dirty
+Summary: Python plotting package
+Home-page: http://matplotlib.org
+Author: John D. Hunter, Michael Droettboom
+Author-email: matplotlib-users@python.org
+License: BSD
+Download-URL: http://matplotlib.org/users/installing.html
+Description: 
+                Matplotlib strives to produce publication quality 2D graphics
+                for interactive graphing, scientific publishing, user interface
+                development and web application servers targeting multiple user
+                interfaces and hardcopy output formats.
+                
+Platform: any
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Python Software Foundation License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Requires-Python: >=3.5
