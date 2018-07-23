@@ -25,7 +25,6 @@ import os
 import re
 import struct
 import subprocess
-import sys
 import textwrap
 
 import numpy as np

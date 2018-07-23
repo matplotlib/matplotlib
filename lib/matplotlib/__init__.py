@@ -653,13 +653,6 @@ def get_cachedir():
     return _get_config_or_cache_dir(_get_xdg_cache_dir())
 
 
-def _decode_filesystem_path(path):
-    if not isinstance(path, str):
-        return path.decode(sys.getfilesystemencoding())
-    else:
-        return path
-
-
 def _get_data_path():
     'get the path to matplotlib data'
 
@@ -670,35 +663,23 @@ def _get_data_path():
                                'directory')
         return path
 
-    _file = _decode_filesystem_path(__file__)
-    path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
-    if os.path.isdir(path):
-        return path
+    def get_candidate_paths():
+        yield Path(__file__).with_name('mpl-data')
+        # setuptools' namespace_packages may highjack this init file
+        # so need to try something known to be in Matplotlib, not basemap.
+        import matplotlib.afm
+        yield Path(matplotlib.afm.__file__).with_name('mpl-data')
+        # py2exe zips pure python, so still need special check.
+        if getattr(sys, 'frozen', None):
+            yield Path(sys.executable).with_name('mpl-data')
+            # Try again assuming we need to step up one more directory.
+            yield Path(sys.executable).parent.with_name('mpl-data')
+            # Try again assuming sys.path[0] is a dir not a exe.
+            yield Path(sys.path[0]) / 'mpl-data'
 
-    # setuptools' namespace_packages may highjack this init file
-    # so need to try something known to be in matplotlib, not basemap
-    import matplotlib.afm
-    _file = _decode_filesystem_path(matplotlib.afm.__file__)
-    path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
-    if os.path.isdir(path):
-        return path
-
-    # py2exe zips pure python, so still need special check
-    if getattr(sys, 'frozen', None):
-        exe_path = os.path.dirname(_decode_filesystem_path(sys.executable))
-        path = os.path.join(exe_path, 'mpl-data')
-        if os.path.isdir(path):
-            return path
-
-        # Try again assuming we need to step up one more directory
-        path = os.path.join(os.path.split(exe_path)[0], 'mpl-data')
-        if os.path.isdir(path):
-            return path
-
-        # Try again assuming sys.path[0] is a dir not a exe
-        path = os.path.join(sys.path[0], 'mpl-data')
-        if os.path.isdir(path):
-            return path
+    for path in get_candidate_paths():
+        if path.is_dir():
+            return str(path)
 
     raise RuntimeError('Could not find the matplotlib data files')
 
