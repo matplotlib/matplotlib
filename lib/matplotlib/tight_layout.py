@@ -176,11 +176,13 @@ def auto_adjust_subplotpars(
         margin_right = 0.4999
         warnings.warn('The left and right margins cannot be made large '
                       'enough to accommodate all axes decorations. ')
+        return None
     if margin_bottom + margin_top >= 1:
         margin_bottom = 0.4999
         margin_top = 0.4999
         warnings.warn('The bottom and top margins cannot be made large '
                       'enough to accommodate all axes decorations. ')
+        return None
 
     kwargs = dict(left=margin_left,
                   right=1 - margin_right,
@@ -302,7 +304,10 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     for ax, subplotspec in zip(axes_list, subplotspec_list):
         if subplotspec is None:
             continue
-
+        # spines have a problem under zoom; CL ignores zoom events.  TL
+        # ignores spines...
+        for spine in ['left', 'right', 'bottom', 'top']:
+            ax.spines[spine].set_in_layout(False)
         subplots = subplot_dict.setdefault(subplotspec, [])
 
         if not subplots:
@@ -354,6 +359,8 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
                                      subplot_list=subplot_list,
                                      ax_bbox_list=ax_bbox_list,
                                      pad=pad, h_pad=h_pad, w_pad=w_pad)
+    if kwargs is None:
+        return None
 
     if rect is not None:
         # if rect is given, the whole subplots area (including
@@ -384,5 +391,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
                                          ax_bbox_list=ax_bbox_list,
                                          pad=pad, h_pad=h_pad, w_pad=w_pad,
                                          rect=(left, bottom, right, top))
+        if kwargs is None:
+            return None
 
     return kwargs
