@@ -2546,6 +2546,12 @@ class _AxesBase(martist.Artist):
 
         # prevent triggering call backs during the draw process
         self._stale = True
+        locator = self.get_axes_locator()
+        if locator:
+            pos = locator(self, renderer)
+            self.apply_aspect(pos)
+        else:
+            self.apply_aspect()
 
         artists = self.get_children()
         artists.remove(self.patch)
