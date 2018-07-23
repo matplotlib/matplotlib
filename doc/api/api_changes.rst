@@ -477,4 +477,5 @@ PGF backend now explicitly makes black text black
 Previous behavior with the pgf backend was for text specified as black to
 actually be the default color of whatever was rendering the pgf file (which was
 of course usually black). The new behavior is that black text is black,
-regardless of the default color.
+regardless of the default color. However, this means that there is no way to
+fall back on the default color of the renderer.
