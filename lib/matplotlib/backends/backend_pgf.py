@@ -673,11 +673,10 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
             writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
         rgb = tuple(gc.get_rgb())[:3]
-        if rgb != (0, 0, 0):
-            writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
-            writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
-            writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
-            s = r"\color{textcolor}" + s
+        writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
+        writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
+        writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
+        s = r"\color{textcolor}" + s
 
         f = 1.0 / self.figure.dpi
         text_args = []
