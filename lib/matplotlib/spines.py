@@ -150,7 +150,7 @@ class Spine(mpatches.Patch):
         # make sure the location is updated so that transforms etc are
         # correct:
         self._adjust_location()
-        return self.get_path().get_extents(self.get_transform())
+        return super().get_window_extent(renderer=renderer)
 
     def get_path(self):
         return self._path
