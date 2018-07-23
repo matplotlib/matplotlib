@@ -5782,3 +5782,13 @@ def test_zoom_inset():
                    [0.8425, 0.907692]])
     np.testing.assert_allclose(axin1.get_position().get_points(),
             xx, rtol=1e-4)
+
+
+def test_spines_properbbox_after_zoom():
+    fig, ax = plt.subplots()
+    bb = ax.spines['bottom'].get_window_extent(fig.canvas.get_renderer())
+    # this is what zoom calls:
+    ax._set_view_from_bbox((320, 320, 500, 500), 'in',
+                      None, False, False)
+    bb2 = ax.spines['bottom'].get_window_extent(fig.canvas.get_renderer())
+    np.testing.assert_allclose(bb.get_points(), bb2.get_points(), rtol=1e-6)
