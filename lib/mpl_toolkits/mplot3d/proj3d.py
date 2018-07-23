@@ -130,6 +130,10 @@ def ortho_transformation(zfront, zback):
 
 
 def proj_transform_vec(vec, M):
+    if len(vec) != 4:
+        raise ValueError('expected len(vec) of 4, received {}'
+                         .format(vec))
+
     vecw = np.dot(M, vec)
     vecw[:3] /= vecw[3]
     return vecw[:3]

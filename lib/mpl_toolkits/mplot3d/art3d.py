@@ -243,7 +243,7 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
 
         return np.asarray(segments), np.asarray(codes_list)
     else:
-        return np.empty((3, 0)), np.array([])
+        return np.empty((3, 0), dtype='float64'), np.array([], dtype='uint8')
 
 
 class Line3DCollection(LineCollection):
@@ -262,7 +262,7 @@ class Line3DCollection(LineCollection):
         """
         self._segments3d = []
         if len(segments) > 0:
-            self._seg_sizes = [len(c) for c in segments]
+            self._seg_sizes = np.array([len(c) for c in segments])
             # Store the points in a single array for easier projection
             n_segments = np.sum(self._seg_sizes)
 
