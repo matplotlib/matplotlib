@@ -50,7 +50,7 @@ env:
     - secure: dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU=
     # Variables controlling the build.
     - MPLLOCALFREETYPE=1
-    # Variable for the location of an extra pip requirement file.
+    # Variable for the location of an extra pip requirements file.
     - EXTRAREQS=
     # Variable for the location of a pip constraints file.
     - PINNEDVERS=
@@ -126,6 +126,9 @@ install:
   - |
     # Install dependencies from PyPI.
     python -mpip install --upgrade $PRE -r requirements/testing/travis.txt $EXTRAREQS $PINNEDVERS
+    if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
+      python -mpip install 'numpy<1.15'  # Unbreak the OSX build for now.
+    fi
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the
