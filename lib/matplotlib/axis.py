@@ -1469,8 +1469,10 @@ class Axis(artist.Artist):
             return False
 
         neednew = self.converter != converter
+        print('neednew', neednew, self.units)
         self.converter = converter
         default = self.converter.default_units(data, self)
+        print('default', default, data)
         if default is not None and self.units is None:
             self.set_units(default)
 
@@ -1758,6 +1760,7 @@ class Axis(artist.Artist):
         if isinstance(tz, str):
             import dateutil.tz
             tz = dateutil.tz.gettz(tz)
+        print('tzdate', tz)
         self.update_units(datetime.datetime(2009, 1, 1, 0, 0, 0, 0, tz))
 
     def get_tick_space(self):
