@@ -1639,7 +1639,8 @@ def pts_to_midstep(x, *args):
         The x location of the steps. May be empty.
 
     y1, ..., yp : array
-        y arrays to be turned into steps; all must be the same length as ``x``.
+        y arrays to be turned into steps; all must be the same length as
+        ``x``.
 
     Returns
     -------
@@ -1715,7 +1716,8 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    return list(data) if isinstance(data, collections.abc.MappingView) else data
+    return (list(data) if isinstance(data, collections.abc.MappingView)
+            else data)
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
