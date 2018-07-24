@@ -1,4 +1,4 @@
-# Extra pip requirements for the travis python 3.6 build
+# extra pip requirements for the 'full' travis build
 
 flake8
 flake8-per-file-ignores
