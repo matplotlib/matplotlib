@@ -50,9 +50,9 @@ env:
     - secure: dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU=
     # Variables controlling the build.
     - MPLLOCALFREETYPE=1
-    # Variable for the location of an extra pip requirement file
+    # Variable for the location of an extra pip requirement file.
     - EXTRAREQS=
-    # Variable for the location of a pip version file
+    # Variable for the location of a pip constraints file.
     - PINNEDVERS=
     # Variables controlling the test run.
     - DELETE_FONT_CACHE=
@@ -69,39 +69,40 @@ env:
 matrix:
   include:
     - python: 3.5
-      # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
       env:
-        - PINNEDVERS='-c requirements/testing/travis35.txt'
+        - PINNEDVERS='-c requirements/testing/pin-oldest.txt'
     - python: 3.5
       env:
         # - PYTHONOPTIMIZE=2  # This currently doesn't work.
     - python: 3.6
       env:
         - DELETE_FONT_CACHE=1
-        - EXTRAREQS='-r requirements/testing/travis36.txt'
+        - EXTRAREQS='-r requirements/testing/extras.txt'
         - RUN_FLAKE8=1
     - python: "nightly"
-      env: PRE=--pre
+      env:
+        - PRE=--pre
     - os: osx
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       only: master
       cache:
-        # As for now travis caches only "$HOME/.cache/pip"
+        # As for now travis caches only "$HOME/.cache/pip".
         # https://docs.travis-ci.com/user/caching/#pip-cache
         pip: false
         directories:
           - $HOME/Library/Caches/pip
-          # `cache` does not support `env`-like `global` so copy-paste from top
+          # `cache` does not support `env`-like `global` so copy-paste from top.
           - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
           - $HOME/.cache/matplotlib
   allow_failures:
     - python: "nightly"
 
 before_install: |
-  # test with non-ascii in path
-  if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+  case "$TRAVIS_OS_NAME" in
+  linux)
     export PATH=/usr/lib/ccache:$PATH
-  else
+    ;;
+  osx)
     ci/silence brew update
     brew upgrade python
     brew install ffmpeg imagemagick mplayer ccache
@@ -112,7 +113,8 @@ before_install: |
     # but this makes the test time really long.
     # brew install ghostscript inkscape
     export PATH=/usr/local/opt/python/libexec/bin:/usr/local/opt/ccache/libexec:$PATH
-  fi
+    ;;
+  esac
 
 install:
   - |
@@ -123,7 +125,7 @@ install:
     python -mpip install --upgrade pip setuptools wheel
   - |
     # Install dependencies from PyPI.
-    python -mpip install --upgrade $PRE -r requirements/testing/travis_all.txt $EXTRAREQS $PINNEDVERS
+    python -mpip install --upgrade $PRE -r requirements/testing/travis.txt $EXTRAREQS $PINNEDVERS
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the
@@ -143,9 +145,8 @@ install:
       python -c 'import wx' &&
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
-
   - |
-    # Install matplotlib
+    # Install matplotlib.
     python -mpip install -ve .
 
 before_script: |
@@ -158,8 +159,8 @@ before_script: |
   fi
 
 script:
-  # each script we want to run need to go in it's own section and the program you want
-  # to fail travis need to be the last thing called
+  # Each script we want to run need to go in its own section and the program
+  # you want to fail travis need to be the last thing called.
   - |
     echo "Calling pytest with the following arguments: $PYTEST_ADDOPTS"
     python -mpytest
@@ -168,10 +169,8 @@ script:
       flake8 --statistics && echo "Flake8 passed without any issues!"
     fi
 
-
 before_cache: |
-  rm -rf $HOME/.cache/matplotlib/tex.cache
-  rm -rf $HOME/.cache/matplotlib/test_cache
+  rm -rf $HOME/.cache/matplotlib/{test_cache,tex.cache}
 
 after_failure: |
   if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then

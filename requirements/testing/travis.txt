@@ -1,4 +1,4 @@
-# pip requirements for all the travis builds
+# pip requirements for all travis builds
 
 codecov
 coverage
