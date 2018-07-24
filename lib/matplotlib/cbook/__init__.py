@@ -7,6 +7,7 @@ it imports matplotlib only at runtime.
 """
 
 import collections
+import collections.abc
 import contextlib
 import datetime
 import errno
@@ -1561,7 +1562,8 @@ def pts_to_midstep(x, *args):
         The x location of the steps. May be empty.
 
     y1, ..., yp : array
-        y arrays to be turned into steps; all must be the same length as ``x``.
+        y arrays to be turned into steps; all must be the same length as
+        ``x``.
 
     Returns
     -------
@@ -1620,7 +1622,7 @@ def index_of(y):
 
 
 def safe_first_element(obj):
-    if isinstance(obj, collections.Iterator):
+    if isinstance(obj, collections.abc.Iterator):
         # needed to accept `array.flat` as input.
         # np.flatiter reports as an instance of collections.Iterator
         # but can still be indexed via [].
@@ -1637,7 +1639,8 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    return list(data) if isinstance(data, collections.MappingView) else data
+    return (list(data) if isinstance(data, collections.abc.MappingView)
+            else data)
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
@@ -2011,7 +2014,7 @@ def _warn_external(message, category=None):
     warnings.warn(message, category, stacklevel)
 
 
-class _OrderedSet(collections.MutableSet):
+class _OrderedSet(collections.abc.MutableSet):
     def __init__(self):
         self._od = collections.OrderedDict()
 
