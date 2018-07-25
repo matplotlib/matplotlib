@@ -3,7 +3,7 @@
  API Changes
 =============
 
-A log of changes to the most recent version Matplotlib that affect the
+A log of changes to the most recent version of Matplotlib that affect the
 outward-facing API. If updating Matplotlib breaks your scripts, this list may
 help you figure out what caused the breakage and how to fix it by updating
 your code. For API changes in older versions see :doc:`api_changes_old`.
