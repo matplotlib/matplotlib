@@ -1111,7 +1111,8 @@ class SymLogNorm(Normalize):
         """
         Inplace transformation.
         """
-        masked = np.abs(a) > self.linthresh
+        with np.errstate(invalid="ignore"):
+            masked = np.abs(a) > self.linthresh
         sign = np.sign(a[masked])
         log = (self._linscale_adj + np.log(np.abs(a[masked]) / self.linthresh))
         log *= sign * self.linthresh
