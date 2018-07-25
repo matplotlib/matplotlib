@@ -61,7 +61,7 @@ rasterized figure) and then 'blit' one more artist on top.  Thus, by
 managing a saved 'clean' bitmap, we can only re-draw the few artists
 that are changing at each frame and possibly save significant amounts of
 time.  When using blitting (by passing ``blit=True``), the core loop of
-`FuncAnimation` gets a bit more complicated. ::
+`FuncAnimation` gets a bit more complicated::
 
    ax = fig.gca()
 
