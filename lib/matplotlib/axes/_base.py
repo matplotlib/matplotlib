@@ -350,7 +350,7 @@ class _process_plot_var_args(object):
         # to one element array of None which causes problems
         # downstream.
         if any(v is None for v in tup):
-            raise ValueError("x and y must not be None")
+            raise ValueError("x, y, and format string must not be None")
 
         kw = {}
         for k, v in zip(('linestyle', 'marker', 'color'),
