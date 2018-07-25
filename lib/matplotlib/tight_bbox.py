@@ -18,7 +18,10 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
 
     origBbox = fig.bbox
     origBboxInches = fig.bbox_inches
+    orig_tight_layout = fig.get_tight_layout()
     _boxout = fig.transFigure._boxout
+
+    fig.set_tight_layout(False)
 
     asp_list = []
     locator_list = []
@@ -33,13 +36,13 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
         ax.set_aspect("auto")
 
     def restore_bbox():
-
         for ax, asp, loc in zip(fig.axes, asp_list, locator_list):
             ax.set_aspect(asp)
             ax.set_axes_locator(loc)
 
         fig.bbox = origBbox
         fig.bbox_inches = origBboxInches
+        fig.set_tight_layout(orig_tight_layout)
         fig.transFigure._boxout = _boxout
         fig.transFigure.invalidate()
         fig.patch.set_bounds(0, 0, 1, 1)
