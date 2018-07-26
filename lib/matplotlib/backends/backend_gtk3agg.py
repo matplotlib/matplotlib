@@ -45,22 +45,8 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
             width = int(bbox.x1) - int(bbox.x0)
             height = int(bbox.y1) - int(bbox.y0)
 
-            buf = (np.fromstring(self.copy_from_bbox(bbox).to_string_argb(),
-                                 dtype='uint8')
-                   .reshape((width, height, 4)))
-            # cairo wants premultiplied alpha.  Only bother doing the
-            # conversion when the alpha channel is not fully opaque, as the
-            # cost is not negligible.  (The unsafe cast is needed to do the
-            # multiplication in-place in an integer buffer.)
-            if sys.byteorder == "little":
-                rgb24 = buf[..., :-1]
-                alpha8 = buf[..., -1:]
-            else:
-                alpha8 = buf[..., :1]
-                rgb24 = buf[..., 1:]
-            if alpha8.min() != 0xff:
-                np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
-
+            buf = backend_cairo._unmultipled_rgba8888_to_premultiplied_argb32(
+                np.asarray(self.copy_from_bbox(bbox)))
             image = cairo.ImageSurface.create_for_data(
                 buf.ravel().data, cairo.FORMAT_ARGB32, width, height)
             ctx.set_source_surface(image, x, y)
