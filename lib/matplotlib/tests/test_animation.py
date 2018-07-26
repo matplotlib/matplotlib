@@ -22,8 +22,6 @@ class NullMovieWriter(animation.AbstractMovieWriter):
     it cannot be added to the 'writers' registry.
     """
 
-    frame_size_can_vary = True
-
     def setup(self, fig, outfile, dpi, *args):
         self.fig = fig
         self.outfile = outfile
