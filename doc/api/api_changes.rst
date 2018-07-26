@@ -3,8 +3,8 @@
  API Changes
 =============
 
-A log of changes to the most recent version Matplotlib that affect the
-utward-facing API. If updating Matplotlib breaks your scripts, this list may
+A log of changes to the most recent version of Matplotlib that affect the
+outward-facing API. If updating Matplotlib breaks your scripts, this list may
 help you figure out what caused the breakage and how to fix it by updating
 your code. For API changes in older versions see :doc:`api_changes_old`.
 
@@ -39,7 +39,7 @@ API Changes for 3.0.0
 Drop support for python 2
 -------------------------
 
-Matplotlib 3 only supports python 3.5 and higher
+Matplotlib 3 only supports python 3.5 and higher.
 
 
 Hold machinery removed
