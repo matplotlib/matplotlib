@@ -9,16 +9,15 @@ from sphinx_gallery.sorting import ExplicitOrder
 # Gallery sections shall be diplayed in the following order.
 # Non-matching sections are appended.
 explicit_order_folders = [
-                          '../examples/api',
-                          '../examples/pyplots',
-                          '../examples/subplots_axes_and_figures',
-                          '../examples/color',
-                          '../examples/statistics',
                           '../examples/lines_bars_and_markers',
                           '../examples/images_contours_and_fields',
-                          '../examples/shapes_and_collections',
-                          '../examples/text_labels_and_annotations',
+                          '../examples/subplots_axes_and_figures',
+                          '../examples/statistics',
                           '../examples/pie_and_polar_charts',
+                          '../examples/text_labels_and_annotations',
+                          '../examples/pyplots',
+                          '../examples/color',
+                          '../examples/shapes_and_collections',
                           '../examples/style_sheets',
                           '../examples/axes_grid1',
                           '../examples/axisartist',
