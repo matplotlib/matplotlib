@@ -226,8 +226,14 @@ The following deprecated API elements have been removed:
 - ``FigureCanvasBase.stop_event_loop_default``;
 - ``Figure.figurePatch``,
 - ``FigureCanvasBase.dynamic_update``, ``FigureCanvasBase.idle_event``,
-  ``FigureCanvasBase.get_linestyle``, ``FigureCanvasBase.set_linestyle``,
+  ``FigureCanvasBase.get_linestyle``, ``FigureCanvasBase.set_linestyle``
+- ``FigureCanvasQTAggBase``
 - ``FigureCanvasQTAgg.blitbox``,
+- ``FigureCanvasTk.show`` (alternative: ``FigureCanvasTk.draw``)
+- ``FigureManagerTkAgg`` (alternative: ``FigureManagerTk``)
+- ``NavigationToolbar2TkAgg`` (alternative: ``NavigationToolbar2Tk``)
+- ``backend_wxagg.Toolbar`` (alternative: ``backend_wxagg.NavigationToolbar2WxAgg``)
+- ``RendererAgg.debug()``
 - passing non-numbers to ``EngFormatter.format_eng``,
 - passing ``frac`` to ``PolarAxes.set_theta_grids``,
 - any mention of idle events,
