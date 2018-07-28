@@ -44,7 +44,7 @@ Matplotlib recognizes the following formats to specify a color:
 All string specifications of color, other than "CN", are case-insensitive.
 """
 
-from collections import Sized
+from collections.abc import Sized
 import itertools
 import re
 

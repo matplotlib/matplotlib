@@ -13,7 +13,7 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
-from collections import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 from functools import reduce
 import operator
 import os
