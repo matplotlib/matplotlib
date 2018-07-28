@@ -578,7 +578,10 @@ class PillowWriter(MovieWriter):
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
         '''
-        self.loop = loop
+        if type(loop) == int:
+            self.loop = loop
+        else:
+            raise ValueError("loop must be an int")
         if kwargs.get("extra_args") is None:
             kwargs["extra_args"] = ()
         super().__init__(*args, **kwargs)
