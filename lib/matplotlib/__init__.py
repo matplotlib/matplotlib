@@ -115,7 +115,7 @@ See Matplotlib `INSTALL.rst` file for more information:
 """)
 
 import atexit
-from collections import MutableMapping
+from collections.abc import MutableMapping
 import contextlib
 import distutils.version
 import functools
