@@ -104,7 +104,10 @@ from __future__ import absolute_import, division, print_function
 import six
 
 import atexit
-from collections import MutableMapping
+try:
+    from collections.abc import MutableMapping
+except ImportError:
+    from collections import MutableMapping
 import contextlib
 import distutils.version
 import functools
