@@ -550,10 +550,10 @@ class PillowWriter(MovieWriter):
             return False
         return True
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, loop=0, **kwargs):
+        self.loop = loop
         if kwargs.get("extra_args") is None:
             kwargs["extra_args"] = ()
-        self.loop = kwargs.pop("loop", 0)
         super().__init__(*args, **kwargs)
 
     def setup(self, fig, outfile, dpi=None):
