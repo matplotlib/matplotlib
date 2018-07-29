@@ -110,7 +110,8 @@ def test_make_compound_path_empty():
     assert r.vertices.shape == (0, 2)
 
 
-@image_comparison(baseline_images=['xkcd'], remove_text=True)
+@image_comparison(baseline_images=['xkcd'], extensions=['png'], 
+                  remove_text=True)
 def test_xkcd():
     np.random.seed(0)
 
