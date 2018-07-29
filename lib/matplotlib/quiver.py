@@ -471,7 +471,7 @@ class Quiver(mcollections.PolyCollection):
         %s
         """
         self.ax = ax
-        X, Y, U, V, C = _parse_args(*args)
+        X, Y, U, V, C = _parse_args(*args, **kw)
         if kw.get('U') is not None: # Resetting **kw to the way it was without these
             kw.pop('U')
         if kw.get('V') is not None: 
