@@ -790,6 +790,9 @@ class Line2D(Artist):
                         self.get_markerfacecolor(), "none")):
                 ec_rgba = ec_rgba[:3] + (fc_rgba[3],)
             gc.set_foreground(ec_rgba, isRGBA=True)
+            if self.get_sketch_params() is not None:
+                scale, length, randomness = self.get_sketch_params()
+                gc.set_sketch_params(scale/2, length/2, 2*randomness)
 
             marker = self._marker
 
@@ -830,7 +833,6 @@ class Line2D(Artist):
                 else:
                     # Don't scale for pixels, and don't stroke them
                     marker_trans = marker_trans.scale(w)
-
                 renderer.draw_markers(gc, marker_path, marker_trans,
                                       subsampled, affine.frozen(),
                                       fc_rgba)
