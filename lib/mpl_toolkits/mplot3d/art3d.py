@@ -220,8 +220,11 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     zs = np.broadcast_to(zs, len(path))
 
     pathsegs = path.iter_segments(simplify=False, curves=False)
-    codes = np.empty(len(path))
-    xs, ys, codes = zip(*((x, y, code) for (x, y), code in pathsegs))
+    if len(path):
+        xs, ys, codes = zip(*((x, y, code) for (x, y), code in pathsegs))
+    else:
+        xs, ys, codes = [], [], []
+
     seg3d = juggle_axes(xs, ys, zs, zdir)
     return np.array(seg3d).T, codes
 
