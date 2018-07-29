@@ -201,6 +201,12 @@ class SubplotParams(object):
         self.validate = True
         self.update(left, bottom, right, top, wspace, hspace)
 
+    def get_subplotparams(self):
+        """ Returns a dict with the subplot parameters"""
+
+        names = ('left', 'right', 'top', 'bottom', 'wspace', 'hspace')
+        return {name: getattr(self, name, None) for name in names}
+
     def update(self, left=None, bottom=None, right=None, top=None,
                wspace=None, hspace=None):
         """

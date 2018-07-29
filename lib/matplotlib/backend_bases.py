@@ -2816,12 +2816,14 @@ class NavigationToolbar2(object):
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
+        subplotpars = self.canvas.figure.subplotpars.get_subplotparams().copy()
         self._nav_stack.push(
             WeakKeyDictionary(
                 {ax: (ax._get_view(),
                       # Store both the original and modified positions.
                       (ax.get_position(True).frozen(),
-                       ax.get_position().frozen()))
+                       ax.get_position().frozen()),
+                      subplotpars)
                  for ax in self.canvas.figure.axes}))
         self.set_history_buttons()
 
@@ -2948,12 +2950,15 @@ class NavigationToolbar2(object):
             return
         # Retrieve all items at once to avoid any risk of GC deleting an Axes
         # while in the middle of the loop below.
+        subplotpars = {}
         items = list(nav_info.items())
-        for ax, (view, (pos_orig, pos_active)) in items:
+        for ax, (view, (pos_orig, pos_active), subplotpars) in items:
             ax._set_view(view)
             # Restore both the original and modified positions
             ax._set_position(pos_orig, 'original')
             ax._set_position(pos_active, 'active')
+
+        self.canvas.figure.subplotpars.update(**subplotpars)
         self.canvas.draw_idle()
 
     def save_figure(self, *args):
