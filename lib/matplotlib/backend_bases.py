@@ -2055,7 +2055,10 @@ class FigureCanvasBase(object):
                     if pad is None:
                         pad = rcParams['savefig.pad_inches']
 
-                    bbox_inches = bbox_inches.padded(pad)
+                    if type(pad).__name__ == "tuple":
+                        bbox_inches = bbox_inches.padded_lrtb(pad)
+                    else:
+                        bbox_inches = bbox_inches.padded(pad)
 
                 restore_bbox = tight_bbox.adjust_bbox(self.figure, bbox_inches,
                                                       canvas.fixed_dpi)

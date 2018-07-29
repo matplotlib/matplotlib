@@ -692,7 +692,15 @@ class BboxBase(TransformNode):
         the given value.
         """
         points = self.get_points()
-        return Bbox(points + [[-p, -p], [p, p]])
+        return self.padded_lrtb((p, p, p, p))
+
+    def padded_lrtb(self, lrtb):
+        """
+        Return a new :class:`Bbox` that is padded with specific length
+        on all sides given by lrtb (4-tuple)
+        """
+        points = self.get_points()
+        return Bbox(points + [[-lrtb[0], -lrtb[3]], [lrtb[1], lrtb[2]]])
 
     def translated(self, tx, ty):
         """
