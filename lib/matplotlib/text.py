@@ -2354,6 +2354,7 @@ class Annotation(Text, _AnnotationBase):
         *dpi* used defaults to self.figure.dpi; the renderer dpi is
         irrelevant.
         '''
+        self.update_positions(renderer)
         if not self.get_visible():
             return Bbox.unit()
 
