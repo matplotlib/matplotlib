@@ -381,9 +381,16 @@ class QuiverKey(martist.Artist):
 # This is a helper function that parses out the various combination of
 # arguments for doing colored vector plots.  Pulling it out here
 # allows both Quiver and Barbs to use it
-def _parse_args(*args):
+def _parse_args(*args, **kwargs):
     X, Y, U, V, C = [None] * 5
     args = list(args)
+
+    if len(args) == 0:
+        if kwargs.get("X") != None: args.append(kwargs.pop("X")) 
+        if kwargs.get("Y") != None: args.append(kwargs.pop("Y")) 
+        if kwargs.get("U") != None: args.append(kwargs.pop("U")) 
+        if kwargs.get("V") != None: args.append(kwargs.pop("V")) 
+        if kwargs.get("C") != None: args.append(kwargs.pop("C"))
 
     # The use of atleast_1d allows for handling scalar arguments while also
     # keeping masked arrays
@@ -402,7 +409,7 @@ def _parse_args(*args):
     else:
         indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
         X, Y = [np.ravel(a) for a in indexgrid]
-    return X, Y, U, V, C
+    return X, Y, U, V, C, args, kwargs
 
 
 def _check_consistent_shapes(*arrays):
@@ -443,7 +450,9 @@ class Quiver(mcollections.PolyCollection):
         %s
         """
         self.ax = ax
-        X, Y, U, V, C = _parse_args(*args)
+        # If **kw is used for input then output a new set of *args, **kw
+        # once it has been parsed out. See _parse_args
+        X, Y, U, V, C, args, kw = _parse_args(*args, **kw)
         self.X = X
         self.Y = Y
         self.XY = np.column_stack((X, Y))
@@ -950,7 +959,9 @@ class Barbs(mcollections.PolyCollection):
             kw['linewidth'] = 1
 
         # Parse out the data arrays from the various configurations supported
-        x, y, u, v, c = _parse_args(*args)
+        # If **kw is used for input then output a new set of *args, **kw
+        # once it has been parsed out. See _parse_args
+        x, y, u, v, c, args, kw = _parse_args(*args, **kw)
         self.x = x
         self.y = y
         xy = np.column_stack((x, y))
