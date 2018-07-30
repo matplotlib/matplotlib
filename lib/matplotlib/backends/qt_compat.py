@@ -88,12 +88,16 @@ def _setup_pyqt4():
         # http://pyqt.sourceforge.net/Docs/PyQt4/incompatible_apis.html
         _sip_apis = ["QDate", "QDateTime", "QString", "QTextStream", "QTime",
                      "QUrl", "QVariant"]
-        import sip
-        for _sip_api in _sip_apis:
-            try:
-                sip.setapi(_sip_api, api)
-            except ValueError:
-                pass
+        try:
+            import sip
+        except ImportError:
+            pass
+        else:
+            for _sip_api in _sip_apis:
+                try:
+                    sip.setapi(_sip_api, api)
+                except ValueError:
+                    pass
         from PyQt4 import QtCore, QtGui
         __version__ = QtCore.PYQT_VERSION_STR
         # PyQt 4.6 introduced getSaveFileNameAndFilter:
