@@ -14,18 +14,14 @@ Text instance. The width and height of the TextArea instance is the
 width and height of the its child text.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
 import warnings
+
+import numpy as np
+
 import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 import matplotlib.path as mpath
-import numpy as np
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
 from matplotlib.font_manager import FontProperties
@@ -77,16 +73,16 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         return total, offsets
 
     elif mode == "expand":
+        # This is a bit of a hack to avoid a TypeError when *total*
+        # is None and used in conjugation with tight layout.
+        if total is None:
+            total = 1
         if len(w_list) > 1:
-            sep = (total - sum(w_list)) / (len(w_list) - 1.)
+            sep = (total - sum(w_list)) / (len(w_list) - 1)
         else:
             sep = 0
         offsets_ = np.cumsum([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
-        # this is a bit of a hack to avoid a TypeError when used
-        # in conjugation with tight layout
-        if total is None:
-            total = 1
         return total, offsets
 
     elif mode == "equal":
@@ -155,25 +151,6 @@ class OffsetBox(martist.Artist):
 
         self._children = []
         self._offset = (0, 0)
-
-    def __getstate__(self):
-        state = martist.Artist.__getstate__(self)
-
-        # pickle cannot save instancemethods, so handle them here
-        from .cbook import _InstanceMethodPickler
-        import inspect
-
-        offset = state['_offset']
-        if inspect.ismethod(offset):
-            state['_offset'] = _InstanceMethodPickler(offset)
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-        from .cbook import _InstanceMethodPickler
-        if isinstance(self._offset, _InstanceMethodPickler):
-            self._offset = self._offset.get_instancemethod()
-        self.stale = True
 
     def set_figure(self, fig):
         """
@@ -401,9 +378,9 @@ class VPacker(PackerBase):
 
         yoffsets = yoffsets - ydescent
 
-        return width + 2 * pad, height + 2 * pad, \
-               xdescent + pad, ydescent + pad, \
-               list(zip(xoffsets, yoffsets))
+        return (width + 2 * pad, height + 2 * pad,
+                xdescent + pad, ydescent + pad,
+                list(zip(xoffsets, yoffsets)))
 
 
 class HPacker(PackerBase):
@@ -479,9 +456,9 @@ class HPacker(PackerBase):
         xdescent = whd_list[0][2]
         xoffsets = xoffsets - xdescent
 
-        return width + 2 * pad, height + 2 * pad, \
-               xdescent + pad, ydescent + pad, \
-               list(zip(xoffsets, yoffsets))
+        return (width + 2 * pad, height + 2 * pad,
+                xdescent + pad, ydescent + pad,
+               list(zip(xoffsets, yoffsets)))
 
 
 class PaddedBox(OffsetBox):
@@ -865,7 +842,7 @@ class TextArea(OffsetBox):
 
 class AuxTransformBox(OffsetBox):
     """
-    Offset Box with the aux_transform . Its children will be
+    Offset Box with the aux_transform. Its children will be
     transformed with the aux_transform first then will be
     offseted. The absolute coordinate of the aux_transform is meaning
     as it will be automatically adjust so that the left-lower corner
@@ -1035,7 +1012,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
 
-        if isinstance(loc, six.string_types):
+        if isinstance(loc, str):
             try:
                 loc = self.codes[loc]
             except KeyError:
@@ -1638,8 +1615,8 @@ class DraggableBase(object):
      *update_offset* places the artists simply in display
      coordinates. And *finalize_offset* recalculate their position in
      the normalized axes coordinate and set a relavant attribute.
-
     """
+
     def __init__(self, ref_artist, use_blit=False):
         self.ref_artist = ref_artist
         self.got_artist = False
@@ -1654,14 +1631,14 @@ class DraggableBase(object):
         self.cids = [c2, c3]
 
     def on_motion(self, evt):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
             self.canvas.draw()
 
     def on_motion_blit(self, evt):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
@@ -1670,7 +1647,7 @@ class DraggableBase(object):
             self.canvas.blit(self.ref_artist.figure.bbox)
 
     def on_pick(self, evt):
-        if evt.artist == self.ref_artist:
+        if self._check_still_parented() and evt.artist == self.ref_artist:
 
             self.mouse_x = evt.mouseevent.x
             self.mouse_y = evt.mouseevent.y
@@ -1691,13 +1668,20 @@ class DraggableBase(object):
             self.save_offset()
 
     def on_release(self, event):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             self.finalize_offset()
             self.got_artist = False
             self.canvas.mpl_disconnect(self._c1)
 
             if self._use_blit:
                 self.ref_artist.set_animated(False)
+
+    def _check_still_parented(self):
+        if self.ref_artist.figure is None:
+            self.disconnect()
+            return False
+        else:
+            return True
 
     def disconnect(self):
         """disconnect the callbacks"""

@@ -22,23 +22,13 @@ Sources:
   v1.1, 1993. ISBN 0-201-57044-0.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import binascii
 import enum
-import io
 import itertools
 import re
 import struct
 
 import numpy as np
-
-if six.PY3:
-    def ord(x):
-        return x
 
 
 # token types
@@ -85,13 +75,13 @@ class Type1Font(object):
             return rawdata
 
         data = b''
-        while len(rawdata) > 0:
+        while rawdata:
             if not rawdata.startswith(b'\x80'):
                 raise RuntimeError('Broken pfb file (expected byte 128, '
-                                   'got %d)' % ord(rawdata[0]))
-            type = ord(rawdata[1])
+                                   'got %d)' % rawdata[0])
+            type = rawdata[1]
             if type in (1, 2):
-                length, = struct.unpack(str('<i'), rawdata[2:6])
+                length, = struct.unpack('<i', rawdata[2:6])
                 segment = rawdata[6:6 + length]
                 rawdata = rawdata[6 + length:]
 
@@ -135,11 +125,10 @@ class Type1Font(object):
         if zeros:
             raise RuntimeError('Insufficiently many zeros in Type 1 font')
 
-        # Convert encrypted part to binary (if we read a pfb file, we
-        # may end up converting binary to hexadecimal to binary again;
-        # but if we read a pfa file, this part is already in hex, and
-        # I am not quite sure if even the pfb format guarantees that
-        # it will be in binary).
+        # Convert encrypted part to binary (if we read a pfb file, we may end
+        # up converting binary to hexadecimal to binary again; but if we read
+        # a pfa file, this part is already in hex, and I am not quite sure if
+        # even the pfb format guarantees that it will be in binary).
         binary = binascii.unhexlify(data[len1:idx+1])
 
         return data[:len1], binary, data[idx+1:]
@@ -254,14 +243,13 @@ class Type1Font(object):
         def fontname(name):
             result = name
             if slant:
-                result += b'_Slant_' + str(int(1000 * slant)).encode('ascii')
+                result += b'_Slant_%d' % int(1000 * slant)
             if extend != 1.0:
-                result += b'_Extend_' + str(int(1000 * extend)).encode('ascii')
+                result += b'_Extend_%d' % int(1000 * extend)
             return result
 
         def italicangle(angle):
-            return (str(float(angle) - np.arctan(slant) / np.pi * 180)
-                    .encode('ascii'))
+            return b'%a' % (float(angle) - np.arctan(slant) / np.pi * 180)
 
         def fontmatrix(array):
             array = array.lstrip(b'[').rstrip(b']').split()
@@ -275,19 +263,21 @@ class Type1Font(object):
             newmatrix = np.dot(modifier, oldmatrix)
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
-            as_string = u'[' + u' '.join(str(x) for x in array) + u']'
+            # Not directly using `b'%a' % x for x in array` for now as that
+            # produces longer reprs on numpy<1.14, causing test failures.
+            as_string = '[' + ' '.join(str(x) for x in array) + ']'
             return as_string.encode('latin-1')
 
         def replace(fun):
             def replacer(tokens):
                 token, value = next(tokens)      # name, e.g., /FontMatrix
-                yield bytes(value)
+                yield value
                 token, value = next(tokens)      # possible whitespace
                 while token is _TokenType.whitespace:
-                    yield bytes(value)
+                    yield value
                     token, value = next(tokens)
                 if value != b'[':                # name/number/etc.
-                    yield bytes(fun(value))
+                    yield fun(value)
                 else:                            # array, e.g., [1 2 3]
                     result = b''
                     while value != b']':
@@ -309,9 +299,8 @@ class Type1Font(object):
 
         for token, value in tokens:
             if token is _TokenType.name and value in table:
-                for value in table[value](itertools.chain([(token, value)],
-                                                          tokens)):
-                    yield value
+                yield from table[value](
+                    itertools.chain([(token, value)], tokens))
             else:
                 yield value
 
@@ -324,10 +313,8 @@ class Type1Font(object):
         multiplier by which the font is to be extended (so values less
         than 1.0 condense). Returns a new :class:`Type1Font` object.
         """
-        with io.BytesIO() as buffer:
-            tokenizer = self._tokens(self.parts[0])
-            transformed =  self._transformer(tokenizer,
-                                             slant=effects.get('slant', 0.0),
-                                             extend=effects.get('extend', 1.0))
-            list(map(buffer.write, transformed))
-            return Type1Font((buffer.getvalue(), self.parts[1], self.parts[2]))
+        tokenizer = self._tokens(self.parts[0])
+        transformed = self._transformer(tokenizer,
+                                        slant=effects.get('slant', 0.0),
+                                        extend=effects.get('extend', 1.0))
+        return Type1Font((b"".join(transformed), self.parts[1], self.parts[2]))

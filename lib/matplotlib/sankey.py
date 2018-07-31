@@ -1,13 +1,10 @@
 """
 Module for creating Sankey diagrams using matplotlib
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
 import logging
 from types import SimpleNamespace
-from six.moves import zip
+
 import numpy as np
 
 from matplotlib.cbook import iterable
@@ -121,7 +118,7 @@ class Sankey(object):
 
         **Examples:**
 
-            .. plot:: gallery/api/sankey_basics.py
+            .. plot:: gallery/specialty_plots/sankey_basics.py
         """
         # Check the arguments.
         if gap < 0:

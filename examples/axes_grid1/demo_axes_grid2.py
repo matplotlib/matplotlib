@@ -60,7 +60,7 @@ if 1:
         ax.cax.colorbar(im)
 
     for ax, im_title in zip(grid, ["Image 1", "Image 2", "Image 3"]):
-        t = add_inner_title(ax, im_title, loc=3)
+        t = add_inner_title(ax, im_title, loc='lower left')
         t.patch.set_alpha(0.5)
 
     for ax, z in zip(grid, ZS):
@@ -109,12 +109,11 @@ if 1:
     ax.cax.toggle_label(True)
 
     for ax, im_title in zip(grid2, ["(a)", "(b)", "(c)"]):
-        t = add_inner_title(ax, im_title, loc=2)
+        t = add_inner_title(ax, im_title, loc='upper left')
         t.patch.set_ec("none")
         t.patch.set_alpha(0.5)
 
     grid2[0].set_xticks([-2, 0])
     grid2[0].set_yticks([-2, 0, 2])
 
-    plt.draw()
     plt.show()

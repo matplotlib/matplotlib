@@ -21,9 +21,9 @@ matplotlib/__init__.py and you're off.  You can use your backend with::
 
   import matplotlib
   matplotlib.use('xxx')
-  from pylab import *
-  plot([1,2,3])
-  show()
+  import matplotlib.pyplot as plt
+  plt.plot([1,2,3])
+  plt.show()
 
 matplotlib also supports external backends, so you can place you can
 use any module in your PYTHONPATH with the syntax::
@@ -61,11 +61,6 @@ Naming Conventions
   * functions lower or underscore_separated
 
 """
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
@@ -140,17 +135,17 @@ class RendererTemplate(RendererBase):
 
 class GraphicsContextTemplate(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...  See the gtk
+    The graphics context provides the color, line styles, etc...  See the cairo
     and postscript backends for examples of mapping the graphics context
     attributes (cap styles, join styles, line widths, colors) to a particular
-    backend.  In GTK this is done by wrapping a gtk.gdk.GC object and
+    backend.  In cairo this is done by wrapping a cairo.Context object and
     forwarding the appropriate calls to it using a dictionary mapping styles
     to gdk constants.  In Postscript, all the work is done by the renderer,
     mapping line styles to postscript calls.
 
     If it's more appropriate to do the mapping at the renderer level (as in
     the postscript backend), you don't need to override any of the GC methods.
-    If it's more appropriate to wrap an instance (as in the GTK backend) and
+    If it's more appropriate to wrap an instance (as in the cairo backend) and
     do the mapping here, you'll need to override several of the setter
     methods.
 
@@ -158,8 +153,6 @@ class GraphicsContextTemplate(GraphicsContextBase):
     interval, e.g., (0.5, 0.0, 1.0). You may need to map this to colors
     appropriate for your backend.
     """
-    pass
-
 
 
 ########################################################################
@@ -171,36 +164,33 @@ class GraphicsContextTemplate(GraphicsContextBase):
 
 def draw_if_interactive():
     """
-    For image backends - is not required
+    For image backends - is not required.
     For GUI backends - this should be overridden if drawing should be done in
-    interactive python mode
+    interactive python mode.
     """
 
 
 def show(block=None):
     """
-    For image backends - is not required
-    For GUI backends - show() is usually the last line of a pylab script and
-    tells the backend that it is time to draw.  In interactive mode, this may
-    be a do nothing func.  See the GTK backend for an example of how to handle
-    interactive versus batch mode
+    For image backends - is not required.
+    For GUI backends - show() is usually the last line of a pyplot script and
+    tells the backend that it is time to draw.  In interactive mode, this
+    should do nothing.
     """
     for manager in Gcf.get_all_fig_managers():
         # do something to display the GUI
         pass
 
 
-def new_figure_manager(num, *args, **kwargs):
+def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
     """
     Create a new figure manager instance
     """
-    # May be implemented via the `_new_figure_manager_template` helper.
     # If a main-level app must be created, this (and
     # new_figure_manager_given_figure) is the usual place to do it -- see
     # backend_wx, backend_wxagg and backend_tkagg for examples.  Not all GUIs
-    # require explicit instantiation of a main-level app (egg backend_gtk,
-    # backend_gtkagg) for pylab.
-    FigureClass = kwargs.pop('FigureClass', Figure)
+    # require explicit instantiation of a main-level app (e.g., backend_gtk3)
+    # for pylab.
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
 
@@ -209,7 +199,6 @@ def new_figure_manager_given_figure(num, figure):
     """
     Create a new figure manager instance for the given figure.
     """
-    # May be implemented via the `_new_figure_manager_template` helper.
     canvas = FigureCanvasTemplate(figure)
     manager = FigureManagerTemplate(canvas, num)
     return manager
@@ -218,19 +207,18 @@ def new_figure_manager_given_figure(num, figure):
 class FigureCanvasTemplate(FigureCanvasBase):
     """
     The canvas the figure renders into.  Calls the draw and print fig
-    methods, creates the renderers, etc...
+    methods, creates the renderers, etc.
 
-    Note GUI templates will want to connect events for button presses,
+    Note: GUI templates will want to connect events for button presses,
     mouse movements and key presses to functions that call the base
     class methods button_press_event, button_release_event,
-    motion_notify_event, key_press_event, and key_release_event.  See,
-    e.g., backend_gtk.py, backend_wx.py and backend_tkagg.py
+    motion_notify_event, key_press_event, and key_release_event.  See the
+    implementations of the interactive backends for examples.
 
     Attributes
     ----------
     figure : `matplotlib.figure.Figure`
         A high-level Figure instance
-
     """
 
     def draw(self):

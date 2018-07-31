@@ -1,12 +1,6 @@
 """
 An experimental support for curvilinear grid.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
 from itertools import chain
 from .grid_finder import GridFinder
 
@@ -181,8 +175,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
         p = trans_passingthrough_point.transform_point([xx1[0], yy1[0]])
 
-
-        if (0. <= p[0] <= 1.) and (0. <= p[1] <= 1.):
+        if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
             xx1c, yy1c = axes.transData.transform_point([xx1[0], yy1[0]])
             xx2, yy2 = grid_finder.transform_xy([xx0+dxx], [yy0+dyy])
             xx2c, yy2c = axes.transData.transform_point([xx2[0], yy2[0]])
@@ -298,10 +291,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tr2ax.transform_point((x, y))
                 delta=0.00001
-                if (0. -delta<= c2[0] <= 1.+delta) and \
-                       (0. -delta<= c2[1] <= 1.+delta):
-                    d1 = d/3.14159*180.
-                    d2 = d2/3.14159*180.
+                if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
+                    d1, d2 = np.rad2deg([d, d2])
                     yield [x, y], d1, d2, lab
 
         return f1(), iter([])

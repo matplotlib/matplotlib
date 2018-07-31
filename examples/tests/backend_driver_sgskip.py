@@ -315,7 +315,7 @@ def report_missing(dir, flist):
     globstr = os.path.join(dir, '*.py')
     fnames = glob.glob(globstr)
 
-    pyfiles = {os.path.split(fullpath)[-1] for fullpath in set(fnames)}
+    pyfiles = {os.path.split(fullpath)[-1] for fullpath in fnames}
 
     exclude = set(excluded.get(dir, []))
     flist = set(flist)
@@ -339,7 +339,7 @@ failbackend = dict(
     )
 
 
-from matplotlib.compat import subprocess
+import subprocess
 
 
 def run(arglist):
@@ -357,7 +357,6 @@ def drive(backend, directories, python=['python'], switches=[]):
     # Clear the destination directory for the examples
     path = backend
     if os.path.exists(path):
-        import glob
         for fname in os.listdir(path):
             os.unlink(os.path.join(path, fname))
     else:

@@ -1,8 +1,8 @@
 """
 This module defines default legend handlers.
 
-It is strongly encouraged to have read the :ref:`legend guide
-<sphx_glr_tutorials_intermediate_legend_guide.py>` before this documentation.
+It is strongly encouraged to have read the :doc:`legend guide
+</tutorials/intermediate/legend_guide>` before this documentation.
 
 Legend handlers are expected to be a callable object with a following
 signature. ::
@@ -23,11 +23,7 @@ derived from the base class (HandlerBase) with the following method::
     def legend_artist(self, legend, orig_handle, fontsize, handlebox):
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
-from six.moves import zip
 from itertools import cycle
 
 import numpy as np

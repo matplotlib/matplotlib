@@ -189,8 +189,24 @@ def test_all():
     ax.set_ylim(0., 1.)
     ax.set_aspect(2.)
 
-    plt.draw()
     plt.show()
 
 
 test_all()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.patches
+matplotlib.patches.FancyBboxPatch
+matplotlib.patches.BoxStyle
+matplotlib.patches.BoxStyle.get_styles
+matplotlib.transforms.Bbox

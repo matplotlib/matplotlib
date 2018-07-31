@@ -158,45 +158,36 @@ int convert_rect(PyObject *rectobj, void *rectp)
         rect->x2 = 0.0;
         rect->y2 = 0.0;
     } else {
-        try
-        {
-            numpy::array_view<const double, 2> rect_arr(rectobj);
+        PyArrayObject *rect_arr = (PyArrayObject *)PyArray_ContiguousFromAny(
+                rectobj, NPY_DOUBLE, 1, 2);
+        if (rect_arr == NULL) {
+            return 0;
+        }
 
-            if (rect_arr.dim(0) != 2 || rect_arr.dim(1) != 2) {
+        if (PyArray_NDIM(rect_arr) == 2) {
+            if (PyArray_DIM(rect_arr, 0) != 2 ||
+                PyArray_DIM(rect_arr, 1) != 2) {
                 PyErr_SetString(PyExc_ValueError, "Invalid bounding box");
+                Py_DECREF(rect_arr);
                 return 0;
             }
 
-            rect->x1 = rect_arr(0, 0);
-            rect->y1 = rect_arr(0, 1);
-            rect->x2 = rect_arr(1, 0);
-            rect->y2 = rect_arr(1, 1);
-        }
-        catch (py::exception)
-        {
-            PyErr_Clear();
-
-            try
-            {
-                numpy::array_view<const double, 1> rect_arr(rectobj);
-
-                if (rect_arr.dim(0) != 4) {
-                    PyErr_SetString(PyExc_ValueError, "Invalid bounding box");
-                    return 0;
-                }
-
-                rect->x1 = rect_arr(0);
-                rect->y1 = rect_arr(1);
-                rect->x2 = rect_arr(2);
-                rect->y2 = rect_arr(3);
-            }
-            catch (py::exception)
-            {
+        } else {  // PyArray_NDIM(rect_arr) == 1
+            if (PyArray_DIM(rect_arr, 0) != 4) {
+                PyErr_SetString(PyExc_ValueError, "Invalid bounding box");
+                Py_DECREF(rect_arr);
                 return 0;
             }
         }
+
+        double *buff = (double *)PyArray_DATA(rect_arr);
+        rect->x1 = buff[0];
+        rect->y1 = buff[1];
+        rect->x2 = buff[2];
+        rect->y2 = buff[3];
+
+        Py_DECREF(rect_arr);
     }
-
     return 1;
 }
 
@@ -336,27 +327,26 @@ int convert_trans_affine(PyObject *obj, void *transp)
         return 1;
     }
 
-    try
-    {
-        numpy::array_view<const double, 2> matrix(obj);
-
-        if (matrix.dim(0) == 3 && matrix.dim(1) == 3) {
-            trans->sx = matrix(0, 0);
-            trans->shx = matrix(0, 1);
-            trans->tx = matrix(0, 2);
-
-            trans->shy = matrix(1, 0);
-            trans->sy = matrix(1, 1);
-            trans->ty = matrix(1, 2);
-
-            return 1;
-        }
-    }
-    catch (py::exception)
-    {
+    PyArrayObject *array = (PyArrayObject *)PyArray_ContiguousFromAny(obj, NPY_DOUBLE, 2, 2);
+    if (array == NULL) {
         return 0;
     }
 
+    if (PyArray_DIM(array, 0) == 3 && PyArray_DIM(array, 1) == 3) {
+        double *buffer = (double *)PyArray_DATA(array);
+        trans->sx = buffer[0];
+        trans->shx = buffer[1];
+        trans->tx = buffer[2];
+
+        trans->shy = buffer[3];
+        trans->sy = buffer[4];
+        trans->ty = buffer[5];
+
+        Py_DECREF(array);
+        return 1;
+    }
+
+    Py_DECREF(array);
     PyErr_SetString(PyExc_ValueError, "Invalid affine transformation matrix");
     return 0;
 }

@@ -6,24 +6,20 @@ Embedding In Wx5
 """
 
 import wx
+import wx.lib.agw.aui as aui
 import wx.lib.mixins.inspection as wit
 
-if 'phoenix' in wx.PlatformInfo:
-    import wx.lib.agw.aui as aui
-else:
-    import wx.aui as aui
-
 import matplotlib as mpl
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as Canvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2Wx as Toolbar
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
 
 
 class Plot(wx.Panel):
     def __init__(self, parent, id=-1, dpi=None, **kwargs):
         wx.Panel.__init__(self, parent, id=id, **kwargs)
         self.figure = mpl.figure.Figure(dpi=dpi, figsize=(2, 2))
-        self.canvas = Canvas(self, -1, self.figure)
-        self.toolbar = Toolbar(self.canvas)
+        self.canvas = FigureCanvas(self, -1, self.figure)
+        self.toolbar = NavigationToolbar(self.canvas)
         self.toolbar.Realize()
 
         sizer = wx.BoxSizer(wx.VERTICAL)

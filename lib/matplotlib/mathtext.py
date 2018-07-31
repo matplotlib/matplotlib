@@ -2,7 +2,7 @@ r"""
 :mod:`~matplotlib.mathtext` is a module for parsing a subset of the
 TeX math syntax and drawing them to a matplotlib backend.
 
-For a tutorial of its usage see :ref:`sphx_glr_tutorials_text_mathtext.py`.  This
+For a tutorial of its usage see :doc:`/tutorials/text/mathtext`.  This
 document is primarily concerned with implementation details.
 
 The module uses pyparsing_ to parse the TeX expression.
@@ -65,16 +65,16 @@ If math is False, the current symbol should be treated as a non-math symbol.
     # length, usually longer than a hyphen.
     if symbol == '-':
         return 0x2212
-    try:# This will succeed if symbol is a single unicode char
+    try:  # This will succeed if symbol is a single unicode char
         return ord(symbol)
     except TypeError:
         pass
-    try:# Is symbol a TeX symbol (i.e. \alpha)
+    try:  # Is symbol a TeX symbol (i.e. \alpha)
         return tex2uni[symbol.strip("\\")]
     except KeyError:
-        message = """'%(symbol)s' is not a valid Unicode character or
-TeX/Type1 symbol"""%locals()
-        raise ValueError(message)
+        raise ValueError(
+            "'{}' is not a valid Unicode character or TeX/Type1 symbol"
+            .format(symbol))
 
 
 unichr_safe = cbook.deprecated("3.0")(chr)
@@ -1000,7 +1000,7 @@ class StixFonts(UnicodeFonts):
                 else:
                     lo = mid + 1
 
-            if uniindex >= range[0] and uniindex <= range[1]:
+            if range[0] <= uniindex <= range[1]:
                 uniindex = uniindex - range[0] + range[3]
                 fontname = range[2]
             elif not doing_sans_conversion:
@@ -1360,9 +1360,6 @@ class Node(object):
         self.size = 0
 
     def __repr__(self):
-        return self.__internal_repr__()
-
-    def __internal_repr__(self):
         return self.__class__.__name__
 
     def get_kerning(self, next):
@@ -1449,7 +1446,7 @@ class Char(Node):
         # pack phase, after we know the real fontsize
         self._update_metrics()
 
-    def __internal_repr__(self):
+    def __repr__(self):
         return '`%s`' % self.c
 
     def _update_metrics(self):
@@ -1547,22 +1544,22 @@ class List(Box):
 
     def __repr__(self):
         return '[%s <%.02f %.02f %.02f %.02f> %s]' % (
-            self.__internal_repr__(),
+            super().__repr__(),
             self.width, self.height,
             self.depth, self.shift_amount,
             ' '.join([repr(x) for x in self.children]))
 
-    def _determine_order(self, totals):
+    @staticmethod
+    def _determine_order(totals):
         """
-        A helper function to determine the highest order of glue
-        used by the members of this list.  Used by vpack and hpack.
+        Determine the highest order of glue used by the members of this list.
+
+        Helper function used by vpack and hpack.
         """
-        o = 0
-        for i in range(len(totals) - 1, 0, -1):
-            if totals[i] != 0.0:
-                o = i
-                break
-        return o
+        for i in range(len(totals))[::-1]:
+            if totals[i] != 0:
+                return i
+        return 0
 
     def _set_glue(self, x, sign, totals, error_type):
         o = self._determine_order(totals)
@@ -2369,7 +2366,7 @@ class Parser(object):
 
         p.accent        <<= Group(
                              Suppress(p.bslash)
-                           + oneOf(list(self._accent_map) + list(self._wide_accents))
+                           + oneOf([*self._accent_map, *self._wide_accents])
                            - p.placeable
                          )
 
@@ -2407,7 +2404,7 @@ class Parser(object):
         p.ambi_delim    <<= oneOf(list(self._ambi_delim))
         p.left_delim    <<= oneOf(list(self._left_delim))
         p.right_delim   <<= oneOf(list(self._right_delim))
-        p.right_delim_safe <<= oneOf(list(self._right_delim - {'}'}) + [r'\}'])
+        p.right_delim_safe <<= oneOf([*(self._right_delim - {'}'}), r'\}'])
 
         p.genfrac       <<= Group(
                              Suppress(Literal(r"\genfrac"))

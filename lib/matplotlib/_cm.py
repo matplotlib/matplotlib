@@ -6,9 +6,6 @@ Documentation for each is in pyplot.colormaps().  Please update this
 with the purpose and type of your colormap if you add data for one here.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
 
 _binary_data = {
@@ -44,17 +41,17 @@ _copper_data = {'red':   ((0., 0., 0.),
                 'blue':  ((0., 0., 0.),
                           (1.0, 0.4975, 0.4975))}
 
-_flag_data = {
-        'red': lambda x: 0.75 * np.sin((x * 31.5 + 0.25) * np.pi) + 0.5,
-        'green': lambda x: np.sin(x * 31.5 * np.pi),
-        'blue': lambda x: 0.75 * np.sin((x * 31.5 - 0.25) * np.pi) + 0.5,
-}
 
-_prism_data = {
-        'red': lambda x: 0.75 * np.sin((x * 20.9 + 0.25) * np.pi) + 0.67,
-        'green': lambda x: 0.75 * np.sin((x * 20.9 - 0.25) * np.pi) + 0.33,
-        'blue': lambda x: -1.1 * np.sin((x * 20.9) * np.pi),
-}
+def _flag_red(x): return 0.75 * np.sin((x * 31.5 + 0.25) * np.pi) + 0.5
+def _flag_green(x): return np.sin(x * 31.5 * np.pi)
+def _flag_blue(x): return 0.75 * np.sin((x * 31.5 - 0.25) * np.pi) + 0.5
+def _prism_red(x): return 0.75 * np.sin((x * 20.9 + 0.25) * np.pi) + 0.67
+def _prism_green(x): return 0.75 * np.sin((x * 20.9 - 0.25) * np.pi) + 0.33
+def _prism_blue(x): return -1.1 * np.sin((x * 20.9) * np.pi)
+
+
+_flag_data = {'red': _flag_red, 'green': _flag_green, 'blue': _flag_blue}
+_prism_data = {'red': _prism_red, 'green': _prism_green, 'blue': _prism_blue}
 
 
 def cubehelix(gamma=1.0, s=0.5, r=-1.5, h=1.0):

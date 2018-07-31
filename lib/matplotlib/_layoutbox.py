@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 
 Conventions:
@@ -15,9 +14,6 @@ will allow it to change to 0.3 later.  Note that these values are still just
 other constrains.
 
 """
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import itertools
 import kiwisolver as kiwi
@@ -358,20 +354,16 @@ class LayoutBox(object):
         Helper to check if this layoutbox is the layoutbox of a
         subplotspec
         '''
-        name = (self.name).split('.')[-1][:-3]
-        if name == 'ss':
-            return True
-        return False
+        name = (self.name).split('.')[-1]
+        return name[:2] == 'ss'
 
     def _is_gridspec_layoutbox(self):
         '''
         Helper to check if this layoutbox is the layoutbox of a
         gridspec
         '''
-        name = (self.name).split('.')[-1][:-3]
-        if name == 'gridspec':
-            return True
-        return False
+        name = (self.name).split('.')[-1]
+        return name[:8] == 'gridspec'
 
     def find_child_subplots(self):
         '''
@@ -650,7 +642,7 @@ def seq_id():
 
     global _layoutboxobjnum
 
-    return ('%03d' % (next(_layoutboxobjnum)))
+    return ('%06d' % (next(_layoutboxobjnum)))
 
 
 def print_children(lb):

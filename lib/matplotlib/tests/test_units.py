@@ -1,14 +1,12 @@
+from unittest.mock import MagicMock
+
 from matplotlib.cbook import iterable
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.units as munits
 import numpy as np
-
-try:
-    # mock in python 3.3+
-    from unittest.mock import MagicMock
-except ImportError:
-    from mock import MagicMock
+import datetime
+import platform
 
 
 # Basic class that wraps numpy array and has units
@@ -43,6 +41,7 @@ class Quantity(object):
 # Tests that the conversion machinery works properly for classes that
 # work as a facade over numpy arrays (like pint)
 @image_comparison(baseline_images=['plot_pint'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'], remove_text=False, style='mpl20')
 def test_numpy_facade():
     # Create an instance of the conversion interface and
@@ -87,6 +86,7 @@ def test_numpy_facade():
 
 # Tests gh-8908
 @image_comparison(baseline_images=['plot_masked_units'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'], remove_text=True, style='mpl20')
 def test_plot_masked_units():
     data = np.linspace(-5, 5)
@@ -95,3 +95,37 @@ def test_plot_masked_units():
 
     fig, ax = plt.subplots()
     ax.plot(data_masked_units)
+
+
+@image_comparison(baseline_images=['jpl_bar_units'], extensions=['png'],
+                  savefig_kwarg={'dpi': 120}, style='mpl20')
+def test_jpl_bar_units():
+    from datetime import datetime
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    day = units.Duration("ET", 24.0 * 60.0 * 60.0)
+    x = [0*units.km, 1*units.km, 2*units.km]
+    w = [1*day, 2*day, 3*day]
+    b = units.Epoch("ET", dt=datetime(2009, 4, 25))
+
+    fig, ax = plt.subplots()
+    ax.bar(x, w, bottom=b)
+    ax.set_ylim([b-1*day, b+w[-1]+1*day])
+
+
+@image_comparison(baseline_images=['jpl_barh_units'], extensions=['png'],
+                  savefig_kwarg={'dpi': 120}, style='mpl20')
+def test_jpl_barh_units():
+    from datetime import datetime
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    day = units.Duration("ET", 24.0 * 60.0 * 60.0)
+    x = [0*units.km, 1*units.km, 2*units.km]
+    w = [1*day, 2*day, 3*day]
+    b = units.Epoch("ET", dt=datetime(2009, 4, 25))
+
+    fig, ax = plt.subplots()
+    ax.barh(x, w, left=b)
+    ax.set_xlim([b-1*day, b+w[-1]+1*day])

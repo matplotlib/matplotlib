@@ -3,8 +3,8 @@
 /* _backend_agg.h
 */
 
-#ifndef __BACKEND_AGG_H__
-#define __BACKEND_AGG_H__
+#ifndef MPL_BACKEND_AGG_H
+#define MPL_BACKEND_AGG_H
 
 #include <cmath>
 #include <vector>
@@ -43,8 +43,8 @@
 
 /**********************************************************************/
 
-// a helper class to pass agg::buffer objects around.  agg::buffer is
-// a class in the swig wrapper
+// a helper class to pass agg::buffer objects around.  
+
 class BufferRegion
 {
   public:

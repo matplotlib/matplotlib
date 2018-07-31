@@ -6,7 +6,6 @@ setup.cfg.template for more information.
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
-from __future__ import print_function, absolute_import
 from string import Template
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
@@ -97,18 +96,11 @@ mpl_packages = [
     setupext.BackendQt4(),
     setupext.BackendGtk3Agg(),
     setupext.BackendGtk3Cairo(),
-    setupext.BackendGtkAgg(),
     setupext.BackendTkAgg(),
     setupext.BackendWxAgg(),
-    setupext.BackendGtk(),
     setupext.BackendAgg(),
     setupext.BackendCairo(),
     setupext.Windowing(),
-    'Optional LaTeX dependencies',
-    setupext.DviPng(),
-    setupext.Ghostscript(),
-    setupext.LaTeX(),
-    setupext.PdfToPs(),
     'Optional package data',
     setupext.Dlls(),
     ]
@@ -127,9 +119,9 @@ classifiers = [
 
 
 class NoopTestCommand(TestCommand):
-    def run(self):
+    def __init__(self, dist):
         print("Matplotlib does not support running tests with "
-              "'python setup.py test'. Please run 'python tests.py'")
+              "'python setup.py test'. Please run 'python tests.py'.")
 
 
 class BuildExtraLibraries(BuildExtCommand):
@@ -239,20 +231,13 @@ if __name__ == '__main__':
             fd.write(
                 template.safe_substitute(TEMPLATE_BACKEND=default_backend))
 
-        # Build in verbose mode if requested
-        if setupext.options['verbose']:
-            for mod in ext_modules:
-                mod.extra_compile_args.append('-DVERBOSE')
-
         # Finalize the extension modules so they can get the Numpy include
         # dirs
         for mod in ext_modules:
             mod.finalize()
 
-    extra_args = {}
-
     # Finally, pass this all along to distutils to do the heavy lifting.
-    distrib = setup(
+    setup(
         name="matplotlib",
         version=__version__,
         description="Python plotting package",
@@ -260,11 +245,10 @@ if __name__ == '__main__':
         author_email="matplotlib-users@python.org",
         url="http://matplotlib.org",
         long_description="""
-        matplotlib strives to produce publication quality 2D graphics
+        Matplotlib strives to produce publication quality 2D graphics
         for interactive graphing, scientific publishing, user interface
         development and web application servers targeting multiple user
-        interfaces and hardcopy output formats.  There is a 'pylab' mode
-        which emulates matlab graphics.
+        interfaces and hardcopy output formats.
         """,
         license="BSD",
         packages=packages,
@@ -287,5 +271,4 @@ if __name__ == '__main__':
         # check for zip safety.
         zip_safe=False,
         cmdclass=cmdclass,
-        **extra_args
     )

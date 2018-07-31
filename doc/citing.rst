@@ -5,7 +5,7 @@ Citing Matplotlib
 
 If Matplotlib contributes to a project that leads to a scientific
 publication, please acknowledge this fact by citing `Hunter et al (2007)
-<http://doi.org/10.1109/MCSE.2007.55>`_ using this ready-made BibTeX entry:
+<https://doi.org/10.1109/MCSE.2007.55>`_ using this ready-made BibTeX entry:
 
 .. code-block:: bibtex
 
@@ -27,6 +27,18 @@ publication, please acknowledge this fact by citing `Hunter et al (2007)
 
 DOIs
 ----
+v2.2.2
+   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1202077.svg
+      :target: https://doi.org/10.5281/zenodo.1202077
+v2.2.1
+   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1202050.svg
+      :target: https://doi.org/10.5281/zenodo.1202050
+v2.2.0
+   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1189358.svg
+      :target: https://doi.org/10.5281/zenodo.1189358
+v2.1.2
+   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1154287.svg
+      :target: https://doi.org/10.5281/zenodo.1154287
 v2.1.1
    .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1098480.svg
       :target: https://doi.org/10.5281/zenodo.1098480

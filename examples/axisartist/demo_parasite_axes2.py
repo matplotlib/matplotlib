@@ -5,12 +5,22 @@ Demo Parasite Axes2
 
 Parasite axis demo
 
-The following code is an example of a parasite axis. It aims to show a user how
+The following code is an example of a parasite axis. It aims to show how
 to plot multiple different values onto one single plot. Notice how in this
 example, par1 and par2 are both calling twinx meaning both are tied directly to
 the x-axis. From there, each of those two axis can behave separately from the
 each other, meaning they can take on separate values from themselves as well as
 the x-axis.
+
+Note that this approach uses the `mpl_toolkits.axes_grid1.parasite_axes`\'
+`~mpl_toolkits.axes_grid1.parasite_axes.host_subplot` and
+`mpl_toolkits.axisartist.axislines.Axes`. An alternative approach using the
+`~mpl_toolkits.axes_grid1.parasite_axes`\'s
+`~.mpl_toolkits.axes_grid1.parasite_axes.HostAxes` and
+`~.mpl_toolkits.axes_grid1.parasite_axes.ParasiteAxes` is the
+:doc:`/gallery/axisartist/demo_parasite_axes` example.
+An alternative approach using the usual matplotlib subplots is shown in
+the :doc:`/gallery/ticks_and_spines/multiple_yaxis_with_spines` example.
 """
 from mpl_toolkits.axes_grid1 import host_subplot
 import mpl_toolkits.axisartist as AA
@@ -52,5 +62,4 @@ host.axis["left"].label.set_color(p1.get_color())
 par1.axis["right"].label.set_color(p2.get_color())
 par2.axis["right"].label.set_color(p3.get_color())
 
-plt.draw()
 plt.show()

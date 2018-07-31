@@ -35,5 +35,4 @@ for i, im in enumerate([im1, im2, im3]):
     ax.imshow(im, origin="lower", vmin=vmin,
               vmax=vmax, interpolation="nearest")
 
-plt.draw()
 plt.show()

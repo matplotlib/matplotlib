@@ -7,7 +7,7 @@ An example of how to use wx or wxagg in an application with a custom toolbar.
 """
 
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg
+from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
 from matplotlib.backends.backend_wx import _load_bitmap
 from matplotlib.figure import Figure
 
@@ -16,26 +16,20 @@ import numpy as np
 import wx
 
 
-class MyNavigationToolbar(NavigationToolbar2WxAgg):
+class MyNavigationToolbar(NavigationToolbar):
     """
     Extend the default wx toolbar with your own event handlers
     """
     ON_CUSTOM = wx.NewId()
 
     def __init__(self, canvas, cankill):
-        NavigationToolbar2WxAgg.__init__(self, canvas)
+        NavigationToolbar.__init__(self, canvas)
 
         # for simplicity I'm going to reuse a bitmap from wx, you'll
         # probably want to add your own.
-        if 'phoenix' in wx.PlatformInfo:
-            self.AddTool(self.ON_CUSTOM, 'Click me',
-                         _load_bitmap('back.png'),
-                         'Activate custom contol')
-            self.Bind(wx.EVT_TOOL, self._on_custom, id=self.ON_CUSTOM)
-        else:
-            self.AddSimpleTool(self.ON_CUSTOM, _load_bitmap('back.png'),
-                               'Click me', 'Activate custom contol')
-            self.Bind(wx.EVT_TOOL, self._on_custom, id=self.ON_CUSTOM)
+        self.AddTool(self.ON_CUSTOM, 'Click me', _load_bitmap('back.png'),
+                     'Activate custom contol')
+        self.Bind(wx.EVT_TOOL, self._on_custom, id=self.ON_CUSTOM)
 
     def _on_custom(self, evt):
         # add some text to the axes in a random location in axes (0,1)

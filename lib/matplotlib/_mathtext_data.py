@@ -1,10 +1,6 @@
 """
 font data tables for truetype and afm computer modern fonts
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 latex_to_bakoma = {
     '\\__sqrt__'                 : ('cmex10', 0x70),
@@ -285,7 +281,7 @@ latex_to_standard = {
     r'\rho'                      : ('psyr', 114),
     r'\sigma'                    : ('psyr', 115),
     r'\tau'                      : ('psyr', 116),
-    '\\upsilon'                  : ('psyr', 117),
+    r'\upsilon'                  : ('psyr', 117),
     r'\varpi'                    : ('psyr', 118),
     r'\omega'                    : ('psyr', 119),
     r'\xi'                       : ('psyr', 120),
@@ -300,7 +296,7 @@ latex_to_standard = {
     r'\spadesuit'                : ('psyr', 170),
     r'\leftrightarrow'           : ('psyr', 171),
     r'\leftarrow'                : ('psyr', 172),
-    '\\uparrow'                  : ('psyr', 173),
+    r'\uparrow'                  : ('psyr', 173),
     r'\rightarrow'               : ('psyr', 174),
     r'\downarrow'                : ('psyr', 175),
     r'\pm'                       : ('psyr', 176),
@@ -339,12 +335,12 @@ latex_to_standard = {
     r'\surd'                     : ('psyr', 214),
     r'\__sqrt__'                 : ('psyr', 214),
     r'\cdot'                     : ('psyr', 215),
-    '\\urcorner'                 : ('psyr', 216),
+    r'\urcorner'                 : ('psyr', 216),
     r'\vee'                      : ('psyr', 217),
     r'\wedge'                    : ('psyr', 218),
     r'\Leftrightarrow'           : ('psyr', 219),
     r'\Leftarrow'                : ('psyr', 220),
-    '\\Uparrow'                  : ('psyr', 221),
+    r'\Uparrow'                  : ('psyr', 221),
     r'\Rightarrow'               : ('psyr', 222),
     r'\Downarrow'                : ('psyr', 223),
     r'\Diamond'                  : ('psyr', 224),
@@ -366,7 +362,7 @@ latex_to_standard = {
     r'\slash'                    : ('psyr', 0o57),
     r'\Lamda'                    : ('psyr', 0o114),
     r'\neg'                      : ('psyr', 0o330),
-    '\\Upsilon'                  : ('psyr', 0o241),
+    r'\Upsilon'                  : ('psyr', 0o241),
     r'\rightbrace'               : ('psyr', 0o175),
     r'\rfloor'                   : ('psyr', 0o373),
     r'\lambda'                   : ('psyr', 0o154),
@@ -1752,7 +1748,7 @@ type12uni = {
     'uni044B'        : 1099
 }
 
-uni2type1 = dict(((v,k) for k,v in six.iteritems(type12uni)))
+uni2type1 = {v: k for k, v in type12uni.items()}
 
 tex2uni = {
     'widehat'                  : 0x0302,

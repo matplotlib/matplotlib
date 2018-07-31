@@ -14,7 +14,7 @@ from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 
 
-needs_usetex = pytest.mark.xfail(
+needs_usetex = pytest.mark.skipif(
     not checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
@@ -28,7 +28,7 @@ def test_use14corefonts():
     rcParams['font.sans-serif'] = ['Helvetica']
     rcParams['pdf.compression'] = 0
 
-    text = u'''A three-line text positioned just above a blue line
+    text = '''A three-line text positioned just above a blue line
 and containing some French characters and the euro symbol:
 "Merci pépé pour les 10 €"'''
 

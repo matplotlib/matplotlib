@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Module that allows plotting of string "category" data.  i.e.
 ``plot(['d', 'f', 'a'],[1, 2, 3])`` will plot three points with x-axis
@@ -11,32 +10,21 @@ The module uses Matplotlib's `matplotlib.units` mechanism to convert from
 strings to integers, provides a tick locator and formatter, and the
 class:`.UnitData` that creates and stores the string-to-integer mapping.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 from collections import OrderedDict
 import itertools
-
-import six
-
 
 import numpy as np
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
 
-# np 1.6/1.7 support
-from distutils.version import LooseVersion
-
-VALID_TYPES = tuple(set(six.string_types +
-                        (bytes, six.text_type, np.str_, np.bytes_)))
-
 
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
         """Converts strings in value to floats using
-        mapping information store in the  unit object
+        mapping information store in the unit object.
 
         Parameters
         ----------
@@ -58,7 +46,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         # pass through sequence of non binary numbers
         if all((units.ConversionInterface.is_numlike(v) and
-                not isinstance(v, VALID_TYPES)) for v in values):
+                not isinstance(v, (str, bytes))) for v in values):
             return np.asarray(values, dtype=float)
 
         # force an update so it also does type checking
@@ -96,7 +84,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(data, axis):
-        """ Sets and updates the :class:`~matplotlib.Axis.axis~ units
+        """Sets and updates the :class:`~matplotlib.Axis.axis` units.
 
         Parameters
         ----------
@@ -156,36 +144,35 @@ class StrCategoryFormatter(ticker.Formatter):
 
     @staticmethod
     def _text(value):
-        """Converts text values into `utf-8` or `ascii` strings
+        """Converts text values into utf-8 or ascii strings.
         """
-        if LooseVersion(np.__version__) < LooseVersion('1.7.0'):
-            if (isinstance(value, (six.text_type, np.unicode))):
-                value = value.encode('utf-8', 'ignore').decode('utf-8')
-        if isinstance(value, (np.bytes_, six.binary_type)):
+        if isinstance(value, bytes):
             value = value.decode(encoding='utf-8')
-        elif not isinstance(value, (np.str_, six.string_types)):
+        elif not isinstance(value, str):
             value = str(value)
         return value
 
 
 class UnitData(object):
     def __init__(self, data=None):
-        """Create mapping between unique categorical values
-        and integer identifiers
+        """
+        Create mapping between unique categorical values and integer ids.
+
+        Parameters
         ----------
         data: iterable
               sequence of string values
         """
         self._mapping = OrderedDict()
-        self._counter = itertools.count(start=0)
+        self._counter = itertools.count()
         if data is not None:
             self.update(data)
 
     def update(self, data):
         """Maps new values to integer identifiers.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         data: iterable
               sequence of string values
 
@@ -197,7 +184,7 @@ class UnitData(object):
         data = np.atleast_1d(np.array(data, dtype=object))
 
         for val in OrderedDict.fromkeys(data):
-            if not isinstance(val, VALID_TYPES):
+            if not isinstance(val, (str, bytes)):
                 raise TypeError("{val!r} is not a string".format(val=val))
             if val not in self._mapping:
                 self._mapping[val] = next(self._counter)
@@ -206,6 +193,5 @@ class UnitData(object):
 # Connects the convertor to matplotlib
 units.registry[str] = StrCategoryConverter()
 units.registry[np.str_] = StrCategoryConverter()
-units.registry[six.text_type] = StrCategoryConverter()
 units.registry[bytes] = StrCategoryConverter()
 units.registry[np.bytes_] = StrCategoryConverter()

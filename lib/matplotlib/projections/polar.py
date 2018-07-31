@@ -1,8 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from collections import OrderedDict
 import types
 
@@ -636,8 +631,8 @@ class RadialTick(maxis.YTick):
             text_angle = user_angle
         if self.label1On:
             if full:
-                ha = 'left'
-                va = 'bottom'
+                ha = self.label1.get_ha()
+                va = self.label1.get_va()
             else:
                 ha, va = self._determine_anchor(mode, angle, direction > 0)
             self.label1.set_ha(ha)
@@ -843,16 +838,17 @@ class PolarAxes(Axes):
     """
     name = 'polar'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args,
+                 theta_offset=0, theta_direction=1, rlabel_position=22.5,
+                 **kwargs):
         """
         Create a new Polar Axes for a polar plot.
         """
-        self._default_theta_offset = kwargs.pop('theta_offset', 0)
-        self._default_theta_direction = kwargs.pop('theta_direction', 1)
-        self._default_rlabel_position = np.deg2rad(
-            kwargs.pop('rlabel_position', 22.5))
+        self._default_theta_offset = theta_offset
+        self._default_theta_direction = theta_direction
+        self._default_rlabel_position = np.deg2rad(rlabel_position)
 
-        Axes.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
@@ -1225,37 +1221,40 @@ class PolarAxes(Axes):
     def set_rticks(self, *args, **kwargs):
         return Axes.set_yticks(self, *args, **kwargs)
 
-    @docstring.dedent_interpd
-    def set_thetagrids(self, angles, labels=None, frac=None, fmt=None,
-                       **kwargs):
+    def set_thetagrids(self, angles, labels=None, fmt=None, **kwargs):
         """
-        Set the angles at which to place the theta grids (these
-        gridlines are equal along the theta dimension).  *angles* is in
-        degrees.
+        Set the theta gridlines in a polar plot.
 
-        *labels*, if not None, is a ``len(angles)`` list of strings of
-        the labels to use at each angle.
+        Parameters
+        ----------
+        angles : tuple with floats, degrees
+            The angles of the theta gridlines.
 
-        If *labels* is None, the labels will be ``fmt %% angle``
+        labels : tuple with strings or None
+            The labels to use at each theta gridline. The
+            `.projections.polar.ThetaFormatter` will be used if None.
 
-        *frac* is the fraction of the polar axes radius at which to
-        place the label (1 is the edge). e.g., 1.05 is outside the axes
-        and 0.95 is inside the axes.
+        fmt : str or None
+            Format string used in `matplotlib.ticker.FormatStrFormatter`.
+            For example '%f'. Note that the angle that is used is in
+            radians.
 
-        Return value is a list of tuples (*line*, *label*), where
-        *line* is :class:`~matplotlib.lines.Line2D` instances and the
-        *label* is :class:`~matplotlib.text.Text` instances.
+        Returns
+        -------
+        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+            *lines* are the theta gridlines and *labels* are the tick labels.
 
-        kwargs are optional text properties for the labels:
+        Other Parameters
+        ----------------
+        **kwargs
+            *kwargs* are optional `~.Text` properties for the labels.
 
-        %(Text)s
-
-        ACCEPTS: sequence of floats
+        See Also
+        --------
+        .PolarAxes.set_rgrids
+        .Axis.get_gridlines
+        .Axis.get_ticklabels
         """
-        if frac is not None:
-            cbook.warn_deprecated('2.1', name='frac', obj_type='parameter',
-                                  alternative='tick padding via '
-                                              'Axes.tick_params')
 
         # Make sure we take into account unitized data
         angles = self.convert_yunits(angles)
@@ -1269,29 +1268,42 @@ class PolarAxes(Axes):
             t.update(kwargs)
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
 
-    @docstring.dedent_interpd
     def set_rgrids(self, radii, labels=None, angle=None, fmt=None,
                    **kwargs):
         """
-        Set the radial locations and labels of the *r* grids.
+        Set the radial gridlines on a polar plot.
 
-        The labels will appear at radial distances *radii* at the
-        given *angle* in degrees.
+        Parameters
+        ----------
+        radii : tuple with floats
+            The radii for the radial gridlines
 
-        *labels*, if not None, is a ``len(radii)`` list of strings of the
-        labels to use at each radius.
+        labels : tuple with strings or None
+            The labels to use at each radial gridline. The
+            `matplotlib.ticker.ScalarFormatter` will be used if None.
 
-        If *labels* is None, the built-in formatter will be used.
+        angle : float
+            The angular position of the radius labels in degrees.
 
-        Return value is a list of tuples (*line*, *label*), where
-        *line* is :class:`~matplotlib.lines.Line2D` instances and the
-        *label* is :class:`~matplotlib.text.Text` instances.
+        fmt : str or None
+            Format string used in `matplotlib.ticker.FormatStrFormatter`.
+            For example '%f'.
 
-        kwargs are optional text properties for the labels:
+        Returns
+        -------
+        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+            *lines* are the radial gridlines and *labels* are the tick labels.
 
-        %(Text)s
+        Other Parameters
+        ----------------
+        **kwargs
+            *kwargs* are optional `~.Text` properties for the labels.
 
-        ACCEPTS: sequence of floats
+        See Also
+        --------
+        .PolarAxes.set_thetagrids
+        .Axis.get_gridlines
+        .Axis.get_ticklabels
         """
         # Make sure we take into account unitized data
         radii = self.convert_xunits(radii)
@@ -1358,7 +1370,7 @@ class PolarAxes(Axes):
         if button == 1:
             epsilon = np.pi / 45.0
             t, r = self.transData.inverted().transform_point((x, y))
-            if t >= angle - epsilon and t <= angle + epsilon:
+            if angle - epsilon <= t <= angle + epsilon:
                 mode = 'drag_r_labels'
         elif button == 3:
             mode = 'zoom'

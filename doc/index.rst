@@ -1,5 +1,7 @@
 :orphan:
 
+.. title:: Matplotlib: Python plotting
+
 Matplotlib is a Python 2D plotting library which produces publication quality
 figures in a variety of hardcopy formats and interactive environments across
 platforms.  Matplotlib can be used in Python scripts, the Python and IPython_
@@ -140,7 +142,7 @@ require changes to your existing code is logged in the :doc:`API changes
 Toolkits
 ========
 
-Matplotlib ships with several add-on :doc:`toolkits <mpl_toolkits/index>`,
+Matplotlib ships with several add-on :doc:`toolkits <api/toolkits/index>`,
 including 3d plotting with `mplot3d`, axes helpers in `axes_grid1` and axis
 helpers in `axisartist`.
 

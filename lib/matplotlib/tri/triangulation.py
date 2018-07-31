@@ -1,11 +1,7 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import numpy as np
 
 import matplotlib._tri as _tri
 import matplotlib._qhull as _qhull
-import numpy as np
 
 
 class Triangulation(object):
@@ -16,19 +12,23 @@ class Triangulation(object):
 
     Parameters
     ----------
-    x, y : array_like of shape (npoints)
+    x, y : array-like of shape (npoints)
         Coordinates of grid points.
     triangles : integer array_like of shape (ntri, 3), optional
         For each triangle, the indices of the three points that make
         up the triangle, ordered in an anticlockwise manner.  If not
         specified, the Delaunay triangulation is calculated.
-    mask : boolean array_like of shape (ntri), optional
+    mask : boolean array-like of shape (ntri), optional
         Which triangles are masked out.
 
     Attributes
     ----------
-    `edges`
-    `neighbors`
+    edges : int array of shape (nedges, 2)
+        See `~.Triangulation.edges`
+    neighbors : int array of shape (ntri, 3)
+        See `~.Triangulation.neighbors`
+    mask : bool array of shape (ntri, 3)
+        Masked out triangles.
     is_delaunay : bool
         Whether the Triangulation is a calculated Delaunay
         triangulation (where `triangles` was not specified) or not.
@@ -80,29 +80,32 @@ class Triangulation(object):
     def calculate_plane_coefficients(self, z):
         """
         Calculate plane equation coefficients for all unmasked triangles from
-        the point (x,y) coordinates and specified z-array of shape (npoints).
-        Returned array has shape (npoints,3) and allows z-value at (x,y)
+        the point (x, y) coordinates and specified z-array of shape (npoints).
+        The returned array has shape (npoints, 3) and allows z-value at (x, y)
         position in triangle tri to be calculated using
-        z = array[tri,0]*x + array[tri,1]*y + array[tri,2].
+        ``z = array[tri, 0] * x  + array[tri, 1] * y + array[tri, 2]``.
         """
         return self.get_cpp_triangulation().calculate_plane_coefficients(z)
 
     @property
     def edges(self):
         """
-        Return integer array of shape (nedges,2) containing all edges of
+        Return integer array of shape (nedges, 2) containing all edges of
         non-masked triangles.
 
-        Each edge is the start point index and end point index.  Each
-        edge (start,end and end,start) appears only once.
+        Each row defines an edge by it's start point index and end point
+        index.  Each edge appears only once, i.e. for an edge between points
+        *i*  and *j*, there will only be either *(i, j)* or *(j, i)*.
         """
         if self._edges is None:
             self._edges = self.get_cpp_triangulation().get_edges()
         return self._edges
 
     def get_cpp_triangulation(self):
-        # Return the underlying C++ Triangulation object, creating it
-        # if necessary.
+        """
+        Return the underlying C++ Triangulation object, creating it
+        if necessary.
+        """
         if self._cpp_triangulation is None:
             self._cpp_triangulation = _tri.Triangulation(
                 self.x, self.y, self.triangles, self.mask, self._edges,
@@ -141,7 +144,7 @@ class Triangulation(object):
             # Check triangles in kwargs then args.
             triangles = kwargs.pop('triangles', None)
             from_args = False
-            if triangles is None and len(args) > 0:
+            if triangles is None and args:
                 triangles = args[0]
                 from_args = True
 
@@ -179,7 +182,7 @@ class Triangulation(object):
     @property
     def neighbors(self):
         """
-        Return integer array of shape (ntri,3) containing neighbor
+        Return integer array of shape (ntri, 3) containing neighbor
         triangles.
 
         For each triangle, the indices of the three triangles that

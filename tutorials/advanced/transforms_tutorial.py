@@ -18,42 +18,58 @@ description of that system. In the `Transformation Object` column,
 ``ax`` is a :class:`~matplotlib.axes.Axes` instance, and ``fig`` is a
 :class:`~matplotlib.figure.Figure` instance.
 
-+-----------+-----------------------------+-----------------------------------+
-|Coordinates|Transformation object        |Description                        |
-+-----------+-----------------------------+-----------------------------------+
-|"data"     |``ax.transData``             |The coordinate system for the data,|
-|           |                             |controlled by xlim and ylim.       |
-+-----------+-----------------------------+-----------------------------------+
-|"axes"     |``ax.transAxes``             |The coordinate system of the       |
-|           |                             |`.Axes`; (0, 0) is bottom left of  |
-|           |                             |the axes, and (1, 1) is top right  |
-|           |                             |of the axes.                       |
-+-----------+-----------------------------+-----------------------------------+
-|"figure"   |``fig.transFigure``          |The coordinate system of the       |
-|           |                             |`.Figure`; (0, 0) is bottom left   |
-|           |                             |of the figure, and (1, 1) is top   |
-|           |                             |right of the figure.               |
-+-----------+-----------------------------+-----------------------------------+
-|"display"  |``None``, or                 |The pixel coordinate system of the |
-|           |``IdentityTransform()``      |display; (0, 0) is bottom left of  |
-|           |                             |the display, and (width, height) is|
-|           |                             |top right of the display in pixels.|
-+-----------+-----------------------------+-----------------------------------+
-|"xaxis",   |``ax.get_xaxis_transform()``,|Blended coordinate systems; use    |
-|"yaxis"    |``ax.get_yaxis_transform()`` |data coordinates on one of the axis|
-|           |                             |and axes coordinates on the other. |
-+-----------+-----------------------------+-----------------------------------+
++----------------+-----------------------------+-----------------------------------+
+|Coordinates     |Transformation object        |Description                        |
++================+=============================+===================================+
+|"data"          |``ax.transData``             |The coordinate system for the data,|
+|                |                             |controlled by xlim and ylim.       |
++----------------+-----------------------------+-----------------------------------+
+|"axes"          |``ax.transAxes``             |The coordinate system of the       |
+|                |                             |`~matplotlib.axes.Axes`; (0, 0)    |
+|                |                             |is bottom left of the axes, and    |
+|                |                             |(1, 1) is top right of the axes.   |
++----------------+-----------------------------+-----------------------------------+
+|"figure"        |``fig.transFigure``          |The coordinate system of the       |
+|                |                             |`.Figure`; (0, 0) is bottom left   |
+|                |                             |of the figure, and (1, 1) is top   |
+|                |                             |right of the figure.               |
++----------------+-----------------------------+-----------------------------------+
+|"figure-inches" |``fig.dpi_scale_trans``      |The coordinate system of the       |
+|                |                             |`.Figure` in inches; (0, 0) is     |
+|                |                             |bottom left of the figure, and     |
+|                |                             |(width, height) is the top right   |
+|                |                             |of the figure in inches.           |
++----------------+-----------------------------+-----------------------------------+
+|"display"       |``None``, or                 |The pixel coordinate system of the |
+|                |``IdentityTransform()``      |display window; (0, 0) is bottom   |
+|                |                             |left of the window, and (width,    |
+|                |                             |height) is top right of the        |
+|                |                             |display window in pixels.          |
++----------------+-----------------------------+-----------------------------------+
+|"xaxis",        |``ax.get_xaxis_transform()``,|Blended coordinate systems; use    |
+|"yaxis"         |``ax.get_yaxis_transform()`` |data coordinates on one of the axis|
+|                |                             |and axes coordinates on the other. |
++----------------+-----------------------------+-----------------------------------+
 
 All of the transformation objects in the table above take inputs in
-their coordinate system, and transform the input to the `display`
-coordinate system.  That is why the `display` coordinate system has
-`None` for the `Transformation Object` column -- it already is in
+their coordinate system, and transform the input to the ``display``
+coordinate system.  That is why the ``display`` coordinate system has
+``None`` for the ``Transformation Object`` column -- it already is in
 display coordinates.  The transformations also know how to invert
-themselves, to go from `display` back to the native coordinate system.
+themselves, to go from ``display`` back to the native coordinate system.
 This is particularly useful when processing events from the user
 interface, which typically occur in display space, and you want to
 know where the mouse click or key-press occurred in your data
 coordinate system.
+
+Note that specifying objects in ``display`` coordinates will change their
+location if the ``dpi`` of the figure changes.  This can cause confusion when
+printing or changing screen resolution, because the object can change location
+and size.  Therefore it is most common
+for artists placed in an axes or figure to have their transform set to
+something *other* than the `~.transforms.IdentityTransform()`; the default when
+an artist is placed on an axes using `~.Axes.axes.add_artist` is for the
+transform to be ``ax.transData``.
 
 .. _data-coords:
 
@@ -71,12 +87,12 @@ figure below, the data limits stretch from 0 to 10 on the x-axis, and
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 x = np.arange(0, 10, 0.005)
 y = np.exp(-x/2.) * np.sin(2*np.pi*x)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.set_xlim(0, 10)
 ax.set_ylim(-1, 1)
@@ -124,8 +140,7 @@ plt.show()
 x = np.arange(0, 10, 0.005)
 y = np.exp(-x/2.) * np.sin(2*np.pi*x)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.set_xlim(0, 10)
 ax.set_ylim(-1, 1)
@@ -143,13 +158,11 @@ ax.annotate('data = (%.1f, %.1f)' % (xdata, ydata),
             (xdata, ydata), xytext=(-2*offset, offset), textcoords='offset points',
             bbox=bbox, arrowprops=arrowprops)
 
-
 disp = ax.annotate('display = (%.1f, %.1f)' % (xdisplay, ydisplay),
                    (xdisplay, ydisplay), xytext=(0.5*offset, -offset),
                    xycoords='figure pixels',
                    textcoords='offset points',
                    bbox=bbox, arrowprops=arrowprops)
-
 
 plt.show()
 
@@ -229,20 +242,17 @@ plt.show()
 # move, but the circle will remain fixed because it is not in `data`
 # coordinates and will always remain at the center of the axes.
 
-import matplotlib.patches as patches
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 x, y = 10*np.random.rand(2, 1000)
-ax.plot(x, y, 'go')  # plot some data in data coordinates
+ax.plot(x, y, 'go', alpha=0.2)  # plot some data in data coordinates
 
-circ = patches.Circle((0.5, 0.5), 0.25, transform=ax.transAxes,
-                      facecolor='yellow', alpha=0.5)
+circ = mpatches.Circle((0.5, 0.5), 0.25, transform=ax.transAxes,
+                       facecolor='blue', alpha=0.75)
 ax.add_patch(circ)
 plt.show()
 
 ###############################################################################
-# .. blended_transformations:
+# .. _blended_transformations:
 #
 # Blended transformations
 # =======================
@@ -265,9 +275,7 @@ plt.show()
 
 import matplotlib.transforms as transforms
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-
+fig, ax = plt.subplots()
 x = np.random.randn(1000)
 
 ax.hist(x, 30)
@@ -281,7 +289,7 @@ trans = transforms.blended_transform_factory(
 # highlight the 1..2 stddev region with a span.
 # We want x to be in data coordinates and y to
 # span from 0..1 in axes coords
-rect = patches.Rectangle((1, 0), width=1, height=1,
+rect = mpatches.Rectangle((1, 0), width=1, height=1,
                          transform=trans, color='yellow',
                          alpha=0.5)
 
@@ -303,12 +311,99 @@ plt.show()
 #
 #     trans = ax.get_xaxis_transform()
 #
-# .. offset-transforms-shadow:
+# .. _transforms-fig-scale-dpi:
+#
+# Plotting in physical units
+# ==========================
+#
+# Sometimes we want an object to be a certain physical size on the plot.
+# Here we draw the same circle as above, but in physical units.  If done
+# interactively, you can see that changing the size of the figure does
+# not change the offset of the circle from the lower-left corner,
+# does not change its size, and the circle remains a circle regardless of
+# the aspect ratio of the axes.
+
+fig, ax = plt.subplots(figsize=(5, 4))
+x, y = 10*np.random.rand(2, 1000)
+ax.plot(x, y*10., 'go', alpha=0.2)  # plot some data in data coordinates
+# add a circle in fixed-units
+circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
+                       facecolor='blue', alpha=0.75)
+ax.add_patch(circ)
+plt.show()
+
+###############################################################################
+# If we change the figure size, the circle does not change its absolute
+# position and is cropped.
+
+fig, ax = plt.subplots(figsize=(7, 2))
+x, y = 10*np.random.rand(2, 1000)
+ax.plot(x, y*10., 'go', alpha=0.2)  # plot some data in data coordinates
+# add a circle in fixed-units
+circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
+                       facecolor='blue', alpha=0.75)
+ax.add_patch(circ)
+plt.show()
+
+###############################################################################
+# Another use is putting a patch with a set physical dimension around a
+# data point on the axes.  Here we add together two transforms.  The
+# first sets the scaling of how large the ellipse should be and the second
+# sets its position.  The ellipse is then placed at the origin, and then
+# we use the helper transform :class:`~matplotlib.transforms.ScaledTranslation`
+# to move it
+# to the right place in the ``ax.transData`` coordinate system.
+# This helper is instantiated with::
+#
+#   trans = ScaledTranslation(xt, yt, scale_trans)
+#
+# where `xt` and `yt` are the translation offsets, and `scale_trans` is
+# a transformation which scales `xt` and `yt` at transformation time
+# before applying the offsets.
+#
+# Note the use of the plus operator on the transforms below.
+# This code says: first apply the scale transformation ``fig.dpi_scale_trans``
+# to make the ellipse the proper size, but still centered at (0, 0),
+# and then translate the data to `xdata[0]` and `ydata[0]` in data space.
+#
+# In interactive use, the ellipse stays the same size even if the
+# axes limits are changed via zoom.
+#
+
+fig, ax = plt.subplots()
+xdata, ydata = (0.2, 0.7), (0.5, 0.5)
+ax.plot(xdata, ydata, "o")
+ax.set_xlim((0, 1))
+
+trans = (fig.dpi_scale_trans +
+         transforms.ScaledTranslation(xdata[0], ydata[0], ax.transData))
+
+# plot an ellipse around the point that is 150 x 130 points in diameter...
+circle = mpatches.Ellipse((0, 0), 150/72, 130/72, angle=40,
+                          fill=None, transform=trans)
+ax.add_patch(circle)
+plt.show()
+
+###############################################################################
+# .. note::
+#
+#   The order of transformation matters.  Here the ellipse
+#   is given the right dimensions in display space *first* and then moved
+#   in data space to the correct spot.
+#   If we had done the ``ScaledTranslation`` first, then
+#   ``xdata[0]`` and ``ydata[0]`` would
+#   first be transformed to ``display`` coordinates (``[ 358.4  475.2]`` on
+#   a 200-dpi monitor) and then those coordinates
+#   would be scaled by ``fig.dpi_scale_trans`` pushing the center of
+#   the ellipse well off the screen (i.e. ``[ 71680.  95040.]``).
+#
+# .. _offset-transforms-shadow:
 #
 # Using offset transforms to create a shadow effect
 # =================================================
 #
-# One use of transformations is to create a new transformation that is
+# Another use of :class:`~matplotlib.transforms.ScaledTranslation` is to create
+# a new transformation that is
 # offset from another transformation, e.g., to place one object shifted a
 # bit relative to another object.  Typically you want the shift to be in
 # some physical dimension, like points or inches rather than in data
@@ -318,38 +413,17 @@ plt.show()
 # One use for an offset is to create a shadow effect, where you draw one
 # object identical to the first just to the right of it, and just below
 # it, adjusting the zorder to make sure the shadow is drawn first and
-# then the object it is shadowing above it.  The transforms module has a
-# helper transformation
-# :class:`~matplotlib.transforms.ScaledTranslation`.  It is
-# instantiated with::
+# then the object it is shadowing above it.
 #
-#   trans = ScaledTranslation(xt, yt, scale_trans)
-#
-# where `xt` and `yt` are the translation offsets, and `scale_trans` is
-# a transformation which scales `xt` and `yt` at transformation time
-# before applying the offsets.  A typical use case is to use the figure
-# ``fig.dpi_scale_trans`` transformation for the `scale_trans` argument,
-# to first scale `xt` and `yt` specified in points to `display` space
-# before doing the final offset.  The dpi and inches offset is a
-# common-enough use case that we have a special helper function to
-# create it in :func:`matplotlib.transforms.offset_copy`, which returns
-# a new transform with an added offset.  But in the example below, we'll
-# create the offset transform ourselves.  Note the use of the plus
-# operator in::
-#
-#     offset = transforms.ScaledTranslation(dx, dy,
-#       fig.dpi_scale_trans)
-#     shadow_transform = ax.transData + offset
-#
-# showing that can chain transformations using the addition operator.
-# This code says: first apply the data transformation ``ax.transData``
-# and then translate the data by `dx` and `dy` points.  In typography,
+# Here we apply the transforms in the *opposite* order to the use of
+# :class:`~matplotlib.transforms.ScaledTranslation` above. The plot is
+# first made in data units (``ax.transData``) and then shifted by
+# ``dx`` and ``dy`` points using `fig.dpi_scale_trans`.  (In typography,
 # a`point <https://en.wikipedia.org/wiki/Point_%28typography%29>`_ is
 # 1/72 inches, and by specifying your offsets in points, your figure
-# will look the same regardless of the dpi resolution it is saved in.
+# will look the same regardless of the dpi resolution it is saved in.)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 # make a simple sine wave
 x = np.arange(0., 2., 0.01)
@@ -370,8 +444,20 @@ ax.plot(x, y, lw=3, color='gray',
 ax.set_title('creating a shadow effect with an offset transform')
 plt.show()
 
+
 ###############################################################################
-# .. transformation-pipeline:
+# .. note::
+#
+#   The dpi and inches offset is a
+#   common-enough use case that we have a special helper function to
+#   create it in :func:`matplotlib.transforms.offset_copy`, which returns
+#   a new transform with an added offset. So above we could have done::
+#
+#      shadow_transform = transforms.offset_copy(ax.transData,
+#               fig=fig, dx, dy, units='inches')
+#
+#
+# .. _transformation-pipeline:
 #
 # The transformation pipeline
 # ===========================
@@ -467,4 +553,4 @@ plt.show()
 # see how to make your own, since Matplotlib supports extensible axes
 # and projections.  Michael Droettboom has provided a nice tutorial
 # example of creating a Hammer projection axes; see
-# :ref:`sphx_glr_gallery_api_custom_projection_example.py`.
+# :doc:`/gallery/misc/custom_projection`.

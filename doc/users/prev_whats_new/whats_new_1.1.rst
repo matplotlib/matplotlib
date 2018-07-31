@@ -17,11 +17,12 @@ Sankey Diagrams
 
 Kevin Davies has extended Yannick Copin's original Sankey example into a module
 (:mod:`~matplotlib.sankey`) and provided new examples
-(:ref:`sphx_glr_gallery_api_sankey_basics.py`, :ref:`sphx_glr_gallery_api_sankey_links.py`,
-:ref:`sphx_glr_gallery_api_sankey_rankine.py`).
+(:doc:`/gallery/specialty_plots/sankey_basics`,
+:doc:`/gallery/specialty_plots/sankey_links`,
+:doc:`/gallery/specialty_plots/sankey_rankine`).
 
-.. figure:: ../../gallery/api/images/sphx_glr_sankey_rankine_001.png
-   :target: ../../gallery/api/sankey_rankine.html
+.. figure:: ../../gallery/specialty_plots/images/sphx_glr_sankey_rankine_001.png
+   :target: ../../gallery/specialty_plots/sankey_rankine.html
    :align: center
    :scale: 50
 
@@ -87,7 +88,7 @@ The usage of this functionality can be as simple as ::
 
 and it will adjust the spacing between subplots
 so that the axis labels do not overlap with neighboring subplots. A
-:ref:`sphx_glr_tutorials_intermediate_tight_layout_guide.py` has been created to show how to use
+:doc:`/tutorials/intermediate/tight_layout_guide` has been created to show how to use
 this new tool.
 
 PyQT4, PySide, and IPython
@@ -116,7 +117,7 @@ legends for complex plots such as :meth:`~matplotlib.pyplot.stem` plots
 will now display correctly. Second, the 'best' placement of a legend has
 been improved in the presence of NANs.
 
-See the :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` for more detailed explanation and
+See the :doc:`/tutorials/intermediate/legend_guide` for more detailed explanation and
 examples.
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png

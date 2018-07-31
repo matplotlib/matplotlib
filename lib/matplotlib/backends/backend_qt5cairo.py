@@ -1,5 +1,4 @@
-
-import six
+import ctypes
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_qt5 import QtCore, QtGui, _BackendQT5, FigureCanvasQT
@@ -32,13 +31,15 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
                               QtGui.QImage.Format_ARGB32_Premultiplied)
         # Adjust the buf reference count to work around a memory leak bug in
         # QImage under PySide on Python 3.
-        if QT_API == 'PySide' and six.PY3:
-            import ctypes
+        if QT_API == 'PySide':
             ctypes.c_long.from_address(id(buf)).value = 1
         if hasattr(qimage, 'setDevicePixelRatio'):
             # Not available on Qt4 or some older Qt5.
             qimage.setDevicePixelRatio(dpi_ratio)
         painter = QtGui.QPainter(self)
+        if self._erase_before_paint:
+            painter.eraseRect(self.rect())
+            self._erase_before_paint = False
         painter.drawImage(0, 0, qimage)
         self._draw_rect_callback(painter)
         painter.end()

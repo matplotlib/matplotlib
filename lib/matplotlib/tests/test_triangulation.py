@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
@@ -564,14 +562,14 @@ def test_triinterpcubic_cg_solver():
 def test_triinterpcubic_geom_weights():
     # Tests to check computation of weights for _DOF_estimator_geom:
     # The weight sum per triangle can be 1. (in case all angles < 90 degrees)
-    # or (2*w_i) where w_i = 1-alpha_i/np.pi is the weight of apex i ; alpha_i
+    # or (2*w_i) where w_i = 1-alpha_i/np.pi is the weight of apex i; alpha_i
     # is the apex angle > 90 degrees.
     (ax, ay) = (0., 1.687)
     x = np.array([ax, 0.5*ax, 0., 1.])
     y = np.array([ay, -ay, 0., 0.])
     z = np.zeros(4, dtype=np.float64)
     triangles = [[0, 2, 3], [1, 3, 2]]
-    sum_w = np.zeros([4, 2])  # 4 possibilities ; 2 triangles
+    sum_w = np.zeros([4, 2])  # 4 possibilities; 2 triangles
     for theta in np.linspace(0., 2*np.pi, 14):  # rotating the figure...
         x_rot = np.cos(theta)*x + np.sin(theta)*y
         y_rot = -np.sin(theta)*x + np.cos(theta)*y
@@ -596,7 +594,7 @@ def test_triinterp_colinear():
     #
     # Note that the LinearTriInterpolator and the CubicTriInterpolator with
     # kind='min_E' or 'geom' still pass a linear patch test.
-    # We also test interpolation inside a  flat triangle, by forcing
+    # We also test interpolation inside a flat triangle, by forcing
     # *tri_index* in a call to :meth:`_interpolate_multikeys`.
 
     # If +ve, triangulation is OK, if -ve triangulation invalid,
@@ -606,7 +604,7 @@ def test_triinterp_colinear():
     x0 = np.array([1.5, 0,  1,  2, 3, 1.5,   1.5])
     y0 = np.array([-1,  0,  0,  0, 0, delta, 1])
 
-    # We test different affine transformations of the initial figure ; to
+    # We test different affine transformations of the initial figure; to
     # avoid issues related to round-off errors we only use integer
     # coefficients (otherwise the Triangulation might become invalid even with
     # delta == 0).

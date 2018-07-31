@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef _IMAGE_H
-#define _IMAGE_H
+#ifndef MPL_IMAGE_H
+#define MPL_IMAGE_H
 
 #include <vector>
 
@@ -21,8 +21,6 @@ void _bin_indices_middle_linear(float *arows,
                                 float dy,
                                 float y_min);
 void _bin_indices(int *irows, int nrows, const double *y, unsigned long ny, double sc, double offs);
-void _bin_indices_linear(
-    float *arows, int *irows, int nrows, double *y, unsigned long ny, double sc, double offs);
 
 template <class CoordinateArray, class ColorArray, class OutputArray>
 void pcolor(CoordinateArray &x,

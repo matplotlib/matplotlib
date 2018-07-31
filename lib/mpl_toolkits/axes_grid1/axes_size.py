@@ -10,11 +10,6 @@ floats. Take a look at the Divider class to see how these two
 values are used.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from numbers import Number
 
 from matplotlib.axes import Axes
@@ -58,7 +53,7 @@ class AddList(_Base):
 
 
 class Fixed(_Base):
-    "Simple fixed size  with absolute part = *fixed_size* and relative part = 0"
+    "Simple fixed size with absolute part = *fixed_size* and relative part = 0"
     def __init__(self, fixed_size):
         self.fixed_size = fixed_size
 
@@ -273,7 +268,7 @@ def from_any(size, fraction_ref=None):
     """
     if isinstance(size, Number):
         return Fixed(size)
-    elif isinstance(size, six.string_types):
+    elif isinstance(size, str):
         if size[-1] == "%":
             return Fraction(float(size[:-1]) / 100, fraction_ref)
 
@@ -295,17 +290,17 @@ class SizeFromFunc(_Base):
 
 
 class GetExtentHelper(object):
-    def _get_left(tight_bbox, axes_bbox):
-        return axes_bbox.xmin - tight_bbox.xmin
+    def _get_left(self, axes_bbox):
+        return axes_bbox.xmin - self.xmin
 
-    def _get_right(tight_bbox, axes_bbox):
-        return tight_bbox.xmax - axes_bbox.xmax
+    def _get_right(self, axes_bbox):
+        return self.xmax - axes_bbox.xmax
 
-    def _get_bottom(tight_bbox, axes_bbox):
-        return axes_bbox.ymin - tight_bbox.ymin
+    def _get_bottom(self, axes_bbox):
+        return axes_bbox.ymin - self.ymin
 
-    def _get_top(tight_bbox, axes_bbox):
-        return tight_bbox.ymax - axes_bbox.ymax
+    def _get_top(self, axes_bbox):
+        return self.ymax - axes_bbox.ymax
 
     _get_func_map = dict(left=_get_left,
                          right=_get_right,

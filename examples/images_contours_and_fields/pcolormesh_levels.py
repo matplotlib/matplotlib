@@ -4,11 +4,13 @@ pcolormesh
 ==========
 
 Shows how to combine Normalization and Colormap instances to draw
-"levels" in pcolor, pcolormesh and imshow type plots in a similar
+"levels" in :meth:`~.axes.Axes.pcolor`, :meth:`~.axes.Axes.pcolormesh`
+and :meth:`~.axes.Axes.imshow` type plots in a similar
 way to the levels keyword argument to contour/contourf.
 
 """
 
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
@@ -55,3 +57,21 @@ ax1.set_title('contourf with levels')
 fig.tight_layout()
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+matplotlib.axes.Axes.pcolormesh
+matplotlib.pyplot.pcolormesh
+matplotlib.axes.Axes.contourf
+matplotlib.pyplot.contourf
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.colors.BoundaryNorm
+matplotlib.ticker.MaxNLocator

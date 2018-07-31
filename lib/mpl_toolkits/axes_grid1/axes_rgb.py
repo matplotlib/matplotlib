@@ -1,11 +1,6 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import numpy as np
-from .axes_divider import make_axes_locatable, Size, locatable_axes_factory
-import sys
+
+from .axes_divider import make_axes_locatable, Size
 from .mpl_axes import Axes
 
 
@@ -29,9 +24,9 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
     ax_rgb = []
     if axes_class is None:
         try:
-            axes_class = locatable_axes_factory(ax._axes_class)
+            axes_class = ax._axes_class
         except AttributeError:
-            axes_class = locatable_axes_factory(type(ax))
+            axes_class = type(ax)
 
     for ny in [4, 2, 0]:
         ax1 = axes_class(ax.get_figure(),
@@ -99,7 +94,7 @@ class RGBAxesBase(object):
     B : _defaultAxesClass
         The axes object for the blue channel imshow
     """
-    def __init__(self, *kl, **kwargs):
+    def __init__(self, *args, pad=0, add_all=True, **kwargs):
         """
         Parameters
         ----------
@@ -116,19 +111,16 @@ class RGBAxesBase(object):
         kwargs :
             Unpacked into axes_class() init for RGB, R, G, B axes
         """
-        pad = kwargs.pop("pad", 0.0)
-        add_all = kwargs.pop("add_all", True)
         try:
             axes_class = kwargs.pop("axes_class", self._defaultAxesClass)
         except AttributeError:
-            new_msg = ("A subclass of RGBAxesBase must have a "
-                       "_defaultAxesClass attribute. If you are not sure which "
-                       "axes class to use, consider using "
-                       "mpl_toolkits.axes_grid1.mpl_axes.Axes.")
-            six.reraise(AttributeError, AttributeError(new_msg),
-                        sys.exc_info()[2])
+            raise AttributeError(
+                'A subclass of RGBAxesBase must have a _defaultAxesClass '
+                'attribute. If you are not sure which axes class to use, '
+                'consider using mpl_toolkits.axes_grid1.mpl_axes.Axes.'
+            )
 
-        ax = axes_class(*kl, **kwargs)
+        ax = axes_class(*args, **kwargs)
 
         divider = make_axes_locatable(ax)
 

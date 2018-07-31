@@ -1,6 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import os
 
 from matplotlib._pylab_helpers import Gcf
@@ -91,7 +88,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
     def draw_idle(self, *args, **kwargs):
         self.invalidate()
 
-    def blit(self, bbox):
+    def blit(self, bbox=None):
         self.invalidate()
 
     def resize(self, width, height):
@@ -129,17 +126,12 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
         title = "Figure %d" % num
         _macosx.FigureManager.__init__(self, canvas, title)
-        if rcParams['toolbar']=='toolbar2':
+        if rcParams['toolbar'] == 'toolbar2':
             self.toolbar = NavigationToolbar2Mac(canvas)
         else:
             self.toolbar = None
         if self.toolbar is not None:
             self.toolbar.update()
-
-        def notify_axes_change(fig):
-            'this will be called whenever the current axes is changed'
-            if self.toolbar != None: self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
 
         if matplotlib.is_interactive():
             self.show()
@@ -193,6 +185,7 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
 @_Backend.export
 class _BackendMac(_Backend):
+    required_interactive_framework = "macosx"
     FigureCanvas = FigureCanvasMac
     FigureManager = FigureManagerMac
 

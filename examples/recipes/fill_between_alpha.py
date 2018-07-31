@@ -81,7 +81,7 @@ ax.plot(t, mu1, lw=2, label='mean population 1', color='blue')
 ax.plot(t, mu2, lw=2, label='mean population 2', color='yellow')
 ax.fill_between(t, mu1+sigma1, mu1-sigma1, facecolor='blue', alpha=0.5)
 ax.fill_between(t, mu2+sigma2, mu2-sigma2, facecolor='yellow', alpha=0.5)
-ax.set_title('random walkers empirical $\mu$ and $\pm \sigma$ interval')
+ax.set_title(r'random walkers empirical $\mu$ and $\pm \sigma$ interval')
 ax.legend(loc='upper left')
 ax.set_xlabel('num steps')
 ax.set_ylabel('position')
@@ -133,6 +133,6 @@ ax.grid()
 # vertical spans of an axes -- for that matplotlib has some helper
 # functions :meth:`~matplotlib.axes.Axes.axhspan` and
 # :meth:`~matplotlib.axes.Axes.axvspan` and example
-# :ref:`sphx_glr_gallery_subplots_axes_and_figures_axhspan_demo.py`.
+# :doc:`/gallery/subplots_axes_and_figures/axhspan_demo`.
 
 plt.show()

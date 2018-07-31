@@ -1,7 +1,5 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
+import platform
 
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
@@ -35,10 +33,8 @@ def test_custom_transform():
             self._resolution = resolution
 
         def transform(self, ll):
-            x = ll[:, 0:1]
-            y = ll[:, 1:2]
-
-            return np.concatenate((x, y - x), 1)
+            x, y = ll.T
+            return np.column_stack([x, y - x])
 
         transform_non_affine = transform
 
@@ -62,10 +58,8 @@ def test_custom_transform():
             self._resolution = resolution
 
         def transform(self, ll):
-            x = ll[:, 0:1]
-            y = ll[:, 1:2]
-
-            return np.concatenate((x, y+x), 1)
+            x, y = ll.T
+            return np.column_stack([x, y + x])
 
         def inverted(self):
             return MyTransform(self._resolution)
@@ -91,7 +85,8 @@ def test_custom_transform():
 
 
 @image_comparison(baseline_images=['polar_box'],
-                  extensions=['png'], style='default', tol=0.03)
+                  tol={'aarch64': 0.04}.get(platform.machine(), 0.03),
+                  extensions=['png'], style='default')
 def test_polar_box():
     fig = plt.figure(figsize=(5, 5))
 

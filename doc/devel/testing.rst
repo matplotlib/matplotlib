@@ -9,7 +9,6 @@ Matplotlib's testing infrastructure depends on pytest_. The tests are in
 infrastructure are in :mod:`matplotlib.testing`.
 
 .. _pytest: http://doc.pytest.org/en/latest/
-.. _mock: https://docs.python.org/3/library/unittest.mock.html
 .. _Ghostscript: https://www.ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
@@ -26,17 +25,16 @@ local FreeType build
 
 The following software is required to run the tests:
 
-  - pytest_ (>=3.1)
-  - mock_, when running Python 2
-  - Ghostscript_ (to render PDF files)
-  - Inkscape_ (to render SVG files)
+- pytest_ (>=3.4)
+- Ghostscript_ (to render PDF files)
+- Inkscape_ (to render SVG files)
 
 Optionally you can install:
 
-  - pytest-cov_ (>=2.3.1) to collect coverage information
-  - pytest-pep8_ to test coding standards
-  - pytest-timeout_ to limit runtime in case of stuck tests
-  - pytest-xdist_ to run tests in parallel
+- pytest-cov_ (>=2.3.1) to collect coverage information
+- pytest-pep8_ to test coding standards
+- pytest-timeout_ to limit runtime in case of stuck tests
+- pytest-xdist_ to run tests in parallel
 
 
 Running the tests
@@ -44,7 +42,7 @@ Running the tests
 
 Running the tests is simple. Make sure you have pytest installed and run::
 
-   py.test
+   pytest
 
 or::
 
@@ -74,22 +72,22 @@ To run a single test from the command line, you can provide a file path,
 optionally followed by the function separated by two colons, e.g., (tests do
 not need to be installed, but Matplotlib should be)::
 
-  py.test lib/matplotlib/tests/test_simplification.py::test_clipping
+  pytest lib/matplotlib/tests/test_simplification.py::test_clipping
 
 or, if tests are installed, a dot-separated path to the module, optionally
 followed by the function separated by two colons, such as::
 
-  py.test --pyargs matplotlib.tests.test_simplification::test_clipping
+  pytest --pyargs matplotlib.tests.test_simplification::test_clipping
 
 If you want to run the full test suite, but want to save wall time try
 running the tests in parallel::
 
-  py.test --verbose -n 5
+  pytest --verbose -n 5
 
 Depending on your version of Python and pytest-xdist, you may need to set
 ``PYTHONHASHSEED`` to a fixed value when running in parallel::
 
-  PYTHONHASHSEED=0 py.test --verbose -n 5
+  PYTHONHASHSEED=0 pytest --verbose -n 5
 
 An alternative implementation that does not look at command line arguments
 and works from within Python is to run the tests from the Matplotlib library
@@ -190,16 +188,14 @@ a feature dependent on that backend.
 There are two optional keyword arguments to the `image_comparison`
 decorator:
 
-   - `extensions`: If you only wish to test additional image formats
-     (rather than just `png`), pass any additional file types in the
-     list of the extensions to test.  When copying the new
-     baseline files be sure to only copy the output files, not their
-     conversions to ``png``.  For example only copy the files
-     ending in ``pdf``, not in ``_pdf.png``.
+- `extensions`: If you only wish to test additional image formats (rather than
+  just `png`), pass any additional file types in the list of the extensions to
+  test.  When copying the new baseline files be sure to only copy the output
+  files, not their conversions to ``png``.  For example only copy the files
+  ending in ``pdf``, not in ``_pdf.png``.
 
-   - `tol`: This is the image matching tolerance, the default `1e-3`.
-     If some variation is expected in the image between runs, this
-     value may be adjusted.
+- `tol`: This is the image matching tolerance, the default `1e-3`. If some
+  variation is expected in the image between runs, this value may be adjusted.
 
 Known failing tests
 -------------------

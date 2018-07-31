@@ -1,6 +1,4 @@
 # TODO:
-# * Loop Delay is broken on GTKAgg. This is because source_remove() is not
-#   working as we want. PyGTK bug?
 # * Documentation -- this will need a new section of the User's Guide.
 #      Both for Animations and just timers.
 #   - Also need to update http://www.scipy.org/Cookbook/Matplotlib/Animations
@@ -17,34 +15,27 @@
 # * Movies
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
 
 import abc
+import base64
 import contextlib
 from io import BytesIO
 import itertools
 import logging
 import os
+from pathlib import Path
 import platform
+import shutil
+import subprocess
 import sys
-import tempfile
+from tempfile import TemporaryDirectory
 import uuid
 
 import numpy as np
 
 from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
                                         JS_INCLUDE)
-from matplotlib.compat import subprocess
 from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
-
-if six.PY2:
-    from base64 import encodestring as encodebytes
-else:
-    from base64 import encodebytes
 
 
 _log = logging.getLogger(__name__)
@@ -176,7 +167,7 @@ class MovieWriterRegistry(object):
 writers = MovieWriterRegistry()
 
 
-class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
+class AbstractMovieWriter(abc.ABC):
     '''
     Abstract base class for writing movies. Fundamentally, what a MovieWriter
     does is provide is a way to grab frames by calling grab_frame().
@@ -385,8 +376,7 @@ class MovieWriter(AbstractMovieWriter):
                              dpi=self.dpi, **savefig_kwargs)
         except (RuntimeError, IOError) as e:
             out, err = self._proc.communicate()
-            _log.info('MovieWriter -- Error '
-                           'running proc:\n%s\n%s' % (out, err))
+            _log.info('MovieWriter -- Error running proc:\n%s\n%s', out, err)
             raise IOError('Error saving animation to file (cause: {0}) '
                           'Stdout: {1} StdError: {2}. It may help to re-run '
                           'with logging level set to '
@@ -419,27 +409,9 @@ class MovieWriter(AbstractMovieWriter):
     @classmethod
     def isAvailable(cls):
         '''
-        Check to see if a MovieWriter subclass is actually available by
-        running the commandline tool.
+        Check to see if a MovieWriter subclass is actually available.
         '''
-        bin_path = cls.bin_path()
-        if not bin_path:
-            return False
-        try:
-            p = subprocess.Popen(
-                bin_path,
-                shell=False,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                creationflags=subprocess_creation_flags)
-            return cls._handle_subprocess(p)
-        except OSError:
-            return False
-
-    @classmethod
-    def _handle_subprocess(cls, process):
-        process.communicate()
-        return True
+        return shutil.which(cls.bin_path()) is not None
 
 
 class FileMovieWriter(MovieWriter):
@@ -539,8 +511,7 @@ class FileMovieWriter(MovieWriter):
 
         except RuntimeError:
             out, err = self._proc.communicate()
-            _log.info('MovieWriter -- Error '
-                           'running proc:\n%s\n%s' % (out, err))
+            _log.info('MovieWriter -- Error running proc:\n%s\n%s', out, err)
             raise
 
     def finish(self):
@@ -639,19 +610,20 @@ class FFMpegBase(object):
             args.extend(['-b', '%dk' % self.bitrate])
         if self.extra_args:
             args.extend(self.extra_args)
-        for k, v in six.iteritems(self.metadata):
+        for k, v in self.metadata.items():
             args.extend(['-metadata', '%s=%s' % (k, v)])
 
         return args + ['-y', self.outfile]
 
     @classmethod
-    def _handle_subprocess(cls, process):
-        _, err = process.communicate()
-        # Ubuntu 12.04 ships a broken ffmpeg binary which we shouldn't use
-        # NOTE : when removed, remove the same method in AVConvBase.
-        if 'Libav' in err.decode():
-            return False
-        return True
+    def isAvailable(cls):
+        return (
+            super().isAvailable()
+            # Ubuntu 12.04 ships a broken ffmpeg binary which we shouldn't use.
+            # NOTE: when removed, remove the same method in AVConvBase.
+            and b'LibAv' not in subprocess.run(
+                [cls.bin_path()], creationflags=subprocess_creation_flags,
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE).stderr)
 
 
 # Combine FFMpeg options with pipe-based writing
@@ -669,8 +641,9 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
                 '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
                 '-r', str(self.fps)]
         # Logging is quieted because subprocess.PIPE has limited buffer size.
-
-        if (_log.getEffectiveLevel() < logging.DEBUG):
+        # If you have a lot of frames in your animation and set logging to
+        # DEBUG, you will have a buffer overrun.
+        if _log.getEffectiveLevel() > logging.DEBUG:
             args += ['-loglevel', 'quiet']
         args += ['-i', 'pipe:'] + self.output_args
         return args
@@ -696,8 +669,7 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
                 '-vframes', str(self._frame_counter)] + self.output_args
 
 
-# Base class of avconv information.  AVConv has identical arguments to
-# FFMpeg
+# Base class of avconv information.  AVConv has identical arguments to FFMpeg.
 class AVConvBase(FFMpegBase):
     '''Mixin class for avconv output.
 
@@ -709,9 +681,7 @@ class AVConvBase(FFMpegBase):
     args_key = 'animation.avconv_args'
 
     # NOTE : should be removed when the same method is removed in FFMpegBase.
-    @classmethod
-    def _handle_subprocess(cls, process):
-        return MovieWriter._handle_subprocess(process)
+    isAvailable = classmethod(MovieWriter.isAvailable.__func__)
 
 
 # Combine AVConv options with pipe-based writing
@@ -757,15 +727,15 @@ class ImageMagickBase(object):
     def _init_from_registry(cls):
         if sys.platform != 'win32' or rcParams[cls.exec_key] != 'convert':
             return
-        from six.moves import winreg
+        import winreg
         for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
             try:
                 hkey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE,
-                                        'Software\\Imagemagick\\Current',
+                                        r'Software\Imagemagick\Current',
                                         0, winreg.KEY_QUERY_VALUE | flag)
                 binpath = winreg.QueryValueEx(hkey, 'BinPath')[0]
                 winreg.CloseKey(hkey)
-                binpath += '\\convert.exe'
+                binpath += r'\convert.exe'
                 break
             except Exception:
                 binpath = ''
@@ -783,8 +753,6 @@ class ImageMagickBase(object):
         if bin_path == "convert":
             cls._init_from_registry()
         return super().isAvailable()
-
-ImageMagickBase._init_from_registry()
 
 
 # Note: the base classes need to be in that order to get
@@ -904,7 +872,7 @@ class HTMLWriter(FileMovieWriter):
             f = BytesIO()
             self.fig.savefig(f, format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
-            imgdata64 = encodebytes(f.getvalue()).decode('ascii')
+            imgdata64 = base64.encodebytes(f.getvalue()).decode('ascii')
             self._total_bytes += len(imgdata64)
             if self._total_bytes >= self._bytes_limit:
                 _log.warning(
@@ -1105,9 +1073,9 @@ class Animation(object):
         # to use
         if writer is None:
             writer = rcParams['animation.writer']
-        elif (not isinstance(writer, six.string_types) and
-                any(arg is not None
-                    for arg in (fps, codec, bitrate, extra_args, metadata))):
+        elif (not isinstance(writer, str) and
+              any(arg is not None
+                  for arg in (fps, codec, bitrate, extra_args, metadata))):
             raise RuntimeError('Passing in values for arguments '
                                'fps, codec, bitrate, extra_args, or metadata '
                                'is not supported when writer is an existing '
@@ -1150,7 +1118,7 @@ class Animation(object):
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
-        if isinstance(writer, six.string_types):
+        if isinstance(writer, str):
             if writer in writers.avail:
                 writer = writers[writer](fps, codec, bitrate,
                                          extra_args=extra_args,
@@ -1280,7 +1248,7 @@ class Animation(object):
         # Get a list of the axes that need clearing from the artists that
         # have been drawn. Grab the appropriate saved background from the
         # cache and restore.
-        axes = set(a.axes for a in artists)
+        axes = {a.axes for a in artists}
         for a in axes:
             if a in bg_cache:
                 a.figure.canvas.restore_region(bg_cache[a])
@@ -1337,35 +1305,31 @@ class Animation(object):
             # Convert from MB to bytes
             embed_limit *= 1024 * 1024
 
-            # First write the video to a tempfile. Set delete to False
-            # so we can re-open to read binary data.
-            with tempfile.NamedTemporaryFile(suffix='.m4v',
-                                             delete=False) as f:
+            # Can't open a NamedTemporaryFile twice on Windows, so use a
+            # TemporaryDirectory instead.
+            with TemporaryDirectory() as tmpdir:
+                path = Path(tmpdir, "temp.m4v")
                 # We create a writer manually so that we can get the
                 # appropriate size for the tag
                 Writer = writers[rcParams['animation.writer']]
                 writer = Writer(codec='h264',
                                 bitrate=rcParams['animation.bitrate'],
                                 fps=1000. / self._interval)
-                self.save(f.name, writer=writer)
+                self.save(str(path), writer=writer)
+                # Now open and base64 encode.
+                vid64 = base64.encodebytes(path.read_bytes())
 
-            # Now open and base64 encode
-            with open(f.name, 'rb') as video:
-                vid64 = encodebytes(video.read())
-                vid_len = len(vid64)
-                if vid_len >= embed_limit:
-                    _log.warning(
-                        "Animation movie is %s bytes, exceeding the limit of "
-                        "%s. If you're sure you want a large animation "
-                        "embedded, set the animation.embed_limit rc parameter "
-                        "to a larger value (in MB).", vid_len, embed_limit)
-                else:
-                    self._base64_video = vid64.decode('ascii')
-                    self._video_size = 'width="{}" height="{}"'.format(
-                            *writer.frame_size)
-
-            # Now we can remove
-            os.remove(f.name)
+            vid_len = len(vid64)
+            if vid_len >= embed_limit:
+                _log.warning(
+                    "Animation movie is %s bytes, exceeding the limit of %s. "
+                    "If you're sure you want a large animation embedded, set "
+                    "the animation.embed_limit rc parameter to a larger value "
+                    "(in MB).", vid_len, embed_limit)
+            else:
+                self._base64_video = vid64.decode('ascii')
+                self._video_size = 'width="{}" height="{}"'.format(
+                        *writer.frame_size)
 
         # If we exceeded the size, this attribute won't exist
         if hasattr(self, '_base64_video'):
@@ -1393,25 +1357,18 @@ class Animation(object):
         if default_mode is None:
             default_mode = 'loop' if self.repeat else 'once'
 
-        if hasattr(self, "_html_representation"):
-            return self._html_representation
-        else:
-            # Can't open a second time while opened on windows. So we avoid
-            # deleting when closed, and delete manually later.
-            with tempfile.NamedTemporaryFile(suffix='.html',
-                                             delete=False) as f:
-                self.save(f.name, writer=HTMLWriter(fps=fps,
-                                                    embed_frames=embed_frames,
-                                                    default_mode=default_mode))
-            # Re-open and get content
-            with open(f.name) as fobj:
-                html = fobj.read()
+        if not hasattr(self, "_html_representation"):
+            # Can't open a NamedTemporaryFile twice on Windows, so use a
+            # TemporaryDirectory instead.
+            with TemporaryDirectory() as tmpdir:
+                path = Path(tmpdir, "temp.html")
+                writer = HTMLWriter(fps=fps,
+                                    embed_frames=embed_frames,
+                                    default_mode=default_mode)
+                self.save(str(path), writer=writer)
+                self._html_representation = path.read_text()
 
-            # Now we can delete
-            os.remove(f.name)
-
-            self._html_representation = html
-            return html
+        return self._html_representation
 
     def _repr_html_(self):
         '''IPython display hook for rendering.'''
@@ -1650,8 +1607,10 @@ class FuncAnimation(TimedAnimation):
        of frames is completed.  Defaults to ``True``.
 
     blit : bool, optional
-       Controls whether blitting is used to optimize drawing.  Defaults
-       to ``False``.
+       Controls whether blitting is used to optimize drawing. Note: when using
+       blitting any animated artists will be drawn according to their zorder.
+       However, they will be drawn on top of any previous artists, regardless
+       of their zorder.  Defaults to ``False``.
 
     '''
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
@@ -1766,7 +1725,8 @@ class FuncAnimation(TimedAnimation):
 
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
-        self._drawn_artists = self._func(framedata, *self._args)
+        self._drawn_artists = sorted(self._func(framedata, *self._args),
+                                     key=lambda x: x.get_zorder())
         if self._blit:
             if self._drawn_artists is None:
                 raise RuntimeError('The animation function must return a '

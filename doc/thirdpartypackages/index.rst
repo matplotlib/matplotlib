@@ -38,16 +38,6 @@ data processing tools. An example plot from the `Cartopy gallery
 Declarative libraries
 *********************
 
-plotnine
-========
-
-`plotnine <https://plotnine.readthedocs.io/en/stable/>`_ implements a grammar
-of graphics, similar to R's `ggplot2 <http://ggplot2.org/>`_. The grammar allows
-users to compose plots by explicitly mapping data to the visual objects that
-make up the plot.
-
-.. image:: /_static/plotnine.png
-
 ggplot
 ======
 `ggplot <https://github.com/yhat/ggplot>`_ is a port of the R ggplot2 package
@@ -68,8 +58,25 @@ widgets for parameter exploration.
 .. image:: /_static/holoviews.png
     :height: 354px
 
+plotnine
+========
+
+`plotnine <https://plotnine.readthedocs.io/en/stable/>`_ implements a grammar
+of graphics, similar to R's `ggplot2 <http://ggplot2.org/>`_. The grammar allows
+users to compose plots by explicitly mapping data to the visual objects that
+make up the plot.
+
+.. image:: /_static/plotnine.png
+
 Specialty plots
 ***************
+
+Broken Axes
+===========
+`brokenaxes <https://github.com/bendichter/brokenaxes>`_ supplies an axes
+class that can have a visual break to indicate a discontinuous range.
+
+.. image:: /_static/brokenaxes.png
 
 DeCiDa
 ======
@@ -153,6 +160,7 @@ Windrose
 Numpy library to manage wind data, draw windroses (also known as polar rose
 plots), draw probability density functions and fit Weibull distributions.
 
+
 Interactivity
 *************
 
@@ -170,15 +178,6 @@ annotation boxes) for Matplotlib.
 Miscellaneous
 *************
 
-mpl-template
-============
-`mpl-template <https://austinorr.github.io/mpl-template/index.html>`_ provides
-a customizable way to add engineering figure elements such as a title block,
-border, and logo.
-
-.. image:: /_static/mpl_template_example.png
-    :height: 330px
-
 adjustText
 ==========
 `adjustText <https://github.com/Phlya/adjustText>`_ is a small library for
@@ -194,3 +193,18 @@ external Matplotlib backend using the iTerm2 nightly build inline image display
 feature.
 
 .. image:: /_static/matplotlib_iterm2_demo.png
+
+mplcairo
+========
+`mplcairo <https://github.com/anntzer/mplcairo>`_ is a cairo backend for
+Matplotlib, with faster and more accurate marker drawing, support for a wider
+selection of font formats and complex text layout, and various other features.
+
+mpl-template
+============
+`mpl-template <https://austinorr.github.io/mpl-template/index.html>`_ provides
+a customizable way to add engineering figure elements such as a title block,
+border, and logo.
+
+.. image:: /_static/mpl_template_example.png
+    :height: 330px

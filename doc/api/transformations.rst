@@ -1,6 +1,6 @@
-==============================
- Working with transformations
-==============================
+***************
+transformations
+***************
 
 .. inheritance-diagram:: matplotlib.transforms matplotlib.path
    :parts: 1

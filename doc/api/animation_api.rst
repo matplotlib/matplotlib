@@ -36,6 +36,9 @@ To save an animation to disk use `Animation.save` or `Animation.to_html5_video`
 See :ref:`ani_writer_classes` below for details about what movie formats are
 supported.
 
+
+.. _func-animation:
+
 ``FuncAnimation``
 -----------------
 
@@ -57,8 +60,8 @@ general gist is to take an existing bit map (in our case a mostly
 rasterized figure) and then 'blit' one more artist on top.  Thus, by
 managing a saved 'clean' bitmap, we can only re-draw the few artists
 that are changing at each frame and possibly save significant amounts of
-time.  When using blitting (by passing ``blit=True``) the core loop of
-`FuncAnimation` gets a bit more complicated ::
+time.  When we use blitting (by passing ``blit=True``), the core loop of
+`FuncAnimation` gets a bit more complicated::
 
    ax = fig.gca()
 

@@ -1,16 +1,13 @@
-from __future__ import absolute_import, division, print_function
 import itertools
 import pickle
 from weakref import ref
 import warnings
 
-import six
-
 from datetime import datetime
 
 import numpy as np
-from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
-                                 assert_array_almost_equal)
+from numpy.testing import (assert_array_equal, assert_approx_equal,
+                           assert_array_almost_equal)
 import pytest
 
 import matplotlib.cbook as cbook
@@ -24,24 +21,6 @@ def test_is_hashable():
 
     lst = ['list', 'of', 'stings']
     assert not cbook.is_hashable(lst)
-
-
-def test_restrict_dict():
-    d = {'foo': 'bar', 1: 2}
-    with pytest.warns(cbook.deprecation.MatplotlibDeprecationWarning) as rec:
-        d1 = cbook.restrict_dict(d, ['foo', 1])
-        assert d1 == d
-        d2 = cbook.restrict_dict(d, ['bar', 2])
-        assert d2 == {}
-        d3 = cbook.restrict_dict(d, {'foo': 1})
-        assert d3 == {'foo': 'bar'}
-        d4 = cbook.restrict_dict(d, {})
-        assert d4 == {}
-        d5 = cbook.restrict_dict(d, {'foo', 2})
-        assert d5 == {'foo': 'bar'}
-    assert len(rec) == 5
-    # check that d was not modified
-    assert d == {'foo': 'bar', 1: 2}
 
 
 class Test_delete_masked_points(object):

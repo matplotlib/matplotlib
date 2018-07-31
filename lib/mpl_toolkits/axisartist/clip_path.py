@@ -1,9 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
 import numpy as np
 from math import degrees
 import math
@@ -26,16 +20,8 @@ def clip(xlines, ylines, x0, clip="right", xdir=True, ydir=True):
 
     _pos_angles = []
 
-    if xdir:
-        xsign = 1
-    else:
-        xsign = -1
-
-    if ydir:
-        ysign = 1
-    else:
-        ysign = -1
-
+    xsign = 1 if xdir else -1
+    ysign = 1 if ydir else -1
 
     for x, y in zip(xlines, ylines):
 
@@ -46,7 +32,6 @@ def clip(xlines, ylines, x0, clip="right", xdir=True, ydir=True):
             b = (x > x0).astype("i")
             db = b[1:] - b[:-1]
 
-
         if b[0]:
             ns = 0
         else:
@@ -56,7 +41,7 @@ def clip(xlines, ylines, x0, clip="right", xdir=True, ydir=True):
             c = db[i]
             if c == -1:
                 dx = (x0 - x[i])
-                dy = (y[i+1] - y[i]) * (dx/ (x[i+1] - x[i]))
+                dy = (y[i+1] - y[i]) * (dx / (x[i+1] - x[i]))
                 y0 = y[i] + dy
                 clipped_xlines.append(np.concatenate([segx, x[ns:i+1], [x0]]))
                 clipped_ylines.append(np.concatenate([segy, y[ns:i+1], [y0]]))
@@ -88,9 +73,6 @@ def clip(xlines, ylines, x0, clip="right", xdir=True, ydir=True):
             clipped_xlines.append(np.concatenate([segx, x[ns:]]))
             clipped_ylines.append(np.concatenate([segy, y[ns:]]))
 
-        #clipped_pos_angles.append(_pos_angles)
-
-
     return clipped_xlines, clipped_ylines, _pos_angles
 
 
@@ -121,15 +103,13 @@ def clip_line_to_rect(xline, yline, bbox):
     # ly3, lx3, c_top_ = clip(ly2, lx2, y1, clip="right")
     # ly4, lx4, c_bottom_ = clip(ly3, lx3, y0, clip="left")
 
-    #c_left = [((x, y), (a+90)%180-180) for (x, y, a) in c_left_ \
-    #          if bbox.containsy(y)]
-    c_left = [((x, y), (a+90)%180-90) for (x, y, a) in c_left_
+    c_left = [((x, y), (a + 90) % 180 - 90) for x, y, a in c_left_
               if bbox.containsy(y)]
-    c_bottom = [((x, y), (90 - a)%180) for (y, x, a) in c_bottom_
+    c_bottom = [((x, y), (90 - a) % 180) for y, x, a in c_bottom_
                 if bbox.containsx(x)]
-    c_right = [((x, y), (a+90)%180+90) for (x, y, a) in c_right_
+    c_right = [((x, y), (a + 90) % 180 + 90) for x, y, a in c_right_
                if bbox.containsy(y)]
-    c_top = [((x, y), (90 - a)%180+180) for (y, x, a) in c_top_
+    c_top = [((x, y), (90 - a) % 180 + 180) for y, x, a in c_top_
              if bbox.containsx(x)]
 
     return list(zip(lx4, ly4)), [c_left, c_bottom, c_right, c_top]

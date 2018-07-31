@@ -8,7 +8,7 @@ Fourier Demo WX
 import numpy as np
 
 import wx
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 
@@ -123,7 +123,7 @@ class FourierDemoFrame(wx.Frame):
     def createCanvas(self, parent):
         self.lines = []
         self.figure = Figure()
-        self.canvas = FigureCanvasWxAgg(parent, -1, self.figure)
+        self.canvas = FigureCanvas(parent, -1, self.figure)
         self.canvas.callbacks.connect('button_press_event', self.mouseDown)
         self.canvas.callbacks.connect('motion_notify_event', self.mouseMotion)
         self.canvas.callbacks.connect('button_release_event', self.mouseUp)
@@ -180,8 +180,7 @@ class FourierDemoFrame(wx.Frame):
         # This method creates the subplots, waveforms and labels.
         # Later, when the waveforms or sliders are dragged, only the
         # waveform data will be updated (not here, but below in setKnob).
-        if not hasattr(self, 'subplot1'):
-            self.subplot1, self.subplot2 = self.figure.subplots(2)
+        self.subplot1, self.subplot2 = self.figure.subplots(2)
         x1, y1, x2, y2 = self.compute(self.f0.value, self.A.value)
         color = (1., 0., 0.)
         self.lines += self.subplot1.plot(x1, y1, color=color, linewidth=2)

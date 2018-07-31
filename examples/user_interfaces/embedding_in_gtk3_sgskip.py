@@ -7,6 +7,8 @@ Demonstrate adding a FigureCanvasGTK3Agg widget to a Gtk.ScrolledWindow using
 GTK3 accessed via pygobject.
 """
 
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from matplotlib.backends.backend_gtk3agg import (

@@ -39,8 +39,8 @@ print(yy.shape)
 # cycler and a linestyle cycler by adding (``+``) two ``cycler``'s together.
 # See the bottom of this tutorial for more information about combining
 # different cyclers.
-default_cycler = cycler('color', ['r', 'g', 'b', 'y']) \
-                    + cycler('linestyle', ['-', '--', ':', '-.'])
+default_cycler = (cycler(color=['r', 'g', 'b', 'y']) +
+                  cycler(linestyle=['-', '--', ':', '-.']))
 
 plt.rc('lines', linewidth=4)
 plt.rc('axes', prop_cycle=default_cycler)
@@ -52,8 +52,8 @@ plt.rc('axes', prop_cycle=default_cycler)
 # which will only set the ``prop_cycle`` for this :mod:`matplotlib.axes.Axes`
 # instance. We'll use a second ``cycler`` that combines a color cycler and a
 # linewidth cycler.
-custom_cycler = cycler('color', ['c', 'm', 'y', 'k']) \
-    + cycler('lw', [1, 2, 3, 4])
+custom_cycler = (cycler(color=['c', 'm', 'y', 'k']) +
+                 cycler(lw=[1, 2, 3, 4]))
 
 fig, (ax0, ax1) = plt.subplots(nrows=2)
 ax0.plot(yy)
@@ -74,9 +74,9 @@ plt.show()
 # ``.matplotlibrc`` file or a style file (``style.mplstyle``), you can set the
 # ``axes.prop_cycle`` property:
 #
-# ..code-block:: python
+# .. code-block:: python
 #
-#    axes.prop_cycle    : cycler('color', 'bgrcmyk')
+#    axes.prop_cycle    : cycler(color='bgrcmyk')
 #
 # Cycling through multiple properties
 # -----------------------------------

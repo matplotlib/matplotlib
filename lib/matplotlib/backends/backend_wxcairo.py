@@ -1,13 +1,9 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import wx
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_wx import (
-    _BackendWx, _FigureCanvasWxBase, FigureFrameWx, NavigationToolbar2Wx)
+    _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
+    NavigationToolbar2Wx as NavigationToolbar2WxCairo)
 import wx.lib.wxcairo as wxcairo
 
 

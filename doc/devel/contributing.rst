@@ -142,18 +142,17 @@ Additionally you will need to copy :file:`setup.cfg.template` to
 In either case you can then run the tests to check your work
 environment is set up properly::
 
-  python tests.py
+  pytest
 
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _pep8: https://pep8.readthedocs.io/en/latest/
-.. _mock: https://docs.python.org/dev/library/unittest.mock.html
 .. _Ghostscript: https://www.ghostscript.com/
 .. _Inkscape: https://inkscape.org>
 
 .. note::
 
-  **Additional dependencies for testing**: pytest_ (version 3.1 or later),
-  mock_ (if Python 2), Ghostscript_, Inkscape_
+  **Additional dependencies for testing**: pytest_ (version 3.4 or later),
+  Ghostscript_, Inkscape_
 
 .. seealso::
 
@@ -295,12 +294,11 @@ Issues for New Contributors
 ---------------------------
 
 New contributors should look for the following tags when looking for issues.
-We strongly recommend that new contributors tackle
-`new-contributor-friendly <https://github.com/matplotlib/matplotlib/labels/new-contributor-friendly>`_
-issues (easy, well documented issues, that do not require an understanding of
-the different submodules of Matplotlib) and
-`Easy-fix <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_
-issues. This helps the contributor become familiar with the contribution
+We strongly recommend that new contributors tackle issues labeled
+`good first issue <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_
+as they are easy, well documented issues, that do not require an understanding of
+the different submodules of Matplotlib.
+This helps the contributor become familiar with the contribution
 workflow, and for the core devs to become acquainted with the contributor;
 besides which, we frequently underestimate how easy an issue is to solve!
 
@@ -396,41 +394,20 @@ on, use the key/value keyword args in the function definition rather
 than the ``**kwargs`` idiom.
 
 In some cases, you may want to consume some keys in the local
-function, and let others pass through.  You can ``pop`` the ones to be
-used locally and pass on the rest.  For example, in
+function, and let others pass through.  Instead of poping arguments to
+use off ``**kwargs``, specify them as keyword-only arguments to the local
+function.  This makes it obvious at a glance which arguments will be
+consumed in the function.  For example, in
 :meth:`~matplotlib.axes.Axes.plot`, ``scalex`` and ``scaley`` are
 local arguments and the rest are passed on as
 :meth:`~matplotlib.lines.Line2D` keyword arguments::
 
   # in axes/_axes.py
-  def plot(self, *args, **kwargs):
-      scalex = kwargs.pop('scalex', True)
-      scaley = kwargs.pop('scaley', True)
-      if not self._hold: self.cla()
+  def plot(self, *args, scalex=True, scaley=True, **kwargs):
       lines = []
       for line in self._get_lines(*args, **kwargs):
           self.add_line(line)
           lines.append(line)
-
-Note: there is a use case when ``kwargs`` are meant to be used locally
-in the function (not passed on), but you still need the ``**kwargs``
-idiom.  That is when you want to use ``*args`` to allow variable
-numbers of non-keyword args.  In this case, python will not allow you
-to use named keyword args after the ``*args`` usage, so you will be
-forced to use ``**kwargs``.  An example is
-:meth:`matplotlib.contour.ContourLabeler.clabel`::
-
-  # in contour.py
-  def clabel(self, *args, **kwargs):
-      fontsize = kwargs.get('fontsize', None)
-      inline = kwargs.get('inline', 1)
-      self.fmt = kwargs.get('fmt', '%1.3f')
-      colors = kwargs.get('colors', None)
-      if len(args) == 0:
-          levels = self.levels
-          indices = range(len(self.levels))
-      elif len(args) == 1:
-         ...etc...
 
 .. _using_logging:
 
@@ -502,7 +479,7 @@ Developing a new backend
 ------------------------
 
 If you are working on a custom backend, the *backend* setting in
-:file:`matplotlibrc` (:ref:`sphx_glr_tutorials_introductory_customizing.py`) supports an
+:file:`matplotlibrc` (:doc:`/tutorials/introductory/customizing`) supports an
 external backend via the ``module`` directive.  If
 :file:`my_backend.py` is a Matplotlib backend in your
 :envvar:`PYTHONPATH`, you can set it on one of several ways

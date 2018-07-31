@@ -45,9 +45,6 @@ See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
 #   Todo:    AnchoredOffsetbox connected to gridspecs or axes.  This would
 #        be more general way to add extra-axes annotations.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
 import logging
 import warnings
@@ -59,57 +56,27 @@ import matplotlib._layoutbox as layoutbox
 _log = logging.getLogger(__name__)
 
 
-def get_axall_tightbbox(ax, renderer):
-    '''
-    Get the tight_bbox of the axis ax, and any dependent decorations, like
-    a `Legend` instance.
-    '''
-
-    # main bbox of the axis....
-    bbox = ax.get_tightbbox(renderer=renderer)
-    # now add the possibility of the legend...
-    for child in ax.get_children():
-        if isinstance(child, Legend):
-            bboxn = child._legend_box.get_window_extent(renderer)
-            bbox = transforms.Bbox.union([bbox, bboxn])
-        # add other children here....
-    return bbox
+def _in_same_column(colnum0min, colnum0max, colnumCmin, colnumCmax):
+    return (colnumCmin <= colnum0min <= colnumCmax
+            or colnumCmin <= colnum0max <= colnumCmax)
 
 
-def in_same_column(ss0, ssc):
-    nrows, ncols = ss0.get_gridspec().get_geometry()
-
-    if ss0.num2 is None:
-        ss0.num2 = ss0.num1
-    rownum0min, colnum0min = divmod(ss0.num1, ncols)
-    rownum0max, colnum0max = divmod(ss0.num2, ncols)
-    if ssc.num2 is None:
-        ssc.num2 = ssc.num1
-    rownumCmin, colnumCmin = divmod(ssc.num1, ncols)
-    rownumCmax, colnumCmax = divmod(ssc.num2, ncols)
-    if colnum0min >= colnumCmin and colnum0min <= colnumCmax:
-        return True
-    if colnum0max >= colnumCmin and colnum0max <= colnumCmax:
-        return True
-    return False
+def _in_same_row(rownum0min, rownum0max, rownumCmin, rownumCmax):
+    return (rownumCmin <= rownum0min <= rownumCmax
+            or rownumCmin <= rownum0max <= rownumCmax)
 
 
-def in_same_row(ss0, ssc):
-    nrows, ncols = ss0.get_gridspec().get_geometry()
-
-    if ss0.num2 is None:
-        ss0.num2 = ss0.num1
-    rownum0min, colnum0min = divmod(ss0.num1, ncols)
-    rownum0max, colnum0max = divmod(ss0.num2, ncols)
-    if ssc.num2 is None:
-        ssc.num2 = ssc.num1
-    rownumCmin, colnumCmin = divmod(ssc.num1, ncols)
-    rownumCmax, colnumCmax = divmod(ssc.num2, ncols)
-    if rownum0min >= rownumCmin and rownum0min <= rownumCmax:
-        return True
-    if rownum0max >= rownumCmin and rownum0max <= rownumCmax:
-        return True
-    return False
+def _axes_all_finite_sized(fig):
+    """
+    helper function to make sure all axes in the
+    figure have a finite width and height.  If not, return False
+    """
+    for ax in fig.axes:
+        if ax._layoutbox is not None:
+            newpos = ax._poslayoutbox.get_rect()
+            if newpos[2] <= 0 or newpos[3] <= 0:
+                return False
+    return True
 
 
 ######################################################
@@ -177,10 +144,11 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     margins) is very large.  There must be a math way to check for this case.
 
     '''
+
     invTransFig = fig.transFigure.inverted().transform_bbox
 
     # list of unique gridspecs that contain child axes:
-    gss = set([])
+    gss = set()
     for ax in fig.axes:
         if hasattr(ax, 'get_subplotspec'):
             gs = ax.get_subplotspec().get_gridspec()
@@ -191,261 +159,312 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                       'Possibly did not call parent GridSpec with the figure= '
                       'keyword')
 
-    # check for unoccupied gridspec slots and make ghost axes for these
-    # slots...  Do for each gs separately.  This is a pretty big kludge
-    # but shoudn't have too much ill effect.  The worst is that
-    # someone querrying the figure will wonder why there are more
-    # axes than they thought.
     if fig._layoutbox.constrained_layout_called < 1:
         for gs in gss:
-            nrows, ncols = gs.get_geometry()
-            hassubplotspec = np.zeros(nrows * ncols, dtype=bool)
-            axs = []
+            # fill in any empty gridspec slots w/ ghost axes...
+            _make_ghost_gridspec_slots(fig, gs)
+
+    for nnn in range(2):
+        # do the algrithm twice.  This has to be done because decorators
+        # change size after the first re-position (i.e. x/yticklabels get
+        # larger/smaller).  This second reposition tends to be much milder,
+        # so doing twice makes things work OK.
+        for ax in fig.axes:
+            _log.debug(ax._layoutbox)
+            if ax._layoutbox is not None:
+                # make margins for each layout box based on the size of
+                # the decorators.
+                _make_layout_margins(ax, renderer, h_pad, w_pad)
+
+        # do layout for suptitle.
+        if fig._suptitle is not None and fig._suptitle._layoutbox is not None:
+            sup = fig._suptitle
+            bbox = invTransFig(sup.get_window_extent(renderer=renderer))
+            height = bbox.y1 - bbox.y0
+            sup._layoutbox.edit_height(height+h_pad)
+
+        # OK, the above lines up ax._poslayoutbox with ax._layoutbox
+        # now we need to
+        #   1) arrange the subplotspecs.  We do it at this level because
+        #      the subplotspecs are meant to contain other dependent axes
+        #      like colorbars or legends.
+        #   2) line up the right and left side of the ax._poslayoutbox
+        #      that have the same subplotspec maxes.
+
+        if fig._layoutbox.constrained_layout_called < 1:
+            # arrange the subplotspecs...  This is all done relative to each
+            # other.  Some subplotspecs conatain axes, and others contain
+            # gridspecs the ones that contain gridspecs are a set proportion
+            # of their parent gridspec.  The ones that contain axes are
+            # not so constrained.
+            figlb = fig._layoutbox
+            for child in figlb.children:
+                if child._is_gridspec_layoutbox():
+                    # This routine makes all the subplot spec containers
+                    # have the correct arrangement.  It just stacks the
+                    # subplot layoutboxes in the correct order...
+                    _arrange_subplotspecs(child, hspace=hspace, wspace=wspace)
+
+            for gs in gss:
+                _align_spines(fig, gs)
+
+        fig._layoutbox.constrained_layout_called += 1
+        fig._layoutbox.update_variables()
+
+        # check if any axes collapsed to zero.  If not, don't change positions:
+        if _axes_all_finite_sized(fig):
+            # Now set the position of the axes...
             for ax in fig.axes:
-                if (hasattr(ax, 'get_subplotspec')
-                        and ax._layoutbox is not None
-                        and ax.get_subplotspec().get_gridspec() == gs):
-                    axs += [ax]
-            for ax in axs:
-                ss0 = ax.get_subplotspec()
-                if ss0.num2 is None:
-                    ss0.num2 = ss0.num1
-                hassubplotspec[ss0.num1:(ss0.num2 + 1)] = True
-            for nn, hss in enumerate(hassubplotspec):
-                if not hss:
-                    # this gridspec slot doesn't have an axis so we
-                    # make a "ghost".
-                    ax = fig.add_subplot(gs[nn])
-                    ax.set_frame_on(False)
-                    ax.set_xticks([])
-                    ax.set_yticks([])
-                    ax.set_facecolor((1, 0, 0, 0))
-
-    # for each axes, make a margin between the *pos* layoutbox and the
-    # *axes* layoutbox be a minimum size that can accomodate the
-    # decorations on the axis.
-    for ax in fig.axes:
-        _log.debug(ax._layoutbox)
-        if ax._layoutbox is not None:
-            pos = ax.get_position(original=True)
-            tightbbox = get_axall_tightbbox(ax, renderer)
-            bbox = invTransFig(tightbbox)
-            # use stored h_pad if it exists
-            h_padt = ax._poslayoutbox.h_pad
-            if h_padt is None:
-                h_padt = h_pad
-            w_padt = ax._poslayoutbox.w_pad
-            if w_padt is None:
-                w_padt = w_pad
-            ax._poslayoutbox.edit_left_margin_min(-bbox.x0 +
-                    pos.x0 + w_padt)
-            ax._poslayoutbox.edit_right_margin_min(bbox.x1 -
-                    pos.x1 + w_padt)
-            ax._poslayoutbox.edit_bottom_margin_min(
-                    -bbox.y0 + pos.y0 + h_padt)
-            ax._poslayoutbox.edit_top_margin_min(bbox.y1-pos.y1+h_padt)
-            _log.debug('left %f', (-bbox.x0 + pos.x0 + w_pad))
-            _log.debug('right %f', (bbox.x1 - pos.x1 + w_pad))
-            _log.debug('bottom %f', (-bbox.y0 + pos.y0 + h_padt))
-            # Sometimes its possible for the solver to collapse
-            # rather than expand axes, so they all have zero height
-            # or width.  This stops that...  It *should* have been
-            # taken into account w/ pref_width...
-            if fig._layoutbox.constrained_layout_called < 1:
-                ax._poslayoutbox.constrain_height_min(20, strength='weak')
-                ax._poslayoutbox.constrain_width_min(20, strength='weak')
-                ax._layoutbox.constrain_height_min(20, strength='weak')
-                ax._layoutbox.constrain_width_min(20, strength='weak')
-                ax._poslayoutbox.constrain_top_margin(0, strength='weak')
-                ax._poslayoutbox.constrain_bottom_margin(0,
-                        strength='weak')
-                ax._poslayoutbox.constrain_right_margin(0, strength='weak')
-                ax._poslayoutbox.constrain_left_margin(0, strength='weak')
-
-    # do layout for suptitle.
-    if fig._suptitle is not None:
-        sup = fig._suptitle
-        bbox = invTransFig(sup.get_window_extent(renderer=renderer))
-        height = bbox.y1 - bbox.y0
-        sup._layoutbox.edit_height(height+h_pad)
-
-    # OK, the above lines up ax._poslayoutbox with ax._layoutbox
-    # now we need to
-    #   1) arrange the subplotspecs.  We do it at this level because
-    #      the subplotspecs are meant to contain other dependent axes
-    #      like colorbars or legends.
-    #   2) line up the right and left side of the ax._poslayoutbox
-    #      that have the same subplotspec maxes.
-
-    if fig._layoutbox.constrained_layout_called < 1:
-
-        # arrange the subplotspecs...  This is all done relative to each
-        # other.  Some subplotspecs conatain axes, and others contain gridspecs
-        # the ones that contain gridspecs are a set proportion of their
-        # parent gridspec.  The ones that contain axes are not so constrained.
-        figlb = fig._layoutbox
-        for child in figlb.children:
-            if child._is_gridspec_layoutbox():
-                # farm the gridspec layout out.
-                #
-                # This routine makes all the subplot spec containers
-                # have the correct arrangement.  It just stacks the
-                # subplot layoutboxes in the correct order...
-                arange_subplotspecs(child, hspace=hspace, wspace=wspace)
-
-        # - Align right/left and bottom/top spines of appropriate subplots.
-        # - Compare size of subplotspec including height and width ratios
-        #   and make sure that the axes spines are at least as large
-        #   as they should be.
-        for gs in gss:
-            # for each gridspec...
-            nrows, ncols = gs.get_geometry()
-            width_ratios = gs.get_width_ratios()
-            height_ratios = gs.get_height_ratios()
-            if width_ratios is None:
-                width_ratios = np.ones(ncols)
-            if height_ratios is None:
-                height_ratios = np.ones(nrows)
-
-            # get axes in this gridspec....
-            axs = []
-            for ax in fig.axes:
-                if (hasattr(ax, 'get_subplotspec')
-                        and ax._layoutbox is not None):
-                    if ax.get_subplotspec().get_gridspec() == gs:
-                        axs += [ax]
-            for ax in axs:
-                axs = axs[1:]
-                # now compare ax to all the axs:
-                #
-                # If the subplotspecs have the same colnumXmax, then line
-                # up their right sides.  If they have the same min, then
-                # line up their left sides (and vertical equivalents).
-                ss0 = ax.get_subplotspec()
-                if ss0.num2 is None:
-                    ss0.num2 = ss0.num1
-                rownum0min, colnum0min = divmod(ss0.num1, ncols)
-                rownum0max, colnum0max = divmod(ss0.num2, ncols)
-                for axc in axs:
-                    ssc = axc.get_subplotspec()
-                    # get the rownums and colnums
-                    rownumCmin, colnumCmin = divmod(ssc.num1, ncols)
-                    if ssc.num2 is None:
-                        ssc.num2 = ssc.num1
-                    rownumCmax, colnumCmax = divmod(ssc.num2, ncols)
-
-                    # Horizontally align axes spines if they have the
-                    # same min or max:
-                    if colnum0min == colnumCmin:
-                        # we want the _poslayoutboxes to line up on left
-                        # side of the axes spines...
-                        layoutbox.align([ax._poslayoutbox,
-                                         axc._poslayoutbox],
-                                        'left')
-                    if colnum0max == colnumCmax:
-                        # line up right sides of _poslayoutbox
-                        layoutbox.align([ax._poslayoutbox,
-                                         axc._poslayoutbox],
-                                        'right')
-                    # Vertically align axes spines if they have the
-                    # same min or max:
-                    if rownum0min == rownumCmin:
-                        # line up top of _poslayoutbox
-                        _log.debug('rownum0min == rownumCmin')
-                        layoutbox.align([ax._poslayoutbox, axc._poslayoutbox],
-                                        'top')
-                    if rownum0max == rownumCmax:
-                        # line up bottom of _poslayoutbox
-                        _log.debug('rownum0max == rownumCmax')
-                        layoutbox.align([ax._poslayoutbox, axc._poslayoutbox],
-                                        'bottom')
-
-                    ###########
-                    # Now we make the widths and heights of position boxes
-                    # similar. (i.e the spine locations)
-                    # This allows vertically stacked subplots to have
-                    # different sizes if they occupy different amounts
-                    # of the gridspec:  i.e.
-                    # gs = gridspec.GridSpec(3,1)
-                    # ax1 = gs[0,:]
-                    # ax2 = gs[1:,:]
-                    # then drows0 = 1, and drowsC = 2, and ax2
-                    # should be at least twice as large as ax1.
-                    # But it can be more than twice as large because
-                    # it needs less room for the labeling.
-                    #
-                    # For height, this only needs to be done if the
-                    # subplots share a column.  For width if they
-                    # share a row.
-                    widthC = np.sum(
-                            width_ratios[colnumCmin:(colnumCmax + 1)])
-                    width0 = np.sum(
-                            width_ratios[colnum0min:(colnum0max + 1)])
-                    heightC = np.sum(
-                            height_ratios[rownumCmin:(rownumCmax + 1)])
-                    height0 = np.sum(
-                            height_ratios[rownum0min:(rownum0max + 1)])
-
-                    drowsC = (rownumCmax - rownumCmin + 1)
-                    drows0 = (rownum0max - rownum0min + 1)
-                    dcolsC = (colnumCmax - colnumCmin + 1)
-                    dcols0 = (colnum0max - colnum0min + 1)
-
-                    if height0 > heightC:
-                        if in_same_column(ss0, ssc):
-                            ax._poslayoutbox.constrain_height_min(
-                                axc._poslayoutbox.height * height0 / heightC)
-                            # these constraints stop the smaller axes from
-                            # being allowed to go to zero height...
-                            axc._poslayoutbox.constrain_height_min(
-                                ax._poslayoutbox.height * heightC /
-                                (height0*1.8))
-                    else:
-                        if in_same_column(ss0, ssc):
-                            axc._poslayoutbox.constrain_height_min(
-                                ax._poslayoutbox.height * heightC / height0)
-                            ax._poslayoutbox.constrain_height_min(
-                                ax._poslayoutbox.height * height0 /
-                                (heightC*1.8))
-                    if drows0 == drowsC:
-                        ax._poslayoutbox.constrain_height(
-                                axc._poslayoutbox.height * height0 / heightC)
-                    # widths...
-                    if width0 > widthC:
-                        if in_same_row(ss0, ssc):
-                            ax._poslayoutbox.constrain_width_min(
-                                    axc._poslayoutbox.width * width0 / widthC)
-                            axc._poslayoutbox.constrain_width_min(
-                                    ax._poslayoutbox.width * widthC /
-                                    (width0*1.8))
-                    else:
-                        if in_same_row(ss0, ssc):
-                            axc._poslayoutbox.constrain_width_min(
-                                    ax._poslayoutbox.width * widthC / width0)
-                            ax._poslayoutbox.constrain_width_min(
-                                    axc._poslayoutbox.width * width0 /
-                                    (widthC*1.8))
-                    if dcols0 == dcolsC:
-                        ax._poslayoutbox.constrain_width(
-                                axc._poslayoutbox.width * width0 / widthC)
-
-    fig._layoutbox.constrained_layout_called += 1
-    fig._layoutbox.update_variables()
-    # Now set the position of the axes...
-    for ax in fig.axes:
-        if ax._layoutbox is not None:
-            newpos = ax._poslayoutbox.get_rect()
-            _log.debug('newpos %r', newpos)
-            # Now set the new position.
-            # ax.set_position will zero out the layout for
-            # this axis, allowing users to hard-code the position,
-            # so this does the same w/o zeroing layout.
-            ax._set_position(newpos, which='original')
+                if ax._layoutbox is not None:
+                    newpos = ax._poslayoutbox.get_rect()
+                    # Now set the new position.
+                    # ax.set_position will zero out the layout for
+                    # this axis, allowing users to hard-code the position,
+                    # so this does the same w/o zeroing layout.
+                    ax._set_position(newpos, which='original')
+        else:
+            warnings.warn('constrained_layout not applied.  At least '
+                          'one axes collapsed to zero width or height.')
 
 
-def arange_subplotspecs(gs, hspace=0, wspace=0):
+def _make_ghost_gridspec_slots(fig, gs):
     """
-    arange the subplotspec children of this gridspec, and then recursively
+    Check for unoccupied gridspec slots and make ghost axes for these
+    slots...  Do for each gs separately.  This is a pretty big kludge
+    but shoudn't have too much ill effect.  The worst is that
+    someone querrying the figure will wonder why there are more
+    axes than they thought.
+    """
+    nrows, ncols = gs.get_geometry()
+    hassubplotspec = np.zeros(nrows * ncols, dtype=bool)
+    axs = []
+    for ax in fig.axes:
+        if (hasattr(ax, 'get_subplotspec')
+                and ax._layoutbox is not None
+                and ax.get_subplotspec().get_gridspec() == gs):
+            axs += [ax]
+    for ax in axs:
+        ss0 = ax.get_subplotspec()
+        if ss0.num2 is None:
+            ss0.num2 = ss0.num1
+        hassubplotspec[ss0.num1:(ss0.num2 + 1)] = True
+    for nn, hss in enumerate(hassubplotspec):
+        if not hss:
+            # this gridspec slot doesn't have an axis so we
+            # make a "ghost".
+            ax = fig.add_subplot(gs[nn])
+            ax.set_frame_on(False)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.set_facecolor((1, 0, 0, 0))
+
+
+def _make_layout_margins(ax, renderer, h_pad, w_pad):
+    """
+    For each axes, make a margin between the *pos* layoutbox and the
+    *axes* layoutbox be a minimum size that can accommodate the
+    decorations on the axis.
+    """
+    fig = ax.figure
+    invTransFig = fig.transFigure.inverted().transform_bbox
+
+    pos = ax.get_position(original=True)
+    tightbbox = ax.get_tightbbox(renderer=renderer)
+    bbox = invTransFig(tightbbox)
+    # use stored h_pad if it exists
+    h_padt = ax._poslayoutbox.h_pad
+    if h_padt is None:
+        h_padt = h_pad
+    w_padt = ax._poslayoutbox.w_pad
+    if w_padt is None:
+        w_padt = w_pad
+    ax._poslayoutbox.edit_left_margin_min(-bbox.x0 +
+            pos.x0 + w_padt)
+    ax._poslayoutbox.edit_right_margin_min(bbox.x1 -
+            pos.x1 + w_padt)
+    ax._poslayoutbox.edit_bottom_margin_min(
+            -bbox.y0 + pos.y0 + h_padt)
+    ax._poslayoutbox.edit_top_margin_min(bbox.y1-pos.y1+h_padt)
+    _log.debug('left %f', (-bbox.x0 + pos.x0 + w_pad))
+    _log.debug('right %f', (bbox.x1 - pos.x1 + w_pad))
+    _log.debug('bottom %f', (-bbox.y0 + pos.y0 + h_padt))
+    # Sometimes its possible for the solver to collapse
+    # rather than expand axes, so they all have zero height
+    # or width.  This stops that...  It *should* have been
+    # taken into account w/ pref_width...
+    if fig._layoutbox.constrained_layout_called < 1:
+        ax._poslayoutbox.constrain_height_min(20, strength='weak')
+        ax._poslayoutbox.constrain_width_min(20, strength='weak')
+        ax._layoutbox.constrain_height_min(20, strength='weak')
+        ax._layoutbox.constrain_width_min(20, strength='weak')
+        ax._poslayoutbox.constrain_top_margin(0, strength='weak')
+        ax._poslayoutbox.constrain_bottom_margin(0,
+                strength='weak')
+        ax._poslayoutbox.constrain_right_margin(0, strength='weak')
+        ax._poslayoutbox.constrain_left_margin(0, strength='weak')
+
+
+def _align_spines(fig, gs):
+    """
+    - Align right/left and bottom/top spines of appropriate subplots.
+    - Compare size of subplotspec including height and width ratios
+       and make sure that the axes spines are at least as large
+       as they should be.
+    """
+    # for each gridspec...
+    nrows, ncols = gs.get_geometry()
+    width_ratios = gs.get_width_ratios()
+    height_ratios = gs.get_height_ratios()
+    if width_ratios is None:
+        width_ratios = np.ones(ncols)
+    if height_ratios is None:
+        height_ratios = np.ones(nrows)
+
+    # get axes in this gridspec....
+    axs = []
+    for ax in fig.axes:
+        if (hasattr(ax, 'get_subplotspec')
+                and ax._layoutbox is not None):
+            if ax.get_subplotspec().get_gridspec() == gs:
+                axs += [ax]
+    rownummin = np.zeros(len(axs), dtype=np.int8)
+    rownummax = np.zeros(len(axs), dtype=np.int8)
+    colnummin = np.zeros(len(axs), dtype=np.int8)
+    colnummax = np.zeros(len(axs), dtype=np.int8)
+    width = np.zeros(len(axs))
+    height = np.zeros(len(axs))
+
+    for n, ax in enumerate(axs):
+        ss0 = ax.get_subplotspec()
+        if ss0.num2 is None:
+            ss0.num2 = ss0.num1
+        rownummin[n], colnummin[n] = divmod(ss0.num1, ncols)
+        rownummax[n], colnummax[n] = divmod(ss0.num2, ncols)
+        width[n] = np.sum(
+                width_ratios[colnummin[n]:(colnummax[n] + 1)])
+        height[n] = np.sum(
+                height_ratios[rownummin[n]:(rownummax[n] + 1)])
+
+    for nn, ax in enumerate(axs[:-1]):
+        ss0 = ax.get_subplotspec()
+
+        # now compare ax to all the axs:
+        #
+        # If the subplotspecs have the same colnumXmax, then line
+        # up their right sides.  If they have the same min, then
+        # line up their left sides (and vertical equivalents).
+        rownum0min, colnum0min = rownummin[nn], colnummin[nn]
+        rownum0max, colnum0max = rownummax[nn], colnummax[nn]
+        width0, height0 = width[nn], height[nn]
+        alignleft = False
+        alignright = False
+        alignbot = False
+        aligntop = False
+        alignheight = False
+        alignwidth = False
+        for mm in range(nn+1, len(axs)):
+            axc = axs[mm]
+            rownumCmin, colnumCmin = rownummin[mm], colnummin[mm]
+            rownumCmax, colnumCmax = rownummax[mm], colnummax[mm]
+            widthC, heightC = width[mm], height[mm]
+            # Horizontally align axes spines if they have the
+            # same min or max:
+            if not alignleft and colnum0min == colnumCmin:
+                # we want the _poslayoutboxes to line up on left
+                # side of the axes spines...
+                layoutbox.align([ax._poslayoutbox,
+                                 axc._poslayoutbox],
+                                'left')
+                alignleft = True
+
+            if not alignright and colnum0max == colnumCmax:
+                # line up right sides of _poslayoutbox
+                layoutbox.align([ax._poslayoutbox,
+                                 axc._poslayoutbox],
+                                'right')
+                alignright = True
+            # Vertically align axes spines if they have the
+            # same min or max:
+            if not aligntop and rownum0min == rownumCmin:
+                # line up top of _poslayoutbox
+                _log.debug('rownum0min == rownumCmin')
+                layoutbox.align([ax._poslayoutbox, axc._poslayoutbox],
+                                'top')
+                aligntop = True
+
+            if not alignbot and rownum0max == rownumCmax:
+                # line up bottom of _poslayoutbox
+                _log.debug('rownum0max == rownumCmax')
+                layoutbox.align([ax._poslayoutbox, axc._poslayoutbox],
+                                'bottom')
+                alignbot = True
+            ###########
+            # Now we make the widths and heights of position boxes
+            # similar. (i.e the spine locations)
+            # This allows vertically stacked subplots to have
+            # different sizes if they occupy different amounts
+            # of the gridspec:  i.e.
+            # gs = gridspec.GridSpec(3,1)
+            # ax1 = gs[0,:]
+            # ax2 = gs[1:,:]
+            # then drows0 = 1, and drowsC = 2, and ax2
+            # should be at least twice as large as ax1.
+            # But it can be more than twice as large because
+            # it needs less room for the labeling.
+            #
+            # For height, this only needs to be done if the
+            # subplots share a column.  For width if they
+            # share a row.
+
+            drowsC = (rownumCmax - rownumCmin + 1)
+            drows0 = (rownum0max - rownum0min + 1)
+            dcolsC = (colnumCmax - colnumCmin + 1)
+            dcols0 = (colnum0max - colnum0min + 1)
+
+            if not alignheight and drows0 == drowsC:
+                ax._poslayoutbox.constrain_height(
+                        axc._poslayoutbox.height * height0 / heightC)
+                alignheight = True
+            elif _in_same_column(colnum0min, colnum0max,
+                    colnumCmin, colnumCmax):
+                if height0 > heightC:
+                    ax._poslayoutbox.constrain_height_min(
+                        axc._poslayoutbox.height * height0 / heightC)
+                    # these constraints stop the smaller axes from
+                    # being allowed to go to zero height...
+                    axc._poslayoutbox.constrain_height_min(
+                        ax._poslayoutbox.height * heightC /
+                        (height0*1.8))
+                elif height0 < heightC:
+                    axc._poslayoutbox.constrain_height_min(
+                        ax._poslayoutbox.height * heightC / height0)
+                    ax._poslayoutbox.constrain_height_min(
+                        ax._poslayoutbox.height * height0 /
+                        (heightC*1.8))
+            # widths...
+            if not alignwidth and dcols0 == dcolsC:
+                ax._poslayoutbox.constrain_width(
+                        axc._poslayoutbox.width * width0 / widthC)
+                alignwidth = True
+            elif _in_same_row(rownum0min, rownum0max,
+                    rownumCmin, rownumCmax):
+                if width0 > widthC:
+                    ax._poslayoutbox.constrain_width_min(
+                            axc._poslayoutbox.width * width0 / widthC)
+                    axc._poslayoutbox.constrain_width_min(
+                            ax._poslayoutbox.width * widthC /
+                            (width0*1.8))
+                elif width0 < widthC:
+                    axc._poslayoutbox.constrain_width_min(
+                            ax._poslayoutbox.width * widthC / width0)
+                    ax._poslayoutbox.constrain_width_min(
+                            axc._poslayoutbox.width * width0 /
+                            (widthC*1.8))
+
+
+def _arrange_subplotspecs(gs, hspace=0, wspace=0):
+    """
+    arrange the subplotspec children of this gridspec, and then recursively
     do the same of any gridspec children of those gridspecs...
     """
     sschildren = []
@@ -453,9 +472,8 @@ def arange_subplotspecs(gs, hspace=0, wspace=0):
         if child._is_subplotspec_layoutbox():
             for child2 in child.children:
                 # check for gridspec children...
-                name = (child2.name).split('.')[-1][:-3]
-                if name == 'gridspec':
-                    arange_subplotspecs(child2, hspace=hspace, wspace=wspace)
+                if child2._is_gridspec_layoutbox():
+                    _arrange_subplotspecs(child2, hspace=hspace, wspace=wspace)
             sschildren += [child]
     # now arrange the subplots...
     for child0 in sschildren:

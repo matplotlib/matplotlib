@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef __PY_CONVERTERS_H__
-#define __PY_CONVERTERS_H__
+#ifndef MPL_PY_CONVERTERS_H
+#define MPL_PY_CONVERTERS_H
 
 /***************************************************************************
  * This module contains a number of conversion functions from Python types

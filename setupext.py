@@ -1,22 +1,25 @@
-from __future__ import print_function, absolute_import
-
-from importlib import import_module
-
-from distutils import sysconfig
-from distutils import version
+import builtins
+import configparser
+from distutils import sysconfig, version
 from distutils.core import Extension
 import distutils.command.build_ext
 import glob
+import hashlib
+import importlib
 import multiprocessing
 import os
+import pathlib
 import platform
 import re
 import shutil
 import subprocess
-from subprocess import check_output
 import sys
+import tarfile
+import textwrap
+import urllib.request
 import warnings
-from textwrap import fill
+
+import setuptools
 import versioneer
 
 
@@ -53,17 +56,10 @@ _freetype_hashes = {
 LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
-if sys.platform != 'win32':
-    from subprocess import getstatusoutput
-
-
-import configparser
-
 
 # matplotlib build options, which can be altered using setup.cfg
 options = {
     'display_status': True,
-    'verbose': False,
     'backend': None,
     'basedirlist': None
     }
@@ -94,19 +90,6 @@ lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
 
 
-def get_win32_compiler():
-    """
-    Determine the compiler being used on win32.
-    """
-    # Used to determine mingw32 or msvc
-    # This is pretty bad logic, someone know a better way?
-    for v in sys.argv:
-        if 'mingw32' in v:
-            return 'mingw32'
-    return 'msvc'
-win32_compiler = get_win32_compiler()
-
-
 def extract_versions():
     """
     Extracts version values from the main matplotlib __init__.py and
@@ -114,23 +97,20 @@ def extract_versions():
     """
     with open('lib/matplotlib/__init__.py') as fd:
         for line in fd.readlines():
-            if (line.startswith('__version__numpy__')):
+            if line.startswith('__version__numpy__'):
                 exec(line.strip())
     return locals()
 
 
 def has_include_file(include_dirs, filename):
     """
-    Returns `True` if `filename` can be found in one of the
-    directories in `include_dirs`.
+    Returns `True` if *filename* can be found in one of the
+    directories in *include_dirs*.
     """
     if sys.platform == 'win32':
-        include_dirs = list(include_dirs)  # copy before modify
-        include_dirs += os.environ.get('INCLUDE', '.').split(os.pathsep)
-    for dir in include_dirs:
-        if os.path.exists(os.path.join(dir, filename)):
-            return True
-    return False
+        include_dirs = [*include_dirs,  # Don't modify it in-place.
+                        *os.environ.get('INCLUDE', '.').split(os.pathsep)]
+    return any(pathlib.Path(dir, filename).exists() for dir in include_dirs)
 
 
 def check_include_file(include_dirs, filename, package):
@@ -154,7 +134,7 @@ def get_base_dirs():
     if os.environ.get('MPLBASEDIRLIST'):
         return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
 
-    win_bases = ['win32_static', ]
+    win_bases = ['win32_static']
     # on conda windows, we also add the <conda_env_dir>\Library,
     # as conda installs libs/includes there
     # env var names mess: https://github.com/conda/conda/issues/2312
@@ -181,8 +161,10 @@ def get_include_dirs():
     """
     include_dirs = [os.path.join(d, 'include') for d in get_base_dirs()]
     if sys.platform != 'win32':
-        # gcc includes this dir automatically, so also look for headers in
+        # gcc includes these dirs automatically, so also look for headers in
         # these dirs
+        include_dirs.extend(
+            os.environ.get('CPATH', '').split(os.pathsep))
         include_dirs.extend(
             os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
     return include_dirs
@@ -190,12 +172,9 @@ def get_include_dirs():
 
 def is_min_version(found, minversion):
     """
-    Returns `True` if `found` is at least as high a version as
-    `minversion`.
+    Returns whether *found* is a version at least as high as *minversion*.
     """
-    expected_version = version.LooseVersion(minversion)
-    found_version = version.LooseVersion(found)
-    return found_version >= expected_version
+    return version.LooseVersion(found) >= version.LooseVersion(minversion)
 
 
 # Define the display functions only if display_status is True.
@@ -206,15 +185,15 @@ if options['display_status']:
     def print_status(package, status):
         initial_indent = "%22s: " % package
         indent = ' ' * 24
-        print(fill(str(status), width=76,
-                   initial_indent=initial_indent,
-                   subsequent_indent=indent))
+        print(textwrap.fill(str(status), width=76,
+                            initial_indent=initial_indent,
+                            subsequent_indent=indent))
 
     def print_message(message):
         indent = ' ' * 24 + "* "
-        print(fill(str(message), width=76,
-                   initial_indent=indent,
-                   subsequent_indent=indent))
+        print(textwrap.fill(str(message), width=76,
+                            initial_indent=indent,
+                            subsequent_indent=indent))
 
     def print_raw(section):
         print(section)
@@ -270,12 +249,11 @@ def get_file_hash(filename):
     """
     Get the SHA256 hash of a given filename.
     """
-    import hashlib
     BLOCKSIZE = 1 << 16
     hasher = hashlib.sha256()
     with open(filename, 'rb') as fd:
         buf = fd.read(BLOCKSIZE)
-        while len(buf) > 0:
+        while buf:
             hasher.update(buf)
             buf = fd.read(BLOCKSIZE)
     return hasher.hexdigest()
@@ -292,19 +270,13 @@ class PkgConfig(object):
         if sys.platform == 'win32':
             self.has_pkgconfig = False
         else:
-            try:
-                self.pkg_config = os.environ['PKG_CONFIG']
-            except KeyError:
-                self.pkg_config = 'pkg-config'
-
+            self.pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
             self.set_pkgconfig_path()
-            status, output = getstatusoutput(self.pkg_config + " --help")
-            self.has_pkgconfig = (status == 0)
+            self.has_pkgconfig = shutil.which(self.pkg_config) is not None
             if not self.has_pkgconfig:
-                print("IMPORTANT WARNING:")
-                print(
-                    "    pkg-config is not installed.\n"
-                    "    matplotlib may not be able to find some of its dependencies")
+                print("IMPORTANT WARNING:\n"
+                      "    pkg-config is not installed.\n"
+                      "    matplotlib may not be able to find some of its dependencies")
 
     def set_pkgconfig_path(self):
         pkgconfig_path = sysconfig.get_config_var('LIBDIR')
@@ -339,8 +311,8 @@ class PkgConfig(object):
             command = "{0} --libs --cflags ".format(executable)
 
             try:
-                output = check_output(command, shell=True,
-                                      stderr=subprocess.STDOUT)
+                output = subprocess.check_output(
+                    command, shell=True, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError:
                 pass
             else:
@@ -374,7 +346,7 @@ class PkgConfig(object):
         if not self.has_pkgconfig:
             return None
 
-        status, output = getstatusoutput(
+        status, output = subprocess.getstatusoutput(
             self.pkg_config + " %s --modversion" % (package))
         if status == 0:
             return output
@@ -505,7 +477,7 @@ class SetupPackage(object):
                 "Requires patches that have not been merged upstream.")
 
         if min_version and version != 'unknown':
-            if (not is_min_version(version, min_version)):
+            if not is_min_version(version, min_version):
                 raise CheckFailed(
                     "Requires %s %s or later.  Found %s." %
                     (package, min_version, version))
@@ -570,7 +542,7 @@ class SetupPackage(object):
                            .format(url, self.name))
         elif sys.platform == "darwin":
             message = _try_managers("brew", "port")
-        elif sys.platform.startswith("linux"):
+        elif sys.platform == "linux":
             release = platform.linux_distribution()[0].lower()
             if release in ('debian', 'ubuntu'):
                 message = _try_managers('apt-get')
@@ -660,9 +632,7 @@ class Python(SetupPackage):
     name = "python"
 
     def check(self):
-        major, minor1, minor2, s, tmp = sys.version_info
-
-        if major < 3 or minor1 < 5:
+        if sys.version_info < (3, 5):
             error = """
 Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
 Beginning with Matplotlib 3.0, Python 3.5 and above is required.
@@ -672,7 +642,6 @@ This may be due to an out of date pip.
 Make sure you have pip >= 9.0.1.
 """
             raise CheckFailed(error)
-
         return sys.version
 
 
@@ -683,55 +652,30 @@ class Matplotlib(SetupPackage):
         return versioneer.get_version()
 
     def get_packages(self):
-        return [
-            'matplotlib',
-            'matplotlib.backends',
-            'matplotlib.backends.qt_editor',
-            'matplotlib.compat',
-            'matplotlib.projections',
-            'matplotlib.axes',
-            'matplotlib.sphinxext',
-            'matplotlib.style',
-            'matplotlib.testing',
-            'matplotlib.testing._nose',
-            'matplotlib.testing._nose.plugins',
-            'matplotlib.testing.jpl_units',
-            'matplotlib.tri',
-            'matplotlib.cbook'
-            ]
+        return setuptools.find_packages(
+            "lib",
+            include=["matplotlib", "matplotlib.*"],
+            exclude=["matplotlib.tests", "matplotlib.*.tests"])
 
     def get_py_modules(self):
         return ['pylab']
 
     def get_package_data(self):
+
+        def iter_dir(base):
+            return [
+                str(path.relative_to('lib/matplotlib'))
+                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
+
         return {
             'matplotlib':
             [
-                'mpl-data/fonts/afm/*.afm',
-                'mpl-data/fonts/pdfcorefonts/*.afm',
-                'mpl-data/fonts/pdfcorefonts/*.txt',
-                'mpl-data/fonts/ttf/*.ttf',
-                'mpl-data/fonts/ttf/LICENSE_STIX',
-                'mpl-data/fonts/ttf/COPYRIGHT.TXT',
-                'mpl-data/fonts/ttf/README.TXT',
-                'mpl-data/fonts/ttf/RELEASENOTES.TXT',
-                'mpl-data/images/*.xpm',
-                'mpl-data/images/*.svg',
-                'mpl-data/images/*.gif',
-                'mpl-data/images/*.pdf',
-                'mpl-data/images/*.png',
-                'mpl-data/images/*.ppm',
-                'mpl-data/example/*.npy',
                 'mpl-data/matplotlibrc',
-                'backends/web_backend/*.*',
-                'backends/web_backend/js/*.*',
-                'backends/web_backend/jquery/js/*.min.js',
-                'backends/web_backend/jquery/css/themes/base/*.min.css',
-                'backends/web_backend/jquery/css/themes/base/images/*',
-                'backends/web_backend/css/*.*',
-                'backends/Matplotlib.nib/*',
-                'mpl-data/stylelib/*.mplstyle',
-             ]}
+                *iter_dir('mpl-data/fonts'),
+                *iter_dir('mpl-data/images'),
+                *iter_dir('mpl-data/stylelib'),
+                *iter_dir('backends/web_backend'),
+            ]}
 
 
 class SampleData(OptionalPackage):
@@ -742,11 +686,16 @@ class SampleData(OptionalPackage):
     name = "sample_data"
 
     def get_package_data(self):
+
+        def iter_dir(base):
+            return [
+                str(path.relative_to('lib/matplotlib'))
+                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
+
         return {
             'matplotlib':
             [
-                'mpl-data/sample_data/*.*',
-                'mpl-data/sample_data/axes_grid/*.*',
+                *iter_dir('mpl-data/sample_data'),
             ]}
 
 
@@ -768,7 +717,7 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    pytest_min_version = '3.1'
+    pytest_min_version = '3.4'
     default_config = False
 
     def check(self):
@@ -907,12 +856,10 @@ class Numpy(SetupPackage):
 
     @staticmethod
     def include_dirs_hook():
-        import builtins
         if hasattr(builtins, '__NUMPY_SETUP__'):
             del builtins.__NUMPY_SETUP__
-        import imp
         import numpy
-        imp.reload(numpy)
+        importlib.reload(numpy)
 
         ext = Extension('test', [])
         ext.include_dirs.append(numpy.get_include())
@@ -1013,7 +960,8 @@ class FreeType(SetupPackage):
                 check_include_file(get_include_dirs(), 'freetype2\\ft2build.h', 'freetype')
             return 'Using unknown version found on system.'
 
-        status, output = getstatusoutput("freetype-config --ftversion")
+        status, output = subprocess.getstatusoutput(
+            "freetype-config --ftversion")
         if status == 0:
             version = output
         else:
@@ -1080,6 +1028,8 @@ class FreeType(SetupPackage):
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
+        from pathlib import Path
+
         # We're using a system freetype
         if not options.get('local_freetype'):
             return
@@ -1119,8 +1069,6 @@ class FreeType(SetupPackage):
                         pass
 
             if not os.path.isfile(tarball_path):
-                from urllib.request import urlretrieve
-
                 if not os.path.exists('build'):
                     os.makedirs('build')
 
@@ -1134,80 +1082,76 @@ class FreeType(SetupPackage):
                     tarball_url = url_fmt.format(
                         version=LOCAL_FREETYPE_VERSION, tarball=tarball)
 
-                    print("Downloading {0}".format(tarball_url))
+                    print("Downloading {}".format(tarball_url))
                     try:
-                        urlretrieve(tarball_url, tarball_path)
+                        urllib.request.urlretrieve(tarball_url, tarball_path)
                     except IOError:  # URLError (a subclass) on Py3.
-                        print("Failed to download {0}".format(tarball_url))
+                        print("Failed to download {}".format(tarball_url))
                     else:
                         if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
                             print("Invalid hash.")
                         else:
                             break
                 else:
-                    raise IOError("Failed to download freetype. "
-                                  "You can download the file by "
-                                  "alternative means and copy it "
-                                  " to '{0}'".format(tarball_path))
+                    raise IOError("Failed to download FreeType. You can "
+                                  "download the file by alternative means and "
+                                  "copy it to {}".format(tarball_path))
                 os.makedirs(tarball_cache_dir, exist_ok=True)
                 try:
                     shutil.copy(tarball_path, tarball_cache_path)
-                    print('Cached tarball at: {}'.format(tarball_cache_path))
+                    print('Cached tarball at {}'.format(tarball_cache_path))
                 except OSError:
                     # If this fails, we can always re-download.
                     pass
 
             if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
                 raise IOError(
-                    "{0} does not match expected hash.".format(tarball))
+                    "{} does not match expected hash.".format(tarball))
 
-        print("Building {0}".format(tarball))
+        print("Building {}".format(tarball))
+        with tarfile.open(tarball_path, "r:gz") as tgz:
+            tgz.extractall("build")
+
         if sys.platform != 'win32':
             # compilation on all other platforms than windows
-            cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
-
+            env = {**os.environ,
+                   "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
             subprocess.check_call(
-                ['tar', 'zxf', tarball], cwd='build')
-            subprocess.check_call(
-                [cflags + './configure --with-zlib=no --with-bzip2=no '
-                 '--with-png=no --with-harfbuzz=no'], shell=True, cwd=src_path)
-            subprocess.check_call(
-                [cflags + 'make'], shell=True, cwd=src_path)
+                ["./configure", "--with-zlib=no", "--with-bzip2=no",
+                 "--with-png=no", "--with-harfbuzz=no"],
+                env=env, cwd=src_path)
+            subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
-            FREETYPE_BUILD_CMD = """\
-call "%ProgramFiles%\\Microsoft SDKs\\Windows\\v7.0\\Bin\\SetEnv.Cmd" /Release /{xXX} /xp
+            shutil.rmtree(str(Path(src_path, "objs")), ignore_errors=True)
+            FREETYPE_BUILD_CMD = r"""
+call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
+    /Release /{xXX} /xp
 call "{vcvarsall}" {xXX}
-set MSBUILD=C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe
-rd /S /Q %FREETYPE%\\objs
-%MSBUILD% %FREETYPE%\\builds\\windows\\{vc20xx}\\freetype.sln /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
-echo Build completed, moving result"
-:: move to the "normal" path for the unix builds...
-mkdir %FREETYPE%\\objs\\.libs
-:: REMINDER: fix when changing the version
-copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-if errorlevel 1 (
-  rem This is a py27 version, which has a different location for the lib file :-/
-  copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-)
+set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
+%MSBUILD% "builds\windows\{vc20xx}\freetype.sln" ^
+    /t:Clean;Build /p:Configuration="Release";Platform={WinXX}
 """
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
+            import distutils.msvc9compiler as msvc
             # Note: freetype has no build profile for 2014, so we don't bother...
-            vc = 'vc2010' if VS2010 else 'vc2008'
-            WinXX = 'x64' if X64 else 'Win32'
-            tar_extract(tarball_path, "build")
-            # This is only false for py2.7, even on py3.5...
-            if not VS2010:
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.vcproj'), WinXX)
-
-            cmdfile = os.path.join("build", 'build_freetype.cmd')
-            with open(cmdfile, 'w') as cmd:
-                cmd.write(prepare_build_cmd(FREETYPE_BUILD_CMD, vc20xx=vc, WinXX=WinXX,
-                                            config='Release' if VS2010 else 'LIB Release'))
-
-            os.environ['FREETYPE'] = src_path
-            subprocess.check_call([cmdfile], shell=True)
+            vc = 'vc2010'
+            WinXX = 'x64' if platform.architecture()[0] == '64bit' else 'Win32'
+            xXX = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
+            vcvarsall = msvc.find_vcvarsall(10.0)
+            if vcvarsall is None:
+                raise RuntimeError('Microsoft VS 2010 required')
+            cmdfile = Path("build/build_freetype.cmd")
+            cmdfile.write_text(FREETYPE_BUILD_CMD.format(
+                vc20xx=vc, WinXX=WinXX, xXX=xXX, vcvarsall=vcvarsall))
+            subprocess.check_call([str(cmdfile.resolve())],
+                                  shell=True, cwd=src_path)
+            # Move to the corresponding Unix build path.
+            Path(src_path, "objs/.libs").mkdir()
+            # Be robust against change of FreeType version.
+            lib_path, = (Path(src_path, "objs", vc, xXX)
+                         .glob("freetype*.lib"))
+            shutil.copy2(str(lib_path),
+                         str(Path(src_path, "objs/.libs/libfreetype.lib")))
 
 
 class FT2Font(SetupPackage):
@@ -1243,7 +1187,7 @@ class Png(SetupPackage):
             check_include_file(get_include_dirs(), 'png.h', 'png')
             return 'Using unknown version found on system.'
 
-        status, output = getstatusoutput("libpng-config --version")
+        status, output = subprocess.getstatusoutput("libpng-config --version")
         if status == 0:
             version = output
         else:
@@ -1391,17 +1335,12 @@ class InstallRequires(SetupPackage):
         return "handled by setuptools"
 
     def get_install_requires(self):
-        install_requires = [
+        return [
             "cycler>=0.10",
+            "kiwisolver>=1.0.1",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
-            "pytz",
-            "six>=1.10",
-            "kiwisolver>=1.0.1",
         ]
-        if sys.version_info < (3,) and os.name == "posix":
-            install_requires += ["subprocess32"]
-        return install_requires
 
 
 class BackendAgg(OptionalBackendPackage):
@@ -1430,14 +1369,8 @@ class BackendTkAgg(OptionalBackendPackage):
         return "installing; run-time loading from Python Tcl / Tk"
 
     def runtime_check(self):
-        """ Checks whether TkAgg runtime dependencies are met
-        """
-        pkg_name = 'tkinter'
-        try:
-            import_module(pkg_name)
-        except ImportError:
-            return False
-        return True
+        """Checks whether TkAgg runtime dependencies are met."""
+        return importlib.util.find_spec("tkinter") is not None
 
     def get_extension(self):
         sources = [
@@ -1454,300 +1387,57 @@ class BackendTkAgg(OptionalBackendPackage):
         if sys.platform == 'win32':
             # PSAPI library needed for finding Tcl / Tk at run time
             ext.libraries.extend(['psapi'])
-        elif sys.platform.startswith('linux'):
+        elif sys.platform == 'linux':
             ext.libraries.extend(['dl'])
-
-
-class BackendGtk(OptionalBackendPackage):
-    name = "gtk"
-
-    def check_requirements(self):
-        try:
-            import gtk
-        except ImportError:
-            raise CheckFailed("Requires pygtk")
-        except RuntimeError:
-            raise CheckFailed('pygtk present, but import failed.')
-        else:
-            version = (2, 2, 0)
-            if gtk.pygtk_version < version:
-                raise CheckFailed(
-                    "Requires pygtk %d.%d.%d or later. "
-                    "Found %d.%d.%d" % (version + gtk.pygtk_version))
-
-        ext = self.get_extension()
-        self.add_flags(ext)
-        check_include_file(ext.include_dirs,
-                           os.path.join("gtk", "gtk.h"),
-                           'gtk')
-        check_include_file(ext.include_dirs,
-                           os.path.join("pygtk", "pygtk.h"),
-                           'pygtk')
-
-        return 'Gtk: %s pygtk: %s' % (
-            ".".join(str(x) for x in gtk.gtk_version),
-            ".".join(str(x) for x in gtk.pygtk_version))
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-    def get_extension(self):
-        sources = [
-            'src/_backend_gdk.c'
-            ]
-        ext = make_extension('matplotlib.backends._backend_gdk', sources)
-        self.add_flags(ext)
-        Numpy().add_flags(ext)
-        return ext
-
-    def add_flags(self, ext):
-        if sys.platform == 'win32':
-            def getoutput(s):
-                ret = os.popen(s).read().strip()
-                return ret
-
-            if 'PKG_CONFIG_PATH' not in os.environ:
-                # If Gtk+ is installed, pkg-config is required to be installed
-                os.environ['PKG_CONFIG_PATH'] = 'C:\\GTK\\lib\\pkgconfig'
-
-                # popen broken on my win32 platform so I can't use pkgconfig
-                ext.library_dirs.extend(
-                    ['C:/GTK/bin', 'C:/GTK/lib'])
-
-                ext.include_dirs.extend(
-                    ['win32_static/include/pygtk-2.0',
-                     'C:/GTK/include',
-                     'C:/GTK/include/gobject',
-                     'C:/GTK/include/gext',
-                     'C:/GTK/include/glib',
-                     'C:/GTK/include/pango',
-                     'C:/GTK/include/atk',
-                     'C:/GTK/include/X11',
-                     'C:/GTK/include/cairo',
-                     'C:/GTK/include/gdk',
-                     'C:/GTK/include/gdk-pixbuf',
-                     'C:/GTK/include/gtk',
-                     ])
-
-            pygtkIncludes = getoutput(
-                'pkg-config --cflags-only-I pygtk-2.0').split()
-            gtkIncludes = getoutput(
-                'pkg-config --cflags-only-I gtk+-2.0').split()
-            includes = pygtkIncludes + gtkIncludes
-            ext.include_dirs.extend([include[2:] for include in includes])
-
-            pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()
-            gtkLinker = getoutput('pkg-config --libs gtk+-2.0').split()
-            linkerFlags = pygtkLinker + gtkLinker
-
-            ext.libraries.extend(
-                [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
-
-            ext.library_dirs.extend(
-                [flag[2:] for flag in linkerFlags if flag.startswith('-L')])
-
-            ext.extra_link_args.extend(
-                [flag for flag in linkerFlags if not
-                 (flag.startswith('-l') or flag.startswith('-L'))])
-
-            # visual studio doesn't need the math library
-            if (sys.platform == 'win32' and
-                win32_compiler == 'msvc' and
-                'm' in ext.libraries):
-                ext.libraries.remove('m')
-
-        elif sys.platform != 'win32':
-            pkg_config.setup_extension(ext, 'pygtk-2.0')
-            pkg_config.setup_extension(ext, 'gtk+-2.0')
-
-
-class BackendGtkAgg(BackendGtk):
-    name = "gtkagg"
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-    def get_extension(self):
-        sources = [
-            'src/py_converters.cpp',
-            'src/_gtkagg.cpp',
-            'src/mplutils.cpp'
-            ]
-        ext = make_extension('matplotlib.backends._gtkagg', sources)
-        self.add_flags(ext)
-        LibAgg().add_flags(ext)
-        Numpy().add_flags(ext)
-        return ext
-
-
-def backend_gtk3agg_internal_check(x):
-    try:
-        import gi
-    except ImportError:
-        return (False, "Requires pygobject to be installed.")
-
-    try:
-        gi.require_version("Gtk", "3.0")
-    except ValueError:
-        return (False, "Requires gtk3 development files to be installed.")
-    except AttributeError:
-        return (False, "pygobject version too old.")
-
-    try:
-        from gi.repository import Gtk, Gdk, GObject
-    except (ImportError, RuntimeError):
-        return (False, "Requires pygobject to be installed.")
-
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
 
 
 class BackendGtk3Agg(OptionalBackendPackage):
     name = "gtk3agg"
 
     def check_requirements(self):
-        if 'TRAVIS' in os.environ:
-            raise CheckFailed("Can't build with Travis")
+        if not any(map(importlib.util.find_spec, ["cairocffi", "cairo"])):
+            raise CheckFailed("Requires cairocffi or pycairo to be installed.")
 
-        # This check needs to be performed out-of-process, because
-        # importing gi and then importing regular old pygtk afterward
-        # segfaults the interpreter.
         try:
-            p = multiprocessing.Pool()
-        except:
-            return "unknown (can not use multiprocessing to determine)"
-        try:
-            res = p.map_async(backend_gtk3agg_internal_check, [0])
-            success, msg = res.get(timeout=10)[0]
-        except multiprocessing.TimeoutError:
-            p.terminate()
-            # No result returned. Probably hanging, terminate the process.
-            success = False
-            raise CheckFailed("Check timed out")
-        except:
-            p.close()
-            # Some other error.
-            success = False
-            msg = "Could not determine"
-            raise
-        else:
-            p.close()
-        finally:
-            p.join()
-
-        if success:
-            return msg
-        else:
-            raise CheckFailed(msg)
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-
-def backend_gtk3cairo_internal_check(x):
-    try:
-        import cairocffi
-    except ImportError:
-        try:
-            import cairo
+            import gi
         except ImportError:
-            return (False, "Requires cairocffi or pycairo to be installed.")
+            raise CheckFailed("Requires pygobject to be installed.")
 
-    try:
-        import gi
-    except ImportError:
-        return (False, "Requires pygobject to be installed.")
-
-    try:
-        gi.require_version("Gtk", "3.0")
-    except ValueError:
-        return (False, "Requires gtk3 development files to be installed.")
-    except AttributeError:
-        return (False, "pygobject version too old.")
-
-    try:
-        from gi.repository import Gtk, Gdk, GObject
-    except (RuntimeError, ImportError):
-        return (False, "Requires pygobject to be installed.")
-
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
-
-
-class BackendGtk3Cairo(OptionalBackendPackage):
-    name = "gtk3cairo"
-
-    def check_requirements(self):
-        if 'TRAVIS' in os.environ:
-            raise CheckFailed("Can't build with Travis")
-
-        # This check needs to be performed out-of-process, because
-        # importing gi and then importing regular old pygtk afterward
-        # segfaults the interpreter.
         try:
-            p = multiprocessing.Pool()
-        except:
-            return "unknown (can not use multiprocessing to determine)"
-        try:
-            res = p.map_async(backend_gtk3cairo_internal_check, [0])
-            success, msg = res.get(timeout=10)[0]
-        except multiprocessing.TimeoutError:
-            p.terminate()
-            # No result returned. Probably hanging, terminate the process.
-            success = False
-            raise CheckFailed("Check timed out")
-        except:
-            p.close()
-            success = False
-            raise
-        else:
-            p.close()
-        finally:
-            p.join()
+            gi.require_version("Gtk", "3.0")
+        except ValueError:
+            raise CheckFailed(
+                "Requires gtk3 development files to be installed.")
+        except AttributeError:
+            raise CheckFailed("pygobject version too old.")
 
-        if success:
-            return msg
-        else:
-            raise CheckFailed(msg)
+        try:
+            from gi.repository import Gtk, Gdk, GObject
+        except (ImportError, RuntimeError):
+            raise CheckFailed("Requires pygobject to be installed.")
+
+        return "version {}.{}.{}".format(
+            Gtk.get_major_version(),
+            Gtk.get_minor_version(),
+            Gtk.get_micro_version())
 
     def get_package_data(self):
         return {'matplotlib': ['mpl-data/*.glade']}
+
+
+class BackendGtk3Cairo(BackendGtk3Agg):
+    name = "gtk3cairo"
 
 
 class BackendWxAgg(OptionalBackendPackage):
     name = "wxagg"
 
     def check_requirements(self):
-        wxversioninstalled = True
-        try:
-            import wxversion
-        except ImportError:
-            wxversioninstalled = False
-
-        if wxversioninstalled:
-            try:
-                _wx_ensure_failed = wxversion.AlreadyImportedError
-            except AttributeError:
-                _wx_ensure_failed = wxversion.VersionError
-
-            try:
-                wxversion.ensureMinimal('2.9')
-            except _wx_ensure_failed:
-                pass
-
         try:
             import wx
             backend_version = wx.VERSION_STRING
         except ImportError:
             raise CheckFailed("requires wxPython")
-
-        if not is_min_version(backend_version, "2.9"):
-            raise CheckFailed(
-                "Requires wxPython 2.9, found %s" % backend_version)
 
         return "version %s" % backend_version
 
@@ -1808,10 +1498,10 @@ class BackendQtBase(OptionalBackendPackage):
         return '.'.join(temp)
 
     def check_requirements(self):
-        '''
+        """
         If PyQt4/PyQt5 is already imported, importing PyQt5/PyQt4 will fail
         so we need to test in a subprocess (as for Gtk3).
-        '''
+        """
         try:
             p = multiprocessing.Pool()
 
@@ -1963,75 +1653,6 @@ class BackendCairo(OptionalBackendPackage):
                 return "pycairo version %s" % cairo.version
         else:
             return "cairocffi version %s" % cairocffi.version
-
-
-class DviPng(SetupPackage):
-    name = "dvipng"
-    optional = True
-
-    def check(self):
-        try:
-            output = check_output('dvipng -version', shell=True,
-                                  stderr=subprocess.STDOUT)
-            return "version %s" % output.splitlines()[1].decode().split()[-1]
-        except (IndexError, ValueError, subprocess.CalledProcessError):
-            raise CheckFailed()
-
-
-class Ghostscript(SetupPackage):
-    name = "ghostscript"
-    optional = True
-
-    def check(self):
-        if sys.platform == 'win32':
-            # mgs is the name in miktex
-            gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
-        else:
-            gs_execs = ['gs']
-        for gs_exec in gs_execs:
-            try:
-                command = gs_exec + ' --version'
-                output = check_output(command, shell=True,
-                                      stderr=subprocess.STDOUT)
-                return "version %s" % output.decode()[:-1]
-            except (IndexError, ValueError, subprocess.CalledProcessError):
-                pass
-
-        raise CheckFailed()
-
-
-class LaTeX(SetupPackage):
-    name = "latex"
-    optional = True
-
-    def check(self):
-        try:
-            output = check_output('latex -version', shell=True,
-                                  stderr=subprocess.STDOUT)
-            line = output.splitlines()[0].decode()
-            pattern = '(3\.1\d+)|(MiKTeX \d+.\d+)'
-            match = re.search(pattern, line)
-            return "version %s" % match.group(0)
-        except (IndexError, ValueError, AttributeError, subprocess.CalledProcessError):
-            raise CheckFailed()
-
-
-class PdfToPs(SetupPackage):
-    name = "pdftops"
-    optional = True
-
-    def check(self):
-        try:
-            output = check_output('pdftops -v', shell=True,
-                                  stderr=subprocess.STDOUT)
-            for line in output.splitlines():
-                line = line.decode()
-                if 'version' in line:
-                    return "version %s" % line.split()[2]
-        except (IndexError, ValueError, subprocess.CalledProcessError):
-            pass
-
-        raise CheckFailed()
 
 
 class OptionalPackageData(OptionalPackage):

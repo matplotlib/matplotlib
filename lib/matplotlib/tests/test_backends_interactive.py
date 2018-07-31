@@ -1,58 +1,95 @@
 import importlib
 import os
+import signal
+import subprocess
 import sys
+import time
+import urllib.request
 
-from matplotlib.compat.subprocess import Popen
 import pytest
+
+import matplotlib as mpl
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
 # PyPI-installable on Travis.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
-#
-# We also don't test on Py2 because its subprocess module doesn't support
-# timeouts, and it would require a separate code path to check for module
-# existence without actually trying to import the module (which may install
-# an undesirable input hook).
-
 
 def _get_testable_interactive_backends():
     backends = []
-    for deps, backend in [(["cairocffi", "pgi"], "gtk3agg"),
+    # gtk3agg fails on Travis, needs to be investigated.
+    for deps, backend in [  # (["cairocffi", "pgi"], "gtk3agg"),
                           (["cairocffi", "pgi"], "gtk3cairo"),
                           (["PyQt5"], "qt5agg"),
                           (["cairocffi", "PyQt5"], "qt5cairo"),
                           (["tkinter"], "tkagg"),
+                          (["wx"], "wx"),
                           (["wx"], "wxagg")]:
         reason = None
-        if sys.version_info < (3,):
-            reason = "Py3-only test"
-        elif not os.environ.get("DISPLAY"):
+        if not os.environ.get("DISPLAY"):
             reason = "No $DISPLAY"
         elif any(importlib.util.find_spec(dep) is None for dep in deps):
             reason = "Missing dependency"
+        elif "wx" in deps and sys.platform == "darwin":
+            reason = "wx backends known not to work on OSX"
         backends.append(pytest.mark.skip(reason=reason)(backend) if reason
                         else backend)
     return backends
 
 
+# Using a timer not only allows testing of timers (on other backends), but is
+# also necessary on gtk3 and wx, where a direct call to key_press_event("q")
+# from draw_event causes breakage due to the canvas widget being deleted too
+# early.  Also, gtk3 redefines key_press_event with a different signature, so
+# we directly invoke it from the superclass instead.
 _test_script = """\
 import sys
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, rcParams
+from matplotlib.backend_bases import FigureCanvasBase
+rcParams.update({
+    "webagg.open_in_browser": False,
+    "webagg.port_retries": 1,
+})
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.plot([1,2,3], [1,3,1])
-fig.canvas.mpl_connect("draw_event", lambda event: sys.exit())
+fig, ax = plt.subplots()
+ax.plot([0, 1], [2, 3])
+
+timer = fig.canvas.new_timer(1)
+timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
+# Trigger quitting upon draw.
+fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
+
 plt.show()
 """
+_test_timeout = 10  # Empirically, 1s is not enough on Travis.
 
 
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
 @pytest.mark.flaky(reruns=3)
-def test_backend(backend):
-    environ = os.environ.copy()
-    environ["MPLBACKEND"] = backend
-    proc = Popen([sys.executable, "-c", _test_script], env=environ)
-    # Empirically, 1s is not enough on Travis.
-    assert proc.wait(timeout=10) == 0
+def test_interactive_backend(backend):
+    subprocess.run([sys.executable, "-c", _test_script],
+                   env={**os.environ, "MPLBACKEND": backend},
+                   check=True,  # Throw on failure.
+                   timeout=_test_timeout)
+
+
+@pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
+def test_webagg():
+    pytest.importorskip("tornado")
+    proc = subprocess.Popen([sys.executable, "-c", _test_script],
+                            env={**os.environ, "MPLBACKEND": "webagg"})
+    url = "http://{}:{}".format(
+        mpl.rcParams["webagg.address"], mpl.rcParams["webagg.port"])
+    timeout = time.perf_counter() + _test_timeout
+    while True:
+        try:
+            conn = urllib.request.urlopen(url)
+            break
+        except urllib.error.URLError:
+            if time.perf_counter() > timeout:
+                pytest.fail("Failed to connect to the webagg server.")
+            else:
+                continue
+    conn.close()
+    proc.send_signal(signal.SIGINT)
+    assert proc.wait(timeout=_test_timeout) == 0

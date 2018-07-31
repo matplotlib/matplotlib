@@ -2,16 +2,10 @@
 A module providing some utility functions regarding bezier path manipulation.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import warnings
 
 import numpy as np
 from matplotlib.path import Path
-
-from operator import xor
-import warnings
 
 
 class NonIntersectingPathException(ValueError):
@@ -37,8 +31,9 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     c, d = sin_t2, -cos_t2
 
     ad_bc = a * d - b * c
-    if ad_bc == 0.:
-        raise ValueError("Given lines do not intersect")
+    if np.abs(ad_bc) < 1.0e-12:
+        raise ValueError("Given lines do not intersect. Please verify that "
+                         "the angles are not equal or differ by 180 degrees.")
 
     # rhs_inverse
     a_, b_ = d, -b
@@ -139,7 +134,7 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
         middle = bezier_point_at_t(middle_t)
         middle_inside = inside_closedpath(middle)
 
-        if xor(start_inside, middle_inside):
+        if start_inside ^ middle_inside:
             t1 = middle_t
             end = middle
             end_inside = middle_inside

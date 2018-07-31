@@ -3,8 +3,9 @@
 Fig Axes Customize Simple
 =========================
 
+Customize the background, labels and ticks of a simple plot.
 """
-import numpy as np
+
 import matplotlib.pyplot as plt
 
 ###############################################################################
@@ -32,3 +33,25 @@ for line in ax1.yaxis.get_ticklines():
     line.set_markeredgewidth(3)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axis.Axis.get_ticklabels
+matplotlib.axis.Axis.get_ticklines
+matplotlib.text.Text.set_rotation
+matplotlib.text.Text.set_fontsize
+matplotlib.text.Text.set_color
+matplotlib.lines.Line2D
+matplotlib.lines.Line2D.set_color
+matplotlib.lines.Line2D.set_markersize
+matplotlib.lines.Line2D.set_markeredgewidth
+matplotlib.patches.Patch.set_facecolor

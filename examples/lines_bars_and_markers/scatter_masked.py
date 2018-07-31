@@ -3,6 +3,9 @@
 Scatter Masked
 ==============
 
+Mask some data points and add a line demarking
+masked regions.
+
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,7 +18,7 @@ N = 100
 r0 = 0.6
 x = 0.9 * np.random.rand(N)
 y = 0.9 * np.random.rand(N)
-area = np.pi * (10 * np.random.rand(N))**2  # 0 to 10 point radii
+area = (20 * np.random.rand(N))**2  # 0 to 10 point radii
 c = np.sqrt(area)
 r = np.sqrt(x * x + y * y)
 area1 = np.ma.masked_where(r < r0, area)

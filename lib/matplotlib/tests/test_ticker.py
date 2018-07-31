@@ -1,14 +1,12 @@
-from __future__ import absolute_import, division, print_function
+import warnings
 
-from numpy.testing import assert_almost_equal
 import numpy as np
+from numpy.testing import assert_almost_equal
 import pytest
 
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-
-import warnings
 
 
 class TestMaxNLocator(object):
@@ -228,6 +226,17 @@ class TestScalarFormatter(object):
 
     use_offset_data = [True, False]
 
+    scilimits_data = [
+        (False, (0, 0), (10.0, 20.0), 0),
+        (True, (-2, 2), (-10, 20), 0),
+        (True, (-2, 2), (-20, 10), 0),
+        (True, (-2, 2), (-110, 120), 2),
+        (True, (-2, 2), (-120, 110), 2),
+        (True, (-2, 2), (-.001, 0.002), -3),
+        (True, (0, 0), (-1e5, 1e5), 5),
+        (True, (6, 6), (-1e5, 1e5), 6),
+    ]
+
     @pytest.mark.parametrize('left, right, offset', offset_data)
     def test_offset_value(self, left, right, offset):
         fig, ax = plt.subplots()
@@ -256,6 +265,18 @@ class TestScalarFormatter(object):
         with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
             assert use_offset == tmp_form.get_useOffset()
+
+    @pytest.mark.parametrize(
+        'sci_type, scilimits, lim, orderOfMag', scilimits_data)
+    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag):
+        tmp_form = mticker.ScalarFormatter()
+        tmp_form.set_scientific(sci_type)
+        tmp_form.set_powerlimits(scilimits)
+        fig, ax = plt.subplots()
+        ax.yaxis.set_major_formatter(tmp_form)
+        ax.set_ylim(*lim)
+        tmp_form.set_locs(ax.yaxis.get_majorticklocs())
+        assert orderOfMag == tmp_form.orderOfMagnitude
 
 
 class FakeAxis(object):
@@ -578,7 +599,7 @@ class TestEngFormatter(object):
         (-0.0, ('0', '0', '0.00')),
         (-0, ('0', '0', '0.00')),
         (0, ('0', '0', '0.00')),
-        (1.23456789e-6, (u'1.23457 \u03bc', u'1 \u03bc', u'1.23 \u03bc')),
+        (1.23456789e-6, ('1.23457 \u03bc', '1 \u03bc', '1.23 \u03bc')),
         (0.123456789, ('123.457 m', '123 m', '123.46 m')),
         (0.1, ('100 m', '100 m', '100.00 m')),
         (1, ('1', '1', '1.00')),
@@ -728,3 +749,27 @@ class TestPercentFormatter(object):
         fmt = mticker.PercentFormatter(symbol='\\{t}%', is_latex=is_latex)
         with matplotlib.rc_context(rc={'text.usetex': usetex}):
             assert fmt.format_pct(50, 100) == expected
+
+
+def test_majformatter_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_major_formatter(matplotlib.ticker.LogLocator())
+
+
+def test_minformatter_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_minor_formatter(matplotlib.ticker.LogLocator())
+
+
+def test_majlocator_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_major_locator(matplotlib.ticker.LogFormatter())
+
+
+def test_minlocator_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.xaxis.set_minor_locator(matplotlib.ticker.LogFormatter())

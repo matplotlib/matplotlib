@@ -1,8 +1,5 @@
-from __future__ import absolute_import, division, print_function
-
-from six.moves import cPickle as pickle
-from six.moves import range
-
+import pickle
+import platform
 from io import BytesIO
 
 import numpy as np
@@ -47,6 +44,7 @@ def test_simple():
 
 @image_comparison(baseline_images=['multi_pickle'],
                   extensions=['png'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   style='mpl20')
 def test_complete():
     fig = plt.figure('Figure with a label?', figsize=(10, 6))
@@ -115,11 +113,11 @@ def test_complete():
 
 def test_no_pyplot():
     # tests pickle-ability of a figure not created with pyplot
-    from matplotlib.backends.backend_pdf import FigureCanvasPdf as fc
+    from matplotlib.backends.backend_pdf import FigureCanvasPdf
     from matplotlib.figure import Figure
 
     fig = Figure()
-    _ = fc(fig)
+    _ = FigureCanvasPdf(fig)
     ax = fig.add_subplot(1, 1, 1)
     ax.plot([1, 2, 3], [1, 2, 3])
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
@@ -189,3 +187,10 @@ def test_rrulewrapper():
     except RecursionError:
         print('rrulewrapper pickling test failed')
         raise
+
+
+def test_shared():
+    fig, axs = plt.subplots(2, sharex=True)
+    fig = pickle.loads(pickle.dumps(fig))
+    fig.axes[0].set_xlim(10, 20)
+    assert fig.axes[1].get_xlim() == (10, 20)

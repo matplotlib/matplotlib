@@ -4,9 +4,6 @@
     toolbar clicks, ..) and the actions in response to the user inputs.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-import six
 import warnings
 
 import matplotlib.cbook as cbook
@@ -25,7 +22,7 @@ class ToolEvent(object):
 
 
 class ToolTriggerEvent(ToolEvent):
-    """Event to inform  that a tool has been triggered"""
+    """Event to inform that a tool has been triggered"""
     def __init__(self, name, sender, tool, canvasevent=None, data=None):
         ToolEvent.__init__(self, name, sender, tool, data)
         self.canvasevent = canvasevent
@@ -45,7 +42,7 @@ class ToolManagerMessageEvent(object):
 
 class ToolManager(object):
     """
-    Helper class that groups all the user interactions for a Figure
+    Helper class that groups all the user interactions for a Figure.
 
     Attributes
     ----------
@@ -93,12 +90,12 @@ class ToolManager(object):
 
     def set_figure(self, figure, update_tools=True):
         """
-        Sets the figure to interact with the tools
+        Bind the given figure to the tools.
 
         Parameters
-        ==========
-        figure: `Figure`
-        update_tools: bool
+        ----------
+        figure : `.Figure`
+        update_tools : bool
             Force tools to update figure
         """
         if self._key_press_handler_id:
@@ -179,7 +176,7 @@ class ToolManager(object):
         list : list of keys associated with the Tool
         """
 
-        keys = [k for k, i in six.iteritems(self._keys) if i == name]
+        keys = [k for k, i in self._keys.items() if i == name]
         return keys
 
     def _remove_keys(self, name):
@@ -342,7 +339,7 @@ class ToolManager(object):
 
     def _get_cls_to_instantiate(self, callback_class):
         # Find the class that corresponds to the tool
-        if isinstance(callback_class, six.string_types):
+        if isinstance(callback_class, str):
             # FIXME: make more complete searching structure
             if callback_class in globals():
                 callback_class = globals()[callback_class]

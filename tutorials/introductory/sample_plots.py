@@ -11,7 +11,7 @@ generated them.
 Line Plot
 =========
 
-Here's how to create a line plot with  text labels using
+Here's how to create a line plot with text labels using
 :func:`~matplotlib.pyplot.plot`.
 
 .. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_simple_plot_001.png
@@ -147,11 +147,10 @@ streamplot function.
 Ellipses
 ========
 
-In support of the
-`Phoenix <http://www.jpl.nasa.gov/news/phoenix/main.php>`_ mission to
-Mars (which used Matplotlib to display ground tracking of spacecraft),
-Michael Droettboom built on work by Charlie Moad to provide an extremely
-accurate  8-spline approximation to elliptical arcs (see
+In support of the `Phoenix <http://www.jpl.nasa.gov/news/phoenix/main.php>`_
+mission to Mars (which used Matplotlib to display ground tracking of
+spacecraft), Michael Droettboom built on work by Charlie Moad to provide
+an extremely accurate 8-spline approximation to elliptical arcs (see
 :class:`~matplotlib.patches.Arc`), which are insensitive to zoom level.
 
 .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_ellipse_demo_001.png
@@ -279,8 +278,8 @@ Date handling
 You can plot timeseries data with major and minor ticks and custom
 tick formatters for both.
 
-.. figure:: ../../gallery/api/images/sphx_glr_date_001.png
-   :target: ../../gallery/api/date.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_date_001.png
+   :target: ../../gallery/text_labels_and_annotations/date.html
    :align: center
    :scale: 50
 
@@ -333,8 +332,8 @@ The :func:`~matplotlib.pyplot.legend` function automatically
 generates figure legends, with MATLAB-compatible legend-placement
 functions.
 
-.. figure:: ../../gallery/api/images/sphx_glr_legend_001.png
-   :target: ../../gallery/api/legend.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_legend_001.png
+   :target: ../../gallery/text_labels_and_annotations/legend.html
    :align: center
    :scale: 50
 
@@ -362,7 +361,7 @@ fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
 Matplotlib's mathtext infrastructure is an independent implementation and
 does not require TeX or any external packages installed on your computer. See
-the tutorial at :ref:`sphx_glr_tutorials_text_mathtext.py`.
+the tutorial at :doc:`/tutorials/text/mathtext`.
 
 
 .. _screenshots_tex_demo:
@@ -397,9 +396,9 @@ to plot the spectrogram of one of the EEG channels.
 
 For examples of how to embed Matplotlib in different toolkits, see:
 
-   * :doc:`/gallery/user_interfaces/embedding_in_gtk2_sgskip`
+   * :doc:`/gallery/user_interfaces/embedding_in_gtk3_sgskip`
    * :doc:`/gallery/user_interfaces/embedding_in_wx2_sgskip`
-   * :doc:`/gallery/user_interfaces/mpl_with_glade_sgskip`
+   * :doc:`/gallery/user_interfaces/mpl_with_glade3_sgskip`
    * :doc:`/gallery/user_interfaces/embedding_in_qt_sgskip`
    * :doc:`/gallery/user_interfaces/embedding_in_tk_sgskip`
 

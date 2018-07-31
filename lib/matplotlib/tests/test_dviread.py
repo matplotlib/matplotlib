@@ -1,34 +1,32 @@
-from matplotlib.testing.decorators import skip_if_command_unavailable
+import json
+from pathlib import Path
+import shutil
 
 import matplotlib.dviread as dr
-import os.path
-import json
 import pytest
 
 
 def test_PsfontsMap(monkeypatch):
     monkeypatch.setattr(dr, 'find_tex_file', lambda x: x)
 
-    filename = os.path.join(
-        os.path.dirname(__file__),
-        'baseline_images', 'dviread', 'test.map')
+    filename = str(Path(__file__).parent / 'baseline_images/dviread/test.map')
     fontmap = dr.PsfontsMap(filename)
     # Check all properties of a few fonts
     for n in [1, 2, 3, 4, 5]:
-        key = ('TeXfont%d' % n).encode('ascii')
+        key = b'TeXfont%d' % n
         entry = fontmap[key]
         assert entry.texname == key
-        assert entry.psname == ('PSfont%d' % n).encode('ascii')
+        assert entry.psname == b'PSfont%d' % n
         if n not in [3, 5]:
-            assert entry.encoding == ('font%d.enc' % n).encode('ascii')
+            assert entry.encoding == b'font%d.enc' % n
         elif n == 3:
             assert entry.encoding == b'enc3.foo'
         # We don't care about the encoding of TeXfont5, which specifies
         # multiple encodings.
         if n not in [1, 5]:
-            assert entry.filename == ('font%d.pfa' % n).encode('ascii')
+            assert entry.filename == b'font%d.pfa' % n
         else:
-            assert entry.filename == ('font%d.pfb' % n).encode('ascii')
+            assert entry.filename == b'font%d.pfb' % n
         if n == 4:
             assert entry.effects == {'slant': -0.1, 'extend': 2.2}
         else:
@@ -51,18 +49,16 @@ def test_PsfontsMap(monkeypatch):
     assert 'no-such-font' in str(exc.value)
 
 
-@skip_if_command_unavailable(["kpsewhich", "-version"])
+@pytest.mark.skipif(shutil.which("kpsewhich") is None,
+                    reason="kpsewhich is not available")
 def test_dviread():
-    dir = os.path.join(os.path.dirname(__file__), 'baseline_images', 'dviread')
-    with open(os.path.join(dir, 'test.json')) as f:
+    dirpath = Path(__file__).parent / 'baseline_images/dviread'
+    with (dirpath / 'test.json').open() as f:
         correct = json.load(f)
-        for entry in correct:
-            entry['text'] = [[a, b, c, d.encode('ascii'), e]
-                             for [a, b, c, d, e] in entry['text']]
-    with dr.Dvi(os.path.join(dir, 'test.dvi'), None) as dvi:
+    with dr.Dvi(str(dirpath / 'test.dvi'), None) as dvi:
         data = [{'text': [[t.x, t.y,
                            chr(t.glyph),
-                           t.font.texname,
+                           t.font.texname.decode('ascii'),
                            round(t.font.size, 2)]
                           for t in page.text],
                  'boxes': [[b.x, b.y, b.height, b.width] for b in page.boxes]}

@@ -4,23 +4,27 @@
   The Matplotlib API
 ####################
 
-.. htmlonly::
+.. toctree::
+   :maxdepth: 1
 
-   :Release: |version|
-   :Date: |today|
+   api_overview.rst
+   api_changes.rst
+
+Modules
+=======
 
 .. toctree::
    :maxdepth: 1
 
-   pyplot_summary.rst
-   api_changes.rst
    matplotlib_configuration_api.rst
+   pyplot_summary.rst
    afm_api.rst
    animation_api.rst
    artist_api.rst
    axes_api.rst
    axis_api.rst
    index_backend_api.rst
+   blocking_input_api.rst
    cbook_api.rst
    cm_api.rst
    collections_api.rst
@@ -59,20 +63,14 @@
    units_api.rst
    widgets_api.rst
 
-.. currentmodule:: matplotlib
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autofunctions.rst
-
-   pyplot
-
-
 Toolkits
---------
+========
 
 .. toctree::
    :maxdepth: 1
 
-   toolkits/axes_grid.rst
+   toolkits/index.rst
    toolkits/mplot3d.rst
+   toolkits/axes_grid1.rst
+   toolkits/axisartist.rst
+   toolkits/axes_grid.rst

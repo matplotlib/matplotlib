@@ -1,6 +1,5 @@
-from __future__ import absolute_import, division, print_function
-
 import sys
+import platform
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -29,7 +28,8 @@ def swirl_velocity_field():
     return x, y, U, V
 
 
-@image_comparison(baseline_images=['streamplot_startpoints'])
+@image_comparison(baseline_images=['streamplot_startpoints'],
+        remove_text=True, style='mpl20')
 def test_startpoints():
     X, Y, U, V = velocity_field()
     start_x = np.linspace(X.min(), X.max(), 10)
@@ -40,7 +40,7 @@ def test_startpoints():
 
 
 @image_comparison(baseline_images=['streamplot_colormap'],
-                  tol=.02)
+                  tol=.04, remove_text=True, style='mpl20')
 def test_colormap():
     X, Y, U, V = velocity_field()
     plt.streamplot(X, Y, U, V, color=U, density=0.6, linewidth=2,
@@ -48,7 +48,9 @@ def test_colormap():
     plt.colorbar()
 
 
-@image_comparison(baseline_images=['streamplot_linewidth'])
+@image_comparison(baseline_images=['streamplot_linewidth'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
+                  remove_text=True, style='mpl20')
 def test_linewidth():
     X, Y, U, V = velocity_field()
     speed = np.sqrt(U*U + V*V)
@@ -59,7 +61,8 @@ def test_linewidth():
 
 
 @image_comparison(baseline_images=['streamplot_masks_and_nans'],
-                  tol=0.04 if on_win else 0)
+                  tol=0.04 if on_win else 0,
+                  remove_text=True, style='mpl20')
 def test_masks_and_nans():
     X, Y, U, V = velocity_field()
     mask = np.zeros(U.shape, dtype=bool)
@@ -71,7 +74,7 @@ def test_masks_and_nans():
 
 
 @image_comparison(baseline_images=['streamplot_maxlength'],
-                  extensions=['png'])
+                  extensions=['png'], remove_text=True, style='mpl20')
 def test_maxlength():
     x, y, U, V = swirl_velocity_field()
     plt.streamplot(x, y, U, V, maxlength=10., start_points=[[0., 1.5]],
@@ -79,7 +82,7 @@ def test_maxlength():
 
 
 @image_comparison(baseline_images=['streamplot_direction'],
-                  extensions=['png'])
+                  extensions=['png'], remove_text=True, style='mpl20')
 def test_direction():
     x, y, U, V = swirl_velocity_field()
     plt.streamplot(x, y, U, V, integration_direction='backward',

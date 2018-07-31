@@ -7,19 +7,16 @@ This provides examples of uses of interactive functions, such as ginput,
 waitforbuttonpress and manual clabel placement.
 
 This script must be run interactively using a backend that has a
-graphical user interface (for example, using GTKAgg backend, but not
+graphical user interface (for example, using GTK3Agg backend, but not
 PS backend).
 
 See also ginput_demo.py
 
 """
 
-
 import time
-import matplotlib
+
 import numpy as np
-import matplotlib.cm as cm
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
 
@@ -40,8 +37,7 @@ tellme('You will define a triangle, click to begin')
 
 plt.waitforbuttonpress()
 
-happy = False
-while not happy:
+while True:
     pts = []
     while len(pts) < 3:
         tellme('Select 3 corners with mouse')
@@ -54,12 +50,12 @@ while not happy:
 
     tellme('Happy? Key click for yes, mouse click for no')
 
-    happy = plt.waitforbuttonpress()
+    if plt.waitforbuttonpress():
+        break
 
     # Get rid of fill
-    if not happy:
-        for p in ph:
-            p.remove()
+    for p in ph:
+        p.remove()
 
 
 ##################################################
@@ -88,13 +84,11 @@ CL = plt.clabel(CS, manual=True)
 tellme('Now do a nested zoom, click to begin')
 plt.waitforbuttonpress()
 
-happy = False
-while not happy:
+while True:
     tellme('Select two corners of zoom, middle mouse button to finish')
     pts = np.asarray(plt.ginput(2, timeout=-1))
 
-    happy = len(pts) < 2
-    if happy:
+    if len(pts) < 2:
         break
 
     pts = np.sort(pts, axis=0)

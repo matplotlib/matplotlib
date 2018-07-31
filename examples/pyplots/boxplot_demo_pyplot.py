@@ -17,7 +17,7 @@ spread = np.random.rand(50) * 100
 center = np.ones(25) * 50
 flier_high = np.random.rand(10) * 100 + 100
 flier_low = np.random.rand(10) * -100
-data = np.concatenate((spread, center, flier_high, flier_low), 0)
+data = np.concatenate((spread, center, flier_high, flier_low))
 
 ###############################################################################
 
@@ -64,7 +64,7 @@ spread = np.random.rand(50) * 100
 center = np.ones(25) * 40
 flier_high = np.random.rand(10) * 100 + 100
 flier_low = np.random.rand(10) * -100
-d2 = np.concatenate((spread, center, flier_high, flier_low), 0)
+d2 = np.concatenate((spread, center, flier_high, flier_low))
 data.shape = (-1, 1)
 d2.shape = (-1, 1)
 
@@ -80,3 +80,17 @@ ax7.set_title('Multiple Samples with Different sizes')
 ax7.boxplot(data)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.boxplot
+matplotlib.pyplot.boxplot

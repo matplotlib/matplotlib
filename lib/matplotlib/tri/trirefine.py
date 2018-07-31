@@ -1,10 +1,6 @@
 """
 Mesh refinement for triangular grids.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
 
 import numpy as np
 from matplotlib.tri.triangulation import Triangulation
@@ -236,7 +232,7 @@ class UniformTriRefiner(TriRefiner):
         # Each edge belongs to 1 triangle (if border edge) or is shared by 2
         # masked_triangles (interior edge).
         # We first build 2 * ntri arrays of edge starting nodes (edge_elems,
-        # edge_apexes) ; we then extract only the masters to avoid overlaps.
+        # edge_apexes); we then extract only the masters to avoid overlaps.
         # The so-called 'master' is the triangle with biggest index
         # The 'slave' is the triangle with lower index
         # (can be -1 if border edge)
@@ -261,7 +257,7 @@ class UniformTriRefiner(TriRefiner):
         refi_x[npts:] = x_add
         refi_y[npts:] = y_add
 
-        # Building the new masked_triangles ; each old masked_triangles hosts
+        # Building the new masked_triangles; each old masked_triangles hosts
         # 4 new masked_triangles
         # there are 6 pts to identify per 'old' triangle, 3 new_pt_corner and
         # 3 new_pt_midside
@@ -271,7 +267,7 @@ class UniformTriRefiner(TriRefiner):
         #  of elem ielem ?
         # If ielem is the apex master: simple count, given the way refi_x was
         #  built.
-        # If ielem is the apex slave: yet we do not know ; but we will soon
+        # If ielem is the apex slave: yet we do not know; but we will soon
         # using the neighbors table.
         new_pt_midside = np.empty([ntri, 3], dtype=np.int32)
         cum_sum = npts
