@@ -121,7 +121,7 @@ classifiers = [
 class NoopTestCommand(TestCommand):
     def __init__(self, dist):
         print("Matplotlib does not support running tests with "
-              "'python setup.py test'. Please run 'python tests.py'.")
+              "'python setup.py test'. Please run 'pytest'.")
 
 
 class BuildExtraLibraries(BuildExtCommand):
