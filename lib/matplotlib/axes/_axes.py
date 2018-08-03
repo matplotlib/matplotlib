@@ -640,7 +640,7 @@ class Axes(_AxesBase):
 
         return rectpatch, connects
 
-    def secondary_xaxis(self, loc, conversion, **kwargs):
+    def secondary_xaxis(self, location, *, conversion=None, **kwargs):
         """
         Add a second x-axis to this axes.
 
@@ -649,7 +649,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        loc : string or scalar
+        location : string or scalar
             The position to put the secondary axis.  Strings can be 'top' or
             'bottom', scalar can be a float indicating the relative position
             on the axes to put the new axes (0 being the bottom, and 1.0 being
@@ -671,27 +671,29 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        ax : `~matplotlib.axes._secondary_axes.Secondary_Axis`
+        ax : `~matplotlib.axes.Axes` (??)
 
         """
-        secondary_ax = Secondary_Axis(self, 'x', loc, conversion, **kwargs)
-        self.add_child_axes(secondary_ax)
-        return secondary_ax
+        if (location in ['top', 'bottom'] or isinstance(location, Number)):
+            secondary_ax = Secondary_Axis(self, 'x', location,
+                                          conversion, **kwargs)
+            self.add_child_axes(secondary_ax)
+        else:
+            raise ValueError('secondary_xaxis location must be either '
+                             '"top" or "bottom"')
 
-
-    def secondary_yaxis(self, loc, conversion, **kwargs):
+    def secondary_yaxis(self, location, *, conversion= None, **kwargs):
         """
         Add a second y-axis to this axes.
 
         For example if we want to have a second scale for the data plotted on
-        the xaxis.
+        the yaxis.
 
         Parameters
         ----------
-        loc : string or scalar
-            FIX
-            The position to put the secondary axis.  Strings can be 'top' or
-            'bottom', scalar can be a float indicating the relative position
+        location : string or scalar
+            The position to put the secondary axis.  Strings can be 'left' or
+            'right', scalar can be a float indicating the relative position
             on the axes to put the new axes (0 being the bottom, and 1.0 being
             the top.)
 
@@ -711,12 +713,16 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        ax : `~matplotlib.axes._secondary_axes.Secondary_Axis`
+        ax : `~matplotlib.axes.Axes` (??)
 
         """
-        secondary_ax = Secondary_Axis(self, 'y', loc, conversion, **kwargs)
-        self.add_child_axes(secondary_ax)
-        return secondary_ax
+        if location in ['left', 'right'] or isinstance(location, Number):
+            secondary_ax = Secondary_Axis(self, 'y', location,
+                                          conversion, **kwargs)
+            self.add_child_axes(secondary_ax)
+        else:
+            raise ValueError('secondary_yaxis location must be either '
+                             '"left" or "right"')
 
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """

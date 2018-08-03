@@ -20,6 +20,7 @@ from matplotlib.ticker import (
     AutoMinorLocator,
 )
 
+
 def _make_inset_locator(rect, trans, parent):
     """
     Helper function to locate inset axes, used in
@@ -48,7 +49,6 @@ def _make_inset_locator(rect, trans, parent):
 
 
 def _parse_conversion(name, otherargs):
-    print(otherargs)
     if name == 'inverted':
         if otherargs is None:
             otherargs = [1.]
@@ -62,6 +62,7 @@ def _parse_conversion(name, otherargs):
         return _LinearTransform(slope=otherargs[0], offset=otherargs[1])
     else:
         raise ValueError(f'"{name}" not a possible conversion string')
+
 
 class Secondary_Axis(_AxesBase):
     """
@@ -126,7 +127,6 @@ class Secondary_Axis(_AxesBase):
                 self._locstrings = self._locstrings[::-1]
                 self.spines[self._locstrings[0]].set_visible(True)
                 self.spines[self._locstrings[1]].set_visible(False)
-                print('orient', orient, self._axis)
                 self._axis.set_ticks_position(orient)
                 self._axis.set_label_position(orient)
             elif orient != self._locstrings[0]:
@@ -150,7 +150,6 @@ class Secondary_Axis(_AxesBase):
         """
 
         # This puts the rectangle into figure-relative coordinates.
-        print('location', location)
         if isinstance(location, str):
             if location in ['top', 'right']:
                 self._pos = 1.
@@ -164,7 +163,6 @@ class Secondary_Axis(_AxesBase):
         else:
             self._pos = location
         self._loc = location
-        print('pos', self._pos)
 
         if self._orientation == 'x':
             bounds = [0, self._pos, 1., 1e-10]
@@ -276,9 +274,7 @@ class Secondary_Axis(_AxesBase):
             lims = self._parent.get_ylim()
             set_lim = self.set_ylim
         order = lims[0] < lims[1]
-        print('before', lims)
         lims = self._convert.transform(lims)
-        print(lims)
         neworder = lims[0] < lims[1]
         if neworder != order:
             # flip because the transform will take care of the flipping..
@@ -417,7 +413,7 @@ class _LinearTransform(mtransforms.AffineBase):
         return np.asarray(values) * self._slope + self._offset
 
     def inverted(self):
-        return _InvertedLinearTransform(self._slope, self._offset)
+        return _InverseLinearTransform(self._slope, self._offset)
 
 
 class _InverseLinearTransform(mtransforms.AffineBase):
@@ -440,17 +436,19 @@ class _InverseLinearTransform(mtransforms.AffineBase):
     def inverted(self):
         return _LinearTransform(self._slope, self._offset)
 
+
 def _mask_out_of_bounds(a):
     """
     Return a Numpy array where all values outside ]0, 1[ are
     replaced with NaNs. If all values are inside ]0, 1[, the original
     array is returned.
     """
-    a = numpy.array(a, float)
+    a = np.array(a, float)
     mask = (a <= 0.0) | (a >= 1.0)
     if mask.any():
-        return numpy.where(mask, numpy.nan, a)
+        return np.where(mask, np.nan, a)
     return a
+
 
 class _InvertTransform(mtransforms.Transform):
     """
@@ -462,16 +460,9 @@ class _InvertTransform(mtransforms.Transform):
     is_separable = True
     has_inverse = True
 
-    def __init__(self, fac, out_of_bounds='mask'):
+    def __init__(self, fac):
         mtransforms.Transform.__init__(self)
         self._fac = fac
-        self.out_of_bounds = out_of_bounds
-        if self.out_of_bounds == 'mask':
-            self._handle_out_of_bounds = _mask_out_of_bounds
-        elif self.out_of_bounds == 'clip':
-            self._handle_out_of_bounds = _clip_out_of_bounds
-        else:
-            raise ValueError("`out_of_bounds` muse be either 'mask' or 'clip'")
 
     def transform_non_affine(self, values):
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -493,22 +484,14 @@ class _PowerTransform(mtransforms.Transform):
     is_separable = True
     has_inverse = True
 
-    def __init__(self, a, b, out_of_bounds='mask'):
+    def __init__(self, a, b):
         mtransforms.Transform.__init__(self)
         self._a = a
         self._b = b
-        self.out_of_bounds = out_of_bounds
-        if self.out_of_bounds == 'mask':
-            self._handle_out_of_bounds = _mask_out_of_bounds
-        elif self.out_of_bounds == 'clip':
-            self._handle_out_of_bounds = _clip_out_of_bounds
-        else:
-            raise ValueError("`out_of_bounds` muse be either 'mask' or 'clip'")
 
     def transform_non_affine(self, values):
         with np.errstate(divide="ignore", invalid="ignore"):
             q = self._b * (values ** self._a)
-            print('forward', values, q)
         return q
 
     def inverted(self):
@@ -526,22 +509,14 @@ class _InversePowerTransform(mtransforms.Transform):
     is_separable = True
     has_inverse = True
 
-    def __init__(self, a, b, out_of_bounds='mask'):
+    def __init__(self, a, b):
         mtransforms.Transform.__init__(self)
         self._a = a
         self._b = b
-        self.out_of_bounds = out_of_bounds
-        if self.out_of_bounds == 'mask':
-            self._handle_out_of_bounds = _mask_out_of_bounds
-        elif self.out_of_bounds == 'clip':
-            self._handle_out_of_bounds = _clip_out_of_bounds
-        else:
-            raise ValueError("`out_of_bounds` must be either 'mask' or 'clip'")
 
     def transform_non_affine(self, values):
         with np.errstate(divide="ignore", invalid="ignore"):
-            q =  (values / self._b) ** (1 / self._a)
-            print(values, q)
+            q = (values / self._b) ** (1 / self._a)
         return q
 
     def inverted(self):
