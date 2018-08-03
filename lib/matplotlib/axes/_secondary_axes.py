@@ -21,14 +21,16 @@ from matplotlib.ticker import (
 )
 
 
-def _make_inset_locator(rect, trans, parent):
+def _make_secondary_locator(rect, trans, parent):
     """
-    Helper function to locate inset axes, used in
-    `.Axes.inset_axes_from_bounds`.
+    Helper function to locate the secondary axes.
 
     A locator gets used in `Axes.set_aspect` to override the default
     locations...  It is a function that takes an axes object and
     a renderer and tells `set_aspect` where it is to be placed.
+
+    This locator make the transform be in axes-relative co-coordinates
+    because that is how we specify the "location" of the secondary axes.
 
     Here *rect* is a rectangle [l, b, w, h] that specifies the
     location for the axes in the transform given by *trans* on the
@@ -170,11 +172,13 @@ class Secondary_Axis(_AxesBase):
             bounds = [self._pos, 0, 1e-10, 1]
 
         transform = self._parent.transAxes
-        secondary_locator = _make_inset_locator(bounds,
+        secondary_locator = _make_secondary_locator(bounds,
                                                 transform, self._parent)
         bb = secondary_locator(None, None)
 
-        # this locator lets the axes move if in data coordinates.
+        # this locator lets the axes move in the parent axes coordinates.
+        # so it never needs to know where the parent is explicitly in
+        # figure co-ordinates.  
         # it gets called in `ax.apply_aspect() (of all places)
         self.set_axes_locator(secondary_locator)
 
