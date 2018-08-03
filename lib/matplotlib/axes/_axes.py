@@ -682,7 +682,7 @@ class Axes(_AxesBase):
             raise ValueError('secondary_xaxis location must be either '
                              '"top" or "bottom"')
 
-    def secondary_yaxis(self, location, *, conversion= None, **kwargs):
+    def secondary_yaxis(self, location, *, conversion=None, **kwargs):
         """
         Add a second y-axis to this axes.
 
