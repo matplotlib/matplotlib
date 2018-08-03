@@ -63,7 +63,7 @@ def _parse_conversion(name, otherargs):
         otherargs = np.asarray(otherargs)
         return _LinearTransform(slope=otherargs[0], offset=otherargs[1])
     else:
-        raise ValueError(f'"{name}" not a possible conversion string')
+        raise ValueError('"{}" not a possible conversion string'.format(name))
 
 
 class Secondary_Axis(_AxesBase):
@@ -178,7 +178,7 @@ class Secondary_Axis(_AxesBase):
 
         # this locator lets the axes move in the parent axes coordinates.
         # so it never needs to know where the parent is explicitly in
-        # figure co-ordinates.  
+        # figure co-ordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         self.set_axes_locator(secondary_locator)
 
