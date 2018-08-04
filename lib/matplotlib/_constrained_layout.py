@@ -272,7 +272,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                 # This routine makes all the subplot spec containers
                 # have the correct arrangement.  It just stacks the
                 # subplot layoutboxes in the correct order...
-                arange_subplotspecs(child, hspace=hspace, wspace=wspace)
+                _arange_subplotspecs(child, hspace=hspace, wspace=wspace)
 
         # - Align right/left and bottom/top spines of appropriate subplots.
         # - Compare size of subplotspec including height and width ratios
@@ -443,7 +443,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             ax._set_position(newpos, which='original')
 
 
-def arange_subplotspecs(gs, hspace=0, wspace=0):
+def _arange_subplotspecs(gs, hspace=0, wspace=0):
     """
     arange the subplotspec children of this gridspec, and then recursively
     do the same of any gridspec children of those gridspecs...
@@ -453,9 +453,8 @@ def arange_subplotspecs(gs, hspace=0, wspace=0):
         if child._is_subplotspec_layoutbox():
             for child2 in child.children:
                 # check for gridspec children...
-                name = (child2.name).split('.')[-1][:-3]
-                if name == 'gridspec':
-                    arange_subplotspecs(child2, hspace=hspace, wspace=wspace)
+                if child2._is_gridspec_layoutbox():
+                    _arange_subplotspecs(child2, hspace=hspace, wspace=wspace)
             sschildren += [child]
     # now arrange the subplots...
     for child0 in sschildren:
