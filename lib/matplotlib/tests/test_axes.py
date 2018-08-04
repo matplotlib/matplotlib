@@ -3996,7 +3996,7 @@ def test_psd_noise():
 
 
 @image_comparison(baseline_images=['csd_freqs'], remove_text=True,
-                  extensions=['png'])
+                  extensions=['png'], tol=0.002)
 def test_csd_freqs():
     '''test axes.csd with sinusoidal stimuli'''
     n = 10000
