@@ -179,18 +179,6 @@ void RendererAgg::tostring_argb(uint8_t *buf)
     agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_argb32());
 }
 
-void RendererAgg::tostring_bgra(uint8_t *buf)
-{
-    //"Return the rendered buffer as an RGB string";
-
-    int row_len = width * 4;
-
-    agg::rendering_buffer renderingBufferTmp;
-    renderingBufferTmp.attach(buf, width, height, row_len);
-
-    agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_bgra32());
-}
-
 agg::rect_i RendererAgg::get_content_extents()
 {
     agg::rect_i r(width, height, 0, 0);
