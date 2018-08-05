@@ -46,7 +46,8 @@ Running the tests is simple. Make sure you have pytest installed and run::
 
 or::
 
-   python tests.py
+   pytest .
+
 
 in the root directory of the distribution. The script takes a set of
 commands, such as:

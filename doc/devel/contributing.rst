@@ -265,7 +265,7 @@ tools:
 * Code with a good unittest coverage (at least 70%, better 100%), check with::
 
    python -mpip install coverage
-   python tests.py --with-coverage
+   pytest --cov=matplotlib --showlocals -v
 
 * No pyflakes warnings, check with::
 
