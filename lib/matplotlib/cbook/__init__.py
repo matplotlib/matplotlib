@@ -2832,3 +2832,21 @@ def _str_lower_equal(obj, s):
     cannot be used in a boolean context.
     """
     return isinstance(obj, six.string_types) and obj.lower() == s
+
+
+@contextlib.contextmanager
+def _setattr_cm(obj, **kwargs):
+    """Temporarily set some attributes; restore original state at context exit.
+    """
+    sentinel = object()
+    origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]
+    try:
+        for attr, val in kwargs.items():
+            setattr(obj, attr, val)
+        yield
+    finally:
+        for attr, orig in origs:
+            if orig is sentinel:
+                delattr(obj, attr)
+            else:
+                setattr(obj, attr, orig)

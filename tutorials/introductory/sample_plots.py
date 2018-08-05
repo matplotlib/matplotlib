@@ -362,7 +362,7 @@ fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
 Matplotlib's mathtext infrastructure is an independent implementation and
 does not require TeX or any external packages installed on your computer. See
-the tutorial at :ref:`sphx_glr_tutorials_text_mathtext.py`.
+the tutorial at :doc:`/tutorials/text/mathtext`.
 
 
 .. _screenshots_tex_demo:

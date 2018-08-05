@@ -105,8 +105,7 @@ def test_figimage1():
 
 
 def test_image_python_io():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.plot([1,2,3])
     buffer = io.BytesIO()
     fig.savefig(buffer)
@@ -285,8 +284,7 @@ def test_image_clip():
 def test_image_cliprect():
     import matplotlib.patches as patches
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     d = [[1,2],[3,4]]
 
     im = ax.imshow(d, extent=(0,5,0,5))
@@ -297,12 +295,8 @@ def test_image_cliprect():
 
 @image_comparison(baseline_images=['imshow'], remove_text=True, style='mpl20')
 def test_imshow():
-    import numpy as np
-    import matplotlib.pyplot as plt
-
-    fig = plt.figure()
+    fig, ax = plt.subplots()
     arr = np.arange(100).reshape((10, 10))
-    ax = fig.add_subplot(111)
     ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
@@ -329,8 +323,7 @@ def test_image_shift():
     tMin=734717.945208
     tMax=734717.946366
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.imshow(imgData, norm=LogNorm(), interpolation='none',
               extent=(tMin, tMax, 1, 100))
     ax.set_aspect('auto')
@@ -368,8 +361,7 @@ def test_image_edges():
                   remove_text=True,
                   style='mpl20')
 def test_image_composite_background():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     arr = np.arange(12).reshape(4, 3)
     ax.imshow(arr, extent=[0, 2, 15, 0])
     ax.imshow(arr, extent=[4, 6, 15, 0])
@@ -384,8 +376,7 @@ def test_image_composite_alpha():
     Tests that the alpha value is recognized and correctly applied in the
     process of compositing images together.
     """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     arr = np.zeros((11, 21, 4))
     arr[:, :, 0] = 1
     arr[:, :, 3] = np.concatenate((np.arange(0, 1.1, 0.1), np.arange(0, 1, 0.1)[::-1]))
@@ -413,9 +404,6 @@ def test_rasterize_dpi():
     # when images end up in the wrong place in case of non-standard dpi setting.
     # Instead of high-res rasterization i use low-res.  Therefore the fact that the
     # resolution is non-standard is easily checked by image_comparison.
-    import numpy as np
-    import matplotlib.pyplot as plt
-
     img = np.asarray([[1, 2], [3, 4]])
 
     fig, axes = plt.subplots(1, 3, figsize = (3, 1))
@@ -445,7 +433,7 @@ def test_bbox_image_inverted():
     # This is just used to produce an image to feed to BboxImage
     image = np.arange(100).reshape((10, 10))
 
-    ax = plt.subplot(111)
+    fig, ax = plt.subplots()
     bbox_im = BboxImage(
         TransformedBbox(Bbox([[100, 100], [0, 0]]), ax.transData))
     bbox_im.set_data(image)
@@ -470,8 +458,7 @@ def test_get_window_extent_for_AxisImage():
 
     im = np.array([[0.25, 0.75, 1.0, 0.75], [0.1, 0.65, 0.5, 0.4],
                    [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
-    fig = plt.figure(figsize=(10, 10), dpi=100)
-    ax = plt.subplot()
+    fig, ax = plt.subplots(figsize=(10, 10), dpi=100)
     ax.set_position([0, 0, 1, 1])
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
@@ -492,8 +479,7 @@ def test_zoom_and_clip_upper_origin():
     image = np.arange(100)
     image = image.reshape((10, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.imshow(image)
     ax.set_ylim(2.0, -0.5)
     ax.set_xlim(-0.5, 2.0)
@@ -642,9 +628,7 @@ def test_log_scale_image(recwarn):
     Z = np.zeros((10, 10))
     Z[::2] = 1
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
+    fig, ax = plt.subplots()
     ax.imshow(Z, extent=[1, 100, 1, 100], cmap='viridis',
               vmax=1, vmin=-1)
     ax.set_yscale('log')
@@ -936,8 +920,8 @@ def test_composite(fmt, counted, composite_image, count):
     # (on a single set of axes) into a single composite image.
     X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
     Z = np.sin(Y ** 2)
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+
+    fig, ax = plt.subplots()
     ax.set_xlim(0, 3)
     ax.imshow(Z, extent=[0, 1, 0, 1])
     ax.imshow(Z[::-1], extent=[2, 3, 0, 1])

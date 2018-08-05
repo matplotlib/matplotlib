@@ -744,8 +744,8 @@ class Line2D(Artist):
             subslice = slice(max(i0 - 1, 0), i1 + 1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
-
-        transf_path = self._get_transformed_path()
+        else:
+            subslice = None
 
         if self.get_path_effects():
             from matplotlib.patheffects import PathEffectRenderer
@@ -753,14 +753,14 @@ class Line2D(Artist):
 
         renderer.open_group('line2d', self.get_gid())
         if self._lineStyles[self._linestyle] != '_draw_nothing':
-            tpath, affine = transf_path.get_transformed_path_and_affine()
+            tpath, affine = (self._get_transformed_path()
+                             .get_transformed_path_and_affine())
             if len(tpath.vertices):
                 gc = renderer.new_gc()
                 self._set_gc_clip(gc)
 
-                ln_color_rgba = self._get_rgba_ln_color()
-                gc.set_foreground(ln_color_rgba, isRGBA=True)
-                gc.set_alpha(ln_color_rgba[3])
+                lc_rgba = mcolors.to_rgba(self._color, self._alpha)
+                gc.set_foreground(lc_rgba, isRGBA=True)
 
                 gc.set_antialiased(self._antialiased)
                 gc.set_linewidth(self._linewidth)
@@ -784,25 +784,38 @@ class Line2D(Artist):
         if self._marker and self._markersize > 0:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
-            rgbaFace = self._get_rgba_face()
-            rgbaFaceAlt = self._get_rgba_face(alt=True)
-            edgecolor = self.get_markeredgecolor()
-            if cbook._str_lower_equal(edgecolor, "none"):
-                gc.set_linewidth(0)
-                gc.set_foreground(rgbaFace, isRGBA=True)
-            else:
-                gc.set_foreground(edgecolor)
-                gc.set_linewidth(self._markeredgewidth)
-                mec = self._markeredgecolor
-                if (cbook._str_equal(mec, "auto")
-                        and not cbook._str_lower_equal(
-                            self.get_markerfacecolor(), "none")):
-                    gc.set_alpha(rgbaFace[3])
-                else:
-                    gc.set_alpha(self.get_alpha())
+            gc.set_linewidth(self._markeredgewidth)
+            gc.set_antialiased(self._antialiased)
+
+            ec_rgba = mcolors.to_rgba(
+                self.get_markeredgecolor(), self._alpha)
+            fc_rgba = mcolors.to_rgba(
+                self._get_markerfacecolor(), self._alpha)
+            fcalt_rgba = mcolors.to_rgba(
+                self._get_markerfacecolor(alt=True), self._alpha)
+            # If the edgecolor is "auto", it is set according to the *line*
+            # color but inherits the alpha value of the *face* color, if any.
+            if (cbook._str_equal(self._markeredgecolor, "auto")
+                    and not cbook._str_lower_equal(
+                        self.get_markerfacecolor(), "none")):
+                ec_rgba = ec_rgba[:3] + (fc_rgba[3],)
+            gc.set_foreground(ec_rgba, isRGBA=True)
 
             marker = self._marker
-            tpath, affine = transf_path.get_transformed_points_and_affine()
+
+            # Markers *must* be drawn ignoring the drawstyle (but don't pay the
+            # recaching if drawstyle is already "default").
+            if self.get_drawstyle() != "default":
+                with cbook._setattr_cm(
+                        self, _drawstyle="default", _transformed_path=None):
+                    self.recache()
+                    self._transform_path(subslice)
+                    tpath, affine = (self._get_transformed_path()
+                                    .get_transformed_path_and_affine())
+            else:
+                tpath, affine = (self._get_transformed_path()
+                                 .get_transformed_path_and_affine())
+
             if len(tpath.vertices):
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
@@ -830,22 +843,15 @@ class Line2D(Artist):
 
                 renderer.draw_markers(gc, marker_path, marker_trans,
                                       subsampled, affine.frozen(),
-                                      rgbaFace)
+                                      fc_rgba)
 
                 alt_marker_path = marker.get_alt_path()
                 if alt_marker_path:
                     alt_marker_trans = marker.get_alt_transform()
                     alt_marker_trans = alt_marker_trans.scale(w)
-                    if (cbook._str_equal(mec, "auto")
-                            and not cbook._str_lower_equal(
-                                self.get_markerfacecoloralt(), "none")):
-                        gc.set_alpha(rgbaFaceAlt[3])
-                    else:
-                        gc.set_alpha(self.get_alpha())
-
                     renderer.draw_markers(
                             gc, alt_marker_path, alt_marker_trans, subsampled,
-                            affine.frozen(), rgbaFaceAlt)
+                            affine.frozen(), fcalt_rgba)
 
             gc.restore()
 
@@ -890,8 +896,7 @@ class Line2D(Artist):
             fc = self._markerfacecoloralt
         else:
             fc = self._markerfacecolor
-
-        if (isinstance(fc, six.string_types) and fc.lower() == 'auto'):
+        if cbook._str_lower_equal(fc, 'auto'):
             if self.get_fillstyle() == 'none':
                 return 'none'
             else:
@@ -1441,8 +1446,7 @@ class VertexSelector(object):
                 self.markers.set_data(xs, ys)
                 self.canvas.draw()
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        fig, ax = plt.subplots()
         x, y = np.random.rand(2, 30)
         line, = ax.plot(x, y, 'bs-', picker=5)
 

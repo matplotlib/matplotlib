@@ -212,8 +212,7 @@ def test_remove_from_figure(use_gridspec):
     """
     Test `remove_from_figure` with the specified ``use_gridspec`` setting
     """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     sc = ax.scatter([1, 2], [3, 4], cmap="spring")
     sc.set_array(np.array([5, 6]))
     pre_figbox = np.array(ax.figbox)

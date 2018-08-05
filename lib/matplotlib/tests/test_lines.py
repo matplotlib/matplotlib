@@ -1,8 +1,10 @@
 """
 Tests specific to the lines module.
 """
+
 from __future__ import absolute_import, division, print_function
 
+from io import BytesIO
 import itertools
 import matplotlib.lines as mlines
 import pytest
@@ -197,3 +199,15 @@ def test_nan_is_sorted():
     assert line._is_sorted(np.array([1, 2, 3]))
     assert line._is_sorted(np.array([1, np.nan, 3]))
     assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
+
+
+def test_step_markers():
+    fig, ax = plt.subplots()
+    ax.step([0, 1], "-o")
+    buf1 = BytesIO()
+    fig.savefig(buf1)
+    fig, ax = plt.subplots()
+    ax.plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
+    buf2 = BytesIO()
+    fig.savefig(buf2)
+    assert buf1.getvalue() == buf2.getvalue()

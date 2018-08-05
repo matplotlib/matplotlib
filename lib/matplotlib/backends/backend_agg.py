@@ -24,7 +24,11 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import threading
+try:
+    import threading
+except ImportError:
+    import dummy_threading as threading
+
 import numpy as np
 from collections import OrderedDict
 from math import radians, cos, sin

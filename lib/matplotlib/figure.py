@@ -1715,7 +1715,7 @@ class Figure(Artist):
         Notes
         -----
         Not all kinds of artist are supported by the legend command. See
-        :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` for details.
+        :doc:`/tutorials/intermediate/legend_guide` for details.
         """
 
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
@@ -2090,7 +2090,14 @@ class Figure(Artist):
         *None*) and update the subplot locations.
 
         """
+        if self.get_constrained_layout():
+            self.set_constrained_layout(False)
+            warnings.warn("This figure was using constrained_layout==True, "
+                          "but that is incompatible with subplots_adjust and "
+                          "or tight_layout: setting "
+                          "constrained_layout==False. ")
         self.subplotpars.update(*args, **kwargs)
+
         for ax in self.axes:
             if not isinstance(ax, SubplotBase):
                 # Check if sharing a subplots axis

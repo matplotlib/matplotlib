@@ -376,6 +376,14 @@ def test_figure_repr():
     assert repr(fig) == "<Figure size 100x200 with 0 Axes>"
 
 
+def test_warn_cl_plus_tl():
+    fig, ax = plt.subplots(constrained_layout=True)
+    with pytest.warns(UserWarning):
+        # this should warn,
+        fig.subplots_adjust(top=0.8)
+    assert not(fig.get_constrained_layout())
+
+
 @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_fspath(fmt, tmpdir):

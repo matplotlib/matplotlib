@@ -159,7 +159,7 @@ following methods::
   ax.yaxis.set_major_formatter(ymajor_formatter)
   ax.yaxis.set_minor_formatter(yminor_formatter)
 
-See :ref:`sphx_glr_gallery_ticks_and_spines_major_minor_demo.py` for an
+See :doc:`/gallery/ticks_and_spines/major_minor_demo` for an
 example of setting major and minor ticks. See the :mod:`matplotlib.dates`
 module for more information and examples of using date locators and formatters.
 """
