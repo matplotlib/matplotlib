@@ -107,10 +107,10 @@ class Secondary_Axis(_AxesBase):
         for st in self._locstrings:
             self.spines[st].set_visible(True)
 
-        if self._pos < 0.5:
+        if  self._pos < 0.5:
             # flip the location strings...
             self._locstrings = self._locstrings[::-1]
-            self.set_axis_orientation(self._locstrings[0])
+        self.set_axis_orientation(self._locstrings[0])
 
     def set_axis_orientation(self, orient):
         """
@@ -127,15 +127,15 @@ class Secondary_Axis(_AxesBase):
             if orient == self._locstrings[1]:
                 # need to change the orientation.
                 self._locstrings = self._locstrings[::-1]
-                self.spines[self._locstrings[0]].set_visible(True)
-                self.spines[self._locstrings[1]].set_visible(False)
-                self._axis.set_ticks_position(orient)
-                self._axis.set_label_position(orient)
             elif orient != self._locstrings[0]:
                 warnings.warn('"{}" is not a valid axis orientation, '
                             'not changing the orientation;'
                             'choose "{}" or "{}""'.format(orient,
                             self._locstrings[0], self._locstrings[1]))
+            self.spines[self._locstrings[0]].set_visible(True)
+            self.spines[self._locstrings[1]].set_visible(False)
+            self._axis.set_ticks_position(orient)
+            self._axis.set_label_position(orient)
 
     def set_location(self, location):
         """
@@ -271,18 +271,29 @@ class Secondary_Axis(_AxesBase):
         parameter when axes initialized.)
 
         """
+        # check parent scale...  Make these match....
+        if self._orientation == 'x':
+            scale = self._parent.get_xscale()
+            self.set_xscale(scale)
+        if self._orientation == 'y':
+            scale = self._parent.get_yscale()
+            self.set_yscale(scale)
+
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
             set_lim = self.set_xlim
         if self._orientation == 'y':
             lims = self._parent.get_ylim()
             set_lim = self.set_ylim
+        print('parent', lims)
         order = lims[0] < lims[1]
         lims = self._convert.transform(lims)
         neworder = lims[0] < lims[1]
         if neworder != order:
             # flip because the transform will take care of the flipping..
-            lims = lims[::-1]
+            # lims = lims[::-1]
+            pass
+        print('childs', lims)
 
         set_lim(lims)
         super().draw(renderer=renderer, inframe=inframe)
@@ -471,6 +482,7 @@ class _InvertTransform(mtransforms.Transform):
     def transform_non_affine(self, values):
         with np.errstate(divide="ignore", invalid="ignore"):
             q = self._fac / values
+        print('q', values, q)
         return q
 
     def inverted(self):
@@ -543,6 +555,7 @@ class ArbitraryScale(mscale.ScaleBase):
         The transform for linear scaling is just the
         :class:`~matplotlib.transforms.IdentityTransform`.
         """
+        print('tranform', self._transform)
         return self._transform
 
     def set_default_locators_and_formatters(self, axis):

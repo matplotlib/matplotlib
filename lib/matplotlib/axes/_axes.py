@@ -678,6 +678,7 @@ class Axes(_AxesBase):
             secondary_ax = Secondary_Axis(self, 'x', location,
                                           conversion, **kwargs)
             self.add_child_axes(secondary_ax)
+            return secondary_ax
         else:
             raise ValueError('secondary_xaxis location must be either '
                              '"top" or "bottom"')
@@ -720,6 +721,7 @@ class Axes(_AxesBase):
             secondary_ax = Secondary_Axis(self, 'y', location,
                                           conversion, **kwargs)
             self.add_child_axes(secondary_ax)
+            return secondary_ax
         else:
             raise ValueError('secondary_yaxis location must be either '
                              '"left" or "right"')
