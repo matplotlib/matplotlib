@@ -268,12 +268,9 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     """
     fig = ax.figure
     invTransFig = fig.transFigure.inverted().transform_bbox
-    print('ax', ax, invTransFig)
     pos = ax.get_position(original=True)
     tightbbox = ax.get_tightbbox(renderer=renderer)
-    print(pos, tightbbox)
     bbox = invTransFig(tightbbox)
-    print('bbox', bbox)
     # this can go wrong:
     if not np.isfinite(bbox.y0 + bbox.x0 + bbox.y1 + bbox.x1):
         # just abort, this is likely a bad set of co-ordinates that

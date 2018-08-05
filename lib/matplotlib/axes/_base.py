@@ -4210,7 +4210,6 @@ class _AxesBase(martist.Artist):
         bb_xaxis = self.xaxis.get_tightbbox(renderer)
         if bb_xaxis:
             bb.append(bb_xaxis)
-
         self._update_title_position(renderer)
         bb.append(self.get_window_extent(renderer))
 
@@ -4230,9 +4229,11 @@ class _AxesBase(martist.Artist):
             bbox_artists = self.get_default_bbox_extra_artists()
 
         for a in bbox_artists:
-            bbox = a.get_tightbbox(renderer)
-            if bbox is not None and (bbox.width != 0 or bbox.height != 0):
-                bb.append(bbox)
+            bbox = a.get_tightbbox(renderer, )
+            if (bbox is not None and
+                (bbox.width != 0 or bbox.height != 0) and
+                np.isfinite(bbox.x0 + bbox.x1 + bbox.y0 + bbox.y1)):
+                    bb.append(bbox)
 
         _bbox = mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])

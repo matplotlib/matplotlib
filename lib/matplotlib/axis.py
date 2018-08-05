@@ -1155,11 +1155,10 @@ class Axis(artist.Artist):
             if (np.isfinite(bbox.width) and np.isfinite(bbox.height) and
                     a.get_visible()):
                 bb.append(bbox)
-
         bb.extend(ticklabelBoxes)
         bb.extend(ticklabelBoxes2)
-
-        bb = [b for b in bb if b.width != 0 or b.height != 0]
+        bb = [b for b in bb if ((b.width != 0 or b.height != 0) and
+                                np.isfinite(b.x0 + b.y0 + b.x1 + b.y1))]
         if bb:
             _bbox = mtransforms.Bbox.union(bb)
             return _bbox

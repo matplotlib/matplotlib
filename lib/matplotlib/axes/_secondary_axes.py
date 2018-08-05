@@ -21,7 +21,7 @@ from matplotlib.ticker import (
 )
 
 
-def _make_secondary_locator(rect, trans, parent):
+def _make_secondary_locator(rect, parent):
     """
     Helper function to locate the secondary axes.
 
@@ -37,17 +37,18 @@ def _make_secondary_locator(rect, trans, parent):
     *parent*.
     """
     _rect = mtransforms.Bbox.from_bounds(*rect)
-    _trans = trans
     _parent = parent
+    _trans = _parent.transAxes
 
-    def inset_locator(ax, renderer):
+
+    def secondary_locator(ax, renderer):
         bbox = _rect
         bb = mtransforms.TransformedBbox(bbox, _trans)
         tr = _parent.figure.transFigure.inverted()
         bb = mtransforms.TransformedBbox(bb, tr)
         return bb
 
-    return inset_locator
+    return secondary_locator
 
 
 def _parse_conversion(name, otherargs):
@@ -174,16 +175,18 @@ class Secondary_Axis(_AxesBase):
         else:
             bounds = [self._pos, 0, 1e-10, 1]
 
-        transform = self._parent.transAxes
-        secondary_locator = _make_secondary_locator(bounds,
-                                                transform, self._parent)
-        bb = secondary_locator(None, None)
+        secondary_locator = _make_secondary_locator(bounds, self._parent)
 
         # this locator lets the axes move in the parent axes coordinates.
         # so it never needs to know where the parent is explicitly in
         # figure co-ordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         self.set_axes_locator(secondary_locator)
+
+    def apply_aspect(self, position=None):
+        self._set_lims()
+        super().apply_aspect(position)
+
 
     def set_ticks(self, ticks, minor=False):
         """
@@ -264,7 +267,7 @@ class Secondary_Axis(_AxesBase):
             self._convert = conversion
             # this will track log/non log so long as the user sets...
             set_scale(self._parent.get_xscale())
-
+        
     def draw(self, renderer=None, inframe=False):
         """
         Draw the secondary axes.
@@ -275,6 +278,11 @@ class Secondary_Axis(_AxesBase):
         parameter when axes initialized.)
 
         """
+
+        self._set_lims()
+        super().draw(renderer=renderer, inframe=inframe)
+
+    def _set_lims(self):
 
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
@@ -288,9 +296,7 @@ class Secondary_Axis(_AxesBase):
         if neworder != order:
             # flip because the transform will take care of the flipping..
             lims = lims[::-1]
-
         set_lim(lims)
-        super().draw(renderer=renderer, inframe=inframe)
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
         """
@@ -309,12 +315,14 @@ class Secondary_Axis(_AxesBase):
         if not self.get_visible():
             return None
 
+        self._set_lims()
         locator = self.get_axes_locator()
         if locator and call_axes_locator:
             pos = locator(self, renderer)
             self.apply_aspect(pos)
         else:
             self.apply_aspect()
+
         if self._orientation == 'x':
             bb_axis = self.xaxis.get_tightbbox(renderer)
         else:
@@ -323,9 +331,9 @@ class Secondary_Axis(_AxesBase):
             bb.append(bb_axis)
 
         bb.append(self.get_window_extent(renderer))
-
         _bbox = mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])
+
 
         return _bbox
 
