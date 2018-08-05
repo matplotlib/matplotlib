@@ -40,7 +40,6 @@ def _make_secondary_locator(rect, parent):
     _parent = parent
     _trans = _parent.transAxes
 
-
     def secondary_locator(ax, renderer):
         bbox = _rect
         bb = mtransforms.TransformedBbox(bbox, _trans)
@@ -111,7 +110,7 @@ class Secondary_Axis(_AxesBase):
         for st in self._locstrings:
             self.spines[st].set_visible(True)
 
-        if  self._pos < 0.5:
+        if self._pos < 0.5:
             # flip the location strings...
             self._locstrings = self._locstrings[::-1]
         self.set_axis_orientation(self._locstrings[0])
@@ -187,7 +186,6 @@ class Secondary_Axis(_AxesBase):
         self._set_lims()
         super().apply_aspect(position)
 
-
     def set_ticks(self, ticks, minor=False):
         """
         Set the x ticks with list of *ticks*
@@ -247,11 +245,10 @@ class Secondary_Axis(_AxesBase):
         # make the _convert function...
         if isinstance(conversion, mtransforms.Transform):
             self._convert = conversion
-
-            self.set_xscale('arbitrary', transform=conversion.inverted())
+            set_scale('arbitrary', transform=conversion.inverted())
         elif isinstance(conversion, str):
             self._convert = _parse_conversion(conversion, otherargs)
-            self.set_xscale('arbitrary', transform=self._convert.inverted())
+            set_scale('arbitrary', transform=self._convert.inverted())
         else:
             # linear conversion with offset
             if isinstance(conversion, numbers.Number):
@@ -267,7 +264,7 @@ class Secondary_Axis(_AxesBase):
             self._convert = conversion
             # this will track log/non log so long as the user sets...
             set_scale(self._parent.get_xscale())
-        
+
     def draw(self, renderer=None, inframe=False):
         """
         Draw the secondary axes.
@@ -333,7 +330,6 @@ class Secondary_Axis(_AxesBase):
         bb.append(self.get_window_extent(renderer))
         _bbox = mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])
-
 
         return _bbox
 
@@ -482,7 +478,8 @@ class _InvertTransform(mtransforms.Transform):
         self._fac = fac
 
     def transform_non_affine(self, values):
-        q = self._fac / values
+        with np.errstate(divide='ignore', invalid='ignore'):
+            q = self._fac / values
         return q
 
     def inverted(self):

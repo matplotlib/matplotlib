@@ -5792,3 +5792,46 @@ def test_spines_properbbox_after_zoom():
                       None, False, False)
     bb2 = ax.spines['bottom'].get_window_extent(fig.canvas.get_renderer())
     np.testing.assert_allclose(bb.get_points(), bb2.get_points(), rtol=1e-6)
+
+
+@image_comparison(baseline_images=['secondary_xy'], style='mpl20',
+        extensions=['png'])
+def test_secondary_xy():
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
+
+    from matplotlib.transforms import Transform
+
+    class LocalInverted(Transform):
+        """
+        Return a/x
+        """
+
+        input_dims = 1
+        output_dims = 1
+        is_separable = True
+        has_inverse = True
+
+        def __init__(self, out_of_bounds='mask'):
+            Transform.__init__(self)
+            self._fac = 1.0
+
+        def transform_non_affine(self, values):
+            with np.errstate(divide="ignore", invalid="ignore"):
+                q = self._fac / values
+            return q
+
+        def inverted(self):
+            """ we are just our own inverse """
+            return LocalInverted(1 / self._fac)
+
+    for nn, ax in enumerate(axs):
+        ax.plot(np.arange(2, 11), np.arange(2, 11))
+        if nn == 0:
+            secax = ax.secondary_xaxis
+        else:
+            secax = ax.secondary_yaxis
+        axsec = secax(0.2, conversion='power', otherargs=(1.5, 1.))
+        axsec = secax(0.4, conversion='inverted', otherargs=1)
+        axsec = secax(0.6, conversion=[3.5, 1.])
+        axsec = secax(0.8, conversion=2.5)
+        axsec = secax(1.0, conversion=LocalInverted())
