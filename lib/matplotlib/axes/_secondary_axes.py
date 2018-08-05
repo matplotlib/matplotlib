@@ -89,6 +89,9 @@ class Secondary_Axis(_AxesBase):
             self._axis = self.yaxis
             self._locstrings = ['right', 'left']
             self._otherstrings = ['top', 'bottom']
+        # this gets positioned w/o constrained_layout so exclude:
+        self._layoutbox = None
+        self._poslayoutbox = None
 
         self.set_location(location)
         self.set_conversion(conversion, self._otherargs)
@@ -241,10 +244,11 @@ class Secondary_Axis(_AxesBase):
         # make the _convert function...
         if isinstance(conversion, mtransforms.Transform):
             self._convert = conversion
-            set_scale('arbitrary', transform=conversion.inverted())
+
+            self.set_xscale('arbitrary', transform=conversion.inverted())
         elif isinstance(conversion, str):
             self._convert = _parse_conversion(conversion, otherargs)
-            set_scale('arbitrary', transform=self._convert.inverted())
+            self.set_xscale('arbitrary', transform=self._convert.inverted())
         else:
             # linear conversion with offset
             if isinstance(conversion, numbers.Number):
@@ -271,13 +275,6 @@ class Secondary_Axis(_AxesBase):
         parameter when axes initialized.)
 
         """
-        # check parent scale...  Make these match....
-        if self._orientation == 'x':
-            scale = self._parent.get_xscale()
-            self.set_xscale(scale)
-        if self._orientation == 'y':
-            scale = self._parent.get_yscale()
-            self.set_yscale(scale)
 
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
@@ -285,15 +282,12 @@ class Secondary_Axis(_AxesBase):
         if self._orientation == 'y':
             lims = self._parent.get_ylim()
             set_lim = self.set_ylim
-        print('parent', lims)
         order = lims[0] < lims[1]
         lims = self._convert.transform(lims)
         neworder = lims[0] < lims[1]
         if neworder != order:
             # flip because the transform will take care of the flipping..
-            # lims = lims[::-1]
-            pass
-        print('childs', lims)
+            lims = lims[::-1]
 
         set_lim(lims)
         super().draw(renderer=renderer, inframe=inframe)
@@ -480,9 +474,7 @@ class _InvertTransform(mtransforms.Transform):
         self._fac = fac
 
     def transform_non_affine(self, values):
-        with np.errstate(divide="ignore", invalid="ignore"):
-            q = self._fac / values
-        print('q', values, q)
+        q = self._fac / values
         return q
 
     def inverted(self):
@@ -555,7 +547,6 @@ class ArbitraryScale(mscale.ScaleBase):
         The transform for linear scaling is just the
         :class:`~matplotlib.transforms.IdentityTransform`.
         """
-        print('tranform', self._transform)
         return self._transform
 
     def set_default_locators_and_formatters(self, axis):
