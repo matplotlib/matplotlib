@@ -148,7 +148,8 @@ css/font-awesome.min.css">
 
 # HTML template for HTMLWriter
 DISPLAY_TEMPLATE = """
-<div class="animation" align="center">
+<div class="animation"
+     style="display:inline-block; margin: 0 auto; text-align: center">
     <img id="_anim_img{id}">
     <br>
     <input id="_anim_slider{id}" type="range" style="width:350px"
