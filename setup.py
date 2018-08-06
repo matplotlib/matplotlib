@@ -7,11 +7,10 @@ setup.cfg.template for more information.
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
 from string import Template
+import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.command.build_ext import build_ext as BuildExtCommand
-
-import sys
 
 if sys.version_info < (3, 5):
     error = """
@@ -23,23 +22,6 @@ This may be due to an out of date pip.
 Make sure you have pip >= 9.0.1.
 """
     sys.exit(error)
-
-# distutils is breaking our sdists for files in symlinked dirs.
-# distutils will copy if os.link is not available, so this is a hack
-# to force copying
-import os
-try:
-    del os.link
-except AttributeError:
-    pass
-
-# This 'if' statement is needed to prevent spawning infinite processes
-# on Windows
-if __name__ == '__main__':
-    # BEFORE importing distutils, remove MANIFEST. distutils doesn't properly
-    # update it when the contents of directories change.
-    if os.path.exists('MANIFEST'):
-        os.remove('MANIFEST')
 
 # The setuptools version of sdist adds a setup.cfg file to the tree.
 # We don't want that, so we simply remove it, and it will fall back to
