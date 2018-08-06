@@ -383,7 +383,7 @@ def test_warn_cl_plus_tl():
     assert not(fig.get_constrained_layout())
 
 
-@check_figures_equal(extensions=["png", "pdf", "svg"])
+@check_figures_equal(extensions=["png", "pdf"])
 def test_add_artist(fig_test, fig_ref):
     fig_test.set_dpi(100)
     fig_ref.set_dpi(100)
