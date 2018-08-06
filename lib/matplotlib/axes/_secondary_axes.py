@@ -18,7 +18,11 @@ from matplotlib.ticker import (
     FuncFormatter,
     ScalarFormatter,
     AutoMinorLocator,
+    LogLocator,
+    LogFormatterSciNotation
 )
+
+from matplotlib.scale import Log10Transform
 
 
 def _make_secondary_locator(rect, parent):
@@ -239,16 +243,24 @@ class Secondary_Axis(_AxesBase):
 
         if self._orientation == 'x':
             set_scale = self.set_xscale
+            parent_scale = self._parent.get_xscale()
         else:
             set_scale = self.set_yscale
+            parent_scale = self._parent.get_yscale()
+        if parent_scale == 'log':
+            defscale = 'arbitrarylog'
+        else:
+            defscale = 'arbitrary'
+
 
         # make the _convert function...
         if isinstance(conversion, mtransforms.Transform):
             self._convert = conversion
-            set_scale('arbitrary', transform=conversion.inverted())
+            set_scale(defscale, transform=conversion.inverted())
         elif isinstance(conversion, str):
             self._convert = _parse_conversion(conversion, otherargs)
-            set_scale('arbitrary', transform=self._convert.inverted())
+            print(self._convert)
+            set_scale(defscale, transform=self._convert.inverted())
         else:
             # linear conversion with offset
             if isinstance(conversion, numbers.Number):
@@ -263,7 +275,11 @@ class Secondary_Axis(_AxesBase):
                                           offset=conversion[1])
             self._convert = conversion
             # this will track log/non log so long as the user sets...
-            set_scale(self._parent.get_xscale())
+            if self._orientation == 'x':
+                set_scale(self._parent.get_xscale())
+            else:
+                set_scale(self._parent.get_yscale())
+
 
     def draw(self, renderer=None, inframe=False):
         """
@@ -287,13 +303,17 @@ class Secondary_Axis(_AxesBase):
         if self._orientation == 'y':
             lims = self._parent.get_ylim()
             set_lim = self.set_ylim
+        print('parent lims', lims)
         order = lims[0] < lims[1]
         lims = self._convert.transform(lims)
         neworder = lims[0] < lims[1]
+        print(order, neworder)
         if neworder != order:
             # flip because the transform will take care of the flipping..
             lims = lims[::-1]
         set_lim(lims)
+
+        print('new lims', lims)
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
         """
@@ -478,8 +498,10 @@ class _InvertTransform(mtransforms.Transform):
         self._fac = fac
 
     def transform_non_affine(self, values):
+        print('values', values)
         with np.errstate(divide='ignore', invalid='ignore'):
             q = self._fac / values
+        print('q', q)
         return q
 
     def inverted(self):
@@ -564,3 +586,36 @@ class ArbitraryScale(mscale.ScaleBase):
         axis.set_minor_formatter(NullFormatter())
 
 mscale.register_scale(ArbitraryScale)
+
+class ArbitraryLogScale(mscale.ScaleBase):
+
+    name = 'arbitrarylog'
+
+    def __init__(self, axis, transform=mtransforms.IdentityTransform()):
+        """
+        TODO
+        """
+        self._transform = transform
+
+    def get_transform(self):
+        """
+        The transform for linear scaling is just the
+        :class:`~matplotlib.transforms.IdentityTransform`.
+        """
+        return self._transform + Log10Transform()
+
+    def set_default_locators_and_formatters(self, axis):
+        """
+        Set the locators and formatters to reasonable defaults for
+        linear scaling.
+        """
+        self.base = 10
+        self.subs = None
+        axis.set_major_locator(LogLocator(self.base))
+        axis.set_major_formatter(LogFormatterSciNotation(self.base))
+        axis.set_minor_locator(LogLocator(self.base, self.subs))
+        axis.set_minor_formatter(
+            LogFormatterSciNotation(self.base,
+                                    labelOnlyBase=(self.subs is not None)))
+
+mscale.register_scale(ArbitraryLogScale)
