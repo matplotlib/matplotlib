@@ -863,9 +863,9 @@ def axes(arg=None, **kwargs):
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
-        - `.Axes`: This is equivalent to `.pyplot.sca`. It sets the current
-          axes to *arg*. Note: This implicitly changes the current figure to
-          the parent of *arg*.
+        - `~matplotlib.axes.Axes`: This is equivalent to `.pyplot.sca`.
+          It sets the current axes to *arg*. Note: This implicitly
+          changes the current figure to the parent of *arg*.
 
           .. note:: The use of an Axes as an argument is deprecated and will be
                     removed in v3.0. Please use `.pyplot.sca` instead.
@@ -979,16 +979,16 @@ def subplot(*args, **kwargs):
 
        subplot(nrows, ncols, index, **kwargs)
 
-    In the current figure, create and return an `.Axes`, at position *index*
-    of a (virtual) grid of *nrows* by *ncols* axes.  Indexes go from 1 to
-    ``nrows * ncols``, incrementing in row-major order.
+    In the current figure, create and return an `~matplotlib.axes.Axes`,
+    at position *index* of a (virtual) grid of *nrows* by *ncols* axes.
+    Indexes go from 1 to ``nrows * ncols``, incrementing in row-major order.
 
     If *nrows*, *ncols* and *index* are all less than 10, they can also be
     given as a single, concatenated, three-digit number.
 
     For example, ``subplot(2, 3, 3)`` and ``subplot(233)`` both create an
-    `.Axes` at the top right corner of the current figure, occupying half of
-    the figure height and a third of the figure width.
+    `matplotlib.axes.Axes` at the top right corner of the current figure,
+    occupying half of the figure height and a third of the figure width.
 
     .. note::
 

@@ -9,13 +9,20 @@ from matplotlib.testing.decorators import image_comparison
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1 import AxesGrid
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import (
+    zoomed_inset_axes,
+    mark_inset,
+    inset_axes
+)
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 
 from matplotlib.colors import LogNorm
 from itertools import product
 
+import pytest
+
 import numpy as np
+from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 
 @image_comparison(baseline_images=['divider_append_axes'])
@@ -153,6 +160,103 @@ def test_inset_locator():
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)
+
+
+@image_comparison(
+    baseline_images=['inset_axes'], style='default', extensions=['png'],
+    remove_text=True)
+def test_inset_axes():
+    def get_demo_image():
+        from matplotlib.cbook import get_sample_data
+        import numpy as np
+        f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
+        z = np.load(f)
+        # z is a numpy array of 15x15
+        return z, (-3, 4, -4, 3)
+
+    fig, ax = plt.subplots(figsize=[5, 4])
+
+    # prepare the demo image
+    Z, extent = get_demo_image()
+    Z2 = np.zeros([150, 150], dtype="d")
+    ny, nx = Z.shape
+    Z2[30:30 + ny, 30:30 + nx] = Z
+
+    # extent = [-3, 4, -4, 3]
+    ax.imshow(Z2, extent=extent, interpolation="nearest",
+              origin="lower")
+
+    # creating our inset axes with a bbox_transform parameter
+    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1),
+                       bbox_transform=ax.transAxes)
+
+    axins.imshow(Z2, extent=extent, interpolation="nearest",
+                 origin="lower")
+    axins.yaxis.get_major_locator().set_params(nbins=7)
+    axins.xaxis.get_major_locator().set_params(nbins=7)
+    # sub region of the original image
+    x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9
+    axins.set_xlim(x1, x2)
+    axins.set_ylim(y1, y2)
+
+    plt.xticks(visible=False)
+    plt.yticks(visible=False)
+
+    # draw a bbox of the region of the inset axes in the parent axes and
+    # connecting lines between the bbox and the inset axes area
+    mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+
+    asb = AnchoredSizeBar(ax.transData,
+                          0.5,
+                          '0.5',
+                          loc=8,
+                          pad=0.1, borderpad=0.5, sep=5,
+                          frameon=False)
+    ax.add_artist(asb)
+
+
+def test_inset_axes_complete():
+    dpi = 100
+    figsize = (6, 5)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    fig.subplots_adjust(.1, .1, .9, .9)
+
+    ins = inset_axes(ax, width=2., height=2., borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array(((0.9*figsize[0]-2.)/figsize[0],
+                      (0.9*figsize[1]-2.)/figsize[1], 0.9, 0.9)))
+
+    ins = inset_axes(ax, width="40%", height="30%", borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array((.9-.8*.4, .9-.8*.3, 0.9, 0.9)))
+
+    ins = inset_axes(ax, width=1., height=1.2, bbox_to_anchor=(200, 100),
+                     loc=3, borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array((200./dpi/figsize[0], 100./dpi/figsize[1],
+                     (200./dpi+1)/figsize[0], (100./dpi+1.2)/figsize[1])))
+
+    ins1 = inset_axes(ax, width="35%", height="60%", loc=3, borderpad=1)
+    ins2 = inset_axes(ax, width="100%", height="100%",
+                      bbox_to_anchor=(0, 0, .35, .60),
+                      bbox_transform=ax.transAxes, loc=3, borderpad=1)
+    fig.canvas.draw()
+    assert_array_equal(ins1.get_position().extents,
+                       ins2.get_position().extents)
+
+    with pytest.raises(ValueError):
+        ins = inset_axes(ax, width="40%", height="30%",
+                         bbox_to_anchor=(0.4, 0.5))
+
+    with pytest.warns(UserWarning):
+        ins = inset_axes(ax, width="40%", height="30%",
+                         bbox_transform=ax.transAxes)
 
 
 @image_comparison(baseline_images=['zoomed_axes',

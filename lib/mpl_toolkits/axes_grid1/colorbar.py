@@ -1,4 +1,4 @@
-'''
+"""
 Colorbar toolkit with two classes and a function:
 
     :class:`ColorbarBase`
@@ -16,8 +16,8 @@ Colorbar toolkit with two classes and a function:
 The :meth:`~matplotlib.figure.Figure.colorbar` method uses :func:`make_axes`
 and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
+"""
 
-'''
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -132,9 +132,9 @@ keyword arguments:
 Additional keyword arguments are of two kinds:
 
   axes properties:
-%s
+    %s
   colorbar properties:
-%s
+    %s
 
 If *mappable* is a :class:`~matplotlib.contours.ContourSet`, its *extend*
 kwarg is included automatically.
@@ -175,7 +175,7 @@ the other hand, the shortest axis has a data limits of [1,2], whose
 unconventional value is to prevent underflow when log scale is used.
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 
-docstring.interpd.update(colorbar_doc=colorbar_doc)
+#docstring.interpd.update(colorbar_doc=colorbar_doc)
 
 
 class CbarAxesLocator(object):
@@ -764,7 +764,9 @@ class Colorbar(ColorbarBase):
 def make_axes(parent, **kw):
     '''
     Resize and reposition a parent axes, and return a child
-    axes suitable for a colorbar::
+    axes suitable for a colorbar
+
+    ::
 
         cax, kw = make_axes(parent, **kw)
 
@@ -806,13 +808,14 @@ def make_axes(parent, **kw):
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
 
-
+@docstring.Substitution(colorbar_doc)
 def colorbar(mappable, cax=None, ax=None, **kw):
     """
     Create a colorbar for a ScalarMappable instance.
 
     Documentation for the pylab thin wrapper:
-    %(colorbar_doc)s
+
+    %s
     """
     import matplotlib.pyplot as plt
     if ax is None:

@@ -38,17 +38,20 @@ interface and the object-oriented API:
 `.pyplot` API       OO API              description
 =================== =================== ======================================
 `~.pyplot.text`     `~.Axes.text`       Add text at an arbitrary location of
-                                        the `.Axes`.
+                                        the `~matplotlib.axes.Axes`.
 
 `~.pyplot.annotate` `~.Axes.annotate`   Add an annotation, with an optional
                                         arrow, at an arbitrary location of the
-                                        `.Axes`.
+                                        `~matplotlib.axes.Axes`.
 
-`~.pyplot.xlabel`   `~.Axes.set_xlabel` Add a label to the `.Axes`\\'s x-axis.
+`~.pyplot.xlabel`   `~.Axes.set_xlabel` Add a label to the
+                                        `~matplotlib.axes.Axes`\\'s x-axis.
 
-`~.pyplot.ylabel`   `~.Axes.set_ylabel` Add a label to the `.Axes`\\'s y-axis.
+`~.pyplot.ylabel`   `~.Axes.set_ylabel` Add a label to the
+                                        `~matplotlib.axes.Axes`\\'s y-axis.
 
-`~.pyplot.title`    `~.Axes.set_title`  Add a title to the `.Axes`.
+`~.pyplot.title`    `~.Axes.set_title`  Add a title to the
+                                        `~matplotlib.axes.Axes`.
 
 `~.pyplot.figtext`  `~.Figure.text`     Add text at an arbitrary location of
                                         the `.Figure`.

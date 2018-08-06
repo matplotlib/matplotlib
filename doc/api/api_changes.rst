@@ -62,7 +62,7 @@ Changed function signatures
 kwarg ``fig`` to `.GridSpec.get_subplot_params` is
 deprecated,  use ``figure`` instead.
 
-Using `.pyplot.axes` with an `.Axes` as argument is deprecated. This sets
+Using `.pyplot.axes` with an `~matplotlib.axes.Axes` as argument is deprecated. This sets
 the current axes, i.e. it has the same effect as `.pyplot.sca`. For clarity
 ``plt.sca(ax)`` should be preferred over ``plt.axes(ax)``.
 
@@ -864,7 +864,7 @@ Deprecation and removal
 
 Color of Axes
 ~~~~~~~~~~~~~
-The ``axisbg`` and ``axis_bgcolor`` properties on ``Axes`` have been
+The ``axisbg`` and ``axis_bgcolor`` properties on *Axes* have been
 deprecated in favor of ``facecolor``.
 
 GTK and GDK backends deprecated
@@ -1297,8 +1297,8 @@ algorithm that was not necessarily applicable to custom Axes. Three new private
 methods, :meth:`~matplotlib.axes._base._AxesBase._get_view`,
 :meth:`~matplotlib.axes._base._AxesBase._set_view`, and
 :meth:`~matplotlib.axes._base._AxesBase._set_view_from_bbox`, allow for custom
-``Axes`` classes to override the pan and zoom algorithms. Implementors of
-custom ``Axes`` who override these methods may provide suitable behaviour for
+*Axes* classes to override the pan and zoom algorithms. Implementors of
+custom *Axes* who override these methods may provide suitable behaviour for
 both pan and zoom as well as the view navigation buttons on the interactive
 toolbars.
 

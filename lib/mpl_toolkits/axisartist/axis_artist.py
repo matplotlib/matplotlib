@@ -59,7 +59,7 @@ the direction of the increasing coordinate),
 The text angles are actually relative to (90 + angle of the direction
 to the ticklabel), which gives 0 for bottom axis.
 
-                        left bottom right top
+ Parameter              left bottom right top
  ticklabels location    left right  right left
  axislabel location     left right  right left
  ticklabels angle       90    0      -90  180

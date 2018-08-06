@@ -543,10 +543,11 @@ example_plot(ax4)
 # Each item has a layoutbox associated with it. The nesting of gridspecs
 # created with `.GridSpecFromSubplotSpec` can be arbitrarily deep.
 #
-# Each `.Axes` has *two* layoutboxes.  The first one ``ax._layoutbox``
-# represents the outside of the Axes and all its decorations (i.e. ticklabels,
-# axis labels, etc.).  The second layoutbox corresponds to the Axes'
-# `ax.position`, which sets where in the figure the spines are placed.
+# Each ``~matplotlib.axes.Axes` has *two* layoutboxes.  The first one,
+# ``ax._layoutbox`` represents the outside of the Axes and all its
+# decorations (i.e. ticklabels,axis labels, etc.).
+# The second layoutbox corresponds to the Axes' `ax.position`, which sets
+# where in the figure the spines are placed.
 #
 # Why so many stacked containers?  Ideally, all that would be needed are the
 # Axes layout boxes. For the Gridspec case, a container is
@@ -625,10 +626,11 @@ plot_children(fig, fig._layoutbox, printit=False)
 # constraint on their widths because their subplotspecs occupy the same
 # number of columns (one in this example).
 #
-# The colorbar layout logic is contained in `~.colorbar.make_axes` which
-# call `._constrained_layout.layoutcolorbarsingle` for cbars attached to
-# a single axes, and `._constrained_layout.layoutcolorbargridspec` if the
-# colorbar is associated wiht a gridspec.
+# The colorbar layout logic is contained in `~matplotlib.colorbar.make_axes`
+# which calls `._constrained_layout.layoutcolorbarsingle`
+# for cbars attached to a single axes, and
+# `._constrained_layout.layoutcolorbargridspec` if the colorbar is associated
+# with a gridspec.
 
 fig, ax = plt.subplots(1, 2, constrained_layout=True)
 im = ax[0].pcolormesh(arr, **pc_kwargs)

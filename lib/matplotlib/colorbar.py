@@ -152,7 +152,7 @@ mappable :
     default to the current image.
 
 cax : :class:`~matplotlib.axes.Axes` object, optional
-    Axis into which the colorbar will be drawn
+    Axes into which the colorbar will be drawn.
 
 ax : :class:`~matplotlib.axes.Axes`, list of Axes, optional
     Parent axes from which space for a new colorbar axes will be stolen.
