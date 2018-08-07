@@ -181,7 +181,8 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             sup = fig._suptitle
             bbox = invTransFig(sup.get_window_extent(renderer=renderer))
             height = bbox.y1 - bbox.y0
-            sup._layoutbox.edit_height(height+h_pad)
+            if np.isfinite(height):
+                sup._layoutbox.edit_height(height+h_pad)
 
         # OK, the above lines up ax._poslayoutbox with ax._layoutbox
         # now we need to
@@ -267,10 +268,14 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     """
     fig = ax.figure
     invTransFig = fig.transFigure.inverted().transform_bbox
-
     pos = ax.get_position(original=True)
     tightbbox = ax.get_tightbbox(renderer=renderer)
     bbox = invTransFig(tightbbox)
+    # this can go wrong:
+    if not np.isfinite(bbox.y0 + bbox.x0 + bbox.y1 + bbox.x1):
+        # just abort, this is likely a bad set of co-ordinates that
+        # is transitory...
+        return
     # use stored h_pad if it exists
     h_padt = ax._poslayoutbox.h_pad
     if h_padt is None:
@@ -288,6 +293,8 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     _log.debug('left %f', (-bbox.x0 + pos.x0 + w_pad))
     _log.debug('right %f', (bbox.x1 - pos.x1 + w_pad))
     _log.debug('bottom %f', (-bbox.y0 + pos.y0 + h_padt))
+    _log.debug('bbox.y0 %f', bbox.y0)
+    _log.debug('pos.y0 %f', pos.y0)
     # Sometimes its possible for the solver to collapse
     # rather than expand axes, so they all have zero height
     # or width.  This stops that...  It *should* have been

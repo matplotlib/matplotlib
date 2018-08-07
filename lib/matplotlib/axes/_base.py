@@ -2510,7 +2510,16 @@ class _AxesBase(martist.Artist):
             y = 1.0
             # need to check all our twins too...
             axs = self._twinned_axes.get_siblings(self)
-
+            # and all the children
+            for ax in self.child_axes:
+                if ax is not None:
+                    locator = ax.get_axes_locator()
+                    if locator:
+                        pos = locator(self, renderer)
+                        ax.apply_aspect(pos)
+                    else:
+                        ax.apply_aspect()
+                    axs = axs + [ax]
             for ax in axs:
                 try:
                     if (ax.xaxis.get_label_position() == 'top'
@@ -2542,12 +2551,15 @@ class _AxesBase(martist.Artist):
 
         # prevent triggering call backs during the draw process
         self._stale = True
-        locator = self.get_axes_locator()
-        if locator:
-            pos = locator(self, renderer)
-            self.apply_aspect(pos)
-        else:
-            self.apply_aspect()
+
+        # loop over self and child axes...
+        for ax in [self]:
+            locator = ax.get_axes_locator()
+            if locator:
+                pos = locator(self, renderer)
+                ax.apply_aspect(pos)
+            else:
+                ax.apply_aspect()
 
         artists = self.get_children()
         artists.remove(self.patch)
@@ -4198,7 +4210,6 @@ class _AxesBase(martist.Artist):
         bb_xaxis = self.xaxis.get_tightbbox(renderer)
         if bb_xaxis:
             bb.append(bb_xaxis)
-
         self._update_title_position(renderer)
         bb.append(self.get_window_extent(renderer))
 
@@ -4218,9 +4229,11 @@ class _AxesBase(martist.Artist):
             bbox_artists = self.get_default_bbox_extra_artists()
 
         for a in bbox_artists:
-            bbox = a.get_tightbbox(renderer)
-            if bbox is not None and (bbox.width != 0 or bbox.height != 0):
-                bb.append(bbox)
+            bbox = a.get_tightbbox(renderer, )
+            if (bbox is not None and
+                (bbox.width != 0 or bbox.height != 0) and
+                np.isfinite(bbox.x0 + bbox.x1 + bbox.y0 + bbox.y1)):
+                    bb.append(bbox)
 
         _bbox = mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])

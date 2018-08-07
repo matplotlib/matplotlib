@@ -38,6 +38,7 @@ from matplotlib.cbook import (
     safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
+from matplotlib.axes._secondary_axes import Secondary_Axis
 
 _log = logging.getLogger(__name__)
 
@@ -638,6 +639,143 @@ class Axes(_AxesBase):
                 rect, inset_ax, **kwargs)
 
         return rectpatch, connects
+
+    def secondary_xaxis(self, location, *, conversion=None,
+                        otherargs=None, **kwargs):
+        """
+        Add a second x-axis to this axes.
+
+        For example if we want to have a second scale for the data plotted on
+        the xaxis.
+
+        Warnings
+        --------
+
+        This method is experimental as of 3.1, and the API may change.
+
+        Parameters
+        ----------
+        location : string or scalar
+            The position to put the secondary axis.  Strings can be 'top' or
+            'bottom', scalar can be a float indicating the relative position
+            on the axes to put the new axes (0 being the bottom, and 1.0 being
+            the top.)
+
+        conversion : scalar, two-tuple of scalars, string, or Transform
+            If a scalar or a two-tuple of scalar, the secondary axis is converted
+            via a linear conversion with slope given by the first element
+            and offset given by the second.  i.e. ``conversion = [2, 1]``
+            for a paretn axis between 0 and 1 gives a secondary axis between
+            1 and 3.
+
+            If a string, if can be one of "linear", "power", and "inverted".
+            If "linear", the value of ``otherargs`` should be a float or
+            two-tuple as above.  If "inverted" the values in the secondary axis
+            are inverted and multiplied by the value supplied by ``oterargs``.
+            If "power", then the original values are transformed by
+            ``newx = otherargs[1] * oldx ** otherargs[0]``.
+
+            Finally, the user can supply a subclass of `.transforms.Transform`
+            to arbitrarily transform between the parent axes and the
+            secondary axes.
+            See :doc:`/gallery/subplots_axes_and_figures/secondary_axis.py`
+            for an example of making such a transform.
+
+
+        Other Parameters
+        ----------------
+        **kwargs : `~matplotlib.axes.Axes` properties.
+            Other miscellaneous axes parameters.
+
+        Returns
+        -------
+        ax : axes._secondary_axes.Secondary_Axis
+
+        Examples
+        --------
+
+        Add a secondary axes that converts degrees to radians.
+
+        .. plot::
+
+            fig, ax = plt.suplots()
+            ax.loglog(range(1, 360, 5), range(1, 360, 5))
+            secax = ax.secondary_xaxis('top', conversion='inverted',
+                                    otherargs=1.)
+            secax.set_xscale('log')
+
+        """
+        if (location in ['top', 'bottom'] or isinstance(location, Number)):
+            secondary_ax = Secondary_Axis(self, 'x', location,
+                                          conversion, otherargs=otherargs,
+                                          **kwargs)
+            self.add_child_axes(secondary_ax)
+            return secondary_ax
+        else:
+            raise ValueError('secondary_xaxis location must be either '
+                             '"top" or "bottom"')
+
+    def secondary_yaxis(self, location, *, conversion=None,
+                        otherargs=None, **kwargs):
+        """
+        Add a second y-axis to this axes.
+
+        For example if we want to have a second scale for the data plotted on
+        the xaxis.
+
+        Warnings
+        --------
+
+        This method is experimental as of 3.1, and the API may change.
+
+        Parameters
+        ----------
+        location : string or scalar
+            The position to put the secondary axis.  Strings can be 'left' or
+            'right', scalar can be a float indicating the relative position
+            on the axes to put the new axes (0 being the left, and 1.0 being
+            the right.)
+
+        conversion : scalar, two-tuple of scalars, string, or Transform
+            If a scalar or a two-tuple of scalar, the secondary axis is converted
+            via a linear conversion with slope given by the first element
+            and offset given by the second.  i.e. ``conversion = [2, 1]``
+            for a paretn axis between 0 and 1 gives a secondary axis between
+            1 and 3.
+
+            If a string, if can be one of "linear", "power", and "inverted".
+            If "linear", the value of ``otherargs`` should be a float or
+            two-tuple as above.  If "inverted" the values in the secondary axis
+            are inverted and multiplied by the value supplied by ``oterargs``.
+            If "power", then the original values are transformed by
+            ``newy = otherargs[1] * oldy ** otherargs[0]``.
+
+            Finally, the user can supply a subclass of `.transforms.Transform`
+            to arbitrarily transform between the parent axes and the
+            secondary axes.
+            See :doc:`/gallery/subplots_axes_and_figures/secondary_axis.py`
+            for an example of making such a transform.
+
+
+        Other Parameters
+        ----------------
+        **kwargs : `~matplotlib.axes.Axes` properties.
+            Other miscellaneous axes parameters.
+
+        Returns
+        -------
+        ax : axes._secondary_axes.Secondary_Axis
+
+        """
+        if location in ['left', 'right'] or isinstance(location, Number):
+            secondary_ax = Secondary_Axis(self, 'y', location,
+                                          conversion, otherargs=otherargs,
+                                           **kwargs)
+            self.add_child_axes(secondary_ax)
+            return secondary_ax
+        else:
+            raise ValueError('secondary_yaxis location must be either '
+                             '"left" or "right"')
 
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """

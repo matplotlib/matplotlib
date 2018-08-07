@@ -1633,6 +1633,23 @@ default: 'top'
              if not artist.get_animated()),
             key=lambda artist: artist.get_zorder())
 
+        for ax in self.axes:
+            locator = ax.get_axes_locator()
+            if locator:
+                pos = locator(ax, renderer)
+                ax.apply_aspect(pos)
+            else:
+                ax.apply_aspect()
+
+            for child in ax.get_children():
+                if hasattr(child, 'apply_aspect'):
+                    locator = child.get_axes_locator()
+                    if locator:
+                        pos = locator(child, renderer)
+                        child.apply_aspect(pos)
+                    else:
+                        child.apply_aspect()
+
         try:
             renderer.open_group('figure')
             if self.get_constrained_layout() and self.axes:
