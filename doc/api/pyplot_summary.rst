@@ -9,7 +9,6 @@ Pyplot function overview
 
    pyplot
 
-
 .. currentmodule:: matplotlib.pyplot
 
 .. autofunction:: plotting

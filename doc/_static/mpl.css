@@ -735,7 +735,7 @@ dl.method, dl.classmethod, dl.staticmethod, dl.attribute {
 }
 
 
-dl.class > dt, dl.classmethod > dt, dl.method > dt, dl.function > dt, 
+dl.class > dt, dl.classmethod > dt, dl.method > dt, dl.function > dt,
 dl.attribute > dt, dl.staticmethod > dt {
     background-color: #eff3f4;
     padding-left: 6px;
@@ -860,25 +860,6 @@ figcaption {
   text-align: center;
 }
 
-
-/* "Summer Fellowship" message. */
-#summer-fellowship {
-  background: #11557C;
-  box-sizing: border-box;
-  color: #fffa;
-  font-weight: bold;
-  left: 0;
-  min-height: 3em;
-  padding: 0.7em;
-  top: 0;
-  width: 100%;
-  z-index: 10000;
-}
-
-#summer-fellowship a {
-  color: #fff;
-  text-decoration:underline;
-}
 
 /* "Go to released version" message. */
 #unreleased-message {
