@@ -172,6 +172,7 @@ class Line3D(lines.Line2D):
             self._verts3d = args[0]
         else:
             self._verts3d = args
+        self.stale = True
 
     def get_data_3d(self):
         """
