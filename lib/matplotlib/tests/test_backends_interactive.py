@@ -71,10 +71,10 @@ if backend.endswith("agg") and not backend.startswith(("gtk3", "web")):
 
     if backend != "tkagg":
         with assert_raises(ImportError):
-            mpl.use("tkagg")
+            mpl.use("tkagg", force=True)
 
     def check_alt_backend(alt_backend):
-        mpl.use(alt_backend)
+        mpl.use(alt_backend, force=True)
         fig = plt.figure()
         assert_equal(
             type(fig.canvas).__module__,
@@ -84,7 +84,7 @@ if backend.endswith("agg") and not backend.startswith(("gtk3", "web")):
         check_alt_backend(backend[:-3] + "cairo")
     check_alt_backend("svg")
 
-mpl.use(backend)
+mpl.use(backend, force=True)
 
 fig, ax = plt.subplots()
 assert_equal(
