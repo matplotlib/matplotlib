@@ -252,7 +252,7 @@ Building on Windows
 -------------------
 
 The Python shipped from https://www.python.org is compiled with Visual Studio
-2015 for 3.5 and 3.6.  Python extensions should be compiled with the same
+2015 for 3.5+.  Python extensions should be compiled with the same
 compiler, see e.g.
 https://packaging.python.org/guides/packaging-binary-extensions/#setting-up-a-build-environment-on-windows
 for how to set up a build environment.
