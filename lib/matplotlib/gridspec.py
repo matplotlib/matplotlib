@@ -196,19 +196,12 @@ class GridSpec(GridSpecBase):
         ncols : int
             Number or columns in grid.
 
-        figure : ~.figure.Figure
+        figure : ~.figure.Figure, optional
 
-        left : float
-            The left side of the subplots of the figure.
-
-        right : float
-            The right side of the subplots of the figure.
-
-        bottom : float
-            The bottom of the subplots of the figure.
-
-        top : float
-            The top of the subplots of the figure.
+        left, right, top, bottom : float
+            Extent of the subplots as a fraction of figure width.
+            Left cannot be larger than right, and bottom cannot be larger than
+            top.
 
         wspace : float
             The amount of width reserved for space between subplots,
