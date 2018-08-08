@@ -22,8 +22,9 @@ def _get_testable_interactive_backends():
                           (["cairocffi", "pgi"], "gtk3cairo"),
                           (["PyQt5"], "qt5agg"),
                           (["tkinter"], "tkagg"),
-                          (["wx"], "wx"),
-                          (["wx"], "wxagg")]:
+                          # (["wx"], "wx"),
+                          (["wx"], "wxagg")
+    ]:
         reason = None
         if not os.environ.get("DISPLAY"):
             reason = "No $DISPLAY"
