@@ -196,6 +196,28 @@ class GridSpec(GridSpecBase):
         ncols : int
             Number or columns in grid.
 
+        figure : ~.figure.Figure
+
+        left : float
+            The left side of the subplots of the figure.
+
+        right : float
+            The right side of the subplots of the figure.
+
+        bottom : float
+            The bottom of the subplots of the figure.
+
+        top : float
+            The top of the subplots of the figure.
+
+        wspace : float
+            The amount of width reserved for space between subplots,
+            expressed as a fraction of the average axis width.
+
+        hspace : float
+            The amount of height reserved for space between subplots,
+            expressed as a fraction of the average axis height.
+
         Notes
         -----
         See `~.figure.SubplotParams` for descriptions of the layout parameters.
