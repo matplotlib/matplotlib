@@ -21,8 +21,9 @@ def _get_testable_interactive_backends():
     for deps, backend in [  # (["cairocffi", "pgi"], "gtk3agg"),
                           (["cairocffi", "pgi"], "gtk3cairo"),
                           (["PyQt5"], "qt5agg"),
+                          (["PyQt5", "cariocffi"], "qt5cairo"),
                           (["tkinter"], "tkagg"),
-                          # (["wx"], "wx"),
+                          (["wx"], "wx"),
                           (["wx"], "wxagg")
     ]:
         reason = None
