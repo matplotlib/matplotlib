@@ -199,7 +199,7 @@ class GridSpec(GridSpecBase):
         figure : ~.figure.Figure, optional
 
         left, right, top, bottom : float
-            Extent of the subplots as a fraction of figure width.
+            Extent of the subplots as a fraction of figure width or height.
             Left cannot be larger than right, and bottom cannot be larger than
             top.
 
