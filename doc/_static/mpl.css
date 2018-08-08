@@ -1059,6 +1059,10 @@ div#gallery.section, div#tutorials.section {
     overflow: hidden;
 }
 
+.sphx-glr-multi-img{
+    max-width: 99% !important;
+}
+
 .sphx-glr-thumbcontainer {
     border: solid #d6d6d6 1px !important;
     text-align: center !important;
