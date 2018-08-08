@@ -95,7 +95,7 @@ def test_location_event_position():
 
 
 class ButtonTest():
-    def __init__(self, fig_test, fig_ref, button_call, plots=None,
+    def __init__(self, fig_test, fig_ref, button=None, plots=None,
                  layout='none'):
 
         """
@@ -128,11 +128,11 @@ class ButtonTest():
         self.set_layout(True)
         self.add_subplots(plots)
         self.add_suptitle('Test button: {}, axes: {}, layout manager: {}'.
-                          format(button_call, plots, layout))
+                          format(button, plots, layout))
 
-        if button_call == 'home':
+        if button == 'home':
             self.home_button()
-        elif button_call == 'back':
+        elif button == 'back':
             self.back_button()
 
         # set layout managers to False so that the figures don't change
@@ -236,65 +236,91 @@ test_back_button 2 and 4 and test_home_button 2 fails on master.
 The home_button tests would probably fail on v2.1.0
 """
 
-
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_back_button1(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'back', plots='subplots', layout='none')
-
-
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_back_button2(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'back', plots='subplots', layout='tight')
-
-
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_back_button3(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'back', plots='subplots',
-               layout='constrained')
+list_tests = [('back', 'subplots', 'none'),
+              ('back', 'subplots', 'tight'),
+              ('back', 'subplots', 'constrained'),
+              ('back', 'add_subplot', 'tight'),
+              ('back', 'add_axes', 'none'),
+              ('back', 'axesgrid', 'none'),
+              ('back', 'subplots_gridspec', 'none'),
+              ('home', 'subplots', 'none'),
+              ('home', 'subplots', 'tight'),
+              ('home', 'subplots', 'constrained')]
 
 
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_back_button4(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'back', plots='add_subplot', layout='tight')
+for button, plots, layout in list_tests:
+    @pytest.mark.backend('QT5Agg')
+    @check_figures_equal(extensions=["png"])
+    def b(fig_test, fig_ref):
+        ButtonTest(fig_test, fig_ref, button=button,
+                   plots=plots, layout=layout)
+    name = 'test_{}_{}_{}'.format(button, plots, layout)
+    locals()[name]=b
+#    test_b.__name__ = 'test_{}_{}_{}'.format(button, plots, layout)
 
 
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_back_button5(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'back', plots='add_axes', layout='none')
+
+#@pytest.mark.parametrize('button, subplots, layout', list_tests)
+#def test_wrapper(fig_test, fig_ref, button, subplots, layout):
+#    def test_buttons(fig_test, fig_ref):
+#        ButtonTest(fig_test, fig_ref, 'back', plots='subplots', layout='none')
+#    return test_buttons
+##def test_back_button1(fig_test, fig_ref, button, subplots, layout):
+##    ButtonTest(fig_test, fig_ref, 'back', plots='subplots', layout='none')
 
 
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_back_button6(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'back', plots='axesgrid', layout='none')
-
-
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_back_button7(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'back', plots='subplots_gridspec',
-               layout='none')
-
-
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_home_button1(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'home', plots='subplots', layout='none')
-
-
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_home_button2(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'home', plots='subplots', layout='tight')
-
-
-@pytest.mark.backend('QT5Agg')
-@check_figures_equal(extensions=["png"])
-def test_home_button3(fig_test, fig_ref):
-    ButtonTest(fig_test, fig_ref, 'home', plots='subplots',
-               layout='constrained')
+#@pytest.mark.backend('QT5Agg')
+#@check_figures_equal(extensions=["png"])
+#def test_back_button2(fig_test, fig_ref):
+#    ButtonTest(fig_test, fig_ref, 'back', plots='subplots', layout='tight')
+#
+#
+#@pytest.mark.backend('QT5Agg')
+#@check_figures_equal(extensions=["png"])
+#def test_back_button3(fig_test, fig_ref):
+#    ButtonTest(fig_test, fig_ref, 'back', plots='subplots',
+#               layout='constrained')
+#
+#
+#@pytest.mark.backend('QT5Agg')
+#@check_figures_equal(extensions=["png"])
+#def test_back_button4(fig_test, fig_ref):
+#    ButtonTest(fig_test, fig_ref, 'back', plots='add_subplot', layout='tight')
+#
+#
+#@pytest.mark.backend('QT5Agg')
+#@check_figures_equal(extensions=["png"])
+#def test_back_button5(fig_test, fig_ref):
+#    ButtonTest(fig_test, fig_ref, 'back', plots='add_axes', layout='none')
+#
+#
+#@pytest.mark.backend('QT5Agg')
+#@check_figures_equal(extensions=["png"])
+#def test_back_button6(fig_test, fig_ref):
+#    ButtonTest(fig_test, fig_ref, 'back', plots='axesgrid', layout='none')
+#
+#
+#@pytest.mark.backend('QT5Agg')
+#@check_figures_equal(extensions=["png"])
+#def test_back_button7(fig_test, fig_ref):
+#    ButtonTest(fig_test, fig_ref, 'back', plots='subplots_gridspec',
+#               layout='none')
+#
+#
+#@pytest.mark.backend('QT5Agg')
+#@check_figures_equal(extensions=["png"])
+#def test_home_button1(fig_test, fig_ref):
+#    ButtonTest(fig_test, fig_ref, 'home', plots='subplots', layout='none')
+#
+#
+#@pytest.mark.backend('QT5Agg')
+#@check_figures_equal(extensions=["png"])
+#def test_home_button2(fig_test, fig_ref):
+#    ButtonTest(fig_test, fig_ref, 'home', plots='subplots', layout='tight')
+#
+#
+#@pytest.mark.backend('QT5Agg')
+#@check_figures_equal(extensions=["png"])
+#def test_home_button3(fig_test, fig_ref):
+#    ButtonTest(fig_test, fig_ref, 'home', plots='subplots',
+#               layout='constrained')
