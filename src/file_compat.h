@@ -48,7 +48,7 @@ extern "C" {
 /*
  * PyFile_* compatibility
  */
-#if defined(PY3K) | defined(PYPY_VERSION)
+#if PY3K | defined(PYPY_VERSION)
 
 /*
  * Get a FILE* handle to the file represented by the Python object
