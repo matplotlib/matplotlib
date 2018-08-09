@@ -1162,6 +1162,7 @@ class _AxesBase(martist.Artist):
         color : color
         """
         self._facecolor = color
+        self.stale = True
         return self.patch.set_facecolor(color)
     set_fc = set_facecolor
 
