@@ -2535,8 +2535,10 @@ class AutoMinorLocator(Locator):
         tmin = ((vmin - t0) // minorstep + 1) * minorstep
         tmax = ((vmax - t0) // minorstep + 1) * minorstep
         locs = np.arange(tmin, tmax, minorstep) + t0
-        cond = np.abs((locs - t0) % majorstep) > minorstep / 10.0
-        locs = locs.compress(cond)
+        mod = np.abs((locs - t0) % majorstep)
+        cond1 = mod > minorstep / 10.0
+        cond2 = ~np.isclose(mod, majorstep, atol=0)
+        locs = locs.compress(cond1 & cond2)
 
         return self.raise_if_exceeds(np.array(locs))
 
