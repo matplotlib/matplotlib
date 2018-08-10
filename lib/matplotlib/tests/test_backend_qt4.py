@@ -1,18 +1,26 @@
 import copy
-from unittest.mock import Mock
+from unittest import mock
 
+import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
-import matplotlib
 
 import pytest
 
-with matplotlib.rc_context(rc={'backend': 'Qt4Agg'}):
-    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
+try:
+    import PyQt4
+except (ImportError, RuntimeError):  # RuntimeError if PyQt5 already imported.
+    try:
+        import PySide
+    except ImportError:
+        pytestmark = pytest.mark.skip("Failed to import a Qt4 binding.")
+
+qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
+QtCore = qt_compat.QtCore
+
 from matplotlib.backends.backend_qt4 import (
     MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
 
-QtCore = qt_compat.QtCore
 _, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
 _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
 _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
@@ -86,7 +94,7 @@ def test_correct_key(qt_key, qt_mods, answer):
     """
     qt_canvas = plt.figure().canvas
 
-    event = Mock()
+    event = mock.Mock()
     event.isAutoRepeat.return_value = False
     event.key.return_value = qt_key
     event.modifiers.return_value = qt_mods

@@ -5,11 +5,13 @@ import sys
 import traceback
 
 import matplotlib
+from matplotlib import cbook
 from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
 backend = matplotlib.get_backend()
+# FIXME: Remove.
 _backend_loading_tb = "".join(
     line for line in traceback.format_stack()
     # Filter out line noise from importlib line.
@@ -54,9 +56,6 @@ def _get_running_interactive_framework():
     except ImportError:
         pass
     else:
-        # Note that the NSApp event loop is also running when a non-native
-        # toolkit (e.g. Qt5) is active, but in that case we want to report the
-        # other toolkit; thus, this check comes after the other toolkits.
         if _macosx.event_loop_is_running():
             return "macosx"
     if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
@@ -64,6 +63,7 @@ def _get_running_interactive_framework():
     return None
 
 
+@cbook.deprecated("3.0")
 def pylab_setup(name=None):
     """
     Return new_figure_manager, draw_if_interactive and show for pyplot.

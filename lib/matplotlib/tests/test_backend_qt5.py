@@ -7,13 +7,20 @@ from matplotlib._pylab_helpers import Gcf
 
 import pytest
 
-with matplotlib.rc_context(rc={'backend': 'Qt5Agg'}):
-    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat',
-                                    minversion='5')
+try:
+    import PyQt5
+except (ImportError, RuntimeError):  # RuntimeError if PyQt4 already imported.
+    try:
+        import PySide2
+    except ImportError:
+        pytestmark = pytest.mark.skip("Failed to import a Qt5 binding.")
+
+qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
+QtCore = qt_compat.QtCore
+
 from matplotlib.backends.backend_qt5 import (
     MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
 
-QtCore = qt_compat.QtCore
 _, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
 _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
 _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]

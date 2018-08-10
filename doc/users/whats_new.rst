@@ -228,6 +228,17 @@ This new method may be useful for adding artists to figures without axes or to
 easily position static elements in figure coordinates.
 
 
+Improved default backend selection
+----------------------------------
+
+The default backend no longer must be set as part of the build
+process.  Instead, at run time, the builtin backends are tried in
+sequence until one of them imports.
+
+Headless linux servers (identified by the DISPLAY env not being defined)
+will not select a GUI backend.
+
+
 
 ==================
 Previous Whats New
