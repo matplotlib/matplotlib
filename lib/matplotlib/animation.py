@@ -1124,7 +1124,8 @@ class Animation(object):
                                          extra_args=extra_args,
                                          metadata=metadata)
             else:
-                _log.warning("MovieWriter %s unavailable.", writer)
+                _log.warning("MovieWriter {} unavailable. Trying to use {} "
+                             "instead.".format(writer, writers.list()[0]))
 
                 try:
                     writer = writers[writers.list()[0]](fps, codec, bitrate,
