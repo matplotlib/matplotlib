@@ -508,6 +508,5 @@ def test_annotation_update():
     fig.tight_layout()
     extent2 = an.get_window_extent(fig.canvas.get_renderer())
 
-    np.testing.assert_raises(AssertionError, np.testing.assert_allclose,
-                             extent1.get_points(), extent2.get_points(),
-                             rtol=1e-6)
+    assert not np.allclose(extent1.get_points(), extent2.get_points(),
+                           rtol=1e-6)
