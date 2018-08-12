@@ -42,48 +42,6 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
 
-# Cairo's image buffers are premultiplied ARGB32,
-# Matplotlib's are unmultiplied RGBA8888.
-
-
-def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
-    """
-    Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
-    """
-    rgba = np.take(  # .take() ensures C-contiguity of the result.
-        buf,
-        [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
-    rgb = rgba[..., :-1]
-    alpha = rgba[..., -1]
-    # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
-    mask = alpha != 0
-    for channel in np.rollaxis(rgb, -1):
-        channel[mask] = (
-            (channel[mask].astype(int) * 255 + alpha[mask] // 2)
-            // alpha[mask])
-    return rgba
-
-
-def _unmultipled_rgba8888_to_premultiplied_argb32(rgba8888):
-    """
-    Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
-    """
-    if sys.byteorder == "little":
-        argb32 = np.take(rgba8888, [2, 1, 0, 3], axis=2)
-        rgb24 = argb32[..., :-1]
-        alpha8 = argb32[..., -1:]
-    else:
-        argb32 = np.take(rgba8888, [3, 0, 1, 2], axis=2)
-        alpha8 = argb32[..., :1]
-        rgb24 = argb32[..., 1:]
-    # Only bother premultiplying when the alpha channel is not fully opaque,
-    # as the cost is not negligible.  The unsafe cast is needed to do the
-    # multiplication in-place in an integer buffer.
-    if alpha8.min() != 0xff:
-        np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
-    return argb32
-
-
 if cairo.__name__ == "cairocffi":
     # Convert a pycairo context to a cairocffi one.
     def _to_context(ctx):
@@ -380,7 +338,7 @@ class RendererCairo(RendererBase):
         _draw_paths()
 
     def draw_image(self, gc, x, y, im):
-        im = _unmultipled_rgba8888_to_premultiplied_argb32(im[::-1])
+        im = cbook._unmultipled_rgba8888_to_premultiplied_argb32(im[::-1])
         surface = cairo.ImageSurface.create_for_data(
             im.ravel().data, cairo.FORMAT_ARGB32,
             im.shape[1], im.shape[0], im.shape[1] * 4)
@@ -586,7 +544,7 @@ class FigureCanvasCairo(FigureCanvasBase):
     def print_rgba(self, fobj, *args, **kwargs):
         width, height = self.get_width_height()
         buf = self._get_printed_image_surface().get_data()
-        fobj.write(_premultiplied_argb32_to_unmultiplied_rgba8888(
+        fobj.write(cbook._premultiplied_argb32_to_unmultiplied_rgba8888(
             np.asarray(buf).reshape((width, height, 4))))
 
     print_raw = print_rgba
