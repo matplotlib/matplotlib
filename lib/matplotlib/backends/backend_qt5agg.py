@@ -6,6 +6,7 @@ import ctypes
 
 from matplotlib.transforms import Bbox
 
+from .. import cbook
 from .backend_agg import FigureCanvasAgg
 from .backend_qt5 import (
     QtCore, QtGui, QtWidgets, _BackendQT5, FigureCanvasQT, FigureManagerQT,
@@ -52,9 +53,10 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             [[left, self.renderer.height - (top + height * self._dpi_ratio)],
              [left + width * self._dpi_ratio, self.renderer.height - top]])
         reg = self.copy_from_bbox(bbox)
-        buf = memoryview(reg)
-        qimage = QtGui.QImage(
-            buf, buf.shape[1], buf.shape[0], QtGui.QImage.Format_RGBA8888)
+        buf = cbook._unmultipled_rgba8888_to_premultiplied_argb32(
+            memoryview(reg))
+        qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
+                              QtGui.QImage.Format_ARGB32_Premultiplied)
         if hasattr(qimage, 'setDevicePixelRatio'):
             # Not available on Qt4 or some older Qt5.
             qimage.setDevicePixelRatio(self._dpi_ratio)
