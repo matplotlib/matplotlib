@@ -1,4 +1,17 @@
 import os
+import sysconfig
+
+# PYTHONFRAMEWORK defined in CPython's configure.ac.
+if not sysconfig.get_config_var("PYTHONFRAMEWORK"):
+    raise ImportError(
+        "Python is not installed as a framework. The MacOSX backend will not "
+        "be able to function correctly if Python is not installed as a "
+        "framework. See the Python documentation for more information on "
+        "installing Python as a framework on MacOSX. Please either reinstall "
+        "Python as a framework, or try one of the other backends. If you are "
+        "using (Ana)Conda please install python.app and replace the use of "
+        "'python' with 'pythonw'. See 'Working with Matplotlib on OSX' in the "
+        "Matplotlib FAQ for more information.")
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (

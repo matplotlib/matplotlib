@@ -2563,38 +2563,6 @@ static PyTypeObject TimerType = {
     Timer_new,                 /* tp_new */
 };
 
-static bool verify_framework(void)
-{
-#ifdef COMPILING_FOR_10_6
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    NSRunningApplication* app = [NSRunningApplication currentApplication];
-    NSApplicationActivationPolicy activationPolicy = [app activationPolicy];
-    [pool release];
-    switch (activationPolicy) {
-        case NSApplicationActivationPolicyRegular:
-        case NSApplicationActivationPolicyAccessory:
-            return true;
-        case NSApplicationActivationPolicyProhibited:
-            break;
-    }
-#else
-    ProcessSerialNumber psn;
-    if (CGMainDisplayID()!=0
-     && GetCurrentProcess(&psn)==noErr
-     && SetFrontProcess(&psn)==noErr) return true;
-#endif
-    PyErr_SetString(PyExc_ImportError,
-        "Python is not installed as a framework. The Mac OS X backend will "
-        "not be able to function correctly if Python is not installed as a "
-        "framework. See the Python documentation for more information on "
-        "installing Python as a framework on Mac OS X. Please either reinstall "
-        "Python as a framework, or try one of the other backends. If you are "
-        "using (Ana)Conda please install python.app and replace the use of "
-        "'python' with 'pythonw'. See 'Working with Matplotlib on OSX' in the "
-        "Matplotlib FAQ for more information.");
-    return false;
-}
-
 static struct PyMethodDef methods[] = {
    {"event_loop_is_running",
     (PyCFunction)event_loop_is_running,
@@ -2642,9 +2610,6 @@ PyObject* PyInit__macosx(void)
      || PyType_Ready(&FigureManagerType) < 0
      || PyType_Ready(&NavigationToolbar2Type) < 0
      || PyType_Ready(&TimerType) < 0)
-        return NULL;
-
-    if (!verify_framework())
         return NULL;
 
     module = PyModule_Create(&moduledef);
