@@ -735,9 +735,16 @@ class ImageMagickBase(object):
                                         0, winreg.KEY_QUERY_VALUE | flag)
                 binpath = winreg.QueryValueEx(hkey, 'BinPath')[0]
                 winreg.CloseKey(hkey)
-                binpath += r'\convert.exe'
                 break
             except Exception:
+                binpath = ''
+        if binpath:
+            for exe in ('convert.exe', 'magick.exe'):
+                path = os.path.join(binpath, exe)
+                if os.path.exists(path):
+                    binpath = path
+                    break
+            else:
                 binpath = ''
         rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
 
