@@ -2565,24 +2565,10 @@ static PyTypeObject TimerType = {
 
 static bool verify_framework(void)
 {
-#ifdef COMPILING_FOR_10_6
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    NSRunningApplication* app = [NSRunningApplication currentApplication];
-    NSApplicationActivationPolicy activationPolicy = [app activationPolicy];
-    [pool release];
-    switch (activationPolicy) {
-        case NSApplicationActivationPolicyRegular:
-        case NSApplicationActivationPolicyAccessory:
-            return true;
-        case NSApplicationActivationPolicyProhibited:
-            break;
-    }
-#else
     ProcessSerialNumber psn;
     if (CGMainDisplayID()!=0
      && GetCurrentProcess(&psn)==noErr
      && SetFrontProcess(&psn)==noErr) return true;
-#endif
     PyErr_SetString(PyExc_ImportError,
         "Python is not installed as a framework. The Mac OS X backend will "
         "not be able to function correctly if Python is not installed as a "
