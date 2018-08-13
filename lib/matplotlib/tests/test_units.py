@@ -1,4 +1,3 @@
-import datetime
 from unittest.mock import MagicMock
 
 from matplotlib.cbook import iterable
@@ -7,6 +6,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.units as munits
 import numpy as np
 import datetime
+import platform
 
 
 # Basic class that wraps numpy array and has units
@@ -41,6 +41,7 @@ class Quantity(object):
 # Tests that the conversion machinery works properly for classes that
 # work as a facade over numpy arrays (like pint)
 @image_comparison(baseline_images=['plot_pint'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'], remove_text=False, style='mpl20')
 def test_numpy_facade():
     # Create an instance of the conversion interface and
@@ -85,6 +86,7 @@ def test_numpy_facade():
 
 # Tests gh-8908
 @image_comparison(baseline_images=['plot_masked_units'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'], remove_text=True, style='mpl20')
 def test_plot_masked_units():
     data = np.linspace(-5, 5)

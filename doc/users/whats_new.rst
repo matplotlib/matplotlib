@@ -1,8 +1,8 @@
 .. _whats-new:
 
-==========================
- What's new in Matplotlib
-==========================
+=============================
+ What's new in Matplotlib 3.0
+=============================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
@@ -14,407 +14,233 @@ revision, see the :ref:`github-stats`.
 ..
    For a release, add a new section after this, then comment out the include
    and toctree below by indenting them. Uncomment them after the release.
-.. include:: next_whats_new/README.rst
-.. toctree::
-   :glob:
-   :maxdepth: 1
 
-   next_whats_new/*
+  .. include:: next_whats_new/README.rst
+   .. toctree::
+      :glob:
+      :maxdepth: 1
 
+      next_whats_new/*
 
-New in Matplotlib 2.2
-=====================
+Ability to scale axis by a fixed order of magnitude
+---------------------------------------------------
 
-Constrained Layout Manager
---------------------------
+To scale an axis by a fixed order of magnitude, set the *scilimits* argument of
+`.Axes.ticklabel_format` to the same (non-zero) lower and upper limits. Say to scale
+the y axis by a million (1e6), use
 
-.. warning::
+.. code-block:: python
 
-    Constrained Layout is **experimental**.  The
-    behaviour and API are subject to change, or the whole functionality
-    may be removed without a deprecation period.
+  ax.ticklabel_format(style='sci', scilimits=(6, 6), axis='y')
 
-
-A new method to automatically decide spacing between subplots and their
-organizing ``GridSpec`` instances has been added.  It is meant to
-replace the venerable ``tight_layout`` method.  It is invoked via
-a new ``constrained_layout=True`` kwarg to
-`~.figure.Figure` or `~.figure.subplots`.
-
-There are new ``rcParams`` for this package, and spacing can be
-more finely tuned with the new `~.set_constrained_layout_pads`.
-
-Features include:
-
-  - Automatic spacing for subplots with a fixed-size padding in inches around
-    subplots and all their decorators, and space between as a fraction
-    of subplot size between subplots.
-  - Spacing for `~.figure.suptitle`, and colorbars that are attached to
-    more than one axes.
-  - Nested `~.GridSpec` layouts using `~.GridSpecFromSubplotSpec`.
-
-  For more details and capabilities please see the new tutorial:
-  :doc:`/tutorials/intermediate/constrainedlayout_guide`
-
-Note the new API to access this:
-
-New ``plt.figure`` and ``plt.subplots`` kwarg: ``constrained_layout``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:meth:`~matplotlib.pyplot.figure` and :meth:`~matplotlib.pyplot.subplots`
-can now be called with ``constrained_layout=True`` kwarg to enable
-constrained_layout.
-
-New ``ax.set_position`` behaviour
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:meth:`~matplotlib.axes.set_position` now makes the specified axis no
-longer responsive to ``constrained_layout``, consistent with the idea that the
-user wants to place an axis manually.
-
-Internally, this means that old ``ax.set_position`` calls *inside* the library
-are changed to private ``ax._set_position`` calls so that
-``constrained_layout`` will still work with these axes.
-
-New ``figure`` kwarg for ``GridSpec``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In order to facilitate ``constrained_layout``, ``GridSpec`` now accepts a
-``figure`` keyword.  This is backwards compatible, in that not supplying this
-will simply cause ``constrained_layout`` to not operate on the subplots
-orgainzed by this ``GridSpec`` instance.  Routines that use ``GridSpec`` (e.g.
-``fig.subplots``) have been modified to pass the figure to ``GridSpec``.
+The behavior of ``scilimits=(0, 0)`` is unchanged. With this setting, Matplotlib will adjust
+the order of magnitude depending on the axis values, rather than keeping it fixed. Previously, setting
+``scilimits=(m, m)`` was equivalent to setting ``scilimits=(0, 0)``.
 
 
-xlabels and ylabels can now be automatically aligned
-----------------------------------------------------
+Add ``AnchoredDirectionArrows`` feature to mpl_toolkits
+--------------------------------------------------------
 
-Subplot axes ``ylabels`` can be misaligned horizontally if the tick labels
-are very different widths.  The same can happen to ``xlabels`` if the
-ticklabels are rotated on one subplot (for instance).  The new methods
-on the `Figure` class: `Figure.align_xlabels` and `Figure.align_ylabels`
-will now align these labels horizontally or vertically.  If the user only
-wants to align some axes, a list of axes can be passed.  If no list is
-passed, the algorithm looks at all the labels on the figure.
-
-Only labels that have the same subplot locations are aligned.  i.e. the
-ylabels are aligned only if the subplots are in the same column of the
-subplot layout.
-
-Alignemnt is persistent and automatic after these are called.
-
-A convenience wrapper `Figure.align_labels` calls both functions at once.
-
-.. plot::
-
-    import matplotlib.gridspec as gridspec
-
-    fig = plt.figure(figsize=(5, 3), tight_layout=True)
-    gs = gridspec.GridSpec(2, 2)
-
-    ax = fig.add_subplot(gs[0,:])
-    ax.plot(np.arange(0, 1e6, 1000))
-    ax.set_ylabel('Test')
-    for i in range(2):
-        ax = fig.add_subplot(gs[1, i])
-        ax.set_ylabel('Booooo')
-        ax.set_xlabel('Hello')
-        if i == 0:
-            for tick in ax.get_xticklabels():
-                tick.set_rotation(45)
-    fig.align_labels()
+A new mpl_toolkits class
+:class:`~mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows`
+draws a pair of orthogonal arrows to indicate directions on a 2D plot. A
+minimal working example takes in the transformation object for the coordinate
+system (typically ax.transAxes), and arrow labels. There are several optional
+parameters that can be used to alter layout. For example, the arrow pairs can
+be rotated and the color can be changed. By default the labels and arrows have
+the same color, but the class may also pass arguments for customizing arrow
+and text layout, these are passed to :class:`matplotlib.text.TextPath` and
+`matplotlib.patches.FancyArrowPatch`. Location, length and width for both
+arrow tail and head can be adjusted, the the direction arrows and labels can
+have a frame. Padding and separation parameters can be adjusted.
 
 
-Axes legends now included in tight_bbox
----------------------------------------
+Add ``minorticks_on()/off()`` methods for colorbar
+--------------------------------------------------
 
-Legends created via ``ax.legend`` can sometimes overspill the limits of
-the axis.  Tools like ``fig.tight_layout()`` and
-``fig.savefig(bbox_inches='tight')`` would clip these legends.  A change
-was made to include them in the ``tight`` calculations.
+A new method :meth:`.colorbar.Colobar.minorticks_on` has been added
+to correctly display minor ticks on a colorbar. This method
+doesn't allow the minor ticks to extend into the regions beyond vmin and vmax
+when the extend `kwarg` (used while creating the colorbar) is set to 'both',
+'max' or 'min'.
+A complementary method :meth:`.colorbar.Colobar.minorticks_off`
+has also been added to remove the minor ticks on the colorbar.
 
 
-Cividis colormap
+Colorbar ticks can now be automatic
+-----------------------------------
+
+The number of ticks placed on colorbars was previously appropriate for a large
+colorbar, but looked bad if the colorbar was made smaller (i.e. via the ``shrink`` kwarg).
+This has been changed so that the number of ticks is now responsive to how
+large the colorbar is.
+
+
+Cyclic colormaps
 ----------------
 
-A new dark blue/yellow colormap named 'cividis' was added. Like
-viridis, cividis is perceptually uniform and colorblind
-friendly. However, cividis also goes a step further: not only is it
-usable by colorblind users, it should actually look effectively
-identical to colorblind and non-colorblind users. For more details,
-see Nunez J, Anderton C, and Renslow R. (submitted). Optimizing
-colormaps with consideration for color vision deficiency to enable
-accurate interpretation of scientific data."
+Two new colormaps named 'twilight' and 'twilight_shifted' have been added.
+These colormaps start and end on the same color, and have two
+symmetric halves with equal lightness, but diverging color. Since they
+wrap around, they are a good choice for cyclic data such as phase
+angles, compass directions, or time of day. Like *viridis*, *twilight* is
+perceptually uniform and colorblind friendly.
 
-.. plot::
 
+Don't automatically rename duplicate file names
+-----------------------------------------------
+
+Previously, when saving a figure to a file using the GUI's
+save dialog box, if the default filename (based on the
+figure window title) already existed on disk, Matplotlib
+would append a suffix (e.g. `Figure_1-1.png`), preventing
+the dialog from prompting to overwrite the file. This
+behaviour has been removed. Now if the file name exists on
+disk, the user is prompted whether or not to overwrite it.
+This eliminates guesswork, and allows intentional
+overwriting, especially when the figure name has been
+manually set using `.figure.Figure.canvas.set_window_title()`.
+
+
+Legend now has a *title_fontsize* kwarg (and rcParam)
+-----------------------------------------------------
+
+The title for a `.Figure.legend` and `.Axes.legend` can now have its
+fontsize set via the ``title_fontsize`` kwarg.  There is also a new
+:rc:`legend.title_fontsize`.  Both default to ``None``, which means
+the legend title will have the same fontsize as the axes default fontsize
+(*not* the legend fontsize, set by the ``fontsize`` kwarg or
+:rc:`legend.fontsize`).
+
+
+Support for axes.prop_cycle property *markevery* in rcParams
+------------------------------------------------------------
+
+The Matplotlib ``rcParams`` settings object now supports configuration
+of the attribute `axes.prop_cycle` with cyclers using the `markevery`
+Line2D object property. An example of this feature is provided at
+`~/matplotlib/examples/lines_bars_and_markers/markevery_prop_cycle.py`
+
+Multipage PDF support for pgf backend
+-------------------------------------
+
+The pgf backend now also supports multipage PDF files.
+
+.. code-block:: python
+
+    from matplotlib.backends.backend_pgf import PdfPages
     import matplotlib.pyplot as plt
-    import numpy as np
 
-    fig, ax = plt.subplots()
-    pcm = ax.pcolormesh(np.random.rand(32,32), cmap='cividis')
-    fig.colorbar(pcm)
+    with PdfPages('multipage.pdf') as pdf:
+        # page 1
+        plt.plot([2, 1, 3])
+        pdf.savefig()
+
+        # page 2
+        plt.cla()
+        plt.plot([3, 1, 2])
+        pdf.savefig()
 
 
-New style colorblind-friendly color cycle
+Pie charts are now circular by default
+--------------------------------------
+We acknowledge that the majority of people do not like egg-shaped pies.
+Therefore, an axes to which a pie chart is plotted will be set to have
+equal aspect ratio by default. This ensures that the pie appears circular
+independent on the axes size or units. To revert to the previous behaviour
+set the axes' aspect ratio to automatic by using ``ax.set_aspect("auto")`` or
+``plt.axis("auto")``.
+
+Add ``ax.get_gridspec`` to `.SubplotBase`
 -----------------------------------------
 
-A new style defining a color cycle has been added,
-tableau-colorblind10, to provide another option for
-colorblind-friendly plots.  A demonstration of this new
-style can be found in the reference_ of style sheets. To
-load this color cycle in place of the default one::
+New method `.SubplotBase.get_gridspec` is added so that users can
+easily get the gridspec that went into making an axes:
 
-  import matplotlib.pyplot as plt
-  plt.style.use('tableau-colorblind10')
+  .. code::
 
-.. _reference: https://matplotlib.org/gallery/style_sheets/style_sheets_reference.html
+    import matplotlib.pyplot as plt
 
+    fig, axs = plt.subplots(3, 2)
+    gs = axs[0, -1].get_gridspec()
 
-Support for numpy.datetime64
-----------------------------
+    # remove the last column
+    for ax in axs[:,-1].flatten():
+      ax.remove()
 
-Matplotlib has supported `datetime.datetime` dates for a long time in
-`matplotlib.dates`.  We
-now support `numpy.datetime64` dates as well.  Anywhere that
-`dateime.datetime` could be used, `numpy.datetime64` can be used.  eg::
-
-  time = np.arange('2005-02-01', '2005-02-02', dtype='datetime64[h]')
-  plt.plot(time)
+    # make a subplot in last column that spans rows.
+    ax = fig.add_subplot(gs[:, -1])
+    plt.show()
 
 
+Axes titles will no longer overlap xaxis
+----------------------------------------
 
-Writing animations with Pillow
-------------------------------
-It is now possible to use Pillow as an animation writer.  Supported output
-formats are currently gif (Pillow>=3.4) and webp (Pillow>=5.0).  Use e.g. as ::
+Previously an axes title had to be moved manually if an xaxis overlapped
+(usually when the xaxis was put on the top of the axes).  Now, the title
+will be automatically moved above the xaxis and its decorators (including
+the xlabel) if they are at the top.
 
-   from __future__ import division
-
-   from matplotlib import pyplot as plt
-   from matplotlib.animation import FuncAnimation, PillowWriter
-
-   fig, ax = plt.subplots()
-   line, = plt.plot([0, 1])
-
-   def animate(i):
-      line.set_ydata([0, i / 20])
-      return [line]
-
-   anim = FuncAnimation(fig, animate, 20, blit=True)
-   anim.save("movie.gif", writer=PillowWriter(fps=24))
-   plt.show()
-
-
-Slider UI widget can snap to discrete values
---------------------------------------------
-
-The slider UI widget can take the optional argument *valstep*.  Doing so
-forces the slider to take on only discrete values, starting from *valmin* and
-counting up to *valmax* with steps of size *valstep*.
-
-If *closedmax==True*, then the slider will snap to *valmax* as well.
+If desired, the title can still be placed manually.  There is a slight kludge;
+the algorithm checks if the y-position of the title is 1.0 (the default),
+and moves if it is.  If the user places the title in the default location
+(i.e. ``ax.title.set_position(0.5, 1.0)``), the title will still be moved
+above the xaxis.  If the user wants to avoid this, they can
+specify a number that is close (i.e. ``ax.title.set_position(0.5, 1.01)``)
+and the title will not be moved via this algorithm.
 
 
 
-``capstyle`` and ``joinstyle`` attributes added to `Collection`
----------------------------------------------------------------
-
-The `Collection` class now has customizable ``capstyle`` and ``joinstyle``
-attributes. This allows the user for example to set the ``capstyle`` of
-errorbars.
-
-
-*pad* kwarg added to ax.set_title
----------------------------------
-
-The method `axes.set_title` now has a *pad* kwarg, that specifies the
-distance from the top of an axes to where the title is drawn.  The units
-of *pad* is points, and the default is the value of the (already-existing)
-``rcParams['axes.titlepad']``.
-
-
-Comparison of 2 colors in Matplotlib
+New convenience methods for GridSpec
 ------------------------------------
 
-As the colors in Matplotlib can be specified with a wide variety of ways, the
-`matplotlib.colors.same_color` method has been added which checks if
-two `~matplotlib.colors` are the same.
+There are new convenience methods for `.gridspec.GridSpec` and
+`.gridspec.GridSpecFromSubplotSpec`.  Instead of the former we can
+now call `.Figure.add_gridspec` and for the latter `.SubplotSpec.subgridspec`.
+
+.. code-block:: python
+
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    gs0 = fig.add_gridspec(3, 1)
+    ax1 = fig.add_subplot(gs0[0])
+    ax2 = fig.add_subplot(gs0[1])
+    gssub = gs0[2].subgridspec(1, 3)
+    for i in range(3):
+        fig.add_subplot(gssub[0, i])
 
 
-Autoscaling a polar plot snaps to the origin
---------------------------------------------
-
-Setting the limits automatically in a polar plot now snaps the radial limit
-to zero if the automatic limit is nearby. This means plotting from zero doesn't
-automatically scale to include small negative values on the radial axis.
-
-The limits can still be set manually in the usual way using `set_ylim`.
-
-
-PathLike support
-----------------
-
-On Python 3.6+, `~matplotlib.pyplot.savefig`, `~matplotlib.pyplot.imsave`,
-`~matplotlib.pyplot.imread`, and animation writers now accept `os.PathLike`\s
-as input.
-
-
-`Axes.tick_params` can set gridline properties
-----------------------------------------------
-
-`Tick` objects hold gridlines as well as the tick mark and its label.
-`Axis.set_tick_params`, `Axes.tick_params` and `pyplot.tick_params`
-now have keyword arguments 'grid_color', 'grid_alpha', 'grid_linewidth',
-and 'grid_linestyle' for overriding the defaults in `rcParams`:
-'grid.color', etc.
-
-
-`Axes.imshow` clips RGB values to the valid range
+Figure has an `~.figure.Figure.add_artist` method
 -------------------------------------------------
 
-When `Axes.imshow` is passed an RGB or RGBA value with out-of-range
-values, it now logs a warning and clips them to the valid range.
-The old behaviour, wrapping back in to the range, often hid outliers
-and made interpreting RGB images unreliable.
+A method `~.figure.Figure.add_artist` has been added to the
+:class:`~.figure.Figure` class, which allows artists to be added directly
+to a figure. E.g.
+
+::
+    circ = plt.Circle((.7, .5), .05)
+    fig.add_artist(circ)
+
+In case the added artist has no transform set previously, it will be set to
+the figure transform (``fig.transFigure``).
+This new method may be useful for adding artists to figures without axes or to
+easily position static elements in figure coordinates.
 
 
-Properties in `matplotlibrc` to place xaxis and yaxis tick labels
------------------------------------------------------------------
+Improved default backend selection
+----------------------------------
 
-Introducing four new boolean properties in `.matplotlibrc` for default
-positions of xaxis and yaxis tick labels, namely,
-`xtick.labeltop`, `xtick.labelbottom`, `ytick.labelright` and
-`ytick.labelleft`. These can also be changed in rcParams.
+The default backend no longer must be set as part of the build
+process.  Instead, at run time, the builtin backends are tried in
+sequence until one of them imports.
 
-
-PGI bindings for gtk3
----------------------
-
-The GTK3 backends can now use PGI_ instead of PyGObject_.  PGI is a fairly
-incomplete binding for GObject, thus its use is not recommended; its main
-benefit is its availability on Travis (thus allowing CI testing for the gtk3agg
-and gtk3cairo backends).
-
-The binding selection rules are as follows:
-- if ``gi`` has already been imported, use it; else
-- if ``pgi`` has already been imported, use it; else
-- if ``gi`` can be imported, use it; else
-- if ``pgi`` can be imported, use it; else
-- error out.
-
-Thus, to force usage of PGI when both bindings are installed, import it first.
-
-.. _PGI: https://pgi.readthedocs.io/en/latest/
-.. _PyGObject: http://pygobject.readthedocs.io/en/latest/#
+Headless linux servers (identified by the DISPLAY env not being defined)
+will not select a GUI backend.
 
 
 
-Cairo rendering for Qt, WX, and Tk canvases
--------------------------------------------
-
-The new ``Qt4Cairo``, ``Qt5Cairo``, ``WXCairo``, and ``TkCairo``
-backends allow Qt, Wx, and Tk canvases to use Cairo rendering instead of
-Agg.
-
-
-Added support for QT in new ToolManager
----------------------------------------
-
-Now it is possible to use the ToolManager with Qt5
-For example
-
-  import matplotlib
-
-  matplotlib.use('QT5AGG')
-  matplotlib.rcParams['toolbar'] = 'toolmanager'
-  import matplotlib.pyplot as plt
-
-  plt.plot([1,2,3])
-  plt.show()
-
-
-Treat the new Tool classes experimental for now, the API will likely change and perhaps the rcParam as well
-
-The main example `examples/user_interfaces/toolmanager_sgskip.py` shows more
-details, just adjust the header to use QT instead of GTK3
-
-
-
-TkAgg backend reworked to support PyPy
---------------------------------------
-
-PyPy_ can now plot using the TkAgg backend, supported on PyPy 5.9
-and greater (both PyPy for python 2.7 and PyPy for python 3.5).
-
-.. _PyPy: https:/www.pypy.org
-
-
-
-Python logging library used for debug output
---------------------------------------------
-
-Matplotlib has in the past (sporadically) used an internal
-verbose-output reporter.  This version converts those calls to using the
-standard python `logging` library.
-
-Support for the old ``rcParams`` ``verbose.level`` and ``verbose.fileo`` is
-dropped.
-
-The command-line options ``--verbose-helpful`` and ``--verbose-debug`` are
-still accepted, but deprecated.  They are now equivalent to setting
-``logging.INFO`` and ``logging.DEBUG``.
-
-The logger's root name is ``matplotlib`` and can be accessed from programs
-as::
-
-  import logging
-  mlog = logging.getLogger('matplotlib')
-
-Instructions for basic usage are in :ref:`troubleshooting-faq` and for
-developers in :ref:`contributing`.
-
-.. _logging: https://docs.python.org/3/library/logging.html
-
-Improved `repr` for `Transform`\s
----------------------------------
-
-`Transform`\s now indent their `repr`\s in a more legible manner:
-
-.. code-block:: ipython
-
-   In [1]: l, = plt.plot([]); l.get_transform()
-   Out[1]:
-   CompositeGenericTransform(
-      TransformWrapper(
-         BlendedAffine2D(
-               IdentityTransform(),
-               IdentityTransform())),
-      CompositeGenericTransform(
-         BboxTransformFrom(
-               TransformedBbox(
-                  Bbox(x0=-0.05500000000000001, y0=-0.05500000000000001, x1=0.05500000000000001, y1=0.05500000000000001),
-                  TransformWrapper(
-                     BlendedAffine2D(
-                           IdentityTransform(),
-                           IdentityTransform())))),
-         BboxTransformTo(
-               TransformedBbox(
-                  Bbox(x0=0.125, y0=0.10999999999999999, x1=0.9, y1=0.88),
-                  BboxTransformTo(
-                     TransformedBbox(
-                           Bbox(x0=0.0, y0=0.0, x1=6.4, y1=4.8),
-                           Affine2D(
-                              [[ 100.    0.    0.]
-                              [   0.  100.    0.]
-                              [   0.    0.    1.]])))))))
-
-
-
-
-
-
-
+==================
 Previous Whats New
 ==================
 

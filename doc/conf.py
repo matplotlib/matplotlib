@@ -38,7 +38,6 @@ extensions = [
     'numpydoc',  # Needs to be loaded *after* autodoc.
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
-    'matplotlib.sphinxext.only_directives',
     'matplotlib.sphinxext.plot_directive',
     'sphinxext.custom_roles',
     'sphinxext.github',
@@ -96,7 +95,6 @@ intersphinx_mapping = {
 }
 
 
-
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
     'examples_dirs': ['../examples', '../tutorials'],
@@ -148,7 +146,6 @@ project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
              'team; 2012 - 2018 The Matplotlib development team')
-
 
 
 # The default replacements for |version| and |release|, also used in various
@@ -224,10 +221,6 @@ html_file_suffix = '.html'
 # using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-#html_use_smartypants = True
-
 # Content template for the index page.
 html_index = 'index.html'
 
@@ -255,6 +248,9 @@ html_use_opensearch = 'False'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Matplotlibdoc'
+
+# Use typographic quote characters.
+smartquotes = False
 
 # Path to favicon
 html_favicon = '_static/favicon.ico'

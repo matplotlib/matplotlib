@@ -114,7 +114,7 @@ plt.show()
 # This allows you to plot the full range of your array w/o edge effects,
 # and for example to layer multiple images of different sizes over one
 # another with different interpolation methods - see
-# :ref:`sphx_glr_gallery_images_contours_and_fields_layer_images.py`.
+# :doc:`/gallery/images_contours_and_fields/layer_images`.
 # It also implies a performance hit, as this
 # new temporary, padded array must be created.  Sophisticated
 # interpolation also implies a performance hit, so if you need maximal
@@ -137,8 +137,8 @@ plt.show()
 # x[0,0] in the upper left or lower right by using the origin parameter.
 # You can also control the default setting image.origin in your
 # :ref:`matplotlibrc file <customizing-with-matplotlibrc-files>`. For more on
-# this topic see the :ref:`complete guide on origin and extent
-# <sphx_glr_tutorials_intermediate_imshow_extent.py>`.
+# this topic see the :doc:`complete guide on origin and extent
+# </tutorials/intermediate/imshow_extent>`.
 
 x = np.arange(120).reshape((10, 12))
 

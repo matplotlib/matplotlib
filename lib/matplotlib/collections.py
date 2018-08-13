@@ -338,8 +338,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_pickradius(self, pr):
         """Set the pick radius used for containment tests.
 
-        .. ACCEPTS: float distance in points
-
         Parameters
         ----------
         d : float
@@ -384,7 +382,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Parameters
         ----------
         urls : List[str] or None
-            .. ACCEPTS: List[str] or None
         """
         self._urls = urls if urls is not None else [None]
         self.stale = True
@@ -420,7 +417,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         can only be specified for the collection as a whole, not separately
         for each member.
 
-        ACCEPTS: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
+        Parameters
+        ----------
+        hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
         self._hatch = hatch
         self.stale = True
@@ -434,7 +433,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Set the offsets for the collection.  *offsets* can be a scalar
         or a sequence.
 
-        ACCEPTS: float or sequence of floats
+        Parameters
+        ----------
+        offsets : float or sequence of floats
         """
         offsets = np.asanyarray(offsets, float)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
@@ -462,7 +463,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         If offset_position is 'data', the offset is applied before the
         master transform, i.e., the offsets are in data coordinates.
 
-        .. ACCEPTS: [ 'screen' | 'data' ]
+        Parameters
+        ----------
+        offset_position : {'screen', 'data'}
         """
         if offset_position not in ('screen', 'data'):
             raise ValueError("offset_position must be 'screen' or 'data'")
@@ -486,7 +489,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         or a sequence; if it is a sequence the patches will cycle
         through the sequence
 
-        ACCEPTS: float or sequence of floats
+        Parameters
+        ----------
+        lw : float or sequence of floats
         """
         if lw is None:
             lw = mpl.rcParams['patch.linewidth']
@@ -517,17 +522,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
             (offset, onoffseq),
 
-        where ``onoffseq`` is an even length tuple of on and off ink
-        in points.
-
-        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
-                   (offset, on-off-dash-seq) |
-                   ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
-                   ``' '`` | ``''``]
+        where ``onoffseq`` is an even length tuple of on and off ink in points.
 
         Parameters
         ----------
-        ls : { '-',  '--', '-.', ':'} and more see description
+        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
             The line style.
         """
         try:
@@ -558,7 +557,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        cs : ['butt' | 'round' | 'projecting']
+        cs : {'butt', 'round', 'projecting'}
             The capstyle
         """
         if cs in ('butt', 'round', 'projecting'):
@@ -576,7 +575,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        js : ['miter' | 'round' | 'bevel']
+        js : {'miter', 'round', 'bevel'}
             The joinstyle
         """
         if js in ('miter', 'round', 'bevel'):
@@ -631,7 +630,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set the antialiasing state for rendering.
 
-        ACCEPTS: Boolean or sequence of booleans
+        Parameters
+        ----------
+        aa : bool or sequence of bools
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
@@ -642,12 +643,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set both the edgecolor and the facecolor.
 
-        ACCEPTS: matplotlib color arg or sequence of rgba tuples
-
         .. seealso::
 
             :meth:`set_facecolor`, :meth:`set_edgecolor`
                For setting the edge or face color individually.
+
+        Parameters
+        ----------
+        c : matplotlib color arg or sequence of rgba tuples
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
@@ -674,7 +677,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         If *c* is 'none', the patch will not be filled.
 
-        ACCEPTS: matplotlib color spec or sequence of specs
+        Parameters
+        ----------
+        c : color or sequence of colors
         """
         self._original_facecolor = c
         self._set_facecolor(c)
@@ -727,7 +732,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         the face color.  If it is 'none', the patch boundary will not
         be drawn.
 
-        ACCEPTS: matplotlib color spec or sequence of specs
+        Parameters
+        ----------
+        c : color or sequence of colors
         """
         self._original_edgecolor = c
         self._set_edgecolor(c)
@@ -737,7 +744,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Set the alpha tranparencies of the collection.  *alpha* must be
         a float or *None*.
 
-        ACCEPTS: float or None
+        Parameters
+        ----------
+        alpha : float or None
         """
         if alpha is not None:
             try:
@@ -955,7 +964,7 @@ class PolyCollection(_CollectionWithSizes):
 
     def set_verts_and_codes(self, verts, codes):
         '''This allows one to initialize vertices with path codes.'''
-        if (len(verts) != len(codes)):
+        if len(verts) != len(codes):
             raise ValueError("'codes' must be a 1D list or array "
                              "with the same length of 'verts'")
         self._paths = []
@@ -1039,7 +1048,7 @@ class RegularPolyCollection(_CollectionWithSizes):
 
         %(Collection)s
 
-        Example: see :file:`examples/dynamic_collection.py` for
+        Example: see :doc:`/gallery/event_handling/lasso_demo` for a
         complete example::
 
             offsets = np.random.rand(20,2)
@@ -1049,11 +1058,11 @@ class RegularPolyCollection(_CollectionWithSizes):
             collection = RegularPolyCollection(
                 numsides=5, # a pentagon
                 rotation=0, sizes=(50,),
-                facecolors = facecolors,
-                edgecolors = (black,),
-                linewidths = (1,),
-                offsets = offsets,
-                transOffset = ax.transData,
+                facecolors=facecolors,
+                edgecolors=(black,),
+                linewidths=(1,),
+                offsets=offsets,
+                transOffset=ax.transData,
                 )
         """
         Collection.__init__(self, **kwargs)
@@ -1559,28 +1568,32 @@ class EllipseCollection(Collection):
     @docstring.dedent_interpd
     def __init__(self, widths, heights, angles, units='points', **kwargs):
         """
-        *widths*: sequence
-            lengths of first axes (e.g., major axis lengths)
+        Parameters
+        ----------
+        widths : array-like
+            The lengths of the first axes (e.g., major axis lengths).
 
-        *heights*: sequence
-            lengths of second axes
+        heights : array-like
+            The lengths of second axes.
 
-        *angles*: sequence
-            angles of first axes, degrees CCW from the X-axis
+        angles : array-like
+            The angles of the first axes, degrees CCW from the x-axis.
 
-        *units*: ['points' | 'inches' | 'dots' | 'width' | 'height'
-        | 'x' | 'y' | 'xy']
+        units : {'points', 'inches', 'dots', 'width', 'height', 'x', 'y', 'xy'}
 
-            units in which majors and minors are given; 'width' and
+            The units in which majors and minors are given; 'width' and
             'height' refer to the dimensions of the axes, while 'x'
             and 'y' refer to the *offsets* data units. 'xy' differs
             from all others in that the angle as plotted varies with
             the aspect ratio, and equals the specified angle only when
             the aspect ratio is unity.  Hence it behaves the same as
             the :class:`~matplotlib.patches.Ellipse` with
-            axes.transData as its transform.
+            ``axes.transData`` as its transform.
 
-        Additional kwargs inherited from the base :class:`Collection`:
+        Other Parameters
+        ----------------
+        **kwargs
+            Additional kwargs inherited from the base :class:`Collection`.
 
         %(Collection)s
         """

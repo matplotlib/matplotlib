@@ -380,7 +380,7 @@ class Patch3DCollection(PatchCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = zip(*offsets)
+            xs, ys = offsets.T
         else:
             xs = []
             ys = []
@@ -446,7 +446,7 @@ class Path3DCollection(PathCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = zip(*offsets)
+            xs, ys = offsets.T
         else:
             xs = []
             ys = []
@@ -486,7 +486,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     Parameters
     ----------
     za
-        The location or locations to place the patches in the  collection along
+        The location or locations to place the patches in the collection along
         the *zdir* axis. Default: 0.
     zdir
         The axis in which to place the patches. Default: "z".
@@ -680,10 +680,11 @@ class Poly3DCollection(PolyCollection):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha transparencies of the collection.  *alpha* must be
-        a float or *None*.
+        Set the alpha transparencies of the collection.
 
-        .. ACCEPTS: float or None
+        Parameters
+        ----------
+        alpha : float or None
         """
         if alpha is not None:
             try:

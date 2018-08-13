@@ -7,7 +7,7 @@ This example displays the difference between interpolation methods for
 :meth:`~.axes.Axes.imshow` and :meth:`~.axes.Axes.matshow`.
 
 If `interpolation` is None, it defaults to the ``image.interpolation``
-:ref:`rc parameter <sphx_glr_tutorials_introductory_customizing.py>`.
+:doc:`rc parameter </tutorials/introductory/customizing>`.
 If the interpolation is ``'none'``, then no interpolation is performed
 for the Agg, ps and pdf backends. Other backends will default to ``'nearest'``.
 

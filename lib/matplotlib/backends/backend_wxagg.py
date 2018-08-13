@@ -1,6 +1,5 @@
 import wx
 
-import matplotlib
 from .backend_agg import FigureCanvasAgg
 from .backend_wx import (
     _BackendWx, _FigureCanvasWxBase, FigureFrameWx,

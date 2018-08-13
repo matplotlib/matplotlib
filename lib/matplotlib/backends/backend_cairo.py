@@ -24,16 +24,15 @@ except ImportError:
         raise ImportError("cairo backend requires that cairocffi or pycairo "
                           "is installed")
     else:
-        HAS_CAIRO_CFFI = False
-else:
-    HAS_CAIRO_CFFI = True
+        if cairo.version_info < (1, 11, 0):
+            # Introduced create_for_data for Py3.
+            raise ImportError(
+                "cairo {} is installed; cairo>=1.11.0 is required"
+                .format(cairo.version))
 
-if cairo.version_info < (1, 4, 0):
-    raise ImportError("cairo {} is installed; "
-                      "cairo>=1.4.0 is required".format(cairo.version))
 backend_version = cairo.version
 
-from matplotlib import cbook
+from .. import cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -43,11 +42,13 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
 
+# Cairo's image buffers are premultiplied ARGB32,
+# Matplotlib's are unmultiplied RGBA8888.
+
+
 def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
     """
     Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
-
-    Cairo uses the former format, Matplotlib the latter.
     """
     rgba = np.take(  # .take() ensures C-contiguity of the result.
         buf,
@@ -63,6 +64,43 @@ def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
     return rgba
 
 
+def _unmultipled_rgba8888_to_premultiplied_argb32(rgba8888):
+    """
+    Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
+    """
+    if sys.byteorder == "little":
+        argb32 = np.take(rgba8888, [2, 1, 0, 3], axis=2)
+        rgb24 = argb32[..., :-1]
+        alpha8 = argb32[..., -1:]
+    else:
+        argb32 = np.take(rgba8888, [3, 0, 1, 2], axis=2)
+        alpha8 = argb32[..., :1]
+        rgb24 = argb32[..., 1:]
+    # Only bother premultiplying when the alpha channel is not fully opaque,
+    # as the cost is not negligible.  The unsafe cast is needed to do the
+    # multiplication in-place in an integer buffer.
+    if alpha8.min() != 0xff:
+        np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
+    return argb32
+
+
+if cairo.__name__ == "cairocffi":
+    # Convert a pycairo context to a cairocffi one.
+    def _to_context(ctx):
+        if not isinstance(ctx, cairo.Context):
+            ctx = cairo.Context._from_pointer(
+                cairo.ffi.cast(
+                    'cairo_t **',
+                    id(ctx) + object.__basicsize__)[0],
+                incref=True)
+        return ctx
+else:
+    # Pass-through a pycairo context.
+    def _to_context(ctx):
+        return ctx
+
+
+@cbook.deprecated("3.0")
 class ArrayWrapper:
     """Thin wrapper around numpy ndarray to expose the interface
        expected by cairocffi. Basically replicates the
@@ -158,7 +196,8 @@ def _append_paths_fast(ctx, paths, transforms, clip=None):
     cairo.cairo.cairo_append_path(ctx._pointer, ptr)
 
 
-_append_paths = _append_paths_fast if HAS_CAIRO_CFFI else _append_paths_slow
+_append_paths = (_append_paths_fast if cairo.__name__ == "cairocffi"
+                 else _append_paths_slow)
 
 
 def _append_path(ctx, path, transform, clip=None):
@@ -341,35 +380,16 @@ class RendererCairo(RendererBase):
         _draw_paths()
 
     def draw_image(self, gc, x, y, im):
-        # bbox - not currently used
-        if sys.byteorder == 'little':
-            im = im[:, :, (2, 1, 0, 3)]
-        else:
-            im = im[:, :, (3, 0, 1, 2)]
-        if HAS_CAIRO_CFFI:
-            # cairocffi tries to use the buffer_info from array.array
-            # that we replicate in ArrayWrapper and alternatively falls back
-            # on ctypes to get a pointer to the numpy array. This works
-            # correctly on a numpy array in python3 but not 2.7. We replicate
-            # the array.array functionality here to get cross version support.
-            imbuffer = ArrayWrapper(im.ravel())
-        else:
-            # py2cairo uses PyObject_AsWriteBuffer to get a pointer to the
-            # numpy array; this works correctly on a regular numpy array but
-            # not on a memory view.
-            imbuffer = im.ravel()
+        im = _unmultipled_rgba8888_to_premultiplied_argb32(im[::-1])
         surface = cairo.ImageSurface.create_for_data(
-            imbuffer, cairo.FORMAT_ARGB32,
-            im.shape[1], im.shape[0], im.shape[1]*4)
+            im.ravel().data, cairo.FORMAT_ARGB32,
+            im.shape[1], im.shape[0], im.shape[1] * 4)
         ctx = gc.ctx
         y = self.height - y - im.shape[0]
 
         ctx.save()
         ctx.set_source_surface(surface, float(x), float(y))
-        if gc.get_alpha() != 1:
-            ctx.paint_with_alpha(gc.get_alpha())
-        else:
-            ctx.paint()
+        ctx.paint()
         ctx.restore()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -626,7 +646,7 @@ class FigureCanvasCairo(FigureCanvasBase):
                     fo = gzip.GzipFile(None, 'wb', fileobj=fo)
             surface = cairo.SVGSurface(fo, width_in_points, height_in_points)
         else:
-            warnings.warn("unknown format: %s" % fmt)
+            warnings.warn("unknown format: %s" % fmt, stacklevel=2)
             return
 
         # surface.set_dpi() can be used

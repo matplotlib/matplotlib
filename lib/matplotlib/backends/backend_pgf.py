@@ -311,12 +311,12 @@ class LatexManager:
             self.latex.communicate()
             self.latex_stdin_utf8.close()
             self.latex.stdout.close()
-        except:
+        except Exception:
             pass
         try:
             self._shutil.rmtree(self.tmpdir)
             LatexManager._unclean_instances.discard(self)
-        except:
+        except Exception:
             sys.stderr.write("error deleting tmp directory %s\n" % self.tmpdir)
 
     def __del__(self):
@@ -403,7 +403,7 @@ class RendererPgf(RendererBase):
             if not hasattr(fh, 'name') or not os.path.exists(fh.name):
                 warnings.warn("streamed pgf-code does not support raster "
                               "graphics, consider using the pgf-to-pdf option",
-                              UserWarning)
+                              UserWarning, stacklevel=2)
                 self.__dict__["draw_image"] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
@@ -673,11 +673,10 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
             writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
         rgb = tuple(gc.get_rgb())[:3]
-        if rgb != (0, 0, 0):
-            writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
-            writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
-            writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
-            s = r"\color{textcolor}" + s
+        writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
+        writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
+        writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
+        s = r"\color{textcolor}" + s
 
         f = 1.0 / self.figure.dpi
         text_args = []
@@ -834,7 +833,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
         # figure out where the pgf is to be written to
         if isinstance(fname_or_fh, str):
-            with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
+            with open(fname_or_fh, "w", encoding="utf-8") as fh:
                 self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
             fh = codecs.getwriter("utf-8")(fname_or_fh)
@@ -868,8 +867,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 \\centering
 \\input{figure.pgf}
 \\end{document}""" % (w, h, latex_preamble, latex_fontspec)
-            with codecs.open(fname_tex, "w", "utf-8") as fh_tex:
-                fh_tex.write(latexcode)
+            pathlib.Path(fname_tex).write_text(latexcode, encoding="utf-8")
 
             texcommand = rcParams["pgf.texsystem"]
             cmdargs = [texcommand, "-interaction=nonstopmode",

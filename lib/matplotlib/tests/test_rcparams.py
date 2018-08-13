@@ -1,4 +1,7 @@
 from collections import OrderedDict
+import copy
+from itertools import chain
+import locale
 import os
 from unittest import mock
 import warnings
@@ -7,9 +10,9 @@ from cycler import cycler, Cycler
 import pytest
 
 import matplotlib as mpl
+from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_stringlist,
@@ -25,15 +28,13 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 _validate_linestyle)
 
 
-mpl.rc('text', usetex=False)
-mpl.rc('lines', linewidth=22)
-
-fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
-
-
 def test_rcparams():
+    mpl.rc('text', usetex=False)
+    mpl.rc('lines', linewidth=22)
+
     usetex = mpl.rcParams['text.usetex']
     linewidth = mpl.rcParams['lines.linewidth']
+    fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
 
     # test context given dictionary
     with mpl.rc_context(rc={'text.usetex': not usetex}):
@@ -51,11 +52,8 @@ def test_rcparams():
     assert mpl.rcParams['lines.linewidth'] == linewidth
 
     # test rc_file
-    try:
-        mpl.rc_file(fname)
-        assert mpl.rcParams['lines.linewidth'] == 33
-    finally:
-        mpl.rcParams['lines.linewidth'] = linewidth
+    mpl.rc_file(fname)
+    assert mpl.rcParams['lines.linewidth'] == 33
 
 
 def test_RcParams_class():
@@ -123,16 +121,14 @@ def test_Bug_2543():
     # printed in the test suite.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
-                                message='.*(deprecated|obsolete)',
-                                category=UserWarning)
+                                category=MatplotlibDeprecationWarning)
         with mpl.rc_context():
             _copy = mpl.rcParams.copy()
             for key in _copy:
                 mpl.rcParams[key] = _copy[key]
             mpl.rcParams['text.dvipnghack'] = None
         with mpl.rc_context():
-            from copy import deepcopy
-            _deep_copy = deepcopy(mpl.rcParams)
+            _deep_copy = copy.deepcopy(mpl.rcParams)
         # real test is that this does not raise
         assert validate_bool_maybe_none(None) is None
         assert validate_bool_maybe_none("none") is None
@@ -194,7 +190,6 @@ def test_mec_rcparams():
 def test_Issue_1713():
     utf32_be = os.path.join(os.path.dirname(__file__),
                            'test_utf32_be_rcparams.rc')
-    import locale
     with mock.patch('locale.getpreferredencoding', return_value='UTF-32-BE'):
         rc = mpl.rc_params_from_file(utf32_be, True, False)
     assert rc.get('timezone') == 'UTC'
@@ -458,7 +453,7 @@ def test_rcparams_reset_after_fail():
 
 def test_if_rctemplate_is_up_to_date():
     # This tests if the matplotlibrc.template file contains all valid rcParams.
-    deprecated = {*mpl._all_deprecated, *mpl._deprecated_set}
+    deprecated = {*mpl._all_deprecated, *mpl._deprecated_remain_as_none}
     path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
     with open(path_to_rc, "r") as f:
         rclines = f.readlines()
@@ -468,7 +463,8 @@ def test_if_rctemplate_is_up_to_date():
             continue
         if k in deprecated:
             continue
-        if "verbose" in k:
+        if k.startswith(
+                ("verbose.", "examples.directory", "text.latex.unicode")):
             continue
         found = False
         for line in rclines:
@@ -477,8 +473,8 @@ def test_if_rctemplate_is_up_to_date():
         if not found:
             missing.update({k: v})
     if missing:
-        raise ValueError("The following params are missing " +
-                         "in the matplotlibrc.template file: {}"
+        raise ValueError("The following params are missing in the "
+                         "matplotlibrc.template file: {}"
                          .format(missing.items()))
 
 

@@ -22,7 +22,7 @@ class ToolEvent(object):
 
 
 class ToolTriggerEvent(ToolEvent):
-    """Event to inform  that a tool has been triggered"""
+    """Event to inform that a tool has been triggered"""
     def __init__(self, name, sender, tool, canvasevent=None, data=None):
         ToolEvent.__init__(self, name, sender, tool, data)
         self.canvasevent = canvasevent

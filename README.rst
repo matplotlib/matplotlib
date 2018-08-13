@@ -1,4 +1,4 @@
-|Travis|_ |AppVeyor|_ |Codecov|_ |PyPi|_ |Gitter|_ |Depsy|_
+|Travis|_ |AppVeyor|_ |Codecov|_ |PyPi|_ |Gitter|_ |NUMFocus|_
 
 
 .. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
@@ -13,11 +13,8 @@
 .. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
 .. _PyPi: https://badge.fury.io/py/matplotlib
 
-.. |Gitter| image:: https://img.shields.io/gitter/room/nwjs/nw.js.svg
-   :target: https://gitter.im/matplotlib/matplotlib?utm_source=share-link&utm_medium=link&utm_campaign=share-link
-
-.. |Depsy| image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
-.. _Depsy: http://depsy.org/package/python/matplotlib
+.. |Gitter| image:: https://badges.gitter.im/matplotlib/matplotlib.png
+.. _Gitter: https://gitter.im/matplotlib/matplotlib
 
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: http://www.numfocus.org
@@ -73,7 +70,8 @@ matplotlib's communication channels include active mailing lists:
 
 The first is a good starting point for general questions and discussions.
 
-`Gitter <https://gitter.im/matplotlib/matplotlib>`_ is for coordinating development and asking questions directly related to contributing to matplotlib.
+Gitter_ is for coordinating development and asking questions directly related
+to contributing to matplotlib.
 
 Contribute
 ==========

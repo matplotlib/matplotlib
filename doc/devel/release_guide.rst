@@ -20,7 +20,8 @@ We use `travis-ci <https://travis-ci.org/matplotlib/matplotlib>`__ for
 continuous integration.  When preparing for a release, the final
 tagged commit should be tested locally before it is uploaded::
 
-   python tests.py --processes=8 --process-timeout=300
+   pytest -n 8 .
+
 
 In addition the following two tests should be run and manually inspected::
 

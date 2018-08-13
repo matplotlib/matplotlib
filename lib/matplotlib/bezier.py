@@ -31,8 +31,9 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     c, d = sin_t2, -cos_t2
 
     ad_bc = a * d - b * c
-    if ad_bc == 0.:
-        raise ValueError("Given lines do not intersect")
+    if np.abs(ad_bc) < 1.0e-12:
+        raise ValueError("Given lines do not intersect. Please verify that "
+                         "the angles are not equal or differ by 180 degrees.")
 
     # rhs_inverse
     a_, b_ = d, -b

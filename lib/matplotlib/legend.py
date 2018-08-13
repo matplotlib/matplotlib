@@ -4,23 +4,21 @@ drawing legends associated with axes and/or figures.
 
 .. important::
 
-    It is unlikely that you would ever create a Legend instance manually.
-    Most users would normally create a legend via the
+    It is unlikely that you would ever create a Legend instance
+    manually.  Most users would normally create a legend via the
     :meth:`~matplotlib.axes.Axes.legend` function. For more details on legends
-    there is also a :ref:`legend guide
-    <sphx_glr_tutorials_intermediate_legend_guide.py>`.
+    there is also a :doc:`legend guide </tutorials/intermediate/legend_guide>`.
 
-The Legend class can be considered as a container of legend handles
-and legend texts. Creation of corresponding legend handles from the
-plot elements in the axes or figures (e.g., lines, patches, etc.) are
-specified by the handler map, which defines the mapping between the
-plot elements and the legend handlers to be used (the default legend
-handlers are defined in the :mod:`~matplotlib.legend_handler` module).
-Note that not all kinds of artist are supported by the legend yet by default
-but it is possible to extend the legend handler's capabilities to support
-arbitrary objects. See the :ref:`legend guide
-<sphx_glr_tutorials_intermediate_legend_guide.py>` for more information.
-
+The Legend class can be considered as a container of legend handles and
+legend texts. Creation of corresponding legend handles from the plot elements
+in the axes or figures (e.g., lines, patches, etc.) are specified by the
+handler map, which defines the mapping between the plot elements and the
+legend handlers to be used (the default legend handlers are defined in the
+:mod:`~matplotlib.legend_handler` module).  Note that not all kinds of
+artist are supported by the legend yet by default but it is possible to
+extend the legend handler's capabilities to support arbitrary objects. See
+the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
+information.
 """
 
 import logging
@@ -113,7 +111,8 @@ class DraggableLegend(DraggableOffsetBox):
 
 
 _legend_kw_doc = '''
-loc : int or string or pair of floats, default: 'upper right'
+loc : int or string or pair of floats, default: :rc:`legend.loc` ('best' for \
+axes, 'upper right' for figures)
     The location of the legend. Possible codes are:
 
         ===============   =============
@@ -982,6 +981,22 @@ class Legend(Artist):
         'Return extent of the legend.'
         return self._legend_box.get_window_extent(*args, **kwargs)
 
+    def get_tightbbox(self, renderer):
+        """
+        Like `.Legend.get_window_extent`, but uses the box for the legend.
+
+        Parameters
+        ----------
+        renderer : `.RendererBase` instance
+            renderer that will be used to draw the figures (i.e.
+            ``fig.canvas.get_renderer()``)
+
+        Returns
+        -------
+        `.BboxBase` : containing the bounding box in figure pixel co-ordinates.
+        """
+        return self._legend_box.get_window_extent(renderer)
+
     def get_frame_on(self):
         """Get whether the legend box patch is drawn."""
         return self._drawFrame
@@ -993,7 +1008,6 @@ class Legend(Artist):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         self._drawFrame = b
         self.stale = True
@@ -1128,7 +1142,7 @@ class Legend(Artist):
         use_blit : bool, optional
             Use blitting for faster image composition. For details see
             :ref:`func-animation`.
-        update : ['loc' | 'bbox'], optional
+        update : {'loc', 'bbox'}, optional
             The legend parameter to be changed when dragged:
 
             - 'loc': update the *loc* parameter of the legend
@@ -1228,7 +1242,7 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
 
     for handle in _get_legend_handles(axs, legend_handler_map):
         label = handle.get_label()
-        if (label and not label.startswith('_')):
+        if label and not label.startswith('_'):
             handles.append(handle)
             labels.append(label)
     return handles, labels

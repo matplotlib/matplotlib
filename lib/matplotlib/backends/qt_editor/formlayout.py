@@ -42,6 +42,7 @@ __license__ = __doc__
 
 import copy
 import datetime
+from numbers import Integral, Real
 import warnings
 
 from matplotlib import colors as mcolors
@@ -92,7 +93,7 @@ def to_qcolor(color):
     try:
         rgba = mcolors.to_rgba(color)
     except ValueError:
-        warnings.warn('Ignoring invalid color %r' % color)
+        warnings.warn('Ignoring invalid color %r' % color, stacklevel=2)
         return qcolor  # return invalid QColor
     qcolor.setRgbF(*rgba)
     return qcolor
@@ -137,7 +138,7 @@ def tuple_to_qfont(tup):
     """
     if not (isinstance(tup, tuple) and len(tup) == 4
             and font_is_installed(tup[0])
-            and isinstance(tup[1], int)
+            and isinstance(tup[1], Integral)
             and isinstance(tup[2], bool)
             and isinstance(tup[3], bool)):
         return None
@@ -242,10 +243,8 @@ class FormWidget(QtWidgets.QWidget):
             elif isinstance(value, str):
                 field = QtWidgets.QLineEdit(value, self)
             elif isinstance(value, (list, tuple)):
-                if isinstance(value, tuple):
-                    value = list(value)
-                selindex = value.pop(0)
                 field = QtWidgets.QComboBox(self)
+                selindex, *value = value
                 if isinstance(value[0], (list, tuple)):
                     keys = [key for key, _val in value]
                     value = [val for _key, val in value]
@@ -256,10 +255,10 @@ class FormWidget(QtWidgets.QWidget):
                     selindex = value.index(selindex)
                 elif selindex in keys:
                     selindex = keys.index(selindex)
-                elif not isinstance(selindex, int):
+                elif not isinstance(selindex, Integral):
                     warnings.warn(
                         "index '%s' is invalid (label: %s, value: %s)" %
-                        (selindex, label, value))
+                        (selindex, label, value), stacklevel=2)
                     selindex = 0
                 field.setCurrentIndex(selindex)
             elif isinstance(value, bool):
@@ -268,7 +267,11 @@ class FormWidget(QtWidgets.QWidget):
                     field.setCheckState(QtCore.Qt.Checked)
                 else:
                     field.setCheckState(QtCore.Qt.Unchecked)
-            elif isinstance(value, float):
+            elif isinstance(value, Integral):
+                field = QtWidgets.QSpinBox(self)
+                field.setRange(-1e9, 1e9)
+                field.setValue(value)
+            elif isinstance(value, Real):
                 field = QtWidgets.QLineEdit(repr(value), self)
                 field.setCursorPosition(0)
                 field.setValidator(QtGui.QDoubleValidator(field))
@@ -276,10 +279,6 @@ class FormWidget(QtWidgets.QWidget):
                 dialog = self.get_dialog()
                 dialog.register_float_field(field)
                 field.textChanged.connect(lambda text: dialog.update_buttons())
-            elif isinstance(value, int):
-                field = QtWidgets.QSpinBox(self)
-                field.setRange(-1e9, 1e9)
-                field.setValue(value)
             elif isinstance(value, datetime.datetime):
                 field = QtWidgets.QDateTimeEdit(self)
                 field.setDateTime(value)
@@ -310,10 +309,10 @@ class FormWidget(QtWidgets.QWidget):
                     value = value[index]
             elif isinstance(value, bool):
                 value = field.checkState() == QtCore.Qt.Checked
-            elif isinstance(value, float):
-                value = float(str(field.text()))
-            elif isinstance(value, int):
+            elif isinstance(value, Integral):
                 value = int(field.value())
+            elif isinstance(value, Real):
+                value = float(str(field.text()))
             elif isinstance(value, datetime.datetime):
                 value = field.dateTime().toPyDateTime()
             elif isinstance(value, datetime.date):

@@ -23,8 +23,6 @@ import logging
 from numbers import Integral
 
 import matplotlib.lines as mlines
-import numpy as np
-
 
 _log = logging.getLogger(__name__)
 

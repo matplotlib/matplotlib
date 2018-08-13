@@ -60,7 +60,6 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 # matplotlib build options, which can be altered using setup.cfg
 options = {
     'display_status': True,
-    'verbose': False,
     'backend': None,
     'basedirlist': None
     }
@@ -162,8 +161,10 @@ def get_include_dirs():
     """
     include_dirs = [os.path.join(d, 'include') for d in get_base_dirs()]
     if sys.platform != 'win32':
-        # gcc includes this dir automatically, so also look for headers in
+        # gcc includes these dirs automatically, so also look for headers in
         # these dirs
+        include_dirs.extend(
+            os.environ.get('CPATH', '').split(os.pathsep))
         include_dirs.extend(
             os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
     return include_dirs
@@ -476,7 +477,7 @@ class SetupPackage(object):
                 "Requires patches that have not been merged upstream.")
 
         if min_version and version != 'unknown':
-            if (not is_min_version(version, min_version)):
+            if not is_min_version(version, min_version):
                 raise CheckFailed(
                     "Requires %s %s or later.  Found %s." %
                     (package, min_version, version))
@@ -669,6 +670,7 @@ class Matplotlib(SetupPackage):
         return {
             'matplotlib':
             [
+                'mpl-data/matplotlibrc',
                 *iter_dir('mpl-data/fonts'),
                 *iter_dir('mpl-data/images'),
                 *iter_dir('mpl-data/stylelib'),
@@ -1112,8 +1114,8 @@ class FreeType(SetupPackage):
 
         if sys.platform != 'win32':
             # compilation on all other platforms than windows
-            env={**os.environ,
-                 "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
+            env = {**os.environ,
+                   "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
             subprocess.check_call(
                 ["./configure", "--with-zlib=no", "--with-bzip2=no",
                  "--with-png=no", "--with-harfbuzz=no"],
@@ -1121,38 +1123,35 @@ class FreeType(SetupPackage):
             subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
-            FREETYPE_BUILD_CMD = """\
-call "%ProgramFiles%\\Microsoft SDKs\\Windows\\v7.0\\Bin\\SetEnv.Cmd" /Release /{xXX} /xp
+            shutil.rmtree(str(Path(src_path, "objs")), ignore_errors=True)
+            FREETYPE_BUILD_CMD = r"""
+call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
+    /Release /{xXX} /xp
 call "{vcvarsall}" {xXX}
-set MSBUILD=C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe
-rd /S /Q %FREETYPE%\\objs
-%MSBUILD% %FREETYPE%\\builds\\windows\\{vc20xx}\\freetype.sln /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
-echo Build completed, moving result"
-:: move to the "normal" path for the unix builds...
-mkdir %FREETYPE%\\objs\\.libs
-:: REMINDER: fix when changing the version
-copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-if errorlevel 1 (
-  rem This is a py27 version, which has a different location for the lib file :-/
-  copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
-)
+set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
+%MSBUILD% "builds\windows\{vc20xx}\freetype.sln" ^
+    /t:Clean;Build /p:Configuration="Release";Platform={WinXX}
 """
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64
+            import distutils.msvc9compiler as msvc
             # Note: freetype has no build profile for 2014, so we don't bother...
-            vc = 'vc2010' if VS2010 else 'vc2008'
-            WinXX = 'x64' if X64 else 'Win32'
-            # This is only false for py2.7, even on py3.5...
-            if not VS2010:
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
-                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.vcproj'), WinXX)
-
-            cmdfile = os.path.join("build", 'build_freetype.cmd')
-            with open(cmdfile, 'w') as cmd:
-                cmd.write(prepare_build_cmd(FREETYPE_BUILD_CMD, vc20xx=vc, WinXX=WinXX,
-                                            config='Release' if VS2010 else 'LIB Release'))
-
-            os.environ['FREETYPE'] = src_path
-            subprocess.check_call([cmdfile], shell=True)
+            vc = 'vc2010'
+            WinXX = 'x64' if platform.architecture()[0] == '64bit' else 'Win32'
+            xXX = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
+            vcvarsall = msvc.find_vcvarsall(10.0)
+            if vcvarsall is None:
+                raise RuntimeError('Microsoft VS 2010 required')
+            cmdfile = Path("build/build_freetype.cmd")
+            cmdfile.write_text(FREETYPE_BUILD_CMD.format(
+                vc20xx=vc, WinXX=WinXX, xXX=xXX, vcvarsall=vcvarsall))
+            subprocess.check_call([str(cmdfile.resolve())],
+                                  shell=True, cwd=src_path)
+            # Move to the corresponding Unix build path.
+            Path(src_path, "objs/.libs").mkdir()
+            # Be robust against change of FreeType version.
+            lib_path, = (Path(src_path, "objs", vc, xXX)
+                         .glob("freetype*.lib"))
+            shutil.copy2(str(lib_path),
+                         str(Path(src_path, "objs/.libs/libfreetype.lib")))
 
 
 class FT2Font(SetupPackage):
@@ -1341,7 +1340,6 @@ class InstallRequires(SetupPackage):
             "kiwisolver>=1.0.1",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
-            "pytz",
         ]
 
 
@@ -1371,13 +1369,8 @@ class BackendTkAgg(OptionalBackendPackage):
         return "installing; run-time loading from Python Tcl / Tk"
 
     def runtime_check(self):
-        """ Checks whether TkAgg runtime dependencies are met
-        """
-        try:
-            import tkinter
-        except ImportError:
-            return False
-        return True
+        """Checks whether TkAgg runtime dependencies are met."""
+        return importlib.util.find_spec("tkinter") is not None
 
     def get_extension(self):
         sources = [
@@ -1398,142 +1391,42 @@ class BackendTkAgg(OptionalBackendPackage):
             ext.libraries.extend(['dl'])
 
 
-def backend_gtk3agg_internal_check(x):
-    try:
-        import gi
-    except ImportError:
-        return (False, "Requires pygobject to be installed.")
-
-    try:
-        gi.require_version("Gtk", "3.0")
-    except ValueError:
-        return (False, "Requires gtk3 development files to be installed.")
-    except AttributeError:
-        return (False, "pygobject version too old.")
-
-    try:
-        from gi.repository import Gtk, Gdk, GObject
-    except (ImportError, RuntimeError):
-        return (False, "Requires pygobject to be installed.")
-
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
-
-
 class BackendGtk3Agg(OptionalBackendPackage):
     name = "gtk3agg"
 
     def check_requirements(self):
-        if 'TRAVIS' in os.environ:
-            raise CheckFailed("Can't build with Travis")
+        if not any(map(importlib.util.find_spec, ["cairocffi", "cairo"])):
+            raise CheckFailed("Requires cairocffi or pycairo to be installed.")
 
-        # This check needs to be performed out-of-process, because
-        # importing gi and then importing regular old pygtk afterward
-        # segfaults the interpreter.
         try:
-            p = multiprocessing.Pool()
-        except:
-            return "unknown (can not use multiprocessing to determine)"
-        try:
-            res = p.map_async(backend_gtk3agg_internal_check, [0])
-            success, msg = res.get(timeout=10)[0]
-        except multiprocessing.TimeoutError:
-            p.terminate()
-            # No result returned. Probably hanging, terminate the process.
-            success = False
-            raise CheckFailed("Check timed out")
-        except:
-            p.close()
-            # Some other error.
-            success = False
-            msg = "Could not determine"
-            raise
-        else:
-            p.close()
-        finally:
-            p.join()
-
-        if success:
-            return msg
-        else:
-            raise CheckFailed(msg)
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-
-def backend_gtk3cairo_internal_check(x):
-    try:
-        import cairocffi
-    except ImportError:
-        try:
-            import cairo
+            import gi
         except ImportError:
-            return (False, "Requires cairocffi or pycairo to be installed.")
+            raise CheckFailed("Requires pygobject to be installed.")
 
-    try:
-        import gi
-    except ImportError:
-        return (False, "Requires pygobject to be installed.")
-
-    try:
-        gi.require_version("Gtk", "3.0")
-    except ValueError:
-        return (False, "Requires gtk3 development files to be installed.")
-    except AttributeError:
-        return (False, "pygobject version too old.")
-
-    try:
-        from gi.repository import Gtk, Gdk, GObject
-    except (RuntimeError, ImportError):
-        return (False, "Requires pygobject to be installed.")
-
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
-
-
-class BackendGtk3Cairo(OptionalBackendPackage):
-    name = "gtk3cairo"
-
-    def check_requirements(self):
-        if 'TRAVIS' in os.environ:
-            raise CheckFailed("Can't build with Travis")
-
-        # This check needs to be performed out-of-process, because
-        # importing gi and then importing regular old pygtk afterward
-        # segfaults the interpreter.
         try:
-            p = multiprocessing.Pool()
-        except:
-            return "unknown (can not use multiprocessing to determine)"
-        try:
-            res = p.map_async(backend_gtk3cairo_internal_check, [0])
-            success, msg = res.get(timeout=10)[0]
-        except multiprocessing.TimeoutError:
-            p.terminate()
-            # No result returned. Probably hanging, terminate the process.
-            success = False
-            raise CheckFailed("Check timed out")
-        except:
-            p.close()
-            success = False
-            raise
-        else:
-            p.close()
-        finally:
-            p.join()
+            gi.require_version("Gtk", "3.0")
+        except ValueError:
+            raise CheckFailed(
+                "Requires gtk3 development files to be installed.")
+        except AttributeError:
+            raise CheckFailed("pygobject version too old.")
 
-        if success:
-            return msg
-        else:
-            raise CheckFailed(msg)
+        try:
+            from gi.repository import Gtk, Gdk, GObject
+        except (ImportError, RuntimeError):
+            raise CheckFailed("Requires pygobject to be installed.")
+
+        return "version {}.{}.{}".format(
+            Gtk.get_major_version(),
+            Gtk.get_minor_version(),
+            Gtk.get_micro_version())
 
     def get_package_data(self):
         return {'matplotlib': ['mpl-data/*.glade']}
+
+
+class BackendGtk3Cairo(BackendGtk3Agg):
+    name = "gtk3cairo"
 
 
 class BackendWxAgg(OptionalBackendPackage):

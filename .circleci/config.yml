@@ -47,6 +47,12 @@ fonts-run:  &fonts-install
       echo "Not downloading Humor-Sans; file already exists."
     fi
     fc-cache -f -v
+  save_cache:
+    key: fonts-1
+    paths:
+      - ~/.local/share/fonts/
+  restore_cache:
+    key: fonts-1
 
 pip-run:  &pip-install
   # Upgrade pip and setuptools and wheel to get as clean an install as possible

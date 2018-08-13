@@ -3,6 +3,7 @@
 Fig Axes Labels Simple
 ======================
 
+Label the axes of a plot.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -26,3 +27,21 @@ n, bins, patches = ax2.hist(np.random.randn(1000), 50,
 ax2.set_xlabel('time (s)')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.set_xlabel
+matplotlib.axes.Axes.set_ylabel
+matplotlib.axes.Axes.set_title
+matplotlib.axes.Axes.plot
+matplotlib.axes.Axes.hist
+matplotlib.figure.Figure.add_axes

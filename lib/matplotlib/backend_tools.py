@@ -25,7 +25,7 @@ import matplotlib.cbook as cbook
 
 class Cursors(object):
     """Simple namespace for cursor reference"""
-    HAND, POINTER, SELECT_REGION, MOVE, WAIT = list(range(5))
+    HAND, POINTER, SELECT_REGION, MOVE, WAIT = range(5)
 cursors = Cursors()
 
 # Views positions tool
@@ -337,7 +337,7 @@ class ToolCursorPosition(ToolBase):
             except (ValueError, OverflowError):
                 pass
             else:
-                artists = [a for a in event.inaxes.mouseover_set
+                artists = [a for a in event.inaxes._mouseover_set
                            if a.contains(event) and a.get_visible()]
 
                 if artists:
@@ -1039,25 +1039,25 @@ class ToolHelpBase(ToolBase):
         keymaps = self.toolmanager.get_tool_keymap(name)
         return ", ".join(self.format_shortcut(keymap) for keymap in keymaps)
 
-    def _get_help_text(self):
+    def _get_help_entries(self):
         entries = []
         for name, tool in sorted(self.toolmanager.tools.items()):
             if not tool.description:
                 continue
-            entries.append(
-                "{}: {}\n\t{}".format(
-                    name, self._format_tool_keymap(name), tool.description))
+            entries.append((name, self._format_tool_keymap(name),
+                            tool.description))
+        return entries
+
+    def _get_help_text(self):
+        entries = self._get_help_entries()
+        entries = ["{}: {}\n\t{}".format(*entry) for entry in entries]
         return "\n".join(entries)
 
     def _get_help_html(self):
         fmt = "<tr><td>{}</td><td>{}</td><td>{}</td></tr>"
         rows = [fmt.format(
             "<b>Action</b>", "<b>Shortcuts</b>", "<b>Description</b>")]
-        for name, tool in sorted(self.toolmanager.tools.items()):
-            if not tool.description:
-                continue
-            rows.append(fmt.format(
-                name, self._format_tool_keymap(name), tool.description))
+        rows += [fmt.format(*row) for row in self._get_help_entries()]
         return ("<style>td {padding: 0px 4px}</style>"
                 "<table><thead>" + rows[0] + "</thead>"
                 "<tbody>".join(rows[1:]) + "</tbody></table>")

@@ -1,7 +1,6 @@
 """
 The image module supports basic image loading, rescaling and display
 operations.
-
 """
 
 from io import BytesIO
@@ -17,6 +16,7 @@ import numpy as np
 from matplotlib import rcParams
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
+from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
@@ -237,10 +237,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha value used for blending - not supported on
-        all backends
+        Set the alpha value used for blending - not supported on all backends.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        alpha : float
         """
         martist.Artist.set_alpha(self, alpha)
         self._imcache = None
@@ -620,9 +621,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Set the image array.
 
-        ACCEPTS: numpy/PIL Image A
-
         Note that this function does *not* update the normalization used.
+
+        Parameters
+        ----------
+        A : array-like
         """
         # check if data is PIL Image without importing Image
         if hasattr(A, 'getpixel'):
@@ -665,13 +668,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_array(self, A):
         """
-        Retained for backwards compatibility - use set_data instead
+        Retained for backwards compatibility - use set_data instead.
 
-        ACCEPTS: numpy array A or PIL Image
+        Parameters
+        ----------
+        A : array-like
         """
         # This also needs to be here to override the inherited
-        # cm.ScalarMappable.set_array method so it is not invoked
-        # by mistake.
+        # cm.ScalarMappable.set_array method so it is not invoked by mistake.
 
         self.set_data(A)
 
@@ -695,10 +699,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         agg, ps and pdf backends and will fall back to 'nearest' mode
         for other backends.
 
-        .. ACCEPTS: ['nearest' | 'bilinear' | 'bicubic' | 'spline16' |
-           'spline36' | 'hanning' | 'hamming' | 'hermite' | 'kaiser' |
-           'quadric' | 'catrom' | 'gaussian' | 'bessel' | 'mitchell' |
-           'sinc' | 'lanczos' | 'none' ]
+        Parameters
+        ----------
+        s : {'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', \
+'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', \
+'bessel', 'mitchell', 'sinc', 'lanczos', 'none'}
 
         """
         if s is None:
@@ -723,7 +728,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Set whether or not image resampling is used.
 
-        ACCEPTS: True|False
+        Parameters
+        ----------
+        v : bool
         """
         if v is None:
             v = rcParams['image.resample']
@@ -740,7 +747,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         See help for `~.Axes.imshow`.
 
-        .. ACCEPTS: bool
+        Parameters
+        ----------
+        filternorm : bool
         """
         self._filternorm = bool(filternorm)
         self.stale = True
@@ -754,7 +763,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Set the resize filter radius only applicable to some
         interpolation schemes -- see help for imshow
 
-        ACCEPTS: positive float
+        Parameters
+        ----------
+        filterrad : positive float
         """
         r = float(filterrad)
         if r <= 0:
@@ -1291,34 +1302,34 @@ def imread(fname, format=None):
     """
     Read an image from a file into an array.
 
-    *fname* may be a string path, a valid URL, or a Python
-    file-like object.  If using a file object, it must be opened in binary
-    mode.
+    Parameters
+    ----------
+    fname : str or file-like
+        The image file to read. This can be a filename, a URL or a Python
+        file-like object opened in read-binary mode.
+    format : str, optional
+        The image file format assumed for reading the data. If not
+        given, the format is deduced from the filename.  If nothing can
+        be deduced, PNG is tried.
 
-    If *format* is provided, will try to read file of that type,
-    otherwise the format is deduced from the filename.  If nothing can
-    be deduced, PNG is tried.
+    Returns
+    -------
+    imagedata : :class:`numpy.array`
+        The image data. The returned array has shape
 
-    Return value is a :class:`numpy.array`.  For grayscale images, the
-    return array is MxN.  For RGB images, the return value is MxNx3.
-    For RGBA images the return value is MxNx4.
+        - (M, N) for grayscale images.
+        - (M, N, 3) for RGB images.
+        - (M, N, 4) for RGBA images.
 
-    matplotlib can only read PNGs natively, but if `PIL
-    <http://www.pythonware.com/products/pil/>`_ is installed, it will
-    use it to load the image and return an array (if possible) which
-    can be used with :func:`~matplotlib.pyplot.imshow`. Note, URL strings
-    may not be compatible with PIL. Check the PIL documentation for more
-    information.
+    Notes
+    -----
+    Matplotlib can only read PNGs natively. Further image formats are
+    supported via the optional dependency on Pillow. Note, URL strings
+    are not compatible with Pillow. Check the `Pillow documentation`_
+    for more information.
+
+    .. _Pillow documentation: http://pillow.readthedocs.io/en/latest/
     """
-
-    def pilread(fname):
-        """try to load the image with PIL or return None"""
-        try:
-            from PIL import Image
-        except ImportError:
-            return None
-        with Image.open(fname) as image:
-            return pil_to_array(image)
 
     handlers = {'png': _png.read_png, }
     if format is None:
@@ -1338,13 +1349,15 @@ def imread(fname, format=None):
     else:
         ext = format
 
-    if ext not in handlers:
-        im = pilread(fname)
-        if im is None:
+    if ext not in handlers:  # Try to load the image with PIL.
+        try:
+            from PIL import Image
+        except ImportError:
             raise ValueError('Only know how to handle extensions: %s; '
                              'with Pillow installed matplotlib can handle '
                              'more images' % list(handlers))
-        return im
+        with Image.open(fname) as image:
+            return pil_to_array(image)
 
     handler = handlers[ext]
 
@@ -1374,26 +1387,29 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     Parameters
     ----------
     fname : str or file-like
-        Path string to a filename, or a Python file-like object.
-        If *format* is *None* and *fname* is a string, the output
-        format is deduced from the extension of the filename.
+        The filename or a Python file-like object to store the image in.
+        The necessary output format is inferred from the filename extension
+        but may be explicitly overwritten using *format*.
     arr : array-like
-        An MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA) array.
-    vmin, vmax: [ None | scalar ]
+        The image data. The shape can be one of
+        MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA).
+    vmin, vmax : scalar, optional
         *vmin* and *vmax* set the color scaling for the image by fixing the
         values that map to the colormap color limits. If either *vmin*
         or *vmax* is None, that limit is determined from the *arr*
         min/max value.
-    cmap : matplotlib.colors.Colormap, optional
-        For example, ``cm.viridis``.  If ``None``, defaults to the
-        ``image.cmap`` rcParam.
-    format : str
-        One of the file extensions supported by the active backend.  Most
-        backends support png, pdf, ps, eps and svg.
-    origin : [ 'upper' | 'lower' ]
-        Indicates whether the ``(0, 0)`` index of the array is in the
-        upper left or lower left corner of the axes.  Defaults to the
-        ``image.origin`` rcParam.
+    cmap : str or `~matplotlib.colors.Colormap`, optional
+        A Colormap instance or registered colormap name. The colormap
+        maps scalar data to colors. It is ignored for RGB(A) data.
+        Defaults to :rc:`image.cmap` ('viridis').
+    format : str, optional
+        The file format, e.g. 'png', 'pdf', 'svg', ... . If not given, the
+        format is deduced form the filename extension in *fname*.
+        See `.Figure.savefig` for details.
+    origin : {'upper', 'lower'}, optional
+        Indicates whether the ``(0, 0)`` index of the array is in the upper
+        left or lower left corner of the axes.  Defaults to :rc:`image.origin`
+        ('upper').
     dpi : int
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.
@@ -1419,11 +1435,20 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
 
 def pil_to_array(pilImage):
-    """Load a PIL image and return it as a numpy array.
+    """Load a `PIL image`_ and return it as a numpy array.
 
-    Grayscale images are returned as ``(M, N)`` arrays.  RGB images are
-    returned as ``(M, N, 3)`` arrays.  RGBA images are returned as ``(M, N,
-    4)`` arrays.
+    .. _PIL image: https://pillow.readthedocs.io/en/latest/reference/Image.html
+
+    Returns
+    -------
+    numpy.array
+
+        The array shape depends on the image type:
+
+        - (M, N) for grayscale images.
+        - (M, N, 3) for RGB images.
+        - (M, N, 4) for RGBA images.
+
     """
     if pilImage.mode in ['RGBA', 'RGBX', 'RGB', 'L']:
         # return MxNx4 RGBA, MxNx3 RBA, or MxN luminance array
@@ -1447,81 +1472,59 @@ def pil_to_array(pilImage):
 def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
               preview=False):
     """
-    make a thumbnail of image in *infile* with output filename
-    *thumbfile*.
+    Make a thumbnail of image in *infile* with output filename *thumbfile*.
 
-      *infile* the image file -- must be PNG or Pillow-readable if you
-         have `Pillow <http://python-pillow.org/>`_ installed
+    See :doc:`/gallery/misc/image_thumbnail_sgskip`.
 
-      *thumbfile*
-        the thumbnail filename
+    Parameters
+    ----------
+    infile : str or file-like
+        The image file -- must be PNG, Pillow-readable if you have `Pillow
+        <http://python-pillow.org/>`_ installed.
 
-      *scale*
-        the scale factor for the thumbnail
+    thumbfile : str or file-like
+        The thumbnail filename.
 
-      *interpolation*
-        the interpolation scheme used in the resampling
+    scale : float, optional
+        The scale factor for the thumbnail.
 
+    interpolation : str, optional
+        The interpolation scheme used in the resampling. See the
+        *interpolation* parameter of `~.Axes.imshow` for possible values.
 
-      *preview*
-        if True, the default backend (presumably a user interface
-        backend) will be used which will cause a figure to be raised
-        if :func:`~matplotlib.pyplot.show` is called.  If it is False,
-        a pure image backend will be used depending on the extension,
-        'png'->FigureCanvasAgg, 'pdf'->FigureCanvasPdf,
-        'svg'->FigureCanvasSVG
+    preview : bool, optional
+        If True, the default backend (presumably a user interface
+        backend) will be used which will cause a figure to be raised if
+        `~matplotlib.pyplot.show` is called.  If it is False, the figure is
+        created using `FigureCanvasBase` and the drawing backend is selected
+        as `~matplotlib.figure.savefig` would normally do.
 
-
-    See examples/misc/image_thumbnail.py.
-
-    .. htmlonly::
-
-        :ref:`sphx_glr_gallery_misc_image_thumbnail_sgskip.py`
-
-    Return value is the figure instance containing the thumbnail
-
+    Returns
+    -------
+    figure : `~.figure.Figure`
+        The figure instance containing the thumbnail.
     """
-    basedir, basename = os.path.split(infile)
-    baseout, extout = os.path.splitext(thumbfile)
 
     im = imread(infile)
     rows, cols, depth = im.shape
 
-    # this doesn't really matter, it will cancel in the end, but we
-    # need it for the mpl API
+    # This doesn't really matter (it cancels in the end) but the API needs it.
     dpi = 100
 
     height = rows / dpi * scale
     width = cols / dpi * scale
 
-    extension = extout.lower()
-
     if preview:
-        # let the UI backend do everything
+        # Let the UI backend do everything.
         import matplotlib.pyplot as plt
         fig = plt.figure(figsize=(width, height), dpi=dpi)
     else:
-        if extension == '.png':
-            from matplotlib.backends.backend_agg \
-                import FigureCanvasAgg as FigureCanvas
-        elif extension == '.pdf':
-            from matplotlib.backends.backend_pdf \
-                import FigureCanvasPdf as FigureCanvas
-        elif extension == '.svg':
-            from matplotlib.backends.backend_svg \
-                import FigureCanvasSVG as FigureCanvas
-        else:
-            raise ValueError("Can only handle "
-                             "extensions 'png', 'svg' or 'pdf'")
-
         from matplotlib.figure import Figure
         fig = Figure(figsize=(width, height), dpi=dpi)
-        FigureCanvas(fig)
+        FigureCanvasBase(fig)
 
     ax = fig.add_axes([0, 0, 1, 1], aspect='auto',
                       frameon=False, xticks=[], yticks=[])
-
-    basename, ext = os.path.splitext(basename)
     ax.imshow(im, aspect='auto', resample=True, interpolation=interpolation)
     fig.savefig(thumbfile, dpi=dpi)
     return fig

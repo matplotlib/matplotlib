@@ -13,15 +13,15 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
-from collections import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 from functools import reduce
 import operator
 import os
-import warnings
 import re
+import sys
 
 from matplotlib import cbook
-from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
+from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -243,13 +243,14 @@ def validate_fonttype(s):
 
 _validate_standard_backends = ValidateInStrings(
     'backend', all_backends, ignorecase=True)
+_auto_backend_sentinel = object()
 
 
 def validate_backend(s):
-    if s.startswith('module://'):
-        return s
-    else:
-        return _validate_standard_backends(s)
+    backend = (
+        s if s is _auto_backend_sentinel or s.startswith("module://")
+        else _validate_standard_backends(s))
+    return backend
 
 
 def validate_qt4(s):
@@ -966,9 +967,8 @@ def _validate_linestyle(ls):
 
 # a map from key -> value, converter
 defaultParams = {
-    'backend':           ['Agg', validate_backend],  # agg is certainly
-                                                      # present
-    'backend_fallback':  [True, validate_bool],  # agg is certainly present
+    'backend':           [_auto_backend_sentinel, validate_backend],
+    'backend_fallback':  [True, validate_bool],
     'backend.qt4':       [None, validate_qt4],
     'backend.qt5':       [None, validate_qt5],
     'webagg.port':       [8988, validate_int],
@@ -1101,7 +1101,7 @@ defaultParams = {
     # text props
     'text.color':          ['black', validate_color],
     'text.usetex':         [False, validate_bool],
-    'text.latex.unicode':  [False, validate_bool],
+    'text.latex.unicode':  [True, validate_bool],
     'text.latex.preamble': [[''], validate_stringlist],
     'text.latex.preview':  [False, validate_bool],
     'text.dvipnghack':     [None, validate_bool_maybe_none],

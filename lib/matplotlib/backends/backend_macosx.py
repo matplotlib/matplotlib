@@ -88,7 +88,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
     def draw_idle(self, *args, **kwargs):
         self.invalidate()
 
-    def blit(self, bbox):
+    def blit(self, bbox=None):
         self.invalidate()
 
     def resize(self, width, height):
@@ -185,6 +185,7 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
 @_Backend.export
 class _BackendMac(_Backend):
+    required_interactive_framework = "macosx"
     FigureCanvas = FigureCanvasMac
     FigureManager = FigureManagerMac
 

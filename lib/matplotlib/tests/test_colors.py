@@ -1,6 +1,5 @@
 import copy
 import itertools
-import warnings
 
 import numpy as np
 import pytest
@@ -185,6 +184,15 @@ def test_PowerNorm():
     assert_array_almost_equal(pnorm(a, clip=True), expected)
     assert pnorm(a[0], clip=True) == expected[0]
     assert pnorm(a[-1], clip=True) == expected[-1]
+
+
+def test_PowerNorm_translation_invariance():
+    a = np.array([0, 1/2, 1], dtype=float)
+    expected = [0, 1/8, 1]
+    pnorm = mcolors.PowerNorm(vmin=0, vmax=1, gamma=3)
+    assert_array_almost_equal(pnorm(a), expected)
+    pnorm = mcolors.PowerNorm(vmin=-2, vmax=-1, gamma=3)
+    assert_array_almost_equal(pnorm(a - 2), expected)
 
 
 def test_Normalize():
@@ -698,13 +706,7 @@ def test_ndarray_subclass_norm(recwarn):
         fig, ax = plt.subplots()
         ax.imshow(mydata, norm=norm)
         fig.canvas.draw()
-        if isinstance(norm, mcolors.PowerNorm):
-            assert len(recwarn) == 1
-            warn = recwarn.pop(UserWarning)
-            assert ('Power-law scaling on negative values is ill-defined'
-                    in str(warn.message))
-        else:
-            assert len(recwarn) == 0
+        assert len(recwarn) == 0
         recwarn.clear()
 
 

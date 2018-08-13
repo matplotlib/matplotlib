@@ -3,7 +3,7 @@
 Creating a colormap from a list of colors
 =========================================
 
-Creating a :ref:`colormap <sphx_glr_tutorials_colors_colormaps.py>`
+Creating a :doc:`colormap </tutorials/colors/colormaps>`
 from a list of colors can be done with the
 :meth:`~.colors.LinearSegmentedColormap.from_list` method of
 `LinearSegmentedColormap`. You must pass a list of RGB tuples that define the

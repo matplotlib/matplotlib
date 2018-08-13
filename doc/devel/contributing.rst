@@ -265,7 +265,7 @@ tools:
 * Code with a good unittest coverage (at least 70%, better 100%), check with::
 
    python -mpip install coverage
-   python tests.py --with-coverage
+   pytest --cov=matplotlib --showlocals -v
 
 * No pyflakes warnings, check with::
 
@@ -479,7 +479,7 @@ Developing a new backend
 ------------------------
 
 If you are working on a custom backend, the *backend* setting in
-:file:`matplotlibrc` (:ref:`sphx_glr_tutorials_introductory_customizing.py`) supports an
+:file:`matplotlibrc` (:doc:`/tutorials/introductory/customizing`) supports an
 external backend via the ``module`` directive.  If
 :file:`my_backend.py` is a Matplotlib backend in your
 :envvar:`PYTHONPATH`, you can set it on one of several ways

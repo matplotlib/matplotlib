@@ -3,6 +3,8 @@
 Pyplot Mathtext
 ===============
 
+Use mathematical expressions in text labels. For an overview over MathText
+see :doc:`/tutorials/text/mathtext`.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,3 +19,17 @@ plt.text(0.6, 0.6, r'$\mathcal{A}\mathrm{sin}(2 \omega t)$',
 plt.xlabel('time (s)')
 plt.ylabel('volts (mV)')
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.text
+matplotlib.axes.Axes.text

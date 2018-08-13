@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
-needs_usetex = pytest.mark.xfail(
+needs_usetex = pytest.mark.skipif(
     not matplotlib.checkdep_usetex(True),
     reason="This test needs a TeX installation")
 
@@ -435,7 +435,7 @@ def test_two_2line_texts(spacing1, spacing2):
 
     # line spacing only affects height
     assert box1.width == box2.width
-    if (spacing1 == spacing2):
+    if spacing1 == spacing2:
         assert box1.height == box2.height
     else:
         assert box1.height != box2.height
@@ -499,3 +499,14 @@ def test_text_repr():
     plt.plot(['A', 'B'], [1, 2])
     txt = plt.text(['A'], 0.5, 'Boo')
     print(txt)
+
+
+def test_annotation_update():
+    fig, ax = plt.subplots(1, 1)
+    an = ax.annotate('annotation', xy=(0.5, 0.5))
+    extent1 = an.get_window_extent(fig.canvas.get_renderer())
+    fig.tight_layout()
+    extent2 = an.get_window_extent(fig.canvas.get_renderer())
+
+    assert not np.allclose(extent1.get_points(), extent2.get_points(),
+                           rtol=1e-6)

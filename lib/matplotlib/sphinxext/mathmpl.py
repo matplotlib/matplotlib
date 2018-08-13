@@ -50,7 +50,7 @@ def latex2png(latex, filename, fontset='cm'):
             depth = mathtext_parser.to_png(filename, latex, dpi=100)
         except:
             warnings.warn("Could not render math expression %s" % latex,
-                          Warning)
+                          Warning, stacklevel=2)
             depth = 0
     rcParams['mathtext.fontset'] = orig_fontset
     sys.stdout.write("#")

@@ -135,5 +135,4 @@ if 1:
     demo_grid_with_each_cbar(F)
     demo_grid_with_each_cbar_labelled(F)
 
-    plt.draw()
     plt.show()

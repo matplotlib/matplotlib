@@ -321,8 +321,8 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         --------
         >>> import matplotlib.pyplot as plt
         >>> import numpy as np
-        >>> from mpl_toolkits.axes_grid1.anchored_artists import \
-AnchoredSizeBar
+        >>> from mpl_toolkits.axes_grid1.anchored_artists import (
+        ...     AnchoredSizeBar)
         >>> fig, ax = plt.subplots()
         >>> ax.imshow(np.random.random((10,10)))
         >>> bar = AnchoredSizeBar(ax.transData, 3, '3 data units', 4)
@@ -333,10 +333,10 @@ AnchoredSizeBar
 
         >>> import matplotlib.font_manager as fm
         >>> fontprops = fm.FontProperties(size=14, family='monospace')
-        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, \
-sep=5, borderpad=0.5, frameon=False, \
-size_vertical=0.5, color='white', \
-fontproperties=fontprops)
+        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5,
+        ...                       sep=5, borderpad=0.5, frameon=False,
+        ...                       size_vertical=0.5, color='white',
+        ...                       fontproperties=fontprops)
         """
         if fill_bar is None:
             fill_bar = size_vertical > 0
@@ -505,8 +505,8 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         --------
         >>> import matplotlib.pyplot as plt
         >>> import numpy as np
-        >>> from mpl_toolkits.axes_grid1.anchored_artists import \
-        ...     AnchoredDirectionArrows
+        >>> from mpl_toolkits.axes_grid1.anchored_artists import (
+        ...     AnchoredDirectionArrows)
         >>> fig, ax = plt.subplots()
         >>> ax.imshow(np.random.random((10,10)))
         >>> arrows = AnchoredDirectionArrows(ax.transAxes, '111', '110')
@@ -519,9 +519,11 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         >>> import matplotlib.font_manager as fm
         >>> fontprops = fm.FontProperties(family='monospace')
         >>> arrows = AnchoredDirectionArrows(ax.transAxes, 'East', 'South',
-        ... loc='lower left', color='k', aspect_ratio=-1, sep_x=0.02,
-        ... sep_y=-0.01, text_props={'ec':'w', 'fc':'k'},
-        ... fontproperties=fontprops)
+        ...                                  loc='lower left', color='k',
+        ...                                  aspect_ratio=-1, sep_x=0.02,
+        ...                                  sep_y=-0.01,
+        ...                                  text_props={'ec':'w', 'fc':'k'},
+        ...                                  fontproperties=fontprops)
         """
         if arrow_props is None:
             arrow_props = {}

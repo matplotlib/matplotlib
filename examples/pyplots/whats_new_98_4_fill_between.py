@@ -3,6 +3,7 @@
 Fill Between
 ============
 
+Fill the area between two curves.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,3 +19,16 @@ ax.fill_between(x, y1, y2, where=y2 <=y1, facecolor='red', alpha=0.5)
 ax.set_title('Fill Between')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.fill_between

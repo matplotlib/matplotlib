@@ -50,7 +50,9 @@ class Container(tuple):
         """
         Set the label to *s* for auto legend.
 
-        ACCEPTS: string or anything printable with '%s' conversion.
+        Parameters
+        ----------
+        s : string or anything printable with '%s' conversion.
         """
         if s is not None:
             self._label = '%s' % (s, )

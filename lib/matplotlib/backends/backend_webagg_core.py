@@ -11,9 +11,10 @@ Displays Agg images in the browser, with interactivity
 #   application, implemented with tornado.
 
 import datetime
-import io
+from io import StringIO
 import json
 import os
+from pathlib import Path
 import warnings
 
 import numpy as np
@@ -241,7 +242,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_unknown_event(self, event):
         warnings.warn('Unhandled message type {0}. {1}'.format(
-            event['type'], event))
+            event['type'], event), stacklevel=2)
 
     def handle_ack(self, event):
         # Network latency tends to decrease if traffic is flowing
@@ -448,15 +449,12 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     @classmethod
     def get_javascript(cls, stream=None):
         if stream is None:
-            output = io.StringIO()
+            output = StringIO()
         else:
             output = stream
 
-        with io.open(os.path.join(
-                os.path.dirname(__file__),
-                "web_backend", "js",
-                "mpl.js"), encoding='utf8') as fd:
-            output.write(fd.read())
+        output.write((Path(__file__).parent / "web_backend/js/mpl.js")
+                     .read_text(encoding="utf-8"))
 
         toolitems = []
         for name, tooltip, image, method in cls.ToolbarCls.toolitems:

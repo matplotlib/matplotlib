@@ -1,21 +1,30 @@
 """
-A PostScript backend, which can produce both PostScript .ps and .eps
+A PostScript backend, which can produce both PostScript .ps and .eps.
 """
-import glob, os, shutil, sys, time, datetime
-import io
-import logging
-import subprocess
 
-from tempfile import mkstemp
+import binascii
+import datetime
+import glob
+from io import StringIO, TextIOWrapper
+import logging
+import os
+import pathlib
+import re
+import shutil
+import subprocess
+import sys
+from tempfile import TemporaryDirectory
+import time
+
+import numpy as np
+
 from matplotlib import cbook, __version__, rcParams, checkdep_ghostscript
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
-
 from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
                               maxdict, file_requires_unicode)
-
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
@@ -24,13 +33,7 @@ from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D
-
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-
-
-import numpy as np
-import binascii
-import re
 
 _log = logging.getLogger(__name__)
 
@@ -159,17 +162,13 @@ def _move_path_to_path_or_stream(src, dst):
     If *dst* is a path, the metadata of *src* are *not* copied.
     """
     if is_writable_file_like(dst):
-        fh = (io.open(src, 'r', encoding='latin-1')
+        fh = (open(src, 'r', encoding='latin-1')
               if file_requires_unicode(dst)
-              else io.open(src, 'rb'))
+              else open(src, 'rb'))
         with fh:
             shutil.copyfileobj(fh, dst)
     else:
-        # Py3: shutil.move(src, dst, copy_function=shutil.copyfile)
-        open(dst, 'w').close()
-        mode = os.stat(dst).st_mode
-        shutil.move(src, dst)
-        os.chmod(dst, mode)
+        shutil.move(src, dst, copy_function=shutil.copyfile)
 
 
 class RendererPS(RendererBase):
@@ -267,15 +266,16 @@ class RendererPS(RendererBase):
             self.linedash = (offset, seq)
 
     def set_font(self, fontname, fontsize, store=1):
-        if rcParams['ps.useafm']: return
-        if (fontname,fontsize) != (self.fontname,self.fontsize):
+        if rcParams['ps.useafm']:
+            return
+        if (fontname, fontsize) != (self.fontname,self.fontsize):
             out = ("/%s findfont\n"
                    "%1.3f scalefont\n"
                    "setfont\n" % (fontname, fontsize))
-
             self._pswriter.write(out)
-            if store: self.fontname = fontname
-            if store: self.fontsize = fontsize
+            if store:
+                self.fontname = fontname
+                self.fontsize = fontsize
 
     def create_hatch(self, hatch):
         sidelen = 72
@@ -369,7 +369,7 @@ class RendererPS(RendererBase):
                     "Helvetica", fontext='afm', directory=self._afm_font_dir)
             font = self.afmfontd.get(fname)
             if font is None:
-                with io.open(fname, 'rb') as fh:
+                with open(fname, 'rb') as fh:
                     font = AFM(fh)
                 self.afmfontd[fname] = font
             self.afmfontd[key] = font
@@ -708,12 +708,8 @@ grestore
             self.track_characters(font, s)
 
             self.set_color(*gc.get_rgb())
-            sfnt = font.get_sfnt()
-            try:
-                ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')
-            except KeyError:
-                ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
-            ps_name = ps_name.encode('ascii', 'replace').decode('ascii')
+            ps_name = (font.postscript_name
+                       .encode('ascii', 'replace').decode('ascii'))
             self.set_font(ps_name, prop.get_size_in_points())
 
             lastgind = None
@@ -1034,7 +1030,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            self._pswriter = io.StringIO()
+            self._pswriter = StringIO()
 
         # mixed mode rendering
         ps_renderer = self._renderer_class(width, height, self._pswriter,
@@ -1122,10 +1118,8 @@ class FigureCanvasPS(FigureCanvasBase):
                                 "time; consider using the Cairo backend")
                         else:
                             fh.flush()
-                            convert_ttf_to_ps(
-                                font_filename.encode(
-                                    sys.getfilesystemencoding()),
-                                fh, fonttype, glyph_ids)
+                            convert_ttf_to_ps(os.fsencode(font_filename),
+                                              fh, fonttype, glyph_ids)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
@@ -1155,19 +1149,15 @@ class FigureCanvasPS(FigureCanvasBase):
         if rcParams['ps.usedistiller']:
             # We are going to use an external program to process the output.
             # Write to a temporary file.
-            fd, tmpfile = mkstemp()
-            try:
-                with io.open(fd, 'w', encoding='latin-1') as fh:
+            with TemporaryDirectory() as tmpdir:
+                tmpfile = os.path.join(tmpdir, "tmp.ps")
+                with open(tmpfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
                 if rcParams['ps.usedistiller'] == 'ghostscript':
                     gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
                 elif rcParams['ps.usedistiller'] == 'xpdf':
                     xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-
                 _move_path_to_path_or_stream(tmpfile, outfile)
-            finally:
-                if os.path.isfile(tmpfile):
-                    os.unlink(tmpfile)
 
         else:
             # Write directly to outfile.
@@ -1175,10 +1165,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 requires_unicode = file_requires_unicode(outfile)
 
                 if not requires_unicode:
-                    fh = io.TextIOWrapper(outfile, encoding="latin-1")
-
-                    # Prevent the io.TextIOWrapper from closing the
-                    # underlying file
+                    fh = TextIOWrapper(outfile, encoding="latin-1")
+                    # Prevent the TextIOWrapper from closing the underlying
+                    # file.
                     def do_nothing():
                         pass
                     fh.close = do_nothing
@@ -1187,7 +1176,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
                 print_figure_impl(fh)
             else:
-                with io.open(outfile, 'w', encoding='latin-1') as fh:
+                with open(outfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
 
     def _print_figure_tex(
@@ -1235,7 +1224,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            self._pswriter = io.StringIO()
+            self._pswriter = StringIO()
 
         # mixed mode rendering
         ps_renderer = self._renderer_class(width, height,
@@ -1261,9 +1250,9 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
 
-        fd, tmpfile = mkstemp()
-        try:
-            with io.open(fd, 'w', encoding='latin-1') as fh:
+        with TemporaryDirectory() as tmpdir:
+            tmpfile = os.path.join(tmpdir, "tmp.ps")
+            with open(tmpfile, 'w', encoding='latin-1') as fh:
                 # write the Encapsulated PostScript headers
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
                 if title:
@@ -1350,9 +1339,6 @@ class FigureCanvasPS(FigureCanvasBase):
                              rotated=psfrag_rotated)
 
             _move_path_to_path_or_stream(tmpfile, outfile)
-        finally:
-            if os.path.isfile(tmpfile):
-                os.unlink(tmpfile)
 
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
@@ -1403,24 +1389,19 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
       paperWidth, paperHeight,
       '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
 
-    with io.open(latexfile, 'wb') as latexh:
-        if rcParams['text.latex.unicode']:
-            latexh.write(s.encode('utf8'))
-        else:
-            try:
-                latexh.write(s.encode('ascii'))
-            except UnicodeEncodeError:
-                _log.info("You are using unicode and latex, but have "
-                          "not enabled the matplotlib 'text.latex.unicode' "
-                          "rcParam.")
-                raise
+    try:
+        pathlib.Path(latexfile).write_text(
+            s, encoding='utf-8' if rcParams['text.latex.unicode'] else 'ascii')
+    except UnicodeEncodeError:
+        _log.info("You are using unicode and latex, but have not enabled the "
+                  "Matplotlib 'text.latex.unicode' rcParam.")
+        raise
 
     # Replace \\ for / so latex does not think there is a function call
     latexfile = latexfile.replace("\\", "/")
     # Replace ~ so Latex does not think it is line break
     latexfile = latexfile.replace("~", "\\string~")
-    command = [str("latex"), "-interaction=nonstopmode",
-               '"%s"' % latexfile]
+    command = ["latex", "-interaction=nonstopmode", '"%s"' % latexfile]
     _log.debug('%s', command)
     try:
         report = subprocess.check_output(command, cwd=tmpdir,
@@ -1434,7 +1415,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                        exc.output.decode("utf-8"))))
     _log.debug(report)
 
-    command = [str('dvips'), '-q', '-R0', '-o', os.path.basename(psfile),
+    command = ['dvips', '-q', '-R0', '-o', os.path.basename(psfile),
                os.path.basename(dvifile)]
     _log.debug(command)
     try:
@@ -1458,7 +1439,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     # the generated ps file is in landscape and return this
     # information. The return value is used in pstoeps step to recover
     # the correct bounding box. 2010-06-05 JJL
-    with io.open(tmpfile) as fh:
+    with open(tmpfile) as fh:
         if "Landscape" in fh.read(1000):
             psfrag_rotated = True
         else:
@@ -1535,7 +1516,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
 
     # Pass options as `-foo#bar` instead of `-foo=bar` to keep Windows happy
     # (https://www.ghostscript.com/doc/9.22/Use.htm#MS_Windows).
-    command = [str("ps2pdf"),
+    command = ["ps2pdf",
                "-dAutoFilterColorImages#false",
                "-dAutoFilterGrayImages#false",
                "-dAutoRotatePages#false",
@@ -1554,7 +1535,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
              '\n\n' % exc.output.decode("utf-8")))
     _log.debug(report)
 
-    command = [str("pdftops"), "-paper", "match", "-level2", pdffile, psfile]
+    command = ["pdftops", "-paper", "match", "-level2", pdffile, psfile]
     _log.debug(command)
     try:
         report = subprocess.check_output(command, stderr=subprocess.STDOUT)
@@ -1582,7 +1563,7 @@ def get_bbox_header(lbrt, rotated=False):
 
     l, b, r, t = lbrt
     if rotated:
-        rotate = "%.2f %.2f  translate\n90 rotate" % (l+r, 0)
+        rotate = "%.2f %.2f translate\n90 rotate" % (l+r, 0)
     else:
         rotate = ""
     bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))
@@ -1652,7 +1633,7 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
         bbox_info, rotate = None, None
 
     epsfile = tmpfile + '.eps'
-    with io.open(epsfile, 'wb') as epsh, io.open(tmpfile, 'rb') as tmph:
+    with open(epsfile, 'wb') as epsh, open(tmpfile, 'rb') as tmph:
         write = epsh.write
         # Modify the header:
         for line in tmph:
@@ -1699,8 +1680,7 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
     shutil.move(epsfile, tmpfile)
 
 
-class FigureManagerPS(FigureManagerBase):
-    pass
+FigureManagerPS = FigureManagerBase
 
 
 # The following Python dictionary psDefs contains the entries for the
@@ -1746,4 +1726,3 @@ psDefs = [
 @_Backend.export
 class _BackendPS(_Backend):
     FigureCanvas = FigureCanvasPS
-    FigureManager = FigureManagerPS

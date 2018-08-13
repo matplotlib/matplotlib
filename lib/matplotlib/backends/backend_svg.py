@@ -686,6 +686,16 @@ class RendererSVG(RendererBase):
                 operator='arithmetic',
                 k2="1", k3="1")
             writer.end('filter')
+            # feColorMatrix filter to correct opacity
+            writer.start(
+                'filter',
+                id='colorMat')
+            writer.element(
+                'feColorMatrix',
+                attrib={'type': 'matrix'},
+                values='1 0 0 0 0 \n0 1 0 0 0 \n0 0 1 0 0' +
+                       ' \n1 1 1 1 0 \n0 0 0 0 1 ')
+            writer.end('filter')
 
         avg_color = np.sum(colors[:, :], axis=0) / 3.0
         # Just skip fully-transparent triangles
@@ -719,41 +729,64 @@ class RendererSVG(RendererBase):
             writer.start(
                 'linearGradient',
                 id="GR%x_%d" % (self._n_gradients, i),
+                gradientUnits="userSpaceOnUse",
                 x1=short_float_fmt(x1), y1=short_float_fmt(y1),
                 x2=short_float_fmt(xb), y2=short_float_fmt(yb))
             writer.element(
                 'stop',
-                offset='0',
-                style=generate_css({'stop-color': rgb2hex(c),
+                offset='1',
+                style=generate_css({'stop-color': rgb2hex(avg_color),
                                     'stop-opacity': short_float_fmt(c[-1])}))
             writer.element(
                 'stop',
-                offset='1',
+                offset='0',
                 style=generate_css({'stop-color': rgb2hex(c),
                                     'stop-opacity': "0"}))
+
             writer.end('linearGradient')
 
-        writer.element(
-            'polygon',
-            id='GT%x' % self._n_gradients,
-            points=" ".join([short_float_fmt(x)
-                             for x in (x1, y1, x2, y2, x3, y3)]))
         writer.end('defs')
 
-        avg_color = np.sum(colors[:, :], axis=0) / 3.0
-        href = '#GT%x' % self._n_gradients
+        # triangle formation using "path"
+        dpath = "M " + short_float_fmt(x1)+',' + short_float_fmt(y1)
+        dpath += " L " + short_float_fmt(x2) + ',' + short_float_fmt(y2)
+        dpath += " " + short_float_fmt(x3) + ',' + short_float_fmt(y3) + " Z"
+
         writer.element(
-            'use',
-            attrib={'xlink:href': href,
+            'path',
+            attrib={'d': dpath,
                     'fill': rgb2hex(avg_color),
-                    'fill-opacity': short_float_fmt(avg_color[-1])})
-        for i in range(3):
-            writer.element(
-                'use',
-                attrib={'xlink:href': href,
-                        'fill': 'url(#GR%x_%d)' % (self._n_gradients, i),
-                        'fill-opacity': '1',
-                        'filter': 'url(#colorAdd)'})
+                    'fill-opacity': '1',
+                    'shape-rendering': "crispEdges"})
+
+        writer.start(
+                'g',
+                attrib={'stroke': "none",
+                        'stroke-width': "0",
+                        'shape-rendering': "crispEdges",
+                        'filter': "url(#colorMat)"})
+
+        writer.element(
+            'path',
+            attrib={'d': dpath,
+                    'fill': 'url(#GR%x_0)' % self._n_gradients,
+                    'shape-rendering': "crispEdges"})
+
+        writer.element(
+            'path',
+            attrib={'d': dpath,
+                    'fill': 'url(#GR%x_1)' % self._n_gradients,
+                    'filter': 'url(#colorAdd)',
+                    'shape-rendering': "crispEdges"})
+
+        writer.element(
+            'path',
+            attrib={'d': dpath,
+                    'fill': 'url(#GR%x_2)' % self._n_gradients,
+                    'filter': 'url(#colorAdd)',
+                    'shape-rendering': "crispEdges"})
+
+        writer.end('g')
 
         self._n_gradients += 1
 
@@ -1213,8 +1246,8 @@ class FigureCanvasSVG(FigureCanvasBase):
     def get_default_filetype(self):
         return 'svg'
 
-class FigureManagerSVG(FigureManagerBase):
-    pass
+
+FigureManagerSVG = FigureManagerBase
 
 
 svgProlog = """\
@@ -1228,4 +1261,3 @@ svgProlog = """\
 @_Backend.export
 class _BackendSVG(_Backend):
     FigureCanvas = FigureCanvasSVG
-    FigureManager = FigureManagerSVG

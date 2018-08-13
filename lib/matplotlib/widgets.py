@@ -10,12 +10,13 @@ wide and tall you want your Axes to be to accommodate your widget.
 """
 
 import copy
+from numbers import Integral
 
 import numpy as np
-from matplotlib import rcParams
 
-from .patches import Circle, Rectangle, Ellipse
+from . import rcParams
 from .lines import Line2D
+from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
 
 
@@ -412,7 +413,7 @@ class Slider(AxesWidget):
             event.canvas.release_mouse(self.ax)
             return
         val = self._value_in_bounds(event.xdata)
-        if (val is not None) and (val != self.val):
+        if val not in [None, self.val]:
             self.set_val(val)
 
     def set_val(self, val):
@@ -473,7 +474,7 @@ class Slider(AxesWidget):
 
     def reset(self):
         """Reset the slider to the initial value"""
-        if (self.val != self.valinit):
+        if self.val != self.valinit:
             self.set_val(self.valinit)
 
 
@@ -1332,22 +1333,17 @@ class MultiCursor(Widget):
     Example usage::
 
         from matplotlib.widgets import MultiCursor
-        from pylab import figure, show, np
+        import matplotlib.pyplot as plt
+        import numpy as np
 
+        fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
         t = np.arange(0.0, 2.0, 0.01)
-        s1 = np.sin(2*np.pi*t)
-        s2 = np.sin(4*np.pi*t)
-        fig = figure()
-        ax1 = fig.add_subplot(211)
-        ax1.plot(t, s1)
-
-
-        ax2 = fig.add_subplot(212, sharex=ax1)
-        ax2.plot(t, s2)
+        ax1.plot(t, np.sin(2*np.pi*t))
+        ax2.plot(t, np.sin(4*np.pi*t))
 
         multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
                             horizOn=False, vertOn=True)
-        show()
+        plt.show()
 
     """
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
@@ -1459,7 +1455,7 @@ class _SelectorWidget(AxesWidget):
         self.background = None
         self.artists = []
 
-        if isinstance(button, int):
+        if isinstance(button, Integral):
             self.validButtons = [button]
         else:
             self.validButtons = button
@@ -1718,13 +1714,13 @@ class SpanSelector(_SelectorWidget):
     >>> fig, ax = plt.subplots()
     >>> ax.plot([1, 2, 3], [10, 50, 100])
     >>> def onselect(vmin, vmax):
-            print(vmin, vmax)
+    ...     print(vmin, vmax)
     >>> rectprops = dict(facecolor='blue', alpha=0.5)
     >>> span = mwidgets.SpanSelector(ax, onselect, 'horizontal',
-                                     rectprops=rectprops)
+    ...                              rectprops=rectprops)
     >>> fig.show()
 
-    See also: :ref:`sphx_glr_gallery_widgets_span_selector.py`
+    See also: :doc:`/gallery/widgets/span_selector`
 
     """
 
@@ -1959,33 +1955,33 @@ class RectangleSelector(_SelectorWidget):
 
     Example usage::
 
-        from matplotlib.widgets import  RectangleSelector
-        from pylab import *
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from matplotlib.widgets import RectangleSelector
 
         def onselect(eclick, erelease):
-          'eclick and erelease are matplotlib events at press and release'
-          print(' startposition : (%f, %f)' % (eclick.xdata, eclick.ydata))
-          print(' endposition   : (%f, %f)' % (erelease.xdata, erelease.ydata))
-          print(' used button   : ', eclick.button)
+            "eclick and erelease are matplotlib events at press and release."
+            print('startposition: (%f, %f)' % (eclick.xdata, eclick.ydata))
+            print('endposition  : (%f, %f)' % (erelease.xdata, erelease.ydata))
+            print('used button  : ', eclick.button)
 
         def toggle_selector(event):
-            print(' Key pressed.')
+            print('Key pressed.')
             if event.key in ['Q', 'q'] and toggle_selector.RS.active:
-                print(' RectangleSelector deactivated.')
+                print('RectangleSelector deactivated.')
                 toggle_selector.RS.set_active(False)
             if event.key in ['A', 'a'] and not toggle_selector.RS.active:
-                print(' RectangleSelector activated.')
+                print('RectangleSelector activated.')
                 toggle_selector.RS.set_active(True)
 
-        x = arange(100)/(99.0)
-        y = sin(x)
-        fig = figure
-        ax = subplot(111)
-        ax.plot(x,y)
+        x = np.arange(100.) / 99
+        y = np.sin(x)
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
 
         toggle_selector.RS = RectangleSelector(ax, onselect, drawtype='line')
-        connect('key_press_event', toggle_selector)
-        show()
+        fig.canvas.connect('key_press_event', toggle_selector)
+        plt.show()
     """
 
     _shape_klass = Rectangle
@@ -2390,33 +2386,33 @@ class EllipseSelector(RectangleSelector):
 
     Example usage::
 
-        from matplotlib.widgets import  EllipseSelector
-        from pylab import *
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from matplotlib.widgets import EllipseSelector
 
         def onselect(eclick, erelease):
-          'eclick and erelease are matplotlib events at press and release'
-          print(' startposition : (%f, %f)' % (eclick.xdata, eclick.ydata))
-          print(' endposition   : (%f, %f)' % (erelease.xdata, erelease.ydata))
-          print(' used button   : ', eclick.button)
+            "eclick and erelease are matplotlib events at press and release."
+            print('startposition: (%f, %f)' % (eclick.xdata, eclick.ydata))
+            print('endposition  : (%f, %f)' % (erelease.xdata, erelease.ydata))
+            print('used button  : ', eclick.button)
 
         def toggle_selector(event):
             print(' Key pressed.')
             if event.key in ['Q', 'q'] and toggle_selector.ES.active:
-                print(' EllipseSelector deactivated.')
+                print('EllipseSelector deactivated.')
                 toggle_selector.RS.set_active(False)
             if event.key in ['A', 'a'] and not toggle_selector.ES.active:
-                print(' EllipseSelector activated.')
+                print('EllipseSelector activated.')
                 toggle_selector.ES.set_active(True)
 
-        x = arange(100)/(99.0)
-        y = sin(x)
-        fig = figure
-        ax = subplot(111)
-        ax.plot(x,y)
+        x = np.arange(100.) / 99
+        y = np.sin(x)
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
 
         toggle_selector.ES = EllipseSelector(ax, onselect, drawtype='line')
-        connect('key_press_event', toggle_selector)
-        show()
+        fig.canvas.connect('key_press_event', toggle_selector)
+        plt.show()
     """
     _shape_klass = Ellipse
 
@@ -2574,9 +2570,9 @@ class PolygonSelector(_SelectorWidget):
         if the mouse click is within `vertex_select_radius` pixels of the
         vertex. The default radius is 15 pixels.
 
-    See Also
+    Examples
     --------
-    :ref:`sphx_glr_gallery_widgets_polygon_selector_demo.py`
+    :doc:`/gallery/widgets/polygon_selector_demo`
     """
 
     def __init__(self, ax, onselect, useblit=False,

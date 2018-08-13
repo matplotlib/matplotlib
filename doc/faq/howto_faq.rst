@@ -43,7 +43,7 @@ If you only want to use the `pandas` converter for `datetime64` values ::
 Find all objects in a figure of a certain type
 ----------------------------------------------
 
-Every Matplotlib artist (see :ref:`sphx_glr_tutorials_intermediate_artists.py`) has a method
+Every Matplotlib artist (see :doc:`/tutorials/intermediate/artists`) has a method
 called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
 recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
@@ -137,7 +137,7 @@ Finally, the multipage pdf object has to be closed::
     pp.close()
 
 The same can be done using the pgf backend::
-    
+
     from matplotlib.backends.backend_pgf import PdfPages
 
 
@@ -159,7 +159,7 @@ labels::
     ax = fig.add_subplot(111)
 
 You can control the defaults for these parameters in your
-:file:`matplotlibrc` file; see :ref:`sphx_glr_tutorials_introductory_customizing.py`.  For
+:file:`matplotlibrc` file; see :doc:`/tutorials/introductory/customizing`.  For
 example, to make the above setting permanent, you would set::
 
     figure.subplot.bottom : 0.2   # the bottom of the subplots of the figure
@@ -190,7 +190,7 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-:ref:`sphx_glr_gallery_subplots_axes_and_figures_axes_demo.py` for an example of placing axes manually.
+:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of placing axes manually.
 
 .. _howto-auto-adjust:
 
@@ -200,7 +200,7 @@ Automatically make room for tick labels
 .. note::
    This is now easier to handle than ever before.
    Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
-   layout issues. See the :ref:`sphx_glr_tutorials_intermediate_tight_layout_guide.py`.
+   layout issues. See the :doc:`/tutorials/intermediate/tight_layout_guide`.
 
    The information below is kept here in case it is useful for other
    purposes.
@@ -350,9 +350,9 @@ and patches, respectively::
 
     line, = ax.plot(x, y, zorder=10)
 
-.. htmlonly::
+.. only:: html
 
-    See :ref:`sphx_glr_gallery_misc_zorder_demo.py` for a complete example.
+    See :doc:`/gallery/misc/zorder_demo` for a complete example.
 
 You can also use the Axes property
 :meth:`~matplotlib.axes.Axes.set_axisbelow` to control whether the grid
@@ -369,9 +369,9 @@ some ratio which controls the ratio::
 
   ax = fig.add_subplot(111, aspect='equal')
 
-.. htmlonly::
+.. only:: html
 
-    See :ref:`sphx_glr_gallery_subplots_axes_and_figures_axis_equal_demo.py` for a
+    See :doc:`/gallery/subplots_axes_and_figures/axis_equal_demo` for a
     complete example.
 
 .. _howto-twoscale:
@@ -413,9 +413,10 @@ locators as desired because the two axes are independent.
     plt.show()
 
 
-.. htmlonly::
+.. only:: html
 
-    See :ref:`sphx_glr_gallery_api_two_scales.py` for a complete example
+    See :doc:`/gallery/subplots_axes_and_figures/two_scales` for a
+    complete example.
 
 .. _howto-batch:
 
@@ -661,7 +662,7 @@ For more on configuring your backend, see
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-:ref:`sphx_glr_gallery_api_agg_oo_sgskip.py`.
+:doc:`/gallery/user_interfaces/canvasagg`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 
@@ -744,7 +745,7 @@ Cite Matplotlib
 If you want to refer to Matplotlib in a publication, you can use
 "Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
 in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `this
-reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
+reference page <https://doi.org/10.1109/MCSE.2007.55>`_)::
 
   @article{Hunter:2007,
 	  Address = {10662 LOS VAQUEROS CIRCLE, PO BOX 3014, LOS ALAMITOS, CA 90720-1314 USA},

@@ -15,8 +15,7 @@ def test_contour_shape_1d_valid():
     y = np.arange(9)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.contour(x, y, z)
 
 
@@ -27,8 +26,7 @@ def test_contour_shape_2d_valid():
     xg, yg = np.meshgrid(x, y)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.contour(xg, yg, z)
 
 
@@ -38,8 +36,7 @@ def test_contour_shape_mismatch_1():
     y = np.arange(9)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
@@ -52,8 +49,7 @@ def test_contour_shape_mismatch_2():
     y = np.arange(10)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
@@ -67,8 +63,7 @@ def test_contour_shape_mismatch_3():
     xg, yg = np.meshgrid(x, y)
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(xg, y, z)
@@ -85,8 +80,7 @@ def test_contour_shape_mismatch_4():
     b = np.random.random((9, 9))
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(b, g, z)
@@ -105,8 +99,7 @@ def test_contour_shape_invalid_1():
     y = np.random.random((3, 3, 3))
     z = np.random.random((9, 10))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
@@ -119,8 +112,7 @@ def test_contour_shape_invalid_2():
     y = np.random.random((3, 3, 3))
     z = np.random.random((3, 3, 3))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     with pytest.raises(TypeError) as excinfo:
         ax.contour(x, y, z)
@@ -224,7 +216,7 @@ def test_given_colors_levels_and_extends():
 
 
 @image_comparison(baseline_images=['contour_datetime_axis'],
-                  extensions=['png'], remove_text=False)
+                  extensions=['png'], remove_text=False, style='mpl20')
 def test_contour_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
@@ -250,7 +242,7 @@ def test_contour_datetime_axis():
 
 
 @image_comparison(baseline_images=['contour_test_label_transforms'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True, style='mpl20')
 def test_labels():
     # Adapted from pylab_examples example code: contour_demo.py
     # see issues #2475, #2843, and #2818 for explanation
@@ -379,7 +371,7 @@ def test_contourf_log_extension():
     ax3 = fig.add_subplot(133)
 
     # make data set with large range e.g. between 1e-8 and 1e10
-    data_exp = np.linspace(-8, 10, 1200)
+    data_exp = np.linspace(-7.5, 9.5, 1200)
     data = np.power(10, data_exp).reshape(30, 40)
     # make manual levels e.g. between 1e-4 and 1e-6
     levels_exp = np.arange(-4., 7.)

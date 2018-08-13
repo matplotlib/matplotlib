@@ -38,7 +38,7 @@ Z[interior] = np.ma.masked
 # occur on nice boundaries, but we do it here for purposes
 # of illustration.
 
-fig1, ax2 = plt.subplots()
+fig1, ax2 = plt.subplots(constrained_layout=True)
 CS = ax2.contourf(X, Y, Z, 10, cmap=plt.cm.bone, origin=origin)
 
 # Note that in the following, we explicitly pass in a subset of
@@ -58,7 +58,7 @@ cbar.ax.set_ylabel('verbosity coefficient')
 # Add the contour line levels to the colorbar
 cbar.add_lines(CS2)
 
-fig2, ax2 = plt.subplots()
+fig2, ax2 = plt.subplots(constrained_layout=True)
 # Now make a contour plot with the levels specified,
 # and with the colormap generated automatically from a list
 # of colors.
@@ -95,12 +95,11 @@ cmap.set_over("yellow")
 # no effect:
 # cmap.set_bad("red")
 
-fig3, axs = plt.subplots(2, 2)
-fig3.subplots_adjust(hspace=0.3)
+fig, axs = plt.subplots(2, 2, constrained_layout=True)
 
 for ax, extend in zip(axs.ravel(), extends):
     cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend, origin=origin)
-    fig3.colorbar(cs, ax=ax, shrink=0.9)
+    fig.colorbar(cs, ax=ax, shrink=0.9)
     ax.set_title("extend = %s" % extend)
     ax.locator_params(nbins=4)
 

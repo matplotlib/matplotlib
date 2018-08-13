@@ -17,7 +17,7 @@ as well as with :meth:`annotations <matplotlib.axes.Axes.annotate>`.
 #
 # We can provide a function to the ``autopct`` argument, which will expand
 # automatic percentage labeling by showing absolute values; we calculate
-# the latter back from realtive data and the known sum of all values.
+# the latter back from relative data and the known sum of all values.
 #
 # We then create the pie and store the returned objects for later.
 # The first returned element of the returned tuple is a list of the wedges.

@@ -107,17 +107,17 @@ def _get_textbox(text, renderer):
 
 
 @cbook._define_aliases({
-    "family": ["fontfamily"],
+    "fontfamily": ["family"],
     "fontproperties": ["font_properties"],
     "horizontalalignment": ["ha"],
     "multialignment": ["ma"],
-    "name": ["fontname"],
-    "size": ["fontsize"],
-    "stretch": ["fontstretch"],
-    "style": ["fontstyle"],
-    "variant": ["fontvariant"],
+    "fontname": ["name"],
+    "fontsize": ["size"],
+    "fontstretch": ["stretch"],
+    "fontstyle": ["style"],
+    "fontvariant": ["variant"],
     "verticalalignment": ["va"],
-    "weight": ["fontweight"],
+    "fontweight": ["weight"],
 })
 class Text(Artist):
     """Handle storing and drawing of text in window or data coordinates."""
@@ -143,7 +143,7 @@ class Text(Artist):
                  **kwargs
                  ):
         """
-        Create a `Text` instance at *x*, *y* with string *text*.
+        Create a `.Text` instance at *x*, *y* with string *text*.
 
         Valid kwargs are
         %(Text)s
@@ -200,7 +200,9 @@ class Text(Artist):
         In the case of text, a hit is true anywhere in the
         axis-aligned bounding-box containing the text.
 
-        Returns True or False.
+        Returns
+        -------
+        bool : bool
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
@@ -245,11 +247,9 @@ class Text(Artist):
         """
         Set text rotation mode.
 
-        .. ACCEPTS: [ None | "default" | "anchor" ]
-
         Parameters
         ----------
-        m : ``None`` or ``"default"`` or ``"anchor"``
+        m : {None, 'default', 'anchor'}
             If ``None`` or ``"default"``, the text will be first rotated, then
             aligned according to their horizontal and vertical alignments.  If
             ``"anchor"``, then alignment occurs before rotation.
@@ -432,15 +432,19 @@ class Text(Artist):
 
     def set_bbox(self, rectprops):
         """
-        Draw a bounding box around self.  rectprops are any settable
-        properties for a FancyBboxPatch, e.g., facecolor='red', alpha=0.5.
+        Draw a bounding box around self.
 
-          t.set_bbox(dict(facecolor='red', alpha=0.5))
+        Parameters
+        ----------
+        rectprops : dict with properties for `.patches.FancyBboxPatch`
+             The default boxstyle is 'square'. The mutation
+             scale of the `.patches.FancyBboxPatch` is set to the fontsize.
 
-        The default boxstyle is 'square'. The mutation
-        scale of the FancyBboxPatch is set to the fontsize.
+        Examples
+        --------
+        ::
 
-        ACCEPTS: FancyBboxPatch prop dict
+            t.set_bbox(dict(facecolor='red', alpha=0.5))
         """
 
         if rectprops is not None:
@@ -476,7 +480,8 @@ class Text(Artist):
 
     def get_bbox_patch(self):
         """
-        Return the bbox Patch, or None if the FancyBboxPatch is not made.
+        Return the bbox Patch, or None if the `.patches.FancyBboxPatch`
+        is not made.
         """
         return self._bbox_patch
 
@@ -510,7 +515,8 @@ class Text(Artist):
 
     def _draw_bbox(self, renderer, posx, posy):
         """
-        Update the location and size of the bbox (FancyBboxPatch), and draw.
+        Update the location and size of the bbox (`.patches.FancyBboxPatch`),
+        and draw.
         """
 
         x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
@@ -532,9 +538,11 @@ class Text(Artist):
 
     def set_clip_box(self, clipbox):
         """
-        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+        Set the artist's clip `~.transforms.Bbox`.
 
-        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+        Parameters
+        ----------
+        clipbox : `matplotlib.transforms.Bbox`
         """
         super().set_clip_box(clipbox)
         self._update_clip_properties()
@@ -543,10 +551,10 @@ class Text(Artist):
         """
         Set the artist's clip path, which may be:
 
-          * a :class:`~matplotlib.patches.Patch` (or subclass) instance
+          * a `~matplotlib.patches.Patch` (or subclass) instance
 
-          * a :class:`~matplotlib.path.Path` instance, in which case
-             an optional :class:`~matplotlib.transforms.Transform`
+          * a `~matplotlib.path.Path` instance, in which case
+             an optional `~matplotlib.transforms.Transform`
              instance may be provided, which will be applied to the
              path before using it for clipping.
 
@@ -556,9 +564,8 @@ class Text(Artist):
         rectangle, this method will set the clipping box to the
         corresponding rectangle and set the clipping path to *None*.
 
-        ACCEPTS: [ (:class:`~matplotlib.path.Path`,
-        :class:`~matplotlib.transforms.Transform`) |
-        :class:`~matplotlib.patches.Patch` | None ]
+        ACCEPTS: { (`.path.Path`, `.transforms.Transform`),
+                  `.patches.Patch`, None }
         """
         super().set_clip_path(path, transform)
         self._update_clip_properties()
@@ -573,7 +580,6 @@ class Text(Artist):
         Parameters
         ----------
         b : bool
-            .. ACCEPTS: bool
         """
         super().set_clip_on(b)
         self._update_clip_properties()
@@ -588,7 +594,6 @@ class Text(Artist):
         Parameters
         ----------
         wrap : bool
-            .. ACCEPTS: bool
         """
         self._wrap = wrap
 
@@ -689,7 +694,7 @@ class Text(Artist):
     @artist.allow_rasterization
     def draw(self, renderer):
         """
-        Draws the :class:`Text` object to the given *renderer*.
+        Draws the `.Text` object to the given *renderer*.
         """
         if renderer is not None:
             self._renderer = renderer
@@ -761,35 +766,77 @@ class Text(Artist):
         return self._color
 
     def get_fontproperties(self):
-        "Return the :class:`~font_manager.FontProperties` object"
+        "Return the `.font_manager.FontProperties` object"
         return self._fontproperties
 
-    def get_family(self):
-        "Return the list of font families used for font lookup"
+    def get_fontfamily(self):
+        """
+        Return the list of font families used for font lookup
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_family
+        """
         return self._fontproperties.get_family()
 
-    def get_name(self):
-        "Return the font name as string"
+    def get_fontname(self):
+        """
+        Return the font name as string
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_name
+        """
         return self._fontproperties.get_name()
 
-    def get_style(self):
-        "Return the font style as string"
+    def get_fontstyle(self):
+        """
+        Return the font style as string
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_style
+        """
         return self._fontproperties.get_style()
 
-    def get_size(self):
-        "Return the font size as integer"
+    def get_fontsize(self):
+        """
+        Return the font size as integer
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_size_in_points
+        """
         return self._fontproperties.get_size_in_points()
 
-    def get_variant(self):
-        "Return the font variant as a string"
+    def get_fontvariant(self):
+        """
+        Return the font variant as a string
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_variant
+        """
         return self._fontproperties.get_variant()
 
-    def get_weight(self):
-        "Get the font weight as string or number"
+    def get_fontweight(self):
+        """
+        Get the font weight as string or number
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_weight
+        """
         return self._fontproperties.get_weight()
 
     def get_stretch(self):
-        'Get the font stretch as a string or number'
+        """
+        Get the font stretch as a string or number
+
+        See Also
+        --------
+        .font_manager.FontProperties.get_stretch
+        """
         return self._fontproperties.get_stretch()
 
     def get_horizontalalignment(self):
@@ -844,7 +891,7 @@ class Text(Artist):
 
     def get_window_extent(self, renderer=None, dpi=None):
         '''
-        Return a :class:`~matplotlib.transforms.Bbox` object bounding
+        Return a `~matplotlib.transforms.Bbox` object bounding
         the text, in display units.
 
         In addition to being used internally, this is useful for
@@ -853,9 +900,9 @@ class Text(Artist):
         *renderer* defaults to the _renderer attribute of the text
         object.  This is not assigned until the first execution of
         :meth:`draw`, so you must use this kwarg if you want
-        to call :meth:`get_window_extent` prior to the first
-        :meth:`draw`.  For getting web page regions, it is
-        simpler to call the method after saving the figure.
+        to call `.get_window_extent` prior to the first `draw`.  For
+        getting web page regions, it is simpler to call the method after
+        saving the figure.
 
         *dpi* defaults to self.figure.dpi; the renderer dpi is
         irrelevant.  For the web application, if figure.dpi is not
@@ -889,12 +936,13 @@ class Text(Artist):
         """
         Set the background color of the text by updating the bbox.
 
-        .. seealso::
+        Parameters
+        ----------
+        color : color
 
-            :meth:`set_bbox`
-               To change the position of the bounding box.
-
-        ACCEPTS: any matplotlib color
+        See Also
+        --------
+        .set_bbox : To change the position of the bounding box
         """
         if self._bbox_patch is None:
             self.set_bbox(dict(facecolor=color, edgecolor=color))
@@ -908,7 +956,9 @@ class Text(Artist):
         """
         Set the foreground color of the text
 
-        ACCEPTS: any matplotlib color
+        Parameters
+        ----------
+        color : color
         """
         # Make sure it is hashable, or get_prop_tup will fail.
         try:
@@ -922,7 +972,9 @@ class Text(Artist):
         """
         Set the horizontal alignment to one of
 
-        ACCEPTS: [ 'center' | 'right' | 'left' ]
+        Parameters
+        ----------
+        align : {'center', 'right', 'left'}
         """
         legal = ('center', 'right', 'left')
         if align not in legal:
@@ -938,7 +990,9 @@ class Text(Artist):
         and verticalalignment properties, but the multiline text within that
         box can be
 
-        ACCEPTS: ['left' | 'right' | 'center' ]
+        Parameters
+        ----------
+        align : {'left', 'right', 'center'}
         """
         legal = ('center', 'right', 'left')
         if align not in legal:
@@ -952,109 +1006,153 @@ class Text(Artist):
         Set the line spacing as a multiple of the font size.
         Default is 1.2.
 
-        ACCEPTS: float (multiple of font size)
+        Parameters
+        ----------
+        spacing : float (multiple of font size)
         """
         self._linespacing = spacing
         self.stale = True
 
-    def set_family(self, fontname):
+    def set_fontfamily(self, fontname):
         """
         Set the font family.  May be either a single string, or a list of
         strings in decreasing priority.  Each string may be either a real font
         name or a generic font class name.  If the latter, the specific font
         names will be looked up in the corresponding rcParams.
 
-        ACCEPTS: [FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' |
-                  'monospace' ]
+        Parameters
+        ----------
+        fontname : {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', \
+'monospace'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_family
         """
         self._fontproperties.set_family(fontname)
         self.stale = True
 
-    def set_variant(self, variant):
+    def set_fontvariant(self, variant):
         """
         Set the font variant, either 'normal' or 'small-caps'.
 
-        ACCEPTS: [ 'normal' | 'small-caps' ]
+        Parameters
+        ----------
+        variant : {'normal', 'small-caps'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_variant
         """
         self._fontproperties.set_variant(variant)
         self.stale = True
 
-    def set_style(self, fontstyle):
+    def set_fontstyle(self, fontstyle):
         """
         Set the font style.
 
-        ACCEPTS: [ 'normal' | 'italic' | 'oblique']
+        Parameters
+        ----------
+        fontstyle : {'normal', 'italic', 'oblique'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_style
         """
         self._fontproperties.set_style(fontstyle)
         self.stale = True
 
-    def set_size(self, fontsize):
+    def set_fontsize(self, fontsize):
         """
         Set the font size.  May be either a size string, relative to
         the default font size, or an absolute font size in points.
 
-        ACCEPTS: [size in points | 'xx-small' | 'x-small' | 'small' |
-                  'medium' | 'large' | 'x-large' | 'xx-large' ]
+        Parameters
+        ----------
+        fontsize : {size in points, 'xx-small', 'x-small', 'small', 'medium', \
+'large', 'x-large', 'xx-large'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_size
         """
         self._fontproperties.set_size(fontsize)
         self.stale = True
 
-    def set_weight(self, weight):
+    def set_fontweight(self, weight):
         """
         Set the font weight.
 
-        ACCEPTS: [a numeric value in range 0-1000 | 'ultralight' | 'light' |
-                  'normal' | 'regular' | 'book' | 'medium' | 'roman' |
-                  'semibold' | 'demibold' | 'demi' | 'bold' | 'heavy' |
-                  'extra bold' | 'black' ]
+        Parameters
+        ----------
+        weight : {a numeric value in range 0-1000, 'ultralight', 'light', \
+'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', \
+'demi', 'bold', 'heavy', 'extra bold', 'black'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_weight
         """
         self._fontproperties.set_weight(weight)
         self.stale = True
 
-    def set_stretch(self, stretch):
+    def set_fontstretch(self, stretch):
         """
         Set the font stretch (horizontal condensation or expansion).
 
-        ACCEPTS: [a numeric value in range 0-1000 | 'ultra-condensed' |
-                  'extra-condensed' | 'condensed' | 'semi-condensed' |
-                  'normal' | 'semi-expanded' | 'expanded' | 'extra-expanded' |
-                  'ultra-expanded' ]
+        Parameters
+        ----------
+        stretch : {a numeric value in range 0-1000, 'ultra-condensed', \
+'extra-condensed', 'condensed', 'semi-condensed', 'normal', 'semi-expanded', \
+'expanded', 'extra-expanded', 'ultra-expanded'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_stretch
         """
         self._fontproperties.set_stretch(stretch)
         self.stale = True
 
     def set_position(self, xy):
         """
-        Set the (*x*, *y*) position of the text
+        Set the (*x*, *y*) position of the text.
 
-        ACCEPTS: (x,y)
+        Parameters
+        ----------
+        xy : (float, float)
         """
         self.set_x(xy[0])
         self.set_y(xy[1])
 
     def set_x(self, x):
         """
-        Set the *x* position of the text
+        Set the *x* position of the text.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        x : float
         """
         self._x = x
         self.stale = True
 
     def set_y(self, y):
         """
-        Set the *y* position of the text
+        Set the *y* position of the text.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        y : float
         """
         self._y = y
         self.stale = True
 
     def set_rotation(self, s):
         """
-        Set the rotation of the text
+        Set the rotation of the text.
 
-        ACCEPTS: [ angle in degrees | 'vertical' | 'horizontal' ]
+        Parameters
+        ----------
+        s : {angle in degrees, 'vertical', 'horizontal'}
         """
         self._rotation = s
         self.stale = True
@@ -1063,8 +1161,9 @@ class Text(Artist):
         """
         Set the vertical alignment
 
-        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' |
-                   'center_baseline' ]
+        Parameters
+        ----------
+        align : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
         """
         legal = ('top', 'bottom', 'center', 'baseline', 'center_baseline')
         if align not in legal:
@@ -1080,8 +1179,9 @@ class Text(Artist):
 
         It may contain newlines (``\\n``) or math in LaTeX syntax.
 
-        ACCEPTS: string or object castable to string, except
-        ``None``, which is set to an empty string.
+        Parameters
+        ----------
+        s : string or object castable to string (but ``None`` becomes ``''``)
         """
         if s is None:
             s = ''
@@ -1114,10 +1214,11 @@ class Text(Artist):
 
     def set_fontproperties(self, fp):
         """
-        Set the font properties that control the text.  *fp* must be a
-        :class:`matplotlib.font_manager.FontProperties` object.
+        Set the font properties that control the text.
 
-        ACCEPTS: a :class:`matplotlib.font_manager.FontProperties` instance
+        Parameters
+        ----------
+        fp : `.font_manager.FontProperties`
         """
         if isinstance(fp, str):
             fp = FontProperties(fp)
@@ -1131,8 +1232,6 @@ class Text(Artist):
         usetex : bool or None
             Whether to render using TeX, ``None`` means to use
             :rc:`text.usetex`.
-
-            .. ACCEPTS: bool or None
         """
         if usetex is None:
             self._usetex = rcParams['text.usetex']
@@ -1152,8 +1251,22 @@ class Text(Artist):
         else:
             return self._usetex
 
-    def set_name(self, fontname):  # One-way alias only: the getter differs.
-        """alias for set_family"""
+    def set_fontname(self, fontname):
+        """
+        alias for `.set_family`
+
+        One-way alias only: the getter differs.
+
+        Parameters
+        ----------
+        fontname : {FONTNAME, 'serif', 'sans-serif', 'cursive', 'fantasy', \
+'monospace'}
+
+        See Also
+        --------
+        .font_manager.FontProperties.set_family
+
+        """
         return self.set_family(fontname)
 
 
@@ -1414,9 +1527,11 @@ class TextWithDash(Text):
 
     def set_dashlength(self, dl):
         """
-        Set the length of the dash.
+        Set the length of the dash, in canvas units.
 
-        ACCEPTS: float (canvas units)
+        Parameters
+        ----------
+        dl : float
         """
         self._dashlength = dl
         self.stale = True
@@ -1429,12 +1544,13 @@ class TextWithDash(Text):
 
     def set_dashdirection(self, dd):
         """
-        Set the direction of the dash following the text.
-        1 is before the text and 0 is after. The default
-        is 0, which is what you'd want for the typical
-        case of ticks below and on the left of the figure.
+        Set the direction of the dash following the text.  1 is before the text
+        and 0 is after. The default is 0, which is what you'd want for the
+        typical case of ticks below and on the left of the figure.
 
-        ACCEPTS: int (1 is before, 0 is after)
+        Parameters
+        ----------
+        dd : int (1 is before, 0 is after)
         """
         self._dashdirection = dd
         self.stale = True
@@ -1450,9 +1566,11 @@ class TextWithDash(Text):
 
     def set_dashrotation(self, dr):
         """
-        Set the rotation of the dash, in degrees
+        Set the rotation of the dash, in degrees.
 
-        ACCEPTS: float (degrees)
+        Parameters
+        ----------
+        dr : float
         """
         self._dashrotation = dr
         self.stale = True
@@ -1468,7 +1586,9 @@ class TextWithDash(Text):
         Set the "pad" of the TextWithDash, which is the extra spacing
         between the dash and the text, in canvas units.
 
-        ACCEPTS: float (canvas units)
+        Parameters
+        ----------
+        dp : float
         """
         self._dashpad = dp
         self.stale = True
@@ -1482,11 +1602,12 @@ class TextWithDash(Text):
 
     def set_dashpush(self, dp):
         """
-        Set the "push" of the TextWithDash, which
-        is the extra spacing between the beginning
-        of the dash and the specified position.
+        Set the "push" of the TextWithDash, which is the extra spacing between
+        the beginning of the dash and the specified position.
 
-        ACCEPTS: float (canvas units)
+        Parameters
+        ----------
+        dp : float
         """
         self._dashpush = dp
         self.stale = True
@@ -1495,7 +1616,9 @@ class TextWithDash(Text):
         """
         Set the (*x*, *y*) position of the :class:`TextWithDash`.
 
-        ACCEPTS: (x, y)
+        Parameters
+        ----------
+        xy : (float, float)
         """
         self.set_x(xy[0])
         self.set_y(xy[1])
@@ -1504,7 +1627,9 @@ class TextWithDash(Text):
         """
         Set the *x* position of the :class:`TextWithDash`.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        x : float
         """
         self._dashx = float(x)
         self.stale = True
@@ -1513,7 +1638,9 @@ class TextWithDash(Text):
         """
         Set the *y* position of the :class:`TextWithDash`.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        y : float
         """
         self._dashy = float(y)
         self.stale = True
@@ -1523,7 +1650,9 @@ class TextWithDash(Text):
         Set the :class:`matplotlib.transforms.Transform` instance used
         by this artist.
 
-        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+        Parameters
+        ----------
+        t : matplotlib.transforms.Transform
         """
         Text.set_transform(self, t)
         self.dashline.set_transform(t)
@@ -1535,9 +1664,11 @@ class TextWithDash(Text):
 
     def set_figure(self, fig):
         """
-        Set the figure instance the artist belong to.
+        Set the figure instance the artist belongs to.
 
-        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
+        Parameters
+        ----------
+        fig : matplotlib.figure.Figure
         """
         Text.set_figure(self, fig)
         self.dashline.set_figure(fig)
@@ -2223,6 +2354,7 @@ class Annotation(Text, _AnnotationBase):
         *dpi* used defaults to self.figure.dpi; the renderer dpi is
         irrelevant.
         '''
+        self.update_positions(renderer)
         if not self.get_visible():
             return Bbox.unit()
 

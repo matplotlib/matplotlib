@@ -66,6 +66,19 @@ def _in_same_row(rownum0min, rownum0max, rownumCmin, rownumCmax):
             or rownumCmin <= rownum0max <= rownumCmax)
 
 
+def _axes_all_finite_sized(fig):
+    """
+    helper function to make sure all axes in the
+    figure have a finite width and height.  If not, return False
+    """
+    for ax in fig.axes:
+        if ax._layoutbox is not None:
+            newpos = ax._poslayoutbox.get_rect()
+            if newpos[2] <= 0 or newpos[3] <= 0:
+                return False
+    return True
+
+
 ######################################################
 def do_constrained_layout(fig, renderer, h_pad, w_pad,
         hspace=None, wspace=None):
@@ -187,8 +200,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             figlb = fig._layoutbox
             for child in figlb.children:
                 if child._is_gridspec_layoutbox():
-                    # farm the gridspec layout out.
-                    #
                     # This routine makes all the subplot spec containers
                     # have the correct arrangement.  It just stacks the
                     # subplot layoutboxes in the correct order...
@@ -199,15 +210,21 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
         fig._layoutbox.constrained_layout_called += 1
         fig._layoutbox.update_variables()
-        # Now set the position of the axes...
-        for ax in fig.axes:
-            if ax._layoutbox is not None:
-                newpos = ax._poslayoutbox.get_rect()
-                # Now set the new position.
-                # ax.set_position will zero out the layout for
-                # this axis, allowing users to hard-code the position,
-                # so this does the same w/o zeroing layout.
-                ax._set_position(newpos, which='original')
+
+        # check if any axes collapsed to zero.  If not, don't change positions:
+        if _axes_all_finite_sized(fig):
+            # Now set the position of the axes...
+            for ax in fig.axes:
+                if ax._layoutbox is not None:
+                    newpos = ax._poslayoutbox.get_rect()
+                    # Now set the new position.
+                    # ax.set_position will zero out the layout for
+                    # this axis, allowing users to hard-code the position,
+                    # so this does the same w/o zeroing layout.
+                    ax._set_position(newpos, which='original')
+        else:
+            warnings.warn('constrained_layout not applied.  At least '
+                          'one axes collapsed to zero width or height.')
 
 
 def _make_ghost_gridspec_slots(fig, gs):
@@ -245,7 +262,7 @@ def _make_ghost_gridspec_slots(fig, gs):
 def _make_layout_margins(ax, renderer, h_pad, w_pad):
     """
     For each axes, make a margin between the *pos* layoutbox and the
-    *axes* layoutbox be a minimum size that can accomodate the
+    *axes* layoutbox be a minimum size that can accommodate the
     decorations on the axis.
     """
     fig = ax.figure
@@ -455,8 +472,7 @@ def _arrange_subplotspecs(gs, hspace=0, wspace=0):
         if child._is_subplotspec_layoutbox():
             for child2 in child.children:
                 # check for gridspec children...
-                name = (child2.name).split('.')[-1][:-3]
-                if name == 'gridspec':
+                if child2._is_gridspec_layoutbox():
                     _arrange_subplotspecs(child2, hspace=hspace, wspace=wspace)
             sschildren += [child]
     # now arrange the subplots...

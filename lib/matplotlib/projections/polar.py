@@ -1221,27 +1221,39 @@ class PolarAxes(Axes):
     def set_rticks(self, *args, **kwargs):
         return Axes.set_yticks(self, *args, **kwargs)
 
-    @docstring.dedent_interpd
     def set_thetagrids(self, angles, labels=None, fmt=None, **kwargs):
         """
-        Set the angles at which to place the theta grids (these
-        gridlines are equal along the theta dimension).  *angles* is in
-        degrees.
+        Set the theta gridlines in a polar plot.
 
-        *labels*, if not None, is a ``len(angles)`` list of strings of
-        the labels to use at each angle.
+        Parameters
+        ----------
+        angles : tuple with floats, degrees
+            The angles of the theta gridlines.
 
-        If *labels* is None, the labels will be ``fmt %% angle``
+        labels : tuple with strings or None
+            The labels to use at each theta gridline. The
+            `.projections.polar.ThetaFormatter` will be used if None.
 
-        Return value is a list of tuples (*line*, *label*), where
-        *line* is :class:`~matplotlib.lines.Line2D` instances and the
-        *label* is :class:`~matplotlib.text.Text` instances.
+        fmt : str or None
+            Format string used in `matplotlib.ticker.FormatStrFormatter`.
+            For example '%f'. Note that the angle that is used is in
+            radians.
 
-        kwargs are optional text properties for the labels:
+        Returns
+        -------
+        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+            *lines* are the theta gridlines and *labels* are the tick labels.
 
-        %(Text)s
+        Other Parameters
+        ----------------
+        **kwargs
+            *kwargs* are optional `~.Text` properties for the labels.
 
-        ACCEPTS: sequence of floats
+        See Also
+        --------
+        .PolarAxes.set_rgrids
+        .Axis.get_gridlines
+        .Axis.get_ticklabels
         """
 
         # Make sure we take into account unitized data
@@ -1256,29 +1268,42 @@ class PolarAxes(Axes):
             t.update(kwargs)
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
 
-    @docstring.dedent_interpd
     def set_rgrids(self, radii, labels=None, angle=None, fmt=None,
                    **kwargs):
         """
-        Set the radial locations and labels of the *r* grids.
+        Set the radial gridlines on a polar plot.
 
-        The labels will appear at radial distances *radii* at the
-        given *angle* in degrees.
+        Parameters
+        ----------
+        radii : tuple with floats
+            The radii for the radial gridlines
 
-        *labels*, if not None, is a ``len(radii)`` list of strings of the
-        labels to use at each radius.
+        labels : tuple with strings or None
+            The labels to use at each radial gridline. The
+            `matplotlib.ticker.ScalarFormatter` will be used if None.
 
-        If *labels* is None, the built-in formatter will be used.
+        angle : float
+            The angular position of the radius labels in degrees.
 
-        Return value is a list of tuples (*line*, *label*), where
-        *line* is :class:`~matplotlib.lines.Line2D` instances and the
-        *label* is :class:`~matplotlib.text.Text` instances.
+        fmt : str or None
+            Format string used in `matplotlib.ticker.FormatStrFormatter`.
+            For example '%f'.
 
-        kwargs are optional text properties for the labels:
+        Returns
+        -------
+        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+            *lines* are the radial gridlines and *labels* are the tick labels.
 
-        %(Text)s
+        Other Parameters
+        ----------------
+        **kwargs
+            *kwargs* are optional `~.Text` properties for the labels.
 
-        ACCEPTS: sequence of floats
+        See Also
+        --------
+        .PolarAxes.set_thetagrids
+        .Axis.get_gridlines
+        .Axis.get_ticklabels
         """
         # Make sure we take into account unitized data
         radii = self.convert_xunits(radii)

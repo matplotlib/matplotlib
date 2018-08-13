@@ -6,7 +6,7 @@ Simple Anchored Artists
 This example illustrates the use of the anchored helper classes found in
 :py:mod:`~matplotlib.offsetbox` and in the :ref:`toolkit_axesgrid1-index`.
 An implementation of a similar figure, but without use of the toolkit,
-can be found in :ref:`sphx_glr_gallery_misc_anchored_artists.py`.
+can be found in :doc:`/gallery/misc/anchored_artists`.
 """
 
 import matplotlib.pyplot as plt

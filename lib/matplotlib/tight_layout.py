@@ -326,8 +326,16 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         rows, cols, num1, num2 = subplotspec.get_geometry()
         div_row, mod_row = divmod(max_nrows, rows)
         div_col, mod_col = divmod(max_ncols, cols)
-        if (mod_row != 0) or (mod_col != 0):
-            raise RuntimeError("")
+        if mod_row != 0:
+            warnings.warn('tight_layout not applied: '
+                          'number of rows in subplot specifications must'
+                          'be multiples of one another.')
+            return {}
+        if mod_col != 0:
+            warnings.warn('tight_layout not applied: '
+                          'number of columns in subplot specifications must'
+                          'be multiples of one another.')
+            return {}
 
         rowNum1, colNum1 = divmod(num1, cols)
         if num2 is None:

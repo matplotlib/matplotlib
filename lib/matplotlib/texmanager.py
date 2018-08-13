@@ -29,17 +29,13 @@ To enable tex rendering of all text in your matplotlib figure, set
 """
 
 import copy
-import distutils.version
 import glob
 import hashlib
 import logging
 import os
 from pathlib import Path
 import re
-import shutil
 import subprocess
-import sys
-import warnings
 
 import numpy as np
 
@@ -203,8 +199,7 @@ class TexManager(object):
 
         if rcParams['text.latex.unicode']:
             unicode_preamble = r"""
-\usepackage{ucs}
-\usepackage[utf8x]{inputenc}"""
+\usepackage[utf8]{inputenc}"""
         else:
             unicode_preamble = ''
 
@@ -255,8 +250,7 @@ class TexManager(object):
 
         if rcParams['text.latex.unicode']:
             unicode_preamble = r"""
-\usepackage{ucs}
-\usepackage[utf8x]{inputenc}"""
+\usepackage[utf8]{inputenc}"""
         else:
             unicode_preamble = ''
 

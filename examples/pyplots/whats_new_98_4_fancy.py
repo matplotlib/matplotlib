@@ -3,6 +3,7 @@
 Whats New 0.98.4 Fancy
 ======================
 
+Create fancy box and arrow styles.
 """
 import matplotlib.patches as mpatch
 import matplotlib.pyplot as plt
@@ -58,3 +59,22 @@ make_arrowstyles(ax2)
 
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.patches
+matplotlib.patches.BoxStyle
+matplotlib.patches.BoxStyle.get_styles
+matplotlib.patches.ArrowStyle
+matplotlib.patches.ArrowStyle.get_styles
+matplotlib.axes.Axes.text
+matplotlib.axes.Axes.annotate

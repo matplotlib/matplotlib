@@ -5,85 +5,152 @@ marker functionality of `~matplotlib.axes.Axes.plot` and
 
 All possible markers are defined here:
 
-============================== ===============================================
-marker                         description
-============================== ===============================================
-`"."`                          point
-`","`                          pixel
-`"o"`                          circle
-`"v"`                          triangle_down
-`"^"`                          triangle_up
-`"<"`                          triangle_left
-`">"`                          triangle_right
-`"1"`                          tri_down
-`"2"`                          tri_up
-`"3"`                          tri_left
-`"4"`                          tri_right
-`"8"`                          octagon
-`"s"`                          square
-`"p"`                          pentagon
-`"P"`                          plus (filled)
-`"*"`                          star
-`"h"`                          hexagon1
-`"H"`                          hexagon2
-`"+"`                          plus
-`"x"`                          x
-`"X"`                          x (filled)
-`"D"`                          diamond
-`"d"`                          thin_diamond
-`"|"`                          vline
-`"_"`                          hline
-TICKLEFT                       tickleft
-TICKRIGHT                      tickright
-TICKUP                         tickup
-TICKDOWN                       tickdown
-CARETLEFT                      caretleft (centered at tip)
-CARETRIGHT                     caretright (centered at tip)
-CARETUP                        caretup (centered at tip)
-CARETDOWN                      caretdown (centered at tip)
-CARETLEFTBASE                  caretleft (centered at base)
-CARETRIGHTBASE                 caretright (centered at base)
-CARETUPBASE                    caretup (centered at base)
-`"None"`, `" "` or `""`        nothing
-``'$...$'``                    render the string using mathtext.
-`verts`                        a list of (x, y) pairs used for Path vertices.
-                               The center of the marker is located at (0,0) and
-                               the size is normalized.
-path                           a `~matplotlib.path.Path` instance.
-(`numsides`, `style`, `angle`) The marker can also be a tuple (`numsides`,
-                               `style`, `angle`), which will create a custom,
-                               regular symbol.
+============================== ====== =========================================
+marker                         symbol description
+============================== ====== =========================================
+``"."``                        |m00|  point
+``","``                        |m01|  pixel
+``"o"``                        |m02|  circle
+``"v"``                        |m03|  triangle_down
+``"^"``                        |m04|  triangle_up
+``"<"``                        |m05|  triangle_left
+``">"``                        |m06|  triangle_right
+``"1"``                        |m07|  tri_down
+``"2"``                        |m08|  tri_up
+``"3"``                        |m09|  tri_left
+``"4"``                        |m10|  tri_right
+``"8"``                        |m11|  octagon
+``"s"``                        |m12|  square
+``"p"``                        |m13|  pentagon
+``"P"``                        |m23|  plus (filled)
+``"*"``                        |m14|  star
+``"h"``                        |m15|  hexagon1
+``"H"``                        |m16|  hexagon2
+``"+"``                        |m17|  plus
+``"x"``                        |m18|  x
+``"X"``                        |m24|  x (filled)
+``"D"``                        |m19|  diamond
+``"d"``                        |m20|  thin_diamond
+``"|"``                        |m21|  vline
+``"_"``                        |m22|  hline
+``0`` (``TICKLEFT``)           |m25|  tickleft
+``1`` (``TICKRIGHT``)          |m26|  tickright
+``2`` (``TICKUP``)             |m27|  tickup
+``3`` (``TICKDOWN``)           |m28|  tickdown
+``4`` (``CARETLEFT``)          |m29|  caretleft
+``5`` (``CARETRIGHT``)         |m30|  caretright
+``6`` (``CARETUP``)            |m31|  caretup
+``7`` (``CARETDOWN``)          |m32|  caretdown
+``8`` (``CARETLEFTBASE``)      |m33|  caretleft (centered at base)
+``9`` (``CARETRIGHTBASE``)     |m34|  caretright (centered at base)
+``10`` (``CARETUPBASE``)       |m35|  caretup (centered at base)
+``11`` (``CARETDOWNBASE``)     |m36|  caretdown (centered at base)
+``"None"``, ``" "`` or  ``""``        nothing
+``'$...$'``                    |m37|  Render the string using mathtext.
+                                      E.g ``"$f$"`` for marker showing the
+                                      letter ``f``.
+``verts``                             A list of (x, y) pairs used for Path
+                                      vertices. The center of the marker is
+                                      located at (0,0) and the size is
+                                      normalized, such that the created path
+                                      is encapsulated inside the unit cell.
+path                                  A `~matplotlib.path.Path` instance.
+``(numsides, style, angle)``          The marker can also be a tuple
+                                      ``(numsides, style, angle)``, which
+                                      will create a custom, regular symbol.
 
-                               `numsides`:
-                                   the number of sides
+                                      ``numsides``:
+                                          the number of sides
 
-                               `style`:
-                                   the style of the regular symbol:
+                                      ``style``:
+                                          the style of the regular symbol:
 
-                                   0
-                                     a regular polygon
-                                   1
-                                     a star-like symbol
-                                   2
-                                     an asterisk
-                                   3
-                                     a circle (`numsides` and `angle` is
-                                     ignored); deprecated.
+                                          +---+-----------------------------+
+                                          | 0 | a regular polygon           |
+                                          +---+-----------------------------+
+                                          | 1 | a star-like symbol          |
+                                          +---+-----------------------------+
+                                          | 2 | an asterisk                 |
+                                          +---+-----------------------------+
+                                          | 3 | a circle (``numsides`` and  |
+                                          |   | ``angle`` is ignored);      |
+                                          |   | deprecated.                 |
+                                          +---+-----------------------------+
 
-                               `angle`:
-                                   the angle of rotation of the symbol
-============================== ===============================================
+                                      ``angle``:
+                                          the angle of rotation of the symbol
+============================== ====== =========================================
 
-For backward compatibility, the form (`verts`, 0) is also accepted, but it is
-deprecated and equivalent to just `verts` for giving a raw set of vertices that
-define the shape.
+For backward compatibility, the form ``(verts, 0)`` is also accepted, but it is
+deprecated and equivalent to just ``verts`` for giving a raw set of vertices
+that define the shape.
 
-`None` is the default which means 'nothing', however this table is
+``None`` is the default which means 'nothing', however this table is
 referred to from other docs for the valid inputs from marker inputs and in
-those cases `None` still means 'default'.
+those cases ``None`` still means 'default'.
+
+Note that special symbols can be defined via the
+:doc:`STIX math font </tutorials/text/mathtext>`,
+e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer to the
+`STIX font table <http://www.stixfonts.org/allGlyphs.html>`_.
+Also see the :doc:`/gallery/text_labels_and_annotations/stix_fonts_demo`.
+
+Integer numbers from ``0`` to ``11`` create lines and triangles. Those are
+equally accessible via capitalized variables, like ``CARETDOWNBASE``.
+Hence the following are equivalent::
+
+    plt.plot([1,2,3], marker=11)
+    plt.plot([1,2,3], marker=matplotlib.markers.CARETDOWNBASE)
+
+
+Examples showing the use of markers:
+
+* :doc:`/gallery/lines_bars_and_markers/marker_reference`
+* :doc:`/gallery/lines_bars_and_markers/marker_fillstyle_reference`
+* :doc:`/gallery/shapes_and_collections/marker_path`
+
+
+.. |m00| image:: /_static/markers/m00.png
+.. |m01| image:: /_static/markers/m01.png
+.. |m02| image:: /_static/markers/m02.png
+.. |m03| image:: /_static/markers/m03.png
+.. |m04| image:: /_static/markers/m04.png
+.. |m05| image:: /_static/markers/m05.png
+.. |m06| image:: /_static/markers/m06.png
+.. |m07| image:: /_static/markers/m07.png
+.. |m08| image:: /_static/markers/m08.png
+.. |m09| image:: /_static/markers/m09.png
+.. |m10| image:: /_static/markers/m10.png
+.. |m11| image:: /_static/markers/m11.png
+.. |m12| image:: /_static/markers/m12.png
+.. |m13| image:: /_static/markers/m13.png
+.. |m14| image:: /_static/markers/m14.png
+.. |m15| image:: /_static/markers/m15.png
+.. |m16| image:: /_static/markers/m16.png
+.. |m17| image:: /_static/markers/m17.png
+.. |m18| image:: /_static/markers/m18.png
+.. |m19| image:: /_static/markers/m19.png
+.. |m20| image:: /_static/markers/m20.png
+.. |m21| image:: /_static/markers/m21.png
+.. |m22| image:: /_static/markers/m22.png
+.. |m23| image:: /_static/markers/m23.png
+.. |m24| image:: /_static/markers/m24.png
+.. |m25| image:: /_static/markers/m25.png
+.. |m26| image:: /_static/markers/m26.png
+.. |m27| image:: /_static/markers/m27.png
+.. |m28| image:: /_static/markers/m28.png
+.. |m29| image:: /_static/markers/m29.png
+.. |m30| image:: /_static/markers/m30.png
+.. |m31| image:: /_static/markers/m31.png
+.. |m32| image:: /_static/markers/m32.png
+.. |m33| image:: /_static/markers/m33.png
+.. |m34| image:: /_static/markers/m34.png
+.. |m35| image:: /_static/markers/m35.png
+.. |m36| image:: /_static/markers/m36.png
+.. |m37| image:: /_static/markers/m37.png
 """
 
-from collections import Sized
+from collections.abc import Sized
 from numbers import Number
 
 import numpy as np

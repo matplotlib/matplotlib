@@ -12,7 +12,7 @@ environment:
 
   global:
     PYTHONIOENCODING: UTF-8
-    PYTEST_ARGS: -rawR --numprocesses=auto --timeout=300 --durations=25
+    PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
                  --cov-report= --cov=lib -m "not network"
 
   matrix:
@@ -106,7 +106,7 @@ test_script:
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
   - echo The following args are passed to pytest %PYTEST_ARGS%
-  - python tests.py %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
 
 after_test:
   # After the tests were a success, build wheels with the static libs

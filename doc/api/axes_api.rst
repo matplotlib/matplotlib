@@ -1,17 +1,34 @@
-================
- ``Axes`` class
-================
+====
+axes
+====
+
 .. currentmodule:: matplotlib.axes
+
+.. automodule:: matplotlib.axes
+   :no-members:
+   :no-undoc-members:
 
 .. autoclass:: Axes
    :no-members:
    :no-undoc-members:
+   :show-inheritance:
 
 .. contents:: Table of Contents
    :depth: 2
    :local:
    :backlinks: entry
+   :class: multicol-toc
 
+Subplots
+========
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   SubplotBase
+   subplot_class_factory
 
 Plotting
 ========
@@ -164,6 +181,9 @@ Text and Annotations
    Axes.text
    Axes.table
    Axes.arrow
+   Axes.inset_axes
+   Axes.indicate_inset
+   Axes.indicate_inset_zoom
 
 
 Fields

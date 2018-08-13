@@ -23,13 +23,18 @@ backend_version = "%s.%s.%s" % (
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
 
-cursord = {
-    cursors.MOVE          : Gdk.Cursor.new(Gdk.CursorType.FLEUR),
-    cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
-    cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
-    cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
-    cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
+try:
+    cursord = {
+        cursors.MOVE          : Gdk.Cursor.new(Gdk.CursorType.FLEUR),
+        cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
+        cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
+        cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
+        cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
     }
+except TypeError as exc:
+    # Happens when running headless.  Convert to ImportError to cooperate with
+    # backend switching.
+    raise ImportError(exc)
 
 
 class TimerGTK3(TimerBase):
@@ -971,6 +976,7 @@ Toolbar = ToolbarGTK3
 
 @_Backend.export
 class _BackendGTK3(_Backend):
+    required_interactive_framework = "gtk3"
     FigureCanvas = FigureCanvasGTK3
     FigureManager = FigureManagerGTK3
 

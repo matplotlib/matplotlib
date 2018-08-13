@@ -5,6 +5,8 @@ See :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
 See :doc:`/tutorials/colors/colormaps` for an in-depth discussion of colormaps.
 """
 
+import functools
+
 import numpy as np
 from numpy import ma
 
@@ -22,10 +24,12 @@ cmap_d = {}
 # reversed colormaps have '_r' appended to the name.
 
 
-def _reverser(f):
-    def freversed(x):
-        return f(1 - x)
-    return freversed
+def _reverser(f, x=None):
+    """Helper such that ``_reverser(f)(x) == f(1 - x)``."""
+    if x is None:
+        # Returning a partial object keeps it picklable.
+        return functools.partial(_reverser, f)
+    return f(1 - x)
 
 
 def revcmap(data):
@@ -275,8 +279,6 @@ class ScalarMappable(object):
     def set_array(self, A):
         """Set the image array from numpy array *A*.
 
-        .. ACCEPTS: ndarray
-
         Parameters
         ----------
         A : ndarray
@@ -320,7 +322,9 @@ class ScalarMappable(object):
         """
         set the colormap for luminance data
 
-        ACCEPTS: a colormap or registered colormap name
+        Parameters
+        ----------
+        cmap : colormap or registered colormap name
         """
         cmap = get_cmap(cmap)
         self.cmap = cmap
@@ -328,8 +332,6 @@ class ScalarMappable(object):
 
     def set_norm(self, norm):
         """Set the normalization instance.
-
-        .. ACCEPTS: `.Normalize`
 
         Parameters
         ----------

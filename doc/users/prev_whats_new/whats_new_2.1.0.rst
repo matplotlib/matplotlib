@@ -139,7 +139,7 @@ PolygonSelector
 
 A :class:`~matplotlib.widgets.PolygonSelector` class has been added to
 :mod:`matplotlib.widgets`.  See
-:ref:`sphx_glr_gallery_widgets_polygon_selector_demo.py` for details.
+:doc:`/gallery/widgets/polygon_selector_demo` for details.
 
 
 Added `matplotlib.ticker.PercentFormatter`

@@ -13,13 +13,6 @@ import matplotlib.cbook as cbook
 from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 
 
-try:
-    from mpl_toolkits.natgrid import _natgrid
-    HAS_NATGRID = True
-except ImportError:
-    HAS_NATGRID = False
-
-
 '''
 A lot of mlab.py has been deprecated in Matplotlib 2.2 and is scheduled for
 removal in the future. The tests that use deprecated methods have a block
@@ -213,10 +206,7 @@ def tempcsv():
 
 
 def test_recarray_csv_roundtrip(tempcsv):
-    expected = np.recarray((99,),
-                           [(str('x'), float),
-                            (str('y'), float),
-                            (str('t'), float)])
+    expected = np.recarray((99,), [('x', float), ('y', float), ('t', float)])
     # initialising all values: uninitialised memory sometimes produces
     # floats that do not round-trip to string and back.
     expected['x'][:] = np.linspace(-1e9, -1, 99)
@@ -233,8 +223,7 @@ def test_recarray_csv_roundtrip(tempcsv):
 
 
 def test_rec2csv_bad_shape_ValueError(tempcsv):
-    bad = np.recarray((99, 4), [(str('x'), float),
-                                (str('y'), float)])
+    bad = np.recarray((99, 4), [('x', float), ('y', float)])
 
     # the bad recarray should trigger a ValueError for having ndim > 1.
     with pytest.warns(MatplotlibDeprecationWarning):
@@ -286,14 +275,12 @@ def test_csv2rec_dates(tempcsv, input, kwargs):
 
 
 def test_rec2txt_basic():
-    # str() calls around field names necessary b/c as of numpy 1.11
-    # dtype doesn't like unicode names (caused by unicode_literals import)
     a = np.array([(1.0, 2, 'foo', 'bing'),
                   (2.0, 3, 'bar', 'blah')],
-                 dtype=np.dtype([(str('x'), np.float32),
-                                 (str('y'), np.int8),
-                                 (str('s'), str, 3),
-                                 (str('s2'), str, 4)]))
+                 dtype=np.dtype([('x', np.float32),
+                                 ('y', np.int8),
+                                 ('s', str, 3),
+                                 ('s2', str, 4)]))
     truth = ('       x   y   s     s2\n'
              '   1.000   2   foo   bing   \n'
              '   2.000   3   bar   blah   ').splitlines()
@@ -1119,7 +1106,7 @@ class TestDetrend(object):
         res = mlab.detrend(input, key=mlab.detrend_linear, axis=0)
         assert_allclose(res, targ, atol=self.atol)
 
-    def test_detrend_str_linear_2d_slope_off_axis0(self):
+    def test_detrend_str_linear_2d_slope_off_axis0_notranspose(self):
         arri = [self.sig_off,
                 self.sig_slope,
                 self.sig_slope + self.sig_off]
@@ -1131,7 +1118,7 @@ class TestDetrend(object):
         res = mlab.detrend(input, key='linear', axis=1)
         assert_allclose(res, targ, atol=self.atol)
 
-    def test_detrend_detrend_linear_1d_slope_off_axis1(self):
+    def test_detrend_detrend_linear_1d_slope_off_axis1_notranspose(self):
         arri = [self.sig_off,
                 self.sig_slope,
                 self.sig_slope + self.sig_off]
@@ -2180,8 +2167,9 @@ def test_griddata_linear():
                                   np.ma.getmask(correct_zi_masked))
 
 
-@pytest.mark.xfail(not HAS_NATGRID, reason='natgrid not installed')
 def test_griddata_nn():
+    pytest.importorskip('mpl_toolkits.natgrid')
+
     # z is a linear function of x and y.
     def get_z(x, y):
         return 3.0*x - y

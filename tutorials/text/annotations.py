@@ -1,4 +1,4 @@
-"""
+r"""
 Annotations
 ===========
 
@@ -94,7 +94,7 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 
 For more on all the wild and wonderful things you can do with
 annotations, including fancy arrows, see :ref:`plotting-guide-annotation`
-and :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
+and :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
 
 
 Do not proceed unless you have already read :ref:`annotations-tutorial`,
@@ -514,7 +514,7 @@ more control, it supports a few other options.
        Annotation with Simple Coordinates 3
 
     You may take a look at this example
-    :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
+    :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
 
 Using ConnectionPatch
 ---------------------

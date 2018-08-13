@@ -4,6 +4,10 @@ Marker filling-styles
 =====================
 
 Reference for marker fill-styles included with Matplotlib.
+
+Also refer to the
+:doc:`/gallery/lines_bars_and_markers/marker_fillstyle_reference`
+and :doc:`/gallery/shapes_and_collections/marker_path` examples.
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -2,6 +2,7 @@
 These are classes to support contour plotting and labelling for the Axes class.
 """
 
+from numbers import Integral
 import warnings
 
 import numpy as np
@@ -1173,6 +1174,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Select contour levels to span the data.
 
+        The target number of levels, *N*, is used only when the
+        scale is not log and default locator is used.
+
         We need two more levels for filled contours than for
         line contours, because for the latter we need to specify
         the lower and upper boundary of each range. For example,
@@ -1180,6 +1184,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         """
+        self._auto = True
         if self.locator is None:
             if self.logscale:
                 self.locator = ticker.LogLocator()
@@ -1187,8 +1192,27 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
 
         lev = self.locator.tick_values(self.zmin, self.zmax)
-        self._auto = True
-        return lev
+
+        try:
+            if self.locator._symmetric:
+                return lev
+        except AttributeError:
+            pass
+
+        # Trim excess levels the locator may have supplied.
+        under = np.nonzero(lev < self.zmin)[0]
+        i0 = under[-1] if len(under) else 0
+        over = np.nonzero(lev > self.zmax)[0]
+        i1 = over[0] + 1 if len(over) else len(lev)
+        if self.extend in ('min', 'both'):
+            i0 += 1
+        if self.extend in ('max', 'both'):
+            i1 -= 1
+
+        if i1 - i0 < 3:
+            i0, i1 = 0, len(lev)
+
+        return lev[i0:i1]
 
     def _contour_level_args(self, z, args):
         """
@@ -1205,7 +1229,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             else:
                 level_arg = args[0]
                 try:
-                    if type(level_arg) == int:
+                    if isinstance(level_arg, Integral):
                         lev = self._autolev(level_arg)
                     else:
                         lev = np.asarray(level_arg).astype(np.float64)
@@ -1219,8 +1243,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         if not self.filled:
             inside = (self.levels > self.zmin) & (self.levels < self.zmax)
-            self.levels = self.levels[inside]
-            if len(self.levels) == 0:
+            levels_in = self.levels[inside]
+            if len(levels_in) == 0:
                 self.levels = [self.zmin]
                 warnings.warn("No contour levels were found"
                               " within the data range.")
@@ -1245,27 +1269,28 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # (Colorbar needs this even for line contours.)
         self._levels = list(self.levels)
 
+        if self.logscale:
+            lower, upper = 1e-250, 1e250
+        else:
+            lower, upper = -1e250, 1e250
+
         if self.extend in ('both', 'min'):
-            self._levels.insert(0, min(self.levels[0], self.zmin) - 1)
+            self._levels.insert(0, lower)
         if self.extend in ('both', 'max'):
-            self._levels.append(max(self.levels[-1], self.zmax) + 1)
+            self._levels.append(upper)
         self._levels = np.asarray(self._levels)
 
         if not self.filled:
             self.layers = self.levels
             return
 
-        # layer values are mid-way between levels
-        self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
-        # ...except that extended layers must be outside the
-        # normed range:
-        if self.extend in ('both', 'min'):
-            if self.logscale:
-                self.layers[0] = 1e-150
-            else:
-                self.layers[0] = -1e150
-        if self.extend in ('both', 'max'):
-            self.layers[-1] = 1e150
+        # Layer values are mid-way between levels in screen space.
+        if self.logscale:
+            # Avoid overflow by taking sqrt before multiplying.
+            self.layers = (np.sqrt(self._levels[:-1])
+                           * np.sqrt(self._levels[1:]))
+        else:
+            self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
 
     def _process_colors(self):
         """

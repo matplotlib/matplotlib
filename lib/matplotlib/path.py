@@ -125,13 +125,13 @@ class Path(object):
             and codes as read-only arrays.
         """
         vertices = _to_unmasked_float_array(vertices)
-        if (vertices.ndim != 2) or (vertices.shape[1] != 2):
+        if vertices.ndim != 2 or vertices.shape[1] != 2:
             raise ValueError(
                 "'vertices' must be a 2D list or array with shape Nx2")
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
-            if (codes.ndim != 1) or len(codes) != len(vertices):
+            if codes.ndim != 1 or len(codes) != len(vertices):
                 raise ValueError("'codes' must be a 1D list or array with the "
                                  "same length of 'vertices'")
             if len(codes) and codes[0] != self.MOVETO:
@@ -303,7 +303,7 @@ class Path(object):
         numsides x 2) numpy array of vertices.  Return object is a
         :class:`Path`
 
-        .. plot:: gallery/api/histogram_path.py
+        .. plot:: gallery/misc/histogram_path.py
 
         """
 
@@ -578,7 +578,7 @@ class Path(object):
         polygon/polyline is an Nx2 array of vertices.  In other words,
         each polygon has no ``MOVETO`` instructions or curves.  This
         is useful for displaying in backends that do not support
-        compound paths or Bezier curves, such as GDK.
+        compound paths or Bezier curves.
 
         If *width* and *height* are both non-zero then the lines will
         be simplified so that vertices outside of (0, 0), (width,

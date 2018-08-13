@@ -15,7 +15,7 @@ def stackplot(axes, x, *args,
               labels=(), colors=None, baseline='zero',
               **kwargs):
     """
-    Draws a stacked area plot.
+    Draw a stacked area plot.
 
     Parameters
     ----------
@@ -29,7 +29,7 @@ def stackplot(axes, x, *args,
             stackplot(x, y)               # where y is MxN
             stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
 
-    baseline : ['zero' | 'sym' | 'wiggle' | 'weighted_wiggle']
+    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:
 
         - ``'zero'``: Constant zero baseline, i.e. a simple stacked plot.

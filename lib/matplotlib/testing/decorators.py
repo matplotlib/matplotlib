@@ -1,3 +1,4 @@
+import contextlib
 from distutils.version import StrictVersion
 import functools
 import inspect
@@ -8,63 +9,49 @@ import sys
 import unittest
 import warnings
 
-# Note - don't import nose up here - import it only as needed in functions.
-# This allows other functions here to be used by pytest-based testing suites
-# without requiring nose to be installed.
-
-
 import matplotlib as mpl
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
 from matplotlib import cbook
-from matplotlib import ticker
-from matplotlib import pyplot as plt
 from matplotlib import ft2font
-from matplotlib.testing.compare import (
-    comparable_formats, compare_images, make_test_filename)
+from matplotlib import pyplot as plt
+from matplotlib import ticker
 from . import is_called_from_pytest
+from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
 
-def _do_cleanup(original_units_registry, original_settings):
-    plt.close('all')
-
-    mpl.rcParams.clear()
-    mpl.rcParams.update(original_settings)
-    matplotlib.units.registry.clear()
-    matplotlib.units.registry.update(original_units_registry)
-    warnings.resetwarnings()  # reset any warning filters set in tests
-
-
-class CleanupTest(object):
-    @classmethod
-    def setup_class(cls):
-        cls.original_units_registry = matplotlib.units.registry.copy()
-        cls.original_settings = mpl.rcParams.copy()
-        matplotlib.testing.setup()
-
-    @classmethod
-    def teardown_class(cls):
-        _do_cleanup(cls.original_units_registry,
-                    cls.original_settings)
-
-    def test(self):
-        self._func()
+@contextlib.contextmanager
+def _cleanup_cm():
+    orig_units_registry = matplotlib.units.registry.copy()
+    try:
+        with warnings.catch_warnings(), matplotlib.rc_context():
+            yield
+    finally:
+        matplotlib.units.registry.clear()
+        matplotlib.units.registry.update(orig_units_registry)
+        plt.close("all")
 
 
 class CleanupTestCase(unittest.TestCase):
-    '''A wrapper for unittest.TestCase that includes cleanup operations'''
+    """A wrapper for unittest.TestCase that includes cleanup operations."""
     @classmethod
     def setUpClass(cls):
-        import matplotlib.units
-        cls.original_units_registry = matplotlib.units.registry.copy()
-        cls.original_settings = mpl.rcParams.copy()
+        cls._cm = _cleanup_cm().__enter__()
 
     @classmethod
     def tearDownClass(cls):
-        _do_cleanup(cls.original_units_registry,
-                    cls.original_settings)
+        cls._cm.__exit__(None, None, None)
+
+
+@cbook.deprecated("3.0")
+class CleanupTest(object):
+    setup_class = classmethod(CleanupTestCase.setUpClass.__func__)
+    teardown_class = classmethod(CleanupTestCase.tearDownClass.__func__)
+
+    def test(self):
+        self._func()
 
 
 def cleanup(style=None):
@@ -78,34 +65,23 @@ def cleanup(style=None):
         The name of the style to apply.
     """
 
-    # If cleanup is used without arguments, `style` will be a
-    # callable, and we pass it directly to the wrapper generator.  If
-    # cleanup if called with an argument, it is a string naming a
-    # style, and the function will be passed as an argument to what we
-    # return.  This is a confusing, but somewhat standard, pattern for
-    # writing a decorator with optional arguments.
+    # If cleanup is used without arguments, `style` will be a callable, and we
+    # pass it directly to the wrapper generator.  If cleanup if called with an
+    # argument, it is a string naming a style, and the function will be passed
+    # as an argument to what we return.  This is a confusing, but somewhat
+    # standard, pattern for writing a decorator with optional arguments.
 
     def make_cleanup(func):
         if inspect.isgeneratorfunction(func):
             @functools.wraps(func)
             def wrapped_callable(*args, **kwargs):
-                original_units_registry = matplotlib.units.registry.copy()
-                original_settings = mpl.rcParams.copy()
-                matplotlib.style.use(style)
-                try:
+                with _cleanup_cm(), matplotlib.style.context(style):
                     yield from func(*args, **kwargs)
-                finally:
-                    _do_cleanup(original_units_registry, original_settings)
         else:
             @functools.wraps(func)
             def wrapped_callable(*args, **kwargs):
-                original_units_registry = matplotlib.units.registry.copy()
-                original_settings = mpl.rcParams.copy()
-                matplotlib.style.use(style)
-                try:
+                with _cleanup_cm(), matplotlib.style.context(style):
                     func(*args, **kwargs)
-                finally:
-                    _do_cleanup(original_units_registry, original_settings)
 
         return wrapped_callable
 
@@ -429,6 +405,46 @@ def image_comparison(baseline_images, extensions=None, tol=0,
             baseline_images=baseline_images, extensions=extensions, tol=tol,
             freetype_version=freetype_version, remove_text=remove_text,
             savefig_kwargs=savefig_kwarg, style=style)
+
+
+def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
+    """
+    Decorator for test cases that generate and compare two figures.
+
+    The decorated function must take two arguments, *fig_test* and *fig_ref*,
+    and draw the test and reference images on them.  After the function
+    returns, the figures are saved and compared.
+
+    Arguments
+    ---------
+    extensions : list, default: ["png", "pdf", "svg"]
+        The extensions to test.
+    tol : float
+        The RMS threshold above which the test is considered failed.
+    """
+
+    def decorator(func):
+        import pytest
+
+        _, result_dir = map(Path, _image_directories(func))
+
+        @pytest.mark.parametrize("ext", extensions)
+        def wrapper(ext):
+            fig_test = plt.figure("test")
+            fig_ref = plt.figure("reference")
+            func(fig_test, fig_ref)
+            test_image_path = str(
+                result_dir / (func.__name__ + "." + ext))
+            ref_image_path = str(
+                result_dir / (func.__name__ + "-expected." + ext))
+            fig_test.savefig(test_image_path)
+            fig_ref.savefig(ref_image_path)
+            _raise_on_image_difference(
+                ref_image_path, test_image_path, tol=tol)
+
+        return wrapper
+
+    return decorator
 
 
 def _image_directories(func):

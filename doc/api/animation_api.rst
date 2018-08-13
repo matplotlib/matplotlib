@@ -19,6 +19,7 @@ The easiest way to make a live animation in matplotlib is to use one of the
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary_inher.rst
    :nosignatures:
 
    FuncAnimation
@@ -60,8 +61,8 @@ general gist is to take an existing bit map (in our case a mostly
 rasterized figure) and then 'blit' one more artist on top.  Thus, by
 managing a saved 'clean' bitmap, we can only re-draw the few artists
 that are changing at each frame and possibly save significant amounts of
-time.  When using blitting (by passing ``blit=True``) the core loop of
-`FuncAnimation` gets a bit more complicated ::
+time.  When we use blitting (by passing ``blit=True``), the core loop of
+`FuncAnimation` gets a bit more complicated::
 
    ax = fig.gca()
 
@@ -163,6 +164,7 @@ all data in memory.
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary_inher.rst
    :nosignatures:
 
    PillowWriter
@@ -173,10 +175,11 @@ on all systems.
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary_inher.rst
    :nosignatures:
 
    FFMpegWriter
-   ImageMagickFileWriter
+   ImageMagickWriter
    AVConvWriter
 
 The file-based writers save temporary files for each frame which are stitched
@@ -185,10 +188,11 @@ debug.
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary_inher.rst
    :nosignatures:
 
    FFMpegFileWriter
-   ImageMagickWriter
+   ImageMagickFileWriter
    AVConvFileWriter
 
 Fundamentally, a `MovieWriter` provides a way to grab sequential frames
@@ -237,6 +241,7 @@ Animation Base Classes
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary_inher.rst
    :nosignatures:
 
    Animation
@@ -251,6 +256,7 @@ writer and the class to allow a string to be passed to
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary_inher.rst
    :nosignatures:
 
    MovieWriterRegistry
@@ -262,6 +268,7 @@ To reduce code duplication base classes
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary_inher.rst
    :nosignatures:
 
    AbstractMovieWriter
@@ -272,6 +279,7 @@ and mixins
 
 .. autosummary::
    :toctree: _as_gen
+   :template: autosummary_inher.rst
    :nosignatures:
 
    AVConvBase
@@ -287,6 +295,8 @@ Inheritance Diagrams
 
 .. inheritance-diagram:: matplotlib.animation.FuncAnimation matplotlib.animation.ArtistAnimation
    :private-bases:
+   :parts: 1
 
 .. inheritance-diagram:: matplotlib.animation.AVConvFileWriter matplotlib.animation.AVConvWriter matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
    :private-bases:
+   :parts: 1

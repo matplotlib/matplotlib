@@ -134,10 +134,17 @@ The plot directive has the following configuration options:
     plot_template
         Provide a customized template for preparing restructured text.
 """
+
+import contextlib
+from io import StringIO
 import itertools
-import sys, os, shutil, io, re, textwrap
+import os
 from os.path import relpath
 from pathlib import Path
+import re
+import shutil
+import sys
+import textwrap
 import traceback
 import warnings
 
@@ -146,16 +153,9 @@ from docutils.parsers.rst.directives.images import Image
 align = Image.align
 import sphinx
 
-sphinx_version = sphinx.__version__.split(".")
-# The split is necessary for sphinx beta versions where the string is
-# '6b1'
-sphinx_version = tuple([int(re.split('[^0-9]', x)[0])
-                        for x in sphinx_version[:2]])
-
 import jinja2  # Sphinx dependency.
 
 import matplotlib
-import matplotlib.cbook as cbook
 try:
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("error", UserWarning)
@@ -165,7 +165,7 @@ except UserWarning:
     plt.switch_backend("Agg")
 else:
     import matplotlib.pyplot as plt
-from matplotlib import _pylab_helpers
+from matplotlib import _pylab_helpers, cbook
 
 __version__ = 2
 
@@ -270,7 +270,7 @@ def setup(app):
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
 
-    app.connect(str('doctree-read'), mark_plot_labels)
+    app.connect('doctree-read', mark_plot_labels)
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
@@ -340,7 +340,7 @@ def remove_coding(text):
     Remove the coding comment, which six.exec\_ doesn't like.
     """
     cbook.warn_deprecated('3.0', name='remove_coding', removal='3.1')
-    sub_re = re.compile("^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
+    sub_re = re.compile(r"^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
     return sub_re.sub("", text)
 
 #------------------------------------------------------------------------------
@@ -413,7 +413,7 @@ TEMPLATE = """
 """
 
 exception_template = """
-.. htmlonly::
+.. only:: html
 
    [`source code <%(linkdir)s/%(basename)s.py>`__]
 
@@ -462,7 +462,6 @@ def run_code(code, code_path, ns=None, function_name=None):
     # it can get at its data files, if any.  Add its path to sys.path
     # so it can import any helper modules sitting beside it.
     pwd = os.getcwd()
-    old_sys_path = sys.path.copy()
     if setup.config.plot_working_directory is not None:
         try:
             os.chdir(setup.config.plot_working_directory)
@@ -474,27 +473,13 @@ def run_code(code, code_path, ns=None, function_name=None):
             raise TypeError(str(err) + '\n`plot_working_directory` option in '
                             'Sphinx configuration file must be a string or '
                             'None')
-        sys.path.insert(0, setup.config.plot_working_directory)
     elif code_path is not None:
         dirname = os.path.abspath(os.path.dirname(code_path))
         os.chdir(dirname)
-        sys.path.insert(0, dirname)
 
-    # Reset sys.argv
-    old_sys_argv = sys.argv
-    sys.argv = [code_path]
-
-    # Redirect stdout
-    stdout = sys.stdout
-    sys.stdout = io.StringIO()
-
-    # Assign a do-nothing print function to the namespace.  There
-    # doesn't seem to be any other way to provide a way to (not) print
-    # that works correctly across Python 2 and 3.
-    def _dummy_print(*arg, **kwarg):
-        pass
-
-    try:
+    with cbook._setattr_cm(
+            sys, argv=[code_path], path=[os.getcwd(), *sys.path]), \
+            contextlib.redirect_stdout(StringIO()):
         try:
             code = unescape_doctest(code)
             if ns is None:
@@ -505,7 +490,6 @@ def run_code(code, code_path, ns=None, function_name=None):
                          'from matplotlib import pyplot as plt\n', ns)
                 else:
                     exec(str(setup.config.plot_pre_code), ns)
-            ns['print'] = _dummy_print
             if "__main__" in code:
                 ns['__name__'] = '__main__'
             exec(code, ns)
@@ -513,11 +497,8 @@ def run_code(code, code_path, ns=None, function_name=None):
                 exec(function_name + "()", ns)
         except (Exception, SystemExit) as err:
             raise PlotError(traceback.format_exc())
-    finally:
-        os.chdir(pwd)
-        sys.argv = old_sys_argv
-        sys.path[:] = old_sys_path
-        sys.stdout = stdout
+        finally:
+            os.chdir(pwd)
     return ns
 
 
@@ -532,11 +513,6 @@ def get_plot_formats(config):
     default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
     plot_formats = config.plot_formats
-    if isinstance(plot_formats, str):
-        # String Sphinx < 1.3, Split on , to mimic
-        # Sphinx 1.3 and later. Sphinx 1.3 always
-        # returns a list.
-        plot_formats = plot_formats.split(',')
     for fmt in plot_formats:
         if isinstance(fmt, str):
             if ':' in fmt:
@@ -544,7 +520,7 @@ def get_plot_formats(config):
                 formats.append((str(suffix), int(dpi)))
             else:
                 formats.append((fmt, default_dpi.get(fmt, 80)))
-        elif type(fmt) in (tuple, list) and len(fmt) == 2:
+        elif isinstance(fmt, (tuple, list)) and len(fmt) == 2:
             formats.append((str(fmt[0]), int(fmt[1])))
         else:
             raise PlotError('invalid image format "%r" in plot_formats' % fmt)
@@ -684,8 +660,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         else:
             function_name = None
 
-        with io.open(source_file_name, 'r', encoding='utf-8') as fd:
-            code = fd.read()
+        code = Path(source_file_name).read_text(encoding='utf-8')
         output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
@@ -779,12 +754,10 @@ def run(arguments, content, options, state_machine, state, lineno):
     for j, (code_piece, images) in enumerate(results):
         if options['include-source']:
             if is_doctest:
-                lines = ['']
-                lines += [row.rstrip() for row in code_piece.split('\n')]
+                lines = ['', *code_piece.splitlines()]
             else:
-                lines = ['.. code-block:: python', '']
-                lines += ['    %s' % row.rstrip()
-                          for row in code_piece.split('\n')]
+                lines = ['.. code-block:: python', '',
+                         *textwrap.indent(code_piece, '    ').splitlines()]
             source_code = "\n".join(lines)
         else:
             source_code = ""
@@ -839,12 +812,8 @@ def run(arguments, content, options, state_machine, state, lineno):
                     shutil.copyfile(fn, destimg)
 
     # copy script (if necessary)
-    target_name = os.path.join(dest_dir, output_base + source_ext)
-    with io.open(target_name, 'w', encoding="utf-8") as f:
-        if source_file_name == rst_file:
-            code_escaped = unescape_doctest(code)
-        else:
-            code_escaped = code
-        f.write(code_escaped)
+    Path(dest_dir, output_base + source_ext).write_text(
+        unescape_doctest(code) if source_file_name == rst_file else code,
+        encoding='utf-8')
 
     return errors

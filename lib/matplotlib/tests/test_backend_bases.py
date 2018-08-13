@@ -1,14 +1,10 @@
-from matplotlib.backend_bases import FigureCanvasBase
-from matplotlib.backend_bases import RendererBase
-
+from matplotlib.backend_bases import (
+    FigureCanvasBase, LocationEvent, RendererBase)
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
 
 import numpy as np
-import os
-import shutil
-import tempfile
 import pytest
 
 
@@ -51,16 +47,12 @@ def test_uses_per_path():
     check(id, paths, tforms, offsets, facecolors[0:1], edgecolors)
 
 
-def test_get_default_filename():
-    try:
-        test_dir = tempfile.mkdtemp()
-        plt.rcParams['savefig.directory'] = test_dir
-        fig = plt.figure()
-        canvas = FigureCanvasBase(fig)
-        filename = canvas.get_default_filename()
-        assert filename == 'image.png'
-    finally:
-        shutil.rmtree(test_dir)
+def test_get_default_filename(tmpdir):
+    plt.rcParams['savefig.directory'] = str(tmpdir)
+    fig = plt.figure()
+    canvas = FigureCanvasBase(fig)
+    filename = canvas.get_default_filename()
+    assert filename == 'image.png'
 
 
 @pytest.mark.backend('pdf')
@@ -69,13 +61,32 @@ def test_non_gui_warning():
     with pytest.warns(UserWarning) as rec:
         plt.show()
         assert len(rec) == 1
-        assert 'matplotlib is currently using pdf, ' \
-               'which is a non-GUI backend' \
-               in str(rec[0].message)
+        assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
+                in str(rec[0].message))
 
     with pytest.warns(UserWarning) as rec:
         plt.gcf().show()
         assert len(rec) == 1
-        assert 'matplotlib is currently using pdf, ' \
-               'which is a non-GUI backend' \
-               in str(rec[0].message)
+        assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
+                in str(rec[0].message))
+
+
+def test_location_event_position():
+    # LocationEvent should cast its x and y arguments
+    # to int unless it is None
+    fig = plt.figure()
+    canvas = FigureCanvasBase(fig)
+    test_positions = [(42, 24), (None, 42), (None, None),
+                      (200, 100.01), (205.75, 2.0)]
+    for x, y in test_positions:
+        event = LocationEvent("test_event", canvas, x, y)
+        if x is None:
+            assert event.x is None
+        else:
+            assert event.x == int(x)
+            assert isinstance(event.x, int)
+        if y is None:
+            assert event.y is None
+        else:
+            assert event.y == int(y)
+            assert isinstance(event.y, int)

@@ -40,7 +40,7 @@ endif %}>
         <li><a href="{{ pathto('index') }}">home</a>|&nbsp;</li>
         <li><a href="{{ pathto('gallery/index') }}">examples</a>|&nbsp;</li>
         <li><a href="{{ pathto('tutorials/index') }}">tutorials</a>|&nbsp;</li>
-        <li><a href="{{ pathto('api/pyplot_summary') }}">pyplot</a>|&nbsp;</li>
+        <li><a href="{{ pathto('api/api_overview') }}">API</a>|&nbsp;</li>
         <li><a href="{{ pathto('contents') }}">docs</a> &raquo;</li>
 
         {%- for parent in parents %}
@@ -172,12 +172,7 @@ parents[-1].link|e }}" />
     </a>
 </div>
 {%- endif %}
-<div id="summer-fellowship">
-    Applications are open for the 2018 John Hunter Matplotlib Summer Fellowship.
-    <a href="https://www.numfocus.org/programs/john-hunter-technology-fellowship">
-        Apply now!
-    </a>
-</div>
+
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
 {%- if builder in ('htmlhelp', 'devhelp', 'latex') %}
 <a href="{{ pathto('index') }}">

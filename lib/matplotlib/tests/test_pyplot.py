@@ -19,3 +19,15 @@ def test_pyplot_up_to_date():
         assert orig_contents == new_contents
     finally:
         Path(plt.__file__).write_text(orig_contents)
+
+
+def test_pyplot_box():
+    fig, ax = plt.subplots()
+    plt.box(False)
+    assert not ax.get_frame_on()
+    plt.box(True)
+    assert ax.get_frame_on()
+    plt.box()
+    assert not ax.get_frame_on()
+    plt.box()
+    assert ax.get_frame_on()

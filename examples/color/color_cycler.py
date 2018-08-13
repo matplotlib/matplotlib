@@ -8,11 +8,10 @@ properties for multi-line plots.
 
 This example demonstrates two different APIs:
 
-    1. Setting the default 
-       :ref:`rc parameter<sphx_glr_tutorials_introductory_customizing.py>`
-       specifying the property cycle. This affects all subsequent axes
-       (but not axes already created).
-    2. Setting the property cycle for a single pair of axes.
+1. Setting the default :doc:`rc parameter</tutorials/introductory/customizing>`
+   specifying the property cycle. This affects all subsequent axes (but not
+   axes already created).
+2. Setting the property cycle for a single pair of axes.
 """
 from cycler import cycler
 import numpy as np
@@ -28,7 +27,7 @@ yy = np.transpose([np.sin(x + phi) for phi in offsets])
 plt.rc('lines', linewidth=4)
 plt.rc('axes', prop_cycle=(cycler(color=['r', 'g', 'b', 'y']) +
                            cycler(linestyle=['-', '--', ':', '-.'])))
-fig, (ax0, ax1) = plt.subplots(nrows=2)
+fig, (ax0, ax1) = plt.subplots(nrows=2, constrained_layout=True)
 ax0.plot(yy)
 ax0.set_title('Set default color cycle to rgby')
 
@@ -42,8 +41,6 @@ ax1.set_prop_cycle(color=['c', 'm', 'y', 'k'], lw=[1, 2, 3, 4])
 ax1.plot(yy)
 ax1.set_title('Set axes color cycle to cmyk')
 
-# Tweak spacing between subplots to prevent labels from overlapping
-fig.subplots_adjust(hspace=0.3)
 plt.show()
 
 #############################################################################

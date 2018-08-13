@@ -3,7 +3,7 @@
 Overview
 ========
 
-.. htmlonly::
+.. only:: html
 
     :Release: |version|
     :Date: |today|
@@ -16,14 +16,13 @@ Overview
 
    users/index.rst
    faq/index.rst
-   api/toolkits/index.rst
+   api/index.rst
    resources/index.rst
    thirdpartypackages/index.rst
-   api/index.rst
    devel/index.rst
    glossary/index.rst
 
-.. htmlonly::
+.. only:: html
 
   * :ref:`genindex`
   * :ref:`modindex`

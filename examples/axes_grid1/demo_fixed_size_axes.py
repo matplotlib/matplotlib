@@ -6,7 +6,8 @@ Demo Fixed Size Axes
 """
 import matplotlib.pyplot as plt
 
-from mpl_toolkits.axes_grid1 import Divider, LocatableAxes, Size
+from mpl_toolkits.axes_grid1 import Divider, Size
+from mpl_toolkits.axes_grid1.mpl_axes import Axes
 
 
 def demo_fixed_size_axes():
@@ -20,7 +21,7 @@ def demo_fixed_size_axes():
     divider = Divider(fig1, (0.0, 0.0, 1., 1.), h, v, aspect=False)
     # the width and height of the rectangle is ignored.
 
-    ax = LocatableAxes(fig1, divider.get_position())
+    ax = Axes(fig1, divider.get_position())
     ax.set_axes_locator(divider.new_locator(nx=1, ny=1))
 
     fig1.add_axes(ax)
@@ -39,7 +40,7 @@ def demo_fixed_pad_axes():
     divider = Divider(fig, (0.0, 0.0, 1., 1.), h, v, aspect=False)
     # the width and height of the rectangle is ignored.
 
-    ax = LocatableAxes(fig, divider.get_position())
+    ax = Axes(fig, divider.get_position())
     ax.set_axes_locator(divider.new_locator(nx=1, ny=1))
 
     fig.add_axes(ax)

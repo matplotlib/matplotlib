@@ -1,0 +1,20 @@
+`.matplotlib.Axes.get_tightbbox` now includes all artists
+---------------------------------------------------------
+
+Layout tools like `.Figure.tight_layout`, ``constrained_layout``,
+and ``fig.savefig('fname.png', bbox_inches="tight")`` use
+`.matplotlib.Axes.get_tightbbox` to determine the bounds of each axes on
+a figure and adjust spacing between axes.
+
+In Matplotlib 2.2 ``get_tightbbox`` started to include legends made on the
+axes, but still excluded some other artists, like text that may overspill an
+axes.  For Matplotlib 3.0, *all* artists are now included in the bounding box.
+
+This new default may be overridden in either of two ways:
+
+1. Make the artist to be excluded a child of the figure, not the axes. E.g., 
+   call ``fig.legend()`` instead of ``ax.legend()`` (perhaps using
+   `~.matplotlib.Axes.get_legend_handles_labels` to gather handles and labels
+   from the parent axes).
+2. If the artist is a child of the axes, set the artist property
+   ``artist.set_in_layout(False)``.

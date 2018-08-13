@@ -6,13 +6,12 @@ Contour Label Demo
 Illustrate some of the more advanced things that one can do with
 contour labels.
 
-See also the :ref:`contour demo example
-<sphx_glr_gallery_images_contours_and_fields_contour_demo.py>`.
+See also the :doc:`contour demo example
+</gallery/images_contours_and_fields/contour_demo>`.
 """
 
 import matplotlib
 import numpy as np
-import matplotlib.cm as cm
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 

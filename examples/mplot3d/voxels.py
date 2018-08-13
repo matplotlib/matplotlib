@@ -8,7 +8,10 @@ Demonstrates plotting 3D volumetric objects with ``ax.voxels``
 
 import matplotlib.pyplot as plt
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
+
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+
 
 # prepare some coordinates
 x, y, z = np.indices((8, 8, 8))

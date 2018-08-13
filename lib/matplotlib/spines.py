@@ -146,6 +146,12 @@ class Spine(mpatches.Patch):
         else:
             return super().get_patch_transform()
 
+    def get_window_extent(self, renderer=None):
+        # make sure the location is updated so that transforms etc are
+        # correct:
+        self._adjust_location()
+        return super().get_window_extent(renderer=renderer)
+
     def get_path(self):
         return self._path
 
@@ -481,15 +487,15 @@ class Spine(mpatches.Patch):
         """
         (staticmethod) Returns a linear :class:`Spine`.
         """
-        # all values of 13 get replaced upon call to set_bounds()
+        # all values of 0.999 get replaced upon call to set_bounds()
         if spine_type == 'left':
-            path = mpath.Path([(0.0, 13), (0.0, 13)])
+            path = mpath.Path([(0.0, 0.999), (0.0, 0.999)])
         elif spine_type == 'right':
-            path = mpath.Path([(1.0, 13), (1.0, 13)])
+            path = mpath.Path([(1.0, 0.999), (1.0, 0.999)])
         elif spine_type == 'bottom':
-            path = mpath.Path([(13, 0.0), (13, 0.0)])
+            path = mpath.Path([(0.999, 0.0), (0.999, 0.0)])
         elif spine_type == 'top':
-            path = mpath.Path([(13, 1.0), (13, 1.0)])
+            path = mpath.Path([(0.999, 1.0), (0.999, 1.0)])
         else:
             raise ValueError('unable to make path for spine "%s"' % spine_type)
         result = cls(axes, spine_type, path, **kwargs)
@@ -523,7 +529,9 @@ class Spine(mpatches.Patch):
         """
         Set the edgecolor.
 
-        ACCEPTS: matplotlib color arg or sequence of rgba tuples
+        Parameters
+        ----------
+        c : color or sequence of rgba tuples
 
         .. seealso::
 

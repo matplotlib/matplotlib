@@ -295,7 +295,7 @@ class ColorbarBase(cm.ScalarMappable):
     Draw a colorbar in an existing axes.
 
     This is a base class for the :class:`Colorbar` class, which is the
-    basis for the :func:`~matplotlib.pyplot.colorbar` method and pylab
+    basis for the :func:`~matplotlib.pyplot.colorbar` method and pyplot
     function.
 
     It is also useful by itself for showing a colormap.  If the *cmap*
@@ -799,7 +799,7 @@ def colorbar(mappable, cax=None, ax=None, **kw):
     """
     Create a colorbar for a ScalarMappable instance.
 
-    Documentation for the pylab thin wrapper:
+    Documentation for the pyplot thin wrapper:
 
     %s
     """

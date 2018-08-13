@@ -3,6 +3,7 @@
 Dollar Ticks
 ============
 
+Use a `~.ticker.FormatStrFormatter` to prepend dollar signs on y axis labels.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,3 +24,20 @@ for tick in ax.yaxis.get_major_ticks():
     tick.label2.set_color('green')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.ticker
+matplotlib.ticker.FormatStrFormatter
+matplotlib.axis.Axis.set_major_formatter
+matplotlib.axis.Axis.get_major_ticks
+matplotlib.axis.Tick

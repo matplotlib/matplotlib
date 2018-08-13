@@ -9,14 +9,14 @@ Interface::
       # iterate over pages:
       for page in dvi:
           w, h, d = page.width, page.height, page.descent
-          for x,y,font,glyph,width in page.text:
+          for x, y, font, glyph, width in page.text:
               fontname = font.texname
               pointsize = font.size
               ...
-          for x,y,height,width in page.boxes:
+          for x, y, height, width in page.boxes:
               ...
-
 """
+
 from collections import namedtuple
 import enum
 from functools import lru_cache, partial, wraps
@@ -25,7 +25,6 @@ import os
 import re
 import struct
 import subprocess
-import sys
 import textwrap
 
 import numpy as np
@@ -33,6 +32,10 @@ import numpy as np
 from matplotlib import cbook, rcParams
 
 _log = logging.getLogger(__name__)
+
+# Many dvi related files are looked for by external processes, require
+# additional parsing, and are used many times per rendering, which is why they
+# are cached using lru_cache().
 
 # Dvi is a bytecode format documented in
 # http://mirrors.ctan.org/systems/knuth/dist/texware/dvitype.web
@@ -177,9 +180,9 @@ class Dvi(object):
     file upon exit. Pages can be read via iteration. Here is an overly
     simple way to extract text without trying to detect whitespace::
 
-    >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
-    >>>     for page in dvi:
-    >>>         print(''.join(chr(t.glyph) for t in page.text))
+        >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
+        ...     for page in dvi:
+        ...         print(''.join(chr(t.glyph) for t in page.text))
     """
     # dispatch table
     _dtable = [None] * 256
@@ -808,14 +811,17 @@ class PsfontsMap(object):
     """
     __slots__ = ('_font', '_filename')
 
-    def __init__(self, filename):
+    # Create a filename -> PsfontsMap cache, so that calling
+    # `PsfontsMap(filename)` with the same filename a second time immediately
+    # returns the same object.
+    @lru_cache()
+    def __new__(cls, filename):
+        self = object.__new__(cls)
         self._font = {}
-        self._filename = filename
-        if isinstance(filename, bytes):
-            encoding = sys.getfilesystemencoding() or 'utf-8'
-            self._filename = filename.decode(encoding, errors='replace')
+        self._filename = os.fsdecode(filename)
         with open(filename, 'rb') as file:
             self._parse(file)
+        return self
 
     def __getitem__(self, texname):
         assert isinstance(texname, bytes)
@@ -956,7 +962,8 @@ class Encoding(object):
     def __iter__(self):
         yield from self.encoding
 
-    def _parse(self, file):
+    @staticmethod
+    def _parse(file):
         result = []
 
         lines = (line.split(b'%', 1)[0].strip() for line in file)
@@ -975,6 +982,7 @@ class Encoding(object):
         return re.findall(br'/([^][{}<>\s]+)', data)
 
 
+@lru_cache()
 def find_tex_file(filename, format=None):
     """
     Find a file in the texmf tree.
@@ -1015,10 +1023,6 @@ def find_tex_file(filename, format=None):
     _log.debug('find_tex_file result: %s', result)
     return result.decode('ascii')
 
-
-# With multiple text objects per figure (e.g., tick labels) we may end
-# up reading the same tfm and vf files many times, so we implement a
-# simple cache. TODO: is this worth making persistent?
 
 @lru_cache()
 def _fontfile(cls, suffix, texname):

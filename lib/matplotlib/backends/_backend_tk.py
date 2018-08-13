@@ -511,11 +511,13 @@ class FigureManagerTk(FigureManagerBase):
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
         self.canvas = canvas
+        # If using toolmanager it has to be present when initializing the toolbar
+        self.toolmanager = self._get_toolmanager()
+        # packing toolbar first, because if space is getting low, last packed widget is getting shrunk first (-> the canvas)
+        self.toolbar = self._get_toolbar()
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self._num = num
 
-        self.toolmanager = self._get_toolmanager()
-        self.toolbar = self._get_toolbar()
         self.statusbar = None
 
         if self.toolmanager:
@@ -994,6 +996,7 @@ Toolbar = ToolbarTk
 
 @_Backend.export
 class _BackendTk(_Backend):
+    required_interactive_framework = "tk"
     FigureManager = FigureManagerTk
 
     @classmethod
@@ -1006,14 +1009,14 @@ class _BackendTk(_Backend):
             window.withdraw()
 
             # Put a mpl icon on the window rather than the default tk icon.
-            # Tkinter doesn't allow colour icons on linux systems, but tk>=8.5 has
-            # a iconphoto command which we call directly. Source:
+            # Tkinter doesn't allow colour icons on linux systems, but tk>=8.5
+            # has a iconphoto command which we call directly. Source:
             # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
             icon_fname = os.path.join(
                 rcParams['datapath'], 'images', 'matplotlib.ppm')
-            icon_img = Tk.PhotoImage(file=icon_fname)
+            icon_img = Tk.PhotoImage(file=icon_fname, master=window)
             try:
-                window.tk.call('wm', 'iconphoto', window._w, icon_img)
+                window.iconphoto(False, icon_img)
             except Exception as exc:
                 # log the failure (due e.g. to Tk version), but carry on
                 _log.info('Could not load matplotlib icon: %s', exc)

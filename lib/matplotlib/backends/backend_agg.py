@@ -28,7 +28,7 @@ from collections import OrderedDict
 from math import radians, cos, sin
 from matplotlib import cbook, rcParams, __version__
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase, cursors)
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
                                 LOAD_DEFAULT, LOAD_NO_AUTOHINT)
@@ -100,25 +100,13 @@ class RendererAgg(RendererBase):
     def __setstate__(self, state):
         self.__init__(state['width'], state['height'], state['dpi'])
 
-    def _get_hinting_flag(self):
-        if rcParams['text.hinting']:
-            return LOAD_FORCE_AUTOHINT
-        else:
-            return LOAD_NO_HINTING
-
-    # for filtering to work with rasterization, methods needs to be wrapped.
-    # maybe there is better way to do it.
-    def draw_markers(self, *kl, **kw):
-        return self._renderer.draw_markers(*kl, **kw)
-
-    def draw_path_collection(self, *kl, **kw):
-        return self._renderer.draw_path_collection(*kl, **kw)
-
     def _update_methods(self):
-        self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.draw_gouraud_triangle = self._renderer.draw_gouraud_triangle
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
+        self.draw_markers = self._renderer.draw_markers
+        self.draw_path_collection = self._renderer.draw_path_collection
+        self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.get_content_extents = self._renderer.get_content_extents
 
@@ -162,7 +150,6 @@ class RendererAgg(RendererBase):
             except OverflowError:
                 raise OverflowError("Exceeded cell block limit (set "
                                     "'agg.path.chunksize' rcparam)")
-
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
@@ -260,7 +247,7 @@ class RendererAgg(RendererBase):
 
     def _get_agg_font(self, prop):
         """
-        Get the font for text instance t, cacheing for efficiency
+        Get the font for text instance t, caching for efficiency
         """
         fname = findfont(prop)
         font = get_font(fname)
@@ -276,7 +263,7 @@ class RendererAgg(RendererBase):
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
-        return points*self.dpi/72.0
+        return points * self.dpi / 72
 
     def tostring_rgb(self):
         return self._renderer.tostring_rgb()
@@ -364,14 +351,9 @@ class RendererAgg(RendererBase):
         post_processing is plotted (using draw_image) on it.
         """
 
-        # WARNING:  For agg_filter to work, the renderer's method need to
-        # overridden in the class. See draw_markers and draw_path_collections.
-
         width, height = int(self.width), int(self.height)
 
-        buffer, bounds = self.tostring_rgba_minimized()
-
-        l, b, w, h = bounds
+        buffer, (l, b, w, h) = self.tostring_rgba_minimized()
 
         self._renderer = self._filter_renderers.pop()
         self._update_methods()
@@ -384,8 +366,7 @@ class RendererAgg(RendererBase):
             if img.dtype.kind == 'f':
                 img = np.asarray(img * 255., np.uint8)
             img = img[::-1]
-            self._renderer.draw_image(
-                gc, l + ox, height - b - h + oy, img)
+            self._renderer.draw_image(gc, l + ox, height - b - h + oy, img)
 
 
 class FigureCanvasAgg(FigureCanvasBase):
@@ -410,7 +391,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     def draw(self):
         """
-        Draw the figure using the renderer
+        Draw the figure using the renderer.
         """
         self.renderer = self.get_renderer(cleared=True)
         # acquire a lock on the shared font cache
@@ -418,15 +399,11 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         toolbar = self.toolbar
         try:
-            # if toolbar:
-            #     toolbar.set_cursor(cursors.WAIT)
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so
             # don't forget to call the superclass.
             super().draw()
         finally:
-            # if toolbar:
-            #     toolbar.set_cursor(toolbar._lastCursor)
             RendererAgg.lock.release()
 
     def get_renderer(self, cleared=False):
@@ -444,7 +421,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer
 
     def tostring_rgb(self):
-        '''Get the image as an RGB byte string
+        '''Get the image as an RGB byte string.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
@@ -469,7 +446,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer.tostring_argb()
 
     def buffer_rgba(self):
-        '''Get the image as an RGBA byte string
+        '''Get the image as an RGBA byte string.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
@@ -489,6 +466,47 @@ class FigureCanvasAgg(FigureCanvasBase):
     print_rgba = print_raw
 
     def print_png(self, filename_or_obj, *args, **kwargs):
+        """
+        Write the figure to a PNG file.
+
+        Parameters
+        ----------
+        filename_or_obj : str or PathLike or file-like object
+            The file to write to.
+
+        metadata : dict, optional
+            Metadata in the PNG file as key-value pairs of bytes or latin-1
+            encodable strings.
+            According to the PNG specification, keys must be shorter than 79
+            chars.
+
+            The `PNG specification`_ defines some common keywords that may be
+            used as appropriate:
+
+            - Title: Short (one line) title or caption for image.
+            - Author: Name of image's creator.
+            - Description: Description of image (possibly long).
+            - Copyright: Copyright notice.
+            - Creation Time: Time of original image creation
+              (usually RFC 1123 format).
+            - Software: Software used to create the image.
+            - Disclaimer: Legal disclaimer.
+            - Warning: Warning of nature of content.
+            - Source: Device used to create the image.
+            - Comment: Miscellaneous comment;
+              conversion from other image format.
+
+            Other keywords may be invented for other purposes.
+
+            If 'Software' is not given, an autogenerated value for matplotlib
+            will be used.
+
+            For more details see the `PNG specification`_.
+
+            .. _PNG specification: \
+                https://www.w3.org/TR/2003/REC-PNG-20031110/#11keywords
+
+        """
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
 
@@ -515,6 +533,13 @@ class FigureCanvasAgg(FigureCanvasBase):
         # add JPEG support
         def print_jpg(self, filename_or_obj, *args, dryrun=False, **kwargs):
             """
+            Write the figure to a JPEG file.
+
+            Parameters
+            ----------
+            filename_or_obj : str or PathLike or file-like object
+                The file to write to.
+
             Other Parameters
             ----------------
             quality : int

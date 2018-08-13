@@ -20,7 +20,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
                maxlength=4.0, integration_direction='both'):
-    """Draws streamlines of a vector flow.
+    """Draw streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
         an *evenly spaced* grid.
@@ -603,11 +603,11 @@ def interpgrid(a, xi, yi):
         x = int(xi)
         y = int(yi)
         # conditional is faster than clipping for integers
-        if x == (Nx - 2):
+        if x == (Nx - 1):
             xn = x
         else:
             xn = x + 1
-        if y == (Ny - 2):
+        if y == (Ny - 1):
             yn = y
         else:
             yn = y + 1

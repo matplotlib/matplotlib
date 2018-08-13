@@ -842,7 +842,7 @@ class TextArea(OffsetBox):
 
 class AuxTransformBox(OffsetBox):
     """
-    Offset Box with the aux_transform . Its children will be
+    Offset Box with the aux_transform. Its children will be
     transformed with the aux_transform first then will be
     offseted. The absolute coordinate of the aux_transform is meaning
     as it will be automatically adjust so that the left-lower corner
@@ -1615,8 +1615,8 @@ class DraggableBase(object):
      *update_offset* places the artists simply in display
      coordinates. And *finalize_offset* recalculate their position in
      the normalized axes coordinate and set a relavant attribute.
-
     """
+
     def __init__(self, ref_artist, use_blit=False):
         self.ref_artist = ref_artist
         self.got_artist = False
@@ -1631,14 +1631,14 @@ class DraggableBase(object):
         self.cids = [c2, c3]
 
     def on_motion(self, evt):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
             self.canvas.draw()
 
     def on_motion_blit(self, evt):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
@@ -1647,7 +1647,7 @@ class DraggableBase(object):
             self.canvas.blit(self.ref_artist.figure.bbox)
 
     def on_pick(self, evt):
-        if evt.artist == self.ref_artist:
+        if self._check_still_parented() and evt.artist == self.ref_artist:
 
             self.mouse_x = evt.mouseevent.x
             self.mouse_y = evt.mouseevent.y
@@ -1668,13 +1668,20 @@ class DraggableBase(object):
             self.save_offset()
 
     def on_release(self, event):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             self.finalize_offset()
             self.got_artist = False
             self.canvas.mpl_disconnect(self._c1)
 
             if self._use_blit:
                 self.ref_artist.set_animated(False)
+
+    def _check_still_parented(self):
+        if self.ref_artist.figure is None:
+            self.disconnect()
+            return False
+        else:
+            return True
 
     def disconnect(self):
         """disconnect the callbacks"""

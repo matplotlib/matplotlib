@@ -7,9 +7,9 @@ Simple plot example with the named colors and its visual representation.
 
 For more information on colors in matplotlib see
 
-* the :ref:`sphx_glr_tutorials_colors_colors.py` tutorial;
+* the :doc:`/tutorials/colors/colors` tutorial;
 * the `matplotlib.colors` API;
-* the :ref:`sphx_glr_gallery_color_color_demo.py`.
+* the :doc:`/gallery/color/color_demo`.
 """
 
 import matplotlib.pyplot as plt
@@ -25,9 +25,9 @@ sorted_names = [name for hsv, name in by_hsv]
 
 n = len(sorted_names)
 ncols = 4
-nrows = n // ncols + 1
+nrows = n // ncols
 
-fig, ax = plt.subplots(figsize=(8, 5))
+fig, ax = plt.subplots(figsize=(9, 8))
 
 # Get height and width
 X, Y = fig.get_dpi() * fig.get_size_inches()
@@ -35,15 +35,15 @@ h = Y / (nrows + 1)
 w = X / ncols
 
 for i, name in enumerate(sorted_names):
-    col = i % ncols
-    row = i // ncols
+    row = i % nrows
+    col = i // nrows
     y = Y - (row * h) - h
 
     xi_line = w * (col + 0.05)
     xf_line = w * (col + 0.25)
     xi_text = w * (col + 0.3)
 
-    ax.text(xi_text, y, name, fontsize=(h * 0.8),
+    ax.text(xi_text, y, name, fontsize=(h * 0.5),
             horizontalalignment='left',
             verticalalignment='center')
 

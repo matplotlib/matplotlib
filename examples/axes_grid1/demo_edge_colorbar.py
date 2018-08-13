@@ -90,5 +90,4 @@ if 1:
     demo_bottom_cbar(F)
     demo_right_cbar(F)
 
-    plt.draw()
     plt.show()

@@ -5,8 +5,9 @@ Implemented support for prop_cycle property markevery in rcParams
 
 This example demonstrates a working solution to issue #8576, providing full
 support of the markevery property for axes.prop_cycle assignments through
-rcParams. Makes use of the same list of markevery cases from
-https://matplotlib.org/examples/pylab_examples/markevery_demo.html
+rcParams. Makes use of the same list of markevery cases from the
+:doc:`markevery demo
+</gallery/lines_bars_and_markers/markevery_demo>`.
 
 Renders a plot with shifted-sine curves along each column with
 a unique markevery value for each sine curve.

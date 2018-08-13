@@ -4,7 +4,6 @@ import warnings
 from matplotlib import docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
-from matplotlib.cbook import mplDeprecation
 from matplotlib.gridspec import GridSpec, SubplotSpec
 import matplotlib._layoutbox as layoutbox
 
@@ -117,6 +116,10 @@ class SubplotBase(object):
         """set the SubplotSpec instance associated with the subplot"""
         self._subplotspec = subplotspec
 
+    def get_gridspec(self):
+        """get the GridSpec instance associated with the subplot"""
+        return self._subplotspec.get_gridspec()
+
     def update_params(self):
         """update the subplot position from fig.subplotpars"""
 
@@ -187,11 +190,13 @@ class SubplotBase(object):
 
 @functools.lru_cache(None)
 def subplot_class_factory(axes_class=None):
-    # This makes a new class that inherits from SubplotBase and the
-    # given axes_class (which is assumed to be a subclass of Axes).
-    # This is perhaps a little bit roundabout to make a new class on
-    # the fly like this, but it means that a new Subplot class does
-    # not have to be created for every type of Axes.
+    """
+    This makes a new class that inherits from `.SubplotBase` and the
+    given axes_class (which is assumed to be a subclass of `.axes.Axes`).
+    This is perhaps a little bit roundabout to make a new class on
+    the fly like this, but it means that a new Subplot class does
+    not have to be created for every type of Axes.
+    """
     if axes_class is None:
         axes_class = Axes
     return type("%sSubplot" % axes_class.__name__,
@@ -213,4 +218,6 @@ def _picklable_subplot_class_constructor(axes_class):
 
 
 docstring.interpd.update(Axes=martist.kwdoc(Axes))
+docstring.dedent_interpd(Axes.__init__)
+
 docstring.interpd.update(Subplot=martist.kwdoc(Axes))

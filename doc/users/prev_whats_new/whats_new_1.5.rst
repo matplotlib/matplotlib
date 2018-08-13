@@ -377,8 +377,8 @@ kwargs names is not ideal, but `Axes.fill_between` already has a
 
 This is particularly useful for plotting pre-binned histograms.
 
-.. figure:: ../../gallery/api/images/sphx_glr_filled_step_001.png
-   :target: ../../gallery/api/filled_step.html
+.. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_filled_step_001.png
+   :target: ../../gallery/lines_bars_and_markers/filled_step.html
    :align: center
    :scale: 50
 
@@ -679,7 +679,7 @@ mutually exclusive inside that group.  For tools derived from
 that are called automatically whenever it is toggled.
 
 
-A full example is located in :ref:`sphx_glr_gallery_user_interfaces_toolmanager_sgskip.py`
+A full example is located in :doc:`/gallery/user_interfaces/toolmanager_sgskip`
 
 
 cbook.is_sequence_of_strings recognizes string objects

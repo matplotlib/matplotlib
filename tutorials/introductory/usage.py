@@ -184,7 +184,8 @@ plt.show()
 # :mod:`pylab` is a convenience module that bulk imports
 # :mod:`matplotlib.pyplot` (for plotting) and :mod:`numpy`
 # (for mathematics and working with arrays) in a single name space.
-# Although many examples use :mod:`pylab`, it is no longer recommended.
+# pylab is deprecated and its use is strongly discouraged because
+# of namespace pollution. Use pyplot instead.
 #
 # For non-interactive plotting it is suggested
 # to use pyplot to create the figures and then the OO interface for
@@ -220,8 +221,7 @@ plt.show()
 
 x = np.arange(0, 10, 0.2)
 y = np.sin(x)
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(x, y)
 plt.show()
 
@@ -319,7 +319,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 #
 # #. The ``backend`` parameter in your ``matplotlibrc`` file (see
-#    :ref:`sphx_glr_tutorials_introductory_customizing.py`)::
+#    :doc:`/tutorials/introductory/customizing`)::
 #
 #        backend : WXAgg   # use wxpython with antigrain (agg) rendering
 #
@@ -448,8 +448,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
 # .. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
 # .. _`Cairo graphics`: https://wwW.cairographics.org
-# .. _`Gimp Drawing Kit`: https://en.wikipedia.org/wiki/GDK
-# .. _PyGTK: http://www.pygtk.org
 # .. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
 # .. _pycairo: https://www.cairographics.org/pycairo/
 # .. _cairocffi: https://pythonhosted.org/cairocffi/
@@ -481,11 +479,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # GTK and Cairo
 # -------------
 #
-# Both `GTK2` and `GTK3` have implicit dependencies on PyCairo regardless of the
-# specific Matplotlib backend used. Unfortunately the latest release of PyCairo
-# for Python3 does not implement the Python wrappers needed for the `GTK3Agg`
-# backend. `Cairocffi` can be used as a replacement which implements the correct
-# wrapper.
+# `GTK3` backends (*both* `GTK3Agg` and `GTK3Cairo`) depend on Cairo
+# (pycairo>=1.11.0 or cairocffi).
 #
 # How do I select PyQt4 or PySide?
 # --------------------------------
@@ -510,7 +505,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # that are called, and on a state variable that determines whether
 # matplotlib is in "interactive mode".  The default Boolean value is set
 # by the :file:`matplotlibrc` file, and may be customized like any other
-# configuration parameter (see :ref:`sphx_glr_tutorials_introductory_customizing.py`).  It
+# configuration parameter (see :doc:`/tutorials/introductory/customizing`).  It
 # may also be set via :func:`matplotlib.interactive`, and its
 # value may be queried via :func:`matplotlib.is_interactive`.  Turning
 # interactive mode on and off in the middle of a stream of plotting
@@ -656,7 +651,7 @@ for i in range(3):
 # controlled by the ``path.simplify`` and
 # ``path.simplify_threshold`` parameters in your
 # ``matplotlibrc`` file (see
-# :ref:`sphx_glr_tutorials_introductory_customizing.py` for
+# :doc:`/tutorials/introductory/customizing` for
 # more information about the ``matplotlibrc`` file).
 # The ``path.simplify`` parameter is a boolean indicating whether
 # or not line segments are simplified at all. The
@@ -693,7 +688,7 @@ for i in range(3):
 # interactive plotting (with maximal simplification) and another
 # style for publication quality plotting (with minimal
 # simplification) and activate them as necessary. See
-# :ref:`sphx_glr_tutorials_introductory_customizing.py` for
+# :doc:`/tutorials/introductory/customizing` for
 # instructions on how to perform these actions.
 #
 # The simplification works by iteratively merging line segments
@@ -724,7 +719,7 @@ for i in range(3):
 #
 # The markevery argument allows for naive subsampling, or an
 # attempt at evenly spaced (along the *x* axis) sampling. See the
-# :ref:`sphx_glr_gallery_lines_bars_and_markers_markevery_demo.py`
+# :doc:`/gallery/lines_bars_and_markers/markevery_demo`
 # for more information.
 #
 # Splitting lines into smaller chunks

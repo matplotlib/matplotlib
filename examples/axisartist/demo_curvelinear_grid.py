@@ -137,5 +137,4 @@ if 1:
     curvelinear_test1(fig)
     curvelinear_test2(fig)
 
-    plt.draw()
     plt.show()

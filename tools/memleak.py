@@ -127,7 +127,6 @@ if __name__ == '__main__':
                         help="Turn on interactive mode to actually open "
                         "windows.  Only works with some GUI backends.")
 
-
     args = parser.parse_args()
 
     import matplotlib

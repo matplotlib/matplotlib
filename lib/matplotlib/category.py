@@ -24,7 +24,7 @@ class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
         """Converts strings in value to floats using
-        mapping information store in the  unit object
+        mapping information store in the unit object.
 
         Parameters
         ----------
@@ -171,8 +171,8 @@ class UnitData(object):
     def update(self, data):
         """Maps new values to integer identifiers.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         data: iterable
               sequence of string values
 

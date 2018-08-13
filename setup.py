@@ -7,11 +7,10 @@ setup.cfg.template for more information.
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
 from string import Template
+import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.command.build_ext import build_ext as BuildExtCommand
-
-import sys
 
 if sys.version_info < (3, 5):
     error = """
@@ -23,23 +22,6 @@ This may be due to an out of date pip.
 Make sure you have pip >= 9.0.1.
 """
     sys.exit(error)
-
-# distutils is breaking our sdists for files in symlinked dirs.
-# distutils will copy if os.link is not available, so this is a hack
-# to force copying
-import os
-try:
-    del os.link
-except AttributeError:
-    pass
-
-# This 'if' statement is needed to prevent spawning infinite processes
-# on Windows
-if __name__ == '__main__':
-    # BEFORE importing distutils, remove MANIFEST. distutils doesn't properly
-    # update it when the contents of directories change.
-    if os.path.exists('MANIFEST'):
-        os.remove('MANIFEST')
 
 # The setuptools version of sdist adds a setup.cfg file to the tree.
 # We don't want that, so we simply remove it, and it will fall back to
@@ -114,6 +96,7 @@ classifiers = [
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
     'Topic :: Scientific/Engineering :: Visualization',
     ]
 
@@ -121,7 +104,7 @@ classifiers = [
 class NoopTestCommand(TestCommand):
     def __init__(self, dist):
         print("Matplotlib does not support running tests with "
-              "'python setup.py test'. Please run 'python tests.py'.")
+              "'python setup.py test'. Please run 'pytest'.")
 
 
 class BuildExtraLibraries(BuildExtCommand):
@@ -226,25 +209,16 @@ if __name__ == '__main__':
             default_backend = setupext.options['backend']
         with open('matplotlibrc.template') as fd:
             template = fd.read()
-        template = Template(template)
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-            fd.write(
-                template.safe_substitute(TEMPLATE_BACKEND=default_backend))
-
-        # Build in verbose mode if requested
-        if setupext.options['verbose']:
-            for mod in ext_modules:
-                mod.extra_compile_args.append('-DVERBOSE')
+            fd.write(template)
 
         # Finalize the extension modules so they can get the Numpy include
         # dirs
         for mod in ext_modules:
             mod.finalize()
 
-    extra_args = {}
-
     # Finally, pass this all along to distutils to do the heavy lifting.
-    distrib = setup(
+    setup(
         name="matplotlib",
         version=__version__,
         description="Python plotting package",
@@ -255,8 +229,7 @@ if __name__ == '__main__':
         Matplotlib strives to produce publication quality 2D graphics
         for interactive graphing, scientific publishing, user interface
         development and web application servers targeting multiple user
-        interfaces and hardcopy output formats.  There is a 'pylab' mode
-        which emulates MATLAB graphics.
+        interfaces and hardcopy output formats.
         """,
         license="BSD",
         packages=packages,
@@ -279,5 +252,4 @@ if __name__ == '__main__':
         # check for zip safety.
         zip_safe=False,
         cmdclass=cmdclass,
-        **extra_args
     )

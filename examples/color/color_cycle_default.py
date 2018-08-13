@@ -4,7 +4,7 @@ Colors in the default property cycle
 ====================================
 
 Display the colors from the default prop_cycle, which is obtained from the
-:ref:`rc parameters<sphx_glr_tutorials_introductory_customizing.py>`.
+:doc:`rc parameters</tutorials/introductory/customizing>`.
 """
 import numpy as np
 import matplotlib.pyplot as plt
