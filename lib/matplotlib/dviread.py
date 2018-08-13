@@ -1021,7 +1021,7 @@ def find_tex_file(filename, format=None):
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     result = pipe.communicate()[0].rstrip()
     _log.debug('find_tex_file result: %s', result)
-    return result.decode('ascii')
+    return result.decode('utf-8')
 
 
 @lru_cache()
