@@ -250,30 +250,56 @@ class MovieWriter(AbstractMovieWriter):
 
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
-        '''MovieWriter
+        """
+        MovieWriter
 
         Parameters
         ----------
         fps: int
             Framerate for movie.
+
         codec: string or None, optional
             The codec to use. If ``None`` (the default) the ``animation.codec``
             rcParam is used.
+
         bitrate: int or None, optional
             The bitrate for the saved movie file, which is one way to control
             the output file size and quality. The default value is ``None``,
             which uses the ``animation.bitrate`` rcParam.  A value of -1
             implies that the bitrate should be determined automatically by the
             underlying utility.
-        extra_args: list of strings or None, optional
-            A list of extra string arguments to be passed to the underlying
-            movie utility. The default is ``None``, which passes the additional
-            arguments in the ``animation.extra_args`` rcParam.
+
+        extra_args: list of strings, string or None, optional
+            Either a list of extra string arguments to be passed to the
+            underlying movie utility or a full command string
+            explained below. The default is ``None``,which passes the
+            additional arguments in the ``animation.extra_args`` rcParam.
+
         metadata: Dict[str, str] or None
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
-        '''
+
+        Notes
+        -----
+        *extra_args* can be a string with the full command line argument used
+        in the ffmpeg, imagemagick and avconv writers. The string is then
+        formatted with the python method ``format``. Possible keywords for the
+        pipe based writers are::
+
+            path, fps, delay=100/fps, x_size, y_size (in pixels),
+            frame_format, codec, bitrate, outfile
+
+        and for the file bases writers::
+
+            path, fps, delay=100/fps, frame_format, temp_name,
+            N (number of frames ), codec, bitrate, outfile
+
+        an example command string is::
+
+            'ffmpeg -r {fps} -i _tmp%07d.png -r 25 -y {outfile}'
+
+        """
         self.fps = fps
         self.frame_format = 'rgba'
 
@@ -291,6 +317,12 @@ class MovieWriter(AbstractMovieWriter):
             self.extra_args = list(rcParams[self.args_key])
         else:
             self.extra_args = extra_args
+
+        if type(self.extra_args) == str:
+            self.full_command = extra_args
+            self.extra_args = None
+        else:
+            self.full_command = None
 
         if metadata is None:
             self.metadata = dict()
@@ -316,7 +348,7 @@ class MovieWriter(AbstractMovieWriter):
         _log.debug('frame size in pixels is %s x %s', *self.frame_size)
         return w, h
 
-    def setup(self, fig, outfile, dpi=None):
+    def setup(self, fig, outfile, dpi=None, run=True):
         '''
         Perform setup for writing the movie file.
 
@@ -329,6 +361,8 @@ class MovieWriter(AbstractMovieWriter):
         dpi : int, optional
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file. Default is fig.dpi.
+        run : bool, optional
+            The command to save the movie is run if set to True.
         '''
         self.outfile = outfile
         self.fig = fig
@@ -339,7 +373,8 @@ class MovieWriter(AbstractMovieWriter):
 
         # Run here so that grab_frame() can write the data to a pipe. This
         # eliminates the need for temp files.
-        self._run()
+        if run:
+            self._run()
 
     def _run(self):
         # Uses subprocess to call the program for assembling frames into a
@@ -413,6 +448,44 @@ class MovieWriter(AbstractMovieWriter):
         '''
         return shutil.which(cls.bin_path()) is not None
 
+    def _get_full_command(self):
+        """
+        Make string formating on the *full_command* string.
+
+        The string syntax should be '{path} -r {fps}' where possible keywords
+        are path, fps, delay=100/fps, x_size, y_size (in pixels), frame_format,
+        codec, bitrate, outfile.
+        """
+        arg_dict = dict(path=self.bin_path(),
+                        fps=str(self.fps),
+                        delay=str(100./self.fps),
+                        x_size=self.frame_size[0],
+                        y_size=self.frame_size[1],
+                        frame_format=self.frame_format,
+                        codec=self.codec,
+                        bitrate=self.bitrate,
+                        outfile=self.outfile)
+
+        return self.full_command.format(**arg_dict).split()
+
+    def get_command(self):
+        """
+        Returns the command line as a string.
+
+        `.setup` should be called before `.get_command` so all variables are
+        set. This could either be done explicitely or by `.Animation.save`.
+        The first method results in an incorrect value of number of frames
+        where applicable.
+
+        The empty string is returned if not all variables where set or if the
+        writer don't use a command line.
+        """
+        try:
+            return ' '.join(self._args())
+        except:
+            _log.warning("The command line could not be show for this writer"
+                         " or all variables where not set with setup.")
+            return ''
 
 class FileMovieWriter(MovieWriter):
     '''`MovieWriter` for writing to individual files and stitching at the end.
@@ -543,6 +616,27 @@ class FileMovieWriter(MovieWriter):
             for fname in self._temp_names:
                 os.remove(fname)
 
+    def _get_full_command(self):
+        """
+        Make string formating on the *full_command* input string.
+
+        The string syntax should be '{path} -r {fps}' where possible keywords
+        are path, fps, delay=100/fps, frame_format, temp_name, N (number of
+        frames ), codec, bitrate, outfile.
+        """
+
+        arg_dict = dict(path=self.bin_path(),
+                        fps=str(self.fps),
+                        delay=str(100./self.fps),
+                        frame_format=self.frame_format,
+                        temp_name=self._base_temp_name(),
+                        N=str(self._frame_counter),
+                        codec=self.codec,
+                        bitrate=self.bitrate,
+                        outfile=self.outfile)
+
+        return self.full_command.format(**arg_dict).split()
+
 
 @writers.register('pillow')
 class PillowWriter(MovieWriter):
@@ -637,6 +731,8 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe.
+        if self.full_command:
+            return self._get_full_command()
         args = [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
                 '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
                 '-r', str(self.fps)]
@@ -662,6 +758,8 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
                          'pbm', 'raw', 'rgba']
 
     def _args(self):
+        if self.full_command:
+            return self._get_full_command()
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
         return [self.bin_path(), '-r', str(self.fps),
@@ -768,6 +866,8 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter):
 
     '''
     def _args(self):
+        if self.full_command:
+            return self._get_full_command()
         return ([self.bin_path(),
                  '-size', '%ix%i' % self.frame_size, '-depth', '8',
                  '-delay', str(self.delay), '-loop', '0',
@@ -792,8 +892,11 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
                          'pbm', 'raw', 'rgba']
 
     def _args(self):
+        self.fname_format_str = '%s*.%s'
+        if self.full_command:
+            return self._get_full_command()
         return ([self.bin_path(), '-delay', str(self.delay), '-loop', '0',
-                 '%s*.%s' % (self.temp_prefix, self.frame_format)]
+                 self._base_temp_name()]
                 + self.output_args)
 
 

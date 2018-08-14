@@ -260,3 +260,62 @@ def test_failing_ffmpeg(tmpdir, monkeypatch):
                 make_animation().save("test.mpeg")
     finally:
         animation.writers.reset_available_writers()
+
+def test_command_line():
+    fig = plt.figure()
+
+    command1_ref = ['-f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt '
+                    'rgba -r 2 -loglevel quiet -i pipe: -vcodec h264 '
+                    '-pix_fmt yuv420p -y test.mp4'][0]
+
+    writer1 = animation.FFMpegWriter(fps=2, codec='h264', bitrate=-1)
+    writer1.setup(fig, 'test.mp4')
+    command1 = writer1.get_command()
+    ind1 = command1.find(' ')
+
+    command2_ref = '-delay 50.0 -loop 0 _tmp*.png test.gif'
+
+    writer2 = animation.ImageMagickFileWriter(fps=2)
+    writer2.setup(fig, 'test.gif')
+    command2 = writer2.get_command()
+    ind2 = command2.find(' ')
+
+    assert command1[ind1+1:] == command1_ref
+    assert command2[ind2+1:] == command2_ref
+
+def test_full_command_line():
+    fig = plt.figure()
+
+    com1_ref = ['ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt '
+                'rgba -r 2 -loglevel quiet -i pipe: -vcodec h264 '
+                '-pix_fmt yuv420p -y test.mp4'][0]
+
+    com1_in = ['ffmpeg -f rawvideo -vcodec rawvideo -s {x_size}x{y_size} '
+               '-pix_fmt {frame_format} -r {fps} -loglevel quiet -i pipe: '
+               '-vcodec h264 -pix_fmt yuv420p -y {outfile}'][0]
+
+    writer1 = animation.FFMpegWriter(fps=2, extra_args=com1_in)
+    writer1.setup(fig, 'test.mp4')
+    com1 = writer1.get_command()
+
+    com2_ref = 'convert -delay 50.0 -loop 0 _tmp*.png test.gif'
+    com2_in = 'convert -delay {delay} -loop 0 {temp_name} {outfile}'
+
+    writer2 = animation.ImageMagickFileWriter(fps=2, extra_args=com2_in)
+    writer2.setup(fig, 'test.gif')
+    com2 = writer2.get_command()
+
+    com3_ref = ['ffmpeg -r 2 -i _tmp%07d.png -vframes 10 -vcodec h264 '
+                '-pix_fmt yuv420p -y test.mp4'][0]
+
+    com3_in = ['ffmpeg -r {fps} -i {temp_name} -vframes 10 -vcodec {codec} '
+               '-pix_fmt yuv420p -y test.mp4'][0]
+
+    writer3 = animation.FFMpegFileWriter(fps=2, codec='h264',
+                                         extra_args=com3_in)
+    writer3.setup(fig, 'test.mp4')
+    com3 = writer3.get_command()
+
+    assert com1 == com1_ref
+    assert com2 == com2_ref
+    assert com3 == com3_ref
