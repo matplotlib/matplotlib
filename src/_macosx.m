@@ -2566,6 +2566,8 @@ static PyTypeObject TimerType = {
 static bool verify_framework(void)
 {
     ProcessSerialNumber psn;
+    /* These methods are deprecated, but they don't require the app to
+       have started  */
     if (CGMainDisplayID()!=0
      && GetCurrentProcess(&psn)==noErr
      && SetFrontProcess(&psn)==noErr) return true;
