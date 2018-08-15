@@ -29,6 +29,7 @@ import shutil
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
+import tempfile
 import uuid
 
 import numpy as np
@@ -424,7 +425,7 @@ class FileMovieWriter(MovieWriter):
         self.frame_format = rcParams['animation.frame_format']
 
     def setup(self, fig, outfile, dpi=None, frame_prefix='_tmp',
-              clear_temp=True):
+              clear_temp=True, frame_dir=None):
         '''Perform setup for writing the movie file.
 
         Parameters
@@ -444,7 +445,9 @@ class FileMovieWriter(MovieWriter):
             If the temporary files should be deleted after stitching
             the final result.  Setting this to ``False`` can be useful for
             debugging.  Defaults to ``True``.
-
+        frame_dir : str or None, optional
+            Directory where the temporary files are saved. None means that a
+            new directory is created.
         '''
         self.fig = fig
         self.outfile = outfile
@@ -453,8 +456,18 @@ class FileMovieWriter(MovieWriter):
         self.dpi = dpi
         self._adjust_frame_size()
 
+        self.created_dir = None
+        if frame_dir is None:
+             tempfile.tempdir = ''
+             frame_dir = tempfile.mkdtemp()
+             self.created_dir = frame_dir
+        elif not os.path.exists(frame_dir) and frame_dir:
+            os.makedirs(frame_dir)
+            self.created_dir = frame_dir
+
+        self.temp_prefix = os.path.join(frame_dir, frame_prefix)
+
         self.clear_temp = clear_temp
-        self.temp_prefix = frame_prefix
         self._frame_counter = 0  # used for generating sequential file names
         self._temp_names = list()
         self.fname_format_str = '%s%%07d.%s'
@@ -542,7 +555,11 @@ class FileMovieWriter(MovieWriter):
                        self._temp_names)
             for fname in self._temp_names:
                 os.remove(fname)
-
+            if self.created_dir:
+                try:
+                    os.rmdir(self.created_dir)
+                except OSError:
+                    pass
 
 @writers.register('pillow')
 class PillowWriter(MovieWriter):
@@ -597,7 +614,9 @@ class FFMpegBase(object):
 
     @property
     def output_args(self):
-        args = ['-vcodec', self.codec]
+        args = []
+        if self.codec:
+            args.extend(['-vcodec', self.codec])
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
         # iOS,as well as HTML5 video in firefox and safari (on both Win and
@@ -665,8 +684,7 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
         return [self.bin_path(), '-r', str(self.fps),
-                '-i', self._base_temp_name(),
-                '-vframes', str(self._frame_counter)] + self.output_args
+                '-i', self._base_temp_name()] + self.output_args
 
 
 # Base class of avconv information.  AVConv has identical arguments to FFMpeg.
@@ -855,13 +873,12 @@ class HTMLWriter(FileMovieWriter):
         if not self.embed_frames:
             if frame_dir is None:
                 frame_dir = root + '_frames'
-            if not os.path.exists(frame_dir):
-                os.makedirs(frame_dir)
-            frame_prefix = os.path.join(frame_dir, 'frame')
         else:
-            frame_prefix = None
+            frame_dir = ''
+        frame_prefix = 'frame'
 
-        super().setup(fig, outfile, dpi, frame_prefix, clear_temp=False)
+        super().setup(fig, outfile, dpi, frame_prefix, clear_temp=False,
+                      frame_dir=frame_dir)
 
     def grab_frame(self, **savefig_kwargs):
         if self.embed_frames:
