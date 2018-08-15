@@ -1021,7 +1021,7 @@ def find_tex_file(filename, format=None):
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     result = pipe.communicate()[0].rstrip()
     _log.debug('find_tex_file result: %s', result)
-    
+
     # workaround for when a tex file has a country
     # specfic character in its path name
     try:
