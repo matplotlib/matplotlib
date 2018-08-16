@@ -104,8 +104,8 @@ class PathEffectRenderer(RendererBase):
             path_effect.draw_path(self._renderer, gc, tpath, affine,
                                   rgbFace)
 
-    def draw_markers(self, gc, marker_path, marker_trans, path, *args,
-                             **kwargs):
+    def draw_markers(
+            self, gc, marker_path, marker_trans, path, *args, **kwargs):
         # We do a little shimmy so that all markers are drawn for each path
         # effect in turn. Essentially, we induce recursion (depth 1) which is
         # terminated once we have just a single path effect to work with.
@@ -263,7 +263,7 @@ class SimplePatchShadow(AbstractPathEffect):
         gc0.copy_properties(gc)
 
         if self._shadow_rgbFace is None:
-            r,g,b = (rgbFace or (1., 1., 1.))[:3]
+            r, g, b = (rgbFace or (1., 1., 1.))[:3]
             # Scale the colors by a factor to improve the shadow effect.
             shadow_rgbFace = (r * self._rho, g * self._rho, b * self._rho)
         else:
@@ -291,7 +291,7 @@ class withSimplePatchShadow(SimplePatchShadow):
 
 class SimpleLineShadow(AbstractPathEffect):
     """A simple shadow via a line."""
-    def __init__(self, offset=(2,-2),
+    def __init__(self, offset=(2, -2),
                  shadow_color='k', alpha=0.3, rho=0.3, **kwargs):
         """
         Parameters
@@ -340,7 +340,7 @@ class SimpleLineShadow(AbstractPathEffect):
         gc0.copy_properties(gc)
 
         if self._shadow_color is None:
-            r,g,b = (gc0.get_foreground() or (1., 1., 1.))[:3]
+            r, g, b = (gc0.get_foreground() or (1., 1., 1.))[:3]
             # Scale the colors by a factor to improve the shadow effect.
             shadow_rgbFace = (r * self._rho, g * self._rho, b * self._rho)
         else:

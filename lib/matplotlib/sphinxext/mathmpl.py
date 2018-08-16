@@ -11,14 +11,18 @@ from matplotlib.mathtext import MathTextParser
 rcParams['mathtext.fontset'] = 'cm'
 mathtext_parser = MathTextParser("Bitmap")
 
+
 # Define LaTeX math node:
 class latex_math(nodes.General, nodes.Element):
     pass
 
+
 def fontset_choice(arg):
     return directives.choice(arg, ['cm', 'stix', 'stixsans'])
 
+
 options_spec = {'fontset': fontset_choice}
+
 
 def math_role(role, rawtext, text, lineno, inliner,
               options={}, content=[]):
@@ -28,7 +32,10 @@ def math_role(role, rawtext, text, lineno, inliner,
     node['latex'] = latex
     node['fontset'] = options.get('fontset', 'cm')
     return [node], []
+
+
 math_role.options = options_spec
+
 
 def math_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
@@ -37,6 +44,7 @@ def math_directive(name, arguments, options, content, lineno,
     node['latex'] = latex
     node['fontset'] = options.get('fontset', 'cm')
     return [node]
+
 
 # This uses mathtext to render the expression
 def latex2png(latex, filename, fontset='cm'):
@@ -48,7 +56,7 @@ def latex2png(latex, filename, fontset='cm'):
     else:
         try:
             depth = mathtext_parser.to_png(filename, latex, dpi=100)
-        except:
+        except Exception:
             warnings.warn("Could not render math expression %s" % latex,
                           Warning, stacklevel=2)
             depth = 0
@@ -56,6 +64,7 @@ def latex2png(latex, filename, fontset='cm'):
     sys.stdout.write("#")
     sys.stdout.flush()
     return depth
+
 
 # LaTeX to HTML translation stuff:
 def latex2html(node, source):
