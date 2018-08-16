@@ -17,11 +17,15 @@ try:
     if not rcParams['tk.window_focus']:
         raise ImportError
     from matplotlib._windowing import GetForegroundWindow, SetForegroundWindow
+
 except ImportError:
+
     def GetForegroundWindow():
         return 0
+
     def SetForegroundWindow(hwnd):
         pass
+
 
 class FocusManager(object):
     def __init__(self):
