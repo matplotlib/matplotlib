@@ -218,7 +218,7 @@ class AbstractMovieWriter(abc.ABC):
         '''Finish any processing for writing the movie.'''
 
     @contextlib.contextmanager
-    def saving(self, fig, outfile, dpi, *args, **kwargs):
+    def saving(self, fig, outfile, dpi=None, *args, **kwargs):
         '''
         Context manager to facilitate writing the movie file.
 
@@ -847,7 +847,7 @@ class HTMLWriter(FileMovieWriter):
         self._hit_limit = False
         super().__init__(fps, codec, bitrate, extra_args, metadata)
 
-    def setup(self, fig, outfile, dpi, frame_dir=None):
+    def setup(self, fig, outfile, dpi=None, frame_dir=None):
         root, ext = os.path.splitext(outfile)
         if ext not in ['.html', '.htm']:
             raise ValueError("outfile must be *.htm or *.html")
@@ -861,7 +861,8 @@ class HTMLWriter(FileMovieWriter):
         else:
             frame_prefix = None
 
-        super().setup(fig, outfile, dpi, frame_prefix, clear_temp=False)
+        super().setup(fig, outfile, dpi=None, frame_prefix=frame_prefix,
+                      clear_temp=False)
 
     def grab_frame(self, **savefig_kwargs):
         if self.embed_frames:
@@ -1005,7 +1006,7 @@ class Animation(object):
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
              bitrate=None, extra_args=None, metadata=None, extra_anim=None,
-             savefig_kwargs=None):
+             savefig_kwargs=None, **kwargs):
         '''Saves a movie file by drawing every frame.
 
         Parameters
@@ -1059,6 +1060,9 @@ class Animation(object):
            Is a dictionary containing keyword arguments to be passed
            on to the `savefig` command which is called repeatedly to
            save the individual frames.
+
+        **kwargs :
+            Additional kwargs passed to writer.setup().
 
         Notes
         -----
@@ -1155,7 +1159,7 @@ class Animation(object):
                           "frame size to vary, which is inappropriate for "
                           "animation.")
                 rcParams['savefig.bbox'] = None
-            with writer.saving(self._fig, filename, dpi):
+            with writer.saving(self._fig, filename, dpi, **kwargs):
                 for anim in all_anim:
                     # Clear the initial frame
                     anim._init_draw()
