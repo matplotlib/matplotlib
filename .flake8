@@ -182,6 +182,7 @@ per-file-ignores =
     examples/misc/table_demo.py: E201
     examples/mplot3d/voxels.py: E501
     examples/mplot3d/wire3d_zero_stride.py: E501
+    examples/pie_and_polar_charts/bar_of_pie.py: E402
     examples/pie_and_polar_charts/nested_pie.py: E402
     examples/pie_and_polar_charts/pie_and_donut_labels.py: E402
     examples/pie_and_polar_charts/pie_demo2.py: E402
