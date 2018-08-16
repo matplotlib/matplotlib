@@ -45,7 +45,7 @@ per-file-ignores =
     matplotlib/font_manager.py: E203, E221, E251, E261, E262, E302, E501
     matplotlib/fontconfig_pattern.py: E201, E203, E221, E222, E225, E302
     matplotlib/legend_handler.py: E201, E501
-    matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E231, E251, E261, E301, E302, E303, E402, E501
+    matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
     matplotlib/patheffects.py: E231
     matplotlib/projections/geo.py: E203, E221, E231, E261, E502
     matplotlib/pylab.py: E501
