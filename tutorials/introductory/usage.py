@@ -389,7 +389,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # DPI setting.
 #
 # Here is a summary of the matplotlib renderers (there is an eponymous
-# backed for each; these are *non-interactive backends*, capable of
+# backend for each; these are *non-interactive backends*, capable of
 # writing to a file):
 #
 # =============   ============   ================================================
