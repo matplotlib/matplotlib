@@ -40,16 +40,12 @@ per-file-ignores =
     matplotlib/backends/tkagg.py: E231, E302, E701
     matplotlib/font_manager.py: E203, E221, E251, E261, E262, E302, E501
     matplotlib/fontconfig_pattern.py: E201, E203, E221, E222, E225, E302
-    matplotlib/legend_handler.py: E201, E501
     matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
-    matplotlib/patheffects.py: E231
     matplotlib/projections/geo.py: E203, E221, E231, E261, E502
     matplotlib/pylab.py: E501
     matplotlib/pyplot.py: E302, E701
     matplotlib/rcsetup.py: E203, E225, E261, E302, E501
-    matplotlib/sphinxext/mathmpl.py: E302
-    matplotlib/sphinxext/only_directives.py: E302
-    matplotlib/sphinxext/plot_directive.py: E261, E302, E402
+    matplotlib/sphinxext/plot_directive.py: E402
     matplotlib/tests/test_image.py: E231
     matplotlib/tests/test_mathtext.py: E501
     matplotlib/transforms.py: E201, E202, E203, E501

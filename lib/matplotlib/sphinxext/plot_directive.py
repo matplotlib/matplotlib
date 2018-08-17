@@ -169,9 +169,11 @@ from matplotlib import _pylab_helpers, cbook
 
 __version__ = 2
 
-#------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Registration hook
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def plot_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
@@ -275,9 +277,11 @@ def setup(app):
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
 
-#------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Doctest handling
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def contains_doctest(text):
     try:
@@ -295,7 +299,6 @@ def unescape_doctest(text):
     """
     Extract code from a piece of text, which contains either Python code
     or doctests.
-
     """
     if not contains_doctest(text):
         return text
@@ -313,11 +316,7 @@ def unescape_doctest(text):
 
 
 def split_code_at_show(text):
-    """
-    Split code at plt.show()
-
-    """
-
+    """Split code at plt.show()."""
     parts = []
     is_doctest = contains_doctest(text)
 
@@ -336,16 +335,15 @@ def split_code_at_show(text):
 
 
 def remove_coding(text):
-    r"""
-    Remove the coding comment, which six.exec\_ doesn't like.
-    """
+    r"""Remove the coding comment, which six.exec\_ doesn't like."""
     cbook.warn_deprecated('3.0', name='remove_coding', removal='3.1')
     sub_re = re.compile(r"^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
     return sub_re.sub("", text)
 
-#------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Template
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 TEMPLATE = """
@@ -424,6 +422,7 @@ Exception occurred rendering plot.
 # the context of the plot for all directives specified with the
 # :context: option
 plot_context = dict()
+
 
 class ImageFile(object):
     def __init__(self, basename, dirname):
@@ -711,7 +710,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     dest_dir = os.path.abspath(os.path.join(setup.app.builder.outdir,
                                             source_rel_dir))
     if not os.path.exists(dest_dir):
-        os.makedirs(dest_dir) # no problem here for me, but just use built-ins
+        os.makedirs(dest_dir)  # no problem here for me, but just use built-ins
 
     # how to link to files from the RST file
     dest_dir_link = os.path.join(relpath(setup.confdir, rst_dir),
