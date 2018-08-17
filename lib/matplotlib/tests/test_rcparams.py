@@ -332,70 +332,59 @@ def generate_validator_testcases(valid):
                      ),
          'fail': (('aardvark', ValueError),
                   )
-         },
-         {'validator': validate_markevery,
-          'success': ((None, None),
-                      (1, 1),
-                      (0.1, 0.1),
-                      ((1, 1), (1, 1)),
-                      ((0.1, 0.1), (0.1, 0.1)),
-                      ([1, 2, 3], [1, 2, 3]),
-                      (slice(2), slice(None, 2, None)),
-                      (slice(1, 2, 3), slice(1, 2, 3))
-                      ),
-          'fail': (((1, 2, 3), TypeError),
-                   ([1, 2, 0.3], TypeError),
-                   (['a', 2, 3], TypeError),
-                   ([1, 2, 'a'], TypeError),
-                   ((0.1, 0.2, 0.3), TypeError),
-                   ((0.1, 2, 3), TypeError),
-                   ((1, 0.2, 0.3), TypeError),
-                   ((1, 0.1), TypeError),
-                   ((0.1, 1), TypeError),
-                   (('abc'), TypeError),
-                   ((1, 'a'), TypeError),
-                   ((0.1, 'b'), TypeError),
-                   (('a', 1), TypeError),
-                   (('a', 0.1), TypeError),
-                   ('abc', TypeError),
-                   ('a', TypeError),
-                   (object(), TypeError)
-                   )
-         }
+        },
+        {'validator': validate_markevery,
+         'success': ((None, None),
+                     (1, 1),
+                     (0.1, 0.1),
+                     ((1, 1), (1, 1)),
+                     ((0.1, 0.1), (0.1, 0.1)),
+                     ([1, 2, 3], [1, 2, 3]),
+                     (slice(2), slice(None, 2, None)),
+                     (slice(1, 2, 3), slice(1, 2, 3))
+                     ),
+         'fail': (((1, 2, 3), TypeError),
+                  ([1, 2, 0.3], TypeError),
+                  (['a', 2, 3], TypeError),
+                  ([1, 2, 'a'], TypeError),
+                  ((0.1, 0.2, 0.3), TypeError),
+                  ((0.1, 2, 3), TypeError),
+                  ((1, 0.2, 0.3), TypeError),
+                  ((1, 0.1), TypeError),
+                  ((0.1, 1), TypeError),
+                  (('abc'), TypeError),
+                  ((1, 'a'), TypeError),
+                  ((0.1, 'b'), TypeError),
+                  (('a', 1), TypeError),
+                  (('a', 0.1), TypeError),
+                  ('abc', TypeError),
+                  ('a', TypeError),
+                  (object(), TypeError)
+                  )
+        },
+        {'validator': _validate_linestyle,
+         'success': (('-', '-'), ('solid', 'solid'),
+                     ('--', '--'), ('dashed', 'dashed'),
+                     ('-.', '-.'), ('dashdot', 'dashdot'),
+                     (':', ':'), ('dotted', 'dotted'),
+                     ('', ''), (' ', ' '),
+                     ('None', 'none'), ('none', 'none'),
+                     ('DoTtEd', 'dotted'),  # case-insensitive
+                     (['1.23', '4.56'], (None, [1.23, 4.56])),
+                     ([1.23, 456], (None, [1.23, 456.0])),
+                     ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
+                     ),
+         'fail': (('aardvark', ValueError),  # not a valid string
+                  (b'dotted', ValueError),
+                  ('dotted'.encode('utf-16'), ValueError),
+                  ((None, [1, 2]), ValueError),  # (offset, dashes) != OK
+                  ((0, [1, 2]), ValueError),  # idem
+                  ((-1, [1, 2]), ValueError),  # idem
+                  ([1, 2, 3], ValueError),  # sequence with odd length
+                  (1.23, ValueError),  # not a sequence
+                  )
+        },
     )
-
-    # The behavior of _validate_linestyle depends on the version of Python.
-    # ASCII-compliant bytes arguments should pass on Python 2 because of the
-    # automatic conversion between bytes and strings. Python 3 does not
-    # perform such a conversion, so the same cases should raise an exception.
-    #
-    # Common cases:
-    ls_test = {'validator': _validate_linestyle,
-               'success': (('-', '-'), ('solid', 'solid'),
-                           ('--', '--'), ('dashed', 'dashed'),
-                           ('-.', '-.'), ('dashdot', 'dashdot'),
-                           (':', ':'), ('dotted', 'dotted'),
-                           ('', ''), (' ', ' '),
-                           ('None', 'none'), ('none', 'none'),
-                           ('DoTtEd', 'dotted'),  # case-insensitive
-                           (['1.23', '4.56'], (None, [1.23, 4.56])),
-                           ([1.23, 456], (None, [1.23, 456.0])),
-                           ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
-                          ),
-               'fail': (('aardvark', ValueError),  # not a valid string
-                        ('dotted'.encode('utf-16'), ValueError),  # even on PY2
-                        ((None, [1, 2]), ValueError),  # (offset, dashes) != OK
-                        ((0, [1, 2]), ValueError),  # idem
-                        ((-1, [1, 2]), ValueError),  # idem
-                        ([1, 2, 3], ValueError),  # sequence with odd length
-                        (1.23, ValueError),  # not a sequence
-                       )
-                }
-    # Add some cases of bytes arguments that Python 2 can convert silently:
-    ls_bytes_args = (b'dotted', 'dotted'.encode('ascii'))
-    ls_test['fail'] += tuple((arg, ValueError) for arg in ls_bytes_args)
-    # Update the validation test sequence.
-    validation_tests += (ls_test,)
 
     for validator_dict in validation_tests:
         validator = validator_dict['validator']
