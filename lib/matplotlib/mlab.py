@@ -1,5 +1,4 @@
 """
-
 Numerical python functions written for compatibility with MATLAB
 commands with the same names.
 
@@ -15,25 +14,8 @@ MATLAB compatible functions
 :func:`detrend`
     Remove the mean or best fit line from an array
 
-:func:`find`
-    Return the indices where some condition is true;
-    numpy.nonzero is similar but more general.
-
-:func:`griddata`
-    Interpolate irregularly distributed data to a
-    regular grid.
-
-:func:`prctile`
-    Find the percentiles of a sequence
-
-:func:`prepca`
-    Principal Component Analysis
-
 :func:`psd`
     Power spectral density using Welch's average periodogram
-
-:func:`rk4`
-    A 4th order runge kutta integrator for 1D or ND systems
 
 :func:`specgram`
     Spectrogram (spectrum over segments of time)
@@ -42,26 +24,6 @@ Miscellaneous functions
 -----------------------
 
 Functions that don't exist in MATLAB, but are useful anyway:
-
-:func:`cohere_pairs`
-    Coherence over all pairs.  This is not a MATLAB function, but we
-    compute coherence a lot in my lab, and we compute it for a lot of
-    pairs.  This function is optimized to do this efficiently by
-    caching the direct FFTs.
-
-:func:`rk4`
-    A 4th order Runge-Kutta ODE integrator in case you ever find
-    yourself stranded without scipy (and the far superior
-    scipy.integrate tools)
-
-:func:`contiguous_regions`
-    Return the indices of the regions spanned by some logical mask
-
-:func:`cross_from_below`
-    Return the indices where a 1D array crosses a threshold from below
-
-:func:`cross_from_above`
-    Return the indices where a 1D array crosses a threshold from above
 
 :func:`complex_spectrum`
     Return the complex-valued frequency spectrum of a signal
@@ -78,10 +40,6 @@ Functions that don't exist in MATLAB, but are useful anyway:
 :func:`detrend_mean`
     Remove the mean from a line.
 
-:func:`demean`
-    Remove the mean from a line. This function is the same as
-    :func:`detrend_mean` except for the default *axis*.
-
 :func:`detrend_linear`
     Remove the best fit line from a line.
 
@@ -96,62 +54,6 @@ Functions that don't exist in MATLAB, but are useful anyway:
 
 :func:`apply_window`
     Apply a window along a given axis
-
-
-record array helper functions
------------------------------
-
-A collection of helper methods for numpyrecord arrays
-
-.. _htmlonly:
-
-    See :ref:`misc-examples-index`
-
-:func:`rec2txt`
-    Pretty print a record array
-
-:func:`rec2csv`
-    Store record array in CSV file
-
-:func:`csv2rec`
-    Import record array from CSV file with type inspection
-
-:func:`rec_append_fields`
-    Adds field(s)/array(s) to record array
-
-:func:`rec_drop_fields`
-    Drop fields from record array
-
-:func:`rec_join`
-    Join two record arrays on sequence of fields
-
-:func:`recs_join`
-    A simple join of multiple recarrays using a single column as a key
-
-:func:`rec_groupby`
-    Summarize data by groups (similar to SQL GROUP BY)
-
-:func:`rec_summarize`
-    Helper code to filter rec array fields into new fields
-
-For the rec viewer functions(e rec2csv), there are a bunch of Format
-objects you can pass into the functions that will do things like color
-negative values red, set percent formatting and scaling, etc.
-
-Example usage::
-
-    r = csv2rec('somefile.csv', checkrows=0)
-
-    formatd = dict(
-        weight = FormatFloat(2),
-        change = FormatPercent(2),
-        cost   = FormatThousands(2),
-        )
-
-
-    rec2excel(r, 'test.xls', formatd=formatd)
-    rec2csv(r, 'test.csv', formatd=formatd)
-
 """
 
 import copy
@@ -320,6 +222,7 @@ def detrend(x, key=None, axis=None):
         return np.apply_along_axis(key, axis=axis, arr=x)
 
 
+@cbook.deprecated("3.1", alternative="detrend_mean")
 def demean(x, axis=0):
     '''
     Return x minus its mean along the specified axis.
@@ -336,11 +239,6 @@ def demean(x, axis=0):
 
     See Also
     --------
-    :func:`delinear`
-
-    :func:`denone`
-        :func:`delinear` and :func:`denone` are other detrend algorithms.
-
     :func:`detrend_mean`
         This function is the same as :func:`detrend_mean` except for the
         default *axis*.
@@ -410,10 +308,6 @@ def detrend_none(x, axis=None):
 
     See Also
     --------
-    :func:`denone`
-        This function is the same as :func:`denone` except for the default
-        *axis*, which has no effect.
-
     :func:`detrend_mean`
 
     :func:`detrend_linear`
@@ -441,10 +335,6 @@ def detrend_linear(y):
 
     See Also
     --------
-    :func:`delinear`
-        This function is the same as :func:`delinear` except for the default
-        *axis*.
-
     :func:`detrend_mean`
 
     :func:`detrend_none`
