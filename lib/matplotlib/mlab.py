@@ -280,17 +280,7 @@ def detrend_mean(x, axis=None):
     if axis is not None and axis+1 > x.ndim:
         raise ValueError('axis(=%s) out of bounds' % axis)
 
-    # short-circuit 0-D array.
-    if not x.ndim:
-        return np.array(0., dtype=x.dtype)
-
-    # short-circuit simple operations
-    if axis == 0 or axis is None or x.ndim <= 1:
-        return x - x.mean(axis)
-
-    ind = [slice(None)] * x.ndim
-    ind[axis] = np.newaxis
-    return x - x.mean(axis)[ind]
+    return x - x.mean(axis, keepdims=True)
 
 
 def detrend_none(x, axis=None):
