@@ -2693,6 +2693,12 @@ class Axes3D(Axes):
               - A 4D ndarray of rgb/rgba data, with the components along the
                 last axis.
 
+        internal_faces : boolean
+            By default, only exposed faces of a voxel are rendered,
+            but you can force the rendering of all faces of the voxels
+            by setting this keyword argument to True.
+        .. versionadded:: 2.1
+
         **kwargs
             Additional keyword arguments to pass onto
             :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
@@ -2760,6 +2766,9 @@ class Axes3D(Axes):
         # broadcast but no default on edgecolors
         edgecolors = _broadcast_color_arg(edgecolors, 'edgecolors')
 
+        # include possibly occluded internal faces or not
+        internal_faces = kwargs.pop('internal_faces', False)
+
         # always scale to the full array, even if the data is only in the center
         self.auto_scale_xyz(x, y, z)
 
@@ -2812,9 +2821,9 @@ class Axes3D(Axes):
                         i1 = tuple(p1)
                         i2 = tuple(p2)
 
-                        if filled[i1] and not filled[i2]:
+                        if filled[i1] and (internal_faces or not filled[i2]):
                             voxel_faces[i1].append(p2 + square_rot)
-                        elif not filled[i1] and filled[i2]:
+                        elif (internal_faces or not filled[i1]) and filled[i2]:
                             voxel_faces[i2].append(p2 + square_rot)
 
                     # draw upper faces

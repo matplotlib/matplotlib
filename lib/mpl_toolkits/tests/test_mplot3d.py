@@ -718,6 +718,37 @@ class TestVoxels(object):
             assert isinstance(poly, art3d.Poly3DCollection)
 
     @image_comparison(
+        baseline_images=['voxels-internal-faces'],
+        extensions=['png'],
+        remove_text=True
+    )
+    def test_internal_faces(self):
+        # Create 3 voxels (with one of them nearly invisible)
+        # and adjust the view so that we can see if the adjacent
+        # voxels are drawn or not.
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        test_data = np.array(
+              [[[ 0.,  1],
+                [ 0.,  2]],
+
+               [[ 0.,  0.],
+                [ 0.,  1]]])
+        alphas = np.divide(test_data, np.max(test_data))/2.0
+        colors = np.empty(test_data.shape + (4,))
+        colors[:, :, :] = [1, 0, 0, 1.0]
+        colors[:, :, :, 3] = alphas
+
+        v = ax.voxels(test_data, facecolors=colors, internal_faces=True)
+        ax.view_init(azim=45, elev=45)
+
+        assert type(v) is dict
+        assert len(v) == 3
+        for coord, poly in v.items():
+            assert isinstance(poly, art3d.Poly3DCollection)
+            assert len(poly.get_paths()) == 6, "voxel %s is wrong" % (coord,)
+
+    @image_comparison(
         baseline_images=['voxels-xyz'],
         extensions=['png'],
         tol=0.01
