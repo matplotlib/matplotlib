@@ -35,13 +35,9 @@ per-file-ignores =
     matplotlib/backends/backend_agg.py: E261, E302, E701
     matplotlib/backends/backend_cairo.py: E203, E221, E261, E303, E402, E711
     matplotlib/backends/backend_gtk3.py: E203, E221, E222, E225, E251, E261, E501
-    matplotlib/backends/backend_macosx.py: E231, E261
     matplotlib/backends/backend_pgf.py: E303, E731
-    matplotlib/backends/backend_ps.py: E203, E225, E228, E231, E261, E262, E302, E303, E501, E701
-    matplotlib/backends/backend_svg.py: E203, E225, E228, E231, E261, E302, E501
     matplotlib/backends/qt_editor/formlayout.py: E301, E501
     matplotlib/backends/tkagg.py: E231, E302, E701
-    matplotlib/backends/windowing.py: E301, E302
     matplotlib/font_manager.py: E203, E221, E251, E261, E262, E302, E501
     matplotlib/fontconfig_pattern.py: E201, E203, E221, E222, E225, E302
     matplotlib/legend_handler.py: E201, E501
@@ -49,7 +45,7 @@ per-file-ignores =
     matplotlib/patheffects.py: E231
     matplotlib/projections/geo.py: E203, E221, E231, E261, E502
     matplotlib/pylab.py: E501
-    matplotlib/pyplot.py: E201, E202, E221, E222, E225, E231, E251, E261, E302, E501, E701
+    matplotlib/pyplot.py: E302, E701
     matplotlib/rcsetup.py: E203, E225, E261, E302, E501
     matplotlib/sphinxext/mathmpl.py: E302
     matplotlib/sphinxext/only_directives.py: E302

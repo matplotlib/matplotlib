@@ -162,12 +162,12 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def save_figure(self, *args):
         filename = _macosx.choose_save_file('Save the figure',
                                             self.canvas.get_default_filename())
-        if filename is None: # Cancel
+        if filename is None:  # Cancel
             return
         self.canvas.figure.savefig(filename)
 
     def prepare_configure_subplots(self):
-        toolfig = Figure(figsize=(6,3))
+        toolfig = Figure(figsize=(6, 3))
         canvas = FigureCanvasMac(toolfig)
         toolfig.subplots_adjust(top=0.9)
         tool = SubplotTool(self.canvas.figure, toolfig)

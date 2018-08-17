@@ -257,7 +257,7 @@ def boilerplate_gen():
     for name in cmaps:
         yield CMAP_TEMPLATE.format(name=name)
 
-    yield ''
+    yield '\n'
     yield '_setup_pyplot_info_docstrings()'
 
 

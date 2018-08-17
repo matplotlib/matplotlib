@@ -5,8 +5,8 @@
 `matplotlib.pyplot` is a state-based interface to matplotlib. It provides
 a MATLAB-like way of plotting.
 
-pyplot is mainly intended for interactive plots and simple cases of programmatic
-plot generation::
+pyplot is mainly intended for interactive plots and simple cases of
+programmatic plot generation::
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -495,10 +495,10 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     Returns
     -------
     figure : `~matplotlib.figure.Figure`
-        The `.Figure` instance returned will also be passed to new_figure_manager
-        in the backends, which allows to hook custom `.Figure` classes into the
-        pyplot interface. Additional kwargs will be passed to the `.Figure`
-        init function.
+        The `.Figure` instance returned will also be passed to
+        new_figure_manager in the backends, which allows to hook custom
+        `.Figure` classes into the pyplot interface. Additional kwargs will be
+        passed to the `.Figure` init function.
 
     Notes
     -----
@@ -1358,14 +1358,14 @@ def subplots_adjust(left=None, bottom=None, right=None, top=None,
 
     The parameter meanings (and suggested defaults) are::
 
-      left  = 0.125  # the left side of the subplots of the figure
-      right = 0.9    # the right side of the subplots of the figure
-      bottom = 0.1   # the bottom of the subplots of the figure
-      top = 0.9      # the top of the subplots of the figure
-      wspace = 0.2   # the amount of width reserved for space between subplots,
-                     # expressed as a fraction of the average axis width
-      hspace = 0.2   # the amount of height reserved for space between subplots,
-                     # expressed as a fraction of the average axis height
+      left = 0.125  # the left side of the subplots of the figure
+      right = 0.9   # the right side of the subplots of the figure
+      bottom = 0.1  # the bottom of the subplots of the figure
+      top = 0.9     # the top of the subplots of the figure
+      wspace = 0.2  # the amount of width reserved for space between subplots,
+                    # expressed as a fraction of the average axis width
+      hspace = 0.2  # the amount of height reserved for space between subplots,
+                    # expressed as a fraction of the average axis height
 
     The actual defaults are controlled by the rc file
     """
@@ -1379,7 +1379,7 @@ def subplot_tool(targetfig=None):
 
     A :class:`matplotlib.widgets.SubplotTool` instance is returned.
     """
-    tbar = rcParams['toolbar'] # turn off the navigation toolbar for the toolfig
+    tbar = rcParams['toolbar']  # turn off navigation toolbar for the toolfig
     rcParams['toolbar'] = 'None'
     if targetfig is None:
         manager = get_current_fig_manager()
@@ -1392,9 +1392,9 @@ def subplot_tool(targetfig=None):
         else:
             raise RuntimeError('Could not find manager for targetfig')
 
-    toolfig = figure(figsize=(6,3))
+    toolfig = figure(figsize=(6, 3))
     toolfig.subplots_adjust(top=0.9)
-    ret =  SubplotTool(targetfig, toolfig)
+    ret = SubplotTool(targetfig, toolfig)
     rcParams['toolbar'] = tbar
     _pylab_helpers.Gcf.set_active(manager)  # restore the current figure
     return ret
@@ -1671,6 +1671,7 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     return locs, silent_list('Text yticklabel', labels)
 
+
 def rgrids(*args, **kwargs):
     """
     Get or set the radial gridlines on the current polar plot.
@@ -1726,20 +1727,18 @@ def rgrids(*args, **kwargs):
     .projections.polar.PolarAxes.set_rgrids
     .Axis.get_gridlines
     .Axis.get_ticklabels
-
-
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('rgrids only defined for polar axes')
-    if len(args)==0:
+    if len(args) == 0:
         lines = ax.yaxis.get_gridlines()
         labels = ax.yaxis.get_ticklabels()
     else:
         lines, labels = ax.set_rgrids(*args, **kwargs)
+    return (silent_list('Line2D rgridline', lines),
+            silent_list('Text rgridlabel', labels))
 
-    return ( silent_list('Line2D rgridline', lines),
-             silent_list('Text rgridlabel', labels) )
 
 def thetagrids(*args, **kwargs):
     """
@@ -1797,15 +1796,13 @@ def thetagrids(*args, **kwargs):
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('thetagrids only defined for polar axes')
-    if len(args)==0:
+    if len(args) == 0:
         lines = ax.xaxis.get_ticklines()
         labels = ax.xaxis.get_ticklabels()
     else:
         lines, labels = ax.set_thetagrids(*args, **kwargs)
-
     return (silent_list('Line2D thetagridline', lines),
-            silent_list('Text thetagridlabel', labels)
-            )
+            silent_list('Text thetagridlabel', labels))
 
 
 ## Plotting Info ##
@@ -1838,7 +1835,8 @@ def colormaps():
     """
     Matplotlib provides a number of colormaps, and others can be added using
     :func:`~matplotlib.cm.register_cmap`.  This function documents the built-in
-    colormaps, and will also return a list of all registered colormaps if called.
+    colormaps, and will also return a list of all registered colormaps if
+    called.
 
     You can set the colormap for an image, pcolor, scatter, etc,
     using a keyword argument::
@@ -1994,14 +1992,16 @@ def colormaps():
 
     A set of cyclic color maps:
 
-      ================  =========================================================
+      ================  =================================================
       Colormap          Description
-      ================  =========================================================
-      hsv               red-yellow-green-cyan-blue-magenta-red, formed by changing
-                        the hue component in the HSV color space
-      twilight          perceptually uniform shades of white-blue-black-red-white
-      twilight_shifted  perceptually uniform shades of black-blue-white-red-black
-      ================  =========================================================
+      ================  =================================================
+      hsv               red-yellow-green-cyan-blue-magenta-red, formed by
+                        changing the hue component in the HSV color space
+      twilight          perceptually uniform shades of
+                        white-blue-black-red-white
+      twilight_shifted  perceptually uniform shades of
+                        black-blue-white-red-black
+      ================  =================================================
 
 
     Other miscellaneous schemes:
@@ -2132,8 +2132,7 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
                                'with contourf).')
     if ax is None:
         ax = gca()
-
-    ret = gcf().colorbar(mappable, cax = cax, ax=ax, **kw)
+    ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kw)
     return ret
 colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
@@ -2237,9 +2236,10 @@ def matshow(A, fignum=None, **kwargs):
     if fignum is False or fignum is 0:
         ax = gca()
     else:
-        # Extract actual aspect ratio of array and make appropriately sized figure
+        # Extract actual aspect ratio of array and make appropriately sized
+        # figure.
         fig = figure(fignum, figsize=figaspect(A))
-        ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
+        ax = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
     im = ax.matshow(A, **kwargs)
     sci(im)
@@ -2329,11 +2329,11 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     else:
         fig = gcf()
 
-    if len(cols)<1:
+    if len(cols) < 1:
         raise ValueError('must have at least one column of data')
 
     if plotfuncs is None:
-        plotfuncs = dict()
+        plotfuncs = {}
     from matplotlib.cbook import MatplotlibDeprecationWarning
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
@@ -2353,22 +2353,22 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     xname, x = getname_val(cols[0])
     ynamelist = []
 
-    if len(cols)==1:
-        ax1 = fig.add_subplot(1,1,1)
+    if len(cols) == 1:
+        ax1 = fig.add_subplot(1, 1, 1)
         funcname = plotfuncs.get(cols[0], 'plot')
         func = getattr(ax1, funcname)
         func(x, **kwargs)
         ax1.set_ylabel(xname)
     else:
         N = len(cols)
-        for i in range(1,N):
+        for i in range(1, N):
             if subplots:
-                if i==1:
-                    ax = ax1 = fig.add_subplot(N-1,1,i)
+                if i == 1:
+                    ax = ax1 = fig.add_subplot(N - 1, 1, i)
                 else:
-                    ax = fig.add_subplot(N-1,1,i, sharex=ax1)
-            elif i==1:
-                ax = fig.add_subplot(1,1,1)
+                    ax = fig.add_subplot(N - 1, 1, i, sharex=ax1)
+            elif i == 1:
+                ax = fig.add_subplot(1, 1, 1)
 
             yname, y = getname_val(cols[i])
             ynamelist.append(yname)
@@ -2387,7 +2387,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     if not subplots:
         ax.legend(ynamelist)
 
-    if xname=='date':
+    if xname == 'date':
         fig.autofmt_xdate()
 
 
@@ -3202,4 +3202,5 @@ def nipy_spectral():
     image if there is one. See ``help(colormaps)`` for more information.
     """
     set_cmap("nipy_spectral")
+
 _setup_pyplot_info_docstrings()
