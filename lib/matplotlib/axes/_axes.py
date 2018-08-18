@@ -2868,7 +2868,8 @@ class Axes(_AxesBase):
                 label_rotation = 'horizontal'
                 if rotatelabels:
                     label_alignment_v = yt > 0 and 'bottom' or 'top'
-                    label_rotation = np.rad2deg(thetam) + (0 if xt > 0 else 180)
+                    label_rotation = np.rad2deg(thetam) + (0 if xt > 0
+                                                             else 180)
                 props = dict(horizontalalignment=label_alignment_h,
                             verticalalignment=label_alignment_v,
                             rotation=label_rotation,
