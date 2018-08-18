@@ -1216,8 +1216,8 @@ class Axes3D(Axes):
             # get the x and y pixel coords
             if dx == 0 and dy == 0:
                 return
-            self.elev = art3d.norm_angle(self.elev - (dy/h)*180)
-            self.azim = art3d.norm_angle(self.azim - (dx/w)*180)
+            self.elev = art3d._norm_angle(self.elev - (dy/h)*180)
+            self.azim = art3d._norm_angle(self.azim - (dx/w)*180)
             self.get_proj()
             self.stale = True
             self.figure.canvas.draw_idle()

@@ -296,7 +296,7 @@ class Axis(maxis.XAxis):
                                               renderer.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
-            angle = art3d.norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
+            angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
             self.label.set_rotation(angle)
         self.label.set_va(info['label']['va'])
         self.label.set_ha(info['label']['ha'])
@@ -319,7 +319,7 @@ class Axis(maxis.XAxis):
             pos[0], pos[1], pos[2], renderer.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
-        angle = art3d.norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
+        angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
         self.offsetText.set_rotation(angle)
         # Must set rotation mode to "anchor" so that
         # the alignment point is used as the "fulcrum" for rotation.

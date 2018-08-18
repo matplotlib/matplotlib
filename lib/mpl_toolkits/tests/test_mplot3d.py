@@ -2,7 +2,9 @@ import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from matplotlib import cm
+from matplotlib import path as mpath
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
@@ -833,3 +835,33 @@ def test_inverted_cla():
     assert not ax.xaxis_inverted()
     assert not ax.yaxis_inverted()
     assert not ax.zaxis_inverted()
+
+
+def test_deprecated():
+    x = 200
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.norm_angle(x)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.norm_text_angle(x)
+
+    path = mpath.Path(np.empty((0, 2)))
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.path_to_3d_segment(path)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.paths_to_3d_segments([path])
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.path_to_3d_segment_with_codes(path)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.paths_to_3d_segments_with_codes([path])
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.get_colors([], 1)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.zalpha([], [])

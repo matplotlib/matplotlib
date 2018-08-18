@@ -20,7 +20,7 @@ from matplotlib.patches import Patch
 from . import proj3d
 
 
-def norm_angle(a):
+def _norm_angle(a):
     """Return the given angle normalized to -180 < *a* <= 180 degrees."""
     a = (a + 360) % 360
     if a > 180:
@@ -28,12 +28,24 @@ def norm_angle(a):
     return a
 
 
-def norm_text_angle(a):
+@cbook.deprecated("3.1")
+def norm_angle(a):
+    """Return the given angle normalized to -180 < *a* <= 180 degrees."""
+    return _norm_angle(a)
+
+
+def _norm_text_angle(a):
     """Return the given angle normalized to -90 < *a* <= 90 degrees."""
     a = (a + 180) % 180
     if a > 90:
         a = a - 180
     return a
+
+
+@cbook.deprecated("3.1")
+def norm_text_angle(a):
+    """Return the given angle normalized to -90 < *a* <= 90 degrees."""
+    return _norm_text_angle(a)
 
 
 def get_dir_vector(zdir):
@@ -109,7 +121,7 @@ class Text3D(mtext.Text):
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
         self.set_position((proj[0][0], proj[1][0]))
-        self.set_rotation(norm_text_angle(angle))
+        self.set_rotation(_norm_text_angle(angle))
         mtext.Text.draw(self, renderer)
         self.stale = False
 
@@ -166,7 +178,7 @@ def line_2d_to_3d(line, zs=0, zdir='z'):
     line.set_3d_properties(zs, zdir)
 
 
-def path_to_3d_segment(path, zs=0, zdir='z'):
+def _path_to_3d_segment(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment."""
 
     zs = np.broadcast_to(zs, len(path))
@@ -176,16 +188,28 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
     return seg3d
 
 
-def paths_to_3d_segments(paths, zs=0, zdir='z'):
+@cbook.deprecated("3.1")
+def path_to_3d_segment(path, zs=0, zdir='z'):
+    """Convert a path to a 3D segment."""
+    return _path_to_3d_segment(path, zs=zs, zdir=zdir)
+
+
+def _paths_to_3d_segments(paths, zs=0, zdir='z'):
     """Convert paths from a collection object to 3D segments."""
 
     zs = np.broadcast_to(zs, len(paths))
-    segs = [path_to_3d_segment(path, pathz, zdir)
+    segs = [_path_to_3d_segment(path, pathz, zdir)
             for path, pathz in zip(paths, zs)]
     return segs
 
 
-def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
+@cbook.deprecated("3.1")
+def paths_to_3d_segments(paths, zs=0, zdir='z'):
+    """Convert paths from a collection object to 3D segments."""
+    return _paths_to_3d_segments(paths, zs=zs, zdir=zdir)
+
+
+def _path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment with path codes."""
 
     zs = np.broadcast_to(zs, len(path))
@@ -200,7 +224,13 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     return seg3d, list(codes)
 
 
-def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
+@cbook.deprecated("3.1")
+def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
+    """Convert a path to a 3D segment with path codes."""
+    return _path_to_3d_segment_with_codes(path, zs=zs, zdir=zdir)
+
+
+def _paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     """
     Convert paths from a collection object to 3D segments with path codes.
     """
@@ -213,6 +243,14 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     else:
         segments, codes = [], []
     return list(segments), list(codes)
+
+
+@cbook.deprecated("3.1")
+def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
+    """
+    Convert paths from a collection object to 3D segments with path codes.
+    """
+    return _paths_to_3d_segments_with_codes(paths, zs=zs, zdir=zdir)
 
 
 class Line3DCollection(LineCollection):
@@ -257,7 +295,7 @@ class Line3DCollection(LineCollection):
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a LineCollection to a Line3DCollection object."""
-    segments3d = paths_to_3d_segments(col.get_paths(), zs, zdir)
+    segments3d = _paths_to_3d_segments(col.get_paths(), zs, zdir)
     col.__class__ = Line3DCollection
     col.set_segments(segments3d)
 
@@ -316,7 +354,7 @@ class PathPatch3D(Patch3D):
         return min(vzs)
 
 
-def get_patch_verts(patch):
+def _get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
     trans = patch.get_patch_transform()
     path = patch.get_path()
@@ -327,9 +365,15 @@ def get_patch_verts(patch):
         return []
 
 
+@cbook.deprecated("3.1")
+def get_patch_verts(patch):
+    """Return a list of vertices for the path of a patch."""
+    return _get_patch_verts(patch)
+
+
 def patch_2d_to_3d(patch, z=0, zdir='z'):
     """Convert a Patch to a Patch3D object."""
-    verts = get_patch_verts(patch)
+    verts = _get_patch_verts(patch)
     patch.__class__ = Patch3D
     patch.set_3d_properties(verts, z, zdir)
 
@@ -743,22 +787,34 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def get_colors(c, num):
+def _get_colors(c, num):
     """Stretch the color argument to provide the required number *num*."""
     return np.broadcast_to(
         mcolors.to_rgba_array(c) if len(c) else [0, 0, 0, 0],
         (num, 4))
 
 
-def zalpha(colors, zs):
+@cbook.deprecated("3.1")
+def get_colors(c, num):
+    """Stretch the color argument to provide the required number *num*."""
+    return _get_colors(c, num)
+
+
+def _zalpha(colors, zs):
     """Modify the alphas of the color list according to depth."""
     # FIXME: This only works well if the points for *zs* are well-spaced
     #        in all three dimensions. Otherwise, at certain orientations,
     #        the min and max zs are very close together.
     #        Should really normalize against the viewing depth.
-    colors = get_colors(colors, len(zs))
+    colors = _get_colors(colors, len(zs))
     if len(zs):
         norm = Normalize(min(zs), max(zs))
         sats = 1 - norm(zs) * 0.7
         colors = [(c[0], c[1], c[2], c[3] * s) for c, s in zip(colors, sats)]
     return colors
+
+
+@cbook.deprecated("3.1")
+def zalpha(colors, zs):
+    """Modify the alphas of the color list according to depth."""
+    return _zalpha(colors, zs)
