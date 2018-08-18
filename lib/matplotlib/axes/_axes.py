@@ -6537,7 +6537,10 @@ class Axes(_AxesBase):
         else:
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
-                raise ValueError("color kwarg must have one color per dataset")
+                error_message = (
+                    "color kwarg must have one color per data set. %d data "
+                    "sets and %d colors were provided" % (len(color), nx))
+                raise ValueError(error_message)
 
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
