@@ -1,18 +1,15 @@
+from io import BytesIO
 import pickle
 import platform
-from io import BytesIO
 
 import numpy as np
+import pytest
 
+from matplotlib import cm
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
-
-try:  # https://docs.python.org/3/library/exceptions.html#RecursionError
-    RecursionError                 # Python 3.5+
-except NameError:
-    RecursionError = RuntimeError  # Python < 3.5
 
 
 def test_simple():
@@ -194,3 +191,8 @@ def test_shared():
     fig = pickle.loads(pickle.dumps(fig))
     fig.axes[0].set_xlim(10, 20)
     assert fig.axes[1].get_xlim() == (10, 20)
+
+
+@pytest.mark.parametrize("cmap", cm.cmap_d.values())
+def test_cmap(cmap):
+    pickle.dumps(cmap)
