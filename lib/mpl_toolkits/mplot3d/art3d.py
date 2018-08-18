@@ -710,6 +710,9 @@ class Poly3DCollection(PolyCollection):
     def get_edgecolor(self):
         return self._edgecolors2d
 
+    def get_facecolors(self):
+        return self._facecolors
+
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a PolyCollection to a Poly3DCollection object."""
