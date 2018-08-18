@@ -256,7 +256,9 @@ def test_trisurf3d():
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+    tri = ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+    # smoke test for facecolors
+    tri.get_facecolors()
 
 
 @image_comparison(baseline_images=['trisurf3d_shaded'], remove_text=True,
