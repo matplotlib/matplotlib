@@ -284,6 +284,7 @@ class Line3DCollection(LineCollection):
         Project the points according to renderer matrix.
         """
         if len(self._segments3d) == 0:
+            # FIXME
             return 1e9
         xys = proj3d.proj_transform_vec(self._segments3d_data.T, renderer.M)
         segments_2d = _array_split(xys[:2].T,
@@ -617,13 +618,13 @@ class Poly3DCollection(PolyCollection):
 
         self._seg_sizes = np.array([len(c) for c in segments3d])
         self._vec = []
-        if len(segments3d) > 0:
-            # Store the points in a single array for easier projection
-            n_segments = np.sum(self._seg_sizes)
-            # Put all segments in a big array
-            _vec = np.vstack(segments3d)
-            # Add a fourth dimension
-            self._vec = np.hstack([_vec, np.ones((n_segments, 1))]).T
+
+        # Store the points in a single array for easier projection
+        n_segments = np.sum(self._seg_sizes)
+        self._vec = np.empty((4, n_segments))
+        # Put all segments in a big array
+        self._vec[:3, :] = np.vstack(segments3d).T
+        self._vec[3, :] = 1
 
     def set_verts(self, verts, closed=True):
         """Set 3D vertices."""
