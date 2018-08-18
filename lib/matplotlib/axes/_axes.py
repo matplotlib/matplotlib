@@ -6538,7 +6538,7 @@ class Axes(_AxesBase):
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
                 error_message = (
-                    "color kwarg must have one color per data sets. %d data "
+                    "color kwarg must have one color per data set. %d data "
                     "sets and %d colors were provided" % (len(color), nx))
                 raise ValueError(error_message)
 
