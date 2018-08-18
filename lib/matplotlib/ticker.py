@@ -12,8 +12,8 @@ Default Formatter
 -----------------
 
 The default formatter identifies when the x-data being plotted is a
-small range on top of a large off set. To reduce the chances that the
-ticklabels overlap the ticks are labeled as deltas from a fixed offset.
+small range on top of a large offset. To reduce the chances that the
+ticklabels overlap, the ticks are labeled as deltas from a fixed offset.
 For example::
 
    ax.plot(np.arange(2000, 2010), range(10))
