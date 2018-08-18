@@ -804,10 +804,8 @@ def get_colors(c, num):
     """Stretch the color argument to provide the required number *num*."""
     if not len(c):
         return np.zeros((num, 4))
-    elif len(c) < num:
-        return np.broadcast_to(mcolors.to_rgba_array(c), (num, 4))
     else:
-        return mcolors.to_rgba_array(c)
+        return np.broadcast_to(mcolors.to_rgba_array(c), (num, 4))
 
 
 def zalpha(colors, zs):
