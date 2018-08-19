@@ -22,6 +22,7 @@ import operator
 import os
 from pathlib import Path
 import re
+import subprocess
 import sys
 import time
 import traceback
@@ -2075,3 +2076,19 @@ def _unmultipled_rgba8888_to_premultiplied_argb32(rgba8888):
     if alpha8.min() != 0xff:
         np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
     return argb32
+
+
+def _check_and_log_subprocess(command, logger, **kwargs):
+    logger.debug(command)
+    try:
+        report = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, **kwargs)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            'The command\n'
+            '    {}\n'
+            'failed and generated the following output:\n'
+            '{}'
+            .format(command, exc.output.decode('utf-8')))
+    logger.debug(report)
+    return report
