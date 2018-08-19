@@ -1596,7 +1596,7 @@ class Axes3D(Axes):
             Whether to shade the facecolors. Defaults to True. Shading is
             always disabled when `cmap` is specified.
 
-        lightsource : LightSource
+        lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when `shade` is True.
 
         **kwargs :
@@ -1893,7 +1893,7 @@ class Axes3D(Axes):
         shade : bool
             Whether to shade the facecolors. Defaults to True. Shading is
             always disabled when `cmap` is specified.
-        lightsource : LightSource
+        lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when `shade` is True.
 
         The (optional) triangulation can be specified in one of two ways;
