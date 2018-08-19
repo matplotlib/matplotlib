@@ -517,8 +517,10 @@ class Patch(artist.Artist):
                 gc.set_hatch_color(self._hatch_color)
             except AttributeError:
                 # if we end up with a GC that does not have this method
-                warnings.warn(
-                    "Your backend does not support setting the hatch color.")
+                cbook.warn_deprecated(
+                    "3.1", "Your backend does not support setting the hatch "
+                    "color; such backends will become unsupported in "
+                    "Matplotlib 3.3.")
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -4290,8 +4292,10 @@ class FancyArrowPatch(Patch):
                     gc.set_hatch_color(self._hatch_color)
                 except AttributeError:
                     # if we end up with a GC that does not have this method
-                    warnings.warn("Your backend does not support setting the "
-                                  "hatch color.")
+                    cbook.warn_deprecated(
+                        "3.1", "Your backend does not support setting the "
+                        "hatch color; such backends will become unsupported "
+                        "in Matplotlib 3.3.")
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
