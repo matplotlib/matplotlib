@@ -518,7 +518,10 @@ class FileMovieWriter(MovieWriter):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
         self._run()
-        MovieWriter.finish(self)  # Will call clean-up
+        out, err = self._proc.communicate()
+        _log.debug('MovieWriter -- Command stdout:\n%s', out)
+        _log.debug('MovieWriter -- Command stderr:\n%s', err)
+        self.cleanup()
 
         # Check error code for creating file here, since we just run
         # the process here, rather than having an open pipe.
@@ -534,9 +537,7 @@ class FileMovieWriter(MovieWriter):
                                .format(self._proc.returncode))
 
     def cleanup(self):
-        MovieWriter.cleanup(self)
-
-        # Delete temporary files
+        """Deletem temporary file"""
         if self.clear_temp:
             _log.debug('MovieWriter: clearing temporary fnames=%s',
                        self._temp_names)
