@@ -226,10 +226,14 @@ class AbstractMovieWriter(abc.ABC):
         '''
         # This particular sequence is what contextlib.contextmanager wants
         self.setup(fig, outfile, dpi, *args, **kwargs)
+        finished = False
         try:
             yield self
-        finally:
             self.finish()
+            finished = True
+        finally:
+            if not finished:
+                self.cleanup()
 
 
 class MovieWriter(AbstractMovieWriter):
@@ -518,8 +522,10 @@ class FileMovieWriter(MovieWriter):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
         self._run()
-        MovieWriter.finish(self)  # Will call clean-up
-
+        out, err = self._proc.communicate()
+        _log.debug('MovieWriter -- Command stdout:\n%s', out)
+        _log.debug('MovieWriter -- Command stderr:\n%s', err)
+        self.cleanup()
         # Check error code for creating file here, since we just run
         # the process here, rather than having an open pipe.
         if self._proc.returncode:
@@ -534,8 +540,6 @@ class FileMovieWriter(MovieWriter):
                                .format(self._proc.returncode))
 
     def cleanup(self):
-        MovieWriter.cleanup(self)
-
         # Delete temporary files
         if self.clear_temp:
             _log.debug('MovieWriter: clearing temporary fnames=%s',
@@ -581,6 +585,10 @@ class PillowWriter(MovieWriter):
         self._frames[0].save(
             self._outfile, save_all=True, append_images=self._frames[1:],
             duration=int(1000 / self.fps))
+
+    def cleanup(self):
+        """Used in writer.saving"""
+        pass
 
 
 # Base class of ffmpeg information. Has the config keys and the common set
