@@ -486,7 +486,6 @@ class _AxesBase(martist.Artist):
         self.fmt_xdata = None
         self.fmt_ydata = None
 
-        self._cachedRenderer = None
         self.set_navigate(True)
         self.set_navigate_mode(None)
 
@@ -542,7 +541,7 @@ class _AxesBase(martist.Artist):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
         state = super().__getstate__()
-        for key in ['_cachedRenderer', '_layoutbox', '_poslayoutbox']:
+        for key in ['_layoutbox', '_poslayoutbox']:
             state[key] = None
         # Prune the sharing & twinning info to only contain the current group.
         for grouper_name in [
@@ -2533,7 +2532,7 @@ class _AxesBase(martist.Artist):
     def draw(self, renderer=None, inframe=False):
         """Draw everything (plot lines, axes, labels)"""
         if renderer is None:
-            renderer = self._cachedRenderer
+            renderer = self.figure._cachedRenderer
 
         if renderer is None:
             raise RuntimeError('No renderer defined')
@@ -2604,7 +2603,6 @@ class _AxesBase(martist.Artist):
         mimage._draw_list_compositing_images(renderer, self, artists)
 
         renderer.close_group('axes')
-        self._cachedRenderer = renderer
         self.stale = False
 
     def draw_artist(self, a):
@@ -2613,10 +2611,10 @@ class _AxesBase(martist.Artist):
         caches the renderer.  It is used to efficiently update Axes
         data (axis ticks, labels, etc are not updated)
         """
-        if self._cachedRenderer is None:
+        if self.figure._cachedRenderer is None:
             raise AttributeError("draw_artist can only be used after an "
                                  "initial draw which caches the renderer")
-        a.draw(self._cachedRenderer)
+        a.draw(self.figure._cachedRenderer)
 
     def redraw_in_frame(self):
         """
@@ -2624,13 +2622,13 @@ class _AxesBase(martist.Artist):
         caches the renderer.  It is used to efficiently update Axes
         data (axis ticks, labels, etc are not updated)
         """
-        if self._cachedRenderer is None:
+        if self.figure._cachedRenderer is None:
             raise AttributeError("redraw_in_frame can only be used after an "
                                  "initial draw which caches the renderer")
-        self.draw(self._cachedRenderer, inframe=True)
+        self.draw(self.figure._cachedRenderer, inframe=True)
 
     def get_renderer_cache(self):
-        return self._cachedRenderer
+        return self.figure._cachedRenderer
 
     # Axes rectangle characteristics
 
