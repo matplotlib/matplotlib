@@ -2629,13 +2629,15 @@ class Parser(object):
                 self.fontsize,
                 self.dpi)
 
-        def _get_font(self):
+        @property
+        def font(self):
             return self._font
-        def _set_font(self, name):
+
+        @font.setter
+        def font(self, name):
             if name in ('rm', 'it', 'bf'):
                 self.font_class = name
             self._font = name
-        font = property(_get_font, _set_font)
 
     def get_state(self):
         """

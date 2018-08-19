@@ -60,7 +60,7 @@ per-file-ignores =
     mpl_toolkits/axes_grid1/axes_size.py: E261, E501
     mpl_toolkits/axes_grid1/colorbar.py: E225, E231, E261, E262, E302, E303, E501, E701
     mpl_toolkits/axes_grid1/inset_locator.py: E501
-    mpl_toolkits/axes_grid1/mpl_axes.py: E303, E501
+    mpl_toolkits/axes_grid1/mpl_axes.py: E501
     mpl_toolkits/axisartist/angle_helper.py: E201, E203, E221, E222, E225, E231, E251, E261, E262, E302, E303, E501
     mpl_toolkits/axisartist/axis_artist.py: E201, E202, E221, E225, E228, E231, E251, E261, E262, E302, E303, E402, E501, E701, E711
     mpl_toolkits/axisartist/axisline_style.py: E231, E261, E262, E302, E303

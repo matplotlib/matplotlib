@@ -1181,26 +1181,26 @@ class TimerBase(object):
     def _timer_stop(self):
         pass
 
-    def _get_interval(self):
+    @property
+    def interval(self):
         return self._interval
 
-    def _set_interval(self, interval):
+    @interval.setter
+    def interval(self, interval):
         # Force to int since none of the backends actually support fractional
         # milliseconds, and some error or give warnings.
         interval = int(interval)
         self._interval = interval
         self._timer_set_interval()
 
-    interval = property(_get_interval, _set_interval)
-
-    def _get_single_shot(self):
+    @property
+    def single_shot(self):
         return self._single
 
-    def _set_single_shot(self, ss=True):
+    @single_shot.setter
+    def single_shot(self, ss):
         self._single = ss
         self._timer_set_single_shot()
-
-    single_shot = property(_get_single_shot, _set_single_shot)
 
     def add_callback(self, func, *args, **kwargs):
         '''

@@ -1702,17 +1702,9 @@ class TransformWrapper(Transform):
         self.invalidate()
         self._invalid = 0
 
-    def _get_is_affine(self):
-        return self._child.is_affine
-    is_affine = property(_get_is_affine)
-
-    def _get_is_separable(self):
-        return self._child.is_separable
-    is_separable = property(_get_is_separable)
-
-    def _get_has_inverse(self):
-        return self._child.has_inverse
-    has_inverse = property(_get_has_inverse)
+    is_affine = property(lambda self: self._child.is_affine)
+    is_separable = property(lambda self: self._child.is_separable)
+    has_inverse = property(lambda self: self._child.has_inverse)
 
 
 class AffineBase(Transform):
@@ -1799,10 +1791,10 @@ class Affine2DBase(AffineBase):
         return Affine2D(self.get_matrix().copy())
     frozen.__doc__ = AffineBase.frozen.__doc__
 
-    def _get_is_separable(self):
+    @property
+    def is_separable(self):
         mtx = self.get_matrix()
-        return mtx[0, 1] == 0.0 and mtx[1, 0] == 0.0
-    is_separable = property(_get_is_separable)
+        return mtx[0, 1] == mtx[1, 0] == 0.0
 
     def to_values(self):
         """
@@ -2075,11 +2067,6 @@ class Affine2D(Affine2DBase):
         """
         return self.skew(np.deg2rad(xShear), np.deg2rad(yShear))
 
-    def _get_is_separable(self):
-        mtx = self.get_matrix()
-        return mtx[0, 1] == 0.0 and mtx[1, 0] == 0.0
-    is_separable = property(_get_is_separable)
-
 
 class IdentityTransform(Affine2DBase):
     """
@@ -2181,13 +2168,9 @@ class BlendedGenericTransform(Transform):
         # a blended transform cannot possibly contain a branch from two different transforms.
         return False
 
-    def _get_is_affine(self):
-        return self._x.is_affine and self._y.is_affine
-    is_affine = property(_get_is_affine)
-
-    def _get_has_inverse(self):
-        return self._x.has_inverse and self._y.has_inverse
-    has_inverse = property(_get_has_inverse)
+    is_affine = property(lambda self: self._x.is_affine and self._y.is_affine)
+    has_inverse = property(
+        lambda self: self._x.has_inverse and self._y.has_inverse)
 
     def frozen(self):
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
@@ -2410,17 +2393,12 @@ class CompositeGenericTransform(Transform):
         for left, right in self._b._iter_break_from_left_to_right():
             yield self._a + left, right
 
-    @property
-    def depth(self):
-        return self._a.depth + self._b.depth
-
-    def _get_is_affine(self):
-        return self._a.is_affine and self._b.is_affine
-    is_affine = property(_get_is_affine)
-
-    def _get_is_separable(self):
-        return self._a.is_separable and self._b.is_separable
-    is_separable = property(_get_is_separable)
+    depth = property(lambda self: self._a.depth + self._b.depth)
+    is_affine = property(lambda self: self._a.is_affine and self._b.is_affine)
+    is_separable = property(
+        lambda self: self._a.is_separable and self._b.is_separable)
+    has_inverse = property(
+        lambda self: self._a.has_inverse and self._b.has_inverse)
 
     def __str__(self):
         return ("{}(\n"
@@ -2465,10 +2443,6 @@ class CompositeGenericTransform(Transform):
     def inverted(self):
         return CompositeGenericTransform(self._b.inverted(), self._a.inverted())
     inverted.__doc__ = Transform.inverted.__doc__
-
-    def _get_has_inverse(self):
-        return self._a.has_inverse and self._b.has_inverse
-    has_inverse = property(_get_has_inverse)
 
 
 class CompositeAffine2D(Affine2DBase):

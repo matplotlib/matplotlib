@@ -837,37 +837,40 @@ class RegularPolygon(Patch):
             .rotate(self.orientation) \
             .translate(*self.xy)
 
-    def _get_xy(self):
+    @property
+    def xy(self):
         return self._xy
 
-    def _set_xy(self, xy):
+    @xy.setter
+    def xy(self, xy):
         self._xy = xy
         self._update_transform()
-    xy = property(_get_xy, _set_xy)
 
-    def _get_orientation(self):
+    @property
+    def orientation(self):
         return self._orientation
 
-    def _set_orientation(self, orientation):
+    @orientation.setter
+    def orientation(self, orientation):
         self._orientation = orientation
         self._update_transform()
-    orientation = property(_get_orientation, _set_orientation)
 
-    def _get_radius(self):
+    @property
+    def radius(self):
         return self._radius
 
-    def _set_radius(self, radius):
+    @radius.setter
+    def radius(self, radius):
         self._radius = radius
         self._update_transform()
-    radius = property(_get_radius, _set_radius)
 
-    def _get_numvertices(self):
+    @property
+    def numvertices(self):
         return self._numVertices
 
-    def _set_numvertices(self, numVertices):
+    @numvertices.setter
+    def numvertices(self, numVertices):
         self._numVertices = numVertices
-
-    numvertices = property(_get_numvertices, _set_numvertices)
 
     def get_path(self):
         return self._path
