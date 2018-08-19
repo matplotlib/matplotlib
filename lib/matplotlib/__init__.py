@@ -1379,6 +1379,7 @@ def is_interactive():
     return rcParams['interactive']
 
 
+@cbook.deprecated("3.1", alternative="rcParams['tk.window_focus']")
 def tk_window_focus():
     """Return true if focus maintenance under TkAgg on win32 is on.
      This currently works only for python.exe and IPython.exe.
