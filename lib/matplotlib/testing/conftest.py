@@ -8,7 +8,7 @@ from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 def pytest_configure(config):
-    matplotlib.use('agg')
+    matplotlib.use('agg', force=True)
     matplotlib._called_from_pytest = True
     matplotlib._init_tests()
 

@@ -137,7 +137,7 @@ import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import cbook
+from . import cbook, rcsetup
 from matplotlib.cbook import (
     MatplotlibDeprecationWarning, dedent, get_label, sanitize_sequence)
 from matplotlib.cbook import mplDeprecation  # deprecated
@@ -877,6 +877,12 @@ class RcParams(MutableMapping, dict):
                 "3.0", "{} is deprecated; in the future, examples will be "
                 "found relative to the 'datapath' directory.".format(key))
 
+        elif key == "backend":
+            val = dict.__getitem__(self, key)
+            if val is rcsetup._auto_backend_sentinel:
+                from matplotlib import pyplot as plt
+                plt.switch_backend(rcsetup._auto_backend_sentinel)
+
         return dict.__getitem__(self, key)
 
     def __repr__(self):
@@ -1357,7 +1363,7 @@ def use(arg, warn=True, force=False):
 
 
 if os.environ.get('MPLBACKEND'):
-    use(os.environ['MPLBACKEND'])
+    rcParams['backend'] = os.environ.get('MPLBACKEND')
 
 
 def get_backend():
