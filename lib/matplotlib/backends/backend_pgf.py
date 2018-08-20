@@ -870,15 +870,9 @@ class FigureCanvasPgf(FigureCanvasBase):
             pathlib.Path(fname_tex).write_text(latexcode, encoding="utf-8")
 
             texcommand = rcParams["pgf.texsystem"]
-            cmdargs = [texcommand, "-interaction=nonstopmode",
-                       "-halt-on-error", "figure.tex"]
-            try:
-                subprocess.check_output(
-                    cmdargs, stderr=subprocess.STDOUT, cwd=tmpdir)
-            except subprocess.CalledProcessError as e:
-                raise RuntimeError(
-                    "%s was not able to process your file.\n\nFull log:\n%s"
-                    % (texcommand, e.output))
+            cbook._check_and_log_subprocess(
+                [texcommand, "-interaction=nonstopmode", "-halt-on-error",
+                 "figure.tex"], _log, cwd=tmpdir)
 
             # copy file contents to target
             with open(fname_pdf, "rb") as fh_src:
@@ -1101,21 +1095,10 @@ class PdfPages:
 
     def _run_latex(self):
         texcommand = rcParams["pgf.texsystem"]
-        cmdargs = [
-            texcommand,
-            "-interaction=nonstopmode",
-            "-halt-on-error",
-            os.path.basename(self._fname_tex),
-        ]
-        try:
-            subprocess.check_output(
-                cmdargs, stderr=subprocess.STDOUT, cwd=self._tmpdir
-            )
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                "%s was not able to process your file.\n\nFull log:\n%s"
-                % (texcommand, e.output.decode('utf-8')))
-
+        cbook._check_and_log_subprocess(
+            [texcommand, "-interaction=nonstopmode", "-halt-on-error",
+             os.path.basename(self._fname_tex)],
+            _log, cwd=self._tmpdir)
         # copy file contents to target
         shutil.copyfile(self._fname_pdf, self._outputfile)
 
