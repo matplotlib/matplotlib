@@ -2715,9 +2715,12 @@ class _AxesBase(martist.Artist):
         elif b is not None:
             b = _string_to_bool(b)
 
-        if axis == 'x' or axis == 'both':
+        if axis not in ['x', 'y', 'both']:
+            raise ValueError("The argument 'axis' must be one of 'x', 'y' or "
+                             "'both'.")
+        if axis in ['x', 'both']:
             self.xaxis.grid(b, which=which, **kwargs)
-        if axis == 'y' or axis == 'both':
+        if axis in ['y', 'both']:
             self.yaxis.grid(b, which=which, **kwargs)
 
     def ticklabel_format(self, *, axis='both', style='', scilimits=None,

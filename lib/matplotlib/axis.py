@@ -1438,9 +1438,17 @@ class Axis(artist.Artist):
 
         """
         if len(kwargs):
+            if not b and b is not None:  # something false-like but not None
+                warnings.warn('First parameter to grid() is false, but line '
+                              'properties are supplied. The grid will be '
+                              'enabled.')
             b = True
         which = which.lower()
+        if which not in ['major', 'minor', 'both']:
+            raise ValueError("The argument 'which' must be one of 'major', "
+                             "'minor' or 'both'.")
         gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
+
         if which in ['minor', 'both']:
             if b is None:
                 self._gridOnMinor = not self._gridOnMinor
