@@ -2,6 +2,7 @@
 ==========
 Bar of pie
 ==========
+
 Make a "bar of pie" chart where the first slice of the pie is
 "exploded" into a bar chart with a further breakdown of said slice's
 characteristics. The example demonstrates using a figure with multiple
