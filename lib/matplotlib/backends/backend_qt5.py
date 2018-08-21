@@ -163,10 +163,10 @@ def _allow_super_init(__init__):
             next_coop_init.__init__(self, *args, **kwargs)
 
         @functools.wraps(__init__)
-        def wrapper(self, **kwargs):
+        def wrapper(self, *args, **kwargs):
             with cbook._setattr_cm(QtWidgets.QWidget,
                                    __init__=cooperative_qwidget_init):
-                __init__(self, **kwargs)
+                __init__(self, *args, **kwargs)
 
         return wrapper
 
