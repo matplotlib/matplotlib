@@ -1,3 +1,4 @@
+import contextlib
 import functools
 import math
 from numbers import Number
@@ -481,11 +482,16 @@ class Patch(artist.Artist):
         'Return the current hatching pattern'
         return self._hatch
 
-    @artist.allow_rasterization
-    def draw(self, renderer):
-        'Draw the :class:`Patch` to the given *renderer*.'
-        if not self.get_visible():
-            return
+    @contextlib.contextmanager
+    def _bind_draw_path_function(self, renderer):
+        """
+        ``draw()`` helper factored out for sharing with `FancyArrowPatch`.
+
+        Yields a callable ``dp`` such that calling ``dp(*args, **kwargs)`` is
+        equivalent to calling ``renderer1.draw_path(gc, *args, **kwargs)``
+        where ``renderer1`` and ``gc`` have been suitably set from ``renderer``
+        and the artist's properties.
+        """
 
         renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
@@ -496,7 +502,7 @@ class Patch(artist.Artist):
         if self._edgecolor[3] == 0:
             lw = 0
         gc.set_linewidth(lw)
-        gc.set_dashes(0, self._dashes)
+        gc.set_dashes(self._dashoffset, self._dashes)
         gc.set_capstyle(self._capstyle)
         gc.set_joinstyle(self._joinstyle)
 
@@ -525,20 +531,38 @@ class Patch(artist.Artist):
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
 
-        path = self.get_path()
-        transform = self.get_transform()
-        tpath = transform.transform_path_non_affine(path)
-        affine = transform.get_affine()
-
         if self.get_path_effects():
             from matplotlib.patheffects import PathEffectRenderer
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
-        renderer.draw_path(gc, tpath, affine, rgbFace)
+        # In `with _bind_draw_path_function(renderer) as draw_path: ...`
+        # (in the implementations of `draw()` below), calls to `draw_path(...)`
+        # will occur as if they took place here with `gc` inserted as
+        # additional first argument.
+        yield functools.partial(renderer.draw_path, gc)
 
         gc.restore()
         renderer.close_group('patch')
         self.stale = False
+
+    @artist.allow_rasterization
+    def draw(self, renderer):
+        'Draw the :class:`Patch` to the given *renderer*.'
+        if not self.get_visible():
+            return
+
+        # Patch has traditionally ignored the dashoffset.
+        with cbook._setattr_cm(self, _dashoffset=0), \
+                self._bind_draw_path_function(renderer) as draw_path:
+            path = self.get_path()
+            transform = self.get_transform()
+            tpath = transform.transform_path_non_affine(path)
+            affine = transform.get_affine()
+            draw_path(tpath, affine,
+                      # Work around a bug in the PDF and SVG renderers, which
+                      # do not draw the hatches if the facecolor is fully
+                      # transparent, but do if it is None.
+                      self._facecolor if self._facecolor[3] else None)
 
     def get_path(self):
         """
@@ -4263,69 +4287,25 @@ class FancyArrowPatch(Patch):
         if not self.get_visible():
             return
 
-        renderer.open_group('patch', self.get_gid())
-        gc = renderer.new_gc()
+        # FancyArrowPatch has traditionally forced the capstyle and joinstyle.
+        with cbook._setattr_cm(self, _capstyle='round', _joinstyle='round'), \
+                self._bind_draw_path_function(renderer) as draw_path:
 
-        gc.set_foreground(self._edgecolor, isRGBA=True)
+            # FIXME : dpi_cor is for the dpi-dependecy of the linewidth. There
+            # could be room for improvement.
+            self.set_dpi_cor(renderer.points_to_pixels(1.))
+            path, fillable = self.get_path_in_displaycoord()
 
-        lw = self._linewidth
-        if self._edgecolor[3] == 0:
-            lw = 0
-        gc.set_linewidth(lw)
-        gc.set_dashes(self._dashoffset, self._dashes)
+            if not cbook.iterable(fillable):
+                path = [path]
+                fillable = [fillable]
 
-        gc.set_antialiased(self._antialiased)
-        self._set_gc_clip(gc)
-        gc.set_capstyle('round')
-        gc.set_snap(self.get_snap())
+            affine = transforms.IdentityTransform()
 
-        rgbFace = self._facecolor
-        if rgbFace[3] == 0:
-            rgbFace = None  # (some?) renderers expect this as no-fill signal
-
-        gc.set_alpha(self._alpha)
-
-        if self._hatch:
-            gc.set_hatch(self._hatch)
-            if self._hatch_color is not None:
-                try:
-                    gc.set_hatch_color(self._hatch_color)
-                except AttributeError:
-                    # if we end up with a GC that does not have this method
-                    cbook.warn_deprecated(
-                        "3.1", "Your backend does not support setting the "
-                        "hatch color; such backends will become unsupported "
-                        "in Matplotlib 3.3.")
-
-        if self.get_sketch_params() is not None:
-            gc.set_sketch_params(*self.get_sketch_params())
-
-        # FIXME : dpi_cor is for the dpi-dependecy of the
-        # linewidth. There could be room for improvement.
-        #
-        # dpi_cor = renderer.points_to_pixels(1.)
-        self.set_dpi_cor(renderer.points_to_pixels(1.))
-        path, fillable = self.get_path_in_displaycoord()
-
-        if not cbook.iterable(fillable):
-            path = [path]
-            fillable = [fillable]
-
-        affine = transforms.IdentityTransform()
-
-        if self.get_path_effects():
-            from matplotlib.patheffects import PathEffectRenderer
-            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
-
-        for p, f in zip(path, fillable):
-            if f:
-                renderer.draw_path(gc, p, affine, rgbFace)
-            else:
-                renderer.draw_path(gc, p, affine, None)
-
-        gc.restore()
-        renderer.close_group('patch')
-        self.stale = False
+            for p, f in zip(path, fillable):
+                draw_path(
+                    p, affine,
+                    self._facecolor if f and self._facecolor[3] else None)
 
 
 class ConnectionPatch(FancyArrowPatch):
