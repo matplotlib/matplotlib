@@ -1661,12 +1661,12 @@ class LinearLocator(Locator):
         return mtransforms.nonsingular(vmin, vmax)
 
 
-@cbook.deprecated("3.1")
+@cbook.deprecated("3.0")
 def closeto(x, y):
     return abs(x - y) < 1e-10
 
 
-@cbook.deprecated("3.1")
+@cbook.deprecated("3.0")
 class Base(object):
     'this solution has some hacks to deal with floating point inaccuracies'
     def __init__(self, base):
@@ -1958,9 +1958,7 @@ class MaxNLocator(Locator):
                     break
 
         # This is an upper limit; move to smaller steps if necessary.
-        # for i in range(istep):
-        #     step = steps[istep - i]
-        for istep in range(istep, -1, -1):
+        for istep in reversed(range(istep + 1)):
             step = steps[istep]
 
             if (self._integer and
