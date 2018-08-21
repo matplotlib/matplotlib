@@ -1,13 +1,17 @@
 """
-*************************************************
-Manipulating and Creating Colormaps in Matplotlib
-*************************************************
+********************************
+Creating Colormaps in Matplotlib
+********************************
 
 Matplotlib colormaps are implimented as a class, which makes them quite
-flexible, but ocasionally opaque to users as to how to create and/or
+flexible, but opaque to users as to how to create and/or
 manipulate them.  This opacity is not helped in the library by the fact that
 the named colormaps are accessed via `.matplotlib.cm.get_cmap` module, whereas
-the colormap class itself is defined in `.matplotlin.colors.Colormap`!
+the colormap class itself is defined in `.matplotlib.colors.Colormap`!
+
+Fortunately, the way to create colormaps is quite straight forward, by creating
+an instance of class `.ListedColormap` using a Nx4 numpy array of values
+between 0 and 1 to represent the RGBA values of the colormap.
 
 Getting colormaps and accessing their values
 ============================================
@@ -16,7 +20,8 @@ First, getting a named colormap, most of which are listed in
 :doc:`/tutorials/colors/colormaps` requires the use of
 `.matplotlib.cm.get_cmap`, which returns a
 :class:`.matplotlib.colors.ListedColormap` object.  The second argument gives
-the size of the list of colors used to define the colormap.
+the size of the list of colors used to define the colormap, and below we
+use a modest value of 12 so there are not a lot of values to look at.
 """
 
 import numpy as np
@@ -30,9 +35,17 @@ viridis = cm.get_cmap('viridis', 12)
 print(viridis)
 
 ##############################################################################
-# This list of colors can be directly accessed using the ``colors`` property,
-# or it can be indirectly acccessed by calling the object.  Note that the list
-# is of the form of an RGBA Nx4 array, where N is the length of the colormap.
+# The object ``viridis`` is a callable, that when passed a float between
+# 0 and 1 returns an RGBA value from the colormap:
+
+print(viridis(0.56))
+
+##############################################################################
+# The list of colors that comprise the colormap can be directly accessed using
+# the ``colors`` property,
+# or it can be acccessed indirectly by calling  ``viridis`` with an array
+# of values matching the length of the colormap.  Note that the returned list
+# is in the form of an RGBA Nx4 array, where N is the length of the colormap.
 
 print('viridis.colors', viridis.colors)
 print('viridis(range(12))', viridis(range(12)))
@@ -45,8 +58,8 @@ print('viridis(np.linspace(0, 1, 12))', viridis(np.linspace(0, 1, 12)))
 print('viridis(np.linspace(0, 1, 15))', viridis(np.linspace(0, 1, 15)))
 
 ##############################################################################
-# Creating a new ListedColormap: Colormap carpentry
-# =================================================
+# Creating a new ListedColormap
+# =============================
 #
 # This is essential the inverse operation of the above where we supply a
 # Nx4 numpy array with all values between 0 and 1,
@@ -64,6 +77,9 @@ newcolors[:25, :] = pink
 newcmp = ListedColormap(newcolors)
 
 def plot_examples(cms):
+    """
+    helper function to plot two colormaps
+    """
     np.random.seed(19680801)
     data = np.random.randn(30,30)
 
@@ -84,7 +100,7 @@ newcmp = ListedColormap(viridis(np.linspace(0.25, 0.75, 256)))
 plot_examples([viridis, newcmp])
 
 ##############################################################################
-# and we can easily paste together two colormaps:
+# and we can easily concatenate two colormaps:
 
 top = cm.get_cmap('Oranges_r', 128)
 bottom = cm.get_cmap('Blues', 128)
@@ -95,11 +111,24 @@ newcmp = ListedColormap(newcolors, name='OrangeBlue')
 plot_examples([viridis, newcmp])
 
 ##############################################################################
+# Of course we need not start from a named colormap, we just need to create
+# the Nx4 array to pass to `.ListedColormap`.  Here we  create a
+# brown colormap that goes to white....
+
+N = 256
+vals = np.ones((N, 4))
+vals[:, 0] = np.linspace(90/256, 1, N)
+vals[:, 1] = np.linspace(39/256, 1, N)
+vals[:, 2] = np.linspace(41/256, 1, N)
+newcmp = ListedColormap(vals)
+plot_examples([viridis, newcmp])
+
+##############################################################################
 # LinearSegmented colormaps
 # =========================
 #
-# LinearSegmented colormaps are an alternate way to specify colormaps that
-# specify anchor points for linear ramps for each of RGB and optionally, alpha
+# `.LinearSegmentedColormap` have an alternate way to specify colormaps that
+# specify anchor points for linear ramps for each of RGB, and optionally, alpha
 # (RGBA).
 #
 # The format to specify these colormaps is a bit complicated to allow
@@ -142,8 +171,8 @@ plot_linearmap(cdict)
 # element of the first anchor and the first element of the second anchor.
 
 cdict['red'] =   [[0.0,  0.0, 0.3],
-                   [0.5,  1.0, 0.9],
-                   [1.0,  1.0, 1.0]]
+                  [0.5,  1.0, 0.9],
+                  [1.0,  1.0, 1.0]]
 plot_linearmap(cdict)
 
 
@@ -164,6 +193,4 @@ matplotlib.colors
 matplotlib.colors.LinearSegmentedColormap
 matplotlib.colors.ListedColormap
 matplotlib.cm
-matplotlib.cm.ScalarMappable.get_cmap
-matplotlib.pyplot.register_cmap
-matplotlib.cm.register_cmap
+matplotlib.cm.get_cmap
