@@ -38,6 +38,26 @@ norm = mpl.colors.Normalize(vmin=5, vmax=10)
 fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
              cax=ax, orientation='horizontal', label='Some Units')
 
+
+###############################################################################
+# Extended colorbar with continuous colorscale
+# --------------------------------------------
+
+# The second example shows how to make a discrete colorbar based on a
+# continuous cmap. With the "extend" kwarg the appropriate colors are chosen to
+# fill the colorspace, including the extensions:
+fig, ax = plt.subplots(figsize=(6, 1))
+fig.subplots_adjust(bottom=0.5)
+
+cmap = mpl.cm.viridis
+bounds = [-1, 2, 5, 7, 12, 15]
+norm = mpl.colors.BoundaryNorm(bounds, cmap.N, extend='both')
+cb2 = mpl.colorbar.ColorbarBase(ax, cmap=cmap,
+                                     norm=norm,
+                                     orientation='horizontal')
+cb2.set_label("Discrete intervals with extend='both' keyword")
+fig.show()
+
 ###############################################################################
 # Discrete intervals colorbar
 # ---------------------------
