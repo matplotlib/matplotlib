@@ -4,20 +4,24 @@ axes
 
 .. currentmodule:: matplotlib.axes
 
+.. contents:: Table of Contents
+   :depth: 2
+   :local:
+   :backlinks: entry
+   :class: multicol-toc
+
 .. automodule:: matplotlib.axes
    :no-members:
    :no-undoc-members:
+
+The Axes class
+==============
 
 .. autoclass:: Axes
    :no-members:
    :no-undoc-members:
    :show-inheritance:
 
-.. contents:: Table of Contents
-   :depth: 2
-   :local:
-   :backlinks: entry
-   :class: multicol-toc
 
 Subplots
 ========
