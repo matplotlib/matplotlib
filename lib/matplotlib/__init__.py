@@ -849,6 +849,10 @@ class RcParams(MutableMapping, dict):
                 cbook.warn_deprecated(
                     "3.0", "{} is deprecated; in the future, examples will be "
                     "found relative to the 'datapath' directory.".format(key))
+            elif key == 'backend':
+                if val is rcsetup._auto_backend_sentinel:
+                    if 'backend' in self:
+                        return
             try:
                 cval = self.validate[key](val)
             except ValueError as ve:
