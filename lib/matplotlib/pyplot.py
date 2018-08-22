@@ -39,7 +39,7 @@ from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec
-from matplotlib import rcParams, rcParamsDefault, get_backend
+from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
 from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
@@ -217,6 +217,7 @@ def switch_backend(newbackend):
             except ImportError:
                 continue
             else:
+                rcParamsOrig['backend'] = candidate
                 return
 
     backend_name = (
