@@ -1292,16 +1292,23 @@ class rc_context:
             if rc:
                 rcParams.update(rc)
         except Exception:
-            # If anything goes wrong, revert to the original rcs.
-            dict.update(rcParams, self._orig)
+            self.__fallback()
             raise
+
+    def __fallback(self):
+        # If anything goes wrong, revert to the original rcs.
+        updated_backend = self._orig['backend']
+        dict.update(rcParams, self._orig)
+        # except for the backend.  If the context block triggered resloving
+        # the auto backend resolution keep that value around
+        if self._orig['backend'] is rcsetup._auto_backend_sentinel:
+            rcParams['backend'] = updated_backend
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        # No need to revalidate the original values.
-        dict.update(rcParams, self._orig)
+        self.__fallback()
 
 
 def use(arg, warn=True, force=False):
