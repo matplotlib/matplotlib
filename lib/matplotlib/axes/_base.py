@@ -2500,34 +2500,50 @@ class _AxesBase(martist.Artist):
                 x, y = title.get_position()
                 if not np.isclose(y, 1.0):
                     self._autotitlepos = False
-                    _log.debug('not adjusting title pos because title was'
+                    _log.debug('not adjusting title pos because a title was'
                              ' already placed manually: %f', y)
                     return
             self._autotitlepos = True
 
+        ymax = -10
         for title in titles:
             x, y0 = title.get_position()
-            y = 1.0
+            y = 1
+            # need to start again in case of window resizing
+            title.set_position((x, 1.0))
             # need to check all our twins too...
             axs = self._twinned_axes.get_siblings(self)
 
+            top = 0  # the top of all the axes twinned with this axes...
             for ax in axs:
                 try:
                     if (ax.xaxis.get_label_position() == 'top'
                             or ax.xaxis.get_ticks_position() == 'top'):
                         bb = ax.xaxis.get_tightbbox(renderer)
-                        top = bb.ymax
-                        # we don't need to pad because the padding is already
-                        # in __init__: titleOffsetTrans
-                        yn = self.transAxes.inverted().transform((0., top))[1]
-                        y = max(y, yn)
+                    else:
+                        bb = ax.get_window_extent(renderer)
+                    top = max(top, bb.ymax)
                 except AttributeError:
-                    pass
-
-            title.set_position((x, y))
+                    # this happens for an empty bb
+                    y = 1
+            if title.get_window_extent(renderer).ymin < top:
+                y = self.transAxes.inverted().transform(
+                        (0., top))[1]
+                title.set_position((x, y))
+                # emperically, this doesn't always get the min to top,
+                # so we need to adjust again.
+                if title.get_window_extent(renderer).ymin < top:
+                    y = self.transAxes.inverted().transform(
+                        (0., 2 * top -
+                             title.get_window_extent(renderer).ymin))[1]
+                    title.set_position((x, y))
+            ymax = max(y, ymax)
+        for title in titles:
+            # now line up all the titles at the highest baseline.
+            x, y0 = title.get_position()
+            title.set_position((x, ymax))
 
     # Drawing
-
     @allow_rasterization
     def draw(self, renderer=None, inframe=False):
         """Draw everything (plot lines, axes, labels)"""
@@ -4201,9 +4217,11 @@ class _AxesBase(martist.Artist):
         if bb_xaxis:
             bb.append(bb_xaxis)
 
-        self._update_title_position(renderer)
-        bb.append(self.get_window_extent(renderer))
+        bb_yaxis = self.yaxis.get_tightbbox(renderer)
+        if bb_yaxis:
+            bb.append(bb_yaxis)
 
+        self._update_title_position(renderer)
         if self.title.get_visible():
             bb.append(self.title.get_window_extent(renderer))
         if self._left_title.get_visible():
@@ -4211,9 +4229,7 @@ class _AxesBase(martist.Artist):
         if self._right_title.get_visible():
             bb.append(self._right_title.get_window_extent(renderer))
 
-        bb_yaxis = self.yaxis.get_tightbbox(renderer)
-        if bb_yaxis:
-            bb.append(bb_yaxis)
+        bb.append(self.get_window_extent(renderer))
 
         bbox_artists = bbox_extra_artists
         if bbox_artists is None:
