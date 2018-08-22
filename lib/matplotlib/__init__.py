@@ -1097,10 +1097,10 @@ if dict.__getitem__(rcParams, 'examples.directory'):
         _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
         rcParams['examples.directory'] = _fullpath
 
-rcParamsOrig = rcParams.copy()
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+    rcParamsOrig = RcParams(rcParams.copy())
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                                 defaultParams.items()
                                 if key not in _all_deprecated])
