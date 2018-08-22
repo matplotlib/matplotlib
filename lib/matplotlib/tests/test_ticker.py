@@ -14,6 +14,8 @@ class TestMaxNLocator(object):
         (20, 100, np.array([20., 40., 60., 80., 100.])),
         (0.001, 0.0001, np.array([0., 0.0002, 0.0004, 0.0006, 0.0008, 0.001])),
         (-1e15, 1e15, np.array([-1.0e+15, -5.0e+14, 0e+00, 5e+14, 1.0e+15])),
+        (0, 0.85e-50, np.arange(6) * 2e-51),
+        (-0.85e-50, 0, np.arange(-5, 1) * 2e-51),
     ]
 
     integer_data = [
@@ -64,7 +66,7 @@ class TestMultipleLocator(object):
         """
         mult = mticker.MultipleLocator(base=0.7)
         mult.set_params(base=1.7)
-        assert mult._base == 1.7
+        assert mult._edge.step == 1.7
 
 
 class TestAutoMinorLocator(object):
