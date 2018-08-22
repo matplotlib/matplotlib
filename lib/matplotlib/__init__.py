@@ -1224,8 +1224,9 @@ def rc_file_defaults():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
         from .style.core import STYLE_BLACKLIST
-        rcParams.update({k: v for k, v in rcParamsOrig.items()
-                         if k not in STYLE_BLACKLIST})
+        rcParams.update({k: rcParamsOrig[k] for k in rcParamsOrig
+                         if k not in STYLE_BLACKLIST and k != 'backend'})
+        rcParams['backend'] = dict.__getitem__(rcParamsOrig, 'backend')
 
 
 def rc_file(fname):
