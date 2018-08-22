@@ -76,16 +76,17 @@ pink = np.array([248/256, 24/256, 148/256, 1])
 newcolors[:25, :] = pink
 newcmp = ListedColormap(newcolors)
 
+
 def plot_examples(cms):
     """
     helper function to plot two colormaps
     """
     np.random.seed(19680801)
-    data = np.random.randn(30,30)
+    data = np.random.randn(30, 30)
 
     fig, axs = plt.subplots(1, 2, figsize=(6, 3), constrained_layout=True)
-    for [ax, cm] in zip(axs, cms):
-        psm = ax.pcolormesh(data, cmap=cm, rasterized=True, vmin=-4, vmax=4)
+    for [ax, cmap] in zip(axs, cms):
+        psm = ax.pcolormesh(data, cmap=cmap, rasterized=True, vmin=-4, vmax=4)
         fig.colorbar(psm, ax=ax)
     plt.show()
 
@@ -145,6 +146,7 @@ cdict = {'red':   [[0.0,  0.0, 0.0],
                    [0.5,  0.0, 0.0],
                    [1.0,  1.0, 1.0]]}
 
+
 def plot_linearmap(cdict):
     newcmp = LinearSegmentedColormap('testCmap', segmentdata=cdict, N=256)
     rgba = newcmp(np.linspace(0, 1, 256))
@@ -170,9 +172,9 @@ plot_linearmap(cdict)
 # are both superfluous to the interpolation, which happens between the last
 # element of the first anchor and the first element of the second anchor.
 
-cdict['red'] =   [[0.0,  0.0, 0.3],
-                  [0.5,  1.0, 0.9],
-                  [1.0,  1.0, 1.0]]
+cdict['red'] = [[0.0,  0.0, 0.3],
+                [0.5,  1.0, 0.9],
+                [1.0,  1.0, 1.0]]
 plot_linearmap(cdict)
 
 

@@ -1,8 +1,13 @@
 """
 Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
-See :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
-See :doc:`/tutorials/colors/colormaps` for an in-depth discussion of colormaps.
+  - See :doc:`/gallery/color/colormap_reference` for a list of builtin
+    colormaps.
+  - See :doc:`/tutorials/colors/colormaps` for an in-depth discussion of
+    choosing colormaps.
+  - See :doc:`/tutorials/colors/colormap-manipulation` for an in-depth
+    discussion of how to manipulate colormaps.
+
 """
 
 import functools
