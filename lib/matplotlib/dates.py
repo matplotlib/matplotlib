@@ -1384,7 +1384,7 @@ class YearLocator(DateLocator):
         (default jan 1).
         """
         DateLocator.__init__(self, tz)
-        self.base = ticker.Base(base)
+        self.base = ticker._Edge_integer(base, 0)
         self.replaced = {'month':  month,
                          'day':    day,
                          'hour':   0,
@@ -1403,15 +1403,15 @@ class YearLocator(DateLocator):
         return self.tick_values(dmin, dmax)
 
     def tick_values(self, vmin, vmax):
-        ymin = self.base.le(vmin.year)
-        ymax = self.base.ge(vmax.year)
+        ymin = self.base.le(vmin.year) * self.base.step
+        ymax = self.base.ge(vmax.year) * self.base.step
 
         ticks = [vmin.replace(year=ymin, **self.replaced)]
         while True:
             dt = ticks[-1]
             if dt.year >= ymax:
                 return date2num(ticks)
-            year = dt.year + self.base.get_base()
+            year = dt.year + self.base.step
             ticks.append(dt.replace(year=year, **self.replaced))
 
     def autoscale(self):

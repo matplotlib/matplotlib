@@ -1661,13 +1661,12 @@ class LinearLocator(Locator):
         return mtransforms.nonsingular(vmin, vmax)
 
 
+@cbook.deprecated("3.0")
 def closeto(x, y):
-    if abs(x - y) < 1e-10:
-        return True
-    else:
-        return False
+    return abs(x - y) < 1e-10
 
 
+@cbook.deprecated("3.0")
 class Base(object):
     'this solution has some hacks to deal with floating point inaccuracies'
     def __init__(self, base):
@@ -1711,17 +1710,16 @@ class Base(object):
 
 class MultipleLocator(Locator):
     """
-    Set a tick on every integer that is multiple of base in the
-    view interval
+    Set a tick on each integer multiple of a base within the view interval.
     """
 
     def __init__(self, base=1.0):
-        self._base = Base(base)
+        self._edge = _Edge_integer(base, 0)
 
     def set_params(self, base):
         """Set parameters within this locator."""
         if base is not None:
-            self._base = base
+            self._edge = _Edge_integer(base, 0)
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1731,20 +1729,20 @@ class MultipleLocator(Locator):
     def tick_values(self, vmin, vmax):
         if vmax < vmin:
             vmin, vmax = vmax, vmin
-        vmin = self._base.ge(vmin)
-        base = self._base.get_base()
-        n = (vmax - vmin + 0.001 * base) // base
-        locs = vmin - base + np.arange(n + 3) * base
+        step = self._edge.step
+        vmin = self._edge.ge(vmin) * step
+        n = (vmax - vmin + 0.001 * step) // step
+        locs = vmin - step + np.arange(n + 3) * step
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
         """
         Set the view limits to the nearest multiples of base that
-        contain the data
+        contain the data.
         """
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            vmin = self._base.le(dmin)
-            vmax = self._base.ge(dmax)
+            vmin = self._edge.le(dmin) * self._edge.step
+            vmax = self._base.ge(dmax) * self._edge.step
             if vmin == vmax:
                 vmin -= 1
                 vmax += 1
@@ -1764,6 +1762,49 @@ def scale_range(vmin, vmax, n=1, threshold=100):
         offset = math.copysign(10 ** (math.log10(abs(meanv)) // 1), meanv)
     scale = 10 ** (math.log10(dv / n) // 1)
     return scale, offset
+
+
+class _Edge_integer:
+    """
+    Helper for MaxNLocator, MultipleLocator, etc.
+
+    Take floating point precision limitations into account when calculating
+    tick locations as integer multiples of a step.
+    """
+    def __init__(self, step, offset):
+        """
+        *step* is a positive floating-point interval between ticks.
+        *offset* is the offset subtracted from the data limits
+        prior to calculating tick locations.
+        """
+        if step <= 0:
+            raise ValueError("'step' must be positive")
+        self.step = step
+        self._offset = abs(offset)
+
+    def closeto(self, ms, edge):
+        # Allow more slop when the offset is large compared to the step.
+        if self._offset > 0:
+            digits = np.log10(self._offset / self.step)
+            tol = max(1e-10, 10 ** (digits - 12))
+            tol = min(0.4999, tol)
+        else:
+            tol = 1e-10
+        return abs(ms - edge) < tol
+
+    def le(self, x):
+        'Return the largest n: n*step <= x.'
+        d, m = _divmod(x, self.step)
+        if self.closeto(m / self.step, 1):
+            return (d + 1)
+        return d
+
+    def ge(self, x):
+        'Return the smallest n: n*step >= x.'
+        d, m = _divmod(x, self.step)
+        if self.closeto(m / self.step, 0):
+            return d
+        return (d + 1)
 
 
 class MaxNLocator(Locator):
@@ -1880,6 +1921,12 @@ class MaxNLocator(Locator):
             self._integer = kwargs['integer']
 
     def _raw_ticks(self, vmin, vmax):
+        """
+        Generate a list of tick locations including the range *vmin* to
+        *vmax*.  In some applications, one or both of the end locations
+        will not be needed, in which case they are trimmed off
+        elsewhere.
+        """
         if self._nbins == 'auto':
             if self.axis is not None:
                 nbins = np.clip(self.axis.get_tick_space(),
@@ -1892,7 +1939,7 @@ class MaxNLocator(Locator):
         scale, offset = scale_range(vmin, vmax, nbins)
         _vmin = vmin - offset
         _vmax = vmax - offset
-        raw_step = (vmax - vmin) / nbins
+        raw_step = (_vmax - _vmin) / nbins
         steps = self._extended_steps * scale
         if self._integer:
             # For steps > 1, keep only integer values.
@@ -1911,20 +1958,27 @@ class MaxNLocator(Locator):
                     break
 
         # This is an upper limit; move to smaller steps if necessary.
-        for i in range(istep):
-            step = steps[istep - i]
+        for istep in reversed(range(istep + 1)):
+            step = steps[istep]
+
             if (self._integer and
                     np.floor(_vmax) - np.ceil(_vmin) >= self._min_n_ticks - 1):
                 step = max(1, step)
             best_vmin = (_vmin // step) * step
 
-            low = np.round(Base(step).le(_vmin - best_vmin) / step)
-            high = np.round(Base(step).ge(_vmax - best_vmin) / step)
-            ticks = np.arange(low, high + 1) * step + best_vmin + offset
-            nticks = ((ticks <= vmax) & (ticks >= vmin)).sum()
+            # Find tick locations spanning the vmin-vmax range, taking into
+            # account degradation of precision when there is a large offset.
+            # The edge ticks beyond vmin and/or vmax are needed for the
+            # "round_numbers" autolimit mode.
+            edge = _Edge_integer(step, offset)
+            low = edge.le(_vmin - best_vmin)
+            high = edge.ge(_vmax - best_vmin)
+            ticks = np.arange(low, high + 1) * step + best_vmin
+            # Count only the ticks that will be displayed.
+            nticks = ((ticks <= _vmax) & (ticks >= _vmin)).sum()
             if nticks >= self._min_n_ticks:
                 break
-        return ticks
+        return ticks + offset
 
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
