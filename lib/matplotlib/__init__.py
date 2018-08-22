@@ -1345,7 +1345,7 @@ def use(arg, warn=True, force=False):
     name = validate_backend(arg)
 
     # if setting back to the same thing, do nothing
-    if (rcParams['backend'] == name):
+    if (dict.__getitem__(rcParams, 'backend') == name):
         pass
 
     # Check if we have already imported pyplot and triggered
