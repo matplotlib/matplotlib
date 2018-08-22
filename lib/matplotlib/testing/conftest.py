@@ -53,6 +53,8 @@ def mpl_test_settings(request):
             if backend is not None:
                 plt.switch_backend(prev_backend)
 
+    assert matplotlib.get_backend() == 'agg'
+
 
 @pytest.fixture
 def mpl_image_comparison_parameters(request, extension):
