@@ -1225,21 +1225,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._auto = False
         if self.levels is None:
             if len(args) == 0:
-                lev = self._autolev(7)
+                levels_arg = 7  # Default, hard-wired.
             else:
-                level_arg = args[0]
-                try:
-                    if isinstance(level_arg, Integral):
-                        lev = self._autolev(level_arg)
-                    else:
-                        lev = np.asarray(level_arg).astype(np.float64)
-                except:
-                    raise TypeError(
-                        "Last {0} arg must give levels; see help({0})"
-                        .format(fn))
-            self.levels = lev
+                levels_arg = args[0]
         else:
-            self.levels = np.asarray(self.levels).astype(np.float64)
+            levels_arg = self.levels
+        if isinstance(levels_arg, Integral):
+            self.levels = self._autolev(levels_arg)
+        else:
+            self.levels = np.asarray(levels_arg).astype(np.float64)
 
         if not self.filled:
             inside = (self.levels > self.zmin) & (self.levels < self.zmax)
