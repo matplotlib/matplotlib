@@ -1,18 +1,16 @@
 """
 ===========
-Ginput Demo
+ginput demo
 ===========
-
-This provides examples of uses of interactive functions, such as ginput,
 
 """
 
-
 import matplotlib.pyplot as plt
 import numpy as np
+
 t = np.arange(10)
 plt.plot(t, np.sin(t))
-print("Please click")
+print("Please click at three points.")
 x = plt.ginput(3)
 print("clicked", x)
 plt.show()
