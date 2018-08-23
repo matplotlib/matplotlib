@@ -1927,7 +1927,7 @@ def _define_aliases(alias_d, cls=None):
                 for alias in aliases:
                     method = make_alias(prefix + prop)
                     method.__name__ = prefix + alias
-                    method.__doc__ = "alias for `{}`".format(prefix + prop)
+                    method.__doc__ = "Alias for `{}`.".format(prefix + prop)
                     setattr(cls, prefix + alias, method)
         if not exists:
             raise ValueError(
