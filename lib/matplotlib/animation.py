@@ -849,15 +849,16 @@ class HTMLWriter(FileMovieWriter):
             self.default_mode = 'loop'
             _log.warning("unrecognized default_mode: using 'loop'")
 
-        self._saved_frames = []
-        self._total_bytes = 0
-        self._hit_limit = False
         super().__init__(fps, codec, bitrate, extra_args, metadata)
 
     def setup(self, fig, outfile, dpi, frame_dir=None):
         root, ext = os.path.splitext(outfile)
         if ext not in ['.html', '.htm']:
             raise ValueError("outfile must be *.htm or *.html")
+
+        self._saved_frames = []
+        self._total_bytes = 0
+        self._hit_limit = False
 
         if not self.embed_frames:
             if frame_dir is None:
@@ -875,7 +876,6 @@ class HTMLWriter(FileMovieWriter):
             # Just stop processing if we hit the limit
             if self._hit_limit:
                 return
-            suffix = '.' + self.frame_format
             f = BytesIO()
             self.fig.savefig(f, format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
@@ -909,11 +909,12 @@ class HTMLWriter(FileMovieWriter):
         if self.embed_frames:
             fill_frames = _embedded_frames(self._saved_frames,
                                            self.frame_format)
+            Nframes = len(self._saved_frames)
         else:
             # temp names is filled by FileMovieWriter
             fill_frames = _included_frames(self._temp_names,
                                            self.frame_format)
-
+            Nframes = len(self._temp_names)
         mode_dict = dict(once_checked='',
                          loop_checked='',
                          reflect_checked='')
@@ -924,7 +925,7 @@ class HTMLWriter(FileMovieWriter):
         with open(self.outfile, 'w') as of:
             of.write(JS_INCLUDE)
             of.write(DISPLAY_TEMPLATE.format(id=uuid.uuid4().hex,
-                                             Nframes=len(self._temp_names),
+                                             Nframes=Nframes,
                                              fill_frames=fill_frames,
                                              interval=interval,
                                              **mode_dict))
