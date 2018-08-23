@@ -3,7 +3,7 @@
 Creating Colormaps in Matplotlib
 ********************************
 
-Creating and manipulating colormaps in Matplotlib is quite straight-forward
+Creating and manipulating colormaps in Matplotlib is straight-forward
 using the class `.ListedColormap` and a Nx4 numpy array of values
 between 0 and 1 to represent the RGBA values of the colormap.  There
 is also a `.LinearSegmentedColormap` class that allows colormaps to be
