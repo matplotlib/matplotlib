@@ -1397,8 +1397,11 @@ def _reshape_2D(X, name):
         # 1D array of scalars: directly return it.
         return [X]
     elif X.ndim in [1, 2]:
-        # 2D array, or 1D array of iterables: flatten them first.
-        return [np.reshape(x, -1) for x in X]
+        if hasattr(X[0], '__len__'):
+            # 2D array, or 1D array of iterables: flatten them first.
+            return [np.reshape(x, -1) for x in X]
+        else:
+            return [X]
     else:
         raise ValueError("{} must have 2 or fewer dimensions".format(name))
 
