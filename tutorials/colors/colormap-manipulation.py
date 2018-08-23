@@ -3,15 +3,12 @@
 Creating Colormaps in Matplotlib
 ********************************
 
-Matplotlib colormaps are implimented as a class, which makes them quite
-flexible, but opaque to users as to how to create and/or
-manipulate them.  This opacity is not helped in the library by the fact that
-the named colormaps are accessed via `.matplotlib.cm.get_cmap` module, whereas
-the colormap class itself is defined in `.matplotlib.colors.Colormap`!
-
-Fortunately, the way to create colormaps is quite straight forward, by creating
-an instance of class `.ListedColormap` using a Nx4 numpy array of values
-between 0 and 1 to represent the RGBA values of the colormap.
+Creating and manipulating colormaps in Matplotlib is quite straight-forward
+using the class `.ListedColormap` and a Nx4 numpy array of values
+between 0 and 1 to represent the RGBA values of the colormap.  There
+is also a `.LinearSegmentedColormap` class that allows colormaps to be
+specified with far fewer anchor points defining segments, and linearly
+interpolating between the anchor points.
 
 Getting colormaps and accessing their values
 ============================================
@@ -93,11 +90,12 @@ def plot_examples(cms):
 plot_examples([viridis, newcmp])
 
 ##############################################################################
-# We can easily reduce the range of a colormap; here we choose the middle
-# 0.5 of the colormap.
+# We can easily reduce the dynamic range of a colormap; here we choose the
+# middle 0.5 of the colormap.  However, we need to interpolate from a larger
+# colormap, otherwise the new colormap will have repeated values.
 
-viridis = cm.get_cmap('viridis', 256)
-newcmp = ListedColormap(viridis(np.linspace(0.25, 0.75, 256)))
+viridisBig = cm.get_cmap('viridis', 512)
+newcmp = ListedColormap(viridisBig(np.linspace(0.25, 0.75, 256)))
 plot_examples([viridis, newcmp])
 
 ##############################################################################
