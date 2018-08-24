@@ -50,8 +50,8 @@ import re
 
 import numpy as np
 import matplotlib.cbook as cbook
-from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, \
-                         XKCD_COLORS, SOLARIZED_COLORS
+from ._color_data import (BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS,
+                          XKCD_COLORS, SOLARIZED_COLORS)
 
 
 class _ColorMapping(dict):
