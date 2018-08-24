@@ -50,7 +50,8 @@ import re
 
 import numpy as np
 import matplotlib.cbook as cbook
-from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
+from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, \
+                         XKCD_COLORS, SOLARIZED_COLORS
 
 
 class _ColorMapping(dict):
@@ -69,6 +70,7 @@ class _ColorMapping(dict):
 
 _colors_full_map = {}
 # Set by reverse priority order.
+_colors_full_map.update(SOLARIZED_COLORS)
 _colors_full_map.update(XKCD_COLORS)
 _colors_full_map.update({k.replace('grey', 'gray'): v
                          for k, v in XKCD_COLORS.items()
