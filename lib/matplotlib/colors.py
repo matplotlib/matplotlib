@@ -1264,8 +1264,9 @@ class BoundaryNorm(Normalize):
             above ``boundaries[-1]``. These are then converted to valid indices
             by :meth:`Colormap.__call__`.
         extend : str, optional
-            'neither', 'both', 'min', or 'max': select the colors out of
-            cmap so that the extensions are considered in the interpolation
+            'neither', 'both', 'min', or 'max': reserve the first (last) colors
+            of the colormap for data values below (above) the first (last)
+            boundary value.
 
         Notes
         -----
