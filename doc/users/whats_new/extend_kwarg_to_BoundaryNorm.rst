@@ -11,31 +11,36 @@ Example
 ```````
 ::
 
-    from matplotlib import pyplot as plt
-    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import BoundaryNorm
+    import numpy as np
 
-    # Make a figure and axes with dimensions as desired.
-    fig = plt.figure(figsize=(8, 3))
-    ax1 = fig.add_axes([0.05, 0.7, 0.9, 0.2])
-    ax2 = fig.add_axes([0.05, 0.2, 0.9, 0.2])
+    # Make the data
+    dx, dy = 0.05, 0.05
+    y, x = np.mgrid[slice(1, 5 + dy, dy),
+                    slice(1, 5 + dx, dx)]
+    z = np.sin(x) ** 10 + np.cos(10 + y * x) * np.cos(x)
+    z = z[:-1, :-1]
 
-    # Set the colormap and bounds
-    bounds = [-1, 2, 5, 7, 12, 15]
-    cmap = mpl.cm.get_cmap('viridis')
+    # Z roughly varies between -1 and +1
+    # my levels are chosen so that the color bar should be extended
+    levels = [-0.8, -0.5, -0.2, 0.2, 0.5, 0.8]
+    cmap = plt.get_cmap('PiYG')
 
-    # Default behavior
-    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-    cb1 = mpl.colorbar.ColorbarBase(ax1, cmap=cmap,
-                                         norm=norm,
-                                         extend='both',
-                                         orientation='horizontal')
-    cb1.set_label('Default BoundaryNorm ouput')
+    # Before this change
+    plt.subplot(2, 1, 1)
+    norm = BoundaryNorm(levels, ncolors=cmap.N)
+    im = plt.pcolormesh(x, y, z, cmap=cmap, norm=norm)
+    plt.colorbar(extend='both')
+    plt.axis([x.min(), x.max(), y.min(), y.max()])
+    plt.title('pcolormesh with extended colorbar')
 
-    # New behavior
-    norm = mpl.colors.BoundaryNorm(bounds, cmap.N, extend='both')
-    cb2 = mpl.colorbar.ColorbarBase(ax2, cmap=cmap,
-                                         norm=norm,
-                                         orientation='horizontal')
-    cb2.set_label("With new extend='both' keyword")
+    # With the new keyword
+    norm = BoundaryNorm(levels, ncolors=cmap.N, extend='both')
+    plt.subplot(2, 1, 2)
+    im = plt.pcolormesh(x, y, z, cmap=cmap, norm=norm)
+    plt.colorbar()  # note that the colorbar is updated accordingly
+    plt.axis([x.min(), x.max(), y.min(), y.max()])
+    plt.title('pcolormesh with extended BoundaryNorm')
 
     plt.show()
