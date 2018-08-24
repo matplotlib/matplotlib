@@ -1263,18 +1263,23 @@ class BoundaryNorm(Normalize):
             they are below ``boundaries[0]`` or mapped to ncolors if they are
             above ``boundaries[-1]``. These are then converted to valid indices
             by :meth:`Colormap.__call__`.
-        extend : str, optional
-            'neither', 'both', 'min', or 'max': reserve the first (last) colors
-            of the colormap for data values below (above) the first (last)
-            boundary value.
+        extend : {'neither', 'both', 'min', 'max'}, optional
+            Extend the number of bins to include one or both of the
+            regions beyond the boundaries.  For example, if ``extend``
+            is 'min', then the color to which the region between the first
+            pair of boundaries is mapped will be distinct from the first
+            color in the colormap, and by default a
+            :class:`~matplotlib.colorbar.Colorbar` will be drawn with
+            the triangle extension on the left side.
 
         Notes
         -----
         *boundaries* defines the edges of bins, and data falling within a bin
         is mapped to the color with the same index.
 
-        If the number of bins doesn't equal *ncolors*, the color is chosen
-        by linear interpolation of the bin number onto color numbers.
+        If the number of bins, including any extensions, doesn't equal
+        *ncolors*, the color is chosen by linear interpolation of the
+        bin number onto color numbers.
         """
         if clip and extend != 'neither':
             raise ValueError("'clip=True' is not compatible with 'extend'")
@@ -1284,25 +1289,15 @@ class BoundaryNorm(Normalize):
         self.boundaries = np.asarray(boundaries)
         self.N = len(self.boundaries)
         self.Ncmap = ncolors
-
-        # Extension. We use the same trick as colorbar.py and add a fake
-        # boundary were needed.
-        _b = list(boundaries)
-        if extend == 'both':
-            _b = [_b[0] - 1] + _b + [_b[-1] + 1]
-        elif extend == 'min':
-            _b = [_b[0] - 1] + _b
-        elif extend == 'max':
-            _b = _b + [_b[-1] + 1]
         self.extend = extend
 
-        # needed for the interpolation but should not be seen from outside
-        self._b = np.array(_b)
-        self._N = len(self._b)
-        if self._N - 1 == self.Ncmap:
-            self._interp = False
-        else:
-            self._interp = True
+        self._N = self.N - 1  # number of colors needed
+        self._offset = 0
+        if extend in ('min', 'both'):
+            self._N += 1
+            self._offset = 1
+        if extend in ('max', 'both'):
+            self._N += 1
 
     def __call__(self, value, clip=None):
         if clip is None:
@@ -1316,11 +1311,9 @@ class BoundaryNorm(Normalize):
             max_col = self.Ncmap - 1
         else:
             max_col = self.Ncmap
-        iret = np.zeros(xx.shape, dtype=np.int16)
-        for i, b in enumerate(self._b):
-            iret[xx >= b] = i
-        if self._interp:
-            scalefac = float(self.Ncmap - 1) / (self._N - 2)
+        iret = np.digitize(xx, self.boundaries) - 1 + self._offset
+        if self.Ncmap > self._N:
+            scalefac = (self.Ncmap - 1) / (self._N - 1)
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col
