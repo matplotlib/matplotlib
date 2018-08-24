@@ -1253,7 +1253,7 @@ class Text(Artist):
 
     def set_fontname(self, fontname):
         """
-        alias for `.set_family`
+        Alias for `.set_family`.
 
         One-way alias only: the getter differs.
 

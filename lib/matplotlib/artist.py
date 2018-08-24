@@ -1161,7 +1161,7 @@ class ArtistInspector(object):
         if docstring is None:
             return 'unknown'
 
-        if docstring.startswith('alias for '):
+        if docstring.startswith('Alias for '):
             return None
 
         match = self._get_valid_values_regex.search(docstring)
@@ -1231,7 +1231,7 @@ class ArtistInspector(object):
         ds = o.__doc__
         if ds is None:
             return False
-        return ds.startswith('alias for ')
+        return ds.startswith('Alias for ')
 
     def aliased_name(self, s):
         """
