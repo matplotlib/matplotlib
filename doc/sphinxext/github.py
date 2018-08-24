@@ -75,7 +75,6 @@ def ghissue_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
     app = inliner.document.settings.env.app
-    #app.info('issue %r' % text)
     if 'pull' in name.lower():
         category = 'pull'
     elif 'issue' in name.lower():
@@ -105,7 +104,6 @@ def ghuser_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     :param content: The directive content for customization.
     """
     app = inliner.document.settings.env.app
-    #app.info('user link %r' % text)
     ref = 'https://www.github.com/' + text
     node = nodes.reference(rawtext, text, refuri=ref, **options)
     return [node], []
@@ -126,7 +124,6 @@ def ghcommit_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     :param content: The directive content for customization.
     """
     app = inliner.document.settings.env.app
-    #app.info('user link %r' % text)
     try:
         base = app.config.github_project_url
         if not base:
@@ -146,7 +143,6 @@ def setup(app):
 
     :param app: Sphinx application context.
     """
-    app.info('Initializing GitHub plugin')
     app.add_role('ghissue', ghissue_role)
     app.add_role('ghpull', ghissue_role)
     app.add_role('ghuser', ghuser_role)
