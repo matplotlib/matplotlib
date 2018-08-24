@@ -4213,23 +4213,23 @@ class Axes(_AxesBase):
                     # NB: remember that a single color is also acceptable.
                     # Besides *colors* will be an empty array if c == 'none'.
                     valid_shape = False
-                    raise ValueError
-            except ValueError:
-                if not valid_shape:  # but at least one conversion succeeded.
                     raise ValueError(
                         "'c' argument has {nc} elements, which is not "
                         "acceptable for use with 'x' with size {xs}, "
                         "'y' with size {ys}."
                         .format(nc=n_elem, xs=x.size, ys=y.size)
                     )
-                # Both the mapping *and* the RGBA conversion failed: pretty
-                # severe failure => one may appreciate a verbose feedback.
-                raise ValueError(
-                    "'c' argument must either be valid as mpl color(s) "
-                    "or as numbers to be mapped to colors. "
-                    "Here c = {}."  # <- beware, could be long depending on c.
-                    .format(c)
-                )
+            except Exception as e:
+                if valid_shape:
+                    # Both the mapping *and* the RGBA conversion failed: pretty
+                    # severe failure => one may appreciate a verbose feedback.
+                    raise ValueError(
+                        "'c' argument must either be valid as mpl color(s) "
+                        "or as numbers to be mapped to colors. "
+                        "Here c = {}."  # <- beware, could be long depending on c.
+                        .format(c)
+                    ) from e
+                raise e
         else:
             colors = None  # use cmap, norm after collection is created
 
