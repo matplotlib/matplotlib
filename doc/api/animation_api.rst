@@ -19,7 +19,6 @@ The easiest way to make a live animation in matplotlib is to use one of the
 
 .. autosummary::
    :toctree: _as_gen
-   :template: autosummary_inher.rst
    :nosignatures:
 
    FuncAnimation
@@ -164,7 +163,6 @@ all data in memory.
 
 .. autosummary::
    :toctree: _as_gen
-   :template: autosummary_inher.rst
    :nosignatures:
 
    PillowWriter
@@ -175,7 +173,6 @@ on all systems.
 
 .. autosummary::
    :toctree: _as_gen
-   :template: autosummary_inher.rst
    :nosignatures:
 
    FFMpegWriter
@@ -188,7 +185,6 @@ debug.
 
 .. autosummary::
    :toctree: _as_gen
-   :template: autosummary_inher.rst
    :nosignatures:
 
    FFMpegFileWriter
@@ -241,7 +237,6 @@ Animation Base Classes
 
 .. autosummary::
    :toctree: _as_gen
-   :template: autosummary_inher.rst
    :nosignatures:
 
    Animation
@@ -256,7 +251,6 @@ writer and the class to allow a string to be passed to
 
 .. autosummary::
    :toctree: _as_gen
-   :template: autosummary_inher.rst
    :nosignatures:
 
    MovieWriterRegistry
@@ -268,7 +262,6 @@ To reduce code duplication base classes
 
 .. autosummary::
    :toctree: _as_gen
-   :template: autosummary_inher.rst
    :nosignatures:
 
    AbstractMovieWriter
@@ -279,7 +272,6 @@ and mixins
 
 .. autosummary::
    :toctree: _as_gen
-   :template: autosummary_inher.rst
    :nosignatures:
 
    AVConvBase
