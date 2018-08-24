@@ -55,8 +55,8 @@ print('viridis(np.linspace(0, 1, 12))', viridis(np.linspace(0, 1, 12)))
 print('viridis(np.linspace(0, 1, 15))', viridis(np.linspace(0, 1, 15)))
 
 ##############################################################################
-# Creating a new ListedColormap
-# =============================
+# Creating listed colormaps
+# =========================
 #
 # This is essential the inverse operation of the above where we supply a
 # Nx4 numpy array with all values between 0 and 1,
@@ -123,15 +123,19 @@ newcmp = ListedColormap(vals)
 plot_examples([viridis, newcmp])
 
 ##############################################################################
-# LinearSegmented colormaps
-# =========================
+# Creating linear segmented colormaps
+# ===================================
 #
-# `.LinearSegmentedColormap` have an alternate way to specify colormaps that
-# specify anchor points for linear ramps for each of RGB, and optionally, alpha
-# (RGBA).
+# `.LinearSegmentedColormap` class specifies colormaps using anchor points
+# between which RGB(A) values are interpolated.
 #
-# The format to specify these colormaps is a bit complicated to allow
-# discontinuities at the anchor points.  First, with no discontinuities:
+# The format to specify these colormaps allows discontinuities at the anchor
+# points. Each anchor point is specified as a row in a matrix of the
+# form ``[x[i] yleft[i] yright[i]]``, where ``x[i]`` is the anchor, and
+# ``yleft[i]`` and ``yright[i]`` are the values of the color on either
+# side of the anchor point.
+#
+# If there are no discontinuities, then ``yleft[i]=yright[i]``:
 
 cdict = {'red':   [[0.0,  0.0, 0.0],
                    [0.5,  1.0, 1.0],
@@ -161,14 +165,23 @@ def plot_linearmap(cdict):
 plot_linearmap(cdict)
 
 #############################################################################
-# However, consider the case where the third column is different than the
-# second.  The linear interpolation between red[i, 0] and red[i+1, 0] is
-# from red[i, 2] to red[i+1, 1].  This format allows us to have
-# discontinuities in the colormap at the anchor points; in this case
-# between 0 and 0.5, the linear interpolation goes from 0.3 to 1, and
-# between 0.5 and 1 it goes from 0.9 to 1.  Note that red[0, 1], and red[2, 2]
-# are both superfluous to the interpolation, which happens between the last
-# element of the first anchor and the first element of the second anchor.
+# In order to make a discontinuity at an anchor point, the third column is
+# different than the second.  The matrix for each of "red", "green", "blue",
+# and optionally "alpha" is set up as::
+#
+#   cdict['red'] = [...
+#                   [x[i]      yleft[i]     yright[i]],
+#                   [x[i+1]    yleft[i+1]   yright[i+1]],
+#                  ...]
+#
+# and for values passed to the colormap between ``x[i]`` and ``x[i+1]``,
+# the interpolation is between ``yright[i]`` and ``yleft[i+1]``.
+#
+# In the example below there is a discontiuity in red at 0.5.  The
+# interpolation between 0 and 0.5 goes from 0.3 to 1, and between 0.5 and 1
+# it goes from 0.9 to 1.  Note that red[0, 1], and red[2, 2] are both
+# superfluous to the interpolation because red[0, 1] is the value to the
+# left of 0, and red[2, 2] is the value to the right of 1.0.
 
 cdict['red'] = [[0.0,  0.0, 0.3],
                 [0.5,  1.0, 0.9],
