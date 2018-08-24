@@ -86,6 +86,13 @@ wrap around, they are a good choice for cyclic data such as phase
 angles, compass directions, or time of day. Like *viridis*, *twilight* is
 perceptually uniform and colorblind friendly.
 
+Add Solarized palette to named matplotlib colors
+-------------------------------------------------
+Ethan Schoonover's `Solarized palette <https://ethanschoonover.com/solarized/__`
+is now implemented as named matplotlib colors. Comprising of 16 colors, the
+colors can be accesseed by appending 'solarized-' to their name, e.g.
+`solarized-cyan` refers to cyan from the Solarized palette.
+
 
 Don't automatically rename duplicate file names
 -----------------------------------------------
