@@ -6,14 +6,25 @@ range 0-1.
 
 This module includes functions and classes for color specification
 conversions, and for mapping numbers to colors in a 1-D array of colors called
-a colormap. Colormapping typically involves two steps: a data array is first
-mapped onto the range 0-1 using an instance of :class:`Normalize` or of a
-subclass; then this number in the 0-1 range is mapped to a color using an
-instance of a subclass of :class:`Colormap`.  Two are provided here:
-:class:`LinearSegmentedColormap`, which is used to generate all the built-in
-colormap instances, but is also useful for making custom colormaps, and
-:class:`ListedColormap`, which is used for generating a custom colormap from a
-list of color specifications.
+a colormap.
+
+Mapping data onto colors using a colormap typically involves two steps:
+a data array is first mapped onto the range 0-1 using a subclass of
+:class:`Normalize`, then this number is mapped to a color using
+a subclass of :class:`Colormap`.  Two are provided here:
+:class:`LinearSegmentedColormap`, which uses piecewise-linear interpolation
+to define colormaps, and :class:`ListedColormap`, which makes a colormap
+from a list of colors.
+
+.. seealso::
+
+  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
+  make colormaps and
+
+  :doc:`/tutorials/colors/colormaps` for a list of built-in colormaps.
+
+  :doc:`/tutorials/colors/colormapnorms` for more details about data
+  normalization
 
 The module also provides functions for checking whether an object can be
 interpreted as a color (:func:`is_color_like`), for converting such an object
