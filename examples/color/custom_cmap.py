@@ -3,6 +3,9 @@
 Creating a colormap from a list of colors
 =========================================
 
+For more detail on creating and manipulating colormaps see
+:doc:`/tutorials/colors/colormap-manipulation`.
+
 Creating a :doc:`colormap </tutorials/colors/colormaps>`
 from a list of colors can be done with the
 :meth:`~.colors.LinearSegmentedColormap.from_list` method of
