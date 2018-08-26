@@ -683,7 +683,7 @@ class RendererPgf(RendererBase):
         if mtext and (
                 (angle == 0 or
                  mtext.get_rotation_mode() == "anchor") and
-                mtext.get_va() != "center_baseline"):
+                mtext.get_verticalalignment() != "center_baseline"):
             # if text anchoring can be supported, get the original coordinates
             # and add alignment information
             pos = mtext.get_unitless_position()
@@ -694,8 +694,8 @@ class RendererPgf(RendererBase):
             halign = {"left": "left", "right": "right", "center": ""}
             valign = {"top": "top", "bottom": "bottom",
                       "baseline": "base", "center": ""}
-            text_args.append(halign[mtext.get_ha()])
-            text_args.append(valign[mtext.get_va()])
+            text_args.append(halign[mtext.get_horizontalalignment()])
+            text_args.append(valign[mtext.get_verticalalignment()])
         else:
             # if not, use the text layout provided by matplotlib
             text_args.append("x=%fin" % (x * f))

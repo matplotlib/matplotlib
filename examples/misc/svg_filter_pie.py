@@ -31,7 +31,7 @@ for w in pies[0]:
     w.set_gid(w.get_label())
 
     # we don't want to draw the edge of the pie
-    w.set_ec("none")
+    w.set_edgecolor("none")
 
 for w in pies[0]:
     # create shadow patch

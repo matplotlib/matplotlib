@@ -463,8 +463,8 @@ def test_shadow(fig_test, fig_ref):
     rect = mpatches.Rectangle(xy=xy, width=.5, height=.5)
     shadow = mpatches.Rectangle(
         xy=xy + fig_ref.dpi / 72 * dxy, width=.5, height=.5,
-        fc=np.asarray(mcolors.to_rgb(rect.get_fc())) * .3,
-        ec=np.asarray(mcolors.to_rgb(rect.get_fc())) * .3,
+        fc=np.asarray(mcolors.to_rgb(rect.get_facecolor())) * .3,
+        ec=np.asarray(mcolors.to_rgb(rect.get_facecolor())) * .3,
         alpha=.5)
     a2.add_patch(shadow)
     a2.add_patch(rect)

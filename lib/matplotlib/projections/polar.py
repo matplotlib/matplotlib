@@ -631,8 +631,8 @@ class RadialTick(maxis.YTick):
             text_angle = user_angle
         if self.label1On:
             if full:
-                ha = self.label1.get_ha()
-                va = self.label1.get_va()
+                ha = self.label1.get_horizontalalignment()
+                va = self.label1.get_verticalalignment()
             else:
                 ha, va = self._determine_anchor(mode, angle, direction > 0)
             self.label1.set_ha(ha)
