@@ -56,7 +56,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
         destDC.SelectObject(wx.NullBitmap)
         srcDC.SelectObject(wx.NullBitmap)
 
-        self.Refresh(rect=wx.Rect(x,y, int(w), int(h)))
+        self.Refresh(rect=wx.Rect(x, y, int(w), int(h)))
 
 
 def _convert_agg_to_wx_bitmap(agg, bbox):

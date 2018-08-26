@@ -661,7 +661,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             self._overlay = wx.Overlay()
         odc = wx.DCOverlay(self._overlay, dc)
 
-        if not 'wxMac' in wx.PlatformInfo:
+        if 'wxMac' not in wx.PlatformInfo:
             # draw a box with border and 50% transparency
             dc = wx.GCDC(dc)
             # Set the pen, for the box's border
@@ -857,10 +857,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         if previous_rubberband:
             points += previous_rubberband
         # find the rectangle that covers the previous and current selection
-        top    = min(point[1] for point in points)
-        left   = min(point[0] for point in points)
+        top = min(point[1] for point in points)
+        left = min(point[0] for point in points)
         bottom = max(point[1] for point in points)
-        right  = max(point[0] for point in points)
+        right = max(point[0] for point in points)
 
         if previous_rubberband:
             # extend by one pixel to avoid residuals on Mac OS
@@ -873,7 +873,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             if right < self.figure.bbox.width - 1:
                 right += 1
 
-        rect = wx.Rect(topLeft=wx.Point(left,top),
+        rect = wx.Rect(topLeft=wx.Point(left, top),
                        bottomRight=wx.Point(right, bottom))
         self.Refresh(False, rect)
 
