@@ -536,12 +536,12 @@ class ColorbarBase(cm.ScalarMappable):
 
         if self.extend in ["min", "both"]:
             cc = self.to_rgba([C[0][0]])
-            self.extension_patch1.set_fc(cc[0])
+            self.extension_patch1.set_facecolor(cc[0])
             X, Y, C = X[1:], Y[1:], C[1:]
 
         if self.extend in ["max", "both"]:
             cc = self.to_rgba([C[-1][0]])
-            self.extension_patch2.set_fc(cc[0])
+            self.extension_patch2.set_facecolor(cc[0])
             X, Y, C = X[:-1], Y[:-1], C[:-1]
 
         if self.orientation == 'vertical':
