@@ -531,6 +531,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         _log.debug("%s - __init__() - bitmap w:%d h:%d", type(self), w, h)
         # TODO: Add support for 'point' inspection and plot navigation.
         self._isDrawn = False
+        self._rubberband = None  # a selection rectangle to be drawn
+        self._overlay = None
 
         self.Bind(wx.EVT_SIZE, self._onSize)
         self.Bind(wx.EVT_PAINT, self._onPaint)
@@ -619,29 +621,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         wildcards = '|'.join(wildcards)
         return wildcards, extensions, filter_index
 
-    def gui_repaint(self, drawDC=None, origin='WX'):
-        """
-        Performs update of the displayed image on the GUI canvas, using the
-        supplied wx.PaintDC device context.
-
-        The 'WXAgg' backend sets origin accordingly.
-        """
-        _log.debug("%s - gui_repaint()", type(self))
-        if self.IsShownOnScreen():
-            if not drawDC:
-                # not called from OnPaint use a ClientDC
-                drawDC = wx.ClientDC(self)
-
-            # following is for 'WX' backend on Windows
-            # the bitmap can not be in use by another DC,
-            # see GraphicsContextWx._cache
-            if wx.Platform == '__WXMSW__' and origin == 'WX':
-                img = self.bitmap.ConvertToImage()
-                bmp = img.ConvertToBitmap()
-                drawDC.DrawBitmap(bmp, 0, 0)
-            else:
-                drawDC.DrawBitmap(self.bitmap, 0, 0)
-
     filetypes = {
         **FigureCanvasBase.filetypes,
         'bmp': 'Windows bitmap',
@@ -666,12 +645,41 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     def _onPaint(self, event):
         """Called when wxPaintEvt is generated."""
         _log.debug("%s - _onPaint()", type(self))
-        drawDC = wx.PaintDC(self)
         if not self._isDrawn:
-            self.draw(drawDC=drawDC)
+            self.draw()
+
+        # the bitmap can not be in use by another DC
+        img = self.bitmap.ConvertToImage()
+        bmp = img.ConvertToBitmap()
+        dc = wx.BufferedPaintDC(self, bmp)
+
+        if not self._rubberband:
+            return
+
+        # draw rubberband / selection using an overlay
+        if self._overlay is None:
+            self._overlay = wx.Overlay()
+        odc = wx.DCOverlay(self._overlay, dc)
+
+        if not 'wxMac' in wx.PlatformInfo:
+            # draw a box with border and 50% transparency
+            dc = wx.GCDC(dc)
+            # Set the pen, for the box's border
+            bc = wx.BLUE
+            dc.SetPen(wx.Pen(colour=bc, width=1, style=wx.PENSTYLE_SOLID))
+            # Create a brush (for the box's interior) with the same colour,
+            # but 50% transparency.
+            bc = wx.Colour(bc.red, bc.green, bc.blue, 0x80)
+            dc.SetBrush(wx.Brush(bc))
         else:
-            self.gui_repaint(drawDC=drawDC)
-        drawDC.Destroy()
+            # draw without transparency which is buggy on Retina displays
+            dc.SetPen(wx.Pen(wx.BLUE, 1, wx.SOLID))
+            dc.SetBrush(wx.TRANSPARENT_BRUSH)
+
+        # Draw the rectangle
+        topLeft, bottomRight = self._rubberband
+        rect = wx.Rect(topLeft=topLeft, bottomRight=bottomRight)
+        dc.DrawRectangle(rect)
 
     def _onSize(self, event):
         """
@@ -824,11 +832,44 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         event.Skip()
         FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
+    def _draw_rubberband(self, x0, y0, x1, y1):
+        # trigger a refresh to draw a rubberband-like selection box
+        previous_rubberband = self._rubberband
+        height = self.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        self._rubberband = [(x0, y0), (x1, y1)]
+        self._refresh_rubberband(previous_rubberband)
+
+    def _remove_rubberband(self):
+        # end drawing of a rubberband-like selection box
+        if not self._rubberband:
+            return
+        self._overlay.Reset()
+        self._overlay = None
+        self._refresh_rubberband()  # trigger a later redraw over the last rubberband area
+        self._rubberband = None
+
+    def _refresh_rubberband(self, previous_rubberband=None):
+        # initiate a refresh on the area that contains the previous and
+        # current selection / rubberband
+        points = list(self._rubberband)
+        if previous_rubberband:
+            points += previous_rubberband
+        # find the rectangle that covers the previous and current selection
+        top    = min(point[1] for point in points)
+        left   = min(point[0] for point in points)
+        bottom = max(point[1] for point in points)
+        right  = max(point[0] for point in points)
+
+        rect = wx.Rect(topLeft=wx.Point(left,top), bottomRight=wx.Point(right, bottom))
+        self.Refresh(False, rect)
+
 
 class FigureCanvasWx(_FigureCanvasWxBase):
     # Rendering to a Wx canvas using the deprecated Wx renderer.
 
-    def draw(self, drawDC=None):
+    def draw(self):
         """
         Render the figure using RendererWx instance renderer, or using a
         previously defined renderer if none is specified.
@@ -837,7 +878,6 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         self.renderer = RendererWx(self.bitmap, self.figure.dpi)
         self.figure.draw(self.renderer)
         self._isDrawn = True
-        self.gui_repaint(drawDC=drawDC)
 
     def print_bmp(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
@@ -1120,11 +1160,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.canvas = canvas
         self._idle = True
         self.prevZoomRect = None
-        # for now, use alternate zoom-rectangle drawing on all
-        # Macs. N.B. In future versions of wx it may be possible to
-        # detect Retina displays with window.GetContentScaleFactor()
-        # and/or dc.GetContentScaleFactor()
-        self.retinaFix = 'wxMac' in wx.PlatformInfo
 
     def get_canvas(self, frame, fig):
         return type(self.canvas)(frame, -1, fig)
@@ -1216,85 +1251,14 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.canvas.Update()
 
     def press(self, event):
-        if self._active == 'ZOOM':
-            if not self.retinaFix:
-                self.wxoverlay = wx.Overlay()
-            else:
-                if event.inaxes is not None:
-                    self.savedRetinaImage = self.canvas.copy_from_bbox(
-                        event.inaxes.bbox)
-                    self.zoomStartX = event.xdata
-                    self.zoomStartY = event.ydata
-                    self.zoomAxes = event.inaxes
+        pass
 
     def release(self, event):
         if self._active == 'ZOOM':
-            # When the mouse is released we reset the overlay and it
-            # restores the former content to the window.
-            if not self.retinaFix:
-                self.wxoverlay.Reset()
-                del self.wxoverlay
-            else:
-                del self.savedRetinaImage
-                if self.prevZoomRect:
-                    self.prevZoomRect.pop(0).remove()
-                    self.prevZoomRect = None
-                if self.zoomAxes:
-                    self.zoomAxes = None
+            self.canvas._remove_rubberband()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        if self.retinaFix:  # On Macs, use the following code
-            # wx.DCOverlay does not work properly on Retina displays.
-            rubberBandColor = '#C0C0FF'
-            if self.prevZoomRect:
-                self.prevZoomRect.pop(0).remove()
-            self.canvas.restore_region(self.savedRetinaImage)
-            X0, X1 = self.zoomStartX, event.xdata
-            Y0, Y1 = self.zoomStartY, event.ydata
-            lineX = (X0, X0, X1, X1, X0)
-            lineY = (Y0, Y1, Y1, Y0, Y0)
-            self.prevZoomRect = self.zoomAxes.plot(
-                lineX, lineY, '-', color=rubberBandColor)
-            self.zoomAxes.draw_artist(self.prevZoomRect[0])
-            self.canvas.blit(self.zoomAxes.bbox)
-            return
-
-        # Use an Overlay to draw a rubberband-like bounding box.
-
-        dc = wx.ClientDC(self.canvas)
-        odc = wx.DCOverlay(self.wxoverlay, dc)
-        odc.Clear()
-
-        # Mac's DC is already the same as a GCDC, and it causes
-        # problems with the overlay if we try to use an actual
-        # wx.GCDC so don't try it.
-        if 'wxMac' not in wx.PlatformInfo:
-            dc = wx.GCDC(dc)
-
-        height = self.canvas.figure.bbox.height
-        y1 = height - y1
-        y0 = height - y0
-
-        if y1 < y0:
-            y0, y1 = y1, y0
-        if x1 < x0:
-            x0, x1 = x1, x0
-
-        w = x1 - x0
-        h = y1 - y0
-        rect = wx.Rect(x0, y0, w, h)
-
-        rubberBandColor = '#C0C0FF'  # or load from config?
-
-        # Set a pen for the border
-        color = wx.Colour(rubberBandColor)
-        dc.SetPen(wx.Pen(color, 1))
-
-        # use the same color, plus alpha for the brush
-        r, g, b, a = color.Get(True)
-        color.Set(r, g, b, 0x60)
-        dc.SetBrush(wx.Brush(color))
-        dc.DrawRectangle(rect)
+        self.canvas._draw_rubberband(x0, y0, x1, y1)
 
     @cbook.deprecated("3.2")
     def set_status_bar(self, statbar):
@@ -1451,91 +1415,16 @@ class SetCursorWx(backend_tools.SetCursorBase):
             self._make_classic_style_pseudo_toolbar(), cursor)
 
 
-if 'wxMac' not in wx.PlatformInfo:
-    # on most platforms, use overlay
-    class RubberbandWx(backend_tools.RubberbandBase):
-        def __init__(self, *args, **kwargs):
-            backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
-            self.wxoverlay = None
+class RubberbandWx(backend_tools.RubberbandBase):
+    def __init__(self, *args, **kwargs):
+        backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
 
-        def draw_rubberband(self, x0, y0, x1, y1):
-            # Use an Overlay to draw a rubberband-like bounding box.
-            if self.wxoverlay is None:
-                self.wxoverlay = wx.Overlay()
-            dc = wx.ClientDC(self.canvas)
-            odc = wx.DCOverlay(self.wxoverlay, dc)
-            odc.Clear()
+    def draw_rubberband(self, x0, y0, x1, y1):
+        # Use an Overlay to draw a rubberband-like bounding box.
+        self.canvas._draw_rubberband(x0, y0, x1, y1)
 
-            dc = wx.GCDC(dc)
-
-            height = self.canvas.figure.bbox.height
-            y1 = height - y1
-            y0 = height - y0
-
-            if y1 < y0:
-                y0, y1 = y1, y0
-            if x1 < x0:
-                x0, x1 = x1, x0
-
-            w = x1 - x0
-            h = y1 - y0
-            rect = wx.Rect(x0, y0, w, h)
-
-            rubberBandColor = '#C0C0FF'  # or load from config?
-
-            # Set a pen for the border
-            color = wx.Colour(rubberBandColor)
-            dc.SetPen(wx.Pen(color, 1))
-
-            # use the same color, plus alpha for the brush
-            r, g, b, a = color.Get(True)
-            color.Set(r, g, b, 0x60)
-            dc.SetBrush(wx.Brush(color))
-            dc.DrawRectangle(rect)
-
-        def remove_rubberband(self):
-            if self.wxoverlay is None:
-                return
-            self.wxoverlay.Reset()
-            self.wxoverlay = None
-
-else:
-    # on Mac OS retina displays DCOverlay does not work
-    # and dc.SetLogicalFunction does not have an effect on any display
-    # the workaround is to blit the full image for remove_rubberband
-    class RubberbandWx(backend_tools.RubberbandBase):
-        def __init__(self, *args, **kwargs):
-            backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
-            self._rect = None
-
-        def draw_rubberband(self, x0, y0, x1, y1):
-            dc = wx.ClientDC(self.canvas)
-            # this would be required if the Canvas is a ScrolledWindow,
-            # which is not the case for now
-            # self.PrepareDC(dc)
-
-            # delete old rubberband
-            if self._rect:
-                self.remove_rubberband(dc)
-
-            # draw new rubberband
-            dc.SetPen(wx.Pen(wx.BLACK, 1, wx.SOLID))
-            dc.SetBrush(wx.TRANSPARENT_BRUSH)
-            self._rect = (x0, self.canvas._height-y0, x1-x0, -y1+y0)
-            dc.DrawRectangle(self._rect)
-
-        def remove_rubberband(self, dc=None):
-            if not self._rect:
-                return
-            if self.canvas.bitmap:
-                if dc is None:
-                    dc = wx.ClientDC(self.canvas)
-                dc.DrawBitmap(self.canvas.bitmap, 0, 0)
-                #  for testing the method on Windows, use this code instead:
-                # img = self.canvas.bitmap.ConvertToImage()
-                # bmp = img.ConvertToBitmap()
-                # dc.DrawBitmap(bmp, 0, 0)
-            self._rect = None
+    def remove_rubberband(self):
+        self.canvas._remove_rubberband()
 
 
 class _HelpDialog(wx.Dialog):
