@@ -436,11 +436,18 @@ class Line2D(Artist):
         :meth:`~matplotlib.lines.Line2D.set_pickradius` to view or
         modify it.
 
-        Returns *True* if any values are within the radius along with
-        ``{'ind': pointlist}``, where *pointlist* is the set of points
-        within the radius.
+        Parameters
+        ----------
+        mouseevent : `matplotlib.backend_bases.MouseEvent`.
 
-        TODO: sort returned indices by distance
+        Returns
+        -------
+        contains : bool
+            Whether any values are within the radius.
+        ``{'ind': pointlist}``
+            Where *pointlist* is the set of points within the radius.
+
+            TODO: sort returned indices by distance
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
@@ -492,11 +499,17 @@ class Line2D(Artist):
         return len(ind) > 0, dict(ind=ind)
 
     def get_pickradius(self):
-        """Return the pick radius used for containment tests."""
+        """
+        Return the pick radius used for containment tests.
+
+        See `.contains` for more details.
+        """
         return self.pickradius
 
     def set_pickradius(self, d):
         """Set the pick radius used for containment tests.
+
+        See `.contains` for more details.
 
         Parameters
         ----------
@@ -507,7 +520,9 @@ class Line2D(Artist):
 
     def get_fillstyle(self):
         """
-        Return the marker fillstyle.
+        Return the marker fill style.
+
+        See also `~.Line2D.set_fillstyle`.
         """
         return self._marker.get_fillstyle()
 
@@ -585,7 +600,11 @@ class Line2D(Artist):
         self._markevery = every
 
     def get_markevery(self):
-        """Return the markevery setting."""
+        """
+        Return the markevery setting for marker subsampling.
+
+        See also `~.Line2D.set_markevery`.
+        """
         return self._markevery
 
     def set_picker(self, p):
@@ -715,7 +734,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        t : matplotlib.transforms.Transform
+        t : `matplotlib.transforms.Transform`
         """
         Artist.set_transform(self, t)
         self._invalidx = True
@@ -729,7 +748,8 @@ class Line2D(Artist):
 
     @allow_rasterization
     def draw(self, renderer):
-        """Draw the Line with *renderer* unless visibility is *False*."""
+        # docstring inherited from Artist.draw.
+
         if not self.get_visible():
             return
 
@@ -864,22 +884,51 @@ class Line2D(Artist):
         return self._antialiased
 
     def get_color(self):
-        """Return the line color."""
+        """
+        Return the line color.
+
+        See also `~.Line2D.set_color`.
+        """
         return self._color
 
     def get_drawstyle(self):
+        """
+        Return the drawstyle.
+
+        See also `~.Line2D.set_drawstyle`.
+        """
         return self._drawstyle
 
     def get_linestyle(self):
+        """
+        Return the linestyle.
+
+        See also `~.Line2D.set_linestyle`.
+        """
         return self._linestyle
 
     def get_linewidth(self):
+        """
+        Return the linewidth in points.
+
+        See also `~.Line2D.set_linewidth`.
+        """
         return self._linewidth
 
     def get_marker(self):
+        """
+        Return the line marker.
+
+        See also `~.Line2D.set_marker`.
+        """
         return self._marker.get_marker()
 
     def get_markeredgecolor(self):
+        """
+        Return the marker edge color.
+
+        See also `~.Line2D.set_markeredgecolor`.
+        """
         mec = self._markeredgecolor
         if cbook._str_equal(mec, 'auto'):
             if rcParams['_internal.classic_mode']:
@@ -892,6 +941,11 @@ class Line2D(Artist):
             return mec
 
     def get_markeredgewidth(self):
+        """
+        Return the marker edge width in points.
+
+        See also `~.Line2D.set_markeredgewidth`.
+        """
         return self._markeredgewidth
 
     def _get_markerfacecolor(self, alt=False):
@@ -905,12 +959,27 @@ class Line2D(Artist):
             return fc
 
     def get_markerfacecolor(self):
+        """
+        Return the marker face color.
+
+        See also `~.Line2D.set_markerfacecolor`.
+        """
         return self._get_markerfacecolor(alt=False)
 
     def get_markerfacecoloralt(self):
+        """
+        Return the alternate marker face color.
+
+        See also `~.Line2D.set_markerfacecoloralt`.
+        """
         return self._get_markerfacecolor(alt=True)
 
     def get_markersize(self):
+        """
+        Return the marker size in points.
+
+        See also `~.Line2D.set_markersize`.
+        """
         return self._markersize
 
     def get_data(self, orig=True):
@@ -1252,7 +1321,7 @@ class Line2D(Artist):
             self.set_linestyle((0, seq))
 
     def update_from(self, other):
-        """copy properties from other to self"""
+        """Copy properties from other to self."""
         Artist.update_from(self, other)
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
@@ -1278,7 +1347,7 @@ class Line2D(Artist):
 
     def set_dash_joinstyle(self, s):
         """
-        Set the join style for dashed linestyles.
+        Set the join style for dashed lines.
 
         Parameters
         ----------
@@ -1295,7 +1364,7 @@ class Line2D(Artist):
 
     def set_solid_joinstyle(self, s):
         """
-        Set the join style for solid linestyles.
+        Set the join style for solid lines.
 
         Parameters
         ----------
@@ -1313,19 +1382,23 @@ class Line2D(Artist):
 
     def get_dash_joinstyle(self):
         """
-        Get the join style for dashed linestyles.
+        Return the join style for dashed lines.
+
+        See also `~.Line2D.set_dash_joinstyle`.
         """
         return self._dashjoinstyle
 
     def get_solid_joinstyle(self):
         """
-        Get the join style for solid linestyles.
+        Return the join style for solid lines.
+
+        See also `~.Line2D.set_solid_joinstyle`.
         """
         return self._solidjoinstyle
 
     def set_dash_capstyle(self, s):
         """
-        Set the cap style for dashed linestyles.
+        Set the cap style for dashed lines.
 
         Parameters
         ----------
@@ -1341,7 +1414,7 @@ class Line2D(Artist):
 
     def set_solid_capstyle(self, s):
         """
-        Set the cap style for solid linestyles.
+        Set the cap style for solid lines.
 
         Parameters
         ----------
@@ -1357,18 +1430,26 @@ class Line2D(Artist):
 
     def get_dash_capstyle(self):
         """
-        Get the cap style for dashed linestyles.
+        Return the cap style for dashed lines.
+
+        See also `~.Line2D.set_dash_capstyle`.
         """
         return self._dashcapstyle
 
     def get_solid_capstyle(self):
         """
-        Get the cap style for solid linestyles.
+        Return the cap style for solid lines.
+
+        See also `~.Line2D.set_solid_capstyle`.
         """
         return self._solidcapstyle
 
     def is_dashed(self):
-        """Return whether line is dashstyle."""
+        """
+        Return whether line has a dashed linestyle.
+
+        See also `~.Line2D.set_linestyle`.
+        """
         return self._linestyle in ('--', '-.', ':')
 
 
