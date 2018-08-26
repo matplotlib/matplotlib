@@ -30,6 +30,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
 
         self.bitmap = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
         self._isDrawn = True
+        self.Refresh()
 
     def blit(self, bbox=None):
         if bbox is None:

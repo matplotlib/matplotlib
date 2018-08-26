@@ -890,6 +890,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         self.renderer = RendererWx(self.bitmap, self.figure.dpi)
         self.figure.draw(self.renderer)
         self._isDrawn = True
+        self.Refresh()
 
     def print_bmp(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
