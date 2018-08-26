@@ -847,7 +847,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             return
         self._overlay.Reset()
         self._overlay = None
-        self._refresh_rubberband()  # trigger a later redraw over the last rubberband area
+        self._refresh_rubberband()  # trigger a later redraw
         self._rubberband = None
 
     def _refresh_rubberband(self, previous_rubberband=None):
@@ -873,7 +873,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             if right < self.figure.bbox.width - 1:
                 right += 1
 
-        rect = wx.Rect(topLeft=wx.Point(left,top), bottomRight=wx.Point(right, bottom))
+        rect = wx.Rect(topLeft=wx.Point(left,top),
+                       bottomRight=wx.Point(right, bottom))
         self.Refresh(False, rect)
 
 
