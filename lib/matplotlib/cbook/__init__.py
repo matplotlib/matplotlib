@@ -1915,6 +1915,7 @@ def _define_aliases(alias_d, cls=None):
         return functools.partial(_define_aliases, alias_d)
 
     def make_alias(name):  # Enforce a closure over *name*.
+        @functools.wraps(getattr(cls, name))
         def method(self, *args, **kwargs):
             return getattr(self, name)(*args, **kwargs)
         return method
