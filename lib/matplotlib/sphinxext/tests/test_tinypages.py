@@ -19,11 +19,13 @@ def test_tinypages(tmpdir):
     # Build the pages with warnings turned into errors
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html', '-d', doctree_dir,
            pjoin(dirname(__file__), 'tinypages'), html_dir]
-    proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True)
     out, err = proc.communicate()
     assert proc.returncode == 0, \
-        "'{} -msphinx' failed with stdout:\n{}\nstderr:\n{}\n".format(
-            sys.executable, out, err)
+        "sphinx build failed with stdout:\n{}\nstderr:\n{}\n".format(out, err)
+    if err:
+        pytest.fail("sphinx build emitted the following warnings:\n{}"
+                    .format(err))
 
     assert isdir(html_dir)
 
