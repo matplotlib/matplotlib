@@ -30,18 +30,18 @@ Interactive
    :nosignatures:
 
    Artist.add_callback
-   Artist.format_cursor_data
-   Artist.get_contains
-   Artist.get_cursor_data
-   Artist.get_picker
-   Artist.mouseover
+   Artist.remove_callback
    Artist.pchanged
+   Artist.get_cursor_data
+   Artist.format_cursor_data
+   Artist.mouseover
+   Artist.contains
+   Artist.set_contains
+   Artist.get_contains
    Artist.pick
    Artist.pickable
-   Artist.remove_callback
-   Artist.set_contains
    Artist.set_picker
-   Artist.contains
+   Artist.get_picker
 
 Margins and Autoscaling
 -----------------------
@@ -59,12 +59,12 @@ Clipping
    :toctree: _as_gen
    :nosignatures:
 
-   Artist.get_clip_box
-   Artist.get_clip_on
-   Artist.get_clip_path
-   Artist.set_clip_box
    Artist.set_clip_on
+   Artist.get_clip_on
+   Artist.set_clip_box
+   Artist.get_clip_box
    Artist.set_clip_path
+   Artist.get_clip_path
 
 Bulk Properties
 ---------------
@@ -86,29 +86,29 @@ Drawing
    :nosignatures:
 
    Artist.draw
-   Artist.get_animated
    Artist.set_animated
+   Artist.get_animated
 
-   Artist.get_agg_filter
-
+   Artist.set_alpha
    Artist.get_alpha
+   Artist.set_snap
    Artist.get_snap
+   Artist.set_visible
    Artist.get_visible
+   Artist.zorder
+   Artist.set_zorder
    Artist.get_zorder
    Artist.set_agg_filter
-   Artist.set_alpha
 
    Artist.set_sketch_params
-   Artist.set_snap
-   Artist.get_rasterized
    Artist.get_sketch_params
-   Artist.set_path_effects
    Artist.set_rasterized
-   Artist.zorder
-   Artist.set_visible
-   Artist.set_zorder
-   Artist.get_window_extent
+   Artist.get_rasterized
+   Artist.set_path_effects
    Artist.get_path_effects
+
+   Artist.get_agg_filter
+   Artist.get_window_extent
    Artist.get_transformed_clip_path_and_affine
 
 Figure and Axes
@@ -164,12 +164,12 @@ Metadata
    :toctree: _as_gen
    :nosignatures:
 
-   Artist.get_gid
-   Artist.get_label
    Artist.set_gid
+   Artist.get_gid
    Artist.set_label
-   Artist.get_url
+   Artist.get_label
    Artist.set_url
+   Artist.get_url
    Artist.aname
 
 Stale

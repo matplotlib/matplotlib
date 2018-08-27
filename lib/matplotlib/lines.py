@@ -438,14 +438,16 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        mouseevent : `matplotlib.backend_bases.MouseEvent`.
+        mouseevent : `matplotlib.backend_bases.MouseEvent`
 
         Returns
         -------
         contains : bool
             Whether any values are within the radius.
-        ``{'ind': pointlist}``
-            Where *pointlist* is the set of points within the radius.
+        details : dict
+            A dictionary ``{'ind': pointlist}``, where *pointlist* is a
+            list of points of the line that are within the pickradius around
+            the event position.
 
             TODO: sort returned indices by distance
         """
