@@ -29,7 +29,7 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
         FigureCanvasCairo.__init__(self, figure)
         self._renderer = RendererCairo(self.figure.dpi)
 
-    def draw(self, drawDC=None):
+    def _draw(self):
         width = int(self.figure.bbox.width)
         height = int(self.figure.bbox.height)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
@@ -38,6 +38,12 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
         self.figure.draw(self._renderer)
         self.bitmap = wxcairo.BitmapFromImageSurface(surface)
         self._isDrawn = True
+
+    def draw(self):
+        """
+        Render the figure and trigger a screen refresh.
+        """
+        self._draw()
         self.Refresh()
 
 

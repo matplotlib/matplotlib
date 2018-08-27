@@ -22,7 +22,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
     size.
     """
 
-    def draw(self):
+    def _draw(self):
         """
         Render the figure using agg.
         """
@@ -30,6 +30,12 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
 
         self.bitmap = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
         self._isDrawn = True
+
+    def draw(self):
+        """
+        Render the figure using agg and trigger a screen refresh.
+        """
+        self._draw()
         self.Refresh()
 
     def blit(self, bbox=None):
