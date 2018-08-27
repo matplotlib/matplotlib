@@ -1343,7 +1343,7 @@ def use(arg, warn=True, force=False):
 
     force : bool, optional
         If True, attempt to switch the backend.  This defaults to
-        false and using `.pyplot.switch_backend` is preferred.
+        False.
 
 
     """
