@@ -864,14 +864,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
         if previous_rubberband:
             # extend by one pixel to avoid residuals on Mac OS
-            if left > 0:
-                left -= 1
-            if top > 0:
-                top -= 1
-            if bottom < self.figure.bbox.height - 1:
-                bottom += 1
-            if right < self.figure.bbox.width - 1:
-                right += 1
+            left = max(left - 1, 0)
+            top = max(top - 1, 0)
+            bottom = min(bottom + 1, self.figure.bbox.height - 1)
+            right = min(right + 1, self.figure.bbox.width - 1)
 
         rect = wx.Rect(topLeft=wx.Point(left, top),
                        bottomRight=wx.Point(right, bottom))
