@@ -1754,7 +1754,8 @@ class TestScatter(object):
         # Value-mapping like
         ([0.5]*3, None),  # should emit a warning for user's eyes though
         ([0.5]*4, None),  # NB: no warning as matching size allows mapping
-        ([0.5]*5, "shape"),
+        ([0.5]*5, "wrong"),
+        (np.array([0.5]*5), "wrong"),
         # RGB values
         ([[1, 0, 0]], None),
         ([[1, 0, 0]]*3, "shape"),
@@ -1780,8 +1781,11 @@ class TestScatter(object):
     def test_scatter_c(self, c_case, re_key):
         # Additional checking of *c* (introduced in #11383).
         REGEXP = {
-            "shape": "^'c' argument has [0-9]+ elements",  # shape mismatch
-            "conversion": "^'c' argument must either be valid",  # bad vals
+            "shape": [ValueError, "^'c' argument has [0-9]+ elements"],  
+            # shape mismatch
+            "conversion": [ValueError, "^'c' argument must either be valid"],
+            # bad vals
+            "wrong": [Exception, ".*"], # any exception
             }
         x = y = [0, 1, 2, 3]
         fig, ax = plt.subplots()
@@ -1789,7 +1793,7 @@ class TestScatter(object):
         if re_key is None:
             ax.scatter(x, y, c=c_case, edgecolors="black")
         else:
-            with pytest.raises(ValueError, match=REGEXP[re_key]):
+            with pytest.raises(REGEXP[re_key][0], match=REGEXP[re_key][1]):
                 ax.scatter(x, y, c=c_case, edgecolors="black")
 
 
