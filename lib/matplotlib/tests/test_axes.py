@@ -1758,8 +1758,10 @@ class TestScatter(object):
         (np.array([0.5]*5), "wrong"),
         # RGB values
         ([[1, 0, 0]], None),
+        ([[128, 101, 167]], "wrong"),
         ([[1, 0, 0]]*3, "shape"),
         ([[1, 0, 0]]*4, None),
+        ([[128, 101, 167]]*4, "wrong"),
         ([[1, 0, 0]]*5, "shape"),
         # RGBA values
         ([[1, 0, 0, 0.5]], None),
