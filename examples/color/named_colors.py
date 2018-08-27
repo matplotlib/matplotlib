@@ -79,8 +79,8 @@ plot_colortable(mcolors.BASE_COLORS, "Base Colors", sort_colors=False)
 
 plot_colortable(mcolors.CSS4_COLORS, "CSS Colors")
 
-plot_colortable(mcolors.SOLARIZED_COLORS, "Solarized Palette", order='by_column',
-                sort_colors=False)
+plot_colortable(mcolors.SOLARIZED_COLORS, "Solarized Palette",
+                order='by_column', sort_colors=False)
 
 plot_colortable(mcolors.TABLEAU_COLORS, "Tableau Palette")
 
