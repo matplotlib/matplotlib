@@ -984,7 +984,17 @@ class Barbs(mcollections.PolyCollection):
             kw['linewidth'] = 1
 
         # Parse out the data arrays from the various configurations supported
-        x, y, u, v, c = _parse_args(*args)
+        x, y, u, v, c = _parse_args(*args, **kw)
+        if kw.get('U') is not None: # Resetting **kw to the way it was without these
+            kw.pop('U')
+        if kw.get('V') is not None: 
+            kw.pop('V')
+        if kw.get('X') is not None:
+            kw.pop('X')
+        if kw.get('Y') is not None:
+            kw.pop('Y')
+        if kw.get('C') is not None:
+            kw.pop('C')
         self.x = x
         self.y = y
         xy = np.column_stack((x, y))
