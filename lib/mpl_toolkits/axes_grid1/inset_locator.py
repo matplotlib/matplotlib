@@ -400,8 +400,8 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     creates in inset axes in the lower left corner of *parent_axes* which spans
     over 30%% in height and 40%% in width of the *parent_axes*. Since the usage
     of `.inset_axes` may become slightly tricky when exceeding such standard
-    cases, it is recommended to read
-    :ref:`the examples <sphx_glr_gallery_axes_grid1_inset_locator_demo.py>`.
+    cases, it is recommended to read :doc:`the examples
+    </gallery/axes_grid1/inset_locator_demo>`.
 
     Notes
     -----
@@ -540,7 +540,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       borderpad=0.5):
     """
     Create an anchored inset axes by scaling a parent axes. For usage, also see
-    :ref:`the examples <sphx_glr_gallery_axes_grid1_inset_locator_demo2.py>`.
+    :doc:`the examples </gallery/axes_grid1/inset_locator_demo2>`.
 
     Parameters
     ----------
