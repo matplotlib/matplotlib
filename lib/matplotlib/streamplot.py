@@ -527,7 +527,6 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
     xf_traj = []
     yf_traj = []
 
-    out_of_bounds = False
     while True:
         try:
             if dmap.grid.within_grid(xi, yi):
