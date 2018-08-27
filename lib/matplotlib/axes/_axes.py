@@ -131,7 +131,10 @@ class Axes(_AxesBase):
     """
     ### Labelling, legend and texts
 
-    aname = 'Axes'
+    @property
+    @cbook.deprecated("3.1")
+    def aname(self):
+        return 'Axes'
 
     def get_title(self, loc="center"):
         """

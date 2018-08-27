@@ -71,8 +71,11 @@ class Artist(object):
     Abstract base class for someone who renders into a
     :class:`FigureCanvas`.
     """
+    @property
+    @cbook.deprecated("3.1")
+    def aname(self):
+        return 'Artist'
 
-    aname = 'Artist'
     zorder = 0
     # order of precedence when bulk setting/updating properties
     # via update.  The keys should be property names and the values
