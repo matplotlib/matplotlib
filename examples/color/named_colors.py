@@ -98,7 +98,5 @@ import matplotlib
 matplotlib.colors
 matplotlib.colors.rgb_to_hsv
 matplotlib.colors.to_rgba
-matplotlib.figure.Figure.get_size_inches
-matplotlib.figure.Figure.subplots_adjust
 matplotlib.axes.Axes.text
 matplotlib.axes.Axes.hlines
