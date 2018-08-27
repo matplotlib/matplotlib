@@ -74,14 +74,19 @@ def plot_colortable(colors, title, sort_colors=True, order="by_row", ncols=4):
 
     plt.show()
 
-
+# Display the 8 base colors in matplotlib.
 plot_colortable(mcolors.BASE_COLORS, "Base Colors", sort_colors=False)
 
+# Displays named colors as defined by the CSS specification.
+# For more on CSS colors, see https://www.w3.org/TR/css-color-4/
 plot_colortable(mcolors.CSS4_COLORS, "CSS Colors")
 
+# The Solarized palette is a 16-color palette designed for screen use.
+# For more information, see https://ethanschoonover.com/solarized/
 plot_colortable(mcolors.SOLARIZED_COLORS, "Solarized Palette",
                 order='by_column', sort_colors=False)
 
+# This displays the classic 10-color default palette in Tableau.
 plot_colortable(mcolors.TABLEAU_COLORS, "Tableau Palette")
 
 #############################################################################
