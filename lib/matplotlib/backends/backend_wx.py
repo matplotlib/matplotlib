@@ -673,7 +673,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             dc.SetBrush(wx.Brush(bc))
         else:
             # draw without transparency which is buggy on Retina displays
-            dc.SetPen(wx.Pen(wx.BLUE, 1, wx.SOLID))
+            dc.SetPen(wx.Pen(wx.BLACK, 1, wx.PENSTYLE_SHORT_DASH))
             dc.SetBrush(wx.TRANSPARENT_BRUSH)
 
         # Draw the rectangle
