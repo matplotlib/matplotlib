@@ -71,7 +71,7 @@ def plot_colortable(colors, title, sort_colors=True, order="by_row", ncols=4):
 
         ax.hlines(y, swatch_start_x, swatch_end_x,
                   color=colors[name], linewidth=20)
-                  
+
     plt.show()
 
 
@@ -79,7 +79,7 @@ plot_colortable(mcolors.BASE_COLORS, "Base Colors", sort_colors=False)
 
 plot_colortable(mcolors.CSS4_COLORS, "CSS Colors")
 
-plot_colortable(SOLARIZED_COLORS, "Solarized Palette", order='by_column',
+plot_colortable(mcolors.SOLARIZED_COLORS, "Solarized Palette", order='by_column',
                 sort_colors=False)
 
 plot_colortable(mcolors.TABLEAU_COLORS, "Tableau Palette")
