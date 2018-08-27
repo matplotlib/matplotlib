@@ -156,6 +156,7 @@ import sphinx
 import jinja2  # Sphinx dependency.
 
 import matplotlib
+from matplotlib.backend_bases import FigureManagerBase
 try:
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("error", UserWarning)
@@ -492,9 +493,13 @@ def run_code(code, code_path, ns=None, function_name=None):
                     exec(str(setup.config.plot_pre_code), ns)
             if "__main__" in code:
                 ns['__name__'] = '__main__'
-            exec(code, ns)
-            if function_name is not None:
-                exec(function_name + "()", ns)
+
+            # Patch out non-interactive show() to avoid triggering a warning.
+            with cbook._setattr_cm(FigureManagerBase, show=lambda self: None):
+                exec(code, ns)
+                if function_name is not None:
+                    exec(function_name + "()", ns)
+
         except (Exception, SystemExit) as err:
             raise PlotError(traceback.format_exc())
         finally:
