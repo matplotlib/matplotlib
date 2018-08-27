@@ -133,7 +133,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     line_kw['zorder'] = zorder
     arrow_kw['zorder'] = zorder
 
-    ## Sanity checks.
+    # Sanity checks.
     if u.shape != grid.shape or v.shape != grid.shape:
         raise ValueError("'u' and 'v' must match the shape of 'Grid(x, y)'")
 
@@ -156,8 +156,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         # Check if start_points are outside the data boundaries
         for xs, ys in sp2:
-            if not (grid.x_origin <= xs <= grid.x_origin + grid.width
-                    and grid.y_origin <= ys <= grid.y_origin + grid.height):
+            if not (grid.x_origin <= xs <= grid.x_origin + grid.width and
+                    grid.y_origin <= ys <= grid.y_origin + grid.height):
                 raise ValueError("Starting point ({}, {}) outside of data "
                                  "boundaries".format(xs, ys))
 
@@ -263,8 +263,8 @@ class DomainMap:
         self.grid = grid
         self.mask = mask
         # Constants for conversion between grid- and mask-coordinates
-        self.x_grid2mask = (mask.nx - 1) / grid.nx
-        self.y_grid2mask = (mask.ny - 1) / grid.ny
+        self.x_grid2mask = (mask.nx - 1) / (grid.nx - 1)
+        self.y_grid2mask = (mask.ny - 1) / (grid.ny - 1)
 
         self.x_mask2grid = 1. / self.x_grid2mask
         self.y_mask2grid = 1. / self.y_grid2mask
@@ -413,7 +413,7 @@ class TerminateTrajectory(Exception):
 
 
 # Integrator definitions
-#========================
+# =======================
 
 def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
 
@@ -421,8 +421,8 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
     u, v = dmap.data2grid(u, v)
 
     # speed (path length) will be in axes-coordinates
-    u_ax = u / dmap.grid.nx
-    v_ax = v / dmap.grid.ny
+    u_ax = u / (dmap.grid.nx - 1)
+    v_ax = v / (dmap.grid.ny - 1)
     speed = np.ma.sqrt(u_ax ** 2 + v_ax ** 2)
 
     def forward_time(xi, yi):
@@ -480,6 +480,10 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
     return integrate
 
 
+class OutOfBounds(Exception):
+    pass
+
+
 def _integrate_rk12(x0, y0, dmap, f, maxlength):
     """2nd-order Runge-Kutta algorithm with adaptive step size.
 
@@ -523,18 +527,31 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
     xf_traj = []
     yf_traj = []
 
-    while dmap.grid.within_grid(xi, yi):
-        xf_traj.append(xi)
-        yf_traj.append(yi)
+    out_of_bounds = False
+    while True:
         try:
+            if dmap.grid.within_grid(xi, yi):
+                xf_traj.append(xi)
+                yf_traj.append(yi)
+            else:
+                raise OutOfBounds
+
             k1x, k1y = f(xi, yi)
-            k2x, k2y = f(xi + ds * k1x,
-                         yi + ds * k1y)
-        except IndexError:
-            # Out of the domain on one of the intermediate integration steps.
-            # Take an Euler step to the boundary to improve neatness.
-            ds, xf_traj, yf_traj = _euler_step(xf_traj, yf_traj, dmap, f)
-            stotal += ds
+
+            if dmap.grid.within_grid(xi + ds * k1x, yi + ds * k1y):
+                k2x, k2y = f(xi + ds * k1x,
+                             yi + ds * k1y)
+            else:
+                raise OutOfBounds
+
+        except OutOfBounds:
+            # Out of the domain during this step.
+            # Take an Euler step to the boundary to improve neatness
+            # unless the trajectory is currently empty.
+            if xf_traj:
+                ds, xf_traj, yf_traj = _euler_step(xf_traj, yf_traj,
+                                                   dmap, f)
+                stotal += ds
             break
         except TerminateTrajectory:
             break
@@ -546,7 +563,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
 
         nx, ny = dmap.grid.shape
         # Error is normalized to the axes coordinates
-        error = np.hypot((dx2 - dx1) / nx, (dy2 - dy1) / ny)
+        error = np.hypot((dx2 - dx1) / (nx - 1), (dy2 - dy1) / (ny - 1))
 
         # Only save step if within error tolerance
         if error < maxerror:
