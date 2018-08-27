@@ -685,6 +685,14 @@ dl.class p.rubric + table.docutils td:first-of-type > strong {
     background-color: #eff3f4;
 }
 
+/* tables inside class descriptions */
+dl.class table.property-table {
+    width: 85%;
+    border-spacing: 2px;
+    border-collapse: collapse;
+    border: 0px;
+}
+
 /* tables inside parameter descriptions */
 td.field-body table.property-table {
     width: 100%;

@@ -828,7 +828,17 @@ class Artist(object):
         self.stale = True
 
     def draw(self, renderer, *args, **kwargs):
-        'Derived classes drawing method'
+        """
+        Draw the Artist using the given renderer.
+
+        This method will be overridden in the Artist subclasses. Typically,
+        it is implemented to not have any effect if the Artist is not visible
+        (`.Artist.get_visible` is *False*).
+
+        Parameters
+        ----------
+        renderer : `.RendererBase` subclass.
+        """
         if not self.get_visible():
             return
         self.stale = False
@@ -1161,7 +1171,7 @@ class ArtistInspector(object):
         if docstring is None:
             return 'unknown'
 
-        if docstring.startswith('alias for '):
+        if docstring.startswith('Alias for '):
             return None
 
         match = self._get_valid_values_regex.search(docstring)
@@ -1231,7 +1241,7 @@ class ArtistInspector(object):
         ds = o.__doc__
         if ds is None:
             return False
-        return ds.startswith('alias for ')
+        return ds.startswith('Alias for ')
 
     def aliased_name(self, s):
         """

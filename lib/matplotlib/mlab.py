@@ -1440,7 +1440,7 @@ def longest_contiguous_ones(x):
 
 @cbook.deprecated('2.2')
 def longest_ones(x):
-    '''alias for longest_contiguous_ones'''
+    '''Alias for longest_contiguous_ones.'''
     return longest_contiguous_ones(x)
 
 

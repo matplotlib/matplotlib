@@ -368,7 +368,7 @@ class Figure(Artist):
             xy=(0, 0), width=1, height=1,
             facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth)
         self._set_artist_props(self.patch)
-        self.patch.set_aa(False)
+        self.patch.set_antialiased(False)
 
         self.canvas = None
         self._suptitle = None

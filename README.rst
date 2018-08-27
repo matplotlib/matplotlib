@@ -1,4 +1,4 @@
-|Travis|_ |AppVeyor|_ |Codecov|_ |PyPi|_ |Gitter|_ |NUMFocus|_
+|Travis|_ |AppVeyor|_ |Codecov|_ |LGTM|_ |PyPi|_ |Gitter|_ |NUMFocus|_
 
 
 .. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
@@ -9,6 +9,9 @@
 
 .. |Codecov| image:: https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=master&service=github
 .. _Codecov: https://codecov.io/github/matplotlib/matplotlib?branch=master
+
+.. |LGTM| image:: https://img.shields.io/lgtm/grade/python/g/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
+.. _LGTM: https://lgtm.com/projects/g/matplotlib/matplotlib
 
 .. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
 .. _PyPi: https://badge.fury.io/py/matplotlib
