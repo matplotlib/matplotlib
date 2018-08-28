@@ -305,7 +305,7 @@ class TestWindow(object):
         n = len(ind)
         result = np.zeros((NFFT, n))
 
-        if cbook.iterable(window):
+        if np.iterable(window):
             windowVals = window
         else:
             windowVals = window(np.ones((NFFT,), x.dtype))

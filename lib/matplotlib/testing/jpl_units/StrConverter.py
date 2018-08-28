@@ -1,7 +1,8 @@
 """StrConverter module containing class StrConverter."""
 
+import numpy as np
+
 import matplotlib.units as units
-from matplotlib.cbook import iterable
 
 __all__ = ['StrConverter']
 
@@ -70,7 +71,7 @@ class StrConverter(units.ConversionInterface):
             ticks = []
             labels = []
 
-        if not iterable(value):
+        if not np.iterable(value):
             value = [value]
 
         newValues = []

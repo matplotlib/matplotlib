@@ -413,7 +413,7 @@ def date2num(d):
     if ((isinstance(d, np.ndarray) and np.issubdtype(d.dtype, np.datetime64))
             or isinstance(d, np.datetime64)):
         return _dt64_to_ordinalf(d)
-    if not cbook.iterable(d):
+    if not np.iterable(d):
         return _to_ordinalf(d)
     else:
         d = np.asarray(d)
@@ -436,7 +436,7 @@ def julian2num(j):
     float or sequence of floats
         Matplotlib date(s)
     """
-    if cbook.iterable(j):
+    if np.iterable(j):
         j = np.asarray(j)
     return j - JULIAN_OFFSET
 
@@ -455,7 +455,7 @@ def num2julian(n):
     float or sequence of floats
         Julian date(s)
     """
-    if cbook.iterable(n):
+    if np.iterable(n):
         n = np.asarray(n)
     return n + JULIAN_OFFSET
 
@@ -488,7 +488,7 @@ def num2date(x, tz=None):
     """
     if tz is None:
         tz = _get_rc_timezone()
-    if not cbook.iterable(x):
+    if not np.iterable(x):
         return _from_ordinalf(x, tz)
     else:
         x = np.asarray(x)
@@ -521,7 +521,7 @@ def num2timedelta(x):
     `datetime.timedelta` or list[`datetime.timedelta`]
 
     """
-    if not cbook.iterable(x):
+    if not np.iterable(x):
         return _ordinalf_to_timedelta(x)
     else:
         x = np.asarray(x)
@@ -1676,7 +1676,7 @@ def mx2num(mxdates):
     instances) to the new date format.
     """
     scalar = False
-    if not cbook.iterable(mxdates):
+    if not np.iterable(mxdates):
         scalar = True
         mxdates = [mxdates]
     ret = epoch2num([m.ticks() for m in mxdates])

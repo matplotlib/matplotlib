@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-from matplotlib.cbook import iterable
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.units as munits
@@ -29,7 +28,7 @@ class Quantity(object):
         return getattr(self.magnitude, attr)
 
     def __getitem__(self, item):
-        if iterable(self.magnitude):
+        if np.iterable(self.magnitude):
             return Quantity(self.magnitude[item], self.units)
         else:
             return Quantity(self.magnitude, self.units)
@@ -51,7 +50,7 @@ def test_numpy_facade():
     def convert(value, unit, axis):
         if hasattr(value, 'units'):
             return value.to(unit).magnitude
-        elif iterable(value):
+        elif np.iterable(value):
             try:
                 return [v.to(unit).magnitude for v in value]
             except AttributeError:

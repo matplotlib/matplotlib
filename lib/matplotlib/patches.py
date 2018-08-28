@@ -3221,7 +3221,7 @@ class ArrowStyle(_Style):
                 path_mutated, fillable = self.transmute(path_shrunk,
                                                         linewidth,
                                                         mutation_size)
-                if cbook.iterable(fillable):
+                if np.iterable(fillable):
                     path_list = []
                     for p in zip(path_mutated):
                         v, c = p.vertices, p.codes
@@ -4244,7 +4244,7 @@ class FancyArrowPatch(Patch):
         """
         _path, fillable = self.get_path_in_displaycoord()
 
-        if cbook.iterable(fillable):
+        if np.iterable(fillable):
             _path = concatenate_paths(_path)
 
         return self.get_transform().inverted().transform_path(_path)
@@ -4292,7 +4292,7 @@ class FancyArrowPatch(Patch):
             self.set_dpi_cor(renderer.points_to_pixels(1.))
             path, fillable = self.get_path_in_displaycoord()
 
-            if not cbook.iterable(fillable):
+            if not np.iterable(fillable):
                 path = [path]
                 fillable = [fillable]
 

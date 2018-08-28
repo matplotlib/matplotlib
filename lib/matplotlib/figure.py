@@ -27,7 +27,7 @@ from matplotlib.artist import Artist, allow_rasterization
 
 import matplotlib.cbook as cbook
 
-from matplotlib.cbook import Stack, iterable
+from matplotlib.cbook import Stack
 
 from matplotlib import image as mimage
 from matplotlib.image import FigureImage
@@ -1028,7 +1028,7 @@ default: 'top'
             for k, v in items:
                 # some objects can define __getitem__ without being
                 # iterable and in those cases the conversion to tuples
-                # will fail. So instead of using the iterable(v) function
+                # will fail. So instead of using the np.iterable(v) function
                 # we simply try and convert to a tuple, and proceed if not.
                 try:
                     v = tuple(v)
@@ -1040,7 +1040,7 @@ default: 'top'
         def fixlist(args):
             ret = []
             for a in args:
-                if iterable(a):
+                if np.iterable(a):
                     a = tuple(a)
                 ret.append(a)
             return tuple(ret)

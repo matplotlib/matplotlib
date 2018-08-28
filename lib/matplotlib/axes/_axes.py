@@ -33,7 +33,6 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
-from matplotlib.cbook import iterable
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -1035,11 +1034,11 @@ class Axes(_AxesBase):
         xmin = self.convert_xunits(xmin)
         xmax = self.convert_xunits(xmax)
 
-        if not iterable(y):
+        if not np.iterable(y):
             y = [y]
-        if not iterable(xmin):
+        if not np.iterable(xmin):
             xmin = [xmin]
-        if not iterable(xmax):
+        if not np.iterable(xmax):
             xmax = [xmax]
 
         y, xmin, xmax = cbook.delete_masked_points(y, xmin, xmax)
@@ -1113,11 +1112,11 @@ class Axes(_AxesBase):
         ymin = self.convert_yunits(ymin)
         ymax = self.convert_yunits(ymax)
 
-        if not iterable(x):
+        if not np.iterable(x):
             x = [x]
-        if not iterable(ymin):
+        if not np.iterable(ymin):
             ymin = [ymin]
-        if not iterable(ymax):
+        if not np.iterable(ymax):
             ymax = [ymax]
 
         x, ymin, ymax = cbook.delete_masked_points(x, ymin, ymax)
@@ -1243,9 +1242,9 @@ class Axes(_AxesBase):
         lineoffsets = self.convert_yunits(lineoffsets)
         linelengths = self.convert_yunits(linelengths)
 
-        if not iterable(positions):
+        if not np.iterable(positions):
             positions = [positions]
-        elif any(iterable(position) for position in positions):
+        elif any(np.iterable(position) for position in positions):
             positions = [np.asanyarray(position) for position in positions]
         else:
             positions = [np.asanyarray(positions)]
@@ -1259,15 +1258,15 @@ class Axes(_AxesBase):
         linewidths = cbook.local_over_kwdict(linewidths, kwargs, 'linewidth')
         linestyles = cbook.local_over_kwdict(linestyles, kwargs, 'linestyle')
 
-        if not iterable(lineoffsets):
+        if not np.iterable(lineoffsets):
             lineoffsets = [lineoffsets]
-        if not iterable(linelengths):
+        if not np.iterable(linelengths):
             linelengths = [linelengths]
-        if not iterable(linewidths):
+        if not np.iterable(linewidths):
             linewidths = [linewidths]
-        if not iterable(colors):
+        if not np.iterable(colors):
             colors = [colors]
-        if hasattr(linestyles, 'lower') or not iterable(linestyles):
+        if hasattr(linestyles, 'lower') or not np.iterable(linestyles):
             linestyles = [linestyles]
 
         lineoffsets = np.asarray(lineoffsets)
@@ -3065,18 +3064,18 @@ class Axes(_AxesBase):
             ecolor = base_style['color']
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
-        if not iterable(x):
+        if not np.iterable(x):
             x = [x]
 
-        if not iterable(y):
+        if not np.iterable(y):
             y = [y]
 
         if xerr is not None:
-            if not iterable(xerr):
+            if not np.iterable(xerr):
                 xerr = [xerr] * len(x)
 
         if yerr is not None:
-            if not iterable(yerr):
+            if not np.iterable(yerr):
                 yerr = [yerr] * len(y)
 
         # make the style dict for the 'normal' plot line
@@ -3168,7 +3167,7 @@ class Axes(_AxesBase):
             except (TypeError, ValueError):
                 pass
             else:
-                if iterable(a) and iterable(b):
+                if np.iterable(a) and np.iterable(b):
                     # using list comps rather than arrays to preserve units
                     low = [thisx - thiserr for thisx, thiserr
                            in cbook.safezip(data, a)]
@@ -4437,7 +4436,7 @@ class Axes(_AxesBase):
         x, y, C = cbook.delete_masked_points(x, y, C)
 
         # Set the size of the hexagon grid
-        if iterable(gridsize):
+        if np.iterable(gridsize):
             nx, ny = gridsize
         else:
             nx = gridsize
@@ -4632,7 +4631,7 @@ class Axes(_AxesBase):
                 norm.autoscale(accum)
 
         if bins is not None:
-            if not iterable(bins):
+            if not np.iterable(bins):
                 minimum, maximum = min(accum), max(accum)
                 bins -= 1  # one less edge than bins
                 bins = minimum + (maximum - minimum) * np.arange(bins) / bins
@@ -6514,7 +6513,7 @@ class Axes(_AxesBase):
             bin_range = self.convert_xunits(bin_range)
 
         # Check whether bins or range are given explicitly.
-        binsgiven = (cbook.iterable(bins) or bin_range is not None)
+        binsgiven = np.iterable(bins) or bin_range is not None
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:

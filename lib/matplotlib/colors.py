@@ -484,7 +484,7 @@ class Colormap(object):
         if not self._isinit:
             self._init()
         mask_bad = None
-        if not cbook.iterable(X):
+        if not np.iterable(X):
             vtype = 'scalar'
             xa = np.array([X])
         else:
@@ -716,7 +716,7 @@ class LinearSegmentedColormap(Colormap):
         to divide the range unevenly.
         """
 
-        if not cbook.iterable(colors):
+        if not np.iterable(colors):
             raise ValueError('colors must be iterable')
 
         if (isinstance(colors[0], Sized) and len(colors[0]) == 2
@@ -812,7 +812,7 @@ class ListedColormap(Colormap):
             if isinstance(colors, str):
                 self.colors = [colors] * N
                 self.monochrome = True
-            elif cbook.iterable(colors):
+            elif np.iterable(colors):
                 if len(colors) == 1:
                     self.monochrome = True
                 self.colors = list(
@@ -907,7 +907,7 @@ class Normalize(object):
         Experimental; we may want to add an option to force the
         use of float32.
         """
-        is_scalar = not cbook.iterable(value)
+        is_scalar = not np.iterable(value)
         if is_scalar:
             value = [value]
         dtype = np.min_scalar_type(value)
@@ -962,7 +962,7 @@ class Normalize(object):
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = np.ma.asarray(value)
             return vmin + val * (vmax - vmin)
         else:
@@ -1035,7 +1035,7 @@ class LogNorm(Normalize):
             raise ValueError("Not invertible until scaled")
         vmin, vmax = self.vmin, self.vmax
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = np.ma.asarray(value)
             return vmin * np.ma.power((vmax / vmin), val)
         else:
@@ -1222,7 +1222,7 @@ class PowerNorm(Normalize):
         gamma = self.gamma
         vmin, vmax = self.vmin, self.vmax
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = np.ma.asarray(value)
             return np.ma.power(val, 1. / gamma) * (vmax - vmin) + vmin
         else:

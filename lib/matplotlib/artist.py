@@ -1175,7 +1175,7 @@ class ArtistInspector(object):
         responsibility to make sure this is so.
         """
         if not isinstance(o, Artist):
-            if cbook.iterable(o):
+            if np.iterable(o):
                 o = list(o)
                 if len(o):
                     o = o[0]

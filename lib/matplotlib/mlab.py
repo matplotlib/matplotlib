@@ -133,7 +133,7 @@ def apply_window(x, window, axis=0, return_window=None):
     xshape = list(x.shape)
     xshapetarg = xshape.pop(axis)
 
-    if cbook.iterable(window):
+    if np.iterable(window):
         if len(window) != xshapetarg:
             raise ValueError('The len(window) must be the same as the shape '
                              'of x for the chosen axis')
@@ -1309,7 +1309,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     # cache the FFT of every windowed, detrended NFFT length segment
     # of every channel.  If preferSpeedOverMemory, cache the conjugate
     # as well
-    if cbook.iterable(window):
+    if np.iterable(window):
         if len(window) != NFFT:
             raise ValueError("The length of the window must be equal to NFFT")
         windowVals = window
@@ -1634,7 +1634,7 @@ def prctile_rank(x, p):
     indicates how many quantiles of data you want ranked.
     """
 
-    if not cbook.iterable(p):
+    if not np.iterable(p):
         p = np.arange(100.0/p, 100.0, 100.0/p)
     else:
         p = np.asarray(p)
@@ -1850,7 +1850,7 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
     """
     Compute an FFT phase randomized surrogate of *x*.
     """
-    if cbook.iterable(window):
+    if np.iterable(window):
         x = window*detrend(x)
     else:
         x = window(detrend(x))
@@ -2218,7 +2218,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     *arrs* and *dtypes* do not have to be lists. They can just be the
     values themselves.
     """
-    if (not isinstance(names, str) and cbook.iterable(names)
+    if (not isinstance(names, str) and np.iterable(names)
             and len(names) and isinstance(names[0], str)):
         if len(names) != len(arrs):
             raise ValueError("number of arrays do not match number of names")
@@ -2228,7 +2228,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     arrs = list(map(np.asarray, arrs))
     if dtypes is None:
         dtypes = [a.dtype for a in arrs]
-    elif not cbook.iterable(dtypes):
+    elif not np.iterable(dtypes):
         dtypes = [dtypes]
     if len(arrs) != len(dtypes):
         if len(dtypes) == 1:
@@ -3710,10 +3710,10 @@ def poly_between(x, ylower, yupper):
         numpy = np
 
     Nx = len(x)
-    if not cbook.iterable(ylower):
+    if not np.iterable(ylower):
         ylower = ylower*numpy.ones(Nx)
 
-    if not cbook.iterable(yupper):
+    if not np.iterable(yupper):
         yupper = yupper*numpy.ones(Nx)
 
     x = numpy.concatenate((x, x[::-1]))
@@ -3889,7 +3889,7 @@ def offset_line(y, yerr):
         plt.show()
 
     """
-    if cbook.is_numlike(yerr) or (cbook.iterable(yerr) and
+    if cbook.is_numlike(yerr) or (np.iterable(yerr) and
                                   len(yerr) == len(y)):
         ymin = y - yerr
         ymax = y + yerr

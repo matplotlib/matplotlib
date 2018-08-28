@@ -197,7 +197,7 @@ class ContourLabeler(object):
 
         self.labelXYs = []
 
-        if cbook.iterable(self.labelManual):
+        if np.iterable(self.labelManual):
             for x, y in self.labelManual:
                 self.add_label_near(x, y, inline,
                                     inline_spacing)
@@ -1333,7 +1333,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if linewidths is None:
             tlinewidths = [(mpl.rcParams['lines.linewidth'],)] * Nlev
         else:
-            if not cbook.iterable(linewidths):
+            if not np.iterable(linewidths):
                 linewidths = [linewidths] * Nlev
             else:
                 linewidths = list(linewidths)
@@ -1359,7 +1359,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             if isinstance(linestyles, str):
                 tlinestyles = [linestyles] * Nlev
-            elif cbook.iterable(linestyles):
+            elif np.iterable(linestyles):
                 tlinestyles = list(linestyles)
                 if len(tlinestyles) < Nlev:
                     nreps = int(np.ceil(Nlev / len(linestyles)))

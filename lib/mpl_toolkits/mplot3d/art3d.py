@@ -66,7 +66,7 @@ def get_dir_vector(zdir):
         return np.array((0, 0, 1))
     elif zdir is None:
         return np.array((0, 0, 0))
-    elif cbook.iterable(zdir) and len(zdir) == 3:
+    elif np.iterable(zdir) and len(zdir) == 3:
         return zdir
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
