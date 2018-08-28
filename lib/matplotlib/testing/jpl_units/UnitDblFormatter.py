@@ -1,24 +1,10 @@
-# ==========================================================================
-#
-# UnitDblFormatter
-#
-# ==========================================================================
-
-
 """UnitDblFormatter module containing class UnitDblFormatter."""
 
-# ==========================================================================
-# Place all imports after here.
-#
 import matplotlib.ticker as ticker
-#
-# Place all imports before here.
-# ==========================================================================
 
 __all__ = ['UnitDblFormatter']
 
 
-# ==========================================================================
 class UnitDblFormatter(ticker.ScalarFormatter):
     """The formatter for UnitDbl data types.  This allows for formatting
         with the unit string.
