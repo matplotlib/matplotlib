@@ -227,8 +227,8 @@ def switch_backend(newbackend):
     backend_mod = importlib.import_module(backend_name)
     Backend = type(
         "Backend", (matplotlib.backends._Backend,), vars(backend_mod))
-    _log.info("Loaded backend %s version %s.",
-              newbackend, Backend.backend_version)
+    _log.debug("Loaded backend %s version %s.",
+               newbackend, Backend.backend_version)
 
     required_framework = Backend.required_interactive_framework
     current_framework = \
