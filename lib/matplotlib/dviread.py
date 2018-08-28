@@ -29,7 +29,7 @@ import textwrap
 
 import numpy as np
 
-from matplotlib import cbook, rcParams
+from matplotlib import rcParams
 
 _log = logging.getLogger(__name__)
 

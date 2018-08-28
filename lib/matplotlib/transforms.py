@@ -42,7 +42,6 @@ from numpy.linalg import inv
 
 from matplotlib._path import (
     affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
-from . import cbook
 from .path import Path
 
 DEBUG = False
@@ -2354,8 +2353,6 @@ class CompositeGenericTransform(Transform):
         self._a = a
         self._b = b
         self.set_children(a, b)
-
-    is_affine = property(lambda self: self._a.is_affine and self._b.is_affine)
 
     def frozen(self):
         self._invalid = 0

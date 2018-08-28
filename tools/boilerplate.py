@@ -14,7 +14,7 @@ this file.
 # analysis tools to parse.
 
 import inspect
-from inspect import Signature, Parameter
+from inspect import Parameter
 from pathlib import Path
 import textwrap
 

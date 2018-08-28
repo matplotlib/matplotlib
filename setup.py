@@ -6,7 +6,6 @@ setup.cfg.template for more information.
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
-from string import Template
 import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand

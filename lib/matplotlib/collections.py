@@ -11,8 +11,6 @@ line segemnts)
 
 import math
 from numbers import Number
-import warnings
-
 import numpy as np
 
 import matplotlib as mpl

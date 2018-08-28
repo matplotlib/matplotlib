@@ -1,8 +1,6 @@
 import functools
 
-from matplotlib import (
-    artist as martist, collections as mcoll, transforms as mtransforms,
-    rcParams)
+from matplotlib import artist as martist, transforms as mtransforms
 from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
 from .mpl_axes import Axes

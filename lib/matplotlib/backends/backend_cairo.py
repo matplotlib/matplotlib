@@ -8,7 +8,6 @@ This backend depends on cairocffi or pycairo.
 
 import copy
 import gzip
-import sys
 import warnings
 
 import numpy as np

@@ -1218,10 +1218,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Determine the contour levels and store in self.levels.
         """
-        if self.filled:
-            fn = 'contourf'
-        else:
-            fn = 'contour'
         self._auto = False
         if self.levels is None:
             if len(args) == 0:

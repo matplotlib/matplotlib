@@ -15,7 +15,6 @@ from contextlib import contextmanager
 import errno
 from io import BytesIO
 import json
-import os
 from pathlib import Path
 import random
 import sys

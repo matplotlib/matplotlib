@@ -151,8 +151,6 @@ import warnings
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.images import Image
 align = Image.align
-import sphinx
-
 import jinja2  # Sphinx dependency.
 
 import matplotlib

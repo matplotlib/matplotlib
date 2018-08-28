@@ -33,9 +33,7 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
-from matplotlib.cbook import (
-    MatplotlibDeprecationWarning, warn_deprecated, STEP_LOOKUP_MAP, iterable,
-    safe_first_element)
+from matplotlib.cbook import iterable
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -566,9 +564,6 @@ class Axes(_AxesBase):
 
         if inset_ax is not None:
             # want to connect the indicator to the rect....
-
-            pos = inset_ax.get_position()  # this is in fig-fraction.
-            coordsA = 'axes fraction'
             connects = []
             xr = [bounds[0], bounds[0]+bounds[2]]
             yr = [bounds[1], bounds[1]+bounds[3]]
@@ -3185,7 +3180,7 @@ class Axes(_AxesBase):
             # being accepted, when the user meant the 2xN transpose.
             # special case for empty lists
             if len(err) > 1:
-                fe = safe_first_element(err)
+                fe = cbook.safe_first_element(err)
                 if len(err) != len(data) or np.size(fe) > 1:
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
@@ -5047,7 +5042,7 @@ class Axes(_AxesBase):
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
             if step is not None:
-                step_func = STEP_LOOKUP_MAP["steps-" + step]
+                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
                 xslice, y1slice, y2slice = step_func(xslice, y1slice, y2slice)
 
             if not len(xslice):
@@ -5230,7 +5225,7 @@ class Axes(_AxesBase):
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
             if step is not None:
-                step_func = STEP_LOOKUP_MAP["steps-" + step]
+                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
                 yslice, x1slice, x2slice = step_func(yslice, x1slice, x2slice)
 
             if not len(yslice):

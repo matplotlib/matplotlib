@@ -511,10 +511,6 @@ class Patch(artist.Artist):
         gc.set_url(self._url)
         gc.set_snap(self.get_snap())
 
-        rgbFace = self._facecolor
-        if rgbFace[3] == 0:
-            rgbFace = None  # (some?) renderers expect this as no-fill signal
-
         gc.set_alpha(self._alpha)
 
         if self._hatch:

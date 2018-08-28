@@ -18,7 +18,6 @@ from functools import reduce
 import operator
 import os
 import re
-import sys
 
 from matplotlib import cbook
 from matplotlib.cbook import ls_mapper
