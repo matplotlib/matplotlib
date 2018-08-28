@@ -155,8 +155,6 @@ import matplotlib.units as units
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
-_log = logging.getLogger(__name__)
-
 __all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
            'num2epoch', 'mx2num', 'DateFormatter',
            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
@@ -171,8 +169,6 @@ __all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
 
 
 _log = logging.getLogger(__name__)
-
-
 UTC = datetime.timezone.utc
 
 
@@ -361,14 +357,13 @@ class bytespdate2num(strpdate2num):
         return super().__call__(s)
 
 
-# a version of dateutil.parser.parse that can operate on nump0y arrays
+# a version of dateutil.parser.parse that can operate on numpy arrays
 _dateutil_parser_parse_np_vectorized = np.vectorize(dateutil.parser.parse)
 
 
 def datestr2num(d, default=None):
     """
-    Convert a date string to a datenum using
-    :func:`dateutil.parser.parse`.
+    Convert a date string to a datenum using :func:`dateutil.parser.parse`.
 
     Parameters
     ----------
