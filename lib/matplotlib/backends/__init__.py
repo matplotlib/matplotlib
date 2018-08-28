@@ -10,12 +10,9 @@ from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
-backend = matplotlib.get_backend()
-# FIXME: Remove.
-_backend_loading_tb = "".join(
-    line for line in traceback.format_stack()
-    # Filter out line noise from importlib line.
-    if not line.startswith('  File "<frozen importlib._bootstrap'))
+
+# NOTE: plt.switch_backend() (called at import time) will add a "backend"
+# attribute here for backcompat.
 
 
 def _get_running_interactive_framework():

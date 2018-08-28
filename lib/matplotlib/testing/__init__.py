@@ -36,7 +36,7 @@ def setup():
                 "Could not set locale to English/United States. "
                 "Some date-related tests may fail.")
 
-    mpl.use('Agg', warn=False)  # use Agg backend for these tests
+    mpl.use('Agg', force=True, warn=False)  # use Agg backend for these tests
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
