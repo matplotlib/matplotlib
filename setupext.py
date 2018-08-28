@@ -203,21 +203,6 @@ else:
     print_status = print_message = print_raw = print_line
 
 
-# Remove the -Wstrict-prototypes option, is it's not valid for C++
-customize_compiler = distutils.command.build_ext.customize_compiler
-
-
-def my_customize_compiler(compiler):
-    retval = customize_compiler(compiler)
-    try:
-        compiler.compiler_so.remove('-Wstrict-prototypes')
-    except (ValueError, AttributeError):
-        pass
-    return retval
-
-distutils.command.build_ext.customize_compiler = my_customize_compiler
-
-
 def make_extension(name, files, *args, **kwargs):
     """
     Make a new extension.  Automatically sets include_dirs and
