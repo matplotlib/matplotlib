@@ -137,7 +137,7 @@ import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import cbook
+from . import cbook, rcsetup
 from matplotlib.cbook import (
     MatplotlibDeprecationWarning, dedent, get_label, sanitize_sequence)
 from matplotlib.cbook import mplDeprecation  # deprecated
@@ -849,6 +849,10 @@ class RcParams(MutableMapping, dict):
                 cbook.warn_deprecated(
                     "3.0", "{} is deprecated; in the future, examples will be "
                     "found relative to the 'datapath' directory.".format(key))
+            elif key == 'backend':
+                if val is rcsetup._auto_backend_sentinel:
+                    if 'backend' in self:
+                        return
             try:
                 cval = self.validate[key](val)
             except ValueError as ve:
@@ -876,6 +880,12 @@ class RcParams(MutableMapping, dict):
             cbook.warn_deprecated(
                 "3.0", "{} is deprecated; in the future, examples will be "
                 "found relative to the 'datapath' directory.".format(key))
+
+        elif key == "backend":
+            val = dict.__getitem__(self, key)
+            if val is rcsetup._auto_backend_sentinel:
+                from matplotlib import pyplot as plt
+                plt.switch_backend(rcsetup._auto_backend_sentinel)
 
         return dict.__getitem__(self, key)
 
@@ -1091,10 +1101,10 @@ if dict.__getitem__(rcParams, 'examples.directory'):
         _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
         rcParams['examples.directory'] = _fullpath
 
-rcParamsOrig = rcParams.copy()
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+    rcParamsOrig = RcParams(rcParams.copy())
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                                 defaultParams.items()
                                 if key not in _all_deprecated])
@@ -1218,7 +1228,7 @@ def rc_file_defaults():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
         from .style.core import STYLE_BLACKLIST
-        rcParams.update({k: v for k, v in rcParamsOrig.items()
+        rcParams.update({k: rcParamsOrig[k] for k in rcParamsOrig
                          if k not in STYLE_BLACKLIST})
 
 
@@ -1234,7 +1244,8 @@ def rc_file(fname):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
         from .style.core import STYLE_BLACKLIST
-        rcParams.update({k: v for k, v in rc_params_from_file(fname).items()
+        rc_from_file = rc_params_from_file(fname)
+        rcParams.update({k: rc_from_file[k] for k in rc_from_file
                          if k not in STYLE_BLACKLIST})
 
 
@@ -1285,16 +1296,23 @@ class rc_context:
             if rc:
                 rcParams.update(rc)
         except Exception:
-            # If anything goes wrong, revert to the original rcs.
-            dict.update(rcParams, self._orig)
+            self.__fallback()
             raise
+
+    def __fallback(self):
+        # If anything goes wrong, revert to the original rcs.
+        updated_backend = self._orig['backend']
+        dict.update(rcParams, self._orig)
+        # except for the backend.  If the context block triggered resloving
+        # the auto backend resolution keep that value around
+        if self._orig['backend'] is rcsetup._auto_backend_sentinel:
+            rcParams['backend'] = updated_backend
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        # No need to revalidate the original values.
-        dict.update(rcParams, self._orig)
+        self.__fallback()
 
 
 def use(arg, warn=True, force=False):
@@ -1320,14 +1338,14 @@ def use(arg, warn=True, force=False):
 
     force : bool, optional
         If True, attempt to switch the backend.  This defaults to
-        false and using `.pyplot.switch_backend` is preferred.
+        False.
 
 
     """
     name = validate_backend(arg)
 
     # if setting back to the same thing, do nothing
-    if (rcParams['backend'] == name):
+    if (dict.__getitem__(rcParams, 'backend') == name):
         pass
 
     # Check if we have already imported pyplot and triggered
@@ -1357,7 +1375,7 @@ def use(arg, warn=True, force=False):
 
 
 if os.environ.get('MPLBACKEND'):
-    use(os.environ['MPLBACKEND'])
+    rcParams['backend'] = os.environ.get('MPLBACKEND')
 
 
 def get_backend():

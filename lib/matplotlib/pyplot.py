@@ -39,7 +39,7 @@ from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec
-from matplotlib import rcParams, rcParamsDefault, get_backend
+from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
 from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
@@ -67,7 +67,7 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            Locator, IndexLocator, FixedLocator, NullLocator,\
            LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
            MaxNLocator
-from matplotlib.backends import pylab_setup
+from matplotlib.backends import pylab_setup, _get_running_interactive_framework
 
 _log = logging.getLogger(__name__)
 
@@ -78,35 +78,15 @@ _log = logging.getLogger(__name__)
 # FIXME: Deprecate.
 def _backend_selection():
     """
-    If rcParams['backend_fallback'] is true, check to see if the
-    current backend is compatible with the current running event loop,
-    and if not switches to a compatible one.
+    If rcParams['backend_fallback'] is true, we will check (at backend
+    load-time) to see if the current backend is compatible with the current
+    running event loop, and if not switches to a compatible one.
     """
-    backend = rcParams['backend']
-    if not rcParams['backend_fallback'] or backend not in _interactive_bk:
-        return
-    is_agg_backend = rcParams['backend'].endswith('Agg')
-    if 'wx' in sys.modules and backend not in ('WX', 'WXAgg'):
-        import wx
-        if wx.App.IsMainLoopRunning():
-            rcParams['backend'] = 'wx' + 'Agg' * is_agg_backend
-    elif 'PyQt4.QtCore' in sys.modules and not backend == 'Qt4Agg':
-        import PyQt4.QtGui
-        if not PyQt4.QtGui.qApp.startingUp():
-            # The mainloop is running.
-            rcParams['backend'] = 'qt4Agg'
-    elif 'PyQt5.QtCore' in sys.modules and not backend == 'Qt5Agg':
-        import PyQt5.QtWidgets
-        if not PyQt5.QtWidgets.qApp.startingUp():
-            # The mainloop is running.
-            rcParams['backend'] = 'qt5Agg'
-    elif 'gtk' in sys.modules and 'gi' in sys.modules:
-        from gi.repository import GLib
-        if GLib.MainLoop().is_running():
-            rcParams['backend'] = 'GTK3Agg'
-    elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
-        # import Tkinter
-        pass  # what if anything do we need to do for tkinter?
+    if rcParams["backend_fallback"]:
+        if (dict.__getitem__(rcParams, "backend") in _interactive_bk
+                and _get_running_interactive_framework()):
+            dict.__setitem__(
+                rcParams, "backend", rcsetup._auto_backend_sentinel)
 
 
 _backend_selection()
@@ -237,6 +217,7 @@ def switch_backend(newbackend):
             except ImportError:
                 continue
             else:
+                rcParamsOrig['backend'] = candidate
                 return
 
     backend_name = (
