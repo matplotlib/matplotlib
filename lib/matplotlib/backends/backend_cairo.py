@@ -505,7 +505,7 @@ class GraphicsContextCairo(GraphicsContextBase):
 
     def set_dashes(self, offset, dashes):
         self._dashes = offset, dashes
-        if dashes == None:
+        if dashes is None:
             self.ctx.set_dash([], 0)  # switch dashes off
         else:
             self.ctx.set_dash(
