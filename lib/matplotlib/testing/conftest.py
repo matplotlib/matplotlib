@@ -8,7 +8,7 @@ from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 def pytest_configure(config):
-    matplotlib.use('agg')
+    matplotlib.use('agg', force=True)
     matplotlib._called_from_pytest = True
     matplotlib._init_tests()
 
@@ -52,6 +52,8 @@ def mpl_test_settings(request):
         finally:
             if backend is not None:
                 plt.switch_backend(prev_backend)
+
+    assert matplotlib.get_backend() == 'agg'
 
 
 @pytest.fixture

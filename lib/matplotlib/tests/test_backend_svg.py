@@ -139,7 +139,7 @@ def test_determinism(filename, usetex):
                 [sys.executable, '-R', '-c',
                  'import matplotlib; '
                  'matplotlib._called_from_pytest = True; '
-                 'matplotlib.use("svg"); '
+                 'matplotlib.use("svg", force=True); '
                  'from matplotlib.tests.test_backend_svg '
                  'import _test_determinism_save;'
                  '_test_determinism_save(%r, %r)' % (filename, usetex)],
