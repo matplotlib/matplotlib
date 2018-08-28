@@ -1,5 +1,4 @@
 import functools
-import warnings
 
 from matplotlib import docstring
 import matplotlib.artist as martist

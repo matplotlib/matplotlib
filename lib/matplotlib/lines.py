@@ -16,7 +16,7 @@ from .cbook import (
     STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
-from .transforms import Bbox, TransformedPath, IdentityTransform
+from .transforms import Bbox, TransformedPath
 
 # Imported here for backward compatibility, even though they don't
 # really belong.

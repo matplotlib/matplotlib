@@ -5,8 +5,6 @@ import numpy as np
 
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
-from matplotlib import cbook
-from matplotlib import docstring
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath

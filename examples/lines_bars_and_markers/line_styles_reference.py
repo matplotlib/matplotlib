@@ -6,7 +6,6 @@ Line-style reference
 Reference for line-styles included with Matplotlib.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
 
 

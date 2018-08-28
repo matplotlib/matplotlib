@@ -10,8 +10,6 @@ multiple axes at drawing time.
     object that can be used to set the axes_locator of the axes.
 """
 
-import functools
-
 import matplotlib.transforms as mtransforms
 from matplotlib import cbook
 from matplotlib.axes import SubplotBase

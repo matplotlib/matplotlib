@@ -30,7 +30,6 @@ from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list, is_hashable, warn_deprecated
-import matplotlib.colors as colors
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch

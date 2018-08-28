@@ -11,9 +11,7 @@ import numpy as np
 
 from matplotlib.transforms import Affine2D, IdentityTransform
 from . import grid_helper_curvelinear
-from .axislines import AxisArtistHelper, GridHelperBase
 from .axis_artist import AxisArtist
-from .grid_finder import GridFinder
 
 
 class FloatingAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):

@@ -27,8 +27,7 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import (get_realpath_and_stat,
-                              is_writable_file_like, maxdict)
+from matplotlib.cbook import get_realpath_and_stat, maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.afm import AFM
@@ -1999,7 +1998,6 @@ class RendererPdf(RendererBase):
 
         if rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
-            l, b, w, h = font.get_str_bbox(s)
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)

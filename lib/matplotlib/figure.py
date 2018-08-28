@@ -1927,7 +1927,6 @@ default: 'top'
         restore_to_pylab = state.pop('_restore_to_pylab', False)
 
         if version != _mpl_version:
-            import warnings
             warnings.warn("This figure was saved with matplotlib version %s "
                           "and is unlikely to function correctly." %
                           (version, ))
@@ -2489,7 +2488,6 @@ default: 'top'
             _log.debug(' Working on: %s', ax.get_ylabel())
             ss = ax.get_subplotspec()
             nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
-            same = [ax]
             labpo = ax.yaxis.get_label_position()  # left or right
             # loop through other axes, and search for label positions
             # that are same as this one, and that share the appropriate

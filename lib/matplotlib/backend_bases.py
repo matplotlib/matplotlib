@@ -47,7 +47,7 @@ from matplotlib import (
     backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
     widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
+from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
 
 try:

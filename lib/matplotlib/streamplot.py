@@ -642,7 +642,6 @@ def _gen_starting_points(shape):
     xlast = nx - 1
     ylast = ny - 1
     x, y = 0, 0
-    i = 0
     direction = 'right'
     for i in range(nx * ny):
 

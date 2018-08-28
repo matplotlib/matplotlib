@@ -27,9 +27,7 @@ import matplotlib.spines as mspines
 import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext
 import matplotlib.image as mimage
-from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
-from matplotlib.legend import Legend
 
 from matplotlib.rcsetup import cycler, validate_axisbelow
 

@@ -1,5 +1,4 @@
 from . import backend_cairo, backend_gtk3
-from ._gtk3_compat import gi
 from .backend_gtk3 import Gtk, _BackendGTK3
 from matplotlib.backend_bases import cursors
 

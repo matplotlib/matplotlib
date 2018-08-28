@@ -4,7 +4,6 @@ Manage figures for pyplot interface.
 
 import atexit
 import gc
-import sys
 
 
 class Gcf(object):

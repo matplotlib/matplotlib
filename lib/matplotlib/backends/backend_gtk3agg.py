@@ -1,9 +1,6 @@
-import sys
-
 import numpy as np
 
 from . import backend_agg, backend_cairo, backend_gtk3
-from ._gtk3_compat import gi
 from .backend_cairo import cairo
 from .backend_gtk3 import Gtk, _BackendGTK3
 from matplotlib import transforms

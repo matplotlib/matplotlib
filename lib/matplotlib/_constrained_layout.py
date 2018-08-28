@@ -49,8 +49,6 @@ import numpy as np
 import logging
 import warnings
 
-from matplotlib.legend import Legend
-import matplotlib.transforms as transforms
 import matplotlib._layoutbox as layoutbox
 
 _log = logging.getLogger(__name__)
