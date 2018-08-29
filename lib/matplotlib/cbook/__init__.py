@@ -1393,15 +1393,12 @@ def _reshape_2D(X, name):
     """
     # Iterate over columns for ndarrays, over rows otherwise.
     X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
-    if X.ndim == 1 and X.dtype.type != np.object_:
+    if X.ndim == 1 and not isinstance(X[0], collections.abc.Iterable):
         # 1D array of scalars: directly return it.
         return [X]
     elif X.ndim in [1, 2]:
-        if hasattr(X[0], '__len__'):
-            # 2D array, or 1D array of iterables: flatten them first.
-            return [np.reshape(x, -1) for x in X]
-        else:
-            return [X]
+        # 2D array, or 1D array of iterables: flatten them first.
+        return [np.reshape(x, -1) for x in X]
     else:
         raise ValueError("{} must have 2 or fewer dimensions".format(name))
 
