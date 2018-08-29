@@ -40,8 +40,8 @@ Matplotlib recognizes the following formats to specify a color:
   'solarized:base00', 'solarized:base0', 'solarized:base1', 'solarized:base2',
   'solarized:base3', 'solarized:yellow', 'solarized:orange', 'solarized:red',
   'solarized:magenta', 'solarized:violet', 'solarized:blue', 'solarized:cyan',
-  'solarized:green'}`` which are the colors from Ethan
-   Schoonover's `Solarized palette <https://ethanschoonover.com/solarized/>`_;
+  'solarized:green'}`` which are the colors from Ethan Schoonover's `
+  Solarized palette <https://ethanschoonover.com/solarized/>`_;.
 * a "CN" color spec, i.e. `'C'` followed by a single digit, which is an index
   into the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``);
   the indexing occurs at artist creation time and defaults to black if the
