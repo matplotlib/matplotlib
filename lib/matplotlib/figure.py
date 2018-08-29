@@ -1680,6 +1680,10 @@ default: 'top'
         """
         return self.axes
 
+    # Note: in the docstring below, the newlines in the examples after the
+    # calls to legend() allow replacing it with figlegend() to generate the
+    # docstring of pyplot.figlegend.
+
     @docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
@@ -1691,15 +1695,17 @@ default: 'top'
 
         To make a legend for a list of lines and labels::
 
-          legend( (line1, line2, line3),
-                  ('label1', 'label2', 'label3'),
-                  loc='upper right')
+          legend(
+              (line1, line2, line3),
+              ('label1', 'label2', 'label3'),
+              loc='upper right')
 
         These can also be specified by keyword::
 
-          legend(handles=(line1, line2, line3),
-                labels=('label1', 'label2', 'label3'),
-                loc='upper right')
+          legend(
+              handles=(line1, line2, line3),
+              labels=('label1', 'label2', 'label3'),
+              loc='upper right')
 
         Parameters
         ----------
