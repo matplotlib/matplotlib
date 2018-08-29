@@ -21,7 +21,7 @@ def plot_colors(colors, title, sort_colors=True, ncols=4):
     import matplotlib.pyplot as plt
     from matplotlib.colors import rgb_to_hsv, to_rgba
 
-    extra_rows = 2  # additional space for title
+    extra_rows = 2  # Additional space for title.
     cell_width = 225
     cell_height = 30
     swatch_width = 50
@@ -63,16 +63,23 @@ def plot_colors(colors, title, sort_colors=True, ncols=4):
 
         ax.hlines(y, swatch_start_x, swatch_end_x,
                   color=colors[name], linewidth=20)
+
     plt.show()
 
-
+# Display the 8 base colors in matplotlib.
 plot_colors(mcolors.BASE_COLORS, "Base Colors", sort_colors=False,
             ncols=3)
 
+# Displays named colors as defined by the CSS specification.
+# For more on CSS colors, see https://www.w3.org/TR/css-color-4/
 plot_colors(mcolors.CSS4_COLORS, "CSS Colors")
 
-plot_colors(mcolors.SOLARIZED_COLORS, "Solarized Palette", sort_colors=False)
+# The Solarized palette is a 16-color palette designed for screen use.
+# For more information, see https://ethanschoonover.com/solarized/
+plot_colortable(mcolors.SOLARIZED_COLORS, "Solarized Palette",
+                order='by_column', sort_colors=False)
 
+# This displays the classic 10-color default palette in Tableau.
 plot_colors(mcolors.TABLEAU_COLORS, "Tableau Palette", sort_colors=False,
             ncols=2)
 
@@ -90,7 +97,5 @@ import matplotlib
 matplotlib.colors
 matplotlib.colors.rgb_to_hsv
 matplotlib.colors.to_rgba
-matplotlib.figure.Figure.get_size_inches
-matplotlib.figure.Figure.subplots_adjust
 matplotlib.axes.Axes.text
 matplotlib.axes.Axes.hlines
