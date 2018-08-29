@@ -1,0 +1,9 @@
+Passing a single string as *labels* to `Sankey.add`
+```````````````````````````````````````````````````
+
+Previously, `Sankey.add` would only accept a single string as the *labels*
+argument if its length is equal to the number of flows, in which case it would
+use one character of the string for each flow.
+
+The behavior has been changed to match the documented one: when a single string
+is passed, it is used to label all the flows.
