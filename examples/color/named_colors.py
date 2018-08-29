@@ -76,7 +76,7 @@ plot_colors(mcolors.CSS4_COLORS, "CSS Colors")
 
 # The Solarized palette is a 16-color palette designed for screen use.
 # For more information, see https://ethanschoonover.com/solarized/
-plot_colortable(mcolors.SOLARIZED_COLORS, "Solarized Palette",
+plot_colors(mcolors.SOLARIZED_COLORS, "Solarized Palette",
                 order='by_column', sort_colors=False)
 
 # This displays the classic 10-color default palette in Tableau.
