@@ -554,8 +554,8 @@ class ImageGrid(Grid):
                     sharex = None
                     sharey = None
             else:
-                sharex = self._column_refax[col]
-                sharey = self._row_refax[row]
+                sharex = None
+                sharey = None
 
             ax = axes_class(fig, rect, sharex=sharex, sharey=sharey,
                             **axes_class_args)
