@@ -468,7 +468,7 @@ class ContourLabeler(object):
     def _get_label_clabeltext(self, x, y, rotation):
         # x, y, rotation is given in pixel coordinate. Convert them to
         # the data coordinate and create a label using ClabelText
-        # class. This way, the roation of the clabel is along the
+        # class. This way, the rotation of the clabel is along the
         # contour line always.
         transDataInv = self.ax.transData.inverted()
         dx, dy = transDataInv.transform_point((x, y))
@@ -506,7 +506,7 @@ class ContourLabeler(object):
         """
         # x, y, rotation is given in pixel coordinate. Convert them to
         # the data coordinate and create a label using ClabelText
-        # class. This way, the roation of the clabel is along the
+        # class. This way, the rotation of the clabel is along the
         # contour line always.
 
         t = self._get_label_clabeltext(x, y, rotation)
@@ -1784,7 +1784,7 @@ class QuadContourSet(ContourSet):
             Override axis units by specifying an instance of a
             :class:`matplotlib.units.ConversionInterface`.
 
-        antialiased : bool, optinal
+        antialiased : bool, optional
             Enable antialiasing, overriding the defaults.  For
             filled contours, the default is *True*.  For line contours,
             it is taken from :rc:`lines.antialiased`.

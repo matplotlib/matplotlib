@@ -764,7 +764,7 @@ _deprecated_ignore_map = {
 
 # rcParams deprecated; can use None to suppress warnings; remain actually
 # listed in the rcParams (not included in _all_deprecated).
-# Values are typles of (version,)
+# Values are tuples of (version,)
 _deprecated_remain_as_none = {
     'axes.hold': ('2.1',),
     'backend.qt4': ('2.2',),
@@ -1303,7 +1303,7 @@ class rc_context:
         # If anything goes wrong, revert to the original rcs.
         updated_backend = self._orig['backend']
         dict.update(rcParams, self._orig)
-        # except for the backend.  If the context block triggered resloving
+        # except for the backend.  If the context block triggered resolving
         # the auto backend resolution keep that value around
         if self._orig['backend'] is rcsetup._auto_backend_sentinel:
             rcParams['backend'] = updated_backend

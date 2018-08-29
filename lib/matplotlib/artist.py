@@ -784,7 +784,7 @@ class Artist(object):
         return self._alpha
 
     def get_visible(self):
-        """Return the visiblity."""
+        """Return the visibility."""
         return self._visible
 
     def get_animated(self):
@@ -1600,7 +1600,7 @@ def kwdoc(artist):
     -------
     string
         Returns a string with a list or rst table with the settable properties
-        of the *artist*. The formating depends on the value of
+        of the *artist*. The formatting depends on the value of
         :rc:`docstring.hardcopy`. False result in a list that is intended for
         easy reading as a docstring and True result in a rst table intended
         for rendering the documentation with sphinx.
