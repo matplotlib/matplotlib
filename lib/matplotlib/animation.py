@@ -1643,7 +1643,7 @@ class FuncAnimation(TimedAnimation):
             self._iter_gen = itertools.count
         elif callable(frames):
             self._iter_gen = frames
-        elif cbook.iterable(frames):
+        elif np.iterable(frames):
             self._iter_gen = lambda: iter(frames)
             if hasattr(frames, '__len__'):
                 self.save_count = len(frames)

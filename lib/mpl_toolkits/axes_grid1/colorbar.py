@@ -384,7 +384,7 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             self.cbar_axis.set_major_formatter(formatter)
 
-        if cbook.iterable(ticks):
+        if np.iterable(ticks):
             self.cbar_axis.set_ticks(ticks)
         elif ticks is not None:
             self.cbar_axis.set_major_locator(ticks)

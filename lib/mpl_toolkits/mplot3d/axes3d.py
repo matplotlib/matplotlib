@@ -586,7 +586,7 @@ class Axes3D(Axes):
         return minx, maxx, miny, maxy, minz, maxz
 
     def _determine_lims(self, xmin=None, xmax=None, *args, **kwargs):
-        if xmax is None and cbook.iterable(xmin):
+        if xmax is None and np.iterable(xmin):
             xmin, xmax = xmin
         if xmin == xmax:
             xmin -= 0.05
@@ -601,7 +601,7 @@ class Axes3D(Axes):
         See :meth:`matplotlib.axes.Axes.set_xlim` for full documentation.
 
         """
-        if right is None and cbook.iterable(left):
+        if right is None and np.iterable(left):
             left, right = left
         if xmin is not None:
             cbook.warn_deprecated('3.0', name='`xmin`',
@@ -659,7 +659,7 @@ class Axes3D(Axes):
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation.
 
         """
-        if top is None and cbook.iterable(bottom):
+        if top is None and np.iterable(bottom):
             bottom, top = bottom
         if ymin is not None:
             cbook.warn_deprecated('3.0', name='`ymin`',
@@ -717,7 +717,7 @@ class Axes3D(Axes):
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
 
         """
-        if top is None and cbook.iterable(bottom):
+        if top is None and np.iterable(bottom):
             bottom, top = bottom
         if zmin is not None:
             cbook.warn_deprecated('3.0', name='`zmin`',
@@ -1466,7 +1466,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        if upper is None and cbook.iterable(lower):
+        if upper is None and np.iterable(lower):
             lower,upper = lower
 
         old_lower,old_upper = self.get_zbound()
@@ -2292,7 +2292,7 @@ class Axes3D(Axes):
         xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
-        is_2d = not cbook.iterable(zs)
+        is_2d = not np.iterable(zs)
         zs = np.broadcast_to(zs, len(xs))
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
                                         depthshade=depthshade)

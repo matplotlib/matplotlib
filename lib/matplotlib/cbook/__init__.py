@@ -327,6 +327,7 @@ class Bunch(types.SimpleNamespace):
     pass
 
 
+@deprecated('3.1', alternative='np.iterable')
 def iterable(obj):
     """return true if *obj* is iterable"""
     try:
@@ -415,7 +416,7 @@ def open_file_cm(path_or_file, mode="r", encoding=None):
 
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
-    return isinstance(val, str) or not iterable(val)
+    return isinstance(val, str) or not np.iterable(val)
 
 
 def _string_to_bool(s):
@@ -1026,7 +1027,7 @@ def delete_masked_points(*args):
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if not isinstance(x, str) and iterable(x) and len(x) == nrecs:
+        if not isinstance(x, str) and np.iterable(x) and len(x) == nrecs:
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:

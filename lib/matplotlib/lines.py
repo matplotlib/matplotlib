@@ -12,8 +12,7 @@ import numpy as np
 from . import artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
-    _to_unmasked_float_array, iterable, ls_mapper, ls_mapper_r,
-    STEP_LOOKUP_MAP)
+    _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, TransformedPath
@@ -190,7 +189,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
         # mazol tov, it's already a slice, just return
         return Path(verts[markevery], _slice_or_none(codes, markevery))
 
-    elif iterable(markevery):
+    elif np.iterable(markevery):
         #fancy indexing
         try:
             return Path(verts[markevery], _slice_or_none(codes, markevery))
@@ -311,9 +310,9 @@ class Line2D(Artist):
         Artist.__init__(self)
 
         #convert sequences to numpy arrays
-        if not iterable(xdata):
+        if not np.iterable(xdata):
             raise RuntimeError('xdata must be a sequence')
-        if not iterable(ydata):
+        if not np.iterable(ydata):
             raise RuntimeError('ydata must be a sequence')
 
         if linewidth is None:

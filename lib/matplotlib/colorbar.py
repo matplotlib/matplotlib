@@ -388,7 +388,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.ticklocation = ticklocation
 
         self.set_label(label)
-        if cbook.iterable(ticks):
+        if np.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
             self.locator = ticks    # Handle default in _ticker()
@@ -559,7 +559,7 @@ class ColorbarBase(cm.ScalarMappable):
             use :meth:`update_ticks` to manually update the ticks.
 
         """
-        if cbook.iterable(ticks):
+        if np.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
             self.locator = ticks
@@ -707,9 +707,9 @@ class ColorbarBase(cm.ScalarMappable):
         y = self._locate(levels)
         igood = (y < 1.001) & (y > -0.001)
         y = y[igood]
-        if cbook.iterable(colors):
+        if np.iterable(colors):
             colors = np.asarray(colors)[igood]
-        if cbook.iterable(linewidths):
+        if np.iterable(linewidths):
             linewidths = np.asarray(linewidths)[igood]
         X, Y = np.meshgrid([0, 1], y)
         if self.orientation == 'vertical':
@@ -1289,7 +1289,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     anchor = kw.pop('anchor', loc_settings['anchor'])
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
 
-    parents_iterable = cbook.iterable(parents)
+    parents_iterable = np.iterable(parents)
     # turn parents into a list if it is not already. We do this w/ np
     # because `plt.subplots` can return an ndarray and is natural to
     # pass to `colorbar`.

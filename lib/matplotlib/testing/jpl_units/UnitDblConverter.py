@@ -1,9 +1,9 @@
 """UnitDblConverter module containing class UnitDblConverter."""
 
 import numpy as np
+
 import matplotlib.units as units
 import matplotlib.projections.polar as polar
-from matplotlib.cbook import iterable
 
 __all__ = ['UnitDblConverter']
 
@@ -85,7 +85,7 @@ class UnitDblConverter(units.ConversionInterface):
 
         isNotUnitDbl = True
 
-        if iterable(value) and not isinstance(value, str):
+        if np.iterable(value) and not isinstance(value, str):
             if len(value) == 0:
                 return []
             else:
@@ -128,7 +128,7 @@ class UnitDblConverter(units.ConversionInterface):
 
         # Determine the default units based on the user preferences set for
         # default units when printing a UnitDbl.
-        if iterable(value) and not isinstance(value, str):
+        if np.iterable(value) and not isinstance(value, str):
             return UnitDblConverter.default_units(value[0], axis)
         else:
             return UnitDblConverter.defaults[value.type()]

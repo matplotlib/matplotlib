@@ -11,7 +11,6 @@ import numpy as np
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-from matplotlib.cbook import iterable
 
 
 class ProxyDelegate(object):
@@ -345,7 +344,7 @@ class BasicUnitConverter(units.ConversionInterface):
     def convert(val, unit, axis):
         if units.ConversionInterface.is_numlike(val):
             return val
-        if iterable(val):
+        if np.iterable(val):
             return [thisval.convert_to(unit).get_value() for thisval in val]
         else:
             return val.convert_to(unit).get_value()
@@ -353,14 +352,14 @@ class BasicUnitConverter(units.ConversionInterface):
     @staticmethod
     def default_units(x, axis):
         'return the default unit for x or None'
-        if iterable(x):
+        if np.iterable(x):
             for thisx in x:
                 return thisx.unit
         return x.unit
 
 
 def cos(x):
-    if iterable(x):
+    if np.iterable(x):
         return [math.cos(val.convert_to(radians).get_value()) for val in x]
     else:
         return math.cos(x.convert_to(radians).get_value())

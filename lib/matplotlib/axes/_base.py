@@ -13,7 +13,7 @@ import matplotlib
 
 from matplotlib import cbook, rcParams
 from matplotlib.cbook import (
-    _OrderedSet, _check_1d, _string_to_bool, iterable, index_of, get_label)
+    _OrderedSet, _check_1d, _string_to_bool, index_of, get_label)
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -3005,7 +3005,7 @@ class _AxesBase(martist.Artist):
 
         .. ACCEPTS: (lower: float, upper: float)
         """
-        if upper is None and iterable(lower):
+        if upper is None and np.iterable(lower):
             lower, upper = lower
 
         old_lower, old_upper = self.get_xbound()
@@ -3124,7 +3124,7 @@ class _AxesBase(martist.Artist):
         >>> set_xlim(5000, 0)
 
         """
-        if right is None and iterable(left):
+        if right is None and np.iterable(left):
             left, right = left
         if xmin is not None:
             cbook.warn_deprecated('3.0', name='`xmin`',
@@ -3357,7 +3357,7 @@ class _AxesBase(martist.Artist):
 
         .. ACCEPTS: (lower: float, upper: float)
         """
-        if upper is None and iterable(lower):
+        if upper is None and np.iterable(lower):
             lower, upper = lower
 
         old_lower, old_upper = self.get_ybound()
@@ -3457,7 +3457,7 @@ class _AxesBase(martist.Artist):
 
         >>> set_ylim(5000, 0)
         """
-        if top is None and iterable(bottom):
+        if top is None and np.iterable(bottom):
             bottom, top = bottom
         if ymin is not None:
             cbook.warn_deprecated('3.0', name='`ymin`',
