@@ -108,9 +108,13 @@ class NoopTestCommand(TestCommand):
 
 class BuildExtraLibraries(BuildExtCommand):
     def run(self):
+        # Remove the -Wstrict-prototypes option, it's not valid for C++.
+        try:
+            self.compiler.compiler_so.remove('-Wstrict-prototypes')
+        except (ValueError, AttributeError):
+            pass
         for package in good_packages:
             package.do_custom_build()
-
         return BuildExtCommand.run(self)
 
 
