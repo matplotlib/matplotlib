@@ -144,8 +144,7 @@ class Line3D(lines.Line2D):
         try:
             # If *zs* is a list or array, then this will fail and
             # just proceed to juggle_axes().
-            zs = float(zs)
-            zs = [zs for x in xs]
+            zs = np.full_like(xs, fill_value=float(zs))
         except TypeError:
             pass
         self._verts3d = juggle_axes(xs, ys, zs, zdir)

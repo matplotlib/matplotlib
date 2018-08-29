@@ -972,7 +972,7 @@ class AxisArtist(martist.Artist):
         available styles as a list of strings.
         """
 
-        if axisline_style==None:
+        if axisline_style is None:
             return AxislineStyle.pprint_styles()
 
         if isinstance(axisline_style, AxislineStyle._Base):
