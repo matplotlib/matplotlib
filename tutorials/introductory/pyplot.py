@@ -164,7 +164,7 @@ plt.show()
 #   ``line,`` to get the first element of that list::
 #
 #       line, = plt.plot(x, y, '-')
-#       line.set_antialiased(False) # turn off antialising
+#       line.set_antialiased(False) # turn off antialiasing
 #
 # * Use the :func:`~matplotlib.pyplot.setp` command.  The example below
 #   uses a MATLAB-style command to set multiple properties
