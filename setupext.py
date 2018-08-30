@@ -89,18 +89,6 @@ lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
 
 
-def extract_versions():
-    """
-    Extracts version values from the main matplotlib __init__.py and
-    returns them as a dictionary.
-    """
-    with open('lib/matplotlib/__init__.py') as fd:
-        for line in fd.readlines():
-            if line.startswith('__version__numpy__'):
-                exec(line.strip())
-    return locals()
-
-
 def has_include_file(include_dirs, filename):
     """
     Returns `True` if *filename* can be found in one of the
@@ -854,20 +842,6 @@ class Numpy(SetupPackage):
                 "You may need to install the development package")
 
         return [numpy.get_include()]
-
-    def check(self):
-        min_version = extract_versions()['__version__numpy__']
-        try:
-            import numpy
-        except ImportError:
-            return 'not found. pip may install it below.'
-
-        if not is_min_version(numpy.__version__, min_version):
-            raise SystemExit(
-                "Requires numpy %s or later to build.  (Found %s)" %
-                (min_version, numpy.__version__))
-
-        return 'version %s' % numpy.__version__
 
     def add_flags(self, ext):
         # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for

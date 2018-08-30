@@ -153,8 +153,6 @@ del get_versions
 
 _log = logging.getLogger(__name__)
 
-__version__numpy__ = '1.10.0'  # minimum required numpy version
-
 __bibtex__ = r"""@Article{Hunter:2007,
   Author    = {Hunter, J. D.},
   Title     = {Matplotlib: A 2D graphics environment},
@@ -189,27 +187,21 @@ def compare_versions(a, b):
         return False
 
 
-try:
-    import dateutil
-except ImportError:
-    raise ImportError("Matplotlib requires dateutil")
+def _check_versions():
+    for modname, minver in [
+            ("cycler", "0.10"),
+            ("dateutil", "2.1"),
+            ("kiwisolver", "1.0.1"),
+            ("numpy", "1.10"),
+            ("pyparsing", "2.0.1"),
+    ]:
+        module = importlib.import_module(modname)
+        if distutils.version.LooseVersion(module.__version__) < minver:
+            raise ImportError("Matplotlib requires {}>={}; you have {}"
+                              .format(modname, minver, module.__version__))
 
 
-try:
-    import pyparsing
-except ImportError:
-    raise ImportError("Matplotlib requires pyparsing")
-else:
-    if not compare_versions(pyparsing.__version__, '2.0.1'):
-        raise ImportError(
-            "Matplotlib requires pyparsing>=2.0.1; you have %s"
-            % pyparsing.__version__)
-
-
-if not compare_versions(numpy.__version__, __version__numpy__):
-    raise ImportError(
-        "Matplotlib requires numpy>=%s; you have %s" % (
-            __version__numpy__, numpy.__version__))
+_check_versions()
 
 
 if not hasattr(sys, 'argv'):  # for modpython
