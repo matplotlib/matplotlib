@@ -427,8 +427,6 @@ def _parse_args(*args, **kw):
     return X, Y, U, V, C
 
 
-
-
 def _check_consistent_shapes(*arrays):
     all_shapes = {a.shape for a in arrays}
     if len(all_shapes) != 1:
@@ -468,9 +466,9 @@ class Quiver(mcollections.PolyCollection):
         """
         self.ax = ax
         X, Y, U, V, C = _parse_args(*args, **kw)
-        if kw.get('U') is not None: # Resetting **kw to the way it was without these
-            kw.pop('U')
-        if kw.get('V') is not None: 
+        if kw.get('U') is not None:  # Resetting **kw to the
+            kw.pop('U')  # way it was without these
+        if kw.get('V') is not None:
             kw.pop('V')
         if kw.get('X') is not None:
             kw.pop('X')
@@ -985,9 +983,9 @@ class Barbs(mcollections.PolyCollection):
 
         # Parse out the data arrays from the various configurations supported
         x, y, u, v, c = _parse_args(*args, **kw)
-        if kw.get('U') is not None: # Resetting **kw to the way it was without these
-            kw.pop('U')
-        if kw.get('V') is not None: 
+        if kw.get('U') is not None:  # Resetting **kw to the way
+            kw.pop('U')  # it was without these
+        if kw.get('V') is not None:
             kw.pop('V')
         if kw.get('X') is not None:
             kw.pop('X')
