@@ -3,7 +3,7 @@
 Color Demo
 ==========
 
-Matplotlib gives you 8 ways to specify colors,
+Matplotlib gives you 9 ways to specify colors,
 
 1) an RGB or RGBA tuple of float values in ``[0, 1]`` (e.g. ``(0.1, 0.2, 0.5)``
    or  ``(0.1, 0.2, 0.5, 0.3)``).  RGBA is short for Red, Green, Blue, Alpha;
@@ -23,6 +23,12 @@ Matplotlib gives you 8 ways to specify colors,
    'tab:red', 'tab:purple', 'tab:brown', 'tab:pink',
    'tab:gray', 'tab:olive', 'tab:cyan'}`` which are the Tableau Colors from the
    'tab10' categorical palette (which is the default color cycle);
+9) one of ``{'solarized:base03', 'solarized:base02', 'solarized:base01',
+   'solarized:base00', 'solarized:base0', 'solarized:base1', 'solarized:base2',
+   'solarized:base3', 'solarized:yellow', 'solarized:orange', 'solarized:red',
+   'solarized:magenta', 'solarized:violet', 'solarized:blue', 'solarized:cyan',
+   'solarized:green'}`` which are the colors from Ethan Schoonover's
+   `Solarized palette <https://ethanschoonover.com/solarized/>`_;.
 
 For more information on colors in matplotlib see
 
