@@ -46,9 +46,9 @@ def get_dir_vector(zdir):
     zdir : {'x', 'y', 'z', None, 3-tuple}
         The direction. Possible values are:
         - 'x': equivalent to (1, 0, 0)
-        - 'y': euqivalent to (0, 1, 0)
+        - 'y': equivalent to (0, 1, 0)
         - 'z': equivalent to (0, 0, 1)
-        - *None*: euqivalent to (0, 0, 0)
+        - *None*: equivalent to (0, 0, 0)
         - an iterable (x, y, z) is returned unchanged.
 
     Returns

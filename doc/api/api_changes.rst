@@ -145,7 +145,7 @@ The entire contents of `testing.noseclasses` have also been removed.
 :class:`matplotlib.cbook.deprecation.mplDeprecation` will be removed in
 future versions. It is just an alias for
 :class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
-Please use the :class:`~.MatplotlibDeprecationWarning` directly if neccessary.
+Please use the :class:`~.MatplotlibDeprecationWarning` directly if necessary.
 
 
 matplotlib.cbook.Bunch deprecated
