@@ -423,7 +423,7 @@ class SubplotSpec(object):
         if gridspec._layoutbox is not None:
             glb = gridspec._layoutbox
             # So note that here we don't assign any layout yet,
-            # just make the layoutbox that will conatin all items
+            # just make the layoutbox that will contain all items
             # associated w/ this axis.  This can include other axes like
             # a colorbar or a legend.
             self._layoutbox = layoutbox.LayoutBox(
