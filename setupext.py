@@ -456,10 +456,6 @@ class SetupPackage(object):
                     "pkg-config information for '%s' could not be found." %
                     package)
 
-        if min_version == 'PATCH':
-            raise CheckFailed(
-                "Requires patches that have not been merged upstream.")
-
         if min_version and version != 'unknown':
             if not is_min_version(version, min_version):
                 raise CheckFailed(
@@ -893,33 +889,23 @@ class Numpy(SetupPackage):
 class LibAgg(SetupPackage):
     name = 'libagg'
 
-    def check(self):
-        self.__class__.found_external = True
-        try:
-            return self._check_for_pkg_config(
-                'libagg', 'agg2/agg_basics.h', min_version='PATCH')
-        except CheckFailed as e:
-            self.__class__.found_external = False
-            return str(e) + ' Using local copy.'
-
     def add_flags(self, ext, add_sources=True):
-        if self.found_external:
-            pkg_config.setup_extension(ext, 'libagg')
-        else:
-            ext.include_dirs.insert(0, 'extern/agg24-svn/include')
-            if add_sources:
-                agg_sources = [
-                    'agg_bezier_arc.cpp',
-                    'agg_curves.cpp',
-                    'agg_image_filters.cpp',
-                    'agg_trans_affine.cpp',
-                    'agg_vcgen_contour.cpp',
-                    'agg_vcgen_dash.cpp',
-                    'agg_vcgen_stroke.cpp',
-                    'agg_vpgen_segmentator.cpp'
-                    ]
-                ext.sources.extend(
-                    os.path.join('extern', 'agg24-svn', 'src', x) for x in agg_sources)
+        # We need a patched Agg not available elsewhere, so always use the
+        # vendored version.
+        ext.include_dirs.insert(0, 'extern/agg24-svn/include')
+        if add_sources:
+            agg_sources = [
+                'agg_bezier_arc.cpp',
+                'agg_curves.cpp',
+                'agg_image_filters.cpp',
+                'agg_trans_affine.cpp',
+                'agg_vcgen_contour.cpp',
+                'agg_vcgen_dash.cpp',
+                'agg_vcgen_stroke.cpp',
+                'agg_vpgen_segmentator.cpp'
+                ]
+            ext.sources.extend(os.path.join('extern', 'agg24-svn', 'src', x)
+                               for x in agg_sources)
 
 
 class FreeType(SetupPackage):
@@ -1202,25 +1188,14 @@ class Png(SetupPackage):
 class Qhull(SetupPackage):
     name = "qhull"
 
-    def check(self):
-        self.__class__.found_external = True
-        try:
-            return self._check_for_pkg_config(
-                'libqhull', 'libqhull/qhull_a.h', min_version='2015.2')
-        except CheckFailed as e:
-            self.__class__.found_pkgconfig = False
-            self.__class__.found_external = False
-            return str(e) + ' Using local copy.'
-
     def add_flags(self, ext):
-        if self.found_external:
-            pkg_config.setup_extension(ext, 'qhull',
-                                       default_libraries=['qhull'])
-        else:
-            ext.include_dirs.insert(0, 'extern')
-            ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
-            if sysconfig.get_config_var('LIBM') == '-lm':
-                ext.libraries.extend('m')
+        # Qhull doesn't distribute pkg-config info, so we have no way of
+        # knowing whether a system install is recent enough.  Thus, always use
+        # the vendored version.
+        ext.include_dirs.insert(0, 'extern')
+        ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
+        if sysconfig.get_config_var('LIBM') == '-lm':
+            ext.libraries.extend('m')
 
 
 class TTConv(SetupPackage):
