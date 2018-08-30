@@ -186,6 +186,26 @@ def test_quiver_xy():
     ax.grid()
 
 
+def test_quiver_keyword_arguments():
+    ax = plt.axes()
+    x, y = np.arange(8), np.arange(10)
+    u = v = np.linspace(0, 10, 80).reshape(10, 8)
+    q = plt.quiver(X=x, Y=y, U=u, V=v)
+    assert q.get_datalim(ax.transData).bounds == (0., 0., 7., 9.)
+
+    ax = plt.axes()
+    x, y = np.arange(8), np.arange(10)
+    u = v = np.linspace(0, 10, 80).reshape(10, 8)
+    q = plt.quiver(x, y, U=u, V=v)
+    assert q.get_datalim(ax.transData).bounds == (0., 0., 7., 9.)
+
+    ax = plt.axes()
+    x, y = np.arange(8), np.arange(10)
+    u = v = np.linspace(0, 10, 80).reshape(10, 8)
+    q = plt.quiver(X=x, Y=y, U=u, V=v, C=(1, 1, 1))
+    assert q.get_datalim(ax.transData).bounds == (0., 0., 7., 9.)
+
+
 def test_quiverkey_angles():
     # Check that only a single arrow is plotted for a quiverkey when an array
     # of angles is given to the original quiver plot
