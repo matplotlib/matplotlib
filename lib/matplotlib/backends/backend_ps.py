@@ -47,6 +47,7 @@ class PsBackendHelper(object):
         self._cached = {}
 
     @property
+    @cbook.deprecated("3.1")
     def gs_exe(self):
         """
         executable name of ghostscript.
@@ -64,6 +65,7 @@ class PsBackendHelper(object):
         return str(gs_exe)
 
     @property
+    @cbook.deprecated("3.1")
     def gs_version(self):
         """
         version of ghostscript.
@@ -86,6 +88,7 @@ class PsBackendHelper(object):
         return gs_version
 
     @property
+    @cbook.deprecated("3.1")
     def supports_ps2write(self):
         """
         True if the installed ghostscript supports ps2write device.
@@ -1465,15 +1468,10 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     psfile = tmpfile + '.ps'
     dpi = rcParams['ps.distiller.res']
 
-    gs_exe = ps_backend_helper.gs_exe
-    if ps_backend_helper.supports_ps2write:  # gs version >= 9
-        device_name = "ps2write"
-    else:
-        device_name = "pswrite"
-
+    gs_exe, gs_version = checkdep_ghostscript()
     cbook._check_and_log_subprocess(
         [gs_exe, "-dBATCH", "-dNOPAUSE", "-r%d" % dpi,
-         "-sDEVICE=%s" % device_name, paper_option,
+         "-sDEVICE=ps2write", paper_option,
          "-sOutputFile=%s" % psfile, tmpfile], _log)
 
     os.remove(tmpfile)
@@ -1484,14 +1482,9 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     # the original bbox can be restored during the pstoeps step.
 
     if eps:
-        # For some versions of gs, above steps result in an ps file
-        # where the original bbox is no more correct. Do not adjust
-        # bbox for now.
-        if ps_backend_helper.supports_ps2write:
-            # fo gs version >= 9 w/ ps2write device
-            pstoeps(tmpfile, bbox, rotated=rotated)
-        else:
-            pstoeps(tmpfile)
+        # For some versions of gs, above steps result in an ps file where the
+        # original bbox is no more correct. Do not adjust bbox for now.
+        pstoeps(tmpfile, bbox, rotated=rotated)
 
 
 def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):

@@ -175,11 +175,11 @@ def compare_versions(a, b):
     "return True if a is greater than or equal to b"
     if isinstance(a, bytes):
         cbook.warn_deprecated(
-            "3.0", "compare_version arguments should be strs.")
+            "3.0", "compare_versions arguments should be strs.")
         a = a.decode('ascii')
     if isinstance(b, bytes):
         cbook.warn_deprecated(
-            "3.0", "compare_version arguments should be strs.")
+            "3.0", "compare_versions arguments should be strs.")
         b = b.decode('ascii')
     if a:
         a = distutils.version.LooseVersion(a)
@@ -445,8 +445,9 @@ def checkdep_ghostscript():
                 stdout, stderr = s.communicate()
                 if s.returncode == 0:
                     v = stdout[:-1].decode('ascii')
-                    checkdep_ghostscript.executable = gs_exec
-                    checkdep_ghostscript.version = v
+                    if compare_versions(v, '9.0'):
+                        checkdep_ghostscript.executable = gs_exec
+                        checkdep_ghostscript.version = v
             except (IndexError, ValueError, OSError):
                 pass
     return checkdep_ghostscript.executable, checkdep_ghostscript.version
@@ -492,13 +493,12 @@ def checkdep_ps_distiller(s):
         return False
 
     flag = True
-    gs_req = '8.60'
     gs_exec, gs_v = checkdep_ghostscript()
-    if not compare_versions(gs_v, gs_req):
+    if not gs_exec:
         flag = False
-        warnings.warn(('matplotlibrc ps.usedistiller option can not be used '
-                       'unless ghostscript-%s or later is installed on your '
-                       'system') % gs_req)
+        warnings.warn('matplotlibrc ps.usedistiller option can not be used '
+                      'unless ghostscript 9.0 or later is installed on your '
+                      'system')
 
     if s == 'xpdf':
         pdftops_req = '3.0'
