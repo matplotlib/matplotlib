@@ -5037,11 +5037,11 @@ class Axes(_AxesBase):
             By default, the nodes of the polygon defining the filled region
             will only be placed at the positions in the *x* array.  Such a
             polygon cannot describe the above semantics close to the
-            intersection.  The x-sections containing the intersecion are
+            intersection.  The x-sections containing the intersection are
             simply clipped.
 
             Setting *interpolate* to *True* will calculate the actual
-            interscection point and extend the filled region up to this point.
+            intersection point and extend the filled region up to this point.
 
         step : {'pre', 'post', 'mid'}, optional
             Define *step* if the filling should be a step function,
