@@ -282,12 +282,12 @@ class TestLegendFunction(object):
         th = np.linspace(0, 2*np.pi, 1024)
         lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
         lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
-        with mock.patch('warnings.warn') as warn:
+        with pytest.warns(UserWarning) as record:
             ax.legend((lnc, lns), labels=('a', 'b'))
-
-        warn.assert_called_with("You have mixed positional and keyword "
-                                "arguments, some input may be "
-                                "discarded.")
+        assert len(record) == 1
+        assert str(record[0].message) == (
+            "You have mixed positional and keyword arguments, some input may "
+            "be discarded.")
 
     def test_parasite(self):
         from mpl_toolkits.axes_grid1 import host_subplot
@@ -356,11 +356,12 @@ class TestLegendFigureFunction(object):
         fig, axs = plt.subplots(1, 2)
         lines = axs[0].plot(range(10))
         lines2 = axs[1].plot(np.arange(10) * 2.)
-        with mock.patch('warnings.warn') as warn:
+        with pytest.warns(UserWarning) as record:
             fig.legend((lines, lines2), labels=('a', 'b'))
-        warn.assert_called_with("You have mixed positional and keyword "
-                                "arguments, some input may be "
-                                "discarded.")
+        assert len(record) == 1
+        assert str(record[0].message) == (
+            "You have mixed positional and keyword arguments, some input may "
+            "be discarded.")
 
 
 @image_comparison(baseline_images=['legend_stackplot'], extensions=['png'])
