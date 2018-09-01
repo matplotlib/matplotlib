@@ -12,10 +12,11 @@ import logging
 _log = logging.getLogger(__name__)
 
 backend = matplotlib.get_backend()
-_backend_loading_tb = "".join(
+# the `str` calls here are to make non-ascii paths work on python2
+_backend_loading_tb = str("").join(
     line for line in traceback.format_stack()
     # Filter out line noise from importlib line.
-    if not line.startswith('  File "<frozen importlib._bootstrap'))
+    if not line.startswith(str('  File "<frozen importlib._bootstrap')))
 
 
 def pylab_setup(name=None):
