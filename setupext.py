@@ -1009,7 +1009,7 @@ class FreeType(SetupPackage):
         try:
             tarball_cache_dir = _get_xdg_cache_dir()
             tarball_cache_path = os.path.join(tarball_cache_dir, tarball)
-        except:
+        except Exception:
             # again, do not really care if this fails
             tarball_cache_dir = None
             tarball_cache_path = None
@@ -1640,5 +1640,5 @@ class Dlls(OptionalPackageData):
         """
         try:
             return config.getboolean(cls.config_category, cls.name)
-        except:
+        except Exception:
             return False  # <-- default

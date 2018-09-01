@@ -87,7 +87,7 @@ class ConvertAllProxy(PassThroughProxy):
             if hasattr(a, 'convert_to'):
                 try:
                     a = a.convert_to(self.unit)
-                except:
+                except Exception:
                     pass
                 arg_units.append(a.get_unit())
                 converted_args.append(a.get_value())

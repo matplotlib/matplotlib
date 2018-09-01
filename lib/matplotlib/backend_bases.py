@@ -1407,7 +1407,7 @@ class LocationEvent(Event):
                 try:
                     if last.inaxes is not None:
                         last.canvas.callbacks.process('axes_leave_event', last)
-                except:
+                except Exception:
                     pass
                     # See ticket 2901582.
                     # I think this is a valid exception to the rule

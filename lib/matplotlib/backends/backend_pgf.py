@@ -357,7 +357,7 @@ class LatexManager:
         # parse metrics from the answer string
         try:
             width, height, offset = answer.splitlines()[0].split(",")
-        except:
+        except Exception:
             raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
                              .format(text, answer))
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])

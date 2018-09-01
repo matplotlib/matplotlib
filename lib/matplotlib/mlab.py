@@ -3032,7 +3032,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         tdict = {None: int, int: float, float: str}
         try:
             atype(str(item))
-        except:
+        except Exception:
             return get_type(item, tdict[atype])
         return atype
 
