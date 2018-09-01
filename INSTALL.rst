@@ -138,7 +138,7 @@ Matplotlib requires the following dependencies:
 * `Python <https://www.python.org/downloads/>`_ (>= 3.5)
 * `FreeType <https://www.freetype.org/>`_ (>= 2.3)
 * `libpng <http://www.libpng.org>`_ (>= 1.2)
-* `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
+* `NumPy <http://www.numpy.org>`_ (>= 1.10.0)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)

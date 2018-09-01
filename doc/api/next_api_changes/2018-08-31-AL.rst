@@ -1,0 +1,6 @@
+API removals
+````````````
+
+The following API elements have been removed:
+
+- ``__version__numpy__``
