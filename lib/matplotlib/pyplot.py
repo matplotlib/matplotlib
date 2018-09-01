@@ -756,41 +756,9 @@ def figimage(*args, **kwargs):
 
 
 def figlegend(*args, **kwargs):
-    """
-    Place a legend in the figure.
-
-    *labels*
-      a sequence of strings
-
-    *handles*
-      a sequence of :class:`~matplotlib.lines.Line2D` or
-      :class:`~matplotlib.patches.Patch` instances
-
-    *loc*
-      can be a string or an integer specifying the legend
-      location
-
-    A :class:`matplotlib.legend.Legend` instance is returned.
-
-    Examples
-    --------
-
-    To make a legend from existing artists on every axes::
-
-      figlegend()
-
-    To make a legend for a list of lines and labels::
-
-      figlegend( (line1, line2, line3),
-                 ('label1', 'label2', 'label3'),
-                 'upper right' )
-
-    .. seealso::
-
-       :func:`~matplotlib.pyplot.legend`
-
-    """
     return gcf().legend(*args, **kwargs)
+if Figure.legend.__doc__:
+    figlegend.__doc__ = Figure.legend.__doc__.replace("legend(", "figlegend(")
 
 
 ## Axes ##
