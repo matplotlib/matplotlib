@@ -125,7 +125,7 @@ these up; there is no need to do anything further.
 Random data in tests
 --------------------
 
-Random data can is a very convenient way to generate data for examples,
+Random data is a very convenient way to generate data for examples,
 however the randomness is problematic for testing (as the tests
 must be deterministic!).  To work around this set the seed in each test.
 For numpy use::
