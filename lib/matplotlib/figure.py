@@ -24,15 +24,9 @@ from matplotlib import get_backend
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
-
 import matplotlib.cbook as cbook
-
-from matplotlib.cbook import Stack
-
-from matplotlib import image as mimage
-from matplotlib.image import FigureImage
-
 import matplotlib.colorbar as cbar
+import matplotlib.image as mimage
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
@@ -57,7 +51,7 @@ def _stale_figure_callback(self, val):
         self.figure.stale = val
 
 
-class AxesStack(Stack):
+class AxesStack(cbook.Stack):
     """
     Specialization of the `.Stack` to handle all tracking of
     `~matplotlib.axes.Axes` in a `.Figure`.
@@ -74,7 +68,7 @@ class AxesStack(Stack):
 
     """
     def __init__(self):
-        Stack.__init__(self)
+        super().__init__()
         self._ind = 0
 
     def as_list(self):
@@ -108,14 +102,14 @@ class AxesStack(Stack):
 
     def remove(self, a):
         """Remove the axes from the stack."""
-        Stack.remove(self, self._entry_from_axes(a))
+        super().remove(self._entry_from_axes(a))
 
     def bubble(self, a):
         """
         Move the given axes, which must already exist in the
         stack, to the top.
         """
-        return Stack.bubble(self, self._entry_from_axes(a))
+        return super().bubble(self._entry_from_axes(a))
 
     def add(self, key, a):
         """
@@ -137,7 +131,7 @@ class AxesStack(Stack):
 
         a_existing = self.get(key)
         if a_existing is not None:
-            Stack.remove(self, (key, a_existing))
+            super().remove((key, a_existing))
             warnings.warn(
                 "key {!r} already existed; Axes is being replaced".format(key))
             # I don't think the above should ever happen.
@@ -145,7 +139,7 @@ class AxesStack(Stack):
         if a in self:
             return None
         self._ind += 1
-        return Stack.push(self, (key, (self._ind, a)))
+        return super().push((key, (self._ind, a)))
 
     def current_key_axes(self):
         """
@@ -331,7 +325,7 @@ class Figure(Artist):
             :meth:`.subplot2grid`.)
             Defaults to :rc:`figure.constrained_layout.use`.
         """
-        Artist.__init__(self)
+        super().__init__()
         # remove the non-figure artist _axes property
         # as it makes no sense for a figure to be _in_ an axes
         # this is used by the property methods in the artist base class
@@ -859,7 +853,7 @@ default: 'top'
             figsize = [x / dpi for x in (X.shape[1], X.shape[0])]
             self.set_size_inches(figsize, forward=True)
 
-        im = FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
+        im = mimage.FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
         im.stale_callback = _stale_figure_callback
 
         im.set_array(X)

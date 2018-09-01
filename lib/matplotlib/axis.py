@@ -10,7 +10,6 @@ import numpy as np
 
 from matplotlib import rcParams
 import matplotlib.artist as artist
-from matplotlib.artist import allow_rasterization
 import matplotlib.cbook as cbook
 from matplotlib.cbook import _string_to_bool
 import matplotlib.font_manager as font_manager
@@ -286,7 +285,7 @@ class Tick(artist.Artist):
         'Return the tick location (data coords) as a scalar'
         return self._loc
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
             self.stale = False
@@ -1174,7 +1173,7 @@ class Axis(artist.Artist):
             values.append(self.minorTicks[0].get_tick_padding())
         return max(values, default=0)
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
 

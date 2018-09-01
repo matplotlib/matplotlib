@@ -175,8 +175,6 @@ def generate_fontconfig_pattern(d):
     pattern string.
     """
     props = []
-    families = ''
-    size = ''
     for key in 'family style variant weight stretch file size'.split():
         val = getattr(d, 'get_' + key)()
         if val is not None and val != []:

@@ -27,7 +27,6 @@ import matplotlib.spines as mspines
 import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext
 import matplotlib.image as mimage
-from matplotlib.artist import allow_rasterization
 
 from matplotlib.rcsetup import cycler, validate_axisbelow
 
@@ -2540,7 +2539,7 @@ class _AxesBase(martist.Artist):
             title.set_position((x, ymax))
 
     # Drawing
-    @allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer=None, inframe=False):
         """Draw everything (plot lines, axes, labels)"""
         if renderer is None:

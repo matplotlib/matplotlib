@@ -3079,9 +3079,6 @@ class ConnectionStyle(_Style):
                 dd2 = (dx * dx + dy * dy) ** .5
                 ddx, ddy = dx / dd2, dy / dd2
 
-            else:
-                dl = 0.
-
             arm = max(armA, armB)
             f = self.fraction * dd + arm
 

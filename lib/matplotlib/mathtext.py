@@ -854,7 +854,6 @@ class UnicodeFonts(TruetypeFonts):
                         new_fontname, sym, uniindex),
                     MathTextWarning)
                 fontname = 'rm'
-                new_fontname = fontname
                 font = self._get_font(fontname)
                 uniindex = 0xA4  # currency char, for lack of anything better
                 glyphindex = font.get_char_index(uniindex)
@@ -1168,7 +1167,7 @@ class StandardPsFonts(Fonts):
                 found_symbol = False
 
         if not found_symbol:
-            glyph = sym = '?'
+            glyph = '?'
             num = ord(glyph)
             symbol_name = font.get_name_char(glyph)
 

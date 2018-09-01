@@ -19,11 +19,10 @@ from PIL import Image
 
 import numpy as np
 
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 from matplotlib import cm
-import matplotlib
-import matplotlib.patheffects as PathEffects
+from matploltlib import patheffects
 matplotlib.rcdefaults()
 
 matplotlib.rcParams['svg.fonttype'] = 'path'
@@ -55,7 +54,7 @@ def make_icon(fontfile, ccode):
     fig.patch.set_alpha(0.0)
     text = fig.text(0.5, 0.48, chr(ccode), ha='center', va='center',
                     fontproperties=prop)
-    text.set_path_effects([PathEffects.Normal()])
+    text.set_path_effects([patheffects.Normal()])
 
     return fig
 

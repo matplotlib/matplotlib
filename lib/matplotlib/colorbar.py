@@ -1056,7 +1056,7 @@ class Colorbar(ColorbarBase):
 
         self.mappable = mappable
         kw['cmap'] = cmap = mappable.cmap
-        kw['norm'] = norm = mappable.norm
+        kw['norm'] = mappable.norm
 
         if isinstance(mappable, contour.ContourSet):
             CS = mappable

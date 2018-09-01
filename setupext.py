@@ -2,7 +2,6 @@ import builtins
 import configparser
 from distutils import sysconfig, version
 from distutils.core import Extension
-import distutils.command.build_ext
 import glob
 import hashlib
 import importlib
@@ -986,8 +985,6 @@ class FreeType(SetupPackage):
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
-        from pathlib import Path
-
         # We're using a system freetype
         if not options.get('local_freetype'):
             return
@@ -1081,7 +1078,8 @@ class FreeType(SetupPackage):
             subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
-            shutil.rmtree(str(Path(src_path, "objs")), ignore_errors=True)
+            shutil.rmtree(str(pathlib.Path(src_path, "objs")),
+                          ignore_errors=True)
             FREETYPE_BUILD_CMD = r"""
 call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
     /Release /{xXX} /xp
@@ -1098,18 +1096,19 @@ set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
             vcvarsall = msvc.find_vcvarsall(10.0)
             if vcvarsall is None:
                 raise RuntimeError('Microsoft VS 2010 required')
-            cmdfile = Path("build/build_freetype.cmd")
+            cmdfile = pathlib.Path("build/build_freetype.cmd")
             cmdfile.write_text(FREETYPE_BUILD_CMD.format(
                 vc20xx=vc, WinXX=WinXX, xXX=xXX, vcvarsall=vcvarsall))
             subprocess.check_call([str(cmdfile.resolve())],
                                   shell=True, cwd=src_path)
             # Move to the corresponding Unix build path.
-            Path(src_path, "objs/.libs").mkdir()
+            pathlib.Path(src_path, "objs/.libs").mkdir()
             # Be robust against change of FreeType version.
-            lib_path, = (Path(src_path, "objs", vc, xXX)
+            lib_path, = (pathlib.Path(src_path, "objs", vc, xXX)
                          .glob("freetype*.lib"))
-            shutil.copy2(str(lib_path),
-                         str(Path(src_path, "objs/.libs/libfreetype.lib")))
+            shutil.copy2(
+                str(lib_path),
+                str(pathlib.Path(src_path, "objs/.libs/libfreetype.lib")))
 
 
 class FT2Font(SetupPackage):

@@ -722,45 +722,29 @@ class Stack(object):
 
 
 def report_memory(i=0):  # argument may go away
-    """return the memory consumed by process"""
-    from subprocess import Popen, PIPE
+    """Return the memory consumed by the process."""
+    def call(command, os_name):
+        try:
+            return subprocess.check_output(command)
+        except subprocess.CalledProcessError:
+            raise NotImplementedError(
+                "report_memory works on %s only if "
+                "the '%s' program is found" % (os_name, command[0])
+            )
+
     pid = os.getpid()
     if sys.platform == 'sunos5':
-        try:
-            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'osz'],
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Sun OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[-1].strip())
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'osz'], 'Sun OS')
+        mem = int(lines[-1].strip())
     elif sys.platform == 'linux':
-        try:
-            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'rss,sz'],
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Linux only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[1])
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,sz'], 'Linux')
+        mem = int(lines[1].split()[1])
     elif sys.platform == 'darwin':
-        try:
-            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'],
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Mac OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[0])
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'], 'Mac OS')
+        mem = int(lines[1].split()[0])
     elif sys.platform == 'win32':
-        try:
-            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
-                       stdout=PIPE).stdout.read()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Windows only if "
-                "the 'tasklist' program is found")
-        mem = int(a2.strip().split()[-2].replace(',', ''))
+        lines = call(["tasklist", "/nh", "/fi", "pid eq %d" % pid], 'Windows')
+        mem = int(lines.strip().split()[-2].replace(',', ''))
     else:
         raise NotImplementedError(
             "We don't have a memory monitor for %s" % sys.platform)
@@ -810,7 +794,6 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
         If True, print the number of objects reached as they are found.
     """
     import gc
-    from types import FrameType
 
     def print_path(path):
         for i, step in enumerate(path):
@@ -851,7 +834,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             # Don't go back through the original list of objects, or
             # through temporary references to the object, since those
             # are just an artifact of the cycle detector itself.
-            elif referent is objects or isinstance(referent, FrameType):
+            elif referent is objects or isinstance(referent, types.FrameType):
                 continue
 
             # We haven't seen this object before, so recurse
@@ -2006,7 +1989,7 @@ def _warn_external(message, category=None):
     etc.).
     """
     frame = sys._getframe()
-    for stacklevel in itertools.count(1):
+    for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
         if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
                         frame.f_globals["__name__"]):
             break

@@ -233,7 +233,6 @@ class TextToPath(object):
         glyph_ids = []
         sizes = []
 
-        currx, curry = 0, 0
         for font, fontsize, ccode, ox, oy in glyphs:
             char_id = self._get_char_id(font, ccode)
             if char_id not in glyph_map:
