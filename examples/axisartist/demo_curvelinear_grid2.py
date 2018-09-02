@@ -65,7 +65,7 @@ def curvelinear_test1(fig):
 
 
 if 1:
-    fig = plt.figure(1, figsize=(7, 4))
+    fig = plt.figure(figsize=(7, 4))
     fig.clf()
 
     curvelinear_test1(fig)

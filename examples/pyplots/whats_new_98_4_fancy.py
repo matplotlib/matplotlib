@@ -9,7 +9,7 @@ import matplotlib.patches as mpatch
 import matplotlib.pyplot as plt
 
 figheight = 8
-fig = plt.figure(1, figsize=(9, figheight), dpi=80)
+fig = plt.figure(figsize=(9, figheight), dpi=80)
 fontsize = 0.4 * fig.dpi
 
 def make_boxstyles(ax):

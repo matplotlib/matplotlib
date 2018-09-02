@@ -1447,7 +1447,7 @@ default: 'top'
             y = np.sin(x**2)
 
             # Create a figure
-            plt.figure(1, clear=True)
+            plt.figure()
 
             # Creates a subplot
             ax = fig.subplots()
