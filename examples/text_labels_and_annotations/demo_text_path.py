@@ -60,7 +60,7 @@ if 1:
 
     usetex = plt.rcParams["text.usetex"]
 
-    fig = plt.figure(1)
+    fig = plt.figure()
 
     # EXAMPLE 1
 

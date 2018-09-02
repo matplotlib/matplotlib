@@ -1165,7 +1165,7 @@ default: 'top'
         Some simple examples::
 
             rect = l, b, w, h
-            fig = plt.figure(1)
+            fig = plt.figure()
             fig.add_axes(rect,label=label1)
             fig.add_axes(rect,label=label2)
             fig.add_axes(rect, frameon=False, facecolor='g')
@@ -1308,7 +1308,7 @@ default: 'top'
         --------
         ::
 
-            fig=plt.figure(1)
+            fig=plt.figure()
             fig.add_subplot(221)
 
             # equivalent but more general
