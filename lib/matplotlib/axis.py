@@ -1077,7 +1077,7 @@ class Axis(artist.Artist):
                 try:
                     ds1 = self._get_pixel_distance_along_axis(
                         interval_expanded[0], -0.5)
-                except:
+                except Exception:
                     warnings.warn("Unable to find pixel distance along axis "
                                   "for interval padding of ticks; assuming no "
                                   "interval padding needed.")
@@ -1087,7 +1087,7 @@ class Axis(artist.Artist):
                 try:
                     ds2 = self._get_pixel_distance_along_axis(
                         interval_expanded[1], +0.5)
-                except:
+                except Exception:
                     warnings.warn("Unable to find pixel distance along axis "
                                   "for interval padding of ticks; assuming no "
                                   "interval padding needed.")

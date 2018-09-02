@@ -381,7 +381,7 @@ class Artist(object):
             hascursor, info = self.contains(event)
             if hascursor:
                 L.append(self)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
             print("while checking", self.__class__)
@@ -1437,7 +1437,7 @@ class ArtistInspector(object):
                 with warnings.catch_warnings():
                     warnings.simplefilter('ignore')
                     val = func()
-            except:
+            except Exception:
                 continue
             else:
                 d[name[4:]] = val

@@ -497,7 +497,7 @@ def skip_if_command_unavailable(cmd):
     from subprocess import check_output
     try:
         check_output(cmd)
-    except:
+    except Exception:
         import pytest
         return pytest.mark.skip(reason='missing command: %s' % cmd[0])
 
