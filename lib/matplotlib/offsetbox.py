@@ -1752,7 +1752,7 @@ class DraggableAnnotation(DraggableBase):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    fig = plt.figure(1)
+    fig = plt.figure()
     fig.clf()
     ax = plt.subplot(121)
 

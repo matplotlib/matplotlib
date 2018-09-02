@@ -31,7 +31,7 @@ def get_rgb():
     return R, G, B
 
 
-fig = plt.figure(1)
+fig = plt.figure()
 ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
 
 r, g, b = get_rgb()

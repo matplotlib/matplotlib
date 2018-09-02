@@ -19,7 +19,7 @@ from mpl_toolkits.axisartist.parasite_axes import HostAxes, ParasiteAxes
 import matplotlib.pyplot as plt
 
 
-fig = plt.figure(1)
+fig = plt.figure()
 
 host = HostAxes(fig, [0.15, 0.1, 0.65, 0.8])
 par1 = ParasiteAxes(host, sharex=host)
