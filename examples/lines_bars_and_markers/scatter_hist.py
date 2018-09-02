@@ -31,7 +31,7 @@ rect_histx = [left, bottom_h, width, 0.2]
 rect_histy = [left_h, bottom, 0.2, height]
 
 # start with a rectangular Figure
-plt.figure(1, figsize=(8, 8))
+plt.figure(figsize=(8, 8))
 
 axScatter = plt.axes(rect_scatter)
 axHistx = plt.axes(rect_histx)
