@@ -1885,7 +1885,7 @@ class Axes(_AxesBase):
         Notes
         -----
         The cross correlation is performed with :func:`numpy.correlate` with
-        ``mode = 2``.
+        ``mode = "full"``.
         """
         return self.xcorr(x, x, **kwargs)
 
@@ -1946,7 +1946,7 @@ class Axes(_AxesBase):
         Notes
         -----
         The cross correlation is performed with :func:`numpy.correlate` with
-        ``mode = 2``.
+        ``mode = "full"``.
         """
         Nx = len(x)
         if Nx != len(y):
@@ -1955,7 +1955,7 @@ class Axes(_AxesBase):
         x = detrend(np.asarray(x))
         y = detrend(np.asarray(y))
 
-        correls = np.correlate(x, y, mode=2)
+        correls = np.correlate(x, y, mode="full")
 
         if normed:
             correls /= np.sqrt(np.dot(x, x) * np.dot(y, y))
