@@ -426,6 +426,8 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
     speed = np.ma.sqrt(u_ax ** 2 + v_ax ** 2)
 
     def forward_time(xi, yi):
+        if not dmap.grid.within_grid(xi, yi):
+            raise OutOfBounds
         ds_dt = interpgrid(speed, xi, yi)
         if ds_dt == 0:
             raise TerminateTrajectory()
@@ -480,7 +482,7 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
     return integrate
 
 
-class OutOfBounds(Exception):
+class OutOfBounds(IndexError):
     pass
 
 
@@ -535,13 +537,11 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
             else:
                 raise OutOfBounds
 
+            # Compute the two intermediate gradients.
+            # f should raise OutOfBounds if the locations given are
+            # outside the grid.
             k1x, k1y = f(xi, yi)
-
-            if dmap.grid.within_grid(xi + ds * k1x, yi + ds * k1y):
-                k2x, k2y = f(xi + ds * k1x,
-                             yi + ds * k1y)
-            else:
-                raise OutOfBounds
+            k2x, k2y = f(xi + ds * k1x, yi + ds * k1y)
 
         except OutOfBounds:
             # Out of the domain during this step.
@@ -667,7 +667,6 @@ def _gen_starting_points(shape):
     x, y = 0, 0
     direction = 'right'
     for i in range(nx * ny):
-
         yield x, y
 
         if direction == 'right':
