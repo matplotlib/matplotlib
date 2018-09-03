@@ -160,7 +160,8 @@ cmaps['Cyclic'] = ['twilight', 'twilight_shifted', 'hsv']
 
 cmaps['Qualitative'] = ['Pastel1', 'Pastel2', 'Paired', 'Accent',
                         'Dark2', 'Set1', 'Set2', 'Set3',
-                        'tab10', 'tab20', 'tab20b', 'tab20c']
+                        'tab10', 'tab20', 'tab20b', 'tab20c',
+                        'tabx10', 'tabx20']
 
 ###############################################################################
 # Miscellaneous

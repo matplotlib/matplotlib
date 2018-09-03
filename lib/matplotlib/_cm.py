@@ -1346,6 +1346,53 @@ _tab20c_data = (
 )
 
 
+_tabx10colors = [
+    "#4e79a7",  # blue
+    "#f28e2b",  # orange
+    "#e15759",  # red
+    "#76b7b2",  # cyan
+    "#59a14f",  # green
+    "#edc948",  # yellow
+    "#b07aa1",  # purple
+    "#ff9da7",  # pink
+    "#9c755f",  # brown
+    "#bab0ac",  # grey
+    ]
+
+_tabx20colors = [
+    "#4e79a7",  # blue
+    "#a0cbe8",
+    "#f28e2b",  # orange
+    "#ffbe7d",
+    "#59a14f",  # green
+    "#8cd17d",
+    "#b6992d",  # yellow # is different from tabx10
+    "#f1ce63",
+    "#499894",  # cyan # is different from tabx10
+    "#86bcb6",
+    "#e15759",  # red
+    "#ff9d9a",
+    "#79706e",  # grey # is different from tabx10
+    "#bab0ac",
+    "#d37295",  # pink # is different from tabx10
+    "#fabfd2",
+    "#b07aa1",  # purple # is different from tabx10
+    "#d4a6c8",
+    "#9d7660",  # brown # is different from tabx10
+    "#d7b5a6",
+    ]
+
+_tabx10_data = []
+for c in _tabx10colors:
+    d = [int(s, 16)/255. for s in list(map(''.join, zip(*[iter(c[1:])]*2)))]
+    _tabx10_data.append(d)
+
+_tabx20_data = []
+for c in _tabx20colors:
+    d = [int(s, 16)/255. for s in list(map(''.join, zip(*[iter(c[1:])]*2)))]
+    _tabx20_data.append(d)
+
+
 datad = {
     'Blues': _Blues_data,
     'BrBG': _BrBG_data,
@@ -1423,4 +1470,6 @@ datad = {
     'tab20': {'listed': _tab20_data},
     'tab20b': {'listed': _tab20b_data},
     'tab20c': {'listed': _tab20c_data},
+    'tabx10': {'listed': _tabx10_data},
+    'tabx20': {'listed': _tabx20_data},
 }

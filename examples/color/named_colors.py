@@ -12,52 +12,70 @@ For more information on colors in matplotlib see
 * the :doc:`/gallery/color/color_demo`.
 """
 
+
 import matplotlib.pyplot as plt
-from matplotlib import colors as mcolors
+import matplotlib.colors as mcolors
 
 
-colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
+def plot_colortable(colors, title, sort_colors=True, emptycols=0):
 
-# Sort colors by hue, saturation, value and name.
-by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgba(color)[:3])), name)
-                for name, color in colors.items())
-sorted_names = [name for hsv, name in by_hsv]
+    cell_width = 185
+    cell_height = 24
+    swatch_width = 38
+    margin = 10
+    topmargin = 30
 
-n = len(sorted_names)
-ncols = 4
-nrows = n // ncols
+    # Sort colors by hue, saturation, value and name.
+    by_hsv = ((tuple(mcolors.rgb_to_hsv(mcolors.to_rgba(color)[:3])), name)
+                    for name, color in colors.items())
+    if sort_colors is True:
+        by_hsv = sorted(by_hsv)
+    names = [name for hsv, name in by_hsv]
 
-fig, ax = plt.subplots(figsize=(9, 8))
+    n = len(names)
+    ncols = 4 - emptycols
+    nrows = n // ncols + int(n % ncols > 0)
 
-# Get height and width
-X, Y = fig.get_dpi() * fig.get_size_inches()
-h = Y / (nrows + 1)
-w = X / ncols
+    width = cell_width * 4 + 2 * margin
+    height = cell_height * nrows + margin + topmargin
+    dpi = 72
 
-for i, name in enumerate(sorted_names):
-    row = i % nrows
-    col = i // nrows
-    y = Y - (row * h) - h
+    fig, ax = plt.subplots(figsize=(width / dpi, height / dpi), dpi=dpi)
+    fig.subplots_adjust(margin/width, margin/height,
+                        (width-margin)/width, (height-topmargin)/height)
+    ax.set_xlim(0, cell_width * 4)
+    ax.set_ylim(cell_height * (nrows-0.5), -cell_height/2.)
+    ax.yaxis.set_visible(False)
+    ax.xaxis.set_visible(False)
+    ax.set_axis_off()
+    ax.set_title(title, fontsize=20, loc="left")
 
-    xi_line = w * (col + 0.05)
-    xf_line = w * (col + 0.25)
-    xi_text = w * (col + 0.3)
+    for i, name in enumerate(names):
+        row = i % nrows
+        col = i // nrows
+        y = row * cell_height
 
-    ax.text(xi_text, y, name, fontsize=(h * 0.5),
-            horizontalalignment='left',
-            verticalalignment='center')
+        swatch_start_x = cell_width * col
+        swatch_end_x = cell_width * col + swatch_width
+        text_pos_x = cell_width * col + swatch_width + 5
 
-    ax.hlines(y + h * 0.1, xi_line, xf_line,
-              color=colors[name], linewidth=(h * 0.6))
+        ax.text(text_pos_x, y, name, fontsize=12,
+                horizontalalignment='left',
+                verticalalignment='center')
 
-ax.set_xlim(0, X)
-ax.set_ylim(0, Y)
-ax.set_axis_off()
+        ax.hlines(y, swatch_start_x, swatch_end_x,
+                  color=colors[name], linewidth=18)
+    plt.show()
 
-fig.subplots_adjust(left=0, right=1,
-                    top=1, bottom=0,
-                    hspace=0, wspace=0)
-plt.show()
+plot_colortable(mcolors.BASE_COLORS, "Base Colors",
+                sort_colors=False, emptycols=1)
+plot_colortable(mcolors.TABLEAU_COLORS, "Tableau Palette",
+                sort_colors=False, emptycols=1)
+plot_colortable(mcolors.TABLEAUX_COLORS, "New Tableau Palette",
+                sort_colors=False, emptycols=1)
+#sphinx_gallery_thumbnail_number = 4
+plot_colortable(mcolors.CSS4_COLORS, "CSS Colors")
+
 
 #############################################################################
 #

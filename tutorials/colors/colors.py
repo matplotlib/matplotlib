@@ -12,12 +12,21 @@ Matplotlib recognizes the following formats to specify a color:
   level (e.g., ``'0.5'``);
 * one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``;
 * a X11/CSS4 color name;
-* a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__;
-  prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``);
-* one of ``{'tab:blue', 'tab:orange', 'tab:green',
-  'tab:red', 'tab:purple', 'tab:brown', 'tab:pink',
-  'tab:gray', 'tab:olive', 'tab:cyan'}`` which are the Tableau Colors from the
-  'T10' categorical palette (which is the default color cycle);
+* a color name from a palette, prefixed with the palette's name:
+
+  * a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__;
+    prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``);
+  * one of ``{'tab:blue', 'tab:orange', 'tab:green',
+    'tab:red', 'tab:purple', 'tab:brown', 'tab:pink',
+    'tab:gray', 'tab:olive', 'tab:cyan'}`` which are the Tableau Colors from
+    the 'T10' categorical palette (which is the default color cycle);
+  * one of ``{'tabx:blue', 'tabx:orange', 'tabx:red', 'tabx:cyan',
+    'tabx:green', 'tabx:yellow', 'tabx:purple', 'tabx:pink', 'tabx:brown',
+    'tabx:gray'}`` which are the colors from the
+    `new Tableau10 categorical palette
+    <https://www.tableau.com/about/blog/2016/7/colors-upgrade-tableau-10-\
+56782>`__;
+
 * a "CN" color spec, i.e. `'C'` followed by a single digit, which is an index
   into the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``);
   the indexing occurs at artist creation time and defaults to black if the

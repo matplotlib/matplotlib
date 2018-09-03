@@ -30,6 +30,23 @@ TABLEAU_COLORS = (
 TABLEAU_COLORS = OrderedDict(
     ('tab:' + name, value) for name, value in TABLEAU_COLORS)
 
+# These colors are from Tableau Version 10
+TABLEAUX_COLORS = (
+    ("blue", "#4e79a7"),
+    ("orange", "#f28e2b"),
+    ("red", "#e15759"),
+    ("cyan", "#76b7b2"),
+    ("green", "#59a14f"),
+    ("yellow", "#edc948"),
+    ("purple", "#b07aa1"),
+    ("pink", "#ff9da7"),
+    ("brown", "#9c755f"),
+    ("gray", "#bab0ac")
+)
+# Normalize name to "tabx:<name>" to avoid name collisions.
+TABLEAUX_COLORS = OrderedDict(
+    ('tabx:' + name, value) for name, value in TABLEAUX_COLORS)
+
 # This mapping of color names -> hex values is taken from
 # a survey run by Randel Monroe see:
 # http://blog.xkcd.com/2010/05/03/color-survey-results/
