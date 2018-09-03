@@ -507,6 +507,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         wx.WXK_NUMPAD_INSERT: 'insert',
         wx.WXK_NUMPAD_DELETE: 'delete',
     }
+    _retinaFix = 'wxMac' in wx.PlatformInfo
 
     def __init__(self, parent, id, figure):
         """
@@ -661,7 +662,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             self._overlay = wx.Overlay()
         odc = wx.DCOverlay(self._overlay, dc)
 
-        if 'wxMac' not in wx.PlatformInfo:
+        if not self._retinaFix:
             # draw a box with border and 50% transparency
             dc = wx.GCDC(dc)
             # Set the pen, for the box's border
