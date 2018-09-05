@@ -111,7 +111,11 @@ class TransformNode(object):
     def __setstate__(self, data_dict):
         self.__dict__ = data_dict
         # turn the normal dictionary back into a dictionary with weak values
-        self._parents = {k: weakref.ref(v)
+        # The extra lambda is to provide a callback to remove dead
+        # weakrefs from the dictionary when garbage collection is done.
+        self._parents = {k: weakref.ref(v, lambda ref, sid=k,
+                                                  target=self._parents:
+                                                        target.pop(sid))
                          for k, v in self._parents.items() if v is not None}
 
     def __copy__(self, *args):
@@ -169,7 +173,12 @@ class TransformNode(object):
         # parents are destroyed, references from the children won't
         # keep them alive.
         for child in children:
-            child._parents[id(self)] = weakref.ref(self)
+            # Use weak references so this dictionary won't keep obsolete nodes
+            # alive; the callback deletes the dictionary entry. This is a
+            # performance improvement over using WeakValueDictionary.
+            ref = weakref.ref(self, lambda ref, sid=id(self),
+                                        target=child._parents: target.pop(sid))
+            child._parents[id(self)] = ref
 
     if DEBUG:
         _set_children = set_children
