@@ -19,7 +19,7 @@ class _Base(object):
     "Base class"
 
     def __rmul__(self, other):
-        float(other) # just to check if number if given
+        float(other)  # just to check if number if given
         return Fraction(other, self)
 
     def __add__(self, other):

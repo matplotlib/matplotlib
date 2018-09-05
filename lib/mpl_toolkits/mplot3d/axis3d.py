@@ -4,17 +4,19 @@
 
 import copy
 
+import numpy as np
+
 from matplotlib import (
     artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
 from . import art3d, proj3d
 
-import numpy as np
 
 def get_flip_min_max(coord, index, mins, maxs):
     if coord[index] == mins[index]:
         return maxs[index]
     else:
         return mins[index]
+
 
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     '''Return a coordinate that is moved by "deltas" away from the center.'''
@@ -27,6 +29,7 @@ def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
         else:
             coord[i] += deltas[i]
     return coord
+
 
 def tick_update_position(tick, tickxs, tickys, labelpos):
     '''Update tick line and label position and style.'''
@@ -41,6 +44,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)
     tick.gridline.set_data(0, 0)
+
 
 class Axis(maxis.XAxis):
 
@@ -460,17 +464,21 @@ class Axis(maxis.XAxis):
         # doesn't return junk info.
         return None
 
+
 # Use classes to look at different data limits
+
 
 class XAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.xy_dataLim.intervalx
 
+
 class YAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.xy_dataLim.intervaly
+
 
 class ZAxis(Axis):
     def get_data_interval(self):

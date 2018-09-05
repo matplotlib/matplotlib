@@ -381,7 +381,7 @@ class MollweideAxes(GeoAxes):
             latitude  = ll[:, 1]
 
             clat = np.pi/2 - np.abs(latitude)
-            ihigh = clat < 0.087 # within 5 degrees of the poles
+            ihigh = clat < 0.087  # within 5 degrees of the poles
             ilow = ~ihigh
             aux = np.empty(latitude.shape, dtype=float)
 
@@ -394,7 +394,7 @@ class MollweideAxes(GeoAxes):
                     delta, large_delta = d(theta)
                 aux[ilow] = theta / 2
 
-            if ihigh.any(): # Taylor series-based approx. solution
+            if ihigh.any():  # Taylor series-based approx. solution
                 e = clat[ihigh]
                 d = 0.5 * (3 * np.pi * e**2) ** (1.0/3)
                 aux[ihigh] = (np.pi/2 - d) * np.sign(latitude[ihigh])

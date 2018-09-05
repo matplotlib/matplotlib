@@ -189,7 +189,6 @@ class RendererCairo(RendererBase):
         'oblique' : cairo.FONT_SLANT_OBLIQUE,
         }
 
-
     def __init__(self, dpi):
         self.dpi = dpi
         self.gc = GraphicsContextCairo(renderer=self)
@@ -436,7 +435,7 @@ class RendererCairo(RendererBase):
     def new_gc(self):
         self.gc.ctx.save()
         self.gc._alpha = 1
-        self.gc._forced_alpha = False # if True, _alpha overrides A from RGBA
+        self.gc._forced_alpha = False  # if True, _alpha overrides A from RGBA
         return self.gc
 
     def points_to_pixels(self, points):

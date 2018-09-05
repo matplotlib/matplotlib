@@ -258,7 +258,6 @@ class FigureCanvasTk(FigureCanvasBase):
         hinch = height/dpival
         self.figure.set_size_inches(winch, hinch, forward=False)
 
-
         self._tkcanvas.delete(self._tkphoto)
         self._tkphoto = Tk.PhotoImage(
             master=self._tkcanvas, width=int(width), height=int(height))

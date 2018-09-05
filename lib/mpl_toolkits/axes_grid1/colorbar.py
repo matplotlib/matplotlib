@@ -241,27 +241,20 @@ class CbarAxesLocator(object):
 
         return bottom, top
 
-
     def get_path_patch(self):
         """
         get the path for axes patch
         """
         end1, end2 = self.get_end_vertices()
-
         verts = [] + end1 + end2 + end1[:1]
-
         return Path(verts)
-
 
     def get_path_ends(self):
         """
         get the paths for extended ends
         """
-
         end1, end2 = self.get_end_vertices()
-
         return Path(end1), Path(end2)
-
 
     def __call__(self, axes, renderer):
         """
@@ -287,7 +280,6 @@ class CbarAxesLocator(object):
                 h = h-2*dh
 
         return Bbox.from_bounds(x1, y1, w, h)
-
 
 
 class ColorbarBase(cm.ScalarMappable):
@@ -322,7 +314,6 @@ class ColorbarBase(cm.ScalarMappable):
             a LineCollection if *drawedges* is True, otherwise None
 
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
-
     '''
 
     def __init__(self, ax, cmap=None,
@@ -340,8 +331,10 @@ class ColorbarBase(cm.ScalarMappable):
                            ):
         self.ax = ax
 
-        if cmap is None: cmap = cm.get_cmap()
-        if norm is None: norm = colors.Normalize()
+        if cmap is None:
+            cmap = cm.get_cmap()
+        if norm is None:
+            norm = colors.Normalize()
         self.alpha = alpha
         cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
         self.values = values
@@ -363,7 +356,6 @@ class ColorbarBase(cm.ScalarMappable):
             self.cbar_axis = self.ax.yaxis
         else:
             self.cbar_axis = self.ax.xaxis
-
 
         if format is None:
             if isinstance(self.norm, colors.LogNorm):
@@ -391,13 +383,11 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             self._select_locator(formatter)
 
-
         self._config_axes()
 
         self.update_artists()
 
         self.set_label_text('')
-
 
     def _get_colorbar_limits(self):
         """
@@ -414,7 +404,6 @@ class ColorbarBase(cm.ScalarMappable):
             return min(C), max(C)
         else:
             return self.get_clim()
-
 
     def _config_axes(self):
         '''
@@ -447,8 +436,6 @@ class ColorbarBase(cm.ScalarMappable):
             ax.yaxis.set_label_position('right')
             ax.yaxis.set_ticks_position('right')
 
-
-
     def update_artists(self):
         """
         Update the colorbar associated artists, *filled* and
@@ -471,7 +458,6 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             ax.set_xlim(1, 2)
             ax.set_ylim(vmin, vmax)
-
 
     def _add_ends(self):
         """
@@ -498,8 +484,6 @@ class ColorbarBase(cm.ScalarMappable):
         self.ax.add_artist(self.extension_patch1)
         self.ax.add_artist(self.extension_patch2)
 
-
-
     def _set_label_text(self):
         """
         set label.
@@ -513,7 +497,6 @@ class ColorbarBase(cm.ScalarMappable):
         self._label = label
         self._labelkw = kw
         self._set_label_text()
-
 
     def _edges(self, X, Y):
         '''
@@ -600,10 +583,9 @@ class ColorbarBase(cm.ScalarMappable):
                 locator = ticker.MaxNLocator(nbins=5)
         else:
             b = self._boundaries[self._inside]
-            locator = ticker.FixedLocator(b) #, nbins=10)
+            locator = ticker.FixedLocator(b)  # nbins=10)
 
         self.cbar_axis.set_major_locator(locator)
-
 
     def _process_values(self, b=None):
         '''
@@ -656,7 +638,6 @@ class ColorbarBase(cm.ScalarMappable):
 
         self._process_values(b)
 
-
     def _uniform_y(self, N):
         '''
         Return colorbar data coordinates for *N* uniformly
@@ -686,7 +667,6 @@ class ColorbarBase(cm.ScalarMappable):
         X, Y = np.meshgrid(x,y)
         return X, Y
 
-
     def set_alpha(self, alpha):
         """
         set alpha value.
@@ -696,11 +676,11 @@ class ColorbarBase(cm.ScalarMappable):
 
 class Colorbar(ColorbarBase):
     def __init__(self, ax, mappable, **kw):
-        mappable.autoscale_None() # Ensure mappable.norm.vmin, vmax
-                             # are set when colorbar is called,
-                             # even if mappable.draw has not yet
-                             # been called.  This will not change
-                             # vmin, vmax if they are already set.
+        # Ensure mappable.norm.vmin, vmax are set when colorbar is called, even
+        # if mappable.draw has not yet been called. This will not change vmin,
+        # vmax if they are already set.
+        mappable.autoscale_None()
+
         self.mappable = mappable
         kw['cmap'] = mappable.cmap
         kw['norm'] = mappable.norm
@@ -718,7 +698,6 @@ class Colorbar(ColorbarBase):
                 self.add_lines(CS)
         else:
             ColorbarBase.__init__(self, ax, **kw)
-
 
     def add_lines(self, CS):
         '''
@@ -748,6 +727,7 @@ class Colorbar(ColorbarBase):
         if isinstance(mappable, contour.ContourSet):
             if not mappable.filled:
                 self.add_lines(mappable)
+
 
 @docstring.Substitution(make_axes_kw_doc)
 def make_axes(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
@@ -793,6 +773,7 @@ def make_axes(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     cax = fig.add_axes(pbcb)
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
+
 
 @docstring.Substitution(colorbar_doc)
 def colorbar(mappable, cax=None, ax=None, **kw):
