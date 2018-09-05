@@ -40,7 +40,7 @@ print(viridis(0.56))
 ##############################################################################
 # The list of colors that comprise the colormap can be directly accessed using
 # the ``colors`` property,
-# or it can be acccessed indirectly by calling  ``viridis`` with an array
+# or it can be accessed indirectly by calling  ``viridis`` with an array
 # of values matching the length of the colormap.  Note that the returned list
 # is in the form of an RGBA Nx4 array, where N is the length of the colormap.
 
