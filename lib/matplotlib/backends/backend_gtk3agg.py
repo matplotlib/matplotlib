@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 
+from .. import cbook
 from . import backend_agg, backend_cairo, backend_gtk3
 from ._gtk3_compat import gi
 from .backend_cairo import cairo
@@ -45,7 +46,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
             width = int(bbox.x1) - int(bbox.x0)
             height = int(bbox.y1) - int(bbox.y0)
 
-            buf = backend_cairo._unmultipled_rgba8888_to_premultiplied_argb32(
+            buf = cbook._unmultipled_rgba8888_to_premultiplied_argb32(
                 np.asarray(self.copy_from_bbox(bbox)))
             image = cairo.ImageSurface.create_for_data(
                 buf.ravel().data, cairo.FORMAT_ARGB32, width, height)
