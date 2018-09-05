@@ -53,7 +53,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             [[left, self.renderer.height - (top + height * self._dpi_ratio)],
              [left + width * self._dpi_ratio, self.renderer.height - top]])
         reg = self.copy_from_bbox(bbox)
-        buf = cbook._unmultipled_rgba8888_to_premultiplied_argb32(
+        buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
             memoryview(reg))
         qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
                               QtGui.QImage.Format_ARGB32_Premultiplied)

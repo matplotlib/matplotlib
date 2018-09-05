@@ -337,7 +337,7 @@ class RendererCairo(RendererBase):
         _draw_paths()
 
     def draw_image(self, gc, x, y, im):
-        im = cbook._unmultipled_rgba8888_to_premultiplied_argb32(im[::-1])
+        im = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(im[::-1])
         surface = cairo.ImageSurface.create_for_data(
             im.ravel().data, cairo.FORMAT_ARGB32,
             im.shape[1], im.shape[0], im.shape[1] * 4)
