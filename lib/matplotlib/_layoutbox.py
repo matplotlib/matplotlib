@@ -122,7 +122,7 @@ class LayoutBox(object):
 
         Margin minimums are set to make room for axes decorations.  However,
         the margins can be larger if we are mathicng the position size to
-        otehr axes.
+        other axes.
         """
         sol = self.solver
 
