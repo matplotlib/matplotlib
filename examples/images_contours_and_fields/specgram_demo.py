@@ -26,7 +26,7 @@ nse = 0.01 * np.random.random(size=len(t))
 
 x = s1 + s2 + nse  # the signal
 NFFT = 1024  # the length of the windowing segments
-Fs = int(1.0 / dt)  # the sampling frequency
+Fs = int(1 / dt)  # the sampling frequency
 
 fig, (ax1, ax2) = plt.subplots(nrows=2)
 ax1.plot(t, x)

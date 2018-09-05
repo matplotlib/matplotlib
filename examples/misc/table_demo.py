@@ -36,7 +36,7 @@ cell_text = []
 for row in range(n_rows):
     plt.bar(index, data[row], bar_width, bottom=y_offset, color=colors[row])
     y_offset = y_offset + data[row]
-    cell_text.append(['%1.1f' % (x / 1000.0) for x in y_offset])
+    cell_text.append(['%1.1f' % (x / 1000) for x in y_offset])
 # Reverse colors and text labels to display the last value at the top.
 colors = colors[::-1]
 cell_text.reverse()

@@ -57,9 +57,9 @@ mathext_demos = {
 
 def doall():
     # Colors used in mpl online documentation.
-    mpl_blue_rvb = (191. / 255., 209. / 256., 212. / 255.)
-    mpl_orange_rvb = (202. / 255., 121. / 256., 0. / 255.)
-    mpl_grey_rvb = (51. / 255., 51. / 255., 51. / 255.)
+    mpl_blue_rvb = (191 / 255, 209 / 256, 212 / 255)
+    mpl_orange_rvb = (202 / 255, 121 / 256, 0 / 255)
+    mpl_grey_rvb = (51 / 255, 51 / 255, 51 / 255)
 
     # Creating figure and axis.
     plt.figure(figsize=(6, 7))
@@ -72,7 +72,7 @@ def doall():
     plt.gca().set_yticklabels("", visible=False)
 
     # Gap between lines in axes coords
-    line_axesfrac = (1. / (n_lines))
+    line_axesfrac = 1 / n_lines
 
     # Plotting header demonstration formula
     full_demo = mathext_demos[0]

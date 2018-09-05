@@ -65,7 +65,7 @@ def test_rotate_rect():
     rect2 = Rectangle(loc, width, height)
 
     # Set up an explicit rotation matrix (in radians)
-    angle_rad = np.pi * angle / 180.0
+    angle_rad = np.pi * angle / 180
     rotation_matrix = np.array([[np.cos(angle_rad), -np.sin(angle_rad)],
                                 [np.sin(angle_rad),  np.cos(angle_rad)]])
 

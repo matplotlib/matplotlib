@@ -40,7 +40,7 @@ ax.set_zlim(-1, 1)
 # Begin plotting.
 wframe = None
 tstart = time.time()
-for phi in np.linspace(0, 180. / np.pi, 100):
+for phi in np.linspace(0, 180 / np.pi, 100):
     # If a line collection is already remove it before drawing.
     if wframe:
         ax.collections.remove(wframe)

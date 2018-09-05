@@ -16,7 +16,7 @@ t = np.arange(0.01, 20.0, 0.01)
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 
 # log y axis
-ax1.semilogy(t, np.exp(-t / 5.0))
+ax1.semilogy(t, np.exp(-t / 5))
 ax1.set(title='semilogy')
 ax1.grid()
 
@@ -26,7 +26,7 @@ ax2.set(title='semilogx')
 ax2.grid()
 
 # log x and y axis
-ax3.loglog(t, 20 * np.exp(-t / 10.0), basex=2)
+ax3.loglog(t, 20 * np.exp(-t / 10), basex=2)
 ax3.set(title='loglog base 2 on x')
 ax3.grid()
 

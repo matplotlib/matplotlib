@@ -77,7 +77,7 @@ def select_step_sub(dv):
     # subarcsec or degree
     tmp = 10.**(int(math.log10(dv))-1.)
 
-    factor = 1./tmp
+    factor = 1/tmp
 
     if 1.5*tmp >= dv:
         step = 1
@@ -108,7 +108,7 @@ def select_step(v1, v2, nv, hour=False, include_last=True,
         cycle = 360.
 
     # for degree
-    if dv > 1./threshold_factor:
+    if dv > 1/threshold_factor:
         step, factor = _select_step(dv)
     else:
         step, factor = select_step_sub(dv*threshold_factor)
@@ -354,7 +354,7 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
         lon, lat = transform_xy(np.ravel(x), np.ravel(y))
 
         # iron out jumps, but algorithm should be improved.
-        # This is just naive way of doing and my fail for some cases.
+        # This is just naive way of doing and may fail for some cases.
         # Consider replacing this with numpy.unwrap
         # We are ignoring invalid warnings. They are triggered when
         # comparing arrays with NaNs using > We are already handling

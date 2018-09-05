@@ -75,7 +75,7 @@ def make_matplotlib_icon():
                   edgecolor='k')
 
     for r, bar in zip(radii, bars):
-        bar.set_facecolor(cm.jet(r/10.))
+        bar.set_facecolor(cm.jet(r/10))
 
     ax.tick_params(labelleft=False, labelright=False,
                    labelbottom=False, labeltop=False)

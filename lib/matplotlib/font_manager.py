@@ -1103,7 +1103,7 @@ class FontManager(object):
             stretchval2 = int(stretch2)
         except ValueError:
             stretchval2 = stretch_dict.get(stretch2, 500)
-        return abs(stretchval1 - stretchval2) / 1000.0
+        return abs(stretchval1 - stretchval2) / 1000
 
     def score_weight(self, weight1, weight2):
         """
@@ -1130,7 +1130,7 @@ class FontManager(object):
             weightval2 = int(weight2)
         except ValueError:
             weightval2 = weight_dict.get(weight2, 500)
-        return 0.95*(abs(weightval1 - weightval2) / 1000.0) + 0.05
+        return 0.95*(abs(weightval1 - weightval2) / 1000) + 0.05
 
     def score_size(self, size1, size2):
         """
@@ -1154,7 +1154,7 @@ class FontManager(object):
             sizeval2 = float(size2)
         except ValueError:
             return 1.0
-        return abs(sizeval1 - sizeval2) / 72.0
+        return abs(sizeval1 - sizeval2) / 72
 
     def findfont(self, prop, fontext='ttf', directory=None,
                  fallback_to_default=True, rebuild_if_missing=True):

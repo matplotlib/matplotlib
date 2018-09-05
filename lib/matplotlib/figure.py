@@ -2300,7 +2300,7 @@ default: 'top'
         _bbox = Bbox.union([b for b in bb if b.width != 0 or b.height != 0])
 
         bbox_inches = TransformedBbox(_bbox,
-                                      Affine2D().scale(1. / self.dpi))
+                                      Affine2D().scale(1 / self.dpi))
 
         return bbox_inches
 

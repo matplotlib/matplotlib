@@ -533,7 +533,7 @@ class DviFont(object):
                              % type(texname))
         self._scale, self._tfm, self.texname, self._vf = \
             scale, tfm, texname, vf
-        self.size = scale * (72.0 / (72.27 * 2**16))
+        self.size = scale * (72 / (72.27 * 2**16))
         try:
             nchars = max(tfm.width) + 1
         except ValueError:

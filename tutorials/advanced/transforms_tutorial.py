@@ -90,7 +90,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 x = np.arange(0, 10, 0.005)
-y = np.exp(-x/2.) * np.sin(2*np.pi*x)
+y = np.exp(-x/2) * np.sin(2*np.pi*x)
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
@@ -138,7 +138,7 @@ plt.show()
 # documentation figure size defaults are different.
 
 x = np.arange(0, 10, 0.005)
-y = np.exp(-x/2.) * np.sin(2*np.pi*x)
+y = np.exp(-x/2) * np.sin(2*np.pi*x)
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
@@ -431,7 +431,7 @@ y = np.sin(2*np.pi*x)
 line, = ax.plot(x, y, lw=3, color='blue')
 
 # shift the object over 2 points, and down 2 points
-dx, dy = 2/72., -2/72.
+dx, dy = 2/72, -2/72
 offset = transforms.ScaledTranslation(dx, dy, fig.dpi_scale_trans)
 shadow_transform = ax.transData + offset
 

@@ -415,7 +415,7 @@ class MarkerStyle(object):
         max_dim = max(width, height)
         self._transform = Affine2D() \
             .translate(-xmin + 0.5 * -width, -ymin + 0.5 * -height) \
-            .scale(1.0 / max_dim)
+            .scale(1 / max_dim)
         self._path = text
         self._snap = False
 
@@ -467,11 +467,11 @@ class MarkerStyle(object):
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
     # Going down halfway looks to small.  Golden ratio is too far.
     _triangle_path_u = Path(
-        [[0.0, 1.0], [-3 / 5., -1 / 5.], [3 / 5., -1 / 5.], [0.0, 1.0]],
+        [[0.0, 1.0], [-3 / 5, -1 / 5], [3 / 5, -1 / 5], [0.0, 1.0]],
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
     _triangle_path_d = Path(
-        [[-3 / 5., -1 / 5.], [3 / 5., -1 / 5.], [1.0, -1.0], [-1.0, -1.0],
-         [-3 / 5., -1 / 5.]],
+        [[-3 / 5, -1 / 5], [3 / 5, -1 / 5], [1.0, -1.0], [-1.0, -1.0],
+         [-3 / 5, -1 / 5]],
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
     _triangle_path_l = Path(
         [[0.0, 1.0], [0.0, -1.0], [-1.0, -1.0], [0.0, 1.0]],
@@ -655,7 +655,7 @@ class MarkerStyle(object):
             verts = polypath.vertices
 
             # not drawing inside lines
-            x = np.abs(np.cos(5 * np.pi / 6.))
+            x = np.abs(np.cos(5 * np.pi / 6))
             top = Path(np.vstack(([-x, 0], verts[(1, 0, 5), :], [x, 0])))
             bottom = Path(np.vstack(([-x, 0], verts[2:5, :], [x, 0])))
             left = Path(verts[(0, 1, 2, 3), :])

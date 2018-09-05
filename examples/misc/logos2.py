@@ -68,7 +68,7 @@ def add_polar_bar():
     width = np.pi / 4 * np.array([0.4, 0.4, 0.6, 0.8, 0.2, 0.5, 0.3])
     bars = ax.bar(theta, radii, width=width, bottom=0.0)
     for r, bar in zip(radii, bars):
-        bar.set_facecolor(cm.jet(r/10.))
+        bar.set_facecolor(cm.jet(r/10))
         bar.set_alpha(0.6)
 
     ax.tick_params(labelbottom=False, labeltop=False,

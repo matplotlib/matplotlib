@@ -93,7 +93,7 @@ def test_pre_transform_plotting():
     u = 2*np.sin(x) + np.cos(y[:, np.newaxis])
     v = np.sin(x) - np.cos(y[:, np.newaxis])
 
-    df = 25. / 30.   # Compatibility factor for old test image
+    df = 25 / 30   # Compatibility factor for old test image
     ax.streamplot(x, y, u, v, transform=times10 + ax.transData,
                   density=(df, df), linewidth=u**2 + v**2)
 

@@ -475,7 +475,7 @@ class Line2D(Artist):
             warnings.warn('no figure set when check if mouse is on line')
             pixels = self.pickradius
         else:
-            pixels = self.figure.dpi / 72. * self.pickradius
+            pixels = self.figure.dpi / 72 * self.pickradius
 
         # the math involved in checking for containment (here and inside of
         # segment_hits) assumes that it is OK to overflow.  In case the
@@ -629,7 +629,7 @@ class Line2D(Artist):
                                  ignore=True)
         # correct for marker size, if any
         if self._marker:
-            ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
+            ms = (self._markersize / 72 * self.figure.dpi) * 0.5
             bbox = bbox.padded(ms)
         return bbox
 

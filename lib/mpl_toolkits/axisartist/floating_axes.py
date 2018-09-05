@@ -51,7 +51,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
         elif self.nth_coord == 1:
             xx0 = (extremes[0]+extremes[1])/2.
             yy0 = self.value
-            dxx, dyy = abs(extremes[0]-extremes[1])/1000., 0.
+            dxx, dyy = abs(extremes[0]-extremes[1])/1000, 0.
 
         grid_finder = self.grid_helper.grid_finder
         xx1, yy1 = grid_finder.transform_xy([xx0], [yy0])

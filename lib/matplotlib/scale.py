@@ -487,7 +487,7 @@ class LogisticTransform(Transform):
 
     def transform_non_affine(self, a):
         """logistic transform (base 10)"""
-        return 1.0 / (1 + 10**(-a))
+        return 1 / (1 + 10**(-a))
 
     def inverted(self):
         return LogitTransform(self._nonpos)

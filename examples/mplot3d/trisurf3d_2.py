@@ -32,9 +32,9 @@ u, v = u.flatten(), v.flatten()
 
 # This is the Mobius mapping, taking a u, v pair and returning an x, y, z
 # triple
-x = (1 + 0.5 * v * np.cos(u / 2.0)) * np.cos(u)
-y = (1 + 0.5 * v * np.cos(u / 2.0)) * np.sin(u)
-z = 0.5 * v * np.sin(u / 2.0)
+x = (1 + 0.5 * v * np.cos(u / 2)) * np.cos(u)
+y = (1 + 0.5 * v * np.cos(u / 2)) * np.sin(u)
+z = 0.5 * v * np.sin(u / 2)
 
 # Triangulate parameter space to determine the triangles
 tri = mtri.Triangulation(u, v)

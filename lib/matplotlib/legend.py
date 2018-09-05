@@ -457,7 +457,7 @@ class Legend(Artist):
 
         # introduce y-offset for handles of the scatter plot
         if scatteryoffsets is None:
-            self._scatteryoffsets = np.array([3. / 8., 4. / 8., 2.5 / 8.])
+            self._scatteryoffsets = np.array([3 / 8, 4 / 8, 2.5 / 8])
         else:
             self._scatteryoffsets = np.asarray(scatteryoffsets)
         reps = self.scatterpoints // len(self._scatteryoffsets) + 1

@@ -1639,7 +1639,7 @@ class RendererPdf(RendererBase):
             used_characters[1].update(charset)
 
     def get_image_magnification(self):
-        return self.image_dpi/72.0
+        return self.image_dpi/72
 
     def option_scale_image(self):
         """
@@ -1821,7 +1821,7 @@ class RendererPdf(RendererBase):
         if angle == oldangle == 0:
             self.file.output(x - oldx, y - oldy, Op.textpos)
         else:
-            angle = angle / 180.0 * pi
+            angle = angle / 180 * pi
             self.file.output(cos(angle), sin(angle),
                              -sin(angle), cos(angle),
                              x, y, Op.textmatrix)
@@ -1839,7 +1839,7 @@ class RendererPdf(RendererBase):
         global_fonttype = rcParams['pdf.fonttype']
 
         # Set up a global transformation matrix for the whole math expression
-        a = angle / 180.0 * pi
+        a = angle / 180 * pi
         self.file.output(Op.gsave)
         self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
                          Op.concat_matrix)
@@ -2055,7 +2055,7 @@ class RendererPdf(RendererBase):
             # Do the rotation and global translation as a single matrix
             # concatenation up front
             self.file.output(Op.gsave)
-            a = angle / 180.0 * pi
+            a = angle / 180 * pi
             self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
                              Op.concat_matrix)
 
@@ -2103,7 +2103,7 @@ class RendererPdf(RendererBase):
                             else:
                                 kern = 0
                             lastgind = gind
-                            newx += kern/64.0 + glyph.linearHoriAdvance/65536.0
+                            newx += kern/64 + glyph.linearHoriAdvance/65536
 
                 if mode == 1:
                     self.file.output(Op.end_text)
@@ -2139,7 +2139,7 @@ class RendererPdf(RendererBase):
             font = self._get_font_ttf(prop)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
             w, h = font.get_width_height()
-            scale = (1.0 / 64.0)
+            scale = 1 / 64
             w *= scale
             h *= scale
             d = font.get_descent()

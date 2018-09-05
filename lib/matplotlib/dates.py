@@ -258,8 +258,8 @@ def _dt64_to_ordinalf(d):
     extra = extra.astype('timedelta64[ns]')
     t0 = np.datetime64('0001-01-01T00:00:00').astype('datetime64[s]')
     dt = (d.astype('datetime64[s]') - t0).astype(np.float64)
-    dt += extra.astype(np.float64) / 1.0e9
-    dt = dt / SEC_PER_DAY + 1.0
+    dt += extra.astype(np.float64) / 1e9
+    dt = dt / SEC_PER_DAY + 1
 
     NaT_int = np.datetime64('NaT').astype(np.int64)
     d_int = d.astype(np.int64)
@@ -752,10 +752,10 @@ class AutoDateFormatter(ticker.Formatter):
             DAYS_PER_YEAR: rcParams['date.autoformat.year'],
             DAYS_PER_MONTH: rcParams['date.autoformat.month'],
             1.0: rcParams['date.autoformat.day'],
-            1. / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
-            1. / (MINUTES_PER_DAY): rcParams['date.autoformat.minute'],
-            1. / (SEC_PER_DAY): rcParams['date.autoformat.second'],
-            1. / (MUSECONDS_PER_DAY): rcParams['date.autoformat.microsecond'],
+            1 / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
+            1 / MINUTES_PER_DAY: rcParams['date.autoformat.minute'],
+            1 / SEC_PER_DAY: rcParams['date.autoformat.second'],
+            1 / MUSECONDS_PER_DAY: rcParams['date.autoformat.microsecond'],
             }
 
 
@@ -808,16 +808,15 @@ class AutoDateFormatter(ticker.Formatter):
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
-        self.scaled = {DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
-                       DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
-                       1.0: rcParams['date.autoformatter.day'],
-                       1. / HOURS_PER_DAY: rcParams['date.autoformatter.hour'],
-                       1. / (MINUTES_PER_DAY):
-                           rcParams['date.autoformatter.minute'],
-                       1. / (SEC_PER_DAY):
-                           rcParams['date.autoformatter.second'],
-                       1. / (MUSECONDS_PER_DAY):
-                           rcParams['date.autoformatter.microsecond']}
+        self.scaled = {
+            DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
+            DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
+            1.0: rcParams['date.autoformatter.day'],
+            1 / HOURS_PER_DAY: rcParams['date.autoformatter.hour'],
+            1 / MINUTES_PER_DAY: rcParams['date.autoformatter.minute'],
+            1 / SEC_PER_DAY: rcParams['date.autoformatter.second'],
+            1 / MUSECONDS_PER_DAY: rcParams['date.autoformatter.microsecond'],
+        }
 
     def __call__(self, x, pos=None):
         locator_unit_scale = float(self._locator._get_unit())
@@ -1079,11 +1078,11 @@ class RRuleLocator(DateLocator):
         elif freq == DAILY:
             return 1.0
         elif freq == HOURLY:
-            return 1.0 / HOURS_PER_DAY
+            return 1 / HOURS_PER_DAY
         elif freq == MINUTELY:
-            return 1.0 / MINUTES_PER_DAY
+            return 1 / MINUTES_PER_DAY
         elif freq == SECONDLY:
-            return 1.0 / SEC_PER_DAY
+            return 1 / SEC_PER_DAY
         else:
             # error
             return -1   # or should this just return '1'?
@@ -1246,7 +1245,7 @@ class AutoDateLocator(DateLocator):
 
     def _get_unit(self):
         if self._freq in [MICROSECONDLY]:
-            return 1. / MUSECONDS_PER_DAY
+            return 1 / MUSECONDS_PER_DAY
         else:
             return RRuleLocator.get_unit_generic(self._freq)
 
@@ -1628,7 +1627,7 @@ class MicrosecondLocator(DateLocator):
         Return how many days a unit of the locator is; used for
         intelligent autoscaling.
         """
-        return 1. / MUSECONDS_PER_DAY
+        return 1 / MUSECONDS_PER_DAY
 
     def _get_interval(self):
         """

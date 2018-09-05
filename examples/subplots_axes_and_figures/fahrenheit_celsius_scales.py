@@ -15,7 +15,7 @@ def fahrenheit2celsius(temp):
     """
     Returns temperature in Celsius.
     """
-    return (5. / 9.) * (temp - 32)
+    return (5 / 9) * (temp - 32)
 
 
 def convert_ax_c_to_celsius(ax_f):

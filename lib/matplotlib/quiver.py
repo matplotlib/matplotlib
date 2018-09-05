@@ -731,7 +731,7 @@ class Quiver(mcollections.PolyCollection):
         tooshort = length < self.minlength
         if tooshort.any():
             # Use a heptagonal dot:
-            th = np.arange(0, 8, 1, np.float64) * (np.pi / 3.0)
+            th = np.arange(0, 8, 1, np.float64) * (np.pi / 3)
             x1 = np.cos(th) * self.minlength * 0.5
             y1 = np.sin(th) * self.minlength * 0.5
             X1 = np.repeat(x1[np.newaxis, :], N, axis=0)
@@ -1051,7 +1051,7 @@ class Barbs(mcollections.PolyCollection):
         empty_rad = length * sizes.get('emptybarb', 0.15)
 
         # Controls y point where to pivot the barb.
-        pivot_points = dict(tip=0.0, middle=-length / 2.)
+        pivot_points = dict(tip=0.0, middle=-length / 2)
 
         # Check for flip
         if flip:

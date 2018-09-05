@@ -16,7 +16,7 @@ import numpy as np
 np.random.seed(19680801)
 
 fig, ax = plt.subplots()
-dots = np.arange(10) / 100. + .03
+dots = np.arange(10) / 100 + .03
 x, y = np.meshgrid(dots, dots)
 data = [x.ravel(), y.ravel()]
 ax.scatter(*data, c=data[1])

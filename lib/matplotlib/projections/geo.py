@@ -57,7 +57,7 @@ class GeoAxes(Axes):
         self.grid(rcParams['axes.grid'])
 
         Axes.set_xlim(self, -np.pi, np.pi)
-        Axes.set_ylim(self, -np.pi / 2.0, np.pi / 2.0)
+        Axes.set_ylim(self, -np.pi / 2, np.pi / 2)
 
     def _set_lim_and_transforms(self):
         # A (possibly non-linear) projection on the (already scaled) data
@@ -275,7 +275,7 @@ class AitoffAxes(GeoAxes):
             latitude = ll[:, 1]
 
             # Pre-compute some values
-            half_long = longitude / 2.0
+            half_long = longitude / 2
             cos_latitude = np.cos(latitude)
 
             alpha = np.arccos(cos_latitude * np.cos(half_long))
@@ -306,7 +306,7 @@ class AitoffAxes(GeoAxes):
         inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, **kwargs):
-        self._longitude_cap = np.pi / 2.0
+        self._longitude_cap = np.pi / 2
         GeoAxes.__init__(self, *args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()
@@ -326,7 +326,7 @@ class HammerAxes(GeoAxes):
             latitude  = ll[:, 1:2]
 
             # Pre-compute some values
-            half_long = longitude / 2.0
+            half_long = longitude / 2
             cos_latitude = np.cos(latitude)
             sqrt2 = np.sqrt(2.0)
 
@@ -355,7 +355,7 @@ class HammerAxes(GeoAxes):
         inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, **kwargs):
-        self._longitude_cap = np.pi / 2.0
+        self._longitude_cap = np.pi / 2
         GeoAxes.__init__(self, *args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()
@@ -429,7 +429,7 @@ class MollweideAxes(GeoAxes):
         inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, **kwargs):
-        self._longitude_cap = np.pi / 2.0
+        self._longitude_cap = np.pi / 2
         GeoAxes.__init__(self, *args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()
@@ -469,7 +469,7 @@ class LambertAxes(GeoAxes):
                        np.cos(clat)*cos_lat*cos_diff_long)
             # Prevent divide-by-zero problems
             inner_k = np.where(inner_k == 0.0, 1e-15, inner_k)
-            k = np.sqrt(2.0 / inner_k)
+            k = np.sqrt(2 / inner_k)
             x = k*cos_lat*np.sin(diff_long)
             y = k*(np.cos(clat)*sin_lat -
                    np.sin(clat)*cos_lat*cos_diff_long)

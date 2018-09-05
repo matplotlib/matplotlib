@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
                   style='mpl20')
 def test_imagegrid_cbar_mode_edge():
     X, Y = np.meshgrid(np.linspace(0, 6, 30), np.linspace(0, 6, 30))
-    arr = np.sin(X) * np.cos(Y) + 1j*(np.sin(3*Y) * np.cos(Y/2.))
+    arr = np.sin(X) * np.cos(Y) + 1j*(np.sin(3*Y) * np.cos(Y/2))
 
     fig = plt.figure(figsize=(18, 9))
 

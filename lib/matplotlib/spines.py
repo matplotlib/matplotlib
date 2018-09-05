@@ -339,8 +339,8 @@ class Spine(mpatches.Patch):
                               'top': (0, 1),
                               }[self.spine_type]
                 # calculate x and y offset in dots
-                offset_x = amount * offset_vec[0] / 72.0
-                offset_y = amount * offset_vec[1] / 72.0
+                offset_x = amount * offset_vec[0] / 72
+                offset_y = amount * offset_vec[1] / 72
                 self._spine_transform = ('post',
                                          mtransforms.ScaledTranslation(
                                              offset_x,

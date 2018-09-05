@@ -45,7 +45,7 @@ ingredients = [x.split()[-1] for x in recipe]
 
 
 def func(pct, allvals):
-    absolute = int(pct/100.*np.sum(allvals))
+    absolute = int(pct/100*np.sum(allvals))
     return "{:.1f}%\n({:d} g)".format(pct, absolute)
 
 
@@ -106,7 +106,7 @@ kw = dict(xycoords='data', textcoords='data', arrowprops=dict(arrowstyle="-"),
           bbox=bbox_props, zorder=0, va="center")
 
 for i, p in enumerate(wedges):
-    ang = (p.theta2 - p.theta1)/2. + p.theta1
+    ang = (p.theta2 - p.theta1)/2 + p.theta1
     y = np.sin(np.deg2rad(ang))
     x = np.cos(np.deg2rad(ang))
     horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]

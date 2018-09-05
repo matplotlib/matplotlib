@@ -180,7 +180,7 @@ class RendererAgg(RendererBase):
             # space) in the following call to draw_text_image).
             font.set_text(s, 0, flags=flags)
         font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
-        d = font.get_descent() / 64.0
+        d = font.get_descent() / 64
         # The descent needs to be adjusted for the angle.
         xo, yo = font.get_bitmap_offset()
         xo /= 64.0
@@ -357,7 +357,7 @@ class RendererAgg(RendererBase):
 
         if w > 0 and h > 0:
             img = np.fromstring(buffer, np.uint8)
-            img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
+            img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255,
                                           self.dpi)
             gc = self.new_gc()
             if img.dtype.kind == 'f':

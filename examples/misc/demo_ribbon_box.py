@@ -85,7 +85,7 @@ if True:
 
         ax.add_artist(rb_patch)
 
-        ax.annotate(r"%d" % (int(h/100.)*100),
+        ax.annotate(r"%d" % (int(h/100)*100),
                     (year, h), va="bottom", ha="center")
 
     patch_gradient = BboxImage(ax.bbox, interpolation="bicubic", zorder=0.1)

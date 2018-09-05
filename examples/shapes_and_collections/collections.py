@@ -51,7 +51,7 @@ fig.subplots_adjust(top=0.92, left=0.07, right=0.97,
 
 col = collections.LineCollection([spiral], offsets=xyo,
                                  transOffset=ax1.transData)
-trans = fig.dpi_scale_trans + transforms.Affine2D().scale(1.0/72.0)
+trans = fig.dpi_scale_trans + transforms.Affine2D().scale(1 / 72)
 col.set_transform(trans)  # the points to pixels transform
 # Note: the first argument to the collection initializer
 # must be a list of sequences of x,y tuples; we have only
@@ -76,7 +76,7 @@ ax1.set_title('LineCollection using offsets')
 # The same data as above, but fill the curves.
 col = collections.PolyCollection([spiral], offsets=xyo,
                                  transOffset=ax2.transData)
-trans = transforms.Affine2D().scale(fig.dpi/72.0)
+trans = transforms.Affine2D().scale(fig.dpi/72)
 col.set_transform(trans)  # the points to pixels transform
 ax2.add_collection(col, autolim=True)
 col.set_color(colors)
@@ -89,7 +89,7 @@ ax2.set_title('PolyCollection using offsets')
 
 col = collections.RegularPolyCollection(
     7, sizes=np.abs(xx) * 10.0, offsets=xyo, transOffset=ax3.transData)
-trans = transforms.Affine2D().scale(fig.dpi / 72.0)
+trans = transforms.Affine2D().scale(fig.dpi / 72)
 col.set_transform(trans)  # the points to pixels transform
 ax3.add_collection(col, autolim=True)
 col.set_color(colors)

@@ -77,7 +77,7 @@ class Epoch(object):
             self._jd = float(jd)
 
             # Resolve seconds down to [ 0, 86400)
-            deltaDays = int(math.floor(self._seconds / 86400.0))
+            deltaDays = int(math.floor(self._seconds / 86400))
             self._jd += deltaDays
             self._seconds -= deltaDays * 86400.0
 
@@ -97,7 +97,7 @@ class Epoch(object):
         if frame != self._frame:
             t = self.convert(frame)
 
-        return t._jd + t._seconds / 86400.0
+        return t._jd + t._seconds / 86400
 
     def secondsPast(self, frame, jd):
         t = self

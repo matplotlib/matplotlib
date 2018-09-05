@@ -191,7 +191,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         # Add arrows half way along each trajectory.
         s = np.cumsum(np.sqrt(np.diff(tx) ** 2 + np.diff(ty) ** 2))
-        n = np.searchsorted(s, s[-1] / 2.)
+        n = np.searchsorted(s, s[-1] / 2)
         arrow_tail = (tx[n], ty[n])
         arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
 
@@ -261,11 +261,11 @@ class DomainMap(object):
         self.x_grid2mask = (mask.nx - 1) / grid.nx
         self.y_grid2mask = (mask.ny - 1) / grid.ny
 
-        self.x_mask2grid = 1. / self.x_grid2mask
-        self.y_mask2grid = 1. / self.y_grid2mask
+        self.x_mask2grid = 1 / self.x_grid2mask
+        self.y_mask2grid = 1 / self.y_grid2mask
 
-        self.x_data2grid = 1. / grid.dx
-        self.y_data2grid = 1. / grid.dy
+        self.x_data2grid = 1 / grid.dx
+        self.y_data2grid = 1 / grid.dy
 
     def grid2mask(self, xi, yi):
         """Return nearest space in mask-coords from given grid-coords."""
@@ -419,7 +419,7 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
         ds_dt = interpgrid(speed, xi, yi)
         if ds_dt == 0:
             raise TerminateTrajectory()
-        dt_ds = 1. / ds_dt
+        dt_ds = 1 / ds_dt
         ui = interpgrid(u, xi, yi)
         vi = interpgrid(v, xi, yi)
         return ui * dt_ds, vi * dt_ds
@@ -504,7 +504,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
     # increment the location gradually. However, due to the efficient
     # nature of the interpolation, this doesn't boost speed by much
     # for quite a bit of complexity.
-    maxds = min(1. / dmap.mask.nx, 1. / dmap.mask.ny, 0.1)
+    maxds = min(1 / dmap.mask.nx, 1 / dmap.mask.ny, 0.1)
 
     ds = maxds
     stotal = 0

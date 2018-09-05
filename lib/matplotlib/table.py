@@ -110,12 +110,12 @@ class Cell(Rectangle):
 
         # draw in center vertically
         self._text.set_verticalalignment('center')
-        y = b + (h / 2.0)
+        y = b + (h / 2)
 
         # now position horizontally
         if self._loc == 'center':
             self._text.set_horizontalalignment('center')
-            x = l + (w / 2.0)
+            x = l + (w / 2)
         elif self._loc == 'left':
             self._text.set_horizontalalignment('left')
             x = l + (w * self.PAD)
@@ -323,7 +323,7 @@ class Table(Artist):
         self.stale = True
 
     def _approx_text_height(self):
-        return (self.FONTSIZE / 72.0 * self.figure.dpi /
+        return (self.FONTSIZE / 72 * self.figure.dpi /
                 self._axes.bbox.height * 1.2)
 
     @allow_rasterization
@@ -624,7 +624,7 @@ def table(ax,
 
     # Set colwidths if not given
     if colWidths is None:
-        colWidths = [1.0 / cols] * cols
+        colWidths = [1 / cols] * cols
 
     # Fill in missing information for column
     # and row labels

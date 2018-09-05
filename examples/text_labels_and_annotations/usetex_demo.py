@@ -25,8 +25,8 @@ plt.legend(('phase field', 'level set', 'sharp interface'),
            shadow=True, loc=(0.01, 0.48), handlelength=1.5, fontsize=16)
 
 # the arrow
-plt.annotate("", xy=(-delta / 2., 0.1), xycoords='data',
-             xytext=(delta / 2., 0.1), textcoords='data',
+plt.annotate("", xy=(-delta / 2, 0.1), xycoords='data',
+             xytext=(delta / 2, 0.1), textcoords='data',
              arrowprops=dict(arrowstyle="<->", connectionstyle="arc3"))
 plt.text(0, 0.1, r'$\delta$',
          {'color': 'k', 'fontsize': 24, 'ha': 'center', 'va': 'center',

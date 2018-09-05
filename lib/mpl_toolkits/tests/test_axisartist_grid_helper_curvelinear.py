@@ -92,7 +92,7 @@ def test_polar_box():
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree
-    tr = Affine2D().scale(np.pi / 180., 1.) + PolarAxes.PolarTransform()
+    tr = Affine2D().scale(np.pi / 180, 1.) + PolarAxes.PolarTransform()
 
     # polar projection, which involves cycle, and also has limits in
     # its coordinates, needs a special method to find the extremes
@@ -153,7 +153,7 @@ def test_axis_direction():
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree
-    tr = Affine2D().scale(np.pi / 180., 1.) + PolarAxes.PolarTransform()
+    tr = Affine2D().scale(np.pi / 180, 1.) + PolarAxes.PolarTransform()
 
     # polar projection, which involves cycle, and also has limits in
     # its coordinates, needs a special method to find the extremes

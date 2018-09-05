@@ -135,7 +135,7 @@ fig, ax = plt.subplots(subplot_kw=dict(aspect='equal'))
 ax.add_artist(el)
 el.set_clip_box(ax.bbox)
 ax.annotate('the top',
-            xy=(np.pi/2., 10.),      # theta, radius
+            xy=(np.pi/2, 10.),      # theta, radius
             xytext=(np.pi/3, 20.),   # theta, radius
             xycoords='polar',
             textcoords='polar',

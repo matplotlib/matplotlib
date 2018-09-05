@@ -94,7 +94,7 @@ def setup_axes3(fig, rect):
     tr_rotate = Affine2D().translate(-95, 0)
 
     # scale degree to radians
-    tr_scale = Affine2D().scale(np.pi/180., 1.)
+    tr_scale = Affine2D().scale(np.pi/180, 1.)
 
     tr = tr_rotate + tr_scale + PolarAxes.PolarTransform()
 

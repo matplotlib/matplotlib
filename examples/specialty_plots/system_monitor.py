@@ -46,7 +46,7 @@ ax.set_title('System Monitor')
 
 start = time.time()
 for i in range(200):  # run for a little while
-    m, c, n = get_stats(i / 10.0)
+    m, c, n = get_stats(i / 10)
 
     # update the animated artists
     pm.set_height(m)

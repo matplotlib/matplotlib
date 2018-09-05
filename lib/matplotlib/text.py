@@ -350,7 +350,7 @@ class Text(Artist):
         if len(lines) > 1:  # do the multiline aligment
             malign = self._get_multialignment()
             if malign == 'center':
-                offsetLayout[:, 0] += width / 2.0 - horizLayout[:, 2] / 2.0
+                offsetLayout[:, 0] += width / 2 - horizLayout[:, 2] / 2
             elif malign == 'right':
                 offsetLayout[:, 0] += width - horizLayout[:, 2]
 
@@ -380,20 +380,20 @@ class Text(Artist):
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
             if halign == 'center':
-                offsetx = (xmin + width / 2.0)
+                offsetx = (xmin + width / 2)
             elif halign == 'right':
                 offsetx = (xmin + width)
             else:
                 offsetx = xmin
 
             if valign == 'center':
-                offsety = (ymin + height / 2.0)
+                offsety = (ymin + height / 2)
             elif valign == 'top':
                 offsety = (ymin + height)
             elif valign == 'baseline':
                 offsety = ymin + descent
             elif valign == 'center_baseline':
-                offsety = ymin + height - baseline / 2.0
+                offsety = ymin + height - baseline / 2
             else:
                 offsety = ymin
         else:
@@ -401,20 +401,20 @@ class Text(Artist):
             xmax1, ymax1 = cornersHoriz[2]
 
             if halign == 'center':
-                offsetx = (xmin1 + xmax1) / 2.0
+                offsetx = (xmin1 + xmax1) / 2
             elif halign == 'right':
                 offsetx = xmax1
             else:
                 offsetx = xmin1
 
             if valign == 'center':
-                offsety = (ymin1 + ymax1) / 2.0
+                offsety = (ymin1 + ymax1) / 2
             elif valign == 'top':
                 offsety = ymax1
             elif valign == 'baseline':
                 offsety = ymax1 - baseline
             elif valign == 'center_baseline':
-                offsety = (ymin1 + ymax1 - baseline) / 2.0
+                offsety = (ymin1 + ymax1 - baseline) / 2
             else:
                 offsety = ymin1
 
@@ -1439,7 +1439,7 @@ class TextWithDash(Text):
         dashpush = self.get_dashpush()
 
         angle = get_rotation(dashrotation)
-        theta = np.pi * (angle / 180.0 + dashdirection - 1)
+        theta = np.pi * (angle / 180 + dashdirection - 1)
         cos_theta, sin_theta = np.cos(theta), np.sin(theta)
 
         transform = self.get_transform()

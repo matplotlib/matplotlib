@@ -689,8 +689,8 @@ class BboxBase(TransformNode):
         """
         width = self.width
         height = self.height
-        deltaw = (sw * width - width) / 2.0
-        deltah = (sh * height - height) / 2.0
+        deltaw = (sw * width - width) / 2
+        deltah = (sh * height - height) / 2
         a = np.array([[-deltaw, -deltah], [deltaw, deltah]])
         return Bbox(self._points + a)
 
@@ -1594,7 +1594,7 @@ class Transform(TransformNode):
 
         # Convert to radians if desired
         if not radians:
-            angles = angles / 180.0 * np.pi
+            angles = angles / 180 * np.pi
 
         # Move a short distance away
         pts2 = pts + pushoff * np.c_[np.cos(angles), np.sin(angles)]
@@ -2680,8 +2680,8 @@ class BboxTransformFrom(Affine2DBase):
             inl, inb, inw, inh = self._boxin.bounds
             if DEBUG and (inw == 0 or inh == 0):
                 raise ValueError("Transforming from a singular bounding box.")
-            x_scale = 1.0 / inw
-            y_scale = 1.0 / inh
+            x_scale = 1 / inw
+            y_scale = 1 / inh
             self._mtx = np.array([[x_scale, 0.0    , (-inl*x_scale)],
                                   [0.0    , y_scale, (-inb*y_scale)],
                                   [0.0    , 0.0    , 1.0        ]],

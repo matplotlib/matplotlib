@@ -78,7 +78,7 @@ class EpochConverter(units.ConversionInterface):
         = RETURN VALUE
         - Returns the value parameter converted to floats.
         """
-        return value.seconds() / 86400.0
+        return value.seconds() / 86400
 
     @staticmethod
     def convert(value, unit, axis):

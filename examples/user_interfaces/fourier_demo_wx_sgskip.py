@@ -171,7 +171,7 @@ class FourierDemoFrame(wx.Frame):
             self.f0.set(f0Init + (f0Init * (x - x0) / x0))
         elif self.state == 'time':
             if (x - x0) / x0 != -1.:
-                self.f0.set(1. / (1. / f0Init + (1. / f0Init * (x - x0) / x0)))
+                self.f0.set(1 / (1 / f0Init + (1 / f0Init * (x - x0) / x0)))
 
     def mouseUp(self, evt):
         self.state = ''

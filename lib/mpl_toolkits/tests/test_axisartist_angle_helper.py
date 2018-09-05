@@ -42,7 +42,7 @@ HMS_RE = re.compile(_MS_RE.format(degree=re.escape(FormatterHMS.deg_mark),
 
 
 def dms2float(degrees, minutes=0, seconds=0):
-    return degrees + minutes / 60.0 + seconds / 3600.0
+    return degrees + minutes / 60 + seconds / 3600
 
 
 @pytest.mark.parametrize('args, kwargs, expected_levels, expected_factor', [

@@ -1224,9 +1224,9 @@ class PowerNorm(Normalize):
 
         if np.iterable(value):
             val = np.ma.asarray(value)
-            return np.ma.power(val, 1. / gamma) * (vmax - vmin) + vmin
+            return np.ma.power(val, 1 / gamma) * (vmax - vmin) + vmin
         else:
-            return pow(value, 1. / gamma) * (vmax - vmin) + vmin
+            return pow(value, 1 / gamma) * (vmax - vmin) + vmin
 
     def autoscale(self, A):
         """
@@ -1390,7 +1390,7 @@ def rgb_to_hsv(arr):
     idx = (arr[..., 2] == arr_max) & ipos
     out[idx, 0] = 4. + (arr[idx, 0] - arr[idx, 1]) / delta[idx]
 
-    out[..., 0] = (out[..., 0] / 6.0) % 1.0
+    out[..., 0] = (out[..., 0] / 6) % 1
     out[..., 1] = s
     out[..., 2] = arr_max
 
