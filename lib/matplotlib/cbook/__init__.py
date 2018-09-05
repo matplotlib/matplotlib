@@ -2057,7 +2057,7 @@ def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
     return rgba
 
 
-def _unmultipled_rgba8888_to_premultiplied_argb32(rgba8888):
+def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
     """
     Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
     """
