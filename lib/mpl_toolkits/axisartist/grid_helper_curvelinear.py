@@ -138,7 +138,6 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         grid_finder = self.grid_helper.grid_finder
 
-        # e1, e2 = self._extremes # ranges of other coordinates
         if self.nth_coord == 0:
             xx0 = np.linspace(self.value, self.value, self._line_num_points)
             yy0 = np.linspace(extremes[2], extremes[3], self._line_num_points)
@@ -270,21 +269,14 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         def f1():
             dd = np.arctan2(yy1b-yy1a, xx1b-xx1a)  # angle normal
             dd2 = np.arctan2(yy2b-yy2a, xx2b-xx2a)  # angle tangent
-            mm = ((yy1b-yy1a)==0.) & ((xx1b-xx1a)==0.)  # mask where dd1 is not defined
+            mm = (yy1b-yy1a == 0) & (xx1b-xx1a == 0)  # mask where dd1 is not defined
             dd[mm] = dd2[mm] + np.pi / 2
-            # dd = np.arctan2(yy2-yy1, xx2-xx1) # angle normal
-            # dd2 = np.arctan2(yy3-yy1, xx3-xx1) # angle tangent
-            # mm = ((yy2-yy1)==0.) & ((xx2-xx1)==0.) # mask where dd1 is not defined
-            # dd[mm] = dd2[mm] + np.pi / 2
 
-            # dd += np.pi
-
-            # dd = np.arctan2(xx2-xx1, angle_tangent-yy1)
             trans_tick = self.get_tick_transform(axes)
             tr2ax = trans_tick + axes.transAxes.inverted()
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tr2ax.transform_point((x, y))
-                delta=0.00001
+                delta = 0.00001
                 if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
                     d1, d2 = np.rad2deg([d, d2])
                     yield [x, y], d1, d2, lab

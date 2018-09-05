@@ -159,13 +159,11 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             mm = ((yy1b-yy1a)==0.) & ((xx1b-xx1a)==0.)  # mask where dd1 is not defined
             dd[mm] = dd2[mm] + np.pi / 2
 
-            # dd += np.pi
-            # dd = np.arctan2(xx2-xx1, angle_tangent-yy1)
             trans_tick = self.get_tick_transform(axes)
             tr2ax = trans_tick + axes.transAxes.inverted()
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tr2ax.transform_point((x, y))
-                delta=0.00001
+                delta = 0.00001
                 if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
                     d1, d2 = np.rad2deg([d, d2])
                     yield [x, y], d1, d2, lab
@@ -356,8 +354,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         lon_lines, lat_lines = grid_finder._get_raw_grid_lines(extremes[:2],
                                                                extremes[2:],
                                                                *extremes)
-        # lon_min, lon_max,
-        #                                                       lat_min, lat_max)
+        # lon_min, lon_max, lat_min, lat_max)
 
         grid_info["lon_lines0"] = lon_lines
         grid_info["lat_lines0"] = lat_lines
