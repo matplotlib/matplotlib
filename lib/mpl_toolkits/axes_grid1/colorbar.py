@@ -236,8 +236,8 @@ class CbarAxesLocator(object):
                    (x1, y2)]
 
         if self.orientation == "horizontal":
-            bottom = [(y,x) for (x,y) in bottom]
-            top = [(y,x) for (x,y) in top]
+            bottom = [(y, x) for (x, y) in bottom]
+            top = [(y, x) for (x, y) in top]
 
         return bottom, top
 
@@ -447,7 +447,7 @@ class ColorbarBase(cm.ScalarMappable):
 
         X, Y = self._mesh()
         if self.filled:
-            C = self._values[:,np.newaxis]
+            C = self._values[:, np.newaxis]
             self._add_solids(X, Y, C)
 
         ax = self.ax
@@ -531,8 +531,8 @@ class ColorbarBase(cm.ScalarMappable):
             args = (X, Y, C)
         else:
             args = (np.transpose(Y), np.transpose(X), np.transpose(C))
-        kw = {'cmap':self.cmap, 'norm':self.norm,
-              'shading':'flat', 'alpha':self.alpha,
+        kw = {'cmap': self.cmap, 'norm': self.norm,
+              'shading': 'flat', 'alpha': self.alpha,
               }
 
         del self.solids
@@ -543,7 +543,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.solids = col
         if self.drawedges:
             self.dividers = collections.LineCollection(
-                self._edges(X,Y),
+                self._edges(X, Y),
                 colors=(mpl.rcParams['axes.edgecolor'],),
                 linewidths=(0.5*mpl.rcParams['axes.linewidth'],),
             )
@@ -664,7 +664,7 @@ class ColorbarBase(cm.ScalarMappable):
             y = self._boundaries
         self._y = y
 
-        X, Y = np.meshgrid(x,y)
+        X, Y = np.meshgrid(x, y)
         return X, Y
 
     def set_alpha(self, alpha):

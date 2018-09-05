@@ -144,7 +144,7 @@ class AxisArtistHelper(object):
             _verts = np.array([[0., 0.],
                                [1., 1.]])
             fixed_coord = 1-nth_coord
-            _verts[:,fixed_coord] = self.passthru_pt[fixed_coord]
+            _verts[:, fixed_coord] = self.passthru_pt[fixed_coord]
 
             # axis line in transAxes
             self._path = Path(_verts)
@@ -267,7 +267,7 @@ class AxisArtistHelperRectlinear(object):
             trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
             p = trans_passingthrough_point.transform_point([self._value,
                                                             self._value])
-            _verts[:,fixed_coord] = p[fixed_coord]
+            _verts[:, fixed_coord] = p[fixed_coord]
 
             return Path(_verts)
 

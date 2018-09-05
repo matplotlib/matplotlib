@@ -65,21 +65,21 @@ def test_interp_nearest_vs_none():
 
 def do_figimage(suppressComposite):
     """ Helper for the next two tests """
-    fig = plt.figure(figsize=(2,2), dpi=100)
+    fig = plt.figure(figsize=(2, 2), dpi=100)
     fig.suppressComposite = suppressComposite
-    x,y = np.ix_(np.arange(100.0)/100.0, np.arange(100.0)/100.0)
+    x, y = np.ix_(np.arange(100) / 100.0, np.arange(100) / 100)
     z = np.sin(x**2 + y**2 - x*y)
     c = np.sin(20*x**2 + 50*y**2)
     img = z + c/5
 
     fig.figimage(img, xo=0, yo=0, origin='lower')
-    fig.figimage(img[::-1,:], xo=0, yo=100, origin='lower')
-    fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
-    fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
+    fig.figimage(img[::-1, :], xo=0, yo=100, origin='lower')
+    fig.figimage(img[:, ::-1], xo=100, yo=0, origin='lower')
+    fig.figimage(img[::-1, ::-1], xo=100, yo=100, origin='lower')
 
 
 @image_comparison(baseline_images=['figimage-0'],
-                  extensions=['png','pdf'])
+                  extensions=['png', 'pdf'])
 def test_figimage0():
     'test the figimage method'
 
@@ -88,7 +88,7 @@ def test_figimage0():
 
 
 @image_comparison(baseline_images=['figimage-1'],
-                  extensions=['png','pdf'])
+                  extensions=['png', 'pdf'])
 def test_figimage1():
     'test the figimage method'
     suppressComposite = True
@@ -97,7 +97,7 @@ def test_figimage1():
 
 def test_image_python_io():
     fig, ax = plt.subplots()
-    ax.plot([1,2,3])
+    ax.plot([1, 2, 3])
     buffer = io.BytesIO()
     fig.savefig(buffer)
     buffer.seek(0)
@@ -277,12 +277,12 @@ def test_image_cliprect():
     import matplotlib.patches as patches
 
     fig, ax = plt.subplots()
-    d = [[1,2],[3,4]]
+    d = [[1, 2], [3, 4]]
 
-    im = ax.imshow(d, extent=(0,5,0,5))
+    im = ax.imshow(d, extent=(0, 5, 0, 5))
 
     rect = patches.Rectangle(
-        xy=(1,1), width=2, height=2, transform=im.axes.transData)
+        xy=(1, 1), width=2, height=2, transform=im.axes.transData)
     im.set_clip_path(rect)
 
 
@@ -290,9 +290,9 @@ def test_image_cliprect():
 def test_imshow():
     fig, ax = plt.subplots()
     arr = np.arange(100).reshape((10, 10))
-    ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))
-    ax.set_xlim(0,3)
-    ax.set_ylim(0,3)
+    ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
+    ax.set_xlim(0, 3)
+    ax.set_ylim(0, 3)
 
 
 @image_comparison(baseline_images=['no_interpolation_origin'],
@@ -403,10 +403,10 @@ def test_rasterize_dpi():
 
     axes[0].imshow(img)
 
-    axes[1].plot([0,1], [0,1], linewidth=20., rasterized=True)
+    axes[1].plot([0, 1], [0, 1], linewidth=20., rasterized=True)
     axes[1].set(xlim=(0, 1), ylim=(-1, 2))
 
-    axes[2].plot([0,1], [0,1], linewidth=20.)
+    axes[2].plot([0, 1], [0, 1], linewidth=20.)
     axes[2].set(xlim=(0, 1), ylim=(-1, 2))
 
     # Low-dpi PDF rasterization errors prevent proper image comparison tests.
@@ -673,7 +673,7 @@ def test_image_preserve_size2():
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
     ax.set_axis_off()
     fig.add_axes(ax)
-    ax.imshow(data, interpolation='nearest', origin='lower',aspect='auto')
+    ax.imshow(data, interpolation='nearest', origin='lower', aspect='auto')
     buff = io.BytesIO()
     fig.savefig(buff, dpi=1)
 
@@ -837,7 +837,7 @@ def test_imshow_bignumbers():
     # putting a big number in an array of integers shouldn't
     # ruin the dynamic range of the resolved bits.
     fig, ax = plt.subplots()
-    img = np.array([[1, 2, 1e12],[3, 1, 4]], dtype=np.uint64)
+    img = np.array([[1, 2, 1e12], [3, 1, 4]], dtype=np.uint64)
     pc = ax.imshow(img)
     pc.set_clim(0, 5)
 
@@ -849,7 +849,7 @@ def test_imshow_bignumbers_real():
     # putting a big number in an array of integers shouldn't
     # ruin the dynamic range of the resolved bits.
     fig, ax = plt.subplots()
-    img = np.array([[2., 1., 1.e22],[4., 1., 3.]])
+    img = np.array([[2., 1., 1.e22], [4., 1., 3.]])
     pc = ax.imshow(img)
     pc.set_clim(0, 5)
 

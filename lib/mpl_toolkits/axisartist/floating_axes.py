@@ -438,13 +438,13 @@ class FloatingAxesBase(object):
     def adjust_axes_lim(self):
         grid_helper = self.get_grid_helper()
         t = grid_helper.get_boundary()
-        x, y = t[:,0], t[:,1]
+        x, y = t[:, 0], t[:, 1]
 
         xmin, xmax = min(x), max(x)
         ymin, ymax = min(y), max(y)
 
-        dx = (xmax-xmin)/100.
-        dy = (ymax-ymin)/100.
+        dx = (xmax-xmin) / 100
+        dy = (ymax-ymin) / 100
 
         self.set_xlim(xmin-dx, xmax+dx)
         self.set_ylim(ymin-dy, ymax+dy)

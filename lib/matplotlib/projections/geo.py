@@ -118,7 +118,7 @@ class GeoAxes(Axes):
             .scale(0.5 / xscale, 0.5 / yscale) \
             .translate(0.5, 0.5)
 
-    def get_xaxis_transform(self,which='grid'):
+    def get_xaxis_transform(self, which='grid'):
         if which not in ['tick1', 'tick2', 'grid']:
             raise ValueError(
                 "'which' must be one of 'tick1', 'tick2', or 'grid'")
@@ -130,7 +130,7 @@ class GeoAxes(Axes):
     def get_xaxis_text2_transform(self, pad):
         return self._xaxis_text2_transform, 'top', 'center'
 
-    def get_yaxis_transform(self,which='grid'):
+    def get_yaxis_transform(self, which='grid'):
         if which not in ['tick1', 'tick2', 'grid']:
             raise ValueError(
                 "'which' must be one of 'tick1', 'tick2', or 'grid'")
@@ -146,8 +146,7 @@ class GeoAxes(Axes):
         return Circle((0.5, 0.5), 0.5)
 
     def _gen_axes_spines(self):
-        return {'geo':mspines.Spine.circular_spine(self,
-                                                   (0.5, 0.5), 0.5)}
+        return {'geo': mspines.Spine.circular_spine(self, (0.5, 0.5), 0.5)}
 
     def set_yscale(self, *args, **kwargs):
         if args[0] != 'linear':
@@ -400,8 +399,8 @@ class MollweideAxes(GeoAxes):
                 aux[ihigh] = (np.pi/2 - d) * np.sign(latitude[ihigh])
 
             xy = np.empty(ll.shape, dtype=float)
-            xy[:,0] = (2.0 * np.sqrt(2.0) / np.pi) * longitude * np.cos(aux)
-            xy[:,1] = np.sqrt(2.0) * np.sin(aux)
+            xy[:, 0] = (2.0 * np.sqrt(2.0) / np.pi) * longitude * np.cos(aux)
+            xy[:, 1] = np.sqrt(2.0) * np.sin(aux)
 
             return xy
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__

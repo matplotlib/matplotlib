@@ -247,7 +247,7 @@ class FormatterDMS(object):
         values = np.asarray(values)
         ss = np.where(values>0, 1, -1)
 
-        sign_map = {(-1, True):"-"}
+        sign_map = {(-1, True): "-"}
         signs = [sign_map.get((s, v!=0), "") for s, v in zip(ss, values)]
 
         factor, number_fraction = self._get_number_fraction(factor)

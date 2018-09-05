@@ -1146,7 +1146,8 @@ class Axes3D(Axes):
         :attr:`fmt_zdata` attribute if it is callable, else will fall
         back on the zaxis major formatter
         """
-        try: return self.fmt_zdata(z)
+        try:
+            return self.fmt_zdata(z)
         except (AttributeError, TypeError):
             func = self.zaxis.get_major_formatter().format_data_short
             val = func(z)
@@ -1245,9 +1246,9 @@ class Axes3D(Axes):
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         '''
         Set zlabel.  See doc for :meth:`set_ylabel` for description.
-
         '''
-        if labelpad is not None : self.zaxis.labelpad = labelpad
+        if labelpad is not None:
+            self.zaxis.labelpad = labelpad
         return self.zaxis.set_label_text(zlabel, fontdict, **kwargs)
 
     def get_zlabel(self):
@@ -1467,22 +1468,22 @@ class Axes3D(Axes):
             This function was added, but not tested. Please report any bugs.
         """
         if upper is None and np.iterable(lower):
-            lower,upper = lower
-
-        old_lower,old_upper = self.get_zbound()
-
-        if lower is None: lower = old_lower
-        if upper is None: upper = old_upper
+            lower, upper = lower
+        old_lower, old_upper = self.get_zbound()
+        if lower is None:
+            lower = old_lower
+        if upper is None:
+            upper = old_upper
 
         if self.zaxis_inverted():
             if lower < upper:
                 self.set_zlim(upper, lower, auto=None)
             else:
                 self.set_zlim(lower, upper, auto=None)
-        else :
+        else:
             if lower < upper:
                 self.set_zlim(lower, upper, auto=None)
-            else :
+            else:
                 self.set_zlim(upper, lower, auto=None)
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
@@ -1693,7 +1694,7 @@ class Axes3D(Axes):
             polyc.set_edgecolors(colset)
         elif cmap:
             # doesn't vectorize because polys is jagged
-            avg_z = np.array([ps[:,2].mean() for ps in polys])
+            avg_z = np.array([ps[:, 2].mean() for ps in polys])
             polyc.set_array(avg_z)
             if vmin is not None or vmax is not None:
                 polyc.set_clim(vmin, vmax)
@@ -2548,7 +2549,7 @@ class Axes3D(Axes):
                              [-y*s, x*s, c]])
             # opposite rotation negates all the sin terms
             Rneg = Rpos.copy()
-            Rneg[[0,1,2,2],[2,2,0,1]] = -Rneg[[0,1,2,2],[2,2,0,1]]
+            Rneg[[0, 1, 2, 2], [2, 2, 0, 1]] = -Rneg[[0, 1, 2, 2], [2, 2, 0, 1]]
 
             # multiply them to get the rotated vector
             return Rpos.dot(uvw), Rneg.dot(uvw)

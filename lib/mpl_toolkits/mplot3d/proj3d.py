@@ -24,20 +24,20 @@ def line2d(p0, p1):
         b = 1
         c = -y1
     else:
-        a = (y0-y1)
-        b = (x0-x1)
-        c = (x0*y1 - x1*y0)
+        a = y0 - y1
+        b = x0 - x1
+        c = x0*y1 - x1*y0
     return a, b, c
 
 
 def line2d_dist(l, p):
     """
     Distance from line to point
-    line is a tuple of coefficients a,b,c
+    line is a tuple of coefficients a, b, c
     """
     a, b, c = l
     x0, y0 = p
-    return abs((a*x0 + b*y0 + c)/np.sqrt(a**2+b**2))
+    return abs((a*x0 + b*y0 + c) / np.sqrt(a**2+b**2))
 
 
 def line2d_seg_dist(p1, p2, p0):
@@ -71,11 +71,10 @@ def world_transformation(xmin, xmax,
                          ymin, ymax,
                          zmin, zmax):
     dx, dy, dz = (xmax-xmin), (ymax-ymin), (zmax-zmin)
-    return np.array([
-        [1.0/dx,0,0,-xmin/dx],
-        [0,1.0/dy,0,-ymin/dy],
-        [0,0,1.0/dz,-zmin/dz],
-        [0,0,0,1.0]])
+    return np.array([[1/dx, 0,    0,    -xmin/dx],
+                     [0,    1/dy, 0,    -ymin/dy],
+                     [0,    0,    1/dz, -zmin/dz],
+                     [0,    0,    0,    1]])
 
 
 def view_transformation(E, R, V):
@@ -96,11 +95,10 @@ def view_transformation(E, R, V):
     u = np.cross(V, n)
     u = u / mod(u)
     v = np.cross(n, u)
-    Mr = [[u[0],u[1],u[2],0],
-          [v[0],v[1],v[2],0],
-          [n[0],n[1],n[2],0],
-          [0,   0,   0,   1],
-          ]
+    Mr = [[u[0], u[1], u[2], 0],
+          [v[0], v[1], v[2], 0],
+          [n[0], n[1], n[2], 0],
+          [0,    0,    0,    1]]
     #
     Mt = [[1, 0, 0, -E[0]],
           [0, 1, 0, -E[1]],
@@ -114,22 +112,20 @@ def view_transformation(E, R, V):
 def persp_transformation(zfront, zback):
     a = (zfront+zback)/(zfront-zback)
     b = -2*(zfront*zback)/(zfront-zback)
-    return np.array([[1,0,0,0],
-                     [0,1,0,0],
-                     [0,0,a,b],
-                     [0,0,-1,0]
-                     ])
+    return np.array([[1, 0, 0, 0],
+                     [0, 1, 0, 0],
+                     [0, 0, a, b],
+                     [0, 0, -1, 0]])
 
 
 def ortho_transformation(zfront, zback):
     # note: w component in the resulting vector will be (zback-zfront), not 1
     a = -(zfront + zback)
     b = -(zfront - zback)
-    return np.array([[2,0,0,0],
-                     [0,2,0,0],
-                     [0,0,-2,0],
-                     [0,0,a,b]
-                     ])
+    return np.array([[2, 0, 0, 0],
+                     [0, 2, 0, 0],
+                     [0, 0, -2, 0],
+                     [0, 0, a, b]])
 
 
 def proj_transform_vec(vec, M):
@@ -156,7 +152,7 @@ def inv_transform(xs, ys, zs, M):
     vec = vec_pad_ones(xs, ys, zs)
     vecr = np.dot(iM, vec)
     try:
-        vecr = vecr/vecr[3]
+        vecr = vecr / vecr[3]
     except OverflowError:
         pass
     return vecr[0], vecr[1], vecr[2]
@@ -203,9 +199,8 @@ def proj_trans_clip_points(points, M):
 
 def rot_x(V, alpha):
     cosa, sina = np.cos(alpha), np.sin(alpha)
-    M1 = np.array([[1,0,0,0],
-                   [0,cosa,-sina,0],
-                   [0,sina,cosa,0],
-                   [0,0,0,1]])
-
+    M1 = np.array([[1, 0, 0, 0],
+                   [0, cosa, -sina, 0],
+                   [0, sina, cosa, 0],
+                   [0, 0, 0, 1]])
     return np.dot(M1, V)

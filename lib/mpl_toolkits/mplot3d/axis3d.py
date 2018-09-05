@@ -154,7 +154,7 @@ class Axis(maxis.XAxis):
 
     def set_pane_pos(self, xys):
         xys = np.asarray(xys)
-        xys = xys[:,:2]
+        xys = xys[:, :2]
         self.pane.xy = xys
         self.stale = True
 
