@@ -9,12 +9,9 @@ it imports matplotlib only at runtime.
 import collections
 import collections.abc
 import contextlib
-import datetime
-import errno
 import functools
 import glob
 import gzip
-import io
 import itertools
 import locale
 import numbers

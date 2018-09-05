@@ -6,7 +6,6 @@ from matplotlib import pyplot as plt
 from numpy.testing import assert_array_almost_equal
 from matplotlib.colors import LogNorm
 import pytest
-import warnings
 
 
 def test_contour_shape_1d_valid():

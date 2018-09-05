@@ -1,6 +1,3 @@
-import sys
-import types
-
 from matplotlib import cbook
 
 

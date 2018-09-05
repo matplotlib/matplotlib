@@ -1,4 +1,3 @@
-import functools
 import locale
 import warnings
 

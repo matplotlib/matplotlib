@@ -1,7 +1,6 @@
 from collections import OrderedDict
 import copy
 from itertools import chain
-import locale
 import os
 from unittest import mock
 import warnings

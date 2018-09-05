@@ -2,7 +2,6 @@
 Provides utilities to test output reproducibility.
 """
 
-import io
 import os
 import re
 import subprocess

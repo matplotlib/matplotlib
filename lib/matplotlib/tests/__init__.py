@@ -1,4 +1,3 @@
-import difflib
 import os
 
 from matplotlib import cbook

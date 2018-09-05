@@ -2,7 +2,7 @@
 
 import filecmp
 from os.path import join as pjoin, dirname, isdir
-from subprocess import call, Popen, PIPE
+from subprocess import Popen, PIPE
 import sys
 
 import pytest
