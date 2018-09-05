@@ -583,7 +583,7 @@ class ColorbarBase(cm.ScalarMappable):
                 locator = ticker.MaxNLocator(nbins=5)
         else:
             b = self._boundaries[self._inside]
-            locator = ticker.FixedLocator(b)  # nbins=10)
+            locator = ticker.FixedLocator(b)
 
         self.cbar_axis.set_major_locator(locator)
 

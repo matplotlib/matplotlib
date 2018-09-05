@@ -342,8 +342,6 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
                  lon_minmax = None,
                  lat_minmax = (-90, 90)
                  ):
-        # self.transform_xy = transform_xy
-        # self.inv_transform_xy = inv_transform_xy
         self.nx, self.ny = nx, ny
         self.lon_cycle, self.lat_cycle = lon_cycle, lat_cycle
         self.lon_minmax = lon_minmax

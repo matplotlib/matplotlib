@@ -247,8 +247,7 @@ class AxisArtistHelperRectlinear(object):
 
                     # check if the tick point is inside axes
                     c2 = tr2ax.transform_point(c)
-                    # delta=0.00001
-                    if 0. -self.delta1<= c2[self.nth_coord] <= 1.+self.delta2:
+                    if 0 - self.delta1 <= c2[self.nth_coord] <= 1 + self.delta2:
                         yield c, angle_normal, angle_tangent, l
 
             return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)

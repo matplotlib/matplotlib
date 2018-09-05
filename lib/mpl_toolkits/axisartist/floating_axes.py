@@ -28,7 +28,6 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
         value, nth_coord = grid_helper.get_data_boundary(side)  # return v= 0 , nth=1, extremes of the other coordinate.
         super().__init__(grid_helper, nth_coord, value, axis_direction=side)
-        # self.grid_helper = grid_helper
         if nth_coord_ticks is None:
             nth_coord_ticks = nth_coord
         self.nth_coord_ticks = nth_coord_ticks
@@ -116,19 +115,17 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx0 = np.empty_like(yy0)
             xx0.fill(self.value)
 
-            # yy0_ = yy0.copy()
-
             xx1, yy1 = transform_xy(xx0, yy0)
 
             xx00 = xx0.astype(float, copy=True)
-            xx00[xx0+dx>xmax] -= dx
+            xx00[xx0 + dx > xmax] -= dx
             xx1a, yy1a = transform_xy(xx00, yy0)
-            xx1b, yy1b = transform_xy(xx00+dx, yy0)
+            xx1b, yy1b = transform_xy(xx00 + dx, yy0)
 
             yy00 = yy0.astype(float, copy=True)
-            yy00[yy0+dy>ymax] -= dy
+            yy00[yy0 + dy > ymax] -= dy
             xx2a, yy2a = transform_xy(xx0, yy00)
-            xx2b, yy2b = transform_xy(xx0, yy00+dy)
+            xx2b, yy2b = transform_xy(xx0, yy00 + dy)
 
             labels = self.grid_info["lat_labels"]
             labels = [l for l, m in zip(labels, mask) if m]
@@ -137,18 +134,17 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             yy0 = np.empty_like(xx0)
             yy0.fill(self.value)
 
-            # xx0_ = xx0.copy()
             xx1, yy1 = transform_xy(xx0, yy0)
 
             yy00 = yy0.astype(float, copy=True)
-            yy00[yy0+dy>ymax] -= dy
+            yy00[yy0 + dy > ymax] -= dy
             xx1a, yy1a = transform_xy(xx0, yy00)
-            xx1b, yy1b = transform_xy(xx0, yy00+dy)
+            xx1b, yy1b = transform_xy(xx0, yy00 + dy)
 
             xx00 = xx0.astype(float, copy=True)
-            xx00[xx0+dx>xmax] -= dx
+            xx00[xx0 + dx > xmax] -= dx
             xx2a, yy2a = transform_xy(xx00, yy0)
-            xx2b, yy2b = transform_xy(xx00+dx, yy0)
+            xx2b, yy2b = transform_xy(xx00 + dx, yy0)
 
             labels = self.grid_info["lon_labels"]
             labels = [l for l, m in zip(labels, mask) if m]
@@ -440,8 +436,6 @@ class FloatingAxesBase(object):
         self._original_patch = patch
 
     def adjust_axes_lim(self):
-
-        # t = self.get_boundary()
         grid_helper = self.get_grid_helper()
         t = grid_helper.get_boundary()
         x, y = t[:,0], t[:,1]
