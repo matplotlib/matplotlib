@@ -74,7 +74,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         if self.get_visible() and self.get_mapped():
             allocation = self.get_allocation()
             self._render_figure(allocation.width, allocation.height)
-        super(FigureCanvasGTK3Agg).draw()
+        super().draw()
 
     def print_png(self, filename, *args, **kwargs):
         # Do this so we can save the resolution of figure in the PNG file
