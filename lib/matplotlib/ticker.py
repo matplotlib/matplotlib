@@ -1269,7 +1269,8 @@ class EngFormatter(Formatter):
         # instead of 1 k.  Beware of the corner case of values that are beyond
         # the range of SI prefixes (i.e. > 'Y').
         _fmant = float(format(mant, fmt))
-        if (_fmant >= 1000 or _fmant <= -1000) and pow10 < max(self.ENG_PREFIXES):
+        if ((_fmant >= 1000 or _fmant <= -1000)
+                    and pow10 < max(self.ENG_PREFIXES)):
             mant /= 1000
             pow10 += 3
 
