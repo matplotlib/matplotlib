@@ -45,13 +45,17 @@ from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
 # FONTS
 
 def get_unicode_index(symbol, math=True):
-    """get_unicode_index(symbol, [bool]) -> integer
+    r"""
+    Return the integer index (from the Unicode table) of *symbol*.
 
-Return the integer index (from the Unicode table) of symbol.  *symbol*
-can be a single unicode character, a TeX command (i.e. r'\\pi'), or a
-Type1 symbol name (i.e. 'phi').
-If math is False, the current symbol should be treated as a non-math symbol.
-"""
+    Parameters
+    ----------
+    symbol : str
+        A single unicode character, a TeX command (e.g. r'\pi') or a Type1
+        symbol name (e.g. 'phi').
+    math : bool, default is True
+        If False, always treat as a single unicode character.
+    """
     # for a non-math symbol, simply return its unicode index
     if not math:
         return ord(symbol)

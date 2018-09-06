@@ -683,7 +683,7 @@ class Line2D(Artist):
                 self.axes.name == 'rectilinear' and
                 self.axes.get_xscale() == 'linear' and
                 self._markevery is None and
-                self.get_clip_on() is True):
+                self.get_clip_on()):
             self._subslice = True
             nanmask = np.isnan(x)
             if nanmask.any():
