@@ -7,8 +7,6 @@ import sys
 
 import pytest
 
-from matplotlib import cbook
-
 
 pytest.importorskip('sphinx')
 

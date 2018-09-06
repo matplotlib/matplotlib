@@ -1,8 +1,5 @@
 import os
 
-from matplotlib import cbook
-from matplotlib.testing import setup
-
 
 # Check that the test directories exist
 if not os.path.exists(os.path.join(

@@ -9,7 +9,6 @@ import datetime as datetime
 import pytest
 
 import matplotlib.mlab as mlab
-import matplotlib.cbook as cbook
 from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 
 
