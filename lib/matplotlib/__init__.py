@@ -1729,7 +1729,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 if not isinstance(label, str):
                     label = None
 
-                if (replace_names is None) or (replace_all_args is True):
+                if replace_names is None or replace_all_args:
                     # all should be replaced
                     args = tuple(_replacer(data, a) for
                                  j, a in enumerate(args))

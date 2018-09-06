@@ -335,8 +335,8 @@ class FigureCanvasTk(FigureCanvasBase):
                 self.leave_notify_event(guiEvent)
 
     def draw_idle(self):
-        'update drawing area only if idle'
-        if self._idle is False:
+        """Update the drawing area if idle."""
+        if not self._idle:
             return
 
         self._idle = False

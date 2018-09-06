@@ -494,7 +494,7 @@ def test_legend_title_empty():
     ax.plot(range(10))
     leg = ax.legend()
     assert leg.get_title().get_text() == ""
-    assert leg.get_title().get_visible() is False
+    assert not leg.get_title().get_visible()
 
 
 def test_legend_proper_window_extent():
