@@ -682,6 +682,7 @@ def get_data_path():
     return defaultParams['datapath'][0]
 
 
+@cbook.deprecated("3.1")
 def get_py2exe_datafiles():
     data_path = Path(get_data_path())
     d = {}
