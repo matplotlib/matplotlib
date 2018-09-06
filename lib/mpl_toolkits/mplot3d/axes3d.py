@@ -2402,8 +2402,9 @@ class Axes3D(Axes):
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
 
-        Any additional keyword arguments are passed onto
-        :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        **kwargs
+            Any additional keyword arguments are passed onto
+            :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         Returns
         -------
