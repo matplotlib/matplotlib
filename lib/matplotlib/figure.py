@@ -2018,8 +2018,8 @@ default: 'top'
             JPEG quantization stage.
 
         optimize : bool
-            If *True*, indicates that the JPEG encoder should make an extra pass
-            over the image in order to select optimal encoder settings.
+            If *True*, indicates that the JPEG encoder should make an extra
+            pass over the image in order to select optimal encoder settings.
             Applicable only if *format* is jpg or jpeg, ignored otherwise.
 
         progressive : bool
