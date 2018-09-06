@@ -1877,24 +1877,7 @@ class Axes3D(Axes):
     def plot_trisurf(self, *args, color=None, norm=None, vmin=None, vmax=None,
                      lightsource=None, **kwargs):
         """
-
-        Parameters
-        ----------
-        X, Y, Z : array-like
-            Data values as 1D arrays
-        color
-            Color of the surface patches
-        cmap
-            A colormap for the surface patches.
-        norm : Normalize
-            An instance of Normalize to map values to colors.
-        vmin, vmax : scalar, optional, default: None
-            Minimum and maximum value to map.
-        shade : bool
-            Whether to shade the facecolors. Defaults to True. Shading is
-            always disabled when `cmap` is specified.
-        lightsource : `~matplotlib.colors.LightSource`
-            The lightsource to use when `shade` is True.
+        Plot a triangulated surface.
 
         The (optional) triangulation can be specified in one of two ways;
         either::
@@ -1919,8 +1902,26 @@ class Axes3D(Axes):
         where *Z* is the array of values to contour, one per point
         in the triangulation.
 
-        Other arguments are passed on to
-        :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        Parameters
+        ----------
+        X, Y, Z : array-like
+            Data values as 1D arrays.
+        color
+            Color of the surface patches.
+        cmap
+            A colormap for the surface patches.
+        norm : Normalize
+            An instance of Normalize to map values to colors.
+        vmin, vmax : scalar, optional, default: None
+            Minimum and maximum value to map.
+        shade : bool
+            Whether to shade the facecolors. Defaults to True. Shading is
+            always disabled when *cmap* is specified.
+        lightsource : `~matplotlib.colors.LightSource`
+            The lightsource to use when *shade* is True.
+        **kwargs
+            All other arguments are passed on to
+            :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         Examples
         --------
