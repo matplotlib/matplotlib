@@ -3,7 +3,7 @@ API deprecations
 
 The following API elements are deprecated:
 
-- ``tk_window_focus``,
+- ``get_py2exe_datafiles``, ``tk_window_focus``,
 - ``backend_ps.PsBackendHelper``, ``backend_ps.ps_backend_helper``,
 - ``cbook.iterable``,
 - ``mlab.demean``,
