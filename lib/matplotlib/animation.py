@@ -846,8 +846,8 @@ class HTMLWriter(FileMovieWriter):
         self._bytes_limit *= 1024 * 1024
 
         if self.default_mode not in ['loop', 'once', 'reflect']:
-            self.default_mode = 'loop'
-            _log.warning("unrecognized default_mode: using 'loop'")
+            raise ValueError(
+                "unrecognized default_mode {!r}".format(self.default_mode))
 
         super().__init__(fps, codec, bitrate, extra_args, metadata)
 
