@@ -9,7 +9,7 @@ import functools
 
 import numpy as np
 
-from matplotlib.transforms import Affine2D, IdentityTransform
+from matplotlib.transforms import IdentityTransform
 from . import grid_helper_curvelinear
 from .axis_artist import AxisArtist
 
