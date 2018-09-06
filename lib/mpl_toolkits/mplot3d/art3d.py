@@ -506,7 +506,7 @@ class Poly3DCollection(PolyCollection):
     A collection of 3D polygons.
     """
 
-    def __init__(self, verts, *args, zsort=True, **kwargs):
+    def __init__(self, verts, *args, zsort='average', **kwargs):
         """
         Create a Poly3DCollection.
 
@@ -534,26 +534,19 @@ class Poly3DCollection(PolyCollection):
 
         Parameters
         ----------
-        zsort : bool or {'average', 'min', 'max'}
-            For 'average', 'min', 'max' the z-order is determined by applying
-            the function to the z-coordinates of the vertices in the viewer's
-            coordinate system. *True* is equivalent to 'average'.
+        zsort : {'average', 'min', 'max'}
+            The function applied on the z-coordinates of the vertices in the
+            viewer's coordinate system, to determine the z-order.  *True* is
+            deprecated and equivalent to 'average'.
         """
-
         if zsort is True:
+            cbook.warn_deprecated(
+                "3.1", "Passing True to mean 'average' for set_zsort is "
+                "deprecated and support will be removed in Matplotlib 3.3; "
+                "pass 'average' instead.")
             zsort = 'average'
-
-        if zsort is not False:
-            if zsort in self._zsort_functions:
-                zsortfunc = self._zsort_functions[zsort]
-            else:
-                return False
-        else:
-            zsortfunc = None
-
-        self._zsort = zsort
+        self._zsortfunc = self._zsort_functions[zsort]
         self._sort_zpos = None
-        self._zsortfunc = zsortfunc
         self.stale = True
 
     def get_vector(self, segments3d):
@@ -633,15 +626,12 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(len(xyzlist), axis=0)
 
-        # if required sort by depth (furthest drawn first)
-        if self._zsort:
-            z_segments_2d = sorted(
-                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
-                 for idx, ((xs, ys, zs), fc, ec)
-                 in enumerate(zip(xyzlist, cface, cedge))),
-                key=lambda x: x[0], reverse=True)
-        else:
-            raise ValueError("whoops")
+        # sort by depth (furthest drawn first)
+        z_segments_2d = sorted(
+            ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
+             for idx, ((xs, ys, zs), fc, ec)
+             in enumerate(zip(xyzlist, cface, cedge))),
+            key=lambda x: x[0], reverse=True)
 
         segments_2d = [s for z, s, fc, ec, idx in z_segments_2d]
         if self._codes3d is not None:
