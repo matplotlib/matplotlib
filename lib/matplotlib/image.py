@@ -603,11 +603,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             xmin, xmax = xmax, xmin
         if ymin > ymax:
             ymin, ymax = ymax, ymin
-
-        if x is not None and y is not None:
-            inside = (xmin <= x <= xmax) and (ymin <= y <= ymax)
-        else:
-            inside = False
+  
+        trans = self.get_transform()
+        bbox = Bbox(np.array([[xmin, ymin], [xmax, ymax]]))
+        transformed_bbox = TransformedBbox(bbox, trans)
+       
+        inside = transformed_bbox.contains(mouseevent.x,mouseevent.y)
 
         return inside, {}
 
