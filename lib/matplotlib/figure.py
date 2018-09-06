@@ -2021,11 +2021,12 @@ default: 'top'
             If *True*, indicates that the JPEG encoder should make an extra
             pass over the image in order to select optimal encoder settings.
             Applicable only if *format* is jpg or jpeg, ignored otherwise.
+            Is *False* by default.
 
         progressive : bool
             If *True*, indicates that this image should be stored as a
             progressive JPEG file. Applicable only if *format* is jpg or
-            jpeg, ignored otherwise.
+            jpeg, ignored otherwise. Is *False* by default.
 
         facecolor : color spec or None, optional
             The facecolor of the figure; if *None*, defaults to
