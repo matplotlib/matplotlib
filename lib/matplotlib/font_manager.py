@@ -576,8 +576,8 @@ class FontProperties(object):
                  weight = None,
                  stretch= None,
                  size   = None,
-                 fname  = None, # if set, it's a hardcoded filename to use
-                 _init   = None  # used only by copy()
+                 fname  = None,  # if set, it's a hardcoded filename to use
+                 _init  = None,  # used only by copy()
                  ):
         self._family = _normalize_font_family(rcParams['font.family'])
         self._slant = rcParams['font.style']
@@ -961,9 +961,9 @@ class FontManager(object):
         for pathname in ['TTFPATH', 'AFMPATH']:
             if pathname in os.environ:
                 ttfpath = os.environ[pathname]
-                if ttfpath.find(';') >= 0: #win32 style
+                if ttfpath.find(';') >= 0:  # win32 style
                     paths.extend(ttfpath.split(';'))
-                elif ttfpath.find(':') >= 0: # unix style
+                elif ttfpath.find(':') >= 0:  # unix style
                     paths.extend(ttfpath.split(':'))
                 else:
                     paths.append(ttfpath)
@@ -1263,6 +1263,7 @@ class FontManager(object):
 
         return result
 
+
 @lru_cache()
 def is_opentype_cff_font(filename):
     """
@@ -1276,11 +1277,13 @@ def is_opentype_cff_font(filename):
     else:
         return False
 
+
 fontManager = None
 _fmcache = None
 
 
 _get_font = lru_cache(64)(ft2font.FT2Font)
+
 
 def get_font(filename, hinting_factor=None):
     if hinting_factor is None:

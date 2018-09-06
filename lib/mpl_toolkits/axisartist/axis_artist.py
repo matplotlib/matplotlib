@@ -81,56 +81,50 @@ Following attributes can be customized (use set_xxx method)
  * Ticks : ticksize, tick_out
  * TickLabels : pad
  * AxisLabel : pad
-
 """
 
 # FIXME :
 # angles are given in data coordinate - need to convert it to canvas coordinate
 
 
+import numpy as np
+
+from matplotlib import rcParams
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 import matplotlib.font_manager as font_manager
 
+from matplotlib.artist import Artist
+from matplotlib.collections import LineCollection
+from matplotlib.lines import Line2D
 from matplotlib.path import Path
 from matplotlib.transforms import (
     Affine2D, Bbox, IdentityTransform, ScaledTranslation, TransformedPath)
-from matplotlib.collections import LineCollection
 
-from matplotlib import rcParams
-
-from matplotlib.artist import allow_rasterization
-
-import numpy as np
-
-
-import matplotlib.lines as mlines
 from .axisline_style import AxislineStyle
 
 
-class BezierPath(mlines.Line2D):
+class BezierPath(Line2D):
 
     def __init__(self, path, *kl, **kw):
-        mlines.Line2D.__init__(self, [], [], *kl, **kw)
+        Line2D.__init__(self, [], [], *kl, **kw)
         self._path = path
         self._invalid = False
 
     def recache(self):
-
         self._transformed_path = TransformedPath(self._path, self.get_transform())
-
         self._invalid = False
 
     def set_path(self, path):
         self._path = path
         self._invalid = True
 
-
     def draw(self, renderer):
         if self._invalid:
             self.recache()
 
-        if not self._visible: return
+        if not self._visible:
+            return
         renderer.open_group('line2d')
 
         gc = renderer.new_gc()
@@ -159,11 +153,9 @@ class BezierPath(mlines.Line2D):
         renderer.close_group('line2d')
 
 
-
 class UnimplementedException(Exception):
     pass
 
-from matplotlib.artist import Artist
 
 class AttributeCopier(object):
     def __init__(self, ref_artist, klass=Artist):
@@ -192,8 +184,6 @@ class AttributeCopier(object):
 
         return c
 
-
-from matplotlib.lines import Line2D
 
 class Ticks(Line2D, AttributeCopier):
     """
@@ -238,7 +228,6 @@ class Ticks(Line2D, AttributeCopier):
     def get_markeredgewidth(self):
         return self.get_attribute_from_ref_artist("markeredgewidth", .5)
 
-
     def set_tick_out(self, b):
         """
         set True if tick need to be rotated by 180 degree.
@@ -251,13 +240,11 @@ class Ticks(Line2D, AttributeCopier):
         """
         return self._tick_out
 
-
     def set_ticksize(self, ticksize):
         """
         set length of the ticks in points.
         """
         self._ticksize = ticksize
-
 
     def get_ticksize(self):
         """
@@ -268,7 +255,6 @@ class Ticks(Line2D, AttributeCopier):
     def set_locs_angles(self, locs_angles):
         self.locs_angles = locs_angles
 
-
     def _update(self, renderer):
         pass
 
@@ -278,7 +264,7 @@ class Ticks(Line2D, AttributeCopier):
         if not self.get_visible():
             return
 
-        self._update(renderer) # update the tick
+        self._update(renderer)  # update the tick
 
         size = self._ticksize
         path_trans = self.get_transform()
@@ -337,7 +323,7 @@ class LabelBase(mtext.Text):
         if self._text_follow_ref_angle:
             return self._get_ref_angle()+90
         else:
-            return 0 #self.get_ref_angle()
+            return 0  # self.get_ref_angle()
 
     def _get_offset_ref_angle(self):
         return self._get_ref_angle()
@@ -348,18 +334,17 @@ class LabelBase(mtext.Text):
     def _get_offset_radius(self):
         return self._offset_radius
 
-
     _get_opposite_direction = {"left":"right",
                                "right":"left",
                                "top":"bottom",
                                "bottom":"top"}.__getitem__
 
-
     def _update(self, renderer):
         pass
 
     def draw(self, renderer):
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
 
         self._update(renderer)
 
@@ -384,7 +369,6 @@ class LabelBase(mtext.Text):
         # restore original properties
         self.set_transform(tr)
         self.set_rotation(angle_orig)
-
 
     def get_window_extent(self, renderer):
         self._update(renderer)
@@ -450,7 +434,6 @@ class AxisLabel(LabelBase, AttributeCopier):
         """
         return self._pad
 
-
     def _set_external_pad(self, p):
         """
         Set external pad IN PIXELS. This is intended to be set by the
@@ -464,10 +447,8 @@ class AxisLabel(LabelBase, AttributeCopier):
         """
         return self._extra_pad
 
-
     def get_ref_artist(self):
         return self._axis.get_label()
-
 
     def get_text(self):
         t = super().get_text()
@@ -480,7 +461,6 @@ class AxisLabel(LabelBase, AttributeCopier):
                                bottom=("top", "center"),
                                top=("bottom", "center"))
 
-
     def set_default_alignment(self, d):
         if d not in ["left", "right", "top", "bottom"]:
             raise ValueError('direction must be on of "left", "right", "top", "bottom"')
@@ -489,19 +469,16 @@ class AxisLabel(LabelBase, AttributeCopier):
         self.set_va(va)
         self.set_ha(ha)
 
-
     _default_angles = dict(left=180,
                            right=0,
                            bottom=0,
                            top=180)
-
 
     def set_default_angle(self, d):
         if d not in ["left", "right", "top", "bottom"]:
             raise ValueError('direction must be on of "left", "right", "top", "bottom"')
 
         self.set_rotation(self._default_angles[d])
-
 
     def set_axis_direction(self, d):
         """
@@ -541,9 +518,7 @@ class AxisLabel(LabelBase, AttributeCopier):
 
         super().draw(renderer)
 
-
     def get_window_extent(self, renderer):
-
         if not self.get_visible():
             return
 
@@ -556,7 +531,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         return bb
 
 
-class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
+class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
     """
     Tick Labels. While derived from Text, this single artist draws all
     ticklabels. As in AxisLabel, the position of the text is updated
@@ -597,7 +572,6 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         Note that the text angles are actually relative to (90 + angle
         of the direction to the ticklabel), which gives 0 for bottom
         axis.
-
         """
 
         if label_direction not in ["left", "right", "top", "bottom"]:
@@ -606,7 +580,6 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         self._axis_direction = label_direction
         self.set_default_alignment(label_direction)
         self.set_default_angle(label_direction)
-
 
     def invert_axis_direction(self):
         label_direction = self._get_opposite_direction(self._axis_direction)
@@ -668,7 +641,6 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         # calculate the pad for the axislabel.
         return r, pad
 
-
     _default_alignments = dict(left=("center", "right"),
                                right=("center", "left"),
                                bottom=("baseline", "center"),
@@ -678,7 +650,6 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
                            right=-90,
                            bottom=0,
                            top=180)
-
 
     def draw(self, renderer):
         if not self.get_visible():
@@ -695,15 +666,14 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         for (x, y), a, l in self._locs_angles_labels:
             if not l.strip():
                 continue
-            self._set_ref_angle(a) #+ add_angle
+            self._set_ref_angle(a)  # + add_angle
             self.set_x(x)
             self.set_y(y)
             self.set_text(l)
             LabelBase.draw(self, renderer)
 
-        self._axislabel_pad = total_width \
-                              + pad # the value saved will be used to draw axislabel.
-
+        # the value saved will be used to draw axislabel.
+        self._axislabel_pad = total_width + pad
 
     def set_locs_angles_labels(self, locs_angles_labels):
         self._locs_angles_labels = locs_angles_labels
@@ -723,20 +693,18 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
               renderer.points_to_pixels(self.get_pad())
         self._set_offset_radius(r+pad)
 
-
         for (x, y), a, l in self._locs_angles_labels:
-            self._set_ref_angle(a) #+ add_angle
+            self._set_ref_angle(a)  # + add_angle
             self.set_x(x)
             self.set_y(y)
             self.set_text(l)
             bb = LabelBase.get_window_extent(self, renderer)
             bboxes.append(bb)
 
-        self._axislabel_pad = total_width \
-                              + pad # the value saved will be used to draw axislabel.
+        # the value saved will be used to draw axislabel.
+        self._axislabel_pad = total_width + pad
 
         return bboxes
-
 
     def get_texts_widths_heights_descents(self, renderer):
         """
@@ -790,7 +758,7 @@ class AxisArtist(martist.Artist):
     is constant) line, ticks, ticklabels, and axis label.
     """
 
-    ZORDER=2.5
+    ZORDER = 2.5
 
     @property
     def LABELPAD(self):
@@ -853,7 +821,6 @@ class AxisArtist(martist.Artist):
         self._ticklabel_add_angle = 0.
         self._axislabel_add_angle = 0.
         self.set_axis_direction(axis_direction)
-
 
     # axis direction
 
@@ -944,7 +911,6 @@ class AxisArtist(martist.Artist):
         else:
             self._axislabel_add_angle = 0
 
-
     def get_transform(self):
         return self.axes.transAxes + self.offset_transform
 
@@ -953,7 +919,6 @@ class AxisArtist(martist.Artist):
         Return axis artist helper instance.
         """
         return self._axis_artist_helper
-
 
     def set_axisline_style(self, axisline_style=None, **kw):
         """
@@ -982,7 +947,6 @@ class AxisArtist(martist.Artist):
 
         self._init_line()
 
-
     def get_axisline_style(self):
         """
         return the current axisline style.
@@ -1010,7 +974,6 @@ class AxisArtist(martist.Artist):
         if self.get_axisline_style() is not None:
             self.line.set_line_mutation_scale(self.major_ticklabels.get_size())
         self.line.draw(renderer)
-
 
     def _init_ticks(self, axis_name, **kw):
 
@@ -1055,7 +1018,6 @@ class AxisArtist(martist.Artist):
                                   fontproperties=fontprops)
         self.minor_ticklabels.set_pad(minor_tick_pad)
 
-
     def _get_tick_info(self, tick_iter):
         """
         return ticks_loc_angle, ticklabels_loc_angle_label
@@ -1082,7 +1044,6 @@ class AxisArtist(martist.Artist):
 
         return ticks_loc_angle, ticklabels_loc_angle_label
 
-
     def _update_ticks(self, renderer):
         # set extra pad for major and minor ticklabels:
         # use ticksize of majorticks even for minor ticks. not clear what is best.
@@ -1094,7 +1055,6 @@ class AxisArtist(martist.Artist):
         else:
             self.major_ticklabels._set_external_pad(0)
             self.minor_ticklabels._set_external_pad(0)
-
 
         majortick_iter,  minortick_iter = \
                 self._axis_artist_helper.get_tick_iterators(self.axes)
@@ -1113,7 +1073,6 @@ class AxisArtist(martist.Artist):
         self.minor_ticklabels.set_locs_angles_labels(ticklabel_loc_angle_label)
 
         return self.major_ticklabels.get_window_extents(renderer)
-
 
     def _draw_ticks(self, renderer):
 
@@ -1132,8 +1091,6 @@ class AxisArtist(martist.Artist):
         return extents
 
     def _draw_ticks2(self, renderer):
-
-
         # set extra pad for major and minor ticklabels:
         # use ticksize of majorticks even for minor ticks. not clear what is best.
 
@@ -1144,7 +1101,6 @@ class AxisArtist(martist.Artist):
         else:
             self.major_ticklabels._set_external_pad(0)
             self.minor_ticklabels._set_external_pad(0)
-
 
         majortick_iter,  minortick_iter = \
                 self._axis_artist_helper.get_tick_iterators(self.axes)
@@ -1157,7 +1113,6 @@ class AxisArtist(martist.Artist):
 
         self.major_ticks.draw(renderer)
         self.major_ticklabels.draw(renderer)
-
 
         # minor ticks
         tick_loc_angle, ticklabel_loc_angle_label \
@@ -1175,9 +1130,6 @@ class AxisArtist(martist.Artist):
 
         return self.major_ticklabels.get_window_extents(renderer)
 
-
-
-
     _offsetText_pos = dict(left=(0, 1, "bottom", "right"),
                            right=(1, 1, "bottom", "left"),
                            bottom=(1, 0, "top", "right"),
@@ -1185,7 +1137,7 @@ class AxisArtist(martist.Artist):
 
     def _init_offsetText(self, direction):
 
-        x,y,va,ha = self._offsetText_pos[direction]
+        x, y, va, ha = self._offsetText_pos[direction]
 
         self.offsetText = mtext.Annotation("",
                                            xy=(x,y), xycoords="axes fraction",
@@ -1197,19 +1149,15 @@ class AxisArtist(martist.Artist):
         self.offsetText.set_transform(IdentityTransform())
         self.axes._set_artist_props(self.offsetText)
 
-
     def _update_offsetText(self):
         self.offsetText.set_text( self.axis.major.formatter.get_offset() )
         self.offsetText.set_size(self.major_ticklabels.get_size())
         offset = self.major_ticklabels.get_pad() + self.major_ticklabels.get_size() + 2.
         self.offsetText.xyann= (0, offset)
 
-
     def _draw_offsetText(self, renderer):
         self._update_offsetText()
         self.offsetText.draw(renderer)
-
-
 
     def _init_label(self, **kw):
         labelsize = kw.get("labelsize",
@@ -1234,7 +1182,6 @@ class AxisArtist(martist.Artist):
         labelpad = kw.get("labelpad", 5)
         self.label.set_pad(labelpad)
 
-
     def _update_label(self, renderer):
         if not self.label.get_visible():
             return
@@ -1253,14 +1200,14 @@ class AxisArtist(martist.Artist):
         self.label._set_external_pad(axislabel_pad)
 
         xy, angle_tangent = self._axis_artist_helper.get_axislabel_pos_angle(self.axes)
-        if xy is None: return
+        if xy is None:
+            return
 
         angle_label = angle_tangent  - 90
 
         x, y = xy
         self.label._set_ref_angle(angle_label+self._axislabel_add_angle)
         self.label.set(x=x, y=y)
-
 
     def _draw_label(self, renderer):
         self._update_label(renderer)
@@ -1297,13 +1244,12 @@ class AxisArtist(martist.Artist):
         self.label.set(x=x, y=y)
         self.label.draw(renderer)
 
-
     def set_label(self, s):
         self.label.set_text(s)
 
-
     def get_tightbbox(self, renderer):
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
 
         self._axis_artist_helper.update_lim(self.axes)
 
@@ -1329,8 +1275,7 @@ class AxisArtist(martist.Artist):
         else:
             return None
 
-
-    @allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer):
         'Draw the axis lines, tick lines and labels'
 

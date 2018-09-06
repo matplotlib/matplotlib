@@ -832,10 +832,10 @@ def axes(arg=None, **kwargs):
     --------
     ::
 
-        #Creating a new full window axes
+        # Creating a new full window axes
         plt.axes()
 
-        #Creating a new axes with specified dimensions and some kwargs
+        # Creating a new axes with specified dimensions and some kwargs
         plt.axes((left, bottom, width, height), facecolor='w')
     """
 
@@ -1026,10 +1026,10 @@ def subplot(*args, **kwargs):
         # add a red subplot that shares the x-axis with ax1
         plt.subplot(224, sharex=ax1, facecolor='red')
 
-        #delete ax2 from the figure
+        # delete ax2 from the figure
         plt.delaxes(ax2)
 
-        #add ax2 to the figure again
+        # add ax2 to the figure again
         plt.subplot(ax2)
         """
 
@@ -1136,40 +1136,40 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     --------
     ::
 
-        #First create some toy data:
+        # First create some toy data:
         x = np.linspace(0, 2*np.pi, 400)
         y = np.sin(x**2)
 
-        #Creates just a figure and only one subplot
+        # Creates just a figure and only one subplot
         fig, ax = plt.subplots()
         ax.plot(x, y)
         ax.set_title('Simple plot')
 
-        #Creates two subplots and unpacks the output array immediately
+        # Creates two subplots and unpacks the output array immediately
         f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
         ax1.plot(x, y)
         ax1.set_title('Sharing Y axis')
         ax2.scatter(x, y)
 
-        #Creates four polar axes, and accesses them through the returned array
+        # Creates four polar axes, and accesses them through the returned array
         fig, axes = plt.subplots(2, 2, subplot_kw=dict(polar=True))
         axes[0, 0].plot(x, y)
         axes[1, 1].scatter(x, y)
 
-        #Share a X axis with each column of subplots
+        # Share a X axis with each column of subplots
         plt.subplots(2, 2, sharex='col')
 
-        #Share a Y axis with each row of subplots
+        # Share a Y axis with each row of subplots
         plt.subplots(2, 2, sharey='row')
 
-        #Share both X and Y axes with all subplots
+        # Share both X and Y axes with all subplots
         plt.subplots(2, 2, sharex='all', sharey='all')
 
-        #Note that this is the same as
+        # Note that this is the same as
         plt.subplots(2, 2, sharex=True, sharey=True)
 
-        #Creates figure number 10 with a single subplot
-        #and clears it if it already exists.
+        # Creates figure number 10 with a single subplot
+        # and clears it if it already exists.
         fig, ax=plt.subplots(num=10, clear=True)
 
     See Also

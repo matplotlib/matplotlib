@@ -35,6 +35,7 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
         tk.call("PyAggImagePhoto", photoimage,
                 dataptr, colormode, bboxptr)
 
+
 def test(aggimage):
     r = Tk.Tk()
     c = Tk.Canvas(r, width=aggimage.width, height=aggimage.height)

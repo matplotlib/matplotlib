@@ -242,13 +242,12 @@ class AxisArtistHelperRectlinear(object):
             def _f(locs, labels):
                 for x, l in zip(locs, labels):
 
-                    c = list(self.passthru_pt) # copy
+                    c = list(self.passthru_pt)  # copy
                     c[self.nth_coord] = x
 
                     # check if the tick point is inside axes
                     c2 = tr2ax.transform_point(c)
-                    #delta=0.00001
-                    if 0. -self.delta1<= c2[self.nth_coord] <= 1.+self.delta2:
+                    if 0 - self.delta1 <= c2[self.nth_coord] <= 1 + self.delta2:
                         yield c, angle_normal, angle_tangent, l
 
             return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)
@@ -651,7 +650,6 @@ class Axes(maxes.Axes):
                                  )
         return axis
 
-
     def new_floating_axis(self, nth_coord, value, axis_direction="bottom"):
         gh = self.get_grid_helper()
         axis = gh.new_floating_axis(nth_coord, value,
@@ -702,7 +700,6 @@ class AxesZero(Axes):
                                        value=0.,
                                        axis_direction="left",
                                        axes=self)
-
 
         yaxis_zero.line.set_clip_path(self.patch)
         yaxis_zero.set_visible(False)

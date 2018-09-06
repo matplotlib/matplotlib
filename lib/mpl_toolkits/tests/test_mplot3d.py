@@ -336,6 +336,7 @@ def test_quiver3d():
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
+
 @image_comparison(baseline_images=['quiver3d_empty'], remove_text=True)
 def test_quiver3d_empty():
     fig = plt.figure()
@@ -349,6 +350,7 @@ def test_quiver3d_empty():
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_masked'], remove_text=True)
 def test_quiver3d_masked():
@@ -368,6 +370,7 @@ def test_quiver3d_masked():
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
+
 @image_comparison(baseline_images=['quiver3d_pivot_middle'], remove_text=True,
                   extensions=['png'])
 def test_quiver3d_pivot_middle():
@@ -382,6 +385,7 @@ def test_quiver3d_pivot_middle():
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='middle', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_pivot_tail'], remove_text=True,
                   extensions=['png'])
@@ -444,6 +448,7 @@ def test_axes3d_cla():
     ax = fig.add_subplot(1,1,1, projection='3d')
     ax.set_axis_off()
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
+
 
 def test_plotsurface_1d_raises():
     x = np.linspace(0.5, 10, num=100)
@@ -549,6 +554,7 @@ def test_proj_axes_cube_ortho():
 
     ax.set_xlim(-200, 200)
     ax.set_ylim(-200, 200)
+
 
 def test_rot():
     V = [1, 0, 0, 1]

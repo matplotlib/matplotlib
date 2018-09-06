@@ -118,10 +118,7 @@ class RendererAgg(RendererBase):
         return np.array(region), extents
 
     def draw_path(self, gc, path, transform, rgbFace=None):
-        """
-        Draw the path
-        """
-        nmax = rcParams['agg.path.chunksize'] # here at least for testing
+        nmax = rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
 
         if (nmax > 100 and npts > nmax and path.should_simplify and

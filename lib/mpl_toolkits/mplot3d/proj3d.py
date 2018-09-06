@@ -7,7 +7,6 @@ import numpy as np
 import numpy.linalg as linalg
 
 
-
 def line2d(p0, p1):
     """
     Return 2D equation of line in the form ax+by+c = 0
@@ -29,6 +28,7 @@ def line2d(p0, p1):
         b = (x0-x1)
         c = (x0*y1 - x1*y0)
     return a, b, c
+
 
 def line2d_dist(l, p):
     """
@@ -65,6 +65,7 @@ def line2d_seg_dist(p1, p2, p0):
 def mod(v):
     """3d vector length"""
     return np.sqrt(v[0]**2+v[1]**2+v[2]**2)
+
 
 def world_transformation(xmin, xmax,
                          ymin, ymax,
@@ -109,6 +110,7 @@ def view_transformation(E, R, V):
 
     return np.dot(Mr, Mt)
 
+
 def persp_transformation(zfront, zback):
     a = (zfront+zback)/(zfront-zback)
     b = -2*(zfront*zback)/(zfront-zback)
@@ -117,6 +119,7 @@ def persp_transformation(zfront, zback):
                      [0,0,a,b],
                      [0,0,-1,0]
                      ])
+
 
 def ortho_transformation(zfront, zback):
     # note: w component in the resulting vector will be (zback-zfront), not 1
@@ -128,12 +131,14 @@ def ortho_transformation(zfront, zback):
                      [0,0,a,b]
                      ])
 
+
 def proj_transform_vec(vec, M):
     vecw = np.dot(M, vec)
     w = vecw[3]
     # clip here..
     txs, tys, tzs = vecw[0]/w, vecw[1]/w, vecw[2]/w
     return txs, tys, tzs
+
 
 def proj_transform_vec_clip(vec, M):
     vecw = np.dot(M, vec)
@@ -145,6 +150,7 @@ def proj_transform_vec_clip(vec, M):
         tis = vecw[1] < 1
     return txs, tys, tzs, tis
 
+
 def inv_transform(xs, ys, zs, M):
     iM = linalg.inv(M)
     vec = vec_pad_ones(xs, ys, zs)
@@ -155,8 +161,10 @@ def inv_transform(xs, ys, zs, M):
         pass
     return vecr[0], vecr[1], vecr[2]
 
+
 def vec_pad_ones(xs, ys, zs):
     return np.array([xs, ys, zs, np.ones_like(xs)])
+
 
 def proj_transform(xs, ys, zs, M):
     """
@@ -164,6 +172,10 @@ def proj_transform(xs, ys, zs, M):
     """
     vec = vec_pad_ones(xs, ys, zs)
     return proj_transform_vec(vec, M)
+
+
+transform = proj_transform
+
 
 def proj_transform_clip(xs, ys, zs, M):
     """
@@ -173,14 +185,16 @@ def proj_transform_clip(xs, ys, zs, M):
     """
     vec = vec_pad_ones(xs, ys, zs)
     return proj_transform_vec_clip(vec, M)
-transform = proj_transform
+
 
 def proj_points(points, M):
     return np.column_stack(proj_trans_points(points, M))
 
+
 def proj_trans_points(points, M):
     xs, ys, zs = zip(*points)
     return proj_transform(xs, ys, zs, M)
+
 
 def proj_trans_clip_points(points, M):
     xs, ys, zs = zip(*points)
