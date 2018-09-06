@@ -1204,14 +1204,14 @@ class TimerBase(object):
 
     def add_callback(self, func, *args, **kwargs):
         '''
-        Register `func` to be called by timer when the event fires. Any
-        additional arguments provided will be passed to `func`.
+        Register *func* to be called by timer when the event fires. Any
+        additional arguments provided will be passed to *func*.
         '''
         self.callbacks.append((func, args, kwargs))
 
     def remove_callback(self, func, *args, **kwargs):
         '''
-        Remove `func` from list of callbacks. `args` and `kwargs` are optional
+        Remove *func* from list of callbacks. *args* and *kwargs* are optional
         and used to distinguish between copies of the same function registered
         to be called with different arguments.
         '''
