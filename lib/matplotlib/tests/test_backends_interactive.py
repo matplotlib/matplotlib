@@ -17,14 +17,15 @@ import matplotlib as mpl
 
 def _get_testable_interactive_backends():
     backends = []
-    # gtk3agg fails on Travis, needs to be investigated.
-    for deps, backend in [  # (["cairocffi", "pgi"], "gtk3agg"),
-                          (["cairocffi", "pgi"], "gtk3cairo"),
-                          (["PyQt5"], "qt5agg"),
-                          (["PyQt5", "cairocffi"], "qt5cairo"),
-                          (["tkinter"], "tkagg"),
-                          (["wx"], "wx"),
-                          (["wx"], "wxagg")
+    for deps, backend in [
+            # gtk3agg fails on Travis, needs to be investigated.
+            # (["cairocffi", "pgi"], "gtk3agg"),
+            (["cairocffi", "pgi"], "gtk3cairo"),
+            (["PyQt5"], "qt5agg"),
+            (["PyQt5", "cairocffi"], "qt5cairo"),
+            (["tkinter"], "tkagg"),
+            (["wx"], "wx"),
+            (["wx"], "wxagg"),
     ]:
         reason = None
         if not os.environ.get("DISPLAY"):
@@ -67,9 +68,9 @@ if backend.endswith("agg") and not backend.startswith(("gtk3", "web")):
     # framework, but can switch to a backend using cairo instead of agg, or a
     # non-interactive backend.  In the first case, we use tkagg as the "other"
     # interactive backend as it is (essentially) guaranteed to be present.
-    # Moreover, don't test switching away from gtk3 as Gtk.main_level() is
-    # not set up at this point yet, and webagg, which uses no interactive
-    # framework.
+    # Moreover, don't test switching away from gtk3 (as Gtk.main_level() is
+    # not set up at this point yet) and webagg (which uses no interactive
+    # framework).
 
     if backend != "tkagg":
         with assert_raises(ImportError):
