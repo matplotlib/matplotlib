@@ -697,28 +697,19 @@ def matplotlib_fname():
 
     The file location is determined in the following order
 
-    - `$PWD/matplotlibrc`
-
-    - `$MATPLOTLIBRC` if it is not a directory
-
-    - `$MATPLOTLIBRC/matplotlibrc`
-
-    - `$MPLCONFIGDIR/matplotlibrc`
-
+    - ``$PWD/matplotlibrc``
+    - ``$MATPLOTLIBRC`` if it is not a directory
+    - ``$MATPLOTLIBRC/matplotlibrc``
+    - ``$MPLCONFIGDIR/matplotlibrc``
     - On Linux,
-
-          - `$XDG_CONFIG_HOME/matplotlib/matplotlibrc` (if
-            $XDG_CONFIG_HOME is defined)
-
-          - or `$HOME/.config/matplotlib/matplotlibrc` (if
-            $XDG_CONFIG_HOME is not defined)
-
+        - ``$XDG_CONFIG_HOME/matplotlib/matplotlibrc`` (if ``$XDG_CONFIG_HOME``
+          is defined)
+        - or ``$HOME/.config/matplotlib/matplotlibrc`` (if ``$XDG_CONFIG_HOME``
+          is not defined)
     - On other platforms,
-
-         - `$HOME/.matplotlib/matplotlibrc` if `$HOME` is defined.
-
-    - Lastly, it looks in `$MATPLOTLIBDATA/matplotlibrc` for a
-      system-defined copy.
+        - ``$HOME/.matplotlib/matplotlibrc`` if ``$HOME`` is defined
+    - Lastly, it looks in ``$MATPLOTLIBDATA/matplotlibrc``, which should always
+      exist.
     """
 
     def gen_candidates():
@@ -735,10 +726,10 @@ def matplotlib_fname():
 
     for fname in gen_candidates():
         if os.path.exists(fname) and not os.path.isdir(fname):
-            break
-    # Return first candidate that is a file, or last candidate if none is
-    # valid (in that case, a warning is raised at startup by `rc_params`).
-    return fname
+            return fname
+
+    raise RuntimeError("Could not find matplotlibrc file; your Matplotlib "
+                       "install is broken")
 
 
 # rcParams deprecated and automatically mapped to another key.
@@ -917,17 +908,7 @@ def rc_params(fail_on_error=False):
     """Return a :class:`matplotlib.RcParams` instance from the
     default matplotlib rc file.
     """
-    fname = matplotlib_fname()
-    if not os.path.exists(fname):
-        # this should never happen, default in mpl-data should always be found
-        message = 'could not find rc file; returning defaults'
-        ret = RcParams([(key, default) for key, (default, _) in
-                        defaultParams.items()
-                        if key not in _all_deprecated])
-        warnings.warn(message)
-        return ret
-
-    return rc_params_from_file(fname, fail_on_error)
+    return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
 URL_REGEX = re.compile(r'http://|https://|ftp://|file://|file:\\')
