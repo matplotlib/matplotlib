@@ -39,7 +39,6 @@ extensions = [
     'IPython.sphinxext.ipython_directive',
     'numpydoc',  # Needs to be loaded *after* autodoc.
     'sphinx_gallery.gen_gallery',
-    'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.only_directives',
     'matplotlib.sphinxext.plot_directive',
     'sphinxext.custom_roles',
@@ -48,6 +47,8 @@ extensions = [
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
 ]
+if sphinx.version_info < (1, 8):
+    extensions.append('matplotlib.sphinxext.mathmpl')
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
@@ -93,7 +94,10 @@ if not has_dot:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
-autodoc_default_flags = ['members', 'undoc-members']
+if sphinx.version_info < (1, 8):
+    autodoc_default_flags = ['members', 'undoc-members']
+else:
+    autodoc_default_options = {'members': None, 'undoc-members': None}
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
