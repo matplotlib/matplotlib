@@ -290,37 +290,21 @@ class SizeFromFunc(_Base):
 
 
 class GetExtentHelper(object):
-    def _get_left(self, axes_bbox):
-        return axes_bbox.xmin - self.xmin
-
-    def _get_right(self, axes_bbox):
-        return self.xmax - axes_bbox.xmax
-
-    def _get_bottom(self, axes_bbox):
-        return axes_bbox.ymin - self.ymin
-
-    def _get_top(self, axes_bbox):
-        return self.ymax - axes_bbox.ymax
-
-    _get_func_map = dict(left=_get_left,
-                         right=_get_right,
-                         bottom=_get_bottom,
-                         top=_get_top)
-
-    del _get_left, _get_right, _get_bottom, _get_top
+    _get_func_map = {
+        "left":   lambda self, axes_bbox: axes_bbox.xmin - self.xmin,
+        "right":  lambda self, axes_bbox: self.xmax - axes_bbox.xmax,
+        "bottom": lambda self, axes_bbox: axes_bbox.ymin - self.ymin,
+        "top":    lambda self, axes_bbox: self.ymax - axes_bbox.ymax,
+    }
 
     def __init__(self, ax, direction):
-        if isinstance(ax, Axes):
-            self._ax_list = [ax]
-        else:
-            self._ax_list = ax
-
-        try:
-            self._get_func = self._get_func_map[direction]
-        except KeyError:
+        if direction not in self._get_func_map:
             raise KeyError("direction must be one of left, right, bottom, top")
+        self._ax_list = [ax] if isinstance(ax, Axes) else ax
+        self._direction = direction
 
     def __call__(self, renderer):
-        vl = [self._get_func(ax.get_tightbbox(renderer, False),
-                             ax.bbox) for ax in self._ax_list]
+        get_func = self._get_func_map[self._direction]
+        vl = [get_func(ax.get_tightbbox(renderer, False), ax.bbox)
+              for ax in self._ax_list]
         return max(vl)

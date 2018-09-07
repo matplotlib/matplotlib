@@ -56,7 +56,7 @@ per-file-ignores =
     mpl_toolkits/axes_grid1/axes_divider.py: E402, E501
     mpl_toolkits/axes_grid1/axes_grid.py: E225
     mpl_toolkits/axes_grid1/axes_rgb.py: E231
-    mpl_toolkits/axes_grid1/axes_size.py: E501
+    mpl_toolkits/axes_grid1/axes_size.py: E272, E501
     mpl_toolkits/axes_grid1/colorbar.py: E225, E231, E501
     mpl_toolkits/axes_grid1/inset_locator.py: E501
     mpl_toolkits/axes_grid1/mpl_axes.py: E501
