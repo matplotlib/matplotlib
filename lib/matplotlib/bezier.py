@@ -279,7 +279,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
         path_out = Path(concat([verts_right, path.vertices[i:]]),
                         concat([codes_right, path.codes[i:]]))
 
-    if reorder_inout and begin_inside is False:
+    if reorder_inout and not begin_inside:
         path_in, path_out = path_out, path_in
 
     return path_in, path_out
