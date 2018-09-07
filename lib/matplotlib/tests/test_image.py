@@ -43,6 +43,20 @@ def test_image_interps():
     ax3.set_ylabel('bicubic')
 
 
+@image_comparison(baseline_images=['interp_alpha'],
+                  extensions=['png'], remove_text=True)
+def test_alpha_interp():
+    'Test the interpolation of the alpha channel on RGBA images'
+    fig, (axl, axr) = plt.subplots(1, 2)
+    # full green image
+    img = np.zeros((5, 5, 4))
+    img[..., 1] = np.ones((5, 5))
+    # transparent under main diagonal
+    img[..., 3] = np.tril(np.ones((5, 5), dtype=np.uint8))
+    axl.imshow(img, interpolation="none")
+    axr.imshow(img, interpolation="bilinear")
+
+
 @image_comparison(baseline_images=['interp_nearest_vs_none'],
                   extensions=['pdf', 'svg'], remove_text=True)
 def test_interp_nearest_vs_none():

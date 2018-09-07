@@ -493,21 +493,23 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     alpha = 1
 
                 #resample alpha channel
-                alpha_channel = A[...,3]
+                alpha_channel = A[..., 3]
                 _image.resample(
-                    alpha_channel, output_a, t, _interpd_[self.get_interpolation()],
+                    alpha_channel, output_a, t,
+                    _interpd_[self.get_interpolation()],
                     self.get_resample(), alpha,
                     self.get_filternorm(), self.get_filterrad())
 
                 #resample rgb channels
-                A = _rgb_to_rgba(A[...,:3])
+                A = _rgb_to_rgba(A[..., :3])
                 _image.resample(
-                    A, output, t, _interpd_[self.get_interpolation()],
+                    A, output, t,
+                    _interpd_[self.get_interpolation()],
                     self.get_resample(), alpha,
                     self.get_filternorm(), self.get_filterrad())
 
                 #recombine rgb and alpha channels
-                output[...,3] = output_a
+                output[..., 3] = output_a
 
             # at this point output is either a 2D array of normed data
             # (of int or float)
