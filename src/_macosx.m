@@ -1804,8 +1804,16 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     NSWindow* window = [self window];
     if ([window isKeyWindow]==false) return;
 
+    int x, y;
+    NSPoint location = [event locationInWindow];
+    location = [self convertPoint: location fromView: nil];
+    x = location.x * device_scale;
+    y = location.y * device_scale;
+
     gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "enter_notify_event", "");
+    result = PyObject_CallMethod(canvas, "enter_notify_event", "O(ii)",
+            Py_None, x, y);
+
     if(result)
         Py_DECREF(result);
     else
