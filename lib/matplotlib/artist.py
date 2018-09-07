@@ -1586,7 +1586,7 @@ def setp(obj, *args, **kwargs):
 
 
 def kwdoc(artist):
-    """
+    r"""
     Inspect an `~matplotlib.artist.Artist` class and return
     information about its settable properties and their current values.
 
