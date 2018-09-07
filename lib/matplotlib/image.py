@@ -597,19 +597,19 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # collection on nonlinear transformed coordinates.
         # TODO: consider returning image coordinates (shouldn't
         # be too difficult given that the image is rectilinear
-        x, y = mouseevent.xdata, mouseevent.ydata
+        x, y = mouseevent.x, mouseevent.y
         xmin, xmax, ymin, ymax = self.get_extent()
         if xmin > xmax:
             xmin, xmax = xmax, xmin
         if ymin > ymax:
             ymin, ymax = ymax, ymin
-  
+            
         trans = self.get_transform()
         bbox = Bbox(np.array([[xmin, ymin], [xmax, ymax]]))
         transformed_bbox = TransformedBbox(bbox, trans)
-       
-        inside = transformed_bbox.contains(mouseevent.x,mouseevent.y)
-
+        
+        inside = transformed_bbox.contains(x, y)
+        
         return inside, {}
 
     def write_png(self, fname):
