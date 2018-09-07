@@ -305,4 +305,4 @@ Conda packages
 ^^^^^^^^^^^^^^
 
 The conda packaging scripts for Matplotlib are available at
-https://github.com/conda-forge/python-feedstock.
+https://github.com/conda-forge/matplotlib-feedstock.
