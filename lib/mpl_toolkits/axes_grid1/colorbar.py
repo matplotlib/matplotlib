@@ -531,14 +531,13 @@ class ColorbarBase(cm.ScalarMappable):
             args = (X, Y, C)
         else:
             args = (np.transpose(Y), np.transpose(X), np.transpose(C))
-        kw = {'cmap': self.cmap, 'norm': self.norm,
-              'shading': 'flat', 'alpha': self.alpha,
-              }
 
         del self.solids
         del self.dividers
 
-        col = self.ax.pcolormesh(*args, **kw)
+        col = self.ax.pcolormesh(
+            *args,
+            cmap=self.cmap, norm=self.norm, shading='flat', alpha=self.alpha)
 
         self.solids = col
         if self.drawedges:

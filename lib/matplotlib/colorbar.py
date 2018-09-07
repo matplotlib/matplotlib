@@ -1487,8 +1487,6 @@ class ColorbarPatch(Colorbar):
         Draw the colors using :class:`~matplotlib.patches.Patch`;
         optionally add separators.
         """
-        kw = {'alpha': self.alpha, }
-
         n_segments = len(C)
 
         # ensure there are sufficient hatches
@@ -1511,7 +1509,7 @@ class ColorbarPatch(Colorbar):
             patch = mpatches.PathPatch(mpath.Path(xy),
                                        facecolor=self.cmap(self.norm(val)),
                                        hatch=hatch, linewidth=0,
-                                       antialiased=False, **kw)
+                                       antialiased=False, alpha=self.alpha)
             self.ax.add_patch(patch)
             patches.append(patch)
 
