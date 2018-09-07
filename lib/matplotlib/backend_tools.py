@@ -190,7 +190,6 @@ class ToolToggleBase(ToolBase):
 
         `trigger` calls this method when `toggled` is False
         """
-
         pass
 
     def disable(self, event=None):
@@ -206,7 +205,6 @@ class ToolToggleBase(ToolBase):
         * Another `ToolToggleBase` derived tool is triggered
           (from the same `ToolManager`)
         """
-
         pass
 
     @property

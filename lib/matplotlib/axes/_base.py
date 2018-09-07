@@ -2262,14 +2262,13 @@ class _AxesBase(martist.Artist):
             arguments, but can be used individually to alter on e.g.,
             only the y-axis.
 
-        tight : bool, default is True
+        tight : bool or None, default is True
             The *tight* parameter is passed to :meth:`autoscale_view`,
             which is executed after a margin is changed; the default
             here is *True*, on the assumption that when margins are
             specified, no additional padding to match tick marks is
             usually desired.  Set *tight* to *None* will preserve
             the previous setting.
-
 
         Returns
         -------
@@ -2282,7 +2281,6 @@ class _AxesBase(martist.Artist):
         the "sticky artists" will be modified. To force all of the
         margins to be set, set :attr:`use_sticky_edges` to `False`
         before calling :meth:`margins`.
-
         """
 
         if margins and x is not None and y is not None:
