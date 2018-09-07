@@ -2422,6 +2422,7 @@ Timer__timer_start(Timer* self, PyObject* args)
     CFRunLoopTimerRef timer;
     CFRunLoopTimerContext context;
     double milliseconds;
+    CFAbsoluteTime firstFire;
     CFTimeInterval interval;
     PyObject* attribute;
     PyObject* failure;
@@ -2446,12 +2447,15 @@ Timer__timer_start(Timer* self, PyObject* args)
         PyErr_SetString(PyExc_AttributeError, "Timer has no attribute '_single'");
         return NULL;
     }
+    // Need to tell when to first fire this timer, so get the current time
+    // and add an interval.
+    interval = milliseconds / 1000.0;
+    firstFire = CFAbsoluteTimeGetCurrent() + interval;
     switch (PyObject_IsTrue(attribute)) {
         case 1:
             interval = 0;
             break;
-        case 0:
-            interval = milliseconds / 1000.0;
+        case 0: // Set by default above
             break;
         case -1:
         default:
@@ -2475,7 +2479,7 @@ Timer__timer_start(Timer* self, PyObject* args)
     context.copyDescription = NULL;
     context.info = attribute;
     timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
-                                 0,
+                                 firstFire,
                                  interval,
                                  0,
                                  0,
