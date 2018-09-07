@@ -976,9 +976,11 @@ class Legend(Artist):
         'Return the `.Text` instance for the legend title.'
         return self._legend_title_box._text
 
-    def get_window_extent(self, *args, **kwargs):
+    def get_window_extent(self, renderer=None):
         'Return extent of the legend.'
-        return self._legend_box.get_window_extent(*args, **kwargs)
+        if renderer is None:
+            renderer = self.figure._cachedRenderer
+        return self._legend_box.get_window_extent(renderer=renderer)
 
     def get_tightbbox(self, renderer):
         """
