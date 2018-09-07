@@ -11,22 +11,6 @@ from . import cbook, docstring, rcParams
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
-# Note, matplotlib artists use the doc strings for set and get
-# methods to enable the introspection methods of setp and getp.  Every
-# set_* method should have a docstring containing the line
-#
-# ACCEPTS: [ legal | values ]
-#
-# and aliases for setters and getters should have a docstring that
-# starts with 'alias for ', as in 'alias for set_somemethod'
-#
-# You may wonder why we use so much boiler-plate manually defining the
-# set_alias and get_alias functions, rather than using some clever
-# python trick.  The answer is that I need to be able to manipulate
-# the docstring, and there is no clever way to do that in python 2.2,
-# as far as I can see - see
-#
-# https://mail.python.org/pipermail/python-list/2004-October/242925.html
 
 
 def allow_rasterization(draw):
@@ -1181,7 +1165,7 @@ class ArtistInspector(object):
                     o = o[0]
 
         self.oorig = o
-        if not inspect.isclass(o):
+        if not isinstance(o, type):
             o = type(o)
         self.o = o
 
@@ -1220,12 +1204,9 @@ class ArtistInspector(object):
         """
         Get the legal arguments for the setter associated with *attr*.
 
-        This is done by querying the docstring of the function *set_attr*
-        for a line that begins with "ACCEPTS" or ".. ACCEPTS":
-
-        e.g., for a line linestyle, return
-        "[ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ``'None'``
-        ]"
+        This is done by querying the docstring of the setter for a line that
+        begins with "ACCEPTS:" or ".. ACCEPTS:", and then by looking for a
+        numpydoc-style documentation for the setter's first argument.
         """
 
         name = 'set_%s' % attr
@@ -1258,7 +1239,6 @@ class ArtistInspector(object):
         Get the attribute strings and a full path to where the setter
         is defined for all setters in an object.
         """
-
         setters = []
         for name in dir(self.o):
             if not name.startswith('set_'):
@@ -1283,10 +1263,8 @@ class ArtistInspector(object):
         Changes the full path to the public API path that is used
         in sphinx. This is needed for links to work.
         """
-
         replace_dict = {'_base._AxesBase': 'Axes',
-                      '_axes.Axes': 'Axes'}
-
+                        '_axes.Axes': 'Axes'}
         for key, value in replace_dict.items():
             source_class = source_class.replace(key, value)
         return source_class
@@ -1296,14 +1274,10 @@ class ArtistInspector(object):
         Get the attribute strings with setters for object.  e.g., for a line,
         return ``['markerfacecolor', 'linewidth', ....]``.
         """
-
         return [prop for prop, target in self._get_setters_and_targets()]
 
     def is_alias(self, o):
-        """
-        Return *True* if method object *o* is an alias for another
-        function.
-        """
+        """Return whether method object *o* is an alias for another method."""
         ds = o.__doc__
         if ds is None:
             return False
@@ -1311,35 +1285,25 @@ class ArtistInspector(object):
 
     def aliased_name(self, s):
         """
-        return 'PROPNAME or alias' if *s* has an alias, else return
-        PROPNAME.
+        Return 'PROPNAME or alias' if *s* has an alias, else return 'PROPNAME'.
 
         e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
-        property, which does not, return 'transform'
+        property, which does not, return 'transform'.
         """
-
-        if s in self.aliasd:
-            return s + ''.join([' or %s' % x
-                                for x in sorted(self.aliasd[s])])
-        else:
-            return s
+        aliases = ''.join(' or %s' % x for x in sorted(self.aliasd.get(s, [])))
+        return s + aliases
 
     def aliased_name_rest(self, s, target):
         """
-        return 'PROPNAME or alias' if *s* has an alias, else return
-        PROPNAME formatted for ReST
+        Return 'PROPNAME or alias' if *s* has an alias, else return 'PROPNAME',
+        formatted for ReST.
 
         e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
-        property, which does not, return 'transform'
+        property, which does not, return 'transform'.
         """
-
-        if s in self.aliasd:
-            aliases = ''.join([' or %s' % x
-                               for x in sorted(self.aliasd[s])])
-        else:
-            aliases = ''
+        aliases = ''.join(' or %s' % x for x in sorted(self.aliasd.get(s, [])))
         return ':meth:`%s <%s>`%s' % (s, target, aliases)
 
     def pprint_setters(self, prop=None, leadingspace=2):
@@ -1387,52 +1351,43 @@ class ArtistInspector(object):
             accepts = self.get_valid_values(prop)
             return '%s%s: %s' % (pad, prop, accepts)
 
-        attrs = self._get_setters_and_targets()
-        attrs.sort()
+        attrs = sorted(self._get_setters_and_targets())
         lines = []
 
-        ########
         names = [self.aliased_name_rest(prop, target)
                  for prop, target in attrs]
         accepts = [self.get_valid_values(prop) for prop, target in attrs]
 
         col0_len = max(len(n) for n in names)
         col1_len = max(len(a) for a in accepts)
+        table_formatstr = pad + '   ' + '=' * col0_len + '   ' + '=' * col1_len
 
-        lines.append('')
-        lines.append(pad + '.. table::')
-        lines.append(pad + '   :class: property-table')
-        pad += '   '
-
-        table_formatstr = pad + '=' * col0_len + '   ' + '=' * col1_len
-
-        lines.append('')
-        lines.append(table_formatstr)
-        lines.append(pad + 'Property'.ljust(col0_len + 3) +
-                     'Description'.ljust(col1_len))
-        lines.append(table_formatstr)
-
-        lines.extend([pad + n.ljust(col0_len + 3) + a.ljust(col1_len)
-                      for n, a in zip(names, accepts)])
-
-        lines.append(table_formatstr)
-        lines.append('')
-        return lines
+        return [
+            '',
+            pad + '.. table::',
+            pad + '   :class: property-table',
+            '',
+            table_formatstr,
+            pad + '   ' + 'Property'.ljust(col0_len)
+            + '   ' + 'Description'.ljust(col1_len),
+            table_formatstr,
+            *[pad + '   ' + n.ljust(col0_len) + '   ' + a.ljust(col1_len)
+              for n, a in zip(names, accepts)],
+            table_formatstr,
+            '',
+        ]
 
     def properties(self):
-        """
-        return a dictionary mapping property name -> value
-        """
+        """Return a dictionary mapping property name -> value."""
         o = self.oorig
         getters = [name for name in dir(o)
                    if name.startswith('get_') and callable(getattr(o, name))]
         getters.sort()
-        d = dict()
+        d = {}
         for name in getters:
             func = getattr(o, name)
             if self.is_alias(func):
                 continue
-
             try:
                 with warnings.catch_warnings():
                     warnings.simplefilter('ignore')
@@ -1441,14 +1396,10 @@ class ArtistInspector(object):
                 continue
             else:
                 d[name[4:]] = val
-
         return d
 
     def pprint_getters(self):
-        """
-        Return the getters and actual values as list of strings.
-        """
-
+        """Return the getters and actual values as list of strings."""
         lines = []
         for name, val in sorted(self.properties().items()):
             if getattr(val, 'shape', ()) != () and len(val) > 6:
