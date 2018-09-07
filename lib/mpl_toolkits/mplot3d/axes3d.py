@@ -2402,8 +2402,9 @@ class Axes3D(Axes):
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
 
-        Any additional keyword arguments are passed onto
-        :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        **kwargs
+            Any additional keyword arguments are passed onto
+            :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         Returns
         -------
@@ -2483,49 +2484,45 @@ class Axes3D(Axes):
                length=1, arrow_length_ratio=.3, pivot='tail', normalize=False,
                **kwargs):
         """
+        ax.quiver(X, Y, Z, U, V, W, /, length=1, arrow_length_ratio=.3, pivot='tail', normalize=False, **kwargs)
+
         Plot a 3D field of arrows.
-
-        call signatures::
-
-            quiver(X, Y, Z, U, V, W, **kwargs)
-
-        Arguments:
-
-            *X*, *Y*, *Z*:
-                The x, y and z coordinates of the arrow locations (default is
-                tail of arrow; see *pivot* kwarg)
-
-            *U*, *V*, *W*:
-                The x, y and z components of the arrow vectors
 
         The arguments could be array-like or scalars, so long as they
         they can be broadcast together. The arguments can also be
         masked arrays. If an element in any of argument is masked, then
         that corresponding quiver element will not be plotted.
 
-        Keyword arguments:
+        Parameters
+        ----------
+        X, Y, Z : array-like
+            The x, y and z coordinates of the arrow locations (default is
+            tail of arrow; see *pivot* kwarg)
 
-            *length*: [1.0 | float]
-                The length of each quiver, default to 1.0, the unit is
-                the same with the axes
+        U, V, W : array-like
+            The x, y and z components of the arrow vectors
 
-            *arrow_length_ratio*: [0.3 | float]
-                The ratio of the arrow head with respect to the quiver,
-                default to 0.3
+        length : float
+            The length of each quiver, default to 1.0, the unit is
+            the same with the axes
 
-            *pivot*: [ 'tail' | 'middle' | 'tip' ]
-                The part of the arrow that is at the grid point; the arrow
-                rotates about this point, hence the name *pivot*.
-                Default is 'tail'
+        arrow_length_ratio : float
+            The ratio of the arrow head with respect to the quiver,
+            default to 0.3
 
-            *normalize*: bool
-                When True, all of the arrows will be the same length. This
-                defaults to False, where the arrows will be different lengths
-                depending on the values of u,v,w.
+        pivot : {'tail', 'middle', 'tip'}
+            The part of the arrow that is at the grid point; the arrow
+            rotates about this point, hence the name *pivot*.
+            Default is 'tail'
 
-        Any additional keyword arguments are delegated to
-        :class:`~matplotlib.collections.LineCollection`
+        normalize : bool
+            When True, all of the arrows will be the same length. This
+            defaults to False, where the arrows will be different lengths
+            depending on the values of u,v,w.
 
+        **kwargs
+            Any additional keyword arguments are delegated to
+            :class:`~matplotlib.collections.LineCollection`
         """
         def calc_arrow(uvw, angle=15):
             """
