@@ -334,10 +334,10 @@ class LabelBase(mtext.Text):
     def _get_offset_radius(self):
         return self._offset_radius
 
-    _get_opposite_direction = {"left":"right",
-                               "right":"left",
-                               "top":"bottom",
-                               "bottom":"top"}.__getitem__
+    _get_opposite_direction = {"left": "right",
+                               "right": "left",
+                               "top": "bottom",
+                               "bottom": "top"}.__getitem__
 
     def _update(self, renderer):
         pass
@@ -1136,24 +1136,22 @@ class AxisArtist(martist.Artist):
                            top=(1, 1, "bottom", "right"))
 
     def _init_offsetText(self, direction):
-
         x, y, va, ha = self._offsetText_pos[direction]
-
-        self.offsetText = mtext.Annotation("",
-                                           xy=(x,y), xycoords="axes fraction",
-                                           xytext=(0,0), textcoords="offset points",
-                                           color = rcParams['xtick.color'],
-                                           verticalalignment=va,
-                                           horizontalalignment=ha,
-                                           )
+        self.offsetText = mtext.Annotation(
+            "",
+            xy=(x, y), xycoords="axes fraction",
+            xytext=(0, 0), textcoords="offset points",
+            color=rcParams['xtick.color'],
+            horizontalalignment=ha, verticalalignment=va,
+        )
         self.offsetText.set_transform(IdentityTransform())
         self.axes._set_artist_props(self.offsetText)
 
     def _update_offsetText(self):
-        self.offsetText.set_text( self.axis.major.formatter.get_offset() )
+        self.offsetText.set_text(self.axis.major.formatter.get_offset())
         self.offsetText.set_size(self.major_ticklabels.get_size())
         offset = self.major_ticklabels.get_pad() + self.major_ticklabels.get_size() + 2.
-        self.offsetText.xyann= (0, offset)
+        self.offsetText.xyann = (0, offset)
 
     def _draw_offsetText(self, renderer):
         self._update_offsetText()
@@ -1235,7 +1233,8 @@ class AxisArtist(martist.Artist):
         self.label._set_external_pad(axislabel_pad)
 
         xy, angle_tangent = self._axis_artist_helper.get_axislabel_pos_angle(self.axes)
-        if xy is None: return
+        if xy is None:
+            return
 
         angle_label = angle_tangent - 90
 
@@ -1279,7 +1278,8 @@ class AxisArtist(martist.Artist):
     def draw(self, renderer):
         'Draw the axis lines, tick lines and labels'
 
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
 
         renderer.open_group(__name__)
 

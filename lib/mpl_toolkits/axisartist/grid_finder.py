@@ -172,13 +172,13 @@ class GridFinderBase(object):
             def transform_xy(x, y):
                 ll1 = np.column_stack([x, y])
                 ll2 = aux_trans.transform(ll1)
-                lon, lat = ll2[:,0], ll2[:,1]
+                lon, lat = ll2[:, 0], ll2[:, 1]
                 return lon, lat
 
             def inv_transform_xy(x, y):
                 ll1 = np.column_stack([x, y])
                 ll2 = aux_trans.inverted().transform(ll1)
-                lon, lat = ll2[:,0], ll2[:,1]
+                lon, lat = ll2[:, 0], ll2[:, 1]
                 return lon, lat
 
         else:

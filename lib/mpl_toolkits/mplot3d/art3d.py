@@ -597,7 +597,7 @@ class Poly3DCollection(PolyCollection):
         self._alpha3d = PolyCollection.get_alpha(self)
         self.stale = True
 
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True

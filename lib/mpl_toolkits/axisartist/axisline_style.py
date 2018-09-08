@@ -145,7 +145,7 @@ class AxislineStyle(_Style):
 
         def new_line(self, axis_artist, transform):
 
-            linepath = Path([(0,0), (0, 1)])
+            linepath = Path([(0, 0), (0, 1)])
             axisline = self.ArrowAxisClass(axis_artist, linepath, transform,
                                            line_mutation_scale=self.size)
             return axisline

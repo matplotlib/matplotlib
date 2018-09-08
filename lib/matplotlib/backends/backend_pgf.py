@@ -665,7 +665,6 @@ class RendererPgf(RendererBase):
         prop_cmds = _font_properties_str(prop)
         s = r"%s %s" % (prop_cmds, s)
 
-
         writeln(self.fh, r"\begin{pgfscope}")
 
         alpha = gc.get_alpha()

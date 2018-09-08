@@ -1727,9 +1727,9 @@ class Axes(_AxesBase):
             All parameters supported by `.plot`.
         """
         dx = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
-                if k in kwargs}
+              if k in kwargs}
         dy = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
-                if k in kwargs}
+              if k in kwargs}
 
         self.set_xscale('log', **dx)
         self.set_yscale('log', **dy)
@@ -1780,7 +1780,7 @@ class Axes(_AxesBase):
             All parameters supported by `.plot`.
         """
         d = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
-                if k in kwargs}
+             if k in kwargs}
 
         self.set_xscale('log', **d)
         l = self.plot(*args, **kwargs)

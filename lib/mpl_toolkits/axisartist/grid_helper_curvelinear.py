@@ -63,8 +63,8 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
         g = self.grid_helper
 
         if self._limits_inverted:
-            side = {"left":"right","right":"left",
-                    "top":"bottom", "bottom":"top"}[self.side]
+            side = {"left": "right", "right": "left",
+                    "top": "bottom", "bottom": "top"}[self.side]
         else:
             side = self.side
 

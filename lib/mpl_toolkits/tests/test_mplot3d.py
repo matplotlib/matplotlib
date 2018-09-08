@@ -445,7 +445,7 @@ def test_axes3d_labelpad():
 def test_axes3d_cla():
     # fixed in pull request 4553
     fig = plt.figure()
-    ax = fig.add_subplot(1,1,1, projection='3d')
+    ax = fig.add_subplot(1, 1, 1, projection='3d')
     ax.set_axis_off()
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
 
@@ -456,7 +456,7 @@ def test_plotsurface_1d_raises():
     X, Y = np.meshgrid(x, y)
     z = np.random.randn(100)
 
-    fig = plt.figure(figsize=(14,6))
+    fig = plt.figure(figsize=(14, 6))
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     with pytest.raises(ValueError):
         ax.plot_surface(X, Y, z)
@@ -696,9 +696,9 @@ class TestVoxels(object):
         x, y, z = np.indices((10, 10, 10))
         voxels = (x == y) | (y == z)
         colors = np.zeros((10, 10, 10, 3))
-        colors[...,0] = x/9.0
-        colors[...,1] = y/9.0
-        colors[...,2] = z/9.0
+        colors[..., 0] = x / 9
+        colors[..., 1] = y / 9
+        colors[..., 2] = z / 9
         ax.voxels(voxels, facecolors=colors)
 
     @image_comparison(
@@ -781,7 +781,7 @@ class TestVoxels(object):
         with pytest.raises(TypeError) as exc:
             ax.voxels(x, y)
         exc.match(".*voxels.*")
-        # x,y,z are positional only - this passes them on as attributes of
+        # x, y, z are positional only - this passes them on as attributes of
         # Poly3DCollection
         with pytest.raises(AttributeError):
             ax.voxels(filled=filled, x=x, y=y, z=z)

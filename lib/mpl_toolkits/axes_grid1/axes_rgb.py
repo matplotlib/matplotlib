@@ -55,11 +55,11 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
 def imshow_rgb(ax, r, g, b, **kwargs):
     ny, nx = r.shape
     R = np.zeros([ny, nx, 3], dtype="d")
-    R[:,:,0] = r
+    R[:, :, 0] = r
     G = np.zeros_like(R)
-    G[:,:,1] = g
+    G[:, :, 1] = g
     B = np.zeros_like(R)
-    B[:,:,2] = b
+    B[:, :, 2] = b
 
     RGB = R + G + B
 
@@ -202,11 +202,11 @@ class RGBAxesBase(object):
                              .format(r.shape, g.shape, b.shape))
         RGB = np.dstack([r, g, b])
         R = np.zeros_like(RGB)
-        R[:,:,0] = r
+        R[:, :, 0] = r
         G = np.zeros_like(RGB)
-        G[:,:,1] = g
+        G[:, :, 1] = g
         B = np.zeros_like(RGB)
-        B[:,:,2] = b
+        B[:, :, 2] = b
 
         im_rgb = self.RGB.imshow(RGB, **kwargs)
         im_r = self.R.imshow(R, **kwargs)
