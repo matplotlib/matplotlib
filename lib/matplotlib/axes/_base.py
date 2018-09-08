@@ -2716,7 +2716,7 @@ class _AxesBase(martist.Artist):
 
             Valid *kwargs* are
 
-            %(_Line2D_docstr)s
+        %(_Line2D_docstr)s
 
         Notes
         -----
