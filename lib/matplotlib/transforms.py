@@ -920,7 +920,7 @@ class Bbox(BboxBase):
 
         path = Path(xy)
         self.update_from_path(path, ignore=ignore,
-                                    updatex=updatex, updatey=updatey)
+                              updatex=updatex, updatey=updatey)
 
     @BboxBase.x0.setter
     def x0(self, val):

@@ -63,8 +63,6 @@ per-file-ignores =
     mpl_toolkits/axisartist/clip_path.py: E225, E501
     mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501
     mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501
-    mpl_toolkits/mplot3d/art3d.py: E203, E222, E225
-    mpl_toolkits/mplot3d/axes3d.py: E203, E402, E501
     mpl_toolkits/tests/test_axes_grid1.py: E201, E202
 
     doc/conf.py: E402, E501
