@@ -7681,7 +7681,7 @@ class Axes(_AxesBase):
             For the marker style, you can pass any `.Line2D` property except
             for *linestyle*:
 
-            %(Line2D)s
+        %(Line2D)s
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
