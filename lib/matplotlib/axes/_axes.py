@@ -759,7 +759,7 @@ class Axes(_AxesBase):
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See also
         --------
@@ -829,7 +829,7 @@ class Axes(_AxesBase):
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         Examples
         --------
@@ -1498,7 +1498,7 @@ class Axes(_AxesBase):
 
             Here is a list of available `.Line2D` properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         Returns
         -------
@@ -1650,7 +1650,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
 
         See Also
@@ -3015,7 +3015,7 @@ class Axes(_AxesBase):
 
             Valid kwargs for the marker properties are `.Lines2D` properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         Notes
         -----
@@ -6938,7 +6938,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7063,7 +7063,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7161,7 +7161,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7258,7 +7258,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7340,7 +7340,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7419,7 +7419,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         References
         ----------
@@ -7681,7 +7681,7 @@ class Axes(_AxesBase):
             For the marker style, you can pass any `.Line2D` property except
             for *linestyle*:
 
-        %(Line2D)s
+        %(_Line2D_docstr)s
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'

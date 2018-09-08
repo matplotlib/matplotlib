@@ -300,7 +300,7 @@ class Line2D(Artist):
 
         The kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
-        %(Line2D)s
+        %(_Line2D_docstr)s
 
         See :meth:`set_linestyle` for a description of the line styles,
         :meth:`set_marker` for a description of the markers, and
@@ -1531,7 +1531,7 @@ lineMarkers = MarkerStyle.markers
 drawStyles = Line2D.drawStyles
 fillStyles = MarkerStyle.fillstyles
 
-docstring.interpd.update(Line2D=artist.kwdoc(Line2D))
+docstring.interpd.update(_Line2D_docstr=artist.kwdoc(Line2D))
 
 # You can not set the docstring of an instancemethod,
 # but you can on the underlying function.  Go figure.
