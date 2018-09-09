@@ -1886,6 +1886,9 @@ class Axes3D(Axes):
         *X*, *Y*, *Z* Data values as 1D arrays
         *color*       Color of the surface patches
         *cmap*        A colormap for the surface patches.
+        *facecolors*  If cmap is provided, a 1D array of facecolors
+                      If cmap is not provided, an (N,3) or (N,4) array
+                      specifying the facecolors
         *norm*        An instance of Normalize to map values to colors
         *vmin*        Minimum value to map
         *vmax*        Maximum value to map
@@ -1929,12 +1932,12 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        # TODO: Support custom face colours
         if color is None:
             color = self._get_lines.get_next_color()
         color = np.array(mcolors.to_rgba(color))
 
         cmap = kwargs.get('cmap', None)
+        facecolors = kwargs.pop('facecolors', None)
         shade = kwargs.pop('shade', cmap is None)
 
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
@@ -1950,27 +1953,33 @@ class Axes3D(Axes):
         yt = tri.y[triangles]
         zt = z[triangles]
         verts = np.stack((xt, yt, zt), axis=-1)
+        if facecolors is not None:
+            facecolors = facecolors[triangles].mean(axis=1)
 
         polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
 
         if cmap:
             # average over the three points of each triangle
-            avg_z = verts[:, :, 2].mean(axis=1)
-            polyc.set_array(avg_z)
+            if facecolors is not None:
+                polyc.set_array(facecolors)
+            else:
+                avg_z = verts[:, :, 2].mean(axis=1)
+                polyc.set_array(avg_z)
             if vmin is not None or vmax is not None:
                 polyc.set_clim(vmin, vmax)
             if norm is not None:
                 polyc.set_norm(norm)
         else:
+            if facecolors is None:
+                facecolors = color
             if shade:
                 v1 = verts[:, 0, :] - verts[:, 1, :]
                 v2 = verts[:, 1, :] - verts[:, 2, :]
                 normals = np.cross(v1, v2)
-                colset = self._shade_colors(color, normals)
+                colset = self._shade_colors(facecolors, normals)
             else:
-                colset = color
+                colset = facecolors
             polyc.set_facecolors(colset)
-
         self.add_collection(polyc)
         self.auto_scale_xyz(tri.x, tri.y, z, had_data)
 
