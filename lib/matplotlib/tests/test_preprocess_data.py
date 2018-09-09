@@ -58,26 +58,6 @@ def test_compiletime_checks():
     with pytest.raises(AssertionError):
         _preprocess_data(label_namer="z")(func_args)
 
-    # but "ok-ish", if func has kwargs -> will show up at runtime :-(
-    _preprocess_data(label_namer="z")(func_kwargs)
-    _preprocess_data(label_namer="z")(func_no_ax_args)
-
-
-def test_label_namer_only_if_data():
-    """label_namer should only apply when data is passed."""
-
-    def real_func(x, y):
-        pass
-
-    @_preprocess_data(label_namer="x")
-    def func(*args, **kwargs):
-        real_func(**kwargs)
-
-    func(None, x="a", y="b")
-    with pytest.raises(TypeError):
-        # This sets a label although the function can't handle it.
-        func(None, x="a", y="b", data={"a": "A", "b": "B"})
-
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_without_data(func):
@@ -177,42 +157,6 @@ def test_function_call_replace_all():
     assert (
         func_replace_all(None, x="a", y="b", w="x", label="text", data=data) ==
         "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-
-    @_preprocess_data(label_namer="y")
-    def func_varags_replace_all(ax, *args, **kwargs):
-        all_args = [None, None, "x", None, "xyz"]
-        for i, v in enumerate(args):
-            all_args[i] = v
-        for i, k in enumerate(["x", "y", "ls", "label", "w"]):
-            if k in kwargs:
-                all_args[i] = kwargs[k]
-        x, y, ls, label, w = all_args
-        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
-            list(x), list(y), ls, w, label)
-
-    # in the first case, we can't get a "y" argument,
-    # as we don't know the names of the *args
-    assert (func_varags_replace_all(None, x="a", y="b", w="x", data=data) ==
-            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-    assert (
-        func_varags_replace_all(None, "a", "b", w="x", label="", data=data) ==
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert (
-        func_varags_replace_all(None, "a", "b", w="x", label="text",
-                                data=data) ==
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-    assert (
-        func_varags_replace_all(None, x="a", y="b", w="x", label="",
-                                data=data) ==
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert (
-        func_varags_replace_all(None, x="a", y="b", w="x", label="text",
-                                data=data) ==
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-
-    with pytest.warns(RuntimeWarning):
-        assert (func_varags_replace_all(None, "a", "b", w="x", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None")
 
 
 def test_no_label_replacements():

@@ -1589,9 +1589,17 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
         The list of parameter names for which lookup into *data* should be
         attempted. If None, replacement is attempted for all arguments.
     label_namer : string, optional, default: None
-        If set e.g. to "namer", if a ``namer`` kwarg is passed as a string, and
-        a ``label`` kwarg is not passed, then pass the value of the ``namer``
-        kwarg as the ``label`` kwarg as well.
+        If set e.g. to "namer" (which must be a kwarg in the function's
+        signature -- not as ``**kwargs``), if the *namer* argument passed in is
+        a (string) key of *data* and no *label* kwarg is passed, then use the
+        (string) value of the *namer* as *label*. ::
+
+            @_preprocess_data(label_namer="foo")
+            def func(foo, label=None): ...
+
+            func("key", data={"key": value})
+            # is equivalent to
+            func.__wrapped__(value, label="key")
     """
 
     if func is None:  # Return the actual decorator.
@@ -1625,7 +1633,7 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     assert (replace_names or set()) <= set(arg_names) or varkwargs_name, (
         "Matplotlib internal error: invalid replace_names ({!r}) for {!r}"
         .format(replace_names, func.__name__))
-    assert label_namer is None or label_namer in arg_names or varkwargs_name, (
+    assert label_namer is None or label_namer in arg_names, (
         "Matplotlib internal error: invalid label_namer ({!r}) for {!r}"
             .format(label_namer, func.__name__))
 
@@ -1656,26 +1664,19 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
         bound.apply_defaults()
         del bound.arguments["data"]
 
-        all_kwargs = {**bound.arguments, **bound.kwargs}
         if needs_label:
-            if label_namer not in all_kwargs:
-                cbook._warn_external(
-                    "Tried to set a label via parameter {!r} in func {!r} but "
-                    "couldn't find such an argument.\n(This is a programming "
-                    "error, please report to the Matplotlib list!)".format(
-                        label_namer, func.__name__),
-                    RuntimeWarning)
+            all_kwargs = {**bound.arguments, **bound.kwargs}
+            # label_namer will be in all_kwargs as we asserted above that
+            # `label_namer is None or label_namer in arg_names`.
+            label = _label_from_arg(all_kwargs[label_namer], auto_label)
+            if "label" in arg_names:
+                bound.arguments["label"] = label
+                try:
+                    bound.arguments.move_to_end(varkwargs_name)
+                except KeyError:
+                    pass
             else:
-                label = _label_from_arg(all_kwargs[label_namer], auto_label)
-                if "label" in arg_names:
-                    bound.arguments["label"] = label
-                    try:
-                        bound.arguments.move_to_end(varkwargs_name)
-                    except KeyError:
-                        pass
-                else:
-                    bound.arguments.setdefault(
-                        varkwargs_name, {})["label"] = label
+                bound.arguments.setdefault(varkwargs_name, {})["label"] = label
 
         return func(*bound.args, **bound.kwargs)
 
