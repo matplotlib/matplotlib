@@ -482,3 +482,24 @@ def test_flatiter():
 
     assert 0 == next(it)
     assert 1 == next(it)
+
+
+def test_reshape2d():
+    class dummy():
+        pass
+    x = [dummy() for j in range(5)]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (1, 5)
+
+    x = np.arange(5)
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (1, 5)
+
+    x = [[dummy() for j in range(5)] for i in range(3)]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (3, 5)
+
+    # this is strange behaviour, but...
+    x = np.random.rand(3, 5)
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (5, 3)
