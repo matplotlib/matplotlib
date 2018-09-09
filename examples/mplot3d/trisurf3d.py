@@ -29,9 +29,12 @@ y = np.append(0, (radii*np.sin(angles)).flatten())
 # Compute z to make the pringle surface.
 z = np.sin(-x*y)
 
+# Compute theta for coloring
+theta = np.arctan2(x,y)
+
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-ax.plot_trisurf(x, y, z, linewidth=0.2, antialiased=True)
+ax.plot_trisurf(x, y, z, facecolors=theta, cmap='hsv', linewidth=0.2, antialiased=True)
 
 plt.show()
