@@ -297,8 +297,7 @@ class Text(Artist):
         whs = np.zeros((len(lines), 2))
         horizLayout = np.zeros((len(lines), 4))
 
-        # Find full vertical extent of font,
-        # including ascenders and descenders:
+        # Full vertical extent of font, including ascenders and descenders:
         tmp, lp_h, lp_bl = renderer.get_text_width_height_descent('lp',
                                                          self._fontproperties,
                                                          ismath=False)
@@ -324,14 +323,21 @@ class Text(Artist):
             whs[i] = w, h
 
             baseline = (h - d) - thisy
-            thisy -= max(offsety, (h - d) * self._linespacing)
+            if i == 0:
+                # position at baseline
+                thisy = -(h - d)
+            else:
+                # put baseline a good distance from bottom of previous line
+                thisy -= max(offsety, (h - d) * self._linespacing)
             horizLayout[i] = thisx, thisy, w, h
             thisy -= d
             width = max(width, w)
             descent = d
 
-        ymin = horizLayout[-1][1]
-        ymax = horizLayout[0][1] + horizLayout[0][3]
+        # Bounding box definition:
+        ymax = 0
+        # ymin is baseline of previous line minus the descent of this line
+        ymin = horizLayout[-1][1] - descent
         height = ymax - ymin
         xmax = xmin + width
 
@@ -351,7 +357,6 @@ class Text(Artist):
         # the corners of the unrotated bounding box
         cornersHoriz = np.array(
             [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)], float)
-        cornersHoriz[:, 1] -= descent
 
         # now rotate the bbox
         cornersRotated = M.transform(cornersHoriz)
@@ -386,7 +391,7 @@ class Text(Artist):
             elif valign == 'top':
                 offsety = (ymin + height)
             elif valign == 'baseline':
-                offsety = (ymin + height) - baseline
+                offsety = ymin + descent
             elif valign == 'center_baseline':
                 offsety = ymin + height - baseline / 2.0
             else:
