@@ -7,76 +7,79 @@ axis_artist.py module provides axis-related artists. They are
 * axis label
 * grid lines
 
-The main artist class is a AxisArtist and a GridlinesCollection. The
-GridlinesCollection is responsible for drawing grid lines and the
-AxisArtist is responsible for all other artists. The AxisArtist class
-has attributes that are associated with each type of artists.
+The main artist classes are `AxisArtist` and `GridlinesCollection`. While
+`GridlinesCollection` is responsible for drawing grid lines, `AxisArtist`
+is responsible for all other artists. `AxisArtist` has attributes that are
+associated with each type of artists:
 
-* line : axis line
-* major_ticks : major tick lines
-* major_ticklabels : major tick labels
-* minor_ticks : minor tick lines
-* minor_ticklabels : minor tick labels
-* label : axis label
+* line: axis line
+* major_ticks: major tick lines
+* major_ticklabels: major tick labels
+* minor_ticks: minor tick lines
+* minor_ticklabels: minor tick labels
+* label: axis label
 
-Typically, the AxisArtist associated with a axes will be accessed with the
-*axis* dictionary of the axes, i.e., the AxisArtist for the bottom axis is ::
+Typically, the `AxisArtist` associated with an axes will be accessed with the
+*axis* dictionary of the axes, i.e., the `AxisArtist` for the bottom axis is ::
 
   ax.axis["bottom"]
 
-where *ax* is an instance of axes (mpl_toolkits.axislines.Axes).  Thus,
-ax.axis["bottom"].line is an artist associated with the axis line, and
-ax.axis["bottom"].major_ticks is an artist associated with the major tick
+where *ax* is an instance of `mpl_toolkits.axislines.Axes`.  Thus,
+``ax.axis["bottom"].line`` is an artist associated with the axis line, and
+``ax.axis["bottom"].major_ticks`` is an artist associated with the major tick
 lines.
 
 You can change the colors, fonts, line widths, etc. of these artists
 by calling suitable set method. For example, to change the color of the major
-ticks of the bottom axis to red,
+ticks of the bottom axis to red, use ::
 
   ax.axis["bottom"].major_ticks.set_color("r")
 
-However, things like the locations of ticks, and their ticklabels need
-to be changed from the side of the grid_helper.
+However, things like the locations of ticks, and their ticklabels need to be
+changed from the side of the grid_helper.
 
 axis_direction
 --------------
 
-AxisArtist, AxisLabel, TickLabels have *axis_direction* attribute,
-which adjusts the location, angle, etc.,. The *axis_direction* must be
-one of [left, right, bottom, top] and they follow the matplotlib
-convention for the rectangle axis.
+`AxisArtist`, `AxisLabel`, `TickLabels` have an *axis_direction* attribute,
+which adjusts the location, angle, etc.,. The *axis_direction* must be one of
+"left", "right", "bottom", "top", and follows the Matplotlib convention for
+rectangular axis.
 
-For example, for the *bottom* axis (the left and right is relative to
-the direction of the increasing coordinate),
+For example, for the *bottom* axis (the left and right is relative to the
+direction of the increasing coordinate),
 
 * ticklabels and axislabel are on the right
 * ticklabels and axislabel have text angle of 0
 * ticklabels are baseline, center-aligned
 * axislabel is top, center-aligned
 
-The text angles are actually relative to (90 + angle of the direction
-to the ticklabel), which gives 0 for bottom axis.
+The text angles are actually relative to (90 + angle of the direction to the
+ticklabel), which gives 0 for bottom axis.
 
- Parameter              left bottom right top
- ticklabels location    left right  right left
- axislabel location     left right  right left
- ticklabels angle       90    0      -90  180
- axislabel angle        180   0     0     180
- ticklabel va           center baseline center baseline
- axislabel va           center top      center bottom
- ticklabel ha           right  center   right  center
- axislabel ha           right  center   right  center
+=================== ====== ======== ====== ========
+Parameter           left   bottom   right  top
+=================== ====== ======== ====== ========
+ticklabels location left   right    right  left
+axislabel location  left   right    right  left
+ticklabels angle    90     0        -90    180
+axislabel angle     180    0        0      180
+ticklabel va        center baseline center baseline
+axislabel va        center top      center bottom
+ticklabel ha        right  center   right  center
+axislabel ha        right  center   right  center
+=================== ====== ======== ====== ========
 
-Ticks are by default direct opposite side of the ticklabels. To make
-ticks to the same side of the ticklabels, ::
+Ticks are by default direct opposite side of the ticklabels. To make ticks to
+the same side of the ticklabels, ::
 
   ax.axis["bottom"].major_ticks.set_ticks_out(True)
 
-Following attributes can be customized (use set_xxx method)
+The following attributes can be customized (use the ``set_xxx`` methods):
 
-* Ticks : ticksize, tick_out
-* TickLabels : pad
-* AxisLabel : pad
+* `Ticks`: ticksize, tick_out
+* `TickLabels`: pad
+* `AxisLabel`: pad
 """
 
 # FIXME :
@@ -1019,8 +1022,10 @@ class AxisArtist(martist.Artist):
 
     def _get_tick_info(self, tick_iter):
         """
-        Returns a pair of (list of locs and angles to ticks) and (list of locs,
-        angles and labels for ticklabels)
+        Returns a pair of:
+
+        - list of locs and angles for ticks
+        - list of locs, angles and labels for ticklabels.
         """
         ticks_loc_angle = []
         ticklabels_loc_angle_label = []
@@ -1190,7 +1195,7 @@ class AxisArtist(martist.Artist):
             if ((self.major_ticks.get_visible()
                  and not self.major_ticks.get_tick_out())
                 or (self.minor_ticks.get_visible()
-                     and not self.major_ticks.get_tick_out())):
+                    and not self.major_ticks.get_tick_out())):
                 axislabel_pad = self.major_ticks._ticksize
             else:
                 axislabel_pad = 0
