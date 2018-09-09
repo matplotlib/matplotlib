@@ -375,7 +375,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        if m < 0 or m > 1 :
+        if m < 0 or m > 1:
             raise ValueError("margin must be in range 0 to 1")
         self._zmargin = m
         self.stale = True
@@ -1340,7 +1340,7 @@ class Axes3D(Axes):
                     self.xaxis.major.formatter.set_scientific(sb)
                 if axis in ['both', 'y']:
                     self.yaxis.major.formatter.set_scientific(sb)
-                if axis in ['both', 'z'] :
+                if axis in ['both', 'z']:
                     self.zaxis.major.formatter.set_scientific(sb)
             if scilimits is not None:
                 if axis in ['both', 'x']:
@@ -1413,7 +1413,7 @@ class Axes3D(Axes):
             This function was added, but not tested. Please report any bugs.
         """
         super().tick_params(axis, **kwargs)
-        if axis in ['z', 'both'] :
+        if axis in ['z', 'both']:
             zkw = dict(kwargs)
             zkw.pop('top', None)
             zkw.pop('bottom', None)
@@ -2049,7 +2049,7 @@ class Axes3D(Axes):
     def add_contourf_set(self, cset, zdir='z', offset=None):
         zdir = '-' + zdir
         for z, linec in zip(cset.levels, cset.collections):
-            if offset is not None :
+            if offset is not None:
                 z = offset
             art3d.poly_collection_2d_to_3d(linec, z, zdir=zdir)
             linec.set_sort_zpos(z)
@@ -2234,9 +2234,9 @@ class Axes3D(Axes):
             - PatchCollection
         '''
         zvals = np.atleast_1d(zs)
-        if len(zvals) > 0 :
+        if len(zvals) > 0:
             zsortval = min(zvals)
-        else :
+        else:
             zsortval = 0   # FIXME: Fairly arbitrary. Is there a better value?
 
         # FIXME: use issubclass() (although, then a 3D collection
@@ -2354,12 +2354,12 @@ class Axes3D(Axes):
             if 'alpha' in kwargs:
                 p.set_alpha(kwargs['alpha'])
 
-        if len(verts) > 0 :
+        if len(verts) > 0:
             # the following has to be skipped if verts is empty
             # NOTE: Bugs could still occur if len(verts) > 0,
             #       but the "2nd dimension" is empty.
             xs, ys = list(zip(*verts))
-        else :
+        else:
             xs, ys = [], []
 
         xs, ys, verts_zs = art3d.juggle_axes(xs, ys, verts_zs, zdir)
