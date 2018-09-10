@@ -1113,15 +1113,14 @@ class ArtistInspector(object):
 
     def get_aliases(self):
         """
-        Get a dict mapping *fullname* -> *alias* for each *alias* in
-        the :class:`~matplotlib.artist.ArtistInspector`.
+        Get a dict mapping property fullnames to sets of aliases for each alias
+        in the :class:`~matplotlib.artist.ArtistInspector`.
 
         e.g., for lines::
 
-          {'markerfacecolor': 'mfc',
-           'linewidth'      : 'lw',
+          {'markerfacecolor': {'mfc'},
+           'linewidth'      : {'lw'},
           }
-
         """
         names = [name for name in dir(self.o)
                  if name.startswith(('set_', 'get_'))
@@ -1131,9 +1130,9 @@ class ArtistInspector(object):
             func = getattr(self.o, name)
             if not self.is_alias(func):
                 continue
-            docstring = func.__doc__
-            fullname = docstring.replace('`', '')[10:]
-            aliases.setdefault(fullname[4:], {})[name[4:]] = None
+            propname = re.search("`({}.*)`".format(name[:4]),  # get_.*/set_.*
+                                 func.__doc__).group(1)
+            aliases.setdefault(propname, set()).add(name[4:])
         return aliases
 
     _get_valid_values_regex = re.compile(
