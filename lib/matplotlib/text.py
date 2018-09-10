@@ -927,6 +927,8 @@ class Text(Artist):
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
+            self._renderer = self.figure._cachedRenderer
+        if self._renderer is None:
             raise RuntimeError('Cannot get window extent w/o renderer')
 
         bbox, info, descent = self._get_layout(self._renderer)
