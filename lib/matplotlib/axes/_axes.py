@@ -5345,8 +5345,10 @@ class Axes(_AxesBase):
             'lanczos'.
 
             If *interpolation* is 'none', then no interpolation is performed
-            on the Agg, ps and pdf backends. Other backends will fall back to
-            'nearest'.
+            on the Agg, ps, pdf and svg backends. Other backends will fall back to
+            'nearest'. Note that most SVG renders perform interpolation at
+            rendering and that the default interpolation method they implement
+            may differ. 
 
             See
             :doc:`/gallery/images_contours_and_fields/interpolation_methods`
