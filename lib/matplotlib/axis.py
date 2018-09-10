@@ -30,7 +30,7 @@ GRIDLINE_INTERPOLATION_STEPS = 180
 # allows all Line2D kwargs.
 _line_AI = artist.ArtistInspector(mlines.Line2D)
 _line_param_names = _line_AI.get_setters()
-_line_param_aliases = [list(d.keys())[0] for d in _line_AI.aliasd.values()]
+_line_param_aliases = [list(d)[0] for d in _line_AI.aliasd.values()]
 _gridline_param_names = ['grid_' + name
                          for name in _line_param_names + _line_param_aliases]
 
