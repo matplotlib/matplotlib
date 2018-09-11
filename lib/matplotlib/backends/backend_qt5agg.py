@@ -64,7 +64,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         painter.drawImage(origin / self._dpi_ratio, qimage)
         # Adjust the buf reference count to work around a memory
         # leak bug in QImage under PySide on Python 3.
-        if QT_API == 'PySide':
+        if QT_API in ('PySide', 'PySide2'):
             ctypes.c_long.from_address(id(buf)).value = 1
 
         self._draw_rect_callback(painter)
