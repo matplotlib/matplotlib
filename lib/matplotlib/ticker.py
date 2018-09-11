@@ -712,7 +712,14 @@ class ScalarFormatter(Formatter):
             # fixed scaling when lower power limit = upper <> 0.
             self.orderOfMagnitude = self._powerlimits[0]
             return
-        locs = np.abs(self.locs)
+        # restrict to visible ticks
+        vmin, vmax = sorted(self.axis.get_view_interval())
+        locs = np.asarray(self.locs)
+        locs = locs[(vmin <= locs) & (locs <= vmax)]
+        locs = np.abs(locs)
+        if not len(locs):
+            self.orderOfMagnitude = 0
+            return
         if self.offset:
             oom = math.floor(math.log10(range))
         else:
