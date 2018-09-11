@@ -227,8 +227,8 @@ def test_inset_axes_complete():
     fig.canvas.draw()
     assert_array_almost_equal(
             ins.get_position().extents,
-            np.array(((0.9*figsize[0]-2.)/figsize[0],
-                      (0.9*figsize[1]-2.)/figsize[1], 0.9, 0.9)))
+            np.array(((0.9*figsize[0]-2)/figsize[0],
+                      (0.9*figsize[1]-2)/figsize[1], 0.9, 0.9)))
 
     ins = inset_axes(ax, width="40%", height="30%", borderpad=0)
     fig.canvas.draw()
@@ -241,8 +241,8 @@ def test_inset_axes_complete():
     fig.canvas.draw()
     assert_array_almost_equal(
             ins.get_position().extents,
-            np.array((200./dpi/figsize[0], 100./dpi/figsize[1],
-                     (200./dpi+1)/figsize[0], (100./dpi+1.2)/figsize[1])))
+            np.array((200/dpi/figsize[0], 100/dpi/figsize[1],
+                     (200/dpi+1)/figsize[0], (100/dpi+1.2)/figsize[1])))
 
     ins1 = inset_axes(ax, width="35%", height="60%", loc=3, borderpad=1)
     ins2 = inset_axes(ax, width="100%", height="100%",

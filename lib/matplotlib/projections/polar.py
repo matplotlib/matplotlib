@@ -812,11 +812,11 @@ class _WedgeBbox(mtransforms.Bbox):
             # Ensure equal aspect ratio.
             w, h = self._points[1] - self._points[0]
             if h < w:
-                deltah = (w - h) / 2.0
+                deltah = (w - h) / 2
                 deltaw = 0.0
             elif w < h:
                 deltah = 0.0
-                deltaw = (h - w) / 2.0
+                deltaw = (h - w) / 2
             else:
                 deltah = 0.0
                 deltaw = 0.0
@@ -1366,7 +1366,7 @@ class PolarAxes(Axes):
         angle = np.deg2rad(self.get_rlabel_position())
         mode = ''
         if button == 1:
-            epsilon = np.pi / 45.0
+            epsilon = np.pi / 45
             t, r = self.transData.inverted().transform_point((x, y))
             if angle - epsilon <= t <= angle + epsilon:
                 mode = 'drag_r_labels'
@@ -1454,7 +1454,7 @@ PolarAxes.ThetaLocator = ThetaLocator
 #             result[0] = vertices[0]
 #             codes[0] = mpath.Path.MOVETO
 
-#             kappa = 4.0 * ((np.sqrt(2.0) - 1.0) / 3.0)
+#             kappa = 4 * ((np.sqrt(2) - 1) / 3)
 #             kappa = 0.5
 
 #             p0   = vertices[0:-1]
@@ -1512,7 +1512,7 @@ PolarAxes.ThetaLocator = ThetaLocator
 #             result[0] = vertices[0]
 #             codes[0] = mpath.Path.MOVETO
 
-#             kappa = 4.0 * ((np.sqrt(2.0) - 1.0) / 3.0)
+#             kappa = 4 * ((np.sqrt(2) - 1) / 3)
 #             tkappa = np.arctan(kappa)
 #             hyp_kappa = np.sqrt(kappa*kappa + 1.0)
 
@@ -1526,7 +1526,7 @@ PolarAxes.ThetaLocator = ThetaLocator
 #             rd = r1 - r0
 #             r0kappa = r0 * kappa * td_scaled
 #             r1kappa = r1 * kappa * td_scaled
-#             ravg_kappa = ((r1 + r0) / 2.0) * kappa * td_scaled
+#             ravg_kappa = ((r1 + r0) / 2) * kappa * td_scaled
 
 #             result[1::3, 0] = t0 + (tkappa * td_scaled)
 #             result[1::3, 1] = r0*hyp_kappa

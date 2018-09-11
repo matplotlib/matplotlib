@@ -1563,16 +1563,16 @@ class _AxesBase(martist.Artist):
 
         if adjust_y:
             yc = 0.5 * (ymin + ymax)
-            y0 = yc - Ysize / 2.0
-            y1 = yc + Ysize / 2.0
+            y0 = yc - Ysize / 2
+            y1 = yc + Ysize / 2
             if aspect_scale_mode == "log":
                 self.set_ybound((10. ** y0, 10. ** y1))
             else:
                 self.set_ybound((y0, y1))
         else:
             xc = 0.5 * (xmin + xmax)
-            x0 = xc - Xsize / 2.0
-            x1 = xc + Xsize / 2.0
+            x0 = xc - Xsize / 2
+            x1 = xc + Xsize / 2
             if aspect_scale_mode == "log":
                 self.set_xbound((10. ** x0, 10. ** x1))
             else:
@@ -3893,8 +3893,8 @@ class _AxesBase(martist.Artist):
             xzc = (xp*(scl - 1) + xcen)/scl
             yzc = (yp*(scl - 1) + ycen)/scl
 
-            bbox = [xzc - xwidth/2./scl, yzc - ywidth/2./scl,
-                    xzc + xwidth/2./scl, yzc + ywidth/2./scl]
+            bbox = [xzc - xwidth/2/scl, yzc - ywidth/2/scl,
+                    xzc + xwidth/2/scl, yzc + ywidth/2/scl]
         elif len(bbox) != 4:
             # should be len 3 or 4 but nothing else
             warnings.warn(

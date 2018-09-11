@@ -525,7 +525,7 @@ class RendererSVG(RendererBase):
                     'font-style': font.style_name.lower(),
                     'units-per-em': '72',
                     'bbox': ' '.join(
-                        short_float_fmt(x / 64.0) for x in font.bbox)})
+                        short_float_fmt(x / 64) for x in font.bbox)})
             for char in chars:
                 glyph = font.load_char(char, flags=LOAD_NO_HINTING)
                 verts, codes = font.get_path()
@@ -539,7 +539,7 @@ class RendererSVG(RendererBase):
                         # 'glyph-name': name,
                         'unicode': chr(char),
                         'horiz-adv-x':
-                        short_float_fmt(glyph.linearHoriAdvance / 65536.0)})
+                        short_float_fmt(glyph.linearHoriAdvance / 65536)})
             writer.end('font')
         writer.end('defs')
 
@@ -731,7 +731,7 @@ class RendererSVG(RendererBase):
                        ' \n1 1 1 1 0 \n0 0 0 0 1 ')
             writer.end('filter')
 
-        avg_color = np.sum(colors[:, :], axis=0) / 3.0
+        avg_color = np.sum(colors[:, :], axis=0) / 3
         # Just skip fully-transparent triangles
         if avg_color[-1] == 0.0:
             return
@@ -755,7 +755,7 @@ class RendererSVG(RendererBase):
             else:
                 m1 = (y2 - y3) / (x2 - x3)
                 b1 = y2 - (m1 * x2)
-                m2 = -(1.0 / m1)
+                m2 = -1 / m1
                 b2 = y1 - (m2 * x1)
                 xb = (-b1 + b2) / (m1 - m2)
                 yb = m2 * xb + b2
@@ -843,7 +843,7 @@ class RendererSVG(RendererBase):
         return True
 
     def get_image_magnification(self):
-        return self.image_dpi / 72.0
+        return self.image_dpi / 72
 
     def draw_image(self, gc, x, y, im, transform=None):
         h, w = im.shape[:2]
@@ -900,7 +900,7 @@ class RendererSVG(RendererBase):
                 attrib['opacity'] = short_float_fmt(alpha)
 
             flipped = (
-                Affine2D().scale(1.0 / w, 1.0 / h) +
+                Affine2D().scale(1 / w, 1 / h) +
                 transform +
                 Affine2D()
                 .translate(x, y)

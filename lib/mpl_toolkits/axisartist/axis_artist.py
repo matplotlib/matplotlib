@@ -358,7 +358,7 @@ class LabelBase(mtext.Text):
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
 
-        theta = (offset_ref_angle)/180.*np.pi
+        theta = (offset_ref_angle)/180*np.pi
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
         offset_tr.translate(dx, dy)
@@ -383,7 +383,7 @@ class LabelBase(mtext.Text):
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
 
-        theta = (offset_ref_angle)/180.*np.pi
+        theta = (offset_ref_angle)/180*np.pi
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
         offset_tr.translate(dx, dy)
@@ -1035,7 +1035,7 @@ class AxisArtist(martist.Artist):
         for loc, angle_normal, angle_tangent, label in tick_iter:
             angle_label = angle_tangent - 90 + ticklabel_add_angle
 
-            if np.cos((angle_label - angle_normal)/180.*np.pi) < 0.:
+            if np.cos((angle_label - angle_normal)/180*np.pi) < 0.:
                 angle_tick = angle_normal
             else:
                 angle_tick = angle_normal + 180

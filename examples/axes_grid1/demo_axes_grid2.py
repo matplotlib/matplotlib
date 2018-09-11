@@ -37,7 +37,7 @@ if 1:
     # prepare images
     Z, extent = get_demo_image()
     ZS = [Z[i::3, :] for i in range(3)]
-    extent = extent[0], extent[1]/3., extent[2], extent[3]
+    extent = extent[0], extent[1]/3, extent[2], extent[3]
 
     # demo 1 : colorbar at each axes
 

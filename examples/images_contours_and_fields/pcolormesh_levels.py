@@ -46,8 +46,8 @@ ax0.set_title('pcolormesh with levels')
 
 # contours are *point* based plots, so convert our bound into point
 # centers
-cf = ax1.contourf(x[:-1, :-1] + dx/2.,
-                  y[:-1, :-1] + dy/2., z, levels=levels,
+cf = ax1.contourf(x[:-1, :-1] + dx/2,
+                  y[:-1, :-1] + dy/2, z, levels=levels,
                   cmap=cmap)
 fig.colorbar(cf, ax=ax1)
 ax1.set_title('contourf with levels')

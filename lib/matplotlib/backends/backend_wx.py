@@ -390,7 +390,7 @@ class RendererWx(RendererBase):
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
-        return points * (PIXELS_PER_INCH / 72.0 * self.dpi / 72.0)
+        return points * (PIXELS_PER_INCH / 72 * self.dpi / 72)
 
 
 class GraphicsContextWx(GraphicsContextBase):

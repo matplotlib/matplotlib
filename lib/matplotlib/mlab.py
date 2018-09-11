@@ -1400,7 +1400,7 @@ def entropy(y, bins):
 def normpdf(x, *args):
     "Return the normal pdf evaluated at *x*; args provides *mu*, *sigma*"
     mu, sigma = args
-    return 1./(np.sqrt(2*np.pi)*sigma)*np.exp(-0.5 * (1./sigma*(x - mu))**2)
+    return 1/(np.sqrt(2*np.pi)*sigma)*np.exp(-0.5 * (1/sigma*(x - mu))**2)
 
 
 @cbook.deprecated('2.2')
@@ -1723,14 +1723,14 @@ def rk4(derivs, y0, t):
 
         thist = t[i]
         dt = t[i+1] - thist
-        dt2 = dt/2.0
+        dt2 = dt/2
         y0 = yout[i]
 
         k1 = np.asarray(derivs(y0, thist))
         k2 = np.asarray(derivs(y0 + dt2*k1, thist+dt2))
         k3 = np.asarray(derivs(y0 + dt2*k2, thist+dt2))
         k4 = np.asarray(derivs(y0 + dt*k3, thist+dt))
-        yout[i+1] = y0 + dt/6.0*(k1 + 2*k2 + 2*k3 + k4)
+        yout[i+1] = y0 + dt/6*(k1 + 2*k2 + 2*k3 + k4)
     return yout
 
 
@@ -3583,11 +3583,11 @@ class GaussianKDE(object):
                 2 * np.pi * self.covariance)) * self.num_dp
 
     def scotts_factor(self):
-        return np.power(self.num_dp, -1. / (self.dim + 4))
+        return np.power(self.num_dp, -1 / (self.dim + 4))
 
     def silverman_factor(self):
         return np.power(
-            self.num_dp * (self.dim + 2.0) / 4.0, -1. / (self.dim + 4))
+            self.num_dp * (self.dim + 2.0) / 4, -1 / (self.dim + 4))
 
     #  Default method to calculate bandwidth, can be overwritten by subclass
     covariance_factor = scotts_factor
@@ -3626,14 +3626,14 @@ class GaussianKDE(object):
             for i in range(self.num_dp):
                 diff = self.dataset[:, i, np.newaxis] - points
                 tdiff = np.dot(self.inv_cov, diff)
-                energy = np.sum(diff * tdiff, axis=0) / 2.0
+                energy = np.sum(diff * tdiff, axis=0) / 2
                 result = result + np.exp(-energy)
         else:
             # loop over points
             for i in range(num_m):
                 diff = self.dataset - points[:, i, np.newaxis]
                 tdiff = np.dot(self.inv_cov, diff)
-                energy = np.sum(diff * tdiff, axis=0) / 2.0
+                energy = np.sum(diff * tdiff, axis=0) / 2
                 result[i] = np.sum(np.exp(-energy), axis=0)
 
         result = result / self.norm_factor
@@ -3817,7 +3817,7 @@ def vector_lengths(X, P=2., axis=None):
     compute over all elements of *X*.
     """
     X = np.asarray(X)
-    return (np.sum(X**(P), axis=axis))**(1./P)
+    return (np.sum(X**(P), axis=axis))**(1/P)
 
 
 @cbook.deprecated('2.2')
@@ -3858,8 +3858,8 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     # TODO: Candidate for deprecation -- no longer used internally
 
     # c0x, c0y = q0x, q0y
-    c1x, c1y = q0x + 2./3. * (q1x - q0x), q0y + 2./3. * (q1y - q0y)
-    c2x, c2y = c1x + 1./3. * (q2x - q0x), c1y + 1./3. * (q2y - q0y)
+    c1x, c1y = q0x + 2/3 * (q1x - q0x), q0y + 2/3 * (q1y - q0y)
+    c2x, c2y = c1x + 1/3 * (q2x - q0x), c1y + 1/3 * (q2y - q0y)
     # c3x, c3y = q2x, q2y
     return q0x, q0y, c1x, c1y, c2x, c2y, q2x, q2y
 

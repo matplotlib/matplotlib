@@ -908,7 +908,7 @@ class ColorbarBase(cm.ScalarMappable):
         if self.extend == 'neither':
             y = np.linspace(0, 1, N)
         else:
-            automin = automax = 1. / (N - 1.)
+            automin = automax = 1 / (N - 1)
             extendlength = self._get_extension_lengths(self.extendfrac,
                                                        automin, automax,
                                                        default=0.05)
@@ -1332,7 +1332,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         pbcb = pbcb.shrunk(shrink, 1.0).anchored(anchor, pbcb)
 
         # define the aspect ratio in terms of y's per x rather than x's per y
-        aspect = 1.0 / aspect
+        aspect = 1 / aspect
 
     # define a transform which takes us from old axes coordinates to
     # new axes coordinates

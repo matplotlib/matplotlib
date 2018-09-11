@@ -1352,8 +1352,8 @@ class YAArrow(Patch):
         # the base vertices
         x1, y1 = self.xytip
         x2, y2 = self.xybase
-        k1 = self.width * self.figure.dpi / 72. / 2.
-        k2 = self.headwidth * self.figure.dpi / 72. / 2.
+        k1 = self.width * self.figure.dpi / 72 / 2
+        k2 = self.headwidth * self.figure.dpi / 72 / 2
         xb1, yb1, xb2, yb2 = self.getpoints(x1, y1, x2, y2, k1)
 
         # a point on the segment 20% of the distance from the tip to the base
@@ -1387,10 +1387,10 @@ class YAArrow(Patch):
             return x2 + k, y2, x2 - k, y2
 
         m = (y2 - y1) / (x2 - x1)
-        pm = -1. / m
+        pm = -1 / m
         a = 1
         b = -2 * y2
-        c = y2 ** 2. - k ** 2. * pm ** 2. / (1. + pm ** 2.)
+        c = y2 ** 2 - k ** 2 * pm ** 2 / (1 + pm ** 2)
 
         y3a = (-b + math.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
         x3a = (y3a - y2) / pm + x2
@@ -1680,7 +1680,7 @@ class Arc(Ellipse):
 
         # Get width and height in pixels
         width, height = self.get_transform().transform_point((width, height))
-        inv_error = (1.0 / 1.89818e-6) * 0.5
+        inv_error = (1 / 1.89818e-6) * 0.5
         if width < inv_error and height < inv_error:
             self._path = Path.arc(theta1, theta2)
             return Patch.draw(self, renderer)
@@ -2813,7 +2813,7 @@ class ConnectionStyle(_Style):
         def connect(self, posA, posB):
             x1, y1 = posA
             x2, y2 = posB
-            x12, y12 = (x1 + x2) / 2., (y1 + y2) / 2.
+            x12, y12 = (x1 + x2) / 2, (y1 + y2) / 2
             dx, dy = x2 - x1, y2 - y1
 
             f = self.rad
@@ -3726,13 +3726,13 @@ class ArrowStyle(_Style):
             # head
             head_width = self.head_width * mutation_size
             head_left, head_right = make_wedged_bezier2(arrow_in,
-                                                        head_width / 2., wm=.5)
+                                                        head_width / 2, wm=.5)
 
             # tail
             if arrow_out is not None:
                 tail_width = self.tail_width * mutation_size
                 tail_left, tail_right = get_parallels(arrow_out,
-                                                      tail_width / 2.)
+                                                      tail_width / 2)
 
                 patch_path = [(Path.MOVETO, tail_right[0]),
                               (Path.CURVE3, tail_right[1]),
@@ -3822,7 +3822,7 @@ class ArrowStyle(_Style):
             # head
             head_width = self.head_width * mutation_size
             head_l, head_r = make_wedged_bezier2(path_head,
-                                                 head_width / 2.,
+                                                 head_width / 2,
                                                  wm=.6)
 
             # tail
@@ -3889,7 +3889,7 @@ class ArrowStyle(_Style):
             arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
             b_plus, b_minus = make_wedged_bezier2(
                                     arrow_path,
-                                    self.tail_width * mutation_size / 2.,
+                                    self.tail_width * mutation_size / 2,
                                     wm=self.shrink_factor)
 
             patch_path = [(Path.MOVETO, b_plus[0]),

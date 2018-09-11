@@ -2591,7 +2591,7 @@ class AutoMinorLocator(Locator):
         tmax = ((vmax - t0) // minorstep + 1) * minorstep
         locs = np.arange(tmin, tmax, minorstep) + t0
         mod = np.abs((locs - t0) % majorstep)
-        cond1 = mod > minorstep / 10.0
+        cond1 = mod > minorstep / 10
         cond2 = ~np.isclose(mod, majorstep, atol=0)
         locs = locs.compress(cond1 & cond2)
 
@@ -2655,9 +2655,9 @@ class OldAutoLocator(Locator):
             if d >= 5 * base:
                 ticksize = base
             elif d >= 2 * base:
-                ticksize = base / 2.0
+                ticksize = base / 2
             else:
-                ticksize = base / 5.0
+                ticksize = base / 5
             locator = MultipleLocator(ticksize)
 
         return locator

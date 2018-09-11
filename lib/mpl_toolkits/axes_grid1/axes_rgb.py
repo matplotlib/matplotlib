@@ -13,8 +13,8 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
 
     pad_size = Size.Fraction(pad, Size.AxesY(ax))
 
-    xsize = Size.Fraction((1.-2.*pad)/3., Size.AxesX(ax))
-    ysize = Size.Fraction((1.-2.*pad)/3., Size.AxesY(ax))
+    xsize = Size.Fraction((1-2*pad)/3, Size.AxesX(ax))
+    ysize = Size.Fraction((1-2*pad)/3, Size.AxesY(ax))
 
     divider.set_horizontal([Size.AxesX(ax), pad_size, xsize])
     divider.set_vertical([ysize, pad_size, ysize, pad_size, ysize])
@@ -126,8 +126,8 @@ class RGBAxesBase(object):
 
         pad_size = Size.Fraction(pad, Size.AxesY(ax))
 
-        xsize = Size.Fraction((1.-2.*pad)/3., Size.AxesX(ax))
-        ysize = Size.Fraction((1.-2.*pad)/3., Size.AxesY(ax))
+        xsize = Size.Fraction((1-2*pad)/3, Size.AxesX(ax))
+        ysize = Size.Fraction((1-2*pad)/3, Size.AxesY(ax))
 
         divider.set_horizontal([Size.AxesX(ax), pad_size, xsize])
         divider.set_vertical([ysize, pad_size, ysize, pad_size, ysize])

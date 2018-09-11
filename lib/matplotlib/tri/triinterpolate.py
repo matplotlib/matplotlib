@@ -200,7 +200,7 @@ class TriInterpolator(object):
                                  " {'z', 'dzdx', 'dzdy'}")
 
             # Sets the scale factor for f & df components
-            scale = [1., 1./self._unit_x, 1./self._unit_y][return_index]
+            scale = [1., 1/self._unit_x, 1/self._unit_y][return_index]
 
             # Computes the interpolation
             ret_loc = np.empty(size_ret, dtype=np.float64)
@@ -669,15 +669,15 @@ class _ReducedHCT_Element():
     # NOTE: as the 2nd derivative is discontinuous , we really need those 9
     # points!
     n_gauss = 9
-    gauss_pts = np.array([[13./18.,  4./18.,  1./18.],
-                          [ 4./18., 13./18.,  1./18.],
-                          [ 7./18.,  7./18.,  4./18.],
-                          [ 1./18., 13./18.,  4./18.],
-                          [ 1./18.,  4./18., 13./18.],
-                          [ 4./18.,  7./18.,  7./18.],
-                          [ 4./18.,  1./18., 13./18.],
-                          [13./18.,  1./18.,  4./18.],
-                          [ 7./18.,  4./18.,  7./18.]], dtype=np.float64)
+    gauss_pts = np.array([[13/18,  4/18,  1/18],
+                          [ 4/18, 13/18,  1/18],
+                          [ 7/18,  7/18,  4/18],
+                          [ 1/18, 13/18,  4/18],
+                          [ 1/18,  4/18, 13/18],
+                          [ 4/18,  7/18,  7/18],
+                          [ 4/18,  1/18, 13/18],
+                          [13/18,  1/18,  4/18],
+                          [ 7/18,  4/18,  7/18]], dtype=np.float64)
     gauss_w = np.ones([9], dtype=np.float64) / 9.
 
     #  4) Stiffness matrix for curvature energy
@@ -1439,11 +1439,11 @@ def _safe_inv22_vectorized(M):
     rank2 = (np.abs(delta) > 1e-8*np.abs(prod1))
     if np.all(rank2):
         # Normal 'optimized' flow.
-        delta_inv = 1./delta
+        delta_inv = 1/delta
     else:
         # 'Pathologic' flow.
         delta_inv = np.zeros(M.shape[0])
-        delta_inv[rank2] = 1./delta[rank2]
+        delta_inv[rank2] = 1/delta[rank2]
 
     M_inv[:, 0, 0] = M[:, 1, 1]*delta_inv
     M_inv[:, 0, 1] = -M[:, 0, 1]*delta_inv
@@ -1490,7 +1490,7 @@ def _pseudo_inv22sym_vectorized(M):
         tr = M[rank01, 0, 0] + M[rank01, 1, 1]
         tr_zeros = (np.abs(tr) < 1.e-8)
         sq_tr_inv = (1.-tr_zeros) / (tr**2+tr_zeros)
-        #sq_tr_inv = 1. / tr**2
+        #sq_tr_inv = 1 / tr**2
         M_inv[rank01, 0, 0] = M[rank01, 0, 0] * sq_tr_inv
         M_inv[rank01, 0, 1] = M[rank01, 0, 1] * sq_tr_inv
         M_inv[rank01, 1, 0] = M[rank01, 1, 0] * sq_tr_inv

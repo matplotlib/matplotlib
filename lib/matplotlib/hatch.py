@@ -101,7 +101,7 @@ class Shapes(HatchPatternBase):
                                  (self.filled and 1 or 2))
 
     def set_vertices_and_codes(self, vertices, codes):
-        offset = 1.0 / self.num_rows
+        offset = 1 / self.num_rows
         shape_vertices = self.shape_vertices * offset * self.size
         if not self.filled:
             inner_vertices = shape_vertices[::-1] * 0.9
@@ -113,7 +113,7 @@ class Shapes(HatchPatternBase):
             if row % 2 == 0:
                 cols = np.linspace(0.0, 1.0, self.num_rows + 1, True)
             else:
-                cols = np.linspace(offset / 2.0, 1.0 - offset / 2.0,
+                cols = np.linspace(offset / 2, 1 - offset / 2,
                                    self.num_rows, True)
             row_pos = row * offset
             for col_pos in cols:
@@ -162,7 +162,7 @@ class SmallFilledCircles(SmallCircles):
 
 
 class Stars(Shapes):
-    size = 1.0 / 3.0
+    size = 1 / 3
     filled = True
 
     def __init__(self, hatch, density):

@@ -717,7 +717,7 @@ class ImageMagickBase(object):
 
     @property
     def delay(self):
-        return 100. / self.fps
+        return 100 / self.fps
 
     @property
     def output_args(self):
@@ -1104,7 +1104,7 @@ class Animation(object):
 
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
-            fps = 1000. / self._interval
+            fps = 1000 / self._interval
 
         # Re-use the savefig DPI for ours if none is given
         if dpi is None:
@@ -1323,7 +1323,7 @@ class Animation(object):
                 Writer = writers[rcParams['animation.writer']]
                 writer = Writer(codec='h264',
                                 bitrate=rcParams['animation.bitrate'],
-                                fps=1000. / self._interval)
+                                fps=1000 / self._interval)
                 self.save(str(path), writer=writer)
                 # Now open and base64 encode.
                 vid64 = base64.encodebytes(path.read_bytes())

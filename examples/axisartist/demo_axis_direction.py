@@ -24,7 +24,7 @@ def setup_axes(fig, rect):
     """
 
     # see demo_curvelinear_grid.py for details
-    tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
+    tr = Affine2D().scale(np.pi/180, 1.) + PolarAxes.PolarTransform()
 
     extreme_finder = angle_helper.ExtremeFinderCycle(20, 20,
                                                      lon_cycle=360,

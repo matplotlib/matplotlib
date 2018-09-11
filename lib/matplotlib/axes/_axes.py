@@ -2815,7 +2815,7 @@ class Axes(_AxesBase):
         if startangle is None:
             theta1 = 0
         else:
-            theta1 = startangle / 360.0
+            theta1 = startangle / 360
 
         # set default values in wedge_prop
         if wedgeprops is None:
@@ -4573,7 +4573,7 @@ class Axes(_AxesBase):
 
         polygon = np.zeros((6, 2), float)
         polygon[:, 0] = sx * np.array([0.5, 0.5, 0.0, -0.5, -0.5, 0.0])
-        polygon[:, 1] = sy * np.array([-0.5, 0.5, 1.0, 0.5, -0.5, -1.0]) / 3.0
+        polygon[:, 1] = sy * np.array([-0.5, 0.5, 1.0, 0.5, -0.5, -1.0]) / 3
 
         if linewidths is None:
             linewidths = [1.0]
@@ -6683,7 +6683,7 @@ class Axes(_AxesBase):
                     # set the min to 1 / log base,
                     # again so that there is 1 full tick-label unit
                     # for the lowest bin
-                    minimum = 1.0 / logbase
+                    minimum = 1 / logbase
 
                 y[0], y[-1] = minimum, minimum
             else:

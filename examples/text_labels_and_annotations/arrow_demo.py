@@ -199,13 +199,13 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         if where == 'left':
             orig_position = 3 * np.array([[max_arrow_width, max_arrow_width]])
         elif where == 'absolute':
-            orig_position = np.array([[max_arrow_length / 2.0,
+            orig_position = np.array([[max_arrow_length / 2,
                                        3 * max_arrow_width]])
         elif where == 'right':
             orig_position = np.array([[length - 3 * max_arrow_width,
                                        3 * max_arrow_width]])
         elif where == 'center':
-            orig_position = np.array([[length / 2.0, 3 * max_arrow_width]])
+            orig_position = np.array([[length / 2, 3 * max_arrow_width]])
         else:
             raise ValueError("Got unknown position parameter %s" % where)
 

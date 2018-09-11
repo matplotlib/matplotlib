@@ -136,7 +136,7 @@ def test_formatter_large_small():
 @image_comparison(baseline_images=["twin_axis_locaters_formatters"])
 def test_twin_axis_locaters_formatters():
     vals = np.linspace(0, 1, num=5, endpoint=True)
-    locs = np.sin(np.pi * vals / 2.0)
+    locs = np.sin(np.pi * vals / 2)
 
     majl = plt.FixedLocator(locs)
     minl = plt.FixedLocator([0.1, 0.2, 0.3])
@@ -439,7 +439,7 @@ def test_polar_coord_annotations():
     el.set_clip_box(ax.bbox)
 
     ax.annotate('the top',
-                xy=(np.pi/2., 10.),      # theta, radius
+                xy=(np.pi/2, 10.),      # theta, radius
                 xytext=(np.pi/3, 20.),   # theta, radius
                 xycoords='polar',
                 textcoords='polar',
@@ -668,7 +668,7 @@ def test_polar_units():
     deg = units.deg
     km = units.km
 
-    x1 = [pi/6.0, pi/4.0, pi/3.0, pi/2.0]
+    x1 = [pi/6, pi/4, pi/3, pi/2]
     x2 = [30.0*deg, 45.0*deg, 60.0*deg, 90.0*deg]
 
     y1 = [1.0, 2.0, 3.0, 4.0]
@@ -1236,8 +1236,8 @@ def test_arc_ellipse():
     angle = -30
 
     theta = np.deg2rad(np.arange(360))
-    x = width / 2. * np.cos(theta)
-    y = height / 2. * np.sin(theta)
+    x = width / 2 * np.cos(theta)
+    y = height / 2 * np.sin(theta)
 
     rtheta = np.deg2rad(angle)
     R = np.array([
@@ -3103,7 +3103,7 @@ def test_mollweide_forward_inverse_closure():
 
     # set up 1-degree grid in longitude, latitude
     lon = np.linspace(-np.pi, np.pi, 360)
-    lat = np.linspace(-np.pi / 2.0, np.pi / 2.0, 180)
+    lat = np.linspace(-np.pi / 2, np.pi / 2, 180)
     lon, lat = np.meshgrid(lon, lat)
     ll = np.vstack((lon.flatten(), lat.flatten())).T
 
@@ -5092,14 +5092,14 @@ def test_title_pad():
     fig, ax = plt.subplots()
     ax.set_title('aardvark', pad=30.)
     m = ax.titleOffsetTrans.get_matrix()
-    assert m[1, -1] == (30. / 72. * fig.dpi)
+    assert m[1, -1] == (30 / 72 * fig.dpi)
     ax.set_title('aardvark', pad=0.)
     m = ax.titleOffsetTrans.get_matrix()
     assert m[1, -1] == 0.
     # check that it is reverted...
     ax.set_title('aardvark', pad=None)
     m = ax.titleOffsetTrans.get_matrix()
-    assert m[1, -1] == (matplotlib.rcParams['axes.titlepad'] / 72. * fig.dpi)
+    assert m[1, -1] == (matplotlib.rcParams['axes.titlepad'] / 72 * fig.dpi)
 
 
 def test_title_location_roundtrip():

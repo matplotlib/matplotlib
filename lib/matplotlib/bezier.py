@@ -194,7 +194,7 @@ def split_bezier_intersecting_with_closedpath(bezier,
                                                         inside_closedpath,
                                                         tolerence=tolerence)
 
-    _left, _right = split_de_casteljau(bezier, (t0 + t1) / 2.)
+    _left, _right = split_de_casteljau(bezier, (t0 + t1) / 2)
     return _left, _right
 
 

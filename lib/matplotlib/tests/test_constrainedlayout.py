@@ -23,7 +23,7 @@ def example_pcolor(ax, fontsize=12):
     dx, dy = 0.6, 0.6
     y, x = np.mgrid[slice(-3, 3 + dy, dy),
                     slice(-3, 3 + dx, dx)]
-    z = (1 - x / 2. + x ** 5 + y ** 3) * np.exp(-x ** 2 - y ** 2)
+    z = (1 - x / 2 + x ** 5 + y ** 3) * np.exp(-x ** 2 - y ** 2)
     pcm = ax.pcolormesh(x, y, z, cmap='RdBu_r', vmin=-1., vmax=1.,
                         rasterized=True)
     # ax.locator_params(nbins=3)
@@ -254,7 +254,7 @@ def test_constrained_layout13():
     for ax in axs.flatten():
         pcm = example_pcolor(ax, fontsize=12)
         fig.colorbar(pcm, ax=ax, shrink=0.6, aspect=20., pad=0.02)
-    fig.set_constrained_layout_pads(w_pad=24./72., h_pad=24./72.)
+    fig.set_constrained_layout_pads(w_pad=24/72, h_pad=24/72)
 
 
 @image_comparison(baseline_images=['constrained_layout14'],
@@ -266,7 +266,7 @@ def test_constrained_layout14():
         pcm = example_pcolor(ax, fontsize=12)
         fig.colorbar(pcm, ax=ax, shrink=0.6, aspect=20., pad=0.02)
     fig.set_constrained_layout_pads(
-            w_pad=3./72., h_pad=3./72.,
+            w_pad=3/72, h_pad=3/72,
             hspace=0.2, wspace=0.2)
 
 

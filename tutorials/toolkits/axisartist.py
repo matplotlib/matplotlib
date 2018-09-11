@@ -539,7 +539,7 @@ required. ::
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree
-    tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
+    tr = Affine2D().scale(np.pi/180, 1.) + PolarAxes.PolarTransform()
 
     # extreme finder :  find a range of coordinate.
     # 20, 20 : number of sampling points along x, y direction

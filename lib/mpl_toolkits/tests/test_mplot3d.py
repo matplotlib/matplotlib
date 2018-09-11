@@ -331,7 +331,7 @@ def test_quiver3d():
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+    w = (np.sqrt(2 / 3) * np.cos(np.pi * x) * np.cos(np.pi * y) *
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
@@ -346,7 +346,7 @@ def test_quiver3d_empty():
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+    w = (np.sqrt(2 / 3) * np.cos(np.pi * x) * np.cos(np.pi * y) *
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
@@ -363,7 +363,7 @@ def test_quiver3d_masked():
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+    w = (np.sqrt(2 / 3) * np.cos(np.pi * x) * np.cos(np.pi * y) *
             np.sin(np.pi * z))
     u = np.ma.masked_where((-0.4 < x) & (x < 0.1), u, copy=False)
     v = np.ma.masked_where((0.1 < y) & (y < 0.7), v, copy=False)
@@ -381,7 +381,7 @@ def test_quiver3d_pivot_middle():
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+    w = (np.sqrt(2 / 3) * np.cos(np.pi * x) * np.cos(np.pi * y) *
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='middle', normalize=True)
@@ -397,7 +397,7 @@ def test_quiver3d_pivot_tail():
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+    w = (np.sqrt(2 / 3) * np.cos(np.pi * x) * np.cos(np.pi * y) *
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail', normalize=True)
@@ -735,12 +735,12 @@ class TestVoxels(object):
             sl = ()
             for i in range(x.ndim):
                 x = (x[sl + np.index_exp[:-1]] +
-                     x[sl + np.index_exp[1:]]) / 2.0
+                     x[sl + np.index_exp[1:]]) / 2
                 sl += np.index_exp[:]
             return x
 
         # prepare some coordinates, and attach rgb values to each
-        r, g, b = np.indices((17, 17, 17)) / 16.0
+        r, g, b = np.indices((17, 17, 17)) / 16
         rc = midpoints(r)
         gc = midpoints(g)
         bc = midpoints(b)

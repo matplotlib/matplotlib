@@ -389,7 +389,7 @@ class ContourLabeler(object):
         if lc is None:
             lc = []
         # Half the label width
-        hlw = lw / 2.0
+        hlw = lw / 2
 
         # Check if closed and, if so, rotate contour so label is at edge
         closed = _is_closed_polygon(slc)
@@ -577,7 +577,7 @@ class ContourLabeler(object):
         lw = self.get_label_width(self.labelLevelList[lmin],
                                   self.labelFmt, self.labelFontSizeList[lmin])
         # lw is in points.
-        lw *= self.ax.figure.dpi / 72.0  # scale to screen coordinates
+        lw *= self.ax.figure.dpi / 72  # scale to screen coordinates
         # now lw in pixels
 
         # Figure out label rotation.
@@ -621,7 +621,7 @@ class ContourLabeler(object):
             con = self.collections[icon]
             trans = con.get_transform()
             lw = self.get_label_width(lev, self.labelFmt, fsize)
-            lw *= self.ax.figure.dpi / 72.0  # scale to screen coordinates
+            lw *= self.ax.figure.dpi / 72  # scale to screen coordinates
             additions = []
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):

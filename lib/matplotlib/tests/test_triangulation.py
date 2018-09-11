@@ -471,11 +471,11 @@ def test_triinterpcubic_C1_continuity():
         check_continuity(interp, ((ax+cx)*0.5, (ay+cy)*0.5))
         check_continuity(interp, ((cx+bx)*0.5, (cy+by)*0.5))
         # Test 3) Checking continuity at barycenter
-        check_continuity(interp, ((ax+bx+cx)/3., (ay+by+cy)/3.))
+        check_continuity(interp, ((ax+bx+cx)/3, (ay+by+cy)/3))
         # Test 4) Checking continuity at median 1/3-point
-        check_continuity(interp, ((4.*ax+bx+cx)/6., (4.*ay+by+cy)/6.))
-        check_continuity(interp, ((ax+4.*bx+cx)/6., (ay+4.*by+cy)/6.))
-        check_continuity(interp, ((ax+bx+4.*cx)/6., (ay+by+4.*cy)/6.))
+        check_continuity(interp, ((4*ax+bx+cx)/6, (4*ay+by+cy)/6))
+        check_continuity(interp, ((ax+4*bx+cx)/6, (ay+4*by+cy)/6))
+        check_continuity(interp, ((ax+bx+4*cx)/6, (ay+by+4*cy)/6))
 
 
 def test_triinterpcubic_cg_solver():

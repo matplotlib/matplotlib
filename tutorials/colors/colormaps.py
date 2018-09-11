@@ -288,7 +288,7 @@ for cmap_category, cmap_list in cmaps.items():
                 locs.append(x[-1] + j*dc)
             elif cmap_category in ('Diverging', 'Qualitative', 'Cyclic',
                                    'Miscellaneous', 'Sequential (2)'):
-                locs.append(x[int(x.size/2.)] + j*dc)
+                locs.append(x[int(x.size/2)] + j*dc)
 
         # Set up the axis limits:
         #   * the 1st subplot is used as a reference for the x-axis limits

@@ -177,8 +177,8 @@ class MathtextBackendAgg(MathtextBackend):
         else:
             height = max(int(y2 - y1) - 1, 0)
             if height == 0:
-                center = (y2 + y1) / 2.0
-                y = int(center - (height + 1) / 2.0)
+                center = (y2 + y1) / 2
+                y = int(center - (height + 1) / 2)
             else:
                 y = int(y1)
             self.image.draw_rect_filled(int(x1), y, np.ceil(x2), y + height)
@@ -571,7 +571,7 @@ class TruetypeFonts(Fonts):
 
     def _get_offset(self, font, glyph, fontsize, dpi):
         if font.postscript_name == 'Cmex10':
-            return ((glyph.height/64.0/2.0) + (fontsize/3.0 * dpi/72.0))
+            return ((glyph.height/64/2) + (fontsize/3 * dpi/72))
         return 0.
 
     def _get_info(self, fontname, font_class, sym, fontsize, dpi, math=True):
@@ -588,18 +588,18 @@ class TruetypeFonts(Fonts):
             num,
             flags=self.mathtext_backend.get_hinting_type())
 
-        xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
+        xmin, ymin, xmax, ymax = [val/64 for val in glyph.bbox]
         offset = self._get_offset(font, glyph, fontsize, dpi)
         metrics = types.SimpleNamespace(
-            advance = glyph.linearHoriAdvance/65536.0,
-            height  = glyph.height/64.0,
-            width   = glyph.width/64.0,
+            advance = glyph.linearHoriAdvance/65536,
+            height  = glyph.height/64,
+            width   = glyph.width/64,
             xmin    = xmin,
             xmax    = xmax,
             ymin    = ymin+offset,
             ymax    = ymax+offset,
             # iceberg is the equivalent of TeX's "height"
-            iceberg = glyph.horiBearingY/64.0 + offset,
+            iceberg = glyph.horiBearingY/64 + offset,
             slanted = slanted
             )
 
@@ -624,14 +624,14 @@ class TruetypeFonts(Fonts):
             metrics = self.get_metrics(
                 fontname, rcParams['mathtext.default'], 'x', fontsize, dpi)
             return metrics.iceberg
-        xHeight = (pclt['xHeight'] / 64.0) * (fontsize / 12.0) * (dpi / 100.0)
+        xHeight = (pclt['xHeight'] / 64) * (fontsize / 12) * (dpi / 100)
         return xHeight
 
     def get_underline_thickness(self, font, fontsize, dpi):
         # This function used to grab underline thickness from the font
         # metrics, but that information is just too un-reliable, so it
         # is now hardcoded.
-        return ((0.75 / 12.0) * fontsize * dpi) / 72.0
+        return ((0.75 / 12) * fontsize * dpi) / 72
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
@@ -1251,7 +1251,7 @@ class StandardPsFonts(Fonts):
 # How much text shrinks when going to the next-smallest level.  GROW_FACTOR
 # must be the inverse of SHRINK_FACTOR.
 SHRINK_FACTOR   = 0.7
-GROW_FACTOR     = 1.0 / SHRINK_FACTOR
+GROW_FACTOR     = 1 / SHRINK_FACTOR
 # The number of different sizes of chars to use, beyond which they will not
 # get any smaller
 NUM_SIZE_LEVELS = 6
@@ -2850,7 +2850,7 @@ class Parser(object):
         if accent == 'mathring':
             accent_box.shrink()
             accent_box.shrink()
-        centered = HCentered([Hbox(sym.width / 4.0), accent_box])
+        centered = HCentered([Hbox(sym.width / 4), accent_box])
         centered.hpack(sym.width, 'exactly')
         return Vlist([
                 centered,
@@ -3060,7 +3060,7 @@ class Parser(object):
         if self.is_slanted(last_char):
             superkern += constants.delta * xHeight
             superkern += (constants.delta_slanted *
-                          (lc_height - xHeight * 2. / 3.))
+                          (lc_height - xHeight * 2 / 3))
             if self.is_dropsub(last_char):
                 subkern = (3 * constants.delta -
                            constants.delta_integral) * lc_height
@@ -3512,7 +3512,7 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
     parser = MathTextParser('path')
     width, height, depth, _, _ = parser.parse(s, dpi=72, prop=prop)
 
-    fig = figure.Figure(figsize=(width / 72.0, height / 72.0))
+    fig = figure.Figure(figsize=(width / 72, height / 72))
     fig.text(0, depth/height, s, fontproperties=prop)
     backend_agg.FigureCanvasAgg(fig)
     fig.savefig(filename_or_obj, dpi=dpi, format=format)

@@ -125,12 +125,12 @@ def test_agg_filter():
                 self.offsets = offsets
 
         def get_pad(self, dpi):
-            return int(max(*self.offsets)/72.*dpi)
+            return int(max(*self.offsets)/72*dpi)
 
         def process_image(self, padded_src, dpi):
             ox, oy = self.offsets
-            a1 = np.roll(padded_src, int(ox/72.*dpi), axis=1)
-            a2 = np.roll(a1, -int(oy/72.*dpi), axis=0)
+            a1 = np.roll(padded_src, int(ox/72*dpi), axis=1)
+            a2 = np.roll(a1, -int(oy/72*dpi), axis=0)
             return a2
 
     class GaussianFilter(BaseFilter):
@@ -145,12 +145,12 @@ def test_agg_filter():
                 self.color = color
 
         def get_pad(self, dpi):
-            return int(self.sigma*3/72.*dpi)
+            return int(self.sigma*3/72*dpi)
 
         def process_image(self, padded_src, dpi):
             tgt_image = np.zeros_like(padded_src)
             aa = smooth2d(padded_src[:, :, -1]*self.alpha,
-                          self.sigma/72.*dpi)
+                          self.sigma/72*dpi)
             tgt_image[:, :, -1] = aa
             tgt_image[:, :, :-1] = self.color
             return tgt_image

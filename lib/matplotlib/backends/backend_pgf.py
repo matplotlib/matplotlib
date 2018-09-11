@@ -68,10 +68,10 @@ def get_preamble():
 # This almost made me cry!!!
 # In the end, it's better to use only one unit for all coordinates, since the
 # arithmetic in latex seems to produce inaccurate conversions.
-latex_pt_to_in = 1. / 72.27
-latex_in_to_pt = 1. / latex_pt_to_in
-mpl_pt_to_in = 1. / 72.
-mpl_in_to_pt = 1. / mpl_pt_to_in
+latex_pt_to_in = 1 / 72.27
+latex_in_to_pt = 1 / latex_pt_to_in
+mpl_pt_to_in = 1 / 72.
+mpl_in_to_pt = 1 / mpl_pt_to_in
 
 ###############################################################################
 # helper functions
@@ -411,7 +411,7 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\begin{pgfscope}")
 
         # convert from display units to in
-        f = 1. / self.dpi
+        f = 1 / self.dpi
 
         # set style and clip
         self._print_pgf_clip(gc)
@@ -473,7 +473,7 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\end{pgfscope}")
             writeln(self.fh, r"}")
             # repeat pattern, filling the bounding rect of the path
-            f = 1. / self.dpi
+            f = 1 / self.dpi
             (xmin, ymin), (xmax, ymax) = \
                 path.get_extents(transform).get_points()
             xmin, xmax = f * xmin, f * xmax
@@ -491,7 +491,7 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\end{pgfscope}")
 
     def _print_pgf_clip(self, gc):
-        f = 1. / self.dpi
+        f = 1 / self.dpi
         # check for clip box
         bbox = gc.get_clip_rectangle()
         if bbox:
@@ -562,7 +562,7 @@ class RendererPgf(RendererBase):
                        dash_offset))
 
     def _print_pgf_path(self, gc, path, transform, rgbFace=None):
-        f = 1. / self.dpi
+        f = 1 / self.dpi
         # check for clip box / ignore clip for filled paths
         bbox = gc.get_clip_rectangle() if gc else None
         if bbox and (rgbFace is None):
@@ -637,7 +637,7 @@ class RendererPgf(RendererBase):
         # reference the image in the pgf picture
         writeln(self.fh, r"\begin{pgfscope}")
         self._print_pgf_clip(gc)
-        f = 1. / self.dpi  # from display coords to inch
+        f = 1 / self.dpi  # from display coords to inch
         if transform is None:
             writeln(self.fh,
                     r"\pgfsys@transformshift{%fin}{%fin}" % (x * f, y * f))
@@ -677,7 +677,7 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
         s = r"\color{textcolor}" + s
 
-        f = 1.0 / self.figure.dpi
+        f = 1 / self.figure.dpi
         text_args = []
         if mtext and (
                 (angle == 0 or

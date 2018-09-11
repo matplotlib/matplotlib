@@ -53,7 +53,7 @@ plt.show()
 # how padding affects the resulting PSD.
 
 dt = np.pi / 100.
-fs = 1. / dt
+fs = 1 / dt
 t = np.arange(0, 8, dt)
 y = 10. * np.sin(2 * np.pi * 4 * t) + 5. * np.sin(2 * np.pi * 4.25 * t)
 y = y + np.random.randn(*t.shape)
@@ -87,9 +87,9 @@ plt.title('block size')
 ax4 = fig.add_subplot(gs[1, 2], sharex=ax2, sharey=ax2)
 ax4.psd(y, NFFT=len(t) // 2, pad_to=len(t), noverlap=0, Fs=fs)
 ax4.psd(y, NFFT=len(t) // 2, pad_to=len(t),
-        noverlap=int(0.05 * len(t) / 2.), Fs=fs)
+        noverlap=int(0.05 * len(t) / 2), Fs=fs)
 ax4.psd(y, NFFT=len(t) // 2, pad_to=len(t),
-        noverlap=int(0.2 * len(t) / 2.), Fs=fs)
+        noverlap=int(0.2 * len(t) / 2), Fs=fs)
 ax4.set_ylabel('')
 plt.title('overlap')
 

@@ -17,7 +17,7 @@ import matplotlib as mpl
 from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
                lines as mlines, path as mpath, transforms)
 
-CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
+CIRCLE_AREA_FACTOR = 1 / np.sqrt(np.pi)
 
 
 @cbook._define_aliases({
@@ -871,7 +871,7 @@ class _CollectionWithSizes(Collection):
         else:
             self._sizes = np.asarray(sizes)
             self._transforms = np.zeros((len(self._sizes), 3, 3))
-            scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
+            scale = np.sqrt(self._sizes) * dpi / 72 * self._factor
             self._transforms[:, 0, 0] = scale
             self._transforms[:, 1, 1] = scale
             self._transforms[:, 2, 2] = 1.0
@@ -1364,8 +1364,8 @@ class EventCollection(LineCollection):
         .. plot:: gallery/lines_bars_and_markers/eventcollection_demo.py
         """
 
-        segment = (lineoffset + linelength / 2.,
-                   lineoffset - linelength / 2.)
+        segment = (lineoffset + linelength / 2,
+                   lineoffset - linelength / 2)
         if positions is None or len(positions) == 0:
             segments = []
         elif hasattr(positions, 'ndim') and positions.ndim > 1:
@@ -1418,8 +1418,8 @@ class EventCollection(LineCollection):
 
         lineoffset = self.get_lineoffset()
         linelength = self.get_linelength()
-        segment = (lineoffset + linelength / 2.,
-                   lineoffset - linelength / 2.)
+        segment = (lineoffset + linelength / 2,
+                   lineoffset - linelength / 2)
         positions = np.asanyarray(positions)
         positions.sort()
         if self.is_horizontal():
@@ -1622,7 +1622,7 @@ class EllipseCollection(Collection):
         elif self._units == 'inches':
             sc = fig.dpi
         elif self._units == 'points':
-            sc = fig.dpi / 72.0
+            sc = fig.dpi / 72
         elif self._units == 'width':
             sc = ax.bbox.width
         elif self._units == 'height':
@@ -1874,7 +1874,7 @@ class QuadMesh(Collection):
         p_b = p[:-1, 1:]
         p_c = p[1:, 1:]
         p_d = p[1:, :-1]
-        p_center = (p_a + p_b + p_c + p_d) / 4.0
+        p_center = (p_a + p_b + p_c + p_d) / 4
 
         triangles = np.concatenate((
                 p_a, p_b, p_center,
@@ -1889,7 +1889,7 @@ class QuadMesh(Collection):
         c_b = c[:-1, 1:]
         c_c = c[1:, 1:]
         c_d = c[1:, :-1]
-        c_center = (c_a + c_b + c_c + c_d) / 4.0
+        c_center = (c_a + c_b + c_c + c_d) / 4
 
         colors = np.concatenate((
                         c_a, c_b, c_center,

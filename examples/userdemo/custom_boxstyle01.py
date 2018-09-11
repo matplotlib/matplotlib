@@ -33,7 +33,7 @@ def custom_box_style(x0, y0, width, height, mutation_size, mutation_aspect=1):
 
     cp = [(x0, y0),
           (x1, y0), (x1, y1), (x0, y1),
-          (x0-pad, (y0+y1)/2.), (x0, y0),
+          (x0-pad, (y0+y1)/2), (x0, y0),
           (x0, y0)]
 
     com = [Path.MOVETO,

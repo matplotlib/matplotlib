@@ -45,10 +45,10 @@ ncol = 2
 nrow = len(maps)//ncol + 1
 
 xpad_fraction = 0.3
-dx = 1./(ncol + xpad_fraction*(ncol - 1))
+dx = 1/(ncol + xpad_fraction*(ncol - 1))
 
 ypad_fraction = 0.3
-dy = 1./(nrow + ypad_fraction*(nrow - 1))
+dy = 1/(nrow + ypad_fraction*(nrow - 1))
 
 for i, m in enumerate(maps):
     ix, iy = divmod(i, nrow)

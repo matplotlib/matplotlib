@@ -245,7 +245,7 @@ for ax in axs.flatten():
     example_plot(ax, nodec=True)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
-fig.set_constrained_layout_pads(w_pad=4./72., h_pad=4./72.,
+fig.set_constrained_layout_pads(w_pad=4/72, h_pad=4/72,
         hspace=0., wspace=0.)
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
@@ -253,7 +253,7 @@ for ax in axs.flatten():
     example_plot(ax, nodec=True)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
-fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
+fig.set_constrained_layout_pads(w_pad=2/72, h_pad=2/72,
         hspace=0., wspace=0.)
 
 ##########################################
@@ -268,7 +268,7 @@ for ax in axs.flatten():
     example_plot(ax, nodec=True)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
-fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
+fig.set_constrained_layout_pads(w_pad=2/72, h_pad=2/72,
         hspace=0.2, wspace=0.2)
 
 
@@ -287,7 +287,7 @@ for ax in axs.flatten():
     fig.colorbar(im, ax=ax, shrink=0.6, pad=0)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
-fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
+fig.set_constrained_layout_pads(w_pad=2/72, h_pad=2/72,
         hspace=0.2, wspace=0.2)
 
 ##########################################
@@ -301,7 +301,7 @@ for ax in axs.flatten():
     fig.colorbar(im, ax=ax, shrink=0.6, pad=0.05)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
-fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
+fig.set_constrained_layout_pads(w_pad=2/72, h_pad=2/72,
         hspace=0.2, wspace=0.2)
 
 ##########################################
@@ -314,7 +314,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 #
 # - ``use``: Whether to use constrained_layout. Default is False
 # - ``w_pad``, ``h_pad``:    Padding around axes objects.
-#    Float representing inches.  Default is 3./72. inches (3 pts)
+#    Float representing inches.  Default is 3/72 inches (3 pts)
 # - ``wspace``, ``hspace``:  Space between subplot groups.
 #    Float representing a fraction of the subplot widths being separated.
 #    Default is 0.02.

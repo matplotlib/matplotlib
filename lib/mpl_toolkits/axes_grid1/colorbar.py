@@ -214,14 +214,14 @@ class CbarAxesLocator(object):
         extesion_fraction = self.extesion_fraction
 
         corx = extesion_fraction*2.
-        cory = 1./(1. - corx)
+        cory = 1 / (1 - corx)
         x1, y1, w, h = 0, 0, 1, 1
         x2, y2 = x1 + w, y1 + h
         dw, dh = w*extesion_fraction, h*extesion_fraction*cory
 
         if self.extend in ["min", "both"]:
             bottom = [(x1, y1),
-                      (x1+w/2., y1-dh),
+                      (x1+w/2, y1-dh),
                       (x2, y1)]
         else:
             bottom = [(x1, y1),
@@ -229,7 +229,7 @@ class CbarAxesLocator(object):
 
         if self.extend in ["max", "both"]:
             top = [(x2, y2),
-                   (x1+w/2., y2+dh),
+                   (x1+w/2, y2+dh),
                    (x1, y2)]
         else:
             top = [(x2, y2),

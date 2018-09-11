@@ -45,7 +45,7 @@ Z1 = (1 + np.sin(Y * 10.)) * X**(2.)
 
 fig, ax = plt.subplots(2, 1)
 
-pcm = ax[0].pcolormesh(X, Y, Z1, norm=colors.PowerNorm(gamma=1. / 2.),
+pcm = ax[0].pcolormesh(X, Y, Z1, norm=colors.PowerNorm(gamma=1 / 2),
                        cmap='PuBu_r')
 fig.colorbar(pcm, ax=ax[0], extend='max')
 

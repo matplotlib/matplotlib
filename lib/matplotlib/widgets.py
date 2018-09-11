@@ -530,7 +530,7 @@ class CheckButtons(AxesWidget):
             actives = [False] * len(labels)
 
         if len(labels) > 1:
-            dy = 1. / (len(labels) + 1)
+            dy = 1 / (len(labels) + 1)
             ys = np.linspace(1 - dy, dy, len(labels))
         else:
             dy = 0.25
@@ -983,7 +983,7 @@ class RadioButtons(AxesWidget):
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_navigate(False)
-        dy = 1. / (len(labels) + 1)
+        dy = 1 / (len(labels) + 1)
         ys = np.linspace(1 - dy, dy, len(labels))
         cnt = 0
         axcolor = ax.get_facecolor()
@@ -2287,7 +2287,7 @@ class RectangleSelector(_SelectorWidget):
     def center(self):
         """Center of rectangle"""
         x0, y0, width, height = self._rect_bbox
-        return x0 + width / 2., y0 + height / 2.
+        return x0 + width / 2, y0 + height / 2
 
     @property
     def extents(self):
@@ -2420,7 +2420,7 @@ class EllipseSelector(RectangleSelector):
         x1, x2, y1, y2 = extents
         xmin, xmax = sorted([x1, x2])
         ymin, ymax = sorted([y1, y2])
-        center = [x1 + (x2 - x1) / 2., y1 + (y2 - y1) / 2.]
+        center = [x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2]
         a = (xmax - xmin) / 2.
         b = (ymax - ymin) / 2.
 
@@ -2440,7 +2440,7 @@ class EllipseSelector(RectangleSelector):
             x, y = self.to_draw.center
             width = self.to_draw.width
             height = self.to_draw.height
-            return x - width / 2., y - height / 2., width, height
+            return x - width / 2, y - height / 2, width, height
         else:
             x, y = self.to_draw.get_data()
             x0, x1 = min(x), max(x)

@@ -133,9 +133,9 @@ class MercatorLatitudeScale(mscale.ScaleBase):
             """
             masked = ma.masked_where((a < -self.thresh) | (a > self.thresh), a)
             if masked.mask.any():
-                return ma.log(np.abs(ma.tan(masked) + 1.0 / ma.cos(masked)))
+                return ma.log(np.abs(ma.tan(masked) + 1 / ma.cos(masked)))
             else:
-                return np.log(np.abs(np.tan(a) + 1.0 / np.cos(a)))
+                return np.log(np.abs(np.tan(a) + 1 / np.cos(a)))
 
         def inverted(self):
             """
