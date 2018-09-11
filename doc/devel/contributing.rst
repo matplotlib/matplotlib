@@ -470,7 +470,7 @@ that can usually be ignored, but a mystified user could call
 says why.
 
 `logging.debug` is the least likely to be displayed, and hence can be the most
-verbose.  "Expected" code paths (e.g., reporting normal intermediat steps of
+verbose.  "Expected" code paths (e.g., reporting normal intermediate steps of
 layouting or rendering) should only log at this level.
 
 .. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
