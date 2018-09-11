@@ -1940,12 +1940,15 @@ class MaxNLocator(Locator):
         _vmin = vmin - offset
         _vmax = vmax - offset
         raw_step = (_vmax - _vmin) / nbins
-        steps = self._extended_steps * scale
+        print("self._extended_steps = " + str(self._extended_steps))
+        steps = self._extended_steps
+
         if self._integer:
             # For steps > 1, keep only integer values.
-            igood = (steps < 1) | (np.abs(steps - np.round(steps)) < 0.001)
+            igood = (steps >= 1) & (np.abs(steps - np.round(steps)) < 0.001)
             steps = steps[igood]
 
+        steps = steps * scale
         istep = np.nonzero(steps >= raw_step)[0][0]
 
         # Classic round_numbers mode may require a larger step.
