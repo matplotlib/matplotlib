@@ -449,16 +449,15 @@ Then they will receive messages like::
 Which logging level to use?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are five levels at which you can emit messages.
-`logging.critical` and `logging.error`
-are really only there for errors that will end the use of the library but
-not kill the interpreter.  `logging.warning` overlaps with the
-``warnings`` library.  The
-`logging tutorial <https://docs.python.org/3/howto/logging.html#logging-basic-tutorial>`_
-suggests that the difference
-between `logging.warning` and `warnings.warn` is that
-`warnings.warn` be used for things the user must change to stop
-the warning, whereas `logging.warning` can be more persistent.
+There are five levels at which you can emit messages.  `logging.critical` and
+`logging.error` are really only there for errors that will end the use of the
+library but not kill the interpreter. `logging.warning` overlaps with the
+`warnings` library.  The `logging tutorial`_ suggests that the difference
+between `logging.warning` and `warnings.warn` is that `warnings.warn` should
+be used for things the user must change to stop the warning (typically in the
+source), whereas `logging.warning` can be more persistent.  Moreover, note
+that `warnings.warn` will by default only emit a given warning *once*, whereas
+`logging.warning` will display the message every time it is called.
 
 By default, `logging` displays all log messages at levels higher than
 `logging.WARNING` to `sys.stderr`.
@@ -466,12 +465,15 @@ By default, `logging` displays all log messages at levels higher than
 Calls to `logging.info` are not displayed by default.  They are for
 information that the user may want to know if the program behaves oddly.
 For instance, if an object isn't drawn because its position is ``NaN``,
-that can usually be ignored, but a mystified user could set
+that can usually be ignored, but a mystified user could call
 ``logging.basicConfig(level=logging.INFO)`` and get an error message that
 says why.
 
-`logging.debug` is the least likely to be displayed, and hence can
-be the most verbose.
+`logging.debug` is the least likely to be displayed, and hence can be the most
+verbose.  "Expected" code paths (e.g., reporting normal intermediate steps of
+layouting or rendering) should only log at this level.
+
+.. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 
 .. _custom_backend:
 
