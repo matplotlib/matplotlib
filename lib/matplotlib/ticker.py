@@ -1944,6 +1944,7 @@ class MaxNLocator(Locator):
         steps = self._extended_steps
 
         if self._integer:
+            print("self.interger is " + str(self._integer))
             # For steps > 1, keep only integer values.
             igood = (steps >= 1) & (np.abs(steps - np.round(steps)) < 0.001)
             steps = steps[igood]
