@@ -107,15 +107,16 @@ class NoopTestCommand(TestCommand):
 
 
 class BuildExtraLibraries(BuildExtCommand):
-    def run(self):
-        # Remove the -Wstrict-prototypes option, it's not valid for C++.
+    def build_extensions(self):
+        # Remove the -Wstrict-prototypes option, it's not valid for C++.  Fixed
+        # in Py3.7 as bpo-5755.
         try:
             self.compiler.compiler_so.remove('-Wstrict-prototypes')
         except (ValueError, AttributeError):
             pass
         for package in good_packages:
             package.do_custom_build()
-        return BuildExtCommand.run(self)
+        return super().build_extensions()
 
 
 cmdclass = versioneer.get_cmdclass()
