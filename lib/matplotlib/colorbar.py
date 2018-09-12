@@ -234,13 +234,14 @@ class _ColorbarAutoLocator(ticker.MaxNLocator):
         self._colorbar = colorbar
         nbins = 'auto'
         steps = [1, 2, 2.5, 5, 10]
-        ticker.MaxNLocator.__init__(self, nbins=nbins, steps=steps)
+        ticker.MaxNLocator.__init__(self, nbins=nbins, steps=steps,
+                                    trim_outside=True)
 
     def tick_values(self, vmin, vmax):
         vmin = max(vmin, self._colorbar.norm.vmin)
         vmax = min(vmax, self._colorbar.norm.vmax)
         ticks = ticker.MaxNLocator.tick_values(self, vmin, vmax)
-        return ticks[(ticks >= vmin) & (ticks <= vmax)]
+        return ticks
 
 
 class _ColorbarAutoMinorLocator(ticker.AutoMinorLocator):

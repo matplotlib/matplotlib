@@ -189,6 +189,19 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'SymmetricalLogLocator', 'LogitLocator')
 
 
+def _keep_in_vlim(locs, vmin, vmax, rtol=1e-10):
+    """
+    trim array locs to be between vmin and vmax within
+    tolerance.
+    """
+    if vmin > vmax:
+        vmax, vmin = vmin, vmax
+
+    rtol = (vmax - vmin) * rtol
+    locs = locs[locs >= vmin - rtol]
+    locs = locs[locs <= vmax + rtol]
+    return locs
+
 # Work around numpy/numpy#6127.
 def _divmod(x, y):
     if isinstance(x, np.generic):
@@ -1823,19 +1836,21 @@ class MaxNLocator(Locator):
                           steps=None,
                           integer=False,
                           symmetric=False,
+                          trim_outside=True,
                           prune=None,
                           min_n_ticks=2)
 
     def __init__(self, *args, **kwargs):
         """
-        Keyword args:
+        Parameters
+        ----------
 
-        *nbins*
+        nbins : integer
             Maximum number of intervals; one less than max number of
             ticks.  If the string `'auto'`, the number of bins will be
             automatically determined based on the length of the axis.
 
-        *steps*
+        steps : integer
             Sequence of nice numbers starting with 1 and ending with 10;
             e.g., [1, 2, 4, 5, 10], where the values are acceptable
             tick multiples.  i.e. for the example, 20, 40, 60 would be
@@ -1843,17 +1858,23 @@ class MaxNLocator(Locator):
             they are multiples of 2.  However, 30, 60, 90 would not
             be allowed because 3 does not appear in the list of steps.
 
-        *integer*
+        integer : bool
             If True, ticks will take only integer values, provided
             at least `min_n_ticks` integers are found within the
             view limits.
 
-        *symmetric*
+        symmetric : bool
             If True, autoscaling will result in a range symmetric
             about zero.
 
-        *prune*
-            ['lower' | 'upper' | 'both' | None]
+        trim_outside: bool
+            By default (``False``) calling ``MaxNLocator`` will return one
+            tick thats less than vmin, and one tick thats greater than vmax.
+            This flag suppresses that behaviour.  Note its different than
+            ``prune`` (below), which prunes the lower or upper tick, regardless
+            of whether it is in the view limits.
+
+        prune : ['lower' | 'upper' | 'both' | None]
             Remove edge ticks -- useful for stacked or ganged plots where
             the upper tick of one axes overlaps with the lower tick of the
             axes above it, primarily when :rc:`axes.autolimit_mode` is
@@ -1862,7 +1883,7 @@ class MaxNLocator(Locator):
             removed.  If ``prune == 'both'``, the largest and smallest ticks
             will be removed.  If ``prune == None``, no ticks will be removed.
 
-        *min_n_ticks*
+        min_n_ticks : integer
             Relax `nbins` and `integer` constraints if necessary to
             obtain this minimum number of ticks.
 
@@ -1910,6 +1931,9 @@ class MaxNLocator(Locator):
                 self._nbins = int(self._nbins)
         if 'symmetric' in kwargs:
             self._symmetric = kwargs['symmetric']
+
+        self._trim_outside = kwargs.pop('trim_outside', True)
+
         if 'prune' in kwargs:
             prune = kwargs['prune']
             if prune is not None and prune not in ['upper', 'lower', 'both']:
@@ -1993,12 +2017,16 @@ class MaxNLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
+
         if self._symmetric:
             vmax = max(abs(vmin), abs(vmax))
             vmin = -vmax
         vmin, vmax = mtransforms.nonsingular(
             vmin, vmax, expander=1e-13, tiny=1e-14)
         locs = self._raw_ticks(vmin, vmax)
+
+        if self._trim_outside:
+            locs = _keep_in_vlim(locs, vmin, vmax)
 
         prune = self._prune
         if prune == 'lower':
@@ -2543,7 +2571,7 @@ class AutoLocator(MaxNLocator):
         else:
             nbins = 'auto'
             steps = [1, 2, 2.5, 5, 10]
-        MaxNLocator.__init__(self, nbins=nbins, steps=steps)
+        MaxNLocator.__init__(self, nbins=nbins, steps=steps, trim_outside=True)
 
 
 class AutoMinorLocator(Locator):
