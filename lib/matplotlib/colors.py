@@ -26,6 +26,8 @@ from a list of colors.
   :doc:`/tutorials/colors/colormapnorms` for more details about data
   normalization
 
+  More colormaps are available at palettable_
+
 The module also provides functions for checking whether an object can be
 interpreted as a color (:func:`is_color_like`), for converting such an object
 to an RGBA tuple (:func:`to_rgba`) or to an HTML-like hex string in the
@@ -53,6 +55,9 @@ Matplotlib recognizes the following formats to specify a color:
   cycle does not include color.
 
 All string specifications of color, other than "CN", are case-insensitive.
+
+.. _palettable: https://jiffyclub.github.io/palettable/
+
 """
 
 from collections.abc import Sized
