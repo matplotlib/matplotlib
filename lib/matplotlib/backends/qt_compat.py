@@ -27,7 +27,12 @@ QT_API_PYSIDE2 = "PySide2"
 QT_API_PYQTv2 = "PyQt4v2"
 QT_API_PYSIDE = "PySide"
 QT_API_PYQT = "PyQt4"   # Use the old sip v1 API (Py3 defaults to v2).
-QT_API_ENV = os.environ.get('QT_API')
+QT_API_ENV = os.environ.get("QT_API")
+# Mapping of QT_API_ENV to requested binding.  ETS does not support PyQt4v1.
+# (https://github.com/enthought/pyface/blob/master/pyface/qt/__init__.py)
+_ETS = {"pyqt5": QT_API_PYQT5, "pyside2": QT_API_PYSIDE2,
+        "pyqt": QT_API_PYQTv2, "pyside": QT_API_PYSIDE,
+        None: None}
 # First, check if anything is already imported.
 if "PyQt5" in sys.modules:
     QT_API = QT_API_PYQT5
@@ -44,13 +49,13 @@ elif "PySide" in sys.modules:
 # Otherwise, check the QT_API environment variable (from Enthought).  This can
 # only override the binding, not the backend (in other words, we check that the
 # requested backend actually matches).
-elif rcParams["backend"] == "Qt5Agg":
+elif rcParams["backend"] in ["Qt5Agg", "Qt5Cairo"]:
     if QT_API_ENV == "pyqt5":
         dict.__setitem__(rcParams, "backend.qt5", QT_API_PYQT5)
     elif QT_API_ENV == "pyside2":
         dict.__setitem__(rcParams, "backend.qt5", QT_API_PYSIDE2)
     QT_API = dict.__getitem__(rcParams, "backend.qt5")
-elif rcParams["backend"] == "Qt4Agg":
+elif rcParams["backend"] in ["Qt4Agg", "Qt4Cairo"]:
     if QT_API_ENV == "pyqt4":
         dict.__setitem__(rcParams, "backend.qt4", QT_API_PYQTv2)
     elif QT_API_ENV == "pyside":
@@ -59,7 +64,12 @@ elif rcParams["backend"] == "Qt4Agg":
 # A non-Qt backend was selected but we still got there (possible, e.g., when
 # fully manually embedding Matplotlib in a Qt app without using pyplot).
 else:
-    QT_API = None
+    try:
+        QT_API = _ETS[QT_API_ENV]
+    except KeyError:
+        raise RuntimeError(
+            "The environment variable QT_API has the unrecognized value {!r};"
+            "valid values are 'pyqt5', 'pyside2', 'pyqt', and 'pyside'")
 
 
 def _setup_pyqt5():
