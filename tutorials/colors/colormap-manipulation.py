@@ -3,11 +3,17 @@
 Creating Colormaps in Matplotlib
 ********************************
 
-Creating and manipulating colormaps in Matplotlib is straight-forward
-using the class `.ListedColormap` and a Nx4 numpy array of values
-between 0 and 1 to represent the RGBA values of the colormap.  There
+Matplotlib has a number of built-in colormaps accessible via
+`.matplotlib.cm.get_cmap`.  There are also external libraries like
+palettable_ that have many extra colormaps.
+
+.. _palettable: https://jiffyclub.github.io/palettable/
+
+However, we often want to create or manipulate colormaps in Matplotlib.
+This can be done using the class `.ListedColormap` and a Nx4 numpy array of
+values between 0 and 1 to represent the RGBA values of the colormap.  There
 is also a `.LinearSegmentedColormap` class that allows colormaps to be
-specified with far fewer anchor points defining segments, and linearly
+specified with a few anchor points defining segments, and linearly
 interpolating between the anchor points.
 
 Getting colormaps and accessing their values
