@@ -2892,7 +2892,7 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     return vmin, vmax
 
 
-def interval_contains(interval, val):
+def interval_contains(interval, val, rtol=1e-10):
     """
     Check, inclusively, whether an interval includes a given value.
 
@@ -2902,6 +2902,9 @@ def interval_contains(interval, val):
         A 2-length sequence, endpoints that define the interval.
     val : scalar
         Value to check is within interval.
+    rtol : float
+        Floating point tolerance relatice to b-a. So tol = (b - a) * rtol, and
+        return True if a - tol <= val <= b + tol (for b>a).
 
     Returns
     -------
@@ -2909,7 +2912,8 @@ def interval_contains(interval, val):
         Returns true if given val is within the interval.
     """
     a, b = interval
-    return a <= val <= b or a >= val >= b
+    rtol = np.abs(b - a) * rtol
+    return a - rtol <= val <= b + rtol or a + rtol >= val >= b - rtol
 
 
 def interval_contains_open(interval, val):
