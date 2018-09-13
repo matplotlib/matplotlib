@@ -33,8 +33,8 @@ import uuid
 
 import numpy as np
 
-from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
-                                        JS_INCLUDE)
+from matplotlib._animation_data import (
+    DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
 from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
 
 
@@ -923,7 +923,7 @@ class HTMLWriter(FileMovieWriter):
         interval = 1000 // self.fps
 
         with open(self.outfile, 'w') as of:
-            of.write(JS_INCLUDE)
+            of.write(JS_INCLUDE + STYLE_INCLUDE)
             of.write(DISPLAY_TEMPLATE.format(id=uuid.uuid4().hex,
                                              Nframes=Nframes,
                                              fill_frames=fill_frames,
