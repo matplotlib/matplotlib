@@ -37,6 +37,7 @@ extensions = [
     'IPython.sphinxext.ipython_directive',
     'numpydoc',  # Needs to be loaded *after* autodoc.
     'sphinx_gallery.gen_gallery',
+    'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.plot_directive',
     'sphinxext.custom_roles',
     'sphinxext.github',
@@ -44,8 +45,6 @@ extensions = [
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
 ]
-if sphinx.version_info < (1, 8):
-    extensions.append('matplotlib.sphinxext.mathmpl')
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
