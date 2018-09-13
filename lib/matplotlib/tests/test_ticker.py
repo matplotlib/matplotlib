@@ -26,12 +26,13 @@ class TestMaxNLocator(object):
 
     @pytest.mark.parametrize('vmin, vmax, expected', basic_data)
     def test_basic(self, vmin, vmax, expected):
-        loc = mticker.MaxNLocator(nbins=5)
+        loc = mticker.MaxNLocator(nbins=5, trim_outside=False)
         assert_almost_equal(loc.tick_values(vmin, vmax), expected)
 
     @pytest.mark.parametrize('vmin, vmax, steps, expected', integer_data)
     def test_integer(self, vmin, vmax, steps, expected):
-        loc = mticker.MaxNLocator(nbins=5, integer=True, steps=steps)
+        loc = mticker.MaxNLocator(nbins=5, integer=True, steps=steps,
+                                  trim_outside=False)
         assert_almost_equal(loc.tick_values(vmin, vmax), expected)
 
 
