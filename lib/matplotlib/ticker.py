@@ -198,6 +198,7 @@ def _keep_in_vlim(locs, vmin, vmax, rtol=1e-10):
         vmax, vmin = vmin, vmax
 
     rtol = (vmax - vmin) * rtol
+    print(vmin, rtol)
     locs = locs[locs >= vmin - rtol]
     locs = locs[locs <= vmax + rtol]
     return locs

@@ -1062,8 +1062,10 @@ class Axis(artist.Artist):
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
-            if not mtransforms.interval_contains(interval, loc):
-                continue
+            inter = self.get_transform().transform(interval)
+            loct = self.get_transform().transform(loc)
+            if not mtransforms.interval_contains(inter, loct):
+                    continue
             ticks_to_draw.append(tick)
 
         return ticks_to_draw
