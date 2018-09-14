@@ -23,10 +23,10 @@
 .. _NUMFocus: http://www.numfocus.org
 
 .. |Examples| image:: https://mybinder.org/badge.svg
-.. _Examples: https://mybinder.org/v2/gh/mwouts/matplotlib/master?filepath=examples
+.. _Examples: https://mybinder.org/v2/gh/matplotlib/matplotlib/master?filepath=examples
 
 .. |Tutorials| image:: https://mybinder.org/badge.svg
-.. _Tutorials: https://mybinder.org/v2/gh/mwouts/matplotlib/master?filepath=tutorials
+.. _Tutorials: https://mybinder.org/v2/gh/matplotlib/matplotlib/master?filepath=tutorials
 
 ##########
 Matplotlib
