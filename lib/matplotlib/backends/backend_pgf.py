@@ -1,6 +1,5 @@
 import atexit
 import codecs
-import errno
 import logging
 import math
 import os

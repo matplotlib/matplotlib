@@ -20,7 +20,6 @@ import kiwisolver as kiwi
 import logging
 import numpy as np
 
-import matplotlib
 
 _log = logging.getLogger(__name__)
 

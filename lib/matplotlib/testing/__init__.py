@@ -1,9 +1,7 @@
-import functools
 import locale
 import warnings
 
 import matplotlib as mpl
-from matplotlib import cbook
 from matplotlib.cbook import MatplotlibDeprecationWarning
 
 

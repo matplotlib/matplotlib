@@ -1,4 +1,3 @@
-import warnings
 import platform
 
 from matplotlib.testing.decorators import image_comparison

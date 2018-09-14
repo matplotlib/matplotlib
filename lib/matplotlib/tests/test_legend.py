@@ -1,5 +1,4 @@
 import collections
-import inspect
 import platform
 from unittest import mock
 

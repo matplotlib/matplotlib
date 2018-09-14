@@ -1,9 +1,7 @@
 from collections import OrderedDict
 from contextlib import contextmanager
 import gc
-import os
 from pathlib import Path
-import shutil
 from tempfile import TemporaryDirectory
 import warnings
 

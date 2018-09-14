@@ -16,8 +16,7 @@ from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredDirectionArrows)
 
 from matplotlib.colors import LogNorm
-from matplotlib.transforms import Bbox, TransformedBbox, \
-     blended_transform_factory
+from matplotlib.transforms import Bbox, TransformedBbox
 from itertools import product
 
 import pytest

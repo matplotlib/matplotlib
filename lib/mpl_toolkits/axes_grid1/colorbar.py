@@ -24,7 +24,6 @@ import matplotlib.colors as colors
 import matplotlib.cm as cm
 from matplotlib import docstring
 import matplotlib.ticker as ticker
-import matplotlib.cbook as cbook
 import matplotlib.collections as collections
 import matplotlib.contour as contour
 from matplotlib.path import Path

@@ -2,7 +2,6 @@ import importlib
 import logging
 import os
 import sys
-import traceback
 
 import matplotlib
 from matplotlib import cbook

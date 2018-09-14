@@ -119,7 +119,6 @@ from collections.abc import MutableMapping
 import contextlib
 import distutils.version
 import functools
-import io
 import importlib
 import inspect
 from inspect import Parameter

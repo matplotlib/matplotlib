@@ -4,7 +4,6 @@ Provides a collection of utilities for comparing (image) results.
 """
 
 import atexit
-import functools
 import hashlib
 import os
 from pathlib import Path

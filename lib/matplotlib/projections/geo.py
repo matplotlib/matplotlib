@@ -1,6 +1,5 @@
 import numpy as np
 
-import matplotlib
 from matplotlib import rcParams
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
