@@ -202,6 +202,7 @@ def _keep_in_vlim(locs, vmin, vmax, rtol=1e-10):
     locs = locs[locs <= vmax + rtol]
     return locs
 
+
 # Work around numpy/numpy#6127.
 def _divmod(x, y):
     if isinstance(x, np.generic):
