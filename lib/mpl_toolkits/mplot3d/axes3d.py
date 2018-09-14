@@ -22,6 +22,7 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
+import matplotlib.projections as proj
 import matplotlib.scale as mscale
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes, rcParams
@@ -71,7 +72,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.2.1
             *sharez*
 
-        ''' % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
+        ''' % {'scale': ' | '.join(repr(x) for x in mscale.get_scale_names())}
 
         if rect is None:
             rect = [0.0, 0.0, 1.0, 1.0]
@@ -375,7 +376,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        if m < 0 or m > 1 :
+        if m < 0 or m > 1:
             raise ValueError("margin must be in range 0 to 1")
         self._zmargin = m
         self.stale = True
@@ -493,7 +494,8 @@ class Axes3D(Axes):
         # data.
         self.xy_dataLim.update_from_data_xy(np.array([x, y]).T, not had_data)
         if z is not None:
-            self.zz_dataLim.update_from_data_xy(np.array([z, z]).T, not had_data)
+            self.zz_dataLim.update_from_data_xy(
+                np.array([z, z]).T, not had_data)
 
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
@@ -773,9 +775,9 @@ class Axes3D(Axes):
     get_xlim = get_xlim3d
     if get_xlim.__doc__ is not None:
         get_xlim.__doc__ += """
-            .. versionchanged :: 1.1.0
-                This function now correctly refers to the 3D x-limits
-            """
+        .. versionchanged :: 1.1.0
+            This function now correctly refers to the 3D x-limits
+        """
 
     def get_ylim3d(self):
         return tuple(self.xy_viewLim.intervaly)
@@ -783,9 +785,9 @@ class Axes3D(Axes):
     get_ylim = get_ylim3d
     if get_ylim.__doc__ is not None:
         get_ylim.__doc__ += """
-            .. versionchanged :: 1.1.0
-                This function now correctly refers to the 3D y-limits.
-            """
+        .. versionchanged :: 1.1.0
+            This function now correctly refers to the 3D y-limits.
+        """
 
     def get_zlim3d(self):
         '''Get 3D z limits.'''
@@ -809,10 +811,9 @@ class Axes3D(Axes):
         self._update_transScale()
     if maxes.Axes.set_xscale.__doc__ is not None:
         set_xscale.__doc__ = maxes.Axes.set_xscale.__doc__ + """
-
-            .. versionadded :: 1.1.0
-                This function was added, but not tested. Please report any bugs.
-            """
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
+        """
 
     def set_yscale(self, value, **kwargs):
         self.yaxis._set_scale(value, **kwargs)
@@ -821,10 +822,9 @@ class Axes3D(Axes):
         self.stale = True
     if maxes.Axes.set_yscale.__doc__ is not None:
         set_yscale.__doc__ = maxes.Axes.set_yscale.__doc__ + """
-
-            .. versionadded :: 1.1.0
-                This function was added, but not tested. Please report any bugs.
-            """
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
+        """
 
     @docstring.dedent_interpd
     def set_zscale(self, value, **kwargs):
@@ -1340,7 +1340,7 @@ class Axes3D(Axes):
                     self.xaxis.major.formatter.set_scientific(sb)
                 if axis in ['both', 'y']:
                     self.yaxis.major.formatter.set_scientific(sb)
-                if axis in ['both', 'z'] :
+                if axis in ['both', 'z']:
                     self.zaxis.major.formatter.set_scientific(sb)
             if scilimits is not None:
                 if axis in ['both', 'x']:
@@ -1413,7 +1413,7 @@ class Axes3D(Axes):
             This function was added, but not tested. Please report any bugs.
         """
         super().tick_params(axis, **kwargs)
-        if axis in ['z', 'both'] :
+        if axis in ['z', 'both']:
             zkw = dict(kwargs)
             zkw.pop('top', None)
             zkw.pop('bottom', None)
@@ -1676,8 +1676,8 @@ class Axes3D(Axes):
             v1 = np.empty((len(polygons), 3))
             v2 = np.empty((len(polygons), 3))
             for poly_i, ps in enumerate(polygons):
-                # pick three points around the polygon at which to find the normal
-                # doesn't vectorize because polygons is jagged
+                # pick three points around the polygon at which to find the
+                # normal doesn't vectorize because polygons is jagged
                 i1, i2, i3 = 0, len(ps)//3, 2*len(ps)//3
                 v1[poly_i, :] = ps[i1, :] - ps[i2, :]
                 v2[poly_i, :] = ps[i2, :] - ps[i3, :]
@@ -1937,7 +1937,8 @@ class Axes3D(Axes):
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
 
-        tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
+        tri, args, kwargs = \
+            Triangulation.get_from_args_and_kwargs(*args, **kwargs)
         if 'Z' in kwargs:
             z = np.asarray(kwargs.pop('Z'))
         else:
@@ -2027,7 +2028,8 @@ class Axes3D(Axes):
         for col in colls:
             self.collections.remove(col)
 
-    def add_contour_set(self, cset, extend3d=False, stride=5, zdir='z', offset=None):
+    def add_contour_set(
+            self, cset, extend3d=False, stride=5, zdir='z', offset=None):
         zdir = '-' + zdir
         if extend3d:
             self._3d_extend_contour(cset, stride)
@@ -2040,7 +2042,7 @@ class Axes3D(Axes):
     def add_contourf_set(self, cset, zdir='z', offset=None):
         zdir = '-' + zdir
         for z, linec in zip(cset.levels, cset.collections):
-            if offset is not None :
+            if offset is not None:
                 z = offset
             art3d.poly_collection_2d_to_3d(linec, z, zdir=zdir)
             linec.set_sort_zpos(z)
@@ -2225,10 +2227,8 @@ class Axes3D(Axes):
             - PatchCollection
         '''
         zvals = np.atleast_1d(zs)
-        if len(zvals) > 0 :
-            zsortval = min(zvals)
-        else :
-            zsortval = 0   # FIXME: Fairly arbitrary. Is there a better value?
+        zsortval = (np.min(zvals) if zvals.size
+                    else 0)  # FIXME: arbitrary default
 
         # FIXME: use issubclass() (although, then a 3D collection
         #       object would also pass.)  Maybe have a collection3d
@@ -2345,12 +2345,12 @@ class Axes3D(Axes):
             if 'alpha' in kwargs:
                 p.set_alpha(kwargs['alpha'])
 
-        if len(verts) > 0 :
+        if len(verts) > 0:
             # the following has to be skipped if verts is empty
             # NOTE: Bugs could still occur if len(verts) > 0,
             #       but the "2nd dimension" is empty.
-            xs, ys = list(zip(*verts))
-        else :
+            xs, ys = zip(*verts)
+        else:
             xs, ys = [], []
 
         xs, ys, verts_zs = art3d.juggle_axes(xs, ys, verts_zs, zdir)
@@ -2485,7 +2485,8 @@ class Axes3D(Axes):
                length=1, arrow_length_ratio=.3, pivot='tail', normalize=False,
                **kwargs):
         """
-        ax.quiver(X, Y, Z, U, V, W, /, length=1, arrow_length_ratio=.3, pivot='tail', normalize=False, **kwargs)
+        ax.quiver(X, Y, Z, U, V, W, /, length=1, arrow_length_ratio=.3, \
+pivot='tail', normalize=False, **kwargs)
 
         Plot a 3D field of arrows.
 
@@ -2549,7 +2550,8 @@ class Axes3D(Axes):
                              [-y*s, x*s, c]])
             # opposite rotation negates all the sin terms
             Rneg = Rpos.copy()
-            Rneg[[0, 1, 2, 2], [2, 2, 0, 1]] = -Rneg[[0, 1, 2, 2], [2, 2, 0, 1]]
+            Rneg[[0, 1, 2, 2], [2, 2, 0, 1]] = \
+                -Rneg[[0, 1, 2, 2], [2, 2, 0, 1]]
 
             # multiply them to get the rotated vector
             return Rpos.dot(uvw), Rneg.dot(uvw)
@@ -2569,7 +2571,8 @@ class Axes3D(Axes):
                       for k in input_args]
 
         # extract the masks, if any
-        masks = [k.mask for k in input_args if isinstance(k, np.ma.MaskedArray)]
+        masks = [k.mask for k in input_args
+                 if isinstance(k, np.ma.MaskedArray)]
         # broadcast to match the shape
         bcast = np.broadcast_arrays(*(input_args + masks))
         input_args = bcast[:argi]
@@ -2622,9 +2625,9 @@ class Axes3D(Axes):
         if len(XYZ) > 0:
             # compute the shaft lines all at once with an outer product
             shafts = (XYZ - np.multiply.outer(shaft_dt, UVW)).swapaxes(0, 1)
-            # compute head direction vectors, n heads by 2 sides by 3 dimensions
+            # compute head direction vectors, n heads x 2 sides x 3 dimensions
             head_dirs = np.array([calc_arrow(d) for d in UVW])
-            # compute all head lines at once, starting from where the shaft ends
+            # compute all head lines at once, starting from the shaft ends
             heads = shafts[:, :1] - np.multiply.outer(arrow_dt, head_dirs)
             # stack left and right head lines together
             heads.shape = (len(arrow_dt), -1, 3)
@@ -2669,13 +2672,13 @@ class Axes3D(Axes):
 
         x, y, z : 3D np.array, optional
             The coordinates of the corners of the voxels. This should broadcast
-            to a shape one larger in every dimension than the shape of `filled`.
-            These can be used to plot non-cubic voxels.
+            to a shape one larger in every dimension than the shape of
+            `filled`.  These can be used to plot non-cubic voxels.
 
             If not specified, defaults to increasing integers along each axis,
             like those returned by :func:`~numpy.indices`.
-            As indicated by the ``/`` in the function signature, these arguments
-            can only be passed positionally.
+            As indicated by the ``/`` in the function signature, these
+            arguments can only be passed positionally.
 
         facecolors, edgecolors : array_like, optional
             The color to draw the faces and edges of the voxels. Can only be
@@ -2758,7 +2761,7 @@ class Axes3D(Axes):
         # broadcast but no default on edgecolors
         edgecolors = _broadcast_color_arg(edgecolors, 'edgecolors')
 
-        # always scale to the full array, even if the data is only in the center
+        # scale to the full array, even if the data is only in the center
         self.auto_scale_xyz(x, y, z)
 
         # points lying on corners of a square
@@ -2778,8 +2781,8 @@ class Axes3D(Axes):
                 yield mat
                 mat = np.roll(mat, 1, axis=0)
 
-        # iterate over each of the YZ, ZX, and XY orientations, finding faces to
-        # render
+        # iterate over each of the YZ, ZX, and XY orientations, finding faces
+        # to render
         for permute in permutation_matrices(3):
             # find the set of ranges to iterate over
             pc, qc, rc = permute.T.dot(size)
@@ -2822,7 +2825,8 @@ class Axes3D(Axes):
                     if filled[ik]:
                         voxel_faces[ik].append(pk2 + square_rot)
 
-        # iterate over the faces, and generate a Poly3DCollection for each voxel
+        # iterate over the faces, and generate a Poly3DCollection for each
+        # voxel
         polygons = {}
         for coord, faces_inds in voxel_faces.items():
             # convert indices into 3D positions
@@ -2871,5 +2875,4 @@ def get_test_data(delta=0.05):
 # Register Axes3D as a 'projection' object available
 # for use just like any other axes
 ########################################################
-import matplotlib.projections as proj
 proj.projection_registry.register(Axes3D)

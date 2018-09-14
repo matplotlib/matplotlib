@@ -108,11 +108,7 @@ class Text3D(mtext.Text):
             [self._position3d, self._position3d + self._dir_vec], renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
-        if dx==0. and dy==0.:
-            # atan2 raises ValueError: math domain error on 0,0
-            angle = 0.
-        else:
-            angle = math.degrees(math.atan2(dy, dx))
+        angle = math.degrees(math.atan2(dy, dx))
         self.set_position((proj[0][0], proj[1][0]))
         self.set_rotation(norm_text_angle(angle))
         mtext.Text.draw(self, renderer)
@@ -318,7 +314,7 @@ class PathPatch3D(Patch3D):
 def get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
     trans = patch.get_patch_transform()
-    path =  patch.get_path()
+    path = patch.get_path()
     polygons = path.to_polygons(trans)
     if len(polygons):
         return polygons[0]
@@ -469,10 +465,7 @@ class Path3DCollection(PathCollection):
         self.set_edgecolors(ecs)
         PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
-        if vzs.size > 0 :
-            return min(vzs)
-        else :
-            return np.nan
+        return np.min(vzs) if vzs.size else np.nan
 
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
@@ -563,7 +556,7 @@ class Poly3DCollection(PolyCollection):
 
         if len(segments3d):
             xs, ys, zs = zip(*points)
-        else :
+        else:
             # We need this so that we can skip the bad unpacking from zip()
             xs, ys, zs = [], [], []
 
@@ -651,12 +644,12 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif tzs.size > 0 :
+        elif tzs.size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
             return np.min(tzs)
-        else :
+        else:
             return np.nan
 
     def set_facecolor(self, colors):
