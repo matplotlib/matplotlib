@@ -1,0 +1,2 @@
+jupytext >= 0.6.5
+matplotlib
