@@ -1201,11 +1201,20 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             pass
 
         # Trim excess levels the locator may have supplied.
-        rtol = (self.zmin - self.zmax) * 1e-10
-        under = np.nonzero(lev < self.zmin - rtol)[0]
+
+        levt = lev
+        zmin = self.zmin
+        zmax = self.zmax
+        # tolerances need to be in log space if we are a logscale....
+        if self.logscale:
+            levt = np.log10(levt)
+            zmin = np.log10(zmin)
+            zmax = np.log10(zmax)
+        rtol = (zmin - zmax) * 1e-10
+        under = np.nonzero(levt < zmin - rtol)[0]
         i0 = under[-1] if len(under) else 0
-        over = np.nonzero(lev > self.zmax + rtol)[0]
-        i1 = over[0] + 1 if len(over) else len(lev)
+        over = np.nonzero(levt > zmax + rtol)[0]
+        i1 = over[0] + 1 if len(over) else len(levt)
         # put back extra levels if we want to extend...
         if self.extend in ('min', 'both'):
             i0 += 1
