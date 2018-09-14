@@ -275,15 +275,17 @@ class TestScalarFormatter(object):
 
     use_offset_data = [True, False]
 
+    #  (sci_type, scilimits, lim, orderOfMag, fewticks)
     scilimits_data = [
-        (False, (0, 0), (10.0, 20.0), 0),
-        (True, (-2, 2), (-10, 20), 0),
-        (True, (-2, 2), (-20, 10), 0),
-        (True, (-2, 2), (-110, 120), 2),
-        (True, (-2, 2), (-120, 110), 2),
-        (True, (-2, 2), (-.001, 0.002), -3),
-        (True, (0, 0), (-1e5, 1e5), 5),
-        (True, (6, 6), (-1e5, 1e5), 6),
+        (False, (0, 0), (10.0, 20.0), 0, False),
+        (True, (-2, 2), (-10, 20), 0, False),
+        (True, (-2, 2), (-20, 10), 0, False),
+        (True, (-2, 2), (-110, 120), 2, False),
+        (True, (-2, 2), (-120, 110), 2, False),
+        (True, (-2, 2), (-.001, 0.002), -3, False),
+        (True, (-7, 7), (0.18e10, 0.83e10), 9, True),
+        (True, (0, 0), (-1e5, 1e5), 5, False),
+        (True, (6, 6), (-1e5, 1e5), 6, False),
     ]
 
     @pytest.mark.parametrize('left, right, offset', offset_data)
@@ -316,14 +318,18 @@ class TestScalarFormatter(object):
             assert use_offset == tmp_form.get_useOffset()
 
     @pytest.mark.parametrize(
-        'sci_type, scilimits, lim, orderOfMag', scilimits_data)
-    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag):
+        'sci_type, scilimits, lim, orderOfMag, fewticks', scilimits_data)
+    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag,
+                       fewticks):
         tmp_form = mticker.ScalarFormatter()
         tmp_form.set_scientific(sci_type)
         tmp_form.set_powerlimits(scilimits)
         fig, ax = plt.subplots()
         ax.yaxis.set_major_formatter(tmp_form)
         ax.set_ylim(*lim)
+        if fewticks:
+            ax.yaxis.set_major_locator(mticker.MaxNLocator(4))
+
         tmp_form.set_locs(ax.yaxis.get_majorticklocs())
         assert orderOfMag == tmp_form.orderOfMagnitude
 
