@@ -44,7 +44,7 @@ to generate their text (see :doc:`/tutorials/text/usetex`).
 #     # math text
 #     plt.title(r'$\alpha > \beta$')
 #
-# produces ":math:`\alpha > \beta`".
+# produces ":mathmpl:`\alpha > \beta`".
 #
 # .. note::
 #    Mathtext should be placed between a pair of dollar signs ($).  To
@@ -77,9 +77,9 @@ to generate their text (see :doc:`/tutorials/text/usetex`).
 #
 #     \alpha_i > \beta_i
 #
-# Some symbols automatically put their sub/superscripts under and over
-# the operator.  For example, to write the sum of :math:`x_i` from :math:`0` to
-# :math:`\infty`, you could do::
+# Some symbols automatically put their sub/superscripts under and over the
+# operator.  For example, to write the sum of :mathmpl:`x_i` from :mathmpl:`0`
+# to :mathmpl:`\infty`, you could do::
 #
 #     r'$\sum_{i=0}^\infty x_i$'
 #
@@ -200,13 +200,13 @@ to generate their text (see :doc:`/tutorials/text/usetex`).
 #     ============================ ==================================
 #     Command                      Result
 #     ============================ ==================================
-#     ``\mathrm{Roman}``           :math:`\mathrm{Roman}`
-#     ``\mathit{Italic}``          :math:`\mathit{Italic}`
-#     ``\mathtt{Typewriter}``      :math:`\mathtt{Typewriter}`
-#     ``\mathcal{CALLIGRAPHY}``    :math:`\mathcal{CALLIGRAPHY}`
+#     ``\mathrm{Roman}``           :mathmpl:`\mathrm{Roman}`
+#     ``\mathit{Italic}``          :mathmpl:`\mathit{Italic}`
+#     ``\mathtt{Typewriter}``      :mathmpl:`\mathtt{Typewriter}`
+#     ``\mathcal{CALLIGRAPHY}``    :mathmpl:`\mathcal{CALLIGRAPHY}`
 #     ============================ ==================================
 #
-# .. role:: math-stix(math)
+# .. role:: math-stix(mathmpl)
 #    :fontset: stix
 #
 # When using the `STIX <http://www.stixfonts.org/>`_ fonts, you also have the choice of:
@@ -294,16 +294,16 @@ to generate their text (see :doc:`/tutorials/text/usetex`).
 #     ============================== =================================
 #     Command                        Result
 #     ============================== =================================
-#     ``\acute a`` or ``\'a``        :math:`\acute a`
-#     ``\bar a``                     :math:`\bar a`
-#     ``\breve a``                   :math:`\breve a`
-#     ``\ddot a`` or ``\''a``        :math:`\ddot a`
-#     ``\dot a`` or ``\.a``          :math:`\dot a`
-#     ``\grave a`` or ``\`a``        :math:`\grave a`
-#     ``\hat a`` or ``\^a``          :math:`\hat a`
-#     ``\tilde a`` or ``\~a``        :math:`\tilde a`
-#     ``\vec a``                     :math:`\vec a`
-#     ``\overline{abc}``             :math:`\overline{abc}`
+#     ``\acute a`` or ``\'a``        :mathmpl:`\acute a`
+#     ``\bar a``                     :mathmpl:`\bar a`
+#     ``\breve a``                   :mathmpl:`\breve a`
+#     ``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
+#     ``\dot a`` or ``\.a``          :mathmpl:`\dot a`
+#     ``\grave a`` or ``\`a``        :mathmpl:`\grave a`
+#     ``\hat a`` or ``\^a``          :mathmpl:`\hat a`
+#     ``\tilde a`` or ``\~a``        :mathmpl:`\tilde a`
+#     ``\vec a``                     :mathmpl:`\vec a`
+#     ``\overline{abc}``             :mathmpl:`\overline{abc}`
 #     ============================== =================================
 #
 # In addition, there are two special accents that automatically adjust
@@ -312,8 +312,8 @@ to generate their text (see :doc:`/tutorials/text/usetex`).
 #     ============================== =================================
 #     Command                        Result
 #     ============================== =================================
-#     ``\widehat{xyz}``              :math:`\widehat{xyz}`
-#     ``\widetilde{xyz}``            :math:`\widetilde{xyz}`
+#     ``\widehat{xyz}``              :mathmpl:`\widehat{xyz}`
+#     ``\widetilde{xyz}``            :mathmpl:`\widetilde{xyz}`
 #     ============================== =================================
 #
 # Care should be taken when putting accents on lower-case i's and j's.
