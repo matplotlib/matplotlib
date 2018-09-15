@@ -187,6 +187,18 @@ class SubplotBase(object):
         return ax2
 
 
+# this here to support cartopy which was using a private part of the
+# API to register their Axes subclasses.
+
+# In 3.1 this should be changed to a dict subclass that warns on use
+# In 3.3 to a dict subclass that raises a useful exception on use
+# In 3.4 should be removed
+
+# The slow timeline is to give cartopy enough time to get several
+# release out before we break them.
+_subplot_classes = {}
+
+
 @functools.lru_cache(None)
 def subplot_class_factory(axes_class=None):
     """
@@ -198,9 +210,16 @@ def subplot_class_factory(axes_class=None):
     """
     if axes_class is None:
         axes_class = Axes
-    return type("%sSubplot" % axes_class.__name__,
-                (SubplotBase, axes_class),
-                {'_axes_class': axes_class})
+    try:
+        # Avoid creating two different instances of GeoAxesSubplot...
+        # Only a temporary backcompat fix.  This should be removed in
+        # 3.4
+        return next(cls for cls in SubplotBase.__subclasses__()
+                    if cls.__bases__ == (SubplotBase, axes_class))
+    except StopIteration:
+        return type("%sSubplot" % axes_class.__name__,
+                    (SubplotBase, axes_class),
+                    {'_axes_class': axes_class})
 
 
 # This is provided for backward compatibility
