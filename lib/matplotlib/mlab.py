@@ -3447,7 +3447,6 @@ def stineman_interp(xi, x, y, yp=None):
         yp = np.asarray(yp, float)
 
     xi = np.asarray(xi, float)
-    yi = np.zeros(xi.shape, float)
 
     # calculate linear slopes
     dx = x[1:] - x[:-1]

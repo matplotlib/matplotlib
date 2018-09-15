@@ -7772,7 +7772,6 @@ class Axes(_AxesBase):
 
         """
         Z = np.asanyarray(Z)
-        nr, nc = Z.shape
         kw = {'origin': 'upper',
               'interpolation': 'nearest',
               'aspect': 'equal',          # (already the imshow default)

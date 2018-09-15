@@ -964,8 +964,6 @@ class Encoding(object):
 
     @staticmethod
     def _parse(file):
-        result = []
-
         lines = (line.split(b'%', 1)[0].strip() for line in file)
         data = b''.join(lines)
         beginning = data.find(b'[')

@@ -15,7 +15,6 @@ import numpy as np
 
 from matplotlib import rcParams
 import matplotlib.artist as martist
-from matplotlib.artist import allow_rasterization
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
@@ -557,7 +556,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         return False
 
-    @allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         # if not visible, declare victory and return
         if not self.get_visible():

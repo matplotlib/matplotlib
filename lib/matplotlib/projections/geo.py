@@ -256,7 +256,6 @@ class _GeoTransform(Transform):
         return "{}({})".format(type(self).__name__, self._resolution)
 
     def transform_path_non_affine(self, path):
-        vertices = path.vertices
         ipath = path.interpolated(self._resolution)
         return Path(self.transform(ipath.vertices), ipath.codes)
     transform_path_non_affine.__doc__ = \

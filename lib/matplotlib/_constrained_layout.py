@@ -344,8 +344,6 @@ def _align_spines(fig, gs):
                 height_ratios[rownummin[n]:(rownummax[n] + 1)])
 
     for nn, ax in enumerate(axs[:-1]):
-        ss0 = ax.get_subplotspec()
-
         # now compare ax to all the axs:
         #
         # If the subplotspecs have the same colnumXmax, then line
