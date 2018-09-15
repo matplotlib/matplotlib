@@ -69,18 +69,9 @@ mpl_packages = [
     setupext.Tests(),
     setupext.Toolkits_Tests(),
     'Optional backend extensions',
-    # These backends are listed in order of preference, the first
-    # being the most preferred.  The first one that looks like it will
-    # work will be selected as the default backend.
-    setupext.BackendMacOSX(),
-    setupext.BackendQt5(),
-    setupext.BackendQt4(),
-    setupext.BackendGtk3Agg(),
-    setupext.BackendGtk3Cairo(),
-    setupext.BackendTkAgg(),
-    setupext.BackendWxAgg(),
     setupext.BackendAgg(),
-    setupext.BackendCairo(),
+    setupext.BackendTkAgg(),
+    setupext.BackendMacOSX(),
     setupext.Windowing(),
     'Optional package data',
     setupext.Dlls(),
@@ -137,7 +128,6 @@ if __name__ == '__main__':
     package_dir = {'': 'lib'}
     install_requires = []
     setup_requires = []
-    default_backend = None
 
     # If the user just queries for information, don't bother figuring out which
     # packages to build or install.
@@ -173,10 +163,6 @@ if __name__ == '__main__':
                         required_failed.append(package)
                 else:
                     good_packages.append(package)
-                    if (isinstance(package, setupext.OptionalBackendPackage)
-                            and package.runtime_check()
-                            and default_backend is None):
-                        default_backend = package.name
         print_raw('')
 
         # Abort if any of the required packages can not be built.
@@ -207,14 +193,16 @@ if __name__ == '__main__':
             setup_requires.extend(package.get_setup_requires())
 
         # Write the default matplotlibrc file
-        if default_backend is None:
-            default_backend = 'svg'
-        if setupext.options['backend']:
-            default_backend = setupext.options['backend']
         with open('matplotlibrc.template') as fd:
-            template = fd.read()
+            template_lines = fd.read().splitlines(True)
+        backend_line_idx, = [  # Also asserts that there is a single such line.
+            idx for idx, line in enumerate(template_lines)
+            if line.startswith('#backend ')]
+        if setupext.options['backend']:
+            template_lines[backend_line_idx] = (
+                'backend: {}'.format(setupext.options['backend']))
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-            fd.write(template)
+            fd.write(''.join(template_lines))
 
         # Finalize the extension modules so they can get the Numpy include
         # dirs

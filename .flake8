@@ -23,7 +23,7 @@ exclude =
 
 per-file-ignores =
     setup.py: E402
-    setupext.py: E302, E501
+    setupext.py: E501
 
     tools/compare_backend_driver_results.py: E501
     tools/subset.py: E221, E251, E261, E302, E501

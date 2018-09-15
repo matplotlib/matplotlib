@@ -355,13 +355,6 @@ class SetupPackage(object):
         """
         pass
 
-    def runtime_check(self):
-        """
-        True if the runtime dependencies of the backend are met.  Assumes that
-        the build-time dependencies are met.
-        """
-        return True
-
     def get_packages(self):
         """
         Get a list of package names to add to the configuration.
@@ -1325,10 +1318,6 @@ class BackendTkAgg(OptionalBackendPackage):
     def check(self):
         return "installing; run-time loading from Python Tcl / Tk"
 
-    def runtime_check(self):
-        """Checks whether TkAgg runtime dependencies are met."""
-        return importlib.util.find_spec("tkinter") is not None
-
     def get_extension(self):
         sources = [
             'src/_tkagg.cpp'
@@ -1346,57 +1335,6 @@ class BackendTkAgg(OptionalBackendPackage):
             ext.libraries.extend(['psapi'])
         elif sys.platform == 'linux':
             ext.libraries.extend(['dl'])
-
-
-class BackendGtk3Agg(OptionalBackendPackage):
-    name = "gtk3agg"
-
-    def check_requirements(self):
-        if not any(map(importlib.util.find_spec, ["cairocffi", "cairo"])):
-            raise CheckFailed("Requires cairocffi or pycairo to be installed.")
-
-        try:
-            import gi
-        except ImportError:
-            raise CheckFailed("Requires pygobject to be installed.")
-
-        try:
-            gi.require_version("Gtk", "3.0")
-        except ValueError:
-            raise CheckFailed(
-                "Requires gtk3 development files to be installed.")
-        except AttributeError:
-            raise CheckFailed("pygobject version too old.")
-
-        try:
-            from gi.repository import Gtk, Gdk, GObject
-        except (ImportError, RuntimeError):
-            raise CheckFailed("Requires pygobject to be installed.")
-
-        return "version {}.{}.{}".format(
-            Gtk.get_major_version(),
-            Gtk.get_minor_version(),
-            Gtk.get_micro_version())
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-
-class BackendGtk3Cairo(BackendGtk3Agg):
-    name = "gtk3cairo"
-
-
-class BackendWxAgg(OptionalBackendPackage):
-    name = "wxagg"
-
-    def check_requirements(self):
-        try:
-            import wx
-            backend_version = wx.VERSION_STRING
-        except ImportError:
-            raise CheckFailed("requires wxPython")
-
-        return "version %s" % backend_version
 
 
 class BackendMacOSX(OptionalBackendPackage):
@@ -1442,174 +1380,6 @@ class Windowing(OptionalBackendPackage):
         ext.library_dirs.extend(['C:/lib'])
         ext.extra_link_args.append("-mwindows")
         return ext
-
-
-class BackendQtBase(OptionalBackendPackage):
-
-    def convert_qt_version(self, version):
-        version = '%x' % version
-        temp = []
-        while len(version) > 0:
-            version, chunk = version[:-2], version[-2:]
-            temp.insert(0, str(int(chunk, 16)))
-        return '.'.join(temp)
-
-    def check_requirements(self):
-        """
-        If PyQt4/PyQt5 is already imported, importing PyQt5/PyQt4 will fail
-        so we need to test in a subprocess (as for Gtk3).
-        """
-        try:
-            p = multiprocessing.Pool()
-
-        except:
-            # Can't do multiprocessing, fall back to normal approach
-            # (this will fail if importing both PyQt4 and PyQt5).
-            try:
-                # Try in-process
-                msg = self.callback(self)
-            except RuntimeError:
-                raise CheckFailed(
-                    "Could not import: are PyQt4 & PyQt5 both installed?")
-
-        else:
-            # Multiprocessing OK
-            try:
-                res = p.map_async(self.callback, [self])
-                msg = res.get(timeout=10)[0]
-            except multiprocessing.TimeoutError:
-                p.terminate()
-                # No result returned. Probably hanging, terminate the process.
-                raise CheckFailed("Check timed out")
-            except:
-                # Some other error.
-                p.close()
-                raise
-            else:
-                # Clean exit
-                p.close()
-            finally:
-                # Tidy up multiprocessing
-                p.join()
-
-        return msg
-
-
-def backend_pyside_internal_check(self):
-    try:
-        from PySide import __version__
-        from PySide import QtCore
-    except ImportError:
-        raise CheckFailed("PySide not found")
-    else:
-        return ("Qt: %s, PySide: %s" %
-                (QtCore.__version__, __version__))
-
-
-def backend_pyqt4_internal_check(self):
-    try:
-        from PyQt4 import QtCore
-    except ImportError:
-        raise CheckFailed("PyQt4 not found")
-
-    try:
-        qt_version = QtCore.QT_VERSION
-        pyqt_version_str = QtCore.PYQT_VERSION_STR
-    except AttributeError:
-        raise CheckFailed('PyQt4 not correctly imported')
-    else:
-        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
-
-
-def backend_qt4_internal_check(self):
-    successes = []
-    failures = []
-    try:
-        successes.append(backend_pyside_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    try:
-        successes.append(backend_pyqt4_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    if len(successes) == 0:
-        raise CheckFailed('; '.join(failures))
-    return '; '.join(successes + failures)
-
-
-class BackendQt4(BackendQtBase):
-    name = "qt4agg"
-
-    def __init__(self, *args, **kwargs):
-        BackendQtBase.__init__(self, *args, **kwargs)
-        self.callback = backend_qt4_internal_check
-
-def backend_pyside2_internal_check(self):
-    try:
-        from PySide2 import __version__
-        from PySide2 import QtCore
-    except ImportError:
-        raise CheckFailed("PySide2 not found")
-    else:
-        return ("Qt: %s, PySide2: %s" %
-                (QtCore.__version__, __version__))
-
-def backend_pyqt5_internal_check(self):
-    try:
-        from PyQt5 import QtCore
-    except ImportError:
-        raise CheckFailed("PyQt5 not found")
-
-    try:
-        qt_version = QtCore.QT_VERSION
-        pyqt_version_str = QtCore.PYQT_VERSION_STR
-    except AttributeError:
-        raise CheckFailed('PyQt5 not correctly imported')
-    else:
-        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
-
-def backend_qt5_internal_check(self):
-    successes = []
-    failures = []
-    try:
-        successes.append(backend_pyside2_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    try:
-        successes.append(backend_pyqt5_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    if len(successes) == 0:
-        raise CheckFailed('; '.join(failures))
-    return '; '.join(successes + failures)
-
-class BackendQt5(BackendQtBase):
-    name = "qt5agg"
-
-    def __init__(self, *args, **kwargs):
-        BackendQtBase.__init__(self, *args, **kwargs)
-        self.callback = backend_qt5_internal_check
-
-
-class BackendCairo(OptionalBackendPackage):
-    name = "cairo"
-
-    def check_requirements(self):
-        try:
-            import cairocffi
-        except ImportError:
-            try:
-                import cairo
-            except ImportError:
-                raise CheckFailed("cairocffi or pycairo not found")
-            else:
-                return "pycairo version %s" % cairo.version
-        else:
-            return "cairocffi version %s" % cairocffi.version
 
 
 class OptionalPackageData(OptionalPackage):
