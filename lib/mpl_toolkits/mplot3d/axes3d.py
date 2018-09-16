@@ -1686,20 +1686,6 @@ class Axes3D(Axes):
                 if fcolors is not None:
                     colset.append(fcolors[rs][cs])
 
-        def get_normals(polygons):
-            """
-            Takes a list of polygons and return an array of their normals
-            """
-            v1 = np.empty((len(polygons), 3))
-            v2 = np.empty((len(polygons), 3))
-            for poly_i, ps in enumerate(polygons):
-                # pick three points around the polygon at which to find the
-                # normal doesn't vectorize because polygons is jagged
-                i1, i2, i3 = 0, len(ps)//3, 2*len(ps)//3
-                v1[poly_i, :] = ps[i1, :] - ps[i2, :]
-                v2[poly_i, :] = ps[i2, :] - ps[i3, :]
-            return np.cross(v1, v2)
-
         # note that the striding causes some polygons to have more coordinates
         # than others
         polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
@@ -1707,7 +1693,7 @@ class Axes3D(Axes):
         if fcolors is not None:
             if shade:
                 colset = self._shade_colors(
-                    colset, get_normals(polys), lightsource)
+                    colset, self._generate_normals(polys), lightsource)
             polyc.set_facecolors(colset)
             polyc.set_edgecolors(colset)
         elif cmap:
@@ -1721,7 +1707,7 @@ class Axes3D(Axes):
         else:
             if shade:
                 colset = self._shade_colors(
-                    color, get_normals(polys), lightsource)
+                    color, self._generate_normals(polys), lightsource)
             else:
                 colset = color
             polyc.set_facecolors(colset)
@@ -1732,21 +1718,48 @@ class Axes3D(Axes):
         return polyc
 
     def _generate_normals(self, polygons):
-        '''
-        Generate normals for polygons by using the first three points.
-        This normal of course might not make sense for polygons with
-        more than three points not lying in a plane.
+        """
+        Takes a list of polygons and return an array of their normals.
 
         Normals point towards the viewer for a face with its vertices in
         counterclockwise order, following the right hand rule.
-        '''
 
-        normals = []
-        for verts in polygons:
-            v1 = np.array(verts[1]) - np.array(verts[0])
-            v2 = np.array(verts[2]) - np.array(verts[0])
-            normals.append(np.cross(v1, v2))
-        return normals
+        Uses three points equally spaced around the polygon.
+        This normal of course might not make sense for polygons with more than
+        three points not lying in a plane, but it's a plausible and fast
+        approximation.
+
+        Parameters
+        ----------
+        polygons: list of (M_i, 3) array_like, or (..., M, 3) array_like
+            A sequence of polygons to compute normals for, which can have
+            varying numbers of vertices. If the polygons all have the same
+            number of vertices and array is passed, then the operation will
+            be vectorized.
+
+        Returns
+        -------
+        normals: (..., 3) array_like
+            A normal vector estimated for the polygon.
+
+        """
+        if isinstance(polygons, np.ndarray):
+            # optimization: polygons all have the same number of points, so can
+            # vectorize
+            n = polygons.shape[-2]
+            i1, i2, i3 = 0, n//3, 2*n//3
+            v1 = polygons[..., i1, :] - polygons[..., i2, :]
+            v2 = polygons[..., i2, :] - polygons[..., i3, :]
+        else:
+            # The subtraction doesn't vectorize because polygons is jagged.
+            v1 = np.empty((len(polygons), 3))
+            v2 = np.empty((len(polygons), 3))
+            for poly_i, ps in enumerate(polygons):
+                n = len(ps)
+                i1, i2, i3 = 0, n//3, 2*n//3
+                v1[poly_i, :] = ps[i1, :] - ps[i2, :]
+                v2[poly_i, :] = ps[i2, :] - ps[i3, :]
+        return np.cross(v1, v2)
 
     def _shade_colors(self, color, normals, lightsource=None):
         '''
@@ -1993,9 +2006,7 @@ class Axes3D(Axes):
                 polyc.set_norm(norm)
         else:
             if shade:
-                v1 = verts[:, 0, :] - verts[:, 1, :]
-                v2 = verts[:, 1, :] - verts[:, 2, :]
-                normals = np.cross(v1, v2)
+                normals = self._generate_normals(verts)
                 colset = self._shade_colors(color, normals, lightsource)
             else:
                 colset = color
@@ -2042,9 +2053,9 @@ class Axes3D(Axes):
                     botverts[0][i2],
                     botverts[0][i1]])
 
-                v1 = np.array(topverts[0][i1]) - np.array(topverts[0][i2])
-                v2 = np.array(topverts[0][i1]) - np.array(botverts[0][i1])
-                normals.append(np.cross(v1, v2))
+            # all polygons have 4 vertices, so vectorize
+            polyverts = np.array(polyverts)
+            normals = self._generate_normals(polyverts)
 
             colors = self._shade_colors(color, normals)
             colors2 = self._shade_colors(color, normals)
