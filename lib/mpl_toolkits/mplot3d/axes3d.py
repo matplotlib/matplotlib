@@ -2435,20 +2435,42 @@ class Axes3D(Axes):
         polys = []
         for xi, yi, zi, dxi, dyi, dzi in zip(x, y, z, dx, dy, dz):
             polys.extend([
-                ((xi, yi, zi), (xi + dxi, yi, zi),
-                    (xi + dxi, yi + dyi, zi), (xi, yi + dyi, zi)),
-                ((xi, yi, zi + dzi), (xi + dxi, yi, zi + dzi),
-                    (xi + dxi, yi + dyi, zi + dzi), (xi, yi + dyi, zi + dzi)),
-
-                ((xi, yi, zi), (xi + dxi, yi, zi),
-                    (xi + dxi, yi, zi + dzi), (xi, yi, zi + dzi)),
-                ((xi, yi + dyi, zi), (xi + dxi, yi + dyi, zi),
-                    (xi + dxi, yi + dyi, zi + dzi), (xi, yi + dyi, zi + dzi)),
-
-                ((xi, yi, zi), (xi, yi + dyi, zi),
-                    (xi, yi + dyi, zi + dzi), (xi, yi, zi + dzi)),
-                ((xi + dxi, yi, zi), (xi + dxi, yi + dyi, zi),
-                    (xi + dxi, yi + dyi, zi + dzi), (xi + dxi, yi, zi + dzi)),
+                (
+                    (xi, yi, zi),
+                    (xi + dxi, yi, zi),
+                    (xi + dxi, yi + dyi, zi),
+                    (xi, yi + dyi, zi)
+                ),
+                (
+                    (xi, yi, zi + dzi),
+                    (xi + dxi, yi, zi + dzi),
+                    (xi + dxi, yi + dyi, zi + dzi),
+                    (xi, yi + dyi, zi + dzi)
+                ),
+                (
+                    (xi, yi, zi),
+                    (xi + dxi, yi, zi),
+                    (xi + dxi, yi, zi + dzi),
+                    (xi, yi, zi + dzi)
+                ),
+                (
+                    (xi, yi + dyi, zi),
+                    (xi + dxi, yi + dyi, zi),
+                    (xi + dxi, yi + dyi, zi + dzi),
+                    (xi, yi + dyi, zi + dzi)
+                ),
+                (
+                    (xi, yi, zi),
+                    (xi, yi + dyi, zi),
+                    (xi, yi + dyi, zi + dzi),
+                    (xi, yi, zi + dzi)
+                ),
+                (
+                    (xi + dxi, yi, zi),
+                    (xi + dxi, yi + dyi, zi),
+                    (xi + dxi, yi + dyi, zi + dzi),
+                    (xi + dxi, yi, zi + dzi)
+                ),
             ])
 
         facecolors = []
