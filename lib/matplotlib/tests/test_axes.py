@@ -5789,3 +5789,21 @@ def test_spines_properbbox_after_zoom():
                       None, False, False)
     bb2 = ax.spines['bottom'].get_window_extent(fig.canvas.get_renderer())
     np.testing.assert_allclose(bb.get_points(), bb2.get_points(), rtol=1e-6)
+
+
+def test_cartopy_backcompat():
+    import matplotlib
+    import matplotlib.axes
+    import matplotlib.axes._subplots
+
+    class Dummy(matplotlib.axes.Axes):
+        ...
+
+    class DummySubplot(matplotlib.axes.SubplotBase, Dummy):
+        _axes_class = Dummy
+
+    matplotlib.axes._subplots._subplot_classes[Dummy] = DummySubplot
+
+    FactoryDummySubplot = matplotlib.axes.subplot_class_factory(Dummy)
+
+    assert DummySubplot is FactoryDummySubplot
