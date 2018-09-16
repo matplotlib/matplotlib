@@ -294,6 +294,15 @@ def test_colorbar_minorticks_on_off():
         np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
                                        np.array([]))
 
+        im.set_clim(vmin=-1.2, vmax=1.2)
+        cbar.minorticks_on()
+        correct_minorticklocs = np.array([-1.2, -1.1, -0.9, -0.8, -0.7, -0.6,
+                                          -0.4, -0.3, -0.2, -0.1,  0.1, 0.2,
+                                           0.3,  0.4,  0.6,  0.7,  0.8,  0.9,
+                                           1.1,  1.2])
+        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
+                                       correct_minorticklocs)
+
 
 def test_colorbar_autoticks():
     # Test new autotick modes. Needs to be classic because

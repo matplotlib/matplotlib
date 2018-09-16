@@ -84,7 +84,10 @@ if shutil.which('dot') is None:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
-autodoc_default_flags = ['members', 'undoc-members']
+if sphinx.version_info < (1, 8):
+    autodoc_default_flags = ['members', 'undoc-members']
+else:
+    autodoc_default_options = {'members': None, 'undoc-members': None}
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),

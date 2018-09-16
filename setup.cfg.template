@@ -63,15 +63,9 @@
 #           behavior
 #
 #agg = auto
-#cairo = auto
-#gtk3agg = auto
-#gtk3cairo = auto
 #macosx = auto
-#pyside = auto
-#qt4agg = auto
 #tkagg = auto
 #windowing = auto
-#wxagg = auto
 
 [rc_options]
 # User-configurable options
@@ -81,10 +75,9 @@
 #
 # The Agg, Ps, Pdf and SVG backends do not require external dependencies. Do
 # not choose MacOSX, or TkAgg if you have disabled the relevant extension
-# modules.  Agg will be used by default.
+# modules.  The default is determined by fallback.
 #
 #backend = Agg
-#
 
 [package_data]
 # Package additional files found in the lib/matplotlib directories.
