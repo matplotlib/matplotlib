@@ -1594,7 +1594,11 @@ class Axes3D(Axes):
             Bounds for the normalization.
 
         shade : bool
-            Whether to shade the face colors.
+            Whether to shade the facecolors. Defaults to True. Shading is
+            always disabled when `cmap` is specified.
+
+        lightsource : `~matplotlib.colors.LightSource`
+            The lightsource to use when `shade` is True.
 
         **kwargs :
             Other arguments are forwarded to `.Poly3DCollection`.
@@ -1645,10 +1649,6 @@ class Axes3D(Axes):
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
 
-        # Shade the data
-        if shade and cmap is not None and fcolors is not None:
-            fcolors = self._shade_colors_lightsource(Z, cmap, lightsource)
-
         # evenly spaced, and including both endpoints
         row_inds = list(range(0, rows-1, rstride)) + [rows-1]
         col_inds = list(range(0, cols-1, cstride)) + [cols-1]
@@ -1689,7 +1689,7 @@ class Axes3D(Axes):
 
         if fcolors is not None:
             if shade:
-                colset = self._shade_colors(colset, get_normals(polys))
+                colset = self._shade_colors(colset, get_normals(polys), lightsource)
             polyc.set_facecolors(colset)
             polyc.set_edgecolors(colset)
         elif cmap:
@@ -1702,7 +1702,7 @@ class Axes3D(Axes):
                 polyc.set_norm(norm)
         else:
             if shade:
-                colset = self._shade_colors(color, get_normals(polys))
+                colset = self._shade_colors(color, get_normals(polys), lightsource)
             else:
                 colset = color
             polyc.set_facecolors(colset)
@@ -1726,13 +1726,16 @@ class Axes3D(Axes):
             normals.append(np.cross(v1, v2))
         return normals
 
-    def _shade_colors(self, color, normals):
+    def _shade_colors(self, color, normals, lightsource=None):
         '''
         Shade *color* using normal vectors given by *normals*.
         *color* can also be an array of the same length as *normals*.
         '''
+        if lightsource is None:
+            # chosen for backwards-compatibility
+            lightsource = LightSource(azdeg=225, altdeg=19.4712)
 
-        shade = np.array([np.dot(n / proj3d.mod(n), [-1, -1, 0.5])
+        shade = np.array([np.dot(n / proj3d.mod(n), lightsource.direction)
                           if proj3d.mod(n) else np.nan
                           for n in normals])
         mask = ~np.isnan(shade)
@@ -1751,11 +1754,6 @@ class Axes3D(Axes):
             colors = np.asanyarray(color).copy()
 
         return colors
-
-    def _shade_colors_lightsource(self, data, cmap, lightsource):
-        if lightsource is None:
-            lightsource = LightSource(azdeg=135, altdeg=55)
-        return lightsource.shade(data, cmap)
 
     def plot_wireframe(self, X, Y, Z, *args, **kwargs):
         """
@@ -1880,17 +1878,7 @@ class Axes3D(Axes):
     def plot_trisurf(self, *args, color=None, norm=None, vmin=None, vmax=None,
                      lightsource=None, **kwargs):
         """
-        ============= ================================================
-        Argument      Description
-        ============= ================================================
-        *X*, *Y*, *Z* Data values as 1D arrays
-        *color*       Color of the surface patches
-        *cmap*        A colormap for the surface patches.
-        *norm*        An instance of Normalize to map values to colors
-        *vmin*        Minimum value to map
-        *vmax*        Maximum value to map
-        *shade*       Whether to shade the facecolors
-        ============= ================================================
+        Plot a triangulated surface.
 
         The (optional) triangulation can be specified in one of two ways;
         either::
@@ -1915,10 +1903,29 @@ class Axes3D(Axes):
         where *Z* is the array of values to contour, one per point
         in the triangulation.
 
-        Other arguments are passed on to
-        :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        Parameters
+        ----------
+        X, Y, Z : array-like
+            Data values as 1D arrays.
+        color
+            Color of the surface patches.
+        cmap
+            A colormap for the surface patches.
+        norm : Normalize
+            An instance of Normalize to map values to colors.
+        vmin, vmax : scalar, optional, default: None
+            Minimum and maximum value to map.
+        shade : bool
+            Whether to shade the facecolors. Defaults to True. Shading is
+            always disabled when *cmap* is specified.
+        lightsource : `~matplotlib.colors.LightSource`
+            The lightsource to use when *shade* is True.
+        **kwargs
+            All other arguments are passed on to
+            :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
-        **Examples:**
+        Examples
+        --------
 
         .. plot:: gallery/mplot3d/trisurf3d.py
         .. plot:: gallery/mplot3d/trisurf3d_2.py
@@ -1967,7 +1974,7 @@ class Axes3D(Axes):
                 v1 = verts[:, 0, :] - verts[:, 1, :]
                 v2 = verts[:, 1, :] - verts[:, 2, :]
                 normals = np.cross(v1, v2)
-                colset = self._shade_colors(color, normals)
+                colset = self._shade_colors(color, normals, lightsource)
             else:
                 colset = color
             polyc.set_facecolors(colset)
