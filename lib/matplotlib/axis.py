@@ -1053,6 +1053,8 @@ class Axis(artist.Artist):
 
         if interval[1] <= interval[0]:
             interval = interval[1], interval[0]
+        inter = self.get_transform().transform(interval)
+        print('inter', interval, inter)
 
         ticks_to_draw = []
         for tick, loc, label in tick_tups:
@@ -1062,13 +1064,18 @@ class Axis(artist.Artist):
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
-            inter = self.get_transform().transform(interval)
             try:
                 loct = self.get_transform().transform(loc)
             except AssertionError:
                 loct = None
-            if loct and not mtransforms.interval_contains(inter, loct):
-                    continue
+                continue
+
+            if ((loct is None) or
+                (not mtransforms.interval_contains(inter, loct))):
+                print('inter', inter, loct)
+                continue
+            print('inter good', inter, loct)
+
             ticks_to_draw.append(tick)
 
         return ticks_to_draw
