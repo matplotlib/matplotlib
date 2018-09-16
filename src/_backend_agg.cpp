@@ -213,10 +213,15 @@ agg::rect_i RendererAgg::get_content_extents()
         }
     }
 
-    r.x1 = std::max(0, r.x1);
-    r.y1 = std::max(0, r.y1);
-    r.x2 = std::min(r.x2 + 1, (int)width);
-    r.y2 = std::min(r.y2 + 1, (int)height);
+    if (r.x1 == width && r.x2 == 0) {
+      // The buffer is completely empty.
+      r.x1 = r.y1 = r.x2 = r.y2 = 0;
+    } else {
+      r.x1 = std::max(0, r.x1);
+      r.y1 = std::max(0, r.y1);
+      r.x2 = std::min(r.x2 + 1, (int)width);
+      r.y2 = std::min(r.y2 + 1, (int)height);
+    }
 
     return r;
 }

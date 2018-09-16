@@ -238,3 +238,11 @@ def test_failing_latex(tmpdir):
     plt.xlabel("$22_2_2$")
     with pytest.raises(RuntimeError):
         plt.savefig(path)
+
+
+def test_empty_rasterised():
+    # Check that emtpy figures that are rasterised save to pdf files fine
+    with PdfPages(io.BytesIO()) as pdf:
+        fig, ax = plt.subplots()
+        ax.plot([], [], rasterized=True)
+        fig.savefig(pdf, format="pdf")
