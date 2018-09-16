@@ -637,6 +637,7 @@ class Axes(_AxesBase):
 
         return rectpatch, connects
 
+    @munits._accepts_units(convert_x=['x'], convert_y=['y'])
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
         Add text to the axes.
@@ -732,6 +733,7 @@ class Axes(_AxesBase):
     annotate.__doc__ = mtext.Annotation.__init__.__doc__
     #### Lines and spans
 
+    @munits._accepts_units(convert_y=['y'])
     @docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
@@ -787,14 +789,9 @@ class Axes(_AxesBase):
         if "transform" in kwargs:
             raise ValueError(
                 "'transform' is not allowed as a kwarg;"
-                + "axhline generates its own transform.")
+                "axhline generates its own transform.")
         ymin, ymax = self.get_ybound()
-
-        # We need to strip away the units for comparison with
-        # non-unitized bounds
-        self._process_unit_info(ydata=y, kwargs=kwargs)
-        yy = self.convert_yunits(y)
-        scaley = (yy < ymin) or (yy > ymax)
+        scaley = (y < ymin) or (y > ymax)
 
         trans = self.get_yaxis_transform(which='grid')
         l = mlines.Line2D([xmin, xmax], [y, y], transform=trans, **kwargs)
@@ -802,6 +799,7 @@ class Axes(_AxesBase):
         self.autoscale_view(scalex=False, scaley=scaley)
         return l
 
+    @munits._accepts_units(convert_x=['x'])
     @docstring.dedent_interpd
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
@@ -856,14 +854,9 @@ class Axes(_AxesBase):
         if "transform" in kwargs:
             raise ValueError(
                 "'transform' is not allowed as a kwarg;"
-                + "axvline generates its own transform.")
+                "axvline generates its own transform.")
         xmin, xmax = self.get_xbound()
-
-        # We need to strip away the units for comparison with
-        # non-unitized bounds
-        self._process_unit_info(xdata=x, kwargs=kwargs)
-        xx = self.convert_xunits(x)
-        scalex = (xx < xmin) or (xx > xmax)
+        scalex = (x < xmin) or (x > xmax)
 
         trans = self.get_xaxis_transform(which='grid')
         l = mlines.Line2D([x, x], [ymin, ymax], transform=trans, **kwargs)
@@ -1952,6 +1945,7 @@ class Axes(_AxesBase):
 
     #### Specialized plotting
 
+    @munits._accepts_units(convert_x=['x'], convert_y=['y'])
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     def step(self, x, y, *args, where='pre', **kwargs):
         """
@@ -2421,6 +2415,7 @@ class Axes(_AxesBase):
                            align=align, **kwargs)
         return patches
 
+    @munits._accepts_units(convert_x=['xranges'], convert_y=['yrange'])
     @_preprocess_data(label_namer=None)
     @docstring.dedent_interpd
     def broken_barh(self, xranges, yrange, **kwargs):
@@ -2480,11 +2475,6 @@ class Axes(_AxesBase):
             ydata = cbook.safe_first_element(yrange)
         else:
             ydata = None
-        self._process_unit_info(xdata=xdata,
-                                ydata=ydata,
-                                kwargs=kwargs)
-        xranges = self.convert_xunits(xranges)
-        yrange = self.convert_yunits(yrange)
 
         col = mcoll.BrokenBarHCollection(xranges, yrange, **kwargs)
         self.add_collection(col, autolim=True)
@@ -4268,6 +4258,7 @@ class Axes(_AxesBase):
 
         return collection
 
+    @munits._accepts_units(convert_x=['x'], convert_y=['y'])
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     @docstring.dedent_interpd
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
@@ -4396,8 +4387,6 @@ class Axes(_AxesBase):
             %(Collection)s
 
         """
-        self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-
         x, y, C = cbook.delete_masked_points(x, y, C)
 
         # Set the size of the hexagon grid
