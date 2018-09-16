@@ -127,3 +127,8 @@ def test_jpl_barh_units():
     fig, ax = plt.subplots()
     ax.barh(x, w, left=b)
     ax.set_xlim([b-1*day, b+w[-1]+1*day])
+
+
+def test_emtpy_arrays():
+    # Check that plotting an empty array with a dtype works
+    plt.scatter(np.array([], dtype='datetime64[ns]'), np.array([]))
