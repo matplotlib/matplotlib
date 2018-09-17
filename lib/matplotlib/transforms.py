@@ -2913,7 +2913,6 @@ def interval_contains(interval, val, rtol=1e-10):
     """
     a, b = interval
     rtol = np.abs(b - a) * rtol
-    print(rtol, val, a, b)
     return a - rtol <= val <= b + rtol or a + rtol >= val >= b - rtol
 
 
