@@ -7694,10 +7694,11 @@ class Axes(_AxesBase):
             if 'cmap' not in kwargs:
                 kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'],
                                                         name='binary')
-            nr, nc = Z.shape
-            extent = [-0.5, nc - 0.5, nr - 0.5, -0.5]
+            if 'interpolation' in kwargs:
+                raise TypeError(
+                    "spy() got an unexpected keyword argument 'interpolation'")
             ret = self.imshow(mask, interpolation='nearest', aspect=aspect,
-                                extent=extent, origin=origin, **kwargs)
+                              origin=origin, **kwargs)
         else:
             if hasattr(Z, 'tocoo'):
                 c = Z.tocoo()
@@ -7716,6 +7717,9 @@ class Axes(_AxesBase):
                 marker = 's'
             if markersize is None:
                 markersize = 10
+            if 'linestyle' in kwargs:
+                raise TypeError(
+                    "spy() got an unexpected keyword argument 'linestyle'")
             marks = mlines.Line2D(x, y, linestyle='None',
                          marker=marker, markersize=markersize, **kwargs)
             self.add_line(marks)
