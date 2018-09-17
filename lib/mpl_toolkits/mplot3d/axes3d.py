@@ -1689,7 +1689,8 @@ class Axes3D(Axes):
 
         if fcolors is not None:
             if shade:
-                colset = self._shade_colors(colset, get_normals(polys), lightsource)
+                colset = self._shade_colors(
+                    colset, get_normals(polys), lightsource)
             polyc.set_facecolors(colset)
             polyc.set_edgecolors(colset)
         elif cmap:
@@ -1702,7 +1703,8 @@ class Axes3D(Axes):
                 polyc.set_norm(norm)
         else:
             if shade:
-                colset = self._shade_colors(color, get_normals(polys), lightsource)
+                colset = self._shade_colors(
+                    color, get_normals(polys), lightsource)
             else:
                 colset = color
             polyc.set_facecolors(colset)
