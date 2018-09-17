@@ -2411,21 +2411,20 @@ def key_press_handler(event, canvas, toolbar=None):
                 warnings.warn(str(exc))
                 ax.set_xscale('linear')
             ax.figure.canvas.draw_idle()
-
-    elif (event.key.isdigit() and event.key != '0') or event.key in all_keys:
-        # keys in list 'all' enables all axes (default key 'a'),
-        # otherwise if key is a number only enable this particular axes
-        # if it was the axes, where the event was raised
-        if event.key not in all_keys:
-            n = int(event.key) - 1
-        for i, a in enumerate(canvas.figure.get_axes()):
-            # consider axes, in which the event was raised
-            # FIXME: Why only this axes?
+    # enable nagivation for all axes that contain the event (default key 'a')
+    elif event.key in all_keys:
+        for a in canvas.figure.get_axes():
             if (event.x is not None and event.y is not None
-                    and a.in_axes(event)):
-                if event.key in all_keys:
-                    a.set_navigate(True)
-                else:
+                    and a.in_axes(event)):  # FIXME: Why only these?
+                a.set_navigate(True)
+    # enable navigation only for axes with this index (if such an axes exist,
+    # otherwise do nothing)
+    elif event.key.isdigit() and event.key != '0':
+        n = int(event.key) - 1
+        if n < len(canvas.figure.get_axes()):
+            for i, a in enumerate(canvas.figure.get_axes()):
+                if (event.x is not None and event.y is not None
+                        and a.in_axes(event)):  # FIXME: Why only these?
                     a.set_navigate(i == n)
 
 
