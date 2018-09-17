@@ -2434,42 +2434,49 @@ class Axes3D(Axes):
 
         polys = []
         for xi, yi, zi, dxi, dyi, dzi in zip(x, y, z, dx, dy, dz):
-            polys.extend([
+            corner = np.array([xi, yi, zi])
+            polys.extend(corner + [
+                # -z
                 (
-                    (xi, yi, zi),
-                    (xi + dxi, yi, zi),
-                    (xi + dxi, yi + dyi, zi),
-                    (xi, yi + dyi, zi)
+                    (  0,   0,   0),
+                    (dxi,   0,   0),
+                    (dxi, dyi,   0),
+                    (  0, dyi,   0)
                 ),
+                # +z
                 (
-                    (xi, yi, zi + dzi),
-                    (xi + dxi, yi, zi + dzi),
-                    (xi + dxi, yi + dyi, zi + dzi),
-                    (xi, yi + dyi, zi + dzi)
+                    (  0,   0, dzi),
+                    (dxi,   0, dzi),
+                    (dxi, dyi, dzi),
+                    (  0, dyi, dzi)
                 ),
+                # -y
                 (
-                    (xi, yi, zi),
-                    (xi + dxi, yi, zi),
-                    (xi + dxi, yi, zi + dzi),
-                    (xi, yi, zi + dzi)
+                    (  0,   0,   0),
+                    (dxi,   0,   0),
+                    (dxi,   0, dzi),
+                    (  0,   0, dzi)
                 ),
+                # +y
                 (
-                    (xi, yi + dyi, zi),
-                    (xi + dxi, yi + dyi, zi),
-                    (xi + dxi, yi + dyi, zi + dzi),
-                    (xi, yi + dyi, zi + dzi)
+                    (  0, dyi,   0),
+                    (dxi, dyi,   0),
+                    (dxi, dyi, dzi),
+                    (  0, dyi, dzi)
                 ),
+                # -x
                 (
-                    (xi, yi, zi),
-                    (xi, yi + dyi, zi),
-                    (xi, yi + dyi, zi + dzi),
-                    (xi, yi, zi + dzi)
+                    (  0,   0,   0),
+                    (  0, dyi,   0),
+                    (  0, dyi, dzi),
+                    (  0,   0, dzi)
                 ),
+                # +x
                 (
-                    (xi + dxi, yi, zi),
-                    (xi + dxi, yi + dyi, zi),
-                    (xi + dxi, yi + dyi, zi + dzi),
-                    (xi + dxi, yi, zi + dzi)
+                    (dxi,   0,   0),
+                    (dxi, dyi,   0),
+                    (dxi, dyi, dzi),
+                    (dxi,   0, dzi)
                 ),
             ])
 
