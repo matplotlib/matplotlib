@@ -2435,48 +2435,49 @@ class Axes3D(Axes):
         polys = []
         for xi, yi, zi, dxi, dyi, dzi in zip(x, y, z, dx, dy, dz):
             corner = np.array([xi, yi, zi])
-            polys.extend(corner + [
+            scale = np.array([dxi, dyi, dzi])
+            polys.extend(corner + scale * [
                 # -z
                 (
-                    (  0,   0,   0),
-                    (dxi,   0,   0),
-                    (dxi, dyi,   0),
-                    (  0, dyi,   0)
+                    (0, 0, 0),
+                    (1, 0, 0),
+                    (1, 1, 0),
+                    (0, 1, 0)
                 ),
                 # +z
                 (
-                    (  0,   0, dzi),
-                    (dxi,   0, dzi),
-                    (dxi, dyi, dzi),
-                    (  0, dyi, dzi)
+                    (0, 0, 1),
+                    (1, 0, 1),
+                    (1, 1, 1),
+                    (0, 1, 1)
                 ),
                 # -y
                 (
-                    (  0,   0,   0),
-                    (dxi,   0,   0),
-                    (dxi,   0, dzi),
-                    (  0,   0, dzi)
+                    (0, 0, 0),
+                    (1, 0, 0),
+                    (1, 0, 1),
+                    (0, 0, 1)
                 ),
                 # +y
                 (
-                    (  0, dyi,   0),
-                    (dxi, dyi,   0),
-                    (dxi, dyi, dzi),
-                    (  0, dyi, dzi)
+                    (0, 1, 0),
+                    (1, 1, 0),
+                    (1, 1, 1),
+                    (0, 1, 1)
                 ),
                 # -x
                 (
-                    (  0,   0,   0),
-                    (  0, dyi,   0),
-                    (  0, dyi, dzi),
-                    (  0,   0, dzi)
+                    (0, 0, 0),
+                    (0, 1, 0),
+                    (0, 1, 1),
+                    (0, 0, 1)
                 ),
                 # +x
                 (
-                    (dxi,   0,   0),
-                    (dxi, dyi,   0),
-                    (dxi, dyi, dzi),
-                    (dxi,   0, dzi)
+                    (1, 0, 0),
+                    (1, 1, 0),
+                    (1, 1, 1),
+                    (1, 0, 1)
                 ),
             ])
 
