@@ -243,8 +243,14 @@ class FormWidget(QtWidgets.QWidget):
             elif isinstance(value, str):
                 field = QtWidgets.QLineEdit(value, self)
             elif isinstance(value, (list, tuple)):
+                if isinstance(value, tuple):
+                    value = list(value)
+                # Note: get() below checks the type of value[0] in self.data so
+                # it is essential that value gets modified in-place.
+                # This means that the code is actually broken in the case where
+                # value is a tuple, but fortunately we always pass a list...
+                selindex = value.pop(0)
                 field = QtWidgets.QComboBox(self)
-                selindex, *value = value
                 if isinstance(value[0], (list, tuple)):
                     keys = [key for key, _val in value]
                     value = [val for _key, val in value]
