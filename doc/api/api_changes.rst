@@ -26,12 +26,14 @@ This pages lists API changes for the most recent version of Matplotlib.
     - All the files in 'next_api_changes' should be moved to the bottom of this page
     - This note, and the toctree below should be commented out
 
+..
 
-.. toctree::
-   :glob:
-   :maxdepth: 1
+   .. toctree::
+      :glob:
+      :maxdepth: 1
 
-   next_api_changes/*
+      next_api_changes/*
+
 
 API Changes for 3.0.0
 =====================
@@ -68,7 +70,7 @@ string to ``"None"``, so subsequent calls to `Text.get_text` would return
 the ambiguous ``"None"`` string.
 
 This change sets text objects passed ``None`` to have empty strings, so that
-`Text.get_text` returns and an empty string.
+`Text.get_text` returns an empty string.
 
 Deprecations
 ------------
@@ -129,6 +131,7 @@ The following keyword arguments are deprecated:
 
 The following call signatures are deprecated:
 - passing a ``wx.EvtHandler`` as first argument to ``backend_wx.TimerWx``
+
 
 Deprecated methods removed from `matplotlib.testing`
 ----------------------------------------------------
@@ -250,10 +253,10 @@ The following API elements have been removed:
 i.e., it behaves case-insensitively on Windows only.
 
 
-``bar``/``barh`` no longer accepts ``left``/``bottom`` as first named argument
-------------------------------------------------------------------------------
+``bar`` / ``barh`` no longer accepts ``left`` / ``bottom`` as first named argument
+----------------------------------------------------------------------------------
 
-These arguments were renamed in 2.0 to ``x``/``y`` following the change of the
+These arguments were renamed in 2.0 to ``x`` / ``y`` following the change of the
 default alignment from ``edge`` to ``center``.
 
 
@@ -485,3 +488,148 @@ actually be the default color of whatever was rendering the pgf file (which was
 of course usually black). The new behavior is that black text is black,
 regardless of the default color. However, this means that there is no way to
 fall back on the default color of the renderer.
+
+
+Blacklisted rcparams no longer updated by `rcdefaults`, `rc_file_defaults`, `rc_file`
+-------------------------------------------------------------------------------------
+
+The rc modifier functions `rcdefaults`, `rc_file_defaults` and `rc_file`
+now ignore rcParams in the `matplotlib.style.core.STYLE_BLACKLIST` set.  In
+particular, this prevents the ``backend`` and ``interactive`` rcParams from
+being incorrectly modified by these functions.
+
+
+Deprecation of ``LocatableAxes`` in toolkits
+--------------------------------------------
+
+The ``LocatableAxes`` classes in toolkits have been deprecated. The base `Axes`
+classes provide the same functionality to all subclasses, thus these mixins are
+no longer necessary. Related functions have also been deprecated. Specifically:
+
+* ``mpl_toolkits.axes_grid1.axes_divider.LocatableAxesBase``: no specific
+  replacement; use any other ``Axes``-derived class directly instead.
+* ``mpl_toolkits.axes_grid1.axes_divider.locatable_axes_factory``: no specific
+  replacement; use any other ``Axes``-derived class directly instead.
+* ``mpl_toolkits.axes_grid1.axes_divider.Axes``: use
+  `mpl_toolkits.axes_grid1.mpl_axes.Axes` directly.
+* ``mpl_toolkits.axes_grid1.axes_divider.LocatableAxes``: use
+  `mpl_toolkits.axes_grid1.mpl_axes.Axes` directly.
+* ``mpl_toolkits.axisartist.axes_divider.Axes``: use
+  `mpl_toolkits.axisartist.axislines.Axes` directly.
+* ``mpl_toolkits.axisartist.axes_divider.LocatableAxes``: use
+  `mpl_toolkits.axisartist.axislines.Axes` directly.
+
+
+Deprecations
+------------
+The following modules are deprecated:
+
+- :mod:`matplotlib.compat.subprocess`. This was a python 2 workaround, but all
+  the functionality can now be found in the python 3 standard library
+  :mod:`subprocess`.
+- :mod:`matplotlib.backends.wx_compat`. Python 3 is only compatible with
+  wxPython 4, so support for wxPython 3 or earlier can be dropped.
+
+The following classes, methods, functions, and attributes are deprecated:
+
+- ``RcParams.msg_depr``, ``RcParams.msg_depr_ignore``,
+  ``RcParams.msg_depr_set``, ``RcParams.msg_obsolete``,
+  ``RcParams.msg_backend_obsolete``,
+- ``afm.parse_afm``,
+- ``backend_pdf.PdfFile.texFontMap``,
+- ``backend_pgf.get_texcommand``,
+- ``backend_ps.get_bbox``,
+- ``backend_qt5.FigureCanvasQT.keyAutoRepeat`` (directly check
+  ``event.guiEvent.isAutoRepeat()`` in the event handler to decide whether to
+  handle autorepeated key presses).
+- ``backend_qt5.error_msg_qt``, ``backend_qt5.exception_handler``,
+- ``backend_wx.FigureCanvasWx.macros``,
+- ``backends.pylab_setup``,
+- ``cbook.GetRealpathAndStat``, ``cbook.Locked``,
+- ``cbook.is_numlike`` (use ``isinstance(..., numbers.Number)`` instead),
+  ``cbook.listFiles``, ``cbook.unicode_safe``,
+- ``container.Container.set_remove_method``,
+- ``contour.ContourLabeler.cl``, ``.cl_xy``, and ``.cl_cvalues``,
+- ``dates.DateFormatter.strftime_pre_1900``, ``dates.DateFormatter.strftime``,
+- ``font_manager.TempCache``,
+- ``image._ImageBase.iterpnames``, use the ``interpolation_names`` property
+  instead. (this affects classes that inherit from ``_ImageBase`` including
+  :class:`FigureImage`, :class:`BboxImage`, and :class:`AxesImage`),
+- ``mathtext.unichr_safe`` (use ``chr`` instead),
+- ``patches.Polygon.xy``,
+- ``table.Table.get_child_artists`` (use ``get_children`` instead),
+- ``testing.compare.ImageComparisonTest``, ``testing.compare.compare_float``,
+- ``testing.decorators.CleanupTest``,
+  ``testing.decorators.skip_if_command_unavailable``,
+- ``FigureCanvasQT.keyAutoRepeat`` (directly check
+  ``event.guiEvent.isAutoRepeat()`` in the event handler to decide whether to
+  handle autorepeated key presses).
+- ``texmanager.dvipng_hack_alpha``,
+- ``text.Annotation.arrow``,
+- ``textpath.TextToPath.tex_font_map``,
+
+The following rcParams are deprecated:
+
+- ``examples.directory`` (use ``datapath`` instead),
+- ``pgf.debug`` (the pgf backend relies on logging),
+- ``text.latex.unicode``,
+
+The following keyword arguments are deprecated:
+
+- passing ``verts`` to ``Axes.scatter`` (use ``marker`` instead),
+- passing ``obj_type`` to ``cbook.deprecated``,
+
+The following call signatures are deprecated:
+
+- passing a ``wx.EvtHandler`` as first argument to ``backend_wx.TimerWx``,
+
+
+`.matplotlib.Axes.get_tightbbox` now includes all artists
+---------------------------------------------------------
+
+Layout tools like `.Figure.tight_layout`, ``constrained_layout``,
+and ``fig.savefig('fname.png', bbox_inches="tight")`` use
+`.matplotlib.Axes.get_tightbbox` to determine the bounds of each axes on
+a figure and adjust spacing between axes.
+
+In Matplotlib 2.2 ``get_tightbbox`` started to include legends made on the
+axes, but still excluded some other artists, like text that may overspill an
+axes.  For Matplotlib 3.0, *all* artists are now included in the bounding box.
+
+This new default may be overridden in either of two ways:
+
+1. Make the artist to be excluded a child of the figure, not the axes. E.g.,
+   call ``fig.legend()`` instead of ``ax.legend()`` (perhaps using
+   `~.matplotlib.Axes.get_legend_handles_labels` to gather handles and labels
+   from the parent axes).
+2. If the artist is a child of the axes, set the artist property
+   ``artist.set_in_layout(False)``.
+
+
+`CallbackRegistry` now stores callbacks using stdlib's `WeakMethod`\s
+---------------------------------------------------------------------
+
+In particular, this implies that ``CallbackRegistry.callbacks[signal]`` is now
+a mapping of callback ids to `WeakMethod`\s (i.e., they need to be first called
+with no arguments to retrieve the method itself).
+
+
+Changes regarding the text.latex.unicode rcParam
+------------------------------------------------
+
+The rcParam now defaults to True and is deprecated (i.e., in future versions
+of Maplotlib, unicode input will always be supported).
+
+Moreover, the underlying implementation now uses ``\usepackage[utf8]{inputenc}``
+instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
+
+
+Removed ``pytz`` as a dependency
+--------------------------------
+
+Since ``dateutil`` and ``pytz`` both provide time zones, and
+matplotlib already depends on ``dateutil``, matplotlib will now use
+``dateutil`` time zones internally and drop the redundant dependency
+on ``pytz``. While ``dateutil`` time zones are preferred (and
+currently recommended in the Python documentation), the explicit use
+of ``pytz`` zones is still supported.
