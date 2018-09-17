@@ -44,13 +44,6 @@ Drop support for python 2
 Matplotlib 3 only supports python 3.5 and higher.
 
 
-Hold machinery removed
-----------------------
-
-Setting or unsetting ``hold`` (deprecated in version 2.1) has now
-been completely removed. Matplotlib now always behaves as if ``hold=True``.
-To clear an axes you can manually use :meth:`~.axes.Axes.cla()`,
-or to clear an entire figure use :meth:`~.figure.Figure.clf()`.
 
 
 `.Axes.hist2d` now uses `~.Axes.pcolormesh` instead of `~.Axes.pcolorfast`
@@ -74,6 +67,9 @@ This change sets text objects passed ``None`` to have empty strings, so that
 
 Deprecations
 ------------
+
+Modules
+```````
 The following modules are deprecated:
 
 - :mod:`matplotlib.compat.subprocess`. This was a python 2 workaround, but all
@@ -81,6 +77,9 @@ The following modules are deprecated:
   :mod:`subprocess`.
 - :mod:`matplotlib.backends.wx_compat`. Python 3 is only compatible with
   wxPython 4, so support for wxPython 3 or earlier can be dropped.
+
+Classes, methods, functions, and attributes
+```````````````````````````````````````````
 
 The following classes, methods, functions, and attributes are deprecated:
 
@@ -126,12 +125,16 @@ The following classes, methods, functions, and attributes are deprecated:
 - `.Legend.draggable()`, in favor of `.Legend.set_draggable()`
    (``Legend.draggable`` may be reintroduced as a property in future releases)
 - ``textpath.TextToPath.tex_font_map``
-
-The following rcParams are deprecated:
-
-- ``examples.directory`` (use ``datapath`` instead)
-- ``pgf.debug`` (the pgf backend relies on logging)
-- ``text.latex.unicode``
+- :class:`matplotlib.cbook.deprecation.mplDeprecation` will be removed in
+  future versions. It is just an alias for
+  :class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
+  Please use the :class:`~.MatplotlibDeprecationWarning` directly if neccessary.
+- The ``matplotlib.cbook.Bunch`` class has been deprecated. Instead, use
+  `types.SimpleNamespace` from the standard library which provides the same
+  functionality.
+- ``Axes.mouseover_set`` is now a frozenset, and deprecated.  Directly
+  manipulate the artist's ``.mouseover`` attribute to change their mouseover
+  status.
 
 The following keyword arguments are deprecated:
 
@@ -142,52 +145,44 @@ The following call signatures are deprecated:
 
 - passing a ``wx.EvtHandler`` as first argument to ``backend_wx.TimerWx``
 
+rcParams
+````````
 
-Deprecated methods removed from `matplotlib.testing`
-----------------------------------------------------
+The following rcParams are deprecated:
 
-The deprecated methods `knownfailureif` and `remove_text` have been removed
-from :mod:`matplotlib.testing.decorators`.
-
-The entire contents of `testing.noseclasses` have also been removed.
-
-
-``matplotlib.cbook.deprecation.mplDeprecation`` is deprecated
--------------------------------------------------------------
-
-:class:`matplotlib.cbook.deprecation.mplDeprecation` will be removed in
-future versions. It is just an alias for
-:class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
-Please use the :class:`~.MatplotlibDeprecationWarning` directly if neccessary.
+- ``examples.directory`` (use ``datapath`` instead)
+- ``pgf.debug`` (the pgf backend relies on logging)
+- ``text.latex.unicode``
 
 
-matplotlib.cbook.Bunch deprecated
----------------------------------
-
-The ``matplotlib.cbook.Bunch`` class has been deprecated. Instead, use
-`types.SimpleNamespace` from the standard library which provides the same
-functionality.
-
-
-Deprecation of certain marker styles
-------------------------------------
-
-Using ``(n, 3)`` as marker style to specify a circle marker is deprecated.  Use
-``"o"`` instead.
-
-Using ``([(x0, y0), (x1, y1), ...], 0)`` as marker style to specify a custom
-marker path is deprecated.  Use ``[(x0, y0), (x1, y1), ...]`` instead.
+marker styles
+`````````````
+- Using ``(n, 3)`` as marker style to specify a circle marker is deprecated.  Use
+  ``"o"`` instead.
+- Using ``([(x0, y0), (x1, y1), ...], 0)`` as marker style to specify a custom
+  marker path is deprecated.  Use ``[(x0, y0), (x1, y1), ...]`` instead.
 
 
-Removal of deprecated backends
-------------------------------
+Deprecation of ``LocatableAxes`` in toolkits
+````````````````````````````````````````````
 
-Deprecated backends have been removed:
+The ``LocatableAxes`` classes in toolkits have been deprecated. The base `Axes`
+classes provide the same functionality to all subclasses, thus these mixins are
+no longer necessary. Related functions have also been deprecated. Specifically:
 
-    * GTKAgg
-    * GTKCairo
-    * GTK
-    * GDK
+* ``mpl_toolkits.axes_grid1.axes_divider.LocatableAxesBase``: no specific
+  replacement; use any other ``Axes``-derived class directly instead.
+* ``mpl_toolkits.axes_grid1.axes_divider.locatable_axes_factory``: no specific
+  replacement; use any other ``Axes``-derived class directly instead.
+* ``mpl_toolkits.axes_grid1.axes_divider.Axes``: use
+  `mpl_toolkits.axes_grid1.mpl_axes.Axes` directly.
+* ``mpl_toolkits.axes_grid1.axes_divider.LocatableAxes``: use
+  `mpl_toolkits.axes_grid1.mpl_axes.Axes` directly.
+* ``mpl_toolkits.axisartist.axes_divider.Axes``: use
+  `mpl_toolkits.axisartist.axislines.Axes` directly.
+* ``mpl_toolkits.axisartist.axes_divider.LocatableAxes``: use
+  `mpl_toolkits.axisartist.axislines.Axes` directly.
+
 
 
 ``Axes3D.get_xlim``, ``get_ylim`` and ``get_zlim`` now return a tuple
@@ -197,20 +192,39 @@ They previously returned an array.  Returning a tuple is consistent with the
 behavior for 2D axes.
 
 
-Modified APIs
--------------
+Removals
+--------
 
-The following APIs have been modified:
+Hold machinery
+``````````````
 
-- ``Axes.mouseover_set`` is now a frozenset, and deprecated.  Directly
-  manipulate the artist's ``.mouseover`` attribute to change their mouseover
-  status.
+Setting or unsetting ``hold`` (deprecated in version 2.1) has now
+been completely removed. Matplotlib now always behaves as if ``hold=True``.
+To clear an axes you can manually use :meth:`~.axes.Axes.cla()`,
+or to clear an entire figure use :meth:`~.figure.Figure.clf()`.
+
+
+Removal of deprecated backends
+``````````````````````````````
+
+Deprecated backends have been removed:
+
+* GTKAgg
+* GTKCairo
+* GTK
+* GDK
+
 
 Removal of deprecated APIs
---------------------------
+``````````````````````````
 
 The following deprecated API elements have been removed:
+Deprecated methods removed from ``
 
+
+- The deprecated methods ``knownfailureif`` and ``remove_text`` have been removed
+  from :mod:`matplotlib.testing.decorators`.
+- The entire contents of ``testing.noseclasses`` have also been removed.
 - ``matplotlib.checkdep_tex``, ``matplotlib.checkdep_xmllint``,
 - ``backend_bases.IdleEvent``,
 - ``cbook.converter``, ``cbook.tostr``, ``cbook.todatetime``, ``cbook.todate``,
@@ -301,8 +315,8 @@ warning if only two positional arguments are passed.  To supply only ``x`` and
 ``y`` margins, use keyword arguments.
 
 
-lib/mpl_examples removed
-------------------------
+lib/mpl_examples symlink removed
+--------------------------------
 
 The symlink from lib/mpl_examples to ../examples has been removed.
 This is not installed as an importable package and should not affect
@@ -508,26 +522,6 @@ now ignore rcParams in the `matplotlib.style.core.STYLE_BLACKLIST` set.  In
 particular, this prevents the ``backend`` and ``interactive`` rcParams from
 being incorrectly modified by these functions.
 
-
-Deprecation of ``LocatableAxes`` in toolkits
---------------------------------------------
-
-The ``LocatableAxes`` classes in toolkits have been deprecated. The base `Axes`
-classes provide the same functionality to all subclasses, thus these mixins are
-no longer necessary. Related functions have also been deprecated. Specifically:
-
-* ``mpl_toolkits.axes_grid1.axes_divider.LocatableAxesBase``: no specific
-  replacement; use any other ``Axes``-derived class directly instead.
-* ``mpl_toolkits.axes_grid1.axes_divider.locatable_axes_factory``: no specific
-  replacement; use any other ``Axes``-derived class directly instead.
-* ``mpl_toolkits.axes_grid1.axes_divider.Axes``: use
-  `mpl_toolkits.axes_grid1.mpl_axes.Axes` directly.
-* ``mpl_toolkits.axes_grid1.axes_divider.LocatableAxes``: use
-  `mpl_toolkits.axes_grid1.mpl_axes.Axes` directly.
-* ``mpl_toolkits.axisartist.axes_divider.Axes``: use
-  `mpl_toolkits.axisartist.axislines.Axes` directly.
-* ``mpl_toolkits.axisartist.axes_divider.LocatableAxes``: use
-  `mpl_toolkits.axisartist.axislines.Axes` directly.
 
 
 
