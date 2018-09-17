@@ -2478,11 +2478,17 @@ class Axes3D(Axes):
             ),
         ])
 
-        polys = []
-        for xi, yi, zi, dxi, dyi, dzi in zip(x, y, z, dx, dy, dz):
-            corner = np.array([xi, yi, zi])
-            scale = np.array([dxi, dyi, dzi])
-            polys.extend(corner + scale * cuboid)
+        # indexed by [bar, face, vertex, coord]
+        polys = np.empty(x.shape + cuboid.shape)
+
+        # handle each coordinate separately
+        for i, p, dp in [(0, x, dx), (1, y, dy), (2, z, dz)]:
+            p = p[..., np.newaxis, np.newaxis]
+            dp = dp[..., np.newaxis, np.newaxis]
+            polys[..., i] = p + dp * cuboid[..., i]
+
+        # collapse the first two axes
+        polys = polys.reshape((-1,) + polys.shape[2:])
 
         facecolors = []
         if color is None:
