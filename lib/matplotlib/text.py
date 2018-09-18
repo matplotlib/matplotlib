@@ -2209,6 +2209,9 @@ class Annotation(Text, _AnnotationBase):
     def anncoords(self, coords):
         self._textcoords = coords
 
+    get_anncoords = anncoords.fget
+    set_anncoords = anncoords.fset
+
     def set_figure(self, fig):
         if self.arrow_patch is not None:
             self.arrow_patch.set_figure(fig)
