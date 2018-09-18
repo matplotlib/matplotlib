@@ -2984,13 +2984,13 @@ void qh_triangulate_facet(facetT *facetA, vertexT **first_vertex) {
     if (qh TRInormals) { /* 'Q11' triangulate duplicates ->normal and ->center */
       newfacet->keepcentrum= True;
       if(facetA->normal){
-        newfacet->normal= qh_memalloc(qh normal_size);
+        newfacet->normal= (double*)qh_memalloc(qh normal_size);
         memcpy((char *)newfacet->normal, facetA->normal, qh normal_size);
       }
       if (qh CENTERtype == qh_AScentrum)
-        newfacet->center= qh_getcentrum(newfacet);
+        newfacet->center= (double*)qh_getcentrum(newfacet);
       else if (qh CENTERtype == qh_ASvoronoi && facetA->center){
-        newfacet->center= qh_memalloc(qh center_size);
+        newfacet->center= (double*)qh_memalloc(qh center_size);
         memcpy((char *)newfacet->center, facetA->center, qh center_size);
       }
     }else {
