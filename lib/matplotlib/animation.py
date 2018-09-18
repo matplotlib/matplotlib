@@ -550,38 +550,14 @@ class PillowWriter(MovieWriter):
             return False
         return True
 
-    def __init__(self, *args, loop=0, **kwargs):
+    def __init__(self, *args, **kwargs):
         '''PillowWriter
 
         Parameters
         ----------
         fps: int
             Framerate for the gif.
-        loop: int
-            The number of times that the gif will loop.
-            A value of 0 is endless.
-        codec: string or None, optional
-            The codec to use. If ``None`` (the default) the ``animation.codec``
-            rcParam is used.
-        bitrate: int or None, optional
-            The bitrate for the saved movie file, which is one way to control
-            the output file size and quality. The default value is ``None``,
-            which uses the ``animation.bitrate`` rcParam.  A value of -1
-            implies that the bitrate should be determined automatically by the
-            underlying utility.
-        extra_args: list of strings or None, optional
-            A list of extra string arguments to be passed to the underlying
-            movie utility. The default is ``None``, which passes the additional
-            arguments in the ``animation.extra_args`` rcParam.
-        metadata: Dict[str, str] or None
-            A dictionary of keys and values for metadata to include in the
-            output file. Some keys that may be of use include:
-            title, artist, genre, subject, copyright, srcform, comment.
         '''
-        if type(loop) == int:
-            self.loop = loop
-        else:
-            raise ValueError("loop must be an int")
         if kwargs.get("extra_args") is None:
             kwargs["extra_args"] = ()
         super().__init__(*args, **kwargs)
@@ -607,7 +583,7 @@ class PillowWriter(MovieWriter):
     def finish(self):
         self._frames[0].save(
             self._outfile, save_all=True, append_images=self._frames[1:],
-            duration=int(1000 / self.fps), loop=self.loop)
+            duration=int(1000 / self.fps), loop=0)
 
 
 # Base class of ffmpeg information. Has the config keys and the common set
