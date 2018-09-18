@@ -38,7 +38,7 @@ GitHub Stats
 
 We automatically extract GitHub issue, PRs, and authors from GitHub via the API::
 
-  python tools/github_stats.py --since-tag $TAG --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
+  python tools/github_stats.py --since-tag v2.2.0 --milestone=v3.0 --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
 
 Review and commit changes.  Some issue/PR titles may not be valid rst (the most common issue is
 ``*`` which is interpreted as unclosed markup).
