@@ -1002,7 +1002,7 @@ a cleaner separation between subplots.
        with mpl.rc_context(rc=rcparams):
 
            ax = fig.add_subplot(2, 2, j)
-           ax.hist(np.random.beta(0.5, 0.5, 10000), 25, normed=True)
+           ax.hist(np.random.beta(0.5, 0.5, 10000), 25, density=True)
            ax.set_xlim([0, 1])
            ax.set_title(title)
 
