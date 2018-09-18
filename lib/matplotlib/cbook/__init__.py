@@ -1353,51 +1353,6 @@ ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 
-@deprecated('2.2')
-def align_iterators(func, *iterables):
-    """
-    This generator takes a bunch of iterables that are ordered by func
-    It sends out ordered tuples::
-
-       (func(row), [rows from all iterators matching func(row)])
-
-    It is used by :func:`matplotlib.mlab.recs_join` to join record arrays
-    """
-    class myiter:
-        def __init__(self, it):
-            self.it = it
-            self.key = self.value = None
-            self.iternext()
-
-        def iternext(self):
-            try:
-                self.value = next(self.it)
-                self.key = func(self.value)
-            except StopIteration:
-                self.value = self.key = None
-
-        def __call__(self, key):
-            retval = None
-            if key == self.key:
-                retval = self.value
-                self.iternext()
-            elif self.key and key > self.key:
-                raise ValueError("Iterator has been left behind")
-            return retval
-
-    # This can be made more efficient by not computing the minimum key for each
-    # iteration
-    iters = [myiter(it) for it in iterables]
-    minvals = minkey = True
-    while True:
-        minvals = ([_f for _f in [it.key for it in iters] if _f])
-        if minvals:
-            minkey = min(minvals)
-            yield (minkey, [it(minkey) for it in iters])
-        else:
-            break
-
-
 def contiguous_regions(mask):
     """
     Return a list of (ind0, ind1) such that mask[ind0:ind1].all() is

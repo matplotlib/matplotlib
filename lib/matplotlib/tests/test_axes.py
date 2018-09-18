@@ -1971,8 +1971,7 @@ def test_pyplot_axes():
     # test focusing of Axes in other Figure
     fig1, ax1 = plt.subplots()
     fig2, ax2 = plt.subplots()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert ax1 is plt.axes(ax1)
+    plt.sca(ax1)
     assert ax1 is plt.gca()
     assert fig1 is plt.gcf()
     plt.close(fig1)
@@ -3118,8 +3117,7 @@ def test_hist_stacked_step():
     ax.hist((d1, d2), histtype="step", stacked=True)
 
 
-@image_comparison(baseline_images=['hist_stacked_normed',
-                                   'hist_stacked_normed'])
+@image_comparison(baseline_images=['hist_stacked_normed'])
 def test_hist_stacked_density():
     # make some data
     d1 = np.linspace(1, 3, 20)
@@ -3127,11 +3125,6 @@ def test_hist_stacked_density():
 
     fig, ax = plt.subplots()
     ax.hist((d1, d2), stacked=True, density=True)
-
-    # Also check that the old keyword works.
-    fig, ax = plt.subplots()
-    with pytest.warns(UserWarning):
-        ax.hist((d1, d2), stacked=True, normed=True)
 
 
 @pytest.mark.parametrize('normed', [False, True])

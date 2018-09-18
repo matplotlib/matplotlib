@@ -6295,8 +6295,7 @@ optional.
     def hist(self, x, bins=None, range=None, density=None, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False, normed=None,
-             **kwargs):
+             color=None, label=None, stacked=False, **kwargs):
         """
         Plot a histogram.
 
@@ -6364,30 +6363,26 @@ optional.
             number of observations. If *stacked* is also ``True``, the sum of
             the histograms is normalized to 1.
 
-            Default is ``None`` for both *normed* and *density*. If either is
-            set, then that value will be used. If neither are set, then the
-            args will be treated as ``False``.
-
-            If both *density* and *normed* are set an error is raised.
+            Default is ``False``.
 
         weights : (n, ) array_like or None, optional
-            An array of weights, of the same shape as *x*.  Each value in *x*
-            only contributes its associated weight towards the bin count
-            (instead of 1).  If *normed* or *density* is ``True``,
-            the weights are normalized, so that the integral of the density
-            over the range remains 1.
+            An array of weights, of the same shape as *x*.  Each value in
+            *x* only contributes its associated weight towards the bin count
+            (instead of 1).  If *density* is ``True``, the weights are
+            normalized, so that the integral of the density over the range
+            remains 1.
 
             Default is ``None``
 
         cumulative : bool, optional
-            If ``True``, then a histogram is computed where each bin gives the
-            counts in that bin plus all bins for smaller values. The last bin
-            gives the total number of datapoints. If *normed* or *density*
-            is also ``True`` then the histogram is normalized such that the
-            last bin equals 1. If *cumulative* evaluates to less than 0
-            (e.g., -1), the direction of accumulation is reversed.
-            In this case, if *normed* and/or *density* is also ``True``, then
-            the histogram is normalized such that the first bin equals 1.
+            If ``True``, then a histogram is computed where each bin gives
+            the counts in that bin plus all bins for smaller values. The last
+            bin gives the total number of datapoints. If *density* is also
+            ``True`` then the histogram is normalized such that the last bin
+            equals 1. If *cumulative* evaluates to less than 0 (e.g., -1), the
+            direction of accumulation is reversed.  In this case, if *density*
+            is also ``True``, then the histogram is normalized such that the
+            first bin equals 1.
 
             Default is ``False``
 
@@ -6467,21 +6462,16 @@ optional.
 
             Default is ``False``
 
-        normed : bool, optional
-            Deprecated; use the density keyword argument instead.
-
         Returns
         -------
         n : array or list of arrays
-            The values of the histogram bins. See *normed* or *density*
-            and *weights* for a description of the possible semantics.
-            If input *x* is an array, then this is an array of length
-            *nbins*. If input is a sequence of arrays
-            ``[data1, data2,..]``, then this is a list of arrays with
-            the values of the histograms for each of the arrays in the
-            same order. The dtype of the elements of the array *n*
-            (or of its element arrays) will always be float even if no
-            weighting or normalization is used.
+            The values of the histogram bins. See *density* and *weights* for a
+            description of the possible semantics.  If input *x* is an array,
+            then this is an array of length *nbins*. If input is a sequence of
+            arrays ``[data1, data2,..]``, then this is a list of arrays with
+            the values of the histograms for each of the arrays in the same
+            order.  The dtype of the array *n* (or of its element arrays) will
+            always be float even if no weighting or normalization is used.
 
         bins : array
             The edges of the bins. Length nbins + 1 (nbins left edges and right
@@ -6529,15 +6519,6 @@ optional.
 
         if histtype == 'barstacked' and not stacked:
             stacked = True
-
-        if density is not None and normed is not None:
-            raise ValueError("kwargs 'density' and 'normed' cannot be used "
-                             "simultaneously. "
-                             "Please only use 'density', since 'normed'"
-                             "is deprecated.")
-        if normed is not None:
-            cbook.warn_deprecated("2.1", name="'normed'", obj_type="kwarg",
-                                  alternative="'density'", removal="3.1")
 
         # basic input validation
         input_empty = np.size(x) == 0
@@ -6594,7 +6575,6 @@ optional.
                     xmin = min(xmin, np.nanmin(xi))
                     xmax = max(xmax, np.nanmax(xi))
             bin_range = (xmin, xmax)
-        density = bool(density) or bool(normed)
         if density and not stacked:
             hist_kwargs = dict(range=bin_range, density=density)
         else:

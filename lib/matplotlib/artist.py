@@ -359,25 +359,6 @@ class Artist(object):
             self._transform = self._transform._as_mpl_transform(self.axes)
         return self._transform
 
-    @cbook.deprecated("2.2")
-    def hitlist(self, event):
-        """
-        List the children of the artist which contain the mouse event *event*.
-        """
-        L = []
-        try:
-            hascursor, info = self.contains(event)
-            if hascursor:
-                L.append(self)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            print("while checking", self.__class__)
-
-        for a in self.get_children():
-            L.extend(a.hitlist(event))
-        return L
-
     def get_children(self):
         r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
@@ -534,11 +515,6 @@ class Artist(object):
         set_picker, pickable, pick
         """
         return self._picker
-
-    @cbook.deprecated("2.2", alternative="artist.figure is not None")
-    def is_figure_set(self):
-        """Returns whether the artist is assigned to a `.Figure`."""
-        return self.figure is not None
 
     def get_url(self):
         """Return the url."""

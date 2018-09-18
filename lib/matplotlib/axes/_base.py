@@ -1322,10 +1322,7 @@ class _AxesBase(martist.Artist):
         which the adjustments for aspect ratios are done sequentially
         and independently on each Axes as it is drawn.
         """
-        if adjustable == 'box-forced':
-            cbook.warn_deprecated(
-                "2.2", name="box-forced", obj_type="keyword argument")
-        if adjustable not in ('box', 'datalim', 'box-forced'):
+        if adjustable not in ('box', 'datalim'):
             raise ValueError("argument must be 'box', or 'datalim'")
         if share:
             axes = set(self._shared_x_axes.get_siblings(self)

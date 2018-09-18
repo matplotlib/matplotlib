@@ -758,15 +758,6 @@ class Axis(martist.Artist):
     def limit_range_for_scale(self, vmin, vmax):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
-    @cbook.deprecated("2.2.0")
-    @property
-    def unit_data(self):
-        return self.units
-
-    @unit_data.setter
-    def unit_data(self, unit_data):
-        self.set_units(unit_data)
-
     def get_children(self):
         children = [self.label, self.offsetText]
         majorticks = self.get_major_ticks()

@@ -538,24 +538,6 @@ def test_get_set_draggable():
     assert not legend.get_draggable()
 
 
-def test_draggable():
-    legend = plt.legend()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable(True)
-    assert legend.get_draggable()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable(False)
-    assert not legend.get_draggable()
-
-    # test toggle
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable()
-    assert legend.get_draggable()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable()
-    assert not legend.get_draggable()
-
-
 def test_alpha_handles():
     x, n, hh = plt.hist([1, 2, 3], alpha=0.25, label='data', color='red')
     legend = plt.legend()

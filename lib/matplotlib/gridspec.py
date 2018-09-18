@@ -284,18 +284,11 @@ class GridSpec(GridSpecBase):
                         ax.update_params()
                         ax._set_position(ax.figbox)
 
-    def get_subplot_params(self, figure=None, fig=None):
+    def get_subplot_params(self, figure=None):
         """
         Return a dictionary of subplot layout parameters. The default
         parameters are from rcParams unless a figure attribute is set.
         """
-        if fig is not None:
-            cbook.warn_deprecated("2.2", name="fig",
-                                  obj_type="keyword argument",
-                                  alternative="figure")
-        if figure is None:
-            figure = fig
-
         if figure is None:
             kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
             subplotpars = mpl.figure.SubplotParams(**kw)
@@ -379,16 +372,9 @@ class GridSpecFromSubplotSpec(GridSpecBase):
                     name=subspeclb.name + '.gridspec' + layoutbox.seq_id(),
                     artist=self)
 
-    def get_subplot_params(self, figure=None, fig=None):
+    def get_subplot_params(self, figure=None):
         """Return a dictionary of subplot layout parameters.
         """
-        if fig is not None:
-            cbook.warn_deprecated("2.2", name="fig",
-                                  obj_type="keyword argument",
-                                  alternative="figure")
-        if figure is None:
-            figure = fig
-
         hspace = (self._hspace if self._hspace is not None
                   else figure.subplotpars.hspace if figure is not None
                   else rcParams["figure.subplot.hspace"])
