@@ -7,8 +7,8 @@ An introduction to writing mathematical expressions in Matplotlib.
 You can use a subset TeX markup in any matplotlib text string by placing it
 inside a pair of dollar signs ($).
 
-Note that you do not need to have TeX installed, since matplotlib ships
-its own TeX expression parser, layout engine and fonts.  The layout engine
+Note that you do not need to have TeX installed, since Matplotlib ships
+its own TeX expression parser, layout engine, and fonts.  The layout engine
 is a fairly direct adaptation of the layout algorithms in Donald Knuth's
 TeX, so the quality is quite good (matplotlib also provides a ``usetex``
 option for those who do want to call out to TeX to generate their text (see
@@ -76,10 +76,10 @@ operator.  For example, to write the sum of :mathmpl:`x_i` from :mathmpl:`0` to
 
     \sum_{i=0}^\infty x_i
 
-Fractions, binomials and stacked numbers
-----------------------------------------
+Fractions, binomials, and stacked numbers
+-----------------------------------------
 
-Fractions, binomials and stacked numbers can be created with the ``\frac{}{}``,
+Fractions, binomials, and stacked numbers can be created with the ``\frac{}{}``,
 ``\binom{}{}`` and ``\stackrel{}{}`` commands, respectively::
 
     r'$\frac{3}{4} \binom{3}{4} \stackrel{3}{4}$'
