@@ -22,6 +22,27 @@ revision, see the :ref:`github-stats`.
 
       next_whats_new/*
 
+Improved default backend selection
+----------------------------------
+
+The default backend no longer must be set as part of the build
+process.  Instead, at run time, the builtin backends are tried in
+sequence until one of them imports.
+
+Headless linux servers (identified by the DISPLAY env not being defined)
+will not select a GUI backend.
+
+Cyclic colormaps
+----------------
+
+Two new colormaps named 'twilight' and 'twilight_shifted' have been
+added.  These colormaps start and end on the same color, and have two
+symmetric halves with equal lightness, but diverging color. Since they
+wrap around, they are a good choice for cyclic data such as phase
+angles, compass directions, or time of day. Like *viridis* and
+*cividis*, *twilight* is perceptually uniform and colorblind friendly.
+
+
 Ability to scale axis by a fixed order of magnitude
 ---------------------------------------------------
 
@@ -75,16 +96,6 @@ colorbar, but looked bad if the colorbar was made smaller (i.e. via the ``shrink
 This has been changed so that the number of ticks is now responsive to how
 large the colorbar is.
 
-
-Cyclic colormaps
-----------------
-
-Two new colormaps named 'twilight' and 'twilight_shifted' have been added.
-These colormaps start and end on the same color, and have two
-symmetric halves with equal lightness, but diverging color. Since they
-wrap around, they are a good choice for cyclic data such as phase
-angles, compass directions, or time of day. Like *viridis*, *twilight* is
-perceptually uniform and colorblind friendly.
 
 
 Don't automatically rename duplicate file names
@@ -228,15 +239,6 @@ This new method may be useful for adding artists to figures without axes or to
 easily position static elements in figure coordinates.
 
 
-Improved default backend selection
-----------------------------------
-
-The default backend no longer must be set as part of the build
-process.  Instead, at run time, the builtin backends are tried in
-sequence until one of them imports.
-
-Headless linux servers (identified by the DISPLAY env not being defined)
-will not select a GUI backend.
 
 
 Return type of ArtistInspector.get_aliases changed
