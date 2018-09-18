@@ -1,5 +1,5 @@
 import functools
-import textwrap
+import inspect
 import warnings
 
 
@@ -215,7 +215,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
             warnings.warn(message, category, stacklevel=2)
             return func(*args, **kwargs)
 
-        old_doc = textwrap.dedent(old_doc or '').strip('\n')
+        old_doc = inspect.cleandoc(old_doc or '').strip('\n')
         message = message.strip()
         new_doc = ('.. deprecated:: {since}\n'
                    '   {message}\n'
