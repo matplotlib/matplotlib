@@ -25,13 +25,6 @@ to generate their text (see :doc:`/tutorials/text/usetex`).
 # font can be selected with the customization variable ``mathtext.fontset`` (see
 # :doc:`/tutorials/introductory/customizing`)
 #
-# .. note::
-#    On `"narrow" <http://wordaligned.org/articles/narrow-python>`_ builds
-#    of Python, if you use the STIX fonts you should also set
-#    ``ps.fonttype`` and ``pdf.fonttype`` to 3 (the default), not 42.
-#    Otherwise `some characters will not be visible
-#    <http://thread.gmane.org/gmane.comp.python.matplotlib.general/19963/focus=19978>`_.
-#
 # Here is a simple example::
 #
 #     # plain text
@@ -189,7 +182,7 @@ to generate their text (see :doc:`/tutorials/text/usetex`).
 # example above the calligraphy ``A`` is squished into the ``sin``.  You
 # can use a spacing command to add a little whitespace between them::
 #
-#     s(t) = \mathcal{A}\/\sin(2 \omega t)
+#     r's(t) = \mathcal{A}\/\sin(2 \omega t)'
 #
 # .. math::
 #
