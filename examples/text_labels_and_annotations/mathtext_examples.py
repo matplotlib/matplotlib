@@ -34,7 +34,7 @@ mathext_demos = {
     r"\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau},\ "
     r"\ldots$",
 
-    2: r"$\frac{3}{4},\ \binom{3}{4},\ \stackrel{3}{4},\ "
+    2: r"$\frac{3}{4},\ \binom{3}{4},\ \genfrac{}{}{0}{}{3}{4},\ "
     r"\left(\frac{5 - \frac{1}{x}}{4}\right),\ \ldots$",
 
     3: r"$\sqrt{2},\ \sqrt[3]{x},\ \ldots$",

@@ -86,17 +86,17 @@ def warn_deprecated(
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.  Cannot be used together with *removal*.
 
-    removal : str, optional
-        The expected removal version.  With the default (an empty string), a
-        removal version is automatically computed from *since*.  Set to other
-        Falsy values to not schedule a removal date.  Cannot be used together
-        with *pending*.
-
     obj_type : str, optional
         The object type being deprecated.
 
     addendum : str, optional
         Additional text appended directly to the final message.
+
+    removal : str, optional
+        The expected removal version.  With the default (an empty string), a
+        removal version is automatically computed from *since*.  Set to other
+        Falsy values to not schedule a removal date.  Cannot be used together
+        with *pending*.
 
     Examples
     --------
@@ -157,14 +157,18 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.  Cannot be used together with *removal*.
 
+    obj_type : str, optional
+        The object type being deprecated; by default, 'function' if decorating
+        a function and 'class' if decorating a class.
+
+    addendum : str, optional
+        Additional text appended directly to the final message.
+
     removal : str, optional
         The expected removal version.  With the default (an empty string), a
         removal version is automatically computed from *since*.  Set to other
         Falsy values to not schedule a removal date.  Cannot be used together
         with *pending*.
-
-    addendum : str, optional
-        Additional text appended directly to the final message.
 
     Examples
     --------
@@ -176,16 +180,12 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                 pass
     """
 
-    if obj_type is not None:
-        warn_deprecated(
-            "3.0", message="Passing 'obj_type' to the 'deprecated' decorator "
-            "has no effect, and is deprecated since Matplotlib %(since)s; "
-            "support for it will be removed %(removal)s.")
-
     def deprecate(obj, message=message, name=name, alternative=alternative,
-                  pending=pending, addendum=addendum):
+                  pending=pending, obj_type=obj_type, addendum=addendum):
+
         if isinstance(obj, type):
-            obj_type = "class"
+            if obj_type is None:
+                obj_type = "class"
             func = obj.__init__
             name = name or obj.__name__
             old_doc = obj.__doc__
@@ -225,7 +225,8 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                     fget=obj.fget, fset=obj.fset, fdel=obj.fdel, doc=new_doc)
 
         else:
-            obj_type = "function"
+            if obj_type is None:
+                obj_type = "function"
             func = obj
             name = name or obj.__name__
             old_doc = func.__doc__
