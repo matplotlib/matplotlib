@@ -3,14 +3,14 @@
 GitHub Stats
 ============
 
-GitHub stats for 2018/03/05 - 2018/08/11 (tag: v2.2.0)
+GitHub stats for 2018/03/05 - 2018/09/17 (tag: v2.2.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 91 issues and merged 511 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/v3.0>`__
+We closed 110 issues and merged 580 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/23>`__
 
-The following 129 authors contributed 2673 commits.
+The following 131 authors contributed 2794 commits.
 
 * 816-8055
 * Adrien F. Vincent
@@ -33,6 +33,7 @@ The following 129 authors contributed 2673 commits.
 * ch3rn0v
 * Charles Ruan
 * Chris Holdgraf
+* Christoph Gohlke
 * cldssty
 * Cody Scot
 * dahlbaek
@@ -63,6 +64,7 @@ The following 129 authors contributed 2673 commits.
 * HHest
 * Hubert Holin
 * Ida Hjorth
+* Ildar Akhmetgaleev
 * ImportanceOfBeingErnest
 * Jae-Joon Lee
 * Jan Koehler
@@ -144,8 +146,77 @@ The following 129 authors contributed 2673 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (511):
+Pull Requests (580):
 
+* :ghpull:`12145`: Doc final 3.0 docs
+* :ghpull:`12143`: Backport PR #12142 on branch v3.0.x (Unbreak formlayout for image edits.)
+* :ghpull:`12142`: Unbreak formlayout for image edits.
+* :ghpull:`12135`: Backport PR #12131 on branch v3.0.x (Fixes currently release version of cartopy)
+* :ghpull:`12131`: Fixes currently release version of cartopy
+* :ghpull:`12129`: Backports for 3.0
+* :ghpull:`12132`: Backport PR #12130 on branch v3.0.x (Mention colorbar.minorticks_on/off in references)
+* :ghpull:`12130`: Mention colorbar.minorticks_on/off in references
+* :ghpull:`12099`: FIX: make sure all ticks show up for colorbar minor tick
+* :ghpull:`11962`: Propagate changes to backend loading to setup/setupext.
+* :ghpull:`12128`: Unbreak the Sphinx 1.8 build by renaming :math: to :mathmpl:.
+* :ghpull:`12126`: Backport PR #12117 on branch v3.0.x (Fix Agg extent calculations for empty draws)
+* :ghpull:`12113`: Backport PR #12112 on branch v3.0.x (Reword the LockDraw docstring.)
+* :ghpull:`12112`: Reword the LockDraw docstring.
+* :ghpull:`12110`: Backport PR #12109 on branch v3.0.x (Pin to sphinx<1.8; unremove sphinxext.mathmpl.)
+* :ghpull:`12109`: Pin to sphinx<1.8; unremove sphinxext.mathmpl.
+* :ghpull:`12084`: DOC: link palettable
+* :ghpull:`12096`: Backport PR #12092 on branch v3.0.x (Update backend_qt5agg to fix PySide2 mem issues)
+* :ghpull:`12083`: Backport PR #12012 on branch v3.0.x (FIX: fallback text renderer to fig._cachedRenderer, if none found)
+* :ghpull:`12081`: Backport PR #12037 on branch v3.0.x (Fix ArtistInspector.get_aliases.)
+* :ghpull:`12080`: Backport PR #12053 on branch v3.0.x (Fix up some OSX backend issues)
+* :ghpull:`12037`: Fix ArtistInspector.get_aliases.
+* :ghpull:`12053`: Fix up some OSX backend issues
+* :ghpull:`12064`: Backport PR #11971 on branch v3.0.x (FIX: use cached renderer on Legend.get_window_extent)
+* :ghpull:`12063`: Backport PR #12036 on branch v3.0.x (Interactive tests update)
+* :ghpull:`11928`: Update doc/conf.py to avoid warnings with (future) sphinx 1.8.
+* :ghpull:`12048`: Backport PR #12047 on branch v3.0.x (Remove asserting about current backend at the end of mpl_test_settings.)
+* :ghpull:`11971`: FIX: use cached renderer on Legend.get_window_extent
+* :ghpull:`12036`: Interactive tests update
+* :ghpull:`12029`: Backport PR #12022 on branch v3.0.x (Remove intent to deprecate rcParams["backend_fallback"].)
+* :ghpull:`12047`: Remove asserting about current backend at the end of mpl_test_settings.
+* :ghpull:`12020`: Backport PR #12019 on branch v3.0.x (typo: s/unmultipled/unmultiplied)
+* :ghpull:`12022`: Remove intent to deprecate rcParams["backend_fallback"].
+* :ghpull:`12028`: Backport PR #12023 on branch v3.0.x (Fix deprecation check in wx Timer.)
+* :ghpull:`12023`: Fix deprecation check in wx Timer.
+* :ghpull:`12019`: typo: s/unmultipled/unmultiplied
+* :ghpull:`12017`: Backport PR #12016 on branch v3.0.x (Fix AttributeError in GTK3Agg backend)
+* :ghpull:`12016`: Fix AttributeError in GTK3Agg backend
+* :ghpull:`11991`: Backport PR #11988 on branch v3.0.x
+* :ghpull:`11978`: Backport PR #11973 on branch v3.0.x
+* :ghpull:`11968`: Backport PR #11963 on branch v3.0.x
+* :ghpull:`11967`: Backport PR #11961 on branch v3.0.x
+* :ghpull:`11969`: Fix an invalid escape sequence.
+* :ghpull:`11963`: Fix some lgtm convention alerts
+* :ghpull:`11961`: Downgrade backend_version log to DEBUG level.
+* :ghpull:`11953`: Backport PR #11896 on branch v3.0.x
+* :ghpull:`11896`: Resolve backend in rcParams.__getitem__("backend").
+* :ghpull:`11950`: Backport PR #11934 on branch v3.0.x
+* :ghpull:`11952`: Backport PR #11949 on branch v3.0.x
+* :ghpull:`11949`: Remove test2.png from examples.
+* :ghpull:`11934`: Suppress the "non-GUI backend" warning from the .. plot:: directive...
+* :ghpull:`11918`: Backport PR #11917 on branch v3.0.x
+* :ghpull:`11917`: BUG: make arg 'N' and kwarg 'levels' behave the same when scalar
+* :ghpull:`11916`: Backport PR #11897 on branch v3.0.x
+* :ghpull:`11915`: Backport PR #11591 on branch v3.0.x
+* :ghpull:`11897`: HTMLWriter, put initialisation of frames in setup
+* :ghpull:`11591`: BUG: correct the scaling in the floating-point slop test.
+* :ghpull:`11910`: Backport PR #11907 on branch v3.0.x
+* :ghpull:`11907`: Move TOC back to top in axes documentation
+* :ghpull:`11904`: Backport PR #11900 on branch v3.0.x
+* :ghpull:`11889`: Backport PR #11847 on branch v3.0.x
+* :ghpull:`11890`: Backport PR #11850 on branch v3.0.x
+* :ghpull:`11850`: FIX: macosx framework check
+* :ghpull:`11883`: Backport PR #11862 on branch v3.0.x
+* :ghpull:`11847`: Use ImageMagick's magick.exe if convert.exe is not installed
+* :ghpull:`11882`: Backport PR #11876 on branch v3.0.x
+* :ghpull:`11876`: MAINT Better error message for number of colors versus number of data…
+* :ghpull:`11862`: Fix NumPy FutureWarning for non-tuple indexing.
+* :ghpull:`11845`: Use Format_ARGB32_Premultiplied instead of RGBA8888 for Qt backends.
 * :ghpull:`11843`: Remove unnecessary use of nose.
 * :ghpull:`11600`: backend switching -- don't create a public fallback API
 * :ghpull:`11833`: adding show inheritance to autosummary template
@@ -212,7 +283,7 @@ Pull Requests (511):
 * :ghpull:`11672`: Add comment re: use of lru_cache in PsfontsMap.
 * :ghpull:`11674`: Boring style fixes.
 * :ghpull:`10954`: Cache various dviread constructs globally.
-* :ghpull:`9150`: Don't update style-blacklisted rcparams in rc_* functions
+* :ghpull:`9150`: Don't update style-blacklisted rcparams in rc\_\* functions
 * :ghpull:`10936`: Simplify tkagg C extension.
 * :ghpull:`11378`: SVG Backend gouraud_triangle Correction
 * :ghpull:`11383`: FIX: Improve *c* (color) kwarg checking in scatter and the related exceptions
@@ -511,7 +582,7 @@ Pull Requests (511):
 * :ghpull:`10485`: Remove the 'hold' kwarg from codebase
 * :ghpull:`10571`: Use np.full{,_like} where appropriate. [requires numpy>=1.12]
 * :ghpull:`10913`: Rely a bit more on rc_context.
-* :ghpull:`10299`: Invalidate texmanager cache when any text.latex.* rc changes.
+* :ghpull:`10299`: Invalidate texmanager cache when any text.latex.\* rc changes.
 * :ghpull:`10906`: Deprecate ImageComparisonTest.
 * :ghpull:`10904`: Improve docstring of clabel()
 * :ghpull:`10912`: remove unused matplotlib.testing import
@@ -569,7 +640,7 @@ Pull Requests (511):
 * :ghpull:`10705`: FIX: enable extend kwargs with log scale colorbar
 * :ghpull:`10400`: numpydoc-ify art3d docstrings
 * :ghpull:`10723`: repr style fixes.
-* :ghpull:`10592`: Rely on generalized * and ** unpackings where possible.
+* :ghpull:`10592`: Rely on generalized \* and \*\* unpackings where possible.
 * :ghpull:`9475`: Declare property aliases in a single place
 * :ghpull:`10794`: fixed comment typo
 * :ghpull:`10768`: Fix crash when imshow encounters longdouble data
@@ -658,8 +729,27 @@ Pull Requests (511):
 * :ghpull:`10316`: TST FIX pyqt5 5.9
 * :ghpull:`4625`: hist2d() is now using pcolormesh instead of pcolorfast
 
-Issues (91):
+Issues (110):
 
+* :ghissue:`11966`: CartoPy code gives attribute error
+* :ghissue:`11844`: Backend related issues with matplotlib 3.0.0rc1
+* :ghissue:`12095`: colorbar minorticks (possibly release critical for 3.0)
+* :ghissue:`12108`: Broken doc build with sphinx 1.8
+* :ghissue:`7366`: handle repaint requests better it qtAgg
+* :ghissue:`11985`: Single shot timer not working correctly with MacOSX backend
+* :ghissue:`10948`: OSX backend raises deprecation warning for enter_notify_event
+* :ghissue:`11970`: Legend.get_window_extent now requires a renderer
+* :ghissue:`8293`: investigate whether using a single instance of ghostscript for ps->png conversion can speed up the Windows build
+* :ghissue:`7707`: Replace pep8 by pycodestyle for style checking
+* :ghissue:`9135`: rcdefaults, rc_file_defaults, rc_file should not update backend if it has already been selected
+* :ghissue:`12015`: AttributeError with GTK3Agg backend
+* :ghissue:`11913`: plt.contour levels parameter don't work as intended if receive a single int
+* :ghissue:`11846`: macosx backend won't load
+* :ghissue:`11792`: Newer versions of ImageMagickWriter not found on windows
+* :ghissue:`11858`: Adding "pie of pie" and "bar of pie" functionality
+* :ghissue:`11852`: get_backend() backward compatibility
+* :ghissue:`11629`: Importing qt_compat when no Qt binding is installed fails with NameError instead of ImportError
+* :ghissue:`11842`: Failed nose import in test_annotation_update
 * :ghissue:`11252`: Some API removals not documented
 * :ghissue:`9404`: Drop support for python 2
 * :ghissue:`2625`: Markers in XKCD style
