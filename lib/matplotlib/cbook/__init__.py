@@ -361,7 +361,7 @@ def file_requires_unicode(x):
         return False
 
 
-@deprecated('3.0', 'isinstance(..., numbers.Number)')
+@deprecated('3.0', alternative='isinstance(..., numbers.Number)')
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
     return isinstance(obj, (numbers.Number, np.number))

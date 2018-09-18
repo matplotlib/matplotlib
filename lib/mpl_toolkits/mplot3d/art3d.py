@@ -533,8 +533,8 @@ class Poly3DCollection(PolyCollection):
         """
         if zsort is True:
             cbook.warn_deprecated(
-                "3.1", "Passing True to mean 'average' for set_zsort is "
-                "deprecated and support will be removed in Matplotlib 3.3; "
+                "3.1", message="Passing True to mean 'average' for set_zsort "
+                "is deprecated and support will be removed in Matplotlib 3.3; "
                 "pass 'average' instead.")
             zsort = 'average'
         self._zsortfunc = self._zsort_functions[zsort]

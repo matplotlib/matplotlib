@@ -172,11 +172,11 @@ def compare_versions(a, b):
     "return True if a is greater than or equal to b"
     if isinstance(a, bytes):
         cbook.warn_deprecated(
-            "3.0", "compare_versions arguments should be strs.")
+            "3.0", message="compare_versions arguments should be strs.")
         a = a.decode('ascii')
     if isinstance(b, bytes):
         cbook.warn_deprecated(
-            "3.0", "compare_versions arguments should be strs.")
+            "3.0", message="compare_versions arguments should be strs.")
         b = b.decode('ascii')
     if a:
         a = distutils.version.LooseVersion(a)
@@ -819,7 +819,7 @@ class RcParams(MutableMapping, dict):
             if key in _deprecated_map:
                 version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
                 cbook.warn_deprecated(
-                    version, key, obj_type="rcparam", alternative=alt_key)
+                    version, name=key, obj_type="rcparam", alternative=alt_key)
                 key = alt_key
                 val = alt_val(val)
             elif key in _deprecated_remain_as_none and val is not None:
@@ -839,8 +839,9 @@ class RcParams(MutableMapping, dict):
                 return
             elif key == 'examples.directory':
                 cbook.warn_deprecated(
-                    "3.0", "{} is deprecated; in the future, examples will be "
-                    "found relative to the 'datapath' directory.".format(key))
+                    "3.0", name=key, obj_type="rcparam", addendum="In the "
+                    "future, examples will be found relative to the "
+                    "'datapath' directory.")
             elif key == 'backend':
                 if val is rcsetup._auto_backend_sentinel:
                     if 'backend' in self:
@@ -859,19 +860,19 @@ class RcParams(MutableMapping, dict):
         if key in _deprecated_map:
             version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
             cbook.warn_deprecated(
-                version, key, obj_type="rcparam", alternative=alt_key)
+                version, name=key, obj_type="rcparam", alternative=alt_key)
             return inverse_alt(dict.__getitem__(self, alt_key))
 
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(
-                version, key, obj_type="rcparam", alternative=alt_key)
+                version, name=key, obj_type="rcparam", alternative=alt_key)
             return dict.__getitem__(self, alt_key) if alt_key else None
 
         elif key == 'examples.directory':
             cbook.warn_deprecated(
-                "3.0", "{} is deprecated; in the future, examples will be "
-                "found relative to the 'datapath' directory.".format(key))
+                "3.0", name=key, obj_type="rcparam", addendum="In the future, "
+                "examples will be found relative to the 'datapath' directory.")
 
         elif key == "backend":
             val = dict.__getitem__(self, key)
@@ -1019,7 +1020,7 @@ def _rc_params_in_file(fname, fail_on_error=False):
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(
-                version, key, alternative=alt_key,
+                version, name=key, alternative=alt_key,
                 addendum="Please update your matplotlibrc.")
         else:
             print("""

@@ -270,8 +270,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             except AttributeError:
                 # if we end up with a GC that does not have this method
                 cbook.warn_deprecated(
-                    "3.1", "Your backend does not support setting the hatch "
-                    "color; such backends will become unsupported in "
+                    "3.1", message="Your backend does not support setting the "
+                    "hatch color; such backends will become unsupported in "
                     "Matplotlib 3.3.")
 
         if self.get_sketch_params() is not None:

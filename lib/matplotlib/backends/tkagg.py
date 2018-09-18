@@ -6,8 +6,7 @@ from matplotlib import cbook
 from matplotlib.backends import _tkagg
 
 
-cbook.warn_deprecated(
-    "3.0", "The matplotlib.backends.tkagg module is deprecated.")
+cbook.warn_deprecated("3.0", name=__name__, obj_type="module")
 
 
 def blit(photoimage, aggimage, bbox=None, colormode=1):
