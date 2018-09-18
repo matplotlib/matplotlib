@@ -109,7 +109,8 @@ def warn_deprecated(
         removal=removal)
     category = (PendingDeprecationWarning if pending
                 else MatplotlibDeprecationWarning)
-    warnings.warn(message, category, stacklevel=2)
+    from . import _warn_external
+    _warn_external(message, category)
 
 
 def deprecated(since, message='', name='', alternative='', pending=False,
@@ -216,7 +217,8 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                     else MatplotlibDeprecationWarning)
 
         def wrapper(*args, **kwargs):
-            warnings.warn(message, category, stacklevel=2)
+            from . import _warn_external
+            _warn_external(message, category)
             return func(*args, **kwargs)
 
         old_doc = textwrap.dedent(old_doc or '').strip('\n')
