@@ -1300,7 +1300,7 @@ class Axes3D(Axes):
         # TODO: Operate on each axes separately
         if len(kwargs):
             b = True
-        self._draw_grid = cbook._string_to_bool(b)
+        self._draw_grid = b
         self.stale = True
 
     def ticklabel_format(

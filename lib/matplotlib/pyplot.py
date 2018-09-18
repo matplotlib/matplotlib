@@ -33,9 +33,8 @@ import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import (
-    dedent, deprecated, silent_list, warn_deprecated, _string_to_bool)
 from matplotlib import cbook
+from matplotlib.cbook import dedent, deprecated, silent_list, warn_deprecated
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
@@ -1361,7 +1360,6 @@ def box(on=None):
     ax = gca()
     if on is None:
         on = not ax.get_frame_on()
-    on = _string_to_bool(on)
     ax.set_frame_on(on)
 
 ## Axis ##

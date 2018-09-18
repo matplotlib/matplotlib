@@ -453,21 +453,6 @@ def is_scalar_or_string(val):
     return isinstance(val, str) or not np.iterable(val)
 
 
-def _string_to_bool(s):
-    """Parses the string argument as a boolean"""
-    if not isinstance(s, str):
-        return bool(s)
-    warn_deprecated("2.2", message="Passing one of 'on', 'true', 'off', "
-                    "'false' as a boolean is deprecated; use an actual "
-                    "boolean (True/False) instead.")
-    if s.lower() in ['on', 'true']:
-        return True
-    if s.lower() in ['off', 'false']:
-        return False
-    raise ValueError('String "%s" must be one of: '
-                     '"on", "off", "true", or "false"' % s)
-
-
 def get_sample_data(fname, asfileobj=True):
     """
     Return a sample data file.  *fname* is a path relative to the

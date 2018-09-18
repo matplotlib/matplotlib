@@ -19,3 +19,6 @@ The following deprecated APIs were removed:
   ``GridSpecFromSubplotSpec.get_subplot_params``,
 - svgfont support (in :rc:`svg.fonttype`),
 - passing 'box-forced' to `axes.Axes.set_adjustable`,
+- support for the strings 'on'/'true'/'off'/'false' to mean True/False (the
+  following functions are affected: `Axes.grid`, `Axes3D.grid`,
+  `Axis.set_tick_params`, `pyplot.box`),
