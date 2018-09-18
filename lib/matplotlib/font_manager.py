@@ -984,13 +984,13 @@ class FontManager(object):
         self.afmlist = createFontList(afmfiles, fontext='afm')
         self.defaultFont['afm'] = afmfiles[0] if afmfiles else None
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def ttffiles(self):
         return [font.fname for font in self.ttflist]
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def afmfiles(self):
         return [font.fname for font in self.afmlist]
 

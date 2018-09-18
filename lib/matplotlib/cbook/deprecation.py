@@ -116,7 +116,7 @@ def warn_deprecated(
 def deprecated(since, message='', name='', alternative='', pending=False,
                obj_type=None, addendum='', *, removal=''):
     """
-    Decorator to mark a function or a class as deprecated.
+    Decorator to mark a function, a class, or a property as deprecated.
 
     When deprecating a classmethod, a staticmethod, or a property, the
     ``@deprecated`` decorator should go *under* the ``@classmethod``, etc.
@@ -145,7 +145,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
             def new_function():
                 ...
-            oldFunction = new_function
+            old_function = new_function
 
     alternative : str, optional
         An alternative API that the user may use in place of the deprecated
@@ -183,22 +183,47 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     def deprecate(obj, message=message, name=name, alternative=alternative,
                   pending=pending, addendum=addendum):
-
-        if not name:
-            name = obj.__name__
-
         if isinstance(obj, type):
             obj_type = "class"
             func = obj.__init__
+            name = name or obj.__name__
             old_doc = obj.__doc__
 
             def finalize(wrapper, new_doc):
                 obj.__doc__ = new_doc
                 obj.__init__ = wrapper
                 return obj
+
+        elif isinstance(obj, property):
+            obj_type = "attribute"
+            func = None
+            name = name or obj.fget.__name__
+            old_doc = obj.__doc__
+
+            class _deprecated_property(property):
+                def __get__(self, instance, owner):
+                    from . import _warn_external
+                    _warn_external(message, category)
+                    return super().__get__(instance, owner)
+
+                def __set__(self, instance, value):
+                    from . import _warn_external
+                    _warn_external(message, category)
+                    return super().__set__(instance, value)
+
+                def __delete__(self, instance):
+                    from . import _warn_external
+                    _warn_external(message, category)
+                    return super().__delete__(instance)
+
+            def finalize(_, new_doc):
+                return _deprecated_property(
+                    fget=obj.fget, fset=obj.fset, fdel=obj.fdel, doc=new_doc)
+
         else:
             obj_type = "function"
             func = obj
+            name = name or obj.__name__
             old_doc = func.__doc__
 
             def finalize(wrapper, new_doc):

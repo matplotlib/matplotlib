@@ -62,8 +62,8 @@ class TexManager(object):
     # Caches.
     rgba_arrayd = {}
     grey_arrayd = {}
-    postscriptd = property(mpl.cbook.deprecated("2.2")(lambda self: {}))
-    pscnt = property(mpl.cbook.deprecated("2.2")(lambda self: 0))
+    postscriptd = mpl.cbook.deprecated("2.2")(property(lambda self: {}))
+    pscnt = mpl.cbook.deprecated("2.2")(property(lambda self: 0))
 
     serif = ('cmr', '')
     sans_serif = ('cmss', '')
