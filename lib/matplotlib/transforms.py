@@ -2900,10 +2900,39 @@ def interval_contains(interval, val):
     Returns
     -------
     bool
-        Returns true if given val is within the interval.
+        Returns *True* if given *val* is within the *interval*.
     """
     a, b = interval
-    return a <= val <= b or a >= val >= b
+    if a > b:
+        a, b = b, a
+    return a <= val <= b
+
+
+def _interval_contains_close(interval, val, rtol=1e-10):
+    """
+    Check, inclusively, whether an interval includes a given value, with the
+    interval expanded by a small tolerance to admit floating point errors.
+
+    Parameters
+    ----------
+    interval : sequence of scalar
+        A 2-length sequence, endpoints that define the interval.
+    val : scalar
+        Value to check is within interval.
+    rtol : scalar
+        Tolerance slippage allowed outside of this interval.  Default
+        1e-10 * (b - a).
+
+    Returns
+    -------
+    bool
+        Returns *True* if given *val* is within the *interval* (with tolerance)
+    """
+    a, b = interval
+    if a > b:
+        a, b = b, a
+    rtol = (b - a) * rtol
+    return a - rtol <= val <= b + rtol
 
 
 def interval_contains_open(interval, val):
