@@ -227,11 +227,10 @@ Figure has an `~.figure.Figure.add_artist` method
 
 A method `~.figure.Figure.add_artist` has been added to the
 :class:`~.figure.Figure` class, which allows artists to be added directly
-to a figure. E.g.
+to a figure. E.g. ::
 
-::
-    circ = plt.Circle((.7, .5), .05)
-    fig.add_artist(circ)
+   circ = plt.Circle((.7, .5), .05)
+   fig.add_artist(circ)
 
 In case the added artist has no transform set previously, it will be set to
 the figure transform (``fig.transFigure``).
@@ -242,7 +241,7 @@ easily position static elements in figure coordinates.
 
 
 Return type of ArtistInspector.get_aliases changed
-``````````````````````````````````````````````````
+--------------------------------------------------
 
 `ArtistInspector.get_aliases` previously returned the set of aliases as
 ``{fullname: {alias1: None, alias2: None, ...}}``.  The dict-to-None mapping
@@ -254,7 +253,7 @@ changed.
 
 
 ``:math:`` directive renamed to ``:mathmpl:``
-`````````````````````````````````````````````
+---------------------------------------------
 
 The ``:math:`` rst role provided by `matplotlib.sphinxext.mathmpl` has been
 renamed to ``:mathmpl:`` to avoid conflicting with the ``:math:`` role that
