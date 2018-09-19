@@ -207,7 +207,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                 return list(items)
         except (OSError, MemoryError):
             continue
-    return None
+    return []
 
 
 def OSXInstalledFonts(directories=None, fontext='ttf'):
