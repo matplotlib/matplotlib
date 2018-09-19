@@ -1195,25 +1195,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
 
 @cbook.deprecated('2.2')
-def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
-                     mux=0.0, muy=0.0, sigmaxy=0.0):
-    """
-    Bivariate Gaussian distribution for equal shape *X*, *Y*.
-
-    See `bivariate normal
-    <http://mathworld.wolfram.com/BivariateNormalDistribution.html>`_
-    at mathworld.
-    """
-    Xmu = X-mux
-    Ymu = Y-muy
-
-    rho = sigmaxy/(sigmax*sigmay)
-    z = Xmu**2/sigmax**2 + Ymu**2/sigmay**2 - 2*rho*Xmu*Ymu/(sigmax*sigmay)
-    denom = 2*np.pi*sigmax*sigmay*np.sqrt(1-rho**2)
-    return np.exp(-z/(2*(1-rho**2))) / denom
-
-
-@cbook.deprecated('2.2')
 def get_xyz_where(Z, Cond):
     """
     *Z* and *Cond* are *M* x *N* matrices.  *Z* are data and *Cond* is

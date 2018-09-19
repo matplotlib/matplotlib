@@ -16,4 +16,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.prctile_rank`
 - `mlab.center_matrix`
 - `mlab.rk4` (use scipy.integrate.ode instead)
+- `mlab.bivariate_normal`
 - `mlab.donothing_callback`
