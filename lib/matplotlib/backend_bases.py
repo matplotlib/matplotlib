@@ -1094,7 +1094,7 @@ class GraphicsContextBase(object):
 
 
 class TimerBase(object):
-    '''
+    """
     A base class for providing timer events, useful for things animations.
     Backends need to implement a few specific methods in order to use their
     own timing mechanisms so that the timer events are integrated into their
@@ -1137,8 +1137,7 @@ class TimerBase(object):
         Stores list of (func, args, kwargs) tuples that will be called upon
         timer events. This list can be manipulated directly, or the
         functions `add_callback` and `remove_callback` can be used.
-
-    '''
+    """
     def __init__(self, interval=None, callbacks=None):
         #Initialize empty callbacks list and setup default settings if necssary
         if callbacks is None:
@@ -1157,22 +1156,25 @@ class TimerBase(object):
         self._timer = None
 
     def __del__(self):
-        'Need to stop timer and possibly disconnect timer.'
+        """Need to stop timer and possibly disconnect timer."""
         self._timer_stop()
 
     def start(self, interval=None):
-        '''
-        Start the timer object. `interval` is optional and will be used
-        to reset the timer interval first if provided.
-        '''
+        """
+        Start the timer object.
+
+        Parameters
+        ----------
+        interval : int, optional
+            Timer interval in milliseconds; overrides a previously set interval
+            if provided.
+        """
         if interval is not None:
             self._set_interval(interval)
         self._timer_start()
 
     def stop(self):
-        '''
-        Stop the timer.
-        '''
+        """Stop the timer."""
         self._timer_stop()
 
     def _timer_start(self):
@@ -1203,19 +1205,33 @@ class TimerBase(object):
         self._timer_set_single_shot()
 
     def add_callback(self, func, *args, **kwargs):
-        '''
+        """
         Register *func* to be called by timer when the event fires. Any
         additional arguments provided will be passed to *func*.
-        '''
+
+        This function returns *func*, which makes it possible to use it as a
+        decorator.
+        """
         self.callbacks.append((func, args, kwargs))
+        return func
 
     def remove_callback(self, func, *args, **kwargs):
-        '''
-        Remove *func* from list of callbacks. *args* and *kwargs* are optional
-        and used to distinguish between copies of the same function registered
-        to be called with different arguments.
-        '''
+        """
+        Remove *func* from list of callbacks.
+
+        *args* and *kwargs* are optional and used to distinguish between copies
+        of the same function registered to be called with different arguments.
+        This behavior is deprecated.  In the future, `*args, **kwargs` won't be
+        considered anymore; to keep a specific callback removable by itself,
+        pass it to `add_callback` as a `functools.partial` object.
+        """
         if args or kwargs:
+            cbook.warn_deprecated(
+                "3.1", "In a future version, Timer.remove_callback will not "
+                "take *args, **kwargs anymore, but remove all callbacks where "
+                "the callable matches; to keep a specific callback removable "
+                "by itself, pass it to add_callback as a functools.partial "
+                "object.")
             self.callbacks.remove((func, args, kwargs))
         else:
             funcs = [c[0] for c in self.callbacks]
@@ -1229,11 +1245,11 @@ class TimerBase(object):
         """Used to set single shot on underlying timer object."""
 
     def _on_timer(self):
-        '''
+        """
         Runs all function that have been registered as callbacks. Functions
         can return False (or 0) if they should not be called any more. If there
         are no callbacks, the timer is automatically stopped.
-        '''
+        """
         for func, args, kwargs in self.callbacks:
             ret = func(*args, **kwargs)
             # docstring above explains why we use `if ret == 0` here,
