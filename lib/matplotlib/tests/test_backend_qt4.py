@@ -7,32 +7,59 @@ from matplotlib._pylab_helpers import Gcf
 
 import pytest
 
-try:
-    import PyQt4
-except (ImportError, RuntimeError):  # RuntimeError if PyQt5 already imported.
+
+@pytest.fixture(autouse=True)
+def qt4_module():
     try:
-        import PySide
-    except ImportError:
-        pytestmark = pytest.mark.skip("Failed to import a Qt4 binding.")
+        import PyQt4
+    # RuntimeError if PyQt5 already imported.
+    except (ImportError, RuntimeError):
+        try:
+            import PySide
+        except ImportError:
+            pytest.skip("Failed to import a Qt4 binding.")
 
-qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
-QtCore = qt_compat.QtCore
+    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
+    QtCore = qt_compat.QtCore
 
-from matplotlib.backends.backend_qt4 import (
-    MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
+    try:
+        py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
+    except AttributeError:
+        py_qt_ver = QtCore.__version_info__[0]
 
-_, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
-_, AltModifier, AltKey = MODIFIER_KEYS[ALT]
-_, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
-_, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
+    if py_qt_ver != 4:
+        pytest.skip(reason='Qt4 is not available')
 
-try:
-    py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
-except AttributeError:
-    py_qt_ver = QtCore.__version_info__[0]
+    from matplotlib.backends.backend_qt4 import (
+        MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
 
-if py_qt_ver != 4:
-    pytestmark = pytest.mark.skipif(reason='Qt4 is not available')
+    mods = {}
+    keys = {}
+    for name, index in zip(['Alt', 'Control', 'Shift', 'Super'],
+                           [ALT, CTRL, SHIFT, SUPER]):
+        _, mod, key = MODIFIER_KEYS[index]
+        mods[name + 'Modifier'] = mod
+        keys[name + 'Key'] = key
+
+    return QtCore, mods, keys
+
+
+@pytest.fixture
+def qt_key(request):
+    QtCore, _, keys = request.getfixturevalue('qt4_module')
+    if request.param.startswith('Key'):
+        return getattr(QtCore.Qt, request.param)
+    else:
+        return keys[request.param]
+
+
+@pytest.fixture
+def qt_mods(request):
+    QtCore, mods, _ = request.getfixturevalue('qt4_module')
+    result = QtCore.Qt.NoModifier
+    for mod in request.param:
+        result |= mods[mod]
+    return result
 
 
 @pytest.mark.backend('Qt4Agg')
@@ -55,21 +82,22 @@ def test_fig_close():
 @pytest.mark.parametrize(
     'qt_key, qt_mods, answer',
     [
-        (QtCore.Qt.Key_A, ShiftModifier, 'A'),
-        (QtCore.Qt.Key_A, QtCore.Qt.NoModifier, 'a'),
-        (QtCore.Qt.Key_A, ControlModifier, 'ctrl+a'),
-        (QtCore.Qt.Key_Aacute, ShiftModifier,
+        ('Key_A', ['ShiftModifier'], 'A'),
+        ('Key_A', [], 'a'),
+        ('Key_A', ['ControlModifier'], 'ctrl+a'),
+        ('Key_Aacute', ['ShiftModifier'],
          '\N{LATIN CAPITAL LETTER A WITH ACUTE}'),
-        (QtCore.Qt.Key_Aacute, QtCore.Qt.NoModifier,
+        ('Key_Aacute', [],
          '\N{LATIN SMALL LETTER A WITH ACUTE}'),
-        (ControlKey, AltModifier, 'alt+control'),
-        (AltKey, ControlModifier, 'ctrl+alt'),
-        (QtCore.Qt.Key_Aacute, (ControlModifier | AltModifier | SuperModifier),
+        ('ControlKey', ['AltModifier'], 'alt+control'),
+        ('AltKey', ['ControlModifier'], 'ctrl+alt'),
+        ('Key_Aacute', ['ControlModifier', 'AltModifier', 'SuperModifier'],
          'ctrl+alt+super+\N{LATIN SMALL LETTER A WITH ACUTE}'),
-        (QtCore.Qt.Key_Backspace, QtCore.Qt.NoModifier, 'backspace'),
-        (QtCore.Qt.Key_Backspace, ControlModifier, 'ctrl+backspace'),
-        (QtCore.Qt.Key_Play, QtCore.Qt.NoModifier, None),
+        ('Key_Backspace', [], 'backspace'),
+        ('Key_Backspace', ['ControlModifier'], 'ctrl+backspace'),
+        ('Key_Play', [], None),
     ],
+    indirect=['qt_key', 'qt_mods'],
     ids=[
         'shift',
         'lower',

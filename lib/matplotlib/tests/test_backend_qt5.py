@@ -7,24 +7,51 @@ from matplotlib._pylab_helpers import Gcf
 
 import pytest
 
-try:
-    import PyQt5
-except (ImportError, RuntimeError):  # RuntimeError if PyQt4 already imported.
+
+@pytest.fixture(autouse=True)
+def qt5_module():
     try:
-        import PySide2
-    except ImportError:
-        pytestmark = pytest.mark.skip("Failed to import a Qt5 binding.")
+        import PyQt5
+    # RuntimeError if PyQt4 already imported.
+    except (ImportError, RuntimeError):
+        try:
+            import PySide2
+        except ImportError:
+            pytest.skip("Failed to import a Qt5 binding.")
 
-qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
-QtCore = qt_compat.QtCore
+    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
+    QtCore = qt_compat.QtCore
 
-from matplotlib.backends.backend_qt5 import (
-    MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
+    from matplotlib.backends.backend_qt5 import (
+        MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
 
-_, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
-_, AltModifier, AltKey = MODIFIER_KEYS[ALT]
-_, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
-_, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
+    mods = {}
+    keys = {}
+    for name, index in zip(['Alt', 'Control', 'Shift', 'Super'],
+                           [ALT, CTRL, SHIFT, SUPER]):
+        _, mod, key = MODIFIER_KEYS[index]
+        mods[name + 'Modifier'] = mod
+        keys[name + 'Key'] = key
+
+    return QtCore, mods, keys
+
+
+@pytest.fixture
+def qt_key(request):
+    QtCore, _, keys = request.getfixturevalue('qt5_module')
+    if request.param.startswith('Key'):
+        return getattr(QtCore.Qt, request.param)
+    else:
+        return keys[request.param]
+
+
+@pytest.fixture
+def qt_mods(request):
+    QtCore, mods, _ = request.getfixturevalue('qt5_module')
+    result = QtCore.Qt.NoModifier
+    for mod in request.param:
+        result |= mods[mod]
+    return result
 
 
 @pytest.mark.backend('Qt5Agg')
@@ -47,21 +74,22 @@ def test_fig_close():
 @pytest.mark.parametrize(
     'qt_key, qt_mods, answer',
     [
-        (QtCore.Qt.Key_A, ShiftModifier, 'A'),
-        (QtCore.Qt.Key_A, QtCore.Qt.NoModifier, 'a'),
-        (QtCore.Qt.Key_A, ControlModifier, 'ctrl+a'),
-        (QtCore.Qt.Key_Aacute, ShiftModifier,
+        ('Key_A', ['ShiftModifier'], 'A'),
+        ('Key_A', [], 'a'),
+        ('Key_A', ['ControlModifier'], 'ctrl+a'),
+        ('Key_Aacute', ['ShiftModifier'],
          '\N{LATIN CAPITAL LETTER A WITH ACUTE}'),
-        (QtCore.Qt.Key_Aacute, QtCore.Qt.NoModifier,
+        ('Key_Aacute', [],
          '\N{LATIN SMALL LETTER A WITH ACUTE}'),
-        (ControlKey, AltModifier, 'alt+control'),
-        (AltKey, ControlModifier, 'ctrl+alt'),
-        (QtCore.Qt.Key_Aacute, (ControlModifier | AltModifier | SuperModifier),
+        ('ControlKey', ['AltModifier'], 'alt+control'),
+        ('AltKey', ['ControlModifier'], 'ctrl+alt'),
+        ('Key_Aacute', ['ControlModifier', 'AltModifier', 'SuperModifier'],
          'ctrl+alt+super+\N{LATIN SMALL LETTER A WITH ACUTE}'),
-        (QtCore.Qt.Key_Backspace, QtCore.Qt.NoModifier, 'backspace'),
-        (QtCore.Qt.Key_Backspace, ControlModifier, 'ctrl+backspace'),
-        (QtCore.Qt.Key_Play, QtCore.Qt.NoModifier, None),
+        ('Key_Backspace', [], 'backspace'),
+        ('Key_Backspace', ['ControlModifier'], 'ctrl+backspace'),
+        ('Key_Play', [], None),
     ],
+    indirect=['qt_key', 'qt_mods'],
     ids=[
         'shift',
         'lower',
