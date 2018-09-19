@@ -583,7 +583,7 @@ class Poly3DCollection(PolyCollection):
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
         self._sort_zpos = None
-        self.set_zsort(True)
+        self.set_zsort('average')
         self._facecolors3d = PolyCollection.get_facecolor(self)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
         self._alpha3d = PolyCollection.get_alpha(self)
