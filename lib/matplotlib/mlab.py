@@ -1195,13 +1195,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
 
 @cbook.deprecated('2.2')
-def find(condition):
-    "Return the indices where ravel(condition) is true"
-    res, = np.nonzero(np.ravel(condition))
-    return res
-
-
-@cbook.deprecated('2.2')
 def longest_contiguous_ones(x):
     """
     Return the indices of the longest stretch of contiguous ones in *x*,

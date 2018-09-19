@@ -8,4 +8,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.cohere_pairs` (use scipy.signal.coherence instead)
 - `mlab.entropy` (use scipy.stats.entropy instead)
 - `mlab.normpdf` (use scipy.stats.norm.pdf instead)
+- `mlab.find` (use ``np.nonzero(np.ravel(condition))`` instead)
 - `mlab.donothing_callback`
