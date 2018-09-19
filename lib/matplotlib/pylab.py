@@ -236,7 +236,7 @@ from matplotlib.mlab import (
     fftsurr, frange, get_sparse_matrix, get_xyz_where, griddata,
     identity, inside_poly, is_closed_polygon, ispower2, isvector, l1norm,
     l2norm, log2, movavg, norm_flat,
-    path_length, poly_below, poly_between, prctile, prctile_rank,
+    path_length, poly_below, poly_between,
     rec2csv, rec_append_fields, rec_drop_fields, rec_join, rk4, rms_flat,
     segments_intersect, slopes, stineman_interp, vector_lengths,
     window_hanning, window_none)

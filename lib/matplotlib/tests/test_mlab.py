@@ -20,32 +20,6 @@ removed.
 '''
 
 
-@pytest.mark.parametrize('input', [
-    # test odd lengths
-    [1, 2, 3],
-    # test even lengths
-    [1, 2, 3, 4],
-    # derived from email sent by jason-sage to MPL-user on 20090914
-    [1, 1, 2, 2, 1, 2, 4, 3, 2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 7, 6, 4, 5, 5],
-],
-ids=[
-    'odd length',
-    'even length',
-    'custom data',
-])
-@pytest.mark.parametrize('percentile', [
-    0,
-    50,
-    75,
-    100,
-    [0, 75, 100],
-])
-def test_prctile(input, percentile):
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert_allclose(mlab.prctile(input, percentile),
-                        np.percentile(input, percentile))
-
-
 class TestStride(object):
     def get_base(self, x):
         y = x

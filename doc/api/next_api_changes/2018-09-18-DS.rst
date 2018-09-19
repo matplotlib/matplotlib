@@ -12,4 +12,6 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.longest_contiguous_ones`
 - `mlab.longest_ones`
 - `mlab.PCA`
+- `mlab.prctile` (use numpy.percentile instead)
+- `mlab.prctile_rank`
 - `mlab.donothing_callback`
