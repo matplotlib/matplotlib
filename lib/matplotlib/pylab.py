@@ -154,7 +154,6 @@ _Matrix commands
 
 _Probability
 
-  normpdf   - The Gaussian probability density function
   rand      - random numbers from the uniform distribution
   randn     - random numbers from the normal distribution
 
@@ -237,7 +236,7 @@ from matplotlib.mlab import (
     fftsurr, find, frange, get_sparse_matrix, get_xyz_where, griddata,
     identity, inside_poly, is_closed_polygon, ispower2, isvector, l1norm,
     l2norm, log2, longest_contiguous_ones, longest_ones, movavg, norm_flat,
-    normpdf, path_length, poly_below, poly_between, prctile, prctile_rank,
+    path_length, poly_below, poly_between, prctile, prctile_rank,
     rec2csv, rec_append_fields, rec_drop_fields, rec_join, rk4, rms_flat,
     segments_intersect, slopes, stineman_interp, vector_lengths,
     window_hanning, window_none)

@@ -7,4 +7,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.logspace` (use numpy.logspace instead)
 - `mlab.cohere_pairs` (use scipy.signal.coherence instead)
 - `mlab.entropy` (use scipy.stats.entropy instead)
+- `mlab.normpdf` (use scipy.stats.norm.pdf instead)
 - `mlab.donothing_callback`

@@ -1194,13 +1194,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     return Cxy, f
 
 
-@cbook.deprecated('2.2', 'scipy.stats.norm.pdf')
-def normpdf(x, *args):
-    "Return the normal pdf evaluated at *x*; args provides *mu*, *sigma*"
-    mu, sigma = args
-    return 1./(np.sqrt(2*np.pi)*sigma)*np.exp(-0.5 * (1./sigma*(x - mu))**2)
-
-
 @cbook.deprecated('2.2')
 def find(condition):
     "Return the indices where ravel(condition) is true"
