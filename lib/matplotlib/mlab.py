@@ -1195,22 +1195,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
 
 @cbook.deprecated('2.2')
-def fftsurr(x, detrend=detrend_none, window=window_none):
-    """
-    Compute an FFT phase randomized surrogate of *x*.
-    """
-    if np.iterable(window):
-        x = window*detrend(x)
-    else:
-        x = window(detrend(x))
-    z = np.fft.fft(x)
-    a = 2.*np.pi*1j
-    phase = a * np.random.rand(len(x))
-    z = z*np.exp(phase)
-    return np.fft.ifft(z).real
-
-
-@cbook.deprecated('2.2')
 def movavg(x, n):
     """
     Compute the len(*n*) moving average of *x*.
