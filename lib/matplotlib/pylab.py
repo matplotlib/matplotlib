@@ -237,7 +237,7 @@ from matplotlib.mlab import (
     l2norm, log2, movavg, norm_flat,
     path_length, poly_below, poly_between,
     rec2csv, rec_append_fields, rec_drop_fields, rec_join, rms_flat,
-    segments_intersect, vector_lengths,
+    vector_lengths,
     window_hanning, window_none)
 
 from matplotlib import cbook, mlab, pyplot as plt

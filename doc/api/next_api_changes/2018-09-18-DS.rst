@@ -25,4 +25,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.less_simple_linear_interpolation` (use numpy.interp)
 - `mlab.slopes`
 - `mlab.stineman_interp`
+- `mlab.segments_intersect`
 - `mlab.donothing_callback`

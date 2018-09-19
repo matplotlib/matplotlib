@@ -1195,33 +1195,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
 
 @cbook.deprecated('2.2')
-def segments_intersect(s1, s2):
-    """
-    Return *True* if *s1* and *s2* intersect.
-    *s1* and *s2* are defined as::
-
-      s1: (x1, y1), (x2, y2)
-      s2: (x3, y3), (x4, y4)
-    """
-    (x1, y1), (x2, y2) = s1
-    (x3, y3), (x4, y4) = s2
-
-    den = ((y4-y3) * (x2-x1)) - ((x4-x3)*(y2-y1))
-
-    n1 = ((x4-x3) * (y1-y3)) - ((y4-y3)*(x1-x3))
-    n2 = ((x2-x1) * (y1-y3)) - ((y2-y1)*(x1-x3))
-
-    if den == 0:
-        # lines parallel
-        return False
-
-    u1 = n1/den
-    u2 = n2/den
-
-    return 0.0 <= u1 <= 1.0 and 0.0 <= u2 <= 1.0
-
-
-@cbook.deprecated('2.2')
 def fftsurr(x, detrend=detrend_none, window=window_none):
     """
     Compute an FFT phase randomized surrogate of *x*.
