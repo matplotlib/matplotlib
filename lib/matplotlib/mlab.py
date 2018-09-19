@@ -1194,23 +1194,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     return Cxy, f
 
 
-@cbook.deprecated('2.2')
-def center_matrix(M, dim=0):
-    """
-    Return the matrix *M* with each row having zero mean and unit std.
-
-    If *dim* = 1 operate on columns instead of rows.  (*dim* is
-    opposite to the numpy axis kwarg.)
-    """
-    M = np.asarray(M, float)
-    if dim:
-        M = (M - M.mean(axis=0)) / M.std(axis=0)
-    else:
-        M = (M - M.mean(axis=1)[:, np.newaxis])
-        M = M / M.std(axis=1)[:, np.newaxis]
-    return M
-
-
 @cbook.deprecated('2.2', 'scipy.integrate.ode')
 def rk4(derivs, y0, t):
     """
