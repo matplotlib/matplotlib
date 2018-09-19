@@ -1194,44 +1194,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     return Cxy, f
 
 
-@cbook.deprecated('2.2', 'numpy.hypot')
-def dist(x, y):
-    """
-    Return the distance between two points.
-    """
-    d = x-y
-    return np.sqrt(np.dot(d, d))
-
-
-@cbook.deprecated('2.2')
-def dist_point_to_segment(p, s0, s1):
-    """
-    Get the distance of a point to a segment.
-
-      *p*, *s0*, *s1* are *xy* sequences
-
-    This algorithm from
-    http://geomalgorithms.com/a02-_lines.html
-    """
-    p = np.asarray(p, float)
-    s0 = np.asarray(s0, float)
-    s1 = np.asarray(s1, float)
-    v = s1 - s0
-    w = p - s0
-
-    c1 = np.dot(w, v)
-    if c1 <= 0:
-        return dist(p, s0)
-
-    c2 = np.dot(v, v)
-    if c2 <= c1:
-        return dist(p, s1)
-
-    b = c1 / c2
-    pb = s0 + b * v
-    return dist(p, pb)
-
-
 @cbook.deprecated('2.2')
 def segments_intersect(s1, s2):
     """

@@ -19,4 +19,6 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.bivariate_normal`
 - `mlab.get_xyz_where`
 - `mlab.get_sparse_matrix`
+- `mlab.dist` (use numpy.hypot instead)
+- `mlab.dist_point_to_segment`
 - `mlab.donothing_callback`
