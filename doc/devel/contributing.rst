@@ -109,7 +109,7 @@ value.
 Installing Matplotlib in developer mode
 ---------------------------------------
 
-To install Matplotlib (and compile the c-extensions) run the following
+To install Matplotlib (and compile the C-extensions) run the following
 command from the top-level directory ::
 
    python -mpip install -ve .
@@ -148,11 +148,11 @@ environment is set up properly::
 .. _pep8: https://pep8.readthedocs.io/en/latest/
 .. _mock: https://docs.python.org/dev/library/unittest.mock.html
 .. _Ghostscript: https://www.ghostscript.com/
-.. _Inkscape: https://inkscape.org>
+.. _Inkscape: https://inkscape.org/
 
 .. note::
 
-  **Additional dependencies for testing**: pytest_ (version 3.1 or later),
+  **Additional dependencies for testing**: pytest_ (version 3.6 or later),
   mock_ (if Python 2), Ghostscript_, Inkscape_
 
 .. seealso::

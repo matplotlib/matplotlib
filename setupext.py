@@ -785,7 +785,7 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    pytest_min_version = '3.1'
+    pytest_min_version = '3.6'
     default_config = False
 
     def check(self):
