@@ -1194,36 +1194,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     return Cxy, f
 
 
-@cbook.deprecated('2.2', 'scipy.stats.entropy')
-def entropy(y, bins):
-    r"""
-    Return the entropy of the data in *y* in units of nat.
-
-    .. math::
-
-      -\sum p_i \ln(p_i)
-
-    where :math:`p_i` is the probability of observing *y* in the
-    :math:`i^{th}` bin of *bins*.  *bins* can be a number of bins or a
-    range of bins; see :func:`numpy.histogram`.
-
-    Compare *S* with analytic calculation for a Gaussian::
-
-      x = mu + sigma * randn(200000)
-      Sanalytic = 0.5 * ( 1.0 + log(2*pi*sigma**2.0) )
-    """
-    n, bins = np.histogram(y, bins)
-    n = n.astype(float)
-
-    n = np.take(n, np.nonzero(n)[0])         # get the positive
-
-    p = np.divide(n, len(y))
-
-    delta = bins[1] - bins[0]
-    S = -1.0 * np.sum(p * np.log(p)) + np.log(delta)
-    return S
-
-
 @cbook.deprecated('2.2', 'scipy.stats.norm.pdf')
 def normpdf(x, *args):
     "Return the normal pdf evaluated at *x*; args provides *mu*, *sigma*"

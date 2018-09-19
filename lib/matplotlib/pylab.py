@@ -233,7 +233,7 @@ from matplotlib.dates import (
 from matplotlib.mlab import (
     amap, base_repr, binary_repr, bivariate_normal, center_matrix, csv2rec,
     demean, detrend, detrend_linear, detrend_mean, detrend_none, dist,
-    dist_point_to_segment, distances_along_curve, entropy, exp_safe,
+    dist_point_to_segment, distances_along_curve, exp_safe,
     fftsurr, find, frange, get_sparse_matrix, get_xyz_where, griddata,
     identity, inside_poly, is_closed_polygon, ispower2, isvector, l1norm,
     l2norm, log2, longest_contiguous_ones, longest_ones, movavg, norm_flat,
