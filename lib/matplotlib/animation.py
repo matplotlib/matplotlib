@@ -551,13 +551,6 @@ class PillowWriter(MovieWriter):
         return True
 
     def __init__(self, *args, **kwargs):
-        '''PillowWriter
-
-        Parameters
-        ----------
-        fps: int
-            Framerate for the gif.
-        '''
         if kwargs.get("extra_args") is None:
             kwargs["extra_args"] = ()
         super().__init__(*args, **kwargs)
