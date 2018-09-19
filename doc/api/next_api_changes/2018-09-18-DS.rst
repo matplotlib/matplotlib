@@ -18,4 +18,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.rk4` (use scipy.integrate.ode instead)
 - `mlab.bivariate_normal`
 - `mlab.get_xyz_where`
+- `mlab.get_sparse_matrix`
 - `mlab.donothing_callback`

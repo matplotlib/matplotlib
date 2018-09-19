@@ -1194,20 +1194,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     return Cxy, f
 
 
-@cbook.deprecated('2.2')
-def get_sparse_matrix(M, N, frac=0.1):
-    """
-    Return a *M* x *N* sparse matrix with *frac* elements randomly
-    filled.
-    """
-    data = np.zeros((M, N))*0.
-    for i in range(int(M*N*frac)):
-        x = np.random.randint(0, M-1)
-        y = np.random.randint(0, N-1)
-        data[x, y] = np.random.rand()
-    return data
-
-
 @cbook.deprecated('2.2', 'numpy.hypot')
 def dist(x, y):
     """
