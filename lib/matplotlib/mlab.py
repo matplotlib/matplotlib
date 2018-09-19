@@ -1195,40 +1195,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
 
 @cbook.deprecated('2.2')
-def longest_contiguous_ones(x):
-    """
-    Return the indices of the longest stretch of contiguous ones in *x*,
-    assuming *x* is a vector of zeros and ones.  If there are two
-    equally long stretches, pick the first.
-    """
-    x = np.ravel(x)
-    if len(x) == 0:
-        return np.array([])
-
-    ind = (x == 0).nonzero()[0]
-    if len(ind) == 0:
-        return np.arange(len(x))
-    if len(ind) == len(x):
-        return np.array([])
-
-    y = np.zeros((len(x)+2,), x.dtype)
-    y[1:-1] = x
-    dif = np.diff(y)
-    up = (dif == 1).nonzero()[0]
-    dn = (dif == -1).nonzero()[0]
-    i = (dn-up == max(dn - up)).nonzero()[0][0]
-    ind = np.arange(up[i], dn[i])
-
-    return ind
-
-
-@cbook.deprecated('2.2')
-def longest_ones(x):
-    '''Alias for longest_contiguous_ones.'''
-    return longest_contiguous_ones(x)
-
-
-@cbook.deprecated('2.2')
 class PCA(object):
     def __init__(self, a, standardize=True):
         """

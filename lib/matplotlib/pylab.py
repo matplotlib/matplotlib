@@ -235,7 +235,7 @@ from matplotlib.mlab import (
     dist_point_to_segment, distances_along_curve, exp_safe,
     fftsurr, frange, get_sparse_matrix, get_xyz_where, griddata,
     identity, inside_poly, is_closed_polygon, ispower2, isvector, l1norm,
-    l2norm, log2, longest_contiguous_ones, longest_ones, movavg, norm_flat,
+    l2norm, log2, movavg, norm_flat,
     path_length, poly_below, poly_between, prctile, prctile_rank,
     rec2csv, rec_append_fields, rec_drop_fields, rec_join, rk4, rms_flat,
     segments_intersect, slopes, stineman_interp, vector_lengths,
