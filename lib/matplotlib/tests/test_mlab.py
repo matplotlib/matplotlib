@@ -20,15 +20,6 @@ removed.
 '''
 
 
-def test_colinear_pca():
-    with pytest.warns(MatplotlibDeprecationWarning):
-        a = mlab.PCA._get_colinear()
-        pca = mlab.PCA(a)
-
-    assert_allclose(pca.fracs[2:], 0., atol=1e-8)
-    assert_allclose(pca.Y[:, 2:], 0., atol=1e-8)
-
-
 @pytest.mark.parametrize('input', [
     # test odd lengths
     [1, 2, 3],
