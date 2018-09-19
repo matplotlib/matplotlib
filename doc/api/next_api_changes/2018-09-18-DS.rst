@@ -22,4 +22,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.dist` (use numpy.hypot instead)
 - `mlab.dist_point_to_segment`
 - `mlab.griddata` (use scipy.interpolate.griddata)
+- `mlab.less_simple_linear_interpolation` (use numpy.interp)
 - `mlab.donothing_callback`
