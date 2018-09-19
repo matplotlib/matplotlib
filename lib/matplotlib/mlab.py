@@ -70,15 +70,6 @@ from matplotlib.path import Path
 import math
 
 
-@cbook.deprecated("2.2", alternative='numpy.logspace or numpy.geomspace')
-def logspace(xmin, xmax, N):
-    '''
-    Return N values logarithmically spaced between xmin and xmax.
-
-    '''
-    return np.exp(np.linspace(np.log(xmin), np.log(xmax), N))
-
-
 def window_hanning(x):
     '''
     Return x times the hanning window of len(x).

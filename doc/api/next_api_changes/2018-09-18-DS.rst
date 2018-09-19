@@ -1,0 +1,7 @@
+Removal of deprecated :mod:`matplotlib.mlab` code
+-------------------------------------------------
+
+Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
+in Matplotlib 2.2 has been removed. See below for a list:
+
+- `mlab.logspace`

@@ -55,25 +55,6 @@ def test_prctile(input, percentile):
                         np.percentile(input, percentile))
 
 
-@pytest.mark.parametrize('xmin, xmax, N', [
-    (.01, 1000., 6),
-    (.03, 1313., 7),
-    (.03, 1313., 0),
-    (.03, 1313., 1),
-], ids=[
-    'tens',
-    'primes',
-    'none',
-    'single',
-])
-def test_logspace(xmin, xmax, N):
-    with pytest.warns(MatplotlibDeprecationWarning):
-        res = mlab.logspace(xmin, xmax, N)
-    targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-    assert_allclose(targ, res)
-    assert res.size == N
-
-
 class TestStride(object):
     def get_base(self, x):
         y = x
