@@ -233,7 +233,7 @@ from matplotlib.mlab import (
     amap, base_repr, binary_repr, csv2rec,
     demean, detrend, detrend_linear, detrend_mean, detrend_none, dist,
     dist_point_to_segment, distances_along_curve, exp_safe,
-    fftsurr, frange, get_sparse_matrix, get_xyz_where, griddata,
+    fftsurr, frange, get_sparse_matrix, griddata,
     identity, inside_poly, is_closed_polygon, ispower2, isvector, l1norm,
     l2norm, log2, movavg, norm_flat,
     path_length, poly_below, poly_between,

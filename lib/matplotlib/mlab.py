@@ -1195,19 +1195,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
 
 @cbook.deprecated('2.2')
-def get_xyz_where(Z, Cond):
-    """
-    *Z* and *Cond* are *M* x *N* matrices.  *Z* are data and *Cond* is
-    a boolean matrix where some condition is satisfied.  Return value
-    is (*x*, *y*, *z*) where *x* and *y* are the indices into *Z* and
-    *z* are the values of *Z* at those indices.  *x*, *y*, and *z* are
-    1D arrays.
-    """
-    X, Y = np.indices(Z.shape)
-    return X[Cond], Y[Cond], Z[Cond]
-
-
-@cbook.deprecated('2.2')
 def get_sparse_matrix(M, N, frac=0.1):
     """
     Return a *M* x *N* sparse matrix with *frac* elements randomly
