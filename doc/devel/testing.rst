@@ -21,11 +21,11 @@ Requirements
 
 Install the latest version of Matplotlib as documented in
 :ref:`installing_for_devs` In particular, follow the instructions to use a
-local FreeType build
+local FreeType build.
 
 The following software is required to run the tests:
 
-- pytest_ (>=3.4)
+- pytest_ (>=3.6)
 - Ghostscript_ (to render PDF files)
 - Inkscape_ (to render SVG files)
 
