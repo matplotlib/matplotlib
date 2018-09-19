@@ -131,7 +131,7 @@ class Path(object):
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
-            if (codes.ndim != 1) or len(codes) != len(vertices):
+            if codes.ndim != 1 or len(codes) != len(vertices):
                 raise ValueError("'codes' must be a 1D list or array with the "
                                  "same length of 'vertices'")
             if len(codes) and codes[0] != self.MOVETO:

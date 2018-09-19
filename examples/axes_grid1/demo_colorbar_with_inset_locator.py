@@ -35,5 +35,4 @@ axins = inset_axes(ax2,
 im = ax2.imshow([[1, 2], [2, 3]])
 plt.colorbar(im, cax=axins, ticks=[1, 2, 3])
 
-plt.draw()
 plt.show()

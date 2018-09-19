@@ -13,8 +13,6 @@ See :doc:`/tutorials/intermediate/constrainedlayout_guide` for more details and
 """
 
 import matplotlib.pyplot as plt
-import itertools
-import warnings
 
 
 def example_plot(ax):

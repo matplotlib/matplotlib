@@ -6,7 +6,6 @@ from matplotlib import pyplot as plt
 from numpy.testing import assert_array_almost_equal
 from matplotlib.colors import LogNorm
 import pytest
-import warnings
 
 
 def test_contour_shape_1d_valid():
@@ -128,6 +127,17 @@ def test_contour_empty_levels():
     with pytest.warns(UserWarning) as record:
         ax.contour(x, x, z, levels=[])
     assert len(record) == 1
+
+
+def test_contour_Nlevels():
+    # A scalar levels arg or kwarg should trigger auto level generation.
+    # https://github.com/matplotlib/matplotlib/issues/11913
+    z = np.arange(12).reshape((3, 4))
+    fig, ax = plt.subplots()
+    cs1 = ax.contour(z, 5)
+    assert len(cs1.levels) > 1
+    cs2 = ax.contour(z, levels=5)
+    assert (cs1.levels == cs2.levels).all()
 
 
 def test_contour_badlevel_fmt():

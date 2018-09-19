@@ -196,6 +196,21 @@ class GridSpec(GridSpecBase):
         ncols : int
             Number or columns in grid.
 
+        figure : ~.figure.Figure, optional
+
+        left, right, top, bottom : float
+            Extent of the subplots as a fraction of figure width or height.
+            Left cannot be larger than right, and bottom cannot be larger than
+            top.
+
+        wspace : float
+            The amount of width reserved for space between subplots,
+            expressed as a fraction of the average axis width.
+
+        hspace : float
+            The amount of height reserved for space between subplots,
+            expressed as a fraction of the average axis height.
+
         Notes
         -----
         See `~.figure.SubplotParams` for descriptions of the layout parameters.
@@ -212,7 +227,7 @@ class GridSpec(GridSpecBase):
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
 
-        if (self.figure is None) or not self.figure.get_constrained_layout():
+        if self.figure is None or not self.figure.get_constrained_layout():
             self._layoutbox = None
         else:
             self.figure.init_layoutbox()
@@ -408,7 +423,7 @@ class SubplotSpec(object):
         if gridspec._layoutbox is not None:
             glb = gridspec._layoutbox
             # So note that here we don't assign any layout yet,
-            # just make the layoutbox that will conatin all items
+            # just make the layoutbox that will contain all items
             # associated w/ this axis.  This can include other axes like
             # a colorbar or a legend.
             self._layoutbox = layoutbox.LayoutBox(

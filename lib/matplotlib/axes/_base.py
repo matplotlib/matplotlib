@@ -13,7 +13,7 @@ import matplotlib
 
 from matplotlib import cbook, rcParams
 from matplotlib.cbook import (
-    _OrderedSet, _check_1d, _string_to_bool, iterable, index_of, get_label)
+    _OrderedSet, _check_1d, _string_to_bool, index_of, get_label)
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -27,9 +27,6 @@ import matplotlib.spines as mspines
 import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext
 import matplotlib.image as mimage
-from matplotlib.offsetbox import OffsetBox
-from matplotlib.artist import allow_rasterization
-from matplotlib.legend import Legend
 
 from matplotlib.rcsetup import cycler, validate_axisbelow
 
@@ -350,7 +347,7 @@ class _process_plot_var_args(object):
         # to one element array of None which causes problems
         # downstream.
         if any(v is None for v in tup):
-            raise ValueError("x and y must not be None")
+            raise ValueError("x, y, and format string must not be None")
 
         kw = {}
         for k, v in zip(('linestyle', 'marker', 'color'),
@@ -486,7 +483,6 @@ class _AxesBase(martist.Artist):
         self.fmt_xdata = None
         self.fmt_ydata = None
 
-        self._cachedRenderer = None
         self.set_navigate(True)
         self.set_navigate_mode(None)
 
@@ -542,7 +538,7 @@ class _AxesBase(martist.Artist):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
         state = super().__getstate__()
-        for key in ['_cachedRenderer', '_layoutbox', '_poslayoutbox']:
+        for key in ['_layoutbox', '_poslayoutbox']:
             state[key] = None
         # Prune the sharing & twinning info to only contain the current group.
         for grouper_name in [
@@ -1031,6 +1027,7 @@ class _AxesBase(martist.Artist):
         self.artists = []
         self.images = []
         self._mouseover_set = _OrderedSet()
+        self.child_axes = []
         self._current_image = None  # strictly for pyplot via _sci, _gci
         self.legend_ = None
         self.collections = []  # collection.Collection instances
@@ -1120,6 +1117,7 @@ class _AxesBase(martist.Artist):
         color : color
         """
         self._facecolor = color
+        self.stale = True
         return self.patch.set_facecolor(color)
     set_fc = set_facecolor
 
@@ -1807,6 +1805,27 @@ class _AxesBase(martist.Artist):
         self.stale = True
         return a
 
+    def add_child_axes(self, ax):
+        """
+        Add a :class:`~matplotlib.axes.Axesbase` instance
+        as a child to the axes.
+
+        Returns the added axes.
+
+        This is the lowlevel version.  See `.axes.Axes.inset_axes`
+        """
+
+        # normally axes have themselves as the axes, but these need to have
+        # their parent...
+        # Need to bypass the getter...
+        ax._axes = self
+        ax.stale_callback = martist._stale_axes_callback
+
+        self.child_axes.append(ax)
+        ax._remove_method = self.child_axes.remove
+        self.stale = True
+        return ax
+
     def add_collection(self, collection, autolim=True):
         """
         Add a :class:`~matplotlib.collections.Collection` instance
@@ -2242,14 +2261,13 @@ class _AxesBase(martist.Artist):
             arguments, but can be used individually to alter on e.g.,
             only the y-axis.
 
-        tight : bool, default is True
+        tight : bool or None, default is True
             The *tight* parameter is passed to :meth:`autoscale_view`,
             which is executed after a margin is changed; the default
             here is *True*, on the assumption that when margins are
             specified, no additional padding to match tick marks is
             usually desired.  Set *tight* to *None* will preserve
             the previous setting.
-
 
         Returns
         -------
@@ -2262,7 +2280,6 @@ class _AxesBase(martist.Artist):
         the "sticky artists" will be modified. To force all of the
         margins to be set, set :attr:`use_sticky_edges` to `False`
         before calling :meth:`margins`.
-
         """
 
         if margins and x is not None and y is not None:
@@ -2478,39 +2495,55 @@ class _AxesBase(martist.Artist):
                 x, y = title.get_position()
                 if not np.isclose(y, 1.0):
                     self._autotitlepos = False
-                    _log.debug('not adjusting title pos because title was'
+                    _log.debug('not adjusting title pos because a title was'
                              ' already placed manually: %f', y)
                     return
             self._autotitlepos = True
 
+        ymax = -10
         for title in titles:
             x, y0 = title.get_position()
-            y = 1.0
+            y = 1
+            # need to start again in case of window resizing
+            title.set_position((x, 1.0))
             # need to check all our twins too...
             axs = self._twinned_axes.get_siblings(self)
 
+            top = 0  # the top of all the axes twinned with this axes...
             for ax in axs:
                 try:
                     if (ax.xaxis.get_label_position() == 'top'
                             or ax.xaxis.get_ticks_position() == 'top'):
                         bb = ax.xaxis.get_tightbbox(renderer)
-                        top = bb.ymax
-                        # we don't need to pad because the padding is already
-                        # in __init__: titleOffsetTrans
-                        yn = self.transAxes.inverted().transform((0., top))[1]
-                        y = max(y, yn)
+                    else:
+                        bb = ax.get_window_extent(renderer)
+                    top = max(top, bb.ymax)
                 except AttributeError:
-                    pass
-
-            title.set_position((x, y))
+                    # this happens for an empty bb
+                    y = 1
+            if title.get_window_extent(renderer).ymin < top:
+                y = self.transAxes.inverted().transform(
+                        (0., top))[1]
+                title.set_position((x, y))
+                # emperically, this doesn't always get the min to top,
+                # so we need to adjust again.
+                if title.get_window_extent(renderer).ymin < top:
+                    y = self.transAxes.inverted().transform(
+                        (0., 2 * top -
+                             title.get_window_extent(renderer).ymin))[1]
+                    title.set_position((x, y))
+            ymax = max(y, ymax)
+        for title in titles:
+            # now line up all the titles at the highest baseline.
+            x, y0 = title.get_position()
+            title.set_position((x, ymax))
 
     # Drawing
-
-    @allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer=None, inframe=False):
         """Draw everything (plot lines, axes, labels)"""
         if renderer is None:
-            renderer = self._cachedRenderer
+            renderer = self.figure._cachedRenderer
 
         if renderer is None:
             raise RuntimeError('No renderer defined')
@@ -2581,7 +2614,6 @@ class _AxesBase(martist.Artist):
         mimage._draw_list_compositing_images(renderer, self, artists)
 
         renderer.close_group('axes')
-        self._cachedRenderer = renderer
         self.stale = False
 
     def draw_artist(self, a):
@@ -2590,10 +2622,10 @@ class _AxesBase(martist.Artist):
         caches the renderer.  It is used to efficiently update Axes
         data (axis ticks, labels, etc are not updated)
         """
-        if self._cachedRenderer is None:
+        if self.figure._cachedRenderer is None:
             raise AttributeError("draw_artist can only be used after an "
                                  "initial draw which caches the renderer")
-        a.draw(self._cachedRenderer)
+        a.draw(self.figure._cachedRenderer)
 
     def redraw_in_frame(self):
         """
@@ -2601,13 +2633,13 @@ class _AxesBase(martist.Artist):
         caches the renderer.  It is used to efficiently update Axes
         data (axis ticks, labels, etc are not updated)
         """
-        if self._cachedRenderer is None:
+        if self.figure._cachedRenderer is None:
             raise AttributeError("redraw_in_frame can only be used after an "
                                  "initial draw which caches the renderer")
-        self.draw(self._cachedRenderer, inframe=True)
+        self.draw(self.figure._cachedRenderer, inframe=True)
 
     def get_renderer_cache(self):
-        return self._cachedRenderer
+        return self.figure._cachedRenderer
 
     # Axes rectangle characteristics
 
@@ -2659,39 +2691,47 @@ class _AxesBase(martist.Artist):
     @docstring.dedent_interpd
     def grid(self, b=None, which='major', axis='both', **kwargs):
         """
-        Turn the axes grids on or off.
+        Configure the grid lines.
 
-        Set the axes grids on or off; *b* is a boolean.
+        Parameters
+        ----------
+        b : bool or None
+            Whether to show the grid lines. If any *kwargs* are supplied,
+            it is assumed you want the grid on and *b* will be set to True.
 
-        If *b* is *None* and ``len(kwargs)==0``, toggle the grid state.  If
-        *kwargs* are supplied, it is assumed that you want a grid and *b*
-        is thus set to *True*.
+            If *b* is *None* and there are no *kwargs*, this toggles the
+            visibility of the lines.
 
-        *which* can be 'major' (default), 'minor', or 'both' to control
-        whether major tick grids, minor tick grids, or both are affected.
+        which : {'major', 'minor', 'both'}
+            The grid lines to apply the changes on.
 
-        *axis* can be 'both' (default), 'x', or 'y' to control which
-        set of gridlines are drawn.
+        axis : {'both', 'x', 'y'}
+            The axis to apply the changes on.
 
-        *kwargs* are used to set the grid line properties, e.g.,::
+        **kwargs : `.Line2D` properties
+            Define the line properties of the grid, e.g.::
 
-           ax.grid(color='r', linestyle='-', linewidth=2)
+                grid(color='r', linestyle='-', linewidth=2)
 
-        Valid :class:`~matplotlib.lines.Line2D` kwargs are
+            Valid *kwargs* are
 
-        %(Line2D)s
+        %(_Line2D_docstr)s
 
-        Note that the grid will be drawn according to the axes' zorder and not
-        its own.
+        Notes
+        -----
+        The grid will be drawn according to the axes' zorder and not its own.
         """
         if len(kwargs):
             b = True
         elif b is not None:
             b = _string_to_bool(b)
 
-        if axis == 'x' or axis == 'both':
+        if axis not in ['x', 'y', 'both']:
+            raise ValueError("The argument 'axis' must be one of 'x', 'y' or "
+                             "'both'.")
+        if axis in ['x', 'both']:
             self.xaxis.grid(b, which=which, **kwargs)
-        if axis == 'y' or axis == 'both':
+        if axis in ['y', 'both']:
             self.yaxis.grid(b, which=which, **kwargs)
 
     def ticklabel_format(self, *, axis='both', style='', scilimits=None,
@@ -2962,7 +3002,7 @@ class _AxesBase(martist.Artist):
 
         .. ACCEPTS: (lower: float, upper: float)
         """
-        if upper is None and iterable(lower):
+        if upper is None and np.iterable(lower):
             lower, upper = lower
 
         old_lower, old_upper = self.get_xbound()
@@ -3081,7 +3121,7 @@ class _AxesBase(martist.Artist):
         >>> set_xlim(5000, 0)
 
         """
-        if right is None and iterable(left):
+        if right is None and np.iterable(left):
             left, right = left
         if xmin is not None:
             cbook.warn_deprecated('3.0', name='`xmin`',
@@ -3314,7 +3354,7 @@ class _AxesBase(martist.Artist):
 
         .. ACCEPTS: (lower: float, upper: float)
         """
-        if upper is None and iterable(lower):
+        if upper is None and np.iterable(lower):
             lower, upper = lower
 
         old_lower, old_upper = self.get_ybound()
@@ -3414,7 +3454,7 @@ class _AxesBase(martist.Artist):
 
         >>> set_ylim(5000, 0)
         """
-        if top is None and iterable(bottom):
+        if top is None and np.iterable(bottom):
             bottom, top = bottom
         if ymin is not None:
             cbook.warn_deprecated('3.0', name='`ymin`',
@@ -4073,9 +4113,12 @@ class _AxesBase(martist.Artist):
         children.append(self._right_title)
         children.extend(self.tables)
         children.extend(self.images)
+        children.extend(self.child_axes)
+
         if self.legend_ is not None:
             children.append(self.legend_)
         children.append(self.patch)
+
         return children
 
     def contains(self, mouseevent):
@@ -4169,9 +4212,11 @@ class _AxesBase(martist.Artist):
         if bb_xaxis:
             bb.append(bb_xaxis)
 
-        self._update_title_position(renderer)
-        bb.append(self.get_window_extent(renderer))
+        bb_yaxis = self.yaxis.get_tightbbox(renderer)
+        if bb_yaxis:
+            bb.append(bb_yaxis)
 
+        self._update_title_position(renderer)
         if self.title.get_visible():
             bb.append(self.title.get_window_extent(renderer))
         if self._left_title.get_visible():
@@ -4179,9 +4224,7 @@ class _AxesBase(martist.Artist):
         if self._right_title.get_visible():
             bb.append(self._right_title.get_window_extent(renderer))
 
-        bb_yaxis = self.yaxis.get_tightbbox(renderer)
-        if bb_yaxis:
-            bb.append(bb_yaxis)
+        bb.append(self.get_window_extent(renderer))
 
         bbox_artists = bbox_extra_artists
         if bbox_artists is None:

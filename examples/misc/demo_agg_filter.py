@@ -309,7 +309,7 @@ def light_filter_pie(ax):
 
 if 1:
 
-    plt.figure(1, figsize=(6, 6))
+    plt.figure(figsize=(6, 6))
     plt.subplots_adjust(left=0.05, right=0.95)
 
     ax = plt.subplot(221)

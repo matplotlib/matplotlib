@@ -49,8 +49,6 @@ import numpy as np
 import logging
 import warnings
 
-from matplotlib.legend import Legend
-import matplotlib.transforms as transforms
 import matplotlib._layoutbox as layoutbox
 
 _log = logging.getLogger(__name__)
@@ -144,14 +142,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     margins) is very large.  There must be a math way to check for this case.
 
     '''
-
-    try:
-        if fig.canvas.toolbar._active in ('PAN', 'ZOOM'):
-            # don't do constrained layout during zoom and pan.
-            return
-    except AttributeError:
-        # not toolbar, or no _active attribute..
-        pass
 
     invTransFig = fig.transFigure.inverted().transform_bbox
 
@@ -354,8 +344,6 @@ def _align_spines(fig, gs):
                 height_ratios[rownummin[n]:(rownummax[n] + 1)])
 
     for nn, ax in enumerate(axs[:-1]):
-        ss0 = ax.get_subplotspec()
-
         # now compare ax to all the axs:
         #
         # If the subplotspecs have the same colnumXmax, then line

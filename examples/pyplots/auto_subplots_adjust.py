@@ -32,7 +32,7 @@ def on_draw(event):
    bbox = mtransforms.Bbox.union(bboxes)
    if fig.subplotpars.left < bbox.width:
        # we need to move it over
-       fig.subplots_adjust(left=1.1*bbox.width) # pad a little
+       fig.subplots_adjust(left=1.1*bbox.width)  # pad a little
        fig.canvas.draw()
    return False
 

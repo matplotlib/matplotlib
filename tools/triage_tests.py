@@ -376,7 +376,7 @@ if __name__ == '__main__':
 Triage image comparison test failures.
 
 If no arguments are provided, it assumes you ran the tests at the
-top-level of a source checkout as `python tests.py`.
+top-level of a source checkout as `pytest .`.
 
 Keys:
     left/right: Move between test, expected and diff images

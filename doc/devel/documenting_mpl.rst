@@ -614,7 +614,7 @@ Then in any function accepting `~.Line2D` pass-through ``kwargs``, e.g.,
       Some stuff omitted
 
       The kwargs are Line2D properties:
-      %(Line2D)s
+      %(_Line2D_docstr)s
 
       kwargs scalex and scaley, if defined, are passed on
       to autoscale_view to determine whether the x and y axes are

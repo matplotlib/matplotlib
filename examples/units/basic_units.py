@@ -11,7 +11,6 @@ import numpy as np
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-from matplotlib.cbook import iterable
 
 
 class ProxyDelegate(object):
@@ -88,7 +87,7 @@ class ConvertAllProxy(PassThroughProxy):
             if hasattr(a, 'convert_to'):
                 try:
                     a = a.convert_to(self.unit)
-                except:
+                except Exception:
                     pass
                 arg_units.append(a.get_unit())
                 converted_args.append(a.get_value())
@@ -249,13 +248,13 @@ class BasicUnit(object):
 class UnitResolver(object):
     def addition_rule(self, units):
         for unit_1, unit_2 in zip(units[:-1], units[1:]):
-            if (unit_1 != unit_2):
+            if unit_1 != unit_2:
                 return NotImplemented
         return units[0]
 
     def multiplication_rule(self, units):
         non_null = [u for u in units if u]
-        if (len(non_null) > 1):
+        if len(non_null) > 1:
             return NotImplemented
         return non_null[0]
 
@@ -268,7 +267,7 @@ class UnitResolver(object):
         '__rsub__': addition_rule}
 
     def __call__(self, operation, units):
-        if (operation not in self.op_dict):
+        if operation not in self.op_dict:
             return NotImplemented
 
         return self.op_dict[operation](self, units)
@@ -345,7 +344,7 @@ class BasicUnitConverter(units.ConversionInterface):
     def convert(val, unit, axis):
         if units.ConversionInterface.is_numlike(val):
             return val
-        if iterable(val):
+        if np.iterable(val):
             return [thisval.convert_to(unit).get_value() for thisval in val]
         else:
             return val.convert_to(unit).get_value()
@@ -353,14 +352,14 @@ class BasicUnitConverter(units.ConversionInterface):
     @staticmethod
     def default_units(x, axis):
         'return the default unit for x or None'
-        if iterable(x):
+        if np.iterable(x):
             for thisx in x:
                 return thisx.unit
         return x.unit
 
 
 def cos(x):
-    if iterable(x):
+    if np.iterable(x):
         return [math.cos(val.convert_to(radians).get_value()) for val in x]
     else:
         return math.cos(x.convert_to(radians).get_value())

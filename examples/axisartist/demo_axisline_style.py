@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 if 1:
-    fig = plt.figure(1)
+    fig = plt.figure()
     ax = SubplotZero(fig, 111)
     fig.add_subplot(ax)
 

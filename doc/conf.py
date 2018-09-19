@@ -20,6 +20,7 @@ import sphinx
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 sys.path.append(os.path.abspath('.'))
+sys.path.append('.')
 
 # General configuration
 # ---------------------
@@ -84,7 +85,10 @@ if shutil.which('dot') is None:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
-autodoc_default_flags = ['members', 'undoc-members']
+if sphinx.version_info < (1, 8):
+    autodoc_default_flags = ['members', 'undoc-members']
+else:
+    autodoc_default_options = {'members': None, 'undoc-members': None}
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
@@ -313,10 +317,6 @@ else:
 # Show both class-level docstring and __init__ docstring in class
 # documentation
 autoclass_content = 'both'
-
-rst_epilog = """
-.. |minimum_numpy_version| replace:: %s
-""" % matplotlib.__version__numpy__
 
 texinfo_documents = [
     ("contents", 'matplotlib', 'Matplotlib Documentation',

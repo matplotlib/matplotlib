@@ -67,11 +67,11 @@ def test_otf():
     if os.path.exists(fname):
         assert is_opentype_cff_font(fname)
 
-    otf_files = [f for f in fontManager.ttffiles if 'otf' in f]
-    for f in otf_files:
-        with open(f, 'rb') as fd:
-            res = fd.read(4) == b'OTTO'
-        assert res == is_opentype_cff_font(f)
+    for f in fontManager.ttflist:
+        if 'otf' in f.fname:
+            with open(f.fname, 'rb') as fd:
+                res = fd.read(4) == b'OTTO'
+            assert res == is_opentype_cff_font(f.fname)
 
 
 @pytest.mark.skipif(not has_fclist, reason='no fontconfig installed')

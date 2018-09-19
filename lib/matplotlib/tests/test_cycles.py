@@ -1,4 +1,4 @@
-import warnings
+import platform
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -9,6 +9,7 @@ from cycler import cycler
 
 
 @image_comparison(baseline_images=['color_cycle_basic'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'])
 def test_colorcycle_basic():
     fig, ax = plt.subplots()
@@ -26,6 +27,7 @@ def test_colorcycle_basic():
 
 
 @image_comparison(baseline_images=['marker_cycle', 'marker_cycle'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   remove_text=True, extensions=['png'])
 def test_marker_cycle():
     fig, ax = plt.subplots()
@@ -59,6 +61,7 @@ def test_marker_cycle():
 
 
 @image_comparison(baseline_images=['lineprop_cycle_basic'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'])
 def test_linestylecycle_basic():
     fig, ax = plt.subplots()

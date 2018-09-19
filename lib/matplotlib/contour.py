@@ -197,7 +197,7 @@ class ContourLabeler(object):
 
         self.labelXYs = []
 
-        if cbook.iterable(self.labelManual):
+        if np.iterable(self.labelManual):
             for x, y in self.labelManual:
                 self.add_label_near(x, y, inline,
                                     inline_spacing)
@@ -468,7 +468,7 @@ class ContourLabeler(object):
     def _get_label_clabeltext(self, x, y, rotation):
         # x, y, rotation is given in pixel coordinate. Convert them to
         # the data coordinate and create a label using ClabelText
-        # class. This way, the roation of the clabel is along the
+        # class. This way, the rotation of the clabel is along the
         # contour line always.
         transDataInv = self.ax.transData.inverted()
         dx, dy = transDataInv.transform_point((x, y))
@@ -506,7 +506,7 @@ class ContourLabeler(object):
         """
         # x, y, rotation is given in pixel coordinate. Convert them to
         # the data coordinate and create a label using ClabelText
-        # class. This way, the roation of the clabel is along the
+        # class. This way, the rotation of the clabel is along the
         # contour line always.
 
         t = self._get_label_clabeltext(x, y, rotation)
@@ -1218,28 +1218,18 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Determine the contour levels and store in self.levels.
         """
-        if self.filled:
-            fn = 'contourf'
-        else:
-            fn = 'contour'
         self._auto = False
         if self.levels is None:
             if len(args) == 0:
-                lev = self._autolev(7)
+                levels_arg = 7  # Default, hard-wired.
             else:
-                level_arg = args[0]
-                try:
-                    if isinstance(level_arg, Integral):
-                        lev = self._autolev(level_arg)
-                    else:
-                        lev = np.asarray(level_arg).astype(np.float64)
-                except:
-                    raise TypeError(
-                        "Last {0} arg must give levels; see help({0})"
-                        .format(fn))
-            self.levels = lev
+                levels_arg = args[0]
         else:
-            self.levels = np.asarray(self.levels).astype(np.float64)
+            levels_arg = self.levels
+        if isinstance(levels_arg, Integral):
+            self.levels = self._autolev(levels_arg)
+        else:
+            self.levels = np.asarray(levels_arg).astype(np.float64)
 
         if not self.filled:
             inside = (self.levels > self.zmin) & (self.levels < self.zmax)
@@ -1343,7 +1333,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if linewidths is None:
             tlinewidths = [(mpl.rcParams['lines.linewidth'],)] * Nlev
         else:
-            if not cbook.iterable(linewidths):
+            if not np.iterable(linewidths):
                 linewidths = [linewidths] * Nlev
             else:
                 linewidths = list(linewidths)
@@ -1369,7 +1359,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             if isinstance(linestyles, str):
                 tlinestyles = [linestyles] * Nlev
-            elif cbook.iterable(linestyles):
+            elif np.iterable(linestyles):
                 tlinestyles = list(linestyles)
                 if len(tlinestyles) < Nlev:
                     nreps = int(np.ceil(Nlev / len(linestyles)))
@@ -1794,7 +1784,7 @@ class QuadContourSet(ContourSet):
             Override axis units by specifying an instance of a
             :class:`matplotlib.units.ConversionInterface`.
 
-        antialiased : bool, optinal
+        antialiased : bool, optional
             Enable antialiasing, overriding the defaults.  For
             filled contours, the default is *True*.  For line contours,
             it is taken from :rc:`lines.antialiased`.

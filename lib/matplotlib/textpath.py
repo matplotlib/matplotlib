@@ -233,7 +233,6 @@ class TextToPath(object):
         glyph_ids = []
         sizes = []
 
-        currx, curry = 0, 0
         for font, fontsize, ccode, ox, oy in glyphs:
             char_id = self._get_char_id(font, ccode)
             if char_id not in glyph_map:
@@ -437,21 +436,20 @@ class TextPath(Path):
         """
         return self._size
 
-    def _get_vertices(self):
+    @property
+    def vertices(self):
         """
         Return the cached path after updating it if necessary.
         """
         self._revalidate_path()
         return self._cached_vertices
 
-    def _get_codes(self):
+    @property
+    def codes(self):
         """
         Return the codes
         """
         return self._codes
-
-    vertices = property(_get_vertices)
-    codes = property(_get_codes)
 
     def _revalidate_path(self):
         """

@@ -23,38 +23,38 @@ from .transforms import blended_transform_factory
 class LockDraw(object):
     """
     Some widgets, like the cursor, draw onto the canvas, and this is not
-    desirable under all circumstances, like when the toolbar is in
-    zoom-to-rect mode and drawing a rectangle.  The module level "lock"
-    allows someone to grab the lock and prevent other widgets from
-    drawing.  Use ``matplotlib.widgets.lock(someobj)`` to prevent
-    other widgets from drawing while you're interacting with the canvas.
+    desirable under all circumstances, like when the toolbar is in zoom-to-rect
+    mode and drawing a rectangle.  To avoid this, a widget can acquire a
+    canvas' lock with ``canvas.widgetlock(widget)`` before drawing on the
+    canvas; this will prevent other widgets from doing so at the same time (if
+    they also try to acquire the lock first).
     """
 
     def __init__(self):
         self._owner = None
 
     def __call__(self, o):
-        """reserve the lock for *o*"""
+        """Reserve the lock for *o*."""
         if not self.available(o):
             raise ValueError('already locked')
         self._owner = o
 
     def release(self, o):
-        """release the lock"""
+        """Release the lock from *o*."""
         if not self.available(o):
             raise ValueError('you do not own this lock')
         self._owner = None
 
     def available(self, o):
-        """drawing is available to *o*"""
+        """Return whether drawing is available to *o*."""
         return not self.locked() or self.isowner(o)
 
     def isowner(self, o):
-        """Return True if *o* owns this lock"""
+        """Return whether *o* owns this lock."""
         return self._owner is o
 
     def locked(self):
-        """Return True if the lock is currently held by an owner"""
+        """Return whether the lock is currently held by an owner."""
         return self._owner is not None
 
 
@@ -442,7 +442,7 @@ class Slider(AxesWidget):
             val = self._value_in_bounds(event.ydata)
         else:
             val = self._value_in_bounds(event.xdata)
-        if (val is not None) and (val != self.val):
+        if val not in [None, self.val]:
             self.set_val(val)
 
     def set_val(self, val):
@@ -507,7 +507,7 @@ class Slider(AxesWidget):
 
     def reset(self):
         """Reset the slider to the initial value"""
-        if (self.val != self.valinit):
+        if self.val != self.valinit:
             self.set_val(self.valinit)
 
 

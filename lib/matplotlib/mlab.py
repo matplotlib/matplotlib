@@ -1,5 +1,4 @@
 """
-
 Numerical python functions written for compatibility with MATLAB
 commands with the same names.
 
@@ -15,25 +14,8 @@ MATLAB compatible functions
 :func:`detrend`
     Remove the mean or best fit line from an array
 
-:func:`find`
-    Return the indices where some condition is true;
-    numpy.nonzero is similar but more general.
-
-:func:`griddata`
-    Interpolate irregularly distributed data to a
-    regular grid.
-
-:func:`prctile`
-    Find the percentiles of a sequence
-
-:func:`prepca`
-    Principal Component Analysis
-
 :func:`psd`
     Power spectral density using Welch's average periodogram
-
-:func:`rk4`
-    A 4th order runge kutta integrator for 1D or ND systems
 
 :func:`specgram`
     Spectrogram (spectrum over segments of time)
@@ -42,26 +24,6 @@ Miscellaneous functions
 -----------------------
 
 Functions that don't exist in MATLAB, but are useful anyway:
-
-:func:`cohere_pairs`
-    Coherence over all pairs.  This is not a MATLAB function, but we
-    compute coherence a lot in my lab, and we compute it for a lot of
-    pairs.  This function is optimized to do this efficiently by
-    caching the direct FFTs.
-
-:func:`rk4`
-    A 4th order Runge-Kutta ODE integrator in case you ever find
-    yourself stranded without scipy (and the far superior
-    scipy.integrate tools)
-
-:func:`contiguous_regions`
-    Return the indices of the regions spanned by some logical mask
-
-:func:`cross_from_below`
-    Return the indices where a 1D array crosses a threshold from below
-
-:func:`cross_from_above`
-    Return the indices where a 1D array crosses a threshold from above
 
 :func:`complex_spectrum`
     Return the complex-valued frequency spectrum of a signal
@@ -78,10 +40,6 @@ Functions that don't exist in MATLAB, but are useful anyway:
 :func:`detrend_mean`
     Remove the mean from a line.
 
-:func:`demean`
-    Remove the mean from a line. This function is the same as
-    :func:`detrend_mean` except for the default *axis*.
-
 :func:`detrend_linear`
     Remove the best fit line from a line.
 
@@ -96,62 +54,6 @@ Functions that don't exist in MATLAB, but are useful anyway:
 
 :func:`apply_window`
     Apply a window along a given axis
-
-
-record array helper functions
------------------------------
-
-A collection of helper methods for numpyrecord arrays
-
-.. _htmlonly:
-
-    See :ref:`misc-examples-index`
-
-:func:`rec2txt`
-    Pretty print a record array
-
-:func:`rec2csv`
-    Store record array in CSV file
-
-:func:`csv2rec`
-    Import record array from CSV file with type inspection
-
-:func:`rec_append_fields`
-    Adds field(s)/array(s) to record array
-
-:func:`rec_drop_fields`
-    Drop fields from record array
-
-:func:`rec_join`
-    Join two record arrays on sequence of fields
-
-:func:`recs_join`
-    A simple join of multiple recarrays using a single column as a key
-
-:func:`rec_groupby`
-    Summarize data by groups (similar to SQL GROUP BY)
-
-:func:`rec_summarize`
-    Helper code to filter rec array fields into new fields
-
-For the rec viewer functions(e rec2csv), there are a bunch of Format
-objects you can pass into the functions that will do things like color
-negative values red, set percent formatting and scaling, etc.
-
-Example usage::
-
-    r = csv2rec('somefile.csv', checkrows=0)
-
-    formatd = dict(
-        weight = FormatFloat(2),
-        change = FormatPercent(2),
-        cost   = FormatThousands(2),
-        )
-
-
-    rec2excel(r, 'test.xls', formatd=formatd)
-    rec2csv(r, 'test.csv', formatd=formatd)
-
 """
 
 import copy
@@ -231,7 +133,7 @@ def apply_window(x, window, axis=0, return_window=None):
     xshape = list(x.shape)
     xshapetarg = xshape.pop(axis)
 
-    if cbook.iterable(window):
+    if np.iterable(window):
         if len(window) != xshapetarg:
             raise ValueError('The len(window) must be the same as the shape '
                              'of x for the chosen axis')
@@ -320,6 +222,7 @@ def detrend(x, key=None, axis=None):
         return np.apply_along_axis(key, axis=axis, arr=x)
 
 
+@cbook.deprecated("3.1", alternative="detrend_mean")
 def demean(x, axis=0):
     '''
     Return x minus its mean along the specified axis.
@@ -336,11 +239,6 @@ def demean(x, axis=0):
 
     See Also
     --------
-    :func:`delinear`
-
-    :func:`denone`
-        :func:`delinear` and :func:`denone` are other detrend algorithms.
-
     :func:`detrend_mean`
         This function is the same as :func:`detrend_mean` except for the
         default *axis*.
@@ -382,17 +280,7 @@ def detrend_mean(x, axis=None):
     if axis is not None and axis+1 > x.ndim:
         raise ValueError('axis(=%s) out of bounds' % axis)
 
-    # short-circuit 0-D array.
-    if not x.ndim:
-        return np.array(0., dtype=x.dtype)
-
-    # short-circuit simple operations
-    if axis == 0 or axis is None or x.ndim <= 1:
-        return x - x.mean(axis)
-
-    ind = [slice(None)] * x.ndim
-    ind[axis] = np.newaxis
-    return x - x.mean(axis)[ind]
+    return x - x.mean(axis, keepdims=True)
 
 
 def detrend_none(x, axis=None):
@@ -410,10 +298,6 @@ def detrend_none(x, axis=None):
 
     See Also
     --------
-    :func:`denone`
-        This function is the same as :func:`denone` except for the default
-        *axis*, which has no effect.
-
     :func:`detrend_mean`
 
     :func:`detrend_linear`
@@ -441,10 +325,6 @@ def detrend_linear(y):
 
     See Also
     --------
-    :func:`delinear`
-        This function is the same as :func:`delinear` except for the default
-        *axis*.
-
     :func:`detrend_mean`
 
     :func:`detrend_none`
@@ -1429,7 +1309,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     # cache the FFT of every windowed, detrended NFFT length segment
     # of every channel.  If preferSpeedOverMemory, cache the conjugate
     # as well
-    if cbook.iterable(window):
+    if np.iterable(window):
         if len(window) != NFFT:
             raise ValueError("The length of the window must be equal to NFFT")
         windowVals = window
@@ -1560,7 +1440,7 @@ def longest_contiguous_ones(x):
 
 @cbook.deprecated('2.2')
 def longest_ones(x):
-    '''alias for longest_contiguous_ones'''
+    '''Alias for longest_contiguous_ones.'''
     return longest_contiguous_ones(x)
 
 
@@ -1754,7 +1634,7 @@ def prctile_rank(x, p):
     indicates how many quantiles of data you want ranked.
     """
 
-    if not cbook.iterable(p):
+    if not np.iterable(p):
         p = np.arange(100.0/p, 100.0, 100.0/p)
     else:
         p = np.asarray(p)
@@ -1838,7 +1718,6 @@ def rk4(derivs, y0, t):
         yout = np.zeros((len(t), Ny), float)
 
     yout[0] = y0
-    i = 0
 
     for i in np.arange(len(t)-1):
 
@@ -1971,7 +1850,7 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
     """
     Compute an FFT phase randomized surrogate of *x*.
     """
-    if cbook.iterable(window):
+    if np.iterable(window):
         x = window*detrend(x)
     else:
         x = window(detrend(x))
@@ -2339,7 +2218,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     *arrs* and *dtypes* do not have to be lists. They can just be the
     values themselves.
     """
-    if (not isinstance(names, str) and cbook.iterable(names)
+    if (not isinstance(names, str) and np.iterable(names)
             and len(names) and isinstance(names[0], str)):
         if len(names) != len(arrs):
             raise ValueError("number of arrays do not match number of names")
@@ -2349,7 +2228,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     arrs = list(map(np.asarray, arrs))
     if dtypes is None:
         dtypes = [a.dtype for a in arrs]
-    elif not cbook.iterable(dtypes):
+    elif not np.iterable(dtypes):
         dtypes = [dtypes]
     if len(arrs) != len(dtypes):
         if len(dtypes) == 1:
@@ -3153,7 +3032,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         tdict = {None: int, int: float, float: str}
         try:
             atype(str(item))
-        except:
+        except Exception:
             return get_type(item, tdict[atype])
         return atype
 
@@ -3568,7 +3447,6 @@ def stineman_interp(xi, x, y, yp=None):
         yp = np.asarray(yp, float)
 
     xi = np.asarray(xi, float)
-    yi = np.zeros(xi.shape, float)
 
     # calculate linear slopes
     dx = x[1:] - x[:-1]
@@ -3831,10 +3709,10 @@ def poly_between(x, ylower, yupper):
         numpy = np
 
     Nx = len(x)
-    if not cbook.iterable(ylower):
+    if not np.iterable(ylower):
         ylower = ylower*numpy.ones(Nx)
 
-    if not cbook.iterable(yupper):
+    if not np.iterable(yupper):
         yupper = yupper*numpy.ones(Nx)
 
     x = numpy.concatenate((x, x[::-1]))
@@ -4010,7 +3888,7 @@ def offset_line(y, yerr):
         plt.show()
 
     """
-    if cbook.is_numlike(yerr) or (cbook.iterable(yerr) and
+    if cbook.is_numlike(yerr) or (np.iterable(yerr) and
                                   len(yerr) == len(y)):
         ymin = y - yerr
         ymax = y + yerr

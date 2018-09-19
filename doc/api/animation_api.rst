@@ -60,8 +60,8 @@ general gist is to take an existing bit map (in our case a mostly
 rasterized figure) and then 'blit' one more artist on top.  Thus, by
 managing a saved 'clean' bitmap, we can only re-draw the few artists
 that are changing at each frame and possibly save significant amounts of
-time.  When using blitting (by passing ``blit=True``) the core loop of
-`FuncAnimation` gets a bit more complicated ::
+time.  When we use blitting (by passing ``blit=True``), the core loop of
+`FuncAnimation` gets a bit more complicated::
 
    ax = fig.gca()
 
@@ -176,7 +176,7 @@ on all systems.
    :nosignatures:
 
    FFMpegWriter
-   ImageMagickFileWriter
+   ImageMagickWriter
    AVConvWriter
 
 The file-based writers save temporary files for each frame which are stitched
@@ -188,7 +188,7 @@ debug.
    :nosignatures:
 
    FFMpegFileWriter
-   ImageMagickWriter
+   ImageMagickFileWriter
    AVConvFileWriter
 
 Fundamentally, a `MovieWriter` provides a way to grab sequential frames
@@ -287,6 +287,8 @@ Inheritance Diagrams
 
 .. inheritance-diagram:: matplotlib.animation.FuncAnimation matplotlib.animation.ArtistAnimation
    :private-bases:
+   :parts: 1
 
 .. inheritance-diagram:: matplotlib.animation.AVConvFileWriter matplotlib.animation.AVConvWriter matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
    :private-bases:
+   :parts: 1

@@ -1,6 +1,6 @@
 language: python
 
-dist: trusty
+dist: xenial
 sudo: false
 
 branches:
@@ -63,23 +63,23 @@ env:
     - NPROC=2
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
-    - PYTEST_ADDOPTS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - PYTEST_ADDOPTS="-raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - RUN_FLAKE8=
 
 matrix:
   include:
     - python: 3.5
+      dist: trusty
       # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
       env:
         - PINNEDVERS='-c requirements/testing/travis35.txt'
-    - python: 3.5
-      env:
-        # - PYTHONOPTIMIZE=2  # This currently doesn't work.
     - python: 3.6
       env:
         - DELETE_FONT_CACHE=1
         - EXTRAREQS='-r requirements/testing/travis36.txt'
         - RUN_FLAKE8=1
+    - python: 3.7
+      sudo: true
     - python: "nightly"
       env: PRE=--pre
     - os: osx

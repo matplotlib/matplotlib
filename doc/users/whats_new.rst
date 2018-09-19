@@ -190,12 +190,14 @@ specify a number that is close (i.e. ``ax.title.set_position(0.5, 1.01)``)
 and the title will not be moved via this algorithm.
 
 
+
 Adjusted ``matplotlib.widgets.Slider`` to have vertical orientation
 -------------------------------------------------------------------
 
 The :class:`matplotlib.widgets.Slider` widget now takes an optional argument
 ``orientation`` which indicates the direction (``'horizontal'`` or
 ``'vertical'``) that the slider should take.
+
 
 
 New convenience methods for GridSpec
@@ -218,9 +220,36 @@ now call `.Figure.add_gridspec` and for the latter `.SubplotSpec.subgridspec`.
         fig.add_subplot(gssub[0, i])
 
 
+Figure has an `~.figure.Figure.add_artist` method
+-------------------------------------------------
+
+A method `~.figure.Figure.add_artist` has been added to the
+:class:`~.figure.Figure` class, which allows artists to be added directly
+to a figure. E.g.
+
+::
+    circ = plt.Circle((.7, .5), .05)
+    fig.add_artist(circ)
+
+In case the added artist has no transform set previously, it will be set to
+the figure transform (``fig.transFigure``).
+This new method may be useful for adding artists to figures without axes or to
+easily position static elements in figure coordinates.
+
+
+Improved default backend selection
+----------------------------------
+
+The default backend no longer must be set as part of the build
+process.  Instead, at run time, the builtin backends are tried in
+sequence until one of them imports.
+
+Headless linux servers (identified by the DISPLAY env not being defined)
+will not select a GUI backend.
 
 
 
+==================
 Previous Whats New
 ==================
 

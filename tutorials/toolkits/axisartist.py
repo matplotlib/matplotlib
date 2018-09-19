@@ -51,7 +51,7 @@ Matplotlib).
 To create an axes, ::
 
   import mpl_toolkits.axisartist as AA
-  fig = plt.figure(1)
+  fig = plt.figure()
   ax = AA.Axes(fig, [0.1, 0.1, 0.8, 0.8])
   fig.add_axes(ax)
 

@@ -2,7 +2,6 @@ import builtins
 import configparser
 from distutils import sysconfig, version
 from distutils.core import Extension
-import distutils.command.build_ext
 import glob
 import hashlib
 import importlib
@@ -10,7 +9,6 @@ import multiprocessing
 import os
 import pathlib
 import platform
-import re
 import shutil
 import subprocess
 import sys
@@ -60,7 +58,6 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 # matplotlib build options, which can be altered using setup.cfg
 options = {
     'display_status': True,
-    'verbose': False,
     'backend': None,
     'basedirlist': None
     }
@@ -89,18 +86,6 @@ else:
 
 lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
-
-
-def extract_versions():
-    """
-    Extracts version values from the main matplotlib __init__.py and
-    returns them as a dictionary.
-    """
-    with open('lib/matplotlib/__init__.py') as fd:
-        for line in fd.readlines():
-            if line.startswith('__version__numpy__'):
-                exec(line.strip())
-    return locals()
 
 
 def has_include_file(include_dirs, filename):
@@ -202,21 +187,6 @@ else:
     def print_line(*args, **kwargs):
         pass
     print_status = print_message = print_raw = print_line
-
-
-# Remove the -Wstrict-prototypes option, is it's not valid for C++
-customize_compiler = distutils.command.build_ext.customize_compiler
-
-
-def my_customize_compiler(compiler):
-    retval = customize_compiler(compiler)
-    try:
-        compiler.compiler_so.remove('-Wstrict-prototypes')
-    except (ValueError, AttributeError):
-        pass
-    return retval
-
-distutils.command.build_ext.customize_compiler = my_customize_compiler
 
 
 def make_extension(name, files, *args, **kwargs):
@@ -385,13 +355,6 @@ class SetupPackage(object):
         """
         pass
 
-    def runtime_check(self):
-        """
-        True if the runtime dependencies of the backend are met.  Assumes that
-        the build-time dependencies are met.
-        """
-        return True
-
     def get_packages(self):
         """
         Get a list of package names to add to the configuration.
@@ -478,7 +441,7 @@ class SetupPackage(object):
                 "Requires patches that have not been merged upstream.")
 
         if min_version and version != 'unknown':
-            if (not is_min_version(version, min_version)):
+            if not is_min_version(version, min_version):
                 raise CheckFailed(
                     "Requires %s %s or later.  Found %s." %
                     (package, min_version, version))
@@ -718,7 +681,7 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    pytest_min_version = '3.4'
+    pytest_min_version = '3.6'
     default_config = False
 
     def check(self):
@@ -872,20 +835,6 @@ class Numpy(SetupPackage):
 
         return [numpy.get_include()]
 
-    def check(self):
-        min_version = extract_versions()['__version__numpy__']
-        try:
-            import numpy
-        except ImportError:
-            return 'not found. pip may install it below.'
-
-        if not is_min_version(numpy.__version__, min_version):
-            raise SystemExit(
-                "Requires numpy %s or later to build.  (Found %s)" %
-                (min_version, numpy.__version__))
-
-        return 'version %s' % numpy.__version__
-
     def add_flags(self, ext):
         # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for
         # each extension
@@ -1029,8 +978,6 @@ class FreeType(SetupPackage):
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
-        from pathlib import Path
-
         # We're using a system freetype
         if not options.get('local_freetype'):
             return
@@ -1052,7 +999,7 @@ class FreeType(SetupPackage):
         try:
             tarball_cache_dir = _get_xdg_cache_dir()
             tarball_cache_path = os.path.join(tarball_cache_dir, tarball)
-        except:
+        except Exception:
             # again, do not really care if this fails
             tarball_cache_dir = None
             tarball_cache_path = None
@@ -1124,7 +1071,8 @@ class FreeType(SetupPackage):
             subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
-            shutil.rmtree(str(Path(src_path, "objs")), ignore_errors=True)
+            shutil.rmtree(str(pathlib.Path(src_path, "objs")),
+                          ignore_errors=True)
             FREETYPE_BUILD_CMD = r"""
 call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
     /Release /{xXX} /xp
@@ -1141,18 +1089,19 @@ set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
             vcvarsall = msvc.find_vcvarsall(10.0)
             if vcvarsall is None:
                 raise RuntimeError('Microsoft VS 2010 required')
-            cmdfile = Path("build/build_freetype.cmd")
+            cmdfile = pathlib.Path("build/build_freetype.cmd")
             cmdfile.write_text(FREETYPE_BUILD_CMD.format(
                 vc20xx=vc, WinXX=WinXX, xXX=xXX, vcvarsall=vcvarsall))
             subprocess.check_call([str(cmdfile.resolve())],
                                   shell=True, cwd=src_path)
             # Move to the corresponding Unix build path.
-            Path(src_path, "objs/.libs").mkdir()
+            pathlib.Path(src_path, "objs/.libs").mkdir()
             # Be robust against change of FreeType version.
-            lib_path, = (Path(src_path, "objs", vc, xXX)
+            lib_path, = (pathlib.Path(src_path, "objs", vc, xXX)
                          .glob("freetype*.lib"))
-            shutil.copy2(str(lib_path),
-                         str(Path(src_path, "objs/.libs/libfreetype.lib")))
+            shutil.copy2(
+                str(lib_path),
+                str(pathlib.Path(src_path, "objs/.libs/libfreetype.lib")))
 
 
 class FT2Font(SetupPackage):
@@ -1369,10 +1318,6 @@ class BackendTkAgg(OptionalBackendPackage):
     def check(self):
         return "installing; run-time loading from Python Tcl / Tk"
 
-    def runtime_check(self):
-        """Checks whether TkAgg runtime dependencies are met."""
-        return importlib.util.find_spec("tkinter") is not None
-
     def get_extension(self):
         sources = [
             'src/_tkagg.cpp'
@@ -1390,57 +1335,6 @@ class BackendTkAgg(OptionalBackendPackage):
             ext.libraries.extend(['psapi'])
         elif sys.platform == 'linux':
             ext.libraries.extend(['dl'])
-
-
-class BackendGtk3Agg(OptionalBackendPackage):
-    name = "gtk3agg"
-
-    def check_requirements(self):
-        if not any(map(importlib.util.find_spec, ["cairocffi", "cairo"])):
-            raise CheckFailed("Requires cairocffi or pycairo to be installed.")
-
-        try:
-            import gi
-        except ImportError:
-            raise CheckFailed("Requires pygobject to be installed.")
-
-        try:
-            gi.require_version("Gtk", "3.0")
-        except ValueError:
-            raise CheckFailed(
-                "Requires gtk3 development files to be installed.")
-        except AttributeError:
-            raise CheckFailed("pygobject version too old.")
-
-        try:
-            from gi.repository import Gtk, Gdk, GObject
-        except (ImportError, RuntimeError):
-            raise CheckFailed("Requires pygobject to be installed.")
-
-        return "version {}.{}.{}".format(
-            Gtk.get_major_version(),
-            Gtk.get_minor_version(),
-            Gtk.get_micro_version())
-
-    def get_package_data(self):
-        return {'matplotlib': ['mpl-data/*.glade']}
-
-
-class BackendGtk3Cairo(BackendGtk3Agg):
-    name = "gtk3cairo"
-
-
-class BackendWxAgg(OptionalBackendPackage):
-    name = "wxagg"
-
-    def check_requirements(self):
-        try:
-            import wx
-            backend_version = wx.VERSION_STRING
-        except ImportError:
-            raise CheckFailed("requires wxPython")
-
-        return "version %s" % backend_version
 
 
 class BackendMacOSX(OptionalBackendPackage):
@@ -1488,174 +1382,6 @@ class Windowing(OptionalBackendPackage):
         return ext
 
 
-class BackendQtBase(OptionalBackendPackage):
-
-    def convert_qt_version(self, version):
-        version = '%x' % version
-        temp = []
-        while len(version) > 0:
-            version, chunk = version[:-2], version[-2:]
-            temp.insert(0, str(int(chunk, 16)))
-        return '.'.join(temp)
-
-    def check_requirements(self):
-        """
-        If PyQt4/PyQt5 is already imported, importing PyQt5/PyQt4 will fail
-        so we need to test in a subprocess (as for Gtk3).
-        """
-        try:
-            p = multiprocessing.Pool()
-
-        except:
-            # Can't do multiprocessing, fall back to normal approach
-            # (this will fail if importing both PyQt4 and PyQt5).
-            try:
-                # Try in-process
-                msg = self.callback(self)
-            except RuntimeError:
-                raise CheckFailed(
-                    "Could not import: are PyQt4 & PyQt5 both installed?")
-
-        else:
-            # Multiprocessing OK
-            try:
-                res = p.map_async(self.callback, [self])
-                msg = res.get(timeout=10)[0]
-            except multiprocessing.TimeoutError:
-                p.terminate()
-                # No result returned. Probably hanging, terminate the process.
-                raise CheckFailed("Check timed out")
-            except:
-                # Some other error.
-                p.close()
-                raise
-            else:
-                # Clean exit
-                p.close()
-            finally:
-                # Tidy up multiprocessing
-                p.join()
-
-        return msg
-
-
-def backend_pyside_internal_check(self):
-    try:
-        from PySide import __version__
-        from PySide import QtCore
-    except ImportError:
-        raise CheckFailed("PySide not found")
-    else:
-        return ("Qt: %s, PySide: %s" %
-                (QtCore.__version__, __version__))
-
-
-def backend_pyqt4_internal_check(self):
-    try:
-        from PyQt4 import QtCore
-    except ImportError:
-        raise CheckFailed("PyQt4 not found")
-
-    try:
-        qt_version = QtCore.QT_VERSION
-        pyqt_version_str = QtCore.PYQT_VERSION_STR
-    except AttributeError:
-        raise CheckFailed('PyQt4 not correctly imported')
-    else:
-        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
-
-
-def backend_qt4_internal_check(self):
-    successes = []
-    failures = []
-    try:
-        successes.append(backend_pyside_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    try:
-        successes.append(backend_pyqt4_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    if len(successes) == 0:
-        raise CheckFailed('; '.join(failures))
-    return '; '.join(successes + failures)
-
-
-class BackendQt4(BackendQtBase):
-    name = "qt4agg"
-
-    def __init__(self, *args, **kwargs):
-        BackendQtBase.__init__(self, *args, **kwargs)
-        self.callback = backend_qt4_internal_check
-
-def backend_pyside2_internal_check(self):
-    try:
-        from PySide2 import __version__
-        from PySide2 import QtCore
-    except ImportError:
-        raise CheckFailed("PySide2 not found")
-    else:
-        return ("Qt: %s, PySide2: %s" %
-                (QtCore.__version__, __version__))
-
-def backend_pyqt5_internal_check(self):
-    try:
-        from PyQt5 import QtCore
-    except ImportError:
-        raise CheckFailed("PyQt5 not found")
-
-    try:
-        qt_version = QtCore.QT_VERSION
-        pyqt_version_str = QtCore.PYQT_VERSION_STR
-    except AttributeError:
-        raise CheckFailed('PyQt5 not correctly imported')
-    else:
-        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
-
-def backend_qt5_internal_check(self):
-    successes = []
-    failures = []
-    try:
-        successes.append(backend_pyside2_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    try:
-        successes.append(backend_pyqt5_internal_check(self))
-    except CheckFailed as e:
-        failures.append(str(e))
-
-    if len(successes) == 0:
-        raise CheckFailed('; '.join(failures))
-    return '; '.join(successes + failures)
-
-class BackendQt5(BackendQtBase):
-    name = "qt5agg"
-
-    def __init__(self, *args, **kwargs):
-        BackendQtBase.__init__(self, *args, **kwargs)
-        self.callback = backend_qt5_internal_check
-
-
-class BackendCairo(OptionalBackendPackage):
-    name = "cairo"
-
-    def check_requirements(self):
-        try:
-            import cairocffi
-        except ImportError:
-            try:
-                import cairo
-            except ImportError:
-                raise CheckFailed("cairocffi or pycairo not found")
-            else:
-                return "pycairo version %s" % cairo.version
-        else:
-            return "cairocffi version %s" % cairocffi.version
-
-
 class OptionalPackageData(OptionalPackage):
     config_category = "package_data"
 
@@ -1683,5 +1409,5 @@ class Dlls(OptionalPackageData):
         """
         try:
             return config.getboolean(cls.config_category, cls.name)
-        except:
+        except Exception:
             return False  # <-- default

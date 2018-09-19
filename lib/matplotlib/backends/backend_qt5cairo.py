@@ -37,6 +37,9 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
             # Not available on Qt4 or some older Qt5.
             qimage.setDevicePixelRatio(dpi_ratio)
         painter = QtGui.QPainter(self)
+        if self._erase_before_paint:
+            painter.eraseRect(self.rect())
+            self._erase_before_paint = False
         painter.drawImage(0, 0, qimage)
         self._draw_rect_callback(painter)
         painter.end()

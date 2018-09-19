@@ -271,8 +271,8 @@ class HandlerPatch(HandlerBase):
                                xdescent=xdescent, ydescent=ydescent,
                                width=width, height=height, fontsize=fontsize)
 
-            Subsequently the created artist will have its ``update_prop`` method
-            called and the appropriate transform will be applied.
+            Subsequently the created artist will have its ``update_prop``
+            method called and the appropriate transform will be applied.
 
         Notes
         -----
@@ -374,7 +374,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
         self._update_prop(legend_handle, orig_handle)
 
         legend_handle.set_figure(legend.figure)
-        #legend._set_artist_props(legend_handle)
+        # legend._set_artist_props(legend_handle)
         legend_handle.set_clip_box(None)
         legend_handle.set_clip_path(None)
 
@@ -499,8 +499,8 @@ class HandlerErrorbar(HandlerLine2D):
         handle_caplines = []
 
         if orig_handle.has_xerr:
-            verts = [ ((x - xerr_size, y), (x + xerr_size, y))
-                      for x, y in zip(xdata_marker, ydata_marker)]
+            verts = [((x - xerr_size, y), (x + xerr_size, y))
+                     for x, y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
             self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)
@@ -517,8 +517,8 @@ class HandlerErrorbar(HandlerLine2D):
                 handle_caplines.append(capline_right)
 
         if orig_handle.has_yerr:
-            verts = [ ((x, y - yerr_size), (x, y + yerr_size))
-                      for x, y in zip(xdata_marker, ydata_marker)]
+            verts = [((x, y - yerr_size), (x, y + yerr_size))
+                     for x, y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
             self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)
@@ -686,7 +686,8 @@ class HandlerTuple(HandlerBase):
 
 class HandlerPolyCollection(HandlerBase):
     """
-    Handler for `.PolyCollection` used in `~.Axes.fill_between` and `~.Axes.stackplot`.
+    Handler for `.PolyCollection` used in `~.Axes.fill_between` and
+    `~.Axes.stackplot`.
     """
     def _update_prop(self, legend_handle, orig_handle):
         def first_color(colors):

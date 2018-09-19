@@ -1,5 +1,5 @@
 import collections
-import inspect
+import platform
 from unittest import mock
 
 import numpy as np
@@ -107,6 +107,7 @@ def test_multiple_keys():
 
 
 @image_comparison(baseline_images=['rgba_alpha'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'], remove_text=True)
 def test_alpha_rgba():
     import matplotlib.pyplot as plt
@@ -118,6 +119,7 @@ def test_alpha_rgba():
 
 
 @image_comparison(baseline_images=['rcparam_alpha'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'], remove_text=True)
 def test_alpha_rcparam():
     import matplotlib.pyplot as plt
@@ -145,7 +147,8 @@ def test_fancy():
                ncol=2, shadow=True, title="My legend", numpoints=1)
 
 
-@image_comparison(baseline_images=['framealpha'], remove_text=True)
+@image_comparison(baseline_images=['framealpha'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_framealpha():
     x = np.linspace(1, 100, 100)
     y = x
@@ -278,12 +281,12 @@ class TestLegendFunction(object):
         th = np.linspace(0, 2*np.pi, 1024)
         lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
         lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
-        with mock.patch('warnings.warn') as warn:
+        with pytest.warns(UserWarning) as record:
             ax.legend((lnc, lns), labels=('a', 'b'))
-
-        warn.assert_called_with("You have mixed positional and keyword "
-                                "arguments, some input may be "
-                                "discarded.")
+        assert len(record) == 1
+        assert str(record[0].message) == (
+            "You have mixed positional and keyword arguments, some input may "
+            "be discarded.")
 
     def test_parasite(self):
         from mpl_toolkits.axes_grid1 import host_subplot
@@ -352,11 +355,12 @@ class TestLegendFigureFunction(object):
         fig, axs = plt.subplots(1, 2)
         lines = axs[0].plot(range(10))
         lines2 = axs[1].plot(np.arange(10) * 2.)
-        with mock.patch('warnings.warn') as warn:
+        with pytest.warns(UserWarning) as record:
             fig.legend((lines, lines2), labels=('a', 'b'))
-        warn.assert_called_with("You have mixed positional and keyword "
-                                "arguments, some input may be "
-                                "discarded.")
+        assert len(record) == 1
+        assert str(record[0].message) == (
+            "You have mixed positional and keyword arguments, some input may "
+            "be discarded.")
 
 
 @image_comparison(baseline_images=['legend_stackplot'], extensions=['png'])
@@ -489,7 +493,7 @@ def test_legend_title_empty():
     ax.plot(range(10))
     leg = ax.legend()
     assert leg.get_title().get_text() == ""
-    assert leg.get_title().get_visible() is False
+    assert not leg.get_title().get_visible()
 
 
 def test_legend_proper_window_extent():
@@ -504,6 +508,17 @@ def test_legend_proper_window_extent():
     leg = ax.legend()
     x02 = leg.get_window_extent(fig.canvas.get_renderer()).x0
     assert pytest.approx(x01*2, 0.1) == x02
+
+
+def test_window_extent_cached_renderer():
+    fig, ax = plt.subplots(dpi=100)
+    ax.plot(range(10), label='Aardvark')
+    leg = ax.legend()
+    leg2 = fig.legend()
+    fig.canvas.draw()
+    # check that get_window_extent will use the cached renderer
+    leg.get_window_extent()
+    leg2.get_window_extent()
 
 
 def test_legend_title_fontsize():
@@ -539,3 +554,12 @@ def test_draggable():
     with pytest.warns(MatplotlibDeprecationWarning):
         legend.draggable()
     assert not legend.get_draggable()
+
+
+def test_alpha_handles():
+    x, n, hh = plt.hist([1, 2, 3], alpha=0.25, label='data', color='red')
+    legend = plt.legend()
+    for lh in legend.legendHandles:
+        lh.set_alpha(1.0)
+    assert lh.get_facecolor()[:-1] == hh[1].get_facecolor()[:-1]
+    assert lh.get_edgecolor()[:-1] == hh[1].get_edgecolor()[:-1]

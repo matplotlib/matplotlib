@@ -4,7 +4,6 @@ from pathlib import Path
 import re
 import tempfile
 
-import numpy as np
 import pytest
 
 import matplotlib
@@ -15,12 +14,10 @@ from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 
 
-needs_ghostscript = pytest.mark.xfail(
+needs_ghostscript = pytest.mark.skipif(
     matplotlib.checkdep_ghostscript()[0] is None,
     reason="This test needs a ghostscript installation")
-
-
-needs_usetex = pytest.mark.xfail(
+needs_usetex = pytest.mark.skipif(
     not matplotlib.checkdep_usetex(True),
     reason="This test needs a TeX installation")
 

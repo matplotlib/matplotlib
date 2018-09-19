@@ -6,7 +6,6 @@
 from base64 import b64encode
 import io
 import json
-import os
 import pathlib
 import uuid
 
@@ -18,7 +17,7 @@ except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.kernel.comm import Comm
 
-from matplotlib import rcParams, is_interactive
+from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, NavigationToolbar2)

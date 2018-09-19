@@ -7,13 +7,11 @@ it imports matplotlib only at runtime.
 """
 
 import collections
+import collections.abc
 import contextlib
-import datetime
-import errno
 import functools
 import glob
 import gzip
-import io
 import itertools
 import locale
 import numbers
@@ -21,12 +19,14 @@ import operator
 import os
 from pathlib import Path
 import re
+import subprocess
 import sys
 import time
 import traceback
 import types
 import warnings
-from weakref import ref, WeakKeyDictionary
+import weakref
+from weakref import WeakMethod
 
 import numpy as np
 
@@ -61,100 +61,26 @@ def unicode_safe(s):
     return s
 
 
-class _BoundMethodProxy(object):
-    """
-    Our own proxy object which enables weak references to bound and unbound
-    methods and arbitrary callables. Pulls information about the function,
-    class, and instance out of a bound method. Stores a weak reference to the
-    instance to support garbage collection.
-
-    @organization: IBM Corporation
-    @copyright: Copyright (c) 2005, 2006 IBM Corporation
-    @license: The BSD License
-
-    Minor bugfixes by Michael Droettboom
-    """
-    def __init__(self, cb):
-        self._hash = hash(cb)
-        self._destroy_callbacks = []
-        try:
-            try:
-                self.inst = ref(cb.__self__, self._destroy)
-            except TypeError:
-                self.inst = None
-            self.func = cb.__func__
-            self.klass = cb.__self__.__class__
-        except AttributeError:
-            self.inst = None
-            self.func = cb
-            self.klass = None
-
-    def add_destroy_callback(self, callback):
-        self._destroy_callbacks.append(_BoundMethodProxy(callback))
-
-    def _destroy(self, wk):
-        for callback in self._destroy_callbacks:
-            try:
-                callback(self)
-            except ReferenceError:
-                pass
-
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        # de-weak reference inst
-        inst = d['inst']
-        if inst is not None:
-            d['inst'] = inst()
-        return d
-
-    def __setstate__(self, statedict):
-        self.__dict__ = statedict
-        inst = statedict['inst']
-        # turn inst back into a weakref
-        if inst is not None:
-            self.inst = ref(inst)
-
-    def __call__(self, *args, **kwargs):
-        """
-        Proxy for a call to the weak referenced object. Take
-        arbitrary params to pass to the callable.
-
-        Raises `ReferenceError`: When the weak reference refers to
-        a dead object
-        """
-        if self.inst is not None and self.inst() is None:
-            raise ReferenceError
-        elif self.inst is not None:
-            # build a new instance method with a strong reference to the
-            # instance
-
-            mtd = types.MethodType(self.func, self.inst())
-
-        else:
-            # not a bound method, just return the func
-            mtd = self.func
-        # invoke the callable and return the result
-        return mtd(*args, **kwargs)
-
-    def __eq__(self, other):
-        """
-        Compare the held function and instance with that held by
-        another proxy.
-        """
-        try:
-            if self.inst is None:
-                return self.func == other.func and other.inst is None
-            else:
-                return self.func == other.func and self.inst() == other.inst()
-        except Exception:
-            return False
-
-    def __hash__(self):
-        return self._hash
-
-
 def _exception_printer(exc):
     traceback.print_exc()
+
+
+class _StrongRef:
+    """
+    Wrapper similar to a weakref, but keeping a strong reference to the object.
+    """
+
+    def __init__(self, obj):
+        self._obj = obj
+
+    def __call__(self):
+        return self._obj
+
+    def __eq__(self, other):
+        return isinstance(other, _StrongRef) and self._obj == other._obj
+
+    def __hash__(self):
+        return hash(self._obj)
 
 
 class CallbackRegistry(object):
@@ -179,20 +105,13 @@ class CallbackRegistry(object):
         >>> callbacks.disconnect(id_eat)
         >>> callbacks.process('eat', 456)      # nothing will be called
 
-    In practice, one should always disconnect all callbacks when they
-    are no longer needed to avoid dangling references (and thus memory
-    leaks).  However, real code in matplotlib rarely does so, and due
-    to its design, it is rather difficult to place this kind of code.
-    To get around this, and prevent this class of memory leaks, we
-    instead store weak references to bound methods only, so when the
-    destination object needs to die, the CallbackRegistry won't keep
-    it alive.  The Python stdlib weakref module can not create weak
-    references to bound methods directly, so we need to create a proxy
-    object to handle weak references to bound methods (or regular free
-    functions).  This technique was shared by Peter Parente on his
-    `"Mindtrove" blog
-    <http://mindtrove.info/python-weak-references/>`_.
-
+    In practice, one should always disconnect all callbacks when they are
+    no longer needed to avoid dangling references (and thus memory leaks).
+    However, real code in Matplotlib rarely does so, and due to its design,
+    it is rather difficult to place this kind of code.  To get around this,
+    and prevent this class of memory leaks, we instead store weak references
+    to bound methods only, so when the destination object needs to die, the
+    CallbackRegistry won't keep it alive.
 
     Parameters
     ----------
@@ -211,12 +130,17 @@ class CallbackRegistry(object):
 
           def h(exc):
               traceback.print_exc()
-
     """
+
+    # We maintain two mappings:
+    #   callbacks: signal -> {cid -> callback}
+    #   _func_cid_map: signal -> {callback -> cid}
+    # (actually, callbacks are weakrefs to the actual callbacks).
+
     def __init__(self, exception_handler=_exception_printer):
         self.exception_handler = exception_handler
-        self.callbacks = dict()
-        self._cid = 0
+        self.callbacks = {}
+        self._cid_gen = itertools.count()
         self._func_cid_map = {}
 
     # In general, callbacks may not be pickled; thus, we simply recreate an
@@ -236,18 +160,17 @@ class CallbackRegistry(object):
     def connect(self, s, func):
         """Register *func* to be called when signal *s* is generated.
         """
-        self._func_cid_map.setdefault(s, WeakKeyDictionary())
-        # Note proxy not needed in python 3.
-        # TODO rewrite this when support for python2.x gets dropped.
-        proxy = _BoundMethodProxy(func)
+        self._func_cid_map.setdefault(s, {})
+        try:
+            proxy = WeakMethod(func, self._remove_proxy)
+        except TypeError:
+            proxy = _StrongRef(func)
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
 
-        proxy.add_destroy_callback(self._remove_proxy)
-        self._cid += 1
-        cid = self._cid
+        cid = next(self._cid_gen)
         self._func_cid_map[s][proxy] = cid
-        self.callbacks.setdefault(s, dict())
+        self.callbacks.setdefault(s, {})
         self.callbacks[s][cid] = proxy
         return cid
 
@@ -257,7 +180,6 @@ class CallbackRegistry(object):
                 del self.callbacks[signal][proxies[proxy]]
             except KeyError:
                 pass
-
             if len(self.callbacks[signal]) == 0:
                 del self.callbacks[signal]
                 del self._func_cid_map[signal]
@@ -284,12 +206,11 @@ class CallbackRegistry(object):
         All of the functions registered to receive callbacks on *s* will be
         called with ``*args`` and ``**kwargs``.
         """
-        if s in self.callbacks:
-            for cid, proxy in list(self.callbacks[s].items()):
+        for cid, ref in list(self.callbacks.get(s, {}).items()):
+            func = ref()
+            if func is not None:
                 try:
-                    proxy(*args, **kwargs)
-                except ReferenceError:
-                    self._remove_proxy(proxy)
+                    func(*args, **kwargs)
                 # this does not capture KeyboardInterrupt, SystemExit,
                 # and GeneratorExit
                 except Exception as exc:
@@ -403,6 +324,7 @@ class Bunch(types.SimpleNamespace):
     pass
 
 
+@deprecated('3.1', alternative='np.iterable')
 def iterable(obj):
     """return true if *obj* is iterable"""
     try:
@@ -491,7 +413,7 @@ def open_file_cm(path_or_file, mode="r", encoding=None):
 
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
-    return isinstance(val, str) or not iterable(val)
+    return isinstance(val, str) or not np.iterable(val)
 
 
 def _string_to_bool(s):
@@ -800,45 +722,29 @@ class Stack(object):
 
 
 def report_memory(i=0):  # argument may go away
-    """return the memory consumed by process"""
-    from subprocess import Popen, PIPE
+    """Return the memory consumed by the process."""
+    def call(command, os_name):
+        try:
+            return subprocess.check_output(command)
+        except subprocess.CalledProcessError:
+            raise NotImplementedError(
+                "report_memory works on %s only if "
+                "the '%s' program is found" % (os_name, command[0])
+            )
+
     pid = os.getpid()
     if sys.platform == 'sunos5':
-        try:
-            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'osz'],
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Sun OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[-1].strip())
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'osz'], 'Sun OS')
+        mem = int(lines[-1].strip())
     elif sys.platform == 'linux':
-        try:
-            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'rss,sz'],
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Linux only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[1])
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,sz'], 'Linux')
+        mem = int(lines[1].split()[1])
     elif sys.platform == 'darwin':
-        try:
-            a2 = Popen(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'],
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Mac OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[0])
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'], 'Mac OS')
+        mem = int(lines[1].split()[0])
     elif sys.platform == 'win32':
-        try:
-            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
-                       stdout=PIPE).stdout.read()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Windows only if "
-                "the 'tasklist' program is found")
-        mem = int(a2.strip().split()[-2].replace(',', ''))
+        lines = call(["tasklist", "/nh", "/fi", "pid eq %d" % pid], 'Windows')
+        mem = int(lines.strip().split()[-2].replace(',', ''))
     else:
         raise NotImplementedError(
             "We don't have a memory monitor for %s" % sys.platform)
@@ -888,7 +794,6 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
         If True, print the number of objects reached as they are found.
     """
     import gc
-    from types import FrameType
 
     def print_path(path):
         for i, step in enumerate(path):
@@ -929,7 +834,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             # Don't go back through the original list of objects, or
             # through temporary references to the object, since those
             # are just an artifact of the cycle detector itself.
-            elif referent is objects or isinstance(referent, FrameType):
+            elif referent is objects or isinstance(referent, types.FrameType):
                 continue
 
             # We haven't seen this object before, so recurse
@@ -978,10 +883,10 @@ class Grouper(object):
 
     """
     def __init__(self, init=()):
-        self._mapping = {ref(x): [ref(x)] for x in init}
+        self._mapping = {weakref.ref(x): [weakref.ref(x)] for x in init}
 
     def __contains__(self, item):
-        return ref(item) in self._mapping
+        return weakref.ref(item) in self._mapping
 
     def clean(self):
         """Clean dead weak references from the dictionary."""
@@ -996,10 +901,10 @@ class Grouper(object):
         Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
-        set_a = mapping.setdefault(ref(a), [ref(a)])
+        set_a = mapping.setdefault(weakref.ref(a), [weakref.ref(a)])
 
         for arg in args:
-            set_b = mapping.get(ref(arg), [ref(arg)])
+            set_b = mapping.get(weakref.ref(arg), [weakref.ref(arg)])
             if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
@@ -1012,13 +917,14 @@ class Grouper(object):
     def joined(self, a, b):
         """Returns True if *a* and *b* are members of the same set."""
         self.clean()
-        return self._mapping.get(ref(a), object()) is self._mapping.get(ref(b))
+        return (self._mapping.get(weakref.ref(a), object())
+                is self._mapping.get(weakref.ref(b)))
 
     def remove(self, a):
         self.clean()
-        set_a = self._mapping.pop(ref(a), None)
+        set_a = self._mapping.pop(weakref.ref(a), None)
         if set_a:
-            set_a.remove(ref(a))
+            set_a.remove(weakref.ref(a))
 
     def __iter__(self):
         """
@@ -1034,7 +940,7 @@ class Grouper(object):
     def get_siblings(self, a):
         """Returns all of the items joined with *a*, including itself."""
         self.clean()
-        siblings = self._mapping.get(ref(a), [ref(a)])
+        siblings = self._mapping.get(weakref.ref(a), [weakref.ref(a)])
         return [x() for x in siblings]
 
 
@@ -1095,13 +1001,13 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if isinstance(args[0], str) or not iterable(args[0]):
+    if is_scalar_or_string(args[0]):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if not isinstance(x, str) and iterable(x) and len(x) == nrecs:
+        if not isinstance(x, str) and np.iterable(x) and len(x) == nrecs:
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
@@ -1123,7 +1029,7 @@ def delete_masked_points(*args):
                 mask = np.isfinite(xd)
                 if isinstance(mask, np.ndarray):
                     masks.append(mask)
-            except:  # Fixme: put in tuple of possible exceptions?
+            except Exception:  # Fixme: put in tuple of possible exceptions?
                 pass
     if len(masks):
         mask = np.logical_and.reduce(masks)
@@ -1469,7 +1375,7 @@ def _reshape_2D(X, name):
     """
     # Iterate over columns for ndarrays, over rows otherwise.
     X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
-    if X.ndim == 1 and X.dtype.type != np.object_:
+    if X.ndim == 1 and not isinstance(X[0], collections.abc.Iterable):
         # 1D array of scalars: directly return it.
         return [X]
     elif X.ndim in [1, 2]:
@@ -1638,7 +1544,8 @@ def pts_to_midstep(x, *args):
         The x location of the steps. May be empty.
 
     y1, ..., yp : array
-        y arrays to be turned into steps; all must be the same length as ``x``.
+        y arrays to be turned into steps; all must be the same length as
+        ``x``.
 
     Returns
     -------
@@ -1697,7 +1604,7 @@ def index_of(y):
 
 
 def safe_first_element(obj):
-    if isinstance(obj, collections.Iterator):
+    if isinstance(obj, collections.abc.Iterator):
         # needed to accept `array.flat` as input.
         # np.flatiter reports as an instance of collections.Iterator
         # but can still be indexed via [].
@@ -1714,7 +1621,8 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    return list(data) if isinstance(data, collections.MappingView) else data
+    return (list(data) if isinstance(data, collections.abc.MappingView)
+            else data)
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
@@ -1988,6 +1896,7 @@ def _define_aliases(alias_d, cls=None):
         return functools.partial(_define_aliases, alias_d)
 
     def make_alias(name):  # Enforce a closure over *name*.
+        @functools.wraps(getattr(cls, name))
         def method(self, *args, **kwargs):
             return getattr(self, name)(*args, **kwargs)
         return method
@@ -2000,7 +1909,7 @@ def _define_aliases(alias_d, cls=None):
                 for alias in aliases:
                     method = make_alias(prefix + prop)
                     method.__name__ = prefix + alias
-                    method.__doc__ = "alias for `{}`".format(prefix + prop)
+                    method.__doc__ = "Alias for `{}`.".format(prefix + prop)
                     setattr(cls, prefix + alias, method)
         if not exists:
             raise ValueError(
@@ -2080,15 +1989,16 @@ def _warn_external(message, category=None):
     etc.).
     """
     frame = sys._getframe()
-    for stacklevel in itertools.count(1):
+    for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
         if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
-                        frame.f_globals["__name__"]):
+                        # Work around sphinx-gallery not setting __name__.
+                        frame.f_globals.get("__name__", "")):
             break
         frame = frame.f_back
     warnings.warn(message, category, stacklevel)
 
 
-class _OrderedSet(collections.MutableSet):
+class _OrderedSet(collections.abc.MutableSet):
     def __init__(self):
         self._od = collections.OrderedDict()
 
@@ -2107,3 +2017,61 @@ class _OrderedSet(collections.MutableSet):
 
     def discard(self, key):
         self._od.pop(key, None)
+
+
+# Agg's buffers are unmultiplied RGBA8888, which neither PyQt4 nor cairo
+# support; however, both do support premultiplied ARGB32.
+
+
+def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
+    """
+    Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
+    """
+    rgba = np.take(  # .take() ensures C-contiguity of the result.
+        buf,
+        [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
+    rgb = rgba[..., :-1]
+    alpha = rgba[..., -1]
+    # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
+    mask = alpha != 0
+    for channel in np.rollaxis(rgb, -1):
+        channel[mask] = (
+            (channel[mask].astype(int) * 255 + alpha[mask] // 2)
+            // alpha[mask])
+    return rgba
+
+
+def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
+    """
+    Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
+    """
+    if sys.byteorder == "little":
+        argb32 = np.take(rgba8888, [2, 1, 0, 3], axis=2)
+        rgb24 = argb32[..., :-1]
+        alpha8 = argb32[..., -1:]
+    else:
+        argb32 = np.take(rgba8888, [3, 0, 1, 2], axis=2)
+        alpha8 = argb32[..., :1]
+        rgb24 = argb32[..., 1:]
+    # Only bother premultiplying when the alpha channel is not fully opaque,
+    # as the cost is not negligible.  The unsafe cast is needed to do the
+    # multiplication in-place in an integer buffer.
+    if alpha8.min() != 0xff:
+        np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
+    return argb32
+
+
+def _check_and_log_subprocess(command, logger, **kwargs):
+    logger.debug(command)
+    try:
+        report = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, **kwargs)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            'The command\n'
+            '    {}\n'
+            'failed and generated the following output:\n'
+            '{}'
+            .format(command, exc.output.decode('utf-8')))
+    logger.debug(report)
+    return report

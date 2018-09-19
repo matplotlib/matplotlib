@@ -6,11 +6,11 @@ Inset Locator Demo
 """
 
 ###############################################################################
-# The `.inset_locator`'s `~.inset_axes` allows to easily place insets in the
-# corners of the axes by specifying a width and height and optionally
-# a location (loc) which accepts locations as codes, similar to
-# `~matplotlib.axes.Axes.legend`.
-# By default, the inset is offset by some points from the axes - this is
+# The `.inset_locator`'s `~.inset_locator.inset_axes` allows
+# easily placing insets in the corners of the axes by specifying a width and
+# height and optionally a location (loc) that accepts locations as codes,
+# similar to `~matplotlib.axes.Axes.legend`.
+# By default, the inset is offset by some points from the axes,
 # controlled via the `borderpad` parameter.
 
 import matplotlib.pyplot as plt

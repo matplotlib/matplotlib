@@ -163,10 +163,10 @@ def _allow_super_init(__init__):
             next_coop_init.__init__(self, *args, **kwargs)
 
         @functools.wraps(__init__)
-        def wrapper(self, **kwargs):
+        def wrapper(self, *args, **kwargs):
             with cbook._setattr_cm(QtWidgets.QWidget,
                                    __init__=cooperative_qwidget_init):
-                __init__(self, **kwargs)
+                __init__(self, *args, **kwargs)
 
         return wrapper
 
@@ -241,6 +241,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self._dpi_ratio_prev = None
 
         self._draw_pending = False
+        self._erase_before_paint = False
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
 
@@ -494,6 +495,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             return
         with cbook._setattr_cm(self, _is_drawing=True):
             super().draw()
+        self._erase_before_paint = True
         self.update()
 
     def draw_idle(self):

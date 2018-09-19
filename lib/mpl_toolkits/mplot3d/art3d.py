@@ -14,8 +14,7 @@ import numpy as np
 from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
-    Collection, LineCollection, PolyCollection, PatchCollection,
-    PathCollection)
+    LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
 from . import proj3d
@@ -46,9 +45,9 @@ def get_dir_vector(zdir):
     zdir : {'x', 'y', 'z', None, 3-tuple}
         The direction. Possible values are:
         - 'x': equivalent to (1, 0, 0)
-        - 'y': euqivalent to (0, 1, 0)
+        - 'y': equivalent to (0, 1, 0)
         - 'z': equivalent to (0, 0, 1)
-        - *None*: euqivalent to (0, 0, 0)
+        - *None*: equivalent to (0, 0, 0)
         - an iterable (x, y, z) is returned unchanged.
 
     Returns
@@ -66,7 +65,7 @@ def get_dir_vector(zdir):
         return np.array((0, 0, 1))
     elif zdir is None:
         return np.array((0, 0, 0))
-    elif cbook.iterable(zdir) and len(zdir) == 3:
+    elif np.iterable(zdir) and len(zdir) == 3:
         return zdir
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
@@ -108,11 +107,7 @@ class Text3D(mtext.Text):
             [self._position3d, self._position3d + self._dir_vec], renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
-        if dx==0. and dy==0.:
-            # atan2 raises ValueError: math domain error on 0,0
-            angle = 0.
-        else:
-            angle = math.degrees(math.atan2(dy, dx))
+        angle = math.degrees(math.atan2(dy, dx))
         self.set_position((proj[0][0], proj[1][0]))
         self.set_rotation(norm_text_angle(angle))
         mtext.Text.draw(self, renderer)
@@ -144,8 +139,7 @@ class Line3D(lines.Line2D):
         try:
             # If *zs* is a list or array, then this will fail and
             # just proceed to juggle_axes().
-            zs = float(zs)
-            zs = [zs for x in xs]
+            zs = np.full_like(xs, fill_value=float(zs))
         except TypeError:
             pass
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
@@ -319,7 +313,7 @@ class PathPatch3D(Patch3D):
 def get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
     trans = patch.get_patch_transform()
-    path =  patch.get_path()
+    path = patch.get_path()
     polygons = path.to_polygons(trans)
     if len(polygons):
         return polygons[0]
@@ -470,10 +464,7 @@ class Path3DCollection(PathCollection):
         self.set_edgecolors(ecs)
         PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
-        if vzs.size > 0 :
-            return min(vzs)
-        else :
-            return np.nan
+        return np.min(vzs) if vzs.size else np.nan
 
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
@@ -507,7 +498,7 @@ class Poly3DCollection(PolyCollection):
     A collection of 3D polygons.
     """
 
-    def __init__(self, verts, *args, zsort=True, **kwargs):
+    def __init__(self, verts, *args, zsort='average', **kwargs):
         """
         Create a Poly3DCollection.
 
@@ -535,26 +526,19 @@ class Poly3DCollection(PolyCollection):
 
         Parameters
         ----------
-        zsort : bool or {'average', 'min', 'max'}
-            For 'average', 'min', 'max' the z-order is determined by applying
-            the function to the z-coordinates of the vertices in the viewer's
-            coordinate system. *True* is equivalent to 'average'.
+        zsort : {'average', 'min', 'max'}
+            The function applied on the z-coordinates of the vertices in the
+            viewer's coordinate system, to determine the z-order.  *True* is
+            deprecated and equivalent to 'average'.
         """
-
         if zsort is True:
+            cbook.warn_deprecated(
+                "3.1", "Passing True to mean 'average' for set_zsort is "
+                "deprecated and support will be removed in Matplotlib 3.3; "
+                "pass 'average' instead.")
             zsort = 'average'
-
-        if zsort is not False:
-            if zsort in self._zsort_functions:
-                zsortfunc = self._zsort_functions[zsort]
-            else:
-                return False
-        else:
-            zsortfunc = None
-
-        self._zsort = zsort
+        self._zsortfunc = self._zsort_functions[zsort]
         self._sort_zpos = None
-        self._zsortfunc = zsortfunc
         self.stale = True
 
     def get_vector(self, segments3d):
@@ -571,7 +555,7 @@ class Poly3DCollection(PolyCollection):
 
         if len(segments3d):
             xs, ys, zs = zip(*points)
-        else :
+        else:
             # We need this so that we can skip the bad unpacking from zip()
             xs, ys, zs = [], [], []
 
@@ -599,13 +583,13 @@ class Poly3DCollection(PolyCollection):
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
         self._sort_zpos = None
-        self.set_zsort(True)
+        self.set_zsort('average')
         self._facecolors3d = PolyCollection.get_facecolor(self)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
         self._alpha3d = PolyCollection.get_alpha(self)
         self.stale = True
 
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True
@@ -634,15 +618,12 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(len(xyzlist), axis=0)
 
-        # if required sort by depth (furthest drawn first)
-        if self._zsort:
-            z_segments_2d = sorted(
-                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
-                 for idx, ((xs, ys, zs), fc, ec)
-                 in enumerate(zip(xyzlist, cface, cedge))),
-                key=lambda x: x[0], reverse=True)
-        else:
-            raise ValueError("whoops")
+        # sort by depth (furthest drawn first)
+        z_segments_2d = sorted(
+            ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
+             for idx, ((xs, ys, zs), fc, ec)
+             in enumerate(zip(xyzlist, cface, cedge))),
+            key=lambda x: x[0], reverse=True)
 
         segments_2d = [s for z, s, fc, ec, idx in z_segments_2d]
         if self._codes3d is not None:
@@ -662,12 +643,12 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif tzs.size > 0 :
+        elif tzs.size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
             return np.min(tzs)
-        else :
+        else:
             return np.nan
 
     def set_facecolor(self, colors):

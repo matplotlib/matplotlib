@@ -155,8 +155,6 @@ import matplotlib.units as units
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
-_log = logging.getLogger(__name__)
-
 __all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
            'num2epoch', 'mx2num', 'DateFormatter',
            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
@@ -171,8 +169,6 @@ __all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
 
 
 _log = logging.getLogger(__name__)
-
-
 UTC = datetime.timezone.utc
 
 
@@ -361,14 +357,13 @@ class bytespdate2num(strpdate2num):
         return super().__call__(s)
 
 
-# a version of dateutil.parser.parse that can operate on nump0y arrays
+# a version of dateutil.parser.parse that can operate on numpy arrays
 _dateutil_parser_parse_np_vectorized = np.vectorize(dateutil.parser.parse)
 
 
 def datestr2num(d, default=None):
     """
-    Convert a date string to a datenum using
-    :func:`dateutil.parser.parse`.
+    Convert a date string to a datenum using :func:`dateutil.parser.parse`.
 
     Parameters
     ----------
@@ -418,7 +413,7 @@ def date2num(d):
     if ((isinstance(d, np.ndarray) and np.issubdtype(d.dtype, np.datetime64))
             or isinstance(d, np.datetime64)):
         return _dt64_to_ordinalf(d)
-    if not cbook.iterable(d):
+    if not np.iterable(d):
         return _to_ordinalf(d)
     else:
         d = np.asarray(d)
@@ -441,7 +436,7 @@ def julian2num(j):
     float or sequence of floats
         Matplotlib date(s)
     """
-    if cbook.iterable(j):
+    if np.iterable(j):
         j = np.asarray(j)
     return j - JULIAN_OFFSET
 
@@ -460,7 +455,7 @@ def num2julian(n):
     float or sequence of floats
         Julian date(s)
     """
-    if cbook.iterable(n):
+    if np.iterable(n):
         n = np.asarray(n)
     return n + JULIAN_OFFSET
 
@@ -493,7 +488,7 @@ def num2date(x, tz=None):
     """
     if tz is None:
         tz = _get_rc_timezone()
-    if not cbook.iterable(x):
+    if not np.iterable(x):
         return _from_ordinalf(x, tz)
     else:
         x = np.asarray(x)
@@ -526,7 +521,7 @@ def num2timedelta(x):
     `datetime.timedelta` or list[`datetime.timedelta`]
 
     """
-    if not cbook.iterable(x):
+    if not np.iterable(x):
         return _ordinalf_to_timedelta(x)
     else:
         x = np.asarray(x)
@@ -1384,7 +1379,7 @@ class YearLocator(DateLocator):
         (default jan 1).
         """
         DateLocator.__init__(self, tz)
-        self.base = ticker.Base(base)
+        self.base = ticker._Edge_integer(base, 0)
         self.replaced = {'month':  month,
                          'day':    day,
                          'hour':   0,
@@ -1403,15 +1398,15 @@ class YearLocator(DateLocator):
         return self.tick_values(dmin, dmax)
 
     def tick_values(self, vmin, vmax):
-        ymin = self.base.le(vmin.year)
-        ymax = self.base.ge(vmax.year)
+        ymin = self.base.le(vmin.year) * self.base.step
+        ymax = self.base.ge(vmax.year) * self.base.step
 
         ticks = [vmin.replace(year=ymin, **self.replaced)]
         while True:
             dt = ticks[-1]
             if dt.year >= ymax:
                 return date2num(ticks)
-            year = dt.year + self.base.get_base()
+            year = dt.year + self.base.step
             ticks.append(dt.replace(year=year, **self.replaced))
 
     def autoscale(self):
@@ -1681,7 +1676,7 @@ def mx2num(mxdates):
     instances) to the new date format.
     """
     scalar = False
-    if not cbook.iterable(mxdates):
+    if not np.iterable(mxdates):
         scalar = True
         mxdates = [mxdates]
     ret = epoch2num([m.ticks() for m in mxdates])

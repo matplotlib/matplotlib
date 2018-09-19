@@ -79,8 +79,8 @@ def demo_rgb2():
         for sp1 in ax1.spines.values():
             sp1.set_color("w")
         for tick in ax1.xaxis.get_major_ticks() + ax1.yaxis.get_major_ticks():
-            tick.tick1line.set_mec("w")
-            tick.tick2line.set_mec("w")
+            tick.tick1line.set_markeredgecolor("w")
+            tick.tick2line.set_markeredgecolor("w")
 
     return ax
 

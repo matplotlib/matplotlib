@@ -47,7 +47,7 @@ from matplotlib import (
     backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
     widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
+from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
 
 try:
@@ -1181,37 +1181,37 @@ class TimerBase(object):
     def _timer_stop(self):
         pass
 
-    def _get_interval(self):
+    @property
+    def interval(self):
         return self._interval
 
-    def _set_interval(self, interval):
+    @interval.setter
+    def interval(self, interval):
         # Force to int since none of the backends actually support fractional
         # milliseconds, and some error or give warnings.
         interval = int(interval)
         self._interval = interval
         self._timer_set_interval()
 
-    interval = property(_get_interval, _set_interval)
-
-    def _get_single_shot(self):
+    @property
+    def single_shot(self):
         return self._single
 
-    def _set_single_shot(self, ss=True):
+    @single_shot.setter
+    def single_shot(self, ss):
         self._single = ss
         self._timer_set_single_shot()
 
-    single_shot = property(_get_single_shot, _set_single_shot)
-
     def add_callback(self, func, *args, **kwargs):
         '''
-        Register `func` to be called by timer when the event fires. Any
-        additional arguments provided will be passed to `func`.
+        Register *func* to be called by timer when the event fires. Any
+        additional arguments provided will be passed to *func*.
         '''
         self.callbacks.append((func, args, kwargs))
 
     def remove_callback(self, func, *args, **kwargs):
         '''
-        Remove `func` from list of callbacks. `args` and `kwargs` are optional
+        Remove *func* from list of callbacks. *args* and *kwargs* are optional
         and used to distinguish between copies of the same function registered
         to be called with different arguments.
         '''
@@ -1407,7 +1407,7 @@ class LocationEvent(Event):
                 try:
                     if last.inaxes is not None:
                         last.canvas.callbacks.process('axes_leave_event', last)
-                except:
+                except Exception:
                     pass
                     # See ticket 2901582.
                     # I think this is a valid exception to the rule
@@ -3183,6 +3183,10 @@ class _Backend(object):
     # class FooBackend(_Backend):
     #     # override the attributes and methods documented below.
 
+    # Set to one of {"qt5", "qt4", "gtk3", "wx", "tk", "macosx"} if an
+    # interactive framework is required, or None otherwise.
+    required_interactive_framework = None
+
     # `backend_version` may be overridden by the subclass.
     backend_version = "unknown"
 
@@ -3265,7 +3269,8 @@ class _Backend(object):
 
     @staticmethod
     def export(cls):
-        for name in ["backend_version",
+        for name in ["required_interactive_framework",
+                     "backend_version",
                      "FigureCanvas",
                      "FigureManager",
                      "new_figure_manager",

@@ -1,9 +1,24 @@
 """
 Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
-See :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
-See :doc:`/tutorials/colors/colormaps` for an in-depth discussion of colormaps.
+.. seealso::
+
+  :doc:`/gallery/color/colormap_reference` for a list of builtin
+  colormaps.
+
+  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
+  make colormaps and
+
+  :doc:`/tutorials/colors/colormaps` an in-depth discussion of
+  choosing colormaps.
+
+  :doc:`/tutorials/colors/colormapnorms` for more details about data
+  normalization
+
+
 """
+
+import functools
 
 import numpy as np
 from numpy import ma
@@ -22,10 +37,12 @@ cmap_d = {}
 # reversed colormaps have '_r' appended to the name.
 
 
-def _reverser(f):
-    def freversed(x):
-        return f(1 - x)
-    return freversed
+def _reverser(f, x=None):
+    """Helper such that ``_reverser(f)(x) == f(1 - x)``."""
+    if x is None:
+        # Returning a partial object keeps it picklable.
+        return functools.partial(_reverser, f)
+    return f(1 - x)
 
 
 def revcmap(data):

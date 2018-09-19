@@ -5,8 +5,6 @@ import numpy as np
 
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
-from matplotlib import cbook
-from matplotlib import docstring
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
@@ -631,8 +629,8 @@ class RadialTick(maxis.YTick):
             text_angle = user_angle
         if self.label1On:
             if full:
-                ha = self.label1.get_ha()
-                va = self.label1.get_va()
+                ha = self.label1.get_horizontalalignment()
+                va = self.label1.get_verticalalignment()
             else:
                 ha, va = self._determine_anchor(mode, angle, direction > 0)
             self.label1.set_ha(ha)

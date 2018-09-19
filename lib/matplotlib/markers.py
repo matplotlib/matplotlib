@@ -150,7 +150,7 @@ Examples showing the use of markers:
 .. |m37| image:: /_static/markers/m37.png
 """
 
-from collections import Sized
+from collections.abc import Sized
 from numbers import Number
 
 import numpy as np

@@ -26,18 +26,18 @@ def demo_simple_image(ax):
     plt.setp(cb.ax.get_yticklabels(), visible=False)
 
 
-def demo_locatable_axes_hard(fig1):
+def demo_locatable_axes_hard(fig):
 
-    from mpl_toolkits.axes_grid1 \
-        import SubplotDivider, LocatableAxes, Size
+    from mpl_toolkits.axes_grid1 import SubplotDivider, Size
+    from mpl_toolkits.axes_grid1.mpl_axes import Axes
 
-    divider = SubplotDivider(fig1, 2, 2, 2, aspect=True)
+    divider = SubplotDivider(fig, 2, 2, 2, aspect=True)
 
     # axes for image
-    ax = LocatableAxes(fig1, divider.get_position())
+    ax = Axes(fig, divider.get_position())
 
     # axes for colorbar
-    ax_cb = LocatableAxes(fig1, divider.get_position())
+    ax_cb = Axes(fig, divider.get_position())
 
     h = [Size.AxesX(ax),  # main axes
          Size.Fixed(0.05),  # padding, 0.1 inch
@@ -52,8 +52,8 @@ def demo_locatable_axes_hard(fig1):
     ax.set_axes_locator(divider.new_locator(nx=0, ny=0))
     ax_cb.set_axes_locator(divider.new_locator(nx=2, ny=0))
 
-    fig1.add_axes(ax)
-    fig1.add_axes(ax_cb)
+    fig.add_axes(ax)
+    fig.add_axes(ax_cb)
 
     ax_cb.axis["left"].toggle(all=False)
     ax_cb.axis["right"].toggle(ticks=True)
@@ -71,8 +71,8 @@ def demo_locatable_axes_easy(ax):
     divider = make_axes_locatable(ax)
 
     ax_cb = divider.new_horizontal(size="5%", pad=0.05)
-    fig1 = ax.get_figure()
-    fig1.add_axes(ax_cb)
+    fig = ax.get_figure()
+    fig.add_axes(ax_cb)
 
     Z, extent = get_demo_image()
     im = ax.imshow(Z, extent=extent, interpolation="nearest")
@@ -99,34 +99,32 @@ def demo_images_side_by_side(ax):
 
 def demo():
 
-    fig1 = plt.figure(1, (6, 6))
-    fig1.clf()
+    fig = plt.figure(figsize=(6, 6))
 
     # PLOT 1
     # simple image & colorbar
-    ax = fig1.add_subplot(2, 2, 1)
+    ax = fig.add_subplot(2, 2, 1)
     demo_simple_image(ax)
 
     # PLOT 2
     # image and colorbar whose location is adjusted in the drawing time.
     # a hard way
 
-    demo_locatable_axes_hard(fig1)
+    demo_locatable_axes_hard(fig)
 
     # PLOT 3
     # image and colorbar whose location is adjusted in the drawing time.
     # a easy way
 
-    ax = fig1.add_subplot(2, 2, 3)
+    ax = fig.add_subplot(2, 2, 3)
     demo_locatable_axes_easy(ax)
 
     # PLOT 4
     # two images side by side with fixed padding.
 
-    ax = fig1.add_subplot(2, 2, 4)
+    ax = fig.add_subplot(2, 2, 4)
     demo_images_side_by_side(ax)
 
-    plt.draw()
     plt.show()
 
 

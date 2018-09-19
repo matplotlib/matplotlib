@@ -33,8 +33,8 @@ import uuid
 
 import numpy as np
 
-from matplotlib._animation_data import (DISPLAY_TEMPLATE, INCLUDED_FRAMES,
-                                        JS_INCLUDE)
+from matplotlib._animation_data import (
+    DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
 from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
 
 
@@ -735,9 +735,16 @@ class ImageMagickBase(object):
                                         0, winreg.KEY_QUERY_VALUE | flag)
                 binpath = winreg.QueryValueEx(hkey, 'BinPath')[0]
                 winreg.CloseKey(hkey)
-                binpath += r'\convert.exe'
                 break
             except Exception:
+                binpath = ''
+        if binpath:
+            for exe in ('convert.exe', 'magick.exe'):
+                path = os.path.join(binpath, exe)
+                if os.path.exists(path):
+                    binpath = path
+                    break
+            else:
                 binpath = ''
         rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
 
@@ -839,18 +846,19 @@ class HTMLWriter(FileMovieWriter):
         self._bytes_limit *= 1024 * 1024
 
         if self.default_mode not in ['loop', 'once', 'reflect']:
-            self.default_mode = 'loop'
-            _log.warning("unrecognized default_mode: using 'loop'")
+            raise ValueError(
+                "unrecognized default_mode {!r}".format(self.default_mode))
 
-        self._saved_frames = []
-        self._total_bytes = 0
-        self._hit_limit = False
         super().__init__(fps, codec, bitrate, extra_args, metadata)
 
     def setup(self, fig, outfile, dpi, frame_dir=None):
         root, ext = os.path.splitext(outfile)
         if ext not in ['.html', '.htm']:
             raise ValueError("outfile must be *.htm or *.html")
+
+        self._saved_frames = []
+        self._total_bytes = 0
+        self._hit_limit = False
 
         if not self.embed_frames:
             if frame_dir is None:
@@ -868,7 +876,6 @@ class HTMLWriter(FileMovieWriter):
             # Just stop processing if we hit the limit
             if self._hit_limit:
                 return
-            suffix = '.' + self.frame_format
             f = BytesIO()
             self.fig.savefig(f, format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
@@ -902,11 +909,12 @@ class HTMLWriter(FileMovieWriter):
         if self.embed_frames:
             fill_frames = _embedded_frames(self._saved_frames,
                                            self.frame_format)
+            Nframes = len(self._saved_frames)
         else:
             # temp names is filled by FileMovieWriter
             fill_frames = _included_frames(self._temp_names,
                                            self.frame_format)
-
+            Nframes = len(self._temp_names)
         mode_dict = dict(once_checked='',
                          loop_checked='',
                          reflect_checked='')
@@ -915,9 +923,9 @@ class HTMLWriter(FileMovieWriter):
         interval = 1000 // self.fps
 
         with open(self.outfile, 'w') as of:
-            of.write(JS_INCLUDE)
+            of.write(JS_INCLUDE + STYLE_INCLUDE)
             of.write(DISPLAY_TEMPLATE.format(id=uuid.uuid4().hex,
-                                             Nframes=len(self._temp_names),
+                                             Nframes=Nframes,
                                              fill_frames=fill_frames,
                                              interval=interval,
                                              **mode_dict))
@@ -1124,7 +1132,8 @@ class Animation(object):
                                          extra_args=extra_args,
                                          metadata=metadata)
             else:
-                _log.warning("MovieWriter %s unavailable.", writer)
+                _log.warning("MovieWriter {} unavailable. Trying to use {} "
+                             "instead.".format(writer, writers.list()[0]))
 
                 try:
                     writer = writers[writers.list()[0]](fps, codec, bitrate,
@@ -1634,7 +1643,7 @@ class FuncAnimation(TimedAnimation):
             self._iter_gen = itertools.count
         elif callable(frames):
             self._iter_gen = frames
-        elif cbook.iterable(frames):
+        elif np.iterable(frames):
             self._iter_gen = lambda: iter(frames)
             if hasattr(frames, '__len__'):
                 self.save_count = len(frames)
@@ -1725,11 +1734,13 @@ class FuncAnimation(TimedAnimation):
 
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
-        self._drawn_artists = sorted(self._func(framedata, *self._args),
-                                     key=lambda x: x.get_zorder())
+        self._drawn_artists = self._func(framedata, *self._args)
         if self._blit:
             if self._drawn_artists is None:
                 raise RuntimeError('The animation function must return a '
                                    'sequence of Artist objects.')
+            self._drawn_artists = sorted(self._drawn_artists,
+                                         key=lambda x: x.get_zorder())
+
             for a in self._drawn_artists:
                 a.set_animated(self._blit)

@@ -35,12 +35,14 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
         tk.call("PyAggImagePhoto", photoimage,
                 dataptr, colormode, bboxptr)
 
+
 def test(aggimage):
     r = Tk.Tk()
     c = Tk.Canvas(r, width=aggimage.width, height=aggimage.height)
     c.pack()
     p = Tk.PhotoImage(width=aggimage.width, height=aggimage.height)
     blit(p, aggimage)
-    c.create_image(aggimage.width,aggimage.height,image=p)
+    c.create_image(aggimage.width, aggimage.height, image=p)
     blit(p, aggimage)
-    while True: r.update_idletasks()
+    while True:
+        r.update_idletasks()

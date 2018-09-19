@@ -11,8 +11,6 @@ line segemnts)
 
 import math
 from numbers import Number
-import warnings
-
 import numpy as np
 
 import matplotlib as mpl
@@ -271,8 +269,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 gc.set_hatch_color(self._hatch_color)
             except AttributeError:
                 # if we end up with a GC that does not have this method
-                warnings.warn("Your backend does not support setting the "
-                              "hatch color.")
+                cbook.warn_deprecated(
+                    "3.1", "Your backend does not support setting the hatch "
+                    "color; such backends will become unsupported in "
+                    "Matplotlib 3.3.")
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -689,7 +689,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def get_edgecolor(self):
         if cbook._str_equal(self._edgecolors, 'face'):
-            return self.get_facecolors()
+            return self.get_facecolor()
         else:
             return self._edgecolors
 
@@ -964,7 +964,7 @@ class PolyCollection(_CollectionWithSizes):
 
     def set_verts_and_codes(self, verts, codes):
         '''This allows one to initialize vertices with path codes.'''
-        if (len(verts) != len(codes)):
+        if len(verts) != len(codes):
             raise ValueError("'codes' must be a 1D list or array "
                              "with the same length of 'verts'")
         self._paths = []

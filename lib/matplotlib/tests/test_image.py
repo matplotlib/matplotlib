@@ -1,7 +1,9 @@
+from contextlib import ExitStack
 from copy import copy
 import io
 import os
 import sys
+import platform
 import urllib.request
 import warnings
 
@@ -18,14 +20,6 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 
 import pytest
-
-
-try:
-    from PIL import Image
-    HAS_PIL = True
-except ImportError:
-    HAS_PIL = False
-needs_pillow = pytest.mark.xfail(not HAS_PIL, reason='Test requires Pillow')
 
 
 @image_comparison(baseline_images=['image_interps'], style='mpl20')
@@ -71,21 +65,21 @@ def test_interp_nearest_vs_none():
 
 def do_figimage(suppressComposite):
     """ Helper for the next two tests """
-    fig = plt.figure(figsize=(2,2), dpi=100)
+    fig = plt.figure(figsize=(2, 2), dpi=100)
     fig.suppressComposite = suppressComposite
-    x,y = np.ix_(np.arange(100.0)/100.0, np.arange(100.0)/100.0)
+    x, y = np.ix_(np.arange(100) / 100.0, np.arange(100) / 100)
     z = np.sin(x**2 + y**2 - x*y)
     c = np.sin(20*x**2 + 50*y**2)
     img = z + c/5
 
     fig.figimage(img, xo=0, yo=0, origin='lower')
-    fig.figimage(img[::-1,:], xo=0, yo=100, origin='lower')
-    fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
-    fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
+    fig.figimage(img[::-1, :], xo=0, yo=100, origin='lower')
+    fig.figimage(img[:, ::-1], xo=100, yo=0, origin='lower')
+    fig.figimage(img[::-1, ::-1], xo=100, yo=100, origin='lower')
 
 
 @image_comparison(baseline_images=['figimage-0'],
-                  extensions=['png','pdf'])
+                  extensions=['png', 'pdf'])
 def test_figimage0():
     'test the figimage method'
 
@@ -94,7 +88,7 @@ def test_figimage0():
 
 
 @image_comparison(baseline_images=['figimage-1'],
-                  extensions=['png','pdf'])
+                  extensions=['png', 'pdf'])
 def test_figimage1():
     'test the figimage method'
     suppressComposite = True
@@ -103,15 +97,15 @@ def test_figimage1():
 
 def test_image_python_io():
     fig, ax = plt.subplots()
-    ax.plot([1,2,3])
+    ax.plot([1, 2, 3])
     buffer = io.BytesIO()
     fig.savefig(buffer)
     buffer.seek(0)
     plt.imread(buffer)
 
 
-@needs_pillow
 def test_imread_pil_uint16():
+    pytest.importorskip("PIL")
     img = plt.imread(os.path.join(os.path.dirname(__file__),
                      'baseline_images', 'test_image', 'uint16.tif'))
     assert img.dtype == np.uint16
@@ -119,8 +113,8 @@ def test_imread_pil_uint16():
 
 
 @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
-@needs_pillow
 def test_imread_fspath():
+    pytest.importorskip("PIL")
     from pathlib import Path
     img = plt.imread(
         Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
@@ -283,12 +277,12 @@ def test_image_cliprect():
     import matplotlib.patches as patches
 
     fig, ax = plt.subplots()
-    d = [[1,2],[3,4]]
+    d = [[1, 2], [3, 4]]
 
-    im = ax.imshow(d, extent=(0,5,0,5))
+    im = ax.imshow(d, extent=(0, 5, 0, 5))
 
     rect = patches.Rectangle(
-        xy=(1,1), width=2, height=2, transform=im.axes.transData)
+        xy=(1, 1), width=2, height=2, transform=im.axes.transData)
     im.set_clip_path(rect)
 
 
@@ -296,9 +290,9 @@ def test_image_cliprect():
 def test_imshow():
     fig, ax = plt.subplots()
     arr = np.arange(100).reshape((10, 10))
-    ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))
-    ax.set_xlim(0,3)
-    ax.set_ylim(0,3)
+    ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
+    ax.set_xlim(0, 3)
+    ax.set_ylim(0, 3)
 
 
 @image_comparison(baseline_images=['no_interpolation_origin'],
@@ -409,10 +403,10 @@ def test_rasterize_dpi():
 
     axes[0].imshow(img)
 
-    axes[1].plot([0,1], [0,1], linewidth=20., rasterized=True)
+    axes[1].plot([0, 1], [0, 1], linewidth=20., rasterized=True)
     axes[1].set(xlim=(0, 1), ylim=(-1, 2))
 
-    axes[2].plot([0,1], [0,1], linewidth=20.)
+    axes[2].plot([0, 1], [0, 1], linewidth=20.)
     axes[2].set(xlim=(0, 1), ylim=(-1, 2))
 
     # Low-dpi PDF rasterization errors prevent proper image comparison tests.
@@ -497,8 +491,8 @@ def test_nonuniformimage_setnorm():
     im.set_norm(plt.Normalize())
 
 
-@needs_pillow
 def test_jpeg_2d():
+    Image = pytest.importorskip('PIL.Image')
     # smoke test that mode-L pillow images work.
     imd = np.ones((10, 10), dtype='uint8')
     for i in range(10):
@@ -509,8 +503,9 @@ def test_jpeg_2d():
     ax.imshow(im)
 
 
-@needs_pillow
 def test_jpeg_alpha():
+    Image = pytest.importorskip('PIL.Image')
+
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
     # the alpha channel from left to right.
@@ -678,7 +673,7 @@ def test_image_preserve_size2():
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
     ax.set_axis_off()
     fig.add_axes(ax)
-    ax.imshow(data, interpolation='nearest', origin='lower',aspect='auto')
+    ax.imshow(data, interpolation='nearest', origin='lower', aspect='auto')
     buff = io.BytesIO()
     fig.savefig(buff, dpi=1)
 
@@ -762,6 +757,7 @@ def test_imshow_endianess():
 
 
 @image_comparison(baseline_images=['imshow_masked_interpolation'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 
@@ -841,7 +837,7 @@ def test_imshow_bignumbers():
     # putting a big number in an array of integers shouldn't
     # ruin the dynamic range of the resolved bits.
     fig, ax = plt.subplots()
-    img = np.array([[1, 2, 1e12],[3, 1, 4]], dtype=np.uint64)
+    img = np.array([[1, 2, 1e12], [3, 1, 4]], dtype=np.uint64)
     pc = ax.imshow(img)
     pc.set_clim(0, 5)
 
@@ -853,7 +849,7 @@ def test_imshow_bignumbers_real():
     # putting a big number in an array of integers shouldn't
     # ruin the dynamic range of the resolved bits.
     fig, ax = plt.subplots()
-    img = np.array([[2., 1., 1.e22],[4., 1., 3.]])
+    img = np.array([[2., 1., 1.e22], [4., 1., 3.]])
     pc = ax.imshow(img)
     pc.set_clim(0, 5)
 
@@ -880,8 +876,10 @@ def test_empty_imshow(make_norm):
 def test_imshow_float128():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((3, 3), dtype=np.longdouble))
-    # Ensure that drawing doesn't cause crash
-    fig.canvas.draw()
+    with (ExitStack() if np.can_cast(np.longdouble, np.float64, "equiv")
+          else pytest.warns(UserWarning)):
+        # Ensure that drawing doesn't cause crash.
+        fig.canvas.draw()
 
 
 def test_imshow_bool():

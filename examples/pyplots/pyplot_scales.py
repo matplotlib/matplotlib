@@ -22,7 +22,7 @@ y.sort()
 x = np.arange(len(y))
 
 # plot with various axes scales
-plt.figure(1)
+plt.figure()
 
 # linear
 plt.subplot(221)

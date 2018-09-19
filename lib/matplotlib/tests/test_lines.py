@@ -2,7 +2,6 @@
 Tests specific to the lines module.
 """
 
-from io import BytesIO
 import itertools
 import timeit
 

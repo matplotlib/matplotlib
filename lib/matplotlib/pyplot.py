@@ -5,8 +5,8 @@
 `matplotlib.pyplot` is a state-based interface to matplotlib. It provides
 a MATLAB-like way of plotting.
 
-pyplot is mainly intended for interactive plots and simple cases of programmatic
-plot generation::
+pyplot is mainly intended for interactive plots and simple cases of
+programmatic plot generation::
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -18,7 +18,9 @@ plot generation::
 The object-oriented API is recommended for more complex plots.
 """
 
+import importlib
 import inspect
+import logging
 from numbers import Number
 import re
 import sys
@@ -29,7 +31,7 @@ from cycler import cycler
 import matplotlib
 import matplotlib.colorbar
 import matplotlib.image
-from matplotlib import style
+from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import (
     dedent, deprecated, silent_list, warn_deprecated, _string_to_bool)
@@ -37,7 +39,7 @@ from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec
-from matplotlib import rcParams, rcParamsDefault, get_backend
+from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
 from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
@@ -65,52 +67,13 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            Locator, IndexLocator, FixedLocator, NullLocator,\
            LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
            MaxNLocator
-from matplotlib.backends import pylab_setup
+from matplotlib.backends import pylab_setup, _get_running_interactive_framework
 
-
-## Backend detection ##
-
-
-def _backend_selection():
-    """
-    If rcParams['backend_fallback'] is true, check to see if the
-    current backend is compatible with the current running event loop,
-    and if not switches to a compatible one.
-    """
-    backend = rcParams['backend']
-    if not rcParams['backend_fallback'] or backend not in _interactive_bk:
-        return
-    is_agg_backend = rcParams['backend'].endswith('Agg')
-    if 'wx' in sys.modules and backend not in ('WX', 'WXAgg'):
-        import wx
-        if wx.App.IsMainLoopRunning():
-            rcParams['backend'] = 'wx' + 'Agg' * is_agg_backend
-    elif 'PyQt4.QtCore' in sys.modules and not backend == 'Qt4Agg':
-        import PyQt4.QtGui
-        if not PyQt4.QtGui.qApp.startingUp():
-            # The mainloop is running.
-            rcParams['backend'] = 'qt4Agg'
-    elif 'PyQt5.QtCore' in sys.modules and not backend == 'Qt5Agg':
-        import PyQt5.QtWidgets
-        if not PyQt5.QtWidgets.qApp.startingUp():
-            # The mainloop is running.
-            rcParams['backend'] = 'qt5Agg'
-    elif 'gtk' in sys.modules and 'gi' in sys.modules:
-        from gi.repository import GLib
-        if GLib.MainLoop().is_running():
-            rcParams['backend'] = 'GTK3Agg'
-    elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
-        # import Tkinter
-        pass  # what if anything do we need to do for tkinter?
-
-
-_backend_selection()
+_log = logging.getLogger(__name__)
 
 
 ## Global ##
 
-
-_backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 _IP_REGISTERED = None
 _INSTALL_FIG_OBSERVER = False
@@ -213,21 +176,61 @@ def findobj(o=None, match=None, include_self=True):
 
 def switch_backend(newbackend):
     """
-    Switch the default backend.  This feature is **experimental**, and
-    is only expected to work switching to an image backend.  e.g., if
-    you have a bunch of PostScript scripts that you want to run from
-    an interactive ipython session, you may want to switch to the PS
-    backend before running them to avoid having a bunch of GUI windows
-    popup.  If you try to interactively switch from one GUI backend to
-    another, you will explode.
+    Close all open figures and set the Matplotlib backend.
 
-    Calling this command will close all open windows.
+    The argument is case-insensitive.  Switching to an interactive backend is
+    possible only if no event loop for another interactive backend has started.
+    Switching to and from non-interactive backends is always possible.
+
+    Parameters
+    ----------
+    newbackend : str
+        The name of the backend to use.
     """
-    close('all')
+    close("all")
+
+    if newbackend is rcsetup._auto_backend_sentinel:
+        for candidate in ["macosx", "qt5agg", "qt4agg", "gtk3agg", "gtk3cairo",
+                          "tkagg", "wxagg", "agg", "cairo"]:
+            try:
+                switch_backend(candidate)
+            except ImportError:
+                continue
+            else:
+                rcParamsOrig['backend'] = candidate
+                return
+
+    backend_name = (
+        newbackend[9:] if newbackend.startswith("module://")
+        else "matplotlib.backends.backend_{}".format(newbackend.lower()))
+
+    backend_mod = importlib.import_module(backend_name)
+    Backend = type(
+        "Backend", (matplotlib.backends._Backend,), vars(backend_mod))
+    _log.debug("Loaded backend %s version %s.",
+               newbackend, Backend.backend_version)
+
+    required_framework = Backend.required_interactive_framework
+    current_framework = \
+        matplotlib.backends._get_running_interactive_framework()
+    if (current_framework and required_framework
+            and current_framework != required_framework):
+        raise ImportError(
+            "Cannot load backend {!r} which requires the {!r} interactive "
+            "framework, as {!r} is currently running".format(
+                newbackend, required_framework, current_framework))
+
+    rcParams['backend'] = rcParamsDefault['backend'] = newbackend
+
     global _backend_mod, new_figure_manager, draw_if_interactive, _show
-    matplotlib.use(newbackend, warn=False, force=True)
-    from matplotlib.backends import pylab_setup
-    _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
+    _backend_mod = backend_mod
+    new_figure_manager = Backend.new_figure_manager
+    draw_if_interactive = Backend.draw_if_interactive
+    _show = Backend.show
+
+    # Need to keep a global reference to the backend for compatibility reasons.
+    # See https://github.com/matplotlib/matplotlib/issues/6092
+    matplotlib.backends.backend = newbackend
 
 
 def show(*args, **kw):
@@ -453,10 +456,10 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     Returns
     -------
     figure : `~matplotlib.figure.Figure`
-        The `.Figure` instance returned will also be passed to new_figure_manager
-        in the backends, which allows to hook custom `.Figure` classes into the
-        pyplot interface. Additional kwargs will be passed to the `.Figure`
-        init function.
+        The `.Figure` instance returned will also be passed to
+        new_figure_manager in the backends, which allows to hook custom
+        `.Figure` classes into the pyplot interface. Additional kwargs will be
+        passed to the `.Figure` init function.
 
     Notes
     -----
@@ -733,41 +736,9 @@ def figimage(*args, **kwargs):
 
 
 def figlegend(*args, **kwargs):
-    """
-    Place a legend in the figure.
-
-    *labels*
-      a sequence of strings
-
-    *handles*
-      a sequence of :class:`~matplotlib.lines.Line2D` or
-      :class:`~matplotlib.patches.Patch` instances
-
-    *loc*
-      can be a string or an integer specifying the legend
-      location
-
-    A :class:`matplotlib.legend.Legend` instance is returned.
-
-    Examples
-    --------
-
-    To make a legend from existing artists on every axes::
-
-      figlegend()
-
-    To make a legend for a list of lines and labels::
-
-      figlegend( (line1, line2, line3),
-                 ('label1', 'label2', 'label3'),
-                 'upper right' )
-
-    .. seealso::
-
-       :func:`~matplotlib.pyplot.legend`
-
-    """
     return gcf().legend(*args, **kwargs)
+if Figure.legend.__doc__:
+    figlegend.__doc__ = Figure.legend.__doc__.replace("legend(", "figlegend(")
 
 
 ## Axes ##
@@ -861,10 +832,10 @@ def axes(arg=None, **kwargs):
     --------
     ::
 
-        #Creating a new full window axes
+        # Creating a new full window axes
         plt.axes()
 
-        #Creating a new axes with specified dimensions and some kwargs
+        # Creating a new axes with specified dimensions and some kwargs
         plt.axes((left, bottom, width, height), facecolor='w')
     """
 
@@ -1055,10 +1026,10 @@ def subplot(*args, **kwargs):
         # add a red subplot that shares the x-axis with ax1
         plt.subplot(224, sharex=ax1, facecolor='red')
 
-        #delete ax2 from the figure
+        # delete ax2 from the figure
         plt.delaxes(ax2)
 
-        #add ax2 to the figure again
+        # add ax2 to the figure again
         plt.subplot(ax2)
         """
 
@@ -1165,40 +1136,40 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     --------
     ::
 
-        #First create some toy data:
+        # First create some toy data:
         x = np.linspace(0, 2*np.pi, 400)
         y = np.sin(x**2)
 
-        #Creates just a figure and only one subplot
+        # Creates just a figure and only one subplot
         fig, ax = plt.subplots()
         ax.plot(x, y)
         ax.set_title('Simple plot')
 
-        #Creates two subplots and unpacks the output array immediately
+        # Creates two subplots and unpacks the output array immediately
         f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
         ax1.plot(x, y)
         ax1.set_title('Sharing Y axis')
         ax2.scatter(x, y)
 
-        #Creates four polar axes, and accesses them through the returned array
+        # Creates four polar axes, and accesses them through the returned array
         fig, axes = plt.subplots(2, 2, subplot_kw=dict(polar=True))
         axes[0, 0].plot(x, y)
         axes[1, 1].scatter(x, y)
 
-        #Share a X axis with each column of subplots
+        # Share a X axis with each column of subplots
         plt.subplots(2, 2, sharex='col')
 
-        #Share a Y axis with each row of subplots
+        # Share a Y axis with each row of subplots
         plt.subplots(2, 2, sharey='row')
 
-        #Share both X and Y axes with all subplots
+        # Share both X and Y axes with all subplots
         plt.subplots(2, 2, sharex='all', sharey='all')
 
-        #Note that this is the same as
+        # Note that this is the same as
         plt.subplots(2, 2, sharex=True, sharey=True)
 
-        #Creates figure number 10 with a single subplot
-        #and clears it if it already exists.
+        # Creates figure number 10 with a single subplot
+        # and clears it if it already exists.
         fig, ax=plt.subplots(num=10, clear=True)
 
     See Also
@@ -1316,14 +1287,14 @@ def subplots_adjust(left=None, bottom=None, right=None, top=None,
 
     The parameter meanings (and suggested defaults) are::
 
-      left  = 0.125  # the left side of the subplots of the figure
-      right = 0.9    # the right side of the subplots of the figure
-      bottom = 0.1   # the bottom of the subplots of the figure
-      top = 0.9      # the top of the subplots of the figure
-      wspace = 0.2   # the amount of width reserved for space between subplots,
-                     # expressed as a fraction of the average axis width
-      hspace = 0.2   # the amount of height reserved for space between subplots,
-                     # expressed as a fraction of the average axis height
+      left = 0.125  # the left side of the subplots of the figure
+      right = 0.9   # the right side of the subplots of the figure
+      bottom = 0.1  # the bottom of the subplots of the figure
+      top = 0.9     # the top of the subplots of the figure
+      wspace = 0.2  # the amount of width reserved for space between subplots,
+                    # expressed as a fraction of the average axis width
+      hspace = 0.2  # the amount of height reserved for space between subplots,
+                    # expressed as a fraction of the average axis height
 
     The actual defaults are controlled by the rc file
     """
@@ -1337,7 +1308,7 @@ def subplot_tool(targetfig=None):
 
     A :class:`matplotlib.widgets.SubplotTool` instance is returned.
     """
-    tbar = rcParams['toolbar'] # turn off the navigation toolbar for the toolfig
+    tbar = rcParams['toolbar']  # turn off navigation toolbar for the toolfig
     rcParams['toolbar'] = 'None'
     if targetfig is None:
         manager = get_current_fig_manager()
@@ -1350,9 +1321,9 @@ def subplot_tool(targetfig=None):
         else:
             raise RuntimeError('Could not find manager for targetfig')
 
-    toolfig = figure(figsize=(6,3))
+    toolfig = figure(figsize=(6, 3))
     toolfig.subplots_adjust(top=0.9)
-    ret =  SubplotTool(targetfig, toolfig)
+    ret = SubplotTool(targetfig, toolfig)
     rcParams['toolbar'] = tbar
     _pylab_helpers.Gcf.set_active(manager)  # restore the current figure
     return ret
@@ -1629,6 +1600,7 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     return locs, silent_list('Text yticklabel', labels)
 
+
 def rgrids(*args, **kwargs):
     """
     Get or set the radial gridlines on the current polar plot.
@@ -1684,20 +1656,18 @@ def rgrids(*args, **kwargs):
     .projections.polar.PolarAxes.set_rgrids
     .Axis.get_gridlines
     .Axis.get_ticklabels
-
-
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('rgrids only defined for polar axes')
-    if len(args)==0:
+    if len(args) == 0:
         lines = ax.yaxis.get_gridlines()
         labels = ax.yaxis.get_ticklabels()
     else:
         lines, labels = ax.set_rgrids(*args, **kwargs)
+    return (silent_list('Line2D rgridline', lines),
+            silent_list('Text rgridlabel', labels))
 
-    return ( silent_list('Line2D rgridline', lines),
-             silent_list('Text rgridlabel', labels) )
 
 def thetagrids(*args, **kwargs):
     """
@@ -1755,15 +1725,13 @@ def thetagrids(*args, **kwargs):
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('thetagrids only defined for polar axes')
-    if len(args)==0:
+    if len(args) == 0:
         lines = ax.xaxis.get_ticklines()
         labels = ax.xaxis.get_ticklabels()
     else:
         lines, labels = ax.set_thetagrids(*args, **kwargs)
-
     return (silent_list('Line2D thetagridline', lines),
-            silent_list('Text thetagridlabel', labels)
-            )
+            silent_list('Text thetagridlabel', labels))
 
 
 ## Plotting Info ##
@@ -1796,7 +1764,8 @@ def colormaps():
     """
     Matplotlib provides a number of colormaps, and others can be added using
     :func:`~matplotlib.cm.register_cmap`.  This function documents the built-in
-    colormaps, and will also return a list of all registered colormaps if called.
+    colormaps, and will also return a list of all registered colormaps if
+    called.
 
     You can set the colormap for an image, pcolor, scatter, etc,
     using a keyword argument::
@@ -1952,14 +1921,16 @@ def colormaps():
 
     A set of cyclic color maps:
 
-      ================  =========================================================
+      ================  =================================================
       Colormap          Description
-      ================  =========================================================
-      hsv               red-yellow-green-cyan-blue-magenta-red, formed by changing
-                        the hue component in the HSV color space
-      twilight          perceptually uniform shades of white-blue-black-red-white
-      twilight_shifted  perceptually uniform shades of black-blue-white-red-black
-      ================  =========================================================
+      ================  =================================================
+      hsv               red-yellow-green-cyan-blue-magenta-red, formed by
+                        changing the hue component in the HSV color space
+      twilight          perceptually uniform shades of
+                        white-blue-black-red-white
+      twilight_shifted  perceptually uniform shades of
+                        black-blue-white-red-black
+      ================  =================================================
 
 
     Other miscellaneous schemes:
@@ -2090,8 +2061,7 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
                                'with contourf).')
     if ax is None:
         ax = gca()
-
-    ret = gcf().colorbar(mappable, cax = cax, ax=ax, **kw)
+    ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kw)
     return ret
 colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
@@ -2195,9 +2165,10 @@ def matshow(A, fignum=None, **kwargs):
     if fignum is False or fignum is 0:
         ax = gca()
     else:
-        # Extract actual aspect ratio of array and make appropriately sized figure
+        # Extract actual aspect ratio of array and make appropriately sized
+        # figure.
         fig = figure(fignum, figsize=figaspect(A))
-        ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
+        ax = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
     im = ax.matshow(A, **kwargs)
     sci(im)
@@ -2287,11 +2258,11 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     else:
         fig = gcf()
 
-    if len(cols)<1:
+    if len(cols) < 1:
         raise ValueError('must have at least one column of data')
 
     if plotfuncs is None:
-        plotfuncs = dict()
+        plotfuncs = {}
     from matplotlib.cbook import MatplotlibDeprecationWarning
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
@@ -2311,22 +2282,22 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     xname, x = getname_val(cols[0])
     ynamelist = []
 
-    if len(cols)==1:
-        ax1 = fig.add_subplot(1,1,1)
+    if len(cols) == 1:
+        ax1 = fig.add_subplot(1, 1, 1)
         funcname = plotfuncs.get(cols[0], 'plot')
         func = getattr(ax1, funcname)
         func(x, **kwargs)
         ax1.set_ylabel(xname)
     else:
         N = len(cols)
-        for i in range(1,N):
+        for i in range(1, N):
             if subplots:
-                if i==1:
-                    ax = ax1 = fig.add_subplot(N-1,1,i)
+                if i == 1:
+                    ax = ax1 = fig.add_subplot(N - 1, 1, i)
                 else:
-                    ax = fig.add_subplot(N-1,1,i, sharex=ax1)
-            elif i==1:
-                ax = fig.add_subplot(1,1,1)
+                    ax = fig.add_subplot(N - 1, 1, i, sharex=ax1)
+            elif i == 1:
+                ax = fig.add_subplot(1, 1, 1)
 
             yname, y = getname_val(cols[i])
             ynamelist.append(yname)
@@ -2345,7 +2316,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     if not subplots:
         ax.legend(ynamelist)
 
-    if xname=='date':
+    if xname == 'date':
         fig.autofmt_xdate()
 
 
@@ -2357,7 +2328,17 @@ def _autogen_docstring(base):
     return lambda func: addendum(docstring.copy_dedent(base)(func))
 
 
-# just to be safe.  Interactive mode can be turned on without
+# If rcParams['backend_fallback'] is true, and an interactive backend is
+# requested, ignore rcParams['backend'] and force selection of a backend that
+# is compatible with the current running interactive framework.
+if (rcParams["backend_fallback"]
+        and dict.__getitem__(rcParams, "backend") in _interactive_bk
+        and _get_running_interactive_framework()):
+    dict.__setitem__(rcParams, "backend", rcsetup._auto_backend_sentinel)
+# Set up the backend.
+switch_backend(rcParams["backend"])
+
+# Just to be safe.  Interactive mode can be turned on without
 # calling `plt.ion()` so register it again here.
 # This is safe because multiple calls to `install_repl_displayhook`
 # are no-ops and the registered function respect `mpl.is_interactive()`
@@ -3157,4 +3138,5 @@ def nipy_spectral():
     image if there is one. See ``help(colormaps)`` for more information.
     """
     set_cmap("nipy_spectral")
+
 _setup_pyplot_info_docstrings()

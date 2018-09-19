@@ -115,11 +115,10 @@ See Matplotlib `INSTALL.rst` file for more information:
 """)
 
 import atexit
-from collections import MutableMapping
+from collections.abc import MutableMapping
 import contextlib
 import distutils.version
 import functools
-import io
 import importlib
 import inspect
 from inspect import Parameter
@@ -130,7 +129,6 @@ from pathlib import Path
 import pprint
 import re
 import shutil
-import stat
 import subprocess
 import tempfile
 import urllib.request
@@ -138,7 +136,7 @@ import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import cbook
+from . import cbook, rcsetup
 from matplotlib.cbook import (
     MatplotlibDeprecationWarning, dedent, get_label, sanitize_sequence)
 from matplotlib.cbook import mplDeprecation  # deprecated
@@ -153,8 +151,6 @@ __version__ = str(get_versions()['version'])
 del get_versions
 
 _log = logging.getLogger(__name__)
-
-__version__numpy__ = '1.10.0'  # minimum required numpy version
 
 __bibtex__ = r"""@Article{Hunter:2007,
   Author    = {Hunter, J. D.},
@@ -176,11 +172,11 @@ def compare_versions(a, b):
     "return True if a is greater than or equal to b"
     if isinstance(a, bytes):
         cbook.warn_deprecated(
-            "3.0", "compare_version arguments should be strs.")
+            "3.0", "compare_versions arguments should be strs.")
         a = a.decode('ascii')
     if isinstance(b, bytes):
         cbook.warn_deprecated(
-            "3.0", "compare_version arguments should be strs.")
+            "3.0", "compare_versions arguments should be strs.")
         b = b.decode('ascii')
     if a:
         a = distutils.version.LooseVersion(a)
@@ -190,27 +186,21 @@ def compare_versions(a, b):
         return False
 
 
-try:
-    import dateutil
-except ImportError:
-    raise ImportError("Matplotlib requires dateutil")
+def _check_versions():
+    for modname, minver in [
+            ("cycler", "0.10"),
+            ("dateutil", "2.1"),
+            ("kiwisolver", "1.0.1"),
+            ("numpy", "1.10"),
+            ("pyparsing", "2.0.1"),
+    ]:
+        module = importlib.import_module(modname)
+        if distutils.version.LooseVersion(module.__version__) < minver:
+            raise ImportError("Matplotlib requires {}>={}; you have {}"
+                              .format(modname, minver, module.__version__))
 
 
-try:
-    import pyparsing
-except ImportError:
-    raise ImportError("Matplotlib requires pyparsing")
-else:
-    if not compare_versions(pyparsing.__version__, '2.0.1'):
-        raise ImportError(
-            "Matplotlib requires pyparsing>=2.0.1; you have %s"
-            % pyparsing.__version__)
-
-
-if not compare_versions(numpy.__version__, __version__numpy__):
-    raise ImportError(
-        "Matplotlib requires numpy>=%s; you have %s" % (
-            __version__numpy__, numpy.__version__))
+_check_versions()
 
 
 if not hasattr(sys, 'argv'):  # for modpython
@@ -446,8 +436,9 @@ def checkdep_ghostscript():
                 stdout, stderr = s.communicate()
                 if s.returncode == 0:
                     v = stdout[:-1].decode('ascii')
-                    checkdep_ghostscript.executable = gs_exec
-                    checkdep_ghostscript.version = v
+                    if compare_versions(v, '9.0'):
+                        checkdep_ghostscript.executable = gs_exec
+                        checkdep_ghostscript.version = v
             except (IndexError, ValueError, OSError):
                 pass
     return checkdep_ghostscript.executable, checkdep_ghostscript.version
@@ -493,13 +484,12 @@ def checkdep_ps_distiller(s):
         return False
 
     flag = True
-    gs_req = '8.60'
     gs_exec, gs_v = checkdep_ghostscript()
-    if not compare_versions(gs_v, gs_req):
+    if not gs_exec:
         flag = False
-        warnings.warn(('matplotlibrc ps.usedistiller option can not be used '
-                       'unless ghostscript-%s or later is installed on your '
-                       'system') % gs_req)
+        warnings.warn('matplotlibrc ps.usedistiller option can not be used '
+                      'unless ghostscript 9.0 or later is installed on your '
+                      'system')
 
     if s == 'xpdf':
         pdftops_req = '3.0'
@@ -653,13 +643,6 @@ def get_cachedir():
     return _get_config_or_cache_dir(_get_xdg_cache_dir())
 
 
-def _decode_filesystem_path(path):
-    if not isinstance(path, str):
-        return path.decode(sys.getfilesystemencoding())
-    else:
-        return path
-
-
 def _get_data_path():
     'get the path to matplotlib data'
 
@@ -670,35 +653,23 @@ def _get_data_path():
                                'directory')
         return path
 
-    _file = _decode_filesystem_path(__file__)
-    path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
-    if os.path.isdir(path):
-        return path
+    def get_candidate_paths():
+        yield Path(__file__).with_name('mpl-data')
+        # setuptools' namespace_packages may highjack this init file
+        # so need to try something known to be in Matplotlib, not basemap.
+        import matplotlib.afm
+        yield Path(matplotlib.afm.__file__).with_name('mpl-data')
+        # py2exe zips pure python, so still need special check.
+        if getattr(sys, 'frozen', None):
+            yield Path(sys.executable).with_name('mpl-data')
+            # Try again assuming we need to step up one more directory.
+            yield Path(sys.executable).parent.with_name('mpl-data')
+            # Try again assuming sys.path[0] is a dir not a exe.
+            yield Path(sys.path[0]) / 'mpl-data'
 
-    # setuptools' namespace_packages may highjack this init file
-    # so need to try something known to be in matplotlib, not basemap
-    import matplotlib.afm
-    _file = _decode_filesystem_path(matplotlib.afm.__file__)
-    path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
-    if os.path.isdir(path):
-        return path
-
-    # py2exe zips pure python, so still need special check
-    if getattr(sys, 'frozen', None):
-        exe_path = os.path.dirname(_decode_filesystem_path(sys.executable))
-        path = os.path.join(exe_path, 'mpl-data')
-        if os.path.isdir(path):
-            return path
-
-        # Try again assuming we need to step up one more directory
-        path = os.path.join(os.path.split(exe_path)[0], 'mpl-data')
-        if os.path.isdir(path):
-            return path
-
-        # Try again assuming sys.path[0] is a dir not a exe
-        path = os.path.join(sys.path[0], 'mpl-data')
-        if os.path.isdir(path):
-            return path
+    for path in get_candidate_paths():
+        if path.is_dir():
+            return str(path)
 
     raise RuntimeError('Could not find the matplotlib data files')
 
@@ -710,6 +681,7 @@ def get_data_path():
     return defaultParams['datapath'][0]
 
 
+@cbook.deprecated("3.1")
 def get_py2exe_datafiles():
     data_path = Path(get_data_path())
     d = {}
@@ -727,8 +699,7 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
-    - `$MATPLOTLIBRC` if it is a file (or a named pipe, which can be created
-      e.g. by process substitution)
+    - `$MATPLOTLIBRC` if it is not a directory
 
     - `$MATPLOTLIBRC/matplotlibrc`
 
@@ -763,10 +734,8 @@ def matplotlib_fname():
         yield os.path.join(get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
-        if os.path.exists(fname):
-            st_mode = os.stat(fname).st_mode
-            if stat.S_ISREG(st_mode) or stat.S_ISFIFO(st_mode):
-                break
+        if os.path.exists(fname) and not os.path.isdir(fname):
+            break
     # Return first candidate that is a file, or last candidate if none is
     # valid (in that case, a warning is raised at startup by `rc_params`).
     return fname
@@ -787,7 +756,7 @@ _deprecated_ignore_map = {
 
 # rcParams deprecated; can use None to suppress warnings; remain actually
 # listed in the rcParams (not included in _all_deprecated).
-# Values are typles of (version,)
+# Values are tuples of (version,)
 _deprecated_remain_as_none = {
     'axes.hold': ('2.1',),
     'backend.qt4': ('2.2',),
@@ -872,6 +841,10 @@ class RcParams(MutableMapping, dict):
                 cbook.warn_deprecated(
                     "3.0", "{} is deprecated; in the future, examples will be "
                     "found relative to the 'datapath' directory.".format(key))
+            elif key == 'backend':
+                if val is rcsetup._auto_backend_sentinel:
+                    if 'backend' in self:
+                        return
             try:
                 cval = self.validate[key](val)
             except ValueError as ve:
@@ -899,6 +872,12 @@ class RcParams(MutableMapping, dict):
             cbook.warn_deprecated(
                 "3.0", "{} is deprecated; in the future, examples will be "
                 "found relative to the 'datapath' directory.".format(key))
+
+        elif key == "backend":
+            val = dict.__getitem__(self, key)
+            if val is rcsetup._auto_backend_sentinel:
+                from matplotlib import pyplot as plt
+                plt.switch_backend(rcsetup._auto_backend_sentinel)
 
         return dict.__getitem__(self, key)
 
@@ -1114,10 +1093,10 @@ if dict.__getitem__(rcParams, 'examples.directory'):
         _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
         rcParams['examples.directory'] = _fullpath
 
-rcParamsOrig = rcParams.copy()
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+    rcParamsOrig = RcParams(rcParams.copy())
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                                 defaultParams.items()
                                 if key not in _all_deprecated])
@@ -1241,7 +1220,7 @@ def rc_file_defaults():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
         from .style.core import STYLE_BLACKLIST
-        rcParams.update({k: v for k, v in rcParamsOrig.items()
+        rcParams.update({k: rcParamsOrig[k] for k in rcParamsOrig
                          if k not in STYLE_BLACKLIST})
 
 
@@ -1257,7 +1236,8 @@ def rc_file(fname):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
         from .style.core import STYLE_BLACKLIST
-        rcParams.update({k: v for k, v in rc_params_from_file(fname).items()
+        rc_from_file = rc_params_from_file(fname)
+        rcParams.update({k: rc_from_file[k] for k in rc_from_file
                          if k not in STYLE_BLACKLIST})
 
 
@@ -1308,90 +1288,86 @@ class rc_context:
             if rc:
                 rcParams.update(rc)
         except Exception:
-            # If anything goes wrong, revert to the original rcs.
-            dict.update(rcParams, self._orig)
+            self.__fallback()
             raise
+
+    def __fallback(self):
+        # If anything goes wrong, revert to the original rcs.
+        updated_backend = self._orig['backend']
+        dict.update(rcParams, self._orig)
+        # except for the backend.  If the context block triggered resolving
+        # the auto backend resolution keep that value around
+        if self._orig['backend'] is rcsetup._auto_backend_sentinel:
+            rcParams['backend'] = updated_backend
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        # No need to revalidate the original values.
-        dict.update(rcParams, self._orig)
-
-
-_use_error_msg = """
-This call to matplotlib.use() has no effect because the backend has already
-been chosen; matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
-or matplotlib.backends is imported for the first time.
-
-The backend was *originally* set to {backend!r} by the following code:
-{tb}
-"""
+        self.__fallback()
 
 
 def use(arg, warn=True, force=False):
     """
     Set the matplotlib backend to one of the known backends.
 
-    The argument is case-insensitive. *warn* specifies whether a
-    warning should be issued if a backend has already been set up.
-    *force* is an **experimental** flag that tells matplotlib to
-    attempt to initialize a new backend by reloading the backend
-    module.
-
-    .. note::
-
-        This function must be called *before* importing pyplot for
-        the first time; or, if you are not using pyplot, it must be called
-        before importing matplotlib.backends.  If warn is True, a warning
-        is issued if you try and call this after pylab or pyplot have been
-        loaded.  In certain black magic use cases, e.g.
-        :func:`pyplot.switch_backend`, we are doing the reloading necessary to
-        make the backend switch work (in some cases, e.g., pure image
-        backends) so one can set warn=False to suppress the warnings.
-
     To find out which backend is currently set, see
     :func:`matplotlib.get_backend`.
 
-    """
-    # Lets determine the proper backend name first
-    if arg.startswith('module://'):
-        name = arg
-    else:
-        # Lowercase only non-module backend names (modules are case-sensitive)
-        arg = arg.lower()
-        name = validate_backend(arg)
 
-    # Check if we've already set up a backend
-    if 'matplotlib.backends' in sys.modules:
-        # Warn only if called with a different name
-        if (rcParams['backend'] != name) and warn:
-            import matplotlib.backends
+    Parameters
+    ----------
+    arg : str
+        The backend to switch to.  This can either be one of the
+        'standard' backend names or a string of the form
+        ``module://my.module.name``.  This value is case-insensitive.
+
+    warn : bool, optional
+        If True, warn if this is called after pyplot has been imported
+        and a backend is set up.
+
+        defaults to True
+
+    force : bool, optional
+        If True, attempt to switch the backend.  This defaults to
+        False.
+
+
+    """
+    name = validate_backend(arg)
+
+    # if setting back to the same thing, do nothing
+    if (dict.__getitem__(rcParams, 'backend') == name):
+        pass
+
+    # Check if we have already imported pyplot and triggered
+    # backend selection, do a bit more work
+    elif 'matplotlib.pyplot' in sys.modules:
+        # If we are here then the requested is different than the current.
+        # If we are going to force the switch, never warn, else, if warn
+        # is True, then direct users to `plt.switch_backend`
+        if (not force) and warn:
             warnings.warn(
-                _use_error_msg.format(
-                    backend=rcParams['backend'],
-                    tb=matplotlib.backends._backend_loading_tb),
+                ("matplotlib.pyplot as already been imported, "
+                 "this call will have no effect."),
                 stacklevel=2)
 
-        # Unless we've been told to force it, just return
-        if not force:
-            return
-        need_reload = True
+        # if we are going to force switching the backend, pull in
+        # `switch_backend` from pyplot.  This will only happen if
+        # pyplot is already imported.
+        if force:
+            from matplotlib.pyplot import switch_backend
+            switch_backend(name)
+    # Finally if pyplot is not imported update both rcParams and
+    # rcDefaults so restoring the defaults later with rcdefaults
+    # won't change the backend.  This is a bit of overkill as 'backend'
+    # is already in style.core.STYLE_BLACKLIST, but better to be safe.
     else:
-        need_reload = False
-
-    # Store the backend name
-    rcParams['backend'] = name
-
-    # If needed we reload here because a lot of setup code is triggered on
-    # module import. See backends/__init__.py for more detail.
-    if need_reload:
-        importlib.reload(sys.modules['matplotlib.backends'])
+        rcParams['backend'] = rcParamsDefault['backend'] = name
 
 
 if os.environ.get('MPLBACKEND'):
-    use(os.environ['MPLBACKEND'])
+    rcParams['backend'] = os.environ.get('MPLBACKEND')
 
 
 def get_backend():
@@ -1413,6 +1389,7 @@ def is_interactive():
     return rcParams['interactive']
 
 
+@cbook.deprecated("3.1", alternative="rcParams['tk.window_focus']")
 def tk_window_focus():
     """Return true if focus maintenance under TkAgg on win32 is on.
      This currently works only for python.exe and IPython.exe.
@@ -1752,7 +1729,7 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 if not isinstance(label, str):
                     label = None
 
-                if (replace_names is None) or (replace_all_args is True):
+                if replace_names is None or replace_all_args:
                     # all should be replaced
                     args = tuple(_replacer(data, a) for
                                  j, a in enumerate(args))

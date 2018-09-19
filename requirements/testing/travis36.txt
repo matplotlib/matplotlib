@@ -3,5 +3,5 @@
 flake8
 flake8-per-file-ignores
 jupyter
-pandas<0.21.0
+pandas
 pytz

@@ -1,6 +1,5 @@
 import numpy as np
 
-import matplotlib
 from matplotlib import rcParams
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
@@ -118,7 +117,7 @@ class GeoAxes(Axes):
             .scale(0.5 / xscale, 0.5 / yscale) \
             .translate(0.5, 0.5)
 
-    def get_xaxis_transform(self,which='grid'):
+    def get_xaxis_transform(self, which='grid'):
         if which not in ['tick1', 'tick2', 'grid']:
             raise ValueError(
                 "'which' must be one of 'tick1', 'tick2', or 'grid'")
@@ -130,7 +129,7 @@ class GeoAxes(Axes):
     def get_xaxis_text2_transform(self, pad):
         return self._xaxis_text2_transform, 'top', 'center'
 
-    def get_yaxis_transform(self,which='grid'):
+    def get_yaxis_transform(self, which='grid'):
         if which not in ['tick1', 'tick2', 'grid']:
             raise ValueError(
                 "'which' must be one of 'tick1', 'tick2', or 'grid'")
@@ -146,8 +145,7 @@ class GeoAxes(Axes):
         return Circle((0.5, 0.5), 0.5)
 
     def _gen_axes_spines(self):
-        return {'geo':mspines.Spine.circular_spine(self,
-                                                   (0.5, 0.5), 0.5)}
+        return {'geo': mspines.Spine.circular_spine(self, (0.5, 0.5), 0.5)}
 
     def set_yscale(self, *args, **kwargs):
         if args[0] != 'linear':
@@ -258,7 +256,6 @@ class _GeoTransform(Transform):
         return "{}({})".format(type(self).__name__, self._resolution)
 
     def transform_path_non_affine(self, path):
-        vertices = path.vertices
         ipath = path.interpolated(self._resolution)
         return Path(self.transform(ipath.vertices), ipath.codes)
     transform_path_non_affine.__doc__ = \
@@ -381,7 +378,7 @@ class MollweideAxes(GeoAxes):
             latitude  = ll[:, 1]
 
             clat = np.pi/2 - np.abs(latitude)
-            ihigh = clat < 0.087 # within 5 degrees of the poles
+            ihigh = clat < 0.087  # within 5 degrees of the poles
             ilow = ~ihigh
             aux = np.empty(latitude.shape, dtype=float)
 
@@ -394,14 +391,14 @@ class MollweideAxes(GeoAxes):
                     delta, large_delta = d(theta)
                 aux[ilow] = theta / 2
 
-            if ihigh.any(): # Taylor series-based approx. solution
+            if ihigh.any():  # Taylor series-based approx. solution
                 e = clat[ihigh]
                 d = 0.5 * (3 * np.pi * e**2) ** (1.0/3)
                 aux[ihigh] = (np.pi/2 - d) * np.sign(latitude[ihigh])
 
             xy = np.empty(ll.shape, dtype=float)
-            xy[:,0] = (2.0 * np.sqrt(2.0) / np.pi) * longitude * np.cos(aux)
-            xy[:,1] = np.sqrt(2.0) * np.sin(aux)
+            xy[:, 0] = (2.0 * np.sqrt(2.0) / np.pi) * longitude * np.cos(aux)
+            xy[:, 1] = np.sqrt(2.0) * np.sin(aux)
 
             return xy
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__

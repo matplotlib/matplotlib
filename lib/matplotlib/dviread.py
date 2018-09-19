@@ -25,12 +25,11 @@ import os
 import re
 import struct
 import subprocess
-import sys
 import textwrap
 
 import numpy as np
 
-from matplotlib import cbook, rcParams
+from matplotlib import rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -965,8 +964,6 @@ class Encoding(object):
 
     @staticmethod
     def _parse(file):
-        result = []
-
         lines = (line.split(b'%', 1)[0].strip() for line in file)
         data = b''.join(lines)
         beginning = data.find(b'[')

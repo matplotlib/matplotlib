@@ -1,25 +1,12 @@
-# ==========================================================================
-#
-# StrConverter
-#
-# ==========================================================================
-
-
 """StrConverter module containing class StrConverter."""
 
-# ==========================================================================
-# Place all imports after here.
-#
+import numpy as np
+
 import matplotlib.units as units
-from matplotlib.cbook import iterable
-#
-# Place all imports before here.
-# ==========================================================================
 
 __all__ = ['StrConverter']
 
 
-# ==========================================================================
 class StrConverter(units.ConversionInterface):
     """: A matplotlib converter class.  Provides matplotlib conversion
           functionality for string data values.
@@ -31,7 +18,6 @@ class StrConverter(units.ConversionInterface):
     - 'sorted-inverted' :  A combination of 'sorted' and 'inverted'
     """
 
-    # -----------------------------------------------------------------------
     @staticmethod
     def axisinfo(unit, axis):
         """: Returns information on how to handle an axis that has string data.
@@ -48,7 +34,6 @@ class StrConverter(units.ConversionInterface):
 
         return None
 
-    # -----------------------------------------------------------------------
     @staticmethod
     def convert(value, unit, axis):
         """: Convert value using unit to a float.  If value is a sequence, return
@@ -86,7 +71,7 @@ class StrConverter(units.ConversionInterface):
             ticks = []
             labels = []
 
-        if not iterable(value):
+        if not np.iterable(value):
             value = [value]
 
         newValues = []
@@ -105,10 +90,10 @@ class StrConverter(units.ConversionInterface):
         # DISABLED: this is due to design and is not really a bug.
         # DISABLED: If this gets changed, then we can activate the following
         # DISABLED: block of code.  Note that this works for line plots.
-        # DISABLED if (unit):
-        # DISABLED     if (unit.find("sorted") > -1):
+        # DISABLED if unit:
+        # DISABLED     if unit.find("sorted") > -1:
         # DISABLED         labels.sort()
-        # DISABLED     if (unit.find("inverted") > -1):
+        # DISABLED     if unit.find("inverted") > -1:
         # DISABLED         labels = labels[::-1]
 
         # add padding (so they do not appear on the axes themselves)
@@ -140,7 +125,6 @@ class StrConverter(units.ConversionInterface):
         ax.viewLim.ignore(-1)
         return result
 
-    # -----------------------------------------------------------------------
     @staticmethod
     def default_units(value, axis):
         """: Return the default unit for value, or None.
