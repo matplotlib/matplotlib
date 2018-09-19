@@ -21,4 +21,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.get_sparse_matrix`
 - `mlab.dist` (use numpy.hypot instead)
 - `mlab.dist_point_to_segment`
+- `mlab.griddata` (use scipy.interpolate.griddata)
 - `mlab.donothing_callback`
