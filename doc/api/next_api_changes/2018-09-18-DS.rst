@@ -15,4 +15,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.prctile` (use numpy.percentile instead)
 - `mlab.prctile_rank`
 - `mlab.center_matrix`
+- `mlab.rk4` (use scipy.integrate.ode instead)
 - `mlab.donothing_callback`
