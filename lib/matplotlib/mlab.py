@@ -2755,12 +2755,3 @@ def is_closed_polygon(X):
     tests if that curve is closed.
     """
     return np.all(X[0] == X[-1])
-
-
-@cbook.deprecated("2.2", message='Moved to matplotlib.cbook')
-def contiguous_regions(mask):
-    """
-    return a list of (ind0, ind1) such that mask[ind0:ind1].all() is
-    True and we cover all such regions
-    """
-    return cbook.contiguous_regions(mask)

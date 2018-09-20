@@ -2274,33 +2274,6 @@ class TestGaussianKDEEvaluate(object):
         np.testing.assert_array_almost_equal(y, y_expected, 7)
 
 
-def test_contiguous_regions():
-    a, b, c = 3, 4, 5
-    # Starts and ends with True
-    mask = [True]*a + [False]*b + [True]*c
-    expected = [(0, a), (a+b, a+b+c)]
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.contiguous_regions(mask) == expected
-    d, e = 6, 7
-    # Starts with True ends with False
-    mask = mask + [False]*e
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.contiguous_regions(mask) == expected
-    # Starts with False ends with True
-    mask = [False]*d + mask[:-e]
-    expected = [(d, d+a), (d+a+b, d+a+b+c)]
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.contiguous_regions(mask) == expected
-    # Starts and ends with False
-    mask = mask + [False]*e
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.contiguous_regions(mask) == expected
-        # No True in mask
-        assert mlab.contiguous_regions([False]*5) == []
-        # Empty mask
-        assert mlab.contiguous_regions([]) == []
-
-
 def test_psd_onesided_norm():
     u = np.array([0, 1, 2, 3, 1, 2, 1])
     dt = 1.0
