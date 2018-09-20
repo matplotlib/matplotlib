@@ -129,7 +129,6 @@ OSXFontDirectories = [
     "/System/Library/Fonts/",
     # fonts installed via MacPorts
     "/opt/local/share/fonts",
-    "",
 ]
 
 if not USE_FONTCONFIG and sys.platform != 'win32':
