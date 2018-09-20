@@ -38,4 +38,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.is_closed_polygon`
 - `mlab.poly_between`
 - `mlab.poly_below`
+- `mlab.inside_poly`
 - `mlab.donothing_callback`

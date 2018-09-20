@@ -233,7 +233,7 @@ from matplotlib.mlab import (
     demean, detrend, detrend_linear, detrend_mean, detrend_none,
     exp_safe,
     frange,
-    identity, inside_poly, ispower2, isvector, l1norm,
+    identity, ispower2, isvector, l1norm,
     l2norm, log2, movavg, norm_flat,
     rec2csv, rec_append_fields, rec_drop_fields, rec_join, rms_flat,
     window_hanning, window_none)
