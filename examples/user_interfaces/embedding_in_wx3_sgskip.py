@@ -131,7 +131,6 @@ class MyApp(wx.App):
         bang_button.Bind(wx.EVT_BUTTON, self.OnBang)
 
         # final setup ------------------
-        sizer = self.panel.GetSizer()
         self.frame.Show(1)
 
         self.SetTopWindow(self.frame)

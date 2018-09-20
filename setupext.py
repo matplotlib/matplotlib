@@ -5,7 +5,6 @@ from distutils.core import Extension
 import glob
 import hashlib
 import importlib
-import multiprocessing
 import os
 import pathlib
 import platform
