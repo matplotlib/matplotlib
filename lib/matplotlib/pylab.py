@@ -237,7 +237,6 @@ from matplotlib.mlab import (
     l2norm, log2, movavg, norm_flat,
     poly_below, poly_between,
     rec2csv, rec_append_fields, rec_drop_fields, rec_join, rms_flat,
-    vector_lengths,
     window_hanning, window_none)
 
 from matplotlib import cbook, mlab, pyplot as plt
