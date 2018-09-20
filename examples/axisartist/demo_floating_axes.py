@@ -143,7 +143,7 @@ def setup_axes3(fig, rect):
 
 
 ##########################################################
-fig = plt.figure(1, figsize=(8, 4))
+fig = plt.figure(figsize=(8, 4))
 fig.subplots_adjust(wspace=0.3, left=0.05, right=0.95)
 
 ax1, aux_ax1 = setup_axes1(fig, 131)

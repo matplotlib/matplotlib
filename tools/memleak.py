@@ -133,7 +133,7 @@ if __name__ == '__main__':
     matplotlib.use(args.backend[0])
 
     if args.interactive:
-        from matplotlib import pyplot as plt
+        import matplotlib.pyplot as plt
         plt.ion()
 
     run_memleak_test(

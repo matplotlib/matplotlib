@@ -2,7 +2,6 @@
 Tests specific to the lines module.
 """
 
-from io import BytesIO
 import itertools
 import timeit
 
@@ -32,7 +31,7 @@ def test_invisible_Line_rendering():
     """
     # Creates big x and y data:
     N = 10**7
-    x = np.linspace(0,1,N)
+    x = np.linspace(0, 1, N)
     y = np.random.normal(size=N)
 
     # Create a plot figure:
@@ -40,7 +39,7 @@ def test_invisible_Line_rendering():
     ax = plt.subplot(111)
 
     # Create a "big" Line instance:
-    l = mlines.Line2D(x,y)
+    l = mlines.Line2D(x, y)
     l.set_visible(False)
     # but don't add it to the Axis instance `ax`
 
@@ -58,7 +57,7 @@ def test_invisible_Line_rendering():
     # gives about 290 ms for N = 10**7 pts
 
     slowdown_factor = (t_unvisible_line/t_no_line)
-    slowdown_threshold = 2 # trying to avoid false positive failures
+    slowdown_threshold = 2  # trying to avoid false positive failures
     assert slowdown_factor < slowdown_threshold
 
 

@@ -1,6 +1,7 @@
 from itertools import product
 from distutils.version import LooseVersion
 import io
+import platform
 
 import datetime
 
@@ -59,6 +60,14 @@ def test_spy():
 
     fig, ax = plt.subplots()
     ax.spy(a)
+
+
+def test_spy_invalid_kwargs():
+    fig, ax = plt.subplots()
+    for unsupported_kw in [{'interpolation': 'nearest'},
+                           {'marker': 'o', 'linestyle': 'solid'}]:
+        with pytest.raises(TypeError):
+            ax.spy(np.eye(3, 3), **unsupported_kw)
 
 
 @image_comparison(baseline_images=['matshow'],
@@ -1676,63 +1685,120 @@ def test_hist2d_transpose():
     ax.hist2d(x, y, bins=10, rasterized=True)
 
 
-@image_comparison(baseline_images=['scatter', 'scatter'])
-def test_scatter_plot():
-    fig, ax = plt.subplots()
-    data = {"x": [3, 4, 2, 6], "y": [2, 5, 2, 3], "c": ['r', 'y', 'b', 'lime'],
-            "s": [24, 15, 19, 29]}
+class TestScatter(object):
+    @image_comparison(baseline_images=['scatter', 'scatter'])
+    def test_scatter_plot(self):
+        fig, ax = plt.subplots()
+        data = {"x": [3, 4, 2, 6], "y": [2, 5, 2, 3],
+                "c": ['r', 'y', 'b', 'lime'], "s": [24, 15, 19, 29]}
 
-    ax.scatter(data["x"], data["y"], c=data["c"], s=data["s"])
+        ax.scatter(data["x"], data["y"], c=data["c"], s=data["s"])
 
-    # Reuse testcase from above for a labeled data test
-    fig, ax = plt.subplots()
-    ax.scatter("x", "y", c="c", s="s", data=data)
+        # Reuse testcase from above for a labeled data test
+        fig, ax = plt.subplots()
+        ax.scatter("x", "y", c="c", s="s", data=data)
 
+    @image_comparison(baseline_images=['scatter_marker'], remove_text=True,
+                      extensions=['png'])
+    def test_scatter_marker(self):
+        fig, (ax0, ax1, ax2) = plt.subplots(ncols=3)
+        ax0.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+                    c=[(1, 0, 0), 'y', 'b', 'lime'],
+                    s=[60, 50, 40, 30],
+                    edgecolors=['k', 'r', 'g', 'b'],
+                    marker='s')
+        ax1.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+                    c=[(1, 0, 0), 'y', 'b', 'lime'],
+                    s=[60, 50, 40, 30],
+                    edgecolors=['k', 'r', 'g', 'b'],
+                    marker=mmarkers.MarkerStyle('o', fillstyle='top'))
+        # unit area ellipse
+        rx, ry = 3, 1
+        area = rx * ry * np.pi
+        theta = np.linspace(0, 2 * np.pi, 21)
+        verts = np.column_stack([np.cos(theta) * rx / area,
+                                 np.sin(theta) * ry / area])
+        ax2.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+                    c=[(1, 0, 0), 'y', 'b', 'lime'],
+                    s=[60, 50, 40, 30],
+                    edgecolors=['k', 'r', 'g', 'b'],
+                    marker=verts)
 
-@image_comparison(baseline_images=['scatter_marker'], remove_text=True,
-                  extensions=['png'])
-def test_scatter_marker():
-    fig, (ax0, ax1, ax2) = plt.subplots(ncols=3)
-    ax0.scatter([3, 4, 2, 6], [2, 5, 2, 3],
-                c=[(1, 0, 0), 'y', 'b', 'lime'],
-                s=[60, 50, 40, 30],
-                edgecolors=['k', 'r', 'g', 'b'],
-                marker='s')
-    ax1.scatter([3, 4, 2, 6], [2, 5, 2, 3],
-                c=[(1, 0, 0), 'y', 'b', 'lime'],
-                s=[60, 50, 40, 30],
-                edgecolors=['k', 'r', 'g', 'b'],
-                marker=mmarkers.MarkerStyle('o', fillstyle='top'))
-    # unit area ellipse
-    rx, ry = 3, 1
-    area = rx * ry * np.pi
-    theta = np.linspace(0, 2 * np.pi, 21)
-    verts = np.column_stack([np.cos(theta) * rx / area,
-                             np.sin(theta) * ry / area])
-    ax2.scatter([3, 4, 2, 6], [2, 5, 2, 3],
-                c=[(1, 0, 0), 'y', 'b', 'lime'],
-                s=[60, 50, 40, 30],
-                edgecolors=['k', 'r', 'g', 'b'],
-                marker=verts)
+    @image_comparison(baseline_images=['scatter_2D'], remove_text=True,
+                      extensions=['png'])
+    def test_scatter_2D(self):
+        x = np.arange(3)
+        y = np.arange(2)
+        x, y = np.meshgrid(x, y)
+        z = x + y
+        fig, ax = plt.subplots()
+        ax.scatter(x, y, c=z, s=200, edgecolors='face')
 
+    def test_scatter_color(self):
+        # Try to catch cases where 'c' kwarg should have been used.
+        with pytest.raises(ValueError):
+            plt.scatter([1, 2], [1, 2], color=[0.1, 0.2])
+        with pytest.raises(ValueError):
+            plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
-@image_comparison(baseline_images=['scatter_2D'], remove_text=True,
-                  extensions=['png'])
-def test_scatter_2D():
-    x = np.arange(3)
-    y = np.arange(2)
-    x, y = np.meshgrid(x, y)
-    z = x + y
-    fig, ax = plt.subplots()
-    ax.scatter(x, y, c=z, s=200, edgecolors='face')
+    # Parameters for *test_scatter_c*. NB: assuming that the
+    # scatter plot will have 4 elements. The tuple scheme is:
+    # (*c* parameter case, exception regexp key or None if no exception)
+    params_test_scatter_c = [
+        # Single letter-sequences
+        ("rgby", None),
+        ("rgb", "shape"),
+        ("rgbrgb", "shape"),
+        (["rgby"], "conversion"),
+        # Special cases
+        ("red", None),
+        ("none", None),
+        (None, None),
+        (["r", "g", "b", "none"], None),
+        # Non-valid color spec (FWIW, 'jaune' means yellow in French)
+        ("jaune", "conversion"),
+        (["jaune"], "conversion"),  # wrong type before wrong size
+        (["jaune"]*4, "conversion"),
+        # Value-mapping like
+        ([0.5]*3, None),  # should emit a warning for user's eyes though
+        ([0.5]*4, None),  # NB: no warning as matching size allows mapping
+        ([0.5]*5, "shape"),
+        # RGB values
+        ([[1, 0, 0]], None),
+        ([[1, 0, 0]]*3, "shape"),
+        ([[1, 0, 0]]*4, None),
+        ([[1, 0, 0]]*5, "shape"),
+        # RGBA values
+        ([[1, 0, 0, 0.5]], None),
+        ([[1, 0, 0, 0.5]]*3, "shape"),
+        ([[1, 0, 0, 0.5]]*4, None),
+        ([[1, 0, 0, 0.5]]*5, "shape"),
+        # Mix of valid color specs
+        ([[1, 0, 0, 0.5]]*3 + [[1, 0, 0]], None),
+        ([[1, 0, 0, 0.5], "red", "0.0"], "shape"),
+        ([[1, 0, 0, 0.5], "red", "0.0", "C5"], None),
+        ([[1, 0, 0, 0.5], "red", "0.0", "C5", [0, 1, 0]], "shape"),
+        # Mix of valid and non valid color specs
+        ([[1, 0, 0, 0.5], "red", "jaune"], "conversion"),
+        ([[1, 0, 0, 0.5], "red", "0.0", "jaune"], "conversion"),
+        ([[1, 0, 0, 0.5], "red", "0.0", "C5", "jaune"], "conversion"),
+    ]
 
+    @pytest.mark.parametrize('c_case, re_key', params_test_scatter_c)
+    def test_scatter_c(self, c_case, re_key):
+        # Additional checking of *c* (introduced in #11383).
+        REGEXP = {
+            "shape": "^'c' argument has [0-9]+ elements",  # shape mismatch
+            "conversion": "^'c' argument must either be valid",  # bad vals
+            }
+        x = y = [0, 1, 2, 3]
+        fig, ax = plt.subplots()
 
-def test_scatter_color():
-    # Try to catch cases where 'c' kwarg should have been used.
-    with pytest.raises(ValueError):
-        plt.scatter([1, 2], [1, 2], color=[0.1, 0.2])
-    with pytest.raises(ValueError):
-        plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
+        if re_key is None:
+            ax.scatter(x, y, c=c_case, edgecolors="black")
+        else:
+            with pytest.raises(ValueError, match=REGEXP[re_key]):
+                ax.scatter(x, y, c=c_case, edgecolors="black")
 
 
 def test_as_mpl_axes_api():
@@ -2938,23 +3004,20 @@ def test_hist_stacked_step():
     ax.hist((d1, d2), histtype="step", stacked=True)
 
 
-@image_comparison(baseline_images=['hist_stacked_normed'])
-def test_hist_stacked_normed():
-    # make some data
-    d1 = np.linspace(1, 3, 20)
-    d2 = np.linspace(0, 10, 50)
-    fig, ax = plt.subplots()
-    with pytest.warns(UserWarning):
-        ax.hist((d1, d2), stacked=True, normed=True)
-
-
-@image_comparison(baseline_images=['hist_stacked_normed'], extensions=['png'])
+@image_comparison(baseline_images=['hist_stacked_normed',
+                                   'hist_stacked_normed'])
 def test_hist_stacked_density():
     # make some data
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
+
     fig, ax = plt.subplots()
     ax.hist((d1, d2), stacked=True, density=True)
+
+    # Also check that the old keyword works.
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning):
+        ax.hist((d1, d2), stacked=True, normed=True)
 
 
 @pytest.mark.parametrize('normed', [False, True])
@@ -3292,7 +3355,8 @@ def test_vertex_markers():
 
 
 @image_comparison(baseline_images=['vline_hline_zorder',
-                                   'errorbar_zorder'])
+                                   'errorbar_zorder'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_eb_line_zorder():
     x = list(range(10))
 
@@ -3972,7 +4036,7 @@ def test_psd_noise():
 
 
 @image_comparison(baseline_images=['csd_freqs'], remove_text=True,
-                  extensions=['png'])
+                  extensions=['png'], tol=0.002)
 def test_csd_freqs():
     '''test axes.csd with sinusoidal stimuli'''
     n = 10000
@@ -5063,7 +5127,8 @@ def test_title_location_roundtrip():
 
 
 @image_comparison(baseline_images=["loglog"], remove_text=True,
-                  extensions=['png'])
+                  extensions=['png'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_loglog():
     fig, ax = plt.subplots()
     x = np.arange(1, 11)
@@ -5489,13 +5554,13 @@ def test_quiver_units():
 
 
 def test_bar_color_cycle():
-    ccov = mcolors.colorConverter.to_rgb
+    to_rgb = mcolors.to_rgb
     fig, ax = plt.subplots()
     for j in range(5):
         ln, = ax.plot(range(3))
         brs = ax.bar(range(3), range(3))
         for br in brs:
-            assert ccov(ln.get_color()) == ccov(br.get_facecolor())
+            assert to_rgb(ln.get_color()) == to_rgb(br.get_facecolor())
 
 
 def test_tick_param_label_rotation():
@@ -5690,3 +5755,63 @@ def test_tick_padding_tightbbox():
     bb2 = ax.get_window_extent(fig.canvas.get_renderer())
     assert bb.x0 < bb2.x0
     assert bb.y0 < bb2.y0
+
+
+def test_zoom_inset():
+    dx, dy = 0.05, 0.05
+    # generate 2 2d grids for the x & y bounds
+    y, x = np.mgrid[slice(1, 5 + dy, dy),
+                    slice(1, 5 + dx, dx)]
+    z = np.sin(x)**10 + np.cos(10 + y*x) * np.cos(x)
+
+    fig, ax = plt.subplots()
+    ax.pcolormesh(x, y, z)
+    ax.set_aspect(1.)
+    ax.apply_aspect()
+    # we need to apply_aspect to make the drawing below work.
+
+    # Make the inset_axes...  Position axes co-ordinates...
+    axin1 = ax.inset_axes([0.7, 0.7, 0.35, 0.35])
+    # redraw the data in the inset axes...
+    axin1.pcolormesh(x, y, z)
+    axin1.set_xlim([1.5, 2.15])
+    axin1.set_ylim([2, 2.5])
+    axin1.set_aspect(ax.get_aspect())
+
+    rec, connectors = ax.indicate_inset_zoom(axin1)
+    fig.canvas.draw()
+    xx = np.array([[1.5,  2.],
+                   [2.15, 2.5]])
+    assert(np.all(rec.get_bbox().get_points() == xx))
+    xx = np.array([[0.6325, 0.692308],
+                   [0.8425, 0.907692]])
+    np.testing.assert_allclose(axin1.get_position().get_points(),
+            xx, rtol=1e-4)
+
+
+def test_spines_properbbox_after_zoom():
+    fig, ax = plt.subplots()
+    bb = ax.spines['bottom'].get_window_extent(fig.canvas.get_renderer())
+    # this is what zoom calls:
+    ax._set_view_from_bbox((320, 320, 500, 500), 'in',
+                      None, False, False)
+    bb2 = ax.spines['bottom'].get_window_extent(fig.canvas.get_renderer())
+    np.testing.assert_allclose(bb.get_points(), bb2.get_points(), rtol=1e-6)
+
+
+def test_cartopy_backcompat():
+    import matplotlib
+    import matplotlib.axes
+    import matplotlib.axes._subplots
+
+    class Dummy(matplotlib.axes.Axes):
+        ...
+
+    class DummySubplot(matplotlib.axes.SubplotBase, Dummy):
+        _axes_class = Dummy
+
+    matplotlib.axes._subplots._subplot_classes[Dummy] = DummySubplot
+
+    FactoryDummySubplot = matplotlib.axes.subplot_class_factory(Dummy)
+
+    assert DummySubplot is FactoryDummySubplot

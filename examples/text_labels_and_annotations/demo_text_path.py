@@ -60,15 +60,13 @@ if 1:
 
     usetex = plt.rcParams["text.usetex"]
 
-    fig = plt.figure(1)
+    fig = plt.figure()
 
     # EXAMPLE 1
 
     ax = plt.subplot(211)
 
-    from matplotlib._png import read_png
-    fn = get_sample_data("grace_hopper.png", asfileobj=False)
-    arr = read_png(fn)
+    arr = plt.imread(get_sample_data("grace_hopper.png"))
 
     text_path = TextPath((0, 0), "!?", size=150)
     p = PathClippedImagePatch(text_path, arr, ec="k",
@@ -155,5 +153,4 @@ if 1:
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
 
-    plt.draw()
     plt.show()

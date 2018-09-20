@@ -15,7 +15,7 @@ revision, see the :ref:`github-stats`.
    For a release, add a new section after this, then comment out the include
    and toctree below by indenting them. Uncomment them after the release.
 
-   .. include:: next_whats_new/README.rst
+  .. include:: next_whats_new/README.rst
    .. toctree::
       :glob:
       :maxdepth: 1
@@ -191,10 +191,56 @@ and the title will not be moved via this algorithm.
 
 
 
+New convenience methods for GridSpec
+------------------------------------
+
+There are new convenience methods for `.gridspec.GridSpec` and
+`.gridspec.GridSpecFromSubplotSpec`.  Instead of the former we can
+now call `.Figure.add_gridspec` and for the latter `.SubplotSpec.subgridspec`.
+
+.. code-block:: python
+
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    gs0 = fig.add_gridspec(3, 1)
+    ax1 = fig.add_subplot(gs0[0])
+    ax2 = fig.add_subplot(gs0[1])
+    gssub = gs0[2].subgridspec(1, 3)
+    for i in range(3):
+        fig.add_subplot(gssub[0, i])
+
+
+Figure has an `~.figure.Figure.add_artist` method
+-------------------------------------------------
+
+A method `~.figure.Figure.add_artist` has been added to the
+:class:`~.figure.Figure` class, which allows artists to be added directly
+to a figure. E.g.
+
+::
+    circ = plt.Circle((.7, .5), .05)
+    fig.add_artist(circ)
+
+In case the added artist has no transform set previously, it will be set to
+the figure transform (``fig.transFigure``).
+This new method may be useful for adding artists to figures without axes or to
+easily position static elements in figure coordinates.
+
+
+Improved default backend selection
+----------------------------------
+
+The default backend no longer must be set as part of the build
+process.  Instead, at run time, the builtin backends are tried in
+sequence until one of them imports.
+
+Headless linux servers (identified by the DISPLAY env not being defined)
+will not select a GUI backend.
 
 
 
-
+==================
 Previous Whats New
 ==================
 

@@ -606,8 +606,8 @@ Write a tutorial on the signal analysis plotting functions like
 :func:`~matplotlib.pyplot.specgram`.  Do you use Matplotlib with
 `django <https://www.djangoproject.com/>`_ or other popular web
 application servers?  Write a FAQ or tutorial and we'll find a place
-for it in the :ref:`users-guide-index`.  Bundle Matplotlib in a
-`py2exe <http://www.py2exe.org/>`_ app?  ... I think you get the idea.
+for it in the :ref:`users-guide-index`.  And so on...  I think you get the
+idea.
 
 Matplotlib is documented using the `sphinx
 <http://www.sphinx-doc.org/index.html>`_ extensions to restructured text
@@ -662,7 +662,7 @@ For more on configuring your backend, see
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-:doc:`/gallery/misc/agg_oo_sgskip`.
+:doc:`/gallery/user_interfaces/canvasagg`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 

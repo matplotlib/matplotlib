@@ -21,20 +21,20 @@ Requirements
 
 Install the latest version of Matplotlib as documented in
 :ref:`installing_for_devs` In particular, follow the instructions to use a
-local FreeType build
+local FreeType build.
 
 The following software is required to run the tests:
 
-  - pytest_ (>=3.4)
-  - Ghostscript_ (to render PDF files)
-  - Inkscape_ (to render SVG files)
+- pytest_ (>=3.6)
+- Ghostscript_ (to render PDF files)
+- Inkscape_ (to render SVG files)
 
 Optionally you can install:
 
-  - pytest-cov_ (>=2.3.1) to collect coverage information
-  - pytest-pep8_ to test coding standards
-  - pytest-timeout_ to limit runtime in case of stuck tests
-  - pytest-xdist_ to run tests in parallel
+- pytest-cov_ (>=2.3.1) to collect coverage information
+- pytest-pep8_ to test coding standards
+- pytest-timeout_ to limit runtime in case of stuck tests
+- pytest-xdist_ to run tests in parallel
 
 
 Running the tests
@@ -46,7 +46,8 @@ Running the tests is simple. Make sure you have pytest installed and run::
 
 or::
 
-   python tests.py
+   pytest .
+
 
 in the root directory of the distribution. The script takes a set of
 commands, such as:
@@ -124,7 +125,7 @@ these up; there is no need to do anything further.
 Random data in tests
 --------------------
 
-Random data can is a very convenient way to generate data for examples,
+Random data is a very convenient way to generate data for examples,
 however the randomness is problematic for testing (as the tests
 must be deterministic!).  To work around this set the seed in each test.
 For numpy use::
@@ -188,16 +189,14 @@ a feature dependent on that backend.
 There are two optional keyword arguments to the `image_comparison`
 decorator:
 
-   - `extensions`: If you only wish to test additional image formats
-     (rather than just `png`), pass any additional file types in the
-     list of the extensions to test.  When copying the new
-     baseline files be sure to only copy the output files, not their
-     conversions to ``png``.  For example only copy the files
-     ending in ``pdf``, not in ``_pdf.png``.
+- `extensions`: If you only wish to test additional image formats (rather than
+  just `png`), pass any additional file types in the list of the extensions to
+  test.  When copying the new baseline files be sure to only copy the output
+  files, not their conversions to ``png``.  For example only copy the files
+  ending in ``pdf``, not in ``_pdf.png``.
 
-   - `tol`: This is the image matching tolerance, the default `1e-3`.
-     If some variation is expected in the image between runs, this
-     value may be adjusted.
+- `tol`: This is the image matching tolerance, the default `1e-3`. If some
+  variation is expected in the image between runs, this value may be adjusted.
 
 Known failing tests
 -------------------
@@ -262,10 +261,10 @@ Using tox
 `Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running
 tests against
 multiple Python environments, including multiple versions of Python
-(e.g., 2.7, 3.4, 3.5) and even different Python implementations
+(e.g., 3.5, 3.6) and even different Python implementations
 altogether (e.g., CPython, PyPy, Jython, etc.)
 
-Testing all versions of Python (2.6, 2.7, 3.*) requires
+Testing all versions of Python (3.5, 3.6, ...) requires
 having multiple versions of Python installed on your system and on the
 PATH. Depending on your operating system, you may want to use your
 package manager (such as apt-get, yum or MacPorts) to do this.
@@ -282,7 +281,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py26,py27
+    $ tox -e py36,py37
 
 Tox processes everything serially so it can take a long time to test
 several environments. To speed it up, you might try using a new,

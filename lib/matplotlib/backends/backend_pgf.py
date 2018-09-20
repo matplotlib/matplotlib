@@ -1,6 +1,5 @@
 import atexit
 import codecs
-import errno
 import logging
 import math
 import os
@@ -357,7 +356,7 @@ class LatexManager:
         # parse metrics from the answer string
         try:
             width, height, offset = answer.splitlines()[0].split(",")
-        except:
+        except Exception:
             raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
                              .format(text, answer))
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
@@ -665,7 +664,6 @@ class RendererPgf(RendererBase):
         prop_cmds = _font_properties_str(prop)
         s = r"%s %s" % (prop_cmds, s)
 
-
         writeln(self.fh, r"\begin{pgfscope}")
 
         alpha = gc.get_alpha()
@@ -673,18 +671,17 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
             writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
         rgb = tuple(gc.get_rgb())[:3]
-        if rgb != (0, 0, 0):
-            writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
-            writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
-            writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
-            s = r"\color{textcolor}" + s
+        writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
+        writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
+        writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
+        s = r"\color{textcolor}" + s
 
         f = 1.0 / self.figure.dpi
         text_args = []
         if mtext and (
                 (angle == 0 or
                  mtext.get_rotation_mode() == "anchor") and
-                mtext.get_va() != "center_baseline"):
+                mtext.get_verticalalignment() != "center_baseline"):
             # if text anchoring can be supported, get the original coordinates
             # and add alignment information
             pos = mtext.get_unitless_position()
@@ -695,8 +692,8 @@ class RendererPgf(RendererBase):
             halign = {"left": "left", "right": "right", "center": ""}
             valign = {"top": "top", "bottom": "bottom",
                       "baseline": "base", "center": ""}
-            text_args.append(halign[mtext.get_ha()])
-            text_args.append(valign[mtext.get_va()])
+            text_args.append(halign[mtext.get_horizontalalignment()])
+            text_args.append(valign[mtext.get_verticalalignment()])
         else:
             # if not, use the text layout provided by matplotlib
             text_args.append("x=%fin" % (x * f))
@@ -871,15 +868,9 @@ class FigureCanvasPgf(FigureCanvasBase):
             pathlib.Path(fname_tex).write_text(latexcode, encoding="utf-8")
 
             texcommand = rcParams["pgf.texsystem"]
-            cmdargs = [texcommand, "-interaction=nonstopmode",
-                       "-halt-on-error", "figure.tex"]
-            try:
-                subprocess.check_output(
-                    cmdargs, stderr=subprocess.STDOUT, cwd=tmpdir)
-            except subprocess.CalledProcessError as e:
-                raise RuntimeError(
-                    "%s was not able to process your file.\n\nFull log:\n%s"
-                    % (texcommand, e.output))
+            cbook._check_and_log_subprocess(
+                [texcommand, "-interaction=nonstopmode", "-halt-on-error",
+                 "figure.tex"], _log, cwd=tmpdir)
 
             # copy file contents to target
             with open(fname_pdf, "rb") as fh_src:
@@ -1102,21 +1093,10 @@ class PdfPages:
 
     def _run_latex(self):
         texcommand = rcParams["pgf.texsystem"]
-        cmdargs = [
-            texcommand,
-            "-interaction=nonstopmode",
-            "-halt-on-error",
-            os.path.basename(self._fname_tex),
-        ]
-        try:
-            subprocess.check_output(
-                cmdargs, stderr=subprocess.STDOUT, cwd=self._tmpdir
-            )
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                "%s was not able to process your file.\n\nFull log:\n%s"
-                % (texcommand, e.output.decode('utf-8')))
-
+        cbook._check_and_log_subprocess(
+            [texcommand, "-interaction=nonstopmode", "-halt-on-error",
+             os.path.basename(self._fname_tex)],
+            _log, cwd=self._tmpdir)
         # copy file contents to target
         shutil.copyfile(self._fname_pdf, self._outputfile)
 

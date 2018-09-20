@@ -33,9 +33,6 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
-from matplotlib.cbook import (
-    MatplotlibDeprecationWarning, warn_deprecated, STEP_LOOKUP_MAP, iterable,
-    safe_first_element)
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -84,8 +81,36 @@ def _plot_args_replacer(args, data):
                          "multiple plotting calls instead.")
 
 
+def _make_inset_locator(bounds, trans, parent):
+    """
+    Helper function to locate inset axes, used in
+    `.Axes.inset_axes`.
+
+    A locator gets used in `Axes.set_aspect` to override the default
+    locations...  It is a function that takes an axes object and
+    a renderer and tells `set_aspect` where it is to be placed.
+
+    Here *rect* is a rectangle [l, b, w, h] that specifies the
+    location for the axes in the transform given by *trans* on the
+    *parent*.
+    """
+    _bounds = mtransforms.Bbox.from_bounds(*bounds)
+    _trans = trans
+    _parent = parent
+
+    def inset_locator(ax, renderer):
+        bbox = _bounds
+        bb = mtransforms.TransformedBbox(bbox, _trans)
+        tr = _parent.figure.transFigure.inverted()
+        bb = mtransforms.TransformedBbox(bb, tr)
+        return bb
+
+    return inset_locator
+
+
 # The axes module contains all the wrappers to plotting functions.
 # All the other methods should go in the _AxesBase class.
+
 
 class Axes(_AxesBase):
     """
@@ -103,7 +128,10 @@ class Axes(_AxesBase):
     """
     ### Labelling, legend and texts
 
-    aname = 'Axes'
+    @property
+    @cbook.deprecated("3.1")
+    def aname(self):
+        return 'Axes'
 
     def get_title(self, loc="center"):
         """
@@ -390,6 +418,224 @@ class Axes(_AxesBase):
     def _remove_legend(self, legend):
         self.legend_ = None
 
+    def inset_axes(self, bounds, *, transform=None, zorder=5,
+            **kwargs):
+        """
+        Add a child inset axes to this existing axes.
+
+        Warnings
+        --------
+
+        This method is experimental as of 3.0, and the API may change.
+
+        Parameters
+        ----------
+
+        bounds : [x0, y0, width, height]
+            Lower-left corner of inset axes, and its width and height.
+
+        transform : `.Transform`
+            Defaults to `ax.transAxes`, i.e. the units of *rect* are in
+            axes-relative coordinates.
+
+        zorder : number
+            Defaults to 5 (same as `.Axes.legend`).  Adjust higher or lower
+            to change whether it is above or below data plotted on the
+            parent axes.
+
+        **kwargs
+
+            Other *kwargs* are passed on to the `axes.Axes` child axes.
+
+        Returns
+        -------
+
+        Axes
+            The created `.axes.Axes` instance.
+
+        Examples
+        --------
+
+        This example makes two inset axes, the first is in axes-relative
+        coordinates, and the second in data-coordinates::
+
+            fig, ax = plt.suplots()
+            ax.plot(range(10))
+            axin1 = ax.inset_axes([0.8, 0.1, 0.15, 0.15])
+            axin2 = ax.inset_axes(
+                    [5, 7, 2.3, 2.3], transform=ax.transData)
+
+        """
+        if transform is None:
+            transform = self.transAxes
+        label = kwargs.pop('label', 'inset_axes')
+
+        # This puts the rectangle into figure-relative coordinates.
+        inset_locator = _make_inset_locator(bounds, transform, self)
+        bb = inset_locator(None, None)
+
+        inset_ax = Axes(self.figure, bb.bounds, zorder=zorder,
+                label=label, **kwargs)
+
+        # this locator lets the axes move if in data coordinates.
+        # it gets called in `ax.apply_aspect() (of all places)
+        inset_ax.set_axes_locator(inset_locator)
+
+        self.add_child_axes(inset_ax)
+
+        return inset_ax
+
+    def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
+            facecolor='none', edgecolor='0.5', alpha=0.5,
+            zorder=4.99, **kwargs):
+        """
+        Add an inset indicator to the axes.  This is a rectangle on the plot
+        at the position indicated by *bounds* that optionally has lines that
+        connect the rectangle to an inset axes
+        (`.Axes.inset_axes`).
+
+        Warnings
+        --------
+
+        This method is experimental as of 3.0, and the API may change.
+
+
+        Parameters
+        ----------
+
+        bounds : [x0, y0, width, height]
+            Lower-left corner of rectangle to be marked, and its width
+            and height.
+
+        inset_ax : `.Axes`
+            An optional inset axes to draw connecting lines to.  Two lines are
+            drawn connecting the indicator box to the inset axes on corners
+            chosen so as to not overlap with the indicator box.
+
+        transform : `.Transform`
+            Transform for the rectangle co-ordinates. Defaults to
+            `ax.transAxes`, i.e. the units of *rect* are in axes-relative
+            coordinates.
+
+        facecolor : Matplotlib color
+            Facecolor of the rectangle (default 'none').
+
+        edgecolor : Matplotlib color
+            Color of the rectangle and color of the connecting lines.  Default
+            is '0.5'.
+
+        alpha : number
+            Transparency of the rectangle and connector lines.  Default is 0.5.
+
+        zorder : number
+            Drawing order of the rectangle and connector lines. Default is 4.99
+            (just below the default level of inset axes).
+
+        **kwargs
+            Other *kwargs* are passed on to the rectangle patch.
+
+        Returns
+        -------
+
+        rectangle_patch: `.Patches.Rectangle`
+             Rectangle artist.
+
+        connector_lines: 4-tuple of `.Patches.ConnectionPatch`
+            One for each of four connector lines.  Two are set with visibility
+            to *False*,  but the user can set the visibility to True if the
+            automatic choice is not deemed correct.
+
+        """
+
+        # to make the axes connectors work, we need to apply the aspect to
+        # the parent axes.
+        self.apply_aspect()
+
+        if transform is None:
+            transform = self.transData
+        label = kwargs.pop('label', 'indicate_inset')
+
+        xy = (bounds[0], bounds[1])
+        rectpatch = mpatches.Rectangle(xy, bounds[2], bounds[3],
+                facecolor=facecolor, edgecolor=edgecolor, alpha=alpha,
+                zorder=zorder,  label=label, transform=transform, **kwargs)
+        self.add_patch(rectpatch)
+
+        if inset_ax is not None:
+            # want to connect the indicator to the rect....
+            connects = []
+            xr = [bounds[0], bounds[0]+bounds[2]]
+            yr = [bounds[1], bounds[1]+bounds[3]]
+            for xc in range(2):
+                for yc in range(2):
+                    xyA = (xc, yc)
+                    xyB = (xr[xc], yr[yc])
+                    connects += [mpatches.ConnectionPatch(xyA, xyB,
+                            'axes fraction', 'data',
+                            axesA=inset_ax, axesB=self, arrowstyle="-",
+                            zorder=zorder, edgecolor=edgecolor, alpha=alpha)]
+                    self.add_patch(connects[-1])
+            # decide which two of the lines to keep visible....
+            pos = inset_ax.get_position()
+            bboxins = pos.transformed(self.figure.transFigure)
+            rectbbox = mtransforms.Bbox.from_bounds(
+                        *bounds).transformed(transform)
+            if rectbbox.x0 < bboxins.x0:
+                sig = 1
+            else:
+                sig = -1
+            if sig*rectbbox.y0 < sig*bboxins.y0:
+                connects[0].set_visible(False)
+                connects[3].set_visible(False)
+            else:
+                connects[1].set_visible(False)
+                connects[2].set_visible(False)
+
+        return rectpatch, connects
+
+    def indicate_inset_zoom(self, inset_ax, **kwargs):
+        """
+        Add an inset indicator rectangle to the axes based on the axis
+        limits for an *inset_ax* and draw connectors between *inset_ax*
+        and the rectangle.
+
+        Warnings
+        --------
+
+        This method is experimental as of 3.0, and the API may change.
+
+        Parameters
+        ----------
+
+        inset_ax : `.Axes`
+            Inset axes to draw connecting lines to.  Two lines are
+            drawn connecting the indicator box to the inset axes on corners
+            chosen so as to not overlap with the indicator box.
+
+        **kwargs
+            Other *kwargs* are passed on to `.Axes.inset_rectangle`
+
+        Returns
+        -------
+
+        rectangle_patch: `.Patches.Rectangle`
+             Rectangle artist.
+
+        connector_lines: 4-tuple of `.Patches.ConnectionPatch`
+            One for each of four connector lines.  Two are set with visibility
+            to *False*,  but the user can set the visibility to True if the
+            automatic choice is not deemed correct.
+
+        """
+
+        xlim = inset_ax.get_xlim()
+        ylim = inset_ax.get_ylim()
+        rect = [xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0]]
+        rectpatch, connects = self.indicate_inset(
+                rect, inset_ax, **kwargs)
+
+        return rectpatch, connects
+
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
         Add text to the axes.
@@ -513,7 +759,7 @@ class Axes(_AxesBase):
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See also
         --------
@@ -583,7 +829,7 @@ class Axes(_AxesBase):
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         Examples
         --------
@@ -788,11 +1034,11 @@ class Axes(_AxesBase):
         xmin = self.convert_xunits(xmin)
         xmax = self.convert_xunits(xmax)
 
-        if not iterable(y):
+        if not np.iterable(y):
             y = [y]
-        if not iterable(xmin):
+        if not np.iterable(xmin):
             xmin = [xmin]
-        if not iterable(xmax):
+        if not np.iterable(xmax):
             xmax = [xmax]
 
         y, xmin, xmax = cbook.delete_masked_points(y, xmin, xmax)
@@ -866,11 +1112,11 @@ class Axes(_AxesBase):
         ymin = self.convert_yunits(ymin)
         ymax = self.convert_yunits(ymax)
 
-        if not iterable(x):
+        if not np.iterable(x):
             x = [x]
-        if not iterable(ymin):
+        if not np.iterable(ymin):
             ymin = [ymin]
-        if not iterable(ymax):
+        if not np.iterable(ymax):
             ymax = [ymax]
 
         x, ymin, ymax = cbook.delete_masked_points(x, ymin, ymax)
@@ -996,9 +1242,9 @@ class Axes(_AxesBase):
         lineoffsets = self.convert_yunits(lineoffsets)
         linelengths = self.convert_yunits(linelengths)
 
-        if not iterable(positions):
+        if not np.iterable(positions):
             positions = [positions]
-        elif any(iterable(position) for position in positions):
+        elif any(np.iterable(position) for position in positions):
             positions = [np.asanyarray(position) for position in positions]
         else:
             positions = [np.asanyarray(positions)]
@@ -1012,15 +1258,15 @@ class Axes(_AxesBase):
         linewidths = cbook.local_over_kwdict(linewidths, kwargs, 'linewidth')
         linestyles = cbook.local_over_kwdict(linestyles, kwargs, 'linestyle')
 
-        if not iterable(lineoffsets):
+        if not np.iterable(lineoffsets):
             lineoffsets = [lineoffsets]
-        if not iterable(linelengths):
+        if not np.iterable(linelengths):
             linelengths = [linelengths]
-        if not iterable(linewidths):
+        if not np.iterable(linewidths):
             linewidths = [linewidths]
-        if not iterable(colors):
+        if not np.iterable(colors):
             colors = [colors]
-        if hasattr(linestyles, 'lower') or not iterable(linestyles):
+        if hasattr(linestyles, 'lower') or not np.iterable(linestyles):
             linestyles = [linestyles]
 
         lineoffsets = np.asarray(lineoffsets)
@@ -1252,7 +1498,7 @@ class Axes(_AxesBase):
 
             Here is a list of available `.Line2D` properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         Returns
         -------
@@ -1404,7 +1650,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
 
         See Also
@@ -1481,9 +1727,9 @@ class Axes(_AxesBase):
             All parameters supported by `.plot`.
         """
         dx = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
-                if k in kwargs}
+              if k in kwargs}
         dy = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
-                if k in kwargs}
+              if k in kwargs}
 
         self.set_xscale('log', **dx)
         self.set_yscale('log', **dy)
@@ -1534,7 +1780,7 @@ class Axes(_AxesBase):
             All parameters supported by `.plot`.
         """
         d = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
-                if k in kwargs}
+             if k in kwargs}
 
         self.set_xscale('log', **d)
         l = self.plot(*args, **kwargs)
@@ -1639,7 +1885,7 @@ class Axes(_AxesBase):
         Notes
         -----
         The cross correlation is performed with :func:`numpy.correlate` with
-        ``mode = 2``.
+        ``mode = "full"``.
         """
         return self.xcorr(x, x, **kwargs)
 
@@ -1700,7 +1946,7 @@ class Axes(_AxesBase):
         Notes
         -----
         The cross correlation is performed with :func:`numpy.correlate` with
-        ``mode = 2``.
+        ``mode = "full"``.
         """
         Nx = len(x)
         if Nx != len(y):
@@ -1709,7 +1955,7 @@ class Axes(_AxesBase):
         x = detrend(np.asarray(x))
         y = detrend(np.asarray(y))
 
-        correls = np.correlate(x, y, mode=2)
+        correls = np.correlate(x, y, mode="full")
 
         if normed:
             correls /= np.sqrt(np.dot(x, x) * np.dot(y, y))
@@ -2769,7 +3015,7 @@ class Axes(_AxesBase):
 
             Valid kwargs for the marker properties are `.Lines2D` properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         Notes
         -----
@@ -2818,18 +3064,18 @@ class Axes(_AxesBase):
             ecolor = base_style['color']
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
-        if not iterable(x):
+        if not np.iterable(x):
             x = [x]
 
-        if not iterable(y):
+        if not np.iterable(y):
             y = [y]
 
         if xerr is not None:
-            if not iterable(xerr):
+            if not np.iterable(xerr):
                 xerr = [xerr] * len(x)
 
         if yerr is not None:
-            if not iterable(yerr):
+            if not np.iterable(yerr):
                 yerr = [yerr] * len(y)
 
         # make the style dict for the 'normal' plot line
@@ -2921,7 +3167,7 @@ class Axes(_AxesBase):
             except (TypeError, ValueError):
                 pass
             else:
-                if iterable(a) and iterable(b):
+                if np.iterable(a) and np.iterable(b):
                     # using list comps rather than arrays to preserve units
                     low = [thisx - thiserr for thisx, thiserr
                            in cbook.safezip(data, a)]
@@ -2933,7 +3179,7 @@ class Axes(_AxesBase):
             # being accepted, when the user meant the 2xN transpose.
             # special case for empty lists
             if len(err) > 1:
-                fe = safe_first_element(err)
+                fe = cbook.safe_first_element(err)
                 if len(err) != len(data) or np.size(fe) > 1:
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
@@ -3792,7 +4038,9 @@ class Axes(_AxesBase):
             Note that *c* should not be a single numeric RGB or RGBA sequence
             because that is indistinguishable from an array of values to be
             colormapped. If you want to specify the same RGB or RGBA value for
-            all points, use a 2-D array with a single row.
+            all points, use a 2-D array with a single row.  Otherwise, value-
+            matching will have precedence in case of a size matching with *x*
+            and *y*.
 
         marker : `~matplotlib.markers.MarkerStyle`, optional, default: 'o'
             The marker style. *marker* can be either an instance of the class
@@ -3876,15 +4124,15 @@ class Axes(_AxesBase):
             except ValueError:
                 raise ValueError("'color' kwarg must be an mpl color"
                                  " spec or sequence of color specs.\n"
-                                 "For a sequence of values to be"
-                                 " color-mapped, use the 'c' kwarg instead.")
+                                 "For a sequence of values to be color-mapped,"
+                                 " use the 'c' argument instead.")
             if edgecolors is None:
                 edgecolors = co
             if facecolors is None:
                 facecolors = co
             if c is not None:
-                raise ValueError("Supply a 'c' kwarg or a 'color' kwarg"
-                                 " but not both; they differ but"
+                raise ValueError("Supply a 'c' argument or a 'color'"
+                                 " kwarg but not both; they differ but"
                                  " their functionalities overlap.")
         if c is None:
             if facecolors is not None:
@@ -3925,29 +4173,60 @@ class Axes(_AxesBase):
         # c is an array for mapping.  The potential ambiguity
         # with a sequence of 3 or 4 numbers is resolved in
         # favor of mapping, not rgb or rgba.
+
+        # Convenience vars to track shape mismatch *and* conversion failures.
+        valid_shape = True  # will be put to the test!
+        n_elem = -1  # used only for (some) exceptions
+
         if c_none or co is not None:
             c_array = None
         else:
-            try:
+            try:  # First, does 'c' look suitable for value-mapping?
                 c_array = np.asanyarray(c, dtype=float)
+                n_elem = c_array.shape[0]
                 if c_array.shape in xy_shape:
                     c = np.ma.ravel(c_array)
                 else:
+                    if c_array.shape in ((3,), (4,)):
+                        _log.warning(
+                            "'c' argument looks like a single numeric RGB or "
+                            "RGBA sequence, which should be avoided as value-"
+                            "mapping will have precedence in case its length "
+                            "matches with 'x' & 'y'.  Please use a 2-D array "
+                            "with a single row if you really want to specify "
+                            "the same RGB or RGBA value for all points.")
                     # Wrong size; it must not be intended for mapping.
+                    valid_shape = False
                     c_array = None
             except ValueError:
                 # Failed to make a floating-point array; c must be color specs.
                 c_array = None
 
         if c_array is None:
-            try:
-                # must be acceptable as PathCollection facecolors
+            try:  # Then is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
+                n_elem = colors.shape[0]
+                if colors.shape[0] not in (0, 1, x.size, y.size):
+                    # NB: remember that a single color is also acceptable.
+                    # Besides *colors* will be an empty array if c == 'none'.
+                    valid_shape = False
+                    raise ValueError
             except ValueError:
-                # c not acceptable as PathCollection facecolor
-                raise ValueError("c of shape {} not acceptable as a color "
-                                 "sequence for x with size {}, y with size {}"
-                                 .format(c.shape, x.size, y.size))
+                if not valid_shape:  # but at least one conversion succeeded.
+                    raise ValueError(
+                        "'c' argument has {nc} elements, which is not "
+                        "acceptable for use with 'x' with size {xs}, "
+                        "'y' with size {ys}."
+                        .format(nc=n_elem, xs=x.size, ys=y.size)
+                    )
+                # Both the mapping *and* the RGBA conversion failed: pretty
+                # severe failure => one may appreciate a verbose feedback.
+                raise ValueError(
+                    "'c' argument must either be valid as mpl color(s) "
+                    "or as numbers to be mapped to colors. "
+                    "Here c = {}."  # <- beware, could be long depending on c.
+                    .format(c)
+                )
         else:
             colors = None  # use cmap, norm after collection is created
 
@@ -4157,7 +4436,7 @@ class Axes(_AxesBase):
         x, y, C = cbook.delete_masked_points(x, y, C)
 
         # Set the size of the hexagon grid
-        if iterable(gridsize):
+        if np.iterable(gridsize):
             nx, ny = gridsize
         else:
             nx = gridsize
@@ -4352,7 +4631,7 @@ class Axes(_AxesBase):
                 norm.autoscale(accum)
 
         if bins is not None:
-            if not iterable(bins):
+            if not np.iterable(bins):
                 minimum, maximum = min(accum), max(accum)
                 bins -= 1  # one less edge than bins
                 bins = minimum + (maximum - minimum) * np.arange(bins) / bins
@@ -4687,11 +4966,11 @@ class Axes(_AxesBase):
             By default, the nodes of the polygon defining the filled region
             will only be placed at the positions in the *x* array.  Such a
             polygon cannot describe the above semantics close to the
-            intersection.  The x-sections containing the intersecion are
+            intersection.  The x-sections containing the intersection are
             simply clipped.
 
             Setting *interpolate* to *True* will calculate the actual
-            interscection point and extend the filled region up to this point.
+            intersection point and extend the filled region up to this point.
 
         step : {'pre', 'post', 'mid'}, optional
             Define *step* if the filling should be a step function,
@@ -4762,7 +5041,7 @@ class Axes(_AxesBase):
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
             if step is not None:
-                step_func = STEP_LOOKUP_MAP["steps-" + step]
+                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
                 xslice, y1slice, y2slice = step_func(xslice, y1slice, y2slice)
 
             if not len(xslice):
@@ -4945,7 +5224,7 @@ class Axes(_AxesBase):
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
             if step is not None:
-                step_func = STEP_LOOKUP_MAP["steps-" + step]
+                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
                 yslice, x1slice, x2slice = step_func(yslice, x1slice, x2slice)
 
             if not len(yslice):
@@ -5066,8 +5345,10 @@ class Axes(_AxesBase):
             'lanczos'.
 
             If *interpolation* is 'none', then no interpolation is performed
-            on the Agg, ps and pdf backends. Other backends will fall back to
-            'nearest'.
+            on the Agg, ps, pdf and svg backends. Other backends will fall back
+            to 'nearest'. Note that most SVG renders perform interpolation at
+            rendering and that the default interpolation method they implement
+            may differ.
 
             See
             :doc:`/gallery/images_contours_and_fields/interpolation_methods`
@@ -6234,7 +6515,7 @@ class Axes(_AxesBase):
             bin_range = self.convert_xunits(bin_range)
 
         # Check whether bins or range are given explicitly.
-        binsgiven = (cbook.iterable(bins) or bin_range is not None)
+        binsgiven = np.iterable(bins) or bin_range is not None
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
@@ -6255,7 +6536,10 @@ class Axes(_AxesBase):
         else:
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
-                raise ValueError("color kwarg must have one color per dataset")
+                error_message = (
+                    "color kwarg must have one color per data set. %d data "
+                    "sets and %d colors were provided" % (len(color), nx))
+                raise ValueError(error_message)
 
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
@@ -6656,7 +6940,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -6781,7 +7065,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -6879,7 +7163,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -6976,7 +7260,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7058,7 +7342,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7137,7 +7421,7 @@ class Axes(_AxesBase):
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
 
         References
         ----------
@@ -7399,7 +7683,7 @@ class Axes(_AxesBase):
             For the marker style, you can pass any `.Line2D` property except
             for *linestyle*:
 
-            %(Line2D)s
+        %(_Line2D_docstr)s
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
@@ -7410,10 +7694,11 @@ class Axes(_AxesBase):
             if 'cmap' not in kwargs:
                 kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'],
                                                         name='binary')
-            nr, nc = Z.shape
-            extent = [-0.5, nc - 0.5, nr - 0.5, -0.5]
+            if 'interpolation' in kwargs:
+                raise TypeError(
+                    "spy() got an unexpected keyword argument 'interpolation'")
             ret = self.imshow(mask, interpolation='nearest', aspect=aspect,
-                                extent=extent, origin=origin, **kwargs)
+                              origin=origin, **kwargs)
         else:
             if hasattr(Z, 'tocoo'):
                 c = Z.tocoo()
@@ -7432,6 +7717,9 @@ class Axes(_AxesBase):
                 marker = 's'
             if markersize is None:
                 markersize = 10
+            if 'linestyle' in kwargs:
+                raise TypeError(
+                    "spy() got an unexpected keyword argument 'linestyle'")
             marks = mlines.Line2D(x, y, linestyle='None',
                          marker=marker, markersize=markersize, **kwargs)
             self.add_line(marks)
@@ -7488,7 +7776,6 @@ class Axes(_AxesBase):
 
         """
         Z = np.asanyarray(Z)
-        nr, nc = Z.shape
         kw = {'origin': 'upper',
               'interpolation': 'nearest',
               'aspect': 'equal',          # (already the imshow default)

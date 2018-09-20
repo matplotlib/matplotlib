@@ -30,7 +30,6 @@ from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list, is_hashable, warn_deprecated
-import matplotlib.colors as colors
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -977,9 +976,11 @@ class Legend(Artist):
         'Return the `.Text` instance for the legend title.'
         return self._legend_title_box._text
 
-    def get_window_extent(self, *args, **kwargs):
+    def get_window_extent(self, renderer=None):
         'Return extent of the legend.'
-        return self._legend_box.get_window_extent(*args, **kwargs)
+        if renderer is None:
+            renderer = self.figure._cachedRenderer
+        return self._legend_box.get_window_extent(renderer=renderer)
 
     def get_tightbbox(self, renderer):
         """
@@ -1242,7 +1243,7 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
 
     for handle in _get_legend_handles(axs, legend_handler_map):
         label = handle.get_label()
-        if (label and not label.startswith('_')):
+        if label and not label.startswith('_'):
             handles.append(handle)
             labels.append(label)
     return handles, labels

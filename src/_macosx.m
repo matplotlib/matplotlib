@@ -267,6 +267,39 @@ static int wait_for_stdin(void)
 
 /* ---------------------------- Python classes ---------------------------- */
 
+static bool backend_inited = false;
+
+static void lazy_init(void) {
+    if (backend_inited) {
+        return;
+    }
+    backend_inited = true;
+
+    NSApp = [NSApplication sharedApplication];
+
+    PyOS_InputHook = wait_for_stdin;
+
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
+    NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+    NSNotificationCenter* notificationCenter = [workspace notificationCenter];
+    [notificationCenter addObserver: connectionManager
+                           selector: @selector(launch:)
+                               name: NSWorkspaceDidLaunchApplicationNotification
+                             object: nil];
+    [pool release];
+}
+
+static PyObject*
+event_loop_is_running(PyObject* self)
+{
+    if (backend_inited) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
+}
+
 static CGFloat _get_device_scale(CGContextRef cr)
 {
     CGSize pixelSize = CGContextConvertSizeToDeviceSpace(cr, CGSizeMake(1, 1));
@@ -281,6 +314,7 @@ typedef struct {
 static PyObject*
 FigureCanvas_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    lazy_init();
     FigureCanvas *self = (FigureCanvas*)type->tp_alloc(type, 0);
     if (!self) return NULL;
     self->view = [View alloc];
@@ -641,6 +675,7 @@ typedef struct {
 static PyObject*
 FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    lazy_init();
     Window* window = [Window alloc];
     if (!window) return NULL;
     FigureManager *self = (FigureManager*)type->tp_alloc(type, 0);
@@ -1076,6 +1111,7 @@ typedef struct {
 static PyObject*
 NavigationToolbar2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    lazy_init();
     NavigationToolbar2Handler* handler = [NavigationToolbar2Handler alloc];
     if (!handler) return NULL;
     NavigationToolbar2 *self = (NavigationToolbar2*)type->tp_alloc(type, 0);
@@ -1768,8 +1804,16 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     NSWindow* window = [self window];
     if ([window isKeyWindow]==false) return;
 
+    int x, y;
+    NSPoint location = [event locationInWindow];
+    location = [self convertPoint: location fromView: nil];
+    x = location.x * device_scale;
+    y = location.y * device_scale;
+
     gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "enter_notify_event", "");
+    result = PyObject_CallMethod(canvas, "enter_notify_event", "O(ii)",
+            Py_None, x, y);
+
     if(result)
         Py_DECREF(result);
     else
@@ -2311,16 +2355,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 @end
 
 static PyObject*
-event_loop_is_running(PyObject* self)
-{
-    if ([NSApp isRunning]) {
-        Py_RETURN_TRUE;
-    } else {
-        Py_RETURN_FALSE;
-    }
-}
-
-static PyObject*
 show(PyObject* self)
 {
     [NSApp activateIgnoringOtherApps: YES];
@@ -2346,6 +2380,7 @@ typedef struct {
 static PyObject*
 Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 {
+    lazy_init();
     Timer* self = (Timer*)type->tp_alloc(type, 0);
     if (!self) return NULL;
     self->timer = NULL;
@@ -2387,6 +2422,7 @@ Timer__timer_start(Timer* self, PyObject* args)
     CFRunLoopTimerRef timer;
     CFRunLoopTimerContext context;
     double milliseconds;
+    CFAbsoluteTime firstFire;
     CFTimeInterval interval;
     PyObject* attribute;
     PyObject* failure;
@@ -2411,12 +2447,15 @@ Timer__timer_start(Timer* self, PyObject* args)
         PyErr_SetString(PyExc_AttributeError, "Timer has no attribute '_single'");
         return NULL;
     }
+    // Need to tell when to first fire this timer, so get the current time
+    // and add an interval.
+    interval = milliseconds / 1000.0;
+    firstFire = CFAbsoluteTimeGetCurrent() + interval;
     switch (PyObject_IsTrue(attribute)) {
         case 1:
             interval = 0;
             break;
-        case 0:
-            interval = milliseconds / 1000.0;
+        case 0: // Set by default above
             break;
         case -1:
         default:
@@ -2440,7 +2479,7 @@ Timer__timer_start(Timer* self, PyObject* args)
     context.copyDescription = NULL;
     context.info = attribute;
     timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
-                                 0,
+                                 firstFire,
                                  interval,
                                  0,
                                  0,
@@ -2538,24 +2577,12 @@ static PyTypeObject TimerType = {
 
 static bool verify_framework(void)
 {
-#ifdef COMPILING_FOR_10_6
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    NSRunningApplication* app = [NSRunningApplication currentApplication];
-    NSApplicationActivationPolicy activationPolicy = [app activationPolicy];
-    [pool release];
-    switch (activationPolicy) {
-        case NSApplicationActivationPolicyRegular:
-        case NSApplicationActivationPolicyAccessory:
-            return true;
-        case NSApplicationActivationPolicyProhibited:
-            break;
-    }
-#else
     ProcessSerialNumber psn;
+    /* These methods are deprecated, but they don't require the app to
+       have started  */
     if (CGMainDisplayID()!=0
      && GetCurrentProcess(&psn)==noErr
      && SetFrontProcess(&psn)==noErr) return true;
-#endif
     PyErr_SetString(PyExc_ImportError,
         "Python is not installed as a framework. The Mac OS X backend will "
         "not be able to function correctly if Python is not installed as a "
@@ -2572,7 +2599,7 @@ static struct PyMethodDef methods[] = {
    {"event_loop_is_running",
     (PyCFunction)event_loop_is_running,
     METH_NOARGS,
-    "Return whether the NSApp main event loop is currently running."
+    "Return whether the OSX backend has set up the NSApp main event loop."
    },
    {"show",
     (PyCFunction)show,
@@ -2617,13 +2644,12 @@ PyObject* PyInit__macosx(void)
      || PyType_Ready(&TimerType) < 0)
         return NULL;
 
-    NSApp = [NSApplication sharedApplication];
-
     if (!verify_framework())
         return NULL;
 
     module = PyModule_Create(&moduledef);
-    if (module==NULL) return NULL;
+    if (!module)
+        return NULL;
 
     Py_INCREF(&FigureCanvasType);
     Py_INCREF(&FigureManagerType);
@@ -2634,16 +2660,5 @@ PyObject* PyInit__macosx(void)
     PyModule_AddObject(module, "NavigationToolbar2", (PyObject*) &NavigationToolbar2Type);
     PyModule_AddObject(module, "Timer", (PyObject*) &TimerType);
 
-    PyOS_InputHook = wait_for_stdin;
-
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
-    NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
-    NSNotificationCenter* notificationCenter = [workspace notificationCenter];
-    [notificationCenter addObserver: connectionManager
-                           selector: @selector(launch:)
-                               name: NSWorkspaceDidLaunchApplicationNotification
-                             object: nil];
-    [pool release];
     return module;
 }

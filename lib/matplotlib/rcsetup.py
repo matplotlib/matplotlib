@@ -13,7 +13,7 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
-from collections import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 from functools import reduce
 import operator
 import os
@@ -242,13 +242,14 @@ def validate_fonttype(s):
 
 _validate_standard_backends = ValidateInStrings(
     'backend', all_backends, ignorecase=True)
+_auto_backend_sentinel = object()
 
 
 def validate_backend(s):
-    if s.startswith('module://'):
-        return s
-    else:
-        return _validate_standard_backends(s)
+    backend = (
+        s if s is _auto_backend_sentinel or s.startswith("module://")
+        else _validate_standard_backends(s))
+    return backend
 
 
 def validate_qt4(s):
@@ -394,12 +395,14 @@ def validate_color(s):
 validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
 validate_colorlist.__doc__ = 'return a list of colorspecs'
 
+
 def validate_string(s):
     if isinstance(s, (str, str)):
         # Always leave str as str and unicode as unicode
         return s
     else:
         return str(s)
+
 
 validate_stringlist = _listify_validator(str)
 validate_stringlist.__doc__ = 'return a list'
@@ -449,19 +452,17 @@ def validate_font_properties(s):
 validate_fontset = ValidateInStrings(
     'fontset',
     ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'])
-
 validate_mathtext_default = ValidateInStrings(
     'default',
     "rm cal it tt sf bf default bb frak circled scr regular".split())
-
 validate_verbose = ValidateInStrings(
     'verbose',
     ['silent', 'helpful', 'debug', 'debug-annoying'])
-
 _validate_alignment = ValidateInStrings(
     'alignment',
     ['center', 'top', 'bottom', 'baseline',
      'center_baseline'])
+
 
 def validate_whiskers(s):
     if s == 'range':
@@ -509,6 +510,7 @@ def validate_ps_distiller(s):
         raise ValueError('matplotlibrc ps.usedistiller must either be none, '
                          'ghostscript or xpdf')
 
+
 validate_joinstyle = ValidateInStrings('joinstyle',
                                        ['miter', 'round', 'bevel'],
                                        ignorecase=True)
@@ -527,6 +529,8 @@ validate_fillstylelist = _listify_validator(validate_fillstyle)
 _validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                  ['solid', 'dashed'],
                                                  ignorecase=True)
+
+
 def validate_markevery(s):
     """
     Validate the markevery property of a Line2D object.
@@ -574,6 +578,7 @@ def validate_markevery(s):
 
     return s
 
+
 validate_markeverylist = _listify_validator(validate_markevery)
 
 validate_legend_loc = ValidateInStrings(
@@ -609,6 +614,7 @@ def validate_hinting(s):
         return s.lower()
     raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
 
+
 validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
 
@@ -626,6 +632,7 @@ validate_axis_locator = ValidateInStrings('major', ['minor', 'both', 'major'])
 validate_movie_html_fmt = ValidateInStrings('animation.html',
     ['html5', 'jshtml', 'none'])
 
+
 def validate_bbox(s):
     if isinstance(s, str):
         s = s.lower()
@@ -639,6 +646,7 @@ def validate_bbox(s):
         raise ValueError("bbox should be 'tight' or 'standard'")
     return s
 
+
 def validate_sketch(s):
     if isinstance(s, str):
         s = s.lower()
@@ -651,6 +659,7 @@ def validate_sketch(s):
     if len(result) != 3:
         raise ValueError("path.sketch must be a tuple (scale, length, randomness)")
     return result
+
 
 class ValidateInterval(object):
     """
@@ -683,6 +692,7 @@ class ValidateInterval(object):
                                (self.vmax, s))
         return s
 
+
 validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
 
 
@@ -699,8 +709,11 @@ def validate_hatch(s):
     if unknown:
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
     return s
+
+
 validate_hatchlist = _listify_validator(validate_hatch)
 validate_dashlist = _listify_validator(validate_nseq_float(allow_none=True))
+
 
 _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
@@ -892,14 +905,13 @@ def validate_hist_bins(s):
         return int(s)
     except (TypeError, ValueError):
         pass
-
     try:
         return validate_floatlist(s)
     except ValueError:
         pass
-
     raise ValueError("'hist.bins' must be 'auto', an int or " +
                      "a sequence of floats")
+
 
 def validate_animation_writer_path(p):
     # Make sure it's a string and then figure out if the animations
@@ -916,6 +928,7 @@ def validate_animation_writer_path(p):
         modules["matplotlib.animation"].writers.set_dirty()
     return p
 
+
 def validate_webagg_address(s):
     if s is not None:
         import socket
@@ -925,6 +938,7 @@ def validate_webagg_address(s):
             raise ValueError("'webagg.address' is not a valid IP address")
         return s
     raise ValueError("'webagg.address' is not a valid IP address")
+
 
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
@@ -965,9 +979,8 @@ def _validate_linestyle(ls):
 
 # a map from key -> value, converter
 defaultParams = {
-    'backend':           ['Agg', validate_backend],  # agg is certainly
-                                                      # present
-    'backend_fallback':  [True, validate_bool],  # agg is certainly present
+    'backend':           [_auto_backend_sentinel, validate_backend],
+    'backend_fallback':  [True, validate_bool],
     'backend.qt4':       [None, validate_qt4],
     'backend.qt5':       [None, validate_qt5],
     'webagg.port':       [8988, validate_int],
@@ -1088,7 +1101,7 @@ defaultParams = {
     'font.cursive':    [['Apple Chancery', 'Textile', 'Zapf Chancery',
                          'Sand', 'Script MT', 'Felipa', 'cursive'],
                         validate_stringlist],
-    'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact'
+    'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact',
                          'Western', 'Humor Sans', 'xkcd', 'fantasy'],
                         validate_stringlist],
     'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
@@ -1155,11 +1168,11 @@ defaultParams = {
                                                                 # default draw on 'major'
                                                                 # 'minor' or 'both' kind of
                                                                 # axis locator
-    'axes.grid.axis':        ['both', validate_grid_axis], # grid type.
-                                                      # Can be 'x', 'y', 'both'
+    'axes.grid.axis':        ['both', validate_grid_axis],  # grid type:
+                                                            # 'x', 'y', or 'both'
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
-    'axes.labelpad':         [4.0, validate_float], # space between label and axis
+    'axes.labelpad':         [4.0, validate_float],  # space between label and axis
     'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
     'axes.labelcolor':       ['black', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
@@ -1192,7 +1205,7 @@ defaultParams = {
                                             closedmax=True)],  # margin added to xaxis
     'axes.ymargin': [0.05, ValidateInterval(0, 1,
                                             closedmin=True,
-                                            closedmax=True)],# margin added to yaxis
+                                            closedmax=True)],  # margin added to yaxis
 
     'polaraxes.grid': [True, validate_bool],  # display polar grid or
                                                      # not

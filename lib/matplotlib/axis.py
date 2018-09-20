@@ -10,7 +10,6 @@ import numpy as np
 
 from matplotlib import rcParams
 import matplotlib.artist as artist
-from matplotlib.artist import allow_rasterization
 import matplotlib.cbook as cbook
 from matplotlib.cbook import _string_to_bool
 import matplotlib.font_manager as font_manager
@@ -30,7 +29,7 @@ GRIDLINE_INTERPOLATION_STEPS = 180
 # allows all Line2D kwargs.
 _line_AI = artist.ArtistInspector(mlines.Line2D)
 _line_param_names = _line_AI.get_setters()
-_line_param_aliases = [list(d.keys())[0] for d in _line_AI.aliasd.values()]
+_line_param_aliases = [list(d)[0] for d in _line_AI.aliasd.values()]
 _gridline_param_names = ['grid_' + name
                          for name in _line_param_names + _line_param_aliases]
 
@@ -286,7 +285,7 @@ class Tick(artist.Artist):
         'Return the tick location (data coords) as a scalar'
         return self._loc
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
             self.stale = False
@@ -1077,7 +1076,7 @@ class Axis(artist.Artist):
                 try:
                     ds1 = self._get_pixel_distance_along_axis(
                         interval_expanded[0], -0.5)
-                except:
+                except Exception:
                     warnings.warn("Unable to find pixel distance along axis "
                                   "for interval padding of ticks; assuming no "
                                   "interval padding needed.")
@@ -1087,7 +1086,7 @@ class Axis(artist.Artist):
                 try:
                     ds2 = self._get_pixel_distance_along_axis(
                         interval_expanded[1], +0.5)
-                except:
+                except Exception:
                     warnings.warn("Unable to find pixel distance along axis "
                                   "for interval padding of ticks; assuming no "
                                   "interval padding needed.")
@@ -1174,7 +1173,7 @@ class Axis(artist.Artist):
             values.append(self.minorTicks[0].get_tick_padding())
         return max(values, default=0)
 
-    @allow_rasterization
+    @artist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
 
@@ -1417,21 +1416,38 @@ class Axis(artist.Artist):
 
     def grid(self, b=None, which='major', **kwargs):
         """
-        Set the axis grid on or off; b is a boolean. Use *which* =
-        'major' | 'minor' | 'both' to set the grid for major or minor ticks.
+        Configure the grid lines.
 
-        If *b* is *None* and len(kwargs)==0, toggle the grid state.  If
-        *kwargs* are supplied, it is assumed you want the grid on and *b*
-        will be set to True.
+        Parameters
+        ----------
+        b : bool or None
+            Whether to show the grid lines. If any *kwargs* are supplied,
+            it is assumed you want the grid on and *b* will be set to True.
 
-        *kwargs* are used to set the line properties of the grids, e.g.,
+            If *b* is *None* and there are no *kwargs*, this toggles the
+            visibility of the lines.
 
-          xax.grid(color='r', linestyle='-', linewidth=2)
+        which : {'major', 'minor', 'both'}
+            The grid lines to apply the changes on.
+
+        **kwargs : `.Line2D` properties
+            Define the line properties of the grid, e.g.::
+
+                grid(color='r', linestyle='-', linewidth=2)
+
         """
         if len(kwargs):
+            if not b and b is not None:  # something false-like but not None
+                warnings.warn('First parameter to grid() is false, but line '
+                              'properties are supplied. The grid will be '
+                              'enabled.')
             b = True
         which = which.lower()
+        if which not in ['major', 'minor', 'both']:
+            raise ValueError("The argument 'which' must be one of 'major', "
+                             "'minor' or 'both'.")
         gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
+
         if which in ['minor', 'both']:
             if b is None:
                 self._gridOnMinor = not self._gridOnMinor

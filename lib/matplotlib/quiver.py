@@ -24,7 +24,6 @@ import matplotlib.collections as mcollections
 import matplotlib.transforms as transforms
 import matplotlib.text as mtext
 import matplotlib.artist as martist
-from matplotlib.artist import allow_rasterization
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 from matplotlib.cbook import delete_masked_points
@@ -341,7 +340,7 @@ class QuiverKey(martist.Artist):
         else:
             return y
 
-    @allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
@@ -540,7 +539,7 @@ class Quiver(mcollections.PolyCollection):
         bbox.update_from_data_xy(XY, ignore=True)
         return bbox
 
-    @allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
         verts = self._make_verts(self.U, self.V, self.angles)

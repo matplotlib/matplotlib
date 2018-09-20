@@ -29,15 +29,16 @@
 
 ##### CONFIGURATION BEGINS HERE
 
-## The default backend; one of GTK3Agg GTK3Cairo MacOSX Qt4Agg Qt5Agg TkAgg
-## WX WXAgg Agg Cairo PS PDF SVG Template.
+## The default backend. If you omit this parameter, the first
+## working backend from the following list is used:
+## MacOSX Qt5Agg Qt4Agg Gtk3Agg GTK3Cairo TkAgg WxAgg Agg Cairo
+##
+## Other choices include: WX PS PDF SVG Template.
+##
 ## You can also deploy your own backend outside of matplotlib by
 ## referring to the module name (which must be in the PYTHONPATH) as
 ## 'module://my_backend'.
-##
-## If you omit this parameter, it will always default to "Agg", which is a
-## non-interactive backend.
-backend      : $TEMPLATE_BACKEND
+#backend      : Agg
 
 ## Note that this can be overridden by the environment variable
 ## QT_API used by Enthought Tool Suite (ETS); valid values are

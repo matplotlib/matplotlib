@@ -14,7 +14,7 @@ this file.
 # analysis tools to parse.
 
 import inspect
-from inspect import Signature, Parameter
+from inspect import Parameter
 from pathlib import Path
 import textwrap
 
@@ -257,7 +257,7 @@ def boilerplate_gen():
     for name in cmaps:
         yield CMAP_TEMPLATE.format(name=name)
 
-    yield ''
+    yield '\n'
     yield '_setup_pyplot_info_docstrings()'
 
 

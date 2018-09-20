@@ -2,14 +2,15 @@
 An experimental support for curvilinear grid.
 """
 from itertools import chain
-from .grid_finder import GridFinder
 
-from  .axislines import AxisArtistHelper, GridHelperBase
-from  .axis_artist import AxisArtist
-from matplotlib.transforms import Affine2D, IdentityTransform
 import numpy as np
 
 from matplotlib.path import Path
+from matplotlib.transforms import Affine2D, IdentityTransform
+from .axislines import AxisArtistHelper, GridHelperBase
+from .axis_artist import AxisArtist
+from .grid_finder import GridFinder
+
 
 class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
     """
@@ -45,7 +46,6 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
         else:
             self._limits_inverted = False
 
-
     def change_tick_coord(self, coord_number=None):
         if coord_number is None:
             self.nth_coord_ticks = 1 - self.nth_coord_ticks
@@ -53,7 +53,6 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
             self.nth_coord_ticks = coord_number
         else:
             raise Exception("wrong coord number")
-
 
     def get_tick_transform(self, axes):
         return axes.transData
@@ -64,8 +63,8 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
         g = self.grid_helper
 
         if self._limits_inverted:
-            side = {"left":"right","right":"left",
-                    "top":"bottom", "bottom":"top"}[self.side]
+            side = {"left": "right", "right": "left",
+                    "top": "bottom", "bottom": "top"}[self.side]
         else:
             side = self.side
 
@@ -75,7 +74,6 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
         #ti2 = g.get_tick_iterator(1-self.nth_coord_ticks, self.side, minor=True)
 
         return chain(ti1, ti2), iter([])
-
 
 
 class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
@@ -91,8 +89,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         self.grid_helper = grid_helper
         self._extremes = None, None
 
-        self._get_line_path = None # a method that returns a Path.
-        self._line_num_points = 100 # number of points to create a line
+        self._get_line_path = None  # a method that returns a Path.
+        self._line_num_points = 100  # number of points to create a line
 
     def set_extremes(self, e1, e2):
         self._extremes = e1, e2
@@ -107,7 +105,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
                                               x1, y1, x2, y2)
 
         extremes = list(extremes)
-        e1, e2 = self._extremes # ranges of other coordinates
+        e1, e2 = self._extremes  # ranges of other coordinates
         if self.nth_coord == 0:
             if e1 is not None:
                 extremes[2] = max(e1, extremes[2])
@@ -140,7 +138,6 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         grid_finder = self.grid_helper.grid_finder
 
-        #e1, e2 = self._extremes # ranges of other coordinates
         if self.nth_coord == 0:
             xx0 = np.linspace(self.value, self.value, self._line_num_points)
             yy0 = np.linspace(extremes[2], extremes[3], self._line_num_points)
@@ -154,7 +151,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         self.grid_info = grid_info
 
     def get_axislabel_transform(self, axes):
-        return Affine2D() #axes.transData
+        return Affine2D()  # axes.transData
 
     def get_axislabel_pos_angle(self, axes):
 
@@ -175,8 +172,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
         p = trans_passingthrough_point.transform_point([xx1[0], yy1[0]])
 
-
-        if (0. <= p[0] <= 1.) and (0. <= p[1] <= 1.):
+        if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
             xx1c, yy1c = axes.transData.transform_point([xx1[0], yy1[0]])
             xx2, yy2 = grid_finder.transform_xy([xx0+dxx], [yy0+dyy])
             xx2c, yy2c = axes.transData.transform_point([xx2[0], yy2[0]])
@@ -185,11 +181,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         else:
             return None, None
 
-
-
-
     def get_tick_transform(self, axes):
-        return IdentityTransform() #axes.transData
+        return IdentityTransform()  # axes.transData
 
     def get_tick_iterators(self, axes):
         """tick_loc, tick_angle, tick_label, (optionally) tick_label"""
@@ -273,25 +266,17 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             labels = self.grid_info["lon_labels"]
             labels = [l for l, m in zip(labels, mask) if m]
 
-
         def f1():
-            dd = np.arctan2(yy1b-yy1a, xx1b-xx1a) # angle normal
-            dd2 = np.arctan2(yy2b-yy2a, xx2b-xx2a) # angle tangent
-            mm = ((yy1b-yy1a)==0.) & ((xx1b-xx1a)==0.) # mask where dd1 is not defined
+            dd = np.arctan2(yy1b-yy1a, xx1b-xx1a)  # angle normal
+            dd2 = np.arctan2(yy2b-yy2a, xx2b-xx2a)  # angle tangent
+            mm = (yy1b-yy1a == 0) & (xx1b-xx1a == 0)  # mask where dd1 is not defined
             dd[mm] = dd2[mm] + np.pi / 2
-            #dd = np.arctan2(yy2-yy1, xx2-xx1) # angle normal
-            #dd2 = np.arctan2(yy3-yy1, xx3-xx1) # angle tangent
-            #mm = ((yy2-yy1)==0.) & ((xx2-xx1)==0.) # mask where dd1 is not defined
-            #dd[mm] = dd2[mm] + np.pi / 2
 
-            #dd += np.pi
-
-            #dd = np.arctan2(xx2-xx1, angle_tangent-yy1)
             trans_tick = self.get_tick_transform(axes)
             tr2ax = trans_tick + axes.transAxes.inverted()
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tr2ax.transform_point((x, y))
-                delta=0.00001
+                delta = 0.00001
                 if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
                     d1, d2 = np.rad2deg([d, d2])
                     yield [x, y], d1, d2, lab
@@ -309,8 +294,6 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             return Path(np.column_stack([x, y]))
         else:
             return self._get_line_path(axes, x, y)
-
-
 
 
 class GridHelperCurveLinear(GridHelperBase):
@@ -335,7 +318,7 @@ class GridHelperCurveLinear(GridHelperBase):
 
         self.grid_info = None
         self._old_values = None
-        #self._grid_params = dict()
+        # self._grid_params = dict()
         self._aux_trans = aux_trans
 
         self.grid_finder = GridFinder(aux_trans,
@@ -345,7 +328,6 @@ class GridHelperCurveLinear(GridHelperBase):
                                       tick_formatter1,
                                       tick_formatter2)
 
-
     def update_grid_finder(self, aux_trans=None, **kw):
 
         if aux_trans is not None:
@@ -353,7 +335,6 @@ class GridHelperCurveLinear(GridHelperBase):
 
         self.grid_finder.update(**kw)
         self.invalidate()
-
 
     def _update(self, x1, x2, y1, y2):
         "bbox in 0-based image coordinates"
@@ -368,13 +349,11 @@ class GridHelperCurveLinear(GridHelperBase):
 
         self._force_update = False
 
-
     def new_fixed_axis(self, loc,
                        nth_coord=None,
                        axis_direction=None,
                        offset=None,
                        axes=None):
-
 
         if axes is None:
             axes = self.axes
@@ -382,14 +361,13 @@ class GridHelperCurveLinear(GridHelperBase):
         if axis_direction is None:
             axis_direction = loc
         _helper = FixedAxisArtistHelper(self, loc,
-                                        #nth_coord,
+                                        # nth_coord,
                                         nth_coord_ticks=nth_coord,
                                         )
 
         axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
 
         return axisline
-
 
     def new_floating_axis(self, nth_coord,
                           value,
@@ -405,28 +383,25 @@ class GridHelperCurveLinear(GridHelperBase):
 
         axisline = AxisArtist(axes, _helper)
 
-        #_helper = FloatingAxisArtistHelper(self, nth_coord,
-        #                                   value,
-        #                                   label_direction=label_direction,
-        #                                   )
+        # _helper = FloatingAxisArtistHelper(self, nth_coord,
+        #                                    value,
+        #                                    label_direction=label_direction,
+        #                                    )
 
-        #axisline = AxisArtistFloating(axes, _helper,
-        #                              axis_direction=axis_direction)
+        # axisline = AxisArtistFloating(axes, _helper,
+        #                               axis_direction=axis_direction)
         axisline.line.set_clip_on(True)
         axisline.line.set_clip_box(axisline.axes.bbox)
-        #axisline.major_ticklabels.set_visible(True)
-        #axisline.minor_ticklabels.set_visible(False)
+        # axisline.major_ticklabels.set_visible(True)
+        # axisline.minor_ticklabels.set_visible(False)
 
-        #axisline.major_ticklabels.set_rotate_along_line(True)
-        #axisline.set_rotate_label_along_line(True)
+        # axisline.major_ticklabels.set_rotate_along_line(True)
+        # axisline.set_rotate_label_along_line(True)
 
         return axisline
 
-
     def _update_grid(self, x1, y1, x2, y2):
-
         self.grid_info = self.grid_finder.get_grid_info(x1, y1, x2, y2)
-
 
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
@@ -440,26 +415,21 @@ class GridHelperCurveLinear(GridHelperBase):
 
         return grid_lines
 
-
     def get_tick_iterator(self, nth_coord, axis_side, minor=False):
 
-        #axisnr = dict(left=0, bottom=1, right=2, top=3)[axis_side]
+        # axisnr = dict(left=0, bottom=1, right=2, top=3)[axis_side]
         angle_tangent = dict(left=90, right=90, bottom=0, top=0)[axis_side]
-        #angle = [0, 90, 180, 270][axisnr]
+        # angle = [0, 90, 180, 270][axisnr]
         lon_or_lat = ["lon", "lat"][nth_coord]
-        if not minor: # major ticks
-            def f():
-                for (xy, a), l in zip(self.grid_info[lon_or_lat]["tick_locs"][axis_side],
-                                    self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
-                    angle_normal = a
-                    yield xy, angle_normal, angle_tangent, l
+        if not minor:  # major ticks
+            for (xy, a), l in zip(self.grid_info[lon_or_lat]["tick_locs"][axis_side],
+                                  self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
+                angle_normal = a
+                yield xy, angle_normal, angle_tangent, l
         else:
-            def f():
-                for (xy, a), l in zip(self.grid_info[lon_or_lat]["tick_locs"][axis_side],
-                                    self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
-                    angle_normal = a
-                    yield xy, angle_normal, angle_tangent, ""
-                #for xy, a, l in self.grid_info[lon_or_lat]["ticks"][axis_side]:
-                #    yield xy, a, ""
-
-        return f()
+            for (xy, a), l in zip(self.grid_info[lon_or_lat]["tick_locs"][axis_side],
+                                  self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
+                angle_normal = a
+                yield xy, angle_normal, angle_tangent, ""
+            # for xy, a, l in self.grid_info[lon_or_lat]["ticks"][axis_side]:
+            #     yield xy, a, ""

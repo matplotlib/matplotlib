@@ -121,7 +121,7 @@ class TimerWx(TimerBase):
     '''
 
     def __init__(self, *args, **kwargs):
-        if isinstance(args[0], wx.EvtHandler):
+        if args and isinstance(args[0], wx.EvtHandler):
             cbook.warn_deprecated(
                 "3.0", "Passing a wx.EvtHandler as first argument to the "
                 "TimerWx constructor is deprecated since %(version)s.")

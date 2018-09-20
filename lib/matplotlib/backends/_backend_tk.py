@@ -204,7 +204,7 @@ class FigureCanvasTk(FigureCanvasBase):
         super(FigureCanvasTk, self).__init__(figure)
         self._idle = True
         self._idle_callback = None
-        t1,t2,w,h = self.figure.bbox.bounds
+        t1, t2, w, h = self.figure.bbox.bounds
         w, h = int(w), int(h)
         self._tkcanvas = Tk.Canvas(
             master=master, background="white",
@@ -254,15 +254,15 @@ class FigureCanvasTk(FigureCanvasBase):
 
         # compute desired figure size in inches
         dpival = self.figure.dpi
-        winch = width/dpival
-        hinch = height/dpival
+        winch = width / dpival
+        hinch = height / dpival
         self.figure.set_size_inches(winch, hinch, forward=False)
-
 
         self._tkcanvas.delete(self._tkphoto)
         self._tkphoto = Tk.PhotoImage(
             master=self._tkcanvas, width=int(width), height=int(height))
-        self._tkcanvas.create_image(int(width/2),int(height/2),image=self._tkphoto)
+        self._tkcanvas.create_image(
+            int(width / 2), int(height / 2), image=self._tkphoto)
         self.resize_event()
         self.draw()
 
@@ -330,13 +330,13 @@ class FigureCanvasTk(FigureCanvasBase):
             # alternate implementation -- process enter/leave events
             # instead of motion/notify
             if self.figure.bbox.contains(xc, yc):
-                self.enter_notify_event(guiEvent, xy=(xc,yc))
+                self.enter_notify_event(guiEvent, xy=(xc, yc))
             else:
                 self.leave_notify_event(guiEvent)
 
     def draw_idle(self):
-        'update drawing area only if idle'
-        if self._idle is False:
+        """Update the drawing area if idle."""
+        if not self._idle:
             return
 
         self._idle = False
@@ -376,13 +376,16 @@ class FigureCanvasTk(FigureCanvasBase):
 
         if sys.platform == 'darwin':
             # 2 and 3 were reversed on the OSX platform I tested under tkagg.
-            if num == 2: num = 3
-            elif num == 3: num = 2
+            if num == 2:
+                num = 3
+            elif num == 3:
+                num = 2
 
-        FigureCanvasBase.button_press_event(self, x, y, num, dblclick=dblclick, guiEvent=event)
+        FigureCanvasBase.button_press_event(
+            self, x, y, num, dblclick=dblclick, guiEvent=event)
 
-    def button_dblclick_event(self,event):
-        self.button_press_event(event,dblclick=True)
+    def button_dblclick_event(self, event):
+        self.button_press_event(event, dblclick=True)
 
     def button_release_event(self, event):
         x = event.x
@@ -393,8 +396,10 @@ class FigureCanvasTk(FigureCanvasBase):
 
         if sys.platform == 'darwin':
             # 2 and 3 were reversed on the OSX platform I tested under tkagg.
-            if num == 2: num = 3
-            elif num == 3: num = 2
+            if num == 2:
+                num = 3
+            elif num == 3:
+                num = 2
 
         FigureCanvasBase.button_release_event(self, x, y, num, guiEvent=event)
 
@@ -402,10 +407,12 @@ class FigureCanvasTk(FigureCanvasBase):
         x = event.x
         y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
-        if   num==4: step = +1
-        elif num==5: step = -1
-        else:        step =  0
-
+        if num == 4:
+            step = +1
+        elif num == 5:
+            step = -1
+        else:
+            step =  0
         FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
     def scroll_event_windows(self, event):
@@ -511,12 +518,13 @@ class FigureManagerTk(FigureManagerBase):
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
         self.canvas = canvas
+        # If using toolmanager it has to be present when initializing the toolbar
+        self.toolmanager = self._get_toolmanager()
         # packing toolbar first, because if space is getting low, last packed widget is getting shrunk first (-> the canvas)
         self.toolbar = self._get_toolbar()
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self._num = num
 
-        self.toolmanager = self._get_toolmanager()
         self.statusbar = None
 
         if self.toolmanager:
@@ -623,9 +631,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         #self.canvas.draw()
 
     def release(self, event):
-        try: self.lastrect
-        except AttributeError: pass
-        else:
+        if hasattr(self, "lastrect"):
             self.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect
 
@@ -675,7 +681,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         self.pack(side=Tk.BOTTOM, fill=Tk.X)
 
     def configure_subplots(self):
-        toolfig = Figure(figsize=(6,3))
+        toolfig = Figure(figsize=(6, 3))
         window = Tk.Toplevel()
         canvas = type(self.canvas)(toolfig, master=window)
         toolfig.subplots_adjust(top=0.9)

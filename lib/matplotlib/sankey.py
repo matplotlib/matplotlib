@@ -7,7 +7,6 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from matplotlib.cbook import iterable
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
@@ -451,8 +450,8 @@ class Sankey(object):
             "orientations has length %d, but flows has length %d."
             % (len(orientations), n))
         if labels != '' and getattr(labels, '__iter__', False):
-            # iterable() isn't used because it would give True if labels is a
-            # string
+            # np.iterable() isn't used because it would give True if labels is
+            # a string
             if len(labels) != n:
                 raise ValueError(
                 "If labels is a list, then labels and flows must have the "
@@ -550,7 +549,7 @@ class Sankey(object):
                     angles[i] = DOWN
 
         # Justify the lengths of the paths.
-        if iterable(pathlengths):
+        if np.iterable(pathlengths):
             if len(pathlengths) != n:
                 raise ValueError(
                 "If pathlengths is a list, then pathlengths and flows must "

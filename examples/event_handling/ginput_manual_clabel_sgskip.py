@@ -10,8 +10,6 @@ This script must be run interactively using a backend that has a
 graphical user interface (for example, using GTK3Agg backend, but not
 PS backend).
 
-See also ginput_demo.py
-
 """
 
 import time

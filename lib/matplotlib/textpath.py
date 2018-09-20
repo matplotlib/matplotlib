@@ -1,18 +1,24 @@
 from collections import OrderedDict
+import functools
 import urllib.parse
 import warnings
 
 import numpy as np
 
-from matplotlib.path import Path
-from matplotlib import rcParams
-import matplotlib.font_manager as font_manager
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
-from matplotlib.ft2font import LOAD_TARGET_LIGHT
-from matplotlib.mathtext import MathTextParser
-import matplotlib.dviread as dviread
+from matplotlib import cbook, dviread, font_manager, rcParams
 from matplotlib.font_manager import FontProperties, get_font
+from matplotlib.ft2font import (
+    KERNING_DEFAULT, LOAD_NO_HINTING, LOAD_TARGET_LIGHT)
+from matplotlib.mathtext import MathTextParser
+from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
+
+
+@functools.lru_cache(1)
+def _get_adobe_standard_encoding():
+    enc_name = dviread.find_tex_file('8a.enc')
+    enc = dviread.Encoding(enc_name)
+    return {c: i for i, c in enumerate(enc.encoding)}
 
 
 class TextToPath(object):
@@ -25,19 +31,12 @@ class TextToPath(object):
 
     def __init__(self):
         self.mathtext_parser = MathTextParser('path')
-        self.tex_font_map = None
-
-        from matplotlib.cbook import maxdict
-        self._ps_fontd = maxdict(50)
-
         self._texmanager = None
 
-        self._adobe_standard_encoding = None
-
-    def _get_adobe_standard_encoding(self):
-        enc_name = dviread.find_tex_file('8a.enc')
-        enc = dviread.Encoding(enc_name)
-        return {c: i for i, c in enumerate(enc.encoding)}
+    @property
+    @cbook.deprecated("3.0")
+    def tex_font_map(self):
+        return dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
 
     def _get_font(self, prop):
         """
@@ -234,7 +233,6 @@ class TextToPath(object):
         glyph_ids = []
         sizes = []
 
-        currx, curry = 0, 0
         for font, fontsize, ccode, ox, oy in glyphs:
             char_id = self._get_char_id(font, ccode)
             if char_id not in glyph_map:
@@ -281,13 +279,6 @@ class TextToPath(object):
 
         texmanager = self.get_texmanager()
 
-        if self.tex_font_map is None:
-            self.tex_font_map = dviread.PsfontsMap(
-                                    dviread.find_tex_file('pdftex.map'))
-
-        if self._adobe_standard_encoding is None:
-            self._adobe_standard_encoding = self._get_adobe_standard_encoding()
-
         fontsize = prop.get_size_in_points()
         if hasattr(texmanager, "get_dvi"):
             dvifilelike = texmanager.get_dvi(s, self.FONT_SCALE)
@@ -312,46 +303,7 @@ class TextToPath(object):
         # characters into strings.
         # oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
-            font_and_encoding = self._ps_fontd.get(dvifont.texname)
-            font_bunch = self.tex_font_map[dvifont.texname]
-
-            if font_and_encoding is None:
-                if font_bunch.filename is None:
-                    raise ValueError(
-                        ("No usable font file found for %s (%s). "
-                         "The font may lack a Type-1 version.")
-                        % (font_bunch.psname, dvifont.texname))
-
-                font = get_font(font_bunch.filename)
-
-                for charmap_name, charmap_code in [("ADOBE_CUSTOM",
-                                                    1094992451),
-                                                   ("ADOBE_STANDARD",
-                                                    1094995778)]:
-                    try:
-                        font.select_charmap(charmap_code)
-                    except (ValueError, RuntimeError):
-                        pass
-                    else:
-                        break
-                else:
-                    charmap_name = ""
-                    warnings.warn("No supported encoding in font (%s)." %
-                                  font_bunch.filename)
-
-                if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
-                    enc0 = dviread.Encoding(font_bunch.encoding)
-                    enc = {i: self._adobe_standard_encoding.get(c, None)
-                           for i, c in enumerate(enc0.encoding)}
-                else:
-                    enc = {}
-                self._ps_fontd[dvifont.texname] = font, enc
-
-            else:
-                font, enc = font_and_encoding
-
-            ft2font_flag = LOAD_TARGET_LIGHT
-
+            font, enc = self._get_ps_font_and_encoding(dvifont.texname)
             char_id = self._get_char_id_ps(font, glyph)
 
             if char_id not in glyph_map:
@@ -362,12 +314,13 @@ class TextToPath(object):
                 else:
                     charcode = glyph
 
+                ft2font_flag = LOAD_TARGET_LIGHT
                 if charcode is not None:
                     glyph0 = font.load_char(charcode, flags=ft2font_flag)
                 else:
                     warnings.warn("The glyph (%d) of font (%s) cannot be "
                                   "converted with the encoding. Glyph may "
-                                  "be wrong" % (glyph, font_bunch.filename))
+                                  "be wrong" % (glyph, font.fname))
 
                     glyph0 = font.load_char(glyph, flags=ft2font_flag)
 
@@ -390,6 +343,41 @@ class TextToPath(object):
 
         return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
+
+    @staticmethod
+    @functools.lru_cache(50)
+    def _get_ps_font_and_encoding(texname):
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+        font_bunch = tex_font_map[texname]
+        if font_bunch.filename is None:
+            raise ValueError(
+                ("No usable font file found for %s (%s). "
+                    "The font may lack a Type-1 version.")
+                % (font_bunch.psname, texname))
+
+        font = get_font(font_bunch.filename)
+
+        for charmap_name, charmap_code in [("ADOBE_CUSTOM", 1094992451),
+                                           ("ADOBE_STANDARD", 1094995778)]:
+            try:
+                font.select_charmap(charmap_code)
+            except (ValueError, RuntimeError):
+                pass
+            else:
+                break
+        else:
+            charmap_name = ""
+            warnings.warn("No supported encoding in font (%s)." %
+                          font_bunch.filename)
+
+        if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
+            enc0 = dviread.Encoding(font_bunch.encoding)
+            enc = {i: _get_adobe_standard_encoding().get(c, None)
+                   for i, c in enumerate(enc0.encoding)}
+        else:
+            enc = {}
+
+        return font, enc
 
 
 text_to_path = TextToPath()
@@ -448,21 +436,20 @@ class TextPath(Path):
         """
         return self._size
 
-    def _get_vertices(self):
+    @property
+    def vertices(self):
         """
         Return the cached path after updating it if necessary.
         """
         self._revalidate_path()
         return self._cached_vertices
 
-    def _get_codes(self):
+    @property
+    def codes(self):
         """
         Return the codes
         """
         return self._codes
-
-    vertices = property(_get_vertices)
-    codes = property(_get_codes)
 
     def _revalidate_path(self):
         """

@@ -1,7 +1,7 @@
-
-import os
+from pathlib import Path
 import subprocess
 import tempfile
+
 import pytest
 
 nbformat = pytest.importorskip('nbformat')
@@ -29,5 +29,6 @@ def _notebook_run(nb_file):
 
 
 def test_ipynb():
-    nb, errors = _notebook_run('lib/matplotlib/tests/test_nbagg_01.ipynb')
+    nb, errors = _notebook_run(
+        str(Path(__file__).parent / 'test_nbagg_01.ipynb'))
     assert errors == []

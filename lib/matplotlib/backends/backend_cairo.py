@@ -8,7 +8,6 @@ This backend depends on cairocffi or pycairo.
 
 import copy
 import gzip
-import sys
 import warnings
 
 import numpy as np
@@ -40,26 +39,6 @@ from matplotlib.font_manager import ttfFontProperty
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-
-
-def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
-    """
-    Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
-
-    Cairo uses the former format, Matplotlib the latter.
-    """
-    rgba = np.take(  # .take() ensures C-contiguity of the result.
-        buf,
-        [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
-    rgb = rgba[..., :-1]
-    alpha = rgba[..., -1]
-    # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
-    mask = alpha != 0
-    for channel in np.rollaxis(rgb, -1):
-        channel[mask] = (
-            (channel[mask].astype(int) * 255 + alpha[mask] // 2)
-            // alpha[mask])
-    return rgba
 
 
 if cairo.__name__ == "cairocffi":
@@ -210,7 +189,6 @@ class RendererCairo(RendererBase):
         'oblique' : cairo.FONT_SLANT_OBLIQUE,
         }
 
-
     def __init__(self, dpi):
         self.dpi = dpi
         self.gc = GraphicsContextCairo(renderer=self)
@@ -358,11 +336,7 @@ class RendererCairo(RendererBase):
         _draw_paths()
 
     def draw_image(self, gc, x, y, im):
-        # bbox - not currently used
-        if sys.byteorder == 'little':
-            im = im[:, :, (2, 1, 0, 3)]
-        else:
-            im = im[:, :, (3, 0, 1, 2)]
+        im = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(im[::-1])
         surface = cairo.ImageSurface.create_for_data(
             im.ravel().data, cairo.FORMAT_ARGB32,
             im.shape[1], im.shape[0], im.shape[1] * 4)
@@ -371,10 +345,7 @@ class RendererCairo(RendererBase):
 
         ctx.save()
         ctx.set_source_surface(surface, float(x), float(y))
-        if gc.get_alpha() != 1:
-            ctx.paint_with_alpha(gc.get_alpha())
-        else:
-            ctx.paint()
+        ctx.paint()
         ctx.restore()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -464,7 +435,7 @@ class RendererCairo(RendererBase):
     def new_gc(self):
         self.gc.ctx.save()
         self.gc._alpha = 1
-        self.gc._forced_alpha = False # if True, _alpha overrides A from RGBA
+        self.gc._forced_alpha = False  # if True, _alpha overrides A from RGBA
         return self.gc
 
     def points_to_pixels(self, points):
@@ -533,7 +504,7 @@ class GraphicsContextCairo(GraphicsContextBase):
 
     def set_dashes(self, offset, dashes):
         self._dashes = offset, dashes
-        if dashes == None:
+        if dashes is None:
             self.ctx.set_dash([], 0)  # switch dashes off
         else:
             self.ctx.set_dash(
@@ -571,7 +542,7 @@ class FigureCanvasCairo(FigureCanvasBase):
     def print_rgba(self, fobj, *args, **kwargs):
         width, height = self.get_width_height()
         buf = self._get_printed_image_surface().get_data()
-        fobj.write(_premultiplied_argb32_to_unmultiplied_rgba8888(
+        fobj.write(cbook._premultiplied_argb32_to_unmultiplied_rgba8888(
             np.asarray(buf).reshape((width, height, 4))))
 
     print_raw = print_rgba

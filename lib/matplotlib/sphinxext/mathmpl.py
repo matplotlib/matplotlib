@@ -1,24 +1,29 @@
+import hashlib
 import os
 import sys
-from hashlib import md5
+import warnings
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-import warnings
+import sphinx
 
 from matplotlib import rcParams
 from matplotlib.mathtext import MathTextParser
 rcParams['mathtext.fontset'] = 'cm'
 mathtext_parser = MathTextParser("Bitmap")
 
+
 # Define LaTeX math node:
 class latex_math(nodes.General, nodes.Element):
     pass
 
+
 def fontset_choice(arg):
     return directives.choice(arg, ['cm', 'stix', 'stixsans'])
 
+
 options_spec = {'fontset': fontset_choice}
+
 
 def math_role(role, rawtext, text, lineno, inliner,
               options={}, content=[]):
@@ -28,7 +33,10 @@ def math_role(role, rawtext, text, lineno, inliner,
     node['latex'] = latex
     node['fontset'] = options.get('fontset', 'cm')
     return [node], []
+
+
 math_role.options = options_spec
+
 
 def math_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
@@ -37,6 +45,7 @@ def math_directive(name, arguments, options, content, lineno,
     node['latex'] = latex
     node['fontset'] = options.get('fontset', 'cm')
     return [node]
+
 
 # This uses mathtext to render the expression
 def latex2png(latex, filename, fontset='cm'):
@@ -48,7 +57,7 @@ def latex2png(latex, filename, fontset='cm'):
     else:
         try:
             depth = mathtext_parser.to_png(filename, latex, dpi=100)
-        except:
+        except Exception:
             warnings.warn("Could not render math expression %s" % latex,
                           Warning, stacklevel=2)
             depth = 0
@@ -57,11 +66,12 @@ def latex2png(latex, filename, fontset='cm'):
     sys.stdout.flush()
     return depth
 
+
 # LaTeX to HTML translation stuff:
 def latex2html(node, source):
     inline = isinstance(node.parent, nodes.TextElement)
     latex = node['latex']
-    name = 'math-%s' % md5(latex.encode()).hexdigest()[-10:]
+    name = 'math-%s' % hashlib.md5(latex.encode()).hexdigest()[-10:]
 
     destdir = os.path.join(setup.app.builder.outdir, '_images', 'mathmpl')
     if not os.path.exists(destdir):
@@ -110,9 +120,13 @@ def setup(app):
     app.add_node(latex_math,
                  html=(visit_latex_math_html, depart_latex_math_html),
                  latex=(visit_latex_math_latex, depart_latex_math_latex))
-    app.add_role('math', math_role)
-    app.add_directive('math', math_directive,
+    app.add_role('mathmpl', math_role)
+    app.add_directive('mathmpl', math_directive,
                       True, (0, 0, 0), **options_spec)
+    if sphinx.version_info < (1, 8):
+        app.add_role('math', math_role)
+        app.add_directive('math', math_directive,
+                          True, (0, 0, 0), **options_spec)
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata

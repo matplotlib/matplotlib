@@ -1,5 +1,3 @@
-.. _pip: https://pypi.python.org/pypi/pip/
-
 ==========
 Installing
 ==========
@@ -42,7 +40,7 @@ Test data
 ---------
 
 The wheels (:file:`*.whl`) on the `PyPI download page
-<https://pypi.python.org/pypi/matplotlib/>`_ do not contain test data
+<https://pypi.org/project/matplotlib/>`_ do not contain test data
 or example code.
 
 If you want to try the many demos that come in the Matplotlib source
@@ -53,7 +51,7 @@ To run the test suite:
 
 * extract the :file:`lib/matplotlib/tests` or :file:`lib/mpl_toolkits/tests`
   directories from the source distribution;
-* install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
+* install test dependencies: `pytest <https://pypi.org/project/pytest>`_,
   Pillow, MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
   <https://inkscape.org/>`_;
 * run ``python -mpytest``.
@@ -94,9 +92,9 @@ If you are interested in contributing to Matplotlib development,
 running the latest source code, or just like to build everything
 yourself, it is not difficult to build Matplotlib from source.  Grab
 the latest *tar.gz* release file from `the PyPI files page
-<https://pypi.python.org/pypi/matplotlib/>`_, or if you want to
+<https://pypi.org/project/matplotlib/>`_, or if you want to
 develop Matplotlib or just need the latest bugfixed version, grab the
-latest git version :ref:`install-from-git`.
+latest git version, and see :ref:`install-from-git`.
 
 The standard environment variables `CC`, `CXX`, `PKG_CONFIG` are respected.
 This means you can set them if your toolchain is prefixed. This may be used for
@@ -138,10 +136,10 @@ Matplotlib requires the following dependencies:
 * `Python <https://www.python.org/downloads/>`_ (>= 3.5)
 * `FreeType <https://www.freetype.org/>`_ (>= 2.3)
 * `libpng <http://www.libpng.org>`_ (>= 1.2)
-* `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
+* `NumPy <http://www.numpy.org>`_ (>= 1.10.0)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
-* `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
+* `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.1)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.0)
 * `pyparsing <https://pyparsing.wikispaces.com/>`_
 
@@ -150,17 +148,18 @@ interface toolkits. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
 * :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends;
-* `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4) or
-  `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4-based backends;
-* `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5-based backends;
+* `PyQt4 <https://pypi.org/project/PyQt4>`_ (>= 4.6) or
+  `PySide <https://pypi.org/project/PySide>`_ (>= 1.0.3): for the Qt4-based
+  backends;
+* `PyQt5 <https://pypi.org/project/PyQt5>`_: for the Qt5-based backends;
 * `PyGObject <https://pypi.org/project/PyGObject/>`_ or
   `pgi <https://pypi.org/project/pgi/>`_ (>= 0.0.11.2): for the GTK3-based
   backends;
 * :term:`wxpython` (>= 4): for the WX-based backends;
 * `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`_ (>= 0.8) or
-  `pycairo <https://pypi.python.org/pypi/pycairo>`_: for the cairo-based
+  `pycairo <https://pypi.org/project/pycairo>`_: for the cairo-based
   backends;
-* `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend;
+* `Tornado <https://pypi.org/project/tornado>`_: for the WebAgg backend;
 
 For better support of animation output format and image file formats, LaTeX,
 etc., you can install the following:
@@ -251,7 +250,7 @@ Building on Windows
 -------------------
 
 The Python shipped from https://www.python.org is compiled with Visual Studio
-2015 for 3.5 and 3.6.  Python extensions should be compiled with the same
+2015 for 3.5+.  Python extensions should be compiled with the same
 compiler, see e.g.
 https://packaging.python.org/guides/packaging-binary-extensions/#setting-up-a-build-environment-on-windows
 for how to set up a build environment.
@@ -304,4 +303,4 @@ Conda packages
 ^^^^^^^^^^^^^^
 
 The conda packaging scripts for Matplotlib are available at
-https://github.com/conda-forge/python-feedstock.
+https://github.com/conda-forge/matplotlib-feedstock.

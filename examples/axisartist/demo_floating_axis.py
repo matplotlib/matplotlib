@@ -64,9 +64,7 @@ def curvelinear_test2(fig):
 
     ax1.grid(True)
 
-fig = plt.figure(1, figsize=(5, 5))
-fig.clf()
 
+fig = plt.figure(figsize=(5, 5))
 curvelinear_test2(fig)
-
 plt.show()

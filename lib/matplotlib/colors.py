@@ -6,14 +6,27 @@ range 0-1.
 
 This module includes functions and classes for color specification
 conversions, and for mapping numbers to colors in a 1-D array of colors called
-a colormap. Colormapping typically involves two steps: a data array is first
-mapped onto the range 0-1 using an instance of :class:`Normalize` or of a
-subclass; then this number in the 0-1 range is mapped to a color using an
-instance of a subclass of :class:`Colormap`.  Two are provided here:
-:class:`LinearSegmentedColormap`, which is used to generate all the built-in
-colormap instances, but is also useful for making custom colormaps, and
-:class:`ListedColormap`, which is used for generating a custom colormap from a
-list of color specifications.
+a colormap.
+
+Mapping data onto colors using a colormap typically involves two steps:
+a data array is first mapped onto the range 0-1 using a subclass of
+:class:`Normalize`, then this number is mapped to a color using
+a subclass of :class:`Colormap`.  Two are provided here:
+:class:`LinearSegmentedColormap`, which uses piecewise-linear interpolation
+to define colormaps, and :class:`ListedColormap`, which makes a colormap
+from a list of colors.
+
+.. seealso::
+
+  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
+  make colormaps and
+
+  :doc:`/tutorials/colors/colormaps` for a list of built-in colormaps.
+
+  :doc:`/tutorials/colors/colormapnorms` for more details about data
+  normalization
+
+  More colormaps are available at palettable_
 
 The module also provides functions for checking whether an object can be
 interpreted as a color (:func:`is_color_like`), for converting such an object
@@ -42,9 +55,12 @@ Matplotlib recognizes the following formats to specify a color:
   cycle does not include color.
 
 All string specifications of color, other than "CN", are case-insensitive.
+
+.. _palettable: https://jiffyclub.github.io/palettable/
+
 """
 
-from collections import Sized
+from collections.abc import Sized
 import itertools
 import re
 
@@ -473,7 +489,7 @@ class Colormap(object):
         if not self._isinit:
             self._init()
         mask_bad = None
-        if not cbook.iterable(X):
+        if not np.iterable(X):
             vtype = 'scalar'
             xa = np.array([X])
         else:
@@ -546,7 +562,7 @@ class Colormap(object):
     def set_bad(self, color='k', alpha=None):
         """Set color to be used for masked values.
         """
-        self._rgba_bad = colorConverter.to_rgba(color, alpha)
+        self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
@@ -554,7 +570,7 @@ class Colormap(object):
         """Set color to be used for low out-of-range values.
            Requires norm.clip = False
         """
-        self._rgba_under = colorConverter.to_rgba(color, alpha)
+        self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
@@ -562,7 +578,7 @@ class Colormap(object):
         """Set color to be used for high out-of-range values.
            Requires norm.clip = False
         """
-        self._rgba_over = colorConverter.to_rgba(color, alpha)
+        self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
@@ -705,7 +721,7 @@ class LinearSegmentedColormap(Colormap):
         to divide the range unevenly.
         """
 
-        if not cbook.iterable(colors):
+        if not np.iterable(colors):
             raise ValueError('colors must be iterable')
 
         if (isinstance(colors[0], Sized) and len(colors[0]) == 2
@@ -717,7 +733,7 @@ class LinearSegmentedColormap(Colormap):
 
         cdict = dict(red=[], green=[], blue=[], alpha=[])
         for val, color in zip(vals, colors):
-            r, g, b, a = colorConverter.to_rgba(color)
+            r, g, b, a = to_rgba(color)
             cdict['red'].append((val, r, r))
             cdict['green'].append((val, g, g))
             cdict['blue'].append((val, b, b))
@@ -801,7 +817,7 @@ class ListedColormap(Colormap):
             if isinstance(colors, str):
                 self.colors = [colors] * N
                 self.monochrome = True
-            elif cbook.iterable(colors):
+            elif np.iterable(colors):
                 if len(colors) == 1:
                     self.monochrome = True
                 self.colors = list(
@@ -817,9 +833,8 @@ class ListedColormap(Colormap):
         Colormap.__init__(self, name, N)
 
     def _init(self):
-        rgba = colorConverter.to_rgba_array(self.colors)
         self._lut = np.zeros((self.N + 3, 4), float)
-        self._lut[:-3] = rgba
+        self._lut[:-3] = to_rgba_array(self.colors)
         self._isinit = True
         self._set_extremes()
 
@@ -897,7 +912,7 @@ class Normalize(object):
         Experimental; we may want to add an option to force the
         use of float32.
         """
-        is_scalar = not cbook.iterable(value)
+        is_scalar = not np.iterable(value)
         if is_scalar:
             value = [value]
         dtype = np.min_scalar_type(value)
@@ -952,7 +967,7 @@ class Normalize(object):
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = np.ma.asarray(value)
             return vmin + val * (vmax - vmin)
         else:
@@ -1025,7 +1040,7 @@ class LogNorm(Normalize):
             raise ValueError("Not invertible until scaled")
         vmin, vmax = self.vmin, self.vmax
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = np.ma.asarray(value)
             return vmin * np.ma.power((vmax / vmin), val)
         else:
@@ -1112,7 +1127,8 @@ class SymLogNorm(Normalize):
         """
         Inplace transformation.
         """
-        masked = np.abs(a) > self.linthresh
+        with np.errstate(invalid="ignore"):
+            masked = np.abs(a) > self.linthresh
         sign = np.sign(a[masked])
         log = (self._linscale_adj + np.log(np.abs(a[masked]) / self.linthresh))
         log *= sign * self.linthresh
@@ -1211,7 +1227,7 @@ class PowerNorm(Normalize):
         gamma = self.gamma
         vmin, vmax = self.vmin, self.vmax
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = np.ma.asarray(value)
             return np.ma.power(val, 1. / gamma) * (vmax - vmin) + vmin
         else:

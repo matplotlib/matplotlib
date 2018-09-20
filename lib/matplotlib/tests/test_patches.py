@@ -5,6 +5,7 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
+from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.patches import Polygon, Rectangle
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
@@ -250,7 +251,7 @@ def test_wedge_movement():
                   'theta1': (0, 30, 'set_theta1'),
                   'theta2': (45, 50, 'set_theta2')}
 
-    init_args = dict((k, v[0]) for (k, v) in param_dict.items())
+    init_args = {k: v[0] for k, v in param_dict.items()}
 
     w = mpatches.Wedge(**init_args)
     for attr, (old_v, new_v, func) in param_dict.items():
@@ -344,8 +345,9 @@ def test_patch_str():
     s = mpatches.Shadow(p, 1, 1)
     assert str(s) == "Shadow(ConnectionPatch((1, 2), (3, 4)))"
 
-    p = mpatches.YAArrow(plt.gcf(), (1, 0), (2, 1), width=0.1)
-    assert str(p) == "YAArrow()"
+    with pytest.warns(MatplotlibDeprecationWarning):
+        p = mpatches.YAArrow(plt.gcf(), (1, 0), (2, 1), width=0.1)
+        assert str(p) == "YAArrow()"
 
     # Not testing Arrow, FancyArrow here
     # because they seem to exist only for historical reasons.
@@ -461,8 +463,8 @@ def test_shadow(fig_test, fig_ref):
     rect = mpatches.Rectangle(xy=xy, width=.5, height=.5)
     shadow = mpatches.Rectangle(
         xy=xy + fig_ref.dpi / 72 * dxy, width=.5, height=.5,
-        fc=np.asarray(mcolors.to_rgb(rect.get_fc())) * .3,
-        ec=np.asarray(mcolors.to_rgb(rect.get_fc())) * .3,
+        fc=np.asarray(mcolors.to_rgb(rect.get_facecolor())) * .3,
+        ec=np.asarray(mcolors.to_rgb(rect.get_facecolor())) * .3,
         alpha=.5)
     a2.add_patch(shadow)
     a2.add_patch(rect)

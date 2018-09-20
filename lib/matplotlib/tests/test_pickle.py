@@ -1,17 +1,15 @@
-import pickle
 from io import BytesIO
+import pickle
+import platform
 
 import numpy as np
+import pytest
 
+from matplotlib import cm
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
-
-try:  # https://docs.python.org/3/library/exceptions.html#RecursionError
-    RecursionError                 # Python 3.5+
-except NameError:
-    RecursionError = RuntimeError  # Python < 3.5
 
 
 def test_simple():
@@ -43,6 +41,7 @@ def test_simple():
 
 @image_comparison(baseline_images=['multi_pickle'],
                   extensions=['png'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   style='mpl20')
 def test_complete():
     fig = plt.figure('Figure with a label?', figsize=(10, 6))
@@ -192,3 +191,8 @@ def test_shared():
     fig = pickle.loads(pickle.dumps(fig))
     fig.axes[0].set_xlim(10, 20)
     assert fig.axes[1].get_xlim() == (10, 20)
+
+
+@pytest.mark.parametrize("cmap", cm.cmap_d.values())
+def test_cmap(cmap):
+    pickle.dumps(cmap)

@@ -14,6 +14,8 @@ class TestMaxNLocator(object):
         (20, 100, np.array([20., 40., 60., 80., 100.])),
         (0.001, 0.0001, np.array([0., 0.0002, 0.0004, 0.0006, 0.0008, 0.001])),
         (-1e15, 1e15, np.array([-1.0e+15, -5.0e+14, 0e+00, 5e+14, 1.0e+15])),
+        (0, 0.85e-50, np.arange(6) * 2e-51),
+        (-0.85e-50, 0, np.arange(-5, 1) * 2e-51),
     ]
 
     integer_data = [
@@ -64,7 +66,7 @@ class TestMultipleLocator(object):
         """
         mult = mticker.MultipleLocator(base=0.7)
         mult.set_params(base=1.7)
-        assert mult._base == 1.7
+        assert mult._edge.step == 1.7
 
 
 class TestAutoMinorLocator(object):
@@ -74,7 +76,7 @@ class TestAutoMinorLocator(object):
         ax.minorticks_on()
         test_value = np.array([0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45,
                                0.5, 0.55, 0.65, 0.7, 0.75, 0.85, 0.9,
-                               0.95, 1, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35])
+                               0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35])
         assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), test_value)
 
     # NB: the following values are assuming that *xlim* is [0, 5]
@@ -96,6 +98,53 @@ class TestAutoMinorLocator(object):
         ax.minorticks_on()
         ax.xaxis.set_minor_locator(mticker.AutoMinorLocator())
         assert len(ax.xaxis.get_minorticklocs()) == expected_nb_minorticks
+
+    limits = [(0, 1.39), (0, 0.139),
+              (0, 0.11e-19), (0, 0.112e-12),
+              (-2.0e-07, -3.3e-08), (1.20e-06, 1.42e-06),
+              (-1.34e-06, -1.44e-06), (-8.76e-07, -1.51e-06)]
+
+    reference = [
+        [0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45, 0.5, 0.55, 0.65, 0.7,
+         0.75, 0.85, 0.9, 0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35],
+        [0.005, 0.01, 0.015, 0.025, 0.03, 0.035, 0.045, 0.05, 0.055, 0.065,
+         0.07, 0.075, 0.085, 0.09, 0.095, 0.105, 0.11, 0.115, 0.125, 0.13,
+         0.135],
+        [5.00e-22, 1.00e-21, 1.50e-21, 2.50e-21, 3.00e-21, 3.50e-21, 4.50e-21,
+         5.00e-21, 5.50e-21, 6.50e-21, 7.00e-21, 7.50e-21, 8.50e-21, 9.00e-21,
+         9.50e-21, 1.05e-20, 1.10e-20],
+        [5.00e-15, 1.00e-14, 1.50e-14, 2.50e-14, 3.00e-14, 3.50e-14, 4.50e-14,
+         5.00e-14, 5.50e-14, 6.50e-14, 7.00e-14, 7.50e-14, 8.50e-14, 9.00e-14,
+         9.50e-14, 1.05e-13, 1.10e-13],
+        [-1.95e-07, -1.90e-07, -1.85e-07, -1.75e-07, -1.70e-07, -1.65e-07,
+         -1.55e-07, -1.50e-07, -1.45e-07, -1.35e-07, -1.30e-07, -1.25e-07,
+         -1.15e-07, -1.10e-07, -1.05e-07, -9.50e-08, -9.00e-08, -8.50e-08,
+         -7.50e-08, -7.00e-08, -6.50e-08, -5.50e-08, -5.00e-08, -4.50e-08,
+         -3.50e-08],
+        [1.21e-06, 1.22e-06, 1.23e-06, 1.24e-06, 1.26e-06, 1.27e-06, 1.28e-06,
+         1.29e-06, 1.31e-06, 1.32e-06, 1.33e-06, 1.34e-06, 1.36e-06, 1.37e-06,
+         1.38e-06, 1.39e-06, 1.41e-06, 1.42e-06],
+        [-1.435e-06, -1.430e-06, -1.425e-06, -1.415e-06, -1.410e-06,
+         -1.405e-06, -1.395e-06, -1.390e-06, -1.385e-06, -1.375e-06,
+         -1.370e-06, -1.365e-06, -1.355e-06, -1.350e-06, -1.345e-06],
+        [-1.48e-06, -1.46e-06, -1.44e-06, -1.42e-06, -1.38e-06, -1.36e-06,
+         -1.34e-06, -1.32e-06, -1.28e-06, -1.26e-06, -1.24e-06, -1.22e-06,
+         -1.18e-06, -1.16e-06, -1.14e-06, -1.12e-06, -1.08e-06, -1.06e-06,
+         -1.04e-06, -1.02e-06, -9.80e-07, -9.60e-07, -9.40e-07, -9.20e-07,
+         -8.80e-07]]
+
+    additional_data = list(zip(limits, reference))
+
+    @pytest.mark.parametrize('lim, ref', additional_data)
+    def test_additional(self, lim, ref):
+        fig, ax = plt.subplots()
+
+        ax.minorticks_on()
+        ax.grid(True, 'minor', 'y', linewidth=1)
+        ax.grid(True, 'major', color='k', linewidth=1)
+        ax.set_ylim(lim)
+
+        assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
 
 
 class TestLogLocator(object):
@@ -226,15 +275,17 @@ class TestScalarFormatter(object):
 
     use_offset_data = [True, False]
 
+    #  (sci_type, scilimits, lim, orderOfMag, fewticks)
     scilimits_data = [
-        (False, (0, 0), (10.0, 20.0), 0),
-        (True, (-2, 2), (-10, 20), 0),
-        (True, (-2, 2), (-20, 10), 0),
-        (True, (-2, 2), (-110, 120), 2),
-        (True, (-2, 2), (-120, 110), 2),
-        (True, (-2, 2), (-.001, 0.002), -3),
-        (True, (0, 0), (-1e5, 1e5), 5),
-        (True, (6, 6), (-1e5, 1e5), 6),
+        (False, (0, 0), (10.0, 20.0), 0, False),
+        (True, (-2, 2), (-10, 20), 0, False),
+        (True, (-2, 2), (-20, 10), 0, False),
+        (True, (-2, 2), (-110, 120), 2, False),
+        (True, (-2, 2), (-120, 110), 2, False),
+        (True, (-2, 2), (-.001, 0.002), -3, False),
+        (True, (-7, 7), (0.18e10, 0.83e10), 9, True),
+        (True, (0, 0), (-1e5, 1e5), 5, False),
+        (True, (6, 6), (-1e5, 1e5), 6, False),
     ]
 
     @pytest.mark.parametrize('left, right, offset', offset_data)
@@ -267,14 +318,18 @@ class TestScalarFormatter(object):
             assert use_offset == tmp_form.get_useOffset()
 
     @pytest.mark.parametrize(
-        'sci_type, scilimits, lim, orderOfMag', scilimits_data)
-    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag):
+        'sci_type, scilimits, lim, orderOfMag, fewticks', scilimits_data)
+    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag,
+                       fewticks):
         tmp_form = mticker.ScalarFormatter()
         tmp_form.set_scientific(sci_type)
         tmp_form.set_powerlimits(scilimits)
         fig, ax = plt.subplots()
         ax.yaxis.set_major_formatter(tmp_form)
         ax.set_ylim(*lim)
+        if fewticks:
+            ax.yaxis.set_major_locator(mticker.MaxNLocator(4))
+
         tmp_form.set_locs(ax.yaxis.get_majorticklocs())
         assert orderOfMag == tmp_form.orderOfMagnitude
 
@@ -606,6 +661,7 @@ class TestEngFormatter(object):
         (1.23456789, ('1.23457', '1', '1.23')),
         (999.9, ('999.9', '1 k', '999.90')),  # places=0: corner-case rounding
         (999.9999, ('1 k', '1 k', '1.00 k')),  # corner-case roudning for all
+        (-999.9999, ('-1 k', '-1 k', '-1.00 k')),  # negative corner-case
         (1000, ('1 k', '1 k', '1.00 k')),
         (1001, ('1.001 k', '1 k', '1.00 k')),
         (100001, ('100.001 k', '100 k', '100.00 k')),

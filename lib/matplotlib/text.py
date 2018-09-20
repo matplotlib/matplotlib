@@ -297,8 +297,7 @@ class Text(Artist):
         whs = np.zeros((len(lines), 2))
         horizLayout = np.zeros((len(lines), 4))
 
-        # Find full vertical extent of font,
-        # including ascenders and descenders:
+        # Full vertical extent of font, including ascenders and descenders:
         tmp, lp_h, lp_bl = renderer.get_text_width_height_descent('lp',
                                                          self._fontproperties,
                                                          ismath=False)
@@ -324,14 +323,21 @@ class Text(Artist):
             whs[i] = w, h
 
             baseline = (h - d) - thisy
-            thisy -= max(offsety, (h - d) * self._linespacing)
+            if i == 0:
+                # position at baseline
+                thisy = -(h - d)
+            else:
+                # put baseline a good distance from bottom of previous line
+                thisy -= max(offsety, (h - d) * self._linespacing)
             horizLayout[i] = thisx, thisy, w, h
             thisy -= d
             width = max(width, w)
             descent = d
 
-        ymin = horizLayout[-1][1]
-        ymax = horizLayout[0][1] + horizLayout[0][3]
+        # Bounding box definition:
+        ymax = 0
+        # ymin is baseline of previous line minus the descent of this line
+        ymin = horizLayout[-1][1] - descent
         height = ymax - ymin
         xmax = xmin + width
 
@@ -351,7 +357,6 @@ class Text(Artist):
         # the corners of the unrotated bounding box
         cornersHoriz = np.array(
             [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)], float)
-        cornersHoriz[:, 1] -= descent
 
         # now rotate the bbox
         cornersRotated = M.transform(cornersHoriz)
@@ -386,7 +391,7 @@ class Text(Artist):
             elif valign == 'top':
                 offsety = (ymin + height)
             elif valign == 'baseline':
-                offsety = (ymin + height) - baseline
+                offsety = ymin + descent
             elif valign == 'center_baseline':
                 offsety = ymin + height - baseline / 2.0
             else:
@@ -922,6 +927,8 @@ class Text(Artist):
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
+            self._renderer = self.figure._cachedRenderer
+        if self._renderer is None:
             raise RuntimeError('Cannot get window extent w/o renderer')
 
         bbox, info, descent = self._get_layout(self._renderer)
@@ -1253,7 +1260,7 @@ class Text(Artist):
 
     def set_fontname(self, fontname):
         """
-        alias for `.set_family`
+        Alias for `.set_family`.
 
         One-way alias only: the getter differs.
 
@@ -2202,6 +2209,9 @@ class Annotation(Text, _AnnotationBase):
     def anncoords(self, coords):
         self._textcoords = coords
 
+    get_anncoords = anncoords.fget
+    set_anncoords = anncoords.fset
+
     def set_figure(self, fig):
         if self.arrow_patch is not None:
             self.arrow_patch.set_figure(fig)
@@ -2354,6 +2364,7 @@ class Annotation(Text, _AnnotationBase):
         *dpi* used defaults to self.figure.dpi; the renderer dpi is
         irrelevant.
         '''
+        self.update_positions(renderer)
         if not self.get_visible():
             return Bbox.unit()
 

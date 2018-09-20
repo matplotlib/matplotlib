@@ -1,8 +1,6 @@
 import functools
 
-from matplotlib import (
-    artist as martist, collections as mcoll, transforms as mtransforms,
-    rcParams)
+from matplotlib import artist as martist, transforms as mtransforms
 from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
 from .mpl_axes import Axes
@@ -10,7 +8,7 @@ from .mpl_axes import Axes
 import numpy as np
 
 
-class ParasiteAxesBase(object):
+class ParasiteAxesBase:
 
     def get_images_artists(self):
         artists = {a for a in self.get_children() if a.get_visible()}
@@ -21,11 +19,10 @@ class ParasiteAxesBase(object):
     def __init__(self, parent_axes, **kwargs):
         self._parent_axes = parent_axes
         kwargs["frameon"] = False
-        self._get_base_axes_attr("__init__")(
-            self, parent_axes.figure, parent_axes._position, **kwargs)
+        super().__init__(parent_axes.figure, parent_axes._position, **kwargs)
 
     def cla(self):
-        self._get_base_axes_attr("cla")(self)
+        super().cla()
 
         martist.setp(self.get_children(), visible=False)
         self._get_lines = self._parent_axes._get_lines
@@ -45,25 +42,19 @@ def parasite_axes_class_factory(axes_class=None):
     if axes_class is None:
         axes_class = Axes
 
-    def _get_base_axes_attr(self, attrname):
-        return getattr(axes_class, attrname)
-
     return type("%sParasite" % axes_class.__name__,
-                (ParasiteAxesBase, axes_class),
-                {'_get_base_axes_attr': _get_base_axes_attr})
+                (ParasiteAxesBase, axes_class), {})
 
 
 ParasiteAxes = parasite_axes_class_factory()
 
 
-class ParasiteAxesAuxTransBase(object):
+class ParasiteAxesAuxTransBase:
     def __init__(self, parent_axes, aux_transform, viewlim_mode=None,
                  **kwargs):
-
         self.transAux = aux_transform
         self.set_viewlim_mode(viewlim_mode)
-
-        self._parasite_axes_class.__init__(self, parent_axes, **kwargs)
+        super().__init__(parent_axes, **kwargs)
 
     def _set_lim_and_transforms(self):
 
@@ -80,13 +71,12 @@ class ParasiteAxesAuxTransBase(object):
 
     def set_viewlim_mode(self, mode):
         if mode not in [None, "equal", "transform"]:
-            raise ValueError("Unknown mode : %s" % (mode,))
+            raise ValueError("Unknown mode: %s" % (mode,))
         else:
             self._viewlim_mode = mode
 
     def get_viewlim_mode(self):
         return self._viewlim_mode
-
 
     def update_viewlim(self):
         viewlim = self._parent_axes.viewLim.frozen()
@@ -96,86 +86,80 @@ class ParasiteAxesAuxTransBase(object):
         elif mode == "equal":
             self.axes.viewLim.set(viewlim)
         elif mode == "transform":
-            self.axes.viewLim.set(viewlim.transformed(self.transAux.inverted()))
+            self.axes.viewLim.set(
+                viewlim.transformed(self.transAux.inverted()))
         else:
-            raise ValueError("Unknown mode : %s" % (self._viewlim_mode,))
+            raise ValueError("Unknown mode: %s" % (self._viewlim_mode,))
 
-
-    def _pcolor(self, method_name, *XYC, **kwargs):
+    def _pcolor(self, super_pcolor, *XYC, **kwargs):
         if len(XYC) == 1:
             C = XYC[0]
             ny, nx = C.shape
 
-            gx = np.arange(-0.5, nx, 1.)
-            gy = np.arange(-0.5, ny, 1.)
+            gx = np.arange(-0.5, nx)
+            gy = np.arange(-0.5, ny)
 
             X, Y = np.meshgrid(gx, gy)
         else:
             X, Y, C = XYC
 
-        pcolor_routine = self._get_base_axes_attr(method_name)
-
         if "transform" in kwargs:
-            mesh = pcolor_routine(self, X, Y, C, **kwargs)
+            mesh = super_pcolor(self, X, Y, C, **kwargs)
         else:
             orig_shape = X.shape
-            xy = np.vstack([X.flat, Y.flat])
-            xyt=xy.transpose()
+            xyt = np.column_stack([X.flat, Y.flat])
             wxy = self.transAux.transform(xyt)
-            gx, gy = wxy[:,0].reshape(orig_shape), wxy[:,1].reshape(orig_shape)
-            mesh = pcolor_routine(self, gx, gy, C, **kwargs)
+            gx = wxy[:, 0].reshape(orig_shape)
+            gy = wxy[:, 1].reshape(orig_shape)
+            mesh = super_pcolor(self, gx, gy, C, **kwargs)
             mesh.set_transform(self._parent_axes.transData)
 
         return mesh
 
     def pcolormesh(self, *XYC, **kwargs):
-        return self._pcolor("pcolormesh", *XYC, **kwargs)
+        return self._pcolor(super().pcolormesh, *XYC, **kwargs)
 
     def pcolor(self, *XYC, **kwargs):
-        return self._pcolor("pcolor", *XYC, **kwargs)
+        return self._pcolor(super().pcolor, *XYC, **kwargs)
 
-
-    def _contour(self, method_name, *XYCL, **kwargs):
+    def _contour(self, super_contour, *XYCL, **kwargs):
 
         if len(XYCL) <= 2:
             C = XYCL[0]
             ny, nx = C.shape
 
-            gx = np.arange(0., nx, 1.)
-            gy = np.arange(0., ny, 1.)
+            gx = np.arange(0., nx)
+            gy = np.arange(0., ny)
 
-            X,Y = np.meshgrid(gx, gy)
+            X, Y = np.meshgrid(gx, gy)
             CL = XYCL
         else:
             X, Y = XYCL[:2]
             CL = XYCL[2:]
 
-        contour_routine = self._get_base_axes_attr(method_name)
-
         if "transform" in kwargs:
-            cont = contour_routine(self, X, Y, *CL, **kwargs)
+            cont = super_contour(self, X, Y, *CL, **kwargs)
         else:
             orig_shape = X.shape
-            xy = np.vstack([X.flat, Y.flat])
-            xyt=xy.transpose()
+            xyt = np.column_stack([X.flat, Y.flat])
             wxy = self.transAux.transform(xyt)
-            gx, gy = wxy[:,0].reshape(orig_shape), wxy[:,1].reshape(orig_shape)
-            cont = contour_routine(self, gx, gy, *CL, **kwargs)
+            gx = wxy[:, 0].reshape(orig_shape)
+            gy = wxy[:, 1].reshape(orig_shape)
+            cont = super_contour(self, gx, gy, *CL, **kwargs)
             for c in cont.collections:
                 c.set_transform(self._parent_axes.transData)
 
         return cont
 
     def contour(self, *XYCL, **kwargs):
-        return self._contour("contour", *XYCL, **kwargs)
+        return self._contour(super().contour, *XYCL, **kwargs)
 
     def contourf(self, *XYCL, **kwargs):
-        return self._contour("contourf", *XYCL, **kwargs)
+        return self._contour(super().contourf, *XYCL, **kwargs)
 
     def apply_aspect(self, position=None):
         self.update_viewlim()
-        self._get_base_axes_attr("apply_aspect")(self)
-        #ParasiteAxes.apply_aspect()
+        super().apply_aspect()
 
 
 @functools.lru_cache(None)
@@ -188,31 +172,17 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
         parasite_axes_class = axes_class
     return type("%sParasiteAuxTrans" % parasite_axes_class.__name__,
                 (ParasiteAxesAuxTransBase, parasite_axes_class),
-                {'_parasite_axes_class': parasite_axes_class,
-                 'name': 'parasite_axes'})
+                {'name': 'parasite_axes'})
 
 
 ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(
     axes_class=ParasiteAxes)
 
 
-def _get_handles(ax):
-    handles = ax.lines[:]
-    handles.extend(ax.patches)
-    handles.extend([c for c in ax.collections
-                    if isinstance(c, mcoll.LineCollection)])
-    handles.extend([c for c in ax.collections
-                    if isinstance(c, mcoll.RegularPolyCollection)])
-    handles.extend([c for c in ax.collections
-                    if isinstance(c, mcoll.CircleCollection)])
-
-    return handles
-
-
-class HostAxesBase(object):
+class HostAxesBase:
     def __init__(self, *args, **kwargs):
         self.parasites = []
-        self._get_base_axes_attr("__init__")(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_aux_axes(self, tr, viewlim_mode="equal", axes_class=None):
         parasite_axes_class = parasite_axes_auxtrans_class_factory(axes_class)
@@ -224,13 +194,9 @@ class HostAxesBase(object):
         return ax2
 
     def _get_legend_handles(self, legend_handler_map=None):
-        # don't use this!
-        Axes_get_legend_handles = self._get_base_axes_attr("_get_legend_handles")
-        all_handles = list(Axes_get_legend_handles(self, legend_handler_map))
-
+        all_handles = super()._get_legend_handles()
         for ax in self.parasites:
             all_handles.extend(ax._get_legend_handles(legend_handler_map))
-
         return all_handles
 
     def draw(self, renderer):
@@ -257,14 +223,14 @@ class HostAxesBase(object):
             self.images.extend(images)
             self.artists.extend(artists)
 
-        self._get_base_axes_attr("draw")(self, renderer)
+        super().draw(renderer)
         self.artists = orig_artists
         self.images = orig_images
 
     def cla(self):
         for ax in self.parasites:
             ax.cla()
-        self._get_base_axes_attr("cla")(self)
+        super().cla()
 
     def twinx(self, axes_class=None):
         """
@@ -361,15 +327,10 @@ class HostAxesBase(object):
         return ax2
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
-
         bbs = [ax.get_tightbbox(renderer, call_axes_locator)
                for ax in self.parasites]
-        get_tightbbox = self._get_base_axes_attr("get_tightbbox")
-        bbs.append(get_tightbbox(self, renderer, call_axes_locator))
-
-        _bbox = Bbox.union([b for b in bbs if b.width!=0 or b.height!=0])
-
-        return _bbox
+        bbs.append(super().get_tightbbox(renderer, call_axes_locator))
+        return Bbox.union([b for b in bbs if b.width != 0 or b.height != 0])
 
 
 @functools.lru_cache(None)
@@ -380,13 +341,9 @@ def host_axes_class_factory(axes_class=None):
     def _get_base_axes(self):
         return axes_class
 
-    def _get_base_axes_attr(self, attrname):
-        return getattr(axes_class, attrname)
-
     return type("%sHostAxes" % axes_class.__name__,
                 (HostAxesBase, axes_class),
-                {'_get_base_axes_attr': _get_base_axes_attr,
-                 '_get_base_axes': _get_base_axes})
+                {'_get_base_axes': _get_base_axes})
 
 
 def host_subplot_class_factory(axes_class):
@@ -420,6 +377,7 @@ def host_axes(*args, axes_class=None, figure=None, **kwargs):
     figure.add_axes(ax)
     plt.draw_if_interactive()
     return ax
+
 
 def host_subplot(*args, axes_class=None, figure=None, **kwargs):
     """

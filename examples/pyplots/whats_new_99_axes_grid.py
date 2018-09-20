@@ -38,7 +38,7 @@ def get_rgb():
     return R, G, B
 
 
-fig = plt.figure(1)
+fig = plt.figure()
 ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
 
 r, g, b = get_rgb()
@@ -48,8 +48,6 @@ ax.imshow_rgb(r, g, b, **kwargs)
 ax.RGB.set_xlim(0., 9.5)
 ax.RGB.set_ylim(0.9, 10.6)
 
-
-plt.draw()
 plt.show()
 
 #############################################################################

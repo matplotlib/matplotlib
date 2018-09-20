@@ -9,7 +9,7 @@ import matplotlib.patheffects as PathEffects
 import numpy as np
 
 if 1:
-    plt.figure(1, figsize=(8, 3))
+    plt.figure(figsize=(8, 3))
     ax1 = plt.subplot(131)
     ax1.imshow([[1, 2], [2, 3]])
     txt = ax1.annotate("test", (1., 1.), (0., 0),

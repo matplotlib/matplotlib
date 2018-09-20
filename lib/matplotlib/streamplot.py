@@ -356,15 +356,12 @@ class StreamMask(object):
     """
 
     def __init__(self, density):
-        if np.isscalar(density):
-            if density <= 0:
-                raise ValueError("If a scalar, 'density' must be positive")
-            self.nx = self.ny = int(30 * density)
-        else:
-            if len(density) != 2:
-                raise ValueError("'density' can have at maximum 2 dimensions")
-            self.nx = int(30 * density[0])
-            self.ny = int(30 * density[1])
+        try:
+            self.nx, self.ny = (30 * np.broadcast_to(density, 2)).astype(int)
+        except ValueError:
+            raise ValueError("'density' must be a scalar or be of length 2")
+        if self.nx < 0 or self.ny < 0:
+            raise ValueError("'density' must be positive")
         self._mask = np.zeros((self.ny, self.nx))
         self.shape = self._mask.shape
 
@@ -642,7 +639,6 @@ def _gen_starting_points(shape):
     xlast = nx - 1
     ylast = ny - 1
     x, y = 0, 0
-    i = 0
     direction = 'right'
     for i in range(nx * ny):
 
