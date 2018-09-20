@@ -2857,16 +2857,3 @@ def distances_along_curve(X):
     """
     X = np.diff(X, axis=0)
     return vector_lengths(X, axis=1)
-
-
-@cbook.deprecated('2.2')
-def path_length(X):
-    """
-    Computes the distance travelled along a polygonal curve in *N* dimensions.
-
-    Where *X* is an *M* x *N* array or matrix.  Returns an array of
-    length *M* consisting of the distance along the curve at each point
-    (i.e., the rows of *X*).
-    """
-    X = distances_along_curve(X)
-    return np.concatenate((np.zeros(1), np.cumsum(X)))
