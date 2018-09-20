@@ -2686,34 +2686,3 @@ def inside_poly(points, verts):
 
     # Check to see which points are contained within the Path
     return [idx for idx, p in enumerate(points) if poly.contains_point(p)]
-
-
-@cbook.deprecated("2.2")
-def poly_below(xmin, xs, ys):
-    """
-    Given a sequence of *xs* and *ys*, return the vertices of a
-    polygon that has a horizontal base at *xmin* and an upper bound at
-    the *ys*.  *xmin* is a scalar.
-
-    Intended for use with :meth:`matplotlib.axes.Axes.fill`, e.g.,::
-
-      xv, yv = poly_below(0, x, y)
-      ax.fill(xv, yv)
-    """
-    if any(isinstance(var, np.ma.MaskedArray) for var in [xs, ys]):
-        numpy = np.ma
-    else:
-        numpy = np
-
-    xs = numpy.asarray(xs)
-    ys = numpy.asarray(ys)
-    Nx = len(xs)
-    Ny = len(ys)
-    if Nx != Ny:
-        raise ValueError("'xs' and 'ys' must have the same length")
-    x = xmin*numpy.ones(2*Nx)
-    y = numpy.ones(2*Nx)
-    x[:Nx] = xs
-    y[:Nx] = ys
-    y[Nx:] = ys[::-1]
-    return x, y

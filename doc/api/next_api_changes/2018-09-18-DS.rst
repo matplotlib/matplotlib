@@ -37,4 +37,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.contiguous_regions` (use `.cbook.contiguous_regions` instead)
 - `mlab.is_closed_polygon`
 - `mlab.poly_between`
+- `mlab.poly_below`
 - `mlab.donothing_callback`
