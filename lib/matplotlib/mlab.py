@@ -2870,21 +2870,3 @@ def path_length(X):
     """
     X = distances_along_curve(X)
     return np.concatenate((np.zeros(1), np.cumsum(X)))
-
-
-@cbook.deprecated('2.2')
-def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
-    """
-    Converts a quadratic Bezier curve to a cubic approximation.
-
-    The inputs are the *x* and *y* coordinates of the three control
-    points of a quadratic curve, and the output is a tuple of *x* and
-    *y* coordinates of the four control points of the cubic curve.
-    """
-    # TODO: Candidate for deprecation -- no longer used internally
-
-    # c0x, c0y = q0x, q0y
-    c1x, c1y = q0x + 2./3. * (q1x - q0x), q0y + 2./3. * (q1y - q0y)
-    c2x, c2y = c1x + 1./3. * (q2x - q0x), c1y + 1./3. * (q2y - q0y)
-    # c3x, c3y = q2x, q2y
-    return q0x, q0y, c1x, c1y, c2x, c2y, q2x, q2y

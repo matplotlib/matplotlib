@@ -28,4 +28,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.segments_intersect`
 - `mlab.fftsurr`
 - `mlab.offset_line`
+- `mlab.quad2cubic`
 - `mlab.donothing_callback`
