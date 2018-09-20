@@ -235,7 +235,7 @@ from matplotlib.mlab import (
     frange,
     identity, inside_poly, ispower2, isvector, l1norm,
     l2norm, log2, movavg, norm_flat,
-    poly_below, poly_between,
+    poly_below,
     rec2csv, rec_append_fields, rec_drop_fields, rec_join, rms_flat,
     window_hanning, window_none)
 

@@ -2717,31 +2717,3 @@ def poly_below(xmin, xs, ys):
     y[:Nx] = ys
     y[Nx:] = ys[::-1]
     return x, y
-
-
-@cbook.deprecated("2.2")
-def poly_between(x, ylower, yupper):
-    """
-    Given a sequence of *x*, *ylower* and *yupper*, return the polygon
-    that fills the regions between them.  *ylower* or *yupper* can be
-    scalar or iterable.  If they are iterable, they must be equal in
-    length to *x*.
-
-    Return value is *x*, *y* arrays for use with
-    :meth:`matplotlib.axes.Axes.fill`.
-    """
-    if any(isinstance(var, np.ma.MaskedArray) for var in [ylower, yupper, x]):
-        numpy = np.ma
-    else:
-        numpy = np
-
-    Nx = len(x)
-    if not np.iterable(ylower):
-        ylower = ylower*numpy.ones(Nx)
-
-    if not np.iterable(yupper):
-        yupper = yupper*numpy.ones(Nx)
-
-    x = numpy.concatenate((x, x[::-1]))
-    y = numpy.concatenate((yupper, ylower[::-1]))
-    return x, y
