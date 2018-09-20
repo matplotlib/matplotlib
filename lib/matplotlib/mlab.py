@@ -2745,13 +2745,3 @@ def poly_between(x, ylower, yupper):
     x = numpy.concatenate((x, x[::-1]))
     y = numpy.concatenate((yupper, ylower[::-1]))
     return x, y
-
-
-@cbook.deprecated('2.2')
-def is_closed_polygon(X):
-    """
-    Tests whether first and last object in a sequence are the same.  These are
-    presumably coordinates on a polygonal curve, in which case this function
-    tests if that curve is closed.
-    """
-    return np.all(X[0] == X[-1])
