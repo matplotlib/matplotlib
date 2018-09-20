@@ -2844,16 +2844,3 @@ def vector_lengths(X, P=2., axis=None):
     """
     X = np.asarray(X)
     return (np.sum(X**(P), axis=axis))**(1./P)
-
-
-@cbook.deprecated('2.2')
-def distances_along_curve(X):
-    """
-    Computes the distance between a set of successive points in *N* dimensions.
-
-    Where *X* is an *M* x *N* array or matrix.  The distances between
-    successive rows is computed.  Distance is the standard Euclidean
-    distance.
-    """
-    X = np.diff(X, axis=0)
-    return vector_lengths(X, axis=1)

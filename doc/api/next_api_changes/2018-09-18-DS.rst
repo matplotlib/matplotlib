@@ -29,5 +29,6 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.fftsurr`
 - `mlab.offset_line`
 - `mlab.quad2cubic`
+- `mlab.distances_along_curve`
 - `mlab.path_length`
 - `mlab.donothing_callback`
