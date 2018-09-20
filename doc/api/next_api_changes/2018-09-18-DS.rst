@@ -27,4 +27,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.stineman_interp`
 - `mlab.segments_intersect`
 - `mlab.fftsurr`
+- `mlab.offset_line`
 - `mlab.donothing_callback`

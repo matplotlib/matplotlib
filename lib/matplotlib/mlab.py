@@ -2888,39 +2888,3 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     c2x, c2y = c1x + 1./3. * (q2x - q0x), c1y + 1./3. * (q2y - q0y)
     # c3x, c3y = q2x, q2y
     return q0x, q0y, c1x, c1y, c2x, c2y, q2x, q2y
-
-
-@cbook.deprecated("2.2")
-def offset_line(y, yerr):
-    """
-    Offsets an array *y* by +/- an error and returns a tuple
-    (y - err, y + err).
-
-    The error term can be:
-
-    * A scalar. In this case, the returned tuple is obvious.
-    * A vector of the same length as *y*. The quantities y +/- err are computed
-      component-wise.
-    * A tuple of length 2. In this case, yerr[0] is the error below *y* and
-      yerr[1] is error above *y*. For example::
-
-        import numpy as np
-        import matplotlib.pyplot as plt
-
-        x = np.linspace(0, 2*np.pi, num=100, endpoint=True)
-        y = np.sin(x)
-        y_minus, y_plus = mlab.offset_line(y, 0.1)
-        plt.plot(x, y)
-        plt.fill_between(x, y_minus, y2=y_plus)
-        plt.show()
-
-    """
-    if cbook.is_numlike(yerr) or (np.iterable(yerr) and
-                                  len(yerr) == len(y)):
-        ymin = y - yerr
-        ymax = y + yerr
-    elif len(yerr) == 2:
-        ymin, ymax = y - yerr[0], y + yerr[1]
-    else:
-        raise ValueError("yerr must be scalar, 1xN or 2xN")
-    return ymin, ymax
