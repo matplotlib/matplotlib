@@ -150,32 +150,6 @@ def tempcsv():
         yield fd
 
 
-def test_recarray_csv_roundtrip(tempcsv):
-    expected = np.recarray((99,), [('x', float), ('y', float), ('t', float)])
-    # initialising all values: uninitialised memory sometimes produces
-    # floats that do not round-trip to string and back.
-    expected['x'][:] = np.linspace(-1e9, -1, 99)
-    expected['y'][:] = np.linspace(1, 1e9, 99)
-    expected['t'][:] = np.linspace(0, 0.01, 99)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        mlab.rec2csv(expected, tempcsv)
-        tempcsv.seek(0)
-        actual = mlab.csv2rec(tempcsv)
-
-    assert_allclose(expected['x'], actual['x'])
-    assert_allclose(expected['y'], actual['y'])
-    assert_allclose(expected['t'], actual['t'])
-
-
-def test_rec2csv_bad_shape_ValueError(tempcsv):
-    bad = np.recarray((99, 4), [('x', float), ('y', float)])
-
-    # the bad recarray should trigger a ValueError for having ndim > 1.
-    with pytest.warns(MatplotlibDeprecationWarning):
-        with pytest.raises(ValueError):
-            mlab.rec2csv(bad, tempcsv)
-
-
 def test_csv2rec_names_with_comments(tempcsv):
 
     tempcsv.write('# comment\n1,2,3\n4,5,6\n')

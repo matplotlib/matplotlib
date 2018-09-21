@@ -39,4 +39,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.poly_between`
 - `mlab.poly_below`
 - `mlab.inside_poly`
+- `mlab.rec2csv` (use numpy.recarray.tofile instead)
 - `mlab.donothing_callback`
