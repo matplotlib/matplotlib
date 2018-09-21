@@ -136,6 +136,10 @@ axes, 'upper right' for figures)
     corner of the legend in axes coordinates (in which case
     ``bbox_to_anchor`` will be ignored).
 
+    The 'best' option can be quite slow for plots with large amounts
+    of data. Your plotting speed may benefit from providing a specific
+    location.
+
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
     Defaults to `axes.bbox` (if called as a method to `.Axes.legend`) or
