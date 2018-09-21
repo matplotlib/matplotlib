@@ -2258,24 +2258,6 @@ class FormatMillions(FormatFloat):
         FormatFloat.__init__(self, precision, scale=1e-6)
 
 
-@cbook.deprecated("2.2", alternative='date.strftime')
-class FormatDate(FormatObj):
-    def __init__(self, fmt):
-        self.fmt = fmt
-
-    def __hash__(self):
-        return hash((self.__class__, self.fmt))
-
-    def toval(self, x):
-        if x is None:
-            return 'None'
-        return x.strftime(self.fmt)
-
-    def fromstr(self, x):
-        import dateutil.parser
-        return dateutil.parser.parse(x).date()
-
-
 class GaussianKDE(object):
     """
     Representation of a kernel-density estimate using Gaussian kernels.

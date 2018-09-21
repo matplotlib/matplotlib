@@ -44,4 +44,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.csvformat_factory`
 - `mlab.get_formatd`
 - `mlab.FormatDatetime` (use datetime.strftime instead)
+- `mlab.FormatDate` (use date.strftime instead)
 - `mlab.donothing_callback`
