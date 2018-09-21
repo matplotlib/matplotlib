@@ -193,20 +193,6 @@ def test_csv2rec_dates(tempcsv, input, kwargs):
     assert_array_equal(array['a'].tolist(), expected)
 
 
-def test_rec2txt_basic():
-    a = np.array([(1.0, 2, 'foo', 'bing'),
-                  (2.0, 3, 'bar', 'blah')],
-                 dtype=np.dtype([('x', np.float32),
-                                 ('y', np.int8),
-                                 ('s', str, 3),
-                                 ('s2', str, 4)]))
-    truth = ('       x   y   s     s2\n'
-             '   1.000   2   foo   bing   \n'
-             '   2.000   3   bar   blah   ').splitlines()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.rec2txt(a).splitlines() == truth
-
-
 class TestWindow(object):
     def setup(self):
         np.random.seed(0)
