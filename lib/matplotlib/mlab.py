@@ -1597,22 +1597,6 @@ def rec_drop_fields(rec, names):
 
 
 @cbook.deprecated("2.2")
-def rec_keep_fields(rec, names):
-    """
-    Return a new numpy record array with only fields listed in names
-    """
-
-    if isinstance(names, str):
-        names = names.split(',')
-
-    arrays = []
-    for name in names:
-        arrays.append(rec[name])
-
-    return np.rec.fromarrays(arrays, names=names)
-
-
-@cbook.deprecated("2.2")
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None,
             use_mrecords=False, dayfirst=False, yearfirst=False):
