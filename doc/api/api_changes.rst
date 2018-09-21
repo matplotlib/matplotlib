@@ -69,6 +69,34 @@ which will improve the handling of log-axes.  Note that the
 returned *image* now is of type `~.matplotlib.collections.QuadMesh`
 instead of `~.matplotlib.image.AxesImage`.
 
+`.matplotlib.axes.Axes.get_tightbbox` now includes all artists
+--------------------------------------------------------------
+
+For Matplotlib 3.0, *all* artists are now included in the bounding box
+returned by `.matplotlib.axes.Axes.get_tightbbox`.
+
+`.matplotlib.axes.Axes.get_tightbbox` adds a new kwarg ``bbox_extra_artists``
+to manually specify the list of artists on the axes to include in the
+tight bounding box calculation.
+
+Layout tools like `.Figure.tight_layout`, ``constrained_layout``,
+and ``fig.savefig('fname.png', bbox_inches="tight")`` use
+`.matplotlib.axes.Axes.get_tightbbox` to determine the bounds of each axes on
+a figure and adjust spacing between axes.
+
+In Matplotlib 2.2 ``get_tightbbox`` started to include legends made on the
+axes, but still excluded some other artists, like text that may overspill an
+axes.  This has been expanded to include *all* artists.
+
+This new default may be overridden in either of three ways:
+
+1. Make the artist to be excluded a child of the figure, not the axes. E.g.,
+   call ``fig.legend()`` instead of ``ax.legend()`` (perhaps using
+   `~.matplotlib.axes.Axes.get_legend_handles_labels` to gather handles and
+   labels from the parent axes).
+2. If the artist is a child of the axes, set the artist property
+   ``artist.set_in_layout(False)``.
+3. Manually specify a list of artists in the new kwarg ``bbox_extra_artists``.
 
 `.matplotlib.Axes.get_tightbbox` now includes all artists
 ---------------------------------------------------------
