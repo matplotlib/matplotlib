@@ -890,25 +890,26 @@ class Text(Artist):
         return self._verticalalignment
 
     def get_window_extent(self, renderer=None, dpi=None):
-        '''
-        Return a `~matplotlib.transforms.Bbox` object bounding
-        the text, in display units.
+        """
+        Return the `Bbox` bounding the text, in display units.
 
-        In addition to being used internally, this is useful for
-        specifying clickable regions in a png file on a web page.
+        In addition to being used internally, this is useful for specifying
+        clickable regions in a png file on a web page.
 
-        *renderer* defaults to the _renderer attribute of the text
-        object.  This is not assigned until the first execution of
-        :meth:`draw`, so you must use this kwarg if you want
-        to call `.get_window_extent` prior to the first `draw`.  For
-        getting web page regions, it is simpler to call the method after
-        saving the figure.
+        Parameters
+        ----------
+        renderer : Renderer, optional
+            A renderer is needed to compute the bounding box.  If the artist
+            has already been drawn, the renderer is cached; thus, it is only
+            necessary to pass this argument when calling `get_window_extent`
+            before the first `draw`.  In practice, it is usually easier to
+            trigger a draw first (e.g. by saving the figure).
 
-        *dpi* defaults to self.figure.dpi; the renderer dpi is
-        irrelevant.  For the web application, if figure.dpi is not
-        the value used when saving the figure, then the value that
-        was used must be specified as the *dpi* argument.
-        '''
+        dpi : float, optional
+            The dpi value for computing the bbox, defaults to
+            ``self.figure.dpi`` (*not* the renderer dpi); should be set e.g. if
+            to match regions with a figure saved with a custom dpi value.
+        """
         #return _unit_box
         if not self.get_visible():
             return Bbox.unit()
@@ -2343,29 +2344,36 @@ class Annotation(Text, _AnnotationBase):
         Text.draw(self, renderer)
 
     def get_window_extent(self, renderer=None):
-        '''
-        Return a :class:`~matplotlib.transforms.Bbox` object bounding
-        the text and arrow annotation, in display units.
+        """
+        Return the `Bbox` bounding the text and arrow, in display units.
 
-        *renderer* defaults to the _renderer attribute of the text
-        object.  This is not assigned until the first execution of
-        :meth:`draw`, so you must use this kwarg if you want
-        to call :meth:`get_window_extent` prior to the first
-        :meth:`draw`.  For getting web page regions, it is
-        simpler to call the method after saving the figure. The
-        *dpi* used defaults to self.figure.dpi; the renderer dpi is
-        irrelevant.
-        '''
-        self.update_positions(renderer)
+        Parameters
+        ----------
+        renderer : Renderer, optional
+            A renderer is needed to compute the bounding box.  If the artist
+            has already been drawn, the renderer is cached; thus, it is only
+            necessary to pass this argument when calling `get_window_extent`
+            before the first `draw`.  In practice, it is usually easier to
+            trigger a draw first (e.g. by saving the figure).
+        """
+        # This block is the same as in Text.get_window_extent, but we need to
+        # set the renderer before calling update_positions().
         if not self.get_visible():
             return Bbox.unit()
+        if renderer is not None:
+            self._renderer = renderer
+        if self._renderer is None:
+            self._renderer = self.figure._cachedRenderer
+        if self._renderer is None:
+            raise RuntimeError('Cannot get window extent w/o renderer')
 
-        text_bbox = Text.get_window_extent(self, renderer=renderer)
+        self.update_positions(self._renderer)
+
+        text_bbox = Text.get_window_extent(self)
         bboxes = [text_bbox]
 
         if self.arrow_patch is not None:
-            bboxes.append(
-                self.arrow_patch.get_window_extent(renderer=renderer))
+            bboxes.append(self.arrow_patch.get_window_extent())
 
         return Bbox.union(bboxes)
 
