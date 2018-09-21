@@ -1,5 +1,5 @@
 import functools
-import textwrap
+import inspect
 import warnings
 
 
@@ -118,6 +118,11 @@ def deprecated(since, message='', name='', alternative='', pending=False,
     """
     Decorator to mark a function or a class as deprecated.
 
+    When deprecating a classmethod, a staticmethod, or a property, the
+    ``@deprecated`` decorator should go *under* the ``@classmethod``, etc.
+    decorator (i.e., `deprecated` should directly decorate the underlying
+    callable).
+
     Parameters
     ----------
     since : str
@@ -184,8 +189,8 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
         if isinstance(obj, type):
             obj_type = "class"
-            old_doc = obj.__doc__
             func = obj.__init__
+            old_doc = obj.__doc__
 
             def finalize(wrapper, new_doc):
                 obj.__doc__ = new_doc
@@ -193,22 +198,13 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                 return obj
         else:
             obj_type = "function"
-            if isinstance(obj, classmethod):
-                func = obj.__func__
-                old_doc = func.__doc__
+            func = obj
+            old_doc = func.__doc__
 
-                def finalize(wrapper, new_doc):
-                    wrapper = functools.wraps(func)(wrapper)
-                    wrapper.__doc__ = new_doc
-                    return classmethod(wrapper)
-            else:
-                func = obj
-                old_doc = func.__doc__
-
-                def finalize(wrapper, new_doc):
-                    wrapper = functools.wraps(func)(wrapper)
-                    wrapper.__doc__ = new_doc
-                    return wrapper
+            def finalize(wrapper, new_doc):
+                wrapper = functools.wraps(func)(wrapper)
+                wrapper.__doc__ = new_doc
+                return wrapper
 
         message = _generate_deprecation_message(
             since, message, name, alternative, pending, obj_type, addendum,
@@ -221,11 +217,13 @@ def deprecated(since, message='', name='', alternative='', pending=False,
             _warn_external(message, category)
             return func(*args, **kwargs)
 
-        old_doc = textwrap.dedent(old_doc or '').strip('\n')
+        old_doc = inspect.cleandoc(old_doc or '').strip('\n')
         message = message.strip()
-        new_doc = (('\n.. deprecated:: %(since)s'
-                    '\n    %(message)s\n\n' %
-                    {'since': since, 'message': message}) + old_doc)
+        new_doc = ('.. deprecated:: {since}\n'
+                   '   {message}\n'
+                   '\n'
+                   '{old_doc}'
+                   .format(since=since, message=message, old_doc=old_doc))
         if not old_doc:
             # This is to prevent a spurious 'unexected unindent' warning from
             # docutils when the original docstring was blank.
