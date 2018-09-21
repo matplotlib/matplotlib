@@ -41,6 +41,7 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.inside_poly`
 - `mlab.rec2csv` (use numpy.recarray.tofile instead)
 - `mlab.rec2text` (use numpy.recarray.tofile instead)
+- `mlab.rec_summarize`
 - `mlab.rec_join`
 - `mlab.recs_join`
 - `mlab.csvformat_factory`

@@ -1657,29 +1657,6 @@ def rec_groupby(r, groupby, stats):
 
 
 @cbook.deprecated("2.2")
-def rec_summarize(r, summaryfuncs):
-    """
-    *r* is a numpy record array
-
-    *summaryfuncs* is a list of (*attr*, *func*, *outname*) tuples
-    which will apply *func* to the array *r*[attr] and assign the
-    output to a new attribute name *outname*.  The returned record
-    array is identical to *r*, with extra arrays for each element in
-    *summaryfuncs*.
-
-    """
-
-    names = list(r.dtype.names)
-    arrays = [r[name] for name in names]
-
-    for attr, func, outname in summaryfuncs:
-        names.append(outname)
-        arrays.append(np.asarray(func(r[attr])))
-
-    return np.rec.fromarrays(arrays, names=names)
-
-
-@cbook.deprecated("2.2")
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None,
             use_mrecords=False, dayfirst=False, yearfirst=False):
