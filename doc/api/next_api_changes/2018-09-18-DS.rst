@@ -44,6 +44,7 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.rec_summarize`
 - `mlab.rec_join`
 - `mlab.recs_join`
+- `mlab.rec_groupby`
 - `mlab.csvformat_factory`
 - `mlab.get_formatd`
 - `mlab.FormatDatetime` (use datetime.strftime instead)

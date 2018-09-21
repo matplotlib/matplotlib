@@ -1613,50 +1613,6 @@ def rec_keep_fields(rec, names):
 
 
 @cbook.deprecated("2.2")
-def rec_groupby(r, groupby, stats):
-    """
-    *r* is a numpy record array
-
-    *groupby* is a sequence of record array attribute names that
-    together form the grouping key.  e.g., ('date', 'productcode')
-
-    *stats* is a sequence of (*attr*, *func*, *outname*) tuples which
-    will call ``x = func(attr)`` and assign *x* to the record array
-    output with attribute *outname*.  For example::
-
-      stats = ( ('sales', len, 'numsales'), ('sales', np.mean, 'avgsale') )
-
-    Return record array has *dtype* names for each attribute name in
-    the *groupby* argument, with the associated group values, and
-    for each outname name in the *stats* argument, with the associated
-    stat summary output.
-    """
-    # build a dictionary from groupby keys-> list of indices into r with
-    # those keys
-    rowd = {}
-    for i, row in enumerate(r):
-        key = tuple([row[attr] for attr in groupby])
-        rowd.setdefault(key, []).append(i)
-
-    rows = []
-    # sort the output by groupby keys
-    for key in sorted(rowd):
-        row = list(key)
-        # get the indices for this groupby key
-        ind = rowd[key]
-        thisr = r[ind]
-        # call each stat function for this groupby slice
-        row.extend([func(thisr[attr]) for attr, func, outname in stats])
-        rows.append(row)
-
-    # build the output record array with groupby and outname attributes
-    attrs, funcs, outnames = list(zip(*stats))
-    names = list(groupby)
-    names.extend(outnames)
-    return np.rec.fromrecords(rows, names=names)
-
-
-@cbook.deprecated("2.2")
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None,
             use_mrecords=False, dayfirst=False, yearfirst=False):
