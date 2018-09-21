@@ -2286,31 +2286,6 @@ class FormatDatetime(FormatDate):
         return dateutil.parser.parse(x)
 
 
-@cbook.deprecated("2.2")
-def get_formatd(r, formatd=None):
-    'build a formatd guaranteed to have a key for every dtype name'
-    defaultformatd = {
-        np.bool_: FormatBool(),
-        np.int16: FormatInt(),
-        np.int32: FormatInt(),
-        np.int64: FormatInt(),
-        np.float32: FormatFloat(),
-        np.float64: FormatFloat(),
-        np.object_: FormatObj(),
-        np.string_: FormatString()}
-
-    if formatd is None:
-        formatd = dict()
-
-    for i, name in enumerate(r.dtype.names):
-        dt = r.dtype[name]
-        format = formatd.get(name)
-        if format is None:
-            format = defaultformatd.get(dt.type, FormatObj())
-        formatd[name] = format
-    return formatd
-
-
 class GaussianKDE(object):
     """
     Representation of a kernel-density estimate using Gaussian kernels.
