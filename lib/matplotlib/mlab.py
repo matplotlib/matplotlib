@@ -1579,24 +1579,6 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
 
 
 @cbook.deprecated("2.2")
-def rec_drop_fields(rec, names):
-    """
-    Return a new numpy record array with fields in *names* dropped.
-    """
-
-    names = set(names)
-
-    newdtype = np.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
-                         if name not in names])
-
-    newrec = np.recarray(rec.shape, dtype=newdtype)
-    for field in newdtype.names:
-        newrec[field] = rec[field]
-
-    return newrec
-
-
-@cbook.deprecated("2.2")
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None,
             use_mrecords=False, dayfirst=False, yearfirst=False):
