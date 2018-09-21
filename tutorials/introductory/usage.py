@@ -760,6 +760,14 @@ for i in range(3):
 #   plt.plot(y)
 #   plt.show()
 #
+# Legends
+# -------
+#
+# The default legend behavior for axes attempts to find the location
+# that covers the fewest data points (`loc='best'`). This can be a
+# very expensive computation if there are lots of data points. In
+# this case, you may want to provide a specific location.
+#
 # Using the *fast* style
 # ----------------------
 #
