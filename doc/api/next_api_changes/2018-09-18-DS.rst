@@ -43,4 +43,5 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.rec2text` (use numpy.recarray.tofile instead)
 - `mlab.csvformat_factory`
 - `mlab.get_formatd`
+- `mlab.FormatDatetime` (use datetime.strftime instead)
 - `mlab.donothing_callback`

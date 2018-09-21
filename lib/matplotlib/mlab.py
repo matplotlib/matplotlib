@@ -2276,16 +2276,6 @@ class FormatDate(FormatObj):
         return dateutil.parser.parse(x).date()
 
 
-@cbook.deprecated("2.2", alternative='datetime.strftime')
-class FormatDatetime(FormatDate):
-    def __init__(self, fmt='%Y-%m-%d %H:%M:%S'):
-        FormatDate.__init__(self, fmt)
-
-    def fromstr(self, x):
-        import dateutil.parser
-        return dateutil.parser.parse(x)
-
-
 class GaussianKDE(object):
     """
     Representation of a kernel-density estimate using Gaussian kernels.
