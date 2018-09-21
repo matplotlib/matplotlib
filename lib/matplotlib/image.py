@@ -338,7 +338,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         if not unsampled:
             if A.ndim not in (2, 3):
-                raise ValueError("Invalid dimensions, got {}".format(A.shape))
+                raise ValueError("Invalid shape {} for image data"
+                                 .format(A.shape))
 
             if A.ndim == 2:
                 # if we are a 2D array, then we are running through the
@@ -482,7 +483,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
                 elif A.shape[2] != 4:
-                    raise ValueError("Invalid dimensions, got %s" % (A.shape,))
+                    raise ValueError("Invalid shape {} for image data"
+                                     .format(A.shape))
 
                 output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
 
@@ -638,11 +640,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         if (self._A.dtype != np.uint8 and
                 not np.can_cast(self._A.dtype, float, "same_kind")):
-            raise TypeError("Image data cannot be converted to float")
+            raise TypeError("Image data of dtype {} cannot be converted to "
+                            "float".format(self._A.dtype))
 
         if not (self._A.ndim == 2
                 or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
-            raise TypeError("Invalid dimensions for image data")
+            raise TypeError("Invalid shape {} for image data"
+                            .format(self._A.shape))
 
         if self._A.ndim == 3:
             # If the input data has values outside the valid range (after
