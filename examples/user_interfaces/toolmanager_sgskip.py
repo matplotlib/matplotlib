@@ -61,7 +61,6 @@ class GroupHideTool(ToolToggleBase):
         self.set_lines_visibility(False)
 
     def set_lines_visibility(self, state):
-        gr_lines = []
         for ax in self.figure.get_axes():
             for line in ax.get_lines():
                 if line.get_gid() == self.gid:

@@ -125,7 +125,6 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
     max_head_length = 2 * max_arrow_width
     arrow_params = {'length_includes_head': True, 'shape': shape,
                     'head_starts_at_zero': head_starts_at_zero}
-    ax = plt.gca()
     sf = 0.6  # max arrow size represents this in data coords
 
     d = (r2 / 2 + arrow_h_offset - 0.5) / r2  # distance for diags
