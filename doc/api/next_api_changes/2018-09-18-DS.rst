@@ -47,6 +47,7 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.rec_groupby`
 - `mlab.rec_keep_fields`
 - `mlab.rec_drop_fields`
+- `mlab.rec_append_fields`
 - `mlab.csvformat_factory`
 - `mlab.get_formatd`
 - `mlab.FormatDatetime` (use datetime.strftime instead)
