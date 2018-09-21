@@ -1822,65 +1822,6 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
 
 
 @cbook.deprecated("2.2")
-def recs_join(key, name, recs, jointype='outer', missing=0., postfixes=None):
-    """
-    Join a sequence of record arrays on single column key.
-
-    This function only joins a single column of the multiple record arrays
-
-    *key*
-      is the column name that acts as a key
-
-    *name*
-      is the name of the column that we want to join
-
-    *recs*
-      is a list of record arrays to join
-
-    *jointype*
-      is a string 'inner' or 'outer'
-
-    *missing*
-      is what any missing field is replaced by
-
-    *postfixes*
-      if not None, a len recs sequence of postfixes
-
-    returns a record array with columns [rowkey, name0, name1, ... namen-1].
-    or if postfixes [PF0, PF1, ..., PFN-1] are supplied,
-    [rowkey, namePF0, namePF1, ... namePFN-1].
-
-    Example::
-
-      r = recs_join("date", "close", recs=[r0, r1], missing=0.)
-
-    """
-    results = []
-    aligned_iters = cbook.align_iterators(operator.attrgetter(key),
-                                          *[iter(r) for r in recs])
-
-    def extract(r):
-        if r is None:
-            return missing
-        else:
-            return r[name]
-
-    if jointype == "outer":
-        for rowkey, row in aligned_iters:
-            results.append([rowkey] + list(map(extract, row)))
-    elif jointype == "inner":
-        for rowkey, row in aligned_iters:
-            if None not in row:  # throw out any Nones
-                results.append([rowkey] + list(map(extract, row)))
-
-    if postfixes is None:
-        postfixes = ['%d' % i for i in range(len(recs))]
-    names = ",".join([key] + ["%s%s" % (name, postfix)
-                              for postfix in postfixes])
-    return np.rec.fromrecords(results, names=names)
-
-
-@cbook.deprecated("2.2")
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None,
             use_mrecords=False, dayfirst=False, yearfirst=False):
