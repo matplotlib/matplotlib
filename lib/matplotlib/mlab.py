@@ -2311,15 +2311,6 @@ def get_formatd(r, formatd=None):
     return formatd
 
 
-@cbook.deprecated("2.2")
-def csvformat_factory(format):
-    format = copy.deepcopy(format)
-    if isinstance(format, FormatFloat):
-        format.scale = 1.  # override scaling for storage
-        format.fmt = '%r'
-    return format
-
-
 class GaussianKDE(object):
     """
     Representation of a kernel-density estimate using Gaussian kernels.
