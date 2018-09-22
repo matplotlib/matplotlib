@@ -1247,30 +1247,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 
-# *****************************************************************************
-# Globals
-# ****************************************************************************
-# function definitions
-exp_safe_MIN = math.log(2.2250738585072014e-308)
-exp_safe_MAX = 1.7976931348623157e+308
-
-
-@cbook.deprecated("2.2", 'numpy.exp')
-def exp_safe(x):
-    """
-    Compute exponentials which safely underflow to zero.
-
-    Slow, but convenient to use. Note that numpy provides proper
-    floating point exception handling with access to the underlying
-    hardware.
-    """
-
-    if type(x) is np.ndarray:
-        return np.exp(np.clip(x, exp_safe_MIN, exp_safe_MAX))
-    else:
-        return math.exp(x)
-
-
 @cbook.deprecated("2.2", alternative='numpy.array(list(map(...)))')
 def amap(fn, *args):
     """
