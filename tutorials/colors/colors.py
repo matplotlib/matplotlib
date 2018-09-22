@@ -77,6 +77,8 @@ demo('seaborn')
 # and third colors of each style's ``mpl.rcParams['axes.prop_cycle']``.
 #
 #
+# .. _xkcd-colors:
+#
 # xkcd v X11/CSS4
 # ---------------
 #
