@@ -1270,25 +1270,6 @@ def binary_repr(number, max_length=1025):
     return ''.join(map(repr, digits)).replace('L', '')
 
 
-@cbook.deprecated("2.2", 'numpy.log2')
-def log2(x, ln2=math.log(2.0)):
-    """
-    Return the log(*x*) in base 2.
-
-    This is a _slow_ function but which is guaranteed to return the correct
-    integer value if the input is an integer exact power of 2.
-    """
-    try:
-        bin_n = binary_repr(x)[1:]
-    except (AssertionError, TypeError):
-        return math.log(x)/ln2
-    else:
-        if '1' in bin_n:
-            return math.log(x)/ln2
-        else:
-            return len(bin_n)
-
-
 @cbook.deprecated("2.2")
 def ispower2(n):
     """

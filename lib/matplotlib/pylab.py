@@ -232,7 +232,7 @@ from matplotlib.mlab import (
     binary_repr, csv2rec,
     demean, detrend, detrend_linear, detrend_mean, detrend_none,
     ispower2, isvector,
-    log2, movavg,
+    movavg,
     window_hanning, window_none)
 
 from matplotlib import cbook, mlab, pyplot as plt
