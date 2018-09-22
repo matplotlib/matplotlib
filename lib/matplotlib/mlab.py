@@ -1247,33 +1247,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 
-@cbook.deprecated("2.2", 'numpy.identity')
-def identity(n, rank=2, dtype='l', typecode=None):
-    """
-    Returns the identity matrix of shape (*n*, *n*, ..., *n*) (rank *r*).
-
-    For ranks higher than 2, this object is simply a multi-index Kronecker
-    delta::
-
-                            /  1  if i0=i1=...=iR,
-        id[i0,i1,...,iR] = -|
-                            \\  0  otherwise.
-
-    Optionally a *dtype* (or typecode) may be given (it defaults to 'l').
-
-    Since rank defaults to 2, this function behaves in the default case (when
-    only *n* is given) like ``numpy.identity(n)`` -- but surprisingly, it is
-    much faster.
-    """
-    if typecode is not None:
-        dtype = typecode
-    iden = np.zeros((n,)*rank, dtype)
-    for i in range(n):
-        idx = (i,)*rank
-        iden[idx] = 1
-    return iden
-
-
 @cbook.deprecated("2.2")
 def base_repr(number, base=2, padding=0):
     """
