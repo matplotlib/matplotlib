@@ -1247,24 +1247,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 
-@cbook.deprecated("2.2", alternative='numpy.linalg.norm(a.flat, ord=p)')
-def norm_flat(a, p=2):
-    """
-    norm(a,p=2) -> l-p norm of a.flat
-
-    Return the l-p norm of *a*, considered as a flat array.  This is NOT a true
-    matrix norm, since arrays of arbitrary rank are always flattened.
-
-    *p* can be a number or the string 'Infinity' to get the L-infinity norm.
-    """
-    # This function was being masked by a more general norm later in
-    # the file.  We may want to simply delete it.
-    if p == 'Infinity':
-        return np.max(np.abs(a))
-    else:
-        return np.sum(np.abs(a) ** p) ** (1 / p)
-
-
 @cbook.deprecated("2.2", 'numpy.arange')
 def frange(xini, xfin=None, delta=None, **kw):
     """

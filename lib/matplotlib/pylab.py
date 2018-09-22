@@ -233,7 +233,7 @@ from matplotlib.mlab import (
     demean, detrend, detrend_linear, detrend_mean, detrend_none,
     frange,
     identity, ispower2, isvector,
-    log2, movavg, norm_flat,
+    log2, movavg,
     window_hanning, window_none)
 
 from matplotlib import cbook, mlab, pyplot as plt
