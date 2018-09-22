@@ -229,7 +229,7 @@ from matplotlib.dates import (
 ## We are still importing too many things from mlab; more cleanup is needed.
 
 from matplotlib.mlab import (
-    binary_repr, csv2rec,
+    csv2rec,
     demean, detrend, detrend_linear, detrend_mean, detrend_none,
     ispower2, isvector,
     movavg,

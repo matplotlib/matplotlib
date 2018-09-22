@@ -1248,29 +1248,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @cbook.deprecated("2.2")
-def binary_repr(number, max_length=1025):
-    """
-    Return the binary representation of the input *number* as a
-    string.
-
-    This is more efficient than using :func:`base_repr` with base 2.
-
-    Increase the value of max_length for very large numbers. Note that
-    on 32-bit machines, 2**1023 is the largest integer power of 2
-    which can be converted to a Python float.
-    """
-
-#   assert number < 2L << max_length
-    shifts = map(operator.rshift, max_length * [number],
-                 range(max_length - 1, -1, -1))
-    digits = list(map(operator.mod, shifts, max_length * [2]))
-    if not digits.count(1):
-        return 0
-    digits = digits[digits.index(1):]
-    return ''.join(map(repr, digits)).replace('L', '')
-
-
-@cbook.deprecated("2.2")
 def ispower2(n):
     """
     Returns the log base 2 of *n* if *n* is a power of 2, zero otherwise.
