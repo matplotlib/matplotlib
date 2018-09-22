@@ -154,7 +154,7 @@ def list_fonts(directory, extensions):
     extensions = ["." + ext for ext in extensions]
     return [str(path)
             for path in filter(Path.is_file, Path(directory).glob("**/*.*"))
-            if path.suffix in extensions]
+            if path.suffix.lower() in extensions]
 
 
 def win32FontDirectory():
@@ -187,7 +187,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     if directory is None:
         directory = win32FontDirectory()
 
-    fontext = get_fontext_synonyms(fontext)
+    fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
 
     items = set()
     for fontdir in MSFontDirectories:
@@ -240,9 +240,9 @@ def _call_fc_list():
 def get_fontconfig_fonts(fontext='ttf'):
     """List the font filenames known to `fc-list` having the given extension.
     """
-    fontext = get_fontext_synonyms(fontext)
+    fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
     return [fname for fname in _call_fc_list()
-            if Path(fname).suffix[1:] in fontext]
+            if Path(fname).suffix.lower() in fontext]
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
