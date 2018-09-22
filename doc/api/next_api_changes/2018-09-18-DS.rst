@@ -19,6 +19,8 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.log2` (use numpy.log2 instead)
 - `mlab.isvector`
 - `mlab.movavg`
+- `mlab.safe_isinf` (use numpy.isinf instead)
+- `mlab.safe_isnan` (use numpy.isnan instead)
 - `mlab.cohere_pairs` (use scipy.signal.coherence instead)
 - `mlab.entropy` (use scipy.stats.entropy instead)
 - `mlab.normpdf` (use scipy.stats.norm.pdf instead)

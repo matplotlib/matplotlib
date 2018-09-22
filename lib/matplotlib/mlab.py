@@ -1194,37 +1194,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     return Cxy, f
 
 
-# helpers for loading, saving, manipulating and viewing numpy record arrays
-@cbook.deprecated("2.2", 'numpy.isnan')
-def safe_isnan(x):
-    ':func:`numpy.isnan` for arbitrary types'
-    if isinstance(x, str):
-        return False
-    try:
-        b = np.isnan(x)
-    except NotImplementedError:
-        return False
-    except TypeError:
-        return False
-    else:
-        return b
-
-
-@cbook.deprecated("2.2", 'numpy.isinf')
-def safe_isinf(x):
-    ':func:`numpy.isinf` for arbitrary types'
-    if isinstance(x, str):
-        return False
-    try:
-        b = np.isinf(x)
-    except NotImplementedError:
-        return False
-    except TypeError:
-        return False
-    else:
-        return b
-
-
 @cbook.deprecated("2.2")
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None,
