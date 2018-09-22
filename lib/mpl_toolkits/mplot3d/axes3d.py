@@ -1412,7 +1412,10 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        super().tick_params(axis, **kwargs)
+        if axis not in ['x', 'y', 'z', 'both']:
+            raise ValueError("axis must be one of 'x', 'y', 'z' or 'both'")
+        if axis in ['x', 'y', 'both']:
+            super().tick_params(axis, **kwargs)
         if axis in ['z', 'both']:
             zkw = dict(kwargs)
             zkw.pop('top', None)
