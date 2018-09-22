@@ -1194,16 +1194,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     return Cxy, f
 
 
-@cbook.deprecated('2.2')
-def movavg(x, n):
-    """
-    Compute the len(*n*) moving average of *x*.
-    """
-    w = np.empty((n,), dtype=float)
-    w[:] = 1.0/n
-    return np.convolve(x, w, mode='valid')
-
-
 # helpers for loading, saving, manipulating and viewing numpy record arrays
 @cbook.deprecated("2.2", 'numpy.isnan')
 def safe_isnan(x):
