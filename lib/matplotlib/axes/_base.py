@@ -2949,6 +2949,8 @@ class _AxesBase(martist.Artist):
         also be red.  Gridlines will be red and translucent.
 
         """
+        if axis not in ['x', 'y', 'both']:
+            raise ValueError("axis must be one of 'x', 'y' or 'both'")
         if axis in ['x', 'both']:
             xkw = dict(kwargs)
             xkw.pop('left', None)
