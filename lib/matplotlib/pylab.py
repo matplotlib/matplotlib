@@ -231,7 +231,6 @@ from matplotlib.dates import (
 from matplotlib.mlab import (
     csv2rec,
     demean, detrend, detrend_linear, detrend_mean, detrend_none,
-    isvector,
     movavg,
     window_hanning, window_none)
 
