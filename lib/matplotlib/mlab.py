@@ -1246,15 +1246,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 
-@cbook.deprecated("2.2", alternative='numpy.linalg.norm(a, ord=1)')
-def l1norm(a):
-    """
-    Return the *l1* norm of *a*, flattened out.
-
-    Implemented as a separate function (not a call to :func:`norm` for speed).
-    """
-    return np.sum(np.abs(a))
-
 
 @cbook.deprecated("2.2", alternative='numpy.linalg.norm(a, ord=2)')
 def l2norm(a):
