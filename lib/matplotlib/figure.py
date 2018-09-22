@@ -2181,11 +2181,20 @@ default: 'top'
         Wait until the user clicks *n* times on the figure, and return the
         coordinates of each click in a list.
 
-        The buttons used for the various actions (adding points, removing
-        points, terminating the inputs) can be overridden via the arguments
-        *mouse_add*, *mouse_pop* and *mouse_stop*, that set the associated
-        mouse button: 1 for left, 2 for middle, 3 for right.  Using a different
-        value (e.g. None) disables the corresponding mouse action.
+        There are three possible interactions:
+
+        - Add a point.
+        - Remove the most recently added point.
+        - Stop the interaction and return the points added so far.
+
+        The actions are assigned to mouse buttons via the arguments
+        *mouse_add*, *mouse_pop* and *mouse_stop*. Mouse buttons are defined
+        by the numbers:
+
+        - 1: left mouse button
+        - 2: middle mouse button
+        - 3: right mouse button
+        - None: no mouse button
 
         Parameters
         ----------
@@ -2197,11 +2206,11 @@ default: 'top'
             will never timeout.
         show_clicks : bool, optional, default: False
             If True, show a red cross at the location of each click.
-        mouse_add : int, one of (1, 2, 3), optional, default: 1 (left click)
+        mouse_add : {1, 2, 3, None}, optional, default: 1 (left click)
             Mouse button used to add points.
-        mouse_pop : int, one of (1, 2, 3), optional, default: 3 (right click)
+        mouse_pop : {1, 2, 3, None}, optional, default: 3 (right click)
             Mouse button used to remove the most recently added point.
-        mouse_stop : int, one of (1, 2, 3), optional, default: 2 (middle click)
+        mouse_stop : {1, 2, 3, None}, optional, default: 2 (middle click)
             Mouse button used to stop input.
 
         Returns
