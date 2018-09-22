@@ -1248,22 +1248,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @cbook.deprecated("2.2")
-def base_repr(number, base=2, padding=0):
-    """
-    Return the representation of a *number* in any given *base*.
-    """
-    chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    if number < base:
-        return (padding - 1) * chars[0] + chars[int(number)]
-    max_exponent = int(math.log(number)/math.log(base))
-    max_power = int(base) ** max_exponent
-    lead_digit = int(number/max_power)
-    return (chars[lead_digit] +
-            base_repr(number - max_power * lead_digit, base,
-                      max(padding - 1, max_exponent)))
-
-
-@cbook.deprecated("2.2")
 def binary_repr(number, max_length=1025):
     """
     Return the binary representation of the input *number* as a

@@ -13,6 +13,7 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.norm_flat` (use ``numpy.linalg.norm(a.flat, ord=2)`` instead)
 - `mlab.frange` (use numpy.arange instead)
 - `mlab.identity` (use numpy.identity instead)
+- `mlab.base_repr`
 - `mlab.cohere_pairs` (use scipy.signal.coherence instead)
 - `mlab.entropy` (use scipy.stats.entropy instead)
 - `mlab.normpdf` (use scipy.stats.norm.pdf instead)
