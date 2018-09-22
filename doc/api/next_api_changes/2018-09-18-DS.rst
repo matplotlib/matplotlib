@@ -5,6 +5,7 @@ Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
 in Matplotlib 2.2 has been removed. See below for a list:
 
 - `mlab.exp_safe` (use numpy.exp instead)
+- `mlab.amap`
 - `mlab.logspace` (use numpy.logspace instead)
 - `mlab.cohere_pairs` (use scipy.signal.coherence instead)
 - `mlab.entropy` (use scipy.stats.entropy instead)

@@ -1247,17 +1247,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 
-@cbook.deprecated("2.2", alternative='numpy.array(list(map(...)))')
-def amap(fn, *args):
-    """
-    amap(function, sequence[, sequence, ...]) -> array.
-
-    Works like :func:`map`, but it returns an array.  This is just a
-    convenient shorthand for ``numpy.array(map(...))``.
-    """
-    return np.array(list(map(fn, *args)))
-
-
 @cbook.deprecated("2.2")
 def rms_flat(a):
     """
