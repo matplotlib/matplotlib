@@ -1246,15 +1246,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 
-
-@cbook.deprecated("2.2")
-def rms_flat(a):
-    """
-    Return the root mean square of all the elements of *a*, flattened out.
-    """
-    return np.sqrt(np.mean(np.abs(a) ** 2))
-
-
 @cbook.deprecated("2.2", alternative='numpy.linalg.norm(a, ord=1)')
 def l1norm(a):
     """

@@ -234,7 +234,6 @@ from matplotlib.mlab import (
     frange,
     identity, ispower2, isvector, l1norm,
     l2norm, log2, movavg, norm_flat,
-    rms_flat,
     window_hanning, window_none)
 
 from matplotlib import cbook, mlab, pyplot as plt
