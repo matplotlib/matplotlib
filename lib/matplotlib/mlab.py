@@ -1248,21 +1248,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @cbook.deprecated("2.2")
-def ispower2(n):
-    """
-    Returns the log base 2 of *n* if *n* is a power of 2, zero otherwise.
-
-    Note the potential ambiguity if *n* == 1: 2**0 == 1, interpret accordingly.
-    """
-
-    bin_n = binary_repr(n)[1:]
-    if '1' in bin_n:
-        return 0
-    else:
-        return len(bin_n)
-
-
-@cbook.deprecated("2.2")
 def isvector(X):
     """
     Like the MATLAB function with the same name, returns *True*
