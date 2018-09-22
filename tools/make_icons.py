@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 from matplotlib import cm
-from matploltlib import patheffects
+from matplotlib import patheffects
 matplotlib.rcdefaults()
 
 matplotlib.rcParams['svg.fonttype'] = 'path'
