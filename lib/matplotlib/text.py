@@ -1983,10 +1983,23 @@ class _AnnotationBase(object):
 
 
 class Annotation(Text, _AnnotationBase):
+    """
+    An `.Annotation` is a `.Text` that can refer to a specific position *xy*.
+    Optionally an arrow pointing from the text to *xy* can be drawn.
+
+    Attributes
+    ----------
+    xy
+        The annotated position.
+    xycoords
+        The coordinate system for *xy*.
+    arrow_patch
+        A `.FancyArrowPatch` to point from *xytext* to *xy*.
+    """
+
     def __str__(self):
         return "Annotation(%g, %g, %r)" % (self.xy[0], self.xy[1], self._text)
 
-    @docstring.dedent_interpd
     def __init__(self, s, xy,
                  xytext=None,
                  xycoords='data',
@@ -1994,99 +2007,108 @@ class Annotation(Text, _AnnotationBase):
                  arrowprops=None,
                  annotation_clip=None,
                  **kwargs):
-        '''
-        Annotate the point ``xy`` with text ``s``.
+        """
+        Annotate the point *xy* with text *s*.
 
-        Additional kwargs are passed to `~matplotlib.text.Text`.
+        In the simplest form, the text is placed at *xy*.
+
+        Optionally, the text can be displayed in another position *xytext*.
+        An arrow pointing from the text to the annotated point *xy* can then
+        be added by defining *arrowprops*.
 
         Parameters
         ----------
-
         s : str
             The text of the annotation.
 
-        xy : iterable
-            Length 2 sequence specifying the *(x,y)* point to annotate.
+        xy : (float, float)
+            The point *(x,y)* to annotate.
 
-        xytext : iterable, optional
-            Length 2 sequence specifying the *(x,y)* to place the text
-            at.  If None, defaults to ``xy``.
+        xytext : (float, float), optional
+            The position *(x,y)* to place the text at.
+            If *None*, defaults to *xy*.
 
-        xycoords : str, Artist, Transform, callable or tuple, optional
+        xycoords : str, `.Artist`, `.Transform`, callable or tuple, optional
 
-            The coordinate system that ``xy`` is given in.
+            The coordinate system that *xy* is given in. The following types
+            of values are supported:
 
-            For a `str` the allowed values are:
+            - One of the following strings:
 
-            =================   ===============================================
-            Property            Description
-            =================   ===============================================
-            'figure points'     points from the lower left of the figure
-            'figure pixels'     pixels from the lower left of the figure
-            'figure fraction'   fraction of figure from lower left
-            'axes points'       points from lower left corner of axes
-            'axes pixels'       pixels from lower left corner of axes
-            'axes fraction'     fraction of axes from lower left
-            'data'              use the coordinate system of the object being
-                                annotated (default)
-            'polar'             *(theta,r)* if not native 'data' coordinates
-            =================   ===============================================
+              =================   =============================================
+              Value               Description
+              =================   =============================================
+              'figure points'     Points from the lower left of the figure
+              'figure pixels'     Pixels from the lower left of the figure
+              'figure fraction'   Fraction of figure from lower left
+              'axes points'       Points from lower left corner of axes
+              'axes pixels'       Pixels from lower left corner of axes
+              'axes fraction'     Fraction of axes from lower left
+              'data'              Use the coordinate system of the object being
+                                  annotated (default)
+              'polar'             *(theta,r)* if not native 'data' coordinates
+              =================   =============================================
 
-            If a `~matplotlib.artist.Artist` object is passed in the units are
-            fraction if it's bounding box.
+            - An `.Artist`: *xy* is interpreted as a fraction of the artists
+              `~matplotlib.transforms.Bbox`. E.g. *(0, 0)* would be the lower
+              left corner of the bounding box and *(0.5, 1)* would be the
+              center top of the bounding box.
 
-            If a `~matplotlib.transforms.Transform` object is passed
-            in use that to transform ``xy`` to screen coordinates
+            - A `.Transform` to transform *xy* to screen coordinates.
 
-            If a callable it must take a
-            `~matplotlib.backend_bases.RendererBase` object as input
-            and return a `~matplotlib.transforms.Transform` or
-            `~matplotlib.transforms.Bbox` object
+            - A function with one of the following signatures::
 
-            If a `tuple` must be length 2 tuple of str, `Artist`,
-            `Transform` or callable objects.  The first transform is
-            used for the *x* coordinate and the second for *y*.
+                def transform(renderer) -> Bbox
+                def transform(renderer) -> Transform
+
+              where *renderer* is a `.RendererBase` subclass.
+
+              The result of the function is interpreted like the `.Artist` and
+              `.Transform` cases above.
+
+            - A tuple *(xcoords, ycoords)* specifying separate coordinate
+              systems for *x* and *y*. *xcoords* and *ycoords* must each be
+              of one of the above described types.
 
             See :ref:`plotting-guide-annotation` for more details.
 
-            Defaults to ``'data'``
+            Defaults to 'data'.
 
-        textcoords : str, `Artist`, `Transform`, callable or tuple, optional
-            The coordinate system that ``xytext`` is given, which
-            may be different than the coordinate system used for
-            ``xy``.
+        textcoords : str, `.Artist`, `.Transform`, callable or tuple, optional
+            The coordinate system that *xytext* is given in.
 
-            All ``xycoords`` values are valid as well as the following
+            All *xycoords* values are valid as well as the following
             strings:
 
             =================   =========================================
-            Property            Description
+            Value               Description
             =================   =========================================
-            'offset points'     offset (in points) from the *xy* value
-            'offset pixels'     offset (in pixels) from the *xy* value
+            'offset points'     Offset (in points) from the *xy* value
+            'offset pixels'     Offset (in pixels) from the *xy* value
             =================   =========================================
 
-            defaults to the input of ``xycoords``
+            Defaults to the value of *xycoords*, i.e. use the same coordinate
+            system for annotation point and text position.
 
         arrowprops : dict, optional
-            If not None, properties used to draw a
-            `~matplotlib.patches.FancyArrowPatch` arrow between ``xy`` and
-            ``xytext``.
+            The properties used to draw a
+            `~matplotlib.patches.FancyArrowPatch` arrow between the
+            positions *xy* and *xytext*.
 
-            If `arrowprops` does not contain the key ``'arrowstyle'`` the
+            If *arrowprops* does not contain the key 'arrowstyle' the
             allowed keys are:
 
             ==========   ======================================================
             Key          Description
             ==========   ======================================================
-            width        the width of the arrow in points
-            headwidth    the width of the base of the arrow head in points
-            headlength   the length of the arrow head in points
-            shrink       fraction of total length to 'shrink' from both ends
-            ?            any key to :class:`matplotlib.patches.FancyArrowPatch`
+            width        The width of the arrow in points
+            headwidth    The width of the base of the arrow head in points
+            headlength   The length of the arrow head in points
+            shrink       Fraction of total length to shrink from both ends
+            ?            Any key to :class:`matplotlib.patches.FancyArrowPatch`
             ==========   ======================================================
 
-            If the `arrowprops` contains the key ``'arrowstyle'`` the
+            If *arrowprops* contains the key 'arrowstyle' the
             above keys are forbidden.  The allowed values of
             ``'arrowstyle'`` are:
 
@@ -2124,25 +2146,32 @@ class Annotation(Text, _AnnotationBase):
             ?                any key for :class:`matplotlib.patches.PathPatch`
             ===============  ==================================================
 
-            Defaults to None
+            Defaults to None, i.e. no arrow is drawn.
 
-        annotation_clip : bool, optional
-            Controls the visibility of the annotation when it goes
+        annotation_clip : bool or None, optional
+            Whether to draw the annotation when the annotation point *xy* is
             outside the axes area.
 
-            If `True`, the annotation will only be drawn when the
-            ``xy`` is inside the axes. If `False`, the annotation will
-            always be drawn regardless of its position.
+            - If *True*, the annotation will only be drawn when *xy* is
+              within the axes.
+            - If *False*, the annotation will always be drawn.
+            - If *None*, the annotation will only be drawn when *xy* is
+              within the axes and *xycoords* is 'data'.
 
-            The default is `None`, which behave as `True` only if
-            *xycoords* is "data".
+            Defaults to *None*.
+
+        **kwargs
+            Additional kwargs are passed to `~matplotlib.text.Text`.
 
         Returns
         -------
-        Annotation
+        annotation : `.Annotation`
 
-        '''
+        See Also
+        --------
+        :ref:`plotting-guide-annotation`.
 
+        """
         _AnnotationBase.__init__(self,
                                  xy,
                                  xycoords=xycoords,
@@ -2196,6 +2225,11 @@ class Annotation(Text, _AnnotationBase):
 
     @property
     def xyann(self):
+        """
+        The the text position.
+
+        See also *xytext* in `.Annotation`.
+        """
         return self.get_position()
 
     @xyann.setter
@@ -2204,6 +2238,7 @@ class Annotation(Text, _AnnotationBase):
 
     @property
     def anncoords(self):
+        """The coordinate system to use for `.Annotation.xyann`."""
         return self._textcoords
 
     @anncoords.setter
@@ -2211,7 +2246,18 @@ class Annotation(Text, _AnnotationBase):
         self._textcoords = coords
 
     get_anncoords = anncoords.fget
+    get_anncoords.__doc__ = """
+    Return the coordinate system to use for `.Annotation.xyann`.
+
+    See also *xycoords* in `.Annotation`.
+    """
+
     set_anncoords = anncoords.fset
+    set_anncoords.__doc__ = """
+    Set the coordinate system to use for `.Annotation.xyann`.
+
+    See also *xycoords* in `.Annotation`.
+    """
 
     def set_figure(self, fig):
         if self.arrow_patch is not None:
@@ -2386,7 +2432,9 @@ class Annotation(Text, _AnnotationBase):
         return Bbox.union(bboxes)
 
     arrow = property(
-        fget=cbook.deprecated("3.0")(lambda self: None),
+        fget=cbook.deprecated("3.0", message="arrow was deprecated in "
+            "Matplotlib 3.0 and will be removed in 3.2. Use arrow_patch "
+            "instead.")(lambda self: None),
         fset=cbook.deprecated("3.0")(lambda self, value: None))
 
 
