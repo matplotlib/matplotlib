@@ -209,6 +209,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     return None
 
 
+@cbook.deprecated("3.1")
 def OSXInstalledFonts(directories=None, fontext='ttf'):
     """Get list of font files on OS X."""
     if directories is None:
@@ -263,10 +264,9 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             fontfiles.update(win32InstalledFonts(fontext=fontext))
         else:
             fontpaths = X11FontDirectories
-            fontfiles.update(get_fontconfig_fonts(fontext))
-            # check for OS X & load its fonts if present
             if sys.platform == 'darwin':
-                fontfiles.update(OSXInstalledFonts(fontext=fontext))
+                fontpaths = [*X11FontDirectories, *OSXFontDirectories]
+            fontfiles.update(get_fontconfig_fonts(fontext))
 
     elif isinstance(fontpaths, str):
         fontpaths = [fontpaths]
