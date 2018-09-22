@@ -11,6 +11,7 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - `mlab.l1norm` (use ``numpy.linalg.norm(a, ord=1)`` instead)
 - `mlab.l2norm` (use ``numpy.linalg.norm(a, ord=2)`` instead)
 - `mlab.norm_flat` (use ``numpy.linalg.norm(a.flat, ord=2)`` instead)
+- `mlab.frange` (use numpy.arange instead)
 - `mlab.cohere_pairs` (use scipy.signal.coherence instead)
 - `mlab.entropy` (use scipy.stats.entropy instead)
 - `mlab.normpdf` (use scipy.stats.norm.pdf instead)
