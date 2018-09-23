@@ -1,2 +1,2 @@
-jupytext >= 0.6.5
+jupytext >= 0.7.0
 matplotlib
