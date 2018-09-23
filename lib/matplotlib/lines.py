@@ -1083,8 +1083,7 @@ class Line2D(Artist):
         """
         if drawstyle is None:
             drawstyle = 'default'
-        if drawstyle not in self.drawStyles:
-            raise ValueError('Unrecognized drawstyle {!r}'.format(drawstyle))
+        cbook._check_in_list(self.drawStyles, drawstyle=drawstyle)
         if self._drawstyle != drawstyle:
             self.stale = True
             # invalidate to trigger a recache of the path
@@ -1181,13 +1180,9 @@ class Line2D(Artist):
             if ls in [' ', '', 'none']:
                 ls = 'None'
 
+            cbook._check_in_list([*self._lineStyles, *ls_mapper_r], ls=ls)
             if ls not in self._lineStyles:
-                try:
-                    ls = ls_mapper_r[ls]
-                except KeyError:
-                    raise ValueError("Invalid linestyle {!r}; see docs of "
-                                     "Line2D.set_linestyle for valid values"
-                                     .format(ls))
+                ls = ls_mapper_r[ls]
             self._linestyle = ls
         else:
             self._linestyle = '--'
@@ -1362,9 +1357,7 @@ class Line2D(Artist):
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
-        if s not in self.validJoin:
-            raise ValueError('set_dash_joinstyle passed "%s";\n' % (s,)
-                             + 'valid joinstyles are %s' % (self.validJoin,))
+        cbook._check_in_list(self.validJoin, s=s)
         if self._dashjoinstyle != s:
             self.stale = True
         self._dashjoinstyle = s
@@ -1379,10 +1372,7 @@ class Line2D(Artist):
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
-        if s not in self.validJoin:
-            raise ValueError('set_solid_joinstyle passed "%s";\n' % (s,)
-                             + 'valid joinstyles are %s' % (self.validJoin,))
-
+        cbook._check_in_list(self.validJoin, s=s)
         if self._solidjoinstyle != s:
             self.stale = True
         self._solidjoinstyle = s
@@ -1412,9 +1402,7 @@ class Line2D(Artist):
         s : {'butt', 'round', 'projecting'}
         """
         s = s.lower()
-        if s not in self.validCap:
-            raise ValueError('set_dash_capstyle passed "%s";\n' % (s,)
-                             + 'valid capstyles are %s' % (self.validCap,))
+        cbook._check_in_list(self.validCap, s=s)
         if self._dashcapstyle != s:
             self.stale = True
         self._dashcapstyle = s
@@ -1428,9 +1416,7 @@ class Line2D(Artist):
         s : {'butt', 'round', 'projecting'}
         """
         s = s.lower()
-        if s not in self.validCap:
-            raise ValueError('set_solid_capstyle passed "%s";\n' % (s,)
-                             + 'valid capstyles are %s' % (self.validCap,))
+        cbook._check_in_list(self.validCap, s=s)
         if self._solidcapstyle != s:
             self.stale = True
         self._solidcapstyle = s
