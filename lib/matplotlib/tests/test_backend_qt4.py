@@ -9,6 +9,20 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
+def mpl_test_settings(qt4_module, mpl_test_settings):
+    """
+    Ensure qt4_module fixture is *first* fixture.
+
+    We override the `mpl_test_settings` fixture and depend on the `qt4_module`
+    fixture first. It is very important that it is first, because it skips
+    tests when Qt4 is not available, and if not, then the main
+    `mpl_test_settings` fixture will try to switch backends before the skip can
+    be triggered.
+    """
+    pass
+
+
+@pytest.fixture
 def qt4_module():
     try:
         import PyQt4
