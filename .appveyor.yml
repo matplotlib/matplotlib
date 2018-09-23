@@ -8,6 +8,8 @@ branches:
   except:
     - /auto-backport-.*/
 
+clone_depth: 50
+
 environment:
 
   global:
