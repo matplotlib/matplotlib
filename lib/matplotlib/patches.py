@@ -337,9 +337,11 @@ class Patch(artist.Artist):
 
     def set_linewidth(self, w):
         """
-        Set the patch linewidth in points
+        Set the patch linewidth in points.
 
-        ACCEPTS: float or None for default
+        Parameters
+        ----------
+        w : float or None
         """
         if w is None:
             w = mpl.rcParams['patch.linewidth']
@@ -2516,7 +2518,6 @@ class FancyBboxPatch(Patch):
         %(AvailableBoxstyles)s
 
         ACCEPTS: %(ListBoxstyles)s
-
         """
         if boxstyle is None:
             return BoxStyle.pprint_styles()

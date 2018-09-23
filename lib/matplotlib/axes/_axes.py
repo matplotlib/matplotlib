@@ -4881,7 +4881,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        args : sequence of x, y, [color]
+        *args : sequence of x, y, [color]
             Each polygon is defined by the lists of *x* and *y* positions of
             its nodes, optionally followed by a *color* specifier. See
             :mod:`matplotlib.colors` for supported color specifiers. The

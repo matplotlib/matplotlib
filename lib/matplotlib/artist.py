@@ -1227,7 +1227,9 @@ class ArtistInspector(object):
         # Much faster than list(inspect.signature(func).parameters)[1],
         # although barely relevant wrt. matplotlib's total import time.
         param_name = func.__code__.co_varnames[1]
-        match = re.search("(?m)^ *{} : (.+)".format(param_name), docstring)
+        # We could set the presence * based on whether the parameter is a
+        # varargs (it can't be a varkwargs) but it's not really worth the it.
+        match = re.search("(?m)^ *\*?{} : (.+)".format(param_name), docstring)
         if match:
             return match.group(1)
 

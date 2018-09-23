@@ -979,7 +979,10 @@ default: 'top'
         """
         Set the width of the figure in inches.
 
-        .. ACCEPTS: float
+        Parameters
+        ----------
+        val : float
+        forward : bool
         """
         self.set_size_inches(val, self.get_figheight(), forward=forward)
 
@@ -987,7 +990,10 @@ default: 'top'
         """
         Set the height of the figure in inches.
 
-        .. ACCEPTS: float
+        Parameters
+        ----------
+        val : float
+        forward : bool
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 

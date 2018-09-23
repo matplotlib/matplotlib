@@ -650,7 +650,9 @@ class Line2D(Artist):
         """
         Set the x and y data.
 
-        ACCEPTS: 2D array (rows are x, y) or two 1D arrays
+        Parameters
+        ----------
+        *args : (N, 2) array or two 1D arrays
         """
         if len(args) == 1:
             x, y = args[0]
