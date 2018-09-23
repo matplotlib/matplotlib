@@ -211,14 +211,15 @@ def switch_backend(newbackend):
                newbackend, Backend.backend_version)
 
     required_framework = Backend.required_interactive_framework
-    current_framework = \
-        matplotlib.backends._get_running_interactive_framework()
-    if (current_framework and required_framework
-            and current_framework != required_framework):
-        raise ImportError(
-            "Cannot load backend {!r} which requires the {!r} interactive "
-            "framework, as {!r} is currently running".format(
-                newbackend, required_framework, current_framework))
+    if required_framework is not None:
+        current_framework = \
+            matplotlib.backends._get_running_interactive_framework()
+        if (current_framework and required_framework
+                and current_framework != required_framework):
+            raise ImportError(
+                "Cannot load backend {!r} which requires the {!r} interactive "
+                "framework, as {!r} is currently running".format(
+                    newbackend, required_framework, current_framework))
 
     rcParams['backend'] = rcParamsDefault['backend'] = newbackend
 
