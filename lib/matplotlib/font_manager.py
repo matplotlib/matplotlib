@@ -181,7 +181,6 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     filenames are returned by default, or AFM fonts if *fontext* ==
     'afm'.
     """
-
     import winreg
 
     if directory is None:
@@ -203,10 +202,9 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                     path = Path(directory, direc).resolve()
                     if path.suffix.lower() in fontext:
                         items.add(str(path))
-                return list(items)
         except (OSError, MemoryError):
             continue
-    return None
+    return list(items)
 
 
 def OSXInstalledFonts(directories=None, fontext='ttf'):
