@@ -15,12 +15,13 @@ revision, see the :ref:`github-stats`.
    For a release, add a new section after this, then comment out the include
    and toctree below by indenting them. Uncomment them after the release.
 
-  .. include:: next_whats_new/README.rst
-   .. toctree::
-      :glob:
-      :maxdepth: 1
+.. include:: next_whats_new/README.rst
 
-      next_whats_new/*
+.. toctree::
+   :glob:
+   :maxdepth: 1
+
+   next_whats_new/*
 
 Improved default backend selection
 ----------------------------------
