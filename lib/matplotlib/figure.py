@@ -2199,10 +2199,13 @@ default: 'top'
             If True, show a red cross at the location of each click.
         mouse_add : int, one of (1, 2, 3), optional, default: 1 (left click)
             Mouse button used to add points.
+            Use a different button value to disable this mouse action.
         mouse_pop : int, one of (1, 2, 3), optional, default: 3 (right click)
             Mouse button used to remove the most recently added point.
+            Use a different button value to disable this mouse action.
         mouse_stop : int, one of (1, 2, 3), optional, default: 2 (middle click)
             Mouse button used to stop input.
+            Use a different button value to disable this mouse action.
 
         Returns
         -------
