@@ -135,7 +135,7 @@ class BlockingMouseInput(BlockingInput):
             self.mouse_event_pop(event)
         elif button == self.button_stop:
             self.mouse_event_stop(event)
-        else:
+        elif button == self.button_add:
             self.mouse_event_add(event)
 
     def key_event(self):
