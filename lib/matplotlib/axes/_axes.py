@@ -5789,6 +5789,13 @@ class Axes(_AxesBase):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
+        # The following block of code addresses github issue #1302
+        for face_color in ['facecolor', 'facecolors']:
+            try:
+                if kwargs.get(face_color).lower() == 'none':
+                    collection._is_stroked = False
+            except AttributeError:
+                pass
         return collection
 
     @_preprocess_data(label_namer=None)
@@ -6002,6 +6009,13 @@ class Axes(_AxesBase):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
+        # The following block of code addresses github issue #1302
+        for face_color in ['facecolor', 'facecolors']:
+            try:
+                if kwargs.get(face_color).lower() == 'none':
+                    collection._is_stroked = False
+            except AttributeError:
+                pass
         return collection
 
     @_preprocess_data(label_namer=None)

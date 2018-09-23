@@ -922,3 +922,19 @@ def test_relim():
     ax.relim()
     ax.autoscale()
     assert ax.get_xlim() == ax.get_ylim() == (0, 1)
+
+
+def test_edgefacecolor_pcolor_pcolormesh():
+    # Test that pcolor/pcolormesh honours edgecolors kwarg when facecolors
+    # is set to 'none' (github issue #1302 and fixed by PR #12226).
+    fig, ax = plt.subplots(2)
+    im0 = ax[0].pcolor(np.arange(12).reshape(4, 3),
+                       edgecolors='red', facecolors='none')
+    im1 = ax[1].pcolormesh(np.arange(12).reshape(4, 3),
+                       edgecolors='red', facecolors='none')
+    # triggering draw() to make sure that the edges of the mesh are drawn.
+    fig.canvas.draw()
+    np.testing.assert_equal(im0.get_edgecolors(),
+                            np.array([[1., 0., 0., 1.]]))
+    np.testing.assert_equal(im1.get_edgecolors(),
+                            np.array([[1., 0., 0., 1.]]))
