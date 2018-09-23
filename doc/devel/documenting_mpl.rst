@@ -408,7 +408,7 @@ Quotes for strings
 Matplotlib does not have a convention whether to use single-quotes or
 double-quotes.  There is a mixture of both in the current code.
 
-Use simple single or double quotes when giving string values, e.g.:: rst
+Use simple single or double quotes when giving string values, e.g.
 
 .. code-block:: rst
 
