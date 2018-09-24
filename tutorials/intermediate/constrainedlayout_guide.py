@@ -116,7 +116,7 @@ for ax in axs.flatten():
 #   For the `~.axes.Axes.pcolormesh` kwargs (``pc_kwargs``) we use a
 #   dictionary. Below we will assign one colorbar to a number of axes each
 #   containing a `~.cm.ScalarMappable`; specifying the norm and colormap
-#   ensuresthe colorbar is accurate for all the axes.
+#   ensures the colorbar is accurate for all the axes.
 
 arr = np.arange(100).reshape((10, 10))
 norm = mcolors.Normalize(vmin=0., vmax=100.)
@@ -469,7 +469,7 @@ ax2 = fig.add_axes(bb_ax2)
 #
 # ``constrained_layout`` usually adjusts the axes positions on each draw
 # of the figure.  If you want to get the spacing provided by
-# ``constrained_layout`` but then not have it update, then do the initial
+# ``constrained_layout`` but not have it update, then do the initial
 # draw and then call ``fig.set_constrained_layout(False)``.
 # This is potentially useful for animations where the tick labels may
 # change length.
