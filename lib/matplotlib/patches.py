@@ -660,15 +660,15 @@ class Rectangle(Patch):
         """
         Parameters
         ----------
-        xy: length-2 tuple
+        xy : (float, float)
             The bottom and left rectangle coordinates
-        width:
+        width : float
             Rectangle width
-        height:
+        height : float
             Rectangle height
-        angle: float, optional
+        angle : float, optional
           rotation in degrees anti-clockwise about *xy* (default is 0.0)
-        fill: bool, optional
+        fill : bool, optional
             Whether to fill the rectangle (default is ``True``)
 
         Notes
@@ -769,7 +769,7 @@ class Rectangle(Patch):
 
         Parameters
         ----------
-        xy : 2-item sequence
+        xy : (float, float)
         """
         self._x0, self._y0 = xy
         self._update_x1()
@@ -1444,11 +1444,11 @@ class Ellipse(Patch):
         """
         Parameters
         ----------
-        xy : tuple of (scalar, scalar)
+        xy : (float, float)
             xy coordinates of ellipse centre.
-        width : scalar
+        width : float
             Total length (diameter) of horizontal axis.
-        height : scalar
+        height : float
             Total length (diameter) of vertical axis.
         angle : scalar, optional
             Rotation in degrees anti-clockwise.

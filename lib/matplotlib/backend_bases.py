@@ -1848,7 +1848,7 @@ class FigureCanvasBase(object):
         ----------
         guiEvent
             the native UI event that generated the mpl event
-        xy : tuple of 2 scalars
+        xy : (float, float)
             the coordinate location of the pointer when the canvas is
             entered
 
