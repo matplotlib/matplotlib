@@ -103,7 +103,7 @@ def pick_simple():
 
     fig.canvas.mpl_connect('pick_event', onpick1)
 
-    
+
 def pick_custom_hit():
     # picking with a custom hit test function
     # you can define custom pickers by setting picker to a callable
@@ -145,7 +145,7 @@ def pick_custom_hit():
     line, = ax.plot(rand(100), rand(100), 'o', picker=line_picker)
     fig.canvas.mpl_connect('pick_event', onpick2)
 
-    
+
 def pick_scatter_plot():
     # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
 
@@ -160,8 +160,8 @@ def pick_scatter_plot():
     #fig.savefig('pscoll.eps')
     fig.canvas.mpl_connect('pick_event', onpick3)
 
-    
-def pick_image(): 
+
+def pick_image():
     # picking images (matplotlib.image.AxesImage)
     fig, ax = plt.subplots()
     im1 = ax.imshow(rand(10, 5), extent=(1, 2, 1, 2), picker=True)
@@ -179,7 +179,7 @@ def pick_image():
 
     fig.canvas.mpl_connect('pick_event', onpick4)
 
-    
+
 if __name__ == '__main__':
     pick_simple()
     pick_custom_hit()
