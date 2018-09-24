@@ -2580,9 +2580,7 @@ static bool verify_framework(void)
     ProcessSerialNumber psn;
     /* These methods are deprecated, but they don't require the app to
        have started  */
-    if (CGMainDisplayID()!=0
-     && GetCurrentProcess(&psn)==noErr
-     && SetFrontProcess(&psn)==noErr) return true;
+    if (CGMainDisplayID()!=0) return true;
     PyErr_SetString(PyExc_ImportError,
         "Python is not installed as a framework. The Mac OS X backend will "
         "not be able to function correctly if Python is not installed as a "
