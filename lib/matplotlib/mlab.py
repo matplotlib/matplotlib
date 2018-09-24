@@ -1,9 +1,11 @@
 """
 Numerical python functions written for compatibility with MATLAB
-commands with the same names.
+commands with the same names. Most numerical python functions can be found in
+the `numpy` and `scipy` libraries. What remains here is code for performing
+spectral computations.
 
-MATLAB compatible functions
----------------------------
+Spectral functions
+-------------------
 
 :func:`cohere`
     Coherence (normalized cross spectral density)
@@ -19,11 +21,6 @@ MATLAB compatible functions
 
 :func:`specgram`
     Spectrogram (spectrum over segments of time)
-
-Miscellaneous functions
------------------------
-
-Functions that don't exist in MATLAB, but are useful anyway:
 
 :func:`complex_spectrum`
     Return the complex-valued frequency spectrum of a signal
@@ -56,17 +53,13 @@ Functions that don't exist in MATLAB, but are useful anyway:
     Apply a window along a given axis
 """
 
-import copy
 import csv
-import operator
-import os
 import warnings
 
 import numpy as np
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
-from matplotlib.path import Path
 import math
 
 
