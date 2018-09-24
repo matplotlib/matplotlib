@@ -2437,24 +2437,63 @@ class Axes3D(Axes):
         minz = np.min(z)
         maxz = np.max(z + dz)
 
-        polys = []
-        for xi, yi, zi, dxi, dyi, dzi in zip(x, y, z, dx, dy, dz):
-            polys.extend([
-                ((xi, yi, zi), (xi + dxi, yi, zi),
-                    (xi + dxi, yi + dyi, zi), (xi, yi + dyi, zi)),
-                ((xi, yi, zi + dzi), (xi + dxi, yi, zi + dzi),
-                    (xi + dxi, yi + dyi, zi + dzi), (xi, yi + dyi, zi + dzi)),
+        # shape (6, 4, 3)
+        cuboid = np.array([
+            # -z
+            (
+                (0, 0, 0),
+                (1, 0, 0),
+                (1, 1, 0),
+                (0, 1, 0)
+            ),
+            # +z
+            (
+                (0, 0, 1),
+                (1, 0, 1),
+                (1, 1, 1),
+                (0, 1, 1)
+            ),
+            # -y
+            (
+                (0, 0, 0),
+                (1, 0, 0),
+                (1, 0, 1),
+                (0, 0, 1)
+            ),
+            # +y
+            (
+                (0, 1, 0),
+                (1, 1, 0),
+                (1, 1, 1),
+                (0, 1, 1)
+            ),
+            # -x
+            (
+                (0, 0, 0),
+                (0, 1, 0),
+                (0, 1, 1),
+                (0, 0, 1)
+            ),
+            # +x
+            (
+                (1, 0, 0),
+                (1, 1, 0),
+                (1, 1, 1),
+                (1, 0, 1)
+            ),
+        ])
 
-                ((xi, yi, zi), (xi + dxi, yi, zi),
-                    (xi + dxi, yi, zi + dzi), (xi, yi, zi + dzi)),
-                ((xi, yi + dyi, zi), (xi + dxi, yi + dyi, zi),
-                    (xi + dxi, yi + dyi, zi + dzi), (xi, yi + dyi, zi + dzi)),
+        # indexed by [bar, face, vertex, coord]
+        polys = np.empty(x.shape + cuboid.shape)
 
-                ((xi, yi, zi), (xi, yi + dyi, zi),
-                    (xi, yi + dyi, zi + dzi), (xi, yi, zi + dzi)),
-                ((xi + dxi, yi, zi), (xi + dxi, yi + dyi, zi),
-                    (xi + dxi, yi + dyi, zi + dzi), (xi + dxi, yi, zi + dzi)),
-            ])
+        # handle each coordinate separately
+        for i, p, dp in [(0, x, dx), (1, y, dy), (2, z, dz)]:
+            p = p[..., np.newaxis, np.newaxis]
+            dp = dp[..., np.newaxis, np.newaxis]
+            polys[..., i] = p + dp * cuboid[..., i]
+
+        # collapse the first two axes
+        polys = polys.reshape((-1,) + polys.shape[2:])
 
         facecolors = []
         if color is None:
