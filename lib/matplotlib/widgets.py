@@ -2762,7 +2762,7 @@ class Lasso(AxesWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent axes for the widget.
-    xy : array
+    xy : (float, float)
         Coordinates of the start of the lasso.
     callback : callable
         Whenever the lasso is released, the `callback` function is called and

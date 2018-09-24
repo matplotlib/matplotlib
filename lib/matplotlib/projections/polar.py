@@ -762,7 +762,7 @@ class _WedgeBbox(mtransforms.Bbox):
 
     Parameters
     ----------
-    center : tuple of float
+    center : (float, float)
         Center of the wedge
     viewLim : `~matplotlib.transforms.Bbox`
         Bbox determining the boundaries of the wedge
