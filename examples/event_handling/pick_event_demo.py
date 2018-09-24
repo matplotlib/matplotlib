@@ -102,7 +102,6 @@ def pick_simple():
             print('onpick1 text:', text.get_text())
 
     fig.canvas.mpl_connect('pick_event', onpick1)
-    plt.show()
 
     
 def pick_custom_hit():
@@ -145,7 +144,6 @@ def pick_custom_hit():
     ax.set_title('custom picker for line data')
     line, = ax.plot(rand(100), rand(100), 'o', picker=line_picker)
     fig.canvas.mpl_connect('pick_event', onpick2)
-    plt.show()
 
     
 def pick_scatter_plot():
@@ -161,7 +159,6 @@ def pick_scatter_plot():
     col = ax.scatter(x, y, 100*s, c, picker=True)
     #fig.savefig('pscoll.eps')
     fig.canvas.mpl_connect('pick_event', onpick3)
-    plt.show()
 
     
 def pick_image(): 
@@ -181,7 +178,6 @@ def pick_image():
             print('onpick4 image', A.shape)
 
     fig.canvas.mpl_connect('pick_event', onpick4)
-    plt.show()
 
     
 if __name__ == '__main__':
@@ -189,3 +185,4 @@ if __name__ == '__main__':
     pick_custom_hit()
     pick_scatter_plot()
     pick_image()
+    plt.show()
