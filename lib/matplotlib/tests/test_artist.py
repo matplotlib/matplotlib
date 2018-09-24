@@ -262,6 +262,7 @@ def test_None_zorder():
     ('ACCEPTS: Some description.', 'Some description. '),
     ('.. ACCEPTS: Some description.', 'Some description. '),
     ('arg : int', 'int'),
+    ('*arg : int', 'int'),
     ('arg : int\nACCEPTS: Something else.', 'Something else. '),
 ])
 def test_artist_inspector_get_valid_values(accept_clause, expected):

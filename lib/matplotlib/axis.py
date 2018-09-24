@@ -1539,9 +1539,11 @@ class Axis(artist.Artist):
 
     def set_units(self, u):
         """
-        set the units for axis
+        Set the units for axis.
 
-        ACCEPTS: a units tag
+        Parameters
+        ----------
+        u : units tag
         """
         pchanged = False
         if u is None:
@@ -1558,14 +1560,21 @@ class Axis(artist.Artist):
         self.stale = True
 
     def get_units(self):
-        'return the units for axis'
+        """Return the units for axis."""
         return self.units
 
     def set_label_text(self, label, fontdict=None, **kwargs):
         """
         Set the text value of the axis label.
 
-        ACCEPTS: A string value for the label
+        Parameters
+        ----------
+        label : str
+            Text string.
+        fontdict : dict
+            Text properties.
+        **kwargs :
+            Merged into fontdict.
         """
         self.isDefault_label = False
         self.label.set_text(label)
@@ -1601,7 +1610,7 @@ class Axis(artist.Artist):
         """
         if not isinstance(formatter, mticker.Formatter):
             raise TypeError("formatter argument should be instance of "
-                    "matplotlib.ticker.Formatter")
+                            "matplotlib.ticker.Formatter")
         self.isDefault_minfmt = False
         self.minor.formatter = formatter
         formatter.set_axis(self)
@@ -1617,7 +1626,7 @@ class Axis(artist.Artist):
         """
         if not isinstance(locator, mticker.Locator):
             raise TypeError("formatter argument should be instance of "
-                    "matplotlib.ticker.Locator")
+                            "matplotlib.ticker.Locator")
         self.isDefault_majloc = False
         self.major.locator = locator
         locator.set_axis(self)
@@ -1633,7 +1642,7 @@ class Axis(artist.Artist):
         """
         if not isinstance(locator, mticker.Locator):
             raise TypeError("formatter argument should be instance of "
-                    "matplotlib.ticker.Locator")
+                            "matplotlib.ticker.Locator")
         self.isDefault_minloc = False
         self.minor.locator = locator
         locator.set_axis(self)
@@ -1651,21 +1660,29 @@ class Axis(artist.Artist):
 
     def set_ticklabels(self, ticklabels, *args, minor=False, **kwargs):
         """
-        Set the text values of the tick labels. Return a list of Text
-        instances.  Use *kwarg* *minor=True* to select minor ticks.
-        All other kwargs are used to update the text object properties.
-        As for get_ticklabels, label1 (left or bottom) is
-        affected for a given tick only if its label1On attribute
-        is True, and similarly for label2.  The list of returned
-        label text objects consists of all such label1 objects followed
-        by all such label2 objects.
+        Set the text values of the tick labels.
 
-        The input *ticklabels* is assumed to match the set of
-        tick locations, regardless of the state of label1On and
-        label2On.
+        Parameters
+        ----------
+        ticklabels : sequence of str or of `Text`\s
+            List of texts for tick labels; must include values for non-visible
+            labels.
+        minor : bool
+            If True, set minor ticks instead of major ticks.
+        **kwargs
+            Text properties.
 
-        ACCEPTS: sequence of strings or Text objects
+        Returns
+        -------
+        labels : list of `Text`\s
+            For each tick, includes ``tick.label1`` if it is visible, then
+            ``tick.label2`` if it is visible, in that order.
         """
+        if args:
+            cbook.warn_deprecated(
+                "3.1", "Additional positional arguments to set_ticklabels are "
+                "ignored, and deprecated since Matplotlib 3.1; passing them "
+                "will raise a TypeError in Matplotlib 3.3.")
         get_labels = []
         for t in ticklabels:
             # try calling get_text() to check whether it is Text object
@@ -1705,7 +1722,10 @@ class Axis(artist.Artist):
         """
         Set the locations of the tick marks from sequence ticks
 
-        ACCEPTS: sequence of floats
+        Parameters
+        ----------
+        ticks : sequence of floats
+        minor : bool
         """
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)

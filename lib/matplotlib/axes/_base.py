@@ -2248,7 +2248,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        args : float, optional
+        *margins : float, optional
             If a single positional argument is provided, it specifies
             both margins of the x-axis and y-axis limits. If two
             positional arguments are provided, they will be interpreted
