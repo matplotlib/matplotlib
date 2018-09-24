@@ -188,6 +188,8 @@ Text and Annotations
    Axes.inset_axes
    Axes.indicate_inset
    Axes.indicate_inset_zoom
+   Axes.secondary_xaxis
+   Axes.secondary_yaxis
 
 
 Fields

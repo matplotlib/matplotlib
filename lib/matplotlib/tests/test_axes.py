@@ -6073,3 +6073,36 @@ def test_deprecated_uppercase_colors():
     with pytest.warns(MatplotlibDeprecationWarning):
         ax.plot([1, 2], color="B")
         fig.canvas.draw()
+
+
+@image_comparison(baseline_images=['secondary_xy'], style='mpl20',
+        extensions=['png'])
+def test_secondary_xy():
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
+
+    def invert(x):
+        with np.errstate(divide='ignore'):
+            return 1 / x
+
+    for nn, ax in enumerate(axs):
+        ax.plot(np.arange(2, 11), np.arange(2, 11))
+        if nn == 0:
+            secax = ax.secondary_xaxis
+        else:
+            secax = ax.secondary_yaxis
+
+        axsec = secax(0.2, functions=(invert, invert))
+        axsec = secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
+        axsec = secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
+        axsec = secax(0.8)
+
+
+def test_secondary_fail():
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(2, 11), np.arange(2, 11))
+    with pytest.raises(ValueError):
+        axsec = ax.secondary_xaxis(0.2, functions=(lambda x: 1 / x))
+    with pytest.raises(ValueError):
+        axsec = ax.secondary_xaxis('right')
+    with pytest.raises(ValueError):
+        axsec = ax.secondary_yaxis('bottom')

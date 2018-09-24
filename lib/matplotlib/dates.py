@@ -309,7 +309,6 @@ def _from_ordinalf(x, tz=None):
 
     # add hours, minutes, seconds, microseconds
     dt += datetime.timedelta(microseconds=remainder_musec)
-
     return dt.astimezone(tz)
 
 

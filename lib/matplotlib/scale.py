@@ -409,6 +409,47 @@ class LogScale(ScaleBase):
                 minpos if vmax <= 0 else vmax)
 
 
+class FuncScaleLog(LogScale):
+    """
+    Provide an arbitrary scale with user-supplied function for the axis and
+    then put on a logarithmic axes
+    """
+
+    name = 'functionlog'
+
+    def __init__(self, axis, functions, base=10):
+        """
+        Parameters
+        ----------
+
+        axis: the axis for the scale
+
+        functions : (callable, callable)
+            two-tuple of the forward and inverse functions for the scale.
+            The forward function must have an inverse and, for best behavior,
+            be monotonic.
+
+            Both functions must have the signature::
+
+                def forward(values: array-like) -> array-like
+
+        base : float
+            logarithmic base of the scale (default = 10)
+
+        """
+        forward, inverse = functions
+        self.base = base
+        self.subs = None
+        transform = FuncTransform(forward, inverse) + LogTransform(base)
+        self._transform = transform
+
+    def get_transform(self):
+        """
+        The transform for arbitrary scaling
+        """
+        return self._transform
+
+
 class SymmetricalLogTransform(Transform):
     input_dims = 1
     output_dims = 1
@@ -660,6 +701,7 @@ _scale_mapping = {
     'symlog': SymmetricalLogScale,
     'logit':  LogitScale,
     'function': FuncScale,
+    'functionlog': FuncScaleLog,
     }
 
 
