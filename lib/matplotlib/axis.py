@@ -9,7 +9,7 @@ import warnings
 import numpy as np
 
 from matplotlib import rcParams
-import matplotlib.artist as artist
+import matplotlib.artist as martist
 import matplotlib.cbook as cbook
 from matplotlib.cbook import _string_to_bool
 import matplotlib.font_manager as font_manager
@@ -27,14 +27,14 @@ GRIDLINE_INTERPOLATION_STEPS = 180
 
 # This list is being used for compatibility with Axes.grid, which
 # allows all Line2D kwargs.
-_line_AI = artist.ArtistInspector(mlines.Line2D)
+_line_AI = martist.ArtistInspector(mlines.Line2D)
 _line_param_names = _line_AI.get_setters()
 _line_param_aliases = [list(d)[0] for d in _line_AI.aliasd.values()]
 _gridline_param_names = ['grid_' + name
                          for name in _line_param_names + _line_param_aliases]
 
 
-class Tick(artist.Artist):
+class Tick(martist.Artist):
     """
     Abstract base class for the axis ticks, grid lines and labels
 
@@ -81,7 +81,7 @@ class Tick(artist.Artist):
         loc is the tick location in data coords
         size is the tick size in points
         """
-        artist.Artist.__init__(self)
+        martist.Artist.__init__(self)
 
         if gridOn is None:
             if major and (rcParams['axes.grid.which'] in ('both', 'major')):
@@ -230,11 +230,11 @@ class Tick(artist.Artist):
         return children
 
     def set_clip_path(self, clippath, transform=None):
-        artist.Artist.set_clip_path(self, clippath, transform)
+        martist.Artist.set_clip_path(self, clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
         self.stale = True
 
-    set_clip_path.__doc__ = artist.Artist.set_clip_path.__doc__
+    set_clip_path.__doc__ = martist.Artist.set_clip_path.__doc__
 
     def get_pad_pixels(self):
         return self.figure.dpi * self._base_pad / 72
@@ -289,7 +289,7 @@ class Tick(artist.Artist):
         'Return the tick location (data coords) as a scalar'
         return self._loc
 
-    @artist.allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
             self.stale = False
@@ -669,7 +669,7 @@ class _LazyTickList(object):
                 return instance.minorTicks
 
 
-class Axis(artist.Artist):
+class Axis(martist.Artist):
     """
     Public attributes
 
@@ -687,7 +687,7 @@ class Axis(artist.Artist):
         """
         Init the axis with the parent Axes instance
         """
-        artist.Artist.__init__(self)
+        martist.Artist.__init__(self)
         self.set_figure(axes.figure)
 
         self.isDefault_label = True
@@ -899,7 +899,7 @@ class Axis(artist.Artist):
         return kwtrans
 
     def set_clip_path(self, clippath, transform=None):
-        artist.Artist.set_clip_path(self, clippath, transform)
+        martist.Artist.set_clip_path(self, clippath, transform)
         for child in self.majorTicks + self.minorTicks:
             child.set_clip_path(clippath, transform)
         self.stale = True
@@ -1141,7 +1141,7 @@ class Axis(artist.Artist):
             values.append(self.minorTicks[0].get_tick_padding())
         return max(values, default=0)
 
-    @artist.allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
 

@@ -27,6 +27,10 @@ from matplotlib.projections import register_projection
 # interval as appropriate and see what parts of the tick to draw, if any.
 class SkewXTick(maxis.XTick):
     def draw(self, renderer):
+        # When adding the callbacks with `stack.callback`, we fetch the current
+        # visibility state of the artist with `get_visible`; the ExitStack will
+        # restore these states (`set_visible`) at the end of the block (after
+        # the draw).
         with ExitStack() as stack:
             for artist in [self.gridline, self.tick1line, self.tick2line,
                            self.label1, self.label2]:
