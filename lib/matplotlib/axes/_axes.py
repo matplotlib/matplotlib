@@ -6437,7 +6437,7 @@ class Axes(_AxesBase):
             The values of the histogram bins. See *normed* or *density*
             and *weights* for a description of the possible semantics.
             If input *x* is an array, then this is an array of length
-            *nbins*. If input is a sequence arrays
+            *nbins*. If input is a sequence of arrays
             ``[data1, data2,..]``, then this is a list of arrays with
             the values of the histograms for each of the arrays in the
             same order.
