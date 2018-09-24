@@ -20,7 +20,7 @@ i.e., this is dpi-scaled value).
 This module includes definition of several legend handler classes
 derived from the base class (HandlerBase) with the following method::
 
-    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
+    def legend_artist(self, legend, orig_handle, fontsize, handlebox)
 
 """
 
