@@ -5,8 +5,7 @@ Whats New 1 Subplot3d
 
 Create two three-dimensional plots in the same figure.
 """
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 from matplotlib import cm
 #from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter
@@ -15,7 +14,7 @@ import numpy as np
 
 fig = plt.figure()
 
-ax = fig.add_subplot(1, 2, 1, projection='3d')
+ax = fig.add_subplot(1, 2, 1, projection=Axes3D.name)
 X = np.arange(-5, 5, 0.25)
 Y = np.arange(-5, 5, 0.25)
 X, Y = np.meshgrid(X, Y)
@@ -31,7 +30,7 @@ ax.set_zlim3d(-1.01, 1.01)
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 from mpl_toolkits.mplot3d.axes3d import get_test_data
-ax = fig.add_subplot(1, 2, 2, projection='3d')
+ax = fig.add_subplot(1, 2, 2, projection=Axes3D.name)
 X, Y, Z = get_test_data(0.05)
 ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
 

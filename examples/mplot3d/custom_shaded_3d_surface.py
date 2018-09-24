@@ -6,8 +6,7 @@ Custom hillshading in a 3D surface plot
 Demonstrates using custom hillshading in a 3D surface plot.
 """
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 from matplotlib import cbook
 from matplotlib import cm
@@ -28,7 +27,7 @@ region = np.s_[5:50, 5:50]
 x, y, z = x[region], y[region], z[region]
 
 # Set up plot
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+fig, ax = plt.subplots(subplot_kw=dict(projection=Axes3D.name))
 
 ls = LightSource(270, 45)
 # To use a custom hillshading mode, override the built-in shading and pass

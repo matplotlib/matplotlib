@@ -6,8 +6,7 @@ Triangular 3D surfaces
 Plot a 3D surface with a triangular mesh.
 '''
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,7 +29,7 @@ y = np.append(0, (radii*np.sin(angles)).flatten())
 z = np.sin(-x*y)
 
 fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = fig.gca(projection=Axes3D.name)
 
 ax.plot_trisurf(x, y, z, linewidth=0.2, antialiased=True)
 

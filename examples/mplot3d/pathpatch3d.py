@@ -11,8 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.text import TextPath
 from matplotlib.transforms import Affine2D
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 import mpl_toolkits.mplot3d.art3d as art3d
 
 
@@ -43,7 +42,7 @@ def text3d(ax, xyz, s, zdir="z", size=None, angle=0, usetex=False, **kwargs):
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(111, projection=Axes3D.name)
 
 # Draw a circle on the x=0 'wall'
 p = Circle((5, 5), 3)

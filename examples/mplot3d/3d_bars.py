@@ -10,14 +10,13 @@ shading.
 
 import numpy as np
 import matplotlib.pyplot as plt
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 
 # setup the figure and axes
 fig = plt.figure(figsize=(8, 3))
-ax1 = fig.add_subplot(121, projection='3d')
-ax2 = fig.add_subplot(122, projection='3d')
+ax1 = fig.add_subplot(121, projection=Axes3D.name)
+ax2 = fig.add_subplot(122, projection=Axes3D.name)
 
 # fake data
 _x = np.arange(4)

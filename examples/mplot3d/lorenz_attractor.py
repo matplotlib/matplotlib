@@ -15,8 +15,7 @@ Note: Because this is a simple non-linear ODE, it would be more easily
 
 import numpy as np
 import matplotlib.pyplot as plt
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def lorenz(x, y, z, s=10, r=28, b=2.667):
@@ -56,7 +55,7 @@ for i in range(num_steps):
 
 # Plot
 fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = fig.gca(projection=Axes3D.name)
 
 ax.plot(xs, ys, zs, lw=0.5)
 ax.set_xlabel("X Axis")

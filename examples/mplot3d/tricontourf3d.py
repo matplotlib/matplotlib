@@ -9,8 +9,7 @@ The data used is the same as in the second plot of trisurf3d_demo2.
 tricontour3d_demo shows the unfilled version of this example.
 """
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
@@ -40,7 +39,7 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
                 < min_radius)
 
 fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = fig.gca(projection=Axes3D.name)
 ax.tricontourf(triang, z, cmap=plt.cm.CMRmap)
 
 # Customize the view angle so it's easier to understand the plot.

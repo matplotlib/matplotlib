@@ -8,8 +8,7 @@ graph. In this example polygons are semi-transparent, creating a sort
 of 'jagged stained glass' effect.
 """
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 from matplotlib.collections import PolyCollection
 import matplotlib.pyplot as plt
@@ -36,7 +35,7 @@ def polygon_under_graph(xlist, ylist):
 
 
 fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = fig.gca(projection=Axes3D.name)
 
 # Make verts a list, verts[i] will be a list of (x,y) pairs defining polygon i
 verts = []

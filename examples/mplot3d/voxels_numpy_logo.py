@@ -8,8 +8,7 @@ Demonstrates using ``ax.voxels`` with uneven coordinates
 import matplotlib.pyplot as plt
 import numpy as np
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def explode(data):
@@ -43,7 +42,7 @@ y[:, 1::2, :] += 0.95
 z[:, :, 1::2] += 0.95
 
 fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = fig.gca(projection=Axes3D.name)
 ax.voxels(x, y, z, filled_2, facecolors=fcolors_2, edgecolors=ecolors_2)
 
 plt.show()

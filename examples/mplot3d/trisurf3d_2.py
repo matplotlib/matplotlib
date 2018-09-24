@@ -14,8 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 
 fig = plt.figure(figsize=plt.figaspect(0.5))
@@ -41,7 +40,7 @@ tri = mtri.Triangulation(u, v)
 
 # Plot the surface.  The triangles in parameter space determine which x, y, z
 # points are connected by an edge.
-ax = fig.add_subplot(1, 2, 1, projection='3d')
+ax = fig.add_subplot(1, 2, 1, projection=Axes3D.name)
 ax.plot_trisurf(x, y, z, triangles=tri.triangles, cmap=plt.cm.Spectral)
 ax.set_zlim(-1, 1)
 
@@ -75,7 +74,7 @@ mask = np.where(xmid**2 + ymid**2 < min_radius**2, 1, 0)
 triang.set_mask(mask)
 
 # Plot the surface.
-ax = fig.add_subplot(1, 2, 2, projection='3d')
+ax = fig.add_subplot(1, 2, 2, projection=Axes3D.name)
 ax.plot_trisurf(triang, z, cmap=plt.cm.CMRmap)
 
 

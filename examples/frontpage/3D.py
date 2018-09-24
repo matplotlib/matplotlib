@@ -6,8 +6,7 @@ Frontpage 3D example
 This example reproduces the frontpage 3D example.
 
 """
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 from matplotlib import cbook
 from matplotlib import cm
@@ -26,7 +25,7 @@ with np.load(filename) as dem:
 region = np.s_[5:50, 5:50]
 x, y, z = x[region], y[region], z[region]
 
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+fig, ax = plt.subplots(subplot_kw=dict(projection=Axes3D.name))
 
 ls = LightSource(270, 45)
 # To use a custom hillshading mode, override the built-in shading and pass

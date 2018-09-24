@@ -16,14 +16,13 @@ Functionality shown:
 
 '''
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 import matplotlib.pyplot as plt
 
 
 fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = fig.gca(projection=Axes3D.name)
 
 # Demo 1: zdir
 zdirs = (None, 'x', 'y', 'z', (1, 1, 0), (1, 1, 1))

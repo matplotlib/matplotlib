@@ -13,15 +13,14 @@ y axis by adding 1e5 to X and Y. Anything less would not
 automatically trigger it.
 '''
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = fig.gca(projection=Axes3D.name)
 
 X, Y = np.mgrid[0:6*np.pi:0.25, 0:4*np.pi:0.25]
 Z = np.sqrt(np.abs(np.cos(X) + np.cos(Y)))

@@ -11,8 +11,7 @@ from matplotlib import cm
 import numpy as np
 
 from mpl_toolkits.mplot3d.axes3d import get_test_data
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 
 # set up a figure twice as wide as it is tall
@@ -22,7 +21,7 @@ fig = plt.figure(figsize=plt.figaspect(0.5))
 #  First subplot
 #===============
 # set up the axes for the first plot
-ax = fig.add_subplot(1, 2, 1, projection='3d')
+ax = fig.add_subplot(1, 2, 1, projection=Axes3D.name)
 
 # plot a 3D surface like in the example mplot3d/surface3d_demo
 X = np.arange(-5, 5, 0.25)
@@ -39,7 +38,7 @@ fig.colorbar(surf, shrink=0.5, aspect=10)
 # Second subplot
 #===============
 # set up the axes for the second plot
-ax = fig.add_subplot(1, 2, 2, projection='3d')
+ax = fig.add_subplot(1, 2, 2, projection=Axes3D.name)
 
 # plot a 3D wireframe like in the example mplot3d/wire3d_demo
 X, Y, Z = get_test_data(0.05)

@@ -6,15 +6,14 @@
 Demonstrates a very basic plot of a 3D surface using a solid color.
 '''
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(111, projection=Axes3D.name)
 
 # Make data
 u = np.linspace(0, 2 * np.pi, 100)

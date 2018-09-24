@@ -5,8 +5,7 @@
 
 This example shows a how to plot a 2D and 3D plot on the same figure.
 """
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,7 +34,7 @@ ax.grid(True)
 ax.set_ylabel('Damped oscillation')
 
 # Second subplot
-ax = fig.add_subplot(2, 1, 2, projection='3d')
+ax = fig.add_subplot(2, 1, 2, projection=Axes3D.name)
 
 X = np.arange(-5, 5, 0.25)
 Y = np.arange(-5, 5, 0.25)

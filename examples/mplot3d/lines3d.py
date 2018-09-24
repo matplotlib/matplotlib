@@ -6,8 +6,7 @@ Parametric Curve
 This example demonstrates plotting a parametric curve in 3D.
 '''
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,7 +15,7 @@ import matplotlib.pyplot as plt
 plt.rcParams['legend.fontsize'] = 10
 
 fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = fig.gca(projection=Axes3D.name)
 
 # Prepare arrays x, y, z
 theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
