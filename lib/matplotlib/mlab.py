@@ -1187,10 +1187,9 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     return Cxy, f
 
 
-@cbook.deprecated("2.2")
-def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
-            converterd=None, names=None, missing='', missingd=None,
-            use_mrecords=False, dayfirst=False, yearfirst=False):
+def _csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
+             converterd=None, names=None, missing='', missingd=None,
+             use_mrecords=False, dayfirst=False, yearfirst=False):
     """
     Load data from comma/space/tab delimited file in *fname* into a
     numpy record array and return the record array.

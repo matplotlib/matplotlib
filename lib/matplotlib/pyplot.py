@@ -46,7 +46,7 @@ from matplotlib.artist import getp, get, Artist
 from matplotlib.artist import setp as _setp
 from matplotlib.axes import Axes, Subplot
 from matplotlib.projections import PolarAxes
-from matplotlib import mlab  # for csv2rec, detrend_none, window_hanning
+from matplotlib import mlab  # for _csv2rec, detrend_none, window_hanning
 from matplotlib.scale import get_scale_docs, get_scale_names
 
 from matplotlib import cm
@@ -2231,8 +2231,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     columns.
 
     *comments*, *skiprows*, *checkrows*, *delimiter*, and *names*
-    are all passed on to :func:`matplotlib.mlab.csv2rec` to
-    load the data into a record array.
+    are all used when loading the data into a record array.
 
     If *newfig* is *True*, the plot always will be made in a new figure;
     if *False*, it will be made in the current figure if one exists,
@@ -2267,8 +2266,9 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     from matplotlib.cbook import MatplotlibDeprecationWarning
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
-        r = mlab.csv2rec(fname, comments=comments, skiprows=skiprows,
-                         checkrows=checkrows, delimiter=delimiter, names=names)
+        r = mlab._csv2rec(fname, comments=comments, skiprows=skiprows,
+                          checkrows=checkrows, delimiter=delimiter,
+                          names=names)
 
     def getname_val(identifier):
         'return the name and column data for identifier'

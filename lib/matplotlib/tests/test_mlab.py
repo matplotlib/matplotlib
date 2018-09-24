@@ -151,11 +151,9 @@ def tempcsv():
 
 
 def test_csv2rec_names_with_comments(tempcsv):
-
     tempcsv.write('# comment\n1,2,3\n4,5,6\n')
     tempcsv.seek(0)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        array = mlab.csv2rec(tempcsv, names='a,b,c')
+    array = mlab._csv2rec(tempcsv, names='a,b,c')
     assert len(array) == 2
     assert len(array.dtype) == 3
 
@@ -188,8 +186,7 @@ def test_csv2rec_dates(tempcsv, input, kwargs):
                 datetime.datetime(2054, 6, 20, 14, 31, 45),
                 datetime.datetime(2000, 10, 31, 11, 50, 23)]
     tempcsv.seek(0)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        array = mlab.csv2rec(tempcsv, names='a', **kwargs)
+    array = mlab._csv2rec(tempcsv, names='a', **kwargs)
     assert_array_equal(array['a'].tolist(), expected)
 
 
