@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
 import numpy as np
 
-if __name__=="__main__":
+if __name__ == "__main__":
     plt.figure(figsize=(8, 3))
     ax1 = plt.subplot(131)
     ax1.imshow([[1, 2], [2, 3]])
