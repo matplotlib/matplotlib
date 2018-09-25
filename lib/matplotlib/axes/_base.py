@@ -2372,8 +2372,9 @@ class _AxesBase(martist.Artist):
         """
         Autoscale the view limits using the data limits.
 
-        You can selectively autoscale only a single axis, e.g., the xaxis by
-        setting *scaley* to *False*.  The autoscaling preserves any
+        If no data with finite coordinates is present, limits are left
+        unchanged. You can selectively autoscale only a single axis, e.g.,
+        the xaxis by setting *scaley* to *False*. The autoscaling preserves any
         axis direction reversal that has already been done.
 
         If *tight* is *False*, the axis major locator will be used
@@ -2426,6 +2427,9 @@ class _AxesBase(martist.Artist):
                 dl = finite_dl
                 dl.extend(x_finite)
                 dl.extend(y_finite)
+            else:
+                # If no finite data to autoscale using, don't do anything
+                return
 
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = getattr(bb, interval)
