@@ -44,8 +44,7 @@ def test_Subplot():
     ax.axis["bottom"].set_label("Tk0")
     
 
-def test_Axes():
-  
+def test_Axes():  
     fig = plt.figure()
     ax = Axes(fig, [0.15, 0.1, 0.65, 0.8])
     fig.add_axes(ax)
