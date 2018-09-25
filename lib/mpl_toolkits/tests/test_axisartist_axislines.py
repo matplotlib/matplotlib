@@ -44,8 +44,6 @@ def test_Subplot():
     ax.axis["bottom"].set_label("Tk0")
     
 
-@image_comparison(baseline_images=['Subplot'],
-                  extensions=['png'], style='default')
 def test_Axes():
   
     fig = plt.figure()
