@@ -1014,7 +1014,8 @@ class Animation(object):
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
              bitrate=None, extra_args=None, metadata=None, extra_anim=None,
              savefig_kwargs=None):
-        '''Saves a movie file by drawing every frame.
+        """
+        Save the animation as a movie file by drawing every frame.
 
         Parameters
         ----------
@@ -1025,7 +1026,7 @@ class Animation(object):
         writer : :class:`MovieWriter` or str, optional
             A `MovieWriter` instance to use or a key that identifies a
             class to use, such as 'ffmpeg'. If ``None``, defaults to
-            :rc:`animation.writer`.
+            :rc:`animation.writer` = 'ffmpeg'.
 
         fps : number, optional
            Frames per second in the movie. Defaults to ``None``, which will use
@@ -1039,13 +1040,13 @@ class Animation(object):
         codec : str, optional
            The video codec to be used. Not all codecs are supported
            by a given :class:`MovieWriter`. If ``None``, default to
-           :rc:`animation.codec`.
+           :rc:`animation.codec` = 'h264'.
 
         bitrate : number, optional
            Specifies the number of bits used per second in the compressed
            movie, in kilobits per second. A higher number means a higher
            quality movie, but at the cost of increased file size. If ``None``,
-           defaults to :rc:`animation.bitrate`.
+           defaults to :rc:`animation.bitrate` = -1.
 
         extra_args : list, optional
            List of extra string arguments to be passed to the underlying movie
@@ -1070,13 +1071,12 @@ class Animation(object):
 
         Notes
         -----
-        fps, codec, bitrate, extra_args, metadata are used to
-        construct a :class:`MovieWriter` instance and can only be
-        passed if `writer` is a string.  If they are passed as
-        non-`None` and ``writer`` is a :class:`MovieWriter`, a
-        `RuntimeError` will be raised.
+        *fps*, *codec*, *bitrate*, *extra_args* and *metadata* are used to
+        construct a `.MovieWriter` instance and can only be passed if
+        *writer* is a string.  If they are passed as non-*None* and *writer*
+        is a `.MovieWriter`, a `RuntimeError` will be raised.
 
-        '''
+        """
         # If the writer is None, use the rc param to find the name of the one
         # to use
         if writer is None:
@@ -1194,12 +1194,12 @@ class Animation(object):
             return False
 
     def new_frame_seq(self):
-        '''Creates a new sequence of frame information.'''
+        """Return a new sequence of frame information."""
         # Default implementation is just an iterator over self._framedata
         return iter(self._framedata)
 
     def new_saved_frame_seq(self):
-        '''Creates a new sequence of saved/cached frame information.'''
+        """Return a new sequence of saved/cached frame information."""
         # Default is the same as the regular frame sequence
         return self.new_frame_seq()
 
@@ -1293,14 +1293,30 @@ class Animation(object):
                                                        self._handle_resize)
 
     def to_html5_video(self, embed_limit=None):
-        '''Returns animation as an HTML5 video tag.
+        """
+        Convert the animation to an HTML5 ``<video>`` tag.
 
         This saves the animation as an h264 video, encoded in base64
         directly into the HTML5 video tag. This respects the rc parameters
         for the writer as well as the bitrate. This also makes use of the
         ``interval`` to control the speed, and uses the ``repeat``
         parameter to decide whether to loop.
-        '''
+
+        Parameters
+        ----------
+        embed_limit : float, optional
+            Limit, in MB, of the returned animation. No animation is created
+            if the limit is exceeded.
+            Defaults to :rc:`animation.embed_limit` = 20.0.
+
+        Returns
+        -------
+        video_tag : str
+            An HTML5 video tag with the animation embedded as base64 encoded
+            h264 video.
+            If the *embed_limit* is exceeded, this returns the string
+            "Video too large to embed."
+        """
         VIDEO_TAG = r'''<video {size} {options}>
   <source type="video/mp4" src="data:video/mp4;base64,{video}">
   Your browser does not support the video tag.
@@ -1550,8 +1566,8 @@ class ArtistAnimation(TimedAnimation):
 
 
 class FuncAnimation(TimedAnimation):
-    '''
-    Makes an animation by repeatedly calling a function ``func``.
+    """
+    Makes an animation by repeatedly calling a function *func*.
 
     Parameters
     ----------
@@ -1561,26 +1577,32 @@ class FuncAnimation(TimedAnimation):
 
     func : callable
        The function to call at each frame.  The first argument will
-       be the next value in ``frames``.   Any additional positional
-       arguments can be supplied via the ``fargs`` parameter.
+       be the next value in *frames*.   Any additional positional
+       arguments can be supplied via the *fargs* parameter.
 
        The required signature is::
 
-          def func(frame, *fargs) -> iterable_of_artists:
+          def func(frame, *fargs) -> iterable_of_artists
+
+       If ``blit == True``, *func* must return an iterable of all artists
+       that were modified or created. This information is used by the blitting
+       algorithm to determine which parts of the figure have to be updated.
+       The return value is unused if ``blit == False`` and may be omitted in
+       that case.
 
     frames : iterable, int, generator function, or None, optional
-        Source of data to pass ``func`` and each frame of the animation
+        Source of data to pass *func* and each frame of the animation
 
-        If an iterable, then simply use the values provided.  If the
-        iterable has a length, it will override the ``save_count`` kwarg.
+        - If an iterable, then simply use the values provided.  If the
+          iterable has a length, it will override the *save_count* kwarg.
 
-        If an integer, then equivalent to passing ``range(frames)``
+        - If an integer, then equivalent to passing ``range(frames)``
 
-        If a generator function, then must have the signature::
+        - If a generator function, then must have the signature::
 
-           def gen_function() -> obj:
+             def gen_function() -> obj
 
-        If ``None``, then equivalent to passing ``itertools.count``.
+        - If *None*, then equivalent to passing ``itertools.count``.
 
         In all of these cases, the values in *frames* is simply passed through
         to the user-supplied *func* and thus can be of any type.
@@ -1591,12 +1613,15 @@ class FuncAnimation(TimedAnimation):
        will be used. This function will be called once before the
        first frame.
 
-       If ``blit == True``, ``init_func`` must return an iterable of artists
-       to be re-drawn.
-
        The required signature is::
 
-          def init_func() -> iterable_of_artists:
+          def init_func() -> iterable_of_artists
+
+       If ``blit == True``, *init_func* must return an iterable of artists
+       to be re-drawn. This information is used by the blitting
+       algorithm to determine which parts of the figure have to be updated.
+       The return value is unused if ``blit == False`` and may be omitted in
+       that case.
 
     fargs : tuple or None, optional
        Additional arguments to pass to each call to *func*.
@@ -1609,19 +1634,19 @@ class FuncAnimation(TimedAnimation):
 
     repeat_delay : number, optional
        If the animation in repeated, adds a delay in milliseconds
-       before repeating the animation.  Defaults to ``None``.
+       before repeating the animation.  Defaults to *None*.
 
     repeat : bool, optional
        Controls whether the animation should repeat when the sequence
-       of frames is completed.  Defaults to ``True``.
+       of frames is completed.  Defaults to *True*.
 
     blit : bool, optional
        Controls whether blitting is used to optimize drawing. Note: when using
        blitting any animated artists will be drawn according to their zorder.
        However, they will be drawn on top of any previous artists, regardless
-       of their zorder.  Defaults to ``False``.
+       of their zorder.  Defaults to *False*.
+    """
 
-    '''
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
                  save_count=None, **kwargs):
         if fargs:
