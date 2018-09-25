@@ -3148,8 +3148,8 @@ class Axes(_AxesBase):
             """
             assert len(xs) == len(ys)
             assert len(xs) == len(mask)
-            xs = [thisx for thisx, b in zip(xs, mask) if b]
-            ys = [thisy for thisy, b in zip(ys, mask) if b]
+            xs = np.array([thisx for thisx, b in zip(xs, mask) if b])
+            ys = np.array([thisy for thisy, b in zip(ys, mask) if b])
             return xs, ys
 
         def extract_err(err, data):
