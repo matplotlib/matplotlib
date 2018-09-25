@@ -234,9 +234,8 @@ def test_failing_latex(tmpdir):
         plt.savefig(path)
 
 
-def test_empty_rasterised():
+def test_empty_rasterized():
     # Check that emtpy figures that are rasterised save to pdf files fine
-    with PdfPages(io.BytesIO()) as pdf:
-        fig, ax = plt.subplots()
-        ax.plot([], [], rasterized=True)
-        fig.savefig(pdf, format="pdf")
+    fig, ax = plt.subplots()
+    ax.plot([], [], rasterized=True)
+    fig.savefig(io.BytesIO(), format="pdf")
