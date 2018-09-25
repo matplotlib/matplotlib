@@ -632,6 +632,29 @@ definition.  There are some some manual hacks in this case, violating the
 "single entry point" requirement above -- see the ``docstring.interpd.update``
 calls in `matplotlib.patches`.
 
+
+Inheriting docstrings
+---------------------
+
+If a subclass overrides a method but does not change the semantics, we can
+reuse the parent docstring for the method of the child class. Python does this
+automatically, if the subclass method does not have a docstring.
+
+Use a plain comment `# docstring inherited` to denote the intention to reuse
+the parent docstring. That way we do not accidentially create a docstring in
+the future::
+
+    class A:
+        def foo():
+            """The parent docstring."""
+            pass
+
+    class B(A):
+        def foo():
+            # docstring inherited
+            pass
+
+
 .. _docstring-adding-figures:
 
 Adding figures
