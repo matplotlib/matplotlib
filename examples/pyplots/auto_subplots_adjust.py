@@ -8,7 +8,7 @@ a subplot parameter from the extent of the ticklabels using a callback on the
 :doc:`draw_event</users/event_handling>`.
 
 Note that a similar result would be achieved using `~.Figure.tight_layout`
-or `~.Figure.contrained_layout`; this example shows how one could customize
+or `~.Figure.constrained_layout`; this example shows how one could customize
 the subplot parameter adjustment.
 """
 import matplotlib.pyplot as plt
