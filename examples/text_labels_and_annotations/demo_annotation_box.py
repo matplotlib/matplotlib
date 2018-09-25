@@ -13,7 +13,7 @@ from matplotlib.offsetbox import (TextArea, DrawingArea, OffsetImage,
 from matplotlib.cbook import get_sample_data
 
 
-if 1:
+if __name__=="__main__":
     fig, ax = plt.subplots()
 
     # Define a 1st position to annotate (display it with a marker)
