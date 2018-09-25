@@ -9,6 +9,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+@pytest.fixture
+def baseline_images(request, extension):
+    # strip the leading test_, and the file extension from the parameters
+    name = request.node.name
+    if name.startswith('test_'):
+        name = name[5:]
+    name = name.replace('[{}-'.format(extension), '[')
+    name = name.replace('[]', '')
+    return [name]
+
+
 @image_comparison(baseline_images=['bar3d'], remove_text=True)
 def test_bar3d():
     fig = plt.figure()
@@ -21,12 +32,13 @@ def test_bar3d():
         ax.bar(xs, ys, zs=z, zdir='y', align='edge', color=cs, alpha=0.8)
 
 
+@pytest.mark.parametrize('azim, elev', [(-60, 30), (-120, 30), (120, -30)])
 @image_comparison(
-    baseline_images=['bar3d_shaded'],
+    baseline_images=None,
     remove_text=True,
     extensions=['png']
 )
-def test_bar3d_shaded():
+def test_bar3d_shaded(baseline_images, azim, elev):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     x = np.arange(4)
@@ -35,6 +47,7 @@ def test_bar3d_shaded():
     x2d, y2d = x2d.ravel(), y2d.ravel()
     z = x2d + y2d
     ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+    ax.view_init(azim=azim, elev=elev)
     fig.canvas.draw()
 
 
