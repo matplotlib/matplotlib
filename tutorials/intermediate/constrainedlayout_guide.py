@@ -20,7 +20,7 @@ a figure. Two ways of doing so are
 * using the respective argument to :func:`~.pyplot.subplots` or
   :func:`~.pyplot.figure`, e.g.::
 
-      plt.subplots(contrained_layout=True)
+      plt.subplots(constrained_layout=True)
 
 * activate it via :ref:`rcParams<matplotlib-rcparams>`, like::
 
