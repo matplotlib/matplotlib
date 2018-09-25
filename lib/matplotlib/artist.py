@@ -1191,7 +1191,7 @@ class ArtistInspector(object):
             if not self.is_alias(func):
                 continue
             propname = re.search("`({}.*)`".format(name[:4]),  # get_.*/set_.*
-                                 func.__doc__).group(1)
+                                 inspect.getdoc(func)).group(1)
             aliases.setdefault(propname, set()).add(name[4:])
         return aliases
 
@@ -1213,7 +1213,7 @@ class ArtistInspector(object):
             raise AttributeError('%s has no function %s' % (self.o, name))
         func = getattr(self.o, name)
 
-        docstring = func.__doc__
+        docstring = inspect.getdoc(func)
         if docstring is None:
             return 'unknown'
 
@@ -1229,7 +1229,7 @@ class ArtistInspector(object):
         param_name = func.__code__.co_varnames[1]
         # We could set the presence * based on whether the parameter is a
         # varargs (it can't be a varkwargs) but it's not really worth the it.
-        match = re.search("(?m)^ *\*?{} : (.+)".format(param_name), docstring)
+        match = re.search(r"(?m)^ *\*?{} : (.+)".format(param_name), docstring)
         if match:
             return match.group(1)
 
@@ -1279,7 +1279,7 @@ class ArtistInspector(object):
 
     def is_alias(self, o):
         """Return whether method object *o* is an alias for another method."""
-        ds = o.__doc__
+        ds = inspect.getdoc(o)
         if ds is None:
             return False
         return ds.startswith('Alias for ')

@@ -1659,7 +1659,7 @@ class Axis(artist.Artist):
         self.pickradius = pickradius
 
     def set_ticklabels(self, ticklabels, *args, minor=False, **kwargs):
-        """
+        r"""
         Set the text values of the tick labels.
 
         Parameters
