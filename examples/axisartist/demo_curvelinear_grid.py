@@ -131,7 +131,7 @@ def curvelinear_test2(fig):
     ax1.grid(True, zorder=0)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     fig = plt.figure(figsize=(7, 4))
 
     curvelinear_test1(fig)
