@@ -574,9 +574,9 @@ class CubicTriInterpolator(TriInterpolator):
               The so-called eccentricity parameters [1] needed for
               HCT triangular element.
         """
-        a = np.expand_dims(tris_pts[:, 2, :]-tris_pts[:, 1, :], axis=2)
-        b = np.expand_dims(tris_pts[:, 0, :]-tris_pts[:, 2, :], axis=2)
-        c = np.expand_dims(tris_pts[:, 1, :]-tris_pts[:, 0, :], axis=2)
+        a = np.expand_dims(tris_pts[:, 2, :] - tris_pts[:, 1, :], axis=2)
+        b = np.expand_dims(tris_pts[:, 0, :] - tris_pts[:, 2, :], axis=2)
+        c = np.expand_dims(tris_pts[:, 1, :] - tris_pts[:, 0, :], axis=2)
         # Do not use np.squeeze, this is dangerous if only one triangle
         # in the triangulation...
         dot_a = _prod_vectorized(_transpose_vectorized(a), a)[:, 0, 0]
@@ -1064,9 +1064,9 @@ class _DOF_estimator():
         J1 = _prod_vectorized(_ReducedHCT_Element.J0_to_J1, J)
         J2 = _prod_vectorized(_ReducedHCT_Element.J0_to_J2, J)
 
-        col0 = _prod_vectorized(J, np.expand_dims(tri_dz[:, 0, :], axis=3))
-        col1 = _prod_vectorized(J1, np.expand_dims(tri_dz[:, 1, :], axis=3))
-        col2 = _prod_vectorized(J2, np.expand_dims(tri_dz[:, 2, :], axis=3))
+        col0 = _prod_vectorized(J, np.expand_dims(tri_dz[:, 0, :], axis=2))
+        col1 = _prod_vectorized(J1, np.expand_dims(tri_dz[:, 1, :], axis=2))
+        col2 = _prod_vectorized(J2, np.expand_dims(tri_dz[:, 2, :], axis=2))
 
         dfdksi = _to_matrix_vectorized([
             [col0[:, 0, 0], col1[:, 0, 0], col2[:, 0, 0]],
