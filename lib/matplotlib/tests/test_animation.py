@@ -229,7 +229,8 @@ def test_embed_limit(method_name, caplog, tmpdir):
 @pytest.mark.parametrize(
     "method_name",
     ["to_html5_video",
-     pytest.mark.xfail("to_jshtml")])  # Needs to be fixed.
+     pytest.param("to_jshtml",
+                  marks=pytest.mark.xfail)])
 def test_cleanup_temporaries(method_name, tmpdir):
     with tmpdir.as_cwd():
         getattr(make_animation(frames=1), method_name)()
