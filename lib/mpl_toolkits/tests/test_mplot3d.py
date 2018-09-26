@@ -27,14 +27,21 @@ def test_bar3d():
     extensions=['png']
 )
 def test_bar3d_shaded():
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
     x = np.arange(4)
     y = np.arange(5)
     x2d, y2d = np.meshgrid(x, y)
     x2d, y2d = x2d.ravel(), y2d.ravel()
     z = x2d + y2d
-    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+
+    views = [(-60, 30), (30, 30), (30, -30), (120, -30)]
+    fig = plt.figure(figsize=plt.figaspect(1 / len(views)))
+    axs = fig.subplots(
+        1, len(views),
+        subplot_kw=dict(projection='3d')
+    )
+    for ax, (azim, elev) in zip(axs, views):
+        ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+        ax.view_init(azim=azim, elev=elev)
     fig.canvas.draw()
 
 
