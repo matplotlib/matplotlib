@@ -126,7 +126,7 @@ def _test_determinism_save(filename, usetex):
     "filename, usetex",
     # unique filenames to allow for parallel testing
     [("determinism_notex.svg", False),
-     needs_usetex(("determinism_tex.svg", True))])
+     pytest.param("determinism_tex.svg", True, marks=needs_usetex)])
 def test_determinism(filename, usetex):
     import sys
     from subprocess import check_output, STDOUT, CalledProcessError
