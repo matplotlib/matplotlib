@@ -3122,8 +3122,8 @@ class _AxesBase(martist.Artist):
             limit unchanged.
 
             The left and right xlims may be passed as the tuple
-            (`left`, `right`) as the first positional argument (or as
-            the `left` keyword argument).
+            (*left*, *right*) as the first positional argument (or as
+            the *left* keyword argument).
 
         right : scalar, optional
             The right xlim in data coordinates. Passing *None* leaves the
@@ -3169,7 +3169,7 @@ class _AxesBase(martist.Artist):
         >>> set_xlim(right=right_lim)
 
         Limits may be passed in reverse order to flip the direction of
-        the x-axis. For example, suppose ``x`` represents the number of
+        the x-axis. For example, suppose *x* represents the number of
         years before present. The x-axis limits might be set like the
         following so 5000 years ago is on the left of the plot and the
         present is on the right.
@@ -3510,15 +3510,15 @@ class _AxesBase(martist.Artist):
             limit unchanged.
 
             The bottom and top ylims may be passed as the tuple
-            (`bottom`, `top`) as the first positional argument (or as
-            the `bottom` keyword argument).
+            (*bottom*, *top*) as the first positional argument (or as
+            the *bottom* keyword argument).
 
         top : scalar, optional
             The top ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
         emit : bool, optional
-            Whether to notify observers of limit change (default: True).
+            Whether to notify observers of limit change (default: ``True``).
 
         auto : bool or None, optional
             Whether to turn on autoscaling of the y-axis. *True* turns on,
