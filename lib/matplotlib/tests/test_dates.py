@@ -641,3 +641,9 @@ def test_tz_utc():
 def test_num2timedelta(x, tdelta):
     dt = mdates.num2timedelta(x)
     assert dt == tdelta
+
+
+def test_datetime64_in_list():
+    dt = [np.datetime64('2000-01-01'), np.datetime64('2001-01-01')]
+    dn = mdates.date2num(dt)
+    assert np.array_equal(dn, [730120.,  730486.])
