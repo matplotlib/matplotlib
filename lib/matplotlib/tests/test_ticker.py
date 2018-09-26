@@ -59,6 +59,23 @@ class TestMultipleLocator(object):
                                9.441, 12.588])
         assert_almost_equal(loc.tick_values(-7, 10), test_value)
 
+    def test_view_limits(self):
+        """
+        Test basic behavior of view limits.
+        """
+        with matplotlib.rc_context({'axes.autolimit_mode': 'data'}):
+            loc = mticker.MultipleLocator(base=3.147)
+            assert_almost_equal(loc.view_limits(-5, 5), (-5, 5))
+
+    def test_view_limits_round_numbers(self):
+        """
+        Test that everything works properly with 'round_numbers' for auto
+        limit.
+        """
+        with matplotlib.rc_context({'axes.autolimit_mode': 'round_numbers'}):
+            loc = mticker.MultipleLocator(base=3.147)
+            assert_almost_equal(loc.view_limits(-4, 4), (-6.294, 6.294))
+
     def test_set_params(self):
         """
         Create multiple locator with 0.7 base, and change it to something else.
