@@ -59,7 +59,7 @@ def test_Axes():
 
 @image_comparison(baseline_images=['ParasiteAxesAuxTrans_meshplot'],
                   extensions=['png'], remove_text=True, style='default',
-                  tol=0.05)
+                  tol=0.075)
 def test_ParasiteAxesAuxTrans():
 
     data = np.ones((6, 6))
