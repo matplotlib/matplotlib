@@ -170,8 +170,8 @@ etc., you can install the following:
   animated gifs;
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 3.4): for a larger
   selection of image file formats: JPEG, BMP, and TIFF image files;
-* `LaTeX <https://miktex.org/>`_ and `GhostScript
-  <https://ghostscript.com/download/>`_ (for rendering text with LaTeX).
+* `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
+  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
 
 .. note::
 
