@@ -6256,6 +6256,7 @@ class Axes(_AxesBase):
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
              color=None, label=None, stacked=False, normed=None,
+             ishistogrammed=False,
              **kwargs):
         """
         Plot a histogram.
@@ -6430,6 +6431,13 @@ class Axes(_AxesBase):
         normed : bool, optional
             Deprecated; use the density keyword argument instead.
 
+        ishistogrammed : bool, optional
+            If ``True``, interpret the input data ``x`` as already histogrammed
+            data, preventing this method from preforming the histogramming. If
+            ``True``, the argument ``bins`` must also be provided.
+
+            Default is ``False``
+
         Returns
         -------
         n : array or list of arrays
@@ -6496,6 +6504,10 @@ class Axes(_AxesBase):
         if normed is not None:
             cbook.warn_deprecated("2.1", name="'normed'", obj_type="kwarg",
                                   alternative="'density'", removal="3.1")
+
+        if ishistogrammed and bins is None:
+            raise ValueError("'bins' must be passed if 'ishistogrammed' is "
+                             "True.")
 
         # basic input validation
         input_empty = np.size(x) == 0
@@ -6565,7 +6577,10 @@ class Axes(_AxesBase):
         for i in range(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
-            m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
+            if ishistogrammed:
+                m, bins = x[i], bins
+            else:
+                m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
