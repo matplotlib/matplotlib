@@ -516,7 +516,7 @@ def checkdep_usetex(s):
     if not s:
         return False
 
-    gs_req = '8.60'
+    gs_req = '9.00'
     dvipng_req = '1.6'
     flag = True
 
