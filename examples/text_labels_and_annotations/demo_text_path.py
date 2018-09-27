@@ -56,7 +56,7 @@ class PathClippedImagePatch(mpatches.PathPatch):
         mpatches.PathPatch.draw(self, renderer)
 
 
-if 1:
+if __name__ == "__main__":
 
     usetex = plt.rcParams["text.usetex"]
 
