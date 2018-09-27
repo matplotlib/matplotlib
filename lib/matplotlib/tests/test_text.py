@@ -134,8 +134,8 @@ def test_multiline2():
     ax.set_xlim([0, 1.4])
     ax.set_ylim([0, 2])
     ax.axhline(0.5, color='C2', linewidth=0.3)
-    sts = ['Line', '2 Lineg\n 2 Lg', '$\sum_i x $', 'hi $\sum_i x $\ntest',
-           'test\n $\sum_i x $', '$\sum_i x $\n $\sum_i x $']
+    sts = ['Line', '2 Lineg\n 2 Lg', '$\\sum_i x $', 'hi $\\sum_i x $\ntest',
+           'test\n $\\sum_i x $', '$\\sum_i x $\n $\\sum_i x $']
     renderer = fig.canvas.get_renderer()
 
     def draw_box(ax, tt):
