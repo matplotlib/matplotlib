@@ -33,6 +33,13 @@ This pages lists API changes for the most recent version of Matplotlib.
 
    next_api_changes/*
 
+API Changes for 3.0.1
+=====================
+
+`.tight_layout.auto_adjust_subplotpars` can return ``None`` now if the new
+subplotparams will collapse axes to zero width or height.  This prevents
+``tight_layout`` from being executed.  
+
 API Changes for 3.0.0
 =====================
 

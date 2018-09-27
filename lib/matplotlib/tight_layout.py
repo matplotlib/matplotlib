@@ -38,7 +38,8 @@ def auto_adjust_subplotpars(
         fig, renderer, nrows_ncols, num1num2_list, subplot_list,
         ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
-    Return a dict of subplot parameters to adjust spacing between subplots.
+    Return a dict of subplot parameters to adjust spacing between subplots
+    or ``None`` if resulting axes would have zero height or width.
 
     Note that this function ignores geometry information of subplot
     itself, but uses what is given by the *nrows_ncols* and *num1num2_list*
