@@ -267,7 +267,7 @@ def test_single_minus_sign():
 
     buff = io.BytesIO()
     plt.savefig(buff, format="rgba", dpi=1000)
-    array = np.fromstring(buff.getvalue(), dtype=np.uint8)
+    array = np.frombuffer(buff.getvalue(), dtype=np.uint8)
 
     # If this fails, it would be all white
     assert not np.all(array == 0xff)
