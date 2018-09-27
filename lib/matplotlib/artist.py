@@ -965,7 +965,8 @@ class Artist(object):
             else:
                 func = getattr(self, 'set_' + k, None)
                 if not callable(func):
-                    raise AttributeError('Unknown property %s' % k)
+                    raise AttributeError('{!r} object has no property {!r}'
+                                         .format(type(self).__name__, k))
                 return func(v)
 
         with cbook._setattr_cm(self, eventson=False):
