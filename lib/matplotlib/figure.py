@@ -18,7 +18,7 @@ import warnings
 import numpy as np
 
 from matplotlib import rcParams
-from matplotlib import docstring
+from matplotlib import backends, docstring
 from matplotlib import __version__ as _mpl_version
 from matplotlib import get_backend
 
@@ -421,12 +421,8 @@ class Figure(Artist):
         Parameters
         ----------
         warn : bool
-            If ``True``, issue warning when called on a non-GUI backend
-
-        Notes
-        -----
-        For non-GUI backends, this does nothing, in which case a warning will
-        be issued if *warn* is ``True`` (default).
+            If ``True`` and we are not running headless (i.e. on Linux with an
+            unset DISPLAY), issue warning when called on a non-GUI backend.
         """
         try:
             manager = getattr(self.canvas, 'manager')
@@ -442,7 +438,8 @@ class Figure(Artist):
                 return
             except NonGuiException:
                 pass
-        if warn:
+        if (backends._get_running_interactive_framework() != "headless"
+                and warn):
             warnings.warn('Matplotlib is currently using %s, which is a '
                           'non-GUI backend, so cannot show the figure.'
                           % get_backend())
