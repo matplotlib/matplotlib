@@ -1511,7 +1511,7 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        scatter : XY scatter plot with markers of variing size and/or color (
+        scatter : XY scatter plot with markers of varying size and/or color (
             sometimes also called bubble chart).
 
 
