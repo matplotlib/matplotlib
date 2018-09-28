@@ -102,7 +102,7 @@ To restore the old color cycle use
 
 .. code::
 
-   from cycler import cycler
+   from matplotlib import cycler
    mpl.rcParams['axes.prop_cycle'] = cycler(color='bgrcmyk')
 
 or set
