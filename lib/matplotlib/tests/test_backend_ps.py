@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
+import warnings
 
 import pytest
 
@@ -14,12 +15,14 @@ from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 
 
-needs_ghostscript = pytest.mark.skipif(
-    matplotlib.checkdep_ghostscript()[0] is None,
-    reason="This test needs a ghostscript installation")
-needs_usetex = pytest.mark.skipif(
-    not matplotlib.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    needs_ghostscript = pytest.mark.skipif(
+        matplotlib.checkdep_ghostscript()[0] is None,
+        reason="This test needs a ghostscript installation")
+    needs_usetex = pytest.mark.skipif(
+        not matplotlib.checkdep_usetex(True),
+        reason="This test needs a TeX installation")
 
 
 # This tests tends to hit a TeX cache lock on AppVeyor.
