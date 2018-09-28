@@ -1267,7 +1267,8 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_anchor
             defining the position in case of extra space.
         """
-        if not (isinstance(aspect, str) and aspect in ('equal', 'auto')):
+        if not (cbook._str_equal(aspect, 'equal')
+                or cbook._str_equal(aspect, 'auto')):
             aspect = float(aspect)  # raise ValueError if necessary
         if share:
             axes = set(self._shared_x_axes.get_siblings(self)
@@ -1649,6 +1650,10 @@ class _AxesBase(martist.Artist):
                 self.set_axis_off()
             elif s in ('equal', 'tight', 'scaled', 'normal',
                        'auto', 'image', 'square'):
+                if s == 'normal':
+                    cbook.warn_deprecated(
+                        "3.1", "Passing 'normal' to axis() is deprecated "
+                        "since %(version)s; use 'auto' instead.")
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
