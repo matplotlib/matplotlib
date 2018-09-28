@@ -2,6 +2,7 @@
 
 flake8
 flake8-per-file-ignores
-jupyter
+ipykernel
+nbconvert[execute]
 pandas
 pytz
