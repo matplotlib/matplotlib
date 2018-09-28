@@ -4,7 +4,7 @@ import pytest
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm
+from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm, join_colormaps
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
 
@@ -186,6 +186,165 @@ def test_gridspec_make_colorbar():
     plt.colorbar(use_gridspec=True, orientation='horizontal')
 
     plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
+
+
+def test_join_colorbar():
+    test_points = [0.1, 0.3, 0.9]
+
+    # Jet is a LinearSegmentedColormap
+    cmap1 = plt.get_cmap('viridis', 5)
+    cmap2 = plt.get_cmap('jet', 5)
+
+    # This should be a listed colormap.
+    cmap = cmap1.join(cmap2)
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.229739, 0.322361, 0.545706, 1.],
+         [0.369214, 0.788888, 0.382914, 1.],
+         [0.5, 0., 0, 1.]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # Use the 'frac_self' kwarg for the listed cmap
+    cmap = cmap1.join(cmap2, frac_self=0.7, N=50)
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.267004, 0.004874, 0.329415, 1.],
+         [0.127568, 0.566949, 0.550556, 1.],
+         [1., 0.59259259, 0., 1.]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # +code-coverage for name kwarg and when fractions is unspecified
+    cmap = join_colormaps([cmap1, cmap2, cmap1], name='test-map')
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.229739, 0.322361, 0.545706, 1., ],
+         [0.993248, 0.906157, 0.143936, 1., ],
+         [0.369214, 0.788888, 0.382914, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
+
+def test_truncate_colorbar():
+    test_points = [0.1, 0.3, 0.9]
+    vir32 = plt.get_cmap('viridis', 32)
+    vir128 = plt.get_cmap('viridis', 128)
+
+    cmap = vir32.truncate(0.2, 0.7)
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.243113, 0.292092, 0.538516, 1.],
+         [0.19586, 0.395433, 0.555276, 1.],
+         [0.226397, 0.728888, 0.462789, 1.]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # +code-coverage: N and name kwargs
+    cmap = vir32.truncate(0.2, 0.7, name='test-map', N=128)
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.243113, 0.292092, 0.538516, 1., ],
+         [0.182256, 0.426184, 0.55712, 1., ],
+         [0.180653, 0.701402, 0.488189, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # Use __getitem__ fractional complex slicing with start:None
+    cmap = vir128[:-0.3:16j]
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.278791, 0.062145, 0.386592, 1., ],
+         [0.262138, 0.242286, 0.520837, 1., ],
+         [0.19109, 0.708366, 0.482284, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # Use __getitem__ fractional slicing start:negative, end:None
+    cmap = vir128[-0.9:]
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.262138, 0.242286, 0.520837, 1., ],
+         [0.175841, 0.44129, 0.557685, 1., ],
+         [0.772852, 0.877868, 0.131109, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # Use __getitem__ integer slicing
+    cmap = vir128[25:90]
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.233603, 0.313828, 0.543914, 1.],
+         [0.185556, 0.41857, 0.556753, 1.],
+         [0.19109, 0.708366, 0.482284, 1.]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # start:None, end:negative, integer jumping
+    cmap = vir128[:-10:4]
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.282884, 0.13592, 0.453427, 1., ],
+         [0.214298, 0.355619, 0.551184, 1., ],
+         [0.606045, 0.850733, 0.236712, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # Use __getitem__ integer complex slicing
+    cmap = vir128[-100::16j]
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.221989, 0.339161, 0.548752, 1., ],
+         [0.154815, 0.493313, 0.55784, 1., ],
+         [0.876168, 0.891125, 0.09525, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
+    # Use __getitem__ discrete slicing
+    cmap = vir128[[10, 12, 15, 35, 60, 97]]
+    vals = cmap(test_points)
+    _vals = np.array(
+        [[0.283197, 0.11568, 0.436115, 1., ],
+         [0.282884, 0.13592, 0.453427, 1., ],
+         [0.395174, 0.797475, 0.367757, 1., ]]
+    )
+    assert np.allclose(vals, _vals)
+
+
+def test_truncate_colorbar_fail():
+    vir128 = plt.get_cmap('viridis', 128)
+
+    with pytest.raises(ValueError, match='less than'):
+        vir128.truncate(0.7, 0.3)
+
+    with pytest.raises(ValueError, match='not a truncation'):
+        vir128.truncate(0, 1)
+
+    with pytest.raises(ValueError, match='interval'):
+        vir128.truncate(0.3, 1.1)
+
+    with pytest.raises(ValueError, match='interval'):
+        vir128.truncate(-0.1, 0.7)
+
+    with pytest.raises(IndexError, match='must contain >1 color'):
+        vir128[[3]]
+
+    with pytest.raises(IndexError, match='Invalid colorbar itemization'):
+        # Tuple indexing of colorbars not allowed.
+        vir128[3, 5, 9]
+
+    with pytest.raises(IndexError, match='Invalid colorbar itemization'):
+        # Currently you can't mix-match fractional and int style indexing.
+        # This could be changed...
+        vir128[0.3:100]
+
+    with pytest.raises(IndexError, match='Invalid colorbar itemization'):
+        # 150 is beyond the 128-bit colormap.
+        vir128[[10, 100, 150]]
+
+    with pytest.raises(IndexError, match='Invalid colorbar itemization'):
+        # The first index can't be the end.
+        vir128[128:]
 
 
 @image_comparison(baseline_images=['colorbar_single_scatter'],
