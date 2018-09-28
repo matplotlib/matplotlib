@@ -8,6 +8,7 @@ import io
 import os
 import sys
 import tempfile
+import warnings
 
 import numpy as np
 import pytest
@@ -20,9 +21,11 @@ from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 
 
-needs_usetex = pytest.mark.skipif(
-    not checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    needs_usetex = pytest.mark.skipif(
+        not checkdep_usetex(True),
+        reason="This test needs a TeX installation")
 
 
 @image_comparison(baseline_images=['pdf_use14corefonts'],

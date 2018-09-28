@@ -14,9 +14,11 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
-needs_usetex = pytest.mark.skipif(
-    not matplotlib.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    needs_usetex = pytest.mark.skipif(
+        not matplotlib.checkdep_usetex(True),
+        reason="This test needs a TeX installation")
 
 
 @image_comparison(baseline_images=['font_styles'])
