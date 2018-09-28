@@ -27,7 +27,7 @@ class Foo(object):
         return self._val / unit
 
 
-class FooConverter(object):
+class FooConverter(units.ConversionInterface):
     @staticmethod
     def axisinfo(unit, axis):
         'return the Foo AxisInfo'
