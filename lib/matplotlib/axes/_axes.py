@@ -418,6 +418,21 @@ class Axes(_AxesBase):
     def _remove_legend(self, legend):
         self.legend_ = None
 
+    @docstring.dedent_interpd
+    def colorbar(self, mappable, cax=None, use_gridspec=True, **kw):
+        """
+        Create a colorbar for a ScalarMappable instance, *mappable*, with the
+        axes as the parent.
+
+        Documentation for the pyplot thin wrapper:
+        %(colorbar_doc)s
+        """
+        ax = kw.pop('ax', None)
+        if ax is not None:
+            warnings.warn('Supplied ax argument ignored')
+        self.figure.colorbar(mappable,  ax=self, cax=cax,
+                             use_gridspec=use_gridspec, **kw)
+
     def inset_axes(self, bounds, *, transform=None, zorder=5,
             **kwargs):
         """

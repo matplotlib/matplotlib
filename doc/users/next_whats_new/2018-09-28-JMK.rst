@@ -1,0 +1,8 @@
+:orphan:
+
+New `.axes.Axes.colorbar` method for attaching colorbar to single axes
+``````````````````````````````````````````````````````````````````````
+
+A simple wrapper for `.Figure.colorbar` that allows the user to omit the
+``ax`` kwarg. The new ``ax.colorbar(mappable)`` is equivalent to
+``fig.colorbar(mappable, ax=ax)``.

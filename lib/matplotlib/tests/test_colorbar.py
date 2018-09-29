@@ -396,3 +396,19 @@ def test_colorbar_axes_kw():
     plt.imshow(([[1, 2], [3, 4]]))
     plt.colorbar(orientation='horizontal', fraction=0.2, pad=0.2, shrink=0.5,
                  aspect=10, anchor=(0., 0.), panchor=(0., 1.))
+
+
+def test_colorbar_axes():
+    fig, ax = plt.subplots()
+    pcm = ax.pcolormesh(np.random.random((32, 32)))
+    # smoketest that this works:
+    ax.colorbar(pcm)
+    with pytest.warns(UserWarning) as record:
+        ax.colorbar(pcm, ax=ax)
+        assert len(record) == 1
+
+    fig, ax = plt.subplots()
+    pcm = ax.pcolormesh(np.random.random((32, 32)))
+    # smoketest that this works:
+    ax.colorbar(pcm, orientation='horizontal', fraction=0.2, pad=0.2, shrink=0.5,
+                 aspect=10, anchor=(0., 0.), panchor=(0., 1.))
