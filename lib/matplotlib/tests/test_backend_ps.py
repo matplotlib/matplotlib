@@ -27,14 +27,14 @@ needs_usetex = pytest.mark.skipif(
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
-    needs_ghostscript(
-        ('ps', False, {'ps.usedistiller': 'ghostscript'})),
-    needs_usetex(needs_ghostscript(
-        ('ps', False, {'text.usetex': True}))),
+    pytest.param('ps', False, {'ps.usedistiller': 'ghostscript'},
+                 marks=needs_ghostscript),
+    pytest.param('ps', False, {'text.usetex': True},
+                 marks=[needs_ghostscript, needs_usetex]),
     ('eps', False, {}),
     ('eps', True, {'ps.useafm': True}),
-    needs_usetex(needs_ghostscript(
-        ('eps', False, {'text.usetex': True}))),
+    pytest.param('eps', False, {'text.usetex': True},
+                 marks=[needs_ghostscript, needs_usetex]),
 ], ids=[
     'ps',
     'ps with distiller',

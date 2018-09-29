@@ -32,8 +32,10 @@ def _get_testable_interactive_backends():
             reason = "No $DISPLAY"
         elif any(importlib.util.find_spec(dep) is None for dep in deps):
             reason = "Missing dependency"
-        backends.append(pytest.mark.skip(reason=reason)(backend) if reason
-                        else backend)
+        if reason:
+            backend = pytest.param(
+                backend, marks=pytest.mark.skip(reason=reason))
+        backends.append(backend)
     return backends
 
 
