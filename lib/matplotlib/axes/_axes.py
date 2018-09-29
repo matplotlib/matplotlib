@@ -580,16 +580,14 @@ class Axes(_AxesBase):
             bboxins = pos.transformed(self.figure.transFigure)
             rectbbox = mtransforms.Bbox.from_bounds(
                         *bounds).transformed(transform)
-            if rectbbox.x0 < bboxins.x0:
-                sig = 1
-            else:
-                sig = -1
-            if sig*rectbbox.y0 < sig*bboxins.y0:
-                connects[0].set_visible(False)
-                connects[3].set_visible(False)
-            else:
-                connects[1].set_visible(False)
-                connects[2].set_visible(False)
+            x0 = rectbbox.x0 < bboxins.x0
+            x1 = rectbbox.x1 < bboxins.x1
+            y0 = rectbbox.y0 < bboxins.y0
+            y1 = rectbbox.y1 < bboxins.y1
+            connects[0].set_visible(x0 ^ y0)
+            connects[1].set_visible(x0 == y1)
+            connects[2].set_visible(x1 == y0)
+            connects[3].set_visible(x1 ^ y1)
 
         return rectpatch, connects
 
