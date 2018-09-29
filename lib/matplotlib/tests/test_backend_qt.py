@@ -9,13 +9,13 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def mpl_test_settings(qt5_module, mpl_test_settings):
+def mpl_test_settings(qt_module, mpl_test_settings):
     """
-    Ensure qt5_module fixture is *first* fixture.
+    Ensure qt_module fixture is *first* fixture.
 
-    We override the `mpl_test_settings` fixture and depend on the `qt5_module`
+    We override the `mpl_test_settings` fixture and depend on the `qt_module`
     fixture first. It is very important that it is first, because it skips
-    tests when Qt5 is not available, and if not, then the main
+    tests when Qt is not available, and if not, then the main
     `mpl_test_settings` fixture will try to switch backends before the skip can
     be triggered.
     """
@@ -23,21 +23,46 @@ def mpl_test_settings(qt5_module, mpl_test_settings):
 
 
 @pytest.fixture
-def qt5_module():
-    try:
-        import PyQt5
-    # RuntimeError if PyQt4 already imported.
-    except (ImportError, RuntimeError):
+def qt_module(request):
+    backend, = request.node.get_closest_marker('backend').args
+    if backend == 'Qt4Agg':
         try:
-            import PySide2
-        except ImportError:
-            pytest.skip("Failed to import a Qt5 binding.")
+            import PyQt4
+        # RuntimeError if PyQt5 already imported.
+        except (ImportError, RuntimeError):
+            try:
+                import PySide
+            except ImportError:
+                pytest.skip("Failed to import a Qt4 binding.")
+    elif backend == 'Qt5Agg':
+        try:
+            import PyQt5
+        # RuntimeError if PyQt4 already imported.
+        except (ImportError, RuntimeError):
+            try:
+                import PySide2
+            except ImportError:
+                pytest.skip("Failed to import a Qt5 binding.")
+    else:
+        raise ValueError('Backend marker has unknown value: ' + backend)
 
     qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
     QtCore = qt_compat.QtCore
 
-    from matplotlib.backends.backend_qt5 import (
-        MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
+    if backend == 'Qt4Agg':
+        try:
+            py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
+        except AttributeError:
+            py_qt_ver = QtCore.__version_info__[0]
+
+        if py_qt_ver != 4:
+            pytest.skip(reason='Qt4 is not available')
+
+        from matplotlib.backends.backend_qt4 import (
+            MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)
+    elif backend == 'Qt5Agg':
+        from matplotlib.backends.backend_qt5 import (
+            MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)
 
     mods = {}
     keys = {}
@@ -52,7 +77,7 @@ def qt5_module():
 
 @pytest.fixture
 def qt_key(request):
-    QtCore, _, keys = request.getfixturevalue('qt5_module')
+    QtCore, _, keys = request.getfixturevalue('qt_module')
     if request.param.startswith('Key'):
         return getattr(QtCore.Qt, request.param)
     else:
@@ -61,15 +86,19 @@ def qt_key(request):
 
 @pytest.fixture
 def qt_mods(request):
-    QtCore, mods, _ = request.getfixturevalue('qt5_module')
+    QtCore, mods, _ = request.getfixturevalue('qt_module')
     result = QtCore.Qt.NoModifier
     for mod in request.param:
         result |= mods[mod]
     return result
 
 
-@pytest.mark.backend('Qt5Agg')
-def test_fig_close():
+@pytest.mark.parametrize('backend', [
+    # Note: the value is irrelevant; the important part is the marker.
+    pytest.param('Qt4Agg', marks=pytest.mark.backend('Qt4Agg')),
+    pytest.param('Qt5Agg', marks=pytest.mark.backend('Qt5Agg')),
+])
+def test_fig_close(backend):
     # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
 
@@ -118,11 +147,15 @@ def test_fig_close():
         'non_unicode_key',
     ]
 )
-@pytest.mark.backend('Qt5Agg')
-def test_correct_key(qt_key, qt_mods, answer):
+@pytest.mark.parametrize('backend', [
+    # Note: the value is irrelevant; the important part is the marker.
+    pytest.param('Qt4Agg', marks=pytest.mark.backend('Qt4Agg')),
+    pytest.param('Qt5Agg', marks=pytest.mark.backend('Qt5Agg')),
+])
+def test_correct_key(backend, qt_key, qt_mods, answer):
     """
     Make a figure
-    Send a key_press_event event (using non-public, qt5 backend specific api)
+    Send a key_press_event event (using non-public, qtX backend specific api)
     Catch the event
     Assert sent and caught keys are the same
     """
