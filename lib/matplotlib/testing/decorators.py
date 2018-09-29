@@ -158,15 +158,25 @@ def _xfail_if_format_is_uncomparable(extension):
 
 def _mark_xfail_if_format_is_uncomparable(extension):
     if isinstance(extension, str):
-        will_fail = extension not in comparable_formats()
+        name = extension
+        marks = []
+    elif isinstance(extension, tuple):
+        # Extension might be a pytest ParameterSet instead of a plain string.
+        # Unfortunately, this type is not exposed, so since it's a namedtuple,
+        # check for a tuple instead.
+        name = extension.values[0]
+        marks = list(extension.marks)
     else:
         # Extension might be a pytest marker instead of a plain string.
-        will_fail = extension.args[0] not in comparable_formats()
-    if will_fail:
-        fail_msg = 'Cannot compare %s files on this system' % extension
+        name = extension.args[0]
+        marks = [extension.mark]
+
+    if name not in comparable_formats():
+        fail_msg = 'Cannot compare %s files on this system' % (name, )
         import pytest
-        return pytest.mark.xfail(extension, reason=fail_msg, strict=False,
-                                 raises=ImageComparisonFailure)
+        marks += [pytest.mark.xfail(reason=fail_msg, strict=False,
+                                    raises=ImageComparisonFailure)]
+        return pytest.param(name, marks=marks)
     else:
         return extension
 

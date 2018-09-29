@@ -2,6 +2,7 @@ import numpy as np
 from io import BytesIO
 import os
 import tempfile
+import warnings
 import xml.parsers.expat
 
 import pytest
@@ -12,9 +13,11 @@ import matplotlib
 from matplotlib import dviread
 
 
-needs_usetex = pytest.mark.skipif(
-    not matplotlib.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    needs_usetex = pytest.mark.skipif(
+        not matplotlib.checkdep_usetex(True),
+        reason="This test needs a TeX installation")
 
 
 def test_visibility():
