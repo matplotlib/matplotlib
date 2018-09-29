@@ -721,25 +721,29 @@ class TestDetrend(object):
     def test_demean_0D_off(self):
         input = 5.5
         targ = 0.
-        res = mlab.demean(input, axis=None)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=None)
         assert_almost_equal(res, targ)
 
     def test_demean_1D_base_slope_off(self):
         input = self.sig_base + self.sig_slope + self.sig_off
         targ = self.sig_base + self.sig_slope_mean
-        res = mlab.demean(input)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input)
         assert_allclose(res, targ, atol=1e-08)
 
     def test_demean_1D_base_slope_off_axis0(self):
         input = self.sig_base + self.sig_slope + self.sig_off
         targ = self.sig_base + self.sig_slope_mean
-        res = mlab.demean(input, axis=0)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=0)
         assert_allclose(res, targ, atol=1e-08)
 
     def test_demean_1D_base_slope_off_list(self):
         input = self.sig_base + self.sig_slope + self.sig_off
         targ = self.sig_base + self.sig_slope_mean
-        res = mlab.demean(input.tolist())
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input.tolist())
         assert_allclose(res, targ, atol=1e-08)
 
     def test_detrend_mean_2D_default(self):
@@ -906,7 +910,8 @@ class TestDetrend(object):
                 self.sig_base + self.sig_slope_mean]
         input = np.vstack(arri).T
         targ = np.vstack(arrt).T
-        res = mlab.demean(input)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input)
         assert_allclose(res, targ,
                         atol=1e-08)
 
@@ -917,7 +922,8 @@ class TestDetrend(object):
                 self.sig_base]
         input = np.vstack(arri)
         targ = np.vstack(arrt)
-        res = mlab.demean(input, axis=None)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=None)
         assert_allclose(res, targ,
                         atol=1e-08)
 
@@ -932,7 +938,8 @@ class TestDetrend(object):
                 self.sig_base + self.sig_slope_mean]
         input = np.vstack(arri).T
         targ = np.vstack(arrt).T
-        res = mlab.demean(input, axis=0)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=0)
         assert_allclose(res, targ,
                         atol=1e-08)
 
@@ -947,7 +954,8 @@ class TestDetrend(object):
                 self.sig_base + self.sig_slope_mean]
         input = np.vstack(arri)
         targ = np.vstack(arrt)
-        res = mlab.demean(input, axis=1)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=1)
         assert_allclose(res, targ,
                         atol=1e-08)
 
@@ -962,7 +970,8 @@ class TestDetrend(object):
                 self.sig_base + self.sig_slope_mean]
         input = np.vstack(arri)
         targ = np.vstack(arrt)
-        res = mlab.demean(input, axis=-1)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=-1)
         assert_allclose(res, targ,
                         atol=1e-08)
 
