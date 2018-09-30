@@ -7,6 +7,8 @@ from matplotlib.testing.decorators import image_comparison
 
 from mpl_toolkits.axisartist.axislines import SubplotZero, Subplot
 
+from mpl_toolkits.axisartist import Axes
+
 
 @image_comparison(baseline_images=['SubplotZero'],
                   extensions=['png'], style='default')
@@ -43,3 +45,14 @@ def test_Subplot():
     ax.axis["bottom"].major_ticks.set_tick_out(True)
 
     ax.axis["bottom"].set_label("Tk0")
+
+
+def test_Axes():
+    fig = plt.figure()
+    ax = Axes(fig, [0.15, 0.1, 0.65, 0.8])
+    fig.add_axes(ax)
+    ax.plot([1, 2, 3], [0, 1, 2])
+
+    ax.set_xscale('log')
+
+    plt.show()
