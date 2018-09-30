@@ -435,6 +435,7 @@ Adding Artists
    :nosignatures:
 
    Axes.add_artist
+   Axes.add_child_axes
    Axes.add_collection
    Axes.add_container
    Axes.add_image
