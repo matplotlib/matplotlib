@@ -755,8 +755,6 @@ def test_polar_theta_position():
     ax.set_theta_direction('clockwise')
 
 
-
-
 @image_comparison(baseline_images=['polar_rlabel_position'], style='default')
 def test_polar_rlabel_position():
     fig = plt.figure()

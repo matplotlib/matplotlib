@@ -446,6 +446,8 @@ class RadialLocator(mticker.Locator):
 
     def view_limits(self, vmin, vmax):
         vmin, vmax = self.base.view_limits(vmin, vmax)
+        if vmax > vmin:
+            vmin = min(0, vmin)
         return mtransforms.nonsingular(vmin, vmax)
 
 
