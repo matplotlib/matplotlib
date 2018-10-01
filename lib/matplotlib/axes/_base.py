@@ -835,7 +835,9 @@ class _AxesBase(martist.Artist):
         if original:
             return self._originalPosition.frozen()
         else:
-            self.apply_aspect()
+            locator = self.get_axes_locator()
+            if not locator:
+                self.apply_aspect()
             return self._position.frozen()
 
     def set_position(self, pos, which='both'):
@@ -857,7 +859,7 @@ class _AxesBase(martist.Artist):
             Determines which position variables to change.
 
         """
-        self._set_position(pos, which='both')
+        self._set_position(pos, which=which)
         # because this is being called externally to the library we
         # zero the constrained layout parts.
         self._layoutbox = None
