@@ -1017,16 +1017,16 @@ def find_tex_file(filename, format=None):
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
-    try:  # Below: strip final newline.
-        result = cbook._check_and_log_subprocess(cmd, _log)[:-1]
+    try:
+        result = cbook._check_and_log_subprocess(cmd, _log)
     except RuntimeError:
         return ''
     if os.name == 'nt':
         # On Windows only, kpathsea appears to use utf-8 output(?); see
         # __win32_fputs in the kpathsea sources and mpl issue #11848.
-        return result.decode('utf-8')
+        return result.decode('utf-8').rstrip('\r\n')
     else:
-        return os.fsdecode(result)
+        return os.fsdecode(result).rstrip('\n')
 
 
 @lru_cache()
