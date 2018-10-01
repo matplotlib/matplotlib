@@ -992,6 +992,8 @@ def find_tex_file(filename, format=None):
     kpathsea. It is also available as part of MikTeX, a popular
     distribution on Windows.
 
+    *If the file is not found, an empty string is returned*.
+
     Parameters
     ----------
     filename : string or bytestring
@@ -1017,11 +1019,16 @@ def find_tex_file(filename, format=None):
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
-    _log.debug('find_tex_file(%s): %s', filename, cmd)
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    result = pipe.communicate()[0].rstrip()
-    _log.debug('find_tex_file result: %s', result)
-    return result.decode('ascii')
+    try:  # Below: strip final newline.
+        result = cbook._check_and_log_subprocess(cmd, _log)[:-1]
+    except RuntimeError:
+        return ''
+    if os.name == 'nt':
+        # On Windows only, kpathsea appears to use utf-8 output(?); see
+        # __win32_fputs in the kpathsea sources and mpl issue #11848.
+        return result.decode('utf-8')
+    else:
+        return os.fsdecode(result)
 
 
 @lru_cache()
