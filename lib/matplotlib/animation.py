@@ -19,7 +19,7 @@
 import abc
 import base64
 import contextlib
-from io import BytesIO
+from io import BytesIO, TextIOWrapper
 import itertools
 import logging
 import os
@@ -346,12 +346,11 @@ class MovieWriter(AbstractMovieWriter):
         # movie file.  *args* returns the sequence of command line arguments
         # from a few configuration options.
         command = self._args()
-        output = subprocess.PIPE
         _log.info('MovieWriter.run: running command: %s', command)
-        self._proc = subprocess.Popen(command, shell=False,
-                                      stdout=output, stderr=output,
-                                      stdin=subprocess.PIPE,
-                                      creationflags=subprocess_creation_flags)
+        PIPE = subprocess.PIPE
+        self._proc = subprocess.Popen(
+            command, stdin=PIPE, stdout=PIPE, stderr=PIPE,
+            creationflags=subprocess_creation_flags)
 
     def finish(self):
         '''Finish any processing for writing the movie.'''
@@ -394,8 +393,18 @@ class MovieWriter(AbstractMovieWriter):
         '''Clean-up and collect the process used to write the movie file.'''
         out, err = self._proc.communicate()
         self._frame_sink().close()
-        _log.debug('MovieWriter -- Command stdout:\n%s', out)
-        _log.debug('MovieWriter -- Command stderr:\n%s', err)
+        # Use the encoding/errors that universal_newlines would use.
+        out = TextIOWrapper(BytesIO(out)).read()
+        err = TextIOWrapper(BytesIO(err)).read()
+        _log.debug("MovieWriter stdout:\n%s", out)
+        _log.debug("MovieWriter stderr:\n%s", err)
+        if self._proc.returncode:
+            raise RuntimeError('Error creating movie, return code {}\n'
+                               'stdout:\n'
+                               '{}\n'
+                               'stderr:\n'
+                               '{}\n'
+                               .format(self._proc.returncode, out, err))
 
     @classmethod
     def bin_path(cls):
@@ -519,19 +528,6 @@ class FileMovieWriter(MovieWriter):
         # are available to be assembled.
         self._run()
         MovieWriter.finish(self)  # Will call clean-up
-
-        # Check error code for creating file here, since we just run
-        # the process here, rather than having an open pipe.
-        if self._proc.returncode:
-            try:
-                stdout = [s.decode() for s in self._proc._stdout_buff]
-                stderr = [s.decode() for s in self._proc._stderr_buff]
-                _log.info("MovieWriter.finish: stdout: %s", stdout)
-                _log.info("MovieWriter.finish: stderr: %s", stderr)
-            except Exception as e:
-                pass
-            raise RuntimeError('Error creating movie, return code: {}'
-                               .format(self._proc.returncode))
 
     def cleanup(self):
         MovieWriter.cleanup(self)
@@ -894,17 +890,7 @@ class HTMLWriter(FileMovieWriter):
         else:
             return super().grab_frame(**savefig_kwargs)
 
-    def _run(self):
-        # make a duck-typed subprocess stand in
-        # this is called by the MovieWriter base class, but not used here.
-        class ProcessStandin(object):
-            returncode = 0
-
-            def communicate(self):
-                return '', ''
-
-        self._proc = ProcessStandin()
-
+    def finish(self):
         # save the frames to an html file
         if self.embed_frames:
             fill_frames = _embedded_frames(self._saved_frames,
