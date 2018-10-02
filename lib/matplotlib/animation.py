@@ -364,22 +364,14 @@ class MovieWriter(AbstractMovieWriter):
         command that saves the figure.
         '''
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
-        try:
-            # re-adjust the figure size in case it has been changed by the
-            # user.  We must ensure that every frame is the same size or
-            # the movie will not save correctly.
-            self.fig.set_size_inches(self._w, self._h)
-            # Tell the figure to save its data to the sink, using the
-            # frame format and dpi.
-            self.fig.savefig(self._frame_sink(), format=self.frame_format,
-                             dpi=self.dpi, **savefig_kwargs)
-        except (RuntimeError, IOError) as e:
-            out, err = self._proc.communicate()
-            _log.info('MovieWriter -- Error running proc:\n%s\n%s', out, err)
-            raise IOError('Error saving animation to file (cause: {0}) '
-                          'Stdout: {1} StdError: {2}. It may help to re-run '
-                          'with logging level set to '
-                          'DEBUG.'.format(e, out, err))
+        # re-adjust the figure size in case it has been changed by the
+        # user.  We must ensure that every frame is the same size or
+        # the movie will not save correctly.
+        self.fig.set_size_inches(self._w, self._h)
+        # Tell the figure to save its data to the sink, using the
+        # frame format and dpi.
+        self.fig.savefig(self._frame_sink(), format=self.frame_format,
+                         dpi=self.dpi, **savefig_kwargs)
 
     def _frame_sink(self):
         '''Returns the place to which frames should be written.'''
@@ -396,15 +388,15 @@ class MovieWriter(AbstractMovieWriter):
         # Use the encoding/errors that universal_newlines would use.
         out = TextIOWrapper(BytesIO(out)).read()
         err = TextIOWrapper(BytesIO(err)).read()
-        _log.debug("MovieWriter stdout:\n%s", out)
-        _log.debug("MovieWriter stderr:\n%s", err)
+        _log.log(
+            logging.WARNING if self._proc.returncode else logging.DEBUG,
+            "MovieWriter stdout:\n%s", out)
+        _log.log(
+            logging.WARNING if self._proc.returncode else logging.DEBUG,
+            "MovieWriter stderr:\n%s", err)
         if self._proc.returncode:
-            raise RuntimeError('Error creating movie, return code {}\n'
-                               'stdout:\n'
-                               '{}\n'
-                               'stderr:\n'
-                               '{}\n'
-                               .format(self._proc.returncode, out, err))
+            raise subprocess.CalledProcessError(
+                self._proc.returncode, self._proc.args, out, err)
 
     @classmethod
     def bin_path(cls):
@@ -511,17 +503,11 @@ class FileMovieWriter(MovieWriter):
         '''
         # Overloaded to explicitly close temp file.
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
-        try:
-            # Tell the figure to save its data to the sink, using the
-            # frame format and dpi.
-            with self._frame_sink() as myframesink:
-                self.fig.savefig(myframesink, format=self.frame_format,
-                                 dpi=self.dpi, **savefig_kwargs)
-
-        except RuntimeError:
-            out, err = self._proc.communicate()
-            _log.info('MovieWriter -- Error running proc:\n%s\n%s', out, err)
-            raise
+        # Tell the figure to save its data to the sink, using the
+        # frame format and dpi.
+        with self._frame_sink() as myframesink:
+            self.fig.savefig(myframesink, format=self.frame_format,
+                             dpi=self.dpi, **savefig_kwargs)
 
     def finish(self):
         # Call run here now that all frame grabbing is done. All temp files
