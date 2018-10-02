@@ -450,6 +450,9 @@
 #figure.autolayout : False     ## When True, automatically adjust subplot
                                ## parameters to make the plot fit the figure
                                ## using `tight_layout`
+#figure.tight_layout.pad : 1.08 ## padding between the figure edge and subplots
+#figure.tight_layout.h_pad : None ## padding height between edges of subplots
+#figure.tight_layout.w_pad : None ## padding width between edges of subplots
 #figure.constrained_layout.use: False ## When True, automatically make plot
                                       ## elements fit on the figure. (Not compatible
                                       ## with `autolayout`, above).

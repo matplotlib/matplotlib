@@ -1349,6 +1349,11 @@ defaultParams = {
     'figure.constrained_layout.h_pad': [0.04167, validate_float],
     'figure.constrained_layout.w_pad': [0.04167, validate_float],
 
+    ##Figure tight_layout
+    'figure.tight_layout.pad': [1.08, validate_float],
+    'figure.tight_layout.h_pad': [None, validate_float],
+    'figure.tight_layout.w_pad': [None, validate_float],
+
     ## Saving figure's properties
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
     'savefig.facecolor':   ['white', validate_color],

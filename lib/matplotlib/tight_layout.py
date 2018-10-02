@@ -36,7 +36,7 @@ def _get_top(tight_bbox, axes_bbox):
 
 def auto_adjust_subplotpars(
         fig, renderer, nrows_ncols, num1num2_list, subplot_list,
-        ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
+        ax_bbox_list=None, pad=rcParams['figure.tight_layout.pad'], h_pad=rcParams['figure.tight_layout.h_pad'], w_pad=rcParams['figure.tight_layout.wpad'], rect=None):
     """
     Return a dict of subplot parameters to adjust spacing between subplots.
 
