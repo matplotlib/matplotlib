@@ -447,6 +447,7 @@ class RadialLocator(mticker.Locator):
     def view_limits(self, vmin, vmax):
         vmin, vmax = self.base.view_limits(vmin, vmax)
         if vmax > vmin:
+            # this allows inverted r/y-lims
             vmin = min(0, vmin)
         return mtransforms.nonsingular(vmin, vmax)
 
@@ -1221,10 +1222,6 @@ class PolarAxes(Axes):
         ylimits : tuple
             Returns the new y-axis limits as (*bottom*, *top*).
 
-        Notes
-        -----
-        The *bottom* value must be less than the *top* value, or a
-        ValueError is raised.
         """
 
         if ymin is not None:
