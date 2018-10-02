@@ -1351,8 +1351,8 @@ defaultParams = {
 
     ##Figure tight_layout
     'figure.tight_layout.pad': [1.08, validate_float],
-    'figure.tight_layout.h_pad': [None, validate_float],
-    'figure.tight_layout.w_pad': [None, validate_float],
+    'figure.tight_layout.h_pad': [None, validate_float_or_None],
+    'figure.tight_layout.w_pad': [None, validate_float_or_None],
 
     ## Saving figure's properties
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
