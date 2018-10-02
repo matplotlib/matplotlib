@@ -5,6 +5,7 @@ from matplotlib.testing.decorators import image_comparison
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1 import AxesGrid
+from mpl_toolkits.axes_grid1 import ImageGrid
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes,
     mark_inset,
@@ -380,3 +381,28 @@ def test_anchored_direction_arrows_many_args():
             sep_x=-0.06, sep_y=-0.08, back_length=0.1, head_width=9,
             head_length=10, tail_width=5)
     ax.add_artist(direction_arrows)
+
+
+def test_axes_locatable_position():
+    fig, ax = plt.subplots()
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes('right', size='5%', pad='2%')
+    fig.canvas.draw()
+    assert np.isclose(cax.get_position(original=False).width,
+                      0.03621495327102808)
+
+
+@image_comparison(baseline_images=['image_grid'], extensions=['png'],
+                  remove_text=True, style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight'})
+def test_image_grid():
+    # test that image grid works with bbox_inches=tight.
+    im = np.arange(100)
+    im.shape = 10, 10
+
+    fig = plt.figure(1, (4., 4.))
+    grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
+
+    for i in range(4):
+        grid[i].imshow(im)
+        grid[i].set_title('test {0}{0}'.format(i))
