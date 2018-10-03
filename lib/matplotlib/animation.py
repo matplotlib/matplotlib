@@ -700,7 +700,7 @@ class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
     '''
 
 
-# Base class for animated GIFs with convert utility
+# Base class for animated GIFs with ImageMagick
 class ImageMagickBase(object):
     '''Mixin class for ImageMagick output.
 
@@ -720,48 +720,33 @@ class ImageMagickBase(object):
         return [self.outfile]
 
     @classmethod
-    def _init_from_registry(cls):
-        if sys.platform != 'win32' or rcParams[cls.exec_key] != 'convert':
-            return
-        import winreg
-        for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
-            try:
-                hkey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE,
-                                        r'Software\Imagemagick\Current',
-                                        0, winreg.KEY_QUERY_VALUE | flag)
-                binpath = winreg.QueryValueEx(hkey, 'BinPath')[0]
-                winreg.CloseKey(hkey)
-                break
-            except Exception:
-                binpath = ''
-        if binpath:
-            for exe in ('convert.exe', 'magick.exe'):
-                path = os.path.join(binpath, exe)
-                if os.path.exists(path):
-                    binpath = path
-                    break
-            else:
-                binpath = ''
-        rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
-
-    @classmethod
-    def isAvailable(cls):
-        '''
-        Check to see if a ImageMagickWriter is actually available.
-
-        Done by first checking the windows registry (if applicable) and then
-        running the commandline tool.
-        '''
-        bin_path = cls.bin_path()
-        if bin_path == "convert":
-            cls._init_from_registry()
-        return super().isAvailable()
+    def bin_path(cls):
+        binpath = super().bin_path()
+        if sys.platform == 'win32' and binpath == 'convert':
+            # Check the registry to avoid confusing ImageMagick's convert with
+            # Windows's builtin convert.exe.
+            import winreg
+            binpath = ''
+            for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
+                try:
+                    with winreg.OpenKeyEx(
+                            winreg.HKEY_LOCAL_MACHINE,
+                            r'Software\Imagemagick\Current',
+                            0, winreg.KEY_QUERY_VALUE | flag) as hkey:
+                        parent = winreg.QueryValueEx(hkey, 'BinPath')[0]
+                except OSError:
+                    pass
+            if binpath:
+                for exe in ('convert.exe', 'magick.exe'):
+                    candidate = os.path.join(parent, exe)
+                    if os.path.exists(candidate):
+                        binpath = candidate
+                        break
+            rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
+        return binpath
 
 
-# Note: the base classes need to be in that order to get
-# isAvailable() from ImageMagickBase called and not the
-# one from MovieWriter. The latter is then called by the
-# former.
+# Combine ImageMagick options with pipe-based writing
 @writers.register('imagemagick')
 class ImageMagickWriter(ImageMagickBase, MovieWriter):
     '''Pipe-based animated gif.
@@ -778,10 +763,7 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter):
                 + self.output_args)
 
 
-# Note: the base classes need to be in that order to get
-# isAvailable() from ImageMagickBase called and not the
-# one from MovieWriter. The latter is then called by the
-# former.
+# Combine ImageMagick options with temp file-based writing
 @writers.register('imagemagick_file')
 class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     '''File-based animated gif writer.
