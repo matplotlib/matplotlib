@@ -1728,6 +1728,7 @@ def date_ticker_factory(span, tz=None, numticks=5):
     return locator, formatter
 
 
+@cbook.deprecated("3.1")
 def seconds(s):
     """
     Return seconds as days.
@@ -1735,6 +1736,7 @@ def seconds(s):
     return s / SEC_PER_DAY
 
 
+@cbook.deprecated("3.1")
 def minutes(m):
     """
     Return minutes as days.
@@ -1742,6 +1744,7 @@ def minutes(m):
     return m / MINUTES_PER_DAY
 
 
+@cbook.deprecated("3.1")
 def hours(h):
     """
     Return hours as days.
@@ -1749,6 +1752,7 @@ def hours(h):
     return h / HOURS_PER_DAY
 
 
+@cbook.deprecated("3.1")
 def weeks(w):
     """
     Return weeks as days.
