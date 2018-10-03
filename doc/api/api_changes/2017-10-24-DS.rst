@@ -1,0 +1,10 @@
+`StemContainer` now stores `LineCollection`
+-------------------------------------------
+
+`StemContainer` objects now store a `LineCollection` object instead of a list
+of `Line2D` objects for stem lines plotted using `ax.stem`. This gives a very
+large performance boost to displaying and moving `ax.stem` plots.
+
+Line segments can be extracted from the `LineCollection` using
+`LineCollection.get_segements()`. See the `LineCollection` documentation for
+other methods to retrieve the collection properties.

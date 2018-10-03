@@ -2958,6 +2958,17 @@ def test_hist_stacked_weighted():
     ax.hist((d1, d2), weights=(w1, w2), histtype="stepfilled", stacked=True)
 
 
+@image_comparison(baseline_images=['stem'], extensions=['png'], style='mpl20',
+                  remove_text=True)
+def test_stem():
+    x = np.linspace(0.1, 2 * np.pi, 100)
+
+    fig, ax = plt.subplots()
+    ax.stem(x, np.cos(x), linefmt='C2-', markerfmt='k+', basefmt='C1-.',
+            label='Stem')
+    ax.legend()
+
+
 def test_stem_args():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)

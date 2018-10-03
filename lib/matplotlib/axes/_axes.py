@@ -2614,6 +2614,9 @@ class Axes(_AxesBase):
             x = y
             y = np.asarray(args[0], dtype=float)
             args = args[1:]
+        self._process_unit_info(xdata=x, ydata=y)
+        x = self.convert_xunits(x)
+        y = self.convert_yunits(y)
 
         # defaults for formats
         if linefmt is None:
@@ -2665,12 +2668,12 @@ class Axes(_AxesBase):
         markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
                                 marker=markermarker, label="_nolegend_")
 
-        stemlines = []
+        lines = []
         for thisx, thisy in zip(x, y):
-            l, = self.plot([thisx, thisx], [bottom, thisy],
-                           color=linecolor, linestyle=linestyle,
-                           marker=linemarker, label="_nolegend_")
-            stemlines.append(l)
+            lines.append(((thisx, bottom), (thisx, thisy)))
+        stemlines = mcoll.LineCollection(lines, linestyles=linestyle,
+                                         colors=linecolor, label='_nolegend_')
+        self.add_collection(stemlines)
 
         baseline, = self.plot([np.min(x), np.max(x)], [bottom, bottom],
                               color=basecolor, linestyle=basestyle,
