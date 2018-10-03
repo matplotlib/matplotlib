@@ -1243,6 +1243,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     Returns (cax, kw), the child axes and the reduced kw dictionary to be
     passed when creating the colorbar instance.
     '''
+
     locations = ["left", "right", "top", "bottom"]
     if orientation is not None and location is not None:
         raise TypeError('position and orientation are mutually exclusive. '

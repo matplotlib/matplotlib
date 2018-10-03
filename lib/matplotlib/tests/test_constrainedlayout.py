@@ -378,3 +378,24 @@ def test_constrained_layout23():
     for i in range(2):
         fig, ax = plt.subplots(num="123", constrained_layout=True, clear=True)
         fig.suptitle("Suptitle{}".format(i))
+
+
+@image_comparison(baseline_images=['test_colorbar_location'],
+        extensions=['png'], remove_text=True, style='mpl20')
+def test_colorbar_location():
+    """
+    Test that colorbar handling is as expected for various complicated
+    cases...
+    """
+
+    fig, axs = plt.subplots(4, 5, constrained_layout=True)
+    for ax in axs.flatten():
+        pcm = example_pcolor(ax)
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+    fig.colorbar(pcm, ax=axs[:, 1], shrink=0.4)
+    fig.colorbar(pcm, ax=axs[-1, :2], shrink=0.5, location='bottom')
+    fig.colorbar(pcm, ax=axs[0, 2:], shrink=0.5, location='bottom')
+    fig.colorbar(pcm, ax=axs[-2, 3:], shrink=0.5, location='top')
+    fig.colorbar(pcm, ax=axs[0, 0], shrink=0.5, location='left')
+    fig.colorbar(pcm, ax=axs[1:3, 2], shrink=0.5, location='right')

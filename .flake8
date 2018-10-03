@@ -95,7 +95,7 @@ per-file-ignores =
     tutorials/colors/colormaps.py: E501
     tutorials/colors/colors.py: E402
     tutorials/intermediate/artists.py: E402, E501
-    tutorials/intermediate/constrainedlayout_guide.py: E402, E501
+    tutorials/intermediate/constrainedlayout_guide.py: E402
     tutorials/intermediate/gridspec.py: E402, E501
     tutorials/intermediate/legend_guide.py: E402, E501
     tutorials/intermediate/tight_layout_guide.py: E402, E501
