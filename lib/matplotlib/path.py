@@ -552,7 +552,8 @@ class Path(object):
         vertices = simple_linear_interpolation(self.vertices, steps)
         codes = self.codes
         if codes is not None:
-            new_codes = np.full(((len(codes) - 1) * steps + 1, ), Path.LINETO)
+            new_codes = np.full(((len(codes) - 1) * steps + 1, ), Path.LINETO,
+                                dtype='float64')
             new_codes[0::steps] = codes
         else:
             new_codes = None
@@ -802,7 +803,7 @@ class Path(object):
 
                 float)
 
-            codes = np.full(14, cls.CURVE4)
+            codes = np.full(14, cls.CURVE4, dtype='float64')
             codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
