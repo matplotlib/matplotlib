@@ -2219,7 +2219,7 @@ def test_bxp_bad_positions():
 
 
 @image_comparison(baseline_images=['boxplot', 'boxplot'],
-                  tol=1,
+                  tol=1.28,
                   style='default')
 def test_boxplot():
     # Randomness used for bootstrapping.
