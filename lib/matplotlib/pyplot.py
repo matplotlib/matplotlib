@@ -2230,8 +2230,18 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     that changes the axis scaling will set the scaling for all
     columns.
 
-    *comments*, *skiprows*, *checkrows*, *delimiter*, and *names*
-    are all used when loading the data into a record array.
+    - *comments*: the character used to indicate the start of a comment
+      in the file, or *None* to switch off the removal of comments
+
+    - *skiprows*: is the number of rows from the top to skip
+
+    - *checkrows*: is the number of rows to check to validate the column
+      data type.  When set to zero all rows are validated.
+
+    - *delimiter*: is the character(s) separating row items
+
+    - *names*: if not None, is a list of header names.  In this case, no
+      header will be read from the file
 
     If *newfig* is *True*, the plot always will be made in a new figure;
     if *False*, it will be made in the current figure if one exists,
