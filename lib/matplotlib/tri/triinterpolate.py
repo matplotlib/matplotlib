@@ -959,7 +959,7 @@ class _ReducedHCT_Element():
         """
         ntri = np.size(ecc, 0)
         vec_range = np.arange(ntri, dtype=np.int32)
-        c_indices = -np.ones(ntri, dtype=np.int32)  # for unused dofs, -1
+        c_indices = np.full(ntri, -1, dtype=np.int32)  # for unused dofs, -1
         f_dof = [1, 2, 4, 5, 7, 8]
         c_dof = [0, 3, 6]
 

@@ -4000,7 +4000,7 @@ class Axes(_AxesBase):
             # maybe draw the fliers
             if showfliers:
                 # fliers coords
-                flier_x = np.ones(len(stats['fliers'])) * pos
+                flier_x = np.full(len(stats['fliers']), pos)
                 flier_y = stats['fliers']
 
                 fliers.extend(doplot(
