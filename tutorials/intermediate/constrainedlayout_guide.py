@@ -219,7 +219,7 @@ fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flatten()[:-1]:
     ax.plot(np.arange(10))
 axs[1, 1].plot(np.arange(10), label='This is a plot')
-leg = axs[1, 1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
+leg = axs[1, 1].legend(loc='center left', bbox_to_anchor=(0.4, 0.3))
 leg.set_in_layout(False)
 wanttoprint = False
 if wanttoprint:
@@ -236,7 +236,7 @@ for ax in axs.flatten()[:-1]:
 lines = axs[1, 1].plot(np.arange(10), label='This is a plot')
 labels = [l.get_label() for l in lines]
 leg = fig.legend(lines, labels, loc='center left',
-                 bbox_to_anchor=(0.8, 0.5), bbox_transform=axs[1, 1].transAxes)
+                 bbox_to_anchor=(0.4, 0.3), bbox_transform=axs[1, 1].transAxes)
 
 ###############################################################################
 # Padding and Spacing
