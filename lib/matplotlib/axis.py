@@ -774,13 +774,12 @@ class Axis(artist.Artist):
     def limit_range_for_scale(self, vmin, vmax):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
-    @property
     @cbook.deprecated("2.2.0")
+    @property
     def unit_data(self):
         return self.units
 
     @unit_data.setter
-    @cbook.deprecated("2.2.0")
     def unit_data(self, unit_data):
         self.set_units(unit_data)
 

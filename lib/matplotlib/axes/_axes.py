@@ -128,8 +128,8 @@ class Axes(_AxesBase):
     """
     ### Labelling, legend and texts
 
-    @property
     @cbook.deprecated("3.1")
+    @property
     def aname(self):
         return 'Axes'
 

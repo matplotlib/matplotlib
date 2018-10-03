@@ -46,8 +46,8 @@ class PsBackendHelper(object):
     def __init__(self):
         self._cached = {}
 
-    @property
     @cbook.deprecated("3.1")
+    @property
     def gs_exe(self):
         """
         executable name of ghostscript.
@@ -64,8 +64,8 @@ class PsBackendHelper(object):
         self._cached["gs_exe"] = str(gs_exe)
         return str(gs_exe)
 
-    @property
     @cbook.deprecated("3.1")
+    @property
     def gs_version(self):
         """
         version of ghostscript.
@@ -87,8 +87,8 @@ class PsBackendHelper(object):
         self._cached["gs_version"] = gs_version
         return gs_version
 
-    @property
     @cbook.deprecated("3.1")
+    @property
     def supports_ps2write(self):
         """
         True if the installed ghostscript supports ps2write device.

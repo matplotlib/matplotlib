@@ -216,11 +216,11 @@ class ContourLabeler(object):
         self.labelTextsList = cbook.silent_list('text.Text', self.labelTexts)
         return self.labelTextsList
 
-    cl = property(cbook.deprecated("3.0", alternative="labelTexts")(
+    cl = cbook.deprecated("3.0", alternative="labelTexts")(property(
         lambda self: self.labelTexts))
-    cl_xy = property(cbook.deprecated("3.0", alternative="labelXYs")(
+    cl_xy = cbook.deprecated("3.0", alternative="labelXYs")(property(
         lambda self: self.labelXYs))
-    cl_cvalues = property(cbook.deprecated("3.0", alternative="labelCValues")(
+    cl_cvalues = cbook.deprecated("3.0", alternative="labelCValues")(property(
         lambda self: self.labelCValues))
 
     def print_label(self, linecontour, labelwidth):

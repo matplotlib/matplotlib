@@ -56,8 +56,8 @@ class Artist(object):
 
     Typically, all visible elements in a figure are subclasses of Artist.
     """
-    @property
     @cbook.deprecated("3.1")
+    @property
     def aname(self):
         return 'Artist'
 

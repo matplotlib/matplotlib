@@ -781,30 +781,30 @@ class RcParams(MutableMapping, dict):
                 for key, (default, converter) in defaultParams.items()
                 if key not in _all_deprecated}
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_depr(self):
         return "%s is deprecated and replaced with %s; please use the latter."
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_depr_ignore(self):
         return "%s is deprecated and ignored. Use %s instead."
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_depr_set(self):
         return ("%s is deprecated. Please remove it from your matplotlibrc "
                 "and/or style files.")
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_obsolete(self):
         return ("%s is obsolete. Please remove it from your matplotlibrc "
                 "and/or style files.")
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_backend_obsolete(self):
         return ("The {} rcParam was deprecated in version 2.2.  In order to "
                 "force the use of a specific Qt binding, either import that "

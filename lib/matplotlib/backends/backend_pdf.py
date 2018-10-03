@@ -653,8 +653,8 @@ class PdfFile(object):
 
         return Fx
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def texFontMap(self):
         # lazy-load texFontMap, it takes a while to parse
         # and usetex is a relatively rare use case
