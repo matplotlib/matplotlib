@@ -4024,7 +4024,7 @@ class Axes(_AxesBase):
             The marker size in points**2.
             Default is ``rcParams['lines.markersize'] ** 2``.
 
-        c : color, sequence, or sequence of color, optional, default: 'b'
+        c : color, sequence, or sequence of color, optional
             The marker color. Possible values:
 
             - A single color format string.
@@ -4040,10 +4040,18 @@ class Axes(_AxesBase):
             matching will have precedence in case of a size matching with *x*
             and *y*.
 
-        marker : `~matplotlib.markers.MarkerStyle`, optional, default: 'o'
+            Defaults to ``None``. In that case the marker color is determined
+            by the value of ``color``, ``facecolor`` or ``facecolors``. In case
+            those are not specified or ``None``, the marker color is determined
+            by the next color of the ``Axes``' current "shape and fill" color
+            cycle. This cycle defaults to :rc:`axes.prop_cycle`.
+
+        marker : `~matplotlib.markers.MarkerStyle`, optional
             The marker style. *marker* can be either an instance of the class
             or the text shorthand for a particular marker.
-            See `~matplotlib.markers` for more information marker styles.
+            Defaults to ``None``, in which case it takes the value of
+            :rc:`scatter.marker` = 'o'.
+            See `~matplotlib.markers` for more information about marker styles.
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             A `.Colormap` instance or registered colormap name. *cmap* is only
