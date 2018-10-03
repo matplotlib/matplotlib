@@ -15,20 +15,20 @@ no longer available in the `matplotlib.pylab` module:
   - ``dist_point_to_segment``
   - ``distances_along_curve``
   - ``entropy`` (use `scipy.stats.entropy` instead)
-  - ``exp_safe``
+  - ``exp_safe`` (use `numpy.exp` instead)
   - ``fftsurr``
   - ``find`` (use ``np.nonzero(np.ravel(condition))`` instead)
   - ``frange`` (use `numpy.arange` instead)
   - ``get_sparse_matrix``
   - ``get_xyz_where``
-  - ``griddata``
+  - ``griddata`` (use `scipy.interpolate.griddata` instead)
   - ``identity`` (use `numpy.identity` instead)
   - ``inside_poly``
   - ``is_closed_polygon``
   - ``ispower2``
   - ``isvector``
-  - ``l1norm``
-  - ``l2norm``
+  - ``l1norm`` (use ``numpy.linalg.norm(a, ord=1)`` instead)
+  - ``l2norm`` (use ``numpy.linalg.norm(a, ord=2)`` instead)
   - ``log2`` (use `numpy.log2` instead)
   - ``longest_contiguous_ones``
   - ``longest_ones``
