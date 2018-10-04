@@ -284,6 +284,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Again, for these simple examples this style seems like overkill, however
 # once the graphs get slightly more complex it pays off.
 #
+#
+# .. _backends:
+#
 # Backends
 # ========
 #

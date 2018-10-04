@@ -1311,16 +1311,23 @@ def use(arg, warn=True, force=False):
     """
     Set the matplotlib backend to one of the known backends.
 
-    To find out which backend is currently set, see
-    :func:`matplotlib.get_backend`.
-
-
     Parameters
     ----------
     arg : str
         The backend to switch to.  This can either be one of the
-        'standard' backend names or a string of the form
-        ``module://my.module.name``.  This value is case-insensitive.
+        'standard' backend names:
+
+        - interactive backends:
+          GTK3Agg, GTK3Cairo, MacOSX, nbAgg,
+          Qt4Agg, Qt4Cairo, Qt5Agg, Qt5Cairo,
+          TkAgg, TkCairo, WebAgg, WX, WXAgg, WXCairo
+
+        - non-interactive backends:
+          agg, cairo, pdf, pgf, ps, svg, template
+
+        or a string of the form: ``module://my.module.name``.
+
+        Note: Standard backend names are case-insensitive here.
 
     warn : bool, optional
         If True, warn if this is called after pyplot has been imported
@@ -1332,7 +1339,10 @@ def use(arg, warn=True, force=False):
         If True, attempt to switch the backend.  This defaults to
         False.
 
-
+    See Also
+    --------
+    :ref:`backends`
+    matplotlib.get_backend
     """
     name = validate_backend(arg)
 
@@ -1371,7 +1381,13 @@ if os.environ.get('MPLBACKEND'):
 
 
 def get_backend():
-    """Return the name of the current backend."""
+    """
+    Return the name of the current backend.
+
+    See Also
+    --------
+    matplotlib.use
+    """
     return rcParams['backend']
 
 
