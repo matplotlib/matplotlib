@@ -312,7 +312,7 @@ class Path(object):
         stride = numsides + 1
         nverts = numpolys * stride
         verts = np.zeros((nverts, 2))
-        codes = np.full(nverts, cls.LINETO, dtype=int)
+        codes = np.full(nverts, cls.LINETO, dtype=cls.code_type)
         codes[0::stride] = cls.MOVETO
         codes[numsides::stride] = cls.CLOSEPOLY
         for i in range(numsides):
@@ -553,7 +553,7 @@ class Path(object):
         codes = self.codes
         if codes is not None:
             new_codes = np.full(((len(codes) - 1) * steps + 1, ), Path.LINETO,
-                                dtype='float64')
+                                dtype=self.code_type)
             new_codes[0::steps] = codes
         else:
             new_codes = None
@@ -803,7 +803,7 @@ class Path(object):
 
                 float)
 
-            codes = np.full(14, cls.CURVE4, dtype='float64')
+            codes = np.full(14, cls.CURVE4, dtype=cls.code_type)
             codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
