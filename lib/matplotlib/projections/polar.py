@@ -325,26 +325,25 @@ class ThetaTick(maxis.XTick):
         text_angle = np.rad2deg(angle) % 360 - 90
         angle -= np.pi / 2
 
-        if self.tick1On:
-            marker = self.tick1line.get_marker()
-            if marker in (mmarkers.TICKUP, '|'):
-                trans = mtransforms.Affine2D().scale(1.0, 1.0).rotate(angle)
-            elif marker == mmarkers.TICKDOWN:
-                trans = mtransforms.Affine2D().scale(1.0, -1.0).rotate(angle)
-            else:
-                # Don't modify custom tick line markers.
-                trans = self.tick1line._marker._transform
-            self.tick1line._marker._transform = trans
-        if self.tick2On:
-            marker = self.tick2line.get_marker()
-            if marker in (mmarkers.TICKUP, '|'):
-                trans = mtransforms.Affine2D().scale(1.0, 1.0).rotate(angle)
-            elif marker == mmarkers.TICKDOWN:
-                trans = mtransforms.Affine2D().scale(1.0, -1.0).rotate(angle)
-            else:
-                # Don't modify custom tick line markers.
-                trans = self.tick2line._marker._transform
-            self.tick2line._marker._transform = trans
+        marker = self.tick1line.get_marker()
+        if marker in (mmarkers.TICKUP, '|'):
+            trans = mtransforms.Affine2D().scale(1, 1).rotate(angle)
+        elif marker == mmarkers.TICKDOWN:
+            trans = mtransforms.Affine2D().scale(1, -1).rotate(angle)
+        else:
+            # Don't modify custom tick line markers.
+            trans = self.tick1line._marker._transform
+        self.tick1line._marker._transform = trans
+
+        marker = self.tick2line.get_marker()
+        if marker in (mmarkers.TICKUP, '|'):
+            trans = mtransforms.Affine2D().scale(1, 1).rotate(angle)
+        elif marker == mmarkers.TICKDOWN:
+            trans = mtransforms.Affine2D().scale(1, -1).rotate(angle)
+        else:
+            # Don't modify custom tick line markers.
+            trans = self.tick2line._marker._transform
+        self.tick2line._marker._transform = trans
 
         mode, user_angle = self._labelrotation
         if mode == 'default':
@@ -355,10 +354,8 @@ class ThetaTick(maxis.XTick):
             elif text_angle < -90:
                 text_angle += 180
             text_angle += user_angle
-        if self.label1On:
-            self.label1.set_rotation(text_angle)
-        if self.label2On:
-            self.label2.set_rotation(text_angle)
+        self.label1.set_rotation(text_angle)
+        self.label2.set_rotation(text_angle)
 
         # This extra padding helps preserve the look from previous releases but
         # is also needed because labels are anchored to their center.
@@ -627,37 +624,31 @@ class RadialTick(maxis.YTick):
             text_angle += user_angle
         else:
             text_angle = user_angle
-        if self.label1On:
-            if full:
-                ha = self.label1.get_horizontalalignment()
-                va = self.label1.get_verticalalignment()
-            else:
-                ha, va = self._determine_anchor(mode, angle, direction > 0)
-            self.label1.set_ha(ha)
-            self.label1.set_va(va)
-            self.label1.set_rotation(text_angle)
-        if self.tick1On:
-            marker = self.tick1line.get_marker()
-            if marker == mmarkers.TICKLEFT:
-                trans = (mtransforms.Affine2D()
-                         .scale(1.0, 1.0)
-                         .rotate(tick_angle))
-            elif marker == '_':
-                trans = (mtransforms.Affine2D()
-                         .scale(1.0, 1.0)
-                         .rotate(tick_angle + np.pi / 2))
-            elif marker == mmarkers.TICKRIGHT:
-                trans = (mtransforms.Affine2D()
-                         .scale(-1.0, 1.0)
-                         .rotate(tick_angle))
-            else:
-                # Don't modify custom tick line markers.
-                trans = self.tick1line._marker._transform
-            self.tick1line._marker._transform = trans
 
         if full:
-            self.label2On = False
-            self.tick2On = False
+            ha = self.label1.get_horizontalalignment()
+            va = self.label1.get_verticalalignment()
+        else:
+            ha, va = self._determine_anchor(mode, angle, direction > 0)
+        self.label1.set_horizontalalignment(ha)
+        self.label1.set_verticalalignment(va)
+        self.label1.set_rotation(text_angle)
+
+        marker = self.tick1line.get_marker()
+        if marker == mmarkers.TICKLEFT:
+            trans = mtransforms.Affine2D().rotate(tick_angle)
+        elif marker == '_':
+            trans = mtransforms.Affine2D().rotate(tick_angle + np.pi / 2)
+        elif marker == mmarkers.TICKRIGHT:
+            trans = mtransforms.Affine2D().scale(-1, 1).rotate(tick_angle)
+        else:
+            # Don't modify custom tick line markers.
+            trans = self.tick1line._marker._transform
+        self.tick1line._marker._transform = trans
+
+        if full:
+            self.label2.set_visible(False)
+            self.tick2line.set_visible(False)
         else:
             angle = (thetamax * direction + offset) % 360 - 90
             if direction > 0:
@@ -675,29 +666,23 @@ class RadialTick(maxis.YTick):
             text_angle += user_angle
         else:
             text_angle = user_angle
-        if self.label2On:
-            ha, va = self._determine_anchor(mode, angle, direction < 0)
-            self.label2.set_ha(ha)
-            self.label2.set_va(va)
-            self.label2.set_rotation(text_angle)
-        if self.tick2On:
-            marker = self.tick2line.get_marker()
-            if marker == mmarkers.TICKLEFT:
-                trans = (mtransforms.Affine2D()
-                         .scale(1.0, 1.0)
-                         .rotate(tick_angle))
-            elif marker == '_':
-                trans = (mtransforms.Affine2D()
-                         .scale(1.0, 1.0)
-                         .rotate(tick_angle + np.pi / 2))
-            elif marker == mmarkers.TICKRIGHT:
-                trans = (mtransforms.Affine2D()
-                         .scale(-1.0, 1.0)
-                         .rotate(tick_angle))
-            else:
-                # Don't modify custom tick line markers.
-                trans = self.tick2line._marker._transform
-            self.tick2line._marker._transform = trans
+
+        ha, va = self._determine_anchor(mode, angle, direction < 0)
+        self.label2.set_ha(ha)
+        self.label2.set_va(va)
+        self.label2.set_rotation(text_angle)
+
+        marker = self.tick2line.get_marker()
+        if marker == mmarkers.TICKLEFT:
+            trans = mtransforms.Affine2D().rotate(tick_angle)
+        elif marker == '_':
+            trans = mtransforms.Affine2D().rotate(tick_angle + np.pi / 2)
+        elif marker == mmarkers.TICKRIGHT:
+            trans = mtransforms.Affine2D().scale(-1, 1).rotate(tick_angle)
+        else:
+            # Don't modify custom tick line markers.
+            trans = self.tick2line._marker._transform
+        self.tick2line._marker._transform = trans
 
 
 class RadialAxis(maxis.YAxis):

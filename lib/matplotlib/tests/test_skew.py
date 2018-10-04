@@ -1,6 +1,8 @@
 """
-Testing that skewed axes properly work
+Testing that skewed axes properly work.
 """
+
+from contextlib import ExitStack
 import itertools
 
 import matplotlib.pyplot as plt
@@ -17,66 +19,24 @@ from matplotlib.projections import register_projection
 # The sole purpose of this class is to look at the upper, lower, or total
 # interval as appropriate and see what parts of the tick to draw, if any.
 class SkewXTick(maxis.XTick):
-    def update_position(self, loc):
-        # This ensures that the new value of the location is set before
-        # any other updates take place
-        self._loc = loc
-        super().update_position(loc)
-
-    def _has_default_loc(self):
-        return self.get_loc() is None
-
-    def _need_lower(self):
-        return (self._has_default_loc() or
-                transforms.interval_contains(self.axes.lower_xlim,
-                                             self.get_loc()))
-
-    def _need_upper(self):
-        return (self._has_default_loc() or
-                transforms.interval_contains(self.axes.upper_xlim,
-                                             self.get_loc()))
-
-    @property
-    def gridOn(self):
-        return (self._gridOn and (self._has_default_loc() or
-                transforms.interval_contains(self.get_view_interval(),
-                                             self.get_loc())))
-
-    @gridOn.setter
-    def gridOn(self, value):
-        self._gridOn = value
-
-    @property
-    def tick1On(self):
-        return self._tick1On and self._need_lower()
-
-    @tick1On.setter
-    def tick1On(self, value):
-        self._tick1On = value
-
-    @property
-    def label1On(self):
-        return self._label1On and self._need_lower()
-
-    @label1On.setter
-    def label1On(self, value):
-        self._label1On = value
-
-    @property
-    def tick2On(self):
-        return self._tick2On and self._need_upper()
-
-    @tick2On.setter
-    def tick2On(self, value):
-        self._tick2On = value
-
-    @property
-    def label2On(self):
-        return self._label2On and self._need_upper()
-
-    @label2On.setter
-    def label2On(self, value):
-        self._label2On = value
+    def draw(self, renderer):
+        with ExitStack() as stack:
+            for artist in [self.gridline, self.tick1line, self.tick2line,
+                           self.label1, self.label2]:
+                stack.callback(artist.set_visible, artist.get_visible())
+            needs_lower = transforms.interval_contains(
+                self.axes.lower_xlim, self.get_loc())
+            needs_upper = transforms.interval_contains(
+                self.axes.upper_xlim, self.get_loc())
+            self.tick1line.set_visible(
+                self.tick1line.get_visible() and needs_lower)
+            self.label1.set_visible(
+                self.label1.get_visible() and needs_lower)
+            self.tick2line.set_visible(
+                self.tick2line.get_visible() and needs_upper)
+            self.label2.set_visible(
+                self.label2.get_visible() and needs_upper)
+            super(SkewXTick, self).draw(renderer)
 
     def get_view_interval(self):
         return self.axes.xaxis.get_view_interval()
