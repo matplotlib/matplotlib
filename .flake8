@@ -105,7 +105,6 @@ per-file-ignores =
     tutorials/introductory/sample_plots.py: E501
     tutorials/introductory/usage.py: E402, E501
     tutorials/text/annotations.py: E501
-    tutorials/text/mathtext.py: E501
     tutorials/text/pgf.py: E501
     tutorials/text/text_intro.py: E402
     tutorials/text/text_props.py: E501
