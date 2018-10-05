@@ -1356,17 +1356,20 @@ else:
     if _fmcache:
         try:
             fontManager = json_load(_fmcache)
+        except FileNotFoundError:
+            _log.debug("No font cache found %s", _fmcache)
+        except json.JSONDecodeError:
+            _log.warning("Font cache parsing failed %s", _fmcache)
+        else:
             if (not hasattr(fontManager, '_version') or
                 fontManager._version != FontManager.__version__):
-                _rebuild()
+                _log.debug("Font cache needs rebuild (version mismatch)")
+                fontManager = None
             else:
                 fontManager.default_size = None
                 _log.debug("Using fontManager instance from %s", _fmcache)
-        except TimeoutError:
-            raise
-        except Exception:
-            _rebuild()
-    else:
+
+    if fontManager is None:
         _rebuild()
 
     def findfont(prop, **kw):
