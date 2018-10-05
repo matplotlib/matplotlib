@@ -862,19 +862,63 @@ default: 'top'
         self.stale = True
         return im
 
+    def set_size(self, w, h=None, forward=True):
+        """
+        Set the figure size
+
+        Parameters
+        ----------
+
+        w: float, string, or two-tuple of either.
+
+            If a two-tuple, (width, height) of the figure.
+
+            If a float, width of figure in inches.
+
+            If a string, its a float followed by a 2-character suffix
+            of either 'in', 'cm', 'mm', 'pt' (inches, centimeters,
+            millimeters, or points).  i.e. ``w='4.6cm'``.
+
+        h: float or string
+            As above, if a float it is the hieght of the figure in inches,
+            or a string decoded as above.
+
+        forward : bool, default True
+            Forward to the window so the canvas size is updated;
+            e.g., you can resize the figure window from the shell
+
+        See Also
+        --------
+        matplotlib.Figure.set_size_inches
+
+        """
+        if h is None:
+            w, h = w
+        if isinstance(w, str):
+            w = cbook._print_unit(w)
+            if isinstance(w, str):
+                raise ValueError('Could not convert str {} to '
+                                 'inches'.format(w))
+        if isinstance(h, str):
+            h = cbook._print_unit(h)
+            if isinstance(h, str):
+                raise ValueError('Could not convert str {} to '
+                                 'inches'.format(h))
+        self.set_size_inches(w, h, forward=forward)
+
     def set_size_inches(self, w, h=None, forward=True):
-        """Set the figure size in inches.
+        """Set the figure size.
 
         Call signatures::
 
              fig.set_size_inches(w, h)  # OR
              fig.set_size_inches((w, h))
 
-        optional kwarg *forward=True* will cause the canvas size to be
+        Optional kwarg *forward=True* will cause the canvas size to be
         automatically updated; e.g., you can resize the figure window
         from the shell
 
-        ACCEPTS: a (w, h) tuple with w, h in inches
+        ACCEPTS: a (w, h) tuple with w, h in inches.
 
         See Also
         --------
@@ -883,8 +927,10 @@ default: 'top'
 
         # the width and height have been passed in as a tuple to the first
         # argument, so unpack them
+
         if h is None:
             w, h = w
+
         if not all(np.isfinite(_) for _ in (w, h)):
             raise ValueError('figure size must be finite not '
                              '({}, {})'.format(w, h))

@@ -2075,3 +2075,21 @@ def _check_and_log_subprocess(command, logger, **kwargs):
             .format(command, exc.output.decode('utf-8')))
     logger.debug(report)
     return report
+
+
+def _print_unit(st):
+    """
+    Convert from a string with a number and units into inches
+    """
+    print_units = {'cm': 2.54, 'pt': 72.0, 'mm': 25.4, 'in': 1.0}
+    try:
+        num = float(st[:-2])
+    except:
+        # let the parent handle the errors
+        return st
+    unit = st[-2:]
+    if unit in print_units:
+        return num / print_units[unit]
+    else:
+        # let the parent handle the errors
+        return st
