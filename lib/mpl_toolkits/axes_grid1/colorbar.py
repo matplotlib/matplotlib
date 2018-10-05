@@ -109,7 +109,8 @@ arguments:
     the :class:`~matplotlib.image.Image`,
     :class:`~matplotlib.contour.ContourSet`, etc. to
     which the colorbar applies; this argument is mandatory for the
-    :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
+    :meth:`~matplotlib.figure.Figure.colorbar`
+    and :meth:`~matplotlib.axes.Axes.colorbar` methods but optional for the
     :func:`~matplotlib.pyplot.colorbar` function, which sets the
     default to the current image.
 
@@ -119,7 +120,7 @@ keyword arguments:
     None | axes object into which the colorbar will be drawn
   *ax*
     None | parent axes object from which space for a new
-    colorbar axes will be stolen
+    colorbar axes will be stolen (ignored for `.axes.Axes.colorbar`)
 
 
 Additional keyword arguments are of two kinds:
