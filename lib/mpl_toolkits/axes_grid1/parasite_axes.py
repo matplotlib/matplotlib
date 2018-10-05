@@ -249,17 +249,15 @@ class HostAxesBase:
         self.parasites.append(ax2)
         ax2._remove_method = self._remove_twinx
 
-        self.axis["right"].set_visible(False)
-
         ax2.axis["right"].set_visible(True)
+        ax2.axis["right"].toggle(all=True)
+        ax2.axis["right"].line.set_visible(False)
         ax2.axis["left", "top", "bottom"].set_visible(False)
 
         return ax2
 
     def _remove_twinx(self, ax):
         self.parasites.remove(ax)
-        self.axis["right"].set_visible(True)
-        self.axis["right"].toggle(ticklabels=False, label=False)
 
     def twiny(self, axes_class=None):
         """
@@ -278,17 +276,15 @@ class HostAxesBase:
         self.parasites.append(ax2)
         ax2._remove_method = self._remove_twiny
 
-        self.axis["top"].set_visible(False)
-
         ax2.axis["top"].set_visible(True)
+        ax2.axis["top"].toggle(all=True)
+        ax2.axis["top"].line.set_visible(False)
         ax2.axis["left", "right", "bottom"].set_visible(False)
 
         return ax2
 
     def _remove_twiny(self, ax):
         self.parasites.remove(ax)
-        self.axis["top"].set_visible(True)
-        self.axis["top"].toggle(ticklabels=False, label=False)
 
     def twin(self, aux_trans=None, axes_class=None):
         """
@@ -313,15 +309,13 @@ class HostAxesBase:
         self.parasites.append(ax2)
         ax2._remove_method = self.parasites.remove
 
-        self.axis["top", "right"].set_visible(False)
-
         ax2.axis["top", "right"].set_visible(True)
+        ax2.axis["top", "right"].toggle(all=True)
+        ax2.axis["top", "right"].line.set_visible(False)
         ax2.axis["left", "bottom"].set_visible(False)
 
         def _remove_method(h):
             self.parasites.remove(h)
-            self.axis["top", "right"].set_visible(True)
-            self.axis["top", "right"].toggle(ticklabels=False, label=False)
         ax2._remove_method = _remove_method
 
         return ax2
