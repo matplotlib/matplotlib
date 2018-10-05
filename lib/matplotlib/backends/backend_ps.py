@@ -1082,10 +1082,12 @@ class FigureCanvasPS(FigureCanvasBase):
             if isEPSF:
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else:
-                print("%!PS-Adobe-3.0", file=fh)
+                print("%!PS-Adobe-3.0\n"
+                      "%%DocumentPaperSizes: {papertype}\n"
+                      "%%Pages: 1\n".format(papertype=papertype),
+                      end="", file=fh)
             if title:
                 print("%%Title: " + title, file=fh)
-            print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
@@ -1094,14 +1096,14 @@ class FigureCanvasPS(FigureCanvasBase):
                     int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
-            print("%%CreationDate: " + source_date, file=fh)
-            print("%%Orientation: " + orientation, file=fh)
-            if not isEPSF:
-                print("%%DocumentPaperSizes: "+papertype, file=fh)
-            print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
-            if not isEPSF:
-                print("%%Pages: 1", file=fh)
-            print("%%EndComments", file=fh)
+            print("%%Creator: {creator_str}\n"
+                  "%%CreationDate: {source_date}\n"
+                  "%%Orientation: {orientation}\n"
+                  "%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
+                  "%%EndComments\n"
+                  .format(creator_str=creator_str, source_date=source_date,
+                          orientation=orientation, bbox=bbox),
+                  end="", file=fh)
 
             Ndict = len(psDefs)
             print("%%BeginProlog", file=fh)
@@ -1278,7 +1280,6 @@ class FigureCanvasPS(FigureCanvasBase):
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
                 if title:
                     print("%%Title: "+title, file=fh)
-                print("%%Creator: " + creator_str, file=fh)
                 # get source date from SOURCE_DATE_EPOCH, if set
                 # See https://reproducible-builds.org/specs/source-date-epoch/
                 source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
@@ -1288,20 +1289,24 @@ class FigureCanvasPS(FigureCanvasBase):
                             "%a %b %d %H:%M:%S %Y")
                 else:
                     source_date = time.ctime()
-                print("%%CreationDate: "+source_date, file=fh)
-                print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
-                print("%%EndComments", file=fh)
+                print(
+                    "%%Creator: {creator_str}\n"
+                    "%%CreationDate: {source_date}\n"
+                    "%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
+                    "%%EndComments\n"
+                    .format(creator_str=creator_str, source_date=source_date,
+                            bbox=bbox),
+                    end="", file=fh)
 
-                Ndict = len(psDefs)
-                print("%%BeginProlog", file=fh)
-                print("/mpldict %d dict def" % Ndict, file=fh)
-                print("mpldict begin", file=fh)
-                for d in psDefs:
-                    d = d.strip()
-                    for l in d.split('\n'):
-                        print(l.strip(), file=fh)
-                print("end", file=fh)
-                print("%%EndProlog", file=fh)
+                print("%%BeginProlog\n"
+                      "/mpldict {len_psDefs} dict def\n"
+                      "mpldict begin\n"
+                      "{psDefs}\n"
+                      "end\n"
+                      "%%EndProlog\n"
+                      .format(len_psDefs=len(psDefs),
+                              psDefs="\n".join(psDefs)),
+                      end="", file=fh)
 
                 print("mpldict begin", file=fh)
                 print("%s translate" % _nums_to_str(xo, yo), file=fh)
