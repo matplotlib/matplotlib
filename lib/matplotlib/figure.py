@@ -902,6 +902,9 @@ default: 'top'
                     manager.resize(int(canvasw), int(canvash))
         self.stale = True
 
+    def set_size_cm(self, w, h=None, **kwargs):
+        return self.set_size_inches(w*(1/2.54), h*(1/2.54) if h is not None else None, **kwargs)
+
     def get_size_inches(self):
         """
         Returns the current size of the figure in inches.
@@ -916,6 +919,9 @@ default: 'top'
         matplotlib.Figure.set_size_inches
         """
         return np.array(self.bbox_inches.p1)
+
+    def get_size_cm(self):
+        return np.array(self.bbox_inches.p1)*2.54
 
     def get_edgecolor(self):
         """Get the edge color of the Figure rectangle."""
