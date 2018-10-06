@@ -1081,6 +1081,69 @@ def delete_masked_points(*args):
     return margs
 
 
+def combine_masks(*args):
+    """
+    Find all masked and/or non-finite points in a set of arguments,
+    and return the arguments as masked arrays with a common mask.
+
+    Arguments can be in any of 5 categories:
+
+    1) 1-D masked arrays
+    2) 1-D ndarrays
+    3) ndarrays with more than one dimension
+    4) other non-string iterables
+    5) anything else
+
+    The first argument must be in one of the first four categories;
+    any argument with a length differing from that of the first
+    argument (and hence anything in category 5) then will be
+    passed through unchanged.
+
+    Masks are obtained from all arguments of the correct length
+    in categories 1, 2, and 4; a point is bad if masked in a masked
+    array or if it is a nan or inf.  No attempt is made to
+    extract a mask from categories 2, 3, and 4 if :meth:`np.isfinite`
+    does not yield a Boolean array.
+
+    All input arguments that are not passed unchanged are returned
+    as masked arrays if any masked points are found, otherwise as
+    ndarrays.
+
+    """
+    if not len(args):
+        return ()
+    if is_scalar_or_string(args[0]):
+        raise ValueError("First argument must be a sequence")
+    nrecs = len(args[0])
+    margs = []
+    seqlist = [False] * len(args)
+    for i, x in enumerate(args):
+        if not isinstance(x, str) and np.iterable(x) and len(x) == nrecs:
+            if isinstance(x, np.ma.MaskedArray):
+                if x.ndim > 1:
+                    raise ValueError("Masked arrays must be 1-D")
+            x = np.asanyarray(x)
+            if x.ndim == 1 and x.dtype.kind == 'f':
+                x = np.ma.masked_invalid(x)
+                seqlist[i] = True
+        margs.append(x)
+    masks = []    # list of masks that are True where bad
+    for i, x in enumerate(margs):
+        if seqlist[i]:
+            if x.ndim > 1:
+                continue  # Don't try to get nan locations unless 1-D.
+            if np.ma.is_masked(x):
+                masks.append(np.ma.getmaskarray(x))
+    if len(masks):
+        mask = np.logical_or.reduce(masks)
+        if mask.any():
+            for i, x in enumerate(margs):
+                if seqlist[i]:
+                    margs[i] = np.ma.array(x)
+                    margs[i][mask] = np.ma.masked
+    return margs
+
+
 def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                   autorange=False):
     """

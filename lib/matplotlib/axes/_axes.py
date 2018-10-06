@@ -4314,17 +4314,25 @@ class Axes(_AxesBase):
                 c, edgecolors, kwargs, xshape, yshape,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
 
+        # if plotinvalid and colors == None:
+        #     # Do full color mapping; don't remove invalid c entries.
+        #     ind = np.arange(len(c))
+        #     x, y, s, ind, colors, edgecolors, linewidths =\
+        #        cbook.delete_masked_points(
+        #            x, y, s, ind, colors, edgecolors, linewidths)
+        #     c = np.ma.masked_invalid(c[ind])
+        # else:
+        #     x, y, s, c, colors, edgecolors, linewidths =\
+        #        cbook.delete_masked_points(
+        #            x, y, s, c, colors, edgecolors, linewidths)
+
         if plotinvalid and colors == None:
-            # Do full color mapping; don't remove invalid c entries.
-            ind = np.arange(len(c))
-            x, y, s, ind, colors, edgecolors, linewidths =\
-               cbook.delete_masked_points(
-                   x, y, s, ind, colors, edgecolors, linewidths)
-            c = np.ma.masked_invalid(c[ind])
+            c = np.ma.masked_invalid(c)
+            x, y, s, colors, edgecolors, linewidths =\
+                cbook.combine_masks(x, y, s, colors, edgecolors, linewidths)
         else:
             x, y, s, c, colors, edgecolors, linewidths =\
-               cbook.delete_masked_points(
-                   x, y, s, c, colors, edgecolors, linewidths)
+                cbook.combine_masks(x, y, s, c, colors, edgecolors, linewidths)
 
         scales = s   # Renamed for readability below.
 
