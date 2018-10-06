@@ -1,5 +1,4 @@
 from collections import OrderedDict
-
 import base64
 import gzip
 import hashlib
@@ -155,7 +154,7 @@ class XMLWriter(object):
             if not v == '':
                 k = escape_cdata(k)
                 v = escape_attrib(v)
-                self.__write(" %s=\"%s\"" % (k, v))
+                self.__write(' %s="%s"' % (k, v))
         self.__open = 1
         return len(self.__tags)-1
 
@@ -1005,9 +1004,8 @@ class RendererSVG(RendererBase):
 
             glyph_info, glyph_map_new, rects = _glyphs
 
-            # we store the character glyphs w/o flipping. Instead, the
-            # coordinate will be flipped when this characters are
-            # used.
+            # We store the character glyphs w/o flipping.  Instead, the
+            # coordinate will be flipped when this characters are used.
             if glyph_map_new:
                 writer.start('defs')
                 for char_id, glyph_path in glyph_map_new.items():
@@ -1161,14 +1159,7 @@ class RendererSVG(RendererBase):
             for style, chars in spans.items():
                 chars.sort()
 
-                same_y = True
-                if len(chars) > 1:
-                    last_y = chars[0][1]
-                    for i in range(1, len(chars)):
-                        if chars[i][1] != last_y:
-                            same_y = False
-                            break
-                if same_y:
+                if len({y for x, y, t in chars}) == 1:  # Are all y's the same?
                     ys = str(chars[0][1])
                 else:
                     ys = ' '.join(str(c[1]) for c in chars)
