@@ -1005,7 +1005,7 @@ class RendererSVG(RendererBase):
             glyph_info, glyph_map_new, rects = _glyphs
 
             # We store the character glyphs w/o flipping.  Instead, the
-            # coordinate will be flipped when this characters are used.
+            # coordinate will be flipped when these characters are used.
             if glyph_map_new:
                 writer.start('defs')
                 for char_id, glyph_path in glyph_map_new.items():
