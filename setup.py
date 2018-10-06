@@ -117,6 +117,8 @@ class BuildExtraLibraries(BuildExtCommand):
         return super().build_extensions()
 
     def _xcode_gte_10(self):
+        if sys.platform != "darwin":
+            return False
         # Returns True if compiler is from Xcode version >= 10
         compiler_version = str(subprocess.check_output(
             self.compiler.compiler + ['--version'], universal_newlines=True))
