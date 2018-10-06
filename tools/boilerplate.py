@@ -213,16 +213,28 @@ def boilerplate_gen():
             sig = '(\n' + text_wrapper.fill(sig).replace('(', '', 1)
 
         # How to call the wrapped function.
-        call = '(' + ', '.join(
-            ('{0}={0}' if param.kind in [Parameter.POSITIONAL_OR_KEYWORD,
-                                         Parameter.KEYWORD_ONLY] else
-             '*{0}' if param.kind is Parameter.VAR_POSITIONAL else
-             '**{0}' if param.kind is Parameter.VAR_KEYWORD else
-             # Intentionally crash for Parameter.POSITIONAL_ONLY.
-             None).format(param.name)
+        call = '(' + ', '.join((
+            # Pass "intended-as-positional" parameters positionally to avoid
+            # forcing third-party subclasses to reproduce the parameter names.
+            '{0}'
+            if param.kind in [Parameter.POSITIONAL_OR_KEYWORD]
+               and param.default is Parameter.empty else
+            # Only pass the data kwarg if it is actually set, to avoid forcing
+            # third-party subclasses to support it.
+            '**({{"data": data}} if data is not None else {{}})'
+            if param.name == "data" else
+            '{0}={0}'
+            if param.kind in [Parameter.POSITIONAL_OR_KEYWORD,
+                              Parameter.KEYWORD_ONLY] else
+            '*{0}'
+            if param.kind is Parameter.VAR_POSITIONAL else
+            '**{0}'
+            if param.kind is Parameter.VAR_KEYWORD else
+            # Intentionally crash for Parameter.POSITIONAL_ONLY.
+            None).format(param.name)
             for param in params) + ')'
         MAX_CALL_PREFIX = 18  # len('    __ret = gca().')
-        if MAX_CALL_PREFIX + len(func) + len(call) >= 80:
+        if MAX_CALL_PREFIX + max(len(func), len(real_name)) + len(call) >= 80:
             call = '(\n' + text_wrapper.fill(call[1:])
 
         # Bail out in case of name collision.
