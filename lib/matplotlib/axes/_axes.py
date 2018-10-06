@@ -4314,9 +4314,14 @@ class Axes(_AxesBase):
                 c, edgecolors, kwargs, xshape, yshape,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
 
-        if plotinvalid is False:
-            # `delete_masked_points` only modifies arguments of the same length
-            #  as `x`.
+        if plotinvalid and colors == None:
+            # Do full color mapping; don't remove invalid c entries.
+            ind = np.arange(len(c))
+            x, y, s, ind, colors, edgecolors, linewidths =\
+               cbook.delete_masked_points(
+                   x, y, s, ind, colors, edgecolors, linewidths)
+            c = np.ma.masked_invalid(c[ind])
+        else:
             x, y, s, c, colors, edgecolors, linewidths =\
                cbook.delete_masked_points(
                    x, y, s, c, colors, edgecolors, linewidths)
@@ -4363,12 +4368,7 @@ class Axes(_AxesBase):
             if norm is not None and not isinstance(norm, mcolors.Normalize):
                 raise ValueError(
                     "'norm' must be an instance of 'mcolors.Normalize'")
-
-            if plotinvalid is False:
-                collection.set_array(c)
-            else:
-                collection.set_array(ma.masked_invalid(c))
-
+            collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
 
