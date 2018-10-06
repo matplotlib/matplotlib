@@ -20,7 +20,6 @@ Classes and methods
 
 Arguments
 ---------
-- The ``normed`` kwarg to ``Axes.hist``
 - The ``fig`` kwarg to ``GridSpec.get_subplot_params`` and
   ``GridSpecFromSubplotSpec.get_subplot_params``
 - Passing 'box-forced' to `axes.Axes.set_adjustable`
