@@ -862,7 +862,7 @@ default: 'top'
         self.stale = True
         return im
 
-    def set_size(self, w, h=None, forward=True):
+    def set_size(self, w, h=None, units=None, forward=True):
         """
         Set the figure size
 
@@ -883,6 +883,11 @@ default: 'top'
             As above, if a float it is the hieght of the figure in inches,
             or a string decoded as above.
 
+        units : string
+            If specified, will be applied to floats in (w, h).  If
+            either (w, h) are strings, the units they specify are used
+            for that dimension.  Allows ``fig.set_size(12, 15, units='cm')``
+
         forward : bool, default True
             Forward to the window so the canvas size is updated;
             e.g., you can resize the figure window from the shell
@@ -894,16 +899,32 @@ default: 'top'
         """
         if h is None:
             w, h = w
+
+        conv = 1  # default units are inches.
+        if isinstance(units, str):
+            conv = cbook._print_unit('1'+units)
+            if isinstance(conv, str):
+                raise ValueError('Could not convert units str {} to '
+                                 'inches'.format(conv))
+
         if isinstance(w, str):
             w = cbook._print_unit(w)
             if isinstance(w, str):
                 raise ValueError('Could not convert str {} to '
                                  'inches'.format(w))
+        else:
+            # convert using units arg
+            w = w * conv
+
         if isinstance(h, str):
             h = cbook._print_unit(h)
             if isinstance(h, str):
                 raise ValueError('Could not convert str {} to '
                                  'inches'.format(h))
+        else:
+            # convert using units arg
+            h = h * conv
+
         self.set_size_inches(w, h, forward=forward)
 
     def set_size_inches(self, w, h=None, forward=True):
