@@ -3089,7 +3089,7 @@ class ToolContainerBase(object):
 
         Parameters
         ----------
-        name : String
+        name : string
             Name (id) of the tool triggered from within the container
         """
         self.toolmanager.trigger_tool(name, sender=self)

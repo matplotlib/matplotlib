@@ -1161,7 +1161,7 @@ class Arrow(Patch):
         width : scalar, optional (default: 1)
             Scale factor for the width of the arrow. With a default value of
             1, the tail width is 0.2 and head width is 0.6.
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.patches.Patch`
             properties:
 
@@ -3977,7 +3977,7 @@ class FancyArrowPatch(Patch):
 
             %(AvailableArrowstyles)s
 
-        arrow_transmuter :
+        arrow_transmuter
             Ignored
 
         connectionstyle : str, ConnectionStyle, or None, optional
@@ -3989,7 +3989,7 @@ class FancyArrowPatch(Patch):
 
             %(AvailableConnectorstyles)s
 
-        connector :
+        connector
             Ignored
 
         patchA, patchB : None, Patch, optional (default: None)

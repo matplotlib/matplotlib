@@ -547,11 +547,11 @@ class Figure(Artist):
         h_pad : scalar
             Height padding in inches. Defaults to 3 pts.
 
-        wspace: scalar
+        wspace : scalar
             Width padding between subplots, expressed as a fraction of the
             subplot width.  The total padding ends up being w_pad + wspace.
 
-        hspace: scalar
+        hspace : scalar
             Height padding between subplots, expressed as a fraction of the
             subplot width. The total padding ends up being h_pad + hspace.
 

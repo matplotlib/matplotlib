@@ -140,7 +140,7 @@ but the first are also method signatures for the
 
 Parameters
 ----------
-mappable :
+mappable
     The :class:`~matplotlib.image.Image`,
     :class:`~matplotlib.contour.ContourSet`, etc. to
     which the colorbar applies; this argument is mandatory for the Figure

@@ -368,7 +368,7 @@ class PathPatchEffect(AbstractPathEffect):
         ----------
         offset : pair of floats
             The offset to apply to the path, in points.
-        **kwargs :
+        **kwargs
             All keyword arguments are passed through to the
             :class:`~matplotlib.patches.PathPatch` constructor. The
             properties which cannot be overridden are "path", "clip_box"

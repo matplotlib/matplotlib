@@ -18,7 +18,7 @@ class TriRefiner(object):
 
         - ``refine_triangulation(return_tri_index=False, **kwargs)`` , where
           the optional keyword arguments *kwargs* are defined in each
-          TriRefiner concrete implementation, and which returns :
+          TriRefiner concrete implementation, and which returns:
 
               - a refined triangulation
               - optionally (depending on *return_tri_index*), for each

@@ -41,11 +41,11 @@ class ToolBase(object):
 
     Attributes
     ----------
-    toolmanager: `matplotlib.backend_managers.ToolManager`
+    toolmanager : `matplotlib.backend_managers.ToolManager`
         ToolManager that controls this Tool
-    figure: `FigureCanvas`
+    figure : `FigureCanvas`
         Figure instance that is affected by this Tool
-    name: String
+    name : string
         Used as **Id** of the tool, has to be unique among tools of the same
         ToolManager
     """
@@ -106,7 +106,7 @@ class ToolBase(object):
 
         Parameters
         ----------
-        figure: `Figure`
+        figure : `Figure`
         """
         self._figure = figure
 
@@ -119,11 +119,11 @@ class ToolBase(object):
 
         Parameters
         ----------
-        event: `Event`
+        event : `Event`
             The Canvas event that caused this tool to be called
-        sender: object
+        sender : object
             Object that requested the tool to be triggered
-        data: object
+        data : object
             Extra data
         """
 
@@ -1106,7 +1106,7 @@ def add_tools_to_manager(toolmanager, tools=default_tools):
 
     Parameters
     ----------
-    toolmanager: ToolManager
+    toolmanager : ToolManager
         `backend_managers.ToolManager` object that will get the tools added
     tools : {str: class_like}, optional
         The tools to add in a {name: tool} dict, see `add_tool` for more
@@ -1123,7 +1123,7 @@ def add_tools_to_container(container, tools=default_toolbar_tools):
 
     Parameters
     ----------
-    container: Container
+    container : Container
         `backend_bases.ToolContainerBase` object that will get the tools added
     tools : list, optional
         List in the form

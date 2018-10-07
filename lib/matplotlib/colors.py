@@ -1798,7 +1798,7 @@ class LightSource(object):
         hsv_max_val : number, optional
             The maximum value ("v" in "hsv") that the *intensity* map can shift
             the output image to. Defaults to 1.
-        hsv_min_val: number, optional
+        hsv_min_val : number, optional
             The minimum value ("v" in "hsv") that the *intensity* map can shift
             the output image to. Defaults to 0.
 

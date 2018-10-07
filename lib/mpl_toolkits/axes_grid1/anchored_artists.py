@@ -57,7 +57,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
         frameon : bool, optional
             If True, draw a box around this artists. Defaults to True.
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 
@@ -131,7 +131,7 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
         frameon : bool, optional
             If True, draw a box around this artists. Defaults to True.
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 
@@ -206,7 +206,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
         prop : `matplotlib.font_manager.FontProperties`, optional
             Font property used as a reference for paddings.
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 
@@ -299,7 +299,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
             Defaults to True if `size_vertical` is greater than
             zero and False otherwise.
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 
@@ -477,7 +477,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
             :class:`matplotlib.text.TextPath` and
             `matplotlib.patches.FancyArrowPatch`
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 

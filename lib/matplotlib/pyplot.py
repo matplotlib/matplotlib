@@ -437,11 +437,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         resolution of the figure. If not provided, defaults to
         :rc:`figure.dpi` = ``100``.
 
-    facecolor :
+    facecolor : color spec
         the background color. If not provided, defaults to
         :rc:`figure.facecolor` = ``'w'``.
 
-    edgecolor :
+    edgecolor : color spec
         the border color. If not provided, defaults to
         :rc:`figure.edgecolor` = ``'w'``.
 
@@ -1119,7 +1119,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         Dict with keywords passed to the `~matplotlib.gridspec.GridSpec`
         constructor used to create the grid the subplots are placed on.
 
-    **fig_kw :
+    **fig_kw
         All additional keyword arguments are passed to the
         `.pyplot.figure` call.
 
