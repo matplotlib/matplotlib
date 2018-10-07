@@ -881,7 +881,14 @@ class AxesImage(_ImageBase):
                 return (-0.5, numcols-0.5, -0.5, numrows-0.5)
 
     def get_cursor_data(self, event):
-        """Get the cursor data for a given event"""
+        """
+        Return the image value at the event position or *None* if the event is
+        outside the image.
+
+        See Also
+        --------
+        matplotlib.artist.Artist.get_cursor_data
+        """
         xmin, xmax, ymin, ymax = self.get_extent()
         if self.origin == 'upper':
             ymin, ymax = ymax, ymin
@@ -1142,7 +1149,7 @@ class PcolorImage(AxesImage):
         raise NotImplementedError('Method not supported')
 
     def get_cursor_data(self, event):
-        """Get the cursor data for a given event"""
+        # docstring inherited
         x, y = event.xdata, event.ydata
         if (x < self._Ax[0] or x > self._Ax[-1] or
                 y < self._Ay[0] or y > self._Ay[-1]):
