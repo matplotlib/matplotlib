@@ -410,18 +410,19 @@ def date2num(d):
     Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
-
     if hasattr(d, "values"):
         # this unpacks pandas series or dataframes...
         d = d.values
-
-    if ((isinstance(d, np.ndarray) and np.issubdtype(d.dtype, np.datetime64))
-            or isinstance(d, np.datetime64)):
-        return _dt64_to_ordinalf(d)
-    if not cbook.iterable(d):
+    if not np.iterable(d):
+        if (isinstance(d, np.datetime64) or (isinstance(d, np.ndarray) and
+                np.issubdtype(d.dtype, np.datetime64))):
+            return _dt64_to_ordinalf(d)
         return _to_ordinalf(d)
+
     else:
         d = np.asarray(d)
+        if np.issubdtype(d.dtype, np.datetime64):
+            return _dt64_to_ordinalf(d)
         if not d.size:
             return d
         return _to_ordinalf_np_vectorized(d)
