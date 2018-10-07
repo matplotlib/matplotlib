@@ -1487,7 +1487,7 @@ class _AxesBase(martist.Artist):
 
         figW, figH = self.get_figure().get_size_inches()
         fig_aspect = figH / figW
-        if self._adjustable in ['box', 'box-forced']:
+        if self._adjustable == 'box':
             if self in self._twinned_axes:
                 raise RuntimeError("Adjustable 'box' is not allowed in a"
                                    " twinned Axes.  Use 'datalim' instead.")
