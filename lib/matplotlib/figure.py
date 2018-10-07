@@ -346,15 +346,15 @@ class Figure(Artist):
 
         self.canvas = None
         self._suptitle = None
+        self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
+        # do not use property as it will trigger
+        self._dpi = dpi
 
         # init the bbox to dummy values:
         self.bbox_inches = Bbox.from_bounds(0, 0, 1, 1)
         # set properly.
         self.set_size(figsize)
 
-        self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
-        # do not use property as it will trigger
-        self._dpi = dpi
         self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
 
         self.frameon = frameon
@@ -395,7 +395,7 @@ class Figure(Artist):
         if len(figsize) == 3:
             unit = figsize[-1]
             figsize = figsize[:2]
-            conv = cbook._print_unit(unit)
+            conv = cbook._print_unit(unit, dpi=self._dpi)
             figsize = [f * conv for f in figsize]
         return figsize
 
@@ -911,13 +911,13 @@ default: 'top'
 
         conv = 1  # default units are inches.
         if isinstance(units, str):
-            conv = cbook._print_unit(units)
+            conv = cbook._print_unit(units, dpi=self._dpi)
             if isinstance(conv, str):
                 raise ValueError('Could not convert units str {} to '
                                  'inches'.format(conv))
 
         if isinstance(w, str):
-            w = cbook._print_unit(w)
+            w = cbook._print_unit(w, dpi=self._dpi)
             if isinstance(w, str):
                 raise ValueError('Could not convert str {} to '
                                  'inches'.format(w))
@@ -926,14 +926,14 @@ default: 'top'
             w = w * conv
 
         if isinstance(h, str):
-            h = cbook._print_unit(h)
+            h = cbook._print_unit(h, dpi=self._dpi)
             if isinstance(h, str):
                 raise ValueError('Could not convert str {} to '
                                  'inches'.format(h))
         else:
             # convert using units arg
             h = h * conv
-
+        # all done:  set...
         self.set_size_inches(w, h, forward=forward)
 
     def set_size_inches(self, w, h=None, forward=True):

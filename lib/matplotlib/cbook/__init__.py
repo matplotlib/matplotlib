@@ -2077,7 +2077,7 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     return report
 
 
-def _print_unit(st):
+def _print_unit(st, dpi=None):
     """
     Convert from a string with a number and units into inches
     """
@@ -2087,7 +2087,13 @@ def _print_unit(st):
     else:
         num = 1
     unit = st[-2:]
-    if unit in print_units:
+    # special case "px"
+    if unit == 'px':
+        if dpi is not None:
+            return num / dpi
+        else:
+            raise ValueError('px units need dpi to be set')
+    elif unit in print_units:
         return num / print_units[unit]
     else:
         # let the parent handle the errors
