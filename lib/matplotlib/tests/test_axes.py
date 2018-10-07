@@ -1745,6 +1745,8 @@ class TestScatter(object):
     # scatter plot will have 4 elements. The tuple scheme is:
     # (*c* parameter case, exception regexp key or None if no exception)
     params_test_scatter_c = [
+        # single string:
+        ('0.5', None),
         # Single letter-sequences
         ("rgby", None),
         ("rgb", "shape"),

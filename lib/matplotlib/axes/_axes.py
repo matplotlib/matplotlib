@@ -4184,7 +4184,7 @@ class Axes(_AxesBase):
         valid_shape = True  # will be put to the test!
         n_elem = -1  # used only for (some) exceptions
 
-        if c_none or co is not None:
+        if c_none or co is not None or isinstance(c, str):
             c_array = None
         else:
             try:  # First, does 'c' look suitable for value-mapping?
