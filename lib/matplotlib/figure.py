@@ -344,10 +344,13 @@ class Figure(Artist):
         if frameon is None:
             frameon = rcParams['figure.frameon']
 
-        if not np.isfinite(figsize).all():
-            raise ValueError('figure size must be finite not '
-                             '{}'.format(figsize))
-        self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
+        self.canvas = None
+        self._suptitle = None
+
+        # init the bbox to dummy values:
+        self.bbox_inches = Bbox.from_bounds(0, 0, 1, 1)
+        # set properly.
+        self.set_size(figsize)
 
         self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
         # do not use property as it will trigger
@@ -363,9 +366,6 @@ class Figure(Artist):
             facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
-
-        self.canvas = None
-        self._suptitle = None
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -390,6 +390,14 @@ class Figure(Artist):
 
         # list of child gridspecs for this figure
         self._gridspecs = []
+
+    def _parse_figsize(self, figsize):
+        if len(figsize) == 3:
+            unit = figsize[-1]
+            figsize = figsize[:2]
+            conv = cbook._print_unit(unit)
+            figsize = [f * conv for f in figsize]
+        return figsize
 
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
@@ -898,11 +906,12 @@ default: 'top'
 
         """
         if h is None:
-            w, h = w
+            figsize = self._parse_figsize(w)
+            w, h = figsize
 
         conv = 1  # default units are inches.
         if isinstance(units, str):
-            conv = cbook._print_unit('1'+units)
+            conv = cbook._print_unit(units)
             if isinstance(conv, str):
                 raise ValueError('Could not convert units str {} to '
                                  'inches'.format(conv))
