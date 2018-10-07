@@ -462,15 +462,12 @@ class LambertAxes(GeoAxes):
             diff_long = longitude - clong
             cos_diff_long = np.cos(diff_long)
 
-            inner_k = (1.0 +
-                       np.sin(clat)*sin_lat +
-                       np.cos(clat)*cos_lat*cos_diff_long)
-            # Prevent divide-by-zero problems
-            inner_k = np.where(inner_k == 0.0, 1e-15, inner_k)
-            k = np.sqrt(2.0 / inner_k)
-            x = k*cos_lat*np.sin(diff_long)
-            y = k*(np.cos(clat)*sin_lat -
-                   np.sin(clat)*cos_lat*cos_diff_long)
+            inner_k = np.maximum(  # Prevent divide-by-zero problems
+                1 + np.sin(clat)*sin_lat + np.cos(clat)*cos_lat*cos_diff_long,
+                1e-15)
+            k = np.sqrt(2 / inner_k)
+            x = k * cos_lat*np.sin(diff_long)
+            y = k * (np.cos(clat)*sin_lat - np.sin(clat)*cos_lat*cos_diff_long)
 
             return np.concatenate((x, y), 1)
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
@@ -494,9 +491,8 @@ class LambertAxes(GeoAxes):
             y = xy[:, 1:2]
             clong = self._center_longitude
             clat = self._center_latitude
-            p = np.sqrt(x*x + y*y)
-            p = np.where(p == 0.0, 1e-9, p)
-            c = 2.0 * np.arcsin(0.5 * p)
+            p = np.maximum(np.hypot(x, y), 1e-9)
+            c = 2 * np.arcsin(0.5 * p)
             sin_c = np.sin(c)
             cos_c = np.cos(c)
 

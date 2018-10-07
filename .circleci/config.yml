@@ -74,7 +74,7 @@ mpl-run: &mpl-install
 
 doc-run: &doc-build
   name: Build documentation
-  command: make html
+  command: make html O=-T
   working_directory: doc
 
 doc-bundle-run: &doc-bundle

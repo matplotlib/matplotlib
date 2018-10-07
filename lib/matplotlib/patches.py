@@ -1359,10 +1359,8 @@ class YAArrow(Patch):
         xb1, yb1, xb2, yb2 = self.getpoints(x1, y1, x2, y2, k1)
 
         # a point on the segment 20% of the distance from the tip to the base
-        theta = math.atan2(y2 - y1, x2 - x1)
-        r = math.sqrt((y2 - y1) ** 2. + (x2 - x1) ** 2.)
-        xm = x1 + self.frac * r * math.cos(theta)
-        ym = y1 + self.frac * r * math.sin(theta)
+        xm = x1 + self.frac * (x2 - x1)
+        ym = y1 + self.frac * (y2 - y1)
         xc1, yc1, xc2, yc2 = self.getpoints(x1, y1, xm, ym, k1)
         xd1, yd1, xd2, yd2 = self.getpoints(x1, y1, xm, ym, k2)
 
@@ -2915,10 +2913,10 @@ class ConnectionStyle(_Style):
                 codes.append(Path.LINETO)
             else:
                 dx1, dy1 = x1 - cx, y1 - cy
-                d1 = (dx1 ** 2 + dy1 ** 2) ** .5
+                d1 = np.hypot(dx1, dy1)
                 f1 = self.rad / d1
                 dx2, dy2 = x2 - cx, y2 - cy
-                d2 = (dx2 ** 2 + dy2 ** 2) ** .5
+                d2 = np.hypot(dx2, dy2)
                 f2 = self.rad / d2
                 vertices.extend([(cx + dx1 * f1, cy + dy1 * f1),
                                  (cx, cy),
@@ -3302,7 +3300,7 @@ class ArrowStyle(_Style):
 
             head_length = self.head_length * mutation_size
             head_width = self.head_width * mutation_size
-            head_dist = math.sqrt(head_length ** 2 + head_width ** 2)
+            head_dist = np.hypot(head_length, head_width)
             cos_t, sin_t = head_length / head_dist, head_width / head_dist
 
             # begin arrow
