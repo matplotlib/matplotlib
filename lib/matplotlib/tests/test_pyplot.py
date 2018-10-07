@@ -31,3 +31,8 @@ def test_pyplot_box():
     assert not ax.get_frame_on()
     plt.box()
     assert ax.get_frame_on()
+
+
+def test_stackplot_smoke():
+    # Small smoke test for stackplot (see #12405)
+    plt.stackplot([1, 2, 3], [1, 2, 3])
