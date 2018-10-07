@@ -701,7 +701,9 @@ class TextArea(OffsetBox):
         s : str
             a string to be displayed.
 
-        textprops : `~matplotlib.font_manager.FontProperties`, optional
+        textprops : dictionary, optional, default: None
+            Dictionary of keyword parameters to be passed to the
+            `~matplotlib.text.Text` instance contained inside TextArea.
 
         multilinebaseline : bool, optional
             If `True`, baseline for multiline text is adjusted so that
