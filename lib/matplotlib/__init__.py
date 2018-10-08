@@ -516,7 +516,7 @@ def checkdep_usetex(s):
     if not s:
         return False
 
-    gs_req = '8.60'
+    gs_req = '9.00'
     dvipng_req = '1.6'
     flag = True
 
@@ -781,30 +781,30 @@ class RcParams(MutableMapping, dict):
                 for key, (default, converter) in defaultParams.items()
                 if key not in _all_deprecated}
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_depr(self):
         return "%s is deprecated and replaced with %s; please use the latter."
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_depr_ignore(self):
         return "%s is deprecated and ignored. Use %s instead."
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_depr_set(self):
         return ("%s is deprecated. Please remove it from your matplotlibrc "
                 "and/or style files.")
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_obsolete(self):
         return ("%s is obsolete. Please remove it from your matplotlibrc "
                 "and/or style files.")
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def msg_backend_obsolete(self):
         return ("The {} rcParam was deprecated in version 2.2.  In order to "
                 "force the use of a specific Qt binding, either import that "
@@ -1192,7 +1192,7 @@ def rcdefaults():
 
     See Also
     --------
-    rc_file_defaults :
+    rc_file_defaults
         Restore the rc params from the rc file originally loaded by Matplotlib.
     matplotlib.style.use :
         Use a specific style file.  Call ``style.use('default')`` to restore
@@ -1311,16 +1311,23 @@ def use(arg, warn=True, force=False):
     """
     Set the matplotlib backend to one of the known backends.
 
-    To find out which backend is currently set, see
-    :func:`matplotlib.get_backend`.
-
-
     Parameters
     ----------
     arg : str
         The backend to switch to.  This can either be one of the
-        'standard' backend names or a string of the form
-        ``module://my.module.name``.  This value is case-insensitive.
+        'standard' backend names:
+
+        - interactive backends:
+          GTK3Agg, GTK3Cairo, MacOSX, nbAgg,
+          Qt4Agg, Qt4Cairo, Qt5Agg, Qt5Cairo,
+          TkAgg, TkCairo, WebAgg, WX, WXAgg, WXCairo
+
+        - non-interactive backends:
+          agg, cairo, pdf, pgf, ps, svg, template
+
+        or a string of the form: ``module://my.module.name``.
+
+        Note: Standard backend names are case-insensitive here.
 
     warn : bool, optional
         If True, warn if this is called after pyplot has been imported
@@ -1332,7 +1339,10 @@ def use(arg, warn=True, force=False):
         If True, attempt to switch the backend.  This defaults to
         False.
 
-
+    See Also
+    --------
+    :ref:`backends`
+    matplotlib.get_backend
     """
     name = validate_backend(arg)
 
@@ -1371,7 +1381,13 @@ if os.environ.get('MPLBACKEND'):
 
 
 def get_backend():
-    """Return the name of the current backend."""
+    """
+    Return the name of the current backend.
+
+    See Also
+    --------
+    matplotlib.use
+    """
     return rcParams['backend']
 
 

@@ -1412,7 +1412,10 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        super().tick_params(axis, **kwargs)
+        if axis not in ['x', 'y', 'z', 'both']:
+            raise ValueError("axis must be one of 'x', 'y', 'z' or 'both'")
+        if axis in ['x', 'y', 'both']:
+            super().tick_params(axis, **kwargs)
         if axis in ['z', 'both']:
             zkw = dict(kwargs)
             zkw.pop('top', None)
@@ -1600,7 +1603,7 @@ class Axes3D(Axes):
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when `shade` is True.
 
-        **kwargs :
+        **kwargs
             Other arguments are forwarded to `.Poly3DCollection`.
         """
 
@@ -1648,6 +1651,12 @@ class Axes3D(Axes):
 
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
+        if shade is None:
+            cbook.warn_deprecated(
+                "3.1",
+                "Passing shade=None to Axes3D.plot_surface() is deprecated "
+                "since matplotlib 3.1 and will change its semantic or raise "
+                "an error in matplotlib 3.3. Please use shade=False instead.")
 
         # evenly spaced, and including both endpoints
         row_inds = list(range(0, rows-1, rstride)) + [rows-1]
@@ -1793,7 +1802,7 @@ class Axes3D(Axes):
             'classic' mode uses a default of ``rstride = cstride = 1`` instead
             of the new default of ``rcount = ccount = 50``.
 
-        **kwargs :
+        **kwargs
             Other arguments are forwarded to `.Line3DCollection`.
         """
 
@@ -2434,24 +2443,63 @@ class Axes3D(Axes):
         minz = np.min(z)
         maxz = np.max(z + dz)
 
-        polys = []
-        for xi, yi, zi, dxi, dyi, dzi in zip(x, y, z, dx, dy, dz):
-            polys.extend([
-                ((xi, yi, zi), (xi + dxi, yi, zi),
-                    (xi + dxi, yi + dyi, zi), (xi, yi + dyi, zi)),
-                ((xi, yi, zi + dzi), (xi + dxi, yi, zi + dzi),
-                    (xi + dxi, yi + dyi, zi + dzi), (xi, yi + dyi, zi + dzi)),
+        # shape (6, 4, 3)
+        cuboid = np.array([
+            # -z
+            (
+                (0, 0, 0),
+                (1, 0, 0),
+                (1, 1, 0),
+                (0, 1, 0)
+            ),
+            # +z
+            (
+                (0, 0, 1),
+                (1, 0, 1),
+                (1, 1, 1),
+                (0, 1, 1)
+            ),
+            # -y
+            (
+                (0, 0, 0),
+                (1, 0, 0),
+                (1, 0, 1),
+                (0, 0, 1)
+            ),
+            # +y
+            (
+                (0, 1, 0),
+                (1, 1, 0),
+                (1, 1, 1),
+                (0, 1, 1)
+            ),
+            # -x
+            (
+                (0, 0, 0),
+                (0, 1, 0),
+                (0, 1, 1),
+                (0, 0, 1)
+            ),
+            # +x
+            (
+                (1, 0, 0),
+                (1, 1, 0),
+                (1, 1, 1),
+                (1, 0, 1)
+            ),
+        ])
 
-                ((xi, yi, zi), (xi + dxi, yi, zi),
-                    (xi + dxi, yi, zi + dzi), (xi, yi, zi + dzi)),
-                ((xi, yi + dyi, zi), (xi + dxi, yi + dyi, zi),
-                    (xi + dxi, yi + dyi, zi + dzi), (xi, yi + dyi, zi + dzi)),
+        # indexed by [bar, face, vertex, coord]
+        polys = np.empty(x.shape + cuboid.shape)
 
-                ((xi, yi, zi), (xi, yi + dyi, zi),
-                    (xi, yi + dyi, zi + dzi), (xi, yi, zi + dzi)),
-                ((xi + dxi, yi, zi), (xi + dxi, yi + dyi, zi),
-                    (xi + dxi, yi + dyi, zi + dzi), (xi + dxi, yi, zi + dzi)),
-            ])
+        # handle each coordinate separately
+        for i, p, dp in [(0, x, dx), (1, y, dy), (2, z, dz)]:
+            p = p[..., np.newaxis, np.newaxis]
+            dp = dp[..., np.newaxis, np.newaxis]
+            polys[..., i] = p + dp * cuboid[..., i]
+
+        # collapse the first two axes
+        polys = polys.reshape((-1,) + polys.shape[2:])
 
         facecolors = []
         if color is None:

@@ -361,7 +361,7 @@ class SubplotDivider(Divider):
         Parameters
         ----------
         fig : :class:`matplotlib.figure.Figure`
-        args : tuple (*numRows*, *numCols*, *plotNum*)
+        *args : tuple (*numRows*, *numCols*, *plotNum*)
             The array of subplots in the figure has dimensions *numRows*,
             *numCols*, and *plotNum* is the number of the subplot
             being created.  *plotNum* starts at 1 in the upper left

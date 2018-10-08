@@ -128,8 +128,8 @@ class Axes(_AxesBase):
     """
     ### Labelling, legend and texts
 
-    @property
     @cbook.deprecated("3.1")
+    @property
     def aname(self):
         return 'Axes'
 
@@ -537,10 +537,10 @@ class Axes(_AxesBase):
         Returns
         -------
 
-        rectangle_patch: `.Patches.Rectangle`
+        rectangle_patch : `.Patches.Rectangle`
              Rectangle artist.
 
-        connector_lines: 4-tuple of `.Patches.ConnectionPatch`
+        connector_lines : 4-tuple of `.Patches.ConnectionPatch`
             One for each of four connector lines.  Two are set with visibility
             to *False*,  but the user can set the visibility to True if the
             automatic choice is not deemed correct.
@@ -580,16 +580,14 @@ class Axes(_AxesBase):
             bboxins = pos.transformed(self.figure.transFigure)
             rectbbox = mtransforms.Bbox.from_bounds(
                         *bounds).transformed(transform)
-            if rectbbox.x0 < bboxins.x0:
-                sig = 1
-            else:
-                sig = -1
-            if sig*rectbbox.y0 < sig*bboxins.y0:
-                connects[0].set_visible(False)
-                connects[3].set_visible(False)
-            else:
-                connects[1].set_visible(False)
-                connects[2].set_visible(False)
+            x0 = rectbbox.x0 < bboxins.x0
+            x1 = rectbbox.x1 < bboxins.x1
+            y0 = rectbbox.y0 < bboxins.y0
+            y1 = rectbbox.y1 < bboxins.y1
+            connects[0].set_visible(x0 ^ y0)
+            connects[1].set_visible(x0 == y1)
+            connects[2].set_visible(x1 == y0)
+            connects[3].set_visible(x1 ^ y1)
 
         return rectpatch, connects
 
@@ -618,10 +616,10 @@ class Axes(_AxesBase):
         Returns
         -------
 
-        rectangle_patch: `.Patches.Rectangle`
+        rectangle_patch : `.Patches.Rectangle`
              Rectangle artist.
 
-        connector_lines: 4-tuple of `.Patches.ConnectionPatch`
+        connector_lines : 4-tuple of `.Patches.ConnectionPatch`
             One for each of four connector lines.  Two are set with visibility
             to *False*,  but the user can set the visibility to True if the
             automatic choice is not deemed correct.
@@ -721,8 +719,8 @@ class Axes(_AxesBase):
         return t
 
     @docstring.dedent_interpd
-    def annotate(self, text, xy, *args, **kwargs):
-        a = mtext.Annotation(text, xy, *args, **kwargs)
+    def annotate(self, s, xy, *args, **kwargs):
+        a = mtext.Annotation(s, xy, *args, **kwargs)
         a.set_transform(mtransforms.IdentityTransform())
         if 'clip_on' in kwargs:
             a.set_clip_path(self.patch)
@@ -755,7 +753,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
@@ -825,7 +823,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
@@ -1508,7 +1506,7 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        scatter : XY scatter plot with markers of variing size and/or color (
+        scatter : XY scatter plot with markers of varying size and/or color (
             sometimes also called bubble chart).
 
 
@@ -3000,7 +2998,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             All other keyword arguments are passed on to the plot
             command for the markers. For example, this code makes big red
             squares with thick green edges::
@@ -4026,7 +4024,7 @@ class Axes(_AxesBase):
             The marker size in points**2.
             Default is ``rcParams['lines.markersize'] ** 2``.
 
-        c : color, sequence, or sequence of color, optional, default: 'b'
+        c : color, sequence, or sequence of color, optional
             The marker color. Possible values:
 
             - A single color format string.
@@ -4042,10 +4040,18 @@ class Axes(_AxesBase):
             matching will have precedence in case of a size matching with *x*
             and *y*.
 
-        marker : `~matplotlib.markers.MarkerStyle`, optional, default: 'o'
+            Defaults to ``None``. In that case the marker color is determined
+            by the value of ``color``, ``facecolor`` or ``facecolors``. In case
+            those are not specified or ``None``, the marker color is determined
+            by the next color of the ``Axes``' current "shape and fill" color
+            cycle. This cycle defaults to :rc:`axes.prop_cycle`.
+
+        marker : `~matplotlib.markers.MarkerStyle`, optional
             The marker style. *marker* can be either an instance of the class
             or the text shorthand for a particular marker.
-            See `~matplotlib.markers` for more information marker styles.
+            Defaults to ``None``, in which case it takes the value of
+            :rc:`scatter.marker` = 'o'.
+            See `~matplotlib.markers` for more information about marker styles.
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             A `.Colormap` instance or registered colormap name. *cmap* is only
@@ -4881,7 +4887,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        args : sequence of x, y, [color]
+        *args : sequence of x, y, [color]
             Each polygon is defined by the lists of *x* and *y* positions of
             its nodes, optionally followed by a *color* specifier. See
             :mod:`matplotlib.colors` for supported color specifiers. The
@@ -5651,7 +5657,7 @@ class Axes(_AxesBase):
             Stroking the edges may be preferred if *alpha* is 1, but will
             cause artifacts otherwise.
 
-        **kwargs :
+        **kwargs
             Additionally, the following arguments are allowed. They are passed
             along to the `~matplotlib.collections.PolyCollection` constructor:
 
@@ -6436,7 +6442,7 @@ class Axes(_AxesBase):
             The values of the histogram bins. See *normed* or *density*
             and *weights* for a description of the possible semantics.
             If input *x* is an array, then this is an array of length
-            *nbins*. If input is a sequence arrays
+            *nbins*. If input is a sequence of arrays
             ``[data1, data2,..]``, then this is a list of arrays with
             the values of the histograms for each of the arrays in the
             same order.
@@ -6936,7 +6942,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7061,7 +7067,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7159,7 +7165,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7256,7 +7262,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7338,7 +7344,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7417,7 +7423,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7499,7 +7505,7 @@ class Axes(_AxesBase):
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        cmap :
+        cmap
             A :class:`matplotlib.colors.Colormap` instance; if *None*, use
             default determined by rc
 
@@ -7509,7 +7515,7 @@ class Axes(_AxesBase):
             right border of the last bin. Note that for *noverlap>0* the width
             of the bins is smaller than those of the segments.
 
-        **kwargs :
+        **kwargs
             Additional kwargs are passed on to imshow which makes the
             specgram image.
 

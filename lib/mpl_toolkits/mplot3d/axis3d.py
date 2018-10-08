@@ -34,12 +34,10 @@ def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
 def tick_update_position(tick, tickxs, tickys, labelpos):
     '''Update tick line and label position and style.'''
 
-    for (label, on) in [(tick.label1, tick.label1On),
-                        (tick.label2, tick.label2On)]:
-        if on:
-            label.set_position(labelpos)
-
-    tick.tick1On, tick.tick2On = True, False
+    tick.label1.set_position(labelpos)
+    tick.label2.set_position(labelpos)
+    tick.tick1line.set_visible(True)
+    tick.tick2line.set_visible(False)
     tick.tick1line.set_linestyle('-')
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)

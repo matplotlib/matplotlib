@@ -562,7 +562,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        c :
+        c : (float, float) or str
             May be either:
 
             * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0

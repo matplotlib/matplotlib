@@ -542,50 +542,17 @@ class Text(Artist):
             bbox = self._bbox_patch.update(clipprops)
 
     def set_clip_box(self, clipbox):
-        """
-        Set the artist's clip `~.transforms.Bbox`.
-
-        Parameters
-        ----------
-        clipbox : `matplotlib.transforms.Bbox`
-        """
+        # docstring inherited.
         super().set_clip_box(clipbox)
         self._update_clip_properties()
 
     def set_clip_path(self, path, transform=None):
-        """
-        Set the artist's clip path, which may be:
-
-          * a `~matplotlib.patches.Patch` (or subclass) instance
-
-          * a `~matplotlib.path.Path` instance, in which case
-             an optional `~matplotlib.transforms.Transform`
-             instance may be provided, which will be applied to the
-             path before using it for clipping.
-
-          * *None*, to remove the clipping path
-
-        For efficiency, if the path happens to be an axis-aligned
-        rectangle, this method will set the clipping box to the
-        corresponding rectangle and set the clipping path to *None*.
-
-        ACCEPTS: { (`.path.Path`, `.transforms.Transform`),
-                  `.patches.Patch`, None }
-        """
+        # docstring inherited.
         super().set_clip_path(path, transform)
         self._update_clip_properties()
 
     def set_clip_on(self, b):
-        """
-        Set whether artist uses clipping.
-
-        When False, artists will be visible outside of the axes, which can lead
-        to unexpected results.
-
-        Parameters
-        ----------
-        b : bool
-        """
+        # docstring inherited.
         super().set_clip_on(b)
         self._update_clip_properties()
 
@@ -895,25 +862,26 @@ class Text(Artist):
         return self._verticalalignment
 
     def get_window_extent(self, renderer=None, dpi=None):
-        '''
-        Return a `~matplotlib.transforms.Bbox` object bounding
-        the text, in display units.
+        """
+        Return the `Bbox` bounding the text, in display units.
 
-        In addition to being used internally, this is useful for
-        specifying clickable regions in a png file on a web page.
+        In addition to being used internally, this is useful for specifying
+        clickable regions in a png file on a web page.
 
-        *renderer* defaults to the _renderer attribute of the text
-        object.  This is not assigned until the first execution of
-        :meth:`draw`, so you must use this kwarg if you want
-        to call `.get_window_extent` prior to the first `draw`.  For
-        getting web page regions, it is simpler to call the method after
-        saving the figure.
+        Parameters
+        ----------
+        renderer : Renderer, optional
+            A renderer is needed to compute the bounding box.  If the artist
+            has already been drawn, the renderer is cached; thus, it is only
+            necessary to pass this argument when calling `get_window_extent`
+            before the first `draw`.  In practice, it is usually easier to
+            trigger a draw first (e.g. by saving the figure).
 
-        *dpi* defaults to self.figure.dpi; the renderer dpi is
-        irrelevant.  For the web application, if figure.dpi is not
-        the value used when saving the figure, then the value that
-        was used must be specified as the *dpi* argument.
-        '''
+        dpi : float, optional
+            The dpi value for computing the bbox, defaults to
+            ``self.figure.dpi`` (*not* the renderer dpi); should be set e.g. if
+            to match regions with a figure saved with a custom dpi value.
+        """
         #return _unit_box
         if not self.get_visible():
             return Bbox.unit()
@@ -1260,7 +1228,7 @@ class Text(Artist):
 
     def set_fontname(self, fontname):
         """
-        Alias for `.set_family`.
+        Alias for `set_family`.
 
         One-way alias only: the getter differs.
 
@@ -1982,10 +1950,23 @@ class _AnnotationBase(object):
 
 
 class Annotation(Text, _AnnotationBase):
+    """
+    An `.Annotation` is a `.Text` that can refer to a specific position *xy*.
+    Optionally an arrow pointing from the text to *xy* can be drawn.
+
+    Attributes
+    ----------
+    xy
+        The annotated position.
+    xycoords
+        The coordinate system for *xy*.
+    arrow_patch
+        A `.FancyArrowPatch` to point from *xytext* to *xy*.
+    """
+
     def __str__(self):
         return "Annotation(%g, %g, %r)" % (self.xy[0], self.xy[1], self._text)
 
-    @docstring.dedent_interpd
     def __init__(self, s, xy,
                  xytext=None,
                  xycoords='data',
@@ -1993,99 +1974,108 @@ class Annotation(Text, _AnnotationBase):
                  arrowprops=None,
                  annotation_clip=None,
                  **kwargs):
-        '''
-        Annotate the point ``xy`` with text ``s``.
+        """
+        Annotate the point *xy* with text *s*.
 
-        Additional kwargs are passed to `~matplotlib.text.Text`.
+        In the simplest form, the text is placed at *xy*.
+
+        Optionally, the text can be displayed in another position *xytext*.
+        An arrow pointing from the text to the annotated point *xy* can then
+        be added by defining *arrowprops*.
 
         Parameters
         ----------
-
         s : str
             The text of the annotation.
 
-        xy : iterable
-            Length 2 sequence specifying the *(x,y)* point to annotate.
+        xy : (float, float)
+            The point *(x,y)* to annotate.
 
-        xytext : iterable, optional
-            Length 2 sequence specifying the *(x,y)* to place the text
-            at.  If None, defaults to ``xy``.
+        xytext : (float, float), optional
+            The position *(x,y)* to place the text at.
+            If *None*, defaults to *xy*.
 
-        xycoords : str, Artist, Transform, callable or tuple, optional
+        xycoords : str, `.Artist`, `.Transform`, callable or tuple, optional
 
-            The coordinate system that ``xy`` is given in.
+            The coordinate system that *xy* is given in. The following types
+            of values are supported:
 
-            For a `str` the allowed values are:
+            - One of the following strings:
 
-            =================   ===============================================
-            Property            Description
-            =================   ===============================================
-            'figure points'     points from the lower left of the figure
-            'figure pixels'     pixels from the lower left of the figure
-            'figure fraction'   fraction of figure from lower left
-            'axes points'       points from lower left corner of axes
-            'axes pixels'       pixels from lower left corner of axes
-            'axes fraction'     fraction of axes from lower left
-            'data'              use the coordinate system of the object being
-                                annotated (default)
-            'polar'             *(theta,r)* if not native 'data' coordinates
-            =================   ===============================================
+              =================   =============================================
+              Value               Description
+              =================   =============================================
+              'figure points'     Points from the lower left of the figure
+              'figure pixels'     Pixels from the lower left of the figure
+              'figure fraction'   Fraction of figure from lower left
+              'axes points'       Points from lower left corner of axes
+              'axes pixels'       Pixels from lower left corner of axes
+              'axes fraction'     Fraction of axes from lower left
+              'data'              Use the coordinate system of the object being
+                                  annotated (default)
+              'polar'             *(theta,r)* if not native 'data' coordinates
+              =================   =============================================
 
-            If a `~matplotlib.artist.Artist` object is passed in the units are
-            fraction if it's bounding box.
+            - An `.Artist`: *xy* is interpreted as a fraction of the artists
+              `~matplotlib.transforms.Bbox`. E.g. *(0, 0)* would be the lower
+              left corner of the bounding box and *(0.5, 1)* would be the
+              center top of the bounding box.
 
-            If a `~matplotlib.transforms.Transform` object is passed
-            in use that to transform ``xy`` to screen coordinates
+            - A `.Transform` to transform *xy* to screen coordinates.
 
-            If a callable it must take a
-            `~matplotlib.backend_bases.RendererBase` object as input
-            and return a `~matplotlib.transforms.Transform` or
-            `~matplotlib.transforms.Bbox` object
+            - A function with one of the following signatures::
 
-            If a `tuple` must be length 2 tuple of str, `Artist`,
-            `Transform` or callable objects.  The first transform is
-            used for the *x* coordinate and the second for *y*.
+                def transform(renderer) -> Bbox
+                def transform(renderer) -> Transform
+
+              where *renderer* is a `.RendererBase` subclass.
+
+              The result of the function is interpreted like the `.Artist` and
+              `.Transform` cases above.
+
+            - A tuple *(xcoords, ycoords)* specifying separate coordinate
+              systems for *x* and *y*. *xcoords* and *ycoords* must each be
+              of one of the above described types.
 
             See :ref:`plotting-guide-annotation` for more details.
 
-            Defaults to ``'data'``
+            Defaults to 'data'.
 
-        textcoords : str, `Artist`, `Transform`, callable or tuple, optional
-            The coordinate system that ``xytext`` is given, which
-            may be different than the coordinate system used for
-            ``xy``.
+        textcoords : str, `.Artist`, `.Transform`, callable or tuple, optional
+            The coordinate system that *xytext* is given in.
 
-            All ``xycoords`` values are valid as well as the following
+            All *xycoords* values are valid as well as the following
             strings:
 
             =================   =========================================
-            Property            Description
+            Value               Description
             =================   =========================================
-            'offset points'     offset (in points) from the *xy* value
-            'offset pixels'     offset (in pixels) from the *xy* value
+            'offset points'     Offset (in points) from the *xy* value
+            'offset pixels'     Offset (in pixels) from the *xy* value
             =================   =========================================
 
-            defaults to the input of ``xycoords``
+            Defaults to the value of *xycoords*, i.e. use the same coordinate
+            system for annotation point and text position.
 
         arrowprops : dict, optional
-            If not None, properties used to draw a
-            `~matplotlib.patches.FancyArrowPatch` arrow between ``xy`` and
-            ``xytext``.
+            The properties used to draw a
+            `~matplotlib.patches.FancyArrowPatch` arrow between the
+            positions *xy* and *xytext*.
 
-            If `arrowprops` does not contain the key ``'arrowstyle'`` the
+            If *arrowprops* does not contain the key 'arrowstyle' the
             allowed keys are:
 
             ==========   ======================================================
             Key          Description
             ==========   ======================================================
-            width        the width of the arrow in points
-            headwidth    the width of the base of the arrow head in points
-            headlength   the length of the arrow head in points
-            shrink       fraction of total length to 'shrink' from both ends
-            ?            any key to :class:`matplotlib.patches.FancyArrowPatch`
+            width        The width of the arrow in points
+            headwidth    The width of the base of the arrow head in points
+            headlength   The length of the arrow head in points
+            shrink       Fraction of total length to shrink from both ends
+            ?            Any key to :class:`matplotlib.patches.FancyArrowPatch`
             ==========   ======================================================
 
-            If the `arrowprops` contains the key ``'arrowstyle'`` the
+            If *arrowprops* contains the key 'arrowstyle' the
             above keys are forbidden.  The allowed values of
             ``'arrowstyle'`` are:
 
@@ -2123,25 +2113,32 @@ class Annotation(Text, _AnnotationBase):
             ?                any key for :class:`matplotlib.patches.PathPatch`
             ===============  ==================================================
 
-            Defaults to None
+            Defaults to None, i.e. no arrow is drawn.
 
-        annotation_clip : bool, optional
-            Controls the visibility of the annotation when it goes
+        annotation_clip : bool or None, optional
+            Whether to draw the annotation when the annotation point *xy* is
             outside the axes area.
 
-            If `True`, the annotation will only be drawn when the
-            ``xy`` is inside the axes. If `False`, the annotation will
-            always be drawn regardless of its position.
+            - If *True*, the annotation will only be drawn when *xy* is
+              within the axes.
+            - If *False*, the annotation will always be drawn.
+            - If *None*, the annotation will only be drawn when *xy* is
+              within the axes and *xycoords* is 'data'.
 
-            The default is `None`, which behave as `True` only if
-            *xycoords* is "data".
+            Defaults to *None*.
+
+        **kwargs
+            Additional kwargs are passed to `~matplotlib.text.Text`.
 
         Returns
         -------
-        Annotation
+        annotation : `.Annotation`
 
-        '''
+        See Also
+        --------
+        :ref:`plotting-guide-annotation`.
 
+        """
         _AnnotationBase.__init__(self,
                                  xy,
                                  xycoords=xycoords,
@@ -2195,6 +2192,11 @@ class Annotation(Text, _AnnotationBase):
 
     @property
     def xyann(self):
+        """
+        The the text position.
+
+        See also *xytext* in `.Annotation`.
+        """
         return self.get_position()
 
     @xyann.setter
@@ -2203,6 +2205,7 @@ class Annotation(Text, _AnnotationBase):
 
     @property
     def anncoords(self):
+        """The coordinate system to use for `.Annotation.xyann`."""
         return self._textcoords
 
     @anncoords.setter
@@ -2210,7 +2213,18 @@ class Annotation(Text, _AnnotationBase):
         self._textcoords = coords
 
     get_anncoords = anncoords.fget
+    get_anncoords.__doc__ = """
+    Return the coordinate system to use for `.Annotation.xyann`.
+
+    See also *xycoords* in `.Annotation`.
+    """
+
     set_anncoords = anncoords.fset
+    set_anncoords.__doc__ = """
+    Set the coordinate system to use for `.Annotation.xyann`.
+
+    See also *xycoords* in `.Annotation`.
+    """
 
     def set_figure(self, fig):
         if self.arrow_patch is not None:
@@ -2351,34 +2365,43 @@ class Annotation(Text, _AnnotationBase):
         Text.draw(self, renderer)
 
     def get_window_extent(self, renderer=None):
-        '''
-        Return a :class:`~matplotlib.transforms.Bbox` object bounding
-        the text and arrow annotation, in display units.
+        """
+        Return the `Bbox` bounding the text and arrow, in display units.
 
-        *renderer* defaults to the _renderer attribute of the text
-        object.  This is not assigned until the first execution of
-        :meth:`draw`, so you must use this kwarg if you want
-        to call :meth:`get_window_extent` prior to the first
-        :meth:`draw`.  For getting web page regions, it is
-        simpler to call the method after saving the figure. The
-        *dpi* used defaults to self.figure.dpi; the renderer dpi is
-        irrelevant.
-        '''
-        self.update_positions(renderer)
+        Parameters
+        ----------
+        renderer : Renderer, optional
+            A renderer is needed to compute the bounding box.  If the artist
+            has already been drawn, the renderer is cached; thus, it is only
+            necessary to pass this argument when calling `get_window_extent`
+            before the first `draw`.  In practice, it is usually easier to
+            trigger a draw first (e.g. by saving the figure).
+        """
+        # This block is the same as in Text.get_window_extent, but we need to
+        # set the renderer before calling update_positions().
         if not self.get_visible():
             return Bbox.unit()
+        if renderer is not None:
+            self._renderer = renderer
+        if self._renderer is None:
+            self._renderer = self.figure._cachedRenderer
+        if self._renderer is None:
+            raise RuntimeError('Cannot get window extent w/o renderer')
 
-        text_bbox = Text.get_window_extent(self, renderer=renderer)
+        self.update_positions(self._renderer)
+
+        text_bbox = Text.get_window_extent(self)
         bboxes = [text_bbox]
 
         if self.arrow_patch is not None:
-            bboxes.append(
-                self.arrow_patch.get_window_extent(renderer=renderer))
+            bboxes.append(self.arrow_patch.get_window_extent())
 
         return Bbox.union(bboxes)
 
     arrow = property(
-        fget=cbook.deprecated("3.0")(lambda self: None),
+        fget=cbook.deprecated("3.0", message="arrow was deprecated in "
+            "Matplotlib 3.0 and will be removed in 3.2. Use arrow_patch "
+            "instead.")(lambda self: None),
         fset=cbook.deprecated("3.0")(lambda self, value: None))
 
 

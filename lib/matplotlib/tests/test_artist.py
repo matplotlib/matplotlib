@@ -258,10 +258,11 @@ def test_None_zorder():
 
 @pytest.mark.parametrize('accept_clause, expected', [
     ('', 'unknown'),
-    ("ACCEPTS: [ '-' | '--' | '-.' ]", "[ '-' | '--' | '-.' ] "),
-    ('ACCEPTS: Some description.', 'Some description. '),
-    ('.. ACCEPTS: Some description.', 'Some description. '),
+    ("ACCEPTS: [ '-' | '--' | '-.' ]", "[ '-' | '--' | '-.' ]"),
+    ('ACCEPTS: Some description.', 'Some description.'),
+    ('.. ACCEPTS: Some description.', 'Some description.'),
     ('arg : int', 'int'),
+    ('*arg : int', 'int'),
     ('arg : int\nACCEPTS: Something else.', 'Something else. '),
 ])
 def test_artist_inspector_get_valid_values(accept_clause, expected):

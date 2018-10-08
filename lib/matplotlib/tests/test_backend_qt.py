@@ -7,28 +7,98 @@ from matplotlib._pylab_helpers import Gcf
 
 import pytest
 
-try:
-    import PyQt5
-except (ImportError, RuntimeError):  # RuntimeError if PyQt4 already imported.
-    try:
-        import PySide2
-    except ImportError:
-        pytestmark = pytest.mark.skip("Failed to import a Qt5 binding.")
 
-qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
-QtCore = qt_compat.QtCore
+@pytest.fixture(autouse=True)
+def mpl_test_settings(qt_module, mpl_test_settings):
+    """
+    Ensure qt_module fixture is *first* fixture.
 
-from matplotlib.backends.backend_qt5 import (
-    MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)  # noqa
-
-_, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
-_, AltModifier, AltKey = MODIFIER_KEYS[ALT]
-_, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
-_, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
+    We override the `mpl_test_settings` fixture and depend on the `qt_module`
+    fixture first. It is very important that it is first, because it skips
+    tests when Qt is not available, and if not, then the main
+    `mpl_test_settings` fixture will try to switch backends before the skip can
+    be triggered.
+    """
+    pass
 
 
-@pytest.mark.backend('Qt5Agg')
-def test_fig_close():
+@pytest.fixture
+def qt_module(request):
+    backend, = request.node.get_closest_marker('backend').args
+    if backend == 'Qt4Agg':
+        try:
+            import PyQt4
+        # RuntimeError if PyQt5 already imported.
+        except (ImportError, RuntimeError):
+            try:
+                import PySide
+            except ImportError:
+                pytest.skip("Failed to import a Qt4 binding.")
+    elif backend == 'Qt5Agg':
+        try:
+            import PyQt5
+        # RuntimeError if PyQt4 already imported.
+        except (ImportError, RuntimeError):
+            try:
+                import PySide2
+            except ImportError:
+                pytest.skip("Failed to import a Qt5 binding.")
+    else:
+        raise ValueError('Backend marker has unknown value: ' + backend)
+
+    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
+    QtCore = qt_compat.QtCore
+
+    if backend == 'Qt4Agg':
+        try:
+            py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
+        except AttributeError:
+            py_qt_ver = QtCore.__version_info__[0]
+
+        if py_qt_ver != 4:
+            pytest.skip(reason='Qt4 is not available')
+
+        from matplotlib.backends.backend_qt4 import (
+            MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)
+    elif backend == 'Qt5Agg':
+        from matplotlib.backends.backend_qt5 import (
+            MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)
+
+    mods = {}
+    keys = {}
+    for name, index in zip(['Alt', 'Control', 'Shift', 'Super'],
+                           [ALT, CTRL, SHIFT, SUPER]):
+        _, mod, key = MODIFIER_KEYS[index]
+        mods[name + 'Modifier'] = mod
+        keys[name + 'Key'] = key
+
+    return QtCore, mods, keys
+
+
+@pytest.fixture
+def qt_key(request):
+    QtCore, _, keys = request.getfixturevalue('qt_module')
+    if request.param.startswith('Key'):
+        return getattr(QtCore.Qt, request.param)
+    else:
+        return keys[request.param]
+
+
+@pytest.fixture
+def qt_mods(request):
+    QtCore, mods, _ = request.getfixturevalue('qt_module')
+    result = QtCore.Qt.NoModifier
+    for mod in request.param:
+        result |= mods[mod]
+    return result
+
+
+@pytest.mark.parametrize('backend', [
+    # Note: the value is irrelevant; the important part is the marker.
+    pytest.param('Qt4Agg', marks=pytest.mark.backend('Qt4Agg')),
+    pytest.param('Qt5Agg', marks=pytest.mark.backend('Qt5Agg')),
+])
+def test_fig_close(backend):
     # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
 
@@ -47,21 +117,22 @@ def test_fig_close():
 @pytest.mark.parametrize(
     'qt_key, qt_mods, answer',
     [
-        (QtCore.Qt.Key_A, ShiftModifier, 'A'),
-        (QtCore.Qt.Key_A, QtCore.Qt.NoModifier, 'a'),
-        (QtCore.Qt.Key_A, ControlModifier, 'ctrl+a'),
-        (QtCore.Qt.Key_Aacute, ShiftModifier,
+        ('Key_A', ['ShiftModifier'], 'A'),
+        ('Key_A', [], 'a'),
+        ('Key_A', ['ControlModifier'], 'ctrl+a'),
+        ('Key_Aacute', ['ShiftModifier'],
          '\N{LATIN CAPITAL LETTER A WITH ACUTE}'),
-        (QtCore.Qt.Key_Aacute, QtCore.Qt.NoModifier,
+        ('Key_Aacute', [],
          '\N{LATIN SMALL LETTER A WITH ACUTE}'),
-        (ControlKey, AltModifier, 'alt+control'),
-        (AltKey, ControlModifier, 'ctrl+alt'),
-        (QtCore.Qt.Key_Aacute, (ControlModifier | AltModifier | SuperModifier),
+        ('ControlKey', ['AltModifier'], 'alt+control'),
+        ('AltKey', ['ControlModifier'], 'ctrl+alt'),
+        ('Key_Aacute', ['ControlModifier', 'AltModifier', 'SuperModifier'],
          'ctrl+alt+super+\N{LATIN SMALL LETTER A WITH ACUTE}'),
-        (QtCore.Qt.Key_Backspace, QtCore.Qt.NoModifier, 'backspace'),
-        (QtCore.Qt.Key_Backspace, ControlModifier, 'ctrl+backspace'),
-        (QtCore.Qt.Key_Play, QtCore.Qt.NoModifier, None),
+        ('Key_Backspace', [], 'backspace'),
+        ('Key_Backspace', ['ControlModifier'], 'ctrl+backspace'),
+        ('Key_Play', [], None),
     ],
+    indirect=['qt_key', 'qt_mods'],
     ids=[
         'shift',
         'lower',
@@ -76,11 +147,15 @@ def test_fig_close():
         'non_unicode_key',
     ]
 )
-@pytest.mark.backend('Qt5Agg')
-def test_correct_key(qt_key, qt_mods, answer):
+@pytest.mark.parametrize('backend', [
+    # Note: the value is irrelevant; the important part is the marker.
+    pytest.param('Qt4Agg', marks=pytest.mark.backend('Qt4Agg')),
+    pytest.param('Qt5Agg', marks=pytest.mark.backend('Qt5Agg')),
+])
+def test_correct_key(backend, qt_key, qt_mods, answer):
     """
     Make a figure
-    Send a key_press_event event (using non-public, qt5 backend specific api)
+    Send a key_press_event event (using non-public, qtX backend specific api)
     Catch the event
     Assert sent and caught keys are the same
     """

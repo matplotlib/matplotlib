@@ -477,17 +477,16 @@ class Line2D(Artist):
         else:
             pixels = self.figure.dpi / 72. * self.pickradius
 
-        # the math involved in checking for containment (here and inside of
-        # segment_hits) assumes that it is OK to overflow.  In case the
-        # application has set the error flags such that an exception is raised
-        # on overflow, we temporarily set the appropriate error flags here and
-        # set them back when we are finished.
+        # The math involved in checking for containment (here and inside of
+        # segment_hits) assumes that it is OK to overflow, so temporarily set
+        # the error flags accordingly.
         with np.errstate(all='ignore'):
             # Check for collision
             if self._linestyle in ['None', None]:
                 # If no line, return the nearby point(s)
-                d = (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
-                ind, = np.nonzero(np.less_equal(d, pixels ** 2))
+                ind, = np.nonzero(
+                    (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
+                    <= pixels ** 2)
             else:
                 # If line, return the nearby segment(s)
                 ind = segment_hits(mouseevent.x, mouseevent.y, xt, yt, pixels)
@@ -555,7 +554,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        every: None or int or (int, int) or slice or List[int] or float or \
+        every : None or int or (int, int) or slice or List[int] or float or \
 (float, float)
             Which markers to plot.
 
@@ -650,7 +649,9 @@ class Line2D(Artist):
         """
         Set the x and y data.
 
-        ACCEPTS: 2D array (rows are x, y) or two 1D arrays
+        Parameters
+        ----------
+        *args : (N, 2) array or two 1D arrays
         """
         if len(args) == 1:
             x, y = args[0]

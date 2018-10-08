@@ -18,7 +18,7 @@ import warnings
 import numpy as np
 
 from matplotlib import rcParams
-from matplotlib import docstring
+from matplotlib import backends, docstring
 from matplotlib import __version__ as _mpl_version
 from matplotlib import get_backend
 
@@ -415,12 +415,8 @@ class Figure(Artist):
         Parameters
         ----------
         warn : bool
-            If ``True``, issue warning when called on a non-GUI backend
-
-        Notes
-        -----
-        For non-GUI backends, this does nothing, in which case a warning will
-        be issued if *warn* is ``True`` (default).
+            If ``True`` and we are not running headless (i.e. on Linux with an
+            unset DISPLAY), issue warning when called on a non-GUI backend.
         """
         try:
             manager = getattr(self.canvas, 'manager')
@@ -436,7 +432,8 @@ class Figure(Artist):
                 return
             except NonGuiException:
                 pass
-        if warn:
+        if (backends._get_running_interactive_framework() != "headless"
+                and warn):
             warnings.warn('Matplotlib is currently using %s, which is a '
                           'non-GUI backend, so cannot show the figure.'
                           % get_backend())
@@ -550,11 +547,11 @@ class Figure(Artist):
         h_pad : scalar
             Height padding in inches. Defaults to 3 pts.
 
-        wspace: scalar
+        wspace : scalar
             Width padding between subplots, expressed as a fraction of the
             subplot width.  The total padding ends up being w_pad + wspace.
 
-        hspace: scalar
+        hspace : scalar
             Height padding between subplots, expressed as a fraction of the
             subplot width. The total padding ends up being h_pad + hspace.
 
@@ -979,7 +976,10 @@ default: 'top'
         """
         Set the width of the figure in inches.
 
-        .. ACCEPTS: float
+        Parameters
+        ----------
+        val : float
+        forward : bool
         """
         self.set_size_inches(val, self.get_figheight(), forward=forward)
 
@@ -987,7 +987,10 @@ default: 'top'
         """
         Set the height of the figure in inches.
 
-        .. ACCEPTS: float
+        Parameters
+        ----------
+        val : float
+        forward : bool
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
@@ -2181,11 +2184,20 @@ default: 'top'
         Wait until the user clicks *n* times on the figure, and return the
         coordinates of each click in a list.
 
-        The buttons used for the various actions (adding points, removing
-        points, terminating the inputs) can be overridden via the
-        arguments *mouse_add*, *mouse_pop* and *mouse_stop*, that give
-        the associated mouse button: 1 for left, 2 for middle, 3 for
-        right.
+        There are three possible interactions:
+
+        - Add a point.
+        - Remove the most recently added point.
+        - Stop the interaction and return the points added so far.
+
+        The actions are assigned to mouse buttons via the arguments
+        *mouse_add*, *mouse_pop* and *mouse_stop*. Mouse buttons are defined
+        by the numbers:
+
+        - 1: left mouse button
+        - 2: middle mouse button
+        - 3: right mouse button
+        - None: no mouse button
 
         Parameters
         ----------
@@ -2197,11 +2209,11 @@ default: 'top'
             will never timeout.
         show_clicks : bool, optional, default: False
             If True, show a red cross at the location of each click.
-        mouse_add : int, one of (1, 2, 3), optional, default: 1 (left click)
+        mouse_add : {1, 2, 3, None}, optional, default: 1 (left click)
             Mouse button used to add points.
-        mouse_pop : int, one of (1, 2, 3), optional, default: 3 (right click)
+        mouse_pop : {1, 2, 3, None}, optional, default: 3 (right click)
             Mouse button used to remove the most recently added point.
-        mouse_stop : int, one of (1, 2, 3), optional, default: 2 (middle click)
+        mouse_stop : {1, 2, 3, None}, optional, default: 2 (middle click)
             Mouse button used to stop input.
 
         Returns

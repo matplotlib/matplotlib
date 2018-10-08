@@ -20,7 +20,7 @@ a figure. Two ways of doing so are
 * using the respective argument to :func:`~.pyplot.subplots` or
   :func:`~.pyplot.figure`, e.g.::
 
-      plt.subplots(contrained_layout=True)
+      plt.subplots(constrained_layout=True)
 
 * activate it via :ref:`rcParams<matplotlib-rcparams>`, like::
 
@@ -49,15 +49,12 @@ clipped.
 
 # sphinx_gallery_thumbnail_number = 18
 
-#import matplotlib
-#matplotlib.use('Qt5Agg')
 
 import matplotlib.pyplot as plt
-import numpy as np
 import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
+import numpy as np
 
-import matplotlib._layoutbox as layoutbox
 
 plt.rcParams['savefig.facecolor'] = "0.8"
 plt.rcParams['figure.figsize'] = 4.5, 4.
@@ -116,10 +113,10 @@ for ax in axs.flatten():
 #
 # .. note::
 #
-#   For the `~.axes.Axes.pcolormesh` kwargs (``pc_kwargs``) we use a dictionary.
-#   Below we will assign one colorbar to a number of axes each containing
-#   a `~.cm.ScalarMappable`; specifying the norm and colormap ensures
-#   the colorbar is accurate for all the axes.
+#   For the `~.axes.Axes.pcolormesh` kwargs (``pc_kwargs``) we use a
+#   dictionary. Below we will assign one colorbar to a number of axes each
+#   containing a `~.cm.ScalarMappable`; specifying the norm and colormap
+#   ensures the colorbar is accurate for all the axes.
 
 arr = np.arange(100).reshape((10, 10))
 norm = mcolors.Normalize(vmin=0., vmax=100.)
@@ -131,13 +128,24 @@ fig.colorbar(im, ax=ax, shrink=0.6)
 
 ############################################################################
 # If you specify a list of axes (or other iterable container) to the
-# ``ax`` argument of ``colorbar``, constrained_layout will take space from all
-# axes that share the same gridspec.
+# ``ax`` argument of ``colorbar``, constrained_layout will take space from
+# the specified axes.
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flatten():
     im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs, shrink=0.6)
+
+############################################################################
+# If you specify a list of axes from inside a grid of axes, the colorbar
+# will steal space appropriately, and leave a gap, but all subplots will
+# still be the same size.
+
+fig, axs = plt.subplots(3, 3, figsize=(4, 4), constrained_layout=True)
+for ax in axs.flatten():
+    im = ax.pcolormesh(arr, **pc_kwargs)
+fig.colorbar(im, ax=axs[1:, ][:, 1], shrink=0.8)
+fig.colorbar(im, ax=axs[:, -1], shrink=0.6)
 
 ############################################################################
 # Note that there is a bit of a subtlety when specifying a single axes
@@ -192,11 +200,10 @@ ax.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 #############################################
 # However, this will steal space from a subplot layout:
 
-fig, axs = plt.subplots(2, 2, constrained_layout=True)
-for ax in axs.flatten()[:-1]:
-    ax.plot(np.arange(10))
-axs[1, 1].plot(np.arange(10), label='This is a plot')
-axs[1, 1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
+fig, axs = plt.subplots(1, 2, figsize=(4, 2), constrained_layout=True)
+axs[0].plot(np.arange(10))
+axs[1].plot(np.arange(10), label='This is a plot')
+axs[1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 
 #############################################
 # In order for a legend or other artist to *not* steal space
@@ -205,30 +212,47 @@ axs[1, 1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 # cropped, but can be useful if the plot is subsequently called
 # with ``fig.savefig('outname.png', bbox_inches='tight')``.  Note,
 # however, that the legend's ``get_in_layout`` status will have to be
-# toggled again to make the saved file work:
+# toggled again to make the saved file work, and we must manually
+# trigger a draw if we want constrained_layout to adjust the size
+# of the axes before printing.
 
-fig, axs = plt.subplots(2, 2, constrained_layout=True)
-for ax in axs.flatten()[:-1]:
-    ax.plot(np.arange(10))
-axs[1, 1].plot(np.arange(10), label='This is a plot')
-leg = axs[1, 1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
+fig, axs = plt.subplots(1, 2, figsize=(4, 2), constrained_layout=True)
+
+axs[0].plot(np.arange(10))
+axs[1].plot(np.arange(10), label='This is a plot')
+leg = axs[1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 leg.set_in_layout(False)
-wanttoprint = False
-if wanttoprint:
-    leg.set_in_layout(True)
-    fig.do_constrained_layout(False)
-    fig.savefig('outname.png', bbox_inches='tight')
+# trigger a draw so that constrained_layout is executed once
+# before we turn it off when printing....
+fig.canvas.draw()
+# we want the legend included in the bbox_inches='tight' calcs.
+leg.set_in_layout(True)
+# we don't want the layout to change at this point.
+fig.set_constrained_layout(False)
+fig.savefig('CL01.png', bbox_inches='tight', dpi=100)
 
 #############################################
+# The saved file looks like:
+#
+# .. image:: /_static/constrained_layout/CL01.png
+#    :align: center
+#
 # A better way to get around this awkwardness is to simply
-# use a legend for the figure:
-fig, axs = plt.subplots(2, 2, constrained_layout=True)
-for ax in axs.flatten()[:-1]:
-    ax.plot(np.arange(10))
-lines = axs[1, 1].plot(np.arange(10), label='This is a plot')
+# use the legend method provided by `.Figure.legend`:
+fig, axs = plt.subplots(1, 2, figsize=(4, 2), constrained_layout=True)
+axs[0].plot(np.arange(10))
+lines = axs[1].plot(np.arange(10), label='This is a plot')
 labels = [l.get_label() for l in lines]
 leg = fig.legend(lines, labels, loc='center left',
-                 bbox_to_anchor=(0.8, 0.5), bbox_transform=axs[1, 1].transAxes)
+                 bbox_to_anchor=(0.8, 0.5), bbox_transform=axs[1].transAxes)
+fig.savefig('CL02.png', bbox_inches='tight', dpi=100)
+
+#############################################
+# The saved file looks like:
+#
+# .. image:: /_static/constrained_layout/CL02.png
+#    :align: center
+#
 
 ###############################################################################
 # Padding and Spacing
@@ -456,6 +480,21 @@ bb_ax2 = Bbox(fig_coords_ax2)
 ax2 = fig.add_axes(bb_ax2)
 
 ###############################################################################
+# Manually turning off ``constrained_layout``
+# ===========================================
+#
+# ``constrained_layout`` usually adjusts the axes positions on each draw
+# of the figure.  If you want to get the spacing provided by
+# ``constrained_layout`` but not have it update, then do the initial
+# draw and then call ``fig.set_constrained_layout(False)``.
+# This is potentially useful for animations where the tick labels may
+# change length.
+#
+# Note that ``constrained_layout`` is turned off for ``ZOOM`` and ``PAN``
+# GUI events for the backends that use the toolbar.  This prevents the
+# axes from changing position during zooming and panning.
+#
+#
 # Limitations
 # ========================
 #

@@ -284,6 +284,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Again, for these simple examples this style seems like overkill, however
 # once the graphs get slightly more complex it pays off.
 #
+#
+# .. _backends:
+#
 # Backends
 # ========
 #
@@ -759,6 +762,14 @@ for i in range(3):
 #   mpl.rcParams['agg.path.chunksize'] = 10000
 #   plt.plot(y)
 #   plt.show()
+#
+# Legends
+# -------
+#
+# The default legend behavior for axes attempts to find the location
+# that covers the fewest data points (`loc='best'`). This can be a
+# very expensive computation if there are lots of data points. In
+# this case, you may want to provide a specific location.
 #
 # Using the *fast* style
 # ----------------------

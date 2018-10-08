@@ -5,7 +5,6 @@ from distutils.core import Extension
 import glob
 import hashlib
 import importlib
-import multiprocessing
 import os
 import pathlib
 import platform
@@ -907,7 +906,7 @@ class FreeType(SetupPackage):
             try:
                 check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
             except CheckFailed:
-                check_include_file(get_include_dirs(), 'freetype2\\ft2build.h', 'freetype')
+                check_include_file(get_include_dirs(), os.path.join('freetype2', 'ft2build.h'), 'freetype')
             return 'Using unknown version found on system.'
 
         status, output = subprocess.getstatusoutput(

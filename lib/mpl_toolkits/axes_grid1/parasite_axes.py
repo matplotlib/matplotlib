@@ -104,14 +104,14 @@ class ParasiteAxesAuxTransBase:
             X, Y, C = XYC
 
         if "transform" in kwargs:
-            mesh = super_pcolor(self, X, Y, C, **kwargs)
+            mesh = super_pcolor(X, Y, C, **kwargs)
         else:
             orig_shape = X.shape
             xyt = np.column_stack([X.flat, Y.flat])
             wxy = self.transAux.transform(xyt)
             gx = wxy[:, 0].reshape(orig_shape)
             gy = wxy[:, 1].reshape(orig_shape)
-            mesh = super_pcolor(self, gx, gy, C, **kwargs)
+            mesh = super_pcolor(gx, gy, C, **kwargs)
             mesh.set_transform(self._parent_axes.transData)
 
         return mesh
@@ -138,14 +138,14 @@ class ParasiteAxesAuxTransBase:
             CL = XYCL[2:]
 
         if "transform" in kwargs:
-            cont = super_contour(self, X, Y, *CL, **kwargs)
+            cont = super_contour(X, Y, *CL, **kwargs)
         else:
             orig_shape = X.shape
             xyt = np.column_stack([X.flat, Y.flat])
             wxy = self.transAux.transform(xyt)
             gx = wxy[:, 0].reshape(orig_shape)
             gy = wxy[:, 1].reshape(orig_shape)
-            cont = super_contour(self, gx, gy, *CL, **kwargs)
+            cont = super_contour(gx, gy, *CL, **kwargs)
             for c in cont.collections:
                 c.set_transform(self._parent_axes.transData)
 
@@ -366,7 +366,7 @@ def host_axes(*args, axes_class=None, figure=None, **kwargs):
         Figure to which the axes will be added. Defaults to the current figure
         `pyplot.gcf()`.
 
-    *args, **kwargs :
+    *args, **kwargs
         Will be passed on to the underlying ``Axes`` object creation.
     """
     import matplotlib.pyplot as plt
@@ -389,7 +389,7 @@ def host_subplot(*args, axes_class=None, figure=None, **kwargs):
         Figure to which the subplot will be added. Defaults to the current
         figure `pyplot.gcf()`.
 
-    *args, **kwargs :
+    *args, **kwargs
         Will be passed on to the underlying ``Axes`` object creation.
     """
     import matplotlib.pyplot as plt

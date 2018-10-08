@@ -8,6 +8,8 @@ branches:
   except:
     - /auto-backport-.*/
 
+clone_depth: 50
+
 environment:
 
   global:
@@ -24,6 +26,9 @@ environment:
       TEST_ALL: "no"
     - PYTHON_VERSION: "3.6"
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
+      TEST_ALL: "no"
+    - PYTHON_VERSION: "3.7"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
       TEST_ALL: "no"
 
 # We always use a 64-bit machine, but can build x86 distributions

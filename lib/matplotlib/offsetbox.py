@@ -179,9 +179,16 @@ class OffsetBox(martist.Artist):
 
     def set_offset(self, xy):
         """
-        Set the offset
+        Set the offset.
 
-        accepts x, y, tuple, or a callable object.
+        Parameters
+        ----------
+        xy : (float, float) or callable
+            The (x,y) coordinates of the offset in display units.
+            A callable must have the signature::
+
+                def offset(width, height, xdescent, ydescent, renderer) \
+-> (float, float)
         """
         self._offset = xy
         self.stale = True
@@ -602,9 +609,12 @@ class DrawingArea(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinate in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -691,7 +701,9 @@ class TextArea(OffsetBox):
         s : str
             a string to be displayed.
 
-        textprops : `~matplotlib.font_manager.FontProperties`, optional
+        textprops : dictionary, optional, default: None
+            Dictionary of keyword parameters to be passed to the
+            `~matplotlib.text.Text` instance contained inside TextArea.
 
         multilinebaseline : bool, optional
             If `True`, baseline for multiline text is adjusted so that
@@ -773,9 +785,12 @@ class TextArea(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinates in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -891,9 +906,12 @@ class AuxTransformBox(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinate in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -1294,9 +1312,12 @@ class OffsetImage(OffsetBox):
 
 #     def set_offset(self, xy):
 #         """
-#         set offset of the container.
-
-#         Accept : tuple of x,y coordinate in display units.
+#         Set the offset of the container.
+#
+#         Parameters
+#         ----------
+#         xy : (float, float)
+#             The (x,y) coordinates of the offset in display units.
 #         """
 #         self._offset = xy
 

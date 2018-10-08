@@ -405,18 +405,19 @@ def date2num(d):
     Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
-
     if hasattr(d, "values"):
         # this unpacks pandas series or dataframes...
         d = d.values
-
-    if ((isinstance(d, np.ndarray) and np.issubdtype(d.dtype, np.datetime64))
-            or isinstance(d, np.datetime64)):
-        return _dt64_to_ordinalf(d)
     if not np.iterable(d):
+        if (isinstance(d, np.datetime64) or (isinstance(d, np.ndarray) and
+                np.issubdtype(d.dtype, np.datetime64))):
+            return _dt64_to_ordinalf(d)
         return _to_ordinalf(d)
+
     else:
         d = np.asarray(d)
+        if np.issubdtype(d.dtype, np.datetime64):
+            return _dt64_to_ordinalf(d)
         if not d.size:
             return d
         return _to_ordinalf_np_vectorized(d)
@@ -1348,10 +1349,9 @@ class AutoDateLocator(DateLocator):
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
             if dmin.year > 20 and interval < 1000:
-                _log.warn('Plotting microsecond time intervals is not'
-                          ' well supported. Please see the'
-                          ' MicrosecondLocator documentation'
-                          ' for details.')
+                _log.warning('Plotting microsecond time intervals is not well '
+                             'supported. Please see the MicrosecondLocator '
+                             'documentation for details.')
 
         locator.set_axis(self.axis)
 
@@ -1729,6 +1729,7 @@ def date_ticker_factory(span, tz=None, numticks=5):
     return locator, formatter
 
 
+@cbook.deprecated("3.1")
 def seconds(s):
     """
     Return seconds as days.
@@ -1736,6 +1737,7 @@ def seconds(s):
     return s / SEC_PER_DAY
 
 
+@cbook.deprecated("3.1")
 def minutes(m):
     """
     Return minutes as days.
@@ -1743,6 +1745,7 @@ def minutes(m):
     return m / MINUTES_PER_DAY
 
 
+@cbook.deprecated("3.1")
 def hours(h):
     """
     Return hours as days.
@@ -1750,6 +1753,7 @@ def hours(h):
     return h / HOURS_PER_DAY
 
 
+@cbook.deprecated("3.1")
 def weeks(w):
     """
     Return weeks as days.

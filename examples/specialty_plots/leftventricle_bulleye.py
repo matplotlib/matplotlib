@@ -21,7 +21,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
     ax : axes
     data : list of int and float
         The intensity values for each of the 17 segments
-    segBold: list of int, optional
+    segBold : list of int, optional
         A list with the segments to highlight
     cmap : ColorMap or None, optional
         Optional argument to set the desired colormap

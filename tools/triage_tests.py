@@ -102,7 +102,6 @@ class EventFilter(QtCore.QObject):
             self.window.keyPressEvent(event)
             return True
         else:
-            return False
             return super().eventFilter(receiver, event)
 
 

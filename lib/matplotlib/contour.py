@@ -216,11 +216,11 @@ class ContourLabeler(object):
         self.labelTextsList = cbook.silent_list('text.Text', self.labelTexts)
         return self.labelTextsList
 
-    cl = property(cbook.deprecated("3.0", alternative="labelTexts")(
+    cl = cbook.deprecated("3.0", alternative="labelTexts")(property(
         lambda self: self.labelTexts))
-    cl_xy = property(cbook.deprecated("3.0", alternative="labelXYs")(
+    cl_xy = cbook.deprecated("3.0", alternative="labelXYs")(property(
         lambda self: self.labelXYs))
-    cl_cvalues = property(cbook.deprecated("3.0", alternative="labelCValues")(
+    cl_cvalues = cbook.deprecated("3.0", alternative="labelCValues")(property(
         lambda self: self.labelCValues))
 
     def print_label(self, linecontour, labelwidth):
@@ -230,11 +230,9 @@ class ContourLabeler(object):
 
     def too_close(self, x, y, lw):
         "Return *True* if a label is already near this location."
-        for loc in self.labelXYs:
-            d = np.sqrt((x - loc[0]) ** 2 + (y - loc[1]) ** 2)
-            if d < 1.2 * lw:
-                return True
-        return False
+        thresh = (1.2 * lw) ** 2
+        return any((x - loc[0]) ** 2 + (y - loc[1]) ** 2 < thresh
+                   for loc in self.labelXYs)
 
     def get_label_coords(self, distances, XX, YY, ysize, lw):
         """
@@ -704,8 +702,10 @@ def _is_closed_polygon(X):
 
 def _find_closest_point_on_path(lc, point):
     """
-    lc: coordinates of vertices
-    point: coordinates of test point
+    Parameters
+    ----------
+    lc : coordinates of vertices
+    point : coordinates of test point
     """
 
     # find index of closest vertex for this segment
@@ -772,22 +772,22 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         particular contour level are grouped together so that
         ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
 
-    kwargs :
+    **kwargs
         Keyword arguments are as described in the docstring of
         `~.axes.Axes.contour`.
 
     Attributes
     ----------
-    ax:
+    ax
         The axes object in which the contours are drawn.
 
-    collections:
+    collections
         A silent_list of LineCollections or PolyCollections.
 
-    levels:
+    levels
         Contour levels.
 
-    layers:
+    layers
         Same as levels for line contours; half-way between
         levels for filled contours.  See :meth:`_process_colors`.
     """
@@ -808,7 +808,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         Parameters
         ----------
-        ax :
+        ax : `~.axes.Axes`
             The `~.axes.Axes` object to draw on.
 
         levels : [level0, level1, ..., leveln]
@@ -1454,16 +1454,16 @@ class QuadContourSet(ContourSet):
 
     Attributes
     ----------
-    ax:
+    ax
         The axes object in which the contours are drawn.
 
-    collections:
+    collections
         A silent_list of LineCollections or PolyCollections.
 
-    levels:
+    levels
         Contour levels.
 
-    layers:
+    layers
         Same as levels for line contours; half-way between
         levels for filled contours. See :meth:`_process_colors` method.
     """

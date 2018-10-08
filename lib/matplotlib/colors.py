@@ -974,15 +974,13 @@ class Normalize(object):
             return vmin + value * (vmax - vmin)
 
     def autoscale(self, A):
-        """
-        Set *vmin*, *vmax* to min, max of *A*.
-        """
+        """Set *vmin*, *vmax* to min, max of *A*."""
         A = np.asanyarray(A)
         self.vmin = A.min()
         self.vmax = A.max()
 
     def autoscale_None(self, A):
-        """autoscale only None-valued vmin or vmax."""
+        """Autoscale only None-valued vmin or vmax."""
         A = np.asanyarray(A)
         if self.vmin is None and A.size:
             self.vmin = A.min()
@@ -990,14 +988,13 @@ class Normalize(object):
             self.vmax = A.max()
 
     def scaled(self):
-        'return true if vmin and vmax set'
-        return (self.vmin is not None and self.vmax is not None)
+        """Return whether vmin and vmax are set."""
+        return self.vmin is not None and self.vmax is not None
 
 
 class LogNorm(Normalize):
-    """
-    Normalize a given value to the 0-1 range on a log scale
-    """
+    """Normalize a given value to the 0-1 range on a log scale."""
+
     def __call__(self, value, clip=None):
         if clip is None:
             clip = self.clip
@@ -1047,22 +1044,12 @@ class LogNorm(Normalize):
             return vmin * pow((vmax / vmin), value)
 
     def autoscale(self, A):
-        """
-        Set *vmin*, *vmax* to min, max of *A*.
-        """
-        A = np.ma.masked_less_equal(A, 0, copy=False)
-        self.vmin = np.ma.min(A)
-        self.vmax = np.ma.max(A)
+        # docstring inherited.
+        super().autoscale(np.ma.masked_less_equal(A, 0, copy=False))
 
     def autoscale_None(self, A):
-        """autoscale only None-valued vmin or vmax."""
-        if self.vmin is not None and self.vmax is not None:
-            return
-        A = np.ma.masked_less_equal(A, 0, copy=False)
-        if self.vmin is None and A.size:
-            self.vmin = A.min()
-        if self.vmax is None and A.size:
-            self.vmax = A.max()
+        # docstring inherited.
+        super().autoscale_None(np.ma.masked_less_equal(A, 0, copy=False))
 
 
 class SymLogNorm(Normalize):
@@ -1124,9 +1111,7 @@ class SymLogNorm(Normalize):
         return result
 
     def _transform(self, a):
-        """
-        Inplace transformation.
-        """
+        """Inplace transformation."""
         with np.errstate(invalid="ignore"):
             masked = np.abs(a) > self.linthresh
         sign = np.sign(a[masked])
@@ -1137,9 +1122,7 @@ class SymLogNorm(Normalize):
         return a
 
     def _inv_transform(self, a):
-        """
-        Inverse inplace Transformation.
-        """
+        """Inverse inplace Transformation."""
         masked = np.abs(a) > (self.linthresh * self._linscale_adj)
         sign = np.sign(a[masked])
         exp = np.exp(sign * a[masked] / self.linthresh - self._linscale_adj)
@@ -1149,9 +1132,7 @@ class SymLogNorm(Normalize):
         return a
 
     def _transform_vmin_vmax(self):
-        """
-        Calculates vmin and vmax in the transformed system.
-        """
+        """Calculates vmin and vmax in the transformed system."""
         vmin, vmax = self.vmin, self.vmax
         arr = np.array([vmax, vmin]).astype(float)
         self._upper, self._lower = self._transform(arr)
@@ -1164,22 +1145,13 @@ class SymLogNorm(Normalize):
         return self._inv_transform(val)
 
     def autoscale(self, A):
-        """
-        Set *vmin*, *vmax* to min, max of *A*.
-        """
-        self.vmin = np.ma.min(A)
-        self.vmax = np.ma.max(A)
+        # docstring inherited.
+        super().autoscale(A)
         self._transform_vmin_vmax()
 
     def autoscale_None(self, A):
-        """autoscale only None-valued vmin or vmax."""
-        if self.vmin is not None and self.vmax is not None:
-            pass
-        A = np.asanyarray(A)
-        if self.vmin is None and A.size:
-            self.vmin = A.min()
-        if self.vmax is None and A.size:
-            self.vmax = A.max()
+        # docstring inherited.
+        super().autoscale_None(A)
         self._transform_vmin_vmax()
 
 
@@ -1233,34 +1205,17 @@ class PowerNorm(Normalize):
         else:
             return pow(value, 1. / gamma) * (vmax - vmin) + vmin
 
-    def autoscale(self, A):
-        """
-        Set *vmin*, *vmax* to min, max of *A*.
-        """
-        self.vmin = np.ma.min(A)
-        self.vmax = np.ma.max(A)
-
-    def autoscale_None(self, A):
-        """autoscale only None-valued vmin or vmax."""
-        A = np.asanyarray(A)
-        if self.vmin is None and A.size:
-            self.vmin = A.min()
-        if self.vmax is None and A.size:
-            self.vmax = A.max()
-
 
 class BoundaryNorm(Normalize):
     """
     Generate a colormap index based on discrete intervals.
 
-    Unlike :class:`Normalize` or :class:`LogNorm`,
-    :class:`BoundaryNorm` maps values to integers instead of to the
-    interval 0-1.
+    Unlike `Normalize` or `LogNorm`, `BoundaryNorm` maps values to integers
+    instead of to the interval 0-1.
 
-    Mapping to the 0-1 interval could have been done via
-    piece-wise linear interpolation, but using integers seems
-    simpler, and reduces the number of conversions back and forth
-    between integer and floating point.
+    Mapping to the 0-1 interval could have been done via piece-wise linear
+    interpolation, but using integers seems simpler, and reduces the number of
+    conversions back and forth between integer and floating point.
     """
     def __init__(self, boundaries, ncolors, clip=False):
         """
@@ -1337,9 +1292,8 @@ class BoundaryNorm(Normalize):
 
 class NoNorm(Normalize):
     """
-    Dummy replacement for Normalize, for the case where we
-    want to use indices directly in a
-    :class:`~matplotlib.cm.ScalarMappable` .
+    Dummy replacement for `Normalize`, for the case where we want to use
+    indices directly in a `~matplotlib.cm.ScalarMappable`.
     """
     def __call__(self, value, clip=None):
         return value
@@ -1350,7 +1304,7 @@ class NoNorm(Normalize):
 
 def rgb_to_hsv(arr):
     """
-    convert float rgb values (in the range [0, 1]), in a numpy array to hsv
+    Convert float rgb values (in the range [0, 1]), in a numpy array to hsv
     values.
 
     Parameters
@@ -1844,7 +1798,7 @@ class LightSource(object):
         hsv_max_val : number, optional
             The maximum value ("v" in "hsv") that the *intensity* map can shift
             the output image to. Defaults to 1.
-        hsv_min_val: number, optional
+        hsv_min_val : number, optional
             The minimum value ("v" in "hsv") that the *intensity* map can shift
             the output image to. Defaults to 0.
 

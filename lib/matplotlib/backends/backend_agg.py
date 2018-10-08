@@ -356,7 +356,7 @@ class RendererAgg(RendererBase):
         self._update_methods()
 
         if w > 0 and h > 0:
-            img = np.fromstring(buffer, np.uint8)
+            img = np.frombuffer(buffer, np.uint8)
             img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
                                           self.dpi)
             gc = self.new_gc()

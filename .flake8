@@ -42,7 +42,6 @@ per-file-ignores =
     matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
     matplotlib/projections/geo.py: E203, E221, E502
     matplotlib/pylab.py: E501
-    matplotlib/pyplot.py: E302, E701
     matplotlib/rcsetup.py: E203, E225, E501
     matplotlib/sphinxext/plot_directive.py: E402
     matplotlib/tests/test_mathtext.py: E501
@@ -58,7 +57,6 @@ per-file-ignores =
     mpl_toolkits/axes_grid1/inset_locator.py: E501
     mpl_toolkits/axes_grid1/mpl_axes.py: E501
     mpl_toolkits/axisartist/angle_helper.py: E221
-    mpl_toolkits/axisartist/axislines.py: E225, E501
     mpl_toolkits/axisartist/clip_path.py: E225, E501
     mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501
     mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501
@@ -76,7 +74,7 @@ per-file-ignores =
     tutorials/colors/colors.py: E402
     tutorials/colors/colormap-manipulation.py: E402
     tutorials/intermediate/artists.py: E402, E501
-    tutorials/intermediate/constrainedlayout_guide.py: E402, E501
+    tutorials/intermediate/constrainedlayout_guide.py: E402
     tutorials/intermediate/gridspec.py: E402, E501
     tutorials/intermediate/legend_guide.py: E402, E501
     tutorials/intermediate/tight_layout_guide.py: E402, E501
@@ -86,7 +84,6 @@ per-file-ignores =
     tutorials/introductory/sample_plots.py: E501
     tutorials/introductory/usage.py: E402, E501
     tutorials/text/annotations.py: E501
-    tutorials/text/mathtext.py: E501
     tutorials/text/pgf.py: E501
     tutorials/text/text_intro.py: E402
     tutorials/text/text_props.py: E501
@@ -111,7 +108,7 @@ per-file-ignores =
     examples/event_handling/poly_editor.py: E501
     examples/event_handling/viewlims.py: E501
     examples/images_contours_and_fields/affine_image.py: E402
-    examples/images_contours_and_fields/barb_demo.py: E402, E501
+    examples/images_contours_and_fields/barb_demo.py: E402
     examples/images_contours_and_fields/barcode_demo.py: E402
     examples/images_contours_and_fields/contour_corner_mask.py: E402
     examples/images_contours_and_fields/contour_demo.py: E402, E501

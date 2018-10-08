@@ -129,7 +129,6 @@ OSXFontDirectories = [
     "/System/Library/Fonts/",
     # fonts installed via MacPorts
     "/opt/local/share/fonts",
-    "",
 ]
 
 if not USE_FONTCONFIG and sys.platform != 'win32':
@@ -155,7 +154,7 @@ def list_fonts(directory, extensions):
     extensions = ["." + ext for ext in extensions]
     return [str(path)
             for path in filter(Path.is_file, Path(directory).glob("**/*.*"))
-            if path.suffix in extensions]
+            if path.suffix.lower() in extensions]
 
 
 def win32FontDirectory():
@@ -182,13 +181,12 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     filenames are returned by default, or AFM fonts if *fontext* ==
     'afm'.
     """
-
     import winreg
 
     if directory is None:
         directory = win32FontDirectory()
 
-    fontext = get_fontext_synonyms(fontext)
+    fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
 
     items = set()
     for fontdir in MSFontDirectories:
@@ -201,15 +199,20 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                     # Work around for https://bugs.python.org/issue25778, which
                     # is fixed in Py>=3.6.1.
                     direc = direc.split("\0", 1)[0]
-                    path = Path(directory, direc).resolve()
+                    try:
+                        path = Path(directory, direc).resolve()
+                    except (FileNotFoundError, RuntimeError):
+                        # Don't fail with invalid entries (FileNotFoundError is
+                        # only necessary on Py3.5).
+                        continue
                     if path.suffix.lower() in fontext:
                         items.add(str(path))
-                return list(items)
         except (OSError, MemoryError):
             continue
-    return None
+    return list(items)
 
 
+@cbook.deprecated("3.1")
 def OSXInstalledFonts(directories=None, fontext='ttf'):
     """Get list of font files on OS X."""
     if directories is None:
@@ -241,9 +244,9 @@ def _call_fc_list():
 def get_fontconfig_fonts(fontext='ttf'):
     """List the font filenames known to `fc-list` having the given extension.
     """
-    fontext = get_fontext_synonyms(fontext)
+    fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
     return [fname for fname in _call_fc_list()
-            if Path(fname).suffix[1:] in fontext]
+            if Path(fname).suffix.lower() in fontext]
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
@@ -264,10 +267,9 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             fontfiles.update(win32InstalledFonts(fontext=fontext))
         else:
             fontpaths = X11FontDirectories
-            fontfiles.update(get_fontconfig_fonts(fontext))
-            # check for OS X & load its fonts if present
             if sys.platform == 'darwin':
-                fontfiles.update(OSXInstalledFonts(fontext=fontext))
+                fontpaths = [*X11FontDirectories, *OSXFontDirectories]
+            fontfiles.update(get_fontconfig_fonts(fontext))
 
     elif isinstance(fontpaths, str):
         fontpaths = [fontpaths]
@@ -987,13 +989,13 @@ class FontManager(object):
         self.afmlist = createFontList(afmfiles, fontext='afm')
         self.defaultFont['afm'] = afmfiles[0] if afmfiles else None
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def ttffiles(self):
         return [font.fname for font in self.ttflist]
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def afmfiles(self):
         return [font.fname for font in self.afmlist]
 
@@ -1354,17 +1356,20 @@ else:
     if _fmcache:
         try:
             fontManager = json_load(_fmcache)
+        except FileNotFoundError:
+            _log.debug("No font cache found %s", _fmcache)
+        except json.JSONDecodeError:
+            _log.warning("Font cache parsing failed %s", _fmcache)
+        else:
             if (not hasattr(fontManager, '_version') or
                 fontManager._version != FontManager.__version__):
-                _rebuild()
+                _log.debug("Font cache needs rebuild (version mismatch)")
+                fontManager = None
             else:
                 fontManager.default_size = None
                 _log.debug("Using fontManager instance from %s", _fmcache)
-        except TimeoutError:
-            raise
-        except Exception:
-            _rebuild()
-    else:
+
+    if fontManager is None:
         _rebuild()
 
     def findfont(prop, **kw):

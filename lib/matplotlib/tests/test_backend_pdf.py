@@ -2,6 +2,7 @@ import io
 import os
 import sys
 import tempfile
+import warnings
 
 import numpy as np
 import pytest
@@ -14,9 +15,11 @@ from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 
 
-needs_usetex = pytest.mark.skipif(
-    not checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    needs_usetex = pytest.mark.skipif(
+        not checkdep_usetex(True),
+        reason="This test needs a TeX installation")
 
 
 @image_comparison(baseline_images=['pdf_use14corefonts'],
@@ -234,9 +237,8 @@ def test_failing_latex(tmpdir):
         plt.savefig(path)
 
 
-def test_empty_rasterised():
+def test_empty_rasterized():
     # Check that emtpy figures that are rasterised save to pdf files fine
-    with PdfPages(io.BytesIO()) as pdf:
-        fig, ax = plt.subplots()
-        ax.plot([], [], rasterized=True)
-        fig.savefig(pdf, format="pdf")
+    fig, ax = plt.subplots()
+    ax.plot([], [], rasterized=True)
+    fig.savefig(io.BytesIO(), format="pdf")

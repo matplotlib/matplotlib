@@ -1173,7 +1173,7 @@ def test_pcolorargs():
     x = np.linspace(-1.5, 1.5, n)
     y = np.linspace(-1.5, 1.5, n*2)
     X, Y = np.meshgrid(x, y)
-    Z = np.sqrt(X**2 + Y**2)/5
+    Z = np.hypot(X, Y) / 5
 
     _, ax = plt.subplots()
     with pytest.raises(TypeError):
@@ -2310,7 +2310,7 @@ def test_bxp_bad_positions():
 
 
 @image_comparison(baseline_images=['boxplot', 'boxplot'],
-                  tol=1,
+                  tol=1.28,
                   style='default')
 def test_boxplot():
     # Randomness used for bootstrapping.

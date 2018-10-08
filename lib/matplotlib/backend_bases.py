@@ -1848,7 +1848,7 @@ class FigureCanvasBase(object):
         ----------
         guiEvent
             the native UI event that generated the mpl event
-        xy : tuple of 2 scalars
+        xy : (float, float)
             the coordinate location of the pointer when the canvas is
             entered
 
@@ -2337,9 +2337,9 @@ def key_press_handler(event, canvas, toolbar=None):
     def _get_uniform_gridstate(ticks):
         # Return True/False if all grid lines are on or off, None if they are
         # not all in the same state.
-        if all(tick.gridOn for tick in ticks):
+        if all(tick.gridline.get_visible() for tick in ticks):
             return True
-        elif not any(tick.gridOn for tick in ticks):
+        elif not any(tick.gridline.get_visible() for tick in ticks):
             return False
         else:
             return None
@@ -2681,7 +2681,7 @@ class NavigationToolbar2(object):
                 pass
             else:
                 artists = [a for a in event.inaxes._mouseover_set
-                           if a.contains(event) and a.get_visible()]
+                           if a.contains(event)[0] and a.get_visible()]
 
                 if artists:
                     a = cbook._topmost_artist(artists)
@@ -3089,7 +3089,7 @@ class ToolContainerBase(object):
 
         Parameters
         ----------
-        name : String
+        name : string
             Name (id) of the tool triggered from within the container
         """
         self.toolmanager.trigger_tool(name, sender=self)

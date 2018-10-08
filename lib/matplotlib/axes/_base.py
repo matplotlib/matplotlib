@@ -399,6 +399,10 @@ class _AxesBase(martist.Artist):
     _shared_y_axes = cbook.Grouper()
     _twinned_axes = cbook.Grouper()
 
+    @property
+    def _hold(self):
+        return True
+
     def __str__(self):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
@@ -1094,8 +1098,8 @@ class _AxesBase(martist.Artist):
 
         self.stale = True
 
-    @property
     @cbook.deprecated("3.0")
+    @property
     def mouseover_set(self):
         return frozenset(self._mouseover_set)
 
@@ -1263,7 +1267,8 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_anchor
             defining the position in case of extra space.
         """
-        if not (isinstance(aspect, str) and aspect in ('equal', 'auto')):
+        if not (cbook._str_equal(aspect, 'equal')
+                or cbook._str_equal(aspect, 'auto')):
             aspect = float(aspect)  # raise ValueError if necessary
         if share:
             axes = set(self._shared_x_axes.get_siblings(self)
@@ -1645,6 +1650,10 @@ class _AxesBase(martist.Artist):
                 self.set_axis_off()
             elif s in ('equal', 'tight', 'scaled', 'normal',
                        'auto', 'image', 'square'):
+                if s == 'normal':
+                    cbook.warn_deprecated(
+                        "3.1", "Passing 'normal' to axis() is deprecated "
+                        "since %(version)s; use 'auto' instead.")
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
@@ -1991,7 +2000,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tab: `matplotlib.table.Table`
+        tab : `matplotlib.table.Table`
             Table instance
 
         Returns
@@ -2248,7 +2257,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        args : float, optional
+        *margins : float, optional
             If a single positional argument is provided, it specifies
             both margins of the x-axis and y-axis limits. If two
             positional arguments are provided, they will be interpreted
@@ -2341,7 +2350,7 @@ class _AxesBase(martist.Artist):
         axis : {'both', 'x', 'y'}, optional
             which axis to operate on; default is 'both'
 
-        tight: bool or None, optional
+        tight : bool or None, optional
             If True, set view limits to data limits;
             if False, let the locator and margins expand the view limits;
             if None, use tight scaling if the only artist is an image,
@@ -2839,7 +2848,7 @@ class _AxesBase(martist.Artist):
 
         Other Parameters
         ----------------
-        **kw :
+        **kw
             Remaining keyword arguments are passed to directly to the
             :meth:`~matplotlib.ticker.MaxNLocator.set_params` method.
 
@@ -2949,6 +2958,8 @@ class _AxesBase(martist.Artist):
         also be red.  Gridlines will be red and translucent.
 
         """
+        if axis not in ['x', 'y', 'both']:
+            raise ValueError("axis must be one of 'x', 'y' or 'both'")
         if axis in ['x', 'both']:
             xkw = dict(kwargs)
             xkw.pop('left', None)
