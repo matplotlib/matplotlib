@@ -102,6 +102,7 @@ per-file-ignores =
     examples/color/colormap_reference.py: E402
     examples/color/custom_cmap.py: E402
     examples/color/named_colors.py: E402
+    examples/event_handling/cursor_data.py: E402
     examples/event_handling/data_browser.py: E501
     examples/event_handling/path_editor.py: E501
     examples/event_handling/pick_event_demo.py: E501
