@@ -15,12 +15,13 @@ if sys.version_info < (3, 5):
     error = """
 Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
 Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+
 This may be due to an out of date pip.
+
 Make sure you have pip >= 9.0.1.
 """
     sys.exit(error)
 
-import subprocess
 # The setuptools version of sdist adds a setup.cfg file to the tree.
 # We don't want that, so we simply remove it, and it will fall back to
 # vanilla distutils.
@@ -104,26 +105,9 @@ class BuildExtraLibraries(BuildExtCommand):
             self.compiler.compiler_so.remove('-Wstrict-prototypes')
         except (ValueError, AttributeError):
             pass
-        if self._xcode_gte_10():
-            # If compiling using Xcode >= 10, need to manually specify the
-            # -stdlib flag because libstdc++ is no longer available
-            for mod in self.distribution.ext_modules:
-                mod.extra_compile_args = ['-stdlib=libc++']
-                mod.extra_link_args = ['-stdlib=libc++']
         for package in good_packages:
             package.do_custom_build()
         return super().build_extensions()
-
-    def _xcode_gte_10(self):
-        if sys.platform != "darwin":
-            return False
-        # Returns True if compiler is from Xcode version >= 10
-        compiler_version = str(subprocess.check_output(
-            self.compiler.compiler + ['--version'], universal_newlines=True))
-        compiler_version = compiler_version.split(' ')
-        return ((compiler_version[0] == 'Apple') and
-                (compiler_version[1] == 'LLVM') and
-                (int(compiler_version[3].split('.')[0]) >= 10))
 
 
 cmdclass = versioneer.get_cmdclass()
