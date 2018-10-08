@@ -578,7 +578,6 @@ that the bug reports will be a conversation.  If you do not want to
 register with github, please email bug reports to the `mailing list
 <matplotlib-devel@python.org>`_.
 
-
 The easiest way to submit patches to Matplotlib is through pull
 requests on github.  Please see the :ref:`developers-guide-index` for
 the details.
@@ -599,7 +598,7 @@ corners.  This is where you come in.
 There is a good chance you know more about Matplotlib usage in some
 areas, the stuff you do every day, than many of the core developers
 who wrote most of the documentation.  Just pulled your hair out
-compiling Matplotlib for windows?  Write a FAQ or a section for the
+compiling Matplotlib for Windows?  Write a FAQ or a section for the
 :ref:`installing-faq` page.  Are you a digital signal processing wizard?
 Write a tutorial on the signal analysis plotting functions like
 :func:`~matplotlib.pyplot.xcorr`, :func:`~matplotlib.pyplot.psd` and
@@ -637,7 +636,7 @@ or look at the open issues on github.
 Matplotlib in a web application server
 ======================================
 
-Many users report initial problems trying to use maptlotlib in web
+Many users report initial problems trying to use Matplotlib in web
 application servers, because by default Matplotlib ships configured to
 work with a graphical user interface which may require an X11
 connection.  Since many barebones application servers do not have X11
@@ -657,14 +656,14 @@ Agg is to call::
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 
-For more on configuring your backend, see
-:ref:`what-is-a-backend`.
+For more on configuring your backend, see :ref:`what-is-a-backend`.
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
 :doc:`/gallery/user_interfaces/canvasagg`.
 
-You can either generate hardcopy on the filesystem by calling savefig::
+You can either generate hardcopy on the filesystem by calling
+`.Figure.savefig()`::
 
     # do this before importing pylab or pyplot
     import matplotlib
@@ -691,21 +690,6 @@ Pillow for further processing::
     imgdata.seek(0)  # rewind the data
     im = Image.open(imgdata)
 
-
-Matplotlib with apache
-----------------------
-
-TODO; see :ref:`how-to-contribute-docs`.
-
-Matplotlib with django
-----------------------
-
-TODO; see :ref:`how-to-contribute-docs`.
-
-Matplotlib with zope
---------------------
-
-TODO; see :ref:`how-to-contribute-docs`.
 
 .. _howto-click-maps:
 
