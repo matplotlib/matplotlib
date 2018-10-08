@@ -192,15 +192,6 @@ and the title will not be moved via this algorithm.
 
 
 
-Adjusted ``matplotlib.widgets.Slider`` to have vertical orientation
--------------------------------------------------------------------
-
-The :class:`matplotlib.widgets.Slider` widget now takes an optional argument
-``orientation`` which indicates the direction (``'horizontal'`` or
-``'vertical'``) that the slider should take.
-
-
-
 New convenience methods for GridSpec
 ------------------------------------
 
