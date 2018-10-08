@@ -1132,6 +1132,10 @@ class Artist(object):
         The only current use case is displaying the z-value of an `.AxesImage`
         in the status bar of a plot window, while moving the mouse.
 
+        Parameters
+        ----------
+        event : `matplotlib.backend_bases.MouseEvent`
+
         See Also
         --------
         format_cursor_data
