@@ -1,3 +1,4 @@
+import collections
 import functools
 import itertools
 import logging
@@ -4184,7 +4185,11 @@ class Axes(_AxesBase):
         valid_shape = True  # will be put to the test!
         n_elem = -1  # used only for (some) exceptions
 
-        if c_none or co is not None or isinstance(c, str):
+        if (c_none or
+                co is not None or
+                isinstance(c, str) or
+                (isinstance(c, collections.Iterable) and
+                    isinstance(c[0], str))):
             c_array = None
         else:
             try:  # First, does 'c' look suitable for value-mapping?
