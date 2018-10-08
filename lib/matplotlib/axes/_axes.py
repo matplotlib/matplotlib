@@ -2047,8 +2047,7 @@ class Axes(_AxesBase):
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
-        kwargs['linestyle'] = 'steps-' + where + kwargs.get('linestyle', '')
-
+        kwargs['drawstyle'] = 'steps-' + where
         return self.plot(x, y, *args, **kwargs)
 
     @_preprocess_data(replace_names=["x", "left",
