@@ -319,6 +319,20 @@ def test_slider_valmin_valmax():
     assert slider.val == slider.valmax
 
 
+def test_slider_horizontal_vertical():
+    fig, ax = plt.subplots()
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=12.0, orientation='horizontal')
+    slider.set_val(10.0)
+    assert slider.val == 10.0
+
+    fig, ax = plt.subplots()
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=12.0, orientation='vertical')
+    slider.set_val(10.0)
+    assert slider.val == 10.0
+
+
 def check_polygon_selector(event_sequence, expected_result, selections_count):
     """Helper function to test Polygon Selector
 
