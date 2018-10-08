@@ -89,10 +89,10 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     ----------
 
 
-    fig: Figure
+    fig : Figure
       is the ``figure`` instance to do the layout in.
 
-    renderer: Renderer
+    renderer : Renderer
       the renderer to use.
 
      h_pad, w_pad : float

@@ -47,7 +47,7 @@ def stackplot(axes, x, *args,
         A list or tuple of colors. These will be cycled through and used to
         colour the stacked areas.
 
-    **kwargs :
+    **kwargs
         All other keyword arguments are passed to `Axes.fill_between()`.
 
 

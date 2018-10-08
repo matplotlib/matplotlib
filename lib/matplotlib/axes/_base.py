@@ -2000,7 +2000,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tab: `matplotlib.table.Table`
+        tab : `matplotlib.table.Table`
             Table instance
 
         Returns
@@ -2350,7 +2350,7 @@ class _AxesBase(martist.Artist):
         axis : {'both', 'x', 'y'}, optional
             which axis to operate on; default is 'both'
 
-        tight: bool or None, optional
+        tight : bool or None, optional
             If True, set view limits to data limits;
             if False, let the locator and margins expand the view limits;
             if None, use tight scaling if the only artist is an image,
@@ -2848,7 +2848,7 @@ class _AxesBase(martist.Artist):
 
         Other Parameters
         ----------------
-        **kw :
+        **kw
             Remaining keyword arguments are passed to directly to the
             :meth:`~matplotlib.ticker.MaxNLocator.set_params` method.
 

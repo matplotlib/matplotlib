@@ -46,10 +46,10 @@ class ToolManager(object):
 
     Attributes
     ----------
-    figure: `Figure`
-    keypresslock: `widgets.LockDraw`
+    figure : `Figure`
+    keypresslock : `widgets.LockDraw`
         `LockDraw` object to know if the `canvas` key_press_event is locked
-    messagelock: `widgets.LockDraw`
+    messagelock : `widgets.LockDraw`
         `LockDraw` object to know if the message is available to write
     """
 
@@ -299,8 +299,8 @@ class ToolManager(object):
 
         Parameters
         ----------
-        tool: Tool object
-        sender: object
+        tool : Tool object
+        sender : object
             Object that wishes to trigger the tool
         canvasevent : Event
             Original Canvas event or None
@@ -363,7 +363,7 @@ class ToolManager(object):
         ----------
         name : string
             Name of the tool
-        sender: object
+        sender : object
             Object that wishes to trigger the tool
         canvasevent : Event
             Original Canvas event or None

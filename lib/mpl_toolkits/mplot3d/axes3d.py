@@ -1603,7 +1603,7 @@ class Axes3D(Axes):
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when `shade` is True.
 
-        **kwargs :
+        **kwargs
             Other arguments are forwarded to `.Poly3DCollection`.
         """
 
@@ -1796,7 +1796,7 @@ class Axes3D(Axes):
             'classic' mode uses a default of ``rstride = cstride = 1`` instead
             of the new default of ``rcount = ccount = 50``.
 
-        **kwargs :
+        **kwargs
             Other arguments are forwarded to `.Line3DCollection`.
         """
 

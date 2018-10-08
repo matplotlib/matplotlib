@@ -702,8 +702,10 @@ def _is_closed_polygon(X):
 
 def _find_closest_point_on_path(lc, point):
     """
-    lc: coordinates of vertices
-    point: coordinates of test point
+    Parameters
+    ----------
+    lc : coordinates of vertices
+    point : coordinates of test point
     """
 
     # find index of closest vertex for this segment
@@ -770,22 +772,22 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         particular contour level are grouped together so that
         ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
 
-    kwargs :
+    **kwargs
         Keyword arguments are as described in the docstring of
         `~.axes.Axes.contour`.
 
     Attributes
     ----------
-    ax:
+    ax
         The axes object in which the contours are drawn.
 
-    collections:
+    collections
         A silent_list of LineCollections or PolyCollections.
 
-    levels:
+    levels
         Contour levels.
 
-    layers:
+    layers
         Same as levels for line contours; half-way between
         levels for filled contours.  See :meth:`_process_colors`.
     """
@@ -806,7 +808,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         Parameters
         ----------
-        ax :
+        ax : `~.axes.Axes`
             The `~.axes.Axes` object to draw on.
 
         levels : [level0, level1, ..., leveln]
@@ -1452,16 +1454,16 @@ class QuadContourSet(ContourSet):
 
     Attributes
     ----------
-    ax:
+    ax
         The axes object in which the contours are drawn.
 
-    collections:
+    collections
         A silent_list of LineCollections or PolyCollections.
 
-    levels:
+    levels
         Contour levels.
 
-    layers:
+    layers
         Same as levels for line contours; half-way between
         levels for filled contours. See :meth:`_process_colors` method.
     """

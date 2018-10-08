@@ -1192,7 +1192,7 @@ def rcdefaults():
 
     See Also
     --------
-    rc_file_defaults :
+    rc_file_defaults
         Restore the rc params from the rc file originally loaded by Matplotlib.
     matplotlib.style.use :
         Use a specific style file.  Call ``style.use('default')`` to restore

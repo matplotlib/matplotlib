@@ -195,11 +195,11 @@ class AbstractMovieWriter(abc.ABC):
 
         Parameters
         ----------
-        fig: `matplotlib.figure.Figure` instance
+        fig : `matplotlib.figure.Figure` instance
             The figure object that contains the information for frames
-        outfile: string
+        outfile : string
             The filename of the resulting movie file
-        dpi: int, optional
+        dpi : int, optional
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file. Default is ``fig.dpi``.
         '''
@@ -254,22 +254,22 @@ class MovieWriter(AbstractMovieWriter):
 
         Parameters
         ----------
-        fps: int
+        fps : int
             Framerate for movie.
-        codec: string or None, optional
+        codec : string or None, optional
             The codec to use. If ``None`` (the default) the ``animation.codec``
             rcParam is used.
-        bitrate: int or None, optional
+        bitrate : int or None, optional
             The bitrate for the saved movie file, which is one way to control
             the output file size and quality. The default value is ``None``,
             which uses the ``animation.bitrate`` rcParam.  A value of -1
             implies that the bitrate should be determined automatically by the
             underlying utility.
-        extra_args: list of strings or None, optional
+        extra_args : list of strings or None, optional
             A list of extra string arguments to be passed to the underlying
             movie utility. The default is ``None``, which passes the additional
             arguments in the ``animation.extra_args`` rcParam.
-        metadata: Dict[str, str] or None
+        metadata : Dict[str, str] or None
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.

@@ -554,7 +554,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        every: None or int or (int, int) or slice or List[int] or float or \
+        every : None or int or (int, int) or slice or List[int] or float or \
 (float, float)
             Which markers to plot.
 

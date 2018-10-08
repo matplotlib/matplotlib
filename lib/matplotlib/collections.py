@@ -1133,7 +1133,7 @@ class LineCollection(Collection):
         """
         Parameters
         ----------
-        segments :
+        segments
             A sequence of (*line0*, *line1*, *line2*), where::
 
                 linen = (x0, y0), (x1, y1), ... (xm, ym)
@@ -1280,7 +1280,7 @@ class LineCollection(Collection):
 
         Parameters
         ----------
-        c :
+        c : color or list of colors
             Matplotlib color argument (all patches have same color), or a
             sequence or rgba tuples; if it is a sequence the patches will
             cycle through the sequence.

@@ -140,13 +140,13 @@ class Button(AxesWidget):
 
     Attributes
     ----------
-    ax :
+    ax
         The :class:`matplotlib.axes.Axes` the button renders into.
-    label :
+    label
         A :class:`matplotlib.text.Text` instance.
-    color :
+    color
         The color of the button when not hovering.
-    hovercolor :
+    hovercolor
         The color of the button when hovering.
     """
 

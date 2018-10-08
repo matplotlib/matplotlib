@@ -1527,7 +1527,7 @@ class Axis(martist.Artist):
             Text string.
         fontdict : dict
             Text properties.
-        **kwargs :
+        **kwargs
             Merged into fontdict.
         """
         self.isDefault_label = False

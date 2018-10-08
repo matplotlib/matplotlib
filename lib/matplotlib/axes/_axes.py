@@ -537,10 +537,10 @@ class Axes(_AxesBase):
         Returns
         -------
 
-        rectangle_patch: `.Patches.Rectangle`
+        rectangle_patch : `.Patches.Rectangle`
              Rectangle artist.
 
-        connector_lines: 4-tuple of `.Patches.ConnectionPatch`
+        connector_lines : 4-tuple of `.Patches.ConnectionPatch`
             One for each of four connector lines.  Two are set with visibility
             to *False*,  but the user can set the visibility to True if the
             automatic choice is not deemed correct.
@@ -616,10 +616,10 @@ class Axes(_AxesBase):
         Returns
         -------
 
-        rectangle_patch: `.Patches.Rectangle`
+        rectangle_patch : `.Patches.Rectangle`
              Rectangle artist.
 
-        connector_lines: 4-tuple of `.Patches.ConnectionPatch`
+        connector_lines : 4-tuple of `.Patches.ConnectionPatch`
             One for each of four connector lines.  Two are set with visibility
             to *False*,  but the user can set the visibility to True if the
             automatic choice is not deemed correct.
@@ -753,7 +753,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
@@ -823,7 +823,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
             with the exception of 'transform':
 
@@ -2998,7 +2998,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             All other keyword arguments are passed on to the plot
             command for the markers. For example, this code makes big red
             squares with thick green edges::
@@ -5657,7 +5657,7 @@ class Axes(_AxesBase):
             Stroking the edges may be preferred if *alpha* is 1, but will
             cause artifacts otherwise.
 
-        **kwargs :
+        **kwargs
             Additionally, the following arguments are allowed. They are passed
             along to the `~matplotlib.collections.PolyCollection` constructor:
 
@@ -6942,7 +6942,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7067,7 +7067,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7165,7 +7165,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7262,7 +7262,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7344,7 +7344,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7423,7 +7423,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -7505,7 +7505,7 @@ class Axes(_AxesBase):
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        cmap :
+        cmap
             A :class:`matplotlib.colors.Colormap` instance; if *None*, use
             default determined by rc
 
@@ -7515,7 +7515,7 @@ class Axes(_AxesBase):
             right border of the last bin. Note that for *noverlap>0* the width
             of the bins is smaller than those of the segments.
 
-        **kwargs :
+        **kwargs
             Additional kwargs are passed on to imshow which makes the
             specgram image.
 

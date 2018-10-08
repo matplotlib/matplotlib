@@ -461,10 +461,10 @@ class CubicTriInterpolator(TriInterpolator):
 
         Parameters
         ----------
-        kind: {'min_E', 'geom', 'user'}
+        kind : {'min_E', 'geom', 'user'}
             Choice of the _DOF_estimator subclass to perform the gradient
             estimation.
-        dz: tuple of array_likes (dzdx, dzdy), optional
+        dz : tuple of array_likes (dzdx, dzdy), optional
             Used only if *kind*=user; in this case passed to the
             :class:`_DOF_estimator_user`.
 

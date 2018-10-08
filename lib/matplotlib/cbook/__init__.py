@@ -267,19 +267,19 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Parameters
     ----------
-        local_var: any object
+        local_var : any object
             The local variable (highest priority)
 
-        kwargs: dict
+        kwargs : dict
             Dictionary of keyword arguments; modified in place
 
-        keys: str(s)
+        keys : str(s)
             Name(s) of keyword arguments to process, in descending order of
             priority
 
     Returns
     -------
-        out: any object
+        out : any object
             Either local_var or one of kwargs[key] for key in keys
 
     Raises
