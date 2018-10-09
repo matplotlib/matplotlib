@@ -8,7 +8,6 @@ Many ways to plot images in Matplotlib.
 The most common way to plot images in Matplotlib is with
 :meth:`~.axes.Axes.imshow`. The following examples demonstrate much of the
 functionality of imshow and the many images you can create.
-
 """
 
 import numpy as np
@@ -54,7 +53,7 @@ w, h = 512, 512
 
 with cbook.get_sample_data('ct.raw.gz', asfileobj=True) as datafile:
     s = datafile.read()
-A = np.fromstring(s, np.uint16).astype(float).reshape((w, h))
+A = np.frombuffer(s, np.uint16).astype(float).reshape((w, h))
 A /= A.max()
 
 fig, ax = plt.subplots()

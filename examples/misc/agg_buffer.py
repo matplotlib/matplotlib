@@ -21,7 +21,7 @@ agg.draw()
 s, (width, height) = agg.print_to_buffer()
 
 # Convert to a NumPy array.
-X = np.fromstring(s, np.uint8).reshape((height, width, 4))
+X = np.frombuffer(s, np.uint8).reshape((height, width, 4))
 
 # Pass off to PIL.
 from PIL import Image
