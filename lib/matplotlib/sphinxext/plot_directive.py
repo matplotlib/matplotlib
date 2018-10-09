@@ -23,6 +23,10 @@ The source code for the plot may be included in one of three ways:
 
        .. plot:: path/to/plot.py plot_function1
 
+     Relative paths are found relative to the directory of the file containing
+     the directive. Absolute paths (paths starting with ``/``) are found
+     relative to ``plot_basedir`` (see Configuration options).
+
   2. Included as **inline content** to the directive::
 
        .. plot::
@@ -98,8 +102,9 @@ The plot directive has the following configuration options:
 
     plot_basedir
         Base directory, to which ``plot::`` file names are relative
-        to.  (If None or empty, file names are relative to the
-        directory where the file containing the directive is.)
+        to. Defaults to the source directory. Only absolute paths are treated
+        relative to this option. Relative paths are found relative to the
+        directory of the file containing the directive.
 
     plot_formats
         File formats to generate. List of tuples or strings::
@@ -665,12 +670,14 @@ def run(arguments, content, options, state_machine, state, lineno):
     rst_dir = os.path.dirname(rst_file)
 
     if len(arguments):
-        if not config.plot_basedir:
-            source_file_name = os.path.join(rst_dir,
-                                            directives.uri(arguments[0]))
+
+        if arguments[0].startswith('/'):
+            arguments[0] = arguments[0][1:]
+            src_dir = config.plot_basedir or setup.app.builder.srcdir
         else:
-            source_file_name = os.path.join(setup.confdir, config.plot_basedir,
-                                            directives.uri(arguments[0]))
+            src_dir = rst_dir
+
+        source_file_name = os.path.join(src_dir, directives.uri(arguments[0]))
 
         # If there is content, it will be passed as a caption.
         caption = '\n'.join(content)
