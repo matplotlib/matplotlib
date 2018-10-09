@@ -1959,8 +1959,8 @@ class Axes3D(Axes):
         Examples
         --------
 
-        .. plot:: gallery/mplot3d/trisurf3d.py
-        .. plot:: gallery/mplot3d/trisurf3d_2.py
+        .. plot:: /gallery/mplot3d/trisurf3d.py
+        .. plot:: /gallery/mplot3d/trisurf3d_2.py
 
         .. versionadded:: 1.2.0
             This plotting function was added for the v1.2.0 release.
@@ -2802,10 +2802,10 @@ pivot='tail', normalize=False, **kwargs)
 
         Examples
         --------
-        .. plot:: gallery/mplot3d/voxels.py
-        .. plot:: gallery/mplot3d/voxels_rgb.py
-        .. plot:: gallery/mplot3d/voxels_torus.py
-        .. plot:: gallery/mplot3d/voxels_numpy_logo.py
+        .. plot:: /gallery/mplot3d/voxels.py
+        .. plot:: /gallery/mplot3d/voxels_rgb.py
+        .. plot:: /gallery/mplot3d/voxels_torus.py
+        .. plot:: /gallery/mplot3d/voxels_numpy_logo.py
         """
 
         # work out which signature we should be using, and use it to parse
