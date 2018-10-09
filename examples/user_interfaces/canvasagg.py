@@ -42,7 +42,7 @@ canvas.draw()
 s, (width, height) = canvas.print_to_buffer()
 
 # Option 2a: Convert to a NumPy array.
-X = np.fromstring(s, np.uint8).reshape((height, width, 4))
+X = np.frombuffer(s, np.uint8).reshape((height, width, 4))
 
 # Option 2b: Pass off to PIL.
 from PIL import Image
