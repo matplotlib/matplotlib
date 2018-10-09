@@ -5,6 +5,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.units as munits
 import numpy as np
 import platform
+import pytest
 
 
 # Basic class that wraps numpy array and has units
@@ -36,12 +37,8 @@ class Quantity(object):
         return np.asarray(self.magnitude)
 
 
-# Tests that the conversion machinery works properly for classes that
-# work as a facade over numpy arrays (like pint)
-@image_comparison(baseline_images=['plot_pint'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  extensions=['png'], remove_text=False, style='mpl20')
-def test_numpy_facade():
+@pytest.fixture
+def quantity_converter():
     # Create an instance of the conversion interface and
     # mock so we can check methods called
     qc = munits.ConversionInterface()
@@ -61,9 +58,16 @@ def test_numpy_facade():
     qc.convert = MagicMock(side_effect=convert)
     qc.axisinfo = MagicMock(side_effect=lambda u, a: munits.AxisInfo(label=u))
     qc.default_units = MagicMock(side_effect=lambda x, a: x.units)
+    return qc
 
+# Tests that the conversion machinery works properly for classes that
+# work as a facade over numpy arrays (like pint)
+@image_comparison(baseline_images=['plot_pint'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
+                  extensions=['png'], remove_text=False, style='mpl20')
+def test_numpy_facade(quantity_converter):
     # Register the class
-    munits.registry[Quantity] = qc
+    munits.registry[Quantity] = quantity_converter
 
     # Simple test
     y = Quantity(np.linspace(0, 30), 'miles')
@@ -77,9 +81,9 @@ def test_numpy_facade():
     ax.yaxis.set_units('inches')
     ax.xaxis.set_units('seconds')
 
-    assert qc.convert.called
-    assert qc.axisinfo.called
-    assert qc.default_units.called
+    assert quantity_converter.convert.called
+    assert quantity_converter.axisinfo.called
+    assert quantity_converter.default_units.called
 
 
 # Tests gh-8908
