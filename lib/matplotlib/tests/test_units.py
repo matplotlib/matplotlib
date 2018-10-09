@@ -55,10 +55,20 @@ def quantity_converter():
         else:
             return Quantity(value, axis.get_units()).to(unit).magnitude
 
+    def default_units(value, axis):
+        if hasattr(value, 'units'):
+            return value.units
+        elif np.iterable(value):
+            for v in value:
+                if hasattr(v, 'units'):
+                    return v.units
+            return None
+
     qc.convert = MagicMock(side_effect=convert)
     qc.axisinfo = MagicMock(side_effect=lambda u, a: munits.AxisInfo(label=u))
-    qc.default_units = MagicMock(side_effect=lambda x, a: x.units)
+    qc.default_units = MagicMock(side_effect=default_units)
     return qc
+
 
 # Tests that the conversion machinery works properly for classes that
 # work as a facade over numpy arrays (like pint)
@@ -97,6 +107,15 @@ def test_plot_masked_units():
 
     fig, ax = plt.subplots()
     ax.plot(data_masked_units)
+
+
+def test_empty_set_limits_with_units(quantity_converter):
+    # Register the class
+    munits.registry[Quantity] = quantity_converter
+
+    fig, ax = plt.subplots()
+    ax.set_xlim(Quantity(-1, 'meters'), Quantity(6, 'meters'))
+    ax.set_ylim(Quantity(-1, 'hours'), Quantity(16, 'hours'))
 
 
 @image_comparison(baseline_images=['jpl_bar_units'], extensions=['png'],
