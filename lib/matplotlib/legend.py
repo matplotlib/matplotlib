@@ -1108,6 +1108,11 @@ class Legend(Artist):
         assert self.isaxes
 
         verts, bboxes, lines, offsets = self._auto_legend_data()
+        if len(verts) + len(bboxes) + len(lines) + len(offsets) > 10000:
+            warnings.warn(
+                'Creating legend with loc="best" can be slow with large'
+                ' amounts of data.'
+            )
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         if consider is None:

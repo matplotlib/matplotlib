@@ -563,3 +563,18 @@ def test_alpha_handles():
         lh.set_alpha(1.0)
     assert lh.get_facecolor()[:-1] == hh[1].get_facecolor()[:-1]
     assert lh.get_edgecolor()[:-1] == hh[1].get_edgecolor()[:-1]
+
+
+def test_warn_big_data_best_loc():
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10001), label='Is this big data?')
+    with pytest.warns(UserWarning) as records:
+        l = ax.legend(loc='best')
+        l.draw(fig.canvas.get_renderer())
+    # The _find_best_position method of Legend is called twice, duplicating
+    # the warning message.
+    assert len(records) == 2
+    for record in records:
+        assert str(record.message) == (
+            'Creating legend with loc="best" can be slow with large'
+            ' amounts of data.')
