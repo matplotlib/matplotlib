@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import subprocess
 import sys
 
 import numpy as np
@@ -237,13 +238,10 @@ def test_cleanup_temporaries(method_name, tmpdir):
         assert list(Path(str(tmpdir)).iterdir()) == []
 
 
-# Currently, this fails with a ValueError after we try to communicate() twice
-# with the Popen.
-@pytest.mark.xfail
 @pytest.mark.skipif(os.name != "posix", reason="requires a POSIX OS")
 def test_failing_ffmpeg(tmpdir, monkeypatch):
     """
-    Test that we correctly raise an OSError when ffmpeg fails.
+    Test that we correctly raise a CalledProcessError when ffmpeg fails.
 
     To do so, mock ffmpeg using a simple executable shell script that
     succeeds when called with no arguments (so that it gets registered by
@@ -252,12 +250,12 @@ def test_failing_ffmpeg(tmpdir, monkeypatch):
     try:
         with tmpdir.as_cwd():
             monkeypatch.setenv("PATH", ".:" + os.environ["PATH"])
-            exe_path = Path(tmpdir, "ffmpeg")
+            exe_path = Path(str(tmpdir), "ffmpeg")
             exe_path.write_text("#!/bin/sh\n"
                                 "[[ $@ -eq 0 ]]\n")
             os.chmod(str(exe_path), 0o755)
             animation.writers.reset_available_writers()
-            with pytest.raises(OSError):
+            with pytest.raises(subprocess.CalledProcessError):
                 make_animation().save("test.mpeg")
     finally:
         animation.writers.reset_available_writers()
