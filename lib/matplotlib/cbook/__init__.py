@@ -302,11 +302,17 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
 
 def strip_math(s):
-    """remove latex formatting from mathtext"""
-    remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
-    s = s[1:-1]
-    for r in remove:
-        s = s.replace(r, '')
+    """
+    Remove latex formatting from mathtext.
+
+    Only handles fully math and fully non-math strings.
+    """
+    if len(s) >= 2 and s[0] == s[-1] == "$":
+        s = s[1:-1]
+        remove = [
+            r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}']
+        for r in remove:
+            s = s.replace(r, '')
     return s
 
 

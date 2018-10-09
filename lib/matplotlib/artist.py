@@ -2,6 +2,7 @@ from collections import OrderedDict, namedtuple
 from functools import wraps
 import inspect
 import logging
+from numbers import Number
 import re
 import warnings
 
@@ -1167,8 +1168,8 @@ class Artist(object):
             data[0]
         except (TypeError, IndexError):
             data = [data]
-        data_str = ', '.join('{:0.3g}'.format(item) for item in data if
-                   isinstance(item, (np.floating, np.integer, int, float)))
+        data_str = ', '.join('{:0.3g}'.format(item) for item in data
+                             if isinstance(item, Number))
         return "[" + data_str + "]"
 
     @property

@@ -906,6 +906,15 @@ class AxesImage(_ImageBase):
         else:
             return arr[i, j]
 
+    def format_cursor_data(self, data):
+        if self.colorbar:
+            return ("["
+                    + cbook.strip_math(self.colorbar.formatter(data))
+                    + cbook.strip_math(self.colorbar.formatter.get_offset())
+                    + "]")
+        else:
+            return super().format_cursor_data(data)
+
 
 class NonUniformImage(AxesImage):
     def __init__(self, ax, *, interpolation='nearest', **kwargs):

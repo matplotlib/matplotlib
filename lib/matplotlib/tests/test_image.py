@@ -262,6 +262,24 @@ def test_cursor_data():
     assert im.get_cursor_data(event) is None
 
 
+def test_format_cursor_data():
+    from matplotlib.backend_bases import MouseEvent
+
+    fig, ax = plt.subplots()
+    im = ax.imshow([[10000, 10001]])
+
+    xdisp, ydisp = ax.transData.transform_point([0, 0])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_cursor_data(event) == 10000
+    assert im.format_cursor_data(im.get_cursor_data(event)) == "[1e+04]"
+
+    fig.colorbar(im)
+    fig.canvas.draw()  # This is necessary to set up the colorbar formatter.
+
+    assert im.get_cursor_data(event) == 10000
+    assert im.format_cursor_data(im.get_cursor_data(event)) == "[0.0+1e4]"
+
+
 @image_comparison(baseline_images=['image_clip'], style='mpl20')
 def test_image_clip():
     d = [[1, 2], [3, 4]]
