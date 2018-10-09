@@ -21,7 +21,6 @@ from matplotlib.backend_bases import (
 from matplotlib.backend_bases import _has_pil
 
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.cbook import is_writable_file_like, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
@@ -196,15 +195,11 @@ class RendererWx(RendererBase):
     }
 
     def __init__(self, bitmap, dpi):
-        """
-        Initialise a wxWindows renderer instance.
-        """
-        warn_deprecated('2.0', message="The WX backend is "
-                        "deprecated. It's untested "
-                        "and will be removed in Matplotlib 3.0. "
-                        "Use the WXAgg backend instead. "
-                        "See Matplotlib usage FAQ for more info on backends.",
-                        alternative='WXAgg')
+        """Initialise a wxWindows renderer instance."""
+        cbook.warn_deprecated(
+            "2.0", name="wx", obj_type="backend", removal="the future",
+            alternative="wxagg", addendum="See the Matplotlib usage FAQ for "
+            "more info on backends.")
         RendererBase.__init__(self)
         DEBUG_MSG("__init__()", 1, self)
         self.width = bitmap.GetWidth()
@@ -225,9 +220,8 @@ class RendererWx(RendererBase):
         get the width and height in display coords of the string s
         with FontPropertry prop
         """
-        # return 1, 1
         if ismath:
-            s = self.strip_math(s)
+            s = cbook.strip_math(s)
 
         if self.gc is None:
             gc = self.new_gc()
@@ -307,7 +301,7 @@ class RendererWx(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         if ismath:
-            s = self.strip_math(s)
+            s = cbook.strip_math(s)
         DEBUG_MSG("draw_text()", 1, self)
         gc.select()
         self.handle_clip_rectangle(gc)
@@ -1107,7 +1101,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
                 raise RuntimeError(
                     'Could not save figure to %s\n' %
                     (filename))
-        elif is_writable_file_like(filename):
+        elif cbook.is_writable_file_like(filename):
             if not isinstance(image, wx.Image):
                 image = image.ConvertToImage()
             if not image.SaveStream(filename, filetype):
