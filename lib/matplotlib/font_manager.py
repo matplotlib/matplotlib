@@ -29,7 +29,6 @@ found.
 #   - default font algorithm needs improvement and testing
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
-#   - update_fonts not implemented
 
 from functools import lru_cache
 import json
@@ -1017,14 +1016,6 @@ class FontManager(object):
         Set the default font weight.  The initial value is 'normal'.
         """
         self.__default_weight = weight
-
-    def update_fonts(self, filenames):
-        """
-        Update the font dictionary with new font files.
-        Currently not implemented.
-        """
-        #  !!!!  Needs implementing
-        raise NotImplementedError
 
     # Each of the scoring functions below should return a value between
     # 0.0 (perfect match) and 1.0 (terrible match)
