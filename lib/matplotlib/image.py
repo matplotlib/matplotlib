@@ -411,9 +411,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
                 A_scaled -= a_min
                 # a_min and a_max might be ndarray subclasses so use
-                # asscalar to avoid errors
-                a_min = np.asscalar(a_min.astype(scaled_dtype))
-                a_max = np.asscalar(a_max.astype(scaled_dtype))
+                # item to avoid errors
+                a_min = np.ndarray.item(a_min.astype(scaled_dtype))
+                a_max = np.ndarray.item(a_max.astype(scaled_dtype))
 
                 if a_min != a_max:
                     A_scaled /= ((a_max - a_min) / 0.8)
