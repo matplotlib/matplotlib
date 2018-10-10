@@ -335,6 +335,11 @@ class Grid(object):
         self.width = x[-1] - x[0]
         self.height = y[-1] - y[0]
 
+        if not np.allclose(np.diff(x), self.width / (self.nx - 1)):
+            raise ValueError("'x' values must be equally spaced")
+        if not np.allclose(np.diff(y), self.height / (self.ny - 1)):
+            raise ValueError("'y' values must be equally spaced")
+
     @property
     def shape(self):
         return self.ny, self.nx
