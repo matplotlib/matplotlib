@@ -784,53 +784,69 @@ class Path(object):
         codes[-1] = cls.CLOSEPOLY
         return Path(vertices * radius + center, codes, readonly=readonly)
 
-    _unit_circle_righthalf = None
+    _unit_circle_half = None
 
     @classmethod
-    def unit_circle_righthalf(cls):
+    def unit_circle_half(cls, side='right'):
         """
-        Return a :class:`Path` of the right half
+        Return a :class:`Path` of the half
         of a unit circle. The circle is approximated using cubic Bezier
         curves.  This uses 4 splines around the circle using the approach
         presented here:
 
           Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
           Bezier Cubic Splines <http://www.tinaja.com/glib/ellipse4.pdf>`_.
+
+        Parameters
+        ----------
+        side : {'right', 'left'}, optional
+            If 'right', return the right half of a unit circle.
+            If 'left', return the left half of a unit circle.
+
         """
-        if cls._unit_circle_righthalf is None:
+
+        if cls._unit_circle_half is None:
+
+            if side == 'right' : 
+                coef = (-1.0)**2
+            elif side == 'left' :
+                coef = -1.0
+            else:
+                raise ValueError("'side' argument must be 'right' or 'left'")
+
             MAGIC = 0.2652031
             SQRTHALF = np.sqrt(0.5)
-            MAGIC45 = SQRTHALF * MAGIC
+            MAGIC45 = np.sqrt((MAGIC*MAGIC) / 2.0)
 
             vertices = np.array(
-                [[0.0, -1.0],
+                [[0.0, coef*(-1.0)],
 
-                 [MAGIC, -1.0],
-                 [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
-                 [SQRTHALF, -SQRTHALF],
+                 [coef*MAGIC, coef*(-1.0)],
+                 [coef*(SQRTHALF-MAGIC45), coef*(-SQRTHALF-MAGIC45)],
+                 [coef*SQRTHALF, coef*(-SQRTHALF)],
 
-                 [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
-                 [1.0, -MAGIC],
-                 [1.0, 0.0],
+                 [coef*(SQRTHALF+MAGIC45), coef*(-SQRTHALF+MAGIC45)],
+                 [coef*1.0, coef*(-MAGIC)],
+                 [coef*1.0, 0.0],
 
-                 [1.0, MAGIC],
-                 [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
-                 [SQRTHALF, SQRTHALF],
+                 [coef*1.0, coef*MAGIC],
+                 [coef*(SQRTHALF+MAGIC45), coef*(SQRTHALF-MAGIC45)],
+                 [coef*SQRTHALF, coef*SQRTHALF],
 
-                 [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
-                 [MAGIC, 1.0],
-                 [0.0, 1.0],
+                 [coef*(SQRTHALF-MAGIC45), coef*(SQRTHALF+MAGIC45)],
+                 [coef*MAGIC, coef*1.0],
+                 [0.0, coef*1.0],
 
-                 [0.0, -1.0]],
+                 [0.0, coef*(-1.0)]],
 
-                float)
+                np.float_)
 
             codes = cls.CURVE4 * np.ones(14)
             codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
-            cls._unit_circle_righthalf = cls(vertices, codes, readonly=True)
-        return cls._unit_circle_righthalf
+            cls._unit_circle_half = cls(vertices, codes, readonly=True)
+        return cls._unit_circle_half
 
     @classmethod
     def arc(cls, theta1, theta2, n=None, is_wedge=False):
