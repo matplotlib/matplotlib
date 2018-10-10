@@ -152,9 +152,11 @@ def list_fonts(directory, extensions):
     recursively under the directory.
     """
     extensions = ["." + ext for ext in extensions]
-    return [str(path)
-            for path in filter(Path.is_file, Path(directory).glob("**/*.*"))
-            if path.suffix.lower() in extensions]
+    return [os.path.join(dirpath, filename)
+            # os.walk ignores access errors, unlike Path.glob.
+            for dirpath, _, filenames in os.walk(directory)
+            for filename in filenames
+            if Path(filename).suffix.lower() in extensions]
 
 
 def win32FontDirectory():
