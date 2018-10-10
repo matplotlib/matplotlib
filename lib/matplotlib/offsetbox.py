@@ -1233,8 +1233,9 @@ class AnchoredText(AnchoredOffsetbox):
         borderpad : float, optional
             Pad between the frame and the axes (or *bbox_to_anchor*).
 
-        prop : `matplotlib.font_manager.FontProperties`
-            Font properties.
+        prop : dictionary, optional, default: None
+            Dictionary of keyword parameters to be passed to the
+            `~matplotlib.text.Text` instance contained inside AnchoredText.
 
         Notes
         -----
