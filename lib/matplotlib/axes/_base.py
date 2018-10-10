@@ -3461,6 +3461,7 @@ class _AxesBase(martist.Artist):
                 raise TypeError('Cannot pass both `ymax` and `top`')
             top = ymax
 
+        self._process_unit_info(ydata=(bottom, top))
         bottom = self._validate_converted_limits(bottom, self.convert_yunits)
         top = self._validate_converted_limits(top, self.convert_yunits)
 
