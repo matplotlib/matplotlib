@@ -1579,10 +1579,13 @@ class Axis(martist.Artist):
         locator : ~matplotlib.ticker.Locator
         """
         if not isinstance(locator, mticker.Locator):
-            raise TypeError("formatter argument should be instance of "
+            raise TypeError("locator argument should be instance of "
                             "matplotlib.ticker.Locator")
         self.isDefault_majloc = False
         self.major.locator = locator
+        if (hasattr(self.get_major_formatter(), "_locator") and
+            hasattr(self.get_major_formatter(), "_tz")):
+            self.get_major_formatter()._locator = locator
         locator.set_axis(self)
         self.stale = True
 
@@ -1595,10 +1598,13 @@ class Axis(martist.Artist):
         locator : ~matplotlib.ticker.Locator
         """
         if not isinstance(locator, mticker.Locator):
-            raise TypeError("formatter argument should be instance of "
+            raise TypeError("locator argument should be instance of "
                             "matplotlib.ticker.Locator")
         self.isDefault_minloc = False
         self.minor.locator = locator
+        if (hasattr(self.get_minor_formatter(), "_locator") and
+            hasattr(self.get_minor_formatter(), "_tz")):
+            self.get_minor_formatter()._locator = locator
         locator.set_axis(self)
         self.stale = True
 

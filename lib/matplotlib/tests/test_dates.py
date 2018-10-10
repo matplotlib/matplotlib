@@ -220,6 +220,27 @@ def test_DateFormatter():
     fig.autofmt_xdate()
 
 
+def test_locator_set_formatter():
+    """
+    Test if setting the locator only will update the formatter to use
+    the new locator.
+    """
+    plt.rcParams["date.autoformatter.minute"] = "%d %H:%M"
+    t = [datetime.datetime(2018, 9, 30, 8, 0),
+         datetime.datetime(2018, 9, 30, 8, 59),
+         datetime.datetime(2018, 9, 30, 10, 30)]
+    x = [2, 3, 1]
+
+    fig, ax = plt.subplots()
+    ax.plot(t, x)
+    ax.xaxis.set_major_locator(mdates.MinuteLocator((0, 30)))
+    fig.canvas.draw()
+    ticklabels = [tl.get_text() for tl in ax.get_xticklabels()]
+    expected = ['30 08:00', '30 08:30', '30 09:00',
+                '30 09:30', '30 10:00', '30 10:30']
+    assert ticklabels == expected
+
+
 def test_date_formatter_strftime():
     """
     Tests that DateFormatter matches datetime.strftime,
