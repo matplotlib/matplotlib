@@ -935,7 +935,6 @@ default: 'top'
         """Return the resolution in dots per inch as a float."""
         return self.dpi
 
-    @cbook.deprecated("3.1", alternative="figure.patch.get_visible")
     def get_frameon(self):
         """Return whether the figure frame will be drawn."""
         return self.patch.get_visible()
@@ -993,7 +992,6 @@ default: 'top'
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
-    @cbook.deprecated("3.1", alternative="figure.patch.set_visible")
     def set_frameon(self, b):
         """
         Set whether the figure frame (background) is displayed or invisible.

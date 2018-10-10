@@ -1,7 +1,6 @@
-Deprecations
-````````````
+Figure.frameon is now a direct proxy for the Figure patch visibility state
+``````````````````````````````````````````````````````````````````````````
 
-The following API elements are deprecated:
-
-- ``Figure.frameon``, ``Figure.get_frameon``, ``Figure.set_frameon`` (directly
-  manipulate the visibility of ``Figure.patch`` instead),
+Accessing ``Figure.frameon`` (including via ``get_frameon`` and ``set_frameon``
+now directly forwards to the visibility of the underlying Rectangle artist
+(``Figure.patch.get_frameon``, ``Figure.patch.set_frameon``).
