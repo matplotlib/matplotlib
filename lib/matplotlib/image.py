@@ -936,14 +936,19 @@ class AxesImage(_ImageBase):
             return arr[i, j]
 
     def format_cursor_data(self, data):
-        if np.ndim(data) == 0 and self.colorbar:
-            return (
-                "["
+        if np.ndim(data):
+            return super().format_cursor_data(data)
+        if not self.colorbar:
+            from matplotlib.figure import Figure
+            fig = Figure()
+            ax = fig.subplots()
+            self.colorbar = fig.colorbar(self, cax=ax)
+            # This will call the locator and call set_locs() on the formatter.
+            ax.yaxis._update_ticks()
+        return ("["
                 + cbook.strip_math(
                     self.colorbar.formatter.format_data_short(data)).strip()
                 + "]")
-        else:
-            return super().format_cursor_data(data)
 
 
 class NonUniformImage(AxesImage):
