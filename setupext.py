@@ -608,6 +608,12 @@ Make sure you have pip >= 9.0.1.
         return sys.version
 
 
+def _pkg_data_helper(pkg, subdir):
+    """Glob "lib/$pkg/$subdir/**/*", returning paths relative to "lib/$pkg"."""
+    base = pathlib.Path("lib", pkg)
+    return [str(path.relative_to(base)) for path in (base / subdir).rglob("*")]
+
+
 class Matplotlib(SetupPackage):
     name = "matplotlib"
 
@@ -615,30 +621,24 @@ class Matplotlib(SetupPackage):
         return versioneer.get_version()
 
     def get_packages(self):
-        return setuptools.find_packages(
-            "lib",
-            include=["matplotlib", "matplotlib.*"],
-            exclude=["matplotlib.tests", "matplotlib.*.tests"])
+        return setuptools.find_packages("lib", exclude=["*.tests"])
+
+    def get_namespace_packages(self):
+        return ['mpl_toolkits']
 
     def get_py_modules(self):
         return ['pylab']
 
     def get_package_data(self):
-
-        def iter_dir(base):
-            return [
-                str(path.relative_to('lib/matplotlib'))
-                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
-
         return {
-            'matplotlib':
-            [
+            'matplotlib': [
                 'mpl-data/matplotlibrc',
-                *iter_dir('mpl-data/fonts'),
-                *iter_dir('mpl-data/images'),
-                *iter_dir('mpl-data/stylelib'),
-                *iter_dir('backends/web_backend'),
-            ]}
+                *_pkg_data_helper('matplotlib', 'mpl-data/fonts'),
+                *_pkg_data_helper('matplotlib', 'mpl-data/images'),
+                *_pkg_data_helper('matplotlib', 'mpl-data/stylelib'),
+                *_pkg_data_helper('matplotlib', 'backends/web_backend'),
+            ],
+        }
 
 
 class SampleData(OptionalPackage):
@@ -649,39 +649,17 @@ class SampleData(OptionalPackage):
     name = "sample_data"
 
     def get_package_data(self):
-
-        def iter_dir(base):
-            return [
-                str(path.relative_to('lib/matplotlib'))
-                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
-
         return {
-            'matplotlib':
-            [
-                *iter_dir('mpl-data/sample_data'),
-            ]}
-
-
-class Toolkits(OptionalPackage):
-    name = "toolkits"
-
-    def get_packages(self):
-        return [
-            'mpl_toolkits',
-            'mpl_toolkits.mplot3d',
-            'mpl_toolkits.axes_grid',
-            'mpl_toolkits.axes_grid1',
-            'mpl_toolkits.axisartist',
-            ]
-
-    def get_namespace_packages(self):
-        return ['mpl_toolkits']
+            'matplotlib': [
+                *_pkg_data_helper('matplotlib', 'mpl-data/sample_data'),
+            ],
+        }
 
 
 class Tests(OptionalPackage):
     name = "tests"
     pytest_min_version = '3.6'
-    default_config = False
+    default_config = True
 
     def check(self):
         super().check()
@@ -706,20 +684,12 @@ class Tests(OptionalPackage):
         return ' / '.join(msgs)
 
     def get_packages(self):
-        return [
-            'matplotlib.tests',
-            'matplotlib.sphinxext.tests',
-            ]
+        return setuptools.find_packages("lib", include=["*.tests"])
 
     def get_package_data(self):
-        baseline_images = [
-            'tests/baseline_images/%s/*' % x
-            for x in os.listdir('lib/matplotlib/tests/baseline_images')]
-
         return {
-            'matplotlib':
-            baseline_images +
-            [
+            'matplotlib': [
+                *_pkg_data_helper('matplotlib', 'tests/baseline_images'),
                 'tests/cmr10.pfb',
                 'tests/mpltest.ttf',
                 'tests/test_rcparams.rc',
@@ -727,40 +697,11 @@ class Tests(OptionalPackage):
                 'sphinxext/tests/tinypages/*.rst',
                 'sphinxext/tests/tinypages/*.py',
                 'sphinxext/tests/tinypages/_static/*',
-            ]}
-
-
-class Toolkits_Tests(Tests):
-    name = "toolkits_tests"
-
-    def check_requirements(self):
-        conf = self.get_config()
-        toolkits_conf = Toolkits.get_config()
-        tests_conf = Tests.get_config()
-
-        if conf is True:
-            Tests.force = True
-            Toolkits.force = True
-        elif conf == "auto" and not (toolkits_conf and tests_conf):
-            # Only auto-install if both toolkits and tests are set
-            # to be installed
-            raise CheckFailed("toolkits_tests needs 'toolkits' and 'tests'")
-        return ""
-
-    def get_packages(self):
-        return [
-            'mpl_toolkits.tests',
+            ],
+            'mpl_toolkits': [
+                *_pkg_data_helper('mpl_toolkits', 'tests/baseline_images'),
             ]
-
-    def get_package_data(self):
-        baseline_images = [
-            'tests/baseline_images/%s/*' % x
-            for x in os.listdir('lib/mpl_toolkits/tests/baseline_images')]
-
-        return {'mpl_toolkits': baseline_images}
-
-    def get_namespace_packages(self):
-        return ['mpl_toolkits']
+        }
 
 
 class DelayedExtension(Extension, object):
