@@ -1425,7 +1425,7 @@ def ylim(*args, **kwargs):
     *top* as kwargs, i.e.::
 
         ylim(top=3)  # adjust the top leaving bottom unchanged
-        ylim(bottom=1)  # adjust the top leaving bottom unchanged
+        ylim(bottom=1)  # adjust the bottom leaving top unchanged
 
     Setting limits turns autoscaling off for the y-axis.
 
