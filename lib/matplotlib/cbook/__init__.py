@@ -309,10 +309,18 @@ def strip_math(s):
     """
     if len(s) >= 2 and s[0] == s[-1] == "$":
         s = s[1:-1]
-        remove = [
-            r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}']
-        for r in remove:
-            s = s.replace(r, '')
+        for tex, plain in [
+                (r"\times", "x"),  # Specifically for Formatter support.
+                (r"\mathdefault", ""),
+                (r"\rm", ""),
+                (r"\cal", ""),
+                (r"\tt", ""),
+                (r"\it", ""),
+                ("\\", ""),
+                ("{", ""),
+                ("}", ""),
+        ]:
+            s = s.replace(tex, plain)
     return s
 
 
