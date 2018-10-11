@@ -1,0 +1,7 @@
+Introduction of :rc:`hist.histtype`
+```````````````````````````````````
+
+The default value of the ``histtype`` argument to `Axes.hist()` can now be
+controlled using :rc:`hist.histtype`.  For large numbers of bins, setting
+this value to 'step' or 'stepfilled' can result in significant performance
+improvements over 'bar', the current default.

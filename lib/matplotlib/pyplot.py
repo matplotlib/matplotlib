@@ -2625,7 +2625,7 @@ def hexbin(
 @docstring.copy_dedent(Axes.hist)
 def hist(
         x, bins=None, range=None, density=None, weights=None,
-        cumulative=False, bottom=None, histtype='bar', align='mid',
+        cumulative=False, bottom=None, histtype=None, align='mid',
         orientation='vertical', rwidth=None, log=False, color=None,
         label=None, stacked=False, normed=None, *, data=None,
         **kwargs):

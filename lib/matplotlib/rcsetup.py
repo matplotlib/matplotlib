@@ -1034,6 +1034,10 @@ defaultParams = {
 
     ## Histogram properties
     'hist.bins': [10, validate_hist_bins],
+    'hist.histtype': [
+        'bar',
+        ValidateInStrings(
+            'histtype', ['bar', 'barstacked', 'step', 'stepfilled'])],
 
     ## Boxplot properties
     'boxplot.notch': [False, validate_bool],

@@ -481,6 +481,7 @@
 #hist.bins : 10                   ## The default number of histogram bins.
                                   ## If Numpy 1.11 or later is
                                   ## installed, may also be `auto`
+#hist.histtype : bar              ## The default histtype.
 
 #### SCATTER PLOTS
 #scatter.marker : o               ## The default marker type for scatter plots.

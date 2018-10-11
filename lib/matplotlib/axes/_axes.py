@@ -6259,7 +6259,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
     def hist(self, x, bins=None, range=None, density=None, weights=None,
-             cumulative=False, bottom=None, histtype='bar', align='mid',
+             cumulative=False, bottom=None, histtype=None, align='mid',
              orientation='vertical', rwidth=None, log=False,
              color=None, label=None, stacked=False, normed=None,
              **kwargs):
@@ -6375,7 +6375,10 @@ class Axes(_AxesBase):
             - 'step' generates a lineplot that is by default unfilled.
             - 'stepfilled' generates a lineplot that is by default filled.
 
-            Default is 'bar'.
+            For large numbers of bins, 'step' and 'stepfilled' can be
+            significantly faster than 'bar' and 'barstacked'.
+
+            Default is taken from :rc:`hist.histtype`.
 
         align : {'left', 'mid', 'right'}, optional
             Controls how the histogram is plotted.
@@ -6471,6 +6474,8 @@ class Axes(_AxesBase):
 
         if bins is None:
             bins = rcParams['hist.bins']
+        if histtype is None:
+            histtype = rcParams['hist.histtype']
 
         # Validate string inputs here so we don't have to clutter
         # subsequent code.
