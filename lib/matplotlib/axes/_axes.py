@@ -6319,7 +6319,7 @@ class Axes(_AxesBase):
             is based on the specified bin range instead of the
             range of x.
 
-            Default is ``None``
+            Default is ``None``.
 
         density : bool, optional
             If ``True``, the first element of the return tuple will
@@ -6343,7 +6343,7 @@ class Axes(_AxesBase):
             the weights are normalized, so that the integral of the density
             over the range remains 1.
 
-            Default is ``None``
+            Default is ``None``.
 
         cumulative : bool, optional
             If ``True``, then a histogram is computed where each bin gives the
@@ -6355,7 +6355,7 @@ class Axes(_AxesBase):
             In this case, if *normed* and/or *density* is also ``True``, then
             the histogram is normalized such that the first bin equals 1.
 
-            Default is ``False``
+            Default is ``False``.
 
         bottom : array_like, scalar, or None
             Location of the bottom baseline of each bin.  If a scalar,
@@ -6363,35 +6363,28 @@ class Axes(_AxesBase):
             If an array, each bin is shifted independently and the length
             of bottom must match the number of bins.  If None, defaults to 0.
 
-            Default is ``None``
+            Default is ``None``.
 
         histtype : {'bar', 'barstacked', 'step',  'stepfilled'}, optional
             The type of histogram to draw.
 
-            - 'bar' is a traditional bar-type histogram.  If multiple data
-              are given the bars are arranged side by side.
+            - 'bar' is a traditional bar-type histogram.  If multiple data are
+              given the bars are arranged side by side.
+            - 'barstacked' is a bar-type histogram where multiple data are
+              stacked on top of each other.
+            - 'step' generates a lineplot that is by default unfilled.
+            - 'stepfilled' generates a lineplot that is by default filled.
 
-            - 'barstacked' is a bar-type histogram where multiple
-              data are stacked on top of each other.
-
-            - 'step' generates a lineplot that is by default
-              unfilled.
-
-            - 'stepfilled' generates a lineplot that is by default
-              filled.
-
-            Default is 'bar'
+            Default is 'bar'.
 
         align : {'left', 'mid', 'right'}, optional
             Controls how the histogram is plotted.
 
-                - 'left': bars are centered on the left bin edges.
+            - 'left': bars are centered on the left bin edges.
+            - 'mid': bars are centered between the bin edges.
+            - 'right': bars are centered on the right bin edges.
 
-                - 'mid': bars are centered between the bin edges.
-
-                - 'right': bars are centered on the right bin edges.
-
-            Default is 'mid'
+            Default is 'mid'.
 
         orientation : {'horizontal', 'vertical'}, optional
             If 'horizontal', `~matplotlib.pyplot.barh` will be used for
@@ -6403,7 +6396,7 @@ class Axes(_AxesBase):
 
             Ignored if *histtype* is 'step' or 'stepfilled'.
 
-            Default is ``None``
+            Default is ``None``.
 
         log : bool, optional
             If ``True``, the histogram axis will be set to a log scale. If
@@ -6411,27 +6404,27 @@ class Axes(_AxesBase):
             filtered out and only the non-empty ``(n, bins, patches)``
             will be returned.
 
-            Default is ``False``
+            Default is ``False``.
 
         color : color or array_like of colors or None, optional
             Color spec or sequence of color specs, one per dataset.  Default
             (``None``) uses the standard line color sequence.
 
-            Default is ``None``
+            Default is ``None``.
 
         label : str or None, optional
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
             the label, so that the legend command will work as expected.
 
-            default is ``None``
+            Default is ``None``.
 
         stacked : bool, optional
-            If ``True``, multiple data are stacked on top of each other If
+            If ``True``, multiple data are stacked on top of each other. If
             ``False`` multiple data are arranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
 
-            Default is ``False``
+            Default is ``False``.
 
         normed : bool, optional
             Deprecated; use the density keyword argument instead.
