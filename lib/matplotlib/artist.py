@@ -1117,9 +1117,9 @@ class Artist(object):
         Return the cursor data for a given event.
 
         .. note::
-            This method is intended to be overridden by artist subclasses
-            (or monkeypatched). As an end-user of Matplotlib you will most
-            likely not call this method yourself.
+            This method is intended to be overridden by artist subclasses.
+            As an end-user of Matplotlib you will most likely not call this
+            method yourself.
 
         Cursor data can be used by Artists to provide additional context
         information for a given event. The default implementation just returns
@@ -1131,6 +1131,10 @@ class Artist(object):
 
         The only current use case is displaying the z-value of an `.AxesImage`
         in the status bar of a plot window, while moving the mouse.
+
+        Parameters
+        ----------
+        event : `matplotlib.backend_bases.MouseEvent`
 
         See Also
         --------
@@ -1144,9 +1148,9 @@ class Artist(object):
         Return a string representation of *data*.
 
         .. note::
-            This method is intended to be overridden by artist subclasses
-            (or monkeypatched). As an end-user of Matplotlib you will most
-            likely not call this method yourself.
+            This method is intended to be overridden by artist subclasses.
+            As an end-user of Matplotlib you will most likely not call this
+            method yourself.
 
         The default implementation converts ints and floats and arrays of ints
         and floats into a comma-separated string enclosed in square brackets.
