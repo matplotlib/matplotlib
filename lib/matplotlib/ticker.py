@@ -1187,7 +1187,7 @@ class EngFormatter(Formatter):
         -15: "f",
         -12: "p",
          -9: "n",
-         -6: "\N{GREEK SMALL LETTER MU}",
+         -6: "\N{MICRO SIGN}",
          -3: "m",
           0: "",
           3: "k",
@@ -1251,7 +1251,7 @@ class EngFormatter(Formatter):
         '1.0 M'
 
         >>> format_eng("-1e-6") # for self.places = 2
-        '-1.00 \N{GREEK SMALL LETTER MU}'
+        '-1.00 \N{MICRO SIGN}'
         """
         sign = 1
         fmt = "g" if self.places is None else ".{:d}f".format(self.places)
