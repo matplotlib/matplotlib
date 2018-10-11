@@ -7,6 +7,6 @@ from matplotlib.cbook import warn_deprecated
 warn_deprecated(since='2.1',
                 name='mpl_toolkits.axes_grid',
                 alternative='mpl_toolkits.axes_grid1 and'
-                            ' mpl_toolkits.axisartist provies the same'
-                            ' functionality',
+                            ' mpl_toolkits.axisartist, which provide'
+                            ' the same functionality',
                 obj_type='module')
