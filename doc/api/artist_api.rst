@@ -170,7 +170,6 @@ Metadata
    Artist.get_label
    Artist.set_url
    Artist.get_url
-   Artist.aname
 
 Stale
 -----
