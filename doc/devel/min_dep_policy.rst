@@ -39,6 +39,21 @@ without complied extensions
 We will only bump these dependencies as we need new features or the
 old versions no longer support our minimum numpy or python.
 
+Test and Documentation Dependencies
+===================================
+
+As these packages are only needed for testing or building the docs and
+not needed by end-users, we can be more aggressive about dropping
+support for old versions.  However, we need to be careful to not
+over-run what down-stream packagers support (as most of the run the
+tests and build the documentation as part of the packaging process).
+
+We will support at least minor versions of the development
+dependencies released in the 12 months prior to our planned release.
+
+We will only bump these as needed or versions no longer support our
+minimum Python and numpy.
+
 
 System and C-dependencies
 =========================
