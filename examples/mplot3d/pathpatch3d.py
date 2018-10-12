@@ -29,7 +29,7 @@ def text3d(ax, xyz, s, zdir="z", size=None, angle=0, usetex=False, **kwargs):
     x, y, z = xyz
     if zdir == "y":
         xy1, z1 = (x, z), y
-    elif zdir == "y":
+    elif zdir == "x":
         xy1, z1 = (y, z), x
     else:
         xy1, z1 = (x, y), z
