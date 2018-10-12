@@ -5789,6 +5789,19 @@ def test_zoom_inset():
             xx, rtol=1e-4)
 
 
+def test_set_position():
+    fig, ax = plt.subplots()
+    ax.set_aspect(3.)
+    ax.set_position([0.1, 0.1, 0.4, 0.4], which='both')
+    assert np.allclose(ax.get_position().width, 0.1)
+    ax.set_aspect(2.)
+    ax.set_position([0.1, 0.1, 0.4, 0.4], which='original')
+    assert np.allclose(ax.get_position().width, 0.15)
+    ax.set_aspect(3.)
+    ax.set_position([0.1, 0.1, 0.4, 0.4], which='active')
+    assert np.allclose(ax.get_position().width, 0.1)
+
+
 def test_spines_properbbox_after_zoom():
     fig, ax = plt.subplots()
     bb = ax.spines['bottom'].get_window_extent(fig.canvas.get_renderer())
