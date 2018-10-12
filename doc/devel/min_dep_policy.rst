@@ -4,6 +4,12 @@
 Minimum Version of Dependencies Policy
 ======================================
 
+For the purpose of this document, 'minor version' is in the sense of
+SemVer (major, minor, patch) and includes both major and minor
+releases. For projects that use date-based versioning, every release
+is a 'minor version'.
+
+
 Python and numpy
 ================
 
