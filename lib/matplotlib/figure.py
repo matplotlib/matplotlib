@@ -2271,9 +2271,9 @@ default: 'top'
             if bbox is not None and (bbox.width != 0 or bbox.height != 0):
                 bb.append(bbox)
 
-        for ax in self.axes:
-            if ax.get_visible():
-                bb.append(ax.get_tightbbox(renderer, bbox_extra_artists))
+        bb.extend(
+            ax.get_tightbbox(renderer, bbox_extra_artists=bbox_extra_artists)
+            for ax in self.axes if ax.get_visible())
 
         if len(bb) == 0:
             return self.bbox_inches

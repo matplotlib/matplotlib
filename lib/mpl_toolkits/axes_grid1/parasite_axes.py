@@ -329,9 +329,10 @@ class HostAxesBase:
         return ax2
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
-        bbs = [ax.get_tightbbox(renderer, call_axes_locator)
+        bbs = [ax.get_tightbbox(renderer, call_axes_locator=call_axes_locator)
                for ax in self.parasites]
-        bbs.append(super().get_tightbbox(renderer, call_axes_locator))
+        bbs.append(super().get_tightbbox(renderer,
+                                         call_axes_locator=call_axes_locator))
         return Bbox.union([b for b in bbs if b.width != 0 or b.height != 0])
 
 

@@ -321,6 +321,8 @@ class GetExtentHelper(object):
             raise KeyError("direction must be one of left, right, bottom, top")
 
     def __call__(self, renderer):
-        vl = [self._get_func(ax.get_tightbbox(renderer, False),
-                             ax.bbox) for ax in self._ax_list]
+        vl = [self._get_func(ax.get_tightbbox(renderer,
+                                              call_axes_locator=False),
+                             ax.bbox)
+              for ax in self._ax_list]
         return max(vl)
