@@ -55,11 +55,11 @@ def _has_item(data, name):
 
 def _plot_args_replacer(args, data):
     if len(args) == 1:
-        return ["y"]
+        return ['y']
     elif len(args) == 2:
         # this can be two cases: x,y or y,c
         if not _has_item(data, args[1]):
-            return ["y", "c"]
+            return ['y', 'c']
         # it's data, but could be a color code like 'ro' or 'b--'
         # -> warn the user in that case...
         try:
@@ -72,9 +72,9 @@ def _plot_args_replacer(args, data):
                 "is in data; using as data.  Either rename the entry in data "
                 "or use three arguments to plot.".format(args[1]),
                 RuntimeWarning)
-        return ["x", "y"]
+        return ['x', 'y']
     elif len(args) == 3:
-        return ["x", "y", "c"]
+        return ['x', 'y', 'c']
     else:
         raise ValueError("Using arbitrary long args with data is not "
                          "supported due to ambiguity of arguments.\nUse "
