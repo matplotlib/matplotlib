@@ -4174,7 +4174,18 @@ class _AxesBase(martist.Artist):
         Artists are excluded either by not being visible or
         ``artist.set_in_layout(False)``.
         """
-        return [artist for artist in self.get_children()
+
+        artists = self.get_children()
+        if not (self.axison and self._frameon):
+            # don't do bbox on spines if frame not on.
+            for spine in self.spines.values():
+                artists.remove(spine)
+
+        if not self.axison:
+            for _axis in self._get_axis_list():
+                artists.remove(_axis)
+
+        return [artist for artist in artists
                 if (artist.get_visible() and artist.get_in_layout())]
 
     def get_tightbbox(self, renderer, call_axes_locator=True,
