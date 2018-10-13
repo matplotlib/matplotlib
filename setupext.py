@@ -165,18 +165,18 @@ def is_min_version(found, minversion):
 # Define the display functions only if display_status is True.
 if options['display_status']:
     def print_line(char='='):
-        print(char * 76)
+        print(char * 79)
 
     def print_status(package, status):
-        initial_indent = "%22s: " % package
+        initial_indent = "%18s: " % package
         indent = ' ' * 24
-        print(textwrap.fill(str(status), width=76,
+        print(textwrap.fill(str(status), width=79,
                             initial_indent=initial_indent,
                             subsequent_indent=indent))
 
     def print_message(message):
         indent = ' ' * 24 + "* "
-        print(textwrap.fill(str(message), width=76,
+        print(textwrap.fill(str(message), width=79,
                             initial_indent=indent,
                             subsequent_indent=indent))
 
@@ -1231,7 +1231,7 @@ class BackendTkAgg(OptionalBackendPackage):
     force = True
 
     def check(self):
-        return "installing; run-time loading from Python Tcl / Tk"
+        return "installing; run-time loading from Python Tcl/Tk"
 
     def get_extension(self):
         sources = [
@@ -1246,7 +1246,7 @@ class BackendTkAgg(OptionalBackendPackage):
     def add_flags(self, ext):
         ext.include_dirs.insert(0, 'src')
         if sys.platform == 'win32':
-            # PSAPI library needed for finding Tcl / Tk at run time
+            # PSAPI library needed for finding Tcl/Tk at run time
             ext.libraries.extend(['psapi'])
         elif sys.platform == 'linux':
             ext.libraries.extend(['dl'])
