@@ -6626,7 +6626,7 @@ class Axes(_AxesBase):
                 width = dr * totwidth
                 boffset, dw = 0.0, 0.0
 
-            if align == 'mid' or align == 'edge':
+            if align == 'mid':
                 boffset += 0.5 * totwidth
             elif align == 'right':
                 boffset += totwidth
@@ -6695,7 +6695,7 @@ class Axes(_AxesBase):
             else:
                 minimum = 0
 
-            if align == 'left' or align == 'center':
+            if align == 'left':
                 x -= 0.5*(bins[1]-bins[0])
             elif align == 'right':
                 x += 0.5*(bins[1]-bins[0])
