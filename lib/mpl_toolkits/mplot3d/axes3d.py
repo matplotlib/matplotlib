@@ -125,6 +125,11 @@ class Axes3D(Axes):
 
         self.figure.add_axes(self)
 
+        # mplot3d currently manages its own spines and needs these turned off
+        # for bounding box calculations
+        for k in self.spines.keys():
+            self.spines[k].set_visible(False)
+
     def set_axis_off(self):
         self._axis3don = False
         self.stale = True
