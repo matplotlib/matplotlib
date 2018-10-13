@@ -66,13 +66,10 @@ def draw_arc_between_vectors(ax, vec1, vec2):
     height /= norm
     theta1 = get_vector_angle(vec1)
     theta2 = get_vector_angle(vec2)
-    arc = mpatches.Arc((0, 0), width, height, theta1=theta1, theta2=theta2)
-    try:
-        ax.patches[0].remove()
-    except:
-        pass
+    arc = mpatches.Arc(
+        (0, 0), width, height, theta1=theta1, theta2=theta2, gid="angle_arc")
+    [p.remove() for p in ax.patches if p.get_gid() == "angle_arc"]
     ax.add_patch(arc)
-    print(ax.patches[0].gid)
 
 
 def fig_resize(event):
