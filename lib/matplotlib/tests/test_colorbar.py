@@ -396,3 +396,18 @@ def test_colorbar_axes_kw():
     plt.imshow(([[1, 2], [3, 4]]))
     plt.colorbar(orientation='horizontal', fraction=0.2, pad=0.2, shrink=0.5,
                  aspect=10, anchor=(0., 0.), panchor=(0., 1.))
+
+
+def test_colorbar_log_minortick_labels():
+    with rc_context({'_internal.classic_mode': False}):
+        fig, ax = plt.subplots()
+        pcm = ax.imshow([[10000, 50000]], norm=LogNorm())
+        cb = fig.colorbar(pcm)
+        fig.canvas.draw()
+        lb = cb.ax.yaxis.get_ticklabels(which='both')
+        expected = [r'$\mathdefault{10^{4}}$',
+                    r'$\mathdefault{2\times10^{4}}$',
+                    r'$\mathdefault{3\times10^{4}}$',
+                    r'$\mathdefault{4\times10^{4}}$']
+        for l, exp in zip(lb, expected):
+            assert l.get_text() == exp

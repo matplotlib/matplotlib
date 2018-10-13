@@ -235,12 +235,12 @@ class _ColorbarAutoLocator(ticker.MaxNLocator):
         self._colorbar = colorbar
         nbins = 'auto'
         steps = [1, 2, 2.5, 5, 10]
-        ticker.MaxNLocator.__init__(self, nbins=nbins, steps=steps)
+        super().__init__(nbins=nbins, steps=steps)
 
     def tick_values(self, vmin, vmax):
         vmin = max(vmin, self._colorbar.norm.vmin)
         vmax = min(vmax, self._colorbar.norm.vmax)
-        ticks = ticker.MaxNLocator.tick_values(self, vmin, vmax)
+        ticks = super().tick_values(vmin, vmax)
         return ticks[(ticks >= vmin) & (ticks <= vmax)]
 
 
@@ -261,12 +261,12 @@ class _ColorbarAutoMinorLocator(ticker.AutoMinorLocator):
         """
         self._colorbar = colorbar
         self.ndivs = n
-        ticker.AutoMinorLocator.__init__(self, n=None)
+        super().__init__(n=None)
 
     def __call__(self):
         vmin = self._colorbar.norm.vmin
         vmax = self._colorbar.norm.vmax
-        ticks = ticker.AutoMinorLocator.__call__(self)
+        ticks = super().__call__()
         rtol = (vmax - vmin) * 1e-10
         return ticks[(ticks >= vmin - rtol) & (ticks <= vmax + rtol)]
 
@@ -291,12 +291,12 @@ class _ColorbarLogLocator(ticker.LogLocator):
         same as `~.ticker.LogLocator`.
         """
         self._colorbar = colorbar
-        ticker.LogLocator.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def tick_values(self, vmin, vmax):
         vmin = self._colorbar.norm.vmin
         vmax = self._colorbar.norm.vmax
-        ticks = ticker.LogLocator.tick_values(self, vmin, vmax)
+        ticks = super().tick_values(vmin, vmax)
         return ticks[(ticks >= vmin) & (ticks <= vmax)]
 
 
@@ -462,7 +462,6 @@ class ColorbarBase(cm.ScalarMappable):
         long_axis.set_ticks_position(self.ticklocation)
         short_axis.set_ticks([])
         short_axis.set_ticks([], minor=True)
-
         self._set_label()
 
     def _get_ticker_locator_formatter(self):
@@ -537,7 +536,7 @@ class ColorbarBase(cm.ScalarMappable):
                 long_axis.set_minor_locator(_ColorbarLogLocator(self,
                             base=10., subs='auto'))
                 long_axis.set_minor_formatter(
-                    ticker.LogFormatter()
+                    ticker.LogFormatterSciNotation()
                 )
         else:
             _log.debug('Using fixed locator on colorbar')
