@@ -3278,6 +3278,11 @@ def test_hist_labels():
     assert l[2][0].get_label() == '00'
 
 
+def test_hist_invalid_combinations():
+    with pytest.raises(ValueError):
+        plt.figure().subplots().hist([], bins=[0, 1/4, 1], align="left")
+
+
 @image_comparison(['transparent_markers'], remove_text=True)
 def test_transparent_markers():
     np.random.seed(0)

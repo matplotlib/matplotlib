@@ -6644,6 +6644,13 @@ optional.
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             tops.append(m)
+
+        # align != 'mid' only makes sense for equal-sized bins.
+        if align != 'mid' and not cbook._is_equally_spaced(bins):
+            raise ValueError(
+                "When 'bins' are not equally spaced, the only valid value for "
+                "'align' is 'mid'")
+
         tops = np.array(tops, float)  # causes problems later if it's an int
         if stacked:
             tops = tops.cumsum(axis=0)

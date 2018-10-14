@@ -2165,3 +2165,10 @@ class _classproperty:
 
     def __get__(self, instance, owner):
         return self._fget(owner)
+
+
+def _is_equally_spaced(x):
+    """
+    Return whether the values in *x* are equally spaced (up to fp errors).
+    """
+    return len(x) < 2 or np.allclose(np.diff(x), (x[-1] - x[0]) / (len(x) - 1))
