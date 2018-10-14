@@ -38,7 +38,8 @@ API Changes for 3.0.1
 
 `.tight_layout.auto_adjust_subplotpars` can return ``None`` now if the new
 subplotparams will collapse axes to zero width or height.  This prevents
-``tight_layout`` from being executed.  
+``tight_layout`` from being executed.  Similarly
+`.tight_layout.get_tight_layout_figure` will return None.  
 
 API Changes for 3.0.0
 =====================

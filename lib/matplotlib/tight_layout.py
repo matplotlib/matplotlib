@@ -290,6 +290,13 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         (left, bottom, right, top) rectangle in normalized figure coordinates
         that the whole subplots area (including labels) will fit into.
         Defaults to using the entire figure.
+
+    Returns
+    -------
+    subplotspec or None
+        subplotspec kwargs to be passed to `.Figure.subplots_adjust` or
+        None if tight_layout could not be accomplished.  
+
     """
 
     subplot_list = []
