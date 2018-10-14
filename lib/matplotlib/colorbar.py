@@ -704,13 +704,14 @@ class ColorbarBase(cm.ScalarMappable):
         removing any previously added lines.
         '''
         y = self._locate(levels)
-        igood = (y < 1.001) & (y > -0.001)
+        rtol = (self._y[-1] - self._y[0]) * 1e-10
+        igood = (y < self._y[-1] + rtol) & (y > self._y[0] - rtol)
         y = y[igood]
         if np.iterable(colors):
             colors = np.asarray(colors)[igood]
         if np.iterable(linewidths):
             linewidths = np.asarray(linewidths)[igood]
-        X, Y = np.meshgrid([0, 1], y)
+        X, Y = np.meshgrid([self._y[0], self._y[-1]], y)
         if self.orientation == 'vertical':
             xy = np.stack([X, Y], axis=-1)
         else:
