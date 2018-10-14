@@ -6228,6 +6228,8 @@ class Axes(_AxesBase):
         return CS.clabel(*args, **kwargs)
     clabel.__doc__ = mcontour.ContourSet.clabel.__doc__
 
+
+
     @docstring.dedent_interpd
     def table(self, **kwargs):
         """
