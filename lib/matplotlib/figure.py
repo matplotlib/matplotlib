@@ -253,7 +253,7 @@ class Figure(Artist):
     Attributes
     ----------
     patch
-        The `.Rectangle` instance representing the figure patch.
+        The `.Rectangle` instance representing the figure background patch.
 
     suppressComposite
         For multiple figure images, the figure will make composite images
@@ -303,7 +303,7 @@ class Figure(Artist):
             patch).
 
         frameon : bool, default: :rc:`figure.frameon`
-            If ``False``, suppress drawing the figure frame.
+            If ``False``, suppress drawing the figure background patch.
 
         subplotpars : :class:`SubplotParams`
             Subplot parameters. If not given, the default subplot
@@ -936,7 +936,11 @@ default: 'top'
         return self.dpi
 
     def get_frameon(self):
-        """Return whether the figure frame will be drawn."""
+        """
+        Return the figure's background patch visibility, i.e.
+        whether the figure background will be drawn. Equivalent to
+        ``Figure.patch.get_visible()``.
+        """
         return self.patch.get_visible()
 
     def set_edgecolor(self, color):
@@ -994,7 +998,9 @@ default: 'top'
 
     def set_frameon(self, b):
         """
-        Set whether the figure frame (background) is displayed or invisible.
+        Set the figure's background patch visibility, i.e.
+        whether the figure background will be drawn. Equivalent to
+        ``Figure.patch.set_visible()``.
 
         Parameters
         ----------
