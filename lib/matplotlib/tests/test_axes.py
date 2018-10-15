@@ -1686,16 +1686,16 @@ def test_hist2d_transpose():
 
 
 class TestScatter(object):
-    @image_comparison(baseline_images=['scatter', 'scatter'])
+    @image_comparison(baseline_images=['scatter'],
+                      style='mpl20', remove_text=True)
     def test_scatter_plot(self):
-        fig, ax = plt.subplots()
-        data = {"x": [3, 4, 2, 6], "y": [2, 5, 2, 3],
-                "c": ['r', 'y', 'b', 'lime'], "s": [24, 15, 19, 29]}
+        data = {"x": np.array([3, 4, 2, 6]), "y": np.array([2, 5, 2, 3]),
+                "c": ['r', 'y', 'b', 'lime'], "s": [24, 15, 19, 29],
+                "c2": ['0.5', '0.6', '0.7', '0.8']}
 
-        ax.scatter(data["x"], data["y"], c=data["c"], s=data["s"])
-
-        # Reuse testcase from above for a labeled data test
         fig, ax = plt.subplots()
+        ax.scatter(data["x"] - 1., data["y"] - 1., c=data["c"], s=data["s"])
+        ax.scatter(data["x"] + 1., data["y"] + 1., c=data["c2"], s=data["s"])
         ax.scatter("x", "y", c="c", s="s", data=data)
 
     @image_comparison(baseline_images=['scatter_marker'], remove_text=True,
@@ -1745,6 +1745,8 @@ class TestScatter(object):
     # scatter plot will have 4 elements. The tuple scheme is:
     # (*c* parameter case, exception regexp key or None if no exception)
     params_test_scatter_c = [
+        # single string:
+        ('0.5', None),
         # Single letter-sequences
         ("rgby", None),
         ("rgb", "shape"),
@@ -1763,6 +1765,10 @@ class TestScatter(object):
         ([0.5]*3, None),  # should emit a warning for user's eyes though
         ([0.5]*4, None),  # NB: no warning as matching size allows mapping
         ([0.5]*5, "shape"),
+        # list of strings:
+        (['0.5', '0.4', '0.6', '0.7'], None),
+        (['0.5', 'red', '0.6', 'C5'], None),
+        (['0.5', 0.5, '0.6', 'C5'], "conversion"),
         # RGB values
         ([[1, 0, 0]], None),
         ([[1, 0, 0]]*3, "shape"),
