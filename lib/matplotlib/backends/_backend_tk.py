@@ -4,6 +4,8 @@ import os.path
 import sys
 import tkinter as Tk
 from tkinter.simpledialog import SimpleDialog
+import tkinter.filedialog
+import tkinter.messagebox
 from contextlib import contextmanager
 
 import numpy as np
@@ -136,56 +138,56 @@ class TimerTk(TimerBase):
 
 
 class FigureCanvasTk(FigureCanvasBase):
-    keyvald = {65507 : 'control',
-               65505 : 'shift',
-               65513 : 'alt',
-               65515 : 'super',
-               65508 : 'control',
-               65506 : 'shift',
-               65514 : 'alt',
-               65361 : 'left',
-               65362 : 'up',
-               65363 : 'right',
-               65364 : 'down',
-               65307 : 'escape',
-               65470 : 'f1',
-               65471 : 'f2',
-               65472 : 'f3',
-               65473 : 'f4',
-               65474 : 'f5',
-               65475 : 'f6',
-               65476 : 'f7',
-               65477 : 'f8',
-               65478 : 'f9',
-               65479 : 'f10',
-               65480 : 'f11',
-               65481 : 'f12',
-               65300 : 'scroll_lock',
-               65299 : 'break',
-               65288 : 'backspace',
-               65293 : 'enter',
-               65379 : 'insert',
-               65535 : 'delete',
-               65360 : 'home',
-               65367 : 'end',
-               65365 : 'pageup',
-               65366 : 'pagedown',
-               65438 : '0',
-               65436 : '1',
-               65433 : '2',
-               65435 : '3',
-               65430 : '4',
-               65437 : '5',
-               65432 : '6',
-               65429 : '7',
-               65431 : '8',
-               65434 : '9',
-               65451 : '+',
-               65453 : '-',
-               65450 : '*',
-               65455 : '/',
-               65439 : 'dec',
-               65421 : 'enter',
+    keyvald = {65507: 'control',
+               65505: 'shift',
+               65513: 'alt',
+               65515: 'super',
+               65508: 'control',
+               65506: 'shift',
+               65514: 'alt',
+               65361: 'left',
+               65362: 'up',
+               65363: 'right',
+               65364: 'down',
+               65307: 'escape',
+               65470: 'f1',
+               65471: 'f2',
+               65472: 'f3',
+               65473: 'f4',
+               65474: 'f5',
+               65475: 'f6',
+               65476: 'f7',
+               65477: 'f8',
+               65478: 'f9',
+               65479: 'f10',
+               65480: 'f11',
+               65481: 'f12',
+               65300: 'scroll_lock',
+               65299: 'break',
+               65288: 'backspace',
+               65293: 'enter',
+               65379: 'insert',
+               65535: 'delete',
+               65360: 'home',
+               65367: 'end',
+               65365: 'pageup',
+               65366: 'pagedown',
+               65438: '0',
+               65436: '1',
+               65433: '2',
+               65435: '3',
+               65430: '4',
+               65437: '5',
+               65432: '6',
+               65429: '7',
+               65431: '8',
+               65434: '9',
+               65451: '+',
+               65453: '-',
+               65450: '*',
+               65455: '/',
+               65439: 'dec',
+               65421: 'enter',
                }
 
     _keycode_lookup = {
@@ -407,12 +409,7 @@ class FigureCanvasTk(FigureCanvasBase):
         x = event.x
         y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
-        if num == 4:
-            step = +1
-        elif num == 5:
-            step = -1
-        else:
-            step =  0
+        step = 1 if num == 4 else -1 if num == 5 else 0
         FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
     def scroll_event_windows(self, event):
@@ -462,7 +459,7 @@ class FigureCanvasTk(FigureCanvasBase):
                          ]
 
         if key is not None:
-            # note, shift is not added to the keys as this is already accounted for
+            # shift is not added to the keys as this is already accounted for
             for bitmask, prefix, key_name in modifiers:
                 if event.state & (1 << bitmask) and key_name not in key:
                     key = '{0}+{1}'.format(prefix, key)
@@ -479,7 +476,7 @@ class FigureCanvasTk(FigureCanvasBase):
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        Creates a new backend-specific subclass of `.backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 
@@ -518,9 +515,11 @@ class FigureManagerTk(FigureManagerBase):
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
         self.canvas = canvas
-        # If using toolmanager it has to be present when initializing the toolbar
+        # If using toolmanager it has to be present when initializing the
+        # toolbar
         self.toolmanager = self._get_toolmanager()
-        # packing toolbar first, because if space is getting low, last packed widget is getting shrunk first (-> the canvas)
+        # packing toolbar first, because if space is getting low, last packed
+        # widget is getting shrunk first (-> the canvas)
         self.toolbar = self._get_toolbar()
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self._num = num
@@ -582,7 +581,7 @@ class FigureManagerTk(FigureManagerBase):
             if self.canvas._idle_callback:
                 self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
             self.window.destroy()
-        if Gcf.get_num_fig_managers()==0:
+        if Gcf.get_num_fig_managers() == 0:
             if self.window is not None:
                 self.window.quit()
         self.window = None
@@ -650,7 +649,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         return b
 
     def _Spacer(self):
-        # Buttons are 30px high, so make this 26px tall with padding to center it
+        # Buttons are 30px high. Make this 26px tall +2px padding to center it.
         s = Tk.Frame(
             master=self, height=26, relief=Tk.RIDGE, pady=2, bg="DarkGray")
         s.pack(side=Tk.LEFT, padx=5)
@@ -691,7 +690,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         window.grab_set()
 
     def save_figure(self, *args):
-        import tkinter.filedialog, tkinter.messagebox
         filetypes = self.canvas.get_supported_filetypes().copy()
         default_filetype = self.canvas.get_default_filetype()
 
@@ -817,6 +815,7 @@ class SetCursorTk(backend_tools.SetCursorBase):
 
 class ToolbarTk(ToolContainerBase, Tk.Frame):
     _icon_extension = '.gif'
+
     def __init__(self, toolmanager, window):
         ToolContainerBase.__init__(self, toolmanager)
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
@@ -911,7 +910,6 @@ class StatusbarTk(StatusbarBase, Tk.Frame):
 
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
-        import tkinter.filedialog, tkinter.messagebox
         filetypes = self.figure.canvas.get_supported_filetypes().copy()
         default_filetype = self.figure.canvas.get_default_filetype()
 
