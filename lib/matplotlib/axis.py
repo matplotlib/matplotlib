@@ -1567,6 +1567,8 @@ class Axis(martist.Artist):
                             "matplotlib.ticker.Formatter")
         self.isDefault_minfmt = False
         self.minor.formatter = formatter
+        if hasattr(self.minor.formatter, "_ismajor"):
+            self.minor.formatter._ismajor = False
         formatter.set_axis(self)
         self.stale = True
 
@@ -1583,9 +1585,6 @@ class Axis(martist.Artist):
                             "matplotlib.ticker.Locator")
         self.isDefault_majloc = False
         self.major.locator = locator
-        if (hasattr(self.get_major_formatter(), "_locator") and
-            hasattr(self.get_major_formatter(), "_tz")):
-            self.get_major_formatter()._locator = locator
         locator.set_axis(self)
         self.stale = True
 
@@ -1602,9 +1601,6 @@ class Axis(martist.Artist):
                             "matplotlib.ticker.Locator")
         self.isDefault_minloc = False
         self.minor.locator = locator
-        if (hasattr(self.get_minor_formatter(), "_locator") and
-            hasattr(self.get_minor_formatter(), "_tz")):
-            self.get_minor_formatter()._locator = locator
         locator.set_axis(self)
         self.stale = True
 

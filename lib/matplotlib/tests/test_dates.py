@@ -11,6 +11,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.dates as mdates
+import matplotlib.ticker as mticker
 
 
 def __has_pytz():
@@ -222,7 +223,7 @@ def test_DateFormatter():
 
 def test_locator_set_formatter():
     """
-    Test if setting the locator only will update the formatter to use
+    Test if setting the locator only will update the AutoDateFormatter to use
     the new locator.
     """
     plt.rcParams["date.autoformatter.minute"] = "%d %H:%M"
@@ -238,6 +239,17 @@ def test_locator_set_formatter():
     ticklabels = [tl.get_text() for tl in ax.get_xticklabels()]
     expected = ['30 08:00', '30 08:30', '30 09:00',
                 '30 09:30', '30 10:00', '30 10:30']
+    assert ticklabels == expected
+
+    ax.xaxis.set_major_locator(mticker.NullLocator())
+    ax.xaxis.set_minor_locator(mdates.MinuteLocator((5, 55)))
+    decoy_loc = mdates.MinuteLocator((12, 27))
+    ax.xaxis.set_minor_formatter(mdates.AutoDateFormatter(decoy_loc))
+
+    ax.xaxis.set_minor_locator(mdates.MinuteLocator((15, 45)))
+    fig.canvas.draw()
+    ticklabels = [tl.get_text() for tl in ax.get_xticklabels(which="minor")]
+    expected = ['30 08:15', '30 08:45', '30 09:15', '30 09:45', '30 10:15']
     assert ticklabels == expected
 
 
