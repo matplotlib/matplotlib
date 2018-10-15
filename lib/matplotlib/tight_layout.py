@@ -295,7 +295,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     -------
     subplotspec or None
         subplotspec kwargs to be passed to `.Figure.subplots_adjust` or
-        None if tight_layout could not be accomplished.  
+        None if tight_layout could not be accomplished.
 
     """
 
