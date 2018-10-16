@@ -603,7 +603,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Prior to version 1.0, show() generally could not be called
 # more than once in a single script (although sometimes one
 # could get away with it); for version 1.0.1 and above, this
-# restriction is lifted, so one can write a script like this:
+# restriction is lifted, so one can write a script like this::
 #
 # import numpy as np
 # import matplotlib.pyplot as plt
