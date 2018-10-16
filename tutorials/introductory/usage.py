@@ -604,16 +604,15 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # more than once in a single script (although sometimes one
 # could get away with it); for version 1.0.1 and above, this
 # restriction is lifted, so one can write a script like this:
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-plt.ioff()
-for i in range(3):
-    plt.plot(np.random.rand(10))
-    plt.show()
-
-###############################################################################
+#
+# import numpy as np
+# import matplotlib.pyplot as plt
+# 
+# plt.ioff()
+# for i in range(3):
+#     plt.plot(np.random.rand(10))
+#     plt.show()
+# 
 # which makes three plots, one at a time i.e. the second plot will show up,
 # once the first plot is closed and the third after the second plot is closed.
 #
