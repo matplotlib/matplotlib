@@ -611,10 +611,11 @@ import matplotlib.pyplot as plt
 plt.ioff()
 for i in range(3):
     plt.plot(np.random.rand(10))
-plt.show()
+    plt.show()
 
 ###############################################################################
-# which makes three plots, one at a time.
+# which makes three plots, one at a time i.e. the second plot will show up,
+# once the first plot is closed and the third after the second plot is closed.
 #
 # Summary
 # -------
