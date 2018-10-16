@@ -82,7 +82,7 @@ per-file-ignores =
     tutorials/introductory/images.py: E402, E501
     tutorials/introductory/pyplot.py: E402, E501
     tutorials/introductory/sample_plots.py: E501
-    tutorials/introductory/usage.py: E402, E501
+    tutorials/introductory/usage.py: E501
     tutorials/text/annotations.py: E501
     tutorials/text/pgf.py: E501
     tutorials/text/text_intro.py: E402
