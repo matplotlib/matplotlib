@@ -241,7 +241,8 @@ class _ColorbarAutoLocator(ticker.MaxNLocator):
         vmin = max(vmin, self._colorbar.norm.vmin)
         vmax = min(vmax, self._colorbar.norm.vmax)
         ticks = super().tick_values(vmin, vmax)
-        return ticks[(ticks >= vmin) & (ticks <= vmax)]
+        rtol = (vmax - vmin) * 1e-10
+        return ticks[(ticks >= vmin - rtol) & (ticks <= vmax + rtol)]
 
 
 class _ColorbarAutoMinorLocator(ticker.AutoMinorLocator):
@@ -297,7 +298,10 @@ class _ColorbarLogLocator(ticker.LogLocator):
         vmin = self._colorbar.norm.vmin
         vmax = self._colorbar.norm.vmax
         ticks = super().tick_values(vmin, vmax)
-        return ticks[(ticks >= vmin) & (ticks <= vmax)]
+        rtol = (np.log10(vmax) - np.log10(vmin)) * 1e-10
+        ticks = ticks[(np.log10(ticks) >= np.log10(vmin) - rtol) &
+              (np.log10(ticks) <= np.log10(vmax) + rtol)]
+        return ticks
 
 
 class ColorbarBase(cm.ScalarMappable):
@@ -406,7 +410,6 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             self.formatter = format  # Assume it is a Formatter
         # The rest is in a method so we can recalculate when clim changes.
-        self.config_axis()
         self.draw_all()
 
     def _extend_lower(self):
@@ -440,6 +443,7 @@ class ColorbarBase(cm.ScalarMappable):
         # units:
         X, Y = self._mesh()
         C = self._values[:, np.newaxis]
+        self.config_axis()
         self._config_axes(X, Y)
         if self.filled:
             self._add_solids(X, Y, C)
@@ -594,6 +598,7 @@ class ColorbarBase(cm.ScalarMappable):
         ax.set_frame_on(False)
         ax.set_navigate(False)
         xy = self._outline(X, Y)
+        ax.ignore_existing_data_limits = True
         ax.update_datalim(xy)
         ax.set_xlim(*ax.dataLim.intervalx)
         ax.set_ylim(*ax.dataLim.intervaly)
@@ -1151,7 +1156,6 @@ class Colorbar(ColorbarBase):
         self.set_alpha(mappable.get_alpha())
         self.cmap = mappable.cmap
         self.norm = mappable.norm
-        self.config_axis()
         self.draw_all()
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
