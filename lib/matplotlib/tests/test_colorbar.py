@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
+from matplotlib.ticker import LogLocator, LogFormatter
 
 
 def _get_cmap_norms():
@@ -411,3 +412,27 @@ def test_colorbar_log_minortick_labels():
                     r'$\mathdefault{4\times10^{4}}$']
         for l, exp in zip(lb, expected):
             assert l.get_text() == exp
+
+
+def test_colorbar_renorm():
+    x, y = np.ogrid[-4:4:31j, -4:4:31j]
+    z = 120000*np.exp(-x**2 - y**2)
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(z)
+    cbar = fig.colorbar(im)
+
+    norm = LogNorm(z.min(), z.max())
+    im.set_norm(norm)
+    cbar.set_norm(norm)
+    cbar.locator = LogLocator()
+    cbar.formatter = LogFormatter()
+    cbar.update_normal(im)
+    assert np.isclose(cbar.vmin, z.min())
+
+    norm = LogNorm(z.min() * 1000, z.max() * 1000)
+    im.set_norm(norm)
+    cbar.set_norm(norm)
+    cbar.update_normal(im)
+    assert np.isclose(cbar.vmin, z.min() * 1000)
+    assert np.isclose(cbar.vmax, z.max() * 1000)
