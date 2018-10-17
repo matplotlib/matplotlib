@@ -2403,7 +2403,9 @@ class _AxesBase(martist.Artist):
         if tight is not None:
             self._tight = bool(tight)
 
-        if self.use_sticky_edges and (self._xmargin or self._ymargin):
+        if self.use_sticky_edges and (
+                (self._xmargin and scalex and self._autoscaleXon) or
+                (self._ymargin and scaley and self._autoscaleYon)):
             stickies = [artist.sticky_edges for artist in self.get_children()]
             x_stickies = sum([sticky.x for sticky in stickies], [])
             y_stickies = sum([sticky.y for sticky in stickies], [])
