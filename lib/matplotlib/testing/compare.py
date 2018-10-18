@@ -281,8 +281,13 @@ _update_converter()
 
 def comparable_formats():
     """
-    Returns the list of file formats that compare_images can compare
+    Return the list of file formats that `.compare_images` can compare
     on this system.
+
+    Returns
+    -------
+    supported_formats : list of str
+        E.g. ``['png', 'pdf', 'svg', 'eps']``.
 
     """
     return ['png', *converter]
@@ -369,21 +374,41 @@ def compare_images(expected, actual, tol, in_decorator=False):
     ----------
     expected : str
         The filename of the expected image.
-    actual :str
+    actual : str
         The filename of the actual image.
     tol : float
         The tolerance (a color value difference, where 255 is the
         maximal difference).  The test fails if the average pixel
         difference is greater than this value.
     in_decorator : bool
-        If called from image_comparison decorator, this should be
-        True. (default=False)
+        Determines the output format. If called from image_comparison
+        decorator, this should be True. (default=False)
+
+    Returns
+    -------
+    comparison_result : None or dict or str
+        Return *None* if the images are equal within the given tolerance.
+
+        If the images differ, the return value depends on  *in_decorator*.
+        If *in_decorator* is true, a dict with the following entries is
+        returned:
+
+        - *rms*: The RMS of the image difference.
+        - *expected*: The filename of the expected image.
+        - *actual*: The filename of the actual image.
+        - *diff_image*: The filename of the difference image.
+        - *tol*: The comparison tolerance.
+
+        Otherwise, a human-readable multi-line string representation of this
+        information is returned.
 
     Examples
     --------
-    img1 = "./baseline/plot.png"
-    img2 = "./output/plot.png"
-    compare_images(img1, img2, 0.001):
+    ::
+
+        img1 = "./baseline/plot.png"
+        img2 = "./output/plot.png"
+        compare_images(img1, img2, 0.001)
 
     """
     if not os.path.exists(actual):

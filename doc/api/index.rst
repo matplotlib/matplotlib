@@ -54,6 +54,7 @@ Modules
    spines_api.rst
    style_api.rst
    table_api.rst
+   testing_api.rst
    text_api.rst
    ticker_api.rst
    tight_layout_api.rst
