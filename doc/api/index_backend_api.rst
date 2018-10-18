@@ -6,6 +6,7 @@
    :maxdepth: 1
 
    backend_mixed_api.rst
+   backend_template_api.rst
    backend_agg_api.rst
    backend_cairo_api.rst
    backend_gtk3agg_api.rst
