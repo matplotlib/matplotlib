@@ -2619,7 +2619,12 @@ static struct PyMethodDef methods[] = {
     METH_VARARGS,
     "Sets the active cursor."
    },
-   {NULL, NULL, 0, NULL} /* sentinel */
+   {"verify_framework",
+    (PyCFunction)verify_framework,
+    METH_NOARGS,
+    "Verifies that the framework build is being used."
+   },
+   {NULL, NULL, 0, NULL, NULL} /* sentinel */
 };
 
 static struct PyModuleDef moduledef = {
@@ -2644,8 +2649,6 @@ PyObject* PyInit__macosx(void)
      || PyType_Ready(&TimerType) < 0)
         return NULL;
 
-    if (!verify_framework())
-        return NULL;
 
     module = PyModule_Create(&moduledef);
     if (!module)
