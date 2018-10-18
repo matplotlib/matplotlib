@@ -806,7 +806,6 @@ class AutoDateFormatter(ticker.Formatter):
         returned by ``locator._get_unit()``.
         """
         self._locator = locator
-        self._ismajor = True
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
@@ -821,13 +820,10 @@ class AutoDateFormatter(ticker.Formatter):
                        1. / (MUSECONDS_PER_DAY):
                            rcParams['date.autoformatter.microsecond']}
 
+    def _set_locator(self, locator):
+        self._locator = locator
+
     def __call__(self, x, pos=None):
-        # Check if locator is still the one from the axis to format
-        if hasattr(self.axis, "get_major_locator"):
-            pot_locator = self.axis.get_major_locator() if self._ismajor \
-                          else self.axis.get_minor_locator()
-            if self._locator is not pot_locator:
-                self._locator = pot_locator
         try:
             locator_unit_scale = float(self._locator._get_unit())
         except AttributeError:
