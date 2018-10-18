@@ -368,7 +368,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         either as a parameter or with pytest.mark.usefixtures. This value is
         only allowed when using pytest.
 
-    extensions : [ None | list ]
+    extensions : None or list of str
         The list of extensions to test, e.g. ``['png', 'pdf']``.
 
         If *None*, defaults to all supported extensions: png, pdf, and svg.

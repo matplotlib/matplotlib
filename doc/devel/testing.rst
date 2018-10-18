@@ -152,20 +152,19 @@ tests it::
    from matplotlib.testing.decorators import image_comparison
    import matplotlib.pyplot as plt
 
-   @image_comparison(baseline_images=['hexbin_empty'], remove_text=True,
+   @image_comparison(baseline_images=['line_dashes'], remove_text=True,
                      extensions=['png'])
-   def test_hexbin_empty():
-       # From #3886: creating hexbin from empty dataset raises ValueError
-       ax = plt.gca()
-       ax.hexbin([], [])
+   def test_line_dashes():
+       fig, ax = plt.subplots()
+       ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
 
 The first time this test is run, there will be no baseline image to compare
 against, so the test will fail.  Copy the output images (in this case
-:file:`result_images/test_axes/hexbin_empty.png`) to the correct subdirectory
-of :file:`baseline_images` tree in the source directory (in this case
-:file:`lib/matplotlib/tests/baseline_images/test_axes`).  Put this new file
-under source code revision control (with ``git add``).  When rerunning the
-tests, they should now pass.
+:file:`result_images/test_lines/test_line_dashes.png`) to the correct
+subdirectory of :file:`baseline_images` tree in the source directory (in this
+case :file:`lib/matplotlib/tests/baseline_images/test_lines`).  Put this new
+file under source code revision control (with ``git add``).  When rerunning
+the tests, they should now pass.
 
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
