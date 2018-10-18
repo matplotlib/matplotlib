@@ -123,7 +123,6 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     Wrap everything up into a window for the pylab interface
     """
     def __init__(self, canvas, num):
-
         if not _macosx.verify_framework():
             raise ImportError(
             "Python is not installed as a framework. The Mac OS X backend "

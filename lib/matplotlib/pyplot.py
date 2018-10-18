@@ -188,7 +188,6 @@ def switch_backend(newbackend):
         The name of the backend to use.
     """
     close("all")
-
     if newbackend is rcsetup._auto_backend_sentinel:
         for candidate in ["macosx", "qt5agg", "qt4agg", "gtk3agg", "gtk3cairo",
                           "tkagg", "wxagg", "agg", "cairo"]:
