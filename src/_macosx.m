@@ -2575,24 +2575,16 @@ static PyTypeObject TimerType = {
     Timer_new,                 /* tp_new */
 };
 
-static bool verify_framework(void)
+PyObject*
+verify_framework(void)
 {
     ProcessSerialNumber psn;
     /* These methods are deprecated, but they don't require the app to
        have started  */
     if (CGMainDisplayID()!=0
      && GetCurrentProcess(&psn)==noErr
-     && SetFrontProcess(&psn)==noErr) return true;
-    PyErr_SetString(PyExc_ImportError,
-        "Python is not installed as a framework. The Mac OS X backend will "
-        "not be able to function correctly if Python is not installed as a "
-        "framework. See the Python documentation for more information on "
-        "installing Python as a framework on Mac OS X. Please either reinstall "
-        "Python as a framework, or try one of the other backends. If you are "
-        "using (Ana)Conda please install python.app and replace the use of "
-        "'python' with 'pythonw'. See 'Working with Matplotlib on OSX' in the "
-        "Matplotlib FAQ for more information.");
-    return false;
+     && SetFrontProcess(&psn)==noErr) return Py_True;
+    return Py_False;
 }
 
 static struct PyMethodDef methods[] = {
