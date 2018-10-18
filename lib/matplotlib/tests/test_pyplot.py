@@ -25,9 +25,11 @@ def test_pyplot_up_to_date():
                     fromfile='found pyplot.py',
                     tofile='expected pyplot.py',
                     n=0, lineterm=''))
-            raise AssertionError(
+            pytest.fail(
                 "pyplot.py is not up-to-date. Please run "
                 "'python tools/boilerplate.py' to update pyplot.py. "
+                "This needs to be done from an environment where your "
+                "current working copy is installed (e.g. 'pip install -e'd). "
                 "Here is a diff of unexpected differences:\n%s" % diff_msg
             )
     finally:

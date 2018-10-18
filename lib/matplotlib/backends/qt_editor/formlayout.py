@@ -207,6 +207,7 @@ def is_edit_valid(edit):
 
 class FormWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
+
     def __init__(self, data, comment="", parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.data = copy.deepcopy(data)
@@ -227,7 +228,8 @@ class FormWidget(QtWidgets.QWidget):
         for label, value in self.data:
             if label is None and value is None:
                 # Separator: (None, None)
-                self.formlayout.addRow(QtWidgets.QLabel(" "), QtWidgets.QLabel(" "))
+                self.formlayout.addRow(QtWidgets.QLabel(" "),
+                                       QtWidgets.QLabel(" "))
                 self.widgets.append(None)
                 continue
             elif label is None:
@@ -341,7 +343,8 @@ class FormComboWidget(QtWidgets.QWidget):
 
         self.stackwidget = QtWidgets.QStackedWidget(self)
         layout.addWidget(self.stackwidget)
-        self.combobox.currentIndexChanged.connect(self.stackwidget.setCurrentIndex)
+        self.combobox.currentIndexChanged.connect(
+            self.stackwidget.setCurrentIndex)
 
         self.widgetlist = []
         for data, title, comment in datalist:
@@ -425,7 +428,8 @@ class FormDialog(QtWidgets.QDialog):
 
         self.setWindowTitle(title)
         if not isinstance(icon, QtGui.QIcon):
-            icon = QtWidgets.QWidget().style().standardIcon(QtWidgets.QStyle.SP_MessageBoxQuestion)
+            icon = QtWidgets.QWidget().style().standardIcon(
+                QtWidgets.QStyle.SP_MessageBoxQuestion)
         self.setWindowIcon(icon)
 
     def register_float_field(self, field):
