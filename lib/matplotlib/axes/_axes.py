@@ -6780,8 +6780,8 @@ class Axes(_AxesBase):
             return tops, bins, cbook.silent_list('Lists of Patches', patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"], label_namer=None)
-    def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
-               cmin=None, cmax=None, **kwargs):
+    def hist2d(self, x, y, bins=10, range=None, density=None, weights=None,
+               cmin=None, cmax=None, normed=None, **kwargs):
         """
         Make a 2D histogram plot.
 
@@ -6814,8 +6814,14 @@ class Axes(_AxesBase):
              xmax], [ymin, ymax]]``. All values outside of this range will be
              considered outliers and not tallied in the histogram.
 
-        normed : bool, optional, default: False
-             Normalize histogram.
+        density : boolean, optional
+             If False, the default, returns the number of samples in each bin.
+             If True, returns the probability *density* function at the bin,
+             ``bin_count / sample_count / bin_area``.
+             Default is ``None`` for both *normed* and *density*. If either is
+             set, then that value will be used. If neither are set, then the
+             args will be treated as ``False``.
+             If both *density* and *normed* are set an error is raised.
 
         weights : array_like, shape (n, ), optional, default: None
             An array of values w_i weighing each sample (x_i, y_i).
@@ -6829,6 +6835,9 @@ class Axes(_AxesBase):
              All bins that has count more than cmax will not be displayed (set
              to none before passing to imshow) and these count values in the
              return value count histogram will also be set to nan upon return
+
+        normed : bool, optional, default: None
+             Deprecated; use the density keyword argument instead.
 
         Returns
         -------
@@ -6873,6 +6882,15 @@ class Axes(_AxesBase):
           `.colors.PowerNorm`.
         """
 
+        if density is not None and normed is not None:
+            raise ValueError("kwargs 'density' and 'normed' cannot be used "
+                             "simultaneously. Please only use 'density', "
+                             "since 'normed' is deprecated.")
+        if normed is not None:
+            cbook.warn_deprecated("2.1", name="'normed'", obj_type="kwarg",
+                                  alternative="'density'", removal="3.1")
+
+        normed = bool(density) or bool(normed)
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
                                            normed=normed, weights=weights)
 
