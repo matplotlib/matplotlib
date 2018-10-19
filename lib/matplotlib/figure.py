@@ -691,11 +691,11 @@ class Figure(Artist):
             The y location of the text in figure coordinates.
 
         horizontalalignment, ha : {'center', 'left', right'}, default: 'center'
-            The horizontal alignment of the text.
+            The horizontal alignment of the text relative to (*x*, *y*).
 
         verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
 default: 'top'
-            The vertical alignment of the text.
+            The vertical alignment of the text relative to (*x*, *y*).
 
         fontsize, size : default: :rc:`figure.titlesize`
             The font size of the text. See `.Text.set_size` for possible
