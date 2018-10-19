@@ -298,3 +298,12 @@ edit this file if you want to add new environments to test (e.g.,
 tests are run. For more info on the ``tox.ini`` file, see the `Tox
 Configuration Specification
 <https://tox.readthedocs.io/en/latest/config.html>`_.
+
+Building old versions of Matplotlib
+-----------------------------------
+
+When running a ``git bisect`` to see which commit introduced a certain bug,
+you may (rarely) need to build very old versions of Matplotlib.  The following
+constraints need to be taken into account:
+
+- Matplotlib 1.3 (or earlier) requires numpy 1.8 (or earlier).
