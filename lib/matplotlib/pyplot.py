@@ -2348,6 +2348,23 @@ if (rcParams["backend_fallback"]
 # Set up the backend.
 switch_backend(rcParams["backend"])
 
+# We need an extra check here for macosx framework.  If we are using MacOSX
+# and not using the framework build we throw an ImportError (for back compat).
+if dict.__getitem__(rcParams, "backend") == 'MacOSX':
+    from matplotlib.backends import _macosx
+    if not _macosx.verify_framework():
+        raise ImportError(
+        "Python is not installed as a framework. The Mac OS X backend "
+        "will not be able to function correctly if Python is not  "
+        "installed as a framework. See the Python documentation for more  "
+        "information on installing Python as a framework on Mac OS X. "
+        "Please either reinstall Python as a framework, or try one of "
+        "the other backends. If you are using (Ana)Conda please install "
+        "python.app and replace the use of 'python' with 'pythonw'. See "
+        "'Working with Matplotlib on OSX' in the Matplotlib FAQ for "
+        "more information.")
+
+
 # Just to be safe.  Interactive mode can be turned on without
 # calling `plt.ion()` so register it again here.
 # This is safe because multiple calls to `install_repl_displayhook`
