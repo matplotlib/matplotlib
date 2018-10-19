@@ -2945,6 +2945,30 @@ def test_errorbar_with_prop_cycle():
     ax.errorbar(x=[2, 4, 10], y=[6, 4, 2], yerr=0.5)
 
 
+@check_figures_equal()
+def test_errorbar_offsets(fig_test, fig_ref):
+    x = np.linspace(0, 1, 15)
+    y = x * (1-x)
+    yerr = y/6
+
+    ax_ref = fig_ref.subplots()
+    ax_test = fig_test.subplots()
+
+
+    for color, shift in zip('rgbk', [0, 0, 2, 7]):
+        y += .02
+
+        #Using feature in question
+        ax_test.errorbar(x, y, yerr, errorevery=(shift, 4),
+                        capsize=4, c=color)
+
+        #Using manual errorbars
+        #n.b. errorbar draws the main plot at z=2.1 by default
+        ax_ref.plot(x, y, c=color, zorder=2.1)
+        ax_ref.errorbar(x[shift::4], y[shift::4], yerr[shift::4],
+                        capsize=4, c=color, fmt='none')
+
+
 @image_comparison(baseline_images=['hist_stacked_stepfilled',
                                    'hist_stacked_stepfilled'])
 def test_hist_stacked_stepfilled():
