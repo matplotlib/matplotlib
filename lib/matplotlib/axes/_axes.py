@@ -3143,10 +3143,14 @@ class Axes(_AxesBase):
             and *yerr*.  To use limits with inverted axes, :meth:`set_xlim`
             or :meth:`set_ylim` must be called before :meth:`errorbar`.
 
-        errorevery : positive integer, optional, default: 1
-            Subsamples the errorbars. e.g., if errorevery=5, errorbars for
-            every 5-th datapoint will be plotted. The data plot itself still
-            shows all data points.
+        errorevery : int or (int, int), optional, default: 1
+            draws error bars on a subset of the data. *errorevery* =N draws
+            error bars on the points (x[::N], y[::N]).
+            *errorevery* =(start, N) draws error bars on the points
+            (x[start::N], y[start::N]). e.g. errorevery=(6,3)
+            adds error bars to the data at (x[3], x[9], x[15], x[21], ...).
+            Used to avoid overlapping error bars when two series share x-axis
+            values.
 
         Returns
         -------
@@ -3191,9 +3195,16 @@ class Axes(_AxesBase):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
-        if errorevery < 1:
-            raise ValueError(
-                'errorevery has to be a strictly positive integer')
+        try:
+            offset, errorevery = errorevery
+        except TypeError:
+            offset = 0
+
+        int_msg = 'errorevery must be positive integer or tuple of integers'
+        if errorevery < 1 or int(errorevery) != errorevery:
+            raise ValueError(int_msg)
+        if int(offset) != offset:
+            raise ValueError(int_msg)
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
@@ -3302,7 +3313,8 @@ class Axes(_AxesBase):
         xlolims = np.broadcast_to(xlolims, len(x)).astype(bool)
         xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
 
-        everymask = np.arange(len(x)) % errorevery == 0
+        everymask = np.zeros(len(x), bool)
+        everymask[offset::errorevery] = True
 
         def xywhere(xs, ys, mask):
             """
