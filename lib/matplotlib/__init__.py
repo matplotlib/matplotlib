@@ -117,6 +117,7 @@ See Matplotlib `INSTALL.rst` file for more information:
 import atexit
 from collections.abc import MutableMapping
 import contextlib
+import copy
 import distutils.version
 import functools
 import importlib
@@ -759,10 +760,9 @@ _deprecated_remain_as_none = {
 _all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
 
 
-class RcParams(MutableMapping, dict):
-
+class RcParams(MutableMapping):
     """
-    A dictionary object including validation
+    A dictionary object including validation.
 
     validating functions are defined and associated with rc parameters in
     :mod:`matplotlib.rcsetup`
@@ -803,6 +803,7 @@ class RcParams(MutableMapping, dict):
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
+        self._data = {}
         self.update(*args, **kwargs)
 
     def __setitem__(self, key, val):
@@ -840,7 +841,7 @@ class RcParams(MutableMapping, dict):
                 cval = self.validate[key](val)
             except ValueError as ve:
                 raise ValueError("Key %s: %s" % (key, str(ve)))
-            dict.__setitem__(self, key, cval)
+            self._data[key] = cval
         except KeyError:
             raise KeyError(
                 '%s is not a valid rc parameter. See rcParams.keys() for a '
@@ -851,13 +852,13 @@ class RcParams(MutableMapping, dict):
             version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
             cbook.warn_deprecated(
                 version, key, obj_type="rcparam", alternative=alt_key)
-            return inverse_alt(dict.__getitem__(self, alt_key))
+            return inverse_alt(self._data[alt_key])
 
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(
                 version, key, obj_type="rcparam", alternative=alt_key)
-            return dict.__getitem__(self, alt_key) if alt_key else None
+            return self._data[alt_key] if alt_key else None
 
         elif key == 'examples.directory':
             cbook.warn_deprecated(
@@ -865,27 +866,37 @@ class RcParams(MutableMapping, dict):
                 "found relative to the 'datapath' directory.".format(key))
 
         elif key == "backend":
-            val = dict.__getitem__(self, key)
+            val = self._data[key]
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
 
-        return dict.__getitem__(self, key)
+        return self._data[key]
 
     def __repr__(self):
         class_name = self.__class__.__name__
         indent = len(class_name) + 1
-        repr_split = pprint.pformat(dict(self), indent=1,
+        repr_split = pprint.pformat(self._data, indent=1,
                                     width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
         return '{}({})'.format(class_name, repr_indented)
 
     def __str__(self):
-        return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
+        return '\n'.join(map('{0[0]}: {0[1]}'.format,
+                             sorted(self._data.items())))
 
     def __iter__(self):
         """Yield sorted list of keys."""
-        yield from sorted(dict.__iter__(self))
+        yield from sorted(self._data)
+
+    def __len__(self):
+        return len(self._data)
+
+    def __delitem__(self, key):
+        del self._data[key]
+
+    def copy(self):
+        return copy.deepcopy(self)
 
     def find_all(self, pattern):
         """
@@ -900,7 +911,7 @@ class RcParams(MutableMapping, dict):
         """
         pattern_re = re.compile(pattern)
         return RcParams((key, value)
-                        for key, value in self.items()
+                        for key, value in self._data.items()
                         if pattern_re.search(key))
 
 
@@ -1060,24 +1071,23 @@ Please do not ask for support with these customizations active.
 rcParams = rc_params()
 
 # Don't trigger deprecation warning when just fetching.
-if dict.__getitem__(rcParams, 'examples.directory'):
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+    examples_directory = rcParams['examples.directory']
     # paths that are intended to be relative to matplotlib_fname()
     # are allowed for the examples.directory parameter.
     # However, we will need to fully qualify the path because
     # Sphinx requires absolute paths.
-    if not os.path.isabs(rcParams['examples.directory']):
+    if examples_directory and not os.path.isabs(examples_directory):
         _basedir, _fname = os.path.split(matplotlib_fname())
         # Sometimes matplotlib_fname() can return relative paths,
         # Also, using realpath() guarantees that Sphinx will use
         # the same path that matplotlib sees (in case of weird symlinks).
         _basedir = os.path.realpath(_basedir)
-        _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
+        _fullpath = os.path.join(_basedir, examples_directory)
         rcParams['examples.directory'] = _fullpath
 
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
-    rcParamsOrig = RcParams(rcParams.copy())
+    rcParamsOrig = RcParams(rcParams._data.copy())
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                                 defaultParams.items()
                                 if key not in _all_deprecated])
@@ -1275,7 +1285,7 @@ class rc_context:
     def __fallback(self):
         # If anything goes wrong, revert to the original rcs.
         updated_backend = self._orig['backend']
-        dict.update(rcParams, self._orig)
+        rcParams._data.update(self._orig._data)
         # except for the backend.  If the context block triggered resolving
         # the auto backend resolution keep that value around
         if self._orig['backend'] is rcsetup._auto_backend_sentinel:
@@ -1328,7 +1338,7 @@ def use(arg, warn=True, force=False):
     name = validate_backend(arg)
 
     # if setting back to the same thing, do nothing
-    if (dict.__getitem__(rcParams, 'backend') == name):
+    if (rcParams._data['backend'] == name):
         pass
 
     # Check if we have already imported pyplot and triggered

@@ -2343,9 +2343,9 @@ def _autogen_docstring(base):
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
-        and dict.__getitem__(rcParams, "backend") in _interactive_bk
+        and rcParams._data["backend"] in _interactive_bk
         and _get_running_interactive_framework()):
-    dict.__setitem__(rcParams, "backend", rcsetup._auto_backend_sentinel)
+    rcParams._data["backend"] = rcsetup._auto_backend_sentinel
 # Set up the backend.
 switch_backend(rcParams["backend"])
 

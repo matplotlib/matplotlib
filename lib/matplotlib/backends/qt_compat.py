@@ -33,31 +33,31 @@ _ETS = {"pyqt5": QT_API_PYQT5, "pyside2": QT_API_PYSIDE2,
 # First, check if anything is already imported.
 if "PyQt5" in sys.modules:
     QT_API = QT_API_PYQT5
-    dict.__setitem__(rcParams, "backend.qt5", QT_API)
+    rcParams._data["backend.qt5"] = QT_API
 elif "PySide2" in sys.modules:
     QT_API = QT_API_PYSIDE2
-    dict.__setitem__(rcParams, "backend.qt5", QT_API)
+    rcParams._data["backend.qt5"] = QT_API
 elif "PyQt4" in sys.modules:
     QT_API = QT_API_PYQTv2
-    dict.__setitem__(rcParams, "backend.qt4", QT_API)
+    rcParams._data["backend.qt4"] = QT_API
 elif "PySide" in sys.modules:
     QT_API = QT_API_PYSIDE
-    dict.__setitem__(rcParams, "backend.qt4", QT_API)
+    rcParams._data["backend.qt4"] = QT_API
 # Otherwise, check the QT_API environment variable (from Enthought).  This can
 # only override the binding, not the backend (in other words, we check that the
 # requested backend actually matches).
 elif rcParams["backend"] in ["Qt5Agg", "Qt5Cairo"]:
     if QT_API_ENV == "pyqt5":
-        dict.__setitem__(rcParams, "backend.qt5", QT_API_PYQT5)
+        rcParams._data["backend.qt5"] = QT_API_PYQT5
     elif QT_API_ENV == "pyside2":
-        dict.__setitem__(rcParams, "backend.qt5", QT_API_PYSIDE2)
-    QT_API = dict.__getitem__(rcParams, "backend.qt5")
+        rcParams._data["backend.qt5"] = QT_API_PYSIDE2
+    QT_API = rcParams._data["backend.qt5"]
 elif rcParams["backend"] in ["Qt4Agg", "Qt4Cairo"]:
     if QT_API_ENV == "pyqt4":
-        dict.__setitem__(rcParams, "backend.qt4", QT_API_PYQTv2)
+        rcParams._data["backend.qt4"] = QT_API_PYQTv2
     elif QT_API_ENV == "pyside":
-        dict.__setitem__(rcParams, "backend.qt4", QT_API_PYSIDE)
-    QT_API = dict.__getitem__(rcParams, "backend.qt4")
+        rcParams._data["backend.qt4"] = QT_API_PYSIDE
+    QT_API = rcParams._data["backend.qt4"]
 # A non-Qt backend was selected but we still got there (possible, e.g., when
 # fully manually embedding Matplotlib in a Qt app without using pyplot).
 else:
