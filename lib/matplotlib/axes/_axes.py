@@ -6815,9 +6815,9 @@ class Axes(_AxesBase):
              considered outliers and not tallied in the histogram.
 
         density : boolean, optional
-             If False, the default, plots and returns the number of samples in each bin.
-             If True, returns the probability *density* function at the bin,
-             ``bin_count / sample_count / bin_area``.
+             If False, the default, plots and returns the number of samples
+             in each bin. If True, returns the probability *density*
+             function at the bin, ``bin_count / sample_count / bin_area``.
              Default is ``None`` for both *normed* and *density*. If either is
              set, then that value will be used. If neither are set, then the
              args will be treated as ``False``.
