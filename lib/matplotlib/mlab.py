@@ -60,7 +60,6 @@ import numpy as np
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
-import math
 
 
 def window_hanning(x):

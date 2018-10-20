@@ -1,6 +1,5 @@
 import functools
 import inspect
-import warnings
 
 
 class MatplotlibDeprecationWarning(UserWarning):
