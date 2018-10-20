@@ -1168,7 +1168,8 @@ class Axes3D(Axes):
             return ''
 
         if self.button_pressed in self._rotate_btn:
-            return 'azimuth=%d deg, elevation=%d deg ' % (self.azim, self.elev)
+            return 'azimuth={:.0f} deg, elevation={:.0f} deg '.format(
+                self.azim, self.elev)
             # ignore xd and yd and display angles instead
 
         # nearest edge
