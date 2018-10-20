@@ -6815,7 +6815,7 @@ class Axes(_AxesBase):
              considered outliers and not tallied in the histogram.
 
         density : boolean, optional
-             If False, the default, returns the number of samples in each bin.
+             If False, the default, plots and returns the number of samples in each bin.
              If True, returns the probability *density* function at the bin,
              ``bin_count / sample_count / bin_area``.
              Default is ``None`` for both *normed* and *density*. If either is
@@ -6887,8 +6887,8 @@ class Axes(_AxesBase):
                              "simultaneously. Please only use 'density', "
                              "since 'normed' is deprecated.")
         if normed is not None:
-            cbook.warn_deprecated("2.1", name="'normed'", obj_type="kwarg",
-                                  alternative="'density'", removal="3.1")
+            cbook.warn_deprecated("3.1", name="'normed'", obj_type="kwarg",
+                                  alternative="'density")
 
         normed = bool(density) or bool(normed)
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
