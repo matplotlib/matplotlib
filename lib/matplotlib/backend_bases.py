@@ -51,14 +51,13 @@ from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
 
 try:
-    from PIL import Image
     from PIL import PILLOW_VERSION
     from distutils.version import LooseVersion
     if LooseVersion(PILLOW_VERSION) >= "3.4":
         _has_pil = True
     else:
         _has_pil = False
-    del Image
+    del PILLOW_VERSION
 except ImportError:
     _has_pil = False
 

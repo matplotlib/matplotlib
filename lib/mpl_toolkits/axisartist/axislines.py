@@ -48,7 +48,6 @@ from matplotlib import rcParams
 import matplotlib.artist as martist
 import matplotlib.axes as maxes
 from matplotlib.path import Path
-from matplotlib.transforms import Bbox
 from .axisline_style import AxislineStyle
 from .axis_artist import AxisArtist, GridlinesCollection
 
