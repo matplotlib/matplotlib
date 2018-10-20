@@ -179,9 +179,13 @@ command to add a little whitespace between them::
 
     r's(t) = \mathcal{A}\/\sin(2 \omega t)'
 
+.. Here we cheat a bit: for HTML math rendering, Sphinx relies on MathJax which
+   doesn't actually support the italic correction (\/); instead, use a thin
+   space (\,) which is supported.
+
 .. math::
 
-    s(t) = \mathcal{A}\/\sin(2 \omega t)
+    s(t) = \mathcal{A}\,\sin(2 \omega t)
 
 The choices available with all fonts are:
 

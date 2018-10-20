@@ -1,3 +1,6 @@
+from matplotlib import mathtext
+
+
 symbols = [
     ["Lower-case Greek",
      6,
@@ -112,9 +115,19 @@ def run(state_machine):
         header = "    " + (('=' * max_width) + ' ') * columns
         lines.append(header)
         for part in get_n(columns, syms):
-            line = "    " + " ".join(
-                ":math:`{0}` ``{0}``".format(sym).rjust(max_width)
-                for sym in part)
+            line = (
+                "    " +
+                " ".join(
+                    "{} ``{}``".format(
+                        sym
+                        if not sym.startswith("\\")
+                        else sym[1:]
+                        if (sym[1:] in mathtext.Parser._overunder_functions
+                            or sym[1:] in mathtext.Parser._function_names)
+                        else chr(mathtext.tex2uni[sym[1:]]),
+                        sym)
+                    .rjust(max_width)
+                    for sym in part))
             lines.append(line)
         lines.append(header)
         lines.append('')
