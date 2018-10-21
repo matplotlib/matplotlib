@@ -6880,6 +6880,9 @@ class Axes(_AxesBase):
           keyword argument. Likewise, power-law normalization (similar
           in effect to gamma correction) can be accomplished with
           `.colors.PowerNorm`.
+        - Numpy 1.15 introduced a 'density' kwarg to hist2d. Even though
+          Numpy 1.15 isn't required, 'density' kwarg is introduced
+          and passed as 'normed' to ``hist2d``.
         """
 
         if density is not None and normed is not None:

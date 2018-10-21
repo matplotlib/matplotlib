@@ -1672,6 +1672,30 @@ def test_hist2d():
     ax.hist2d("x", "y", bins=10, data=data, rasterized=True)
 
 
+@pytest.mark.parametrize('density', [False, True])
+def test_hist2d_density(density):
+    # Test density kwarg
+    x = np.random.randn(100)*2+5
+    y = np.random.randn(100)-2
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist2d(x, y, bins=10, rasterized=True, density=density)
+
+
+@pytest.mark.parametrize('normed', [False, True])
+@pytest.mark.parametrize('density', [False, True])
+def test_hist2d_normed_density(density, normed):
+    # Normed and density should not be used simultaneously
+    x = np.random.randn(100)*2+5
+    y = np.random.randn(100)-2
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    # test that kwargs normed and density cannot be set both.
+    with pytest.raises(ValueError, match="kwargs 'density' and 'normed'"):
+        ax.hist2d(x, y, bins=10, rasterized=True,
+                  density=density, normed=normed)
+
+
 @image_comparison(baseline_images=['hist2d_transpose'],
         remove_text=True, style='mpl20')
 def test_hist2d_transpose():
