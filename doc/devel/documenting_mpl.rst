@@ -41,7 +41,8 @@ documentation built into their comments.  Don't directly edit the
 ``.rst`` files in :file:`doc/gallery` and :file:`doc/tutorials` as they are
 regenerated when the documentation are built.
 
-Installing dependencies
+
+Dependencies
 -----------------------
 
 The documentation for Matplotlib is generated from reStructuredText (ReST_)
@@ -51,17 +52,86 @@ requirements that are needed to build the documentation. They are listed in
 
 * Sphinx>=1.3, !=1.5.0, !=1.6.4, !=1.7.3
 * colorspacious
-* IPython
+* IPython<7.0.0
 * numpydoc>=0.4
 * Pillow
 * sphinx-gallery>=0.1.13
+* LaTeX
 * graphviz
 
 .. note::
 
-  * You'll need a minimal working LaTeX distribution for many examples to run.
-  * `Graphviz <http://www.graphviz.org/Download.php>`_ is not a Python package,
-    and needs to be installed separately.
+  * You'll need a minimal working `LaTeX <https://www.latex-project.org/>`_ distribution for many examples in the documentation to run.
+  * `Graphviz <http://www.graphviz.org/>`_ is not a Python package,
+    and needs to be installed separately. 
+
+
+Creating a development environment
+----------------------------------
+
+It's suggested that you create a separate python environment for working on matplotlib. You can do this using `conda <https://conda.io/docs/user-guide/tasks/manage-environments.html>`_ or `virtualenv <https://virtualenv.pypa.io/en/stable/>`_. You'll need to use python3 to work on the most current version of Matplotlib. 
+
+Create your environment: 
+
+.. code-block:: sh
+  
+  conda create --name matplotlib_dev python=3
+  
+or 
+
+.. code-block:: sh
+
+  virtualenv -p <path/to/your/python3/install> matplotlib_dev
+
+Install python dependencies
+  
+.. code-block:: sh
+
+  pip install -r doc-requirements.txt   
+
+or   
+
+.. code-block:: sh
+
+  conda install -c conda-forge --file doc-requirements.txt
+
+.. note:: 
+
+  * colorspacious must be installed using conda-forge, not conda
+
+Install non-python dependencies:
+
+* Install the `LaTeX <https://www.latex-project.org/>`_ version for your OS 
+* Install `Graphviz <http://www.graphviz.org/>`_ for your OS
+
+
+Install the most recent version of matplotlib: 
+
+.. code-block:: sh
+  
+  pip install matplotlib=="3.0.0"
+
+or 
+
+.. code-block:: sh
+
+  conda install -c conda-forge matplotlib mpl_sample_data
+
+Create a fork of the matplotlib repo to your personal github account, and clone the forked repo to your machine: 
+
+* On the `matplotlib github page <https://github.com/matplotlib/matplotlib>`_, fork the repo 
+* Once you've created your fork, clone the repo to your machine: 
+
+.. code-block:: sh
+  
+  git clone <address/to/your/forked/repo>
+
+Create a new branch in your forked repo to make changes: 
+
+.. code-block:: sh 
+  
+  git checkout -b my-branch-name 
+
 
 Building the docs
 -----------------
