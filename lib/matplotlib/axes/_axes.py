@@ -6549,7 +6549,7 @@ class Axes(_AxesBase):
             if len(color) != nx:
                 error_message = (
                     "color kwarg must have one color per data set. %d data "
-                    "sets and %d colors were provided" % (len(color), nx))
+                    "sets and %d colors were provided" % (nx, len(color)))
                 raise ValueError(error_message)
 
         # If bins are not specified either explicitly or via range,
