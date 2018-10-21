@@ -6893,9 +6893,9 @@ class Axes(_AxesBase):
             cbook.warn_deprecated("3.1", name="'normed'", obj_type="kwarg",
                                   alternative="'density")
 
-        normed = bool(density) or bool(normed)
+        density = bool(density) or bool(normed)
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
-                                           normed=normed, weights=weights)
+                                           density=density, weights=weights)
 
         if cmin is not None:
             h[h < cmin] = None
