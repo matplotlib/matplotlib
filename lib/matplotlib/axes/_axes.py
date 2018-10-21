@@ -7811,14 +7811,19 @@ class Axes(_AxesBase):
         Make a violin plot.
 
         Make a violin plot for each column of *dataset* or each vector in
-        sequence *dataset*.  Each filled area extends to represent the
-        entire data range, with optional lines at the mean, the median,
+        sequence *dataset*.  To illustrate, if passing an 2D array/matrix, 
+        the function will treat each column as data. However, if passing a list of vectors
+        (i.e. sequence *dataset*), the function will treat each vector as data.
+
+        Each filled area extends to represent the entire data range, with optional lines at the mean, the median,
         the minimum, and the maximum.
 
         Parameters
         ----------
-        dataset : Array or a sequence of vectors.
-          The input data.
+        dataset : 2D Array/Matrix or a sequence of vectors.
+          The input data. 
+          If passing a 2D Array/Matrix, such as *np.array([[1,2,3], [4,5,6]])*, it will plot (1,4), (2,5), and (3,6)
+          If passing a sequence of vectors such as *list([[1,2,3], [4,5,6]])*, it will plot (1,2,3), (4,5,6)
 
         positions : array-like, default = [1, 2, ..., n]
           Sets the positions of the violins. The ticks and limits are
