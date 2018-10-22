@@ -37,6 +37,7 @@ The upshot of this is that for interactive backends (including
 ``%matplotlib notebook``) in interactive mode (with ``plt.ion()``)
 
 .. ipython :: python
+   :okwarning:
 
    import matplotlib.pyplot as plt
 
