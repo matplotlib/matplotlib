@@ -6758,6 +6758,8 @@ class Axes(_AxesBase):
             labels = [None]
         elif isinstance(label, str):
             labels = [label]
+        elif not np.iterable(label):
+            labels = [str(label)]
         else:
             labels = [str(lab) for lab in label]
 
