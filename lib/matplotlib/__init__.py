@@ -1361,14 +1361,29 @@ if os.environ.get('MPLBACKEND'):
     rcParams['backend'] = os.environ.get('MPLBACKEND')
 
 
-def get_backend():
+def get_backend(fallback=False):
     """
     Return the name of the current backend.
+
+    Parameters
+    ----------
+    fallback : bool
+        Search and set a valid backend before returning the backend's name.
+        Default is False.
+
+    Returns
+    -------
+    backend : str
+        Return the backend's name.  The string "None" means the backend has
+        not been set yet.
 
     See Also
     --------
     matplotlib.use
     """
+    val = dict.__getitem__(rcParams, 'backend')
+    if val is rcsetup._auto_backend_sentinel:
+        return "None"
     return rcParams['backend']
 
 
