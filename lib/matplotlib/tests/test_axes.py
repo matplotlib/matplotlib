@@ -2954,16 +2954,15 @@ def test_errorbar_offsets(fig_test, fig_ref):
     ax_ref = fig_ref.subplots()
     ax_test = fig_test.subplots()
 
-
     for color, shift in zip('rgbk', [0, 0, 2, 7]):
         y += .02
 
-        #Using feature in question
+        # Using feature in question
         ax_test.errorbar(x, y, yerr, errorevery=(shift, 4),
-                        capsize=4, c=color)
+                         capsize=4, c=color)
 
-        #Using manual errorbars
-        #n.b. errorbar draws the main plot at z=2.1 by default
+        # Using manual errorbars
+        # n.b. errorbar draws the main plot at z=2.1 by default
         ax_ref.plot(x, y, c=color, zorder=2.1)
         ax_ref.errorbar(x[shift::4], y[shift::4], yerr[shift::4],
                         capsize=4, c=color, fmt='none')
