@@ -104,22 +104,47 @@ class TextToPath(object):
 
     def get_text_path(self, prop, s, ismath=False, usetex=False):
         """
-        convert text *s* to path (a tuple of vertices and codes for
+        Convert text *s* to path (a tuple of vertices and codes for
         matplotlib.path.Path).
 
-        *prop*
-          font property
+        Parameters
+        ----------
 
-        *s*
-          text to be converted
+        prop : `matplotlib.font_manager.FontProperties` instance
+            The font properties for the text.
 
-        *usetex*
-          If True, use matplotlib usetex mode.
+        s : str
+            The text to be converted.
 
-        *ismath*
-          If True, use mathtext parser. Effective only if usetex == False.
+        usetex : bool, optional
+            Whether to use tex rendering. Defaults to ``False``.
 
+        ismath : bool, optional
+            If True, use mathtext parser. Effective only if
+            ``usetex == False``.
 
+        Returns
+        -------
+
+        verts, codes : tuple of lists
+            *verts*  is a list of numpy arrays containing the x and y
+            coordinates of the vertices. *codes* is a list of path codes.
+
+        Examples
+        --------
+
+        Create a list of vertices and codes from a text, and create a `Path`
+        from those::
+
+            from matplotlib.path import Path
+            from matplotlib.textpath import TextToPath
+            from matplotlib.font_manager import FontProperties
+
+            fp = FontProperties(family="Humor Sans", style="italic")
+            verts, codes = TextToPath().get_text_path(fp, "ABC")
+            path = Path(verts, codes, closed=False)
+
+        Also see `TextPath` for a more direct way to create a path from a text.
         """
         if not usetex:
             if not ismath:
@@ -391,16 +416,49 @@ class TextPath(Path):
     def __init__(self, xy, s, size=None, prop=None,
                  _interpolation_steps=1, usetex=False,
                  *kl, **kwargs):
-        """
-        Create a path from the text. No support for TeX yet. Note that
-        it simply is a path, not an artist. You need to use the
-        PathPatch (or other artists) to draw this path onto the
-        canvas.
+        r"""
+        Create a path from the text. Note that it simply is a path,
+        not an artist. You need to use the `~.PathPatch` (or other artists)
+        to draw this path onto the canvas.
 
-        xy : position of the text.
-        s : text
-        size : font size
-        prop : font property
+        Parameters
+        ----------
+
+        xy : tuple or array of two float values
+            Position of the text. For no offset, use ``xy=(0, 0)``.
+
+        s : str
+            The text to convert to a path.
+
+        size : float, optional
+            Font size in points. Defaults to the size specified via the font
+            properties *prop*.
+
+        prop : `matplotlib.font_manager.FontProperties`, optional
+            Font property. If not provided, will use a default
+            ``FontProperties`` with parameters from the
+            :ref:`rcParams <matplotlib-rcparams>`.
+
+        _interpolation_steps : integer, optional
+            (Currently ignored)
+
+        usetex : bool, optional
+            Whether to use tex rendering. Defaults to ``False``.
+
+        Examples
+        --------
+
+        The following creates a path from the string "ABC" with Helvetica
+        font face; and another path from the latex fraction 1/2::
+
+            from matplotlib.textpath import TextPath
+            from matplotlib.font_manager import FontProperties
+
+            fp = FontProperties(family="Helvetica", style="italic")
+            path1 = TextPath((12,12), "ABC", size=12, prop=fp)
+            path2 = TextPath((0,0), r"$\frac{1}{2}$", size=12, usetex=True)
+
+        Also see :doc:`/gallery/text_labels_and_annotations/demo_text_path`.
         """
 
         if prop is None:
