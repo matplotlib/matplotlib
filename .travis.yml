@@ -87,6 +87,7 @@ matrix:
     - python: 3.7
       sudo: true
     - python: "nightly"
+      sudo: true
       env: PRE=--pre
     - os: osx
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
