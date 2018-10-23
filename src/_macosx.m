@@ -2579,11 +2579,17 @@ PyObject*
 verify_framework(void)
 {
     ProcessSerialNumber psn;
+    ProcessSerialNumber oldpsn;
     /* These methods are deprecated, but they don't require the app to
        have started  */
+    GetFrontProcess(&oldpsn);
     if (CGMainDisplayID()!=0
      && GetCurrentProcess(&psn)==noErr
-     && SetFrontProcess(&psn)==noErr) return Py_True;
+     && SetFrontProcess(&psn)==noErr){
+       SetFrontProcess(&oldpsn);
+       return Py_False;
+    }
+    SetFrontProcess(&oldpsn);
     return Py_False;
 }
 
