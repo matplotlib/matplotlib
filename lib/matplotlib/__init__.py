@@ -924,6 +924,10 @@ class RcParams(MutableMapping, dict):
                         for key, value in self.items()
                         if pattern_re.search(key))
 
+    def copy(self):
+        return {k: dict.__getitem__(self, k)
+                for k in self}
+
 
 def rc_params(fail_on_error=False):
     """Return a :class:`matplotlib.RcParams` instance from the
