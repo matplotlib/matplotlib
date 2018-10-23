@@ -1,6 +1,5 @@
 from collections import OrderedDict
 import copy
-from itertools import chain
 import os
 from unittest import mock
 import warnings
@@ -197,12 +196,12 @@ def test_Issue_1713():
 def generate_validator_testcases(valid):
     validation_tests = (
         {'validator': validate_bool,
-         'success': chain(((_, True) for _ in
-                           ('t', 'y', 'yes', 'on', 'true', '1', 1, True)),
-                           ((_, False) for _ in
-                            ('f', 'n', 'no', 'off', 'false', '0', 0, False))),
-        'fail': ((_, ValueError)
-                 for _ in ('aardvark', 2, -1, [], ))},
+         'success': (*((_, True) for _ in
+                       ('t', 'y', 'yes', 'on', 'true', '1', 1, True)),
+                     *((_, False) for _ in
+                       ('f', 'n', 'no', 'off', 'false', '0', 0, False))),
+         'fail': ((_, ValueError)
+                  for _ in ('aardvark', 2, -1, [], ))},
         {'validator': validate_stringlist,
          'success': (('', []),
                      ('a,b', ['a', 'b']),
@@ -313,7 +312,6 @@ def generate_validator_testcases(valid):
                      ('(0, 1, 0, 1)', [0.0, 1.0, 0.0, 1.0]),  # RGBA tuple
                      ((0, 1, 0, 1), (0, 1, 0, 1)),  # non-string version
                      ('(0, 1, "0.5")', [0.0, 1.0, 0.5]),  # unusual but valid
-
                     ),
          'fail': (('tab:veryblue', ValueError),  # invalid name
                   ('C123', ValueError),  # invalid RGB(A) code and cycle index
