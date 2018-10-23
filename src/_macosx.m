@@ -2578,17 +2578,32 @@ static PyTypeObject TimerType = {
 PyObject*
 verify_framework(void)
 {
-    ProcessSerialNumber psn;
     ProcessSerialNumber oldpsn;
+    GetFrontProcess(&oldpsn);
+
+#ifdef COMPILING_FOR_10_6
+     NSApp = [NSApplication sharedApplication];
+     NSApplicationActivationPolicy activationPolicy = [NSApp activationPolicy];
+     switch (activationPolicy) {
+         case NSApplicationActivationPolicyRegular:
+         case NSApplicationActivationPolicyAccessory:
+         {   SetFrontProcess(&oldpsn);
+             return Py_True;
+          }
+         case NSApplicationActivationPolicyProhibited:
+             break;
+    }
+#else
+    ProcessSerialNumber psn;
     /* These methods are deprecated, but they don't require the app to
        have started  */
-    GetFrontProcess(&oldpsn);
     if (CGMainDisplayID()!=0
      && GetCurrentProcess(&psn)==noErr
      && SetFrontProcess(&psn)==noErr){
        SetFrontProcess(&oldpsn);
-       return Py_False;
+       return Py_True;
     }
+#endif
     SetFrontProcess(&oldpsn);
     return Py_False;
 }
