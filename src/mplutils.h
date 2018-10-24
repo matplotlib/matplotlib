@@ -14,8 +14,10 @@ typedef unsigned __int8   uint8_t;
 #ifdef _POSIX_C_SOURCE
 #    undef _POSIX_C_SOURCE
 #endif
+#ifndef _AIX
 #ifdef _XOPEN_SOURCE
 #    undef _XOPEN_SOURCE
+#endif
 #endif
 
 // Prevent multiple conflicting definitions of swab from stdlib.h and unistd.h
