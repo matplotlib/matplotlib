@@ -854,9 +854,6 @@ class AxisArtist(martist.Artist):
         self._axislabel_add_angle = 0.
         self.set_axis_direction(axis_direction)
 
-
-    # axis direction
-
     def set_axis_direction(self, axis_direction):
         """
         Adjust the direction, text angle, text alignment of
