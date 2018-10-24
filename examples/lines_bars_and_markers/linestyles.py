@@ -18,7 +18,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.transforms import blended_transform_factory
 
-
 linestyle_str = [
      ('solid',                 ('solid')),    # Same as (0, ()) or '-'
      ('dotted',                ('dotted')),   # Same as (0, (1, 1)) or '.'
@@ -56,7 +55,6 @@ def simple_plot(ax, linestyles):
         ax.annotate(repr(linestyle), xy=(0.0, i), xycoords=reference_transform,
                     xytext=(-6, -12), textcoords='offset points', color="blue",
                     fontsize=8, ha="right", family="monospace")
-
 
 X, Y = np.linspace(0, 100, 10), np.zeros(10)
 fig, ax = plt.subplots(2, 1, gridspec_kw={'height_ratios': [1, 2]},
