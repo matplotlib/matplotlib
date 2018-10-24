@@ -71,8 +71,6 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
         ti1 = g.get_tick_iterator(self.nth_coord_ticks, side)
         ti2 = g.get_tick_iterator(1-self.nth_coord_ticks, side, minor=True)
 
-        #ti2 = g.get_tick_iterator(1-self.nth_coord_ticks, self.side, minor=True)
-
         return chain(ti1, ti2), iter([])
 
 
