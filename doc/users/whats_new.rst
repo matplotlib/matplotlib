@@ -23,6 +23,27 @@ revision, see the :ref:`github-stats`.
 
    next_whats_new/*
 
+Improved default backend selection
+----------------------------------
+
+The default backend no longer must be set as part of the build
+process.  Instead, at run time, the builtin backends are tried in
+sequence until one of them imports.
+
+Headless linux servers (identified by the DISPLAY env not being defined)
+will not select a GUI backend.
+
+Cyclic colormaps
+----------------
+
+Two new colormaps named 'twilight' and 'twilight_shifted' have been
+added.  These colormaps start and end on the same color, and have two
+symmetric halves with equal lightness, but diverging color. Since they
+wrap around, they are a good choice for cyclic data such as phase
+angles, compass directions, or time of day. Like *viridis* and
+*cividis*, *twilight* is perceptually uniform and colorblind friendly.
+
+
 Ability to scale axis by a fixed order of magnitude
 ---------------------------------------------------
 
@@ -76,16 +97,6 @@ colorbar, but looked bad if the colorbar was made smaller (i.e. via the ``shrink
 This has been changed so that the number of ticks is now responsive to how
 large the colorbar is.
 
-
-Cyclic colormaps
-----------------
-
-Two new colormaps named 'twilight' and 'twilight_shifted' have been added.
-These colormaps start and end on the same color, and have two
-symmetric halves with equal lightness, but diverging color. Since they
-wrap around, they are a good choice for cyclic data such as phase
-angles, compass directions, or time of day. Like *viridis*, *twilight* is
-perceptually uniform and colorblind friendly.
 
 
 Don't automatically rename duplicate file names
@@ -217,11 +228,10 @@ Figure has an `~.figure.Figure.add_artist` method
 
 A method `~.figure.Figure.add_artist` has been added to the
 :class:`~.figure.Figure` class, which allows artists to be added directly
-to a figure. E.g.
+to a figure. E.g. ::
 
-::
-    circ = plt.Circle((.7, .5), .05)
-    fig.add_artist(circ)
+   circ = plt.Circle((.7, .5), .05)
+   fig.add_artist(circ)
 
 In case the added artist has no transform set previously, it will be set to
 the figure transform (``fig.transFigure``).
@@ -229,16 +239,17 @@ This new method may be useful for adding artists to figures without axes or to
 easily position static elements in figure coordinates.
 
 
-Improved default backend selection
-----------------------------------
 
-The default backend no longer must be set as part of the build
-process.  Instead, at run time, the builtin backends are tried in
-sequence until one of them imports.
+``:math:`` directive renamed to ``:mathmpl:``
+---------------------------------------------
 
-Headless linux servers (identified by the DISPLAY env not being defined)
-will not select a GUI backend.
+The ``:math:`` rst role provided by `matplotlib.sphinxext.mathmpl` has been
+renamed to ``:mathmpl:`` to avoid conflicting with the ``:math:`` role that
+Sphinx 1.8 provides by default.  (``:mathmpl:`` uses Matplotlib to render math
+expressions to images embedded in html, whereas Sphinx uses MathJax.)
 
+When using Sphinx<1.8, both names (``:math:`` and ``:mathmpl:``) remain
+available for backcompatibility.
 
 
 ==================

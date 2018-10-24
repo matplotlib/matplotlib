@@ -220,8 +220,7 @@ def OSXInstalledFonts(directories=None, fontext='ttf'):
         directories = OSXFontDirectories
     return [path
             for directory in directories
-            for ext in get_fontext_synonyms(fontext)
-            for path in list_fonts(directory, ext)]
+            for path in list_fonts(directory, get_fontext_synonyms(fontext))]
 
 
 @lru_cache()

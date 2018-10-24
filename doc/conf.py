@@ -329,3 +329,10 @@ texinfo_documents = [
 # numpydoc config
 
 numpydoc_show_class_members = False
+
+latex_engine = 'xelatex'  # or 'lualatex'
+
+latex_elements = {
+    'babel': r'\usepackage{babel}',
+    'fontpkg': r'\setmainfont{DejaVu Serif}',
+}

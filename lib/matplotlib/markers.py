@@ -65,17 +65,12 @@ path                                  A `~matplotlib.path.Path` instance.
                                       ``style``:
                                           the style of the regular symbol:
 
-                                          +---+-----------------------------+
-                                          | 0 | a regular polygon           |
-                                          +---+-----------------------------+
-                                          | 1 | a star-like symbol          |
-                                          +---+-----------------------------+
-                                          | 2 | an asterisk                 |
-                                          +---+-----------------------------+
-                                          | 3 | a circle (``numsides`` and  |
-                                          |   | ``angle`` is ignored);      |
-                                          |   | deprecated.                 |
-                                          +---+-----------------------------+
+                                          - 0: a regular polygon
+                                          - 1: a star-like symbol
+                                          - 2: an asterisk
+                                          - 3: a circle (``numsides`` and
+                                            ``angle`` is ignored);
+                                            deprecated.
 
                                       ``angle``:
                                           the angle of rotation of the symbol

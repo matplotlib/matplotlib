@@ -27,6 +27,9 @@ publication, please acknowledge this fact by citing `Hunter et al (2007)
 
 DOIs
 ----
+v3.0.0
+   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1420605.svg
+      :target: https://doi.org/10.5281/zenodo.1420605
 v2.2.2
    .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1202077.svg
       :target: https://doi.org/10.5281/zenodo.1202077
