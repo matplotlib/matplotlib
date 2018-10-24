@@ -16,7 +16,6 @@ cycler in :doc:`property_cycle </tutorials/intermediate/color_cycle>`.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from collections import OrderedDict
 from matplotlib.transforms import blended_transform_factory
 
 
