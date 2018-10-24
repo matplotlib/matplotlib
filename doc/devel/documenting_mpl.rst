@@ -426,6 +426,8 @@ rules expand on them where the numpydoc conventions are not specific.
 
 Use ``float`` for a type that can be any number.
 
+Use ``(float, float)`` to describe a 2D position.
+
 Use ``array-like`` for homogeneous numeric sequences, which could
 typically be a numpy.array. Dimensionality may be specified using ``2D``,
 ``3D``, ``n-dimensional``. If you need to have variables denoting the
