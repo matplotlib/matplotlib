@@ -2749,7 +2749,7 @@ class _AxesBase(martist.Artist):
 
     def ticklabel_format(self, *, axis='both', style='', scilimits=None,
                          useOffset=None, useLocale=None, useMathText=None):
-        """
+        r"""
         Change the `~matplotlib.ticker.ScalarFormatter` used by
         default for linear axes.
 
