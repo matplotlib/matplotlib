@@ -105,6 +105,7 @@ before_install: |
     ci/silence brew update
     brew upgrade python
     brew install ffmpeg imagemagick mplayer ccache
+    brew reinstall numpy
     hash -r
     which python
     python --version
