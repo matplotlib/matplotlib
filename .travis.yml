@@ -103,9 +103,9 @@ before_install: |
     export PATH=/usr/lib/ccache:$PATH
   else
     ci/silence brew update
+    brew uninstall numpy
     brew upgrade python
     brew install ffmpeg imagemagick mplayer ccache
-    brew reinstall numpy
     hash -r
     which python
     python --version
