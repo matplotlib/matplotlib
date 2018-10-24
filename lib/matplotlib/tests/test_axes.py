@@ -3065,6 +3065,21 @@ def test_hist_emptydata():
     ax.hist([[], range(10), range(10)], histtype="step")
 
 
+def test_hist_labels():
+    # test singleton labels OK
+    fig, ax = plt.subplots()
+    l = ax.hist([0, 1], label=0)
+    assert l[2][0].get_label() == '0'
+    l = ax.hist([0, 1], label=[0])
+    assert l[2][0].get_label() == '0'
+    l = ax.hist([0, 1], label=None)
+    assert l[2][0].get_label() == '_nolegend_'
+    l = ax.hist([0, 1], label='0')
+    assert l[2][0].get_label() == '0'
+    l = ax.hist([0, 1], label='00')
+    assert l[2][0].get_label() == '00'
+
+
 @image_comparison(baseline_images=['transparent_markers'], remove_text=True)
 def test_transparent_markers():
     np.random.seed(0)
