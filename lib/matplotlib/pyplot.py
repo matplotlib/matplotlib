@@ -1670,7 +1670,6 @@ def rgrids(*args, **kwargs):
             silent_list('Text rgridlabel', labels))
 
 
-
 def thetagrids(*args, **kwargs):
     """
     Get or set the theta gridlines on the current polar plot.

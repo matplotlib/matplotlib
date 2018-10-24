@@ -7,6 +7,7 @@ from matplotlib._pylab_helpers import Gcf
 
 import pytest
 
+
 @pytest.fixture(autouse=True)
 def mpl_test_settings(qt_module, mpl_test_settings):
     """
