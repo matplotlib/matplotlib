@@ -24,7 +24,7 @@ jobs:
       versionSpec: '$(python.version)'
       architecture: 'x64'
 
-  - script: python -m pip install --upgrade pip && pip install -r requirements.txt
+  - script: python -m pip install --upgrade pip && pip install -r requirements/testing/travis_all.txt
     displayName: 'Install dependencies'
 
   - script: pip install -ve .
