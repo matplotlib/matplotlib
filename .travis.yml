@@ -103,6 +103,7 @@ before_install: |
     export PATH=/usr/lib/ccache:$PATH
   else
     ci/silence brew update
+    brew uninstall numpy gdal postgis
     brew upgrade python
     brew install ffmpeg imagemagick mplayer ccache
     hash -r
