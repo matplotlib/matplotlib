@@ -1318,11 +1318,12 @@ def use(arg, warn=False, force=True):
         If True, warn if this is called after pyplot has been imported
         and a backend is set up.
 
-        defaults to False
+        defaults to False.
 
     force : bool, optional
-        If True, attempt to switch the backend.  This defaults to
-        True.
+        If True, attempt to switch the backend.   An ImportError is raised if
+        an interactive backend is selected, but another interactive
+        backend has already started.  This defaults to True.
 
     See Also
     --------
