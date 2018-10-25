@@ -38,7 +38,8 @@ def auto_adjust_subplotpars(
         fig, renderer, nrows_ncols, num1num2_list, subplot_list,
         ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
-    Return a dict of subplot parameters to adjust spacing between subplots.
+    Return a dict of subplot parameters to adjust spacing between subplots
+    or ``None`` if resulting axes would have zero height or width.
 
     Note that this function ignores geometry information of subplot
     itself, but uses what is given by the *nrows_ncols* and *num1num2_list*
@@ -172,15 +173,15 @@ def auto_adjust_subplotpars(
         margin_bottom += pad_inches / fig_height_inch
 
     if margin_left + margin_right >= 1:
-        margin_left = 0.4999
-        margin_right = 0.4999
-        warnings.warn('The left and right margins cannot be made large '
+        warnings.warn('Tight layout not applied. The left and right margins '
+                      'cannot be made large '
                       'enough to accommodate all axes decorations. ')
+        return None
     if margin_bottom + margin_top >= 1:
-        margin_bottom = 0.4999
-        margin_top = 0.4999
-        warnings.warn('The bottom and top margins cannot be made large '
+        warnings.warn('Tight layout not applied. '
+                      'The bottom and top margins cannot be made large '
                       'enough to accommodate all axes decorations. ')
+        return None
 
     kwargs = dict(left=margin_left,
                   right=1 - margin_right,
@@ -195,9 +196,10 @@ def auto_adjust_subplotpars(
         # axes widths:
         h_axes = (1 - margin_right - margin_left - hspace * (cols - 1)) / cols
         if h_axes < 0:
-            warnings.warn('tight_layout cannot make axes width small enough '
+            warnings.warn('Tight layout not applied. '
+                          'tight_layout cannot make axes width small enough '
                           'to accommodate all axes decorations')
-            kwargs["wspace"] = 0.5
+            return None
         else:
             kwargs["wspace"] = hspace / h_axes
 
@@ -206,9 +208,10 @@ def auto_adjust_subplotpars(
                   + vpad_inches / fig_height_inch)
         v_axes = (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows
         if v_axes < 0:
-            warnings.warn('tight_layout cannot make axes height small enough '
+            warnings.warn('Tight layout not applied. '
+                          'tight_layout cannot make axes height small enough '
                           'to accommodate all axes decorations')
-            kwargs["hspace"] = 0.5
+            return None
         else:
             kwargs["hspace"] = vspace / v_axes
 
@@ -287,6 +290,13 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         (left, bottom, right, top) rectangle in normalized figure coordinates
         that the whole subplots area (including labels) will fit into.
         Defaults to using the entire figure.
+
+    Returns
+    -------
+    subplotspec or None
+        subplotspec kwargs to be passed to `.Figure.subplots_adjust` or
+        None if tight_layout could not be accomplished.
+
     """
 
     subplot_list = []

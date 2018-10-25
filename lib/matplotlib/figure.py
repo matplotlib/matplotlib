@@ -2390,7 +2390,8 @@ default: 'top'
         kwargs = get_tight_layout_figure(
             self, self.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
-        self.subplots_adjust(**kwargs)
+        if kwargs:
+            self.subplots_adjust(**kwargs)
 
     def align_xlabels(self, axs=None):
         """
