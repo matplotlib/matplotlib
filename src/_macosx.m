@@ -3,8 +3,10 @@
 #include <sys/socket.h>
 #include <Python.h>
 
+#ifndef PYPY
 /* Remove this once Python is fixed: https://bugs.python.org/issue23237 */
 #define PYOSINPUTHOOK_REPETITIVE 1
+#endif
 
 /* Proper way to check for the OS X version we are compiling for, from
    http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development */
@@ -277,7 +279,9 @@ static void lazy_init(void) {
 
     NSApp = [NSApplication sharedApplication];
 
+#ifndef PYPY
     PyOS_InputHook = wait_for_stdin;
+#endif
 
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
