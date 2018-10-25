@@ -57,6 +57,7 @@ def test_get_default_filename(tmpdir):
 
 @pytest.mark.backend('pdf')
 def test_non_gui_warning():
+    plt.close('all')
     plt.subplots()
     with pytest.warns(UserWarning) as rec:
         plt.show()
