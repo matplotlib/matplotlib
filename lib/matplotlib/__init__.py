@@ -908,6 +908,9 @@ class RcParams(MutableMapping, dict):
         """Yield sorted list of keys."""
         yield from sorted(dict.__iter__(self))
 
+    def __len__(self):
+        return dict.__len__(self)
+
     def find_all(self, pattern):
         """
         Return the subset of this RcParams dictionary whose keys match,
