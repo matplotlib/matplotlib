@@ -1270,6 +1270,8 @@ class BackendMacOSX(OptionalBackendPackage):
 
         ext = make_extension('matplotlib.backends._macosx', sources)
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
+        if platform.python_implementation().lower() == 'pypy':
+            ext.extra_compile_args.append('-DPYPY=1')
         return ext
 
 

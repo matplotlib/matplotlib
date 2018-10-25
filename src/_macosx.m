@@ -277,7 +277,9 @@ static void lazy_init(void) {
 
     NSApp = [NSApplication sharedApplication];
 
+#ifndef PYPY
     PyOS_InputHook = wait_for_stdin;
+#endif
 
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
