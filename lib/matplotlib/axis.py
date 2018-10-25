@@ -1211,8 +1211,7 @@ class Axis(martist.Artist):
 
     def get_ticklabels(self, minor=False, which=None):
         """
-        Get the tick labels as a list of :class:`~matplotlib.text.Text`
-        instances.
+        Get the tick labels as a list of `~matplotlib.text.Text` instances.
 
         Parameters
         ----------
@@ -1228,7 +1227,7 @@ class Axis(martist.Artist):
         Returns
         -------
         ret : list
-           List of :class:`~matplotlib.text.Text` instances.
+           List of `~matplotlib.text.Text` instances.
         """
 
         if which is not None:
@@ -1729,8 +1728,11 @@ class Axis(martist.Artist):
     def axis_date(self, tz=None):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
-        *tz* is a :class:`tzinfo` instance or a timezone string.
-        This timezone is used to create date labels.
+
+        Parameters
+        ----------
+        tz : tzinfo or str or None
+            The timezone used to create date labels.
         """
         # By providing a sample datetime instance with the desired timezone,
         # the registered converter can be selected, and the "units" attribute,
