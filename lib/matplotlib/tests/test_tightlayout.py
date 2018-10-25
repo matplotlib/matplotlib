@@ -316,3 +316,19 @@ def test_badsubplotgrid():
     with warnings.catch_warnings(record=True) as w:
         plt.tight_layout()
         assert len(w) == 1
+
+
+def test_collapsed():
+    # test that if a call to tight_layout will collapes the axes that
+    # it does not get applied:
+    fig, ax = plt.subplots(tight_layout=True)
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+
+    ax.annotate('BIG LONG STRING', xy=(1.25, 2), xytext=(10.5, 1.75),)
+    p1 = ax.get_position()
+    with warnings.catch_warnings(record=True) as w:
+        plt.tight_layout()
+        p2 = ax.get_position()
+        assert p1.width == p2.width
+        assert len(w) == 1

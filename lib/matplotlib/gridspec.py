@@ -341,7 +341,8 @@ class GridSpec(GridSpecBase):
         kwargs = tight_layout.get_tight_layout_figure(
             figure, figure.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
-        self.update(**kwargs)
+        if kwargs:
+            self.update(**kwargs)
 
 
 class GridSpecFromSubplotSpec(GridSpecBase):
