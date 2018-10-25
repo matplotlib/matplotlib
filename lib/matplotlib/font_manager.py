@@ -11,13 +11,6 @@ instance.  The :class:`FontManager` also handles Adobe Font Metrics
 The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
 font specification <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_.
 Future versions may implement the Level 2 or 2.1 specifications.
-
-Experimental support is included for using `fontconfig` on Unix
-variant platforms (Linux, OS X, Solaris).  To enable it, set the
-constant ``USE_FONTCONFIG`` in this file to ``True``.  Fontconfig has
-the advantage that it is the standard way to look up fonts on X11
-platforms, so if a font is installed, it is much more likely to be
-found.
 """
 
 # KNOWN ISSUES
@@ -44,13 +37,11 @@ except ImportError:
 import warnings
 
 import matplotlib as mpl
-from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
+from matplotlib import afm, cbook, ft2font, rcParams
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 
 _log = logging.getLogger(__name__)
-
-USE_FONTCONFIG = False
 
 font_scalings = {
     'xx-small' : 0.579,
@@ -104,11 +95,9 @@ font_family_aliases = {
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
 
-
 MSFontDirectories = [
     r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts',
     r'SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts']
-
 
 X11FontDirectories = [
     # an old standard installation point
@@ -120,7 +109,9 @@ X11FontDirectories = [
     "/usr/local/share/fonts/",
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
-    ]
+    # user fonts
+    str(Path.home() / ".fonts"),
+]
 
 OSXFontDirectories = [
     "/Library/Fonts/",
@@ -128,11 +119,9 @@ OSXFontDirectories = [
     "/System/Library/Fonts/",
     # fonts installed via MacPorts
     "/opt/local/share/fonts",
+    # user fonts
+    str(Path.home() / "Library/Fonts"),
 ]
-
-if not USE_FONTCONFIG and sys.platform != 'win32':
-    OSXFontDirectories.append(str(Path.home() / "Library/Fonts"))
-    X11FontDirectories.append(str(Path.home() / ".fonts"))
 
 
 def get_fontext_synonyms(fontext):
@@ -1148,7 +1137,7 @@ class FontManager(object):
             sizeval2 = float(size2)
         except ValueError:
             return 1.0
-        return abs(sizeval1 - sizeval2) / 72.0
+        return abs(sizeval1 - sizeval2) / 72
 
     def findfont(self, prop, fontext='ttf', directory=None,
                  fallback_to_default=True, rebuild_if_missing=True):
@@ -1272,11 +1261,10 @@ def is_opentype_cff_font(filename):
         return False
 
 
-fontManager = None
-_fmcache = None
-
-
 _get_font = lru_cache(64)(ft2font.FT2Font)
+_fmcache = os.path.join(
+    mpl.get_cachedir(), 'fontlist-v{}.json'.format(FontManager.__version__))
+fontManager = None
 
 
 def get_font(filename, hinting_factor=None):
@@ -1285,86 +1273,23 @@ def get_font(filename, hinting_factor=None):
     return _get_font(filename, hinting_factor)
 
 
-# The experimental fontconfig-based backend.
-if USE_FONTCONFIG and sys.platform != 'win32':
+def _rebuild():
+    global fontManager
+    fontManager = FontManager()
+    with cbook._lock_path(_fmcache):
+        json_dump(fontManager, _fmcache)
+    _log.info("generated new fontManager")
 
-    def fc_match(pattern, fontext):
-        fontexts = get_fontext_synonyms(fontext)
-        ext = "." + fontext
-        try:
-            pipe = subprocess.Popen(
-                ['fc-match', '-s', '--format=%{file}\\n', pattern],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            output = pipe.communicate()[0]
-        except OSError:
-            return None
 
-        # The bulk of the output from fc-list is ascii, so we keep the
-        # result in bytes and parse it as bytes, until we extract the
-        # filename, which is in sys.filesystemencoding().
-        if pipe.returncode == 0:
-            for fname in map(os.fsdecode, output.split(b'\n')):
-                if os.path.splitext(fname)[1][1:] in fontexts:
-                    return fname
-        return None
-
-    _fc_match_cache = {}
-
-    def findfont(prop, fontext='ttf'):
-        if not isinstance(prop, str):
-            prop = prop.get_fontconfig_pattern()
-        cached = _fc_match_cache.get(prop)
-        if cached is not None:
-            return cached
-
-        result = fc_match(prop, fontext)
-        if result is None:
-            result = fc_match(':', fontext)
-
-        _fc_match_cache[prop] = result
-        return result
-
+try:
+    fontManager = json_load(_fmcache)
+except Exception:
+    _rebuild()
 else:
-    _fmcache = None
-
-    cachedir = get_cachedir()
-    if cachedir is not None:
-        _fmcache = os.path.join(
-            cachedir, 'fontlist-v{}.json'.format(FontManager.__version__))
-
-    fontManager = None
-
-    def _rebuild():
-        global fontManager
-
-        fontManager = FontManager()
-
-        if _fmcache:
-            with cbook._lock_path(_fmcache):
-                json_dump(fontManager, _fmcache)
-        _log.debug("generated new fontManager")
-
-    if _fmcache:
-        try:
-            fontManager = json_load(_fmcache)
-        except FileNotFoundError:
-            _log.debug("No font cache found %s", _fmcache)
-        except json.JSONDecodeError:
-            _log.warning("Font cache parsing failed %s", _fmcache)
-        else:
-            if (not hasattr(fontManager, '_version') or
-                fontManager._version != FontManager.__version__):
-                _log.debug("Font cache needs rebuild (version mismatch)")
-                fontManager = None
-            else:
-                fontManager.default_size = None
-                _log.debug("Using fontManager instance from %s", _fmcache)
-
-    if fontManager is None:
+    if getattr(fontManager, '_version', object()) != FontManager.__version__:
         _rebuild()
+    else:
+        _log.debug("Using fontManager instance from %s", _fmcache)
 
-    def findfont(prop, **kw):
-        global fontManager
-        font = fontManager.findfont(prop, **kw)
-        return font
+
+findfont = fontManager.findfont
