@@ -8,7 +8,6 @@ This backend depends on cairocffi or pycairo.
 
 import copy
 import gzip
-import warnings
 
 import numpy as np
 
@@ -602,8 +601,7 @@ class FigureCanvasCairo(FigureCanvasBase):
                     fo = gzip.GzipFile(None, 'wb', fileobj=fo)
             surface = cairo.SVGSurface(fo, width_in_points, height_in_points)
         else:
-            warnings.warn("unknown format: %s" % fmt, stacklevel=2)
-            return
+            raise ValueError("Unknown format: {!r}".format(fmt))
 
         # surface.set_dpi() can be used
         renderer = RendererCairo(self.figure.dpi)

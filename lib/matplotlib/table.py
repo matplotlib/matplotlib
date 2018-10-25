@@ -17,9 +17,7 @@ ways of positioning more interesting grids.
 Author    : John Gill <jng@europe.renre.com>
 Copyright : 2004 John Gill and John Hunter
 License   : matplotlib license
-
 """
-import warnings
 
 from . import artist, cbook, docstring
 from .artist import Artist, allow_rasterization
@@ -243,9 +241,11 @@ class Table(Artist):
 
         if isinstance(loc, str):
             if loc not in self.codes:
-                warnings.warn('Unrecognized location %s. Falling back on '
-                              'bottom; valid locations are\n%s\t' %
-                              (loc, '\n\t'.join(self.codes)))
+                cbook.warn_deprecated(
+                    "3.1", message="Unrecognized location {!r}. Falling back "
+                    "on 'bottom'; valid locations are\n\t{}\n"
+                    "This will raise an exception %(removal)s."
+                    .format(loc, '\n\t'.join(self.codes)))
                 loc = 'bottom'
             loc = self.codes[loc]
         self.set_figure(ax.figure)

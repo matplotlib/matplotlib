@@ -24,7 +24,7 @@ def _generate_deprecation_message(
         obj_type='attribute', addendum='', *, removal=''):
 
     if removal == "":
-        removal = {"2.2": "in 3.1", "3.0": "in 3.2"}.get(
+        removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
             since, "two minor releases later")
     elif removal:
         if pending:
