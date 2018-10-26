@@ -6,7 +6,7 @@ Linestyles
 Linestyle can be provided as simple as *solid* , *dotted*, *dashed*
 or *dashdot*. Moreover, the dashing of the line can be controlled by
 a dash tuple such as (offset, (on_off_seq)) as mentioned in
-`.Line2D.set_linestyle`. For e.g., ``(0, (3, 10, 1, 15))`` means
+`.Line2D.set_linestyle`. For example, ``(0, (3, 10, 1, 15))`` means
  3pt-line,10pt-space,1pt-line,15pt-space with no offset.
 
 *Note*: The dash style can also be configured via `.Line2D.set_dashes`
@@ -19,10 +19,10 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import blended_transform_factory
 
 linestyle_str = [
-     ('solid',                 ('solid')),    # Same as (0, ()) or '-'
-     ('dotted',                ('dotted')),   # Same as (0, (1, 1)) or '.'
-     ('dashed',                ('dashed')),   # Same as '--'
-     ('dashdot',               ('dashdot'))]  # Same as '-.'
+     ('solid','solid'),       # Same as (0, ()) or '-'
+     ('dotted', 'dotted'),    # Same as (0, (1, 1)) or '.'
+     ('dashed', 'dashed'),    # Same as '--'
+     ('dashdot', 'dashdot')]  # Same as '-.'
 
 linestyle_tuple = [
      ('loosely dotted',        (0, (1, 10))),
