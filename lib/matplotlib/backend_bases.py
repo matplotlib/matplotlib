@@ -34,6 +34,7 @@ graphics contexts must implement to serve as a matplotlib backend
 
 from contextlib import contextmanager
 from enum import IntEnum
+import functools
 import importlib
 import io
 import logging
@@ -44,6 +45,7 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import (
     backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
     widgets, get_backend, is_interactive, rcParams)
@@ -1564,6 +1566,7 @@ class FigureCanvasBase(object):
                          'Tagged Image File Format')
 
     def __init__(self, figure):
+        self._fix_ipython_backend2gui()
         self._is_idle_drawing = True
         self._is_saving = False
         figure.set_canvas(self)
@@ -1579,6 +1582,35 @@ class FigureCanvasBase(object):
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
+
+    @classmethod
+    @functools.lru_cache()
+    def _fix_ipython_backend2gui(cls):
+        # Fix hard-coded module -> toolkit mapping in IPython (used for
+        # `ipython --auto`).  This cannot be done at import time due to
+        # ordering issues, so we do it when creating a canvas, and should only
+        # be done once per class (hence the `lru_cache(1)`).
+        if "IPython" not in sys.modules:
+            return
+        import IPython
+        ip = IPython.get_ipython()
+        if not ip:
+            return
+        from IPython.core import pylabtools as pt
+        backend_mod = sys.modules[cls.__module__]
+        rif = getattr(backend_mod, "required_interactive_framework", None)
+        backend2gui_rif = {"qt5": "qt", "qt4": "qt", "gtk3": "gtk3",
+                           "wx": "wx", "macosx": "osx"}.get(rif)
+        if backend2gui_rif:
+            pt.backend2gui[get_backend()] = backend2gui_rif
+            # Work around pylabtools.find_gui_and_backend always reading from
+            # rcParamsOrig.
+            orig_origbackend = mpl.rcParamsOrig["backend"]
+            try:
+                mpl.rcParamsOrig["backend"] = mpl.rcParams["backend"]
+                ip.enable_matplotlib()
+            finally:
+                mpl.rcParamsOrig["backend"] = orig_origbackend
 
     @contextmanager
     def _idle_draw_cntx(self):
