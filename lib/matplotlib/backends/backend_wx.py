@@ -657,25 +657,16 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         if not self._rubberband:
             return
 
-        # draw rubberband / selection using an overlay
-        if self._overlay is None:
-            self._overlay = wx.Overlay()
-        odc = wx.DCOverlay(self._overlay, dc)
-
+        # draw rubberband / selection: a box with border and 50% transparency
         if not self._retinaFix:
-            # draw a box with border and 50% transparency
             dc = wx.GCDC(dc)
-            # Set the pen, for the box's border
-            bc = wx.BLUE
-            dc.SetPen(wx.Pen(colour=bc, width=1, style=wx.PENSTYLE_SOLID))
-            # Create a brush (for the box's interior) with the same colour,
-            # but 50% transparency.
-            bc = wx.Colour(bc.red, bc.green, bc.blue, 0x80)
-            dc.SetBrush(wx.Brush(bc))
-        else:
-            # draw without transparency which is buggy on Retina displays
-            dc.SetPen(wx.Pen(wx.BLACK, 1, wx.PENSTYLE_SHORT_DASH))
-            dc.SetBrush(wx.TRANSPARENT_BRUSH)
+        # Set the pen, for the box's border
+        bc = wx.BLUE
+        dc.SetPen(wx.Pen(colour=bc, width=1, style=wx.PENSTYLE_SOLID))
+        # Create a brush (for the box's interior) with the same colour,
+        # but 50% transparency.
+        bc = wx.Colour(bc.red, bc.green, bc.blue, 0x80)
+        dc.SetBrush(wx.Brush(bc))
 
         # Draw the rectangle
         topLeft, bottomRight = self._rubberband
@@ -846,8 +837,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # end drawing of a rubberband-like selection box
         if not self._rubberband:
             return
-        self._overlay.Reset()
-        self._overlay = None
         self._refresh_rubberband()  # trigger a later redraw
         self._rubberband = None
 
