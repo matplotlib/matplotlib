@@ -7,7 +7,7 @@ Linestyle can be provided as simple as *solid* , *dotted*, *dashed*
 or *dashdot*. Moreover, the dashing of the line can be controlled by
 a dash tuple such as (offset, (on_off_seq)) as mentioned in
 `.Line2D.set_linestyle`. For example, ``(0, (3, 10, 1, 15))`` means
- 3pt-line,10pt-space,1pt-line,15pt-space with no offset.
+3pt-line,10pt-space,1pt-line,15pt-space with no offset.
 
 *Note*: The dash style can also be configured via `.Line2D.set_dashes`
 as shown in :doc:`/gallery/lines_bars_and_markers/line_demo_dash_control`
