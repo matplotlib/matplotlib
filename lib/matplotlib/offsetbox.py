@@ -18,22 +18,17 @@ import warnings
 
 import numpy as np
 
-import matplotlib.transforms as mtransforms
+from matplotlib import cbook, docstring, rcParams
 import matplotlib.artist as martist
-import matplotlib.text as mtext
 import matplotlib.path as mpath
-from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
-
+import matplotlib.text as mtext
+import matplotlib.transforms as mtransforms
 from matplotlib.font_manager import FontProperties
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
-from matplotlib import rcParams
-
-from matplotlib import docstring
-
 from matplotlib.image import BboxImage
-
-from matplotlib.patches import bbox_artist as mbbox_artist
+from matplotlib.patches import (
+    FancyBboxPatch, FancyArrowPatch, bbox_artist as mbbox_artist)
 from matplotlib.text import _AnnotationBase
+from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
 
 DEBUG = False
@@ -1249,8 +1244,10 @@ class AnchoredText(AnchoredOffsetbox):
             prop = {}
         badkwargs = {'ha', 'horizontalalignment', 'va', 'verticalalignment'}
         if badkwargs & set(prop):
-            warnings.warn("Mixing horizontalalignment or verticalalignment "
-                          "with AnchoredText is not supported.")
+            cbook.warn_deprecated(
+                "3.1", "Mixing horizontalalignment or verticalalignment with "
+                "AnchoredText is not supported, deprecated since %(version)s, "
+                "and will raise an exception %(removal)s.")
 
         self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
