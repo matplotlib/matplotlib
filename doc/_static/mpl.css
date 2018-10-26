@@ -731,7 +731,7 @@ td.field-body table.property-table tr:last-of-type td {
 
 /*** function and class description ***/
 /* top-level definitions */
-dl.class, dl.function, dl.data {
+dl.class, dl.function, dl.data, dl.exception {
     border-top: 1px solid #888;
     padding-top: 0px;
     margin-top: 20px;
@@ -744,7 +744,7 @@ dl.method, dl.classmethod, dl.staticmethod, dl.attribute {
 
 
 dl.class > dt, dl.classmethod > dt, dl.method > dt, dl.function > dt,
-dl.attribute > dt, dl.staticmethod > dt, dl.data > dt {
+dl.attribute > dt, dl.staticmethod > dt, dl.data > dt, dl.exception > dt {
     background-color: #eff3f4;
     padding-left: 6px;
     padding-right: 6px;
