@@ -6,7 +6,7 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 from matplotlib.cbook import MatplotlibDeprecationWarning
-from matplotlib.patches import Polygon, Rectangle
+from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
 from matplotlib import (
@@ -468,3 +468,12 @@ def test_shadow(fig_test, fig_ref):
         alpha=.5)
     a2.add_patch(shadow)
     a2.add_patch(rect)
+
+
+def test_fancyarrow_units():
+    from datetime import datetime
+    # Smoke test to check that FancyArrowPatch works with units
+    dtime = datetime(2000, 1, 1)
+    fig, ax = plt.subplots()
+    arrow = FancyArrowPatch((0, dtime), (0.01, dtime))
+    ax.add_patch(arrow)

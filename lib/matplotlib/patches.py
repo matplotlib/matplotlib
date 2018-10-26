@@ -571,6 +571,14 @@ class Patch(artist.Artist):
     def get_window_extent(self, renderer=None):
         return self.get_path().get_extents(self.get_transform())
 
+    def _convert_xy_units(self, xy):
+        """
+        Convert x and y units for a tuple (x, y)
+        """
+        x = self.convert_xunits(xy[0])
+        y = self.convert_yunits(xy[1])
+        return (x, y)
+
 
 patchdoc = artist.kwdoc(Patch)
 for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
@@ -4253,8 +4261,10 @@ class FancyArrowPatch(Patch):
         dpi_cor = self.get_dpi_cor()
 
         if self._posA_posB is not None:
-            posA = self.get_transform().transform_point(self._posA_posB[0])
-            posB = self.get_transform().transform_point(self._posA_posB[1])
+            posA = self._convert_xy_units(self._posA_posB[0])
+            posB = self._convert_xy_units(self._posA_posB[1])
+            posA = self.get_transform().transform_point(posA)
+            posB = self.get_transform().transform_point(posB)
             _path = self.get_connectionstyle()(posA, posB,
                                                patchA=self.patchA,
                                                patchB=self.patchB,
