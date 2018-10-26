@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import blended_transform_factory
 
 linestyle_str = [
-     ('solid','solid'),       # Same as (0, ()) or '-'
+     ('solid', 'solid'),       # Same as (0, ()) or '-'
      ('dotted', 'dotted'),    # Same as (0, (1, 1)) or '.'
      ('dashed', 'dashed'),    # Same as '--'
      ('dashdot', 'dashdot')]  # Same as '-.'
