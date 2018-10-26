@@ -609,19 +609,16 @@ class _AxesBase(martist.Artist):
 
     def _set_lim_and_transforms(self):
         """
-        set the *_xaxis_transform*, *_yaxis_transform*,
-        *transScale*, *transData*, *transLimits* and *transAxes*
-        transformations.
+        Set the *_xaxis_transform*, *_yaxis_transform*, *transScale*,
+        *transData*, *transLimits* and *transAxes* transformations.
 
         .. note::
 
-            This method is primarily used by rectilinear projections
-            of the :class:`~matplotlib.axes.Axes` class, and is meant
-            to be overridden by new kinds of projection axes that need
-            different transformations and limits. (See
-            :class:`~matplotlib.projections.polar.PolarAxes` for an
-            example.
-
+            This method is primarily used by rectilinear projections of the
+            `~matplotlib.axes.Axes` class, and is meant to be overridden by
+            new kinds of projection axes that need different transformations
+            and limits. (See `~matplotlib.projections.polar.PolarAxes` for an
+            example.)
         """
         self.transAxes = mtransforms.BboxTransformTo(self.bbox)
 
@@ -655,10 +652,9 @@ class _AxesBase(martist.Artist):
         .. note::
 
             This transformation is primarily used by the
-            :class:`~matplotlib.axis.Axis` class, and is meant to be
+            `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
-
         """
         if which == 'grid':
             return self._xaxis_transform
@@ -687,10 +683,9 @@ class _AxesBase(martist.Artist):
         .. note::
 
             This transformation is primarily used by the
-            :class:`~matplotlib.axis.Axis` class, and is meant to be
+            `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
-
         """
         labels_align = matplotlib.rcParams["xtick.alignment"]
 
@@ -715,10 +710,9 @@ class _AxesBase(martist.Artist):
         .. note::
 
             This transformation is primarily used by the
-            :class:`~matplotlib.axis.Axis` class, and is meant to be
+            `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
-
         """
         labels_align = matplotlib.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick2') +
@@ -735,10 +729,9 @@ class _AxesBase(martist.Artist):
         .. note::
 
             This transformation is primarily used by the
-            :class:`~matplotlib.axis.Axis` class, and is meant to be
+            `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
-
         """
         if which == 'grid':
             return self._yaxis_transform
@@ -767,10 +760,9 @@ class _AxesBase(martist.Artist):
         .. note::
 
             This transformation is primarily used by the
-            :class:`~matplotlib.axis.Axis` class, and is meant to be
+            `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
-
         """
         labels_align = matplotlib.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
@@ -794,10 +786,9 @@ class _AxesBase(martist.Artist):
         .. note::
 
             This transformation is primarily used by the
-            :class:`~matplotlib.axis.Axis` class, and is meant to be
+            `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
-
         """
         labels_align = matplotlib.rcParams["ytick.alignment"]
 
@@ -1795,7 +1786,8 @@ class _AxesBase(martist.Artist):
             len(self.patches)) > 0
 
     def add_artist(self, a):
-        """Add any :class:`~matplotlib.artist.Artist` to the axes.
+        """
+        Add an `~.Artist` to the axes, and return the artist.
 
         Use `add_artist` only for artists for which there is no dedicated
         "add" method; and if necessary, use a method such as `update_datalim`
@@ -1805,8 +1797,6 @@ class _AxesBase(martist.Artist):
         If no ``transform`` has been specified when creating the artist (e.g.
         ``artist.get_transform() == None``) then the transform is set to
         ``ax.transData``.
-
-        Returns the artist.
         """
         a.axes = self
         self.artists.append(a)
@@ -1818,12 +1808,9 @@ class _AxesBase(martist.Artist):
 
     def add_child_axes(self, ax):
         """
-        Add a :class:`~matplotlib.axes.Axesbase` instance
-        as a child to the axes.
+        Add an `~.AxesBase` to the axes' children; return the child axes.
 
-        Returns the added axes.
-
-        This is the lowlevel version.  See `.axes.Axes.inset_axes`
+        This is the lowlevel version.  See `.axes.Axes.inset_axes`.
         """
 
         # normally axes have themselves as the axes, but these need to have
@@ -1839,10 +1826,7 @@ class _AxesBase(martist.Artist):
 
     def add_collection(self, collection, autolim=True):
         """
-        Add a :class:`~matplotlib.collections.Collection` instance
-        to the axes.
-
-        Returns the collection.
+        Add a `~.Collection` to the axes' collections; return the collection.
         """
         label = collection.get_label()
         if not label:
@@ -1862,9 +1846,7 @@ class _AxesBase(martist.Artist):
 
     def add_image(self, image):
         """
-        Add a :class:`~matplotlib.image.AxesImage` to the axes.
-
-        Returns the image.
+        Add an `~.AxesImage` to the axes' images; return the image.
         """
         self._set_artist_props(image)
         if not image.get_label():
@@ -1880,10 +1862,7 @@ class _AxesBase(martist.Artist):
 
     def add_line(self, line):
         """
-        Add a :class:`~matplotlib.lines.Line2D` to the list of plot
-        lines
-
-        Returns the line.
+        Add a `~.Line2D` to the axes' lines; return the line.
         """
         self._set_artist_props(line)
         if line.get_clip_path() is None:
@@ -1899,7 +1878,7 @@ class _AxesBase(martist.Artist):
 
     def _add_text(self, txt):
         """
-
+        Add a `~.Text` to the axes' texts; return the text.
         """
         self._set_artist_props(txt)
         self.texts.append(txt)
@@ -1953,14 +1932,8 @@ class _AxesBase(martist.Artist):
 
     def add_patch(self, p):
         """
-        Add a :class:`~matplotlib.patches.Patch` *p* to the list of
-        axes patches; the clipbox will be set to the Axes clipping
-        box.  If the transform is not set, it will be set to
-        :attr:`transData`.
-
-        Returns the patch.
+        Add a `~.Patch` to the axes' patches; return the patch.
         """
-
         self._set_artist_props(p)
         if p.get_clip_path() is None:
             p.set_clip_path(self.patch)
@@ -1997,17 +1970,7 @@ class _AxesBase(martist.Artist):
 
     def add_table(self, tab):
         """
-        Add a :class:`~matplotlib.table.Table` instance to the
-        list of axes tables
-
-        Parameters
-        ----------
-        tab : `matplotlib.table.Table`
-            Table instance
-
-        Returns
-        -------
-        `matplotlib.table.Table`: the table.
+        Add a `~.Table` to the axes' tables; return the table.
         """
         self._set_artist_props(tab)
         self.tables.append(tab)
@@ -2017,10 +1980,7 @@ class _AxesBase(martist.Artist):
 
     def add_container(self, container):
         """
-        Add a :class:`~matplotlib.container.Container` instance
-        to the axes.
-
-        Returns the collection.
+        Add a `~.Container` to the axes' containers; return the container.
         """
         label = container.get_label()
         if not label:
@@ -2040,12 +2000,14 @@ class _AxesBase(martist.Artist):
 
     def relim(self, visible_only=False):
         """
-        Recompute the data limits based on current artists. If you want to
-        exclude invisible artists from the calculation, set
-        ``visible_only=True``
+        Recompute the data limits based on current artists.
 
-        At present, :class:`~matplotlib.collections.Collection`
-        instances are not supported.
+        At present, `~.Collection` instances are not supported.
+
+        Parameters
+        ----------
+        visible_only : bool
+            Whether to exclude invisible artists.  Defaults to False.
         """
         # Collections are deliberately not supported (yet); see
         # the TODO note in artists.py.
@@ -2082,8 +2044,7 @@ class _AxesBase(martist.Artist):
 
     def update_datalim_bounds(self, bounds):
         """
-        Update the datalim to include the given
-        :class:`~matplotlib.transforms.Bbox` *bounds*
+        Update the datalim to include the given `~matplotlib.transforms.Bbox`.
         """
         self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
 
@@ -2785,11 +2746,9 @@ class _AxesBase(martist.Artist):
           ==============   =========================================
 
         Only the major ticks are affected.
-        If the method is called when the
-        :class:`~matplotlib.ticker.ScalarFormatter` is not the
-        :class:`~matplotlib.ticker.Formatter` being used, an
-        :exc:`AttributeError` will be raised.
-
+        If the method is called when the `~matplotlib.ticker.ScalarFormatter`
+        is not the `~matplotlib.ticker.Formatter` being used, an
+        `AttributeError` will be raised.
         """
         style = style.lower()
         axis = axis.lower()
@@ -2856,18 +2815,15 @@ class _AxesBase(martist.Artist):
             Remaining keyword arguments are passed to directly to the
             :meth:`~matplotlib.ticker.MaxNLocator.set_params` method.
 
-        Typically one might want to reduce the maximum number
-        of ticks and use tight bounds when plotting small
-        subplots, for example::
+        Typically one might want to reduce the maximum number of ticks and use
+        tight bounds when plotting small subplots, for example::
 
             ax.locator_params(tight=True, nbins=4)
 
-        Because the locator is involved in autoscaling,
-        :meth:`autoscale_view` is called automatically after
-        the parameters are changed.
+        Because the locator is involved in autoscaling, :meth:`autoscale_view`
+        is called automatically after the parameters are changed.
 
-        This presently works only for the
-        :class:`~matplotlib.ticker.MaxNLocator` used
+        This presently works only for the `~matplotlib.ticker.MaxNLocator` used
         by default on linear axes, but it may be generalized.
         """
         _x = axis in ['x', 'both']
@@ -2947,7 +2903,7 @@ class _AxesBase(martist.Artist):
             Width of gridlines in points.
 
         grid_linestyle : string
-            Any valid :class:`~matplotlib.lines.Line2D` line style spec.
+            Any valid `~matplotlib.lines.Line2D` line style spec.
 
         Examples
         --------
@@ -3266,7 +3222,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         labels : list
-            List of :class:`~matplotlib.text.Text` instances
+            List of `~matplotlib.text.Text` instances
         """
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_majorticklabels())
@@ -3278,15 +3234,14 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         labels : list
-            List of :class:`~matplotlib.text.Text` instances
+            List of `~matplotlib.text.Text` instances
         """
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_minorticklabels())
 
     def get_xticklabels(self, minor=False, which=None):
         """
-        Get the x tick labels as a list of :class:`~matplotlib.text.Text`
-        instances.
+        Get the x tick labels as a list of `~matplotlib.text.Text` instances.
 
         Parameters
         ----------
@@ -3302,7 +3257,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         ret : list
-           List of :class:`~matplotlib.text.Text` instances.
+           List of `~matplotlib.text.Text` instances.
         """
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_ticklabels(minor=minor,
@@ -3598,7 +3553,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         labels : list
-            List of :class:`~matplotlib.text.Text` instances
+            List of `~matplotlib.text.Text` instances
         """
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_majorticklabels())
@@ -3610,15 +3565,14 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         labels : list
-            List of :class:`~matplotlib.text.Text` instances
+            List of `~matplotlib.text.Text` instances
         """
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_minorticklabels())
 
     def get_yticklabels(self, minor=False, which=None):
         """
-        Get the y tick labels as a list of :class:`~matplotlib.text.Text`
-        instances.
+        Get the y tick labels as a list of `~matplotlib.text.Text` instances.
 
         Parameters
         ----------
@@ -3634,7 +3588,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         ret : list
-           List of :class:`~matplotlib.text.Text` instances.
+           List of `~matplotlib.text.Text` instances.
         """
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_ticklabels(minor=minor,
@@ -3680,8 +3634,8 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : string or :class:`tzinfo` instance, optional
-            Timezone string or timezone. Defaults to rc value.
+        tz : string or `tzinfo` instance, optional
+            Timezone.  Defaults to :rc:`timezone`.
         """
         # should be enough to inform the unit conversion interface
         # dates are coming in
@@ -3693,8 +3647,8 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : string or :class:`tzinfo` instance, optional
-            Timezone string or timezone. Defaults to rc value.
+        tz : string or `tzinfo` instance, optional
+            Timezone.  Defaults to :rc:`timezone`.
         """
         self.yaxis.axis_date(tz)
 

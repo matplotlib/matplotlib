@@ -81,7 +81,7 @@ def _to_bool(s):
 def _sanity_check(fh):
     """
     Check if the file at least looks like AFM.
-    If not, raise :exc:`RuntimeError`.
+    If not, raise `RuntimeError`.
     """
 
     # Remember the file position in case the caller wants to
