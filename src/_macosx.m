@@ -2586,6 +2586,7 @@ static bool verify_framework(void)
        have started  */
 #ifdef COMPILING_FOR_10_6
          NSApp = [NSApplication sharedApplication];
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
          NSApplicationActivationPolicy activationPolicy = [NSApp activationPolicy];
          switch (activationPolicy) {
              case NSApplicationActivationPolicyRegular:
