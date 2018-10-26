@@ -207,6 +207,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
 @cbook._define_aliases({
     "antialiased": ["aa"],
     "color": ["c"],
+    "drawstyle": ["ds"],
     "linestyle": ["ls"],
     "linewidth": ["lw"],
     "markeredgecolor": ["mec"],
@@ -1133,6 +1134,13 @@ class Line2D(Artist):
         """
         for ds in self.drawStyleKeys:  # long names are first in the list
             if ls.startswith(ds):
+                cbook.warn_deprecated(
+                    "3.1", message="Passing the drawstyle with the linestyle "
+                    "as a single string is deprecated since Matplotlib "
+                    "%(since)s and support will be removed %(removal)s; "
+                    "please pass the drawstyle separately using the drawstyle "
+                    "keyword argument to Line2D or set_drawstyle() method (or "
+                    "ds/set_ds()).")
                 return ds, ls[len(ds):] or '-'
         return None, ls
 
