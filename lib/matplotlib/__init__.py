@@ -885,7 +885,9 @@ class RcParams(MutableMapping, dict):
 
     def __iter__(self):
         """Yield sorted list of keys."""
-        yield from sorted(dict.__iter__(self))
+        return (k for k in sorted(dict.__iter__(self))
+                if k not in [*_deprecated_map, *_deprecated_ignore_map,
+                             'examples.directory'])
 
     def __len__(self):
         return dict.__len__(self)
@@ -907,8 +909,7 @@ class RcParams(MutableMapping, dict):
                         if pattern_re.search(key))
 
     def copy(self):
-        return {k: dict.__getitem__(self, k)
-                for k in self}
+        return {k: dict.__getitem__(self, k) for k in self}
 
 
 def rc_params(fail_on_error=False):
