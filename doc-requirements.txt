@@ -10,6 +10,6 @@ sphinx>=1.3,!=1.5.0,!=1.6.4,!=1.7.3,!=1.8.0
 colorspacious
 ipython
 ipywidgets
-numpydoc>=0.4
-pillow
-sphinx-gallery>=0.1.13
+numpydoc>=0.8
+pillow>=3.4
+sphinx-gallery>=0.2

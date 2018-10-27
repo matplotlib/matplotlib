@@ -52,9 +52,9 @@ requirements that are needed to build the documentation. They are listed in
 * Sphinx>=1.3, !=1.5.0, !=1.6.4, !=1.7.3
 * colorspacious
 * IPython
-* numpydoc>=0.4
-* Pillow
-* sphinx-gallery>=0.1.13
+* numpydoc>=0.8
+* Pillow>=3.4
+* sphinx-gallery>=0.2
 * graphviz
 
 .. note::
