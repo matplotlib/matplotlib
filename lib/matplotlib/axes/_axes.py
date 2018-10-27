@@ -6895,7 +6895,7 @@ class Axes(_AxesBase):
 
         density = bool(density) or bool(normed)
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
-                                           density=density, weights=weights)
+                                           normed=density, weights=weights)
 
         if cmin is not None:
             h[h < cmin] = None
