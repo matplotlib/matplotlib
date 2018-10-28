@@ -406,3 +406,18 @@ def test_image_grid():
     for i in range(4):
         grid[i].imshow(im)
         grid[i].set_title('test {0}{0}'.format(i))
+
+
+def test_gettightbbox():
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    l, = ax.plot([1, 2, 3], [0, 1, 0])
+
+    ax_zoom = zoomed_inset_axes(ax, 4)
+    ax_zoom.plot([1, 2, 3], [0, 1, 0])
+
+    mark_inset(ax, ax_zoom, loc1=1, loc2=3, fc="none", ec='0.3')
+    bbox = fig.get_tightbbox(fig.canvas.get_renderer())
+    np.testing.assert_array_almost_equal(bbox.extents,
+            [-18.022743, -14.118056,   7.332813,   5.4625])
