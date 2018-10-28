@@ -436,3 +436,13 @@ def test_colorbar_renorm():
     cbar.update_normal(im)
     assert np.isclose(cbar.vmin, z.min() * 1000)
     assert np.isclose(cbar.vmax, z.max() * 1000)
+
+
+def test_colorbar_get_ticks():
+    with rc_context({'_internal.classic_mode': False}):
+
+        fig, ax = plt. subplots()
+        np.random.seed(19680801)
+        pc = ax.pcolormesh(np.random.rand(30, 30))
+        cb = fig.colorbar(pc)
+        np.testing.assert_allclose(cb.get_ticks(), [0.2, 0.4, 0.6, 0.8])
