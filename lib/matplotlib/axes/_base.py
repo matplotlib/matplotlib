@@ -3654,32 +3654,26 @@ class _AxesBase(martist.Artist):
 
     def format_xdata(self, x):
         """
-        Return *x* string formatted.  This function will use the attribute
-        self.fmt_xdata if it is callable, else will fall back on the xaxis
-        major formatter
+        Return *x* formatted as an x-value.
+
+        This function will use the `.fmt_xdata` attribute if it is not None,
+        else will fall back on the xaxis major formatter.
         """
-        try:
-            return self.fmt_xdata(x)
-        except TypeError:
-            func = self.xaxis.get_major_formatter().format_data_short
-            val = func(x)
-            return val
+        return (self.fmt_xdata if self.fmt_xdata is not None
+                else self.xaxis.get_major_formatter().format_data_short)(x)
 
     def format_ydata(self, y):
         """
-        Return y string formatted.  This function will use the
-        :attr:`fmt_ydata` attribute if it is callable, else will fall
-        back on the yaxis major formatter
+        Return *y* formatted as an y-value.
+
+        This function will use the `.fmt_ydata` attribute if it is not None,
+        else will fall back on the yaxis major formatter.
         """
-        try:
-            return self.fmt_ydata(y)
-        except TypeError:
-            func = self.yaxis.get_major_formatter().format_data_short
-            val = func(y)
-            return val
+        return (self.fmt_ydata if self.fmt_ydata is not None
+                else self.yaxis.get_major_formatter().format_data_short)(y)
 
     def format_coord(self, x, y):
-        """Return a format string formatting the *x*, *y* coord"""
+        """Return a format string formatting the *x*, *y* coordinates."""
         if x is None:
             xs = '???'
         else:
