@@ -1741,6 +1741,11 @@ class TestScatter(object):
         with pytest.raises(ValueError):
             plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
+    def test_scatter_empty(self):
+        # just making sure this does not raise an exception
+        plt.scatter([], [])
+        plt.scatter([], [], s=[], c=[])
+
     # Parameters for *test_scatter_c*. NB: assuming that the
     # scatter plot will have 4 elements. The tuple scheme is:
     # (*c* parameter case, exception regexp key or None if no exception)

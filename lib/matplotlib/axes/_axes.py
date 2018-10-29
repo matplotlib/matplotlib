@@ -4187,7 +4187,7 @@ class Axes(_AxesBase):
         if (c_none or
                 co is not None or
                 isinstance(c, str) or
-                (isinstance(c, collections.Iterable) and
+                (isinstance(c, collections.Iterable) and len(c) > 0 and
                     isinstance(c[0], str))):
             c_array = None
         else:
