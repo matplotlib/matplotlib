@@ -4,12 +4,14 @@
     toolbar clicks, ..) and the actions in response to the user inputs.
 """
 
-import warnings
+import logging
 
 import matplotlib.cbook as cbook
 import matplotlib.widgets as widgets
 from matplotlib.rcsetup import validate_stringlist
 import matplotlib.backend_tools as tools
+
+_log = logging.getLogger(__name__)
 
 
 class ToolEvent(object):
@@ -54,9 +56,9 @@ class ToolManager(object):
     """
 
     def __init__(self, figure=None):
-        warnings.warn('Treat the new Tool classes introduced in v1.5 as ' +
-                       'experimental for now, the API will likely change in ' +
-                       'version 2.1 and perhaps the rcParam as well')
+        _log.warning('Treat the new Tool classes introduced in v1.5 as '
+                     'experimental for now, the API will likely change in '
+                     'version 2.1 and perhaps the rcParam as well')
 
         self._key_press_handler_id = None
 
@@ -202,8 +204,8 @@ class ToolManager(object):
         for key in keys:
             for k in validate_stringlist(key):
                 if k in self._keys:
-                    warnings.warn('Key %s changed from %s to %s' %
-                                  (k, self._keys[k], name))
+                    cbook._warn_external('Key %s changed from %s to %s' %
+                                         (k, self._keys[k], name))
                 self._keys[k] = name
 
     def remove_tool(self, name):
@@ -260,8 +262,8 @@ class ToolManager(object):
             raise ValueError('Impossible to find class for %s' % str(tool))
 
         if name in self._tools:
-            warnings.warn('A "Tool class" with the same name already exists, '
-                          'not added')
+            cbook._warn_external('A "Tool class" with the same name already '
+                                 'exists, not added')
             return self._tools[name]
 
         tool_obj = tool_cls(self, name, *args, **kwargs)
@@ -428,6 +430,7 @@ class ToolManager(object):
             return name
         if name not in self._tools:
             if warn:
-                warnings.warn("ToolManager does not control tool %s" % name)
+                cbook._warn_external("ToolManager does not control tool "
+                                     "%s" % name)
             return None
         return self._tools[name]

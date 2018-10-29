@@ -5,7 +5,7 @@ variety of line styles, markers and colors.
 
 # TODO: expose cap and join style attrs
 from numbers import Integral, Number, Real
-import warnings
+import logging
 
 import numpy as np
 
@@ -24,6 +24,8 @@ from .markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
+
+_log = logging.getLogger(__name__)
 
 
 def _get_dash_pattern(style):
@@ -473,7 +475,7 @@ class Line2D(Artist):
 
         # Convert pick radius from points to pixels
         if self.figure is None:
-            warnings.warn('no figure set when check if mouse is on line')
+            _log.warning('no figure set when check if mouse is on line')
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi / 72. * self.pickradius

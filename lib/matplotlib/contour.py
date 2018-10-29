@@ -3,7 +3,6 @@ These are classes to support contour plotting and labelling for the Axes class.
 """
 
 from numbers import Integral
-import warnings
 
 import numpy as np
 from numpy import ma
@@ -939,7 +938,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         if self.filled:
             if self.linewidths is not None:
-                warnings.warn('linewidths is ignored by contourf')
+                cbook._warn_external('linewidths is ignored by contourf')
 
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
@@ -996,8 +995,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         if kwargs:
             s = ", ".join(map(repr, kwargs))
-            warnings.warn('The following kwargs were not used by contour: ' +
-                          s)
+            cbook._warn_external('The following kwargs were not used by '
+                                 'contour: ' + s)
 
     def get_transform(self):
         """
@@ -1236,8 +1235,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             levels_in = self.levels[inside]
             if len(levels_in) == 0:
                 self.levels = [self.zmin]
-                warnings.warn("No contour levels were found"
-                              " within the data range.")
+                cbook._warn_external(
+                    "No contour levels were found within the data range.")
 
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
@@ -1554,7 +1553,8 @@ class QuadContourSet(ContourSet):
         self.zmin = float(z.min())
         if self.logscale and self.zmin <= 0:
             z = ma.masked_where(z <= 0, z)
-            warnings.warn('Log scale: values of z <= 0 have been masked')
+            cbook._warn_external('Log scale: values of z <= 0 have been '
+                                 'masked')
             self.zmin = float(z.min())
         self._contour_level_args(z, args)
         return (x, y, z)

@@ -296,8 +296,8 @@ def local_over_kwdict(local_var, kwargs, *keys):
             if out is None:
                 out = kwarg_val
             else:
-                warnings.warn('"%s" keyword argument will be ignored' % key,
-                              IgnoredKeywordWarning)
+                _warn_external('"%s" keyword argument will be ignored' % key,
+                               IgnoredKeywordWarning)
     return out
 
 
@@ -1702,9 +1702,9 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         if tmp:
             ret[canonical] = tmp[-1]
             if len(tmp) > 1:
-                warnings.warn("Saw kwargs {seen!r} which are all aliases for "
-                              "{canon!r}.  Kept value from {used!r}".format(
-                                  seen=seen, canon=canonical, used=seen[-1]))
+                _warn_external("Saw kwargs {seen!r} which are all aliases for "
+                               "{canon!r}.  Kept value from {used!r}".format(
+                               seen=seen, canon=canonical, used=seen[-1]))
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input

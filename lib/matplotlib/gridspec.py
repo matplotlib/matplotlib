@@ -15,7 +15,6 @@ of the subplot in the figure.
 
 import copy
 import logging
-import warnings
 
 import numpy as np
 
@@ -332,8 +331,9 @@ class GridSpec(GridSpecBase):
         subplotspec_list = tight_layout.get_subplotspec_list(
             figure.axes, grid_spec=self)
         if None in subplotspec_list:
-            warnings.warn("This figure includes Axes that are not compatible "
-                          "with tight_layout, so results might be incorrect.")
+            cbook._warn_external("This figure includes Axes that are not "
+                                 "compatible with tight_layout, so results "
+                                 "might be incorrect.")
 
         if renderer is None:
             renderer = tight_layout.get_renderer(figure)

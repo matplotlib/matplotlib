@@ -45,10 +45,11 @@ See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
 #   Todo:    AnchoredOffsetbox connected to gridspecs or axes.  This would
 #        be more general way to add extra-axes annotations.
 
-import numpy as np
 import logging
-import warnings
 
+import numpy as np
+
+import matplotlib.cbook as cbook
 import matplotlib._layoutbox as layoutbox
 
 _log = logging.getLogger(__name__)
@@ -153,9 +154,9 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             if gs._layoutbox is not None:
                 gss.add(gs)
     if len(gss) == 0:
-        warnings.warn('There are no gridspecs with layoutboxes. '
-                      'Possibly did not call parent GridSpec with the figure= '
-                      'keyword')
+        cbook._warn_external('There are no gridspecs with layoutboxes. '
+                             'Possibly did not call parent GridSpec with the'
+                             ' figure= keyword')
 
     if fig._layoutbox.constrained_layout_called < 1:
         for gs in gss:
@@ -221,8 +222,8 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                     # so this does the same w/o zeroing layout.
                     ax._set_position(newpos, which='original')
         else:
-            warnings.warn('constrained_layout not applied.  At least '
-                          'one axes collapsed to zero width or height.')
+            cbook._warn_external('constrained_layout not applied.  At least '
+                                 'one axes collapsed to zero width or height.')
 
 
 def _make_ghost_gridspec_slots(fig, gs):

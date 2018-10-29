@@ -22,10 +22,10 @@ information.
 """
 
 import logging
-import warnings
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib import rcParams
 from matplotlib import cbook, docstring
 from matplotlib.artist import Artist, allow_rasterization
@@ -443,9 +443,9 @@ class Legend(Artist):
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
             if isinstance(label, str) and label.startswith('_'):
-                warnings.warn('The handle {!r} has a label of {!r} which '
-                              'cannot be automatically added to the '
-                              'legend.'.format(handle, label))
+                cbook._warn_external('The handle {!r} has a label of {!r} '
+                                     'which cannot be automatically added to'
+                                     ' the legend.'.format(handle, label))
             else:
                 _lab.append(label)
                 _hand.append(handle)
@@ -793,13 +793,12 @@ class Legend(Artist):
         for orig_handle, lab in zip(handles, labels):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
-                warnings.warn(
+                cbook._warn_external(
                     "Legend does not support {!r} instances.\nA proxy artist "
                     "may be used instead.\nSee: "
                     "http://matplotlib.org/users/legend_guide.html"
                     "#creating-artists-specifically-for-adding-to-the-legend-"
-                    "aka-proxy-artists".format(orig_handle)
-                )
+                    "aka-proxy-artists".format(orig_handle))
                 # We don't have a handle for this artist, so we just defer
                 # to None.
                 handle_list.append(None)
@@ -1270,8 +1269,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     extra_args = ()
 
     if (handles is not None or labels is not None) and args:
-        warnings.warn("You have mixed positional and keyword arguments, some "
-                      "input may be discarded.")
+        cbook._warn_external("You have mixed positional and keyword "
+                             "arguments, some input may be discarded.")
 
     # if got both handles and labels as kwargs, make same length
     if handles and labels:

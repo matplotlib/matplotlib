@@ -14,8 +14,6 @@ Text instance. The width and height of the TextArea instance is the
 width and height of the its child text.
 """
 
-import warnings
-
 import numpy as np
 
 from matplotlib import cbook, docstring, rcParams

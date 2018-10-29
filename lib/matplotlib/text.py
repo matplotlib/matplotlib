@@ -5,7 +5,6 @@ Classes for including text in a figure.
 import contextlib
 import logging
 import math
-import warnings
 import weakref
 
 import numpy as np
@@ -2147,9 +2146,9 @@ class Annotation(Text, _AnnotationBase):
         if (xytext is None and
                 textcoords is not None and
                 textcoords != xycoords):
-            warnings.warn("You have used the `textcoords` kwarg, but not "
-                          "the `xytext` kwarg.  This can lead to surprising "
-                          "results.")
+            cbook._warn_external("You have used the `textcoords` kwarg, but "
+                                 "not the `xytext` kwarg.  This can lead to "
+                                 "surprising results.")
 
         # clean up textcoords and assign default
         if textcoords is None:
@@ -2267,7 +2266,7 @@ class Annotation(Text, _AnnotationBase):
                 # Ignore frac--it is useless.
                 frac = d.pop('frac', None)
                 if frac is not None:
-                    warnings.warn(
+                    cbook._warn_external(
                         "'frac' option in 'arrowprops' is no longer supported;"
                         " use 'headlength' to set the head length in points.")
                 headlength = d.pop('headlength', 12)

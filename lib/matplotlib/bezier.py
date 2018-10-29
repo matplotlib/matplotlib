@@ -2,9 +2,9 @@
 A module providing some utility functions regarding bezier path manipulation.
 """
 
-import warnings
-
 import numpy as np
+
+import matplotlib.cbook as cbook
 from matplotlib.path import Path
 
 
@@ -342,7 +342,7 @@ def get_parallels(bezier2, width):
                                       cmx - c2x, cmy - c2y)
 
     if parallel_test == -1:
-        warnings.warn(
+        cbook._warn_external(
             "Lines do not intersect. A straight line is used instead.")
         cos_t1, sin_t1 = get_cos_sin(c1x, c1y, c2x, c2y)
         cos_t2, sin_t2 = cos_t1, sin_t1

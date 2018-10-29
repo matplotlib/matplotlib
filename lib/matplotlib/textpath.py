@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import functools
+import logging
 import urllib.parse
-import warnings
 
 import numpy as np
 
@@ -12,6 +12,8 @@ from matplotlib.ft2font import (
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
+
+_log = logging.getLogger(__name__)
 
 
 @functools.lru_cache(1)
@@ -318,9 +320,9 @@ class TextToPath(object):
                 if charcode is not None:
                     glyph0 = font.load_char(charcode, flags=ft2font_flag)
                 else:
-                    warnings.warn("The glyph (%d) of font (%s) cannot be "
-                                  "converted with the encoding. Glyph may "
-                                  "be wrong" % (glyph, font.fname))
+                    _log.warning("The glyph (%d) of font (%s) cannot be "
+                                 "converted with the encoding. Glyph may "
+                                 "be wrong" % (glyph, font.fname))
 
                     glyph0 = font.load_char(glyph, flags=ft2font_flag)
 
@@ -367,8 +369,8 @@ class TextToPath(object):
                 break
         else:
             charmap_name = ""
-            warnings.warn("No supported encoding in font (%s)." %
-                          font_bunch.filename)
+            _log.warning("No supported encoding in font (%s)." %
+                         font_bunch.filename)
 
         if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
             enc0 = dviread.Encoding(font_bunch.encoding)
