@@ -1296,7 +1296,7 @@ class rc_context:
         self.__fallback()
 
 
-def use(arg, warn=True, force=False):
+def use(arg, warn=False, force=True):
     """
     Set the matplotlib backend to one of the known backends.
 
@@ -1322,11 +1322,12 @@ def use(arg, warn=True, force=False):
         If True, warn if this is called after pyplot has been imported
         and a backend is set up.
 
-        defaults to True
+        defaults to False.
 
     force : bool, optional
-        If True, attempt to switch the backend.  This defaults to
-        False.
+        If True, attempt to switch the backend.   An ImportError is raised if
+        an interactive backend is selected, but another interactive
+        backend has already started.  This defaults to True.
 
     See Also
     --------
