@@ -669,9 +669,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         dc.SetBrush(wx.Brush(bc))
 
         # Draw the rectangle
-        topLeft, bottomRight = self._rubberband
-        rect = wx.Rect(topLeft=topLeft, bottomRight=bottomRight)
-        dc.DrawRectangle(rect)
+        dc.DrawRectangle(*self._rubberband)
 
     def _onSize(self, event):
         """
@@ -826,41 +824,38 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def _draw_rubberband(self, x0, y0, x1, y1):
         # trigger a refresh to draw a rubberband-like selection box
+        width = abs(x1 - x0)
+        x0 = min(x0, x1)
+        height = abs(y1 - y0)
+        y0 = self.figure.bbox.height - max(y0, y1)
         previous_rubberband = self._rubberband
-        height = self.figure.bbox.height
-        y1 = height - y1
-        y0 = height - y0
-        self._rubberband = [(x0, y0), (x1, y1)]
+        self._rubberband = (x0, y0, width, height)
         self._refresh_rubberband(previous_rubberband)
 
     def _remove_rubberband(self):
         # end drawing of a rubberband-like selection box
         if not self._rubberband:
             return
-        self._refresh_rubberband()  # trigger a later redraw
+        previous_rubberband = self._rubberband
         self._rubberband = None
+        self._refresh_rubberband(previous_rubberband)  # trigger a later redraw
 
     def _refresh_rubberband(self, previous_rubberband=None):
         # initiate a refresh on the area that contains the previous and
         # current selection / rubberband
-        points = list(self._rubberband)
+        if self._rubberband:
+            rect = wx.Rect(self._rubberband)
+        else:
+            rect = None
         if previous_rubberband:
-            points += previous_rubberband
-        # find the rectangle that covers the previous and current selection
-        top = min(point[1] for point in points)
-        left = min(point[0] for point in points)
-        bottom = max(point[1] for point in points)
-        right = max(point[0] for point in points)
-
-        if previous_rubberband:
+            previous_rubberband = wx.Rect(*previous_rubberband)
             # extend by one pixel to avoid residuals on Mac OS
-            left = max(left - 1, 0)
-            top = max(top - 1, 0)
-            bottom = min(bottom + 1, self.figure.bbox.height - 1)
-            right = min(right + 1, self.figure.bbox.width - 1)
-
-        rect = wx.Rect(topLeft=wx.Point(left, top),
-                       bottomRight=wx.Point(right, bottom))
+            previous_rubberband.Inflate(1, 1)
+            if rect:
+                rect.Union(previous_rubberband)
+            else:
+                rect = previous_rubberband
+        rect.Intersect(self.Rect)
         self.Refresh(False, rect)
 
 
