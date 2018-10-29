@@ -906,7 +906,9 @@ class RcParams(MutableMapping, dict):
 
     def __iter__(self):
         """Yield sorted list of keys."""
-        yield from sorted(dict.__iter__(self))
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
+            yield from sorted(dict.__iter__(self))
 
     def __len__(self):
         return dict.__len__(self)
@@ -928,8 +930,7 @@ class RcParams(MutableMapping, dict):
                         if pattern_re.search(key))
 
     def copy(self):
-        return {k: dict.__getitem__(self, k)
-                for k in self}
+        return {k: dict.__getitem__(self, k) for k in self}
 
 
 def rc_params(fail_on_error=False):
