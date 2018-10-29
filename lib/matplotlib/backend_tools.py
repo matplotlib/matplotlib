@@ -13,7 +13,7 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 
 import re
 import time
-import warnings
+import logging
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -21,6 +21,8 @@ import numpy as np
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
+
+_log = logging.getLogger(__name__)
 
 
 class Cursors(object):
@@ -75,9 +77,9 @@ class ToolBase(object):
     """
 
     def __init__(self, toolmanager, name):
-        warnings.warn('Treat the new Tool classes introduced in v1.5 as ' +
-                      'experimental for now, the API will likely change in ' +
-                      'version 2.1, and some tools might change name')
+        _log.warning('Treat the new Tool classes introduced in v1.5 as '
+                     'experimental for now, the API will likely change in '
+                     'version 2.1, and some tools might change name')
         self._name = name
         self._toolmanager = toolmanager
         self._figure = None

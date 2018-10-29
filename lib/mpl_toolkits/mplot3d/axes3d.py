@@ -9,10 +9,9 @@ Significant updates and revisions by Ben Root <ben.v.root@gmail.com>
 Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
 """
-from functools import reduce
 from collections import defaultdict
+from functools import reduce
 import math
-import warnings
 
 import numpy as np
 
@@ -439,7 +438,8 @@ class Axes3D(Axes):
 
         if x is None and y is None and z is None:
             if tight is not True:
-                warnings.warn('ignoring tight=%r in get mode' % (tight,))
+                cbook._warn_external(
+                    'ignoring tight=%r in get mode' % (tight,))
             return self._xmargin, self._ymargin, self._zmargin
 
         if x is not None:
@@ -634,9 +634,10 @@ class Axes3D(Axes):
             right = old_right
 
         if left == right:
-            warnings.warn(('Attempting to set identical left==right results\n'
-                     'in singular transformations; automatically expanding.\n'
-                     'left=%s, right=%s') % (left, right))
+            cbook._warn_external(
+                ('Attempting to set identical left==right results\n'
+                 'in singular transformations; automatically expanding.\n'
+                 'left=%s, right=%s') % (left, right))
         left, right = mtransforms.nonsingular(left, right, increasing=False)
         left, right = self.xaxis.limit_range_for_scale(left, right)
         self.xy_viewLim.intervalx = (left, right)
@@ -692,9 +693,10 @@ class Axes3D(Axes):
             top = old_top
 
         if top == bottom:
-            warnings.warn(('Attempting to set identical bottom==top results\n'
-                     'in singular transformations; automatically expanding.\n'
-                     'bottom=%s, top=%s') % (bottom, top))
+            cbook._warn_external(
+                ('Attempting to set identical bottom==top results\n'
+                 'in singular transformations; automatically expanding.\n'
+                 'bottom=%s, top=%s') % (bottom, top))
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
         self.xy_viewLim.intervaly = (bottom, top)
@@ -750,9 +752,10 @@ class Axes3D(Axes):
             top = old_top
 
         if top == bottom:
-            warnings.warn(('Attempting to set identical bottom==top results\n'
-                     'in singular transformations; automatically expanding.\n'
-                     'bottom=%s, top=%s') % (bottom, top))
+            cbook._warn_external(
+                ('Attempting to set identical bottom==top results\n'
+                 'in singular transformations; automatically expanding.\n'
+                 'bottom=%s, top=%s') % (bottom, top))
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.zaxis.limit_range_for_scale(bottom, top)
         self.zz_viewLim.intervalx = (bottom, top)
@@ -1074,9 +1077,9 @@ class Axes3D(Axes):
             c3 = canv.mpl_connect('button_release_event', self._button_release)
             self._cids = [c1, c2, c3]
         else:
-            warnings.warn(
-                "Axes3D.figure.canvas is 'None', mouse rotation disabled.  "
-                "Set canvas then call Axes3D.mouse_init().")
+            cbook._warn_external("Axes3D.figure.canvas is 'None', mouse "
+                                 "rotation disabled. Set canvas then call "
+                                 "Axes3D.mouse_init().")
 
         # coerce scalars into array-like, then convert into
         # a regular list to avoid comparisons against None

@@ -20,12 +20,12 @@ is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 '''
 
 import logging
-import warnings
 
 import numpy as np
 
 import matplotlib as mpl
 import matplotlib.artist as martist
+import matplotlib.cbook as cbook
 import matplotlib.collections as collections
 import matplotlib.colors as colors
 import matplotlib.contour as contour
@@ -211,7 +211,7 @@ docstring.interpd.update(colorbar_doc=colorbar_doc)
 def _set_ticks_on_axis_warn(*args, **kw):
     # a top level function which gets put in at the axes'
     # set_xticks set_yticks by _patch_ax
-    warnings.warn("Use the colorbar set_ticks() method instead.")
+    cbook._warn_external("Use the colorbar set_ticks() method instead.")
 
 
 class _ColorbarAutoLocator(ticker.MaxNLocator):
@@ -586,7 +586,7 @@ class ColorbarBase(cm.ScalarMappable):
             if update_ticks:
                 self.update_ticks()
         else:
-            warnings.warn("set_ticks() must have been called.")
+            cbook._warn_external("set_ticks() must have been called.")
         self.stale = True
 
     def _config_axes(self, X, Y):
@@ -1204,8 +1204,8 @@ class Colorbar(ColorbarBase):
         long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
 
         if long_axis.get_scale() == 'log':
-            warnings.warn('minorticks_on() has no effect on a '
-                          'logarithmic colorbar axis')
+            cbook._warn_external('minorticks_on() has no effect on a '
+                                 'logarithmic colorbar axis')
         else:
             long_axis.set_minor_locator(_ColorbarAutoMinorLocator(self))
 
@@ -1217,8 +1217,8 @@ class Colorbar(ColorbarBase):
         long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
 
         if long_axis.get_scale() == 'log':
-            warnings.warn('minorticks_off() has no effect on a '
-                          'logarithmic colorbar axis')
+            cbook._warn_external('minorticks_off() has no effect on a '
+                                 'logarithmic colorbar axis')
         else:
             long_axis.set_minor_locator(ticker.NullLocator())
 

@@ -4623,8 +4623,9 @@ class Axes(_AxesBase):
         # Set normalizer if bins is 'log'
         if bins == 'log':
             if norm is not None:
-                warnings.warn("Only one of 'bins' and 'norm' arguments can be "
-                              "supplied, ignoring bins={}".format(bins))
+                cbook._warn_external("Only one of 'bins' and 'norm' "
+                                     "arguments can be supplied, ignoring "
+                                     "bins={}".format(bins))
             else:
                 norm = mcolors.LogNorm()
             bins = None

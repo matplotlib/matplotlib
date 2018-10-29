@@ -1,8 +1,11 @@
 import locale
+import logging
 import warnings
 
 import matplotlib as mpl
 from matplotlib.cbook import MatplotlibDeprecationWarning
+
+_log = logging.getLogger(__name__)
 
 
 def is_called_from_pytest():
@@ -30,7 +33,7 @@ def setup():
         try:
             locale.setlocale(locale.LC_ALL, 'English_United States.1252')
         except locale.Error:
-            warnings.warn(
+            _log.warning(
                 "Could not set locale to English/United States. "
                 "Some date-related tests may fail.")
 

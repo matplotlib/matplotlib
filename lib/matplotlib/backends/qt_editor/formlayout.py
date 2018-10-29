@@ -42,12 +42,13 @@ __license__ = __doc__
 
 import copy
 import datetime
+import logging
 from numbers import Integral, Real
-import warnings
 
-from matplotlib import colors as mcolors
+from matplotlib import cbook, colors as mcolors
 from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
 
+_log = logging.getLogger(__name__)
 
 BLACKLIST = {"title", "label"}
 
@@ -93,7 +94,7 @@ def to_qcolor(color):
     try:
         rgba = mcolors.to_rgba(color)
     except ValueError:
-        warnings.warn('Ignoring invalid color %r' % color, stacklevel=2)
+        cbook._warn_external('Ignoring invalid color %r' % color)
         return qcolor  # return invalid QColor
     qcolor.setRgbF(*rgba)
     return qcolor
@@ -264,9 +265,9 @@ class FormWidget(QtWidgets.QWidget):
                 elif selindex in keys:
                     selindex = keys.index(selindex)
                 elif not isinstance(selindex, Integral):
-                    warnings.warn(
+                    _log.warning(
                         "index '%s' is invalid (label: %s, value: %s)" %
-                        (selindex, label, value), stacklevel=2)
+                        (selindex, label, value))
                     selindex = 0
                 field.setCurrentIndex(selindex)
             elif isinstance(value, bool):

@@ -35,10 +35,10 @@ graphics contexts must implement to serve as a matplotlib backend
 from contextlib import contextmanager
 import importlib
 import io
+import logging
 import os
 import sys
 import time
-import warnings
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -61,6 +61,7 @@ try:
 except ImportError:
     _has_pil = False
 
+_log = logging.getLogger(__name__)
 
 _default_filetypes = {
     'ps': 'Postscript',
@@ -2404,7 +2405,7 @@ def key_press_handler(event, canvas, toolbar=None):
             try:
                 ax.set_yscale('log')
             except ValueError as exc:
-                warnings.warn(str(exc))
+                _log.warning(str(exc))
                 ax.set_yscale('linear')
             ax.figure.canvas.draw_idle()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
@@ -2417,7 +2418,7 @@ def key_press_handler(event, canvas, toolbar=None):
             try:
                 ax.set_xscale('log')
             except ValueError as exc:
-                warnings.warn(str(exc))
+                _log.warning(str(exc))
                 ax.set_xscale('linear')
             ax.figure.canvas.draw_idle()
 

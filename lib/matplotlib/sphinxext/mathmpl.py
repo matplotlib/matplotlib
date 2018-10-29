@@ -1,13 +1,13 @@
 import hashlib
 import os
 import sys
-import warnings
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 import sphinx
 
 from matplotlib import rcParams
+from matplotlib import cbook
 from matplotlib.mathtext import MathTextParser
 rcParams['mathtext.fontset'] = 'cm'
 mathtext_parser = MathTextParser("Bitmap")
@@ -58,8 +58,8 @@ def latex2png(latex, filename, fontset='cm'):
         try:
             depth = mathtext_parser.to_png(filename, latex, dpi=100)
         except Exception:
-            warnings.warn("Could not render math expression %s" % latex,
-                          Warning, stacklevel=2)
+            cbook._warn_external("Could not render math expression %s" % latex,
+                                 Warning)
             depth = 0
     rcParams['mathtext.fontset'] = orig_fontset
     sys.stdout.write("#")

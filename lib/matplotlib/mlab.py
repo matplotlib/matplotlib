@@ -54,7 +54,6 @@ Spectral functions
 """
 
 import csv
-import warnings
 
 import numpy as np
 
@@ -1115,8 +1114,9 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     if NFFT is None:
         NFFT = 256  # same default as in _spectral_helper()
     if len(x) <= NFFT:
-        warnings.warn("Only one segment is calculated since parameter NFFT " +
-                      "(=%d) >= signal length (=%d)." % (NFFT, len(x)))
+        cbook._warn_external("Only one segment is calculated since parameter "
+                             "NFFT (=%d) >= signal length (=%d)." %
+                             (NFFT, len(x)))
 
     spec, freqs, t = _spectral_helper(x=x, y=None, NFFT=NFFT, Fs=Fs,
                                       detrend_func=detrend, window=window,

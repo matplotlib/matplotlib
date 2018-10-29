@@ -4,7 +4,6 @@ Classes for the ticks and x and y axis
 
 import datetime
 import logging
-import warnings
 
 import numpy as np
 
@@ -1055,9 +1054,10 @@ class Axis(martist.Artist):
                     ds1 = self._get_pixel_distance_along_axis(
                         interval_expanded[0], -0.5)
                 except Exception:
-                    warnings.warn("Unable to find pixel distance along axis "
-                                  "for interval padding of ticks; assuming no "
-                                  "interval padding needed.")
+                    cbook._warn_external("Unable to find pixel distance "
+                                         "along axis for interval padding of "
+                                         "ticks; assuming no interval "
+                                         "padding needed.")
                     ds1 = 0.0
                 if np.isnan(ds1):
                     ds1 = 0.0
@@ -1065,9 +1065,10 @@ class Axis(martist.Artist):
                     ds2 = self._get_pixel_distance_along_axis(
                         interval_expanded[1], +0.5)
                 except Exception:
-                    warnings.warn("Unable to find pixel distance along axis "
-                                  "for interval padding of ticks; assuming no "
-                                  "interval padding needed.")
+                    cbook._warn_external("Unable to find pixel distance "
+                                         "along axis for interval padding of "
+                                         "ticks; assuming no interval "
+                                         "padding needed.")
                     ds2 = 0.0
                 if np.isnan(ds2):
                     ds2 = 0.0
@@ -1390,9 +1391,9 @@ class Axis(martist.Artist):
         """
         if len(kwargs):
             if not b and b is not None:  # something false-like but not None
-                warnings.warn('First parameter to grid() is false, but line '
-                              'properties are supplied. The grid will be '
-                              'enabled.')
+                cbook._warn_external('First parameter to grid() is false, '
+                                     'but line properties are supplied. The '
+                                     'grid will be enabled.')
             b = True
         which = which.lower()
         if which not in ['major', 'minor', 'both']:

@@ -34,7 +34,6 @@ try:
     from threading import Timer
 except ImportError:
     from dummy_threading import Timer
-import warnings
 
 import matplotlib as mpl
 from matplotlib import afm, cbook, ft2font, rcParams
@@ -217,7 +216,7 @@ def _call_fc_list():
     """Cache and list the font filenames known to `fc-list`.
     """
     # Delay the warning by 5s.
-    timer = Timer(5, lambda: warnings.warn(
+    timer = Timer(5, lambda: _log.warning(
         'Matplotlib is building the font cache using fc-list. '
         'This may take a moment.'))
     timer.start()
@@ -865,7 +864,7 @@ def json_dump(data, filename):
         try:
             json.dump(data, fh, cls=JSONEncoder, indent=2)
         except OSError as e:
-            warnings.warn('Could not save font_manager cache {}'.format(e))
+            _log.warning('Could not save font_manager cache {}'.format(e))
 
 
 def json_load(filename):
@@ -1216,7 +1215,7 @@ class FontManager(object):
 
         if best_font is None or best_score >= 10.0:
             if fallback_to_default:
-                warnings.warn(
+                _log.warning(
                     'findfont: Font family %s not found. Falling back to %s.' %
                     (prop.get_family(), self.defaultFamily[fontext]))
                 default_prop = prop.copy()
@@ -1225,9 +1224,8 @@ class FontManager(object):
             else:
                 # This is a hard fail -- we can't find anything reasonable,
                 # so just return the DejuVuSans.ttf
-                warnings.warn('findfont: Could not match %s. Returning %s.' %
-                              (prop, self.defaultFont[fontext]),
-                              UserWarning)
+                _log.warning('findfont: Could not match %s. Returning %s.' %
+                             (prop, self.defaultFont[fontext]))
                 result = self.defaultFont[fontext]
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',

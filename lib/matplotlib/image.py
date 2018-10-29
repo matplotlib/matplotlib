@@ -9,7 +9,6 @@ import os
 import logging
 import urllib.parse
 import urllib.request
-import warnings
 
 import numpy as np
 
@@ -364,9 +363,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # Cast to float64
                     if A.dtype not in (np.float32, np.float16):
                         if A.dtype != np.float64:
-                            warnings.warn(
-                                "Casting input data from '{0}' to 'float64'"
-                                "for imshow".format(A.dtype))
+                            cbook._warn_external("Casting input data from "
+                                                 "'{0}' to 'float64' for "
+                                                 "imshow".format(A.dtype))
                         scaled_dtype = np.float64
                 else:
                     # probably an integer of some type.

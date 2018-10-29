@@ -244,9 +244,8 @@ def _set_logger_verbose_level(level_str='silent', file_str='sys.stdout'):
                 fileo = open(file_str, 'w')
                 # if this fails, we will just write to stdout
             except IOError:
-                warnings.warn('could not open log file "{0}"'
-                              'for writing.  Check your '
-                              'matplotlibrc'.format(file_str))
+                _log.warning('could not open log file "{0}" for writing. '
+                             'Check your matplotlibrc'.format(file_str))
         console = logging.StreamHandler(fileo)
         console.setLevel(newlev)
         _log.addHandler(console)
@@ -307,8 +306,9 @@ class Verbose(object):
         if self._commandLineVerbose is not None:
             level = self._commandLineVerbose
         if level not in self.levels:
-            warnings.warn('matplotlib: unrecognized --verbose-* string "%s".'
-                          ' Legal values are %s' % (level, self.levels))
+            cbook._warn_external('matplotlib: unrecognized --verbose-* '
+                                 'string "%s". Legal values are %s' %
+                                 (level, self.levels))
         else:
             self.level = level
 
@@ -487,9 +487,9 @@ def checkdep_ps_distiller(s):
     gs_exec, gs_v = checkdep_ghostscript()
     if not gs_exec:
         flag = False
-        warnings.warn('matplotlibrc ps.usedistiller option can not be used '
-                      'unless ghostscript 9.0 or later is installed on your '
-                      'system')
+        _log.warning('matplotlibrc ps.usedistiller option can not be used '
+                     'unless ghostscript 9.0 or later is installed on your '
+                     'system')
 
     if s == 'xpdf':
         pdftops_req = '3.0'
@@ -502,9 +502,9 @@ def checkdep_ps_distiller(s):
             pass
         else:
             flag = False
-            warnings.warn(('matplotlibrc ps.usedistiller can not be set to '
-                           'xpdf unless xpdf-%s or later is installed on '
-                           'your system') % pdftops_req)
+            _log.warning(('matplotlibrc ps.usedistiller can not be set to '
+                          'xpdf unless xpdf-%s or later is installed on '
+                          'your system') % pdftops_req)
 
     if flag:
         return s
@@ -522,22 +522,22 @@ def checkdep_usetex(s):
 
     if shutil.which("tex") is None:
         flag = False
-        warnings.warn('matplotlibrc text.usetex option can not be used unless '
-                      'TeX is installed on your system')
+        _log.warning('matplotlibrc text.usetex option can not be used unless '
+                     'TeX is installed on your system')
 
     dvipng_v = checkdep_dvipng()
     if not compare_versions(dvipng_v, dvipng_req):
         flag = False
-        warnings.warn('matplotlibrc text.usetex can not be used with *Agg '
-                      'backend unless dvipng-%s or later is installed on '
-                      'your system' % dvipng_req)
+        _log.warning('matplotlibrc text.usetex can not be used with *Agg '
+                     'backend unless dvipng-%s or later is installed on '
+                     'your system' % dvipng_req)
 
     gs_exec, gs_v = checkdep_ghostscript()
     if not compare_versions(gs_v, gs_req):
         flag = False
-        warnings.warn('matplotlibrc text.usetex can not be used unless '
-                      'ghostscript-%s or later is installed on your system'
-                      % gs_req)
+        _log.warning('matplotlibrc text.usetex can not be used unless '
+                     'ghostscript-%s or later is installed on your system'
+                     % gs_req)
 
     return flag
 
@@ -962,17 +962,17 @@ def _rc_params_in_file(fname, fail_on_error=False):
                 tup = strippedline.split(':', 1)
                 if len(tup) != 2:
                     error_details = _error_details_fmt % (cnt, line, fname)
-                    warnings.warn('Illegal %s' % error_details)
+                    _log.warning('Illegal %s' % error_details)
                     continue
                 key, val = tup
                 key = key.strip()
                 val = val.strip()
                 if key in rc_temp:
-                    warnings.warn('Duplicate key in file "%s", line #%d' %
-                                  (fname, cnt))
+                    _log.warning('Duplicate key in file "%s", line #%d' %
+                                 (fname, cnt))
                 rc_temp[key] = (val, line, cnt)
         except UnicodeDecodeError:
-            warnings.warn(
+            _log.warning(
                 ('Cannot decode configuration file %s with '
                  'encoding %s, check LANG and LC_* variables')
                 % (fname, locale.getpreferredencoding(do_setlocale=False) or
@@ -991,8 +991,8 @@ def _rc_params_in_file(fname, fail_on_error=False):
                     config[key] = val  # try to convert to proper type or skip
                 except Exception as msg:
                     error_details = _error_details_fmt % (cnt, line, fname)
-                    warnings.warn('Bad val "%s" on %s\n\t%s' %
-                                  (val, error_details, msg))
+                    _log.warning('Bad val "%s" on %s\n\t%s' %
+                                 (val, error_details, msg))
 
     for key, (val, line, cnt) in rc_temp.items():
         if key in defaultParams:
@@ -1003,8 +1003,8 @@ def _rc_params_in_file(fname, fail_on_error=False):
                     config[key] = val  # try to convert to proper type or skip
                 except Exception as msg:
                     error_details = _error_details_fmt % (cnt, line, fname)
-                    warnings.warn('Bad val "%s" on %s\n\t%s' %
-                                  (val, error_details, msg))
+                    _log.warning('Bad val "%s" on %s\n\t%s' %
+                                 (val, error_details, msg))
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(
@@ -1347,10 +1347,9 @@ def use(arg, warn=False, force=True):
         # If we are going to force the switch, never warn, else, if warn
         # is True, then direct users to `plt.switch_backend`
         if (not force) and warn:
-            warnings.warn(
+            cbook._warn_external(
                 ("matplotlib.pyplot as already been imported, "
-                 "this call will have no effect."),
-                stacklevel=2)
+                 "this call will have no effect."))
 
         # if we are going to force switching the backend, pull in
         # `switch_backend` from pyplot.  This will only happen if
@@ -1430,7 +1429,7 @@ def _init_tests():
     from matplotlib import ft2font
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
         ft2font.__freetype_build_type__ != 'local'):
-        warnings.warn(
+        _log.warning(
             "Matplotlib is not built with the correct FreeType version to run "
             "tests.  Set local_freetype=True in setup.cfg and rebuild. "
             "Expect many image comparison failures below. "
@@ -1439,9 +1438,7 @@ def _init_tests():
             "Freetype build type is {2}local".format(
                 LOCAL_FREETYPE_VERSION,
                 ft2font.__freetype_version__,
-                "" if ft2font.__freetype_build_type__ == 'local' else "not "
-            )
-        )
+                "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
     try:
         import pytest
@@ -1771,12 +1768,12 @@ def _preprocess_data(replace_names=None, replace_all_args=False,
                 elif label_namer in kwargs:
                     kwargs['label'] = get_label(kwargs[label_namer], label)
                 else:
-                    warnings.warn(
+                    cbook._warn_external(
                         "Tried to set a label via parameter %r in func %r but "
-                        "couldn't find such an argument.\n"
-                        "(This is a programming error, please report to "
-                        "the Matplotlib list!)" % (label_namer, func.__name__),
-                        RuntimeWarning, stacklevel=2)
+                        "couldn't find such an argument.\n(This is a "
+                        "programming error, please report to the Matplotlib "
+                        "list!)" % (label_namer, func.__name__),
+                        RuntimeWarning)
             return func(ax, *args, **kwargs)
 
         inner.__doc__ = _add_data_doc(inner.__doc__,
