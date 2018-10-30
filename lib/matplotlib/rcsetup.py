@@ -174,6 +174,7 @@ def validate_string_or_None(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to string' % s)
 
+
 def validate_stringlist_or_string(s):
     """convert s to string or raise"""
     if s is None or s == 'None':
