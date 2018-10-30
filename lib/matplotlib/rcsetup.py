@@ -178,7 +178,7 @@ def validate_string_or_None(s):
 def validate_stringlist_or_string(s):
     """convert s to string or raise"""
     if s is None or s == 'None':
-        return str()
+        return ""
     try:
         if isinstance(s, str):
             return s
