@@ -183,7 +183,7 @@ def _validate_stringlist_or_string(s):
         if isinstance(s, str):
             return s
         if isinstance(s, list):
-            return "".join([str(i) for i in s])
+            return '\n'.join([str(i) for i in s])
         raise ValueError()
     except ValueError:
         raise ValueError('Could not convert "%s" to string' % s)
