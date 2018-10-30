@@ -4188,7 +4188,8 @@ class Axes(_AxesBase):
                 co is not None or
                 isinstance(c, str) or
                 (isinstance(c, collections.Iterable) and
-                    isinstance(c[0], str))):
+                    len(c) > 0 and
+                    isinstance(cbook.safe_first_element(c), str))):
             c_array = None
         else:
             try:  # First, does 'c' look suitable for value-mapping?
