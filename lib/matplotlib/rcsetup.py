@@ -174,6 +174,20 @@ def validate_string_or_None(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to string' % s)
 
+def validate_stringlist_or_string(s):
+    """convert s to string or raise"""
+    if s is None or s == 'None':
+        return str()
+    try:
+        if isinstance(s, six.text_type):
+            return s
+        elif isinstance(s, list):
+            return "".join([six.text_type(i) for i in s])
+        else:
+            raise ValueError()
+    except ValueError:
+        raise ValueError('Could not convert "%s" to string' % s)
+
 
 def validate_axisbelow(s):
     try:
@@ -1391,7 +1405,7 @@ defaultParams = {
     # use matplotlib rc settings for font configuration
     'pgf.rcfonts':   [True, validate_bool],
     # provide a custom preamble for the latex process
-    'pgf.preamble':  [[], validate_stringlist],
+    'pgf.preamble':  ['', validate_stringlist_or_string],
 
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],
