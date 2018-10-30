@@ -175,7 +175,7 @@ def validate_string_or_None(s):
         raise ValueError('Could not convert "%s" to string' % s)
 
 
-def validate_stringlist_or_string(s):
+def _validate_stringlist_or_string(s):
     """convert s to string or raise"""
     if s is None or s == 'None':
         return ""
@@ -1405,7 +1405,7 @@ defaultParams = {
     # use matplotlib rc settings for font configuration
     'pgf.rcfonts':   [True, validate_bool],
     # provide a custom preamble for the latex process
-    'pgf.preamble':  ['', validate_stringlist_or_string],
+    'pgf.preamble':  ['', _validate_stringlist_or_string],
 
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],
