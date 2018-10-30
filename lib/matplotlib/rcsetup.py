@@ -182,10 +182,9 @@ def validate_stringlist_or_string(s):
     try:
         if isinstance(s, str):
             return s
-        elif isinstance(s, list):
+        if isinstance(s, list):
             return "".join([str(i) for i in s])
-        else:
-            raise ValueError()
+        raise ValueError()
     except ValueError:
         raise ValueError('Could not convert "%s" to string' % s)
 
