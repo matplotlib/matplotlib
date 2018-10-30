@@ -201,18 +201,21 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
             class _deprecated_property(property):
                 def __get__(self, instance, owner):
-                    from . import _warn_external
-                    _warn_external(message, category)
+                    if instance is not None:
+                        from . import _warn_external
+                        _warn_external(message, category)
                     return super().__get__(instance, owner)
 
                 def __set__(self, instance, value):
-                    from . import _warn_external
-                    _warn_external(message, category)
+                    if instance is not None:
+                        from . import _warn_external
+                        _warn_external(message, category)
                     return super().__set__(instance, value)
 
                 def __delete__(self, instance):
-                    from . import _warn_external
-                    _warn_external(message, category)
+                    if instance is not None:
+                        from . import _warn_external
+                        _warn_external(message, category)
                     return super().__delete__(instance)
 
             def finalize(_, new_doc):

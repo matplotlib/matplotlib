@@ -17,10 +17,10 @@ metrics for those fonts.
 
 import functools
 from io import StringIO
+import logging
 import os
 import types
 import unicodedata
-import warnings
 
 import numpy as np
 
@@ -39,6 +39,8 @@ from matplotlib.font_manager import findfont, FontProperties, get_font
 from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
                                        tex2uni, latex_to_cmex,
                                        stix_virtual_fonts)
+
+_log = logging.getLogger(__name__)
 
 
 ##############################################################################
@@ -805,9 +807,8 @@ class UnicodeFonts(TruetypeFonts):
                 found_symbol = True
             except ValueError:
                 uniindex = ord('?')
-                warnings.warn(
-                    "No TeX to unicode mapping for {!a}.".format(sym),
-                    MathTextWarning)
+                _log.warning(
+                    "No TeX to unicode mapping for {!a}.".format(sym))
 
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)
@@ -834,9 +835,8 @@ class UnicodeFonts(TruetypeFonts):
         if not found_symbol:
             if self.cm_fallback:
                 if isinstance(self.cm_fallback, BakomaFonts):
-                    warnings.warn(
-                        "Substituting with a symbol from Computer Modern.",
-                        MathTextWarning)
+                    _log.warning(
+                        "Substituting with a symbol from Computer Modern.")
                 if (fontname in ('it', 'regular') and
                         isinstance(self.cm_fallback, StixFonts)):
                     return self.cm_fallback._get_glyph(
@@ -848,11 +848,9 @@ class UnicodeFonts(TruetypeFonts):
                 if (fontname in ('it', 'regular')
                         and isinstance(self, StixFonts)):
                     return self._get_glyph('rm', font_class, sym, fontsize)
-                warnings.warn(
-                    "Font {!r} does not have a glyph for {!a} [U+{:x}], "
-                    "substituting with a dummy symbol.".format(
-                        new_fontname, sym, uniindex),
-                    MathTextWarning)
+                _log.warning("Font {!r} does not have a glyph for {!a} "
+                             "[U+{:x}], substituting with a dummy "
+                             "symbol.".format(new_fontname, sym, uniindex))
                 fontname = 'rm'
                 font = self._get_font(fontname)
                 uniindex = 0xA4  # currency char, for lack of anything better
@@ -1149,9 +1147,8 @@ class StandardPsFonts(Fonts):
             num = ord(glyph)
             found_symbol = True
         else:
-            warnings.warn(
-                "No TeX to built-in Postscript mapping for {!r}".format(sym),
-                MathTextWarning)
+            _log.warning(
+                "No TeX to built-in Postscript mapping for {!r}".format(sym))
 
         slanted = (fontname == 'it')
         font = self._get_font(fontname)
@@ -1160,10 +1157,9 @@ class StandardPsFonts(Fonts):
             try:
                 symbol_name = font.get_name_char(glyph)
             except KeyError:
-                warnings.warn(
+                _log.warning(
                     "No glyph in standard Postscript font {!r} for {!r}"
-                    .format(font.get_fontname(), sym),
-                    MathTextWarning)
+                    .format(font.get_fontname(), sym))
                 found_symbol = False
 
         if not found_symbol:
@@ -1595,9 +1591,8 @@ class List(Box):
             self.glue_ratio = 0.
         if o == 0:
             if len(self.children):
-                warnings.warn(
-                    "%s %s: %r" % (error_type, self.__class__.__name__, self),
-                    MathTextWarning)
+                _log.warning(
+                    "%s %s: %r" % (error_type, self.__class__.__name__, self))
 
     def shrink(self):
         for child in self.children:

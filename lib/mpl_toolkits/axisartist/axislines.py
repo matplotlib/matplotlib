@@ -40,10 +40,9 @@ which obviously draws grid lines. The gridlines needs to be separated
 from the axis as some gridlines can never pass any axis.
 
 """
-import warnings
-
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib import rcParams
 import matplotlib.artist as martist
 import matplotlib.axes as maxes
@@ -427,7 +426,7 @@ class GridHelperRectlinear(GridHelperBase):
                        ):
 
         if axes is None:
-            warnings.warn(
+            cbook._warn_external(
                 "'new_fixed_axis' explicitly requires the axes keyword.")
             axes = self.axes
 
@@ -447,7 +446,7 @@ class GridHelperRectlinear(GridHelperBase):
                           ):
 
         if axes is None:
-            warnings.warn(
+            cbook._warn_external(
                 "'new_floating_axis' explicitly requires the axes keyword.")
             axes = self.axes
 

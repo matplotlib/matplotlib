@@ -74,7 +74,8 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
                 if allow_stringlist:
                     # Sometimes, a list of colors might be a single string
                     # of single-letter colornames. So give that a shot.
-                    return [scalar_validator(v.strip()) for v in s if v.strip()]
+                    return [scalar_validator(v.strip())
+                            for v in s if v.strip()]
                 else:
                     raise
         # We should allow any generic sequence type, including generators,
@@ -207,7 +208,7 @@ def validate_int(s):
 
 def validate_int_or_None(s):
     """if not None, tries to validate as an int"""
-    if s=='None':
+    if s == 'None':
         s = None
     if s is None:
         return None
@@ -1024,7 +1025,7 @@ defaultParams = {
     ## patch props
     'patch.linewidth':   [1.0, validate_float],     # line width in points
     'patch.edgecolor':   ['black', validate_color],
-    'patch.force_edgecolor' : [False, validate_bool],
+    'patch.force_edgecolor': [False, validate_bool],
     'patch.facecolor':   ['C0', validate_color],    # first color in cycle
     'patch.antialiased': [True, validate_bool],     # antialiased (no jaggies)
 

@@ -9,7 +9,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import warnings
 import weakref
 
 import matplotlib as mpl
@@ -400,9 +399,9 @@ class RendererPgf(RendererBase):
         else:
             # if fh does not belong to a filename, deactivate draw_image
             if not hasattr(fh, 'name') or not os.path.exists(fh.name):
-                warnings.warn("streamed pgf-code does not support raster "
-                              "graphics, consider using the pgf-to-pdf option",
-                              UserWarning, stacklevel=2)
+                cbook._warn_external("streamed pgf-code does not support "
+                                     "raster graphics, consider using the "
+                                     "pgf-to-pdf option", UserWarning)
                 self.__dict__["draw_image"] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,

@@ -173,8 +173,6 @@ from matplotlib import rcParams
 from matplotlib import cbook
 from matplotlib import transforms as mtransforms
 
-import warnings
-
 _log = logging.getLogger(__name__)
 
 __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
@@ -1441,8 +1439,9 @@ class Locator(TickHelper):
         Do nothing, and rase a warning. Any locator class not supporting the
         set_params() function will call this.
         """
-        warnings.warn("'set_params()' not defined for locator of type " +
-                      str(type(self)))
+        cbook._warn_external(
+            "'set_params()' not defined for locator of type " +
+            str(type(self)))
 
     def __call__(self):
         """Return the locations of the ticks"""
@@ -2241,7 +2240,7 @@ class LogLocator(Locator):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
         if vmax <= 0:
-            warnings.warn(
+            cbook._warn_external(
                 "Data has no positive values, and therefore cannot be "
                 "log-scaled.")
             return 1, 10
@@ -2560,8 +2559,8 @@ class AutoMinorLocator(Locator):
     def __call__(self):
         'Return the locations of the ticks'
         if self.axis.get_scale() == 'log':
-            warnings.warn('AutoMinorLocator does not work with logarithmic '
-                          'scale')
+            cbook._warn_external('AutoMinorLocator does not work with '
+                                 'logarithmic scale')
             return []
 
         majorlocs = self.axis.get_majorticklocs()

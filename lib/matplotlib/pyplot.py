@@ -35,6 +35,7 @@ from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import (
     dedent, deprecated, silent_list, warn_deprecated, _string_to_bool)
+from matplotlib import cbook
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
@@ -491,7 +492,8 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         allLabels = get_figlabels()
         if figLabel not in allLabels:
             if figLabel == 'all':
-                warnings.warn("close('all') closes all existing figures")
+                cbook._warn_external(
+                    "close('all') closes all existing figures")
             num = next_num
         else:
             inum = allLabels.index(figLabel)
@@ -504,7 +506,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         max_open_warning = rcParams['figure.max_open_warning']
 
         if len(allnums) >= max_open_warning >= 1:
-            warnings.warn(
+            cbook._warn_external(
                 "More than %d figures have been opened. Figures "
                 "created through the pyplot interface "
                 "(`matplotlib.pyplot.figure`) are retained until "
@@ -1045,8 +1047,9 @@ def subplot(*args, **kwargs):
     # intended to be the sharex argument is instead treated as a
     # subplot index for subplot()
     if len(args) >= 3 and isinstance(args[2], bool):
-        warnings.warn("The subplot index argument to subplot() appears "
-                      "to be a boolean. Did you intend to use subplots()?")
+        cbook._warn_external("The subplot index argument to subplot() appears "
+                             "to be a boolean. Did you intend to use "
+                             "subplots()?")
 
     fig = gcf()
     a = fig.add_subplot(*args, **kwargs)
@@ -2192,8 +2195,8 @@ def polar(*args, **kwargs):
     # If an axis already exists, check if it has a polar projection
     if gcf().get_axes():
         if not isinstance(gca(), PolarAxes):
-            warnings.warn('Trying to create polar plot on an axis that does '
-                          'not have a polar projection.')
+            cbook._warn_external('Trying to create polar plot on an axis '
+                                 'that does not have a polar projection.')
     ax = gca(polar=True)
     ret = ax.plot(*args, **kwargs)
     return ret

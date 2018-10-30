@@ -1,6 +1,7 @@
 from collections import OrderedDict, namedtuple
 from functools import wraps
 import inspect
+import logging
 import re
 import warnings
 
@@ -11,6 +12,8 @@ from . import cbook, docstring, rcParams
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
+
+_log = logging.getLogger(__name__)
 
 
 def allow_rasterization(draw):
@@ -400,7 +403,7 @@ class Artist(object):
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
-        warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
+        _log.warning("'%s' needs 'contains' method" % self.__class__.__name__)
         return False, {}
 
     def set_contains(self, picker):
@@ -850,7 +853,8 @@ class Artist(object):
         rasterized : bool or None
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-            warnings.warn("Rasterization of '%s' will be ignored" % self)
+            cbook._warn_external(
+                "Rasterization of '%s' will be ignored" % self)
 
         self._rasterized = rasterized
 

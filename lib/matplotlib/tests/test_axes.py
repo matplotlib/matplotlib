@@ -5849,3 +5849,10 @@ def test_cartopy_backcompat():
     FactoryDummySubplot = matplotlib.axes.subplot_class_factory(Dummy)
 
     assert DummySubplot is FactoryDummySubplot
+
+
+def test_gettightbbox_ignoreNaN():
+    fig, ax = plt.subplots()
+    t = ax.text(np.NaN, 1, 'Boo')
+    renderer = fig.canvas.get_renderer()
+    np.testing.assert_allclose(ax.get_tightbbox(renderer).width, 532.444444)

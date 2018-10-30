@@ -16,7 +16,6 @@ import struct
 import sys
 import time
 import types
-import warnings
 import zlib
 
 import numpy as np
@@ -1556,11 +1555,11 @@ end"""
                     'Trapped': check_trapped}
         for k in self.infoDict:
             if k not in keywords:
-                warnings.warn('Unknown infodict keyword: %s' % k, stacklevel=2)
+                cbook._warn_external('Unknown infodict keyword: %s' % k)
             else:
                 if not keywords[k](self.infoDict[k]):
-                    warnings.warn('Bad value for infodict keyword %s' % k,
-                                  stacklevel=2)
+                    cbook._warn_external(
+                        'Bad value for infodict keyword %s' % k)
 
         self.infoObject = self.reserveObject('info')
         self.writeObject(self.infoObject, self.infoDict)

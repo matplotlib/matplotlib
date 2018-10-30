@@ -41,7 +41,7 @@ per-file-ignores =
     matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
     matplotlib/projections/geo.py: E203, E221, E502
     matplotlib/pylab.py: E501
-    matplotlib/rcsetup.py: E203, E225, E501
+    matplotlib/rcsetup.py: E501
     matplotlib/sphinxext/plot_directive.py: E402
     matplotlib/tests/test_mathtext.py: E501
     matplotlib/transforms.py: E201, E202, E203, E501
