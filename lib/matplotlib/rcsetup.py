@@ -179,10 +179,10 @@ def validate_stringlist_or_string(s):
     if s is None or s == 'None':
         return str()
     try:
-        if isinstance(s, six.text_type):
+        if isinstance(s, str):
             return s
         elif isinstance(s, list):
-            return "".join([six.text_type(i) for i in s])
+            return "".join([str(i) for i in s])
         else:
             raise ValueError()
     except ValueError:
