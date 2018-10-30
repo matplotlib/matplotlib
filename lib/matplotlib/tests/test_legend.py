@@ -571,3 +571,32 @@ def test_no_warn_big_data_when_loc_specified():
         l = ax.legend('best')
         fig.canvas.draw()
     assert len(records) == 0
+
+
+def test_legend_loc_compass_codes():
+    locs = ['NW', 'N', 'NE', 'W', 'C', 'E', 'SW', 'S', 'SE']
+    codes = [2, 9, 1, 6, 10, 7, 3, 8, 4]
+
+    for loc in locs:
+        plt.rcParams["legend.loc"] = loc
+        assert plt.rcParams["legend.loc"] == loc.lower()
+
+    fig1, axes1 = plt.subplots(3, 3)
+    fig2, axes2 = plt.subplots(3, 3)
+
+    locs = ['NW', 'N', 'NE', 'W', 'C', 'E', 'SW', 'S', 'SE']
+    codes = [2, 9, 1, 6, 10, 7, 3, 8, 4]
+
+    for ax, loc in zip(axes1.flat, locs):
+        ax.plot([1, 2], label=loc)
+        ax.legend(loc=loc)
+
+    for ax, loc in zip(axes2.flat, codes):
+        ax.plot([1, 2], label=loc)
+        ax.legend(loc=loc)
+
+    for ax1, ax2 in zip(axes1.flat, axes2.flat):
+        leg1 = ax1.get_legend()
+        leg2 = ax2.get_legend()
+        assert leg1._get_loc() == leg2._get_loc()
+

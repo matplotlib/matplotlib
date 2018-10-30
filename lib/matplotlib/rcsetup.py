@@ -601,16 +601,16 @@ validate_markeverylist = _listify_validator(validate_markevery)
 validate_legend_loc = ValidateInStrings(
     'legend_loc',
     ['best',
-     'upper right',
-     'upper left',
-     'lower left',
-     'lower right',
+     'upper right', 'ne',
+     'upper left', 'nw',
+     'lower left', 'sw',
+     'lower right', 'se',
      'right',
-     'center left',
-     'center right',
-     'lower center',
-     'upper center',
-     'center'], ignorecase=True)
+     'center left', 'w',
+     'center right', 'e',
+     'lower center', 's',
+     'upper center', 'n',
+     'center', 'c'], ignorecase=True)
 
 
 def validate_svg_fonttype(s):

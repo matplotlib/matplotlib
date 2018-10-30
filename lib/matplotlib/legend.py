@@ -154,6 +154,7 @@ loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
         'center'          10
         ===============   =============
 
+
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
     Defaults to `axes.bbox` (if called as a method to `.Axes.legend`) or
@@ -335,7 +336,9 @@ class Legend(Artist):
              'upper center': 9,
              'center':       10,
              }
-
+    compasscodes = {'nw': 2, 'n': 9, 'ne': 1, 'w': 6, 'c': 10, 'e': 7,
+                    'sw': 3, 's': 8, 'se': 4}
+    allcodes = {**codes, **compasscodes}
     zorder = 5
 
     def __str__(self):
@@ -505,23 +508,23 @@ class Legend(Artist):
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
         if isinstance(loc, str):
-            if loc not in self.codes:
+            if loc.lower() not in self.allcodes:
                 if self.isaxes:
                     cbook.warn_deprecated(
                         "3.1", message="Unrecognized location {!r}. Falling "
                         "back on 'best'; valid locations are\n\t{}\n"
                         "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
+                        .format(loc, '\n\t'.join(self.allcodes)))
                     loc = 0
                 else:
                     cbook.warn_deprecated(
                         "3.1", message="Unrecognized location {!r}. Falling "
                         "back on 'upper right'; valid locations are\n\t{}\n'"
                         "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
+                        .format(loc, '\n\t'.join(self.allcodes)))
                     loc = 1
             else:
-                loc = self.codes[loc]
+                loc = self.allcodes[loc.lower()]
         if not self.isaxes and loc == 0:
             cbook.warn_deprecated(
                 "3.1", message="Automatic legend placement (loc='best') not "
