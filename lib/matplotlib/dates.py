@@ -1417,7 +1417,7 @@ class AutoDateLocator(DateLocator):
           locator.intervald[HOURLY] = [3] # only show every 3 hours
         """
         DateLocator.__init__(self, tz)
-        self._locator = YearLocator()
+        self._locator = YearLocator(tz=tz)
         self._freq = YEARLY
         self._freqs = [YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY,
                        SECONDLY, MICROSECONDLY]
@@ -1574,7 +1574,7 @@ class AutoDateLocator(DateLocator):
                              'AutoDateLocator.')
 
         if (freq == YEARLY) and self.interval_multiples:
-            locator = YearLocator(interval)
+            locator = YearLocator(interval, tz=self.tz)
         elif use_rrule_locator[i]:
             _, bymonth, bymonthday, byhour, byminute, bysecond, _ = byranges
             rrule = rrulewrapper(self._freq, interval=interval,
@@ -1623,8 +1623,10 @@ class YearLocator(DateLocator):
                          'hour':   0,
                          'minute': 0,
                          'second': 0,
-                         'tzinfo': tz
                          }
+        # Note that tzinfo does not work with pytz timezones, and
+        # astimezone doesn't work unless a datetime has timezone info (for
+        # py3.5).  So the user should provide time-zone aware dates.
 
     def __call__(self):
         # if no data have been set, this will tank with a ValueError
@@ -1639,13 +1641,19 @@ class YearLocator(DateLocator):
         ymin = self.base.le(vmin.year) * self.base.step
         ymax = self.base.ge(vmax.year) * self.base.step
 
-        ticks = [vmin.replace(year=ymin, **self.replaced)]
+        vmin = vmin.replace(year=ymin, **self.replaced)
+        try:
+            ticks = [vmin.astimezone(self.tz)]
+        except ValueError as e:
+            raise ValueError('naive datetime objects cannot be used '
+                             'with matplotlib for python < 3.6; ') from e
         while True:
             dt = ticks[-1]
             if dt.year >= ymax:
                 return date2num(ticks)
             year = dt.year + self.base.step
-            ticks.append(dt.replace(year=year, **self.replaced))
+            dt = dt.replace(year=year, **self.replaced).astimezone(self.tz)
+            ticks.append(dt)
 
     def autoscale(self):
         """
@@ -1656,7 +1664,9 @@ class YearLocator(DateLocator):
         ymin = self.base.le(dmin.year)
         ymax = self.base.ge(dmax.year)
         vmin = dmin.replace(year=ymin, **self.replaced)
+        vmin = vmin.astimezone(self.tz)
         vmax = dmax.replace(year=ymax, **self.replaced)
+        vmax = vmax.astimezone(self.tz)
 
         vmin = date2num(vmin)
         vmax = date2num(vmax)
