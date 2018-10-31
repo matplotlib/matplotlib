@@ -380,6 +380,11 @@ def test_constrained_layout23():
         fig.suptitle("Suptitle{}".format(i))
 
 
+# This test occasionally fails the image comparison tests, so we mark as
+# flaky.  Apparently the constraint solver occasionally doesn't fully
+# optimize.  Would be nice if this were more deterministic...
+@pytest.mark.timeout(30)
+@pytest.mark.flaky(reruns=3)
 @image_comparison(baseline_images=['test_colorbar_location'],
         extensions=['png'], remove_text=True, style='mpl20')
 def test_colorbar_location():
