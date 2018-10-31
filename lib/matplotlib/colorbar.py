@@ -386,6 +386,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.outline = None
         self.patch = None
         self.dividers = None
+        self._manual_tick_data_values = None
 
         if ticklocation == 'auto':
             ticklocation = 'bottom' if orientation == 'horizontal' else 'right'
@@ -573,7 +574,17 @@ class ColorbarBase(cm.ScalarMappable):
 
     def get_ticks(self, minor=False):
         """Return the x ticks as a list of locations"""
-        return self._tick_data_values
+        if self._manual_tick_data_values is None:
+            ax = self.ax
+            if self.orientation == 'vertical':
+                long_axis, short_axis = ax.yaxis, ax.xaxis
+            else:
+                long_axis, short_axis = ax.xaxis, ax.yaxis
+            return long_axis.get_majorticklocs()
+        else:
+            # We made the axes manually, the old way, and the ylim is 0-1,
+            # so the majorticklocs are in those units, not data units.
+            return self._manual_tick_data_values
 
     def set_ticklabels(self, ticklabels, update_ticks=True):
         """
@@ -755,7 +766,7 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             eps = (intv[1] - intv[0]) * 1e-10
             b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
-        self._tick_data_values = b
+        self._manual_tick_data_values = b
         ticks = self._locate(b)
         formatter.set_locs(b)
         ticklabels = [formatter(t, i) for i, t in enumerate(b)]
