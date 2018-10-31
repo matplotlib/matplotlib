@@ -820,8 +820,14 @@ class AutoDateFormatter(ticker.Formatter):
                        1. / (MUSECONDS_PER_DAY):
                            rcParams['date.autoformatter.microsecond']}
 
+    def _set_locator(self, locator):
+        self._locator = locator
+
     def __call__(self, x, pos=None):
-        locator_unit_scale = float(self._locator._get_unit())
+        try:
+            locator_unit_scale = float(self._locator._get_unit())
+        except AttributeError:
+            locator_unit_scale = 1
         # Pick the first scale which is greater than the locator unit.
         fmt = next((fmt for scale, fmt in sorted(self.scaled.items())
                     if scale >= locator_unit_scale),
