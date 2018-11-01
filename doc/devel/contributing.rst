@@ -209,7 +209,7 @@ want to consider sending an email to the mailing list for more visibility.
 
   * `Git documentation <https://git-scm.com/documentation>`_
   * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
-  * `Introduction to Github <https://lab.github.com/githubtraining/introduction-to-github`_
+  * `Introduction to Github  <https://lab.github.com/githubtraining/introduction-to-github>`_
   * :ref:`development-workflow`.
   * :ref:`using-git`
 
