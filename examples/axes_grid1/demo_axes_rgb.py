@@ -60,7 +60,7 @@ def demo_rgb():
 
 
 def demo_rgb2():
-    fig = plt.figure(2)
+    fig = plt.figure()
     ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8], pad=0.0)
 
     r, g, b = get_rgb()
