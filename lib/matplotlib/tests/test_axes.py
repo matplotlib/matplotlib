@@ -5828,7 +5828,7 @@ def test_spines_properbbox_after_zoom():
     bb = ax.spines['bottom'].get_window_extent(fig.canvas.get_renderer())
     # this is what zoom calls:
     ax._set_view_from_bbox((320, 320, 500, 500), 'in',
-                      None, False, False)
+                           None, False, False)
     bb2 = ax.spines['bottom'].get_window_extent(fig.canvas.get_renderer())
     np.testing.assert_allclose(bb.get_points(), bb2.get_points(), rtol=1e-6)
 
@@ -5856,3 +5856,17 @@ def test_gettightbbox_ignoreNaN():
     t = ax.text(np.NaN, 1, 'Boo')
     renderer = fig.canvas.get_renderer()
     np.testing.assert_allclose(ax.get_tightbbox(renderer).width, 532.444444)
+
+
+def test_scatter_series_non_zero_index(pd):
+    # create non-zero index
+    ids = range(10, 18)
+    x = pd.Series(np.random.uniform(size=8), index=ids)
+    y = pd.Series(np.random.uniform(size=8), index=ids)
+    c = pd.Series([1, 1, 1, 1, 1, 0, 0, 0], index=ids)
+    plt.scatter(x, y, c)
+
+
+def test_scatter_empty_data():
+    plt.scatter([], [])
+    plt.scatter([], [], s=[], c=[])
