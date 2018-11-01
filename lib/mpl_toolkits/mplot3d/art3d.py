@@ -118,6 +118,7 @@ class Text3D(mtext.Text):
         # For now, just return None to exclude from layout calculation.
         return None
 
+    
 def text_2d_to_3d(obj, z=0, zdir='z'):
     """Convert a Text to a Text3D object."""
     obj.__class__ = Text3D
