@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ============
 Rainbow text
@@ -49,7 +48,8 @@ def rainbow_text(x, y, strings, colors, ax=None, **kw):
         text = ax.text(x, y, s + " ", color=c, transform=t, **kw)
         text.draw(canvas.get_renderer())
         ex = text.get_window_extent()
-        t = transforms.offset_copy(text._transform, x=ex.width, units='dots')
+        t = transforms.offset_copy(
+            text.get_transform(), x=ex.width, units='dots')
 
     # vertical version
     for s, c in zip(strings, colors):
@@ -57,7 +57,8 @@ def rainbow_text(x, y, strings, colors, ax=None, **kw):
                        rotation=90, va='bottom', ha='center', **kw)
         text.draw(canvas.get_renderer())
         ex = text.get_window_extent()
-        t = transforms.offset_copy(text._transform, y=ex.height, units='dots')
+        t = transforms.offset_copy(
+            text.get_transform(), y=ex.height, units='dots')
 
 
 rainbow_text(0, 0, "all unicorns poop rainbows ! ! !".split(),

@@ -4,7 +4,7 @@
 #
 #   $ python tests.py -v -d
 #
-# The arguments are identical to the arguments accepted by py.test.
+# The arguments are identical to the arguments accepted by pytest.
 #
 # See http://doc.pytest.org/ for a detailed description of these options.
 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         category=DeprecationWarning)
     warnings.filterwarnings(
         'default',
-        '.*inspect.getargspec\(\) is deprecated.*',
+        r'.*inspect.getargspec\(\) is deprecated.*',
         category=DeprecationWarning)
 
     from matplotlib import test

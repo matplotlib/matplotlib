@@ -14,18 +14,18 @@ Because it embeds fonts directly in output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.
 `FreeType <https://www.freetype.org/>`_ support
 produces very nice, antialiased fonts, that look good even at small
-raster sizes.  matplotlib includes its own
+raster sizes.  Matplotlib includes its own
 :mod:`matplotlib.font_manager` (thanks to Paul Barrett), which
 implements a cross platform, `W3C <http://www.w3.org/>`
 compliant font finding algorithm.
 
 The user has a great deal of control over text properties (font size, font
 weight, text location and color, etc.) with sensible defaults set in
-the `rc file <http://matplotlib.org/users/customizing.html>`.
+the :doc:`rc file </tutorials/introductory/customizing>`.
 And significantly, for those interested in mathematical
-or scientific figures, matplotlib implements a large number of TeX
-math symbols and commands, supporting :ref:`mathematical expressions
-<sphx_glr_tutorials_text_mathtext.py>` anywhere in your figure.
+or scientific figures, Matplotlib implements a large number of TeX
+math symbols and commands, supporting :doc:`mathematical expressions
+</tutorials/text/mathtext>` anywhere in your figure.
 
 
 Basic text commands
@@ -35,28 +35,31 @@ The following commands are used to create text in the pyplot
 interface and the object-oriented API:
 
 =================== =================== ======================================
-`~.pyplot` API      OO API              description
+`.pyplot` API       OO API              description
 =================== =================== ======================================
 `~.pyplot.text`     `~.Axes.text`       Add text at an arbitrary location of
-                                        the `~.Axes`.
+                                        the `~matplotlib.axes.Axes`.
 
 `~.pyplot.annotate` `~.Axes.annotate`   Add an annotation, with an optional
                                         arrow, at an arbitrary location of the
-                                        `~.Axes`.
+                                        `~matplotlib.axes.Axes`.
 
-`~.pyplot.xlabel`   `~.Axes.set_xlabel` Add a label to the `~.Axes`\\'s x-axis.
+`~.pyplot.xlabel`   `~.Axes.set_xlabel` Add a label to the
+                                        `~matplotlib.axes.Axes`\\'s x-axis.
 
-`~.pyplot.ylabel`   `~.Axes.set_ylabel` Add a label to the `~.Axes`\\'s y-axis.
+`~.pyplot.ylabel`   `~.Axes.set_ylabel` Add a label to the
+                                        `~matplotlib.axes.Axes`\\'s y-axis.
 
-`~.pyplot.title`    `~.Axes.set_title`  Add a title to the `~.Axes`.
+`~.pyplot.title`    `~.Axes.set_title`  Add a title to the
+                                        `~matplotlib.axes.Axes`.
 
 `~.pyplot.figtext`  `~.Figure.text`     Add text at an arbitrary location of
-                                        the `~.Figure`.
+                                        the `.Figure`.
 
-`~.pyplot.suptitle` `~.Figure.suptitle` Add a title to the `~.Figure`.
+`~.pyplot.suptitle` `~.Figure.suptitle` Add a title to the `.Figure`.
 =================== =================== ======================================
 
-All of these functions create and return a `~.Text` instance, which can be
+All of these functions create and return a `.Text` instance, which can be
 configured with a variety of font and other properties.  The example below
 shows all of these commands in action, and more detail is provided in the
 sections that follow.
@@ -80,7 +83,7 @@ ax.text(3, 8, 'boxed italics text in data coords', style='italic',
 
 ax.text(2, 6, r'an equation: $E=mc^2$', fontsize=15)
 
-ax.text(3, 2, u'unicode: Institut für Festkörperphysik')
+ax.text(3, 2, 'unicode: Institut für Festkörperphysik')
 
 ax.text(0.95, 0.01, 'colored text in axes coords',
         verticalalignment='bottom', horizontalalignment='right',
@@ -145,7 +148,7 @@ ax.set_ylabel('Damped oscillation [V]', labelpad=18)
 plt.show()
 
 ###############################################################################
-# Or, the labels accept all the `~.Text` keyword arguments, including
+# Or, the labels accept all the `.Text` keyword arguments, including
 # *position*, via which we can manually specify the label positions.  Here we
 # put the xlabel to the far left of the axis.  Note, that the y-coordinate of
 # this position has no effect - to adjust the y-position we need to use the
@@ -208,8 +211,8 @@ for ax, loc in zip(axs, locs):
 plt.show()
 
 ##############################################################################
-# Vertical spacing for titles is controlled via ``rcParams[axes.titlepad]``,
-# which defaults to 5 points.  Setting to a different value moves the title.
+# Vertical spacing for titles is controlled via :rc:`axes.titlepad`, which
+# defaults to 5 points.  Setting to a different value moves the title.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(top=0.8)
@@ -426,6 +429,6 @@ plt.show()
 # Legends and Annotations
 # =======================
 #
-#   - Legends: :doc:`/tutorials/intermediate/legend_guide`
-#   - Annotations: :doc:`/tutorials/text/annotations`
+# - Legends: :doc:`/tutorials/intermediate/legend_guide`
+# - Annotations: :doc:`/tutorials/text/annotations`
 #

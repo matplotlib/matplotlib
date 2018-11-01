@@ -6,7 +6,6 @@ Figure Axes Enter Leave
 Illustrate the figure and axes enter and leave events by changing the
 frame colors on enter and leave
 """
-from __future__ import print_function
 import matplotlib.pyplot as plt
 
 

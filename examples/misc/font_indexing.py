@@ -7,7 +7,6 @@ A little example that shows how the various indexing into the font
 tables relate to one another.  Mainly for mpl developers....
 
 """
-from __future__ import print_function
 import matplotlib
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, KERNING_UNFITTED, KERNING_UNSCALED
 

@@ -3,6 +3,7 @@
 Text Layout
 ===========
 
+Create text with different alignment and rotation.
 """
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -81,3 +82,17 @@ ax.text(left, top, 'rotated\nwith newlines',
 
 ax.set_axis_off()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.text
+matplotlib.pyplot.text

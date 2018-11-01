@@ -1,16 +1,13 @@
-from __future__ import absolute_import, division, print_function
 import itertools
 import pickle
 from weakref import ref
 import warnings
 
-import six
-
 from datetime import datetime
 
 import numpy as np
-from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
-                                 assert_array_almost_equal)
+from numpy.testing import (assert_array_equal, assert_approx_equal,
+                           assert_array_almost_equal)
 import pytest
 
 import matplotlib.cbook as cbook
@@ -24,24 +21,6 @@ def test_is_hashable():
 
     lst = ['list', 'of', 'stings']
     assert not cbook.is_hashable(lst)
-
-
-def test_restrict_dict():
-    d = {'foo': 'bar', 1: 2}
-    with pytest.warns(cbook.deprecation.MatplotlibDeprecationWarning) as rec:
-        d1 = cbook.restrict_dict(d, ['foo', 1])
-        assert d1 == d
-        d2 = cbook.restrict_dict(d, ['bar', 2])
-        assert d2 == {}
-        d3 = cbook.restrict_dict(d, {'foo': 1})
-        assert d3 == {'foo': 'bar'}
-        d4 = cbook.restrict_dict(d, {})
-        assert d4 == {}
-        d5 = cbook.restrict_dict(d, {'foo', 2})
-        assert d5 == {'foo': 'bar'}
-    assert len(rec) == 5
-    # check that d was not modified
-    assert d == {'foo': 'bar', 1: 2}
 
 
 class Test_delete_masked_points(object):
@@ -505,62 +484,45 @@ def test_flatiter():
     assert 1 == next(it)
 
 
-class TestFuncParser(object):
-    x_test = np.linspace(0.01, 0.5, 3)
-    validstrings = ['linear', 'quadratic', 'cubic', 'sqrt', 'cbrt',
-                    'log', 'log10', 'log2', 'x**{1.5}', 'root{2.5}(x)',
-                    'log{2}(x)',
-                    'log(x+{0.5})', 'log10(x+{0.1})', 'log{2}(x+{0.1})',
-                    'log{2}(x+{0})']
-    results = [(lambda x: x),
-               np.square,
-               (lambda x: x**3),
-               np.sqrt,
-               (lambda x: x**(1. / 3)),
-               np.log,
-               np.log10,
-               np.log2,
-               (lambda x: x**1.5),
-               (lambda x: x**(1 / 2.5)),
-               (lambda x: np.log2(x)),
-               (lambda x: np.log(x + 0.5)),
-               (lambda x: np.log10(x + 0.1)),
-               (lambda x: np.log2(x + 0.1)),
-               (lambda x: np.log2(x))]
+def test_reshape2d():
+    class dummy():
+        pass
+    x = [dummy() for j in range(5)]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (1, 5)
 
-    bounded_list = [True, True, True, True, True,
-                    False, False, False, True, True,
-                    False,
-                    True, True, True,
-                    False]
+    x = np.arange(5)
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (1, 5)
 
-    @pytest.mark.parametrize("string, func",
-                             zip(validstrings, results),
-                             ids=validstrings)
-    def test_values(self, string, func):
-        func_parser = cbook._StringFuncParser(string)
-        f = func_parser.function
-        assert_array_almost_equal(f(self.x_test), func(self.x_test))
+    x = [[dummy() for j in range(5)] for i in range(3)]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (3, 5)
 
-    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
-    def test_inverse(self, string):
-        func_parser = cbook._StringFuncParser(string)
-        f = func_parser.func_info
-        fdir = f.function
-        finv = f.inverse
-        assert_array_almost_equal(finv(fdir(self.x_test)), self.x_test)
+    # this is strange behaviour, but...
+    x = np.random.rand(3, 5)
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (5, 3)
 
-    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
-    def test_get_inverse(self, string):
-        func_parser = cbook._StringFuncParser(string)
-        finv1 = func_parser.inverse
-        finv2 = func_parser.func_info.inverse
-        assert_array_almost_equal(finv1(self.x_test), finv2(self.x_test))
 
-    @pytest.mark.parametrize("string, bounded",
-                             zip(validstrings, bounded_list),
-                             ids=validstrings)
-    def test_bounded(self, string, bounded):
-        func_parser = cbook._StringFuncParser(string)
-        b = func_parser.is_bounded_0_1
-        assert_array_equal(b, bounded)
+def test_contiguous_regions():
+    a, b, c = 3, 4, 5
+    # Starts and ends with True
+    mask = [True]*a + [False]*b + [True]*c
+    expected = [(0, a), (a+b, a+b+c)]
+    assert cbook.contiguous_regions(mask) == expected
+    d, e = 6, 7
+    # Starts with True ends with False
+    mask = mask + [False]*e
+    assert cbook.contiguous_regions(mask) == expected
+    # Starts with False ends with True
+    mask = [False]*d + mask[:-e]
+    expected = [(d, d+a), (d+a+b, d+a+b+c)]
+    assert cbook.contiguous_regions(mask) == expected
+    # Starts and ends with False
+    mask = mask + [False]*e
+    assert cbook.contiguous_regions(mask) == expected
+    # No True in mask
+    assert cbook.contiguous_regions([False]*5) == []
+    # Empty mask
+    assert cbook.contiguous_regions([]) == []

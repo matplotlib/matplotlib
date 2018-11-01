@@ -1,4 +1,4 @@
-"""
+r"""
 *********************************
 Typesetting With XeLaTeX/LuaLaTeX
 *********************************
@@ -56,6 +56,28 @@ Rc parameters that control the behavior of the pgf backend:
 
 .. _pgf-rcfonts:
 
+
+Multi-Page PDF Files
+====================
+
+The pgf backend also supports multipage pdf files using ``PdfPages``
+
+.. code-block:: python
+
+    from matplotlib.backends.backend_pgf import PdfPages
+    import matplotlib.pyplot as plt
+
+    with PdfPages('multipage.pdf', metadata={'author': 'Me'}) as pdf:
+
+        fig1, ax1 = plt.subplots()
+        ax1.plot([1, 5, 3])
+        pdf.savefig(fig1)
+
+        fig2, ax2 = plt.subplots()
+        ax2.plot([1, 5, 3])
+        pdf.savefig(fig2)
+
+
 Font specification
 ==================
 
@@ -71,7 +93,7 @@ fonts *CMU Serif*, *CMU Sans Serif*, etc.
 When saving to ``.pgf``, the font configuration matplotlib used for the
 layout of the figure is included in the header of the text file.
 
-.. literalinclude:: ../../gallery/userdemo/pgf_fonts_sgskip.py
+.. literalinclude:: ../../gallery/userdemo/pgf_fonts.py
    :end-before: plt.savefig
 
 
@@ -86,12 +108,12 @@ using ``unicode-math`` for example, or for loading additional packages. Also,
 if you want to do the font configuration yourself instead of using the fonts
 specified in the rc parameters, make sure to disable ``pgf.rcfonts``.
 
-.. htmlonly::
+.. only:: html
 
     .. literalinclude:: ../../gallery/userdemo/pgf_preamble_sgskip.py
         :end-before: plt.savefig
 
-.. latexonly::
+.. only:: latex
 
     .. literalinclude:: ../../gallery/userdemo/pgf_preamble_sgskip.py
         :end-before: import matplotlib.pyplot as plt
@@ -107,7 +129,7 @@ parameter. Possible values are ``'xelatex'`` (default), ``'lualatex'`` and
 ``'pdflatex'``. Please note that when selecting pdflatex the fonts and
 unicode handling must be configured in the preamble.
 
-.. literalinclude:: ../../gallery/userdemo/pgf_texsystem_sgskip.py
+.. literalinclude:: ../../gallery/userdemo/pgf_texsystem.py
    :end-before: plt.savefig
 
 
@@ -164,7 +186,7 @@ Troubleshooting
   `tex.stackexchange.com <http://tex.stackexchange.com/questions/7953>`_.
   Another way would be to "rasterize" parts of the graph causing problems
   using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as per
-  `this example <http://matplotlib.org/examples/misc/rasterization_demo.html>`_.
+  :doc:`this example </gallery/misc/rasterization_demo>`.
 
 * If you still need help, please see :ref:`reporting-problems`
 

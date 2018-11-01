@@ -1,12 +1,14 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import tkinter as Tk
+import tkinter as Tk
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.backends import _tkagg
+
+
+cbook.warn_deprecated(
+    "3.0", "The matplotlib.backends.tkagg module is deprecated.")
+
 
 def blit(photoimage, aggimage, bbox=None, colormode=1):
     tk = photoimage.tk
@@ -19,7 +21,7 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
     else:
         bboxptr = 0
     data = np.asarray(aggimage)
-    dataptr = (data.ctypes.data, data.shape[0], data.shape[1])
+    dataptr = (data.shape[0], data.shape[1], data.ctypes.data)
     try:
         tk.call(
             "PyAggImagePhoto", photoimage,
@@ -33,12 +35,14 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
         tk.call("PyAggImagePhoto", photoimage,
                 dataptr, colormode, bboxptr)
 
+
 def test(aggimage):
     r = Tk.Tk()
     c = Tk.Canvas(r, width=aggimage.width, height=aggimage.height)
     c.pack()
     p = Tk.PhotoImage(width=aggimage.width, height=aggimage.height)
     blit(p, aggimage)
-    c.create_image(aggimage.width,aggimage.height,image=p)
+    c.create_image(aggimage.width, aggimage.height, image=p)
     blit(p, aggimage)
-    while True: r.update_idletasks()
+    while True:
+        r.update_idletasks()

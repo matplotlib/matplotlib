@@ -1,12 +1,8 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from matplotlib.patches import _Style, FancyArrowPatch
 from matplotlib.transforms import IdentityTransform
 from matplotlib.path import Path
 import numpy as np
+
 
 class _FancyAxislineStyle(object):
     class SimpleArrow(FancyArrowPatch):
@@ -71,7 +67,7 @@ class _FancyAxislineStyle(object):
              4) draw
             """
             path_in_disp = self._line_transform.transform_path(self._line_path)
-            mutation_size = self.get_mutation_scale() #line_mutation_scale()
+            mutation_size = self.get_mutation_scale()  # line_mutation_scale()
             extented_path = self._extend_path(path_in_disp,
                                               mutation_size=mutation_size)
 
@@ -112,7 +108,6 @@ class AxislineStyle(_Style):
 
     _style_list = {}
 
-
     class _Base(object):
         # The derived classes are required to be able to be initialized
         # w/o arguments, i.e., all its argument (except self) must have
@@ -122,10 +117,7 @@ class AxislineStyle(_Style):
             """
             initialization.
             """
-            super(AxislineStyle._Base, self).__init__()
-
-
-
+            super().__init__()
 
         def __call__(self, axis_artist, transform):
             """
@@ -134,7 +126,6 @@ class AxislineStyle(_Style):
             """
 
             return self.new_line(axis_artist, transform)
-
 
     class SimpleArrow(_Base):
         """
@@ -150,15 +141,14 @@ class AxislineStyle(_Style):
             """
 
             self.size = size
-            super(AxislineStyle.SimpleArrow, self).__init__()
+            super().__init__()
 
         def new_line(self, axis_artist, transform):
 
-            linepath = Path([(0,0), (0, 1)])
+            linepath = Path([(0, 0), (0, 1)])
             axisline = self.ArrowAxisClass(axis_artist, linepath, transform,
                                            line_mutation_scale=self.size)
             return axisline
-
 
     _style_list["->"] = SimpleArrow
 

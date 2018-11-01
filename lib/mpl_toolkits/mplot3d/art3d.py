@@ -2,15 +2,10 @@
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 # Minor additions by Ben Axelrod <baxelrod@coroware.com>
 
-'''
+"""
 Module containing 3D artist code and functions to convert 2D
 artists into 3D versions which can be added to an Axes3D.
-'''
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
+"""
 
 import math
 
@@ -18,17 +13,15 @@ import numpy as np
 
 from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
-from matplotlib.cbook import _backports
 from matplotlib.collections import (
-    Collection, LineCollection, PolyCollection, PatchCollection,
-    PathCollection)
+    LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
 from . import proj3d
 
 
 def norm_angle(a):
-    """Return angle between -180 and +180"""
+    """Return the given angle normalized to -180 < *a* <= 180 degrees."""
     a = (a + 360) % 360
     if a > 180:
         a = a - 360
@@ -36,7 +29,7 @@ def norm_angle(a):
 
 
 def norm_text_angle(a):
-    """Return angle between -90 and +90"""
+    """Return the given angle normalized to -90 < *a* <= 90 degrees."""
     a = (a + 180) % 180
     if a > 90:
         a = a - 180
@@ -44,6 +37,26 @@ def norm_text_angle(a):
 
 
 def get_dir_vector(zdir):
+    """
+    Return a direction vector.
+
+    Parameters
+    ----------
+    zdir : {'x', 'y', 'z', None, 3-tuple}
+        The direction. Possible values are:
+        - 'x': equivalent to (1, 0, 0)
+        - 'y': equivalent to (0, 1, 0)
+        - 'z': equivalent to (0, 0, 1)
+        - *None*: equivalent to (0, 0, 0)
+        - an iterable (x, y, z) is returned unchanged.
+
+    Returns
+    -------
+    x, y, z : array-like
+        The direction vector. This is either a numpy.array or *zdir* itself if
+        *zdir* is already a length-3 iterable.
+
+    """
     if zdir == 'x':
         return np.array((1, 0, 0))
     elif zdir == 'y':
@@ -52,25 +65,33 @@ def get_dir_vector(zdir):
         return np.array((0, 0, 1))
     elif zdir is None:
         return np.array((0, 0, 0))
-    elif cbook.iterable(zdir) and len(zdir) == 3:
+    elif np.iterable(zdir) and len(zdir) == 3:
         return zdir
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
 
 
 class Text3D(mtext.Text):
-    '''
-    Text object with 3D position and (in the future) direction.
-    '''
+    """
+    Text object with 3D position and direction.
+
+    Parameters
+    ----------
+    x, y, z
+        The position of the text.
+    text : str
+        The text string to display.
+    zdir : {'x', 'y', 'z', None, 3-tuple}
+        The direction of the text. See `.get_dir_vector` for a description of
+        the values.
+
+    Other Parameters
+    ----------------
+    **kwargs
+         All other parameters are passed on to `~matplotlib.text.Text`.
+   """
 
     def __init__(self, x=0, y=0, z=0, text='', zdir='z', **kwargs):
-        '''
-        *x*, *y*, *z*  Position of text
-        *text*         Text string to display
-        *zdir*         Direction of text
-
-        Keyword arguments are passed onto :func:`~matplotlib.text.Text`.
-        '''
         mtext.Text.__init__(self, x, y, text, **kwargs)
         self.set_3d_properties(z, zdir)
 
@@ -80,16 +101,13 @@ class Text3D(mtext.Text):
         self._dir_vec = get_dir_vector(zdir)
         self.stale = True
 
+    @artist.allow_rasterization
     def draw(self, renderer):
         proj = proj3d.proj_trans_points(
             [self._position3d, self._position3d + self._dir_vec], renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
-        if dx==0. and dy==0.:
-            # atan2 raises ValueError: math domain error on 0,0
-            angle = 0.
-        else:
-            angle = math.degrees(math.atan2(dy, dx))
+        angle = math.degrees(math.atan2(dy, dx))
         self.set_position((proj[0][0], proj[1][0]))
         self.set_rotation(norm_text_angle(angle))
         mtext.Text.draw(self, renderer)
@@ -103,14 +121,14 @@ def text_2d_to_3d(obj, z=0, zdir='z'):
 
 
 class Line3D(lines.Line2D):
-    '''
+    """
     3D line object.
-    '''
+    """
 
     def __init__(self, xs, ys, zs, *args, **kwargs):
-        '''
+        """
         Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
-        '''
+        """
         lines.Line2D.__init__(self, [], [], *args, **kwargs)
         self._verts3d = xs, ys, zs
 
@@ -121,13 +139,13 @@ class Line3D(lines.Line2D):
         try:
             # If *zs* is a list or array, then this will fail and
             # just proceed to juggle_axes().
-            zs = float(zs)
-            zs = [zs for x in xs]
+            zs = np.full_like(xs, fill_value=float(zs))
         except TypeError:
             pass
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
+    @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
@@ -137,17 +155,16 @@ class Line3D(lines.Line2D):
 
 
 def line_2d_to_3d(line, zs=0, zdir='z'):
-    '''
-    Convert a 2D line to 3D.
-    '''
+    """Convert a 2D line to 3D."""
+
     line.__class__ = Line3D
     line.set_3d_properties(zs, zdir)
 
 
 def path_to_3d_segment(path, zs=0, zdir='z'):
-    '''Convert a path to a 3D segment.'''
+    """Convert a path to a 3D segment."""
 
-    zs = _backports.broadcast_to(zs, len(path))
+    zs = np.broadcast_to(zs, len(path))
     pathsegs = path.iter_segments(simplify=False, curves=False)
     seg = [(x, y, z) for (((x, y), code), z) in zip(pathsegs, zs)]
     seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
@@ -155,20 +172,18 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
 
 
 def paths_to_3d_segments(paths, zs=0, zdir='z'):
-    '''
-    Convert paths from a collection object to 3D segments.
-    '''
+    """Convert paths from a collection object to 3D segments."""
 
-    zs = _backports.broadcast_to(zs, len(paths))
+    zs = np.broadcast_to(zs, len(paths))
     segs = [path_to_3d_segment(path, pathz, zdir)
             for path, pathz in zip(paths, zs)]
     return segs
 
 
 def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
-    '''Convert a path to a 3D segment with path codes.'''
+    """Convert a path to a 3D segment with path codes."""
 
-    zs = _backports.broadcast_to(zs, len(path))
+    zs = np.broadcast_to(zs, len(path))
     seg = []
     codes = []
     pathsegs = path.iter_segments(simplify=False, curves=False)
@@ -180,11 +195,11 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
 
 
 def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
-    '''
+    """
     Convert paths from a collection object to 3D segments with path codes.
-    '''
+    """
 
-    zs = _backports.broadcast_to(zs, len(paths))
+    zs = np.broadcast_to(zs, len(paths))
     segments = []
     codes_list = []
     for path, pathz in zip(paths, zs):
@@ -195,32 +210,26 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
 
 
 class Line3DCollection(LineCollection):
-    '''
+    """
     A collection of 3D lines.
-    '''
-
-    def __init__(self, segments, *args, **kwargs):
-        '''
-        Keyword arguments are passed onto :func:`~matplotlib.collections.LineCollection`.
-        '''
-        LineCollection.__init__(self, segments, *args, **kwargs)
+    """
 
     def set_sort_zpos(self, val):
-        '''Set the position to use for z-sorting.'''
+        """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True
 
     def set_segments(self, segments):
-        '''
-        Set 3D segments
-        '''
+        """
+        Set 3D segments.
+        """
         self._segments3d = np.asanyarray(segments)
         LineCollection.set_segments(self, [])
 
     def do_3d_projection(self, renderer):
-        '''
+        """
         Project the points according to renderer matrix.
-        '''
+        """
         xyslist = [
             proj3d.proj_trans_points(points, renderer.M) for points in
             self._segments3d]
@@ -233,6 +242,7 @@ class Line3DCollection(LineCollection):
             minz = min(minz, min(zs))
         return minz
 
+    @artist.allow_rasterization
     def draw(self, renderer, project=False):
         if project:
             self.do_3d_projection(renderer)
@@ -247,18 +257,16 @@ def line_collection_2d_to_3d(col, zs=0, zdir='z'):
 
 
 class Patch3D(Patch):
-    '''
+    """
     3D patch object.
-    '''
+    """
 
-    def __init__(self, *args, **kwargs):
-        zs = kwargs.pop('zs', [])
-        zdir = kwargs.pop('zdir', 'z')
+    def __init__(self, *args, zs=(), zdir='z', **kwargs):
         Patch.__init__(self, *args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
-        zs = _backports.broadcast_to(zs, len(verts))
+        zs = np.broadcast_to(zs, len(verts))
         self._segment3d = [juggle_axes(x, y, z, zdir)
                            for ((x, y), z) in zip(verts, zs)]
         self._facecolor3d = Patch.get_facecolor(self)
@@ -278,18 +286,13 @@ class Patch3D(Patch):
         self._facecolor2d = self._facecolor3d
         return min(vzs)
 
-    def draw(self, renderer):
-        Patch.draw(self, renderer)
-
 
 class PathPatch3D(Patch3D):
-    '''
+    """
     3D PathPatch object.
-    '''
+    """
 
-    def __init__(self, path, **kwargs):
-        zs = kwargs.pop('zs', [])
-        zdir = kwargs.pop('zdir', 'z')
+    def __init__(self, path, *, zs=(), zdir='z', **kwargs):
         Patch.__init__(self, **kwargs)
         self.set_3d_properties(path, zs, zdir)
 
@@ -310,7 +313,7 @@ class PathPatch3D(Patch3D):
 def get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
     trans = patch.get_patch_transform()
-    path =  patch.get_path()
+    path = patch.get_path()
     polygons = path.to_polygons(trans)
     if len(polygons):
         return polygons[0]
@@ -336,11 +339,11 @@ def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
 
 
 class Patch3DCollection(PatchCollection):
-    '''
+    """
     A collection of 3D patches.
-    '''
+    """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, zs=0, zdir='z', depthshade=True, **kwargs):
         """
         Create a collection of flat 3D patches with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -356,14 +359,12 @@ class Patch3DCollection(PatchCollection):
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
         """
-        zs = kwargs.pop('zs', 0)
-        zdir = kwargs.pop('zdir', 'z')
-        self._depthshade = kwargs.pop('depthshade', True)
-        PatchCollection.__init__(self, *args, **kwargs)
+        self._depthshade = depthshade
+        super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_sort_zpos(self, val):
-        '''Set the position to use for z-sorting.'''
+        """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True
 
@@ -373,7 +374,7 @@ class Patch3DCollection(PatchCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = zip(*offsets)
+            xs, ys = offsets.T
         else:
             xs = []
             ys = []
@@ -404,11 +405,11 @@ class Patch3DCollection(PatchCollection):
 
 
 class Path3DCollection(PathCollection):
-    '''
+    """
     A collection of 3D paths.
-    '''
+    """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, zs=0, zdir='z', depthshade=True, **kwargs):
         """
         Create a collection of flat 3D paths with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -424,14 +425,12 @@ class Path3DCollection(PathCollection):
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
         """
-        zs = kwargs.pop('zs', 0)
-        zdir = kwargs.pop('zdir', 'z')
-        self._depthshade = kwargs.pop('depthshade', True)
-        PathCollection.__init__(self, *args, **kwargs)
+        self._depthshade = depthshade
+        super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_sort_zpos(self, val):
-        '''Set the position to use for z-sorting.'''
+        """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True
 
@@ -441,7 +440,7 @@ class Path3DCollection(PathCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = zip(*offsets)
+            xs, ys = offsets.T
         else:
             xs = []
             ys = []
@@ -465,10 +464,7 @@ class Path3DCollection(PathCollection):
         self.set_edgecolors(ecs)
         PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
-        if vzs.size > 0 :
-            return min(vzs)
-        else :
-            return np.nan
+        return np.min(vzs) if vzs.size else np.nan
 
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
@@ -478,15 +474,15 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     (or a :class:`~matplotlib.collections.PathCollection` into a
     :class:`Path3DCollection` object).
 
-    Keywords:
-
-    *za*            The location or locations to place the patches in the
-                    collection along the *zdir* axis. Defaults to 0.
-
-    *zdir*          The axis in which to place the patches. Default is "z".
-
-    *depthshade*    Whether to shade the patches to give a sense of depth.
-                    Defaults to *True*.
+    Parameters
+    ----------
+    za
+        The location or locations to place the patches in the collection along
+        the *zdir* axis. Default: 0.
+    zdir
+        The axis in which to place the patches. Default: "z".
+    depthshade
+        Whether to shade the patches to give a sense of depth. Default: *True*.
 
     """
     if isinstance(col, PathCollection):
@@ -498,12 +494,12 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
 
 
 class Poly3DCollection(PolyCollection):
-    '''
+    """
     A collection of 3D polygons.
-    '''
+    """
 
-    def __init__(self, verts, *args, **kwargs):
-        '''
+    def __init__(self, verts, *args, zsort='average', **kwargs):
+        """
         Create a Poly3DCollection.
 
         *verts* should contain 3D coordinates.
@@ -513,9 +509,8 @@ class Poly3DCollection(PolyCollection):
 
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
-        '''
-        zsort = kwargs.pop('zsort', True)
-        PolyCollection.__init__(self, verts, *args, **kwargs)
+        """
+        super().__init__(verts, *args, **kwargs)
         self.set_zsort(zsort)
         self._codes3d = None
 
@@ -526,30 +521,28 @@ class Poly3DCollection(PolyCollection):
     }
 
     def set_zsort(self, zsort):
-        '''
-        Set z-sorting behaviour:
-            boolean: if True use default 'average'
-            string: 'average', 'min' or 'max'
-        '''
+        """
+        Sets the calculation method for the z-order.
 
+        Parameters
+        ----------
+        zsort : {'average', 'min', 'max'}
+            The function applied on the z-coordinates of the vertices in the
+            viewer's coordinate system, to determine the z-order.  *True* is
+            deprecated and equivalent to 'average'.
+        """
         if zsort is True:
+            cbook.warn_deprecated(
+                "3.1", "Passing True to mean 'average' for set_zsort is "
+                "deprecated and support will be removed in Matplotlib 3.3; "
+                "pass 'average' instead.")
             zsort = 'average'
-
-        if zsort is not False:
-            if zsort in self._zsort_functions:
-                zsortfunc = self._zsort_functions[zsort]
-            else:
-                return False
-        else:
-            zsortfunc = None
-
-        self._zsort = zsort
+        self._zsortfunc = self._zsort_functions[zsort]
         self._sort_zpos = None
-        self._zsortfunc = zsortfunc
         self.stale = True
 
     def get_vector(self, segments3d):
-        """Optimize points for projection"""
+        """Optimize points for projection."""
         si = 0
         ei = 0
         segis = []
@@ -562,7 +555,7 @@ class Poly3DCollection(PolyCollection):
 
         if len(segments3d):
             xs, ys, zs = zip(*points)
-        else :
+        else:
             # We need this so that we can skip the bad unpacking from zip()
             xs, ys, zs = [], [], []
 
@@ -571,14 +564,14 @@ class Poly3DCollection(PolyCollection):
         self._segis = segis
 
     def set_verts(self, verts, closed=True):
-        '''Set 3D vertices.'''
+        """Set 3D vertices."""
         self.get_vector(verts)
         # 2D verts will be updated at draw time
         PolyCollection.set_verts(self, [], False)
         self._closed = closed
 
     def set_verts_and_codes(self, verts, codes):
-        '''Sets 3D vertices with path codes'''
+        """Sets 3D vertices with path codes."""
         # set vertices with closed=False to prevent PolyCollection from
         # setting path codes
         self.set_verts(verts, closed=False)
@@ -590,21 +583,21 @@ class Poly3DCollection(PolyCollection):
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
         self._sort_zpos = None
-        self.set_zsort(True)
-        self._facecolors3d = PolyCollection.get_facecolors(self)
-        self._edgecolors3d = PolyCollection.get_edgecolors(self)
+        self.set_zsort('average')
+        self._facecolors3d = PolyCollection.get_facecolor(self)
+        self._edgecolors3d = PolyCollection.get_edgecolor(self)
         self._alpha3d = PolyCollection.get_alpha(self)
         self.stale = True
 
-    def set_sort_zpos(self,val):
-        '''Set the position to use for z-sorting.'''
+    def set_sort_zpos(self, val):
+        """Set the position to use for z-sorting."""
         self._sort_zpos = val
         self.stale = True
 
     def do_3d_projection(self, renderer):
-        '''
+        """
         Perform the 3D projection for this object.
-        '''
+        """
         # FIXME: This may no longer be needed?
         if self._A is not None:
             self.update_scalarmappable()
@@ -625,15 +618,12 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(len(xyzlist), axis=0)
 
-        # if required sort by depth (furthest drawn first)
-        if self._zsort:
-            z_segments_2d = sorted(
-                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
-                 for idx, ((xs, ys, zs), fc, ec)
-                 in enumerate(zip(xyzlist, cface, cedge))),
-                key=lambda x: x[0], reverse=True)
-        else:
-            raise ValueError("whoops")
+        # sort by depth (furthest drawn first)
+        z_segments_2d = sorted(
+            ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
+             for idx, ((xs, ys, zs), fc, ec)
+             in enumerate(zip(xyzlist, cface, cedge))),
+            key=lambda x: x[0], reverse=True)
 
         segments_2d = [s for z, s, fc, ec, idx in z_segments_2d]
         if self._codes3d is not None:
@@ -653,30 +643,29 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif tzs.size > 0 :
+        elif tzs.size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
             return np.min(tzs)
-        else :
+        else:
             return np.nan
 
     def set_facecolor(self, colors):
         PolyCollection.set_facecolor(self, colors)
         self._facecolors3d = PolyCollection.get_facecolor(self)
-    set_facecolors = set_facecolor
 
     def set_edgecolor(self, colors):
         PolyCollection.set_edgecolor(self, colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
-    set_edgecolors = set_edgecolor
 
     def set_alpha(self, alpha):
         """
-        Set the alpha tranparencies of the collection.  *alpha* must be
-        a float or *None*.
+        Set the alpha transparencies of the collection.
 
-        ACCEPTS: float or None
+        Parameters
+        ----------
+        alpha : float or None
         """
         if alpha is not None:
             try:
@@ -696,16 +685,11 @@ class Poly3DCollection(PolyCollection):
             pass
         self.stale = True
 
-    def get_facecolors(self):
+    def get_facecolor(self):
         return self._facecolors2d
-    get_facecolor = get_facecolors
 
-    def get_edgecolors(self):
+    def get_edgecolor(self):
         return self._edgecolors2d
-    get_edgecolor = get_edgecolors
-
-    def draw(self, renderer):
-        return Collection.draw(self, renderer)
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
@@ -754,14 +738,14 @@ def rotate_axes(xs, ys, zs, zdir):
 
 
 def get_colors(c, num):
-    """Stretch the color argument to provide the required number num"""
-    return _backports.broadcast_to(
+    """Stretch the color argument to provide the required number *num*."""
+    return np.broadcast_to(
         mcolors.to_rgba_array(c) if len(c) else [0, 0, 0, 0],
         (num, 4))
 
 
 def zalpha(colors, zs):
-    """Modify the alphas of the color list according to depth"""
+    """Modify the alphas of the color list according to depth."""
     # FIXME: This only works well if the points for *zs* are well-spaced
     #        in all three dimensions. Otherwise, at certain orientations,
     #        the min and max zs are very close together.

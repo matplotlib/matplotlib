@@ -1,8 +1,5 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import os
+import shutil
 import tempfile
 import warnings
 
@@ -11,16 +8,10 @@ import pytest
 
 from matplotlib.font_manager import (
     findfont, FontProperties, fontManager, json_dump, json_load, get_font,
-    get_fontconfig_fonts, is_opentype_cff_font, fontManager as fm)
+    get_fontconfig_fonts, is_opentype_cff_font)
 from matplotlib import rc_context
 
-if six.PY2:
-    from distutils.spawn import find_executable
-    has_fclist = find_executable('fc-list') is not None
-else:
-    # py >= 3.3
-    from shutil import which
-    has_fclist = which('fc-list') is not None
+has_fclist = shutil.which('fc-list') is not None
 
 
 def test_font_priority():
@@ -76,11 +67,11 @@ def test_otf():
     if os.path.exists(fname):
         assert is_opentype_cff_font(fname)
 
-    otf_files = [f for f in fm.ttffiles if 'otf' in f]
-    for f in otf_files:
-        with open(f, 'rb') as fd:
-            res = fd.read(4) == b'OTTO'
-        assert res == is_opentype_cff_font(f)
+    for f in fontManager.ttflist:
+        if 'otf' in f.fname:
+            with open(f.fname, 'rb') as fd:
+                res = fd.read(4) == b'OTTO'
+            assert res == is_opentype_cff_font(f.fname)
 
 
 @pytest.mark.skipif(not has_fclist, reason='no fontconfig installed')

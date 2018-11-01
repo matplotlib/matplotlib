@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
 """Catch all for categorical functions"""
-from __future__ import absolute_import, division, print_function
-
 import pytest
 import numpy as np
 

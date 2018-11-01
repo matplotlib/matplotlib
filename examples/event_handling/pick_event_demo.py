@@ -66,7 +66,6 @@ the specified epsilon tolerance)
 The examples below illustrate each of these methods.
 """
 
-from __future__ import print_function
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
@@ -75,7 +74,9 @@ from matplotlib.image import AxesImage
 import numpy as np
 from numpy.random import rand
 
-if 1:  # simple picking, lines, rectangles and text
+
+def pick_simple():
+    # simple picking, lines, rectangles and text
     fig, (ax1, ax2) = plt.subplots(2, 1)
     ax1.set_title('click on points, rectangles or text', picker=True)
     ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
@@ -102,7 +103,9 @@ if 1:  # simple picking, lines, rectangles and text
 
     fig.canvas.mpl_connect('pick_event', onpick1)
 
-if 1:  # picking with a custom hit test function
+
+def pick_custom_hit():
+    # picking with a custom hit test function
     # you can define custom pickers by setting picker to a callable
     # function.  The function has the signature
     #
@@ -123,7 +126,8 @@ if 1:  # picking with a custom hit test function
         xdata = line.get_xdata()
         ydata = line.get_ydata()
         maxd = 0.05
-        d = np.sqrt((xdata - mouseevent.xdata)**2. + (ydata - mouseevent.ydata)**2.)
+        d = np.sqrt(
+            (xdata - mouseevent.xdata)**2 + (ydata - mouseevent.ydata)**2)
 
         ind = np.nonzero(np.less_equal(d, maxd))
         if len(ind):
@@ -143,7 +147,8 @@ if 1:  # picking with a custom hit test function
     fig.canvas.mpl_connect('pick_event', onpick2)
 
 
-if 1:  # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
+def pick_scatter_plot():
+    # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
 
     x, y, c, s = rand(4, 100)
 
@@ -156,7 +161,9 @@ if 1:  # picking on a scatter plot (matplotlib.collections.RegularPolyCollection
     #fig.savefig('pscoll.eps')
     fig.canvas.mpl_connect('pick_event', onpick3)
 
-if 1:  # picking images (matplotlib.image.AxesImage)
+
+def pick_image():
+    # picking images (matplotlib.image.AxesImage)
     fig, ax = plt.subplots()
     im1 = ax.imshow(rand(10, 5), extent=(1, 2, 1, 2), picker=True)
     im2 = ax.imshow(rand(5, 10), extent=(3, 4, 1, 2), picker=True)
@@ -174,4 +181,9 @@ if 1:  # picking images (matplotlib.image.AxesImage)
     fig.canvas.mpl_connect('pick_event', onpick4)
 
 
-plt.show()
+if __name__ == '__main__':
+    pick_simple()
+    pick_custom_hit()
+    pick_scatter_plot()
+    pick_image()
+    plt.show()

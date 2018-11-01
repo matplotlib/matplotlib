@@ -1,30 +1,26 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import mpl_toolkits.axes_grid1.axes_grid as axes_grid_orig
-from .axes_divider import LocatableAxes
+from .axislines import Axes
 
-class CbarAxes(axes_grid_orig.CbarAxesBase, LocatableAxes):
-    def __init__(self, *kl, **kwargs):
-        orientation=kwargs.pop("orientation", None)
-        if orientation is None:
-            raise ValueError("orientation must be specified")
+
+class CbarAxes(axes_grid_orig.CbarAxesBase, Axes):
+    def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
         self._default_label_on = False
         self.locator = None
-
-        super(LocatableAxes, self).__init__(*kl, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def cla(self):
-        super(LocatableAxes, self).cla()
+        super().cla()
         self._config_axes()
 
 
 class Grid(axes_grid_orig.Grid):
-    _defaultLocatableAxesClass = LocatableAxes
+    _defaultAxesClass = Axes
+
 
 class ImageGrid(axes_grid_orig.ImageGrid):
-    _defaultLocatableAxesClass = LocatableAxes
+    _defaultAxesClass = Axes
     _defaultCbarAxesClass = CbarAxes
+
 
 AxesGrid = ImageGrid

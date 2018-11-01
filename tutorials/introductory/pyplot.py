@@ -12,7 +12,7 @@ An introduction to the pyplot interface.
 # ===============
 #
 # :mod:`matplotlib.pyplot` is a collection of command style functions
-# that make matplotlib  work like MATLAB.
+# that make matplotlib work like MATLAB.
 # Each ``pyplot`` function makes
 # some change to a figure: e.g., creates a figure, creates a plotting area
 # in a figure, plots some lines in a plotting area, decorates the plot
@@ -23,7 +23,7 @@ An introduction to the pyplot interface.
 # the current figure and plotting area, and the plotting
 # functions are directed to the current axes (please note that "axes" here
 # and in most places in the documentation refers to the *axes*
-# `part of a figure <http://matplotlib.org/faq/usage_faq.html#parts-of-a-figure>`__
+# :ref:`part of a figure <figure_parts>`
 # and not the strict mathematical term for more than one axis).
 #
 # .. note::
@@ -131,7 +131,7 @@ plt.show()
 names = ['group_a', 'group_b', 'group_c']
 values = [1, 10, 100]
 
-plt.figure(1, figsize=(9, 3))
+plt.figure(figsize=(9, 3))
 
 plt.subplot(131)
 plt.bar(names, values)
@@ -164,7 +164,7 @@ plt.show()
 #   ``line,`` to get the first element of that list::
 #
 #       line, = plt.plot(x, y, '-')
-#       line.set_antialiased(False) # turn off antialising
+#       line.set_antialiased(False) # turn off antialiasing
 #
 # * Use the :func:`~matplotlib.pyplot.setp` command.  The example below
 #   uses a MATLAB-style command to set multiple properties
@@ -200,7 +200,6 @@ plt.show()
 # label                   any string
 # linestyle or ls         [ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ...]
 # linewidth or lw         float value in points
-# lod                     [True | False]
 # marker                  [ ``'+'`` | ``','`` | ``'.'`` | ``'1'`` | ``'2'`` | ``'3'`` | ``'4'`` ]
 # markeredgecolor or mec  any matplotlib color
 # markeredgewidth or mew  float value in points
@@ -254,7 +253,7 @@ def f(t):
 t1 = np.arange(0.0, 5.0, 0.1)
 t2 = np.arange(0.0, 5.0, 0.02)
 
-plt.figure(1)
+plt.figure()
 plt.subplot(211)
 plt.plot(t1, f(t1), 'bo', t2, f(t2), 'k')
 
@@ -277,8 +276,8 @@ plt.show()
 # rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 # which allows you to specify the location as ``axes([left, bottom,
 # width, height])`` where all values are in fractional (0 to 1)
-# coordinates.  See :ref:`sphx_glr_gallery_subplots_axes_and_figures_axes_demo.py` for an example of
-# placing axes manually and :ref:`sphx_glr_gallery_subplots_axes_and_figures_subplot_demo.py` for an
+# coordinates.  See :doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of
+# placing axes manually and :doc:`/gallery/subplots_axes_and_figures/subplot_demo` for an
 # example with lots of subplots.
 #
 #
@@ -307,7 +306,7 @@ plt.show()
 # it annoying that states (specifically the current image, figure and axes)
 # are being maintained for you behind the scenes, don't despair: this is just a thin
 # stateful wrapper around an object oriented API, which you can use
-# instead (see :ref:`sphx_glr_tutorials_intermediate_artists.py`)
+# instead (see :doc:`/tutorials/intermediate/artists`)
 #
 # If you are making lots of figures, you need to be aware of one
 # more thing: the memory required for a figure is not completely
@@ -326,7 +325,7 @@ plt.show()
 # The :func:`~matplotlib.pyplot.text` command can be used to add text in
 # an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
 # :func:`~matplotlib.pyplot.ylabel` and :func:`~matplotlib.pyplot.title`
-# are used to add text in the indicated locations (see :ref:`sphx_glr_tutorials_text_text_intro.py`
+# are used to add text in the indicated locations (see :doc:`/tutorials/text/text_intro`
 # for a more detailed example)
 
 mu, sigma = 100, 15
@@ -352,7 +351,7 @@ plt.show()
 #
 #   t = plt.xlabel('my data', fontsize=14, color='red')
 #
-# These properties are covered in more detail in :ref:`sphx_glr_tutorials_text_text_props.py`.
+# These properties are covered in more detail in :doc:`/tutorials/text/text_props`.
 #
 #
 # Using mathematical expressions in text
@@ -368,11 +367,11 @@ plt.show()
 # that the string is a *raw* string and not to treat backslashes as
 # python escapes.  matplotlib has a built-in TeX expression parser and
 # layout engine, and ships its own math fonts -- for details see
-# :ref:`sphx_glr_tutorials_text_mathtext.py`.  Thus you can use mathematical text across platforms
+# :doc:`/tutorials/text/mathtext`.  Thus you can use mathematical text across platforms
 # without requiring a TeX installation.  For those who have LaTeX and
 # dvipng installed, you can also use LaTeX to format your text and
 # incorporate the output directly into your display figures or saved
-# postscript -- see :ref:`sphx_glr_tutorials_text_usetex.py`.
+# postscript -- see :doc:`/tutorials/text/usetex`.
 #
 #
 # Annotating text
@@ -406,7 +405,7 @@ plt.show()
 # variety of other coordinate systems one can choose -- see
 # :ref:`annotations-tutorial` and :ref:`plotting-guide-annotation` for
 # details.  More examples can be found in
-# :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
+# :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
 #
 #
 # Logarithmic and other nonlinear axes
@@ -433,7 +432,7 @@ y.sort()
 x = np.arange(len(y))
 
 # plot with various axes scales
-plt.figure(1)
+plt.figure()
 
 # linear
 plt.subplot(221)

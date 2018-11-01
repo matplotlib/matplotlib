@@ -184,7 +184,8 @@ plt.show()
 # :mod:`pylab` is a convenience module that bulk imports
 # :mod:`matplotlib.pyplot` (for plotting) and :mod:`numpy`
 # (for mathematics and working with arrays) in a single name space.
-# Although many examples use :mod:`pylab`, it is no longer recommended.
+# pylab is deprecated and its use is strongly discouraged because
+# of namespace pollution. Use pyplot instead.
 #
 # For non-interactive plotting it is suggested
 # to use pyplot to create the figures and then the OO interface for
@@ -220,8 +221,7 @@ plt.show()
 
 x = np.arange(0, 10, 0.2)
 y = np.sin(x)
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(x, y)
 plt.show()
 
@@ -284,6 +284,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Again, for these simple examples this style seems like overkill, however
 # once the graphs get slightly more complex it pays off.
 #
+#
+# .. _backends:
+#
 # Backends
 # ========
 #
@@ -296,11 +299,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # to the "backend" and many new users are confused by this term.
 # matplotlib targets many different use cases and output formats.  Some
 # people use matplotlib interactively from the python shell and have
-# plotting windows pop up when they type commands.  Some people embed
-# matplotlib into graphical user interfaces like wxpython or pygtk to
-# build rich applications.  Others use matplotlib in batch scripts to
-# generate postscript images from some numerical simulations, and still
-# others in web application servers to dynamically serve up graphs.
+# plotting windows pop up when they type commands.  Some people run
+# `Jupyter <https://jupyter.org>`_ notebooks and draw inline plots for
+# quick data analysis. Others embed matplotlib into graphical user
+# interfaces like wxpython or pygtk to build rich applications.  Some
+# people use matplotlib in batch scripts to generate postscript images
+# from numerical simulations, and still others run web application
+# servers to dynamically serve up graphs.
 #
 # To support all of these use cases, matplotlib can target different
 # outputs, and each of these capabilities is called a backend; the
@@ -317,7 +322,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 #
 # #. The ``backend`` parameter in your ``matplotlibrc`` file (see
-#    :ref:`sphx_glr_tutorials_introductory_customizing.py`)::
+#    :doc:`/tutorials/introductory/customizing`)::
 #
 #        backend : WXAgg   # use wxpython with antigrain (agg) rendering
 #
@@ -354,8 +359,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    :func:`~matplotlib.use` unless absolutely necessary.
 #
 # .. note::
-#    Backend name specifications are not case-sensitive; e.g., 'GTKAgg'
-#    and 'gtkagg' are equivalent.
+#    Backend name specifications are not case-sensitive; e.g., 'GTK3Agg'
+#    and 'gtk3agg' are equivalent.
 #
 # With a typical installation of matplotlib, such as from a
 # binary installer or a linux distribution package, a good default
@@ -373,11 +378,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
 # Geometry`_ C++ library to make a raster (pixel) image of the figure.
 # All of the user interfaces except ``macosx`` can be used with
-# agg rendering, e.g.,
-# ``WXAgg``, ``GTKAgg``, ``QT4Agg``, ``QT5Agg``, ``TkAgg``.  In
-# addition, some of the user interfaces support other rendering engines.
-# For example, with GTK, you can also select GDK rendering (backend
-# ``GTK`` deprecated in 2.0) or Cairo rendering (backend ``GTKCairo``).
+# agg rendering, e.g., ``WXAgg``, ``GTK3Agg``, ``QT4Agg``, ``QT5Agg``,
+# ``TkAgg``.  In addition, some of the user interfaces support other rendering
+# engines.  For example, with GTK+ 3, you can also select Cairo rendering
+# (backend ``GTK3Cairo``).
 #
 # For the rendering engines, one can also distinguish between `vector
 # <https://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
@@ -388,7 +392,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # DPI setting.
 #
 # Here is a summary of the matplotlib renderers (there is an eponymous
-# backed for each; these are *non-interactive backends*, capable of
+# backend for each; these are *non-interactive backends*, capable of
 # writing to a file):
 #
 # =============   ============   ================================================
@@ -438,14 +442,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Qt4Agg    Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or
 #           ``pyside``).  This backend can be activated in IPython with
 #           ``%matplotlib qt4``.
-# GTKAgg    Agg rendering to a :term:`GTK` 2.x canvas (requires PyGTK_, and
-#           pycairo_ or cairocffi_; Python2 only).  This backend can be
-#           activated in IPython with ``%matplotlib gtk``.
-# GTKCairo  Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_,
-#           and pycairo_ or cairocffi_; Python2 only).
-# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_;
-#           v4.0 (in beta) is required for Python3). This backend can be
-#           activated in IPython with ``%matplotlib wx``.#
+# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_ 4).
+#           This backend can be activated in IPython with ``%matplotlib wx``.
 # ========= ================================================================
 #
 # .. _`Anti-Grain Geometry`: http://antigrain.com/
@@ -453,8 +451,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
 # .. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
 # .. _`Cairo graphics`: https://wwW.cairographics.org
-# .. _`Gimp Drawing Kit`: https://en.wikipedia.org/wiki/GDK
-# .. _PyGTK: http://www.pygtk.org
 # .. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
 # .. _pycairo: https://www.cairographics.org/pycairo/
 # .. _cairocffi: https://pythonhosted.org/cairocffi/
@@ -486,11 +482,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # GTK and Cairo
 # -------------
 #
-# Both `GTK2` and `GTK3` have implicit dependencies on PyCairo regardless of the
-# specific Matplotlib backend used. Unfortunately the latest release of PyCairo
-# for Python3 does not implement the Python wrappers needed for the `GTK3Agg`
-# backend. `Cairocffi` can be used as a replacement which implements the correct
-# wrapper.
+# `GTK3` backends (*both* `GTK3Agg` and `GTK3Cairo`) depend on Cairo
+# (pycairo>=1.11.0 or cairocffi).
 #
 # How do I select PyQt4 or PySide?
 # --------------------------------
@@ -515,7 +508,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # that are called, and on a state variable that determines whether
 # matplotlib is in "interactive mode".  The default Boolean value is set
 # by the :file:`matplotlibrc` file, and may be customized like any other
-# configuration parameter (see :ref:`sphx_glr_tutorials_introductory_customizing.py`).  It
+# configuration parameter (see :doc:`/tutorials/introductory/customizing`).  It
 # may also be set via :func:`matplotlib.interactive`, and its
 # value may be queried via :func:`matplotlib.is_interactive`.  Turning
 # interactive mode on and off in the middle of a stream of plotting
@@ -610,18 +603,18 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Prior to version 1.0, show() generally could not be called
 # more than once in a single script (although sometimes one
 # could get away with it); for version 1.0.1 and above, this
-# restriction is lifted, so one can write a script like this:
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-plt.ioff()
-for i in range(3):
-    plt.plot(np.random.rand(10))
-    plt.show()
-
-###############################################################################
-# which makes three plots, one at a time.
+# restriction is lifted, so one can write a script like this::
+#
+#     import numpy as np
+#     import matplotlib.pyplot as plt
+#
+#     plt.ioff()
+#     for i in range(3):
+#         plt.plot(np.random.rand(10))
+#         plt.show()
+#
+# which makes three plots, one at a time. I.e. the second plot will show up,
+# once the first plot is closed.
 #
 # Summary
 # -------
@@ -661,7 +654,7 @@ for i in range(3):
 # controlled by the ``path.simplify`` and
 # ``path.simplify_threshold`` parameters in your
 # ``matplotlibrc`` file (see
-# :ref:`sphx_glr_tutorials_introductory_customizing.py` for
+# :doc:`/tutorials/introductory/customizing` for
 # more information about the ``matplotlibrc`` file).
 # The ``path.simplify`` parameter is a boolean indicating whether
 # or not line segments are simplified at all. The
@@ -698,7 +691,7 @@ for i in range(3):
 # interactive plotting (with maximal simplification) and another
 # style for publication quality plotting (with minimal
 # simplification) and activate them as necessary. See
-# :ref:`sphx_glr_tutorials_introductory_customizing.py` for
+# :doc:`/tutorials/introductory/customizing` for
 # instructions on how to perform these actions.
 #
 # The simplification works by iteratively merging line segments
@@ -729,7 +722,7 @@ for i in range(3):
 #
 # The markevery argument allows for naive subsampling, or an
 # attempt at evenly spaced (along the *x* axis) sampling. See the
-# :ref:`sphx_glr_gallery_lines_bars_and_markers_markevery_demo.py`
+# :doc:`/gallery/lines_bars_and_markers/markevery_demo`
 # for more information.
 #
 # Splitting lines into smaller chunks
@@ -769,6 +762,14 @@ for i in range(3):
 #   mpl.rcParams['agg.path.chunksize'] = 10000
 #   plt.plot(y)
 #   plt.show()
+#
+# Legends
+# -------
+#
+# The default legend behavior for axes attempts to find the location
+# that covers the fewest data points (`loc='best'`). This can be a
+# very expensive computation if there are lots of data points. In
+# this case, you may want to provide a specific location.
 #
 # Using the *fast* style
 # ----------------------

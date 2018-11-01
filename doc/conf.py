@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Matplotlib documentation build configuration file, created by
 # sphinx-quickstart on Fri May  2 12:33:25 2008.
 #
@@ -11,17 +9,18 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import matplotlib
 import os
+import shutil
 import sys
+
+import matplotlib
 import sphinx
-import six
-from glob import glob
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 sys.path.append(os.path.abspath('.'))
+sys.path.append('.')
 
 # General configuration
 # ---------------------
@@ -34,12 +33,12 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.viewcode',
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
     'numpydoc',  # Needs to be loaded *after* autodoc.
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
-    'matplotlib.sphinxext.only_directives',
     'matplotlib.sphinxext.plot_directive',
     'sphinxext.custom_roles',
     'sphinxext.github',
@@ -58,8 +57,6 @@ def _check_deps():
              "numpydoc": 'numpydoc',
              "PIL.Image": 'pillow',
              "sphinx_gallery": 'sphinx_gallery'}
-    if sys.version_info < (3, 3):
-        names["mock"] = 'mock'
     missing = []
     for name in names:
         try:
@@ -74,15 +71,13 @@ def _check_deps():
 _check_deps()
 
 # Import only after checking for dependencies.
-from sphinx_gallery.sorting import ExplicitOrder
+# gallery_order.py from the sphinxext folder provides the classes that
+# allow custom ordering of sections and subsections of the gallery
+import sphinxext.gallery_order as gallery_order
+# The following import is only necessary to monkey patch the signature later on
+from sphinx_gallery import gen_rst
 
-if six.PY2:
-    from distutils.spawn import find_executable
-    has_dot = find_executable('dot') is not None
-else:
-    from shutil import which  # Python >= 3.3
-    has_dot = which('dot') is not None
-if not has_dot:
+if shutil.which('dot') is None:
     raise OSError(
         "No binary named dot - you need to install the Graph Visualization "
         "software (usually packaged as 'graphviz') to build the documentation")
@@ -90,36 +85,19 @@ if not has_dot:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
-autodoc_default_flags = ['members', 'undoc-members']
+if sphinx.version_info < (1, 8):
+    autodoc_default_flags = ['members', 'undoc-members']
+else:
+    autodoc_default_options = {'members': None, 'undoc-members': None}
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
-    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None)
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
+    'cycler': ('https://matplotlib.org/cycler', None),
 }
 
-explicit_order_folders = [
-                          '../examples/api',
-                          '../examples/pyplots',
-                          '../examples/subplots_axes_and_figures',
-                          '../examples/color',
-                          '../examples/statistics',
-                          '../examples/lines_bars_and_markers',
-                          '../examples/images_contours_and_fields',
-                          '../examples/shapes_and_collections',
-                          '../examples/text_labels_and_annotations',
-                          '../examples/pie_and_polar_charts',
-                          '../examples/style_sheets',
-                          '../examples/axes_grid',
-                          '../examples/showcase',
-                          '../tutorials/introductory',
-                          '../tutorials/intermediate',
-                          '../tutorials/advanced']
-for folder in sorted(glob('../examples/*') + glob('../tutorials/*')):
-    if not os.path.isdir(folder) or folder in explicit_order_folders:
-        continue
-    explicit_order_folders.append(folder)
 
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
@@ -133,11 +111,22 @@ sphinx_gallery_conf = {
         'scipy': 'https://docs.scipy.org/doc/scipy/reference',
     },
     'backreferences_dir': 'api/_as_gen',
-    'subsection_order': ExplicitOrder(explicit_order_folders),
+    'subsection_order': gallery_order.sectionorder,
+    'within_subsection_order': gallery_order.subsectionorder,
     'min_reported_time': 1,
 }
 
 plot_gallery = 'True'
+
+# Monkey-patching gallery signature to include search keywords
+gen_rst.SPHX_GLR_SIG = """\n
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    Keywords: matplotlib code example, codex, python plot, pyplot
+    `Gallery generated by Sphinx-Gallery
+    <https://sphinx-gallery.readthedocs.io>`_\n"""
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -152,10 +141,16 @@ source_encoding = "utf-8"
 master_doc = 'contents'
 
 # General substitutions.
+from subprocess import check_output
+SHA = check_output(['git', 'describe', '--dirty']).decode('utf-8').strip()
+
+html_context = {'sha': SHA}
+
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             'team; 2012 - 2017 The Matplotlib development team')
+             'team; 2012 - 2018 The Matplotlib development team')
+
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -230,10 +225,6 @@ html_file_suffix = '.html'
 # using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-#html_use_smartypants = True
-
 # Content template for the index page.
 html_index = 'index.html'
 
@@ -242,9 +233,10 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-    'index': ['donate_sidebar.html', 'searchbox.html'],
-    '**': ['localtoc.html', 'relations.html',
-           'sourcelink.html', 'searchbox.html']
+    'index': ['searchbox.html', 'sidebar_announcement.html',
+              'donate_sidebar.html'],
+    '**': ['searchbox.html', 'localtoc.html', 'relations.html',
+           'pagesource.html']
 }
 
 # If false, no module index is generated.
@@ -260,6 +252,9 @@ html_use_opensearch = 'False'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Matplotlibdoc'
+
+# Use typographic quote characters.
+smartquotes = False
 
 # Path to favicon
 html_favicon = '_static/favicon.ico'
@@ -323,10 +318,6 @@ else:
 # documentation
 autoclass_content = 'both'
 
-rst_epilog = """
-.. |minimum_numpy_version| replace:: %s
-""" % matplotlib.__version__numpy__
-
 texinfo_documents = [
     ("contents", 'matplotlib', 'Matplotlib Documentation',
      'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
@@ -338,3 +329,10 @@ texinfo_documents = [
 # numpydoc config
 
 numpydoc_show_class_members = False
+
+latex_engine = 'xelatex'  # or 'lualatex'
+
+latex_elements = {
+    'babel': r'\usepackage{babel}',
+    'fontpkg': r'\setmainfont{DejaVu Serif}',
+}

@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import absolute_import, division, print_function
-from six import BytesIO
+from io import BytesIO
 
 import matplotlib.afm as afm
 
@@ -33,7 +30,7 @@ EndFontMetrics
 def test_nonascii_str():
     # This tests that we also decode bytes as utf-8 properly.
     # Else, font files with non ascii characters fail to load.
-    inp_str = u"привет"
+    inp_str = "привет"
     byte_str = inp_str.encode("utf8")
 
     ret = afm._to_str(byte_str)
@@ -70,9 +67,9 @@ def test_parse_char_metrics():
          42: (1141.0, 'foo', [40, 60, 800, 360]),
          99: (583.0, 'bar', [40, -10, 543, 210]),
          },
-        {'space': (250.0, [0, 0, 0, 0]),
-         'foo': (1141.0, [40, 60, 800, 360]),
-         'bar': (583.0, [40, -10, 543, 210]),
+        {'space': (250.0, 'space', [0, 0, 0, 0]),
+         'foo': (1141.0, 'foo', [40, 60, 800, 360]),
+         'bar': (583.0, 'bar', [40, -10, 543, 210]),
          })
 
 

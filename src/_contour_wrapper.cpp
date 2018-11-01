@@ -1,5 +1,6 @@
 #include "src/_contour.h"
 #include "src/mplutils.h"
+#include "src/py_converters.h"
 #include "src/py_exceptions.h"
 
 /* QuadContourGenerator */
@@ -29,15 +30,15 @@ static int PyQuadContourGenerator_init(PyQuadContourGenerator* self, PyObject* a
 {
     QuadContourGenerator::CoordinateArray x, y, z;
     QuadContourGenerator::MaskArray mask;
-    int corner_mask;
+    bool corner_mask;
     long chunk_size;
 
-    if (!PyArg_ParseTuple(args, "O&O&O&O&il",
+    if (!PyArg_ParseTuple(args, "O&O&O&O&O&l",
                           &x.converter_contiguous, &x,
                           &y.converter_contiguous, &y,
                           &z.converter_contiguous, &z,
                           &mask.converter_contiguous, &mask,
-                          &corner_mask,
+                          &convert_bool, &corner_mask,
                           &chunk_size)) {
         return -1;
     }
@@ -153,7 +154,6 @@ static PyTypeObject* PyQuadContourGenerator_init_type(PyObject* m, PyTypeObject*
 
 extern "C" {
 
-#if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_contour",
@@ -166,38 +166,23 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
-#define INITERROR return NULL
-
 PyMODINIT_FUNC PyInit__contour(void)
-
-#else
-#define INITERROR return
-
-PyMODINIT_FUNC init_contour(void)
-#endif
-
 {
     PyObject *m;
 
-#if PY3K
     m = PyModule_Create(&moduledef);
-#else
-    m = Py_InitModule3("_contour", NULL, NULL);
-#endif
 
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     if (!PyQuadContourGenerator_init_type(m, &PyQuadContourGeneratorType)) {
-        INITERROR;
+        return NULL;
     }
 
     import_array();
 
-#if PY3K
     return m;
-#endif
 }
 
 } // extern "C"

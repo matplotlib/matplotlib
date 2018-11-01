@@ -25,17 +25,8 @@ as follows::
   Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1,0,0))
 
 To enable tex rendering of all text in your matplotlib figure, set
-text.usetex in your matplotlibrc file or include these two lines in
-your script::
-
-  from matplotlib import rc
-  rc('text', usetex=True)
-
+:rc:`text.usetex` to True.
 """
-
-from __future__ import absolute_import, division, print_function
-
-import six
 
 import copy
 import glob
@@ -43,41 +34,15 @@ import hashlib
 import logging
 import os
 from pathlib import Path
-import shutil
-import sys
-import warnings
-
-import distutils.version
-import numpy as np
-import matplotlib as mpl
-from matplotlib import rcParams
-from matplotlib._png import read_png
-from matplotlib.cbook import Locked
-from matplotlib.compat.subprocess import subprocess, Popen, PIPE, STDOUT
-import matplotlib.dviread as dviread
 import re
+import subprocess
+
+import numpy as np
+
+import matplotlib as mpl
+from matplotlib import _png, cbook, dviread, rcParams
 
 _log = logging.getLogger(__name__)
-
-
-@mpl.cbook.deprecated("2.1")
-def dvipng_hack_alpha():
-    try:
-        p = Popen([str('dvipng'), '-version'], stdin=PIPE, stdout=PIPE,
-                  stderr=STDOUT, close_fds=(sys.platform != 'win32'))
-        stdout, stderr = p.communicate()
-    except OSError:
-        _log.info('No dvipng was found')
-        return False
-    lines = stdout.decode(sys.getdefaultencoding()).split('\n')
-    for line in lines:
-        if line.startswith('dvipng '):
-            version = line.split()[-1]
-            _log.info('Found dvipng version %s', version)
-            version = distutils.version.LooseVersion(version)
-            return version < distutils.version.LooseVersion('1.6')
-    _log.info('Unexpected response from dvipng -version')
-    return False
 
 
 class TexManager(object):
@@ -97,8 +62,8 @@ class TexManager(object):
     # Caches.
     rgba_arrayd = {}
     grey_arrayd = {}
-    postscriptd = property(mpl.cbook.deprecated("2.2")(lambda self: {}))
-    pscnt = property(mpl.cbook.deprecated("2.2")(lambda self: 0))
+    postscriptd = mpl.cbook.deprecated("2.2")(property(lambda self: {}))
+    pscnt = mpl.cbook.deprecated("2.2")(property(lambda self: 0))
 
     serif = ('cmr', '')
     sans_serif = ('cmss', '')
@@ -126,9 +91,9 @@ class TexManager(object):
         'computer modern typewriter': ('cmtt', '')}
 
     _rc_cache = None
-    _rc_cache_keys = (('text.latex.preamble', ) +
-                      tuple(['font.' + n for n in ('family', ) +
-                             font_families]))
+    _rc_cache_keys = (
+        ('text.latex.preamble', 'text.latex.unicode', 'text.latex.preview',
+         'font.family') + tuple('font.' + n for n in font_families))
 
     def __init__(self):
 
@@ -140,8 +105,7 @@ class TexManager(object):
         ff = rcParams['font.family']
         if len(ff) == 1 and ff[0].lower() in self.font_families:
             self.font_family = ff[0].lower()
-        elif (isinstance(ff, six.string_types)
-              and ff.lower() in self.font_families):
+        elif isinstance(ff, str) and ff.lower() in self.font_families:
             self.font_family = ff.lower()
         else:
             _log.info('font.family must be one of (%s) when text.usetex is '
@@ -235,8 +199,7 @@ class TexManager(object):
 
         if rcParams['text.latex.unicode']:
             unicode_preamble = r"""
-\usepackage{ucs}
-\usepackage[utf8x]{inputenc}"""
+\usepackage[utf8]{inputenc}"""
         else:
             unicode_preamble = ''
 
@@ -287,8 +250,7 @@ class TexManager(object):
 
         if rcParams['text.latex.unicode']:
             unicode_preamble = r"""
-\usepackage{ucs}
-\usepackage[utf8x]{inputenc}"""
+\usepackage[utf8]{inputenc}"""
         else:
             unicode_preamble = ''
 
@@ -360,7 +322,7 @@ class TexManager(object):
         dvifile = '%s.dvi' % basefile
         if not os.path.exists(dvifile):
             texfile = self.make_tex(tex, fontsize)
-            with Locked(self.texcache):
+            with cbook._lock_path(texfile):
                 self._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
                      texfile], tex)
@@ -456,7 +418,7 @@ class TexManager(object):
         alpha = self.grey_arrayd.get(key)
         if alpha is None:
             pngfile = self.make_png(tex, fontsize, dpi)
-            X = read_png(os.path.join(self.texcache, pngfile))
+            X = _png.read_png(os.path.join(self.texcache, pngfile))
             self.grey_arrayd[key] = alpha = X[:, :, -1]
         return alpha
 

@@ -1,5 +1,5 @@
-#ifndef __FILE_COMPAT_H__
-#define __FILE_COMPAT_H__
+#ifndef MPL_FILE_COMPAT_H
+#define MPL_FILE_COMPAT_H
 
 #include <Python.h>
 #include <stdio.h>
@@ -48,7 +48,6 @@ extern "C" {
 /*
  * PyFile_* compatibility
  */
-#if defined(PY3K) | defined(PYPY_VERSION)
 
 /*
  * Get a FILE* handle to the file represented by the Python object
@@ -60,12 +59,15 @@ static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *or
     mpl_off_t pos;
     FILE *handle;
 
-    /* Flush first to ensure things end up in the file in the correct order */
-    ret = PyObject_CallMethod(file, (char *)"flush", (char *)"");
-    if (ret == NULL) {
-        return NULL;
+    if (mode[0] != 'r') {
+        /* Flush first to ensure things end up in the file in the correct order */
+        ret = PyObject_CallMethod(file, (char *)"flush", (char *)"");
+        if (ret == NULL) {
+            return NULL;
+        }
+        Py_DECREF(ret);
     }
-    Py_DECREF(ret);
+
     fd = PyObject_AsFileDescriptor(file);
     if (fd == -1) {
         return NULL;
@@ -82,7 +84,7 @@ static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *or
     if (ret == NULL) {
         return NULL;
     }
-    fd2 = PyNumber_AsSsize_t(ret, NULL);
+    fd2 = (int)PyNumber_AsSsize_t(ret, NULL);
     Py_DECREF(ret);
 
 /* Convert to FILE* handle */
@@ -179,26 +181,6 @@ static NPY_INLINE int mpl_PyFile_Check(PyObject *file)
     return 1;
 }
 
-#else
-
-static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, const char *mode, mpl_off_t *orig_pos)
-{
-    return PyFile_AsFile(file);
-}
-
-static NPY_INLINE int mpl_PyFile_DupClose(PyObject *file, FILE *handle, mpl_off_t orig_pos)
-{
-    // deliberately nothing
-    return 0;
-}
-
-static NPY_INLINE int mpl_PyFile_Check(PyObject *file)
-{
-    return PyFile_Check(file);
-}
-
-#endif
-
 static NPY_INLINE PyObject *mpl_PyFile_OpenFile(PyObject *filename, const char *mode)
 {
     PyObject *open;
@@ -234,4 +216,4 @@ fail:
 }
 #endif
 
-#endif /* ifndef __FILE_COMPAT_H__ */
+#endif /* ifndef MPL_FILE_COMPAT_H */

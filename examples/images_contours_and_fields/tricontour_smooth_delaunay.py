@@ -4,7 +4,7 @@ Tricontour Smooth Delaunay
 ==========================
 
 Demonstrates high-resolution tricontouring of a random set of points ;
-a matplotlib.tri.TriAnalyzer is used to improve the plot quality.
+a `matplotlib.tri.TriAnalyzer` is used to improve the plot quality.
 
 The initial data points and triangular grid for this demo are:
 
@@ -16,12 +16,12 @@ The initial data points and triangular grid for this demo are:
 The proposed generic procedure to obtain a high resolution contouring of such
 a data set is the following:
 
-1. Compute an extended mask with a matplotlib.tri.TriAnalyzer, which will
+1. Compute an extended mask with a `matplotlib.tri.TriAnalyzer`, which will
    exclude badly shaped (flat) triangles from the border of the
    triangulation. Apply the mask to the triangulation (using set_mask).
 2. Refine and interpolate the data using a
-   matplotlib.tri.UniformTriRefiner.
-3. Plot the refined data with tricontour.
+   `matplotlib.tri.UniformTriRefiner`.
+3. Plot the refined data with `~.axes.Axes.tricontour`.
 
 """
 from matplotlib.tri import Triangulation, TriAnalyzer, UniformTriRefiner
@@ -61,7 +61,7 @@ init_mask_frac = 0.0    # Float > 0. adjusting the proportion of
 
 min_circle_ratio = .01  # Minimum circle ratio - border triangles with circle
                         # ratio below this will be masked if they touch a
-                        # border. Suggested value 0.01 ; Use -1 to keep
+                        # border. Suggested value 0.01; use -1 to keep
                         # all triangles.
 
 # Random points
@@ -114,26 +114,48 @@ plot_expected = False    # plot of analytical function values for comparison
 levels = np.arange(0., 1., 0.025)
 cmap = cm.get_cmap(name='Blues', lut=None)
 
-plt.figure()
-plt.gca().set_aspect('equal')
-plt.title("Filtering a Delaunay mesh\n" +
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+ax.set_title("Filtering a Delaunay mesh\n" +
           "(application to high-resolution tricontouring)")
 
 # 1) plot of the refined (computed) data contours:
-plt.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
+ax.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
                linewidths=[2.0, 0.5, 1.0, 0.5])
 # 2) plot of the expected (analytical) data contours (dashed):
 if plot_expected:
-    plt.tricontour(tri_refi, z_expected, levels=levels, cmap=cmap,
+    ax.tricontour(tri_refi, z_expected, levels=levels, cmap=cmap,
                    linestyles='--')
 # 3) plot of the fine mesh on which interpolation was done:
 if plot_refi_tri:
-    plt.triplot(tri_refi, color='0.97')
+    ax.triplot(tri_refi, color='0.97')
 # 4) plot of the initial 'coarse' mesh:
 if plot_tri:
-    plt.triplot(tri, color='0.7')
+    ax.triplot(tri, color='0.7')
 # 4) plot of the unvalidated triangles from naive Delaunay Triangulation:
 if plot_masked_tri:
-    plt.triplot(flat_tri, color='red')
+    ax.triplot(flat_tri, color='red')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.tricontour
+matplotlib.pyplot.tricontour
+matplotlib.axes.Axes.tricontourf
+matplotlib.pyplot.tricontourf
+matplotlib.axes.Axes.triplot
+matplotlib.pyplot.triplot
+matplotlib.tri
+matplotlib.tri.Triangulation
+matplotlib.tri.TriAnalyzer
+matplotlib.tri.UniformTriRefiner

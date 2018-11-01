@@ -6,6 +6,8 @@ Embedding In GTK3 Panzoom
 Demonstrate NavigationToolbar with GTK3 accessed via pygobject.
 """
 
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from matplotlib.backends.backend_gtk3 import (

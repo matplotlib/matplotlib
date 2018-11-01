@@ -1,0 +1,7 @@
+Text alignment fixes made
+-------------------------
+
+Text alignment was incorrect, in particular for multiline text objects
+with large descenders (i.e. subscripts) and rotated text.  These have been
+fixed and made more consistent, but could make old code that has compensated
+no longer have the correct alignment.

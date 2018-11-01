@@ -9,42 +9,32 @@ Interface::
       # iterate over pages:
       for page in dvi:
           w, h, d = page.width, page.height, page.descent
-          for x,y,font,glyph,width in page.text:
+          for x, y, font, glyph, width in page.text:
               fontname = font.texname
               pointsize = font.size
               ...
-          for x,y,height,width in page.boxes:
+          for x, y, height, width in page.boxes:
               ...
-
 """
-from __future__ import absolute_import, division, print_function
-
-import six
-from six.moves import xrange
 
 from collections import namedtuple
-from functools import partial, wraps
+import enum
+from functools import lru_cache, partial, wraps
 import logging
-import numpy as np
 import os
 import re
 import struct
-import sys
 import textwrap
 
+import numpy as np
+
 from matplotlib import cbook, rcParams
-from matplotlib.compat import subprocess
-
-try:
-    from functools import lru_cache
-except ImportError:  # Py2
-    from backports.functools_lru_cache import lru_cache
-
-if six.PY3:
-    def ord(x):
-        return x
 
 _log = logging.getLogger(__name__)
+
+# Many dvi related files are looked for by external processes, require
+# additional parsing, and are used many times per rendering, which is why they
+# are cached using lru_cache().
 
 # Dvi is a bytecode format documented in
 # http://mirrors.ctan.org/systems/knuth/dist/texware/dvitype.web
@@ -62,7 +52,7 @@ _log = logging.getLogger(__name__)
 #              just stops reading)
 #   finale:    the finale (unimplemented in our current implementation)
 
-_dvistate = cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
+_dvistate = enum.Enum('DviState', 'pre outer inpage post_post finale')
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
@@ -172,7 +162,7 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
         if max is None:
             table[min] = wrapper
         else:
-            for i in xrange(min, max+1):
+            for i in range(min, max+1):
                 assert table[i] is None
                 table[i] = wrapper
         return wrapper
@@ -189,12 +179,12 @@ class Dvi(object):
     file upon exit. Pages can be read via iteration. Here is an overly
     simple way to extract text without trying to detect whitespace::
 
-    >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
-    >>>     for page in dvi:
-    >>>         print(''.join(unichr(t.glyph) for t in page.text))
+        >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
+        ...     for page in dvi:
+        ...         print(''.join(chr(t.glyph) for t in page.text))
     """
     # dispatch table
-    _dtable = [None for _ in xrange(256)]
+    _dtable = [None] * 256
     _dispatch = partial(_dispatch, _dtable)
 
     def __init__(self, filename, dpi):
@@ -250,12 +240,8 @@ class Dvi(object):
             precision is not lost and coordinate values are not clipped to
             integers.
         """
-        while True:
-            have_page = self._read()
-            if have_page:
-                yield self._output()
-            else:
-                break
+        while self._read():
+            yield self._output()
 
     def close(self):
         """
@@ -311,11 +297,11 @@ class Dvi(object):
         False if there were no more pages.
         """
         while True:
-            byte = ord(self.file.read(1)[0])
+            byte = self.file.read(1)[0]
             self._dtable[byte](self, byte)
             if byte == 140:                         # end of page
                 return True
-            if self.state == _dvistate.post_post:   # end of file
+            if self.state is _dvistate.post_post:   # end of file
                 self.close()
                 return False
 
@@ -325,11 +311,11 @@ class Dvi(object):
         Signedness is determined by the *signed* keyword.
         """
         str = self.file.read(nbytes)
-        value = ord(str[0])
+        value = str[0]
         if signed and value >= 0x80:
             value = value - 0x100
         for i in range(1, nbytes):
-            value = 0x100*value + ord(str[i])
+            value = 0x100*value + str[i]
         return value
 
     @_dispatch(min=0, max=127, state=_dvistate.inpage)
@@ -445,14 +431,9 @@ class Dvi(object):
     @_dispatch(min=239, max=242, args=('ulen1',))
     def _xxx(self, datalen):
         special = self.file.read(datalen)
-        if six.PY3:
-            chr_ = chr
-        else:
-            def chr_(x):
-                return x
         _log.debug(
             'Dvi._xxx: encountered special: %s',
-            ''.join([chr_(ch) if 32 <= ord(ch) < 127 else '<%02x>' % ord(ch)
+            ''.join([chr(ch) if 32 <= ch < 127 else '<%02x>' % ch
                      for ch in special]))
 
     @_dispatch(min=243, max=246, args=('olen1', 'u4', 'u4', 'u4', 'u1', 'u1'))
@@ -464,11 +445,7 @@ class Dvi(object):
         fontname = n[-l:].decode('ascii')
         tfm = _tfmfile(fontname)
         if tfm is None:
-            if six.PY2:
-                error_class = OSError
-            else:
-                error_class = FileNotFoundError
-            raise error_class("missing font metrics file: %s" % fontname)
+            raise FileNotFoundError("missing font metrics file: %s" % fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s' % n)
 
@@ -561,7 +538,7 @@ class DviFont(object):
         except ValueError:
             nchars = 0
         self.widths = [(1000*tfm.width.get(char, 0)) >> 20
-                       for char in xrange(nchars)]
+                       for char in range(nchars)]
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and \
@@ -643,9 +620,9 @@ class Vf(Dvi):
         packet_char, packet_ends = None, None
         packet_len, packet_width = None, None
         while True:
-            byte = ord(self.file.read(1)[0])
+            byte = self.file.read(1)[0]
             # If we are in a packet, execute the dvi instructions
-            if self.state == _dvistate.inpage:
+            if self.state is _dvistate.inpage:
                 byte_at = self.file.tell()-1
                 if byte_at == packet_ends:
                     self._finalize_packet(packet_char, packet_width)
@@ -701,7 +678,7 @@ class Vf(Dvi):
         self.state = _dvistate.outer
 
     def _pre(self, i, x, cs, ds):
-        if self.state != _dvistate.pre:
+        if self.state is not _dvistate.pre:
             raise ValueError("pre command in middle of vf file")
         if i != 202:
             raise ValueError("Unknown vf format %d" % i)
@@ -774,9 +751,9 @@ class Tfm(object):
         widths, heights, depths = \
             [struct.unpack('!%dI' % (len(x)/4), x)
              for x in (widths, heights, depths)]
-        for idx, char in enumerate(xrange(bc, ec+1)):
-            byte0 = ord(char_info[4*idx])
-            byte1 = ord(char_info[4*idx+1])
+        for idx, char in enumerate(range(bc, ec+1)):
+            byte0 = char_info[4*idx]
+            byte1 = char_info[4*idx+1]
             self.width[char] = _fix2comp(widths[byte0])
             self.height[char] = _fix2comp(heights[byte1 >> 4])
             self.depth[char] = _fix2comp(depths[byte1 & 0xf])
@@ -833,14 +810,17 @@ class PsfontsMap(object):
     """
     __slots__ = ('_font', '_filename')
 
-    def __init__(self, filename):
+    # Create a filename -> PsfontsMap cache, so that calling
+    # `PsfontsMap(filename)` with the same filename a second time immediately
+    # returns the same object.
+    @lru_cache()
+    def __new__(cls, filename):
+        self = object.__new__(cls)
         self._font = {}
-        self._filename = filename
-        if six.PY3 and isinstance(filename, bytes):
-            encoding = sys.getfilesystemencoding() or 'utf-8'
-            self._filename = filename.decode(encoding, errors='replace')
+        self._filename = os.fsdecode(filename)
         with open(filename, 'rb') as file:
             self._parse(file)
+        return self
 
     def __getitem__(self, texname):
         assert isinstance(texname, bytes)
@@ -979,12 +959,10 @@ class Encoding(object):
             _log.debug('Result: %s', self.encoding)
 
     def __iter__(self):
-        for name in self.encoding:
-            yield name
+        yield from self.encoding
 
-    def _parse(self, file):
-        result = []
-
+    @staticmethod
+    def _parse(file):
         lines = (line.split(b'%', 1)[0].strip() for line in file)
         data = b''.join(lines)
         beginning = data.find(b'[')
@@ -1001,6 +979,7 @@ class Encoding(object):
         return re.findall(br'/([^][{}<>\s]+)', data)
 
 
+@lru_cache()
 def find_tex_file(filename, format=None):
     """
     Find a file in the texmf tree.
@@ -1009,6 +988,8 @@ def find_tex_file(filename, format=None):
     library [1]_. Most existing TeX distributions on Unix-like systems use
     kpathsea. It is also available as part of MikTeX, a popular
     distribution on Windows.
+
+    *If the file is not found, an empty string is returned*.
 
     Parameters
     ----------
@@ -1024,33 +1005,34 @@ def find_tex_file(filename, format=None):
         The library that :program:`kpsewhich` is part of.
     """
 
-    if six.PY3:
-        # we expect these to always be ascii encoded, but use utf-8
-        # out of caution
-        if isinstance(filename, bytes):
-            filename = filename.decode('utf-8', errors='replace')
-        if isinstance(format, bytes):
-            format = format.decode('utf-8', errors='replace')
+    # we expect these to always be ascii encoded, but use utf-8
+    # out of caution
+    if isinstance(filename, bytes):
+        filename = filename.decode('utf-8', errors='replace')
+    if isinstance(format, bytes):
+        format = format.decode('utf-8', errors='replace')
+
+    if os.name == 'nt':
+        # On Windows only, kpathsea can use utf-8 for cmd args and output.
+        # The `command_line_encoding` environment variable is set to force it
+        # to always use utf-8 encoding. See mpl issue #11848 for more info.
+        kwargs = dict(env=dict(os.environ, command_line_encoding='utf-8'))
+    else:
+        kwargs = {}
 
     cmd = ['kpsewhich']
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
-    _log.debug('find_tex_file(%s): %s', filename, cmd)
-    # stderr is unused, but reading it avoids a subprocess optimization
-    # that breaks EINTR handling in some Python versions:
-    # http://bugs.python.org/issue12493
-    # https://github.com/matplotlib/matplotlib/issues/633
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
-    result = pipe.communicate()[0].rstrip()
-    _log.debug('find_tex_file result: %s', result)
-    return result.decode('ascii')
+    try:
+        result = cbook._check_and_log_subprocess(cmd, _log, **kwargs)
+    except RuntimeError:
+        return ''
+    if os.name == 'nt':
+        return result.decode('utf-8').rstrip('\r\n')
+    else:
+        return os.fsdecode(result).rstrip('\n')
 
-
-# With multiple text objects per figure (e.g., tick labels) we may end
-# up reading the same tfm and vf files many times, so we implement a
-# simple cache. TODO: is this worth making persistent?
 
 @lru_cache()
 def _fontfile(cls, suffix, texname):

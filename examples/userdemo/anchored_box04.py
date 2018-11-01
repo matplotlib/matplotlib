@@ -26,7 +26,7 @@ box = HPacker(children=[box1, box2],
               align="center",
               pad=0, sep=5)
 
-anchored_box = AnchoredOffsetbox(loc=3,
+anchored_box = AnchoredOffsetbox(loc='lower left',
                                  child=box, pad=0.,
                                  frameon=True,
                                  bbox_to_anchor=(0., 1.02),

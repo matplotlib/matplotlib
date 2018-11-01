@@ -3,7 +3,8 @@
 Colors in the default property cycle
 ====================================
 
-Display the colors from the default prop_cycle.
+Display the colors from the default prop_cycle, which is obtained from the
+:doc:`rc parameters</tutorials/introductory/customizing>`.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -38,3 +39,21 @@ for irow in range(2):
 fig.suptitle('Colors in the default prop_cycle', fontsize='large')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.axhline
+matplotlib.axes.Axes.axvline
+matplotlib.pyplot.axhline
+matplotlib.pyplot.axvline
+matplotlib.axes.Axes.set_facecolor
+matplotlib.figure.Figure.suptitle

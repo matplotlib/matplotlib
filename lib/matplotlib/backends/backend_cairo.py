@@ -3,18 +3,11 @@ A Cairo backend for matplotlib
 ==============================
 :Author: Steve Chaplin and others
 
-This backend depends on `cairo <http://cairographics.org>`_, and either on
-cairocffi, or (Python 2 only) on pycairo.
+This backend depends on cairocffi or pycairo.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
+import copy
 import gzip
-import sys
-import warnings
 
 import numpy as np
 
@@ -29,24 +22,41 @@ except ImportError:
         raise ImportError("cairo backend requires that cairocffi or pycairo "
                           "is installed")
     else:
-        HAS_CAIRO_CFFI = False
-else:
-    HAS_CAIRO_CFFI = True
+        if cairo.version_info < (1, 11, 0):
+            # Introduced create_for_data for Py3.
+            raise ImportError(
+                "cairo {} is installed; cairo>=1.11.0 is required"
+                .format(cairo.version))
 
-if cairo.version_info < (1, 4, 0):
-    raise ImportError("cairo {} is installed; "
-                      "cairo>=1.4.0 is required".format(cairo.version))
 backend_version = cairo.version
 
+from .. import cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
+from matplotlib.font_manager import ttfFontProperty
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-from matplotlib.font_manager import ttfFontProperty
 
 
+if cairo.__name__ == "cairocffi":
+    # Convert a pycairo context to a cairocffi one.
+    def _to_context(ctx):
+        if not isinstance(ctx, cairo.Context):
+            ctx = cairo.Context._from_pointer(
+                cairo.ffi.cast(
+                    'cairo_t **',
+                    id(ctx) + object.__basicsize__)[0],
+                incref=True)
+        return ctx
+else:
+    # Pass-through a pycairo context.
+    def _to_context(ctx):
+        return ctx
+
+
+@cbook.deprecated("3.0")
 class ArrayWrapper:
     """Thin wrapper around numpy ndarray to expose the interface
        expected by cairocffi. Basically replicates the
@@ -60,6 +70,94 @@ class ArrayWrapper:
 
     def buffer_info(self):
         return (self.__data, self.__size)
+
+
+# Mapping from Matplotlib Path codes to cairo path codes.
+_MPL_TO_CAIRO_PATH_TYPE = np.zeros(80, dtype=int)  # CLOSEPOLY = 79.
+_MPL_TO_CAIRO_PATH_TYPE[Path.MOVETO] = cairo.PATH_MOVE_TO
+_MPL_TO_CAIRO_PATH_TYPE[Path.LINETO] = cairo.PATH_LINE_TO
+_MPL_TO_CAIRO_PATH_TYPE[Path.CURVE4] = cairo.PATH_CURVE_TO
+_MPL_TO_CAIRO_PATH_TYPE[Path.CLOSEPOLY] = cairo.PATH_CLOSE_PATH
+# Sizes in cairo_path_data_t of each cairo path element.
+_CAIRO_PATH_TYPE_SIZES = np.zeros(4, dtype=int)
+_CAIRO_PATH_TYPE_SIZES[cairo.PATH_MOVE_TO] = 2
+_CAIRO_PATH_TYPE_SIZES[cairo.PATH_LINE_TO] = 2
+_CAIRO_PATH_TYPE_SIZES[cairo.PATH_CURVE_TO] = 4
+_CAIRO_PATH_TYPE_SIZES[cairo.PATH_CLOSE_PATH] = 1
+
+
+def _append_paths_slow(ctx, paths, transforms, clip=None):
+    for path, transform in zip(paths, transforms):
+        for points, code in path.iter_segments(transform, clip=clip):
+            if code == Path.MOVETO:
+                ctx.move_to(*points)
+            elif code == Path.CLOSEPOLY:
+                ctx.close_path()
+            elif code == Path.LINETO:
+                ctx.line_to(*points)
+            elif code == Path.CURVE3:
+                cur = ctx.get_current_point()
+                ctx.curve_to(
+                    *np.concatenate([cur / 3 + points[:2] * 2 / 3,
+                                     points[:2] * 2 / 3 + points[-2:] / 3]))
+            elif code == Path.CURVE4:
+                ctx.curve_to(*points)
+
+
+def _append_paths_fast(ctx, paths, transforms, clip=None):
+    # We directly convert to the internal representation used by cairo, for
+    # which ABI compatibility is guaranteed.  The layout for each item is
+    # --CODE(4)--  -LENGTH(4)-  ---------PAD(8)---------
+    # ----------X(8)----------  ----------Y(8)----------
+    # with the size in bytes in parentheses, and (X, Y) repeated as many times
+    # as there are points for the current code.
+    ffi = cairo.ffi
+
+    # Convert curves to segment, so that 1. we don't have to handle
+    # variable-sized CURVE-n codes, and 2. we don't have to implement degree
+    # elevation for quadratic Beziers.
+    cleaneds = [path.cleaned(transform=transform, clip=clip, curves=False)
+                for path, transform in zip(paths, transforms)]
+    vertices = np.concatenate([cleaned.vertices for cleaned in cleaneds])
+    codes = np.concatenate([cleaned.codes for cleaned in cleaneds])
+
+    # Remove unused vertices and convert to cairo codes.  Note that unlike
+    # cairo_close_path, we do not explicitly insert an extraneous MOVE_TO after
+    # CLOSE_PATH, so our resulting buffer may be smaller.
+    vertices = vertices[(codes != Path.STOP) & (codes != Path.CLOSEPOLY)]
+    codes = codes[codes != Path.STOP]
+    codes = _MPL_TO_CAIRO_PATH_TYPE[codes]
+
+    # Where are the headers of each cairo portions?
+    cairo_type_sizes = _CAIRO_PATH_TYPE_SIZES[codes]
+    cairo_type_positions = np.insert(np.cumsum(cairo_type_sizes), 0, 0)
+    cairo_num_data = cairo_type_positions[-1]
+    cairo_type_positions = cairo_type_positions[:-1]
+
+    # Fill the buffer.
+    buf = np.empty(cairo_num_data * 16, np.uint8)
+    as_int = np.frombuffer(buf.data, np.int32)
+    as_int[::4][cairo_type_positions] = codes
+    as_int[1::4][cairo_type_positions] = cairo_type_sizes
+    as_float = np.frombuffer(buf.data, np.float64)
+    mask = np.ones_like(as_float, bool)
+    mask[::2][cairo_type_positions] = mask[1::2][cairo_type_positions] = False
+    as_float[mask] = vertices.ravel()
+
+    # Construct the cairo_path_t, and pass it to the context.
+    ptr = ffi.new("cairo_path_t *")
+    ptr.status = cairo.STATUS_SUCCESS
+    ptr.data = ffi.cast("cairo_path_data_t *", ffi.from_buffer(buf))
+    ptr.num_data = cairo_num_data
+    cairo.cairo.cairo_append_path(ctx._pointer, ptr)
+
+
+_append_paths = (_append_paths_fast if cairo.__name__ == "cairocffi"
+                 else _append_paths_slow)
+
+
+def _append_path(ctx, path, transform, clip=None):
+    return _append_paths(ctx, [path], [transform], clip)
 
 
 class RendererCairo(RendererBase):
@@ -89,7 +187,6 @@ class RendererCairo(RendererBase):
         'normal'  : cairo.FONT_SLANT_NORMAL,
         'oblique' : cairo.FONT_SLANT_OBLIQUE,
         }
-
 
     def __init__(self, dpi):
         self.dpi = dpi
@@ -122,37 +219,20 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
     @staticmethod
+    @cbook.deprecated("3.0")
     def convert_path(ctx, path, transform, clip=None):
-        for points, code in path.iter_segments(transform, clip=clip):
-            if code == Path.MOVETO:
-                ctx.move_to(*points)
-            elif code == Path.CLOSEPOLY:
-                ctx.close_path()
-            elif code == Path.LINETO:
-                ctx.line_to(*points)
-            elif code == Path.CURVE3:
-                ctx.curve_to(points[0], points[1],
-                             points[0], points[1],
-                             points[2], points[3])
-            elif code == Path.CURVE4:
-                ctx.curve_to(*points)
+        _append_path(ctx, path, transform, clip)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         ctx = gc.ctx
-
-        # We'll clip the path to the actual rendering extents
-        # if the path isn't filled.
-        if rgbFace is None and gc.get_hatch() is None:
-            clip = ctx.clip_extents()
-        else:
-            clip = None
-
+        # Clip the path to the actual rendering extents if it isn't filled.
+        clip = (ctx.clip_extents()
+                if rgbFace is None and gc.get_hatch() is None
+                else None)
         transform = (transform
-                     + Affine2D().scale(1.0, -1.0).translate(0, self.height))
-
+                     + Affine2D().scale(1, -1).translate(0, self.height))
         ctx.new_path()
-        self.convert_path(ctx, path, transform, clip)
-
+        _append_path(ctx, path, transform, clip)
         self._fill_and_stroke(
             ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
 
@@ -162,8 +242,7 @@ class RendererCairo(RendererBase):
 
         ctx.new_path()
         # Create the path for the marker; it needs to be flipped here already!
-        self.convert_path(
-            ctx, marker_path, marker_trans + Affine2D().scale(1.0, -1.0))
+        _append_path(ctx, marker_path, marker_trans + Affine2D().scale(1, -1))
         marker_path = ctx.copy_path_flat()
 
         # Figure out whether the path has a fill
@@ -176,7 +255,7 @@ class RendererCairo(RendererBase):
             filled = True
 
         transform = (transform
-                     + Affine2D().scale(1.0, -1.0).translate(0, self.height))
+                     + Affine2D().scale(1, -1).translate(0, self.height))
 
         ctx.new_path()
         for i, (vertices, codes) in enumerate(
@@ -204,36 +283,68 @@ class RendererCairo(RendererBase):
             self._fill_and_stroke(
                 ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
 
+    def draw_path_collection(
+            self, gc, master_transform, paths, all_transforms, offsets,
+            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+            antialiaseds, urls, offset_position):
+
+        path_ids = []
+        for path, transform in self._iter_collection_raw_paths(
+                master_transform, paths, all_transforms):
+            path_ids.append((path, Affine2D(transform)))
+
+        reuse_key = None
+        grouped_draw = []
+
+        def _draw_paths():
+            if not grouped_draw:
+                return
+            gc_vars, rgb_fc = reuse_key
+            gc = copy.copy(gc0)
+            # We actually need to call the setters to reset the internal state.
+            vars(gc).update(gc_vars)
+            for k, v in gc_vars.items():
+                if k == "_linestyle":  # Deprecated, no effect.
+                    continue
+                try:
+                    getattr(gc, "set" + k)(v)
+                except (AttributeError, TypeError) as e:
+                    pass
+            gc.ctx.new_path()
+            paths, transforms = zip(*grouped_draw)
+            grouped_draw.clear()
+            _append_paths(gc.ctx, paths, transforms)
+            self._fill_and_stroke(
+                gc.ctx, rgb_fc, gc.get_alpha(), gc.get_forced_alpha())
+
+        for xo, yo, path_id, gc0, rgb_fc in self._iter_collection(
+                gc, master_transform, all_transforms, path_ids, offsets,
+                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+                antialiaseds, urls, offset_position):
+            path, transform = path_id
+            transform = (Affine2D(transform.get_matrix())
+                         .translate(xo, yo - self.height).scale(1, -1))
+            # rgb_fc could be a ndarray, for which equality is elementwise.
+            new_key = vars(gc0), tuple(rgb_fc) if rgb_fc is not None else None
+            if new_key == reuse_key:
+                grouped_draw.append((path, transform))
+            else:
+                _draw_paths()
+                grouped_draw.append((path, transform))
+                reuse_key = new_key
+        _draw_paths()
+
     def draw_image(self, gc, x, y, im):
-        # bbox - not currently used
-        if sys.byteorder == 'little':
-            im = im[:, :, (2, 1, 0, 3)]
-        else:
-            im = im[:, :, (3, 0, 1, 2)]
-        if HAS_CAIRO_CFFI:
-            # cairocffi tries to use the buffer_info from array.array
-            # that we replicate in ArrayWrapper and alternatively falls back
-            # on ctypes to get a pointer to the numpy array. This works
-            # correctly on a numpy array in python3 but not 2.7. We replicate
-            # the array.array functionality here to get cross version support.
-            imbuffer = ArrayWrapper(im.flatten())
-        else:
-            # pycairo uses PyObject_AsWriteBuffer to get a pointer to the
-            # numpy array; this works correctly on a regular numpy array but
-            # not on a py2 memoryview.
-            imbuffer = im.flatten()
+        im = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(im[::-1])
         surface = cairo.ImageSurface.create_for_data(
-            imbuffer, cairo.FORMAT_ARGB32,
-            im.shape[1], im.shape[0], im.shape[1]*4)
+            im.ravel().data, cairo.FORMAT_ARGB32,
+            im.shape[1], im.shape[0], im.shape[1] * 4)
         ctx = gc.ctx
         y = self.height - y - im.shape[0]
 
         ctx.save()
         ctx.set_source_surface(surface, float(x), float(y))
-        if gc.get_alpha() != 1.0:
-            ctx.paint_with_alpha(gc.get_alpha())
-        else:
-            ctx.paint()
+        ctx.paint()
         ctx.restore()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -257,13 +368,6 @@ class RendererCairo(RendererBase):
                 ctx.rotate(np.deg2rad(-angle))
             ctx.set_font_size(size)
 
-            if HAS_CAIRO_CFFI:
-                if not isinstance(s, six.text_type):
-                    s = six.text_type(s)
-            else:
-                if six.PY2 and isinstance(s, six.text_type):
-                    s = s.encode("utf-8")
-
             ctx.show_text(s)
             ctx.restore()
 
@@ -282,17 +386,13 @@ class RendererCairo(RendererBase):
             ctx.move_to(ox, oy)
 
             fontProp = ttfFontProperty(font)
-            ctx.save()
             ctx.select_font_face(fontProp.name,
                                  self.fontangles[fontProp.style],
                                  self.fontweights[fontProp.weight])
 
             size = fontsize * self.dpi / 72.0
             ctx.set_font_size(size)
-            if not six.PY3 and isinstance(s, six.text_type):
-                s = s.encode("utf-8")
             ctx.show_text(s)
-            ctx.restore()
 
         for ox, oy, w, h in rects:
             ctx.new_path()
@@ -334,7 +434,7 @@ class RendererCairo(RendererBase):
     def new_gc(self):
         self.gc.ctx.save()
         self.gc._alpha = 1
-        self.gc._forced_alpha = False # if True, _alpha overrides A from RGBA
+        self.gc._forced_alpha = False  # if True, _alpha overrides A from RGBA
         return self.gc
 
     def points_to_pixels(self, points):
@@ -398,12 +498,12 @@ class GraphicsContextCairo(GraphicsContextBase):
         ctx.new_path()
         affine = (affine
                   + Affine2D().scale(1, -1).translate(0, self.renderer.height))
-        RendererCairo.convert_path(ctx, tpath, affine)
+        _append_path(ctx, tpath, affine)
         ctx.clip()
 
     def set_dashes(self, offset, dashes):
         self._dashes = offset, dashes
-        if dashes == None:
+        if dashes is None:
             self.ctx.set_dash([], 0)  # switch dashes off
         else:
             self.ctx.set_dash(
@@ -436,15 +536,24 @@ class FigureCanvasCairo(FigureCanvasBase):
     supports_blit = False
 
     def print_png(self, fobj, *args, **kwargs):
-        width, height = self.get_width_height()
+        self._get_printed_image_surface().write_to_png(fobj)
 
+    def print_rgba(self, fobj, *args, **kwargs):
+        width, height = self.get_width_height()
+        buf = self._get_printed_image_surface().get_data()
+        fobj.write(cbook._premultiplied_argb32_to_unmultiplied_rgba8888(
+            np.asarray(buf).reshape((width, height, 4))))
+
+    print_raw = print_rgba
+
+    def _get_printed_image_surface(self):
+        width, height = self.get_width_height()
         renderer = RendererCairo(self.figure.dpi)
         renderer.set_width_height(width, height)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         renderer.set_ctx_from_surface(surface)
-
         self.figure.draw(renderer)
-        surface.write_to_png(fobj)
+        return surface
 
     def print_pdf(self, fobj, *args, **kwargs):
         return self._save(fobj, 'pdf', *args, **kwargs)
@@ -486,14 +595,13 @@ class FigureCanvasCairo(FigureCanvasBase):
                 raise RuntimeError('cairo has not been compiled with SVG '
                                    'support enabled')
             if fmt == 'svgz':
-                if isinstance(fo, six.string_types):
+                if isinstance(fo, str):
                     fo = gzip.GzipFile(fo, 'wb')
                 else:
                     fo = gzip.GzipFile(None, 'wb', fileobj=fo)
             surface = cairo.SVGSurface(fo, width_in_points, height_in_points)
         else:
-            warnings.warn("unknown format: %s" % fmt)
-            return
+            raise ValueError("Unknown format: {!r}".format(fmt))
 
         # surface.set_dpi() can be used
         renderer = RendererCairo(self.figure.dpi)

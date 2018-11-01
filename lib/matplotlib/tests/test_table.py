@@ -1,7 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
@@ -194,3 +190,8 @@ def test_table_cells():
     cell2 = CustomCell((0, 0), 1, 2, visible_edges=None)
     table[2, 1] = cell2
     assert table[2, 1] is cell2
+
+    # make sure gettitem support has not broken
+    # properties and setp
+    table.properties()
+    plt.setp(table)

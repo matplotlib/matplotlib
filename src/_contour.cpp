@@ -60,15 +60,15 @@
 #define Z_NW                     Z_LEVEL(POINT_NW)
 #define Z_SE                     Z_LEVEL(POINT_SE)
 #define Z_SW                     Z_LEVEL(POINT_SW)
-#define VISITED(quad,li)         (_cache[quad] & (li==1 ? MASK_VISITED_1 : MASK_VISITED_2))
-#define VISITED_S(quad)          (_cache[quad] & MASK_VISITED_S)
-#define VISITED_W(quad)          (_cache[quad] & MASK_VISITED_W)
-#define VISITED_CORNER(quad)     (_cache[quad] & MASK_VISITED_CORNER)
-#define SADDLE(quad,li)          (_cache[quad] & (li==1 ? MASK_SADDLE_1 : MASK_SADDLE_2))
-#define SADDLE_LEFT(quad,li)     (_cache[quad] & (li==1 ? MASK_SADDLE_LEFT_1 : MASK_SADDLE_LEFT_2))
-#define SADDLE_START_SW(quad,li) (_cache[quad] & (li==1 ? MASK_SADDLE_START_SW_1 : MASK_SADDLE_START_SW_2))
-#define BOUNDARY_S(quad)         (_cache[quad] & MASK_BOUNDARY_S)
-#define BOUNDARY_W(quad)         (_cache[quad] & MASK_BOUNDARY_W)
+#define VISITED(quad,li)         ((_cache[quad] & (li==1 ? MASK_VISITED_1 : MASK_VISITED_2)) != 0)
+#define VISITED_S(quad)          ((_cache[quad] & MASK_VISITED_S) != 0)
+#define VISITED_W(quad)          ((_cache[quad] & MASK_VISITED_W) != 0)
+#define VISITED_CORNER(quad)     ((_cache[quad] & MASK_VISITED_CORNER) != 0)
+#define SADDLE(quad,li)          ((_cache[quad] & (li==1 ? MASK_SADDLE_1 : MASK_SADDLE_2)) != 0)
+#define SADDLE_LEFT(quad,li)     ((_cache[quad] & (li==1 ? MASK_SADDLE_LEFT_1 : MASK_SADDLE_LEFT_2)) != 0)
+#define SADDLE_START_SW(quad,li) ((_cache[quad] & (li==1 ? MASK_SADDLE_START_SW_1 : MASK_SADDLE_START_SW_2)) != 0)
+#define BOUNDARY_S(quad)         ((_cache[quad] & MASK_BOUNDARY_S) != 0)
+#define BOUNDARY_W(quad)         ((_cache[quad] & MASK_BOUNDARY_W) != 0)
 #define BOUNDARY_N(quad)         BOUNDARY_S(quad+_nx)
 #define BOUNDARY_E(quad)         BOUNDARY_W(quad+1)
 #define EXISTS_QUAD(quad)        ((_cache[quad] & MASK_EXISTS) == MASK_EXISTS_QUAD)
@@ -1773,12 +1773,12 @@ void QuadContourGenerator::write_cache_quad(long quad, bool grid_only) const
     std::cout << " BNDY=" << (BOUNDARY_S(quad)>0) << (BOUNDARY_W(quad)>0);
     if (!grid_only) {
         std::cout << " Z=" << Z_LEVEL(quad)
-            << " SAD=" << (SADDLE(quad,1)>0) << (SADDLE(quad,2)>0)
-            << " LEFT=" << (SADDLE_LEFT(quad,1)>0) << (SADDLE_LEFT(quad,2)>0)
-            << " NW=" << (SADDLE_START_SW(quad,1)>0) << (SADDLE_START_SW(quad,2)>0)
-            << " VIS=" << (VISITED(quad,1)>0) << (VISITED(quad,2)>0)
-            << (VISITED_S(quad)>0) << (VISITED_W(quad)>0)
-            << (VISITED_CORNER(quad)>0);
+            << " SAD=" << SADDLE(quad,1) << SADDLE(quad,2)
+            << " LEFT=" << SADDLE_LEFT(quad,1) << SADDLE_LEFT(quad,2)
+            << " NW=" << SADDLE_START_SW(quad,1) << SADDLE_START_SW(quad,2)
+            << " VIS=" << VISITED(quad,1) << VISITED(quad,2)
+            << VISITED_S(quad) << VISITED_W(quad)
+            << VISITED_CORNER(quad);
     }
     std::cout << std::endl;
 }

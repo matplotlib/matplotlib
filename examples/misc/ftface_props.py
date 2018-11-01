@@ -8,7 +8,6 @@ FT2Font object.  These describe global font properties.  For
 individual character metrics, use the Glyph object, as returned by
 load_char
 """
-from __future__ import print_function
 import matplotlib
 import matplotlib.ft2font as ft
 

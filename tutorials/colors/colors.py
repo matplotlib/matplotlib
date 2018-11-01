@@ -38,6 +38,12 @@ means that pixel of the Artist is transparent.
 
 All string specifications of color, other than "CN", are case-insensitive.
 
+For more information on colors in matplotlib see
+
+* the :doc:`/gallery/color/color_demo` example;
+* the `matplotlib.colors` API;
+* the :doc:`/gallery/color/named_colors` example.
+
 "CN" color selection
 --------------------
 
@@ -70,6 +76,8 @@ demo('seaborn')
 # will use the first color for the title and then plot using the second
 # and third colors of each style's ``mpl.rcParams['axes.prop_cycle']``.
 #
+#
+# .. _xkcd-colors:
 #
 # xkcd v X11/CSS4
 # ---------------

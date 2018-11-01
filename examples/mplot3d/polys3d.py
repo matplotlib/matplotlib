@@ -8,7 +8,9 @@ graph. In this example polygons are semi-transparent, creating a sort
 of 'jagged stained glass' effect.
 """
 
-from mpl_toolkits.mplot3d import Axes3D
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+
 from matplotlib.collections import PolyCollection
 import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors
@@ -30,7 +32,7 @@ def polygon_under_graph(xlist, ylist):
     Construct the vertex list which defines the polygon filling the space under
     the (xlist, ylist) line graph.  Assumes the xs are in ascending order.
     '''
-    return [(xlist[0], 0.)] + list(zip(xlist, ylist)) + [(xlist[-1], 0.)]
+    return [(xlist[0], 0.), *zip(xlist, ylist), (xlist[-1], 0.)]
 
 
 fig = plt.figure()

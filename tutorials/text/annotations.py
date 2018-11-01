@@ -1,4 +1,4 @@
-"""
+r"""
 Annotations
 ===========
 
@@ -94,7 +94,7 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 
 For more on all the wild and wonderful things you can do with
 annotations, including fancy arrows, see :ref:`plotting-guide-annotation`
-and :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
+and :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
 
 
 Do not proceed unless you have already read :ref:`annotations-tutorial`,
@@ -340,8 +340,8 @@ available in ``mpl_toolkits.axes_grid1.anchored_artists`` others in
 
     from matplotlib.offsetbox import AnchoredText
     at = AnchoredText("Figure 1a",
-                      prop=dict(size=8), frameon=True,
-                      loc=2,
+                      prop=dict(size=15), frameon=True,
+                      loc='upper left',
                       )
     at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
     ax.add_artist(at)
@@ -370,7 +370,7 @@ area itself. Only the initial size matters. ::
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
 
     ada = AnchoredDrawingArea(20, 20, 0, 0,
-                              loc=1, pad=0., frameon=False)
+                              loc='upper right', pad=0., frameon=False)
     p1 = Circle((10, 10), 10)
     ada.drawing_area.add_artist(p1)
     p2 = Circle((30, 10), 5, fc="r")
@@ -396,7 +396,7 @@ determined during the drawing time respecting the specified transform. ::
 
   from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
 
-  box = AnchoredAuxTransformBox(ax.transData, loc=2)
+  box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
   el = Ellipse((0,0), width=0.1, height=0.4, angle=30)  # in data coordinates!
   box.drawing_area.add_artist(el)
 
@@ -514,13 +514,13 @@ more control, it supports a few other options.
        Annotation with Simple Coordinates 3
 
     You may take a look at this example
-    :ref:`sphx_glr_gallery_text_labels_and_annotations_annotation_demo.py`.
+    :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
 
-Using ConnectorPatch
---------------------
+Using ConnectionPatch
+---------------------
 
-The ConnectorPatch is like an annotation without text. While the annotate
-function is recommended in most situations, the ConnectorPatch is useful when
+The ConnectionPatch is like an annotation without text. While the annotate
+function is recommended in most situations, the ConnectionPatch is useful when
 you want to connect points in different axes. ::
 
   from matplotlib.patches import ConnectionPatch
@@ -540,7 +540,7 @@ point xy in the data coordinates of ``ax2``. Here is a simple example.
    Connect Simple01
 
 
-While the ConnectorPatch instance can be added to any axes, you may want to add
+While the ConnectionPatch instance can be added to any axes, you may want to add
 it to the axes that is latest in drawing order to prevent overlap by other
 axes.
 

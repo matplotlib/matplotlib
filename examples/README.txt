@@ -2,6 +2,7 @@
 
 .. _gallery:
 
+=======
 Gallery
 =======
 

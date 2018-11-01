@@ -4,9 +4,9 @@ Rendering math equation using TeX
 =================================
 
 You can use TeX to render all of your matplotlib text if the rc
-parameter text.usetex is set.  This works currently on the agg and ps
+parameter ``text.usetex`` is set.  This works currently on the agg and ps
 backends, and requires that you have tex and the other dependencies
-described at http://matplotlib.org/users/usetex.html
+described in the :doc:`/tutorials/text/usetex` tutorial
 properly installed on your system.  The first time you run a script
 you will see a lot of output from tex and associated tools.  The next
 time, the run may be silent, as a lot of the information is cached.
@@ -14,11 +14,9 @@ time, the run may be silent, as a lot of the information is cached.
 Notice how the label for the y axis is provided using unicode!
 
 """
-from __future__ import unicode_literals
 import numpy as np
 import matplotlib
 matplotlib.rcParams['text.usetex'] = True
-matplotlib.rcParams['text.latex.unicode'] = True
 import matplotlib.pyplot as plt
 
 

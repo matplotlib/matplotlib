@@ -1,11 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from matplotlib import cbook
-import sys
-import types
 
 
 class Substitution(object):
@@ -113,8 +106,6 @@ interpd = Substitution()
 def dedent_interpd(func):
     """A special case of the interpd that first performs a dedent on
     the incoming docstring"""
-    if isinstance(func, types.MethodType) and not six.PY3:
-        func = func.im_func
     return interpd(dedent(func))
 
 

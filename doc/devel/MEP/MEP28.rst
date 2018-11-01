@@ -254,13 +254,13 @@ This MEP can be divided into a few loosely coupled components:
 With this approach, #2 depends and #1, and #4 depends on #3.
 
 There are two possible approaches to #2. The first and most direct would
-be to mirror the new ``transform_in`` and ``tranform_out`` parameters of
+be to mirror the new ``transform_in`` and ``transform_out`` parameters of
 ``cbook.boxplot_stats`` in ``Axes.boxplot`` and pass them directly.
 
 The second approach would be to add ``statfxn`` and ``statfxn_args``
 parameters to ``Axes.boxplot``. Under this implementation, the default
 value of ``statfxn`` would be ``cbook.boxplot_stats``, but users could
-pass their own function. Then ``transform_in`` and ``tranform_out`` would
+pass their own function. Then ``transform_in`` and ``transform_out`` would
 then be passed as elements of the ``statfxn_args`` parameter.
 
 .. code:: python

@@ -1,12 +1,8 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import numpy as np
 
 from matplotlib.contour import ContourSet
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib._tri as _tri
-import numpy as np
 
 
 class TriContourSet(ContourSet):
@@ -234,8 +230,7 @@ def tricontour(ax, *args, **kwargs):
     tricontour-only keyword arguments:
 
         *linewidths*: [ *None* | number | tuple of numbers ]
-        If *linewidths* is *None*, the default width in
-        ``lines.linewidth`` in ``matplotlibrc`` is used.
+        If *linewidths* is *None*, defaults to rc:`lines.linewidth`.
 
         If a number, all levels will be plotted with this linewidth.
 
@@ -252,8 +247,7 @@ def tricontour(ax, *args, **kwargs):
 
         If contour is using a monochrome colormap and the contour
         level is less than 0, then the linestyle specified
-        in ``contour.negative_linestyle`` in ``matplotlibrc``
-        will be used.
+        in :rc:`contour.negative_linestyle` will be used.
 
     tricontourf-only keyword arguments:
 
@@ -269,15 +263,13 @@ def tricontour(ax, *args, **kwargs):
     the minimum value of the *z* array, then that minimum value
     will be included in the lowest interval.
     """
-    if not ax._hold:
-        ax.cla()
     kwargs['filled'] = False
     return TriContourSet(ax, *args, **kwargs)
 
 
 def tricontourf(ax, *args, **kwargs):
-    if not ax._hold:
-        ax.cla()
     kwargs['filled'] = True
     return TriContourSet(ax, *args, **kwargs)
+
+
 tricontourf.__doc__ = tricontour.__doc__

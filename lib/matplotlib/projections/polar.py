@@ -1,16 +1,10 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from collections import OrderedDict
+import types
 
 import numpy as np
 
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
-from matplotlib import cbook
-from matplotlib import docstring
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
@@ -155,15 +149,8 @@ class InvertedPolarTransform(mtransforms.Transform):
     def transform_non_affine(self, xy):
         x = xy[:, 0:1]
         y = xy[:, 1:]
-        r = np.sqrt(x*x + y*y)
-        with np.errstate(invalid='ignore'):
-            # At x=y=r=0 this will raise an
-            # invalid value warning when doing 0/0
-            # Divide by zero warnings are only raised when
-            # the numerator is different from 0. That
-            # should not happen here.
-            theta = np.arccos(x / r)
-        theta = np.where(y < 0, 2 * np.pi - theta, theta)
+        r = np.hypot(x, y)
+        theta = (np.arctan2(y, x) + 2 * np.pi) % (2 * np.pi)
 
         # PolarAxes does not use the theta transforms here, but apply them for
         # backwards-compatibility if not being used by it.
@@ -291,22 +278,22 @@ class ThetaTick(maxis.XTick):
         self._text2_translate = mtransforms.ScaledTranslation(
             0, 0,
             axes.figure.dpi_scale_trans)
-        super(ThetaTick, self).__init__(axes, *args, **kwargs)
+        super().__init__(axes, *args, **kwargs)
 
     def _get_text1(self):
-        t = super(ThetaTick, self)._get_text1()
+        t = super()._get_text1()
         t.set_rotation_mode('anchor')
         t.set_transform(t.get_transform() + self._text1_translate)
         return t
 
     def _get_text2(self):
-        t = super(ThetaTick, self)._get_text2()
+        t = super()._get_text2()
         t.set_rotation_mode('anchor')
         t.set_transform(t.get_transform() + self._text2_translate)
         return t
 
     def _apply_params(self, **kw):
-        super(ThetaTick, self)._apply_params(**kw)
+        super()._apply_params(**kw)
 
         # Ensure transform is correct; sometimes this gets reset.
         trans = self.label1.get_transform()
@@ -325,32 +312,31 @@ class ThetaTick(maxis.XTick):
         self._text2_translate.invalidate()
 
     def update_position(self, loc):
-        super(ThetaTick, self).update_position(loc)
+        super().update_position(loc)
         axes = self.axes
         angle = loc * axes.get_theta_direction() + axes.get_theta_offset()
         text_angle = np.rad2deg(angle) % 360 - 90
         angle -= np.pi / 2
 
-        if self.tick1On:
-            marker = self.tick1line.get_marker()
-            if marker in (mmarkers.TICKUP, '|'):
-                trans = mtransforms.Affine2D().scale(1.0, 1.0).rotate(angle)
-            elif marker == mmarkers.TICKDOWN:
-                trans = mtransforms.Affine2D().scale(1.0, -1.0).rotate(angle)
-            else:
-                # Don't modify custom tick line markers.
-                trans = self.tick1line._marker._transform
-            self.tick1line._marker._transform = trans
-        if self.tick2On:
-            marker = self.tick2line.get_marker()
-            if marker in (mmarkers.TICKUP, '|'):
-                trans = mtransforms.Affine2D().scale(1.0, 1.0).rotate(angle)
-            elif marker == mmarkers.TICKDOWN:
-                trans = mtransforms.Affine2D().scale(1.0, -1.0).rotate(angle)
-            else:
-                # Don't modify custom tick line markers.
-                trans = self.tick2line._marker._transform
-            self.tick2line._marker._transform = trans
+        marker = self.tick1line.get_marker()
+        if marker in (mmarkers.TICKUP, '|'):
+            trans = mtransforms.Affine2D().scale(1, 1).rotate(angle)
+        elif marker == mmarkers.TICKDOWN:
+            trans = mtransforms.Affine2D().scale(1, -1).rotate(angle)
+        else:
+            # Don't modify custom tick line markers.
+            trans = self.tick1line._marker._transform
+        self.tick1line._marker._transform = trans
+
+        marker = self.tick2line.get_marker()
+        if marker in (mmarkers.TICKUP, '|'):
+            trans = mtransforms.Affine2D().scale(1, 1).rotate(angle)
+        elif marker == mmarkers.TICKDOWN:
+            trans = mtransforms.Affine2D().scale(1, -1).rotate(angle)
+        else:
+            # Don't modify custom tick line markers.
+            trans = self.tick2line._marker._transform
+        self.tick2line._marker._transform = trans
 
         mode, user_angle = self._labelrotation
         if mode == 'default':
@@ -361,10 +347,8 @@ class ThetaTick(maxis.XTick):
             elif text_angle < -90:
                 text_angle += 180
             text_angle += user_angle
-        if self.label1On:
-            self.label1.set_rotation(text_angle)
-        if self.label2On:
-            self.label2.set_rotation(text_angle)
+        self.label1.set_rotation(text_angle)
+        self.label2.set_rotation(text_angle)
 
         # This extra padding helps preserve the look from previous releases but
         # is also needed because labels are anchored to their center.
@@ -398,19 +382,19 @@ class ThetaAxis(maxis.XAxis):
         self.isDefault_majfmt = True
 
     def cla(self):
-        super(ThetaAxis, self).cla()
+        super().cla()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
     def _set_scale(self, value, **kwargs):
-        super(ThetaAxis, self)._set_scale(value, **kwargs)
+        super()._set_scale(value, **kwargs)
         self._wrap_locator_formatter()
 
     def _copy_tick_props(self, src, dest):
         'Copy the props from src tick to dest tick'
         if src is None or dest is None:
             return
-        super(ThetaAxis, self)._copy_tick_props(src, dest)
+        super()._copy_tick_props(src, dest)
 
         # Ensure that tick transforms are independent so that padding works.
         trans = dest._get_text1_transform()[0]
@@ -533,12 +517,12 @@ class RadialTick(maxis.YTick):
     enabled.
     """
     def _get_text1(self):
-        t = super(RadialTick, self)._get_text1()
+        t = super()._get_text1()
         t.set_rotation_mode('anchor')
         return t
 
     def _get_text2(self):
-        t = super(RadialTick, self)._get_text2()
+        t = super()._get_text2()
         t.set_rotation_mode('anchor')
         return t
 
@@ -597,7 +581,7 @@ class RadialTick(maxis.YTick):
                     return 'center', 'bottom'
 
     def update_position(self, loc):
-        super(RadialTick, self).update_position(loc)
+        super().update_position(loc)
         axes = self.axes
         thetamin = axes.get_thetamin()
         thetamax = axes.get_thetamax()
@@ -633,37 +617,31 @@ class RadialTick(maxis.YTick):
             text_angle += user_angle
         else:
             text_angle = user_angle
-        if self.label1On:
-            if full:
-                ha = 'left'
-                va = 'bottom'
-            else:
-                ha, va = self._determine_anchor(mode, angle, direction > 0)
-            self.label1.set_ha(ha)
-            self.label1.set_va(va)
-            self.label1.set_rotation(text_angle)
-        if self.tick1On:
-            marker = self.tick1line.get_marker()
-            if marker == mmarkers.TICKLEFT:
-                trans = (mtransforms.Affine2D()
-                         .scale(1.0, 1.0)
-                         .rotate(tick_angle))
-            elif marker == '_':
-                trans = (mtransforms.Affine2D()
-                         .scale(1.0, 1.0)
-                         .rotate(tick_angle + np.pi / 2))
-            elif marker == mmarkers.TICKRIGHT:
-                trans = (mtransforms.Affine2D()
-                         .scale(-1.0, 1.0)
-                         .rotate(tick_angle))
-            else:
-                # Don't modify custom tick line markers.
-                trans = self.tick1line._marker._transform
-            self.tick1line._marker._transform = trans
 
         if full:
-            self.label2On = False
-            self.tick2On = False
+            ha = self.label1.get_horizontalalignment()
+            va = self.label1.get_verticalalignment()
+        else:
+            ha, va = self._determine_anchor(mode, angle, direction > 0)
+        self.label1.set_horizontalalignment(ha)
+        self.label1.set_verticalalignment(va)
+        self.label1.set_rotation(text_angle)
+
+        marker = self.tick1line.get_marker()
+        if marker == mmarkers.TICKLEFT:
+            trans = mtransforms.Affine2D().rotate(tick_angle)
+        elif marker == '_':
+            trans = mtransforms.Affine2D().rotate(tick_angle + np.pi / 2)
+        elif marker == mmarkers.TICKRIGHT:
+            trans = mtransforms.Affine2D().scale(-1, 1).rotate(tick_angle)
+        else:
+            # Don't modify custom tick line markers.
+            trans = self.tick1line._marker._transform
+        self.tick1line._marker._transform = trans
+
+        if full:
+            self.label2.set_visible(False)
+            self.tick2line.set_visible(False)
         else:
             angle = (thetamax * direction + offset) % 360 - 90
             if direction > 0:
@@ -681,29 +659,23 @@ class RadialTick(maxis.YTick):
             text_angle += user_angle
         else:
             text_angle = user_angle
-        if self.label2On:
-            ha, va = self._determine_anchor(mode, angle, direction < 0)
-            self.label2.set_ha(ha)
-            self.label2.set_va(va)
-            self.label2.set_rotation(text_angle)
-        if self.tick2On:
-            marker = self.tick2line.get_marker()
-            if marker == mmarkers.TICKLEFT:
-                trans = (mtransforms.Affine2D()
-                         .scale(1.0, 1.0)
-                         .rotate(tick_angle))
-            elif marker == '_':
-                trans = (mtransforms.Affine2D()
-                         .scale(1.0, 1.0)
-                         .rotate(tick_angle + np.pi / 2))
-            elif marker == mmarkers.TICKRIGHT:
-                trans = (mtransforms.Affine2D()
-                         .scale(-1.0, 1.0)
-                         .rotate(tick_angle))
-            else:
-                # Don't modify custom tick line markers.
-                trans = self.tick2line._marker._transform
-            self.tick2line._marker._transform = trans
+
+        ha, va = self._determine_anchor(mode, angle, direction < 0)
+        self.label2.set_ha(ha)
+        self.label2.set_va(va)
+        self.label2.set_rotation(text_angle)
+
+        marker = self.tick2line.get_marker()
+        if marker == mmarkers.TICKLEFT:
+            trans = mtransforms.Affine2D().rotate(tick_angle)
+        elif marker == '_':
+            trans = mtransforms.Affine2D().rotate(tick_angle + np.pi / 2)
+        elif marker == mmarkers.TICKRIGHT:
+            trans = mtransforms.Affine2D().scale(-1, 1).rotate(tick_angle)
+        else:
+            # Don't modify custom tick line markers.
+            trans = self.tick2line._marker._transform
+        self.tick2line._marker._transform = trans
 
 
 class RadialAxis(maxis.YAxis):
@@ -717,7 +689,7 @@ class RadialAxis(maxis.YAxis):
     axis_name = 'radius'
 
     def __init__(self, *args, **kwargs):
-        super(RadialAxis, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sticky_edges.y.append(0)
 
     def _get_tick(self, major):
@@ -733,12 +705,12 @@ class RadialAxis(maxis.YAxis):
         self.isDefault_majloc = True
 
     def cla(self):
-        super(RadialAxis, self).cla()
+        super().cla()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
     def _set_scale(self, value, **kwargs):
-        super(RadialAxis, self)._set_scale(value, **kwargs)
+        super()._set_scale(value, **kwargs)
         self._wrap_locator_formatter()
 
 
@@ -766,7 +738,7 @@ class _WedgeBbox(mtransforms.Bbox):
 
     Parameters
     ----------
-    center : tuple of float
+    center : (float, float)
         Center of the wedge
     viewLim : `~matplotlib.transforms.Bbox`
         Bbox determining the boundaries of the wedge
@@ -842,16 +814,17 @@ class PolarAxes(Axes):
     """
     name = 'polar'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args,
+                 theta_offset=0, theta_direction=1, rlabel_position=22.5,
+                 **kwargs):
         """
         Create a new Polar Axes for a polar plot.
         """
-        self._default_theta_offset = kwargs.pop('theta_offset', 0)
-        self._default_theta_direction = kwargs.pop('theta_direction', 1)
-        self._default_rlabel_position = np.deg2rad(
-            kwargs.pop('rlabel_position', 22.5))
+        self._default_theta_offset = theta_offset
+        self._default_theta_direction = theta_direction
+        self._default_rlabel_position = np.deg2rad(rlabel_position)
 
-        Axes.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
@@ -1224,37 +1197,40 @@ class PolarAxes(Axes):
     def set_rticks(self, *args, **kwargs):
         return Axes.set_yticks(self, *args, **kwargs)
 
-    @docstring.dedent_interpd
-    def set_thetagrids(self, angles, labels=None, frac=None, fmt=None,
-                       **kwargs):
+    def set_thetagrids(self, angles, labels=None, fmt=None, **kwargs):
         """
-        Set the angles at which to place the theta grids (these
-        gridlines are equal along the theta dimension).  *angles* is in
-        degrees.
+        Set the theta gridlines in a polar plot.
 
-        *labels*, if not None, is a ``len(angles)`` list of strings of
-        the labels to use at each angle.
+        Parameters
+        ----------
+        angles : tuple with floats, degrees
+            The angles of the theta gridlines.
 
-        If *labels* is None, the labels will be ``fmt %% angle``
+        labels : tuple with strings or None
+            The labels to use at each theta gridline. The
+            `.projections.polar.ThetaFormatter` will be used if None.
 
-        *frac* is the fraction of the polar axes radius at which to
-        place the label (1 is the edge). e.g., 1.05 is outside the axes
-        and 0.95 is inside the axes.
+        fmt : str or None
+            Format string used in `matplotlib.ticker.FormatStrFormatter`.
+            For example '%f'. Note that the angle that is used is in
+            radians.
 
-        Return value is a list of tuples (*line*, *label*), where
-        *line* is :class:`~matplotlib.lines.Line2D` instances and the
-        *label* is :class:`~matplotlib.text.Text` instances.
+        Returns
+        -------
+        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+            *lines* are the theta gridlines and *labels* are the tick labels.
 
-        kwargs are optional text properties for the labels:
+        Other Parameters
+        ----------------
+        **kwargs
+            *kwargs* are optional `~.Text` properties for the labels.
 
-        %(Text)s
-
-        ACCEPTS: sequence of floats
+        See Also
+        --------
+        .PolarAxes.set_rgrids
+        .Axis.get_gridlines
+        .Axis.get_ticklabels
         """
-        if frac is not None:
-            cbook.warn_deprecated('2.1', name='frac', obj_type='parameter',
-                                  alternative='tick padding via '
-                                              'Axes.tick_params')
 
         # Make sure we take into account unitized data
         angles = self.convert_yunits(angles)
@@ -1268,29 +1244,42 @@ class PolarAxes(Axes):
             t.update(kwargs)
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
 
-    @docstring.dedent_interpd
     def set_rgrids(self, radii, labels=None, angle=None, fmt=None,
                    **kwargs):
         """
-        Set the radial locations and labels of the *r* grids.
+        Set the radial gridlines on a polar plot.
 
-        The labels will appear at radial distances *radii* at the
-        given *angle* in degrees.
+        Parameters
+        ----------
+        radii : tuple with floats
+            The radii for the radial gridlines
 
-        *labels*, if not None, is a ``len(radii)`` list of strings of the
-        labels to use at each radius.
+        labels : tuple with strings or None
+            The labels to use at each radial gridline. The
+            `matplotlib.ticker.ScalarFormatter` will be used if None.
 
-        If *labels* is None, the built-in formatter will be used.
+        angle : float
+            The angular position of the radius labels in degrees.
 
-        Return value is a list of tuples (*line*, *label*), where
-        *line* is :class:`~matplotlib.lines.Line2D` instances and the
-        *label* is :class:`~matplotlib.text.Text` instances.
+        fmt : str or None
+            Format string used in `matplotlib.ticker.FormatStrFormatter`.
+            For example '%f'.
 
-        kwargs are optional text properties for the labels:
+        Returns
+        -------
+        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
+            *lines* are the radial gridlines and *labels* are the tick labels.
 
-        %(Text)s
+        Other Parameters
+        ----------------
+        **kwargs
+            *kwargs* are optional `~.Text` properties for the labels.
 
-        ACCEPTS: sequence of floats
+        See Also
+        --------
+        .PolarAxes.set_thetagrids
+        .Axis.get_gridlines
+        .Axis.get_ticklabels
         """
         # Make sure we take into account unitized data
         radii = self.convert_xunits(radii)
@@ -1357,12 +1346,12 @@ class PolarAxes(Axes):
         if button == 1:
             epsilon = np.pi / 45.0
             t, r = self.transData.inverted().transform_point((x, y))
-            if t >= angle - epsilon and t <= angle + epsilon:
+            if angle - epsilon <= t <= angle + epsilon:
                 mode = 'drag_r_labels'
         elif button == 3:
             mode = 'zoom'
 
-        self._pan_start = cbook.Bunch(
+        self._pan_start = types.SimpleNamespace(
             rmax=self.get_rmax(),
             trans=self.transData.frozen(),
             trans_inverse=self.transData.inverted().frozen(),

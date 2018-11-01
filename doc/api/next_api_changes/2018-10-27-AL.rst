@@ -1,0 +1,7 @@
+``Axes.fmt_xdata`` and ``Axes.fmt_ydata`` no longer ignore TypeErrors raised by a user-provided formatter
+`````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+Previously, if the user provided a ``fmt_xdata`` or ``fmt_ydata`` function that
+raised a TypeError (or set them to a non-callable), the exception would be
+silently ignored and the default formatter be used instead.  This is no longer
+the case; the exception is now propagated out.

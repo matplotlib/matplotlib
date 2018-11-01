@@ -1,3 +1,5 @@
+.. _MEP-template:
+
 ==============
  MEP Template
 ==============
@@ -20,13 +22,14 @@ MEPs go through a number of phases in their lifetime:
   discussion of the MEP should include the MEP number (MEPxxx) in the
   subject line so they can be easily related to the MEP.
 
-- **Progress**: Consensus was reached on the mailing list and
-  implementation work has begun.
+- **Progress**: Consensus was reached and implementation work has begun.
 
 - **Completed**: The implementation has been merged into master.
 
 - **Superseded**: This MEP has been abandoned in favor of another
   approach.
+
+- **Rejected**: There are currently no plans to implement the proposal.
 
 Branches and Pull requests
 ==========================

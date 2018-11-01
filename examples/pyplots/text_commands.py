@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 =============
 Text Commands
@@ -6,6 +5,7 @@ Text Commands
 
 Plotting text of many different kinds.
 """
+
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
@@ -23,7 +23,7 @@ ax.text(3, 8, 'boxed italics text in data coords', style='italic',
 
 ax.text(2, 6, r'an equation: $E=mc^2$', fontsize=15)
 
-ax.text(3, 2, u'unicode: Institut f\374r Festk\366rperphysik')
+ax.text(3, 2, 'unicode: Institut f\374r Festk\366rperphysik')
 
 ax.text(0.95, 0.01, 'colored text in axes coords',
         verticalalignment='bottom', horizontalalignment='right',
@@ -38,3 +38,23 @@ ax.annotate('annotate', xy=(2, 1), xytext=(3, 4),
 ax.axis([0, 10, 0, 10])
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.figure.Figure.suptitle
+matplotlib.figure.Figure.add_subplot
+matplotlib.figure.Figure.subplots_adjust
+matplotlib.axes.Axes.set_title
+matplotlib.axes.Axes.set_xlabel
+matplotlib.axes.Axes.set_ylabel
+matplotlib.axes.Axes.text
+matplotlib.axes.Axes.annotate

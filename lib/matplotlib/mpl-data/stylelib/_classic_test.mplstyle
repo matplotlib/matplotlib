@@ -109,8 +109,6 @@ text.usetex         : False  # use latex for all text handling. The following fo
                              # If another font is desired which can loaded using the
                              # LaTeX \usepackage command, please inquire at the
                              # matplotlib mailing list
-text.latex.unicode : False # use "ucs" and "inputenc" LaTeX packages for handling
-                           # unicode strings.
 text.latex.preamble :  # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
                            # AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
                            # IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
@@ -441,7 +439,6 @@ pdf.inheritcolor   : False
 pdf.use14corefonts : False
 
 # pgf backend params
-pgf.debug           : False
 pgf.texsystem       : xelatex
 pgf.rcfonts         : True
 pgf.preamble        :

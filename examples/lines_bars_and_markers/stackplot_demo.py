@@ -23,7 +23,7 @@ labels = ["Fibonacci ", "Evens", "Odds"]
 
 fig, ax = plt.subplots()
 ax.stackplot(x, y1, y2, y3, labels=labels)
-ax.legend(loc=2)
+ax.legend(loc='upper left')
 plt.show()
 
 fig, ax = plt.subplots()

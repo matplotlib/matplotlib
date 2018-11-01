@@ -307,9 +307,9 @@ def light_filter_pie(ax):
     shadow.set_zorder(pies[0][0].get_zorder() - 0.1)
 
 
-if 1:
+if __name__ == "__main__":
 
-    plt.figure(1, figsize=(6, 6))
+    plt.figure(figsize=(6, 6))
     plt.subplots_adjust(left=0.05, right=0.95)
 
     ax = plt.subplot(221)

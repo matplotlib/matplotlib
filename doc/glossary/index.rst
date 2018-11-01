@@ -74,16 +74,9 @@ Glossary
       features of PyGObject.  However Matplotlib does not use any of these
       missing features.
 
-  pygtk
-      `pygtk <http://www.pygtk.org/>`_ provides python wrappers for
-      the :term:`GTK` widgets library for use with the GTK or GTKAgg
-      backend.  Widely used on linux, and is often packages as
-      'python-gtk2'
-
   PyGObject
-      Like :term:`pygtk`, `PyGObject <http://www.pygtk.org/>` provides
-      python wrappers for the :term:`GTK` widgets library; unlike pygtk,
-      PyGObject wraps GTK3 instead of the now obsolete GTK2.
+      `PyGObject <http://www.pygtk.org/>`_ provides Python wrappers for the
+      :term:`GTK` widgets library
 
   pyqt
       `pyqt <https://wiki.python.org/moin/PyQt>`_ provides python
@@ -96,12 +89,6 @@ Glossary
       `python <https://www.python.org>`_ is an object oriented interpreted
       language widely used for scripting, application development, web
       application servers, scientific computing and more.
-
-  pytz
-      `pytz <http://pythonhosted.org/pytz/>`_ provides the Olson tz
-      database in Python. it allows accurate and cross platform
-      timezone calculations and solves the issue of ambiguous times at
-      the end of daylight savings
 
   Qt
       `Qt <https://www.qt.io/>`__ is a cross-platform

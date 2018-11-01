@@ -5,12 +5,10 @@ Mathtext Examples
 
 Selected features of Matplotlib's math rendering engine.
 """
-from __future__ import print_function
 import matplotlib.pyplot as plt
 import subprocess
 import sys
 import re
-import gc
 
 # Selection of features following "Writing mathematical expressions" tutorial
 mathtext_titles = {

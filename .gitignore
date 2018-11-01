@@ -67,19 +67,18 @@ doc/tutorials
 doc/modules
 doc/pyplots/tex_demo.png
 lib/dateutil
+examples/*/*.eps
 examples/*/*.pdf
 examples/*/*.png
 examples/*/*.svg
-examples/*/*.eps
 examples/*/*.svgz
 examples/tests/*
-!examples/tests/backend_driver.py
-texput.log
-texput.aux
+!examples/tests/backend_driver_sgskip.py
 result_images
 
 # Nose/Pytest generated files #
 ###############################
+.pytest_cache/
 .cache/
 .coverage
 .coverage.*
@@ -91,3 +90,8 @@ cover/
 __conda_version__.txt
 lib/png.lib
 lib/z.lib
+
+# Jupyter files #
+#################
+
+.ipynb_checkpoints/

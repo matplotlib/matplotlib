@@ -1,7 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import io
 import warnings
 
@@ -10,13 +6,16 @@ from numpy.testing import assert_almost_equal
 import pytest
 
 import matplotlib
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
-needs_usetex = pytest.mark.xfail(
-    not matplotlib.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    needs_usetex = pytest.mark.skipif(
+        not matplotlib.checkdep_usetex(True),
+        reason="This test needs a TeX installation")
 
 
 @image_comparison(baseline_images=['font_styles'])
@@ -130,6 +129,54 @@ def test_multiline():
     ax.set_yticks([])
 
 
+@image_comparison(baseline_images=['multiline2'], style='mpl20')
+def test_multiline2():
+    fig, ax = plt.subplots()
+
+    ax.set_xlim([0, 1.4])
+    ax.set_ylim([0, 2])
+    ax.axhline(0.5, color='C2', linewidth=0.3)
+    sts = ['Line', '2 Lineg\n 2 Lg', '$\\sum_i x $', 'hi $\\sum_i x $\ntest',
+           'test\n $\\sum_i x $', '$\\sum_i x $\n $\\sum_i x $']
+    renderer = fig.canvas.get_renderer()
+
+    def draw_box(ax, tt):
+        bb = tt.get_window_extent(renderer)
+        bbt = bb.inverse_transformed(ax.transAxes)
+        r = mpatches.Rectangle((0, 0), 1, 1, clip_on=False,
+                               transform=ax.transAxes)
+        r.set_bounds(bbt.bounds)
+        ax.add_patch(r)
+
+    horal = 'left'
+    for nn, st in enumerate(sts):
+        tt = ax.text(0.2 * nn + 0.1, 0.5, st, horizontalalignment=horal,
+            verticalalignment='bottom')
+        draw_box(ax, tt)
+    ax.text(1.2, 0.5, 'Bottom align', color='C2')
+
+    ax.axhline(1.3, color='C2', linewidth=0.3)
+    for nn, st in enumerate(sts):
+        tt = ax.text(0.2 * nn + 0.1, 1.3, st, horizontalalignment=horal,
+            verticalalignment='top')
+        draw_box(ax, tt)
+    ax.text(1.2, 1.3, 'Top align', color='C2')
+
+    ax.axhline(1.8, color='C2', linewidth=0.3)
+    for nn, st in enumerate(sts):
+        tt = ax.text(0.2 * nn + 0.1, 1.8, st, horizontalalignment=horal,
+            verticalalignment='baseline')
+        draw_box(ax, tt)
+    ax.text(1.2, 1.8, 'Baseline align', color='C2')
+
+    ax.axhline(0.1, color='C2', linewidth=0.3)
+    for nn, st in enumerate(sts):
+        tt = ax.text(0.2 * nn + 0.1, 0.1, st, horizontalalignment=horal,
+            verticalalignment='bottom', rotation=20)
+        draw_box(ax, tt)
+    ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
+
+
 @image_comparison(baseline_images=['antialiased'], extensions=['png'])
 def test_antialiasing():
     matplotlib.rcParams['text.antialiased'] = True
@@ -170,7 +217,7 @@ def test_contains():
     xs, ys = np.meshgrid(xs, ys)
 
     txt = plt.text(
-        0.48, 0.52, 'hello world', ha='center', fontsize=30, rotation=30)
+        0.5, 0.4, 'hello world', ha='center', fontsize=30, rotation=30)
     # uncomment to draw the text's bounding box
     # txt.set_bbox(dict(edgecolor='black', facecolor='none'))
 
@@ -200,7 +247,7 @@ def test_titles():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['text_alignment'])
+@image_comparison(baseline_images=['text_alignment'], style='mpl20')
 def test_alignment():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -439,7 +486,7 @@ def test_two_2line_texts(spacing1, spacing2):
 
     # line spacing only affects height
     assert box1.width == box2.width
-    if (spacing1 == spacing2):
+    if spacing1 == spacing2:
         assert box1.height == box2.height
     else:
         assert box1.height != box2.height
@@ -474,3 +521,60 @@ def test_single_artist_usetex():
     fig, ax = plt.subplots()
     ax.text(.5, .5, r"$\frac12$", usetex=True)
     fig.canvas.draw()
+
+
+@image_comparison(baseline_images=['text_as_path_opacity'],
+                  extensions=['svg'])
+def test_text_as_path_opacity():
+    plt.figure()
+    plt.gca().set_axis_off()
+    plt.text(0.25, 0.25, 'c', color=(0, 0, 0, 0.5))
+    plt.text(0.25, 0.5, 'a', alpha=0.5)
+    plt.text(0.25, 0.75, 'x', alpha=0.5, color=(0, 0, 0, 1))
+
+
+@image_comparison(baseline_images=['text_as_text_opacity'],
+                  extensions=['svg'])
+def test_text_as_text_opacity():
+    matplotlib.rcParams['svg.fonttype'] = 'none'
+    plt.figure()
+    plt.gca().set_axis_off()
+    plt.text(0.25, 0.25, '50% using `color`', color=(0, 0, 0, 0.5))
+    plt.text(0.25, 0.5, '50% using `alpha`', alpha=0.5)
+    plt.text(0.25, 0.75, '50% using `alpha` and 100% `color`', alpha=0.5,
+             color=(0, 0, 0, 1))
+
+
+def test_text_repr():
+    # smoketest to make sure text repr doesn't error for category
+    plt.plot(['A', 'B'], [1, 2])
+    txt = plt.text(['A'], 0.5, 'Boo')
+    print(txt)
+
+
+def test_annotation_update():
+    fig, ax = plt.subplots(1, 1)
+    an = ax.annotate('annotation', xy=(0.5, 0.5))
+    extent1 = an.get_window_extent(fig.canvas.get_renderer())
+    fig.tight_layout()
+    extent2 = an.get_window_extent(fig.canvas.get_renderer())
+
+    assert not np.allclose(extent1.get_points(), extent2.get_points(),
+                           rtol=1e-6)
+
+
+@image_comparison(baseline_images=['large_subscript_title'],
+                  extensions=['png'], style='mpl20')
+def test_large_subscript_title():
+    fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
+    ax = axs[0]
+    ax.set_title(r'$\sum_{i} x_i$')
+    ax.set_title('New way', loc='left')
+    ax.set_xticklabels('')
+
+    ax = axs[1]
+    tt = ax.set_title(r'$\sum_{i} x_i$')
+    x, y = tt.get_position()
+    tt.set_position((x, 1.01))
+    ax.set_title('Old Way', loc='left')
+    ax.set_xticklabels('')

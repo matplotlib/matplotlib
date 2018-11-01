@@ -1,5 +1,3 @@
-#=======================================================================
-
 """
 This is a sample set of units for use with testing unit conversion
 of matplotlib routines.  These are used because they use very strict
@@ -30,12 +28,6 @@ to be called out as different that a simple measurement of time since a delta-t
 in one frame may not be the same in another.
 """
 
-#=======================================================================
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 from .Duration import Duration
 from .Epoch import Epoch
 from .UnitDbl import UnitDbl
@@ -46,7 +38,6 @@ from .UnitDblConverter import UnitDblConverter
 
 from .UnitDblFormatter import UnitDblFormatter
 
-#=======================================================================
 
 __version__ = "1.0"
 
@@ -58,30 +49,28 @@ __all__ = [
             'UnitDblFormatter',
           ]
 
-#=======================================================================
+
 def register():
-   """Register the unit conversion classes with matplotlib."""
-   import matplotlib.units as mplU
+    """Register the unit conversion classes with matplotlib."""
+    import matplotlib.units as mplU
 
-   mplU.registry[ str ] = StrConverter()
-   mplU.registry[ Epoch ] = EpochConverter()
-   mplU.registry[ UnitDbl ] = UnitDblConverter()
+    mplU.registry[str] = StrConverter()
+    mplU.registry[Epoch] = EpochConverter()
+    mplU.registry[Duration] = EpochConverter()
+    mplU.registry[UnitDbl] = UnitDblConverter()
 
-#=======================================================================
+
 # Some default unit instances
-
 # Distances
-m = UnitDbl( 1.0, "m" )
-km = UnitDbl( 1.0, "km" )
-mile = UnitDbl( 1.0, "mile" )
-
+m = UnitDbl(1.0, "m")
+km = UnitDbl(1.0, "km")
+mile = UnitDbl(1.0, "mile")
 # Angles
-deg = UnitDbl( 1.0, "deg" )
-rad = UnitDbl( 1.0, "rad" )
-
+deg = UnitDbl(1.0, "deg")
+rad = UnitDbl(1.0, "rad")
 # Time
-sec = UnitDbl( 1.0, "sec" )
-min = UnitDbl( 1.0, "min" )
-hr = UnitDbl( 1.0, "hour" )
-day = UnitDbl( 24.0, "hour" )
-sec = UnitDbl( 1.0, "sec" )
+sec = UnitDbl(1.0, "sec")
+min = UnitDbl(1.0, "min")
+hr = UnitDbl(1.0, "hour")
+day = UnitDbl(24.0, "hour")
+sec = UnitDbl(1.0, "sec")

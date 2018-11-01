@@ -8,26 +8,12 @@ plotting in another.
 
 Written by Robert Cimrman
 """
-from __future__ import print_function
 
+import multiprocessing as mp
 import time
-import numpy as np
-
-from multiprocessing import Process, Pipe
-
-# This example will likely not work with the native OSX backend.
-# Uncomment the following lines to use the qt5 backend instead.
-#
-# import matplotlib
-# matplotlib.use('qt5agg')
-#
-# Alternatively, with Python 3.4+ you may add the line
-#
-# import multiprocessing as mp; mp.set_start_method("forkserver")
-#
-# immediately after the ``if __name__ == "__main__"`` check.
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -91,13 +77,10 @@ class ProcessPlotter(object):
 
 class NBPlot(object):
     def __init__(self):
-        self.plot_pipe, plotter_pipe = Pipe()
+        self.plot_pipe, plotter_pipe = mp.Pipe()
         self.plotter = ProcessPlotter()
-        self.plot_process = Process(
-            target=self.plotter,
-            args=(plotter_pipe,)
-        )
-        self.plot_process.daemon = True
+        self.plot_process = mp.Process(
+            target=self.plotter, args=(plotter_pipe,), daemon=True)
         self.plot_process.start()
 
     def plot(self, finished=False):
@@ -118,4 +101,6 @@ def main():
 
 
 if __name__ == '__main__':
+    if plt.get_backend() == "MacOSX":
+        mp.set_start_method("forkserver")
     main()

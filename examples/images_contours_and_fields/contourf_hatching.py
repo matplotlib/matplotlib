@@ -20,27 +20,44 @@ x, y = x.flatten(), y.flatten()
 ###############################################################################
 # Plot 1: the simplest hatched plot with a colorbar
 
-fig = plt.figure()
-cs = plt.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
-                  cmap=plt.get_cmap('gray'),
-                  extend='both', alpha=0.5
-                  )
-plt.colorbar()
+fig1, ax1 = plt.subplots()
+cs = ax1.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
+                  cmap='gray', extend='both', alpha=0.5)
+fig1.colorbar(cs)
 
 ###############################################################################
 # Plot 2: a plot of hatches without color with a legend
 
-plt.figure()
+fig2, ax2 = plt.subplots()
 n_levels = 6
-plt.contour(x, y, z, n_levels, colors='black', linestyles='-')
-cs = plt.contourf(x, y, z, n_levels, colors='none',
+ax2.contour(x, y, z, n_levels, colors='black', linestyles='-')
+cs = ax2.contourf(x, y, z, n_levels, colors='none',
                   hatches=['.', '/', '\\', None, '\\\\', '*'],
-                  extend='lower'
-                  )
+                  extend='lower')
 
 # create a legend for the contour set
 artists, labels = cs.legend_elements()
-plt.legend(artists, labels, handleheight=2)
-
-
+ax2.legend(artists, labels, handleheight=2)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.contour
+matplotlib.pyplot.contour
+matplotlib.axes.Axes.contourf
+matplotlib.pyplot.contourf
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.axes.Axes.legend
+matplotlib.pyplot.legend
+matplotlib.contour.ContourSet
+matplotlib.contour.ContourSet.legend_elements

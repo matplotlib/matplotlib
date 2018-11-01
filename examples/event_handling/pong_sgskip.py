@@ -10,7 +10,6 @@ A small game demo using Matplotlib.
    This example requires :download:`pipong.py <pipong.py>`
 
 """
-from __future__ import print_function, division
 import time
 
 
@@ -37,7 +36,7 @@ def start_anim(event):
     canvas.mpl_disconnect(start_anim.cid)
 
     def local_draw():
-        if animation.ax._cachedRenderer:
+        if animation.ax.get_renderer_cache():
             animation.draw(None)
     start_anim.timer.add_callback(local_draw)
     start_anim.timer.start()

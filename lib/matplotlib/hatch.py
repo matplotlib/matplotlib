@@ -2,12 +2,6 @@
 Contains a classes for generating hatch patterns.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange
-
 import numpy as np
 from matplotlib.path import Path
 
@@ -115,7 +109,7 @@ class Shapes(HatchPatternBase):
         shape_size = len(shape_vertices)
 
         cursor = 0
-        for row in xrange(self.num_rows + 1):
+        for row in range(self.num_rows + 1):
             if row % 2 == 0:
                 cols = np.linspace(0.0, 1.0, self.num_rows + 1, True)
             else:

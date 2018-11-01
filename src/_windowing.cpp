@@ -36,8 +36,6 @@ static PyMethodDef _windowing_methods[] =
     {NULL, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "_windowing",
@@ -55,10 +53,3 @@ PyMODINIT_FUNC PyInit__windowing(void)
     PyObject *module = PyModule_Create(&moduledef);
     return module;
 }
-
-#else
-PyMODINIT_FUNC init_windowing()
-{
-    Py_InitModule("_windowing", _windowing_methods);
-}
-#endif

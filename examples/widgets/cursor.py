@@ -20,7 +20,7 @@ ax.plot(x, y, 'o')
 ax.set_xlim(-2, 2)
 ax.set_ylim(-2, 2)
 
-# set useblit = True on gtkagg for enhanced performance
+# Set useblit=True on most backends for enhanced performance.
 cursor = Cursor(ax, useblit=True, color='red', linewidth=2)
 
 plt.show()

@@ -7,8 +7,6 @@ Displays a set of subplots with an MRI image, its intensity
 histogram and some EEG traces.
 """
 
-from __future__ import division, print_function
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
@@ -21,7 +19,7 @@ fig = plt.figure("MRI_with_EEG")
 
 # Load the MRI data (256x256 16 bit integers)
 with cbook.get_sample_data('s1045.ima.gz') as dfile:
-    im = np.fromstring(dfile.read(), np.uint16).reshape((256, 256))
+    im = np.frombuffer(dfile.read(), np.uint16).reshape((256, 256))
 
 # Plot the MRI image
 ax0 = fig.add_subplot(2, 2, 1)
@@ -41,11 +39,10 @@ ax1.set_xlabel('Intensity (a.u.)')
 ax1.set_ylabel('MRI density')
 
 # Load the EEG data
-numSamples, numRows = 800, 4
+n_samples, n_rows = 800, 4
 with cbook.get_sample_data('eeg.dat') as eegfile:
-    data = np.fromfile(eegfile, dtype=float)
-data.shape = (numSamples, numRows)
-t = 10.0 * np.arange(numSamples) / numSamples
+    data = np.fromfile(eegfile, dtype=float).reshape((n_samples, n_rows))
+t = 10 * np.arange(n_samples) / n_samples
 
 # Plot the EEG
 ticklocs = []
@@ -56,15 +53,15 @@ dmin = data.min()
 dmax = data.max()
 dr = (dmax - dmin) * 0.7  # Crowd them a bit.
 y0 = dmin
-y1 = (numRows - 1) * dr + dmax
+y1 = (n_rows - 1) * dr + dmax
 ax2.set_ylim(y0, y1)
 
 segs = []
-for i in range(numRows):
-    segs.append(np.hstack((t[:, np.newaxis], data[:, i, np.newaxis])))
+for i in range(n_rows):
+    segs.append(np.column_stack((t, data[:, i])))
     ticklocs.append(i * dr)
 
-offsets = np.zeros((numRows, 2), dtype=float)
+offsets = np.zeros((n_rows, 2), dtype=float)
 offsets[:, 1] = ticklocs
 
 lines = LineCollection(segs, offsets=offsets, transOffset=None)

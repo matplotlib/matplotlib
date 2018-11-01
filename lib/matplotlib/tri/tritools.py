@@ -1,13 +1,10 @@
 """
 Tools for triangular grids.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
+import numpy as np
 
 from matplotlib.tri import Triangulation
-import numpy as np
 
 
 class TriAnalyzer(object):
@@ -95,9 +92,9 @@ class TriAnalyzer(object):
         a = tri_pts[:, 1, :] - tri_pts[:, 0, :]
         b = tri_pts[:, 2, :] - tri_pts[:, 1, :]
         c = tri_pts[:, 0, :] - tri_pts[:, 2, :]
-        a = np.sqrt(a[:, 0]**2 + a[:, 1]**2)
-        b = np.sqrt(b[:, 0]**2 + b[:, 1]**2)
-        c = np.sqrt(c[:, 0]**2 + c[:, 1]**2)
+        a = np.hypot(a[:, 0], a[:, 1])
+        b = np.hypot(b[:, 0], b[:, 1])
+        c = np.hypot(c[:, 0], c[:, 1])
         # circumcircle and incircle radii
         s = (a+b+c)*0.5
         prod = s*(a+b-s)*(a+c-s)*(b+c-s)
@@ -130,14 +127,13 @@ class TriAnalyzer(object):
         triangulation from its border-located flat triangles
         (according to their :meth:`circle_ratios`).
         This mask is meant to be subsequently applied to the triangulation
-        using :func:`matplotlib.tri.Triangulation.set_mask` .
+        using :func:`matplotlib.tri.Triangulation.set_mask`.
         *new_mask* is an extension of the initial triangulation mask
         in the sense that an initially masked triangle will remain masked.
 
-        The *new_mask* array is computed recursively ; at each step flat
-        triangles are removed only if they share a side with the current
-        mesh border. Thus no new holes in the triangulated domain will be
-        created.
+        The *new_mask* array is computed recursively; at each step flat
+        triangles are removed only if they share a side with the current mesh
+        border. Thus no new holes in the triangulated domain will be created.
 
         Parameters
         ----------

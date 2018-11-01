@@ -1,7 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import tempfile
 import warnings
 
@@ -13,15 +9,7 @@ import datetime as datetime
 import pytest
 
 import matplotlib.mlab as mlab
-import matplotlib.cbook as cbook
 from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
-
-
-try:
-    from mpl_toolkits.natgrid import _natgrid
-    HAS_NATGRID = True
-except ImportError:
-    HAS_NATGRID = False
 
 
 '''
@@ -30,60 +18,6 @@ removal in the future. The tests that use deprecated methods have a block
 to catch the deprecation warning, and can be removed with the mlab code is
 removed.
 '''
-
-
-def test_colinear_pca():
-    with pytest.warns(MatplotlibDeprecationWarning):
-        a = mlab.PCA._get_colinear()
-        pca = mlab.PCA(a)
-
-    assert_allclose(pca.fracs[2:], 0., atol=1e-8)
-    assert_allclose(pca.Y[:, 2:], 0., atol=1e-8)
-
-
-@pytest.mark.parametrize('input', [
-    # test odd lengths
-    [1, 2, 3],
-    # test even lengths
-    [1, 2, 3, 4],
-    # derived from email sent by jason-sage to MPL-user on 20090914
-    [1, 1, 2, 2, 1, 2, 4, 3, 2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 7, 6, 4, 5, 5],
-],
-ids=[
-    'odd length',
-    'even length',
-    'custom data',
-])
-@pytest.mark.parametrize('percentile', [
-    0,
-    50,
-    75,
-    100,
-    [0, 75, 100],
-])
-def test_prctile(input, percentile):
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert_allclose(mlab.prctile(input, percentile),
-                        np.percentile(input, percentile))
-
-
-@pytest.mark.parametrize('xmin, xmax, N', [
-    (.01, 1000., 6),
-    (.03, 1313., 7),
-    (.03, 1313., 0),
-    (.03, 1313., 1),
-], ids=[
-    'tens',
-    'primes',
-    'none',
-    'single',
-])
-def test_logspace(xmin, xmax, N):
-    with pytest.warns(MatplotlibDeprecationWarning):
-        res = mlab.logspace(xmin, xmax, N)
-    targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-    assert_allclose(targ, res)
-    assert res.size == N
 
 
 class TestStride(object):
@@ -212,50 +146,14 @@ class TestStride(object):
 
 @pytest.fixture
 def tempcsv():
-    if six.PY2:
-        fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
-    else:
-        fd = tempfile.TemporaryFile(suffix='csv', mode="w+", newline='')
-    with fd:
+    with tempfile.TemporaryFile(suffix='csv', mode="w+", newline='') as fd:
         yield fd
 
 
-def test_recarray_csv_roundtrip(tempcsv):
-    expected = np.recarray((99,),
-                           [(str('x'), float),
-                            (str('y'), float),
-                            (str('t'), float)])
-    # initialising all values: uninitialised memory sometimes produces
-    # floats that do not round-trip to string and back.
-    expected['x'][:] = np.linspace(-1e9, -1, 99)
-    expected['y'][:] = np.linspace(1, 1e9, 99)
-    expected['t'][:] = np.linspace(0, 0.01, 99)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        mlab.rec2csv(expected, tempcsv)
-        tempcsv.seek(0)
-        actual = mlab.csv2rec(tempcsv)
-
-    assert_allclose(expected['x'], actual['x'])
-    assert_allclose(expected['y'], actual['y'])
-    assert_allclose(expected['t'], actual['t'])
-
-
-def test_rec2csv_bad_shape_ValueError(tempcsv):
-    bad = np.recarray((99, 4), [(str('x'), float),
-                                (str('y'), float)])
-
-    # the bad recarray should trigger a ValueError for having ndim > 1.
-    with pytest.warns(MatplotlibDeprecationWarning):
-        with pytest.raises(ValueError):
-            mlab.rec2csv(bad, tempcsv)
-
-
 def test_csv2rec_names_with_comments(tempcsv):
-
     tempcsv.write('# comment\n1,2,3\n4,5,6\n')
     tempcsv.seek(0)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        array = mlab.csv2rec(tempcsv, names='a,b,c')
+    array = mlab._csv2rec(tempcsv, names='a,b,c')
     assert len(array) == 2
     assert len(array.dtype) == 3
 
@@ -288,25 +186,8 @@ def test_csv2rec_dates(tempcsv, input, kwargs):
                 datetime.datetime(2054, 6, 20, 14, 31, 45),
                 datetime.datetime(2000, 10, 31, 11, 50, 23)]
     tempcsv.seek(0)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        array = mlab.csv2rec(tempcsv, names='a', **kwargs)
+    array = mlab._csv2rec(tempcsv, names='a', **kwargs)
     assert_array_equal(array['a'].tolist(), expected)
-
-
-def test_rec2txt_basic():
-    # str() calls around field names necessary b/c as of numpy 1.11
-    # dtype doesn't like unicode names (caused by unicode_literals import)
-    a = np.array([(1.0, 2, 'foo', 'bing'),
-                  (2.0, 3, 'bar', 'blah')],
-                 dtype=np.dtype([(str('x'), np.float32),
-                                 (str('y'), np.int8),
-                                 (str('s'), str, 3),
-                                 (str('s2'), str, 4)]))
-    truth = ('       x   y   s     s2\n'
-             '   1.000   2   foo   bing   \n'
-             '   2.000   3   bar   blah   ').splitlines()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.rec2txt(a).splitlines() == truth
 
 
 class TestWindow(object):
@@ -326,7 +207,7 @@ class TestWindow(object):
         n = len(ind)
         result = np.zeros((NFFT, n))
 
-        if cbook.iterable(window):
+        if np.iterable(window):
             windowVals = window
         else:
             windowVals = window(np.ones((NFFT,), x.dtype))
@@ -743,25 +624,29 @@ class TestDetrend(object):
     def test_demean_0D_off(self):
         input = 5.5
         targ = 0.
-        res = mlab.demean(input, axis=None)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=None)
         assert_almost_equal(res, targ)
 
     def test_demean_1D_base_slope_off(self):
         input = self.sig_base + self.sig_slope + self.sig_off
         targ = self.sig_base + self.sig_slope_mean
-        res = mlab.demean(input)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input)
         assert_allclose(res, targ, atol=1e-08)
 
     def test_demean_1D_base_slope_off_axis0(self):
         input = self.sig_base + self.sig_slope + self.sig_off
         targ = self.sig_base + self.sig_slope_mean
-        res = mlab.demean(input, axis=0)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=0)
         assert_allclose(res, targ, atol=1e-08)
 
     def test_demean_1D_base_slope_off_list(self):
         input = self.sig_base + self.sig_slope + self.sig_off
         targ = self.sig_base + self.sig_slope_mean
-        res = mlab.demean(input.tolist())
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input.tolist())
         assert_allclose(res, targ, atol=1e-08)
 
     def test_detrend_mean_2D_default(self):
@@ -928,7 +813,8 @@ class TestDetrend(object):
                 self.sig_base + self.sig_slope_mean]
         input = np.vstack(arri).T
         targ = np.vstack(arrt).T
-        res = mlab.demean(input)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input)
         assert_allclose(res, targ,
                         atol=1e-08)
 
@@ -939,7 +825,8 @@ class TestDetrend(object):
                 self.sig_base]
         input = np.vstack(arri)
         targ = np.vstack(arrt)
-        res = mlab.demean(input, axis=None)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=None)
         assert_allclose(res, targ,
                         atol=1e-08)
 
@@ -954,7 +841,8 @@ class TestDetrend(object):
                 self.sig_base + self.sig_slope_mean]
         input = np.vstack(arri).T
         targ = np.vstack(arrt).T
-        res = mlab.demean(input, axis=0)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=0)
         assert_allclose(res, targ,
                         atol=1e-08)
 
@@ -969,7 +857,8 @@ class TestDetrend(object):
                 self.sig_base + self.sig_slope_mean]
         input = np.vstack(arri)
         targ = np.vstack(arrt)
-        res = mlab.demean(input, axis=1)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=1)
         assert_allclose(res, targ,
                         atol=1e-08)
 
@@ -984,7 +873,8 @@ class TestDetrend(object):
                 self.sig_base + self.sig_slope_mean]
         input = np.vstack(arri)
         targ = np.vstack(arrt)
-        res = mlab.demean(input, axis=-1)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            res = mlab.demean(input, axis=-1)
         assert_allclose(res, targ,
                         atol=1e-08)
 
@@ -1127,7 +1017,7 @@ class TestDetrend(object):
         res = mlab.detrend(input, key=mlab.detrend_linear, axis=0)
         assert_allclose(res, targ, atol=self.atol)
 
-    def test_detrend_str_linear_2d_slope_off_axis0(self):
+    def test_detrend_str_linear_2d_slope_off_axis0_notranspose(self):
         arri = [self.sig_off,
                 self.sig_slope,
                 self.sig_slope + self.sig_off]
@@ -1139,7 +1029,7 @@ class TestDetrend(object):
         res = mlab.detrend(input, key='linear', axis=1)
         assert_allclose(res, targ, atol=self.atol)
 
-    def test_detrend_detrend_linear_1d_slope_off_axis1(self):
+    def test_detrend_detrend_linear_1d_slope_off_axis1_notranspose(self):
         arri = [self.sig_off,
                 self.sig_slope,
                 self.sig_slope + self.sig_off]
@@ -2157,80 +2047,6 @@ def test_cohere():
     assert np.isreal(np.mean(cohsq))
 
 
-def test_griddata_linear():
-    # z is a linear function of x and y.
-    def get_z(x, y):
-        return 3.0*x - y
-
-    # Passing 1D xi and yi arrays to griddata.
-    x = np.asarray([0.0, 1.0, 0.0, 1.0, 0.5])
-    y = np.asarray([0.0, 0.0, 1.0, 1.0, 0.5])
-    z = get_z(x, y)
-    xi = [0.2, 0.4, 0.6, 0.8]
-    yi = [0.1, 0.3, 0.7, 0.9]
-    with pytest.warns(MatplotlibDeprecationWarning):
-        zi = mlab.griddata(x, y, z, xi, yi, interp='linear')
-    xi, yi = np.meshgrid(xi, yi)
-    np.testing.assert_array_almost_equal(zi, get_z(xi, yi))
-
-    # Passing 2D xi and yi arrays to griddata.
-    with pytest.warns(MatplotlibDeprecationWarning):
-        zi = mlab.griddata(x, y, z, xi, yi, interp='linear')
-    np.testing.assert_array_almost_equal(zi, get_z(xi, yi))
-
-    # Masking z array.
-    z_masked = np.ma.array(z, mask=[False, False, False, True, False])
-    correct_zi_masked = np.ma.masked_where(xi + yi > 1.0, get_z(xi, yi))
-    with pytest.warns(MatplotlibDeprecationWarning):
-        zi = mlab.griddata(x, y, z_masked, xi, yi, interp='linear')
-    matest.assert_array_almost_equal(zi, correct_zi_masked)
-    np.testing.assert_array_equal(np.ma.getmask(zi),
-                                  np.ma.getmask(correct_zi_masked))
-
-
-@pytest.mark.xfail(not HAS_NATGRID, reason='natgrid not installed')
-def test_griddata_nn():
-    # z is a linear function of x and y.
-    def get_z(x, y):
-        return 3.0*x - y
-
-    # Passing 1D xi and yi arrays to griddata.
-    x = np.asarray([0.0, 1.0, 0.0, 1.0, 0.5])
-    y = np.asarray([0.0, 0.0, 1.0, 1.0, 0.5])
-    z = get_z(x, y)
-    xi = [0.2, 0.4, 0.6, 0.8]
-    yi = [0.1, 0.3, 0.7, 0.9]
-    correct_zi = [[0.49999252, 1.0999978, 1.7000030, 2.3000080],
-                  [0.29999208, 0.8999978, 1.5000029, 2.1000059],
-                  [-0.1000099, 0.4999943, 1.0999964, 1.6999979],
-                  [-0.3000128, 0.2999894, 0.8999913, 1.4999933]]
-    with pytest.warns(MatplotlibDeprecationWarning):
-        zi = mlab.griddata(x, y, z, xi, yi, interp='nn')
-    np.testing.assert_array_almost_equal(zi, correct_zi, 5)
-
-    with pytest.warns(MatplotlibDeprecationWarning):
-        # Decreasing xi or yi should raise ValueError.
-        with pytest.raises(ValueError):
-            mlab.griddata(x, y, z, xi[::-1], yi, interp='nn')
-        with pytest.raises(ValueError):
-            mlab.griddata(x, y, z, xi, yi[::-1], interp='nn')
-
-    # Passing 2D xi and yi arrays to griddata.
-    xi, yi = np.meshgrid(xi, yi)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        zi = mlab.griddata(x, y, z, xi, yi, interp='nn')
-    np.testing.assert_array_almost_equal(zi, correct_zi, 5)
-
-    # Masking z array.
-    z_masked = np.ma.array(z, mask=[False, False, False, True, False])
-    correct_zi_masked = np.ma.masked_where(xi + yi > 1.0, correct_zi)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        zi = mlab.griddata(x, y, z_masked, xi, yi, interp='nn')
-    np.testing.assert_array_almost_equal(zi, correct_zi_masked, 5)
-    np.testing.assert_array_equal(np.ma.getmask(zi),
-                                  np.ma.getmask(correct_zi_masked))
-
-
 #*****************************************************************
 # These Tests where taken from SCIPY with some minor modifications
 # this can be retrieved from:
@@ -2422,33 +2238,6 @@ class TestGaussianKDEEvaluate(object):
         y_expected = [0.08797252, 0.11774109, 0.11774109]
         y = kde.evaluate(x2)
         np.testing.assert_array_almost_equal(y, y_expected, 7)
-
-
-def test_contiguous_regions():
-    a, b, c = 3, 4, 5
-    # Starts and ends with True
-    mask = [True]*a + [False]*b + [True]*c
-    expected = [(0, a), (a+b, a+b+c)]
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.contiguous_regions(mask) == expected
-    d, e = 6, 7
-    # Starts with True ends with False
-    mask = mask + [False]*e
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.contiguous_regions(mask) == expected
-    # Starts with False ends with True
-    mask = [False]*d + mask[:-e]
-    expected = [(d, d+a), (d+a+b, d+a+b+c)]
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.contiguous_regions(mask) == expected
-    # Starts and ends with False
-    mask = mask + [False]*e
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert mlab.contiguous_regions(mask) == expected
-        # No True in mask
-        assert mlab.contiguous_regions([False]*5) == []
-        # Empty mask
-        assert mlab.contiguous_regions([]) == []
 
 
 def test_psd_onesided_norm():

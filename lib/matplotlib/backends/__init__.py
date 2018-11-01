@@ -1,28 +1,67 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+import importlib
+import logging
+import os
+import sys
 
 import matplotlib
-import inspect
-import traceback
-import warnings
-import logging
+from matplotlib import cbook
+from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
-backend = matplotlib.get_backend()
-_backend_loading_tb = "".join(
-    line for line in traceback.format_stack()
-    # Filter out line noise from importlib line.
-    if not line.startswith('  File "<frozen importlib._bootstrap'))
+
+# NOTE: plt.switch_backend() (called at import time) will add a "backend"
+# attribute here for backcompat.
 
 
+def _get_running_interactive_framework():
+    """
+    Return the interactive framework whose event loop is currently running, if
+    any, or "headless" if no event loop can be started, or None.
+
+    Returns
+    -------
+    Optional[str]
+        One of the following values: "qt5", "qt4", "gtk3", "wx", "tk",
+        "macosx", "headless", ``None``.
+    """
+    QtWidgets = (sys.modules.get("PyQt5.QtWidgets")
+                 or sys.modules.get("PySide2.QtWidgets"))
+    if QtWidgets and QtWidgets.QApplication.instance():
+        return "qt5"
+    QtGui = (sys.modules.get("PyQt4.QtGui")
+             or sys.modules.get("PySide.QtGui"))
+    if QtGui and QtGui.QApplication.instance():
+        return "qt4"
+    Gtk = (sys.modules.get("gi.repository.Gtk")
+           or sys.modules.get("pgi.repository.Gtk"))
+    if Gtk and Gtk.main_level():
+        return "gtk3"
+    wx = sys.modules.get("wx")
+    if wx and wx.GetApp():
+        return "wx"
+    tkinter = sys.modules.get("tkinter")
+    if tkinter:
+        for frame in sys._current_frames().values():
+            while frame:
+                if frame.f_code == tkinter.mainloop.__code__:
+                    return "tk"
+                frame = frame.f_back
+    if 'matplotlib.backends._macosx' in sys.modules:
+        if sys.modules["matplotlib.backends._macosx"].event_loop_is_running():
+            return "macosx"
+    if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+        return "headless"
+    return None
+
+
+@cbook.deprecated("3.0")
 def pylab_setup(name=None):
-    '''return new_figure_manager, draw_if_interactive and show for pyplot
+    """
+    Return new_figure_manager, draw_if_interactive and show for pyplot.
 
-    This provides the backend-specific functions that are used by
-    pyplot to abstract away the difference between interactive backends.
+    This provides the backend-specific functions that are used by pyplot to
+    abstract away the difference between backends.
 
     Parameters
     ----------
@@ -43,54 +82,25 @@ def pylab_setup(name=None):
 
     show : function
         Show (and possibly block) any unshown figures.
-
-    '''
-    # Import the requested backend into a generic module object
+    """
+    # Import the requested backend into a generic module object.
     if name is None:
-        # validates, to match all_backends
         name = matplotlib.get_backend()
-    if name.startswith('module://'):
-        backend_name = name[9:]
-    else:
-        backend_name = 'backend_' + name
-        backend_name = backend_name.lower()  # until we banish mixed case
-        backend_name = 'matplotlib.backends.%s' % backend_name.lower()
+    backend_name = (name[9:] if name.startswith("module://")
+                    else "matplotlib.backends.backend_{}".format(name.lower()))
+    backend_mod = importlib.import_module(backend_name)
+    # Create a local Backend class whose body corresponds to the contents of
+    # the backend module.  This allows the Backend class to fill in the missing
+    # methods through inheritance.
+    Backend = type("Backend", (_Backend,), vars(backend_mod))
 
-    # the last argument is specifies whether to use absolute or relative
-    # imports. 0 means only perform absolute imports.
-    backend_mod = __import__(backend_name, globals(), locals(),
-                             [backend_name], 0)
-
-    # Things we pull in from all backends
-    new_figure_manager = backend_mod.new_figure_manager
-
-    # image backends like pdf, agg or svg do not need to do anything
-    # for "show" or "draw_if_interactive", so if they are not defined
-    # by the backend, just do nothing
-    def do_nothing_show(*args, **kwargs):
-        frame = inspect.currentframe()
-        fname = frame.f_back.f_code.co_filename
-        if fname in ('<stdin>', '<ipython console>'):
-            warnings.warn("""
-Your currently selected backend, '%s' does not support show().
-Please select a GUI backend in your matplotlibrc file ('%s')
-or with matplotlib.use()""" %
-                          (name, matplotlib.matplotlib_fname()))
-
-    def do_nothing(*args, **kwargs):
-        pass
-
-    backend_version = getattr(backend_mod, 'backend_version', 'unknown')
-
-    show = getattr(backend_mod, 'show', do_nothing_show)
-
-    draw_if_interactive = getattr(backend_mod, 'draw_if_interactive',
-                                  do_nothing)
-
-    _log.info('backend %s version %s' % (name, backend_version))
-
-    # need to keep a global reference to the backend for compatibility
-    # reasons. See https://github.com/matplotlib/matplotlib/issues/6092
+    # Need to keep a global reference to the backend for compatibility reasons.
+    # See https://github.com/matplotlib/matplotlib/issues/6092
     global backend
     backend = name
-    return backend_mod, new_figure_manager, draw_if_interactive, show
+
+    _log.debug('backend %s version %s', name, Backend.backend_version)
+    return (backend_mod,
+            Backend.new_figure_manager,
+            Backend.draw_if_interactive,
+            Backend.show)

@@ -6,14 +6,27 @@ range 0-1.
 
 This module includes functions and classes for color specification
 conversions, and for mapping numbers to colors in a 1-D array of colors called
-a colormap. Colormapping typically involves two steps: a data array is first
-mapped onto the range 0-1 using an instance of :class:`Normalize` or of a
-subclass; then this number in the 0-1 range is mapped to a color using an
-instance of a subclass of :class:`Colormap`.  Two are provided here:
-:class:`LinearSegmentedColormap`, which is used to generate all the built-in
-colormap instances, but is also useful for making custom colormaps, and
-:class:`ListedColormap`, which is used for generating a custom colormap from a
-list of color specifications.
+a colormap.
+
+Mapping data onto colors using a colormap typically involves two steps:
+a data array is first mapped onto the range 0-1 using a subclass of
+:class:`Normalize`, then this number is mapped to a color using
+a subclass of :class:`Colormap`.  Two are provided here:
+:class:`LinearSegmentedColormap`, which uses piecewise-linear interpolation
+to define colormaps, and :class:`ListedColormap`, which makes a colormap
+from a list of colors.
+
+.. seealso::
+
+  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
+  make colormaps and
+
+  :doc:`/tutorials/colors/colormaps` for a list of built-in colormaps.
+
+  :doc:`/tutorials/colors/colormapnorms` for more details about data
+  normalization
+
+  More colormaps are available at palettable_
 
 The module also provides functions for checking whether an object can be
 interpreted as a color (:func:`is_color_like`), for converting such an object
@@ -42,18 +55,14 @@ Matplotlib recognizes the following formats to specify a color:
   cycle does not include color.
 
 All string specifications of color, other than "CN", are case-insensitive.
+
+.. _palettable: https://jiffyclub.github.io/palettable/
+
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
-from collections import Sized
+from collections.abc import Sized
 import itertools
 import re
-import warnings
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -62,15 +71,15 @@ from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 class _ColorMapping(dict):
     def __init__(self, mapping):
-        super(_ColorMapping, self).__init__(mapping)
+        super().__init__(mapping)
         self.cache = {}
 
     def __setitem__(self, key, value):
-        super(_ColorMapping, self).__setitem__(key, value)
+        super().__setitem__(key, value)
         self.cache.clear()
 
     def __delitem__(self, key):
-        super(_ColorMapping, self).__delitem__(key)
+        super().__delitem__(key)
         self.cache.clear()
 
 
@@ -94,9 +103,19 @@ def get_named_colors_mapping():
     return _colors_full_map
 
 
+def _sanitize_extrema(ex):
+    if ex is None:
+        return ex
+    try:
+        ret = ex.item()
+    except AttributeError:
+        ret = float(ex)
+    return ret
+
+
 def _is_nth_color(c):
     """Return whether *c* can be interpreted as an item in the color cycle."""
-    return isinstance(c, six.string_types) and re.match(r"\AC[0-9]\Z", c)
+    return isinstance(c, str) and re.match(r"\AC[0-9]\Z", c)
 
 
 def is_color_like(c):
@@ -169,7 +188,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
     """
     orig_c = c
-    if isinstance(c, six.string_types):
+    if isinstance(c, str):
         if c.lower() == "none":
             return (0., 0., 0., 0.)
         # Named color.
@@ -178,7 +197,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             c = _colors_full_map[c.lower()]
         except KeyError:
             pass
-    if isinstance(c, six.string_types):
+    if isinstance(c, str):
         # hex color with no alpha.
         match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
         if match:
@@ -244,7 +263,7 @@ def to_rgba_array(c, alpha=None):
     # Note that this occurs *after* handling inputs that are already arrays, as
     # `to_rgba(c, alpha)` (below) is expensive for such inputs, due to the need
     # to format the array in the ValueError message(!).
-    if isinstance(c, six.string_types) and c.lower() == "none":
+    if cbook._str_lower_equal(c, "none"):
         return np.zeros((0, 4), float)
     try:
         return np.array([to_rgba(c, alpha)], float)
@@ -470,7 +489,7 @@ class Colormap(object):
         if not self._isinit:
             self._init()
         mask_bad = None
-        if not cbook.iterable(X):
+        if not np.iterable(X):
             vtype = 'scalar'
             xa = np.array([X])
         else:
@@ -511,8 +530,7 @@ class Colormap(object):
             lut = self._lut.copy()  # Don't let alpha modify original _lut.
 
         if alpha is not None:
-            alpha = min(alpha, 1.0)  # alpha must be between 0 and 1
-            alpha = max(alpha, 0.0)
+            alpha = np.clip(alpha, 0, 1)
             if bytes:
                 alpha = int(alpha * 255)
             if (lut[-1] == 0).all():
@@ -544,7 +562,7 @@ class Colormap(object):
     def set_bad(self, color='k', alpha=None):
         """Set color to be used for masked values.
         """
-        self._rgba_bad = colorConverter.to_rgba(color, alpha)
+        self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
@@ -552,7 +570,7 @@ class Colormap(object):
         """Set color to be used for low out-of-range values.
            Requires norm.clip = False
         """
-        self._rgba_under = colorConverter.to_rgba(color, alpha)
+        self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
@@ -560,7 +578,7 @@ class Colormap(object):
         """Set color to be used for high out-of-range values.
            Requires norm.clip = False
         """
-        self._rgba_over = colorConverter.to_rgba(color, alpha)
+        self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
@@ -703,11 +721,11 @@ class LinearSegmentedColormap(Colormap):
         to divide the range unevenly.
         """
 
-        if not cbook.iterable(colors):
+        if not np.iterable(colors):
             raise ValueError('colors must be iterable')
 
         if (isinstance(colors[0], Sized) and len(colors[0]) == 2
-                and not isinstance(colors[0], six.string_types)):
+                and not isinstance(colors[0], str)):
             # List of value, color pairs
             vals, colors = zip(*colors)
         else:
@@ -715,7 +733,7 @@ class LinearSegmentedColormap(Colormap):
 
         cdict = dict(red=[], green=[], blue=[], alpha=[])
         for val, color in zip(vals, colors):
-            r, g, b, a = colorConverter.to_rgba(color)
+            r, g, b, a = to_rgba(color)
             cdict['red'].append((val, r, r))
             cdict['green'].append((val, g, g))
             cdict['blue'].append((val, b, b))
@@ -753,13 +771,9 @@ class LinearSegmentedColormap(Colormap):
                 return dat(1.0 - x)
             return func_r
 
-        data_r = dict()
-        for key, data in six.iteritems(self._segmentdata):
-            if callable(data):
-                data_r[key] = factory(data)
-            else:
-                new_data = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)]
-                data_r[key] = new_data
+        data_r = {key: (factory(data) if callable(data) else
+                        [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)])
+                  for key, data in self._segmentdata.items()}
 
         return LinearSegmentedColormap(name, data_r, self.N, self._gamma)
 
@@ -800,10 +814,10 @@ class ListedColormap(Colormap):
             self.colors = colors
             N = len(colors)
         else:
-            if isinstance(colors, six.string_types):
+            if isinstance(colors, str):
                 self.colors = [colors] * N
                 self.monochrome = True
-            elif cbook.iterable(colors):
+            elif np.iterable(colors):
                 if len(colors) == 1:
                     self.monochrome = True
                 self.colors = list(
@@ -819,9 +833,8 @@ class ListedColormap(Colormap):
         Colormap.__init__(self, name, N)
 
     def _init(self):
-        rgba = colorConverter.to_rgba_array(self.colors)
         self._lut = np.zeros((self.N + 3, 4), float)
-        self._lut[:-3] = rgba
+        self._lut[:-3] = to_rgba_array(self.colors)
         self._isinit = True
         self._set_extremes()
 
@@ -878,8 +891,8 @@ class Normalize(object):
         likely to lead to surprises; therefore the default is
         *clip* = *False*.
         """
-        self.vmin = vmin
-        self.vmax = vmax
+        self.vmin = _sanitize_extrema(vmin)
+        self.vmax = _sanitize_extrema(vmax)
         self.clip = clip
 
     @staticmethod
@@ -899,7 +912,7 @@ class Normalize(object):
         Experimental; we may want to add an option to force the
         use of float32.
         """
-        is_scalar = not cbook.iterable(value)
+        is_scalar = not np.iterable(value)
         if is_scalar:
             value = [value]
         dtype = np.min_scalar_type(value)
@@ -944,11 +957,6 @@ class Normalize(object):
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
-        # Agg cannot handle float128.  We actually only need 32-bit of
-        # precision, but on Windows, `np.dtype(np.longdouble) == np.float64`,
-        # so casting to float32 would lose precision on float64s as well.
-        if result.dtype == np.longdouble:
-            result = result.astype(np.float64)
         if is_scalar:
             result = result[0]
         return result
@@ -959,22 +967,20 @@ class Normalize(object):
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = np.ma.asarray(value)
             return vmin + val * (vmax - vmin)
         else:
             return vmin + value * (vmax - vmin)
 
     def autoscale(self, A):
-        """
-        Set *vmin*, *vmax* to min, max of *A*.
-        """
+        """Set *vmin*, *vmax* to min, max of *A*."""
         A = np.asanyarray(A)
         self.vmin = A.min()
         self.vmax = A.max()
 
     def autoscale_None(self, A):
-        """autoscale only None-valued vmin or vmax."""
+        """Autoscale only None-valued vmin or vmax."""
         A = np.asanyarray(A)
         if self.vmin is None and A.size:
             self.vmin = A.min()
@@ -982,14 +988,13 @@ class Normalize(object):
             self.vmax = A.max()
 
     def scaled(self):
-        'return true if vmin and vmax set'
-        return (self.vmin is not None and self.vmax is not None)
+        """Return whether vmin and vmax are set."""
+        return self.vmin is not None and self.vmax is not None
 
 
 class LogNorm(Normalize):
-    """
-    Normalize a given value to the 0-1 range on a log scale
-    """
+    """Normalize a given value to the 0-1 range on a log scale."""
+
     def __call__(self, value, clip=None):
         if clip is None:
             clip = self.clip
@@ -1032,29 +1037,19 @@ class LogNorm(Normalize):
             raise ValueError("Not invertible until scaled")
         vmin, vmax = self.vmin, self.vmax
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = np.ma.asarray(value)
             return vmin * np.ma.power((vmax / vmin), val)
         else:
             return vmin * pow((vmax / vmin), value)
 
     def autoscale(self, A):
-        """
-        Set *vmin*, *vmax* to min, max of *A*.
-        """
-        A = np.ma.masked_less_equal(A, 0, copy=False)
-        self.vmin = np.ma.min(A)
-        self.vmax = np.ma.max(A)
+        # docstring inherited.
+        super().autoscale(np.ma.masked_less_equal(A, 0, copy=False))
 
     def autoscale_None(self, A):
-        """autoscale only None-valued vmin or vmax."""
-        if self.vmin is not None and self.vmax is not None:
-            return
-        A = np.ma.masked_less_equal(A, 0, copy=False)
-        if self.vmin is None and A.size:
-            self.vmin = A.min()
-        if self.vmax is None and A.size:
-            self.vmax = A.max()
+        # docstring inherited.
+        super().autoscale_None(np.ma.masked_less_equal(A, 0, copy=False))
 
 
 class SymLogNorm(Normalize):
@@ -1116,10 +1111,9 @@ class SymLogNorm(Normalize):
         return result
 
     def _transform(self, a):
-        """
-        Inplace transformation.
-        """
-        masked = np.abs(a) > self.linthresh
+        """Inplace transformation."""
+        with np.errstate(invalid="ignore"):
+            masked = np.abs(a) > self.linthresh
         sign = np.sign(a[masked])
         log = (self._linscale_adj + np.log(np.abs(a[masked]) / self.linthresh))
         log *= sign * self.linthresh
@@ -1128,9 +1122,7 @@ class SymLogNorm(Normalize):
         return a
 
     def _inv_transform(self, a):
-        """
-        Inverse inplace Transformation.
-        """
+        """Inverse inplace Transformation."""
         masked = np.abs(a) > (self.linthresh * self._linscale_adj)
         sign = np.sign(a[masked])
         exp = np.exp(sign * a[masked] / self.linthresh - self._linscale_adj)
@@ -1140,9 +1132,7 @@ class SymLogNorm(Normalize):
         return a
 
     def _transform_vmin_vmax(self):
-        """
-        Calculates vmin and vmax in the transformed system.
-        """
+        """Calculates vmin and vmax in the transformed system."""
         vmin, vmax = self.vmin, self.vmax
         arr = np.array([vmax, vmin]).astype(float)
         self._upper, self._lower = self._transform(arr)
@@ -1155,29 +1145,20 @@ class SymLogNorm(Normalize):
         return self._inv_transform(val)
 
     def autoscale(self, A):
-        """
-        Set *vmin*, *vmax* to min, max of *A*.
-        """
-        self.vmin = np.ma.min(A)
-        self.vmax = np.ma.max(A)
+        # docstring inherited.
+        super().autoscale(A)
         self._transform_vmin_vmax()
 
     def autoscale_None(self, A):
-        """autoscale only None-valued vmin or vmax."""
-        if self.vmin is not None and self.vmax is not None:
-            pass
-        A = np.asanyarray(A)
-        if self.vmin is None and A.size:
-            self.vmin = A.min()
-        if self.vmax is None and A.size:
-            self.vmax = A.max()
+        # docstring inherited.
+        super().autoscale_None(A)
         self._transform_vmin_vmax()
 
 
 class PowerNorm(Normalize):
     """
-    Normalize a given value to the ``[0, 1]`` interval with a power-law
-    scaling. This will clip any negative data points to 0.
+    Linearly map a given value to the 0-1 range and then apply
+    a power-law normalization over that range.
     """
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
         Normalize.__init__(self, vmin, vmax, clip)
@@ -1197,18 +1178,17 @@ class PowerNorm(Normalize):
         elif vmin == vmax:
             result.fill(0)
         else:
-            res_mask = result.data < 0
             if clip:
                 mask = np.ma.getmask(result)
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                      mask=mask)
             resdat = result.data
             resdat -= vmin
+            resdat[resdat < 0] = 0
             np.power(resdat, gamma, resdat)
             resdat /= (vmax - vmin) ** gamma
 
             result = np.ma.array(resdat, mask=result.mask, copy=False)
-            result[res_mask] = 0
         if is_scalar:
             result = result[0]
         return result
@@ -1219,48 +1199,23 @@ class PowerNorm(Normalize):
         gamma = self.gamma
         vmin, vmax = self.vmin, self.vmax
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = np.ma.asarray(value)
             return np.ma.power(val, 1. / gamma) * (vmax - vmin) + vmin
         else:
             return pow(value, 1. / gamma) * (vmax - vmin) + vmin
-
-    def autoscale(self, A):
-        """
-        Set *vmin*, *vmax* to min, max of *A*.
-        """
-        self.vmin = np.ma.min(A)
-        if self.vmin < 0:
-            self.vmin = 0
-            warnings.warn("Power-law scaling on negative values is "
-                          "ill-defined, clamping to 0.")
-        self.vmax = np.ma.max(A)
-
-    def autoscale_None(self, A):
-        """autoscale only None-valued vmin or vmax."""
-        A = np.asanyarray(A)
-        if self.vmin is None and A.size:
-            self.vmin = A.min()
-            if self.vmin < 0:
-                self.vmin = 0
-                warnings.warn("Power-law scaling on negative values is "
-                              "ill-defined, clamping to 0.")
-        if self.vmax is None and A.size:
-            self.vmax = A.max()
 
 
 class BoundaryNorm(Normalize):
     """
     Generate a colormap index based on discrete intervals.
 
-    Unlike :class:`Normalize` or :class:`LogNorm`,
-    :class:`BoundaryNorm` maps values to integers instead of to the
-    interval 0-1.
+    Unlike `Normalize` or `LogNorm`, `BoundaryNorm` maps values to integers
+    instead of to the interval 0-1.
 
-    Mapping to the 0-1 interval could have been done via
-    piece-wise linear interpolation, but using integers seems
-    simpler, and reduces the number of conversions back and forth
-    between integer and floating point.
+    Mapping to the 0-1 interval could have been done via piece-wise linear
+    interpolation, but using integers seems simpler, and reduces the number of
+    conversions back and forth between integer and floating point.
     """
     def __init__(self, boundaries, ncolors, clip=False):
         """
@@ -1337,9 +1292,8 @@ class BoundaryNorm(Normalize):
 
 class NoNorm(Normalize):
     """
-    Dummy replacement for Normalize, for the case where we
-    want to use indices directly in a
-    :class:`~matplotlib.cm.ScalarMappable` .
+    Dummy replacement for `Normalize`, for the case where we want to use
+    indices directly in a `~matplotlib.cm.ScalarMappable`.
     """
     def __call__(self, value, clip=None):
         return value
@@ -1350,7 +1304,7 @@ class NoNorm(Normalize):
 
 def rgb_to_hsv(arr):
     """
-    convert float rgb values (in the range [0, 1]), in a numpy array to hsv
+    Convert float rgb values (in the range [0, 1]), in a numpy array to hsv
     values.
 
     Parameters
@@ -1485,8 +1439,7 @@ def hsv_to_rgb(hsv):
     g[idx] = v[idx]
     b[idx] = v[idx]
 
-    # `np.stack([r, g, b], axis=-1)` (numpy 1.10).
-    rgb = np.concatenate([r[..., None], g[..., None], b[..., None]], -1)
+    rgb = np.stack([r, g, b], axis=-1)
 
     if in_ndim == 1:
         rgb.shape = (3,)
@@ -1506,17 +1459,6 @@ def _vector_magnitude(arr):
     for i in range(arr.shape[-1]):
         sum_sq += np.square(arr[..., i, np.newaxis])
     return np.sqrt(sum_sq)
-
-
-def _vector_dot(a, b):
-    # things that don't work here:
-    #   * a.dot(b) - fails on masked arrays until 1.10
-    #   * np.ma.dot(a, b) - doesn't mask enough things
-    #   * np.ma.dot(a, b, strict=True) - returns a maskedarray with no mask
-    dot = 0
-    for i in range(a.shape[-1]):
-        dot += a[..., i] * b[..., i]
-    return dot
 
 
 class LightSource(object):
@@ -1655,7 +1597,7 @@ class LightSource(object):
             completely in shadow and 1 is completely illuminated.
         """
 
-        intensity = _vector_dot(normals, self.direction)
+        intensity = normals.dot(self.direction)
 
         # Apply contrast stretch
         imin, imax = intensity.min(), intensity.max()
@@ -1856,7 +1798,7 @@ class LightSource(object):
         hsv_max_val : number, optional
             The maximum value ("v" in "hsv") that the *intensity* map can shift
             the output image to. Defaults to 1.
-        hsv_min_val: number, optional
+        hsv_min_val : number, optional
             The minimum value ("v" in "hsv") that the *intensity* map can shift
             the output image to. Defaults to 0.
 

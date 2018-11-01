@@ -1,17 +1,8 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-import warnings
-
-
 import numpy as np
 import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
-from matplotlib.patches import Rectangle
 import matplotlib.gridspec as gridspec
 from matplotlib import ticker, rcParams
 
@@ -103,9 +94,9 @@ def test_constrained_layout5():
 def test_constrained_layout6():
     'Test constrained_layout for nested gridspecs'
     fig = plt.figure(constrained_layout=True)
-    gs = gridspec.GridSpec(1, 2, figure=fig)
-    gsl = gridspec.GridSpecFromSubplotSpec(2, 2, gs[0])
-    gsr = gridspec.GridSpecFromSubplotSpec(1, 2, gs[1])
+    gs = fig.add_gridspec(1, 2, figure=fig)
+    gsl = gs[0].subgridspec(2, 2)
+    gsr = gs[1].subgridspec(1, 2)
     axsl = []
     for gs in gsl:
         ax = fig.add_subplot(gs)
@@ -121,40 +112,6 @@ def test_constrained_layout6():
     fig.colorbar(pcm, ax=axsr,
                  pad=0.01, shrink=0.99, location='bottom',
                  ticks=ticker.MaxNLocator(nbins=5))
-
-
-@image_comparison(baseline_images=['constrained_layout8'],
-        extensions=['png'])
-def test_constrained_layout8():
-    'Test for gridspecs that are not completely full'
-    fig = plt.figure(figsize=(7, 4), constrained_layout=True)
-    gs = gridspec.GridSpec(3, 5, figure=fig)
-    axs = []
-    j = 1
-    for i in [0, 1]:
-        ax = fig.add_subplot(gs[j, i])
-        axs += [ax]
-        pcm = example_pcolor(ax, fontsize=10)
-        if i > 0:
-            ax.set_ylabel('')
-        if j < 1:
-            ax.set_xlabel('')
-        ax.set_title('')
-    j = 0
-    for i in [2, 4]:
-        ax = fig.add_subplot(gs[j, i])
-        axs += [ax]
-        pcm = example_pcolor(ax, fontsize=10)
-        if i > 0:
-            ax.set_ylabel('')
-        if j < 1:
-            ax.set_xlabel('')
-        ax.set_title('')
-    ax = fig.add_subplot(gs[2, :])
-    axs += [ax]
-    pcm = example_pcolor(ax, fontsize=10)
-
-    fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
 
 
 def test_constrained_layout7():
@@ -179,26 +136,20 @@ def test_constrained_layout8():
     fig = plt.figure(figsize=(10, 5), constrained_layout=True)
     gs = gridspec.GridSpec(3, 5, figure=fig)
     axs = []
-    j = 1
-    for i in [0, 4]:
-        ax = fig.add_subplot(gs[j, i])
-        axs += [ax]
-        pcm = example_pcolor(ax, fontsize=9)
-        if i > 0:
-            ax.set_ylabel('')
-        if j < 1:
-            ax.set_xlabel('')
-        ax.set_title('')
-    j = 0
-    for i in [1]:
-        ax = fig.add_subplot(gs[j, i])
-        axs += [ax]
-        pcm = example_pcolor(ax, fontsize=9)
-        if i > 0:
-            ax.set_ylabel('')
-        if j < 1:
-            ax.set_xlabel('')
-        ax.set_title('')
+    for j in [0, 1]:
+        if j == 0:
+            ilist = [1]
+        else:
+            ilist = [0, 4]
+        for i in ilist:
+            ax = fig.add_subplot(gs[j, i])
+            axs += [ax]
+            pcm = example_pcolor(ax, fontsize=9)
+            if i > 0:
+                ax.set_ylabel('')
+            if j < 1:
+                ax.set_xlabel('')
+            ax.set_title('')
     ax = fig.add_subplot(gs[2, :])
     axs += [ax]
     pcm = example_pcolor(ax, fontsize=9)
@@ -212,7 +163,6 @@ def test_constrained_layout9():
     'Test for handling suptitle and for sharex and sharey'
     fig, axs = plt.subplots(2, 2, constrained_layout=True,
                             sharex=False, sharey=False)
-    # ax = fig.add_subplot(111)
     for ax in axs.flatten():
         pcm = example_pcolor(ax, fontsize=24)
         ax.set_xlabel('')
@@ -377,3 +327,80 @@ def test_constrained_layout19():
     ax.set_title('')
     fig.canvas.draw()
     assert all(ax.get_position().extents == ax2.get_position().extents)
+
+
+def test_constrained_layout20():
+    'Smoke test cl does not mess up added axes'
+    gx = np.linspace(-5, 5, 4)
+    img = np.hypot(gx, gx[:, None])
+
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1])
+    mesh = ax.pcolormesh(gx, gx, img)
+    fig.colorbar(mesh)
+
+
+def test_constrained_layout21():
+    '#11035: repeated calls to suptitle should not alter the layout'
+    fig, ax = plt.subplots(constrained_layout=True)
+
+    fig.suptitle("Suptitle0")
+    fig.canvas.draw()
+    extents0 = np.copy(ax.get_position().extents)
+
+    fig.suptitle("Suptitle1")
+    fig.canvas.draw()
+    extents1 = np.copy(ax.get_position().extents)
+
+    np.testing.assert_allclose(extents0, extents1)
+
+
+def test_constrained_layout22():
+    '#11035: suptitle should not be include in CL if manually positioned'
+    fig, ax = plt.subplots(constrained_layout=True)
+
+    fig.canvas.draw()
+    extents0 = np.copy(ax.get_position().extents)
+
+    fig.suptitle("Suptitle", y=0.5)
+    fig.canvas.draw()
+    extents1 = np.copy(ax.get_position().extents)
+
+    np.testing.assert_allclose(extents0, extents1)
+
+
+def test_constrained_layout23():
+    '''
+    Comment in #11035: suptitle used to cause an exception when
+    reusing a figure w/ CL with ``clear=True``.
+    '''
+
+    for i in range(2):
+        fig, ax = plt.subplots(num="123", constrained_layout=True, clear=True)
+        fig.suptitle("Suptitle{}".format(i))
+
+
+# This test occasionally fails the image comparison tests, so we mark as
+# flaky.  Apparently the constraint solver occasionally doesn't fully
+# optimize.  Would be nice if this were more deterministic...
+@pytest.mark.timeout(30)
+@pytest.mark.flaky(reruns=3)
+@image_comparison(baseline_images=['test_colorbar_location'],
+        extensions=['png'], remove_text=True, style='mpl20')
+def test_colorbar_location():
+    """
+    Test that colorbar handling is as expected for various complicated
+    cases...
+    """
+
+    fig, axs = plt.subplots(4, 5, constrained_layout=True)
+    for ax in axs.flatten():
+        pcm = example_pcolor(ax)
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+    fig.colorbar(pcm, ax=axs[:, 1], shrink=0.4)
+    fig.colorbar(pcm, ax=axs[-1, :2], shrink=0.5, location='bottom')
+    fig.colorbar(pcm, ax=axs[0, 2:], shrink=0.5, location='bottom')
+    fig.colorbar(pcm, ax=axs[-2, 3:], shrink=0.5, location='top')
+    fig.colorbar(pcm, ax=axs[0, 0], shrink=0.5, location='left')
+    fig.colorbar(pcm, ax=axs[1:3, 2], shrink=0.5, location='right')

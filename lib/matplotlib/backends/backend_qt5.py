@@ -1,26 +1,20 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-import six
-
 import functools
 import os
 import re
 import signal
 import sys
-from six import unichr
 import traceback
 
 import matplotlib
 
+from matplotlib import backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, cursors, ToolContainerBase, StatusbarBase)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
-from matplotlib.figure import Figure
 from matplotlib.backend_managers import ToolManager
-from matplotlib import backend_tools
 
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _getSaveFileName, is_pyqt5, __version__, QT_API)
@@ -168,13 +162,10 @@ def _allow_super_init(__init__):
             next_coop_init.__init__(self, *args, **kwargs)
 
         @functools.wraps(__init__)
-        def wrapper(self, **kwargs):
-            try:
-                QtWidgets.QWidget.__init__ = cooperative_qwidget_init
-                __init__(self, **kwargs)
-            finally:
-                # Restore __init__
-                QtWidgets.QWidget.__init__ = qwidget_init
+        def wrapper(self, *args, **kwargs):
+            with cbook._setattr_cm(QtWidgets.QWidget,
+                                   __init__=cooperative_qwidget_init):
+                __init__(self, *args, **kwargs)
 
         return wrapper
 
@@ -232,7 +223,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     @_allow_super_init
     def __init__(self, figure):
         _create_qApp()
-        super(FigureCanvasQT, self).__init__(figure=figure)
+        super().__init__(figure=figure)
 
         self.figure = figure
         # We don't want to scale up the figure DPI more than once.
@@ -249,6 +240,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self._dpi_ratio_prev = None
 
         self._draw_pending = False
+        self._erase_before_paint = False
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
 
@@ -269,7 +261,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def _dpi_ratio(self):
         # Not available on Qt4 or some older Qt5.
         try:
-            return self.devicePixelRatio()
+            # self.devicePixelRatio() returns 0 in rare cases
+            return self.devicePixelRatio() or 1
         except AttributeError:
             return 1
 
@@ -298,7 +291,12 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return int(w / self._dpi_ratio), int(h / self._dpi_ratio)
 
     def enterEvent(self, event):
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event)
+        try:
+            x, y = self.mouseEventCoords(event.pos())
+        except AttributeError:
+            # the event from PyQt4 does not include the position
+            x = y = None
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -378,6 +376,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if key is not None:
             FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
+    @cbook.deprecated("3.0", alternative="event.guiEvent.isAutoRepeat")
     @property
     def keyAutoRepeat(self):
         """
@@ -438,7 +437,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             if event_key > MAX_UNICODE:
                 return None
 
-            key = unichr(event_key)
+            key = chr(event_key)
             # qt delivers capitalized letters.  fix capitalization
             # note that capslock is ignored
             if 'shift' in mods:
@@ -490,11 +489,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # that uses the result of the draw() to update plot elements.
         if self._is_drawing:
             return
-        self._is_drawing = True
-        try:
-            super(FigureCanvasQT, self).draw()
-        finally:
-            self._is_drawing = False
+        with cbook._setattr_cm(self, _is_drawing=True):
+            super().draw()
+        self._erase_before_paint = True
         self.update()
 
     def draw_idle(self):
@@ -610,8 +607,7 @@ class FigureManagerQT(FigureManagerBase):
         # requested size:
         cs = canvas.sizeHint()
         sbs = self.window.statusBar().sizeHint()
-        self._status_and_tool_height = tbs_height + sbs.height()
-        height = cs.height() + self._status_and_tool_height
+        height = cs.height() + tbs_height + sbs.height()
         self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
@@ -620,11 +616,6 @@ class FigureManagerQT(FigureManagerBase):
             self.window.show()
             self.canvas.draw_idle()
 
-        def notify_axes_change(fig):
-            # This will be called whenever the current axes is changed
-            if self.toolbar is not None:
-                self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
         self.window.raise_()
 
     def full_screen_toggle(self):
@@ -664,8 +655,11 @@ class FigureManagerQT(FigureManagerBase):
         return toolmanager
 
     def resize(self, width, height):
-        'set the canvas size in pixels'
-        self.window.resize(width, height + self._status_and_tool_height)
+        # these are Qt methods so they return sizes in 'virtual' pixels
+        # so we do not need to worry about dpi scaling here.
+        extra_width = self.window.width() - self.canvas.width()
+        extra_height = self.window.height() - self.canvas.height()
+        self.window.resize(width+extra_width, height+extra_height)
 
     def show(self):
         self.window.show()
@@ -679,13 +673,12 @@ class FigureManagerQT(FigureManagerBase):
         if self.window._destroying:
             return
         self.window._destroying = True
-        self.window.destroyed.connect(self._widgetclosed)
         if self.toolbar:
             self.toolbar.destroy()
         self.window.close()
 
     def get_window_title(self):
-        return six.text_type(self.window.windowTitle())
+        return self.window.windowTitle()
 
     def set_window_title(self, title):
         self.window.setWindowTitle(title)
@@ -762,7 +755,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         # the actual sizeHint, so override it instead in order to make the
         # aesthetic adjustments noted above.
         def sizeHint(self):
-            size = super(NavigationToolbar2QT, self).sizeHint()
+            size = super().sizeHint()
             size.setHeight(max(48, size.height()))
             return size
 
@@ -786,7 +779,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             item, ok = QtWidgets.QInputDialog.getItem(
                 self.parent, 'Customize', 'Select axes:', titles, 0, False)
             if ok:
-                axes = allaxes[titles.index(six.text_type(item))]
+                axes = allaxes[titles.index(item)]
             else:
                 return
 
@@ -798,11 +791,11 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._actions['zoom'].setChecked(self._active == 'ZOOM')
 
     def pan(self, *args):
-        super(NavigationToolbar2QT, self).pan(*args)
+        super().pan(*args)
         self._update_buttons_checked()
 
     def zoom(self, *args):
-        super(NavigationToolbar2QT, self).zoom(*args)
+        super().zoom(*args)
         self._update_buttons_checked()
 
     def set_message(self, s):
@@ -832,7 +825,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
-        sorted_filetypes = sorted(six.iteritems(filetypes))
+        sorted_filetypes = sorted(filetypes.items())
         default_filetype = self.canvas.get_default_filetype()
 
         startpath = os.path.expanduser(
@@ -855,12 +848,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
                 matplotlib.rcParams['savefig.directory'] = (
-                    os.path.dirname(six.text_type(fname)))
+                    os.path.dirname(fname))
             try:
-                self.canvas.figure.savefig(six.text_type(fname))
+                self.canvas.figure.savefig(fname)
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
-                    self, "Error saving file", six.text_type(e),
+                    self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
 
 
@@ -938,7 +931,6 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         QtWidgets.QToolBar.__init__(self, parent)
         self._toolitems = {}
         self._groups = {}
-        self._last = None
 
     @property
     def _icon_extension(self):
@@ -963,7 +955,6 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         else:
             button.clicked.connect(handler)
 
-        self._last = button
         self._toolitems.setdefault(name, [])
         self._add_to_group(group, name, button, position)
         self._toolitems[name].append((button, handler))
@@ -1021,7 +1012,7 @@ class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):
 class SaveFigureQt(backend_tools.SaveFigureBase):
     def trigger(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
-        sorted_filetypes = sorted(six.iteritems(filetypes))
+        sorted_filetypes = sorted(filetypes.items())
         default_filetype = self.canvas.get_default_filetype()
 
         startpath = os.path.expanduser(
@@ -1045,12 +1036,12 @@ class SaveFigureQt(backend_tools.SaveFigureBase):
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
                 matplotlib.rcParams['savefig.directory'] = (
-                    os.path.dirname(six.text_type(fname)))
+                    os.path.dirname(fname))
             try:
-                self.canvas.figure.savefig(six.text_type(fname))
+                self.canvas.figure.savefig(fname)
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
-                    self, "Error saving file", six.text_type(e),
+                    self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
 
 
@@ -1071,20 +1062,35 @@ class RubberbandQt(backend_tools.RubberbandBase):
         self.canvas.drawRectangle(None)
 
 
+class HelpQt(backend_tools.ToolHelpBase):
+    def trigger(self, *args):
+        QtWidgets.QMessageBox.information(None, "Help", self._get_help_html())
+
+
+class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
+    def trigger(self, *args, **kwargs):
+        pixmap = self.canvas.grab()
+        qApp.clipboard().setPixmap(pixmap)
+
+
 backend_tools.ToolSaveFigure = SaveFigureQt
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsQt
 backend_tools.ToolSetCursor = SetCursorQt
 backend_tools.ToolRubberband = RubberbandQt
+backend_tools.ToolHelp = HelpQt
+backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
 
 
+@cbook.deprecated("3.0")
 def error_msg_qt(msg, parent=None):
-    if not isinstance(msg, six.string_types):
+    if not isinstance(msg, str):
         msg = ','.join(map(str, msg))
 
     QtWidgets.QMessageBox.warning(None, "Matplotlib",
                                   msg, QtGui.QMessageBox.Ok)
 
 
+@cbook.deprecated("3.0")
 def exception_handler(type, value, tb):
     """Handle uncaught exceptions
     It does not catch SystemExit
@@ -1096,7 +1102,7 @@ def exception_handler(type, value, tb):
     if hasattr(value, 'strerror') and value.strerror is not None:
         msg += value.strerror
     else:
-        msg += six.text_type(value)
+        msg += str(value)
 
     if len(msg):
         error_msg_qt(msg)
@@ -1104,6 +1110,7 @@ def exception_handler(type, value, tb):
 
 @_Backend.export
 class _BackendQT5(_Backend):
+    required_interactive_framework = "qt5"
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
 

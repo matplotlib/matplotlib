@@ -3,60 +3,58 @@
 Pie Demo2
 =========
 
-Make a pie charts of varying size - see
-https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.pie for the
-docstring.
+Make a pie charts using :meth:`~.axes.Axes.pie`.
 
-This example shows a basic pie charts with labels optional features,
-like autolabeling the percentage, offsetting a slice with "explode"
-and adding a shadow, in different sizes.
-
+This example demonstrates some pie chart features like labels, varying size,
+autolabeling the percentage, offsetting a slice and adding a shadow.
 """
+
 import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
 
 # Some data
-
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
 fracs = [15, 30, 45, 10]
 
-explode = (0, 0.05, 0, 0)
+# Make figure and axes
+fig, axs = plt.subplots(2, 2)
 
-# Make square figures and axes
+# A standard pie plot
+axs[0, 0].pie(fracs, labels=labels, autopct='%1.1f%%', shadow=True)
 
-the_grid = GridSpec(2, 2)
+# Shift the second slice using explode
+axs[0, 1].pie(fracs, labels=labels, autopct='%.0f%%', shadow=True,
+              explode=(0, 0.1, 0, 0))
 
-plt.subplot(the_grid[0, 0], aspect=1)
+# Adapt radius and text size for a smaller pie
+patches, texts, autotexts = axs[1, 0].pie(fracs, labels=labels,
+                                          autopct='%.0f%%',
+                                          textprops={'size': 'smaller'},
+                                          shadow=True, radius=0.5)
+# Make percent texts even smaller
+plt.setp(autotexts, size='x-small')
+autotexts[0].set_color('white')
 
-plt.pie(fracs, labels=labels, autopct='%1.1f%%', shadow=True)
-
-plt.subplot(the_grid[0, 1], aspect=1)
-
-plt.pie(fracs, explode=explode, labels=labels, autopct='%.0f%%', shadow=True)
-
-plt.subplot(the_grid[1, 0], aspect=1)
-
-patches, texts, autotexts = plt.pie(fracs, labels=labels,
-                                    autopct='%.0f%%',
-                                    shadow=True, radius=0.5)
-
-# Make the labels on the small plot easier to read.
-for t in texts:
-    t.set_size('smaller')
-for t in autotexts:
-    t.set_size('x-small')
-autotexts[0].set_color('y')
-
-plt.subplot(the_grid[1, 1], aspect=1)
-
-# Turn off shadow for tiny plot with exploded slice.
-patches, texts, autotexts = plt.pie(fracs, explode=explode,
-                                    labels=labels, autopct='%.0f%%',
-                                    shadow=False, radius=0.5)
-for t in texts:
-    t.set_size('smaller')
-for t in autotexts:
-    t.set_size('x-small')
-autotexts[0].set_color('y')
+# Use a smaller explode and turn of the shadow for better visibility
+patches, texts, autotexts = axs[1, 1].pie(fracs, labels=labels,
+                                          autopct='%.0f%%',
+                                          textprops={'size': 'smaller'},
+                                          shadow=False, radius=0.5,
+                                          explode=(0, 0.05, 0, 0))
+plt.setp(autotexts, size='x-small')
+autotexts[0].set_color('white')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.pie
+matplotlib.pyplot.pie

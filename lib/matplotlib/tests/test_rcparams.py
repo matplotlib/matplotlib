@@ -1,22 +1,16 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
-import os
-import warnings
 from collections import OrderedDict
+import copy
+import os
+from unittest import mock
+import warnings
 
 from cycler import cycler, Cycler
 import pytest
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 import matplotlib as mpl
+from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_stringlist,
@@ -28,18 +22,17 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_cycler,
                                 validate_hatch,
                                 validate_hist_bins,
+                                validate_markevery,
                                 _validate_linestyle)
 
 
-mpl.rc('text', usetex=False)
-mpl.rc('lines', linewidth=22)
-
-fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
-
-
 def test_rcparams():
+    mpl.rc('text', usetex=False)
+    mpl.rc('lines', linewidth=22)
+
     usetex = mpl.rcParams['text.usetex']
     linewidth = mpl.rcParams['lines.linewidth']
+    fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
 
     # test context given dictionary
     with mpl.rc_context(rc={'text.usetex': not usetex}):
@@ -57,11 +50,8 @@ def test_rcparams():
     assert mpl.rcParams['lines.linewidth'] == linewidth
 
     # test rc_file
-    try:
-        mpl.rc_file(fname)
-        assert mpl.rcParams['lines.linewidth'] == 33
-    finally:
-        mpl.rcParams['lines.linewidth'] = linewidth
+    mpl.rc_file(fname)
+    assert mpl.rcParams['lines.linewidth'] == 33
 
 
 def test_RcParams_class():
@@ -129,16 +119,14 @@ def test_Bug_2543():
     # printed in the test suite.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
-                                message='.*(deprecated|obsolete)',
-                                category=UserWarning)
+                                category=MatplotlibDeprecationWarning)
         with mpl.rc_context():
             _copy = mpl.rcParams.copy()
             for key in _copy:
                 mpl.rcParams[key] = _copy[key]
             mpl.rcParams['text.dvipnghack'] = None
         with mpl.rc_context():
-            from copy import deepcopy
-            _deep_copy = deepcopy(mpl.rcParams)
+            _deep_copy = copy.deepcopy(mpl.rcParams)
         # real test is that this does not raise
         assert validate_bool_maybe_none(None) is None
         assert validate_bool_maybe_none("none") is None
@@ -185,10 +173,21 @@ def test_legend_colors(color_type, param_dict, target):
         assert getattr(leg.legendPatch, get_func)() == target
 
 
+def test_mfc_rcparams():
+    mpl.rcParams['lines.markerfacecolor'] = 'r'
+    ln = mpl.lines.Line2D([1, 2], [1, 2])
+    assert ln.get_markerfacecolor() == 'r'
+
+
+def test_mec_rcparams():
+    mpl.rcParams['lines.markeredgecolor'] = 'r'
+    ln = mpl.lines.Line2D([1, 2], [1, 2])
+    assert ln.get_markeredgecolor() == 'r'
+
+
 def test_Issue_1713():
     utf32_be = os.path.join(os.path.dirname(__file__),
                            'test_utf32_be_rcparams.rc')
-    import locale
     with mock.patch('locale.getpreferredencoding', return_value='UTF-32-BE'):
         rc = mpl.rc_params_from_file(utf32_be, True, False)
     assert rc.get('timezone') == 'UTC'
@@ -197,12 +196,12 @@ def test_Issue_1713():
 def generate_validator_testcases(valid):
     validation_tests = (
         {'validator': validate_bool,
-         'success': chain(((_, True) for _ in
-                           ('t', 'y', 'yes', 'on', 'true', '1', 1, True)),
-                           ((_, False) for _ in
-                            ('f', 'n', 'no', 'off', 'false', '0', 0, False))),
-        'fail': ((_, ValueError)
-                 for _ in ('aardvark', 2, -1, [], ))},
+         'success': (*((_, True) for _ in
+                       ('t', 'y', 'yes', 'on', 'true', '1', 1, True)),
+                     *((_, False) for _ in
+                       ('f', 'n', 'no', 'off', 'false', '0', 0, False))),
+         'fail': ((_, ValueError)
+                  for _ in ('aardvark', 2, -1, [], ))},
         {'validator': validate_stringlist,
          'success': (('', []),
                      ('a,b', ['a', 'b']),
@@ -313,7 +312,6 @@ def generate_validator_testcases(valid):
                      ('(0, 1, 0, 1)', [0.0, 1.0, 0.0, 1.0]),  # RGBA tuple
                      ((0, 1, 0, 1), (0, 1, 0, 1)),  # non-string version
                      ('(0, 1, "0.5")', [0.0, 1.0, 0.5]),  # unusual but valid
-
                     ),
          'fail': (('tab:veryblue', ValueError),  # invalid name
                   ('C123', ValueError),  # invalid RGB(A) code and cycle index
@@ -331,44 +329,59 @@ def generate_validator_testcases(valid):
                      ),
          'fail': (('aardvark', ValueError),
                   )
-         }
+        },
+        {'validator': validate_markevery,
+         'success': ((None, None),
+                     (1, 1),
+                     (0.1, 0.1),
+                     ((1, 1), (1, 1)),
+                     ((0.1, 0.1), (0.1, 0.1)),
+                     ([1, 2, 3], [1, 2, 3]),
+                     (slice(2), slice(None, 2, None)),
+                     (slice(1, 2, 3), slice(1, 2, 3))
+                     ),
+         'fail': (((1, 2, 3), TypeError),
+                  ([1, 2, 0.3], TypeError),
+                  (['a', 2, 3], TypeError),
+                  ([1, 2, 'a'], TypeError),
+                  ((0.1, 0.2, 0.3), TypeError),
+                  ((0.1, 2, 3), TypeError),
+                  ((1, 0.2, 0.3), TypeError),
+                  ((1, 0.1), TypeError),
+                  ((0.1, 1), TypeError),
+                  (('abc'), TypeError),
+                  ((1, 'a'), TypeError),
+                  ((0.1, 'b'), TypeError),
+                  (('a', 1), TypeError),
+                  (('a', 0.1), TypeError),
+                  ('abc', TypeError),
+                  ('a', TypeError),
+                  (object(), TypeError)
+                  )
+        },
+        {'validator': _validate_linestyle,
+         'success': (('-', '-'), ('solid', 'solid'),
+                     ('--', '--'), ('dashed', 'dashed'),
+                     ('-.', '-.'), ('dashdot', 'dashdot'),
+                     (':', ':'), ('dotted', 'dotted'),
+                     ('', ''), (' ', ' '),
+                     ('None', 'none'), ('none', 'none'),
+                     ('DoTtEd', 'dotted'),  # case-insensitive
+                     (['1.23', '4.56'], (None, [1.23, 4.56])),
+                     ([1.23, 456], (None, [1.23, 456.0])),
+                     ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
+                     ),
+         'fail': (('aardvark', ValueError),  # not a valid string
+                  (b'dotted', ValueError),
+                  ('dotted'.encode('utf-16'), ValueError),
+                  ((None, [1, 2]), ValueError),  # (offset, dashes) != OK
+                  ((0, [1, 2]), ValueError),  # idem
+                  ((-1, [1, 2]), ValueError),  # idem
+                  ([1, 2, 3], ValueError),  # sequence with odd length
+                  (1.23, ValueError),  # not a sequence
+                  )
+        },
     )
-
-    # The behavior of _validate_linestyle depends on the version of Python.
-    # ASCII-compliant bytes arguments should pass on Python 2 because of the
-    # automatic conversion between bytes and strings. Python 3 does not
-    # perform such a conversion, so the same cases should raise an exception.
-    #
-    # Common cases:
-    ls_test = {'validator': _validate_linestyle,
-               'success': (('-', '-'), ('solid', 'solid'),
-                           ('--', '--'), ('dashed', 'dashed'),
-                           ('-.', '-.'), ('dashdot', 'dashdot'),
-                           (':', ':'), ('dotted', 'dotted'),
-                           ('', ''), (' ', ' '),
-                           ('None', 'none'), ('none', 'none'),
-                           ('DoTtEd', 'dotted'),  # case-insensitive
-                           (['1.23', '4.56'], (None, [1.23, 4.56])),
-                           ([1.23, 456], (None, [1.23, 456.0])),
-                           ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
-                          ),
-               'fail': (('aardvark', ValueError),  # not a valid string
-                        ('dotted'.encode('utf-16'), ValueError),  # even on PY2
-                        ((None, [1, 2]), ValueError),  # (offset, dashes) != OK
-                        ((0, [1, 2]), ValueError),  # idem
-                        ((-1, [1, 2]), ValueError),  # idem
-                        ([1, 2, 3], ValueError),  # sequence with odd length
-                        (1.23, ValueError),  # not a sequence
-                       )
-                }
-    # Add some cases of bytes arguments that Python 2 can convert silently:
-    ls_bytes_args = (b'dotted', 'dotted'.encode('ascii'))
-    if six.PY3:
-        ls_test['fail'] += tuple((arg, ValueError) for arg in ls_bytes_args)
-    else:
-        ls_test['success'] += tuple((arg, 'dotted') for arg in ls_bytes_args)
-    # Update the validation test sequence.
-    validation_tests += (ls_test,)
 
     for validator_dict in validation_tests:
         validator = validator_dict['validator']
@@ -422,3 +435,58 @@ def test_rcparams_reset_after_fail():
                 pass
 
         assert mpl.rcParams['text.usetex'] is False
+
+
+def test_if_rctemplate_is_up_to_date():
+    # This tests if the matplotlibrc.template file contains all valid rcParams.
+    deprecated = {*mpl._all_deprecated, *mpl._deprecated_remain_as_none}
+    path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
+    with open(path_to_rc, "r") as f:
+        rclines = f.readlines()
+    missing = {}
+    for k, v in mpl.defaultParams.items():
+        if k[0] == "_":
+            continue
+        if k in deprecated:
+            continue
+        if k.startswith(
+                ("verbose.", "examples.directory", "text.latex.unicode")):
+            continue
+        found = False
+        for line in rclines:
+            if k in line:
+                found = True
+        if not found:
+            missing.update({k: v})
+    if missing:
+        raise ValueError("The following params are missing in the "
+                         "matplotlibrc.template file: {}"
+                         .format(missing.items()))
+
+
+def test_if_rctemplate_would_be_valid(tmpdir):
+    # This tests if the matplotlibrc.template file would result in a valid
+    # rc file if all lines are uncommented.
+    path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
+    with open(path_to_rc, "r") as f:
+        rclines = f.readlines()
+    newlines = []
+    for line in rclines:
+        if line[0] == "#":
+            newline = line[1:]
+        else:
+            newline = line
+        if "$TEMPLATE_BACKEND" in newline:
+            newline = "backend : Agg"
+        if "datapath" in newline:
+            newline = ""
+        newlines.append(newline)
+    d = tmpdir.mkdir('test1')
+    fname = str(d.join('testrcvalid.temp'))
+    with open(fname, "w") as f:
+        f.writelines(newlines)
+    with pytest.warns(None) as record:
+        mpl.rc_params_from_file(fname,
+                                fail_on_error=True,
+                                use_default_template=False)
+        assert len(record) == 0

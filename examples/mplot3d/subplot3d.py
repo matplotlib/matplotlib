@@ -7,9 +7,12 @@ Demonstrate including 3D plots as subplots.
 '''
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.axes3d import Axes3D, get_test_data
 from matplotlib import cm
 import numpy as np
+
+from mpl_toolkits.mplot3d.axes3d import get_test_data
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 
 # set up a figure twice as wide as it is tall

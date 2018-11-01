@@ -20,7 +20,8 @@ We use `travis-ci <https://travis-ci.org/matplotlib/matplotlib>`__ for
 continuous integration.  When preparing for a release, the final
 tagged commit should be tested locally before it is uploaded::
 
-   python tests.py --processes=8 --process-timeout=300
+   pytest -n 8 .
+
 
 In addition the following two tests should be run and manually inspected::
 
@@ -37,7 +38,7 @@ GitHub Stats
 
 We automatically extract GitHub issue, PRs, and authors from GitHub via the API::
 
-  python tools/github_stats.py --since-tag $TAG --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
+  python tools/github_stats.py --since-tag v2.2.0 --milestone=v3.0 --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
 
 Review and commit changes.  Some issue/PR titles may not be valid rst (the most common issue is
 ``*`` which is interpreted as unclosed markup).

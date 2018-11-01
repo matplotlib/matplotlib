@@ -9,56 +9,52 @@ be too smart with respect to layout -- you will have to figure out how
 wide and tall you want your Axes to be to accommodate your widget.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import copy
-import six
-from six.moves import zip
+from numbers import Integral
 
 import numpy as np
-from matplotlib import rcParams
 
-from .patches import Circle, Rectangle, Ellipse
+from . import rcParams
 from .lines import Line2D
+from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
 
 
 class LockDraw(object):
     """
     Some widgets, like the cursor, draw onto the canvas, and this is not
-    desirable under all circumstances, like when the toolbar is in
-    zoom-to-rect mode and drawing a rectangle.  The module level "lock"
-    allows someone to grab the lock and prevent other widgets from
-    drawing.  Use ``matplotlib.widgets.lock(someobj)`` to prevent
-    other widgets from drawing while you're interacting with the canvas.
+    desirable under all circumstances, like when the toolbar is in zoom-to-rect
+    mode and drawing a rectangle.  To avoid this, a widget can acquire a
+    canvas' lock with ``canvas.widgetlock(widget)`` before drawing on the
+    canvas; this will prevent other widgets from doing so at the same time (if
+    they also try to acquire the lock first).
     """
 
     def __init__(self):
         self._owner = None
 
     def __call__(self, o):
-        """reserve the lock for *o*"""
+        """Reserve the lock for *o*."""
         if not self.available(o):
             raise ValueError('already locked')
         self._owner = o
 
     def release(self, o):
-        """release the lock"""
+        """Release the lock from *o*."""
         if not self.available(o):
             raise ValueError('you do not own this lock')
         self._owner = None
 
     def available(self, o):
-        """drawing is available to *o*"""
+        """Return whether drawing is available to *o*."""
         return not self.locked() or self.isowner(o)
 
     def isowner(self, o):
-        """Return True if *o* owns this lock"""
+        """Return whether *o* owns this lock."""
         return self._owner is o
 
     def locked(self):
-        """Return True if the lock is currently held by an owner"""
+        """Return whether the lock is currently held by an owner."""
         return self._owner is not None
 
 
@@ -144,13 +140,13 @@ class Button(AxesWidget):
 
     Attributes
     ----------
-    ax :
+    ax
         The :class:`matplotlib.axes.Axes` the button renders into.
-    label :
+    label
         A :class:`matplotlib.text.Text` instance.
-    color :
+    color
         The color of the button when not hovering.
-    hovercolor :
+    hovercolor
         The color of the button when hovering.
     """
 
@@ -221,7 +217,7 @@ class Button(AxesWidget):
             return
         if event.inaxes != self.ax:
             return
-        for cid, func in six.iteritems(self.observers):
+        for cid, func in self.observers.items():
             func(event)
 
     def _motion(self, event):
@@ -272,7 +268,8 @@ class Slider(AxesWidget):
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None,
-                 slidermax=None, dragging=True, valstep=None, **kwargs):
+                 slidermax=None, dragging=True, valstep=None,
+                 orientation='horizontal', **kwargs):
         """
         Parameters
         ----------
@@ -314,6 +311,9 @@ class Slider(AxesWidget):
         valstep : float, optional, default: None
             If given, the slider will snap to multiples of `valstep`.
 
+        orientation : str, 'horizontal' or 'vertical', default: 'horizontal'
+            The orientation of the slider.
+
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
@@ -329,6 +329,11 @@ class Slider(AxesWidget):
         if slidermax is not None and not hasattr(slidermax, 'val'):
             raise ValueError("Argument slidermax ({}) has no 'val'"
                              .format(type(slidermax)))
+        if orientation not in ['horizontal', 'vertical']:
+            raise ValueError("Argument orientation ({}) must be either"
+                             "'horizontal' or 'vertical'".format(orientation))
+
+        self.orientation = orientation
         self.closedmin = closedmin
         self.closedmax = closedmax
         self.slidermin = slidermin
@@ -342,12 +347,19 @@ class Slider(AxesWidget):
             valinit = valmin
         self.val = valinit
         self.valinit = valinit
-        self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
-        self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
+        if orientation == 'vertical':
+            self.poly = ax.axhspan(valmin, valinit, 0, 1, **kwargs)
+            self.hline = ax.axhline(valinit, 0, 1, color='r', lw=1)
+        else:
+            self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
+            self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
 
         self.valfmt = valfmt
         ax.set_yticks([])
-        ax.set_xlim((valmin, valmax))
+        if orientation == 'vertical':
+            ax.set_ylim((valmin, valmax))
+        else:
+            ax.set_xlim((valmin, valmax))
         ax.set_xticks([])
         ax.set_navigate(False)
 
@@ -355,14 +367,24 @@ class Slider(AxesWidget):
         self.connect_event('button_release_event', self._update)
         if dragging:
             self.connect_event('motion_notify_event', self._update)
-        self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
-                             verticalalignment='center',
-                             horizontalalignment='right')
+        if orientation == 'vertical':
+            self.label = ax.text(0.5, 1.02, label, transform=ax.transAxes,
+                                 verticalalignment='bottom',
+                                 horizontalalignment='center')
 
-        self.valtext = ax.text(1.02, 0.5, valfmt % valinit,
-                               transform=ax.transAxes,
-                               verticalalignment='center',
-                               horizontalalignment='left')
+            self.valtext = ax.text(0.5, -0.02, valfmt % valinit,
+                                   transform=ax.transAxes,
+                                   verticalalignment='top',
+                                   horizontalalignment='center')
+        else:
+            self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
+                                 verticalalignment='center',
+                                 horizontalalignment='right')
+
+            self.valtext = ax.text(1.02, 0.5, valfmt % valinit,
+                                   transform=ax.transAxes,
+                                   verticalalignment='center',
+                                   horizontalalignment='left')
 
         self.cnt = 0
         self.observers = {}
@@ -416,8 +438,11 @@ class Slider(AxesWidget):
             self.drag_active = False
             event.canvas.release_mouse(self.ax)
             return
-        val = self._value_in_bounds(event.xdata)
-        if (val is not None) and (val != self.val):
+        if self.orientation == 'vertical':
+            val = self._value_in_bounds(event.ydata)
+        else:
+            val = self._value_in_bounds(event.xdata)
+        if val not in [None, self.val]:
             self.set_val(val)
 
     def set_val(self, val):
@@ -429,8 +454,12 @@ class Slider(AxesWidget):
         val : float
         """
         xy = self.poly.xy
-        xy[2] = val, 1
-        xy[3] = val, 0
+        if self.orientation == 'vertical':
+            xy[1] = 0, val
+            xy[2] = 1, val
+        else:
+            xy[2] = val, 1
+            xy[3] = val, 0
         self.poly.xy = xy
         self.valtext.set_text(self.valfmt % val)
         if self.drawon:
@@ -438,7 +467,7 @@ class Slider(AxesWidget):
         self.val = val
         if not self.eventson:
             return
-        for cid, func in six.iteritems(self.observers):
+        for cid, func in self.observers.items():
             func(val)
 
     def on_changed(self, func):
@@ -478,7 +507,7 @@ class Slider(AxesWidget):
 
     def reset(self):
         """Reset the slider to the initial value"""
-        if (self.val != self.valinit):
+        if self.val != self.valinit:
             self.set_val(self.valinit)
 
 
@@ -508,22 +537,30 @@ class CheckButtons(AxesWidget):
 
     Connect to the CheckButtons with the :meth:`on_clicked` method
     """
-    def __init__(self, ax, labels, actives):
+    def __init__(self, ax, labels, actives=None):
         """
         Add check buttons to :class:`matplotlib.axes.Axes` instance *ax*
 
-        *labels*
-            A len(buttons) list of labels as strings
+        Parameters
+        ----------
+        ax : `~matplotlib.axes.Axes`
+            The parent axes for the widget.
 
-        *actives*
-            A len(buttons) list of booleans indicating whether
-             the button is active
+        labels : List[str]
+            The labels of the check buttons.
+
+        actives : List[bool], optional
+            The initial check states of the buttons. The list must have the
+            same length as *labels*. If not given, all buttons are unchecked.
         """
         AxesWidget.__init__(self, ax)
 
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_navigate(False)
+
+        if actives is None:
+            actives = [False] * len(labels)
 
         if len(labels) > 1:
             dy = 1. / (len(labels) + 1)
@@ -532,7 +569,6 @@ class CheckButtons(AxesWidget):
             dy = 0.25
             ys = [0.5]
 
-        cnt = 0
         axcolor = ax.get_facecolor()
 
         self.labels = []
@@ -541,13 +577,13 @@ class CheckButtons(AxesWidget):
 
         lineparams = {'color': 'k', 'linewidth': 1.25,
                       'transform': ax.transAxes, 'solid_capstyle': 'butt'}
-        for y, label in zip(ys, labels):
+        for y, label, active in zip(ys, labels, actives):
             t = ax.text(0.25, y, label, transform=ax.transAxes,
                         horizontalalignment='left',
                         verticalalignment='center')
 
-            w, h = dy / 2., dy / 2.
-            x, y = 0.05, y - h / 2.
+            w, h = dy / 2, dy / 2
+            x, y = 0.05, y - h / 2
 
             p = Rectangle(xy=(x, y), width=w, height=h, edgecolor='black',
                           facecolor=axcolor, transform=ax.transAxes)
@@ -555,15 +591,14 @@ class CheckButtons(AxesWidget):
             l1 = Line2D([x, x + w], [y + h, y], **lineparams)
             l2 = Line2D([x, x + w], [y, y + h], **lineparams)
 
-            l1.set_visible(actives[cnt])
-            l2.set_visible(actives[cnt])
+            l1.set_visible(active)
+            l2.set_visible(active)
             self.labels.append(t)
             self.rectangles.append(p)
             self.lines.append((l1, l2))
             ax.add_patch(p)
             ax.add_line(l1)
             ax.add_line(l2)
-            cnt += 1
 
         self.connect_event('button_press_event', self._clicked)
 
@@ -571,20 +606,13 @@ class CheckButtons(AxesWidget):
         self.observers = {}
 
     def _clicked(self, event):
-        if self.ignore(event):
+        if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
             return
-        if event.button != 1:
-            return
-        if event.inaxes != self.ax:
-            return
-
         for i, (p, t) in enumerate(zip(self.rectangles, self.labels)):
             if (t.get_window_extent().contains(event.x, event.y) or
                     p.get_window_extent().contains(event.x, event.y)):
                 self.set_active(i)
                 break
-        else:
-            return
 
     def set_active(self, index):
         """
@@ -609,7 +637,7 @@ class CheckButtons(AxesWidget):
 
         if not self.eventson:
             return
-        for cid, func in six.iteritems(self.observers):
+        for cid, func in self.observers.items():
             func(self.labels[index].get_text())
 
     def get_status(self):
@@ -691,7 +719,7 @@ class TextBox(AxesWidget):
 
         self.DIST_FROM_LEFT = .05
 
-        self.params_to_disable = [key for key in rcParams if u'keymap' in key]
+        self.params_to_disable = [key for key in rcParams if 'keymap' in key]
 
         self.text = initial
         self.label = ax.text(-label_pad, 0.5, label,
@@ -766,7 +794,7 @@ class TextBox(AxesWidget):
         self.ax.figure.canvas.draw()
 
     def _notify_submit_observers(self):
-        for cid, func in six.iteritems(self.submit_observers):
+        for cid, func in self.submit_observers.items():
                 func(self.text)
 
     def _release(self, event):
@@ -825,7 +853,7 @@ class TextBox(AxesWidget):
         self._notify_submit_observers()
 
     def _notify_change_observers(self):
-        for cid, func in six.iteritems(self.change_observers):
+        for cid, func in self.change_observers.items():
             func(self.text)
 
     def begin_typing(self, x):
@@ -923,7 +951,7 @@ class TextBox(AxesWidget):
 
     def on_submit(self, func):
         """
-        When the user hits enter or leaves the submision box, call this
+        When the user hits enter or leaves the submission box, call this
         *func* with event.
 
         A connection id is returned which can be used to disconnect.
@@ -934,8 +962,8 @@ class TextBox(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
-        for reg in (self.change_observers, self.submit_observers):
+        """Remove the observer with connection id *cid*."""
+        for reg in [self.change_observers, self.submit_observers]:
             try:
                 del reg[cid]
             except KeyError:
@@ -993,6 +1021,13 @@ class RadioButtons(AxesWidget):
         cnt = 0
         axcolor = ax.get_facecolor()
 
+        # scale the radius of the circle with the spacing between each one
+        circle_radius = (dy / 2) - 0.01
+
+        # defaul to hard-coded value if the radius becomes too large
+        if(circle_radius > 0.05):
+            circle_radius = 0.05
+
         self.labels = []
         self.circles = []
         for y, label in zip(ys, labels):
@@ -1006,7 +1041,7 @@ class RadioButtons(AxesWidget):
             else:
                 facecolor = axcolor
 
-            p = Circle(xy=(0.15, y), radius=0.05, edgecolor='black',
+            p = Circle(xy=(0.15, y), radius=circle_radius, edgecolor='black',
                        facecolor=facecolor, transform=ax.transAxes)
 
             self.labels.append(t)
@@ -1020,26 +1055,15 @@ class RadioButtons(AxesWidget):
         self.observers = {}
 
     def _clicked(self, event):
-        if self.ignore(event):
-            return
-        if event.button != 1:
-            return
-        if event.inaxes != self.ax:
+        if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
             return
         xy = self.ax.transAxes.inverted().transform_point((event.x, event.y))
         pclicked = np.array([xy[0], xy[1]])
-
-        def inside(p):
-            pcirc = np.array([p.center[0], p.center[1]])
-            d = pclicked - pcirc
-            return np.sqrt(np.dot(d, d)) < p.radius
-
         for i, (p, t) in enumerate(zip(self.circles, self.labels)):
-            if t.get_window_extent().contains(event.x, event.y) or inside(p):
+            if (t.get_window_extent().contains(event.x, event.y)
+                    or np.linalg.norm(pclicked - p.center) < p.radius):
                 self.set_active(i)
                 break
-        else:
-            return
 
     def set_active(self, index):
         """
@@ -1069,7 +1093,7 @@ class RadioButtons(AxesWidget):
 
         if not self.eventson:
             return
-        for cid, func in six.iteritems(self.observers):
+        for cid, func in self.observers.items():
             func(self.labels[index].get_text())
 
     def on_clicked(self, func):
@@ -1342,22 +1366,17 @@ class MultiCursor(Widget):
     Example usage::
 
         from matplotlib.widgets import MultiCursor
-        from pylab import figure, show, np
+        import matplotlib.pyplot as plt
+        import numpy as np
 
+        fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
         t = np.arange(0.0, 2.0, 0.01)
-        s1 = np.sin(2*np.pi*t)
-        s2 = np.sin(4*np.pi*t)
-        fig = figure()
-        ax1 = fig.add_subplot(211)
-        ax1.plot(t, s1)
-
-
-        ax2 = fig.add_subplot(212, sharex=ax1)
-        ax2.plot(t, s2)
+        ax1.plot(t, np.sin(2*np.pi*t))
+        ax2.plot(t, np.sin(4*np.pi*t))
 
         multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
                             horizOn=False, vertOn=True)
-        show()
+        plt.show()
 
     """
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
@@ -1469,7 +1488,7 @@ class _SelectorWidget(AxesWidget):
         self.background = None
         self.artists = []
 
-        if isinstance(button, int):
+        if isinstance(button, Integral):
             self.validButtons = [button]
         else:
             self.validButtons = button
@@ -1728,13 +1747,13 @@ class SpanSelector(_SelectorWidget):
     >>> fig, ax = plt.subplots()
     >>> ax.plot([1, 2, 3], [10, 50, 100])
     >>> def onselect(vmin, vmax):
-            print(vmin, vmax)
+    ...     print(vmin, vmax)
     >>> rectprops = dict(facecolor='blue', alpha=0.5)
     >>> span = mwidgets.SpanSelector(ax, onselect, 'horizontal',
-                                     rectprops=rectprops)
+    ...                              rectprops=rectprops)
     >>> fig.show()
 
-    See also: :ref:`sphx_glr_gallery_widgets_span_selector.py`
+    See also: :doc:`/gallery/widgets/span_selector`
 
     """
 
@@ -1820,6 +1839,8 @@ class SpanSelector(_SelectorWidget):
             self.pressv = xdata
         else:
             self.pressv = ydata
+
+        self._set_span_xy(event)
         return False
 
     def _release(self, event):
@@ -1858,6 +1879,26 @@ class SpanSelector(_SelectorWidget):
         """on motion notify event"""
         if self.pressv is None:
             return
+
+        self._set_span_xy(event)
+
+        if self.onmove_callback is not None:
+            vmin = self.pressv
+            xdata, ydata = self._get_data(event)
+            if self.direction == 'horizontal':
+                vmax = xdata or self.prev[0]
+            else:
+                vmax = ydata or self.prev[1]
+
+            if vmin > vmax:
+                vmin, vmax = vmax, vmin
+            self.onmove_callback(vmin, vmax)
+
+        self.update()
+        return False
+
+    def _set_span_xy(self, event):
+        """Setting the span coordinates"""
         x, y = self._get_data(event)
         if x is None:
             return
@@ -1877,21 +1918,6 @@ class SpanSelector(_SelectorWidget):
         else:
             self.rect.set_y(minv)
             self.rect.set_height(maxv - minv)
-
-        if self.onmove_callback is not None:
-            vmin = self.pressv
-            xdata, ydata = self._get_data(event)
-            if self.direction == 'horizontal':
-                vmax = xdata or self.prev[0]
-            else:
-                vmax = ydata or self.prev[1]
-
-            if vmin > vmax:
-                vmin, vmax = vmax, vmin
-            self.onmove_callback(vmin, vmax)
-
-        self.update()
-        return False
 
 
 class ToolHandles(object):
@@ -1962,33 +1988,33 @@ class RectangleSelector(_SelectorWidget):
 
     Example usage::
 
-        from matplotlib.widgets import  RectangleSelector
-        from pylab import *
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from matplotlib.widgets import RectangleSelector
 
         def onselect(eclick, erelease):
-          'eclick and erelease are matplotlib events at press and release'
-          print(' startposition : (%f, %f)' % (eclick.xdata, eclick.ydata))
-          print(' endposition   : (%f, %f)' % (erelease.xdata, erelease.ydata))
-          print(' used button   : ', eclick.button)
+            "eclick and erelease are matplotlib events at press and release."
+            print('startposition: (%f, %f)' % (eclick.xdata, eclick.ydata))
+            print('endposition  : (%f, %f)' % (erelease.xdata, erelease.ydata))
+            print('used button  : ', eclick.button)
 
         def toggle_selector(event):
-            print(' Key pressed.')
+            print('Key pressed.')
             if event.key in ['Q', 'q'] and toggle_selector.RS.active:
-                print(' RectangleSelector deactivated.')
+                print('RectangleSelector deactivated.')
                 toggle_selector.RS.set_active(False)
             if event.key in ['A', 'a'] and not toggle_selector.RS.active:
-                print(' RectangleSelector activated.')
+                print('RectangleSelector activated.')
                 toggle_selector.RS.set_active(True)
 
-        x = arange(100)/(99.0)
-        y = sin(x)
-        fig = figure
-        ax = subplot(111)
-        ax.plot(x,y)
+        x = np.arange(100.) / 99
+        y = np.sin(x)
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
 
         toggle_selector.RS = RectangleSelector(ax, onselect, drawtype='line')
-        connect('key_press_event', toggle_selector)
-        show()
+        fig.canvas.connect('key_press_event', toggle_selector)
+        plt.show()
     """
 
     _shape_klass = Rectangle
@@ -2143,6 +2169,11 @@ class RectangleSelector(_SelectorWidget):
         if self.active_handle is None or not self.interactive:
             # Clear previous rectangle before drawing new rectangle.
             self.update()
+
+        if not self.interactive:
+            x = event.xdata
+            y = event.ydata
+            self.extents = x, x, y, y
 
         self.set_visible(self.visible)
 
@@ -2388,33 +2419,33 @@ class EllipseSelector(RectangleSelector):
 
     Example usage::
 
-        from matplotlib.widgets import  EllipseSelector
-        from pylab import *
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from matplotlib.widgets import EllipseSelector
 
         def onselect(eclick, erelease):
-          'eclick and erelease are matplotlib events at press and release'
-          print(' startposition : (%f, %f)' % (eclick.xdata, eclick.ydata))
-          print(' endposition   : (%f, %f)' % (erelease.xdata, erelease.ydata))
-          print(' used button   : ', eclick.button)
+            "eclick and erelease are matplotlib events at press and release."
+            print('startposition: (%f, %f)' % (eclick.xdata, eclick.ydata))
+            print('endposition  : (%f, %f)' % (erelease.xdata, erelease.ydata))
+            print('used button  : ', eclick.button)
 
         def toggle_selector(event):
             print(' Key pressed.')
             if event.key in ['Q', 'q'] and toggle_selector.ES.active:
-                print(' EllipseSelector deactivated.')
+                print('EllipseSelector deactivated.')
                 toggle_selector.RS.set_active(False)
             if event.key in ['A', 'a'] and not toggle_selector.ES.active:
-                print(' EllipseSelector activated.')
+                print('EllipseSelector activated.')
                 toggle_selector.ES.set_active(True)
 
-        x = arange(100)/(99.0)
-        y = sin(x)
-        fig = figure
-        ax = subplot(111)
-        ax.plot(x,y)
+        x = np.arange(100.) / 99
+        y = np.sin(x)
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
 
         toggle_selector.ES = EllipseSelector(ax, onselect, drawtype='line')
-        connect('key_press_event', toggle_selector)
-        show()
+        fig.canvas.connect('key_press_event', toggle_selector)
+        plt.show()
     """
     _shape_klass = Ellipse
 
@@ -2572,9 +2603,9 @@ class PolygonSelector(_SelectorWidget):
         if the mouse click is within `vertex_select_radius` pixels of the
         vertex. The default radius is 15 pixels.
 
-    See Also
+    Examples
     --------
-    :ref:`sphx_glr_gallery_widgets_polygon_selector_demo.py`
+    :doc:`/gallery/widgets/polygon_selector_demo`
     """
 
     def __init__(self, ax, onselect, useblit=False,
@@ -2687,7 +2718,7 @@ class PolygonSelector(_SelectorWidget):
             # Calculate distance to the start vertex.
             x0, y0 = self.line.get_transform().transform((self._xs[0],
                                                           self._ys[0]))
-            v0_dist = np.sqrt((x0 - event.x) ** 2 + (y0 - event.y) ** 2)
+            v0_dist = np.hypot(x0 - event.x, y0 - event.y)
             # Lock on to the start vertex if near it and ready to complete.
             if len(self._xs) > 3 and v0_dist < self.vertex_select_radius:
                 self._xs[-1], self._ys[-1] = self._xs[0], self._ys[0]
@@ -2764,7 +2795,7 @@ class Lasso(AxesWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent axes for the widget.
-    xy : array
+    xy : (float, float)
         Coordinates of the start of the lasso.
     callback : callable
         Whenever the lasso is released, the `callback` function is called and

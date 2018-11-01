@@ -1,17 +1,38 @@
-================
- ``Axes`` class
-================
-.. currentmodule:: matplotlib.axes
+====
+axes
+====
 
-.. autoclass:: Axes
-   :no-members:
-   :no-undoc-members:
+.. currentmodule:: matplotlib.axes
 
 .. contents:: Table of Contents
    :depth: 2
    :local:
    :backlinks: entry
+   :class: multicol-toc
 
+.. automodule:: matplotlib.axes
+   :no-members:
+   :no-undoc-members:
+
+The Axes class
+==============
+
+.. autoclass:: Axes
+   :no-members:
+   :no-undoc-members:
+   :show-inheritance:
+
+
+Subplots
+========
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   SubplotBase
+   subplot_class_factory
 
 Plotting
 ========
@@ -164,6 +185,9 @@ Text and Annotations
    Axes.text
    Axes.table
    Axes.arrow
+   Axes.inset_axes
+   Axes.indicate_inset
+   Axes.indicate_inset_zoom
 
 
 Fields
@@ -229,7 +253,6 @@ Property cycle
    :nosignatures:
 
    Axes.set_prop_cycle
-   Axes.set_color_cycle
 
 
 Axis / limits
@@ -412,6 +435,7 @@ Adding Artists
    :nosignatures:
 
    Axes.add_artist
+   Axes.add_child_axes
    Axes.add_collection
    Axes.add_container
    Axes.add_image
@@ -509,8 +533,6 @@ Interactive
    Axes.contains_point
 
    Axes.get_cursor_data
-   Axes.get_cursor_props
-   Axes.set_cursor_props
 
 Children
 ========
@@ -650,12 +672,9 @@ Other
    :nosignatures:
 
    Axes.zorder
-   Axes.aname
    Axes.get_default_bbox_extra_artists
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data
-   Axes.hold
-   Axes.ishold
 
 
 Inheritance

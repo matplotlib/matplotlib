@@ -42,7 +42,7 @@ Zm = np.ma.masked_where(Z > 1.2, Z)
 # range to which the regular palette color scale is applied.
 # Anything above that range is colored based on palette.set_over, etc.
 
-# set up the axes
+# set up the Axes objets
 fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 5.4))
 
 # plot using 'continuous' color map
@@ -73,3 +73,21 @@ cbar.set_label('proportional')
 
 fig.suptitle('imshow, with out-of-range and masked data')
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.colors.BoundaryNorm
+matplotlib.colorbar.ColorbarBase.set_label

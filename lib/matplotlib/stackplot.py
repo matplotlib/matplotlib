@@ -6,21 +6,16 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 (http://stackoverflow.com/users/66549/doug)
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange
-
-from cycler import cycler
 import numpy as np
 
 __all__ = ['stackplot']
 
 
-def stackplot(axes, x, *args, **kwargs):
+def stackplot(axes, x, *args,
+              labels=(), colors=None, baseline='zero',
+              **kwargs):
     """
-    Draws a stacked area plot.
+    Draw a stacked area plot.
 
     Parameters
     ----------
@@ -34,7 +29,7 @@ def stackplot(axes, x, *args, **kwargs):
             stackplot(x, y)               # where y is MxN
             stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
 
-    baseline : ['zero' | 'sym' | 'wiggle' | 'weighted_wiggle']
+    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:
 
         - ``'zero'``: Constant zero baseline, i.e. a simple stacked plot.
@@ -52,26 +47,23 @@ def stackplot(axes, x, *args, **kwargs):
         A list or tuple of colors. These will be cycled through and used to
         colour the stacked areas.
 
-    **kwargs :
+    **kwargs
         All other keyword arguments are passed to `Axes.fill_between()`.
 
 
     Returns
     -------
-    list of `~.PolyCollection`
-        A list of `~.PolyCollection` instances, one for each element in the
+    list : list of `.PolyCollection`
+        A list of `.PolyCollection` instances, one for each element in the
         stacked area plot.
     """
 
     y = np.row_stack(args)
 
-    labels = iter(kwargs.pop('labels', []))
-
-    colors = kwargs.pop('colors', None)
+    labels = iter(labels)
     if colors is not None:
-        axes.set_prop_cycle(cycler('color', colors))
+        axes.set_prop_cycle(color=colors)
 
-    baseline = kwargs.pop('baseline', 'zero')
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
@@ -90,7 +82,6 @@ def stackplot(axes, x, *args, **kwargs):
         stack += first_line
 
     elif baseline == 'weighted_wiggle':
-        m, n = y.shape
         total = np.sum(y, 0)
         # multiply by 1/total (or zero) to avoid infinities in the division:
         inv_total = np.zeros_like(total)
@@ -120,7 +111,7 @@ def stackplot(axes, x, *args, **kwargs):
     r = [coll]
 
     # Color between array i-1 and array i
-    for i in xrange(len(y) - 1):
+    for i in range(len(y) - 1):
         color = axes._get_lines.get_next_color()
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=color, label=next(labels, None),

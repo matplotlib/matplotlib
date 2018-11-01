@@ -1,8 +1,8 @@
 """
 This module defines default legend handlers.
 
-It is strongly encouraged to have read the :ref:`legend guide
-<sphx_glr_tutorials_intermediate_legend_guide.py>` before this documentation.
+It is strongly encouraged to have read the :doc:`legend guide
+</tutorials/intermediate/legend_guide>` before this documentation.
 
 Legend handlers are expected to be a callable object with a following
 signature. ::
@@ -20,14 +20,10 @@ i.e., this is dpi-scaled value).
 This module includes definition of several legend handler classes
 derived from the base class (HandlerBase) with the following method::
 
-    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
+    def legend_artist(self, legend, orig_handle, fontsize, handlebox)
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
-from six.moves import zip
 from itertools import cycle
 
 import numpy as np
@@ -275,8 +271,8 @@ class HandlerPatch(HandlerBase):
                                xdescent=xdescent, ydescent=ydescent,
                                width=width, height=height, fontsize=fontsize)
 
-            Subsequently the created artist will have its ``update_prop`` method
-            called and the appropriate transform will be applied.
+            Subsequently the created artist will have its ``update_prop``
+            method called and the appropriate transform will be applied.
 
         Notes
         -----
@@ -378,7 +374,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
         self._update_prop(legend_handle, orig_handle)
 
         legend_handle.set_figure(legend.figure)
-        #legend._set_artist_props(legend_handle)
+        # legend._set_artist_props(legend_handle)
         legend_handle.set_clip_box(None)
         legend_handle.set_clip_path(None)
 
@@ -503,8 +499,8 @@ class HandlerErrorbar(HandlerLine2D):
         handle_caplines = []
 
         if orig_handle.has_xerr:
-            verts = [ ((x - xerr_size, y), (x + xerr_size, y))
-                      for x, y in zip(xdata_marker, ydata_marker)]
+            verts = [((x - xerr_size, y), (x + xerr_size, y))
+                     for x, y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
             self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)
@@ -521,8 +517,8 @@ class HandlerErrorbar(HandlerLine2D):
                 handle_caplines.append(capline_right)
 
         if orig_handle.has_yerr:
-            verts = [ ((x, y - yerr_size), (x, y + yerr_size))
-                      for x, y in zip(xdata_marker, ydata_marker)]
+            verts = [((x, y - yerr_size), (x, y + yerr_size))
+                     for x, y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
             self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)
@@ -690,7 +686,8 @@ class HandlerTuple(HandlerBase):
 
 class HandlerPolyCollection(HandlerBase):
     """
-    Handler for `.PolyCollection` used in `~.Axes.fill_between` and `~.Axes.stackplot`.
+    Handler for `.PolyCollection` used in `~.Axes.fill_between` and
+    `~.Axes.stackplot`.
     """
     def _update_prop(self, legend_handle, orig_handle):
         def first_color(colors):

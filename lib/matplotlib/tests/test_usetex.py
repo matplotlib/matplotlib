@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function
+import warnings
 
 import pytest
 
@@ -7,8 +7,14 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
 
-@pytest.mark.skipif(not matplotlib.checkdep_usetex(True),
-                    reason='Missing TeX or Ghostscript or dvipng')
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    needs_usetex = pytest.mark.skipif(
+        not matplotlib.checkdep_usetex(True),
+        reason='Missing TeX of Ghostscript or dvipng')
+
+
+@needs_usetex
 @image_comparison(baseline_images=['test_usetex'],
                   extensions=['pdf', 'png'],
                   tol=0.3)

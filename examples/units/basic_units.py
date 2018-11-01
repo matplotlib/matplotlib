@@ -4,7 +4,6 @@ Basic Units
 ===========
 
 """
-import six
 
 import math
 
@@ -12,8 +11,6 @@ import numpy as np
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-from matplotlib.axes import Axes
-from matplotlib.cbook import iterable
 
 
 class ProxyDelegate(object):
@@ -26,13 +23,13 @@ class ProxyDelegate(object):
 
 
 class TaggedValueMeta(type):
-    def __init__(cls, name, bases, dict):
-        for fn_name in cls._proxies:
+    def __init__(self, name, bases, dict):
+        for fn_name in self._proxies:
             try:
-                dummy = getattr(cls, fn_name)
+                dummy = getattr(self, fn_name)
             except AttributeError:
-                setattr(cls, fn_name,
-                        ProxyDelegate(fn_name, cls._proxies[fn_name]))
+                setattr(self, fn_name,
+                        ProxyDelegate(fn_name, self._proxies[fn_name]))
 
 
 class PassThroughProxy(object):
@@ -90,7 +87,7 @@ class ConvertAllProxy(PassThroughProxy):
             if hasattr(a, 'convert_to'):
                 try:
                     a = a.convert_to(self.unit)
-                except:
+                except Exception:
                     pass
                 arg_units.append(a.get_unit())
                 converted_args.append(a.get_value())
@@ -110,7 +107,7 @@ class ConvertAllProxy(PassThroughProxy):
         return TaggedValue(ret, ret_unit)
 
 
-class TaggedValue(six.with_metaclass(TaggedValueMeta)):
+class TaggedValue(metaclass=TaggedValueMeta):
 
     _proxies = {'__add__': ConvertAllProxy,
                 '__sub__': ConvertAllProxy,
@@ -156,7 +153,7 @@ class TaggedValue(six.with_metaclass(TaggedValueMeta)):
         return TaggedValue(array, self.unit)
 
     def __repr__(self):
-        return 'TaggedValue(' + repr(self.value) + ', ' + repr(self.unit) + ')'
+        return 'TaggedValue({!r}, {!r})'.format(self.value, self.unit)
 
     def __str__(self):
         return str(self.value) + ' in ' + str(self.unit)
@@ -251,13 +248,13 @@ class BasicUnit(object):
 class UnitResolver(object):
     def addition_rule(self, units):
         for unit_1, unit_2 in zip(units[:-1], units[1:]):
-            if (unit_1 != unit_2):
+            if unit_1 != unit_2:
                 return NotImplemented
         return units[0]
 
     def multiplication_rule(self, units):
         non_null = [u for u in units if u]
-        if (len(non_null) > 1):
+        if len(non_null) > 1:
             return NotImplemented
         return non_null[0]
 
@@ -270,7 +267,7 @@ class UnitResolver(object):
         '__rsub__': addition_rule}
 
     def __call__(self, operation, units):
-        if (operation not in self.op_dict):
+        if operation not in self.op_dict:
             return NotImplemented
 
         return self.op_dict[operation](self, units)
@@ -298,13 +295,21 @@ secs.add_conversion_factor(minutes, 1/60.0)
 
 # radians formatting
 def rad_fn(x, pos=None):
-    n = int((x / np.pi) * 2.0 + 0.25)
+    if x >= 0:
+        n = int((x / np.pi) * 2.0 + 0.25)
+    else:
+        n = int((x / np.pi) * 2.0 - 0.25)
+
     if n == 0:
         return '0'
     elif n == 1:
         return r'$\pi/2$'
     elif n == 2:
         return r'$\pi$'
+    elif n == -1:
+        return r'$-\pi/2$'
+    elif n == -2:
+        return r'$-\pi$'
     elif n % 2 == 0:
         return r'$%s\pi$' % (n//2,)
     else:
@@ -339,7 +344,7 @@ class BasicUnitConverter(units.ConversionInterface):
     def convert(val, unit, axis):
         if units.ConversionInterface.is_numlike(val):
             return val
-        if iterable(val):
+        if np.iterable(val):
             return [thisval.convert_to(unit).get_value() for thisval in val]
         else:
             return val.convert_to(unit).get_value()
@@ -347,14 +352,14 @@ class BasicUnitConverter(units.ConversionInterface):
     @staticmethod
     def default_units(x, axis):
         'return the default unit for x or None'
-        if iterable(x):
+        if np.iterable(x):
             for thisx in x:
                 return thisx.unit
         return x.unit
 
 
 def cos(x):
-    if iterable(x):
+    if np.iterable(x):
         return [math.cos(val.convert_to(radians).get_value()) for val in x]
     else:
         return math.cos(x.convert_to(radians).get_value())

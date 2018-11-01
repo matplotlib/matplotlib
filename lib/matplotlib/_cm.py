@@ -6,8 +6,7 @@ Documentation for each is in pyplot.colormaps().  Please update this
 with the purpose and type of your colormap if you add data for one here.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from functools import partial
 
 import numpy as np
 
@@ -44,22 +43,30 @@ _copper_data = {'red':   ((0., 0., 0.),
                 'blue':  ((0., 0., 0.),
                           (1.0, 0.4975, 0.4975))}
 
-_flag_data = {
-        'red': lambda x: 0.75 * np.sin((x * 31.5 + 0.25) * np.pi) + 0.5,
-        'green': lambda x: np.sin(x * 31.5 * np.pi),
-        'blue': lambda x: 0.75 * np.sin((x * 31.5 - 0.25) * np.pi) + 0.5,
-}
+def _flag_red(x): return 0.75 * np.sin((x * 31.5 + 0.25) * np.pi) + 0.5
+def _flag_green(x): return np.sin(x * 31.5 * np.pi)
+def _flag_blue(x): return 0.75 * np.sin((x * 31.5 - 0.25) * np.pi) + 0.5
+_flag_data = {'red': _flag_red, 'green': _flag_green, 'blue': _flag_blue}
 
-_prism_data = {
-        'red': lambda x: 0.75 * np.sin((x * 20.9 + 0.25) * np.pi) + 0.67,
-        'green': lambda x: 0.75 * np.sin((x * 20.9 - 0.25) * np.pi) + 0.33,
-        'blue': lambda x: -1.1 * np.sin((x * 20.9) * np.pi),
-}
+def _prism_red(x): return 0.75 * np.sin((x * 20.9 + 0.25) * np.pi) + 0.67
+def _prism_green(x): return 0.75 * np.sin((x * 20.9 - 0.25) * np.pi) + 0.33
+def _prism_blue(x): return -1.1 * np.sin((x * 20.9) * np.pi)
+_prism_data = {'red': _prism_red, 'green': _prism_green, 'blue': _prism_blue}
 
+def _ch_helper(gamma, s, r, h, p0, p1, x):
+    """Helper function for generating picklable cubehelix color maps."""
+    # Apply gamma factor to emphasise low or high intensity values
+    xg = x ** gamma
+    # Calculate amplitude and angle of deviation from the black to white
+    # diagonal in the plane of constant perceived intensity.
+    a = h * xg * (1 - xg) / 2
+    phi = 2 * np.pi * (s / 3 + r * x)
+    return xg + a * (p0 * np.cos(phi) + p1 * np.sin(phi))
 
 def cubehelix(gamma=1.0, s=0.5, r=-1.5, h=1.0):
-    """Return custom data dictionary of (r,g,b) conversion functions, which
-    can be used with :func:`register_cmap`, for the cubehelix color scheme.
+    """
+    Return custom data dictionary of (r,g,b) conversion functions, which can be
+    used with :func:`register_cmap`, for the cubehelix color scheme.
 
     Unlike most other color schemes cubehelix was designed by D.A. Green to
     be monotonically increasing in terms of perceived brightness.
@@ -93,30 +100,10 @@ def cubehelix(gamma=1.0, s=0.5, r=-1.5, h=1.0):
                   colors are. If this parameter is zero then the color
                   scheme is purely a greyscale; defaults to 1.0.
       =========   =======================================================
-
     """
-
-    def get_color_function(p0, p1):
-
-        def color(x):
-            # Apply gamma factor to emphasise low or high intensity values
-            xg = x ** gamma
-
-            # Calculate amplitude and angle of deviation from the black
-            # to white diagonal in the plane of constant
-            # perceived intensity.
-            a = h * xg * (1 - xg) / 2
-
-            phi = 2 * np.pi * (s / 3 + r * x)
-
-            return xg + a * (p0 * np.cos(phi) + p1 * np.sin(phi))
-        return color
-
-    return {
-            'red': get_color_function(-0.14861, 1.78277),
-            'green': get_color_function(-0.29227, -0.90649),
-            'blue': get_color_function(1.97294, 0.0),
-    }
+    return {'red': partial(_ch_helper, gamma, s, r, h, -0.14861, 1.78277),
+            'green': partial(_ch_helper, gamma, s, r, h, -0.29227, -0.90649),
+            'blue': partial(_ch_helper, gamma, s, r, h, 1.97294, 0.0)}
 
 _cubehelix_data = cubehelix()
 
@@ -124,48 +111,39 @@ _bwr_data = ((0.0, 0.0, 1.0), (1.0, 1.0, 1.0), (1.0, 0.0, 0.0))
 _brg_data = ((0.0, 0.0, 1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
 
 # Gnuplot palette functions
-gfunc = {
-        0: lambda x: 0,
-        1: lambda x: 0.5,
-        2: lambda x: 1,
-        3: lambda x: x,
-        4: lambda x: x ** 2,
-        5: lambda x: x ** 3,
-        6: lambda x: x ** 4,
-        7: lambda x: np.sqrt(x),
-        8: lambda x: np.sqrt(np.sqrt(x)),
-        9: lambda x: np.sin(x * np.pi / 2),
-        10: lambda x: np.cos(x * np.pi / 2),
-        11: lambda x: np.abs(x - 0.5),
-        12: lambda x: (2 * x - 1) ** 2,
-        13: lambda x: np.sin(x * np.pi),
-        14: lambda x: np.abs(np.cos(x * np.pi)),
-        15: lambda x: np.sin(x * 2 * np.pi),
-        16: lambda x: np.cos(x * 2 * np.pi),
-        17: lambda x: np.abs(np.sin(x * 2 * np.pi)),
-        18: lambda x: np.abs(np.cos(x * 2 * np.pi)),
-        19: lambda x: np.abs(np.sin(x * 4 * np.pi)),
-        20: lambda x: np.abs(np.cos(x * 4 * np.pi)),
-        21: lambda x: 3 * x,
-        22: lambda x: 3 * x - 1,
-        23: lambda x: 3 * x - 2,
-        24: lambda x: np.abs(3 * x - 1),
-        25: lambda x: np.abs(3 * x - 2),
-        26: lambda x: (3 * x - 1) / 2,
-        27: lambda x: (3 * x - 2) / 2,
-        28: lambda x: np.abs((3 * x - 1) / 2),
-        29: lambda x: np.abs((3 * x - 2) / 2),
-        30: lambda x: x / 0.32 - 0.78125,
-        31: lambda x: 2 * x - 0.84,
-        32: lambda x: gfunc32(x),
-        33: lambda x: np.abs(2 * x - 0.5),
-        34: lambda x: 2 * x,
-        35: lambda x: 2 * x - 0.5,
-        36: lambda x: 2 * x - 1.
-}
-
-
-def gfunc32(x):
+def _g0(x): return 0
+def _g1(x): return 0.5
+def _g2(x): return 1
+def _g3(x): return x
+def _g4(x): return x ** 2
+def _g5(x): return x ** 3
+def _g6(x): return x ** 4
+def _g7(x): return np.sqrt(x)
+def _g8(x): return np.sqrt(np.sqrt(x))
+def _g9(x): return np.sin(x * np.pi / 2)
+def _g10(x): return np.cos(x * np.pi / 2)
+def _g11(x): return np.abs(x - 0.5)
+def _g12(x): return (2 * x - 1) ** 2
+def _g13(x): return np.sin(x * np.pi)
+def _g14(x): return np.abs(np.cos(x * np.pi))
+def _g15(x): return np.sin(x * 2 * np.pi)
+def _g16(x): return np.cos(x * 2 * np.pi)
+def _g17(x): return np.abs(np.sin(x * 2 * np.pi))
+def _g18(x): return np.abs(np.cos(x * 2 * np.pi))
+def _g19(x): return np.abs(np.sin(x * 4 * np.pi))
+def _g20(x): return np.abs(np.cos(x * 4 * np.pi))
+def _g21(x): return 3 * x
+def _g22(x): return 3 * x - 1
+def _g23(x): return 3 * x - 2
+def _g24(x): return np.abs(3 * x - 1)
+def _g25(x): return np.abs(3 * x - 2)
+def _g26(x): return (3 * x - 1) / 2
+def _g27(x): return (3 * x - 2) / 2
+def _g28(x): return np.abs((3 * x - 1) / 2)
+def _g29(x): return np.abs((3 * x - 2) / 2)
+def _g30(x): return x / 0.32 - 0.78125
+def _g31(x): return 2 * x - 0.84
+def _g32(x):
     ret = np.zeros(len(x))
     m = (x < 0.25)
     ret[m] = 4 * x[m]
@@ -174,6 +152,12 @@ def gfunc32(x):
     m = (x >= 0.92)
     ret[m] = x[m] / 0.08 - 11.5
     return ret
+def _g33(x): return np.abs(2 * x - 0.5)
+def _g34(x): return 2 * x
+def _g35(x): return 2 * x - 0.5
+def _g36(x): return 2 * x - 1
+
+gfunc = {i: globals()["_g{}".format(i)] for i in range(37)}
 
 _gnuplot_data = {
         'red': gfunc[7],
@@ -1020,11 +1004,11 @@ _gist_gray_data = {
         'blue': gfunc[3],
 }
 
+def _gist_heat_red(x): return 1.5 * x
+def _gist_heat_green(x): return 2 * x - 1
+def _gist_heat_blue(x): return 4 * x - 3
 _gist_heat_data = {
-        'red': lambda x: 1.5 * x,
-        'green': lambda x: 2 * x - 1,
-        'blue': lambda x: 4 * x - 3,
-}
+    'red': _gist_heat_red, 'green': _gist_heat_green, 'blue': _gist_heat_blue}
 
 _gist_ncar_data = \
 {'red': (
@@ -1101,11 +1085,8 @@ _gist_stern_data = {
             (0.735, 0.000, 0.000), (1.000, 1.000, 1.000))
 }
 
-_gist_yarg_data = {
-        'red': lambda x: 1 - x,
-        'green': lambda x: 1 - x,
-        'blue': lambda x: 1 - x,
-}
+def _gist_yarg(x): return 1 - x
+_gist_yarg_data = {'red': _gist_yarg, 'green': _gist_yarg, 'blue': _gist_yarg}
 
 # This bipolar color map was generated from CoolWarmFloat33.csv of
 # "Diverging Color Maps for Scientific Visualization" by Kenneth Moreland.

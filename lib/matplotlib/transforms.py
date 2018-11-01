@@ -33,21 +33,15 @@ themselves.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
-import numpy as np
-from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
-    update_path_extents)
-from numpy.linalg import inv
-
 import re
 import weakref
-import warnings
 
-from . import cbook
+import numpy as np
+from numpy.linalg import inv
+
+from matplotlib import cbook
+from matplotlib._path import (
+    affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
 from .path import Path
 
 DEBUG = False
@@ -105,22 +99,23 @@ class TransformNode(object):
 
     if DEBUG:
         def __str__(self):
-            # either just return the name of this TransformNode, or it's repr
+            # either just return the name of this TransformNode, or its repr
             return self._shorthand_name or repr(self)
 
     def __getstate__(self):
-        d = self.__dict__.copy()
         # turn the dictionary with weak values into a normal dictionary
-        d['_parents'] = dict((k, v()) for (k, v) in
-                             six.iteritems(self._parents))
-        return d
+        return {**self.__dict__,
+                '_parents': {k: v() for k, v in self._parents.items()}}
 
     def __setstate__(self, data_dict):
         self.__dict__ = data_dict
-        # turn the normal dictionary back into a dictionary with weak
-        # values
-        self._parents = dict((k, weakref.ref(v)) for (k, v) in
-                             six.iteritems(self._parents) if v is not None)
+        # turn the normal dictionary back into a dictionary with weak values
+        # The extra lambda is to provide a callback to remove dead
+        # weakrefs from the dictionary when garbage collection is done.
+        self._parents = {k: weakref.ref(v, lambda ref, sid=k,
+                                                  target=self._parents:
+                                                        target.pop(sid))
+                         for k, v in self._parents.items() if v is not None}
 
     def __copy__(self, *args):
         raise NotImplementedError(
@@ -159,7 +154,7 @@ class TransformNode(object):
         if self.pass_through or status_changed:
             self._invalid = value
 
-            for parent in list(six.itervalues(self._parents)):
+            for parent in list(self._parents.values()):
                 # Dereference the weak reference
                 parent = parent()
                 if parent is not None:
@@ -177,7 +172,12 @@ class TransformNode(object):
         # parents are destroyed, references from the children won't
         # keep them alive.
         for child in children:
-            child._parents[id(self)] = weakref.ref(self)
+            # Use weak references so this dictionary won't keep obsolete nodes
+            # alive; the callback deletes the dictionary entry. This is a
+            # performance improvement over using WeakValueDictionary.
+            ref = weakref.ref(self, lambda ref, sid=id(self),
+                                        target=child._parents: target.pop(sid))
+            child._parents[id(self)] = ref
 
     if DEBUG:
         _set_children = set_children
@@ -230,20 +230,14 @@ class TransformNode(object):
                     props['style'] = 'bold'
                 props['shape'] = 'box'
                 props['label'] = '"%s"' % label
-                props = ' '.join(['%s=%s' % (key, val)
-                                  for key, val
-                                  in six.iteritems(props)])
+                props = ' '.join(map('{0[0]}={0[1]}'.format, props.items()))
 
-                fobj.write('%s [%s];\n' %
-                           (hash(root), props))
+                fobj.write('%s [%s];\n' % (hash(root), props))
 
                 if hasattr(root, '_children'):
                     for child in root._children:
-                        name = '?'
-                        for key, val in six.iteritems(root.__dict__):
-                            if val is child:
-                                name = key
-                                break
+                        name = next((key for key, val in root.__dict__.items()
+                                     if val is child), '?')
                         fobj.write('"%s" -> "%s" [label="%s", fontsize=10];\n'
                                     % (hash(root),
                                     hash(child),
@@ -272,11 +266,11 @@ class BboxBase(TransformNode):
     if DEBUG:
         def _check(points):
             if isinstance(points, np.ma.MaskedArray):
-                warnings.warn("Bbox bounds are a masked array.")
+                cbook._warn_external("Bbox bounds are a masked array.")
             points = np.asarray(points)
             if (points[1, 0] - points[0, 0] == 0 or
                 points[1, 1] - points[0, 1] == 0):
-                warnings.warn("Singular Bbox.")
+                cbook._warn_external("Singular Bbox.")
         _check = staticmethod(_check)
 
     def frozen(self):
@@ -568,7 +562,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        c :
+        c : (float, float) or str
             May be either:
 
             * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0
@@ -588,7 +582,7 @@ class BboxBase(TransformNode):
         if container is None:
             container = self
         l, b, w, h = container.bounds
-        if isinstance(c, six.string_types):
+        if isinstance(c, str):
             cx, cy = self.coefs[c]
         else:
             cx, cy = c
@@ -640,7 +634,7 @@ class BboxBase(TransformNode):
         splitting the original one with vertical lines at fractional
         positions *f1*, *f2*, ...
         """
-        xf = [0] + list(args) + [1]
+        xf = [0, *args, 1]
         x0, y0, x1, y1 = self.extents
         w = x1 - x0
         return [Bbox([[x0 + xf0 * w, y0], [x0 + xf1 * w, y1]])
@@ -654,7 +648,7 @@ class BboxBase(TransformNode):
         splitting the original one with horizontal lines at fractional
         positions *f1*, *f2*, ...
         """
-        yf = [0] + list(args) + [1]
+        yf = [0, *args, 1]
         x0, y0, x1, y1 = self.extents
         h = y1 - y0
         return [Bbox([[x0, y0 + yf0 * h], [x1, y0 + yf1 * h]])
@@ -926,7 +920,7 @@ class Bbox(BboxBase):
 
         path = Path(xy)
         self.update_from_path(path, ignore=ignore,
-                                    updatex=updatex, updatey=updatey)
+                              updatex=updatex, updatey=updatey)
 
     @BboxBase.x0.setter
     def x0(self, val):
@@ -1067,8 +1061,6 @@ class TransformedBbox(BboxBase):
                         _indent_str(self._bbox),
                         _indent_str(self._transform)))
 
-    __repr__ = __str__
-
     def get_points(self):
         if self._invalid:
             p = self._bbox.get_points()
@@ -1153,8 +1145,6 @@ class LockableBbox(BboxBase):
                 .format(type(self).__name__,
                         _indent_str(self._bbox),
                         _indent_str(self._locked_points)))
-
-    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
@@ -1305,10 +1295,6 @@ class Transform(TransformNode):
     # Equality is based on object identity for `Transform`s (so we don't
     # override `__eq__`), but some subclasses, such as TransformWrapper &
     # AffineBase, override this behavior.
-
-    if six.PY2:
-        def __ne__(self, other):
-            return not (self == other)
 
     def _iter_break_from_left_to_right(self):
         """
@@ -1639,9 +1625,6 @@ class Transform(TransformNode):
         """
         raise NotImplementedError()
 
-    def __repr__(self):
-        return str(self)
-
 
 class TransformWrapper(Transform):
     """
@@ -1679,30 +1662,6 @@ class TransformWrapper(Transform):
 
     def __eq__(self, other):
         return self._child.__eq__(other)
-
-    # NOTE: Transform.__[gs]etstate__ should be sufficient when using only
-    # Python 3.4+.
-    def __getstate__(self):
-        # only store the child information and parents
-        return {
-            'child': self._child,
-            'input_dims': self.input_dims,
-            'output_dims': self.output_dims,
-            # turn the weak-values dictionary into a normal dictionary
-            'parents': dict((k, v()) for (k, v) in
-                            six.iteritems(self._parents))
-        }
-
-    def __setstate__(self, state):
-        # re-initialise the TransformWrapper with the state's child
-        self._init(state['child'])
-        # The child may not be unpickled yet, so restore its information.
-        self.input_dims = state['input_dims']
-        self.output_dims = state['output_dims']
-        # turn the normal dictionary back into a dictionary with weak
-        # values
-        self._parents = dict((k, weakref.ref(v)) for (k, v) in
-                             six.iteritems(state['parents']) if v is not None)
 
     def __str__(self):
         return ("{}(\n"
@@ -1751,17 +1710,9 @@ class TransformWrapper(Transform):
         self.invalidate()
         self._invalid = 0
 
-    def _get_is_affine(self):
-        return self._child.is_affine
-    is_affine = property(_get_is_affine)
-
-    def _get_is_separable(self):
-        return self._child.is_separable
-    is_separable = property(_get_is_separable)
-
-    def _get_has_inverse(self):
-        return self._child.has_inverse
-    has_inverse = property(_get_has_inverse)
+    is_affine = property(lambda self: self._child.is_affine)
+    is_separable = property(lambda self: self._child.is_separable)
+    has_inverse = property(lambda self: self._child.has_inverse)
 
 
 class AffineBase(Transform):
@@ -1848,10 +1799,10 @@ class Affine2DBase(AffineBase):
         return Affine2D(self.get_matrix().copy())
     frozen.__doc__ = AffineBase.frozen.__doc__
 
-    def _get_is_separable(self):
+    @property
+    def is_separable(self):
         mtx = self.get_matrix()
-        return mtx[0, 1] == 0.0 and mtx[1, 0] == 0.0
-    is_separable = property(_get_is_separable)
+        return mtx[0, 1] == mtx[1, 0] == 0.0
 
     def to_values(self):
         """
@@ -1892,7 +1843,7 @@ class Affine2DBase(AffineBase):
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
             if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
-                warnings.warn(
+                cbook._warn_external(
                     ('A non-numpy array of type %s was passed in for ' +
                      'transformation.  Please correct this.')
                     % type(points))
@@ -2124,11 +2075,6 @@ class Affine2D(Affine2DBase):
         """
         return self.skew(np.deg2rad(xShear), np.deg2rad(yShear))
 
-    def _get_is_separable(self):
-        mtx = self.get_matrix()
-        return mtx[0, 1] == 0.0 and mtx[1, 0] == 0.0
-    is_separable = property(_get_is_separable)
-
 
 class IdentityTransform(Affine2DBase):
     """
@@ -2230,13 +2176,9 @@ class BlendedGenericTransform(Transform):
         # a blended transform cannot possibly contain a branch from two different transforms.
         return False
 
-    def _get_is_affine(self):
-        return self._x.is_affine and self._y.is_affine
-    is_affine = property(_get_is_affine)
-
-    def _get_has_inverse(self):
-        return self._x.has_inverse and self._y.has_inverse
-    has_inverse = property(_get_has_inverse)
+    is_affine = property(lambda self: self._x.is_affine and self._y.is_affine)
+    has_inverse = property(
+        lambda self: self._x.has_inverse and self._y.has_inverse)
 
     def frozen(self):
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
@@ -2421,8 +2363,6 @@ class CompositeGenericTransform(Transform):
         self._b = b
         self.set_children(a, b)
 
-    is_affine = property(lambda self: self._a.is_affine and self._b.is_affine)
-
     def frozen(self):
         self._invalid = 0
         frozen = composite_transform_factory(self._a.frozen(), self._b.frozen())
@@ -2448,27 +2388,23 @@ class CompositeGenericTransform(Transform):
 
     def __eq__(self, other):
         if isinstance(other, (CompositeGenericTransform, CompositeAffine2D)):
-            return self is other or (self._a == other._a and self._b == other._b)
+            return self is other or (self._a == other._a
+                                     and self._b == other._b)
         else:
             return False
 
     def _iter_break_from_left_to_right(self):
-        for lh_compliment, rh_compliment in self._a._iter_break_from_left_to_right():
-            yield lh_compliment, rh_compliment + self._b
-        for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
-            yield self._a + lh_compliment, rh_compliment
+        for left, right in self._a._iter_break_from_left_to_right():
+            yield left, right + self._b
+        for left, right in self._b._iter_break_from_left_to_right():
+            yield self._a + left, right
 
-    @property
-    def depth(self):
-        return self._a.depth + self._b.depth
-
-    def _get_is_affine(self):
-        return self._a.is_affine and self._b.is_affine
-    is_affine = property(_get_is_affine)
-
-    def _get_is_separable(self):
-        return self._a.is_separable and self._b.is_separable
-    is_separable = property(_get_is_separable)
+    depth = property(lambda self: self._a.depth + self._b.depth)
+    is_affine = property(lambda self: self._a.is_affine and self._b.is_affine)
+    is_separable = property(
+        lambda self: self._a.is_separable and self._b.is_separable)
+    has_inverse = property(
+        lambda self: self._a.has_inverse and self._b.has_inverse)
 
     def __str__(self):
         return ("{}(\n"
@@ -2514,10 +2450,6 @@ class CompositeGenericTransform(Transform):
         return CompositeGenericTransform(self._b.inverted(), self._a.inverted())
     inverted.__doc__ = Transform.inverted.__doc__
 
-    def _get_has_inverse(self):
-        return self._a.has_inverse and self._b.has_inverse
-    has_inverse = property(_get_has_inverse)
-
 
 class CompositeAffine2D(Affine2DBase):
     """
@@ -2557,10 +2489,10 @@ class CompositeAffine2D(Affine2DBase):
         return self._a.depth + self._b.depth
 
     def _iter_break_from_left_to_right(self):
-        for lh_compliment, rh_compliment in self._a._iter_break_from_left_to_right():
-            yield lh_compliment, rh_compliment + self._b
-        for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
-            yield self._a + lh_compliment, rh_compliment
+        for left, right in self._a._iter_break_from_left_to_right():
+            yield left, right + self._b
+        for left, right in self._b._iter_break_from_left_to_right():
+            yield self._a + left, right
 
     def __str__(self):
         return ("{}(\n"

@@ -4,13 +4,12 @@ Custom Ticker1
 ==============
 
 The new ticker code was designed to explicitly support user customized
-ticking.  The documentation
-http://matplotlib.org/api/ticker_api.html#module-matplotlib.ticker details this
+ticking. The documentation of :mod:`matplotlib.ticker` details this
 process.  That code defines a lot of preset tickers but was primarily
 designed to be user extensible.
 
 In this example a user defined function is used to format the ticks in
-millions of dollars on the y axis
+millions of dollars on the y axis.
 """
 from matplotlib.ticker import FuncFormatter
 import matplotlib.pyplot as plt

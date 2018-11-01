@@ -4,8 +4,8 @@ Dolphins
 ========
 
 This example shows how to draw, and manipulate shapes given vertices
-and nodes using the `Patches`, `Path` and `Transforms` classes.
-
+and nodes using the `~.path.Path`, `~.patches.PathPatch` and
+`~matplotlib.transforms` classes.
 """
 
 import matplotlib.cm as cm
@@ -101,3 +101,24 @@ dolphin_patch2 = PathPatch(dolphin_path2, facecolor=(0.5, 0.5, 0.5),
 ax.add_patch(dolphin_patch2)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.path
+matplotlib.path.Path
+matplotlib.patches
+matplotlib.patches.PathPatch
+matplotlib.patches.Circle
+matplotlib.axes.Axes.add_patch
+matplotlib.transforms
+matplotlib.transforms.Affine2D
+matplotlib.transforms.Affine2D.rotate_deg

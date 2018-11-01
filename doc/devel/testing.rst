@@ -9,7 +9,6 @@ Matplotlib's testing infrastructure depends on pytest_. The tests are in
 infrastructure are in :mod:`matplotlib.testing`.
 
 .. _pytest: http://doc.pytest.org/en/latest/
-.. _mock: https://docs.python.org/3/library/unittest.mock.html
 .. _Ghostscript: https://www.ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
@@ -22,21 +21,20 @@ Requirements
 
 Install the latest version of Matplotlib as documented in
 :ref:`installing_for_devs` In particular, follow the instructions to use a
-local FreeType build
+local FreeType build.
 
 The following software is required to run the tests:
 
-  - pytest_ (>=3.1)
-  - mock_, when running Python 2
-  - Ghostscript_ (to render PDF files)
-  - Inkscape_ (to render SVG files)
+- pytest_ (>=3.6)
+- Ghostscript_ (>= 9.0, to render PDF files)
+- Inkscape_ (to render SVG files)
 
 Optionally you can install:
 
-  - pytest-cov_ (>=2.3.1) to collect coverage information
-  - pytest-pep8_ to test coding standards
-  - pytest-timeout_ to limit runtime in case of stuck tests
-  - pytest-xdist_ to run tests in parallel
+- pytest-cov_ (>=2.3.1) to collect coverage information
+- pytest-pep8_ to test coding standards
+- pytest-timeout_ to limit runtime in case of stuck tests
+- pytest-xdist_ to run tests in parallel
 
 
 Running the tests
@@ -44,11 +42,12 @@ Running the tests
 
 Running the tests is simple. Make sure you have pytest installed and run::
 
-   py.test
+   pytest
 
 or::
 
-   python tests.py
+   pytest .
+
 
 in the root directory of the distribution. The script takes a set of
 commands, such as:
@@ -74,22 +73,22 @@ To run a single test from the command line, you can provide a file path,
 optionally followed by the function separated by two colons, e.g., (tests do
 not need to be installed, but Matplotlib should be)::
 
-  py.test lib/matplotlib/tests/test_simplification.py::test_clipping
+  pytest lib/matplotlib/tests/test_simplification.py::test_clipping
 
 or, if tests are installed, a dot-separated path to the module, optionally
 followed by the function separated by two colons, such as::
 
-  py.test --pyargs matplotlib.tests.test_simplification::test_clipping
+  pytest --pyargs matplotlib.tests.test_simplification::test_clipping
 
 If you want to run the full test suite, but want to save wall time try
 running the tests in parallel::
 
-  py.test --verbose -n 5
+  pytest --verbose -n 5
 
 Depending on your version of Python and pytest-xdist, you may need to set
 ``PYTHONHASHSEED`` to a fixed value when running in parallel::
 
-  PYTHONHASHSEED=0 py.test --verbose -n 5
+  PYTHONHASHSEED=0 pytest --verbose -n 5
 
 An alternative implementation that does not look at command line arguments
 and works from within Python is to run the tests from the Matplotlib library
@@ -126,7 +125,7 @@ these up; there is no need to do anything further.
 Random data in tests
 --------------------
 
-Random data can is a very convenient way to generate data for examples,
+Random data is a very convenient way to generate data for examples,
 however the randomness is problematic for testing (as the tests
 must be deterministic!).  To work around this set the seed in each test.
 For numpy use::
@@ -190,16 +189,14 @@ a feature dependent on that backend.
 There are two optional keyword arguments to the `image_comparison`
 decorator:
 
-   - `extensions`: If you only wish to test additional image formats
-     (rather than just `png`), pass any additional file types in the
-     list of the extensions to test.  When copying the new
-     baseline files be sure to only copy the output files, not their
-     conversions to ``png``.  For example only copy the files
-     ending in ``pdf``, not in ``_pdf.png``.
+- `extensions`: If you only wish to test additional image formats (rather than
+  just `png`), pass any additional file types in the list of the extensions to
+  test.  When copying the new baseline files be sure to only copy the output
+  files, not their conversions to ``png``.  For example only copy the files
+  ending in ``pdf``, not in ``_pdf.png``.
 
-   - `tol`: This is the image matching tolerance, the default `1e-3`.
-     If some variation is expected in the image between runs, this
-     value may be adjusted.
+- `tol`: This is the image matching tolerance, the default `1e-3`. If some
+  variation is expected in the image between runs, this value may be adjusted.
 
 Known failing tests
 -------------------
@@ -264,10 +261,10 @@ Using tox
 `Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running
 tests against
 multiple Python environments, including multiple versions of Python
-(e.g., 2.7, 3.4, 3.5) and even different Python implementations
+(e.g., 3.5, 3.6) and even different Python implementations
 altogether (e.g., CPython, PyPy, Jython, etc.)
 
-Testing all versions of Python (2.6, 2.7, 3.*) requires
+Testing all versions of Python (3.5, 3.6, ...) requires
 having multiple versions of Python installed on your system and on the
 PATH. Depending on your operating system, you may want to use your
 package manager (such as apt-get, yum or MacPorts) to do this.
@@ -284,7 +281,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py26,py27
+    $ tox -e py36,py37
 
 Tox processes everything serially so it can take a long time to test
 several environments. To speed it up, you might try using a new,
@@ -301,3 +298,12 @@ edit this file if you want to add new environments to test (e.g.,
 tests are run. For more info on the ``tox.ini`` file, see the `Tox
 Configuration Specification
 <https://tox.readthedocs.io/en/latest/config.html>`_.
+
+Building old versions of Matplotlib
+-----------------------------------
+
+When running a ``git bisect`` to see which commit introduced a certain bug,
+you may (rarely) need to build very old versions of Matplotlib.  The following
+constraints need to be taken into account:
+
+- Matplotlib 1.3 (or earlier) requires numpy 1.8 (or earlier).

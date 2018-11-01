@@ -21,16 +21,11 @@ This was derived from embedding_in_wx and dynamic_image_wxagg.
 Thanks to matplotlib and wx teams for creating such great software!
 """
 
-from __future__ import print_function
-
-import sys
-import time
-import os
-import gc
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
-from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
 from matplotlib.figure import Figure
 import numpy as np
 
@@ -48,8 +43,8 @@ class PlotPanel(wx.Panel):
         wx.Panel.__init__(self, parent, -1)
 
         self.fig = Figure((5, 4), 75)
-        self.canvas = FigureCanvasWxAgg(self, -1, self.fig)
-        self.toolbar = Toolbar(self.canvas)  # matplotlib toolbar
+        self.canvas = FigureCanvas(self, -1, self.fig)
+        self.toolbar = NavigationToolbar(self.canvas)  # matplotlib toolbar
         self.toolbar.Realize()
         # self.toolbar.set_active([0,1])
 
@@ -136,7 +131,6 @@ class MyApp(wx.App):
         bang_button.Bind(wx.EVT_BUTTON, self.OnBang)
 
         # final setup ------------------
-        sizer = self.panel.GetSizer()
         self.frame.Show(1)
 
         self.SetTopWindow(self.frame)

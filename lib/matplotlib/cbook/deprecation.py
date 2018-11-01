@@ -1,6 +1,5 @@
 import functools
-import textwrap
-import warnings
+import inspect
 
 
 class MatplotlibDeprecationWarning(UserWarning):
@@ -14,51 +13,48 @@ class MatplotlibDeprecationWarning(UserWarning):
 
     https://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
     """
-    pass
 
 
 mplDeprecation = MatplotlibDeprecationWarning
+"""mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead."""
 
 
-def _generate_deprecation_message(since, message='', name='',
-                                  alternative='', pending=False,
-                                  obj_type='attribute',
-                                  addendum=''):
+def _generate_deprecation_message(
+        since, message='', name='', alternative='', pending=False,
+        obj_type='attribute', addendum='', *, removal=''):
+
+    if removal == "":
+        removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
+            since, "two minor releases later")
+    elif removal:
+        if pending:
+            raise ValueError(
+                "A pending deprecation cannot have a scheduled removal")
+        removal = "in {}".format(removal)
 
     if not message:
+        message = (
+            "The %(name)s %(obj_type)s"
+            + (" will be deprecated in a future version"
+               if pending else
+               (" was deprecated in Matplotlib %(since)s"
+                + (" and will be removed %(removal)s"
+                   if removal else
+                   "")))
+            + "."
+            + (" Use %(alternative)s instead." if alternative else "")
+            + (" %(addendum)s" if addendum else ""))
 
-        if pending:
-            message = (
-                'The %(name)s %(obj_type)s will be deprecated in a '
-                'future version.')
-        else:
-            message = (
-                'The %(name)s %(obj_type)s was deprecated in version '
-                '%(since)s.')
-
-    altmessage = ''
-    if alternative:
-        altmessage = ' Use %s instead.' % alternative
-
-    message = ((message % {
-        'func': name,
-        'name': name,
-        'alternative': alternative,
-        'obj_type': obj_type,
-        'since': since}) +
-        altmessage)
-
-    if addendum:
-        message += addendum
-
-    return message
+    return message % dict(
+        func=name, name=name, obj_type=obj_type, since=since, removal=removal,
+        alternative=alternative, addendum=addendum)
 
 
 def warn_deprecated(
         since, message='', name='', alternative='', pending=False,
-        obj_type='attribute', addendum=''):
+        obj_type='attribute', addendum='', *, removal=''):
     """
-    Used to display deprecation warning in a standard way.
+    Used to display deprecation in a standard way.
 
     Parameters
     ----------
@@ -77,13 +73,19 @@ def warn_deprecated(
         The name of the deprecated object.
 
     alternative : str, optional
-        An alternative function that the user may use in place of the
-        deprecated function.  The deprecation warning will tell the user
-        about this alternative if provided.
+        An alternative API that the user may use in place of the deprecated
+        API.  The deprecation warning will tell the user about this alternative
+        if provided.
 
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
-        DeprecationWarning.
+        DeprecationWarning.  Cannot be used together with *removal*.
+
+    removal : str, optional
+        The expected removal version.  With the default (an empty string), a
+        removal version is automatically computed from *since*.  Set to other
+        Falsy values to not schedule a removal date.  Cannot be used together
+        with *pending*.
 
     obj_type : str, optional
         The object type being deprecated.
@@ -101,16 +103,24 @@ def warn_deprecated(
                             obj_type='module')
 
     """
-    message = _generate_deprecation_message(
-                since, message, name, alternative, pending, obj_type)
-
-    warnings.warn(message, mplDeprecation, stacklevel=1)
+    message = '\n' + _generate_deprecation_message(
+        since, message, name, alternative, pending, obj_type, addendum,
+        removal=removal)
+    category = (PendingDeprecationWarning if pending
+                else MatplotlibDeprecationWarning)
+    from . import _warn_external
+    _warn_external(message, category)
 
 
 def deprecated(since, message='', name='', alternative='', pending=False,
-               obj_type=None, addendum=''):
+               obj_type=None, addendum='', *, removal=''):
     """
-    Decorator to mark a function or a class as deprecated.
+    Decorator to mark a function, a class, or a property as deprecated.
+
+    When deprecating a classmethod, a staticmethod, or a property, the
+    ``@deprecated`` decorator should go *under* the ``@classmethod``, etc.
+    decorator (i.e., `deprecated` should directly decorate the underlying
+    callable).
 
     Parameters
     ----------
@@ -123,8 +133,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         specifier `%(name)s` may be used for the name of the object,
         and `%(alternative)s` may be used in the deprecation message
         to insert the name of an alternative to the deprecated
-        object.  `%(obj_type)s` may be used to insert a friendly name
-        for the type of object being deprecated.
+        object.
 
     name : str, optional
         The name of the deprecated object; if not provided the name
@@ -135,16 +144,22 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
             def new_function():
                 ...
-            oldFunction = new_function
+            old_function = new_function
 
     alternative : str, optional
-        An alternative object that the user may use in place of the
-        deprecated object.  The deprecation warning will tell the user
-        about this alternative if provided.
+        An alternative API that the user may use in place of the deprecated
+        API.  The deprecation warning will tell the user about this alternative
+        if provided.
 
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
-        DeprecationWarning.
+        DeprecationWarning.  Cannot be used together with *removal*.
+
+    removal : str, optional
+        The expected removal version.  With the default (an empty string), a
+        removal version is automatically computed from *since*.  Set to other
+        Falsy values to not schedule a removal date.  Cannot be used together
+        with *pending*.
 
     addendum : str, optional
         Additional text appended directly to the final message.
@@ -157,61 +172,85 @@ def deprecated(since, message='', name='', alternative='', pending=False,
             @deprecated('1.4.0')
             def the_function_to_deprecate():
                 pass
-
     """
+
+    if obj_type is not None:
+        warn_deprecated(
+            "3.0", "Passing 'obj_type' to the 'deprecated' decorator has no "
+            "effect, and is deprecated since Matplotlib %(since)s; support "
+            "for it will be removed %(removal)s.")
 
     def deprecate(obj, message=message, name=name, alternative=alternative,
                   pending=pending, addendum=addendum):
-
-        if not name:
-            name = obj.__name__
-
         if isinstance(obj, type):
             obj_type = "class"
-            old_doc = obj.__doc__
             func = obj.__init__
+            name = name or obj.__name__
+            old_doc = obj.__doc__
 
             def finalize(wrapper, new_doc):
-                try:
-                    obj.__doc__ = new_doc
-                except (AttributeError, TypeError):
-                    # cls.__doc__ is not writeable on Py2.
-                    # TypeError occurs on PyPy
-                    pass
+                obj.__doc__ = new_doc
                 obj.__init__ = wrapper
                 return obj
+
+        elif isinstance(obj, property):
+            obj_type = "attribute"
+            func = None
+            name = name or obj.fget.__name__
+            old_doc = obj.__doc__
+
+            class _deprecated_property(property):
+                def __get__(self, instance, owner):
+                    if instance is not None:
+                        from . import _warn_external
+                        _warn_external(message, category)
+                    return super().__get__(instance, owner)
+
+                def __set__(self, instance, value):
+                    if instance is not None:
+                        from . import _warn_external
+                        _warn_external(message, category)
+                    return super().__set__(instance, value)
+
+                def __delete__(self, instance):
+                    if instance is not None:
+                        from . import _warn_external
+                        _warn_external(message, category)
+                    return super().__delete__(instance)
+
+            def finalize(_, new_doc):
+                return _deprecated_property(
+                    fget=obj.fget, fset=obj.fset, fdel=obj.fdel, doc=new_doc)
+
         else:
             obj_type = "function"
-            if isinstance(obj, classmethod):
-                func = obj.__func__
-                old_doc = func.__doc__
+            func = obj
+            name = name or obj.__name__
+            old_doc = func.__doc__
 
-                def finalize(wrapper, new_doc):
-                    wrapper = functools.wraps(func)(wrapper)
-                    wrapper.__doc__ = new_doc
-                    return classmethod(wrapper)
-            else:
-                func = obj
-                old_doc = func.__doc__
-
-                def finalize(wrapper, new_doc):
-                    wrapper = functools.wraps(func)(wrapper)
-                    wrapper.__doc__ = new_doc
-                    return wrapper
+            def finalize(wrapper, new_doc):
+                wrapper = functools.wraps(func)(wrapper)
+                wrapper.__doc__ = new_doc
+                return wrapper
 
         message = _generate_deprecation_message(
-                    since, message, name, alternative, pending,
-                    obj_type, addendum)
+            since, message, name, alternative, pending, obj_type, addendum,
+            removal=removal)
+        category = (PendingDeprecationWarning if pending
+                    else MatplotlibDeprecationWarning)
 
         def wrapper(*args, **kwargs):
-            warnings.warn(message, mplDeprecation, stacklevel=2)
+            from . import _warn_external
+            _warn_external(message, category)
             return func(*args, **kwargs)
 
-        old_doc = textwrap.dedent(old_doc or '').strip('\n')
+        old_doc = inspect.cleandoc(old_doc or '').strip('\n')
         message = message.strip()
-        new_doc = (('\n.. deprecated:: %(since)s'
-                    '\n    %(message)s\n\n' %
-                    {'since': since, 'message': message}) + old_doc)
+        new_doc = ('.. deprecated:: {since}\n'
+                   '   {message}\n'
+                   '\n'
+                   '{old_doc}'
+                   .format(since=since, message=message, old_doc=old_doc))
         if not old_doc:
             # This is to prevent a spurious 'unexected unindent' warning from
             # docutils when the original docstring was blank.

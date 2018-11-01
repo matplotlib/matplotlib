@@ -532,8 +532,6 @@ FT2Font::~FT2Font()
 
 void FT2Font::clear()
 {
-    angle = 0.0;
-
     pen.x = 0;
     pen.y = 0;
 
@@ -608,7 +606,6 @@ void FT2Font::set_text(
     bbox.xMax = bbox.yMax = -32000;
 
     for (unsigned int n = 0; n < N; n++) {
-        std::string thischar("?");
         FT_UInt glyph_index;
         FT_BBox glyph_bbox;
         FT_Pos last_advance;

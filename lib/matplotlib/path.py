@@ -4,22 +4,13 @@ A module for dealing with the polylines used throughout Matplotlib.
 The primary class for polyline handling in Matplotlib is `Path`.  Almost all
 vector drawing makes use of `Path`\s somewhere in the drawing pipeline.
 
-Whilst a `Path` instance itself cannot be drawn, some `~.Artist` subclasses,
-such as `~.PathPatch` and `~.PathCollection`, can be used for convenient `Path`
+Whilst a `Path` instance itself cannot be drawn, some `.Artist` subclasses,
+such as `.PathPatch` and `.PathCollection`, can be used for convenient `Path`
 visualisation.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
+from functools import lru_cache
 from weakref import WeakValueDictionary
-
-try:
-    from functools import lru_cache
-except ImportError:  # Py2
-    from backports.functools_lru_cache import lru_cache
 
 import numpy as np
 
@@ -134,19 +125,19 @@ class Path(object):
             and codes as read-only arrays.
         """
         vertices = _to_unmasked_float_array(vertices)
-        if (vertices.ndim != 2) or (vertices.shape[1] != 2):
+        if vertices.ndim != 2 or vertices.shape[1] != 2:
             raise ValueError(
                 "'vertices' must be a 2D list or array with shape Nx2")
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
-            if (codes.ndim != 1) or len(codes) != len(vertices):
+            if codes.ndim != 1 or len(codes) != len(vertices):
                 raise ValueError("'codes' must be a 1D list or array with the "
                                  "same length of 'vertices'")
             if len(codes) and codes[0] != self.MOVETO:
                 raise ValueError("The first element of 'code' must be equal "
                                  "to 'MOVETO' ({})".format(self.MOVETO))
-        elif closed:
+        elif closed and len(vertices):
             codes = np.empty(len(vertices), dtype=self.code_type)
             codes[0] = self.MOVETO
             codes[1:-1] = self.LINETO
@@ -312,7 +303,7 @@ class Path(object):
         numsides x 2) numpy array of vertices.  Return object is a
         :class:`Path`
 
-        .. plot:: gallery/api/histogram_path.py
+        .. plot:: gallery/misc/histogram_path.py
 
         """
 
@@ -587,7 +578,7 @@ class Path(object):
         polygon/polyline is an Nx2 array of vertices.  In other words,
         each polygon has no ``MOVETO`` instructions or curves.  This
         is useful for displaying in backends that do not support
-        compound paths or Bezier curves, such as GDK.
+        compound paths or Bezier curves.
 
         If *width* and *height* are both non-zero then the lines will
         be simplified so that vertices outside of (0, 0), (width,
@@ -613,7 +604,7 @@ class Path(object):
                 if len(vertices) < 3:
                     return []
                 elif np.any(vertices[0] != vertices[-1]):
-                    vertices = list(vertices) + [vertices[0]]
+                    vertices = [*vertices, vertices[0]]
 
             if transform is None:
                 return [vertices]
@@ -647,22 +638,20 @@ class Path(object):
     @classmethod
     def unit_regular_polygon(cls, numVertices):
         """
-        Return a :class:`Path` instance for a unit regular
-        polygon with the given *numVertices* and radius of 1.0,
-        centered at (0, 0).
+        Return a :class:`Path` instance for a unit regular polygon with the
+        given *numVertices* and radius of 1.0, centered at (0, 0).
         """
         if numVertices <= 16:
             path = cls._unit_regular_polygons.get(numVertices)
         else:
             path = None
         if path is None:
-            theta = (2*np.pi/numVertices *
-                     np.arange(numVertices + 1).reshape((numVertices + 1, 1)))
-            # This initial rotation is to make sure the polygon always
-            # "points-up"
-            theta += np.pi / 2.0
-            verts = np.concatenate((np.cos(theta), np.sin(theta)), 1)
-            codes = np.empty((numVertices + 1,))
+            theta = ((2 * np.pi / numVertices) * np.arange(numVertices + 1)
+                     # This initial rotation is to make sure the polygon always
+                     # "points-up".
+                     + np.pi / 2)
+            verts = np.column_stack((np.cos(theta), np.sin(theta)))
+            codes = np.empty(numVertices + 1)
             codes[0] = cls.MOVETO
             codes[1:-1] = cls.LINETO
             codes[-1] = cls.CLOSEPOLY
@@ -676,9 +665,8 @@ class Path(object):
     @classmethod
     def unit_regular_star(cls, numVertices, innerCircle=0.5):
         """
-        Return a :class:`Path` for a unit regular star
-        with the given numVertices and radius of 1.0, centered at (0,
-        0).
+        Return a :class:`Path` for a unit regular star with the given
+        numVertices and radius of 1.0, centered at (0, 0).
         """
         if numVertices <= 16:
             path = cls._unit_regular_stars.get((numVertices, innerCircle))
@@ -705,9 +693,8 @@ class Path(object):
     @classmethod
     def unit_regular_asterisk(cls, numVertices):
         """
-        Return a :class:`Path` for a unit regular
-        asterisk with the given numVertices and radius of 1.0,
-        centered at (0, 0).
+        Return a :class:`Path` for a unit regular asterisk with the given
+        numVertices and radius of 1.0, centered at (0, 0).
         """
         return cls.unit_regular_star(numVertices, 0.0)
 

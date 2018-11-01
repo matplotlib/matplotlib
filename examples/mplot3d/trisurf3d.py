@@ -6,7 +6,9 @@ Triangular 3D surfaces
 Plot a 3D surface with a triangular mesh.
 '''
 
-from mpl_toolkits.mplot3d import Axes3D
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -16,10 +18,7 @@ n_angles = 36
 
 # Make radii and angles spaces (radius r=0 omitted to eliminate duplication).
 radii = np.linspace(0.125, 1.0, n_radii)
-angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
-
-# Repeat all angles for each radius.
-angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)[..., np.newaxis]
 
 # Convert polar (radii, angles) coords to cartesian (x, y) coords.
 # (0, 0) is manually added at this stage,  so there will be no duplicate

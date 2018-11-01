@@ -6,39 +6,36 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-from __future__ import absolute_import, division, print_function
-
-import six
-from six.moves import xrange, zip
-import bz2
 import collections
+import collections.abc
 import contextlib
-import datetime
-import errno
 import functools
 import glob
 import gzip
-import io
-from itertools import repeat
+import itertools
 import locale
 import numbers
 import operator
 import os
+from pathlib import Path
 import re
+import subprocess
 import sys
 import time
 import traceback
 import types
 import warnings
-from weakref import ref, WeakKeyDictionary
+import weakref
+from weakref import WeakMethod
 
 import numpy as np
 
 import matplotlib
-from .deprecation import deprecated, warn_deprecated
-from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
+from .deprecation import (
+    mplDeprecation, deprecated, warn_deprecated, MatplotlibDeprecationWarning)
 
 
+@deprecated("3.0")
 def unicode_safe(s):
 
     if isinstance(s, bytes):
@@ -58,200 +55,32 @@ def unicode_safe(s):
             preferredencoding = None
 
         if preferredencoding is None:
-            return six.text_type(s)
+            return str(s)
         else:
-            return six.text_type(s, preferredencoding)
+            return str(s, preferredencoding)
     return s
-
-
-@deprecated('2.1')
-class converter(object):
-    """
-    Base class for handling string -> python type with support for
-    missing values
-    """
-    def __init__(self, missing='Null', missingval=None):
-        self.missing = missing
-        self.missingval = missingval
-
-    def __call__(self, s):
-        if s == self.missing:
-            return self.missingval
-        return s
-
-    def is_missing(self, s):
-        return not s.strip() or s == self.missing
-
-
-@deprecated('2.1')
-class tostr(converter):
-    """convert to string or None"""
-    def __init__(self, missing='Null', missingval=''):
-        converter.__init__(self, missing=missing, missingval=missingval)
-
-
-@deprecated('2.1')
-class todatetime(converter):
-    """convert to a datetime or None"""
-    def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        'use a :func:`time.strptime` format string for conversion'
-        converter.__init__(self, missing, missingval)
-        self.fmt = fmt
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        tup = time.strptime(s, self.fmt)
-        return datetime.datetime(*tup[:6])
-
-
-@deprecated('2.1')
-class todate(converter):
-    """convert to a date or None"""
-    def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        """use a :func:`time.strptime` format string for conversion"""
-        converter.__init__(self, missing, missingval)
-        self.fmt = fmt
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        tup = time.strptime(s, self.fmt)
-        return datetime.date(*tup[:3])
-
-
-@deprecated('2.1')
-class tofloat(converter):
-    """convert to a float or None"""
-    def __init__(self, missing='Null', missingval=None):
-        converter.__init__(self, missing)
-        self.missingval = missingval
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        return float(s)
-
-
-@deprecated('2.1')
-class toint(converter):
-    """convert to an int or None"""
-    def __init__(self, missing='Null', missingval=None):
-        converter.__init__(self, missing)
-
-    def __call__(self, s):
-        if self.is_missing(s):
-            return self.missingval
-        return int(s)
-
-
-class _BoundMethodProxy(object):
-    """
-    Our own proxy object which enables weak references to bound and unbound
-    methods and arbitrary callables. Pulls information about the function,
-    class, and instance out of a bound method. Stores a weak reference to the
-    instance to support garbage collection.
-
-    @organization: IBM Corporation
-    @copyright: Copyright (c) 2005, 2006 IBM Corporation
-    @license: The BSD License
-
-    Minor bugfixes by Michael Droettboom
-    """
-    def __init__(self, cb):
-        self._hash = hash(cb)
-        self._destroy_callbacks = []
-        try:
-            try:
-                if six.PY3:
-                    self.inst = ref(cb.__self__, self._destroy)
-                else:
-                    self.inst = ref(cb.im_self, self._destroy)
-            except TypeError:
-                self.inst = None
-            if six.PY3:
-                self.func = cb.__func__
-                self.klass = cb.__self__.__class__
-            else:
-                self.func = cb.im_func
-                self.klass = cb.im_class
-        except AttributeError:
-            self.inst = None
-            self.func = cb
-            self.klass = None
-
-    def add_destroy_callback(self, callback):
-        self._destroy_callbacks.append(_BoundMethodProxy(callback))
-
-    def _destroy(self, wk):
-        for callback in self._destroy_callbacks:
-            try:
-                callback(self)
-            except ReferenceError:
-                pass
-
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        # de-weak reference inst
-        inst = d['inst']
-        if inst is not None:
-            d['inst'] = inst()
-        return d
-
-    def __setstate__(self, statedict):
-        self.__dict__ = statedict
-        inst = statedict['inst']
-        # turn inst back into a weakref
-        if inst is not None:
-            self.inst = ref(inst)
-
-    def __call__(self, *args, **kwargs):
-        """
-        Proxy for a call to the weak referenced object. Take
-        arbitrary params to pass to the callable.
-
-        Raises `ReferenceError`: When the weak reference refers to
-        a dead object
-        """
-        if self.inst is not None and self.inst() is None:
-            raise ReferenceError
-        elif self.inst is not None:
-            # build a new instance method with a strong reference to the
-            # instance
-
-            mtd = types.MethodType(self.func, self.inst())
-
-        else:
-            # not a bound method, just return the func
-            mtd = self.func
-        # invoke the callable and return the result
-        return mtd(*args, **kwargs)
-
-    def __eq__(self, other):
-        """
-        Compare the held function and instance with that held by
-        another proxy.
-        """
-        try:
-            if self.inst is None:
-                return self.func == other.func and other.inst is None
-            else:
-                return self.func == other.func and self.inst() == other.inst()
-        except Exception:
-            return False
-
-    def __ne__(self, other):
-        """
-        Inverse of __eq__.
-        """
-        return not self.__eq__(other)
-
-    def __hash__(self):
-        return self._hash
 
 
 def _exception_printer(exc):
     traceback.print_exc()
+
+
+class _StrongRef:
+    """
+    Wrapper similar to a weakref, but keeping a strong reference to the object.
+    """
+
+    def __init__(self, obj):
+        self._obj = obj
+
+    def __call__(self):
+        return self._obj
+
+    def __eq__(self, other):
+        return isinstance(other, _StrongRef) and self._obj == other._obj
+
+    def __hash__(self):
+        return hash(self._obj)
 
 
 class CallbackRegistry(object):
@@ -276,20 +105,13 @@ class CallbackRegistry(object):
         >>> callbacks.disconnect(id_eat)
         >>> callbacks.process('eat', 456)      # nothing will be called
 
-    In practice, one should always disconnect all callbacks when they
-    are no longer needed to avoid dangling references (and thus memory
-    leaks).  However, real code in matplotlib rarely does so, and due
-    to its design, it is rather difficult to place this kind of code.
-    To get around this, and prevent this class of memory leaks, we
-    instead store weak references to bound methods only, so when the
-    destination object needs to die, the CallbackRegistry won't keep
-    it alive.  The Python stdlib weakref module can not create weak
-    references to bound methods directly, so we need to create a proxy
-    object to handle weak references to bound methods (or regular free
-    functions).  This technique was shared by Peter Parente on his
-    `"Mindtrove" blog
-    <http://mindtrove.info/python-weak-references/>`_.
-
+    In practice, one should always disconnect all callbacks when they are
+    no longer needed to avoid dangling references (and thus memory leaks).
+    However, real code in Matplotlib rarely does so, and due to its design,
+    it is rather difficult to place this kind of code.  To get around this,
+    and prevent this class of memory leaks, we instead store weak references
+    to bound methods only, so when the destination object needs to die, the
+    CallbackRegistry won't keep it alive.
 
     Parameters
     ----------
@@ -308,12 +130,17 @@ class CallbackRegistry(object):
 
           def h(exc):
               traceback.print_exc()
-
     """
+
+    # We maintain two mappings:
+    #   callbacks: signal -> {cid -> callback}
+    #   _func_cid_map: signal -> {callback -> cid}
+    # (actually, callbacks are weakrefs to the actual callbacks).
+
     def __init__(self, exception_handler=_exception_printer):
         self.exception_handler = exception_handler
-        self.callbacks = dict()
-        self._cid = 0
+        self.callbacks = {}
+        self._cid_gen = itertools.count()
         self._func_cid_map = {}
 
     # In general, callbacks may not be pickled; thus, we simply recreate an
@@ -333,28 +160,26 @@ class CallbackRegistry(object):
     def connect(self, s, func):
         """Register *func* to be called when signal *s* is generated.
         """
-        self._func_cid_map.setdefault(s, WeakKeyDictionary())
-        # Note proxy not needed in python 3.
-        # TODO rewrite this when support for python2.x gets dropped.
-        proxy = _BoundMethodProxy(func)
+        self._func_cid_map.setdefault(s, {})
+        try:
+            proxy = WeakMethod(func, self._remove_proxy)
+        except TypeError:
+            proxy = _StrongRef(func)
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
 
-        proxy.add_destroy_callback(self._remove_proxy)
-        self._cid += 1
-        cid = self._cid
+        cid = next(self._cid_gen)
         self._func_cid_map[s][proxy] = cid
-        self.callbacks.setdefault(s, dict())
+        self.callbacks.setdefault(s, {})
         self.callbacks[s][cid] = proxy
         return cid
 
     def _remove_proxy(self, proxy):
-        for signal, proxies in list(six.iteritems(self._func_cid_map)):
+        for signal, proxies in list(self._func_cid_map.items()):
             try:
                 del self.callbacks[signal][proxies[proxy]]
             except KeyError:
                 pass
-
             if len(self.callbacks[signal]) == 0:
                 del self.callbacks[signal]
                 del self._func_cid_map[signal]
@@ -362,15 +187,14 @@ class CallbackRegistry(object):
     def disconnect(self, cid):
         """Disconnect the callback registered with callback id *cid*.
         """
-        for eventname, callbackd in list(six.iteritems(self.callbacks)):
+        for eventname, callbackd in list(self.callbacks.items()):
             try:
                 del callbackd[cid]
             except KeyError:
                 continue
             else:
-                for signal, functions in list(
-                        six.iteritems(self._func_cid_map)):
-                    for function, value in list(six.iteritems(functions)):
+                for signal, functions in list(self._func_cid_map.items()):
+                    for function, value in list(functions.items()):
                         if value == cid:
                             del functions[function]
                 return
@@ -382,12 +206,11 @@ class CallbackRegistry(object):
         All of the functions registered to receive callbacks on *s* will be
         called with ``*args`` and ``**kwargs``.
         """
-        if s in self.callbacks:
-            for cid, proxy in list(six.iteritems(self.callbacks[s])):
+        for cid, ref in list(self.callbacks.get(s, {}).items()):
+            func = ref()
+            if func is not None:
                 try:
-                    proxy(*args, **kwargs)
-                except ReferenceError:
-                    self._remove_proxy(proxy)
+                    func(*args, **kwargs)
                 # this does not capture KeyboardInterrupt, SystemExit,
                 # and GeneratorExit
                 except Exception as exc:
@@ -411,8 +234,7 @@ class silent_list(list):
     def __repr__(self):
         return '<a list of %d %s objects>' % (len(self), self.type)
 
-    def __str__(self):
-        return repr(self)
+    __str__ = __repr__
 
     def __getstate__(self):
         # store a dictionary of this SilentList's state
@@ -445,19 +267,19 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Parameters
     ----------
-        local_var: any object
+        local_var : any object
             The local variable (highest priority)
 
-        kwargs: dict
+        kwargs : dict
             Dictionary of keyword arguments; modified in place
 
-        keys: str(s)
+        keys : str(s)
             Name(s) of keyword arguments to process, in descending order of
             priority
 
     Returns
     -------
-        out: any object
+        out : any object
             Either local_var or one of kwargs[key] for key in keys
 
     Raises
@@ -474,8 +296,8 @@ def local_over_kwdict(local_var, kwargs, *keys):
             if out is None:
                 out = kwarg_val
             else:
-                warnings.warn('"%s" keyword argument will be ignored' % key,
-                              IgnoredKeywordWarning)
+                _warn_external('"%s" keyword argument will be ignored' % key,
+                               IgnoredKeywordWarning)
     return out
 
 
@@ -488,7 +310,8 @@ def strip_math(s):
     return s
 
 
-class Bunch(object):
+@deprecated('3.0', alternative='types.SimpleNamespace')
+class Bunch(types.SimpleNamespace):
     """
     Often we want to just collect a bunch of stuff together, naming each
     item of the bunch; a dictionary's OK for that, but a small do- nothing
@@ -497,54 +320,17 @@ class Bunch(object):
 
       >>> point = Bunch(datum=2, squared=4, coord=12)
       >>> point.datum
-
-      By: Alex Martelli
-      From: https://code.activestate.com/recipes/121294/
     """
-    def __init__(self, **kwds):
-        self.__dict__.update(kwds)
-
-    def __repr__(self):
-        return 'Bunch(%s)' % ', '.join(
-            '%s=%s' % kv for kv in six.iteritems(vars(self)))
+    pass
 
 
-@deprecated('2.1')
-def unique(x):
-    """Return a list of unique elements of *x*"""
-    return list(set(x))
-
-
+@deprecated('3.1', alternative='np.iterable')
 def iterable(obj):
     """return true if *obj* is iterable"""
     try:
         iter(obj)
     except TypeError:
         return False
-    return True
-
-
-@deprecated('2.1')
-def is_string_like(obj):
-    """Return True if *obj* looks like a string"""
-    # (np.str_ == np.unicode_ on Py3).
-    return isinstance(obj, (six.string_types, np.str_, np.unicode_))
-
-
-@deprecated('2.1')
-def is_sequence_of_strings(obj):
-    """Returns true if *obj* is iterable and contains strings"""
-    if not iterable(obj):
-        return False
-    if is_string_like(obj) and not isinstance(obj, np.ndarray):
-        try:
-            obj = obj.values
-        except AttributeError:
-            # not pandas
-            return False
-    for o in obj:
-        if not is_string_like(o):
-            return False
     return True
 
 
@@ -575,12 +361,6 @@ def file_requires_unicode(x):
         return False
 
 
-@deprecated('2.1')
-def is_scalar(obj):
-    """return true if *obj* is not string like and is not iterable"""
-    return not isinstance(obj, six.string_types) and not iterable(obj)
-
-
 @deprecated('3.0', 'isinstance(..., numbers.Number)')
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
@@ -593,21 +373,22 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
-    if hasattr(os, "PathLike") and isinstance(fname, os.PathLike):
-        return to_filehandle(
-            os.fspath(fname),
-            flag=flag, return_opened=return_opened, encoding=encoding)
-    if isinstance(fname, six.string_types):
+    if isinstance(fname, getattr(os, "PathLike", ())):
+        fname = os.fspath(fname)
+    if isinstance(fname, str):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
+            # python may not be complied with bz2 support,
+            # bury import until we need it
+            import bz2
             # get rid of 'U' in flag for bz2 files
             flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = io.open(fname, flag, encoding=encoding)
+            fh = open(fname, flag, encoding=encoding)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
@@ -621,7 +402,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
 
 @contextlib.contextmanager
 def open_file_cm(path_or_file, mode="r", encoding=None):
-    r"""Pass through file objects and context-manage `~.PathLike`\s."""
+    r"""Pass through file objects and context-manage `.PathLike`\s."""
     fh, opened = to_filehandle(path_or_file, mode, True, encoding)
     if opened:
         with fh:
@@ -632,12 +413,12 @@ def open_file_cm(path_or_file, mode="r", encoding=None):
 
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
-    return isinstance(val, six.string_types) or not iterable(val)
+    return isinstance(val, str) or not np.iterable(val)
 
 
 def _string_to_bool(s):
     """Parses the string argument as a boolean"""
-    if not isinstance(s, six.string_types):
+    if not isinstance(s, str):
         return bool(s)
     warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
                     "boolean is deprecated; use an actual boolean "
@@ -663,15 +444,15 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    if matplotlib.rcParams['examples.directory']:
+    # Don't trigger deprecation warning when just fetching.
+    if dict.__getitem__(matplotlib.rcParams, 'examples.directory'):
         root = matplotlib.rcParams['examples.directory']
     else:
         root = os.path.join(matplotlib._get_data_path(), 'sample_data')
     path = os.path.join(root, fname)
 
     if asfileobj:
-        if (os.path.splitext(fname)[-1].lower() in
-                ('.csv', '.xrc', '.txt')):
+        if os.path.splitext(fname)[-1].lower() in ['.csv', '.xrc', '.txt']:
             mode = 'r'
         else:
             mode = 'rb'
@@ -704,151 +485,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
         if scalarp(item) or item is None:
             yield item
         else:
-            for subitem in flatten(item, scalarp):
-                yield subitem
-
-
-@deprecated('2.1', "sorted(..., key=itemgetter(...))")
-class Sorter(object):
-    """
-    Sort by attribute or item
-
-    Example usage::
-
-      sort = Sorter()
-
-      list = [(1, 2), (4, 8), (0, 3)]
-      dict = [{'a': 3, 'b': 4}, {'a': 5, 'b': 2}, {'a': 0, 'b': 0},
-              {'a': 9, 'b': 9}]
-
-
-      sort(list)       # default sort
-      sort(list, 1)    # sort by index 1
-      sort(dict, 'a')  # sort a list of dicts by key 'a'
-
-    """
-
-    def _helper(self, data, aux, inplace):
-        aux.sort()
-        result = [data[i] for junk, i in aux]
-        if inplace:
-            data[:] = result
-        return result
-
-    def byItem(self, data, itemindex=None, inplace=1):
-        if itemindex is None:
-            if inplace:
-                data.sort()
-                result = data
-            else:
-                result = sorted(data)
-            return result
-        else:
-            aux = [(data[i][itemindex], i) for i in range(len(data))]
-            return self._helper(data, aux, inplace)
-
-    def byAttribute(self, data, attributename, inplace=1):
-        aux = [(getattr(data[i], attributename), i) for i in range(len(data))]
-        return self._helper(data, aux, inplace)
-
-    # a couple of handy synonyms
-    sort = byItem
-    __call__ = byItem
-
-
-@deprecated('2.1')
-class Xlator(dict):
-    """
-    All-in-one multiple-string-substitution class
-
-    Example usage::
-
-      text = "Larry Wall is the creator of Perl"
-      adict = {
-      "Larry Wall" : "Guido van Rossum",
-      "creator" : "Benevolent Dictator for Life",
-      "Perl" : "Python",
-      }
-
-      print(multiple_replace(adict, text))
-
-      xlat = Xlator(adict)
-      print(xlat.xlat(text))
-    """
-
-    def _make_regex(self):
-        """ Build re object based on the keys of the current dictionary """
-        return re.compile("|".join(map(re.escape, self)))
-
-    def __call__(self, match):
-        """ Handler invoked for each regex *match* """
-        return self[match.group(0)]
-
-    def xlat(self, text):
-        """ Translate *text*, returns the modified text. """
-        return self._make_regex().sub(self, text)
-
-
-@deprecated('2.1')
-def soundex(name, len=4):
-    """ soundex module conforming to Odell-Russell algorithm """
-
-    # digits holds the soundex values for the alphabet
-    soundex_digits = '01230120022455012623010202'
-    sndx = ''
-    fc = ''
-
-    # Translate letters in name to soundex digits
-    for c in name.upper():
-        if c.isalpha():
-            if not fc:
-                fc = c   # Remember first letter
-            d = soundex_digits[ord(c) - ord('A')]
-            # Duplicate consecutive soundex digits are skipped
-            if not sndx or (d != sndx[-1]):
-                sndx += d
-
-    # Replace first digit with first letter
-    sndx = fc + sndx[1:]
-
-    # Remove all 0s from the soundex code
-    sndx = sndx.replace('0', '')
-
-    # Return soundex code truncated or 0-padded to len characters
-    return (sndx + (len * '0'))[:len]
-
-
-@deprecated('2.1')
-class Null(object):
-    """ Null objects always and reliably "do nothing." """
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def __call__(self, *args, **kwargs):
-        return self
-
-    def __str__(self):
-        return "Null()"
-
-    def __repr__(self):
-        return "Null()"
-
-    if six.PY3:
-        def __bool__(self):
-            return 0
-    else:
-        def __nonzero__(self):
-            return 0
-
-    def __getattr__(self, name):
-        return self
-
-    def __setattr__(self, name, value):
-        return self
-
-    def __delattr__(self, name):
-        return self
+            yield from flatten(item, scalarp)
 
 
 @deprecated("3.0")
@@ -861,16 +498,10 @@ def mkdirs(newdir, mode=0o777):
     """
     # this functionality is now in core python as of 3.2
     # LPY DROP
-    if six.PY3:
-        os.makedirs(newdir, mode=mode, exist_ok=True)
-    else:
-        try:
-            os.makedirs(newdir, mode=mode)
-        except OSError as exception:
-            if exception.errno != errno.EEXIST:
-                raise
+    os.makedirs(newdir, mode=mode, exist_ok=True)
 
 
+@deprecated('3.0')
 class GetRealpathAndStat(object):
     def __init__(self):
         self._cache = {}
@@ -889,92 +520,12 @@ class GetRealpathAndStat(object):
         return result
 
 
-get_realpath_and_stat = GetRealpathAndStat()
-
-
-@deprecated('2.1')
-def dict_delall(d, keys):
-    """delete all of the *keys* from the :class:`dict` *d*"""
-    for key in keys:
-        try:
-            del d[key]
-        except KeyError:
-            pass
-
-
-@deprecated('2.1')
-class RingBuffer(object):
-    """ class that implements a not-yet-full buffer """
-    def __init__(self, size_max):
-        self.max = size_max
-        self.data = []
-
-    class __Full:
-        """ class that implements a full buffer """
-        def append(self, x):
-            """ Append an element overwriting the oldest one. """
-            self.data[self.cur] = x
-            self.cur = (self.cur + 1) % self.max
-
-        def get(self):
-            """ return list of elements in correct order """
-            return self.data[self.cur:] + self.data[:self.cur]
-
-    def append(self, x):
-        """append an element at the end of the buffer"""
-        self.data.append(x)
-        if len(self.data) == self.max:
-            self.cur = 0
-            # Permanently change self's class from non-full to full
-            self.__class__ = __Full
-
-    def get(self):
-        """ Return a list of elements from the oldest to the newest. """
-        return self.data
-
-    def __get_item__(self, i):
-        return self.data[i % len(self.data)]
-
-
-@deprecated('2.1')
-def get_split_ind(seq, N):
-    """
-    *seq* is a list of words.  Return the index into seq such that::
-
-        len(' '.join(seq[:ind])<=N
-
-    .
-    """
-
-    s_len = 0
-    # todo: use Alex's xrange pattern from the cbook for efficiency
-    for (word, ind) in zip(seq, xrange(len(seq))):
-        s_len += len(word) + 1  # +1 to account for the len(' ')
-        if s_len >= N:
-            return ind
-    return len(seq)
-
-
-@deprecated('2.1', alternative='textwrap.TextWrapper')
-def wrap(prefix, text, cols):
-    """wrap *text* with *prefix* at length *cols*"""
-    pad = ' ' * len(prefix.expandtabs())
-    available = cols - len(pad)
-
-    seq = text.split(' ')
-    Nseq = len(seq)
-    ind = 0
-    lines = []
-    while ind < Nseq:
-        lastInd = ind
-        ind += get_split_ind(seq[ind:], available)
-        lines.append(seq[lastInd:ind])
-
-    # add the prefix to the first line, pad with spaces otherwise
-    ret = prefix + ' '.join(lines[0]) + '\n'
-    for line in lines[1:]:
-        ret += pad + ' '.join(line) + '\n'
-    return ret
+@functools.lru_cache()
+def get_realpath_and_stat(path):
+    realpath = os.path.realpath(path)
+    stat = os.stat(realpath)
+    stat_key = (stat.st_ino, stat.st_dev)
+    return realpath, stat_key
 
 
 # A regular expression used to determine the amount of space to
@@ -1025,6 +576,7 @@ def dedent(s):
     return result
 
 
+@deprecated("3.0")
 def listFiles(root, patterns='*', recurse=1, return_folders=0):
     """
     Recursively list files
@@ -1053,101 +605,6 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     return results
 
 
-@deprecated('2.1')
-def get_recursive_filelist(args):
-    """
-    Recurse all the files and dirs in *args* ignoring symbolic links
-    and return the files as a list of strings
-    """
-    files = []
-
-    for arg in args:
-        if os.path.isfile(arg):
-            files.append(arg)
-            continue
-        if os.path.isdir(arg):
-            newfiles = listFiles(arg, recurse=1, return_folders=1)
-            files.extend(newfiles)
-
-    return [f for f in files if not os.path.islink(f)]
-
-
-@deprecated('2.1')
-def pieces(seq, num=2):
-    """Break up the *seq* into *num* tuples"""
-    start = 0
-    while 1:
-        item = seq[start:start + num]
-        if not len(item):
-            break
-        yield item
-        start += num
-
-
-@deprecated('2.1')
-def exception_to_str(s=None):
-    if six.PY3:
-        sh = io.StringIO()
-    else:
-        sh = io.BytesIO()
-    if s is not None:
-        print(s, file=sh)
-    traceback.print_exc(file=sh)
-    return sh.getvalue()
-
-
-@deprecated('2.1')
-def allequal(seq):
-    """
-    Return *True* if all elements of *seq* compare equal.  If *seq* is
-    0 or 1 length, return *True*
-    """
-    if len(seq) < 2:
-        return True
-    val = seq[0]
-    for i in xrange(1, len(seq)):
-        thisval = seq[i]
-        if thisval != val:
-            return False
-    return True
-
-
-@deprecated('2.1')
-def alltrue(seq):
-    """
-    Return *True* if all elements of *seq* evaluate to *True*.  If
-    *seq* is empty, return *False*.
-    """
-    if not len(seq):
-        return False
-    for val in seq:
-        if not val:
-            return False
-    return True
-
-
-@deprecated('2.1')
-def onetrue(seq):
-    """
-    Return *True* if one element of *seq* is *True*.  It *seq* is
-    empty, return *False*.
-    """
-    if not len(seq):
-        return False
-    for val in seq:
-        if val:
-            return True
-    return False
-
-
-@deprecated('2.1')
-def allpairs(x):
-    """
-    return all possible pairs in sequence *x*
-    """
-    return [(s, f) for i, f in enumerate(x) for s in x[i + 1:]]
-
-
 class maxdict(dict):
     """
     A dictionary with a maximum size; this doesn't override all the
@@ -1170,9 +627,9 @@ class maxdict(dict):
 
 class Stack(object):
     """
-    Implement a stack where elements can be pushed on and you can move
-    back and forth.  But no pop.  Should mimic home / back / forward
-    in a browser
+    Stack of elements with a movable cursor.
+
+    Mimics home/back/forward in a web browser.
     """
 
     def __init__(self, default=None):
@@ -1180,62 +637,65 @@ class Stack(object):
         self._default = default
 
     def __call__(self):
-        """return the current element, or None"""
+        """Return the current element, or None."""
         if not len(self._elements):
             return self._default
         else:
             return self._elements[self._pos]
 
     def __len__(self):
-        return self._elements.__len__()
+        return len(self._elements)
 
     def __getitem__(self, ind):
-        return self._elements.__getitem__(ind)
+        return self._elements[ind]
 
     def forward(self):
-        """move the position forward and return the current element"""
-        n = len(self._elements)
-        if self._pos < n - 1:
-            self._pos += 1
+        """Move the position forward and return the current element."""
+        self._pos = min(self._pos + 1, len(self._elements) - 1)
         return self()
 
     def back(self):
-        """move the position back and return the current element"""
+        """Move the position back and return the current element."""
         if self._pos > 0:
             self._pos -= 1
         return self()
 
     def push(self, o):
         """
-        push object onto stack at current position - all elements
-        occurring later than the current position are discarded
+        Push *o* to the stack at current position.  Discard all later elements.
+
+        *o* is returned.
         """
-        self._elements = self._elements[:self._pos + 1]
-        self._elements.append(o)
+        self._elements = self._elements[:self._pos + 1] + [o]
         self._pos = len(self._elements) - 1
         return self()
 
     def home(self):
-        """push the first element onto the top of the stack"""
+        """
+        Push the first element onto the top of the stack.
+
+        The first element is returned.
+        """
         if not len(self._elements):
             return
         self.push(self._elements[0])
         return self()
 
     def empty(self):
+        """Return whether the stack is empty."""
         return len(self._elements) == 0
 
     def clear(self):
-        """empty the stack"""
+        """Empty the stack."""
         self._pos = -1
         self._elements = []
 
     def bubble(self, o):
         """
-        raise *o* to the top of the stack and return *o*.  *o* must be
-        in the stack
-        """
+        Raise *o* to the top of the stack.  *o* must be present in the stack.
 
+        *o* is returned.
+        """
         if o not in self._elements:
             raise ValueError('Unknown element o')
         old = self._elements[:]
@@ -1251,89 +711,40 @@ class Stack(object):
         return o
 
     def remove(self, o):
-        'remove element *o* from the stack'
+        """Remove *o* from the stack."""
         if o not in self._elements:
             raise ValueError('Unknown element o')
         old = self._elements[:]
         self.clear()
         for thiso in old:
-            if thiso == o:
-                continue
-            else:
+            if thiso != o:
                 self.push(thiso)
 
 
-@deprecated('2.1')
-def finddir(o, match, case=False):
-    """
-    return all attributes of *o* which match string in match.  if case
-    is True require an exact case match.
-    """
-    if case:
-        names = [(name, name) for name in dir(o)
-                 if isinstance(name, six.string_types)]
-    else:
-        names = [(name.lower(), name) for name in dir(o)
-                 if isinstance(name, six.string_types)]
-        match = match.lower()
-    return [orig for name, orig in names if name.find(match) >= 0]
-
-
-@deprecated('2.1')
-def reverse_dict(d):
-    """reverse the dictionary -- may lose data if values are not unique!"""
-    return {v: k for k, v in six.iteritems(d)}
-
-
-@deprecated('2.1')
-def restrict_dict(d, keys):
-    """
-    Return a dictionary that contains those keys that appear in both
-    d and keys, with values from d.
-    """
-    return {k: v for k, v in six.iteritems(d) if k in keys}
-
-
 def report_memory(i=0):  # argument may go away
-    """return the memory consumed by process"""
-    from matplotlib.compat.subprocess import Popen, PIPE
+    """Return the memory consumed by the process."""
+    def call(command, os_name):
+        try:
+            return subprocess.check_output(command)
+        except subprocess.CalledProcessError:
+            raise NotImplementedError(
+                "report_memory works on %s only if "
+                "the '%s' program is found" % (os_name, command[0])
+            )
+
     pid = os.getpid()
     if sys.platform == 'sunos5':
-        try:
-            a2 = Popen(str('ps -p %d -o osz') % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Sun OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[-1].strip())
-    elif sys.platform.startswith('linux'):
-        try:
-            a2 = Popen(str('ps -p %d -o rss,sz') % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Linux only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[1])
-    elif sys.platform.startswith('darwin'):
-        try:
-            a2 = Popen(str('ps -p %d -o rss,vsz') % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Mac OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[0])
-    elif sys.platform.startswith('win'):
-        try:
-            a2 = Popen([str("tasklist"), "/nh", "/fi", "pid eq %d" % pid],
-                       stdout=PIPE).stdout.read()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Windows only if "
-                "the 'tasklist' program is found")
-        mem = int(a2.strip().split()[-2].replace(',', ''))
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'osz'], 'Sun OS')
+        mem = int(lines[-1].strip())
+    elif sys.platform == 'linux':
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,sz'], 'Linux')
+        mem = int(lines[1].split()[1])
+    elif sys.platform == 'darwin':
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'], 'Mac OS')
+        mem = int(lines[1].split()[0])
+    elif sys.platform == 'win32':
+        lines = call(["tasklist", "/nh", "/fi", "pid eq %d" % pid], 'Windows')
+        mem = int(lines.strip().split()[-2].replace(',', ''))
     else:
         raise NotImplementedError(
             "We don't have a memory monitor for %s" % sys.platform)
@@ -1350,16 +761,6 @@ def safezip(*args):
         if len(arg) != Nx:
             raise ValueError(_safezip_msg % (Nx, i + 1, len(arg)))
     return list(zip(*args))
-
-
-@deprecated('2.1')
-def issubclass_safe(x, klass):
-    """return issubclass(x, klass) and return False on a TypeError"""
-
-    try:
-        return issubclass(x, klass)
-    except TypeError:
-        return False
 
 
 def safe_masked_invalid(x, copy=False):
@@ -1393,21 +794,20 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
         If True, print the number of objects reached as they are found.
     """
     import gc
-    from types import FrameType
 
     def print_path(path):
         for i, step in enumerate(path):
             # next "wraps around"
             next = path[(i + 1) % len(path)]
 
-            outstream.write("   %s -- " % str(type(step)))
+            outstream.write("   %s -- " % type(step))
             if isinstance(step, dict):
-                for key, val in six.iteritems(step):
+                for key, val in step.items():
                     if val is next:
-                        outstream.write("[%s]" % repr(key))
+                        outstream.write("[{!r}]".format(key))
                         break
                     if key is next:
-                        outstream.write("[key] = %s" % repr(val))
+                        outstream.write("[key] = {!r}".format(val))
                         break
             elif isinstance(step, list):
                 outstream.write("[%d]" % step.index(next))
@@ -1434,7 +834,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             # Don't go back through the original list of objects, or
             # through temporary references to the object, since those
             # are just an artifact of the cycle detector itself.
-            elif referent is objects or isinstance(referent, FrameType):
+            elif referent is objects or isinstance(referent, types.FrameType):
                 continue
 
             # We haven't seen this object before, so recurse
@@ -1483,17 +883,13 @@ class Grouper(object):
 
     """
     def __init__(self, init=()):
-        mapping = self._mapping = {}
-        for x in init:
-            mapping[ref(x)] = [ref(x)]
+        self._mapping = {weakref.ref(x): [weakref.ref(x)] for x in init}
 
     def __contains__(self, item):
-        return ref(item) in self._mapping
+        return weakref.ref(item) in self._mapping
 
     def clean(self):
-        """
-        Clean dead weak references from the dictionary
-        """
+        """Clean dead weak references from the dictionary."""
         mapping = self._mapping
         to_drop = [key for key in mapping if key() is None]
         for key in to_drop:
@@ -1502,18 +898,14 @@ class Grouper(object):
 
     def join(self, a, *args):
         """
-        Join given arguments into the same set.  Accepts one or more
-        arguments.
+        Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
-        set_a = mapping.setdefault(ref(a), [ref(a)])
+        set_a = mapping.setdefault(weakref.ref(a), [weakref.ref(a)])
 
         for arg in args:
-            set_b = mapping.get(ref(arg))
-            if set_b is None:
-                set_a.append(ref(arg))
-                mapping[ref(arg)] = set_a
-            elif set_b is not set_a:
+            set_b = mapping.get(weakref.ref(arg), [weakref.ref(arg)])
+            if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
                 set_a.extend(set_b)
@@ -1523,24 +915,16 @@ class Grouper(object):
         self.clean()
 
     def joined(self, a, b):
-        """
-        Returns True if *a* and *b* are members of the same set.
-        """
+        """Returns True if *a* and *b* are members of the same set."""
         self.clean()
-
-        mapping = self._mapping
-        try:
-            return mapping[ref(a)] is mapping[ref(b)]
-        except KeyError:
-            return False
+        return (self._mapping.get(weakref.ref(a), object())
+                is self._mapping.get(weakref.ref(b)))
 
     def remove(self, a):
         self.clean()
-
-        mapping = self._mapping
-        seta = mapping.pop(ref(a), None)
-        if seta is not None:
-            seta.remove(ref(a))
+        set_a = self._mapping.pop(weakref.ref(a), None)
+        if set_a:
+            set_a.remove(weakref.ref(a))
 
     def __iter__(self):
         """
@@ -1549,27 +933,14 @@ class Grouper(object):
         The iterator is invalid if interleaved with calls to join().
         """
         self.clean()
-        token = object()
-
-        # Mark each group as we come across if by appending a token,
-        # and don't yield it twice
-        for group in six.itervalues(self._mapping):
-            if group[-1] is not token:
-                yield [x() for x in group]
-                group.append(token)
-
-        # Cleanup the tokens
-        for group in six.itervalues(self._mapping):
-            if group[-1] is token:
-                del group[-1]
+        unique_groups = {id(group): group for group in self._mapping.values()}
+        for group in unique_groups.values():
+            yield [x() for x in group]
 
     def get_siblings(self, a):
-        """
-        Returns all of the items joined with *a*, including itself.
-        """
+        """Returns all of the items joined with *a*, including itself."""
         self.clean()
-
-        siblings = self._mapping.get(ref(a), [ref(a)])
+        siblings = self._mapping.get(weakref.ref(a), [weakref.ref(a)])
         return [x() for x in siblings]
 
 
@@ -1594,21 +965,6 @@ def simple_linear_interpolation(a, steps):
     x = np.arange((len(a) - 1) * steps + 1)
     return (np.column_stack([np.interp(x, xp, fp) for fp in fps.T])
             .reshape((len(x),) + a.shape[1:]))
-
-
-@deprecated('2.1', alternative='shutil.rmtree')
-def recursive_remove(path):
-    if os.path.isdir(path):
-        for fname in (glob.glob(os.path.join(path, '*')) +
-                      glob.glob(os.path.join(path, '.*'))):
-            if os.path.isdir(fname):
-                recursive_remove(fname)
-                os.removedirs(fname)
-            else:
-                os.remove(fname)
-        # os.removedirs(path)
-    else:
-        os.remove(path)
 
 
 def delete_masked_points(*args):
@@ -1645,14 +1001,13 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if (isinstance(args[0], six.string_types) or not iterable(args[0])):
+    if is_scalar_or_string(args[0]):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if (not isinstance(x, six.string_types) and iterable(x)
-                and len(x) == nrecs):
+        if not isinstance(x, str) and np.iterable(x) and len(x) == nrecs:
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
@@ -1674,7 +1029,7 @@ def delete_masked_points(*args):
                 mask = np.isfinite(xd)
                 if isinstance(mask, np.ndarray):
                     masks.append(mask)
-            except:  # Fixme: put in tuple of possible exceptions?
+            except Exception:  # Fixme: put in tuple of possible exceptions?
                 pass
     if len(masks):
         mask = np.logical_and.reduce(masks)
@@ -1728,10 +1083,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         dimensions of `X`.
 
     autorange : bool, optional (False)
-        When `True` and the data are distributed such that the  25th and
-        75th percentiles are equal, ``whis`` is set to ``'range'`` such
-        that the whisker ends are at the minimum and maximum of the
-        data.
+        When `True` and the data are distributed such that the 25th and 75th
+        percentiles are equal, ``whis`` is set to ``'range'`` such that the
+        whisker ends are at the minimum and maximum of the data.
 
     Returns
     -------
@@ -1804,12 +1158,12 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     ncols = len(X)
     if labels is None:
-        labels = repeat(None)
+        labels = itertools.repeat(None)
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 
     input_whis = whis
-    for ii, (x, label) in enumerate(zip(X, labels), start=0):
+    for ii, (x, label) in enumerate(zip(X, labels)):
 
         # empty dict
         stats = {}
@@ -1896,62 +1250,10 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     return bxpstats
 
 
-# FIXME I don't think this is used anywhere
-@deprecated('2.1')
-def unmasked_index_ranges(mask, compressed=True):
-    """
-    Find index ranges where *mask* is *False*.
-
-    *mask* will be flattened if it is not already 1-D.
-
-    Returns Nx2 :class:`numpy.ndarray` with each row the start and stop
-    indices for slices of the compressed :class:`numpy.ndarray`
-    corresponding to each of *N* uninterrupted runs of unmasked
-    values.  If optional argument *compressed* is *False*, it returns
-    the start and stop indices into the original :class:`numpy.ndarray`,
-    not the compressed :class:`numpy.ndarray`.  Returns *None* if there
-    are no unmasked values.
-
-    Example::
-
-      y = ma.array(np.arange(5), mask = [0,0,1,0,0])
-      ii = unmasked_index_ranges(ma.getmaskarray(y))
-      # returns array [[0,2,] [2,4,]]
-
-      y.compressed()[ii[1,0]:ii[1,1]]
-      # returns array [3,4,]
-
-      ii = unmasked_index_ranges(ma.getmaskarray(y), compressed=False)
-      # returns array [[0, 2], [3, 5]]
-
-      y.filled()[ii[1,0]:ii[1,1]]
-      # returns array [3,4,]
-
-    Prior to the transforms refactoring, this was used to support
-    masked arrays in Line2D.
-    """
-    mask = mask.reshape(mask.size)
-    m = np.concatenate(((1,), mask, (1,)))
-    indices = np.arange(len(mask) + 1)
-    mdif = m[1:] - m[:-1]
-    i0 = np.compress(mdif == -1, indices)
-    i1 = np.compress(mdif == 1, indices)
-    assert len(i0) == len(i1)
-    if len(i1) == 0:
-        return None  # Maybe this should be np.zeros((0,2), dtype=int)
-    if not compressed:
-        return np.concatenate((i0[:, np.newaxis], i1[:, np.newaxis]), axis=1)
-    seglengths = i1 - i0
-    breakpoints = np.cumsum(seglengths)
-    ic0 = np.concatenate(((0,), breakpoints[:-1]))
-    ic1 = breakpoints
-    return np.concatenate((ic0[:, np.newaxis], ic1[:, np.newaxis]), axis=1)
-
-
 # The ls_mapper maps short codes for line style to their full name used by
 # backends; the reverse mapper is for mapping full names to short ones.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
-ls_mapper_r = {v: k for k, v in six.iteritems(ls_mapper)}
+ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 
 @deprecated('2.2')
@@ -2028,16 +1330,9 @@ def contiguous_regions(mask):
 def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
-    try:
-        s = six.text_type(s)
-    except UnicodeDecodeError:
-        raise ValueError(
-            "matplotlib display text must have all code points < 128 or use "
-            "Unicode strings")
-
+    s = str(s)
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
-
     return even_dollars
 
 
@@ -2080,7 +1375,7 @@ def _reshape_2D(X, name):
     """
     # Iterate over columns for ndarrays, over rows otherwise.
     X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
-    if X.ndim == 1 and X.dtype.type != np.object_:
+    if X.ndim == 1 and not isinstance(X[0], collections.abc.Iterable):
         # 1D array of scalars: directly return it.
         return [X]
     elif X.ndim in [1, 2]:
@@ -2159,44 +1454,6 @@ def violin_stats(X, method, points=100):
         vpstats.append(stats)
 
     return vpstats
-
-
-class _NestedClassGetter(object):
-    # recipe from http://stackoverflow.com/a/11493777/741316
-    """
-    When called with the containing class as the first argument,
-    and the name of the nested class as the second argument,
-    returns an instance of the nested class.
-    """
-    def __call__(self, containing_class, class_name):
-        nested_class = getattr(containing_class, class_name)
-
-        # make an instance of a simple object (this one will do), for which we
-        # can change the __class__ later on.
-        nested_instance = _NestedClassGetter()
-
-        # set the class of the instance, the __init__ will never be called on
-        # the class but the original state will be set later on by pickle.
-        nested_instance.__class__ = nested_class
-        return nested_instance
-
-
-class _InstanceMethodPickler(object):
-    """
-    Pickle cannot handle instancemethod saving. _InstanceMethodPickler
-    provides a solution to this.
-    """
-    def __init__(self, instancemethod):
-        """Takes an instancemethod as its only argument."""
-        if six.PY3:
-            self.parent_obj = instancemethod.__self__
-            self.instancemethod_name = instancemethod.__func__.__name__
-        else:
-            self.parent_obj = instancemethod.im_self
-            self.instancemethod_name = instancemethod.im_func.__name__
-
-    def get_instancemethod(self):
-        return getattr(self.parent_obj, self.instancemethod_name)
 
 
 def pts_to_prestep(x, *args):
@@ -2287,7 +1544,8 @@ def pts_to_midstep(x, *args):
         The x location of the steps. May be empty.
 
     y1, ..., yp : array
-        y arrays to be turned into steps; all must be the same length as ``x``.
+        y arrays to be turned into steps; all must be the same length as
+        ``x``.
 
     Returns
     -------
@@ -2346,7 +1604,7 @@ def index_of(y):
 
 
 def safe_first_element(obj):
-    if isinstance(obj, collections.Iterator):
+    if isinstance(obj, collections.abc.Iterator):
         # needed to accept `array.flat` as input.
         # np.flatiter reports as an instance of collections.Iterator
         # but can still be indexed via [].
@@ -2363,7 +1621,8 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    return list(data) if isinstance(data, collections.MappingView) else data
+    return (list(data) if isinstance(data, collections.abc.MappingView)
+            else data)
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
@@ -2419,7 +1678,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     ret = dict()
 
     # hit all alias mappings
-    for canonical, alias_list in six.iteritems(alias_mapping):
+    for canonical, alias_list in alias_mapping.items():
 
         # the alias lists are ordered from lowest to highest priority
         # so we know to use the last value in this list
@@ -2443,9 +1702,9 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         if tmp:
             ret[canonical] = tmp[-1]
             if len(tmp) > 1:
-                warnings.warn("Saw kwargs {seen!r} which are all aliases for "
-                              "{canon!r}.  Kept value from {used!r}".format(
-                                  seen=seen, canon=canonical, used=seen[-1]))
+                _warn_external("Saw kwargs {seen!r} which are all aliases for "
+                               "{canon!r}.  Kept value from {used!r}".format(
+                               seen=seen, canon=canonical, used=seen[-1]))
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input
@@ -2462,14 +1721,13 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                         "are in kwargs".format(keys=fail_keys))
 
     if allowed is not None:
-        allowed_set = set(required) | set(allowed)
+        allowed_set = {*required, *allowed}
         fail_keys = [k for k in ret if k not in allowed_set]
         if fail_keys:
-            raise TypeError("kwargs contains {keys!r} which are not in "
-                            "the required {req!r} or "
-                            "allowed {allow!r} keys".format(
-                                keys=fail_keys, req=required,
-                                allow=allowed))
+            raise TypeError(
+                "kwargs contains {keys!r} which are not in the required "
+                "{req!r} or allowed {allow!r} keys".format(
+                    keys=fail_keys, req=required, allow=allowed))
 
     return ret
 
@@ -2490,6 +1748,7 @@ removing these folders and trying again.
 """
 
 
+@deprecated("3.0")
 class Locked(object):
     """
     Context manager to handle locks.
@@ -2545,260 +1804,43 @@ class Locked(object):
                     pass
 
 
-class _FuncInfo(object):
+@contextlib.contextmanager
+def _lock_path(path):
     """
-    Class used to store a function.
+    Context manager for locking a path.
 
+    Usage::
+
+        with _lock_path(path):
+            ...
+
+    Another thread or process that attempts to lock the same path will wait
+    until this context manager is exited.
+
+    The lock is implemented by creating a temporary file in the parent
+    directory, so that directory must exist and be writable.
     """
-
-    def __init__(self, function, inverse, bounded_0_1=True, check_params=None):
-        """
-        Parameters
-        ----------
-
-        function : callable
-            A callable implementing the function receiving the variable as
-            first argument and any additional parameters in a list as second
-            argument.
-        inverse : callable
-            A callable implementing the inverse function receiving the variable
-            as first argument and any additional parameters in a list as
-            second argument. It must satisfy 'inverse(function(x, p), p) == x'.
-        bounded_0_1: bool or callable
-            A boolean indicating whether the function is bounded in the [0,1]
-            interval, or a callable taking a list of values for the additional
-            parameters, and returning a boolean indicating whether the function
-            is bounded in the [0,1] interval for that combination of
-            parameters. Default True.
-        check_params: callable or None
-            A callable taking a list of values for the additional parameters
-            and returning a boolean indicating whether that combination of
-            parameters is valid. It is only required if the function has
-            additional parameters and some of them are restricted.
-            Default None.
-
-        """
-
-        self.function = function
-        self.inverse = inverse
-
-        if callable(bounded_0_1):
-            self._bounded_0_1 = bounded_0_1
-        else:
-            self._bounded_0_1 = lambda x: bounded_0_1
-
-        if check_params is None:
-            self._check_params = lambda x: True
-        elif callable(check_params):
-            self._check_params = check_params
-        else:
-            raise ValueError("Invalid 'check_params' argument.")
-
-    def is_bounded_0_1(self, params=None):
-        """
-        Returns a boolean indicating if the function is bounded in the [0,1]
-        interval for a particular set of additional parameters.
-
-        Parameters
-        ----------
-
-        params : list
-            The list of additional parameters. Default None.
-
-        Returns
-        -------
-
-        out : bool
-            True if the function is bounded in the [0,1] interval for
-            parameters 'params'. Otherwise False.
-
-        """
-
-        return self._bounded_0_1(params)
-
-    def check_params(self, params=None):
-        """
-        Returns a boolean indicating if the set of additional parameters is
-        valid.
-
-        Parameters
-        ----------
-
-        params : list
-            The list of additional parameters. Default None.
-
-        Returns
-        -------
-
-        out : bool
-            True if 'params' is a valid set of additional parameters for the
-            function. Otherwise False.
-
-        """
-
-        return self._check_params(params)
-
-
-class _StringFuncParser(object):
-    """
-    A class used to convert predefined strings into
-    _FuncInfo objects, or to directly obtain _FuncInfo
-    properties.
-
-    """
-
-    _funcs = {}
-    _funcs['linear'] = _FuncInfo(lambda x: x,
-                                 lambda x: x,
-                                 True)
-    _funcs['quadratic'] = _FuncInfo(np.square,
-                                    np.sqrt,
-                                    True)
-    _funcs['cubic'] = _FuncInfo(lambda x: x**3,
-                                lambda x: x**(1. / 3),
-                                True)
-    _funcs['sqrt'] = _FuncInfo(np.sqrt,
-                               np.square,
-                               True)
-    _funcs['cbrt'] = _FuncInfo(lambda x: x**(1. / 3),
-                               lambda x: x**3,
-                               True)
-    _funcs['log10'] = _FuncInfo(np.log10,
-                                lambda x: (10**(x)),
-                                False)
-    _funcs['log'] = _FuncInfo(np.log,
-                              np.exp,
-                              False)
-    _funcs['log2'] = _FuncInfo(np.log2,
-                               lambda x: (2**x),
-                               False)
-    _funcs['x**{p}'] = _FuncInfo(lambda x, p: x**p[0],
-                                 lambda x, p: x**(1. / p[0]),
-                                 True)
-    _funcs['root{p}(x)'] = _FuncInfo(lambda x, p: x**(1. / p[0]),
-                                     lambda x, p: x**p,
-                                     True)
-    _funcs['log{p}(x)'] = _FuncInfo(lambda x, p: (np.log(x) /
-                                                  np.log(p[0])),
-                                    lambda x, p: p[0]**(x),
-                                    False,
-                                    lambda p: p[0] > 0)
-    _funcs['log10(x+{p})'] = _FuncInfo(lambda x, p: np.log10(x + p[0]),
-                                       lambda x, p: 10**x - p[0],
-                                       lambda p: p[0] > 0)
-    _funcs['log(x+{p})'] = _FuncInfo(lambda x, p: np.log(x + p[0]),
-                                     lambda x, p: np.exp(x) - p[0],
-                                     lambda p: p[0] > 0)
-    _funcs['log{p}(x+{p})'] = _FuncInfo(lambda x, p: (np.log(x + p[1]) /
-                                                      np.log(p[0])),
-                                        lambda x, p: p[0]**(x) - p[1],
-                                        lambda p: p[1] > 0,
-                                        lambda p: p[0] > 0)
-
-    def __init__(self, str_func):
-        """
-        Parameters
-        ----------
-        str_func : string
-            String to be parsed.
-
-        """
-
-        if not isinstance(str_func, six.string_types):
-            raise ValueError("'%s' must be a string." % str_func)
-        self._str_func = six.text_type(str_func)
-        self._key, self._params = self._get_key_params()
-        self._func = self._parse_func()
-
-    def _parse_func(self):
-        """
-        Parses the parameters to build a new _FuncInfo object,
-        replacing the relevant parameters if necessary in the lambda
-        functions.
-
-        """
-
-        func = self._funcs[self._key]
-
-        if not self._params:
-            func = _FuncInfo(func.function, func.inverse,
-                             func.is_bounded_0_1())
-        else:
-            m = func.function
-            function = (lambda x, m=m: m(x, self._params))
-
-            m = func.inverse
-            inverse = (lambda x, m=m: m(x, self._params))
-
-            is_bounded_0_1 = func.is_bounded_0_1(self._params)
-
-            func = _FuncInfo(function, inverse,
-                             is_bounded_0_1)
-        return func
-
-    @property
-    def func_info(self):
-        """
-        Returns the _FuncInfo object.
-
-        """
-        return self._func
-
-    @property
-    def function(self):
-        """
-        Returns the callable for the direct function.
-
-        """
-        return self._func.function
-
-    @property
-    def inverse(self):
-        """
-        Returns the callable for the inverse function.
-
-        """
-        return self._func.inverse
-
-    @property
-    def is_bounded_0_1(self):
-        """
-        Returns a boolean indicating if the function is bounded
-        in the [0-1 interval].
-
-        """
-        return self._func.is_bounded_0_1()
-
-    def _get_key_params(self):
-        str_func = self._str_func
-        # Checking if it comes with parameters
-        regex = r'\{(.*?)\}'
-        params = re.findall(regex, str_func)
-
-        for i, param in enumerate(params):
-            try:
-                params[i] = float(param)
-            except ValueError:
-                raise ValueError("Parameter %i is '%s', which is "
-                                 "not a number." %
-                                 (i, param))
-
-        str_func = re.sub(regex, '{p}', str_func)
-
+    path = Path(path)
+    lock_path = path.with_name(path.name + ".matplotlib-lock")
+    retries = 50
+    sleeptime = 0.1
+    for _ in range(retries):
         try:
-            func = self._funcs[str_func]
-        except (ValueError, KeyError):
-            raise ValueError("'%s' is an invalid string. The only strings "
-                             "recognized as functions are %s." %
-                             (str_func, list(self._funcs)))
-
-        # Checking that the parameters are valid
-        if not func.check_params(params):
-            raise ValueError("%s are invalid values for the parameters "
-                             "in %s." %
-                             (params, str_func))
-
-        return str_func, params
+            with lock_path.open("xb"):
+                break
+        except FileExistsError:
+            time.sleep(sleeptime)
+    else:
+        raise TimeoutError("""\
+Lock error: Matplotlib failed to acquire the following lock file:
+    {}
+This maybe due to another process holding this lock file.  If you are sure no
+other Matplotlib process is running, remove this file and try again.""".format(
+            lock_path))
+    try:
+        yield
+    finally:
+        lock_path.unlink()
 
 
 def _topmost_artist(
@@ -2807,9 +1849,8 @@ def _topmost_artist(
     """Get the topmost artist of a list.
 
     In case of a tie, return the *last* of the tied artists, as it will be
-    drawn on top of the others. `max` returns the first maximum in case of ties
-    (on Py2 this is undocumented but true), so we need to iterate over the list
-    in reverse order.
+    drawn on top of the others. `max` returns the first maximum in case of
+    ties, so we need to iterate over the list in reverse order.
     """
     return _cached_max(reversed(artists))
 
@@ -2821,7 +1862,7 @@ def _str_equal(obj, s):
     because in such cases, a naive ``obj == s`` would yield an array, which
     cannot be used in a boolean context.
     """
-    return isinstance(obj, six.string_types) and obj == s
+    return isinstance(obj, str) and obj == s
 
 
 def _str_lower_equal(obj, s):
@@ -2831,4 +1872,206 @@ def _str_lower_equal(obj, s):
     because in such cases, a naive ``obj == s`` would yield an array, which
     cannot be used in a boolean context.
     """
-    return isinstance(obj, six.string_types) and obj.lower() == s
+    return isinstance(obj, str) and obj.lower() == s
+
+
+def _define_aliases(alias_d, cls=None):
+    """Class decorator for defining property aliases.
+
+    Use as ::
+
+        @cbook._define_aliases({"property": ["alias", ...], ...})
+        class C: ...
+
+    For each property, if the corresponding ``get_property`` is defined in the
+    class so far, an alias named ``get_alias`` will be defined; the same will
+    be done for setters.  If neither the getter nor the setter exists, an
+    exception will be raised.
+
+    The alias map is stored as the ``_alias_map`` attribute on the class and
+    can be used by `~.normalize_kwargs` (which assumes that higher priority
+    aliases come last).
+    """
+    if cls is None:  # Return the actual class decorator.
+        return functools.partial(_define_aliases, alias_d)
+
+    def make_alias(name):  # Enforce a closure over *name*.
+        @functools.wraps(getattr(cls, name))
+        def method(self, *args, **kwargs):
+            return getattr(self, name)(*args, **kwargs)
+        return method
+
+    for prop, aliases in alias_d.items():
+        exists = False
+        for prefix in ["get_", "set_"]:
+            if prefix + prop in vars(cls):
+                exists = True
+                for alias in aliases:
+                    method = make_alias(prefix + prop)
+                    method.__name__ = prefix + alias
+                    method.__doc__ = "Alias for `{}`.".format(prefix + prop)
+                    setattr(cls, prefix + alias, method)
+        if not exists:
+            raise ValueError(
+                "Neither getter nor setter exists for {!r}".format(prop))
+
+    if hasattr(cls, "_alias_map"):
+        # Need to decide on conflict resolution policy.
+        raise NotImplementedError("Parent class already defines aliases")
+    cls._alias_map = alias_d
+    return cls
+
+
+def _array_perimeter(arr):
+    """
+    Get the elements on the perimeter of ``arr``,
+
+    Parameters
+    ----------
+    arr : ndarray, shape (M, N)
+        The input array
+
+    Returns
+    -------
+    perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
+        The elements on the perimeter of the array::
+
+            [arr[0,0] ... arr[0,-1] ... arr[-1, -1] ... arr[-1,0] ...]
+
+    Examples
+    --------
+    >>> i, j = np.ogrid[:3,:4]
+    >>> a = i*10 + j
+    >>> a
+    array([[ 0,  1,  2,  3],
+           [10, 11, 12, 13],
+           [20, 21, 22, 23]])
+    >>> _array_perimeter(a)
+    array([ 0,  1,  2,  3, 13, 23, 22, 21, 20, 10])
+    """
+    # note we use Python's half-open ranges to avoid repeating
+    # the corners
+    forward = np.s_[0:-1]      # [0 ... -1)
+    backward = np.s_[-1:0:-1]  # [-1 ... 0)
+    return np.concatenate((
+        arr[0, forward],
+        arr[forward, -1],
+        arr[-1, backward],
+        arr[backward, 0],
+    ))
+
+
+@contextlib.contextmanager
+def _setattr_cm(obj, **kwargs):
+    """Temporarily set some attributes; restore original state at context exit.
+    """
+    sentinel = object()
+    origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]
+    try:
+        for attr, val in kwargs.items():
+            setattr(obj, attr, val)
+        yield
+    finally:
+        for attr, orig in origs:
+            if orig is sentinel:
+                delattr(obj, attr)
+            else:
+                setattr(obj, attr, orig)
+
+
+def _warn_external(message, category=None):
+    """
+    `warnings.warn` wrapper that sets *stacklevel* to "outside Matplotlib".
+
+    The original emitter of the warning can be obtained by patching this
+    function back to `warnings.warn`, i.e. ``cbook._warn_external =
+    warnings.warn`` (or ``functools.partial(warnings.warn, stacklevel=2)``,
+    etc.).
+    """
+    frame = sys._getframe()
+    for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
+        if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
+                        # Work around sphinx-gallery not setting __name__.
+                        frame.f_globals.get("__name__", "")):
+            break
+        frame = frame.f_back
+    warnings.warn(message, category, stacklevel)
+
+
+class _OrderedSet(collections.abc.MutableSet):
+    def __init__(self):
+        self._od = collections.OrderedDict()
+
+    def __contains__(self, key):
+        return key in self._od
+
+    def __iter__(self):
+        return iter(self._od)
+
+    def __len__(self):
+        return len(self._od)
+
+    def add(self, key):
+        self._od.pop(key, None)
+        self._od[key] = None
+
+    def discard(self, key):
+        self._od.pop(key, None)
+
+
+# Agg's buffers are unmultiplied RGBA8888, which neither PyQt4 nor cairo
+# support; however, both do support premultiplied ARGB32.
+
+
+def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
+    """
+    Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
+    """
+    rgba = np.take(  # .take() ensures C-contiguity of the result.
+        buf,
+        [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
+    rgb = rgba[..., :-1]
+    alpha = rgba[..., -1]
+    # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
+    mask = alpha != 0
+    for channel in np.rollaxis(rgb, -1):
+        channel[mask] = (
+            (channel[mask].astype(int) * 255 + alpha[mask] // 2)
+            // alpha[mask])
+    return rgba
+
+
+def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
+    """
+    Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
+    """
+    if sys.byteorder == "little":
+        argb32 = np.take(rgba8888, [2, 1, 0, 3], axis=2)
+        rgb24 = argb32[..., :-1]
+        alpha8 = argb32[..., -1:]
+    else:
+        argb32 = np.take(rgba8888, [3, 0, 1, 2], axis=2)
+        alpha8 = argb32[..., :1]
+        rgb24 = argb32[..., 1:]
+    # Only bother premultiplying when the alpha channel is not fully opaque,
+    # as the cost is not negligible.  The unsafe cast is needed to do the
+    # multiplication in-place in an integer buffer.
+    if alpha8.min() != 0xff:
+        np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
+    return argb32
+
+
+def _check_and_log_subprocess(command, logger, **kwargs):
+    logger.debug(command)
+    try:
+        report = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, **kwargs)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            'The command\n'
+            '    {}\n'
+            'failed and generated the following output:\n'
+            '{}'
+            .format(command, exc.output.decode('utf-8')))
+    logger.debug(report)
+    return report

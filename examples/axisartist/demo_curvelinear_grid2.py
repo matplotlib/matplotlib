@@ -64,9 +64,7 @@ def curvelinear_test1(fig):
     grid_helper.grid_finder.grid_locator2._nbins = 6
 
 
-if 1:
-    fig = plt.figure(1, figsize=(7, 4))
-    fig.clf()
-
+if __name__ == "__main__":
+    fig = plt.figure(figsize=(7, 4))
     curvelinear_test1(fig)
     plt.show()

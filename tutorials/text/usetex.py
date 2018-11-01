@@ -1,4 +1,4 @@
-"""
+r"""
 *************************
 Text rendering With LaTeX
 *************************
@@ -12,21 +12,21 @@ option is available with the following backends:
 * PS
 * PDF
 
-The LaTeX option is activated by setting ``text.usetex : True`` in
-your rc settings.  Text handling with matplotlib's LaTeX support is
-slower than matplotlib's very capable :ref:`mathtext
-<sphx_glr_tutorials_text_mathtext.py>`, but is more flexible, since different LaTeX
-packages (font packages, math packages, etc.)  can be used. The
-results can be striking, especially when you take care to use the same
-fonts in your figures as in the main document.
+The LaTeX option is activated by setting ``text.usetex : True`` in your rc
+settings.  Text handling with matplotlib's LaTeX support is slower than
+matplotlib's very capable :doc:`mathtext </tutorials/text/mathtext>`, but is
+more flexible, since different LaTeX packages (font packages, math packages,
+etc.) can be used. The results can be striking, especially when you take care
+to use the same fonts in your figures as in the main document.
 
 Matplotlib's LaTeX support requires a working LaTeX_ installation, dvipng_
 (which may be included with your LaTeX installation), and Ghostscript_
-(GPL Ghostscript 8.60 or later is recommended). The executables for these
+(GPL Ghostscript 9.0 or later is required). The executables for these
 external dependencies must all be located on your :envvar:`PATH`.
 
-There are a couple of options to mention, which can be changed using :ref:`rc
-settings <sphx_glr_tutorials_introductory_customizing.py>`. Here is an example matplotlibrc file::
+There are a couple of options to mention, which can be changed using
+:doc:`rc settings </tutorials/introductory/customizing>`. Here is an example
+matplotlibrc file::
 
   font.family        : serif
   font.serif         : Times, Palatino, New Century Schoolbook, Bookman, Computer Modern Roman
@@ -60,7 +60,7 @@ Here is the standard example, `tex_demo.py`:
 
    TeX Demo
 
-Note that display math mode (``$$ e=mc^2 $$``) is  not supported, but adding the
+Note that display math mode (``$$ e=mc^2 $$``) is not supported, but adding the
 command ``\displaystyle``, as in `tex_demo.py`, will produce the same
 results.
 

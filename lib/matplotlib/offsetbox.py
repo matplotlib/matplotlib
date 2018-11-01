@@ -14,30 +14,19 @@ Text instance. The width and height of the TextArea instance is the
 width and height of the its child text.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange, zip
-
-import warnings
-import matplotlib.transforms as mtransforms
-import matplotlib.artist as martist
-import matplotlib.text as mtext
-import matplotlib.path as mpath
 import numpy as np
-from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
+from matplotlib import cbook, docstring, rcParams
+import matplotlib.artist as martist
+import matplotlib.path as mpath
+import matplotlib.text as mtext
+import matplotlib.transforms as mtransforms
 from matplotlib.font_manager import FontProperties
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
-from matplotlib import rcParams
-
-from matplotlib import docstring
-
 from matplotlib.image import BboxImage
-
-from matplotlib.patches import bbox_artist as mbbox_artist
+from matplotlib.patches import (
+    FancyBboxPatch, FancyArrowPatch, bbox_artist as mbbox_artist)
 from matplotlib.text import _AnnotationBase
+from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
 
 DEBUG = False
@@ -77,8 +66,12 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         return total, offsets
 
     elif mode == "expand":
+        # This is a bit of a hack to avoid a TypeError when *total*
+        # is None and used in conjugation with tight layout.
+        if total is None:
+            total = 1
         if len(w_list) > 1:
-            sep = (total - sum(w_list)) / (len(w_list) - 1.)
+            sep = (total - sum(w_list)) / (len(w_list) - 1)
         else:
             sep = 0
         offsets_ = np.cumsum([0] + [w + sep for w in w_list])
@@ -142,7 +135,7 @@ class OffsetBox(martist.Artist):
     """
     def __init__(self, *args, **kwargs):
 
-        super(OffsetBox, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Clipping has not been implemented in the OffesetBox family, so
         # disable the clip flag for consistency. It can always be turned back
@@ -151,25 +144,6 @@ class OffsetBox(martist.Artist):
 
         self._children = []
         self._offset = (0, 0)
-
-    def __getstate__(self):
-        state = martist.Artist.__getstate__(self)
-
-        # pickle cannot save instancemethods, so handle them here
-        from .cbook import _InstanceMethodPickler
-        import inspect
-
-        offset = state['_offset']
-        if inspect.ismethod(offset):
-            state['_offset'] = _InstanceMethodPickler(offset)
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-        from .cbook import _InstanceMethodPickler
-        if isinstance(self._offset, _InstanceMethodPickler):
-            self._offset = self._offset.get_instancemethod()
-        self.stale = True
 
     def set_figure(self, fig):
         """
@@ -198,9 +172,16 @@ class OffsetBox(martist.Artist):
 
     def set_offset(self, xy):
         """
-        Set the offset
+        Set the offset.
 
-        accepts x, y, tuple, or a callable object.
+        Parameters
+        ----------
+        xy : (float, float) or callable
+            The (x,y) coordinates of the offset in display units.
+            A callable must have the signature::
+
+                def offset(width, height, xdescent, ydescent, renderer) \
+-> (float, float)
         """
         self._offset = xy
         self.stale = True
@@ -314,7 +295,7 @@ class PackerBase(OffsetBox):
         the renderer dpi, while *width* and *height* need to be in
         pixels.
         """
-        super(PackerBase, self).__init__()
+        super().__init__()
 
         self.height = height
         self.width = width
@@ -362,9 +343,7 @@ class VPacker(PackerBase):
         the renderer dpi, while *width* and *height* need to be in
         pixels.
         """
-        super(VPacker, self).__init__(pad, sep, width, height,
-                                      align, mode,
-                                      children)
+        super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
         """
@@ -399,9 +378,9 @@ class VPacker(PackerBase):
 
         yoffsets = yoffsets - ydescent
 
-        return width + 2 * pad, height + 2 * pad, \
-               xdescent + pad, ydescent + pad, \
-               list(zip(xoffsets, yoffsets))
+        return (width + 2 * pad, height + 2 * pad,
+                xdescent + pad, ydescent + pad,
+                list(zip(xoffsets, yoffsets)))
 
 
 class HPacker(PackerBase):
@@ -439,8 +418,7 @@ class HPacker(PackerBase):
         the renderer dpi, while *width* and *height* need to be in
         pixels.
         """
-        super(HPacker, self).__init__(pad, sep, width, height,
-                                      align, mode, children)
+        super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
         """
@@ -478,9 +456,9 @@ class HPacker(PackerBase):
         xdescent = whd_list[0][2]
         xoffsets = xoffsets - xdescent
 
-        return width + 2 * pad, height + 2 * pad, \
-               xdescent + pad, ydescent + pad, \
-               list(zip(xoffsets, yoffsets))
+        return (width + 2 * pad, height + 2 * pad,
+                xdescent + pad, ydescent + pad,
+               list(zip(xoffsets, yoffsets)))
 
 
 class PaddedBox(OffsetBox):
@@ -494,7 +472,7 @@ class PaddedBox(OffsetBox):
           need to be in pixels.
         """
 
-        super(PaddedBox, self).__init__()
+        super().__init__()
 
         self.pad = pad
         self._children = [child]
@@ -582,7 +560,7 @@ class DrawingArea(OffsetBox):
         *clip* : Whether to clip the children
         """
 
-        super(DrawingArea, self).__init__()
+        super().__init__()
 
         self.width = width
         self.height = height
@@ -624,9 +602,12 @@ class DrawingArea(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinate in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -713,7 +694,9 @@ class TextArea(OffsetBox):
         s : str
             a string to be displayed.
 
-        textprops : `~matplotlib.font_manager.FontProperties`, optional
+        textprops : dictionary, optional, default: None
+            Dictionary of keyword parameters to be passed to the
+            `~matplotlib.text.Text` instance contained inside TextArea.
 
         multilinebaseline : bool, optional
             If `True`, baseline for multiline text is adjusted so that
@@ -795,9 +778,12 @@ class TextArea(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinates in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -864,7 +850,7 @@ class TextArea(OffsetBox):
 
 class AuxTransformBox(OffsetBox):
     """
-    Offset Box with the aux_transform . Its children will be
+    Offset Box with the aux_transform. Its children will be
     transformed with the aux_transform first then will be
     offseted. The absolute coordinate of the aux_transform is meaning
     as it will be automatically adjust so that the left-lower corner
@@ -913,9 +899,12 @@ class AuxTransformBox(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinate in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -1029,12 +1018,12 @@ class AnchoredOffsetbox(OffsetBox):
         bbox_transform : with which the bbox_to_anchor will be transformed.
 
         """
-        super(AnchoredOffsetbox, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
 
-        if isinstance(loc, six.string_types):
+        if isinstance(loc, str):
             try:
                 loc = self.codes[loc]
             except KeyError:
@@ -1197,7 +1186,7 @@ class AnchoredOffsetbox(OffsetBox):
         """
         assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = xrange(11)
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
 
         anchor_coefs = {UR: "NE",
                         UL: "NW",
@@ -1239,8 +1228,9 @@ class AnchoredText(AnchoredOffsetbox):
         borderpad : float, optional
             Pad between the frame and the axes (or *bbox_to_anchor*).
 
-        prop : `matplotlib.font_manager.FontProperties`
-            Font properties.
+        prop : dictionary, optional, default: None
+            Dictionary of keyword parameters to be passed to the
+            `~matplotlib.text.Text` instance contained inside AnchoredText.
 
         Notes
         -----
@@ -1252,12 +1242,14 @@ class AnchoredText(AnchoredOffsetbox):
             prop = {}
         badkwargs = {'ha', 'horizontalalignment', 'va', 'verticalalignment'}
         if badkwargs & set(prop):
-            warnings.warn("Mixing horizontalalignment or verticalalignment "
-                          "with AnchoredText is not supported.")
+            cbook.warn_deprecated(
+                "3.1", "Mixing horizontalalignment or verticalalignment with "
+                "AnchoredText is not supported, deprecated since %(version)s, "
+                "and will raise an exception %(removal)s.")
 
         self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
-        super(AnchoredText, self).__init__(
+        super().__init__(
             loc, pad=pad, borderpad=borderpad, child=self.txt, prop=fp,
             **kwargs)
 
@@ -1316,9 +1308,12 @@ class OffsetImage(OffsetBox):
 
 #     def set_offset(self, xy):
 #         """
-#         set offset of the container.
-
-#         Accept : tuple of x,y coordinate in display units.
+#         Set the offset of the container.
+#
+#         Parameters
+#         ----------
+#         xy : (float, float)
+#             The (x,y) coordinates of the offset in display units.
 #         """
 #         self._offset = xy
 
@@ -1611,14 +1606,14 @@ class DraggableBase(object):
     helper code for a draggable artist (legend, offsetbox)
     The derived class must override following two method.
 
-      def saveoffset(self):
+      def save_offset(self):
           pass
 
       def update_offset(self, dx, dy):
           pass
 
-    *saveoffset* is called when the object is picked for dragging and it is
-    meant to save reference position of the artist.
+    *save_offset* is called when the object is picked for dragging and it
+    is meant to save reference position of the artist.
 
     *update_offset* is called during the dragging. dx and dy is the pixel
      offset from the point where the mouse drag started.
@@ -1637,8 +1632,8 @@ class DraggableBase(object):
      *update_offset* places the artists simply in display
      coordinates. And *finalize_offset* recalculate their position in
      the normalized axes coordinate and set a relavant attribute.
-
     """
+
     def __init__(self, ref_artist, use_blit=False):
         self.ref_artist = ref_artist
         self.got_artist = False
@@ -1653,14 +1648,14 @@ class DraggableBase(object):
         self.cids = [c2, c3]
 
     def on_motion(self, evt):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
             self.canvas.draw()
 
     def on_motion_blit(self, evt):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
@@ -1669,7 +1664,7 @@ class DraggableBase(object):
             self.canvas.blit(self.ref_artist.figure.bbox)
 
     def on_pick(self, evt):
-        if evt.artist == self.ref_artist:
+        if self._check_still_parented() and evt.artist == self.ref_artist:
 
             self.mouse_x = evt.mouseevent.x
             self.mouse_y = evt.mouseevent.y
@@ -1690,13 +1685,20 @@ class DraggableBase(object):
             self.save_offset()
 
     def on_release(self, event):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             self.finalize_offset()
             self.got_artist = False
             self.canvas.mpl_disconnect(self._c1)
 
             if self._use_blit:
                 self.ref_artist.set_animated(False)
+
+    def _check_still_parented(self):
+        if self.ref_artist.figure is None:
+            self.disconnect()
+            return False
+        else:
+            return True
 
     def disconnect(self):
         """disconnect the callbacks"""
@@ -1767,8 +1769,7 @@ class DraggableAnnotation(DraggableBase):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    fig = plt.figure(1)
-    fig.clf()
+    fig = plt.figure()
     ax = plt.subplot(121)
 
     #txt = ax.text(0.5, 0.5, "Test", size=30, ha="center", color="w")

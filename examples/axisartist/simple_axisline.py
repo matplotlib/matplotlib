@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axisartist.axislines import SubplotZero
 
 
-fig = plt.figure(1)
+fig = plt.figure()
 fig.subplots_adjust(right=0.85)
 ax = SubplotZero(fig, 1, 1, 1)
 fig.add_subplot(ax)

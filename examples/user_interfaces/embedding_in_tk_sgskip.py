@@ -5,19 +5,18 @@ Embedding In Tk
 
 """
 
-from six.moves import tkinter as Tk
+import tkinter
 
 from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2TkAgg)
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
 # Implement the default Matplotlib key bindings.
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
-from six.moves import tkinter as Tk
 
 import numpy as np
 
 
-root = Tk.Tk()
+root = tkinter.Tk()
 root.wm_title("Embedding in Tk")
 
 fig = Figure(figsize=(5, 4), dpi=100)
@@ -26,11 +25,11 @@ fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))
 
 canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
 canvas.draw()
-canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
-toolbar = NavigationToolbar2TkAgg(canvas, root)
+toolbar = NavigationToolbar2Tk(canvas, root)
 toolbar.update()
-canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
 
 def on_key_press(event):
@@ -47,9 +46,9 @@ def _quit():
                     # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
 
-button = Tk.Button(master=root, text="Quit", command=_quit)
-button.pack(side=Tk.BOTTOM)
+button = tkinter.Button(master=root, text="Quit", command=_quit)
+button.pack(side=tkinter.BOTTOM)
 
-Tk.mainloop()
+tkinter.mainloop()
 # If you put root.destroy() here, it will cause an error if the window is
 # closed with the window manager.

@@ -9,7 +9,7 @@
 Status
 ======
 
-**Proposed**
+**Rejected**
 
 Branches and Pull requests
 ==========================

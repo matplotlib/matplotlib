@@ -1,9 +1,13 @@
 """
-***********************
-Colormaps in Matplotlib
-***********************
+********************************
+Choosing Colormaps in Matplotlib
+********************************
 
-How (and why) to choose a particular colormap.
+Matplotlib has a number of built-in colormaps accessible via
+`.matplotlib.cm.get_cmap`.  There are also external libraries like
+[palettable]_ that have many extra colormaps.  Here we briefly discuss
+how to choose between the many options.  For help on creating your
+own colormaps, see :doc:`/tutorials/colors/colormap-manipulation`.
 
 Overview
 ========
@@ -56,7 +60,12 @@ Colormaps are often split into several categories based on their function (see,
    middle value, such as topography or when the data deviates around
    zero.
 
-3. Qualitative: often are miscellaneous colors; should be used to
+3. Cyclic: change in lightness of two different colors that meet in
+   the middle and beginning/end at an unsaturated color; should be
+   used for values that wrap around at the endpoints, such as phase
+   angle, wind direction, or time of day.
+
+4. Qualitative: often are miscellaneous colors; should be used to
    represent information which does not have ordering or
    relationships.
 """
@@ -125,6 +134,26 @@ cmaps['Diverging'] = [
             'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic']
 
 ###############################################################################
+# Cyclic
+# ------
+#
+# For Cyclic maps, we want to start and end on the same color, and meet a
+# symmetric center point in the middle. :math:`L^*` should change monotonically
+# from start to middle, and inversely from middle to end. It should be symmetric
+# on the increasing and decreasing side, and only differ in hue. At the ends and
+# middle, :math:`L^*` will reverse direction, which should be smoothed in
+# :math:`L^*` space to reduce artifacts. See [kovesi-colormaps]_ for more
+# information on the design of cyclic maps.
+#
+# The often-used HSV colormap is included in this set of colormaps, although it
+# is not symmetric to a center point. Additionally, the :math:`L^*` values vary
+# widely throughout the colormap, making it a poor choice for representing data
+# for viewers to see perceptually. See an extension on this idea at
+# [mycarta-jet]_.
+
+cmaps['Cyclic'] = ['twilight', 'twilight_shifted', 'hsv']
+
+###############################################################################
 # Qualitative
 # -----------
 #
@@ -158,7 +187,7 @@ cmaps['Qualitative'] = ['Pastel1', 'Pastel2', 'Paired', 'Accent',
 
 cmaps['Miscellaneous'] = [
             'flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
-            'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg', 'hsv',
+            'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
             'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar']
 
 ###############################################################################
@@ -206,13 +235,13 @@ mpl.rcParams.update({'font.size': 12})
 
 # Number of colormap per subplot for particular cmap categories
 _DSUBS = {'Perceptually Uniform Sequential': 5, 'Sequential': 6,
-          'Sequential (2)': 6, 'Diverging': 6, 'Qualitative': 4,
-          'Miscellaneous': 6}
+          'Sequential (2)': 6, 'Diverging': 6, 'Cyclic': 3,
+          'Qualitative': 4, 'Miscellaneous': 6}
 
 # Spacing between the colormaps of a subplot
 _DC = {'Perceptually Uniform Sequential': 1.4, 'Sequential': 0.7,
-       'Sequential (2)': 1.4, 'Diverging': 1.4, 'Qualitative': 1.4,
-       'Miscellaneous': 1.4}
+       'Sequential (2)': 1.4, 'Diverging': 1.4, 'Cyclic': 1.4,
+       'Qualitative': 1.4, 'Miscellaneous': 1.4}
 
 # Indices to step through colormap
 x = np.linspace(0.0, 1.0, 100)
@@ -243,7 +272,7 @@ for cmap_category, cmap_list in cmaps.items():
             # Plot colormap L values.  Do separately for each category
             # so each plot can be pretty.  To make scatter markers change
             # color along plot:
-            # http://stackoverflow.com/questions/8202605/matplotlib-scatterplot-colour-as-a-function-of-a-third-variable
+            # http://stackoverflow.com/questions/8202605/
 
             if cmap_category == 'Sequential':
                 # These colormaps all start at high lightness but we want them
@@ -261,7 +290,7 @@ for cmap_category, cmap_list in cmaps.items():
             if cmap_category in ('Perceptually Uniform Sequential',
                                  'Sequential'):
                 locs.append(x[-1] + j*dc)
-            elif cmap_category in ('Diverging', 'Qualitative',
+            elif cmap_category in ('Diverging', 'Qualitative', 'Cyclic',
                                    'Miscellaneous', 'Sequential (2)'):
                 locs.append(x[int(x.size/2.)] + j*dc)
 
@@ -297,30 +326,31 @@ for cmap_category, cmap_list in cmaps.items():
 # plots because the grayscale changes unpredictably through the
 # colormap.
 #
-# Conversion to grayscale is done in many different ways [bw]_. Some of the better
-# ones use a linear combination of the rgb values of a pixel, but weighted
-# according to how we perceive color intensity. A nonlinear method of conversion
-# to grayscale is to use the :math:`L^*` values of the pixels. In general, similar
-# principles apply for this question as they do for presenting one's information
-# perceptually; that is, if a colormap is chosen that is monotonically increasing
-# in :math:`L^*` values, it will print in a reasonable manner to grayscale.
+# Conversion to grayscale is done in many different ways [bw]_. Some of the
+# better ones use a linear combination of the rgb values of a pixel, but
+# weighted according to how we perceive color intensity. A nonlinear method of
+# conversion to grayscale is to use the :math:`L^*` values of the pixels. In
+# general, similar principles apply for this question as they do for presenting
+# one's information perceptually; that is, if a colormap is chosen that is
+# monotonically increasing in :math:`L^*` values, it will print in a reasonable
+# manner to grayscale.
 #
 # With this in mind, we see that the Sequential colormaps have reasonable
 # representations in grayscale. Some of the Sequential2 colormaps have decent
-# enough grayscale representations, though some (autumn, spring, summer, winter)
-# have very little grayscale change. If a colormap like this was used in a plot
-# and then the plot was printed to grayscale, a lot of the information may map to
-# the same gray values. The Diverging colormaps mostly vary from darker gray on
-# the outer edges to white in the middle. Some (PuOr and seismic) have noticeably
-# darker gray on one side than the other and therefore are not very symmetric.
-# coolwarm has little range of gray scale and would print to a more uniform plot,
-# losing a lot of detail. Note that overlaid, labeled contours could help
-# differentiate between one side of the colormap vs. the other since color cannot
-# be used once a plot is printed to grayscale. Many of the Qualitative and
-# Miscellaneous colormaps, such as Accent, hsv, and jet, change from darker to
-# lighter and back to darker gray throughout the colormap. This would make it
-# impossible for a viewer to interpret the information in a plot once it is
-# printed in grayscale.
+# enough grayscale representations, though some (autumn, spring, summer,
+# winter) have very little grayscale change. If a colormap like this was used
+# in a plot and then the plot was printed to grayscale, a lot of the
+# information may map to the same gray values. The Diverging colormaps mostly
+# vary from darker gray on the outer edges to white in the middle. Some
+# (PuOr and seismic) have noticeably darker gray on one side than the other
+# and therefore are not very symmetric. coolwarm has little range of gray scale
+# and would print to a more uniform plot, losing a lot of detail. Note that
+# overlaid, labeled contours could help differentiate between one side of the
+# colormap vs. the other since color cannot be used once a plot is printed to
+# grayscale. Many of the Qualitative and Miscellaneous colormaps, such as
+# Accent, hsv, and jet, change from darker to lighter and back to darker gray
+# throughout the colormap. This would make it impossible for a viewer to
+# interpret the information in a plot once it is printed in grayscale.
 
 mpl.rcParams.update({'font.size': 14})
 
@@ -370,13 +400,13 @@ for cmap_category, cmap_list in cmaps.items():
 # =========================
 #
 # There is a lot of information available about color blindness (*e.g.*,
-# [colorblindness]_). Additionally, there are tools available to convert images to
-# how they look for different types of color vision deficiencies (*e.g.*,
+# [colorblindness]_). Additionally, there are tools available to convert images
+# to how they look for different types of color vision deficiencies (*e.g.*,
 # [vischeck]_).
 #
-# The most common form of color vision deficiency involves differentiating between
-# red and green. Thus, avoiding colormaps with both red and green will avoid many
-# problems in general.
+# The most common form of color vision deficiency involves differentiating
+# between red and green. Thus, avoiding colormaps with both red and green will
+# avoid many problems in general.
 #
 #
 # References
@@ -388,7 +418,9 @@ for cmap_category, cmap_list in cmaps.items():
 # .. [list-colormaps] https://gist.github.com/endolith/2719900#id7
 # .. [mycarta-banding] https://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
 # .. [mycarta-jet] https://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
+# .. [kovesi-colormaps] https://arxiv.org/abs/1509.03700
 # .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 # .. [colorblindness] http://www.color-blindness.com/
 # .. [vischeck] http://www.vischeck.com/vischeck/
-# .. [IBM] http://www.research.ibm.com/people/l/lloydt/color/color.HTM
+# .. [IBM] https://dx.doi.org/10.1109/VISUAL.1995.480803
+# .. [palettable] https://jiffyclub.github.io/palettable/

@@ -2,29 +2,22 @@
 Provides a collection of utilities for comparing (image) results.
 
 """
-from __future__ import absolute_import, division, print_function
-
-import six
 
 import atexit
-import functools
 import hashlib
-import itertools
 import os
 from pathlib import Path
 import re
 import shutil
+import subprocess
 import sys
 from tempfile import TemporaryFile
 
 import numpy as np
 
 import matplotlib
-from matplotlib.compat import subprocess
 from matplotlib.testing.exceptions import ImageComparisonFailure
-from matplotlib import _png
-from matplotlib import _get_cachedir
-from matplotlib import cbook
+from matplotlib import _png, cbook
 
 __all__ = ['compare_float', 'compare_images', 'comparable_formats']
 
@@ -38,6 +31,7 @@ def make_test_filename(fname, purpose):
     return '%s-%s%s' % (base, purpose, ext)
 
 
+@cbook.deprecated("3.0")
 def compare_float(expected, actual, relTol=None, absTol=None):
     """
     Fail if the floating point values are not close enough, with
@@ -82,7 +76,7 @@ def compare_float(expected, actual, relTol=None, absTol=None):
 
 
 def get_cache_dir():
-    cachedir = _get_cachedir()
+    cachedir = matplotlib.get_cachedir()
     if cachedir is None:
         raise RuntimeError('Could not find a suitable configuration directory')
     cache_dir = os.path.join(cachedir, 'test_cache')
@@ -141,38 +135,81 @@ def _shlex_quote_bytes(b):
             else b"'" + b.replace(b"'", b"'\"'\"'") + b"'")
 
 
-class _SVGConverter(object):
+class _ConverterError(Exception):
+    pass
+
+
+class _Converter(object):
     def __init__(self):
         self._proc = None
-        # We cannot rely on the GC to trigger `__del__` at exit because
-        # other modules (e.g. `subprocess`) may already have their globals
-        # set to `None`, which make `proc.communicate` or `proc.terminate`
-        # fail.  By relying on `atexit` we ensure the destructor runs before
-        # `None`-setting occurs.
+        # Explicitly register deletion from an atexit handler because if we
+        # wait until the object is GC'd (which occurs later), then some module
+        # globals (e.g. signal.SIGKILL) has already been set to None, and
+        # kill() doesn't work anymore...
         atexit.register(self.__del__)
 
-    def _read_to_prompt(self):
-        """Did Inkscape reach the prompt without crashing?
-        """
-        stream = iter(functools.partial(self._proc.stdout.read, 1), b"")
-        prompt = (b"\n", b">")
-        n = len(prompt)
-        its = itertools.tee(stream, n)
-        for i, it in enumerate(its):
-            next(itertools.islice(it, i, i), None)  # Advance `it` by `i`.
-        while True:
-            window = tuple(map(next, its))
-            if len(window) != n:
-                # Ran out of data -- one of the `next(it)` raised
-                # StopIteration, so the tuple is shorter.
-                return False
-            if self._proc.poll() is not None:
-                # Inkscape exited.
-                return False
-            if window == prompt:
-                # Successfully read until prompt.
-                return True
+    def __del__(self):
+        if self._proc:
+            self._proc.kill()
+            self._proc.wait()
+            for stream in filter(None, [self._proc.stdin,
+                                        self._proc.stdout,
+                                        self._proc.stderr]):
+                stream.close()
+            self._proc = None
 
+    def _read_until(self, terminator):
+        """Read until the prompt is reached."""
+        buf = bytearray()
+        while True:
+            c = self._proc.stdout.read(1)
+            if not c:
+                raise _ConverterError
+            buf.extend(c)
+            if buf.endswith(terminator):
+                return bytes(buf[:-len(terminator)])
+
+
+class _GSConverter(_Converter):
+    def __call__(self, orig, dest):
+        if not self._proc:
+            self._stdout = TemporaryFile()
+            self._proc = subprocess.Popen(
+                [matplotlib.checkdep_ghostscript.executable,
+                 "-dNOPAUSE", "-sDEVICE=png16m"],
+                # As far as I can see, ghostscript never outputs to stderr.
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            try:
+                self._read_until(b"\nGS")
+            except _ConverterError:
+                raise OSError("Failed to start Ghostscript")
+
+        def encode_and_escape(name):
+            return (os.fsencode(name)
+                    .replace(b"\\", b"\\\\")
+                    .replace(b"(", br"\(")
+                    .replace(b")", br"\)"))
+
+        self._proc.stdin.write(
+            b"<< /OutputFile ("
+            + encode_and_escape(dest)
+            + b") >> setpagedevice ("
+            + encode_and_escape(orig)
+            + b") run flush\n")
+        self._proc.stdin.flush()
+        # GS> if nothing left on the stack; GS<n> if n items left on the stack.
+        err = self._read_until(b"GS")
+        stack = self._read_until(b">")
+        if stack or not os.path.exists(dest):
+            stack_size = int(stack[1:]) if stack else 0
+            self._proc.stdin.write(b"pop\n" * stack_size)
+            # Using the systemencoding should at least get the filenames right.
+            raise ImageComparisonFailure(
+                (err + b"GS" + stack + b">")
+                .decode(sys.getfilesystemencoding(), "replace"))
+
+
+class _SVGConverter(_Converter):
     def __call__(self, orig, dest):
         if (not self._proc  # First run.
                 or self._proc.poll() is not None):  # Inkscape terminated.
@@ -184,67 +221,52 @@ class _SVGConverter(object):
             # reported as a regular exception below).
             env.pop("DISPLAY", None)  # May already be unset.
             # Do not load any user options.
-            # `os.environ` needs native strings on Py2+Windows.
-            env[str("INKSCAPE_PROFILE_DIR")] = os.devnull
+            env["INKSCAPE_PROFILE_DIR"] = os.devnull
             # Old versions of Inkscape (0.48.3.1, used on Travis as of now)
             # seem to sometimes deadlock when stderr is redirected to a pipe,
             # so we redirect it to a temporary file instead.  This is not
             # necessary anymore as of Inkscape 0.92.1.
-            self._stderr = TemporaryFile()
+            stderr = TemporaryFile()
             self._proc = subprocess.Popen(
-                [str("inkscape"), "--without-gui", "--shell"],
+                ["inkscape", "--without-gui", "--shell"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=self._stderr, env=env)
-            if not self._read_to_prompt():
-                raise OSError("Failed to start Inkscape")
-
-        try:
-            fsencode = os.fsencode
-        except AttributeError:  # Py2.
-            def fsencode(s):
-                return s.encode(sys.getfilesystemencoding())
+                stderr=stderr, env=env)
+            # Slight abuse, but makes shutdown handling easier.
+            self._proc.stderr = stderr
+            try:
+                self._read_until(b"\n>")
+            except _ConverterError:
+                raise OSError("Failed to start Inkscape in interactive mode")
 
         # Inkscape uses glib's `g_shell_parse_argv`, which has a consistent
         # behavior across platforms, so we can just use `shlex.quote`.
-        orig_b, dest_b = map(_shlex_quote_bytes, map(fsencode, [orig, dest]))
+        orig_b, dest_b = map(_shlex_quote_bytes,
+                             map(os.fsencode, [orig, dest]))
         if b"\n" in orig_b or b"\n" in dest_b:
             # Who knows whether the current folder name has a newline, or if
             # our encoding is even ASCII compatible...  Just fall back on the
             # slow solution (Inkscape uses `fgets` so it will always stop at a
             # newline).
             return make_external_conversion_command(lambda old, new: [
-                str('inkscape'), '-z', old, '--export-png', new])(orig, dest)
+                'inkscape', '-z', old, '--export-png', new])(orig, dest)
         self._proc.stdin.write(orig_b + b" --export-png=" + dest_b + b"\n")
         self._proc.stdin.flush()
-        if not self._read_to_prompt():
-            # Inkscape's output is not localized but gtk's is, so the
-            # output stream probably has a mixed encoding.  Using
-            # `getfilesystemencoding` should at least get the filenames
-            # right...
+        try:
+            self._read_until(b"\n>")
+        except _ConverterError:
+            # Inkscape's output is not localized but gtk's is, so the output
+            # stream probably has a mixed encoding.  Using the filesystem
+            # encoding should at least get the filenames right...
             self._stderr.seek(0)
             raise ImageComparisonFailure(
                 self._stderr.read().decode(
                     sys.getfilesystemencoding(), "replace"))
 
-    def __del__(self):
-        if self._proc:
-            if self._proc.poll() is None:  # Not exited yet.
-                self._proc.communicate(b"quit\n")
-                self._proc.wait()
-            self._proc.stdin.close()
-            self._proc.stdout.close()
-            self._stderr.close()
-
 
 def _update_converter():
     gs, gs_v = matplotlib.checkdep_ghostscript()
     if gs_v is not None:
-        def cmd(old, new):
-            return [str(gs), '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
-             '-sOutputFile=' + new, old]
-        converter['pdf'] = make_external_conversion_command(cmd)
-        converter['eps'] = make_external_conversion_command(cmd)
-
+        converter['pdf'] = converter['eps'] = _GSConverter()
     if matplotlib.checkdep_inkscape() is not None:
         converter['svg'] = _SVGConverter()
 
@@ -263,20 +285,17 @@ def comparable_formats():
     on this system.
 
     """
-    return ['png'] + list(converter)
+    return ['png', *converter]
 
 
 def convert(filename, cache):
     """
-    Convert the named file into a png file.  Returns the name of the
-    created file.
+    Convert the named file to png; return the name of the created file.
 
     If *cache* is True, the result of the conversion is cached in
-    `matplotlib._get_cachedir() + '/test_cache/'`.  The caching is based
-    on a hash of the exact contents of the input file.  The is no limit
-    on the size of the cache, so it may need to be manually cleared
-    periodically.
-
+    `matplotlib.get_cachedir() + '/test_cache/'`.  The caching is based on a
+    hash of the exact contents of the input file.  There is no limit on the
+    size of the cache, so it may need to be manually cleared periodically.
     """
     base, extension = filename.rsplit('.', 1)
     if extension not in converter:
@@ -316,39 +335,6 @@ def convert(filename, cache):
 
     return newname
 
-#: Maps file extensions to a function which takes a filename as its
-#: only argument to return a list suitable for execution with Popen.
-#: The purpose of this is so that the result file (with the given
-#: extension) can be verified with tools such as xmllint for svg.
-verifiers = {}
-
-# Turning this off, because it seems to cause multiprocessing issues
-if False and matplotlib.checkdep_xmllint():
-    verifiers['svg'] = lambda filename: [
-        'xmllint', '--valid', '--nowarning', '--noout', filename]
-
-
-@cbook.deprecated("2.1")
-def verify(filename):
-    """Verify the file through some sort of verification tool."""
-    if not os.path.exists(filename):
-        raise IOError("'%s' does not exist" % filename)
-    base, extension = filename.rsplit('.', 1)
-    verifier = verifiers.get(extension, None)
-    if verifier is not None:
-        cmd = verifier(filename)
-        pipe = subprocess.Popen(cmd, universal_newlines=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = pipe.communicate()
-        errcode = pipe.wait()
-        if errcode != 0:
-            msg = "File verification command failed:\n%s\n" % ' '.join(cmd)
-            if stdout:
-                msg += "Standard output:\n%s\n" % stdout
-            if stderr:
-                msg += "Standard error:\n%s\n" % stderr
-            raise IOError(msg)
-
 
 def crop_to_same(actual_path, actual_image, expected_path, expected_image):
     # clip the images to the same size -- this is useful only when
@@ -365,8 +351,8 @@ def calculate_rms(expectedImage, actualImage):
     "Calculate the per-pixel errors, then compute the root mean square error."
     if expectedImage.shape != actualImage.shape:
         raise ImageComparisonFailure(
-            "Image sizes do not match expected size: {0} "
-            "actual size {1}".format(expectedImage.shape, actualImage.shape))
+            "Image sizes do not match expected size: {} "
+            "actual size {}".format(expectedImage.shape, actualImage.shape))
     # Convert to float to avoid overflowing finite integer types.
     return np.sqrt(((expectedImage - actualImage).astype(float) ** 2).mean())
 
@@ -397,7 +383,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
     --------
     img1 = "./baseline/plot.png"
     img2 = "./output/plot.png"
-    compare_images( img1, img2, 0.001 ):
+    compare_images(img1, img2, 0.001):
 
     """
     if not os.path.exists(actual):
@@ -427,7 +413,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
     diff_image = make_test_filename(actual, 'failed-diff')
 
-    if tol <= 0.0:
+    if tol <= 0:
         if np.array_equal(expectedImage, actualImage):
             return None
 
@@ -459,16 +445,27 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
 
 def save_diff_image(expected, actual, output):
-    expectedImage = _png.read_png(expected)
-    actualImage = _png.read_png(actual)
+    '''
+    Parameters
+    ----------
+    expected : str
+        File path of expected image.
+    actual : str
+        File path of actual image.
+    output : str
+        File path to save difference image to.
+    '''
+    # Drop alpha channels, similarly to compare_images.
+    expectedImage = _png.read_png(expected)[..., :3]
+    actualImage = _png.read_png(actual)[..., :3]
     actualImage, expectedImage = crop_to_same(
         actual, actualImage, expected, expectedImage)
     expectedImage = np.array(expectedImage).astype(float)
     actualImage = np.array(actualImage).astype(float)
     if expectedImage.shape != actualImage.shape:
         raise ImageComparisonFailure(
-            "Image sizes do not match expected size: {0} "
-            "actual size {1}".format(expectedImage.shape, actualImage.shape))
+            "Image sizes do not match expected size: {} "
+            "actual size {}".format(expectedImage.shape, actualImage.shape))
     absDiffImage = np.abs(expectedImage - actualImage)
 
     # expand differences in luminance domain

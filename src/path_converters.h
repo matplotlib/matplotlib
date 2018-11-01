@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef __PATH_CONVERTERS_H__
-#define __PATH_CONVERTERS_H__
+#ifndef MPL_PATH_CONVERTERS_H
+#define MPL_PATH_CONVERTERS_H
 
 #include <cmath>
 #include <stdint.h>
@@ -1008,4 +1008,4 @@ class Sketch
     RandomNumberGenerator m_rand;
 };
 
-#endif // __PATH_CONVERTERS_H__
+#endif // MPL_PATH_CONVERTERS_H

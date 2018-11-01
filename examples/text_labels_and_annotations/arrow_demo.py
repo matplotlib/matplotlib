@@ -125,7 +125,6 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
     max_head_length = 2 * max_arrow_width
     arrow_params = {'length_includes_head': True, 'shape': shape,
                     'head_starts_at_zero': head_starts_at_zero}
-    ax = plt.gca()
     sf = 0.6  # max arrow size represents this in data coords
 
     d = (r2 / 2 + arrow_h_offset - 0.5) / r2  # distance for diags
@@ -213,7 +212,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         coords = np.dot(orig_position, M) + [[x_pos, y_pos]]
         x, y = np.ravel(coords)
         orig_label = rate_labels[pair]
-        label = '$%s_{_{\mathrm{%s}}}$' % (orig_label[0], orig_label[1:])
+        label = r'$%s_{_{\mathrm{%s}}}$' % (orig_label[0], orig_label[1:])
 
         plt.text(x, y, label, size=label_text_size, ha='center', va='center',
                  color=labelcolor or fc)
@@ -310,7 +309,5 @@ if __name__ == '__main__':
 
     make_arrow_plot(d, display=display, linewidth=0.001, edgecolor=None,
                     normalize_data=scaled, head_starts_at_zero=True, size=size)
-
-    plt.draw()
 
     plt.show()

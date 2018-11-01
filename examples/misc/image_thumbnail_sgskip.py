@@ -10,7 +10,6 @@ image types transparently if your have PIL installed
 
 """
 
-from __future__ import print_function
 # build thumbnails of all images in a directory
 import sys
 import os

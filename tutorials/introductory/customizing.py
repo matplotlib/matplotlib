@@ -1,17 +1,18 @@
 """
-Customizing matplotlib
-======================
+Customizing Matplotlib with style sheets and rcParams
+=====================================================
 
-Tips for customizing the properties and default styles of matplotlib.
+Tips for customizing the properties and default styles of Matplotlib.
 
 Using style sheets
 ------------------
 
 The ``style`` package adds support for easy-to-switch plotting "styles" with
-the same parameters as a matplotlibrc_ file (which is read at startup to
-configure matplotlib).
+the same parameters as a
+:ref:`matplotlib rc <customizing-with-matplotlibrc-files>` file (which is read
+at startup to configure matplotlib).
 
-There are a number of pre-defined styles provided by matplotlib. For
+There are a number of pre-defined styles `provided by Matplotlib`_. For
 example, there's a pre-defined style called "ggplot", which emulates the
 aesthetics of ggplot_ (a popular plotting package for R_). To use this style,
 just add:
@@ -90,6 +91,8 @@ with plt.style.context(('dark_background')):
 plt.show()
 
 ###############################################################################
+# .. _matplotlib-rcparams:
+#
 # matplotlib rcParams
 # ===================
 #
@@ -183,6 +186,6 @@ plt.plot(data)
 # .. literalinclude:: ../../../matplotlibrc.template
 #
 #
-# .. _matplotlibrc: http://matplotlib.org/users/customizing.html
 # .. _ggplot: http://ggplot2.org/
 # .. _R: https://www.r-project.org/
+# .. _provided by Matplotlib: https://github.com/matplotlib/matplotlib/tree/master/lib/matplotlib/mpl-data/stylelib

@@ -109,31 +109,34 @@ automatically for every figure.  If you are writing your own user
 interface code, you can add the toolbar as a widget.  The exact syntax
 depends on your UI, but we have examples for every supported UI in the
 ``matplotlib/examples/user_interfaces`` directory.  Here is some
-example code for GTK::
+example code for GTK+ 3::
 
 
-    import gtk
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gtk
 
     from matplotlib.figure import Figure
-    from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
-    from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
+    from matplotlib.backends.backend_gtk3agg import FigureCanvas
+    from matplotlib.backends.backend_gtk3 import (
+        NavigationToolbar2GTK3 as NavigationToolbar)
 
-    win = gtk.Window()
-    win.connect("destroy", lambda x: gtk.main_quit())
+    win = Gtk.Window()
+    win.connect("destroy", lambda x: Gtk.main_quit())
     win.set_default_size(400,300)
     win.set_title("Embedding in GTK")
 
-    vbox = gtk.VBox()
+    vbox = Gtk.VBox()
     win.add(vbox)
 
     fig = Figure(figsize=(5,4), dpi=100)
     ax = fig.add_subplot(111)
     ax.plot([1,2,3])
 
-    canvas = FigureCanvas(fig)  # a gtk.DrawingArea
-    vbox.pack_start(canvas)
+    canvas = FigureCanvas(fig)  # a Gtk.DrawingArea
+    vbox.pack_start(canvas, True, True, 0)
     toolbar = NavigationToolbar(canvas, win)
-    vbox.pack_start(toolbar, False, False)
+    vbox.pack_start(toolbar, False, False, 0)
 
     win.show_all()
-    gtk.main()
+    Gtk.main()

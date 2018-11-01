@@ -92,7 +92,7 @@ are going to need to understand what a matplotlib backend is
 With the TkAgg backend, which uses the Tkinter user interface toolkit,
 you can use matplotlib from an arbitrary non-gui python shell.  Just set your
 ``backend : TkAgg`` and ``interactive : True`` in your
-:file:`matplotlibrc` file (see :ref:`sphx_glr_tutorials_introductory_customizing.py`) and fire
+:file:`matplotlibrc` file (see :doc:`/tutorials/introductory/customizing`) and fire
 up python.  Then::
 
   >>> from pylab import *
@@ -100,7 +100,7 @@ up python.  Then::
   >>> xlabel('hi mom')
 
 should work out of the box.  This is also likely to work with recent
-versions of the qt4agg and gtkagg backends, and with the macosx backend
+versions of the qt4agg and gtk3agg backends, and with the macosx backend
 on the Macintosh. Note, in batch mode,
 i.e. when making
 figures from scripts, interactive mode can be slow since it redraws

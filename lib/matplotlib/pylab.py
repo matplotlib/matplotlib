@@ -131,7 +131,7 @@ _Matrix commands
   cumsum    - the cumulative sum along a dimension
   detrend   - remove the mean or besdt fit line from an array
   diag      - the k-th diagonal of matrix
-  diff      - the n-th differnce of an array
+  diff      - the n-th difference of an array
   eig       - the eigenvalues and eigen vectors of v
   eye       - a matrix where the k-th diagonal is ones, else zero
   find      - return the indices where a condition is nonzero
@@ -154,7 +154,6 @@ _Matrix commands
 
 _Probability
 
-  normpdf   - The Gaussian probability density function
   rand      - random numbers from the uniform distribution
   randn     - random numbers from the normal distribution
 
@@ -196,7 +195,6 @@ _Dates
 _Other
 
   angle     - the angle of a complex array
-  griddata  - interpolate irregularly distributed data to a regular grid
   load      - Deprecated--please use loadtxt.
   loadtxt   - load ASCII data into array.
   polyfit   - fit x, y to an n-th order polynomial
@@ -212,15 +210,8 @@ __end
 
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
-
-import warnings
-
-from matplotlib.cbook import (
-    flatten, exception_to_str, silent_list, iterable, dedent)
+from matplotlib.cbook import flatten, silent_list, iterable, dedent
 
 import matplotlib as mpl
 
@@ -238,15 +229,7 @@ from matplotlib.dates import (
 ## We are still importing too many things from mlab; more cleanup is needed.
 
 from matplotlib.mlab import (
-    amap, base_repr, binary_repr, bivariate_normal, center_matrix, csv2rec,
-    demean, detrend, detrend_linear, detrend_mean, detrend_none, dist,
-    dist_point_to_segment, distances_along_curve, entropy, exp_safe,
-    fftsurr, find, frange, get_sparse_matrix, get_xyz_where, griddata,
-    identity, inside_poly, is_closed_polygon, ispower2, isvector, l1norm,
-    l2norm, log2, longest_contiguous_ones, longest_ones, movavg, norm_flat,
-    normpdf, path_length, poly_below, poly_between, prctile, prctile_rank,
-    rec2csv, rec_append_fields, rec_drop_fields, rec_join, rk4, rms_flat,
-    segments_intersect, slopes, stineman_interp, vector_lengths,
+    demean, detrend, detrend_linear, detrend_mean, detrend_none,
     window_hanning, window_none)
 
 from matplotlib import cbook, mlab, pyplot as plt
@@ -265,4 +248,4 @@ import datetime
 
 # This is needed, or bytes will be numpy.random.bytes from
 # "from numpy.random import *" above
-bytes = six.moves.builtins.bytes
+bytes = __import__("builtins").bytes

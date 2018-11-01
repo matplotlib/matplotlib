@@ -12,7 +12,7 @@ void _bin_indices_middle(
     unsigned int *rowstart = irows;
     const float *ys2 = ys1 + 1;
     const float *yl = ys1 + ny;
-    float yo = y_min + dy / 2.0;
+    float yo = y_min + dy / 2.0f;
     float ym = 0.5f * (*ys1 + *ys2);
     // y/rows
     j = 0;
@@ -109,63 +109,6 @@ void _bin_indices(int *irows, int nrows, const double *y, unsigned long ny, doub
             if (i >= iy0 && i <= iy1)
                 irows[i] = ii - 1;
             else
-                break;
-        }
-        for (; i < nrows; i++) {
-            irows[i] = -1;
-        }
-    }
-}
-
-void _bin_indices_linear(
-    float *arows, int *irows, int nrows, double *y, unsigned long ny, double sc, double offs)
-{
-    int i;
-    if (sc * (y[ny - 1] - y[0]) > 0) {
-        int ii = 0;
-        int iilast = (int)ny - 1;
-        int iy0 = (int)floor(sc * (y[ii] - offs));
-        int iy1 = (int)floor(sc * (y[ii + 1] - offs));
-        float invgap = 1.0 / (iy1 - iy0);
-        for (i = 0; i < nrows && i < iy0; i++) {
-            irows[i] = -1;
-        }
-        for (; i < nrows; i++) {
-            while (i > iy1 && ii < iilast) {
-                ii++;
-                iy0 = iy1;
-                iy1 = (int)floor(sc * (y[ii + 1] - offs));
-                invgap = 1.0 / (iy1 - iy0);
-            }
-            if (i >= iy0 && i <= iy1) {
-                irows[i] = ii;
-                arows[i] = (iy1 - i) * invgap;
-            } else
-                break;
-        }
-        for (; i < nrows; i++) {
-            irows[i] = -1;
-        }
-    } else {
-        int iilast = (int)ny - 1;
-        int ii = iilast;
-        int iy0 = (int)floor(sc * (y[ii] - offs));
-        int iy1 = (int)floor(sc * (y[ii - 1] - offs));
-        float invgap = 1.0 / (iy1 - iy0);
-        for (i = 0; i < nrows && i < iy0; i++) {
-            irows[i] = -1;
-        }
-        for (; i < nrows; i++) {
-            while (i > iy1 && ii > 1) {
-                ii--;
-                iy0 = iy1;
-                iy1 = (int)floor(sc * (y[ii - 1] - offs));
-                invgap = 1.0 / (iy1 - iy0);
-            }
-            if (i >= iy0 && i <= iy1) {
-                irows[i] = ii - 1;
-                arows[i] = (i - iy0) * invgap;
-            } else
                 break;
         }
         for (; i < nrows; i++) {

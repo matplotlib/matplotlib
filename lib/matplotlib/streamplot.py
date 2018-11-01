@@ -2,13 +2,9 @@
 Streamline plotting for 2D vector fields.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange
 
 import numpy as np
+
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
@@ -24,7 +20,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
                maxlength=4.0, integration_direction='both'):
-    """Draws streamlines of a vector flow.
+    """Draw streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
         an *evenly spaced* grid.
@@ -194,7 +190,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         streamlines.extend(np.hstack([points[:-1], points[1:]]))
 
         # Add arrows half way along each trajectory.
-        s = np.cumsum(np.sqrt(np.diff(tx) ** 2 + np.diff(ty) ** 2))
+        s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
         n = np.searchsorted(s, s[-1] / 2.)
         arrow_tail = (tx[n], ty[n])
         arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
@@ -339,6 +335,11 @@ class Grid(object):
         self.width = x[-1] - x[0]
         self.height = y[-1] - y[0]
 
+        if not np.allclose(np.diff(x), self.width / (self.nx - 1)):
+            raise ValueError("'x' values must be equally spaced")
+        if not np.allclose(np.diff(y), self.height / (self.ny - 1)):
+            raise ValueError("'y' values must be equally spaced")
+
     @property
     def shape(self):
         return self.ny, self.nx
@@ -360,15 +361,12 @@ class StreamMask(object):
     """
 
     def __init__(self, density):
-        if np.isscalar(density):
-            if density <= 0:
-                raise ValueError("If a scalar, 'density' must be positive")
-            self.nx = self.ny = int(30 * density)
-        else:
-            if len(density) != 2:
-                raise ValueError("'density' can have at maximum 2 dimensions")
-            self.nx = int(30 * density[0])
-            self.ny = int(30 * density[1])
+        try:
+            self.nx, self.ny = (30 * np.broadcast_to(density, 2)).astype(int)
+        except ValueError:
+            raise ValueError("'density' must be a scalar or be of length 2")
+        if self.nx < 0 or self.ny < 0:
+            raise ValueError("'density' must be positive")
         self._mask = np.zeros((self.ny, self.nx))
         self.shape = self._mask.shape
 
@@ -543,7 +541,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
 
         nx, ny = dmap.grid.shape
         # Error is normalized to the axes coordinates
-        error = np.sqrt(((dx2 - dx1) / nx) ** 2 + ((dy2 - dy1) / ny) ** 2)
+        error = np.hypot((dx2 - dx1) / nx, (dy2 - dy1) / ny)
 
         # Only save step if within error tolerance
         if error < maxerror:
@@ -553,7 +551,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
                 dmap.update_trajectory(xi, yi)
             except InvalidIndexError:
                 break
-            if (stotal + ds) > maxlength:
+            if stotal + ds > maxlength:
                 break
             stotal += ds
 
@@ -607,11 +605,11 @@ def interpgrid(a, xi, yi):
         x = int(xi)
         y = int(yi)
         # conditional is faster than clipping for integers
-        if x == (Nx - 2):
+        if x == (Nx - 1):
             xn = x
         else:
             xn = x + 1
-        if y == (Ny - 2):
+        if y == (Ny - 1):
             yn = y
         else:
             yn = y + 1
@@ -646,9 +644,8 @@ def _gen_starting_points(shape):
     xlast = nx - 1
     ylast = ny - 1
     x, y = 0, 0
-    i = 0
     direction = 'right'
-    for i in xrange(nx * ny):
+    for i in range(nx * ny):
 
         yield x, y
 
