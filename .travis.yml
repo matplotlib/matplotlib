@@ -64,10 +64,17 @@ env:
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
     - PYTEST_ADDOPTS="-raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - RUN_PYTEST=1
     - RUN_FLAKE8=
 
 matrix:
   include:
+    - name: flake8
+      python: 3.6
+      env:
+        - RUN_PYTEST=
+        - RUN_FLAKE8=1
+        - EXTRAREQS='-r requirements/testing/travis_flake8.txt'
     - python: 3.5
       dist: trusty
       # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
@@ -77,7 +84,6 @@ matrix:
       env:
         - DELETE_FONT_CACHE=1
         - EXTRAREQS='-r requirements/testing/travis36.txt'
-        - RUN_FLAKE8=1
     - python: 3.7
       sudo: true
     - python: "nightly"
@@ -162,8 +168,10 @@ script:
   # each script we want to run need to go in it's own section and the program you want
   # to fail travis need to be the last thing called
   - |
-    echo "Calling pytest with the following arguments: $PYTEST_ADDOPTS"
-    python -mpytest
+    if [[ $RUN_PYTEST == 1 ]]; then
+      echo "Calling pytest with the following arguments: $PYTEST_ADDOPTS"
+      python -mpytest
+    fi
   - |
     if [[ $RUN_FLAKE8 == 1 ]]; then
       flake8 --statistics && echo "Flake8 passed without any issues!"
