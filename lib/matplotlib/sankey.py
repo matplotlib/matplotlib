@@ -10,7 +10,7 @@ import numpy as np
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
-from matplotlib import docstring
+from matplotlib import cbook, docstring
 from matplotlib import rcParams
 
 _log = logging.getLogger(__name__)
@@ -449,11 +449,8 @@ class Sankey(object):
             "orientations and flows must have the same length.\n"
             "orientations has length %d, but flows has length %d."
             % (len(orientations), n))
-        if labels != '' and getattr(labels, '__iter__', False):
-            # np.iterable() isn't used because it would give True if labels is
-            # a string
-            if len(labels) != n:
-                raise ValueError(
+        if not cbook.is_scalar_or_string(labels) and len(labels) != n:
+            raise ValueError(
                 "If labels is a list, then labels and flows must have the "
                 "same length.\nlabels has length %d, but flows has length %d."
                 % (len(labels), n))
