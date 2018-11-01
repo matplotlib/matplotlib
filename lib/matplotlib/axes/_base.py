@@ -373,8 +373,9 @@ class _process_plot_var_args(object):
 
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
-            cbook.warn_deprecated("2.2", "cycling among columns of inputs "
-                                  "with non-matching shapes is deprecated.")
+            cbook.warn_deprecated(
+                "2.2", message="cycling among columns of inputs with "
+                "non-matching shapes is deprecated.")
         for j in range(max(ncx, ncy)):
             seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
             ret.append(seg)
@@ -1645,7 +1646,7 @@ class _AxesBase(martist.Artist):
                 if s == 'normal':
                     cbook.warn_deprecated(
                         "3.1", "Passing 'normal' to axis() is deprecated "
-                        "since %(version)s; use 'auto' instead.")
+                        "since %(since)s; use 'auto' instead.")
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)

@@ -357,7 +357,7 @@ def _parse_optional(fh):
     return d[b'StartKernData'], d[b'StartComposites']
 
 
-@deprecated("3.0", "Use the class AFM instead.")
+@deprecated("3.0", alternative="the AFM class")
 def parse_afm(fh):
     return _parse_afm(fh)
 

@@ -51,8 +51,8 @@ def _generate_deprecation_message(
 
 
 def warn_deprecated(
-        since, message='', name='', alternative='', pending=False,
-        obj_type='attribute', addendum='', *, removal=''):
+        since, *, message='', name='', alternative='', pending=False,
+        obj_type='attribute', addendum='', removal=''):
     """
     Used to display deprecation in a standard way.
 
@@ -112,8 +112,8 @@ def warn_deprecated(
     _warn_external(message, category)
 
 
-def deprecated(since, message='', name='', alternative='', pending=False,
-               obj_type=None, addendum='', *, removal=''):
+def deprecated(since, *, message='', name='', alternative='', pending=False,
+               obj_type=None, addendum='', removal=''):
     """
     Decorator to mark a function, a class, or a property as deprecated.
 

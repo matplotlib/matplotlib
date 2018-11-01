@@ -1678,10 +1678,10 @@ class FuncAnimation(TimedAnimation):
                         pass
                     else:
                         cbook.warn_deprecated(
-                            "2.2", "FuncAnimation.save has truncated your "
-                            "animation to 100 frames.  In the future, no such "
-                            "truncation will occur; please pass 'save_count' "
-                            "accordingly.")
+                            "2.2", message="FuncAnimation.save has truncated "
+                            "your animation to 100 frames.  In the future, no "
+                            "such truncation will occur; please pass "
+                            "'save_count' accordingly.")
 
                 return gen()
 
