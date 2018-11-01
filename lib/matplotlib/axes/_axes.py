@@ -1,4 +1,4 @@
-import collections
+import collections.abc
 import functools
 import itertools
 import logging
@@ -4191,7 +4191,7 @@ class Axes(_AxesBase):
         if (c_none or
                 co is not None or
                 isinstance(c, str) or
-                (isinstance(c, collections.Iterable) and
+                (isinstance(c, collections.abc.Iterable) and
                     isinstance(c[0], str))):
             c_array = None
         else:
