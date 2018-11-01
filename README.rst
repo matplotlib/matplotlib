@@ -1,4 +1,4 @@
-|Travis|_ |AppVeyor|_ |Codecov|_ |LGTM|_ |PyPi|_ |Gitter|_ |NUMFocus|_
+|Travis|_ |AppVeyor|_ |Codecov|_ |LGTM|_ |PyPi|_ |Gitter|_ |NUMFocus|_ |GitTutorial|_
 
 
 .. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
@@ -22,6 +22,8 @@
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: http://www.numfocus.org
 
+.. |GitTutorial| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
+.. _GitTutorial: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
 
 ##########
 Matplotlib
