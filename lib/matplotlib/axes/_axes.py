@@ -4,6 +4,10 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange, zip, zip_longest
 
+try:
+    import collections.abc as collections_abc
+except ImportError:
+    import collections as collections_abc
 import functools
 import itertools
 import logging
@@ -4268,7 +4272,11 @@ class Axes(_AxesBase):
         # c is an array for mapping.  The potential ambiguity
         # with a sequence of 3 or 4 numbers is resolved in
         # favor of mapping, not rgb or rgba.
-        if c_none or co is not None:
+        if (c_none or
+                co is not None or
+                isinstance(c, six.string_types) or
+                (isinstance(c, collections_abc.Iterable) and
+                    isinstance(c[0], six.string_types))):
             c_array = None
         else:
             try:
