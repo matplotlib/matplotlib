@@ -5868,5 +5868,6 @@ def test_scatter_series_non_zero_index(pd):
 
 
 def test_scatter_empty_data():
+    # making sure this does not raise an exception
     plt.scatter([], [])
     plt.scatter([], [], s=[], c=[])
