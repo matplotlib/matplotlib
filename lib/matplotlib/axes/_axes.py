@@ -129,6 +129,14 @@ class Axes(_AxesBase):
     instance.  The events you can connect to are 'xlim_changed' and
     'ylim_changed' and the callback will be called with func(*ax*)
     where *ax* is the :class:`Axes` instance.
+
+    Attributes
+    ----------
+    dataLim : `.BBox`
+        The bounding box enclosing all data displayed in the Axes.
+    viewLim : `.BBox`
+        The view limits in data coordinates.
+
     """
     ### Labelling, legend and texts
 
