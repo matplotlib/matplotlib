@@ -38,7 +38,8 @@ Further reading:
 - `matplotlib.axes.Axes` and `matplotlib.figure.Figure` for an overview of
   plotting functions.
 - Most of the :ref:`examples <examples-index>` use the object-oriented approach
-  (except for the pyplot section).
+  (except for the pyplot section)
+- The list of :doc:`matplotlib modules </api/index>`.
 
 
 The pylab API (disapproved)
