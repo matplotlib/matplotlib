@@ -3248,9 +3248,14 @@ class _AxesBase(martist.Artist):
         return left, right
 
     def get_xscale(self):
+        """
+        Return the x-axis scale as string.
+
+        See Also
+        --------
+        set_xscale
+        """
         return self.xaxis.get_scale()
-    get_xscale.__doc__ = "Return the xaxis scale string: %s""" % (
-        ", ".join(mscale.get_scale_names()))
 
     def set_xscale(self, value, **kwargs):
         """
@@ -3259,22 +3264,24 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         value : {"linear", "log", "symlog", "logit", ...}
-            scaling strategy to apply
+            The axis scale type to apply.
+
+        **kwargs
+            Different keyword arguments are accepted, depending on the scale.
+            See the respective class keyword arguments:
+
+            - `matplotlib.scale.LinearScale`
+            - `matplotlib.scale.LogScale`
+            - `matplotlib.scale.SymmetricalLogScale`
+            - `matplotlib.scale.LogitScale`
+
 
         Notes
         -----
-        Different kwargs are accepted, depending on the scale. See
-        the `~matplotlib.scale` module for more information.
-
-        See also
-        --------
-        matplotlib.scale.LinearScale : linear transform
-
-        matplotlib.scale.LogTransform : log transform
-
-        matplotlib.scale.SymmetricalLogTransform : symlog transform
-
-        matplotlib.scale.LogisticTransform : logit transform
+        By default, Matplotlib supports the above mentioned scales.
+        Additionally, custom scales may be registered using
+        `matplotlib.scale.register_scale`. These scales can then also
+        be used here.
         """
         g = self.get_shared_x_axes()
         for ax in g.get_siblings(self):
@@ -3630,9 +3637,14 @@ class _AxesBase(martist.Artist):
         return bottom, top
 
     def get_yscale(self):
+        """
+        Return the x-axis scale as string.
+
+        See Also
+        --------
+        set_yscale
+        """
         return self.yaxis.get_scale()
-    get_yscale.__doc__ = "Return the yaxis scale string: %s""" % (
-        ", ".join(mscale.get_scale_names()))
 
     def set_yscale(self, value, **kwargs):
         """
@@ -3641,22 +3653,24 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         value : {"linear", "log", "symlog", "logit", ...}
-            scaling strategy to apply
+            The axis scale type to apply.
+
+        **kwargs
+            Different keyword arguments are accepted, depending on the scale.
+            See the respective class keyword arguments:
+
+            - `matplotlib.scale.LinearScale`
+            - `matplotlib.scale.LogScale`
+            - `matplotlib.scale.SymmetricalLogScale`
+            - `matplotlib.scale.LogitScale`
+
 
         Notes
         -----
-        Different kwargs are accepted, depending on the scale. See
-        the `~matplotlib.scale` module for more information.
-
-        See also
-        --------
-        matplotlib.scale.LinearScale : linear transform
-
-        matplotlib.scale.LogTransform : log transform
-
-        matplotlib.scale.SymmetricalLogTransform : symlog transform
-
-        matplotlib.scale.LogisticTransform : logit transform
+        By default, Matplotlib supports the above mentioned scales.
+        Additionally, custom scales may be registered using
+        `matplotlib.scale.register_scale`. These scales can then also
+        be used here.
         """
         g = self.get_shared_y_axes()
         for ax in g.get_siblings(self):
