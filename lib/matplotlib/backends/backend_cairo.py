@@ -90,7 +90,8 @@ _CAIRO_PATH_TYPE_SIZES[cairo.PATH_CLOSE_PATH] = 1
 
 def _append_paths_slow(ctx, paths, transforms, clip=None):
     for path, transform in zip(paths, transforms):
-        for points, code in path.iter_segments(transform, clip=clip):
+        for points, code in path.iter_segments(
+                transform, remove_nans=True, clip=clip):
             if code == Path.MOVETO:
                 ctx.move_to(*points)
             elif code == Path.CLOSEPOLY:
@@ -118,7 +119,7 @@ def _append_paths_fast(ctx, paths, transforms, clip=None):
     # Convert curves to segment, so that 1. we don't have to handle
     # variable-sized CURVE-n codes, and 2. we don't have to implement degree
     # elevation for quadratic Beziers.
-    cleaneds = [path.cleaned(transform=transform, clip=clip, curves=False)
+    cleaneds = [path.cleaned(transform, remove_nans=True, clip=clip)
                 for path, transform in zip(paths, transforms)]
     vertices = np.concatenate([cleaned.vertices for cleaned in cleaneds])
     codes = np.concatenate([cleaned.codes for cleaned in cleaneds])
