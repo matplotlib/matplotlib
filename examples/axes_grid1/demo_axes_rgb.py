@@ -23,7 +23,7 @@ def get_rgb():
     Z, extent = get_demo_image()
 
     Z[Z < 0] = 0.
-    Z = Z/Z.max()
+    Z = Z / Z.max()
 
     R = Z[:13, :13]
     G = Z[2:, 2:]
@@ -49,9 +49,6 @@ def make_cube(r, g, b):
 def demo_rgb():
     fig, ax = plt.subplots()
     ax_r, ax_g, ax_b = make_rgb_axes(ax, pad=0.02)
-    #fig.add_axes(ax_r)
-    #fig.add_axes(ax_g)
-    #fig.add_axes(ax_b)
 
     r, g, b = get_rgb()
     im_r, im_g, im_b, im_rgb = make_cube(r, g, b)
@@ -63,10 +60,8 @@ def demo_rgb():
 
 
 def demo_rgb2():
-    fig = plt.figure(2)
+    fig = plt.figure()
     ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8], pad=0.0)
-    #fig.add_axes(ax)
-    #ax.add_RGB_to_figure()
 
     r, g, b = get_rgb()
     kwargs = dict(origin="lower", interpolation="nearest")
@@ -76,6 +71,7 @@ def demo_rgb2():
     ax.RGB.set_ylim(0.9, 10.6)
 
     for ax1 in [ax.RGB, ax.R, ax.G, ax.B]:
+        ax1.tick_params(axis='both', direction='in')
         for sp1 in ax1.spines.values():
             sp1.set_color("w")
         for tick in ax1.xaxis.get_major_ticks() + ax1.yaxis.get_major_ticks():
@@ -86,6 +82,6 @@ def demo_rgb2():
 
 
 demo_rgb()
-ax = demo_rgb2()
+demo_rgb2()
 
 plt.show()
