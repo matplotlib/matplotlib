@@ -117,7 +117,8 @@ def test_interactive_backend(backend):
         pytest.fail("The subprocess returned an error.")
 
 
-@pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ)
+@pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ,
+                    reason="this test fails an azure for unknown reasons")
 @pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
     pytest.importorskip("tornado")
