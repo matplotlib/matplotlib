@@ -3,7 +3,7 @@ from matplotlib.backend_bases import (
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
-
+import os
 import numpy as np
 import pytest
 
@@ -57,9 +57,9 @@ def test_get_default_filename(tmpdir):
 
 @pytest.mark.backend('pdf')
 def test_non_gui_warning():
-    plt.close('all')
+    pytest.mark.skipif('AZURE_HTTP_USER_AGENT' in os.environ)
     plt.subplots()
-    print(matplotlib.get_backend())
+
     with pytest.warns(UserWarning) as rec:
         plt.show()
         assert len(rec) == 1
