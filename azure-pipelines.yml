@@ -31,7 +31,11 @@ jobs:
 
     displayName: 'Install dependencies'
 
-  - script: pip install -ve .
+  - script: |
+
+      export MPLLOCALFREETYPE=1
+      pip install -ve .
+
     displayName: "Install self"
 
   - script: |
