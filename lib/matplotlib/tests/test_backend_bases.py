@@ -56,10 +56,8 @@ def test_get_default_filename(tmpdir):
 
 
 @pytest.mark.backend('pdf')
+@pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ)
 def test_non_gui_warning():
-    print(os.environ)
-    print('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ)
-    pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ)
     plt.subplots()
 
     with pytest.warns(UserWarning) as rec:
