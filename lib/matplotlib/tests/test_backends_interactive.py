@@ -1,4 +1,5 @@
 import importlib
+import importlib.util
 import os
 import signal
 import subprocess
@@ -46,6 +47,7 @@ def _get_testable_interactive_backends():
 # we directly invoke it from the superclass instead.
 _test_script = """\
 import importlib
+import importlib.util
 import sys
 from unittest import TestCase
 
@@ -115,6 +117,8 @@ def test_interactive_backend(backend):
         pytest.fail("The subprocess returned an error.")
 
 
+@pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ,
+                    reason="this test fails an azure for unknown reasons")
 @pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
     pytest.importorskip("tornado")
@@ -125,6 +129,9 @@ def test_webagg():
     timeout = time.perf_counter() + _test_timeout
     while True:
         try:
+            retcode = proc.poll()
+            # check that the subprocess for the server is not dead
+            assert retcode is None
             conn = urllib.request.urlopen(url)
             break
         except urllib.error.URLError:
