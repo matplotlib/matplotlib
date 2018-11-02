@@ -1108,13 +1108,13 @@ class _AxesBase(martist.Artist):
         self.cla()
 
     def get_facecolor(self):
-        """Get the Axes facecolor."""
+        """Get the facecolor of the Axes."""
         return self.patch.get_facecolor()
     get_fc = get_facecolor
 
     def set_facecolor(self, color):
         """
-        Set the Axes facecolor.
+        Set the facecolor of the Axes.
 
         Parameters
         ----------
@@ -1588,16 +1588,18 @@ class _AxesBase(martist.Artist):
         Call signatures::
 
           xmin, xmax, ymin, ymax = axis()
-          xmin, xmax, ymin, ymax = axis(list_arg)
-          xmin, xmax, ymin, ymax = axis(string_arg)
+          xmin, xmax, ymin, ymax = axis(xmin, xmax, ymin, ymax)
+          xmin, xmax, ymin, ymax = axis(option)
           xmin, xmax, ymin, ymax = axis(**kwargs)
 
         Parameters
         ----------
-        v : List[float] or one of the strings listed below.
-            Optional positional-only argument
+        xmin, ymin, xmax, ymax : float, optional
+            The axis limits to be set. Either none or all of the limits must
+            be given.
 
-            If a list, set the axis data limits.  If a string:
+        option : str
+            Possible values:
 
             ======== ==========================================================
             Value    Description
@@ -1616,12 +1618,10 @@ class _AxesBase(martist.Artist):
                      ``xmax-xmin = ymax-ymin``.
             ======== ==========================================================
 
-        emit : bool, optional
-            Passed to set_{x,y}lim functions, if observers are notified of axis
-            limit change.
-
-        xmin, ymin, xmax, ymax : float, optional
-            The axis limits to be set.
+        emit : bool, optional, default *True*
+            Whether observers are notified of the axis limit change.
+            This option is passed on to `~.Axes.set_xlim` and
+            `~.Axes.set_ylim`.
 
         Returns
         -------
@@ -2060,12 +2060,22 @@ class _AxesBase(martist.Artist):
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
-        Update the data lim bbox with seq of xy tups or equiv. 2-D array
+        Extend the `~.Axes.dataLim` BBox to include the given points.
+
+        If no data is set currently, the BBox will ignore its limits and set
+        the bound to be the bounds of the xydata (*xys*). Otherwise, it will
+        compute the bounds of the union of its current data and the data in
+        *xys*.
+
+        Parameters
+        ----------
+        xys : 2D array-like
+            The points to include in the data limits BBox. This can be either
+            a list of (x, y) tuples or a Nx2 array.
+
+        updatex, updatey : bool, optional, default *True*
+            Whether to update the x/y limits.
         """
-        # if no data is set currently, the bbox will ignore its
-        # limits and set the bound to be the bounds of the xydata.
-        # Otherwise, it will compute the bounds of it's current data
-        # and the data in xydata
         xys = np.asarray(xys)
         if not len(xys):
             return
@@ -2075,8 +2085,12 @@ class _AxesBase(martist.Artist):
 
     def update_datalim_bounds(self, bounds):
         """
-        Update the datalim to include the given
-        :class:`~matplotlib.transforms.Bbox` *bounds*
+        Extend the `~.Axes.datalim` BBox to include the given
+        `~matplotlib.transforms.Bbox`.
+
+        Parameters
+        ----------
+        bounds : `~matplotlib.transforms.Bbox`
         """
         self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
 
@@ -2652,19 +2666,38 @@ class _AxesBase(martist.Artist):
     def get_axisbelow(self):
         """
         Get whether axis ticks and gridlines are above or below most artists.
+
+        Returns
+        -------
+        axisbelow : bool or 'line'
+
+        See Also
+        --------
+        set_axisbelow
         """
         return self._axisbelow
 
     def set_axisbelow(self, b):
         """
-        Set the zorder for the axes ticks and gridlines.
+        Set whether axis ticks and gridlines are above or below most artists.
+
+        This controls the zorder of the ticks and gridlines. For more
+        information on the zorder see :doc:`/gallery/misc/zorder_demo`.
 
         Parameters
         ----------
         b : bool or 'line'
-            ``True`` corresponds to a zorder of 0.5, ``False`` to a zorder of
-            2.5, and ``"line"`` to a zorder of 1.5.
+            Possible values:
 
+            - *True* (zorder = 0.5): Ticks and gridlines are below all Artists.
+            - 'line' (zorder = 1.5): Ticks and gridlines are above patches (
+              e.g. rectangles) but still below lines / markers.
+            - *False* (zorder = 2.5): Ticks and gridlines are above patches
+              and lines / markers.
+
+        See Also
+        --------
+        get_axisbelow
         """
         self._axisbelow = axisbelow = validate_axisbelow(b)
         if axisbelow is True:
@@ -2953,28 +2986,62 @@ class _AxesBase(martist.Artist):
             self.yaxis.set_tick_params(**ykw)
 
     def set_axis_off(self):
-        """Turn off the axis."""
+        """
+        Turn the x- and y-axis off.
+
+        This affects the axis lines, ticks, ticklabels, grid and axis labels.
+        """
         self.axison = False
         self.stale = True
 
     def set_axis_on(self):
-        """Turn on the axis."""
+        """
+        Turn the x- and y-axis on.
+
+        This affects the axis lines, ticks, ticklabels, grid and axis labels.
+        """
         self.axison = True
         self.stale = True
 
     # data limits, ticks, tick labels, and formatting
 
     def invert_xaxis(self):
-        """Invert the x-axis."""
+        """
+        Invert the x-axis.
+
+        See Also
+        --------
+        xaxis_inverted
+        get_xlim, set_xlim
+        get_xbound, set_xbound
+        """
         self.set_xlim(self.get_xlim()[::-1], auto=None)
 
     def xaxis_inverted(self):
-        """Return whether the x-axis is inverted."""
+        """
+        Return whether the x-axis is inverted.
+
+        The axis is inverted if the left value is larger than the right value.
+
+        See Also
+        --------
+        invert_xaxis
+        get_xlim, set_xlim
+        get_xbound, set_xbound
+        """
         left, right = self.get_xlim()
         return right < left
 
     def get_xbound(self):
-        """Return the lower and upper x-axis bounds, in increasing order."""
+        """
+        Return the lower and upper x-axis bounds, in increasing order.
+
+        See Also
+        --------
+        set_xbound
+        get_xlim, set_xlim
+        invert_xaxis, xaxis_inverted
+        """
         left, right = self.get_xlim()
         if left < right:
             return left, right
@@ -2986,9 +3053,19 @@ class _AxesBase(martist.Artist):
         Set the lower and upper numerical bounds of the x-axis.
 
         This method will honor axes inversion regardless of parameter order.
-        It will not change the _autoscaleXon attribute.
+        It will not change the autoscaling setting (``Axes._autoscaleXon``).
 
-        .. ACCEPTS: (lower: float, upper: float)
+        Parameters
+        ----------
+        lower, upper : float or None
+            The lower and upper bounds. If *None*, the respective axis bound
+            is not modified.
+
+        See Also
+        --------
+        get_xbound
+        get_xlim, set_xlim
+        invert_xaxis, xaxis_inverted
         """
         if upper is None and iterable(lower):
             lower, upper = lower
@@ -3013,18 +3090,23 @@ class _AxesBase(martist.Artist):
 
     def get_xlim(self):
         """
-        Get the x-axis range
+        Return the x-axis view limits.
 
         Returns
         -------
-        xlimits : tuple
-            Returns the current x-axis limits as the tuple
-            (`left`, `right`).
+        left, right : (float, float)
+            The current x-axis limits in data coordinates.
+
+        See Also
+        --------
+        set_xlim
+        set_xbound, get_xbound
+        invert_xaxis, xaxis_inverted
 
         Notes
         -----
-        The x-axis may be inverted, in which case the `left` value will
-        be greater than the `right` value.
+        The x-axis may be inverted, in which case the *left* value will
+        be greater than the *right* value.
 
         """
         return tuple(self.viewLim.intervalx)
@@ -3050,22 +3132,23 @@ class _AxesBase(martist.Artist):
     def set_xlim(self, left=None, right=None, emit=True, auto=False,
                  *, xmin=None, xmax=None):
         """
-        Set the data limits for the x-axis
+        Set the x-axis view limits.
 
         .. ACCEPTS: (left: float, right: float)
 
         Parameters
         ----------
         left : scalar, optional
-            The left xlim (default: None, which leaves the left limit
-            unchanged).
+            The left xlim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
             The left and right xlims may be passed as the tuple
             (`left`, `right`) as the first positional argument (or as
             the `left` keyword argument).
 
         right : scalar, optional
-            The right xlim (default: None, which leaves the right limit
-            unchanged).
+            The right xlim in data coordinates. Passing *None* leaves the
+            limit unchanged.
 
         emit : bool, optional
             Whether to notify observers of limit change (default: True).
@@ -3077,17 +3160,23 @@ class _AxesBase(martist.Artist):
         xmin, xmax : scalar, optional
             These arguments are deprecated and will be removed in a future
             version.  They are equivalent to left and right respectively,
-            and it is an error to pass both `xmin` and `left` or
-            `xmax` and `right`.
+            and it is an error to pass both *xmin* and *left* or
+            *xmax* and *right*.
 
         Returns
         -------
-        xlimits : tuple
-            Returns the new x-axis limits as (`left`, `right`).
+        left, right : (float, float)
+            The new x-axis limits in data coordinates.
+
+        See Also
+        --------
+        get_xlim
+        set_xbound, get_xbound
+        invert_xaxis, xaxis_inverted
 
         Notes
         -----
-        The `left` value may be greater than the `right` value, in which
+        The *left* value may be greater than the *right* value, in which
         case the x-axis values will decrease from left to right.
 
         Examples
@@ -3101,7 +3190,7 @@ class _AxesBase(martist.Artist):
         >>> set_xlim(right=right_lim)
 
         Limits may be passed in reverse order to flip the direction of
-        the x-axis. For example, suppose `x` represents the number of
+        the x-axis. For example, suppose ``x`` represents the number of
         years before present. The x-axis limits might be set like the
         following so 5000 years ago is on the left of the plot and the
         present is on the right.
@@ -3318,16 +3407,42 @@ class _AxesBase(martist.Artist):
         return ret
 
     def invert_yaxis(self):
-        """Invert the y-axis."""
+        """
+        Invert the y-axis.
+
+        See Also
+        --------
+        yaxis_inverted
+        get_ylim, set_ylim
+        get_ybound, set_ybound
+        """
         self.set_ylim(self.get_ylim()[::-1], auto=None)
 
     def yaxis_inverted(self):
-        """Return whether the y-axis is inverted."""
+        """
+        Return whether the y-axis is inverted.
+
+        The axis is inverted if the bottom value is larger than the top value.
+
+        See Also
+        --------
+        invert_yaxis
+        get_ylim, set_ylim
+        get_ybound, set_ybound
+        """
         bottom, top = self.get_ylim()
         return top < bottom
 
     def get_ybound(self):
-        """Return the lower and upper y-axis bounds, in increasing order."""
+        """
+        Return the lower and upper y-axis bounds, in increasing order.
+
+        See Also
+        --------
+        set_ybound
+        get_ylim, set_ylim
+        invert_yaxis, yaxis_inverted
+        """
         bottom, top = self.get_ylim()
         if bottom < top:
             return bottom, top
@@ -3337,10 +3452,21 @@ class _AxesBase(martist.Artist):
     def set_ybound(self, lower=None, upper=None):
         """
         Set the lower and upper numerical bounds of the y-axis.
-        This method will honor axes inversion regardless of parameter order.
-        It will not change the _autoscaleYon attribute.
 
-        .. ACCEPTS: (lower: float, upper: float)
+        This method will honor axes inversion regardless of parameter order.
+        It will not change the autoscaling setting (``Axes._autoscaleYon``).
+
+        Parameters
+        ----------
+        lower, upper : float or None
+            The lower and upper bounds. If *None*, the respective axis bound
+            is not modified.
+
+        See Also
+        --------
+        get_ybound
+        get_ylim, set_ylim
+        invert_yaxis, yaxis_inverted
         """
         if upper is None and iterable(lower):
             lower, upper = lower
@@ -3365,18 +3491,23 @@ class _AxesBase(martist.Artist):
 
     def get_ylim(self):
         """
-        Get the y-axis range
+        Return the y-axis view limits.
 
         Returns
         -------
-        ylimits : tuple
-            Returns the current y-axis limits as the tuple
-            (`bottom`, `top`).
+        bottom, top : (float, float)
+            The current y-axis limits in data coordinates.
+
+        See Also
+        --------
+        set_ylim
+        set_ybound, get_ybound
+        invert_yaxis, yaxis_inverted
 
         Notes
         -----
-        The y-axis may be inverted, in which case the `bottom` value
-        will be greater than the `top` value.
+        The y-axis may be inverted, in which case the *bottom* value
+        will be greater than the *top* value.
 
         """
         return tuple(self.viewLim.intervaly)
@@ -3384,45 +3515,52 @@ class _AxesBase(martist.Artist):
     def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
                  *, ymin=None, ymax=None):
         """
-        Set the data limits for the y-axis
+        Set the y-axis view limits.
 
         .. ACCEPTS: (bottom: float, top: float)
 
         Parameters
         ----------
         bottom : scalar, optional
-            The bottom ylim (default: None, which leaves the bottom
-            limit unchanged).
+            The bottom ylim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
             The bottom and top ylims may be passed as the tuple
             (`bottom`, `top`) as the first positional argument (or as
             the `bottom` keyword argument).
 
         top : scalar, optional
-            The top ylim (default: None, which leaves the top limit
-            unchanged).
+            The top ylim in data coordinates. Passing *None* leaves the
+            limit unchanged.
 
         emit : bool, optional
             Whether to notify observers of limit change (default: True).
 
         auto : bool or None, optional
-            Whether to turn on autoscaling of the y-axis. True turns on,
-            False turns off (default action), None leaves unchanged.
+            Whether to turn on autoscaling of the y-axis. *True* turns on,
+            *False* turns off (default action), *None* leaves unchanged.
 
         ymin, ymax : scalar, optional
             These arguments are deprecated and will be removed in a future
             version.  They are equivalent to bottom and top respectively,
-            and it is an error to pass both `xmin` and `bottom` or
-            `xmax` and `top`.
+            and it is an error to pass both *ymin* and *bottom* or
+            *ymax* and *top*.
 
         Returns
         -------
-        ylimits : tuple
-            Returns the new y-axis limits as (`bottom`, `top`).
+        bottom, top : (float, float)
+            The new y-axis limits in data coordinates.
+
+        See Also
+        --------
+        get_ylim
+        set_ybound, get_ybound
+        invert_yaxis, yaxis_inverted
 
         Notes
         -----
-        The `bottom` value may be greater than the `top` value, in which
-        case the y-axis values will decrease from bottom to top.
+        The *bottom* value may be greater than the *top* value, in which
+        case the y-axis values will decrease from *bottom* to *top*.
 
         Examples
         --------
@@ -3435,7 +3573,7 @@ class _AxesBase(martist.Artist):
         >>> set_ylim(top=top_lim)
 
         Limits may be passed in reverse order to flip the direction of
-        the y-axis. For example, suppose `y` represents depth of the
+        the y-axis. For example, suppose ``y`` represents depth of the
         ocean in m. The y-axis limits might be set like the following
         so 5000 m depth is at the bottom of the plot and the surface,
         0 m, is at the top.
