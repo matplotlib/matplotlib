@@ -55,6 +55,7 @@ Modules
    style_api.rst
    table_api.rst
    text_api.rst
+   textpath_api.rst
    ticker_api.rst
    tight_layout_api.rst
    transformations.rst
