@@ -59,6 +59,7 @@ def test_get_default_filename(tmpdir):
 def test_non_gui_warning():
     plt.close('all')
     plt.subplots()
+    print(matplotlib.get_backend())
     with pytest.warns(UserWarning) as rec:
         plt.show()
         assert len(rec) == 1

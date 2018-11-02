@@ -38,6 +38,9 @@ jobs:
 
     displayName: "Install self"
 
+  - script: env
+    displayName: 'print env'
+
   - script: |
 
       pip install pytest
