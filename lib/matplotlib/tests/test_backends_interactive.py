@@ -119,7 +119,7 @@ def test_interactive_backend(backend):
 
 @pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
-    pytest.mark.skipif('AZURE_HTTP_USER_AGENT' in os.environ)
+    pytest.mark.skipif(os.environ.get('USER', '') == 'vsts')
     pytest.importorskip("tornado")
     proc = subprocess.Popen([sys.executable, "-c", _test_script],
                             env={**os.environ, "MPLBACKEND": "webagg"})

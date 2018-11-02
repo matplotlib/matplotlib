@@ -58,7 +58,7 @@ def test_get_default_filename(tmpdir):
 @pytest.mark.backend('pdf')
 def test_non_gui_warning():
     print(list(os.environ))
-    pytest.mark.skipif('AZURE_HTTP_USER_AGENT' in os.environ)
+    pytest.mark.skipif(os.environ.get('USER', '') == 'vsts')
     plt.subplots()
 
     with pytest.warns(UserWarning) as rec:
