@@ -442,7 +442,8 @@ def test_contains_points():
     expected = path.contains_points(points, transform, radius)
     result = ell.contains_points(points)
     assert np.all(result == expected)
-    
+
+
 def test_when_update_from_and_set_alpha_then_only_alpha_changes():
     # given
     source_facecolor = (0.234, 0.123, 0.135, 0.322)
@@ -464,7 +465,8 @@ def test_when_update_from_and_set_alpha_then_only_alpha_changes():
     expected_edgecolor = source_edgecolor[0:3] + (0.777,)
     assert updated.get_facecolor() == expected_facecolor
     assert updated.get_edgecolor() == expected_edgecolor
-    
+
+
 # Currently fails with pdf/svg, probably because some parts assume a dpi of 72.
 @check_figures_equal(extensions=["png"])
 def test_shadow(fig_test, fig_ref):
@@ -489,4 +491,3 @@ def test_shadow(fig_test, fig_ref):
         alpha=.5)
     a2.add_patch(shadow)
     a2.add_patch(rect)
-    
