@@ -1,6 +1,6 @@
-===================
- axis and tick API
-===================
+*******************
+``matplotlib.axis``
+*******************
 
 .. contents:: Table of Contents
    :depth: 3

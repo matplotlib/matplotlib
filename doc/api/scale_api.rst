@@ -1,10 +1,6 @@
-*****
-scale
-*****
-
-
-:mod:`matplotlib.scale`
-=======================
+********************
+``matplotlib.scale``
+********************
 
 .. automodule:: matplotlib.scale
    :members:
