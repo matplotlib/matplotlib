@@ -1,8 +1,7 @@
-Allow "real" LaTeX code for ``pgf.preamble`` in matplotlib rc file
-``````````````````````````````````````````````````````````````````
+Allow "real" LaTeX code for ``pgf.preamble`` and ``text.latex.preamble`` in matplotlib rc file
+``````````````````````````````````````````````````````````````````````````````````````````````
 
-Previously, the rc file key ``pgf.preamble`` was parsed using commmas as
-separators. This would break valid LaTeX code, such as::
+Previously, the rc file keys ``pgf.preamble`` and ``text.latex.preamble`` were parsed using commmas as separators. This would break valid LaTeX code, such as::
 
 \usepackage[protrusion=true, expansion=false]{microtype}
 

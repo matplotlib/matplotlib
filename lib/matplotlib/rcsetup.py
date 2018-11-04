@@ -1129,7 +1129,7 @@ defaultParams = {
     'text.color':          ['black', validate_color],
     'text.usetex':         [False, validate_bool],
     'text.latex.unicode':  [True, validate_bool],
-    'text.latex.preamble': [[], validate_stringlist],
+    'text.latex.preamble': ['', _validate_stringlist_or_string],
     'text.latex.preview':  [False, validate_bool],
     'text.dvipnghack':     [None, validate_bool_maybe_none],
     'text.hinting':        ['auto', validate_hinting],
