@@ -20,6 +20,12 @@ from matplotlib.patches import Patch
 from . import proj3d
 
 
+class Object3D(object):
+    """A base class for any 3D object"""
+    def __init__(self):
+        self._sort_zpos = -np.inf  # defaults to background (plotted first)
+
+
 def norm_angle(a):
     """Return the given angle normalized to -180 < *a* <= 180 degrees."""
     a = (a + 360) % 360
@@ -71,7 +77,7 @@ def get_dir_vector(zdir):
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
 
 
-class Text3D(mtext.Text):
+class Text3D(mtext.Text, Object3D):
     """
     Text object with 3D position and direction.
 
@@ -93,6 +99,7 @@ class Text3D(mtext.Text):
 
     def __init__(self, x=0, y=0, z=0, text='', zdir='z', **kwargs):
         mtext.Text.__init__(self, x, y, text, **kwargs)
+        Object3D.__init__(self)
         self.set_3d_properties(z, zdir)
 
     def set_3d_properties(self, z=0, zdir='z'):
@@ -120,7 +127,7 @@ def text_2d_to_3d(obj, z=0, zdir='z'):
     obj.set_3d_properties(z, zdir)
 
 
-class Line3D(lines.Line2D):
+class Line3D(lines.Line2D, Object3D):
     """
     3D line object.
     """
@@ -130,6 +137,7 @@ class Line3D(lines.Line2D):
         Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
         """
         lines.Line2D.__init__(self, [], [], *args, **kwargs)
+        Object3D.__init__(self)
         self._verts3d = xs, ys, zs
 
     def set_3d_properties(self, zs=0, zdir='z'):
@@ -209,10 +217,14 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     return segments, codes_list
 
 
-class Line3DCollection(LineCollection):
+class Line3DCollection(LineCollection, Object3D):
     """
     A collection of 3D lines.
     """
+
+    def __init__(self, *args, **kwargs):
+        LineCollection.__init__(self, *args, **kwargs)
+        Object3D.__init__(self)
 
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
@@ -256,13 +268,14 @@ def line_collection_2d_to_3d(col, zs=0, zdir='z'):
     col.set_segments(segments3d)
 
 
-class Patch3D(Patch):
+class Patch3D(Patch, Object3D):
     """
     3D patch object.
     """
 
     def __init__(self, *args, zs=(), zdir='z', **kwargs):
         Patch.__init__(self, *args, **kwargs)
+        Object3D.__init__(self)
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
@@ -287,13 +300,14 @@ class Patch3D(Patch):
         return min(vzs)
 
 
-class PathPatch3D(Patch3D):
+class PathPatch3D(Patch3D, Object3D):
     """
     3D PathPatch object.
     """
 
     def __init__(self, path, *, zs=(), zdir='z', **kwargs):
         Patch.__init__(self, **kwargs)
+        Object3D.__init__(self)
         self.set_3d_properties(path, zs, zdir)
 
     def set_3d_properties(self, path, zs=0, zdir='z'):
@@ -338,7 +352,7 @@ def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
     pathpatch.set_3d_properties(mpath, z, zdir)
 
 
-class Patch3DCollection(PatchCollection):
+class Patch3DCollection(PatchCollection, Object3D):
     """
     A collection of 3D patches.
     """
@@ -360,7 +374,8 @@ class Patch3DCollection(PatchCollection):
         This is typically desired in scatter plots.
         """
         self._depthshade = depthshade
-        super().__init__(*args, **kwargs)
+        PatchCollection.__init__(self, *args, **kwargs)
+        Object3D.__init__(self)
         self.set_3d_properties(zs, zdir)
 
     def set_sort_zpos(self, val):
@@ -404,7 +419,7 @@ class Patch3DCollection(PatchCollection):
             return np.nan
 
 
-class Path3DCollection(PathCollection):
+class Path3DCollection(PathCollection, Object3D):
     """
     A collection of 3D paths.
     """
@@ -426,7 +441,8 @@ class Path3DCollection(PathCollection):
         This is typically desired in scatter plots.
         """
         self._depthshade = depthshade
-        super().__init__(*args, **kwargs)
+        PathCollection.__init__(self, *args, **kwargs)
+        Object3D.__init__(self)
         self.set_3d_properties(zs, zdir)
 
     def set_sort_zpos(self, val):
@@ -493,7 +509,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     col.set_3d_properties(zs, zdir)
 
 
-class Poly3DCollection(PolyCollection):
+class Poly3DCollection(PolyCollection, Object3D):
     """
     A collection of 3D polygons.
     """
@@ -510,7 +526,8 @@ class Poly3DCollection(PolyCollection):
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
         """
-        super().__init__(verts, *args, **kwargs)
+        PolyCollection.__init__(self, verts, *args, **kwargs)
+        Object3D.__init__(self)
         self.set_zsort(zsort)
         self._codes3d = None
 
