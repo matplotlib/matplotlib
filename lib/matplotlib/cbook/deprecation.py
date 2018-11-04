@@ -247,7 +247,7 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
         old_doc = inspect.cleandoc(old_doc or '').strip('\n')
 
         message = message.strip()
-        new_doc = ('{old_doc}\n'
+        new_doc = ('[*Deprecated*] {old_doc}\n'
                    '\n'
                    '.. deprecated:: {since}\n'
                    '   {message}'
