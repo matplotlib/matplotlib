@@ -182,7 +182,7 @@ def _validate_stringlist_or_string(s):
     try:
         if isinstance(s, str):
             return s
-        if isinstance(s, list):
+        if isinstance(s, Iterable):
             return '\n'.join([str(i) for i in s])
         raise ValueError()
     except ValueError:
