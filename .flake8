@@ -182,8 +182,7 @@ per-file-ignores =
     examples/pyplots/pyplot_formatstr.py: E231, E402
     examples/pyplots/pyplot_mathtext.py: E231, E402
     examples/pyplots/pyplot_scales.py: E402
-    examples/pyplots/pyplot_simple.py: E231
-    examples/pyplots/pyplot_simple.py: E402
+    examples/pyplots/pyplot_simple.py: E231, E402
     examples/pyplots/pyplot_text.py: E402
     examples/pyplots/pyplot_three.py: E402
     examples/pyplots/pyplot_two_subplots.py: E302, E402
