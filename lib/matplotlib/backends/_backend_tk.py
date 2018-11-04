@@ -1034,4 +1034,6 @@ class _BackendTk(_Backend):
 
     @staticmethod
     def mainloop():
-        Tk.mainloop()
+        managers = Gcf.get_all_fig_managers()
+        if managers:
+            managers[0].window.mainloop()
