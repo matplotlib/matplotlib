@@ -56,10 +56,10 @@ def test_get_default_filename(tmpdir):
 
 
 @pytest.mark.backend('pdf')
-@pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ,
-                    reason="this test fails an azure for unknown reasons")
-def test_non_gui_warning():
+def test_non_gui_warning(monkeypatch):
     plt.subplots()
+
+    monkeypatch.setitem(os.environ, "DISPLAY", ":999")
 
     with pytest.warns(UserWarning) as rec:
         plt.show()
