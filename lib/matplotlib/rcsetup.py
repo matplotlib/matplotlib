@@ -1115,7 +1115,7 @@ defaultParams = {
     'text.color':          ['black', validate_color],
     'text.usetex':         [False, validate_bool],
     'text.latex.unicode':  [True, validate_bool],
-    'text.latex.preamble': [[''], validate_stringlist],
+    'text.latex.preamble': [[], validate_stringlist],
     'text.latex.preview':  [False, validate_bool],
     'text.dvipnghack':     [None, validate_bool_maybe_none],
     'text.hinting':        ['auto', validate_hinting],
@@ -1391,7 +1391,7 @@ defaultParams = {
     # use matplotlib rc settings for font configuration
     'pgf.rcfonts':   [True, validate_bool],
     # provide a custom preamble for the latex process
-    'pgf.preamble':  [[''], validate_stringlist],
+    'pgf.preamble':  [[], validate_stringlist],
 
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],
@@ -1412,7 +1412,7 @@ defaultParams = {
     'agg.path.chunksize': [0, validate_int],       # 0 to disable chunking;
 
     # key-mappings (multi-character mappings should be a list/tuple)
-    'keymap.fullscreen':   [('f', 'ctrl+f'), validate_stringlist],
+    'keymap.fullscreen':   [['f', 'ctrl+f'], validate_stringlist],
     'keymap.home':         [['h', 'r', 'home'], validate_stringlist],
     'keymap.back':         [['left', 'c', 'backspace'], validate_stringlist],
     'keymap.forward':      [['right', 'v'], validate_stringlist],
@@ -1463,11 +1463,3 @@ defaultParams = {
     # altogether.  For that use `matplotlib.style.use('classic')`.
     '_internal.classic_mode': [False, validate_bool]
 }
-
-
-if __name__ == '__main__':
-    rc = defaultParams
-    rc['datapath'][0] = '/'
-    for key in rc:
-        if not rc[key][1](rc[key][0]) == rc[key][0]:
-            print("%s: %s != %s" % (key, rc[key][1](rc[key][0]), rc[key][0]))
