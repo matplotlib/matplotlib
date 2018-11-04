@@ -18,9 +18,11 @@ from enum import Enum
 import functools
 import inspect
 from inspect import Parameter
+import itertools
 from pathlib import Path
 import sys
 import subprocess
+import textwrap
 
 
 # This line imports the installed copy of matplotlib, and not the local copy.
@@ -370,6 +372,23 @@ def boilerplate_gen():
     for name in cmaps:
         yield AUTOGEN_MSG
         yield CMAP_TEMPLATE.format(name=name)
+
+    # extend __all__
+    all_text_wrapper = textwrap.TextWrapper(
+        break_long_words=False, width=74,
+        initial_indent=' ' * 4, subsequent_indent=' ' * 4)
+
+    all_additions = all_text_wrapper.fill(
+        ', '.join([
+            '"%s"' % funcname.split(':', 1)[0]
+            for funcname in itertools.chain(
+                _axes_commands, _figure_commands, cmappable, cmaps
+            )
+        ])
+    )
+
+    yield '\n'
+    yield f'__all__ += [\n{all_additions}\n]\n'
 
 
 def build_pyplot(pyplot_path):
