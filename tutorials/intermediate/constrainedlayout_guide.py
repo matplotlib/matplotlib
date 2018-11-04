@@ -305,15 +305,17 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 # Spacing with colorbars
 # -----------------------
 #
-# Colorbars still respect the ``w_pad`` and ``h_pad`` values. However they will
-# be ``wspace`` and ``hsapce`` apart from other subplots.  Note the use of a
-# ``pad`` kwarg here in the ``colorbar`` call.  It defaults to 0.02 of the size
+# Colorbars will be placed ``wspace`` and ``hsapce`` apart from other
+# subplots. The padding between the colorbar and the axis it is
+# attached to will never be less than ``w_pad`` (for a vertical colorbar)
+# or ``h_pad`` (for a horizontal colorbar). Note the use of the ``pad`` kwarg
+# here in the ``colorbar`` call.  It defaults to 0.02 of the size
 # of the axis it is attached to.
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flatten():
     pc = ax.pcolormesh(arr, **pc_kwargs)
-    fig.colorbar(im, ax=ax, shrink=0.6, pad=0)
+    fig.colorbar(pc, ax=ax, shrink=0.6, pad=0)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
 fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
