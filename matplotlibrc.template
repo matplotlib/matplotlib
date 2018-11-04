@@ -229,14 +229,18 @@
 #text.latex.preamble :      ## IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
                             ## AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
                             ## IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
-                            ## preamble is a comma separated list of LaTeX statements
-                            ## that are included in the LaTeX document preamble.
-                            ## An example:
-                            ## text.latex.preamble : \usepackage{bm},\usepackage{euler}
+                            ## text.latex.preamble is a single line of LaTeX code that
+                            ## will be passed on to the LaTeX system. It may contain
+                            ## any code that is valid for the LaTeX "preamble", i.e.
+                            ## between the "\documentclass" and "\begin{document}"
+                            ## statements.
+                            ## Note that it has to be put on a single line, which may
+                            ## become quite long.
                             ## The following packages are always loaded with usetex, so
                             ## beware of package collisions: color, geometry, graphicx,
-                            ## type1cm, textcomp. Adobe Postscript (PSSNFS) font packages
-                            ## may also be loaded, depending on your font settings
+                            ## type1cm, textcomp.
+                            ## Adobe Postscript (PSSNFS) font packages may also be
+                            ## loaded, depending on your font settings.
 #text.latex.preview : False
 
 #text.hinting : auto   ## May be one of the following:
@@ -567,7 +571,7 @@
                                ## instead of uuid4
 ### pgf parameter
 #pgf.rcfonts : True
-#pgf.preamble :
+#pgf.preamble :            ## see text.latex.preamble for documentation
 #pgf.texsystem : xelatex
 
 ### docstring params
