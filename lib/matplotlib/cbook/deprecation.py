@@ -245,11 +245,12 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
             return func(*args, **kwargs)
 
         old_doc = inspect.cleandoc(old_doc or '').strip('\n')
+
         message = message.strip()
-        new_doc = ('.. deprecated:: {since}\n'
-                   '   {message}\n'
+        new_doc = ('{old_doc}\n'
                    '\n'
-                   '{old_doc}'
+                   '.. deprecated:: {since}\n'
+                   '   {message}'
                    .format(since=since, message=message, old_doc=old_doc))
         if not old_doc:
             # This is to prevent a spurious 'unexected unindent' warning from
