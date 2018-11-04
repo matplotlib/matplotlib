@@ -281,16 +281,23 @@ class Axes3D(Axes):
         # Make sure they are drawn above the grids.
         zorder_offset = max(axis.get_zorder()
                             for axis in self._get_axis_list()) + 1
-        for i, col in enumerate(
-                sorted(self.collections,
-                       key=lambda col: col.do_3d_projection(renderer),
-                       reverse=True)):
-            col.zorder = zorder_offset + i
-        for i, patch in enumerate(
-                sorted(self.patches,
-                       key=lambda patch: patch.do_3d_projection(renderer),
-                       reverse=True)):
-            patch.zorder = zorder_offset + i
+
+        # Group of objects to be dynamically reordered
+        select_children = list()
+        select_children.extend(self.collections)
+        select_children.extend(self.patches)
+        select_children.extend(self.lines)
+        select_children.extend(self.texts)
+        for i, h in enumerate(
+                sorted(
+                    select_children,
+                    key=lambda h: (
+                        h._sort_zpos if hasattr(h, '_sort_zpos') else np.inf,
+                        -h.do_3d_projection(renderer) if hasattr(h, 'do_3d_projection') else -np.inf
+                    )
+                )
+        ):
+            h.zorder = zorder_offset + i
 
         if self._axis3don:
             # Draw panes first
