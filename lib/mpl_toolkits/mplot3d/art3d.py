@@ -140,6 +140,11 @@ class Line3D(lines.Line2D, Object3D):
         Object3D.__init__(self)
         self._verts3d = xs, ys, zs
 
+    def set_sort_zpos(self, val):
+        """Set the position to use for z-sorting."""
+        self._sort_zpos = val
+        self.stale = True
+
     def set_3d_properties(self, zs=0, zdir='z'):
         xs = self.get_xdata()
         ys = self.get_ydata()
