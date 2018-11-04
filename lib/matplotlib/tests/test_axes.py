@@ -1,3 +1,4 @@
+from collections import namedtuple
 from itertools import product
 from distutils.version import LooseVersion
 import io
@@ -1795,7 +1796,7 @@ class TestScatter(object):
         # Additional checking of *c* (introduced in #11383).
         REGEXP = {
             "shape": "^'c' argument has [0-9]+ elements",  # shape mismatch
-            "conversion": "^'c' argument must either be valid",  # bad vals
+            "conversion": "^'c' argument must be a mpl color",  # bad vals
             }
         x = y = [0, 1, 2, 3]
         fig, ax = plt.subplots()
@@ -1805,6 +1806,65 @@ class TestScatter(object):
         else:
             with pytest.raises(ValueError, match=REGEXP[re_key]):
                 ax.scatter(x, y, c=c_case, edgecolors="black")
+
+
+def _params(c=None, xshape=(2,), yshape=(2,), **kwargs):
+    edgecolors = kwargs.pop('edgecolors', None)
+    return (c, edgecolors, kwargs if kwargs is not None else {},
+            xshape, yshape)
+_result = namedtuple('_result', 'c, colors')
+
+
+@pytest.mark.parametrize('params, expected_result',
+    [(_params(),
+      _result(c='b', colors=np.array([[0, 0, 1, 1]]))),
+     (_params(c='r'),
+      _result(c='r', colors=np.array([[1, 0, 0, 1]]))),
+     (_params(c='r', colors='b'),
+      _result(c='r', colors=np.array([[1, 0, 0, 1]]))),
+     # color
+     (_params(color='b'),
+      _result(c='b', colors=np.array([[0, 0, 1, 1]]))),
+     (_params(color=['b', 'g']),
+      _result(c=['b', 'g'], colors=np.array([[0, 0, 1, 1], [0, .5, 0, 1]]))),
+     ])
+def test_parse_scatter_color_args(params, expected_result):
+    from matplotlib.axes import Axes
+    dummyself = 'UNUSED'  # self is only used in one case, which we do not
+                          # test. Therefore we can get away without costly
+                          # creating an Axes instance.
+    c, colors, _edgecolors = Axes._parse_scatter_color_args(dummyself, *params)
+    assert c == expected_result.c
+    assert_allclose(colors, expected_result.colors)
+
+del _params
+del _result
+
+
+@pytest.mark.parametrize('kwargs, expected_edgecolors',
+    [(dict(), None),
+     (dict(c='b'), None),
+     (dict(edgecolors='r'), 'r'),
+     (dict(edgecolors=['r', 'g']), ['r', 'g']),
+     (dict(edgecolor='r'), 'r'),
+     (dict(edgecolors='face'), 'face'),
+     (dict(edgecolors='none'), 'none'),
+     (dict(edgecolor='r', edgecolors='g'), 'r'),
+     (dict(c='b', edgecolor='r', edgecolors='g'), 'r'),
+     (dict(color='r'), 'r'),
+     (dict(color='r', edgecolor='g'), 'g'),
+     ])
+def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
+    from matplotlib.axes import Axes
+    dummyself = 'UNUSED'  # self is only used in one case, which we do not
+                          # test. Therefore we can get away without costly
+                          # creating an Axes instance.
+    c = kwargs.pop('c', None)
+    edgecolors = kwargs.pop('edgecolors', None)
+    _, _, result_edgecolors = \
+        Axes._parse_scatter_color_args(dummyself, c, edgecolors, kwargs,
+                                       xshape=(2,), yshape=(2,))
+    assert result_edgecolors == expected_edgecolors
 
 
 def test_as_mpl_axes_api():
