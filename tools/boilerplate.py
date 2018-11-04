@@ -16,6 +16,7 @@ this file.
 from enum import Enum
 import inspect
 from inspect import Parameter
+import itertools
 from pathlib import Path
 import sys
 import textwrap
@@ -365,6 +366,21 @@ def boilerplate_gen():
     for name in cmaps:
         yield AUTOGEN_MSG
         yield CMAP_TEMPLATE.format(name=name)
+
+    # extend __all__
+    all_text_wrapper = textwrap.TextWrapper(
+        break_long_words=False, width=74,
+        initial_indent=' ' * 4, subsequent_indent=' ' * 4)
+
+    t = all_text_wrapper.fill(
+            ', '.join([
+                "'%s'" % funcname.split(':', 1)[0]
+                for funcname in itertools.chain(
+                    _axes_commands, _figure_commands, cmappable, cmaps
+                )]))
+
+    yield '\n'
+    yield '__all__ += [\n{}\n]\n'.format(t)
 
 
 def build_pyplot(pyplot_path):
