@@ -5891,9 +5891,9 @@ def test_tick_padding_tightbbox():
     plt.rcParams["xtick.direction"] = "out"
     plt.rcParams["ytick.direction"] = "out"
     fig, ax = plt.subplots()
-    bb = ax.get_window_extent(fig.canvas.get_renderer())
+    bb = ax.get_tightbbox(fig.canvas.get_renderer())
     ax.axis('off')
-    bb2 = ax.get_window_extent(fig.canvas.get_renderer())
+    bb2 = ax.get_tightbbox(fig.canvas.get_renderer())
     assert bb.x0 < bb2.x0
     assert bb.y0 < bb2.y0
 
