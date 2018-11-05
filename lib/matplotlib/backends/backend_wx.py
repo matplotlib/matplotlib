@@ -1575,10 +1575,9 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             if ext in ('svg', 'pdf', 'ps', 'eps', 'png') and format != ext:
                 # looks like they forgot to set the image type drop
                 # down, going with the extension.
-                _log.warning(
-                    'extension %s did not match the selected '
-                    'image type %s; going with %s' %
-                    (ext, format, ext))
+                _log.warning('extension %s did not match the selected '
+                             'image type %s; going with %s',
+                             ext, format, ext)
                 format = ext
             try:
                 self.canvas.figure.savefig(
@@ -1839,10 +1838,9 @@ class SaveFigureWx(backend_tools.SaveFigureBase):
         if ext in ('svg', 'pdf', 'ps', 'eps', 'png') and format != ext:
             # looks like they forgot to set the image type drop
             # down, going with the extension.
-            _log.warning(
-                'extension %s did not match the selected '
-                'image type %s; going with %s' %
-                (ext, format, ext))
+            _log.warning('extension %s did not match the selected '
+                         'image type %s; going with %s',
+                         ext, format, ext)
             format = ext
         if default_dir != "":
             matplotlib.rcParams['savefig.directory'] = dirname

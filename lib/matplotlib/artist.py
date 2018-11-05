@@ -403,7 +403,7 @@ class Artist(object):
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
-        _log.warning("'%s' needs 'contains' method" % self.__class__.__name__)
+        _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
     def set_contains(self, picker):

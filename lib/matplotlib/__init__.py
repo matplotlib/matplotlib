@@ -489,7 +489,7 @@ def checkdep_ps_distiller(s):
         flag = False
         _log.warning('matplotlibrc ps.usedistiller option can not be used '
                      'unless ghostscript 9.0 or later is installed on your '
-                     'system')
+                     'system.')
 
     if s == 'xpdf':
         pdftops_req = '3.0'
@@ -502,9 +502,9 @@ def checkdep_ps_distiller(s):
             pass
         else:
             flag = False
-            _log.warning(('matplotlibrc ps.usedistiller can not be set to '
-                          'xpdf unless xpdf-%s or later is installed on '
-                          'your system') % pdftops_req)
+            _log.warning('matplotlibrc ps.usedistiller can not be set to xpdf '
+                         'unless xpdf-%s or later is installed on your '
+                         'system.', pdftops_req)
 
     if flag:
         return s
@@ -523,21 +523,21 @@ def checkdep_usetex(s):
     if shutil.which("tex") is None:
         flag = False
         _log.warning('matplotlibrc text.usetex option can not be used unless '
-                     'TeX is installed on your system')
+                     'TeX is installed on your system.')
 
     dvipng_v = checkdep_dvipng()
     if not compare_versions(dvipng_v, dvipng_req):
         flag = False
         _log.warning('matplotlibrc text.usetex can not be used with *Agg '
                      'backend unless dvipng-%s or later is installed on '
-                     'your system' % dvipng_req)
+                     'your system.', dvipng_req)
 
     gs_exec, gs_v = checkdep_ghostscript()
     if not compare_versions(gs_v, gs_req):
         flag = False
         _log.warning('matplotlibrc text.usetex can not be used unless '
-                     'ghostscript-%s or later is installed on your system'
-                     % gs_req)
+                     'ghostscript-%s or later is installed on your system.',
+                     gs_req)
 
     return flag
 
@@ -963,21 +963,21 @@ def _rc_params_in_file(fname, fail_on_error=False):
                 tup = strippedline.split(':', 1)
                 if len(tup) != 2:
                     error_details = _error_details_fmt % (cnt, line, fname)
-                    _log.warning('Illegal %s' % error_details)
+                    _log.warning('Illegal %s', error_details)
                     continue
                 key, val = tup
                 key = key.strip()
                 val = val.strip()
                 if key in rc_temp:
-                    _log.warning('Duplicate key in file "%s", line #%d' %
-                                 (fname, cnt))
+                    _log.warning('Duplicate key in file %r line #%d.',
+                                 fname, cnt)
                 rc_temp[key] = (val, line, cnt)
         except UnicodeDecodeError:
-            _log.warning(
-                ('Cannot decode configuration file %s with '
-                 'encoding %s, check LANG and LC_* variables')
-                % (fname, locale.getpreferredencoding(do_setlocale=False) or
-                   'utf-8 (default)'))
+            _log.warning('Cannot decode configuration file %s with encoding '
+                         '%s, check LANG and LC_* variables.',
+                         fname,
+                         locale.getpreferredencoding(do_setlocale=False)
+                         or 'utf-8 (default)')
             raise
 
     config = RcParams()
@@ -992,8 +992,8 @@ def _rc_params_in_file(fname, fail_on_error=False):
                     config[key] = val  # try to convert to proper type or skip
                 except Exception as msg:
                     error_details = _error_details_fmt % (cnt, line, fname)
-                    _log.warning('Bad val "%s" on %s\n\t%s' %
-                                 (val, error_details, msg))
+                    _log.warning('Bad val %r on %s\n\t%s',
+                                 val, error_details, msg)
 
     for key, (val, line, cnt) in rc_temp.items():
         if key in defaultParams:
@@ -1004,8 +1004,8 @@ def _rc_params_in_file(fname, fail_on_error=False):
                     config[key] = val  # try to convert to proper type or skip
                 except Exception as msg:
                     error_details = _error_details_fmt % (cnt, line, fname)
-                    _log.warning('Bad val "%s" on %s\n\t%s' %
-                                 (val, error_details, msg))
+                    _log.warning('Bad val %r on %s\n\t%s',
+                                 val, error_details, msg)
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(

@@ -518,10 +518,9 @@ class Sankey(object):
                 are_inputs[i] = False
             else:
                 _log.info(
-                    "The magnitude of flow %d (%f) is below the "
-                    "tolerance (%f).\nIt will not be shown, and it "
-                    "cannot be used in a connection."
-                    % (i, flow, self.tolerance))
+                    "The magnitude of flow %d (%f) is below the tolerance "
+                    "(%f).\nIt will not be shown, and it cannot be used in a "
+                    "connection.", i, flow, self.tolerance)
 
         # Determine the angles of the arrows (before rotation).
         angles = [None] * n
