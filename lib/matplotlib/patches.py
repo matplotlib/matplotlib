@@ -1559,14 +1559,15 @@ class Circle(Ellipse):
 
 class Arc(Ellipse):
     """
-    An elliptical arc.  Because it performs various optimizations, it
-    can not be filled.
+    An elliptical arc, i.e. a segment of an ellipse.
 
-    The arc must be used in an :class:`~matplotlib.axes.Axes`
-    instance---it can not be added directly to a
-    :class:`~matplotlib.figure.Figure`---because it is optimized to
-    only render the segments that are inside the axes bounding box
-    with high resolution.
+    Due to internal optimizations, there are certain restrictions on using Arc:
+
+    - The arc cannot be filled.
+
+    - The arc must be used in an :class:`~.axes.Axes` instance---it can not be
+      added directly to a `.Figure`---because it is optimized to only render
+      the segments that are inside the axes bounding box with high resolution.
     """
     def __str__(self):
         pars = (self.center[0], self.center[1], self.width,
@@ -1579,32 +1580,35 @@ class Arc(Ellipse):
     def __init__(self, xy, width, height, angle=0.0,
                  theta1=0.0, theta2=360.0, **kwargs):
         """
-        The following args are supported:
+        Parameters
+        ----------
+        xy : (float, float)
+            The center of the ellipse.
 
-        *xy*
-          center of ellipse
+        width : float
+            The length of the horizontal axis.
 
-        *width*
-          length of horizontal axis
+        height : float
+            The length of the vertical axis.
 
-        *height*
-          length of vertical axis
+        angle : float
+            Rotation of the ellipse in degrees (anti-clockwise).
 
-        *angle*
-          rotation in degrees (anti-clockwise)
+        theta1, theta2 : float, optional
+            Starting and ending angles of the arc in degrees. These values
+            are relative to *angle*, .e.g. if *angle* = 45 and *theta1* = 90
+            the absolute starting angle is 135.
+            Default *theta1* = 0, *theta2* = 360, i.e. a complete ellipse.
 
-        *theta1*
-          starting angle of the arc in degrees
-
-        *theta2*
-          ending angle of the arc in degrees
-
-        If *theta1* and *theta2* are not provided, the arc will form a
-        complete ellipse.
-
-        Valid kwargs are:
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties
+            Most `.Patch` properties are supported as keyword arguments,
+            with the exception of *fill* and *facecolor* because filling is
+            not supported.
 
         %(Patch)s
+
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
@@ -1618,12 +1622,16 @@ class Arc(Ellipse):
     @artist.allow_rasterization
     def draw(self, renderer):
         """
+        Draw the arc to the given *renderer*.
+
+        Notes
+        -----
         Ellipses are normally drawn using an approximation that uses
         eight cubic Bezier splines.  The error of this approximation
         is 1.89818e-6, according to this unverified source:
 
-          Lancaster, Don.  Approximating a Circle or an Ellipse Using
-          Four Bezier Cubic Splines.
+          Lancaster, Don.  *Approximating a Circle or an Ellipse Using
+          Four Bezier Cubic Splines.*
 
           http://www.tinaja.com/glib/ellipse4.pdf
 
@@ -1639,27 +1647,27 @@ class Arc(Ellipse):
         with each visible arc using a fixed number of spline segments
         (8).  The algorithm proceeds as follows:
 
-          1. The points where the ellipse intersects the axes bounding
-             box are located.  (This is done be performing an inverse
-             transformation on the axes bbox such that it is relative
-             to the unit circle -- this makes the intersection
-             calculation much easier than doing rotated ellipse
-             intersection directly).
+        1. The points where the ellipse intersects the axes bounding
+           box are located.  (This is done be performing an inverse
+           transformation on the axes bbox such that it is relative
+           to the unit circle -- this makes the intersection
+           calculation much easier than doing rotated ellipse
+           intersection directly).
 
-             This uses the "line intersecting a circle" algorithm
-             from:
+           This uses the "line intersecting a circle" algorithm
+           from:
 
-               Vince, John.  Geometry for Computer Graphics: Formulae,
-               Examples & Proofs.  London: Springer-Verlag, 2005.
+               Vince, John.  *Geometry for Computer Graphics: Formulae,
+               Examples & Proofs.*  London: Springer-Verlag, 2005.
 
-          2. The angles of each of the intersection points are
-             calculated.
+        2. The angles of each of the intersection points are
+           calculated.
 
-          3. Proceeding counterclockwise starting in the positive
-             x-direction, each of the visible arc-segments between the
-             pairs of vertices are drawn using the Bezier arc
-             approximation technique implemented in
-             :meth:`matplotlib.path.Path.arc`.
+        3. Proceeding counterclockwise starting in the positive
+           x-direction, each of the visible arc-segments between the
+           pairs of vertices are drawn using the Bezier arc
+           approximation technique implemented in
+           :meth:`matplotlib.path.Path.arc`.
         """
         if not hasattr(self, 'axes'):
             raise RuntimeError('Arcs can only be used in Axes instances')
