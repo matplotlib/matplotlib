@@ -1,10 +1,6 @@
-******
-figure
-******
-
-
-:mod:`matplotlib.figure`
-========================
+*********************
+``matplotlib.figure``
+*********************
 
 .. currentmodule:: matplotlib.figure
 

@@ -1,10 +1,6 @@
-*****
-units
-*****
-
-
-:mod:`matplotlib.units`
-========================
+********************
+``matplotlib.units``
+********************
 
 .. automodule:: matplotlib.units
    :members:

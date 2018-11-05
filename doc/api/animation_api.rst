@@ -1,6 +1,6 @@
-*********
-animation
-*********
+************************
+``matplotlib.animation``
+************************
 
 .. automodule:: matplotlib.animation
    :no-members:

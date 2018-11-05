@@ -1,3 +1,7 @@
+*********************
+``matplotlib.pyplot``
+*********************
+
 Pyplot function overview
 ------------------------
 

@@ -1,10 +1,6 @@
-*******
-patches
-*******
-
-
-:mod:`matplotlib.patches`
-=========================
+**********************
+``matplotlib.patches``
+**********************
 
 .. currentmodule:: matplotlib.patches
 

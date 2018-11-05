@@ -1,10 +1,6 @@
-********
-textpath
-********
-
-
-:mod:`matplotlib.textpath`
-==========================
+***********************
+``matplotlib.textpath``
+***********************
 
 .. automodule:: matplotlib.textpath
    :members:
