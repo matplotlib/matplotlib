@@ -148,15 +148,15 @@ def _raise_on_image_difference(expected, actual, tol):
              % err)
 
 
-def _xfail_if_format_is_uncomparable(extension):
+def _skip_if_format_is_uncomparable(extension):
     import pytest
-    return pytest.mark.xfail(
+    return pytest.mark.skipif(
         extension not in comparable_formats(),
-        reason='Cannot compare {} files on this system'.format(extension),
-        raises=ImageComparisonFailure, strict=True)
+        reason='Cannot compare {} files on this system'.format(extension))
 
 
-def _mark_xfail_if_format_is_uncomparable(extension):
+def _mark_skip_if_format_is_uncomparable(extension):
+    import pytest
     if isinstance(extension, str):
         name = extension
         marks = []
@@ -164,21 +164,14 @@ def _mark_xfail_if_format_is_uncomparable(extension):
         # Extension might be a pytest ParameterSet instead of a plain string.
         # Unfortunately, this type is not exposed, so since it's a namedtuple,
         # check for a tuple instead.
-        name = extension.values[0]
-        marks = list(extension.marks)
+        name, = extension.values
+        marks = [*extension.marks]
     else:
         # Extension might be a pytest marker instead of a plain string.
-        name = extension.args[0]
+        name, = extension.args
         marks = [extension.mark]
-
-    if name not in comparable_formats():
-        fail_msg = 'Cannot compare %s files on this system' % (name, )
-        import pytest
-        marks += [pytest.mark.xfail(reason=fail_msg, strict=False,
-                                    raises=ImageComparisonFailure)]
-        return pytest.param(name, marks=marks)
-    else:
-        return extension
+    return pytest.param(name,
+                        marks=[*marks, _skip_if_format_is_uncomparable(name)])
 
 
 class _ImageComparisonBase(object):
@@ -279,7 +272,7 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
     def nose_runner(self):
         func = self.compare
         func = _checked_on_freetype_version(self.freetype_version)(func)
-        funcs = {extension: _xfail_if_format_is_uncomparable(extension)(func)
+        funcs = {extension: _skip_if_format_is_uncomparable(extension)(func)
                  for extension in self.extensions}
         for idx, baseline in enumerate(self.baseline_images):
             for extension in self.extensions:
@@ -310,7 +303,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     """
     import pytest
 
-    extensions = map(_mark_xfail_if_format_is_uncomparable, extensions)
+    extensions = map(_mark_skip_if_format_is_uncomparable, extensions)
 
     def decorator(func):
         @functools.wraps(func)
@@ -365,7 +358,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         calls to :meth:`matplotlib.figure.savefig`.
 
         If *None*, the test function must use the ``baseline_images`` fixture,
-        either as a parameter or with pytest.mark.usefixtures. This value is
+        either as a parameter or with `pytest.mark.usefixtures`. This value is
         only allowed when using pytest.
 
     extensions : [ None | list ]
