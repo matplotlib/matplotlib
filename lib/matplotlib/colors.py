@@ -49,9 +49,9 @@ Matplotlib recognizes the following formats to specify a color:
   'tab:red', 'tab:purple', 'tab:brown', 'tab:pink',
   'tab:gray', 'tab:olive', 'tab:cyan'}`` which are the Tableau Colors from the
   'T10' categorical palette (which is the default color cycle);
-* a "CN" color spec, i.e. `'C'` followed by a single digit, which is an index
-  into the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``);
-  the indexing occurs at artist creation time and defaults to black if the
+* a "CN" color spec, i.e. `'C'` followed by a number, which is an index into
+  the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``); the
+  indexing is intended to occur at rendering time, and defaults to black if the
   cycle does not include color.
 
 All string specifications of color, other than "CN", are case-insensitive.
@@ -115,7 +115,7 @@ def _sanitize_extrema(ex):
 
 def _is_nth_color(c):
     """Return whether *c* can be interpreted as an item in the color cycle."""
-    return isinstance(c, str) and re.match(r"\AC[0-9]\Z", c)
+    return isinstance(c, str) and re.match(r"\AC[0-9]+\Z", c)
 
 
 def is_color_like(c):
@@ -169,7 +169,7 @@ def to_rgba(c, alpha=None):
         from matplotlib import rcParams
         prop_cycler = rcParams['axes.prop_cycle']
         colors = prop_cycler.by_key().get('color', ['k'])
-        c = colors[int(c[1]) % len(colors)]
+        c = colors[int(c[1:]) % len(colors)]
     try:
         rgba = _colors_full_map.cache[c, alpha]
     except (KeyError, TypeError):  # Not in cache, or unhashable.

@@ -1526,32 +1526,14 @@ class Axes(_AxesBase):
 
         A format string consists of a part for color, marker and line::
 
-            fmt = '[color][marker][line]'
+            fmt = '[marker][line][color]'
 
         Each of them is optional. If not provided, the value from the style
         cycle is used. Exception: If ``line`` is given, but no ``marker``,
         the data will be a line without markers.
 
-        **Colors**
-
-        The following color abbreviations are supported:
-
-        =============    ===============================
-        character        color
-        =============    ===============================
-        ``'b'``          blue
-        ``'g'``          green
-        ``'r'``          red
-        ``'c'``          cyan
-        ``'m'``          magenta
-        ``'y'``          yellow
-        ``'k'``          black
-        ``'w'``          white
-        =============    ===============================
-
-        If the color is the only part of the format string, you can
-        additionally use any  `matplotlib.colors` spec, e.g. full names
-        (``'green'``) or hex strings (``'#008000'``).
+        Other combinations such as ``[color][marker][line]`` are also
+        supported, but note that their parsing may be ambiguous.
 
         **Markers**
 
@@ -1596,11 +1578,33 @@ class Axes(_AxesBase):
         Example format strings::
 
             'b'    # blue markers with default shape
-            'ro'   # red circles
-            'g-'   # green solid line
+            'or'   # red circles
+            '-g'   # green solid line
             '--'   # dashed line with default color
-            'k^:'  # black triangle_up markers connected by a dotted line
+            '^k:'  # black triangle_up markers connected by a dotted line
 
+        **Colors**
+
+        The supported color abbreviations are the single letter codes
+
+        =============    ===============================
+        character        color
+        =============    ===============================
+        ``'b'``          blue
+        ``'g'``          green
+        ``'r'``          red
+        ``'c'``          cyan
+        ``'m'``          magenta
+        ``'y'``          yellow
+        ``'k'``          black
+        ``'w'``          white
+        =============    ===============================
+
+        and the ``'CN'`` colors that index into the default property cycle.
+
+        If the color is the only part of the format string, you can
+        additionally use any  `matplotlib.colors` spec, e.g. full names
+        (``'green'``) or hex strings (``'#008000'``).
         """
         lines = []
 

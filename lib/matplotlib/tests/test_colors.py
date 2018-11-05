@@ -637,6 +637,8 @@ def test_cn():
                                                     ['xkcd:blue', 'r'])
     assert mcolors.to_hex("C0") == '#0343df'
     assert mcolors.to_hex("C1") == '#ff0000'
+    assert mcolors.to_hex("C10") == '#0343df'
+    assert mcolors.to_hex("C11") == '#ff0000'
 
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['8e4585', 'r'])
 
