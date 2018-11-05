@@ -33,7 +33,7 @@ per-file-ignores =
     lib/matplotlib/backends/_backend_tk.py: E501
     lib/matplotlib/backends/backend_agg.py: E302
     lib/matplotlib/backends/backend_cairo.py: E203, E221, E402
-    lib/matplotlib/backends/backend_gtk3.py: E203, E221, E222, E225, E251, E501
+    lib/matplotlib/backends/backend_gtk3.py: E203, E221, E225, E251, E501
     lib/matplotlib/backends/backend_pgf.py: E731
     lib/matplotlib/backends/qt_editor/_formlayout.py: E501
     lib/matplotlib/font_manager.py: E203, E221, E251, E501

@@ -191,7 +191,10 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
             old_doc = obj.__doc__
 
             def finalize(wrapper, new_doc):
-                obj.__doc__ = new_doc
+                try:
+                    obj.__doc__ = new_doc
+                except AttributeError:  # Can't set on some extension objects.
+                    pass
                 obj.__init__ = wrapper
                 return obj
 
