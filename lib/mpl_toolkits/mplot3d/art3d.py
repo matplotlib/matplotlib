@@ -113,6 +113,11 @@ class Text3D(mtext.Text):
         mtext.Text.draw(self, renderer)
         self.stale = False
 
+    def get_tightbbox(self, renderer):
+        # Overwriting the 2d Text behavior which is not valid for 3d.
+        # For now, just return None to exclude from layout calculation.
+        return None
+
 
 def text_2d_to_3d(obj, z=0, zdir='z'):
     """Convert a Text to a Text3D object."""
