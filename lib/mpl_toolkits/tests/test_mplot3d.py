@@ -2,7 +2,7 @@ import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from matplotlib import cm
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
@@ -153,6 +153,19 @@ def test_mixedsubplots():
                            linewidth=0, antialiased=False)
 
     ax.set_zlim3d(-1, 1)
+
+
+@check_figures_equal(extensions=['png'])
+def test_tight_layout_text(fig_test, fig_ref):
+    # text is currently ignored in tight layout. So the order of text() and
+    # tight_layout() calls should not influence the result.
+    ax1 = fig_test.gca(projection='3d')
+    ax1.text(.5, .5, .5, s='some string')
+    fig_test.tight_layout()
+
+    ax2 = fig_ref.gca(projection='3d')
+    fig_ref.tight_layout()
+    ax2.text(.5, .5, .5, s='some string')
 
 
 @image_comparison(baseline_images=['scatter3d'], remove_text=True)
