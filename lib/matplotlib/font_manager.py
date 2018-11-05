@@ -1216,16 +1216,16 @@ class FontManager(object):
         if best_font is None or best_score >= 10.0:
             if fallback_to_default:
                 _log.warning(
-                    'findfont: Font family %s not found. Falling back to %s.' %
-                    (prop.get_family(), self.defaultFamily[fontext]))
+                    'findfont: Font family %s not found. Falling back to %s.',
+                    prop.get_family(), self.defaultFamily[fontext])
                 default_prop = prop.copy()
                 default_prop.set_family(self.defaultFamily[fontext])
                 return self.findfont(default_prop, fontext, directory, False)
             else:
                 # This is a hard fail -- we can't find anything reasonable,
                 # so just return the DejuVuSans.ttf
-                _log.warning('findfont: Could not match %s. Returning %s.' %
-                             (prop, self.defaultFont[fontext]))
+                _log.warning('findfont: Could not match %s. Returning %s.',
+                             prop, self.defaultFont[fontext])
                 result = self.defaultFont[fontext]
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',

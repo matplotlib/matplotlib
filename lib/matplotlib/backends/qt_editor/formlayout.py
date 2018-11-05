@@ -266,8 +266,8 @@ class FormWidget(QtWidgets.QWidget):
                     selindex = keys.index(selindex)
                 elif not isinstance(selindex, Integral):
                     _log.warning(
-                        "index '%s' is invalid (label: %s, value: %s)" %
-                        (selindex, label, value))
+                        "index '%s' is invalid (label: %s, value: %s)",
+                        selindex, label, value)
                     selindex = 0
                 field.setCurrentIndex(selindex)
             elif isinstance(value, bool):

@@ -347,7 +347,7 @@ class TextToPath(object):
                 else:
                     _log.warning("The glyph (%d) of font (%s) cannot be "
                                  "converted with the encoding. Glyph may "
-                                 "be wrong" % (glyph, font.fname))
+                                 "be wrong.", glyph, font.fname)
 
                     glyph0 = font.load_char(glyph, flags=ft2font_flag)
 
@@ -394,7 +394,7 @@ class TextToPath(object):
                 break
         else:
             charmap_name = ""
-            _log.warning("No supported encoding in font (%s)." %
+            _log.warning("No supported encoding in font (%s).",
                          font_bunch.filename)
 
         if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
