@@ -1624,9 +1624,10 @@ class YearLocator(DateLocator):
                          'minute': 0,
                          'second': 0,
                          }
-        # Note that tzinfo does not work with pytz timezones, and
-        # astimezone doesn't work unless a datetime has timezone info (for
-        # py3.5).  So the user should provide time-zone aware dates.
+        if not hasattr(tz, 'localize'):
+            # if tz is pytz, we need to do this w/ the localize fcn,
+            # otherwise datetime.replace works fine...
+            self.replaced['tzinfo'] = tz
 
     def __call__(self):
         # if no data have been set, this will tank with a ValueError
@@ -1642,17 +1643,24 @@ class YearLocator(DateLocator):
         ymax = self.base.ge(vmax.year) * self.base.step
 
         vmin = vmin.replace(year=ymin, **self.replaced)
-        try:
-            ticks = [vmin.astimezone(self.tz)]
-        except ValueError as e:
-            raise ValueError('naive datetime objects cannot be used '
-                             'with matplotlib for python < 3.6; ') from e
+        if hasattr(self.tz, 'localize'):
+            # look after pytz
+            if not vmin.tzinfo:
+                vmin = self.tz.localize(vmin, is_dst=True)
+
+        ticks = [vmin]
+
         while True:
             dt = ticks[-1]
             if dt.year >= ymax:
                 return date2num(ticks)
             year = dt.year + self.base.step
-            dt = dt.replace(year=year, **self.replaced).astimezone(self.tz)
+            dt = dt.replace(year=year, **self.replaced)
+            if hasattr(self.tz, 'localize'):
+                # look after pytz
+                if not dt.tzinfo:
+                    dt = self.tz.localize(dt, is_dst=True)
+
             ticks.append(dt)
 
     def autoscale(self):
