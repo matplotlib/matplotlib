@@ -406,6 +406,10 @@ class _AxesBase(martist.Artist):
     def _hold(self):
         return True
 
+    @_hold.setter
+    def _hold(self, value):
+        pass
+
     def __str__(self):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
