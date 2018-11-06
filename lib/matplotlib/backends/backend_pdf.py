@@ -16,6 +16,7 @@ import struct
 import sys
 import time
 import types
+import warnings
 import zlib
 
 import numpy as np
@@ -937,8 +938,13 @@ end"""
                     s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
                 return cvt(width)
 
-            widths = [get_char_width(charcode)
-                      for charcode in range(firstchar, lastchar+1)]
+            with warnings.catch_warnings():
+                # Ignore 'Required glyph missing from current font' warning
+                # from ft2font: here we're just builting the widths table, but
+                # the missing glyphs may not even be used in the actual string.
+                warnings.filterwarnings("ignore")
+                widths = [get_char_width(charcode)
+                          for charcode in range(firstchar, lastchar+1)]
             descriptor['MaxWidth'] = max(widths)
 
             # Make the "Differences" array, sort the ccodes < 255 from
