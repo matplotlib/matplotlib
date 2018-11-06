@@ -484,50 +484,6 @@ def test_flatiter():
     assert 1 == next(it)
 
 
-def test_reshape2d():
-    class dummy():
-        pass
-    x = [dummy() for j in range(5)]
-    xnew = cbook._reshape_2D(x, 'x')
-    assert np.shape(xnew) == (1, 5)
-
-    x = np.arange(5)
-    xnew = cbook._reshape_2D(x, 'x')
-    assert np.shape(xnew) == (1, 5)
-
-    x = [[dummy() for j in range(5)] for i in range(3)]
-    xnew = cbook._reshape_2D(x, 'x')
-    assert np.shape(xnew) == (3, 5)
-
-    # this is strange behaviour, but...
-    x = np.random.rand(3, 5)
-    xnew = cbook._reshape_2D(x, 'x')
-    assert np.shape(xnew) == (5, 3)
-
-
-def test_contiguous_regions():
-    a, b, c = 3, 4, 5
-    # Starts and ends with True
-    mask = [True]*a + [False]*b + [True]*c
-    expected = [(0, a), (a+b, a+b+c)]
-    assert cbook.contiguous_regions(mask) == expected
-    d, e = 6, 7
-    # Starts with True ends with False
-    mask = mask + [False]*e
-    assert cbook.contiguous_regions(mask) == expected
-    # Starts with False ends with True
-    mask = [False]*d + mask[:-e]
-    expected = [(d, d+a), (d+a+b, d+a+b+c)]
-    assert cbook.contiguous_regions(mask) == expected
-    # Starts and ends with False
-    mask = mask + [False]*e
-    assert cbook.contiguous_regions(mask) == expected
-    # No True in mask
-    assert cbook.contiguous_regions([False]*5) == []
-    # Empty mask
-    assert cbook.contiguous_regions([]) == []
-
-
 def test_safe_first_element_pandas_series(pd):
     # delibrately create a pandas series with index not starting from 0
     s = pd.Series(range(5), index=range(10, 15))
