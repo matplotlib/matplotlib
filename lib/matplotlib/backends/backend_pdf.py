@@ -1620,8 +1620,7 @@ class RendererPdf(RendererBase):
         gc._effective_alphas = orig_alphas
 
     def track_characters(self, font, s):
-        """Keeps track of which characters are required from
-        each font."""
+        """Keeps track of which characters are required from each font."""
         if isinstance(font, str):
             fname = font
         else:
@@ -1641,16 +1640,9 @@ class RendererPdf(RendererBase):
         return self.image_dpi/72.0
 
     def option_scale_image(self):
-        """
-        pdf backend support arbitrary scaling of image.
-        """
         return True
 
     def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
         return not rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, transform=None):
@@ -2011,9 +2003,11 @@ class RendererPdf(RendererBase):
                 fonttype = 42
 
         def check_simple_method(s):
-            """Determine if we should use the simple or woven method
-            to output this text, and chunks the string into 1-byte and
-            2-byte sections if necessary."""
+            """
+            Determine if we should use the simple or woven method to output
+            this text, and chunks the string into 1-byte and 2-byte sections if
+            necessary.
+            """
             use_simple_method = True
             chunks = []
 
@@ -2046,9 +2040,10 @@ class RendererPdf(RendererBase):
                              Op.end_text)
 
         def draw_text_woven(chunks):
-            """Outputs text using the woven method, alternating
-            between chunks of 1-byte characters and 2-byte characters.
-            Only used for Type 3 fonts."""
+            """
+            Outputs text using the woven method, alternating between chunks of
+            1-byte and 2-byte characters.  Only used for Type 3 fonts.
+            """
             chunks = [(a, ''.join(b)) for a, b in chunks]
 
             # Do the rotation and global translation as a single matrix

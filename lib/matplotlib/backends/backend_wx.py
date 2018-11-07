@@ -218,10 +218,6 @@ class RendererWx(RendererBase):
         return True
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
-        """
         if ismath:
             s = cbook.strip_math(s)
 
@@ -237,7 +233,6 @@ class RendererWx(RendererBase):
         return w, h, descent
 
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
         return self.width, self.height
 
     def handle_clip_rectangle(self, gc):
@@ -328,9 +323,6 @@ class RendererWx(RendererBase):
         gc.unselect()
 
     def new_gc(self):
-        """
-        Return an instance of a GraphicsContextWx, and sets the current gc copy
-        """
         DEBUG_MSG('new_gc()', 2, self)
         self.gc = GraphicsContextWx(self.bitmap, self)
         self.gc.select()
@@ -382,10 +374,6 @@ class RendererWx(RendererBase):
         return font
 
     def points_to_pixels(self, points):
-        """
-        convert point measures to pixes using dpi and the pixels per
-        inch of the display
-        """
         return points * (PIXELS_PER_INCH / 72.0 * self.dpi / 72.0)
 
 

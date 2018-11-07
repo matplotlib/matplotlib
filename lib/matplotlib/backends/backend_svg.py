@@ -409,10 +409,7 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
     def _get_style_dict(self, gc, rgbFace):
-        """
-        return the style string.  style is generated from the
-        GraphicsContext and rgbFace
-        """
+        """Generate a style string from the GraphicsContext and rgbFace."""
         attrib = {}
 
         forced_alpha = gc.get_forced_alpha()
@@ -543,10 +540,6 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
     def open_group(self, s, gid=None):
-        """
-        Open a grouping element with label *s*. If *gid* is given, use
-        *gid* as the id of the group.
-        """
         if gid:
             self.writer.start('g', id=gid)
         else:
@@ -557,10 +550,6 @@ class RendererSVG(RendererBase):
         self.writer.end('g')
 
     def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
         return not rcParams['image.composite_image']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None,

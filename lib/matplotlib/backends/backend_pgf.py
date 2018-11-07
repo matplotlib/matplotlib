@@ -608,16 +608,9 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgfusepath{%s}" % ",".join(actions))
 
     def option_scale_image(self):
-        """
-        pgf backend supports affine transform of image.
-        """
         return True
 
     def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
         return not rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, transform=None):
