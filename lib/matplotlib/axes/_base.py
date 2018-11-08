@@ -172,6 +172,11 @@ class _process_plot_var_args(object):
             if yunits != self.axes.yaxis.units:
                 self.axes.yaxis.set_units(yunits)
 
+        for pos_only in "xy":
+            if pos_only in kwargs:
+                raise TypeError("{} got an unexpected keyword argument {!r}"
+                                .format(self.command, pos_only))
+
         if not args:
             return
 
