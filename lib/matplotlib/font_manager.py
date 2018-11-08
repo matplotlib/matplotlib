@@ -567,7 +567,6 @@ class FontProperties(object):
                  stretch= None,
                  size   = None,
                  fname  = None,  # if set, it's a hardcoded filename to use
-                 _init  = None,  # used only by copy()
                  ):
         self._family = _normalize_font_family(rcParams['font.family'])
         self._slant = rcParams['font.style']
@@ -576,11 +575,6 @@ class FontProperties(object):
         self._stretch = rcParams['font.stretch']
         self._size = rcParams['font.size']
         self._file = None
-
-        # This is used only by copy()
-        if _init is not None:
-            self.__dict__.update(_init.__dict__)
-            return
 
         if isinstance(family, str):
             # Treat family as a fontconfig pattern if it is the only
@@ -812,8 +806,10 @@ class FontProperties(object):
                 getattr(self, "set_" + key)(val)
 
     def copy(self):
-        """Return a deep copy of self"""
-        return FontProperties(_init=self)
+        """Return a copy of self."""
+        new = type(self)()
+        vars(new).update(vars(self))
+        return new
 
 
 class JSONEncoder(json.JSONEncoder):
