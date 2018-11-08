@@ -2950,6 +2950,8 @@ class Axes(_AxesBase):
                 upper errors.
             - *None*: No errorbar.
 
+            Note that all error arrays should have *positive* values.
+
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
