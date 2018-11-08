@@ -1069,7 +1069,8 @@ class Colorbar(ColorbarBase):
     def __init__(self, ax, mappable, **kw):
         # Ensure the given mappable's norm has appropriate vmin and vmax set
         # even if mappable.draw has not yet been called.
-        mappable.autoscale_None()
+        if mappable.get_array() is not None:
+            mappable.autoscale_None()
 
         self.mappable = mappable
         kw['cmap'] = cmap = mappable.cmap
