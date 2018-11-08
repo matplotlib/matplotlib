@@ -17,7 +17,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib.testing.exceptions import ImageComparisonFailure
-from matplotlib import _png, cbook
+from matplotlib import cbook
 
 __all__ = ['compare_float', 'compare_images', 'comparable_formats']
 
@@ -418,6 +418,8 @@ def compare_images(expected, actual, tol, in_decorator=False):
         compare_images(img1, img2, 0.001)
 
     """
+    from matplotlib import _png
+
     if not os.path.exists(actual):
         raise Exception("Output image %s does not exist." % actual)
 
@@ -488,6 +490,7 @@ def save_diff_image(expected, actual, output):
         File path to save difference image to.
     '''
     # Drop alpha channels, similarly to compare_images.
+    from matplotlib import _png
     expected_image = _png.read_png(expected)[..., :3]
     actual_image = _png.read_png(actual)[..., :3]
     actual_image, expected_image = crop_to_same(

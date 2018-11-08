@@ -22,7 +22,6 @@ import matplotlib.cbook as cbook
 
 # For clarity, names from _image are given explicitly in this module:
 import matplotlib._image as _image
-import matplotlib._png as _png
 
 # For user convenience, the names from _image are also imported into
 # the image namespace:
@@ -635,6 +634,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def write_png(self, fname):
         """Write the image to png file with fname"""
+        from matplotlib import _png
         im = self.to_rgba(self._A[::-1] if self.origin == 'lower' else self._A,
                           bytes=True, norm=True)
         _png.write_png(im, fname)
@@ -1359,7 +1359,11 @@ def imread(fname, format=None):
     .. _Pillow documentation: http://pillow.readthedocs.io/en/latest/
     """
 
-    handlers = {'png': _png.read_png, }
+    def read_png(*args, **kwargs):
+        from matplotlib import _png
+        return _png.read_png(*args, **kwargs)
+
+    handlers = {'png': read_png, }
     if format is None:
         if isinstance(fname, str):
             parsed = urllib.parse.urlparse(fname)
