@@ -6,17 +6,16 @@ Contour plot of irregularly spaced data
 Comparison of a contour plot of irregularly spaced data interpolated
 on a regular grid versus a tricontour plot for an unstructured triangular grid.
 
-Since :meth:`~.axes.Axes.contour` and :meth:`~.axes.Axes.contourf` expect the
-data to live on a regular grid, plotting a contour plot of irregularly spaced
-data requires different methods. The two options are:
+Since `~.axes.Axes.contour` and `~.axes.Axes.contourf` expect the data to live
+on a regular grid, plotting a contour plot of irregularly spaced data requires
+different methods. The two options are:
 
-* Interpolate the data to a regular grid first. This can be done with on-borad
+* Interpolate the data to a regular grid first. This can be done with on-board
   means, e.g. via `~.tri.LinearTriInterpolator` or using external functionality
-  e.g. via `scipy.interpolate.griddata`. Then plot the
-  interpolated data with the usual :meth:`~.axes.Axes.contour`.
-* Directly use :meth:`~.axes.Axes.tricontour` or
-  :meth:`~.axes.Axes.tricontourf` which will perform a triangulation
-  internally.
+  e.g. via `scipy.interpolate.griddata`. Then plot the interpolated data with
+  the usual `~.axes.Axes.contour`.
+* Directly use `~.axes.Axes.tricontour` or `~.axes.Axes.tricontourf` which will
+  perform a triangulation internally.
 
 This example shows both methods in action.
 """
