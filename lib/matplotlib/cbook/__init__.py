@@ -1990,6 +1990,8 @@ def _warn_external(message, category=None):
     """
     frame = sys._getframe()
     for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
+        if frame is None:
+            break
         if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
                         # Work around sphinx-gallery not setting __name__.
                         frame.f_globals.get("__name__", "")):

@@ -2,6 +2,7 @@ import itertools
 import pickle
 from weakref import ref
 import warnings
+from unittest.mock import patch, Mock
 
 from datetime import datetime
 
@@ -348,6 +349,15 @@ def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
         warnings.simplefilter("always")
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
         assert len(w) == 0
+
+
+def test_warn_external_frame_embedded_python():
+    with patch.object(cbook, "sys") as mock_sys:
+        mock_sys._getframe = Mock(return_value=None)
+        with warnings.catch_warnings(record=True) as w:
+            cbook._warn_external("dummy")
+    assert len(w) == 1
+    assert str(w[0].message) == "dummy"
 
 
 def test_to_prestep():
