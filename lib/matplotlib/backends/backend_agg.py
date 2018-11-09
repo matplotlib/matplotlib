@@ -118,6 +118,7 @@ class RendererAgg(RendererBase):
         return np.array(region), extents
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         nmax = rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
 
@@ -162,6 +163,8 @@ class RendererAgg(RendererBase):
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
@@ -189,6 +192,8 @@ class RendererAgg(RendererBase):
             font, np.round(x - xd + xo), np.round(y + yd + yo) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
+
         if ismath in ["TeX", "TeX!"]:
             # todo: handle props
             size = prop.get_size_in_points()
@@ -214,6 +219,7 @@ class RendererAgg(RendererBase):
         return w, h, d
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+        # docstring inherited
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
 
@@ -231,6 +237,7 @@ class RendererAgg(RendererBase):
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.width, self.height
 
     def _get_agg_font(self, prop):
@@ -247,6 +254,7 @@ class RendererAgg(RendererBase):
         return font
 
     def points_to_pixels(self, points):
+        # docstring inherited
         return points * self.dpi / 72
 
     def tostring_rgb(self):
@@ -262,12 +270,15 @@ class RendererAgg(RendererBase):
         self._renderer.clear()
 
     def option_image_nocomposite(self):
+        # docstring inherited
+
         # It is generally faster to composite each image directly to
         # the Figure, and there's no file size benefit to compositing
         # with the Agg backend
         return True
 
     def option_scale_image(self):
+        # docstring inherited
         return False
 
     def restore_region(self, region, bbox=None, xy=None):

@@ -1640,12 +1640,16 @@ class RendererPdf(RendererBase):
         return self.image_dpi/72.0
 
     def option_scale_image(self):
+        # docstring inherited
         return True
 
     def option_image_nocomposite(self):
+        # docstring inherited
         return not rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, transform=None):
+        # docstring inherited
+
         h, w = im.shape[:2]
         if w == 0 or h == 0:
             return
@@ -1674,6 +1678,7 @@ class RendererPdf(RendererBase):
                              imob, Op.use_xobject, Op.grestore)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         self.check_gc(gc, rgbFace)
         self.file.writePath(
             path, transform,
@@ -1753,6 +1758,8 @@ class RendererPdf(RendererBase):
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
+        # docstring inherited
+
         # Same logic as in draw_path_collection
         len_marker_path = len(marker_path)
         uses = len(path)
@@ -1885,6 +1892,7 @@ class RendererPdf(RendererBase):
         self.file.output(Op.grestore)
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+        # docstring inherited
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
@@ -1968,6 +1976,8 @@ class RendererPdf(RendererBase):
         return s.encode('utf-16be', 'replace')
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         # TODO: combine consecutive texts into one BT/ET delimited section
 
         # This function is rather complex, since there is no way to
@@ -2111,6 +2121,8 @@ class RendererPdf(RendererBase):
             return draw_text_woven(chunks)
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
+
         if rcParams['text.usetex']:
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
@@ -2166,12 +2178,15 @@ class RendererPdf(RendererBase):
         return font
 
     def flipy(self):
+        # docstring inherited
         return False
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.file.width * 72.0, self.file.height * 72.0
 
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextPdf(self.file)
 
 

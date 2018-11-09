@@ -324,9 +324,12 @@ class RendererPS(RendererBase):
         return name
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.width * 72.0, self.height * 72.0
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
+
         if rcParams['text.usetex']:
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
@@ -362,6 +365,7 @@ class RendererPS(RendererBase):
         return w, h, d
 
     def flipy(self):
+        # docstring inherited
         return False
 
     def _get_font_afm(self, prop):
@@ -411,9 +415,11 @@ class RendererPS(RendererBase):
         return self.image_magnification
 
     def option_scale_image(self):
+        # docstring inherited
         return True
 
     def option_image_nocomposite(self):
+        # docstring inherited
         return not rcParams['image.composite_image']
 
     def _get_image_h_w_bits_command(self, im):
@@ -423,6 +429,8 @@ class RendererPS(RendererBase):
         return h, w, bits, imagecmd
 
     def draw_image(self, gc, x, y, im, transform=None):
+        # docstring inherited
+
         h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
         hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
 
@@ -488,6 +496,7 @@ grestore
         return pid
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         clip = rgbFace is None and gc.get_hatch_path() is None
         simplify = path.should_simplify and clip
         ps = self._convert_path(path, transform, clip=clip, simplify=simplify)
@@ -495,6 +504,7 @@ grestore
 
     def draw_markers(
             self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        # docstring inherited
 
         if debugPS:
             self._pswriter.write('% draw_markers \n')
@@ -595,6 +605,8 @@ grestore
         self._path_collection_id += 1
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+        # docstring inherited
+
         w, h, bl = self.get_text_width_height_descent(s, prop, ismath)
         fontsize = prop.get_size_in_points()
         thetext = 'psmarker%d' % self.textcnt
@@ -632,6 +644,8 @@ grestore
         self.textcnt += 1
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         # local to avoid repeated attribute lookups
         write = self._pswriter.write
         if debugPS:
@@ -734,6 +748,7 @@ grestore
             self._pswriter.write(ps)
 
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextPS()
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):

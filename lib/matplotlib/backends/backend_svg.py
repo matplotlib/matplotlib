@@ -540,6 +540,7 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
     def open_group(self, s, gid=None):
+        # docstring inherited
         if gid:
             self.writer.start('g', id=gid)
         else:
@@ -547,9 +548,11 @@ class RendererSVG(RendererBase):
             self.writer.start('g', id="%s_%d" % (s, self._groupd[s]))
 
     def close_group(self, s):
+        # docstring inherited
         self.writer.end('g')
 
     def option_image_nocomposite(self):
+        # docstring inherited
         return not rcParams['image.composite_image']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None,
@@ -563,6 +566,7 @@ class RendererSVG(RendererBase):
             [b'M', b'L', b'Q', b'C', b'z'], False).decode('ascii')
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         trans_and_flip = self._make_flip_transform(transform)
         clip = (rgbFace is None and gc.get_hatch_path() is None)
         simplify = path.should_simplify and clip
@@ -585,6 +589,8 @@ class RendererSVG(RendererBase):
 
     def draw_markers(
             self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        # docstring inherited
+
         if not len(path.vertices):
             return
 
@@ -828,12 +834,15 @@ class RendererSVG(RendererBase):
         self.writer.end('g')
 
     def option_scale_image(self):
+        # docstring inherited
         return True
 
     def get_image_magnification(self):
         return self.image_dpi / 72.0
 
     def draw_image(self, gc, x, y, im, transform=None):
+        # docstring inherited
+
         h, w = im.shape[:2]
 
         if w == 0 or h == 0:
@@ -1179,9 +1188,12 @@ class RendererSVG(RendererBase):
             writer.end('g')
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+        # docstring inherited
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         clipid = self._get_clip(gc)
         if clipid is not None:
             # Cannot apply clip-path directly to the text, because
@@ -1204,12 +1216,15 @@ class RendererSVG(RendererBase):
             self.writer.end('g')
 
     def flipy(self):
+        # docstring inherited
         return True
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.width, self.height
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
         return self._text2path.get_text_width_height_descent(s, prop, ismath)
 
 
