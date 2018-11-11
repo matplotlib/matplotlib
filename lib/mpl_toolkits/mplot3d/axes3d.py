@@ -1736,11 +1736,14 @@ class Axes3D(Axes):
         Generate normals for polygons by using the first three points.
         This normal of course might not make sense for polygons with
         more than three points not lying in a plane.
+
+        Normals point towards the viewer for a face with its vertices in
+        counterclockwise order, following the right hand rule.
         '''
 
         normals = []
         for verts in polygons:
-            v1 = np.array(verts[0]) - np.array(verts[1])
+            v1 = np.array(verts[1]) - np.array(verts[0])
             v2 = np.array(verts[2]) - np.array(verts[0])
             normals.append(np.cross(v1, v2))
         return normals
@@ -2452,48 +2455,50 @@ class Axes3D(Axes):
         maxz = np.max(z + dz)
 
         # shape (6, 4, 3)
+        # All faces are oriented facing outwards - when viewed from the
+        # outside, their vertices are in a counterclockwise ordering.
         cuboid = np.array([
             # -z
             (
                 (0, 0, 0),
-                (1, 0, 0),
+                (0, 1, 0),
                 (1, 1, 0),
-                (0, 1, 0)
+                (1, 0, 0),
             ),
             # +z
             (
                 (0, 0, 1),
                 (1, 0, 1),
                 (1, 1, 1),
-                (0, 1, 1)
+                (0, 1, 1),
             ),
             # -y
             (
                 (0, 0, 0),
                 (1, 0, 0),
                 (1, 0, 1),
-                (0, 0, 1)
+                (0, 0, 1),
             ),
             # +y
             (
                 (0, 1, 0),
-                (1, 1, 0),
+                (0, 1, 1),
                 (1, 1, 1),
-                (0, 1, 1)
+                (1, 1, 0),
             ),
             # -x
             (
                 (0, 0, 0),
-                (0, 1, 0),
+                (0, 0, 1),
                 (0, 1, 1),
-                (0, 0, 1)
+                (0, 1, 0),
             ),
             # +x
             (
                 (1, 0, 0),
                 (1, 1, 0),
                 (1, 1, 1),
-                (1, 0, 1)
+                (1, 0, 1),
             ),
         ])
 
