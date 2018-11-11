@@ -59,7 +59,7 @@ def get_fontspec():
 
 def get_preamble():
     """Get LaTeX preamble from rc."""
-    return "\n".join(rcParams["pgf.preamble"])
+    return rcParams["pgf.preamble"]
 
 ###############################################################################
 
