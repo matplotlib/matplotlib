@@ -3245,8 +3245,7 @@ class _AxesBase(martist.Artist):
                 if other is not self:
                     other.set_xlim(self.viewLim.intervalx,
                                    emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                            other.figure.canvas is not None):
+                    if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
         return left, right
@@ -3634,8 +3633,7 @@ class _AxesBase(martist.Artist):
                 if other is not self:
                     other.set_ylim(self.viewLim.intervaly,
                                    emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                            other.figure.canvas is not None):
+                    if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
         return bottom, top

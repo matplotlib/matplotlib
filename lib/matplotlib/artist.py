@@ -449,9 +449,7 @@ class Artist(object):
         --------
         set_picker, get_picker, pick
         """
-        return (self.figure is not None and
-                self.figure.canvas is not None and
-                self._picker is not None)
+        return self.figure is not None and self._picker is not None
 
     def pick(self, mouseevent):
         """

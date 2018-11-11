@@ -23,6 +23,7 @@ from matplotlib import get_backend
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
+from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
@@ -364,7 +365,7 @@ class Figure(Artist):
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
-        self.canvas = None
+        FigureCanvasBase(self)  # Set self.canvas.
         self._suptitle = None
 
         if subplotpars is None:
@@ -398,8 +399,7 @@ class Figure(Artist):
     def _repr_html_(self):
         # We can't use "isinstance" here, because then we'd end up importing
         # webagg unconditiionally.
-        if (self.canvas is not None and
-                'WebAgg' in self.canvas.__class__.__name__):
+        if 'WebAgg' in type(self.canvas).__name__:
             from matplotlib.backends import backend_webagg
             return backend_webagg.ipython_inline_display(self)
 

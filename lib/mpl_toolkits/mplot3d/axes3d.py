@@ -652,8 +652,7 @@ class Axes3D(Axes):
                 if other is not self:
                     other.set_xlim(self.xy_viewLim.intervalx,
                                             emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                        other.figure.canvas is not None):
+                    if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
         return left, right
@@ -711,8 +710,7 @@ class Axes3D(Axes):
                 if other is not self:
                     other.set_ylim(self.xy_viewLim.intervaly,
                                             emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                        other.figure.canvas is not None):
+                    if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
         return bottom, top
@@ -770,8 +768,7 @@ class Axes3D(Axes):
                 if other is not self:
                     other.set_zlim(self.zz_viewLim.intervalx,
                                             emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                        other.figure.canvas is not None):
+                    if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
         return bottom, top
@@ -1070,17 +1067,14 @@ class Axes3D(Axes):
 
         """
         self.button_pressed = None
-        canv = self.figure.canvas
-        if canv is not None:
-            c1 = canv.mpl_connect('motion_notify_event', self._on_move)
-            c2 = canv.mpl_connect('button_press_event', self._button_press)
-            c3 = canv.mpl_connect('button_release_event', self._button_release)
-            self._cids = [c1, c2, c3]
-        else:
-            cbook._warn_external("Axes3D.figure.canvas is 'None', mouse "
-                                 "rotation disabled. Set canvas then call "
-                                 "Axes3D.mouse_init().")
-
+        self._cids = [
+            self.figure.canvas.mpl_connect(
+                'motion_notify_event', self._on_move),
+            self.figure.canvas.mpl_connect(
+                'button_press_event', self._button_press),
+            self.figure.canvas.mpl_connect(
+                'button_release_event', self._button_release),
+        ]
         # coerce scalars into array-like, then convert into
         # a regular list to avoid comparisons against None
         # which breaks in recent versions of numpy.
