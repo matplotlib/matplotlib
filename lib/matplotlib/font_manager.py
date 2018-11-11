@@ -26,6 +26,7 @@ Future versions may implement the Level 2 or 2.1 specifications.
 from functools import lru_cache
 import json
 import logging
+from numbers import Number
 import os
 from pathlib import Path
 import subprocess
@@ -1049,8 +1050,8 @@ class FontManager(object):
         """
         if style1 == style2:
             return 0.0
-        elif style1 in ('italic', 'oblique') and \
-                style2 in ('italic', 'oblique'):
+        elif (style1 in ('italic', 'oblique')
+              and style2 in ('italic', 'oblique')):
             return 0.1
         return 1.0
 
@@ -1094,21 +1095,12 @@ class FontManager(object):
         the CSS numeric values of *weight1* and *weight2*, normalized between
         0.05 and 1.0.
         """
-
         # exact match of the weight names, e.g. weight1 == weight2 == "regular"
-        if (isinstance(weight1, str) and
-                isinstance(weight2, str) and
-                weight1 == weight2):
+        if cbook._str_equal(weight1, weight2):
             return 0.0
-        try:
-            weightval1 = int(weight1)
-        except ValueError:
-            weightval1 = weight_dict.get(weight1, 500)
-        try:
-            weightval2 = int(weight2)
-        except ValueError:
-            weightval2 = weight_dict.get(weight2, 500)
-        return 0.95*(abs(weightval1 - weightval2) / 1000.0) + 0.05
+        w1 = weight1 if isinstance(weight1, Number) else weight_dict[weight1]
+        w2 = weight2 if isinstance(weight2, Number) else weight_dict[weight2]
+        return 0.95 * (abs(w1 - w2) / 1000) + 0.05
 
     def score_size(self, size1, size2):
         """
