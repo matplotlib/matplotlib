@@ -15,7 +15,8 @@ import pytest
 import warnings
 
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.testing.decorators import (
+    image_comparison, check_figures_equal, remove_ticks_and_titles)
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
@@ -5845,9 +5846,10 @@ def test_cartopy_backcompat():
 
 def test_gettightbbox_ignoreNaN():
     fig, ax = plt.subplots()
+    remove_ticks_and_titles(fig)
     t = ax.text(np.NaN, 1, 'Boo')
     renderer = fig.canvas.get_renderer()
-    np.testing.assert_allclose(ax.get_tightbbox(renderer).width, 532.444444)
+    np.testing.assert_allclose(ax.get_tightbbox(renderer).width, 496)
 
 
 def test_scatter_series_non_zero_index(pd):

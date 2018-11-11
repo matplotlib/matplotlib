@@ -1,6 +1,7 @@
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import (
+    image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -410,7 +411,6 @@ def test_image_grid():
 
 
 def test_gettightbbox():
-
     fig, ax = plt.subplots(figsize=(8, 6))
 
     l, = ax.plot([1, 2, 3], [0, 1, 0])
@@ -419,6 +419,8 @@ def test_gettightbbox():
     ax_zoom.plot([1, 2, 3], [0, 1, 0])
 
     mark_inset(ax, ax_zoom, loc1=1, loc2=3, fc="none", ec='0.3')
+
+    remove_ticks_and_titles(fig)
     bbox = fig.get_tightbbox(fig.canvas.get_renderer())
     np.testing.assert_array_almost_equal(bbox.extents,
-            [-18.022743, -14.118056,   7.332813,   5.4625])
+                                         [-17.7, -13.9, 7.2, 5.4])
