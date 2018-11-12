@@ -6508,7 +6508,9 @@ class Axes(_AxesBase):
             *nbins*. If input is a sequence of arrays
             ``[data1, data2,..]``, then this is a list of arrays with
             the values of the histograms for each of the arrays in the
-            same order.
+            same order. The dtype of the elements of the array *n*
+            (or of its element arrays) will always be float even if no
+            weighting or normalization is used.
 
         bins : array
             The edges of the bins. Length nbins + 1 (nbins left edges and right
