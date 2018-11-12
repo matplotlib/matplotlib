@@ -6635,7 +6635,6 @@ class Axes(_AxesBase):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
-            m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
             if stacked:
@@ -6647,6 +6646,9 @@ class Axes(_AxesBase):
         # histograms together is 1
         if stacked and density:
             db = np.diff(bins)
+            # casting as float to avoid issues with division result being
+            # stored in the same numpy array (in case the dtype is int).
+            tops = [m.astype(float) for m in tops]
             for m in tops:
                 m[:] = (m / db) / tops[-1].sum()
         if cumulative:
