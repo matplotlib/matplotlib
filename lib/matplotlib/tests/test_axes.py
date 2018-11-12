@@ -1492,6 +1492,12 @@ def test_barh_tick_label():
             align='center')
 
 
+def test_int_hist():
+    fig, ax = plt.subplots()
+    n, _, _ = ax.hist(np.arange(10))
+    assert n.dtype == np.int
+
+
 @image_comparison(baseline_images=['hist_log'],
                   remove_text=True)
 def test_hist_log():
