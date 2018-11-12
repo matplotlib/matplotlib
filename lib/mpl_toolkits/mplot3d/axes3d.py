@@ -2637,15 +2637,12 @@ pivot='tail', normalize=False, **kwargs)
 
         # first 6 arguments are X, Y, Z, U, V, W
         input_args = args[:argi]
-        # if any of the args are scalar, convert into list
-        input_args = [[k] if isinstance(k, (int, float)) else k
-                      for k in input_args]
 
         # extract the masks, if any
         masks = [k.mask for k in input_args
                  if isinstance(k, np.ma.MaskedArray)]
         # broadcast to match the shape
-        bcast = np.broadcast_arrays(*(input_args + masks))
+        bcast = np.broadcast_arrays(*input_args, *masks)
         input_args = bcast[:argi]
         masks = bcast[argi:]
         if masks:
@@ -2655,7 +2652,7 @@ pivot='tail', normalize=False, **kwargs)
             input_args = [np.ma.array(k, mask=mask).compressed()
                           for k in input_args]
         else:
-            input_args = [k.flatten() for k in input_args]
+            input_args = [np.ravel(k) for k in input_args]
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
@@ -2663,13 +2660,7 @@ pivot='tail', normalize=False, **kwargs)
             self.add_collection(linec)
             return linec
 
-        # Following assertions must be true before proceeding
-        # must all be ndarray
-        assert all(isinstance(k, np.ndarray) for k in input_args)
-        # must all in same shape
-        assert len({k.shape for k in input_args}) == 1
-
-        shaft_dt = np.linspace(0, length, num=2)
+        shaft_dt = np.array([0, length])
         arrow_dt = shaft_dt * arrow_length_ratio
 
         if pivot == 'tail':
