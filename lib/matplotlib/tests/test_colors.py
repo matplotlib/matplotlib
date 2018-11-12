@@ -695,8 +695,7 @@ def test_ndarray_subclass_norm(recwarn):
         def __add__(self, other):
             raise RuntimeError
 
-    data = np.arange(-10, 10, 1, dtype=float)
-    data.shape = (10, 2)
+    data = np.arange(-10, 10, 1, dtype=float).reshape((10, 2))
     mydata = data.view(MyArray)
 
     for norm in [mcolors.Normalize(), mcolors.LogNorm(),
