@@ -1081,7 +1081,7 @@ def delete_masked_points(*args):
     return margs
 
 
-def combine_masks(*args):
+def _combine_masks(*args):
     """
     Find all masked and/or non-finite points in a set of arguments,
     and return the arguments as masked arrays with a common mask.

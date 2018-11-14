@@ -2835,7 +2835,7 @@ def quiverkey(Q, X, Y, U, label, **kw):
 def scatter(
         x, y, s=None, c=None, marker=None, cmap=None, norm=None,
         vmin=None, vmax=None, alpha=None, linewidths=None, verts=None,
-        edgecolors=None, plotinvalid=False, *, data=None, **kwargs):
+        edgecolors=None, *, plotinvalid=False, data=None, **kwargs):
     __ret = gca().scatter(
         x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
         vmin=vmin, vmax=vmax, alpha=alpha, linewidths=linewidths,

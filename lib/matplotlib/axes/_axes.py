@@ -4180,7 +4180,7 @@ class Axes(_AxesBase):
                       label_namer="y")
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
-                verts=None, edgecolors=None, plotinvalid=False,
+                verts=None, edgecolors=None, *, plotinvalid=False,
                 **kwargs):
         """
         A scatter plot of *y* vs *x* with varying marker size and/or color.
@@ -4314,25 +4314,14 @@ class Axes(_AxesBase):
                 c, edgecolors, kwargs, xshape, yshape,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
 
-        # if plotinvalid and colors == None:
-        #     # Do full color mapping; don't remove invalid c entries.
-        #     ind = np.arange(len(c))
-        #     x, y, s, ind, colors, edgecolors, linewidths =\
-        #        cbook.delete_masked_points(
-        #            x, y, s, ind, colors, edgecolors, linewidths)
-        #     c = np.ma.masked_invalid(c[ind])
-        # else:
-        #     x, y, s, c, colors, edgecolors, linewidths =\
-        #        cbook.delete_masked_points(
-        #            x, y, s, c, colors, edgecolors, linewidths)
-
-        if plotinvalid and colors == None:
+        if plotinvalid and colors is None:
             c = np.ma.masked_invalid(c)
-            x, y, s, colors, edgecolors, linewidths =\
-                cbook.combine_masks(x, y, s, colors, edgecolors, linewidths)
+            x, y, s, colors, edgecolors, linewidths = \
+                cbook._combine_masks(x, y, s, colors, edgecolors, linewidths)
         else:
-            x, y, s, c, colors, edgecolors, linewidths =\
-                cbook.combine_masks(x, y, s, c, colors, edgecolors, linewidths)
+            x, y, s, c, colors, edgecolors, linewidths = \
+                cbook._combine_masks(
+                    x, y, s, c, colors, edgecolors, linewidths)
 
         scales = s   # Renamed for readability below.
 
