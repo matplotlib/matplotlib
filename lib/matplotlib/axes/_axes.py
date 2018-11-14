@@ -4316,8 +4316,8 @@ class Axes(_AxesBase):
 
         if plotnonfinite and colors is None:
             c = np.ma.masked_invalid(c)
-            x, y, s, colors, edgecolors, linewidths = \
-                cbook._combine_masks(x, y, s, colors, edgecolors, linewidths)
+            x, y, s, edgecolors, linewidths = \
+                cbook._combine_masks(x, y, s, edgecolors, linewidths)
         else:
             x, y, s, c, colors, edgecolors, linewidths = \
                 cbook._combine_masks(
