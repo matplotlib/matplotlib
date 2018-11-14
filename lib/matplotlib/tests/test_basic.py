@@ -47,6 +47,7 @@ def test_lazy_imports():
     assert 'matplotlib._tri' not in sys.modules
     assert 'matplotlib._qhull' not in sys.modules
     assert 'matplotlib._contour' not in sys.modules
+    assert 'urllib.request' not in sys.modules
     """)
 
     subprocess.check_call([

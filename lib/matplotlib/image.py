@@ -9,7 +9,6 @@ import os
 import logging
 from pathlib import Path
 import urllib.parse
-import urllib.request
 
 import numpy as np
 
@@ -1400,6 +1399,7 @@ def imread(fname, format=None):
         parsed = urllib.parse.urlparse(fname)
         # If fname is a URL, download the data
         if len(parsed.scheme) > 1:
+            import urllib.request
             fd = BytesIO(urllib.request.urlopen(fname).read())
             return handler(fd)
         else:
