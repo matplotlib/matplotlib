@@ -7811,9 +7811,7 @@ class Axes(_AxesBase):
         Make a violin plot.
 
         Make a violin plot for each column of *dataset* or each vector in
-        sequence *dataset*.  To illustrate, if passing an 2D array/matrix, 
-        the function will treat each column as data. However, if passing a list of vectors
-        (i.e. sequence *dataset*), the function will treat each vector as data.
+        sequence *dataset*. 
 
         Each filled area extends to represent the entire data range, with optional lines at the mean, the median,
         the minimum, and the maximum.
