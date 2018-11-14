@@ -9,6 +9,6 @@ by `PathCollection.get_array`)
 
 Such points are now included, but masked out by returning a masked array.
 
-If the *plotinvalid* kwarg to `~.Axes.scatter` is set, then points with
+If the *plotnonfinite* kwarg to `~.Axes.scatter` is set, then points with
 nonfinite values are plotted using the bad color of the `PathCollection`\ 's
 colormap (as set by `Colormap.set_bad`).

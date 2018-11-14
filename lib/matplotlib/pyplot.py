@@ -2835,12 +2835,13 @@ def quiverkey(Q, X, Y, U, label, **kw):
 def scatter(
         x, y, s=None, c=None, marker=None, cmap=None, norm=None,
         vmin=None, vmax=None, alpha=None, linewidths=None, verts=None,
-        edgecolors=None, *, plotinvalid=False, data=None, **kwargs):
+        edgecolors=None, *, plotnonfinite=False, data=None, **kwargs):
     __ret = gca().scatter(
         x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
         vmin=vmin, vmax=vmax, alpha=alpha, linewidths=linewidths,
-        verts=verts, edgecolors=edgecolors, plotinvalid=plotinvalid,
-        **({"data": data} if data is not None else {}), **kwargs)
+        verts=verts, edgecolors=edgecolors,
+        plotnonfinite=plotnonfinite, **({"data": data} if data is not
+        None else {}), **kwargs)
     sci(__ret)
     return __ret
 

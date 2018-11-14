@@ -1759,7 +1759,7 @@ class TestScatter(object):
         # stamping fast path, which would result in slightly offset markers.
         ax.scatter(range(4), range(4),
                    c=[1, np.nan, 2, np.nan], s=[1, 2, 3, 4],
-                   cmap=cmap, plotinvalid=True)
+                   cmap=cmap, plotnonfinite=True)
         ax = fig_ref.subplots()
         cmap = plt.get_cmap("viridis", 16)
         ax.scatter([0, 2], [0, 2], c=[1, 2], s=[1, 3], cmap=cmap)
