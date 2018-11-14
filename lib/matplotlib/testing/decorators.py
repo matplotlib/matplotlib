@@ -452,19 +452,37 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
         _, result_dir = map(Path, _image_directories(func))
 
-        @pytest.mark.parametrize("ext", extensions)
-        def wrapper(ext):
-            fig_test = plt.figure("test")
-            fig_ref = plt.figure("reference")
-            func(fig_test, fig_ref)
-            test_image_path = str(
-                result_dir / (func.__name__ + "." + ext))
-            ref_image_path = str(
-                result_dir / (func.__name__ + "-expected." + ext))
-            fig_test.savefig(test_image_path)
-            fig_ref.savefig(ref_image_path)
-            _raise_on_image_difference(
-                ref_image_path, test_image_path, tol=tol)
+        if len(inspect.signature(func).parameters) == 2:
+            # Free-standing function.
+            @pytest.mark.parametrize("ext", extensions)
+            def wrapper(ext):
+                fig_test = plt.figure("test")
+                fig_ref = plt.figure("reference")
+                func(fig_test, fig_ref)
+                test_image_path = str(
+                    result_dir / (func.__name__ + "." + ext))
+                ref_image_path = str(
+                    result_dir / (func.__name__ + "-expected." + ext))
+                fig_test.savefig(test_image_path)
+                fig_ref.savefig(ref_image_path)
+                _raise_on_image_difference(
+                    ref_image_path, test_image_path, tol=tol)
+
+        elif len(inspect.signature(func).parameters) == 3:
+            # Method.
+            @pytest.mark.parametrize("ext", extensions)
+            def wrapper(self, ext):
+                fig_test = plt.figure("test")
+                fig_ref = plt.figure("reference")
+                func(self, fig_test, fig_ref)
+                test_image_path = str(
+                    result_dir / (func.__name__ + "." + ext))
+                ref_image_path = str(
+                    result_dir / (func.__name__ + "-expected." + ext))
+                fig_test.savefig(test_image_path)
+                fig_ref.savefig(ref_image_path)
+                _raise_on_image_difference(
+                    ref_image_path, test_image_path, tol=tol)
 
         return wrapper
 
