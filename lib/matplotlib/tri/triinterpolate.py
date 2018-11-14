@@ -408,8 +408,8 @@ class CubicTriInterpolator(TriInterpolator):
         self._tri_renum = tri_renum
         # Taking into account the node renumbering in self._z:
         node_mask = (node_renum == -1)
-        self._z[node_renum[~node_mask]] = self._z
         self._z = self._z[~node_mask]
+        self._z[node_renum[~node_mask]] = self._z
 
         # Computing scale factors
         self._unit_x = np.ptp(compressed_x)
