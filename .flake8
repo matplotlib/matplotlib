@@ -197,6 +197,7 @@ per-file-ignores =
     examples/pyplots/whats_new_99_spines.py: E231, E402
     examples/recipes/placing_text_boxes.py: E501
     examples/scales/power_norm.py: E402
+    examples/scales/scales.py: E402
     examples/shapes_and_collections/artist_reference.py: E402
     examples/shapes_and_collections/collections.py: E402
     examples/shapes_and_collections/compound_path.py: E402
