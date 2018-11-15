@@ -2127,7 +2127,7 @@ class LogLocator(Locator):
                                  "found '%s'." % subs)
             self._subs = subs
         else:
-            self._subs = np.asarray(subs, dtype=float)
+            self._subs = np.array(subs, dtype=float, copy=False, ndmin=1)
 
     def __call__(self):
         'Return the locations of the ticks'
