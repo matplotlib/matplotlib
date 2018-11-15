@@ -485,9 +485,12 @@ class Legend(Artist):
         self.parent = parent
 
         if loc is None:
+            self._loc_used_default = True
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
+        else:
+            self._loc_used_default = False
         if isinstance(loc, str):
             if loc not in self.codes:
                 if self.isaxes:
@@ -568,7 +571,8 @@ class Legend(Artist):
         else:
             self.get_frame().set_alpha(framealpha)
 
-        self._loc = loc
+        self._set_loc(loc, is_initial_setting=True)
+
         # figure out title fontsize:
         if title_fontsize is None:
             title_fontsize = rcParams['legend.title_fontsize']
@@ -588,10 +592,13 @@ class Legend(Artist):
 
         a.set_transform(self.get_transform())
 
-    def _set_loc(self, loc):
+    def _set_loc(self, loc, is_initial_setting=False):
         # find_offset function will be provided to _legend_box and
         # _legend_box will draw itself at the location of the return
         # value of the find_offset.
+        if not is_initial_setting:
+            # User manually changed self._loc
+            self._loc_used_default = False
         self._loc_real = loc
         self.stale = True
         self._legend_box.set_offset(self._findoffset)
@@ -1108,7 +1115,8 @@ class Legend(Artist):
         assert self.isaxes
 
         verts, bboxes, lines, offsets = self._auto_legend_data()
-        if len(verts) + len(bboxes) + len(lines) + len(offsets) > 500000:
+        if self._loc_used_default and verts.shape[0] > 200000:
+            # this size results in a 3+ second render time on a good machine
             warnings.warn(
                 'Creating legend with loc="best" can be slow with large'
                 ' amounts of data.'

@@ -567,10 +567,13 @@ def test_alpha_handles():
 
 def test_warn_big_data_best_loc():
     fig, ax = plt.subplots()
-    ax.plot(np.arange(500001), label='Is this big data?')
+    ax.plot(np.arange(200001), label='Is this big data?')
     with pytest.warns(UserWarning) as records:
-        l = ax.legend(loc='best')
-        l.draw(fig.canvas.get_renderer())
+        l = ax.legend()
+        # We need to call an internal set method tricking it into thinking
+        # 'best' location was default.
+        l._set_loc(l.codes['best'], is_initial_setting=True)
+        fig.canvas.draw()
     # The _find_best_position method of Legend is called twice, duplicating
     # the warning message.
     assert len(records) == 2
