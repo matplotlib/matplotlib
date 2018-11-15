@@ -589,6 +589,4 @@ def test_no_warn_big_data_when_loc_specified():
     with pytest.warns(None) as records:
         l = ax.legend('best')
         fig.canvas.draw()
-    # The _find_best_position method of Legend is called twice, duplicating
-    # the warning message.
     assert len(records) == 0
