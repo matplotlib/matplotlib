@@ -1113,6 +1113,8 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap = 128  # default in _spectral_helper() is noverlap = 0
     if NFFT is None:
         NFFT = 256  # same default as in _spectral_helper()
+    if Fs is None:
+        Fs = 2 # same default as in _spectral_helper()
     if len(x) <= NFFT:
         cbook._warn_external("Only one segment is calculated since parameter "
                              "NFFT (=%d) >= signal length (=%d)." %
