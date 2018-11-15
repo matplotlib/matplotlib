@@ -2186,7 +2186,7 @@ class LogLocator(Locator):
                 stride += 1
 
         # Does subs include anything other than 1?
-        have_subs = len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0)
+        have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
 
         decades = np.arange(math.floor(vmin) - stride,
                             math.ceil(vmax) + 2 * stride, stride)
