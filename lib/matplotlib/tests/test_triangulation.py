@@ -948,6 +948,32 @@ def test_trirefine():
     assert_array_almost_equal(xyz_data[0], xyz_data[1])
 
 
+def test_cubic_trirefine_masked():
+    np.random.seed(19680801)
+    x = np.zeros(1000)
+    for i in range(10):
+        x[500+i] = np.random.rand()
+    y = np.repeat(np.arange(100), 10)
+    z = np.random.rand(1000)
+    tri = mtri.Triangulation(x, y)
+    refiner = mtri.UniformTriRefiner(tri)
+    cinterp = mtri.CubicTriInterpolator(tri, z)
+    refiner.refine_field(z, triinterpolator=cinterp, subdiv=2)
+
+
+def test_linear_trirefine_masked():
+    np.random.seed(19680801)
+    x = np.zeros(1000)
+    for i in range(10):
+        x[500+i] = np.random.rand()
+    y = np.repeat(np.arange(100), 10)
+    z = np.random.rand(1000)
+    tri = mtri.Triangulation(x, y)
+    refiner = mtri.UniformTriRefiner(tri)
+    linterp = mtri.LinearTriInterpolator(tri, z)
+    refiner.refine_field(z, triinterpolator=linterp, subdiv=2)
+
+
 def meshgrid_triangles(n):
     """
     Utility function.
