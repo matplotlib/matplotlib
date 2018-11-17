@@ -1,3 +1,6 @@
+"""
+Helper functions for testing.
+"""
 import locale
 import logging
 import warnings
@@ -9,7 +12,7 @@ _log = logging.getLogger(__name__)
 
 
 def is_called_from_pytest():
-    """Returns whether the call was done from pytest"""
+    """Whether we are in a pytest run."""
     return getattr(mpl, '_called_from_pytest', False)
 
 
