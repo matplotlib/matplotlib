@@ -2467,7 +2467,6 @@ class _AxesBase(martist.Artist):
         Update the title position based on the bounding box enclosing
         all the ticklabels and x-axis spine and xlabel...
         """
-        _log.debug('update_title_pos')
 
         if self._autotitlepos is not None and not self._autotitlepos:
             _log.debug('title position was updated manually, not adjusting')
