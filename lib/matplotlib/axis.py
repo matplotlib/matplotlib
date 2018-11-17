@@ -1637,9 +1637,9 @@ class Axis(martist.Artist):
         """
         if args:
             cbook.warn_deprecated(
-                "3.1", "Additional positional arguments to set_ticklabels are "
-                "ignored, and deprecated since Matplotlib 3.1; passing them "
-                "will raise a TypeError in Matplotlib 3.3.")
+                "3.1", message="Additional positional arguments to "
+                "set_ticklabels are ignored, and deprecated since Matplotlib "
+                "3.1; passing them will raise a TypeError in Matplotlib 3.3.")
         get_labels = []
         for t in ticklabels:
             # try calling get_text() to check whether it is Text object

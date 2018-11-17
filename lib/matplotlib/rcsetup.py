@@ -616,7 +616,7 @@ def validate_svg_fonttype(s):
         return s
     if s == "svgfont":
         cbook.warn_deprecated(
-            "2.2", "'svgfont' support for svg.fonttype is deprecated.")
+            "2.2", message="'svgfont' support for svg.fonttype is deprecated.")
         return s
     raise ValueError("Unrecognized svg.fonttype string '{}'; "
                      "valid strings are 'none', 'path'")

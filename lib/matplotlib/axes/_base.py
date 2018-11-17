@@ -1311,7 +1311,7 @@ class _AxesBase(martist.Artist):
         """
         if adjustable == 'box-forced':
             cbook.warn_deprecated(
-                "2.2", "box-forced", obj_type="keyword argument")
+                "2.2", name="box-forced", obj_type="keyword argument")
         if adjustable not in ('box', 'datalim', 'box-forced'):
             raise ValueError("argument must be 'box', or 'datalim'")
         if share:
@@ -1641,8 +1641,8 @@ class _AxesBase(martist.Artist):
                        'auto', 'image', 'square'):
                 if s == 'normal':
                     cbook.warn_deprecated(
-                        "3.1", "Passing 'normal' to axis() is deprecated "
-                        "since %(since)s; use 'auto' instead.")
+                        "3.1", message="Passing 'normal' to axis() is "
+                        "deprecated since %(since)s; use 'auto' instead.")
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
