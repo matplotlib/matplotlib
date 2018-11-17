@@ -212,16 +212,15 @@ class RendererWx(RendererBase):
         self.gc = None
 
     def flipy(self):
+        # docstring inherited
         return True
 
     def offset_text_height(self):
         return True
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
-        """
+        # docstring inherited
+
         if ismath:
             s = cbook.strip_math(s)
 
@@ -237,7 +236,7 @@ class RendererWx(RendererBase):
         return w, h, descent
 
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
+        # docstring inherited
         return self.width, self.height
 
     def handle_clip_rectangle(self, gc):
@@ -271,6 +270,7 @@ class RendererWx(RendererBase):
         return wxpath
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         gc.select()
         self.handle_clip_rectangle(gc)
         gfx_ctx = gc.gfx_ctx
@@ -302,6 +302,8 @@ class RendererWx(RendererBase):
         gc.unselect()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         if ismath:
             s = cbook.strip_math(s)
         DEBUG_MSG("draw_text()", 1, self)
@@ -328,9 +330,7 @@ class RendererWx(RendererBase):
         gc.unselect()
 
     def new_gc(self):
-        """
-        Return an instance of a GraphicsContextWx, and sets the current gc copy
-        """
+        # docstring inherited
         DEBUG_MSG('new_gc()', 2, self)
         self.gc = GraphicsContextWx(self.bitmap, self)
         self.gc.select()
@@ -382,10 +382,7 @@ class RendererWx(RendererBase):
         return font
 
     def points_to_pixels(self, points):
-        """
-        convert point measures to pixes using dpi and the pixels per
-        inch of the display
-        """
+        # docstring inherited
         return points * (PIXELS_PER_INCH / 72.0 * self.dpi / 72.0)
 
 

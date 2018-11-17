@@ -1626,8 +1626,7 @@ class RendererPdf(RendererBase):
         gc._effective_alphas = orig_alphas
 
     def track_characters(self, font, s):
-        """Keeps track of which characters are required from
-        each font."""
+        """Keeps track of which characters are required from each font."""
         if isinstance(font, str):
             fname = font
         else:
@@ -1647,19 +1646,16 @@ class RendererPdf(RendererBase):
         return self.image_dpi/72.0
 
     def option_scale_image(self):
-        """
-        pdf backend support arbitrary scaling of image.
-        """
+        # docstring inherited
         return True
 
     def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
+        # docstring inherited
         return not rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, transform=None):
+        # docstring inherited
+
         h, w = im.shape[:2]
         if w == 0 or h == 0:
             return
@@ -1688,6 +1684,7 @@ class RendererPdf(RendererBase):
                              imob, Op.use_xobject, Op.grestore)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         self.check_gc(gc, rgbFace)
         self.file.writePath(
             path, transform,
@@ -1767,6 +1764,8 @@ class RendererPdf(RendererBase):
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
+        # docstring inherited
+
         # Same logic as in draw_path_collection
         len_marker_path = len(marker_path)
         uses = len(path)
@@ -1899,6 +1898,7 @@ class RendererPdf(RendererBase):
         self.file.output(Op.grestore)
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+        # docstring inherited
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
@@ -1982,6 +1982,8 @@ class RendererPdf(RendererBase):
         return s.encode('utf-16be', 'replace')
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         # TODO: combine consecutive texts into one BT/ET delimited section
 
         # This function is rather complex, since there is no way to
@@ -2017,9 +2019,11 @@ class RendererPdf(RendererBase):
                 fonttype = 42
 
         def check_simple_method(s):
-            """Determine if we should use the simple or woven method
-            to output this text, and chunks the string into 1-byte and
-            2-byte sections if necessary."""
+            """
+            Determine if we should use the simple or woven method to output
+            this text, and chunks the string into 1-byte and 2-byte sections if
+            necessary.
+            """
             use_simple_method = True
             chunks = []
 
@@ -2052,9 +2056,10 @@ class RendererPdf(RendererBase):
                              Op.end_text)
 
         def draw_text_woven(chunks):
-            """Outputs text using the woven method, alternating
-            between chunks of 1-byte characters and 2-byte characters.
-            Only used for Type 3 fonts."""
+            """
+            Outputs text using the woven method, alternating between chunks of
+            1-byte and 2-byte characters.  Only used for Type 3 fonts.
+            """
             chunks = [(a, ''.join(b)) for a, b in chunks]
 
             # Do the rotation and global translation as a single matrix
@@ -2122,6 +2127,8 @@ class RendererPdf(RendererBase):
             return draw_text_woven(chunks)
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
+
         if rcParams['text.usetex']:
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
@@ -2177,12 +2184,15 @@ class RendererPdf(RendererBase):
         return font
 
     def flipy(self):
+        # docstring inherited
         return False
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.file.width * 72.0, self.file.height * 72.0
 
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextPdf(self.file)
 
 
