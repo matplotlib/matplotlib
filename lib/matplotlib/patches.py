@@ -3,7 +3,6 @@ import functools
 import math
 from numbers import Number
 import textwrap
-import warnings
 
 import numpy as np
 
