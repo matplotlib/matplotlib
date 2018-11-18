@@ -706,7 +706,7 @@ class Stack(object):
                 bubbles.append(thiso)
             else:
                 self.push(thiso)
-        for thiso in bubbles:
+        for _ in bubbles:
             self.push(o)
         return o
 

@@ -806,14 +806,11 @@ class TextArea(OffsetBox):
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
-        clean_line, ismath = self._text.is_math_text(self._text._text)
         _, h_, d_ = renderer.get_text_width_height_descent(
             "lp", self._text._fontproperties, ismath=False)
 
         bbox, info, d = self._text._get_layout(renderer)
         w, h = bbox.width, bbox.height
-
-        line = info[-1][0]  # last line
 
         self._baseline_transform.clear()
 
@@ -1543,8 +1540,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         ox1, oy1 = x, y
 
         if self.arrowprops:
-            x0, y0 = x, y
-
             d = self.arrowprops.copy()
 
             # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.

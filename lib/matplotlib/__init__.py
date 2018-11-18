@@ -822,7 +822,7 @@ class RcParams(MutableMapping, dict):
                         "either import that binding first, or set the QT_API "
                         "environment variable.")
                 cbook.warn_deprecated(
-                    "2.2", name=key, obj_type="rcparam", addendum=addendum)
+                    version, name=key, obj_type="rcparam", addendum=addendum)
             elif key in _deprecated_ignore_map:
                 version, alt_key = _deprecated_ignore_map[key]
                 cbook.warn_deprecated(

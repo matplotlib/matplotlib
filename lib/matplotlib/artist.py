@@ -1393,7 +1393,6 @@ class ArtistInspector(object):
             return '%s%s: %s' % (pad, prop, accepts)
 
         attrs = sorted(self._get_setters_and_targets())
-        lines = []
 
         names = [self.aliased_name_rest(prop, target)
                  for prop, target in attrs]

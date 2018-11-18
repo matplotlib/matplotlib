@@ -196,7 +196,6 @@ class RendererAgg(RendererBase):
 
         if ismath in ["TeX", "TeX!"]:
             # todo: handle props
-            size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(
@@ -389,7 +388,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         # acquire a lock on the shared font cache
         RendererAgg.lock.acquire()
 
-        toolbar = self.toolbar
         try:
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so
