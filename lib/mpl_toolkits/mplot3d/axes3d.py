@@ -1732,14 +1732,14 @@ class Axes3D(Axes):
         return polyc
 
     def _generate_normals(self, polygons):
-        '''
+        """
         Generate normals for polygons by using the first three points.
         This normal of course might not make sense for polygons with
         more than three points not lying in a plane.
 
         Normals point towards the viewer for a face with its vertices in
         counterclockwise order, following the right hand rule.
-        '''
+        """
 
         normals = []
         for verts in polygons:
@@ -1749,10 +1749,10 @@ class Axes3D(Axes):
         return normals
 
     def _shade_colors(self, color, normals, lightsource=None):
-        '''
+        """
         Shade *color* using normal vectors given by *normals*.
         *color* can also be an array of the same length as *normals*.
-        '''
+        """
         if lightsource is None:
             # chosen for backwards-compatibility
             lightsource = LightSource(azdeg=225, altdeg=19.4712)
@@ -1762,7 +1762,7 @@ class Axes3D(Axes):
                           for n in normals])
         mask = ~np.isnan(shade)
 
-        if len(shade[mask]) > 0:
+        if mask.any():
             norm = Normalize(min(shade[mask]), max(shade[mask]))
             shade[~mask] = min(shade[mask])
             color = mcolors.to_rgba_array(color)
