@@ -838,7 +838,9 @@ class Axis(martist.Artist):
         for d in dicts:
             if reset:
                 d.clear()
-            blacklist_dicts.append({k:d.pop(k) for k in blacklist if k in d.keys()})
+            blacklist_dicts.append(
+                    {k: d.pop(k) for k in blacklist if k in d.keys()}
+            )
             d.update(kwtrans)
             [blacklist_dicts[-1].pop(k, None) for k in kwtrans.keys()]
 
@@ -854,7 +856,7 @@ class Axis(martist.Artist):
             if 'labelcolor' in kwtrans:
                 self.offsetText.set_color(kwtrans['labelcolor'])
 
-        for d,bd in zip(dicts, blacklist_dicts):
+        for d, bd in zip(dicts, blacklist_dicts):
             d.update(bd)
         self.stale = True
 
