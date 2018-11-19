@@ -1765,6 +1765,18 @@ class TestScatter(object):
         ax.scatter([0, 2], [0, 2], c=[1, 2], s=[1, 3], cmap=cmap)
         ax.scatter([1, 3], [1, 3], s=[2, 4], color="k")
 
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_no_invalid_color(self, fig_test, fig_ref):
+        # With plotninfinite=False we plot only 2 points.
+        ax = fig_test.subplots()
+        cmap = plt.get_cmap("viridis", 16)
+        cmap.set_bad("k", 1)
+        ax.scatter(range(4), range(4),
+                   c=[1, np.nan, 2, np.nan], s=[1, 2, 3, 4],
+                   cmap=cmap, plotnonfinite=False)
+        ax = fig_ref.subplots()
+        ax.scatter([0, 2], [0, 2], c=[1, 2], s=[1, 3], cmap=cmap)
+
     # Parameters for *test_scatter_c*. NB: assuming that the
     # scatter plot will have 4 elements. The tuple scheme is:
     # (*c* parameter case, exception regexp key or None if no exception)
@@ -5757,22 +5769,6 @@ def test_color_length_mismatch():
     c_rgb = (0.5, 0.5, 0.5)
     ax.scatter(x, y, c=c_rgb)
     ax.scatter(x, y, c=[c_rgb] * N)
-
-
-# The following test is based on the old behavior of deleting bad points.
-# def test_scatter_color_masking():
-#     x = np.array([1, 2, 3])
-#     y = np.array([1, np.nan, 3])
-#     colors = np.array(['k', 'w', 'k'])
-#     linewidths = np.array([1, 2, 3])
-#     s = plt.scatter(x, y, color=colors, linewidths=linewidths)
-#
-#     facecolors = s.get_facecolors()
-#     linecolors = s.get_edgecolors()
-#     linewidths = s.get_linewidths()
-#     assert_array_equal(facecolors[1], np.array([0, 0, 0, 1]))
-#     assert_array_equal(linecolors[1], np.array([0, 0, 0, 1]))
-#     assert linewidths[1] == 3
 
 
 def test_eventplot_legend():
