@@ -839,7 +839,7 @@ class Axis(martist.Artist):
             if reset:
                 d.clear()
             blacklist_dicts.append(
-                    {k: d.pop(k) for k in blacklist if k in d.keys()}
+                {k: d.pop(k) for k in blacklist if k in d.keys()}
             )
             d.update(kwtrans)
             [blacklist_dicts[-1].pop(k, None) for k in kwtrans.keys()]
