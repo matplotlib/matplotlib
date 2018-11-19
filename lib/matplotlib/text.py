@@ -18,6 +18,7 @@ from .textpath import TextPath  # Unused, but imported by others.
 from .transforms import (
     Affine2D, Bbox, BboxBase, BboxTransformTo, IdentityTransform, Transform)
 
+from ._auto_placement import find_best_position
 
 _log = logging.getLogger(__name__)
 
@@ -1972,6 +1973,7 @@ class Annotation(Text, _AnnotationBase):
                  textcoords=None,
                  arrowprops=None,
                  annotation_clip=None,
+                 parent=None,
                  **kwargs):
         """
         Annotate the point *xy* with text *s*.
@@ -1993,6 +1995,10 @@ class Annotation(Text, _AnnotationBase):
         xytext : (float, float), optional
             The position *(x,y)* to place the text at.
             If *None*, defaults to *xy*.
+
+        textloc : str, optional
+            If 'best', it will overwrite the text location with the best
+            location from a few options.
 
         xycoords : str, `.Artist`, `.Transform`, callable or tuple, optional
 
@@ -2138,6 +2144,10 @@ class Annotation(Text, _AnnotationBase):
         :ref:`plotting-guide-annotation`.
 
         """
+        # local import only to avoid circularity
+        from matplotlib.axes import Axes
+        from matplotlib.figure import Figure
+
         _AnnotationBase.__init__(self,
                                  xy,
                                  xycoords=xycoords,
@@ -2150,6 +2160,8 @@ class Annotation(Text, _AnnotationBase):
                                  "not the `xytext` kwarg.  This can lead to "
                                  "surprising results.")
 
+        self._loc = kwargs.pop('textloc', None)
+
         # clean up textcoords and assign default
         if textcoords is None:
             textcoords = self.xycoords
@@ -2158,7 +2170,10 @@ class Annotation(Text, _AnnotationBase):
         # cleanup xytext defaults
         if xytext is None:
             xytext = self.xy
-        x, y = xytext
+
+        x, y = self.xy
+        if not isinstance(xytext, str):
+            x, y = xytext
 
         Text.__init__(self, x, y, s, **kwargs)
 
@@ -2239,6 +2254,8 @@ class Annotation(Text, _AnnotationBase):
         """
         Update the pixel positions of the annotation text and the arrow patch.
         """
+        if self._loc == 'best':
+            self._set_to_best_position(renderer)
         # generate transformation,
         self.set_transform(self._get_xy_transform(renderer, self.anncoords))
 
@@ -2396,6 +2413,27 @@ class Annotation(Text, _AnnotationBase):
             bboxes.append(self.arrow_patch.get_window_extent())
 
         return Bbox.union(bboxes)
+
+    def _set_to_best_position(self, renderer):
+        if self.axes is None:
+            return
+        bbox, info, descent = self._get_layout(renderer)
+        parent_bbox = self._get_bbox_to_anchor()
+        fontsize = renderer.points_to_pixels(self.get_size())
+        container = parent_bbox.padded(-0.5 * fontsize)
+
+        # use a consistent checking order instead of map key iteration for
+        # determinism
+        coefs = ["NE", "NW", "SW", "SE", "E", "W", "E", "S", "N", "C"]
+        consider_bboxes = [bbox.anchored(c, container=container)
+                for c in coefs]
+        consider = [(b.x0, b.y0) for b in consider_bboxes]
+        pos = find_best_position(self.axes, bbox.width, bbox.height, consider)
+        self.set_position(pos)
+        self.anncoords = "figure pixels"
+
+    def _get_bbox_to_anchor(self):
+        return self.axes.bbox if self.axes is not None else None
 
     arrow = property(
         fget=cbook.deprecated("3.0", message="arrow was deprecated in "
