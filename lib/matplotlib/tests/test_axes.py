@@ -4870,6 +4870,12 @@ def test_set_get_ticklabels():
     ax[1].set_xticklabels(ax[0].get_xticklabels())
     ax[1].set_yticklabels(ax[0].get_yticklabels())
 
+@image_comparison(baseline_images=['retain_tick_visibility'], extensions=['png'])
+def test_retain_tick_visibility():
+    fig, ax = plt.subplots()
+    plt.plot([0, 1, 2], [0, -1, 4])
+    plt.setp(ax.get_yticklabels(), visible=False)
+    ax.tick_params(axis="y", which="both", length=0)
 
 def test_tick_label_update():
     # test issue 9397
