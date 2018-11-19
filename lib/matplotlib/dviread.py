@@ -1040,7 +1040,6 @@ _vffile = partial(_fontfile, Vf, ".vf")
 if __name__ == '__main__':
     from argparse import ArgumentParser
     import itertools
-    import sys
 
     parser = ArgumentParser()
     parser.add_argument("filename")

@@ -5,7 +5,6 @@ import logging
 import math
 import operator
 from numbers import Number
-import warnings
 
 import numpy as np
 from numpy import ma
