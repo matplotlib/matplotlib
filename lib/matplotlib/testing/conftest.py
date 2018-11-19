@@ -43,7 +43,13 @@ def mpl_test_settings(request):
             # This import must come after setup() so it doesn't load the
             # default backend prematurely.
             import matplotlib.pyplot as plt
-            plt.switch_backend(backend)
+            try:
+                plt.switch_backend(backend)
+            except ImportError as exc:
+                # Should only occur for the cairo backend tests, if neither
+                # pycairo nor cairocffi are installed.
+                pytest.skip("Failed to switch to backend {} ({})."
+                            .format(backend, exc))
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
             matplotlib.style.use(style)
