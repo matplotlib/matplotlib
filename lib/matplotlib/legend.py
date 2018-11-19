@@ -42,6 +42,8 @@ from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 from matplotlib.offsetbox import DraggableOffsetBox
 
+from matplotlib._auto_placement import find_best_position
+
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
 from . import legend_handler
 
@@ -868,58 +870,6 @@ class Legend(Artist):
         self.texts = text_list
         self.legendHandles = handle_list
 
-    def _auto_legend_data(self):
-        """
-        Returns list of vertices and extents covered by the plot.
-
-        Returns a two long list.
-
-        First element is a list of (x, y) vertices (in
-        display-coordinates) covered by all the lines and line
-        collections, in the legend's handles.
-
-        Second element is a list of bounding boxes for all the patches in
-        the legend's handles.
-        """
-        # should always hold because function is only called internally
-        assert self.isaxes
-
-        ax = self.parent
-        bboxes = []
-        lines = []
-        offsets = []
-
-        for handle in ax.lines:
-            assert isinstance(handle, Line2D)
-            path = handle.get_path()
-            trans = handle.get_transform()
-            tpath = trans.transform_path(path)
-            lines.append(tpath)
-
-        for handle in ax.patches:
-            assert isinstance(handle, Patch)
-
-            if isinstance(handle, Rectangle):
-                transform = handle.get_data_transform()
-                bboxes.append(handle.get_bbox().transformed(transform))
-            else:
-                transform = handle.get_transform()
-                bboxes.append(handle.get_path().get_extents(transform))
-
-        for handle in ax.collections:
-            transform, transOffset, hoffsets, paths = handle._prepare_points()
-
-            if len(hoffsets):
-                for offset in transOffset.transform(hoffsets):
-                    offsets.append(offset)
-
-        try:
-            vertices = np.concatenate([l.vertices for l in lines])
-        except ValueError:
-            vertices = np.array([])
-
-        return [vertices, bboxes, lines, offsets]
-
     def draw_frame(self, b):
         '''
         Set draw frame to b.
@@ -1107,34 +1057,15 @@ class Legend(Artist):
         # should always hold because function is only called internally
         assert self.isaxes
 
-        verts, bboxes, lines, offsets = self._auto_legend_data()
-
         bbox = Bbox.from_bounds(0, 0, width, height)
+
         if consider is None:
             consider = [self._get_anchored_bbox(x, bbox,
                                                 self.get_bbox_to_anchor(),
                                                 renderer)
                         for x in range(1, len(self.codes))]
 
-        candidates = []
-        for idx, (l, b) in enumerate(consider):
-            legendBox = Bbox.from_bounds(l, b, width, height)
-            badness = 0
-            # XXX TODO: If markers are present, it would be good to
-            # take them into account when checking vertex overlaps in
-            # the next line.
-            badness = (legendBox.count_contains(verts)
-                       + legendBox.count_contains(offsets)
-                       + legendBox.count_overlaps(bboxes)
-                       + sum(line.intersects_bbox(legendBox, filled=False)
-                             for line in lines))
-            if badness == 0:
-                return l, b
-            # Include the index to favor lower codes in case of a tie.
-            candidates.append((badness, idx, (l, b)))
-
-        _, _, (l, b) = min(candidates)
-        return l, b
+        return find_best_position(self.parent, width, height, consider)
 
     def contains(self, event):
         return self.legendPatch.contains(event)
