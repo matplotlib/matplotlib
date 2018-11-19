@@ -19,6 +19,7 @@ objects and Matplotlib dates:
 .. autosummary::
    :nosignatures:
 
+   datestr2num
    date2num
    num2date
    num2timedelta
@@ -155,8 +156,8 @@ import matplotlib.units as units
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
-__all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
-           'num2epoch', 'mx2num', 'DateFormatter',
+__all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
+           'epoch2num', 'num2epoch', 'mx2num', 'DateFormatter',
            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
            'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
