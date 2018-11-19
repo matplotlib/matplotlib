@@ -826,16 +826,21 @@ class Axis(martist.Artist):
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
         """
+        blacklist = ['tick1On', 'tick2On', 'label1On', 'label2On', 'gridOn']
         dicts = []
+        blacklist_dicts = []
         if which == 'major' or which == 'both':
             dicts.append(self._major_tick_kw)
         if which == 'minor' or which == 'both':
             dicts.append(self._minor_tick_kw)
         kwtrans = self._translate_tick_kw(kw)
+
         for d in dicts:
             if reset:
                 d.clear()
+            blacklist_dicts.append({k:d.pop(k) for k in blacklist if k in d.keys()})
             d.update(kwtrans)
+            [blacklist_dicts[-1].pop(k, None) for k in kwtrans.keys()]
 
         if reset:
             self.reset_ticks()
@@ -848,6 +853,9 @@ class Axis(martist.Artist):
                     tick._apply_params(**self._minor_tick_kw)
             if 'labelcolor' in kwtrans:
                 self.offsetText.set_color(kwtrans['labelcolor'])
+
+        for d,bd in zip(dicts, blacklist_dicts):
+            d.update(bd)
         self.stale = True
 
     @staticmethod
