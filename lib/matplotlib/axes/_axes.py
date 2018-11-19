@@ -4347,7 +4347,7 @@ class Axes(_AxesBase):
             edgecolors = 'face'
             linewidths = rcParams['lines.linewidth']
 
-        offsets = np.column_stack([x, y])
+        offsets = np.ma.column_stack([x, y])
 
         collection = mcoll.PathCollection(
                 (path,), scales,

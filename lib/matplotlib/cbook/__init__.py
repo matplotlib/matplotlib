@@ -1123,8 +1123,8 @@ def _combine_masks(*args):
                 if x.ndim > 1:
                     raise ValueError("Masked arrays must be 1-D")
             x = np.asanyarray(x)
-            if x.ndim == 1 and x.dtype.kind == 'f':
-                x = np.ma.masked_invalid(x)
+            if x.ndim == 1:
+                x = safe_masked_invalid(x)
                 seqlist[i] = True
         margs.append(x)
     masks = []    # list of masks that are True where bad
