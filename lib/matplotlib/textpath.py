@@ -463,9 +463,13 @@ class TextPath(Path):
         Also see :doc:`/gallery/text_labels_and_annotations/demo_text_path`.
         """
 
+        if kl or kwargs:
+            cbook.warn_deprecated(
+                "3.1", message="Additional agruments to TextPath used to be "
+                "ignored, but will trigger a TypeError %(removal)s.")
+
         if prop is None:
             prop = FontProperties()
-
         if size is None:
             size = prop.get_size_in_points()
 
@@ -473,11 +477,8 @@ class TextPath(Path):
         self.set_size(size)
 
         self._cached_vertices = None
-
-        self._vertices, self._codes = self.text_get_vertices_codes(
-                                            prop, s,
-                                            usetex=usetex)
-
+        self._vertices, self._codes = \
+            self.text_get_vertices_codes(prop, s, usetex=usetex)
         self._should_simplify = False
         self._simplify_threshold = rcParams['path.simplify_threshold']
         self._has_nonfinite = False
