@@ -413,7 +413,7 @@ Just for fun, Matplotlib supports plotting in the style of `xkcd
    :align: center
    :scale: 50
 
-   Xkcd
+   xkcd
 """
 
 ###################################################################
