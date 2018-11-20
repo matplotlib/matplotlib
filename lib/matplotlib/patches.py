@@ -20,8 +20,8 @@ from .path import Path
     "antialiased": ["aa"],
     "edgecolor": ["ec"],
     "facecolor": ["fc"],
-    "linewidth": ["lw"],
     "linestyle": ["ls"],
+    "linewidth": ["lw"],
 })
 class Patch(artist.Artist):
     """
