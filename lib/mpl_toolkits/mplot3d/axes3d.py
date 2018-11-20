@@ -210,9 +210,6 @@ class Axes3D(Axes):
         for ax in self.xaxis, self.yaxis, self.zaxis:
             ax.init3d()
 
-    def get_children(self):
-        return [self.zaxis] + super().get_children()
-
     def _get_axis_list(self):
         return super()._get_axis_list() + (self.zaxis, )
 
