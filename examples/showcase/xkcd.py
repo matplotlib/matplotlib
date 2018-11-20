@@ -11,7 +11,7 @@ import numpy as np
 ###############################################################################
 
 with plt.xkcd():
-    # Based on "Stove Ownership" from XKCD by Randall Monroe
+    # Based on "Stove Ownership" from XKCD by Randall Munroe
     # http://xkcd.com/418/
 
     fig = plt.figure()
@@ -35,13 +35,13 @@ with plt.xkcd():
     plt.ylabel('my overall health')
     fig.text(
         0.5, 0.05,
-        '"Stove Ownership" from xkcd by Randall Monroe',
+        '"Stove Ownership" from xkcd by Randall Munroe',
         ha='center')
 
 ###############################################################################
 
 with plt.xkcd():
-    # Based on "The Data So Far" from XKCD by Randall Monroe
+    # Based on "The Data So Far" from XKCD by Randall Munroe
     # http://xkcd.com/373/
 
     fig = plt.figure()
@@ -60,7 +60,7 @@ with plt.xkcd():
 
     fig.text(
         0.5, 0.05,
-        '"The Data So Far" from xkcd by Randall Monroe',
+        '"The Data So Far" from xkcd by Randall Munroe',
         ha='center')
 
 plt.show()
