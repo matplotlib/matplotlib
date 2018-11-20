@@ -1283,9 +1283,12 @@ class EngFormatter(Formatter):
             pow10 += 3
 
         prefix = self.ENG_PREFIXES[int(pow10)]
-
-        formatted = "{mant:{fmt}}{sep}{prefix}".format(
-            mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
+        if rcParams['text.usetex']:
+            formatted = "${mant:{fmt}}${sep}{prefix}".format(
+                mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
+        else:
+            formatted = "{mant:{fmt}}{sep}{prefix}".format(
+                mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
 
         return formatted
 
