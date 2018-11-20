@@ -21,10 +21,10 @@ CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
 
 
 @cbook._define_aliases({
-    "antialiased": ["antialiaseds"],
-    "edgecolor": ["edgecolors"],
-    "facecolor": ["facecolors"],
-    "linestyle": ["linestyles", "dashes"],
+    "antialiased": ["antialiaseds", "aa"],
+    "edgecolor": ["edgecolors", "ec"],
+    "facecolor": ["facecolors", "fc"],
+    "linestyle": ["linestyles", "dashes", "ls"],
     "linewidth": ["linewidths", "lw"],
 })
 class Collection(artist.Artist, cm.ScalarMappable):
