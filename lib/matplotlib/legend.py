@@ -1118,7 +1118,7 @@ class Legend(Artist):
         if self._loc_used_default and verts.shape[0] > 200000:
             # this size results in a 3+ second render time on a good machine
             cbook._warn_external(
-                'Creating legend with loc="best" can be slow with large'
+                'Creating legend with loc="best" can be slow with large '
                 ' amounts of data.'
             )
 
