@@ -680,3 +680,36 @@ def test_datetime64_in_list():
     dt = [np.datetime64('2000-01-01'), np.datetime64('2001-01-01')]
     dn = mdates.date2num(dt)
     assert np.array_equal(dn, [730120.,  730486.])
+
+
+def test_timedelta():
+    """
+    Test that timedelta objects are properly translated into days.
+    """
+    dt = [datetime.datetime(2000, 1, 1, 0, 0, 0),
+          datetime.timedelta(days=1, hours=2)]
+    assert mdates.date2num(dt[1]) == 1 + 2 / 24
+    # check that mixed lists work....
+    assert mdates.date2num(dt)[0] == 730120.0
+    assert mdates.date2num(dt)[1] == 1 + 2 / 24
+
+    dt = (np.datetime64('2000-01-01'),
+          np.timedelta64(26, 'h'))
+    assert mdates.date2num(dt[1]) == 1 + 2 / 24
+    # check that mixed lists work....
+    assert mdates.date2num(dt)[0] == 730120.0
+    assert mdates.date2num(dt)[1] == 1 + 2 / 24
+
+    dt = [datetime.timedelta(days=1, hours=1),
+          datetime.timedelta(days=1, hours=2)]
+    assert mdates.date2num(dt)[0] == 1 + 1 / 24
+    assert mdates.date2num(dt)[1] == 1 + 2 / 24
+
+    dt = (np.timedelta64(25, 'h'),
+          np.timedelta64(26, 'h'))
+    assert mdates.date2num(dt)[0] == 1 + 1 / 24
+    assert mdates.date2num(dt)[1] == 1 + 2 / 24
+
+    dt = np.array([25, 26], dtype='timedelta64[h]')
+    assert mdates.date2num(dt)[0] == 1 + 1 / 24
+    assert mdates.date2num(dt)[1] == 1 + 2 / 24

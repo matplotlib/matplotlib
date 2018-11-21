@@ -222,6 +222,10 @@ def _to_ordinalf(dt):
         dt = dt.astimezone(UTC)
         tzi = UTC
 
+    if isinstance(dt, datetime.timedelta):
+        base = dt / datetime.timedelta(days=1)
+        return base
+
     base = float(dt.toordinal())
 
     # If it's sufficiently datetime-like, it will have a `date()` method
@@ -251,6 +255,11 @@ def _dt64_to_ordinalf(d):
     because we do times compared to ``0001-01-01T00:00:00`` (plus one day).
     """
 
+    if (isinstance(d, np.timedelta64) or
+            (isinstance(d, np.ndarray) and
+             np.issubdtype(d.dtype, np.timedelta64))):
+        return d / np.timedelta64(1, 'D')
+
     # the "extra" ensures that we at least allow the dynamic range out to
     # seconds.  That should get out to +/-2e11 years.
     # NOTE: First cast truncates; second cast back is for NumPy 1.10.
@@ -269,6 +278,11 @@ def _dt64_to_ordinalf(d):
         if d_int == NaT_int:
             dt = np.nan
     return dt
+
+
+def _dt64_to_ordinalf_iterable(d):
+    return np.fromiter((_dt64_to_ordinalf(dd) for dd in d),
+                       float, count=len(d))
 
 
 def _from_ordinalf(x, tz=None):
@@ -405,22 +419,36 @@ def date2num(d):
     Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
+
     if hasattr(d, "values"):
         # this unpacks pandas series or dataframes...
         d = d.values
-    if not np.iterable(d):
-        if (isinstance(d, np.datetime64) or (isinstance(d, np.ndarray) and
-                np.issubdtype(d.dtype, np.datetime64))):
-            return _dt64_to_ordinalf(d)
-        return _to_ordinalf(d)
 
-    else:
-        d = np.asarray(d)
-        if np.issubdtype(d.dtype, np.datetime64):
+    if not np.iterable(d) and not isinstance(d, np.ndarray):
+        # single value logic...
+        if (isinstance(d, np.datetime64) or isinstance(d, np.timedelta64)):
             return _dt64_to_ordinalf(d)
-        if not d.size:
-            return d
+        else:
+            return _to_ordinalf(d)
+
+    elif (isinstance(d, np.ndarray) and
+            (np.issubdtype(d.dtype, np.datetime64) or
+             np.issubdtype(d.dtype, np.timedelta64))):
+        # array with all one type of datetime64 object.
+        return _dt64_to_ordinalf(d)
+
+    elif len(d):
+        # this is a list or tuple...
+        if (isinstance(d[0], np.datetime64) or
+                isinstance(d[0], np.timedelta64)):
+            return _dt64_to_ordinalf_iterable(d)
         return _to_ordinalf_np_vectorized(d)
+    elif hasattr(d, 'size') and not d.size:
+        # this elif doesn't get tested, but leaving here in case anyone
+        # needs it.
+        return d
+    else:
+        return []
 
 
 def julian2num(j):
