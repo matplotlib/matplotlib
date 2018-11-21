@@ -2382,7 +2382,16 @@ class LogLocator(Locator):
             cbook._check_in_list(('all', 'auto'), subs=subs)
             self._subs = subs
         else:
-            self._subs = np.asarray(subs, dtype=float)
+            try:
+                self._subs = np.asarray(subs, dtype=float)
+            except ValueError as e:
+                raise ValueError("If subs is not None and not a string, "
+                                 "it must be a sequence of float.") from e
+            if self._subs.ndim != 1:
+                raise ValueError("If subs is not None and not a string, it "
+                                 "must be a sequence of float. Hence subs "
+                                 "should have 1 dimension but it has {} "
+                                 "dimensions.".format(self._subs.ndim))
 
     def __call__(self):
         'Return the locations of the ticks'
