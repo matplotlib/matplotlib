@@ -1230,6 +1230,7 @@ class EngFormatter(Formatter):
         self.unit = unit
         self.places = places
         self.sep = sep
+        self._usetex = rcParams['text.usetex']
 
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
@@ -1281,7 +1282,7 @@ class EngFormatter(Formatter):
             pow10 += 3
 
         prefix = self.ENG_PREFIXES[int(pow10)]
-        if rcParams['text.usetex']:
+        if self._usetex:
             formatted = "${mant:{fmt}}${sep}{prefix}".format(
                 mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
         else:
