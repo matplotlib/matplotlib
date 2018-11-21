@@ -1200,7 +1200,7 @@ class EngFormatter(Formatter):
          24: "Y"
     }
 
-    def __init__(self, unit="", places=None, sep=" "):
+    def __init__(self, unit="", places=None, sep=" ", useMathText=None):
         """
         Parameters
         ----------
@@ -1230,7 +1230,20 @@ class EngFormatter(Formatter):
         self.unit = unit
         self.places = places
         self.sep = sep
-        self._usetex = rcParams['text.usetex']
+        if useMathText is None:
+            useMathText = rcParams['axes.formatter.use_mathtext']
+        self.set_useMathText(useMathText)
+
+    def get_useMathText(self):
+        return self._useMathText
+
+    def set_useMathText(self, val):
+        if val is None:
+            self._useMathText = rcParams['axes.formatter.use_mathtext']
+        else:
+            self._useMathText = val
+
+    useMathText = property(fget=get_useMathText, fset=set_useMathText)
 
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
@@ -1282,7 +1295,7 @@ class EngFormatter(Formatter):
             pow10 += 3
 
         prefix = self.ENG_PREFIXES[int(pow10)]
-        if self._usetex:
+        if self._useMathText:
             formatted = "${mant:{fmt}}${sep}{prefix}".format(
                 mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
         else:
