@@ -1119,7 +1119,7 @@ class Legend(Artist):
             # this size results in a 3+ second render time on a good machine
             cbook._warn_external(
                 'Creating legend with loc="best" can be slow with large '
-                ' amounts of data.'
+                'amounts of data.'
             )
 
         bbox = Bbox.from_bounds(0, 0, width, height)
