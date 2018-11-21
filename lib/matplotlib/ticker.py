@@ -187,15 +187,6 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'SymmetricalLogLocator', 'LogitLocator')
 
 
-# Work around numpy/numpy#6127.
-def _divmod(x, y):
-    if isinstance(x, np.generic):
-        x = x.item()
-    if isinstance(y, np.generic):
-        y = y.item()
-    return divmod(x, y)
-
-
 def _mathdefault(s):
     return '\\mathdefault{%s}' % s
 
@@ -1665,7 +1656,7 @@ class LinearLocator(Locator):
             vmax += 1
 
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            exponent, remainder = _divmod(
+            exponent, remainder = divmod(
                 math.log10(vmax - vmin), math.log10(max(self.numticks - 1, 1)))
             exponent -= (remainder < .5)
             scale = max(self.numticks - 1, 1) ** (-exponent)
@@ -1690,14 +1681,14 @@ class Base(object):
 
     def lt(self, x):
         'return the largest multiple of base < x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m, 0) and not closeto(m / self._base, 1):
             return (d - 1) * self._base
         return d * self._base
 
     def le(self, x):
         'return the largest multiple of base <= x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m / self._base, 1):  # was closeto(m, self._base)
             #looks like floating point error
             return (d + 1) * self._base
@@ -1705,7 +1696,7 @@ class Base(object):
 
     def gt(self, x):
         'return the smallest multiple of base > x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m / self._base, 1):
             #looks like floating point error
             return (d + 2) * self._base
@@ -1713,7 +1704,7 @@ class Base(object):
 
     def ge(self, x):
         'return the smallest multiple of base >= x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m, 0) and not closeto(m / self._base, 1):
             return d * self._base
         return (d + 1) * self._base
@@ -1808,14 +1799,14 @@ class _Edge_integer:
 
     def le(self, x):
         'Return the largest n: n*step <= x.'
-        d, m = _divmod(x, self.step)
+        d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 1):
             return (d + 1)
         return d
 
     def ge(self, x):
         'Return the smallest n: n*step >= x.'
-        d, m = _divmod(x, self.step)
+        d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 0):
             return d
         return (d + 1)
