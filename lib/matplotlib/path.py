@@ -157,35 +157,32 @@ class Path(object):
             self._readonly = False
 
     @classmethod
-    def _fast_from_codes_and_verts(cls, verts, codes, internals=None):
+    def _fast_from_codes_and_verts(cls, verts, codes, internals_from=None):
         """
-        Creates a Path instance without the expense of calling the constructor
+        Creates a Path instance without the expense of calling the constructor.
 
         Parameters
         ----------
         verts : numpy array
         codes : numpy array
-        internals : dict or None
-            The attributes that the resulting path should have.  Allowed keys
-            are ``readonly``, ``should_simplify``, ``simplify_threshold``, and
-            ``interpolation_steps``.
-
+        internals_from : Path or None
+            If not None, another `Path` from which the attributes
+            ``should_simplify``, ``simplify_threshold``, and
+            ``interpolation_steps`` will be copied.  Note that ``readonly`` is
+            never copied, and always set to ``False`` by this constructor.
         """
-        internals = internals or {}
         pth = cls.__new__(cls)
         pth._vertices = _to_unmasked_float_array(verts)
         pth._codes = codes
-        pth._readonly = internals.pop('readonly', False)
-        pth.should_simplify = internals.pop('should_simplify', True)
-        pth.simplify_threshold = (
-            internals.pop('simplify_threshold',
-                          rcParams['path.simplify_threshold'])
-        )
-        pth._interpolation_steps = internals.pop('interpolation_steps', 1)
-        if internals:
-            raise ValueError('Unexpected internals provided to '
-                             '_fast_from_codes_and_verts: '
-                             '{0}'.format('\n *'.join(internals)))
+        pth._readonly = False
+        if internals_from is not None:
+            pth._should_simplify = internals_from._should_simplify
+            pth._simplify_threshold = internals_from._simplify_threshold
+            pth._interpolation_steps = internals_from._interpolation_steps
+        else:
+            pth._should_simplify = True
+            pth._simplify_threshold = rcParams['path.simplify_threshold']
+            pth._interpolation_steps = 1
         return pth
 
     def _update_values(self):
@@ -436,14 +433,13 @@ class Path(object):
         -------
         Path instance with cleaned up vertices and codes.
         """
-        vertices, codes = _path.cleanup_path(self, transform,
-                                             remove_nans, clip,
-                                             snap, stroke_width,
-                                             simplify, curves, sketch)
-        internals = {'should_simplify': self.should_simplify and not simplify,
-                     'simplify_threshold': self.simplify_threshold,
-                     'interpolation_steps': self._interpolation_steps}
-        return Path._fast_from_codes_and_verts(vertices, codes, internals)
+        vertices, codes = _path.cleanup_path(
+            self, transform, remove_nans, clip, snap, stroke_width, simplify,
+            curves, sketch)
+        pth = Path._fast_from_codes_and_verts(vertices, codes, self)
+        if not simplify:
+            pth._should_simplify = False
+        return pth
 
     def transformed(self, transform):
         """
