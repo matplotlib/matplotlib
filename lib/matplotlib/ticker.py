@@ -2182,15 +2182,10 @@ class LogLocator(Locator):
         else:
             subs = self._subs
 
-        # get decades between major ticks.
-        stride = 1
-        if rcParams['_internal.classic_mode']:
-            # Leave the bug left over from the PY2-PY3 transition.
-            while numdec / stride + 1 > numticks:
-                stride += 1
-        else:
-            while numdec // stride + 1 > numticks:
-                stride += 1
+        # Get decades between major ticks.
+        stride = (max(math.ceil(numdec / (numticks - 1)), 1)
+                  if rcParams['_internal.classic_mode'] else
+                  (numdec + 1) // numticks + 1)
 
         # Does subs include anything other than 1?
         have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
