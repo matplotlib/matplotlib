@@ -484,13 +484,11 @@ class Legend(Artist):
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
 
+        self._loc_used_default = loc is None
         if loc is None:
-            self._loc_used_default = True
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
-        else:
-            self._loc_used_default = False
         if isinstance(loc, str):
             if loc not in self.codes:
                 if self.isaxes:
@@ -571,7 +569,9 @@ class Legend(Artist):
         else:
             self.get_frame().set_alpha(framealpha)
 
-        self._set_loc(loc, is_initial_setting=True)
+        tmp = self._loc_used_default
+        self._set_loc(loc)
+        self._loc_used_default = tmp  # ignore changes done by _set_loc
 
         # figure out title fontsize:
         if title_fontsize is None:
@@ -592,13 +592,11 @@ class Legend(Artist):
 
         a.set_transform(self.get_transform())
 
-    def _set_loc(self, loc, is_initial_setting=False):
+    def _set_loc(self, loc):
         # find_offset function will be provided to _legend_box and
         # _legend_box will draw itself at the location of the return
         # value of the find_offset.
-        if not is_initial_setting:
-            # User manually changed self._loc
-            self._loc_used_default = False
+        self._loc_used_default = False
         self._loc_real = loc
         self.stale = True
         self._legend_box.set_offset(self._findoffset)
