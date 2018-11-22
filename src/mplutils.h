@@ -5,11 +5,7 @@
 #ifndef MPLUTILS_H
 #define MPLUTILS_H
 
-#if defined(_MSC_VER) && _MSC_VER <= 1600
-typedef unsigned __int8   uint8_t;
-#else
 #include <stdint.h>
-#endif
 
 #ifdef _POSIX_C_SOURCE
 #    undef _POSIX_C_SOURCE
@@ -55,11 +51,5 @@ enum {
 const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3, 1 };
 
 extern "C" int add_dict_int(PyObject *dict, const char *key, long val);
-
-#if defined(_MSC_VER) && (_MSC_VER < 1800)
-namespace std {
-  inline bool isfinite(double num) { return _finite(num) != 0; }
-}
-#endif
 
 #endif
