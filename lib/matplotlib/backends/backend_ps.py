@@ -2,7 +2,6 @@
 A PostScript backend, which can produce both PostScript .ps and .eps.
 """
 
-import binascii
 import datetime
 import glob
 from io import StringIO, TextIOWrapper
@@ -13,6 +12,7 @@ import re
 import shutil
 import subprocess
 from tempfile import TemporaryDirectory
+import textwrap
 import time
 
 import numpy as np
@@ -392,26 +392,8 @@ class RendererPS(RendererBase):
         font.set_size(size, 72.0)
         return font
 
-    def _rgb(self, rgba):
-        h, w = rgba.shape[:2]
-        rgb = rgba[::-1, :, :3]
-        return h, w, rgb.tostring()
-
-    def _hex_lines(self, s, chars_per_line=128):
-        s = binascii.b2a_hex(s)
-        nhex = len(s)
-        lines = []
-        for i in range(0, nhex, chars_per_line):
-            limit = min(i+chars_per_line, nhex)
-            lines.append(s[i:limit])
-        return lines
-
     def get_image_magnification(self):
-        """
-        Get the factor by which to magnify images passed to draw_image.
-        Allows a backend to have images at a different resolution to other
-        artists.
-        """
+        # docstring inherited
         return self.image_magnification
 
     def option_scale_image(self):
@@ -422,17 +404,22 @@ class RendererPS(RendererBase):
         # docstring inherited
         return not rcParams['image.composite_image']
 
-    def _get_image_h_w_bits_command(self, im):
-        h, w, bits = self._rgb(im)
-        imagecmd = "false 3 colorimage"
-
-        return h, w, bits, imagecmd
-
     def draw_image(self, gc, x, y, im, transform=None):
         # docstring inherited
 
-        h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
-        hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
+        h, w = im.shape[:2]
+        if ((im[..., 3] == 255).all()
+                and (im[..., 0] == im[..., 1]).all()
+                and (im[..., 0] == im[..., 2]).all()):
+            data = im[::-1, ..., 0]
+            imagecmd = "image"
+        else:
+            data = im[::-1, :, :3]
+            imagecmd = "false 3 colorimage"
+
+        # data.tobytes().hex() has no spaces, so can be linewrapped by relying
+        # on textwrap.fill breaking long words.
+        hexlines = textwrap.fill(data.tobytes().hex(), 128)
 
         if transform is None:
             matrix = "1 0 0 1 0 0"
