@@ -378,7 +378,7 @@ class Artist(object):
         return L
 
     def get_children(self):
-        r"""Return a list of the child `.Artist`\s this `.Artist` contains."""
+        r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
 
     def contains(self, mouseevent):
