@@ -1659,9 +1659,10 @@ class Axes3D(Axes):
         if shade is None:
             cbook.warn_deprecated(
                 "3.1",
-                "Passing shade=None to Axes3D.plot_surface() is deprecated "
-                "since matplotlib 3.1 and will change its semantic or raise "
-                "an error in matplotlib 3.3. Please use shade=False instead.")
+                message="Passing shade=None to Axes3D.plot_surface() is "
+                        "deprecated since matplotlib 3.1 and will change its "
+                        "semantic or raise an error in matplotlib 3.3. "
+                        "Please use shade=False instead.")
 
         # evenly spaced, and including both endpoints
         row_inds = list(range(0, rows-1, rstride)) + [rows-1]

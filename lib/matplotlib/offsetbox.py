@@ -1243,9 +1243,10 @@ class AnchoredText(AnchoredOffsetbox):
         badkwargs = {'ha', 'horizontalalignment', 'va', 'verticalalignment'}
         if badkwargs & set(prop):
             cbook.warn_deprecated(
-                "3.1", "Mixing horizontalalignment or verticalalignment with "
-                "AnchoredText is not supported, deprecated since %(version)s, "
-                "and will raise an exception %(removal)s.")
+                "3.1", message="Mixing horizontalalignment or "
+                "verticalalignment with AnchoredText is not supported, "
+                "deprecated since %(version)s, and will raise an exception "
+                "%(removal)s.")
 
         self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
