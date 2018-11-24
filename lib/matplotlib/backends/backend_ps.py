@@ -897,8 +897,6 @@ class GraphicsContextPS(GraphicsContextBase):
 
 
 class FigureCanvasPS(FigureCanvasBase):
-    _renderer_class = RendererPS
-
     fixed_dpi = 72
 
     def draw(self):
@@ -1036,8 +1034,7 @@ class FigureCanvasPS(FigureCanvasBase):
             self._pswriter = StringIO()
 
         # mixed mode rendering
-        ps_renderer = self._renderer_class(width, height, self._pswriter,
-                                           imagedpi=dpi)
+        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(
             self.figure, width, height, dpi, ps_renderer,
             bbox_inches_restore=bbox_inches_restore)
@@ -1230,8 +1227,7 @@ class FigureCanvasPS(FigureCanvasBase):
             self._pswriter = StringIO()
 
         # mixed mode rendering
-        ps_renderer = self._renderer_class(width, height,
-                                           self._pswriter, imagedpi=dpi)
+        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
                                      width, height, dpi, ps_renderer,
                                      bbox_inches_restore=bbox_inches_restore)
