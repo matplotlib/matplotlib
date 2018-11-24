@@ -166,9 +166,8 @@ class Path(object):
         verts : numpy array
         codes : numpy array
         internals : dict or None
-            The attributes that the resulting path should have.
-            Allowed keys are ``readonly``, ``should_simplify``,
-            ``simplify_threshold``, ``has_nonfinite`` and
+            The attributes that the resulting path should have.  Allowed keys
+            are ``readonly``, ``should_simplify``, ``simplify_threshold``, and
             ``interpolation_steps``.
 
         """
@@ -182,7 +181,6 @@ class Path(object):
             internals.pop('simplify_threshold',
                           rcParams['path.simplify_threshold'])
         )
-        pth._has_nonfinite = internals.pop('has_nonfinite', False)
         pth._interpolation_steps = internals.pop('interpolation_steps', 1)
         if internals:
             raise ValueError('Unexpected internals provided to '
@@ -198,7 +196,6 @@ class Path(object):
             len(self._vertices) >= 128 and
             (self._codes is None or np.all(self._codes <= Path.LINETO))
         )
-        self._has_nonfinite = not np.isfinite(self._vertices).all()
 
     @property
     def vertices(self):
@@ -245,12 +242,14 @@ class Path(object):
     def simplify_threshold(self, threshold):
         self._simplify_threshold = threshold
 
+    @cbook.deprecated(
+        "3.1", alternative="not np.isfinite(self.vertices).all()")
     @property
     def has_nonfinite(self):
         """
         `True` if the vertices array has nonfinite values.
         """
-        return self._has_nonfinite
+        return not np.isfinite(self._vertices).all()
 
     @property
     def should_simplify(self):
@@ -442,7 +441,6 @@ class Path(object):
                                              snap, stroke_width,
                                              simplify, curves, sketch)
         internals = {'should_simplify': self.should_simplify and not simplify,
-                     'has_nonfinite': self.has_nonfinite and not remove_nans,
                      'simplify_threshold': self.simplify_threshold,
                      'interpolation_steps': self._interpolation_steps}
         return Path._fast_from_codes_and_verts(vertices, codes, internals)
