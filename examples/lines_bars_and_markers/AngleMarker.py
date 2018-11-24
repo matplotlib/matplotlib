@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc
-from matplotlib.text import Text
+from matplotlib.text import Annotation
 from matplotlib.transforms import IdentityTransform, TransformedBbox, Bbox
 
 
-class AngleMarker(Arc, Text):
+class AngleMarker(Arc):
     """
     Draws an arc between two vectors which appears circular in display space.
     """
@@ -47,12 +47,28 @@ class AngleMarker(Arc, Text):
         self.size = size
         self.units = units
 
+        if self.theta1 > self.theta2:
+            self.vec1, self.vec2 = self.vec2, self.vec1
+
         Arc.__init__(self, self._xydata, size, size, angle=0.0,
                      theta1=self.theta1, theta2=self.theta2, **kwargs)
-        Text.__init__(self, x=self._x, y=self._y, text=text, **kwargs)
-
         self.set_transform(IdentityTransform())
-        self.ax.add_artist(self)
+
+        if units == "pixels" or units == "points":
+            textcoords = "offset " + units
+        else:
+            textcoords = "offset pixels"
+
+        annotation = Annotation(
+            text,
+            self._xydata,
+            xytext=self._text_pos,
+            xycoords="data",
+            textcoords=textcoords,
+            **kwargs)
+
+        self.ax.add_patch(self)
+        self.ax.add_artist(annotation)
 
     def get_size(self):
         factor = 1.
@@ -91,40 +107,31 @@ class AngleMarker(Arc, Text):
     def set_theta(self, angle):
         pass
 
-    def get_x_text(self):
-        return self._xydata[0] + 3*self.size
+    def get_text_pos(self):
+        theta = np.deg2rad((self.theta2 + self.theta1)/2)
+        x = self.width*np.cos(theta)
+        y = self.height*np.sin(theta)
+        return (x, y)
 
-    def get_y_text(self):
-        return self._xydata[1] + 3*self.size
-
-    def set_xy_text(self, xy):
+    def set_text_pos(self, xy):
         pass
-
-    def set_color(self, color):
-        Arc.set_color(self, color)
-        Text.set_color(self, color)
-
-    def draw(self, renderer):
-        Arc.draw(self, renderer)
-        Text.draw(self, renderer)
 
     _center = property(get_center_in_pixels, set_center)
     theta1 = property(get_theta1, set_theta)
     theta2 = property(get_theta2, set_theta)
     width = property(get_size, set_size)
     height = property(get_size, set_size)
-    _x = property(get_x_text, set_xy_text)
-    _y = property(get_y_text, set_xy_text)
+    _text_pos = property(get_text_pos, set_text_pos)
 
 
 fig, ax = plt.subplots()
 
-ax.plot([2, .5, 1], [0, .2, 1])
-am = AngleMarker((.5, .2), (2, 0), (1, 1), size=0.25, units="axes max", ax=ax,
+ax.plot([2, .5, -1], [1, .2, 1])
+am = AngleMarker((.5, .2), (2, 1), (-1, 1), size=50, units="pixels", ax=ax,
                  text=r"$\theta$")
 plt.show()
 
-'''
+
 def testing(size=0.25, units="axes fraction", dpi=100, fs=(6.4, 5),
             show=False):
 
@@ -169,4 +176,3 @@ import itertools
 
 for (size, unit), dpi, fs in itertools.product(s, d, f):
     testing(size=size, units=unit, dpi=dpi, fs=fs)
-'''
