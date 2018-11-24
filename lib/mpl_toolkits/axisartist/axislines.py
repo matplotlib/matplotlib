@@ -284,12 +284,6 @@ class AxisArtistHelperRectlinear(object):
 
             get_label_transform() returns a transform of (transAxes+offset)
             """
-            loc = self._axis_direction
-            #angle = dict(left=0,
-            #             right=0,
-            #             bottom=.5*np.pi,
-            #             top=.5*np.pi)[loc]
-
             if self.nth_coord == 0:
                 angle = 0
             else:
@@ -449,9 +443,6 @@ class GridHelperRectlinear(GridHelperBase):
             cbook._warn_external(
                 "'new_floating_axis' explicitly requires the axes keyword.")
             axes = self.axes
-
-        passthrough_point = (value, value)
-        transform = axes.transData
 
         _helper = AxisArtistHelperRectlinear.Floating(
             axes, nth_coord, value, axis_direction)

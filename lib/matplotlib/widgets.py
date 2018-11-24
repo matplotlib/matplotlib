@@ -1134,15 +1134,6 @@ class SubplotTool(Widget):
         self.targetfig = targetfig
         toolfig.subplots_adjust(left=0.2, right=0.9)
 
-        class toolbarfmt:
-            def __init__(self, slider):
-                self.slider = slider
-
-            def __call__(self, x, y):
-                fmt = '%s=%s' % (self.slider.label.get_text(),
-                                 self.slider.valfmt)
-                return fmt % x
-
         self.axleft = toolfig.add_subplot(711)
         self.axleft.set_title('Click on slider to adjust subplot param')
         self.axleft.set_navigate(False)

@@ -3324,30 +3324,26 @@ class ArrowStyle(_Style):
             x1, y1 = path.vertices[1]
 
             # If there is no room for an arrow and a line, then skip the arrow
-            has_begin_arrow = self.beginarrow and not (x0 == x1 and y0 == y1)
-            if has_begin_arrow:
-                verticesA, codesA, ddxA, ddyA = \
-                           self._get_arrow_wedge(x1, y1, x0, y0,
-                                                 head_dist, cos_t, sin_t,
-                                                 linewidth)
-            else:
-                verticesA, codesA = [], []
-                ddxA, ddyA = 0., 0.
+            has_begin_arrow = self.beginarrow and (x0, y0) != (x1, y1)
+            verticesA, codesA, ddxA, ddyA = (
+                self._get_arrow_wedge(x1, y1, x0, y0,
+                                      head_dist, cos_t, sin_t, linewidth)
+                if has_begin_arrow
+                else ([], [], 0, 0)
+            )
 
             # end arrow
             x2, y2 = path.vertices[-2]
             x3, y3 = path.vertices[-1]
 
             # If there is no room for an arrow and a line, then skip the arrow
-            has_end_arrow = (self.endarrow and not (x2 == x3 and y2 == y3))
-            if has_end_arrow:
-                verticesB, codesB, ddxB, ddyB = \
-                           self._get_arrow_wedge(x2, y2, x3, y3,
-                                                 head_dist, cos_t, sin_t,
-                                                 linewidth)
-            else:
-                verticesB, codesB = [], []
-                ddxB, ddyB = 0., 0.
+            has_end_arrow = self.endarrow and (x2, y2) != (x3, y3)
+            verticesB, codesB, ddxB, ddyB = (
+                self._get_arrow_wedge(x2, y2, x3, y3,
+                                      head_dist, cos_t, sin_t, linewidth)
+                if has_end_arrow
+                else ([], [], 0, 0)
+            )
 
             # This simple code will not work if ddx, ddy is greater than the
             # separation between vertices.

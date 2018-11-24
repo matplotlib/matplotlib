@@ -1138,7 +1138,6 @@ class FigureFrameWx(wx.Frame):
             pos = wx.DefaultPosition
         else:
             pos = wx.Point(20, 20)
-        l, b, w, h = fig.bbox.bounds
         wx.Frame.__init__(self, parent=None, id=-1, pos=pos,
                           title="Figure %d" % num)
         # Frame will be sized later by the Fit method
@@ -1471,7 +1470,7 @@ class SubplotToolWX(wx.Frame):
         canvas = FigureCanvasWx(self, -1, toolfig)
 
         # Create a figure manager to manage things
-        figmgr = FigureManager(canvas, 1, self)
+        FigureManager(canvas, 1, self)
 
         # Now put all into a sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -1479,7 +1478,7 @@ class SubplotToolWX(wx.Frame):
         sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         self.SetSizer(sizer)
         self.Fit()
-        tool = SubplotTool(targetfig, toolfig)
+        SubplotTool(targetfig, toolfig)
 
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
@@ -1540,7 +1539,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         canvas = self.get_canvas(frame, toolfig)
 
         # Create a figure manager to manage things
-        figmgr = FigureManager(canvas, 1, frame)
+        FigureManager(canvas, 1, frame)
 
         # Now put all into a sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -1548,7 +1547,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         frame.SetSizer(sizer)
         frame.Fit()
-        tool = SubplotTool(self.canvas.figure, toolfig)
+        SubplotTool(self.canvas.figure, toolfig)
         frame.Show()
 
     def save_figure(self, *args):
@@ -1804,7 +1803,7 @@ class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
         sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         frame.SetSizer(sizer)
         frame.Fit()
-        tool = SubplotTool(self.canvas.figure, toolfig)
+        SubplotTool(self.canvas.figure, toolfig)
         frame.Show()
 
     def get_canvas(self, frame, fig):

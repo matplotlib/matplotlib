@@ -613,7 +613,6 @@ class RendererBase(object):
         """
         if ismath == 'TeX':
             # todo: handle props
-            size = prop.get_size_in_points()
             texmanager = self._text2path.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(
