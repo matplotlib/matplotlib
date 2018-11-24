@@ -1195,7 +1195,7 @@ class Legend(Artist):
         is changed. If "bbox", the *bbox_to_anchor* parameter is changed.
         """
         warn_deprecated("2.2",
-                        message="Legend.draggable() is drepecated in "
+                        message="Legend.draggable() is deprecated in "
                                 "favor of Legend.set_draggable(). "
                                 "Legend.draggable may be reintroduced as a "
                                 "property in future releases.")
