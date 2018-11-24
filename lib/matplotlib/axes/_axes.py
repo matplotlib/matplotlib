@@ -4018,7 +4018,9 @@ class Axes(_AxesBase):
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
 
-    def _parse_scatter_color_args(self, c, edgecolors, kwargs, xshape, yshape):
+    @staticmethod
+    def _parse_scatter_color_args(c, edgecolors, kwargs, xshape, yshape,
+                                  get_next_color_func):
         """
         Helper function to process color related arguments of `.Axes.scatter`.
 
@@ -4028,7 +4030,7 @@ class Axes(_AxesBase):
         - kwargs['facecolors']
         - kwargs['facecolor']
         - kwargs['color'] (==kwcolor)
-        - 'b' if in classic mode else next color from color cycle
+        - 'b' if in classic mode else the result of ``get_next_color_func()``
 
         Argument precedence for edgecolors:
 
@@ -4049,6 +4051,16 @@ class Axes(_AxesBase):
             Note: The dict is modified by this function.
         xshape, yshape : tuple of int
             The shape of the x and y arrays passed to `.Axes.scatter`.
+        get_next_color_func : callable
+            A callable that returns a color. This color is used as facecolor
+            if no other color is provided.
+
+            Note, that this is a function rather than a fixed color value to
+            support conditional evaluation of the next color.  As of the
+            current implementation obtaining the next color from the
+            property cycle advances the cycle. This must only happen if we
+            actually use the color, which will only be decided within this
+            method.
 
         Returns
         -------
@@ -4095,7 +4107,7 @@ class Axes(_AxesBase):
         if c is None:
             c = (facecolors if facecolors is not None
                  else "b" if rcParams['_internal.classic_mode']
-                 else self._get_patches_for_fill.get_next_color())
+                 else get_next_color_func())
 
         # After this block, c_array will be None unless
         # c is an array for mapping.  The potential ambiguity
@@ -4294,8 +4306,9 @@ class Axes(_AxesBase):
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
         c, colors, edgecolors = \
-            self._parse_scatter_color_args(c, edgecolors, kwargs,
-                                           xshape, yshape)
+            self._parse_scatter_color_args(
+                c, edgecolors, kwargs, xshape, yshape,
+                get_next_color_func=self._get_patches_for_fill.get_next_color)
 
         # `delete_masked_points` only modifies arguments of the same length as
         # `x`.
