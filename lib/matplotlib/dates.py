@@ -254,10 +254,8 @@ def _dt64_to_ordinalf(d):
 
     # the "extra" ensures that we at least allow the dynamic range out to
     # seconds.  That should get out to +/-2e11 years.
-    # NOTE: First cast truncates; second cast back is for NumPy 1.10.
-    extra = d - d.astype('datetime64[s]').astype(d.dtype)
-    extra = extra.astype('timedelta64[ns]')
-    t0 = np.datetime64('0001-01-01T00:00:00').astype('datetime64[s]')
+    extra = (d - d.astype('datetime64[s]')).astype('timedelta64[ns]')
+    t0 = np.datetime64('0001-01-01T00:00:00', 's')
     dt = (d.astype('datetime64[s]') - t0).astype(np.float64)
     dt += extra.astype(np.float64) / 1.0e9
     dt = dt / SEC_PER_DAY + 1.0

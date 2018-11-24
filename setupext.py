@@ -774,24 +774,22 @@ class Numpy(SetupPackage):
         return [numpy.get_include()]
 
     def add_flags(self, ext):
-        # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for
-        # each extension
-        array_api_name = 'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'
-
-        ext.define_macros.append(('PY_ARRAY_UNIQUE_SYMBOL', array_api_name))
         ext.add_hook('include_dirs', self.include_dirs_hook)
-
-        ext.define_macros.append(('NPY_NO_DEPRECATED_API',
-                                  'NPY_1_7_API_VERSION'))
-
-        # Allow NumPy's printf format specifiers in C++.
-        ext.define_macros.append(('__STDC_FORMAT_MACROS', 1))
+        ext.define_macros.extend([
+            # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for each
+            # extension.
+            ('PY_ARRAY_UNIQUE_SYMBOL',
+             'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'),
+            ('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION'),
+            # Allow NumPy's printf format specifiers in C++.
+            ('__STDC_FORMAT_MACROS', 1),
+        ])
 
     def get_setup_requires(self):
-        return ['numpy>=1.10.0']
+        return ['numpy>=1.11']
 
     def get_install_requires(self):
-        return ['numpy>=1.10.0']
+        return ['numpy>=1.11']
 
 
 class LibAgg(SetupPackage):
