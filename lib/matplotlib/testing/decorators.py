@@ -487,6 +487,7 @@ def _image_directories(func):
     return str(baseline_dir), str(result_dir)
 
 
+@cbook.deprecated("3.1", alternative="pytest.mark.backend")
 def switch_backend(backend):
 
     def switch_backend_decorator(func):
