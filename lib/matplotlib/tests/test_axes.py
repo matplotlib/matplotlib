@@ -3168,6 +3168,24 @@ def test_hist_labels():
     assert l[2][0].get_label() == '00'
 
 
+@check_figures_equal(extensions=['png'])
+def test_hist_bar_rc(fig_test, fig_ref):
+    with plt.rc_context({'hist.edgecolor': 'darkblue',
+                         'hist.linewidth': 5}):
+        fig_test.subplots().hist([1, 5, 3], histtype='bar')
+    fig_ref.subplots().hist([1, 5, 3], histtype='bar',
+                            edgecolor='darkblue', linewidth=5)
+
+
+@check_figures_equal(extensions=['png'])
+def test_hist_stepfilled_rc(fig_test, fig_ref):
+    with plt.rc_context({'hist.edgecolor': 'darkblue',
+                         'hist.linewidth': 5}):
+        fig_test.subplots().hist([1, 5, 3], histtype='stepfilled')
+    fig_ref.subplots().hist([1, 5, 3], histtype='stepfilled',
+                            edgecolor='darkblue', linewidth=5)
+
+
 @image_comparison(baseline_images=['transparent_markers'], remove_text=True)
 def test_transparent_markers():
     np.random.seed(0)

@@ -1,0 +1,9 @@
+New rcparams ``hist.edgecolor`` and ``hist.linewidth``
+``````````````````````````````````````````````````````
+The new rcparam ``hist.edgecolor`` allows to expicitly define an edge color
+for the histogram bars. Previously, this could only be achieved by setting
+``patch.edgecolor`` and ``patch.force_edgecolor``, which may have affected
+other plot elements unwantedly.
+
+Additionally, the new rcparam ``hist.linewidth`` specifies the linewdith of
+the bar edges.
