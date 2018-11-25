@@ -1425,8 +1425,10 @@ defaultParams = {
     # key-mappings (multi-character mappings should be a list/tuple)
     'keymap.fullscreen':   [['f', 'ctrl+f'], validate_stringlist],
     'keymap.home':         [['h', 'r', 'home'], validate_stringlist],
-    'keymap.back':         [['left', 'c', 'backspace'], validate_stringlist],
-    'keymap.forward':      [['right', 'v'], validate_stringlist],
+    'keymap.back':         [['left', 'c', 'backspace', 'MouseButton.BACK'],
+                            validate_stringlist],
+    'keymap.forward':      [['right', 'v', 'MouseButton.FORWARD'],
+                            validate_stringlist],
     'keymap.pan':          [['p'], validate_stringlist],
     'keymap.zoom':         [['o'], validate_stringlist],
     'keymap.save':         [['s', 'ctrl+s'], validate_stringlist],

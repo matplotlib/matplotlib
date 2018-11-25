@@ -583,8 +583,8 @@
 ## Leave the field(s) empty if you don't need a key-map. (i.e., fullscreen : '')
 #keymap.fullscreen : f, ctrl+f       ## toggling
 #keymap.home : h, r, home            ## home or reset mnemonic
-#keymap.back : left, c, backspace    ## forward / backward keys to enable
-#keymap.forward : right, v           ##   left handed quick navigation
+#keymap.back : left, c, backspace, MouseButton.BACK  ## forward / backward keys
+#keymap.forward : right, v, MouseButton.FORWARD      ## for quick navigation
 #keymap.pan : p                      ## pan mnemonic
 #keymap.zoom : o                     ## zoom mnemonic
 #keymap.save : s, ctrl+s             ## saving current figure

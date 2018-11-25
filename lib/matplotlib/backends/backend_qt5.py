@@ -11,7 +11,7 @@ from matplotlib import backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, cursors, ToolContainerBase, StatusbarBase)
+    TimerBase, cursors, ToolContainerBase, StatusbarBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 from matplotlib.backend_managers import ToolManager
@@ -213,11 +213,11 @@ class TimerQT(TimerBase):
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     # map Qt button codes to MouseEvent's ones:
-    buttond = {QtCore.Qt.LeftButton: 1,
-               QtCore.Qt.MidButton: 2,
-               QtCore.Qt.RightButton: 3,
-               # QtCore.Qt.XButton1: None,
-               # QtCore.Qt.XButton2: None,
+    buttond = {QtCore.Qt.LeftButton: MouseButton.LEFT,
+               QtCore.Qt.MidButton: MouseButton.MIDDLE,
+               QtCore.Qt.RightButton: MouseButton.RIGHT,
+               QtCore.Qt.XButton1: MouseButton.BACK,
+               QtCore.Qt.XButton2: MouseButton.FORWARD,
                }
 
     @_allow_super_init
