@@ -227,10 +227,10 @@ class RendererBase(object):
         recommended to use those generators, so that changes to the
         behavior of :meth:`draw_path_collection` can be made globally.
         """
-        path_ids = []
-        for path, transform in self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms):
-            path_ids.append((path, transforms.Affine2D(transform)))
+        path_ids = [
+            (path, transforms.Affine2D(transform))
+            for path, transform in self._iter_collection_raw_paths(
+                    master_transform, paths, all_transforms)]
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, master_transform, all_transforms, path_ids, offsets,
