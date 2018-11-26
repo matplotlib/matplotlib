@@ -38,11 +38,15 @@ being used.
 """
 
 from collections import namedtuple
+import logging
 import re
-import sys
+
 
 from ._mathtext_data import uni2type1
 from matplotlib.cbook import deprecated
+
+
+_log = logging.getLogger(__name__)
 
 
 # some afm files have floats where we are expecting ints -- there is
@@ -160,12 +164,10 @@ def _parse_header(fh):
         try:
             d[key] = headerConverters[key](val)
         except ValueError:
-            print('Value error parsing header in AFM:', key, val,
-                  file=sys.stderr)
+            _log.error('Value error parsing header in AFM: %s, %s', key, val)
             continue
         except KeyError:
-            print('Found an unknown keyword in AFM header (was %r)' % key,
-                  file=sys.stderr)
+            _log.error('Found an unknown keyword in AFM header (was %r)' % key)
             continue
         if key == b'StartCharMetrics':
             return d

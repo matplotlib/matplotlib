@@ -756,10 +756,10 @@ class TmpDirCleaner:
     @staticmethod
     def cleanup_remaining_tmpdirs():
         for tmpdir in TmpDirCleaner.remaining_tmpdirs:
+            error_message = "error deleting tmp directory {}".format(tmpdir)
             shutil.rmtree(
                 tmpdir,
-                onerror=lambda *args: print("error deleting tmp directory %s"
-                                            % tmpdir, file=sys.stderr))
+                onerror=lambda *args: _log.error(error_message))
 
 
 class FigureCanvasPgf(FigureCanvasBase):
