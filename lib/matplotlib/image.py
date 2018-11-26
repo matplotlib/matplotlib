@@ -1399,8 +1399,8 @@ def imread(fname, format=None):
         parsed = urllib.parse.urlparse(fname)
         # If fname is a URL, download the data
         if len(parsed.scheme) > 1:
-            import urllib.request
-            fd = BytesIO(urllib.request.urlopen(fname).read())
+            from urllib import request
+            fd = BytesIO(request.urlopen(fname).read())
             return handler(fd)
         else:
             with open(fname, 'rb') as fd:
