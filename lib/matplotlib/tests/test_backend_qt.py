@@ -251,6 +251,6 @@ def test_figureoptions():
     ax.plot([1, 2])
     ax.imshow([[1]])
     with mock.patch(
-            "matplotlib.backends.qt_editor.formlayout.FormDialog.exec_",
+            "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
             lambda self: None):
         fig.canvas.manager.toolbar.edit_parameters()
