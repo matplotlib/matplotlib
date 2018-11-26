@@ -1097,10 +1097,7 @@ class FigureCanvasPS(FigureCanvasBase):
                         ps_renderer.used_characters.values():
                     if len(chars):
                         font = get_font(font_filename)
-                        glyph_ids = []
-                        for c in chars:
-                            gind = font.get_char_index(c)
-                            glyph_ids.append(gind)
+                        glyph_ids = [font.get_char_index(c) for c in chars]
 
                         fonttype = rcParams['ps.fonttype']
 

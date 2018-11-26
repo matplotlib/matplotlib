@@ -1402,10 +1402,7 @@ class EventCollection(LineCollection):
         '''
         segments = self.get_segments()
         pos = 0 if self.is_horizontal() else 1
-        positions = []
-        for segment in segments:
-            positions.append(segment[0, pos])
-        return positions
+        return [segment[0, pos] for segment in self.get_segments()]
 
     def set_positions(self, positions):
         '''

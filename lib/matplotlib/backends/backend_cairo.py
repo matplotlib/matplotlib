@@ -291,10 +291,10 @@ class RendererCairo(RendererBase):
             offsetTrans, facecolors, edgecolors, linewidths, linestyles,
             antialiaseds, urls, offset_position):
 
-        path_ids = []
-        for path, transform in self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms):
-            path_ids.append((path, Affine2D(transform)))
+        path_ids = [
+            (path, Affine2D(transform))
+            for path, transform in self._iter_collection_raw_paths(
+                    master_transform, paths, all_transforms)]
 
         reuse_key = None
         grouped_draw = []
