@@ -970,7 +970,7 @@ class FigureCanvasPS(FigureCanvasBase):
         isEPSF = format == 'eps'
         if isinstance(outfile, (str, getattr(os, "PathLike", ()),)):
             outfile = title = getattr(os, "fspath", lambda obj: obj)(outfile)
-            title = title.encode("latin-1", "replace").decode("latin-1")
+            title = title.encode("ascii", "replace").decode("ascii")
             passed_in_file_object = False
         elif is_writable_file_like(outfile):
             title = None
