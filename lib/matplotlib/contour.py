@@ -1661,11 +1661,9 @@ class QuadContourSet(ContourSet):
 
             contour([X, Y,] Z, [levels], **kwargs)
 
-        :func:`~matplotlib.pyplot.contour` and
-        :func:`~matplotlib.pyplot.contourf` draw contour lines and
-        filled contours, respectively.  Except as noted, function
-        signatures and return values are the same for both versions.
-
+        `.contour` and `.contourf` draw contour lines and filled contours,
+        respectively.  Except as noted, function signatures and return values
+        are the same for both versions.
 
         Parameters
         ----------
@@ -1673,7 +1671,7 @@ class QuadContourSet(ContourSet):
             The coordinates of the values in *Z*.
 
             *X* and *Y* must both be 2-D with the same shape as *Z* (e.g.
-            created via :func:`numpy.meshgrid`), or they must both be 1-D such
+            created via `numpy.meshgrid`), or they must both be 1-D such
             that ``len(X) == M`` is the number of columns in *Z* and
             ``len(Y) == N`` is the number of rows in *Z*.
 
@@ -1705,8 +1703,7 @@ class QuadContourSet(ContourSet):
             nearest those points are always masked out, other triangular
             corners comprising three unmasked points are contoured as usual.
 
-            Defaults to ``rcParams['contour.corner_mask']``, which defaults to
-            ``True``.
+            Defaults to :rc:`contour.corner_mask`, which defaults to ``True``.
 
         colors : color string or sequence of colors, optional
             The colors of the levels, i.e. the lines for `.contour` and the
@@ -1756,15 +1753,14 @@ class QuadContourSet(ContourSet):
               *None* in the rcParam is currently handled as 'lower'.
 
         extent : (x0, x1, y0, y1), optional
-            If *origin* is not *None*, then *extent* is interpreted as
-            in :func:`matplotlib.pyplot.imshow`: it gives the outer
-            pixel boundaries. In this case, the position of Z[0,0]
-            is the center of the pixel, not a corner. If *origin* is
-            *None*, then (*x0*, *y0*) is the position of Z[0,0], and
-            (*x1*, *y1*) is the position of Z[-1,-1].
+            If *origin* is not *None*, then *extent* is interpreted as in
+            `.imshow`: it gives the outer pixel boundaries. In this case, the
+            position of Z[0,0] is the center of the pixel, not a corner. If
+            *origin* is *None*, then (*x0*, *y0*) is the position of Z[0,0],
+            and (*x1*, *y1*) is the position of Z[-1,-1].
 
-            This keyword is not active if *X* and *Y* are specified in
-            the call to contour.
+            This argument is ignored if *X* and *Y* are specified in the call
+            to contour.
 
         locator : ticker.Locator subclass, optional
             The locator is used to determine the contour levels if they
@@ -1830,20 +1826,17 @@ class QuadContourSet(ContourSet):
             Hatching is supported in the PostScript, PDF, SVG and Agg
             backends only.
 
-
         Notes
         -----
-        1. :func:`~matplotlib.pyplot.contourf` differs from the MATLAB
-           version in that it does not draw the polygon edges.
-           To draw edges, add line contours with
-           calls to :func:`~matplotlib.pyplot.contour`.
+        1. `.contourf` differs from the MATLAB version in that it does not draw
+           the polygon edges. To draw edges, add line contours with calls to
+           `.contour`.
 
-        2. contourf fills intervals that are closed at the top; that
-           is, for boundaries *z1* and *z2*, the filled region is::
+        2. `.contourf` fills intervals that are closed at the top; that is, for
+           boundaries *z1* and *z2*, the filled region is::
 
               z1 < Z <= z2
 
-           There is one exception: if the lowest boundary coincides with
-           the minimum value of the *Z* array, then that minimum value
-           will be included in the lowest interval.
+           except for the lowest interval, which is closed on both sides (i.e.
+           it includes the lowest value).
         """
