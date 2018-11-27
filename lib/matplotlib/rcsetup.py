@@ -1150,7 +1150,8 @@ defaultParams = {
     'image.interpolation': ['nearest', validate_string],
     'image.cmap':          ['viridis', validate_string],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
-    'image.origin':        ['upper', validate_string],  # lookup table
+    'image.origin':        ['upper',
+                            ValidateInStrings('image.origin', ['upper', 'lower'])],
     'image.resample':      [True, validate_bool],
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
