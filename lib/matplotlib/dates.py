@@ -222,10 +222,6 @@ def _to_ordinalf(dt):
         dt = dt.astimezone(UTC)
         tzi = UTC
 
-    if isinstance(dt, datetime.timedelta):
-        base = dt / datetime.timedelta(days=1)
-        return base
-
     base = float(dt.toordinal())
 
     # If it's sufficiently datetime-like, it will have a `date()` method
@@ -242,8 +238,21 @@ def _to_ordinalf(dt):
     return base
 
 
+def _td_to_ordinalf(dt):
+    if isinstance(dt, datetime.timedelta):
+        base = dt / datetime.timedelta(days=1)
+        return base
+
+
 # a version of _to_ordinalf that can operate on numpy arrays
 _to_ordinalf_np_vectorized = np.vectorize(_to_ordinalf)
+# a version of _to_ordinalf that can operate on numpy arrays
+_td_to_ordinalf_np_vectorized = np.vectorize(_td_to_ordinalf)
+
+
+def _td64_to_ordinalf(d):
+    print('d', d)
+    return d / np.timedelta64(1, 'D')
 
 
 def _dt64_to_ordinalf(d):
@@ -254,11 +263,6 @@ def _dt64_to_ordinalf(d):
     larger dates (see `numpy.datetime64`).  Nanoseconds aren't possible
     because we do times compared to ``0001-01-01T00:00:00`` (plus one day).
     """
-
-    if (isinstance(d, np.timedelta64) or
-            (isinstance(d, np.ndarray) and
-             np.issubdtype(d.dtype, np.timedelta64))):
-        return d / np.timedelta64(1, 'D')
 
     # the "extra" ensures that we at least allow the dynamic range out to
     # seconds.  That should get out to +/-2e11 years.
@@ -282,6 +286,11 @@ def _dt64_to_ordinalf(d):
 
 def _dt64_to_ordinalf_iterable(d):
     return np.fromiter((_dt64_to_ordinalf(dd) for dd in d),
+                       float, count=len(d))
+
+
+def _td64_to_ordinalf_iterable(d):
+    return np.fromiter((_td64_to_ordinalf(dd) for dd in d),
                        float, count=len(d))
 
 
@@ -443,6 +452,56 @@ def date2num(d):
                 isinstance(d[0], np.timedelta64)):
             return _dt64_to_ordinalf_iterable(d)
         return _to_ordinalf_np_vectorized(d)
+    elif hasattr(d, 'size') and not d.size:
+        # this elif doesn't get tested, but leaving here in case anyone
+        # needs it.
+        return d
+    else:
+        return []
+
+
+def timedelta2num(d):
+    """
+    Convert datetime objects to Matplotlib dates.
+
+    Parameters
+    ----------
+    d : `datetime.datetime` or `numpy.datetime64` or sequences of these
+
+    Returns
+    -------
+    float or sequence of floats
+        Number of days (fraction part represents hours, minutes, seconds, ms)
+        since 0001-01-01 00:00:00 UTC, plus one.
+
+    Notes
+    -----
+    The addition of one here is a historical artifact. Also, note that the
+    Gregorian calendar is assumed; this is not universal practice.
+    For details see the module docstring.
+    """
+
+    if hasattr(d, "values"):
+        # this unpacks pandas series or dataframes...
+        d = d.values
+
+    if not np.iterable(d) and not isinstance(d, np.ndarray):
+        # single value logic...
+        if isinstance(d, np.timedelta64):
+            return _td64_to_ordinalf(d)
+        else:
+            return _td_to_ordinalf(d)
+
+    elif (isinstance(d, np.ndarray) and
+             np.issubdtype(d.dtype, np.timedelta64)):
+        # array with all one type of datetime64 object.
+        return _td64_to_ordinalf(d)
+
+    elif len(d):
+        # this is a list or tuple...
+        if isinstance(d[0], np.timedelta64):
+            return _td64_to_ordinalf_iterable(d)
+        return _td_to_ordinalf_np_vectorized(d)
     elif hasattr(d, 'size') and not d.size:
         # this elif doesn't get tested, but leaving here in case anyone
         # needs it.
@@ -1833,6 +1892,10 @@ class DateConverter(units.ConversionInterface):
         The *unit* and *axis* arguments are not used.
         """
         return date2num(value)
+
+    @staticmethod
+    def convert_delta(value, units, axis):
+        return timedelta2num(value)
 
     @staticmethod
     def default_units(x, axis):

@@ -190,6 +190,40 @@ class Artist(object):
             return y
         return ax.yaxis.convert_units(y)
 
+    def convert_xunits_delta(self, dx):
+        """
+        Convert *dx* using the unit type of the yaxis.
+
+        This is used for APIs where the data is passed as ``(x, dx)``, and
+        the ``dx`` can be in different units than the ``x``.  For instance,
+        for dates ``x`` is often of type ``datetime``, and ``dx`` of type
+        ``timedelta`` and these are converted differently.
+
+        If the artist is not in contained in an Axes or if the yaxis does not
+        have units, *deltax* itself is returned.
+        """
+        ax = getattr(self, 'axes', None)
+        if ax is None or ax.xaxis is None:
+            return dx
+        return ax.xaxis.convert_units_delta(dx)
+
+    def convert_yunits_delta(self, dy):
+        """
+        Convert *dy* using the unit type of the yaxis.
+
+        This is used for APIs where the data is passed as ``(y, dy)``, and
+        the ``dy`` can be in different units than the ``y``.  For instance,
+        for dates ``y`` is often of type ``datetime``, and ``dy`` of type
+        ``timedelta`` and these are converted differently.
+
+        If the artist is not in contained in an Axes or if the yaxis does not
+        have units, *deltay* itself is returned.
+        """
+        ax = getattr(self, 'axes', None)
+        if ax is None or ax.yaxis is None:
+            return dy
+        return ax.yaxis.convert_units_delta(dy)
+
     @property
     def axes(self):
         """The `~.axes.Axes` instance the artist resides in, or *None*."""

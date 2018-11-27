@@ -2526,10 +2526,16 @@ class Axes(_AxesBase):
         self._process_unit_info(xdata=xdata,
                                 ydata=ydata,
                                 kwargs=kwargs)
-        xranges = self.convert_xunits(xranges)
+
+        xnew = []
+        for ind in range(len(xranges)):
+            xr = [[],[]]
+            xr[0] = self.convert_xunits(xranges[ind][0])
+            xr[1] = self.convert_xunits_delta(xranges[ind][1])
+            xnew.append(xr)
         yrange = self.convert_yunits(yrange)
 
-        col = mcoll.BrokenBarHCollection(xranges, yrange, **kwargs)
+        col = mcoll.BrokenBarHCollection(xnew, yrange, **kwargs)
         self.add_collection(col, autolim=True)
         self.autoscale_view()
 

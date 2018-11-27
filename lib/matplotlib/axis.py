@@ -795,6 +795,7 @@ class Axis(martist.Artist):
         self.reset_ticks()
 
         self.converter = None
+        self.converter_delta = None
         self.units = None
         self.set_units(None)
         self.stale = True
@@ -1489,6 +1490,18 @@ class Axis(martist.Artist):
 
         ret = self.converter.convert(x, self.units, self)
         return ret
+
+    def convert_units_delta(self, dx):
+        # If dx is already a number, doesn't need converting
+        if (munits.ConversionInterface.is_numlike(dx) or
+            self.converter is None):
+            return dx
+
+        if hasattr(self.converter, 'convert_delta'):
+            return self.converter.convert_delta(dx, self.units, self)
+        else:
+            return self.converter.convert(dx, self.units, self)
+
 
     def set_units(self, u):
         """
