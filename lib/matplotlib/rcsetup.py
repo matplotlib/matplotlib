@@ -175,17 +175,17 @@ def validate_string_or_None(s):
         raise ValueError('Could not convert "%s" to string' % s)
 
 
-def _validate_stringlist_or_string(s):
-    """convert s to string or raise"""
+def _validate_tex_preamble(s):
     if s is None or s == 'None':
         return ""
     try:
         if isinstance(s, str):
             return s
-        if isinstance(s, Iterable):
-            return '\n'.join([str(i) for i in s])
-        raise ValueError()
-    except ValueError:
+        elif isinstance(s, Iterable):
+            return '\n'.join(s)
+        else:
+            raise TypeError
+    except TypeError:
         raise ValueError('Could not convert "%s" to string' % s)
 
 
@@ -412,7 +412,7 @@ validate_colorlist.__doc__ = 'return a list of colorspecs'
 
 
 def validate_string(s):
-    if isinstance(s, (str, str)):
+    if isinstance(s, str):
         # Always leave str as str and unicode as unicode
         return s
     else:
@@ -616,7 +616,7 @@ def validate_svg_fonttype(s):
         return s
     if s == "svgfont":
         cbook.warn_deprecated(
-            "2.2", "'svgfont' support for svg.fonttype is deprecated.")
+            "2.2", message="'svgfont' support for svg.fonttype is deprecated.")
         return s
     raise ValueError("Unrecognized svg.fonttype string '{}'; "
                      "valid strings are 'none', 'path'")
@@ -1129,7 +1129,7 @@ defaultParams = {
     'text.color':          ['black', validate_color],
     'text.usetex':         [False, validate_bool],
     'text.latex.unicode':  [True, validate_bool],
-    'text.latex.preamble': ['', _validate_stringlist_or_string],
+    'text.latex.preamble': ['', _validate_tex_preamble],
     'text.latex.preview':  [False, validate_bool],
     'text.dvipnghack':     [None, validate_bool_maybe_none],
     'text.hinting':        ['auto', validate_hinting],
@@ -1150,7 +1150,8 @@ defaultParams = {
     'image.interpolation': ['nearest', validate_string],
     'image.cmap':          ['viridis', validate_string],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
-    'image.origin':        ['upper', validate_string],  # lookup table
+    'image.origin':        ['upper',
+                            ValidateInStrings('image.origin', ['upper', 'lower'])],
     'image.resample':      [True, validate_bool],
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
@@ -1405,7 +1406,7 @@ defaultParams = {
     # use matplotlib rc settings for font configuration
     'pgf.rcfonts':   [True, validate_bool],
     # provide a custom preamble for the latex process
-    'pgf.preamble':  ['', _validate_stringlist_or_string],
+    'pgf.preamble':  ['', _validate_tex_preamble],
 
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],

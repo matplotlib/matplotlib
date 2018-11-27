@@ -480,7 +480,6 @@ class TextPath(Path):
 
         self._should_simplify = False
         self._simplify_threshold = rcParams['path.simplify_threshold']
-        self._has_nonfinite = False
         self._interpolation_steps = _interpolation_steps
 
     def set_size(self, size):

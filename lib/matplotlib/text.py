@@ -538,7 +538,7 @@ class Text(Artist):
                          clip_path=self._clippath,
                          clip_on=self._clipon)
         if self._bbox_patch:
-            bbox = self._bbox_patch.update(clipprops)
+            self._bbox_patch.update(clipprops)
 
     def set_clip_box(self, clipbox):
         # docstring inherited.

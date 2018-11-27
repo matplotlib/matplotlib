@@ -191,7 +191,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.1"),
             ("kiwisolver", "1.0.1"),
-            ("numpy", "1.10"),
+            ("numpy", "1.11"),
             ("pyparsing", "2.0.1"),
     ]:
         module = importlib.import_module(modname)
@@ -822,7 +822,7 @@ class RcParams(MutableMapping, dict):
                         "either import that binding first, or set the QT_API "
                         "environment variable.")
                 cbook.warn_deprecated(
-                    "2.2", name=key, obj_type="rcparam", addendum=addendum)
+                    version, name=key, obj_type="rcparam", addendum=addendum)
             elif key in _deprecated_ignore_map:
                 version, alt_key = _deprecated_ignore_map[key]
                 cbook.warn_deprecated(

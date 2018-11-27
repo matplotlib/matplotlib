@@ -132,17 +132,6 @@ def test_formatter_ticker():
     ax.autoscale_view()
 
 
-@image_comparison(baseline_images=["formatter_large_small"])
-def test_formatter_large_small():
-    # github issue #617, pull #619
-    if LooseVersion(np.__version__) >= LooseVersion('1.11.0'):
-        pytest.skip("Fall out from a fixed numpy bug")
-    fig, ax = plt.subplots(1)
-    x = [0.500000001, 0.500000002]
-    y = [1e64, 1.1e64]
-    ax.plot(x, y)
-
-
 @image_comparison(baseline_images=["twin_axis_locaters_formatters"])
 def test_twin_axis_locaters_formatters():
     vals = np.linspace(0, 1, num=5, endpoint=True)
@@ -1794,19 +1783,30 @@ class TestScatter(object):
 
     @pytest.mark.parametrize('c_case, re_key', params_test_scatter_c)
     def test_scatter_c(self, c_case, re_key):
+        def get_next_color():
+            return 'blue'  # currently unused
+
+        from matplotlib.axes import Axes
+
+        xshape = yshape = (4,)
+
         # Additional checking of *c* (introduced in #11383).
         REGEXP = {
             "shape": "^'c' argument has [0-9]+ elements",  # shape mismatch
             "conversion": "^'c' argument must be a mpl color",  # bad vals
             }
-        x = y = [0, 1, 2, 3]
-        fig, ax = plt.subplots()
 
         if re_key is None:
-            ax.scatter(x, y, c=c_case, edgecolors="black")
+            Axes._parse_scatter_color_args(
+                c=c_case, edgecolors="black", kwargs={},
+                xshape=xshape, yshape=yshape,
+                get_next_color_func=get_next_color)
         else:
             with pytest.raises(ValueError, match=REGEXP[re_key]):
-                ax.scatter(x, y, c=c_case, edgecolors="black")
+                Axes._parse_scatter_color_args(
+                    c=c_case, edgecolors="black", kwargs={},
+                    xshape=xshape, yshape=yshape,
+                    get_next_color_func=get_next_color)
 
 
 def _params(c=None, xshape=(2,), yshape=(2,), **kwargs):
@@ -1830,11 +1830,12 @@ _result = namedtuple('_result', 'c, colors')
       _result(c=['b', 'g'], colors=np.array([[0, 0, 1, 1], [0, .5, 0, 1]]))),
      ])
 def test_parse_scatter_color_args(params, expected_result):
+    def get_next_color():
+        return 'blue'  # currently unused
+
     from matplotlib.axes import Axes
-    dummyself = 'UNUSED'  # self is only used in one case, which we do not
-                          # test. Therefore we can get away without costly
-                          # creating an Axes instance.
-    c, colors, _edgecolors = Axes._parse_scatter_color_args(dummyself, *params)
+    c, colors, _edgecolors = Axes._parse_scatter_color_args(
+        *params, get_next_color_func=get_next_color)
     assert c == expected_result.c
     assert_allclose(colors, expected_result.colors)
 
@@ -1856,15 +1857,16 @@ del _result
      (dict(color='r', edgecolor='g'), 'g'),
      ])
 def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
+    def get_next_color():
+        return 'blue'  # currently unused
+
     from matplotlib.axes import Axes
-    dummyself = 'UNUSED'  # self is only used in one case, which we do not
-                          # test. Therefore we can get away without costly
-                          # creating an Axes instance.
     c = kwargs.pop('c', None)
     edgecolors = kwargs.pop('edgecolors', None)
     _, _, result_edgecolors = \
-        Axes._parse_scatter_color_args(dummyself, c, edgecolors, kwargs,
-                                       xshape=(2,), yshape=(2,))
+        Axes._parse_scatter_color_args(c, edgecolors, kwargs,
+                                       xshape=(2,), yshape=(2,),
+                                       get_next_color_func=get_next_color)
     assert result_edgecolors == expected_edgecolors
 
 

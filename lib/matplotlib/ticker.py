@@ -187,15 +187,6 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'SymmetricalLogLocator', 'LogitLocator')
 
 
-# Work around numpy/numpy#6127.
-def _divmod(x, y):
-    if isinstance(x, np.generic):
-        x = x.item()
-    if isinstance(y, np.generic):
-        y = y.item()
-    return divmod(x, y)
-
-
 def _mathdefault(s):
     return '\\mathdefault{%s}' % s
 
@@ -1283,9 +1274,12 @@ class EngFormatter(Formatter):
             pow10 += 3
 
         prefix = self.ENG_PREFIXES[int(pow10)]
-
-        formatted = "{mant:{fmt}}{sep}{prefix}".format(
-            mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
+        if rcParams['text.usetex']:
+            formatted = "${mant:{fmt}}${sep}{prefix}".format(
+                mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
+        else:
+            formatted = "{mant:{fmt}}{sep}{prefix}".format(
+                mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
 
         return formatted
 
@@ -1662,7 +1656,7 @@ class LinearLocator(Locator):
             vmax += 1
 
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            exponent, remainder = _divmod(
+            exponent, remainder = divmod(
                 math.log10(vmax - vmin), math.log10(max(self.numticks - 1, 1)))
             exponent -= (remainder < .5)
             scale = max(self.numticks - 1, 1) ** (-exponent)
@@ -1687,14 +1681,14 @@ class Base(object):
 
     def lt(self, x):
         'return the largest multiple of base < x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m, 0) and not closeto(m / self._base, 1):
             return (d - 1) * self._base
         return d * self._base
 
     def le(self, x):
         'return the largest multiple of base <= x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m / self._base, 1):  # was closeto(m, self._base)
             #looks like floating point error
             return (d + 1) * self._base
@@ -1702,7 +1696,7 @@ class Base(object):
 
     def gt(self, x):
         'return the smallest multiple of base > x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m / self._base, 1):
             #looks like floating point error
             return (d + 2) * self._base
@@ -1710,7 +1704,7 @@ class Base(object):
 
     def ge(self, x):
         'return the smallest multiple of base >= x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m, 0) and not closeto(m / self._base, 1):
             return d * self._base
         return (d + 1) * self._base
@@ -1805,14 +1799,14 @@ class _Edge_integer:
 
     def le(self, x):
         'Return the largest n: n*step <= x.'
-        d, m = _divmod(x, self.step)
+        d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 1):
             return (d + 1)
         return d
 
     def ge(self, x):
         'Return the smallest n: n*step >= x.'
-        d, m = _divmod(x, self.step)
+        d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 0):
             return d
         return (d + 1)
@@ -2182,18 +2176,13 @@ class LogLocator(Locator):
         else:
             subs = self._subs
 
-        # get decades between major ticks.
-        stride = 1
-        if rcParams['_internal.classic_mode']:
-            # Leave the bug left over from the PY2-PY3 transition.
-            while numdec / stride + 1 > numticks:
-                stride += 1
-        else:
-            while numdec // stride + 1 > numticks:
-                stride += 1
+        # Get decades between major ticks.
+        stride = (max(math.ceil(numdec / (numticks - 1)), 1)
+                  if rcParams['_internal.classic_mode'] else
+                  (numdec + 1) // numticks + 1)
 
         # Does subs include anything other than 1?
-        have_subs = len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0)
+        have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
 
         decades = np.arange(math.floor(vmin) - stride,
                             math.ceil(vmax) + 2 * stride, stride)

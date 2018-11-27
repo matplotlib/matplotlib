@@ -189,14 +189,11 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment with path codes."""
 
     zs = np.broadcast_to(zs, len(path))
-    seg = []
-    codes = []
     pathsegs = path.iter_segments(simplify=False, curves=False)
-    for (((x, y), code), z) in zip(pathsegs, zs):
-        seg.append((x, y, z))
-        codes.append(code)
+    seg_codes = [((x, y, z), code) for ((x, y), code), z in zip(pathsegs, zs)]
+    seg, codes = zip(*seg_codes)
     seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
-    return seg3d, codes
+    return seg3d, list(codes)
 
 
 def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
@@ -205,13 +202,10 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     """
 
     zs = np.broadcast_to(zs, len(paths))
-    segments = []
-    codes_list = []
-    for path, pathz in zip(paths, zs):
-        segs, codes = path_to_3d_segment_with_codes(path, pathz, zdir)
-        segments.append(segs)
-        codes_list.append(codes)
-    return segments, codes_list
+    segments_codes = [path_to_3d_segment_with_codes(path, pathz, zdir)
+                      for path, pathz in zip(paths, zs)]
+    segments, codes = zip(*segments_codes)
+    return list(segments), list(codes)
 
 
 class Line3DCollection(LineCollection):

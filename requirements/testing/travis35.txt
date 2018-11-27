@@ -2,7 +2,7 @@
 
 cycler==0.10
 python-dateutil==2.1
-numpy==1.10.0
+numpy==1.11
 pandas<0.21.0
 pyparsing==2.0.1
 pytest==3.6

@@ -10,8 +10,8 @@ import re
 
 import matplotlib
 from matplotlib import cm, colors as mcolors, markers, image as mimage
-import matplotlib.backends.qt_editor.formlayout as formlayout
 from matplotlib.backends.qt_compat import QtGui
+from matplotlib.backends.qt_editor import _formlayout
 
 
 def get_icon(name):
@@ -250,8 +250,8 @@ def figure_edit(axes, parent=None):
         if not (axes.get_xlim() == orig_xlim and axes.get_ylim() == orig_ylim):
             figure.canvas.toolbar.push_current()
 
-    data = formlayout.fedit(datalist, title="Figure options", parent=parent,
-                            icon=get_icon('qt4_editor_options.svg'),
-                            apply=apply_callback)
+    data = _formlayout.fedit(datalist, title="Figure options", parent=parent,
+                             icon=get_icon('qt4_editor_options.svg'),
+                             apply=apply_callback)
     if data is not None:
         apply_callback(data)

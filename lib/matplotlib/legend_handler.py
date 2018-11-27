@@ -606,10 +606,8 @@ class HandlerStem(HandlerNpointsYoffsets):
         leg_markerline = Line2D(xdata_marker, ydata[:len(xdata_marker)])
         self.update_prop(leg_markerline, markerline, legend)
 
-        leg_stemlines = []
-        for thisx, thisy in zip(xdata_marker, ydata):
-            l = Line2D([thisx, thisx], [bottom, thisy])
-            leg_stemlines.append(l)
+        leg_stemlines = [Line2D([x, x], [bottom, y])
+                         for x, y in zip(xdata_marker, ydata)]
 
         for lm, m in zip(leg_stemlines, stemlines):
             self.update_prop(lm, m, legend)

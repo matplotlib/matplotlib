@@ -176,9 +176,9 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
 
     if obj_type is not None:
         warn_deprecated(
-            "3.0", "Passing 'obj_type' to the 'deprecated' decorator has no "
-            "effect, and is deprecated since Matplotlib %(since)s; support "
-            "for it will be removed %(removal)s.")
+            "3.0", message="Passing 'obj_type' to the 'deprecated' decorator "
+            "has no effect, and is deprecated since Matplotlib %(since)s; "
+            "support for it will be removed %(removal)s.")
 
     def deprecate(obj, message=message, name=name, alternative=alternative,
                   pending=pending, addendum=addendum):

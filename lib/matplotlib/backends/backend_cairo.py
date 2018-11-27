@@ -97,10 +97,10 @@ def _append_paths_slow(ctx, paths, transforms, clip=None):
             elif code == Path.LINETO:
                 ctx.line_to(*points)
             elif code == Path.CURVE3:
-                cur = ctx.get_current_point()
-                ctx.curve_to(
-                    *np.concatenate([cur / 3 + points[:2] * 2 / 3,
-                                     points[:2] * 2 / 3 + points[-2:] / 3]))
+                cur = np.asarray(ctx.get_current_point())
+                a = points[:2]
+                b = points[-2:]
+                ctx.curve_to(*(cur / 3 + a * 2 / 3), *(a * 2 / 3 + b / 3), *b)
             elif code == Path.CURVE4:
                 ctx.curve_to(*points)
 
@@ -225,6 +225,7 @@ class RendererCairo(RendererBase):
         _append_path(ctx, path, transform, clip)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         ctx = gc.ctx
         # Clip the path to the actual rendering extents if it isn't filled.
         clip = (ctx.clip_extents()
@@ -239,8 +240,9 @@ class RendererCairo(RendererBase):
 
     def draw_markers(self, gc, marker_path, marker_trans, path, transform,
                      rgbFace=None):
-        ctx = gc.ctx
+        # docstring inherited
 
+        ctx = gc.ctx
         ctx.new_path()
         # Create the path for the marker; it needs to be flipped here already!
         _append_path(ctx, marker_path, marker_trans + Affine2D().scale(1, -1))
@@ -289,10 +291,10 @@ class RendererCairo(RendererBase):
             offsetTrans, facecolors, edgecolors, linewidths, linestyles,
             antialiaseds, urls, offset_position):
 
-        path_ids = []
-        for path, transform in self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms):
-            path_ids.append((path, Affine2D(transform)))
+        path_ids = [
+            (path, Affine2D(transform))
+            for path, transform in self._iter_collection_raw_paths(
+                    master_transform, paths, all_transforms)]
 
         reuse_key = None
         grouped_draw = []
@@ -349,6 +351,8 @@ class RendererCairo(RendererBase):
         ctx.restore()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         # Note: x,y are device/display coords, not user-coords, unlike other
         # draw_* methods
         if ismath:
@@ -404,9 +408,12 @@ class RendererCairo(RendererBase):
         ctx.restore()
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.width, self.height
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
+
         if ismath:
             width, height, descent, fonts, used_characters = \
                 self.mathtext_parser.parse(s, self.dpi, prop)
@@ -433,12 +440,14 @@ class RendererCairo(RendererBase):
         return w, h, h + y_bearing
 
     def new_gc(self):
+        # docstring inherited
         self.gc.ctx.save()
         self.gc._alpha = 1
         self.gc._forced_alpha = False  # if True, _alpha overrides A from RGBA
         return self.gc
 
     def points_to_pixels(self, points):
+        # docstring inherited
         return points / 72 * self.dpi
 
 

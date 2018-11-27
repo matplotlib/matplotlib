@@ -14,7 +14,7 @@ from weakref import WeakValueDictionary
 
 import numpy as np
 
-from . import _path, rcParams
+from . import _path, cbook, rcParams
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 
 
@@ -166,9 +166,8 @@ class Path(object):
         verts : numpy array
         codes : numpy array
         internals : dict or None
-            The attributes that the resulting path should have.
-            Allowed keys are ``readonly``, ``should_simplify``,
-            ``simplify_threshold``, ``has_nonfinite`` and
+            The attributes that the resulting path should have.  Allowed keys
+            are ``readonly``, ``should_simplify``, ``simplify_threshold``, and
             ``interpolation_steps``.
 
         """
@@ -182,7 +181,6 @@ class Path(object):
             internals.pop('simplify_threshold',
                           rcParams['path.simplify_threshold'])
         )
-        pth._has_nonfinite = internals.pop('has_nonfinite', False)
         pth._interpolation_steps = internals.pop('interpolation_steps', 1)
         if internals:
             raise ValueError('Unexpected internals provided to '
@@ -198,7 +196,6 @@ class Path(object):
             len(self._vertices) >= 128 and
             (self._codes is None or np.all(self._codes <= Path.LINETO))
         )
-        self._has_nonfinite = not np.isfinite(self._vertices).all()
 
     @property
     def vertices(self):
@@ -245,12 +242,14 @@ class Path(object):
     def simplify_threshold(self, threshold):
         self._simplify_threshold = threshold
 
+    @cbook.deprecated(
+        "3.1", alternative="not np.isfinite(self.vertices).all()")
     @property
     def has_nonfinite(self):
         """
         `True` if the vertices array has nonfinite values.
         """
-        return self._has_nonfinite
+        return not np.isfinite(self._vertices).all()
 
     @property
     def should_simplify(self):
@@ -359,46 +358,41 @@ class Path(object):
                       snap=False, stroke_width=1.0, simplify=None,
                       curves=True, sketch=None):
         """
-        Iterates over all of the curve segments in the path.  Each
-        iteration returns a 2-tuple (*vertices*, *code*), where
-        *vertices* is a sequence of 1 - 3 coordinate pairs, and *code* is
-        one of the :class:`Path` codes.
+        Iterates over all of the curve segments in the path.  Each iteration
+        returns a 2-tuple ``(vertices, code)``, where ``vertices`` is a
+        sequence of 1-3 coordinate pairs, and ``code`` is a `Path` code.
 
-        Additionally, this method can provide a number of standard
-        cleanups and conversions to the path.
+        Additionally, this method can provide a number of standard cleanups and
+        conversions to the path.
 
         Parameters
         ----------
-        transform : None or :class:`~matplotlib.transforms.Transform` instance
-            If not None, the given affine transformation will
-            be applied to the path.
-        remove_nans : {False, True}, optional
-            If True, will remove all NaNs from the path and
-            insert MOVETO commands to skip over them.
-        clip : None or sequence, optional
+        transform : None or :class:`~matplotlib.transforms.Transform`
+            If not None, the given affine transformation will be applied to the
+            path.
+        remove_nans : bool, optional
+            Whether to remove all NaNs from the path and skip over them using
+            MOVETO commands.
+        clip : None or (float, float, float, float), optional
             If not None, must be a four-tuple (x1, y1, x2, y2)
             defining a rectangle in which to clip the path.
         snap : None or bool, optional
-            If None, auto-snap to pixels, to reduce
-            fuzziness of rectilinear lines.  If True, force snapping, and
-            if False, don't snap.
+            If True, snap all nodes to pixels; if False, don't snap them.
+            If None, perform snapping if the path contains only segments
+            parallel to the x or y axes, and no more than 1024 of them.
         stroke_width : float, optional
-            The width of the stroke being drawn.  Needed
-             as a hint for the snapping algorithm.
+            The width of the stroke being drawn (used for path snapping).
         simplify : None or bool, optional
-            If True, perform simplification, to remove
-             vertices that do not affect the appearance of the path.  If
-             False, perform no simplification.  If None, use the
-             should_simplify member variable.  See also the rcParams
-             path.simplify and path.simplify_threshold.
-        curves : {True, False}, optional
-            If True, curve segments will be returned as curve
-            segments.  If False, all curves will be converted to line
-            segments.
+            Whether to simplify the path by removing vertices
+            that do not affect its appearance.  If None, use the
+            :attr:`should_simplify` attribute.  See also :rc:`path.simplify`
+            and :rc:`path.simplify_threshold`.
+        curves : bool, optional
+            If True, curve segments will be returned as curve segments.
+            If False, all curves will be converted to line segments.
         sketch : None or sequence, optional
             If not None, must be a 3-tuple of the form
-            (scale, length, randomness), representing the sketch
-            parameters.
+            (scale, length, randomness), representing the sketch parameters.
         """
         if not len(self):
             return
@@ -441,14 +435,12 @@ class Path(object):
         Returns
         -------
         Path instance with cleaned up vertices and codes.
-
         """
         vertices, codes = _path.cleanup_path(self, transform,
                                              remove_nans, clip,
                                              snap, stroke_width,
                                              simplify, curves, sketch)
         internals = {'should_simplify': self.should_simplify and not simplify,
-                     'has_nonfinite': self.has_nonfinite and not remove_nans,
                      'simplify_threshold': self.simplify_threshold,
                      'interpolation_steps': self._interpolation_steps}
         return Path._fast_from_codes_and_verts(vertices, codes, internals)
@@ -621,8 +613,7 @@ class Path(object):
     @classmethod
     def unit_rectangle(cls):
         """
-        Return a :class:`Path` instance of the unit rectangle
-        from (0, 0) to (1, 1).
+        Return a `Path` instance of the unit rectangle from (0, 0) to (1, 1).
         """
         if cls._unit_rectangle is None:
             cls._unit_rectangle = \
@@ -706,7 +697,6 @@ class Path(object):
         Return the readonly :class:`Path` of the unit circle.
 
         For most cases, :func:`Path.circle` will be what you want.
-
         """
         if cls._unit_circle is None:
             cls._unit_circle = cls.circle(center=(0, 0), radius=1,
@@ -716,7 +706,7 @@ class Path(object):
     @classmethod
     def circle(cls, center=(0., 0.), radius=1., readonly=False):
         """
-        Return a Path representing a circle of a given radius and center.
+        Return a `Path` representing a circle of a given radius and center.
 
         Parameters
         ----------
@@ -730,13 +720,10 @@ class Path(object):
 
         Notes
         -----
-        The circle is approximated using cubic Bezier curves.  This
-        uses 8 splines around the circle using the approach presented
-        here:
+        The circle is approximated using 8 cubic Bezier curves, as decribed in
 
           Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
           Bezier Cubic Splines <http://www.tinaja.com/glib/ellipse4.pdf>`_.
-
         """
         MAGIC = 0.2652031
         SQRTHALF = np.sqrt(0.5)
@@ -789,13 +776,9 @@ class Path(object):
     @classmethod
     def unit_circle_righthalf(cls):
         """
-        Return a :class:`Path` of the right half
-        of a unit circle. The circle is approximated using cubic Bezier
-        curves.  This uses 4 splines around the circle using the approach
-        presented here:
+        Return a `Path` of the right half of a unit circle.
 
-          Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
-          Bezier Cubic Splines <http://www.tinaja.com/glib/ellipse4.pdf>`_.
+        See `Path.circle` for the reference on the approximation used.
         """
         if cls._unit_circle_righthalf is None:
             MAGIC = 0.2652031
@@ -835,8 +818,8 @@ class Path(object):
     @classmethod
     def arc(cls, theta1, theta2, n=None, is_wedge=False):
         """
-        Return an arc on the unit circle from angle
-        *theta1* to angle *theta2* (in degrees).
+        Return the unit circle arc from angles *theta1* to *theta2* (in
+        degrees).
 
         *theta2* is unwrapped to produce the shortest arc within 360 degrees.
         That is, if *theta2* > *theta1* + 360, the arc will be from *theta1* to
@@ -914,8 +897,8 @@ class Path(object):
     @classmethod
     def wedge(cls, theta1, theta2, n=None):
         """
-        Return a wedge of the unit circle from angle
-        *theta1* to angle *theta2* (in degrees).
+        Return the unit circle wedge from angles *theta1* to *theta2* (in
+        degrees).
 
         *theta2* is unwrapped to produce the shortest wedge within 360 degrees.
         That is, if *theta2* > *theta1* + 360, the wedge will be from *theta1*
@@ -924,6 +907,8 @@ class Path(object):
         If *n* is provided, it is the number of spline segments to make.
         If *n* is not provided, the number of spline segments is
         determined based on the delta between *theta1* and *theta2*.
+
+        See `Path.arc` for the reference on the approximation used.
         """
         return cls.arc(theta1, theta2, n, True)
 
@@ -957,26 +942,25 @@ class Path(object):
 
 def get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_transform):
-    """
-    Given a sequence of :class:`Path` objects,
-    :class:`~matplotlib.transforms.Transform` objects and offsets, as
-    found in a :class:`~matplotlib.collections.PathCollection`,
-    returns the bounding box that encapsulates all of them.
+    r"""
+    Given a sequence of `Path`\s, `~.Transform`\s objects, and offsets, as
+    found in a `~.PathCollection`, returns the bounding box that encapsulates
+    all of them.
 
-    *master_transform* is a global transformation to apply to all paths
+    Parameters
+    ----------
+    master_transform : `~.Transform`
+        Global transformation applied to all paths.
+    paths : list of `Path`
+    transform : list of `~.Affine2D`
+    offsets : (N, 2) array-like
+    offset_transform : `~.Affine2D`
+        Transform applied to the offsets before offsetting the path.
 
-    *paths* is a sequence of :class:`Path` instances.
-
-    *transforms* is a sequence of
-    :class:`~matplotlib.transforms.Affine2D` instances.
-
-    *offsets* is a sequence of (x, y) offsets (or an Nx2 array)
-
-    *offset_transform* is a :class:`~matplotlib.transforms.Affine2D`
-    to apply to the offsets before applying the offset to the path.
-
+    Notes
+    -----
     The way that *paths*, *transforms* and *offsets* are combined
-    follows the same method as for collections.  Each is iterated over
+    follows the same method as for collections:  Each is iterated over
     independently, so if you have 3 paths, 2 transforms and 1 offset,
     their combinations are as follows:
 
@@ -990,6 +974,7 @@ def get_path_collection_extents(
         offsets, offset_transform))
 
 
+@cbook.deprecated("3.1", alternative="get_paths_collection_extents")
 def get_paths_extents(paths, transforms=[]):
     """
     Given a sequence of :class:`Path` objects and optional

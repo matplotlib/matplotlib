@@ -212,16 +212,15 @@ class RendererWx(RendererBase):
         self.gc = None
 
     def flipy(self):
+        # docstring inherited
         return True
 
     def offset_text_height(self):
         return True
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
-        """
+        # docstring inherited
+
         if ismath:
             s = cbook.strip_math(s)
 
@@ -237,7 +236,7 @@ class RendererWx(RendererBase):
         return w, h, descent
 
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
+        # docstring inherited
         return self.width, self.height
 
     def handle_clip_rectangle(self, gc):
@@ -271,6 +270,7 @@ class RendererWx(RendererBase):
         return wxpath
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         gc.select()
         self.handle_clip_rectangle(gc)
         gfx_ctx = gc.gfx_ctx
@@ -302,6 +302,8 @@ class RendererWx(RendererBase):
         gc.unselect()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         if ismath:
             s = cbook.strip_math(s)
         DEBUG_MSG("draw_text()", 1, self)
@@ -328,9 +330,7 @@ class RendererWx(RendererBase):
         gc.unselect()
 
     def new_gc(self):
-        """
-        Return an instance of a GraphicsContextWx, and sets the current gc copy
-        """
+        # docstring inherited
         DEBUG_MSG('new_gc()', 2, self)
         self.gc = GraphicsContextWx(self.bitmap, self)
         self.gc.select()
@@ -382,10 +382,7 @@ class RendererWx(RendererBase):
         return font
 
     def points_to_pixels(self, points):
-        """
-        convert point measures to pixes using dpi and the pixels per
-        inch of the display
-        """
+        # docstring inherited
         return points * (PIXELS_PER_INCH / 72.0 * self.dpi / 72.0)
 
 
@@ -1141,7 +1138,6 @@ class FigureFrameWx(wx.Frame):
             pos = wx.DefaultPosition
         else:
             pos = wx.Point(20, 20)
-        l, b, w, h = fig.bbox.bounds
         wx.Frame.__init__(self, parent=None, id=-1, pos=pos,
                           title="Figure %d" % num)
         # Frame will be sized later by the Fit method
@@ -1443,10 +1439,8 @@ class MenuButtonWx(wx.Button):
 
     def getActiveAxes(self):
         """Return a list of the selected axes."""
-        active = []
-        for i in range(len(self._axisId)):
-            if self._menu.IsChecked(self._axisId[i]):
-                active.append(i)
+        active = [idx for idx, ax_id in enumerate(self._axisId)
+                  if self._menu.IsChecked(ax_id)]
         return active
 
     def updateButtonText(self, lst):
@@ -1474,7 +1468,7 @@ class SubplotToolWX(wx.Frame):
         canvas = FigureCanvasWx(self, -1, toolfig)
 
         # Create a figure manager to manage things
-        figmgr = FigureManager(canvas, 1, self)
+        FigureManager(canvas, 1, self)
 
         # Now put all into a sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -1482,7 +1476,7 @@ class SubplotToolWX(wx.Frame):
         sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         self.SetSizer(sizer)
         self.Fit()
-        tool = SubplotTool(targetfig, toolfig)
+        SubplotTool(targetfig, toolfig)
 
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
@@ -1543,7 +1537,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         canvas = self.get_canvas(frame, toolfig)
 
         # Create a figure manager to manage things
-        figmgr = FigureManager(canvas, 1, frame)
+        FigureManager(canvas, 1, frame)
 
         # Now put all into a sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -1551,7 +1545,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         frame.SetSizer(sizer)
         frame.Fit()
-        tool = SubplotTool(self.canvas.figure, toolfig)
+        SubplotTool(self.canvas.figure, toolfig)
         frame.Show()
 
     def save_figure(self, *args):
@@ -1807,7 +1801,7 @@ class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
         sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         frame.SetSizer(sizer)
         frame.Fit()
-        tool = SubplotTool(self.canvas.figure, toolfig)
+        SubplotTool(self.canvas.figure, toolfig)
         frame.Show()
 
     def get_canvas(self, frame, fig):

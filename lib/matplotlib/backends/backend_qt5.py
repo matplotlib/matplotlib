@@ -856,6 +856,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
 
+    def set_history_buttons(self):
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        self._actions['back'].setEnabled(can_backward)
+        self._actions['forward'].setEnabled(can_forward)
+
 
 class SubplotToolQt(UiSubplotTool):
     def __init__(self, targetfig, parent):
