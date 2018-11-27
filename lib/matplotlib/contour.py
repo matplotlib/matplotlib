@@ -1752,8 +1752,7 @@ class QuadContourSet(ContourSet):
             - 'lower': ``Z[0, 0]`` is at X=0.5, Y=0.5 in the lower left corner.
             - 'upper': ``Z[0, 0]`` is at X=N+0.5, Y=0.5 in the upper left
               corner.
-            - 'image': Use the value from :rc:`image.origin`. Note: The value
-              *None* in the rcParam is currently handled as 'lower'.
+            - 'image': Use the value from :rc:`image.origin`.
 
         extent : (x0, x1, y0, y1), optional
             If *origin* is not *None*, then *extent* is interpreted as
