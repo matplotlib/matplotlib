@@ -1766,7 +1766,9 @@ class Axes3D(Axes):
             # convert dot product to allowed shading fractions
             in_norm = Normalize(-1, 1)
             out_norm = Normalize(0.3, 1).inverse
-            norm = lambda x: out_norm(in_norm(x))
+
+            def norm(x):
+                return out_norm(in_norm(x))
 
             shade[~mask] = 0
             color = mcolors.to_rgba_array(color)
