@@ -360,14 +360,14 @@ def is_hashable(obj):
 
 
 def is_writable_file_like(obj):
-    """return true if *obj* looks like a file object with a *write* method"""
+    """Return whether *obj* looks like a file object with a *write* method."""
     return callable(getattr(obj, 'write', None))
 
 
 def file_requires_unicode(x):
     """
-    Returns `True` if the given writable file-like object requires Unicode
-    to be written to it.
+    Returns whether the given writable file-like object requires Unicode to be
+    written to it.
     """
     try:
         x.write(b'')

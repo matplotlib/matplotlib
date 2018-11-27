@@ -730,9 +730,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.stale = True
 
     def can_composite(self):
-        """
-        Returns `True` if the image can be composited with its neighbors.
-        """
+        """Return whether the image can be composited with its neighbors."""
         trans = self.get_transform()
         return (
             self._interpolation != 'none' and
@@ -741,11 +739,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_resample(self, v):
         """
-        Set whether or not image resampling is used.
+        Set whether image resampling is used.
 
         Parameters
         ----------
-        v : bool
+        v : bool or None
+            If None, use :rc:`image.resample` = True.
         """
         if v is None:
             v = rcParams['image.resample']
@@ -753,7 +752,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.stale = True
 
     def get_resample(self):
-        """Return the image resample boolean."""
+        """Return whether image resampling is used."""
         return self._resample
 
     def set_filternorm(self, filternorm):
