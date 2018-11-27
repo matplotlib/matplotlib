@@ -33,6 +33,7 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from contextlib import contextmanager
+from enum import IntEnum
 import importlib
 import io
 import logging
@@ -1367,6 +1368,12 @@ class LocationEvent(Event):
         LocationEvent.lastevent = self
 
 
+class MouseButton(IntEnum):
+    LEFT = 1
+    MIDDLE = 2
+    RIGHT = 3
+
+
 class MouseEvent(LocationEvent):
     """
     A mouse event ('button_press_event',
@@ -1379,21 +1386,26 @@ class MouseEvent(LocationEvent):
 
     Attributes
     ----------
-    button : {None, 1, 2, 3, 'up', 'down'}
+    button : {None, MouseButton.LEFT, MouseButton.MIDDLE, MouseButton.RIGHT, \
+'up', 'down'}
         The button pressed. 'up' and 'down' are used for scroll events.
         Note that in the nbagg backend, both the middle and right clicks
-        return 3 since right clicking will bring up the context menu in
+        return RIGHT since right clicking will bring up the context menu in
         some browsers.
+        Note that LEFT and RIGHT actually refer to the "primary" and
+        "secondary" buttons, i.e. if the user inverts their left and right
+        buttons ("left-handed setting") then the LEFT button will be the one
+        physically on the right.
 
     key : None or str
         The key pressed when the mouse event triggered, e.g. 'shift'.
         See `KeyEvent`.
 
     step : scalar
-        The Number of scroll steps (positive for 'up', negative for 'down').
+        The number of scroll steps (positive for 'up', negative for 'down').
 
     dblclick : bool
-        *True* if the event is a double-click.
+        Whether the event is a double-click.
 
     Examples
     --------
@@ -1412,6 +1424,8 @@ class MouseEvent(LocationEvent):
         button pressed None, 1, 2, 3, 'up', 'down'
         """
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
+        if button in MouseButton.__members__.values():
+            button = MouseButton(button)
         self.button = button
         self.key = key
         self.step = step
