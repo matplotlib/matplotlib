@@ -22,16 +22,6 @@ from .transforms import (
 _log = logging.getLogger(__name__)
 
 
-def _process_text_args(override, fontdict=None, **kwargs):
-    """Return an override dict.  See `~pyplot.text' docstring for info."""
-
-    if fontdict is not None:
-        override.update(fontdict)
-
-    override.update(kwargs)
-    return override
-
-
 @contextlib.contextmanager
 def _wrap_text(textobj):
     """Temporarily inserts newlines to the text if the wrap option is enabled.
