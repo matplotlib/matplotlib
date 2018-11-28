@@ -2156,13 +2156,13 @@ class LogLocator(Locator):
                     "log-scaled.")
 
         _log.debug('vmin %s vmax %s', vmin, vmax)
-        vmin = math.log(vmin) / math.log(b)
-        vmax = math.log(vmax) / math.log(b)
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin
+        log_vmin = math.log(vmin) / math.log(b)
+        log_vmax = math.log(vmax) / math.log(b)
 
-        numdec = math.floor(vmax) - math.ceil(vmin)
+        numdec = math.floor(log_vmax) - math.ceil(log_vmin)
 
         if isinstance(self._subs, str):
             _first = 2.0 if self._subs == 'auto' else 1.0
@@ -2181,11 +2181,12 @@ class LogLocator(Locator):
                   if rcParams['_internal.classic_mode'] else
                   (numdec + 1) // numticks + 1)
 
-        # Does subs include anything other than 1?
+        # Does subs include anything other than 1?  Essentially a hack to know
+        # whether we're a major or a minor locator.
         have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
 
-        decades = np.arange(math.floor(vmin) - stride,
-                            math.ceil(vmax) + 2 * stride, stride)
+        decades = np.arange(math.floor(log_vmin) - stride,
+                            math.ceil(log_vmax) + 2 * stride, stride)
 
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
@@ -2193,20 +2194,27 @@ class LogLocator(Locator):
                 if stride == 1:
                     ticklocs = np.ravel(np.outer(subs, ticklocs))
                 else:
-                    # no ticklocs if we have more than one decade
-                    # between major ticks.
-                    ticklocs = []
+                    # No ticklocs if we have >1 decade between major ticks.
+                    ticklocs = np.array([])
         else:
             if have_subs:
-                ticklocs = []
                 if stride == 1:
-                    for decadeStart in b ** decades:
-                        ticklocs.extend(subs * decadeStart)
+                    ticklocs = np.concatenate(
+                        [subs * decade_start for decade_start in b ** decades])
+                else:
+                    ticklocs = np.array([])
             else:
                 ticklocs = b ** decades
 
         _log.debug('ticklocs %r', ticklocs)
-        return self.raise_if_exceeds(np.asarray(ticklocs))
+        if (len(subs) > 1
+                and stride == 1
+                and ((vmin <= ticklocs) & (ticklocs <= vmax)).sum() <= 1):
+            # If we're a minor locator *that expects at least two ticks per
+            # decade* and the major locator stride is 1 and there's no more
+            # than one minor tick, switch to AutoLocator.
+            return AutoLocator().tick_values(vmin, vmax)
+        return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'

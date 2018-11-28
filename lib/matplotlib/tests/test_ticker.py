@@ -1,7 +1,7 @@
 import warnings
 
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 import matplotlib
@@ -178,6 +178,11 @@ class TestLogLocator(object):
         loc = mticker.LogLocator(base=2)
         test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
         assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+    def test_switch_to_autolocator(self):
+        loc = mticker.LogLocator(subs="all")
+        assert_array_equal(loc.tick_values(0.45, 0.55),
+                           [0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56])
 
     def test_set_params(self):
         """
