@@ -914,7 +914,8 @@ def validate_cycler(s):
 
 
 def validate_hist_bins(s):
-    if cbook._str_equal(s, "auto"):
+    valid_strs = ["auto", "sturges", "fd", "doane", "scott", "rice", "sqrt"]
+    if isinstance(s, str) and s in valid_strs:
         return s
     try:
         return int(s)
@@ -924,8 +925,8 @@ def validate_hist_bins(s):
         return validate_floatlist(s)
     except ValueError:
         pass
-    raise ValueError("'hist.bins' must be 'auto', an int or " +
-                     "a sequence of floats")
+    raise ValueError("'hist.bins' must be one of {}, an int or"
+                     " a sequence of floats".format(valid_strs))
 
 
 def validate_animation_writer_path(p):
