@@ -226,14 +226,12 @@ class AxisArtistHelperRectlinear(object):
             major = self.axis.major
             majorLocs = major.locator()
             major.formatter.set_locs(majorLocs)
-            majorLabels = [major.formatter(val, i)
-                           for i, val in enumerate(majorLocs)]
+            majorLabels = major.formatter.format_ticks(majorLocs)
 
             minor = self.axis.minor
             minorLocs = minor.locator()
             minor.formatter.set_locs(minorLocs)
-            minorLabels = [minor.formatter(val, i)
-                           for i, val in enumerate(minorLocs)]
+            minorLabels = minor.formatter.format_ticks(minorLocs)
 
             trans_tick = self.get_tick_transform(axes)
 
@@ -323,14 +321,12 @@ class AxisArtistHelperRectlinear(object):
             major = self.axis.major
             majorLocs = major.locator()
             major.formatter.set_locs(majorLocs)
-            majorLabels = [major.formatter(val, i)
-                           for i, val in enumerate(majorLocs)]
+            majorLabels = major.formatter.format_ticks(majorLocs)
 
             minor = self.axis.minor
             minorLocs = minor.locator()
             minor.formatter.set_locs(minorLocs)
-            minorLabels = [minor.formatter(val, i)
-                           for i, val in enumerate(minorLocs)]
+            minorLabels = minor.formatter.format_ticks(minorLocs)
 
             tr2ax = axes.transData + axes.transAxes.inverted()
 
