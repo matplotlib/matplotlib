@@ -6380,7 +6380,7 @@ class Axes(_AxesBase):
 
             With Numpy 1.11 or newer, you can alternatively provide a string
             describing a binning strategy, such as 'auto', 'sturges', 'fd',
-            'doane', 'scott', 'rice', 'sturges' or 'sqrt', see
+            'doane', 'scott', 'rice' or 'sqrt', see
             `numpy.histogram`.
 
             The default is taken from :rc:`hist.bins`.
