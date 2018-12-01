@@ -304,17 +304,9 @@ class TextToPath(object):
 
         # codes are modstly borrowed from pdf backend.
 
-        texmanager = self.get_texmanager()
-
-        fontsize = prop.get_size_in_points()
-        if hasattr(texmanager, "get_dvi"):
-            dvifilelike = texmanager.get_dvi(s, self.FONT_SCALE)
-            dvi = dviread.DviFromFileLike(dvifilelike, self.DPI)
-        else:
-            dvifile = texmanager.make_dvi(s, self.FONT_SCALE)
-            dvi = dviread.Dvi(dvifile, self.DPI)
-        with dvi:
-            page = next(iter(dvi))
+        dvifile = self.get_texmanager().make_dvi(s, self.FONT_SCALE)
+        with dviread.Dvi(dvifile, self.DPI) as dvi:
+            page, = dvi
 
         if glyph_map is None:
             glyph_map = OrderedDict()
