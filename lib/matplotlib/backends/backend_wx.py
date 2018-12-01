@@ -713,11 +713,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         """
         if hasattr(self, '_event_loop'):
             raise RuntimeError("Event loop already running")
-        id = wx.NewId()
-        timer = wx.Timer(self, id=id)
+        timer = wx.Timer(self, id=wx.ID_ANY)
         if timeout > 0:
             timer.Start(timeout * 1000, oneShot=True)
-            self.Bind(wx.EVT_TIMER, self.stop_event_loop, id=id)
+            self.Bind(wx.EVT_TIMER, self.stop_event_loop, id=timer.GetId())
 
         # Event loop handler for start/stop event loop
         self._event_loop = wx.GUIEventLoop()
@@ -1292,26 +1291,6 @@ class FigureManagerWx(FigureManagerBase):
         self.canvas.SetInitialSize(wx.Size(width, height))
         self.window.GetSizer().Fit(self.window)
 
-# Identifiers for toolbar controls - images_wx contains bitmaps for the images
-# used in the controls. wxWindows does not provide any stock images, so I've
-# 'stolen' those from GTK2, and transformed them into the appropriate format.
-# import images_wx
-
-
-_NTB_AXISMENU = wx.NewId()
-_NTB_AXISMENU_BUTTON = wx.NewId()
-_NTB_X_PAN_LEFT = wx.NewId()
-_NTB_X_PAN_RIGHT = wx.NewId()
-_NTB_X_ZOOMIN = wx.NewId()
-_NTB_X_ZOOMOUT = wx.NewId()
-_NTB_Y_PAN_UP = wx.NewId()
-_NTB_Y_PAN_DOWN = wx.NewId()
-_NTB_Y_ZOOMIN = wx.NewId()
-_NTB_Y_ZOOMOUT = wx.NewId()
-# _NTB_SUBPLOT            =wx.NewId()
-_NTB_SAVE = wx.NewId()
-_NTB_CLOSE = wx.NewId()
-
 
 def _load_bitmap(filename):
     """
@@ -1355,7 +1334,7 @@ class MenuButtonWx(wx.Button):
 
     def __init__(self, parent):
 
-        wx.Button.__init__(self, parent, _NTB_AXISMENU_BUTTON, "Axes:        ",
+        wx.Button.__init__(self, parent, wx.ID_ANY, "Axes:        ",
                            style=wx.BU_EXACTFIT)
         self._toolbar = parent
         self._menu = wx.Menu()
@@ -1368,7 +1347,7 @@ class MenuButtonWx(wx.Button):
                           False)
         self._menu.AppendSeparator()
 
-        self.Bind(wx.EVT_BUTTON, self._onMenuButton, id=_NTB_AXISMENU_BUTTON)
+        self.Bind(wx.EVT_BUTTON, self._onMenuButton, id=self.GetId())
         self.Bind(wx.EVT_MENU, self._handleSelectAllAxes, id=self._allId)
         self.Bind(wx.EVT_MENU, self._handleInvertAxesSelected,
                   id=self._invertId)
