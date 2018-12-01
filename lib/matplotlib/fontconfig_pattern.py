@@ -12,8 +12,6 @@ A module for parsing and generating `fontconfig patterns`_.
 from functools import lru_cache
 import re
 import numpy as np
-from pyparsing import (Literal, ZeroOrMore, Optional, Regex, StringEnd,
-                       ParseException, Suppress)
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub
@@ -22,6 +20,14 @@ family_escape = re.compile(r'([%s])' % family_punc).sub
 value_punc = r'\\=_:,'
 value_unescape = re.compile(r'\\([%s])' % value_punc).sub
 value_escape = re.compile(r'([%s])' % value_punc).sub
+
+_SIMPLE_PATTERN_CACHE = {
+    'cursive': {'family': ['cursive']},
+    'sans': {'family': ['sans']},
+    'monospace': {'family': ['monospace']},
+    'sans:italic': {'family': ['sans'], 'slant': ['italic']},
+    'sans:bold': {'family': ['sans'], 'weight': ['bold']},
+}
 
 
 class FontconfigPatternParser:
@@ -60,6 +66,9 @@ class FontconfigPatternParser:
         }
 
     def __init__(self):
+        # delayed import. Only executed when needed
+        from pyparsing import (Literal, ZeroOrMore, Optional, Regex, StringEnd,
+                               ParseException, Suppress)
 
         family = Regex(
             r'([^%s]|(\\[%s]))*' % (family_punc, family_punc)
@@ -167,11 +176,33 @@ class FontconfigPatternParser:
         return []
 
 
+@lru_cache(maxsize=1)
+def _get_parser():
+    """Return a cached FontconfigPatternParser instance."""
+    return FontconfigPatternParser()
+
+
 # `parse_fontconfig_pattern` is a bottleneck during the tests because it is
 # repeatedly called when the rcParams are reset (to validate the default
 # fonts).  In practice, the cache size doesn't grow beyond a few dozen entries
 # during the test suite.
-parse_fontconfig_pattern = lru_cache()(FontconfigPatternParser().parse)
+@lru_cache()
+def parse_fontconfig_pattern(pattern):
+    """
+    Parse the given fontconfig *pattern* and return a dictionary
+    of key/value pairs useful for initializing a
+    :class:`font_manager.FontProperties` object.
+    """
+
+    # Try a lookup on simple patterns first. This can prevent the need to
+    # create a full parser and to import pyparsing. If only patterns from
+    # _SIMPLE_PATTERN_CACHE are used in the matplotlibrc file, this will
+    # speed up the import of matplotlib.
+    parsed = _SIMPLE_PATTERN_CACHE.get(pattern)
+    if parsed is not None:
+        return parsed
+
+    return _get_parser().parse(pattern)
 
 
 def _escape_val(val, escape_func):
