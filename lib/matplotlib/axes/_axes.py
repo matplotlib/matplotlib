@@ -3675,7 +3675,7 @@ class Axes(_AxesBase):
           positions)``, clipped to no less than 0.15 and no more than
           0.5.
 
-        vert : bool, default = False
+        vert : bool, default = True
           If `True` (default), makes the boxes vertical.  If `False`,
           makes horizontal boxes.
 
