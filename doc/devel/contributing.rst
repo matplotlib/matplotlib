@@ -64,7 +64,7 @@ environment to build Matplotlib from source.
 To work on Matplotlib sources, it is strongly recommended to set up an alternative
 development environment, using the something like `virtual environments in python
 <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_, or a
-`conda environment <http://conda.pydata.org/docs/using/envs.html>`_.
+`conda environment <https://conda.io/docs/user-guide/tasks/manage-environments.html>`_.
 
 If you choose to use an already existing environment, and not a clean virtual or
 conda environment, uninstall the current version of Matplotlib in that environment
@@ -158,6 +158,7 @@ environment is set up properly::
 
   * :ref:`testing`
 
+.. _how_to_contribute:
 
 Contributing code
 =================
@@ -315,7 +316,7 @@ documentation is also a very important part of the project and often doesn't
 get as much attention as it deserves. If you find a typo in the documentation,
 or have made improvements, do not hesitate to send an email to the mailing
 list or submit a GitHub pull request. Full documentation can be found under
-the doc/ directory.
+the doc/ directory. Details for contributing to the documentation can be found :ref:`here <documenting-matplotlib>`. 
 
 It also helps us if you spread the word: reference the project from your blog
 and articles or link to it from your website!
