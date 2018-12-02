@@ -53,16 +53,10 @@ requirements, in addition to those in :ref:`Contributing <contributing>`, that a
 * Sphinx
 * colorspacious
 * IPython
-<<<<<<< Updated upstream
-* numpydoc>=0.8
-* Pillow>=3.4
-* sphinx-gallery>=0.2
-=======
 * numpydoc
 * Pillow
 * sphinx-gallery
 * LaTeX  
->>>>>>> Stashed changes
 * graphviz
 
 .. note::
