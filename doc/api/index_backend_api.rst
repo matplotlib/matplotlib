@@ -1,13 +1,11 @@
-********
-backends
-********
+***********************
+``matplotlib.backends``
+***********************
 
 .. toctree::
+   :maxdepth: 1
 
-   backend_bases_api.rst
-   backend_managers_api.rst
    backend_mixed_api.rst
-   backend_tools_api.rst
    backend_agg_api.rst
    backend_cairo_api.rst
    backend_gtk3agg_api.rst

@@ -12,14 +12,16 @@ Core functions and attributes for the matplotlib style library:
 """
 
 import contextlib
+import logging
 import os
 import re
 import warnings
 
 import matplotlib as mpl
-from matplotlib import rc_params_from_file, rcParamsDefault
+from matplotlib import cbook, rc_params_from_file, rcParamsDefault
 from matplotlib.cbook import MatplotlibDeprecationWarning
 
+_log = logging.getLogger(__name__)
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
 
@@ -44,9 +46,9 @@ def _remove_blacklisted_style_params(d, warn=True):
     for key, val in d.items():
         if key in STYLE_BLACKLIST:
             if warn:
-                warnings.warn(
+                cbook._warn_external(
                     "Style includes a parameter, '{0}', that is not related "
-                    "to style.  Ignoring".format(key), stacklevel=3)
+                    "to style.  Ignoring".format(key))
         else:
             o[key] = val
     return o
@@ -189,7 +191,7 @@ def read_style_directory(style_dir):
 
         for w in warns:
             message = 'In %s: %s' % (path, w.message)
-            warnings.warn(message, stacklevel=2)
+            _log.warning(message)
 
     return styles
 

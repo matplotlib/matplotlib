@@ -21,7 +21,7 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
 
     def on_draw_event(self, widget, ctx):
         """GtkDrawable draw event."""
-        toolbar = self.toolbar
+        # toolbar = self.toolbar
         # if toolbar:
         #     toolbar.set_cursor(cursors.WAIT)
         self._renderer.set_context(ctx)

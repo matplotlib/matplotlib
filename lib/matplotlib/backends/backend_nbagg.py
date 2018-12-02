@@ -28,19 +28,19 @@ from matplotlib.backends.backend_webagg_core import (
 
 def connection_info():
     """
-    Return a string showing the figure and connection status for
-    the backend. This is intended as a diagnostic tool, and not for general
-    use.
+    Return a string showing the figure and connection status for the backend.
 
+    This is intended as a diagnostic tool, and not for general use.
     """
-    result = []
-    for manager in Gcf.get_all_fig_managers():
-        fig = manager.canvas.figure
-        result.append('{0} - {0}'.format((fig.get_label() or
-                                          "Figure {0}".format(manager.num)),
-                                         manager.web_sockets))
+    result = [
+        '{fig} - {socket}'.format(
+            fig=(manager.canvas.figure.get_label()
+                 or "Figure {}".format(manager.num)),
+            socket=manager.web_sockets)
+        for manager in Gcf.get_all_fig_managers()
+    ]
     if not is_interactive():
-        result.append('Figures pending show: {0}'.format(len(Gcf._activeQue)))
+        result.append('Figures pending show: {}'.format(len(Gcf._activeQue)))
     return '\n'.join(result)
 
 

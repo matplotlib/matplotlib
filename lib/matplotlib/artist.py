@@ -1,6 +1,7 @@
 from collections import OrderedDict, namedtuple
 from functools import wraps
 import inspect
+import logging
 import re
 import warnings
 
@@ -11,6 +12,8 @@ from . import cbook, docstring, rcParams
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
+
+_log = logging.getLogger(__name__)
 
 
 def allow_rasterization(draw):
@@ -375,7 +378,7 @@ class Artist(object):
         return L
 
     def get_children(self):
-        r"""Return a list of the child `.Artist`\s this `.Artist` contains."""
+        r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
 
     def contains(self, mouseevent):
@@ -400,7 +403,7 @@ class Artist(object):
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
-        warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
+        _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
     def set_contains(self, picker):
@@ -446,9 +449,7 @@ class Artist(object):
         --------
         set_picker, get_picker, pick
         """
-        return (self.figure is not None and
-                self.figure.canvas is not None and
-                self._picker is not None)
+        return self.figure is not None and self._picker is not None
 
     def pick(self, mouseevent):
         """
@@ -533,7 +534,7 @@ class Artist(object):
         """
         return self._picker
 
-    @cbook.deprecated("2.2", "artist.figure is not None")
+    @cbook.deprecated("2.2", alternative="artist.figure is not None")
     def is_figure_set(self):
         """Returns whether the artist is assigned to a `.Figure`."""
         return self.figure is not None
@@ -850,7 +851,8 @@ class Artist(object):
         rasterized : bool or None
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-            warnings.warn("Rasterization of '%s' will be ignored" % self)
+            cbook._warn_external(
+                "Rasterization of '%s' will be ignored" % self)
 
         self._rasterized = rasterized
 
@@ -1391,7 +1393,6 @@ class ArtistInspector(object):
             return '%s%s: %s' % (pad, prop, accepts)
 
         attrs = sorted(self._get_setters_and_targets())
-        lines = []
 
         names = [self.aliased_name_rest(prop, target)
                  for prop, target in attrs]

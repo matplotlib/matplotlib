@@ -9,10 +9,9 @@ Significant updates and revisions by Ben Root <ben.v.root@gmail.com>
 Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
 """
-from functools import reduce
 from collections import defaultdict
+from functools import reduce
 import math
-import warnings
 
 import numpy as np
 
@@ -210,9 +209,6 @@ class Axes3D(Axes):
 
         for ax in self.xaxis, self.yaxis, self.zaxis:
             ax.init3d()
-
-    def get_children(self):
-        return [self.zaxis] + super().get_children()
 
     def _get_axis_list(self):
         return super()._get_axis_list() + (self.zaxis, )
@@ -439,7 +435,8 @@ class Axes3D(Axes):
 
         if x is None and y is None and z is None:
             if tight is not True:
-                warnings.warn('ignoring tight=%r in get mode' % (tight,))
+                cbook._warn_external(
+                    'ignoring tight=%r in get mode' % (tight,))
             return self._xmargin, self._ymargin, self._zmargin
 
         if x is not None:
@@ -634,9 +631,10 @@ class Axes3D(Axes):
             right = old_right
 
         if left == right:
-            warnings.warn(('Attempting to set identical left==right results\n'
-                     'in singular transformations; automatically expanding.\n'
-                     'left=%s, right=%s') % (left, right))
+            cbook._warn_external(
+                ('Attempting to set identical left==right results\n'
+                 'in singular transformations; automatically expanding.\n'
+                 'left=%s, right=%s') % (left, right))
         left, right = mtransforms.nonsingular(left, right, increasing=False)
         left, right = self.xaxis.limit_range_for_scale(left, right)
         self.xy_viewLim.intervalx = (left, right)
@@ -651,8 +649,7 @@ class Axes3D(Axes):
                 if other is not self:
                     other.set_xlim(self.xy_viewLim.intervalx,
                                             emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                        other.figure.canvas is not None):
+                    if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
         return left, right
@@ -692,9 +689,10 @@ class Axes3D(Axes):
             top = old_top
 
         if top == bottom:
-            warnings.warn(('Attempting to set identical bottom==top results\n'
-                     'in singular transformations; automatically expanding.\n'
-                     'bottom=%s, top=%s') % (bottom, top))
+            cbook._warn_external(
+                ('Attempting to set identical bottom==top results\n'
+                 'in singular transformations; automatically expanding.\n'
+                 'bottom=%s, top=%s') % (bottom, top))
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
         self.xy_viewLim.intervaly = (bottom, top)
@@ -709,8 +707,7 @@ class Axes3D(Axes):
                 if other is not self:
                     other.set_ylim(self.xy_viewLim.intervaly,
                                             emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                        other.figure.canvas is not None):
+                    if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
         return bottom, top
@@ -750,9 +747,10 @@ class Axes3D(Axes):
             top = old_top
 
         if top == bottom:
-            warnings.warn(('Attempting to set identical bottom==top results\n'
-                     'in singular transformations; automatically expanding.\n'
-                     'bottom=%s, top=%s') % (bottom, top))
+            cbook._warn_external(
+                ('Attempting to set identical bottom==top results\n'
+                 'in singular transformations; automatically expanding.\n'
+                 'bottom=%s, top=%s') % (bottom, top))
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.zaxis.limit_range_for_scale(bottom, top)
         self.zz_viewLim.intervalx = (bottom, top)
@@ -767,8 +765,7 @@ class Axes3D(Axes):
                 if other is not self:
                     other.set_zlim(self.zz_viewLim.intervalx,
                                             emit=False, auto=auto)
-                    if (other.figure != self.figure and
-                        other.figure.canvas is not None):
+                    if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
         return bottom, top
@@ -1067,17 +1064,14 @@ class Axes3D(Axes):
 
         """
         self.button_pressed = None
-        canv = self.figure.canvas
-        if canv is not None:
-            c1 = canv.mpl_connect('motion_notify_event', self._on_move)
-            c2 = canv.mpl_connect('button_press_event', self._button_press)
-            c3 = canv.mpl_connect('button_release_event', self._button_release)
-            self._cids = [c1, c2, c3]
-        else:
-            warnings.warn(
-                "Axes3D.figure.canvas is 'None', mouse rotation disabled.  "
-                "Set canvas then call Axes3D.mouse_init().")
-
+        self._cids = [
+            self.figure.canvas.mpl_connect(
+                'motion_notify_event', self._on_move),
+            self.figure.canvas.mpl_connect(
+                'button_press_event', self._button_press),
+            self.figure.canvas.mpl_connect(
+                'button_release_event', self._button_release),
+        ]
         # coerce scalars into array-like, then convert into
         # a regular list to avoid comparisons against None
         # which breaks in recent versions of numpy.
@@ -1617,6 +1611,11 @@ class Axes3D(Axes):
 
         if Z.ndim != 2:
             raise ValueError("Argument Z must be 2-dimensional.")
+        if np.any(np.isnan(Z)):
+            cbook._warn_external(
+                "Z contains NaN values. This may result in rendering "
+                "artifacts.")
+
         # TODO: Support masked arrays
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
         rows, cols = Z.shape
@@ -1660,9 +1659,10 @@ class Axes3D(Axes):
         if shade is None:
             cbook.warn_deprecated(
                 "3.1",
-                "Passing shade=None to Axes3D.plot_surface() is deprecated "
-                "since matplotlib 3.1 and will change its semantic or raise "
-                "an error in matplotlib 3.3. Please use shade=False instead.")
+                message="Passing shade=None to Axes3D.plot_surface() is "
+                        "deprecated since matplotlib 3.1 and will change its "
+                        "semantic or raise an error in matplotlib 3.3. "
+                        "Please use shade=False instead.")
 
         # evenly spaced, and including both endpoints
         row_inds = list(range(0, rows-1, rstride)) + [rows-1]
@@ -1730,24 +1730,27 @@ class Axes3D(Axes):
         return polyc
 
     def _generate_normals(self, polygons):
-        '''
+        """
         Generate normals for polygons by using the first three points.
         This normal of course might not make sense for polygons with
         more than three points not lying in a plane.
-        '''
+
+        Normals point towards the viewer for a face with its vertices in
+        counterclockwise order, following the right hand rule.
+        """
 
         normals = []
         for verts in polygons:
-            v1 = np.array(verts[0]) - np.array(verts[1])
+            v1 = np.array(verts[1]) - np.array(verts[0])
             v2 = np.array(verts[2]) - np.array(verts[0])
             normals.append(np.cross(v1, v2))
         return normals
 
     def _shade_colors(self, color, normals, lightsource=None):
-        '''
+        """
         Shade *color* using normal vectors given by *normals*.
         *color* can also be an array of the same length as *normals*.
-        '''
+        """
         if lightsource is None:
             # chosen for backwards-compatibility
             lightsource = LightSource(azdeg=225, altdeg=19.4712)
@@ -1757,7 +1760,7 @@ class Axes3D(Axes):
                           for n in normals])
         mask = ~np.isnan(shade)
 
-        if len(shade[mask]) > 0:
+        if mask.any():
             norm = Normalize(min(shade[mask]), max(shade[mask]))
             shade[~mask] = min(shade[mask])
             color = mcolors.to_rgba_array(color)
@@ -2450,48 +2453,50 @@ class Axes3D(Axes):
         maxz = np.max(z + dz)
 
         # shape (6, 4, 3)
+        # All faces are oriented facing outwards - when viewed from the
+        # outside, their vertices are in a counterclockwise ordering.
         cuboid = np.array([
             # -z
             (
                 (0, 0, 0),
-                (1, 0, 0),
+                (0, 1, 0),
                 (1, 1, 0),
-                (0, 1, 0)
+                (1, 0, 0),
             ),
             # +z
             (
                 (0, 0, 1),
                 (1, 0, 1),
                 (1, 1, 1),
-                (0, 1, 1)
+                (0, 1, 1),
             ),
             # -y
             (
                 (0, 0, 0),
                 (1, 0, 0),
                 (1, 0, 1),
-                (0, 0, 1)
+                (0, 0, 1),
             ),
             # +y
             (
                 (0, 1, 0),
-                (1, 1, 0),
+                (0, 1, 1),
                 (1, 1, 1),
-                (0, 1, 1)
+                (1, 1, 0),
             ),
             # -x
             (
                 (0, 0, 0),
-                (0, 1, 0),
+                (0, 0, 1),
                 (0, 1, 1),
-                (0, 0, 1)
+                (0, 1, 0),
             ),
             # +x
             (
                 (1, 0, 0),
                 (1, 1, 0),
                 (1, 1, 1),
-                (1, 0, 1)
+                (1, 0, 1),
             ),
         ])
 
@@ -2629,15 +2634,12 @@ pivot='tail', normalize=False, **kwargs)
 
         # first 6 arguments are X, Y, Z, U, V, W
         input_args = args[:argi]
-        # if any of the args are scalar, convert into list
-        input_args = [[k] if isinstance(k, (int, float)) else k
-                      for k in input_args]
 
         # extract the masks, if any
         masks = [k.mask for k in input_args
                  if isinstance(k, np.ma.MaskedArray)]
         # broadcast to match the shape
-        bcast = np.broadcast_arrays(*(input_args + masks))
+        bcast = np.broadcast_arrays(*input_args, *masks)
         input_args = bcast[:argi]
         masks = bcast[argi:]
         if masks:
@@ -2647,7 +2649,7 @@ pivot='tail', normalize=False, **kwargs)
             input_args = [np.ma.array(k, mask=mask).compressed()
                           for k in input_args]
         else:
-            input_args = [k.flatten() for k in input_args]
+            input_args = [np.ravel(k) for k in input_args]
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
@@ -2655,13 +2657,7 @@ pivot='tail', normalize=False, **kwargs)
             self.add_collection(linec)
             return linec
 
-        # Following assertions must be true before proceeding
-        # must all be ndarray
-        assert all(isinstance(k, np.ndarray) for k in input_args)
-        # must all in same shape
-        assert len({k.shape for k in input_args}) == 1
-
-        shaft_dt = np.linspace(0, length, num=2)
+        shaft_dt = np.array([0, length])
         arrow_dt = shaft_dt * arrow_length_ratio
 
         if pivot == 'tail':

@@ -1,25 +1,23 @@
-"""
-Place a table below the x-axis at location loc.
-
-The table consists of a grid of cells.
-
-The grid need not be rectangular and can have holes.
-
-Cells are added by specifying their row and column.
-
-For the purposes of positioning the cell at (0, 0) is
-assumed to be at the top left and the cell at (max_row, max_col)
-is assumed to be at bottom right.
-
-You can add additional cells outside this range to have convenient
-ways of positioning more interesting grids.
-
-Author    : John Gill <jng@europe.renre.com>
-Copyright : 2004 John Gill and John Hunter
-License   : matplotlib license
+# Original code by:
+#    John Gill <jng@europe.renre.com>
+#    Copyright 2004 John Gill and John Hunter
+#
+# Subsequent changes:
+#    The Matplotlib development team
+#    Copyright The Matplotlib development team
 
 """
-import warnings
+This module provides functionality to add a table to a plot.
+
+Use the factory function `~matplotlib.table.table` to create a ready-made
+table from texts. If you need more control, use the `.Table` class and its
+methods.
+
+The table consists of a grid of cells, which are indexed by (row, column).
+The cell (0, 0) is positioned at the top left.
+
+Thanks to John Gill for providing the class and table.
+"""
 
 from . import artist, cbook, docstring
 from .artist import Artist, allow_rasterization
@@ -31,9 +29,38 @@ from .path import Path
 
 class Cell(Rectangle):
     """
-    A cell is a  `.Rectangle` with some associated text.
+    A cell is a `.Rectangle` with some associated `.Text`.
+
+    .. note:
+        As a user, you'll most likely not creates cells yourself. Instead, you
+        should use either the `~matplotlib.table.table` factory function or
+        `.Table.add_cell`.
+
+    Parameters
+    ----------
+    xy : 2-tuple
+        The position of the bottom left corner of the cell.
+    width : float
+        The cell width.
+    height : float
+        The cell height.
+    edgecolor : color spec
+        The color of the cell border.
+    facecolor : color spec
+        The cell facecolor.
+    fill : bool
+        Whether the cell background is filled.
+    text : str
+        The cell text.
+    loc : {'left', 'center', 'right'}, default: 'right'
+        The alignment of the text within the cell.
+    fontproperties : dict
+        A dict defining the font properties of the text. Supported keys and
+        values are the keyword arguments accepted by `.FontProperties`.
     """
-    PAD = 0.1  # padding between text and rectangle
+
+    PAD = 0.1
+    """Padding between text and rectangle."""
 
     def __init__(self, xy, width, height,
                  edgecolor='k', facecolor='w',
@@ -44,7 +71,7 @@ class Cell(Rectangle):
                  ):
 
         # Call base
-        Rectangle.__init__(self, xy, width=width, height=height,
+        Rectangle.__init__(self, xy, width=width, height=height, fill=fill,
                            edgecolor=edgecolor, facecolor=facecolor)
         self.set_clip_on(False)
 
@@ -70,6 +97,7 @@ class Cell(Rectangle):
         return self._text
 
     def set_fontsize(self, size):
+        """Set the text fontsize."""
         self._text.set_fontsize(size)
         self.stale = True
 
@@ -78,7 +106,7 @@ class Cell(Rectangle):
         return self._text.get_fontsize()
 
     def auto_set_font_size(self, renderer):
-        """ Shrink font size until text fits. """
+        """Shrink font size until the text fits into the cell width."""
         fontsize = self.get_fontsize()
         required = self.get_required_width(renderer)
         while fontsize > 1 and required > self.get_width():
@@ -101,7 +129,7 @@ class Cell(Rectangle):
         self.stale = False
 
     def _set_text_position(self, renderer):
-        """ Set text up so it draws in the right place.
+        """Set text up so it draws in the right place.
 
         Currently support 'left', 'center' and 'right'
         """
@@ -126,18 +154,26 @@ class Cell(Rectangle):
         self._text.set_position((x, y))
 
     def get_text_bounds(self, renderer):
-        """ Get text bounds in axes co-ordinates. """
+        """
+        Return the text bounds as *(x, y, width, height)* in table coordinates.
+        """
         bbox = self._text.get_window_extent(renderer)
         bboxa = bbox.inverse_transformed(self.get_data_transform())
         return bboxa.bounds
 
     def get_required_width(self, renderer):
-        """ Get width required for this cell. """
+        """Return the minimal required width for the cell."""
         l, b, w, h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
 
+    @docstring.dedent_interpd
     def set_text_props(self, **kwargs):
-        'update the text properties with kwargs'
+        """
+        Update the text properties.
+
+        Valid kwargs are
+        %(Text)s
+        """
         self._text.update(kwargs)
         self.stale = True
 
@@ -211,6 +247,14 @@ class Table(Artist):
 
     Column widths and row heights for the table can be specified.
 
+    The table consists of a grid of cells, which are indexed by (row, column).
+
+    For a simple table, you'll have a full grid of cells with indices from
+    (0, 0) to (num_rows-1, num_cols-1), in which the cell (0, 0) is positioned
+    at the top left. However, you can also add cells with negative indices.
+    You don't have to add a cell to every grid position, so you can create
+    tables that have holes.
+
     Return value is a sequence of text, line and patch instances that make
     up the table
     """
@@ -243,9 +287,11 @@ class Table(Artist):
 
         if isinstance(loc, str):
             if loc not in self.codes:
-                warnings.warn('Unrecognized location %s. Falling back on '
-                              'bottom; valid locations are\n%s\t' %
-                              (loc, '\n\t'.join(self.codes)))
+                cbook.warn_deprecated(
+                    "3.1", message="Unrecognized location {!r}. Falling back "
+                    "on 'bottom'; valid locations are\n\t{}\n"
+                    "This will raise an exception %(removal)s."
+                    .format(loc, '\n\t'.join(self.codes)))
                 loc = 'bottom'
             loc = self.codes[loc]
         self.set_figure(ax.figure)
@@ -590,8 +636,6 @@ def table(ax,
           loc='bottom', bbox=None, edges='closed')
 
     Factory function to generate a Table instance.
-
-    Thanks to John Gill for providing the class and table.
     """
 
     if cellColours is None and cellText is None:

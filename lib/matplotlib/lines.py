@@ -5,7 +5,7 @@ variety of line styles, markers and colors.
 
 # TODO: expose cap and join style attrs
 from numbers import Integral, Number, Real
-import warnings
+import logging
 
 import numpy as np
 
@@ -24,6 +24,8 @@ from .markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
+
+_log = logging.getLogger(__name__)
 
 
 def _get_dash_pattern(style):
@@ -207,6 +209,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
 @cbook._define_aliases({
     "antialiased": ["aa"],
     "color": ["c"],
+    "drawstyle": ["ds"],
     "linestyle": ["ls"],
     "linewidth": ["lw"],
     "markeredgecolor": ["mec"],
@@ -472,7 +475,7 @@ class Line2D(Artist):
 
         # Convert pick radius from points to pixels
         if self.figure is None:
-            warnings.warn('no figure set when check if mouse is on line')
+            _log.warning('no figure set when check if mouse is on line')
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi / 72. * self.pickradius
@@ -1133,6 +1136,13 @@ class Line2D(Artist):
         """
         for ds in self.drawStyleKeys:  # long names are first in the list
             if ls.startswith(ds):
+                cbook.warn_deprecated(
+                    "3.1", message="Passing the drawstyle with the linestyle "
+                    "as a single string is deprecated since Matplotlib "
+                    "%(since)s and support will be removed %(removal)s; "
+                    "please pass the drawstyle separately using the drawstyle "
+                    "keyword argument to Line2D or set_drawstyle() method (or "
+                    "ds/set_ds()).")
                 return ds, ls[len(ds):] or '-'
         return None, ls
 

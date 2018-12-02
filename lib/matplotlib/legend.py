@@ -22,12 +22,12 @@ information.
 """
 
 import logging
-import warnings
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib import rcParams
-from matplotlib import docstring
+from matplotlib import cbook, docstring
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list, is_hashable, warn_deprecated
 from matplotlib.font_manager import FontProperties
@@ -443,9 +443,9 @@ class Legend(Artist):
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
             if isinstance(label, str) and label.startswith('_'):
-                warnings.warn('The handle {!r} has a label of {!r} which '
-                              'cannot be automatically added to the '
-                              'legend.'.format(handle, label))
+                cbook._warn_external('The handle {!r} has a label of {!r} '
+                                     'which cannot be automatically added to'
+                                     ' the legend.'.format(handle, label))
             else:
                 _lab.append(label)
                 _hand.append(handle)
@@ -491,22 +491,26 @@ class Legend(Artist):
         if isinstance(loc, str):
             if loc not in self.codes:
                 if self.isaxes:
-                    warnings.warn('Unrecognized location "%s". Falling back '
-                                  'on "best"; valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(self.codes)))
+                    cbook.warn_deprecated(
+                        "3.1", message="Unrecognized location {!r}. Falling "
+                        "back on 'best'; valid locations are\n\t{}\n"
+                        "This will raise an exception %(removal)s."
+                        .format(loc, '\n\t'.join(self.codes)))
                     loc = 0
                 else:
-                    warnings.warn('Unrecognized location "%s". Falling back '
-                                  'on "upper right"; '
-                                  'valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(self.codes)))
+                    cbook.warn_deprecated(
+                        "3.1", message="Unrecognized location {!r}. Falling "
+                        "back on 'upper right'; valid locations are\n\t{}\n'"
+                        "This will raise an exception %(removal)s."
+                        .format(loc, '\n\t'.join(self.codes)))
                     loc = 1
             else:
                 loc = self.codes[loc]
         if not self.isaxes and loc == 0:
-            warnings.warn('Automatic legend placement (loc="best") not '
-                          'implemented for figure legend. '
-                          'Falling back on "upper right".')
+            cbook.warn_deprecated(
+                "3.1", message="Automatic legend placement (loc='best') not "
+                "implemented for figure legend. Falling back on 'upper "
+                "right'. This will raise an exception %(removal)s.")
             loc = 1
 
         self._mode = mode
@@ -789,13 +793,12 @@ class Legend(Artist):
         for orig_handle, lab in zip(handles, labels):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
-                warnings.warn(
+                cbook._warn_external(
                     "Legend does not support {!r} instances.\nA proxy artist "
                     "may be used instead.\nSee: "
                     "http://matplotlib.org/users/legend_guide.html"
                     "#creating-artists-specifically-for-adding-to-the-legend-"
-                    "aka-proxy-artists".format(orig_handle)
-                )
+                    "aka-proxy-artists".format(orig_handle))
                 # We don't have a handle for this artist, so we just defer
                 # to None.
                 handle_list.append(None)
@@ -1192,7 +1195,7 @@ class Legend(Artist):
         is changed. If "bbox", the *bbox_to_anchor* parameter is changed.
         """
         warn_deprecated("2.2",
-                        message="Legend.draggable() is drepecated in "
+                        message="Legend.draggable() is deprecated in "
                                 "favor of Legend.set_draggable(). "
                                 "Legend.draggable may be reintroduced as a "
                                 "property in future releases.")
@@ -1266,8 +1269,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     extra_args = ()
 
     if (handles is not None or labels is not None) and args:
-        warnings.warn("You have mixed positional and keyword arguments, some "
-                      "input may be discarded.")
+        cbook._warn_external("You have mixed positional and keyword "
+                             "arguments, some input may be discarded.")
 
     # if got both handles and labels as kwargs, make same length
     if handles and labels:

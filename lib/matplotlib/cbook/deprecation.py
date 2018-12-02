@@ -24,7 +24,7 @@ def _generate_deprecation_message(
         obj_type='attribute', addendum='', *, removal=''):
 
     if removal == "":
-        removal = {"2.2": "in 3.1", "3.0": "in 3.2"}.get(
+        removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
             since, "two minor releases later")
     elif removal:
         if pending:
@@ -51,8 +51,8 @@ def _generate_deprecation_message(
 
 
 def warn_deprecated(
-        since, message='', name='', alternative='', pending=False,
-        obj_type='attribute', addendum='', *, removal=''):
+        since, *, message='', name='', alternative='', pending=False,
+        obj_type='attribute', addendum='', removal=''):
     """
     Used to display deprecation in a standard way.
 
@@ -112,8 +112,8 @@ def warn_deprecated(
     _warn_external(message, category)
 
 
-def deprecated(since, message='', name='', alternative='', pending=False,
-               obj_type=None, addendum='', *, removal=''):
+def deprecated(since, *, message='', name='', alternative='', pending=False,
+               obj_type=None, addendum='', removal=''):
     """
     Decorator to mark a function, a class, or a property as deprecated.
 
@@ -176,9 +176,9 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     if obj_type is not None:
         warn_deprecated(
-            "3.0", "Passing 'obj_type' to the 'deprecated' decorator has no "
-            "effect, and is deprecated since Matplotlib %(since)s; support "
-            "for it will be removed %(removal)s.")
+            "3.0", message="Passing 'obj_type' to the 'deprecated' decorator "
+            "has no effect, and is deprecated since Matplotlib %(since)s; "
+            "support for it will be removed %(removal)s.")
 
     def deprecate(obj, message=message, name=name, alternative=alternative,
                   pending=pending, addendum=addendum):
@@ -201,18 +201,21 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
             class _deprecated_property(property):
                 def __get__(self, instance, owner):
-                    from . import _warn_external
-                    _warn_external(message, category)
+                    if instance is not None:
+                        from . import _warn_external
+                        _warn_external(message, category)
                     return super().__get__(instance, owner)
 
                 def __set__(self, instance, value):
-                    from . import _warn_external
-                    _warn_external(message, category)
+                    if instance is not None:
+                        from . import _warn_external
+                        _warn_external(message, category)
                     return super().__set__(instance, value)
 
                 def __delete__(self, instance):
-                    from . import _warn_external
-                    _warn_external(message, category)
+                    if instance is not None:
+                        from . import _warn_external
+                        _warn_external(message, category)
                     return super().__delete__(instance)
 
             def finalize(_, new_doc):
@@ -242,11 +245,12 @@ def deprecated(since, message='', name='', alternative='', pending=False,
             return func(*args, **kwargs)
 
         old_doc = inspect.cleandoc(old_doc or '').strip('\n')
+
         message = message.strip()
-        new_doc = ('.. deprecated:: {since}\n'
-                   '   {message}\n'
+        new_doc = ('[*Deprecated*] {old_doc}\n'
                    '\n'
-                   '{old_doc}'
+                   '.. deprecated:: {since}\n'
+                   '   {message}'
                    .format(since=since, message=message, old_doc=old_doc))
         if not old_doc:
             # This is to prevent a spurious 'unexected unindent' warning from

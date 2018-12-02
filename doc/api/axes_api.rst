@@ -1,6 +1,6 @@
-====
-axes
-====
+*******************
+``matplotlib.axes``
+*******************
 
 .. currentmodule:: matplotlib.axes
 

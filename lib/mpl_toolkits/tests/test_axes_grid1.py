@@ -1,6 +1,7 @@
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import (
+    image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -397,12 +398,27 @@ def test_axes_locatable_position():
                   savefig_kwarg={'bbox_inches': 'tight'})
 def test_image_grid():
     # test that image grid works with bbox_inches=tight.
-    im = np.arange(100)
-    im.shape = 10, 10
+    im = np.arange(100).reshape((10, 10))
 
-    fig = plt.figure(1, (4., 4.))
+    fig = plt.figure(1, (4, 4))
     grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
 
     for i in range(4):
         grid[i].imshow(im)
         grid[i].set_title('test {0}{0}'.format(i))
+
+
+def test_gettightbbox():
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    l, = ax.plot([1, 2, 3], [0, 1, 0])
+
+    ax_zoom = zoomed_inset_axes(ax, 4)
+    ax_zoom.plot([1, 2, 3], [0, 1, 0])
+
+    mark_inset(ax, ax_zoom, loc1=1, loc2=3, fc="none", ec='0.3')
+
+    remove_ticks_and_titles(fig)
+    bbox = fig.get_tightbbox(fig.canvas.get_renderer())
+    np.testing.assert_array_almost_equal(bbox.extents,
+                                         [-17.7, -13.9, 7.2, 5.4])

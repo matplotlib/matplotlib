@@ -492,6 +492,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.set_style(Gtk.ToolbarStyle.ICONS)
         basedir = os.path.join(rcParams['datapath'], 'images')
 
+        self._gtk_ids = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.insert(Gtk.SeparatorToolItem(), -1)
@@ -499,7 +500,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
             image.set_from_file(fname)
-            tbutton = Gtk.ToolButton()
+            self._gtk_ids[text] = tbutton = Gtk.ToolButton()
             tbutton.set_label(text)
             tbutton.set_icon_widget(image)
             self.insert(tbutton, -1)
@@ -571,6 +572,12 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def _get_canvas(self, fig):
         return self.canvas.__class__(fig)
+
+    def set_history_buttons(self):
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        self._gtk_ids['Back'].set_sensitive(can_backward)
+        self._gtk_ids['Forward'].set_sensitive(can_forward)
 
 
 class FileChooserDialog(Gtk.FileChooserDialog):

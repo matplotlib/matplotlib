@@ -4,7 +4,6 @@ Classes for the ticks and x and y axis
 
 import datetime
 import logging
-import warnings
 
 import numpy as np
 
@@ -1055,9 +1054,10 @@ class Axis(martist.Artist):
                     ds1 = self._get_pixel_distance_along_axis(
                         interval_expanded[0], -0.5)
                 except Exception:
-                    warnings.warn("Unable to find pixel distance along axis "
-                                  "for interval padding of ticks; assuming no "
-                                  "interval padding needed.")
+                    cbook._warn_external("Unable to find pixel distance "
+                                         "along axis for interval padding of "
+                                         "ticks; assuming no interval "
+                                         "padding needed.")
                     ds1 = 0.0
                 if np.isnan(ds1):
                     ds1 = 0.0
@@ -1065,9 +1065,10 @@ class Axis(martist.Artist):
                     ds2 = self._get_pixel_distance_along_axis(
                         interval_expanded[1], +0.5)
                 except Exception:
-                    warnings.warn("Unable to find pixel distance along axis "
-                                  "for interval padding of ticks; assuming no "
-                                  "interval padding needed.")
+                    cbook._warn_external("Unable to find pixel distance "
+                                         "along axis for interval padding of "
+                                         "ticks; assuming no interval "
+                                         "padding needed.")
                     ds2 = 0.0
                 if np.isnan(ds2):
                     ds2 = 0.0
@@ -1211,8 +1212,7 @@ class Axis(martist.Artist):
 
     def get_ticklabels(self, minor=False, which=None):
         """
-        Get the tick labels as a list of :class:`~matplotlib.text.Text`
-        instances.
+        Get the tick labels as a list of `~matplotlib.text.Text` instances.
 
         Parameters
         ----------
@@ -1228,7 +1228,7 @@ class Axis(martist.Artist):
         Returns
         -------
         ret : list
-           List of :class:`~matplotlib.text.Text` instances.
+           List of `~matplotlib.text.Text` instances.
         """
 
         if which is not None:
@@ -1391,9 +1391,9 @@ class Axis(martist.Artist):
         """
         if len(kwargs):
             if not b and b is not None:  # something false-like but not None
-                warnings.warn('First parameter to grid() is false, but line '
-                              'properties are supplied. The grid will be '
-                              'enabled.')
+                cbook._warn_external('First parameter to grid() is false, '
+                                     'but line properties are supplied. The '
+                                     'grid will be enabled.')
             b = True
         which = which.lower()
         if which not in ['major', 'minor', 'both']:
@@ -1578,10 +1578,12 @@ class Axis(martist.Artist):
         locator : ~matplotlib.ticker.Locator
         """
         if not isinstance(locator, mticker.Locator):
-            raise TypeError("formatter argument should be instance of "
+            raise TypeError("locator argument should be instance of "
                             "matplotlib.ticker.Locator")
         self.isDefault_majloc = False
         self.major.locator = locator
+        if self.major.formatter:
+            self.major.formatter._set_locator(locator)
         locator.set_axis(self)
         self.stale = True
 
@@ -1594,10 +1596,12 @@ class Axis(martist.Artist):
         locator : ~matplotlib.ticker.Locator
         """
         if not isinstance(locator, mticker.Locator):
-            raise TypeError("formatter argument should be instance of "
+            raise TypeError("locator argument should be instance of "
                             "matplotlib.ticker.Locator")
         self.isDefault_minloc = False
         self.minor.locator = locator
+        if self.minor.formatter:
+            self.minor.formatter._set_locator(locator)
         locator.set_axis(self)
         self.stale = True
 
@@ -1633,9 +1637,9 @@ class Axis(martist.Artist):
         """
         if args:
             cbook.warn_deprecated(
-                "3.1", "Additional positional arguments to set_ticklabels are "
-                "ignored, and deprecated since Matplotlib 3.1; passing them "
-                "will raise a TypeError in Matplotlib 3.3.")
+                "3.1", message="Additional positional arguments to "
+                "set_ticklabels are ignored, and deprecated since Matplotlib "
+                "3.1; passing them will raise a TypeError in Matplotlib 3.3.")
         get_labels = []
         for t in ticklabels:
             # try calling get_text() to check whether it is Text object
@@ -1729,8 +1733,11 @@ class Axis(martist.Artist):
     def axis_date(self, tz=None):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
-        *tz* is a :class:`tzinfo` instance or a timezone string.
-        This timezone is used to create date labels.
+
+        Parameters
+        ----------
+        tz : tzinfo or str or None
+            The timezone used to create date labels.
         """
         # By providing a sample datetime instance with the desired timezone,
         # the registered converter can be selected, and the "units" attribute,

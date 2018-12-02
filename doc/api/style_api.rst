@@ -1,10 +1,6 @@
-*****
-style
-*****
-
-
-:mod:`matplotlib.style`
-=======================
+********************
+``matplotlib.style``
+********************
 
 .. automodule:: matplotlib.style
    :members:

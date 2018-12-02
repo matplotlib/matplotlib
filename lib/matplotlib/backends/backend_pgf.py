@@ -9,7 +9,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import warnings
 import weakref
 
 import matplotlib as mpl
@@ -60,7 +59,7 @@ def get_fontspec():
 
 def get_preamble():
     """Get LaTeX preamble from rc."""
-    return "\n".join(rcParams["pgf.preamble"])
+    return rcParams["pgf.preamble"]
 
 ###############################################################################
 
@@ -400,13 +399,15 @@ class RendererPgf(RendererBase):
         else:
             # if fh does not belong to a filename, deactivate draw_image
             if not hasattr(fh, 'name') or not os.path.exists(fh.name):
-                warnings.warn("streamed pgf-code does not support raster "
-                              "graphics, consider using the pgf-to-pdf option",
-                              UserWarning, stacklevel=2)
+                cbook._warn_external("streamed pgf-code does not support "
+                                     "raster graphics, consider using the "
+                                     "pgf-to-pdf option", UserWarning)
                 self.__dict__["draw_image"] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
+        # docstring inherited
+
         writeln(self.fh, r"\begin{pgfscope}")
 
         # convert from display units to in
@@ -438,6 +439,7 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\end{pgfscope}")
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         writeln(self.fh, r"\begin{pgfscope}")
         # draw the path
         self._print_pgf_clip(gc)
@@ -609,19 +611,16 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgfusepath{%s}" % ",".join(actions))
 
     def option_scale_image(self):
-        """
-        pgf backend supports affine transform of image.
-        """
+        # docstring inherited
         return True
 
     def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
+        # docstring inherited
         return not rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, transform=None):
+        # docstring inherited
+
         h, w = im.shape[:2]
         if w == 0 or h == 0:
             return
@@ -656,9 +655,12 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\end{pgfscope}")
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!", mtext=None):
+        # docstring inherited
         self.draw_text(gc, x, y, s, prop, angle, ismath, mtext)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         # prepare string for tex
         s = common_texification(s)
         prop_cmds = _font_properties_str(prop)
@@ -708,6 +710,8 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\end{pgfscope}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
+
         # check if the math is supposed to be displaystyled
         s = common_texification(s)
 
@@ -720,15 +724,19 @@ class RendererPgf(RendererBase):
         return w * f, h * f, d * f
 
     def flipy(self):
+        # docstring inherited
         return False
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.figure.get_figwidth(), self.figure.get_figheight()
 
     def points_to_pixels(self, points):
+        # docstring inherited
         return points * mpl_pt_to_in * self.dpi
 
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextPgf()
 
 
@@ -748,10 +756,10 @@ class TmpDirCleaner:
     @staticmethod
     def cleanup_remaining_tmpdirs():
         for tmpdir in TmpDirCleaner.remaining_tmpdirs:
+            error_message = "error deleting tmp directory {}".format(tmpdir)
             shutil.rmtree(
                 tmpdir,
-                onerror=lambda *args: print("error deleting tmp directory %s"
-                                            % tmpdir, file=sys.stderr))
+                onerror=lambda *args: _log.error(error_message))
 
 
 class FigureCanvasPgf(FigureCanvasBase):

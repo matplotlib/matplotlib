@@ -65,17 +65,12 @@ path                                  A `~matplotlib.path.Path` instance.
                                       ``style``:
                                           the style of the regular symbol:
 
-                                          +---+-----------------------------+
-                                          | 0 | a regular polygon           |
-                                          +---+-----------------------------+
-                                          | 1 | a star-like symbol          |
-                                          +---+-----------------------------+
-                                          | 2 | an asterisk                 |
-                                          +---+-----------------------------+
-                                          | 3 | a circle (``numsides`` and  |
-                                          |   | ``angle`` is ignored);      |
-                                          |   | deprecated.                 |
-                                          +---+-----------------------------+
+                                          - 0: a regular polygon
+                                          - 1: a star-like symbol
+                                          - 2: an asterisk
+                                          - 3: a circle (``numsides`` and
+                                            ``angle`` is ignored);
+                                            deprecated.
 
                                       ``angle``:
                                           the angle of rotation of the symbol
@@ -375,16 +370,16 @@ class MarkerStyle(object):
                 self._joinstyle = 'bevel'
             elif symstyle == 3:
                 cbook.warn_deprecated(
-                    "3.0", "Setting a circle marker using `(..., 3)` is "
-                    "deprecated since Matplotlib 3.0, and support for it will "
-                    "be removed in 3.2.  Directly pass 'o' instead.")
+                    "3.0", message="Setting a circle marker using `(..., 3)` "
+                    "is deprecated since Matplotlib 3.0, and support for it "
+                    "will be removed in 3.2.  Directly pass 'o' instead.")
                 self._path = Path.unit_circle()
             self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
         else:
             cbook.warn_deprecated(
-                "3.0", "Passing vertices as `(verts, 0)` is deprecated since "
-                "Matplotlib 3.0, and support for it will be removed in 3.2.  "
-                "Directly pass `verts` instead.")
+                "3.0", message="Passing vertices as `(verts, 0)` is "
+                "deprecated since Matplotlib 3.0, and support for it will be "
+                "removed in 3.2.  Directly pass `verts` instead.")
             verts = np.asarray(marker[0])
             path = Path(verts)
             self._set_custom_marker(path)

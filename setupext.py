@@ -5,6 +5,7 @@ from distutils.core import Extension
 import glob
 import hashlib
 import importlib
+import logging
 import os
 import pathlib
 import platform
@@ -14,10 +15,11 @@ import sys
 import tarfile
 import textwrap
 import urllib.request
-import warnings
 
 import setuptools
 import versioneer
+
+_log = logging.getLogger(__name__)
 
 
 def _get_xdg_cache_dir():
@@ -765,31 +767,29 @@ class Numpy(SetupPackage):
         ext.include_dirs.append(numpy.get_include())
         if not has_include_file(
                 ext.include_dirs, os.path.join("numpy", "arrayobject.h")):
-            warnings.warn(
+            _log.warning(
                 "The C headers for numpy could not be found. "
                 "You may need to install the development package")
 
         return [numpy.get_include()]
 
     def add_flags(self, ext):
-        # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for
-        # each extension
-        array_api_name = 'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'
-
-        ext.define_macros.append(('PY_ARRAY_UNIQUE_SYMBOL', array_api_name))
         ext.add_hook('include_dirs', self.include_dirs_hook)
-
-        ext.define_macros.append(('NPY_NO_DEPRECATED_API',
-                                  'NPY_1_7_API_VERSION'))
-
-        # Allow NumPy's printf format specifiers in C++.
-        ext.define_macros.append(('__STDC_FORMAT_MACROS', 1))
+        ext.define_macros.extend([
+            # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for each
+            # extension.
+            ('PY_ARRAY_UNIQUE_SYMBOL',
+             'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'),
+            ('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION'),
+            # Allow NumPy's printf format specifiers in C++.
+            ('__STDC_FORMAT_MACROS', 1),
+        ])
 
     def get_setup_requires(self):
-        return ['numpy>=1.10.0']
+        return ['numpy>=1.11']
 
     def get_install_requires(self):
-        return ['numpy>=1.10.0']
+        return ['numpy>=1.11']
 
 
 class LibAgg(SetupPackage):
@@ -1235,11 +1235,13 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def get_extension(self):
         sources = [
-            'src/_tkagg.cpp'
+            'src/_tkagg.cpp',
+            'src/py_converters.cpp',
             ]
 
         ext = make_extension('matplotlib.backends._tkagg', sources)
         self.add_flags(ext)
+        Numpy().add_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
         return ext
 
@@ -1268,6 +1270,8 @@ class BackendMacOSX(OptionalBackendPackage):
 
         ext = make_extension('matplotlib.backends._macosx', sources)
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
+        if platform.python_implementation().lower() == 'pypy':
+            ext.extra_compile_args.append('-DPYPY=1')
         return ext
 
 

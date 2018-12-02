@@ -3,7 +3,6 @@ These are classes to support contour plotting and labelling for the Axes class.
 """
 
 from numbers import Integral
-import warnings
 
 import numpy as np
 from numpy import ma
@@ -939,7 +938,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         if self.filled:
             if self.linewidths is not None:
-                warnings.warn('linewidths is ignored by contourf')
+                cbook._warn_external('linewidths is ignored by contourf')
 
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
@@ -996,8 +995,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         if kwargs:
             s = ", ".join(map(repr, kwargs))
-            warnings.warn('The following kwargs were not used by contour: ' +
-                          s)
+            cbook._warn_external('The following kwargs were not used by '
+                                 'contour: ' + s)
 
     def get_transform(self):
         """
@@ -1236,8 +1235,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             levels_in = self.levels[inside]
             if len(levels_in) == 0:
                 self.levels = [self.zmin]
-                warnings.warn("No contour levels were found"
-                              " within the data range.")
+                cbook._warn_external(
+                    "No contour levels were found within the data range.")
 
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
@@ -1554,7 +1553,8 @@ class QuadContourSet(ContourSet):
         self.zmin = float(z.min())
         if self.logscale and self.zmin <= 0:
             z = ma.masked_where(z <= 0, z)
-            warnings.warn('Log scale: values of z <= 0 have been masked')
+            cbook._warn_external('Log scale: values of z <= 0 have been '
+                                 'masked')
             self.zmin = float(z.min())
         self._contour_level_args(z, args)
         return (x, y, z)
@@ -1661,11 +1661,9 @@ class QuadContourSet(ContourSet):
 
             contour([X, Y,] Z, [levels], **kwargs)
 
-        :func:`~matplotlib.pyplot.contour` and
-        :func:`~matplotlib.pyplot.contourf` draw contour lines and
-        filled contours, respectively.  Except as noted, function
-        signatures and return values are the same for both versions.
-
+        `.contour` and `.contourf` draw contour lines and filled contours,
+        respectively.  Except as noted, function signatures and return values
+        are the same for both versions.
 
         Parameters
         ----------
@@ -1673,7 +1671,7 @@ class QuadContourSet(ContourSet):
             The coordinates of the values in *Z*.
 
             *X* and *Y* must both be 2-D with the same shape as *Z* (e.g.
-            created via :func:`numpy.meshgrid`), or they must both be 1-D such
+            created via `numpy.meshgrid`), or they must both be 1-D such
             that ``len(X) == M`` is the number of columns in *Z* and
             ``len(Y) == N`` is the number of rows in *Z*.
 
@@ -1705,8 +1703,7 @@ class QuadContourSet(ContourSet):
             nearest those points are always masked out, other triangular
             corners comprising three unmasked points are contoured as usual.
 
-            Defaults to ``rcParams['contour.corner_mask']``, which defaults to
-            ``True``.
+            Defaults to :rc:`contour.corner_mask`, which defaults to ``True``.
 
         colors : color string or sequence of colors, optional
             The colors of the levels, i.e. the lines for `.contour` and the
@@ -1752,19 +1749,17 @@ class QuadContourSet(ContourSet):
             - 'lower': ``Z[0, 0]`` is at X=0.5, Y=0.5 in the lower left corner.
             - 'upper': ``Z[0, 0]`` is at X=N+0.5, Y=0.5 in the upper left
               corner.
-            - 'image': Use the value from :rc:`image.origin`. Note: The value
-              *None* in the rcParam is currently handled as 'lower'.
+            - 'image': Use the value from :rc:`image.origin`.
 
         extent : (x0, x1, y0, y1), optional
-            If *origin* is not *None*, then *extent* is interpreted as
-            in :func:`matplotlib.pyplot.imshow`: it gives the outer
-            pixel boundaries. In this case, the position of Z[0,0]
-            is the center of the pixel, not a corner. If *origin* is
-            *None*, then (*x0*, *y0*) is the position of Z[0,0], and
-            (*x1*, *y1*) is the position of Z[-1,-1].
+            If *origin* is not *None*, then *extent* is interpreted as in
+            `.imshow`: it gives the outer pixel boundaries. In this case, the
+            position of Z[0,0] is the center of the pixel, not a corner. If
+            *origin* is *None*, then (*x0*, *y0*) is the position of Z[0,0],
+            and (*x1*, *y1*) is the position of Z[-1,-1].
 
-            This keyword is not active if *X* and *Y* are specified in
-            the call to contour.
+            This argument is ignored if *X* and *Y* are specified in the call
+            to contour.
 
         locator : ticker.Locator subclass, optional
             The locator is used to determine the contour levels if they
@@ -1830,20 +1825,17 @@ class QuadContourSet(ContourSet):
             Hatching is supported in the PostScript, PDF, SVG and Agg
             backends only.
 
-
         Notes
         -----
-        1. :func:`~matplotlib.pyplot.contourf` differs from the MATLAB
-           version in that it does not draw the polygon edges.
-           To draw edges, add line contours with
-           calls to :func:`~matplotlib.pyplot.contour`.
+        1. `.contourf` differs from the MATLAB version in that it does not draw
+           the polygon edges. To draw edges, add line contours with calls to
+           `.contour`.
 
-        2. contourf fills intervals that are closed at the top; that
-           is, for boundaries *z1* and *z2*, the filled region is::
+        2. `.contourf` fills intervals that are closed at the top; that is, for
+           boundaries *z1* and *z2*, the filled region is::
 
               z1 < Z <= z2
 
-           There is one exception: if the lowest boundary coincides with
-           the minimum value of the *Z* array, then that minimum value
-           will be included in the lowest interval.
+           except for the lowest interval, which is closed on both sides (i.e.
+           it includes the lowest value).
         """

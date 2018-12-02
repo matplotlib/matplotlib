@@ -19,6 +19,7 @@ objects and Matplotlib dates:
 .. autosummary::
    :nosignatures:
 
+   datestr2num
    date2num
    num2date
    num2timedelta
@@ -155,8 +156,8 @@ import matplotlib.units as units
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
-__all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
-           'num2epoch', 'mx2num', 'DateFormatter',
+__all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
+           'epoch2num', 'num2epoch', 'mx2num', 'DateFormatter',
            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
            'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
@@ -253,10 +254,8 @@ def _dt64_to_ordinalf(d):
 
     # the "extra" ensures that we at least allow the dynamic range out to
     # seconds.  That should get out to +/-2e11 years.
-    # NOTE: First cast truncates; second cast back is for NumPy 1.10.
-    extra = d - d.astype('datetime64[s]').astype(d.dtype)
-    extra = extra.astype('timedelta64[ns]')
-    t0 = np.datetime64('0001-01-01T00:00:00').astype('datetime64[s]')
+    extra = (d - d.astype('datetime64[s]')).astype('timedelta64[ns]')
+    t0 = np.datetime64('0001-01-01T00:00:00', 's')
     dt = (d.astype('datetime64[s]') - t0).astype(np.float64)
     dt += extra.astype(np.float64) / 1.0e9
     dt = dt / SEC_PER_DAY + 1.0
@@ -820,8 +819,14 @@ class AutoDateFormatter(ticker.Formatter):
                        1. / (MUSECONDS_PER_DAY):
                            rcParams['date.autoformatter.microsecond']}
 
+    def _set_locator(self, locator):
+        self._locator = locator
+
     def __call__(self, x, pos=None):
-        locator_unit_scale = float(self._locator._get_unit())
+        try:
+            locator_unit_scale = float(self._locator._get_unit())
+        except AttributeError:
+            locator_unit_scale = 1
         # Pick the first scale which is greater than the locator unit.
         fmt = next((fmt for scale, fmt in sorted(self.scaled.items())
                     if scale >= locator_unit_scale),
@@ -1311,11 +1316,13 @@ class AutoDateLocator(DateLocator):
             else:
                 # We went through the whole loop without breaking, default to
                 # the last interval in the list and raise a warning
-                warnings.warn('AutoDateLocator was unable to pick an '
-                              'appropriate interval for this date range. '
-                              'It may be necessary to add an interval value '
-                              "to the AutoDateLocator's intervald dictionary."
-                              ' Defaulting to {0}.'.format(interval))
+                cbook._warn_external('AutoDateLocator was unable to pick an '
+                                     'appropriate interval for this date '
+                                     'range. It may be necessary to add an '
+                                     'interval value to the '
+                                     'AutoDateLocator\'s intervald '
+                                     'dictionary. Defaulting to {0}.'
+                                     .format(interval))
 
             # Set some parameters as appropriate
             self._freq = freq

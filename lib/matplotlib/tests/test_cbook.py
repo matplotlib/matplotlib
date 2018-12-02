@@ -2,6 +2,7 @@ import itertools
 import pickle
 from weakref import ref
 import warnings
+from unittest.mock import patch, Mock
 
 from datetime import datetime
 
@@ -350,6 +351,15 @@ def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
         assert len(w) == 0
 
 
+def test_warn_external_frame_embedded_python():
+    with patch.object(cbook, "sys") as mock_sys:
+        mock_sys._getframe = Mock(return_value=None)
+        with warnings.catch_warnings(record=True) as w:
+            cbook._warn_external("dummy")
+    assert len(w) == 1
+    assert str(w[0].message) == "dummy"
+
+
 def test_to_prestep():
     x = np.arange(4)
     y1 = np.arange(4)
@@ -526,3 +536,10 @@ def test_contiguous_regions():
     assert cbook.contiguous_regions([False]*5) == []
     # Empty mask
     assert cbook.contiguous_regions([]) == []
+
+
+def test_safe_first_element_pandas_series(pd):
+    # delibrately create a pandas series with index not starting from 0
+    s = pd.Series(range(5), index=range(10, 15))
+    actual = cbook.safe_first_element(s)
+    assert actual == 0

@@ -1,10 +1,10 @@
-import collections
+import collections.abc
 import functools
 import itertools
 import logging
 import math
+import operator
 from numbers import Number
-import warnings
 
 import numpy as np
 from numpy import ma
@@ -126,6 +126,14 @@ class Axes(_AxesBase):
     instance.  The events you can connect to are 'xlim_changed' and
     'ylim_changed' and the callback will be called with func(*ax*)
     where *ax* is the :class:`Axes` instance.
+
+    Attributes
+    ----------
+    dataLim : `.BBox`
+        The bounding box enclosing all data displayed in the Axes.
+    viewLim : `.BBox`
+        The view limits in data coordinates.
+
     """
     ### Labelling, legend and texts
 
@@ -1517,32 +1525,14 @@ class Axes(_AxesBase):
 
         A format string consists of a part for color, marker and line::
 
-            fmt = '[color][marker][line]'
+            fmt = '[marker][line][color]'
 
         Each of them is optional. If not provided, the value from the style
         cycle is used. Exception: If ``line`` is given, but no ``marker``,
         the data will be a line without markers.
 
-        **Colors**
-
-        The following color abbreviations are supported:
-
-        =============    ===============================
-        character        color
-        =============    ===============================
-        ``'b'``          blue
-        ``'g'``          green
-        ``'r'``          red
-        ``'c'``          cyan
-        ``'m'``          magenta
-        ``'y'``          yellow
-        ``'k'``          black
-        ``'w'``          white
-        =============    ===============================
-
-        If the color is the only part of the format string, you can
-        additionally use any  `matplotlib.colors` spec, e.g. full names
-        (``'green'``) or hex strings (``'#008000'``).
+        Other combinations such as ``[color][marker][line]`` are also
+        supported, but note that their parsing may be ambiguous.
 
         **Markers**
 
@@ -1587,11 +1577,33 @@ class Axes(_AxesBase):
         Example format strings::
 
             'b'    # blue markers with default shape
-            'ro'   # red circles
-            'g-'   # green solid line
+            'or'   # red circles
+            '-g'   # green solid line
             '--'   # dashed line with default color
-            'k^:'  # black triangle_up markers connected by a dotted line
+            '^k:'  # black triangle_up markers connected by a dotted line
 
+        **Colors**
+
+        The supported color abbreviations are the single letter codes
+
+        =============    ===============================
+        character        color
+        =============    ===============================
+        ``'b'``          blue
+        ``'g'``          green
+        ``'r'``          red
+        ``'c'``          cyan
+        ``'m'``          magenta
+        ``'y'``          yellow
+        ``'k'``          black
+        ``'w'``          white
+        =============    ===============================
+
+        and the ``'CN'`` colors that index into the default property cycle.
+
+        If the color is the only part of the format string, you can
+        additionally use any  `matplotlib.colors` spec, e.g. full names
+        (``'green'``) or hex strings (``'#008000'``).
         """
         lines = []
 
@@ -2048,8 +2060,7 @@ class Axes(_AxesBase):
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
-        kwargs['linestyle'] = 'steps-' + where + kwargs.get('linestyle', '')
-
+        kwargs['drawstyle'] = 'steps-' + where
         return self.plot(x, y, *args, **kwargs)
 
     @_preprocess_data(replace_names=["x", "left",
@@ -2938,6 +2949,8 @@ class Axes(_AxesBase):
                 upper errors.
             - *None*: No errorbar.
 
+            Note that all error arrays should have *positive* values.
+
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
@@ -3662,7 +3675,7 @@ class Axes(_AxesBase):
           positions)``, clipped to no less than 0.15 and no more than
           0.5.
 
-        vert : bool, default = False
+        vert : bool, default = True
           If `True` (default), makes the boxes vertical.  If `False`,
           makes horizontal boxes.
 
@@ -4005,6 +4018,162 @@ class Axes(_AxesBase):
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
 
+    @staticmethod
+    def _parse_scatter_color_args(c, edgecolors, kwargs, xshape, yshape,
+                                  get_next_color_func):
+        """
+        Helper function to process color related arguments of `.Axes.scatter`.
+
+        Argument precedence for facecolors:
+
+        - c (if not None)
+        - kwargs['facecolors']
+        - kwargs['facecolor']
+        - kwargs['color'] (==kwcolor)
+        - 'b' if in classic mode else the result of ``get_next_color_func()``
+
+        Argument precedence for edgecolors:
+
+        - edgecolors (is an explicit kw argument in scatter())
+        - kwargs['edgecolor']
+        - kwargs['color'] (==kwcolor)
+        - 'face' if not in classic mode else None
+
+        Arguments
+        ---------
+        c : color or sequence or sequence of color or None
+            See argument description of `.Axes.scatter`.
+        edgecolors : color or sequence of color or {'face', 'none'} or None
+            See argument description of `.Axes.scatter`.
+        kwargs : dict
+            Additional kwargs. If these keys exist, we pop and process them:
+            'facecolors', 'facecolor', 'edgecolor', 'color'
+            Note: The dict is modified by this function.
+        xshape, yshape : tuple of int
+            The shape of the x and y arrays passed to `.Axes.scatter`.
+        get_next_color_func : callable
+            A callable that returns a color. This color is used as facecolor
+            if no other color is provided.
+
+            Note, that this is a function rather than a fixed color value to
+            support conditional evaluation of the next color.  As of the
+            current implementation obtaining the next color from the
+            property cycle advances the cycle. This must only happen if we
+            actually use the color, which will only be decided within this
+            method.
+
+        Returns
+        -------
+        c
+            The input *c* if it was not *None*, else some color specification
+            derived from the other inputs or defaults.
+        colors : array(N, 4) or None
+            The facecolors as RGBA values or *None* if a colormap is used.
+        edgecolors
+            The edgecolor specification.
+
+        """
+        xsize = functools.reduce(operator.mul, xshape, 1)
+        ysize = functools.reduce(operator.mul, yshape, 1)
+
+        facecolors = kwargs.pop('facecolors', None)
+        facecolors = kwargs.pop('facecolor', facecolors)
+        edgecolors = kwargs.pop('edgecolor', edgecolors)
+
+        kwcolor = kwargs.pop('color', None)
+
+        if kwcolor is not None and c is not None:
+            raise ValueError("Supply a 'c' argument or a 'color'"
+                             " kwarg but not both; they differ but"
+                             " their functionalities overlap.")
+
+        if kwcolor is not None:
+            try:
+                mcolors.to_rgba_array(kwcolor)
+            except ValueError:
+                raise ValueError("'color' kwarg must be an mpl color"
+                                 " spec or sequence of color specs.\n"
+                                 "For a sequence of values to be color-mapped,"
+                                 " use the 'c' argument instead.")
+            if edgecolors is None:
+                edgecolors = kwcolor
+            if facecolors is None:
+                facecolors = kwcolor
+
+        if edgecolors is None and not rcParams['_internal.classic_mode']:
+            edgecolors = 'face'
+
+        c_was_none = c is None
+        if c is None:
+            c = (facecolors if facecolors is not None
+                 else "b" if rcParams['_internal.classic_mode']
+                 else get_next_color_func())
+
+        # After this block, c_array will be None unless
+        # c is an array for mapping.  The potential ambiguity
+        # with a sequence of 3 or 4 numbers is resolved in
+        # favor of mapping, not rgb or rgba.
+        # Convenience vars to track shape mismatch *and* conversion failures.
+        valid_shape = True  # will be put to the test!
+        n_elem = -1  # used only for (some) exceptions
+
+        if (c_was_none or
+                kwcolor is not None or
+                isinstance(c, str) or
+                (isinstance(c, collections.abc.Iterable) and
+                     len(c) > 0 and
+                     isinstance(cbook.safe_first_element(c), str))):
+            c_array = None
+        else:
+            try:  # First, does 'c' look suitable for value-mapping?
+                c_array = np.asanyarray(c, dtype=float)
+                n_elem = c_array.shape[0]
+                if c_array.shape in [xshape, yshape]:
+                    c = np.ma.ravel(c_array)
+                else:
+                    if c_array.shape in ((3,), (4,)):
+                        _log.warning(
+                            "'c' argument looks like a single numeric RGB or "
+                            "RGBA sequence, which should be avoided as value-"
+                            "mapping will have precedence in case its length "
+                            "matches with 'x' & 'y'.  Please use a 2-D array "
+                            "with a single row if you really want to specify "
+                            "the same RGB or RGBA value for all points.")
+                    # Wrong size; it must not be intended for mapping.
+                    valid_shape = False
+                    c_array = None
+            except ValueError:
+                # Failed to make a floating-point array; c must be color specs.
+                c_array = None
+        if c_array is None:
+            try:  # Then is 'c' acceptable as PathCollection facecolors?
+                colors = mcolors.to_rgba_array(c)
+                n_elem = colors.shape[0]
+                if colors.shape[0] not in (0, 1, xsize, ysize):
+                    # NB: remember that a single color is also acceptable.
+                    # Besides *colors* will be an empty array if c == 'none'.
+                    valid_shape = False
+                    raise ValueError
+            except ValueError:
+                if not valid_shape:  # but at least one conversion succeeded.
+                    raise ValueError(
+                        "'c' argument has {nc} elements, which is not "
+                        "acceptable for use with 'x' with size {xs}, "
+                        "'y' with size {ys}."
+                            .format(nc=n_elem, xs=xsize, ys=ysize)
+                    )
+                else:
+                    # Both the mapping *and* the RGBA conversion failed: pretty
+                    # severe failure => one may appreciate a verbose feedback.
+                    raise ValueError(
+                        "'c' argument must be a mpl color, a sequence of mpl "
+                        "colors or a sequence of numbers, not {}."
+                            .format(c)  # note: could be long depending on c
+                    )
+        else:
+            colors = None  # use cmap, norm after collection is created
+        return c, colors, edgecolors
+
     @_preprocess_data(replace_names=["x", "y", "s", "linewidths",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"],
@@ -4118,43 +4287,6 @@ class Axes(_AxesBase):
 
         """
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
-        facecolors = None
-        edgecolors = kwargs.pop('edgecolor', edgecolors)
-        fc = kwargs.pop('facecolors', None)
-        fc = kwargs.pop('facecolor', fc)
-        if fc is not None:
-            facecolors = fc
-        co = kwargs.pop('color', None)
-        if co is not None:
-            try:
-                mcolors.to_rgba_array(co)
-            except ValueError:
-                raise ValueError("'color' kwarg must be an mpl color"
-                                 " spec or sequence of color specs.\n"
-                                 "For a sequence of values to be color-mapped,"
-                                 " use the 'c' argument instead.")
-            if edgecolors is None:
-                edgecolors = co
-            if facecolors is None:
-                facecolors = co
-            if c is not None:
-                raise ValueError("Supply a 'c' argument or a 'color'"
-                                 " kwarg but not both; they differ but"
-                                 " their functionalities overlap.")
-        if c is None:
-            if facecolors is not None:
-                c = facecolors
-            else:
-                if rcParams['_internal.classic_mode']:
-                    c = 'b'  # The original default
-                else:
-                    c = self._get_patches_for_fill.get_next_color()
-            c_none = True
-        else:
-            c_none = False
-
-        if edgecolors is None and not rcParams['_internal.classic_mode']:
-            edgecolors = 'face'
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
@@ -4162,84 +4294,21 @@ class Axes(_AxesBase):
 
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
-        xy_shape = (np.shape(x), np.shape(y))
+        xshape, yshape = np.shape(x), np.shape(y)
         x = np.ma.ravel(x)
         y = np.ma.ravel(y)
         if x.size != y.size:
             raise ValueError("x and y must be the same size")
 
         if s is None:
-            if rcParams['_internal.classic_mode']:
-                s = 20
-            else:
-                s = rcParams['lines.markersize'] ** 2.0
-
+            s = (20 if rcParams['_internal.classic_mode'] else
+                 rcParams['lines.markersize'] ** 2.0)
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        # After this block, c_array will be None unless
-        # c is an array for mapping.  The potential ambiguity
-        # with a sequence of 3 or 4 numbers is resolved in
-        # favor of mapping, not rgb or rgba.
-
-        # Convenience vars to track shape mismatch *and* conversion failures.
-        valid_shape = True  # will be put to the test!
-        n_elem = -1  # used only for (some) exceptions
-
-        if (c_none or
-                co is not None or
-                isinstance(c, str) or
-                (isinstance(c, collections.Iterable) and
-                    isinstance(c[0], str))):
-            c_array = None
-        else:
-            try:  # First, does 'c' look suitable for value-mapping?
-                c_array = np.asanyarray(c, dtype=float)
-                n_elem = c_array.shape[0]
-                if c_array.shape in xy_shape:
-                    c = np.ma.ravel(c_array)
-                else:
-                    if c_array.shape in ((3,), (4,)):
-                        _log.warning(
-                            "'c' argument looks like a single numeric RGB or "
-                            "RGBA sequence, which should be avoided as value-"
-                            "mapping will have precedence in case its length "
-                            "matches with 'x' & 'y'.  Please use a 2-D array "
-                            "with a single row if you really want to specify "
-                            "the same RGB or RGBA value for all points.")
-                    # Wrong size; it must not be intended for mapping.
-                    valid_shape = False
-                    c_array = None
-            except ValueError:
-                # Failed to make a floating-point array; c must be color specs.
-                c_array = None
-
-        if c_array is None:
-            try:  # Then is 'c' acceptable as PathCollection facecolors?
-                colors = mcolors.to_rgba_array(c)
-                n_elem = colors.shape[0]
-                if colors.shape[0] not in (0, 1, x.size, y.size):
-                    # NB: remember that a single color is also acceptable.
-                    # Besides *colors* will be an empty array if c == 'none'.
-                    valid_shape = False
-                    raise ValueError
-            except ValueError:
-                if not valid_shape:  # but at least one conversion succeeded.
-                    raise ValueError(
-                        "'c' argument has {nc} elements, which is not "
-                        "acceptable for use with 'x' with size {xs}, "
-                        "'y' with size {ys}."
-                        .format(nc=n_elem, xs=x.size, ys=y.size)
-                    )
-                # Both the mapping *and* the RGBA conversion failed: pretty
-                # severe failure => one may appreciate a verbose feedback.
-                raise ValueError(
-                    "'c' argument must either be valid as mpl color(s) "
-                    "or as numbers to be mapped to colors. "
-                    "Here c = {}."  # <- beware, could be long depending on c.
-                    .format(c)
-                )
-        else:
-            colors = None  # use cmap, norm after collection is created
+        c, colors, edgecolors = \
+            self._parse_scatter_color_args(
+                c, edgecolors, kwargs, xshape, yshape,
+                get_next_color_func=self._get_patches_for_fill.get_next_color)
 
         # `delete_masked_points` only modifies arguments of the same length as
         # `x`.
@@ -4624,8 +4693,9 @@ class Axes(_AxesBase):
         # Set normalizer if bins is 'log'
         if bins == 'log':
             if norm is not None:
-                warnings.warn("Only one of 'bins' and 'norm' arguments can be "
-                              "supplied, ignoring bins={}".format(bins))
+                cbook._warn_external("Only one of 'bins' and 'norm' "
+                                     "arguments can be supplied, ignoring "
+                                     "bins={}".format(bins))
             else:
                 norm = mcolors.LogNorm()
             bins = None
@@ -6310,7 +6380,7 @@ class Axes(_AxesBase):
 
             With Numpy 1.11 or newer, you can alternatively provide a string
             describing a binning strategy, such as 'auto', 'sturges', 'fd',
-            'doane', 'scott', 'rice', 'sturges' or 'sqrt', see
+            'doane', 'scott', 'rice' or 'sqrt', see
             `numpy.histogram`.
 
             The default is taken from :rc:`hist.bins`.
@@ -6450,7 +6520,9 @@ class Axes(_AxesBase):
             *nbins*. If input is a sequence of arrays
             ``[data1, data2,..]``, then this is a list of arrays with
             the values of the histograms for each of the arrays in the
-            same order.
+            same order. The dtype of the elements of the array *n*
+            (or of its element arrays) will always be float even if no
+            weighting or normalization is used.
 
         bins : array
             The edges of the bins. Length nbins + 1 (nbins left edges and right
@@ -6549,7 +6621,7 @@ class Axes(_AxesBase):
             if len(color) != nx:
                 error_message = (
                     "color kwarg must have one color per data set. %d data "
-                    "sets and %d colors were provided" % (len(color), nx))
+                    "sets and %d colors were provided" % (nx, len(color)))
                 raise ValueError(error_message)
 
         # If bins are not specified either explicitly or via range,
@@ -6758,6 +6830,8 @@ class Axes(_AxesBase):
             labels = [None]
         elif isinstance(label, str):
             labels = [label]
+        elif not np.iterable(label):
+            labels = [str(label)]
         else:
             labels = [str(lab) for lab in label]
 

@@ -8,7 +8,6 @@ This backend depends on cairocffi or pycairo.
 
 import copy
 import gzip
-import warnings
 
 import numpy as np
 
@@ -89,7 +88,8 @@ _CAIRO_PATH_TYPE_SIZES[cairo.PATH_CLOSE_PATH] = 1
 
 def _append_paths_slow(ctx, paths, transforms, clip=None):
     for path, transform in zip(paths, transforms):
-        for points, code in path.iter_segments(transform, clip=clip):
+        for points, code in path.iter_segments(
+                transform, remove_nans=True, clip=clip):
             if code == Path.MOVETO:
                 ctx.move_to(*points)
             elif code == Path.CLOSEPOLY:
@@ -97,10 +97,10 @@ def _append_paths_slow(ctx, paths, transforms, clip=None):
             elif code == Path.LINETO:
                 ctx.line_to(*points)
             elif code == Path.CURVE3:
-                cur = ctx.get_current_point()
-                ctx.curve_to(
-                    *np.concatenate([cur / 3 + points[:2] * 2 / 3,
-                                     points[:2] * 2 / 3 + points[-2:] / 3]))
+                cur = np.asarray(ctx.get_current_point())
+                a = points[:2]
+                b = points[-2:]
+                ctx.curve_to(*(cur / 3 + a * 2 / 3), *(a * 2 / 3 + b / 3), *b)
             elif code == Path.CURVE4:
                 ctx.curve_to(*points)
 
@@ -117,7 +117,7 @@ def _append_paths_fast(ctx, paths, transforms, clip=None):
     # Convert curves to segment, so that 1. we don't have to handle
     # variable-sized CURVE-n codes, and 2. we don't have to implement degree
     # elevation for quadratic Beziers.
-    cleaneds = [path.cleaned(transform=transform, clip=clip, curves=False)
+    cleaneds = [path.cleaned(transform, remove_nans=True, clip=clip)
                 for path, transform in zip(paths, transforms)]
     vertices = np.concatenate([cleaned.vertices for cleaned in cleaneds])
     codes = np.concatenate([cleaned.codes for cleaned in cleaneds])
@@ -225,6 +225,7 @@ class RendererCairo(RendererBase):
         _append_path(ctx, path, transform, clip)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         ctx = gc.ctx
         # Clip the path to the actual rendering extents if it isn't filled.
         clip = (ctx.clip_extents()
@@ -239,8 +240,9 @@ class RendererCairo(RendererBase):
 
     def draw_markers(self, gc, marker_path, marker_trans, path, transform,
                      rgbFace=None):
-        ctx = gc.ctx
+        # docstring inherited
 
+        ctx = gc.ctx
         ctx.new_path()
         # Create the path for the marker; it needs to be flipped here already!
         _append_path(ctx, marker_path, marker_trans + Affine2D().scale(1, -1))
@@ -284,57 +286,6 @@ class RendererCairo(RendererBase):
             self._fill_and_stroke(
                 ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
 
-    def draw_path_collection(
-            self, gc, master_transform, paths, all_transforms, offsets,
-            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
-            antialiaseds, urls, offset_position):
-
-        path_ids = []
-        for path, transform in self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms):
-            path_ids.append((path, Affine2D(transform)))
-
-        reuse_key = None
-        grouped_draw = []
-
-        def _draw_paths():
-            if not grouped_draw:
-                return
-            gc_vars, rgb_fc = reuse_key
-            gc = copy.copy(gc0)
-            # We actually need to call the setters to reset the internal state.
-            vars(gc).update(gc_vars)
-            for k, v in gc_vars.items():
-                if k == "_linestyle":  # Deprecated, no effect.
-                    continue
-                try:
-                    getattr(gc, "set" + k)(v)
-                except (AttributeError, TypeError) as e:
-                    pass
-            gc.ctx.new_path()
-            paths, transforms = zip(*grouped_draw)
-            grouped_draw.clear()
-            _append_paths(gc.ctx, paths, transforms)
-            self._fill_and_stroke(
-                gc.ctx, rgb_fc, gc.get_alpha(), gc.get_forced_alpha())
-
-        for xo, yo, path_id, gc0, rgb_fc in self._iter_collection(
-                gc, master_transform, all_transforms, path_ids, offsets,
-                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
-            path, transform = path_id
-            transform = (Affine2D(transform.get_matrix())
-                         .translate(xo, yo - self.height).scale(1, -1))
-            # rgb_fc could be a ndarray, for which equality is elementwise.
-            new_key = vars(gc0), tuple(rgb_fc) if rgb_fc is not None else None
-            if new_key == reuse_key:
-                grouped_draw.append((path, transform))
-            else:
-                _draw_paths()
-                grouped_draw.append((path, transform))
-                reuse_key = new_key
-        _draw_paths()
-
     def draw_image(self, gc, x, y, im):
         im = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(im[::-1])
         surface = cairo.ImageSurface.create_for_data(
@@ -349,6 +300,8 @@ class RendererCairo(RendererBase):
         ctx.restore()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         # Note: x,y are device/display coords, not user-coords, unlike other
         # draw_* methods
         if ismath:
@@ -404,9 +357,12 @@ class RendererCairo(RendererBase):
         ctx.restore()
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.width, self.height
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
+
         if ismath:
             width, height, descent, fonts, used_characters = \
                 self.mathtext_parser.parse(s, self.dpi, prop)
@@ -433,12 +389,14 @@ class RendererCairo(RendererBase):
         return w, h, h + y_bearing
 
     def new_gc(self):
+        # docstring inherited
         self.gc.ctx.save()
         self.gc._alpha = 1
         self.gc._forced_alpha = False  # if True, _alpha overrides A from RGBA
         return self.gc
 
     def points_to_pixels(self, points):
+        # docstring inherited
         return points / 72 * self.dpi
 
 
@@ -602,8 +560,7 @@ class FigureCanvasCairo(FigureCanvasBase):
                     fo = gzip.GzipFile(None, 'wb', fileobj=fo)
             surface = cairo.SVGSurface(fo, width_in_points, height_in_points)
         else:
-            warnings.warn("unknown format: %s" % fmt, stacklevel=2)
-            return
+            raise ValueError("Unknown format: {!r}".format(fmt))
 
         # surface.set_dpi() can be used
         renderer = RendererCairo(self.figure.dpi)

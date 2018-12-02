@@ -18,6 +18,8 @@
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
 
+#include "py_converters.h"
+
 #if defined(_MSC_VER)
 #  define IMG_FORMAT "%d %d %Iu"
 #else
@@ -213,9 +215,9 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     int x1, x2, y1, y2;
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
-    if (!PyArg_ParseTuple(args, "ns(iin)(iiii)(iiii):blit",
-                          &interp, &photo_name,
-                          &height, &width, &data_ptr,
+    if (!PyArg_ParseTuple(args, "O&s(iiO&)(iiii)(iiii):blit",
+                          convert_voidptr, &interp, &photo_name,
+                          &height, &width, convert_voidptr, &data_ptr,
                           &o0, &o1, &o2, &o3,
                           &x1, &x2, &y1, &y2)) {
         goto exit;

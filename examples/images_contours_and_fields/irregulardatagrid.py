@@ -6,17 +6,16 @@ Contour plot of irregularly spaced data
 Comparison of a contour plot of irregularly spaced data interpolated
 on a regular grid versus a tricontour plot for an unstructured triangular grid.
 
-Since :meth:`~.axes.Axes.contour` and :meth:`~.axes.Axes.contourf` expect the
-data to live on a regular grid, plotting a contour plot of irregularly spaced
-data requires different methods. The two options are:
+Since `~.axes.Axes.contour` and `~.axes.Axes.contourf` expect the data to live
+on a regular grid, plotting a contour plot of irregularly spaced data requires
+different methods. The two options are:
 
-* Interpolate the data to a regular grid first. This can be done with on-borad
+* Interpolate the data to a regular grid first. This can be done with on-board
   means, e.g. via `~.tri.LinearTriInterpolator` or using external functionality
-  e.g. via `scipy.interpolate.griddata`. Then plot the
-  interpolated data with the usual :meth:`~.axes.Axes.contour`.
-* Directly use :meth:`~.axes.Axes.tricontour` or
-  :meth:`~.axes.Axes.tricontourf` which will perform a triangulation
-  internally.
+  e.g. via `scipy.interpolate.griddata`. Then plot the interpolated data with
+  the usual `~.axes.Axes.contour`.
+* Directly use `~.axes.Axes.tricontour` or `~.axes.Axes.tricontourf` which will
+  perform a triangulation internally.
 
 This example shows both methods in action.
 """
@@ -58,8 +57,8 @@ zi = interpolator(Xi, Yi)
 #zi = griddata((x, y), z, (xi[None,:], yi[:,None]), method='linear')
 
 
-ax1.contour(xi, yi, zi, 14, linewidths=0.5, colors='k')
-cntr1 = ax1.contourf(xi, yi, zi, 14, cmap="RdBu_r")
+ax1.contour(xi, yi, zi, levels=14, linewidths=0.5, colors='k')
+cntr1 = ax1.contourf(xi, yi, zi, levels=14, cmap="RdBu_r")
 
 fig.colorbar(cntr1, ax=ax1)
 ax1.plot(x, y, 'ko', ms=3)
@@ -74,8 +73,8 @@ ax1.set_title('grid and contour (%d points, %d grid points)' %
 # Directly supply the unordered, irregularly spaced coordinates
 # to tricontour.
 
-ax2.tricontour(x, y, z, 14, linewidths=0.5, colors='k')
-cntr2 = ax2.tricontourf(x, y, z, 14, cmap="RdBu_r")
+ax2.tricontour(x, y, z, levels=14, linewidths=0.5, colors='k')
+cntr2 = ax2.tricontourf(x, y, z, levels=14, cmap="RdBu_r")
 
 fig.colorbar(cntr2, ax=ax2)
 ax2.plot(x, y, 'ko', ms=3)

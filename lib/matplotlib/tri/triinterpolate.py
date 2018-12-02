@@ -2,10 +2,9 @@
 Interpolation inside triangular grids.
 """
 
-import warnings
-
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.tri import Triangulation
 from matplotlib.tri.trifinder import TriFinder
 from matplotlib.tri.tritools import TriAnalyzer
@@ -1214,9 +1213,10 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
         err0 = np.linalg.norm(Kff_coo.dot(Uf0) - Ff)
         if err0 < err:
             # Maybe a good occasion to raise a warning here ?
-            warnings.warn("In TriCubicInterpolator initialization, PCG sparse"
-                          " solver did not converge after 1000 iterations. "
-                          "`geom` approximation is used instead of `min_E`")
+            cbook._warn_external("In TriCubicInterpolator initialization, "
+                                 "PCG sparse solver did not converge after "
+                                 "1000 iterations. `geom` approximation is "
+                                 "used instead of `min_E`")
             Uf = Uf0
 
         # Building dz from Uf

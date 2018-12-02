@@ -74,7 +74,8 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
                 if allow_stringlist:
                     # Sometimes, a list of colors might be a single string
                     # of single-letter colornames. So give that a shot.
-                    return [scalar_validator(v.strip()) for v in s if v.strip()]
+                    return [scalar_validator(v.strip())
+                            for v in s if v.strip()]
                 else:
                     raise
         # We should allow any generic sequence type, including generators,
@@ -174,6 +175,20 @@ def validate_string_or_None(s):
         raise ValueError('Could not convert "%s" to string' % s)
 
 
+def _validate_tex_preamble(s):
+    if s is None or s == 'None':
+        return ""
+    try:
+        if isinstance(s, str):
+            return s
+        elif isinstance(s, Iterable):
+            return '\n'.join(s)
+        else:
+            raise TypeError
+    except TypeError:
+        raise ValueError('Could not convert "%s" to string' % s)
+
+
 def validate_axisbelow(s):
     try:
         return validate_bool(s)
@@ -207,7 +222,7 @@ def validate_int(s):
 
 def validate_int_or_None(s):
     """if not None, tries to validate as an int"""
-    if s=='None':
+    if s == 'None':
         s = None
     if s is None:
         return None
@@ -397,7 +412,7 @@ validate_colorlist.__doc__ = 'return a list of colorspecs'
 
 
 def validate_string(s):
-    if isinstance(s, (str, str)):
+    if isinstance(s, str):
         # Always leave str as str and unicode as unicode
         return s
     else:
@@ -601,7 +616,7 @@ def validate_svg_fonttype(s):
         return s
     if s == "svgfont":
         cbook.warn_deprecated(
-            "2.2", "'svgfont' support for svg.fonttype is deprecated.")
+            "2.2", message="'svgfont' support for svg.fonttype is deprecated.")
         return s
     raise ValueError("Unrecognized svg.fonttype string '{}'; "
                      "valid strings are 'none', 'path'")
@@ -899,7 +914,8 @@ def validate_cycler(s):
 
 
 def validate_hist_bins(s):
-    if cbook._str_equal(s, "auto"):
+    valid_strs = ["auto", "sturges", "fd", "doane", "scott", "rice", "sqrt"]
+    if isinstance(s, str) and s in valid_strs:
         return s
     try:
         return int(s)
@@ -909,8 +925,8 @@ def validate_hist_bins(s):
         return validate_floatlist(s)
     except ValueError:
         pass
-    raise ValueError("'hist.bins' must be 'auto', an int or " +
-                     "a sequence of floats")
+    raise ValueError("'hist.bins' must be one of {}, an int or"
+                     " a sequence of floats".format(valid_strs))
 
 
 def validate_animation_writer_path(p):
@@ -1024,7 +1040,7 @@ defaultParams = {
     ## patch props
     'patch.linewidth':   [1.0, validate_float],     # line width in points
     'patch.edgecolor':   ['black', validate_color],
-    'patch.force_edgecolor' : [False, validate_bool],
+    'patch.force_edgecolor': [False, validate_bool],
     'patch.facecolor':   ['C0', validate_color],    # first color in cycle
     'patch.antialiased': [True, validate_bool],     # antialiased (no jaggies)
 
@@ -1114,7 +1130,7 @@ defaultParams = {
     'text.color':          ['black', validate_color],
     'text.usetex':         [False, validate_bool],
     'text.latex.unicode':  [True, validate_bool],
-    'text.latex.preamble': [[''], validate_stringlist],
+    'text.latex.preamble': ['', _validate_tex_preamble],
     'text.latex.preview':  [False, validate_bool],
     'text.dvipnghack':     [None, validate_bool_maybe_none],
     'text.hinting':        ['auto', validate_hinting],
@@ -1135,7 +1151,8 @@ defaultParams = {
     'image.interpolation': ['nearest', validate_string],
     'image.cmap':          ['viridis', validate_string],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
-    'image.origin':        ['upper', validate_string],  # lookup table
+    'image.origin':        ['upper',
+                            ValidateInStrings('image.origin', ['upper', 'lower'])],
     'image.resample':      [True, validate_bool],
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
@@ -1390,7 +1407,7 @@ defaultParams = {
     # use matplotlib rc settings for font configuration
     'pgf.rcfonts':   [True, validate_bool],
     # provide a custom preamble for the latex process
-    'pgf.preamble':  [[''], validate_stringlist],
+    'pgf.preamble':  ['', _validate_tex_preamble],
 
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],
@@ -1411,7 +1428,7 @@ defaultParams = {
     'agg.path.chunksize': [0, validate_int],       # 0 to disable chunking;
 
     # key-mappings (multi-character mappings should be a list/tuple)
-    'keymap.fullscreen':   [('f', 'ctrl+f'), validate_stringlist],
+    'keymap.fullscreen':   [['f', 'ctrl+f'], validate_stringlist],
     'keymap.home':         [['h', 'r', 'home'], validate_stringlist],
     'keymap.back':         [['left', 'c', 'backspace'], validate_stringlist],
     'keymap.forward':      [['right', 'v'], validate_stringlist],
@@ -1462,11 +1479,3 @@ defaultParams = {
     # altogether.  For that use `matplotlib.style.use('classic')`.
     '_internal.classic_mode': [False, validate_bool]
 }
-
-
-if __name__ == '__main__':
-    rc = defaultParams
-    rc['datapath'][0] = '/'
-    for key in rc:
-        if not rc[key][1](rc[key][0]) == rc[key][0]:
-            print("%s: %s != %s" % (key, rc[key][1](rc[key][0]), rc[key][0]))

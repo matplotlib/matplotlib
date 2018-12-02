@@ -13,7 +13,6 @@ contains all the plot elements.  The following classes are defined
 
 import logging
 from numbers import Integral
-import warnings
 
 import numpy as np
 
@@ -24,6 +23,7 @@ from matplotlib import get_backend
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
+from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
@@ -89,11 +89,12 @@ class AxesStack(cbook.Stack):
             return None
         cbook.warn_deprecated(
             "2.1",
-            "Adding an axes using the same arguments as a previous axes "
-            "currently reuses the earlier instance.  In a future version, "
-            "a new instance will always be created and returned.  Meanwhile, "
-            "this warning can be suppressed, and the future behavior ensured, "
-            "by passing a unique label to each axes instance.")
+            message="Adding an axes using the same arguments as a previous "
+            "axes currently reuses the earlier instance.  In a future "
+            "version, a new instance will always be created and returned.  "
+            "Meanwhile, this warning can be suppressed, and the future "
+            "behavior ensured, by passing a unique label to each axes "
+            "instance.")
         return item[1]
 
     def _entry_from_axes(self, e):
@@ -132,7 +133,7 @@ class AxesStack(cbook.Stack):
         a_existing = self.get(key)
         if a_existing is not None:
             super().remove((key, a_existing))
-            warnings.warn(
+            cbook._warn_external(
                 "key {!r} already existed; Axes is being replaced".format(key))
             # I don't think the above should ever happen.
 
@@ -364,7 +365,7 @@ class Figure(Artist):
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
-        self.canvas = None
+        FigureCanvasBase(self)  # Set self.canvas.
         self._suptitle = None
 
         if subplotpars is None:
@@ -398,8 +399,7 @@ class Figure(Artist):
     def _repr_html_(self):
         # We can't use "isinstance" here, because then we'd end up importing
         # webagg unconditiionally.
-        if (self.canvas is not None and
-                'WebAgg' in self.canvas.__class__.__name__):
+        if 'WebAgg' in type(self.canvas).__name__:
             from matplotlib.backends import backend_webagg
             return backend_webagg.ipython_inline_display(self)
 
@@ -434,9 +434,9 @@ class Figure(Artist):
                 pass
         if (backends._get_running_interactive_framework() != "headless"
                 and warn):
-            warnings.warn('Matplotlib is currently using %s, which is a '
-                          'non-GUI backend, so cannot show the figure.'
-                          % get_backend())
+            cbook._warn_external('Matplotlib is currently using %s, which is '
+                                 'a non-GUI backend, so cannot show the '
+                                 'figure.' % get_backend())
 
     def _get_axes(self):
         return self._axstack.as_list()
@@ -1494,9 +1494,9 @@ default: 'top'
             # will result because what was intended to be the subplot index is
             # instead treated as a bool for sharex.
             if isinstance(sharex, Integral):
-                warnings.warn(
-                    "sharex argument to subplots() was an integer. "
-                    "Did you intend to use subplot() (without 's')?")
+                cbook._warn_external("sharex argument to subplots() was an "
+                                     "integer. Did you intend to use "
+                                     "subplot() (without 's')?")
 
             raise ValueError("sharex [%s] must be one of %s" %
                              (sharex, share_values))
@@ -1630,6 +1630,23 @@ default: 'top'
              if not artist.get_animated()),
             key=lambda artist: artist.get_zorder())
 
+        for ax in self.axes:
+            locator = ax.get_axes_locator()
+            if locator:
+                pos = locator(ax, renderer)
+                ax.apply_aspect(pos)
+            else:
+                ax.apply_aspect()
+
+            for child in ax.get_children():
+                if hasattr(child, 'apply_aspect'):
+                    locator = child.get_axes_locator()
+                    if locator:
+                        pos = locator(child, renderer)
+                        child.apply_aspect(pos)
+                    else:
+                        child.apply_aspect()
+
         try:
             renderer.open_group('figure')
             if self.get_constrained_layout() and self.axes:
@@ -1745,7 +1762,7 @@ default: 'top'
         if len(extra_args):
             # cbook.warn_deprecated(
             #     "2.1",
-            #     "Figure.legend will accept no more than two "
+            #     message="Figure.legend will accept no more than two "
             #     "positional arguments in the future.  Use "
             #     "'fig.legend(handles, labels, loc=location)' "
             #     "instead.")
@@ -1861,9 +1878,10 @@ default: 'top'
                 if key == ckey and isinstance(cax, projection_class):
                     return cax
                 else:
-                    warnings.warn('Requested projection is different from '
-                                  'current axis projection, creating new axis '
-                                  'with requested projection.', stacklevel=2)
+                    cbook._warn_external('Requested projection is different '
+                                         'from current axis projection, '
+                                         'creating new axis with requested '
+                                         'projection.')
 
         # no axes found, so create one which spans the figure
         return self.add_subplot(1, 1, 1, **kwargs)
@@ -1930,9 +1948,9 @@ default: 'top'
         restore_to_pylab = state.pop('_restore_to_pylab', False)
 
         if version != _mpl_version:
-            warnings.warn("This figure was saved with matplotlib version %s "
-                          "and is unlikely to function correctly." %
-                          (version, ))
+            cbook._warn_external("This figure was saved with matplotlib "
+                                 "version %s and is unlikely to function "
+                                 "correctly." % (version,))
 
         self.__dict__ = state
 
@@ -2157,10 +2175,11 @@ default: 'top'
         """
         if self.get_constrained_layout():
             self.set_constrained_layout(False)
-            warnings.warn("This figure was using constrained_layout==True, "
-                          "but that is incompatible with subplots_adjust and "
-                          "or tight_layout: setting "
-                          "constrained_layout==False. ")
+            cbook._warn_external("This figure was using "
+                                 "constrained_layout==True, but that is "
+                                 "incompatible with subplots_adjust and or "
+                                 "tight_layout: setting "
+                                 "constrained_layout==False. ")
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
             if not isinstance(ax, SubplotBase):
@@ -2296,9 +2315,16 @@ default: 'top'
             if bbox is not None and (bbox.width != 0 or bbox.height != 0):
                 bb.append(bbox)
 
-        bb.extend(
-            ax.get_tightbbox(renderer, bbox_extra_artists=bbox_extra_artists)
-            for ax in self.axes if ax.get_visible())
+        for ax in self.axes:
+            if ax.get_visible():
+                # some axes don't take the bbox_extra_artists kwarg so we
+                # need this conditional....
+                try:
+                    bbox = ax.get_tightbbox(renderer,
+                            bbox_extra_artists=bbox_extra_artists)
+                except TypeError:
+                    bbox = ax.get_tightbbox(renderer)
+                bb.append(bbox)
 
         if len(bb) == 0:
             return self.bbox_inches
@@ -2329,11 +2355,12 @@ default: 'top'
 
         _log.debug('Executing constrainedlayout')
         if self._layoutbox is None:
-            warnings.warn("Calling figure.constrained_layout, but figure not "
-                          "setup to do constrained layout.  You either called "
-                          "GridSpec without the fig keyword, you are using "
-                          "plt.subplot, or you need to call figure or "
-                          "subplots with the constrained_layout=True kwarg.")
+            cbook._warn_external("Calling figure.constrained_layout, but "
+                                 "figure not setup to do constrained layout. "
+                                 " You either called GridSpec without the "
+                                 "fig keyword, you are using plt.subplot, "
+                                 "or you need to call figure or subplots "
+                                 "with the constrained_layout=True kwarg.")
             return
         w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
         # convert to unit-relative lengths
@@ -2381,8 +2408,9 @@ default: 'top'
 
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
-            warnings.warn("This figure includes Axes that are not compatible "
-                          "with tight_layout, so results might be incorrect.")
+            cbook._warn_external("This figure includes Axes that are not "
+                                 "compatible with tight_layout, so results "
+                                 "might be incorrect.")
 
         if renderer is None:
             renderer = get_renderer(self)
@@ -2390,7 +2418,8 @@ default: 'top'
         kwargs = get_tight_layout_figure(
             self, self.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
-        self.subplots_adjust(**kwargs)
+        if kwargs:
+            self.subplots_adjust(**kwargs)
 
     def align_xlabels(self, axs=None):
         """

@@ -1,0 +1,11 @@
+`FontManager.score_weight` is more strict with its inputs
+`````````````````````````````````````````````````````````
+
+Previously, when a weight string was passed to `FontManager.score_weight`,
+
+- if the weight was the string representation of an integer, it would be
+  converted to that integer,
+- otherwise, if the weight was not a standard weight name, it would be silently
+  replaced by a value of 500 ("normal" weight).
+
+`FontManager.score_weight` now raises an exception on such inputs.

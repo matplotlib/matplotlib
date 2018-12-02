@@ -637,6 +637,8 @@ def test_cn():
                                                     ['xkcd:blue', 'r'])
     assert mcolors.to_hex("C0") == '#0343df'
     assert mcolors.to_hex("C1") == '#ff0000'
+    assert mcolors.to_hex("C10") == '#0343df'
+    assert mcolors.to_hex("C11") == '#ff0000'
 
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['8e4585', 'r'])
 
@@ -693,8 +695,7 @@ def test_ndarray_subclass_norm(recwarn):
         def __add__(self, other):
             raise RuntimeError
 
-    data = np.arange(-10, 10, 1, dtype=float)
-    data.shape = (10, 2)
+    data = np.arange(-10, 10, 1, dtype=float).reshape((10, 2))
     mydata = data.view(MyArray)
 
     for norm in [mcolors.Normalize(), mcolors.LogNorm(),

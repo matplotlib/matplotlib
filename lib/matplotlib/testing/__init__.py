@@ -1,12 +1,18 @@
+"""
+Helper functions for testing.
+"""
 import locale
+import logging
 import warnings
 
 import matplotlib as mpl
 from matplotlib.cbook import MatplotlibDeprecationWarning
 
+_log = logging.getLogger(__name__)
+
 
 def is_called_from_pytest():
-    """Returns whether the call was done from pytest"""
+    """Whether we are in a pytest run."""
     return getattr(mpl, '_called_from_pytest', False)
 
 
@@ -30,7 +36,7 @@ def setup():
         try:
             locale.setlocale(locale.LC_ALL, 'English_United States.1252')
         except locale.Error:
-            warnings.warn(
+            _log.warning(
                 "Could not set locale to English/United States. "
                 "Some date-related tests may fail.")
 
