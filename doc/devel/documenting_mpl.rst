@@ -67,7 +67,7 @@ requirements, in addition to those in :ref:`Contributing <contributing>`, that a
 
 
 Install dependencies and create a documentation development environment
-----------------------------------
+-----------------------------------------------------------------------
 
 * See :ref:`installing_for_devs` and :ref:`how_to_contribute` to get the latest version of the code, set up a development environment, and create pull requests. 
 
