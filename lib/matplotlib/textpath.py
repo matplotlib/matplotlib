@@ -16,13 +16,6 @@ from matplotlib.transforms import Affine2D
 _log = logging.getLogger(__name__)
 
 
-@functools.lru_cache(1)
-def _get_adobe_standard_encoding():
-    enc_name = dviread.find_tex_file('8a.enc')
-    enc = dviread.Encoding(enc_name)
-    return {c: i for i, c in enumerate(enc.encoding)}
-
-
 class TextToPath(object):
     """A class that converts strings to paths."""
 
@@ -291,12 +284,8 @@ class TextToPath(object):
 
     def get_glyphs_tex(self, prop, s, glyph_map=None,
                        return_new_glyphs_only=False):
-        """
-        Process string *s* with usetex and convert it to a (vertices, codes)
-        pair.
-        """
-
-        # Implementation mostly borrowed from pdf backend.
+        """Convert the string *s* to vertices and codes using usetex mode."""
+        # Mostly borrowed from pdf backend.
 
         dvifile = self.get_texmanager().make_dvi(s, self.FONT_SCALE)
         with dviread.Dvi(dvifile, self.DPI) as dvi:
@@ -321,21 +310,13 @@ class TextToPath(object):
             if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
-                if enc:
-                    charcode = enc.get(glyph, None)
+                # See comments in _get_ps_font_and_encoding.
+                if enc is not None:
+                    index = font.get_name_index(enc[glyph])
+                    font.load_glyph(index, flags=LOAD_TARGET_LIGHT)
                 else:
-                    charcode = glyph
-
-                ft2font_flag = LOAD_TARGET_LIGHT
-                if charcode is not None:
-                    glyph0 = font.load_char(charcode, flags=ft2font_flag)
-                else:
-                    _log.warning("The glyph (%d) of font (%s) cannot be "
-                                 "converted with the encoding. Glyph may "
-                                 "be wrong.", glyph, font.fname)
-
-                    glyph0 = font.load_char(glyph, flags=ft2font_flag)
-
+                    index = glyph
+                    font.load_char(index, flags=LOAD_TARGET_LIGHT)
                 glyph_map_new[char_id] = font.get_path()
 
             glyph_ids.append(char_id)
@@ -363,31 +344,41 @@ class TextToPath(object):
         font_bunch = tex_font_map[texname]
         if font_bunch.filename is None:
             raise ValueError(
-                ("No usable font file found for %s (%s). "
-                    "The font may lack a Type-1 version.")
-                % (font_bunch.psname, texname))
+                f"No usable font file found for {font_bunch.psname} "
+                f"({texname}). The font may lack a Type-1 version.")
 
         font = get_font(font_bunch.filename)
 
-        for charmap_name, charmap_code in [("ADOBE_CUSTOM", 1094992451),
-                                           ("ADOBE_STANDARD", 1094995778)]:
-            try:
-                font.select_charmap(charmap_code)
-            except (ValueError, RuntimeError):
-                pass
+        if font_bunch.encoding:
+            # If psfonts.map specifies an encoding, use it: it gives us a
+            # mapping of glyph indices to Adobe glyph names; use it to convert
+            # dvi indices to glyph names and use the FreeType-synthesized
+            # unicode charmap to convert glyph names to glyph indices (with
+            # FT_Get_Name_Index/get_name_index), and load the glyph using
+            # FT_Load_Glyph/load_glyph.  (That charmap has a coverage at least
+            # as good as, and possibly better than, the native charmaps.)
+            enc = dviread._parse_enc(font_bunch.encoding)
+        else:
+            # If psfonts.map specifies no encoding, the indices directly
+            # map to the font's "native" charmap; so don't use the
+            # FreeType-synthesized charmap but the native ones (we can't
+            # directly identify it but it's typically an Adobe charmap), and
+            # directly load the dvi glyph indices using FT_Load_Char/load_char.
+            for charmap_name, charmap_code in [
+                    ("ADOBE_CUSTOM", 1094992451),
+                    ("ADOBE_STANDARD", 1094995778),
+            ]:
+                try:
+                    font.select_charmap(charmap_code)
+                except (ValueError, RuntimeError):
+                    pass
+                else:
+                    break
             else:
-                break
-        else:
-            charmap_name = ""
-            _log.warning("No supported encoding in font (%s).",
-                         font_bunch.filename)
-
-        if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
-            enc0 = dviread.Encoding(font_bunch.encoding)
-            enc = {i: _get_adobe_standard_encoding().get(c, None)
-                   for i, c in enumerate(enc0.encoding)}
-        else:
-            enc = {}
+                charmap_name = ""
+                _log.warning("No supported encoding in font (%s).",
+                             font_bunch.filename)
+            enc = None
 
         return font, enc
 
