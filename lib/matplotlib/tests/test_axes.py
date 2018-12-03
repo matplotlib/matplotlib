@@ -726,6 +726,23 @@ def test_polar_rorigin():
     ax.set_rorigin(0.0)
 
 
+@image_comparison(baseline_images=['polar_invertedylim'], style='default',
+                   extensions=['png'])
+def test_polar_invertedylim():
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax.set_ylim(2, 0)
+
+
+@image_comparison(baseline_images=['polar_invertedylim_rorigin'],
+                  style='default', extensions=['png'])
+def test_polar_invertedylim_rorigin():
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax.set_ylim(2, 0)
+    ax.set_rorigin(3)
+
+
 @image_comparison(baseline_images=['polar_theta_position'], style='default')
 def test_polar_theta_position():
     r = np.arange(0, 3.0, 0.01)
