@@ -121,39 +121,6 @@ jobs:
           name: "Deploy new docs"
           command: ./.circleci/deploy-docs.sh
 
-  docs-python35:
-    docker:
-      - image: circleci/python:3.5
-    steps:
-      - checkout
-
-      - run: *apt-install
-      - run: *fonts-install
-      - run: *pip-install
-
-      - run:
-          <<: *deps-install
-          environment:
-            NUMPY_VERSION: "==1.11.0"
-      - run: *mpl-install
-
-      - run: *doc-build
-
-      # We don't build the LaTeX docs here, so linkchecker will complain
-      - run: touch doc/build/html/Matplotlib.pdf
-
-      - run: *doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
-
-      - store_artifacts:
-          path: doc/build/html
-
-      - run:
-          name: "Built documentation is available at:"
-          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
-
-
 #########################################
 # Defining workflows gets us parallelism.
 #
@@ -162,5 +129,4 @@ workflows:
   version: 2
   build:
     jobs:
-      - docs-python35
       - docs-python36
