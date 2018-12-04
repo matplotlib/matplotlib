@@ -40,7 +40,15 @@ if gi.__name__ == "pgi" and cairo.__name__ == "cairo":
 
 if gi.__name__ == "pgi" and gi.version_info < (0, 0, 11, 2):
     raise ImportError("The GTK3 backends are incompatible with pgi<0.0.11.2")
-gi.require_version("Gtk", "3.0")
+try:
+    # :raises ValueError: If module/version is already loaded, already
+    # required, or unavailable.
+    gi.require_version("Gtk", "3.0")
+except ValueError as e:
+    # in this case we want to re-raise as ImportError so the
+    # auto-backend selection logic correctly skips.
+    raise ImportError from e
+
 globals().update(
     {name:
      importlib.import_module("{}.repository.{}".format(gi.__name__, name))
