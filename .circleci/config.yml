@@ -97,6 +97,34 @@ jobs:
       - run: *apt-install
       - run: *fonts-install
       - run: *pip-install
+      - run:
+           <<: *deps-install
+           environment:
+             NUMPY_VERSION: "==1.11.0"
+      - run: *mpl-install
+
+      - run: *doc-build
+
+      - run: *doc-bundle
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
+
+      - store_artifacts:
+          path: doc/build/html
+
+      - run:
+          name: "Built documentation is available at:"
+          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
+
+  docs-python37:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+
+      - run: *apt-install
+      - run: *fonts-install
+      - run: *pip-install
 
       - run: *deps-install
       - run: *mpl-install
