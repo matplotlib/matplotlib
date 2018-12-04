@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 import numpy as np
+from pathlib import Path
 import pytest
 
 import matplotlib as mpl
@@ -123,10 +124,8 @@ WRITER_OUTPUT = [
     ('html', 'movie.html'),
     ('null', 'movie.null')
 ]
-if sys.version_info >= (3, 6):
-    from pathlib import Path
-    WRITER_OUTPUT += [
-        (writer, Path(output)) for writer, output in WRITER_OUTPUT]
+WRITER_OUTPUT += [
+    (writer, Path(output)) for writer, output in WRITER_OUTPUT]
 
 
 # Smoke test for saving animations.  In the future, we should probably
