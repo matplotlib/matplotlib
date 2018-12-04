@@ -158,3 +158,4 @@ workflows:
   build:
     jobs:
       - docs-python36
+      - docs-python37
