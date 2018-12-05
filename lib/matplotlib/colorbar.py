@@ -166,10 +166,9 @@ use_gridspec : bool, optional
 
 Returns
 -------
-:class:`~matplotlib.colorbar.Colorbar` instance
-    See also its base class, :class:`~matplotlib.colorbar.ColorbarBase`.
-    Call the :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
-    to label the colorbar.
+colorbar : `~matplotlib.colorbar.Colorbar`
+    See also its base class, `~matplotlib.colorbar.ColorbarBase`.  Use
+    `~.ColorbarBase.set_label` to label the colorbar.
 
 Notes
 -----
