@@ -275,7 +275,7 @@ not needed during the wheel install.
 ::
 
   # create a new environment with the required packages
-  conda create -n "matplotlib_build" python=3.5 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
+  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
   activate matplotlib_build
   # if you want a qt backend, you also have to install pyqt (be aware that pyqt doesn't mix well if
   # you have created the environment with conda-forge already activated...)
