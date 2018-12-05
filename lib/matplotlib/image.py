@@ -1425,7 +1425,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     """
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from matplotlib.figure import Figure
-    if isinstance(fname, getattr(os, "PathLike", ())):
+    if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if (format == 'png'
         or (format is None

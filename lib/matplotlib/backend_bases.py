@@ -1957,7 +1957,7 @@ class FigureCanvasBase(object):
         """
         if format is None:
             # get format from filename, or from backend's default filetype
-            if isinstance(filename, getattr(os, "PathLike", ())):
+            if isinstance(filename, os.PathLike):
                 filename = os.fspath(filename)
             if isinstance(filename, str):
                 format = os.path.splitext(filename)[1][1:]

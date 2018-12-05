@@ -367,13 +367,36 @@ def is_numlike(obj):
     return isinstance(obj, (numbers.Number, np.number))
 
 
-def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
+def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
-    *fname* can be an `os.PathLike` or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz.  *flag* is a
-    read/write flag for :func:`file`
+    Convert a path to an open file handle or pass-through a file-like object.
+
+    Consider using `open_file_cm` instead, as it allows one to properly close
+    newly created file objects more easily.
+
+    Parameters
+    ----------
+    fname : str or PathLike or file-like object
+        If `str` or `os.PathLike`, the file is opened using the flags specified
+        by *flag* and *encoding*.  If a file-like object, it is passed through.
+    flag : str, default 'r'
+        Passed as the *mode* argument to `open` when *fname* is `str` or
+        `os.PathLike`; ignored if *fname* is file-like.
+    return_opened : bool, default False
+        If True, return both the file object and a boolean indicating whether
+        this was a new file (that the caller needs to close).  If False, return
+        only the new file.
+    encoding : str or None, default None
+        Passed as the *mode* argument to `open` when *fname* is `str` or
+        `os.PathLike`; ignored if *fname* is file-like.
+
+    Returns
+    -------
+    fh : file-like
+    opened : bool
+        *opened* is only returned if *return_opened* is True.
     """
-    if isinstance(fname, getattr(os, "PathLike", ())):
+    if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if isinstance(fname, str):
         if fname.endswith('.gz'):
