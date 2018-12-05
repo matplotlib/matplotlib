@@ -133,7 +133,7 @@ Dependencies
 
 Matplotlib requires the following dependencies:
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.5)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.6)
 * `FreeType <https://www.freetype.org/>`_ (>= 2.3)
 * `libpng <http://www.libpng.org>`_ (>= 1.2)
 * `NumPy <http://www.numpy.org>`_ (>= 1.11)
