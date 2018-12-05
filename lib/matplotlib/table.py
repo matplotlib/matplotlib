@@ -349,14 +349,8 @@ class Table(Artist):
         self.stale = True
 
     def __getitem__(self, position):
-        """
-        Retrieve a custom cell from a given position.
-        """
-        try:
-            row, col = position[0], position[1]
-        except Exception:
-            raise KeyError('Only tuples length 2 are accepted as coordinates')
-        return self._cells[row, col]
+        """Retrieve a custom cell from a given position."""
+        return self._cells[position]
 
     @property
     def edges(self):
