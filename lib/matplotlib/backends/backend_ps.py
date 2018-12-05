@@ -968,8 +968,8 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if isinstance(outfile, (str, getattr(os, "PathLike", ()),)):
-            outfile = title = getattr(os, "fspath", lambda obj: obj)(outfile)
+        if isinstance(outfile, (str, os.PathLike)):
+            outfile = title = os.fspath(outfile)
             title = title.encode("ascii", "replace").decode("ascii")
             passed_in_file_object = False
         elif is_writable_file_like(outfile):
