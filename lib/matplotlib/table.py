@@ -180,7 +180,7 @@ class Cell(Rectangle):
 
 class CustomCell(Cell):
     """
-    A subclass of Cell where the sides may be visibly toggled.
+    A `.Cell` subclass with configurable edge visibility.
     """
 
     _edges = 'BRTL'
@@ -196,6 +196,15 @@ class CustomCell(Cell):
 
     @property
     def visible_edges(self):
+        """
+        The cell edges to be drawn with a line.
+
+        Reading this property returns a substring of 'BRTL' (bottom, right,
+        top, left').
+
+        When setting this property, you can use a substring of 'BRTL' or one
+        of {'open', 'closed', 'horizontal', 'vertical'}.
+        """
         return self._visible_edges
 
     @visible_edges.setter
@@ -215,9 +224,7 @@ class CustomCell(Cell):
         self.stale = True
 
     def get_path(self):
-        """
-        Return a path where the edges specified by _visible_edges are drawn.
-        """
+        """Return a `.Path` for the `.visible_edges`."""
         codes = [Path.MOVETO]
 
         for edge in self._edges:
@@ -238,13 +245,7 @@ class CustomCell(Cell):
 
 class Table(Artist):
     """
-    Create a table of cells.
-
-    Table can have (optional) row and column headers.
-
-    Each entry in the table can be either text or patches.
-
-    Column widths and row heights for the table can be specified.
+    A table of cells.
 
     The table consists of a grid of cells, which are indexed by (row, column).
 
@@ -254,8 +255,8 @@ class Table(Artist):
     You don't have to add a cell to every grid position, so you can create
     tables that have holes.
 
-    Return value is a sequence of text, line and patch instances that make
-    up the table
+    *Note*: You'll usually not create an empty table from scratch. Instead use
+    `~matplotlib.table.table` to create a table from data.
     """
     codes = {'best': 0,
              'upper right':  1,  # default
@@ -276,11 +277,31 @@ class Table(Artist):
              'top':          16,
              'bottom':       17,
              }
+    """Possible values where to place the table relative to the Axes."""
 
     FONTSIZE = 10
-    AXESPAD = 0.02    # the border between the axes and table edge
+
+    AXESPAD = 0.02
+    """The border between the Axes and the table edge in Axes units."""
 
     def __init__(self, ax, loc=None, bbox=None, **kwargs):
+        """
+        Parameters
+        ----------
+        ax : `matplotlib.axes.Axes`
+            The `~.axes.Axes` to plot the table into.
+        loc : str
+            The position of the cell with respect to *ax*. This must be one of
+            the `~.Table.codes`.
+        bbox : `.Bbox` or None
+            A bounding box to draw the table into. If this is not *None*, this
+            overrides *loc*.
+
+        Other Parameters
+        ----------------
+        **kwargs
+            `.Artist` properties.
+        """
 
         Artist.__init__(self)
 
@@ -313,7 +334,7 @@ class Table(Artist):
 
     def add_cell(self, row, col, *args, **kwargs):
         """
-        Add a cell to the table.
+        Create a cell and add it to the table.
 
         Parameters
         ----------
@@ -321,10 +342,13 @@ class Table(Artist):
             Row index.
         col : int
             Column index.
+        *args, **kwargs
+            All other parameters are passed on to `Cell`.
 
         Returns
         -------
-        `CustomCell`: Automatically created cell
+        cell : `.CustomCell`
+            The created cell.
 
         """
         xy = (0, 0)
@@ -354,6 +378,21 @@ class Table(Artist):
 
     @property
     def edges(self):
+        """
+        The default value of `~.CustomCell.visible_edges` for newly added
+        cells using `.add_cell`.
+
+        Notes
+        -----
+        This setting does currently only affect newly created cells using
+        `.add_cell`.
+
+        To change existing cells, you have to set their edges explicitly::
+
+            for c in tab.get_celld().values():
+                c.visible_edges = 'horizontal'
+
+        """
         return self._edges
 
     @edges.setter
@@ -367,6 +406,8 @@ class Table(Artist):
 
     @allow_rasterization
     def draw(self, renderer):
+        # docstring inherited
+
         # Need a renderer to do hit tests on mouseevent; assume the last one
         # will do
         if renderer is None:
@@ -396,10 +437,7 @@ class Table(Artist):
         return bbox.inverse_transformed(self.get_transform())
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred in the table.
-
-        Returns T/F, {}
-        """
+        # docstring inherited
         if callable(self._contains):
             return self._contains(self, mouseevent)
 
@@ -459,26 +497,13 @@ class Table(Artist):
             cell.set_y(bottoms[row])
 
     def auto_set_column_width(self, col):
-        """ Given column indexs in either List, Tuple or int. Will be able to
-        automatically set the columns into optimal sizes.
+        """
+        Automatically set the widths of given columns to optimal sizes.
 
-        Here is the example of the input, which triger automatic adjustment on
-        columns to optimal size by given index numbers.
-        -1: the row labling
-        0: the 1st column
-        1: the 2nd column
-
-        Args:
-            col(List): list of indexs
-            >>>table.auto_set_column_width([-1,0,1])
-
-            col(Tuple): tuple of indexs
-            >>>table.auto_set_column_width((-1,0,1))
-
-            col(int): index integer
-            >>>table.auto_set_column_width(-1)
-            >>>table.auto_set_column_width(0)
-            >>>table.auto_set_column_width(1)
+        Parameters
+        ----------
+        col : int or sequence of ints
+            The indices of the columns to auto-scale.
         """
         # check for col possibility on iteration
         try:
@@ -529,7 +554,7 @@ class Table(Artist):
             cell.set_fontsize(fontsize)
 
     def scale(self, xscale, yscale):
-        """ Scale column widths by xscale and row heights by yscale. """
+        """Scale column widths by *xscale* and row heights by *yscale*."""
         for c in self._cells.values():
             c.set_width(c.get_width() * xscale)
             c.set_height(c.get_height() * yscale)
@@ -541,8 +566,20 @@ class Table(Artist):
         Parameters
         ----------
         size : float
-        """
 
+        Notes
+        -----
+        As long as auto font size has not been disabled, the value will be
+        clipped such that the text fits horizontally into the cell.
+
+        You can disable this behavior using `.auto_set_font_size`.
+
+        >>> the_table.auto_set_font_size(False)
+        >>> the_table.set_fontsize(20)
+
+        However, there is no automatic scaling of the row height so that the
+        text may exceed the cell boundary.
+        """
         for cell in self._cells.values():
             cell.set_fontsize(size)
         self.stale = True
@@ -610,7 +647,18 @@ class Table(Artist):
         self._offset(ox, oy)
 
     def get_celld(self):
-        """Return a dict of cells in the table."""
+        r"""
+        Return a dict of cells in the table mapping *(row, column)* to
+        `.Cell`\s.
+
+        Notes
+        -----
+        You can also directly index into the Table object to access individual
+        cells::
+
+            cell = table[row, col]
+
+        """
         return self._cells
 
 
@@ -622,13 +670,75 @@ def table(ax,
           loc='bottom', bbox=None, edges='closed',
           **kwargs):
     """
-    TABLE(cellText=None, cellColours=None,
-          cellLoc='right', colWidths=None,
-          rowLabels=None, rowColours=None, rowLoc='left',
-          colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, edges='closed')
+    Add a table to an `~.axes.Axes`.
 
-    Factory function to generate a Table instance.
+    At least one of *cellText* or *cellColours* must be specified. These
+    parameters must be 2D lists, in which the outer lists define the rows and
+    the inner list define the column values per row. Each row must have the
+    same number of elements.
+
+    The table can optionally have row and column headers, which are configured
+    using *rowLabels*, *rowColours*, *rowLoc* and *colLabels*, *colColours*,
+    *colLoc* respectively.
+
+    Parameters
+    ----------
+    cellText : 2D list of str, optional
+        The texts to place into the table cells.
+
+        *Note*: Line breaks in the strings are currently not accounted for and
+        will result in the text exceeding the cell boundaries.
+
+    cellColours : 2D list of matplotlib color specs, optional
+        The background colors of the cells.
+
+    cellLoc : {'left', 'center', 'right'}, default: 'right'
+        The alignment of the text within the cells.
+
+    colWidths : list of float, optional
+        The column widths in units of the axes. If not given, all columns will
+        have a width of *1 / ncols*.
+
+    rowLabels : list of str, optional
+        The text of the row header cells.
+
+    rowColours : list of matplotlib color specs, optional
+        The colors of the row header cells.
+
+    rowLoc : {'left', 'center', 'right'}, optional, default: 'left'
+        The text alignment of the row header cells.
+
+    colLabels : list of str, optional
+        The text of the column header cells.
+
+    colColours : list of matplotlib color specs, optional
+        The colors of the column header cells.
+
+    rowLoc : {'left', 'center', 'right'}, optional, default: 'left'
+        The text alignment of the column header cells.
+
+    loc : str, optional
+        The position of the cell with respect to *ax*. This must be one of
+        the `~.Table.codes`.
+
+    bbox : `.Bbox`, optional
+        A bounding box to draw the table into. If this is not *None*, this
+        overrides *loc*.
+
+    edges : substring of 'BRTL' or {'open', 'closed', 'horizontal', 'vertical'}
+        The cell edges to be drawn with a line. See also
+        `~.CustomCell.visible_edges`.
+
+    Other Parameters
+    ----------------
+    **kwargs
+        `.Artist` properties.
+
+    Returns
+    -------
+    table : `~matplotlib.table.Table`
+        The created table.
+
     """
 
     if cellColours is None and cellText is None:
