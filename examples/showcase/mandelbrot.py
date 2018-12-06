@@ -61,7 +61,7 @@ if __name__ == '__main__':
     light = colors.LightSource(azdeg=315, altdeg=10)
     M = light.shade(M, cmap=plt.cm.hot, vert_exag=1.5,
                     norm=colors.PowerNorm(0.3), blend_mode='hsv')
-    plt.imshow(M, extent=[xmin, xmax, ymin, ymax], interpolation="bicubic")
+    ax.imshow(M, extent=[xmin, xmax, ymin, ymax], interpolation="bicubic")
     ax.set_xticks([])
     ax.set_yticks([])
 
