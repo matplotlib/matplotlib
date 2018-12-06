@@ -19,16 +19,17 @@ fname = get_sample_data('percent_bachelors_degrees_women_usa.csv',
                         asfileobj=False)
 gender_degree_data = np.genfromtxt(fname, delimiter=',', names=True)
 
-# These are the colors that will be used in the plot
-color_sequence = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c',
-                  '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
-                  '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f',
-                  '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
-
 # You typically want your plot to be ~1.33x wider than tall. This plot
 # is a rare exception because of the number of lines being plotted on it.
 # Common sizes: (10, 7.5) and (12, 9)
 fig, ax = plt.subplots(1, 1, figsize=(12, 14))
+
+# These are the colors that will be used in the plot
+ax.set_prop_cycle(color=[
+    '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a',
+    '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94',
+    '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d',
+    '#17becf', '#9edae5'])
 
 # Remove the plot frame lines. They are unnecessary here.
 ax.spines['top'].set_visible(False)
@@ -81,14 +82,12 @@ y_offsets = {'Foreign Languages': 0.5, 'English': -0.5,
              'Math and Statistics': 0.75, 'Architecture': -0.75,
              'Computer Science': 0.75, 'Engineering': -0.25}
 
-for rank, column in enumerate(majors):
+for column in majors:
     # Plot each line separately with its own color.
     column_rec_name = column.replace('\n', '_').replace(' ', '_')
 
-    line = ax.plot(gender_degree_data['Year'],
-                   gender_degree_data[column_rec_name],
-                   lw=2.5,
-                   color=color_sequence[rank])
+    line, = ax.plot('Year', column_rec_name, data=gender_degree_data,
+                    lw=2.5)
 
     # Add a text label to the right end of every line. Most of the code below
     # is adding specific offsets y position because some labels overlapped.
@@ -99,7 +98,7 @@ for rank, column in enumerate(majors):
 
     # Again, make sure that all labels are large enough to be easily read
     # by the viewer.
-    ax.text(2011.5, y_pos, column, fontsize=14, color=color_sequence[rank])
+    ax.text(2011.5, y_pos, column, fontsize=14, color=line.get_color())
 
 # Make the title big enough so it spans the entire plot, but don't make it
 # so big that it requires two lines to show.
