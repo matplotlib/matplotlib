@@ -47,22 +47,23 @@ fig.subplots_adjust(left=.06, right=.75, bottom=.02, top=.94)
 ax.set_xlim(1969.5, 2011.1)
 ax.set_ylim(-0.25, 90)
 
-# Make sure your axis ticks are large enough to be easily read.
-# You don't want your viewers squinting to read your plot.
-plt.xticks(range(1970, 2011, 10), fontsize=14)
-plt.yticks(range(0, 91, 10), fontsize=14)
+# Set a fixed location and format for ticks.
+ax.set_xticks(range(1970, 2011, 10))
+ax.set_yticks(range(0, 91, 10))
 ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
 ax.yaxis.set_major_formatter(plt.FuncFormatter('{:.0f}%'.format))
 
 # Provide tick lines across the plot to help your viewers trace along
 # the axis ticks. Make sure that the lines are light and small so they
 # don't obscure the primary data lines.
-plt.grid(True, 'major', 'y', ls='--', lw=.5, c='k', alpha=.3)
+ax.grid(True, 'major', 'y', ls='--', lw=.5, c='k', alpha=.3)
 
 # Remove the tick marks; they are unnecessary with the tick lines we just
-# plotted.
-plt.tick_params(axis='both', which='both', bottom=False, top=False,
-                labelbottom=True, left=False, right=False, labelleft=True)
+# plotted. Make sure your axis ticks are large enough to be easily read.
+# You don't want your viewers squinting to read your plot.
+ax.tick_params(axis='both', which='both', labelsize=14,
+               bottom=False, top=False, labelbottom=True,
+               left=False, right=False, labelleft=True)
 
 # Now that the plot is prepared, it's time to actually plot the data!
 # Note that I plotted the majors in order of the highest % in the final year.
@@ -84,10 +85,10 @@ for rank, column in enumerate(majors):
     # Plot each line separately with its own color.
     column_rec_name = column.replace('\n', '_').replace(' ', '_')
 
-    line = plt.plot(gender_degree_data['Year'],
-                    gender_degree_data[column_rec_name],
-                    lw=2.5,
-                    color=color_sequence[rank])
+    line = ax.plot(gender_degree_data['Year'],
+                   gender_degree_data[column_rec_name],
+                   lw=2.5,
+                   color=color_sequence[rank])
 
     # Add a text label to the right end of every line. Most of the code below
     # is adding specific offsets y position because some labels overlapped.
@@ -98,7 +99,7 @@ for rank, column in enumerate(majors):
 
     # Again, make sure that all labels are large enough to be easily read
     # by the viewer.
-    plt.text(2011.5, y_pos, column, fontsize=14, color=color_sequence[rank])
+    ax.text(2011.5, y_pos, column, fontsize=14, color=color_sequence[rank])
 
 # Make the title big enough so it spans the entire plot, but don't make it
 # so big that it requires two lines to show.
@@ -111,5 +112,5 @@ fig.suptitle('Percentage of Bachelor\'s degrees conferred to women in '
 # Finally, save the figure as a PNG.
 # You can also save it as a PDF, JPEG, etc.
 # Just change the file extension in this call.
-# plt.savefig('percent-bachelors-degrees-women-usa.png', bbox_inches='tight')
+# fig.savefig('percent-bachelors-degrees-women-usa.png', bbox_inches='tight')
 plt.show()
