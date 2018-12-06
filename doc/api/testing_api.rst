@@ -1,6 +1,6 @@
-*******
-testing
-*******
+**********************
+``matplotlib.testing``
+**********************
 
 
 :mod:`matplotlib.testing`
