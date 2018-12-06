@@ -1,5 +1,6 @@
 from pathlib import Path
 import shutil
+import sys
 import warnings
 
 import numpy as np
@@ -87,3 +88,20 @@ def test_hinting_factor(factor):
     # Check that hinting only changes text layout by a small (10%) amount.
     np.testing.assert_allclose(hinted_font.get_width_height(), expected,
                                rtol=0.1)
+
+
+@pytest.mark.skipif(sys.platform != "win32",
+                   reason="Need Windows font to test against")
+def test_utf16m_sfnt():
+    segoe_ui_semibold = None
+    for f in fontManager.ttflist:
+        # seguisbi = Microsoft Segoe UI Semibold
+        if f.fname[-12:] == "seguisbi.ttf":
+            segoe_ui_semibold = f
+            break
+    else:
+        pytest.xfail(reason="Couldn't find font to test against.")
+
+    # Check that we successfully read the "semibold" from the font's
+    # sfnt table and set its weight accordingly
+    assert segoe_ui_semibold.weight == "semibold"
