@@ -2662,7 +2662,7 @@ class NavigationToolbar2(object):
                     trans = event.inaxes.transData.inverted()
                     last_xdata, last_ydata = trans.transform_point((lastx, lasty))
                     dxy = event.inaxes.format_coord(event.xdata - last_xdata, event.ydata - last_ydata)
-                    s += ' (\N{GREEK CAPITAL LETTER DELTA}: {})'.format(dd)
+                    s += ' (\N{GREEK CAPITAL LETTER DELTA}: {})'.format(dxy)
 
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
