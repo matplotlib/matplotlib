@@ -2656,17 +2656,14 @@ class NavigationToolbar2(object):
                             data_str = a.format_cursor_data(data)
                             if data_str is not None:
                                 s = s + ' ' + data_str
-                                
+
                 if self.mode == 'zoom rect' and self._xypress:
                     lastx, lasty, a, ind, view = self._xypress[0]
-
                     trans = event.inaxes.transData.inverted()
                     last_xdata, last_ydata = trans.transform_point((lastx, lasty))
-
-                    dx = event.xdata - last_xdata
-                    dy = event.ydata - last_ydata
-
-                    s += ' (Δx={}\tΔy={})'.format(event.inaxes.format_xdata(dx), event.inaxes.format_ydata(dy))
+                    dx = event.inaxes.format_xdata(event.xdata - last_xdata)
+                    dy = event.inaxes.format_ydata(event.ydata - last_ydata)
+                    s += ' (Δx={}\tΔy={})'.format(dx, dy)
 
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
