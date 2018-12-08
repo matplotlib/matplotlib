@@ -433,14 +433,28 @@ class OldScalarFormatter(Formatter):
         The position `pos` is ignored.
         """
         xmin, xmax = self.axis.get_view_interval()
+        # If the number is not too big and it's an int, format it as an int.
+        if abs(x) < 1e4 and x == int(x):
+            return '%d' % x
         d = abs(xmax - xmin)
-        return self._pprint_val(x, d)
+        fmt = ('%1.3e' if d < 1e-2 else
+               '%1.3f' if d <= 1 else
+               '%1.2f' if d <= 10 else
+               '%1.1f' if d <= 1e5 else
+               '%1.1e')
+        s = fmt % x
+        tup = s.split('e')
+        if len(tup) == 2:
+            mantissa = tup[0].rstrip('0').rstrip('.')
+            sign = tup[1][0].replace('+', '')
+            exponent = tup[1][1:].lstrip('0')
+            s = '%se%s%s' % (mantissa, sign, exponent)
+        else:
+            s = s.rstrip('0').rstrip('.')
+        return s
 
     @cbook.deprecated("3.1")
-    def pprint_val(self, *args, **kwargs):
-        return self._pprint_val(*args, **kwargs)
-
-    def _pprint_val(self, x, d):
+    def pprint_val(self, x, d):
         """
         Formats the value `x` based on the size of the axis range `d`.
         """
@@ -556,7 +570,13 @@ class ScalarFormatter(Formatter):
         if len(self.locs) == 0:
             return ''
         else:
-            s = self._pprint_val(x)
+            xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
+            if np.abs(xp) < 1e-8:
+                xp = 0
+            if self._useLocale:
+                s = locale.format_string(self.format, (xp,))
+            else:
+                s = self.format % xp
             return self.fix_minus(s)
 
     def set_scientific(self, b):
@@ -768,10 +788,7 @@ class ScalarFormatter(Formatter):
             self.format = '$%s$' % _mathdefault(self.format)
 
     @cbook.deprecated("3.1")
-    def pprint_val(self, *args, **kwargs):
-        return self._pprint_val(*args, **kwargs)
-
-    def _pprint_val(self, x):
+    def pprint_val(self, x):
         xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
         if np.abs(xp) < 1e-8:
             xp = 0
@@ -1020,21 +1037,12 @@ class LogFormatter(Formatter):
         # If the number is not too big and it's an int, format it as an int.
         if abs(x) < 1e4 and x == int(x):
             return '%d' % x
-
-        if d < 1e-2:
-            fmt = '%1.3e'
-        elif d < 1e-1:
-            fmt = '%1.3f'
-        elif d > 1e5:
-            fmt = '%1.1e'
-        elif d > 10:
-            fmt = '%1.1f'
-        elif d > 1:
-            fmt = '%1.2f'
-        else:
-            fmt = '%1.3f'
+        fmt = ('%1.3e' if d < 1e-2 else
+               '%1.3f' if d <= 1 else
+               '%1.2f' if d <= 10 else
+               '%1.1f' if d <= 1e5 else
+               '%1.1e')
         s = fmt % x
-
         tup = s.split('e')
         if len(tup) == 2:
             mantissa = tup[0].rstrip('0').rstrip('.')
