@@ -428,22 +428,23 @@ class OldScalarFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick val `x` based on the width of the
-        axis.
+        Return the format for tick val `x` based on the width of the axis.
 
         The position `pos` is ignored.
         """
         xmin, xmax = self.axis.get_view_interval()
         d = abs(xmax - xmin)
+        return self._pprint_val(x, d)
 
-        return self.pprint_val(x, d)
+    @cbook.deprecated("3.1")
+    def pprint_val(self, *args, **kwargs):
+        return self._pprint_val(*args, **kwargs)
 
-    def pprint_val(self, x, d):
+    def _pprint_val(self, x, d):
         """
         Formats the value `x` based on the size of the axis range `d`.
         """
-        #if the number is not too big and it's an int, format it as an
-        #int
+        # If the number is not too big and it's an int, format it as an int.
         if abs(x) < 1e4 and x == int(x):
             return '%d' % x
 
@@ -555,7 +556,7 @@ class ScalarFormatter(Formatter):
         if len(self.locs) == 0:
             return ''
         else:
-            s = self.pprint_val(x)
+            s = self._pprint_val(x)
             return self.fix_minus(s)
 
     def set_scientific(self, b):
@@ -766,7 +767,11 @@ class ScalarFormatter(Formatter):
         elif self._useMathText:
             self.format = '$%s$' % _mathdefault(self.format)
 
-    def pprint_val(self, x):
+    @cbook.deprecated("3.1")
+    def pprint_val(self, *args, **kwargs):
+        return self._pprint_val(*args, **kwargs)
+
+    def _pprint_val(self, x):
         xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
         if np.abs(xp) < 1e-8:
             xp = 0
@@ -966,7 +971,7 @@ class LogFormatter(Formatter):
         elif x < 1:
             s = '%1.0e' % x
         else:
-            s = self.pprint_val(x, vmax - vmin)
+            s = self._pprint_val(x, vmax - vmin)
         return s
 
     def __call__(self, x, pos=None):
@@ -1007,9 +1012,12 @@ class LogFormatter(Formatter):
         """
         return '%-12g' % value
 
-    def pprint_val(self, x, d):
-        #if the number is not too big and it's an int, format it as an
-        #int
+    @cbook.deprecated("3.1")
+    def pprint_val(self, *args, **kwargs):
+        return self._pprint_val(*args, **kwargs)
+
+    def _pprint_val(self, x, d):
+        # If the number is not too big and it's an int, format it as an int.
         if abs(x) < 1e4 and x == int(x):
             return '%d' % x
 
@@ -1052,7 +1060,7 @@ class LogFormatterExponent(LogFormatter):
             s = '%1.0g' % fx
         else:
             fd = math.log(vmax - vmin) / math.log(self._base)
-            s = self.pprint_val(fx, fd)
+            s = self._pprint_val(fx, fd)
         return s
 
 
