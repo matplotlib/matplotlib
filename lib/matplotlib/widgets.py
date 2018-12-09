@@ -602,10 +602,6 @@ class CheckButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
-        if not self.eventson:
-            return
-        for cid, func in self.observers.items():
-            func(self.labels[index].get_text())
 
     def clear(self):
         """Clears all the checkboxes"""
@@ -616,6 +612,16 @@ class CheckButtons(AxesWidget):
 
         if self.drawon:
             self.ax.figure.canvas.draw()
+
+    def _exec_callbacks(self, current_label=None):
+        """Runs all the registered callbacks."""
+
+        if not self.eventson:
+            return
+
+        for cid, func in self.observers.items():
+            func(current_label)
+
 
     def get_status(self):
         """
@@ -1073,10 +1079,6 @@ class RadioButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
-        if not self.eventson:
-            return
-        for cid, func in self.observers.items():
-            func(self.labels[index].get_text())
 
     def clear(self):
         """Deactivate any previously activated button."""
@@ -1096,6 +1098,15 @@ class RadioButtons(AxesWidget):
         self.observers[cid] = func
         self.cnt += 1
         return cid
+
+    def _exec_callbacks(self, current_label=None):
+        """Runs all the registered callbacks."""
+
+        if not self.eventson:
+            return
+
+        for cid, func in self.observers.items():
+            func(current_label)
 
     def disconnect(self, cid):
         """remove the observer with connection id *cid*"""
