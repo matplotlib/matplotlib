@@ -1257,28 +1257,34 @@ class SubplotTool(Widget):
 
 class Cursor(AxesWidget):
     """
-    A horizontal and vertical line that spans the axes and moves with
-    the pointer.  You can turn off the hline or vline respectively with
-    the following attributes:
+    A crosshair cursor that spans the axes and moves with mouse cursor.
 
-      *horizOn*
-        Controls the visibility of the horizontal line
+    For the cursor to remain responsive you must keep a reference to it.
 
-      *vertOn*
-        Controls the visibility of the horizontal line
+    Parameters
+    ----------
+    ax : `matplotlib.axes.Axes`
+        The `~.axes.Axes` to attach the cursor to.
+    horizOn : bool, optional, default: True
+        Whether to draw the horizontal line.
+    vertOn : bool, optional, default: True
+        Whether to draw the vertical line.
+    useblit : bool, optional, default: False
+        Use blitting for faster drawing if supported by the backend.
 
-    and the visibility of the cursor itself with the *visible* attribute.
+    Other Parameters
+    ----------------
+    **lineprops
+        `.Line2D` porperties that control the appearance of the lines.
+        See also `~.Axes.axhline`.
 
-    For the cursor to remain responsive you must keep a reference to
-    it.
+    Examples
+    --------
+    See :doc:`/gallery/widgets/cursor`.
     """
+
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
-        """
-        Add a cursor to *ax*.  If ``useblit=True``, use the backend-dependent
-        blitting features for faster updates.  *lineprops* is a dictionary of
-        line properties.
-        """
         AxesWidget.__init__(self, ax)
 
         self.connect_event('motion_notify_event', self.onmove)
@@ -1298,7 +1304,7 @@ class Cursor(AxesWidget):
         self.needclear = False
 
     def clear(self, event):
-        """clear the cursor"""
+        """Internal event handler to clear the cursor."""
         if self.ignore(event):
             return
         if self.useblit:
@@ -1307,7 +1313,7 @@ class Cursor(AxesWidget):
         self.lineh.set_visible(False)
 
     def onmove(self, event):
-        """on mouse motion draw the cursor if visible"""
+        """Internal event handler to draw the cursor when the mouse moves."""
         if self.ignore(event):
             return
         if not self.canvas.widgetlock.available(self):
@@ -1332,7 +1338,6 @@ class Cursor(AxesWidget):
         self._update()
 
     def _update(self):
-
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
@@ -1340,9 +1345,7 @@ class Cursor(AxesWidget):
             self.ax.draw_artist(self.lineh)
             self.canvas.blit(self.ax.bbox)
         else:
-
             self.canvas.draw_idle()
-
         return False
 
 
