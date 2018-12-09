@@ -171,6 +171,58 @@ def win32FontDirectory():
         return os.path.join(os.environ['WINDIR'], 'Fonts')
 
 
+def win32RegistryFonts(reg_domain, base_dir):
+    r"""
+    Searches for fonts in the Windows registry.
+
+    Parameters
+    ----------
+    reg_domain : `int`
+        The top level registry domain (e.g. HKEY_LOCAL_MACHINE).
+
+    base_dir : `string`
+        The path to the folder where the font files are usually located (e.g.
+        C:\Windows\Fonts). If only the filename of the font is stored in the
+        registry, the absolute path is built relative to this base directory.
+
+    Returns
+    -------
+    `set`
+        `pathlib.Path` objects with the absolute path to the font files found.
+
+    """
+    import winreg
+    items = set()
+
+    for reg_path in MSFontDirectories:
+        try:
+            with winreg.OpenKey(reg_domain, reg_path) as local:
+                for j in range(winreg.QueryInfoKey(local)[1]):
+                    # value may contain the filename of the font or its
+                    # absolute path.
+                    key, value, tp = winreg.EnumValue(local, j)
+                    if not isinstance(value, str):
+                        continue
+
+                    # Work around for https://bugs.python.org/issue25778, which
+                    # is fixed in Py>=3.6.1.
+                    value = value.split("\0", 1)[0]
+
+                    try:
+                        # If value contains already an absolute path, then it
+                        # is not changed further.
+                        path = Path(base_dir, value).resolve()
+                    except RuntimeError:
+                        # Don't fail with invalid entries.
+                        continue
+
+                    items.add(path)
+        except (OSError, MemoryError):
+            continue
+
+    return items
+
+
 def win32InstalledFonts(directory=None, fontext='ttf'):
     """
     Search for fonts in the specified font directory, or use the
@@ -186,48 +238,16 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
 
     items = set()
-    for fontdir in MSFontDirectories:
-        # System fonts
-        try:
-            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, fontdir) as local:
-                for j in range(winreg.QueryInfoKey(local)[1]):
-                    # Usually, value contains the name of the font file.
-                    key, value, tp = winreg.EnumValue(local, j)
-                    if not isinstance(value, str):
-                        continue
-                    # Work around for https://bugs.python.org/issue25778, which
-                    # is fixed in Py>=3.6.1.
-                    value = value.split("\0", 1)[0]
-                    try:
-                        path = Path(directory, value).resolve()
-                    except RuntimeError:
-                        # Don't fail with invalid entries.
-                        continue
-                    if path.suffix.lower() in fontext:
-                        items.add(str(path))
-        except (OSError, MemoryError):
-            continue
 
-        # User fonts
-        try:
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, fontdir) as local:
-                for j in range(winreg.QueryInfoKey(local)[1]):
-                    # Usually, value contains the absolute path to the font
-                    # file.
-                    key, value, tp = winreg.EnumValue(local, j)
-                    if not isinstance(value, str):
-                        continue
-                    try:
-                        path = Path(value).resolve()
-                    except RuntimeError:
-                        # Don't fail with invalid entries.
-                        continue
-                    if path.suffix.lower() in fontext:
-                        items.add(str(path))
-        except (OSError, MemoryError):
-            continue
+    # System fonts
+    items.update(win32RegistryFonts(winreg.HKEY_LOCAL_MACHINE, directory))
 
-    return list(items)
+    # User fonts
+    for userdir in MSUserFontDirectories:
+        items.update(win32RegistryFonts(winreg.HKEY_CURRENT_USER, userdir))
+
+    # Keep only paths with matching file extension.
+    return [str(path) for path in items if path.suffix.lower() in fontext]
 
 
 @cbook.deprecated("3.1")
