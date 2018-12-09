@@ -21,21 +21,39 @@ from matplotlib.ft2font import FT2Font
 import matplotlib.pyplot as plt
 
 
-def draw_font_table(path, print_non_latin1=False):
+def print_glyphs(font):
+    """Print the all the glyphs in the given FT2Font font to stdout."""
+    charmap = font.get_charmap()
+    max_indices_len = len(str(max(charmap.values())))
+
+    print("The font face contains the following glyphs:")
+    for char_code, glyph_index in charmap.items():
+        char = chr(char_code)
+        name = unicodedata.name(
+                char,
+                f"{char_code:#x} ({font.get_glyph_name(glyph_index)})")
+        print(f"{glyph_index:>{max_indices_len}} {char} {name}")
+
+
+def draw_font_table(path, print_all=False):
     """
+    Draw a font table of the first 255 chars of the given font.
+
     Parameters
     ----------
     path : str or None
         The path to the font file.  If None, use Matplotlib's default font.
-    print_non_latin1 : bool
-        Print non-latin1 chars (i.e. chars with codepoints beyond 255) to
-        stdout.
+    print_all : bool
+        Additionally print all chars to stdout.
     """
 
     if path is None:
         path = fm.findfont(fm.FontProperties())  # The default font.
 
     font = FT2Font(path)
+    if print_all:
+        print_glyphs(font)
+
     # A charmap is a mapping of "character codes" (in the sense of a character
     # encoding, e.g. latin-1) to glyph indices (i.e. the internal storage table
     # of the font face).
@@ -52,28 +70,12 @@ def draw_font_table(path, print_non_latin1=False):
     labelc = ["{:X}".format(i) for i in range(16)]
     labelr = ["{:02X}".format(16 * i) for i in range(16)]
     chars = [["" for c in range(16)] for r in range(16)]
-    non_8bit = []
 
     for char_code, glyph_index in codes:
-        char = chr(char_code)
         if char_code >= 256:
-            non_8bit.append((
-                str(glyph_index),
-                char,
-                unicodedata.name(
-                    char,
-                    f"{char_code:#x} ({font.get_glyph_name(glyph_index)})"),
-            ))
             continue
         row, col = divmod(char_code, 16)
-        chars[row][col] = char
-    if non_8bit and print_non_latin1:
-        indices, *_ = zip(*non_8bit)
-        max_indices_len = max(map(len, indices))
-        print("The font face contains the following glyphs corresponding to "
-              "code points beyond 0xff:")
-        for index, char, name in non_8bit:
-            print(f"{index:>{max_indices_len}} {char} {name}")
+        chars[row][col] = chr(char_code)
 
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.set_title(path)
@@ -103,8 +105,8 @@ if __name__ == "__main__":
 
     parser = ArgumentParser(description="Display a font table.")
     parser.add_argument("path", nargs="?", help="Path to the font file.")
-    parser.add_argument("--print-non-latin1", action="store_true",
-                        help="Print non-latin1 chars to stdout.")
+    parser.add_argument("--print-all", action="store_true",
+                        help="Additionally, print all chars to stdout.")
     args = parser.parse_args()
 
-    draw_font_table(args.path, args.print_non_latin1)
+    draw_font_table(args.path, args.print_all)
