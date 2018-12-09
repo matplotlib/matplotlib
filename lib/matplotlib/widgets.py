@@ -602,6 +602,7 @@ class CheckButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
+        self._exec_callbacks(self.labels[index].get_text())
 
     def clear(self):
         """Clears all the checkboxes"""
@@ -612,6 +613,9 @@ class CheckButtons(AxesWidget):
 
         if self.drawon:
             self.ax.figure.canvas.draw()
+
+        # calling it with no label, as all checkboxes are being cleared
+        self._exec_callbacks(None)
 
     def _exec_callbacks(self, current_label=None):
         """Runs all the registered callbacks."""
@@ -1079,6 +1083,7 @@ class RadioButtons(AxesWidget):
         if self.drawon:
             self.ax.figure.canvas.draw()
 
+        self._exec_callbacks(self.labels[index].get_text())
 
     def clear(self):
         """Deactivate any previously activated button."""
@@ -1088,9 +1093,13 @@ class RadioButtons(AxesWidget):
         self.value_selected = None
         self.index_selected = None
 
+        # calling it with no label, as all buttons are being cleared
+        self._exec_callbacks(None)
+
     def on_clicked(self, func):
         """
         When the button is clicked, call *func* with button label
+        When all buttons are cleared, call *func* with None
 
         A connection id is returned which can be used to disconnect
         """
