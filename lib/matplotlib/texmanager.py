@@ -463,6 +463,6 @@ class TexManager(object):
             # use dviread. It sometimes returns a wrong descent.
             dvifile = self.make_dvi(tex, fontsize)
             with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
-                page = next(iter(dvi))
+                page, = dvi
             # A total height (including the descent) needs to be returned.
             return page.width, page.height + page.descent, page.descent

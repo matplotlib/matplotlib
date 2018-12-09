@@ -518,17 +518,11 @@ class Table(Artist):
 
     def _auto_set_column_width(self, col, renderer):
         """Automatically set width for column."""
-        cells = [key for key in self._cells if key[1] == col]
-
-        # find max width
-        width = 0
+        cells = [cell for key, cell in self._cells.items() if key[1] == col]
+        max_width = max((cell.get_required_width(renderer) for cell in cells),
+                        default=0)
         for cell in cells:
-            c = self._cells[cell]
-            width = max(c.get_required_width(renderer), width)
-
-        # Now set the widths
-        for cell in cells:
-            self._cells[cell].set_width(width)
+            cell.set_width(max_width)
 
     def auto_set_font_size(self, value=True):
         """ Automatically set font size. """
