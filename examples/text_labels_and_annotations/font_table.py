@@ -5,12 +5,13 @@ Font table
 
 Matplotlib's font support is provided by the FreeType library.
 
-Here, we use `~.Axes.table` build a font table that shows the glyphs by Unicode
-codepoint, and print the glyphs corresponding to codepoints beyond 0xff.
+Here, we use `~.Axes.table` to draw a table that shows the glyphs by Unicode
+codepoint. For brevity, the table only contains the first 256 glyphs.
 
-Download this script and run it to investigate a font by running ::
+The example is a full working script. You can download it and use it to
+investigate a font by running ::
 
-    python font_table_sgskip.py /path/to/font/file
+    python font_table.py /path/to/font/file
 """
 
 import unicodedata
@@ -18,15 +19,17 @@ import unicodedata
 import matplotlib.font_manager as fm
 from matplotlib.ft2font import FT2Font
 import matplotlib.pyplot as plt
-import numpy as np
 
 
-def draw_font_table(path):
+def draw_font_table(path, print_non_latin1=False):
     """
     Parameters
     ----------
     path : str or None
         The path to the font file.  If None, use Matplotlib's default font.
+    print_non_latin1 : bool
+        Print non-latin1 chars (i.e. chars with codepoints beyond 255) to
+        stdout.
     """
 
     if path is None:
@@ -62,9 +65,9 @@ def draw_font_table(path):
                     f"{char_code:#x} ({font.get_glyph_name(glyph_index)})"),
             ))
             continue
-        r, c = divmod(char_code, 16)
-        chars[r][c] = char
-    if non_8bit:
+        row, col = divmod(char_code, 16)
+        chars[row][col] = char
+    if non_8bit and print_non_latin1:
         indices, *_ = zip(*non_8bit)
         max_indices_len = max(map(len, indices))
         print("The font face contains the following glyphs corresponding to "
@@ -72,7 +75,7 @@ def draw_font_table(path):
         for index, char, name in non_8bit:
             print(f"{index:>{max_indices_len}} {char} {name}")
 
-    ax = plt.figure(figsize=(8, 4), dpi=120).subplots()
+    fig, ax = plt.subplots(figsize=(8, 4))
     ax.set_title(path)
     ax.set_axis_off()
 
@@ -91,14 +94,17 @@ def draw_font_table(path):
         if row > 0 and col > -1:  # Beware of table's idiosyncratic indexing...
             cell.set_text_props(fontproperties=fm.FontProperties(fname=path))
 
+    fig.tight_layout()
     plt.show()
 
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
 
-    parser = ArgumentParser()
+    parser = ArgumentParser(description="Display a font table.")
     parser.add_argument("path", nargs="?", help="Path to the font file.")
+    parser.add_argument("--print-non-latin1", action="store_true",
+                        help="Print non-latin1 chars to stdout.")
     args = parser.parse_args()
 
-    draw_font_table(args.path)
+    draw_font_table(args.path, args.print_non_latin1)
