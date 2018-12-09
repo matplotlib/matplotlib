@@ -21,8 +21,20 @@ from matplotlib.ft2font import FT2Font
 import matplotlib.pyplot as plt
 
 
-def print_glyphs(font):
-    """Print the all the glyphs in the given FT2Font font to stdout."""
+def print_glyphs(path):
+    """
+    Print the all glyphs in the given font file to stdout.
+
+    Parameters
+    ----------
+    path : str or None
+        The path to the font file.  If None, use Matplotlib's default font.
+    """
+    if path is None:
+        path = fm.findfont(fm.FontProperties())  # The default font.
+
+    font = FT2Font(path)
+
     charmap = font.get_charmap()
     max_indices_len = len(str(max(charmap.values())))
 
@@ -35,7 +47,7 @@ def print_glyphs(font):
         print(f"{glyph_index:>{max_indices_len}} {char} {name}")
 
 
-def draw_font_table(path, print_all=False):
+def draw_font_table(path):
     """
     Draw a font table of the first 255 chars of the given font.
 
@@ -43,17 +55,11 @@ def draw_font_table(path, print_all=False):
     ----------
     path : str or None
         The path to the font file.  If None, use Matplotlib's default font.
-    print_all : bool
-        Additionally print all chars to stdout.
     """
-
     if path is None:
         path = fm.findfont(fm.FontProperties())  # The default font.
 
     font = FT2Font(path)
-    if print_all:
-        print_glyphs(font)
-
     # A charmap is a mapping of "character codes" (in the sense of a character
     # encoding, e.g. latin-1) to glyph indices (i.e. the internal storage table
     # of the font face).
@@ -109,4 +115,6 @@ if __name__ == "__main__":
                         help="Additionally, print all chars to stdout.")
     args = parser.parse_args()
 
-    draw_font_table(args.path, args.print_all)
+    if args.print_all:
+        print_glyphs(args.path)
+    draw_font_table(args.path)
