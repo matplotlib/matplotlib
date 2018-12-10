@@ -2657,12 +2657,13 @@ class NavigationToolbar2(object):
                             if data_str is not None:
                                 s = s + ' ' + data_str
 
-                if self.mode == 'zoom rect' and self._xypress:
+                if self.mode == 'zoom rect' and self._xypress and not event.inaxes.have_units():
                     lastx, lasty, a, ind, view = self._xypress[0]
                     trans = event.inaxes.transData.inverted()
                     last_xdata, last_ydata = trans.transform_point((lastx, lasty))
-                    dxy = event.inaxes.format_coord(event.xdata - last_xdata, event.ydata - last_ydata)
-                    s += ' (\N{GREEK CAPITAL LETTER DELTA}: {})'.format(dxy)
+                    dx = event.inaxes.format_xdata(event.xdata - last_xdata)
+                    dy = event.inaxes.format_ydata(event.ydata - last_ydata)
+                    s += ' (\N{GREEK CAPITAL LETTER DELTA}x={}\t\N{GREEK CAPITAL LETTER DELTA}y={})'.format(dx, dy)
 
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
