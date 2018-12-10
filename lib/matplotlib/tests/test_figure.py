@@ -1,6 +1,7 @@
+from pathlib import Path
+import platform
 import sys
 import warnings
-import platform
 
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -412,10 +413,8 @@ def test_add_artist(fig_test, fig_ref):
         ax2.add_artist(a)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_fspath(fmt, tmpdir):
-    from pathlib import Path
     out = Path(tmpdir, "test.{}".format(fmt))
     plt.savefig(out)
     with out.open("rb") as file:
