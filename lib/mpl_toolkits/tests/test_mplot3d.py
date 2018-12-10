@@ -3,7 +3,7 @@ import pytest
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from matplotlib import cm
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.collections import LineCollection
+from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
 import numpy as np
@@ -438,6 +438,13 @@ def test_poly3dcollection_closed():
                                 facecolor=(1, 0.5, 0.5, 0.5), closed=False)
     ax.add_collection3d(c1)
     ax.add_collection3d(c2)
+
+
+def test_poly_collection_2d_to_3d_empty():
+    poly = PolyCollection([])
+    art3d.poly_collection_2d_to_3d(poly)
+    assert isinstance(poly, art3d.Poly3DCollection)
+    assert poly.get_paths() == []
 
 
 @image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])

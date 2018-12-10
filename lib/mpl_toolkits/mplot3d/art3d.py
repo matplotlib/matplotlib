@@ -191,8 +191,12 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     zs = np.broadcast_to(zs, len(path))
     pathsegs = path.iter_segments(simplify=False, curves=False)
     seg_codes = [((x, y, z), code) for ((x, y), code), z in zip(pathsegs, zs)]
-    seg, codes = zip(*seg_codes)
-    seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
+    if seg_codes:
+        seg, codes = zip(*seg_codes)
+        seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
+    else:
+        seg3d = []
+        codes = []
     return seg3d, list(codes)
 
 
@@ -204,7 +208,10 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     zs = np.broadcast_to(zs, len(paths))
     segments_codes = [path_to_3d_segment_with_codes(path, pathz, zdir)
                       for path, pathz in zip(paths, zs)]
-    segments, codes = zip(*segments_codes)
+    if segments_codes:
+        segments, codes = zip(*segments_codes)
+    else:
+        segments, codes = [], []
     return list(segments), list(codes)
 
 
