@@ -26,11 +26,33 @@ from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.cbook import (
     IgnoredKeywordWarning, MatplotlibDeprecationWarning)
+from matplotlib.axes._axes import _has_item
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
 #       different baseline images to prevent race conditions when pytest runs
 #       the tests with multiple threads.
+
+
+def test_has_item():
+    d = {'a': 1, 'b': 2}
+    assert _has_item(d, 'a')
+    assert not _has_item(d, 'c')
+    d = np.array([(1, 11), (2, 22)], dtype=[('a', float), ('b', float)])
+    assert _has_item(d, 'a')
+    assert not _has_item(d, 'c')
+    d = np.array([1, 2])
+    assert not _has_item(d, 'a')
+
+
+def test_has_item_pandas(pd):
+    s = pd.Series([1, 2], index=['a', 'b'])
+    assert _has_item(s, 'a')
+    assert not _has_item(s, 'c')
+    df = pd.DataFrame([[1, 2], [3, 4]], index=['A', 'B'], columns=['a', 'b'])
+    assert _has_item(df, 'a')
+    assert not _has_item(df, 'A')
+    assert not _has_item(df, 'c')
 
 
 def test_get_labels():

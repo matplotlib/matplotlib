@@ -49,9 +49,12 @@ def _has_item(data, name):
     availability) and with numpy.arrays.
     """
     try:
-        return data.dtype.names is not None and name in data.dtype.names
-    except AttributeError:  # not a numpy array
-        return name in data
+        if not type(data).__name__ == 'Series':
+            # numpy array
+            return data.dtype.names is not None and name in data.dtype.names
+    except AttributeError:
+        pass
+    return name in data
 
 
 def _plot_args_replacer(args, data):
