@@ -13,13 +13,12 @@ def _notebook_run(nb_file):
     """Execute a notebook via nbconvert and collect output.
        :returns (parsed nb object, execution errors)
     """
-    with tempfile.NamedTemporaryFile(suffix=".ipynb",
-                                     mode='w+t') as fout:
-        args = ["jupyter", "nbconvert", "--to", "notebook", "--execute",
-          "--ExecutePreprocessor.timeout=500",
-          "--output", fout.name, nb_file]
-        subprocess.check_call(args)
-
+    with tempfile.NamedTemporaryFile(suffix=".ipynb", mode='w+t') as fout:
+        subprocess.check_call([
+            "jupyter", "nbconvert", "--to", "notebook",
+            "--execute", "--ExecutePreprocessor.timeout=500",
+            "--output", fout.name, nb_file,
+        ])
         fout.seek(0)
         nb = nbformat.read(fout, nbformat.current_nbformat)
 
@@ -30,6 +29,5 @@ def _notebook_run(nb_file):
 
 
 def test_ipynb():
-    nb, errors = _notebook_run(
-        str(Path(__file__).parent / 'test_nbagg_01.ipynb'))
+    nb, errors = _notebook_run(Path(__file__).parent / 'test_nbagg_01.ipynb')
     assert errors == []
