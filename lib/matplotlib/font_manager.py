@@ -177,10 +177,10 @@ def win32RegistryFonts(reg_domain, base_dir):
 
     Parameters
     ----------
-    reg_domain : `int`
+    reg_domain : int
         The top level registry domain (e.g. HKEY_LOCAL_MACHINE).
 
-    base_dir : `string`
+    base_dir : str
         The path to the folder where the font files are usually located (e.g.
         C:\Windows\Fonts). If only the filename of the font is stored in the
         registry, the absolute path is built relative to this base directory.
