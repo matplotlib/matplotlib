@@ -657,7 +657,7 @@ class Line2D(Artist):
         *args : (N, 2) array or two 1D arrays
         """
         if len(args) == 1:
-            x, y = args[0]
+            (x, y), = args
         else:
             x, y = args
 
@@ -763,8 +763,8 @@ class Line2D(Artist):
         self.ind_offset = 0  # Needed for contains() method.
         if self._subslice and self.axes:
             x0, x1 = self.axes.get_xbound()
-            i0, = self._x_filled.searchsorted([x0], 'left')
-            i1, = self._x_filled.searchsorted([x1], 'right')
+            i0 = self._x_filled.searchsorted(x0, 'left')
+            i1 = self._x_filled.searchsorted(x1, 'right')
             subslice = slice(max(i0 - 1, 0), i1 + 1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)

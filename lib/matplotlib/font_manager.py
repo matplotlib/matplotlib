@@ -191,9 +191,8 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                     direc = direc.split("\0", 1)[0]
                     try:
                         path = Path(directory, direc).resolve()
-                    except (FileNotFoundError, RuntimeError):
-                        # Don't fail with invalid entries (FileNotFoundError is
-                        # only necessary on Py3.5).
+                    except RuntimeError:
+                        # Don't fail with invalid entries.
                         continue
                     if path.suffix.lower() in fontext:
                         items.add(str(path))

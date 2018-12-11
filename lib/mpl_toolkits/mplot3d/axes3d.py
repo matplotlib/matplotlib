@@ -210,9 +210,6 @@ class Axes3D(Axes):
         for ax in self.xaxis, self.yaxis, self.zaxis:
             ax.init3d()
 
-    def get_children(self):
-        return [self.zaxis] + super().get_children()
-
     def _get_axis_list(self):
         return super()._get_axis_list() + (self.zaxis, )
 
@@ -1662,9 +1659,10 @@ class Axes3D(Axes):
         if shade is None:
             cbook.warn_deprecated(
                 "3.1",
-                "Passing shade=None to Axes3D.plot_surface() is deprecated "
-                "since matplotlib 3.1 and will change its semantic or raise "
-                "an error in matplotlib 3.3. Please use shade=False instead.")
+                message="Passing shade=None to Axes3D.plot_surface() is "
+                        "deprecated since matplotlib 3.1 and will change its "
+                        "semantic or raise an error in matplotlib 3.3. "
+                        "Please use shade=False instead.")
 
         # evenly spaced, and including both endpoints
         row_inds = list(range(0, rows-1, rstride)) + [rows-1]
@@ -1686,20 +1684,6 @@ class Axes3D(Axes):
                 if fcolors is not None:
                     colset.append(fcolors[rs][cs])
 
-        def get_normals(polygons):
-            """
-            Takes a list of polygons and return an array of their normals
-            """
-            v1 = np.empty((len(polygons), 3))
-            v2 = np.empty((len(polygons), 3))
-            for poly_i, ps in enumerate(polygons):
-                # pick three points around the polygon at which to find the
-                # normal doesn't vectorize because polygons is jagged
-                i1, i2, i3 = 0, len(ps)//3, 2*len(ps)//3
-                v1[poly_i, :] = ps[i1, :] - ps[i2, :]
-                v2[poly_i, :] = ps[i2, :] - ps[i3, :]
-            return np.cross(v1, v2)
-
         # note that the striding causes some polygons to have more coordinates
         # than others
         polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
@@ -1707,7 +1691,7 @@ class Axes3D(Axes):
         if fcolors is not None:
             if shade:
                 colset = self._shade_colors(
-                    colset, get_normals(polys), lightsource)
+                    colset, self._generate_normals(polys), lightsource)
             polyc.set_facecolors(colset)
             polyc.set_edgecolors(colset)
         elif cmap:
@@ -1721,7 +1705,7 @@ class Axes3D(Axes):
         else:
             if shade:
                 colset = self._shade_colors(
-                    color, get_normals(polys), lightsource)
+                    color, self._generate_normals(polys), lightsource)
             else:
                 colset = color
             polyc.set_facecolors(colset)
@@ -1732,27 +1716,54 @@ class Axes3D(Axes):
         return polyc
 
     def _generate_normals(self, polygons):
-        '''
-        Generate normals for polygons by using the first three points.
-        This normal of course might not make sense for polygons with
-        more than three points not lying in a plane.
+        """
+        Takes a list of polygons and return an array of their normals.
 
         Normals point towards the viewer for a face with its vertices in
         counterclockwise order, following the right hand rule.
-        '''
 
-        normals = []
-        for verts in polygons:
-            v1 = np.array(verts[1]) - np.array(verts[0])
-            v2 = np.array(verts[2]) - np.array(verts[0])
-            normals.append(np.cross(v1, v2))
-        return normals
+        Uses three points equally spaced around the polygon.
+        This normal of course might not make sense for polygons with more than
+        three points not lying in a plane, but it's a plausible and fast
+        approximation.
+
+        Parameters
+        ----------
+        polygons: list of (M_i, 3) array_like, or (..., M, 3) array_like
+            A sequence of polygons to compute normals for, which can have
+            varying numbers of vertices. If the polygons all have the same
+            number of vertices and array is passed, then the operation will
+            be vectorized.
+
+        Returns
+        -------
+        normals: (..., 3) array_like
+            A normal vector estimated for the polygon.
+
+        """
+        if isinstance(polygons, np.ndarray):
+            # optimization: polygons all have the same number of points, so can
+            # vectorize
+            n = polygons.shape[-2]
+            i1, i2, i3 = 0, n//3, 2*n//3
+            v1 = polygons[..., i1, :] - polygons[..., i2, :]
+            v2 = polygons[..., i2, :] - polygons[..., i3, :]
+        else:
+            # The subtraction doesn't vectorize because polygons is jagged.
+            v1 = np.empty((len(polygons), 3))
+            v2 = np.empty((len(polygons), 3))
+            for poly_i, ps in enumerate(polygons):
+                n = len(ps)
+                i1, i2, i3 = 0, n//3, 2*n//3
+                v1[poly_i, :] = ps[i1, :] - ps[i2, :]
+                v2[poly_i, :] = ps[i2, :] - ps[i3, :]
+        return np.cross(v1, v2)
 
     def _shade_colors(self, color, normals, lightsource=None):
-        '''
+        """
         Shade *color* using normal vectors given by *normals*.
         *color* can also be an array of the same length as *normals*.
-        '''
+        """
         if lightsource is None:
             # chosen for backwards-compatibility
             lightsource = LightSource(azdeg=225, altdeg=19.4712)
@@ -1762,7 +1773,7 @@ class Axes3D(Axes):
                           for n in normals])
         mask = ~np.isnan(shade)
 
-        if len(shade[mask]) > 0:
+        if mask.any():
             # convert dot product to allowed shading fractions
             in_norm = Normalize(-1, 1)
             out_norm = Normalize(0.3, 1).inverse
@@ -1771,6 +1782,7 @@ class Axes3D(Axes):
                 return out_norm(in_norm(x))
 
             shade[~mask] = 0
+
             color = mcolors.to_rgba_array(color)
             # shape of color should be (M, 4) (where M is number of faces)
             # shape of shade should be (M,)
@@ -1999,9 +2011,7 @@ class Axes3D(Axes):
                 polyc.set_norm(norm)
         else:
             if shade:
-                v1 = verts[:, 0, :] - verts[:, 1, :]
-                v2 = verts[:, 1, :] - verts[:, 2, :]
-                normals = np.cross(v1, v2)
+                normals = self._generate_normals(verts)
                 colset = self._shade_colors(color, normals, lightsource)
             else:
                 colset = color
@@ -2048,9 +2058,9 @@ class Axes3D(Axes):
                     botverts[0][i2],
                     botverts[0][i1]])
 
-                v1 = np.array(topverts[0][i1]) - np.array(topverts[0][i2])
-                v2 = np.array(topverts[0][i1]) - np.array(botverts[0][i1])
-                normals.append(np.cross(v1, v2))
+            # all polygons have 4 vertices, so vectorize
+            polyverts = np.array(polyverts)
+            normals = self._generate_normals(polyverts)
 
             colors = self._shade_colors(color, normals)
             colors2 = self._shade_colors(color, normals)
@@ -2642,15 +2652,12 @@ pivot='tail', normalize=False, **kwargs)
 
         # first 6 arguments are X, Y, Z, U, V, W
         input_args = args[:argi]
-        # if any of the args are scalar, convert into list
-        input_args = [[k] if isinstance(k, (int, float)) else k
-                      for k in input_args]
 
         # extract the masks, if any
         masks = [k.mask for k in input_args
                  if isinstance(k, np.ma.MaskedArray)]
         # broadcast to match the shape
-        bcast = np.broadcast_arrays(*(input_args + masks))
+        bcast = np.broadcast_arrays(*input_args, *masks)
         input_args = bcast[:argi]
         masks = bcast[argi:]
         if masks:
@@ -2660,7 +2667,7 @@ pivot='tail', normalize=False, **kwargs)
             input_args = [np.ma.array(k, mask=mask).compressed()
                           for k in input_args]
         else:
-            input_args = [k.flatten() for k in input_args]
+            input_args = [np.ravel(k) for k in input_args]
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
@@ -2668,13 +2675,7 @@ pivot='tail', normalize=False, **kwargs)
             self.add_collection(linec)
             return linec
 
-        # Following assertions must be true before proceeding
-        # must all be ndarray
-        assert all(isinstance(k, np.ndarray) for k in input_args)
-        # must all in same shape
-        assert len({k.shape for k in input_args}) == 1
-
-        shaft_dt = np.linspace(0, length, num=2)
+        shaft_dt = np.array([0, length])
         arrow_dt = shaft_dt * arrow_length_ratio
 
         if pivot == 'tail':

@@ -290,7 +290,8 @@ class GridSpec(GridSpecBase):
         parameters are from rcParams unless a figure attribute is set.
         """
         if fig is not None:
-            cbook.warn_deprecated("2.2", "fig", obj_type="keyword argument",
+            cbook.warn_deprecated("2.2", name="fig",
+                                  obj_type="keyword argument",
                                   alternative="figure")
         if figure is None:
             figure = fig
@@ -382,7 +383,8 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         """Return a dictionary of subplot layout parameters.
         """
         if fig is not None:
-            cbook.warn_deprecated("2.2", "fig", obj_type="keyword argument",
+            cbook.warn_deprecated("2.2", name="fig",
+                                  obj_type="keyword argument",
                                   alternative="figure")
         if figure is None:
             figure = fig

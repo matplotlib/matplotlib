@@ -75,13 +75,9 @@ matrix:
         - RUN_PYTEST=
         - RUN_FLAKE8=1
         - EXTRAREQS='-r requirements/testing/travis_flake8.txt'
-    - python: 3.5
-      dist: trusty
-      # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
-      env:
-        - PINNEDVERS='-c requirements/testing/travis35.txt'
     - python: 3.6
       env:
+        - PINNEDVERS='-c requirements/testing/travis36minver.txt'
         - DELETE_FONT_CACHE=1
         - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: 3.7

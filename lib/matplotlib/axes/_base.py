@@ -1311,7 +1311,7 @@ class _AxesBase(martist.Artist):
         """
         if adjustable == 'box-forced':
             cbook.warn_deprecated(
-                "2.2", "box-forced", obj_type="keyword argument")
+                "2.2", name="box-forced", obj_type="keyword argument")
         if adjustable not in ('box', 'datalim', 'box-forced'):
             raise ValueError("argument must be 'box', or 'datalim'")
         if share:
@@ -1641,8 +1641,8 @@ class _AxesBase(martist.Artist):
                        'auto', 'image', 'square'):
                 if s == 'normal':
                     cbook.warn_deprecated(
-                        "3.1", "Passing 'normal' to axis() is deprecated "
-                        "since %(since)s; use 'auto' instead.")
+                        "3.1", message="Passing 'normal' to axis() is "
+                        "deprecated since %(since)s; use 'auto' instead.")
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
@@ -2467,7 +2467,6 @@ class _AxesBase(martist.Artist):
         Update the title position based on the bounding box enclosing
         all the ticklabels and x-axis spine and xlabel...
         """
-        _log.debug('update_title_pos')
 
         if self._autotitlepos is not None and not self._autotitlepos:
             _log.debug('title position was updated manually, not adjusting')
@@ -3123,8 +3122,8 @@ class _AxesBase(martist.Artist):
             limit unchanged.
 
             The left and right xlims may be passed as the tuple
-            (`left`, `right`) as the first positional argument (or as
-            the `left` keyword argument).
+            (*left*, *right*) as the first positional argument (or as
+            the *left* keyword argument).
 
         right : scalar, optional
             The right xlim in data coordinates. Passing *None* leaves the
@@ -3170,7 +3169,7 @@ class _AxesBase(martist.Artist):
         >>> set_xlim(right=right_lim)
 
         Limits may be passed in reverse order to flip the direction of
-        the x-axis. For example, suppose ``x`` represents the number of
+        the x-axis. For example, suppose *x* represents the number of
         years before present. The x-axis limits might be set like the
         following so 5000 years ago is on the left of the plot and the
         present is on the right.
@@ -3511,15 +3510,15 @@ class _AxesBase(martist.Artist):
             limit unchanged.
 
             The bottom and top ylims may be passed as the tuple
-            (`bottom`, `top`) as the first positional argument (or as
-            the `bottom` keyword argument).
+            (*bottom*, *top*) as the first positional argument (or as
+            the *bottom* keyword argument).
 
         top : scalar, optional
             The top ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
         emit : bool, optional
-            Whether to notify observers of limit change (default: True).
+            Whether to notify observers of limit change (default: ``True``).
 
         auto : bool or None, optional
             Whether to turn on autoscaling of the y-axis. *True* turns on,
@@ -4209,59 +4208,35 @@ class _AxesBase(martist.Artist):
         self.set_ylim(points[:, 1])
 
     def get_children(self):
-        """return a list of child artists"""
-        children = []
-        children.extend(self.collections)
-        children.extend(self.patches)
-        children.extend(self.lines)
-        children.extend(self.texts)
-        children.extend(self.artists)
-        children.extend(self.spines.values())
-        children.append(self.xaxis)
-        children.append(self.yaxis)
-        children.append(self.title)
-        children.append(self._left_title)
-        children.append(self._right_title)
-        children.extend(self.tables)
-        children.extend(self.images)
-        children.extend(self.child_axes)
-
-        if self.legend_ is not None:
-            children.append(self.legend_)
-        children.append(self.patch)
-
-        return children
+        # docstring inherited.
+        return [
+            *self.collections,
+            *self.patches,
+            *self.lines,
+            *self.texts,
+            *self.artists,
+            *self.spines.values(),
+            *self._get_axis_list(),
+            self.title, self._left_title, self._right_title,
+            *self.tables,
+            *self.images,
+            *self.child_axes,
+            *([self.legend_] if self.legend_ is not None else []),
+            self.patch,
+        ]
 
     def contains(self, mouseevent):
-        """
-        Test whether the mouse event occurred in the axes.
-
-        Returns *True* / *False*, {}
-        """
+        # docstring inherited.
         if callable(self._contains):
             return self._contains(self, mouseevent)
         return self.patch.contains(mouseevent)
 
     def contains_point(self, point):
         """
-        Returns *True* if the point (tuple of x,y) is inside the axes
-        (the area defined by the its patch). A pixel coordinate is
-        required.
-
+        Returns whether *point* (pair of pixel coordinates) is inside the axes
+        patch.
         """
         return self.patch.contains_point(point, radius=1.0)
-
-    def pick(self, *args):
-        """Trigger pick event
-
-        Call signature::
-
-            pick(mouseevent)
-
-        each child artist will fire a pick event if mouseevent is over
-        the artist and the artist has picker set
-        """
-        martist.Artist.pick(self, args[0])
 
     def get_default_bbox_extra_artists(self):
         """
@@ -4286,7 +4261,7 @@ class _AxesBase(martist.Artist):
                 if (artist.get_visible() and artist.get_in_layout())]
 
     def get_tightbbox(self, renderer, call_axes_locator=True,
-            bbox_extra_artists=None):
+                      bbox_extra_artists=None):
         """
         Return the tight bounding box of the axes, including axis and their
         decorators (xlabel, title, etc).

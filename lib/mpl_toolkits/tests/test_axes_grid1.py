@@ -398,10 +398,9 @@ def test_axes_locatable_position():
                   savefig_kwarg={'bbox_inches': 'tight'})
 def test_image_grid():
     # test that image grid works with bbox_inches=tight.
-    im = np.arange(100)
-    im.shape = 10, 10
+    im = np.arange(100).reshape((10, 10))
 
-    fig = plt.figure(1, (4., 4.))
+    fig = plt.figure(1, (4, 4))
     grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
 
     for i in range(4):

@@ -33,6 +33,7 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from contextlib import contextmanager
+from enum import IntEnum
 import importlib
 import io
 import logging
@@ -142,23 +143,24 @@ class RendererBase(object):
     * :meth:`draw_markers`
     * :meth:`draw_path_collection`
     * :meth:`draw_quad_mesh`
-
     """
+
     def __init__(self):
         self._texmanager = None
         self._text2path = textpath.TextToPath()
 
     def open_group(self, s, gid=None):
         """
-        Open a grouping element with label *s*. If *gid* is given, use
-        *gid* as the id of the group. Is only currently used by
-        :mod:`~matplotlib.backends.backend_svg`.
+        Open a grouping element with label *s* and *gid* (if set) as id.
+
+        Only used by the SVG renderer.
         """
 
     def close_group(self, s):
         """
         Close a grouping element with label *s*
-        Is only currently used by :mod:`~matplotlib.backends.backend_svg`
+
+        Only used by the SVG renderer.
         """
 
     def draw_path(self, gc, path, transform, rgbFace=None):
@@ -226,10 +228,10 @@ class RendererBase(object):
         recommended to use those generators, so that changes to the
         behavior of :meth:`draw_path_collection` can be made globally.
         """
-        path_ids = []
-        for path, transform in self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms):
-            path_ids.append((path, transforms.Affine2D(transform)))
+        path_ids = [
+            (path, transforms.Affine2D(transform))
+            for path, transform in self._iter_collection_raw_paths(
+                    master_transform, paths, all_transforms)]
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, master_transform, all_transforms, path_ids, offsets,
@@ -487,15 +489,18 @@ class RendererBase(object):
 
     def option_image_nocomposite(self):
         """
-        override this method for renderers that do not necessarily always
-        want to rescale and composite raster images. (like SVG, PDF, or PS)
+        Return whether image composition by Matplotlib should be skipped.
+
+        Raster backends should usually return False (letting the C-level
+        rasterizer take care of image composition); vector backends should
+        usually return ``not rcParams["image.composite_image"]``.
         """
         return False
 
     def option_scale_image(self):
         """
-        override this method for renderers that support arbitrary affine
-        transformations in :meth:`draw_image` (most vector backends).
+        Return whether arbitrary affine transformations in :meth:`draw_image`
+        are supported (True for most vector backends).
         """
         return False
 
@@ -506,30 +511,24 @@ class RendererBase(object):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
-        Draw the text instance
+        Draw the text instance.
 
         Parameters
         ----------
         gc : `GraphicsContextBase`
-            the graphics context
-
+            The graphics context.
         x : scalar
-            the x location of the text in display coords
-
+            The x location of the text in display coords.
         y : scalar
-            the y location of the text baseline in display coords
-
+            The y location of the text baseline in display coords.
         s : str
-            the text string
-
+            The text string.
         prop : `matplotlib.font_manager.FontProperties`
-            font properties
-
+            The font properties.
         angle : scalar
-            the rotation angle in degrees
-
+            The rotation angle in degrees.
         mtext : `matplotlib.text.Text`
-            the original text object to be rendered
+            The original text object to be rendered.
 
         Notes
         -----
@@ -549,21 +548,18 @@ class RendererBase(object):
 
     def _get_text_path_transform(self, x, y, s, prop, angle, ismath):
         """
-        return the text path and transform
+        Return the text path and transform.
 
         Parameters
         ----------
         prop : `matplotlib.font_manager.FontProperties`
-          font property
-
+            The font property.
         s : str
-          text to be converted
-
+            The text to be converted.
         usetex : bool
-          If True, use matplotlib usetex mode.
-
-        ismath : bool
-          If True, use mathtext parser. If "TeX", use *usetex* mode.
+            Whether to use matplotlib usetex mode.
+        ismath : bool or "TeX"
+            If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
 
         text2path = self._text2path
@@ -591,26 +587,22 @@ class RendererBase(object):
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
         """
-        draw the text by converting them to paths using textpath module.
+        Draw the text by converting them to paths using textpath module.
 
         Parameters
         ----------
         prop : `matplotlib.font_manager.FontProperties`
-          font property
-
+            The font property.
         s : str
-          text to be converted
-
+            The text to be converted.
         usetex : bool
-          If True, use matplotlib usetex mode.
-
-        ismath : bool
-          If True, use mathtext parser. If "TeX", use *usetex* mode.
+            Whether to use matplotlib usetex mode.
+        ismath : bool or "TeX"
+            If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
         path, transform = self._get_text_path_transform(
             x, y, s, prop, angle, ismath)
         color = gc.get_rgb()
-
         gc.set_linewidth(0.0)
         self.draw_path(gc, path, transform, rgbFace=color)
 
@@ -622,7 +614,6 @@ class RendererBase(object):
         """
         if ismath == 'TeX':
             # todo: handle props
-            size = prop.get_size_in_points()
             texmanager = self._text2path.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(
@@ -649,34 +640,30 @@ class RendererBase(object):
 
     def flipy(self):
         """
-        Return true if y small numbers are top for renderer Is used
-        for drawing text (:mod:`matplotlib.text`) and images
-        (:mod:`matplotlib.image`) only
+        Return whether y values increase from top to bottom.
+
+        Note that this only affects drawing of texts and images.
         """
         return True
 
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
+        """Return the canvas width and height in display coords."""
         return 1, 1
 
     def get_texmanager(self):
-        """
-        return the :class:`matplotlib.texmanager.TexManager` instance
-        """
+        """Return the `.TexManager` instance."""
         if self._texmanager is None:
             from matplotlib.texmanager import TexManager
             self._texmanager = TexManager()
         return self._texmanager
 
     def new_gc(self):
-        """
-        Return an instance of a :class:`GraphicsContextBase`
-        """
+        """Return an instance of a `GraphicsContextBase`."""
         return GraphicsContextBase()
 
     def points_to_pixels(self, points):
         """
-        Convert points to display units
+        Convert points to display units.
 
         You need to override this function (unless your backend
         doesn't have a dpi, e.g., postscript or svg).  Some imaging
@@ -701,35 +688,38 @@ class RendererBase(object):
 
     def start_rasterizing(self):
         """
-        Used in MixedModeRenderer. Switch to the raster renderer.
+        Switch to the raster renderer.
+
+        Used by `MixedModeRenderer`.
         """
 
     def stop_rasterizing(self):
         """
-        Used in MixedModeRenderer. Switch back to the vector renderer
-        and draw the contents of the raster renderer as an image on
-        the vector renderer.
+        Switch back to the vector renderer and draw the contents of the raster
+        renderer as an image on the vector renderer.
+
+        Used by `MixedModeRenderer`.
         """
 
     def start_filter(self):
         """
-        Used in AggRenderer. Switch to a temporary renderer for image
-        filtering effects.
+        Switch to a temporary renderer for image filtering effects.
+
+        Currently only supported by the agg renderer.
         """
 
     def stop_filter(self, filter_func):
         """
-        Used in AggRenderer. Switch back to the original renderer.
-        The contents of the temporary renderer is processed with the
-        *filter_func* and is drawn on the original renderer as an
-        image.
+        Switch back to the original renderer.  The contents of the temporary
+        renderer is processed with the *filter_func* and is drawn on the
+        original renderer as an image.
+
+        Currently only supported by the agg renderer.
         """
 
 
 class GraphicsContextBase(object):
-    """
-    An abstract base class that provides color, line styles, etc...
-    """
+    """An abstract base class that provides color, line styles, etc."""
 
     def __init__(self):
         self._alpha = 1.0
@@ -775,30 +765,29 @@ class GraphicsContextBase(object):
     def restore(self):
         """
         Restore the graphics context from the stack - needed only
-        for backends that save graphics contexts on a stack
+        for backends that save graphics contexts on a stack.
         """
 
     def get_alpha(self):
         """
         Return the alpha value used for blending - not supported on
-        all backends
+        all backends.
         """
         return self._alpha
 
     def get_antialiased(self):
-        "Return true if the object should try to do antialiased rendering"
+        "Return whether the object should try to do antialiased rendering."
         return self._antialiased
 
     def get_capstyle(self):
         """
-        Return the capstyle as a string in ('butt', 'round', 'projecting')
+        Return the capstyle as a string in ('butt', 'round', 'projecting').
         """
         return self._capstyle
 
     def get_clip_rectangle(self):
         """
-        Return the clip rectangle as a :class:`~matplotlib.transforms.Bbox`
-        instance
+        Return the clip rectangle as a `~matplotlib.transforms.Bbox` instance.
         """
         return self._cliprect
 
@@ -835,51 +824,40 @@ class GraphicsContextBase(object):
         return self._forced_alpha
 
     def get_joinstyle(self):
-        """
-        Return the line join style as one of ('miter', 'round', 'bevel')
-        """
+        """Return the line join style as one of ('miter', 'round', 'bevel')."""
         return self._joinstyle
 
     def get_linewidth(self):
-        """
-        Return the line width in points as a scalar
-        """
+        """Return the line width in points."""
         return self._linewidth
 
     def get_rgb(self):
-        """
-        returns a tuple of three or four floats from 0-1.
-        """
+        """Return a tuple of three or four floats from 0-1."""
         return self._rgb
 
     def get_url(self):
-        """
-        returns a url if one is set, None otherwise
-        """
+        """Return a url if one is set, None otherwise."""
         return self._url
 
     def get_gid(self):
-        """
-        Return the object identifier if one is set, None otherwise.
-        """
+        """Return the object identifier if one is set, None otherwise."""
         return self._gid
 
     def get_snap(self):
         """
-        returns the snap setting which may be:
+        Returns the snap setting, which can be:
 
-          * True: snap vertices to the nearest pixel center
-
-          * False: leave vertices as-is
-
-          * None: (auto) If the path contains only rectilinear line
-            segments, round to the nearest pixel center
+        * True: snap vertices to the nearest pixel center
+        * False: leave vertices as-is
+        * None: (auto) If the path contains only rectilinear line segments,
+          round to the nearest pixel center
         """
         return self._snap
 
     def set_alpha(self, alpha):
         """
         Set the alpha value used for blending - not supported on all backends.
+
         If ``alpha=None`` (the default), the alpha components of the
         foreground and fill colors will be used to set their respective
         transparencies (where applicable); otherwise, ``alpha`` will override
@@ -894,20 +872,12 @@ class GraphicsContextBase(object):
         self.set_foreground(self._rgb, isRGBA=True)
 
     def set_antialiased(self, b):
-        """
-        True if object should be drawn with antialiased rendering
-        """
-
-        # use 0, 1 to make life easier on extension code trying to read the gc
-        if b:
-            self._antialiased = 1
-        else:
-            self._antialiased = 0
+        """Set whether object should be drawn with antialiased rendering."""
+        # Use ints to make life easier on extension code trying to read the gc.
+        self._antialiased = int(bool(b))
 
     def set_capstyle(self, cs):
-        """
-        Set the capstyle as a string in ('butt', 'round', 'projecting')
-        """
+        """Set the capstyle to be one of ('butt', 'round', 'projecting')."""
         if cs in ('butt', 'round', 'projecting'):
             self._capstyle = cs
         else:
@@ -969,87 +939,65 @@ class GraphicsContextBase(object):
             self._rgb = colors.to_rgba(fg)
 
     def set_joinstyle(self, js):
-        """
-        Set the join style to be one of ('miter', 'round', 'bevel')
-        """
+        """Set the join style to be one of ('miter', 'round', 'bevel')."""
         if js in ('miter', 'round', 'bevel'):
             self._joinstyle = js
         else:
             raise ValueError('Unrecognized join style.  Found %s' % js)
 
     def set_linewidth(self, w):
-        """
-        Set the linewidth in points
-        """
+        """Set the linewidth in points."""
         self._linewidth = float(w)
 
     def set_url(self, url):
-        """
-        Sets the url for links in compatible backends
-        """
+        """Set the url for links in compatible backends."""
         self._url = url
 
     def set_gid(self, id):
-        """
-        Sets the id.
-        """
+        """Set the id."""
         self._gid = id
 
     def set_snap(self, snap):
         """
-        Sets the snap setting which may be:
+        Set the snap setting which may be:
 
-          * True: snap vertices to the nearest pixel center
-
-          * False: leave vertices as-is
-
-          * None: (auto) If the path contains only rectilinear line
-            segments, round to the nearest pixel center
+        * True: snap vertices to the nearest pixel center
+        * False: leave vertices as-is
+        * None: (auto) If the path contains only rectilinear line segments,
+          round to the nearest pixel center
         """
         self._snap = snap
 
     def set_hatch(self, hatch):
-        """
-        Sets the hatch style for filling
-        """
+        """Set the hatch style (for fills)."""
         self._hatch = hatch
 
     def get_hatch(self):
-        """
-        Gets the current hatch style
-        """
+        """Get the current hatch style."""
         return self._hatch
 
     def get_hatch_path(self, density=6.0):
-        """
-        Returns a Path for the current hatch.
-        """
+        """Return a `Path` for the current hatch."""
         hatch = self.get_hatch()
         if hatch is None:
             return None
         return Path.hatch(hatch, density)
 
     def get_hatch_color(self):
-        """
-        Gets the color to use for hatching.
-        """
+        """Get the hatch color."""
         return self._hatch_color
 
     def set_hatch_color(self, hatch_color):
-        """
-        sets the color to use for hatching.
-        """
+        """Set the hatch color."""
         self._hatch_color = hatch_color
 
     def get_hatch_linewidth(self):
-        """
-        Gets the linewidth to use for hatching.
-        """
+        """Get the hatch linewidth."""
         return self._hatch_linewidth
 
     def get_sketch_params(self):
         """
-        Returns the sketch parameters for the artist.
+        Return the sketch parameters for the artist.
 
         Returns
         -------
@@ -1057,13 +1005,11 @@ class GraphicsContextBase(object):
 
             A 3-tuple with the following elements:
 
-              * `scale`: The amplitude of the wiggle perpendicular to the
-                source line.
-
-              * `length`: The length of the wiggle along the line.
-
-              * `randomness`: The scale factor by which the length is
-                shrunken or expanded.
+            * `scale`: The amplitude of the wiggle perpendicular to the
+              source line.
+            * `length`: The length of the wiggle along the line.
+            * `randomness`: The scale factor by which the length is
+              shrunken or expanded.
 
             May return `None` if no sketch parameters were set.
         """
@@ -1071,23 +1017,19 @@ class GraphicsContextBase(object):
 
     def set_sketch_params(self, scale=None, length=None, randomness=None):
         """
-        Sets the sketch parameters.
+        Set the sketch parameters.
 
         Parameters
         ----------
-
         scale : float, optional
-            The amplitude of the wiggle perpendicular to the source
-            line, in pixels.  If scale is `None`, or not provided, no
-            sketch filter will be provided.
-
+            The amplitude of the wiggle perpendicular to the source line, in
+            pixels.  If scale is `None`, or not provided, no sketch filter will
+            be provided.
         length : float, optional
-             The length of the wiggle along the line, in pixels
-             (default 128)
-
+             The length of the wiggle along the line, in pixels (default 128).
         randomness : float, optional
-            The scale factor by which the length is shrunken or
-            expanded (default 16)
+            The scale factor by which the length is shrunken or expanded
+            (default 16).
         """
         self._sketch = (
             None if scale is None
@@ -1426,6 +1368,12 @@ class LocationEvent(Event):
         LocationEvent.lastevent = self
 
 
+class MouseButton(IntEnum):
+    LEFT = 1
+    MIDDLE = 2
+    RIGHT = 3
+
+
 class MouseEvent(LocationEvent):
     """
     A mouse event ('button_press_event',
@@ -1438,21 +1386,26 @@ class MouseEvent(LocationEvent):
 
     Attributes
     ----------
-    button : {None, 1, 2, 3, 'up', 'down'}
+    button : {None, MouseButton.LEFT, MouseButton.MIDDLE, MouseButton.RIGHT, \
+'up', 'down'}
         The button pressed. 'up' and 'down' are used for scroll events.
         Note that in the nbagg backend, both the middle and right clicks
-        return 3 since right clicking will bring up the context menu in
+        return RIGHT since right clicking will bring up the context menu in
         some browsers.
+        Note that LEFT and RIGHT actually refer to the "primary" and
+        "secondary" buttons, i.e. if the user inverts their left and right
+        buttons ("left-handed setting") then the LEFT button will be the one
+        physically on the right.
 
     key : None or str
         The key pressed when the mouse event triggered, e.g. 'shift'.
         See `KeyEvent`.
 
     step : scalar
-        The Number of scroll steps (positive for 'up', negative for 'down').
+        The number of scroll steps (positive for 'up', negative for 'down').
 
     dblclick : bool
-        *True* if the event is a double-click.
+        Whether the event is a double-click.
 
     Examples
     --------
@@ -1471,6 +1424,8 @@ class MouseEvent(LocationEvent):
         button pressed None, 1, 2, 3, 'up', 'down'
         """
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
+        if button in MouseButton.__members__.values():
+            button = MouseButton(button)
         self.button = button
         self.key = key
         self.step = step
@@ -2002,7 +1957,7 @@ class FigureCanvasBase(object):
         """
         if format is None:
             # get format from filename, or from backend's default filetype
-            if isinstance(filename, getattr(os, "PathLike", ())):
+            if isinstance(filename, os.PathLike):
                 filename = os.fspath(filename)
             if isinstance(filename, str):
                 format = os.path.splitext(filename)[1][1:]

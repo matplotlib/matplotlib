@@ -2696,6 +2696,7 @@ class Parser(object):
                       r'\:'         : 0.22222,   # 4/18 em = 4 mu
                       r'\;'         : 0.27778,   # 5/18 em = 5 mu
                       r'\ '         : 0.33333,   # 6/18 em = 6 mu
+                      r'~'          : 0.33333,   # 6/18 em = 6 mu, nonbreakable
                       r'\enspace'   : 0.5,       # 9/18 em = 9 mu
                       r'\quad'      : 1,         # 1 em = 18 mu
                       r'\qquad'     : 2,         # 2 em = 36 mu

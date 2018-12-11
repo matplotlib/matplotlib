@@ -304,17 +304,9 @@ class TextToPath(object):
 
         # codes are modstly borrowed from pdf backend.
 
-        texmanager = self.get_texmanager()
-
-        fontsize = prop.get_size_in_points()
-        if hasattr(texmanager, "get_dvi"):
-            dvifilelike = texmanager.get_dvi(s, self.FONT_SCALE)
-            dvi = dviread.DviFromFileLike(dvifilelike, self.DPI)
-        else:
-            dvifile = texmanager.make_dvi(s, self.FONT_SCALE)
-            dvi = dviread.Dvi(dvifile, self.DPI)
-        with dvi:
-            page = next(iter(dvi))
+        dvifile = self.get_texmanager().make_dvi(s, self.FONT_SCALE)
+        with dviread.Dvi(dvifile, self.DPI) as dvi:
+            page, = dvi
 
         if glyph_map is None:
             glyph_map = OrderedDict()
@@ -463,9 +455,13 @@ class TextPath(Path):
         Also see :doc:`/gallery/text_labels_and_annotations/demo_text_path`.
         """
 
+        if kl or kwargs:
+            cbook.warn_deprecated(
+                "3.1", message="Additional agruments to TextPath used to be "
+                "ignored, but will trigger a TypeError %(removal)s.")
+
         if prop is None:
             prop = FontProperties()
-
         if size is None:
             size = prop.get_size_in_points()
 
@@ -473,14 +469,10 @@ class TextPath(Path):
         self.set_size(size)
 
         self._cached_vertices = None
-
-        self._vertices, self._codes = self.text_get_vertices_codes(
-                                            prop, s,
-                                            usetex=usetex)
-
+        self._vertices, self._codes = \
+            self.text_get_vertices_codes(prop, s, usetex=usetex)
         self._should_simplify = False
         self._simplify_threshold = rcParams['path.simplify_threshold']
-        self._has_nonfinite = False
         self._interpolation_steps = _interpolation_steps
 
     def set_size(self, size):

@@ -94,6 +94,7 @@ class PathEffectRenderer(RendererBase):
         self._renderer = renderer
 
     def new_gc(self):
+        # docstring inherited
         return self._renderer.new_gc()
 
     def copy_with_path_effect(self, path_effects):
@@ -143,6 +144,7 @@ class PathEffectRenderer(RendererBase):
                                           *args, **kwargs)
 
     def points_to_pixels(self, points):
+        # docstring inherited
         return self._renderer.points_to_pixels(points)
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):

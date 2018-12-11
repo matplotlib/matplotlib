@@ -2,6 +2,7 @@ from collections import OrderedDict, namedtuple
 from functools import wraps
 import inspect
 import logging
+from numbers import Number
 import re
 import warnings
 
@@ -378,7 +379,7 @@ class Artist(object):
         return L
 
     def get_children(self):
-        r"""Return a list of the child `.Artist`\s this `.Artist` contains."""
+        r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
 
     def contains(self, mouseevent):
@@ -1165,8 +1166,8 @@ class Artist(object):
             data[0]
         except (TypeError, IndexError):
             data = [data]
-        data_str = ', '.join('{:0.3g}'.format(item) for item in data if
-                   isinstance(item, (np.floating, np.integer, int, float)))
+        data_str = ', '.join('{:0.3g}'.format(item) for item in data
+                             if isinstance(item, Number))
         return "[" + data_str + "]"
 
     @property
@@ -1393,7 +1394,6 @@ class ArtistInspector(object):
             return '%s%s: %s' % (pad, prop, accepts)
 
         attrs = sorted(self._get_setters_and_targets())
-        lines = []
 
         names = [self.aliased_name_rest(prop, target)
                  for prop, target in attrs]

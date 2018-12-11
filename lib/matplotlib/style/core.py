@@ -178,7 +178,7 @@ def iter_style_files(style_dir):
         if is_style_file(filename):
             match = STYLE_FILE_PATTERN.match(filename)
             path = os.path.abspath(os.path.join(style_dir, path))
-            yield path, match.groups()[0]
+            yield path, match.group(1)
 
 
 def read_style_directory(style_dir):

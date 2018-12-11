@@ -9,3 +9,5 @@ The parsing has been modified to pass the complete line to the LaTeX system,
 keeping all commas.
 
 Passing a list of strings from within a Python script still works as it used to.
+
+Passing a list containing non-strings now fails, instead of coercing the results to strings.

@@ -187,15 +187,6 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'SymmetricalLogLocator', 'LogitLocator')
 
 
-# Work around numpy/numpy#6127.
-def _divmod(x, y):
-    if isinstance(x, np.generic):
-        x = x.item()
-    if isinstance(y, np.generic):
-        y = y.item()
-    return divmod(x, y)
-
-
 def _mathdefault(s):
     return '\\mathdefault{%s}' % s
 
@@ -437,22 +428,23 @@ class OldScalarFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick val `x` based on the width of the
-        axis.
+        Return the format for tick val `x` based on the width of the axis.
 
         The position `pos` is ignored.
         """
         xmin, xmax = self.axis.get_view_interval()
         d = abs(xmax - xmin)
+        return self._pprint_val(x, d)
 
-        return self.pprint_val(x, d)
+    @cbook.deprecated("3.1")
+    def pprint_val(self, *args, **kwargs):
+        return self._pprint_val(*args, **kwargs)
 
-    def pprint_val(self, x, d):
+    def _pprint_val(self, x, d):
         """
         Formats the value `x` based on the size of the axis range `d`.
         """
-        #if the number is not too big and it's an int, format it as an
-        #int
+        # If the number is not too big and it's an int, format it as an int.
         if abs(x) < 1e4 and x == int(x):
             return '%d' % x
 
@@ -564,7 +556,7 @@ class ScalarFormatter(Formatter):
         if len(self.locs) == 0:
             return ''
         else:
-            s = self.pprint_val(x)
+            s = self._pprint_val(x)
             return self.fix_minus(s)
 
     def set_scientific(self, b):
@@ -775,7 +767,11 @@ class ScalarFormatter(Formatter):
         elif self._useMathText:
             self.format = '$%s$' % _mathdefault(self.format)
 
-    def pprint_val(self, x):
+    @cbook.deprecated("3.1")
+    def pprint_val(self, *args, **kwargs):
+        return self._pprint_val(*args, **kwargs)
+
+    def _pprint_val(self, x):
         xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
         if np.abs(xp) < 1e-8:
             xp = 0
@@ -975,7 +971,7 @@ class LogFormatter(Formatter):
         elif x < 1:
             s = '%1.0e' % x
         else:
-            s = self.pprint_val(x, vmax - vmin)
+            s = self._pprint_val(x, vmax - vmin)
         return s
 
     def __call__(self, x, pos=None):
@@ -1016,9 +1012,12 @@ class LogFormatter(Formatter):
         """
         return '%-12g' % value
 
-    def pprint_val(self, x, d):
-        #if the number is not too big and it's an int, format it as an
-        #int
+    @cbook.deprecated("3.1")
+    def pprint_val(self, *args, **kwargs):
+        return self._pprint_val(*args, **kwargs)
+
+    def _pprint_val(self, x, d):
+        # If the number is not too big and it's an int, format it as an int.
         if abs(x) < 1e4 and x == int(x):
             return '%d' % x
 
@@ -1061,7 +1060,7 @@ class LogFormatterExponent(LogFormatter):
             s = '%1.0g' % fx
         else:
             fd = math.log(vmax - vmin) / math.log(self._base)
-            s = self.pprint_val(fx, fd)
+            s = self._pprint_val(fx, fd)
         return s
 
 
@@ -1283,9 +1282,12 @@ class EngFormatter(Formatter):
             pow10 += 3
 
         prefix = self.ENG_PREFIXES[int(pow10)]
-
-        formatted = "{mant:{fmt}}{sep}{prefix}".format(
-            mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
+        if rcParams['text.usetex']:
+            formatted = "${mant:{fmt}}${sep}{prefix}".format(
+                mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
+        else:
+            formatted = "{mant:{fmt}}{sep}{prefix}".format(
+                mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
 
         return formatted
 
@@ -1662,7 +1664,7 @@ class LinearLocator(Locator):
             vmax += 1
 
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            exponent, remainder = _divmod(
+            exponent, remainder = divmod(
                 math.log10(vmax - vmin), math.log10(max(self.numticks - 1, 1)))
             exponent -= (remainder < .5)
             scale = max(self.numticks - 1, 1) ** (-exponent)
@@ -1687,14 +1689,14 @@ class Base(object):
 
     def lt(self, x):
         'return the largest multiple of base < x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m, 0) and not closeto(m / self._base, 1):
             return (d - 1) * self._base
         return d * self._base
 
     def le(self, x):
         'return the largest multiple of base <= x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m / self._base, 1):  # was closeto(m, self._base)
             #looks like floating point error
             return (d + 1) * self._base
@@ -1702,7 +1704,7 @@ class Base(object):
 
     def gt(self, x):
         'return the smallest multiple of base > x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m / self._base, 1):
             #looks like floating point error
             return (d + 2) * self._base
@@ -1710,7 +1712,7 @@ class Base(object):
 
     def ge(self, x):
         'return the smallest multiple of base >= x'
-        d, m = _divmod(x, self._base)
+        d, m = divmod(x, self._base)
         if closeto(m, 0) and not closeto(m / self._base, 1):
             return d * self._base
         return (d + 1) * self._base
@@ -1805,14 +1807,14 @@ class _Edge_integer:
 
     def le(self, x):
         'Return the largest n: n*step <= x.'
-        d, m = _divmod(x, self.step)
+        d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 1):
             return (d + 1)
         return d
 
     def ge(self, x):
         'Return the smallest n: n*step >= x.'
-        d, m = _divmod(x, self.step)
+        d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 0):
             return d
         return (d + 1)
@@ -2162,13 +2164,13 @@ class LogLocator(Locator):
                     "log-scaled.")
 
         _log.debug('vmin %s vmax %s', vmin, vmax)
-        vmin = math.log(vmin) / math.log(b)
-        vmax = math.log(vmax) / math.log(b)
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin
+        log_vmin = math.log(vmin) / math.log(b)
+        log_vmax = math.log(vmax) / math.log(b)
 
-        numdec = math.floor(vmax) - math.ceil(vmin)
+        numdec = math.floor(log_vmax) - math.ceil(log_vmin)
 
         if isinstance(self._subs, str):
             _first = 2.0 if self._subs == 'auto' else 1.0
@@ -2182,21 +2184,17 @@ class LogLocator(Locator):
         else:
             subs = self._subs
 
-        # get decades between major ticks.
-        stride = 1
-        if rcParams['_internal.classic_mode']:
-            # Leave the bug left over from the PY2-PY3 transition.
-            while numdec / stride + 1 > numticks:
-                stride += 1
-        else:
-            while numdec // stride + 1 > numticks:
-                stride += 1
+        # Get decades between major ticks.
+        stride = (max(math.ceil(numdec / (numticks - 1)), 1)
+                  if rcParams['_internal.classic_mode'] else
+                  (numdec + 1) // numticks + 1)
 
-        # Does subs include anything other than 1?
-        have_subs = len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0)
+        # Does subs include anything other than 1?  Essentially a hack to know
+        # whether we're a major or a minor locator.
+        have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
 
-        decades = np.arange(math.floor(vmin) - stride,
-                            math.ceil(vmax) + 2 * stride, stride)
+        decades = np.arange(math.floor(log_vmin) - stride,
+                            math.ceil(log_vmax) + 2 * stride, stride)
 
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
@@ -2204,20 +2202,27 @@ class LogLocator(Locator):
                 if stride == 1:
                     ticklocs = np.ravel(np.outer(subs, ticklocs))
                 else:
-                    # no ticklocs if we have more than one decade
-                    # between major ticks.
-                    ticklocs = []
+                    # No ticklocs if we have >1 decade between major ticks.
+                    ticklocs = np.array([])
         else:
             if have_subs:
-                ticklocs = []
                 if stride == 1:
-                    for decadeStart in b ** decades:
-                        ticklocs.extend(subs * decadeStart)
+                    ticklocs = np.concatenate(
+                        [subs * decade_start for decade_start in b ** decades])
+                else:
+                    ticklocs = np.array([])
             else:
                 ticklocs = b ** decades
 
         _log.debug('ticklocs %r', ticklocs)
-        return self.raise_if_exceeds(np.asarray(ticklocs))
+        if (len(subs) > 1
+                and stride == 1
+                and ((vmin <= ticklocs) & (ticklocs <= vmax)).sum() <= 1):
+            # If we're a minor locator *that expects at least two ticks per
+            # decade* and the major locator stride is 1 and there's no more
+            # than one minor tick, switch to AutoLocator.
+            return AutoLocator().tick_values(vmin, vmax)
+        return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'

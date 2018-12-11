@@ -11,10 +11,9 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.command.build_ext import build_ext as BuildExtCommand
 
-if sys.version_info < (3, 5):
+if sys.version_info < (3, 6):
     error = """
-Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
-Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+Beginning with Matplotlib 3.1, Python 3.6 or above is required.
 
 This may be due to an out of date pip.
 
@@ -82,7 +81,6 @@ classifiers = [
     'License :: OSI Approved :: Python Software Foundation License',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Topic :: Scientific/Engineering :: Visualization',
@@ -232,7 +230,7 @@ if __name__ == '__main__':
         classifiers=classifiers,
         download_url="http://matplotlib.org/users/installing.html",
 
-        python_requires='>=3.5',
+        python_requires='>=3.6',
         # List third-party Python packages that we require
         install_requires=install_requires,
         setup_requires=setup_requires,

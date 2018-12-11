@@ -8,6 +8,7 @@
 
 #include "ft2font.h"
 #include "mplutils.h"
+#include "py_exceptions.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338328
@@ -162,8 +163,23 @@ FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1,
 
 inline double conv(long v)
 {
-    return double(v) / 64.0;
+    return v / 64.;
 }
+
+static FT_UInt ft_get_char_index_or_warn(FT_Face face, FT_ULong charcode)
+{
+    FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
+    if (!glyph_index) {
+        PyErr_WarnFormat(NULL, 1, "Glyph %lu missing from current font.", charcode);
+        // Apparently PyErr_WarnFormat returns 0 even if the exception propagates
+        // due to running with -Werror, so check the error flag directly instead.
+        if (PyErr_Occurred()) {
+            throw py::exception();
+        }
+    }
+    return glyph_index;
+}
+
 
 int FT2Font::get_path_count()
 {
@@ -610,7 +626,7 @@ void FT2Font::set_text(
         FT_BBox glyph_bbox;
         FT_Pos last_advance;
 
-        glyph_index = FT_Get_Char_Index(face, codepoints[n]);
+        glyph_index = ft_get_char_index_or_warn(face, codepoints[n]);
 
         // retrieve kerning distance and move pen position
         if (use_kerning && previous && glyph_index) {
@@ -663,7 +679,8 @@ void FT2Font::set_text(
 
 void FT2Font::load_char(long charcode, FT_Int32 flags)
 {
-    int error = FT_Load_Char(face, (unsigned long)charcode, flags);
+    FT_UInt glyph_index = ft_get_char_index_or_warn(face, (FT_ULong)charcode);
+    int error = FT_Load_Glyph(face, glyph_index, flags);
 
     if (error) {
         throw std::runtime_error("Could not load charcode");

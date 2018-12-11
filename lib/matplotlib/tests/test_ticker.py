@@ -1,7 +1,7 @@
 import warnings
 
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 import matplotlib
@@ -178,6 +178,11 @@ class TestLogLocator(object):
         loc = mticker.LogLocator(base=2)
         test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
         assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+    def test_switch_to_autolocator(self):
+        loc = mticker.LogLocator(subs="all")
+        assert_array_equal(loc.tick_values(0.45, 0.55),
+                           [0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56])
 
     def test_set_params(self):
         """
@@ -846,3 +851,21 @@ def test_minlocator_type():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError):
         ax.xaxis.set_minor_locator(matplotlib.ticker.LogFormatter())
+
+
+def test_minorticks_rc():
+    fig = plt.figure()
+
+    def minorticksubplot(xminor, yminor, i):
+        rc = {'xtick.minor.visible': xminor,
+              'ytick.minor.visible': yminor}
+        with plt.rc_context(rc=rc):
+            ax = fig.add_subplot(2, 2, i)
+
+        assert (len(ax.xaxis.get_minor_ticks()) > 0) == xminor
+        assert (len(ax.yaxis.get_minor_ticks()) > 0) == yminor
+
+    minorticksubplot(False, False, 1)
+    minorticksubplot(True, False, 2)
+    minorticksubplot(False, True, 3)
+    minorticksubplot(True, True, 4)

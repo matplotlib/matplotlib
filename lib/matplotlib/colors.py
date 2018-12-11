@@ -1317,7 +1317,6 @@ def rgb_to_hsv(arr):
     hsv : (..., 3) ndarray
        Colors converted to hsv values in range [0, 1]
     """
-    # make sure it is an ndarray
     arr = np.asarray(arr)
 
     # check length of the last dimension, should be _some_ sort of rgb
@@ -1325,13 +1324,12 @@ def rgb_to_hsv(arr):
         raise ValueError("Last dimension of input array must be 3; "
                          "shape {} was found.".format(arr.shape))
 
-    in_ndim = arr.ndim
-    if arr.ndim == 1:
-        arr = np.array(arr, ndmin=2)
-
-    # make sure we don't have an int image
-    arr = arr.astype(np.promote_types(arr.dtype, np.float32))
-
+    in_shape = arr.shape
+    arr = np.array(
+        arr, copy=False,
+        dtype=np.promote_types(arr.dtype, np.float32),  # Don't work on ints.
+        ndmin=2,  # In case input was 1D.
+    )
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
     ipos = arr_max > 0
@@ -1353,10 +1351,7 @@ def rgb_to_hsv(arr):
     out[..., 1] = s
     out[..., 2] = arr_max
 
-    if in_ndim == 1:
-        out.shape = (3,)
-
-    return out
+    return out.reshape(in_shape)
 
 
 def hsv_to_rgb(hsv):
@@ -1381,14 +1376,12 @@ def hsv_to_rgb(hsv):
         raise ValueError("Last dimension of input array must be 3; "
                          "shape {shp} was found.".format(shp=hsv.shape))
 
-    # if we got passed a 1D array, try to treat as
-    # a single color and reshape as needed
-    in_ndim = hsv.ndim
-    if in_ndim == 1:
-        hsv = np.array(hsv, ndmin=2)
-
-    # make sure we don't have an int image
-    hsv = hsv.astype(np.promote_types(hsv.dtype, np.float32))
+    in_shape = hsv.shape
+    hsv = np.array(
+        hsv, copy=False,
+        dtype=np.promote_types(hsv.dtype, np.float32),  # Don't work on ints.
+        ndmin=2,  # In case input was 1D.
+    )
 
     h = hsv[..., 0]
     s = hsv[..., 1]
@@ -1441,10 +1434,7 @@ def hsv_to_rgb(hsv):
 
     rgb = np.stack([r, g, b], axis=-1)
 
-    if in_ndim == 1:
-        rgb.shape = (3,)
-
-    return rgb
+    return rgb.reshape(in_shape)
 
 
 def _vector_magnitude(arr):

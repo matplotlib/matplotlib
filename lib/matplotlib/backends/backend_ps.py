@@ -165,7 +165,8 @@ def quote_ps_string(s):
 
 
 def _move_path_to_path_or_stream(src, dst):
-    """Move the contents of file at *src* to path-or-filelike *dst*.
+    """
+    Move the contents of file at *src* to path-or-filelike *dst*.
 
     If *dst* is a path, the metadata of *src* are *not* copied.
     """
@@ -188,11 +189,9 @@ class RendererPS(RendererBase):
     afmfontd = maxdict(50)
 
     def __init__(self, width, height, pswriter, imagedpi=72):
-        """
-        Although postscript itself is dpi independent, we need to
-        imform the image code about a requested dpi to generate high
-        res images and them scale them before embeddin them
-        """
+        # Although postscript itself is dpi independent, we need to imform the
+        # image code about a requested dpi to generate high resolution images
+        # and them scale them before embedding them.
         RendererBase.__init__(self)
         self.width = width
         self.height = height
@@ -222,8 +221,7 @@ class RendererPS(RendererBase):
             rcParams['datapath'], 'fonts', 'afm')
 
     def track_characters(self, font, s):
-        """Keeps track of which characters are required from
-        each font."""
+        """Keeps track of which characters are required from each font."""
         realpath, stat_key = get_realpath_and_stat(font.fname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
@@ -326,15 +324,12 @@ class RendererPS(RendererBase):
         return name
 
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
+        # docstring inherited
         return self.width * 72.0, self.height * 72.0
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
+        # docstring inherited
 
-        """
         if rcParams['text.usetex']:
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
@@ -370,7 +365,7 @@ class RendererPS(RendererBase):
         return w, h, d
 
     def flipy(self):
-        'return true if small y numbers are top for renderer'
+        # docstring inherited
         return False
 
     def _get_font_afm(self, prop):
@@ -420,16 +415,11 @@ class RendererPS(RendererBase):
         return self.image_magnification
 
     def option_scale_image(self):
-        """
-        ps backend support arbitrary scaling of image.
-        """
+        # docstring inherited
         return True
 
     def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
+        # docstring inherited
         return not rcParams['image.composite_image']
 
     def _get_image_h_w_bits_command(self, im):
@@ -439,11 +429,7 @@ class RendererPS(RendererBase):
         return h, w, bits, imagecmd
 
     def draw_image(self, gc, x, y, im, transform=None):
-        """
-        Draw the Image instance into the current axes; x is the
-        distance in pixels from the left hand side of the canvas and y
-        is the distance from bottom
-        """
+        # docstring inherited
 
         h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
         hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
@@ -510,9 +496,7 @@ grestore
         return pid
 
     def draw_path(self, gc, path, transform, rgbFace=None):
-        """
-        Draws a Path instance using the given affine transform.
-        """
+        # docstring inherited
         clip = rgbFace is None and gc.get_hatch_path() is None
         simplify = path.should_simplify and clip
         ps = self._convert_path(path, transform, clip=clip, simplify=simplify)
@@ -520,11 +504,8 @@ grestore
 
     def draw_markers(
             self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
-        """
-        Draw the markers defined by path at each of the positions in x
-        and y.  path coordinates are points, x and y coords will be
-        transformed by the transform
-        """
+        # docstring inherited
+
         if debugPS:
             self._pswriter.write('% draw_markers \n')
 
@@ -624,9 +605,8 @@ grestore
         self._path_collection_id += 1
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
-        """
-        draw a Text instance
-        """
+        # docstring inherited
+
         w, h, bl = self.get_text_width_height_descent(s, prop, ismath)
         fontsize = prop.get_size_in_points()
         thetext = 'psmarker%d' % self.textcnt
@@ -664,9 +644,8 @@ grestore
         self.textcnt += 1
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
-        """
-        Draw a Text instance.
-        """
+        # docstring inherited
+
         # local to avoid repeated attribute lookups
         write = self._pswriter.write
         if debugPS:
@@ -769,6 +748,7 @@ grestore
             self._pswriter.write(ps)
 
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextPS()
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
@@ -917,8 +897,6 @@ class GraphicsContextPS(GraphicsContextBase):
 
 
 class FigureCanvasPS(FigureCanvasBase):
-    _renderer_class = RendererPS
-
     fixed_dpi = 72
 
     def draw(self):
@@ -990,9 +968,9 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if isinstance(outfile, (str, getattr(os, "PathLike", ()),)):
-            outfile = title = getattr(os, "fspath", lambda obj: obj)(outfile)
-            title = title.encode("latin-1", "replace").decode()
+        if isinstance(outfile, (str, os.PathLike)):
+            outfile = title = os.fspath(outfile)
+            title = title.encode("ascii", "replace").decode("ascii")
             passed_in_file_object = False
         elif is_writable_file_like(outfile):
             title = None
@@ -1056,8 +1034,7 @@ class FigureCanvasPS(FigureCanvasBase):
             self._pswriter = StringIO()
 
         # mixed mode rendering
-        ps_renderer = self._renderer_class(width, height, self._pswriter,
-                                           imagedpi=dpi)
+        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(
             self.figure, width, height, dpi, ps_renderer,
             bbox_inches_restore=bbox_inches_restore)
@@ -1120,10 +1097,7 @@ class FigureCanvasPS(FigureCanvasBase):
                         ps_renderer.used_characters.values():
                     if len(chars):
                         font = get_font(font_filename)
-                        glyph_ids = []
-                        for c in chars:
-                            gind = font.get_char_index(c)
-                            glyph_ids.append(gind)
+                        glyph_ids = [font.get_char_index(c) for c in chars]
 
                         fonttype = rcParams['ps.fonttype']
 
@@ -1250,8 +1224,7 @@ class FigureCanvasPS(FigureCanvasBase):
             self._pswriter = StringIO()
 
         # mixed mode rendering
-        ps_renderer = self._renderer_class(width, height,
-                                           self._pswriter, imagedpi=dpi)
+        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
                                      width, height, dpi, ps_renderer,
                                      bbox_inches_restore=bbox_inches_restore)

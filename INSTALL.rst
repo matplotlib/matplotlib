@@ -133,10 +133,10 @@ Dependencies
 
 Matplotlib requires the following dependencies:
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.5)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.6)
 * `FreeType <https://www.freetype.org/>`_ (>= 2.3)
 * `libpng <http://www.libpng.org>`_ (>= 1.2)
-* `NumPy <http://www.numpy.org>`_ (>= 1.10.0)
+* `NumPy <http://www.numpy.org>`_ (>= 1.11)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.1)
@@ -275,7 +275,7 @@ not needed during the wheel install.
 ::
 
   # create a new environment with the required packages
-  conda create -n "matplotlib_build" python=3.5 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
+  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
   activate matplotlib_build
   # if you want a qt backend, you also have to install pyqt (be aware that pyqt doesn't mix well if
   # you have created the environment with conda-forge already activated...)

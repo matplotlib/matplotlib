@@ -238,16 +238,12 @@ example <https://travis-ci.org/msabramo/matplotlib>`_.
 Using tox
 ---------
 
-`Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running
-tests against
-multiple Python environments, including multiple versions of Python
-(e.g., 3.5, 3.6) and even different Python implementations
-altogether (e.g., CPython, PyPy, Jython, etc.)
-
-Testing all versions of Python (3.5, 3.6, ...) requires
-having multiple versions of Python installed on your system and on the
-PATH. Depending on your operating system, you may want to use your
-package manager (such as apt-get, yum or MacPorts) to do this.
+`Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running tests
+against multiple Python environments, including multiple versions of Python
+(e.g., 3.6, 3.7) and even different Python implementations altogether
+(e.g., CPython, PyPy, Jython, etc.), as long as all these versions are
+available on your system's $PATH (consider using your system package manager,
+e.g. apt-get, yum, or Homebrew, to install them).
 
 tox makes it easy to determine if your working copy introduced any
 regressions before submitting a pull request. Here's how to use it:
