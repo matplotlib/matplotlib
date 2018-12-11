@@ -18,6 +18,7 @@ from .lines import Line2D
 from .patches import Circle, Ellipse, Rectangle
 from .transforms import blended_transform_factory
 
+_TOGGLE = object()
 
 class LockDraw(object):
     """
@@ -574,7 +575,7 @@ class CheckButtons(AxesWidget):
                 self.set_active(i)
                 break
 
-    def set_active(self, index, state=None):
+    def set_active(self, index, state=_TOGGLE):
         """
         Directly (de)activate a check button by index.
             Default behaviour is to toggle the state,
@@ -595,7 +596,7 @@ class CheckButtons(AxesWidget):
             raise ValueError("Invalid CheckButton index: %d" % index)
 
         l1, l2 = self.lines[index]
-        target_vis = bool(state) if state is not None else not l1.get_visible()
+        target_vis = bool(state) if state is not _TOGGLE else not l1.get_visible()
         l1.set_visible(target_vis)
         l2.set_visible(target_vis)
 
