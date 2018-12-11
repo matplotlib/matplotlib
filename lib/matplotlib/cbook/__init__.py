@@ -1117,21 +1117,22 @@ def _combine_masks(*args):
     if is_scalar_or_string(args[0]):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
-    margs = []
-    seqlist = [False] * len(args)
-    masks = []    # list of masks that are True where bad
+    margs = []  # Output args; some may be modified.
+    seqlist = [False] * len(args)  # Flags: True if output will be masked.
+    masks = []    # List of masks.
     for i, x in enumerate(args):
-        if not isinstance(x, str) and np.iterable(x) and len(x) == nrecs:
-            if isinstance(x, np.ma.MaskedArray):
-                if x.ndim > 1:
-                    raise ValueError("Masked arrays must be 1-D")
+        if is_scalar_or_string(x) or len(x) != nrecs:
+            margs.append(x)  # Leave it unmodified.
+        else:
+            if isinstance(x, np.ma.MaskedArray) and x.ndim > 1:
+                raise ValueError("Masked arrays must be 1-D")
             x = np.asanyarray(x)
             if x.ndim == 1:
                 x = safe_masked_invalid(x)
                 seqlist[i] = True
                 if np.ma.is_masked(x):
                     masks.append(np.ma.getmaskarray(x))
-        margs.append(x)
+            margs.append(x)  # Possibly modified.
     if len(masks):
         mask = np.logical_or.reduce(masks)
         for i, x in enumerate(margs):
