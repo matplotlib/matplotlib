@@ -1102,8 +1102,10 @@ def _combine_masks(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2, 3, and 4 if :meth:`np.isfinite`
-    does not yield a Boolean array.
+    extract a mask from categories 2 and 4 if :meth:`np.isfinite`
+    does not yield a Boolean array.  Category 3 is included to
+    support RGB or RGBA ndarrays, which are assumed to have only
+    valid values and which are passed through unchanged.
 
     All input arguments that are not passed unchanged are returned
     as masked arrays if any masked points are found, otherwise as
@@ -1117,6 +1119,7 @@ def _combine_masks(*args):
     nrecs = len(args[0])
     margs = []
     seqlist = [False] * len(args)
+    masks = []    # list of masks that are True where bad
     for i, x in enumerate(args):
         if not isinstance(x, str) and np.iterable(x) and len(x) == nrecs:
             if isinstance(x, np.ma.MaskedArray):
@@ -1126,21 +1129,14 @@ def _combine_masks(*args):
             if x.ndim == 1:
                 x = safe_masked_invalid(x)
                 seqlist[i] = True
+                if np.ma.is_masked(x):
+                    masks.append(np.ma.getmaskarray(x))
         margs.append(x)
-    masks = []    # list of masks that are True where bad
-    for i, x in enumerate(margs):
-        if seqlist[i]:
-            if x.ndim > 1:
-                continue  # Don't try to get nan locations unless 1-D.
-            if np.ma.is_masked(x):
-                masks.append(np.ma.getmaskarray(x))
     if len(masks):
         mask = np.logical_or.reduce(masks)
-        if mask.any():
-            for i, x in enumerate(margs):
-                if seqlist[i]:
-                    margs[i] = np.ma.array(x)
-                    margs[i][mask] = np.ma.masked
+        for i, x in enumerate(margs):
+            if seqlist[i]:
+                margs[i] = np.ma.array(x, mask=mask)
     return margs
 
 
