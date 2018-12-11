@@ -348,9 +348,9 @@ class BasicUnitConverter(units.ConversionInterface):
         if units.ConversionInterface.is_numlike(val):
             return val
         if np.iterable(val):
-            if np.ma.isMaskedArray(val):
+            if isinstance(val, np.ma.MaskedArray):
                 val = val.astype(float).filled(np.nan)
-            out = np.empty((len(val),),  dtype=float)
+            out = np.empty(len(val))
             for i, thisval in enumerate(val):
                 if np.ma.is_masked(thisval):
                     out[i] = np.nan
