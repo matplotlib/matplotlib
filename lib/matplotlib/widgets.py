@@ -598,7 +598,14 @@ class CheckButtons(AxesWidget):
             raise ValueError("Invalid CheckButton index: %d" % index)
 
         l1, l2 = self.lines[index]
-        target_vis = bool(state) if state is not _TOGGLE else not l1.get_visible()
+
+        if state is not _TOGGLE:
+            if not isinstance(state, bool):
+                raise TypeError('state can only be either True or False')
+            target_vis = state
+        else:
+            target_vis = not l1.get_visible()
+
         l1.set_visible(target_vis)
         l2.set_visible(target_vis)
 
