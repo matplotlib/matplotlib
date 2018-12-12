@@ -621,6 +621,12 @@ class CheckButtons(AxesWidget):
             that this object was constructed with.
             Raises ValueError if *index* is invalid.
 
+        *state* is a boolean value to set the target state
+            of the button, regardless of its current state.
+            By default (no value specified),
+                the button state gets toggled (checked or not).
+            Only True or False values are allowed for *state*.
+
         Callbacks will be triggered if :attr:`eventson` is True.
 
         """
