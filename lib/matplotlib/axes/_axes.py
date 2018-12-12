@@ -4101,7 +4101,7 @@ class Axes(_AxesBase):
                 facecolors = kwcolor
 
         if edgecolors is None and not rcParams['_internal.classic_mode']:
-            edgecolors = 'face'
+            edgecolors = rcParams['scatter.edgecolors']
 
         c_was_none = c is None
         if c is None:
@@ -4247,12 +4247,15 @@ class Axes(_AxesBase):
             is 'face'. You may want to change this as well.
             If *None*, defaults to rcParams ``lines.linewidth``.
 
-        edgecolors : color or sequence of color, optional, default: 'face'
+        edgecolors : {'face', 'none', *None*} or color, optional
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
             - 'none': No patch boundary will be drawn.
             - A matplotib color.
+
+            Defaults to ``None``, in which case it takes the value of
+            :rc:`scatter.edgecolors` = 'face'.
 
             For non-filled markers, the *edgecolors* kwarg is ignored and
             forced to 'face' internally.
