@@ -263,9 +263,13 @@ def test_CheckButtons():
     assert not any(check.get_status())
     assert len(check.get_checked_labels()) == 0
 
+    with raises(ValueError):
+        for invalid_index in [-1, len(labels), len(labels)+5]:
+            check.set_active(index=invalid_index)
+
     with raises(TypeError):
         for invalid_value in ['invalid', -1, None]:
-            check.set_active(1, invalid_value)
+            check.set_active(1, state=invalid_value)
 
     cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
