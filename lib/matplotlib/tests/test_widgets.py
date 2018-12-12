@@ -7,7 +7,7 @@ from matplotlib.testing.decorators import image_comparison
 from numpy.testing import assert_allclose
 
 import pytest
-
+from pytest import raises
 
 def get_ax():
     fig, ax = plt.subplots(1, 1)
@@ -259,6 +259,10 @@ def test_CheckButtons():
     check.clear()
     assert not any(check.get_status())
     assert len(check.get_checked_labels()) == 0
+
+    with raises(TypeError):
+        for invalid_value in ['invalid', -1, None]:
+            check.set_active(1, invalid_value)
 
     cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
