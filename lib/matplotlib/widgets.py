@@ -634,8 +634,28 @@ class CheckButtons(AxesWidget):
             raise ValueError("Invalid CheckButton index: %d" % index)
 
         l1, l2 = self.lines[index]
-        l1.set_visible(not l1.get_visible())
-        l2.set_visible(not l2.get_visible())
+
+        if state is not _TOGGLE:
+            if not isinstance(state, bool):
+                raise TypeError('state can only be either True or False')
+            target_vis = state
+        else:
+            target_vis = not l1.get_visible()
+
+        l1.set_visible(target_vis)
+        l2.set_visible(target_vis)
+
+        if self.drawon:
+            self.ax.figure.canvas.draw()
+
+        self._exec_callbacks(self.labels[index].get_text())
+
+    def clear(self):
+        """Clears all the checkboxes"""
+
+        for l1, l2 in self.lines:
+            l1.set_visible(False)
+            l2.set_visible(False)
 
         if self.drawon:
             self.ax.figure.canvas.draw()
