@@ -587,7 +587,9 @@ class CheckButtons(AxesWidget):
 
         *state* is a boolean value to set the target state
             of the button, regardless of its current state.
-            If None, button state gets toggled (checked or not).
+            By default (no value specified),
+                the button state gets toggled (checked or not).
+            Only True or False values are allowed for *state*.
 
         Callbacks will be triggered if :attr:`eventson` is True.
 
