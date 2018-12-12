@@ -589,7 +589,8 @@ class CheckButtons(AxesWidget):
             of the button, regardless of its current state.
             By default (no value specified),
                 the button state gets toggled (checked or not).
-            Only True or False values are allowed for *state*.
+            Only True or False values are allowed for *state*,
+                Raises TypeError otherwise.
 
         Callbacks will be triggered if :attr:`eventson` is True.
 
