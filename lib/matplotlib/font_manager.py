@@ -321,9 +321,13 @@ def ttfFontProperty(font):
     sfnt = font.get_sfnt()
     # These tables are actually mac_roman-encoded, but mac_roman support may be
     # missing in some alternative Python implementations and we are only going
-    # to look for ASCII substrings, where any ASCII-compatible encoding works.
-    sfnt2 = sfnt.get((1, 0, 0, 2), b'').decode('latin-1').lower()
-    sfnt4 = sfnt.get((1, 0, 0, 4), b'').decode('latin-1').lower()
+    # to look for ASCII substrings, where any ASCII-compatible encoding works
+    # - or big-endian UTF-16, since important Microsoft fonts use that.
+    sfnt2 = (sfnt.get((1, 0,      0, 2), b'').decode('latin-1').lower() or
+             sfnt.get((3, 1, 0x0409, 2), b'').decode('utf_16_be').lower())
+    sfnt4 = (sfnt.get((1, 0,      0, 4), b'').decode('latin-1').lower() or
+             sfnt.get((3, 1, 0x0409, 4), b'').decode('utf_16_be').lower())
+
     if sfnt4.find('oblique') >= 0:
         style = 'oblique'
     elif sfnt4.find('italic') >= 0:
