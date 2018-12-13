@@ -578,19 +578,19 @@ class CheckButtons(AxesWidget):
     def set_active(self, index, state=_TOGGLE):
         """
         Directly (de)activate a check button by index.
-            Default behaviour is to toggle the state,
-            which can be controlled with state=bool flag.
+        Default behaviour is to toggle the state,
+        which can be controlled with state=bool flag.
 
         *index* is an index into the original label list
-            that this object was constructed with.
-            Raises ValueError if *index* is invalid.
+        that this object was constructed with.
+        Raises ValueError if *index* is invalid.
 
         *state* is a boolean value to set the target state
-            of the button, regardless of its current state.
-            By default (no value specified),
-                the button state gets toggled (checked or not).
-            Only True or False values are allowed for *state*,
-                Raises TypeError otherwise.
+        of the button, regardless of its current state.
+        By default (no value specified),
+        the button state gets toggled (checked or not).
+        Only True or False values are allowed for *state*,
+        Raises TypeError otherwise.
 
         Callbacks will be triggered if :attr:`eventson` is True.
 
