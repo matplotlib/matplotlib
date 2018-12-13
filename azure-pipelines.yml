@@ -5,7 +5,7 @@
 
 jobs:
 
-- job: 'Linux tests'
+- job: 'Linux_Test'
   pool:
     vmImage: ubuntu-16.04
   strategy:
@@ -19,7 +19,7 @@ jobs:
   steps:
     - template: ci/azure-pipelines-steps.yml
 
-- job: 'Windows tests'
+- job: 'Windows_Test'
   pool:
     vmImage: vs2017-win2016
   strategy:
@@ -36,7 +36,7 @@ jobs:
   steps:
     - template: ci/azure-pipelines-steps.yml
 
-- job: 'macOS tests'
+- job: 'macOS_Test'
   pool:
     vmImage: xcode9-macos10.13
   strategy:
