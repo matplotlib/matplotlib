@@ -18,6 +18,8 @@ jobs:
 
   steps:
     - template: ci/azure-pipelines-steps.yml
+      parameters:
+        platform: ubuntu
 
 - job: 'Windows_Test'
   pool:
@@ -35,6 +37,8 @@ jobs:
 
   steps:
     - template: ci/azure-pipelines-steps.yml
+      parameters:
+        platform: windows
 
 - job: 'macOS_Test'
   pool:
@@ -49,3 +53,5 @@ jobs:
 
   steps:
     - template: ci/azure-pipelines-steps.yml
+      parameters:
+        platform: macos

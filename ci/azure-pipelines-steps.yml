@@ -1,3 +1,6 @@
+parameters:
+  platform: none
+
 steps:
 - task: UsePythonVersion@0
   inputs:
@@ -13,12 +16,43 @@ steps:
 #    prerelease: true
 #  condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
+
+- ${{ if eq(parameters.platform, 'macos') }}:
+  - script: |
+      brew install pkg-config ffmpeg imagemagick mplayer ccache
+    displayName: 'Install dependencies with brew'
+
+- ${{ if eq(parameters.platform, 'ubuntu') }}:
+  - script: |
+      sudo apt-add-repository ppa:jonathonf/ffmpeg-3
+      sudo apt-get update
+      sudo apt-get install \
+        cm-super \
+        dvipng \
+        ffmpeg \
+        gdb \
+        gir1.2-gtk-3.0 \
+        graphviz \
+        inkscape \
+        libcairo2 \
+        libgeos-dev \
+        libgirepository-1.0.1 \
+        lmodern \
+        otf-freefont \
+        pgf \
+        texlive-fonts-recommended \
+        texlive-latex-base \
+        texlive-latex-extra \
+        texlive-latex-recommended \
+        texlive-xetex texlive-luatex
+    displayName: 'Install dependencies with apt'
+
 - script: |
 
     python -m pip install --upgrade pip
     pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis36.txt
 
-  displayName: 'Install dependencies'
+  displayName: 'Install dependencies with pip'
 
 - script: |
 
