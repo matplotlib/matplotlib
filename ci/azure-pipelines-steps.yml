@@ -1,0 +1,42 @@
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+    architecture: 'x64'
+  displayName: 'Use Python $(python.version)'
+  condition: and(succeeded(), ne(variables['python.version'], 'Pre'))
+
+- task: stevedower.python.InstallPython.InstallPython@1
+  displayName: 'Use prerelease Python'
+  inputs:
+    prerelease: true
+  condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
+
+- script: |
+
+    python -m pip install --upgrade pip
+    pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis36.txt
+
+  displayName: 'Install dependencies'
+
+- script: |
+
+    pip install -ve .
+
+  displayName: "Install self"
+  env:
+    MPLLOCALFREETYPE: 1
+
+- script: env
+  displayName: 'print env'
+
+- script: |
+    env
+    pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2
+  displayName: 'pytest'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFiles: '**/test-results.xml'
+    testRunTitle: 'Python $(python.version)'
+  condition: succeededOrFailed()

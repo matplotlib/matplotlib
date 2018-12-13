@@ -5,9 +5,9 @@
 
 jobs:
 
-- job: 'Test'
+- job: 'Linux tests'
   pool:
-    vmImage: 'Ubuntu 16.04'
+    vmImage: ubuntu-16.04
   strategy:
     matrix:
       Python36:
@@ -17,35 +17,35 @@ jobs:
     maxParallel: 4
 
   steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '$(python.version)'
-      architecture: 'x64'
+    - template: ci/azure-pipelines-steps.yml
 
-  - script: |
+- job: 'Windows tests'
+  pool:
+    vmImage: win2016-vs2017
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+      # Disabled until a required extension is installed
+      #PythonPreview:
+      #  python.version: 'Pre'
+    maxParallel: 4
 
-      python -m pip install --upgrade pip
-      pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis36.txt
+  steps:
+    - template: ci/azure-pipelines-steps.yml
 
-    displayName: 'Install dependencies'
+- job: 'macOS tests'
+  pool:
+    vmImage: xcode9-macos10.13
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+    maxParallel: 4
 
-  - script: |
-
-      export MPLLOCALFREETYPE=1
-      pip install -ve .
-
-    displayName: "Install self"
-
-  - script: env
-    displayName: 'print env'
-
-  - script: |
-      env
-      pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2
-    displayName: 'pytest'
-
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFiles: '**/test-results.xml'
-      testRunTitle: 'Python $(python.version)'
-    condition: succeededOrFailed()
+  steps:
+    - template: ci/azure-pipelines-steps.yml
