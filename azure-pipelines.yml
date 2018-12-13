@@ -21,7 +21,7 @@ jobs:
 
 - job: 'Windows tests'
   pool:
-    vmImage: win2016-vs2017
+    vmImage: vs2017-win2016
   strategy:
     matrix:
       Python36:
