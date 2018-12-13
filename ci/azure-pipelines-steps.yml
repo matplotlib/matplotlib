@@ -9,13 +9,18 @@ steps:
   displayName: 'Use Python $(python.version)'
   condition: and(succeeded(), ne(variables['python.version'], 'Pre'))
 
-# Disabled until extension is added
-#- task: stevedower.python.InstallPython.InstallPython@1
-#  displayName: 'Use prerelease Python'
-#  inputs:
-#    prerelease: true
-#  condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
+- task: stevedower.python.InstallPython.InstallPython@1
+  displayName: 'Use prerelease Python'
+  inputs:
+    prerelease: true
+  condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
+- ${{ if eq(parameters.platform, 'windows') }}:
+  - script: |
+      nuget install libpng-msvc14-x64 -ExcludeVersion -OutputDirectory "$(build.BinariesDirectory)"
+      echo ##vso[task.setvariable variable=MPLBASEDIRLIST]win32_static;$(build.BinariesDirectory)\libpng-msvc14-x64\build\native
+      echo ##vso[task.setvariable variable=LIBDIR]%LIBDIR%;$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\lib_release
+      echo ##vso[task.prependpath]$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\bin_release
 
 - ${{ if eq(parameters.platform, 'macos') }}:
   - script: |
