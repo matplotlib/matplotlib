@@ -1,14 +1,13 @@
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 import pytest
 
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm, LogNorm
+from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
+from matplotlib.ticker import LogLocator, LogFormatter
 
 
 def _get_cmap_norms():
@@ -212,8 +211,7 @@ def test_remove_from_figure(use_gridspec):
     """
     Test `remove_from_figure` with the specified ``use_gridspec`` setting
     """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     sc = ax.scatter([1, 2], [3, 4], cmap="spring")
     sc.set_array(np.array([5, 6]))
     pre_figbox = np.array(ax.figbox)
@@ -273,6 +271,40 @@ def test_colorbar_ticks():
     assert len(cbar.ax.xaxis.get_ticklocs()) == len(clevs)
 
 
+def test_colorbar_minorticks_on_off():
+    # test for github issue #11510 and PR #11584
+    np.random.seed(seed=12345)
+    data = np.random.randn(20, 20)
+    with rc_context({'_internal.classic_mode': False}):
+        fig, ax = plt.subplots()
+        # purposefully setting vmin and vmax to odd fractions
+        # so as to check for the correct locations of the minor ticks
+        im = ax.pcolormesh(data, vmin=-2.3, vmax=3.3)
+
+        cbar = fig.colorbar(im, extend='both')
+        cbar.minorticks_on()
+        correct_minorticklocs = np.array([-2.2, -1.8, -1.6, -1.4, -1.2, -0.8,
+                                          -0.6, -0.4, -0.2, 0.2, 0.4, 0.6,
+                                           0.8, 1.2, 1.4, 1.6, 1.8, 2.2, 2.4,
+                                           2.6, 2.8, 3.2])
+        # testing after minorticks_on()
+        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
+                                       correct_minorticklocs)
+        cbar.minorticks_off()
+        # testing after minorticks_off()
+        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
+                                       np.array([]))
+
+        im.set_clim(vmin=-1.2, vmax=1.2)
+        cbar.minorticks_on()
+        correct_minorticklocs = np.array([-1.2, -1.1, -0.9, -0.8, -0.7, -0.6,
+                                          -0.4, -0.3, -0.2, -0.1,  0.1, 0.2,
+                                           0.3,  0.4,  0.6,  0.7,  0.8,  0.9,
+                                           1.1,  1.2])
+        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
+                                       correct_minorticklocs)
+
+
 def test_colorbar_autoticks():
     # Test new autotick modes. Needs to be classic because
     # non-classic doesn't go this route.
@@ -290,9 +322,9 @@ def test_colorbar_autoticks():
         cbar2 = fig.colorbar(pcm, ax=ax[1], extend='both',
                             orientation='vertical', shrink=0.4)
         np.testing.assert_almost_equal(cbar.ax.yaxis.get_ticklocs(),
-                np.arange(-15, 16., 5.))
+                np.arange(-10, 11., 5.))
         np.testing.assert_almost_equal(cbar2.ax.yaxis.get_ticklocs(),
-                np.arange(-20, 21., 10.))
+                np.arange(-10, 11., 10.))
 
 
 def test_colorbar_autotickslog():
@@ -350,6 +382,14 @@ def test_colorbar_lognorm_extension():
     assert cb._values[0] >= 0.0
 
 
+def test_colorbar_powernorm_extension():
+    # Test that colorbar with powernorm is extended correctly
+    f, ax = plt.subplots()
+    cb = ColorbarBase(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
+                      orientation='vertical', extend='both')
+    assert cb._values[0] >= 0.0
+
+
 def test_colorbar_axes_kw():
     # test fix for #8493: This does only test, that axes-related keywords pass
     # and do not raise an exception.
@@ -357,3 +397,52 @@ def test_colorbar_axes_kw():
     plt.imshow(([[1, 2], [3, 4]]))
     plt.colorbar(orientation='horizontal', fraction=0.2, pad=0.2, shrink=0.5,
                  aspect=10, anchor=(0., 0.), panchor=(0., 1.))
+
+
+def test_colorbar_log_minortick_labels():
+    with rc_context({'_internal.classic_mode': False}):
+        fig, ax = plt.subplots()
+        pcm = ax.imshow([[10000, 50000]], norm=LogNorm())
+        cb = fig.colorbar(pcm)
+        fig.canvas.draw()
+        lb = cb.ax.yaxis.get_ticklabels(which='both')
+        expected = [r'$\mathdefault{10^{4}}$',
+                    r'$\mathdefault{2\times10^{4}}$',
+                    r'$\mathdefault{3\times10^{4}}$',
+                    r'$\mathdefault{4\times10^{4}}$']
+        for l, exp in zip(lb, expected):
+            assert l.get_text() == exp
+
+
+def test_colorbar_renorm():
+    x, y = np.ogrid[-4:4:31j, -4:4:31j]
+    z = 120000*np.exp(-x**2 - y**2)
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(z)
+    cbar = fig.colorbar(im)
+
+    norm = LogNorm(z.min(), z.max())
+    im.set_norm(norm)
+    cbar.set_norm(norm)
+    cbar.locator = LogLocator()
+    cbar.formatter = LogFormatter()
+    cbar.update_normal(im)
+    assert np.isclose(cbar.vmin, z.min())
+
+    norm = LogNorm(z.min() * 1000, z.max() * 1000)
+    im.set_norm(norm)
+    cbar.set_norm(norm)
+    cbar.update_normal(im)
+    assert np.isclose(cbar.vmin, z.min() * 1000)
+    assert np.isclose(cbar.vmax, z.max() * 1000)
+
+
+def test_colorbar_get_ticks():
+    with rc_context({'_internal.classic_mode': False}):
+
+        fig, ax = plt. subplots()
+        np.random.seed(19680801)
+        pc = ax.pcolormesh(np.random.rand(30, 30))
+        cb = fig.colorbar(pc)
+        np.testing.assert_allclose(cb.get_ticks(), [0.2, 0.4, 0.6, 0.8])

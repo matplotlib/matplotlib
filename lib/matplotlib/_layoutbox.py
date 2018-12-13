@@ -15,16 +15,11 @@ other constrains.
 
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import itertools
 import kiwisolver as kiwi
 import logging
 import numpy as np
-import warnings
 
-import matplotlib
 
 _log = logging.getLogger(__name__)
 
@@ -126,7 +121,7 @@ class LayoutBox(object):
 
         Margin minimums are set to make room for axes decorations.  However,
         the margins can be larger if we are mathicng the position size to
-        otehr axes.
+        other axes.
         """
         sol = self.solver
 
@@ -357,20 +352,16 @@ class LayoutBox(object):
         Helper to check if this layoutbox is the layoutbox of a
         subplotspec
         '''
-        name = (self.name).split('.')[-1][:-3]
-        if name == 'ss':
-            return True
-        return False
+        name = (self.name).split('.')[-1]
+        return name[:2] == 'ss'
 
     def _is_gridspec_layoutbox(self):
         '''
         Helper to check if this layoutbox is the layoutbox of a
         gridspec
         '''
-        name = (self.name).split('.')[-1][:-3]
-        if name == 'gridspec':
-            return True
-        return False
+        name = (self.name).split('.')[-1]
+        return name[:8] == 'gridspec'
 
     def find_child_subplots(self):
         '''
@@ -649,7 +640,7 @@ def seq_id():
 
     global _layoutboxobjnum
 
-    return ('%03d' % (next(_layoutboxobjnum)))
+    return ('%06d' % (next(_layoutboxobjnum)))
 
 
 def print_children(lb):
@@ -716,7 +707,6 @@ def plot_children(fig, box, level=0, printit=True):
     if printit:
         print("Level:", level)
     for child in box.children:
-        rect = child.get_rect()
         if printit:
             print(child)
         ax.add_patch(

@@ -3,6 +3,9 @@
 Pyplot Scales
 =============
 
+Create plots on different scales. Here a linear, a logarithmic, a symmetric
+logarithmic and a logit scale are shown. For further examples also see the
+:ref:`scales_examples` section of the gallery.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,7 +22,7 @@ y.sort()
 x = np.arange(len(y))
 
 # plot with various axes scales
-plt.figure(1)
+plt.figure()
 
 # linear
 plt.subplot(221)
@@ -59,3 +62,21 @@ plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
                     wspace=0.35)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.subplot
+matplotlib.pyplot.subplots_adjust
+matplotlib.pyplot.gca
+matplotlib.pyplot.yscale
+matplotlib.ticker.NullFormatter
+matplotlib.axis.Axis.set_minor_formatter

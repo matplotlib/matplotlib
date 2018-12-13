@@ -59,12 +59,15 @@ static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *or
     mpl_off_t pos;
     FILE *handle;
 
-    /* Flush first to ensure things end up in the file in the correct order */
-    ret = PyObject_CallMethod(file, (char *)"flush", (char *)"");
-    if (ret == NULL) {
-        return NULL;
+    if (mode[0] != 'r') {
+        /* Flush first to ensure things end up in the file in the correct order */
+        ret = PyObject_CallMethod(file, (char *)"flush", (char *)"");
+        if (ret == NULL) {
+            return NULL;
+        }
+        Py_DECREF(ret);
     }
-    Py_DECREF(ret);
+
     fd = PyObject_AsFileDescriptor(file);
     if (fd == -1) {
         return NULL;

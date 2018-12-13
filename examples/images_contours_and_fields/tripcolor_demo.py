@@ -124,3 +124,19 @@ ax3.set_xlabel('Longitude (degrees)')
 ax3.set_ylabel('Latitude (degrees)')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.tripcolor
+matplotlib.pyplot.tripcolor
+matplotlib.tri
+matplotlib.tri.Triangulation

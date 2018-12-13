@@ -1,19 +1,18 @@
 import atexit
 import codecs
-import errno
 import logging
 import math
 import os
+import pathlib
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
-import warnings
 import weakref
 
 import matplotlib as mpl
-from matplotlib import _png, rcParams, __version__
+from matplotlib import _png, cbook, font_manager as fm, __version__, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -28,33 +27,8 @@ _log = logging.getLogger(__name__)
 
 ###############################################################################
 
-# create a list of system fonts, all of these should work with xe/lua-latex
-system_fonts = []
-if sys.platform == 'win32':
-    from matplotlib import font_manager
-    for f in font_manager.win32InstalledFonts():
-        try:
-            system_fonts.append(font_manager.get_font(str(f)).family_name)
-        except:
-            pass # unknown error, skip this font
-else:
-    # assuming fontconfig is installed and the command 'fc-list' exists
-    try:
-        # list scalable (non-bitmap) fonts
-        fc_list = subprocess.check_output(
-            ['fc-list', ':outline,scalable', 'family'])
-        fc_list = fc_list.decode('utf8')
-        system_fonts = [f.split(',')[0] for f in fc_list.splitlines()]
-        system_fonts = list(set(system_fonts))
-    except:
-        warnings.warn('error getting fonts from fc-list', UserWarning)
 
-
-_luatex_version_re = re.compile(
-    r'This is LuaTeX, Version (?:beta-)?([0-9]+)\.([0-9]+)\.([0-9]+)'
-)
-
-
+@cbook.deprecated("3.0")
 def get_texcommand():
     """Get chosen TeX system from rc."""
     texsystem_options = ["xelatex", "lualatex", "pdflatex"]
@@ -62,45 +36,30 @@ def get_texcommand():
     return texsystem if texsystem in texsystem_options else "xelatex"
 
 
-def _get_lualatex_version():
-    """Get version of luatex"""
-    output = subprocess.check_output(['lualatex', '--version'])
-    return _parse_lualatex_version(output.decode())
-
-
-def _parse_lualatex_version(output):
-    '''parse the lualatex version from the output of `lualatex --version`'''
-    match = _luatex_version_re.match(output)
-    return tuple(map(int, match.groups()))
-
-
 def get_fontspec():
     """Build fontspec preamble from rc."""
     latex_fontspec = []
-    texcommand = get_texcommand()
+    texcommand = rcParams["pgf.texsystem"]
 
     if texcommand != "pdflatex":
         latex_fontspec.append("\\usepackage{fontspec}")
 
     if texcommand != "pdflatex" and rcParams["pgf.rcfonts"]:
-        # try to find fonts from rc parameters
-        families = ["serif", "sans-serif", "monospace"]
-        fontspecs = [r"\setmainfont{%s}", r"\setsansfont{%s}",
-                     r"\setmonofont{%s}"]
-        for family, fontspec in zip(families, fontspecs):
-            matches = [f for f in rcParams["font." + family]
-                       if f in system_fonts]
-            if matches:
-                latex_fontspec.append(fontspec % matches[0])
-            else:
-                pass  # no fonts found, fallback to LaTeX defaule
+        families = ["serif", "sans\\-serif", "monospace"]
+        commands = ["setmainfont", "setsansfont", "setmonofont"]
+        for family, command in zip(families, commands):
+            # 1) Forward slashes also work on Windows, so don't mess with
+            # backslashes.  2) The dirname needs to include a separator.
+            path = pathlib.Path(fm.findfont(family))
+            latex_fontspec.append(r"\%s{%s}[Path=%s]" % (
+                command, path.name, path.parent.as_posix() + "/"))
 
     return "\n".join(latex_fontspec)
 
 
 def get_preamble():
     """Get LaTeX preamble from rc."""
-    return "\n".join(rcParams["pgf.preamble"])
+    return rcParams["pgf.preamble"]
 
 ###############################################################################
 
@@ -163,7 +122,8 @@ def _font_properties_str(prop):
     family = prop.get_family()[0]
     if family in families:
         commands.append(families[family])
-    elif family in system_fonts and get_texcommand() != "pdflatex":
+    elif (any(font.name == family for font in fm.fontManager.ttflist)
+          and rcParams["pgf.texsystem"] != "pdflatex"):
         commands.append(r"\setmainfont{%s}\rmfamily" % family)
     else:
         pass  # print warning?
@@ -232,7 +192,7 @@ class LatexManagerFactory:
 
     @staticmethod
     def get_latex_manager():
-        texcommand = get_texcommand()
+        texcommand = rcParams["pgf.texsystem"]
         latex_header = LatexManager._build_latex_header()
         prev = LatexManagerFactory.previous_instance
 
@@ -307,7 +267,7 @@ class LatexManager:
         LatexManager._unclean_instances.add(self)
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
-        self.texcommand = get_texcommand()
+        self.texcommand = rcParams["pgf.texsystem"]
         self.latex_header = LatexManager._build_latex_header()
         latex_end = "\n\\makeatletter\n\\@@end\n"
         try:
@@ -349,12 +309,12 @@ class LatexManager:
             self.latex.communicate()
             self.latex_stdin_utf8.close()
             self.latex.stdout.close()
-        except:
+        except Exception:
             pass
         try:
             self._shutil.rmtree(self.tmpdir)
             LatexManager._unclean_instances.discard(self)
-        except:
+        except Exception:
             sys.stderr.write("error deleting tmp directory %s\n" % self.tmpdir)
 
     def __del__(self):
@@ -395,7 +355,7 @@ class LatexManager:
         # parse metrics from the answer string
         try:
             width, height, offset = answer.splitlines()[0].split(",")
-        except:
+        except Exception:
             raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
                              .format(text, answer))
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
@@ -439,13 +399,15 @@ class RendererPgf(RendererBase):
         else:
             # if fh does not belong to a filename, deactivate draw_image
             if not hasattr(fh, 'name') or not os.path.exists(fh.name):
-                warnings.warn("streamed pgf-code does not support raster "
-                              "graphics, consider using the pgf-to-pdf option",
-                              UserWarning)
+                cbook._warn_external("streamed pgf-code does not support "
+                                     "raster graphics, consider using the "
+                                     "pgf-to-pdf option", UserWarning)
                 self.__dict__["draw_image"] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
+        # docstring inherited
+
         writeln(self.fh, r"\begin{pgfscope}")
 
         # convert from display units to in
@@ -477,6 +439,7 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\end{pgfscope}")
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         writeln(self.fh, r"\begin{pgfscope}")
         # draw the path
         self._print_pgf_clip(gc)
@@ -648,19 +611,16 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgfusepath{%s}" % ",".join(actions))
 
     def option_scale_image(self):
-        """
-        pgf backend supports affine transform of image.
-        """
+        # docstring inherited
         return True
 
     def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
+        # docstring inherited
         return not rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, transform=None):
+        # docstring inherited
+
         h, w = im.shape[:2]
         if w == 0 or h == 0:
             return
@@ -695,14 +655,16 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\end{pgfscope}")
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!", mtext=None):
+        # docstring inherited
         self.draw_text(gc, x, y, s, prop, angle, ismath, mtext)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         # prepare string for tex
         s = common_texification(s)
         prop_cmds = _font_properties_str(prop)
         s = r"%s %s" % (prop_cmds, s)
-
 
         writeln(self.fh, r"\begin{pgfscope}")
 
@@ -711,29 +673,29 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
             writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
         rgb = tuple(gc.get_rgb())[:3]
-        if rgb != (0, 0, 0):
-            writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
-            writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
-            writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
-            s = r"\color{textcolor}" + s
+        writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
+        writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
+        writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
+        s = r"\color{textcolor}" + s
 
         f = 1.0 / self.figure.dpi
         text_args = []
         if mtext and (
                 (angle == 0 or
                  mtext.get_rotation_mode() == "anchor") and
-                mtext.get_va() != "center_baseline"):
+                mtext.get_verticalalignment() != "center_baseline"):
             # if text anchoring can be supported, get the original coordinates
             # and add alignment information
-            x, y = mtext.get_transform().transform_point(mtext.get_position())
+            pos = mtext.get_unitless_position()
+            x, y = mtext.get_transform().transform_point(pos)
             text_args.append("x=%fin" % (x * f))
             text_args.append("y=%fin" % (y * f))
 
             halign = {"left": "left", "right": "right", "center": ""}
             valign = {"top": "top", "bottom": "bottom",
                       "baseline": "base", "center": ""}
-            text_args.append(halign[mtext.get_ha()])
-            text_args.append(valign[mtext.get_va()])
+            text_args.append(halign[mtext.get_horizontalalignment()])
+            text_args.append(valign[mtext.get_verticalalignment()])
         else:
             # if not, use the text layout provided by matplotlib
             text_args.append("x=%fin" % (x * f))
@@ -748,6 +710,8 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\end{pgfscope}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
+
         # check if the math is supposed to be displaystyled
         s = common_texification(s)
 
@@ -760,15 +724,19 @@ class RendererPgf(RendererBase):
         return w * f, h * f, d * f
 
     def flipy(self):
+        # docstring inherited
         return False
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.figure.get_figwidth(), self.figure.get_figheight()
 
     def points_to_pixels(self, points):
+        # docstring inherited
         return points * mpl_pt_to_in * self.dpi
 
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextPgf()
 
 
@@ -788,10 +756,10 @@ class TmpDirCleaner:
     @staticmethod
     def cleanup_remaining_tmpdirs():
         for tmpdir in TmpDirCleaner.remaining_tmpdirs:
+            error_message = "error deleting tmp directory {}".format(tmpdir)
             shutil.rmtree(
                 tmpdir,
-                onerror=lambda *args: print("error deleting tmp directory %s"
-                                            % tmpdir, file=sys.stderr))
+                onerror=lambda *args: _log.error(error_message))
 
 
 class FigureCanvasPgf(FigureCanvasBase):
@@ -802,8 +770,9 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    def _print_pgf_to_fh(self, fh, *args, **kwargs):
-        if kwargs.get("dryrun", False):
+    def _print_pgf_to_fh(self, fh, *args,
+                         dryrun=False, bbox_inches_restore=None, **kwargs):
+        if dryrun:
             renderer = RendererPgf(self.figure, None, dummy=True)
             self.figure.draw(renderer)
             return
@@ -849,10 +818,9 @@ class FigureCanvasPgf(FigureCanvasBase):
                 r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}"
                 % (w, h))
         writeln(fh, r"\pgfusepath{use as bounding box, clip}")
-        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         renderer = MixedModeRenderer(self.figure, w, h, dpi,
                                      RendererPgf(self.figure, fh),
-                                     bbox_inches_restore=_bbox_inches_restore)
+                                     bbox_inches_restore=bbox_inches_restore)
         self.figure.draw(renderer)
 
         # end the pgfpicture environment
@@ -871,7 +839,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
         # figure out where the pgf is to be written to
         if isinstance(fname_or_fh, str):
-            with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
+            with open(fname_or_fh, "w", encoding="utf-8") as fh:
                 self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
             fh = codecs.getwriter("utf-8")(fname_or_fh)
@@ -905,19 +873,12 @@ class FigureCanvasPgf(FigureCanvasBase):
 \\centering
 \\input{figure.pgf}
 \\end{document}""" % (w, h, latex_preamble, latex_fontspec)
-            with codecs.open(fname_tex, "w", "utf-8") as fh_tex:
-                fh_tex.write(latexcode)
+            pathlib.Path(fname_tex).write_text(latexcode, encoding="utf-8")
 
-            texcommand = get_texcommand()
-            cmdargs = [texcommand, "-interaction=nonstopmode",
-                       "-halt-on-error", "figure.tex"]
-            try:
-                subprocess.check_output(
-                    cmdargs, stderr=subprocess.STDOUT, cwd=tmpdir)
-            except subprocess.CalledProcessError as e:
-                raise RuntimeError(
-                    "%s was not able to process your file.\n\nFull log:\n%s"
-                    % (texcommand, e.output))
+            texcommand = rcParams["pgf.texsystem"]
+            cbook._check_and_log_subprocess(
+                [texcommand, "-interaction=nonstopmode", "-halt-on-error",
+                 "figure.tex"], _log, cwd=tmpdir)
 
             # copy file contents to target
             with open(fname_pdf, "rb") as fh_src:
@@ -1139,22 +1100,11 @@ class PdfPages:
             open(self._outputfile, 'wb').close()
 
     def _run_latex(self):
-        texcommand = get_texcommand()
-        cmdargs = [
-            str(texcommand),
-            "-interaction=nonstopmode",
-            "-halt-on-error",
-            os.path.basename(self._fname_tex),
-        ]
-        try:
-            subprocess.check_output(
-                cmdargs, stderr=subprocess.STDOUT, cwd=self._tmpdir
-            )
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                "%s was not able to process your file.\n\nFull log:\n%s"
-                % (texcommand, e.output.decode('utf-8')))
-
+        texcommand = rcParams["pgf.texsystem"]
+        cbook._check_and_log_subprocess(
+            [texcommand, "-interaction=nonstopmode", "-halt-on-error",
+             os.path.basename(self._fname_tex)],
+            _log, cwd=self._tmpdir)
         # copy file contents to target
         shutil.copyfile(self._fname_pdf, self._outputfile)
 
@@ -1191,26 +1141,22 @@ class PdfPages:
             if self._n_figures == 0:
                 self._write_header(width, height)
             else:
-                self._file.write(self._build_newpage_command(width, height))
+                # \pdfpagewidth and \pdfpageheight exist on pdftex, xetex, and
+                # luatex<0.85; they were renamed to \pagewidth and \pageheight
+                # on luatex>=0.85.
+                self._file.write(
+                    br'\newpage'
+                    br'\ifdefined\pdfpagewidth\pdfpagewidth'
+                    br'\else\pagewidth\fi=%ain'
+                    br'\ifdefined\pdfpageheight\pdfpageheight'
+                    br'\else\pageheight\fi=%ain'
+                    b'%%\n' % (width, height)
+                )
 
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1
         finally:
             figure.canvas = orig_canvas
-
-    def _build_newpage_command(self, width, height):
-        r'''LuaLaTeX from version 0.85 removed the `\pdf*` primitives,
-        so we need to check the lualatex version and use `\pagewidth` if
-        the version is 0.85 or newer
-        '''
-        texcommand = get_texcommand()
-        if texcommand == 'lualatex' and _get_lualatex_version() >= (0, 85, 0):
-            cmd = r'\page'
-        else:
-            cmd = r'\pdfpage'
-
-        newpage = r'\newpage{cmd}width={w}in,{cmd}height={h}in%' + '\n'
-        return newpage.format(cmd=cmd, w=width, h=height).encode('utf-8')
 
     def get_pagecount(self):
         """

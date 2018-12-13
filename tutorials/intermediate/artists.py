@@ -44,7 +44,7 @@ for us::
 
     import matplotlib.pyplot as plt
     fig = plt.figure()
-    ax = fig.add_subplot(2,1,1) # two rows, one column, first plot
+    ax = fig.add_subplot(2, 1, 1) # two rows, one column, first plot
 
 The :class:`~matplotlib.axes.Axes` is probably the most important
 class in the matplotlib API, and the one you will be working with most
@@ -117,24 +117,6 @@ instance contains an :class:`~matplotlib.axis.XAxis` and a
 :class:`~matplotlib.axis.YAxis` instance, which handle the layout and
 drawing of the ticks, tick labels and axis labels.
 
-.. I'm commenting this out, since the new Sphinx cross-references
-.. sort of take care of this above - MGD
-
-.. Here are the most important matplotlib modules that contain the
-.. classes referenced above
-
-.. ===============   ==================
-.. Artist            Module
-.. ===============   ==================
-.. Artist            matplotlib.artist
-.. Rectangle         matplotlib.patches
-.. Line2D            matplotlib.lines
-.. Axes              matplotlib.axes
-.. XAxis and YAxis   matplotlib.axis
-.. Figure            matplotlib.figure
-.. Text	          matplotlib.text
-.. ===============   ==================
-
 Try creating the figure below.
 """
 
@@ -186,7 +168,7 @@ plt.show()
 # ==========   ================================================================================
 # Property     Description
 # ==========   ================================================================================
-# alpha 	     The transparency - a scalar from 0-1
+# alpha        The transparency - a scalar from 0-1
 # animated     A boolean that is used to facilitate animated drawing
 # axes         The axes that the Artist lives in, possibly None
 # clip_box     The bounding box that clips the Artist
@@ -199,7 +181,7 @@ plt.show()
 # transform    The transformation
 # visible      A boolean whether the artist should be drawn
 # zorder       A number which determines the drawing order
-# rasterized   Boolean; Turns vectors into rastergraphics: (for compression & eps transparency)
+# rasterized   Boolean; Turns vectors into raster graphics (for compression & eps transparency)
 # ==========   ================================================================================
 #
 # Each of the properties is accessed with an old-fashioned setter or
@@ -218,7 +200,7 @@ plt.show()
 # If you are working interactively at the python shell, a handy way to
 # inspect the ``Artist`` properties is to use the
 # :func:`matplotlib.artist.getp` function (simply
-# :func:`~matplotlib.pylab.getp` in pylab), which lists the properties
+# :func:`~matplotlib.pyplot.getp` in pyplot), which lists the properties
 # and their values.  This works for classes derived from ``Artist`` as
 # well, e.g., ``Figure`` and ``Rectangle``.  Here are the ``Figure`` rectangle
 # properties mentioned above:
@@ -251,8 +233,6 @@ plt.show()
 # 	x = 0
 # 	y = 0
 # 	zorder = 1
-#
-# .. TODO: Update these URLs
 #
 # The docstrings for all of the classes also contain the ``Artist``
 # properties, so you can consult the interactive "help" or the
@@ -351,17 +331,17 @@ plt.show()
 #
 # .. TODO: Add xrefs to this table
 #
-# ================      ===============================================================
-# Figure attribute      Description
-# ================      ===============================================================
-# axes                  A list of Axes instances (includes Subplot)
-# patch                 The Rectangle background
-# images                A list of FigureImages patches - useful for raw pixel display
-# legends               A list of Figure Legend instances (different from Axes.legends)
-# lines                 A list of Figure Line2D instances (rarely used, see Axes.lines)
-# patches               A list of Figure patches (rarely used, see Axes.patches)
-# texts                 A list Figure Text instances
-# ================      ===============================================================
+# ================ ===============================================================
+# Figure attribute Description
+# ================ ===============================================================
+# axes             A list of Axes instances (includes Subplot)
+# patch            The Rectangle background
+# images           A list of FigureImages patches - useful for raw pixel display
+# legends          A list of Figure Legend instances (different from Axes.legends)
+# lines            A list of Figure Line2D instances (rarely used, see Axes.lines)
+# patches          A list of Figure patches (rarely used, see Axes.patches)
+# texts            A list Figure Text instances
+# ================ ===============================================================
 #
 # .. _axes-container:
 #
@@ -437,9 +417,7 @@ plt.show()
 #
 # .. sourcecode:: ipython
 #
-#     In [261]: fig = plt.figure()
-#
-#     In [262]: ax = fig.add_subplot(111)
+#     In [262]: fig, ax = plt.subplots()
 #
 #     # create a rectangle instance
 #     In [263]: rect = matplotlib.patches.Rectangle( (1,1), width=5, height=12)
@@ -556,9 +534,9 @@ plt.show()
 # the ticks are placed and how they are represented as strings.
 #
 # Each ``Axis`` object contains a :attr:`~matplotlib.axis.Axis.label` attribute
-# (this is what :mod:`~matplotlib.pylab` modifies in calls to
-# :func:`~matplotlib.pylab.xlabel` and :func:`~matplotlib.pylab.ylabel`) as well
-# as a list of major and minor ticks.  The ticks are
+# (this is what :mod:`~matplotlib.pyplot` modifies in calls to
+# :func:`~matplotlib.pyplot.xlabel` and :func:`~matplotlib.pyplot.ylabel`) as
+# well as a list of major and minor ticks.  The ticks are
 # :class:`~matplotlib.axis.XTick` and :class:`~matplotlib.axis.YTick` instances,
 # which contain the actual line and text primitives that render the ticks and
 # ticklabels.  Because the ticks are dynamically created as needed (e.g., when
@@ -656,9 +634,7 @@ plt.show()
 # to the :class:`~matplotlib.axis.Tick`.  The ``Tick`` contains the tick
 # and grid line instances, as well as the label instances for the upper
 # and lower ticks.  Each of these is accessible directly as an attribute
-# of the ``Tick``.  In addition, there are boolean variables that determine
-# whether the upper labels and ticks are on for the x-axis and whether
-# the right labels and ticks are on for the y-axis.
+# of the ``Tick``.
 #
 # ==============   ==========================================================
 # Tick attribute   Description
@@ -668,11 +644,6 @@ plt.show()
 # gridline         Line2D instance
 # label1           Text instance
 # label2           Text instance
-# gridOn           boolean which determines whether to draw the gridline
-# tick1On          boolean which determines whether to draw the 1st tickline
-# tick2On          boolean which determines whether to draw the 2nd tickline
-# label1On         boolean which determines whether to draw the 1st tick label
-# label2On         boolean which determines whether to draw the 2nd tick label
 # ==============   ==========================================================
 #
 # Here is an example which sets the formatter for the right side ticks with
@@ -683,16 +654,15 @@ import matplotlib.ticker as ticker
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(100*np.random.rand(20))
 
 formatter = ticker.FormatStrFormatter('$%1.2f')
 ax.yaxis.set_major_formatter(formatter)
 
 for tick in ax.yaxis.get_major_ticks():
-    tick.label1On = False
-    tick.label2On = True
+    tick.label1.set_visible(False)
+    tick.label2.set_visible(True)
     tick.label2.set_color('green')
 
 plt.show()

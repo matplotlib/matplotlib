@@ -1,5 +1,7 @@
+import contextlib
 from distutils.version import StrictVersion
 import functools
+import inspect
 import os
 from pathlib import Path
 import shutil
@@ -7,63 +9,49 @@ import sys
 import unittest
 import warnings
 
-# Note - don't import nose up here - import it only as needed in functions.
-# This allows other functions here to be used by pytest-based testing suites
-# without requiring nose to be installed.
-
-
 import matplotlib as mpl
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
 from matplotlib import cbook
-from matplotlib import ticker
-from matplotlib import pyplot as plt
 from matplotlib import ft2font
-from matplotlib.testing.compare import (
-    comparable_formats, compare_images, make_test_filename)
+from matplotlib import pyplot as plt
+from matplotlib import ticker
 from . import is_called_from_pytest
+from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
 
-def _do_cleanup(original_units_registry, original_settings):
-    plt.close('all')
-
-    mpl.rcParams.clear()
-    mpl.rcParams.update(original_settings)
-    matplotlib.units.registry.clear()
-    matplotlib.units.registry.update(original_units_registry)
-    warnings.resetwarnings()  # reset any warning filters set in tests
-
-
-class CleanupTest(object):
-    @classmethod
-    def setup_class(cls):
-        cls.original_units_registry = matplotlib.units.registry.copy()
-        cls.original_settings = mpl.rcParams.copy()
-        matplotlib.testing.setup()
-
-    @classmethod
-    def teardown_class(cls):
-        _do_cleanup(cls.original_units_registry,
-                    cls.original_settings)
-
-    def test(self):
-        self._func()
+@contextlib.contextmanager
+def _cleanup_cm():
+    orig_units_registry = matplotlib.units.registry.copy()
+    try:
+        with warnings.catch_warnings(), matplotlib.rc_context():
+            yield
+    finally:
+        matplotlib.units.registry.clear()
+        matplotlib.units.registry.update(orig_units_registry)
+        plt.close("all")
 
 
 class CleanupTestCase(unittest.TestCase):
-    '''A wrapper for unittest.TestCase that includes cleanup operations'''
+    """A wrapper for unittest.TestCase that includes cleanup operations."""
     @classmethod
     def setUpClass(cls):
-        import matplotlib.units
-        cls.original_units_registry = matplotlib.units.registry.copy()
-        cls.original_settings = mpl.rcParams.copy()
+        cls._cm = _cleanup_cm().__enter__()
 
     @classmethod
     def tearDownClass(cls):
-        _do_cleanup(cls.original_units_registry,
-                    cls.original_settings)
+        cls._cm.__exit__(None, None, None)
+
+
+@cbook.deprecated("3.0")
+class CleanupTest(object):
+    setup_class = classmethod(CleanupTestCase.setUpClass.__func__)
+    teardown_class = classmethod(CleanupTestCase.tearDownClass.__func__)
+
+    def test(self):
+        self._func()
 
 
 def cleanup(style=None):
@@ -77,34 +65,23 @@ def cleanup(style=None):
         The name of the style to apply.
     """
 
-    # If cleanup is used without arguments, `style` will be a
-    # callable, and we pass it directly to the wrapper generator.  If
-    # cleanup if called with an argument, it is a string naming a
-    # style, and the function will be passed as an argument to what we
-    # return.  This is a confusing, but somewhat standard, pattern for
-    # writing a decorator with optional arguments.
+    # If cleanup is used without arguments, `style` will be a callable, and we
+    # pass it directly to the wrapper generator.  If cleanup if called with an
+    # argument, it is a string naming a style, and the function will be passed
+    # as an argument to what we return.  This is a confusing, but somewhat
+    # standard, pattern for writing a decorator with optional arguments.
 
     def make_cleanup(func):
         if inspect.isgeneratorfunction(func):
             @functools.wraps(func)
             def wrapped_callable(*args, **kwargs):
-                original_units_registry = matplotlib.units.registry.copy()
-                original_settings = mpl.rcParams.copy()
-                matplotlib.style.use(style)
-                try:
+                with _cleanup_cm(), matplotlib.style.context(style):
                     yield from func(*args, **kwargs)
-                finally:
-                    _do_cleanup(original_units_registry, original_settings)
         else:
             @functools.wraps(func)
             def wrapped_callable(*args, **kwargs):
-                original_units_registry = matplotlib.units.registry.copy()
-                original_settings = mpl.rcParams.copy()
-                matplotlib.style.use(style)
-                try:
+                with _cleanup_cm(), matplotlib.style.context(style):
                     func(*args, **kwargs)
-                finally:
-                    _do_cleanup(original_units_registry, original_settings)
 
         return wrapped_callable
 
@@ -171,27 +148,30 @@ def _raise_on_image_difference(expected, actual, tol):
              % err)
 
 
-def _xfail_if_format_is_uncomparable(extension):
+def _skip_if_format_is_uncomparable(extension):
     import pytest
-    return pytest.mark.xfail(
+    return pytest.mark.skipif(
         extension not in comparable_formats(),
-        reason='Cannot compare {} files on this system'.format(extension),
-        raises=ImageComparisonFailure, strict=True)
+        reason='Cannot compare {} files on this system'.format(extension))
 
 
-def _mark_xfail_if_format_is_uncomparable(extension):
+def _mark_skip_if_format_is_uncomparable(extension):
+    import pytest
     if isinstance(extension, str):
-        will_fail = extension not in comparable_formats()
+        name = extension
+        marks = []
+    elif isinstance(extension, tuple):
+        # Extension might be a pytest ParameterSet instead of a plain string.
+        # Unfortunately, this type is not exposed, so since it's a namedtuple,
+        # check for a tuple instead.
+        name, = extension.values
+        marks = [*extension.marks]
     else:
         # Extension might be a pytest marker instead of a plain string.
-        will_fail = extension.args[0] not in comparable_formats()
-    if will_fail:
-        fail_msg = 'Cannot compare %s files on this system' % extension
-        import pytest
-        return pytest.mark.xfail(extension, reason=fail_msg, strict=False,
-                                 raises=ImageComparisonFailure)
-    else:
-        return extension
+        name, = extension.args
+        marks = [extension.mark]
+    return pytest.param(name,
+                        marks=[*marks, _skip_if_format_is_uncomparable(name)])
 
 
 class _ImageComparisonBase(object):
@@ -292,7 +272,7 @@ class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
     def nose_runner(self):
         func = self.compare
         func = _checked_on_freetype_version(self.freetype_version)(func)
-        funcs = {extension: _xfail_if_format_is_uncomparable(extension)(func)
+        funcs = {extension: _skip_if_format_is_uncomparable(extension)(func)
                  for extension in self.extensions}
         for idx, baseline in enumerate(self.baseline_images):
             for extension in self.extensions:
@@ -323,7 +303,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     """
     import pytest
 
-    extensions = map(_mark_xfail_if_format_is_uncomparable, extensions)
+    extensions = map(_mark_skip_if_format_is_uncomparable, extensions)
 
     def decorator(func):
         @functools.wraps(func)
@@ -368,8 +348,8 @@ def image_comparison(baseline_images, extensions=None, tol=0,
                      style='_classic_test'):
     """
     Compare images generated by the test with those specified in
-    *baseline_images*, which must correspond else an
-    ImageComparisonFailure exception will be raised.
+    *baseline_images*, which must correspond, else an `ImageComparisonFailure`
+    exception will be raised.
 
     Arguments
     ---------
@@ -378,13 +358,18 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         calls to :meth:`matplotlib.figure.savefig`.
 
         If *None*, the test function must use the ``baseline_images`` fixture,
-        either as a parameter or with pytest.mark.usefixtures. This value is
+        either as a parameter or with `pytest.mark.usefixtures`. This value is
         only allowed when using pytest.
 
-    extensions : [ None | list ]
+    extensions : None or list of str
+        The list of extensions to test, e.g. ``['png', 'pdf']``.
 
-        If None, defaults to all supported extensions.
-        Otherwise, a list of extensions to test, e.g. ``['png', 'pdf']``.
+        If *None*, defaults to all supported extensions: png, pdf, and svg.
+
+        In order to keep the size of the test suite from ballooning, we only
+        include the ``svg`` or ``pdf`` outputs if the test is explicitly
+        exercising a feature dependent on that backend (see also the
+        `check_figures_equal` decorator for that purpose).
 
     tol : float, optional, default: 0
         The RMS threshold above which the test is considered failed.
@@ -394,7 +379,10 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         pass.
 
     remove_text : bool
-        Remove the title and tick text from the figure before comparison.
+        Remove the title and tick text from the figure before comparison.  This
+        is useful to make the baseline images independent of variations in text
+        rendering between different versions of FreeType.
+
         This does not remove other, more deliberate, text, such as legends and
         annotations.
 
@@ -430,45 +418,76 @@ def image_comparison(baseline_images, extensions=None, tol=0,
             savefig_kwargs=savefig_kwarg, style=style)
 
 
+def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
+    """
+    Decorator for test cases that generate and compare two figures.
+
+    The decorated function must take two arguments, *fig_test* and *fig_ref*,
+    and draw the test and reference images on them.  After the function
+    returns, the figures are saved and compared.
+
+    This decorator should be preferred over `image_comparison` when possible in
+    order to keep the size of the test suite from ballooning.
+
+    Arguments
+    ---------
+    extensions : list, default: ["png", "pdf", "svg"]
+        The extensions to test.
+    tol : float
+        The RMS threshold above which the test is considered failed.
+
+    Examples
+    --------
+    Check that calling `Axes.plot` with a single argument plots it against
+    ``[0, 1, 2, ...]``::
+
+        @check_figures_equal()
+        def test_plot(fig_test, fig_ref):
+            fig_test.subplots().plot([1, 3, 5])
+            fig_ref.subplots().plot([0, 1, 2], [1, 3, 5])
+    """
+
+    def decorator(func):
+        import pytest
+
+        _, result_dir = map(Path, _image_directories(func))
+
+        @pytest.mark.parametrize("ext", extensions)
+        def wrapper(ext):
+            fig_test = plt.figure("test")
+            fig_ref = plt.figure("reference")
+            func(fig_test, fig_ref)
+            test_image_path = str(
+                result_dir / (func.__name__ + "." + ext))
+            ref_image_path = str(
+                result_dir / (func.__name__ + "-expected." + ext))
+            fig_test.savefig(test_image_path)
+            fig_ref.savefig(ref_image_path)
+            _raise_on_image_difference(
+                ref_image_path, test_image_path, tol=tol)
+
+        return wrapper
+
+    return decorator
+
+
 def _image_directories(func):
     """
     Compute the baseline and result image directories for testing *func*.
-    Create the result directory if it doesn't exist.
+
+    For test module ``foo.bar.test_baz``, the baseline directory is at
+    ``foo/bar/baseline_images/test_baz`` and the result directory at
+    ``$(pwd)/result_images/test_baz``.  The result directory is created if it
+    doesn't exist.
     """
-    module_name = func.__module__
-    if module_name == '__main__':
-        # FIXME: this won't work for nested packages in matplotlib.tests
-        warnings.warn(
-            'Test module run as script. Guessing baseline image locations.')
-        module_path = Path(sys.argv[0]).resolve()
-        subdir = module_path.stem
-    else:
-        module_path = Path(sys.modules[func.__module__].__file__)
-        mods = module_name.split('.')
-        if len(mods) >= 3:
-            mods.pop(0)
-            # mods[0] will be the name of the package being tested (in
-            # most cases "matplotlib") However if this is a
-            # namespace package pip installed and run via the nose
-            # multiprocess plugin or as a specific test this may be
-            # missing. See https://github.com/matplotlib/matplotlib/issues/3314
-        if mods.pop(0) != 'tests':
-            warnings.warn(
-                "Module {!r} does not live in a parent module named 'tests'. "
-                "This is probably ok, but we may not be able to guess the "
-                "correct subdirectory containing the baseline images. If "
-                "things go wrong please make sure that there is a parent "
-                "directory named 'tests' and that it contains a __init__.py "
-                "file (can be empty).".format(module_name))
-        subdir = os.path.join(*mods)
-
-    baseline_dir = module_path.parent / 'baseline_images' / subdir
-    result_dir = Path().resolve() / 'result_images' / subdir
+    module_path = Path(sys.modules[func.__module__].__file__)
+    baseline_dir = module_path.parent / "baseline_images" / module_path.stem
+    result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
-
     return str(baseline_dir), str(result_dir)
 
 
+@cbook.deprecated("3.1", alternative="pytest.mark.backend")
 def switch_backend(backend):
 
     def switch_backend_decorator(func):
@@ -488,6 +507,7 @@ def switch_backend(backend):
     return switch_backend_decorator
 
 
+@cbook.deprecated("3.0")
 def skip_if_command_unavailable(cmd):
     """
     skips a test if a command is unavailable.
@@ -502,7 +522,7 @@ def skip_if_command_unavailable(cmd):
     from subprocess import check_output
     try:
         check_output(cmd)
-    except:
+    except Exception:
         import pytest
         return pytest.mark.skip(reason='missing command: %s' % cmd[0])
 

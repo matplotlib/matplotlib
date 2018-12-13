@@ -21,11 +21,6 @@ This was derived from embedding_in_wx and dynamic_image_wxagg.
 Thanks to matplotlib and wx teams for creating such great software!
 """
 
-
-import sys
-import time
-import os
-import gc
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
@@ -136,7 +131,6 @@ class MyApp(wx.App):
         bang_button.Bind(wx.EVT_BUTTON, self.OnBang)
 
         # final setup ------------------
-        sizer = self.panel.GetSizer()
         self.frame.Show(1)
 
         self.SetTopWindow(self.frame)

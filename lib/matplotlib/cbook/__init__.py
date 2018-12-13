@@ -6,35 +6,33 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-import six
-from six.moves import xrange, zip
 import collections
+import collections.abc
 import contextlib
-import datetime
-import errno
 import functools
 import glob
 import gzip
-import io
-from itertools import repeat
+import itertools
 import locale
 import numbers
 import operator
 import os
 from pathlib import Path
 import re
+import subprocess
 import sys
 import time
 import traceback
 import types
 import warnings
-from weakref import ref, WeakKeyDictionary
+import weakref
+from weakref import WeakMethod
 
 import numpy as np
 
 import matplotlib
-from .deprecation import deprecated, warn_deprecated
-from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
+from .deprecation import (
+    mplDeprecation, deprecated, warn_deprecated, MatplotlibDeprecationWarning)
 
 
 @deprecated("3.0")
@@ -57,119 +55,32 @@ def unicode_safe(s):
             preferredencoding = None
 
         if preferredencoding is None:
-            return six.text_type(s)
+            return str(s)
         else:
-            return six.text_type(s, preferredencoding)
+            return str(s, preferredencoding)
     return s
-
-
-class _BoundMethodProxy(object):
-    """
-    Our own proxy object which enables weak references to bound and unbound
-    methods and arbitrary callables. Pulls information about the function,
-    class, and instance out of a bound method. Stores a weak reference to the
-    instance to support garbage collection.
-
-    @organization: IBM Corporation
-    @copyright: Copyright (c) 2005, 2006 IBM Corporation
-    @license: The BSD License
-
-    Minor bugfixes by Michael Droettboom
-    """
-    def __init__(self, cb):
-        self._hash = hash(cb)
-        self._destroy_callbacks = []
-        try:
-            try:
-                if six.PY3:
-                    self.inst = ref(cb.__self__, self._destroy)
-                else:
-                    self.inst = ref(cb.im_self, self._destroy)
-            except TypeError:
-                self.inst = None
-            if six.PY3:
-                self.func = cb.__func__
-                self.klass = cb.__self__.__class__
-            else:
-                self.func = cb.im_func
-                self.klass = cb.im_class
-        except AttributeError:
-            self.inst = None
-            self.func = cb
-            self.klass = None
-
-    def add_destroy_callback(self, callback):
-        self._destroy_callbacks.append(_BoundMethodProxy(callback))
-
-    def _destroy(self, wk):
-        for callback in self._destroy_callbacks:
-            try:
-                callback(self)
-            except ReferenceError:
-                pass
-
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        # de-weak reference inst
-        inst = d['inst']
-        if inst is not None:
-            d['inst'] = inst()
-        return d
-
-    def __setstate__(self, statedict):
-        self.__dict__ = statedict
-        inst = statedict['inst']
-        # turn inst back into a weakref
-        if inst is not None:
-            self.inst = ref(inst)
-
-    def __call__(self, *args, **kwargs):
-        """
-        Proxy for a call to the weak referenced object. Take
-        arbitrary params to pass to the callable.
-
-        Raises `ReferenceError`: When the weak reference refers to
-        a dead object
-        """
-        if self.inst is not None and self.inst() is None:
-            raise ReferenceError
-        elif self.inst is not None:
-            # build a new instance method with a strong reference to the
-            # instance
-
-            mtd = types.MethodType(self.func, self.inst())
-
-        else:
-            # not a bound method, just return the func
-            mtd = self.func
-        # invoke the callable and return the result
-        return mtd(*args, **kwargs)
-
-    def __eq__(self, other):
-        """
-        Compare the held function and instance with that held by
-        another proxy.
-        """
-        try:
-            if self.inst is None:
-                return self.func == other.func and other.inst is None
-            else:
-                return self.func == other.func and self.inst() == other.inst()
-        except Exception:
-            return False
-
-    def __ne__(self, other):
-        """
-        Inverse of __eq__.
-        """
-        return not self.__eq__(other)
-
-    def __hash__(self):
-        return self._hash
 
 
 def _exception_printer(exc):
     traceback.print_exc()
+
+
+class _StrongRef:
+    """
+    Wrapper similar to a weakref, but keeping a strong reference to the object.
+    """
+
+    def __init__(self, obj):
+        self._obj = obj
+
+    def __call__(self):
+        return self._obj
+
+    def __eq__(self, other):
+        return isinstance(other, _StrongRef) and self._obj == other._obj
+
+    def __hash__(self):
+        return hash(self._obj)
 
 
 class CallbackRegistry(object):
@@ -194,20 +105,13 @@ class CallbackRegistry(object):
         >>> callbacks.disconnect(id_eat)
         >>> callbacks.process('eat', 456)      # nothing will be called
 
-    In practice, one should always disconnect all callbacks when they
-    are no longer needed to avoid dangling references (and thus memory
-    leaks).  However, real code in matplotlib rarely does so, and due
-    to its design, it is rather difficult to place this kind of code.
-    To get around this, and prevent this class of memory leaks, we
-    instead store weak references to bound methods only, so when the
-    destination object needs to die, the CallbackRegistry won't keep
-    it alive.  The Python stdlib weakref module can not create weak
-    references to bound methods directly, so we need to create a proxy
-    object to handle weak references to bound methods (or regular free
-    functions).  This technique was shared by Peter Parente on his
-    `"Mindtrove" blog
-    <http://mindtrove.info/python-weak-references/>`_.
-
+    In practice, one should always disconnect all callbacks when they are
+    no longer needed to avoid dangling references (and thus memory leaks).
+    However, real code in Matplotlib rarely does so, and due to its design,
+    it is rather difficult to place this kind of code.  To get around this,
+    and prevent this class of memory leaks, we instead store weak references
+    to bound methods only, so when the destination object needs to die, the
+    CallbackRegistry won't keep it alive.
 
     Parameters
     ----------
@@ -226,12 +130,17 @@ class CallbackRegistry(object):
 
           def h(exc):
               traceback.print_exc()
-
     """
+
+    # We maintain two mappings:
+    #   callbacks: signal -> {cid -> callback}
+    #   _func_cid_map: signal -> {callback -> cid}
+    # (actually, callbacks are weakrefs to the actual callbacks).
+
     def __init__(self, exception_handler=_exception_printer):
         self.exception_handler = exception_handler
-        self.callbacks = dict()
-        self._cid = 0
+        self.callbacks = {}
+        self._cid_gen = itertools.count()
         self._func_cid_map = {}
 
     # In general, callbacks may not be pickled; thus, we simply recreate an
@@ -251,28 +160,26 @@ class CallbackRegistry(object):
     def connect(self, s, func):
         """Register *func* to be called when signal *s* is generated.
         """
-        self._func_cid_map.setdefault(s, WeakKeyDictionary())
-        # Note proxy not needed in python 3.
-        # TODO rewrite this when support for python2.x gets dropped.
-        proxy = _BoundMethodProxy(func)
+        self._func_cid_map.setdefault(s, {})
+        try:
+            proxy = WeakMethod(func, self._remove_proxy)
+        except TypeError:
+            proxy = _StrongRef(func)
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
 
-        proxy.add_destroy_callback(self._remove_proxy)
-        self._cid += 1
-        cid = self._cid
+        cid = next(self._cid_gen)
         self._func_cid_map[s][proxy] = cid
-        self.callbacks.setdefault(s, dict())
+        self.callbacks.setdefault(s, {})
         self.callbacks[s][cid] = proxy
         return cid
 
     def _remove_proxy(self, proxy):
-        for signal, proxies in list(six.iteritems(self._func_cid_map)):
+        for signal, proxies in list(self._func_cid_map.items()):
             try:
                 del self.callbacks[signal][proxies[proxy]]
             except KeyError:
                 pass
-
             if len(self.callbacks[signal]) == 0:
                 del self.callbacks[signal]
                 del self._func_cid_map[signal]
@@ -280,15 +187,14 @@ class CallbackRegistry(object):
     def disconnect(self, cid):
         """Disconnect the callback registered with callback id *cid*.
         """
-        for eventname, callbackd in list(six.iteritems(self.callbacks)):
+        for eventname, callbackd in list(self.callbacks.items()):
             try:
                 del callbackd[cid]
             except KeyError:
                 continue
             else:
-                for signal, functions in list(
-                        six.iteritems(self._func_cid_map)):
-                    for function, value in list(six.iteritems(functions)):
+                for signal, functions in list(self._func_cid_map.items()):
+                    for function, value in list(functions.items()):
                         if value == cid:
                             del functions[function]
                 return
@@ -300,12 +206,11 @@ class CallbackRegistry(object):
         All of the functions registered to receive callbacks on *s* will be
         called with ``*args`` and ``**kwargs``.
         """
-        if s in self.callbacks:
-            for cid, proxy in list(six.iteritems(self.callbacks[s])):
+        for cid, ref in list(self.callbacks.get(s, {}).items()):
+            func = ref()
+            if func is not None:
                 try:
-                    proxy(*args, **kwargs)
-                except ReferenceError:
-                    self._remove_proxy(proxy)
+                    func(*args, **kwargs)
                 # this does not capture KeyboardInterrupt, SystemExit,
                 # and GeneratorExit
                 except Exception as exc:
@@ -362,19 +267,19 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Parameters
     ----------
-        local_var: any object
+        local_var : any object
             The local variable (highest priority)
 
-        kwargs: dict
+        kwargs : dict
             Dictionary of keyword arguments; modified in place
 
-        keys: str(s)
+        keys : str(s)
             Name(s) of keyword arguments to process, in descending order of
             priority
 
     Returns
     -------
-        out: any object
+        out : any object
             Either local_var or one of kwargs[key] for key in keys
 
     Raises
@@ -391,17 +296,31 @@ def local_over_kwdict(local_var, kwargs, *keys):
             if out is None:
                 out = kwarg_val
             else:
-                warnings.warn('"%s" keyword argument will be ignored' % key,
-                              IgnoredKeywordWarning)
+                _warn_external('"%s" keyword argument will be ignored' % key,
+                               IgnoredKeywordWarning)
     return out
 
 
 def strip_math(s):
-    """remove latex formatting from mathtext"""
-    remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
-    s = s[1:-1]
-    for r in remove:
-        s = s.replace(r, '')
+    """
+    Remove latex formatting from mathtext.
+
+    Only handles fully math and fully non-math strings.
+    """
+    if len(s) >= 2 and s[0] == s[-1] == "$":
+        s = s[1:-1]
+        for tex, plain in [
+                (r"\times", "x"),  # Specifically for Formatter support.
+                (r"\mathdefault", ""),
+                (r"\rm", ""),
+                (r"\cal", ""),
+                (r"\tt", ""),
+                (r"\it", ""),
+                ("\\", ""),
+                ("{", ""),
+                ("}", ""),
+        ]:
+            s = s.replace(tex, plain)
     return s
 
 
@@ -419,6 +338,7 @@ class Bunch(types.SimpleNamespace):
     pass
 
 
+@deprecated('3.1', alternative='np.iterable')
 def iterable(obj):
     """return true if *obj* is iterable"""
     try:
@@ -455,23 +375,44 @@ def file_requires_unicode(x):
         return False
 
 
-@deprecated('3.0', 'isinstance(..., numbers.Number)')
+@deprecated('3.0', alternative='isinstance(..., numbers.Number)')
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
     return isinstance(obj, (numbers.Number, np.number))
 
 
-def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
+def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
-    *fname* can be an `os.PathLike` or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz.  *flag* is a
-    read/write flag for :func:`file`
+    Convert a path to an open file handle or pass-through a file-like object.
+
+    Consider using `open_file_cm` instead, as it allows one to properly close
+    newly created file objects more easily.
+
+    Parameters
+    ----------
+    fname : str or PathLike or file-like object
+        If `str` or `os.PathLike`, the file is opened using the flags specified
+        by *flag* and *encoding*.  If a file-like object, it is passed through.
+    flag : str, default 'r'
+        Passed as the *mode* argument to `open` when *fname* is `str` or
+        `os.PathLike`; ignored if *fname* is file-like.
+    return_opened : bool, default False
+        If True, return both the file object and a boolean indicating whether
+        this was a new file (that the caller needs to close).  If False, return
+        only the new file.
+    encoding : str or None, default None
+        Passed as the *mode* argument to `open` when *fname* is `str` or
+        `os.PathLike`; ignored if *fname* is file-like.
+
+    Returns
+    -------
+    fh : file-like
+    opened : bool
+        *opened* is only returned if *return_opened* is True.
     """
-    if isinstance(fname, getattr(os, "PathLike", ())):
-        return to_filehandle(
-            os.fspath(fname),
-            flag=flag, return_opened=return_opened, encoding=encoding)
-    if isinstance(fname, six.string_types):
+    if isinstance(fname, os.PathLike):
+        fname = os.fspath(fname)
+    if isinstance(fname, str):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U', '')
@@ -484,7 +425,7 @@ def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
             flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = io.open(fname, flag, encoding=encoding)
+            fh = open(fname, flag, encoding=encoding)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
@@ -509,16 +450,16 @@ def open_file_cm(path_or_file, mode="r", encoding=None):
 
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
-    return isinstance(val, six.string_types) or not iterable(val)
+    return isinstance(val, str) or not np.iterable(val)
 
 
 def _string_to_bool(s):
     """Parses the string argument as a boolean"""
-    if not isinstance(s, six.string_types):
+    if not isinstance(s, str):
         return bool(s)
-    warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
-                    "boolean is deprecated; use an actual boolean "
-                    "(True/False) instead.")
+    warn_deprecated("2.2", message="Passing one of 'on', 'true', 'off', "
+                    "'false' as a boolean is deprecated; use an actual "
+                    "boolean (True/False) instead.")
     if s.lower() in ['on', 'true']:
         return True
     if s.lower() in ['off', 'false']:
@@ -540,7 +481,8 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    if matplotlib.rcParams['examples.directory']:
+    # Don't trigger deprecation warning when just fetching.
+    if dict.__getitem__(matplotlib.rcParams, 'examples.directory'):
         root = matplotlib.rcParams['examples.directory']
     else:
         root = os.path.join(matplotlib._get_data_path(), 'sample_data')
@@ -593,14 +535,7 @@ def mkdirs(newdir, mode=0o777):
     """
     # this functionality is now in core python as of 3.2
     # LPY DROP
-    if six.PY3:
-        os.makedirs(newdir, mode=mode, exist_ok=True)
-    else:
-        try:
-            os.makedirs(newdir, mode=mode)
-        except OSError as exception:
-            if exception.errno != errno.EEXIST:
-                raise
+    os.makedirs(newdir, mode=mode, exist_ok=True)
 
 
 @deprecated('3.0')
@@ -808,7 +743,7 @@ class Stack(object):
                 bubbles.append(thiso)
             else:
                 self.push(thiso)
-        for thiso in bubbles:
+        for _ in bubbles:
             self.push(o)
         return o
 
@@ -824,45 +759,29 @@ class Stack(object):
 
 
 def report_memory(i=0):  # argument may go away
-    """return the memory consumed by process"""
-    from subprocess import Popen, PIPE
+    """Return the memory consumed by the process."""
+    def call(command, os_name):
+        try:
+            return subprocess.check_output(command)
+        except subprocess.CalledProcessError:
+            raise NotImplementedError(
+                "report_memory works on %s only if "
+                "the '%s' program is found" % (os_name, command[0])
+            )
+
     pid = os.getpid()
     if sys.platform == 'sunos5':
-        try:
-            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Sun OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[-1].strip())
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'osz'], 'Sun OS')
+        mem = int(lines[-1].strip())
     elif sys.platform == 'linux':
-        try:
-            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Linux only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[1])
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,sz'], 'Linux')
+        mem = int(lines[1].split()[1])
     elif sys.platform == 'darwin':
-        try:
-            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Mac OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[0])
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'], 'Mac OS')
+        mem = int(lines[1].split()[0])
     elif sys.platform == 'win32':
-        try:
-            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
-                       stdout=PIPE).stdout.read()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Windows only if "
-                "the 'tasklist' program is found")
-        mem = int(a2.strip().split()[-2].replace(',', ''))
+        lines = call(["tasklist", "/nh", "/fi", "pid eq %d" % pid], 'Windows')
+        mem = int(lines.strip().split()[-2].replace(',', ''))
     else:
         raise NotImplementedError(
             "We don't have a memory monitor for %s" % sys.platform)
@@ -912,7 +831,6 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
         If True, print the number of objects reached as they are found.
     """
     import gc
-    from types import FrameType
 
     def print_path(path):
         for i, step in enumerate(path):
@@ -921,7 +839,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
             outstream.write("   %s -- " % type(step))
             if isinstance(step, dict):
-                for key, val in six.iteritems(step):
+                for key, val in step.items():
                     if val is next:
                         outstream.write("[{!r}]".format(key))
                         break
@@ -953,7 +871,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             # Don't go back through the original list of objects, or
             # through temporary references to the object, since those
             # are just an artifact of the cycle detector itself.
-            elif referent is objects or isinstance(referent, FrameType):
+            elif referent is objects or isinstance(referent, types.FrameType):
                 continue
 
             # We haven't seen this object before, so recurse
@@ -1002,17 +920,13 @@ class Grouper(object):
 
     """
     def __init__(self, init=()):
-        mapping = self._mapping = {}
-        for x in init:
-            mapping[ref(x)] = [ref(x)]
+        self._mapping = {weakref.ref(x): [weakref.ref(x)] for x in init}
 
     def __contains__(self, item):
-        return ref(item) in self._mapping
+        return weakref.ref(item) in self._mapping
 
     def clean(self):
-        """
-        Clean dead weak references from the dictionary
-        """
+        """Clean dead weak references from the dictionary."""
         mapping = self._mapping
         to_drop = [key for key in mapping if key() is None]
         for key in to_drop:
@@ -1021,18 +935,14 @@ class Grouper(object):
 
     def join(self, a, *args):
         """
-        Join given arguments into the same set.  Accepts one or more
-        arguments.
+        Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
-        set_a = mapping.setdefault(ref(a), [ref(a)])
+        set_a = mapping.setdefault(weakref.ref(a), [weakref.ref(a)])
 
         for arg in args:
-            set_b = mapping.get(ref(arg))
-            if set_b is None:
-                set_a.append(ref(arg))
-                mapping[ref(arg)] = set_a
-            elif set_b is not set_a:
+            set_b = mapping.get(weakref.ref(arg), [weakref.ref(arg)])
+            if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
                 set_a.extend(set_b)
@@ -1042,24 +952,16 @@ class Grouper(object):
         self.clean()
 
     def joined(self, a, b):
-        """
-        Returns True if *a* and *b* are members of the same set.
-        """
+        """Returns True if *a* and *b* are members of the same set."""
         self.clean()
-
-        mapping = self._mapping
-        try:
-            return mapping[ref(a)] is mapping[ref(b)]
-        except KeyError:
-            return False
+        return (self._mapping.get(weakref.ref(a), object())
+                is self._mapping.get(weakref.ref(b)))
 
     def remove(self, a):
         self.clean()
-
-        mapping = self._mapping
-        seta = mapping.pop(ref(a), None)
-        if seta is not None:
-            seta.remove(ref(a))
+        set_a = self._mapping.pop(weakref.ref(a), None)
+        if set_a:
+            set_a.remove(weakref.ref(a))
 
     def __iter__(self):
         """
@@ -1068,27 +970,14 @@ class Grouper(object):
         The iterator is invalid if interleaved with calls to join().
         """
         self.clean()
-        token = object()
-
-        # Mark each group as we come across if by appending a token,
-        # and don't yield it twice
-        for group in six.itervalues(self._mapping):
-            if group[-1] is not token:
-                yield [x() for x in group]
-                group.append(token)
-
-        # Cleanup the tokens
-        for group in six.itervalues(self._mapping):
-            if group[-1] is token:
-                del group[-1]
+        unique_groups = {id(group): group for group in self._mapping.values()}
+        for group in unique_groups.values():
+            yield [x() for x in group]
 
     def get_siblings(self, a):
-        """
-        Returns all of the items joined with *a*, including itself.
-        """
+        """Returns all of the items joined with *a*, including itself."""
         self.clean()
-
-        siblings = self._mapping.get(ref(a), [ref(a)])
+        siblings = self._mapping.get(weakref.ref(a), [weakref.ref(a)])
         return [x() for x in siblings]
 
 
@@ -1149,14 +1038,13 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if (isinstance(args[0], six.string_types) or not iterable(args[0])):
+    if is_scalar_or_string(args[0]):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if (not isinstance(x, six.string_types) and iterable(x)
-                and len(x) == nrecs):
+        if not isinstance(x, str) and np.iterable(x) and len(x) == nrecs:
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
@@ -1178,7 +1066,7 @@ def delete_masked_points(*args):
                 mask = np.isfinite(xd)
                 if isinstance(mask, np.ndarray):
                     masks.append(mask)
-            except:  # Fixme: put in tuple of possible exceptions?
+            except Exception:  # Fixme: put in tuple of possible exceptions?
                 pass
     if len(masks):
         mask = np.logical_and.reduce(masks)
@@ -1232,10 +1120,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         dimensions of `X`.
 
     autorange : bool, optional (False)
-        When `True` and the data are distributed such that the  25th and
-        75th percentiles are equal, ``whis`` is set to ``'range'`` such
-        that the whisker ends are at the minimum and maximum of the
-        data.
+        When `True` and the data are distributed such that the 25th and 75th
+        percentiles are equal, ``whis`` is set to ``'range'`` such that the
+        whisker ends are at the minimum and maximum of the data.
 
     Returns
     -------
@@ -1308,12 +1195,12 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     ncols = len(X)
     if labels is None:
-        labels = repeat(None)
+        labels = itertools.repeat(None)
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 
     input_whis = whis
-    for ii, (x, label) in enumerate(zip(X, labels), start=0):
+    for ii, (x, label) in enumerate(zip(X, labels)):
 
         # empty dict
         stats = {}
@@ -1403,7 +1290,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 # The ls_mapper maps short codes for line style to their full name used by
 # backends; the reverse mapper is for mapping full names to short ones.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
-ls_mapper_r = {v: k for k, v in six.iteritems(ls_mapper)}
+ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 
 @deprecated('2.2')
@@ -1480,16 +1367,9 @@ def contiguous_regions(mask):
 def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
-    try:
-        s = six.text_type(s)
-    except UnicodeDecodeError:
-        raise ValueError(
-            "matplotlib display text must have all code points < 128 or use "
-            "Unicode strings")
-
+    s = str(s)
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
-
     return even_dollars
 
 
@@ -1532,7 +1412,7 @@ def _reshape_2D(X, name):
     """
     # Iterate over columns for ndarrays, over rows otherwise.
     X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
-    if X.ndim == 1 and X.dtype.type != np.object_:
+    if X.ndim == 1 and not isinstance(X[0], collections.abc.Iterable):
         # 1D array of scalars: directly return it.
         return [X]
     elif X.ndim in [1, 2]:
@@ -1701,7 +1581,8 @@ def pts_to_midstep(x, *args):
         The x location of the steps. May be empty.
 
     y1, ..., yp : array
-        y arrays to be turned into steps; all must be the same length as ``x``.
+        y arrays to be turned into steps; all must be the same length as
+        ``x``.
 
     Returns
     -------
@@ -1760,7 +1641,7 @@ def index_of(y):
 
 
 def safe_first_element(obj):
-    if isinstance(obj, collections.Iterator):
+    if isinstance(obj, collections.abc.Iterator):
         # needed to accept `array.flat` as input.
         # np.flatiter reports as an instance of collections.Iterator
         # but can still be indexed via [].
@@ -1777,7 +1658,8 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    return list(data) if isinstance(data, collections.MappingView) else data
+    return (list(data) if isinstance(data, collections.abc.MappingView)
+            else data)
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
@@ -1833,7 +1715,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     ret = dict()
 
     # hit all alias mappings
-    for canonical, alias_list in six.iteritems(alias_mapping):
+    for canonical, alias_list in alias_mapping.items():
 
         # the alias lists are ordered from lowest to highest priority
         # so we know to use the last value in this list
@@ -1857,9 +1739,9 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         if tmp:
             ret[canonical] = tmp[-1]
             if len(tmp) > 1:
-                warnings.warn("Saw kwargs {seen!r} which are all aliases for "
-                              "{canon!r}.  Kept value from {used!r}".format(
-                                  seen=seen, canon=canonical, used=seen[-1]))
+                _warn_external("Saw kwargs {seen!r} which are all aliases for "
+                               "{canon!r}.  Kept value from {used!r}".format(
+                               seen=seen, canon=canonical, used=seen[-1]))
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input
@@ -1876,14 +1758,13 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                         "are in kwargs".format(keys=fail_keys))
 
     if allowed is not None:
-        allowed_set = set(required) | set(allowed)
+        allowed_set = {*required, *allowed}
         fail_keys = [k for k in ret if k not in allowed_set]
         if fail_keys:
-            raise TypeError("kwargs contains {keys!r} which are not in "
-                            "the required {req!r} or "
-                            "allowed {allow!r} keys".format(
-                                keys=fail_keys, req=required,
-                                allow=allowed))
+            raise TypeError(
+                "kwargs contains {keys!r} which are not in the required "
+                "{req!r} or allowed {allow!r} keys".format(
+                    keys=fail_keys, req=required, allow=allowed))
 
     return ret
 
@@ -1987,7 +1868,12 @@ def _lock_path(path):
         except FileExistsError:
             time.sleep(sleeptime)
     else:
-        raise TimeoutError(_lockstr.format(lock_path))
+        raise TimeoutError("""\
+Lock error: Matplotlib failed to acquire the following lock file:
+    {}
+This maybe due to another process holding this lock file.  If you are sure no
+other Matplotlib process is running, remove this file and try again.""".format(
+            lock_path))
     try:
         yield
     finally:
@@ -2000,9 +1886,8 @@ def _topmost_artist(
     """Get the topmost artist of a list.
 
     In case of a tie, return the *last* of the tied artists, as it will be
-    drawn on top of the others. `max` returns the first maximum in case of ties
-    (on Py2 this is undocumented but true), so we need to iterate over the list
-    in reverse order.
+    drawn on top of the others. `max` returns the first maximum in case of
+    ties, so we need to iterate over the list in reverse order.
     """
     return _cached_max(reversed(artists))
 
@@ -2014,7 +1899,7 @@ def _str_equal(obj, s):
     because in such cases, a naive ``obj == s`` would yield an array, which
     cannot be used in a boolean context.
     """
-    return isinstance(obj, six.string_types) and obj == s
+    return isinstance(obj, str) and obj == s
 
 
 def _str_lower_equal(obj, s):
@@ -2024,7 +1909,7 @@ def _str_lower_equal(obj, s):
     because in such cases, a naive ``obj == s`` would yield an array, which
     cannot be used in a boolean context.
     """
-    return isinstance(obj, six.string_types) and obj.lower() == s
+    return isinstance(obj, str) and obj.lower() == s
 
 
 def _define_aliases(alias_d, cls=None):
@@ -2044,10 +1929,11 @@ def _define_aliases(alias_d, cls=None):
     can be used by `~.normalize_kwargs` (which assumes that higher priority
     aliases come last).
     """
-    if cls is None:
+    if cls is None:  # Return the actual class decorator.
         return functools.partial(_define_aliases, alias_d)
 
     def make_alias(name):  # Enforce a closure over *name*.
+        @functools.wraps(getattr(cls, name))
         def method(self, *args, **kwargs):
             return getattr(self, name)(*args, **kwargs)
         return method
@@ -2060,7 +1946,7 @@ def _define_aliases(alias_d, cls=None):
                 for alias in aliases:
                     method = make_alias(prefix + prop)
                     method.__name__ = prefix + alias
-                    method.__doc__ = "alias for `{}`".format(prefix + prop)
+                    method.__doc__ = "Alias for `{}`.".format(prefix + prop)
                     setattr(cls, prefix + alias, method)
         if not exists:
             raise ValueError(
@@ -2071,6 +1957,45 @@ def _define_aliases(alias_d, cls=None):
         raise NotImplementedError("Parent class already defines aliases")
     cls._alias_map = alias_d
     return cls
+
+
+def _array_perimeter(arr):
+    """
+    Get the elements on the perimeter of ``arr``,
+
+    Parameters
+    ----------
+    arr : ndarray, shape (M, N)
+        The input array
+
+    Returns
+    -------
+    perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
+        The elements on the perimeter of the array::
+
+            [arr[0,0] ... arr[0,-1] ... arr[-1, -1] ... arr[-1,0] ...]
+
+    Examples
+    --------
+    >>> i, j = np.ogrid[:3,:4]
+    >>> a = i*10 + j
+    >>> a
+    array([[ 0,  1,  2,  3],
+           [10, 11, 12, 13],
+           [20, 21, 22, 23]])
+    >>> _array_perimeter(a)
+    array([ 0,  1,  2,  3, 13, 23, 22, 21, 20, 10])
+    """
+    # note we use Python's half-open ranges to avoid repeating
+    # the corners
+    forward = np.s_[0:-1]      # [0 ... -1)
+    backward = np.s_[-1:0:-1]  # [-1 ... 0)
+    return np.concatenate((
+        arr[0, forward],
+        arr[forward, -1],
+        arr[-1, backward],
+        arr[backward, 0],
+    ))
 
 
 @contextlib.contextmanager
@@ -2089,3 +2014,104 @@ def _setattr_cm(obj, **kwargs):
                 delattr(obj, attr)
             else:
                 setattr(obj, attr, orig)
+
+
+def _warn_external(message, category=None):
+    """
+    `warnings.warn` wrapper that sets *stacklevel* to "outside Matplotlib".
+
+    The original emitter of the warning can be obtained by patching this
+    function back to `warnings.warn`, i.e. ``cbook._warn_external =
+    warnings.warn`` (or ``functools.partial(warnings.warn, stacklevel=2)``,
+    etc.).
+    """
+    frame = sys._getframe()
+    for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
+        if frame is None:
+            # when called in embedded context may hit frame is None
+            break
+        if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
+                        # Work around sphinx-gallery not setting __name__.
+                        frame.f_globals.get("__name__", "")):
+            break
+        frame = frame.f_back
+    warnings.warn(message, category, stacklevel)
+
+
+class _OrderedSet(collections.abc.MutableSet):
+    def __init__(self):
+        self._od = collections.OrderedDict()
+
+    def __contains__(self, key):
+        return key in self._od
+
+    def __iter__(self):
+        return iter(self._od)
+
+    def __len__(self):
+        return len(self._od)
+
+    def add(self, key):
+        self._od.pop(key, None)
+        self._od[key] = None
+
+    def discard(self, key):
+        self._od.pop(key, None)
+
+
+# Agg's buffers are unmultiplied RGBA8888, which neither PyQt4 nor cairo
+# support; however, both do support premultiplied ARGB32.
+
+
+def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
+    """
+    Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
+    """
+    rgba = np.take(  # .take() ensures C-contiguity of the result.
+        buf,
+        [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
+    rgb = rgba[..., :-1]
+    alpha = rgba[..., -1]
+    # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
+    mask = alpha != 0
+    for channel in np.rollaxis(rgb, -1):
+        channel[mask] = (
+            (channel[mask].astype(int) * 255 + alpha[mask] // 2)
+            // alpha[mask])
+    return rgba
+
+
+def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
+    """
+    Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
+    """
+    if sys.byteorder == "little":
+        argb32 = np.take(rgba8888, [2, 1, 0, 3], axis=2)
+        rgb24 = argb32[..., :-1]
+        alpha8 = argb32[..., -1:]
+    else:
+        argb32 = np.take(rgba8888, [3, 0, 1, 2], axis=2)
+        alpha8 = argb32[..., :1]
+        rgb24 = argb32[..., 1:]
+    # Only bother premultiplying when the alpha channel is not fully opaque,
+    # as the cost is not negligible.  The unsafe cast is needed to do the
+    # multiplication in-place in an integer buffer.
+    if alpha8.min() != 0xff:
+        np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
+    return argb32
+
+
+def _check_and_log_subprocess(command, logger, **kwargs):
+    logger.debug(command)
+    try:
+        report = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, **kwargs)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            'The command\n'
+            '    {}\n'
+            'failed and generated the following output:\n'
+            '{}'
+            .format(command, exc.output.decode('utf-8')))
+    logger.debug(report)
+    return report

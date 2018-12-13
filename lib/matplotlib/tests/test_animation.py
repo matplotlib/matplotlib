@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
+import subprocess
 import sys
-import tempfile
 
 import numpy as np
+from pathlib import Path
 import pytest
 
 import matplotlib as mpl
@@ -22,8 +23,6 @@ class NullMovieWriter(animation.AbstractMovieWriter):
     signature, and it doesn't define an isAvailable() method, so
     it cannot be added to the 'writers' registry.
     """
-
-    frame_size_can_vary = True
 
     def setup(self, fig, outfile, dpi, *args):
         self.fig = fig
@@ -110,7 +109,7 @@ class RegisteredNullMovieWriter(NullMovieWriter):
         pass
 
     @classmethod
-    def isAvailable(self):
+    def isAvailable(cls):
         return True
 
 
@@ -125,10 +124,8 @@ WRITER_OUTPUT = [
     ('html', 'movie.html'),
     ('null', 'movie.null')
 ]
-if sys.version_info >= (3, 6):
-    from pathlib import Path
-    WRITER_OUTPUT += [
-        (writer, Path(output)) for writer, output in WRITER_OUTPUT]
+WRITER_OUTPUT += [
+    (writer, Path(output)) for writer, output in WRITER_OUTPUT]
 
 
 # Smoke test for saving animations.  In the future, we should probably
@@ -136,6 +133,8 @@ if sys.version_info >= (3, 6):
 # matplotlib.testing.image_comparison
 @pytest.mark.parametrize('writer, output', WRITER_OUTPUT)
 def test_save_animation_smoketest(tmpdir, writer, output):
+    if writer == 'pillow':
+        pytest.importorskip("PIL")
     try:
         # for ImageMagick the rcparams must be patched to account for
         # 'convert' being a built in MS tool, not the imagemagick
@@ -214,9 +213,10 @@ def test_movie_writer_registry():
     not animation.writers.is_available(mpl.rcParams["animation.writer"]),
     reason="animation writer not installed")
 @pytest.mark.parametrize("method_name", ["to_html5_video", "to_jshtml"])
-def test_embed_limit(method_name, caplog):
-    with mpl.rc_context({"animation.embed_limit": 1e-6}):  # ~1 byte.
-        getattr(make_animation(frames=1), method_name)()
+def test_embed_limit(method_name, caplog, tmpdir):
+    with tmpdir.as_cwd():
+        with mpl.rc_context({"animation.embed_limit": 1e-6}):  # ~1 byte.
+            getattr(make_animation(frames=1), method_name)()
     assert len(caplog.records) == 1
     record, = caplog.records
     assert (record.name == "matplotlib.animation"
@@ -229,20 +229,18 @@ def test_embed_limit(method_name, caplog):
 @pytest.mark.parametrize(
     "method_name",
     ["to_html5_video",
-     pytest.mark.xfail("to_jshtml")])  # Needs to be fixed.
+     pytest.param("to_jshtml",
+                  marks=pytest.mark.xfail)])
 def test_cleanup_temporaries(method_name, tmpdir):
     with tmpdir.as_cwd():
         getattr(make_animation(frames=1), method_name)()
         assert list(Path(str(tmpdir)).iterdir()) == []
 
 
-# Currently, this fails with a ValueError after we try to communicate() twice
-# with the Popen.
-@pytest.mark.xfail
 @pytest.mark.skipif(os.name != "posix", reason="requires a POSIX OS")
 def test_failing_ffmpeg(tmpdir, monkeypatch):
     """
-    Test that we correctly raise an OSError when ffmpeg fails.
+    Test that we correctly raise a CalledProcessError when ffmpeg fails.
 
     To do so, mock ffmpeg using a simple executable shell script that
     succeeds when called with no arguments (so that it gets registered by
@@ -251,12 +249,12 @@ def test_failing_ffmpeg(tmpdir, monkeypatch):
     try:
         with tmpdir.as_cwd():
             monkeypatch.setenv("PATH", ".:" + os.environ["PATH"])
-            exe_path = Path(tmpdir, "ffmpeg")
+            exe_path = Path(str(tmpdir), "ffmpeg")
             exe_path.write_text("#!/bin/sh\n"
                                 "[[ $@ -eq 0 ]]\n")
             os.chmod(str(exe_path), 0o755)
             animation.writers.reset_available_writers()
-            with pytest.raises(OSError):
+            with pytest.raises(subprocess.CalledProcessError):
                 make_animation().save("test.mpeg")
     finally:
         animation.writers.reset_available_writers()

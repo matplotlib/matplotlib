@@ -1,6 +1,6 @@
 language: python
 
-dist: trusty
+dist: xenial
 sudo: false
 
 branches:
@@ -47,42 +47,41 @@ env:
     - ARTIFACTS_BUCKET=matplotlib-test-results
     - secure: RgJI7BBL8aX5FTOQe7xiXqWHMxWokd6GNUWp1NUV2mRLXPb9dI0RXqZt3UJwKTAzf1z/OtlHDmEkBoTVK81E9iUxK5npwyyjhJ8yTJmwfQtQF2n51Q1Ww9p+XSLORrOzZc7kAo6Kw6FIXN1pfctgYq2bQkrwJPRx/oPR8f6hcbY=
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
-    - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
-    - CYCLER=cycler
-    - DATEUTIL=python-dateutil
-    - NOSE=
-    - NUMPY=numpy
-    - PANDAS=
-    - PYPARSING=pyparsing
-    - PYTEST='pytest>=3.4'
-    - PYTEST_COV=pytest-cov
-    - PYTEST_PEP8=
-    - SPHINX=sphinx
-    - OPENBLAS_NUM_THREADS=1
-    - NPROC=2
-    - RUN_PEP8=
-    - PYTEST_ARGS="-rawR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
-    - PYTHON_ARGS=
+    - secure: dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU=
+    # Variables controlling the build.
+    - MPLLOCALFREETYPE=1
+    # Variable for the location of an extra pip requirement file
+    - EXTRAREQS=
+    # Variable for the location of a pip version file
+    - PINNEDVERS=
+    # Variables controlling the test run.
     - DELETE_FONT_CACHE=
+    - NO_AT_BRIDGE=1  # Necessary for GTK3 interactive test.
+    # The number of processes is hardcoded, because using too many causes the
+    # Travis VM to run out of memory (since so many copies of inkscape and
+    # ghostscript are running at the same time).
+    - NPROC=2
+    - OPENBLAS_NUM_THREADS=1
+    - PYTHONFAULTHANDLER=1
+    - PYTEST_ADDOPTS="-raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - RUN_PYTEST=1
+    - RUN_FLAKE8=
 
 matrix:
   include:
-    - python: 3.5
-      # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
+    - name: flake8
+      python: 3.6
       env:
-        - CYCLER=cycler==0.10
-        - DATEUTIL=python-dateutil==2.1
-        - NOSE=nose
-        - NUMPY=numpy==1.10.0
-        - PANDAS='pandas<0.21.0'
-        - PYPARSING=pyparsing==2.0.1
-        - PYTEST=pytest==3.4
-        - PYTEST_COV=pytest-cov==2.3.1
-        - SPHINX=sphinx==1.3
-    - python: 3.5
-      env: PYTHON_ARGS=-OO
+        - RUN_PYTEST=
+        - RUN_FLAKE8=1
+        - EXTRAREQS='-r requirements/testing/travis_flake8.txt'
     - python: 3.6
-      env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
+      env:
+        - PINNEDVERS='-c requirements/testing/travis36minver.txt'
+        - DELETE_FONT_CACHE=1
+        - EXTRAREQS='-r requirements/testing/travis36.txt'
+    - python: 3.7
+      sudo: true
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -100,25 +99,23 @@ matrix:
   allow_failures:
     - python: "nightly"
 
-before_install:
-  - |
-    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
-      # test with non-ascii in path
-      mkdir /tmp/λ
-      export PATH=$PATH:/tmp/λ
-      export PATH=/usr/lib/ccache:$PATH
-    else
-      ci/travis/silence brew update
-      brew upgrade python
-      brew install ffmpeg imagemagick mplayer ccache
-      hash -r
-      which python
-      python --version
-      # We could install ghostscript and inkscape here to test svg and pdf
-      # but this makes the test time really long.
-      # brew install ghostscript inkscape
-      export PATH=/usr/local/opt/python/libexec/bin:/usr/local/opt/ccache/libexec:$PATH
-    fi
+before_install: |
+  # test with non-ascii in path
+  if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+    export PATH=/usr/lib/ccache:$PATH
+  else
+    ci/silence brew update
+    brew uninstall numpy gdal postgis
+    brew upgrade python
+    brew install ffmpeg imagemagick mplayer ccache
+    hash -r
+    which python
+    python --version
+    # We could install ghostscript and inkscape here to test svg and pdf
+    # but this makes the test time really long.
+    # brew install ghostscript inkscape
+    export PATH=/usr/local/opt/python/libexec/bin:/usr/local/opt/ccache/libexec:$PATH
+  fi
 
 install:
   - |
@@ -129,76 +126,65 @@ install:
     python -mpip install --upgrade pip setuptools wheel
   - |
     # Install dependencies from PyPI.
-    python -mpip install --upgrade $PRE \
-        codecov \
-        coverage \
-        $CYCLER \
-        $DATEUTIL \
-        $NOSE \
-        $NUMPY \
-        $PANDAS \
-        codecov \
-        coverage \
-        pillow \
-        $PYPARSING \
-        $SPHINX \
-        tornado
+    python -mpip install --upgrade $PRE -r requirements/testing/travis_all.txt $EXTRAREQS $PINNEDVERS
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the
     # install appears to be successful but shared libraries cannot be loaded at
     # runtime, so an actual import is a better check).
-    python -mpip install cairocffi pgi &&
+    python -mpip install --upgrade cairocffi>=0.8 pgi>=0.0.11.2 &&
       python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
       echo 'pgi is available' ||
       echo 'pgi is not available'
-    python -mpip install pyqt5==5.9 &&
+    python -mpip install --upgrade pyqt5 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
-    python -mpip install -U \
-      --no-index -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
+    python -mpip install --upgrade \
+      -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
       wxPython &&
       python -c 'import wx' &&
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
 
-    python -mpip install $PRE \
-        $PYTEST \
-        $PYTEST_COV \
-        pytest-faulthandler \
-        $PYTEST_PEP8 \
-        pytest-rerunfailures \
-        pytest-timeout \
-        pytest-xdist
-
-    # Use the special local version of freetype for testing
-    cp ci/travis/setup.cfg .
   - |
     # Install matplotlib
     python -mpip install -ve .
 
-before_script:
+before_script: |
+  if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+    export DISPLAY=:99.0
+    sh -e /etc/init.d/xvfb start
+  fi
+  if [[ $DELETE_FONT_CACHE == 1 ]]; then
+    rm -rf ~/.cache/matplotlib
+  fi
+
+script:
+  # each script we want to run need to go in it's own section and the program you want
+  # to fail travis need to be the last thing called
   - |
-    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
-      export DISPLAY=:99.0
-      sh -e /etc/init.d/xvfb start
+    if [[ $RUN_PYTEST == 1 ]]; then
+      echo "Calling pytest with the following arguments: $PYTEST_ADDOPTS"
+      python -mpytest
+    fi
+  - |
+    if [[ $RUN_FLAKE8 == 1 ]]; then
+      flake8 --statistics && echo "Flake8 passed without any issues!"
     fi
 
-script: ci/travis/test_script.sh
 
-before_cache:
-  - rm -rf $HOME/.cache/matplotlib/tex.cache
-  - rm -rf $HOME/.cache/matplotlib/test_cache
+before_cache: |
+  rm -rf $HOME/.cache/matplotlib/tex.cache
+  rm -rf $HOME/.cache/matplotlib/test_cache
 
-after_failure:
-  - |
-    if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
-      tar cjf result_images.tar.bz2 result_images
-      echo 'See "Uploading Artifacts" near the end of the log for the download URL'
-    else
-      echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
-    fi
+after_failure: |
+  if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
+    tar cjf result_images.tar.bz2 result_images
+    echo 'See "Uploading Artifacts" near the end of the log for the download URL'
+  else
+    echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
+  fi
 
-after_success:
-  - codecov -e TRAVIS_PYTHON_VERSION
+after_success: |
+  codecov -e TRAVIS_PYTHON_VERSION

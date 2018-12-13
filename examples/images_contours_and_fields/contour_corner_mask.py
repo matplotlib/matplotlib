@@ -3,8 +3,8 @@
 Contour Corner Mask
 ===================
 
-Illustrate the difference between corner_mask=False and corner_mask=True
-for masked contour plots.
+Illustrate the difference between ``corner_mask=False`` and
+``corner_mask=True`` for masked contour plots.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,3 +36,19 @@ for ax, corner_mask in zip(axs, corner_masks):
     ax.plot(np.ma.array(x, mask=~mask), y, 'ro')
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.contour
+matplotlib.pyplot.contour
+matplotlib.axes.Axes.contourf
+matplotlib.pyplot.contourf

@@ -3,7 +3,6 @@ include pytest.ini
 include MANIFEST.in
 include matplotlibrc.template setup.cfg.template
 include setupext.py setup.py
-include lib/matplotlib/mpl-data/lineprops.glade
 include lib/matplotlib/mpl-data/matplotlibrc
 include lib/matplotlib/mpl-data/images/*
 include lib/matplotlib/mpl-data/fonts/ttf/*
@@ -19,7 +18,6 @@ recursive-include lib/matplotlib/mpl-data/sample_data *
 recursive-include src  *.cpp *.c *.h *.m
 recursive-include tools *
 recursive-include tutorials *
-recursive-include unit *
 include versioneer.py
 include lib/matplotlib/_version.py
 include tests.py

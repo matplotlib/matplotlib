@@ -9,14 +9,11 @@ Status
 
 **Progress**
 
-Targeted for 1.3
+This is still an on-going effort
 
 Branches and Pull requests
 ==========================
 
-#1665
-#1757
-#1795
 
 Abstract
 ========

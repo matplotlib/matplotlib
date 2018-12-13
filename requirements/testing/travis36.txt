@@ -1,0 +1,6 @@
+# Extra pip requirements for the travis python 3.6 build
+
+ipykernel
+nbconvert[execute]
+pandas
+pytz

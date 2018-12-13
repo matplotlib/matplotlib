@@ -1,10 +1,6 @@
-******
-figure
-******
-
-
-:mod:`matplotlib.figure`
-========================
+*********************
+``matplotlib.figure``
+*********************
 
 .. currentmodule:: matplotlib.figure
 
@@ -18,6 +14,7 @@ Classes
 .. autosummary::
    :toctree: _as_gen/
    :template: autosummary.rst
+   :nosignatures:
 
    AxesStack
    Figure
@@ -29,6 +26,6 @@ Functions
 .. autosummary::
    :toctree: _as_gen/
    :template: autosummary.rst
+   :nosignatures:
 
    figaspect
-   

@@ -24,7 +24,6 @@ import matplotlib.collections as mcollections
 import matplotlib.transforms as transforms
 import matplotlib.text as mtext
 import matplotlib.artist as martist
-from matplotlib.artist import allow_rasterization
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 from matplotlib.cbook import delete_masked_points
@@ -238,17 +237,20 @@ class QuiverKey(martist.Artist):
     valign = {'N': 'bottom', 'S': 'top', 'E': 'center', 'W': 'center'}
     pivot = {'N': 'middle', 'S': 'middle', 'E': 'tip', 'W': 'tail'}
 
-    def __init__(self, Q, X, Y, U, label, **kw):
+    def __init__(self, Q, X, Y, U, label,
+                 *, angle=0, coordinates='axes', color=None, labelsep=0.1,
+                 labelpos='N', labelcolor=None, fontproperties=None,
+                 **kw):
         martist.Artist.__init__(self)
         self.Q = Q
         self.X = X
         self.Y = Y
         self.U = U
-        self.angle = kw.pop('angle', 0)
-        self.coord = kw.pop('coordinates', 'axes')
-        self.color = kw.pop('color', None)
+        self.angle = angle
+        self.coord = coordinates
+        self.color = color
         self.label = label
-        self._labelsep_inches = kw.pop('labelsep', 0.1)
+        self._labelsep_inches = labelsep
         self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
 
         # try to prevent closure over the real self
@@ -266,9 +268,9 @@ class QuiverKey(martist.Artist):
         self._cid = Q.ax.figure.callbacks.connect('dpi_changed',
                                                   on_dpi_change)
 
-        self.labelpos = kw.pop('labelpos', 'N')
-        self.labelcolor = kw.pop('labelcolor', None)
-        self.fontproperties = kw.pop('fontproperties', dict())
+        self.labelpos = labelpos
+        self.labelcolor = labelcolor
+        self.fontproperties = fontproperties or dict()
         self.kw = kw
         _fp = self.fontproperties
         # boxprops = dict(facecolor='red')
@@ -338,7 +340,7 @@ class QuiverKey(martist.Artist):
         else:
             return y
 
-    @allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
@@ -426,14 +428,17 @@ class Quiver(mcollections.PolyCollection):
     in the draw() method.
     """
 
-    _PIVOT_VALS = ('tail', 'mid', 'middle', 'tip')
+    _PIVOT_VALS = ('tail', 'middle', 'tip')
 
     @docstring.Substitution(_quiver_doc)
-    def __init__(self, ax, *args, **kw):
+    def __init__(self, ax, *args,
+                 scale=None, headwidth=3, headlength=5, headaxislength=4.5,
+                 minshaft=1, minlength=1, units='width', scale_units=None,
+                 angles='uv', width=None, color='k', pivot='tail', **kw):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
-        by the following pylab interface documentation:
+        by the following pyplot interface documentation:
         %s
         """
         self.ax = ax
@@ -442,28 +447,25 @@ class Quiver(mcollections.PolyCollection):
         self.Y = Y
         self.XY = np.column_stack((X, Y))
         self.N = len(X)
-        self.scale = kw.pop('scale', None)
-        self.headwidth = kw.pop('headwidth', 3)
-        self.headlength = float(kw.pop('headlength', 5))
-        self.headaxislength = kw.pop('headaxislength', 4.5)
-        self.minshaft = kw.pop('minshaft', 1)
-        self.minlength = kw.pop('minlength', 1)
-        self.units = kw.pop('units', 'width')
-        self.scale_units = kw.pop('scale_units', None)
-        self.angles = kw.pop('angles', 'uv')
-        self.width = kw.pop('width', None)
-        self.color = kw.pop('color', 'k')
+        self.scale = scale
+        self.headwidth = headwidth
+        self.headlength = float(headlength)
+        self.headaxislength = headaxislength
+        self.minshaft = minshaft
+        self.minlength = minlength
+        self.units = units
+        self.scale_units = scale_units
+        self.angles = angles
+        self.width = width
+        self.color = color
 
-        pivot = kw.pop('pivot', 'tail').lower()
-        # validate pivot
-        if pivot not in self._PIVOT_VALS:
+        if pivot.lower() == 'mid':
+            pivot = 'middle'
+        self.pivot = pivot.lower()
+        if self.pivot not in self._PIVOT_VALS:
             raise ValueError(
                 'pivot must be one of {keys}, you passed {inp}'.format(
                       keys=self._PIVOT_VALS, inp=pivot))
-        # normalize to 'middle'
-        if pivot == 'mid':
-            pivot = 'middle'
-        self.pivot = pivot
 
         self.transform = kw.pop('transform', ax.transData)
         kw.setdefault('facecolors', self.color)
@@ -537,7 +539,7 @@ class Quiver(mcollections.PolyCollection):
         bbox.update_from_data_xy(XY, ignore=True)
         return bbox
 
-    @allow_rasterization
+    @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
         verts = self._make_verts(self.U, self.V, self.angles)
@@ -902,23 +904,26 @@ class Barbs(mcollections.PolyCollection):
     # 1 triangle and a series of lines.  It works fine as far as I can tell
     # however.
     @docstring.interpd
-    def __init__(self, ax, *args, **kw):
+    def __init__(self, ax, *args,
+                 pivot='tip', length=7, barbcolor=None, flagcolor=None,
+                 sizes=None, fill_empty=False, barb_increments=None,
+                 rounding=True, flip_barb=False, **kw):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
-        by the following pylab interface documentation:
+        by the following pyplot interface documentation:
         %(barbs_doc)s
         """
-        self._pivot = kw.pop('pivot', 'tip')
-        self._length = kw.pop('length', 7)
-        barbcolor = kw.pop('barbcolor', None)
-        flagcolor = kw.pop('flagcolor', None)
-        self.sizes = kw.pop('sizes', dict())
-        self.fill_empty = kw.pop('fill_empty', False)
-        self.barb_increments = kw.pop('barb_increments', dict())
-        self.rounding = kw.pop('rounding', True)
-        self.flip = kw.pop('flip_barb', False)
+        self.sizes = sizes or dict()
+        self.fill_empty = fill_empty
+        self.barb_increments = barb_increments or dict()
+        self.rounding = rounding
+        self.flip = flip_barb
         transform = kw.pop('transform', ax.transData)
+        self._pivot = pivot
+        self._length = length
+        barbcolor = barbcolor
+        flagcolor = flagcolor
 
         # Flagcolor and barbcolor provide convenience parameters for
         # setting the facecolor and edgecolor, respectively, of the barb
@@ -1176,7 +1181,9 @@ class Barbs(mcollections.PolyCollection):
         in and actually sets version masked as appropriate for the existing
         U/V data. *offsets* should be a sequence.
 
-        ACCEPTS: sequence of pairs of floats
+        Parameters
+        ----------
+        offsets : sequence of pairs of floats
         """
         self.x = xy[:, 0]
         self.y = xy[:, 1]

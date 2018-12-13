@@ -4,12 +4,14 @@ Contour Image
 =============
 
 Test combinations of contouring, filled contouring, and image plotting.
-For contour labelling, see contour_demo.py.
+For contour labelling, see also the :doc:`contour demo example
+</gallery/images_contours_and_fields/contour_demo>`.
 
 The emphasis in this demo is on showing how to make contours register
-correctly on images, and on how to get both of them oriented as
-desired.  In particular, note the usage of the "origin" and "extent"
-keyword arguments to imshow and contour.
+correctly on images, and on how to get both of them oriented as desired.
+In particular, note the usage of the :doc:`"origin" and "extent"
+</tutorials/intermediate/imshow_extent>` keyword arguments to imshow and
+contour.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -91,3 +93,23 @@ fig.colorbar(im, ax=axs[3])
 
 fig.tight_layout()
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.contour
+matplotlib.pyplot.contour
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.colors.Normalize

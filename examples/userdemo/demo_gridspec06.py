@@ -1,9 +1,11 @@
-"""
-===============
-Demo Gridspec06
-===============
+r"""
+================
+Nested GridSpecs
+================
 
+This example demonstrates the use of nested `GridSpec`\s.
 """
+
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
@@ -26,7 +28,7 @@ for i in range(16):
     a = i // 4 + 1
     b = i % 4 + 1
     for j, (c, d) in enumerate(product(range(1, 4), repeat=2)):
-        ax = plt.Subplot(fig, inner_grid[j])
+        ax = fig.add_subplot(inner_grid[j])
         ax.plot(*squiggle_xy(a, b, c, d))
         ax.set_xticks([])
         ax.set_yticks([])
@@ -34,7 +36,7 @@ for i in range(16):
 
 all_axes = fig.get_axes()
 
-#show only the outside spines
+# show only the outside spines
 for ax in all_axes:
     for sp in ax.spines.values():
         sp.set_visible(False)

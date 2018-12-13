@@ -23,7 +23,6 @@
 
 # TODO 2013-04-08 ensure the menu files are as compact as possible by default, similar to subset.pl
 # TODO 2013-05-22 in Arimo, the latin subset doesn't include ; but the greek does. why on earth is this happening?
-from __future__ import print_function
 
 import getopt
 import os
@@ -75,9 +74,12 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         select_with_refs(font, i, font, pe, nam)
 
     addl_glyphs = []
-    if '--nmr' in opts: addl_glyphs.append('nonmarkingreturn')
-    if '--null' in opts: addl_glyphs.append('.null')
-    if '--nd' in opts: addl_glyphs.append('.notdef')
+    if '--nmr' in opts:
+        addl_glyphs.append('nonmarkingreturn')
+    if '--null' in opts:
+        addl_glyphs.append('.null')
+    if '--nd' in opts:
+        addl_glyphs.append('.notdef')
     for glyph in addl_glyphs:
         font.selection.select(('more',), glyph)
         if nam:
@@ -136,7 +138,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
                     font.selection.select(glname)
                     font.copy()
                     font.selection.none()
-                    newgl = glname.replace('.display','')
+                    newgl = glname.replace('.display', '')
                     font.selection.select(newgl)
                     font.paste()
                 font.selection.select(glname)

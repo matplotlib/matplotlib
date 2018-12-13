@@ -16,8 +16,6 @@ Below is a brief description of the different directories found here:
   * animation - Dynamic plots, see the documentation at
     http://matplotlib.org/api/animation_api.html
 
-  * api - working with the Matplotlib API directly.
-
   * axes_grid1 - Examples related to the axes_grid1 toolkit.
 
   * axisartist - Examples related to the axisartist toolkit.

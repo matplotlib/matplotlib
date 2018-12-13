@@ -3,12 +3,23 @@
 Demo Parasite Axes
 ==================
 
+Create a parasite axes. Such axes would share the x scale with a host axes,
+but show a different scale in y direction.
+
+Note that this approach uses the `~mpl_toolkits.axes_grid1.parasite_axes`\'
+`~.mpl_toolkits.axes_grid1.parasite_axes.HostAxes` and
+`~.mpl_toolkits.axes_grid1.parasite_axes.ParasiteAxes`. An alternative
+approach using the :ref:`toolkit_axesgrid1-index` and
+:ref:`toolkit_axisartist-index`
+is found in the :doc:`/gallery/axisartist/demo_parasite_axes2` example.
+An alternative approach using the usual matplotlib subplots is shown in
+the :doc:`/gallery/ticks_and_spines/multiple_yaxis_with_spines` example.
 """
 from mpl_toolkits.axisartist.parasite_axes import HostAxes, ParasiteAxes
 import matplotlib.pyplot as plt
 
 
-fig = plt.figure(1)
+fig = plt.figure()
 
 host = HostAxes(fig, [0.15, 0.1, 0.65, 0.8])
 par1 = ParasiteAxes(host, sharex=host)

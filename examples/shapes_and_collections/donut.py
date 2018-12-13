@@ -1,9 +1,10 @@
-"""
+r"""
 =============
 Mmh Donuts!!!
 =============
 
-Draw donuts (miam!) using Path and Patches.
+Draw donuts (miam!) using `~.path.Path`\s and `~.patches.PathPatch`\es.
+This example shows the effect of the path's orientations in a compound path.
 """
 
 import numpy as np
@@ -60,3 +61,26 @@ ax.set_ylim(-3, 2)
 ax.set_title('Mmm, donuts!')
 ax.set_aspect(1.0)
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.path
+matplotlib.path.Path
+matplotlib.patches
+matplotlib.patches.PathPatch
+matplotlib.patches.Circle
+matplotlib.axes.Axes.add_patch
+matplotlib.axes.Axes.annotate
+matplotlib.axes.Axes.set_aspect
+matplotlib.axes.Axes.set_xlim
+matplotlib.axes.Axes.set_ylim
+matplotlib.axes.Axes.set_title

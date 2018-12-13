@@ -1,7 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-from six.moves import zip
-
 import unittest
 
 import numpy as np
@@ -74,7 +70,7 @@ def test_external_transform_api():
 
 
 @image_comparison(baseline_images=['pre_transform_data'],
-                  tol=0.08)
+                  tol=0.08, remove_text=True, style='mpl20')
 def test_pre_transform_plotting():
     # a catch-all for as many as possible plot layouts which handle
     # pre-transforming the data NOTE: The axis range is important in this

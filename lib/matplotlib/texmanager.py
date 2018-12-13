@@ -25,26 +25,17 @@ as follows::
   Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1,0,0))
 
 To enable tex rendering of all text in your matplotlib figure, set
-text.usetex in your matplotlibrc file or include these two lines in
-your script::
-
-  from matplotlib import rc
-  rc('text', usetex=True)
-
+:rc:`text.usetex` to True.
 """
 
 import copy
-import distutils.version
 import glob
 import hashlib
 import logging
 import os
 from pathlib import Path
 import re
-import shutil
 import subprocess
-import sys
-import warnings
 
 import numpy as np
 
@@ -71,8 +62,8 @@ class TexManager(object):
     # Caches.
     rgba_arrayd = {}
     grey_arrayd = {}
-    postscriptd = property(mpl.cbook.deprecated("2.2")(lambda self: {}))
-    pscnt = property(mpl.cbook.deprecated("2.2")(lambda self: 0))
+    postscriptd = mpl.cbook.deprecated("2.2")(property(lambda self: {}))
+    pscnt = mpl.cbook.deprecated("2.2")(property(lambda self: 0))
 
     serif = ('cmr', '')
     sans_serif = ('cmss', '')
@@ -190,7 +181,7 @@ class TexManager(object):
 
     def get_custom_preamble(self):
         """Return a string containing user additions to the tex preamble."""
-        return '\n'.join(rcParams['text.latex.preamble'])
+        return rcParams['text.latex.preamble']
 
     def make_tex(self, tex, fontsize):
         """
@@ -208,8 +199,7 @@ class TexManager(object):
 
         if rcParams['text.latex.unicode']:
             unicode_preamble = r"""
-\usepackage{ucs}
-\usepackage[utf8x]{inputenc}"""
+\usepackage[utf8]{inputenc}"""
         else:
             unicode_preamble = ''
 
@@ -260,8 +250,7 @@ class TexManager(object):
 
         if rcParams['text.latex.unicode']:
             unicode_preamble = r"""
-\usepackage{ucs}
-\usepackage[utf8x]{inputenc}"""
+\usepackage[utf8]{inputenc}"""
         else:
             unicode_preamble = ''
 
@@ -474,6 +463,6 @@ class TexManager(object):
             # use dviread. It sometimes returns a wrong descent.
             dvifile = self.make_dvi(tex, fontsize)
             with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
-                page = next(iter(dvi))
+                page, = dvi
             # A total height (including the descent) needs to be returned.
             return page.width, page.height + page.descent, page.descent

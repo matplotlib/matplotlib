@@ -1,28 +1,31 @@
-from __future__ import absolute_import, division, print_function
-
-import six
-
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import (
+    image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1 import AxesGrid
+from mpl_toolkits.axes_grid1 import ImageGrid
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes,
     mark_inset,
     inset_axes,
     BboxConnectorPatch
 )
-from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+from mpl_toolkits.axes_grid1.anchored_artists import (
+    AnchoredSizeBar,
+    AnchoredDirectionArrows)
 
 from matplotlib.colors import LogNorm
-from matplotlib.transforms import Bbox, TransformedBbox, \
-     blended_transform_factory
+from matplotlib.transforms import Bbox, TransformedBbox
 from itertools import product
 
+import pytest
+import platform
+
 import numpy as np
+from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 
 @image_comparison(baseline_images=['divider_append_axes'])
@@ -136,7 +139,7 @@ def test_inset_locator():
     ax.imshow(Z2, extent=extent, interpolation="nearest",
               origin="lower")
 
-    axins = zoomed_inset_axes(ax, 6, loc=1)  # zoom = 6
+    axins = zoomed_inset_axes(ax, zoom=6, loc='upper right')
     axins.imshow(Z2, extent=extent, interpolation="nearest",
                  origin="lower")
     axins.yaxis.get_major_locator().set_params(nbins=7)
@@ -156,7 +159,7 @@ def test_inset_locator():
     asb = AnchoredSizeBar(ax.transData,
                           0.5,
                           '0.5',
-                          loc=8,
+                          loc='lower center',
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)
@@ -186,8 +189,9 @@ def test_inset_axes():
     ax.imshow(Z2, extent=extent, interpolation="nearest",
               origin="lower")
 
-    # creating our inset axes without a bbox_transform parameter
-    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1))
+    # creating our inset axes with a bbox_transform parameter
+    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1),
+                       bbox_transform=ax.transAxes)
 
     axins.imshow(Z2, extent=extent, interpolation="nearest",
                  origin="lower")
@@ -208,25 +212,54 @@ def test_inset_axes():
     asb = AnchoredSizeBar(ax.transData,
                           0.5,
                           '0.5',
-                          loc=8,
+                          loc='lower center',
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)
 
 
-def test_inset_axes_without_transform_should_use_parent_axes():
-    # creating our figure
-    fig = plt.figure(dpi=150)
+def test_inset_axes_complete():
+    dpi = 100
+    figsize = (6, 5)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    fig.subplots_adjust(.1, .1, .9, .9)
 
-    # gca method gets current axes of the figure
-    ax = plt.gca()
-    ax.plot([0.0, 0.25, 0.50, 1.0], [0.1, 0.2, 0.4, 0.9], color='b')
+    ins = inset_axes(ax, width=2., height=2., borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array(((0.9*figsize[0]-2.)/figsize[0],
+                      (0.9*figsize[1]-2.)/figsize[1], 0.9, 0.9)))
 
-    # creating our inset_axes. without a bbox_transform parameter
-    ax_ins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1))
-    ax_ins.plot([0.0, 0.25, 0.50, 1.0], [0.9, 0.4, 0.2, 0.1], color='r')
+    ins = inset_axes(ax, width="40%", height="30%", borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array((.9-.8*.4, .9-.8*.3, 0.9, 0.9)))
 
-    assert ax.transAxes == ax_ins.transAxes
+    ins = inset_axes(ax, width=1., height=1.2, bbox_to_anchor=(200, 100),
+                     loc=3, borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array((200./dpi/figsize[0], 100./dpi/figsize[1],
+                     (200./dpi+1)/figsize[0], (100./dpi+1.2)/figsize[1])))
+
+    ins1 = inset_axes(ax, width="35%", height="60%", loc=3, borderpad=1)
+    ins2 = inset_axes(ax, width="100%", height="100%",
+                      bbox_to_anchor=(0, 0, .35, .60),
+                      bbox_transform=ax.transAxes, loc=3, borderpad=1)
+    fig.canvas.draw()
+    assert_array_equal(ins1.get_position().extents,
+                       ins2.get_position().extents)
+
+    with pytest.raises(ValueError):
+        ins = inset_axes(ax, width="40%", height="30%",
+                         bbox_to_anchor=(0.4, 0.5))
+
+    with pytest.warns(UserWarning):
+        ins = inset_axes(ax, width="40%", height="30%",
+                         bbox_transform=ax.transAxes)
 
 
 @image_comparison(
@@ -250,7 +283,7 @@ def test_fill_facecolor():
     p.set_clip_on(False)
     ax[0].add_patch(p)
     # set color to marked area
-    axins = zoomed_inset_axes(ax[0], 1, loc=1)
+    axins = zoomed_inset_axes(ax[0], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
     plt.gca().axes.get_xaxis().set_ticks([])
@@ -267,7 +300,7 @@ def test_fill_facecolor():
     p.set_clip_on(False)
     ax[1].add_patch(p)
     # set color to marked area
-    axins = zoomed_inset_axes(ax[1], 1, loc=1)
+    axins = zoomed_inset_axes(ax[1], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
     plt.gca().axes.get_xaxis().set_ticks([])
@@ -284,7 +317,7 @@ def test_fill_facecolor():
     p.set_clip_on(False)
     ax[2].add_patch(p)
     # set color to marked area
-    axins = zoomed_inset_axes(ax[2], 1, loc=1)
+    axins = zoomed_inset_axes(ax[2], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
     plt.gca().axes.get_xaxis().set_ticks([])
@@ -301,7 +334,7 @@ def test_fill_facecolor():
     p.set_clip_on(False)
     ax[3].add_patch(p)
     # marked area won't show green
-    axins = zoomed_inset_axes(ax[3], 1, loc=1)
+    axins = zoomed_inset_axes(ax[3], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
     axins.get_xaxis().set_ticks([])
@@ -316,11 +349,76 @@ def test_zooming_with_inverted_axes():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
     ax.axis([1, 3, 1, 3])
-    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc=4)
+    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc='lower right')
     inset_ax.axis([1.1, 1.4, 1.1, 1.4])
 
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
     ax.axis([3, 1, 3, 1])
-    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc=4)
+    inset_ax = zoomed_inset_axes(ax, zoom=2.5, loc='lower right')
     inset_ax.axis([1.4, 1.1, 1.4, 1.1])
+
+
+@image_comparison(baseline_images=['anchored_direction_arrows'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
+                  extensions=['png'])
+def test_anchored_direction_arrows():
+    fig, ax = plt.subplots()
+    ax.imshow(np.zeros((10, 10)))
+
+    simple_arrow = AnchoredDirectionArrows(ax.transAxes, 'X', 'Y')
+    ax.add_artist(simple_arrow)
+
+
+@image_comparison(baseline_images=['anchored_direction_arrows_many_args'],
+                  extensions=['png'])
+def test_anchored_direction_arrows_many_args():
+    fig, ax = plt.subplots()
+    ax.imshow(np.ones((10, 10)))
+
+    direction_arrows = AnchoredDirectionArrows(
+            ax.transAxes, 'A', 'B', loc='upper right', color='red',
+            aspect_ratio=-0.5, pad=0.6, borderpad=2, frameon=True, alpha=0.7,
+            sep_x=-0.06, sep_y=-0.08, back_length=0.1, head_width=9,
+            head_length=10, tail_width=5)
+    ax.add_artist(direction_arrows)
+
+
+def test_axes_locatable_position():
+    fig, ax = plt.subplots()
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes('right', size='5%', pad='2%')
+    fig.canvas.draw()
+    assert np.isclose(cax.get_position(original=False).width,
+                      0.03621495327102808)
+
+
+@image_comparison(baseline_images=['image_grid'], extensions=['png'],
+                  remove_text=True, style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight'})
+def test_image_grid():
+    # test that image grid works with bbox_inches=tight.
+    im = np.arange(100).reshape((10, 10))
+
+    fig = plt.figure(1, (4, 4))
+    grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
+
+    for i in range(4):
+        grid[i].imshow(im)
+        grid[i].set_title('test {0}{0}'.format(i))
+
+
+def test_gettightbbox():
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    l, = ax.plot([1, 2, 3], [0, 1, 0])
+
+    ax_zoom = zoomed_inset_axes(ax, 4)
+    ax_zoom.plot([1, 2, 3], [0, 1, 0])
+
+    mark_inset(ax, ax_zoom, loc1=1, loc2=3, fc="none", ec='0.3')
+
+    remove_ticks_and_titles(fig)
+    bbox = fig.get_tightbbox(fig.canvas.get_renderer())
+    np.testing.assert_array_almost_equal(bbox.extents,
+                                         [-17.7, -13.9, 7.2, 5.4])

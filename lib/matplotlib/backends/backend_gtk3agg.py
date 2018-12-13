@@ -1,15 +1,10 @@
 import numpy as np
-import warnings
 
-from . import backend_agg, backend_gtk3
-from .backend_cairo import cairo, HAS_CAIRO_CFFI
-from .backend_gtk3 import _BackendGTK3
+from .. import cbook
+from . import backend_agg, backend_cairo, backend_gtk3
+from .backend_cairo import cairo
+from .backend_gtk3 import Gtk, _BackendGTK3
 from matplotlib import transforms
-
-if not HAS_CAIRO_CFFI:
-    warnings.warn(
-        "The Gtk3Agg backend is known to not work on Python 3.x with pycairo. "
-        "Try installing cairocffi.")
 
 
 class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
@@ -25,38 +20,32 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         backend_agg.FigureCanvasAgg.draw(self)
 
     def on_draw_event(self, widget, ctx):
-        """ GtkDrawable draw event, like expose_event in GTK 2.X
+        """GtkDrawable draw event, like expose_event in GTK 2.X.
         """
         allocation = self.get_allocation()
         w, h = allocation.width, allocation.height
 
         if not len(self._bbox_queue):
-            self._render_figure(w, h)
+            Gtk.render_background(
+                self.get_style_context(), ctx,
+                allocation.x, allocation.y,
+                allocation.width, allocation.height)
             bbox_queue = [transforms.Bbox([[0, 0], [w, h]])]
         else:
             bbox_queue = self._bbox_queue
 
-        if HAS_CAIRO_CFFI and not isinstance(ctx, cairo.Context):
-            ctx = cairo.Context._from_pointer(
-                cairo.ffi.cast('cairo_t **',
-                               id(ctx) + object.__basicsize__)[0],
-                incref=True)
+        ctx = backend_cairo._to_context(ctx)
 
         for bbox in bbox_queue:
-            area = self.copy_from_bbox(bbox)
-            buf = np.fromstring(area.to_string_argb(), dtype='uint8')
-
             x = int(bbox.x0)
             y = h - int(bbox.y1)
             width = int(bbox.x1) - int(bbox.x0)
             height = int(bbox.y1) - int(bbox.y0)
 
-            if HAS_CAIRO_CFFI:
-                image = cairo.ImageSurface.create_for_data(
-                    buf.data, cairo.FORMAT_ARGB32, width, height)
-            else:
-                image = cairo.ImageSurface.create_for_data(
-                    buf, cairo.FORMAT_ARGB32, width, height)
+            buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
+                np.asarray(self.copy_from_bbox(bbox)))
+            image = cairo.ImageSurface.create_for_data(
+                buf.ravel().data, cairo.FORMAT_ARGB32, width, height)
             ctx.set_source_surface(image, x, y)
             ctx.paint()
 
@@ -80,6 +69,12 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
 
         self._bbox_queue.append(bbox)
         self.queue_draw_area(x, y, width, height)
+
+    def draw(self):
+        if self.get_visible() and self.get_mapped():
+            allocation = self.get_allocation()
+            self._render_figure(allocation.width, allocation.height)
+        super().draw()
 
     def print_png(self, filename, *args, **kwargs):
         # Do this so we can save the resolution of figure in the PNG file

@@ -9,8 +9,6 @@ layout.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
 
 # Build a rectangle in axes coords
 left, width = .25, .5

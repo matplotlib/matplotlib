@@ -6,15 +6,14 @@ Contour Demo
 Illustrate simple contour plotting, contours on an image with
 a colorbar for the contours, and labelled contours.
 
-See also contour_image.py.
+See also the :doc:`contour image example
+</gallery/images_contours_and_fields/contour_image>`.
 """
 import matplotlib
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 
-matplotlib.rcParams['xtick.direction'] = 'out'
-matplotlib.rcParams['ytick.direction'] = 'out'
 
 delta = 0.025
 x = np.arange(-3.0, 3.0, delta)
@@ -98,8 +97,7 @@ zc = CS.collections[6]
 plt.setp(zc, linewidth=4)
 
 ax.clabel(CS, levels[1::2],  # label every second level
-          inline=1, fmt='%1.1f',
-          cmap='flag', fontsize=14)
+          inline=1, fmt='%1.1f', fontsize=14)
 
 # make a colorbar for the contour lines
 CB = fig.colorbar(CS, shrink=0.8, extend='both')
@@ -117,3 +115,23 @@ ll, bb, ww, hh = CB.ax.get_position().bounds
 CB.ax.set_position([ll, b + 0.1*h, ww, h*0.8])
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.contour
+matplotlib.pyplot.contour
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.axes.Axes.clabel
+matplotlib.pyplot.clabel
+matplotlib.axes.Axes.set_position
+matplotlib.axes.Axes.get_position

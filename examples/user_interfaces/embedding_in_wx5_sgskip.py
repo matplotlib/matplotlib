@@ -6,12 +6,8 @@ Embedding In Wx5
 """
 
 import wx
+import wx.lib.agw.aui as aui
 import wx.lib.mixins.inspection as wit
-
-if 'phoenix' in wx.PlatformInfo:
-    import wx.lib.agw.aui as aui
-else:
-    import wx.aui as aui
 
 import matplotlib as mpl
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas

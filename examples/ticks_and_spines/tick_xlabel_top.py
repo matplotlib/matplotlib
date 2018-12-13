@@ -7,9 +7,10 @@ We can use :rc:`xtick.labeltop` (default False) and :rc:`xtick.top`
 (default False) and :rc:`xtick.labelbottom` (default True) and
 :rc:`xtick.bottom` (default True) to control where on the axes ticks and
 their labels appear.
-These properties can also be set in the ``.matplotlib/matplotlibrc``.
 
+These properties can also be set in ``.matplotlib/matplotlibrc``.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -22,6 +23,6 @@ x = np.arange(10)
 fig, ax = plt.subplots()
 
 ax.plot(x)
-ax.set_title('xlabel top', pad=24)  # increase padding to make room for labels
+ax.set_title('xlabel top')  # Note title moves to make room for ticks
 
 plt.show()

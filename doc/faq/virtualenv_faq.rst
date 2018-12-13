@@ -21,17 +21,16 @@ installed.
 
 Otherwise, the situation (at the time of writing) is as follows:
 
-============= ========================== =================================
-GUI framework pip-installable?           conda or conda-forge-installable?
-============= ========================== =================================
-PyQt5         yes                        yes
-------------- -------------------------- ---------------------------------
-PyQt4         PySide: on Windows and OSX yes
-------------- -------------------------- ---------------------------------
-PyGObject     yes [#]_                   on Linux
-------------- -------------------------- ---------------------------------
-wxPython      yes [#]_                   yes
-============= ========================== =================================
+========= ========= ================ =================================
+framework bindings  pip-installable? conda or conda-forge-installable?
+========= ========= ================ =================================
+Qt5       PyQt5     yes              yes
+Qt5       PySide2   yes              yes
+Qt4       PyQt4     no               yes
+Qt4       PySide    OSX and Windows  yes
+GTK3      PyGObject yes [#]_         Linux and OSX
+wxWidgets wxPython  yes [#]_         yes
+========= ========= ================ =================================
 
 .. [#] No wheels available, see
        https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html
@@ -47,20 +46,19 @@ all cases, the system-wide Python and the venv Python must be of the same
 version):
 
 - `vext <https://pypi.python.org/pypi/vext>`_ allows controlled access
-  from within the virtualenv to specific system-wide packages without the
-  overall shadowing issue.  A specific package needs to be installed for each
-  framework, e.g. `vext.pyqt5 <https://pypi.python.org/pypi/vext.pyqt5>`_, etc.
-  It is recommended to use ``vext>=0.7.0`` as earlier versions misconfigure the
-  logging system.
+  from within the venv to specific system-wide packages.  A specific
+  package needs to be installed for each framework, e.g. `vext.pyqt5
+  <https://pypi.python.org/pypi/vext.pyqt5>`_, etc.  It is recommended to use
+  ``vext>=0.7.0`` as earlier versions misconfigure the logging system.
 
-- When using `virtualenv <https://virtualenv.pypa.io/>` (rather than the
-  stdlib's ``venv``), using the ``--system-site-packages`` option when creating
-  an environment adds all system-wide packages to the virtual environment.
-  However, this breaks the isolation between the virtual environment and the
-  system install.  Among other issues it results in hard to debug problems
-  with system packages shadowing the environment packages.  If you use
-  `virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/>`_, this can be
-  toggled with the ``toggleglobalsitepackages`` command.
+- Using the ``--system-site-packages`` option when creating an environment
+  adds all system-wide packages to the virtual environment.  However, this
+  breaks the isolation between the virtual environment and the system
+  install.  Among other issues it results in hard to debug problems with
+  system packages shadowing the environment packages.  If you use `virtualenv
+  <https://virtualenv.pypa.io/>` (rather than the stdlib's ``venv``) together
+  with `virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/>`_, this
+  can be toggled with the ``toggleglobalsitepackages`` command.
 
 If you are using Matplotlib on OSX, you may also want to consider the
 :ref:`OSX framework FAQ <osxframework-faq>`.

@@ -3,6 +3,7 @@
 Whats New 0.99 Mplot3d
 ======================
 
+Create a 3D surface plot.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,3 +21,17 @@ ax = Axes3D(fig)
 ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.viridis)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import mpl_toolkits
+mpl_toolkits.mplot3d.Axes3D
+mpl_toolkits.mplot3d.Axes3D.plot_surface

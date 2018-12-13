@@ -23,7 +23,6 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
 
-from matplotlib.transforms import offset_copy
 
 xs = np.arange(7)
 ys = xs**2

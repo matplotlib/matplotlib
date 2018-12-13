@@ -4,7 +4,7 @@ Tricontour Smooth User
 ======================
 
 Demonstrates high-resolution tricontouring on user-defined triangular grids
-with matplotlib.tri.UniformTriRefiner
+with `matplotlib.tri.UniformTriRefiner`.
 """
 import matplotlib.tri as tri
 import matplotlib.pyplot as plt
@@ -76,3 +76,22 @@ ax.tricontour(tri_refi, z_test_refi, levels=levels,
 ax.set_title("High-resolution tricontouring")
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.tricontour
+matplotlib.pyplot.tricontour
+matplotlib.axes.Axes.tricontourf
+matplotlib.pyplot.tricontourf
+matplotlib.tri
+matplotlib.tri.Triangulation
+matplotlib.tri.UniformTriRefiner

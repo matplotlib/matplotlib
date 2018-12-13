@@ -1,9 +1,8 @@
 """
 Tests specific to the collections module.
 """
-from __future__ import absolute_import, division, print_function
-
 import io
+import platform
 
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -443,6 +442,7 @@ def test_barb_limits():
 
 @image_comparison(baseline_images=['EllipseCollection_test_image'],
                   extensions=['png'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   remove_text=True)
 def test_EllipseCollection():
     # Test basic functionality

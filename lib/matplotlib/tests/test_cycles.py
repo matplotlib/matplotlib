@@ -1,7 +1,6 @@
-import warnings
+import platform
 
 from matplotlib.testing.decorators import image_comparison
-from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -10,10 +9,10 @@ from cycler import cycler
 
 
 @image_comparison(baseline_images=['color_cycle_basic'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'])
 def test_colorcycle_basic():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('color', ['r', 'g', 'y']))
     xs = np.arange(10)
     ys = 0.25 * xs + 2
@@ -28,10 +27,10 @@ def test_colorcycle_basic():
 
 
 @image_comparison(baseline_images=['marker_cycle', 'marker_cycle'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   remove_text=True, extensions=['png'])
 def test_marker_cycle():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('c', ['r', 'g', 'y']) +
                       cycler('marker', ['.', '*', 'x']))
     xs = np.arange(10)
@@ -45,8 +44,7 @@ def test_marker_cycle():
     ax.plot(xs, ys, label='red2 dot', lw=4, ms=16)
     ax.legend(loc='upper left')
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     # Test keyword arguments, numpy arrays, and generic iterators
     ax.set_prop_cycle(c=np.array(['r', 'g', 'y']),
                       marker=iter(['.', '*', 'x']))
@@ -63,10 +61,10 @@ def test_marker_cycle():
 
 
 @image_comparison(baseline_images=['lineprop_cycle_basic'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'])
 def test_linestylecycle_basic():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('ls', ['-', '--', ':']))
     xs = np.arange(10)
     ys = 0.25 * xs + 2
@@ -83,8 +81,7 @@ def test_linestylecycle_basic():
 @image_comparison(baseline_images=['fill_cycle_basic'], remove_text=True,
                   extensions=['png'])
 def test_fillcycle_basic():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('c',  ['r', 'g', 'y']) +
                       cycler('hatch', ['xx', 'O', '|-']) +
                       cycler('linestyle', ['-', '--', ':']))
@@ -103,8 +100,7 @@ def test_fillcycle_basic():
 @image_comparison(baseline_images=['fill_cycle_ignore'], remove_text=True,
                   extensions=['png'])
 def test_fillcycle_ignore():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('color',  ['r', 'g', 'y']) +
                       cycler('hatch', ['xx', 'O', '|-']) +
                       cycler('marker', ['.', '*', 'D']))
@@ -180,17 +176,6 @@ def test_cycle_reset():
     ax.set_prop_cycle(None)
     got = next(ax._get_lines.prop_cycler)
     assert prop == got
-
-    fig, ax = plt.subplots()
-    # Need to double-check the old set/get_color_cycle(), too
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
-        prop = next(ax._get_lines.prop_cycler)
-        ax.set_color_cycle(['c', 'm', 'y', 'k'])
-        assert prop != next(ax._get_lines.prop_cycler)
-        ax.set_color_cycle(None)
-        got = next(ax._get_lines.prop_cycler)
-        assert prop == got
 
 
 def test_invalid_input_forms():

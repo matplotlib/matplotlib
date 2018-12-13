@@ -15,7 +15,6 @@ from contextlib import contextmanager
 import errno
 from io import BytesIO
 import json
-import os
 from pathlib import Path
 import random
 import sys
@@ -43,12 +42,14 @@ class ServerThread(threading.Thread):
     def run(self):
         tornado.ioloop.IOLoop.instance().start()
 
+
 webagg_server_thread = ServerThread()
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
     def show(self):
         # show the figure window
+        global show  # placates pyflakes: created by @_Backend.export below
         show()
 
     def new_timer(self, *args, **kwargs):
@@ -66,10 +67,9 @@ class WebAggApplication(tornado.web.Application):
             self.write(image_path.read_bytes())
 
     class SingleFigurePage(tornado.web.RequestHandler):
-        def __init__(self, application, request, **kwargs):
-            self.url_prefix = kwargs.pop('url_prefix', '')
-            tornado.web.RequestHandler.__init__(self, application,
-                                                request, **kwargs)
+        def __init__(self, application, request, *, url_prefix='', **kwargs):
+            self.url_prefix = url_prefix
+            super().__init__(application, request, **kwargs)
 
         def get(self, fignum):
             fignum = int(fignum)
@@ -86,10 +86,9 @@ class WebAggApplication(tornado.web.Application):
                 canvas=manager.canvas)
 
     class AllFiguresPage(tornado.web.RequestHandler):
-        def __init__(self, application, request, **kwargs):
-            self.url_prefix = kwargs.pop('url_prefix', '')
-            tornado.web.RequestHandler.__init__(self, application,
-                                                request, **kwargs)
+        def __init__(self, application, request, *, url_prefix='', **kwargs):
+            self.url_prefix = url_prefix
+            super().__init__(application, request, **kwargs)
 
         def get(self):
             ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,

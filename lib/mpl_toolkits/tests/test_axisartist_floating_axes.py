@@ -1,6 +1,3 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -17,8 +14,6 @@ from mpl_toolkits.axisartist import angle_helper
 
 def test_subplot():
     fig = plt.figure(figsize=(5, 5))
-    fig.clf()
-
     ax = Subplot(fig, 111)
     fig.add_subplot(ax)
 
@@ -27,7 +22,6 @@ def test_subplot():
                   extensions=['png'], style='default', tol=0.01)
 def test_curvelinear3():
     fig = plt.figure(figsize=(5, 5))
-    fig.clf()
 
     tr = (mtransforms.Affine2D().scale(np.pi / 180, 1) +
           mprojections.PolarAxes.PolarTransform())
@@ -83,7 +77,6 @@ def test_curvelinear3():
                   extensions=['png'], style='default', tol=0.015)
 def test_curvelinear4():
     fig = plt.figure(figsize=(5, 5))
-    fig.clf()
 
     tr = (mtransforms.Affine2D().scale(np.pi / 180, 1) +
           mprojections.PolarAxes.PolarTransform())

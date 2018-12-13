@@ -4,7 +4,7 @@
 The Matplotlib FAQ
 ##################
 
-.. htmlonly::
+.. only:: html
 
    :Release: |version|
    :Date: |today|

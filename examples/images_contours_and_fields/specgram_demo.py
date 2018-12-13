@@ -3,7 +3,8 @@
 Spectrogram Demo
 ================
 
-Demo of a spectrogram plot.
+Demo of a spectrogram plot
+(:meth:`~.axes.Axes.specgram`).
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,3 +37,17 @@ Pxx, freqs, bins, im = ax2.specgram(x, NFFT=NFFT, Fs=Fs, noverlap=900)
 # - bins: the centers of the time bins
 # - im: the matplotlib.image.AxesImage instance representing the data in the plot
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.specgram
+matplotlib.pyplot.specgram

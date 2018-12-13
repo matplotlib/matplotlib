@@ -4,7 +4,7 @@ Compound path
 =============
 
 Make a compound path -- in this case two simple polygons, a rectangle
-and a triangle.  Use CLOSEPOLY and MOVETO for the different parts of
+and a triangle.  Use ``CLOSEPOLY`` and ``MOVETO`` for the different parts of
 the compound path
 """
 import numpy as np
@@ -31,8 +31,24 @@ fig, ax = plt.subplots()
 ax.add_patch(pathpatch)
 ax.set_title('A compound path')
 
-ax.dataLim.update_from_data_xy(vertices)
 ax.autoscale_view()
 
-
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.path
+matplotlib.path.Path
+matplotlib.patches
+matplotlib.patches.PathPatch
+matplotlib.axes.Axes.add_patch
+matplotlib.axes.Axes.autoscale_view

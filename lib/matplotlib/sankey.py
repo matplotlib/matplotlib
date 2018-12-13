@@ -7,11 +7,10 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from matplotlib.cbook import iterable
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
-from matplotlib import docstring
+from matplotlib import cbook, docstring
 from matplotlib import rcParams
 
 _log = logging.getLogger(__name__)
@@ -118,7 +117,7 @@ class Sankey(object):
 
         **Examples:**
 
-            .. plot:: gallery/api/sankey_basics.py
+            .. plot:: gallery/specialty_plots/sankey_basics.py
         """
         # Check the arguments.
         if gap < 0:
@@ -450,11 +449,8 @@ class Sankey(object):
             "orientations and flows must have the same length.\n"
             "orientations has length %d, but flows has length %d."
             % (len(orientations), n))
-        if labels != '' and getattr(labels, '__iter__', False):
-            # iterable() isn't used because it would give True if labels is a
-            # string
-            if len(labels) != n:
-                raise ValueError(
+        if not cbook.is_scalar_or_string(labels) and len(labels) != n:
+            raise ValueError(
                 "If labels is a list, then labels and flows must have the "
                 "same length.\nlabels has length %d, but flows has length %d."
                 % (len(labels), n))
@@ -522,10 +518,9 @@ class Sankey(object):
                 are_inputs[i] = False
             else:
                 _log.info(
-                    "The magnitude of flow %d (%f) is below the "
-                    "tolerance (%f).\nIt will not be shown, and it "
-                    "cannot be used in a connection."
-                    % (i, flow, self.tolerance))
+                    "The magnitude of flow %d (%f) is below the tolerance "
+                    "(%f).\nIt will not be shown, and it cannot be used in a "
+                    "connection.", i, flow, self.tolerance)
 
         # Determine the angles of the arrows (before rotation).
         angles = [None] * n
@@ -550,7 +545,7 @@ class Sankey(object):
                     angles[i] = DOWN
 
         # Justify the lengths of the paths.
-        if iterable(pathlengths):
+        if np.iterable(pathlengths):
             if len(pathlengths) != n:
                 raise ValueError(
                 "If pathlengths is a list, then pathlengths and flows must "

@@ -6,17 +6,14 @@ Contour Label Demo
 Illustrate some of the more advanced things that one can do with
 contour labels.
 
-See also contour_demo.py.
+See also the :doc:`contour demo example
+</gallery/images_contours_and_fields/contour_demo>`.
 """
 
 import matplotlib
 import numpy as np
-import matplotlib.cm as cm
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
-
-matplotlib.rcParams['xtick.direction'] = 'out'
-matplotlib.rcParams['ytick.direction'] = 'out'
 
 ###############################################################################
 # Define our surface
@@ -89,3 +86,20 @@ ax2.clabel(CS2, CS2.levels, fmt=fmt)
 ax2.set_title("$100^Z$")
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+matplotlib.axes.Axes.contour
+matplotlib.pyplot.contour
+matplotlib.axes.Axes.clabel
+matplotlib.pyplot.clabel
+matplotlib.ticker.LogFormatterMathtext
+matplotlib.ticker.TickHelper.create_dummy_axis

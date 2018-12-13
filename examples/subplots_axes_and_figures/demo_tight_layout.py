@@ -1,7 +1,14 @@
 """
-=================
-Demo Tight Layout
-=================
+===============================
+Resizing axes with tight layout
+===============================
+
+`~.figure.Figure.tight_layout` attempts to resize subplots in
+a figure so that there are no overlaps between axes objects and labels
+on the axes.
+
+See :doc:`/tutorials/intermediate/tight_layout_guide` for more details and
+:doc:`/tutorials/intermediate/constrainedlayout_guide` for an alternative.
 
 """
 
@@ -133,3 +140,19 @@ gs1.update(top=top, bottom=bottom)
 gs2.update(top=top, bottom=bottom)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.pyplot.tight_layout
+matplotlib.figure.Figure.tight_layout
+matplotlib.figure.Figure.add_subplot
+matplotlib.pyplot.subplot2grid
+matplotlib.gridspec.GridSpec

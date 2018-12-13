@@ -14,12 +14,12 @@ commands (e.g., :func:`~matplotlib.pyplot.title`,
 Property                    Value Type
 ==========================  ======================================================================================================================
 alpha                       `float`
-backgroundcolor             any matplotlib :ref:`color <sphx_glr_tutorials_colors_colors.py>`
+backgroundcolor             any matplotlib :doc:`color </tutorials/colors/colors>`
 bbox                        `~matplotlib.patches.Rectangle` prop dict plus key ``'pad'`` which is a pad in points
 clip_box                    a matplotlib.transform.Bbox instance
 clip_on                     bool
 clip_path                   a `~matplotlib.path.Path` instance and a `~matplotlib.transforms.Transform` instance, a `~matplotlib.patches.Patch`
-color                       any matplotlib :ref:`color <sphx_glr_tutorials_colors_colors.py>`
+color                       any matplotlib :doc:`color </tutorials/colors/colors>`
 family                      [ ``'serif'`` | ``'sans-serif'`` | ``'cursive'`` | ``'fantasy'`` | ``'monospace'`` ]
 fontproperties              a `~matplotlib.font_manager.FontProperties` instance
 horizontalalignment or ha   [ ``'center'`` | ``'right'`` | ``'left'`` ]
@@ -217,8 +217,8 @@ plt.show()
 #    font.sans-serif: Source Han Sans TW, Arial, sans-serif
 #
 # To control the font used on per-artist basis use the ``'name'``,
-# ``'fontname'`` or ``'fontproperties'`` kwargs documented :ref:`above
-# <sphx_glr_tutorials_text_text_props.py>`.
+# ``'fontname'`` or ``'fontproperties'`` kwargs documented :doc:`above
+# </tutorials/text/text_props>`.
 #
 #
 # On linux, `fc-list <https://linux.die.net/man/1/fc-list>`__ can be a

@@ -23,5 +23,4 @@ ax2.set_ylim(1e-1, 1e3)
 ax2.set_aspect(1)
 ax2.set_title("adjustable = datalim")
 
-plt.draw()
 plt.show()

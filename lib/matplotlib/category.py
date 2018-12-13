@@ -24,7 +24,7 @@ class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
         """Converts strings in value to floats using
-        mapping information store in the  unit object
+        mapping information store in the unit object.
 
         Parameters
         ----------
@@ -89,12 +89,12 @@ class StrCategoryConverter(units.ConversionInterface):
         Parameters
         ----------
         data : string or iterable of strings
-        axis : :class:`~matplotlib.Axis.axis`
+        axis : `~matplotlib.Axis.axis`
             axis on which the data is plotted
 
         Returns
         -------
-        class:~.UnitData~
+        class : `.UnitData`
             object storing string to integer mapping
         """
         # the conversion call stack is supposed to be
@@ -160,8 +160,8 @@ class UnitData(object):
 
         Parameters
         ----------
-        data: iterable
-              sequence of string values
+        data : iterable
+            sequence of string values
         """
         self._mapping = OrderedDict()
         self._counter = itertools.count()
@@ -171,10 +171,10 @@ class UnitData(object):
     def update(self, data):
         """Maps new values to integer identifiers.
 
-        Paramters
-        ---------
-        data: iterable
-              sequence of string values
+        Parameters
+        ----------
+        data : iterable
+            sequence of string values
 
         Raises
         ------

@@ -33,7 +33,7 @@ def test_overflow():
 
     fig, ax = plt.subplots()
     ax.plot(x, y)
-    ax.set_xlim(xmin=2, xmax=6)
+    ax.set_xlim(2, 6)
 
 
 @image_comparison(baseline_images=['clipping_diamond'], remove_text=True)
@@ -43,8 +43,8 @@ def test_diamond():
 
     fig, ax = plt.subplots()
     ax.plot(x, y)
-    ax.set_xlim(xmin=-0.6, xmax=0.6)
-    ax.set_ylim(ymin=-0.6, ymax=0.6)
+    ax.set_xlim(-0.6, 0.6)
+    ax.set_ylim(-0.6, 0.6)
 
 
 def test_noise():
@@ -264,7 +264,7 @@ PgAAh1v///c+AAB+Zv//Dz8AAHRx//8lPwAAa3z//zk/AABih///TD8AAFmS//9dPwAAUJ3//2w/
 AABHqP//ej8AAD6z//+FPwAANb7//48/AAAsyf//lz8AACPU//+ePwAAGt///6M/AAAR6v//pj8A
 AAj1//+nPwAA/////w=="""
 
-    verts = np.fromstring(base64.decodebytes(data), dtype='<i4')
+    verts = np.frombuffer(base64.decodebytes(data), dtype='<i4')
     verts = verts.reshape((len(verts) // 2, 2))
     path = Path(verts)
     segs = path.iter_segments(transforms.IdentityTransform(),

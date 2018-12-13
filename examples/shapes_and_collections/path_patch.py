@@ -1,9 +1,9 @@
-"""
+r"""
 ================
 PathPatch object
 ================
 
-This example shows how to create `Path`\s and `PathPatch` objects through
+This example shows how to create `~.path.Path` and `~.patches.PathPatch` objects through
 Matplotlib's API.
 """
 import matplotlib.path as mpath
@@ -37,3 +37,20 @@ line, = ax.plot(x, y, 'go-')
 ax.grid()
 ax.axis('equal')
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.path
+matplotlib.path.Path
+matplotlib.patches
+matplotlib.patches.PathPatch
+matplotlib.axes.Axes.add_patch

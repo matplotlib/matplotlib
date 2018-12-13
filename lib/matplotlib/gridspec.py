@@ -15,15 +15,13 @@ of the subplot in the figure.
 
 import copy
 import logging
-import warnings
 
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _pylab_helpers, tight_layout, rcParams
+from matplotlib import _pylab_helpers, cbook, tight_layout, rcParams
 from matplotlib.transforms import Bbox
 import matplotlib._layoutbox as layoutbox
-from matplotlib.cbook import mplDeprecation
 
 _log = logging.getLogger(__name__)
 
@@ -43,6 +41,18 @@ class GridSpecBase(object):
         self._nrows, self._ncols = nrows, ncols
         self.set_height_ratios(height_ratios)
         self.set_width_ratios(width_ratios)
+
+    def __repr__(self):
+        height_arg = (', height_ratios=%r' % self._row_height_ratios
+                      if self._row_height_ratios is not None else '')
+        width_arg = (', width_ratios=%r' % self._col_width_ratios
+                     if self._col_width_ratios is not None else '')
+        return '{clsname}({nrows}, {ncols}{optionals})'.format(
+            clsname=self.__class__.__name__,
+            nrows=self._nrows,
+            ncols=self._ncols,
+            optionals=height_arg + width_arg,
+            )
 
     def get_geometry(self):
         'get the geometry of the grid, e.g., 2,3'
@@ -185,6 +195,21 @@ class GridSpec(GridSpecBase):
         ncols : int
             Number or columns in grid.
 
+        figure : ~.figure.Figure, optional
+
+        left, right, top, bottom : float
+            Extent of the subplots as a fraction of figure width or height.
+            Left cannot be larger than right, and bottom cannot be larger than
+            top.
+
+        wspace : float
+            The amount of width reserved for space between subplots,
+            expressed as a fraction of the average axis width.
+
+        hspace : float
+            The amount of height reserved for space between subplots,
+            expressed as a fraction of the average axis height.
+
         Notes
         -----
         See `~.figure.SubplotParams` for descriptions of the layout parameters.
@@ -201,7 +226,7 @@ class GridSpec(GridSpecBase):
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
 
-        if (self.figure is None) or not self.figure.get_constrained_layout():
+        if self.figure is None or not self.figure.get_constrained_layout():
             self._layoutbox = None
         else:
             self.figure.init_layoutbox()
@@ -265,8 +290,9 @@ class GridSpec(GridSpecBase):
         parameters are from rcParams unless a figure attribute is set.
         """
         if fig is not None:
-            warnings.warn("the 'fig' kwarg is deprecated "
-                          "use 'figure' instead", mplDeprecation)
+            cbook.warn_deprecated("2.2", name="fig",
+                                  obj_type="keyword argument",
+                                  alternative="figure")
         if figure is None:
             figure = fig
 
@@ -306,8 +332,9 @@ class GridSpec(GridSpecBase):
         subplotspec_list = tight_layout.get_subplotspec_list(
             figure.axes, grid_spec=self)
         if None in subplotspec_list:
-            warnings.warn("This figure includes Axes that are not compatible "
-                          "with tight_layout, so results might be incorrect.")
+            cbook._warn_external("This figure includes Axes that are not "
+                                 "compatible with tight_layout, so results "
+                                 "might be incorrect.")
 
         if renderer is None:
             renderer = tight_layout.get_renderer(figure)
@@ -315,7 +342,8 @@ class GridSpec(GridSpecBase):
         kwargs = tight_layout.get_tight_layout_figure(
             figure, figure.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
-        self.update(**kwargs)
+        if kwargs:
+            self.update(**kwargs)
 
 
 class GridSpecFromSubplotSpec(GridSpecBase):
@@ -355,8 +383,9 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         """Return a dictionary of subplot layout parameters.
         """
         if fig is not None:
-            warnings.warn("the 'fig' kwarg is deprecated "
-                          "use 'figure' instead", mplDeprecation)
+            cbook.warn_deprecated("2.2", name="fig",
+                                  obj_type="keyword argument",
+                                  alternative="figure")
         if figure is None:
             figure = fig
 
@@ -397,7 +426,7 @@ class SubplotSpec(object):
         if gridspec._layoutbox is not None:
             glb = gridspec._layoutbox
             # So note that here we don't assign any layout yet,
-            # just make the layoutbox that will conatin all items
+            # just make the layoutbox that will contain all items
             # associated w/ this axis.  This can include other axes like
             # a colorbar or a legend.
             self._layoutbox = layoutbox.LayoutBox(
@@ -487,3 +516,44 @@ class SubplotSpec(object):
 
     def __hash__(self):
         return hash((self._gridspec, self.num1, self.num2))
+
+    def subgridspec(self, nrows, ncols, **kwargs):
+        """
+        Return a `.GridSpecFromSubplotSpec` that has this subplotspec as
+        a parent.
+
+        Parameters
+        ----------
+        nrows : int
+            Number of rows in grid.
+
+        ncols : int
+            Number or columns in grid.
+
+        Returns
+        -------
+        gridspec : `.GridSpec`
+
+        Other Parameters
+        ----------------
+        **kwargs
+            All other parameters are passed to `.GridSpec`.
+
+        See Also
+        --------
+        matplotlib.pyplot.subplots
+
+        Examples
+        --------
+        Adding three subplots in the space occupied by a single subplot::
+
+            fig = plt.figure()
+            gs0 = fig.add_gridspec(3, 1)
+            ax1 = fig.add_subplot(gs0[0])
+            ax2 = fig.add_subplot(gs0[1])
+            gssub = gs0[2].subgridspec(1, 3)
+            for i in range(3):
+                fig.add_subplot(gssub[0, i])
+        """
+
+        return GridSpecFromSubplotSpec(nrows, ncols, self, **kwargs)

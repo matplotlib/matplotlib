@@ -82,8 +82,8 @@ with :func:`~matplotlib.Axes.bxp`.
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
 kwargs. See the examples:
-:ref:`sphx_glr_gallery_statistics_boxplot.py` and
-:ref:`sphx_glr_gallery_statistics_bxp.py`
+:doc:`/gallery/statistics/boxplot` and
+:doc:`/gallery/statistics/bxp`
 
 Added a bool kwarg, :code:`manage_xticks`, which if False disables the management
 of the ticks and limits on the x-axis by :func:`~matplotlib.axes.Axes.bxp`.
@@ -160,8 +160,8 @@ matplotlib internals were cleaned up to support using such transforms in
 :class:`~matplotlib.Axes`. This transform is important for some plot types,
 specifically the Skew-T used in meteorology.
 
-.. figure:: ../../gallery/api/images/sphx_glr_skewt_001.png
-   :target: ../../gallery/api/skewt.html
+.. figure:: ../../gallery/specialty_plots/images/sphx_glr_skewt_001.png
+   :target: ../../gallery/specialty_plots/skewt.html
    :align: center
    :scale: 50
 
@@ -410,7 +410,7 @@ instead of ``:context:`` any time you want to reset the context.
 
 Legend and PathEffects documentation
 ------------------------------------
-The :ref:`sphx_glr_tutorials_intermediate_legend_guide.py` and :ref:`sphx_glr_tutorials_advanced_patheffects_guide.py` have both been
+The :doc:`/tutorials/intermediate/legend_guide` and :doc:`/tutorials/advanced/patheffects_guide` have both been
 updated to better reflect the full potential of each of these powerful
 features.
 

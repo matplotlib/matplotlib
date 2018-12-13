@@ -34,15 +34,14 @@ themselves.
 # done so that `nan`s are propagated, instead of being silently dropped.
 
 import re
-import warnings
 import weakref
 
 import numpy as np
 from numpy.linalg import inv
 
+from matplotlib import cbook
 from matplotlib._path import (
     affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
-from . import cbook
 from .path import Path
 
 DEBUG = False
@@ -111,7 +110,11 @@ class TransformNode(object):
     def __setstate__(self, data_dict):
         self.__dict__ = data_dict
         # turn the normal dictionary back into a dictionary with weak values
-        self._parents = {k: weakref.ref(v)
+        # The extra lambda is to provide a callback to remove dead
+        # weakrefs from the dictionary when garbage collection is done.
+        self._parents = {k: weakref.ref(v, lambda ref, sid=k,
+                                                  target=self._parents:
+                                                        target.pop(sid))
                          for k, v in self._parents.items() if v is not None}
 
     def __copy__(self, *args):
@@ -169,7 +172,12 @@ class TransformNode(object):
         # parents are destroyed, references from the children won't
         # keep them alive.
         for child in children:
-            child._parents[id(self)] = weakref.ref(self)
+            # Use weak references so this dictionary won't keep obsolete nodes
+            # alive; the callback deletes the dictionary entry. This is a
+            # performance improvement over using WeakValueDictionary.
+            ref = weakref.ref(self, lambda ref, sid=id(self),
+                                        target=child._parents: target.pop(sid))
+            child._parents[id(self)] = ref
 
     if DEBUG:
         _set_children = set_children
@@ -258,11 +266,11 @@ class BboxBase(TransformNode):
     if DEBUG:
         def _check(points):
             if isinstance(points, np.ma.MaskedArray):
-                warnings.warn("Bbox bounds are a masked array.")
+                cbook._warn_external("Bbox bounds are a masked array.")
             points = np.asarray(points)
             if (points[1, 0] - points[0, 0] == 0 or
                 points[1, 1] - points[0, 1] == 0):
-                warnings.warn("Singular Bbox.")
+                cbook._warn_external("Singular Bbox.")
         _check = staticmethod(_check)
 
     def frozen(self):
@@ -554,7 +562,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        c :
+        c : (float, float) or str
             May be either:
 
             * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0
@@ -912,7 +920,7 @@ class Bbox(BboxBase):
 
         path = Path(xy)
         self.update_from_path(path, ignore=ignore,
-                                    updatex=updatex, updatey=updatey)
+                              updatex=updatex, updatey=updatey)
 
     @BboxBase.x0.setter
     def x0(self, val):
@@ -1053,8 +1061,6 @@ class TransformedBbox(BboxBase):
                         _indent_str(self._bbox),
                         _indent_str(self._transform)))
 
-    __repr__ = __str__
-
     def get_points(self):
         if self._invalid:
             p = self._bbox.get_points()
@@ -1139,8 +1145,6 @@ class LockableBbox(BboxBase):
                 .format(type(self).__name__,
                         _indent_str(self._bbox),
                         _indent_str(self._locked_points)))
-
-    __repr__ = __str__
 
     def get_points(self):
         if self._invalid:
@@ -1548,9 +1552,7 @@ class Transform(TransformNode):
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
         x = self.transform_non_affine(path.vertices)
-        return Path._fast_from_codes_and_verts(x, path.codes,
-                {'interpolation_steps': path._interpolation_steps,
-                 'should_simplify': path.should_simplify})
+        return Path._fast_from_codes_and_verts(x, path.codes, path)
 
     def transform_angles(self, angles, pts, radians=False, pushoff=1e-5):
         """
@@ -1620,9 +1622,6 @@ class Transform(TransformNode):
         ``x === self.inverted().transform(self.transform(x))``
         """
         raise NotImplementedError()
-
-    def __repr__(self):
-        return str(self)
 
 
 class TransformWrapper(Transform):
@@ -1709,17 +1708,9 @@ class TransformWrapper(Transform):
         self.invalidate()
         self._invalid = 0
 
-    def _get_is_affine(self):
-        return self._child.is_affine
-    is_affine = property(_get_is_affine)
-
-    def _get_is_separable(self):
-        return self._child.is_separable
-    is_separable = property(_get_is_separable)
-
-    def _get_has_inverse(self):
-        return self._child.has_inverse
-    has_inverse = property(_get_has_inverse)
+    is_affine = property(lambda self: self._child.is_affine)
+    is_separable = property(lambda self: self._child.is_separable)
+    has_inverse = property(lambda self: self._child.has_inverse)
 
 
 class AffineBase(Transform):
@@ -1806,10 +1797,10 @@ class Affine2DBase(AffineBase):
         return Affine2D(self.get_matrix().copy())
     frozen.__doc__ = AffineBase.frozen.__doc__
 
-    def _get_is_separable(self):
+    @property
+    def is_separable(self):
         mtx = self.get_matrix()
-        return mtx[0, 1] == 0.0 and mtx[1, 0] == 0.0
-    is_separable = property(_get_is_separable)
+        return mtx[0, 1] == mtx[1, 0] == 0.0
 
     def to_values(self):
         """
@@ -1850,7 +1841,7 @@ class Affine2DBase(AffineBase):
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
             if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
-                warnings.warn(
+                cbook._warn_external(
                     ('A non-numpy array of type %s was passed in for ' +
                      'transformation.  Please correct this.')
                     % type(points))
@@ -2082,11 +2073,6 @@ class Affine2D(Affine2DBase):
         """
         return self.skew(np.deg2rad(xShear), np.deg2rad(yShear))
 
-    def _get_is_separable(self):
-        mtx = self.get_matrix()
-        return mtx[0, 1] == 0.0 and mtx[1, 0] == 0.0
-    is_separable = property(_get_is_separable)
-
 
 class IdentityTransform(Affine2DBase):
     """
@@ -2188,13 +2174,9 @@ class BlendedGenericTransform(Transform):
         # a blended transform cannot possibly contain a branch from two different transforms.
         return False
 
-    def _get_is_affine(self):
-        return self._x.is_affine and self._y.is_affine
-    is_affine = property(_get_is_affine)
-
-    def _get_has_inverse(self):
-        return self._x.has_inverse and self._y.has_inverse
-    has_inverse = property(_get_has_inverse)
+    is_affine = property(lambda self: self._x.is_affine and self._y.is_affine)
+    has_inverse = property(
+        lambda self: self._x.has_inverse and self._y.has_inverse)
 
     def frozen(self):
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
@@ -2379,8 +2361,6 @@ class CompositeGenericTransform(Transform):
         self._b = b
         self.set_children(a, b)
 
-    is_affine = property(lambda self: self._a.is_affine and self._b.is_affine)
-
     def frozen(self):
         self._invalid = 0
         frozen = composite_transform_factory(self._a.frozen(), self._b.frozen())
@@ -2417,17 +2397,12 @@ class CompositeGenericTransform(Transform):
         for left, right in self._b._iter_break_from_left_to_right():
             yield self._a + left, right
 
-    @property
-    def depth(self):
-        return self._a.depth + self._b.depth
-
-    def _get_is_affine(self):
-        return self._a.is_affine and self._b.is_affine
-    is_affine = property(_get_is_affine)
-
-    def _get_is_separable(self):
-        return self._a.is_separable and self._b.is_separable
-    is_separable = property(_get_is_separable)
+    depth = property(lambda self: self._a.depth + self._b.depth)
+    is_affine = property(lambda self: self._a.is_affine and self._b.is_affine)
+    is_separable = property(
+        lambda self: self._a.is_separable and self._b.is_separable)
+    has_inverse = property(
+        lambda self: self._a.has_inverse and self._b.has_inverse)
 
     def __str__(self):
         return ("{}(\n"
@@ -2472,10 +2447,6 @@ class CompositeGenericTransform(Transform):
     def inverted(self):
         return CompositeGenericTransform(self._b.inverted(), self._a.inverted())
     inverted.__doc__ = Transform.inverted.__doc__
-
-    def _get_has_inverse(self):
-        return self._a.has_inverse and self._b.has_inverse
-    has_inverse = property(_get_has_inverse)
 
 
 class CompositeAffine2D(Affine2DBase):
@@ -2789,9 +2760,7 @@ class TransformedPath(TransformNode):
             self._transformed_points = \
                 Path._fast_from_codes_and_verts(
                     self._transform.transform_non_affine(self._path.vertices),
-                    None,
-                    {'interpolation_steps': self._path._interpolation_steps,
-                     'should_simplify': self._path.should_simplify})
+                    None, self._path)
         self._invalid = 0
 
     def get_transformed_points_and_affine(self):
@@ -2859,9 +2828,7 @@ class TransformedPatchPath(TransformedPath):
             self._transformed_points = \
                 Path._fast_from_codes_and_verts(
                     self._transform.transform_non_affine(patch_path.vertices),
-                    None,
-                    {'interpolation_steps': patch_path._interpolation_steps,
-                     'should_simplify': patch_path.should_simplify})
+                    None, patch_path)
         self._invalid = 0
 
 

@@ -27,6 +27,7 @@ value_punc = r'\\=_:,'
 value_unescape = re.compile(r'\\([%s])' % value_punc).sub
 value_escape = re.compile(r'([%s])' % value_punc).sub
 
+
 class FontconfigPatternParser(object):
     """A simple pyparsing-based parser for fontconfig-style patterns.
 
@@ -174,8 +175,6 @@ def generate_fontconfig_pattern(d):
     pattern string.
     """
     props = []
-    families = ''
-    size = ''
     for key in 'family style variant weight stretch file size'.split():
         val = getattr(d, 'get_' + key)()
         if val is not None and val != []:

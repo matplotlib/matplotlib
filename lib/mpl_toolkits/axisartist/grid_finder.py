@@ -1,18 +1,11 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import numpy as np
-from matplotlib.transforms import Bbox
-from . import clip_path
-clip_line_to_rect = clip_path.clip_line_to_rect
 
 import matplotlib.ticker as mticker
-from matplotlib.transforms import Transform
+from matplotlib.transforms import Bbox, Transform
+from .clip_path import clip_line_to_rect
+
 
 # extremes finder
-
 class ExtremeFinderSimple(object):
     def __init__(self, nx, ny):
         self.nx, self.ny = nx, ny
@@ -45,7 +38,6 @@ class ExtremeFinderSimple(object):
         lat_min, lat_max = lat_min - dlat, lat_max + dlat
 
         return lon_min, lon_max, lat_min, lat_max
-
 
 
 class GridFinderBase(object):
@@ -97,7 +89,6 @@ class GridFinderBase(object):
         else:
             lat_values = np.asarray(lat_levs[:lat_n]/lat_factor)
 
-
         lon_lines, lat_lines = self._get_raw_grid_lines(lon_values,
                                                         lat_values,
                                                         lon_min, lon_max,
@@ -136,12 +127,11 @@ class GridFinderBase(object):
 
         return grid_info
 
-
     def _get_raw_grid_lines(self,
                             lon_values, lat_values,
                             lon_min, lon_max, lat_min, lat_max):
 
-        lons_i = np.linspace(lon_min, lon_max, 100) # for interpolation
+        lons_i = np.linspace(lon_min, lon_max, 100)  # for interpolation
         lats_i = np.linspace(lat_min, lat_max, 100)
 
         lon_lines = [self.transform_xy(np.zeros_like(lats_i) + lon, lats_i)
@@ -150,7 +140,6 @@ class GridFinderBase(object):
                      for lat in lat_values]
 
         return lon_lines, lat_lines
-
 
     def _clip_grid_lines_and_find_ticks(self, lines, values, levs, bb):
         gi = {
@@ -178,19 +167,18 @@ class GridFinderBase(object):
 
         return gi
 
-
     def update_transform(self, aux_trans):
         if isinstance(aux_trans, Transform):
             def transform_xy(x, y):
                 ll1 = np.column_stack([x, y])
                 ll2 = aux_trans.transform(ll1)
-                lon, lat = ll2[:,0], ll2[:,1]
+                lon, lat = ll2[:, 0], ll2[:, 1]
                 return lon, lat
 
             def inv_transform_xy(x, y):
                 ll1 = np.column_stack([x, y])
                 ll2 = aux_trans.inverted().transform(ll1)
-                lon, lat = ll2[:,0], ll2[:,1]
+                lon, lat = ll2[:, 0], ll2[:, 1]
                 return lon, lat
 
         else:
@@ -198,7 +186,6 @@ class GridFinderBase(object):
 
         self.transform_xy = transform_xy
         self.inv_transform_xy = inv_transform_xy
-
 
     def update(self, **kw):
         for k in kw:

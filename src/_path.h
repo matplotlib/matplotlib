@@ -1047,15 +1047,13 @@ void quad2cubic(double x0, double y0,
 char *__append_to_string(char *p, char **buffer, size_t *buffersize,
                          const char *content)
 {
-    int buffersize_int = (int)*buffersize;
-
     for (const char *i = content; *i; ++i) {
         if (p < *buffer) {
             /* This is just an internal error */
             return NULL;
         }
-        if (p - *buffer >= buffersize_int) {
-            int diff = p - *buffer;
+        if ((size_t)(p - *buffer) >= *buffersize) {
+            ptrdiff_t diff = p - *buffer;
             *buffersize *= 2;
             *buffer = (char *)realloc(*buffer, *buffersize);
             if (*buffer == NULL) {

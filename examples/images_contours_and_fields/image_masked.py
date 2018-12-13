@@ -73,3 +73,21 @@ cbar.set_label('proportional')
 
 fig.suptitle('imshow, with out-of-range and masked data')
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.imshow
+matplotlib.pyplot.imshow
+matplotlib.figure.Figure.colorbar
+matplotlib.pyplot.colorbar
+matplotlib.colors.BoundaryNorm
+matplotlib.colorbar.ColorbarBase.set_label

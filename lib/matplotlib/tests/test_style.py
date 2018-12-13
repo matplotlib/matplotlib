@@ -1,11 +1,8 @@
-from __future__ import absolute_import, division, print_function
-
 from collections import OrderedDict
 from contextlib import contextmanager
 import gc
-import os
-import shutil
-import tempfile
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import warnings
 
 import pytest
@@ -14,7 +11,6 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt, style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
-import six
 
 PARAM = 'image.cmap'
 VALUE = 'pink'
@@ -27,21 +23,16 @@ def temp_style(style_name, settings=None):
     if not settings:
         settings = DUMMY_SETTINGS
     temp_file = '%s.%s' % (style_name, STYLE_EXTENSION)
-
-    # Write style settings to file in the temp directory.
-    tempdir = tempfile.mkdtemp()
-    with open(os.path.join(tempdir, temp_file), 'w') as f:
-        for k, v in six.iteritems(settings):
-            f.write('%s: %s' % (k, v))
-
-    # Add temp directory to style path and reload so we can access this style.
-    USER_LIBRARY_PATHS.append(tempdir)
-    style.reload_library()
-
     try:
-        yield
+        with TemporaryDirectory() as tmpdir:
+            # Write style settings to file in the tmpdir.
+            Path(tmpdir, temp_file).write_text(
+                "\n".join("{}: {}".format(k, v) for k, v in settings.items()))
+            # Add tmpdir to style path and reload so we can access this style.
+            USER_LIBRARY_PATHS.append(tmpdir)
+            style.reload_library()
+            yield
     finally:
-        shutil.rmtree(tempdir)
         style.reload_library()
 
 

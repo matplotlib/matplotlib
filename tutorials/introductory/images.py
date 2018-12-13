@@ -42,14 +42,13 @@ useful for quickly and easily experimenting with various plot
 settings.  The alternative is the object-oriented interface, which is also
 very powerful, and generally more suitable for large application
 development.  If you'd like to learn about the object-oriented
-interface, a great place to start is our `FAQ on usage
-<http://matplotlib.org/faq/usage_faq.html>`_.  For now, let's get on
+interface, a great place to start is our :doc:`Usage guide
+</tutorials/introductory/usage>`.  For now, let's get on
 with the imperative-style approach:
 """
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import numpy as np
 
 ###############################################################################
 # .. _importing_data:
@@ -136,7 +135,7 @@ imgplot = plt.imshow(img)
 lum_img = img[:, :, 0]
 
 # This is array slicing.  You can read more in the `Numpy tutorial
-# <https://docs.scipy.org/doc/numpy-dev/user/quickstart.html>`_.
+# <https://docs.scipy.org/doc/numpy/user/quickstart.html>`_.
 
 plt.imshow(lum_img)
 

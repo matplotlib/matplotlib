@@ -1,5 +1,3 @@
-.. _pip: https://pypi.python.org/pypi/pip/
-
 ==========
 Installing
 ==========
@@ -17,8 +15,8 @@ Installing an official release
 Matplotlib and its dependencies are available as wheel packages for macOS,
 Windows and Linux distributions::
 
-  python -mpip install -U pip
-  python -mpip install -U matplotlib
+  python -m pip install -U pip
+  python -m pip install -U matplotlib
 
 .. note::
 
@@ -38,23 +36,25 @@ macOS
 To use the native OSX backend you will need :ref:`a framework build
 <osxframework-faq>` build of Python.
 
-Test Data
+Test data
 ---------
 
 The wheels (:file:`*.whl`) on the `PyPI download page
-<https://pypi.python.org/pypi/matplotlib/>`_ do not contain test data
+<https://pypi.org/project/matplotlib/>`_ do not contain test data
 or example code.
+
 If you want to try the many demos that come in the Matplotlib source
 distribution, download the :file:`*.tar.gz` file and look in the
 :file:`examples` subdirectory.
+
 To run the test suite:
 
- * extract the :file:`lib/matplotlib/tests` or
-   :file:`lib/mpl_toolkits/tests` directories from the source distribution;
- * install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
-   Pillow, MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
-   <https://inkscape.org/>`_;
- * run ``pytest path\to\tests\directory``.
+* extract the :file:`lib/matplotlib/tests` or :file:`lib/mpl_toolkits/tests`
+  directories from the source distribution;
+* install test dependencies: `pytest <https://pypi.org/project/pytest>`_,
+  Pillow, MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
+  <https://inkscape.org/>`_;
+* run ``python -mpytest``.
 
 Third-party distributions of Matplotlib
 =======================================
@@ -68,12 +68,12 @@ Scientific Python Distributions
 <https://www.enthought.com/products/canopy/>`_ and `ActiveState
 <https://www.activestate.com/activepython/downloads>`_ are excellent
 choices that "just work" out of the box for Windows, macOS and common
-Linux platforms. `WinPython <https://winpython.github.io/>`__ is an
-option for windows users.  All of these distributions include
+Linux platforms. `WinPython <https://winpython.github.io/>`_ is an
+option for Windows users.  All of these distributions include
 Matplotlib and *lots* of other useful (data) science tools.
 
-Linux : using your package manager
-----------------------------------
+Linux: using your package manager
+---------------------------------
 
 If you are on Linux, you might prefer to use your package manager.  Matplotlib
 is packaged for almost every major Linux distribution.
@@ -92,9 +92,9 @@ If you are interested in contributing to Matplotlib development,
 running the latest source code, or just like to build everything
 yourself, it is not difficult to build Matplotlib from source.  Grab
 the latest *tar.gz* release file from `the PyPI files page
-<https://pypi.python.org/pypi/matplotlib/>`_, or if you want to
+<https://pypi.org/project/matplotlib/>`_, or if you want to
 develop Matplotlib or just need the latest bugfixed version, grab the
-latest git version :ref:`install-from-git`.
+latest git version, and see :ref:`install-from-git`.
 
 The standard environment variables `CC`, `CXX`, `PKG_CONFIG` are respected.
 This means you can set them if your toolchain is prefixed. This may be used for
@@ -133,48 +133,50 @@ Dependencies
 
 Matplotlib requires the following dependencies:
 
-  * `Python <https://www.python.org/downloads/>`_ (>= 3.5)
-  * `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
-  * `setuptools <https://setuptools.readthedocs.io/en/latest/>`__
-  * `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
-  * `pyparsing <https://pyparsing.wikispaces.com/>`__
-  * `libpng <http://www.libpng.org>`__ (>= 1.2)
-  * `pytz <http://pytz.sourceforge.net/>`__
-  * FreeType (>= 2.3)
-  * `cycler <http://matplotlib.org/cycler/>`__ (>= 0.10.0)
-  * `six <https://pypi.python.org/pypi/six>`_
-  * `kiwisolver <https://github.com/nucleic/kiwi>`__ (>= 1.0.0)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.6)
+* `FreeType <https://www.freetype.org/>`_ (>= 2.3)
+* `libpng <http://www.libpng.org>`_ (>= 1.2)
+* `NumPy <http://www.numpy.org>`_ (>= 1.11)
+* `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
+* `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
+* `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.1)
+* `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.0)
+* `pyparsing <https://pyparsing.wikispaces.com/>`_
 
 Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
-  * :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the TkAgg backend;
-  * `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4) or
-    `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
-  * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
-  * :term:`wxpython` (>= 2.9 or later): for the WX or WXAgg backend;
-  * `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`__ (>=
-    v0.8): for cairo based backends;
-  * `pycairo <https://pypi.python.org/pypi/pycairo>`_: for GTK3Cairo;
-  * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend;
+* :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends;
+* `PyQt4 <https://pypi.org/project/PyQt4>`_ (>= 4.6) or
+  `PySide <https://pypi.org/project/PySide>`_ (>= 1.0.3): for the Qt4-based
+  backends;
+* `PyQt5 <https://pypi.org/project/PyQt5>`_: for the Qt5-based backends;
+* `PyGObject <https://pypi.org/project/PyGObject/>`_ or
+  `pgi <https://pypi.org/project/pgi/>`_ (>= 0.0.11.2): for the GTK3-based
+  backends;
+* :term:`wxpython` (>= 4): for the WX-based backends;
+* `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`_ (>= 0.8) or
+  `pycairo <https://pypi.org/project/pycairo>`_: for the cairo-based
+  backends;
+* `Tornado <https://pypi.org/project/tornado>`_: for the WebAgg backend;
 
 For better support of animation output format and image file formats, LaTeX,
 etc., you can install the following:
 
-  * `ffmpeg <https://www.ffmpeg.org/>`_/`avconv
-    <https://libav.org/avconv.html>`_: for saving movies;
-  * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
-    animated gifs;
-  * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>=2.0): for a larger selection of
-    image file formats: JPEG, BMP, and TIFF image files;
-  * `LaTeX <https://miktex.org/>`_ and `GhostScript
-    <https://ghostscript.com/download/>`_ (for rendering text with LaTeX).
+* `ffmpeg <https://www.ffmpeg.org/>`_/`avconv
+  <https://libav.org/avconv.html>`_: for saving movies;
+* `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
+  animated gifs;
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 3.4): for a larger
+  selection of image file formats: JPEG, BMP, and TIFF image files;
+* `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
+  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
 
 .. note::
 
    Matplotlib depends on non-Python libraries. `pkg-config
-   <https://www.freedesktop.org/wiki/Software/pkg-config/>`__ can be used
+   <https://www.freedesktop.org/wiki/Software/pkg-config/>`_ can be used
    to find required non-Python libraries and thus make the install go more
    smoothly if the libraries and headers are not in the expected locations.
 
@@ -182,9 +184,9 @@ etc., you can install the following:
 
   The following libraries are shipped with Matplotlib:
 
-    - `Agg`: the Anti-Grain Geometry C++ rendering engine;
-    - `qhull`: to compute Delaunay triangulation;
-    - `ttconv`: a true type font utility.
+  - `Agg`: the Anti-Grain Geometry C++ rendering engine;
+  - `qhull`: to compute Delaunay triangulation;
+  - `ttconv`: a TrueType font utility.
 
 .. _build_linux:
 
@@ -248,7 +250,7 @@ Building on Windows
 -------------------
 
 The Python shipped from https://www.python.org is compiled with Visual Studio
-2015 for 3.5 and 3.6.  Python extensions should be compiled with the same
+2015 for 3.5+.  Python extensions should be compiled with the same
 compiler, see e.g.
 https://packaging.python.org/guides/packaging-binary-extensions/#setting-up-a-build-environment-on-windows
 for how to set up a build environment.
@@ -273,7 +275,7 @@ not needed during the wheel install.
 ::
 
   # create a new environment with the required packages
-  conda create -n "matplotlib_build" python=3.5 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
+  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
   activate matplotlib_build
   # if you want a qt backend, you also have to install pyqt (be aware that pyqt doesn't mix well if
   # you have created the environment with conda-forge already activated...)
@@ -301,4 +303,4 @@ Conda packages
 ^^^^^^^^^^^^^^
 
 The conda packaging scripts for Matplotlib are available at
-https://github.com/conda-forge/python-feedstock.
+https://github.com/conda-forge/matplotlib-feedstock.

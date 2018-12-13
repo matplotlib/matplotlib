@@ -6,7 +6,8 @@ Line, Poly and RegularPoly Collection with autoscaling
 For the first two subplots, we will use spirals.  Their
 size will be set in plot units, not data units.  Their positions
 will be set in data units by using the "offsets" and "transOffset"
-kwargs of the LineCollection and PolyCollection.
+kwargs of the `~.collections.LineCollection` and
+`~.collections.PolyCollection`.
 
 The third subplot will make regular polygons, with the same
 type of scaling and positioning as in the first two.
@@ -125,3 +126,23 @@ ax4.set_ylim(ax4.get_ylim()[::-1])
 
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.figure.Figure
+matplotlib.collections
+matplotlib.collections.LineCollection
+matplotlib.collections.RegularPolyCollection
+matplotlib.axes.Axes.add_collection
+matplotlib.axes.Axes.autoscale_view
+matplotlib.transforms.Affine2D
+matplotlib.transforms.Affine2D.scale

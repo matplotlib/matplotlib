@@ -2,7 +2,7 @@ import sys
 
 import numpy as np
 
-from . import tkagg  # Paint image to Tk photo blitter extension.
+from . import _backend_tk
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from ._backend_tk import _BackendTk, FigureCanvasTk
 
@@ -20,13 +20,9 @@ class FigureCanvasTkCairo(FigureCanvasCairo, FigureCanvasTk):
         self._renderer.set_width_height(width, height)
         self.figure.draw(self._renderer)
         buf = np.reshape(surface.get_data(), (height, width, 4))
-        # Convert from ARGB32 to RGBA8888.  Using .take() instead of directly
-        # indexing ensures C-contiguity of the result, which is needed by
-        # tkagg.
-        buf = buf.take(
-            [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0],
-            axis=2)
-        tkagg.blit(self._tkphoto, buf, colormode=2)
+        _backend_tk.blit(
+            self._tkphoto, buf,
+            (2, 1, 0, 3) if sys.byteorder == "little" else (1, 2, 3, 0))
         self._master.update_idletasks()
 
 

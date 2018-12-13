@@ -3,15 +3,15 @@
 QuadMesh Demo
 =============
 
-pcolormesh uses a QuadMesh, a faster generalization of pcolor, but
-with some restrictions.
+`~.axes.Axes.pcolormesh` uses a `~matplotlib.collections.QuadMesh`,
+a faster generalization of `~.axes.Axes.pcolor`, but with some restrictions.
 
 This demo illustrates a bug in quadmesh with masked data.
 """
 
 import copy
 
-from matplotlib import cm, colors, pyplot as plt
+from matplotlib import cm, pyplot as plt
 import numpy as np
 
 n = 12
@@ -30,7 +30,7 @@ fig, axs = plt.subplots(nrows=1, ncols=3)
 axs[0].pcolormesh(Qx, Qz, Z, shading='gouraud')
 axs[0].set_title('Without masked values')
 
-# You can control the color of the masked region.  We copy the default colormap
+# You can control the color of the masked region. We copy the default colormap
 # before modifying it.
 cmap = copy.copy(cm.get_cmap(plt.rcParams['image.cmap']))
 cmap.set_bad('y', 1.0)
@@ -43,3 +43,16 @@ axs[2].set_title('With masked values')
 
 fig.tight_layout()
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.pcolormesh
+matplotlib.pyplot.pcolormesh

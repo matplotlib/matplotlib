@@ -1,9 +1,6 @@
-*******
-dviread
-*******
-
-:mod:`matplotlib.dviread`
-=========================
+**********************
+``matplotlib.dviread``
+**********************
 
 .. automodule:: matplotlib.dviread
    :members:

@@ -3,12 +3,13 @@
 Whats New 0.98.4 Fancy
 ======================
 
+Create fancy box and arrow styles.
 """
 import matplotlib.patches as mpatch
 import matplotlib.pyplot as plt
 
 figheight = 8
-fig = plt.figure(1, figsize=(9, figheight), dpi=80)
+fig = plt.figure(figsize=(9, figheight), dpi=80)
 fontsize = 0.4 * fig.dpi
 
 def make_boxstyles(ax):
@@ -28,13 +29,13 @@ def make_arrowstyles(ax):
     ax.set_ylim(0, figheight)
 
     for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
-        y = (float(len(styles)) -0.25 - i) # /figheight
+        y = (float(len(styles)) - 0.25 - i)  # /figheight
         p = mpatch.Circle((3.2, y), 0.2, fc="w")
         ax.add_patch(p)
 
         ax.annotate(stylename, (3.2, y),
                     (2., y),
-                    #xycoords="figure fraction", textcoords="figure fraction",
+                    # xycoords="figure fraction", textcoords="figure fraction",
                     ha="right", va="center",
                     size=fontsize,
                     arrowprops=dict(arrowstyle=stylename,
@@ -58,3 +59,22 @@ make_arrowstyles(ax2)
 
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.patches
+matplotlib.patches.BoxStyle
+matplotlib.patches.BoxStyle.get_styles
+matplotlib.patches.ArrowStyle
+matplotlib.patches.ArrowStyle.get_styles
+matplotlib.axes.Axes.text
+matplotlib.axes.Axes.annotate

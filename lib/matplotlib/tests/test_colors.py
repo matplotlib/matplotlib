@@ -1,12 +1,10 @@
 import copy
-import six
 import itertools
-import warnings
 
 import numpy as np
 import pytest
 
-from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
+from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 from matplotlib import cycler
 import matplotlib
@@ -103,7 +101,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 1, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert isinstance(ret, six.integer_types)
+        assert isinstance(ret, int)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -112,7 +110,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 2, 3]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert isinstance(ret, six.integer_types)
+        assert isinstance(ret, int)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -121,7 +119,7 @@ def test_BoundaryNorm():
     expected = [0, 0, 2, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert isinstance(ret, six.integer_types)
+        assert isinstance(ret, int)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -186,6 +184,15 @@ def test_PowerNorm():
     assert_array_almost_equal(pnorm(a, clip=True), expected)
     assert pnorm(a[0], clip=True) == expected[0]
     assert pnorm(a[-1], clip=True) == expected[-1]
+
+
+def test_PowerNorm_translation_invariance():
+    a = np.array([0, 1/2, 1], dtype=float)
+    expected = [0, 1/8, 1]
+    pnorm = mcolors.PowerNorm(vmin=0, vmax=1, gamma=3)
+    assert_array_almost_equal(pnorm(a), expected)
+    pnorm = mcolors.PowerNorm(vmin=-2, vmax=-1, gamma=3)
+    assert_array_almost_equal(pnorm(a - 2), expected)
 
 
 def test_Normalize():
@@ -630,6 +637,8 @@ def test_cn():
                                                     ['xkcd:blue', 'r'])
     assert mcolors.to_hex("C0") == '#0343df'
     assert mcolors.to_hex("C1") == '#ff0000'
+    assert mcolors.to_hex("C10") == '#0343df'
+    assert mcolors.to_hex("C11") == '#ff0000'
 
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['8e4585', 'r'])
 
@@ -686,8 +695,7 @@ def test_ndarray_subclass_norm(recwarn):
         def __add__(self, other):
             raise RuntimeError
 
-    data = np.arange(-10, 10, 1, dtype=float)
-    data.shape = (10, 2)
+    data = np.arange(-10, 10, 1, dtype=float).reshape((10, 2))
     mydata = data.view(MyArray)
 
     for norm in [mcolors.Normalize(), mcolors.LogNorm(),
@@ -699,13 +707,7 @@ def test_ndarray_subclass_norm(recwarn):
         fig, ax = plt.subplots()
         ax.imshow(mydata, norm=norm)
         fig.canvas.draw()
-        if isinstance(norm, mcolors.PowerNorm):
-            assert len(recwarn) == 1
-            warn = recwarn.pop(UserWarning)
-            assert ('Power-law scaling on negative values is ill-defined'
-                    in str(warn.message))
-        else:
-            assert len(recwarn) == 0
+        assert len(recwarn) == 0
         recwarn.clear()
 
 

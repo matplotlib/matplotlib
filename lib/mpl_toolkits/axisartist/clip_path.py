@@ -1,24 +1,19 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import zip
-
 import numpy as np
 from math import degrees
+from matplotlib import cbook
 import math
-import warnings
+
 
 def atan2(dy, dx):
     if dx == 0 and dy == 0:
-        warnings.warn("dx and dy is 0")
+        cbook._warn_external("dx and dy are 0")
         return 0
     else:
         return math.atan2(dy, dx)
 
+
 # FIXME : The current algorithm seems to return incorrect angle when the line
 # ends at the boundary.
-
 def clip(xlines, ylines, x0, clip="right", xdir=True, ydir=True):
 
     clipped_xlines = []
@@ -102,7 +97,6 @@ def clip_line_to_rect(xline, yline, bbox):
     else:
         ly3, lx3, c_top_ = clip(ly2, lx2, y0, clip="right", xdir=ydir, ydir=xdir)
         ly4, lx4, c_bottom_ = clip(ly3, lx3, y1, clip="left", xdir=ydir, ydir=xdir)
-
 
     # lx1, ly1, c_right_ = clip([xline], [yline], x1, clip="right")
     # lx2, ly2, c_left_ = clip(lx1, ly1, x0, clip="left")

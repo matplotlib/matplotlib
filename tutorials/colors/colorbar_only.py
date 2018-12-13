@@ -22,8 +22,8 @@ Set the colormap and norm to correspond to the data for which the colorbar
 will be used. Then create the colorbar by calling
 :class:`~matplotlib.colorbar.ColorbarBase` and specify axis, colormap, norm
 and orientation as parameters. Here we create a basic continuous colorbar
-with ticks and labels. More information on the colorbar API can be found
-`here <https://matplotlib.org/api/colorbar_api.html>`_.
+with ticks and labels. For more information see the
+:mod:`~matplotlib.colorbar` API.
 """
 
 import matplotlib.pyplot as plt

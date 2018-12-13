@@ -1,7 +1,5 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy as np
+import platform
 
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
@@ -9,8 +7,8 @@ from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D, Transform
 from matplotlib.testing.decorators import image_comparison
 
-from mpl_toolkits.axes_grid.parasite_axes import ParasiteAxesAuxTrans, \
-    SubplotHost
+from mpl_toolkits.axes_grid1.parasite_axes import ParasiteAxesAuxTrans
+from mpl_toolkits.axisartist import SubplotHost
 from mpl_toolkits.axes_grid1.parasite_axes import host_subplot_class_factory
 from mpl_toolkits.axisartist import angle_helper
 from mpl_toolkits.axisartist.axislines import Axes
@@ -87,7 +85,8 @@ def test_custom_transform():
 
 
 @image_comparison(baseline_images=['polar_box'],
-                  extensions=['png'], style='default', tol=0.03)
+                  tol={'aarch64': 0.04}.get(platform.machine(), 0.03),
+                  extensions=['png'], style='default')
 def test_polar_box():
     fig = plt.figure(figsize=(5, 5))
 

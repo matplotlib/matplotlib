@@ -41,9 +41,7 @@ def triplot(ax, *args, **kwargs):
     x, y, edges = (tri.x, tri.y, tri.edges)
 
     # Decode plot format string, e.g., 'ro-'
-    fmt = ""
-    if len(args) > 0:
-        fmt = args[0]
+    fmt = args[0] if args else ""
     linestyle, marker, color = matplotlib.axes._base._process_plot_format(fmt)
 
     # Insert plot format string into a copy of kwargs (kwargs values prevail).

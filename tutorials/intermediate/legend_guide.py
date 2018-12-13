@@ -117,14 +117,14 @@ plt.plot([3, 2, 1], label="test2")
 
 # Place a legend above this subplot, expanding itself to
 # fully use the given bounding box.
-plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
            ncol=2, mode="expand", borderaxespad=0.)
 
 plt.subplot(223)
 plt.plot([1, 2, 3], label="test1")
 plt.plot([3, 2, 1], label="test2")
 # Place a legend to the right of this smaller subplot.
-plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
 plt.show()
 
@@ -144,13 +144,13 @@ line1, = plt.plot([1, 2, 3], label="Line 1", linestyle='--')
 line2, = plt.plot([3, 2, 1], label="Line 2", linewidth=4)
 
 # Create a legend for the first line.
-first_legend = plt.legend(handles=[line1], loc=1)
+first_legend = plt.legend(handles=[line1], loc='upper right')
 
 # Add the legend manually to the current Axes.
 ax = plt.gca().add_artist(first_legend)
 
 # Create another legend for the second line.
-plt.legend(handles=[line2], loc=4)
+plt.legend(handles=[line2], loc='lower right')
 
 plt.show()
 

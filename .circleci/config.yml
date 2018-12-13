@@ -47,28 +47,34 @@ fonts-run:  &fonts-install
       echo "Not downloading Humor-Sans; file already exists."
     fi
     fc-cache -f -v
+  save_cache:
+    key: fonts-1
+    paths:
+      - ~/.local/share/fonts/
+  restore_cache:
+    key: fonts-1
 
 pip-run:  &pip-install
   # Upgrade pip and setuptools and wheel to get as clean an install as possible
   name: Upgrade pip, setuptools, wheel
   command: |
-    pip install --upgrade --user pip
-    pip install --upgrade --user wheel
-    pip install --upgrade --user setuptools
+    python -mpip install --upgrade --user pip
+    python -mpip install --upgrade --user wheel
+    python -mpip install --upgrade --user setuptools
 
 deps-run: &deps-install
   name: Install Python dependencies
   command: |
-    pip install --user numpy${NUMPY_VERSION} codecov coverage
-    pip install --user -r doc-requirements.txt
+    python -mpip install --user numpy${NUMPY_VERSION} codecov coverage
+    python -mpip install --user -r doc-requirements.txt
 
 mpl-run: &mpl-install
   name: Install Matplotlib
-  command: pip install --user -ve .
+  command: python -mpip install --user -ve .
 
 doc-run: &doc-build
   name: Build documentation
-  command: make html
+  command: make html O=-T
   working_directory: doc
 
 doc-bundle-run: &doc-bundle
@@ -85,6 +91,34 @@ jobs:
   docs-python36:
     docker:
       - image: circleci/python:3.6
+    steps:
+      - checkout
+
+      - run: *apt-install
+      - run: *fonts-install
+      - run: *pip-install
+      - run:
+           <<: *deps-install
+           environment:
+             NUMPY_VERSION: "==1.11.0"
+      - run: *mpl-install
+
+      - run: *doc-build
+
+      - run: *doc-bundle
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
+
+      - store_artifacts:
+          path: doc/build/html
+
+      - run:
+          name: "Built documentation is available at:"
+          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
+
+  docs-python37:
+    docker:
+      - image: circleci/python:3.7
     steps:
       - checkout
 
@@ -115,39 +149,6 @@ jobs:
           name: "Deploy new docs"
           command: ./.circleci/deploy-docs.sh
 
-  docs-python35:
-    docker:
-      - image: circleci/python:3.5
-    steps:
-      - checkout
-
-      - run: *apt-install
-      - run: *fonts-install
-      - run: *pip-install
-
-      - run:
-          <<: *deps-install
-          environment:
-            NUMPY_VERSION: "==1.10.0"
-      - run: *mpl-install
-
-      - run: *doc-build
-
-      # We don't build the LaTeX docs here, so linkchecker will complain
-      - run: touch doc/build/html/Matplotlib.pdf
-
-      - run: *doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
-
-      - store_artifacts:
-          path: doc/build/html
-
-      - run:
-          name: "Built documentation is available at:"
-          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
-
-
 #########################################
 # Defining workflows gets us parallelism.
 #
@@ -156,5 +157,5 @@ workflows:
   version: 2
   build:
     jobs:
-      - docs-python35
       - docs-python36
+      - docs-python37

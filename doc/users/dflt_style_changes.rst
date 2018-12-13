@@ -96,7 +96,7 @@ are only specified via hex values.  To access these colors outside of
 the property cycling the notation for colors ``'CN'``, where ``N``
 takes values 0-9, was added to
 denote the first 10 colors in ``mpl.rcParams['axes.prop_cycle']`` See
-:ref:`sphx_glr_tutorials_colors_colors.py` for more details.
+:doc:`/tutorials/colors/colors` for more details.
 
 To restore the old color cycle use
 
@@ -145,7 +145,7 @@ watch Nathaniel Smith and Stéfan van der Walt's talk from SciPy2015.
 See `here for many more details <https://bids.github.io/colormap/>`__
 about the other alternatives and the tools used to create the color
 map.  For details on all of the color maps available in matplotlib see
-:ref:`sphx_glr_tutorials_colors_colormaps.py`.
+:doc:`/tutorials/colors/colormaps`.
 
 .. raw:: html
 
@@ -275,12 +275,12 @@ Plotting functions
 The following changes were made to the default behavior of
 `~matplotlib.axes.Axes.scatter`
 
- - The default size of the elements in a scatter plot is now based on
-   the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
-   Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
- - scatter markers no longer have a black edge.
- - if the color of the markers is not specified it will follow the
-   property cycle, pulling from the 'patches' cycle on the ``Axes``.
+- The default size of the elements in a scatter plot is now based on
+  the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
+  Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
+- Scatter markers no longer have a black edge.
+- If the color of the markers is not specified it will follow the
+  property cycle, pulling from the 'patches' cycle on the ``Axes``.
 
 .. plot::
 
@@ -323,10 +323,10 @@ a per-call basis pass the following kwargs::
 The following changes were made to the default behavior of
 `~matplotlib.axes.Axes.plot`
 
- - the default linewidth increased from 1 to 1.5
- - the dash patterns associated with ``'--'``, ``':'``, and ``'-.'`` have
-   changed
- - the dash patterns now scale with line width
+- the default linewidth increased from 1 to 1.5
+- the dash patterns associated with ``'--'``, ``':'``, and ``'-.'`` have
+  changed
+- the dash patterns now scale with line width
 
 
 .. plot::
@@ -642,18 +642,18 @@ Hatching
 
 The color of the lines in the hatch is now determined by
 
- - If an edge color is explicitly set, use that for the hatch color
- - If the edge color is not explicitly set, use ``rcParam['hatch.color']`` which
-   is looked up at artist creation time.
+- If an edge color is explicitly set, use that for the hatch color
+- If the edge color is not explicitly set, use ``rcParam['hatch.color']`` which
+  is looked up at artist creation time.
 
 The width of the lines in a hatch pattern is now configurable by the
 rcParams `hatch.linewidth`, which defaults to 1 point.  The old
 behavior for the line width was different depending on backend:
 
-    - PDF: 0.1 pt
-    - SVG: 1.0 pt
-    - PS:  1 px
-    - Agg: 1 px
+- PDF: 0.1 pt
+- SVG: 1.0 pt
+- PS:  1 px
+- Agg: 1 px
 
 The old line width behavior can not be restored across all backends
 simultaneously, but can be restored for a single backend by setting::
@@ -1002,7 +1002,7 @@ a cleaner separation between subplots.
        with mpl.rc_context(rc=rcparams):
 
            ax = fig.add_subplot(2, 2, j)
-           ax.hist(np.random.beta(0.5, 0.5, 10000), 25, normed=True)
+           ax.hist(np.random.beta(0.5, 0.5, 10000), 25, density=True)
            ax.set_xlim([0, 1])
            ax.set_title(title)
 

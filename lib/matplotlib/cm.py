@@ -1,9 +1,24 @@
 """
 Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
-See :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
-See :doc:`/tutorials/colors/colormaps` for an in-depth discussion of colormaps.
+.. seealso::
+
+  :doc:`/gallery/color/colormap_reference` for a list of builtin
+  colormaps.
+
+  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
+  make colormaps and
+
+  :doc:`/tutorials/colors/colormaps` an in-depth discussion of
+  choosing colormaps.
+
+  :doc:`/tutorials/colors/colormapnorms` for more details about data
+  normalization
+
+
 """
+
+import functools
 
 import numpy as np
 from numpy import ma
@@ -22,10 +37,12 @@ cmap_d = {}
 # reversed colormaps have '_r' appended to the name.
 
 
-def _reverser(f):
-    def freversed(x):
-        return f(1 - x)
-    return freversed
+def _reverser(f, x=None):
+    """Helper such that ``_reverser(f)(x) == f(1 - x)``."""
+    if x is None:
+        # Returning a partial object keeps it picklable.
+        return functools.partial(_reverser, f)
+    return f(1 - x)
 
 
 def revcmap(data):
@@ -249,7 +266,7 @@ class ScalarMappable(object):
                 else:
                     raise ValueError("third dimension must be 3 or 4")
                 if xx.dtype.kind == 'f':
-                    if norm and xx.max() > 1 or xx.min() < 0:
+                    if norm and (xx.max() > 1 or xx.min() < 0):
                         raise ValueError("Floating point image RGB values "
                                          "must be in the 0..1 range.")
                     if bytes:
@@ -274,8 +291,6 @@ class ScalarMappable(object):
 
     def set_array(self, A):
         """Set the image array from numpy array *A*.
-
-        .. ACCEPTS: ndarray
 
         Parameters
         ----------
@@ -320,7 +335,9 @@ class ScalarMappable(object):
         """
         set the colormap for luminance data
 
-        ACCEPTS: a colormap or registered colormap name
+        Parameters
+        ----------
+        cmap : colormap or registered colormap name
         """
         cmap = get_cmap(cmap)
         self.cmap = cmap
@@ -328,8 +345,6 @@ class ScalarMappable(object):
 
     def set_norm(self, norm):
         """Set the normalization instance.
-
-        .. ACCEPTS: `.Normalize`
 
         Parameters
         ----------

@@ -4,7 +4,7 @@ Streamplot
 ==========
 
 A stream plot, or streamline plot, is used to display 2D vector fields. This
-example shows a few features of the streamplot function:
+example shows a few features of the :meth:`~.axes.Axes.streamplot` function:
 
     * Varying the color along a streamline.
     * Varying the density of streamlines.
@@ -20,7 +20,7 @@ w = 3
 Y, X = np.mgrid[-w:w:100j, -w:w:100j]
 U = -1 - X**2 + Y
 V = 1 + X - Y**2
-speed = np.sqrt(U*U + V*V)
+speed = np.sqrt(U**2 + V**2)
 
 fig = plt.figure(figsize=(7, 9))
 gs = gridspec.GridSpec(nrows=3, ncols=2, height_ratios=[1, 1, 2])
@@ -71,3 +71,17 @@ ax4.set_aspect('equal')
 
 plt.tight_layout()
 plt.show()
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.streamplot
+matplotlib.pyplot.streamplot
+matplotlib.gridspec
+matplotlib.gridspec.GridSpec

@@ -2,24 +2,21 @@
 # Created: 23 Sep 2005
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
 import copy
+
+import numpy as np
 
 from matplotlib import (
     artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
 from . import art3d, proj3d
 
-import numpy as np
 
 def get_flip_min_max(coord, index, mins, maxs):
     if coord[index] == mins[index]:
         return maxs[index]
     else:
         return mins[index]
+
 
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     '''Return a coordinate that is moved by "deltas" away from the center.'''
@@ -33,19 +30,19 @@ def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
             coord[i] += deltas[i]
     return coord
 
+
 def tick_update_position(tick, tickxs, tickys, labelpos):
     '''Update tick line and label position and style.'''
 
-    for (label, on) in [(tick.label1, tick.label1On),
-                        (tick.label2, tick.label2On)]:
-        if on:
-            label.set_position(labelpos)
-
-    tick.tick1On, tick.tick2On = True, False
+    tick.label1.set_position(labelpos)
+    tick.label2.set_position(labelpos)
+    tick.tick1line.set_visible(True)
+    tick.tick2line.set_visible(False)
     tick.tick1line.set_linestyle('-')
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)
     tick.gridline.set_data(0, 0)
+
 
 class Axis(maxis.XAxis):
 
@@ -66,7 +63,8 @@ class Axis(maxis.XAxis):
             'color': (0.925, 0.925, 0.925, 0.5)},
     }
 
-    def __init__(self, adir, v_intervalx, d_intervalx, axes, *args, **kwargs):
+    def __init__(self, adir, v_intervalx, d_intervalx, axes, *args,
+                 rotate_label=None, **kwargs):
         # adir identifies which axes this is
         self.adir = adir
         # data and viewing intervals for this direction
@@ -110,7 +108,7 @@ class Axis(maxis.XAxis):
                  })
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
-        self.set_rotate_label(kwargs.get('rotate_label', None))
+        self.set_rotate_label(rotate_label)
 
     def init3d(self):
         self.line = mlines.Line2D(
@@ -154,7 +152,7 @@ class Axis(maxis.XAxis):
 
     def set_pane_pos(self, xys):
         xys = np.asarray(xys)
-        xys = xys[:,:2]
+        xys = xys[:, :2]
         self.pane.xy = xys
         self.stale = True
 
@@ -464,17 +462,21 @@ class Axis(maxis.XAxis):
         # doesn't return junk info.
         return None
 
+
 # Use classes to look at different data limits
+
 
 class XAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.xy_dataLim.intervalx
 
+
 class YAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.xy_dataLim.intervaly
+
 
 class ZAxis(Axis):
     def get_data_interval(self):

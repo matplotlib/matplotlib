@@ -11,7 +11,7 @@ generated them.
 Line Plot
 =========
 
-Here's how to create a line plot with  text labels using
+Here's how to create a line plot with text labels using
 :func:`~matplotlib.pyplot.plot`.
 
 .. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_simple_plot_001.png
@@ -147,11 +147,10 @@ streamplot function.
 Ellipses
 ========
 
-In support of the
-`Phoenix <http://www.jpl.nasa.gov/news/phoenix/main.php>`_ mission to
-Mars (which used Matplotlib to display ground tracking of spacecraft),
-Michael Droettboom built on work by Charlie Moad to provide an extremely
-accurate  8-spline approximation to elliptical arcs (see
+In support of the `Phoenix <http://www.jpl.nasa.gov/news/phoenix/main.php>`_
+mission to Mars (which used Matplotlib to display ground tracking of
+spacecraft), Michael Droettboom built on work by Charlie Moad to provide
+an extremely accurate 8-spline approximation to elliptical arcs (see
 :class:`~matplotlib.patches.Arc`), which are insensitive to zoom level.
 
 .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_ellipse_demo_001.png
@@ -333,8 +332,8 @@ The :func:`~matplotlib.pyplot.legend` function automatically
 generates figure legends, with MATLAB-compatible legend-placement
 functions.
 
-.. figure:: ../../gallery/api/images/sphx_glr_legend_001.png
-   :target: ../../gallery/api/legend.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_legend_001.png
+   :target: ../../gallery/text_labels_and_annotations/legend.html
    :align: center
    :scale: 50
 
@@ -362,7 +361,7 @@ fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
 Matplotlib's mathtext infrastructure is an independent implementation and
 does not require TeX or any external packages installed on your computer. See
-the tutorial at :ref:`sphx_glr_tutorials_text_mathtext.py`.
+the tutorial at :doc:`/tutorials/text/mathtext`.
 
 
 .. _screenshots_tex_demo:
@@ -414,7 +413,7 @@ Just for fun, Matplotlib supports plotting in the style of `xkcd
    :align: center
    :scale: 50
 
-   Xkcd
+   xkcd
 """
 
 ###################################################################

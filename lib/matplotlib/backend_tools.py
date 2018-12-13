@@ -11,8 +11,9 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
     `matplotlib.backend_managers.ToolManager`
 """
 
+import re
 import time
-import warnings
+import logging
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -21,10 +22,12 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 
+_log = logging.getLogger(__name__)
+
 
 class Cursors(object):
     """Simple namespace for cursor reference"""
-    HAND, POINTER, SELECT_REGION, MOVE, WAIT = list(range(5))
+    HAND, POINTER, SELECT_REGION, MOVE, WAIT = range(5)
 cursors = Cursors()
 
 # Views positions tool
@@ -40,11 +43,11 @@ class ToolBase(object):
 
     Attributes
     ----------
-    toolmanager: `matplotlib.backend_managers.ToolManager`
+    toolmanager : `matplotlib.backend_managers.ToolManager`
         ToolManager that controls this Tool
-    figure: `FigureCanvas`
+    figure : `FigureCanvas`
         Figure instance that is affected by this Tool
-    name: String
+    name : string
         Used as **Id** of the tool, has to be unique among tools of the same
         ToolManager
     """
@@ -74,9 +77,9 @@ class ToolBase(object):
     """
 
     def __init__(self, toolmanager, name):
-        warnings.warn('Treat the new Tool classes introduced in v1.5 as ' +
-                      'experimental for now, the API will likely change in ' +
-                      'version 2.1, and some tools might change name')
+        cbook._warn_external(
+            'The new Tool classes introduced in v1.5 are experimental; their '
+            'API (including names) will likely change in future versions.')
         self._name = name
         self._toolmanager = toolmanager
         self._figure = None
@@ -105,7 +108,7 @@ class ToolBase(object):
 
         Parameters
         ----------
-        figure: `Figure`
+        figure : `Figure`
         """
         self._figure = figure
 
@@ -118,11 +121,11 @@ class ToolBase(object):
 
         Parameters
         ----------
-        event: `Event`
+        event : `Event`
             The Canvas event that caused this tool to be called
-        sender: object
+        sender : object
             Object that requested the tool to be triggered
-        data: object
+        data : object
             Extra data
         """
 
@@ -189,7 +192,6 @@ class ToolToggleBase(ToolBase):
 
         `trigger` calls this method when `toggled` is False
         """
-
         pass
 
     def disable(self, event=None):
@@ -205,7 +207,6 @@ class ToolToggleBase(ToolBase):
         * Another `ToolToggleBase` derived tool is triggered
           (from the same `ToolManager`)
         """
-
         pass
 
     @property
@@ -336,7 +337,7 @@ class ToolCursorPosition(ToolBase):
             except (ValueError, OverflowError):
                 pass
             else:
-                artists = [a for a in event.inaxes.mouseover_set
+                artists = [a for a in event.inaxes._mouseover_set
                            if a.contains(event) and a.get_visible()]
 
                 if artists:
@@ -403,7 +404,7 @@ class ToolQuitAll(ToolBase):
 class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for toolmanager interaction"""
 
-    description = 'Enables all axes toolmanager'
+    description = 'Enable all axes toolmanager'
     default_keymap = rcParams['keymap.all_axes']
 
     def trigger(self, sender, event, data=None):
@@ -419,7 +420,7 @@ class ToolEnableAllNavigation(ToolBase):
 class ToolEnableNavigation(ToolBase):
     """Tool to enable a specific axes for toolmanager interaction"""
 
-    description = 'Enables one axes toolmanager'
+    description = 'Enable one axes toolmanager'
     default_keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
     def trigger(self, sender, event, data=None):
@@ -459,9 +460,9 @@ class _ToolGridBase(ToolBase):
         Returns True/False if all grid lines are on or off, None if they are
         not all in the same state.
         """
-        if all(tick.gridOn for tick in ticks):
+        if all(tick.gridline.get_visible() for tick in ticks):
             return True
-        elif not any(tick.gridOn for tick in ticks):
+        elif not any(tick.gridline.get_visible() for tick in ticks):
             return False
         else:
             return None
@@ -470,7 +471,7 @@ class _ToolGridBase(ToolBase):
 class ToolGrid(_ToolGridBase):
     """Tool to toggle the major grids of the figure"""
 
-    description = 'Toogle major grids'
+    description = 'Toggle major grids'
     default_keymap = rcParams['keymap.grid']
 
     def _get_next_grid_states(self, ax):
@@ -491,7 +492,7 @@ class ToolGrid(_ToolGridBase):
 class ToolMinorGrid(_ToolGridBase):
     """Tool to toggle the major and minor grids of the figure"""
 
-    description = 'Toogle major and minor grids'
+    description = 'Toggle major and minor grids'
     default_keymap = rcParams['keymap.grid_minor']
 
     def _get_next_grid_states(self, ax):
@@ -511,7 +512,7 @@ class ToolMinorGrid(_ToolGridBase):
 class ToolFullScreen(ToolToggleBase):
     """Tool to toggle full screen"""
 
-    description = 'Toogle Fullscreen mode'
+    description = 'Toggle fullscreen mode'
     default_keymap = rcParams['keymap.fullscreen']
 
     def enable(self, event):
@@ -541,7 +542,7 @@ class AxisScaleBase(ToolToggleBase):
 class ToolYScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the Y axis"""
 
-    description = 'Toogle Scale Y axis'
+    description = 'Toggle scale Y axis'
     default_keymap = rcParams['keymap.yscale']
 
     def set_scale(self, ax, scale):
@@ -551,7 +552,7 @@ class ToolYScale(AxisScaleBase):
 class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the X axis"""
 
-    description = 'Toogle Scale X axis'
+    description = 'Toggle scale X axis'
     default_keymap = rcParams['keymap.xscale']
 
     def set_scale(self, ax, scale):
@@ -1020,6 +1021,59 @@ class ToolPan(ZoomPanBase):
         self.toolmanager.canvas.draw_idle()
 
 
+class ToolHelpBase(ToolBase):
+    description = 'Print tool list, shortcuts and description'
+    default_keymap = rcParams['keymap.help']
+    image = 'help.png'
+
+    @staticmethod
+    def format_shortcut(key_sequence):
+        """
+        Converts a shortcut string from the notation used in rc config to the
+        standard notation for displaying shortcuts, e.g. 'ctrl+a' -> 'Ctrl+A'.
+        """
+        return (key_sequence if len(key_sequence) == 1 else
+                re.sub(r"\+[A-Z]", r"+Shift\g<0>", key_sequence).title())
+
+    def _format_tool_keymap(self, name):
+        keymaps = self.toolmanager.get_tool_keymap(name)
+        return ", ".join(self.format_shortcut(keymap) for keymap in keymaps)
+
+    def _get_help_entries(self):
+        entries = []
+        for name, tool in sorted(self.toolmanager.tools.items()):
+            if not tool.description:
+                continue
+            entries.append((name, self._format_tool_keymap(name),
+                            tool.description))
+        return entries
+
+    def _get_help_text(self):
+        entries = self._get_help_entries()
+        entries = ["{}: {}\n\t{}".format(*entry) for entry in entries]
+        return "\n".join(entries)
+
+    def _get_help_html(self):
+        fmt = "<tr><td>{}</td><td>{}</td><td>{}</td></tr>"
+        rows = [fmt.format(
+            "<b>Action</b>", "<b>Shortcuts</b>", "<b>Description</b>")]
+        rows += [fmt.format(*row) for row in self._get_help_entries()]
+        return ("<style>td {padding: 0px 4px}</style>"
+                "<table><thead>" + rows[0] + "</thead>"
+                "<tbody>".join(rows[1:]) + "</tbody></table>")
+
+
+class ToolCopyToClipboardBase(ToolBase):
+    """Tool to copy the figure to the clipboard"""
+
+    description = 'Copy the canvas figure to clipboard'
+    default_keymap = rcParams['keymap.copy']
+
+    def trigger(self, *args, **kwargs):
+        message = "Copy tool is not available"
+        self.toolmanager.message_event(message, self)
+
+
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'zoom': ToolZoom, 'pan': ToolPan,
                  'subplots': 'ToolConfigureSubplots',
@@ -1037,12 +1091,14 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  _views_positions: ToolViewsPositions,
                  'cursor': 'ToolSetCursor',
                  'rubberband': 'ToolRubberband',
+                 'help': 'ToolHelp',
+                 'copy': 'ToolCopyToClipboard',
                  }
 """Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                          ['zoompan', ['pan', 'zoom', 'subplots']],
-                         ['io', ['save']]]
+                         ['io', ['save', 'help']]]
 """Default tools in the toolbar"""
 
 
@@ -1052,7 +1108,7 @@ def add_tools_to_manager(toolmanager, tools=default_tools):
 
     Parameters
     ----------
-    toolmanager: ToolManager
+    toolmanager : ToolManager
         `backend_managers.ToolManager` object that will get the tools added
     tools : {str: class_like}, optional
         The tools to add in a {name: tool} dict, see `add_tool` for more
@@ -1069,7 +1125,7 @@ def add_tools_to_container(container, tools=default_toolbar_tools):
 
     Parameters
     ----------
-    container: Container
+    container : Container
         `backend_bases.ToolContainerBase` object that will get the tools added
     tools : list, optional
         List in the form

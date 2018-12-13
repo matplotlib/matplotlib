@@ -80,3 +80,17 @@ ax7.set_title('Multiple Samples with Different sizes')
 ax7.boxplot(data)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.boxplot
+matplotlib.pyplot.boxplot

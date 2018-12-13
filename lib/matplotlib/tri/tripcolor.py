@@ -5,7 +5,8 @@ from matplotlib.colors import Normalize
 from matplotlib.tri.triangulation import Triangulation
 
 
-def tripcolor(ax, *args, **kwargs):
+def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
+              vmax=None, shading='flat', facecolors=None, **kwargs):
     """
     Create a pseudocolor plot of an unstructured triangular grid.
 
@@ -45,14 +46,6 @@ def tripcolor(ax, *args, **kwargs):
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
     """
-    alpha = kwargs.pop('alpha', 1.0)
-    norm = kwargs.pop('norm', None)
-    cmap = kwargs.pop('cmap', None)
-    vmin = kwargs.pop('vmin', None)
-    vmax = kwargs.pop('vmax', None)
-    shading = kwargs.pop('shading', 'flat')
-    facecolors = kwargs.pop('facecolors', None)
-
     if shading not in ['flat', 'gouraud']:
         raise ValueError("shading must be one of ['flat', 'gouraud'] "
                          "not {0}".format(shading))

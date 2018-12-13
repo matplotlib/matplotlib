@@ -3,14 +3,16 @@
 Demonstration of advanced quiver and quiverkey functions
 ========================================================
 
-Known problem: the plot autoscaling does not take into account
-the arrows, so those on the boundaries are often out of the picture.
-This is *not* an easy problem to solve in a perfectly general way.
-The workaround is to manually expand the Axes objects.
+Demonstrates some more advanced options for `~.axes.Axes.quiver`.  For a simple
+example refer to :doc:`/gallery/images_contours_and_fields/quiver_simple_demo`.
+
+Known problem: the plot autoscaling does not take into account the arrows, so
+those on the boundaries are often out of the picture.  This is *not* an easy
+problem to solve in a perfectly general way.  The workaround is to manually
+expand the Axes objects.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import ma
 
 X, Y = np.meshgrid(np.arange(0, 2 * np.pi, .2), np.arange(0, 2 * np.pi, .2))
 U = np.cos(X)
@@ -46,3 +48,18 @@ qk = ax3.quiverkey(Q, 0.9, 0.9, 1, r'$1 \frac{m}{s}$', labelpos='E',
 ax3.scatter(X, Y, color='k', s=5)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions and methods is shown in this example:
+
+import matplotlib
+matplotlib.axes.Axes.quiver
+matplotlib.pyplot.quiver
+matplotlib.axes.Axes.quiverkey
+matplotlib.pyplot.quiverkey
