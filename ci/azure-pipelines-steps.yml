@@ -1,5 +1,6 @@
 parameters:
   platform: none
+  installer: none
 
 steps:
 - task: UsePythonVersion@0
@@ -15,19 +16,23 @@ steps:
     prerelease: true
   condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
-- ${{ if eq(parameters.platform, 'windows') }}:
+- ${{ if eq(parameters.installer, 'nuget') }}:
+  - task: NuGetToolInstaller@0
+    displayName: 'Use latest available Nuget'
+
   - script: |
       nuget install libpng-msvc14-x64 -ExcludeVersion -OutputDirectory "$(build.BinariesDirectory)"
       echo ##vso[task.setvariable variable=MPLBASEDIRLIST]win32_static;$(build.BinariesDirectory)\libpng-msvc14-x64\build\native
       echo ##vso[task.setvariable variable=LIBDIR]%LIBDIR%;$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\lib_release
       echo ##vso[task.prependpath]$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\bin_release
+    displayName: 'Install dependencies with nuget'
 
-- ${{ if eq(parameters.platform, 'macos') }}:
+- ${{ if eq(parameters.installer, 'brew') }}:
   - script: |
       brew install pkg-config ffmpeg imagemagick mplayer ccache
     displayName: 'Install dependencies with brew'
 
-- ${{ if eq(parameters.platform, 'ubuntu') }}:
+- ${{ if eq(parameters.installer, 'apt') }}:
   - script: |
       sudo apt-add-repository ppa:jonathonf/ffmpeg-3
       sudo apt-get update

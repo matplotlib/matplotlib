@@ -20,6 +20,7 @@ jobs:
     - template: ci/azure-pipelines-steps.yml
       parameters:
         platform: ubuntu
+        installer: apt
 
 - job: 'Windows_Test'
   pool:
@@ -30,15 +31,15 @@ jobs:
         python.version: '3.6'
       Python37:
         python.version: '3.7'
-      # Disabled until a required extension is installed
-      #PythonPreview:
-      #  python.version: 'Pre'
+      PythonPreview:
+        python.version: 'Pre'
     maxParallel: 4
 
   steps:
     - template: ci/azure-pipelines-steps.yml
       parameters:
         platform: windows
+        installer: nuget
 
 - job: 'macOS_Test'
   pool:
@@ -55,3 +56,4 @@ jobs:
     - template: ci/azure-pipelines-steps.yml
       parameters:
         platform: macos
+        installer: brew
