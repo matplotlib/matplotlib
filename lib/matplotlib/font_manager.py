@@ -1191,13 +1191,17 @@ class FontManager(object):
                 continue
             # Matching family should have highest priority, so it is multiplied
             # by 10.0
-            score = \
-                self.score_family(prop.get_family(), font.name) * 10.0 + \
-                self.score_style(prop.get_style(), font.style) + \
-                self.score_variant(prop.get_variant(), font.variant) + \
-                self.score_weight(prop.get_weight(), font.weight) + \
-                self.score_stretch(prop.get_stretch(), font.stretch) + \
-                self.score_size(prop.get_size(), font.size)
+            try:
+                score = \
+                    self.score_family(prop.get_family(), font.name) * 10.0 + \
+                    self.score_style(prop.get_style(), font.style) + \
+                    self.score_variant(prop.get_variant(), font.variant) + \
+                    self.score_weight(prop.get_weight(), font.weight) + \
+                    self.score_stretch(prop.get_stretch(), font.stretch) + \
+                    self.score_size(prop.get_size(), font.size)
+            except KeyError:
+                print('*'*30, font.fname, '*'*30)
+                raise
             if score < best_score:
                 best_score = score
                 best_font = font
