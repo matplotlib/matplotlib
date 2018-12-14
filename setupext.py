@@ -978,9 +978,9 @@ class FreeType(SetupPackage):
                     # If this fails, we can always re-download.
                     pass
 
-            if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
-                raise IOError(
-                    "{} does not match expected hash.".format(tarball))
+        if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
+            raise IOError(
+                "{} does not match expected hash.".format(tarball))
 
         print("Building {}".format(tarball))
         with tarfile.open(tarball_path, "r:gz") as tgz:
