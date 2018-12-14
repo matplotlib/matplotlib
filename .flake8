@@ -252,7 +252,7 @@ per-file-ignores =
     examples/user_interfaces/gtk_spreadsheet_sgskip.py: E402
     examples/user_interfaces/mathtext_wx_sgskip.py: E402, E501
     examples/user_interfaces/mpl_with_glade3_sgskip.py: E402
-    examples/user_interfaces/pylab_with_gtk_sgskip.py: E402, E501
+    examples/user_interfaces/pylab_with_gtk_sgskip.py: E302, E402
     examples/user_interfaces/toolmanager_sgskip.py: E402
     examples/userdemo/custom_boxstyle01.py: E402
     examples/userdemo/pgf_preamble_sgskip.py: E402
