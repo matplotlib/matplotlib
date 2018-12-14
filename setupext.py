@@ -1009,12 +1009,10 @@ set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 """
             import distutils.msvc9compiler as msvc
             # Note: freetype has no build profile for 2014, so we don't bother...
-            vc = 'vc2010'
+            vc = 'vc2014'
             WinXX = 'x64' if platform.architecture()[0] == '64bit' else 'Win32'
             xXX = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
-            vcvarsall = msvc.find_vcvarsall(10.0)
-            if vcvarsall is None:
-                raise RuntimeError('Microsoft VS 2010 required')
+            vcvarsall = msvc.find_vcvarsall(14.0)
             cmdfile = pathlib.Path("build/build_freetype.cmd")
             cmdfile.write_text(FREETYPE_BUILD_CMD.format(
                 vc20xx=vc, WinXX=WinXX, xXX=xXX, vcvarsall=vcvarsall))
