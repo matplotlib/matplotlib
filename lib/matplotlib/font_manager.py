@@ -23,18 +23,22 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
 
+from enum import IntEnum
 from functools import lru_cache
 import json
 import logging
 from numbers import Number
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 try:
     from threading import Timer
 except ImportError:
     from dummy_threading import Timer
+
+import numpy as np
 
 import matplotlib as mpl
 from matplotlib import afm, cbook, ft2font, rcParams
@@ -86,6 +90,61 @@ weight_dict = {
     'extra bold': 800,
     'black':      900,
 }
+
+
+class _Weight(IntEnum):
+    Thin = 0
+    Extralight = Ultralight = 40
+    Light = 50
+    Demilight = Semilight = 55
+    Book = 75
+    Regular = Normal = 80
+    Medium = 100
+    Demibold = Semibold = 180
+    Bold = 200
+    Extrabold = Ultrabold = 205
+    Black = Heavy = 210
+    Extrablack = Ultrablack = 215
+
+    @classmethod
+    def from_opentype(cls, ot_weight):
+        fc_weights = [0, 40, 50, 55, 75, 80, 100, 180, 200, 205, 210, 215]
+        ot_weights = [
+            100, 200, 300, 350, 380, 400, 500, 600, 700, 800, 900, 1000]
+        weight = int(np.interp(ot_weight, ot_weights, fc_weights) + .5)
+        try:
+            return _Weight(weight)
+        except ValueError:
+            return weight
+
+
+_weight_regexes = [
+    ("thin", _Weight.Thin),
+    ("extralight", _Weight.Extralight),
+    ("ultralight", _Weight.Ultralight),
+    ("demilight", _Weight.Demilight),
+    ("semilight", _Weight.Semilight),
+    ("light", _Weight.Light),
+    ("book", _Weight.Book),
+    ("regular", _Weight.Regular),
+    ("normal", _Weight.Normal),
+    ("medium", _Weight.Medium),
+    ("demibold", _Weight.Demibold),
+    ("demi", _Weight.Demibold),
+    ("semibold", _Weight.Semibold),
+    ("extrabold", _Weight.Extrabold),
+    ("superbold", _Weight.Extrabold),
+    ("ultrabold", _Weight.Ultrabold),
+    ("bold", _Weight.Bold),
+    ("ultrablack", _Weight.Ultrablack),
+    ("superblack", _Weight.Extrablack),
+    ("extrablack", _Weight.Extrablack),
+    (r"\bultra", _Weight.Ultrabold),
+    ("black", _Weight.Black),
+    ("heavy", _Weight.Heavy),
+]
+
+
 font_family_aliases = {
     'serif',
     'sans-serif',
@@ -95,6 +154,8 @@ font_family_aliases = {
     'monospace',
     'sans',
 }
+
+
 # OS Font paths
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
@@ -356,14 +417,21 @@ def ttfFontProperty(font):
     #  Styles are: italic, oblique, and normal (default)
 
     sfnt = font.get_sfnt()
+    mac_key = (1,  # platform: macintosh
+               0,  # id: roman
+               0)  # langid: english
+    ms_key = (3,  # platform: microsoft
+              1,  # id: unicode_cs
+              0x0409)  # langid: english_united_states
+
     # These tables are actually mac_roman-encoded, but mac_roman support may be
     # missing in some alternative Python implementations and we are only going
     # to look for ASCII substrings, where any ASCII-compatible encoding works
     # - or big-endian UTF-16, since important Microsoft fonts use that.
-    sfnt2 = (sfnt.get((1, 0,      0, 2), b'').decode('latin-1').lower() or
-             sfnt.get((3, 1, 0x0409, 2), b'').decode('utf_16_be').lower())
-    sfnt4 = (sfnt.get((1, 0,      0, 4), b'').decode('latin-1').lower() or
-             sfnt.get((3, 1, 0x0409, 4), b'').decode('utf_16_be').lower())
+    sfnt2 = (sfnt.get((*mac_key, 2), b'').decode('latin-1').lower() or
+             sfnt.get((*ms_key, 2), b'').decode('utf_16_be').lower())
+    sfnt4 = (sfnt.get((*mac_key, 4), b'').decode('latin-1').lower() or
+             sfnt.get((*ms_key, 4), b'').decode('utf_16_be').lower())
 
     if sfnt4.find('oblique') >= 0:
         style = 'oblique'
@@ -384,10 +452,47 @@ def ttfFontProperty(font):
     else:
         variant = 'normal'
 
-    if font.style_flags & ft2font.BOLD:
-        weight = 700
-    else:
-        weight = next((w for w in weight_dict if w in sfnt4), 400)
+    # The weight-guessing algorithm is directly translated from fontconfig
+    # 2.13.1's FcFreeTypeQueryFaceInternal (fcfreetype.c).
+    wws_subfamily = 22
+    typographic_subfamily = 16
+    font_subfamily = 2
+    styles = [
+        sfnt.get((*mac_key, wws_subfamily), b'').decode('latin-1'),
+        sfnt.get((*mac_key, typographic_subfamily), b'').decode('latin-1'),
+        sfnt.get((*mac_key, font_subfamily), b'').decode('latin-1'),
+        sfnt.get((*ms_key, wws_subfamily), b'').decode('utf-16-be'),
+        sfnt.get((*ms_key, typographic_subfamily), b'').decode('utf-16-be'),
+        sfnt.get((*ms_key, font_subfamily), b'').decode('utf-16-be'),
+    ]
+    styles = [*filter(None, styles)] or [font.style_name]
+
+    def get_weight():
+        # OS/2 table weight.
+        os2 = font.get_sfnt_table("OS/2")
+        if os2 and os2["version"] != 0xffff:
+            return _Weight.from_opentype(os2["usWeightClass"])
+        # PostScript font info weight.
+        try:
+            ps_font_info_weight = (
+                font.get_ps_font_info()["weight"].replace(" ", "") or "")
+        except ValueError:
+            pass
+        else:
+            for regex, weight in _weight_regexes:
+                if re.fullmatch(regex, ps_font_info_weight, re.I):
+                    return weight
+        # Style name weight.
+        for style in styles:
+            style = style.replace(" ", "")
+            for regex, weight in _weight_regexes:
+                if re.search(regex, style, re.I):
+                    return weight
+        if font.style_flags & ft2font.BOLD:
+            return _Weight.BOLD
+        return _Weight.REGULAR
+
+    weight = int(get_weight())
 
     #  Stretch can be absolute and relative
     #  Absolute stretches are: ultra-condensed, extra-condensed, condensed,
