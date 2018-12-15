@@ -3,19 +3,20 @@
 Cursor Demo
 ===========
 
-This example shows how to use matplotlib to provide a data cursor.  It
-uses matplotlib to draw the cursor and may be a slow since this
-requires redrawing the figure with every mouse move.
+This example shows how to use Matplotlib to provide a data cursor.  It uses
+Matplotlib to draw the cursor and may be a slow since this requires redrawing
+the figure with every mouse move.
 
 Faster cursoring is possible using native GUI drawing, as in
-wxcursor_demo.py.
+:doc:`/gallery/user_interfaces/wxcursor_demo_sgskip`.
 
-The mpldatacursor and mplcursors third-party packages can be used to achieve a
-similar effect.  See
+The mpldatacursor__ and mplcursors__ third-party packages can be used to
+achieve a similar effect.
 
-    https://github.com/joferkington/mpldatacursor
-    https://github.com/anntzer/mplcursors
+__ https://github.com/joferkington/mpldatacursor
+__ https://github.com/anntzer/mplcursors
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -39,13 +40,13 @@ class Cursor(object):
         self.ly.set_xdata(x)
 
         self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
-        plt.draw()
+        self.ax.figure.canvas.draw()
 
 
 class SnaptoCursor(object):
     """
-    Like Cursor but the crosshair snaps to the nearest x,y point
-    For simplicity, I'm assuming x is sorted
+    Like Cursor but the crosshair snaps to the nearest x, y point.
+    For simplicity, this assumes that *x* is sorted.
     """
 
     def __init__(self, ax, x, y):
@@ -58,13 +59,11 @@ class SnaptoCursor(object):
         self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
 
     def mouse_move(self, event):
-
         if not event.inaxes:
             return
 
         x, y = event.xdata, event.ydata
-
-        indx = min(np.searchsorted(self.x, [x])[0], len(self.x) - 1)
+        indx = min(np.searchsorted(self.x, x), len(self.x) - 1)
         x = self.x[indx]
         y = self.y[indx]
         # update the line positions
@@ -73,16 +72,20 @@ class SnaptoCursor(object):
 
         self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
         print('x=%1.2f, y=%1.2f' % (x, y))
-        plt.draw()
+        self.ax.figure.canvas.draw()
+
 
 t = np.arange(0.0, 1.0, 0.01)
 s = np.sin(2 * 2 * np.pi * t)
+
 fig, ax = plt.subplots()
-
-# cursor = Cursor(ax)
-cursor = SnaptoCursor(ax, t, s)
-plt.connect('motion_notify_event', cursor.mouse_move)
-
 ax.plot(t, s, 'o')
-plt.axis([0, 1, -1, 1])
+cursor = Cursor(ax)
+fig.canvas.mpl_connect('motion_notify_event', cursor.mouse_move)
+
+fig, ax = plt.subplots()
+ax.plot(t, s, 'o')
+snap_cursor = SnaptoCursor(ax, t, s)
+fig.canvas.mpl_connect('motion_notify_event', snap_cursor.mouse_move)
+
 plt.show()
