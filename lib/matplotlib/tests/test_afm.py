@@ -1,6 +1,7 @@
 from io import BytesIO
 
-import matplotlib.afm as afm
+from matplotlib import afm
+from matplotlib import font_manager as fm
 
 
 AFM_TEST_DATA = b"""StartFontMetrics 2.0
@@ -75,6 +76,12 @@ def test_parse_char_metrics():
 
 def test_get_familyname_guessed():
     fh = BytesIO(AFM_TEST_DATA)
-    fm = afm.AFM(fh)
-    del fm._header[b'FamilyName']  # remove FamilyName, so we have to guess
-    assert fm.get_familyname() == 'My Font'
+    font = afm.AFM(fh)
+    del font._header[b'FamilyName']  # remove FamilyName, so we have to guess
+    assert font.get_familyname() == 'My Font'
+
+
+def test_font_manager_weight_normalization():
+    font = afm.AFM(BytesIO(
+        AFM_TEST_DATA.replace(b"Weight Bold\n", b"Weight Custom\n")))
+    assert fm.afmFontProperty("", font).weight == "normal"

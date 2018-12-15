@@ -398,7 +398,6 @@ def afmFontProperty(fontpath, font):
     -------
     `FontEntry`
         The extracted font properties.
-
     """
 
     name = font.get_familyname()
@@ -422,6 +421,8 @@ def afmFontProperty(fontpath, font):
         variant = 'normal'
 
     weight = font.get_weight().lower()
+    if weight not in weight_dict:
+        weight = 'normal'
 
     #  Stretch can be absolute and relative
     #  Absolute stretches are: ultra-condensed, extra-condensed, condensed,
@@ -935,7 +936,7 @@ class FontManager(object):
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 300
+    __version__ = 310
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
