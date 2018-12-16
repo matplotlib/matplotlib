@@ -13,3 +13,4 @@ ipywidgets
 numpydoc>=0.8
 pillow>=3.4
 sphinx-gallery>=0.2
+sphinx-copybutton

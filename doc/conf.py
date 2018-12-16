@@ -25,8 +25,8 @@ sys.path.append('.')
 # General configuration
 # ---------------------
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
-# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
@@ -45,6 +45,7 @@ extensions = [
     'sphinxext.math_symbol_table',
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
+    'sphinx_copybutton',
 ]
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
