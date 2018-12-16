@@ -1824,12 +1824,12 @@ class MaxNLocator(Locator):
     """
     Select no more than N intervals at nice locations.
     """
-    default_params = dict(nbins=10,
-                          steps=None,
-                          integer=False,
-                          symmetric=False,
-                          prune=None,
-                          min_n_ticks=2)
+    _default_params = dict(nbins=10,
+                           steps=None,
+                           integer=False,
+                           symmetric=False,
+                           prune=None,
+                           min_n_ticks=2)
 
     def __init__(self, *args, **kwargs):
         """
@@ -1840,7 +1840,7 @@ class MaxNLocator(Locator):
             ticks.  If the string `'auto'`, the number of bins will be
             automatically determined based on the length of the axis.
 
-        steps: array-like, optional
+        steps : array-like, optional
             Sequence of nice numbers starting with 1 and ending with 10;
             e.g., [1, 2, 4, 5, 10], where the values are acceptable
             tick multiples.  i.e. for the example, 20, 40, 60 would be
@@ -1871,12 +1871,17 @@ class MaxNLocator(Locator):
 
         """
         if args:
+            if 'nbins' in kwargs:
+                cbook.deprecated("3.1",
+                                 message='Calling MaxNLocator with positional '
+                                         'and keyword parameter *nbins* is '
+                                         'considered an error and will fail '
+                                         'in future versions of matplotlib.')
             kwargs['nbins'] = args[0]
             if len(args) > 1:
                 raise ValueError(
                     "Keywords are required for all arguments except 'nbins'")
-        self.set_params(**self.default_params)
-        self.set_params(**kwargs)
+        self.set_params(**{**self._default_params, **kwargs})
 
     @staticmethod
     def _validate_steps(steps):
@@ -1893,6 +1898,16 @@ class MaxNLocator(Locator):
             steps = np.hstack((steps, 10))
         return steps
 
+    @cbook.deprecated("3.1")
+    @property
+    def default_params(self):
+        return self._default_params
+
+    @cbook.deprecated("3.1")
+    @default_params.setter
+    def default_params(self, params):
+        self._default_params = params
+
     @staticmethod
     def _staircase(steps):
         # Make an extended staircase within which the needed
@@ -1902,30 +1917,52 @@ class MaxNLocator(Locator):
         return np.hstack(flights)
 
     def set_params(self, **kwargs):
-        """Set parameters within this locator."""
+        """
+        Set parameters for this locator.
+
+        Parameters
+        ----------
+        nbins : int or 'auto', optional
+            see `.MaxNLocator`
+        steps : array-like, optional
+            see `.MaxNLocator`
+        integer : bool, optional
+            see `.MaxNLocator`
+        symmetric : bool, optional
+            see `.MaxNLocator`
+        prune : {'lower', 'upper', 'both', None}, optional
+            see `.MaxNLocator`
+        min_n_ticks : int, optional
+            see `.MaxNLocator`
+        """
         if 'nbins' in kwargs:
-            self._nbins = kwargs['nbins']
+            self._nbins = kwargs.pop('nbins')
             if self._nbins != 'auto':
                 self._nbins = int(self._nbins)
         if 'symmetric' in kwargs:
-            self._symmetric = kwargs['symmetric']
+            self._symmetric = kwargs.pop('symmetric')
         if 'prune' in kwargs:
-            prune = kwargs['prune']
+            prune = kwargs.pop('prune')
             if prune is not None and prune not in ['upper', 'lower', 'both']:
                 raise ValueError(
                     "prune must be 'upper', 'lower', 'both', or None")
             self._prune = prune
         if 'min_n_ticks' in kwargs:
-            self._min_n_ticks = max(1, kwargs['min_n_ticks'])
+            self._min_n_ticks = max(1, kwargs.pop('min_n_ticks'))
         if 'steps' in kwargs:
-            steps = kwargs['steps']
+            steps = kwargs.pop('steps')
             if steps is None:
                 self._steps = np.array([1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10])
             else:
                 self._steps = self._validate_steps(steps)
             self._extended_steps = self._staircase(self._steps)
         if 'integer' in kwargs:
-            self._integer = kwargs['integer']
+            self._integer = kwargs.pop('integer')
+        if kwargs:
+            key, _ = kwargs.popitem()
+            cbook.warn_deprecated("3.1",
+                                  message="MaxNLocator.set_params got an "
+                                          f"unexpected parameter: {key}")
 
     def _raw_ticks(self, vmin, vmax):
         """
