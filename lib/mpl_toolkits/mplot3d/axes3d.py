@@ -2319,7 +2319,7 @@ class Axes3D(Axes):
         Keyword arguments are passed on to
         :func:`~matplotlib.axes.Axes.scatter`.
 
-        Returns a :class:`~mpl_toolkits.mplot3d.art3d.Patch3DCollection`
+        Returns a :class:`~mpl_toolkits.mplot3d.art3d.Path3DCollection`
         '''
 
         had_data = self.has_data()
@@ -2339,7 +2339,7 @@ class Axes3D(Axes):
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
 
-        #FIXME: why is this necessary?
+        # FIXME: why is this necessary?
         if not is_2d:
             self.auto_scale_xyz(xs, ys, zs, had_data)
 
