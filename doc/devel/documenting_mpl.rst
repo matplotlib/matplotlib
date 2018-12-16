@@ -47,15 +47,10 @@ Installing dependencies
 The documentation for Matplotlib is generated from reStructuredText (ReST_)
 using the Sphinx_ documentation generation tool. There are several extra
 requirements that are needed to build the documentation. They are listed in
-:file:`doc-requirements.txt` and listed below:
+:file:`doc-requirements.txt`, which is shown below:
 
-* Sphinx>=1.3, !=1.5.0, !=1.6.4, !=1.7.3
-* colorspacious
-* IPython
-* numpydoc>=0.8
-* Pillow>=3.4
-* sphinx-gallery>=0.2
-* graphviz
+.. include:: ../../doc-requirements.txt
+   :literal:
 
 .. note::
 
