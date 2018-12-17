@@ -174,7 +174,10 @@ class TaggedValue(metaclass=TaggedValueMeta):
     def convert_to(self, unit):
         if unit == self.unit or not unit:
             return self
-        new_value = self.unit.convert_value_to(self.value, unit)
+        try:
+            new_value = self.unit.convert_value_to(self.value, unit)
+        except AttributeError:
+            new_value = self
         return TaggedValue(new_value, unit)
 
     def get_value(self):
@@ -345,7 +348,20 @@ class BasicUnitConverter(units.ConversionInterface):
         if units.ConversionInterface.is_numlike(val):
             return val
         if np.iterable(val):
-            return [thisval.convert_to(unit).get_value() for thisval in val]
+            if isinstance(val, np.ma.MaskedArray):
+                val = val.astype(float).filled(np.nan)
+            out = np.empty(len(val))
+            for i, thisval in enumerate(val):
+                if np.ma.is_masked(thisval):
+                    out[i] = np.nan
+                else:
+                    try:
+                        out[i] = thisval.convert_to(unit).get_value()
+                    except AttributeError:
+                        out[i] = thisval
+            return out
+        if np.ma.is_masked(val):
+            return np.nan
         else:
             return val.convert_to(unit).get_value()
 

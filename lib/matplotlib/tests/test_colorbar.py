@@ -197,9 +197,8 @@ def test_colorbar_single_scatter():
     # the norm scaling within the colorbar must ensure a
     # finite range, otherwise a zero denominator will occur in _locate.
     plt.figure()
-    x = np.arange(4)
-    y = x.copy()
-    z = np.ma.masked_greater(np.arange(50, 54), 50)
+    x = y = [0]
+    z = [50]
     cmap = plt.get_cmap('jet', 16)
     cs = plt.scatter(x, y, z, c=z, cmap=cmap)
     plt.colorbar(cs)

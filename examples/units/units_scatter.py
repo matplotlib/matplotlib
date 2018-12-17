@@ -27,9 +27,8 @@ ax1.axis([0, 10, 0, 10])
 ax2.scatter(xsecs, xsecs, yunits=hertz)
 ax2.axis([0, 10, 0, 1])
 
-ax3.scatter(xsecs, xsecs, yunits=hertz)
-ax3.yaxis.set_units(minutes)
-ax3.axis([0, 10, 0, 1])
+ax3.scatter(xsecs, xsecs, yunits=minutes)
+ax3.axis([0, 10, 0, 0.2])
 
 fig.tight_layout()
 plt.show()
