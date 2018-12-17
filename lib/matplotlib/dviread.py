@@ -24,12 +24,11 @@ import logging
 import os
 import re
 import struct
-import subprocess
 import textwrap
 
 import numpy as np
 
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -531,8 +530,10 @@ class DviFont(object):
         if not isinstance(texname, bytes):
             raise ValueError("texname must be a bytestring, got %s"
                              % type(texname))
-        self._scale, self._tfm, self.texname, self._vf = \
-            scale, tfm, texname, vf
+        self._scale = scale
+        self._tfm = tfm
+        self.texname = texname
+        self._vf = vf
         self.size = scale * (72.0 / (72.27 * 2**16))
         try:
             nchars = max(tfm.width) + 1
@@ -542,17 +543,17 @@ class DviFont(object):
                        for char in range(nchars)]
 
     def __eq__(self, other):
-        return self.__class__ == other.__class__ and \
-            self.texname == other.texname and self.size == other.size
+        return (type(self) == type(other)
+                and self.texname == other.texname and self.size == other.size)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def _width_of(self, char):
-        """
-        Width of char in dvi units. For internal use by dviread.py.
-        """
+    def __repr__(self):
+        return "<{}: {}>".format(type(self).__name__, self.texname)
 
+    def _width_of(self, char):
+        """Width of char in dvi units."""
         width = self._tfm.width.get(char, None)
         if width is not None:
             return _mul2012(width, self._scale)
@@ -560,10 +561,7 @@ class DviFont(object):
         return 0
 
     def _height_depth_of(self, char):
-        """
-        Height and depth of char in dvi units. For internal use by dviread.py.
-        """
-
+        """Height and depth of char in dvi units."""
         result = []
         for metric, name in ((self._tfm.height, "height"),
                              (self._tfm.depth, "depth")):
@@ -578,8 +576,8 @@ class DviFont(object):
 
 
 class Vf(Dvi):
-    """
-    A virtual font (\\*.vf file) containing subroutines for dvi files.
+    r"""
+    A virtual font (\*.vf file) containing subroutines for dvi files.
 
     Usage::
 
@@ -589,12 +587,10 @@ class Vf(Dvi):
 
     Parameters
     ----------
-
     filename : string or bytestring
 
     Notes
     -----
-
     The virtual font format is a derivative of dvi:
     http://mirrors.ctan.org/info/knuth/virtual-fonts
     This class reuses some of the machinery of `Dvi`
@@ -690,9 +686,7 @@ class Vf(Dvi):
 
 
 def _fix2comp(num):
-    """
-    Convert from two's complement to negative.
-    """
+    """Convert from two's complement to negative."""
     assert 0 <= num < 2**32
     if num & 2**31:
         return num - 2**32
@@ -701,9 +695,7 @@ def _fix2comp(num):
 
 
 def _mul2012(num1, num2):
-    """
-    Multiply two numbers in 20.12 fixed point format.
-    """
+    """Multiply two numbers in 20.12 fixed point format."""
     # Separated into a function because >> has surprising precedence
     return (num1*num2) >> 20
 
@@ -932,8 +924,8 @@ class PsfontsMap(object):
 
 
 class Encoding(object):
-    """
-    Parses a \\*.enc file referenced from a psfonts.map style file.
+    r"""
+    Parses a \*.enc file referenced from a psfonts.map style file.
     The format this class understands is a very limited subset of
     PostScript.
 
@@ -990,6 +982,8 @@ def find_tex_file(filename, format=None):
     kpathsea. It is also available as part of MikTeX, a popular
     distribution on Windows.
 
+    *If the file is not found, an empty string is returned*.
+
     Parameters
     ----------
     filename : string or bytestring
@@ -1011,15 +1005,26 @@ def find_tex_file(filename, format=None):
     if isinstance(format, bytes):
         format = format.decode('utf-8', errors='replace')
 
+    if os.name == 'nt':
+        # On Windows only, kpathsea can use utf-8 for cmd args and output.
+        # The `command_line_encoding` environment variable is set to force it
+        # to always use utf-8 encoding. See mpl issue #11848 for more info.
+        kwargs = dict(env=dict(os.environ, command_line_encoding='utf-8'))
+    else:
+        kwargs = {}
+
     cmd = ['kpsewhich']
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
-    _log.debug('find_tex_file(%s): %s', filename, cmd)
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    result = pipe.communicate()[0].rstrip()
-    _log.debug('find_tex_file result: %s', result)
-    return result.decode('ascii')
+    try:
+        result = cbook._check_and_log_subprocess(cmd, _log, **kwargs)
+    except RuntimeError:
+        return ''
+    if os.name == 'nt':
+        return result.decode('utf-8').rstrip('\r\n')
+    else:
+        return os.fsdecode(result).rstrip('\n')
 
 
 @lru_cache()
@@ -1033,21 +1038,24 @@ _vffile = partial(_fontfile, Vf, ".vf")
 
 
 if __name__ == '__main__':
-    import sys
-    fname = sys.argv[1]
-    try:
-        dpi = float(sys.argv[2])
-    except IndexError:
-        dpi = None
-    with Dvi(fname, dpi) as dvi:
+    from argparse import ArgumentParser
+    import itertools
+
+    parser = ArgumentParser()
+    parser.add_argument("filename")
+    parser.add_argument("dpi", nargs="?", type=float, default=None)
+    args = parser.parse_args()
+    with Dvi(args.filename, args.dpi) as dvi:
         fontmap = PsfontsMap(find_tex_file('pdftex.map'))
         for page in dvi:
             print('=== new page ===')
-            fPrev = None
-            for x, y, f, c, w in page.text:
-                if f != fPrev:
-                    print('font', f.texname, 'scaled', f._scale/pow(2.0, 20))
-                    fPrev = f
-                print(x, y, c, 32 <= c < 128 and chr(c) or '.', w)
+            for font, group in itertools.groupby(
+                    page.text, lambda text: text.font):
+                print('font', font.texname, 'scaled', font._scale / 2 ** 20)
+                for text in group:
+                    print(text.x, text.y, text.glyph,
+                          chr(text.glyph) if chr(text.glyph).isprintable()
+                          else ".",
+                          text.width)
             for x, y, w, h in page.boxes:
                 print(x, y, 'BOX', w, h)

@@ -49,7 +49,6 @@ with the imperative-style approach:
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import numpy as np
 
 ###############################################################################
 # .. _importing_data:

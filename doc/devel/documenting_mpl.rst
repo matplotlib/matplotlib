@@ -52,9 +52,9 @@ requirements that are needed to build the documentation. They are listed in
 * Sphinx>=1.3, !=1.5.0, !=1.6.4, !=1.7.3
 * colorspacious
 * IPython
-* numpydoc>=0.4
-* Pillow
-* sphinx-gallery>=0.1.13
+* numpydoc>=0.8
+* Pillow>=3.4
+* sphinx-gallery>=0.2
 * graphviz
 
 .. note::
@@ -408,7 +408,7 @@ Quotes for strings
 Matplotlib does not have a convention whether to use single-quotes or
 double-quotes.  There is a mixture of both in the current code.
 
-Use simple single or double quotes when giving string values, e.g.:: rst
+Use simple single or double quotes when giving string values, e.g.
 
 .. code-block:: rst
 
@@ -425,6 +425,8 @@ Generally, the `numpydoc docstring guide`_ conventions apply. The following
 rules expand on them where the numpydoc conventions are not specific.
 
 Use ``float`` for a type that can be any number.
+
+Use ``(float, float)`` to describe a 2D position.
 
 Use ``array-like`` for homogeneous numeric sequences, which could
 typically be a numpy.array. Dimensionality may be specified using ``2D``,
@@ -629,6 +631,29 @@ we can't modify the ``Patch.__init__.__doc__`` docstring outside the class
 definition.  There are some some manual hacks in this case, violating the
 "single entry point" requirement above -- see the ``docstring.interpd.update``
 calls in `matplotlib.patches`.
+
+
+Inheriting docstrings
+---------------------
+
+If a subclass overrides a method but does not change the semantics, we can
+reuse the parent docstring for the method of the child class. Python does this
+automatically, if the subclass method does not have a docstring.
+
+Use a plain comment `# docstring inherited` to denote the intention to reuse
+the parent docstring. That way we do not accidentially create a docstring in
+the future::
+
+    class A:
+        def foo():
+            """The parent docstring."""
+            pass
+
+    class B(A):
+        def foo():
+            # docstring inherited
+            pass
+
 
 .. _docstring-adding-figures:
 

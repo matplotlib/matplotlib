@@ -1,0 +1,5 @@
+The image comparison test decorators now skip (rather than xfail) the test for uncomparable formats
+```````````````````````````````````````````````````````````````````````````````````````````````````
+
+The affected decorators are `~.image_comparison` and `~.check_figures_equal`.
+The deprecated `~.ImageComparisonTest` class is likewise changed.

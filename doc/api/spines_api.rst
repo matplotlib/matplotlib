@@ -1,10 +1,6 @@
-******
-spines
-******
-
-
-:mod:`matplotlib.spines`
-========================
+*********************
+``matplotlib.spines``
+*********************
 
 .. automodule:: matplotlib.spines
    :members:

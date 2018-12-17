@@ -19,6 +19,7 @@ objects and Matplotlib dates:
 .. autosummary::
    :nosignatures:
 
+   datestr2num
    date2num
    num2date
    num2timedelta
@@ -155,8 +156,8 @@ import matplotlib.units as units
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
-__all__ = ('date2num', 'num2date', 'num2timedelta', 'drange', 'epoch2num',
-           'num2epoch', 'mx2num', 'DateFormatter',
+__all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
+           'epoch2num', 'num2epoch', 'mx2num', 'DateFormatter',
            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
            'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
@@ -253,10 +254,8 @@ def _dt64_to_ordinalf(d):
 
     # the "extra" ensures that we at least allow the dynamic range out to
     # seconds.  That should get out to +/-2e11 years.
-    # NOTE: First cast truncates; second cast back is for NumPy 1.10.
-    extra = d - d.astype('datetime64[s]').astype(d.dtype)
-    extra = extra.astype('timedelta64[ns]')
-    t0 = np.datetime64('0001-01-01T00:00:00').astype('datetime64[s]')
+    extra = (d - d.astype('datetime64[s]')).astype('timedelta64[ns]')
+    t0 = np.datetime64('0001-01-01T00:00:00', 's')
     dt = (d.astype('datetime64[s]') - t0).astype(np.float64)
     dt += extra.astype(np.float64) / 1.0e9
     dt = dt / SEC_PER_DAY + 1.0
@@ -405,18 +404,19 @@ def date2num(d):
     Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
-
     if hasattr(d, "values"):
         # this unpacks pandas series or dataframes...
         d = d.values
-
-    if ((isinstance(d, np.ndarray) and np.issubdtype(d.dtype, np.datetime64))
-            or isinstance(d, np.datetime64)):
-        return _dt64_to_ordinalf(d)
     if not np.iterable(d):
+        if (isinstance(d, np.datetime64) or (isinstance(d, np.ndarray) and
+                np.issubdtype(d.dtype, np.datetime64))):
+            return _dt64_to_ordinalf(d)
         return _to_ordinalf(d)
+
     else:
         d = np.asarray(d)
+        if np.issubdtype(d.dtype, np.datetime64):
+            return _dt64_to_ordinalf(d)
         if not d.size:
             return d
         return _to_ordinalf_np_vectorized(d)
@@ -819,8 +819,14 @@ class AutoDateFormatter(ticker.Formatter):
                        1. / (MUSECONDS_PER_DAY):
                            rcParams['date.autoformatter.microsecond']}
 
+    def _set_locator(self, locator):
+        self._locator = locator
+
     def __call__(self, x, pos=None):
-        locator_unit_scale = float(self._locator._get_unit())
+        try:
+            locator_unit_scale = float(self._locator._get_unit())
+        except AttributeError:
+            locator_unit_scale = 1
         # Pick the first scale which is greater than the locator unit.
         fmt = next((fmt for scale, fmt in sorted(self.scaled.items())
                     if scale >= locator_unit_scale),
@@ -1310,11 +1316,13 @@ class AutoDateLocator(DateLocator):
             else:
                 # We went through the whole loop without breaking, default to
                 # the last interval in the list and raise a warning
-                warnings.warn('AutoDateLocator was unable to pick an '
-                              'appropriate interval for this date range. '
-                              'It may be necessary to add an interval value '
-                              "to the AutoDateLocator's intervald dictionary."
-                              ' Defaulting to {0}.'.format(interval))
+                cbook._warn_external('AutoDateLocator was unable to pick an '
+                                     'appropriate interval for this date '
+                                     'range. It may be necessary to add an '
+                                     'interval value to the '
+                                     'AutoDateLocator\'s intervald '
+                                     'dictionary. Defaulting to {0}.'
+                                     .format(interval))
 
             # Set some parameters as appropriate
             self._freq = freq
@@ -1348,10 +1356,9 @@ class AutoDateLocator(DateLocator):
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
             if dmin.year > 20 and interval < 1000:
-                _log.warn('Plotting microsecond time intervals is not'
-                          ' well supported. Please see the'
-                          ' MicrosecondLocator documentation'
-                          ' for details.')
+                _log.warning('Plotting microsecond time intervals is not well '
+                             'supported. Please see the MicrosecondLocator '
+                             'documentation for details.')
 
         locator.set_axis(self.axis)
 
@@ -1729,6 +1736,7 @@ def date_ticker_factory(span, tz=None, numticks=5):
     return locator, formatter
 
 
+@cbook.deprecated("3.1")
 def seconds(s):
     """
     Return seconds as days.
@@ -1736,6 +1744,7 @@ def seconds(s):
     return s / SEC_PER_DAY
 
 
+@cbook.deprecated("3.1")
 def minutes(m):
     """
     Return minutes as days.
@@ -1743,6 +1752,7 @@ def minutes(m):
     return m / MINUTES_PER_DAY
 
 
+@cbook.deprecated("3.1")
 def hours(h):
     """
     Return hours as days.
@@ -1750,6 +1760,7 @@ def hours(h):
     return h / HOURS_PER_DAY
 
 
+@cbook.deprecated("3.1")
 def weeks(w):
     """
     Return weeks as days.

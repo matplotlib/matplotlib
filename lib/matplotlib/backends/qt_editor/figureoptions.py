@@ -10,8 +10,8 @@ import re
 
 import matplotlib
 from matplotlib import cm, colors as mcolors, markers, image as mimage
-import matplotlib.backends.qt_editor.formlayout as formlayout
 from matplotlib.backends.qt_compat import QtGui
+from matplotlib.backends.qt_editor import _formlayout
 
 
 def get_icon(name):
@@ -137,39 +137,43 @@ def figure_edit(axes, parent=None):
     # Is there a curve displayed?
     has_curve = bool(curves)
 
-    # Get / Images
-    imagedict = {}
-    for image in axes.get_images():
-        label = image.get_label()
-        if label == '_nolegend_':
+    # Get ScalarMappables.
+    mappabledict = {}
+    for mappable in [*axes.images, *axes.collections]:
+        label = mappable.get_label()
+        if label == '_nolegend_' or mappable.get_array() is None:
             continue
-        imagedict[label] = image
-    imagelabels = sorted(imagedict, key=cmp_key)
-    images = []
+        mappabledict[label] = mappable
+    mappablelabels = sorted(mappabledict, key=cmp_key)
+    mappables = []
     cmaps = [(cmap, name) for name, cmap in sorted(cm.cmap_d.items())]
-    for label in imagelabels:
-        image = imagedict[label]
-        cmap = image.get_cmap()
+    for label in mappablelabels:
+        mappable = mappabledict[label]
+        cmap = mappable.get_cmap()
         if cmap not in cm.cmap_d.values():
-            cmaps = [(cmap, cmap.name)] + cmaps
-        low, high = image.get_clim()
-        imagedata = [
+            cmaps = [(cmap, cmap.name), *cmaps]
+        low, high = mappable.get_clim()
+        mappabledata = [
             ('Label', label),
             ('Colormap', [cmap.name] + cmaps),
             ('Min. value', low),
             ('Max. value', high),
-            ('Interpolation',
-             [image.get_interpolation()]
-             + [(name, name) for name in sorted(mimage.interpolations_names)])]
-        images.append([imagedata, label, ""])
-    # Is there an image displayed?
-    has_image = bool(images)
+        ]
+        if hasattr(mappable, "get_interpolation"):  # Images.
+            interpolations = [
+                (name, name) for name in sorted(mimage.interpolations_names)]
+            mappabledata.append((
+                'Interpolation',
+                [mappable.get_interpolation(), *interpolations]))
+        mappables.append([mappabledata, label, ""])
+    # Is there a scalarmappable displayed?
+    has_sm = bool(mappables)
 
     datalist = [(general, "Axes", "")]
     if curves:
         datalist.append((curves, "Curves", ""))
-    if images:
-        datalist.append((images, "Images", ""))
+    if mappables:
+        datalist.append((mappables, "Images, etc.", ""))
 
     def apply_callback(data):
         """This function will be called to apply changes"""
@@ -178,7 +182,7 @@ def figure_edit(axes, parent=None):
 
         general = data.pop(0)
         curves = data.pop(0) if has_curve else []
-        images = data.pop(0) if has_image else []
+        mappables = data.pop(0) if has_sm else []
         if data:
             raise ValueError("Unexpected field")
 
@@ -217,20 +221,23 @@ def figure_edit(axes, parent=None):
             rgba = mcolors.to_rgba(color)
             line.set_alpha(None)
             line.set_color(rgba)
-            if marker is not 'none':
+            if marker != 'none':
                 line.set_marker(marker)
                 line.set_markersize(markersize)
                 line.set_markerfacecolor(markerfacecolor)
                 line.set_markeredgecolor(markeredgecolor)
 
-        # Set / Images
-        for index, image_settings in enumerate(images):
-            image = imagedict[imagelabels[index]]
-            label, cmap, low, high, interpolation = image_settings
-            image.set_label(label)
-            image.set_cmap(cm.get_cmap(cmap))
-            image.set_clim(*sorted([low, high]))
-            image.set_interpolation(interpolation)
+        # Set ScalarMappables.
+        for index, mappable_settings in enumerate(mappables):
+            mappable = mappabledict[mappablelabels[index]]
+            if len(mappable_settings) == 5:
+                label, cmap, low, high, interpolation = mappable_settings
+                mappable.set_interpolation(interpolation)
+            elif len(mappable_settings) == 4:
+                label, cmap, low, high = mappable_settings
+            mappable.set_label(label)
+            mappable.set_cmap(cm.get_cmap(cmap))
+            mappable.set_clim(*sorted([low, high]))
 
         # re-generate legend, if checkbox is checked
         if generate_legend:
@@ -250,8 +257,8 @@ def figure_edit(axes, parent=None):
         if not (axes.get_xlim() == orig_xlim and axes.get_ylim() == orig_ylim):
             figure.canvas.toolbar.push_current()
 
-    data = formlayout.fedit(datalist, title="Figure options", parent=parent,
-                            icon=get_icon('qt4_editor_options.svg'),
-                            apply=apply_callback)
+    data = _formlayout.fedit(datalist, title="Figure options", parent=parent,
+                             icon=get_icon('qt4_editor_options.svg'),
+                             apply=apply_callback)
     if data is not None:
         apply_callback(data)

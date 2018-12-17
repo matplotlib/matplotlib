@@ -18,9 +18,9 @@ Matplotlib recognizes the following formats to specify a color:
   'tab:red', 'tab:purple', 'tab:brown', 'tab:pink',
   'tab:gray', 'tab:olive', 'tab:cyan'}`` which are the Tableau Colors from the
   'T10' categorical palette (which is the default color cycle);
-* a "CN" color spec, i.e. `'C'` followed by a single digit, which is an index
-  into the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``);
-  the indexing occurs at artist creation time and defaults to black if the
+* a "CN" color spec, i.e. `'C'` followed by a number, which is an index into
+  the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``); the
+  indexing is intended to occur at rendering time, and defaults to black if the
   cycle does not include color.
 
 "Red", "Green" and "Blue", are the intensities of those colors, the combination
@@ -76,6 +76,8 @@ demo('seaborn')
 # will use the first color for the title and then plot using the second
 # and third colors of each style's ``mpl.rcParams['axes.prop_cycle']``.
 #
+#
+# .. _xkcd-colors:
 #
 # xkcd v X11/CSS4
 # ---------------

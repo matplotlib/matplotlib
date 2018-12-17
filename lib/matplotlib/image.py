@@ -9,7 +9,6 @@ import os
 import logging
 import urllib.parse
 import urllib.request
-import warnings
 
 import numpy as np
 
@@ -338,7 +337,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         if not unsampled:
             if A.ndim not in (2, 3):
-                raise ValueError("Invalid dimensions, got {}".format(A.shape))
+                raise ValueError("Invalid shape {} for image data"
+                                 .format(A.shape))
 
             if A.ndim == 2:
                 # if we are a 2D array, then we are running through the
@@ -363,9 +363,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # Cast to float64
                     if A.dtype not in (np.float32, np.float16):
                         if A.dtype != np.float64:
-                            warnings.warn(
-                                "Casting input data from '{0}' to 'float64'"
-                                "for imshow".format(A.dtype))
+                            cbook._warn_external("Casting input data from "
+                                                 "'{0}' to 'float64' for "
+                                                 "imshow".format(A.dtype))
                         scaled_dtype = np.float64
                 else:
                     # probably an integer of some type.
@@ -410,9 +410,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
                 A_scaled -= a_min
                 # a_min and a_max might be ndarray subclasses so use
-                # asscalar to avoid errors
-                a_min = np.asscalar(a_min.astype(scaled_dtype))
-                a_max = np.asscalar(a_max.astype(scaled_dtype))
+                # item to avoid errors
+                a_min = a_min.astype(scaled_dtype).item()
+                a_max = a_max.astype(scaled_dtype).item()
 
                 if a_min != a_max:
                     A_scaled /= ((a_max - a_min) / 0.8)
@@ -482,7 +482,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
                 elif A.shape[2] != 4:
-                    raise ValueError("Invalid dimensions, got %s" % (A.shape,))
+                    raise ValueError("Invalid shape {} for image data"
+                                     .format(A.shape))
 
                 output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
 
@@ -638,11 +639,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         if (self._A.dtype != np.uint8 and
                 not np.can_cast(self._A.dtype, float, "same_kind")):
-            raise TypeError("Image data cannot be converted to float")
+            raise TypeError("Image data of dtype {} cannot be converted to "
+                            "float".format(self._A.dtype))
 
         if not (self._A.ndim == 2
                 or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
-            raise TypeError("Invalid dimensions for image data")
+            raise TypeError("Invalid shape {} for image data"
+                            .format(self._A.shape))
 
         if self._A.ndim == 3:
             # If the input data has values outside the valid range (after
@@ -877,7 +880,14 @@ class AxesImage(_ImageBase):
                 return (-0.5, numcols-0.5, -0.5, numrows-0.5)
 
     def get_cursor_data(self, event):
-        """Get the cursor data for a given event"""
+        """
+        Return the image value at the event position or *None* if the event is
+        outside the image.
+
+        See Also
+        --------
+        matplotlib.artist.Artist.get_cursor_data
+        """
         xmin, xmax, ymin, ymax = self.get_extent()
         if self.origin == 'upper':
             ymin, ymax = ymax, ymin
@@ -895,6 +905,15 @@ class AxesImage(_ImageBase):
             return None
         else:
             return arr[i, j]
+
+    def format_cursor_data(self, data):
+        if self.colorbar:
+            return ("["
+                    + cbook.strip_math(self.colorbar.formatter(data))
+                    + cbook.strip_math(self.colorbar.formatter.get_offset())
+                    + "]")
+        else:
+            return super().format_cursor_data(data)
 
 
 class NonUniformImage(AxesImage):
@@ -1138,7 +1157,7 @@ class PcolorImage(AxesImage):
         raise NotImplementedError('Method not supported')
 
     def get_cursor_data(self, event):
-        """Get the cursor data for a given event"""
+        # docstring inherited
         x, y = event.xdata, event.ydata
         if (x < self._Ax[0] or x > self._Ax[-1] or
                 y < self._Ay[0] or y > self._Ay[-1]):
@@ -1415,7 +1434,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     """
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from matplotlib.figure import Figure
-    if isinstance(fname, getattr(os, "PathLike", ())):
+    if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if (format == 'png'
         or (format is None
@@ -1456,9 +1475,9 @@ def pil_to_array(pilImage):
         # return MxN luminance array of uint16
         raw = pilImage.tobytes('raw', pilImage.mode)
         if pilImage.mode.endswith('B'):
-            x = np.fromstring(raw, '>u2')
+            x = np.frombuffer(raw, '>u2')
         else:
-            x = np.fromstring(raw, '<u2')
+            x = np.frombuffer(raw, '<u2')
         return x.reshape(pilImage.size[::-1]).astype('=u2')
     else:  # try to convert to an rgba image
         try:

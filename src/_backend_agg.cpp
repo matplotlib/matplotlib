@@ -201,7 +201,7 @@ agg::rect_i RendererAgg::get_content_extents()
         }
     }
 
-    if (r.x1 == width && r.x2 == 0) {
+    if (r.x1 == (int)width && r.x2 == 0) {
       // The buffer is completely empty.
       r.x1 = r.y1 = r.x2 = r.y2 = 0;
     } else {

@@ -20,7 +20,7 @@ i.e., this is dpi-scaled value).
 This module includes definition of several legend handler classes
 derived from the base class (HandlerBase) with the following method::
 
-    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
+    def legend_artist(self, legend, orig_handle, fontsize, handlebox)
 
 """
 
@@ -606,10 +606,8 @@ class HandlerStem(HandlerNpointsYoffsets):
         leg_markerline = Line2D(xdata_marker, ydata[:len(xdata_marker)])
         self.update_prop(leg_markerline, markerline, legend)
 
-        leg_stemlines = []
-        for thisx, thisy in zip(xdata_marker, ydata):
-            l = Line2D([thisx, thisx], [bottom, thisy])
-            leg_stemlines.append(l)
+        leg_stemlines = [Line2D([x, x], [bottom, y])
+                         for x, y in zip(xdata_marker, ydata)]
 
         for lm, m in zip(leg_stemlines, stemlines):
             self.update_prop(lm, m, legend)

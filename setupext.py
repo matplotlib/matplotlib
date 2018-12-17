@@ -5,7 +5,7 @@ from distutils.core import Extension
 import glob
 import hashlib
 import importlib
-import multiprocessing
+import logging
 import os
 import pathlib
 import platform
@@ -15,10 +15,11 @@ import sys
 import tarfile
 import textwrap
 import urllib.request
-import warnings
 
 import setuptools
 import versioneer
+
+_log = logging.getLogger(__name__)
 
 
 def _get_xdg_cache_dir():
@@ -166,18 +167,18 @@ def is_min_version(found, minversion):
 # Define the display functions only if display_status is True.
 if options['display_status']:
     def print_line(char='='):
-        print(char * 76)
+        print(char * 79)
 
     def print_status(package, status):
-        initial_indent = "%22s: " % package
+        initial_indent = "%18s: " % package
         indent = ' ' * 24
-        print(textwrap.fill(str(status), width=76,
+        print(textwrap.fill(str(status), width=79,
                             initial_indent=initial_indent,
                             subsequent_indent=indent))
 
     def print_message(message):
         indent = ' ' * 24 + "* "
-        print(textwrap.fill(str(message), width=76,
+        print(textwrap.fill(str(message), width=79,
                             initial_indent=indent,
                             subsequent_indent=indent))
 
@@ -436,10 +437,6 @@ class SetupPackage(object):
                     "pkg-config information for '%s' could not be found." %
                     package)
 
-        if min_version == 'PATCH':
-            raise CheckFailed(
-                "Requires patches that have not been merged upstream.")
-
         if min_version and version != 'unknown':
             if not is_min_version(version, min_version):
                 raise CheckFailed(
@@ -609,6 +606,12 @@ Make sure you have pip >= 9.0.1.
         return sys.version
 
 
+def _pkg_data_helper(pkg, subdir):
+    """Glob "lib/$pkg/$subdir/**/*", returning paths relative to "lib/$pkg"."""
+    base = pathlib.Path("lib", pkg)
+    return [str(path.relative_to(base)) for path in (base / subdir).rglob("*")]
+
+
 class Matplotlib(SetupPackage):
     name = "matplotlib"
 
@@ -616,30 +619,24 @@ class Matplotlib(SetupPackage):
         return versioneer.get_version()
 
     def get_packages(self):
-        return setuptools.find_packages(
-            "lib",
-            include=["matplotlib", "matplotlib.*"],
-            exclude=["matplotlib.tests", "matplotlib.*.tests"])
+        return setuptools.find_packages("lib", exclude=["*.tests"])
+
+    def get_namespace_packages(self):
+        return ['mpl_toolkits']
 
     def get_py_modules(self):
         return ['pylab']
 
     def get_package_data(self):
-
-        def iter_dir(base):
-            return [
-                str(path.relative_to('lib/matplotlib'))
-                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
-
         return {
-            'matplotlib':
-            [
+            'matplotlib': [
                 'mpl-data/matplotlibrc',
-                *iter_dir('mpl-data/fonts'),
-                *iter_dir('mpl-data/images'),
-                *iter_dir('mpl-data/stylelib'),
-                *iter_dir('backends/web_backend'),
-            ]}
+                *_pkg_data_helper('matplotlib', 'mpl-data/fonts'),
+                *_pkg_data_helper('matplotlib', 'mpl-data/images'),
+                *_pkg_data_helper('matplotlib', 'mpl-data/stylelib'),
+                *_pkg_data_helper('matplotlib', 'backends/web_backend'),
+            ],
+        }
 
 
 class SampleData(OptionalPackage):
@@ -650,39 +647,17 @@ class SampleData(OptionalPackage):
     name = "sample_data"
 
     def get_package_data(self):
-
-        def iter_dir(base):
-            return [
-                str(path.relative_to('lib/matplotlib'))
-                for path in pathlib.Path('lib/matplotlib', base).rglob('*')]
-
         return {
-            'matplotlib':
-            [
-                *iter_dir('mpl-data/sample_data'),
-            ]}
-
-
-class Toolkits(OptionalPackage):
-    name = "toolkits"
-
-    def get_packages(self):
-        return [
-            'mpl_toolkits',
-            'mpl_toolkits.mplot3d',
-            'mpl_toolkits.axes_grid',
-            'mpl_toolkits.axes_grid1',
-            'mpl_toolkits.axisartist',
-            ]
-
-    def get_namespace_packages(self):
-        return ['mpl_toolkits']
+            'matplotlib': [
+                *_pkg_data_helper('matplotlib', 'mpl-data/sample_data'),
+            ],
+        }
 
 
 class Tests(OptionalPackage):
     name = "tests"
     pytest_min_version = '3.6'
-    default_config = False
+    default_config = True
 
     def check(self):
         super().check()
@@ -707,20 +682,12 @@ class Tests(OptionalPackage):
         return ' / '.join(msgs)
 
     def get_packages(self):
-        return [
-            'matplotlib.tests',
-            'matplotlib.sphinxext.tests',
-            ]
+        return setuptools.find_packages("lib", include=["*.tests"])
 
     def get_package_data(self):
-        baseline_images = [
-            'tests/baseline_images/%s/*' % x
-            for x in os.listdir('lib/matplotlib/tests/baseline_images')]
-
         return {
-            'matplotlib':
-            baseline_images +
-            [
+            'matplotlib': [
+                *_pkg_data_helper('matplotlib', 'tests/baseline_images'),
                 'tests/cmr10.pfb',
                 'tests/mpltest.ttf',
                 'tests/test_rcparams.rc',
@@ -728,40 +695,11 @@ class Tests(OptionalPackage):
                 'sphinxext/tests/tinypages/*.rst',
                 'sphinxext/tests/tinypages/*.py',
                 'sphinxext/tests/tinypages/_static/*',
-            ]}
-
-
-class Toolkits_Tests(Tests):
-    name = "toolkits_tests"
-
-    def check_requirements(self):
-        conf = self.get_config()
-        toolkits_conf = Toolkits.get_config()
-        tests_conf = Tests.get_config()
-
-        if conf is True:
-            Tests.force = True
-            Toolkits.force = True
-        elif conf == "auto" and not (toolkits_conf and tests_conf):
-            # Only auto-install if both toolkits and tests are set
-            # to be installed
-            raise CheckFailed("toolkits_tests needs 'toolkits' and 'tests'")
-        return ""
-
-    def get_packages(self):
-        return [
-            'mpl_toolkits.tests',
+            ],
+            'mpl_toolkits': [
+                *_pkg_data_helper('mpl_toolkits', 'tests/baseline_images'),
             ]
-
-    def get_package_data(self):
-        baseline_images = [
-            'tests/baseline_images/%s/*' % x
-            for x in os.listdir('lib/mpl_toolkits/tests/baseline_images')]
-
-        return {'mpl_toolkits': baseline_images}
-
-    def get_namespace_packages(self):
-        return ['mpl_toolkits']
+        }
 
 
 class DelayedExtension(Extension, object):
@@ -829,63 +767,51 @@ class Numpy(SetupPackage):
         ext.include_dirs.append(numpy.get_include())
         if not has_include_file(
                 ext.include_dirs, os.path.join("numpy", "arrayobject.h")):
-            warnings.warn(
+            _log.warning(
                 "The C headers for numpy could not be found. "
                 "You may need to install the development package")
 
         return [numpy.get_include()]
 
     def add_flags(self, ext):
-        # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for
-        # each extension
-        array_api_name = 'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'
-
-        ext.define_macros.append(('PY_ARRAY_UNIQUE_SYMBOL', array_api_name))
         ext.add_hook('include_dirs', self.include_dirs_hook)
-
-        ext.define_macros.append(('NPY_NO_DEPRECATED_API',
-                                  'NPY_1_7_API_VERSION'))
-
-        # Allow NumPy's printf format specifiers in C++.
-        ext.define_macros.append(('__STDC_FORMAT_MACROS', 1))
+        ext.define_macros.extend([
+            # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for each
+            # extension.
+            ('PY_ARRAY_UNIQUE_SYMBOL',
+             'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'),
+            ('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION'),
+            # Allow NumPy's printf format specifiers in C++.
+            ('__STDC_FORMAT_MACROS', 1),
+        ])
 
     def get_setup_requires(self):
-        return ['numpy>=1.10.0']
+        return ['numpy>=1.11']
 
     def get_install_requires(self):
-        return ['numpy>=1.10.0']
+        return ['numpy>=1.11']
 
 
 class LibAgg(SetupPackage):
     name = 'libagg'
 
-    def check(self):
-        self.__class__.found_external = True
-        try:
-            return self._check_for_pkg_config(
-                'libagg', 'agg2/agg_basics.h', min_version='PATCH')
-        except CheckFailed as e:
-            self.__class__.found_external = False
-            return str(e) + ' Using local copy.'
-
     def add_flags(self, ext, add_sources=True):
-        if self.found_external:
-            pkg_config.setup_extension(ext, 'libagg')
-        else:
-            ext.include_dirs.insert(0, 'extern/agg24-svn/include')
-            if add_sources:
-                agg_sources = [
-                    'agg_bezier_arc.cpp',
-                    'agg_curves.cpp',
-                    'agg_image_filters.cpp',
-                    'agg_trans_affine.cpp',
-                    'agg_vcgen_contour.cpp',
-                    'agg_vcgen_dash.cpp',
-                    'agg_vcgen_stroke.cpp',
-                    'agg_vpgen_segmentator.cpp'
-                    ]
-                ext.sources.extend(
-                    os.path.join('extern', 'agg24-svn', 'src', x) for x in agg_sources)
+        # We need a patched Agg not available elsewhere, so always use the
+        # vendored version.
+        ext.include_dirs.insert(0, 'extern/agg24-svn/include')
+        if add_sources:
+            agg_sources = [
+                'agg_bezier_arc.cpp',
+                'agg_curves.cpp',
+                'agg_image_filters.cpp',
+                'agg_trans_affine.cpp',
+                'agg_vcgen_contour.cpp',
+                'agg_vcgen_dash.cpp',
+                'agg_vcgen_stroke.cpp',
+                'agg_vpgen_segmentator.cpp'
+                ]
+            ext.sources.extend(os.path.join('extern', 'agg24-svn', 'src', x)
+                               for x in agg_sources)
 
 
 class FreeType(SetupPackage):
@@ -907,7 +833,7 @@ class FreeType(SetupPackage):
             try:
                 check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
             except CheckFailed:
-                check_include_file(get_include_dirs(), 'freetype2\\ft2build.h', 'freetype')
+                check_include_file(get_include_dirs(), os.path.join('freetype2', 'ft2build.h'), 'freetype')
             return 'Using unknown version found on system.'
 
         status, output = subprocess.getstatusoutput(
@@ -1168,25 +1094,14 @@ class Png(SetupPackage):
 class Qhull(SetupPackage):
     name = "qhull"
 
-    def check(self):
-        self.__class__.found_external = True
-        try:
-            return self._check_for_pkg_config(
-                'libqhull', 'libqhull/qhull_a.h', min_version='2015.2')
-        except CheckFailed as e:
-            self.__class__.found_pkgconfig = False
-            self.__class__.found_external = False
-            return str(e) + ' Using local copy.'
-
     def add_flags(self, ext):
-        if self.found_external:
-            pkg_config.setup_extension(ext, 'qhull',
-                                       default_libraries=['qhull'])
-        else:
-            ext.include_dirs.insert(0, 'extern')
-            ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
-            if sysconfig.get_config_var('LIBM') == '-lm':
-                ext.libraries.extend('m')
+        # Qhull doesn't distribute pkg-config info, so we have no way of
+        # knowing whether a system install is recent enough.  Thus, always use
+        # the vendored version.
+        ext.include_dirs.insert(0, 'extern')
+        ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
+        if sysconfig.get_config_var('LIBM') == '-lm':
+            ext.libraries.extend('m')
 
 
 class TTConv(SetupPackage):
@@ -1316,22 +1231,24 @@ class BackendTkAgg(OptionalBackendPackage):
     force = True
 
     def check(self):
-        return "installing; run-time loading from Python Tcl / Tk"
+        return "installing; run-time loading from Python Tcl/Tk"
 
     def get_extension(self):
         sources = [
-            'src/_tkagg.cpp'
+            'src/_tkagg.cpp',
+            'src/py_converters.cpp',
             ]
 
         ext = make_extension('matplotlib.backends._tkagg', sources)
         self.add_flags(ext)
+        Numpy().add_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
         return ext
 
     def add_flags(self, ext):
         ext.include_dirs.insert(0, 'src')
         if sys.platform == 'win32':
-            # PSAPI library needed for finding Tcl / Tk at run time
+            # PSAPI library needed for finding Tcl/Tk at run time
             ext.libraries.extend(['psapi'])
         elif sys.platform == 'linux':
             ext.libraries.extend(['dl'])
@@ -1353,6 +1270,8 @@ class BackendMacOSX(OptionalBackendPackage):
 
         ext = make_extension('matplotlib.backends._macosx', sources)
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
+        if platform.python_implementation().lower() == 'pypy':
+            ext.extra_compile_args.append('-DPYPY=1')
         return ext
 
 

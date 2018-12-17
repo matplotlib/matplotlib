@@ -662,10 +662,10 @@ def test_triinterp_transformations():
     min_radius = 0.15
 
     def z(x, y):
-        r1 = np.sqrt((0.5-x)**2 + (0.5-y)**2)
-        theta1 = np.arctan2(0.5-x, 0.5-y)
-        r2 = np.sqrt((-x-0.2)**2 + (-y-0.2)**2)
-        theta2 = np.arctan2(-x-0.2, -y-0.2)
+        r1 = np.hypot(0.5 - x, 0.5 - y)
+        theta1 = np.arctan2(0.5 - x, 0.5 - y)
+        r2 = np.hypot(-x - 0.2, -y - 0.2)
+        theta2 = np.arctan2(-x - 0.2, -y - 0.2)
         z = -(2*(np.exp((r1/10)**2)-1)*30. * np.cos(7.*theta1) +
               (np.exp((r2/10)**2)-1)*30. * np.cos(11.*theta2) +
               0.7*(x**2 + y**2))
@@ -750,10 +750,10 @@ def test_tri_smooth_contouring():
     min_radius = 0.15
 
     def z(x, y):
-        r1 = np.sqrt((0.5-x)**2 + (0.5-y)**2)
-        theta1 = np.arctan2(0.5-x, 0.5-y)
-        r2 = np.sqrt((-x-0.2)**2 + (-y-0.2)**2)
-        theta2 = np.arctan2(-x-0.2, -y-0.2)
+        r1 = np.hypot(0.5 - x, 0.5 - y)
+        theta1 = np.arctan2(0.5 - x, 0.5 - y)
+        r2 = np.hypot(-x - 0.2, -y - 0.2)
+        theta2 = np.arctan2(-x - 0.2, -y - 0.2)
         z = -(2*(np.exp((r1/10)**2)-1)*30. * np.cos(7.*theta1) +
               (np.exp((r2/10)**2)-1)*30. * np.cos(11.*theta2) +
               0.7*(x**2 + y**2))
@@ -815,8 +815,8 @@ def test_tri_smooth_gradient():
 
     # Computes the electrical field (Ex, Ey) as gradient of -V
     tci = mtri.CubicTriInterpolator(triang, -V)
-    (Ex, Ey) = tci.gradient(triang.x, triang.y)
-    E_norm = np.sqrt(Ex**2 + Ey**2)
+    Ex, Ey = tci.gradient(triang.x, triang.y)
+    E_norm = np.hypot(Ex, Ey)
 
     # Plot the triangulation, the potential iso-contours and the vector field
     plt.figure()
@@ -936,7 +936,7 @@ def test_trirefine():
     y = np.asarray([0.0, 0.0, 1.0, 1.0])
     triang = [mtri.Triangulation(x, y, [[0, 1, 3], [3, 2, 0]]),
               mtri.Triangulation(x, y, [[0, 1, 3], [2, 0, 3]])]
-    z = np.sqrt((x-0.3)*(x-0.3) + (y-0.4)*(y-0.4))
+    z = np.hypot(x - 0.3, y - 0.4)
     # Refining the 2 triangulations and reordering the points
     xyz_data = []
     for i in range(2):

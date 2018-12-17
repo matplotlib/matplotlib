@@ -118,6 +118,7 @@ class RendererAgg(RendererBase):
         return np.array(region), extents
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         nmax = rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
 
@@ -162,9 +163,8 @@ class RendererAgg(RendererBase):
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
-        """
-        Render the text
-        """
+        # docstring inherited
+
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
@@ -192,14 +192,10 @@ class RendererAgg(RendererBase):
             font, np.round(x - xd + xo), np.round(y + yd + yo) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        """
-        Get the width, height, and descent (offset from the bottom
-        to the baseline), in display coords, of the string *s* with
-        :class:`~matplotlib.font_manager.FontProperties` *prop*
-        """
+        # docstring inherited
+
         if ismath in ["TeX", "TeX!"]:
             # todo: handle props
-            size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(
@@ -222,6 +218,7 @@ class RendererAgg(RendererBase):
         return w, h, d
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+        # docstring inherited
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
 
@@ -239,7 +236,7 @@ class RendererAgg(RendererBase):
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
+        # docstring inherited
         return self.width, self.height
 
     def _get_agg_font(self, prop):
@@ -256,10 +253,7 @@ class RendererAgg(RendererBase):
         return font
 
     def points_to_pixels(self, points):
-        """
-        convert point measures to pixes using dpi and the pixels per
-        inch of the display
-        """
+        # docstring inherited
         return points * self.dpi / 72
 
     def tostring_rgb(self):
@@ -275,15 +269,15 @@ class RendererAgg(RendererBase):
         self._renderer.clear()
 
     def option_image_nocomposite(self):
+        # docstring inherited
+
         # It is generally faster to composite each image directly to
         # the Figure, and there's no file size benefit to compositing
         # with the Agg backend
         return True
 
     def option_scale_image(self):
-        """
-        agg backend doesn't support arbitrary scaling of image.
-        """
+        # docstring inherited
         return False
 
     def restore_region(self, region, bbox=None, xy=None):
@@ -356,7 +350,7 @@ class RendererAgg(RendererBase):
         self._update_methods()
 
         if w > 0 and h > 0:
-            img = np.fromstring(buffer, np.uint8)
+            img = np.frombuffer(buffer, np.uint8)
             img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
                                           self.dpi)
             gc = self.new_gc()
@@ -394,7 +388,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         # acquire a lock on the shared font cache
         RendererAgg.lock.acquire()
 
-        toolbar = self.toolbar
         try:
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so

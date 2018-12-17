@@ -3,6 +3,7 @@ from copy import copy
 import io
 import os
 import sys
+from pathlib import Path
 import platform
 import urllib.request
 import warnings
@@ -112,10 +113,8 @@ def test_imread_pil_uint16():
     assert np.sum(img) == 134184960
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 def test_imread_fspath():
     pytest.importorskip("PIL")
-    from pathlib import Path
     img = plt.imread(
         Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
     assert img.dtype == np.uint16
@@ -151,10 +150,8 @@ def test_imsave():
     assert_array_equal(arr_dpi1, arr_dpi100)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_imsave_fspath(fmt):
-    Path = pytest.importorskip("pathlib").Path
     plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
 
 
@@ -260,6 +257,24 @@ def test_cursor_data():
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
     assert im.get_cursor_data(event) is None
+
+
+def test_format_cursor_data():
+    from matplotlib.backend_bases import MouseEvent
+
+    fig, ax = plt.subplots()
+    im = ax.imshow([[10000, 10001]])
+
+    xdisp, ydisp = ax.transData.transform_point([0, 0])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_cursor_data(event) == 10000
+    assert im.format_cursor_data(im.get_cursor_data(event)) == "[1e+04]"
+
+    fig.colorbar(im)
+    fig.canvas.draw()  # This is necessary to set up the colorbar formatter.
+
+    assert im.get_cursor_data(event) == 10000
+    assert im.format_cursor_data(im.get_cursor_data(event)) == "[0.0+1e4]"
 
 
 @image_comparison(baseline_images=['image_clip'], style='mpl20')
@@ -745,12 +760,11 @@ def test_mask_image():
 def test_imshow_endianess():
     x = np.arange(10)
     X, Y = np.meshgrid(x, x)
-    Z = ((X-5)**2 + (Y-5)**2)**0.5
+    Z = np.hypot(X - 5, Y - 5)
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
-    kwargs = dict(origin="lower", interpolation='nearest',
-                  cmap='viridis')
+    kwargs = dict(origin="lower", interpolation='nearest', cmap='viridis')
 
     ax1.imshow(Z.astype('<f8'), **kwargs)
     ax2.imshow(Z.astype('>f8'), **kwargs)

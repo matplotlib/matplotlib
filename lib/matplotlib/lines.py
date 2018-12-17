@@ -5,7 +5,7 @@ variety of line styles, markers and colors.
 
 # TODO: expose cap and join style attrs
 from numbers import Integral, Number, Real
-import warnings
+import logging
 
 import numpy as np
 
@@ -24,6 +24,8 @@ from .markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
+
+_log = logging.getLogger(__name__)
 
 
 def _get_dash_pattern(style):
@@ -207,6 +209,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
 @cbook._define_aliases({
     "antialiased": ["aa"],
     "color": ["c"],
+    "drawstyle": ["ds"],
     "linestyle": ["ls"],
     "linewidth": ["lw"],
     "markeredgecolor": ["mec"],
@@ -472,22 +475,21 @@ class Line2D(Artist):
 
         # Convert pick radius from points to pixels
         if self.figure is None:
-            warnings.warn('no figure set when check if mouse is on line')
+            _log.warning('no figure set when check if mouse is on line')
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi / 72. * self.pickradius
 
-        # the math involved in checking for containment (here and inside of
-        # segment_hits) assumes that it is OK to overflow.  In case the
-        # application has set the error flags such that an exception is raised
-        # on overflow, we temporarily set the appropriate error flags here and
-        # set them back when we are finished.
+        # The math involved in checking for containment (here and inside of
+        # segment_hits) assumes that it is OK to overflow, so temporarily set
+        # the error flags accordingly.
         with np.errstate(all='ignore'):
             # Check for collision
             if self._linestyle in ['None', None]:
                 # If no line, return the nearby point(s)
-                d = (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
-                ind, = np.nonzero(np.less_equal(d, pixels ** 2))
+                ind, = np.nonzero(
+                    (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
+                    <= pixels ** 2)
             else:
                 # If line, return the nearby segment(s)
                 ind = segment_hits(mouseevent.x, mouseevent.y, xt, yt, pixels)
@@ -555,7 +557,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        every: None or int or (int, int) or slice or List[int] or float or \
+        every : None or int or (int, int) or slice or List[int] or float or \
 (float, float)
             Which markers to plot.
 
@@ -650,10 +652,12 @@ class Line2D(Artist):
         """
         Set the x and y data.
 
-        ACCEPTS: 2D array (rows are x, y) or two 1D arrays
+        Parameters
+        ----------
+        *args : (N, 2) array or two 1D arrays
         """
         if len(args) == 1:
-            x, y = args[0]
+            (x, y), = args
         else:
             x, y = args
 
@@ -759,8 +763,8 @@ class Line2D(Artist):
         self.ind_offset = 0  # Needed for contains() method.
         if self._subslice and self.axes:
             x0, x1 = self.axes.get_xbound()
-            i0, = self._x_filled.searchsorted([x0], 'left')
-            i1, = self._x_filled.searchsorted([x1], 'right')
+            i0 = self._x_filled.searchsorted(x0, 'left')
+            i1 = self._x_filled.searchsorted(x1, 'right')
             subslice = slice(max(i0 - 1, 0), i1 + 1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
@@ -1132,6 +1136,13 @@ class Line2D(Artist):
         """
         for ds in self.drawStyleKeys:  # long names are first in the list
             if ls.startswith(ds):
+                cbook.warn_deprecated(
+                    "3.1", message="Passing the drawstyle with the linestyle "
+                    "as a single string is deprecated since Matplotlib "
+                    "%(since)s and support will be removed %(removal)s; "
+                    "please pass the drawstyle separately using the drawstyle "
+                    "keyword argument to Line2D or set_drawstyle() method (or "
+                    "ds/set_ds()).")
                 return ds, ls[len(ds):] or '-'
         return None, ls
 

@@ -707,7 +707,6 @@ def plot_children(fig, box, level=0, printit=True):
     if printit:
         print("Level:", level)
     for child in box.children:
-        rect = child.get_rect()
         if printit:
             print(child)
         ax.add_patch(

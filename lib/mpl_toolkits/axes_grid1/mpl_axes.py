@@ -131,11 +131,3 @@ class SimpleAxisArtist(Artist):
             elif _label:
                 self._axis.label.set_visible(True)
                 self._axis.set_label_position(self._axis_direction)
-
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = Axes(fig, [0.1, 0.1, 0.8, 0.8])
-    fig.add_axes(ax)
-    ax.cla()

@@ -1,6 +1,8 @@
 from collections import OrderedDict, namedtuple
 from functools import wraps
 import inspect
+import logging
+from numbers import Number
 import re
 import warnings
 
@@ -11,6 +13,8 @@ from . import cbook, docstring, rcParams
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
+
+_log = logging.getLogger(__name__)
 
 
 def allow_rasterization(draw):
@@ -56,8 +60,8 @@ class Artist(object):
 
     Typically, all visible elements in a figure are subclasses of Artist.
     """
-    @property
     @cbook.deprecated("3.1")
+    @property
     def aname(self):
         return 'Artist'
 
@@ -375,7 +379,7 @@ class Artist(object):
         return L
 
     def get_children(self):
-        r"""Return a list of the child `.Artist`\s this `.Artist` contains."""
+        r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
 
     def contains(self, mouseevent):
@@ -400,7 +404,7 @@ class Artist(object):
         """
         if callable(self._contains):
             return self._contains(self, mouseevent)
-        warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
+        _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
     def set_contains(self, picker):
@@ -446,9 +450,7 @@ class Artist(object):
         --------
         set_picker, get_picker, pick
         """
-        return (self.figure is not None and
-                self.figure.canvas is not None and
-                self._picker is not None)
+        return self.figure is not None and self._picker is not None
 
     def pick(self, mouseevent):
         """
@@ -533,7 +535,7 @@ class Artist(object):
         """
         return self._picker
 
-    @cbook.deprecated("2.2", "artist.figure is not None")
+    @cbook.deprecated("2.2", alternative="artist.figure is not None")
     def is_figure_set(self):
         """Returns whether the artist is assigned to a `.Figure`."""
         return self.figure is not None
@@ -850,7 +852,8 @@ class Artist(object):
         rasterized : bool or None
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-            warnings.warn("Rasterization of '%s' will be ignored" % self)
+            cbook._warn_external(
+                "Rasterization of '%s' will be ignored" % self)
 
         self._rasterized = rasterized
 
@@ -965,7 +968,8 @@ class Artist(object):
             else:
                 func = getattr(self, 'set_' + k, None)
                 if not callable(func):
-                    raise AttributeError('Unknown property %s' % k)
+                    raise AttributeError('{!r} object has no property {!r}'
+                                         .format(type(self).__name__, k))
                 return func(v)
 
         with cbook._setattr_cm(self, eventson=False):
@@ -1113,20 +1117,57 @@ class Artist(object):
 
     def get_cursor_data(self, event):
         """
-        Get the cursor data for a given event.
+        Return the cursor data for a given event.
+
+        .. note::
+            This method is intended to be overridden by artist subclasses.
+            As an end-user of Matplotlib you will most likely not call this
+            method yourself.
+
+        Cursor data can be used by Artists to provide additional context
+        information for a given event. The default implementation just returns
+        *None*.
+
+        Subclasses can override the method and return arbitrary data. However,
+        when doing so, they must ensure that `.format_cursor_data` can convert
+        the data to a string representation.
+
+        The only current use case is displaying the z-value of an `.AxesImage`
+        in the status bar of a plot window, while moving the mouse.
+
+        Parameters
+        ----------
+        event : `matplotlib.backend_bases.MouseEvent`
+
+        See Also
+        --------
+        format_cursor_data
+
         """
         return None
 
     def format_cursor_data(self, data):
         """
-        Return *cursor data* string formatted.
+        Return a string representation of *data*.
+
+        .. note::
+            This method is intended to be overridden by artist subclasses.
+            As an end-user of Matplotlib you will most likely not call this
+            method yourself.
+
+        The default implementation converts ints and floats and arrays of ints
+        and floats into a comma-separated string enclosed in square brackets.
+
+        See Also
+        --------
+        get_cursor_data
         """
         try:
             data[0]
         except (TypeError, IndexError):
             data = [data]
-        data_str = ', '.join('{:0.3g}'.format(item) for item in data if
-                   isinstance(item, (np.floating, np.integer, int, float)))
+        data_str = ', '.join('{:0.3g}'.format(item) for item in data
+                             if isinstance(item, Number))
         return "[" + data_str + "]"
 
     @property
@@ -1191,7 +1232,7 @@ class ArtistInspector(object):
             if not self.is_alias(func):
                 continue
             propname = re.search("`({}.*)`".format(name[:4]),  # get_.*/set_.*
-                                 func.__doc__).group(1)
+                                 inspect.getdoc(func)).group(1)
             aliases.setdefault(propname, set()).add(name[4:])
         return aliases
 
@@ -1213,7 +1254,7 @@ class ArtistInspector(object):
             raise AttributeError('%s has no function %s' % (self.o, name))
         func = getattr(self.o, name)
 
-        docstring = func.__doc__
+        docstring = inspect.getdoc(func)
         if docstring is None:
             return 'unknown'
 
@@ -1227,7 +1268,9 @@ class ArtistInspector(object):
         # Much faster than list(inspect.signature(func).parameters)[1],
         # although barely relevant wrt. matplotlib's total import time.
         param_name = func.__code__.co_varnames[1]
-        match = re.search("(?m)^ *{} : (.+)".format(param_name), docstring)
+        # We could set the presence * based on whether the parameter is a
+        # varargs (it can't be a varkwargs) but it's not really worth the it.
+        match = re.search(r"(?m)^ *\*?{} : (.+)".format(param_name), docstring)
         if match:
             return match.group(1)
 
@@ -1277,7 +1320,7 @@ class ArtistInspector(object):
 
     def is_alias(self, o):
         """Return whether method object *o* is an alias for another method."""
-        ds = o.__doc__
+        ds = inspect.getdoc(o)
         if ds is None:
             return False
         return ds.startswith('Alias for ')
@@ -1351,7 +1394,6 @@ class ArtistInspector(object):
             return '%s%s: %s' % (pad, prop, accepts)
 
         attrs = sorted(self._get_setters_and_targets())
-        lines = []
 
         names = [self.aliased_name_rest(prop, target)
                  for prop, target in attrs]

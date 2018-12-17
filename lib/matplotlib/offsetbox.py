@@ -14,26 +14,19 @@ Text instance. The width and height of the TextArea instance is the
 width and height of the its child text.
 """
 
-import warnings
-
 import numpy as np
 
-import matplotlib.transforms as mtransforms
+from matplotlib import cbook, docstring, rcParams
 import matplotlib.artist as martist
-import matplotlib.text as mtext
 import matplotlib.path as mpath
-from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
-
+import matplotlib.text as mtext
+import matplotlib.transforms as mtransforms
 from matplotlib.font_manager import FontProperties
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
-from matplotlib import rcParams
-
-from matplotlib import docstring
-
 from matplotlib.image import BboxImage
-
-from matplotlib.patches import bbox_artist as mbbox_artist
+from matplotlib.patches import (
+    FancyBboxPatch, FancyArrowPatch, bbox_artist as mbbox_artist)
 from matplotlib.text import _AnnotationBase
+from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
 
 DEBUG = False
@@ -179,9 +172,16 @@ class OffsetBox(martist.Artist):
 
     def set_offset(self, xy):
         """
-        Set the offset
+        Set the offset.
 
-        accepts x, y, tuple, or a callable object.
+        Parameters
+        ----------
+        xy : (float, float) or callable
+            The (x,y) coordinates of the offset in display units.
+            A callable must have the signature::
+
+                def offset(width, height, xdescent, ydescent, renderer) \
+-> (float, float)
         """
         self._offset = xy
         self.stale = True
@@ -602,9 +602,12 @@ class DrawingArea(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinate in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -691,7 +694,9 @@ class TextArea(OffsetBox):
         s : str
             a string to be displayed.
 
-        textprops : `~matplotlib.font_manager.FontProperties`, optional
+        textprops : dictionary, optional, default: None
+            Dictionary of keyword parameters to be passed to the
+            `~matplotlib.text.Text` instance contained inside TextArea.
 
         multilinebaseline : bool, optional
             If `True`, baseline for multiline text is adjusted so that
@@ -773,9 +778,12 @@ class TextArea(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinates in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -798,14 +806,11 @@ class TextArea(OffsetBox):
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
-        clean_line, ismath = self._text.is_math_text(self._text._text)
         _, h_, d_ = renderer.get_text_width_height_descent(
             "lp", self._text._fontproperties, ismath=False)
 
         bbox, info, d = self._text._get_layout(renderer)
         w, h = bbox.width, bbox.height
-
-        line = info[-1][0]  # last line
 
         self._baseline_transform.clear()
 
@@ -891,9 +896,12 @@ class AuxTransformBox(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinate in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -1217,8 +1225,9 @@ class AnchoredText(AnchoredOffsetbox):
         borderpad : float, optional
             Pad between the frame and the axes (or *bbox_to_anchor*).
 
-        prop : `matplotlib.font_manager.FontProperties`
-            Font properties.
+        prop : dictionary, optional, default: None
+            Dictionary of keyword parameters to be passed to the
+            `~matplotlib.text.Text` instance contained inside AnchoredText.
 
         Notes
         -----
@@ -1230,8 +1239,11 @@ class AnchoredText(AnchoredOffsetbox):
             prop = {}
         badkwargs = {'ha', 'horizontalalignment', 'va', 'verticalalignment'}
         if badkwargs & set(prop):
-            warnings.warn("Mixing horizontalalignment or verticalalignment "
-                          "with AnchoredText is not supported.")
+            cbook.warn_deprecated(
+                "3.1", message="Mixing horizontalalignment or "
+                "verticalalignment with AnchoredText is not supported, "
+                "deprecated since %(version)s, and will raise an exception "
+                "%(removal)s.")
 
         self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
@@ -1294,9 +1306,12 @@ class OffsetImage(OffsetBox):
 
 #     def set_offset(self, xy):
 #         """
-#         set offset of the container.
-
-#         Accept : tuple of x,y coordinate in display units.
+#         Set the offset of the container.
+#
+#         Parameters
+#         ----------
+#         xy : (float, float)
+#             The (x,y) coordinates of the offset in display units.
 #         """
 #         self._offset = xy
 
@@ -1526,8 +1541,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         ox1, oy1 = x, y
 
         if self.arrowprops:
-            x0, y0 = x, y
-
             d = self.arrowprops.copy()
 
             # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
@@ -1748,44 +1761,3 @@ class DraggableAnnotation(DraggableBase):
         ann = self.annotation
         ann.xyann = ann.get_transform().inverted().transform(
             (self.ox + dx, self.oy + dy))
-
-
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = plt.subplot(121)
-
-    #txt = ax.text(0.5, 0.5, "Test", size=30, ha="center", color="w")
-    kwargs = dict()
-
-    a = np.arange(256).reshape(16, 16) / 256.
-    myimage = OffsetImage(a,
-                          zoom=2,
-                          norm=None,
-                          origin=None,
-                          **kwargs
-                          )
-    ax.add_artist(myimage)
-
-    myimage.set_offset((100, 100))
-
-    myimage2 = OffsetImage(a,
-                           zoom=2,
-                           norm=None,
-                           origin=None,
-                           **kwargs
-                           )
-    ann = AnnotationBbox(myimage2, (0.5, 0.5),
-                         xybox=(30, 30),
-                         xycoords='data',
-                         boxcoords="offset points",
-                         frameon=True, pad=0.4,  # BboxPatch
-                         bboxprops=dict(boxstyle="round", fc="y"),
-                         fontsize=None,
-                         arrowprops=dict(arrowstyle="->"),
-                         )
-
-    ax.add_artist(ann)
-
-    plt.draw()
-    plt.show()

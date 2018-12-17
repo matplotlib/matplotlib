@@ -106,9 +106,9 @@ class RGBAxesBase(object):
             defaults to True.
         axes_class : matplotlib.axes.Axes
 
-        kl :
+        *args
             Unpacked into axes_class() init for RGB
-        kwargs :
+        **kwargs
             Unpacked into axes_class() init for RGB, R, G, B axes
         """
         try:

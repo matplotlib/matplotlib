@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
+import warnings
 
 import pytest
 
@@ -14,26 +15,28 @@ from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
 
 
-needs_ghostscript = pytest.mark.skipif(
-    matplotlib.checkdep_ghostscript()[0] is None,
-    reason="This test needs a ghostscript installation")
-needs_usetex = pytest.mark.skipif(
-    not matplotlib.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    needs_ghostscript = pytest.mark.skipif(
+        matplotlib.checkdep_ghostscript()[0] is None,
+        reason="This test needs a ghostscript installation")
+    needs_usetex = pytest.mark.skipif(
+        not matplotlib.checkdep_usetex(True),
+        reason="This test needs a TeX installation")
 
 
 # This tests tends to hit a TeX cache lock on AppVeyor.
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
-    needs_ghostscript(
-        ('ps', False, {'ps.usedistiller': 'ghostscript'})),
-    needs_usetex(needs_ghostscript(
-        ('ps', False, {'text.usetex': True}))),
+    pytest.param('ps', False, {'ps.usedistiller': 'ghostscript'},
+                 marks=needs_ghostscript),
+    pytest.param('ps', False, {'text.usetex': True},
+                 marks=[needs_ghostscript, needs_usetex]),
     ('eps', False, {}),
     ('eps', True, {'ps.useafm': True}),
-    needs_usetex(needs_ghostscript(
-        ('eps', False, {'text.usetex': True}))),
+    pytest.param('eps', False, {'text.usetex': True},
+                 marks=[needs_ghostscript, needs_usetex]),
 ], ids=[
     'ps',
     'ps with distiller',

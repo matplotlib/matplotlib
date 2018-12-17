@@ -131,6 +131,11 @@ class Text3D(mtext.Text):
         mtext.Text.draw(self, renderer)
         self.stale = False
 
+    def get_tightbbox(self, renderer):
+        # Overwriting the 2d Text behavior which is not valid for 3d.
+        # For now, just return None to exclude from layout calculation.
+        return None
+
 
 def text_2d_to_3d(obj, z=0, zdir='z'):
     """Convert a Text to a Text3D object."""
@@ -214,7 +219,7 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     """
     zs = np.broadcast_to(zs, len(path))
 
-    pathsegs = path.iter_segments(simplify=False, curves=False)
+,   pathsegs = path.iter_segments(simplify=False, curves=False)
     if len(path):
         xs, ys, codes = zip(*((x, y, code) for (x, y), code in pathsegs))
     else:
@@ -590,8 +595,8 @@ class Poly3DCollection(PolyCollection):
         """
         if zsort is True:
             cbook.warn_deprecated(
-                "3.1", "Passing True to mean 'average' for set_zsort is "
-                "deprecated and support will be removed in Matplotlib 3.3; "
+                "3.1", message="Passing True to mean 'average' for set_zsort "
+                "is deprecated and support will be removed in Matplotlib 3.3; "
                 "pass 'average' instead.")
             zsort = 'average'
         self._zsortfunc = self._zsort_functions[zsort]

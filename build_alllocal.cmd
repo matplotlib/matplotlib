@@ -1,11 +1,8 @@
 :: This assumes you have installed all the dependencies via conda packages:
 :: # create a new environment with the required packages
-:: conda create -n "matplotlib_build" python=3.5 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype
-:: activate matplotlib_build
-:: if you want qt backend, you also have to install pyqt
-:: conda install pyqt
-:: # this package is only available in the conda-forge channel
-:: conda install -c conda-forge msinttypes
+:: # if you want a qt backend, add "pyqt" to the list of conda packages
+:: conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype msinttypes
+:: conda activate matplotlib_build
 
 set TARGET=bdist_wheel
 IF [%1]==[] (

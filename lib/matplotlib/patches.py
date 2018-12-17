@@ -3,7 +3,6 @@ import functools
 import math
 from numbers import Number
 import textwrap
-import warnings
 
 import numpy as np
 
@@ -21,8 +20,8 @@ from .path import Path
     "antialiased": ["aa"],
     "edgecolor": ["ec"],
     "facecolor": ["fc"],
-    "linewidth": ["lw"],
     "linestyle": ["ls"],
+    "linewidth": ["lw"],
 })
 class Patch(artist.Artist):
     """
@@ -73,8 +72,9 @@ class Patch(artist.Artist):
         self._fill = True  # needed for set_facecolor call
         if color is not None:
             if edgecolor is not None or facecolor is not None:
-                warnings.warn("Setting the 'color' property will override"
-                              "the edgecolor or facecolor properties.")
+                cbook._warn_external(
+                    "Setting the 'color' property will override"
+                    "the edgecolor or facecolor properties.")
             self.set_color(color)
         else:
             self.set_edgecolor(edgecolor)
@@ -337,9 +337,11 @@ class Patch(artist.Artist):
 
     def set_linewidth(self, w):
         """
-        Set the patch linewidth in points
+        Set the patch linewidth in points.
 
-        ACCEPTS: float or None for default
+        Parameters
+        ----------
+        w : float or None
         """
         if w is None:
             w = mpl.rcParams['patch.linewidth']
@@ -520,8 +522,8 @@ class Patch(artist.Artist):
             except AttributeError:
                 # if we end up with a GC that does not have this method
                 cbook.warn_deprecated(
-                    "3.1", "Your backend does not support setting the hatch "
-                    "color; such backends will become unsupported in "
+                    "3.1", message="Your backend does not support setting the "
+                    "hatch color; such backends will become unsupported in "
                     "Matplotlib 3.3.")
 
         if self.get_sketch_params() is not None:
@@ -568,6 +570,14 @@ class Patch(artist.Artist):
 
     def get_window_extent(self, renderer=None):
         return self.get_path().get_extents(self.get_transform())
+
+    def _convert_xy_units(self, xy):
+        """
+        Convert x and y units for a tuple (x, y)
+        """
+        x = self.convert_xunits(xy[0])
+        y = self.convert_yunits(xy[1])
+        return (x, y)
 
 
 patchdoc = artist.kwdoc(Patch)
@@ -660,15 +670,15 @@ class Rectangle(Patch):
         """
         Parameters
         ----------
-        xy: length-2 tuple
+        xy : (float, float)
             The bottom and left rectangle coordinates
-        width:
+        width : float
             Rectangle width
-        height:
+        height : float
             Rectangle height
-        angle: float, optional
+        angle : float, optional
           rotation in degrees anti-clockwise about *xy* (default is 0.0)
-        fill: bool, optional
+        fill : bool, optional
             Whether to fill the rectangle (default is ``True``)
 
         Notes
@@ -769,7 +779,7 @@ class Rectangle(Patch):
 
         Parameters
         ----------
-        xy : 2-item sequence
+        xy : (float, float)
         """
         self._x0, self._y0 = xy
         self._update_x1()
@@ -1159,7 +1169,7 @@ class Arrow(Patch):
         width : scalar, optional (default: 1)
             Scale factor for the width of the arrow. With a default value of
             1, the tail width is 0.2 and head width is 0.6.
-        **kwargs :
+        **kwargs
             Keyword arguments control the :class:`~matplotlib.patches.Patch`
             properties:
 
@@ -1357,10 +1367,8 @@ class YAArrow(Patch):
         xb1, yb1, xb2, yb2 = self.getpoints(x1, y1, x2, y2, k1)
 
         # a point on the segment 20% of the distance from the tip to the base
-        theta = math.atan2(y2 - y1, x2 - x1)
-        r = math.sqrt((y2 - y1) ** 2. + (x2 - x1) ** 2.)
-        xm = x1 + self.frac * r * math.cos(theta)
-        ym = y1 + self.frac * r * math.sin(theta)
+        xm = x1 + self.frac * (x2 - x1)
+        ym = y1 + self.frac * (y2 - y1)
         xc1, yc1, xc2, yc2 = self.getpoints(x1, y1, xm, ym, k1)
         xd1, yd1, xd2, yd2 = self.getpoints(x1, y1, xm, ym, k2)
 
@@ -1444,11 +1452,11 @@ class Ellipse(Patch):
         """
         Parameters
         ----------
-        xy : tuple of (scalar, scalar)
+        xy : (float, float)
             xy coordinates of ellipse centre.
-        width : scalar
+        width : float
             Total length (diameter) of horizontal axis.
-        height : scalar
+        height : float
             Total length (diameter) of vertical axis.
         angle : scalar, optional
             Rotation in degrees anti-clockwise.
@@ -1558,14 +1566,15 @@ class Circle(Ellipse):
 
 class Arc(Ellipse):
     """
-    An elliptical arc.  Because it performs various optimizations, it
-    can not be filled.
+    An elliptical arc, i.e. a segment of an ellipse.
 
-    The arc must be used in an :class:`~matplotlib.axes.Axes`
-    instance---it can not be added directly to a
-    :class:`~matplotlib.figure.Figure`---because it is optimized to
-    only render the segments that are inside the axes bounding box
-    with high resolution.
+    Due to internal optimizations, there are certain restrictions on using Arc:
+
+    - The arc cannot be filled.
+
+    - The arc must be used in an :class:`~.axes.Axes` instance---it can not be
+      added directly to a `.Figure`---because it is optimized to only render
+      the segments that are inside the axes bounding box with high resolution.
     """
     def __str__(self):
         pars = (self.center[0], self.center[1], self.width,
@@ -1578,32 +1587,35 @@ class Arc(Ellipse):
     def __init__(self, xy, width, height, angle=0.0,
                  theta1=0.0, theta2=360.0, **kwargs):
         """
-        The following args are supported:
+        Parameters
+        ----------
+        xy : (float, float)
+            The center of the ellipse.
 
-        *xy*
-          center of ellipse
+        width : float
+            The length of the horizontal axis.
 
-        *width*
-          length of horizontal axis
+        height : float
+            The length of the vertical axis.
 
-        *height*
-          length of vertical axis
+        angle : float
+            Rotation of the ellipse in degrees (anti-clockwise).
 
-        *angle*
-          rotation in degrees (anti-clockwise)
+        theta1, theta2 : float, optional
+            Starting and ending angles of the arc in degrees. These values
+            are relative to *angle*, .e.g. if *angle* = 45 and *theta1* = 90
+            the absolute starting angle is 135.
+            Default *theta1* = 0, *theta2* = 360, i.e. a complete ellipse.
 
-        *theta1*
-          starting angle of the arc in degrees
-
-        *theta2*
-          ending angle of the arc in degrees
-
-        If *theta1* and *theta2* are not provided, the arc will form a
-        complete ellipse.
-
-        Valid kwargs are:
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties
+            Most `.Patch` properties are supported as keyword arguments,
+            with the exception of *fill* and *facecolor* because filling is
+            not supported.
 
         %(Patch)s
+
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
@@ -1617,12 +1629,16 @@ class Arc(Ellipse):
     @artist.allow_rasterization
     def draw(self, renderer):
         """
+        Draw the arc to the given *renderer*.
+
+        Notes
+        -----
         Ellipses are normally drawn using an approximation that uses
         eight cubic Bezier splines.  The error of this approximation
         is 1.89818e-6, according to this unverified source:
 
-          Lancaster, Don.  Approximating a Circle or an Ellipse Using
-          Four Bezier Cubic Splines.
+          Lancaster, Don.  *Approximating a Circle or an Ellipse Using
+          Four Bezier Cubic Splines.*
 
           http://www.tinaja.com/glib/ellipse4.pdf
 
@@ -1638,27 +1654,27 @@ class Arc(Ellipse):
         with each visible arc using a fixed number of spline segments
         (8).  The algorithm proceeds as follows:
 
-          1. The points where the ellipse intersects the axes bounding
-             box are located.  (This is done be performing an inverse
-             transformation on the axes bbox such that it is relative
-             to the unit circle -- this makes the intersection
-             calculation much easier than doing rotated ellipse
-             intersection directly).
+        1. The points where the ellipse intersects the axes bounding
+           box are located.  (This is done be performing an inverse
+           transformation on the axes bbox such that it is relative
+           to the unit circle -- this makes the intersection
+           calculation much easier than doing rotated ellipse
+           intersection directly).
 
-             This uses the "line intersecting a circle" algorithm
-             from:
+           This uses the "line intersecting a circle" algorithm
+           from:
 
-               Vince, John.  Geometry for Computer Graphics: Formulae,
-               Examples & Proofs.  London: Springer-Verlag, 2005.
+               Vince, John.  *Geometry for Computer Graphics: Formulae,
+               Examples & Proofs.*  London: Springer-Verlag, 2005.
 
-          2. The angles of each of the intersection points are
-             calculated.
+        2. The angles of each of the intersection points are
+           calculated.
 
-          3. Proceeding counterclockwise starting in the positive
-             x-direction, each of the visible arc-segments between the
-             pairs of vertices are drawn using the Bezier arc
-             approximation technique implemented in
-             :meth:`matplotlib.path.Path.arc`.
+        3. Proceeding counterclockwise starting in the positive
+           x-direction, each of the visible arc-segments between the
+           pairs of vertices are drawn using the Bezier arc
+           approximation technique implemented in
+           :meth:`matplotlib.path.Path.arc`.
         """
         if not hasattr(self, 'axes'):
             raise RuntimeError('Arcs can only be used in Axes instances')
@@ -2516,7 +2532,6 @@ class FancyBboxPatch(Patch):
         %(AvailableBoxstyles)s
 
         ACCEPTS: %(ListBoxstyles)s
-
         """
         if boxstyle is None:
             return BoxStyle.pprint_styles()
@@ -2914,10 +2929,10 @@ class ConnectionStyle(_Style):
                 codes.append(Path.LINETO)
             else:
                 dx1, dy1 = x1 - cx, y1 - cy
-                d1 = (dx1 ** 2 + dy1 ** 2) ** .5
+                d1 = np.hypot(dx1, dy1)
                 f1 = self.rad / d1
                 dx2, dy2 = x2 - cx, y2 - cy
-                d2 = (dx2 ** 2 + dy2 ** 2) ** .5
+                d2 = np.hypot(dx2, dy2)
                 f2 = self.rad / d2
                 vertices.extend([(cx + dx1 * f1, cy + dy1 * f1),
                                  (cx, cy),
@@ -3301,7 +3316,7 @@ class ArrowStyle(_Style):
 
             head_length = self.head_length * mutation_size
             head_width = self.head_width * mutation_size
-            head_dist = math.sqrt(head_length ** 2 + head_width ** 2)
+            head_dist = np.hypot(head_length, head_width)
             cos_t, sin_t = head_length / head_dist, head_width / head_dist
 
             # begin arrow
@@ -3309,30 +3324,26 @@ class ArrowStyle(_Style):
             x1, y1 = path.vertices[1]
 
             # If there is no room for an arrow and a line, then skip the arrow
-            has_begin_arrow = self.beginarrow and not (x0 == x1 and y0 == y1)
-            if has_begin_arrow:
-                verticesA, codesA, ddxA, ddyA = \
-                           self._get_arrow_wedge(x1, y1, x0, y0,
-                                                 head_dist, cos_t, sin_t,
-                                                 linewidth)
-            else:
-                verticesA, codesA = [], []
-                ddxA, ddyA = 0., 0.
+            has_begin_arrow = self.beginarrow and (x0, y0) != (x1, y1)
+            verticesA, codesA, ddxA, ddyA = (
+                self._get_arrow_wedge(x1, y1, x0, y0,
+                                      head_dist, cos_t, sin_t, linewidth)
+                if has_begin_arrow
+                else ([], [], 0, 0)
+            )
 
             # end arrow
             x2, y2 = path.vertices[-2]
             x3, y3 = path.vertices[-1]
 
             # If there is no room for an arrow and a line, then skip the arrow
-            has_end_arrow = (self.endarrow and not (x2 == x3 and y2 == y3))
-            if has_end_arrow:
-                verticesB, codesB, ddxB, ddyB = \
-                           self._get_arrow_wedge(x2, y2, x3, y3,
-                                                 head_dist, cos_t, sin_t,
-                                                 linewidth)
-            else:
-                verticesB, codesB = [], []
-                ddxB, ddyB = 0., 0.
+            has_end_arrow = self.endarrow and (x2, y2) != (x3, y3)
+            verticesB, codesB, ddxB, ddyB = (
+                self._get_arrow_wedge(x2, y2, x3, y3,
+                                      head_dist, cos_t, sin_t, linewidth)
+                if has_end_arrow
+                else ([], [], 0, 0)
+            )
 
             # This simple code will not work if ddx, ddy is greater than the
             # separation between vertices.
@@ -3978,7 +3989,7 @@ class FancyArrowPatch(Patch):
 
             %(AvailableArrowstyles)s
 
-        arrow_transmuter :
+        arrow_transmuter
             Ignored
 
         connectionstyle : str, ConnectionStyle, or None, optional
@@ -3990,7 +4001,7 @@ class FancyArrowPatch(Patch):
 
             %(AvailableConnectorstyles)s
 
-        connector :
+        connector
             Ignored
 
         patchA, patchB : None, Patch, optional (default: None)
@@ -4254,8 +4265,10 @@ class FancyArrowPatch(Patch):
         dpi_cor = self.get_dpi_cor()
 
         if self._posA_posB is not None:
-            posA = self.get_transform().transform_point(self._posA_posB[0])
-            posB = self.get_transform().transform_point(self._posA_posB[1])
+            posA = self._convert_xy_units(self._posA_posB[0])
+            posB = self._convert_xy_units(self._posA_posB[1])
+            posA = self.get_transform().transform_point(posA)
+            posB = self.get_transform().transform_point(posB)
             _path = self.get_connectionstyle()(posA, posB,
                                                patchA=self.patchA,
                                                patchB=self.patchB,

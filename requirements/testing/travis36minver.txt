@@ -1,0 +1,6 @@
+# Extra pip requirements for the first travis python 3.6 build
+
+cycler==0.10
+python-dateutil==2.1
+numpy==1.11.0
+pyparsing==2.0.1

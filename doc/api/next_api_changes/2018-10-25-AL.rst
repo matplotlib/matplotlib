@@ -1,0 +1,13 @@
+Invalid inputs
+``````````````
+
+Passing invalid locations to `legend` and `table` used to fallback on a default
+location.  This behavior is deprecated and will throw an exception in a future
+version.
+
+`offsetbox.AnchoredText` is unable to handle the ``horizontalalignment`` or
+``verticalalignment`` kwargs, and used to ignore them with a warning.  This
+behavior is deprecated and will throw an exception in a future version.
+
+Passing steps less than 1 or greater than 10 to `MaxNLocator` used to result in
+undefined behavior.  It now throws a ValueError.

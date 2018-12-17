@@ -1,10 +1,6 @@
-*******
-widgets
-*******
-
-
-:mod:`matplotlib.widgets`
-=========================
+**********************
+``matplotlib.widgets``
+**********************
 
 .. automodule:: matplotlib.widgets
    :members:

@@ -89,12 +89,12 @@ class StrCategoryConverter(units.ConversionInterface):
         Parameters
         ----------
         data : string or iterable of strings
-        axis : :class:`~matplotlib.Axis.axis`
+        axis : `~matplotlib.Axis.axis`
             axis on which the data is plotted
 
         Returns
         -------
-        class:~.UnitData~
+        class : `.UnitData`
             object storing string to integer mapping
         """
         # the conversion call stack is supposed to be
@@ -160,8 +160,8 @@ class UnitData(object):
 
         Parameters
         ----------
-        data: iterable
-              sequence of string values
+        data : iterable
+            sequence of string values
         """
         self._mapping = OrderedDict()
         self._counter = itertools.count()
@@ -173,8 +173,8 @@ class UnitData(object):
 
         Parameters
         ----------
-        data: iterable
-              sequence of string values
+        data : iterable
+            sequence of string values
 
         Raises
         ------

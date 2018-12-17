@@ -125,7 +125,6 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
     max_head_length = 2 * max_arrow_width
     arrow_params = {'length_includes_head': True, 'shape': shape,
                     'head_starts_at_zero': head_starts_at_zero}
-    ax = plt.gca()
     sf = 0.6  # max arrow size represents this in data coords
 
     d = (r2 / 2 + arrow_h_offset - 0.5) / r2  # distance for diags
@@ -148,10 +147,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
 
     if normalize_data:
         # find maximum value for rates, i.e. where keys are 2 chars long
-        max_val = 0
-        for k, v in data.items():
-            if len(k) == 2:
-                max_val = max(max_val, v)
+        max_val = max((v for k, v in data.items() if len(k) == 2), default=0)
         # divide rates by max val, multiply by arrow scale factor
         for k, v in data.items():
             data[k] = v / max_val * sf
@@ -159,8 +155,8 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
     def draw_arrow(pair, alpha=alpha, ec=ec, labelcolor=labelcolor):
         # set the length of the arrow
         if display == 'length':
-            length = max_head_length + data[pair] / sf * (max_arrow_length -
-                                                          max_head_length)
+            length = (max_head_length
+                      + data[pair] / sf * (max_arrow_length - max_head_length))
         else:
             length = max_arrow_length
         # set the transparency of the arrow

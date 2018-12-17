@@ -19,7 +19,7 @@
 import abc
 import base64
 import contextlib
-from io import BytesIO
+from io import BytesIO, TextIOWrapper
 import itertools
 import logging
 import os
@@ -128,10 +128,9 @@ class MovieWriterRegistry(object):
 
     def reset_available_writers(self):
         """Reset the available state of all registered writers"""
-        self.avail = {}
-        for name, writerClass in self._registered.items():
-            if writerClass.isAvailable():
-                self.avail[name] = writerClass
+        self.avail = {name: writerClass
+                      for name, writerClass in self._registered.items()
+                      if writerClass.isAvailable()}
         self._dirty = False
 
     def list(self):
@@ -195,11 +194,11 @@ class AbstractMovieWriter(abc.ABC):
 
         Parameters
         ----------
-        fig: `matplotlib.figure.Figure` instance
+        fig : `matplotlib.figure.Figure` instance
             The figure object that contains the information for frames
-        outfile: string
+        outfile : string
             The filename of the resulting movie file
-        dpi: int, optional
+        dpi : int, optional
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file. Default is ``fig.dpi``.
         '''
@@ -254,22 +253,22 @@ class MovieWriter(AbstractMovieWriter):
 
         Parameters
         ----------
-        fps: int
+        fps : int
             Framerate for movie.
-        codec: string or None, optional
+        codec : string or None, optional
             The codec to use. If ``None`` (the default) the ``animation.codec``
             rcParam is used.
-        bitrate: int or None, optional
+        bitrate : int or None, optional
             The bitrate for the saved movie file, which is one way to control
             the output file size and quality. The default value is ``None``,
             which uses the ``animation.bitrate`` rcParam.  A value of -1
             implies that the bitrate should be determined automatically by the
             underlying utility.
-        extra_args: list of strings or None, optional
+        extra_args : list of strings or None, optional
             A list of extra string arguments to be passed to the underlying
             movie utility. The default is ``None``, which passes the additional
             arguments in the ``animation.extra_args`` rcParam.
-        metadata: Dict[str, str] or None
+        metadata : Dict[str, str] or None
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
@@ -346,12 +345,11 @@ class MovieWriter(AbstractMovieWriter):
         # movie file.  *args* returns the sequence of command line arguments
         # from a few configuration options.
         command = self._args()
-        output = subprocess.PIPE
         _log.info('MovieWriter.run: running command: %s', command)
-        self._proc = subprocess.Popen(command, shell=False,
-                                      stdout=output, stderr=output,
-                                      stdin=subprocess.PIPE,
-                                      creationflags=subprocess_creation_flags)
+        PIPE = subprocess.PIPE
+        self._proc = subprocess.Popen(
+            command, stdin=PIPE, stdout=PIPE, stderr=PIPE,
+            creationflags=subprocess_creation_flags)
 
     def finish(self):
         '''Finish any processing for writing the movie.'''
@@ -365,22 +363,14 @@ class MovieWriter(AbstractMovieWriter):
         command that saves the figure.
         '''
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
-        try:
-            # re-adjust the figure size in case it has been changed by the
-            # user.  We must ensure that every frame is the same size or
-            # the movie will not save correctly.
-            self.fig.set_size_inches(self._w, self._h)
-            # Tell the figure to save its data to the sink, using the
-            # frame format and dpi.
-            self.fig.savefig(self._frame_sink(), format=self.frame_format,
-                             dpi=self.dpi, **savefig_kwargs)
-        except (RuntimeError, IOError) as e:
-            out, err = self._proc.communicate()
-            _log.info('MovieWriter -- Error running proc:\n%s\n%s', out, err)
-            raise IOError('Error saving animation to file (cause: {0}) '
-                          'Stdout: {1} StdError: {2}. It may help to re-run '
-                          'with logging level set to '
-                          'DEBUG.'.format(e, out, err))
+        # re-adjust the figure size in case it has been changed by the
+        # user.  We must ensure that every frame is the same size or
+        # the movie will not save correctly.
+        self.fig.set_size_inches(self._w, self._h)
+        # Tell the figure to save its data to the sink, using the
+        # frame format and dpi.
+        self.fig.savefig(self._frame_sink(), format=self.frame_format,
+                         dpi=self.dpi, **savefig_kwargs)
 
     def _frame_sink(self):
         '''Returns the place to which frames should be written.'''
@@ -394,8 +384,18 @@ class MovieWriter(AbstractMovieWriter):
         '''Clean-up and collect the process used to write the movie file.'''
         out, err = self._proc.communicate()
         self._frame_sink().close()
-        _log.debug('MovieWriter -- Command stdout:\n%s', out)
-        _log.debug('MovieWriter -- Command stderr:\n%s', err)
+        # Use the encoding/errors that universal_newlines would use.
+        out = TextIOWrapper(BytesIO(out)).read()
+        err = TextIOWrapper(BytesIO(err)).read()
+        _log.log(
+            logging.WARNING if self._proc.returncode else logging.DEBUG,
+            "MovieWriter stdout:\n%s", out)
+        _log.log(
+            logging.WARNING if self._proc.returncode else logging.DEBUG,
+            "MovieWriter stderr:\n%s", err)
+        if self._proc.returncode:
+            raise subprocess.CalledProcessError(
+                self._proc.returncode, self._proc.args, out, err)
 
     @classmethod
     def bin_path(cls):
@@ -502,36 +502,17 @@ class FileMovieWriter(MovieWriter):
         '''
         # Overloaded to explicitly close temp file.
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
-        try:
-            # Tell the figure to save its data to the sink, using the
-            # frame format and dpi.
-            with self._frame_sink() as myframesink:
-                self.fig.savefig(myframesink, format=self.frame_format,
-                                 dpi=self.dpi, **savefig_kwargs)
-
-        except RuntimeError:
-            out, err = self._proc.communicate()
-            _log.info('MovieWriter -- Error running proc:\n%s\n%s', out, err)
-            raise
+        # Tell the figure to save its data to the sink, using the
+        # frame format and dpi.
+        with self._frame_sink() as myframesink:
+            self.fig.savefig(myframesink, format=self.frame_format,
+                             dpi=self.dpi, **savefig_kwargs)
 
     def finish(self):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
         self._run()
         MovieWriter.finish(self)  # Will call clean-up
-
-        # Check error code for creating file here, since we just run
-        # the process here, rather than having an open pipe.
-        if self._proc.returncode:
-            try:
-                stdout = [s.decode() for s in self._proc._stdout_buff]
-                stderr = [s.decode() for s in self._proc._stderr_buff]
-                _log.info("MovieWriter.finish: stdout: %s", stdout)
-                _log.info("MovieWriter.finish: stderr: %s", stderr)
-            except Exception as e:
-                pass
-            raise RuntimeError('Error creating movie, return code: {}'
-                               .format(self._proc.returncode))
 
     def cleanup(self):
         MovieWriter.cleanup(self)
@@ -580,7 +561,7 @@ class PillowWriter(MovieWriter):
     def finish(self):
         self._frames[0].save(
             self._outfile, save_all=True, append_images=self._frames[1:],
-            duration=int(1000 / self.fps))
+            duration=int(1000 / self.fps), loop=0)
 
 
 # Base class of ffmpeg information. Has the config keys and the common set
@@ -704,7 +685,7 @@ class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
     '''
 
 
-# Base class for animated GIFs with convert utility
+# Base class for animated GIFs with ImageMagick
 class ImageMagickBase(object):
     '''Mixin class for ImageMagick output.
 
@@ -724,48 +705,33 @@ class ImageMagickBase(object):
         return [self.outfile]
 
     @classmethod
-    def _init_from_registry(cls):
-        if sys.platform != 'win32' or rcParams[cls.exec_key] != 'convert':
-            return
-        import winreg
-        for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
-            try:
-                hkey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE,
-                                        r'Software\Imagemagick\Current',
-                                        0, winreg.KEY_QUERY_VALUE | flag)
-                binpath = winreg.QueryValueEx(hkey, 'BinPath')[0]
-                winreg.CloseKey(hkey)
-                break
-            except Exception:
-                binpath = ''
-        if binpath:
-            for exe in ('convert.exe', 'magick.exe'):
-                path = os.path.join(binpath, exe)
-                if os.path.exists(path):
-                    binpath = path
-                    break
-            else:
-                binpath = ''
-        rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
-
-    @classmethod
-    def isAvailable(cls):
-        '''
-        Check to see if a ImageMagickWriter is actually available.
-
-        Done by first checking the windows registry (if applicable) and then
-        running the commandline tool.
-        '''
-        bin_path = cls.bin_path()
-        if bin_path == "convert":
-            cls._init_from_registry()
-        return super().isAvailable()
+    def bin_path(cls):
+        binpath = super().bin_path()
+        if sys.platform == 'win32' and binpath == 'convert':
+            # Check the registry to avoid confusing ImageMagick's convert with
+            # Windows's builtin convert.exe.
+            import winreg
+            binpath = ''
+            for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
+                try:
+                    with winreg.OpenKeyEx(
+                            winreg.HKEY_LOCAL_MACHINE,
+                            r'Software\Imagemagick\Current',
+                            0, winreg.KEY_QUERY_VALUE | flag) as hkey:
+                        parent = winreg.QueryValueEx(hkey, 'BinPath')[0]
+                except OSError:
+                    pass
+            if binpath:
+                for exe in ('convert.exe', 'magick.exe'):
+                    candidate = os.path.join(parent, exe)
+                    if os.path.exists(candidate):
+                        binpath = candidate
+                        break
+            rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
+        return binpath
 
 
-# Note: the base classes need to be in that order to get
-# isAvailable() from ImageMagickBase called and not the
-# one from MovieWriter. The latter is then called by the
-# former.
+# Combine ImageMagick options with pipe-based writing
 @writers.register('imagemagick')
 class ImageMagickWriter(ImageMagickBase, MovieWriter):
     '''Pipe-based animated gif.
@@ -782,10 +748,7 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter):
                 + self.output_args)
 
 
-# Note: the base classes need to be in that order to get
-# isAvailable() from ImageMagickBase called and not the
-# one from MovieWriter. The latter is then called by the
-# former.
+# Combine ImageMagick options with temp file-based writing
 @writers.register('imagemagick_file')
 class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     '''File-based animated gif writer.
@@ -894,17 +857,7 @@ class HTMLWriter(FileMovieWriter):
         else:
             return super().grab_frame(**savefig_kwargs)
 
-    def _run(self):
-        # make a duck-typed subprocess stand in
-        # this is called by the MovieWriter base class, but not used here.
-        class ProcessStandin(object):
-            returncode = 0
-
-            def communicate(self):
-                return '', ''
-
-        self._proc = ProcessStandin()
-
+    def finish(self):
         # save the frames to an html file
         if self.embed_frames:
             fill_frames = _embedded_frames(self._saved_frames,
@@ -1014,7 +967,8 @@ class Animation(object):
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
              bitrate=None, extra_args=None, metadata=None, extra_anim=None,
              savefig_kwargs=None):
-        '''Saves a movie file by drawing every frame.
+        """
+        Save the animation as a movie file by drawing every frame.
 
         Parameters
         ----------
@@ -1025,7 +979,7 @@ class Animation(object):
         writer : :class:`MovieWriter` or str, optional
             A `MovieWriter` instance to use or a key that identifies a
             class to use, such as 'ffmpeg'. If ``None``, defaults to
-            :rc:`animation.writer`.
+            :rc:`animation.writer` = 'ffmpeg'.
 
         fps : number, optional
            Frames per second in the movie. Defaults to ``None``, which will use
@@ -1039,13 +993,13 @@ class Animation(object):
         codec : str, optional
            The video codec to be used. Not all codecs are supported
            by a given :class:`MovieWriter`. If ``None``, default to
-           :rc:`animation.codec`.
+           :rc:`animation.codec` = 'h264'.
 
         bitrate : number, optional
            Specifies the number of bits used per second in the compressed
            movie, in kilobits per second. A higher number means a higher
            quality movie, but at the cost of increased file size. If ``None``,
-           defaults to :rc:`animation.bitrate`.
+           defaults to :rc:`animation.bitrate` = -1.
 
         extra_args : list, optional
            List of extra string arguments to be passed to the underlying movie
@@ -1070,13 +1024,12 @@ class Animation(object):
 
         Notes
         -----
-        fps, codec, bitrate, extra_args, metadata are used to
-        construct a :class:`MovieWriter` instance and can only be
-        passed if `writer` is a string.  If they are passed as
-        non-`None` and ``writer`` is a :class:`MovieWriter`, a
-        `RuntimeError` will be raised.
+        *fps*, *codec*, *bitrate*, *extra_args* and *metadata* are used to
+        construct a `.MovieWriter` instance and can only be passed if
+        *writer* is a string.  If they are passed as non-*None* and *writer*
+        is a `.MovieWriter`, a `RuntimeError` will be raised.
 
-        '''
+        """
         # If the writer is None, use the rc param to find the name of the one
         # to use
         if writer is None:
@@ -1194,12 +1147,12 @@ class Animation(object):
             return False
 
     def new_frame_seq(self):
-        '''Creates a new sequence of frame information.'''
+        """Return a new sequence of frame information."""
         # Default implementation is just an iterator over self._framedata
         return iter(self._framedata)
 
     def new_saved_frame_seq(self):
-        '''Creates a new sequence of saved/cached frame information.'''
+        """Return a new sequence of saved/cached frame information."""
         # Default is the same as the regular frame sequence
         return self.new_frame_seq()
 
@@ -1293,14 +1246,30 @@ class Animation(object):
                                                        self._handle_resize)
 
     def to_html5_video(self, embed_limit=None):
-        '''Returns animation as an HTML5 video tag.
+        """
+        Convert the animation to an HTML5 ``<video>`` tag.
 
         This saves the animation as an h264 video, encoded in base64
         directly into the HTML5 video tag. This respects the rc parameters
         for the writer as well as the bitrate. This also makes use of the
         ``interval`` to control the speed, and uses the ``repeat``
         parameter to decide whether to loop.
-        '''
+
+        Parameters
+        ----------
+        embed_limit : float, optional
+            Limit, in MB, of the returned animation. No animation is created
+            if the limit is exceeded.
+            Defaults to :rc:`animation.embed_limit` = 20.0.
+
+        Returns
+        -------
+        video_tag : str
+            An HTML5 video tag with the animation embedded as base64 encoded
+            h264 video.
+            If the *embed_limit* is exceeded, this returns the string
+            "Video too large to embed."
+        """
         VIDEO_TAG = r'''<video {size} {options}>
   <source type="video/mp4" src="data:video/mp4;base64,{video}">
   Your browser does not support the video tag.
@@ -1550,8 +1519,8 @@ class ArtistAnimation(TimedAnimation):
 
 
 class FuncAnimation(TimedAnimation):
-    '''
-    Makes an animation by repeatedly calling a function ``func``.
+    """
+    Makes an animation by repeatedly calling a function *func*.
 
     Parameters
     ----------
@@ -1561,26 +1530,32 @@ class FuncAnimation(TimedAnimation):
 
     func : callable
        The function to call at each frame.  The first argument will
-       be the next value in ``frames``.   Any additional positional
-       arguments can be supplied via the ``fargs`` parameter.
+       be the next value in *frames*.   Any additional positional
+       arguments can be supplied via the *fargs* parameter.
 
        The required signature is::
 
-          def func(frame, *fargs) -> iterable_of_artists:
+          def func(frame, *fargs) -> iterable_of_artists
+
+       If ``blit == True``, *func* must return an iterable of all artists
+       that were modified or created. This information is used by the blitting
+       algorithm to determine which parts of the figure have to be updated.
+       The return value is unused if ``blit == False`` and may be omitted in
+       that case.
 
     frames : iterable, int, generator function, or None, optional
-        Source of data to pass ``func`` and each frame of the animation
+        Source of data to pass *func* and each frame of the animation
 
-        If an iterable, then simply use the values provided.  If the
-        iterable has a length, it will override the ``save_count`` kwarg.
+        - If an iterable, then simply use the values provided.  If the
+          iterable has a length, it will override the *save_count* kwarg.
 
-        If an integer, then equivalent to passing ``range(frames)``
+        - If an integer, then equivalent to passing ``range(frames)``
 
-        If a generator function, then must have the signature::
+        - If a generator function, then must have the signature::
 
-           def gen_function() -> obj:
+             def gen_function() -> obj
 
-        If ``None``, then equivalent to passing ``itertools.count``.
+        - If *None*, then equivalent to passing ``itertools.count``.
 
         In all of these cases, the values in *frames* is simply passed through
         to the user-supplied *func* and thus can be of any type.
@@ -1591,12 +1566,15 @@ class FuncAnimation(TimedAnimation):
        will be used. This function will be called once before the
        first frame.
 
-       If ``blit == True``, ``init_func`` must return an iterable of artists
-       to be re-drawn.
-
        The required signature is::
 
-          def init_func() -> iterable_of_artists:
+          def init_func() -> iterable_of_artists
+
+       If ``blit == True``, *init_func* must return an iterable of artists
+       to be re-drawn. This information is used by the blitting
+       algorithm to determine which parts of the figure have to be updated.
+       The return value is unused if ``blit == False`` and may be omitted in
+       that case.
 
     fargs : tuple or None, optional
        Additional arguments to pass to each call to *func*.
@@ -1609,19 +1587,19 @@ class FuncAnimation(TimedAnimation):
 
     repeat_delay : number, optional
        If the animation in repeated, adds a delay in milliseconds
-       before repeating the animation.  Defaults to ``None``.
+       before repeating the animation.  Defaults to *None*.
 
     repeat : bool, optional
        Controls whether the animation should repeat when the sequence
-       of frames is completed.  Defaults to ``True``.
+       of frames is completed.  Defaults to *True*.
 
     blit : bool, optional
        Controls whether blitting is used to optimize drawing. Note: when using
        blitting any animated artists will be drawn according to their zorder.
        However, they will be drawn on top of any previous artists, regardless
-       of their zorder.  Defaults to ``False``.
+       of their zorder.  Defaults to *False*.
+    """
 
-    '''
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
                  save_count=None, **kwargs):
         if fargs:
@@ -1699,10 +1677,10 @@ class FuncAnimation(TimedAnimation):
                         pass
                     else:
                         cbook.warn_deprecated(
-                            "2.2", "FuncAnimation.save has truncated your "
-                            "animation to 100 frames.  In the future, no such "
-                            "truncation will occur; please pass 'save_count' "
-                            "accordingly.")
+                            "2.2", message="FuncAnimation.save has truncated "
+                            "your animation to 100 frames.  In the future, no "
+                            "such truncation will occur; please pass "
+                            "'save_count' accordingly.")
 
                 return gen()
 

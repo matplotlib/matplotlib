@@ -62,8 +62,8 @@ class TexManager(object):
     # Caches.
     rgba_arrayd = {}
     grey_arrayd = {}
-    postscriptd = property(mpl.cbook.deprecated("2.2")(lambda self: {}))
-    pscnt = property(mpl.cbook.deprecated("2.2")(lambda self: 0))
+    postscriptd = mpl.cbook.deprecated("2.2")(property(lambda self: {}))
+    pscnt = mpl.cbook.deprecated("2.2")(property(lambda self: 0))
 
     serif = ('cmr', '')
     sans_serif = ('cmss', '')
@@ -181,7 +181,7 @@ class TexManager(object):
 
     def get_custom_preamble(self):
         """Return a string containing user additions to the tex preamble."""
-        return '\n'.join(rcParams['text.latex.preamble'])
+        return rcParams['text.latex.preamble']
 
     def make_tex(self, tex, fontsize):
         """
@@ -463,6 +463,6 @@ class TexManager(object):
             # use dviread. It sometimes returns a wrong descent.
             dvifile = self.make_dvi(tex, fontsize)
             with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
-                page = next(iter(dvi))
+                page, = dvi
             # A total height (including the descent) needs to be returned.
             return page.width, page.height + page.descent, page.descent

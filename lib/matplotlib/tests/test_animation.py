@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
+import subprocess
 import sys
 
 import numpy as np
+from pathlib import Path
 import pytest
 
 import matplotlib as mpl
@@ -122,10 +124,8 @@ WRITER_OUTPUT = [
     ('html', 'movie.html'),
     ('null', 'movie.null')
 ]
-if sys.version_info >= (3, 6):
-    from pathlib import Path
-    WRITER_OUTPUT += [
-        (writer, Path(output)) for writer, output in WRITER_OUTPUT]
+WRITER_OUTPUT += [
+    (writer, Path(output)) for writer, output in WRITER_OUTPUT]
 
 
 # Smoke test for saving animations.  In the future, we should probably
@@ -229,20 +229,18 @@ def test_embed_limit(method_name, caplog, tmpdir):
 @pytest.mark.parametrize(
     "method_name",
     ["to_html5_video",
-     pytest.mark.xfail("to_jshtml")])  # Needs to be fixed.
+     pytest.param("to_jshtml",
+                  marks=pytest.mark.xfail)])
 def test_cleanup_temporaries(method_name, tmpdir):
     with tmpdir.as_cwd():
         getattr(make_animation(frames=1), method_name)()
         assert list(Path(str(tmpdir)).iterdir()) == []
 
 
-# Currently, this fails with a ValueError after we try to communicate() twice
-# with the Popen.
-@pytest.mark.xfail
 @pytest.mark.skipif(os.name != "posix", reason="requires a POSIX OS")
 def test_failing_ffmpeg(tmpdir, monkeypatch):
     """
-    Test that we correctly raise an OSError when ffmpeg fails.
+    Test that we correctly raise a CalledProcessError when ffmpeg fails.
 
     To do so, mock ffmpeg using a simple executable shell script that
     succeeds when called with no arguments (so that it gets registered by
@@ -251,12 +249,12 @@ def test_failing_ffmpeg(tmpdir, monkeypatch):
     try:
         with tmpdir.as_cwd():
             monkeypatch.setenv("PATH", ".:" + os.environ["PATH"])
-            exe_path = Path(tmpdir, "ffmpeg")
+            exe_path = Path(str(tmpdir), "ffmpeg")
             exe_path.write_text("#!/bin/sh\n"
                                 "[[ $@ -eq 0 ]]\n")
             os.chmod(str(exe_path), 0o755)
             animation.writers.reset_available_writers()
-            with pytest.raises(OSError):
+            with pytest.raises(subprocess.CalledProcessError):
                 make_animation().save("test.mpeg")
     finally:
         animation.writers.reset_available_writers()

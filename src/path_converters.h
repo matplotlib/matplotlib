@@ -484,7 +484,7 @@ class PathSnapper
                 case agg::path_cmd_curve4:
                     return false;
                 case agg::path_cmd_line_to:
-                    if (!(fabs(x0 - x1) < 1e-4 || fabs(y0 - y1) < 1e-4)) {
+                    if (fabs(x0 - x1) >= 1e-4 && fabs(y0 - y1) >= 1e-4) {
                         return false;
                     }
                 }

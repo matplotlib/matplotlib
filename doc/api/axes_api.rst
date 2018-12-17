@@ -1,6 +1,6 @@
-====
-axes
-====
+*******************
+``matplotlib.axes``
+*******************
 
 .. currentmodule:: matplotlib.axes
 
@@ -435,6 +435,7 @@ Adding Artists
    :nosignatures:
 
    Axes.add_artist
+   Axes.add_child_axes
    Axes.add_collection
    Axes.add_container
    Axes.add_image
@@ -671,7 +672,6 @@ Other
    :nosignatures:
 
    Axes.zorder
-   Axes.aname
    Axes.get_default_bbox_extra_artists
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data

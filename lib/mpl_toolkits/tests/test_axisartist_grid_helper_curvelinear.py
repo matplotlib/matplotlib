@@ -7,8 +7,8 @@ from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D, Transform
 from matplotlib.testing.decorators import image_comparison
 
-from mpl_toolkits.axes_grid.parasite_axes import ParasiteAxesAuxTrans, \
-    SubplotHost
+from mpl_toolkits.axes_grid1.parasite_axes import ParasiteAxesAuxTrans
+from mpl_toolkits.axisartist import SubplotHost
 from mpl_toolkits.axes_grid1.parasite_axes import host_subplot_class_factory
 from mpl_toolkits.axisartist import angle_helper
 from mpl_toolkits.axisartist.axislines import Axes

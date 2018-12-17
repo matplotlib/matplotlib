@@ -69,7 +69,8 @@ class LinearScale(ScaleBase):
         axis.set_major_formatter(ScalarFormatter())
         axis.set_minor_formatter(NullFormatter())
         # update the minor locator for x and y axis based on rcParams
-        if rcParams['xtick.minor.visible']:
+        if (axis.axis_name == 'x' and rcParams['xtick.minor.visible']
+            or axis.axis_name == 'y' and rcParams['ytick.minor.visible']):
             axis.set_minor_locator(AutoMinorLocator())
         else:
             axis.set_minor_locator(NullLocator())
@@ -579,7 +580,17 @@ def register_scale(scale_class):
     _scale_mapping[scale_class.name] = scale_class
 
 
+@cbook.deprecated(
+    '3.1', message='get_scale_docs() is considered private API since '
+                   '3.1 and will be removed from the public API in 3.3.')
 def get_scale_docs():
+    """
+    Helper function for generating docstrings related to scales.
+    """
+    return _get_scale_docs()
+
+
+def _get_scale_docs():
     """
     Helper function for generating docstrings related to scales.
     """
@@ -598,5 +609,5 @@ def get_scale_docs():
 
 docstring.interpd.update(
     scale=' | '.join([repr(x) for x in get_scale_names()]),
-    scale_docs=get_scale_docs().rstrip(),
+    scale_docs=_get_scale_docs().rstrip(),
     )

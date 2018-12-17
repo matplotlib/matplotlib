@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import matplotlib
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext
 
@@ -267,7 +267,13 @@ def test_single_minus_sign():
 
     buff = io.BytesIO()
     plt.savefig(buff, format="rgba", dpi=1000)
-    array = np.fromstring(buff.getvalue(), dtype=np.uint8)
+    array = np.frombuffer(buff.getvalue(), dtype=np.uint8)
 
     # If this fails, it would be all white
     assert not np.all(array == 0xff)
+
+
+@check_figures_equal(extensions=["png"])
+def test_spaces(fig_test, fig_ref):
+    fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
+    fig_ref.subplots().set_title(r"$1\/2\:3~4$")

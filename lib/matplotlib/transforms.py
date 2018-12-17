@@ -34,12 +34,12 @@ themselves.
 # done so that `nan`s are propagated, instead of being silently dropped.
 
 import re
-import warnings
 import weakref
 
 import numpy as np
 from numpy.linalg import inv
 
+from matplotlib import cbook
 from matplotlib._path import (
     affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
 from .path import Path
@@ -266,11 +266,11 @@ class BboxBase(TransformNode):
     if DEBUG:
         def _check(points):
             if isinstance(points, np.ma.MaskedArray):
-                warnings.warn("Bbox bounds are a masked array.")
+                cbook._warn_external("Bbox bounds are a masked array.")
             points = np.asarray(points)
             if (points[1, 0] - points[0, 0] == 0 or
                 points[1, 1] - points[0, 1] == 0):
-                warnings.warn("Singular Bbox.")
+                cbook._warn_external("Singular Bbox.")
         _check = staticmethod(_check)
 
     def frozen(self):
@@ -562,7 +562,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        c :
+        c : (float, float) or str
             May be either:
 
             * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0
@@ -1552,9 +1552,7 @@ class Transform(TransformNode):
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
         x = self.transform_non_affine(path.vertices)
-        return Path._fast_from_codes_and_verts(x, path.codes,
-                {'interpolation_steps': path._interpolation_steps,
-                 'should_simplify': path.should_simplify})
+        return Path._fast_from_codes_and_verts(x, path.codes, path)
 
     def transform_angles(self, angles, pts, radians=False, pushoff=1e-5):
         """
@@ -1843,7 +1841,7 @@ class Affine2DBase(AffineBase):
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
             if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
-                warnings.warn(
+                cbook._warn_external(
                     ('A non-numpy array of type %s was passed in for ' +
                      'transformation.  Please correct this.')
                     % type(points))
@@ -2762,9 +2760,7 @@ class TransformedPath(TransformNode):
             self._transformed_points = \
                 Path._fast_from_codes_and_verts(
                     self._transform.transform_non_affine(self._path.vertices),
-                    None,
-                    {'interpolation_steps': self._path._interpolation_steps,
-                     'should_simplify': self._path.should_simplify})
+                    None, self._path)
         self._invalid = 0
 
     def get_transformed_points_and_affine(self):
@@ -2832,9 +2828,7 @@ class TransformedPatchPath(TransformedPath):
             self._transformed_points = \
                 Path._fast_from_codes_and_verts(
                     self._transform.transform_non_affine(patch_path.vertices),
-                    None,
-                    {'interpolation_steps': patch_path._interpolation_steps,
-                     'should_simplify': patch_path.should_simplify})
+                    None, patch_path)
         self._invalid = 0
 
 

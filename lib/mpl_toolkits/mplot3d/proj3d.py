@@ -37,7 +37,7 @@ def line2d_dist(l, p):
     """
     a, b, c = l
     x0, y0 = p
-    return abs((a*x0 + b*y0 + c) / np.sqrt(a**2+b**2))
+    return abs((a*x0 + b*y0 + c) / np.hypot(a, b))
 
 
 def line2d_seg_dist(p1, p2, p0):
@@ -57,7 +57,7 @@ def line2d_seg_dist(p1, p2, p0):
 
     u = (x01*x21 + y01*y21) / (x21**2 + y21**2)
     u = np.clip(u, 0, 1)
-    d = np.sqrt((x01 - u*x21)**2 + (y01 - u*y21)**2)
+    d = np.hypot(x01 - u*x21, y01 - u*y21)
 
     return d
 

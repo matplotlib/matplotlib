@@ -26,7 +26,7 @@ local FreeType build.
 The following software is required to run the tests:
 
 - pytest_ (>=3.6)
-- Ghostscript_ (to render PDF files)
+- Ghostscript_ (>= 9.0, to render PDF files)
 - Inkscape_ (to render SVG files)
 
 Optionally you can install:
@@ -143,60 +143,40 @@ The seed is John Hunter's birthday.
 Writing an image comparison test
 --------------------------------
 
-Writing an image based test is only slightly more difficult than a
-simple test. The main consideration is that you must specify the
-"baseline", or expected, images in the
-:func:`~matplotlib.testing.decorators.image_comparison` decorator. For
-example, this test generates a single image and automatically tests it::
+Writing an image-based test is only slightly more difficult than a simple
+test. The main consideration is that you must specify the "baseline", or
+expected, images in the `~matplotlib.testing.decorators.image_comparison`
+decorator. For example, this test generates a single image and automatically
+tests it::
 
-  import numpy as np
-  import matplotlib
-  from matplotlib.testing.decorators import image_comparison
-  import matplotlib.pyplot as plt
+   from matplotlib.testing.decorators import image_comparison
+   import matplotlib.pyplot as plt
 
-  @image_comparison(baseline_images=['spines_axes_positions'],
-                    extensions=['png'])
-  def test_spines_axes_positions():
-      # SF bug 2852168
-      fig = plt.figure()
-      x = np.linspace(0,2*np.pi,100)
-      y = 2*np.sin(x)
-      ax = fig.add_subplot(1,1,1)
-      ax.set_title('centered spines')
-      ax.plot(x,y)
-      ax.spines['right'].set_position(('axes',0.1))
-      ax.yaxis.set_ticks_position('right')
-      ax.spines['top'].set_position(('axes',0.25))
-      ax.xaxis.set_ticks_position('top')
-      ax.spines['left'].set_color('none')
-      ax.spines['bottom'].set_color('none')
+   @image_comparison(baseline_images=['line_dashes'], remove_text=True,
+                     extensions=['png'])
+   def test_line_dashes():
+       fig, ax = plt.subplots()
+       ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
 
-The first time this test is run, there will be no baseline image to
-compare against, so the test will fail.  Copy the output images (in
-this case `result_images/test_category/spines_axes_positions.png`) to
-the correct subdirectory of `baseline_images` tree in the source
-directory (in this case
-`lib/matplotlib/tests/baseline_images/test_category`).  Put this new
-file under source code revision control (with `git add`).  When
-rerunning the tests, they should now pass.
+The first time this test is run, there will be no baseline image to compare
+against, so the test will fail.  Copy the output images (in this case
+:file:`result_images/test_lines/test_line_dashes.png`) to the correct
+subdirectory of :file:`baseline_images` tree in the source directory (in this
+case :file:`lib/matplotlib/tests/baseline_images/test_lines`).  Put this new
+file under source code revision control (with ``git add``).  When rerunning
+the tests, they should now pass.
 
-The :func:`~matplotlib.testing.decorators.image_comparison` decorator
-defaults to generating ``png``, ``pdf`` and ``svg`` output, but in
-interest of keeping the size of the library from ballooning we should only
-include the ``svg`` or ``pdf`` outputs if the test is explicitly exercising
-a feature dependent on that backend.
+Baseline images take a lot of space in the Matplotlib repository.
+An alternative approach for image comparison tests is to use the
+`~matplotlib.testing.decorators.check_figures_equal` decorator, which should be
+used to decorate a function taking two `Figure` parameters and draws the same
+images on the figures using two different methods (the tested method and the
+baseline method).  The decorator will arrange for setting up the figures and
+then collect the drawn results and compare them.
 
-There are two optional keyword arguments to the `image_comparison`
-decorator:
-
-- `extensions`: If you only wish to test additional image formats (rather than
-  just `png`), pass any additional file types in the list of the extensions to
-  test.  When copying the new baseline files be sure to only copy the output
-  files, not their conversions to ``png``.  For example only copy the files
-  ending in ``pdf``, not in ``_pdf.png``.
-
-- `tol`: This is the image matching tolerance, the default `1e-3`. If some
-  variation is expected in the image between runs, this value may be adjusted.
+See the documentation of `~matplotlib.testing.decorators.image_comparison` and
+`~matplotlib.testing.decorators.check_figures_equal` for additional information
+about their use.
 
 Known failing tests
 -------------------
@@ -258,16 +238,12 @@ example <https://travis-ci.org/msabramo/matplotlib>`_.
 Using tox
 ---------
 
-`Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running
-tests against
-multiple Python environments, including multiple versions of Python
-(e.g., 3.5, 3.6) and even different Python implementations
-altogether (e.g., CPython, PyPy, Jython, etc.)
-
-Testing all versions of Python (3.5, 3.6, ...) requires
-having multiple versions of Python installed on your system and on the
-PATH. Depending on your operating system, you may want to use your
-package manager (such as apt-get, yum or MacPorts) to do this.
+`Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running tests
+against multiple Python environments, including multiple versions of Python
+(e.g., 3.6, 3.7) and even different Python implementations altogether
+(e.g., CPython, PyPy, Jython, etc.), as long as all these versions are
+available on your system's $PATH (consider using your system package manager,
+e.g. apt-get, yum, or Homebrew, to install them).
 
 tox makes it easy to determine if your working copy introduced any
 regressions before submitting a pull request. Here's how to use it:
@@ -298,3 +274,12 @@ edit this file if you want to add new environments to test (e.g.,
 tests are run. For more info on the ``tox.ini`` file, see the `Tox
 Configuration Specification
 <https://tox.readthedocs.io/en/latest/config.html>`_.
+
+Building old versions of Matplotlib
+-----------------------------------
+
+When running a ``git bisect`` to see which commit introduced a certain bug,
+you may (rarely) need to build very old versions of Matplotlib.  The following
+constraints need to be taken into account:
+
+- Matplotlib 1.3 (or earlier) requires numpy 1.8 (or earlier).

@@ -1,6 +1,6 @@
-import os
+from pathlib import Path
 import shutil
-import tempfile
+import sys
 import warnings
 
 import numpy as np
@@ -18,9 +18,8 @@ def test_font_priority():
     with rc_context(rc={
             'font.sans-serif':
             ['cmmi10', 'Bitstream Vera Sans']}):
-        font = findfont(
-            FontProperties(family=["sans-serif"]))
-    assert os.path.basename(font) == 'cmmi10.ttf'
+        font = findfont(FontProperties(family=["sans-serif"]))
+    assert Path(font).name == 'cmmi10.ttf'
 
     # Smoketest get_charmap, which isn't used internally anymore
     font = get_font(font)
@@ -40,18 +39,12 @@ def test_score_weight():
             fontManager.score_weight(400, 400))
 
 
-def test_json_serialization():
-    # on windows, we can't open a file twice, so save the name and unlink
-    # manually...
-    try:
-        name = None
-        with tempfile.NamedTemporaryFile(delete=False) as temp:
-            name = temp.name
-        json_dump(fontManager, name)
-        copy = json_load(name)
-    finally:
-        if name and os.path.exists(name):
-            os.remove(name)
+def test_json_serialization(tmpdir):
+    # Can't open a NamedTemporaryFile twice on Windows, so use a temporary
+    # directory instead.
+    path = Path(tmpdir, "fontlist.json")
+    json_dump(fontManager, path)
+    copy = json_load(path)
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'findfont: Font family.*not found')
         for prop in ({'family': 'STIXGeneral'},
@@ -64,9 +57,8 @@ def test_json_serialization():
 
 def test_otf():
     fname = '/usr/share/fonts/opentype/freefont/FreeMono.otf'
-    if os.path.exists(fname):
+    if Path(fname).exists():
         assert is_opentype_cff_font(fname)
-
     for f in fontManager.ttflist:
         if 'otf' in f.fname:
             with open(f.fname, 'rb') as fd:
@@ -96,3 +88,20 @@ def test_hinting_factor(factor):
     # Check that hinting only changes text layout by a small (10%) amount.
     np.testing.assert_allclose(hinted_font.get_width_height(), expected,
                                rtol=0.1)
+
+
+@pytest.mark.skipif(sys.platform != "win32",
+                   reason="Need Windows font to test against")
+def test_utf16m_sfnt():
+    segoe_ui_semibold = None
+    for f in fontManager.ttflist:
+        # seguisbi = Microsoft Segoe UI Semibold
+        if f.fname[-12:] == "seguisbi.ttf":
+            segoe_ui_semibold = f
+            break
+    else:
+        pytest.xfail(reason="Couldn't find font to test against.")
+
+    # Check that we successfully read the "semibold" from the font's
+    # sfnt table and set its weight accordingly
+    assert segoe_ui_semibold.weight == "semibold"

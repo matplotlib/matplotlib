@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
+from matplotlib.ticker import LogLocator, LogFormatter
 
 
 def _get_cmap_norms():
@@ -396,3 +397,52 @@ def test_colorbar_axes_kw():
     plt.imshow(([[1, 2], [3, 4]]))
     plt.colorbar(orientation='horizontal', fraction=0.2, pad=0.2, shrink=0.5,
                  aspect=10, anchor=(0., 0.), panchor=(0., 1.))
+
+
+def test_colorbar_log_minortick_labels():
+    with rc_context({'_internal.classic_mode': False}):
+        fig, ax = plt.subplots()
+        pcm = ax.imshow([[10000, 50000]], norm=LogNorm())
+        cb = fig.colorbar(pcm)
+        fig.canvas.draw()
+        lb = cb.ax.yaxis.get_ticklabels(which='both')
+        expected = [r'$\mathdefault{10^{4}}$',
+                    r'$\mathdefault{2\times10^{4}}$',
+                    r'$\mathdefault{3\times10^{4}}$',
+                    r'$\mathdefault{4\times10^{4}}$']
+        for l, exp in zip(lb, expected):
+            assert l.get_text() == exp
+
+
+def test_colorbar_renorm():
+    x, y = np.ogrid[-4:4:31j, -4:4:31j]
+    z = 120000*np.exp(-x**2 - y**2)
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(z)
+    cbar = fig.colorbar(im)
+
+    norm = LogNorm(z.min(), z.max())
+    im.set_norm(norm)
+    cbar.set_norm(norm)
+    cbar.locator = LogLocator()
+    cbar.formatter = LogFormatter()
+    cbar.update_normal(im)
+    assert np.isclose(cbar.vmin, z.min())
+
+    norm = LogNorm(z.min() * 1000, z.max() * 1000)
+    im.set_norm(norm)
+    cbar.set_norm(norm)
+    cbar.update_normal(im)
+    assert np.isclose(cbar.vmin, z.min() * 1000)
+    assert np.isclose(cbar.vmax, z.max() * 1000)
+
+
+def test_colorbar_get_ticks():
+    with rc_context({'_internal.classic_mode': False}):
+
+        fig, ax = plt. subplots()
+        np.random.seed(19680801)
+        pc = ax.pcolormesh(np.random.rand(30, 30))
+        cb = fig.colorbar(pc)
+        np.testing.assert_allclose(cb.get_ticks(), [0.2, 0.4, 0.6, 0.8])

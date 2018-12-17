@@ -2,8 +2,8 @@ import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from matplotlib import cm
-from matplotlib.testing.decorators import image_comparison
-from matplotlib.collections import LineCollection
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,14 +27,21 @@ def test_bar3d():
     extensions=['png']
 )
 def test_bar3d_shaded():
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
     x = np.arange(4)
     y = np.arange(5)
     x2d, y2d = np.meshgrid(x, y)
     x2d, y2d = x2d.ravel(), y2d.ravel()
     z = x2d + y2d
-    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+
+    views = [(-60, 30), (30, 30), (30, -30), (120, -30)]
+    fig = plt.figure(figsize=plt.figaspect(1 / len(views)))
+    axs = fig.subplots(
+        1, len(views),
+        subplot_kw=dict(projection='3d')
+    )
+    for ax, (azim, elev) in zip(axs, views):
+        ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+        ax.view_init(azim=azim, elev=elev)
     fig.canvas.draw()
 
 
@@ -126,9 +133,10 @@ def test_lines3d():
 
 
 # Reason for flakiness of SVG test is still unknown.
-@image_comparison(baseline_images=['mixedsubplot'], remove_text=True,
-                  extensions=['png', 'pdf',
-                              pytest.mark.xfail('svg', strict=False)])
+@image_comparison(
+    baseline_images=['mixedsubplot'], remove_text=True,
+    extensions=['png', 'pdf',
+                pytest.param('svg', marks=pytest.mark.xfail(strict=False))])
 def test_mixedsubplots():
     def f(t):
         s1 = np.cos(2*np.pi*t)
@@ -146,13 +154,26 @@ def test_mixedsubplots():
 
     ax = fig.add_subplot(2, 1, 2, projection='3d')
     X, Y = np.meshgrid(np.arange(-5, 5, 0.25), np.arange(-5, 5, 0.25))
-    R = np.sqrt(X ** 2 + Y ** 2)
+    R = np.hypot(X, Y)
     Z = np.sin(R)
 
     surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40,
                            linewidth=0, antialiased=False)
 
     ax.set_zlim3d(-1, 1)
+
+
+@check_figures_equal(extensions=['png'])
+def test_tight_layout_text(fig_test, fig_ref):
+    # text is currently ignored in tight layout. So the order of text() and
+    # tight_layout() calls should not influence the result.
+    ax1 = fig_test.gca(projection='3d')
+    ax1.text(.5, .5, .5, s='some string')
+    fig_test.tight_layout()
+
+    ax2 = fig_ref.gca(projection='3d')
+    fig_ref.tight_layout()
+    ax2.text(.5, .5, .5, s='some string')
 
 
 @image_comparison(baseline_images=['scatter3d'], remove_text=True)
@@ -194,7 +215,7 @@ def test_surface3d():
     X = np.arange(-5, 5, 0.25)
     Y = np.arange(-5, 5, 0.25)
     X, Y = np.meshgrid(X, Y)
-    R = np.sqrt(X ** 2 + Y ** 2)
+    R = np.hypot(X, Y)
     Z = np.sin(R)
     surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40, cmap=cm.coolwarm,
                            lw=0, antialiased=False)
@@ -417,6 +438,13 @@ def test_poly3dcollection_closed():
                                 facecolor=(1, 0.5, 0.5, 0.5), closed=False)
     ax.add_collection3d(c1)
     ax.add_collection3d(c2)
+
+
+def test_poly_collection_2d_to_3d_empty():
+    poly = PolyCollection([])
+    art3d.poly_collection_2d_to_3d(poly)
+    assert isinstance(poly, art3d.Poly3DCollection)
+    assert poly.get_paths() == []
 
 
 @image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])

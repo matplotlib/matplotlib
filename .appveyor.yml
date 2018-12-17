@@ -8,6 +8,8 @@ branches:
   except:
     - /auto-backport-.*/
 
+clone_depth: 50
+
 environment:
 
   global:
@@ -19,11 +21,11 @@ environment:
     # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,
     # one for 64bit because we construct envs anyway. But using one for the
     # right python version is hopefully making it fast due to package caching.
-    - PYTHON_VERSION: "3.5"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
-      TEST_ALL: "no"
     - PYTHON_VERSION: "3.6"
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
+      TEST_ALL: "no"
+    - PYTHON_VERSION: "3.7"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
       TEST_ALL: "no"
 
 # We always use a 64-bit machine, but can build x86 distributions

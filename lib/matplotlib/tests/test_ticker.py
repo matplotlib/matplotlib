@@ -1,7 +1,7 @@
 import warnings
 
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 import matplotlib
@@ -58,6 +58,23 @@ class TestMultipleLocator(object):
         test_value = np.array([-9.441, -6.294, -3.147, 0., 3.147, 6.294,
                                9.441, 12.588])
         assert_almost_equal(loc.tick_values(-7, 10), test_value)
+
+    def test_view_limits(self):
+        """
+        Test basic behavior of view limits.
+        """
+        with matplotlib.rc_context({'axes.autolimit_mode': 'data'}):
+            loc = mticker.MultipleLocator(base=3.147)
+            assert_almost_equal(loc.view_limits(-5, 5), (-5, 5))
+
+    def test_view_limits_round_numbers(self):
+        """
+        Test that everything works properly with 'round_numbers' for auto
+        limit.
+        """
+        with matplotlib.rc_context({'axes.autolimit_mode': 'round_numbers'}):
+            loc = mticker.MultipleLocator(base=3.147)
+            assert_almost_equal(loc.view_limits(-4, 4), (-6.294, 6.294))
 
     def test_set_params(self):
         """
@@ -161,6 +178,11 @@ class TestLogLocator(object):
         loc = mticker.LogLocator(base=2)
         test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
         assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+    def test_switch_to_autolocator(self):
+        loc = mticker.LogLocator(subs="all")
+        assert_array_equal(loc.tick_values(0.45, 0.55),
+                           [0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56])
 
     def test_set_params(self):
         """
@@ -654,7 +676,7 @@ class TestEngFormatter(object):
         (-0.0, ('0', '0', '0.00')),
         (-0, ('0', '0', '0.00')),
         (0, ('0', '0', '0.00')),
-        (1.23456789e-6, ('1.23457 \u03bc', '1 \u03bc', '1.23 \u03bc')),
+        (1.23456789e-6, ('1.23457 µ', '1 µ', '1.23 µ')),
         (0.123456789, ('123.457 m', '123 m', '123.46 m')),
         (0.1, ('100 m', '100 m', '100.00 m')),
         (1, ('1', '1', '1.00')),
@@ -829,3 +851,21 @@ def test_minlocator_type():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError):
         ax.xaxis.set_minor_locator(matplotlib.ticker.LogFormatter())
+
+
+def test_minorticks_rc():
+    fig = plt.figure()
+
+    def minorticksubplot(xminor, yminor, i):
+        rc = {'xtick.minor.visible': xminor,
+              'ytick.minor.visible': yminor}
+        with plt.rc_context(rc=rc):
+            ax = fig.add_subplot(2, 2, i)
+
+        assert (len(ax.xaxis.get_minor_ticks()) > 0) == xminor
+        assert (len(ax.yaxis.get_minor_ticks()) > 0) == yminor
+
+    minorticksubplot(False, False, 1)
+    minorticksubplot(True, False, 2)
+    minorticksubplot(False, True, 3)
+    minorticksubplot(True, True, 4)
