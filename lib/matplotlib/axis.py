@@ -1486,8 +1486,11 @@ class Axis(martist.Artist):
 
         if self.converter is None:
             return x
-
-        ret = self.converter.convert(x, self.units, self)
+        try:
+            ret = self.converter.convert(x, self.units, self)
+        except Exception as e:
+            raise munits.ConversionError('Failed to convert value(s) to axis '
+                                         f'units: {x!r}') from e
         return ret
 
     def set_units(self, u):
