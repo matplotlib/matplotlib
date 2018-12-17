@@ -219,7 +219,7 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     """
     zs = np.broadcast_to(zs, len(path))
 
-,   pathsegs = path.iter_segments(simplify=False, curves=False)
+    pathsegs = path.iter_segments(simplify=False, curves=False)
     if len(path):
         xs, ys, codes = zip(*((x, y, code) for (x, y), code in pathsegs))
     else:
