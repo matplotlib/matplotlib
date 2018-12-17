@@ -4247,12 +4247,13 @@ class Axes(_AxesBase):
             is 'face'. You may want to change this as well.
             If *None*, defaults to rcParams ``lines.linewidth``.
 
-        edgecolors : {'face', 'none', *None*} or color, optional
+        edgecolors : {'face', 'none', *None*} or color or sequence of color, \
+                optional.
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
             - 'none': No patch boundary will be drawn.
-            - A matplotib color.
+            - A matplotib color or sequence of color.
 
             Defaults to ``None``, in which case it takes the value of
             :rc:`scatter.edgecolors` = 'face'.
