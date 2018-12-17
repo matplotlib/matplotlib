@@ -480,7 +480,9 @@ also`` sections. No need to use backticks there::
 Wrapping parameter lists
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Long parameter lists should be wrapped using a ``\`` for continuation and
-starting on the new line without any indent:
+starting on the new line without any indent (no indent because pydoc will
+parse the docstring and strip the line continuation so that indent would
+result in a lot of whitespace within the line):
 
 .. code-block:: python
 
@@ -490,8 +492,7 @@ starting on the new line without any indent:
 
       Parameters
       ----------
-      projection :
-          {'aitoff', 'hammer', 'lambert', 'mollweide', 'polar', \
+      projection : {'aitoff', 'hammer', 'lambert', 'mollweide', 'polar', \
   'rectilinear'}, optional
           The projection type of the axes.
 
