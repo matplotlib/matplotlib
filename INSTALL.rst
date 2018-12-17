@@ -264,8 +264,8 @@ at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.
 There are a few possibilities to build Matplotlib on Windows:
 
 * Wheels via `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_
-* Wheels by using conda packages
-* Conda packages
+* Wheels by using conda packages (see below)
+* Conda packages (see below)
 
 Wheel builds using conda packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -274,32 +274,19 @@ This is a wheel build, but we use conda packages to get all the requirements.
 The binary requirements (png, FreeType,...) are statically linked and therefore
 not needed during the wheel install.
 
+Set up the conda environment. Note, if you want a qt backend, add ``pyqt`` to
+the list of conda packages.
+
 ::
 
-  # create a new environment with the required packages
-  conda create -n "matplotlib_build" python=3.5 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
-  activate matplotlib_build
-  # if you want a qt backend, you also have to install pyqt (be aware that pyqt doesn't mix well if
-  # you have created the environment with conda-forge already activated...)
-  conda install pyqt
-  # this package is only available in the conda-forge channel
-  conda install -c conda-forge msinttypes
+  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype msinttypes
+  conda activate matplotlib_build
 
-  # copy the libs which have "wrong" names
-  set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
-  mkdir lib || cmd /c "exit /b 0"
-  copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
-  copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
+For building, call the script ``build_alllocal.cmd`` in the root folder of the
+repository::
 
-  # Make the header files and the rest of the static libs available during the build
-  # CONDA_DEFAULT_ENV is a env variable which is set to the currently active environment path
-  set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
+  build_alllocal.cmd
 
-  # build the wheel
-  python setup.py bdist_wheel
-
-The `build_alllocal.cmd` script in the root folder automates these steps if
-you have already created and activated the conda environment.
 
 Conda packages
 ^^^^^^^^^^^^^^
