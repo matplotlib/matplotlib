@@ -674,12 +674,9 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(len(xyzlist), axis=0)
 
-        # if required sort by depth (furthest drawn first)
-        if self._zsort:
-            z_argsort = np.argsort(
-                [self._zsortfunc(xyz[:, 2]) for xyz in xyzlist])[::-1]
-        else:
-            raise ValueError("whoops")
+        # sort by depth (furthest drawn first)
+        z_argsort = np.argsort(
+            [self._zsortfunc(xyz[:, 2]) for xyz in xyzlist])[::-1]
 
         segments_2d = [xyzlist[i][:, 0:2] for i in z_argsort]
         if self._codes3d is not None:
