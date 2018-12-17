@@ -33,8 +33,7 @@ def _get_running_interactive_framework():
              or sys.modules.get("PySide.QtGui"))
     if QtGui and QtGui.QApplication.instance():
         return "qt4"
-    Gtk = (sys.modules.get("gi.repository.Gtk")
-           or sys.modules.get("pgi.repository.Gtk"))
+    Gtk = sys.modules.get("gi.repository.Gtk")
     if Gtk and Gtk.main_level():
         return "gtk3"
     wx = sys.modules.get("wx")

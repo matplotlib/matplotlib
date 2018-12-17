@@ -11,8 +11,7 @@ import gzip
 
 import numpy as np
 
-# cairocffi is more widely compatible than pycairo (in particular pgi only
-# works with cairocffi) so try it first.
+# cairocffi is more widely compatible than pycairo so try it first.
 try:
     import cairocffi as cairo
 except ImportError:

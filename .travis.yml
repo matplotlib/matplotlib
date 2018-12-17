@@ -29,11 +29,14 @@ addons:
       - graphviz
       - inkscape
       - libcairo2
+      - libcairo2-dev
+      - libffi-dev
       - libgeos-dev
-      - libgirepository-1.0.1
+      - libgirepository1.0-dev
       - lmodern
       - otf-freefont
       - pgf
+      - pkg-config
       - texlive-fonts-recommended
       - texlive-latex-base
       - texlive-latex-extra
@@ -132,10 +135,11 @@ install:
     # install was successful by trying to import the toolkit (sometimes, the
     # install appears to be successful but shared libraries cannot be loaded at
     # runtime, so an actual import is a better check).
-    python -mpip install --upgrade cairocffi>=0.8 pgi>=0.0.11.2 &&
-      python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
-      echo 'pgi is available' ||
-      echo 'pgi is not available'
+    python -mpip install --upgrade pycairo cairocffi>=0.8
+    python -mpip install --upgrade PyGObject &&
+      python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+      echo 'PyGObject is available' ||
+      echo 'PyGObject is not available'
     python -mpip install --upgrade pyqt5 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
