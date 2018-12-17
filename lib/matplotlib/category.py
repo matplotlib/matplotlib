@@ -63,15 +63,15 @@ class StrCategoryConverter(units.ConversionInterface):
         """Sets the default axis ticks and labels
 
         Parameters
-        ---------
-        unit : :class:`.UnitData`
+        ----------
+        unit : `.UnitData`
             object string unit information for value
-        axis : :class:`~matplotlib.Axis.axis`
+        axis : `~matplotlib.Axis.axis`
             axis for which information is being set
 
         Returns
         -------
-        :class:~matplotlib.units.AxisInfo~
+        axisinfo : `~matplotlib.units.AxisInfo`
             Information to support default tick labeling
 
         .. note: axis is not used
