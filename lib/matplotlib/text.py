@@ -1319,7 +1319,8 @@ class TextWithDash(Text):
                       multialignment=multialignment,
                       fontproperties=fontproperties,
                       rotation=rotation,
-                      linespacing=linespacing)
+                      linespacing=linespacing,
+                      )
 
         # The position (x,y) values for text and dashline
         # are bogus as given in the instantiation; they will

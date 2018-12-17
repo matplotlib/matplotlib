@@ -699,11 +699,17 @@ class Axes(_AxesBase):
 
             >>> text(x, y, s, bbox=dict(facecolor='red', alpha=0.5))
         """
-        default = {
+        if fontdict is None:
+            fontdict = {}
+
+        effective_kwargs = {
             'verticalalignment': 'baseline',
             'horizontalalignment': 'left',
             'transform': self.transData,
-            'clip_on': False}
+            'clip_on': False,
+            **fontdict,
+            **kwargs,
+        }
 
         # At some point if we feel confident that TextWithDash
         # is robust as a drop-in replacement for Text and that
@@ -711,17 +717,12 @@ class Axes(_AxesBase):
         # isn't too significant, it may make sense to eliminate
         # the withdash kwarg and simply delegate whether there's
         # a dash to TextWithDash and dashlength.
-        if withdash:
-            t = mtext.TextWithDash(
-                x=x, y=y, text=s)
-        else:
-            t = mtext.Text(
-                x=x, y=y, text=s)
 
-        t.update(default)
-        if fontdict is not None:
-            t.update(fontdict)
-        t.update(kwargs)
+        if withdash:
+            t = mtext.TextWithDash(x, y, text=s)
+        else:
+            t = mtext.Text(x, y, text=s)
+        t.update(effective_kwargs)
 
         t.set_clip_path(self.patch)
         self._add_text(t)
