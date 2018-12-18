@@ -616,7 +616,6 @@ class Poly3DCollection(PolyCollection):
         self._vec[:3, :] = np.vstack(segments3d).T
         self._vec[3, :] = 1
 
-
     def set_verts(self, verts, closed=True):
         """Set 3D vertices."""
         self.get_vector(verts)

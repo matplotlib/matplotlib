@@ -128,7 +128,6 @@ def ortho_transformation(zfront, zback):
                      [0, 0, a, b]])
 
 
-
 def proj_transform_vec(vec, M):
     if len(vec) != 4:
         raise ValueError('expected len(vec) of 4, received {}'
@@ -137,7 +136,6 @@ def proj_transform_vec(vec, M):
     vecw = np.dot(M, vec)
     vecw[:3] /= vecw[3]
     return vecw[:3]
-
 
 
 def proj_transform_vec_clip(vec, M):
@@ -150,7 +148,6 @@ def proj_transform_vec_clip(vec, M):
     # Integrating tis in the numpy array for optimization purposes
     vecw[3] = tis
     return vecw
-
 
 
 def inv_transform(xs, ys, zs, M):
