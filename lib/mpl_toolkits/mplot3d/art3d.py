@@ -246,7 +246,7 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
 
         return np.asarray(segments), np.asarray(codes_list)
     else:
-        return np.empty((3, 0), dtype='float64'), np.array([], dtype='uint8')
+        return np.empty((0, 3), dtype=np.float64), np.array([], dtype=np.uint8)
 
 
 class Line3DCollection(LineCollection):
@@ -606,15 +606,17 @@ class Poly3DCollection(PolyCollection):
     def get_vector(self, segments3d):
         """Optimize points for projection"""
 
-        self._seg_sizes = np.array([len(c) for c in segments3d])
+        self._seg_sizes = np.array([len(c) for c in segments3d], dtype=np.int)
         self._vec = []
 
         # Store the points in a single array for easier projection
         n_segments = np.sum(self._seg_sizes)
         self._vec = np.empty((4, n_segments))
         # Put all segments in a big array
-        self._vec[:3, :] = np.vstack(segments3d).T
-        self._vec[3, :] = 1
+        # TODO: avoid copy in np.vstack when segments3d is a 3D numpy array
+        if n_segments:
+            self._vec[:3, :] = np.vstack(segments3d).T
+            self._vec[3, :] = 1
 
     def set_verts(self, verts, closed=True):
         """Set 3D vertices."""
