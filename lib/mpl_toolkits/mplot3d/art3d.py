@@ -234,7 +234,7 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     Convert paths from a collection object to 3D segments with path codes.
 
     .. versionchanged :: 3.1
-       Return type changed from a list to a numpy.array
+       Return type changed from a tuple of lists to a tuple of numpy.array
     """
 
     zs = np.broadcast_to(zs, len(paths))
