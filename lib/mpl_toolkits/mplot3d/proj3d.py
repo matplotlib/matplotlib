@@ -1,8 +1,7 @@
-# 3dproj.py
-#
 """
 Various transforms used for by the 3D code
 """
+
 import numpy as np
 import numpy.linalg as linalg
 
@@ -79,15 +78,10 @@ def line2d_seg_dist(p1, p2, p0):
     return _line2d_seg_dist(p1, p2, p0)
 
 
-def _mod(v):
-    """3d vector length"""
-    return np.sqrt(v[0]**2+v[1]**2+v[2]**2)
-
-
-@cbook.deprecated("3.1")
+@cbook.deprecated("3.1", alternative="np.linalg.norm")
 def mod(v):
     """3d vector length"""
-    return _mod(v)
+    return np.sqrt(v[0]**2+v[1]**2+v[2]**2)
 
 
 def world_transformation(xmin, xmax,
@@ -103,9 +97,9 @@ def world_transformation(xmin, xmax,
 def view_transformation(E, R, V):
     n = (E - R)
     ## new
-#    n /= mod(n)
+#    n /= np.linalg.norm(n)
 #    u = np.cross(V,n)
-#    u /= mod(u)
+#    u /= np.linalg.norm(u)
 #    v = np.cross(n,u)
 #    Mr = np.diag([1.]*4)
 #    Mt = np.diag([1.]*4)
@@ -114,9 +108,9 @@ def view_transformation(E, R, V):
     ## end new
 
     ## old
-    n = n / _mod(n)
+    n = n / np.linalg.norm(n)
     u = np.cross(V, n)
-    u = u / _mod(u)
+    u = u / np.linalg.norm(u)
     v = np.cross(n, u)
     Mr = [[u[0], u[1], u[2], 0],
           [v[0], v[1], v[2], 0],

@@ -1135,7 +1135,7 @@ class _DOF_estimator_geom(_DOF_estimator):
             alpha2 = np.arctan2(p2[:, 1]-p0[:, 1], p2[:, 0]-p0[:, 0])
             # In the below formula we could take modulo 2. but
             # modulo 1. is safer regarding round-off errors (flat triangles).
-            angle = np.abs(np.mod((alpha2-alpha1) / np.pi, 1.))
+            angle = np.abs(((alpha2-alpha1) / np.pi) % 1)
             # Weight proportional to angle up np.pi/2; null weight for
             # degenerated cases 0 and np.pi (note that `angle` is normalized
             # by np.pi).
