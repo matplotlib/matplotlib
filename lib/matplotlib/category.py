@@ -12,10 +12,12 @@ class:`.UnitData` that creates and stores the string-to-integer mapping.
 """
 
 from collections import OrderedDict
+import dateutil.parser
 import itertools
 
 import numpy as np
 
+import matplotlib.cbook as cbook
 import matplotlib.units as units
 import matplotlib.ticker as ticker
 
@@ -174,6 +176,20 @@ class UnitData(object):
         if data is not None:
             self.update(data)
 
+    @staticmethod
+    def _str_is_convertable(val):
+        """
+        Helper method to see if string can be cast to float or parsed as date.
+        """
+        try:
+            float(val)
+        except ValueError:
+            try:
+                dateutil.parser.parse(val)
+            except ValueError:
+                return False
+        return True
+
     def update(self, data):
         """Maps new values to integer identifiers.
 
@@ -189,11 +205,20 @@ class UnitData(object):
         """
         data = np.atleast_1d(np.array(data, dtype=object))
 
+        convertable = True
         for val in OrderedDict.fromkeys(data):
+            # OrderedDict just iterates over unique values in data.
             if not isinstance(val, (str, bytes)):
                 raise TypeError("{val!r} is not a string".format(val=val))
+            # check if we can convert string to number or date...
+            convertable = (convertable and self._str_is_convertable(val))
             if val not in self._mapping:
                 self._mapping[val] = next(self._counter)
+        if convertable:
+            cbook._warn_external('using category units to plot a list of '
+                          'strings that is a;; floats or parsable as dates. '
+                          'If you do not mean these to be categories, cast '
+                          'to the approriate data type before plotting.')
 
 
 # Register the converter with Matplotlib's unit framework
