@@ -1124,6 +1124,11 @@ class _BackendQT5(_Backend):
 
     @staticmethod
     def mainloop():
-        # allow KeyboardInterrupt exceptions to close the plot window.
+        old_signal = signal.getsignal(signal.SIGINT)
+        # allow SIGINT exceptions to close the plot window.
         signal.signal(signal.SIGINT, signal.SIG_DFL)
-        qApp.exec_()
+        try:
+            qApp.exec_()
+        finally:
+            # reset the SIGINT exception handler
+            signal.signal(signal.SIGINT, old_signal)
