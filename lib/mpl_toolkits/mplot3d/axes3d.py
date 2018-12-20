@@ -1030,7 +1030,7 @@ class Axes3D(Axes):
 
         self.eye = E
         self.vvec = R - E
-        self.vvec = self.vvec / proj3d.mod(self.vvec)
+        self.vvec = self.vvec / proj3d._mod(self.vvec)
 
         if abs(relev) > np.pi/2:
             # upside down
@@ -1768,8 +1768,8 @@ class Axes3D(Axes):
             # chosen for backwards-compatibility
             lightsource = LightSource(azdeg=225, altdeg=19.4712)
 
-        shade = np.array([np.dot(n / proj3d.mod(n), lightsource.direction)
-                          if proj3d.mod(n) else np.nan
+        shade = np.array([np.dot(n / proj3d._mod(n), lightsource.direction)
+                          if proj3d._mod(n) else np.nan
                           for n in normals])
         mask = ~np.isnan(shade)
 
@@ -2376,7 +2376,7 @@ class Axes3D(Axes):
         verts = []
         verts_zs = []
         for p, z in zip(patches, zs):
-            vs = art3d.get_patch_verts(p)
+            vs = art3d._get_patch_verts(p)
             verts += vs.tolist()
             verts_zs += [z] * len(vs)
             art3d.patch_2d_to_3d(p, z, zdir)

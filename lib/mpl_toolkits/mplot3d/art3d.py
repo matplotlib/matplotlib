@@ -236,7 +236,7 @@ def _paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     """
 
     zs = np.broadcast_to(zs, len(paths))
-    segments_codes = [path_to_3d_segment_with_codes(path, pathz, zdir)
+    segments_codes = [_path_to_3d_segment_with_codes(path, pathz, zdir)
                       for path, pathz in zip(paths, zs)]
     if segments_codes:
         segments, codes = zip(*segments_codes)
@@ -437,12 +437,12 @@ class Patch3DCollection(PatchCollection):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
 
-        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+        fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+        ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
@@ -503,12 +503,12 @@ class Path3DCollection(PathCollection):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
 
-        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+        fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+        ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
@@ -653,7 +653,7 @@ class Poly3DCollection(PolyCollection):
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
 
-        txs, tys, tzs = proj3d.proj_transform_vec(self._vec, renderer.M)
+        txs, tys, tzs = proj3d._proj_transform_vec(self._vec, renderer.M)
         xyzlist = [(txs[si:ei], tys[si:ei], tzs[si:ei])
                    for si, ei in self._segis]
 
@@ -691,7 +691,7 @@ class Poly3DCollection(PolyCollection):
         # Return zorder value
         if self._sort_zpos is not None:
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-            ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
+            ztrans = proj3d._proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
         elif tzs.size > 0:
             # FIXME: Some results still don't look quite right.
@@ -744,8 +744,8 @@ class Poly3DCollection(PolyCollection):
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a PolyCollection to a Poly3DCollection object."""
-    segments_3d, codes = paths_to_3d_segments_with_codes(col.get_paths(),
-                                                         zs, zdir)
+    segments_3d, codes = _paths_to_3d_segments_with_codes(
+            col.get_paths(), zs, zdir)
     col.__class__ = Poly3DCollection
     col.set_verts_and_codes(segments_3d, codes)
     col.set_3d_properties()
