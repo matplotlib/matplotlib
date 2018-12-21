@@ -587,7 +587,7 @@ class TestLogFormatter(object):
     @pytest.mark.parametrize('value, domain, expected', pprint_data)
     def test_pprint(self, value, domain, expected):
         fmt = mticker.LogFormatter()
-        label = fmt.pprint_val(value, domain)
+        label = fmt._pprint_val(value, domain)
         assert label == expected
 
     def _sub_labels(self, axis, subs=()):
