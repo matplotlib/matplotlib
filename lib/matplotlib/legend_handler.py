@@ -34,7 +34,7 @@ import numpy as np
 
 from matplotlib import _api, cbook
 from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, FancyArrowPatch
 import matplotlib.collections as mcoll
 
 
@@ -806,3 +806,54 @@ class HandlerPolyCollection(HandlerBase):
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
+
+
+class HandlerFancyArrowPatch(HandlerPatch):
+    """
+    Handler for `~.FancyArrowPatch` instances.
+    """
+    def _create_patch(self, legend, orig_handle, xdescent, ydescent, width, height, fontsize):
+        arrow = FancyArrowPatch([-xdescent,
+                                 -ydescent + height / 2],
+                                [-xdescent + width,
+                                 -ydescent + height / 2],
+                                mutation_scale=width / 3)
+        arrow.set_arrowstyle(orig_handle.get_arrowstyle())
+        return arrow
+
+
+class HandlerAnnotation(HandlerBase):
+    """
+    Handler for `.Annotation` instances.
+    Defers to `HandlerFancyArrowPatch` to draw the annotation arrow (if any).
+
+    Parameters
+    ----------
+    pad : float, optional
+        If None, fall back to :rc:`legend.borderpad` as the default.
+        In units of fraction of font size. Default is None
+        .
+    width_ratios : two-tuple, optional
+        The relative width of the respective text/arrow legend annotation pair.
+        Default is (1, 4).
+    """
+
+    def __init__(self, pad=None, width_ratios=(1, 4), **kwargs):
+
+        self._pad = pad
+        self._width_ratios = width_ratios
+
+        HandlerBase.__init__(self, **kwargs)
+
+    def create_artists(self, legend, orig_handle, xdescent, ydescent, width,
+                       height, fontsize, trans):
+
+        if orig_handle.arrow_patch is not None:
+
+            # Arrow without text
+
+            handler = HandlerFancyArrowPatch()
+            handle = orig_handle.arrow_patch
+
+        return handler.create_artists(legend, handle, xdescent, ydescent,
+                                      width, height, fontsize, trans)
