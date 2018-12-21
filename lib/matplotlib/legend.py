@@ -32,7 +32,8 @@ from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list, is_hashable, warn_deprecated
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch, FancyArrowPatch
+from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch, 
+                                                        FancyArrowPatch)
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
                                     PolyCollection)

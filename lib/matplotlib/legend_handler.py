@@ -726,12 +726,12 @@ class HandlerPolyCollection(HandlerBase):
         return [p]
 
 
-    
 class HandlerFancyArrowPatch(HandlerPatch):
     """
     Handler for FancyArrowPatch instances.
     """
-    def _create_patch(self, legend, orig_handle, xdescent, ydescent, width, height, fontsize):
+    def _create_patch(self, legend, orig_handle, xdescent, ydescent, width,
+                      height, fontsize):
         arrow = FancyArrowPatch([-xdescent,
                                  -ydescent + height / 2],
                                 [-xdescent + width,
@@ -741,8 +741,6 @@ class HandlerFancyArrowPatch(HandlerPatch):
         return arrow
 
 
-
-    
 class HandlerAnnotation(HandlerBase):
     """
     Handler for Annotation instances.
@@ -782,14 +780,14 @@ class HandlerAnnotation(HandlerBase):
         fontsize,
         trans,
     ):
-        
+
         if orig_handle.arrow_patch is not None:
 
             # Arrow without text
 
             handler = HandlerFancyArrowPatch()
             handle = orig_handle.arrow_patch
-        
+
         return handler.create_artists(
             legend,
             handle,
