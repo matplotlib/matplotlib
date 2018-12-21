@@ -929,8 +929,8 @@ class AxisArtist(martist.Artist):
          comma-separated attributes. Alternatively, the attrs can
          be provided as keywords.
 
-         set_arrowstyle("->,size=1.5")
-         set_arrowstyle("->", size=1.5)
+         set_axisline_style("->,size=1.5")
+         set_axisline_style("->", size=1.5)
 
         Old attrs simply are forgotten.
 
