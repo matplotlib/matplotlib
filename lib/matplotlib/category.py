@@ -177,17 +177,20 @@ class UnitData(object):
             self.update(data)
 
     @staticmethod
-    def _str_is_convertable(val):
+    def _strs_are_convertible(vals):
         """
-        Helper method to see if string can be cast to float or parsed as date.
+        Helper method to see if list of strings can all be cast to float or
+        parsed as date.
         """
-        try:
-            float(val)
-        except ValueError:
+
+        for val in vals:
             try:
-                dateutil.parser.parse(val)
+                float(val)
             except ValueError:
-                return False
+                try:
+                    dateutil.parser.parse(val)
+                except ValueError:
+                    return False
         return True
 
     def update(self, data):
@@ -205,16 +208,14 @@ class UnitData(object):
         """
         data = np.atleast_1d(np.array(data, dtype=object))
 
-        convertable = True
         for val in OrderedDict.fromkeys(data):
             # OrderedDict just iterates over unique values in data.
             if not isinstance(val, (str, bytes)):
                 raise TypeError("{val!r} is not a string".format(val=val))
-            # check if we can convert string to number or date...
-            convertable = (convertable and self._str_is_convertable(val))
             if val not in self._mapping:
                 self._mapping[val] = next(self._counter)
-        if convertable:
+        # check if we can convert all strings to number or date...
+        if self._strs_are_convertible(data):
             cbook._warn_external('using category units to plot a list of '
                           'strings that is a;; floats or parsable as dates. '
                           'If you do not mean these to be categories, cast '
