@@ -34,9 +34,10 @@ _log = logging.getLogger(__name__)
 
 def _process_plot_format(fmt):
     """
-    Process a MATLAB style color/line style format string.  Return a
-    (*linestyle*, *color*) tuple as a result of the processing.  Default
-    values are ('-', 'b').  Example format strings include:
+    Convert a MATLAB style color/line style format string to a (*linestyle*,
+    *marker*, *color*) tuple.
+
+    Example format strings include:
 
     * 'ko': black circles
     * '.b': blue dots
@@ -73,46 +74,40 @@ def _process_plot_format(fmt):
     except ValueError:
         pass  # No, not just a color.
 
-    # handle the multi char special cases and strip them from the
-    # string
-    if fmt.find('--') >= 0:
-        linestyle = '--'
-        fmt = fmt.replace('--', '')
-    if fmt.find('-.') >= 0:
-        linestyle = '-.'
-        fmt = fmt.replace('-.', '')
-    if fmt.find(' ') >= 0:
-        linestyle = 'None'
-        fmt = fmt.replace(' ', '')
-
-    chars = [c for c in fmt]
-
     i = 0
-    while i < len(chars):
-        c = chars[i]
-        if c in mlines.lineStyles:
+    while i < len(fmt):
+        c = fmt[i]
+        if fmt[i:i+2] in mlines.lineStyles:  # First, the two-char styles.
+            if linestyle is not None:
+                raise ValueError(
+                    'Illegal format string "%s"; two linestyle symbols' % fmt)
+            linestyle = fmt[i:i+2]
+            i += 2
+        elif c in mlines.lineStyles:
             if linestyle is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two linestyle symbols' % fmt)
             linestyle = c
+            i += 1
         elif c in mlines.lineMarkers:
             if marker is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two marker symbols' % fmt)
             marker = c
+            i += 1
         elif c in mcolors.get_named_colors_mapping():
             if color is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two color symbols' % fmt)
             color = c
-        elif c == 'C' and i < len(chars) - 1:
-            color_cycle_number = int(chars[i + 1])
-            color = mcolors.to_rgba("C{}".format(color_cycle_number))
             i += 1
+        elif c == 'C' and i < len(fmt) - 1:
+            color_cycle_number = int(fmt[i + 1])
+            color = mcolors.to_rgba("C{}".format(color_cycle_number))
+            i += 2
         else:
             raise ValueError(
                 'Unrecognized character %c in format string' % c)
-        i += 1
 
     if linestyle is None and marker is None:
         linestyle = rcParams['lines.linestyle']
