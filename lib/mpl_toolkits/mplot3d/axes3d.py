@@ -2252,42 +2252,47 @@ class Axes3D(Axes):
 
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
                 *args, **kwargs):
-        '''
+        """
         Create a scatter plot.
 
-        ============  ========================================================
-        Argument      Description
-        ============  ========================================================
-        *xs*, *ys*    Positions of data points.
-        *zs*          Either an array of the same length as *xs* and
-                      *ys* or a single value to place all points in
-                      the same plane. Default is 0.
-        *zdir*        Which direction to use as z ('x', 'y' or 'z')
-                      when plotting a 2D set.
-        *s*           Size in points^2.  It is a scalar or an array of the
-                      same length as *x* and *y*.
+        Parameters
+        ----------
+        xs, ys : array-like
+             The data positions.
+        zs : float or array-like, optional, default: 0
+            The z-positions. Either an array of the same length as *xs* and
+            *ys* or a single value to place all points in the same plane.
+        zdir : {'x', 'y', 'z', '-x', '-y', '-z'}, optional, default: 'z'
+            The axis direction for the *zs*. This is useful when plotting 2D
+            data on a 3D Axes. The data must be passed as *xs*, *ys*. Setting
+            *zdir* to 'y' then plots the data to the x-z-plane.
 
-        *c*           A color. *c* can be a single color format string, or a
-                      sequence of color specifications of length *N*, or a
-                      sequence of *N* numbers to be mapped to colors using the
-                      *cmap* and *norm* specified via kwargs (see below). Note
-                      that *c* should not be a single numeric RGB or RGBA
-                      sequence because that is indistinguishable from an array
-                      of values to be colormapped.  *c* can be a 2-D array in
-                      which the rows are RGB or RGBA, however, including the
-                      case of a single row to specify the same color for
-                      all points.
+            See also :doc:`/gallery/mplot3d/2dcollections3d`.
 
-        *depthshade*
-                      Whether or not to shade the scatter markers to give
-                      the appearance of depth. Default is *True*.
-        ============  ========================================================
+        s : scalar or array-like, optional, default: 20
+            The marker size in points**2. Either an array of the same length
+            as *xs* and *ys* or a single value to make all markers the same
+            size.
+        c : color, sequence, or sequence of color, optional
+            The marker color. Possible values:
 
-        Keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.scatter`.
+            - A single color format string.
+            - A sequence of color specifications of length n.
+            - A sequence of n numbers to be mapped to colors using *cmap* and
+              *norm*.
+            - A 2-D array in which the rows are RGB or RGBA.
 
-        Returns a :class:`~mpl_toolkits.mplot3d.art3d.Patch3DCollection`
-        '''
+            For more details see the *c* argument of `~.axes.Axes.scatter`.
+        depthshade : bool, optional, default: True
+            Whether to shade the scatter markers to give the appearance of
+            depth.
+        **kwargs
+            All other arguments are passed on to `~.axes.Axes.scatter`.
+
+        Returns
+        -------
+        paths : `~matplotlib.collections.PathCollection`
+        """
 
         had_data = self.has_data()
 
