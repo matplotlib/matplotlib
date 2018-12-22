@@ -399,24 +399,22 @@ class Path(object):
                                snap=snap, stroke_width=stroke_width,
                                simplify=simplify, curves=curves,
                                sketch=sketch)
-        vertices = cleaned.vertices
-        codes = cleaned.codes
-        len_vertices = vertices.shape[0]
 
         # Cache these object lookups for performance in the loop.
         NUM_VERTICES_FOR_CODE = self.NUM_VERTICES_FOR_CODE
         STOP = self.STOP
 
-        i = 0
-        while i < len_vertices:
-            code = codes[i]
+        vertices = iter(cleaned.vertices)
+        codes = iter(cleaned.codes)
+        for curr_vertices, code in zip(vertices, codes):
             if code == STOP:
-                return
-            else:
-                num_vertices = NUM_VERTICES_FOR_CODE[code]
-                curr_vertices = vertices[i:i+num_vertices].flatten()
-                yield curr_vertices, code
-                i += num_vertices
+                break
+            extra_vertices = NUM_VERTICES_FOR_CODE[code] - 1
+            if extra_vertices:
+                for i in range(extra_vertices):
+                    next(codes)
+                    curr_vertices = np.append(curr_vertices, next(vertices))
+            yield curr_vertices, code
 
     def cleaned(self, transform=None, remove_nans=False, clip=None,
                 quantize=False, simplify=False, curves=False,
