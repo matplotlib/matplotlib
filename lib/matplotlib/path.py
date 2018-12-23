@@ -74,13 +74,15 @@ class Path(object):
 
     """
 
+    code_type = np.uint8
+
     # Path codes
-    STOP = 0         # 1 vertex
-    MOVETO = 1       # 1 vertex
-    LINETO = 2       # 1 vertex
-    CURVE3 = 3       # 2 vertices
-    CURVE4 = 4       # 3 vertices
-    CLOSEPOLY = 79   # 1 vertex
+    STOP = code_type(0)         # 1 vertex
+    MOVETO = code_type(1)       # 1 vertex
+    LINETO = code_type(2)       # 1 vertex
+    CURVE3 = code_type(3)       # 2 vertices
+    CURVE4 = code_type(4)       # 3 vertices
+    CLOSEPOLY = code_type(79)   # 1 vertex
 
     #: A dictionary mapping Path codes to the number of vertices that the
     #: code expects.
@@ -90,8 +92,6 @@ class Path(object):
                              CURVE3: 2,
                              CURVE4: 3,
                              CLOSEPOLY: 1}
-
-    code_type = np.uint8
 
     def __init__(self, vertices, codes=None, _interpolation_steps=1,
                  closed=False, readonly=False):
