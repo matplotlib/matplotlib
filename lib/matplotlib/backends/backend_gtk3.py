@@ -11,7 +11,22 @@ from matplotlib.backend_bases import (
 from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
-from ._gtk3_compat import GLib, GObject, Gtk, Gdk
+
+try:
+    import gi
+except ImportError:
+    raise ImportError("The GTK3 backends require PyGObject")
+
+try:
+    # :raises ValueError: If module/version is already loaded, already
+    # required, or unavailable.
+    gi.require_version("Gtk", "3.0")
+except ValueError as e:
+    # in this case we want to re-raise as ImportError so the
+    # auto-backend selection logic correctly skips.
+    raise ImportError from e
+
+from gi.repository import GLib, GObject, Gtk, Gdk
 
 
 _log = logging.getLogger(__name__)

@@ -152,8 +152,7 @@ optional Matplotlib backends and the capabilities they provide.
   `PySide <https://pypi.org/project/PySide>`_ (>= 1.0.3): for the Qt4-based
   backends;
 * `PyQt5 <https://pypi.org/project/PyQt5>`_: for the Qt5-based backends;
-* `PyGObject <https://pypi.org/project/PyGObject/>`_ or
-  `pgi <https://pypi.org/project/pgi/>`_ (>= 0.0.11.2): for the GTK3-based
+* `PyGObject <https://pypi.org/project/PyGObject/>`_: for the GTK3-based
   backends;
 * :term:`wxpython` (>= 4): for the WX-based backends;
 * `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`_ (>= 0.8) or

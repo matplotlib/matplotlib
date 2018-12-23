@@ -19,9 +19,8 @@ import matplotlib as mpl
 def _get_testable_interactive_backends():
     backends = []
     for deps, backend in [
-            # gtk3agg fails on Travis, needs to be investigated.
-            # (["cairocffi", "pgi"], "gtk3agg"),
-            (["cairocffi", "pgi"], "gtk3cairo"),
+            (["cairo", "gi"], "gtk3agg"),
+            (["cairo", "gi"], "gtk3cairo"),
             (["PyQt5"], "qt5agg"),
             (["PyQt5", "cairocffi"], "qt5cairo"),
             (["tkinter"], "tkagg"),
