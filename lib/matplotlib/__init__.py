@@ -1499,19 +1499,29 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
 test.__test__ = False  # pytest: this function is not a test
 
 
-def _replacer(data, key):
-    """Either returns data[key] or passes data back. Also
-    converts input data to a sequence as needed.
+def _replacer(data, value):
     """
-    # if key isn't a string don't bother
-    if not isinstance(key, str):
-        return key
-    # try to use __getitem__
+    Either returns ``data[value]`` or passes ``data`` back, converts either to
+    a sequence.
+    """
     try:
-        return sanitize_sequence(data[key])
-    # key does not exist, silently fall back to key
-    except KeyError:
-        return key
+        # if key isn't a string don't bother
+        if isinstance(value, str):
+            # try to use __getitem__
+            value = data[value]
+    except Exception:
+        # key does not exist, silently fall back to key
+        pass
+    return sanitize_sequence(value)
+
+
+def _label_from_arg(y, default_name):
+    try:
+        return y.name
+    except AttributeError:
+        if isinstance(default_name, str):
+            return default_name
+    return None
 
 
 _DATA_DOC_APPENDIX = """
@@ -1528,261 +1538,152 @@ _DATA_DOC_APPENDIX = """
 """
 
 
-def _add_data_doc(docstring, replace_names, replace_all_args):
+def _add_data_doc(docstring, replace_names):
     """Add documentation for a *data* field to the given docstring.
 
     Parameters
     ----------
     docstring : str
         The input docstring.
-    replace_names : list of strings or None
+    replace_names : list of str or None
         The list of parameter names which arguments should be replaced by
-        `data[name]`. If None, all arguments are replaced if they are
-        included in `data`.
-    replace_all_args : bool
-        If True, all arguments in *args get replaced, even if they are not
-        in replace_names.
+        ``data[name]`` (if ``data[name]`` does not throw an exception).  If
+        None, replacement is attempted for all arguments.
 
     Returns
     -------
         The augmented docstring.
     """
-    if docstring is None:
-        docstring = ''
-    else:
-        docstring = dedent(docstring)
-    _repl = ""
-    if replace_names is None:
-        _repl = "* All positional and all keyword arguments."
-    else:
-        if len(replace_names) != 0:
-            _repl = "* All arguments with the following names: '{names}'."
-        if replace_all_args:
-            _repl += "\n    * All positional arguments."
-        _repl = _repl.format(names="', '".join(sorted(replace_names)))
-    return docstring + _DATA_DOC_APPENDIX.format(replaced=_repl)
+    docstring = dedent(docstring) if docstring is not None else ""
+    repl = ("* All positional and all keyword arguments."
+            if replace_names is None else
+            ""
+            if len(replace_names) == 0 else
+            "* All arguments with the following names: {}.".format(
+                ", ".join(map(repr, sorted(replace_names)))))
+    return docstring + _DATA_DOC_APPENDIX.format(replaced=repl)
 
 
-def _preprocess_data(replace_names=None, replace_all_args=False,
-                     label_namer=None, positional_parameter_names=None):
+def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     """
-    A decorator to add a 'data' kwarg to any a function.  The signature
-    of the input function must include the ax argument at the first position ::
+    A decorator to add a 'data' kwarg to a function.
 
-       def foo(ax, *args, **kwargs)
+    ::
+        @_preprocess_data()
+        def func(ax, *args, **kwargs): ...
 
-    so this is suitable for use with Axes methods.
+    is a function with signature ``decorated(ax, *args, data=None, **kwargs)``
+    with the following behavior:
+
+    - if called with ``data=None``, forward the other arguments to ``func``;
+    - otherwise, *data* must be a mapping; for any argument passed in as a
+      string ``name``, replace the argument by ``data[name]`` (if this does not
+      throw an exception), then forward the arguments to ``func``.
+
+    In either case, any argument that is a `MappingView` is also converted to a
+    list.
 
     Parameters
     ----------
-    replace_names : list of strings, optional, default: None
-        The list of parameter names which arguments should be replaced by
-        `data[name]`. If None, all arguments are replaced if they are
-        included in `data`.
-    replace_all_args : bool, default: False
-        If True, all arguments in *args get replaced, even if they are not
-        in replace_names.
+    replace_names : list of str or None, optional, default: None
+        The list of parameter names for which lookup into *data* should be
+        attempted. If None, replacement is attempted for all arguments.
     label_namer : string, optional, default: None
-        The name of the parameter which argument should be used as label, if
-        label is not set. If None, the label keyword argument is not set.
-    positional_parameter_names : list of strings or callable, optional
-        The full list of positional parameter names (excluding an explicit
-        `ax`/'self' argument at the first place and including all possible
-        positional parameter in `*args`), in the right order. Can also include
-        all other keyword parameter. Only needed if the wrapped function does
-        contain `*args` and (replace_names is not None or replace_all_args is
-        False). If it is a callable, it will be called with the actual
-        tuple of *args and the data and should return a list like
-        above.
-        NOTE: callables should only be used when the names and order of *args
-        can only be determined at runtime. Please use list of names
-        when the order and names of *args is clear before runtime!
+        If set e.g. to "namer" (which must be a kwarg in the function's
+        signature -- not as ``**kwargs``), if the *namer* argument passed in is
+        a (string) key of *data* and no *label* kwarg is passed, then use the
+        (string) value of the *namer* as *label*. ::
 
-    .. note:: decorator also converts MappingView input data to list.
+            @_preprocess_data(label_namer="foo")
+            def func(foo, label=None): ...
+
+            func("key", data={"key": value})
+            # is equivalent to
+            func.__wrapped__(value, label="key")
     """
+
+    if func is None:  # Return the actual decorator.
+        return functools.partial(
+            _preprocess_data,
+            replace_names=replace_names, label_namer=label_namer)
+
+    sig = inspect.signature(func)
+    varargs_name = None
+    varkwargs_name = None
+    arg_names = []
+    params = list(sig.parameters.values())
+    for p in params:
+        if p.kind is Parameter.VAR_POSITIONAL:
+            varargs_name = p.name
+        elif p.kind is Parameter.VAR_KEYWORD:
+            varkwargs_name = p.name
+        else:
+            arg_names.append(p.name)
+    data_param = Parameter("data", Parameter.KEYWORD_ONLY, default=None)
+    if varkwargs_name:
+        params.insert(-1, data_param)
+    else:
+        params.append(data_param)
+    new_sig = sig.replace(parameters=params)
+    arg_names = arg_names[1:]  # remove the first "ax" / self arg
+
     if replace_names is not None:
         replace_names = set(replace_names)
 
-    def param(func):
-        sig = inspect.signature(func)
-        _has_varargs = False
-        _has_varkwargs = False
-        _arg_names = []
-        params = list(sig.parameters.values())
-        for p in params:
-            if p.kind is Parameter.VAR_POSITIONAL:
-                _has_varargs = True
-            elif p.kind is Parameter.VAR_KEYWORD:
-                _has_varkwargs = True
-            else:
-                _arg_names.append(p.name)
-        data_param = Parameter('data', Parameter.KEYWORD_ONLY, default=None)
-        if _has_varkwargs:
-            params.insert(-1, data_param)
-        else:
-            params.append(data_param)
-        new_sig = sig.replace(parameters=params)
-        # Import-time check: do we have enough information to replace *args?
-        arg_names_at_runtime = False
-        # there can't be any positional arguments behind *args and no
-        # positional args can end up in **kwargs, so only *varargs make
-        # problems.
-        # http://stupidpythonideas.blogspot.de/2013/08/arguments-and-parameters.html
-        if not _has_varargs:
-            # all args are "named", so no problem
-            # remove the first "ax" / self arg
-            arg_names = _arg_names[1:]
-        else:
-            # Here we have "unnamed" variables and we need a way to determine
-            # whether to replace a arg or not
-            if replace_names is None:
-                # all argnames should be replaced
-                arg_names = None
-            elif len(replace_names) == 0:
-                # No argnames should be replaced
-                arg_names = []
-            elif len(_arg_names) > 1 and (positional_parameter_names is None):
-                # we got no manual parameter names but more than an 'ax' ...
-                if len(replace_names - set(_arg_names[1:])) == 0:
-                    # all to be replaced arguments are in the list
-                    arg_names = _arg_names[1:]
-                else:
-                    raise AssertionError(
-                        "Got unknown 'replace_names' and wrapped function "
-                        "{!r} uses '*args', need 'positional_parameter_names'"
-                        .format(func.__name__))
-            else:
-                if positional_parameter_names is not None:
-                    if callable(positional_parameter_names):
-                        # determined by the function at runtime
-                        arg_names_at_runtime = True
-                        # so that we don't compute the label_pos at import time
-                        arg_names = []
-                    else:
-                        arg_names = positional_parameter_names
-                else:
-                    if replace_all_args:
-                        arg_names = []
-                    else:
-                        raise AssertionError(
-                            "Got 'replace_names' and wrapped function {!r} "
-                            "uses *args, need 'positional_parameter_names' or "
-                            "'replace_all_args'".format(func.__name__))
+    assert (replace_names or set()) <= set(arg_names) or varkwargs_name, (
+        "Matplotlib internal error: invalid replace_names ({!r}) for {!r}"
+        .format(replace_names, func.__name__))
+    assert label_namer is None or label_namer in arg_names, (
+        "Matplotlib internal error: invalid label_namer ({!r}) for {!r}"
+            .format(label_namer, func.__name__))
 
-        # compute the possible label_namer and label position in positional
-        # arguments
-        label_pos = 9999  # bigger than all "possible" argument lists
-        label_namer_pos = 9999  # bigger than all "possible" argument lists
-        if (label_namer and  # we actually want a label here ...
-                arg_names and  # and we can determine a label in *args ...
-                label_namer in arg_names):  # and it is in *args
-            label_namer_pos = arg_names.index(label_namer)
-            if "label" in arg_names:
-                label_pos = arg_names.index("label")
+    @functools.wraps(func)
+    def inner(ax, *args, data=None, **kwargs):
+        if data is None:
+            return func(ax, *map(sanitize_sequence, args), **kwargs)
 
-        # Check the case we know a label_namer but we can't find it the
-        # arg_names... Unfortunately the label_namer can be in **kwargs,
-        # which we can't detect here and which results in a non-set label
-        # which might surprise the user :-(
-        if label_namer and not arg_names_at_runtime and not _has_varkwargs:
-            if not arg_names:
-                raise AssertionError(
-                    "label_namer {!r} can't be found as the parameter without "
-                    "'positional_parameter_names'".format(label_namer))
-            elif label_namer not in arg_names:
-                raise AssertionError(
-                    "label_namer {!r} can't be found in the parameter names "
-                    "(known argnames: %s).".format(label_namer, arg_names))
-            else:
-                # this is the case when the name is in arg_names
-                pass
+        bound = new_sig.bind(ax, *args, **kwargs)
+        needs_label = (label_namer
+                       and "label" not in bound.arguments
+                       and "label" not in bound.kwargs)
+        auto_label = (bound.arguments.get(label_namer)
+                      or bound.kwargs.get(label_namer))
 
-        @functools.wraps(func)
-        def inner(ax, *args, data=None, **kwargs):
-            # this is needed because we want to change these values if
-            # arg_names_at_runtime==True, but python does not allow assigning
-            # to a variable in a outer scope. So use some new local ones and
-            # set them to the already computed values.
-            _label_pos = label_pos
-            _label_namer_pos = label_namer_pos
-            _arg_names = arg_names
-
-            label = None
-
-            if data is None:  # data validation
-                args = tuple(sanitize_sequence(a) for a in args)
-            else:
-                if arg_names_at_runtime:
-                    # update the information about replace names and
-                    # label position
-                    _arg_names = positional_parameter_names(args, data)
-                    if (label_namer and  # we actually want a label here ...
-                            _arg_names and  # and we can find a label in *args
-                            (label_namer in _arg_names)):  # and it is in *args
-                        _label_namer_pos = _arg_names.index(label_namer)
-                        if "label" in _arg_names:
-                            _label_pos = arg_names.index("label")
-
-                # save the current label_namer value so that it can be used as
-                # a label
-                if _label_namer_pos < len(args):
-                    label = args[_label_namer_pos]
-                else:
-                    label = kwargs.get(label_namer, None)
-                # ensure a string, as label can't be anything else
-                if not isinstance(label, str):
-                    label = None
-
-                if replace_names is None or replace_all_args:
-                    # all should be replaced
-                    args = tuple(_replacer(data, a) for
-                                 j, a in enumerate(args))
-                else:
-                    # An arg is replaced if the arg_name of that position is
-                    #   in replace_names ...
-                    if len(_arg_names) < len(args):
-                        raise RuntimeError(
-                            "Got more args than function expects")
-                    args = tuple(_replacer(data, a)
-                                 if _arg_names[j] in replace_names else a
-                                 for j, a in enumerate(args))
-
+        for k, v in bound.arguments.items():
+            if k == varkwargs_name:
+                for k1, v1 in v.items():
+                    if replace_names is None or k1 in replace_names:
+                        v[k1] = _replacer(data, v1)
+            elif k == varargs_name:
                 if replace_names is None:
-                    # replace all kwargs ...
-                    kwargs = {k: _replacer(data, v) for k, v in kwargs.items()}
-                else:
-                    # ... or only if a kwarg of that name is in replace_names
-                    kwargs = {
-                        k: _replacer(data, v) if k in replace_names else v
-                        for k, v in kwargs.items()}
+                    bound.arguments[k] = tuple(_replacer(data, v1) for v1 in v)
+            else:
+                if replace_names is None or k in replace_names:
+                    bound.arguments[k] = _replacer(data, v)
 
-            # replace the label if this func "wants" a label arg and the user
-            # didn't set one. Note: if the user puts in "label=None", it does
-            # *NOT* get replaced!
-            user_supplied_label = (
-                len(args) >= _label_pos or  # label is included in args
-                'label' in kwargs  # ... or in kwargs
-            )
-            if label_namer and not user_supplied_label:
-                if _label_namer_pos < len(args):
-                    kwargs['label'] = get_label(args[_label_namer_pos], label)
-                elif label_namer in kwargs:
-                    kwargs['label'] = get_label(kwargs[label_namer], label)
-                else:
-                    cbook._warn_external(
-                        "Tried to set a label via parameter %r in func %r but "
-                        "couldn't find such an argument.\n(This is a "
-                        "programming error, please report to the Matplotlib "
-                        "list!)" % (label_namer, func.__name__),
-                        RuntimeWarning)
-            return func(ax, *args, **kwargs)
+        bound.apply_defaults()
+        del bound.arguments["data"]
 
-        inner.__doc__ = _add_data_doc(inner.__doc__,
-                                      replace_names, replace_all_args)
-        inner.__signature__ = new_sig
-        return inner
+        if needs_label:
+            all_kwargs = {**bound.arguments, **bound.kwargs}
+            # label_namer will be in all_kwargs as we asserted above that
+            # `label_namer is None or label_namer in arg_names`.
+            label = _label_from_arg(all_kwargs[label_namer], auto_label)
+            if "label" in arg_names:
+                bound.arguments["label"] = label
+                try:
+                    bound.arguments.move_to_end(varkwargs_name)
+                except KeyError:
+                    pass
+            else:
+                bound.arguments.setdefault(varkwargs_name, {})["label"] = label
 
-    return param
+        return func(*bound.args, **bound.kwargs)
+
+    inner.__doc__ = _add_data_doc(inner.__doc__, replace_names)
+    inner.__signature__ = new_sig
+    return inner
+
 
 _log.debug('matplotlib version %s', __version__)
 _log.debug('interactive is %s', is_interactive())

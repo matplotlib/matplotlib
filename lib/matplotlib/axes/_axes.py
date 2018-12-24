@@ -42,46 +42,6 @@ _log = logging.getLogger(__name__)
 rcParams = matplotlib.rcParams
 
 
-def _has_item(data, name):
-    """Return whether *data* can be item-accessed with *name*.
-
-    This supports data with a dict-like interface (`in` checks item
-    availability) and with numpy.arrays.
-    """
-    try:
-        return data.dtype.names is not None and name in data.dtype.names
-    except AttributeError:  # not a numpy array
-        return name in data
-
-
-def _plot_args_replacer(args, data):
-    if len(args) == 1:
-        return ["y"]
-    elif len(args) == 2:
-        # this can be two cases: x,y or y,c
-        if not _has_item(data, args[1]):
-            return ["y", "c"]
-        # it's data, but could be a color code like 'ro' or 'b--'
-        # -> warn the user in that case...
-        try:
-            _process_plot_format(args[1])
-        except ValueError:
-            pass
-        else:
-            cbook._warn_external(
-                "Second argument {!r} is ambiguous: could be a color spec but "
-                "is in data; using as data.  Either rename the entry in data "
-                "or use three arguments to plot.".format(args[1]),
-                RuntimeWarning)
-        return ["x", "y"]
-    elif len(args) == 3:
-        return ["x", "y", "c"]
-    else:
-        raise ValueError("Using arbitrary long args with data is not "
-                         "supported due to ambiguity of arguments.\nUse "
-                         "multiple plotting calls instead.")
-
-
 def _make_inset_locator(bounds, trans, parent):
     """
     Helper function to locate inset axes, used in
@@ -1154,8 +1114,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data(replace_names=["positions", "lineoffsets",
                                      "linelengths", "linewidths",
-                                     "colors", "linestyles"],
-                      label_namer=None)
+                                     "colors", "linestyles"])
     @docstring.dedent_interpd
     def eventplot(self, positions, orientation='horizontal', lineoffsets=1,
                   linelengths=1, linewidths=None, colors=None,
@@ -1369,13 +1328,12 @@ class Axes(_AxesBase):
 
         return colls
 
-    # ### Basic plotting
-    # The label_naming happens in `matplotlib.axes._base._plot_args`
-    @_preprocess_data(replace_names=["x", "y"],
-                      positional_parameter_names=_plot_args_replacer,
-                      label_namer=None)
+    #### Basic plotting
+
+    # Uses a custom implementation of data-kwarg handling in
+    # _process_plot_var_args.
     @docstring.dedent_interpd
-    def plot(self, *args, scalex=True, scaley=True, **kwargs):
+    def plot(self, *args, scalex=True, scaley=True, data=None, **kwargs):
         """
         Plot y versus x as lines and/or markers.
 
@@ -1486,7 +1444,6 @@ class Axes(_AxesBase):
                 You may suppress the warning by adding an empty format string
                 `plot('n', 'o', '', data=obj)`.
 
-
         Other Parameters
         ----------------
         scalex, scaley : bool, optional, default: True
@@ -1513,12 +1470,10 @@ class Axes(_AxesBase):
         lines
             A list of `.Line2D` objects representing the plotted data.
 
-
         See Also
         --------
         scatter : XY scatter plot with markers of varying size and/or color (
             sometimes also called bubble chart).
-
 
         Notes
         -----
@@ -1606,14 +1561,10 @@ class Axes(_AxesBase):
         additionally use any  `matplotlib.colors` spec, e.g. full names
         (``'green'``) or hex strings (``'#008000'``).
         """
-        lines = []
-
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
-
-        for line in self._get_lines(*args, **kwargs):
+        lines = [*self._get_lines(*args, data=data, **kwargs)]
+        for line in lines:
             self.add_line(line)
-            lines.append(line)
-
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
 
@@ -1996,8 +1947,8 @@ class Axes(_AxesBase):
 
     #### Specialized plotting
 
-    @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    def step(self, x, y, *args, where='pre', **kwargs):
+    # @_preprocess_data() # let 'plot' do the unpacking..
+    def step(self, x, y, *args, where='pre', data=None, **kwargs):
         """
         Make a step plot.
 
@@ -2062,17 +2013,9 @@ class Axes(_AxesBase):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
         kwargs['drawstyle'] = 'steps-' + where
-        return self.plot(x, y, *args, **kwargs)
+        return self.plot(x, y, *args, data=data, **kwargs)
 
-    @_preprocess_data(replace_names=["x", "left",
-                                     "height", "width",
-                                     "y", "bottom",
-                                     "color", "edgecolor", "linewidth",
-                                     "tick_label", "xerr", "yerr",
-                                     "ecolor"],
-                      label_namer=None,
-                      replace_all_args=True
-                      )
+    @_preprocess_data()
     @docstring.dedent_interpd
     def bar(self, x, height, width=0.8, bottom=None, *, align="center",
             **kwargs):
@@ -2464,7 +2407,7 @@ class Axes(_AxesBase):
                            align=align, **kwargs)
         return patches
 
-    @_preprocess_data(label_namer=None)
+    @_preprocess_data()
     @docstring.dedent_interpd
     def broken_barh(self, xranges, yrange, **kwargs):
         """
@@ -2535,9 +2478,9 @@ class Axes(_AxesBase):
 
         return col
 
-    @_preprocess_data(replace_all_args=True, label_namer=None)
-    def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None,
-             bottom=0, label=None):
+    @_preprocess_data()
+    def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
+             label=None):
         """
         Create a stem plot.
 
@@ -2695,8 +2638,7 @@ class Axes(_AxesBase):
 
         return stem_container
 
-    @_preprocess_data(replace_names=["x", "explode", "labels", "colors"],
-                      label_namer=None)
+    @_preprocess_data(replace_names=["x", "explode", "labels", "colors"])
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
@@ -3313,7 +3255,7 @@ class Axes(_AxesBase):
 
         return errorbar_container  # (l0, caplines, barcols)
 
-    @_preprocess_data(label_namer=None)
+    @_preprocess_data()
     def boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
                 positions=None, widths=None, patch_artist=None,
                 bootstrap=None, usermedians=None, conf_intervals=None,
@@ -4908,7 +4850,7 @@ optional.
         return args
 
     # args can by a combination if X, Y, U, V, C and all should be replaced
-    @_preprocess_data(replace_all_args=True, label_namer=None)
+    @_preprocess_data()
     def quiver(self, *args, **kw):
         # Make sure units are handled for x and y values
         args = self._quiver_units(args, kw)
@@ -4921,13 +4863,12 @@ optional.
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
     # args can by either Y or y1,y2,... and all should be replaced
-    @_preprocess_data(replace_all_args=True, label_namer=None)
+    @_preprocess_data()
     def stackplot(self, x, *args, **kwargs):
         return mstack.stackplot(self, x, *args, **kwargs)
     stackplot.__doc__ = mstack.stackplot.__doc__
 
-    @_preprocess_data(replace_names=["x", "y", "u", "v", "start_points"],
-                      label_namer=None)
+    @_preprocess_data(replace_names=["x", "y", "u", "v", "start_points"])
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                    minlength=0.1, transform=None, zorder=None,
@@ -4952,7 +4893,7 @@ optional.
     streamplot.__doc__ = mstream.streamplot.__doc__
 
     # args can be some combination of X, Y, U, V, C and all should be replaced
-    @_preprocess_data(replace_all_args=True, label_namer=None)
+    @_preprocess_data()
     @docstring.dedent_interpd
     def barbs(self, *args, **kw):
         """
@@ -4966,9 +4907,9 @@ optional.
         self.autoscale_view()
         return b
 
-    @_preprocess_data(replace_names=["x", "y"], label_namer=None,
-                      positional_parameter_names=["x", "y", "c"])
-    def fill(self, *args, **kwargs):
+    # Uses a custom implementation of data-kwarg handling in
+    # _process_plot_var_args.
+    def fill(self, *args, data=None, **kwargs):
         """
         Plot filled polygons.
 
@@ -4991,6 +4932,13 @@ optional.
                 ax.fill(x, y, x2, y2)            # two polygons
                 ax.fill(x, y, "b", x2, y2, "r")  # a blue and a red polygon
 
+        data : indexable object, optional
+            An object with labelled data. If given, provide the label names to
+            plot in *x* and *y*, e.g.::
+
+                ax.fill("time", "signal",
+                        data={"time": [0, 1, 2], "signal": [0, 1, 0]})
+
         Returns
         -------
         a list of :class:`~matplotlib.patches.Polygon`
@@ -5008,14 +4956,13 @@ optional.
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
 
         patches = []
-        for poly in self._get_patches_for_fill(*args, **kwargs):
+        for poly in self._get_patches_for_fill(*args, data=data, **kwargs):
             self.add_patch(poly)
             patches.append(poly)
         self.autoscale_view()
         return patches
 
-    @_preprocess_data(replace_names=["x", "y1", "y2", "where"],
-                      label_namer=None)
+    @_preprocess_data(replace_names=["x", "y1", "y2", "where"])
     @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
                      step=None, **kwargs):
@@ -5197,8 +5144,7 @@ optional.
         self.autoscale_view()
         return collection
 
-    @_preprocess_data(replace_names=["y", "x1", "x2", "where"],
-                      label_namer=None)
+    @_preprocess_data(replace_names=["y", "x1", "x2", "where"])
     @docstring.dedent_interpd
     def fill_betweenx(self, y, x1, x2=0, where=None,
                       step=None, interpolate=False, **kwargs):
@@ -5380,7 +5326,7 @@ optional.
         return collection
 
     #### plotting z(x,y): imshow, pcolor and relatives, contour
-    @_preprocess_data(label_namer=None)
+    @_preprocess_data()
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=None, vmin=None, vmax=None,
                origin=None, extent=None, shape=None, filternorm=1,
@@ -5647,7 +5593,7 @@ optional.
         C = cbook.safe_masked_invalid(C)
         return X, Y, C
 
-    @_preprocess_data(label_namer=None)
+    @_preprocess_data()
     @docstring.dedent_interpd
     def pcolor(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
                vmax=None, **kwargs):
@@ -5884,7 +5830,7 @@ optional.
         self.autoscale_view()
         return collection
 
-    @_preprocess_data(label_namer=None)
+    @_preprocess_data()
     @docstring.dedent_interpd
     def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
                    vmax=None, shading='flat', antialiased=False, **kwargs):
@@ -6097,7 +6043,7 @@ optional.
         self.autoscale_view()
         return collection
 
-    @_preprocess_data(label_namer=None)
+    @_preprocess_data()
     @docstring.dedent_interpd
     def pcolorfast(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
                    vmax=None, **kwargs):
@@ -6863,7 +6809,7 @@ optional.
         else:
             return tops, bins, cbook.silent_list('Lists of Patches', patches)
 
-    @_preprocess_data(replace_names=["x", "y", "weights"], label_namer=None)
+    @_preprocess_data(replace_names=["x", "y", "weights"])
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
@@ -6971,7 +6917,7 @@ optional.
 
         return h, xedges, yedges, pc
 
-    @_preprocess_data(replace_names=["x"], label_namer=None)
+    @_preprocess_data(replace_names=["x"])
     @docstring.dedent_interpd
     def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
             window=None, noverlap=None, pad_to=None,
@@ -7206,7 +7152,7 @@ optional.
         else:
             return pxy, freqs, line
 
-    @_preprocess_data(replace_names=["x"], label_namer=None)
+    @_preprocess_data(replace_names=["x"])
     @docstring.dedent_interpd
     def magnitude_spectrum(self, x, Fs=None, Fc=None, window=None,
                            pad_to=None, sides=None, scale=None,
@@ -7309,7 +7255,7 @@ optional.
 
         return spec, freqs, lines[0]
 
-    @_preprocess_data(replace_names=["x"], label_namer=None)
+    @_preprocess_data(replace_names=["x"])
     @docstring.dedent_interpd
     def angle_spectrum(self, x, Fs=None, Fc=None, window=None,
                        pad_to=None, sides=None, **kwargs):
@@ -7391,7 +7337,7 @@ optional.
 
         return spec, freqs, lines[0]
 
-    @_preprocess_data(replace_names=["x"], label_namer=None)
+    @_preprocess_data(replace_names=["x"])
     @docstring.dedent_interpd
     def phase_spectrum(self, x, Fs=None, Fc=None, window=None,
                        pad_to=None, sides=None, **kwargs):
@@ -7472,7 +7418,7 @@ optional.
 
         return spec, freqs, lines[0]
 
-    @_preprocess_data(replace_names=["x", "y"], label_namer=None)
+    @_preprocess_data(replace_names=["x", "y"])
     @docstring.dedent_interpd
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, pad_to=None,
@@ -7537,7 +7483,7 @@ optional.
 
         return cxy, freqs
 
-    @_preprocess_data(replace_names=["x"], label_namer=None)
+    @_preprocess_data(replace_names=["x"])
     @docstring.dedent_interpd
     def specgram(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
                  window=None, noverlap=None,
@@ -7889,7 +7835,7 @@ optional.
                                                  integer=True))
         return im
 
-    @_preprocess_data(replace_names=["dataset"], label_namer=None)
+    @_preprocess_data(replace_names=["dataset"])
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
                    points=100, bw_method=None):
