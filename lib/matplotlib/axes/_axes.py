@@ -4248,7 +4248,7 @@ class Axes(_AxesBase):
             If *None*, defaults to rcParams ``lines.linewidth``.
 
         edgecolors : {'face', 'none', *None*} or color or sequence of color, \
-                optional.
+optional.
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
