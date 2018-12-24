@@ -418,7 +418,7 @@
 #legend.scatterpoints : 1        ## number of scatter points
 #legend.markerscale   : 1.0      ## the relative size of legend markers vs. original
 #legend.fontsize      : medium
-#legend.title_fontsize    : None ## None sets to the same as the default axes.  
+#legend.title_fontsize    : None ## None sets to the same as the default axes.
 ## Dimensions as fraction of fontsize:
 #legend.borderpad     : 0.4      ## border whitespace
 #legend.labelspacing  : 0.5      ## the vertical space between the legend entries
@@ -488,6 +488,7 @@
 
 #### SCATTER PLOTS
 #scatter.marker : o               ## The default marker type for scatter plots.
+#scatter.edgecolors : face        ## The default edgecolors for scatter plots.
 
 #### Agg rendering
 #### Warning: experimental, 2008/10/10

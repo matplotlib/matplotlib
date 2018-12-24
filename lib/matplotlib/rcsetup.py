@@ -1230,6 +1230,7 @@ defaultParams = {
 
     # scatter props
     'scatter.marker': ['o', validate_string],
+    'scatter.edgecolors': ['face', validate_string],
 
     # TODO validate that these are valid datetime format strings
     'date.autoformatter.year': ['%Y', validate_string],
