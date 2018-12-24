@@ -74,13 +74,15 @@ class Path(object):
 
     """
 
+    code_type = np.uint8
+
     # Path codes
-    STOP = 0         # 1 vertex
-    MOVETO = 1       # 1 vertex
-    LINETO = 2       # 1 vertex
-    CURVE3 = 3       # 2 vertices
-    CURVE4 = 4       # 3 vertices
-    CLOSEPOLY = 79   # 1 vertex
+    STOP = code_type(0)         # 1 vertex
+    MOVETO = code_type(1)       # 1 vertex
+    LINETO = code_type(2)       # 1 vertex
+    CURVE3 = code_type(3)       # 2 vertices
+    CURVE4 = code_type(4)       # 3 vertices
+    CLOSEPOLY = code_type(79)   # 1 vertex
 
     #: A dictionary mapping Path codes to the number of vertices that the
     #: code expects.
@@ -90,8 +92,6 @@ class Path(object):
                              CURVE3: 2,
                              CURVE4: 3,
                              CLOSEPOLY: 1}
-
-    code_type = np.uint8
 
     def __init__(self, vertices, codes=None, _interpolation_steps=1,
                  closed=False, readonly=False):
@@ -399,24 +399,22 @@ class Path(object):
                                snap=snap, stroke_width=stroke_width,
                                simplify=simplify, curves=curves,
                                sketch=sketch)
-        vertices = cleaned.vertices
-        codes = cleaned.codes
-        len_vertices = vertices.shape[0]
 
         # Cache these object lookups for performance in the loop.
         NUM_VERTICES_FOR_CODE = self.NUM_VERTICES_FOR_CODE
         STOP = self.STOP
 
-        i = 0
-        while i < len_vertices:
-            code = codes[i]
+        vertices = iter(cleaned.vertices)
+        codes = iter(cleaned.codes)
+        for curr_vertices, code in zip(vertices, codes):
             if code == STOP:
-                return
-            else:
-                num_vertices = NUM_VERTICES_FOR_CODE[code]
-                curr_vertices = vertices[i:i+num_vertices].flatten()
-                yield curr_vertices, code
-                i += num_vertices
+                break
+            extra_vertices = NUM_VERTICES_FOR_CODE[code] - 1
+            if extra_vertices:
+                for i in range(extra_vertices):
+                    next(codes)
+                    curr_vertices = np.append(curr_vertices, next(vertices))
+            yield curr_vertices, code
 
     def cleaned(self, transform=None, remove_nans=False, clip=None,
                 quantize=False, simplify=False, curves=False,
