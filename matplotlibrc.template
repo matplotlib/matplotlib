@@ -128,6 +128,7 @@
 #boxplot.flierprops.marker          : o
 #boxplot.flierprops.markerfacecolor : none
 #boxplot.flierprops.markeredgecolor : black
+#boxplot.flierprops.markeredgewidth : 1.0
 #boxplot.flierprops.markersize      : 6
 #boxplot.flierprops.linestyle       : none
 #boxplot.flierprops.linewidth       : 1.0

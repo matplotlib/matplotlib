@@ -3769,6 +3769,7 @@ class Axes(_AxesBase):
             marker=rcParams['boxplot.flierprops.marker'],
             markerfacecolor=rcParams['boxplot.flierprops.markerfacecolor'],
             markeredgecolor=rcParams['boxplot.flierprops.markeredgecolor'],
+            markeredgewidth=rcParams['boxplot.flierprops.markeredgewidth'],
             markersize=rcParams['boxplot.flierprops.markersize'],
         )
 
