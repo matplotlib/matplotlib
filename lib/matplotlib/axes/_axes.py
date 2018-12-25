@@ -3982,8 +3982,8 @@ class Axes(_AxesBase):
         - kwargs['color'] (==kwcolor)
         - 'face' if not in classic mode else None
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         c : color or sequence or sequence of color or None
             See argument description of `.Axes.scatter`.
         edgecolors : color or sequence of color or {'face', 'none'} or None

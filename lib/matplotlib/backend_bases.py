@@ -1853,8 +1853,8 @@ class FigureCanvasBase(object):
         Even if multiple calls to `draw_idle` occur before control returns
         to the GUI event loop, the figure will only be rendered once.
 
-        Note
-        ----
+        Notes
+        -----
         Backends may choose to override the method and implement their own
         strategy to prevent multiple renderings.
 
