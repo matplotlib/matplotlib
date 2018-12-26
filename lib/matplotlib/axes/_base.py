@@ -1001,8 +1001,7 @@ class _AxesBase(martist.Artist):
             x0, x1 = self._sharex.get_xlim()
             self.set_xlim(x0, x1, emit=False,
                           auto=self._sharex.get_autoscalex_on())
-            self.xaxis._scale = mscale.scale_factory(
-                    self._sharex.xaxis.get_scale(), self.xaxis)
+            self.xaxis._scale = self._sharex.xaxis._scale
         else:
             self.xaxis._set_scale('linear')
             try:
@@ -1016,8 +1015,7 @@ class _AxesBase(martist.Artist):
             y0, y1 = self._sharey.get_ylim()
             self.set_ylim(y0, y1, emit=False,
                           auto=self._sharey.get_autoscaley_on())
-            self.yaxis._scale = mscale.scale_factory(
-                    self._sharey.yaxis.get_scale(), self.yaxis)
+            self.yaxis._scale = self._sharey.yaxis._scale
         else:
             self.yaxis._set_scale('linear')
             try:

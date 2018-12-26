@@ -24,6 +24,20 @@ class ScaleBase(object):
     And optionally:
       - :meth:`limit_range_for_scale`
     """
+
+    def __init__(self, axis, **kwargs):
+        r"""
+        Construct a new scale.
+
+        Note
+        ----
+        The following note is for scale implementors.
+
+        For back-compatibility reasons, scales take an `~.Axis` object as first
+        argument.  However, this argument should not be used: a single scale
+        object should be usable by multiple `~.Axis`\es at the same time.
+        """
+
     def get_transform(self):
         """
         Return the :class:`~matplotlib.transforms.Transform` object
@@ -56,9 +70,6 @@ class LinearScale(ScaleBase):
     """
 
     name = 'linear'
-
-    def __init__(self, axis, **kwargs):
-        pass
 
     def set_default_locators_and_formatters(self, axis):
         """

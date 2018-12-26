@@ -38,21 +38,19 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     http://en.wikipedia.org/wiki/Mercator_projection
     """
 
-    # The scale class must have a member ``name`` that defines the
-    # string used to select the scale.  For example,
-    # ``gca().set_yscale("mercator")`` would be used to select this
-    # scale.
+    # The scale class must have a member ``name`` that defines the string used
+    # to select the scale.  For example, ``gca().set_yscale("mercator")`` would
+    # be used to select this scale.
     name = 'mercator'
 
     def __init__(self, axis, *, thresh=np.deg2rad(85), **kwargs):
         """
-        Any keyword arguments passed to ``set_xscale`` and
-        ``set_yscale`` will be passed along to the scale's
-        constructor.
+        Any keyword arguments passed to ``set_xscale`` and ``set_yscale`` will
+        be passed along to the scale's constructor.
 
         thresh: The degree above which to crop the data.
         """
-        mscale.ScaleBase.__init__(self)
+        super().__init__(axis)
         if thresh >= np.pi / 2:
             raise ValueError("thresh must be less than pi/2")
         self.thresh = thresh
