@@ -613,7 +613,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Test whether the mouse event occurred within the image.
         """
-        if callable(self._contains):
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         # TODO: make sure this is consistent with patch and patch
         # collection on nonlinear transformed coordinates.
@@ -1310,7 +1310,7 @@ class BboxImage(_ImageBase):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred within the image."""
-        if callable(self._contains):
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         if not self.get_visible():  # or self.get_figure()._renderer is None:

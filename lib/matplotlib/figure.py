@@ -656,7 +656,7 @@ class Figure(Artist):
         -------
             bool, {}
         """
-        if callable(self._contains):
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
         return inside, {}

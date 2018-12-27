@@ -383,7 +383,7 @@ class Artist(object):
         --------
         set_contains, get_contains
         """
-        if callable(self._contains):
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
@@ -411,6 +411,8 @@ class Artist(object):
               implementation of the respective artist, but may provide
               additional information.
         """
+        if not callable(picker):
+            raise TypeError("picker is not a callable")
         self._contains = picker
 
     def get_contains(self):
