@@ -256,14 +256,14 @@ class RendererAgg(RendererBase):
         # docstring inherited
         return points * self.dpi / 72
 
-    def tostring_rgb(self):
-        return self._renderer.tostring_rgb()
+    def buffer_rgba(self):
+        return memoryview(self._renderer)
 
     def tostring_argb(self):
-        return self._renderer.tostring_argb()
+        return np.asarray(self._renderer).take([3, 0, 1, 2], axis=2).tobytes()
 
-    def buffer_rgba(self):
-        return self._renderer.buffer_rgba()
+    def tostring_rgb(self):
+        return np.asarray(self._renderer).take([0, 1, 2], axis=2).tobytes()
 
     def clear(self):
         self._renderer.clear()
@@ -409,7 +409,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer
 
     def tostring_rgb(self):
-        '''Get the image as an RGB byte string.
+        """Get the image as an RGB byte string.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
@@ -417,11 +417,11 @@ class FigureCanvasAgg(FigureCanvasBase):
         Returns
         -------
         bytes
-        '''
+        """
         return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
-        '''Get the image as an ARGB byte string
+        """Get the image as an ARGB byte string.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
@@ -429,20 +429,19 @@ class FigureCanvasAgg(FigureCanvasBase):
         Returns
         -------
         bytes
-
-        '''
+        """
         return self.renderer.tostring_argb()
 
     def buffer_rgba(self):
-        '''Get the image as an RGBA byte string.
+        """Get the image as a memoryview to the renderer's buffer.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
 
         Returns
         -------
-        bytes
-        '''
+        memoryview
+        """
         return self.renderer.buffer_rgba()
 
     def print_raw(self, filename_or_obj, *args, **kwargs):
