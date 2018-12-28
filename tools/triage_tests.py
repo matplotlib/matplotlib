@@ -38,9 +38,9 @@ from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
 # these two places.
 
 BASELINE_IMAGES = [
-    os.path.join('lib', 'matplotlib', 'tests', 'baseline_images'),
-    os.path.join('lib', 'mpl_toolkits', 'tests', 'baseline_images')
-    ]
+    Path('lib/matplotlib/tests/baseline_images'),
+    Path('lib/mpl_toolkits/tests/baseline_images'),
+]
 
 
 # Non-png image extensions
@@ -172,7 +172,7 @@ class Dialog(QtWidgets.QDialog):
 
         self.pixmaps = []
         for fname, thumbnail in zip(entry.thumbnails, self.thumbnails):
-            pixmap = QtGui.QPixmap(fname)
+            pixmap = QtGui.QPixmap(os.fspath(fname))
             scaled_pixmap = pixmap.scaled(
                 thumbnail.size(), QtCore.Qt.KeepAspectRatio,
                 QtCore.Qt.SmoothTransformation)
@@ -185,8 +185,9 @@ class Dialog(QtWidgets.QDialog):
     def set_large_image(self, index):
         self.thumbnails[self.current_thumbnail].setFrameShape(0)
         self.current_thumbnail = index
-        pixmap = QtGui.QPixmap(self.entries[self.current_entry]
-                                   .thumbnails[self.current_thumbnail])
+        pixmap = QtGui.QPixmap(os.fspath(
+            self.entries[self.current_entry]
+            .thumbnails[self.current_thumbnail]))
         self.image_display.setPixmap(pixmap)
         self.thumbnails[self.current_thumbnail].setFrameShape(1)
 
@@ -236,11 +237,11 @@ class Entry(object):
     def __init__(self, path, root, source):
         self.source = source
         self.root = root
-        self.dir, fname = os.path.split(path)
-        self.reldir = os.path.relpath(self.dir, self.root)
-        self.diff = fname
+        self.dir = path.parent
+        self.diff = path.name
+        self.reldir = self.dir.relative_to(self.root)
 
-        basename = fname[:-len('-failed-diff.png')]
+        basename = self.diff[:-len('-failed-diff.png')]
         for ext in exts:
             if basename.endswith('_' + ext):
                 display_extension = '_' + ext
@@ -258,7 +259,7 @@ class Entry(object):
         self.expected_display = (basename + '-expected' + display_extension +
                                  '.png')
         self.generated_display = basename + display_extension + '.png'
-        self.name = os.path.join(self.reldir, self.basename)
+        self.name = self.reldir / self.basename
         self.destdir = self.get_dest_dir(self.reldir)
 
         self.thumbnails = [
@@ -266,29 +267,16 @@ class Entry(object):
             self.expected_display,
             self.diff
             ]
-        self.thumbnails = [os.path.join(self.dir, x) for x in self.thumbnails]
+        self.thumbnails = [self.dir / x for x in self.thumbnails]
 
         if not Path(self.destdir, self.generated).exists():
             # This case arises from a check_figures_equal test.
             self.status = 'autogen'
-        elif self.same(os.path.join(self.dir, self.generated),
-                     os.path.join(self.destdir, self.generated)):
+        elif ((self.dir / self.generated).read_bytes()
+              == (self.destdir / self.generated).read_bytes()):
             self.status = 'accept'
         else:
             self.status = 'unknown'
-
-    def same(self, a, b):
-        """
-        Returns True if two files have the same content.
-        """
-        return Path(a).read_bytes() == Path(b).read_bytes()
-
-    def copy_file(self, a, b):
-        """
-        Copy file from a to b.
-        """
-        print("copying: {} to {}".format(a, b))
-        shutil.copyfile(a, b)
 
     def get_dest_dir(self, reldir):
         """
@@ -296,8 +284,8 @@ class Entry(object):
         result_images subdirectory.
         """
         for baseline_dir in BASELINE_IMAGES:
-            path = os.path.join(self.source, baseline_dir, reldir)
-            if os.path.isdir(path):
+            path = self.source / baseline_dir / reldir
+            if path.is_dir():
                 return path
         raise ValueError("Can't find baseline dir for {}".format(reldir))
 
@@ -320,19 +308,21 @@ class Entry(object):
         """
         Accept this test by copying the generated result to the source tree.
         """
-        a = os.path.join(self.dir, self.generated)
-        b = os.path.join(self.destdir, self.generated)
-        self.copy_file(a, b)
+        copy_file(self.dir / self.generated, self.destdir / self.generated)
         self.status = 'accept'
 
     def reject(self):
         """
         Reject this test by copying the expected result to the source tree.
         """
-        a = os.path.join(self.dir, self.expected)
-        b = os.path.join(self.destdir, self.generated)
-        self.copy_file(a, b)
+        copy_file(self.dir / self.expected, self.destdir / self.generated)
         self.status = 'reject'
+
+
+def copy_file(a, b):
+    """Copy file from *a* to *b*."""
+    print(f'copying: {a} to {b}')
+    shutil.copyfile(a, b)
 
 
 def find_failing_tests(result_images, source):
@@ -340,10 +330,8 @@ def find_failing_tests(result_images, source):
     Find all of the failing tests by looking for files with
     `-failed-diff` at the end of the basename.
     """
-    return sorted(
-        (Entry(path, result_images, source)
-         for path in Path(result_images).glob("**/*-failed-diff.*")),
-        key=lambda x: x.name)
+    return [Entry(path, result_images, source)
+            for path in sorted(Path(result_images).glob("**/*-failed-diff.*"))]
 
 
 def launch(result_images, source):
@@ -367,7 +355,7 @@ def launch(result_images, source):
 if __name__ == '__main__':
     import argparse
 
-    source_dir = os.path.join(os.path.dirname(__file__), '..')
+    source_dir = Path(__file__).parent.parent
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -383,10 +371,10 @@ Keys:
     A:          Accept test.  Copy the test result to the source tree.
     R:          Reject test.  Copy the expected result to the source tree.
 """)
-    parser.add_argument("result_images", type=str, nargs='?',
-                        default=os.path.join(source_dir, 'result_images'),
+    parser.add_argument("result_images", type=Path, nargs='?',
+                        default=source_dir / 'result_images',
                         help="The location of the result_images directory")
-    parser.add_argument("source", type=str, nargs='?', default=source_dir,
+    parser.add_argument("source", type=Path, nargs='?', default=source_dir,
                         help="The location of the matplotlib source tree")
     args = parser.parse_args()
 
