@@ -254,7 +254,7 @@ class Figure(Artist):
     Attributes
     ----------
     patch
-        The `.Rectangle` instance representing the figure patch.
+        The `.Rectangle` instance representing the figure background patch.
 
     suppressComposite
         For multiple figure images, the figure will make composite images
@@ -304,7 +304,7 @@ class Figure(Artist):
             patch).
 
         frameon : bool, default: :rc:`figure.frameon`
-            If ``False``, suppress drawing the figure frame.
+            If ``False``, suppress drawing the figure background patch.
 
         subplotpars : :class:`SubplotParams`
             Subplot parameters. If not given, the default subplot
@@ -355,13 +355,12 @@ class Figure(Artist):
         self._dpi = dpi
         self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
 
-        self.frameon = frameon
-
         self.transFigure = BboxTransformTo(self.bbox)
 
         self.patch = Rectangle(
             xy=(0, 0), width=1, height=1,
-            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth)
+            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth,
+            visible=frameon)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
@@ -640,15 +639,14 @@ class Figure(Artist):
 
     def get_children(self):
         """Get a list of artists contained in the figure."""
-        children = [self.patch]
-        children.extend(self.artists)
-        children.extend(self.axes)
-        children.extend(self.lines)
-        children.extend(self.patches)
-        children.extend(self.texts)
-        children.extend(self.images)
-        children.extend(self.legends)
-        return children
+        return [self.patch,
+                *self.artists,
+                *self.axes,
+                *self.lines,
+                *self.patches,
+                *self.texts,
+                *self.images,
+                *self.legends]
 
     def contains(self, mouseevent):
         """
@@ -938,8 +936,12 @@ default: 'top'
         return self.dpi
 
     def get_frameon(self):
-        """Return whether the figure frame will be drawn."""
-        return self.frameon
+        """
+        Return the figure's background patch visibility, i.e.
+        whether the figure background will be drawn. Equivalent to
+        ``Figure.patch.get_visible()``.
+        """
+        return self.patch.get_visible()
 
     def set_edgecolor(self, color):
         """
@@ -996,14 +998,18 @@ default: 'top'
 
     def set_frameon(self, b):
         """
-        Set whether the figure frame (background) is displayed or invisible.
+        Set the figure's background patch visibility, i.e.
+        whether the figure background will be drawn. Equivalent to
+        ``Figure.patch.set_visible()``.
 
         Parameters
         ----------
         b : bool
         """
-        self.frameon = b
+        self.patch.set_visible(b)
         self.stale = True
+
+    frameon = property(get_frameon, set_frameon)
 
     def delaxes(self, ax):
         """
@@ -1623,11 +1629,10 @@ default: 'top'
         if not self.get_visible():
             return
 
+        artists = self.get_children()
+        artists.remove(self.patch)
         artists = sorted(
-            (artist for artist in (self.patches + self.lines + self.artists
-                                   + self.images + self.axes + self.texts
-                                   + self.legends)
-             if not artist.get_animated()),
+            (artist for artist in artists if not artist.get_animated()),
             key=lambda artist: artist.get_zorder())
 
         for ax in self.axes:
@@ -1659,9 +1664,7 @@ default: 'top'
                     pass
                     # ValueError can occur when resizing a window.
 
-            if self.frameon:
-                self.patch.draw(renderer)
-
+            self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
                 renderer, self, artists, self.suppressComposite)
 
@@ -2122,13 +2125,13 @@ default: 'top'
             kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
 
         if frameon:
-            original_frameon = self.get_frameon()
-            self.set_frameon(frameon)
+            original_frameon = self.patch.get_visible()
+            self.patch.set_visible(frameon)
 
         self.canvas.print_figure(fname, **kwargs)
 
         if frameon:
-            self.set_frameon(original_frameon)
+            self.patch.set_visible(original_frameon)
 
         if transparent:
             for ax, cc in zip(self.axes, original_axes_colors):
