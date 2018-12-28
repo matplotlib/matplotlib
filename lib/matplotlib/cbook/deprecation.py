@@ -19,7 +19,7 @@ mplDeprecation = MatplotlibDeprecationWarning
 """mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead."""
 
 
-def _generate_deprecation_message(
+def _generate_deprecation_warning(
         since, message='', name='', alternative='', pending=False,
         obj_type='attribute', addendum='', *, removal=''):
 
@@ -34,7 +34,7 @@ def _generate_deprecation_message(
 
     if not message:
         message = (
-            "The %(name)s %(obj_type)s"
+            "\nThe %(name)s %(obj_type)s"
             + (" will be deprecated in a future version"
                if pending else
                (" was deprecated in Matplotlib %(since)s"
@@ -45,9 +45,12 @@ def _generate_deprecation_message(
             + (" Use %(alternative)s instead." if alternative else "")
             + (" %(addendum)s" if addendum else ""))
 
-    return message % dict(
+    warning_cls = (PendingDeprecationWarning if pending
+                   else MatplotlibDeprecationWarning)
+
+    return warning_cls(message % dict(
         func=name, name=name, obj_type=obj_type, since=since, removal=removal,
-        alternative=alternative, addendum=addendum)
+        alternative=alternative, addendum=addendum))
 
 
 def warn_deprecated(
@@ -101,15 +104,12 @@ def warn_deprecated(
             # To warn of the deprecation of "matplotlib.name_of_module"
             warn_deprecated('1.4.0', name='matplotlib.name_of_module',
                             obj_type='module')
-
     """
-    message = '\n' + _generate_deprecation_message(
+    warning = _generate_deprecation_warning(
         since, message, name, alternative, pending, obj_type, addendum,
         removal=removal)
-    category = (PendingDeprecationWarning if pending
-                else MatplotlibDeprecationWarning)
     from . import _warn_external
-    _warn_external(message, category)
+    _warn_external(warning)
 
 
 def deprecated(since, *, message='', name='', alternative='', pending=False,
@@ -203,19 +203,19 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                 def __get__(self, instance, owner):
                     if instance is not None:
                         from . import _warn_external
-                        _warn_external(message, category)
+                        _warn_external(warning)
                     return super().__get__(instance, owner)
 
                 def __set__(self, instance, value):
                     if instance is not None:
                         from . import _warn_external
-                        _warn_external(message, category)
+                        _warn_external(warning)
                     return super().__set__(instance, value)
 
                 def __delete__(self, instance):
                     if instance is not None:
                         from . import _warn_external
-                        _warn_external(message, category)
+                        _warn_external(warning)
                     return super().__delete__(instance)
 
             def finalize(_, new_doc):
@@ -233,15 +233,13 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                 wrapper.__doc__ = new_doc
                 return wrapper
 
-        message = _generate_deprecation_message(
+        warning = _generate_deprecation_warning(
             since, message, name, alternative, pending, obj_type, addendum,
             removal=removal)
-        category = (PendingDeprecationWarning if pending
-                    else MatplotlibDeprecationWarning)
 
         def wrapper(*args, **kwargs):
             from . import _warn_external
-            _warn_external(message, category)
+            _warn_external(warning)
             return func(*args, **kwargs)
 
         old_doc = inspect.cleandoc(old_doc or '').strip('\n')
