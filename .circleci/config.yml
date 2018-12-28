@@ -66,7 +66,7 @@ deps-run: &deps-install
   name: Install Python dependencies
   command: |
     python -mpip install --user numpy${NUMPY_VERSION} codecov coverage
-    python -mpip install --user -r doc-requirements.txt
+    python -mpip install --user -r requirements/doc/doc-requirements.txt
 
 mpl-run: &mpl-install
   name: Install Matplotlib
