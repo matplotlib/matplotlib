@@ -11,6 +11,7 @@
 
 import os
 import shutil
+import subprocess
 import sys
 
 import matplotlib
@@ -141,8 +142,13 @@ source_encoding = "utf-8"
 master_doc = 'contents'
 
 # General substitutions.
-from subprocess import check_output
-SHA = check_output(['git', 'describe', '--dirty']).decode('utf-8').strip()
+try:
+    SHA = subprocess.check_output(
+        ['git', 'describe', '--dirty']).decode('utf-8').strip()
+# Catch the case where git is not installed locally, and use the versioneer
+# version number instead
+except subprocess.CalledProcessError:
+    SHA = matplotlib.__version__
 
 html_context = {'sha': SHA}
 
