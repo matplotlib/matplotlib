@@ -11,6 +11,7 @@ import os
 import pathlib
 import platform
 import setuptools
+import shlex
 import shutil
 import subprocess
 import sys
@@ -321,20 +322,17 @@ def get_buffer_hash(fd):
 
 
 class PkgConfig(object):
-    """
-    This is a class for communicating with pkg-config.
-    """
+    """This is a class for communicating with pkg-config."""
+
     def __init__(self):
-        """
-        Determines whether pkg-config exists on this machine.
-        """
-        if sys.platform == 'win32':
-            self.has_pkgconfig = False
-        else:
-            self.pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
-            self.set_pkgconfig_path()
-            self.has_pkgconfig = shutil.which(self.pkg_config) is not None
-            if not self.has_pkgconfig:
+        """Determines whether pkg-config exists on this machine."""
+        self.pkg_config = None
+        if sys.platform != 'win32':
+            pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
+            if shutil.which(pkg_config) is not None:
+                self.pkg_config = pkg_config
+                self.set_pkgconfig_path()
+            else:
                 print("IMPORTANT WARNING:\n"
                       "    pkg-config is not installed.\n"
                       "    matplotlib may not be able to find some of its dependencies")
@@ -353,52 +351,28 @@ class PkgConfig(object):
         except KeyError:
             os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
 
-    def setup_extension(self, ext, package, default_include_dirs=[],
-                        default_library_dirs=[], default_libraries=[],
-                        alt_exec=None):
-        """
-        Add parameters to the given `ext` for the given `package`.
-        """
-        flag_map = {
-            '-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
-
-        executable = alt_exec
-        if self.has_pkgconfig:
-            executable = (self.pkg_config + ' {0}').format(package)
-
-        use_defaults = True
-
-        if executable is not None:
-            command = "{0} --libs --cflags ".format(executable)
-
+    def setup_extension(self, ext, package,
+                        alt_exec=None, default_libraries=()):
+        """Add parameters to the given *ext* for the given *package*."""
+        cmd = ([self.pkg_config, package] if self.pkg_config
+                      else alt_exec)
+        if cmd is not None:
             try:
-                output = subprocess.check_output(
-                    command, shell=True, stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError:
+                flags = shlex.split(subprocess.check_output(
+                    [*cmd, "--cflags", "--libs"], universal_newlines=True))
+            except (OSError, subprocess.CalledProcessError):
                 pass
             else:
-                output = output.decode(sys.getfilesystemencoding())
-                use_defaults = False
-                for token in output.split():
-                    attr = flag_map.get(token[:2])
-                    if attr is not None:
-                        getattr(ext, attr).insert(0, token[2:])
-
-        if use_defaults:
-            basedirs = get_base_dirs()
-            for base in basedirs:
-                for include in default_include_dirs:
-                    dir = os.path.join(base, include)
-                    if os.path.exists(dir):
-                        ext.include_dirs.append(dir)
-                for lib in default_library_dirs:
-                    dir = os.path.join(base, lib)
-                    if os.path.exists(dir):
-                        ext.library_dirs.append(dir)
-            ext.libraries.extend(default_libraries)
-            return True
-
-        return False
+                # In theory, one could call pkg-config separately with --cflags
+                # and --libs and use them to fill extra_compile_args and
+                # extra_link_args respectively, but keeping all the flags
+                # together works as well and makes it simpler to handle
+                # libpng-config, which has --ldflags instead of --libs.
+                ext.extra_compile_args.extend(flags)
+                ext.extra_link_args.extend(flags)
+                return
+        # Else, fall back on the defaults.
+        ext.libraries.extend(default_libraries)
 
     def get_version(self, package):
         """
@@ -806,12 +780,7 @@ class FreeType(SetupPackage):
         else:
             pkg_config.setup_extension(
                 ext, 'freetype2',
-                default_include_dirs=[
-                    'include/freetype2', 'freetype2',
-                    'lib/freetype2/include',
-                    'lib/freetype2/include/freetype2'],
-                default_library_dirs=[
-                    'freetype2/lib'],
+                alt_exec=['freetype-config', '--cflags', '--libs'],
                 default_libraries=['freetype', 'z'])
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
@@ -954,8 +923,9 @@ class Png(SetupPackage):
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
-            ext, 'libpng', default_libraries=['png', 'z'],
-            alt_exec='libpng-config --ldflags')
+            ext, 'libpng',
+            alt_exec=['libpng-config', '--cflags', '--ldflags'],
+            default_libraries=['png', 'z'])
         Numpy().add_flags(ext)
         return ext
 
