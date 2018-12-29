@@ -286,18 +286,19 @@ class PkgConfig(object):
                 if self.pkg_config and atleast_version:
                     subprocess.check_call(
                         [*cmd, f"--atleast-version={atleast_version}"])
-                flags = shlex.split(subprocess.check_output(
-                    [*cmd, "--cflags", "--libs"], universal_newlines=True))
+                # Use sys.getfilesystemencoding() to allow round-tripping
+                # when passed back to later subprocess calls; do not use
+                # locale.getpreferredencoding() which universal_newlines=True
+                # would do.
+                cflags = shlex.split(
+                    os.fsdecode(subprocess.check_output([*cmd, "--cflags"])))
+                libs = shlex.split(
+                    os.fsdecode(subprocess.check_output([*cmd, "--libs"])))
             except (OSError, subprocess.CalledProcessError):
                 pass
             else:
-                # In theory, one could call pkg-config separately with --cflags
-                # and --libs and use them to fill extra_compile_args and
-                # extra_link_args respectively, but keeping all the flags
-                # together works as well and makes it simpler to handle
-                # libpng-config, which has --ldflags instead of --libs.
-                ext.extra_compile_args.extend(flags)
-                ext.extra_link_args.extend(flags)
+                ext.extra_compile_args.extend(cflags)
+                ext.extra_link_args.extend(libs)
                 return
 
         # If that fails, fall back on the defaults.
@@ -713,7 +714,7 @@ class FreeType(SetupPackage):
                 # table in docs/VERSIONS.txt in the FreeType source tree.
                 ext, 'freetype2',
                 atleast_version='9.11.3',
-                alt_exec=['freetype-config', '--cflags', '--libs'],
+                alt_exec=['freetype-config'],
                 default_libraries=['freetype', 'z'])
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
@@ -858,7 +859,7 @@ class Png(SetupPackage):
         pkg_config.setup_extension(
             ext, 'libpng',
             atleast_version='1.2',
-            alt_exec=['libpng-config', '--cflags', '--ldflags'],
+            alt_exec=['libpng-config', '--ldflags'],
             default_libraries=['png', 'z'])
         Numpy().add_flags(ext)
         return ext
