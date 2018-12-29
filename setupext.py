@@ -1023,8 +1023,8 @@ class Tri(SetupPackage):
 
     def get_extension(self):
         sources = [
-            "lib/matplotlib/tri/_tri.cpp",
-            "lib/matplotlib/tri/_tri_wrapper.cpp",
+            "src/tri/_tri.cpp",
+            "src/tri/_tri_wrapper.cpp",
             "src/mplutils.cpp"
             ]
         ext = make_extension('matplotlib._tri', sources)
