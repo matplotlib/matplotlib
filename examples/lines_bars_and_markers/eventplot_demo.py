@@ -44,7 +44,7 @@ data2 = np.random.gamma(4, size=[60, 50])
 # use individual values for the parameters this time
 # these values will be used for all data sets (except lineoffsets2, which
 # sets the increment between each data set in this usage)
-colors2 = 'k'
+colors2 = 'black'
 lineoffsets2 = 1
 linelengths2 = 1
 
