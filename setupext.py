@@ -177,7 +177,6 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 options = {
     'display_status': True,
     'backend': None,
-    'basedirlist': None
     }
 
 
@@ -192,11 +191,6 @@ if os.path.exists(setup_cfg):
     if config.has_option('rc_options', 'backend'):
         options['backend'] = config.get("rc_options", "backend")
 
-    if config.has_option('directories', 'basedirlist'):
-        options['basedirlist'] = [
-            x.strip() for x in
-            config.get("directories", "basedirlist").split(',')]
-
     if config.has_option('test', 'local_freetype'):
         options['local_freetype'] = config.getboolean("test", "local_freetype")
 else:
@@ -204,52 +198,6 @@ else:
 
 lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
-
-
-def get_base_dirs():
-    """
-    Returns a list of standard base directories on this platform.
-    """
-    if options['basedirlist']:
-        return options['basedirlist']
-
-    if os.environ.get('MPLBASEDIRLIST'):
-        return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
-
-    win_bases = ['win32_static']
-    # on conda windows, we also add the <conda_env_dir>\Library,
-    # as conda installs libs/includes there
-    # env var names mess: https://github.com/conda/conda/issues/2312
-    conda_env_path = os.getenv('CONDA_PREFIX')  # conda >= 4.1
-    if not conda_env_path:
-        conda_env_path = os.getenv('CONDA_DEFAULT_ENV')  # conda < 4.1
-    if conda_env_path and os.path.isdir(conda_env_path):
-        win_bases.append(os.path.join(conda_env_path, "Library"))
-
-    basedir_map = {
-        'win32': win_bases,
-        'darwin': ['/usr/local/', '/usr', '/usr/X11',
-                   '/opt/X11', '/opt/local'],
-        'sunos5': [os.getenv('MPLIB_BASE') or '/usr/local', ],
-        'gnu0': ['/usr'],
-        'aix5': ['/usr/local'],
-        }
-    return basedir_map.get(sys.platform, ['/usr/local', '/usr'])
-
-
-def get_include_dirs():
-    """
-    Returns a list of standard include directories on this platform.
-    """
-    include_dirs = [os.path.join(d, 'include') for d in get_base_dirs()]
-    if sys.platform != 'win32':
-        # gcc includes these dirs automatically, so also look for headers in
-        # these dirs
-        include_dirs.extend(
-            os.environ.get('CPATH', '').split(os.pathsep))
-        include_dirs.extend(
-            os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
-    return include_dirs
 
 
 def is_min_version(found, minversion):
@@ -283,32 +231,6 @@ else:
     def print_line(*args, **kwargs):
         pass
     print_status = print_message = print_raw = print_line
-
-
-def make_extension(name, files, *args, **kwargs):
-    """
-    Make a new extension.  Automatically sets include_dirs and
-    library_dirs to the base directories appropriate for this
-    platform.
-
-    `name` is the name of the extension.
-
-    `files` is a list of source files.
-
-    Any additional arguments are passed to the
-    `distutils.core.Extension` constructor.
-    """
-    ext = Extension(name, files, *args, **kwargs)
-    for dir in get_base_dirs():
-        include_dir = os.path.join(dir, 'include')
-        if os.path.exists(include_dir):
-            ext.include_dirs.append(include_dir)
-        for lib in ('lib', 'lib64'):
-            lib_dir = os.path.join(dir, lib)
-            if os.path.exists(lib_dir):
-                ext.library_dirs.append(lib_dir)
-    ext.include_dirs.append('.')
-    return ext
 
 
 def get_buffer_hash(fd):
@@ -354,8 +276,10 @@ class PkgConfig(object):
     def setup_extension(self, ext, package,
                         alt_exec=None, default_libraries=()):
         """Add parameters to the given *ext* for the given *package*."""
-        cmd = ([self.pkg_config, package] if self.pkg_config
-                      else alt_exec)
+
+        # First, try to get the flags from pkg-config.
+
+        cmd = ([self.pkg_config, package] if self.pkg_config else alt_exec)
         if cmd is not None:
             try:
                 flags = shlex.split(subprocess.check_output(
@@ -371,7 +295,21 @@ class PkgConfig(object):
                 ext.extra_compile_args.extend(flags)
                 ext.extra_link_args.extend(flags)
                 return
-        # Else, fall back on the defaults.
+
+        # If that fails, fall back on the defaults.
+
+        # conda Windows header and library paths.
+        # https://github.com/conda/conda/issues/2312 re: getting the env dir.
+        if sys.platform == 'win32':
+            conda_env_path = (os.getenv('CONDA_PREFIX')  # conda >= 4.1
+                              or os.getenv('CONDA_DEFAULT_ENV'))  # conda < 4.1
+            if conda_env_path and os.path.isdir(conda_env_path):
+                ext.include_dirs.append(os.fspath(
+                    pathlib.Path(conda_env_path, "Library/include")))
+                ext.library_dirs.append(os.fspath(
+                    pathlib.Path(conda_env_path, "Library/lib")))
+
+        # Default linked libs.
         ext.libraries.extend(default_libraries)
 
     def get_version(self, package):
@@ -897,7 +835,7 @@ class FT2Font(SetupPackage):
             'src/mplutils.cpp',
             'src/py_converters.cpp',
             ]
-        ext = make_extension('matplotlib.ft2font', sources)
+        ext = Extension('matplotlib.ft2font', sources)
         FreeType().add_flags(ext)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
@@ -921,7 +859,7 @@ class Png(SetupPackage):
             'src/_png.cpp',
             'src/mplutils.cpp',
             ]
-        ext = make_extension('matplotlib._png', sources)
+        ext = Extension('matplotlib._png', sources)
         pkg_config.setup_extension(
             ext, 'libpng',
             alt_exec=['libpng-config', '--cflags', '--ldflags'],
@@ -953,7 +891,7 @@ class TTConv(SetupPackage):
             'extern/ttconv/pprdrv_tt2.cpp',
             'extern/ttconv/ttutil.cpp'
             ]
-        ext = make_extension('matplotlib.ttconv', sources)
+        ext = Extension('matplotlib.ttconv', sources)
         Numpy().add_flags(ext)
         ext.include_dirs.insert(0, 'extern')
         return ext
@@ -968,7 +906,7 @@ class Path(SetupPackage):
             'src/_path_wrapper.cpp'
             ]
 
-        ext = make_extension('matplotlib._path', sources)
+        ext = Extension('matplotlib._path', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
         return ext
@@ -984,7 +922,7 @@ class Image(SetupPackage):
             'src/_image_wrapper.cpp',
             'src/py_converters.cpp'
             ]
-        ext = make_extension('matplotlib._image', sources)
+        ext = Extension('matplotlib._image', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
 
@@ -1000,7 +938,7 @@ class Contour(SetupPackage):
             "src/_contour_wrapper.cpp",
             'src/py_converters.cpp',
             ]
-        ext = make_extension('matplotlib._contour', sources)
+        ext = Extension('matplotlib._contour', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
         return ext
@@ -1011,8 +949,8 @@ class QhullWrap(SetupPackage):
 
     def get_extension(self):
         sources = ['src/qhull_wrap.c']
-        ext = make_extension('matplotlib._qhull', sources,
-                             define_macros=[('MPL_DEVNULL', os.devnull)])
+        ext = Extension('matplotlib._qhull', sources,
+                        define_macros=[('MPL_DEVNULL', os.devnull)])
         Numpy().add_flags(ext)
         Qhull().add_flags(ext)
         return ext
@@ -1027,7 +965,7 @@ class Tri(SetupPackage):
             "src/tri/_tri_wrapper.cpp",
             "src/mplutils.cpp"
             ]
-        ext = make_extension('matplotlib._tri', sources)
+        ext = Extension('matplotlib._tri', sources)
         Numpy().add_flags(ext)
         return ext
 
@@ -1043,7 +981,7 @@ class BackendAgg(OptionalBackendPackage):
             "src/_backend_agg.cpp",
             "src/_backend_agg_wrapper.cpp"
             ]
-        ext = make_extension('matplotlib.backends._backend_agg', sources)
+        ext = Extension('matplotlib.backends._backend_agg', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
         FreeType().add_flags(ext)
@@ -1063,7 +1001,7 @@ class BackendTkAgg(OptionalBackendPackage):
             'src/py_converters.cpp',
             ]
 
-        ext = make_extension('matplotlib.backends._tkagg', sources)
+        ext = Extension('matplotlib.backends._tkagg', sources)
         self.add_flags(ext)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
@@ -1094,7 +1032,7 @@ class BackendMacOSX(OptionalBackendPackage):
             'src/_macosx.m'
             ]
 
-        ext = make_extension('matplotlib.backends._macosx', sources)
+        ext = Extension('matplotlib.backends._macosx', sources)
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         if platform.python_implementation().lower() == 'pypy':
             ext.extra_compile_args.append('-DPYPY=1')

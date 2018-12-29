@@ -63,7 +63,7 @@
 #ifndef MPL_TRI_H
 #define MPL_TRI_H
 
-#include "src/numpy_cpp.h"
+#include "../numpy_cpp.h"
 
 #include <iostream>
 #include <list>
