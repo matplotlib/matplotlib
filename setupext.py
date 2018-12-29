@@ -273,8 +273,9 @@ class PkgConfig(object):
         except KeyError:
             os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
 
-    def setup_extension(self, ext, package,
-                        alt_exec=None, default_libraries=()):
+    def setup_extension(
+            self, ext, package,
+            atleast_version=None, alt_exec=None, default_libraries=()):
         """Add parameters to the given *ext* for the given *package*."""
 
         # First, try to get the flags from pkg-config.
@@ -282,6 +283,9 @@ class PkgConfig(object):
         cmd = ([self.pkg_config, package] if self.pkg_config else alt_exec)
         if cmd is not None:
             try:
+                if self.pkg_config and atleast_version:
+                    subprocess.check_call(
+                        [*cmd, f"--atleast-version={atleast_version}"])
                 flags = shlex.split(subprocess.check_output(
                     [*cmd, "--cflags", "--libs"], universal_newlines=True))
             except (OSError, subprocess.CalledProcessError):
@@ -311,19 +315,6 @@ class PkgConfig(object):
 
         # Default linked libs.
         ext.libraries.extend(default_libraries)
-
-    def get_version(self, package):
-        """
-        Get the version of the package from pkg-config.
-        """
-        if not self.has_pkgconfig:
-            return None
-
-        status, output = subprocess.getstatusoutput(
-            self.pkg_config + " %s --modversion" % (package))
-        if status == 0:
-            return output
-        return None
 
 
 # The PkgConfig class should be used through this singleton
@@ -717,7 +708,11 @@ class FreeType(SetupPackage):
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
         else:
             pkg_config.setup_extension(
+                # FreeType 2.3 has libtool version 9.11.3 as can be checked
+                # from the tarball.  For FreeType>=2.4, there is a conversion
+                # table in docs/VERSIONS.txt in the FreeType source tree.
                 ext, 'freetype2',
+                atleast_version='9.11.3',
                 alt_exec=['freetype-config', '--cflags', '--libs'],
                 default_libraries=['freetype', 'z'])
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
@@ -862,6 +857,7 @@ class Png(SetupPackage):
         ext = Extension('matplotlib._png', sources)
         pkg_config.setup_extension(
             ext, 'libpng',
+            atleast_version='1.2',
             alt_exec=['libpng-config', '--cflags', '--ldflags'],
             default_libraries=['png', 'z'])
         Numpy().add_flags(ext)
