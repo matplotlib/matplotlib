@@ -71,93 +71,22 @@ class ArrayWrapper:
         return (self.__data, self.__size)
 
 
-# Mapping from Matplotlib Path codes to cairo path codes.
-_MPL_TO_CAIRO_PATH_TYPE = np.zeros(80, dtype=int)  # CLOSEPOLY = 79.
-_MPL_TO_CAIRO_PATH_TYPE[Path.MOVETO] = cairo.PATH_MOVE_TO
-_MPL_TO_CAIRO_PATH_TYPE[Path.LINETO] = cairo.PATH_LINE_TO
-_MPL_TO_CAIRO_PATH_TYPE[Path.CURVE4] = cairo.PATH_CURVE_TO
-_MPL_TO_CAIRO_PATH_TYPE[Path.CLOSEPOLY] = cairo.PATH_CLOSE_PATH
-# Sizes in cairo_path_data_t of each cairo path element.
-_CAIRO_PATH_TYPE_SIZES = np.zeros(4, dtype=int)
-_CAIRO_PATH_TYPE_SIZES[cairo.PATH_MOVE_TO] = 2
-_CAIRO_PATH_TYPE_SIZES[cairo.PATH_LINE_TO] = 2
-_CAIRO_PATH_TYPE_SIZES[cairo.PATH_CURVE_TO] = 4
-_CAIRO_PATH_TYPE_SIZES[cairo.PATH_CLOSE_PATH] = 1
-
-
-def _append_paths_slow(ctx, paths, transforms, clip=None):
-    for path, transform in zip(paths, transforms):
-        for points, code in path.iter_segments(
-                transform, remove_nans=True, clip=clip):
-            if code == Path.MOVETO:
-                ctx.move_to(*points)
-            elif code == Path.CLOSEPOLY:
-                ctx.close_path()
-            elif code == Path.LINETO:
-                ctx.line_to(*points)
-            elif code == Path.CURVE3:
-                cur = np.asarray(ctx.get_current_point())
-                a = points[:2]
-                b = points[-2:]
-                ctx.curve_to(*(cur / 3 + a * 2 / 3), *(a * 2 / 3 + b / 3), *b)
-            elif code == Path.CURVE4:
-                ctx.curve_to(*points)
-
-
-def _append_paths_fast(ctx, paths, transforms, clip=None):
-    # We directly convert to the internal representation used by cairo, for
-    # which ABI compatibility is guaranteed.  The layout for each item is
-    # --CODE(4)--  -LENGTH(4)-  ---------PAD(8)---------
-    # ----------X(8)----------  ----------Y(8)----------
-    # with the size in bytes in parentheses, and (X, Y) repeated as many times
-    # as there are points for the current code.
-    ffi = cairo.ffi
-
-    # Convert curves to segment, so that 1. we don't have to handle
-    # variable-sized CURVE-n codes, and 2. we don't have to implement degree
-    # elevation for quadratic Beziers.
-    cleaneds = [path.cleaned(transform, remove_nans=True, clip=clip)
-                for path, transform in zip(paths, transforms)]
-    vertices = np.concatenate([cleaned.vertices for cleaned in cleaneds])
-    codes = np.concatenate([cleaned.codes for cleaned in cleaneds])
-
-    # Remove unused vertices and convert to cairo codes.  Note that unlike
-    # cairo_close_path, we do not explicitly insert an extraneous MOVE_TO after
-    # CLOSE_PATH, so our resulting buffer may be smaller.
-    vertices = vertices[(codes != Path.STOP) & (codes != Path.CLOSEPOLY)]
-    codes = codes[codes != Path.STOP]
-    codes = _MPL_TO_CAIRO_PATH_TYPE[codes]
-
-    # Where are the headers of each cairo portions?
-    cairo_type_sizes = _CAIRO_PATH_TYPE_SIZES[codes]
-    cairo_type_positions = np.insert(np.cumsum(cairo_type_sizes), 0, 0)
-    cairo_num_data = cairo_type_positions[-1]
-    cairo_type_positions = cairo_type_positions[:-1]
-
-    # Fill the buffer.
-    buf = np.empty(cairo_num_data * 16, np.uint8)
-    as_int = np.frombuffer(buf.data, np.int32)
-    as_int[::4][cairo_type_positions] = codes
-    as_int[1::4][cairo_type_positions] = cairo_type_sizes
-    as_float = np.frombuffer(buf.data, np.float64)
-    mask = np.ones_like(as_float, bool)
-    mask[::2][cairo_type_positions] = mask[1::2][cairo_type_positions] = False
-    as_float[mask] = vertices.ravel()
-
-    # Construct the cairo_path_t, and pass it to the context.
-    ptr = ffi.new("cairo_path_t *")
-    ptr.status = cairo.STATUS_SUCCESS
-    ptr.data = ffi.cast("cairo_path_data_t *", ffi.from_buffer(buf))
-    ptr.num_data = cairo_num_data
-    cairo.cairo.cairo_append_path(ctx._pointer, ptr)
-
-
-_append_paths = (_append_paths_fast if cairo.__name__ == "cairocffi"
-                 else _append_paths_slow)
-
-
 def _append_path(ctx, path, transform, clip=None):
-    return _append_paths(ctx, [path], [transform], clip)
+    for points, code in path.iter_segments(
+            transform, remove_nans=True, clip=clip):
+        if code == Path.MOVETO:
+            ctx.move_to(*points)
+        elif code == Path.CLOSEPOLY:
+           ctx.close_path()
+        elif code == Path.LINETO:
+            ctx.line_to(*points)
+        elif code == Path.CURVE3:
+            cur = np.asarray(ctx.get_current_point())
+            a = points[:2]
+            b = points[-2:]
+            ctx.curve_to(*(cur / 3 + a * 2 / 3), *(a * 2 / 3 + b / 3), *b)
+        elif code == Path.CURVE4:
+            ctx.curve_to(*points)
 
 
 class RendererCairo(RendererBase):
