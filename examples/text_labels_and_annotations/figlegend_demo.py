@@ -15,11 +15,11 @@ fig, axs = plt.subplots(1, 2)
 x = np.arange(0.0, 2.0, 0.02)
 y1 = np.sin(2 * np.pi * x)
 y2 = np.exp(-x)
-l1, l2 = axs[0].plot(x, y1, 'rs-', x, y2, 'go')
+l1, l2 = axs[0].plot(x, y1, 'C0s-', x, y2, 'C1o')
 
 y3 = np.sin(4 * np.pi * x)
 y4 = np.exp(-2 * x)
-l3, l4 = axs[1].plot(x, y3, 'yd-', x, y4, 'k^')
+l3, l4 = axs[1].plot(x, y3, 'C2d-', x, y4, 'C3^')
 
 fig.legend((l1, l2), ('Line 1', 'Line 2'), 'upper left')
 fig.legend((l3, l4), ('Line 3', 'Line 4'), 'upper right')

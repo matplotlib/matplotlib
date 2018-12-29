@@ -13,7 +13,7 @@ from numpy.random import rand
 
 
 fig, ax = plt.subplots()
-for color in ['red', 'green', 'blue']:
+for color in ['C0', 'C1', 'C2']:
     n = 750
     x, y = rand(2, n)
     scale = 200.0 * rand(n)

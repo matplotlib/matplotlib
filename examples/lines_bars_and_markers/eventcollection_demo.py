@@ -32,16 +32,16 @@ ydata2 = 1 - xdata2 ** 3
 # plot the data
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
-ax.plot(xdata1, ydata1, 'r', xdata2, ydata2, 'b')
+ax.plot(xdata1, ydata1, 'C0', xdata2, ydata2, 'C1')
 
 # create the events marking the x data points
-xevents1 = EventCollection(xdata1, color=[1, 0, 0], linelength=0.05)
-xevents2 = EventCollection(xdata2, color=[0, 0, 1], linelength=0.05)
+xevents1 = EventCollection(xdata1, color='C0', linelength=0.05)
+xevents2 = EventCollection(xdata2, color='C1', linelength=0.05)
 
 # create the events marking the y data points
-yevents1 = EventCollection(ydata1, color=[1, 0, 0], linelength=0.05,
+yevents1 = EventCollection(ydata1, color='C0', linelength=0.05,
                            orientation='vertical')
-yevents2 = EventCollection(ydata2, color=[0, 0, 1], linelength=0.05,
+yevents2 = EventCollection(ydata2, color='C1', linelength=0.05,
                            orientation='vertical')
 
 # add the events to the axis
