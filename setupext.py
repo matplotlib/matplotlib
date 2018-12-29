@@ -205,28 +205,6 @@ lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
 
 
-def has_include_file(include_dirs, filename):
-    """
-    Returns `True` if *filename* can be found in one of the
-    directories in *include_dirs*.
-    """
-    if sys.platform == 'win32':
-        include_dirs = [*include_dirs,  # Don't modify it in-place.
-                        *os.environ.get('INCLUDE', '.').split(os.pathsep)]
-    return any(pathlib.Path(dir, filename).exists() for dir in include_dirs)
-
-
-def check_include_file(include_dirs, filename, package):
-    """
-    Raises an exception if the given include file can not be found.
-    """
-    if not has_include_file(include_dirs, filename):
-        raise CheckFailed(
-            "The C/C++ header for %s (%s) could not be found.  You "
-            "may need to install the development package." %
-            (package, filename))
-
-
 def get_base_dirs():
     """
     Returns a list of standard base directories on this platform.
@@ -522,47 +500,6 @@ class SetupPackage(object):
         package if it is not installed.
         """
         return []
-
-    def _check_for_pkg_config(self, package, include_file, min_version=None,
-                              version=None):
-        """
-        A convenience function for writing checks for a
-        pkg_config-defined dependency.
-
-        `package` is the pkg_config package name.
-
-        `include_file` is a top-level include file we expect to find.
-
-        `min_version` is the minimum version required.
-
-        `version` will override the found version if this package
-        requires an alternate method for that. Set version='unknown'
-        if the version is not known but you still want to disabled
-        pkg_config version check.
-        """
-        if version is None:
-            version = pkg_config.get_version(package)
-
-            if version is None:
-                raise CheckFailed(
-                    "pkg-config information for '%s' could not be found." %
-                    package)
-
-        if min_version and version != 'unknown':
-            if not is_min_version(version, min_version):
-                raise CheckFailed(
-                    "Requires %s %s or later.  Found %s." %
-                    (package, min_version, version))
-
-        ext = self.get_extension()
-        if ext is None:
-            ext = make_extension('test', [])
-            pkg_config.setup_extension(ext, package)
-
-        check_include_file(
-            ext.include_dirs + get_include_dirs(), include_file, package)
-
-        return 'version %s' % version
 
     def do_custom_build(self):
         """
