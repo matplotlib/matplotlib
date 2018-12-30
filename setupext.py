@@ -338,14 +338,6 @@ class CheckFailed(Exception):
 
 class SetupPackage(object):
     optional = False
-    pkg_names = {
-        "apt-get": None,
-        "yum": None,
-        "dnf": None,
-        "brew": None,
-        "port": None,
-        "windows_url": None
-        }
 
     def check(self):
         """
@@ -460,56 +452,6 @@ class SetupPackage(object):
         override this method.
         """
         pass
-
-    def install_help_msg(self):
-        """
-        Do not override this method !
-
-        Generate the help message to show if the package is not installed.
-        To use this in subclasses, simply add the dictionary `pkg_names` as
-        a class variable:
-
-        pkg_names = {
-            "apt-get": <Name of the apt-get package>,
-            "yum": <Name of the yum package>,
-            "dnf": <Name of the dnf package>,
-            "brew": <Name of the brew package>,
-            "port": <Name of the port package>,
-            "windows_url": <The url which has installation instructions>
-            }
-
-        All the dictionary keys are optional. If a key is not present or has
-        the value `None` no message is provided for that platform.
-        """
-        def _try_managers(*managers):
-            for manager in managers:
-                pkg_name = self.pkg_names.get(manager, None)
-                if pkg_name:
-                    if shutil.which(manager) is not None:
-                        if manager == 'port':
-                            pkgconfig = 'pkgconfig'
-                        else:
-                            pkgconfig = 'pkg-config'
-                        return ('Try installing {0} with `{1} install {2}` '
-                                'and pkg-config with `{1} install {3}`'
-                                .format(self.name, manager, pkg_name,
-                                        pkgconfig))
-
-        message = None
-        if sys.platform == "win32":
-            url = self.pkg_names.get("windows_url", None)
-            if url:
-                message = ('Please check {0} for instructions to install {1}'
-                           .format(url, self.name))
-        elif sys.platform == "darwin":
-            message = _try_managers("brew", "port")
-        elif sys.platform == "linux":
-            release = platform.linux_distribution()[0].lower()
-            if release in ('debian', 'ubuntu'):
-                message = _try_managers('apt-get')
-            elif release in ('centos', 'redhat', 'fedora'):
-                message = _try_managers('dnf', 'yum')
-        return message
 
 
 class OptionalPackage(SetupPackage):
@@ -823,14 +765,6 @@ class LibAgg(SetupPackage):
 
 class FreeType(SetupPackage):
     name = "freetype"
-    pkg_names = {
-        "apt-get": "libfreetype6-dev",
-        "yum": "freetype-devel",
-        "dnf": "freetype-devel",
-        "brew": "freetype",
-        "port": "freetype",
-        "windows_url": "http://gnuwin32.sourceforge.net/packages/freetype.htm"
-        }
 
     def add_flags(self, ext):
         ext.sources.insert(0, 'src/checkdep_freetype2.c')
@@ -1005,14 +939,6 @@ class FT2Font(SetupPackage):
 
 class Png(SetupPackage):
     name = "png"
-    pkg_names = {
-        "apt-get": "libpng12-dev",
-        "yum": "libpng-devel",
-        "dnf": "libpng-devel",
-        "brew": "libpng",
-        "port": "libpng",
-        "windows_url": "http://gnuwin32.sourceforge.net/packages/libpng.htm"
-        }
 
     def get_extension(self):
         sources = [
