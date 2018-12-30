@@ -38,10 +38,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
         painter = QtGui.QPainter(self)
 
-        if self._erase_before_paint:
-            painter.eraseRect(self.rect())
-            self._erase_before_paint = False
-
         rect = event.rect()
         left = rect.left()
         top = rect.top()
@@ -55,6 +51,10 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         reg = self.copy_from_bbox(bbox)
         buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
             memoryview(reg))
+
+        # clear the widget canvas
+        painter.eraseRect(rect)
+
         qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
                               QtGui.QImage.Format_ARGB32_Premultiplied)
         if hasattr(qimage, 'setDevicePixelRatio'):

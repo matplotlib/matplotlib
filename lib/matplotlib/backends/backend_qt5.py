@@ -240,7 +240,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self._dpi_ratio_prev = None
 
         self._draw_pending = False
-        self._erase_before_paint = False
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
 
@@ -491,7 +490,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             return
         with cbook._setattr_cm(self, _is_drawing=True):
             super().draw()
-        self._erase_before_paint = True
         self.update()
 
     def draw_idle(self):
