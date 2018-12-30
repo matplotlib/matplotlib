@@ -814,6 +814,13 @@ class LibAgg(SetupPackage):
                                for x in agg_sources)
 
 
+# For FreeType2 and libpng, we add a separate checkdep_foo.c source to at the
+# top of the extension sources.  This file is compiled first and immediately
+# aborts the compilation either with "foo.h: No such file or directory" if the
+# header is not found, or an appropriate error message if the header indicates
+# a too-old version.
+
+
 class FreeType(SetupPackage):
     name = "freetype"
     pkg_names = {
@@ -825,59 +832,8 @@ class FreeType(SetupPackage):
         "windows_url": "http://gnuwin32.sourceforge.net/packages/freetype.htm"
         }
 
-    def check(self):
-        if options.get('local_freetype'):
-            return "Using local version for testing"
-
-        if sys.platform == 'win32':
-            try:
-                check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
-            except CheckFailed:
-                check_include_file(get_include_dirs(), os.path.join('freetype2', 'ft2build.h'), 'freetype')
-            return 'Using unknown version found on system.'
-
-        status, output = subprocess.getstatusoutput(
-            "freetype-config --ftversion")
-        if status == 0:
-            version = output
-        else:
-            version = None
-
-        # Early versions of freetype grep badly inside freetype-config,
-        # so catch those cases. (tested with 2.5.3).
-        if version is None or 'No such file or directory\ngrep:' in version:
-            version = self.version_from_header()
-
-        # pkg_config returns the libtool version rather than the
-        # freetype version so we need to explicitly pass the version
-        # to _check_for_pkg_config
-        return self._check_for_pkg_config(
-            'freetype2', 'ft2build.h',
-            min_version='2.3', version=version)
-
-    def version_from_header(self):
-        version = 'unknown'
-        ext = self.get_extension()
-        if ext is None:
-            return version
-        # Return the first version found in the include dirs.
-        for include_dir in ext.include_dirs:
-            header_fname = os.path.join(include_dir, 'freetype.h')
-            if os.path.exists(header_fname):
-                major, minor, patch = 0, 0, 0
-                with open(header_fname, 'r') as fh:
-                    for line in fh:
-                        if line.startswith('#define FREETYPE_'):
-                            value = line.rsplit(' ', 1)[1].strip()
-                            if 'MAJOR' in line:
-                                major = value
-                            elif 'MINOR' in line:
-                                minor = value
-                            else:
-                                patch = value
-                return '.'.join([major, minor, patch])
-
     def add_flags(self, ext):
+        ext.sources.insert(0, 'src/checkdep_freetype2.c')
         if options.get('local_freetype'):
             src_path = os.path.join(
                 'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
@@ -1058,30 +1014,11 @@ class Png(SetupPackage):
         "windows_url": "http://gnuwin32.sourceforge.net/packages/libpng.htm"
         }
 
-    def check(self):
-        if sys.platform == 'win32':
-            check_include_file(get_include_dirs(), 'png.h', 'png')
-            return 'Using unknown version found on system.'
-
-        status, output = subprocess.getstatusoutput("libpng-config --version")
-        if status == 0:
-            version = output
-        else:
-            version = None
-
-        try:
-            return self._check_for_pkg_config(
-                'libpng', 'png.h',
-                min_version='1.2', version=version)
-        except CheckFailed as e:
-            if has_include_file(get_include_dirs(), 'png.h'):
-                return str(e) + ' Using unknown version found on system.'
-            raise
-
     def get_extension(self):
         sources = [
+            'src/checkdep_libpng.c',
             'src/_png.cpp',
-            'src/mplutils.cpp'
+            'src/mplutils.cpp',
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
