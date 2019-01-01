@@ -1867,7 +1867,7 @@ default: 'top'
             A legend location code, but does not support ``best`` or
             ``center``.
 
-        axs : sequence of `.Axes` or a single `.GridSpecBase`, optional
+        axs : sequence of `.axes.Axes` or a single `.GridSpecBase`, optional
             A list of axes to put the legend beside, above, or below.  This is
             also the list of axes that artists will be taken from if *handles*
             is empty.  Note that the legend will be placed adjacent to all the
@@ -1914,7 +1914,7 @@ default: 'top'
         --------
         .figure.legend
         .gridspec.legend
-        .Axes.axes.legend
+        .axes.Axes.legend
 
         """
 
