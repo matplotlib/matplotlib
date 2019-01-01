@@ -1418,7 +1418,6 @@ default: 'top'
                     # more similar to add_axes.
                     self._axstack.remove(ax)
 
-
             a = subplot_class_factory(projection_class)(self, *args, **kwargs)
 
         return self._add_axes_internal(key, a)
@@ -1926,7 +1925,7 @@ default: 'top'
             return leg
 
         if loc is None:
-            loc = 1 # upper right
+            loc = 1  # upper right
 
         if axs is None:
             gs = self.get_gridspecs()[0]

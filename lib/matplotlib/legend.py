@@ -484,7 +484,7 @@ class Legend(Artist):
             self.axes = parent
             self.set_figure(parent.figure)
         elif isinstance(parent, GridSpec):
-            self.isaxes=False
+            self.isaxes = False
             self.set_figure(parent.figure)
         elif isinstance(parent, Figure):
             self.isaxes = False

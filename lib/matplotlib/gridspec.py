@@ -185,7 +185,7 @@ class GridSpecBase:
         if not (self.figure and self.figure.get_constrained_layout()):
             cbook._warn_external('legend_outside method needs '
                                  'constrained_layout')
-            leg = self.figure.legend(*args, **kwargs)
+            leg = self.figure.legend(**kwargs)
             return leg
 
         if axs is None:
@@ -196,7 +196,6 @@ class GridSpecBase:
         padding = padding / 72.0
         paddingw = padding / self.figure.get_size_inches()[0]
         paddingh = padding / self.figure.get_size_inches()[1]
-
 
         handles, labels, extra_args, kwargs = legend._parse_legend_args(
                 axs, handles=handles, labels=labels, **kwargs)
@@ -395,13 +394,13 @@ class GridSpec(GridSpecBase):
             self.update(**kwargs)
 
 
-
 class LegendLayout(legend.Legend):
     """
     `.Legend` subclass that carries layout information....
     """
 
-    def __init__(self, parent, parent_figure, handles, labels, *args, **kwargs):
+    def __init__(self, parent, parent_figure, handles, labels, *args,
+                 **kwargs):
         super().__init__(parent_figure, handles, labels, *args, **kwargs)
         self._layoutbox = layoutbox.LayoutBox(
             parent=parent._layoutbox,
@@ -412,7 +411,8 @@ class LegendLayout(legend.Legend):
 
         invTransFig = self.figure.transFigure.inverted().transform_bbox
 
-        bbox = invTransFig(self.get_window_extent(self.figure.canvas.get_renderer()))
+        bbox = invTransFig(
+                self.get_window_extent(self.figure.canvas.get_renderer()))
         height = bbox.height
         h_pad = 0
         w_pad = 0
