@@ -302,7 +302,6 @@ class SetupPackage:
 
 class OptionalPackage(SetupPackage):
     optional = True
-    force = False
     config_category = "packages"
     default_config = "auto"
 
@@ -328,26 +327,13 @@ class OptionalPackage(SetupPackage):
 
         May be overridden by subclasses for additional checks.
         """
-        # Check configuration file
-        conf = self.get_config()
-        # Default "auto" state or install forced by user
-        if conf in [True, 'auto']:
-            # Set non-optional if user sets `True` in config
-            if conf is True:
+        conf = self.get_config()  # Check configuration file
+        if conf in [True, 'auto']:  # Default "auto", or install forced by user
+            if conf is True:  # Set non-optional if user sets `True` in config
                 self.optional = False
             return "installing"
-        # Configuration opt-out by user
-        else:
-            # Some backend extensions (e.g. Agg) need to be built for certain
-            # other GUI backends (e.g. TkAgg) even when manually disabled
-            if self.force is True:
-                return "installing forced (config override)"
-            else:
-                raise CheckFailed("skipping due to configuration")
-
-
-class OptionalBackendPackage(OptionalPackage):
-    config_category = "gui_support"
+        else:  # Configuration opt-out by user
+            raise CheckFailed("skipping due to configuration")
 
 
 class Platform(SetupPackage):
@@ -707,9 +693,8 @@ class Tri(SetupPackage):
         return ext
 
 
-class BackendAgg(OptionalBackendPackage):
+class BackendAgg(SetupPackage):
     name = "agg"
-    force = True
 
     def get_extension(self):
         sources = [
@@ -725,9 +710,8 @@ class BackendAgg(OptionalBackendPackage):
         return ext
 
 
-class BackendTkAgg(OptionalBackendPackage):
+class BackendTkAgg(SetupPackage):
     name = "tkagg"
-    force = True
 
     def check(self):
         return "installing; run-time loading from Python Tcl/Tk"
@@ -755,7 +739,8 @@ class BackendTkAgg(OptionalBackendPackage):
             ext.libraries.extend(['dl'])
 
 
-class BackendMacOSX(OptionalBackendPackage):
+class BackendMacOSX(OptionalPackage):
+    config_category = 'gui_support'
     name = 'macosx'
 
     def check(self):
