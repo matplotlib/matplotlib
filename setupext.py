@@ -656,30 +656,7 @@ class SampleData(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    pytest_min_version = '3.6'
     default_config = True
-
-    def check(self):
-        super().check()
-
-        msgs = []
-        msg_template = ('{package} is required to run the Matplotlib test '
-                        'suite. Please install it with pip or your preferred '
-                        'tool to run the test suite')
-
-        bad_pytest = msg_template.format(
-            package='pytest %s or later' % self.pytest_min_version
-        )
-        try:
-            import pytest
-            if is_min_version(pytest.__version__, self.pytest_min_version):
-                msgs += ['using pytest version %s' % pytest.__version__]
-            else:
-                msgs += [bad_pytest]
-        except ImportError:
-            msgs += [bad_pytest]
-
-        return ' / '.join(msgs)
 
     def get_packages(self):
         return setuptools.find_packages("lib", include=["*.tests"])
