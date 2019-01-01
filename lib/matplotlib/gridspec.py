@@ -14,8 +14,10 @@ import logging
 
 import numpy as np
 
+import warnings
+
 import matplotlib as mpl
-from matplotlib import _pylab_helpers, cbook, tight_layout, rcParams
+from matplotlib import _pylab_helpers, cbook, tight_layout, rcParams, legend
 from matplotlib.transforms import Bbox
 import matplotlib._layoutbox as layoutbox
 
@@ -173,6 +175,53 @@ class GridSpecBase:
             num1, num2 = _normalize(key, nrows * ncols, None)
 
         return SubplotSpec(self, num1, num2)
+
+    def legend_outside(self, handles=None, labels=None, axs=None, **kwargs):
+        """
+        legend for this gridspec, offset from all the subplots.
+
+        See `.Figure.legend_outside` for details on how to call.
+        """
+        if not (self.figure and self.figure.get_constrained_layout()):
+            cbook._warn_external('legend_outside method needs '
+                                 'constrained_layout')
+            leg = self.figure.legend(*args, **kwargs)
+            return leg
+
+        if axs is None:
+            axs = self.figure.get_axes()
+        padding = kwargs.pop('borderaxespad', 2.0)
+
+        # convert padding from points to figure relative units....
+        padding = padding / 72.0
+        paddingw = padding / self.figure.get_size_inches()[0]
+        paddingh = padding / self.figure.get_size_inches()[1]
+
+
+        handles, labels, extra_args, kwargs = legend._parse_legend_args(
+                axs, handles=handles, labels=labels, **kwargs)
+        leg = LegendLayout(self, self.figure, handles, labels, *extra_args,
+                           **kwargs)
+        # put to the right of any subplots in this gridspec:
+
+        leg._update_width_height()
+
+        for child in self._layoutbox.children:
+            if child._is_subplotspec_layoutbox():
+                if leg._loc in [1, 4, 5, 7]:
+                    # stack to the right...
+                    layoutbox.hstack([child, leg._layoutbox], padding=paddingw)
+                elif leg._loc in [2, 3, 6]:
+                    # stack to the left...
+                    layoutbox.hstack([leg._layoutbox, child], padding=paddingw)
+                elif leg._loc in [8]:
+                    # stack to the bottom...
+                    layoutbox.vstack([child, leg._layoutbox], padding=paddingh)
+                elif leg._loc in [9]:
+                    # stack to the top...
+                    layoutbox.vstack([leg._layoutbox, child], padding=paddingh)
+        self.figure.legends.append(leg)
+        return leg
 
 
 class GridSpec(GridSpecBase):
@@ -346,6 +395,33 @@ class GridSpec(GridSpecBase):
             self.update(**kwargs)
 
 
+
+class LegendLayout(legend.Legend):
+    """
+    `.Legend` subclass that carries layout information....
+    """
+
+    def __init__(self, parent, parent_figure, handles, labels, *args, **kwargs):
+        super().__init__(parent_figure, handles, labels, *args, **kwargs)
+        self._layoutbox = layoutbox.LayoutBox(
+            parent=parent._layoutbox,
+            name=parent._layoutbox.name + 'legend' + layoutbox.seq_id(),
+            artist=self)
+
+    def _update_width_height(self):
+
+        invTransFig = self.figure.transFigure.inverted().transform_bbox
+
+        bbox = invTransFig(self.get_window_extent(self.figure.canvas.get_renderer()))
+        height = bbox.height
+        h_pad = 0
+        w_pad = 0
+
+        self._layoutbox.edit_height(height+h_pad)
+        width = bbox.width
+        self._layoutbox.edit_width(width+w_pad)
+
+
 class GridSpecFromSubplotSpec(GridSpecBase):
     """
     GridSpec whose subplot layout parameters are inherited from the
@@ -369,6 +445,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
         # do the layoutboxes
+        self.figure = subplot_spec._gridspec.figure
         subspeclb = subplot_spec._layoutbox
         if subspeclb is None:
             self._layoutbox = None
@@ -428,11 +505,11 @@ class SubplotSpec:
         self.num1 = num1
         self.num2 = num2
         if gridspec._layoutbox is not None:
-            glb = gridspec._layoutbox
             # So note that here we don't assign any layout yet,
             # just make the layoutbox that will contain all items
             # associated w/ this axis.  This can include other axes like
             # a colorbar or a legend.
+            glb = gridspec._layoutbox
             self._layoutbox = layoutbox.LayoutBox(
                     parent=glb,
                     name=glb.name + '.ss' + layoutbox.seq_id(),

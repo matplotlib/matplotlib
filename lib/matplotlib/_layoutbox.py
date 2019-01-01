@@ -456,7 +456,7 @@ class LayoutBox:
               self.width == parent.width * width,
               self.height == parent.height * height]
         for c in cs:
-            self.solver.addConstraint(c | 'required')
+            self.solver.addConstraint((c | 'strong'))
 
         return lb
 

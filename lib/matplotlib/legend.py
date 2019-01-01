@@ -407,6 +407,7 @@ class Legend(Artist):
         """
         # local import only to avoid circularity
         from matplotlib.axes import Axes
+        from matplotlib.gridspec import GridSpec
         from matplotlib.figure import Figure
 
         Artist.__init__(self)
@@ -481,6 +482,9 @@ class Legend(Artist):
         if isinstance(parent, Axes):
             self.isaxes = True
             self.axes = parent
+            self.set_figure(parent.figure)
+        elif isinstance(parent, GridSpec):
+            self.isaxes=False
             self.set_figure(parent.figure)
         elif isinstance(parent, Figure):
             self.isaxes = False
@@ -993,9 +997,11 @@ class Legend(Artist):
         'Return extent of the legend.'
         if renderer is None:
             renderer = self.figure._cachedRenderer
-        return self._legend_box.get_window_extent(renderer=renderer)
+        bbox = self._legend_box.get_window_extent(renderer)
 
-    def get_tightbbox(self, renderer):
+        return bbox
+
+    def get_tightbbox(self, renderer=None):
         """
         Like `.Legend.get_window_extent`, but uses the box for the legend.
 
@@ -1009,6 +1015,8 @@ class Legend(Artist):
         -------
         `.BboxBase` : containing the bounding box in figure pixel co-ordinates.
         """
+        if renderer is None:
+            renderer = self.figure._cachedRenderer
         return self._legend_box.get_window_extent(renderer)
 
     def get_frame_on(self):

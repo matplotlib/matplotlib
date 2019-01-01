@@ -3,6 +3,8 @@ import platform
 from unittest import mock
 
 import numpy as np
+from numpy.testing import (
+    assert_allclose, assert_array_equal, assert_array_almost_equal)
 import pytest
 
 from matplotlib.testing.decorators import image_comparison
@@ -357,7 +359,41 @@ class TestLegendFigureFunction:
             "be discarded.")
 
 
-@image_comparison(['legend_stackplot.png'])
+def test_figure_legend_outside():
+    todos = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    axbb = [[ 20.347556,  27.722556, 664.805222, 588.833],     # upper right
+            [146.125333,  27.722556, 790.583   , 588.833],     # upper left
+            [146.125333,  27.722556, 790.583   , 588.833],     # lower left
+            [ 20.347556,  27.722556, 664.805222, 588.833],     # lower right
+            [ 20.347556,  27.722556, 664.805222, 588.833],     # right
+            [146.125333,  27.722556, 790.583   , 588.833],     # center left
+            [ 20.347556,  27.722556, 664.805222, 588.833],     # center right
+            [ 20.347556,  65.500333, 790.583   , 588.833],     # lower center
+            [ 20.347556,  27.722556, 790.583   , 551.055222],  # upper center
+            ]
+    legbb = [[667., 555., 790., 590.],
+             [10., 555., 133., 590.],
+             [ 10.,  10., 133.,  45.],
+             [667,  10.   , 790.   ,  45.],
+             [667. , 282.5, 790. , 317.5],
+             [ 10. , 282.5, 133. , 317.5],
+             [667. , 282.5, 790. , 317.5],
+             [338.5,  10. , 461.5,  45.],
+             [338.5, 555., 461.5, 590.],
+             ]
+    for nn, todo in enumerate(todos):
+        fig, axs = plt.subplots(constrained_layout=True, dpi=100)
+        axs.plot(range(10), label=f'Boo1')
+        leg = fig.legend_outside(loc=todo)
+        renderer = fig.canvas.get_renderer()
+        fig.canvas.draw()
+        assert_allclose(axs.get_window_extent(renderer=renderer).extents,
+                           axbb[nn])
+        assert_allclose(leg.get_window_extent(renderer=renderer).extents,
+                        legbb[nn])
+
+
+@image_comparison(baseline_images=['legend_stackplot'], extensions=['png'])
 def test_legend_stackplot():
     '''test legend for PolyCollection using stackplot'''
     # related to #1341, #1943, and PR #3303

@@ -49,6 +49,7 @@ import logging
 
 import numpy as np
 
+import matplotlib.gridspec as gridspec
 import matplotlib.cbook as cbook
 import matplotlib._layoutbox as layoutbox
 
@@ -182,6 +183,10 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                 # reserve at top of figure include an h_pad above and below
                 suptitle._layoutbox.edit_height(height + h_pad * 2)
 
+        # do layout for any legend_offsets
+        for gs in gss:
+            _do_offset_legend_layout(gs._layoutbox)
+
         # OK, the above lines up ax._poslayoutbox with ax._layoutbox
         # now we need to
         #   1) arrange the subplotspecs.  We do it at this level because
@@ -227,9 +232,44 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             else:
                 if suptitle is not None and suptitle._layoutbox is not None:
                     suptitle._layoutbox.edit_height(0)
+            # now set the position of any offset legends...
+            for gs in gss:
+                _do_offset_legend_position(gs._layoutbox)
         else:
             cbook._warn_external('constrained_layout not applied.  At least '
                                  'one axes collapsed to zero width or height.')
+
+
+def _do_offset_legend_layout(gslayoutbox):
+    """
+    Helper to get the right width and height for an offset legend.
+    """
+    for child in gslayoutbox.children:
+        if child._is_subplotspec_layoutbox():
+            # check for nested gridspecs...
+            for child2 in child.children:
+                # check for gridspec children...
+                if child2._is_gridspec_layoutbox():
+                    _do_offset_legend_layout(child2)
+        elif isinstance(child.artist, gridspec.LegendLayout):
+            child.artist._update_width_height()
+
+
+def _do_offset_legend_position(gslayoutbox):
+    """
+    Helper to properly set the offset box for the offset legends...
+    """
+    for child in gslayoutbox.children:
+        if child._is_subplotspec_layoutbox():
+            # check for nested gridspecs...
+            for child2 in child.children:
+                # check for gridspec children...
+                if child2._is_gridspec_layoutbox():
+                    _do_offset_legend_position(child2)
+        elif isinstance(child.artist, gridspec.LegendLayout):
+            # update position...
+            child.artist.set_bbox_to_anchor(gslayoutbox.get_rect())
+            child.artist._update_width_height()
 
 
 def _make_ghost_gridspec_slots(fig, gs):
@@ -477,6 +517,7 @@ def _arrange_subplotspecs(gs, hspace=0, wspace=0):
                 if child2._is_gridspec_layoutbox():
                     _arrange_subplotspecs(child2, hspace=hspace, wspace=wspace)
             sschildren += [child]
+
     # now arrange the subplots...
     for child0 in sschildren:
         ss0 = child0.artist

@@ -68,7 +68,6 @@ class SubplotBase:
             raise ValueError(f'Illegal argument(s) to subplot: {args}')
 
         self.update_params()
-
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
         # add a layout box to this, for both the full axis, and the poss
