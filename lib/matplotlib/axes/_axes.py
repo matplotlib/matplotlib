@@ -2541,7 +2541,7 @@ class Axes(_AxesBase):
 
         use_line_collection : bool, optional, default: False
             If ``True``, store and plot the stem lines as a
-            ~`.collections.LineCollection` instead of individual lines. This
+            `~.collections.LineCollection` instead of individual lines. This
             significantly increases performance, and will become the default
             option in Matplotlib 3.3. If ``False``, defaults to old behaviour.
 
