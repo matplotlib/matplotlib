@@ -2685,8 +2685,10 @@ class Axes(_AxesBase):
         shadow : bool, optional, default: False
             Draw a shadow beneath the pie.
 
-        labeldistance : float, optional, default: 1.1
-            The radial distance at which the pie labels are drawn
+        labeldistance : float or None, optional, default: 1.1
+            The radial distance at which the pie labels are drawn.
+            If set to ``None``, label are not drawn, but are stored for use in
+            ``legend()``
 
         startangle : float, optional, default: None
             If not *None*, rotates the start of the pie chart by *angle*
@@ -2808,23 +2810,25 @@ class Axes(_AxesBase):
                 shad.set_label('_nolegend_')
                 self.add_patch(shad)
 
-            xt = x + labeldistance * radius * math.cos(thetam)
-            yt = y + labeldistance * radius * math.sin(thetam)
-            label_alignment_h = xt > 0 and 'left' or 'right'
-            label_alignment_v = 'center'
-            label_rotation = 'horizontal'
-            if rotatelabels:
-                label_alignment_v = yt > 0 and 'bottom' or 'top'
-                label_rotation = np.rad2deg(thetam) + (0 if xt > 0 else 180)
-            props = dict(horizontalalignment=label_alignment_h,
-                          verticalalignment=label_alignment_v,
-                          rotation=label_rotation,
-                          size=rcParams['xtick.labelsize'])
-            props.update(textprops)
+            if labeldistance is not None:
+                xt = x + labeldistance * radius * math.cos(thetam)
+                yt = y + labeldistance * radius * math.sin(thetam)
+                label_alignment_h = xt > 0 and 'left' or 'right'
+                label_alignment_v = 'center'
+                label_rotation = 'horizontal'
+                if rotatelabels:
+                    label_alignment_v = yt > 0 and 'bottom' or 'top'
+                    label_rotation = np.rad2deg(thetam) + (0 if xt > 0
+                                                             else 180)
+                props = dict(horizontalalignment=label_alignment_h,
+                            verticalalignment=label_alignment_v,
+                            rotation=label_rotation,
+                            size=rcParams['xtick.labelsize'])
+                props.update(textprops)
 
-            t = self.text(xt, yt, label, **props)
+                t = self.text(xt, yt, label, **props)
 
-            texts.append(t)
+                texts.append(t)
 
             if autopct is not None:
                 xt = x + pctdistance * radius * math.cos(thetam)
