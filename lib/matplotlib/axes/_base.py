@@ -280,27 +280,15 @@ class _process_plot_var_args(object):
             y = y[:, np.newaxis]
         return x, y
 
-    def _getdefaults(self, ignore, *kwargs):
+    def _getdefaults(self, ignore, kw):
         """
-        Only advance the cycler if the cycler has information that
-        is not specified in any of the supplied tuple of dicts.
-        Ignore any keys specified in the `ignore` set.
-
-        Returns a copy of defaults dictionary if there are any
-        keys that are not found in any of the supplied dictionaries.
-        If the supplied dictionaries have non-None values for
-        everything the property cycler has, then just return
-        an empty dictionary. Ignored keys are excluded from the
-        returned dictionary.
-
+        If some keys in the property cycle (excluding those in the set
+        *ignore*) are absent or set to None in the dict *kw*, return a copy
+        of the next entry in the property cycle, excluding keys in *ignore*.
+        Otherwise, don't advance the property cycle, and return an empty dict.
         """
-        prop_keys = self._prop_keys
-        if ignore is None:
-            ignore = set()
-        prop_keys = prop_keys - ignore
-
-        if any(all(kw.get(k, None) is None for kw in kwargs)
-               for k in prop_keys):
+        prop_keys = self._prop_keys - ignore
+        if any(kw.get(k, None) is None for k in prop_keys):
             # Need to copy this dictionary or else the next time around
             # in the cycle, the dictionary could be missing entries.
             default_dict = next(self.prop_cycler).copy()
@@ -310,21 +298,18 @@ class _process_plot_var_args(object):
             default_dict = {}
         return default_dict
 
-    def _setdefaults(self, defaults, *kwargs):
+    def _setdefaults(self, defaults, kw):
         """
-        Given a defaults dictionary, and any other dictionaries,
-        update those other dictionaries with information in defaults if
-        none of the other dictionaries contains that information.
-
+        Add to the dict *kw* the entries in the dict *default* that are absent
+        or set to None in *kw*.
         """
         for k in defaults:
-            if all(kw.get(k, None) is None for kw in kwargs):
-                for kw in kwargs:
-                    kw[k] = defaults[k]
+            if kw.get(k, None) is None:
+                kw[k] = defaults[k]
 
     def _makeline(self, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
-        default_dict = self._getdefaults(None, kw)
+        default_dict = self._getdefaults(set(), kw)
         self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg
@@ -425,8 +410,6 @@ class _process_plot_var_args(object):
 
 
 class _AxesBase(martist.Artist):
-    """
-    """
     name = "rectilinear"
 
     _shared_x_axes = cbook.Grouper()
