@@ -62,7 +62,7 @@ gs0 = fig.add_gridspec(1, 2)
 
 gs = gs0[0].subgridspec(1, 1)
 for i in range(1):
-    ax = fig.add_subplot(gs[i,0])
+    ax = fig.add_subplot(gs[i, 0])
     ax.plot(range(10), label=f'Boo{i}')
 lg = fig.legend(ax=[ax], loc='upper left', outside=True, borderaxespad=4)
 
