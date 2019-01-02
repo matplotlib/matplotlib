@@ -1755,7 +1755,7 @@ default: 'top'
     # docstring of pyplot.figlegend.
 
     @docstring.dedent_interpd
-    def legend(self, *args, outside=False, axs=None, **kwargs):
+    def legend(self, *args, outside=False, ax=None, **kwargs):
         """
         Place a legend on the figure.
 
@@ -1789,7 +1789,7 @@ default: 'top'
             be changed by specifying a string
             ``outside="vertical", loc="upper right"``.
 
-        axs :  sequence of `~.axes.Axes`
+        ax :  sequence of `~.axes.Axes`
             axes to gather handles from (if *handles* is empty).
 
         handles : list of `.Artist`, optional
@@ -1820,11 +1820,11 @@ default: 'top'
         Not all kinds of artist are supported by the legend command. See
         :doc:`/tutorials/intermediate/legend_guide` for details.
         """
-        if axs is None:
-            axs = self.axes
+        if ax is None:
+            ax = self.axes
 
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                axs,
+                ax,
                 *args,
                 **kwargs)
         if outside and not self.get_constrained_layout():
@@ -1840,13 +1840,13 @@ default: 'top'
             self.legends.append(l)
         else:
             loc = kwargs.pop('loc')
-            if axs is None:
+            if ax is None:
                 gs = self.get_gridspecs()[0]
             else:
-                if isinstance(axs, GridSpecBase):
-                    gs = axs
+                if isinstance(ax, GridSpecBase):
+                    gs = ax
                 else:
-                    gs = axs[0].get_gridspec()
+                    gs = ax[0].get_gridspec()
             l = gs.legend_outside(loc=loc, align=outside, handles=handles,
                                   labels=labels, **kwargs)
         l._remove_method = self.legends.remove
