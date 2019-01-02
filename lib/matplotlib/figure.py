@@ -1780,11 +1780,14 @@ default: 'top'
         Parameters
         ----------
 
-        outside: bool
+        outside: bool or string
             If ``constrained_layout=True``, then try and place legend outside
             axes listed in *axs*, or highest-level gridspec if axs is empty.
             Note, "center" and "best" options to *loc* do not work with
-            ``outside=True``
+            ``outside=True``.  The corner values of *loc* (i.e. "upper right")
+            will default to a horizontal layout of the legend, but this can
+            be changed by specifying a string
+            ``outside="vertical", loc="upper right"``.
 
         axs :  sequence of `~.axes.Axes`
             axes to gather handles from (if *handles* is empty).
@@ -1844,8 +1847,8 @@ default: 'top'
                     gs = axs
                 else:
                     gs = axs[0].get_gridspec()
-            l = gs.legend_outside(loc=loc, handles=handles, labels=labels,
-                                     **kwargs)
+            l = gs.legend_outside(loc=loc, align=outside, handles=handles,
+                                  labels=labels, **kwargs)
         l._remove_method = self.legends.remove
         self.stale = True
         return l

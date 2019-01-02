@@ -176,7 +176,8 @@ class GridSpecBase:
 
         return SubplotSpec(self, num1, num2)
 
-    def legend_outside(self, handles=None, labels=None, axs=None, **kwargs):
+    def legend_outside(self, handles=None, labels=None, axs=None,
+                       align='horizontal', **kwargs):
         """
         legend for this gridspec, offset from all the subplots.
 
@@ -205,18 +206,32 @@ class GridSpecBase:
 
         leg._update_width_height()
 
+        if leg._loc in [5, 7, 4, 1]:
+            stack = 'right'
+        elif leg._loc in [6, 2, 3]:
+            stack = 'left'
+        elif leg._loc in [8]:
+            stack = 'bottom'
+        else:
+            stack = 'top'
+
+        if align == 'vertical':
+            if leg._loc in [1, 2]:
+                stack = 'top'
+            elif leg._loc in [3, 4]:
+                stack = 'bottom'
+
         for child in self._layoutbox.children:
             if child._is_subplotspec_layoutbox():
-                if leg._loc in [1, 4, 5, 7]:
-                    # stack to the right...
+                if stack == 'right':
                     layoutbox.hstack([child, leg._layoutbox], padding=paddingw)
-                elif leg._loc in [2, 3, 6]:
+                elif stack == 'left':
                     # stack to the left...
                     layoutbox.hstack([leg._layoutbox, child], padding=paddingw)
-                elif leg._loc in [8]:
+                elif stack == 'bottom':
                     # stack to the bottom...
                     layoutbox.vstack([child, leg._layoutbox], padding=paddingh)
-                elif leg._loc in [9]:
+                elif stack == 'top':
                     # stack to the top...
                     layoutbox.vstack([leg._layoutbox, child], padding=paddingh)
         self.figure.legends.append(leg)
