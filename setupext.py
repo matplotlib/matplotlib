@@ -1,5 +1,5 @@
 import configparser
-from distutils import sysconfig
+from distutils import ccompiler, sysconfig
 from distutils.core import Extension
 import functools
 import glob
@@ -569,30 +569,35 @@ class FreeType(SetupPackage):
             subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
-            shutil.rmtree(pathlib.Path(src_path, "objs"), ignore_errors=True)
-            import distutils.msvc9compiler as msvc
-            # FreeType has no build profile for 2014, so we don't bother.
+            shutil.rmtree(str(pathlib.Path(src_path, "objs")),
+                          ignore_errors=True)
+            msbuild_platform = (
+                'x64' if platform.architecture()[0] == '64bit' else 'Win32')
+            base_path = pathlib.Path("build/freetype-2.6.1/builds/windows")
             vc = 'vc2010'
-            WinXX = 'x64' if platform.architecture()[0] == '64bit' else 'Win32'
-            xXX = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
-            vcvarsall = msvc.find_vcvarsall(10.0)
-            if vcvarsall is None:
-                raise RuntimeError('Microsoft VS 2010 required')
-            cmdfile = pathlib.Path("build/build_freetype.cmd")
-            cmdfile.write_text(fr"""
-call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
-    /Release /{xXX} /xp
-call "{vcvarsall}" {xXX}
-set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
-%MSBUILD% "builds\windows\{vc}\freetype.sln" ^
-    /t:Clean;Build /p:Configuration="Release";Platform={WinXX}
+            sln_path = (
+                base_path / vc / "freetype.sln"
+            )
+            # https://developercommunity.visualstudio.com/comments/190992/view.html
+            (sln_path.parent / "Directory.Build.props").write_text("""
+<Project>
+ <PropertyGroup>
+  <!-- The following line *cannot* be split over multiple lines. -->
+  <WindowsTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</WindowsTargetPlatformVersion>
+ </PropertyGroup>
+</Project>
 """)
-            subprocess.check_call([str(cmdfile.resolve())],
-                                  shell=True, cwd=src_path)
+            cc = ccompiler.new_compiler()
+            cc.initialize()  # Get devenv & msbuild in the %PATH% of cc.spawn.
+            cc.spawn(["devenv", str(sln_path), "/upgrade"])
+            cc.spawn(["msbuild", str(sln_path),
+                      "/t:Clean;Build",
+                      f"/p:Configuration=Release;Platform={msbuild_platform}"])
             # Move to the corresponding Unix build path.
             (src_path / "objs" / ".libs").mkdir()
             # Be robust against change of FreeType version.
-            lib_path, = (src_path / "objs" / vc / xXX).glob("freetype*.lib")
+            lib_path, = (src_path / "objs" / vc / msbuild_platform).glob(
+                "freetype*.lib")
             shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
 
 
@@ -630,8 +635,7 @@ class Png(SetupPackage):
             default_libraries=(
                 ['png', 'z'] if os.name == 'posix' else
                 # libpng upstream names their lib libpng16.lib, not png.lib.
-                # zlib upstream names their lib zlib.lib, not z.lib.
-                ['libpng16', 'zlib'] if os.name == 'nt' else
+                ['libpng16'] if os.name == 'nt' else
                 []
             ))
         add_numpy_flags(ext)
