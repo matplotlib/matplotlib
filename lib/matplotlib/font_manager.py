@@ -964,19 +964,13 @@ class FontManager(object):
         self.defaultFamily = {
             'ttf': 'DejaVu Sans',
             'afm': 'Helvetica'}
-        self.defaultFont = {}
 
         ttffiles = findSystemFonts(paths) + findSystemFonts()
-        self.defaultFont['ttf'] = next(
-            (fname for fname in ttffiles
-             if fname.lower().endswith("dejavusans.ttf")),
-            ttffiles[0])
         self.ttflist = createFontList(ttffiles)
 
         afmfiles = (findSystemFonts(paths, fontext='afm')
                     + findSystemFonts(fontext='afm'))
         self.afmlist = createFontList(afmfiles, fontext='afm')
-        self.defaultFont['afm'] = afmfiles[0] if afmfiles else None
 
     @cbook.deprecated("3.0")
     @property
@@ -987,6 +981,13 @@ class FontManager(object):
     @property
     def afmfiles(self):
         return [font.fname for font in self.afmlist]
+
+    @property
+    def defaultFont(self):
+        # Lazily evaluated (findfont then caches the result) to avoid including
+        # the venv path in the json serialization.
+        return {ext: self.findfont(family, fontext=ext)
+                for ext, family in self.defaultFamily.items()}
 
     def get_default_weight(self):
         """
