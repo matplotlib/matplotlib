@@ -1828,6 +1828,9 @@ default: 'top'
             cbook._warn_external('legend outside=True method needs '
                                  'constrained_layout=True.  Setting False')
             outside = False
+        if outside and kwargs.get('bbox_to_anchor') is not None:
+             cbook._warn_external('legend outside=True ignores bbox_to_anchor '
+                                  'kwarg')
 
         if not outside:
             l = mlegend.Legend(self, handles, labels, *extra_args, **kwargs)
