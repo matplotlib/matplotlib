@@ -645,7 +645,13 @@ class Png(SetupPackage):
             ext, 'libpng',
             atleast_version='1.2',
             alt_exec=['libpng-config', '--ldflags'],
-            default_libraries=['png', 'z'])
+            default_libraries=(
+                ['png', 'z'] if os.name == 'posix' else
+                # libpng upstream names their lib libpng16.lib, not png.lib.
+                # zlib upstream names their lib zlib.lib, not z.lib.
+                ['libpng16', 'zlib'] if os.name == 'nt' else
+                []
+            ))
         add_numpy_flags(ext)
         return ext
 

@@ -20,8 +20,8 @@ IF NOT DEFINED CONDA_PREFIX (
 :: copy the libs which have "wrong" names
 set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
 mkdir lib || cmd /c "exit /b 0"
-copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
-copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
+copy %LIBRARY_LIB%\zlibstatic.lib lib\zlib.lib
+copy %LIBRARY_LIB%\libpng16_static.lib lib\libpng16.lib
 
 :: build the target
 python setup.py %TARGET%
