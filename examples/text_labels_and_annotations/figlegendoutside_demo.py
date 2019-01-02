@@ -28,8 +28,8 @@ y4 = np.exp(-2 * x)
 axs[1].plot(x, y3, 'yd-', label='Line3')
 h4, = axs[1].plot(x, y4, 'k^', label='Line4')
 
-fig.legend_outside(loc='upper center', ncol=2)
-fig.legend_outside(axs=[axs[1]], loc='lower right')
-fig.legend_outside(handles=[h2, h4], labels=['curve2', 'curve4'],
-                   loc='center left', borderaxespad=6)
+fig.legend(loc='upper center', outside=True, ncol=2)
+fig.legend(axs=[axs[1]], outside=True, loc='lower right')
+fig.legend(handles=[h2, h4], labels=['curve2', 'curve4'],
+                   outside=True, loc='center left', borderaxespad=6)
 plt.show()

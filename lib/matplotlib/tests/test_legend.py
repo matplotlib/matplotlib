@@ -384,7 +384,7 @@ def test_figure_legend_outside():
     for nn, todo in enumerate(todos):
         fig, axs = plt.subplots(constrained_layout=True, dpi=100)
         axs.plot(range(10), label=f'Boo1')
-        leg = fig.legend_outside(loc=todo)
+        leg = fig.legend(loc=todo, outside=True)
         renderer = fig.canvas.get_renderer()
         fig.canvas.draw()
         assert_allclose(axs.get_window_extent(renderer=renderer).extents,

@@ -220,6 +220,7 @@ class GridSpecBase:
                     # stack to the top...
                     layoutbox.vstack([leg._layoutbox, child], padding=paddingh)
         self.figure.legends.append(leg)
+
         return leg
 
 

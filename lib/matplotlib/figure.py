@@ -1755,7 +1755,7 @@ default: 'top'
     # docstring of pyplot.figlegend.
 
     @docstring.dedent_interpd
-    def legend(self, *args, **kwargs):
+    def legend(self, *args, outside=False, axs=None, **kwargs):
         """
         Place a legend on the figure.
 
@@ -1779,6 +1779,16 @@ default: 'top'
 
         Parameters
         ----------
+
+        outside: bool
+            If ``constrained_layout=True``, then try and place legend outside
+            axes listed in *axs*, or highest-level gridspec if axs is empty.
+            Note, "center" and "best" options to *loc* do not work with
+            ``outside=True``
+
+        axs :  sequence of `~.axes.Axes`
+            axes to gather handles from (if *handles* is empty).
+
         handles : list of `.Artist`, optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
@@ -1807,142 +1817,37 @@ default: 'top'
         Not all kinds of artist are supported by the legend command. See
         :doc:`/tutorials/intermediate/legend_guide` for details.
         """
+        if axs is None:
+            axs = self.axes
 
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                self.axes,
+                axs,
                 *args,
                 **kwargs)
-        # check for third arg
-        if len(extra_args):
-            # cbook.warn_deprecated(
-            #     "2.1",
-            #     message="Figure.legend will accept no more than two "
-            #     "positional arguments in the future.  Use "
-            #     "'fig.legend(handles, labels, loc=location)' "
-            #     "instead.")
-            # kwargs['loc'] = extra_args[0]
-            # extra_args = extra_args[1:]
-            pass
-        l = mlegend.Legend(self, handles, labels, *extra_args, **kwargs)
-        self.legends.append(l)
+        if outside and not self.get_constrained_layout():
+            cbook._warn_external('legend outside=True method needs '
+                                 'constrained_layout=True.  Setting False')
+            outside = False
+
+        if not outside:
+            l = mlegend.Legend(self, handles, labels, *extra_args, **kwargs)
+            self.legends.append(l)
+        else:
+            loc = kwargs.pop('loc')
+            if axs is None:
+                gs = self.get_gridspecs()[0]
+            else:
+                if isinstance(axs, GridSpecBase):
+                    gs = axs
+                else:
+                    gs = axs[0].get_gridspec()
+            l = gs.legend_outside(loc=loc, handles=handles, labels=labels,
+                                     **kwargs)
         l._remove_method = self.legends.remove
         self.stale = True
         return l
 
     @cbook._delete_parameter("3.1", "withdash")
-    @docstring.dedent_interpd
-    def legend_outside(self, *, loc=None, axs=None, **kwargs):
-        """
-        Place a legend on the figure outside a list of axes, and automatically
-        make room, stealing space from the axes specified by *axs* (analogous
-        to what colorbar does).
-
-        To make a legend from existing artists on every axes::
-
-          legend()
-
-        To specify the axes to put the legend beside::
-
-           legend(axs=[ax1, ax2])
-
-        However, note that the legend will appear beside the gridspec that
-        owns these axes, so the following two calls will be the same::
-
-            fig, axs = plt.subplots(2, 2)
-            legend(axs=[axs[0, 0], axs[1, 0]])
-            legend(axs=axs)
-
-        To make a legend for a list of lines and labels::
-
-          legend(
-              handles=(line1, line2, line3),
-              labels=('label1', 'label2', 'label3'),
-              loc='upper right')
-
-
-        Parameters
-        ----------
-
-        loc: location code for legend, optional, default=1
-            A legend location code, but does not support ``best`` or
-            ``center``.
-
-        axs : sequence of `.axes.Axes` or a single `.GridSpecBase`, optional
-            A list of axes to put the legend beside, above, or below.  This is
-            also the list of axes that artists will be taken from if *handles*
-            is empty.  Note that the legend will be placed adjacent to all the
-            axes in the gridspec that the first element in *axs* belongs to,
-            so mixing axes from different gridspecs may lead to confusing
-            results.  Also, its not possible to put the legend between
-            two columns or rows of the same gridspec; the legend is always
-            outside the gridspec.  This can also be passed as a gridspec
-            instance directly.
-
-        handles : sequence of `.Artist`, optional
-            A list of Artists (lines, patches) to be added to the legend.
-            Use this together with *labels*, if you need full control on what
-            is shown in the legend and the automatic mechanism described above
-            is not sufficient.
-
-            The length of handles and labels should be the same in this
-            case. If they are not, they are truncated to the smaller length.
-
-        labels : sequence of strings, optional
-            A list of labels to show next to the artists.
-            Use this together with *handles*, if you need full control on what
-            is shown in the legend and the automatic mechanism described above
-            is not sufficient.
-
-        Other Parameters
-        ----------------
-
-        %(_legend_kw_doc)s
-
-        Returns
-        -------
-        :class:`matplotlib.legend.Legend` instance
-
-        Notes
-        -----
-        Not all kinds of artist are supported by the legend command. See
-        :doc:`/tutorials/intermediate/legend_guide` for details.
-
-        Currently, `~figure.legend_outside` only works if
-        ``constrained_layout=True``.
-
-        See Also
-        --------
-        .figure.legend
-        .gridspec.legend
-        .axes.Axes.legend
-
-        """
-
-        if not self.get_constrained_layout():
-            cbook._warn_external('legend_outside method needs '
-                          'constrained_layout, using default legend')
-            leg = self.legend(loc=loc, **kwargs)
-            return leg
-
-        if loc is None:
-            loc = 1  # upper right
-
-        if axs is None:
-            gs = self.get_gridspecs()[0]
-            handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                self.axes, **kwargs)
-        else:
-            if isinstance(axs, GridSpecBase):
-                gs = axs
-            else:
-                gs = axs[0].get_gridspec()
-
-            handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                axs, **kwargs)
-
-        return gs.legend_outside(loc=loc, handles=handles, labels=labels,
-                                 **kwargs)
-
     @docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
