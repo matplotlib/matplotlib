@@ -49,7 +49,7 @@ using the Sphinx_ documentation generation tool. There are several extra
 requirements that are needed to build the documentation. They are listed in
 :file:`doc-requirements.txt`, which is shown below:
 
-.. include:: ../../doc-requirements.txt
+.. include:: ../../requirements/doc/doc-requirements.txt
    :literal:
 
 .. note::
