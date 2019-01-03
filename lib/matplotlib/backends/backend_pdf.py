@@ -9,11 +9,10 @@ from datetime import datetime
 from functools import total_ordering
 from io import BytesIO
 import logging
-from math import ceil, cos, floor, pi, sin
+import math
 import os
 import re
 import struct
-import sys
 import time
 import types
 import warnings
@@ -890,9 +889,9 @@ end"""
             # Perhaps best to round away from zero for bounding
             # boxes and the like
             if value < 0:
-                return floor(value)
+                return math.floor(value)
             else:
-                return ceil(value)
+                return math.ceil(value)
 
         def embedTTFType3(font, characters, descriptor):
             """The Type 3-specific part of embedding a Truetype font"""
@@ -1818,9 +1817,9 @@ class RendererPdf(RendererBase):
         if angle == oldangle == 0:
             self.file.output(x - oldx, y - oldy, Op.textpos)
         else:
-            angle = angle / 180.0 * pi
-            self.file.output(cos(angle), sin(angle),
-                             -sin(angle), cos(angle),
+            angle = math.radians(angle)
+            self.file.output(math.cos(angle), math.sin(angle),
+                             -math.sin(angle), math.cos(angle),
                              x, y, Op.textmatrix)
             self.file.output(0, 0, Op.textpos)
 
@@ -1836,10 +1835,11 @@ class RendererPdf(RendererBase):
         global_fonttype = rcParams['pdf.fonttype']
 
         # Set up a global transformation matrix for the whole math expression
-        a = angle / 180.0 * pi
+        a = math.radians(angle)
         self.file.output(Op.gsave)
-        self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
-                         Op.concat_matrix)
+        self.file.output(math.cos(a), math.sin(a),
+                         -math.sin(a), math.cos(a),
+                         x, y, Op.concat_matrix)
 
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
@@ -2058,9 +2058,10 @@ class RendererPdf(RendererBase):
             # Do the rotation and global translation as a single matrix
             # concatenation up front
             self.file.output(Op.gsave)
-            a = angle / 180.0 * pi
-            self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
-                             Op.concat_matrix)
+            a = math.radians(angle)
+            self.file.output(math.cos(a), math.sin(a),
+                             -math.sin(a), math.cos(a),
+                             x, y, Op.concat_matrix)
 
             # Output all the 1-byte characters in a BT/ET group, then
             # output all the 2-byte characters.
