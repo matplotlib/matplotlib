@@ -9,9 +9,7 @@ from numbers import Number
 import numpy as np
 from numpy import ma
 
-import matplotlib
-from matplotlib import _preprocess_data
-
+from matplotlib import _preprocess_data, rcParams
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
@@ -38,8 +36,6 @@ from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
 _log = logging.getLogger(__name__)
-
-rcParams = matplotlib.rcParams
 
 
 def _make_inset_locator(bounds, trans, parent):

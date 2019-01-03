@@ -2,7 +2,6 @@ from collections import OrderedDict
 import types
 
 import numpy as np
-import warnings
 
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis

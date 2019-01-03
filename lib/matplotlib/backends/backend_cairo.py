@@ -6,7 +6,6 @@ A Cairo backend for matplotlib
 This backend depends on cairocffi or pycairo.
 """
 
-import copy
 import gzip
 
 import numpy as np

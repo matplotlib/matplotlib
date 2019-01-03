@@ -450,8 +450,7 @@ class HammerAxes(GeoAxes):
         return self.HammerTransform(resolution)
 
 
-# Now register the projection with matplotlib so the user can select
-# it.
+# Now register the projection with Matplotlib so the user can select it.
 register_projection(HammerAxes)
 
 
