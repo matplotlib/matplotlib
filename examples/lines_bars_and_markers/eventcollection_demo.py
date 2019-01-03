@@ -32,7 +32,8 @@ ydata2 = 1 - xdata2 ** 3
 # plot the data
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
-ax.plot(xdata1, ydata1, xdata2, ydata2)
+ax.plot(xdata1, ydata1, color='tab:blue')
+ax.plot(xdata2, ydata2, color='tab:orange')
 
 # create the events marking the x data points
 xevents1 = EventCollection(xdata1, color='tab:blue', linelength=0.05)
