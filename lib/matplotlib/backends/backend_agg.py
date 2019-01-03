@@ -450,6 +450,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
                 cbook.open_file_cm(filename_or_obj, "wb") as fh:
             fh.write(renderer._renderer.buffer_rgba())
+
     print_rgba = print_raw
 
     def print_png(self, filename_or_obj, *args, **kwargs):
@@ -507,7 +508,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
                 cbook.open_file_cm(filename_or_obj, "wb") as fh:
             _png.write_png(renderer._renderer, fh,
-                            self.figure.dpi, metadata=metadata)
+                           self.figure.dpi, metadata=metadata)
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
@@ -517,8 +518,13 @@ class FigureCanvasAgg(FigureCanvasBase):
                     (int(renderer.width), int(renderer.height)))
 
     if _has_pil:
-        # add JPEG support
-        def print_jpg(self, filename_or_obj, *args, dryrun=False, **kwargs):
+
+        # Note that these methods should typically be called via savefig() and
+        # print_figure(), and the latter ensures that `self.figure.dpi` already
+        # matches the dpi kwarg (if any).
+
+        def print_jpg(self, filename_or_obj, *args, dryrun=False,
+                      pil_kwargs=None, **kwargs):
             """
             Write the figure to a JPEG file.
 
@@ -543,6 +549,11 @@ class FigureCanvasAgg(FigureCanvasBase):
             progressive : bool
                 If present, indicates that this image
                 should be stored as a progressive JPEG file.
+
+            pil_kwargs : dict, optional
+                Additional keyword arguments that are passed to
+                `PIL.Image.save` when saving the figure.  These take precedence
+                over *quality*, *optimize* and *progressive*.
             """
             buf, size = self.print_to_buffer()
             if dryrun:
@@ -554,25 +565,29 @@ class FigureCanvasAgg(FigureCanvasBase):
             color = tuple([int(x * 255) for x in rgba[:3]])
             background = Image.new('RGB', size, color)
             background.paste(image, image)
-            options = {k: kwargs[k]
-                       for k in ['quality', 'optimize', 'progressive', 'dpi']
-                       if k in kwargs}
-            options.setdefault('quality', rcParams['savefig.jpeg_quality'])
-            if 'dpi' in options:
-                # Set the same dpi in both x and y directions
-                options['dpi'] = (options['dpi'], options['dpi'])
+            if pil_kwargs is None:
+                pil_kwargs = {}
+            for k in ["quality", "optimize", "progressive"]:
+                if k in kwargs:
+                    pil_kwargs.setdefault(k, kwargs[k])
+            pil_kwargs.setdefault("quality", rcParams["savefig.jpeg_quality"])
+            pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+            return background.save(
+                filename_or_obj, format='jpeg', **pil_kwargs)
 
-            return background.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
 
-        # add TIFF support
-        def print_tif(self, filename_or_obj, *args, dryrun=False, **kwargs):
+        def print_tif(self, filename_or_obj, *args, dryrun=False,
+                      pil_kwargs=None, **kwargs):
             buf, size = self.print_to_buffer()
             if dryrun:
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            dpi = (self.figure.dpi, self.figure.dpi)
-            return image.save(filename_or_obj, format='tiff', dpi=dpi)
+            if pil_kwargs is None:
+                pil_kwargs = {}
+            pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+            return image.save(filename_or_obj, format='tiff', **pil_kwargs)
+
         print_tiff = print_tif
 
 
