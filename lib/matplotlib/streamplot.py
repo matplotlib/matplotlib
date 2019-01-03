@@ -40,17 +40,17 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     color : matplotlib color code, or 2d array
         Streamline color. When given an array with the same shape as
         velocities, *color* values are converted to colors using *cmap*.
-    cmap : :class:`~matplotlib.colors.Colormap`
+    cmap : `~matplotlib.colors.Colormap`
         Colormap used to plot streamlines and arrows. Only necessary when using
         an array input for *color*.
-    norm : :class:`~matplotlib.colors.Normalize`
+    norm : `~matplotlib.colors.Normalize`
         Normalize object used to scale luminance data to 0, 1. If ``None``,
         stretch (min, max) to (0, 1). Only necessary when *color* is an array.
     arrowsize : float
         Factor scale arrow size.
     arrowstyle : str
         Arrow style specification.
-        See :class:`~matplotlib.patches.FancyArrowPatch`.
+        See `~matplotlib.patches.FancyArrowPatch`.
     minlength : float
         Minimum length of streamline in axes coordinates.
     start_points : Nx2 array
@@ -60,7 +60,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Any number.
     maxlength : float
         Maximum length of streamline in axes coordinates.
-    integration_direction : ['forward', 'backward', 'both']
+    integration_direction : ['forward' | 'backward' | 'both']
         Integrate the streamline in forward, backward or both directions.
         default is ``'both'``.
 
@@ -69,11 +69,11 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     stream_container : StreamplotSet
         Container object with attributes
 
-            - lines: `matplotlib.collections.LineCollection` of streamlines
+        - lines: `matplotlib.collections.LineCollection` of streamlines
 
-            - arrows: collection of `matplotlib.patches.FancyArrowPatch`
-              objects representing arrows half-way along stream
-              lines.
+        - arrows: collection of `matplotlib.patches.FancyArrowPatch`
+          objects representing arrows half-way along stream
+          lines.
 
         This container will probably change in the future to allow changes
         to the colormap, alpha, etc. for both lines and arrows, but these
