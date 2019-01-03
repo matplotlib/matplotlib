@@ -306,9 +306,8 @@ class QuiverKey(martist.Artist):
             # Hack: save and restore the Umask
             _mask = self.Q.Umask
             self.Q.Umask = ma.nomask
-            self.verts = self.Q._make_verts(np.array([self.U]),
-                                            np.zeros((1,)),
-                                            self.angle)
+            self.verts = self.Q._make_verts(
+                np.array([self.U]), np.zeros(1), self.angle)
             self.Q.Umask = _mask
             self.Q.pivot = _pivot
             kw = self.Q.polykw

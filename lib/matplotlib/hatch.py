@@ -201,7 +201,7 @@ def get_path(hatchpattern, density=6):
         return Path(np.empty((0, 2)))
 
     vertices = np.empty((num_vertices, 2))
-    codes = np.empty((num_vertices,), np.uint8)
+    codes = np.empty(num_vertices, Path.code_type)
 
     cursor = 0
     for pattern in patterns:

@@ -18,12 +18,12 @@ def run_memleak_test(bench, iterations, report):
     starti = min(50, iterations // 2)
     endi = iterations
 
-    malloc_arr = np.empty((endi,), dtype=np.int64)
-    rss_arr = np.empty((endi,), dtype=np.int64)
-    rss_peaks = np.empty((endi,), dtype=np.int64)
-    nobjs_arr = np.empty((endi,), dtype=np.int64)
-    garbage_arr = np.empty((endi,), dtype=np.int64)
-    open_files_arr = np.empty((endi,), dtype=np.int64)
+    malloc_arr = np.empty(endi, dtype=np.int64)
+    rss_arr = np.empty(endi, dtype=np.int64)
+    rss_peaks = np.empty(endi, dtype=np.int64)
+    nobjs_arr = np.empty(endi, dtype=np.int64)
+    garbage_arr = np.empty(endi, dtype=np.int64)
+    open_files_arr = np.empty(endi, dtype=np.int64)
     rss_peak = 0
 
     p = psutil.Process()

@@ -38,7 +38,7 @@ trans_offset = mtransforms.offset_copy(ax.transData, fig=fig,
                                        x=0.05, y=0.10, units='inches')
 
 for x, y in zip(xs, ys):
-    plt.plot((x,), (y,), 'ro')
+    plt.plot(x, y, 'ro')
     plt.text(x, y, '%d, %d' % (int(x), int(y)), transform=trans_offset)
 
 
@@ -49,7 +49,7 @@ trans_offset = mtransforms.offset_copy(ax.transData, fig=fig,
                                        y=6, units='dots')
 
 for x, y in zip(xs, ys):
-    plt.polar((x,), (y,), 'ro')
+    plt.polar(x, y, 'ro')
     plt.text(x, y, '%d, %d' % (int(x), int(y)),
              transform=trans_offset,
              horizontalalignment='center',

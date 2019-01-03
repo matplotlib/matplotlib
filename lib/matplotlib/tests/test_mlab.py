@@ -210,7 +210,7 @@ class TestWindow(object):
         if np.iterable(window):
             windowVals = window
         else:
-            windowVals = window(np.ones((NFFT,), x.dtype))
+            windowVals = window(np.ones(NFFT, x.dtype))
 
         # do the ffts of the slices
         for i in range(n):
