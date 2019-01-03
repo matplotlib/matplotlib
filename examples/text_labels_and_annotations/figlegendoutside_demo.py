@@ -40,7 +40,7 @@ plt.show()
 # codes have an ambiguity as to whether the legend is stacked
 # horizontally (the default) or vertically.  To specify the vertical stacking
 # the *outside* kwarg can be specified with ``"vertical"`` instead of just
-# the booloean *True*:
+# the boolean *True*:
 
 fig, axs = plt.subplots(1, 2, sharey=True, constrained_layout=True)
 axs[0].plot(x, y1, 'rs-', label='Line1')
@@ -64,7 +64,7 @@ gs = gs0[0].subgridspec(1, 1)
 for i in range(1):
     ax = fig.add_subplot(gs[i, 0])
     ax.plot(range(10), label=f'Boo{i}')
-lg = fig.legend(ax=[ax], loc='upper left', outside=True, borderaxespad=4)
+lg = fig.legend(ax=[ax], loc='lower right', outside=True, borderaxespad=4)
 
 gs2 = gs0[1].subgridspec(3, 1)
 axx = []
