@@ -1991,7 +1991,6 @@ class FigureCanvasBase(object):
             origfacecolor = self.figure.get_facecolor()
             origedgecolor = self.figure.get_edgecolor()
 
-            self.figure.dpi = dpi
             self.figure.set_facecolor(facecolor)
             self.figure.set_edgecolor(edgecolor)
 
