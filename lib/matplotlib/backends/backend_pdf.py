@@ -972,8 +972,13 @@ end"""
 
             # Make the charprocs array (using ttconv to generate the
             # actual outlines)
-            rawcharprocs = ttconv.get_pdf_charprocs(
-                os.fsencode(filename), glyph_ids)
+            try:
+                rawcharprocs = ttconv.get_pdf_charprocs(
+                    os.fsencode(filename), glyph_ids)
+            except RuntimeError:
+                _log.warning("The PDF backend does not currently support the "
+                             "selected font.")
+                raise
             charprocs = {}
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]

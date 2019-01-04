@@ -43,6 +43,7 @@ addons:
       - texlive-latex-recommended
       - texlive-xetex
       - texlive-luatex
+      - ttf-wqy-zenhei
 
 env:
   global:
@@ -85,8 +86,12 @@ matrix:
         - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: 3.7
       sudo: true
+      env:
+        - DELETE_FONT_CACHE=1
     - python: "nightly"
-      env: PRE=--pre
+      env:
+        - PRE=--pre
+        - DELETE_FONT_CACHE=1
     - os: osx
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       only: master
@@ -110,7 +115,7 @@ before_install: |
     ci/silence brew update
     brew uninstall numpy gdal postgis
     brew upgrade python
-    brew install ffmpeg imagemagick mplayer ccache
+    brew install ffmpeg imagemagick mplayer ccache font-wenquanyi-zen-hei
     hash -r
     which python
     python --version
