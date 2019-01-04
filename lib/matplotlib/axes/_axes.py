@@ -2638,7 +2638,7 @@ class Axes(_AxesBase):
             self.add_collection(stemlines)
         # Old behaviour is to plot each of the lines individually
         else:
-            cbook._warn_extrnal(
+            cbook._warn_external(
                 'In Matplotlib 3.3 individual lines on a stem plot will be '
                 'added as a LineCollection instead of individual lines.\n'
                 'This significantly improves the performance of a stem plot.\n'
