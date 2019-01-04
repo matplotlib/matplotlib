@@ -1265,12 +1265,7 @@ class ResizeEvent(Event):
 
 
 class CloseEvent(Event):
-    """
-    An event triggered by a figure being closed
-
-    """
-    def __init__(self, name, canvas, guiEvent=None):
-        Event.__init__(self, name, canvas, guiEvent)
+    """An event triggered by a figure being closed."""
 
 
 class LocationEvent(Event):
@@ -1432,10 +1427,10 @@ class MouseEvent(LocationEvent):
         self.dblclick = dblclick
 
     def __str__(self):
-        return ("MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%s " +
-                "dblclick=%s inaxes=%s") % (self.x, self.y, self.xdata,
-                                            self.ydata, self.button,
-                                            self.dblclick, self.inaxes)
+        return (f"{self.name}: "
+                f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
+                f"button={self.button} dblclick={self.dblclick} "
+                f"inaxes={self.inaxes}")
 
 
 class PickEvent(Event):
