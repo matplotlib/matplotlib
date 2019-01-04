@@ -1951,9 +1951,9 @@ default: 'top'
         restore_to_pylab = state.pop('_restore_to_pylab', False)
 
         if version != _mpl_version:
-            cbook._warn_external("This figure was saved with matplotlib "
-                                 "version %s and is unlikely to function "
-                                 "correctly." % (version,))
+            cbook._warn_external(
+                f"This figure was saved with matplotlib version {version} and "
+                f"is unlikely to function correctly.")
 
         self.__dict__ = state
 

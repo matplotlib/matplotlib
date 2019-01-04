@@ -70,7 +70,8 @@ class SimpleAxisArtist(Artist):
         elif isinstance(axis, YAxis):
             self._axis_direction = ["left", "right"][axisnum-1]
         else:
-            raise ValueError("axis must be instance of XAxis or YAxis : %s is provided" % (axis,))
+            raise ValueError(
+                f"axis must be instance of XAxis or YAxis, but got {axis}")
         Artist.__init__(self)
 
     @property

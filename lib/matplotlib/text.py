@@ -1145,12 +1145,14 @@ class Text(Artist):
 
         Parameters
         ----------
-        s : string or object castable to string (but ``None`` becomes ``''``)
+        s : object
+            Any object gets converted to its `str`, except ``None`` which
+            becomes ``''``.
         """
         if s is None:
             s = ''
         if s != self._text:
-            self._text = '%s' % (s,)
+            self._text = str(s)
             self.stale = True
 
     @staticmethod

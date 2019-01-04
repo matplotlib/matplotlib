@@ -180,30 +180,26 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             inds = inds.argmin(axis=1)
             inds = np.unique(inds)
             # return, we are done here
-            return Path(verts[inds],
-                        _slice_or_none(codes, inds))
+            return Path(verts[inds], _slice_or_none(codes, inds))
         else:
             raise ValueError(
-                '`markevery` is a tuple with len 2, but its second element is '
-                'not an int or a float; markevery=%s' % (markevery,))
+                f"markevery={markevery!r} is a tuple with len 2, but its "
+                f"second element is not an int or a float")
 
     elif isinstance(markevery, slice):
         # mazol tov, it's already a slice, just return
         return Path(verts[markevery], _slice_or_none(codes, markevery))
 
     elif np.iterable(markevery):
-        #fancy indexing
+        # fancy indexing
         try:
             return Path(verts[markevery], _slice_or_none(codes, markevery))
-
         except (ValueError, IndexError):
-            raise ValueError('`markevery` is iterable but '
-                'not a valid form of numpy fancy indexing; '
-                'markevery=%s' % (markevery,))
+            raise ValueError(
+                f"markevery={markevery!r} is iterable but not a valid numpy "
+                f"fancy index")
     else:
-        raise ValueError('Value of `markevery` is not '
-            'recognized; '
-            'markevery=%s' % (markevery,))
+        raise ValueError(f"markevery={markevery!r} is not a recognized value")
 
 
 @cbook._define_aliases({
@@ -264,17 +260,16 @@ class Line2D(Artist):
 
     def __str__(self):
         if self._label != "":
-            return "Line2D(%s)" % (self._label)
+            return f"Line2D({self._label})"
         elif self._x is None:
             return "Line2D()"
         elif len(self._x) > 3:
-            return "Line2D((%g,%g),(%g,%g),...,(%g,%g))"\
-                % (self._x[0], self._y[0], self._x[0],
-                   self._y[0], self._x[-1], self._y[-1])
+            return "Line2D((%g,%g),(%g,%g),...,(%g,%g))" % (
+                self._x[0], self._y[0], self._x[0],
+                self._y[0], self._x[-1], self._y[-1])
         else:
-            return "Line2D(%s)"\
-                % (",".join(["(%g,%g)" % (x, y) for x, y
-                             in zip(self._x, self._y)]))
+            return "Line2D(%s)" % ",".join(
+                map("({:g},{:g})".format, self._x, self._y))
 
     def __init__(self, xdata, ydata,
                  linewidth=None,  # all Nones default to rc

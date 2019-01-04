@@ -638,10 +638,8 @@ class ColorbarBase(cm.ScalarMappable):
         self.stale = True
 
     def set_label(self, label, **kw):
-        '''
-        Label the long axis of the colorbar
-        '''
-        self._label = '%s' % (label, )
+        """Label the long axis of the colorbar."""
+        self._label = str(label)
         self._labelkw = kw
         self._set_label()
 
