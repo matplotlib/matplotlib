@@ -35,7 +35,7 @@ Arguments
 
 Other
 -----
-- svgfont support (in :rc:`svg.fonttype`),
+- svgfont support (in :rc:`svg.fonttype`) has been removed,
 - Logging is now done with the standard python ``logging`` library.
   ``matplotlib.verbose`` and the command line switches ``--verbose-LEVEL`` are
   removed.
