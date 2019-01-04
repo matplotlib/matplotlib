@@ -4386,6 +4386,8 @@ class ConnectionPatch(FancyArrowPatch):
                             system.
         =================   ===================================================
 
+        Alternatively they can be set to any valid
+        `~matplotlib.transforms.Transform`.
         """
         if coordsB is None:
             coordsB = coordsA
@@ -4518,6 +4520,11 @@ class ConnectionPatch(FancyArrowPatch):
             #(0,0) is lower left, (1,1) is upper right of axes
             trans = axes.transAxes
             return trans.transform_point((x, y))
+        elif isinstance(s, transforms.Transform):
+            return s.transform_point((x, y))
+        else:
+            raise ValueError("{} is not a valid coordinate "
+                             "transformation.".format(s))
 
     def set_annotation_clip(self, b):
         """

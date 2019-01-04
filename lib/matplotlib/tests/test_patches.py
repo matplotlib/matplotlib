@@ -394,6 +394,14 @@ def test_connection_patch():
                                    arrowstyle="->")
     ax2.add_artist(con)
 
+    xyA = (0.6, 1.0)  # in axes coordinates
+    xyB = (0.0, 0.2)  # x in axes coordinates, y in data coordinates
+    coordsA = "axes fraction"
+    coordsB = ax2.get_yaxis_transform()
+    con = mpatches.ConnectionPatch(xyA=xyA, xyB=xyB, coordsA=coordsA,
+                                    coordsB=coordsB, arrowstyle="-")
+    ax2.add_artist(con)
+
 
 def test_datetime_rectangle():
     # Check that creating a rectangle with timedeltas doesn't fail
