@@ -375,6 +375,7 @@ class Legend(Artist):
                  bbox_transform=None,  # transform for the bbox
                  frameon=None,  # draw frame
                  handler_map=None,
+                 outside=False,
                  ):
         """
         Parameters
@@ -430,6 +431,7 @@ class Legend(Artist):
         self.legendHandles = []
         self._legend_title_box = None
 
+        self.outside = outside
         #: A dictionary with the extra handler mappings for this Legend
         #: instance.
         self._custom_handler_map = handler_map
@@ -1107,8 +1109,37 @@ class Legend(Artist):
         c = anchor_coefs[loc]
 
         fontsize = renderer.points_to_pixels(self._fontsize)
-        container = parentbbox.padded(-(self.borderaxespad) * fontsize)
-        anchored_box = bbox.anchored(c, container=container)
+        if not self.outside:
+            container = parentbbox.padded(-(self.borderaxespad) * fontsize)
+            anchored_box = bbox.anchored(c, container=container)
+        else:
+            if c in ['NE', 'SE', 'E']:
+                stack = 'right'
+            elif c in ['NW', 'SW', 'W']:
+                stack = 'left'
+            elif c in ['N']:
+                stack = 'top'
+            else:
+                stack = 'bottom'
+            if self.outside == 'vertical':
+                if c in ['NE', 'NW']:
+                    stack = 'top'
+                elif c in ['SE', 'SW']:
+                    stack = 'bottom'
+            anchored_box = bbox.anchored(c, container=parentbbox)
+            if stack == 'right':
+                anchored_box.x0 = (anchored_box.x0 + anchored_box.width +
+                                    (self.borderaxespad) * fontsize)
+            elif stack == 'left':
+                anchored_box.x0 = (anchored_box.x0 - anchored_box.width -
+                                    (self.borderaxespad) * fontsize)
+            elif stack == 'bottom':
+                anchored_box.y0 = (anchored_box.y0 - anchored_box.height -
+                                    (self.borderaxespad) * fontsize)
+            elif stack == 'top':
+                anchored_box.y0 = (anchored_box.y0 + anchored_box.height +
+                                    (self.borderaxespad) * fontsize)
+
         return anchored_box.x0, anchored_box.y0
 
     def _find_best_position(self, width, height, renderer, consider=None):
