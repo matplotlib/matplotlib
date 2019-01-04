@@ -516,12 +516,12 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x) < NFFT:
         n = len(x)
-        x = np.resize(x, (NFFT,))
+        x = np.resize(x, NFFT)
         x[n:] = 0
 
     if not same_data and len(y) < NFFT:
         n = len(y)
-        y = np.resize(y, (NFFT,))
+        y = np.resize(y, NFFT)
         y[n:] = 0
 
     if pad_to is None:
@@ -1598,7 +1598,7 @@ class GaussianKDE(object):
             raise ValueError("points have dimension {}, dataset has dimension "
                              "{}".format(dim, self.dim))
 
-        result = np.zeros((num_m,), dtype=float)
+        result = np.zeros(num_m)
 
         if num_m >= self.num_dp:
             # there are more points than data, so loop over data

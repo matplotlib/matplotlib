@@ -1122,12 +1122,10 @@ class PolarAxes(Axes):
            Theta increases in the counterclockwise direction
         """
         mtx = self._direction.get_matrix()
-        if direction in ('clockwise',):
+        if direction in ('clockwise', -1):
             mtx[0, 0] = -1
-        elif direction in ('counterclockwise', 'anticlockwise'):
+        elif direction in ('counterclockwise', 'anticlockwise', 1):
             mtx[0, 0] = 1
-        elif direction in (1, -1):
-            mtx[0, 0] = direction
         else:
             raise ValueError(
                 "direction must be 1, -1, clockwise or counterclockwise")

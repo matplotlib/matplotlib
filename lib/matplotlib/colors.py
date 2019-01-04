@@ -412,14 +412,15 @@ def makeMappingArray(N, data, gamma=1.0):
         raise ValueError("data mapping points must have x in increasing order")
     # begin generation of lookup table
     x = x * (N - 1)
-    lut = np.zeros((N,), float)
     xind = (N - 1) * np.linspace(0, 1, N) ** gamma
     ind = np.searchsorted(x, xind)[1:-1]
 
     distance = (xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1])
-    lut[1:-1] = distance * (y0[ind] - y1[ind - 1]) + y1[ind - 1]
-    lut[0] = y1[0]
-    lut[-1] = y0[-1]
+    lut = np.concatenate([
+        [y1[0]],
+        distance * (y0[ind] - y1[ind - 1]) + y1[ind - 1],
+        [y0[-1]],
+    ])
     # ensure that the lut is confined to values between 0 and 1 by clipping it
     return np.clip(lut, 0.0, 1.0)
 
@@ -543,8 +544,7 @@ class Colormap(object):
                 # If the bad value is set to have a color, then we
                 # override its alpha just as for any other value.
 
-        rgba = np.empty(shape=xa.shape + (4,), dtype=lut.dtype)
-        lut.take(xa, axis=0, mode='clip', out=rgba)
+        rgba = lut.take(xa, axis=0, mode='clip')
         if vtype == 'scalar':
             rgba = tuple(rgba[0, :])
         return rgba

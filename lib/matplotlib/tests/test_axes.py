@@ -630,13 +630,13 @@ def test_const_xy():
     fig = plt.figure()
 
     plt.subplot(311)
-    plt.plot(np.arange(10), np.ones((10,)))
+    plt.plot(np.arange(10), np.ones(10))
 
     plt.subplot(312)
-    plt.plot(np.ones((10,)), np.arange(10))
+    plt.plot(np.ones(10), np.arange(10))
 
     plt.subplot(313)
-    plt.plot(np.ones((10,)), np.ones((10,)), 'o')
+    plt.plot(np.ones(10), np.ones(10), 'o')
 
 
 @image_comparison(baseline_images=['polar_wrap_180', 'polar_wrap_360'],
@@ -5198,7 +5198,7 @@ def test_violin_point_mass():
 
 
 def generate_errorbar_inputs():
-    base_xy = cycler('x', [np.arange(5)]) + cycler('y', [np.ones((5, ))])
+    base_xy = cycler('x', [np.arange(5)]) + cycler('y', [np.ones(5)])
     err_cycler = cycler('err', [1,
                                 [1, 1, 1, 1, 1],
                                 [[1, 1, 1, 1, 1],
