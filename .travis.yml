@@ -86,12 +86,9 @@ matrix:
         - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: 3.7
       sudo: true
-      env:
-        - DELETE_FONT_CACHE=1
     - python: "nightly"
       env:
         - PRE=--pre
-        - DELETE_FONT_CACHE=1
     - os: osx
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       only: master
