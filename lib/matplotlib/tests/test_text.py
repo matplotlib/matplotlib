@@ -143,11 +143,12 @@ def test_multiline2():
     renderer = fig.canvas.get_renderer()
 
     def draw_box(ax, tt):
-        bb = tt.get_window_extent(renderer)
-        bbt = bb.inverse_transformed(ax.transAxes)
         r = mpatches.Rectangle((0, 0), 1, 1, clip_on=False,
                                transform=ax.transAxes)
-        r.set_bounds(bbt.bounds)
+        r.set_bounds(
+            tt.get_window_extent(renderer)
+            .transformed(ax.transAxes.inverted())
+            .bounds)
         ax.add_patch(r)
 
     horal = 'left'

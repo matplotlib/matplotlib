@@ -157,9 +157,9 @@ class Cell(Rectangle):
         """
         Return the text bounds as *(x, y, width, height)* in table coordinates.
         """
-        bbox = self._text.get_window_extent(renderer)
-        bboxa = bbox.inverse_transformed(self.get_data_transform())
-        return bboxa.bounds
+        return (self._text.get_window_extent(renderer)
+                .transformed(self.get_data_transform().inverted())
+                .bounds)
 
     def get_required_width(self, renderer):
         """Return the minimal required width for the cell."""
@@ -431,7 +431,7 @@ class Table(Artist):
                  for (row, col), cell in self._cells.items()
                  if row >= 0 and col >= 0]
         bbox = Bbox.union(boxes)
-        return bbox.inverse_transformed(self.get_transform())
+        return bbox.transformed(self.get_transform().inverted())
 
     def contains(self, mouseevent):
         # docstring inherited
