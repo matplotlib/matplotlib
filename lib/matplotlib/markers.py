@@ -222,8 +222,6 @@ class MarkerStyle(object):
 
     def __init__(self, marker=None, fillstyle=None):
         """
-        MarkerStyle
-
         Attributes
         ----------
         markers : list of known marks

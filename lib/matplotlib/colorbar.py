@@ -569,7 +569,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.stale = True
 
     def get_ticks(self, minor=False):
-        """Return the x ticks as a list of locations"""
+        """Return the x ticks as a list of locations."""
         if self._manual_tick_data_values is None:
             ax = self.ax
             if self.orientation == 'vertical':
@@ -584,9 +584,10 @@ class ColorbarBase(cm.ScalarMappable):
 
     def set_ticklabels(self, ticklabels, update_ticks=True):
         """
-        set tick labels. Tick labels are updated immediately unless
-        update_ticks is *False*. To manually update the ticks, call
-        *update_ticks* method explicitly.
+        Set tick labels.
+
+        Tick labels are updated immediately unless *update_ticks* is *False*,
+        in which case one should call `~.update_ticks` explicitly.
         """
         if isinstance(self.locator, ticker.FixedLocator):
             self.formatter = ticker.FixedFormatter(ticklabels)
@@ -864,7 +865,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.vmax = b[-1]
 
     def _central_N(self):
-        '''number of boundaries **before** extension of ends'''
+        """Return the number of boundaries **excluding** end extensions."""
         nb = len(self._boundaries)
         if self.extend == 'both':
             nb -= 2
@@ -1128,11 +1129,13 @@ class Colorbar(ColorbarBase):
                                erase=erase)
 
     def update_normal(self, mappable):
-        '''
-        update solid, lines, etc. Unlike update_bruteforce, it does
-        not clear the axes.  This is meant to be called when the image
-        or contour plot to which this colorbar belongs is changed.
-        '''
+        """
+        Update solid patches, lines, etc.
+
+        Unlike `~.update_bruteforce`, this does not clear the axes.  This is
+        meant to be called when the image or contour plot to which this
+        colorbar belongs changes.
+        """
         self.draw_all()
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
