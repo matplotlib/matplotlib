@@ -24,9 +24,7 @@ def _get_adobe_standard_encoding():
 
 
 class TextToPath(object):
-    """
-    A class that convert a given text to a path using ttf fonts.
-    """
+    """A class that converts strings to paths."""
 
     FONT_SCALE = 100.
     DPI = 72
