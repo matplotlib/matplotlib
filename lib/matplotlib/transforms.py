@@ -1728,14 +1728,6 @@ class AffineBase(Transform):
         # optimises the access of the transform matrix vs the superclass
         return self.get_matrix()
 
-    @staticmethod
-    def _concat(a, b):
-        """
-        Concatenates two transformation matrices (represented as numpy
-        arrays) together.
-        """
-        return np.dot(b, a)
-
     def __eq__(self, other):
         if getattr(other, "is_affine", False):
             return np.all(self.get_matrix() == other.get_matrix())
