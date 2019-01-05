@@ -176,7 +176,7 @@ class StemContainer(Container):
         The artist of the horizontal baseline.
     """
     def __init__(self, markerline_stemlines_baseline, **kwargs):
-        '''
+        """
         Parameters
         ----------
         markerline_stemlines_baseline : tuple
@@ -184,7 +184,7 @@ class StemContainer(Container):
             ``markerline`` contains the `LineCollection` of the markers,
             ``stemlines`` is a `LineCollection` of the main lines,
             ``baseline`` is the `Line2D` of the baseline.
-        '''
+        """
         markerline, stemlines, baseline = markerline_stemlines_baseline
         self.markerline = markerline
         self.stemlines = stemlines
