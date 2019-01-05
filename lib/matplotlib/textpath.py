@@ -286,7 +286,7 @@ class TextToPath(object):
                 glyph_map_new, myrects)
 
     def get_texmanager(self):
-        """Return a cached `~.texmanager.TexManager` instance."""
+        """Return the cached `~.texmanager.TexManager` instance."""
         if self._texmanager is None:
             from matplotlib.texmanager import TexManager
             self._texmanager = TexManager()

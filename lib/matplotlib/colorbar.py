@@ -587,7 +587,7 @@ class ColorbarBase(cm.ScalarMappable):
         Set tick labels.
 
         Tick labels are updated immediately unless *update_ticks* is *False*,
-        in which case one should call `~.update_ticks` explicitly.
+        in which case one should call `.update_ticks` explicitly.
         """
         if isinstance(self.locator, ticker.FixedLocator):
             self.formatter = ticker.FixedFormatter(ticklabels)
@@ -865,7 +865,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.vmax = b[-1]
 
     def _central_N(self):
-        """Return the number of boundaries **excluding** end extensions."""
+        """Return the number of boundaries excluding end extensions."""
         nb = len(self._boundaries)
         if self.extend == 'both':
             nb -= 2
@@ -1132,7 +1132,7 @@ class Colorbar(ColorbarBase):
         """
         Update solid patches, lines, etc.
 
-        Unlike `~.update_bruteforce`, this does not clear the axes.  This is
+        Unlike `.update_bruteforce`, this does not clear the axes.  This is
         meant to be called when the image or contour plot to which this
         colorbar belongs changes.
         """
