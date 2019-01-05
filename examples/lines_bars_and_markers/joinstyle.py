@@ -14,11 +14,12 @@ def plot_angle(ax, x, y, angle, style):
     phi = np.radians(angle)
     xx = [x + .5, x, x + .5*np.cos(phi)]
     yy = [y, y, y + .5*np.sin(phi)]
-    ax.plot(xx, yy, lw=8, color='blue', solid_joinstyle=style)
+    ax.plot(xx, yy, lw=8, color='tab:blue', solid_joinstyle=style)
     ax.plot(xx[1:], yy[1:], lw=1, color='black')
     ax.plot(xx[1::-1], yy[1::-1], lw=1, color='black')
-    ax.plot(xx[1:2], yy[1:2], 'o', color='red', markersize=3)
+    ax.plot(xx[1:2], yy[1:2], 'o', color='tab:red', markersize=3)
     ax.text(x, y + .2, '%.0f degrees' % angle)
+
 
 fig, ax = plt.subplots()
 ax.set_title('Join style')
