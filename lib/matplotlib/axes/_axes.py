@@ -3200,10 +3200,13 @@ class Axes(_AxesBase):
 
         lolims, uplims, xlolims, xuplims : bool, default: False
             These arguments can be used to indicate that a value gives only
-            upper/lower limits. In that case a caret symbol is used to
-            indicate this. *lims*-arguments may be of the same type as *xerr*
-            and *yerr*.  To use limits with inverted axes, `~.Axes.set_xlim`
-            or `~.Axes.set_ylim` must be called before :meth:`errorbar`.
+            upper/lower limits.  In that case a caret symbol is used to
+            indicate this. *lims*-arguments may be scalars, or array-likes of
+            the same length as *xerr* and *yerr*.  To use limits with inverted
+            axes, `~.Axes.set_xlim` or `~.Axes.set_ylim` must be called before
+            :meth:`errorbar`.  Note the tricky parameter names: setting e.g.
+            *lolims* to True means that the y-value is a *lower* limit of the
+            True value, so, only an *upward*-pointing arrow will be drawn!
 
         errorevery : int or (int, int), default: 1
             draws error bars on a subset of the data. *errorevery* =N draws
@@ -3297,6 +3300,9 @@ class Axes(_AxesBase):
         if not np.iterable(y):
             y = [y]
 
+        if len(x) != len(y):
+            raise ValueError("'x' and 'y' must have the same size")
+
         if xerr is not None:
             if not np.iterable(xerr):
                 xerr = [xerr] * len(x)
@@ -3369,22 +3375,29 @@ class Axes(_AxesBase):
         everymask = np.zeros(len(x), bool)
         everymask[offset::errorevery] = True
 
-        def xywhere(xs, ys, mask):
-            """
-            Return xs[mask], ys[mask] where mask is True but xs and
-            ys are not arrays.
-            """
-            assert len(xs) == len(ys)
-            assert len(xs) == len(mask)
-            xs = [thisx for thisx, b in zip(xs, mask) if b]
-            ys = [thisy for thisy, b in zip(ys, mask) if b]
-            return xs, ys
+        def apply_mask(arrays, mask):
+            # Return, for each array in *arrays*, the elements for which *mask*
+            # is True, without using fancy indexing.
+            return [[*itertools.compress(array, mask)] for array in arrays]
 
-        def extract_err(name, err, data):
+        def extract_err(name, err, data, lolims, uplims):
             """
-            Private function to parse *err* and subtract/add it to *data*.
+            Private function to compute error bars.
 
-            Both *err* and *data* are already iterables at this point.
+            Parameters
+            ----------
+            name : {'x', 'y'}
+                Name used in the error message.
+            err : array-like
+                xerr or yerr from errorbar().
+            data : array-like
+                x or y from errorbar().
+            lolims : array-like
+                Error is only applied on **upper** side when this is True.  See
+                the note in the main docstring about this parameter's name.
+            uplims : array-like
+                Error is only applied on **lower** side when this is True.  See
+                the note in the main docstring about this parameter's name.
             """
             try:  # Asymmetric error: pair of 1D iterables.
                 a, b = err
@@ -3401,116 +3414,92 @@ class Axes(_AxesBase):
                     raise ValueError(
                         f"The lengths of the data ({len(data)}) and the "
                         f"error {len(e)} do not match")
-            low = [v - e for v, e in zip(data, a)]
-            high = [v + e for v, e in zip(data, b)]
+            low = [v if lo else v - e for v, e, lo in zip(data, a, lolims)]
+            high = [v if up else v + e for v, e, up in zip(data, b, uplims)]
             return low, high
 
         if xerr is not None:
-            left, right = extract_err('x', xerr, x)
+            left, right = extract_err('x', xerr, x, xlolims, xuplims)
+            barcols.append(self.hlines(
+                *apply_mask([y, left, right], everymask), **eb_lines_style))
             # select points without upper/lower limits in x and
             # draw normal errorbars for these points
             noxlims = ~(xlolims | xuplims)
-            if noxlims.any() or len(noxlims) == 0:
-                yo, _ = xywhere(y, right, noxlims & everymask)
-                lo, ro = xywhere(left, right, noxlims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(lo, yo, marker='|',
-                                                  **eb_cap_style))
-                    caplines.append(mlines.Line2D(ro, yo, marker='|',
-                                                  **eb_cap_style))
-
+            if noxlims.any() and capsize > 0:
+                yo, lo, ro = apply_mask([y, left, right], noxlims & everymask)
+                caplines.extend([
+                    mlines.Line2D(lo, yo, marker='|', **eb_cap_style),
+                    mlines.Line2D(ro, yo, marker='|', **eb_cap_style)])
             if xlolims.any():
-                yo, _ = xywhere(y, right, xlolims & everymask)
-                lo, ro = xywhere(x, right, xlolims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
-                rightup, yup = xywhere(right, y, xlolims & everymask)
+                xo, yo, lo, ro = apply_mask([x, y, left, right],
+                                            xlolims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETLEFTBASE
                 else:
                     marker = mlines.CARETRIGHTBASE
-                caplines.append(
-                    mlines.Line2D(rightup, yup, ls='None', marker=marker,
-                                  **eb_cap_style))
+                caplines.append(mlines.Line2D(
+                    ro, yo, ls='None', marker=marker, **eb_cap_style))
                 if capsize > 0:
-                    xlo, ylo = xywhere(x, y, xlolims & everymask)
-                    caplines.append(mlines.Line2D(xlo, ylo, marker='|',
-                                                  **eb_cap_style))
-
+                    caplines.append(mlines.Line2D(
+                        xo, yo, marker='|', **eb_cap_style))
             if xuplims.any():
-                yo, _ = xywhere(y, right, xuplims & everymask)
-                lo, ro = xywhere(left, x, xuplims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
-                leftlo, ylo = xywhere(left, y, xuplims & everymask)
+                xo, yo, lo, ro = apply_mask([x, y, left, right],
+                                            xuplims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETRIGHTBASE
                 else:
                     marker = mlines.CARETLEFTBASE
-                caplines.append(
-                    mlines.Line2D(leftlo, ylo, ls='None', marker=marker,
-                                  **eb_cap_style))
+                caplines.append(mlines.Line2D(
+                    lo, yo, ls='None', marker=marker, **eb_cap_style))
                 if capsize > 0:
-                    xup, yup = xywhere(x, y, xuplims & everymask)
-                    caplines.append(mlines.Line2D(xup, yup, marker='|',
-                                                  **eb_cap_style))
+                    caplines.append(mlines.Line2D(
+                        xo, yo, marker='|', **eb_cap_style))
 
         if yerr is not None:
-            lower, upper = extract_err('y', yerr, y)
+            lower, upper = extract_err('y', yerr, y, lolims, uplims)
+            barcols.append(self.vlines(
+                *apply_mask([x, lower, upper], everymask), **eb_lines_style))
             # select points without upper/lower limits in y and
             # draw normal errorbars for these points
             noylims = ~(lolims | uplims)
-            if noylims.any() or len(noylims) == 0:
-                xo, _ = xywhere(x, lower, noylims & everymask)
-                lo, uo = xywhere(lower, upper, noylims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(xo, lo, marker='_',
-                                                  **eb_cap_style))
-                    caplines.append(mlines.Line2D(xo, uo, marker='_',
-                                                  **eb_cap_style))
-
+            if noylims.any() and capsize > 0:
+                xo, lo, uo = apply_mask([x, lower, upper], noylims & everymask)
+                caplines.extend([
+                    mlines.Line2D(xo, lo, marker='_', **eb_cap_style),
+                    mlines.Line2D(xo, uo, marker='_', **eb_cap_style)])
             if lolims.any():
-                xo, _ = xywhere(x, lower, lolims & everymask)
-                lo, uo = xywhere(y, upper, lolims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
-                xup, upperup = xywhere(x, upper, lolims & everymask)
+                xo, yo, lo, uo = apply_mask([x, y, lower, upper],
+                                            lolims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETDOWNBASE
                 else:
                     marker = mlines.CARETUPBASE
-                caplines.append(
-                    mlines.Line2D(xup, upperup, ls='None', marker=marker,
-                                  **eb_cap_style))
+                caplines.append(mlines.Line2D(
+                    xo, uo, ls='None', marker=marker, **eb_cap_style))
                 if capsize > 0:
-                    xlo, ylo = xywhere(x, y, lolims & everymask)
-                    caplines.append(mlines.Line2D(xlo, ylo, marker='_',
-                                                  **eb_cap_style))
-
+                    caplines.append(mlines.Line2D(
+                        xo, yo, marker='_', **eb_cap_style))
             if uplims.any():
-                xo, _ = xywhere(x, lower, uplims & everymask)
-                lo, uo = xywhere(lower, y, uplims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
-                xlo, lowerlo = xywhere(x, lower, uplims & everymask)
+                xo, yo, lo, uo = apply_mask([x, y, lower, upper],
+                                            uplims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETUPBASE
                 else:
                     marker = mlines.CARETDOWNBASE
-                caplines.append(
-                    mlines.Line2D(xlo, lowerlo, ls='None', marker=marker,
-                                  **eb_cap_style))
+                caplines.append(mlines.Line2D(
+                    xo, lo, ls='None', marker=marker, **eb_cap_style))
                 if capsize > 0:
-                    xup, yup = xywhere(x, y, uplims & everymask)
-                    caplines.append(mlines.Line2D(xup, yup, marker='_',
-                                                  **eb_cap_style))
+                    caplines.append(mlines.Line2D(
+                        xo, yo, marker='_', **eb_cap_style))
+
         for l in caplines:
             self.add_line(l)
 
         self._request_autoscale_view()
-        errorbar_container = ErrorbarContainer((data_line, tuple(caplines),
-                                                tuple(barcols)),
-                                               has_xerr=(xerr is not None),
-                                               has_yerr=(yerr is not None),
-                                               label=label)
+        errorbar_container = ErrorbarContainer(
+            (data_line, tuple(caplines), tuple(barcols)),
+            has_xerr=(xerr is not None), has_yerr=(yerr is not None),
+            label=label)
         self.containers.append(errorbar_container)
 
         return errorbar_container  # (l0, caplines, barcols)
