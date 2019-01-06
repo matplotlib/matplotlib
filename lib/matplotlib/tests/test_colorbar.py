@@ -242,17 +242,21 @@ def test_colorbar_closed_patch():
     cmap = get_cmap("RdBu", lut=5)
 
     im = ax1.pcolormesh(np.linspace(0, 10, 16).reshape((4, 4)), cmap=cmap)
-    values = np.linspace(0, 10, 5)
 
+    # The use of a "values" kwarg here is unusual.  It works only
+    # because it is matched to the data range in the image and to
+    # the number of colors in the LUT.
+    values = np.linspace(0, 10, 5)
+    cbar_kw = dict(cmap=cmap, orientation='horizontal', values=values,
+                   ticks=[])
+
+    # The wide line is to show that the closed path is being handled
+    # correctly.  See PR #4186.
     with rc_context({'axes.linewidth': 16}):
-        plt.colorbar(im, cax=ax2, cmap=cmap, orientation='horizontal',
-                     extend='both', extendfrac=0.5, values=values)
-        plt.colorbar(im, cax=ax3, cmap=cmap, orientation='horizontal',
-                     extend='both', values=values)
-        plt.colorbar(im, cax=ax4, cmap=cmap, orientation='horizontal',
-                     extend='both', extendrect=True, values=values)
-        plt.colorbar(im, cax=ax5, cmap=cmap, orientation='horizontal',
-                     extend='neither', values=values)
+        plt.colorbar(im, cax=ax2, extend='both', extendfrac=0.5, **cbar_kw)
+        plt.colorbar(im, cax=ax3, extend='both', **cbar_kw)
+        plt.colorbar(im, cax=ax4, extend='both', extendrect=True, **cbar_kw)
+        plt.colorbar(im, cax=ax5, extend='neither', **cbar_kw)
 
 
 def test_colorbar_ticks():
