@@ -181,7 +181,10 @@ animatplot
 producing interactive animated plots with the goal of making production of
 animated plots almost as easy as static ones.
 
-.. image:: /_static/animatplot.gif
+.. image:: /_static/animatplot.png
+
+For an animated version of the above picture, see above the animatplot docs
+linked above.
 
 Miscellaneous
 *************
