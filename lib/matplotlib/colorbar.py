@@ -791,7 +791,7 @@ class ColorbarBase(cm.ScalarMappable):
             self._values = np.array(self.values)
             if self.boundaries is None:
                 b = np.zeros(len(self.values) + 1)
-                b[1:-1] = 0.5 * (self._values[:-1] - self._values[1:])
+                b[1:-1] = 0.5 * (self._values[:-1] + self._values[1:])
                 b[0] = 2.0 * b[1] - b[2]
                 b[-1] = 2.0 * b[-2] - b[-3]
                 self._boundaries = b
