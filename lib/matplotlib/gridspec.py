@@ -191,12 +191,10 @@ class GridSpecBase:
 
         if axs is None:
             axs = self.figure.get_axes()
-        padding = kwargs.pop('borderaxespad', 2.0)
+        padding = kwargs.pop('borderaxespad', rcParams["legend.borderaxespad"])
 
         # convert padding from points to figure relative units....
-        padding = padding / 72.0
-        paddingw = padding / self.figure.get_size_inches()[0]
-        paddingh = padding / self.figure.get_size_inches()[1]
+
 
         handles, labels, extra_args, kwargs = legend._parse_legend_args(
                 axs, handles=handles, labels=labels, **kwargs)
@@ -220,6 +218,10 @@ class GridSpecBase:
                 stack = 'top'
             elif leg._loc in [3, 4]:
                 stack = 'bottom'
+
+        padding = padding * leg._fontsize / 72.0
+        paddingw = padding / self.figure.get_size_inches()[0]
+        paddingh = padding / self.figure.get_size_inches()[1]
 
         for child in self._layoutbox.children:
             if child._is_subplotspec_layoutbox():
