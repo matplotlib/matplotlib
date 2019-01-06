@@ -67,6 +67,9 @@ class TextToPath(object):
         char_id = urllib.parse.quote('%s-%d' % (ps_name, ccode))
         return char_id
 
+    @cbook.deprecated(
+        "3.1",
+        alternative="font.get_path() and manual translation of the vertices")
     def glyph_to_path(self, font, currx=0.):
         """
         convert the ft2font glyph to vertices and codes.
@@ -215,7 +218,7 @@ class TextToPath(object):
 
             char_id = self._get_char_id(font, ccode)
             if char_id not in glyph_map:
-                glyph_map_new[char_id] = self.glyph_to_path(font)
+                glyph_map_new[char_id] = font.get_path()
 
             currx += kern / 64
 
@@ -266,7 +269,7 @@ class TextToPath(object):
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-                glyph_map_new[char_id] = self.glyph_to_path(font)
+                glyph_map_new[char_id] = font.get_path()
 
             xpositions.append(ox)
             ypositions.append(oy)
@@ -343,7 +346,7 @@ class TextToPath(object):
 
                     glyph0 = font.load_char(glyph, flags=ft2font_flag)
 
-                glyph_map_new[char_id] = self.glyph_to_path(font)
+                glyph_map_new[char_id] = font.get_path()
 
             glyph_ids.append(char_id)
             xpositions.append(x1)
