@@ -1774,14 +1774,21 @@ class Axes3D(Axes):
         mask = ~np.isnan(shade)
 
         if mask.any():
-            norm = Normalize(min(shade[mask]), max(shade[mask]))
-            shade[~mask] = min(shade[mask])
+            # convert dot product to allowed shading fractions
+            in_norm = Normalize(-1, 1)
+            out_norm = Normalize(0.3, 1).inverse
+
+            def norm(x):
+                return out_norm(in_norm(x))
+
+            shade[~mask] = 0
+
             color = mcolors.to_rgba_array(color)
             # shape of color should be (M, 4) (where M is number of faces)
             # shape of shade should be (M,)
             # colors should have final shape of (M, 4)
             alpha = color[:, 3]
-            colors = (0.5 + norm(shade)[:, np.newaxis] * 0.5) * color
+            colors = norm(shade)[:, np.newaxis] * color
             colors[:, 3] = alpha
         else:
             colors = np.asanyarray(color).copy()
