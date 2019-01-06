@@ -10,21 +10,18 @@ import gzip
 
 import numpy as np
 
-# cairocffi is more widely compatible than pycairo so try it first.
 try:
-    import cairocffi as cairo
+    import cairo
+    if cairo.version_info < (1, 11, 0):
+        # Introduced create_for_data for Py3.
+        raise ImportError
 except ImportError:
     try:
-        import cairo
+        import cairocffi as cairo
     except ImportError:
-        raise ImportError("cairo backend requires that cairocffi or pycairo "
-                          "is installed")
-    else:
-        if cairo.version_info < (1, 11, 0):
-            # Introduced create_for_data for Py3.
-            raise ImportError(
-                "cairo {} is installed; cairo>=1.11.0 is required"
-                .format(cairo.version))
+        raise ImportError(
+            "cairo backend requires that pycairo>=1.11.0 or cairocffi"
+            "is installed")
 
 backend_version = cairo.version
 
