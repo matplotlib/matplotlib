@@ -183,7 +183,7 @@ animated plots almost as easy as static ones.
 
 .. image:: /_static/animatplot.png
 
-For an animated version of the above picture, see above the animatplot docs
+For an animated version of the above picture, see the animatplot docs
 linked above.
 
 Miscellaneous
