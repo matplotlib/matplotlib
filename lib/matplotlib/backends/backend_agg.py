@@ -453,7 +453,9 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     print_rgba = print_raw
 
-    def print_png(self, filename_or_obj, *args, **kwargs):
+    def print_png(self, filename_or_obj, *args,
+                  metadata=None, pil_kwargs=None,
+                  **kwargs):
         """
         Write the figure to a PNG file.
 
@@ -494,21 +496,45 @@ class FigureCanvasAgg(FigureCanvasBase):
             .. _PNG specification: \
                 https://www.w3.org/TR/2003/REC-PNG-20031110/#11keywords
 
+        pil_kwargs : dict, optional
+            If set to a non-None value, use Pillow to save the figure instead
+            of Matplotlib's builtin PNG support, and pass these keyword
+            arguments to `PIL.Image.save`.
+
+            If the 'pnginfo' key is present, it completely overrides
+            *metadata*, including the default 'Software' key.
         """
-        FigureCanvasAgg.draw(self)
-        renderer = self.get_renderer()
 
-        version_str = (
-            'matplotlib version ' + __version__ + ', http://matplotlib.org/')
-        metadata = OrderedDict({'Software': version_str})
-        user_metadata = kwargs.pop("metadata", None)
-        if user_metadata is not None:
-            metadata.update(user_metadata)
+        if metadata is None:
+            metadata = {}
+        metadata = {
+            "Software":
+                f"matplotlib version{__version__}, http://matplotlib.org/",
+            **metadata,
+        }
 
-        with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
-                cbook.open_file_cm(filename_or_obj, "wb") as fh:
-            _png.write_png(renderer._renderer, fh,
-                           self.figure.dpi, metadata=metadata)
+        if pil_kwargs is not None:
+            from PIL import Image
+            from PIL.PngImagePlugin import PngInfo
+            buf, size = self.print_to_buffer()
+            # Only use the metadata kwarg if pnginfo is not set, because the
+            # semantics of duplicate keys in pnginfo is unclear.
+            if "pnginfo" not in pil_kwargs:
+                pnginfo = PngInfo()
+                for k, v in metadata.items():
+                    pnginfo.add_text(k, v)
+                pil_kwargs["pnginfo"] = pnginfo
+            pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+            (Image.frombuffer("RGBA", size, buf, "raw", "RGBA", 0, 1)
+             .save(filename_or_obj, format="png", **pil_kwargs))
+
+        else:
+            FigureCanvasAgg.draw(self)
+            renderer = self.get_renderer()
+            with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
+                    cbook.open_file_cm(filename_or_obj, "wb") as fh:
+                _png.write_png(renderer._renderer, fh,
+                               self.figure.dpi, metadata=metadata)
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)

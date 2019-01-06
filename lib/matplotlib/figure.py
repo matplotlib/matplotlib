@@ -2106,7 +2106,8 @@ default: 'top'
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to `PIL.Image.save`
             when saving the figure.  Only applicable for formats that are saved
-            using Pillow, i.e. JPEG and TIFF.
+            using Pillow, i.e. JPEG, TIFF, and (if the keyword is set to a
+            non-None value) PNG.
         """
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
