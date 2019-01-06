@@ -1372,12 +1372,16 @@ if os.environ.get('MPLBACKEND'):
 
 def get_backend():
     """
-    Return the name of the current backend.
+    Return the name of the current backend or 'unselected' if no backend has
+    been selected yet.
 
     See Also
     --------
     matplotlib.use
     """
+    val = dict.__getitem__(rcParams, 'backend')
+    if val is rcsetup._auto_backend_sentinel:
+        return 'unselected'
     return rcParams['backend']
 
 
