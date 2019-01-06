@@ -6,7 +6,7 @@ cycler
 numpy
 pillow
 pyparsing
-pytest
+pytest<4.1
 pytest-cov
 pytest-faulthandler
 pytest-rerunfailures
