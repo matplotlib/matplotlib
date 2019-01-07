@@ -2093,9 +2093,7 @@ def is_decade(x, base=10):
 
 
 def is_close_to_int(x):
-    if not np.isfinite(x):
-        return False
-    return abs(x - round(x)) < 1e-10
+    return abs(x - np.round(x)) < 1e-10
 
 
 class LogLocator(Locator):
@@ -2256,7 +2254,11 @@ class LogLocator(Locator):
             # If we're a minor locator *that expects at least two ticks per
             # decade* and the major locator stride is 1 and there's no more
             # than one minor tick, switch to AutoLocator.
-            return AutoLocator().tick_values(vmin, vmax)
+            ticklocs = AutoLocator().tick_values(vmin, vmax)
+            # Don't overstrike the major labels.
+            ticklocs = ticklocs[
+                ~is_close_to_int(np.log(ticklocs) / np.log(b))]
+            return ticklocs
         return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
