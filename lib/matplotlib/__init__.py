@@ -1402,14 +1402,12 @@ Notes
 _DATA_DOC_APPENDIX = """
 
 .. note::
-    In addition to the above described arguments, this function can take a
-    **data** keyword argument. If such a **data** argument is given, the
-    following arguments are replaced by **data[<arg>]**:
+    In addition to the above described arguments, this function can take
+    a *data* keyword argument. If such a *data* argument is given,
+{replaced}
 
-    {replaced}
-
-    Objects passed as **data** must support item access (``data[<arg>]``) and
-    membership test (``<arg> in data``).
+    Objects passed as **data** must support item access (``data[s]``) and
+    membership test (``s in data``).
 """
 
 
@@ -1429,13 +1427,17 @@ def _add_data_doc(docstring, replace_names):
     -------
         The augmented docstring.
     """
-    docstring = inspect.cleandoc(docstring) if docstring is not None else ""
-    repl = ("* All positional and all keyword arguments."
-            if replace_names is None else
-            ""
-            if len(replace_names) == 0 else
-            "* All arguments with the following names: {}.".format(
-                ", ".join(map(repr, sorted(replace_names)))))
+    if (docstring is None
+            or replace_names is not None and len(replace_names) == 0):
+        return docstring
+    docstring = inspect.cleandoc(docstring)
+    repl = (
+        ("    every other argument can also be string ``s``, which is\n"
+         "    interpreted as ``data[s]`` (unless this raises an exception).")
+        if replace_names is None else
+        ("    the following arguments can also be string ``s``, which is\n"
+         "    interpreted as ``data[s]`` (unless this raises an exception):\n"
+         "    " + ", ".join(map("*{}*".format, replace_names))) + ".")
     addendum = _DATA_DOC_APPENDIX.format(replaced=repl)
     if _DATA_DOC_TITLE not in docstring:
         addendum = _DATA_DOC_TITLE + addendum
