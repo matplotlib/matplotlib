@@ -559,6 +559,7 @@ _find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 _dedent_regex = {}
 
 
+@deprecated("3.1", alternative="inspect.cleandoc")
 def dedent(s):
     """
     Remove excess indentation from docstring *s*.

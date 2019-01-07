@@ -1,3 +1,6 @@
+import inspect
+import textwrap
+
 import numpy as np
 from numpy import ma
 
@@ -668,18 +671,17 @@ def scale_factory(scale, axis, **kwargs):
     """
     Return a scale class by name.
 
-    ACCEPTS: [ %(names)s ]
+    Parameters
+    ----------
+    scale : {%(names)s}
+    axis : Axis
     """
     scale = scale.lower()
-    if scale is None:
-        scale = 'linear'
-
     if scale not in _scale_mapping:
         raise ValueError("Unknown scale type '%s'" % scale)
-
     return _scale_mapping[scale](axis, **kwargs)
-scale_factory.__doc__ = cbook.dedent(scale_factory.__doc__) % \
-    {'names': " | ".join(get_scale_names())}
+scale_factory.__doc__ = scale_factory.__doc__ % {
+    "names": ", ".join(get_scale_names())}
 
 
 def register_scale(scale_class):
@@ -706,15 +708,13 @@ def _get_scale_docs():
     Helper function for generating docstrings related to scales.
     """
     docs = []
-    for name in get_scale_names():
-        scale_class = _scale_mapping[name]
-        docs.append("    '%s'" % name)
-        docs.append("")
-        class_docs = cbook.dedent(scale_class.__init__.__doc__)
-        class_docs = "".join(["        %s\n" %
-                              x for x in class_docs.split("\n")])
-        docs.append(class_docs)
-        docs.append("")
+    for name, scale_class in _scale_mapping.items():
+        docs.extend([
+            f"    {name!r}",
+            "",
+            textwrap.indent(inspect.getdoc(scale_class.__init__), " " * 8),
+            ""
+        ])
     return "\n".join(docs)
 
 

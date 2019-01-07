@@ -1,5 +1,6 @@
 import contextlib
 import functools
+import inspect
 import math
 from numbers import Number
 import textwrap
@@ -2435,8 +2436,8 @@ class BoxStyle(_Style):
             return Path(saw_vertices, codes)
 
     if __doc__:  # __doc__ could be None if -OO optimization is enabled
-        __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableBoxstyles": _pprint_styles(_style_list)}
+        __doc__ = inspect.cleandoc(__doc__) % {
+            "AvailableBoxstyles": _pprint_styles(_style_list)}
 
 docstring.interpd.update(
     AvailableBoxstyles=_pprint_styles(BoxStyle._style_list),
@@ -3104,8 +3105,8 @@ class ConnectionStyle(_Style):
             return Path(vertices, codes)
 
     if __doc__:
-        __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableConnectorstyles": _pprint_styles(_style_list)}
+        __doc__ = inspect.cleandoc(__doc__) % {
+            "AvailableConnectorstyles": _pprint_styles(_style_list)}
 
 
 def _point_along_a_line(x0, y0, x1, y1, d):
@@ -3895,8 +3896,8 @@ class ArrowStyle(_Style):
             return path, True
 
     if __doc__:
-        __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableArrowstyles": _pprint_styles(_style_list)}
+        __doc__ = inspect.cleandoc(__doc__) % {
+            "AvailableArrowstyles": _pprint_styles(_style_list)}
 
 
 docstring.interpd.update(
