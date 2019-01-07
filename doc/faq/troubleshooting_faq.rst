@@ -120,10 +120,16 @@ provide the following information in your e-mail to the `mailing list
 
      python -c "from logging import *; basicConfig(level=DEBUG); from pylab import *; plot(); show()"
 
+  If you want to trigger logging in a script, it can be done with helper
+  functions::
 
-  If you want to put the debugging hooks in your own code, then the
-  most simple way to do so is to insert the following *before* any calls
-  to ``import matplotlib``::
+    import matplotlib.pyplot as plt
+    plt.set_loglevel(level='info')  # or plt.set_loglevel(level='debug')
+
+
+  If you want to put full debugging hooks in your own code, including
+  debug information when matplotlib starts up, then the way to do so is to
+  insert the following *before* any calls to ``import matplotlib``::
 
     import logging
     logging.basicConfig(level=logging.DEBUG)

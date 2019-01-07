@@ -207,14 +207,35 @@ if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
 
-_verbose_msg = """\
-matplotlib.verbose is deprecated;
-Command line argument --verbose-LEVEL is deprecated.
-This functionality is now provided by the standard
-python logging library.  To get more (or less) logging output:
-    import logging
-    logger = logging.getLogger('matplotlib')
-    logger.set_level(logging.INFO)"""
+def set_loglevel(level='info'):
+    """
+    Shortcut to set the logging level of the logging module.
+
+    Parameters
+    ----------
+    level : str or bool
+        If True set logging level to "INFO" for matplotlib module.
+        If FALSE set logging level to "WARNING" for matplotlib module (this
+        is the default level if ``set_loglevel`` is not called). If a string,
+        must be one of ['warning', 'info', 'debug'], in order of increasing
+        verbosity.
+
+    Notes
+    -----
+    This is the same as the standard python `logging` module::
+
+        import logging
+
+        _log = logging.getLogger(__name__)
+        _log.setLevel(logging.INFO)  # or logging.WARNING, logging.INFO
+
+    """
+
+    if level is True:
+        level = 'info'
+    if level is False:
+        level = 'warning'
+    _set_logger_verbose_level(level_str=level.lower())
 
 
 def _set_logger_verbose_level(level_str='silent', file_str='sys.stdout'):

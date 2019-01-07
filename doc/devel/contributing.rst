@@ -448,6 +448,11 @@ Then they will receive messages like::
   matplotlib.yourmodulename: 347 - INFO - Here is some information
   matplotlib.yourmodulename: 348 - DEBUG - Here is some more detailed information
 
+More straight forward helper methods are available to end-users as well::
+
+  import matplotlib.pyplot as plt
+  plt.set_loglevel(level='info')  # or plt.set_loglevel(level='debug')
+
 Which logging level to use?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

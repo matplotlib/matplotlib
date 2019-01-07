@@ -1997,6 +1997,32 @@ def colormaps():
     return sorted(cm.cmap_d)
 
 
+def set_loglevel(level='info'):
+    """
+    Shortcut to set the debugging level of the logging module.
+
+    Parameters
+    ----------
+    level : str or bool (optional)
+        If *True* (default) set logging level to "INFO" for matplotlib module.
+        If *False* set logging level to "WARNING" for matplotlib module (this
+        is the default level if ``verbose`` is not called). If a string, must
+        be one of ['warning', 'info', 'debug'], in order of increasing
+        verbosity.
+
+    Notes
+    -----
+    This is the same as the standard python `logging` module::
+
+        import logging
+
+        _log = logging.getLogger(__name__)
+        _log.setLevel(logging.DEBUG)  # or logging.WARNING, logging.INFO
+
+    """
+    matplotlib.set_loglevel(level=level)
+
+
 def _setup_pyplot_info_docstrings():
     """
     Generates the plotting docstring.
