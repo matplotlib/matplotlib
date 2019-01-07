@@ -14,12 +14,16 @@ class:`.UnitData` that creates and stores the string-to-integer mapping.
 from collections import OrderedDict
 import dateutil.parser
 import itertools
+import logging
 
 import numpy as np
 
 import matplotlib.cbook as cbook
 import matplotlib.units as units
 import matplotlib.ticker as ticker
+
+
+_log = logging.getLogger(__name__)
 
 
 class StrCategoryConverter(units.ConversionInterface):
@@ -216,10 +220,10 @@ class UnitData(object):
                 self._mapping[val] = next(self._counter)
         # check if we can convert all strings to number or date...
         if self._strs_are_convertible(data):
-            cbook._warn_external('using category units to plot a list of '
-                          'strings that is a;; floats or parsable as dates. '
-                          'If you do not mean these to be categories, cast '
-                          'to the approriate data type before plotting.')
+            _log.info('using category units to plot a list of '
+                      'strings that is a;; floats or parsable as dates. '
+                      'If you do not mean these to be categories, cast '
+                      'to the approriate data type before plotting.')
 
 
 # Register the converter with Matplotlib's unit framework

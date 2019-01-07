@@ -203,8 +203,7 @@ class TestPlotNumlike(object):
     @pytest.mark.parametrize("ndata", numlike_data, ids=numlike_ids)
     def test_plot_numlike(self, ax, plotter, ndata):
         counts = np.array([4, 6, 5])
-        with pytest.warns(UserWarning, match='using category units to plot'):
-            plotter(ax, ndata, counts)
+        plotter(ax, ndata, counts)
         axis_test(ax.xaxis, ndata)
 
 
@@ -262,14 +261,12 @@ class TestPlotTypes(object):
 
     PLOT_BROKEN_IDS = ["scatter", "plot", "bar"]
 
-    @pytest.mark.filterwarnings('ignore::UserWarning')
     @pytest.mark.parametrize("plotter", PLOT_BROKEN_LIST, ids=PLOT_BROKEN_IDS)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
     def test_mixed_type_exception(self, ax, plotter, xdata):
         with pytest.raises(TypeError):
             plotter(ax, xdata, [1, 2])
 
-    @pytest.mark.filterwarnings('ignore::UserWarning')
     @pytest.mark.parametrize("plotter", PLOT_BROKEN_LIST, ids=PLOT_BROKEN_IDS)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
     def test_mixed_type_update_exception(self, ax, plotter, xdata):
