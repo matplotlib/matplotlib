@@ -6845,7 +6845,8 @@ optional.
             return tops, bins, cbook.silent_list('Lists of Patches', patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"])
-    def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
+    @cbook._rename_parameter("3.1", "normed", "density")
+    def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
         Make a 2D histogram plot.
@@ -6879,8 +6880,9 @@ optional.
              xmax], [ymin, ymax]]``. All values outside of this range will be
              considered outliers and not tallied in the histogram.
 
-        normed : bool, optional, default: False
-             Normalize histogram.
+        density : bool, optional, default: False
+             Normalize histogram.  *normed* is a deprecated synonym for this
+             parameter.
 
         weights : array_like, shape (n, ), optional, default: None
             An array of values w_i weighing each sample (x_i, y_i).
@@ -6939,7 +6941,7 @@ optional.
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
-                                           normed=normed, weights=weights)
+                                           normed=density, weights=weights)
 
         if cmin is not None:
             h[h < cmin] = None

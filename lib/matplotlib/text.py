@@ -1971,7 +1971,8 @@ class Annotation(Text, _AnnotationBase):
     def __str__(self):
         return "Annotation(%g, %g, %r)" % (self.xy[0], self.xy[1], self._text)
 
-    def __init__(self, s, xy,
+    @cbook._rename_parameter("3.1", "s", "text")
+    def __init__(self, text, xy,
                  xytext=None,
                  xycoords='data',
                  textcoords=None,
@@ -1979,7 +1980,7 @@ class Annotation(Text, _AnnotationBase):
                  annotation_clip=None,
                  **kwargs):
         """
-        Annotate the point *xy* with text *s*.
+        Annotate the point *xy* with text *text*.
 
         In the simplest form, the text is placed at *xy*.
 
@@ -1989,8 +1990,9 @@ class Annotation(Text, _AnnotationBase):
 
         Parameters
         ----------
-        s : str
-            The text of the annotation.
+        text : str
+            The text of the annotation.  *s* is a deprecated synonym for this
+            parameter.
 
         xy : (float, float)
             The point *(x,y)* to annotate.
@@ -2165,7 +2167,7 @@ class Annotation(Text, _AnnotationBase):
             xytext = self.xy
         x, y = xytext
 
-        Text.__init__(self, x, y, s, **kwargs)
+        Text.__init__(self, x, y, text, **kwargs)
 
         self.arrowprops = arrowprops
 
