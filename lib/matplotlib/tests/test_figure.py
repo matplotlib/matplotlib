@@ -116,7 +116,7 @@ def test_clf_keyword():
 def test_figure():
     # named figure support
     fig = plt.figure('today')
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     ax.set_title(fig.get_label())
     ax.plot(np.arange(5))
     # plot red line in a different figure.
