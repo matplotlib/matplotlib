@@ -10,8 +10,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import cbook, rcParams
-from matplotlib.cbook import (
-    _OrderedSet, _check_1d, _string_to_bool, index_of, get_label)
+from matplotlib.cbook import _OrderedSet, _check_1d, index_of, get_label
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -1322,10 +1321,7 @@ class _AxesBase(martist.Artist):
         which the adjustments for aspect ratios are done sequentially
         and independently on each Axes as it is drawn.
         """
-        if adjustable == 'box-forced':
-            cbook.warn_deprecated(
-                "2.2", name="box-forced", obj_type="keyword argument")
-        if adjustable not in ('box', 'datalim', 'box-forced'):
+        if adjustable not in ('box', 'datalim'):
             raise ValueError("argument must be 'box', or 'datalim'")
         if share:
             axes = set(self._shared_x_axes.get_siblings(self)
@@ -1491,7 +1487,7 @@ class _AxesBase(martist.Artist):
 
         figW, figH = self.get_figure().get_size_inches()
         fig_aspect = figH / figW
-        if self._adjustable in ['box', 'box-forced']:
+        if self._adjustable == 'box':
             if self in self._twinned_axes:
                 raise RuntimeError("Adjustable 'box' is not allowed in a"
                                    " twinned Axes.  Use 'datalim' instead.")
@@ -2739,9 +2735,6 @@ class _AxesBase(martist.Artist):
         """
         if len(kwargs):
             b = True
-        elif b is not None:
-            b = _string_to_bool(b)
-
         if axis not in ['x', 'y', 'both']:
             raise ValueError("The argument 'axis' must be one of 'x', 'y' or "
                              "'both'.")

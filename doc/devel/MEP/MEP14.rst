@@ -188,10 +188,10 @@ difficult to fix over time.
 
 Instead, we should be able to use FreeType to get the font outlines
 and write our own code (probably in Python) to output subsetted fonts
-(Type 3 on PS and PDF and SVGFonts or paths on SVG).  Freetype, as a
-popular and well-maintained project, handles a wide variety of fonts
-in the wild.  This would remove a lot of custom C code, and remove
-some code duplication between backends.
+(Type 3 on PS and PDF and paths on SVG).  Freetype, as a popular and
+well-maintained project, handles a wide variety of fonts in the wild.
+This would remove a lot of custom C code, and remove some code
+duplication between backends.
 
 Note that subsetting fonts this way, while the easiest route, does
 lose the hinting in the font, so we will need to continue, as we do

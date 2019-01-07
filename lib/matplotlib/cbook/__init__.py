@@ -453,21 +453,6 @@ def is_scalar_or_string(val):
     return isinstance(val, str) or not np.iterable(val)
 
 
-def _string_to_bool(s):
-    """Parses the string argument as a boolean"""
-    if not isinstance(s, str):
-        return bool(s)
-    warn_deprecated("2.2", message="Passing one of 'on', 'true', 'off', "
-                    "'false' as a boolean is deprecated; use an actual "
-                    "boolean (True/False) instead.")
-    if s.lower() in ['on', 'true']:
-        return True
-    if s.lower() in ['off', 'false']:
-        return False
-    raise ValueError('String "%s" must be one of: '
-                     '"on", "off", "true", or "false"' % s)
-
-
 def get_sample_data(fname, asfileobj=True):
     """
     Return a sample data file.  *fname* is a path relative to the
@@ -1351,51 +1336,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 # backends; the reverse mapper is for mapping full names to short ones.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 ls_mapper_r = {v: k for k, v in ls_mapper.items()}
-
-
-@deprecated('2.2')
-def align_iterators(func, *iterables):
-    """
-    This generator takes a bunch of iterables that are ordered by func
-    It sends out ordered tuples::
-
-       (func(row), [rows from all iterators matching func(row)])
-
-    It is used by :func:`matplotlib.mlab.recs_join` to join record arrays
-    """
-    class myiter:
-        def __init__(self, it):
-            self.it = it
-            self.key = self.value = None
-            self.iternext()
-
-        def iternext(self):
-            try:
-                self.value = next(self.it)
-                self.key = func(self.value)
-            except StopIteration:
-                self.value = self.key = None
-
-        def __call__(self, key):
-            retval = None
-            if key == self.key:
-                retval = self.value
-                self.iternext()
-            elif self.key and key > self.key:
-                raise ValueError("Iterator has been left behind")
-            return retval
-
-    # This can be made more efficient by not computing the minimum key for each
-    # iteration
-    iters = [myiter(it) for it in iterables]
-    minvals = minkey = True
-    while True:
-        minvals = ([_f for _f in [it.key for it in iters] if _f])
-        if minvals:
-            minkey = min(minvals)
-            yield (minkey, [it(minkey) for it in iters])
-        else:
-            break
 
 
 def contiguous_regions(mask):

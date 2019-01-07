@@ -1593,34 +1593,6 @@ class FigureCanvasBase(object):
         """
         return self._is_saving
 
-    @cbook.deprecated("2.2")
-    def onRemove(self, ev):
-        """
-        Mouse event processor which removes the top artist
-        under the cursor.  Connect this to the 'mouse_press_event'
-        using::
-
-            canvas.mpl_connect('mouse_press_event',canvas.onRemove)
-        """
-        # Find the top artist under the cursor
-        under = cbook._topmost_artist(self.figure.hitlist(ev))
-        h = None
-        if under:
-            h = under[-1]
-
-        # Try deleting that artist, or its parent if you
-        # can't delete the artist
-        while h:
-            if h.remove():
-                self.draw_idle()
-                break
-            parent = None
-            for p in under:
-                if h in p.get_children():
-                    parent = p
-                    break
-            h = parent
-
     def pick(self, mouseevent):
         if not self.widgetlock.locked():
             self.figure.pick(mouseevent)
@@ -2456,10 +2428,6 @@ class FigureManagerBase(object):
         """
         if rcParams['toolbar'] != 'toolmanager':
             key_press_handler(event, self.canvas, self.canvas.toolbar)
-
-    @cbook.deprecated("2.2")
-    def show_popup(self, msg):
-        """Display message in a popup -- GUI only."""
 
     def get_window_title(self):
         """Get the title text of the window containing the figure.

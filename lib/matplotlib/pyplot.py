@@ -33,9 +33,8 @@ import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import (
-    dedent, deprecated, silent_list, warn_deprecated, _string_to_bool)
 from matplotlib import cbook
+from matplotlib.cbook import dedent, deprecated, silent_list, warn_deprecated
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
@@ -844,18 +843,8 @@ def axes(arg=None, **kwargs):
 
     if arg is None:
         return subplot(111, **kwargs)
-
-    if isinstance(arg, Axes):
-        warn_deprecated("2.2",
-                        message="Using pyplot.axes(ax) with ax an Axes "
-                                "argument is deprecated. Please use "
-                                "pyplot.sca(ax) instead.")
-        ax = arg
-        sca(ax)
-        return ax
     else:
-        rect = arg
-        return gcf().add_axes(rect, **kwargs)
+        return gcf().add_axes(arg, **kwargs)
 
 
 def delaxes(ax=None):
@@ -1371,7 +1360,6 @@ def box(on=None):
     ax = gca()
     if on is None:
         on = not ax.get_frame_on()
-    on = _string_to_bool(on)
     ax.set_frame_on(on)
 
 ## Axis ##

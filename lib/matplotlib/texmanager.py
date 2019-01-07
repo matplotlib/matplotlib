@@ -62,8 +62,6 @@ class TexManager(object):
     # Caches.
     rgba_arrayd = {}
     grey_arrayd = {}
-    postscriptd = mpl.cbook.deprecated("2.2")(property(lambda self: {}))
-    pscnt = mpl.cbook.deprecated("2.2")(property(lambda self: 0))
 
     serif = ('cmr', '')
     sans_serif = ('cmss', '')
@@ -384,33 +382,6 @@ class TexManager(object):
                 ["dvipng", "-bg", "Transparent", "-D", str(dpi),
                  "-T", "tight", "-o", pngfile, dvifile], tex)
         return pngfile
-
-    @mpl.cbook.deprecated("2.2")
-    def make_ps(self, tex, fontsize):
-        """
-        Generate a postscript file containing latex's rendering of tex string.
-
-        Return the file name.
-        """
-        basefile = self.get_basefile(tex, fontsize)
-        psfile = '%s.epsf' % basefile
-        if not os.path.exists(psfile):
-            dvifile = self.make_dvi(tex, fontsize)
-            self._run_checked_subprocess(
-                ["dvips", "-q", "-E", "-o", psfile, dvifile], tex)
-        return psfile
-
-    @mpl.cbook.deprecated("2.2")
-    def get_ps_bbox(self, tex, fontsize):
-        """
-        Return a list of PS bboxes for latex's rendering of the tex string.
-        """
-        psfile = self.make_ps(tex, fontsize)
-        with open(psfile) as ps:
-            for line in ps:
-                if line.startswith('%%BoundingBox:'):
-                    return [int(val) for val in line.split()[1:]]
-        raise RuntimeError('Could not parse %s' % psfile)
 
     def get_grey(self, tex, fontsize=None, dpi=None):
         """Return the alpha channel."""

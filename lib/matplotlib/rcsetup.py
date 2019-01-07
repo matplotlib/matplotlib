@@ -614,10 +614,6 @@ validate_legend_loc = ValidateInStrings(
 def validate_svg_fonttype(s):
     if s in ["none", "path"]:
         return s
-    if s == "svgfont":
-        cbook.warn_deprecated(
-            "2.2", message="'svgfont' support for svg.fonttype is deprecated.")
-        return s
     raise ValueError("Unrecognized svg.fonttype string '{}'; "
                      "valid strings are 'none', 'path'")
 
