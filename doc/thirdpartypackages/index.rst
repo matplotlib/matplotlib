@@ -184,7 +184,7 @@ animated plots almost as easy as static ones.
 .. image:: /_static/animatplot.png
 
 For an animated version of the above picture and more examples, see the
-`animatplot gallery.<https://animatplot.readthedocs.io/en/stable/gallery.html>`_
+`animatplot gallery. <https://animatplot.readthedocs.io/en/stable/gallery.html>`_
 
 Miscellaneous
 *************
