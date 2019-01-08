@@ -285,18 +285,18 @@ def _rename_parameter(since, old, new, func=None):
     signature = inspect.signature(func)
     assert old not in signature.parameters, (
         f"Matplotlib internal error: {old!r} cannot be a parameter for "
-        "{func.__name__}()")
+        f"{func.__name__}()")
     assert new in signature.parameters, (
         f"Matplotlib internal error: {new!r} must be a parameter for "
-        "{func.__name__}()")
+        f"{func.__name__}()")
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if old in kwargs:
             warn_deprecated(
                 since, message=f"The {old!r} parameter of {func.__name__}() "
-                f"has been renamed {new!r} since {since}; support for the old "
-                f"name will be dropped %(removal)s.")
+                f"has been renamed {new!r} since Matplotlib {since}; support "
+                f"for the old name will be dropped %(removal)s.")
             kwargs[new] = kwargs.pop(old)
         return func(*args, **kwargs)
 
