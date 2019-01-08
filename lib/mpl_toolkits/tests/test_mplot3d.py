@@ -815,6 +815,18 @@ class TestVoxels(object):
             ax.voxels(filled=filled, x=x, y=y, z=z)
 
 
+def test_line3d_set_get_data_3d():
+    x, y, z = [0, 1], [2, 3], [4, 5]
+    x2, y2, z2 = [6, 7], [8, 9], [10, 11]
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    lines = ax.plot(x, y, z)
+    line = lines[0]
+    np.testing.assert_array_equal((x, y, z), line.get_data_3d())
+    line.set_data_3d(x2, y2, z2)
+    np.testing.assert_array_equal((x2, y2, z2), line.get_data_3d())
+
+
 def test_inverted_cla():
     # Github PR #5450. Setting autoscale should reset
     # axes to be non-inverted.

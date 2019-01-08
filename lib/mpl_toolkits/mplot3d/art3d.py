@@ -150,6 +150,40 @@ class Line3D(lines.Line2D):
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
+    def set_data_3d(self, *args):
+        """
+        Set the x, y and z data
+
+        Parameters
+        ----------
+        x : array_like
+            The x-data to be plotted
+        y : array_like
+            The y-data to be plotted
+        z : array_like
+            The z-data to be plotted
+
+        Notes
+        -----
+        Accepts x, y, z arguments or a single array_like (x, y, z)
+        """
+        if len(args) == 1:
+            self._verts3d = args[0]
+        else:
+            self._verts3d = args
+        self.stale = True
+
+    def get_data_3d(self):
+        """
+        Get the current data
+
+        Returns
+        -------
+        verts3d : length-3 tuple or array_likes
+            The current data as a tuple or array_likes
+        """
+        return self._verts3d
+
     @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
