@@ -234,7 +234,7 @@ class LayoutBox(object):
               self.bottom == bottom,
               self.top == top]
         for c in hc:
-            self.solver.addConstraint((c | strength))
+            self.solver.addConstraint(c | strength)
         # self.solver.updateVariables()
 
     def constrain_same(self, other, strength='strong'):
@@ -246,7 +246,7 @@ class LayoutBox(object):
               self.bottom == other.bottom,
               self.top == other.top]
         for c in hc:
-            self.solver.addConstraint((c | strength))
+            self.solver.addConstraint(c | strength)
 
     def constrain_left_margin(self, margin, strength='strong'):
         c = (self.left == self.parent.left + margin)
@@ -467,7 +467,7 @@ class LayoutBox(object):
               self.width == parent.width * width,
               self.height == parent.height * height]
         for c in cs:
-            self.solver.addConstraint((c | 'required'))
+            self.solver.addConstraint(c | 'required')
 
         return lb
 

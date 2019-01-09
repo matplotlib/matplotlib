@@ -584,7 +584,7 @@ class Figure(Artist):
         wspace = self._constrained_layout_pads['wspace']
         hspace = self._constrained_layout_pads['hspace']
 
-        if relative and ((w_pad is not None) or (h_pad is not None)):
+        if relative and (w_pad is not None or h_pad is not None):
             renderer0 = layoutbox.get_renderer(self)
             dpi = renderer0.dpi
             w_pad = w_pad * dpi / renderer0.width

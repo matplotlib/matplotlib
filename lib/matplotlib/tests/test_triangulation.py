@@ -56,15 +56,13 @@ def test_delaunay():
 
 
 def test_delaunay_duplicate_points():
-    # x[duplicate] == x[duplicate_of]
-    # y[duplicate] == y[duplicate_of]
     npoints = 10
     duplicate = 7
     duplicate_of = 3
 
     np.random.seed(23)
-    x = np.random.random((npoints))
-    y = np.random.random((npoints))
+    x = np.random.random(npoints)
+    y = np.random.random(npoints)
     x[duplicate] = x[duplicate_of]
     y[duplicate] = y[duplicate_of]
 
