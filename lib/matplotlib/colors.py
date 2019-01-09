@@ -305,60 +305,15 @@ hex2color = to_rgb
 
 class ColorConverter(object):
     """
-    Provides methods for converting color specifications to *RGB* or *RGBA*
+    This class is only kept for backwards compatibility.
 
-    Caching is used for more efficient conversion upon repeated calls
-    with the same argument.
-
-    Ordinarily only the single instance instantiated in this module,
-    *colorConverter*, is needed.
+    Its functionality is entirely provided by module-level functions.
     """
-
     colors = _colors_full_map
     cache = _colors_full_map.cache
-
-    @staticmethod
-    def to_rgb(arg):
-        """
-        Returns an *RGB* tuple of three floats from 0-1.
-
-        *arg* can be an *RGB* or *RGBA* sequence or a string in any of
-        several forms:
-
-            1) a letter from the set 'rgbcmykw'
-            2) a hex color string, like '#00FFFF'
-            3) a standard name, like 'aqua'
-            4) a string representation of a float, like '0.4',
-               indicating gray on a 0-1 scale
-
-        if *arg* is *RGBA*, the *A* will simply be discarded.
-        """
-        return to_rgb(arg)
-
-    @staticmethod
-    def to_rgba(arg, alpha=None):
-        """
-        Returns an *RGBA* tuple of four floats from 0-1.
-
-        For acceptable values of *arg*, see :meth:`to_rgb`.
-        In addition, if *arg* is "none" (case-insensitive),
-        then (0,0,0,0) will be returned.
-        If *arg* is an *RGBA* sequence and *alpha* is not *None*,
-        *alpha* will replace the original *A*.
-        """
-        return to_rgba(arg, alpha)
-
-    @staticmethod
-    def to_rgba_array(arg, alpha=None):
-        """
-        Returns a numpy array of *RGBA* tuples.
-
-        Accepts a single mpl color spec or a sequence of specs.
-
-        Special case to handle "no color": if *c* is "none" (case-insensitive),
-        then an empty array will be returned.  Same for an empty list.
-        """
-        return to_rgba_array(arg, alpha)
+    to_rgb = staticmethod(to_rgb)
+    to_rgba = staticmethod(to_rgba)
+    to_rgba_array = staticmethod(to_rgba_array)
 
 
 colorConverter = ColorConverter()
