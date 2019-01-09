@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import weakref
 
 import numpy as np
 from pathlib import Path
@@ -258,3 +259,51 @@ def test_failing_ffmpeg(tmpdir, monkeypatch):
                 make_animation().save("test.mpeg")
     finally:
         animation.writers.reset_available_writers()
+
+
+@pytest.mark.parametrize("cache_frame_data, weakref_assertion_fn", [
+    pytest.param(
+        False, lambda ref: ref is None, id='cache_frame_data_is_disabled'),
+    pytest.param(
+        True, lambda ref: ref is not None, id='cache_frame_data_is_enabled'),
+])
+def test_funcanimation_holding_frames(cache_frame_data, weakref_assertion_fn):
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+
+    class Frame(dict):
+        # this subclassing enables to use weakref.ref()
+        pass
+
+    def init():
+        line.set_data([], [])
+        return line,
+
+    def animate(frame):
+        line.set_data(frame['x'], frame['y'])
+        return line,
+
+    frames_generated = []
+
+    def frames_generator():
+        for _ in range(5):
+            x = np.linspace(0, 10, 100)
+            y = np.random.rand(100)
+
+            frame = Frame(x=x, y=y)
+
+            # collect weak references to frames
+            # to validate their references later
+            frames_generated.append(weakref.ref(frame))
+
+            yield frame
+
+    anim = animation.FuncAnimation(fig, animate, init_func=init,
+                                   frames=frames_generator,
+                                   cache_frame_data=cache_frame_data)
+
+    writer = NullMovieWriter()
+    anim.save('unused.null', writer=writer)
+    assert len(frames_generated) == 5
+    for f in frames_generated:
+        assert weakref_assertion_fn(f())
