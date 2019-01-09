@@ -175,6 +175,17 @@ MplDataCursor
 written by Joe Kington to provide interactive "data cursors" (clickable
 annotation boxes) for Matplotlib.
 
+animatplot
+==========
+`animatplot <https://animatplot.readthedocs.io/>`_ is a library for
+producing interactive animated plots with the goal of making production of
+animated plots almost as easy as static ones.
+
+.. image:: /_static/animatplot.png
+
+For an animated version of the above picture and more examples, see the
+`animatplot gallery. <https://animatplot.readthedocs.io/en/stable/gallery.html>`_
+
 Miscellaneous
 *************
 
