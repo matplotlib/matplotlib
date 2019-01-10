@@ -42,7 +42,6 @@ per-file-ignores =
     matplotlib/projections/geo.py: E203, E221, E502
     matplotlib/pylab.py: E501
     matplotlib/rcsetup.py: E501
-    matplotlib/sphinxext/plot_directive.py: E402
     matplotlib/tests/test_mathtext.py: E501
     matplotlib/transforms.py: E201, E202, E203, E501
     matplotlib/tri/triinterpolate.py: E201, E221
