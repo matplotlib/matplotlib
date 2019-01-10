@@ -141,6 +141,7 @@ per-file-ignores =
     examples/images_contours_and_fields/tripcolor_demo.py: E201, E402
     examples/images_contours_and_fields/triplot_demo.py: E201, E402
     examples/images_contours_and_fields/watermark_image.py: E402
+    examples/lines_bars_and_markers/errorbar_limits_simple.py: E402
     examples/lines_bars_and_markers/fill_between_demo.py: E402
     examples/lines_bars_and_markers/filled_step.py: E402
     examples/lines_bars_and_markers/joinstyle.py: E402
