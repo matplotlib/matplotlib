@@ -2255,7 +2255,8 @@ class LogLocator(Locator):
             # decade* and the major locator stride is 1 and there's no more
             # than one minor tick, switch to AutoLocator.
             ticklocs = AutoLocator().tick_values(vmin, vmax)
-            # Don't overstrike the major labels.
+            # Don't overstrike the major labels.  Assumes major locs are
+            # at b = self._base 
             ticklocs = ticklocs[
                 ~is_close_to_int(np.log(ticklocs) / np.log(b))]
             return ticklocs
