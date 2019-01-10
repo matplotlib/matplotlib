@@ -1598,10 +1598,14 @@ class FuncAnimation(TimedAnimation):
        blitting any animated artists will be drawn according to their zorder.
        However, they will be drawn on top of any previous artists, regardless
        of their zorder.  Defaults to *False*.
+
+    cache_frame_data : bool, optional
+       Controls whether frame data is cached. Defaults to *True*.
+       Disabling cache might be helpful when frames contain large objects.
     """
 
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
-                 save_count=None, **kwargs):
+                 save_count=None, *, cache_frame_data=True, **kwargs):
         if fargs:
             self._args = fargs
         else:
@@ -1648,6 +1652,8 @@ class FuncAnimation(TimedAnimation):
         # Need to reset the saved seq, since right now it will contain data
         # for a single frame from init, which is not what we want.
         self._save_seq = []
+
+        self._cache_frame_data = cache_frame_data
 
     def new_frame_seq(self):
         # Use the generating function to generate a new frame sequence
@@ -1703,8 +1709,9 @@ class FuncAnimation(TimedAnimation):
         self._save_seq = []
 
     def _draw_frame(self, framedata):
-        # Save the data for potential saving of movies.
-        self._save_seq.append(framedata)
+        if self._cache_frame_data:
+            # Save the data for potential saving of movies.
+            self._save_seq.append(framedata)
 
         # Make sure to respect save_count (keep only the last save_count
         # around)
