@@ -148,10 +148,8 @@ import textwrap
 import traceback
 import warnings
 
-from docutils import nodes
 from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.images import Image
-align = Image.align
 import jinja2  # Sphinx dependency.
 
 import matplotlib
@@ -166,6 +164,7 @@ except UserWarning:
 else:
     import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers, cbook
+align = Image.align
 
 __version__ = 2
 
@@ -175,12 +174,12 @@ __version__ = 2
 # -----------------------------------------------------------------------------
 
 
+@cbook.deprecated("3.1", alternative="PlotDirective")
 def plot_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
-    """Deprecated function-based implementation of the ``.. plot::`` directive.
+    """Implementation of the ``.. plot::`` directive.
 
-    Use PlotDirective instead.
-    See the module docstring for details on configuration.
+    See the module docstring for details.
     """
     return run(arguments, content, options, state_machine, state, lineno)
 
@@ -270,17 +269,14 @@ class PlotDirective(Directive):
     def run(self):
         """Run the plot directive."""
         return run(self.arguments, self.content, self.options,
-                   self.state_machine, self.state, self.lineno,
-                   function=False)
+                   self.state_machine, self.state, self.lineno)
 
 
 def setup(app):
+    import matplotlib
     setup.app = app
     setup.config = app.config
     setup.confdir = app.confdir
-    # Old, function-based method was equivalent to:
-    # app.add_directive('plot', plot_directive, True, (0, 2, False),
-    #                   **PlotDirective.option_spec)
     app.add_directive('plot', PlotDirective)
     app.add_config_value('plot_pre_code', None, True)
     app.add_config_value('plot_include_source', False, True)
@@ -296,7 +292,7 @@ def setup(app):
     app.connect('doctree-read', mark_plot_labels)
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
-                'version': 0.2}
+                'version': matplotlib.__version__}
     return metadata
 
 
@@ -653,8 +649,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
     return results
 
 
-def run(arguments, content, options, state_machine, state, lineno,
-        function=True):
+def run(arguments, content, options, state_machine, state, lineno):
     document = state_machine.document
     config = document.settings.env.config
     nofigs = 'nofigs' in options
@@ -824,6 +819,9 @@ def run(arguments, content, options, state_machine, state, lineno,
         total_lines.extend(result.split("\n"))
         total_lines.extend("\n")
 
+    if total_lines:
+        state_machine.insert_input(total_lines, source=source_file_name)
+
     # copy image files to builder's output directory, if necessary
     Path(dest_dir).mkdir(parents=True, exist_ok=True)
 
@@ -839,14 +837,4 @@ def run(arguments, content, options, state_machine, state, lineno,
         unescape_doctest(code) if source_file_name == rst_file else code,
         encoding='utf-8')
 
-    if function:
-        if total_lines:
-            state_machine.insert_input(total_lines, source=source_file_name)
-        out = errors
-    else:
-        if len(errors):
-            out = errors
-        else:
-            out = [nodes.raw('\n'.join(total_lines))] if total_lines else []
-
-    return out
+    return errors
