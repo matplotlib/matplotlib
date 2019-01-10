@@ -1641,18 +1641,15 @@ class LightSource(object):
     def shade_rgb(self, rgb, elevation, fraction=1., blend_mode='hsv',
                   vert_exag=1, dx=1, dy=1, **kwargs):
         """
-        Take the input RGB array (ny*nx*3) adjust their color values
-        to given the impression of a shaded relief map with a
-        specified light source using the elevation (ny*nx).
-        A new RGB array ((ny*nx*3)) is returned.
+        Use this light source to adjust the colors of the *rgb* input array to
+        give the impression of a shaded relief map with the given `elevation`.
 
         Parameters
         ----------
         rgb : array-like
-            An MxNx3 RGB array, assumed to be in the range of 0 to 1.
+            An (M, N, 3) RGB array, assumed to be in the range of 0 to 1.
         elevation : array-like
-            A 2d array (or equivalent) of the height values used to generate a
-            shaded map.
+            An (M, N) array of the height values used to generate a shaded map.
         fraction : number
             Increases or decreases the contrast of the hillshade.  Values
             greater than one will cause intermediate values to move closer to
@@ -1684,7 +1681,7 @@ class LightSource(object):
         Returns
         -------
         shaded_rgb : ndarray
-            An MxNx3 array of floats ranging between 0-1.
+            An (m, n, 3) array of floats ranging between 0-1.
         """
         # Calculate the "hillshade" intensity.
         intensity = self.hillshade(elevation, vert_exag, dx, dy, fraction)

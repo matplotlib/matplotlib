@@ -1034,12 +1034,9 @@ class AxisArtist(martist.Artist):
 
         for loc, angle_normal, angle_tangent, label in tick_iter:
             angle_label = angle_tangent - 90 + ticklabel_add_angle
-
-            if np.cos((angle_label - angle_normal)/180.*np.pi) < 0.:
-                angle_tick = angle_normal
-            else:
-                angle_tick = angle_normal + 180
-
+            angle_tick = (angle_normal
+                          if 90 <= (angle_label - angle_normal) % 360 <= 270
+                          else angle_normal + 180)
             ticks_loc_angle.append([loc, angle_tick])
             ticklabels_loc_angle_label.append([loc, angle_label, label])
 

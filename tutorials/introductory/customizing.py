@@ -86,7 +86,7 @@ print(plt.style.available)
 # for limiting your changes to a specific scope. To isolate your styling
 # changes, you can write something like the following:
 
-with plt.style.context(('dark_background')):
+with plt.style.context('dark_background'):
     plt.plot(np.sin(np.linspace(0, 2 * np.pi)), 'r-o')
 plt.show()
 
