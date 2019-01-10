@@ -1,0 +1,13 @@
+Changes to the wx backend
+`````````````````````````
+
+- ``FigureFrameWx`` no longer attaches a ``FigureManagerWx``
+  to the figure.  Instead, the ``FigureManagerWx`` is
+  now created by ``backend_wx.new_figure_manager`` or
+  ``backend_wx.new_figure_manager_given_figure``, consistently with the
+  other backends.  Accordingly, the ``FigureFrameWx.figmgr`` attribute
+  and ``FigureFrameWx.get_figure_manager`` method are deprecated (use the
+  cross-backend ``figure.canvas.manager`` instead).
+- The *frame* argument and attribute of ``FigureManagerWx`` are deprecated, for
+  consistency with other backends.  The ``FigureManagerWx.window``
+  attribute is now always set to the canvas' parent.

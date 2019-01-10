@@ -879,12 +879,13 @@ class FigureFrameWx(wx.Frame):
         # By adding toolbar in sizer, we are able to put it at the bottom
         # of the frame - so appearance is closer to GTK version
 
-        self.figmgr = FigureManagerWx(self.canvas, num, self)
+        # Attach manager to self.canvas.
+        FigureManagerWx(self.canvas, num)
 
         self.toolbar = self._get_toolbar()
 
-        if self.figmgr.toolmanager:
-            backend_tools.add_tools_to_manager(self.figmgr.toolmanager)
+        if self.canvas.manager.toolmanager:
+            backend_tools.add_tools_to_manager(self.canvas.manager.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
 
@@ -907,7 +908,7 @@ class FigureFrameWx(wx.Frame):
 
     @property
     def toolmanager(self):
-        return self.figmgr.toolmanager
+        return self.canvas.manager.toolmanager
 
     def _get_toolbar(self):
         if mpl.rcParams['toolbar'] == 'toolbar2':
@@ -921,6 +922,14 @@ class FigureFrameWx(wx.Frame):
     def get_canvas(self, fig):
         return FigureCanvasWx(self, -1, fig)
 
+    @_api.deprecated("3.5", alternative="frame.canvas.manager or "
+                     "FigureManagerWx(frame.canvas, num)")
+    @property
+    def figmgr(self):
+        return self.canvas.manager
+
+    @_api.deprecated("3.5", alternative="frame.canvas.manager or "
+                     "FigureManagerWx(frame.canvas, num)")
     def get_figure_manager(self):
         _log.debug("%s - get_figure_manager()", type(self))
         return self.figmgr
@@ -931,9 +940,9 @@ class FigureFrameWx(wx.Frame):
         self.canvas.stop_event_loop()
         # set FigureManagerWx.frame to None to prevent repeated attempts to
         # close this frame from FigureManagerWx.destroy()
-        self.figmgr.frame = None
+        self.canvas.manager.window = None
         # remove figure manager from Gcf.figs
-        Gcf.destroy(self.figmgr)
+        Gcf.destroy(self.canvas.manager)
         # Carry on with close event propagation, frame & children destruction
         event.Skip()
 
@@ -966,22 +975,21 @@ class FigureManagerWx(FigureManagerBase):
 
     Attributes
     ----------
-    canvas : `FigureCanvas`
-        a FigureCanvasWx(wx.Panel) instance
+    canvas : FigureCanvasWx
     window : wxFrame
-        a wxFrame instance - wxpython.org/Phoenix/docs/html/Frame.html
     """
 
-    def __init__(self, canvas, num, frame):
+    @_api.delete_parameter("3.5", "frame")
+    def __init__(self, canvas, num, frame=None):
         _log.debug("%s - __init__()", type(self))
-        self.frame = self.window = frame
+        self.frame = self.window = canvas.GetParent()
         self._initializing = True
         super().__init__(canvas, num)
         self._initializing = False
 
     @property
     def toolbar(self):
-        return self.frame.GetToolBar()
+        return self.window.GetToolBar()
 
     @toolbar.setter
     def toolbar(self, value):
@@ -992,15 +1000,15 @@ class FigureManagerWx(FigureManagerBase):
 
     def show(self):
         # docstring inherited
-        self.frame.Show()
+        self.window.Show()
         self.canvas.draw()
         if mpl.rcParams['figure.raise_window']:
-            self.frame.Raise()
+            self.window.Raise()
 
     def destroy(self, *args):
         # docstring inherited
         _log.debug("%s - destroy()", type(self))
-        frame = self.frame
+        frame = self.window
         if frame:  # Else, may have been already deleted, e.g. when closing.
             # As this can be called from non-GUI thread from plt.close use
             # wx.CallAfter to ensure thread safety.
@@ -1008,7 +1016,7 @@ class FigureManagerWx(FigureManagerBase):
 
     def full_screen_toggle(self):
         # docstring inherited
-        self.frame.ShowFullScreen(not self.frame.IsFullScreen())
+        self.window.ShowFullScreen(not self.window.IsFullScreen())
 
     def get_window_title(self):
         # docstring inherited
@@ -1388,11 +1396,11 @@ class _BackendWx(_Backend):
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):
         frame = cls._frame_class(num, figure)
-        figmgr = frame.get_figure_manager()
+        manager = FigureManagerWx(figure.canvas, num)
         if mpl.is_interactive():
-            figmgr.frame.Show()
+            frame.Show()
             figure.canvas.draw_idle()
-        return figmgr
+        return manager
 
     @staticmethod
     def mainloop():
