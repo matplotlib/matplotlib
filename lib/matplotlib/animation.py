@@ -625,7 +625,7 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
         # If you have a lot of frames in your animation and set logging to
         # DEBUG, you will have a buffer overrun.
         if _log.getEffectiveLevel() > logging.DEBUG:
-            args += ['-loglevel', 'quiet']
+            args += ['-loglevel', 'error']
         args += ['-i', 'pipe:'] + self.output_args
         return args
 
