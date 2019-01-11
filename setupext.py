@@ -1162,8 +1162,10 @@ class BackendTkAgg(OptionalBackendPackage):
     def add_flags(self, ext):
         ext.include_dirs.insert(0, 'src')
         if sys.platform == 'win32':
-            # PSAPI library needed for finding Tcl/Tk at run time
-            ext.libraries.extend(['psapi'])
+            # psapi library needed for finding Tcl/Tk at run time.
+            # user32 library needed for window manipulation functions.
+            ext.libraries.extend(['psapi', 'user32'])
+            ext.extra_link_args.extend(["-mwindows"])
         elif sys.platform == 'linux':
             ext.libraries.extend(['dl'])
 
@@ -1186,32 +1188,6 @@ class BackendMacOSX(OptionalBackendPackage):
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         if platform.python_implementation().lower() == 'pypy':
             ext.extra_compile_args.append('-DPYPY=1')
-        return ext
-
-
-class Windowing(OptionalBackendPackage):
-    """
-    Builds the windowing extension.
-    """
-    name = "windowing"
-
-    def check_requirements(self):
-        if sys.platform != 'win32':
-            raise CheckFailed("Microsoft Windows only")
-        config = self.get_config()
-        if config is False:
-            raise CheckFailed("skipping due to configuration")
-        return ""
-
-    def get_extension(self):
-        sources = [
-            "src/_windowing.cpp"
-            ]
-        ext = make_extension('matplotlib._windowing', sources)
-        ext.include_dirs.extend(['C:/include'])
-        ext.libraries.extend(['user32'])
-        ext.library_dirs.extend(['C:/lib'])
-        ext.extra_link_args.append("-mwindows")
         return ext
 
 

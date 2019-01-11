@@ -23,7 +23,7 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 try:
-    from matplotlib._windowing import GetForegroundWindow, SetForegroundWindow
+    from ._tkagg import Win32_GetForegroundWindow, Win32_SetForegroundWindow
 except ImportError:
     @contextmanager
     def _restore_foreground_window_at_end():
@@ -31,12 +31,12 @@ except ImportError:
 else:
     @contextmanager
     def _restore_foreground_window_at_end():
-        foreground = GetForegroundWindow()
+        foreground = Win32_GetForegroundWindow()
         try:
             yield
         finally:
             if rcParams['tk.window_focus']:
-                SetForegroundWindow(foreground)
+                Win32_SetForegroundWindow(foreground)
 
 
 _log = logging.getLogger(__name__)

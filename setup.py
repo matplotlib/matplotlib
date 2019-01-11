@@ -69,7 +69,6 @@ mpl_packages = [
     setupext.BackendAgg(),
     setupext.BackendTkAgg(),
     setupext.BackendMacOSX(),
-    setupext.Windowing(),
     'Optional package data',
     setupext.Dlls(),
     ]
