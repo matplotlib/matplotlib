@@ -1180,15 +1180,6 @@ class FigureFrameWx(wx.Frame):
 
         self.canvas.SetMinSize((2, 2))
 
-        # give the window a matplotlib icon rather than the stock one.
-        # This is not currently working on Linux and is untested elsewhere.
-        # icon_path = os.path.join(matplotlib.rcParams['datapath'],
-        #                         'images', 'matplotlib.png')
-        # icon = wx.IconFromBitmap(wx.Bitmap(icon_path))
-        #  for xpm type icons try:
-        # icon = wx.Icon(icon_path, wx.BITMAP_TYPE_XPM)
-        #  self.SetIcon(icon)
-
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
         self.Bind(wx.EVT_CLOSE, self._onClose)
