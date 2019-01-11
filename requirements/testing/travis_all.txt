@@ -8,8 +8,7 @@ pillow
 pyparsing
 # pytest-timeout master depends on pytest>=3.6. Testing with pytest 3.4 is
 # still supported; this is tested by the first travis python 3.5 build
-# pytest>=3.8 throws RemovedInPytest4Warning (github #12825)
-pytest>=3.6,<3.8
+pytest>=3.6
 pytest-cov
 pytest-faulthandler
 pytest-rerunfailures
