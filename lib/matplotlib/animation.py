@@ -387,12 +387,14 @@ class MovieWriter(AbstractMovieWriter):
         # Use the encoding/errors that universal_newlines would use.
         out = TextIOWrapper(BytesIO(out)).read()
         err = TextIOWrapper(BytesIO(err)).read()
-        _log.log(
-            logging.WARNING if self._proc.returncode else logging.DEBUG,
-            "MovieWriter stdout:\n%s", out)
-        _log.log(
-            logging.WARNING if self._proc.returncode else logging.DEBUG,
-            "MovieWriter stderr:\n%s", err)
+        if out:
+            _log.log(
+                logging.WARNING if self._proc.returncode else logging.DEBUG,
+                "MovieWriter stdout:\n%s", out)
+        if err:
+            _log.log(
+                logging.WARNING if self._proc.returncode else logging.DEBUG,
+                "MovieWriter stderr:\n%s", err)
         if self._proc.returncode:
             raise subprocess.CalledProcessError(
                 self._proc.returncode, self._proc.args, out, err)
@@ -1085,14 +1087,14 @@ class Animation(object):
                                          extra_args=extra_args,
                                          metadata=metadata)
             else:
-                _log.warning("MovieWriter {} unavailable. Trying to use {} "
-                             "instead.".format(writer, writers.list()[0]))
-
-                try:
-                    writer = writers[writers.list()[0]](fps, codec, bitrate,
-                                                        extra_args=extra_args,
-                                                        metadata=metadata)
-                except IndexError:
+                if writers.list():
+                    alt_writer = writers[writers.list()[0]]
+                    _log.warning("MovieWriter %s unavailable; trying to use "
+                                 "%s instead.", writer, alt_writer)
+                    writer = alt_writer(
+                        fps, codec, bitrate,
+                        extra_args=extra_args, metadata=metadata)
+                else:
                     raise ValueError("Cannot save animation: no writers are "
                                      "available. Please install ffmpeg to "
                                      "save animations.")
