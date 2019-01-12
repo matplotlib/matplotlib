@@ -2224,7 +2224,6 @@ class Axes(_AxesBase):
         else:
             raise ValueError('invalid orientation: %s' % orientation)
 
-
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
         if self.xaxis is not None:
@@ -2243,7 +2242,6 @@ class Axes(_AxesBase):
         x, height, width, y, linewidth = np.broadcast_arrays(
             # Make args iterable too.
             np.atleast_1d(x), height, width, y, linewidth)
-
 
         # Now that units have been converted, set the tick locations.
         if orientation == 'vertical':
