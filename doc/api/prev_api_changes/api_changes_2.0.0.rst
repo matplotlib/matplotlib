@@ -168,7 +168,7 @@ call the function with ::
 where "ax" is an ``Axes3d`` object created with something like ::
 
    import mpl_toolkits.mplot3d.axes3d
-   ax = plt.sublot(111, projection='3d')
+   ax = plt.subplot(111, projection='3d')
 
 
 Stale figure behavior

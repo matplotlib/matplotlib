@@ -259,7 +259,7 @@ the host axes and then drawn according to their zorder.  The host and
 parasite axes modifies some of the axes behavior. For example, color
 cycle for plot lines are shared between host and parasites. Also, the
 legend command in host, creates a legend that includes lines in the
-parasite axes.  To create a host axes, you may use *host_suplot* or
+parasite axes.  To create a host axes, you may use *host_subplot* or
 *host_axes* command.
 
 

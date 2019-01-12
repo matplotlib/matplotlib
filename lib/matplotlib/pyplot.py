@@ -984,7 +984,7 @@ def subplot(*args, **kwargs):
     *kwargs*) then it will simply make that subplot current and
     return it.  This behavior is deprecated. Meanwhile, if you do
     not want this behavior (i.e., you want to force the creation of a
-    new suplot), you must use a unique set of args and kwargs.  The axes
+    new subplot), you must use a unique set of args and kwargs.  The axes
     *label* attribute has been exposed for this purpose: if you want
     two subplots that are otherwise identical to be added to the figure,
     make sure you give them unique labels.

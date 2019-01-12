@@ -424,7 +424,7 @@ class Axes(_AxesBase):
         This example makes two inset axes, the first is in axes-relative
         coordinates, and the second in data-coordinates::
 
-            fig, ax = plt.suplots()
+            fig, ax = plt.subplots()
             ax.plot(range(10))
             axin1 = ax.inset_axes([0.8, 0.1, 0.15, 0.15])
             axin2 = ax.inset_axes(
