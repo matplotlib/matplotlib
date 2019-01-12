@@ -2048,7 +2048,7 @@ class Axes(_AxesBase):
             try:
                 x = xconv[0]
             except (TypeError, IndexError, KeyError):
-                x =  xconv
+                x = xconv
 
             delist = False
             if not np.iterable(dx):
