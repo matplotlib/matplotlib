@@ -2012,20 +2012,51 @@ class Axes(_AxesBase):
         return self.plot(x, y, *args, data=data, **kwargs)
 
     @staticmethod
-    def _convert_dx(dx, x0, x, convert):
+    def _convert_dx(dx, x0, xconv, convert):
         """
         Small helper to do logic of width conversion flexibly.
 
-        *dx* and *x0* have units, but *x* has already been converted
-        to unitless.  This allows the *dx* to have units that are
-        different from *x0*, but are still accepted by the  ``__add__``
-        operator of *x0*.
+        *dx* and *x0* have units, but *xconv* has already been converted
+        to unitless (and is an ndarray).  This allows the *dx* to have units
+        that are different from *x0*, but are still accepted by the
+        ``__add__`` operator of *x0*.
         """
+
+        # x should be an array...
+        assert type(xconv) is np.ndarray
+
+        if xconv.size == 0:
+            # xconv has already been converted, but maybe empty...
+            return convert(dx)
+
         try:
             # attempt to add the width to x0; this works for
             # datetime+timedelta, for instance
-            dx = convert(x0 + dx) - x
-        except (TypeError, AttributeError):
+
+            # only use the first element of x and x0.  This saves
+            # having to be sure addition works across the whole
+            # vector.  This is particularly an issue if
+            # x0 and dx are lists so x0 + dx just concatenates the lists.
+            # We can't just cast x0 and dx to numpy arrays because that
+            # removes the units from unit packages like `pint`.
+            try:
+                x0 = x0[0]
+            except (TypeError, IndexError, KeyError):
+                x0 = x0
+
+            try:
+                x = xconv[0]
+            except (TypeError, IndexError, KeyError):
+                x =  xconv
+
+            delist = False
+            if not np.iterable(dx):
+                dx = [dx]
+                delist = True
+            dx = [convert(x0 + ddx) - x for ddx in dx]
+            if delist:
+                dx = dx[0]
+        except (TypeError, AttributeError) as e:
             # but doesn't work for 'string' + float, so just
             # see if the converter works on the float.
             dx = convert(dx)
@@ -2192,25 +2223,26 @@ class Axes(_AxesBase):
         else:
             raise ValueError('invalid orientation: %s' % orientation)
 
-        x, height, width, y, linewidth = np.broadcast_arrays(
-            # Make args iterable too.
-            np.atleast_1d(x), height, width, y, linewidth)
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
         if self.xaxis is not None:
             x0 = x
-            x = self.convert_xunits(x)
+            x = np.asarray(self.convert_xunits(x))
             width = self._convert_dx(width, x0, x, self.convert_xunits)
             if xerr is not None:
                 xerr = self._convert_dx(xerr, x0, x, self.convert_xunits)
-
         if self.yaxis is not None:
             y0 = y
-            y = self.convert_yunits(y)
+            y = np.asarray(self.convert_yunits(y))
             height = self._convert_dx(height, y0, y, self.convert_yunits)
             if yerr is not None:
                 yerr = self._convert_dx(yerr, y0, y, self.convert_yunits)
+
+        x, height, width, y, linewidth = np.broadcast_arrays(
+            # Make args iterable too.
+            np.atleast_1d(x), height, width, y, linewidth)
+
 
         # Now that units have been converted, set the tick locations.
         if orientation == 'vertical':
@@ -2493,7 +2525,7 @@ class Axes(_AxesBase):
                 raise ValueError('each range in xrange must be a sequence '
                                  'with two elements (i.e. an Nx2 array)')
             # convert the absolute values, not the x and dx...
-            x_conv = self.convert_xunits(xr[0])
+            x_conv = np.asarray(self.convert_xunits(xr[0]))
             x1 = self._convert_dx(xr[1], xr[0], x_conv, self.convert_xunits)
             xranges_conv.append((x_conv, x1))
 
