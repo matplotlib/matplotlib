@@ -23,24 +23,30 @@ import matplotlib.ticker as ticker
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
-        """Converts strings in value to floats using
+        """Convert strings in value to floats using
         mapping information store in the unit object.
 
         Parameters
         ----------
         value : string or iterable
-            value or list of values to be converted
-        unit : :class:`.UnitData`
-           object string unit information for value
-        axis : :class:`~matplotlib.Axis.axis`
-            axis on which the converted value is plotted
+            Value or list of values to be converted.
+        unit : `.UnitData`
+            An object mapping strings to integers.
+        axis : `~matplotlib.axis.Axis`
+            axis on which the converted value is plotted.
+
+            .. note:: *axis* is unused.
 
         Returns
         -------
-        mapped_ value : float or ndarray[float]
-
-        .. note:: axis is not used in this function
+        mapped_value : float or ndarray[float]
         """
+        if unit is None:
+            raise ValueError(
+                'Missing category information for StrCategoryConverter; '
+                'this might be caused by unintendedly mixing categorical and '
+                'numeric data')
+
         # dtype = object preserves numerical pass throughs
         values = np.atleast_1d(np.array(value, dtype=object))
 
@@ -190,7 +196,7 @@ class UnitData(object):
                 self._mapping[val] = next(self._counter)
 
 
-# Connects the convertor to matplotlib
+# Register the converter with Matplotlib's unit framework
 units.registry[str] = StrCategoryConverter()
 units.registry[np.str_] = StrCategoryConverter()
 units.registry[bytes] = StrCategoryConverter()
