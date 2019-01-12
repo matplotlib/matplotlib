@@ -4795,7 +4795,7 @@ optional.
         Parameters
         ----------
         x, y : float
-            The x/y-coordinate of the arrow base.
+            The x and y coordinates of the arrow base.
         dx, dy : float
             The length of the arrow along x/y-direction.
 
