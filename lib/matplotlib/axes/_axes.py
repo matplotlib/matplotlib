@@ -2038,7 +2038,8 @@ class Axes(_AxesBase):
             # vector.  This is particularly an issue if
             # x0 and dx are lists so x0 + dx just concatenates the lists.
             # We can't just cast x0 and dx to numpy arrays because that
-            # removes the units from unit packages like `pint`.
+            # removes the units from unit packages like `pint` that
+            # wrap numpy arrays.
             try:
                 x0 = x0[0]
             except (TypeError, IndexError, KeyError):
