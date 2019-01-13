@@ -130,7 +130,8 @@ def test_find_ttc():
 def test_user_fonts():
     if not os.environ.get('APPVEYOR', False):
         pytest.xfail('This test does only work on appveyor since user fonts '
-                     'are Windows specific')
+                     'are Windows specific and the developer\'s font '
+                     'directory should remain unchanged')
 
     font_test_file = 'mpltest.ttf'
 

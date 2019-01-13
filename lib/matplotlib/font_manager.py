@@ -223,7 +223,7 @@ def win32RegistryFonts(reg_domain, base_dir):
     return items
 
 
-def win32InstalledFonts(directory=None, fontext='ttf'):
+def _win32InstalledFonts(directory=None, fontext='ttf'):
     """
     Search for fonts in the specified font directory, or use the
     system directories if none given. Additionally, it is searched for user
@@ -301,7 +301,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         if sys.platform == 'win32':
             fontpaths = MSUserFontDirectories + [win32FontDirectory()]
             # now get all installed fonts directly...
-            fontfiles.update(win32InstalledFonts(fontext=fontext))
+            fontfiles.update(_win32InstalledFonts(fontext=fontext))
         else:
             fontpaths = X11FontDirectories
             if sys.platform == 'darwin':
