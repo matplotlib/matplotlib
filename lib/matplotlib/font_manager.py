@@ -171,7 +171,7 @@ def win32FontDirectory():
         return os.path.join(os.environ['WINDIR'], 'Fonts')
 
 
-def win32RegistryFonts(reg_domain, base_dir):
+def _win32RegistryFonts(reg_domain, base_dir):
     r"""
     Searches for fonts in the Windows registry.
 
@@ -223,7 +223,7 @@ def win32RegistryFonts(reg_domain, base_dir):
     return items
 
 
-def _win32InstalledFonts(directory=None, fontext='ttf'):
+def win32InstalledFonts(directory=None, fontext='ttf'):
     """
     Search for fonts in the specified font directory, or use the
     system directories if none given. Additionally, it is searched for user
