@@ -147,7 +147,7 @@ try:
         ['git', 'describe', '--dirty']).decode('utf-8').strip()
 # Catch the case where git is not installed locally, and use the versioneer
 # version number instead
-except subprocess.CalledProcessError:
+except (subprocess.CalledProcessError, FileNotFoundError):
     SHA = matplotlib.__version__
 
 html_context = {'sha': SHA}
