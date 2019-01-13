@@ -20,7 +20,7 @@ import textwrap
 
 # This line imports the installed copy of matplotlib, and not the local copy.
 import numpy as np
-from matplotlib import mlab
+from matplotlib import cbook, mlab
 from matplotlib.axes import Axes
 
 
@@ -175,6 +175,8 @@ def boilerplate_gen():
                 self._repr = "mlab.window_hanning"
             elif value is np.mean:
                 self._repr = "np.mean"
+            elif value is cbook.deprecation._deprecated_parameter:
+                self._repr = "cbook.deprecation._deprecated_parameter"
             else:
                 self._repr = repr(value)
 

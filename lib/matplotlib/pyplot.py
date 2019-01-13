@@ -2644,7 +2644,8 @@ def hlines(
 def imshow(
         X, cmap=None, norm=None, aspect=None, interpolation=None,
         alpha=None, vmin=None, vmax=None, origin=None, extent=None,
-        shape=None, filternorm=1, filterrad=4.0, imlim=None,
+        shape=cbook.deprecation._deprecated_parameter, filternorm=1,
+        filterrad=4.0, imlim=cbook.deprecation._deprecated_parameter,
         resample=None, url=None, *, data=None, **kwargs):
     __ret = gca().imshow(
         X, cmap=cmap, norm=norm, aspect=aspect,
