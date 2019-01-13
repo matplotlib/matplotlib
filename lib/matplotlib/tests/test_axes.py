@@ -1498,6 +1498,32 @@ def test_barh_tick_label():
             align='center')
 
 
+def test_bar_timedelta():
+    """smoketest that bar can handle width and height in delta units"""
+    fig, ax = plt.subplots()
+    ax.bar(datetime.datetime(2018, 1, 1), 1.,
+           width=datetime.timedelta(hours=3))
+    ax.bar(datetime.datetime(2018, 1, 1), 1.,
+           xerr=datetime.timedelta(hours=2),
+           width=datetime.timedelta(hours=3))
+    fig, ax = plt.subplots()
+    ax.barh(datetime.datetime(2018, 1, 1), 1,
+            height=datetime.timedelta(hours=3))
+    ax.barh(datetime.datetime(2018, 1, 1), 1,
+            height=datetime.timedelta(hours=3),
+            yerr=datetime.timedelta(hours=2))
+    fig, ax = plt.subplots()
+    ax.barh([datetime.datetime(2018, 1, 1), datetime.datetime(2018, 1, 1)],
+            np.array([1, 1.5]),
+            height=datetime.timedelta(hours=3))
+    ax.barh([datetime.datetime(2018, 1, 1), datetime.datetime(2018, 1, 1)],
+            np.array([1, 1.5]),
+            height=[datetime.timedelta(hours=t) for t in [1, 2]])
+    ax.broken_barh([(datetime.datetime(2018, 1, 1),
+                     datetime.timedelta(hours=1))],
+                   (10, 20))
+
+
 @image_comparison(baseline_images=['hist_log'],
                   remove_text=True)
 def test_hist_log():
@@ -5430,6 +5456,15 @@ def test_auto_numticks_log():
 def test_broken_barh_empty():
     fig, ax = plt.subplots()
     ax.broken_barh([], (.1, .5))
+
+
+def test_broken_barh_timedelta():
+    """Check that timedelta works as x, dx pair for this method """
+    fig, ax = plt.subplots()
+    pp = ax.broken_barh([(datetime.datetime(2018, 11, 9, 0, 0, 0),
+                          datetime.timedelta(hours=1))], [1, 2])
+    assert pp.get_paths()[0].vertices[0, 0] == 737007.0
+    assert pp.get_paths()[0].vertices[2, 0] == 737007.0 + 1 / 24
 
 
 def test_pandas_pcolormesh(pd):
