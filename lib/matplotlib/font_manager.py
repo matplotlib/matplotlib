@@ -240,11 +240,11 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     items = set()
 
     # System fonts
-    items.update(win32RegistryFonts(winreg.HKEY_LOCAL_MACHINE, directory))
+    items.update(_win32RegistryFonts(winreg.HKEY_LOCAL_MACHINE, directory))
 
     # User fonts
     for userdir in MSUserFontDirectories:
-        items.update(win32RegistryFonts(winreg.HKEY_CURRENT_USER, userdir))
+        items.update(_win32RegistryFonts(winreg.HKEY_CURRENT_USER, userdir))
 
     # Keep only paths with matching file extension.
     return [str(path) for path in items if path.suffix.lower() in fontext]
@@ -301,7 +301,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         if sys.platform == 'win32':
             fontpaths = MSUserFontDirectories + [win32FontDirectory()]
             # now get all installed fonts directly...
-            fontfiles.update(_win32InstalledFonts(fontext=fontext))
+            fontfiles.update(win32InstalledFonts(fontext=fontext))
         else:
             fontpaths = X11FontDirectories
             if sys.platform == 'darwin':
