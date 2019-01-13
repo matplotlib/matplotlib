@@ -9,8 +9,9 @@ import numpy as np
 import pytest
 
 from matplotlib.font_manager import (
-    findfont, FontProperties, fontManager, json_dump, json_load, get_font,
-    get_fontconfig_fonts, is_opentype_cff_font)
+    findfont, findSystemFonts, FontProperties, fontManager, json_dump,
+    json_load, get_font, get_fontconfig_fonts, is_opentype_cff_font,
+    MSUserFontDirectories)
 from matplotlib import pyplot as plt, rc_context
 
 has_fclist = shutil.which('fc-list') is not None
@@ -124,3 +125,30 @@ def test_find_ttc():
         fig.savefig(BytesIO(), format="pdf")
     with pytest.raises(RuntimeError):
         fig.savefig(BytesIO(), format="ps")
+
+
+def test_user_fonts():
+    if not os.environ.get('APPVEYOR', False):
+        pytest.xfail('This test does only work on appveyor since user fonts '
+                     'are Windows specific and the developer\'s font '
+                     'directory should remain unchanged')
+
+    font_test_file = 'mpltest.ttf'
+
+    # Precondition: the test font should not be available
+    fonts = findSystemFonts()
+    assert not any(font_test_file in font for font in fonts)
+
+    user_fonts_dir = MSUserFontDirectories[0]
+
+    # Make sure that the user font directory exists (this is probably not the
+    # case on Windows versions < 1809)
+    os.makedirs(user_fonts_dir)
+
+    # Copy the test font to the user font directory
+    shutil.copyfile(os.path.join(os.path.dirname(__file__), font_test_file),
+                    os.path.join(user_fonts_dir, font_test_file))
+
+    # Now, the font should be available
+    fonts = findSystemFonts()
+    assert any(font_test_file in font for font in fonts)
