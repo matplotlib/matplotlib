@@ -264,7 +264,7 @@ class ContourLabeler(object):
         if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
 
-        lev, ismath = text.Text.is_math_text(lev)
+        lev, ismath = text.Text()._preprocess_math(lev)
         if ismath == 'TeX':
             if not hasattr(self, '_TeX_manager'):
                 self._TeX_manager = texmanager.TexManager()

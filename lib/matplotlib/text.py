@@ -286,11 +286,12 @@ class Text(Artist):
 
         # Full vertical extent of font, including ascenders and descenders:
         _, lp_h, lp_d = renderer.get_text_width_height_descent(
-            "lp", self._fontproperties, ismath=False)
+            "lp", self._fontproperties,
+            ismath="TeX" if self.get_usetex() else False)
         min_dy = (lp_h - lp_d) * self._linespacing
 
         for i, line in enumerate(lines):
-            clean_line, ismath = self.is_math_text(line, self.get_usetex())
+            clean_line, ismath = self._preprocess_math(line)
             if clean_line:
                 w, h, d = renderer.get_text_width_height_descent(
                     clean_line, self._fontproperties, ismath=ismath)
@@ -697,8 +698,7 @@ class Text(Artist):
                 y = y + posy
                 if renderer.flipy():
                     y = canvash - y
-                clean_line, ismath = textobj.is_math_text(line,
-                                                          self.get_usetex())
+                clean_line, ismath = textobj._preprocess_math(line)
 
                 if textobj.get_path_effects():
                     from matplotlib.patheffects import PathEffectRenderer
@@ -1152,6 +1152,7 @@ class Text(Artist):
             self.stale = True
 
     @staticmethod
+    @cbook.deprecated("3.1")
     def is_math_text(s, usetex=None):
         """
         Returns a cleaned string and a boolean flag.
@@ -1173,6 +1174,27 @@ class Text(Artist):
             return s, True
         else:
             return s.replace(r'\$', '$'), False
+
+    def _preprocess_math(self, s):
+        """
+        Return the string *s* after mathtext preprocessing, and the kind of
+        mathtext support needed.
+
+        - If *self* is configured to use TeX, return *s* unchanged except that
+          a single space gets escaped, and the flag "TeX".
+        - Otherwise, if *s* is mathtext (has an even number of unescaped dollar
+          signs), return *s* and the flag True.
+        - Otherwise, return *s* with dollar signs unescaped, and the flag
+          False.
+        """
+        if self.get_usetex():
+            if s == " ":
+                s = r"\ "
+            return s, "TeX"
+        elif cbook.is_math_text(s):
+            return s, True
+        else:
+            return s.replace(r"\$", "$"), False
 
     def set_fontproperties(self, fp):
         """
