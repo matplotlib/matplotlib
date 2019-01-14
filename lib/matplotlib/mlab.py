@@ -7,49 +7,49 @@ spectral computations.
 Spectral functions
 -------------------
 
-:func:`cohere`
+`cohere`
     Coherence (normalized cross spectral density)
 
-:func:`csd`
+`csd`
     Cross spectral density using Welch's average periodogram
 
-:func:`detrend`
+`detrend`
     Remove the mean or best fit line from an array
 
-:func:`psd`
+`psd`
     Power spectral density using Welch's average periodogram
 
-:func:`specgram`
+`specgram`
     Spectrogram (spectrum over segments of time)
 
-:func:`complex_spectrum`
+`complex_spectrum`
     Return the complex-valued frequency spectrum of a signal
 
-:func:`magnitude_spectrum`
+`magnitude_spectrum`
     Return the magnitude of the frequency spectrum of a signal
 
-:func:`angle_spectrum`
+`angle_spectrum`
     Return the angle (wrapped phase) of the frequency spectrum of a signal
 
-:func:`phase_spectrum`
+`phase_spectrum`
     Return the phase (unwrapped angle) of the frequency spectrum of a signal
 
-:func:`detrend_mean`
+`detrend_mean`
     Remove the mean from a line.
 
-:func:`detrend_linear`
+`detrend_linear`
     Remove the best fit line from a line.
 
-:func:`detrend_none`
+`detrend_none`
     Return the original line.
 
-:func:`stride_windows`
+`stride_windows`
     Get all windows in an array in a memory-efficient manner
 
-:func:`stride_repeat`
+`stride_repeat`
     Repeat an array in a memory-efficient manner
 
-:func:`apply_window`
+`apply_window`
     Apply a window along a given axis
 """
 
@@ -67,8 +67,7 @@ def window_hanning(x):
 
     See Also
     --------
-    :func:`window_none`
-        :func:`window_none` is another window algorithm.
+    window_none : Another window algorithm.
     '''
     return np.hanning(len(x))*x
 
@@ -79,8 +78,7 @@ def window_none(x):
 
     See Also
     --------
-    :func:`window_hanning`
-        :func:`window_hanning` is another window algorithm.
+    window_hanning : Another window algorithm.
     '''
     return x
 
@@ -152,9 +150,9 @@ def detrend(x, key=None, axis=None):
 
     key : [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or function
         Specifies the detrend algorithm to use. 'default' is 'mean', which is
-        the same as :func:`detrend_mean`. 'constant' is the same. 'linear' is
-        the same as :func:`detrend_linear`. 'none' is the same as
-        :func:`detrend_none`. The default is 'mean'. See the corresponding
+        the same as `detrend_mean`. 'constant' is the same. 'linear' is
+        the same as `detrend_linear`. 'none' is the same as
+        `detrend_none`. The default is 'mean'. See the corresponding
         functions for more details regarding the algorithms. Can also be a
         function that carries out the detrend operation.
 
@@ -163,14 +161,9 @@ def detrend(x, key=None, axis=None):
 
     See Also
     --------
-    :func:`detrend_mean`
-        :func:`detrend_mean` implements the 'mean' algorithm.
-
-    :func:`detrend_linear`
-        :func:`detrend_linear` implements the 'linear' algorithm.
-
-    :func:`detrend_none`
-        :func:`detrend_none` implements the 'none' algorithm.
+    detrend_mean : Implementation of the 'mean' algorithm.
+    detrend_linear : Implementation of the 'linear' algorithm.
+    detrend_none : Implementation of the 'none' algorithm.
     '''
     if key is None or key in ['constant', 'mean', 'default']:
         return detrend(x, key=detrend_mean, axis=axis)
@@ -221,9 +214,7 @@ def demean(x, axis=0):
 
     See Also
     --------
-    :func:`detrend_mean`
-        This function is the same as :func:`detrend_mean` except for the
-        default *axis*.
+    detrend_mean : Same as `demean` except for the default *axis*.
     '''
     return detrend_mean(x, axis=axis)
 
@@ -244,18 +235,9 @@ def detrend_mean(x, axis=None):
 
     See Also
     --------
-    :func:`demean`
-        This function is the same as :func:`demean` except for the default
-        *axis*.
-
-    :func:`detrend_linear`
-
-    :func:`detrend_none`
-        :func:`detrend_linear` and :func:`detrend_none` are other detrend
-        algorithms.
-
-    :func:`detrend`
-        :func:`detrend` is a wrapper around all the detrend algorithms.
+    detrend_linear : Another detrend algorithm.
+    detrend_none : Another detrend algorithm.
+    detrend : A wrapper around all the detrend algorithms.
     '''
     x = np.asarray(x)
 
@@ -280,14 +262,9 @@ def detrend_none(x, axis=None):
 
     See Also
     --------
-    :func:`detrend_mean`
-
-    :func:`detrend_linear`
-        :func:`detrend_mean` and :func:`detrend_linear` are other detrend
-        algorithms.
-
-    :func:`detrend`
-        :func:`detrend` is a wrapper around all the detrend algorithms.
+    detrend_mean : Another detrend algorithm.
+    detrend_linear : Another detrend algorithm.
+    detrend : A wrapper around all the detrend algorithms.
     '''
     return x
 
@@ -307,14 +284,9 @@ def detrend_linear(y):
 
     See Also
     --------
-    :func:`detrend_mean`
-
-    :func:`detrend_none`
-        :func:`detrend_mean` and :func:`detrend_none` are other detrend
-        algorithms.
-
-    :func:`detrend`
-        :func:`detrend` is a wrapper around all the detrend algorithms.
+    detrend_mean : Another detrend algorithm.
+    detrend_none : Another detrend algorithm.
+    detrend : A wrapper around all the detrend algorithms.
     '''
     # This is faster than an algorithm based on linalg.lstsq.
     y = np.asarray(y)
@@ -653,14 +625,12 @@ docstring.interpd.update(Spectral=cbook.dedent("""
         unit. The default value is 2.
 
     window : callable or ndarray
-        A function or a vector of length *NFFT*. To create window
-        vectors see :func:`window_hanning`, :func:`window_none`,
-        :func:`numpy.blackman`, :func:`numpy.hamming`,
-        :func:`numpy.bartlett`, :func:`scipy.signal`,
-        :func:`scipy.signal.get_window`, etc. The default is
-        :func:`window_hanning`.  If a function is passed as the
-        argument, it must take a data segment as an argument and
-        return the windowed version of the segment.
+        A function or a vector of length *NFFT*.  To create window vectors see
+        `window_hanning`, `window_none`, `numpy.blackman`, `numpy.hamming`,
+        `numpy.bartlett`, `scipy.signal`, `scipy.signal.get_window`, etc.  The
+        default is `window_hanning`.  If a function is passed as the argument,
+        it must take a data segment as an argument and return the windowed
+        version of the segment.
 
     sides : {'default', 'onesided', 'twosided'}
         Specifies which sides of the spectrum to return.  Default gives the
@@ -700,18 +670,14 @@ docstring.interpd.update(PSD=cbook.dedent("""
         result will be incorrect. Use *pad_to* for this instead.
 
     detrend : {'default', 'constant', 'mean', 'linear', 'none'} or callable
-        The function applied to each segment before fft-ing,
-        designed to remove the mean or linear trend.  Unlike in
-        MATLAB, where the *detrend* parameter is a vector, in
-        matplotlib is it a function.  The :mod:`~matplotlib.mlab`
-        module defines :func:`~matplotlib.mlab.detrend_none`,
-        :func:`~matplotlib.mlab.detrend_mean`, and
-        :func:`~matplotlib.mlab.detrend_linear`, but you can use
-        a custom function as well.  You can also use a string to choose
-        one of the functions.  'default', 'constant', and 'mean' call
-        :func:`~matplotlib.mlab.detrend_mean`.  'linear' calls
-        :func:`~matplotlib.mlab.detrend_linear`.  'none' calls
-        :func:`~matplotlib.mlab.detrend_none`.
+        The function applied to each segment before fft-ing, designed to
+        remove the mean or linear trend.  Unlike in MATLAB, where the
+        *detrend* parameter is a vector, in Matplotlib is it a function.
+        The :mod:`~matplotlib.mlab` module defines `.detrend_none`,
+        `.detrend_mean`, and `.detrend_linear`, but you can use a custom
+        function as well.  You can also use a string to choose one of the
+        functions. 'default', 'constant', and 'mean' call `.detrend_mean`.
+        'linear' calls `.detrend_linear`. 'none' calls `.detrend_none`.
 
     scale_by_freq : bool, optional
         Specifies whether the resulting density values should be scaled
@@ -770,16 +736,13 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     See Also
     --------
-    :func:`specgram`
-        :func:`specgram` differs in the default overlap; in not returning the
-        mean of the segment periodograms; and in returning the times of the
-        segments.
+    specgram
+        `specgram` differs in the default overlap; in not returning the mean of
+        the segment periodograms; and in returning the times of the segments.
 
-    :func:`magnitude_spectrum`
-        :func:`magnitude_spectrum` returns the magnitude spectrum.
+    magnitude_spectrum : returns the magnitude spectrum.
 
-    :func:`csd`
-        :func:`csd` returns the spectral density between two signals.
+    csd : returns the spectral density between two signals.
     """
     Pxx, freqs = csd(x=x, y=None, NFFT=NFFT, Fs=Fs, detrend=detrend,
                      window=window, noverlap=noverlap, pad_to=pad_to,
@@ -839,8 +802,7 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
 
     See Also
     --------
-    :func:`psd`
-        :func:`psd` is the equivalent to setting y=x.
+    psd : equivalent to setting ``y = x``.
     """
     if NFFT is None:
         NFFT = 256
@@ -885,19 +847,14 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    :func:`magnitude_spectrum`
-        :func:`magnitude_spectrum` returns the absolute value of this function.
-
-    :func:`angle_spectrum`
-        :func:`angle_spectrum` returns the angle of this function.
-
-    :func:`phase_spectrum`
-        :func:`phase_spectrum` returns the phase (unwrapped angle) of this
-        function.
-
-    :func:`specgram`
-        :func:`specgram` can return the complex spectrum of segments within the
-        signal.
+    magnitude_spectrum
+        Returns the absolute value of this function.
+    angle_spectrum
+        Returns the angle of this function.
+    phase_spectrum
+        Returns the phase (unwrapped angle) of this function.
+    specgram
+        Can return the complex spectrum of segments within the signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='complex')
@@ -930,23 +887,16 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    :func:`psd`
-        :func:`psd` returns the power spectral density.
-
-    :func:`complex_spectrum`
-        This function returns the absolute value of :func:`complex_spectrum`.
-
-    :func:`angle_spectrum`
-        :func:`angle_spectrum` returns the angles of the corresponding
-        frequencies.
-
-    :func:`phase_spectrum`
-        :func:`phase_spectrum` returns the phase (unwrapped angle) of the
-        corresponding frequencies.
-
-    :func:`specgram`
-        :func:`specgram` can return the magnitude spectrum of segments within
-        the signal.
+    psd
+        Returns the power spectral density.
+    complex_spectrum
+        This function returns the absolute value of `complex_spectrum`.
+    angle_spectrum
+        Returns the angles of the corresponding frequencies.
+    phase_spectrum
+        Returns the phase (unwrapped angle) of the corresponding frequencies.
+    specgram
+        Can return the complex spectrum of segments within the signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='magnitude')
@@ -979,19 +929,14 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    :func:`complex_spectrum`
-        This function returns the angle value of :func:`complex_spectrum`.
-
-    :func:`magnitude_spectrum`
-        :func:`angle_spectrum` returns the magnitudes of the corresponding
-        frequencies.
-
-    :func:`phase_spectrum`
-        :func:`phase_spectrum` returns the unwrapped version of this function.
-
-    :func:`specgram`
-        :func:`specgram` can return the angle spectrum of segments within the
-        signal.
+    complex_spectrum
+        This function returns the angle value of `complex_spectrum`.
+    magnitude_spectrum
+        Returns the magnitudes of the corresponding frequencies.
+    phase_spectrum
+        Returns the phase (unwrapped angle) of the corresponding frequencies.
+    specgram
+        Can return the complex spectrum of segments within the signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='angle')
@@ -1024,19 +969,14 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
 
     See Also
     --------
-    :func:`complex_spectrum`
-        This function returns the angle value of :func:`complex_spectrum`.
-
-    :func:`magnitude_spectrum`
-        :func:`magnitude_spectrum` returns the magnitudes of the corresponding
-        frequencies.
-
-    :func:`angle_spectrum`
-        :func:`angle_spectrum` returns the wrapped version of this function.
-
-    :func:`specgram`
-        :func:`specgram` can return the phase spectrum of segments within the
-        signal.
+    complex_spectrum
+        This function returns the phase value of `complex_spectrum`.
+    magnitude_spectrum
+        Returns the magnitudes of the corresponding frequencies.
+    angle_spectrum
+        Returns the angle (wrapped phase) of the corresponding frequencies.
+    specgram
+        Can return the complex spectrum of segments within the signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='phase')
