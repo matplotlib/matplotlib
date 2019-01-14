@@ -714,7 +714,7 @@ class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
         for (x, y), a, l in self._locs_angles_labels:
             if not l.strip():
                 continue
-            clean_line, ismath = self.is_math_text(l)
+            clean_line, ismath = self._preprocess_math(l)
             whd = renderer.get_text_width_height_descent(
                 clean_line, self._fontproperties, ismath=ismath)
             whd_list.append(whd)
