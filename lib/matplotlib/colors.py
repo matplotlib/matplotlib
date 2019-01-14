@@ -1311,8 +1311,7 @@ def rgb_to_hsv(arr):
 
 def hsv_to_rgb(hsv):
     """
-    convert hsv values in a numpy array to rgb values
-    all values assumed to be in range [0, 1]
+    Convert hsv values to rgb.
 
     Parameters
     ----------

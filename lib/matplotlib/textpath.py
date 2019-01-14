@@ -42,12 +42,11 @@ class TextToPath(object):
 
     def _get_font(self, prop):
         """
-        find a ttf font.
+        Find the `FT2Font` matching font properties *prop*, with its size set.
         """
         fname = font_manager.findfont(prop)
         font = get_font(fname)
         font.set_size(self.FONT_SCALE, self.DPI)
-
         return font
 
     def _get_hinting_flag(self):
@@ -71,9 +70,7 @@ class TextToPath(object):
         "3.1",
         alternative="font.get_path() and manual translation of the vertices")
     def glyph_to_path(self, font, currx=0.):
-        """
-        convert the ft2font glyph to vertices and codes.
-        """
+        """Convert the *font*'s current glyph to a (vertices, codes) pair."""
         verts, codes = font.get_path()
         if currx != 0.0:
             verts[:, 0] += currx
@@ -240,8 +237,7 @@ class TextToPath(object):
     def get_glyphs_mathtext(self, prop, s, glyph_map=None,
                             return_new_glyphs_only=False):
         """
-        convert the string *s* to vertices and codes by parsing it with
-        mathtext.
+        Parse mathtext string *s* and convert it to a (vertices, codes) pair.
         """
 
         prop = prop.copy()
@@ -290,9 +286,7 @@ class TextToPath(object):
                 glyph_map_new, myrects)
 
     def get_texmanager(self):
-        """
-        return the :class:`matplotlib.texmanager.TexManager` instance
-        """
+        """Return the cached `~.texmanager.TexManager` instance."""
         if self._texmanager is None:
             from matplotlib.texmanager import TexManager
             self._texmanager = TexManager()
@@ -301,11 +295,11 @@ class TextToPath(object):
     def get_glyphs_tex(self, prop, s, glyph_map=None,
                        return_new_glyphs_only=False):
         """
-        convert the string *s* to vertices and codes using matplotlib's usetex
-        mode.
+        Process string *s* with usetex and convert it to a (vertices, codes)
+        pair.
         """
 
-        # codes are modstly borrowed from pdf backend.
+        # Implementation mostly borrowed from pdf backend.
 
         dvifile = self.get_texmanager().make_dvi(s, self.FONT_SCALE)
         with dviread.Dvi(dvifile, self.DPI) as dvi:
@@ -479,16 +473,12 @@ class TextPath(Path):
         self._interpolation_steps = _interpolation_steps
 
     def set_size(self, size):
-        """
-        set the size of the text
-        """
+        """Set the text size."""
         self._size = size
         self._invalid = True
 
     def get_size(self):
-        """
-        get the size of the text
-        """
+        """Get the text size."""
         return self._size
 
     @property
@@ -508,12 +498,10 @@ class TextPath(Path):
 
     def _revalidate_path(self):
         """
-        update the path if necessary.
+        Update the path if necessary.
 
-        The path for the text is initially create with the font size
-        of FONT_SCALE, and this path is rescaled to other size when
-        necessary.
-
+        The path for the text is initially create with the font size of
+        `~.FONT_SCALE`, and this path is rescaled to other size when necessary.
         """
         if self._invalid or self._cached_vertices is None:
             tr = Affine2D().scale(
@@ -543,16 +531,12 @@ class TextPath(Path):
 
     def text_get_vertices_codes(self, prop, s, usetex):
         """
-        convert the string *s* to vertices and codes using the
-        provided font property *prop*. Mostly copied from
-        backend_svg.py.
+        Convert string *s* to a (vertices, codes) pair using font property
+        *prop*.
         """
-
+        # Mostly copied from backend_svg.py.
         if usetex:
-            verts, codes = text_to_path.get_text_path(prop, s, usetex=True)
+            return text_to_path.get_text_path(prop, s, usetex=True)
         else:
             clean_line, ismath = self.is_math_text(s)
-            verts, codes = text_to_path.get_text_path(prop, clean_line,
-                                                      ismath=ismath)
-
-        return verts, codes
+            return text_to_path.get_text_path(prop, clean_line, ismath=ismath)

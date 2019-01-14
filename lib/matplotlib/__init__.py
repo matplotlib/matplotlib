@@ -169,7 +169,7 @@ __bibtex__ = r"""@Article{Hunter:2007,
 
 
 def compare_versions(a, b):
-    "return True if a is greater than or equal to b"
+    "Return whether version *a* is greater than or equal to version *b*."
     if isinstance(a, bytes):
         cbook.warn_deprecated(
             "3.0", message="compare_versions arguments should be strs.")
@@ -1324,7 +1324,7 @@ def _init_tests():
 
 def test(verbosity=None, coverage=False, switch_backend_warn=True,
          recursionlimit=0, **kwargs):
-    """run the matplotlib test suite"""
+    """Run the matplotlib test suite."""
     _init_tests()
     if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
         raise ImportError("Matplotlib test data is not installed")
