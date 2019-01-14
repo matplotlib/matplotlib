@@ -556,8 +556,6 @@ class RendererBase(object):
             The font property.
         s : str
             The text to be converted.
-        usetex : bool
-            Whether to use matplotlib usetex mode.
         ismath : bool or "TeX"
             If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
