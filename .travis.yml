@@ -53,9 +53,8 @@ env:
     - PANDAS=
     - PILLOW=pillow
     - PYPARSING=pyparsing
-    - PYTEST='pytest>=3.6,<3.8'
+    - PYTEST='pytest>=3.6'
     - PYTEST_COV=pytest-cov
-    - PYTEST_RERUNFAILURES=pytest-rerunfailures
     - PYTEST_PEP8=
     - PYTEST_TIMEOUT=pytest-timeout
     - SPHINX=sphinx
@@ -81,7 +80,6 @@ matrix:
         - PYTEST=pytest==3.6.0
         - PYTEST_COV=pytest-cov==2.3.1
         - PYTEST_TIMEOUT=pytest-timeout==1.2.1  # Newer pytest-timeouts don't support pytest <3.4.
-        - PYTEST_RERUNFAILURES='pytest-rerunfailures<5'  # 5 needs pytest>=3.6
         - SPHINX=sphinx==1.3
     - python: 3.4
       env: PYTHON_ARGS=-OO
@@ -177,7 +175,7 @@ install:
         $PYTEST_COV \
         pytest-faulthandler \
         $PYTEST_PEP8 \
-        $PYTEST_RERUNFAILURES \
+        pytest-rerunfailures \
         $PYTEST_TIMEOUT \
         pytest-xdist
 
