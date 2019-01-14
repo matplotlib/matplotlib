@@ -656,6 +656,10 @@ class Table(Artist):
         return self._cells
 
 
+docstring.interpd.update(Table=artist.kwdoc(Table))
+
+
+@docstring.dedent_interpd
 def table(ax,
           cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
@@ -674,6 +678,9 @@ def table(ax,
     The table can optionally have row and column headers, which are configured
     using *rowLabels*, *rowColours*, *rowLoc* and *colLabels*, *colColours*,
     *colLoc* respectively.
+
+    For finer grained control over tables, use the `.Table` class and add it to
+    the axes with `.Axes.add_table`.
 
     Parameters
     ----------
@@ -726,13 +733,14 @@ def table(ax,
     Other Parameters
     ----------------
     **kwargs
-        `.Artist` properties.
+        `.Table` properties.
+
+    %(Table)s
 
     Returns
     -------
     table : `~matplotlib.table.Table`
         The created table.
-
     """
 
     if cellColours is None and cellText is None:
@@ -829,6 +837,3 @@ def table(ax,
 
     ax.add_table(table)
     return table
-
-
-docstring.interpd.update(Table=artist.kwdoc(Table))

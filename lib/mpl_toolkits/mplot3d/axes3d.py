@@ -2734,18 +2734,14 @@ pivot='tail', normalize=False, **kwargs)
 
     def voxels(self, *args, facecolors=None, edgecolors=None, **kwargs):
         """
-        ax.voxels([x, y, z,] /, filled, **kwargs)
+        ax.voxels([x, y, z,] /, filled, facecolors=None, edgecolors=None, \
+**kwargs)
 
         Plot a set of filled voxels
 
         All voxels are plotted as 1x1x1 cubes on the axis, with filled[0,0,0]
         placed with its lower corner at the origin. Occluded faces are not
         plotted.
-
-        Call signatures::
-
-            voxels(filled, facecolors=fc, edgecolors=ec, **kwargs)
-            voxels(x, y, z, filled, facecolors=fc, edgecolors=ec, **kwargs)
 
         .. versionadded:: 2.1
 
