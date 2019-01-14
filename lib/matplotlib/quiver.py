@@ -18,16 +18,14 @@ import math
 import weakref
 
 import numpy as np
-
 from numpy import ma
-import matplotlib.collections as mcollections
-import matplotlib.transforms as transforms
-import matplotlib.text as mtext
+
+from matplotlib import cbook, docstring, font_manager
 import matplotlib.artist as martist
-from matplotlib import docstring
-import matplotlib.font_manager as font_manager
-from matplotlib.cbook import delete_masked_points
+import matplotlib.collections as mcollections
 from matplotlib.patches import CirclePolygon
+import matplotlib.text as mtext
+import matplotlib.transforms as transforms
 
 
 _quiver_doc = """
@@ -380,7 +378,7 @@ class QuiverKey(martist.Artist):
 # arguments for doing colored vector plots.  Pulling it out here
 # allows both Quiver and Barbs to use it
 def _parse_args(*args):
-    X, Y, U, V, C = [None] * 5
+    X = Y = U = V = C = None
     args = list(args)
 
     # The use of atleast_1d allows for handling scalar arguments while also
@@ -389,6 +387,7 @@ def _parse_args(*args):
         C = np.atleast_1d(args.pop(-1))
     V = np.atleast_1d(args.pop(-1))
     U = np.atleast_1d(args.pop(-1))
+    cbook._check_not_matrix(U=U, V=V, C=C)
     if U.ndim == 1:
         nr, nc = 1, U.shape[0]
     else:
@@ -1144,13 +1143,12 @@ class Barbs(mcollections.PolyCollection):
         self.v = ma.masked_invalid(V, copy=False).ravel()
         if C is not None:
             c = ma.masked_invalid(C, copy=False).ravel()
-            x, y, u, v, c = delete_masked_points(self.x.ravel(),
-                                                 self.y.ravel(),
-                                                 self.u, self.v, c)
+            x, y, u, v, c = cbook.delete_masked_points(
+                self.x.ravel(), self.y.ravel(), self.u, self.v, c)
             _check_consistent_shapes(x, y, u, v, c)
         else:
-            x, y, u, v = delete_masked_points(self.x.ravel(), self.y.ravel(),
-                                              self.u, self.v)
+            x, y, u, v = cbook.delete_masked_points(
+                self.x.ravel(), self.y.ravel(), self.u, self.v)
             _check_consistent_shapes(x, y, u, v)
 
         magnitude = np.hypot(u, v)
@@ -1186,8 +1184,8 @@ class Barbs(mcollections.PolyCollection):
         """
         self.x = xy[:, 0]
         self.y = xy[:, 1]
-        x, y, u, v = delete_masked_points(self.x.ravel(), self.y.ravel(),
-                                          self.u, self.v)
+        x, y, u, v = cbook.delete_masked_points(
+            self.x.ravel(), self.y.ravel(), self.u, self.v)
         _check_consistent_shapes(x, y, u, v)
         xy = np.column_stack((x, y))
         mcollections.PolyCollection.set_offsets(self, xy)
