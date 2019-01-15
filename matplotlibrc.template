@@ -31,9 +31,10 @@
 
 ## The default backend. If you omit this parameter, the first
 ## working backend from the following list is used:
-## MacOSX Qt5Agg Qt4Agg Gtk3Agg GTK3Cairo TkAgg WxAgg Agg Cairo
+## MacOSX Qt5Agg Qt4Agg Gtk3Agg TkAgg WxAgg Agg
 ##
-## Other choices include: WX PS PDF SVG Template.
+## Other choices include:
+## Qt5Cairo Qt4Cairo GTK3Cairo TkCairo WxCairo Cairo Wx PS PDF SVG Template.
 ##
 ## You can also deploy your own backend outside of matplotlib by
 ## referring to the module name (which must be in the PYTHONPATH) as
