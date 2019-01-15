@@ -255,16 +255,15 @@ class GridSpec(GridSpecBase):
 
     def update(self, **kwargs):
         """
-        Update the current values.  If any kwarg is None, default to
-        the current value, if set, otherwise to rc.
-        """
+        Update the current values.
 
+        Values set to None use the rcParams value.
+        """
         for k, v in kwargs.items():
             if k in self._AllowedKeys:
                 setattr(self, k, v)
             else:
-                raise AttributeError("%s is unknown keyword" % (k,))
-
+                raise AttributeError(f"{k} is an unknown keyword")
         for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
                 # copied from Figure.subplots_adjust
