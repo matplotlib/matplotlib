@@ -171,12 +171,6 @@ plt.plot(data)
 #   '/home/foo/.config/matplotlib/matplotlibrc'
 #
 # See below for a sample :ref:`matplotlibrc file<matplotlibrc-sample>`.
-# Although all parameters are optional, you should almost always set the
-# `backend` or else matplotlib will choose `Agg`, a *non-interactive* backend.
-# This can lead to unexpected behavior, since if you do not have a
-# :file:`matplotlibrc` file, it would normally fall back to
-# :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, which is often set to an
-# interactive backend by the package maintainer.
 #
 # .. _matplotlibrc-sample:
 #
