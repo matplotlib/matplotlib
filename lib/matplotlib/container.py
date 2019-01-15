@@ -52,10 +52,11 @@ class Container(tuple):
 
         Parameters
         ----------
-        s : string or anything printable with '%s' conversion.
+        s : object
+            Any object other than None gets converted to its `str`.
         """
         if s is not None:
-            self._label = '%s' % (s, )
+            self._label = str(s)
         else:
             self._label = None
         self.pchanged()

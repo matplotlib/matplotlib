@@ -163,8 +163,8 @@ legend_color_test_ids = [
 @pytest.mark.parametrize('color_type, param_dict, target', legend_color_tests,
                          ids=legend_color_test_ids)
 def test_legend_colors(color_type, param_dict, target):
-    param_dict['legend.%scolor' % (color_type, )] = param_dict.pop('color')
-    get_func = 'get_%scolor' % (color_type, )
+    param_dict[f'legend.{color_type}color'] = param_dict.pop('color')
+    get_func = f'get_{color_type}color'
 
     with mpl.rc_context(param_dict):
         _, ax = plt.subplots()

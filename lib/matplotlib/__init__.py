@@ -718,8 +718,8 @@ class RcParams(MutableMapping, dict):
             dict.__setitem__(self, key, cval)
         except KeyError:
             raise KeyError(
-                '%s is not a valid rc parameter. See rcParams.keys() for a '
-                'list of valid parameters.' % (key,))
+                f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                f"a list of valid parameters)")
 
     def __getitem__(self, key):
         if key in _deprecated_map:

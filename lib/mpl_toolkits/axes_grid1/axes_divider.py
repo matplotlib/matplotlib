@@ -396,7 +396,7 @@ class SubplotDivider(Divider):
                 self._subplotspec = GridSpec(rows, cols)[int(num)-1]
                 # num - 1 for converting from MATLAB to python indexing
         else:
-            raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
+            raise ValueError(f'Illegal argument(s) to subplot: {args}')
 
         # total = rows*cols
         # num -= 1    # convert from matlab to python indexing

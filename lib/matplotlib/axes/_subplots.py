@@ -55,13 +55,12 @@ class SubplotBase(object):
             else:
                 if num < 1 or num > rows*cols:
                     raise ValueError(
-                        ("num must be 1 <= num <= {maxn}, not {num}"
-                        ).format(maxn=rows*cols, num=num))
+                        f"num must be 1 <= num <= {rows*cols}, not {num}")
                 self._subplotspec = GridSpec(
                         rows, cols, figure=self.figure)[int(num) - 1]
                 # num - 1 for converting from MATLAB to python indexing
         else:
-            raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
+            raise ValueError(f'Illegal argument(s) to subplot: {args}')
 
         self.update_params()
 

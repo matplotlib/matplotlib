@@ -864,7 +864,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
                 recurse(referent, start, all, current_path + [obj])
 
     for obj in objects:
-        outstream.write("Examining: %r\n" % (obj,))
+        outstream.write(f"Examining: {obj!r}\n")
         recurse(obj, obj, {}, [])
 
 
