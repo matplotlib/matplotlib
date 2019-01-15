@@ -110,10 +110,12 @@ _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
 @pytest.mark.flaky(reruns=3)
 def test_interactive_backend(backend):
-    if subprocess.run([sys.executable, "-c", _test_script],
-                      env={**os.environ, "MPLBACKEND": backend},
-                      timeout=_test_timeout).returncode:
-        pytest.fail("The subprocess returned an error.")
+    proc = subprocess.run([sys.executable, "-c", _test_script],
+                          env={**os.environ, "MPLBACKEND": backend},
+                          timeout=_test_timeout)
+    if proc.returncode:
+        pytest.fail("The subprocess returned with non-zero exit status "
+                    f"{proc.returncode}.")
 
 
 @pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ,
