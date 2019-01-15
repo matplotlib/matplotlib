@@ -1311,14 +1311,14 @@ default: 'top'
         --------
         ::
 
-            fig=plt.figure()
+            fig = plt.figure()
             fig.add_subplot(221)
 
             # equivalent but more general
-            ax1=fig.add_subplot(2, 2, 1)
+            ax1 = fig.add_subplot(2, 2, 1)
 
             # add a subplot with no frame
-            ax2=fig.add_subplot(222, frameon=False)
+            ax2 = fig.add_subplot(222, frameon=False)
 
             # add a polar subplot
             fig.add_subplot(223, projection='polar')
@@ -1333,7 +1333,7 @@ default: 'top'
             fig.add_subplot(ax2)
         """
         if not len(args):
-            return
+            args = (1, 1, 1)
 
         if len(args) == 1 and isinstance(args[0], Integral):
             if not 100 <= args[0] <= 999:
