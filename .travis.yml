@@ -190,7 +190,7 @@ before_script:
   - |
     if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
       export DISPLAY=:99.0
-      sh -e /etc/init.d/xvfb start
+      systemctl start Xvfb.service
     fi
 
 script: ci/travis/test_script.sh
