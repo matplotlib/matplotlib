@@ -57,7 +57,7 @@ env:
     - PANDAS=
     - PILLOW=pillow
     - PYPARSING=pyparsing
-    - PYTEST='pytest>=3.6'
+    - PYTEST='pytest>=3.6.1'
     - PYTEST_COV=pytest-cov
     - PYTEST_PEP8=
     - PYTEST_TIMEOUT=pytest-timeout
@@ -73,6 +73,7 @@ matrix:
   include:
     - python: 2.7
       # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
+      # pytest>=3.6.1 due to https://github.com/pytest-dev/pytest/commit/b5a94d8e6c49201c8c79a7c52b8466e020e6d6b8
       env:
         - CYCLER=cycler==0.10
         - DATEUTIL=python-dateutil==2.1
@@ -81,7 +82,7 @@ matrix:
         - NUMPY=numpy==1.7.1
         - PANDAS='pandas<0.21.0'
         - PYPARSING=pyparsing==2.0.1
-        - PYTEST=pytest==3.6.0
+        - PYTEST=pytest==3.6.1
         - PYTEST_COV=pytest-cov==2.3.1
         - PYTEST_TIMEOUT=pytest-timeout==1.2.1  # Newer pytest-timeouts don't support pytest <3.4.
         - SPHINX=sphinx==1.3
