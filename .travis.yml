@@ -37,6 +37,7 @@ addons:
       - texlive-latex-extra
       - texlive-latex-recommended
       - texlive-xetex
+      - xvfb
 
 env:
   global:
