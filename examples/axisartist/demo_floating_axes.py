@@ -1,19 +1,17 @@
 """
-==================
-Demo Floating Axes
-==================
+=====================================================
+:mod:`mpl_toolkits.axisartist.floating_axes` features
+=====================================================
 
-Demo of the floating axes.
+Demonstration of features of the :mod:`.floating_axes` module:
 
-This demo shows features of functions in floating_axes:
-    * Using scatter function and bar function with changing the
-      shape of the plot.
-    * Using GridHelperCurveLinear to rotate the plot and set the
-      boundary of the plot.
-    * Using FloatingSubplot to create a subplot using the return
-      value from GridHelperCurveLinear.
-    * Making sector plot by adding more features to GridHelperCurveLinear.
+* Using `scatter` and `bar` with changing the shape of the plot.
+* Using `GridHelperCurveLinear` to rotate the plot and set the plot boundary.
+* Using `FloatingSubplot` to create a subplot using the return value from
+  `GridHelperCurveLinear`.
+* Making a sector plot by adding more features to `GridHelperCurveLinear`.
 """
+
 from matplotlib.transforms import Affine2D
 import mpl_toolkits.axisartist.floating_axes as floating_axes
 import numpy as np
