@@ -3,6 +3,9 @@ language: python
 dist: xenial
 sudo: false
 
+services:
+  - xvfb
+  
 branches:
   except:
   - /^auto-backport-of-pr-\d*/
@@ -186,12 +189,6 @@ install:
     # Install matplotlib
     pip install -ve .
 
-before_script:
-  - |
-    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
-      export DISPLAY=:99.0
-      systemctl start Xvfb.service
-    fi
 
 script: ci/travis/test_script.sh
 
