@@ -1,0 +1,6 @@
+*pil_kwargs* argument to savefig
+````````````````````````````````
+
+Matplotlib uses Pillow to handle saving to the JPEG and TIFF formats.  The
+`~Figure.savefig()` function gained a *pil_kwargs* keyword argument, which can
+be used to forward arguments to Pillow's `PIL.Image.save()`.

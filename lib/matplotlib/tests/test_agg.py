@@ -239,3 +239,14 @@ def test_jpeg_dpi():
     plt.savefig(buf, format="jpg", dpi=200)
     im = Image.open(buf)
     assert im.info['dpi'] == (200, 200)
+
+
+def test_pil_kwargs():
+    Image = pytest.importorskip("PIL.Image")
+    from PIL.TiffTags import TAGS_V2 as TAGS
+    buf = io.BytesIO()
+    pil_kwargs = {"description": "test image"}
+    plt.figure().savefig(buf, format="tiff", pil_kwargs=pil_kwargs)
+    im = Image.open(buf)
+    tags = {TAGS[k].name: v for k, v in im.tag_v2.items()}
+    assert tags["ImageDescription"] == "test image"
