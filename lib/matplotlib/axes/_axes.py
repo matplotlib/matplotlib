@@ -3180,41 +3180,28 @@ class Axes(_AxesBase):
             return xs, ys
 
         def extract_err(err, data):
-            '''private function to compute error bars
+            """
+            Private function to parse *err* and subtract/add it to *data*.
 
-            Parameters
-            ----------
-            err : iterable
-                xerr or yerr from errorbar
-            data : iterable
-                x or y from errorbar
-            '''
-            try:
+            Both *err* and *data* are already iterables at this point.
+            """
+            try:  # Asymmetric error: pair of 1D iterables.
                 a, b = err
+                iter(a)
+                iter(b)
             except (TypeError, ValueError):
-                pass
-            else:
-                if np.iterable(a) and np.iterable(b):
-                    # using list comps rather than arrays to preserve units
-                    low = [thisx - thiserr for thisx, thiserr
-                           in cbook.safezip(data, a)]
-                    high = [thisx + thiserr for thisx, thiserr
-                            in cbook.safezip(data, b)]
-                    return low, high
-            # Check if xerr is scalar or symmetric. Asymmetric is handled
-            # above. This prevents Nx2 arrays from accidentally
-            # being accepted, when the user meant the 2xN transpose.
-            # special case for empty lists
-            if len(err) > 1:
-                fe = cbook.safe_first_element(err)
-                if len(err) != len(data) or np.size(fe) > 1:
-                    raise ValueError("err must be [ scalar | N, Nx1 "
-                                     "or 2xN array-like ]")
-            # using list comps rather than arrays to preserve units
-            low = [thisx - thiserr for thisx, thiserr
-                   in cbook.safezip(data, err)]
-            high = [thisx + thiserr for thisx, thiserr
-                    in cbook.safezip(data, err)]
+                a = b = err  # Symmetric error: 1D iterable.
+            # This could just be `np.ndim(a) > 1 and np.ndim(b) > 1`, except
+            # for the (undocumented, but tested) support for (n, 1) arrays.
+            a_sh = np.shape(a)
+            b_sh = np.shape(b)
+            if (len(a_sh) > 2 or (len(a_sh) == 2 and a_sh[1] != 1)
+                    or len(b_sh) > 2 or (len(b_sh) == 2 and b_sh[1] != 1)):
+                raise ValueError(
+                    "err must be a scalar or a 1D or (2, n) array-like")
+            # Using list comprehensions rather than arrays to preserve units.
+            low = [v - e for v, e in cbook.safezip(data, a)]
+            high = [v + e for v, e in cbook.safezip(data, b)]
             return low, high
 
         if xerr is not None:
