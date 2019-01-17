@@ -2267,10 +2267,20 @@ class Axes(_AxesBase):
         # left, bottom, width, height vectors
         if align == 'center':
             if orientation == 'vertical':
-                left = x - width / 2
+                try:
+                    left = x - width / 2
+                except TypeError as e:
+                    raise TypeError(f'the dtypes of parameters x ({x.dtype}) '
+                                    f'and width ({width.dtype}) '
+                                    f'are incompatible') from e
                 bottom = y
             elif orientation == 'horizontal':
-                bottom = y - height / 2
+                try:
+                    bottom = y - height / 2
+                except TypeError as e:
+                    raise TypeError(f'the dtypes of parameters y ({y.dtype}) '
+                                    f'and height ({height.dtype}) '
+                                    f'are incompatible') from e
                 left = x
         elif align == 'edge':
             left = x
