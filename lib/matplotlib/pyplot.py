@@ -190,8 +190,11 @@ def switch_backend(newbackend):
     close("all")
 
     if newbackend is rcsetup._auto_backend_sentinel:
-        for candidate in ["macosx", "qt5agg", "qt4agg", "gtk3agg", "gtk3cairo",
-                          "tkagg", "wxagg", "agg", "cairo"]:
+        # Don't try to fallback on the cairo-based backends as they each have
+        # an additional dependency (pycairo) over the agg-based backend, and
+        # are of worse quality.
+        for candidate in ["macosx", "qt5agg", "qt4agg", "gtk3agg", "tkagg",
+                          "wxagg", "agg"]:
             try:
                 switch_backend(candidate)
             except ImportError:
