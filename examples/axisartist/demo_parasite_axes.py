@@ -41,7 +41,7 @@ par1.axis["right"].label.set_visible(True)
 
 par2.set_ylabel("Velocity")
 offset = (60, 0)
-new_axisline = par2._grid_helper.new_fixed_axis
+new_axisline = par2.get_grid_helper().new_fixed_axis
 par2.axis["right2"] = new_axisline(loc="right", axes=par2, offset=offset)
 
 fig.add_axes(host)
