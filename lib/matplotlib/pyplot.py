@@ -432,7 +432,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         If num is a string, the window title will be set to this figure's
         `num`.
 
-    figsize : tuple of integers, optional, default: None
+    figsize : tuple of floats, optional, default: None
         width, height in inches. If not provided, defaults to
         :rc:`figure.figsize` = ``[6.4, 4.8]``.
 
