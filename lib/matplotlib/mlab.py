@@ -150,12 +150,12 @@ def detrend(x, key=None, axis=None):
     x : array or sequence
         Array or sequence containing the data.
 
-    key : {'default', 'constant', 'mean', 'linear', 'none'} or function
-        The detrending algorithm to use. 'default', 'mean', and 'constant' are
-        the same as `detrend_mean`. 'linear' is the same as `detrend_linear`.
-        'none' is the same as `detrend_none`. The default is 'mean'. See the
-        corresponding functions for more details regarding the algorithms. Can
-        also be a function that carries out the detrend operation.
+    key : {'mean', 'linear', 'none'} or callable, default: 'mean'
+        The function that performs the detrending.  The string values 'mean'
+        (the default), 'linear' and 'none' respectively correspond to the
+        functions `detrend_mean`, `detrend_linear`, and `detrend_none`; see the
+        docstrings of these functions for additional details.  'constant' and
+        'default' are deprecated synonyms for 'mean'.
 
     axis : int
         The axis along which to do the detrending.
@@ -167,6 +167,11 @@ def detrend(x, key=None, axis=None):
     detrend_none : Implementation of the 'none' algorithm.
     '''
     if key is None or key in ['constant', 'mean', 'default']:
+        if key in ['constant', 'default']:
+            cbook.warn_deprecated(
+                "3.3", name=repr(key),
+                obj_type="string value for the 'key' argument to detrend()",
+                alternative="'mean'")
         return detrend(x, key=detrend_mean, axis=axis)
     elif key == 'linear':
         return detrend(x, key=detrend_linear, axis=axis)

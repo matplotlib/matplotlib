@@ -63,3 +63,11 @@ it via the *cmap* parameter:
 ``DateFormatter.illegal_s``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This attribute is unused and deprecated.
+
+"default" and "constant" detrending
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing "default" or "constant" as synonyms of "mean" as the detrending
+method for the various spectral functions (`.Axes.psd`, `.mlab.detrend`,
+etc.) is deprecated.  This is because the default detrending method of all
+these functions is actually "none" and *not* "default"/"mean", except for
+`.mlab.detrend` which does default to "mean".

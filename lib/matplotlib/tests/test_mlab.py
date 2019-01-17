@@ -760,7 +760,7 @@ class TestDetrend:
         assert_allclose(res, targ,
                         atol=1e-08)
 
-    def test_detrend_str_constant_2D_none_T(self):
+    def test_detrend_str_constant_2D_none_T(self, recwarn):
         arri = [self.sig_off,
                 self.sig_base + self.sig_off]
         arrt = [self.sig_zeros,
@@ -771,7 +771,7 @@ class TestDetrend:
         assert_allclose(res.T, targ,
                         atol=1e-08)
 
-    def test_detrend_str_default_2D_axis1(self):
+    def test_detrend_str_default_2D_axis1(self, recwarn):
         arri = [self.sig_base,
                 self.sig_base + self.sig_off,
                 self.sig_base + self.sig_slope,
