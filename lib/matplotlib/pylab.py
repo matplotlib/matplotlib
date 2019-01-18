@@ -3,9 +3,7 @@ This is a procedural interface to the matplotlib object-oriented
 plotting library.
 
 The following plotting commands are provided; the majority have
-MATLAB |reg| [*]_ analogs and similar arguments.
-
-.. |reg| unicode:: 0xAE
+MATLAB analogs and similar arguments.
 
 _Plotting commands
   acorr     - plot the autocorrelation function
@@ -203,12 +201,6 @@ _Other
   save      - Deprecated--please use savetxt.
   savetxt   - save an array to an ASCII file.
   trapz     - trapezoidal integration
-
-__end
-
-.. [*] MATLAB is a registered trademark of The MathWorks, Inc.
-
-
 """
 
 from matplotlib.cbook import flatten, silent_list, iterable, dedent
