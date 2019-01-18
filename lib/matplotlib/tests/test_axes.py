@@ -6036,3 +6036,11 @@ def test_annotate_across_transforms():
     ax.annotate("", xy=(x[150], y[150]), xycoords=ax.transData,
             xytext=(1, 0), textcoords=axins.transAxes,
             arrowprops=dict(arrowstyle="->"))
+
+
+def test_deprecated_uppercase_colors():
+    # Remove after end of deprecation period.
+    fig, ax = plt.subplots()
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.plot([1, 2], color="B")
+        fig.canvas.draw()

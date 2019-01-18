@@ -194,9 +194,17 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         # Named color.
         try:
             # This may turn c into a non-string, so we check again below.
-            c = _colors_full_map[c.lower()]
+            c = _colors_full_map[c]
         except KeyError:
-            pass
+            try:
+                c = _colors_full_map[c.lower()]
+            except KeyError:
+                pass
+            else:
+                cbook.warn_deprecated(
+                    "3.1", message="Support for case-insensitive colors is "
+                    "deprecated since Matplotlib %(since)s and will be "
+                    "removed %(removal)s.")
     if isinstance(c, str):
         # hex color with no alpha.
         match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
