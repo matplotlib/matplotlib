@@ -1,5 +1,5 @@
 """
-Module for creating Sankey diagrams using matplotlib
+Module for creating Sankey diagrams using Matplotlib.
 """
 
 import logging
@@ -29,7 +29,7 @@ DOWN = 3
 
 class Sankey(object):
     """
-    Sankey diagram in matplotlib
+    Sankey diagram.
 
       Sankey diagrams are a specific type of flow diagram, in which
       the width of the arrows is shown proportionally to the flow
@@ -354,81 +354,84 @@ class Sankey(object):
         """
         Add a simple Sankey diagram with flows at the same hierarchical level.
 
-        Return value is the instance of :class:`Sankey`.
+        Parameters
+        ----------
+        patchlabel : str
+            Label to be placed at the center of the diagram.
+            Note that *label* (not *patchlabel*) can be passed as keyword
+            argument to create an entry in the legend.
 
-        Optional keyword arguments:
+        flows : list of float
+            Array of flow values.  By convention, inputs are positive and
+            outputs are negative.
 
-          ===============   ===================================================
-          Keyword           Description
-          ===============   ===================================================
-          *patchlabel*      label to be placed at the center of the diagram
-                            Note: *label* (not *patchlabel*) will be passed to
-                            the patch through ``**kwargs`` and can be used to
-                            create an entry in the legend.
-          *flows*           array of flow values
-                            By convention, inputs are positive and outputs are
-                            negative.
-          *orientations*    list of orientations of the paths
-                            Valid values are 1 (from/to the top), 0 (from/to
-                            the left or right), or -1 (from/to the bottom).  If
-                            *orientations* == 0, inputs will break in from the
-                            left and outputs will break away to the right.
-          *labels*          list of specifications of the labels for the flows
-                            Each value may be *None* (no labels), '' (just
-                            label the quantities), or a labeling string.  If a
-                            single value is provided, it will be applied to all
-                            flows.  If an entry is a non-empty string, then the
-                            quantity for the corresponding flow will be shown
-                            below the string.  However, if the *unit* of the
-                            main diagram is None, then quantities are never
-                            shown, regardless of the value of this argument.
-          *trunklength*     length between the bases of the input and output
-                            groups
-          *pathlengths*     list of lengths of the arrows before break-in or
-                            after break-away
-                            If a single value is given, then it will be applied
-                            to the first (inside) paths on the top and bottom,
-                            and the length of all other arrows will be
-                            justified accordingly.  The *pathlengths* are not
-                            applied to the horizontal inputs and outputs.
-          *prior*           index of the prior diagram to which this diagram
-                            should be connected
-          *connect*         a (prior, this) tuple indexing the flow of the
-                            prior diagram and the flow of this diagram which
-                            should be connected
-                            If this is the first diagram or *prior* is *None*,
-                            *connect* will be ignored.
-          *rotation*        angle of rotation of the diagram [deg]
-                            *rotation* is ignored if this diagram is connected
-                            to an existing one (using *prior* and *connect*).
-                            The interpretation of the *orientations* argument
-                            will be rotated accordingly (e.g., if *rotation*
-                            == 90, an *orientations* entry of 1 means to/from
-                            the left).
-          ===============   ===================================================
+            Flows are placed along the top of the diagram from the inside out
+            in order of their index within *flows*.  They are placed along the
+            sides of the diagram from the top down and along the bottom from
+            the outside in.
 
-        Valid kwargs are :meth:`matplotlib.patches.PathPatch` arguments:
+            If the sum of the inputs and outputs is
+            nonzero, the discrepancy will appear as a cubic Bezier curve along
+            the top and bottom edges of the trunk.
+
+        orientations : list of {-1, 0, 1}
+            List of orientations of the flows (or a single orientation to be
+            used for all flows).  Valid values are 0 (inputs from
+            the left, outputs to the right), 1 (from and to the top) or -1
+            (from and to the bottom).
+
+        labels : list of (str or None)
+            List of labels for the flows (or a single label to be used for all
+            flows).  Each label may be *None* (no label), or a labeling string.
+            If an entry is a (possibly empty) string, then the quantity for the
+            corresponding flow will be shown below the string.  However, if
+            the *unit* of the main diagram is None, then quantities are never
+            shown, regardless of the value of this argument.
+
+        trunklength : float
+            Length between the bases of the input and output groups (in
+            data-space units).
+
+        pathlengths : list of float
+            List of lengths of the vertical arrows before break-in or after
+            break-away.  If a single value is given, then it will be applied to
+            the first (inside) paths on the top and bottom, and the length of
+            all other arrows will be justified accordingly.  The *pathlengths*
+            are not applied to the horizontal inputs and outputs.
+
+        prior : int
+            Index of the prior diagram to which this diagram should be
+            connected.
+
+        connect : (int, int)
+            A (prior, this) tuple indexing the flow of the prior diagram and
+            the flow of this diagram which should be connected.  If this is the
+            first diagram or *prior* is *None*, *connect* will be ignored.
+
+        rotation : float
+            Angle of rotation of the diagram in degrees.  The interpretation of
+            the *orientations* argument will be rotated accordingly (e.g., if
+            *rotation* == 90, an *orientations* entry of 1 means to/from the
+            left).  *rotation* is ignored if this diagram is connected to an
+            existing one (using *prior* and *connect*).
+
+        Returns
+        -------
+        Sankey
+            The current `.Sankey` instance.
+
+        Other Parameters
+        ----------------
+        **kwargs
+           Additional keyword arguments set `matplotlib.patches.PathPatch`
+           properties, listed below.  For example, one may want to use
+           ``fill=False`` or ``label="A legend entry"``.
 
         %(Patch)s
 
-        As examples, ``fill=False`` and ``label='A legend entry'``.
-        By default, ``facecolor='#bfd1d4'`` (light blue) and
-        ``linewidth=0.5``.
-
-        The indexing parameters (*prior* and *connect*) are zero-based.
-
-        The flows are placed along the top of the diagram from the inside out
-        in order of their index within the *flows* list or array.  They are
-        placed along the sides of the diagram from the top down and along the
-        bottom from the outside in.
-
-        If the sum of the inputs and outputs is nonzero, the discrepancy
-        will appear as a cubic Bezier curve along the top and bottom edges of
-        the trunk.
-
-        .. seealso::
-
-            :meth:`finish`
+        See Also
+        --------
+        Sankey.finish
         """
         # Check and preprocess the arguments.
         if flows is None:
