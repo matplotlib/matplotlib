@@ -122,20 +122,19 @@ class Sankey(object):
         # Check the arguments.
         if gap < 0:
             raise ValueError(
-            "The gap is negative.\nThis isn't allowed because it "
-            "would cause the paths to overlap.")
+                "'gap' is negative, which is not allowed because it would "
+                "cause the paths to overlap")
         if radius > gap:
             raise ValueError(
-            "The inner radius is greater than the path spacing.\n"
-            "This isn't allowed because it would cause the paths to overlap.")
+                "'radius' is greater than 'gap', which is not allowed because "
+                "it would cause the paths to overlap")
         if head_angle < 0:
             raise ValueError(
-            "The angle is negative.\nThis isn't allowed "
-            "because it would cause inputs to look like "
-            "outputs and vice versa.")
+                "'head_angle' is negative, which is not allowed because it "
+                "would cause inputs to look like outputs and vice versa")
         if tolerance < 0:
             raise ValueError(
-            "The tolerance is negative.\nIt must be a magnitude.")
+                "'tolerance' is negative, but it must be a magnitude")
 
         # Create axes if necessary.
         if ax is None:
@@ -451,18 +450,17 @@ class Sankey(object):
             % (len(orientations), n))
         if not cbook.is_scalar_or_string(labels) and len(labels) != n:
             raise ValueError(
-                "If labels is a list, then labels and flows must have the "
-                "same length.\nlabels has length %d, but flows has length %d."
-                % (len(labels), n))
+                f"The lengths of 'flows' ({n}) and 'labels' ({len(labels)}) "
+                f"are incompatible")
         else:
             labels = [labels] * n
         if trunklength < 0:
             raise ValueError(
-            "trunklength is negative.\nThis isn't allowed, because it would "
-            "cause poor layout.")
+                "'trunklength' is negative, which is not allowed because it "
+                "would cause poor layout")
         if np.abs(np.sum(flows)) > self.tolerance:
             _log.info("The sum of the flows is nonzero (%f).\nIs the "
-                     "system not at steady state?", np.sum(flows))
+                      "system not at steady state?", np.sum(flows))
         scaled_flows = self.scale * flows
         gain = sum(max(flow, 0) for flow in scaled_flows)
         loss = sum(min(flow, 0) for flow in scaled_flows)
@@ -478,36 +476,34 @@ class Sankey(object):
                 " that the scaled sum is approximately 1.0.", gain)
         if prior is not None:
             if prior < 0:
-                raise ValueError("The index of the prior diagram is negative.")
+                raise ValueError("The index of the prior diagram is negative")
             if min(connect) < 0:
                 raise ValueError(
-                "At least one of the connection indices is negative.")
+                    "At least one of the connection indices is negative")
             if prior >= len(self.diagrams):
                 raise ValueError(
-                "The index of the prior diagram is %d, but there are "
-                "only %d other diagrams.\nThe index is zero-based."
-                % (prior, len(self.diagrams)))
+                    f"The index of the prior diagram is {prior}, but there "
+                    f"are only {len(self.diagrams)} other diagrams")
             if connect[0] >= len(self.diagrams[prior].flows):
                 raise ValueError(
-                "The connection index to the source diagram is %d, but "
-                "that diagram has only %d flows.\nThe index is zero-based."
-                % (connect[0], len(self.diagrams[prior].flows)))
+                    "The connection index to the source diagram is {}, but "
+                    "that diagram has only {} flows".format(
+                        connect[0], len(self.diagrams[prior].flows)))
             if connect[1] >= n:
                 raise ValueError(
-                "The connection index to this diagram is %d, but this diagram"
-                "has only %d flows.\n The index is zero-based."
-                % (connect[1], n))
+                    f"The connection index to this diagram is {connect[1]}, "
+                    f"but this diagram has only {n} flows")
             if self.diagrams[prior].angles[connect[0]] is None:
                 raise ValueError(
-                "The connection cannot be made.  Check that the magnitude "
-                "of flow %d of diagram %d is greater than or equal to the "
-                "specified tolerance." % (connect[0], prior))
+                    f"The connection cannot be made, which may occur if the "
+                    f"magnitude of flow {connect[0]} of diagram {prior} is "
+                    f"less than the specified tolerance")
             flow_error = (self.diagrams[prior].flows[connect[0]] +
                           flows[connect[1]])
             if abs(flow_error) >= self.tolerance:
                 raise ValueError(
-                "The scaled sum of the connected flows is %f, which is not "
-                "within the tolerance (%f)." % (flow_error, self.tolerance))
+                    f"The scaled sum of the connected flows is {flow_error}, "
+                    f"which is not within the tolerance ({self.tolerance})")
 
         # Determine if the flows are inputs.
         are_inputs = [None] * n
@@ -537,8 +533,8 @@ class Sankey(object):
             else:
                 if orient != -1:
                     raise ValueError(
-                    "The value of orientations[%d] is %d, "
-                    "but it must be [ -1 | 0 | 1 ]." % (i, orient))
+                        f"The value of orientations[{i}] is {orient}, "
+                        f"but it must be -1, 0, or 1")
                 if is_input:
                     angles[i] = UP
                 elif not is_input:
@@ -548,9 +544,8 @@ class Sankey(object):
         if np.iterable(pathlengths):
             if len(pathlengths) != n:
                 raise ValueError(
-                "If pathlengths is a list, then pathlengths and flows must "
-                "have the same length.\npathlengths has length %d, but flows "
-                "has length %d." % (len(pathlengths), n))
+                    f"The lengths of 'flows' ({n}) and 'pathlengths' "
+                    f"({len(pathlengths)}) are incompatible")
         else:  # Make pathlengths into a list.
             urlength = pathlengths
             ullength = pathlengths
