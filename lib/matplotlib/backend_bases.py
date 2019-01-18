@@ -923,11 +923,14 @@ class GraphicsContextBase(object):
 
     def set_foreground(self, fg, isRGBA=False):
         """
-        Set the foreground color.  fg can be a MATLAB format string, a
-        html hex color string, an rgb or rgba unit tuple, or a float between 0
-        and 1.  In the latter case, grayscale is used.
+        Set the foreground color.
 
-        If you know fg is rgba, set ``isRGBA=True`` for efficiency.
+        Parameters
+        ----------
+        fg : color
+        isRGBA : bool
+            If *fg* is known to be an ``(r, g, b, a)`` tuple, *isRGBA* can be
+            set to True to improve performance.
         """
         if self._forced_alpha and isRGBA:
             self._rgb = fg[:3] + (self._alpha,)
@@ -1899,10 +1902,10 @@ class FigureCanvasBase(object):
         dpi : scalar, optional
             the dots per inch to save the figure in; if None, use savefig.dpi
 
-        facecolor : color spec or None, optional
+        facecolor : color or None, optional
             the facecolor of the figure; if None, defaults to savefig.facecolor
 
-        edgecolor : color spec or None, optional
+        edgecolor : color or None, optional
             the edgecolor of the figure; if None, defaults to savefig.edgecolor
 
         format : str, optional
