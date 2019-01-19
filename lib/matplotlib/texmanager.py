@@ -29,6 +29,7 @@ To enable tex rendering of all text in your matplotlib figure, set
 """
 
 import copy
+import functools
 import glob
 import hashlib
 import logging
@@ -48,6 +49,8 @@ _log = logging.getLogger(__name__)
 class TexManager(object):
     """
     Convert strings to dvi files using TeX, caching the results to a directory.
+
+    Repeated calls to this constructor always return the same instance.
     """
 
     cachedir = mpl.get_cachedir()
@@ -93,8 +96,13 @@ class TexManager(object):
         ('text.latex.preamble', 'text.latex.unicode', 'text.latex.preview',
          'font.family') + tuple('font.' + n for n in font_families))
 
-    def __init__(self):
+    @functools.lru_cache()  # Always return the same instance.
+    def __new__(cls):
+        self = object.__new__(cls)
+        self._reinit()
+        return self
 
+    def _reinit(self):
         if self.texcache is None:
             raise RuntimeError('Cannot create TexManager, as there is no '
                                'cache directory available')
@@ -167,7 +175,7 @@ class TexManager(object):
                 # deepcopy may not be necessary, but feels more future-proof
                 self._rc_cache[k] = copy.deepcopy(rcParams[k])
             _log.debug('RE-INIT\nold fontconfig: %s', self._fontconfig)
-            self.__init__()
+            self._reinit()
         _log.debug('fontconfig: %s', self._fontconfig)
         return self._fontconfig
 
