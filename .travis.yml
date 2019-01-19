@@ -125,7 +125,7 @@ before_install:
     else
       brew update
       brew tap homebrew/gui
-      brew install python libpng ffmpeg imagemagick mplayer ccache
+      # brew install python libpng ffmpeg imagemagick mplayer ccache
       # We could install ghostscript and inkscape here to test svg and pdf
       # but this makes the test time really long.
       # brew install ghostscript inkscape
