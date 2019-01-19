@@ -1,6 +1,5 @@
-
 """
-provides a classes of simple units that will be used with AxesDivider
+Provides a classes of simple units that will be used with AxesDivider
 class (or others) to determine the size of each axes. The unit
 classes define `get_size` method that returns a tuple of two floats,
 meaning relative and absolute sizes, respectively.
@@ -8,8 +7,8 @@ meaning relative and absolute sizes, respectively.
 Note that this class is nothing more than a simple tuple of two
 floats. Take a look at the Divider class to see how these two
 values are used.
-
 """
+
 from numbers import Number
 
 from matplotlib.axes import Axes

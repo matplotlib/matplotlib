@@ -140,30 +140,24 @@ class Grid(object):
                  axes_class=None,
                  ):
         """
-        Build an :class:`Grid` instance with a grid nrows*ncols
-        :class:`~matplotlib.axes.Axes` in
-        :class:`~matplotlib.figure.Figure` *fig* with
-        *rect=[left, bottom, width, height]* (in
-        :class:`~matplotlib.figure.Figure` coordinates) or
-        the subplot position code (e.g., "121").
-
-        Optional keyword arguments:
-
-          ================  ========  =========================================
-          Keyword           Default   Description
-          ================  ========  =========================================
-          direction         "row"     [ "row" | "column" ]
-          axes_pad          0.02      float| pad between axes given in inches
-                                      or tuple-like of floats,
-                                      (horizontal padding, vertical padding)
-          add_all           True      bool
-          share_all         False     bool
-          share_x           True      bool
-          share_y           True      bool
-          label_mode        "L"       [ "L" | "1" | "all" ]
-          axes_class        None      a type object which must be a subclass
-                                      of :class:`~matplotlib.axes.Axes`
-          ================  ========  =========================================
+        Parameters
+        ----------
+        fig : Figure
+            The parent figure.
+        rect : (float, float, float, float) or int
+            The axes position, as a ``(left, bottom, width, height)`` tuple or
+            as a three-digit subplot position code (e.g., "121").
+        direction : {"row", "column"}, defaults to "row"
+        axes_pad : float or (float, float), defaults to 0.02
+            Padding or (horizontal padding, vertical padding) between axes, in
+            inches.
+        add_all : bool, defaults to True
+        share_all : bool, defaults to False
+        share_x : bool, defaults to True
+        share_y : bool, defaults to True
+        label_mode : {"L", "1", "all"}, defaults to "L"
+        axes_class : a type that is a subclass of `matplotlib.axes.Axes`, \
+defaults to None
         """
         self._nrows, self._ncols = nrows_ncols
 
@@ -437,38 +431,30 @@ class ImageGrid(Grid):
                  axes_class=None,
                  ):
         """
-        Build an :class:`ImageGrid` instance with a grid nrows*ncols
-        :class:`~matplotlib.axes.Axes` in
-        :class:`~matplotlib.figure.Figure` *fig* with
-        *rect=[left, bottom, width, height]* (in
-        :class:`~matplotlib.figure.Figure` coordinates) or
-        the subplot position code (e.g., "121").
-
-        Optional keyword arguments:
-
-          ================  ========  =========================================
-          Keyword           Default   Description
-          ================  ========  =========================================
-          direction         "row"     [ "row" | "column" ]
-          axes_pad          0.02      float| pad between axes given in inches
-                                      or tuple-like of floats,
-                                      (horizontal padding, vertical padding)
-          add_all           True      bool
-          share_all         False     bool
-          aspect            True      bool
-          label_mode        "L"       [ "L" | "1" | "all" ]
-          cbar_mode         None      [ "each" | "single" | "edge" ]
-          cbar_location     "right"   [ "left" | "right" | "bottom" | "top" ]
-          cbar_pad          None
-          cbar_size         "5%"
-          cbar_set_cax      True      bool
-          axes_class        None      a type object which must be a subclass
-                                      of axes_grid's subclass of
-                                      :class:`~matplotlib.axes.Axes`
-          ================  ========  =========================================
-
-        *cbar_set_cax* : if True, each axes in the grid has a cax
-          attribute that is bind to associated cbar_axes.
+        Parameters
+        ----------
+        fig : Figure
+            The parent figure.
+        rect : (float, float, float, float) or int
+            The axes position, as a ``(left, bottom, width, height)`` tuple or
+            as a three-digit subplot position code (e.g., "121").
+        direction : {"row", "column"}, defaults to "row"
+        axes_pad : float or (float, float), defaults to 0.02
+            Padding or (horizontal padding, vertical padding) between axes, in
+            inches.
+        add_all : bool, defaults to True
+        share_all : bool, defaults to False
+        aspect : bool, defaults to True
+        label_mode : {"L", "1", "all"}, defaults to "L"
+        cbar_mode : {"each", "single", "edge", None }, defaults to None
+        cbar_location : {"left", "right", "bottom", "top"}, defaults to "right"
+        cbar_pad : float, defaults to None
+        cbar_size : size specification (see `.Size.from_any`), defaults to "5%"
+        cbar_set_cax : bool, defaults to True
+            If True, each axes in the grid has a *cax* attribute that is bound
+            to associated *cbar_axes*.
+        axes_class : a type that is a subclass of `matplotlib.axes.Axes`, \
+defaults to None
         """
         self._nrows, self._ncols = nrows_ncols
 
