@@ -222,7 +222,7 @@ class UnitData(object):
             if val not in self._mapping:
                 self._mapping[val] = next(self._counter)
         if convertable:
-            _log.info('Using categrocical units to plot a list of strings '
+            _log.info('Using categorical units to plot a list of strings '
                       'that are all parsable as floats or dates. If these '
                       'strings should be plotted as numbers, cast to the '
                       'approriate data type before plotting.')
