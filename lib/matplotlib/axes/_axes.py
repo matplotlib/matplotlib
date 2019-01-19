@@ -2057,7 +2057,7 @@ class Axes(_AxesBase):
             dx = [convert(x0 + ddx) - x for ddx in dx]
             if delist:
                 dx = dx[0]
-        except Exception:
+        except (ValueEerror, TypeError, AttributeError):
             # if the above fails (for any reason) just fallback to what
             # we do by default and convert dx by iteslf.
             dx = convert(dx)
