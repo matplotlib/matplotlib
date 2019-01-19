@@ -33,11 +33,11 @@ if __name__ == '__main__':
     from matplotlib import colors
     import matplotlib.pyplot as plt
 
-    xmin, xmax, xn = -2.25, +0.75, 3000/2
-    ymin, ymax, yn = -1.25, +1.25, 2500/2
+    xmin, xmax, xn = -2.25, +0.75, 3000 // 2
+    ymin, ymax, yn = -1.25, +1.25, 2500 // 2
     maxiter = 200
     horizon = 2.0 ** 40
-    log_horizon = np.log(np.log(horizon))/np.log(2)
+    log_horizon = np.log2(np.log(horizon))
     Z, N = mandelbrot_set(xmin, xmax, ymin, ymax, xn, yn, maxiter, horizon)
 
     # Normalized recount as explained in:
@@ -47,15 +47,13 @@ if __name__ == '__main__':
     # This line will generate warnings for null values but it is faster to
     # process them afterwards using the nan_to_num
     with np.errstate(invalid='ignore'):
-        M = np.nan_to_num(N + 1 -
-                          np.log(np.log(abs(Z)))/np.log(2) +
-                          log_horizon)
+        M = np.nan_to_num(N + 1 - np.log2(np.log(abs(Z))) + log_horizon)
 
     dpi = 72
     width = 10
     height = 10*yn/xn
     fig = plt.figure(figsize=(width, height), dpi=dpi)
-    ax = fig.add_axes([0.0, 0.0, 1.0, 1.0], frameon=False, aspect=1)
+    ax = fig.add_axes([0, 0, 1, 1], frameon=False, aspect=1)
 
     # Shaded rendering
     light = colors.LightSource(azdeg=315, altdeg=10)
