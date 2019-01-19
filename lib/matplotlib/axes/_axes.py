@@ -2645,11 +2645,11 @@ class Axes(_AxesBase):
                 'To remove this warning and switch to the new behaviour, '
                 'set the "use_line_collection" keyword argument to True.')
             stemlines = []
-            for thisx, thisy in zip(x, y):
-                l, = self.plot([thisx, thisx], [bottom, thisy],
+            for xi, yi in zip(x, y):
+                l, = self.plot([xi, xi], [bottom, yi],
                                color=linecolor, linestyle=linestyle,
                                marker=linemarker, label="_nolegend_")
-            stemlines.append(l)
+                stemlines.append(l)
 
         markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
                                 marker=markermarker, label="_nolegend_")
