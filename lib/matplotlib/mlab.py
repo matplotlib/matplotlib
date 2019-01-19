@@ -669,15 +669,15 @@ docstring.interpd.update(PSD=cbook.dedent("""
         This should *NOT* be used to get zero padding, or the scaling of the
         result will be incorrect. Use *pad_to* for this instead.
 
-    detrend : {'default', 'constant', 'mean', 'linear', 'none'} or callable
+    detrend : {'none', 'mean', 'linear'} or callable, default 'none'
         The function applied to each segment before fft-ing, designed to
         remove the mean or linear trend.  Unlike in MATLAB, where the
         *detrend* parameter is a vector, in Matplotlib is it a function.
         The :mod:`~matplotlib.mlab` module defines `.detrend_none`,
         `.detrend_mean`, and `.detrend_linear`, but you can use a custom
         function as well.  You can also use a string to choose one of the
-        functions. 'default', 'constant', and 'mean' call `.detrend_mean`.
-        'linear' calls `.detrend_linear`. 'none' calls `.detrend_none`.
+        functions: 'none' calls `.detrend_none`. 'mean' calls `.detrend_mean`.
+        'linear' calls `.detrend_linear`.
 
     scale_by_freq : bool, optional
         Specifies whether the resulting density values should be scaled
@@ -692,12 +692,6 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     r"""
     Compute the power spectral density.
-
-    Call signature::
-
-        psd(x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-            window=mlab.window_hanning, noverlap=0, pad_to=None,
-            sides='default', scale_by_freq=None)
 
     The power spectral density :math:`P_{xx}` by Welch's average
     periodogram method.  The vector *x* is divided into *NFFT* length
@@ -755,12 +749,6 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     """
     Compute the cross-spectral density.
-
-    Call signature::
-
-        csd(x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-            window=mlab.window_hanning, noverlap=0, pad_to=None,
-            sides='default', scale_by_freq=None)
 
     The cross spectral density :math:`P_{xy}` by Welch's average
     periodogram method.  The vectors *x* and *y* are divided into

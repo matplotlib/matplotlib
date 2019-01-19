@@ -6110,12 +6110,9 @@ optional.
         """
         Create a pseudocolor plot with a non-regular rectangular grid.
 
-        Call signatures::
+        Call signature::
 
-          ax.pcolorfast(C, **kwargs)
-          ax.pcolorfast(xr, yr, C, **kwargs)
-          ax.pcolorfast(x, y, C, **kwargs)
-          ax.pcolorfast(X, Y, C, **kwargs)
+          ax.pcolorfast([X, Y], C, /, **kwargs)
 
         This method is similar to ~.Axes.pcolor` and `~.Axes.pcolormesh`.
         It's designed to provide the fastest pcolor-type plotting with the
@@ -6135,24 +6132,24 @@ optional.
         Parameters
         ----------
         C : array-like(M, N)
-            A scalar 2D array. The values will be color-mapped.
-            *C* may be a masked array.
+            A 2D array or masked array. The values will be color-mapped.
+            This argument can only be passed positionally.
 
-        x, y : tuple or array-like
+        X, Y : tuple or array-like, default: ``(0, N)``, ``(0, M)``
             *X* and *Y* are used to specify the coordinates of the
             quadilaterals. There are different ways to do this:
 
-            - Use tuples ``xr=(xmin, xmax)`` and ``yr=(ymin, ymax)`` to define
+            - Use tuples ``X=(xmin, xmax)`` and ``Y=(ymin, ymax)`` to define
               a *uniform rectiangular grid*.
 
               The tuples define the outer edges of the grid. All individual
               quadrilaterals will be of the same size. This is the fastest
               version.
 
-            - Use 1D arrays *x*, *y* to specify a *non-uniform rectangular
+            - Use 1D arrays *X*, *Y* to specify a *non-uniform rectangular
               grid*.
 
-              In this case *x* and *y* have to be monotonic 1D arrays of length
+              In this case *X* and *Y* have to be monotonic 1D arrays of length
               *N+1* and *M+1*, specifying the x and y boundaries of the cells.
 
               The speed is intermediate. Note: The grid is checked, and if
@@ -6169,7 +6166,7 @@ optional.
               produce faster and more compact output using ps, pdf, and
               svg backends, however.
 
-            Leaving out *x* and *y* defaults to ``xr=(0, N)``, ``yr=(O, M)``.
+            These arguments can only be passed positionally.
 
         cmap : str or `~matplotlib.colors.Colormap`, optional
             A Colormap instance or registered colormap name. The colormap
@@ -6321,32 +6318,7 @@ optional.
         return CS.clabel(*args, **kwargs)
     clabel.__doc__ = mcontour.ContourSet.clabel.__doc__
 
-    @docstring.dedent_interpd
-    def table(self, **kwargs):
-        """
-        Add a table to the current axes.
-
-        Call signature::
-
-          table(cellText=None, cellColours=None,
-                cellLoc='right', colWidths=None,
-                rowLabels=None, rowColours=None, rowLoc='left',
-                colLabels=None, colColours=None, colLoc='center',
-                loc='bottom', bbox=None)
-
-        Returns a :class:`matplotlib.table.Table` instance. Either `cellText`
-        or `cellColours` must be provided. For finer grained control over
-        tables, use the :class:`~matplotlib.table.Table` class and add it to
-        the axes with :meth:`~matplotlib.axes.Axes.add_table`.
-
-        Thanks to John Gill for providing the class and table.
-
-        kwargs control the :class:`~matplotlib.table.Table`
-        properties:
-
-        %(Table)s
-        """
-        return mtable.table(self, **kwargs)
+    table = mtable.table
 
     #### Data analysis
 
@@ -6983,12 +6955,6 @@ optional.
         r"""
         Plot the power spectral density.
 
-        Call signature::
-
-          psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-              window=mlab.window_hanning, noverlap=0, pad_to=None,
-              sides='default', scale_by_freq=None, return_line=None, **kwargs)
-
         The power spectral density :math:`P_{xx}` by Welch's average
         periodogram method.  The vector *x* is divided into *NFFT* length
         segments.  Each segment is detrended by function *detrend* and
@@ -7106,12 +7072,6 @@ optional.
         """
         Plot the cross-spectral density.
 
-        Call signature::
-
-          csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-              window=mlab.window_hanning, noverlap=0, pad_to=None,
-              sides='default', scale_by_freq=None, return_line=None, **kwargs)
-
         The cross spectral density :math:`P_{xy}` by Welch's average
         periodogram method.  The vectors *x* and *y* are divided into
         *NFFT* length segments.  Each segment is detrended by function
@@ -7218,11 +7178,6 @@ optional.
         """
         Plot the magnitude spectrum.
 
-        Call signature::
-
-          magnitude_spectrum(x, Fs=2, Fc=0,  window=mlab.window_hanning,
-                             pad_to=None, sides='default', **kwargs)
-
         Compute the magnitude spectrum of *x*.  Data is padded to a
         length of *pad_to* and the windowing function *window* is applied to
         the signal.
@@ -7320,11 +7275,6 @@ optional.
         """
         Plot the angle spectrum.
 
-        Call signature::
-
-          angle_spectrum(x, Fs=2, Fc=0,  window=mlab.window_hanning,
-                         pad_to=None, sides='default', **kwargs)
-
         Compute the angle spectrum (wrapped phase spectrum) of *x*.
         Data is padded to a length of *pad_to* and the windowing function
         *window* is applied to the signal.
@@ -7401,11 +7351,6 @@ optional.
                        pad_to=None, sides=None, **kwargs):
         """
         Plot the phase spectrum.
-
-        Call signature::
-
-          phase_spectrum(x, Fs=2, Fc=0,  window=mlab.window_hanning,
-                         pad_to=None, sides='default', **kwargs)
 
         Compute the phase spectrum (unwrapped angle spectrum) of *x*.
         Data is padded to a length of *pad_to* and the windowing function
@@ -7550,14 +7495,6 @@ optional.
                  vmin=None, vmax=None, **kwargs):
         """
         Plot a spectrogram.
-
-        Call signature::
-
-          specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-                   window=mlab.window_hanning, noverlap=128,
-                   cmap=None, xextent=None, pad_to=None, sides='default',
-                   scale_by_freq=None, mode='default', scale='default',
-                   **kwargs)
 
         Compute and plot a spectrogram of data in *x*.  Data are split into
         *NFFT* length segments and the spectrum of each section is
