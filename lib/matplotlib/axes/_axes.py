@@ -2543,7 +2543,8 @@ class Axes(_AxesBase):
             If ``True``, store and plot the stem lines as a
             `~.collections.LineCollection` instead of individual lines. This
             significantly increases performance, and will become the default
-            option in Matplotlib 3.3. If ``False``, defaults to old behaviour.
+            option in Matplotlib 3.3. If ``False``, defaults to the old
+            behavior of using a list of `.Line2D` objects.
 
 
         Returns
@@ -2630,8 +2631,7 @@ class Axes(_AxesBase):
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
         if use_line_collection:
             stemlines = []
-            for thisx, thisy in zip(x, y):
-                stemlines.append(((thisx, bottom), (thisx, thisy)))
+            stemlines = [((xi, bottom), (xi, yi)) for xi, yi in zip(x, y)]
             stemlines = mcoll.LineCollection(stemlines, linestyles=linestyle,
                                              colors=linecolor,
                                              label='_nolegend_')
