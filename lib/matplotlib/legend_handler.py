@@ -618,26 +618,19 @@ class HandlerStem(HandlerNpointsYoffsets):
             orig_update_func = self._update_prop_func
             self._update_prop_func = self._copy_collection_props
 
-            for thisx, thisy in zip(xdata_marker, ydata):
-                thisline = Line2D([thisx, thisx], [bottom, thisy])
-                leg_stemlines.append(thisline)
-                self.update_prop(thisline, stemlines, legend)
+            for line in leg_stemlines:
+                self.update_prop(line, stemlines, legend)
 
-            self._update_prop_func = orig_update_func
         else:
-            for thisx, thisy in zip(xdata_marker, ydata):
-                thisline = Line2D([thisx, thisx], [bottom, thisy])
-                leg_stemlines.append(thisline)
             for lm, m in zip(leg_stemlines, stemlines):
                 self.update_prop(lm, m, legend)
 
+        if using_linecoll:
+            self._update_prop_func = orig_update_func
+
         leg_baseline = Line2D([np.min(xdata), np.max(xdata)],
                               [bottom, bottom])
-
         self.update_prop(leg_baseline, baseline, legend)
-
-        leg_markerline = Line2D(xdata_marker, ydata[:len(xdata_marker)])
-        self.update_prop(leg_markerline, markerline, legend)
 
         artists = leg_stemlines
         artists.append(leg_baseline)
