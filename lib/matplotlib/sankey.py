@@ -442,12 +442,14 @@ class Sankey(object):
             # In the code below, angles are expressed in deg/90.
             rotation /= 90.0
         if orientations is None:
-            orientations = [0, 0]
-        if len(orientations) != n:
+            orientations = 0
+        try:
+            orientations = np.broadcast_to(orientations, n)
+        except ValueError:
             raise ValueError(
-            "orientations and flows must have the same length.\n"
-            "orientations has length %d, but flows has length %d."
-            % (len(orientations), n))
+                f"The shapes of 'flows' {np.shape(flows)} and 'orientations' "
+                f"{np.shape(orientations)} are incompatible"
+            ) from None
         if not cbook.is_scalar_or_string(labels) and len(labels) != n:
             raise ValueError(
                 f"The lengths of 'flows' ({n}) and 'labels' ({len(labels)}) "
