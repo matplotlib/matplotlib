@@ -3200,8 +3200,13 @@ class Axes(_AxesBase):
                 raise ValueError(
                     "err must be a scalar or a 1D or (2, n) array-like")
             # Using list comprehensions rather than arrays to preserve units.
-            low = [v - e for v, e in cbook.safezip(data, a)]
-            high = [v + e for v, e in cbook.safezip(data, b)]
+            for e in [a, b]:
+                if len(data) != len(e):
+                    raise ValueError(
+                        f"The lengths of the data ({len(data)}) and the "
+                        f"error {len(e)} do not match")
+            low = [v - e for v, e in zip(data, a)]
+            high = [v + e for v, e in zip(data, b)]
             return low, high
 
         if xerr is not None:
