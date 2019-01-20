@@ -173,7 +173,7 @@ ax2.plot(x, y**2, 'tab:orange')
 ax3.plot(x + 1, -y, 'tab:green')
 ax4.plot(x + 2, -y**2, 'tab:red')
 
-for ax in axs:
+for ax in axs.flat:
     ax.label_outer()
 
 ###############################################################################
