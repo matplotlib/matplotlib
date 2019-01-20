@@ -29,7 +29,7 @@ Multiple subplots in one figure
 Multiple axes (i.e. subplots) are created with the
 :func:`~matplotlib.pyplot.subplot` function:
 
-.. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_subplot_001.png
+.. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_subplots_demo_001.png
    :target: ../../gallery/subplots_axes_and_figures/subplot.html
    :align: center
    :scale: 50
