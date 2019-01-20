@@ -840,6 +840,7 @@ class Axes3D(Axes):
         ACCEPTS: [%(scale)s]
 
         Different kwargs are accepted, depending on the scale:
+
         %(scale_docs)s
 
         .. note ::
