@@ -4,10 +4,10 @@ import pytest
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm
+from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm, Normalize
 from matplotlib.cm import get_cmap
-from matplotlib.colorbar import ColorbarBase
-from matplotlib.ticker import LogLocator, LogFormatter
+from matplotlib.colorbar import ColorbarBase, _ColorbarLogLocator
+from matplotlib.ticker import LogLocator, LogFormatter, FixedLocator
 
 
 def _get_cmap_norms():
@@ -442,21 +442,67 @@ def test_colorbar_renorm():
     fig, ax = plt.subplots()
     im = ax.imshow(z)
     cbar = fig.colorbar(im)
+    assert np.allclose(cbar.ax.yaxis.get_majorticklocs(),
+                       np.arange(0, 120000.1, 15000))
+
+    cbar.set_ticks([1, 2, 3])
+    assert isinstance(cbar.locator, FixedLocator)
 
     norm = LogNorm(z.min(), z.max())
     im.set_norm(norm)
-    cbar.set_norm(norm)
-    cbar.locator = LogLocator()
-    cbar.formatter = LogFormatter()
-    cbar.update_normal(im)
+    assert isinstance(cbar.locator, _ColorbarLogLocator)
+    assert np.allclose(cbar.ax.yaxis.get_majorticklocs(),
+                       np.logspace(-8, 5, 14))
+    # note that set_norm removes the FixedLocator...
     assert np.isclose(cbar.vmin, z.min())
+    cbar.set_ticks([1, 2, 3])
+    assert isinstance(cbar.locator, FixedLocator)
+    assert np.allclose(cbar.ax.yaxis.get_majorticklocs(),
+                       [1.0, 2.0, 3.0])
 
     norm = LogNorm(z.min() * 1000, z.max() * 1000)
     im.set_norm(norm)
-    cbar.set_norm(norm)
-    cbar.update_normal(im)
     assert np.isclose(cbar.vmin, z.min() * 1000)
     assert np.isclose(cbar.vmax, z.max() * 1000)
+
+
+def test_colorbar_format():
+    # make sure that format is passed properly
+    x, y = np.ogrid[-4:4:31j, -4:4:31j]
+    z = 120000*np.exp(-x**2 - y**2)
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(z)
+    cbar = fig.colorbar(im, format='%4.2e')
+    fig.canvas.draw()
+    assert cbar.ax.yaxis.get_ticklabels()[4].get_text() == '6.00e+04'
+
+    # make sure that if we change the clim of the mappable that the
+    # formatting is *not* lost:
+    im.set_clim([4, 200])
+    fig.canvas.draw()
+    assert cbar.ax.yaxis.get_ticklabels()[4].get_text() == '8.00e+01'
+
+    # but if we change the norm:
+    im.set_norm(LogNorm(vmin=0.1, vmax=10))
+    fig.canvas.draw()
+    assert (cbar.ax.yaxis.get_ticklabels()[0].get_text() ==
+            r'$\mathdefault{10^{-1}}$')
+
+
+def test_colorbar_scale_reset():
+    x, y = np.ogrid[-4:4:31j, -4:4:31j]
+    z = 120000*np.exp(-x**2 - y**2)
+
+    fig, ax = plt.subplots()
+    pcm = ax.pcolormesh(z, cmap='RdBu_r', rasterized=True)
+    cbar = fig.colorbar(pcm, ax=ax)
+    assert cbar.ax.yaxis.get_scale() == 'linear'
+
+    pcm.set_norm(LogNorm(vmin=1, vmax=100))
+    assert cbar.ax.yaxis.get_scale() == 'log'
+    pcm.set_norm(Normalize(vmin=-20, vmax=20))
+    assert cbar.ax.yaxis.get_scale() == 'linear'
 
 
 def test_colorbar_get_ticks():
