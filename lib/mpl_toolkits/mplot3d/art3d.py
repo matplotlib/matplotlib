@@ -790,9 +790,9 @@ def zalpha(colors, zs):
     #        in all three dimensions. Otherwise, at certain orientations,
     #        the min and max zs are very close together.
     #        Should really normalize against the viewing depth.
-    colors = get_colors(colors, len(zs))
-    if len(zs):
-        norm = Normalize(min(zs), max(zs))
-        sats = 1 - norm(zs) * 0.7
-        colors = [(c[0], c[1], c[2], c[3] * s) for c, s in zip(colors, sats)]
-    return colors
+    if len(zs) == 0:
+        return np.zeros((0, 4))
+    norm = Normalize(min(zs), max(zs))
+    sats = 1 - norm(zs) * 0.7
+    rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
+    return np.column_stack([rgba[:, :3], rgba[:, 3] * sats])
