@@ -1775,14 +1775,42 @@ class QuadContourSet(ContourSet):
             are not given explicitly via *levels*.
             Defaults to `~.ticker.MaxNLocator`.
 
-        extend : {'neither', 'both', 'min', 'max'}, optional
-            Unless this is 'neither', contour levels are automatically
-            added to one or both ends of the range so that all data
-            are included. These added ranges are then mapped to the
-            special colormap values which default to the ends of the
-            colormap range, but can be set via
-            :meth:`matplotlib.colors.Colormap.set_under` and
-            :meth:`matplotlib.colors.Colormap.set_over` methods.
+        extend : {'neither', 'both', 'min', 'max'}, optional, default: \
+'neither'
+            Determines the ``contourf``-coloring of values that are outside the
+            *levels* range.
+
+            If 'neither', values outside the *levels* range are not colored.
+            If 'min', 'max' or 'both', color the values below, above or below
+            and above the *levels* range.
+
+            Values below ``min(levels)`` and above ``max(levels)`` are mapped
+            to the under/over values of the `.Colormap`. Note, that most
+            colormaps do not have dedicated colors for these by default, so
+            that the over and under values are the edge values of the colormap.
+            You may want to set these values explicitly using
+            `.Colormap.set_under` and `.Colormap.set_over`.
+
+            .. note::
+
+                An exising `.QuadContourSet` does not get notified if
+                properties of its colormap are changed. Therefore, an explicit
+                call `.QuadContourSet.changed()` is needed after modifying the
+                colormap. The explicit call can be left out, if a colorbar is
+                assigned to the `.QuadContourSet` because it interally calls
+                `.QuadContourSet.changed()`.
+
+            Example::
+
+                x = np.arange(1, 10)
+                y = x.reshape(-1, 1)
+                h = x * y
+
+                cs = plt.contourf(h, levels=[10, 30, 50],
+                    colors=['#808080', '#A0A0A0', '#C0C0C0'], extend='both')
+                cs.cmap.set_over('red')
+                cs.cmap.set_under('blue')
+                cs.changed()
 
         xunits, yunits : registered units, optional
             Override axis units by specifying an instance of a
