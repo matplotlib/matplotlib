@@ -464,21 +464,12 @@ class Sankey(object):
                 "'trunklength' is negative, which is not allowed because it "
                 "would cause poor layout")
         if np.abs(np.sum(flows)) > self.tolerance:
-            _log.info("The sum of the flows is nonzero (%f).\nIs the "
-                      "system not at steady state?", np.sum(flows))
+            _log.info("The sum of the flows is nonzero (%f; patchlabel=%r); "
+                      "is the system not at steady state?",
+                      np.sum(flows), patchlabel)
         scaled_flows = self.scale * flows
         gain = sum(max(flow, 0) for flow in scaled_flows)
         loss = sum(min(flow, 0) for flow in scaled_flows)
-        if not (0.5 <= gain <= 2.0):
-            _log.info(
-                "The scaled sum of the inputs is %f.\nThis may "
-                "cause poor layout.\nConsider changing the scale so"
-                " that the scaled sum is approximately 1.0.", gain)
-        if not (-2.0 <= loss <= -0.5):
-            _log.info(
-                "The scaled sum of the outputs is %f.\nThis may "
-                "cause poor layout.\nConsider changing the scale so"
-                " that the scaled sum is approximately 1.0.", gain)
         if prior is not None:
             if prior < 0:
                 raise ValueError("The index of the prior diagram is negative")
