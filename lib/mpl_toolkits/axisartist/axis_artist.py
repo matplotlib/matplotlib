@@ -88,7 +88,7 @@ The following attributes can be customized (use the ``set_xxx`` methods):
 
 import numpy as np
 
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 import matplotlib.font_manager as font_manager
@@ -153,6 +153,7 @@ class BezierPath(Line2D):
         renderer.close_group('line2d')
 
 
+@cbook.deprecated("3.1")
 class UnimplementedException(Exception):
     pass
 
