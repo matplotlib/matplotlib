@@ -484,6 +484,7 @@ class Legend(Artist):
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
 
+        self._loc_used_default = loc is None
         if loc is None:
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
@@ -568,7 +569,10 @@ class Legend(Artist):
         else:
             self.get_frame().set_alpha(framealpha)
 
-        self._loc = loc
+        tmp = self._loc_used_default
+        self._set_loc(loc)
+        self._loc_used_default = tmp  # ignore changes done by _set_loc
+
         # figure out title fontsize:
         if title_fontsize is None:
             title_fontsize = rcParams['legend.title_fontsize']
@@ -592,6 +596,7 @@ class Legend(Artist):
         # find_offset function will be provided to _legend_box and
         # _legend_box will draw itself at the location of the return
         # value of the find_offset.
+        self._loc_used_default = False
         self._loc_real = loc
         self.stale = True
         self._legend_box.set_offset(self._findoffset)
@@ -1108,6 +1113,12 @@ class Legend(Artist):
         assert self.isaxes
 
         verts, bboxes, lines, offsets = self._auto_legend_data()
+        if self._loc_used_default and verts.shape[0] > 200000:
+            # this size results in a 3+ second render time on a good machine
+            cbook._warn_external(
+                'Creating legend with loc="best" can be slow with large '
+                'amounts of data.'
+            )
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         if consider is None:
