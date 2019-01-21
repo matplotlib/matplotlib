@@ -5,6 +5,12 @@ Custom scale
 
 Create a custom scale, by implementing the scaling use for latitude data in a
 Mercator Projection.
+
+Unless you are making special use of the `~.Transform` class, you probably
+don't need to use this verbose method, and instead can use
+`~.matplotlib.scale.FuncScale` and the ``'function'`` option of
+`~.matplotlib.axes.Axes.set_xscale` and `~.matplotlib.axes.Axes.set_yscale`.
+See the last example in :doc:`/gallery/scales/scales`.
 """
 
 import numpy as np
