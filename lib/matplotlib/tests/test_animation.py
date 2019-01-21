@@ -215,6 +215,7 @@ def test_movie_writer_registry():
     reason="animation writer not installed")
 @pytest.mark.parametrize("method_name", ["to_html5_video", "to_jshtml"])
 def test_embed_limit(method_name, caplog, tmpdir):
+    caplog.set_level("WARNING")
     with tmpdir.as_cwd():
         with mpl.rc_context({"animation.embed_limit": 1e-6}):  # ~1 byte.
             getattr(make_animation(frames=1), method_name)()

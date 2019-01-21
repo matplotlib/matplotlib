@@ -1222,10 +1222,9 @@ class FontManager(object):
 
         if not isinstance(prop, FontProperties):
             prop = FontProperties(prop)
-        fname = prop.get_file()
 
+        fname = prop.get_file()
         if fname is not None:
-            _log.debug('findfont returning %s', fname)
             return fname
 
         if fontext == 'afm':
@@ -1236,19 +1235,19 @@ class FontManager(object):
         best_score = 1e64
         best_font = None
 
+        _log.debug('findfont: Matching %s.', prop)
         for font in fontlist:
             if (directory is not None and
                     Path(directory) not in Path(font.fname).parents):
                 continue
-            # Matching family should have highest priority, so it is multiplied
-            # by 10.0
-            score = \
-                self.score_family(prop.get_family(), font.name) * 10.0 + \
-                self.score_style(prop.get_style(), font.style) + \
-                self.score_variant(prop.get_variant(), font.variant) + \
-                self.score_weight(prop.get_weight(), font.weight) + \
-                self.score_stretch(prop.get_stretch(), font.stretch) + \
-                self.score_size(prop.get_size(), font.size)
+            # Matching family should have top priority, so multiply it by 10.
+            score = (self.score_family(prop.get_family(), font.name) * 10
+                     + self.score_style(prop.get_style(), font.style)
+                     + self.score_variant(prop.get_variant(), font.variant)
+                     + self.score_weight(prop.get_weight(), font.weight)
+                     + self.score_stretch(prop.get_stretch(), font.stretch)
+                     + self.score_size(prop.get_size(), font.size))
+            _log.debug('findfont: score(%s) = %s', font, score)
             if score < best_score:
                 best_score = score
                 best_font = font

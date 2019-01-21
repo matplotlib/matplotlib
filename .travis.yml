@@ -70,7 +70,7 @@ env:
     - NPROC=2
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
-    - PYTEST_ADDOPTS="-raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - PYTEST_ADDOPTS="-raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC --log-level=DEBUG"
     - RUN_PYTEST=1
     - RUN_FLAKE8=
 
