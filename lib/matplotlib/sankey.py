@@ -10,7 +10,7 @@ import numpy as np
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
-from matplotlib import cbook, docstring
+from matplotlib import docstring
 from matplotlib import rcParams
 
 _log = logging.getLogger(__name__)
@@ -453,12 +453,13 @@ class Sankey(object):
                 f"The shapes of 'flows' {np.shape(flows)} and 'orientations' "
                 f"{np.shape(orientations)} are incompatible"
             ) from None
-        if not cbook.is_scalar_or_string(labels) and len(labels) != n:
+        try:
+            labels = np.broadcast_to(labels, n)
+        except ValueError:
             raise ValueError(
-                f"The lengths of 'flows' ({n}) and 'labels' ({len(labels)}) "
-                f"are incompatible")
-        else:
-            labels = [labels] * n
+                f"The shapes of 'flows' {np.shape(flows)} and 'labels' "
+                f"{np.shape(labels)} are incompatible"
+            ) from None
         if trunklength < 0:
             raise ValueError(
                 "'trunklength' is negative, which is not allowed because it "
