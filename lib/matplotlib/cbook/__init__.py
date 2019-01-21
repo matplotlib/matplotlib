@@ -776,6 +776,7 @@ def report_memory(i=0):  # argument may go away
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 
 
+@deprecated("3.1")
 def safezip(*args):
     """make sure *args* are equal len before zipping"""
     Nx = len(args[0])
