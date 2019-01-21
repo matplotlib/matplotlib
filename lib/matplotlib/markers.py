@@ -393,10 +393,7 @@ class MarkerStyle(object):
 
         # again, the properties could be initialised just once outside
         # this function
-        # Font size is irrelevant here, it will be rescaled based on
-        # the drawn size later
-        props = FontProperties(size=1.0)
-        text = TextPath(xy=(0, 0), s=self.get_marker(), fontproperties=props,
+        text = TextPath(xy=(0, 0), s=self.get_marker(),
                         usetex=rcParams['text.usetex'])
         if len(text.vertices) == 0:
             return
