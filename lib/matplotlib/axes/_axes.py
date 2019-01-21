@@ -32,6 +32,7 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
+import matplotlib.units as munits
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
@@ -2012,56 +2013,33 @@ class Axes(_AxesBase):
         return self.plot(x, y, *args, data=data, **kwargs)
 
     @staticmethod
-    def _convert_dx(dx, x0, xconv, convert):
+    def _convert_dz(axis, z, z_conv, dz):
         """
-        Small helper to do logic of width conversion flexibly.
-
-        *dx* and *x0* have units, but *xconv* has already been converted
-        to unitless (and is an ndarray).  This allows the *dx* to have units
-        that are different from *x0*, but are still accepted by the
-        ``__add__`` operator of *x0*.
+        Convert potentially unitized *dz* into unitless values using the
+        *axis*' converter and *z*/*z_conv* as values (respectively unitized and
+        unitless) over which *dz* apply.
         """
-
-        # x should be an array...
-        assert type(xconv) is np.ndarray
-
-        if xconv.size == 0:
-            # xconv has already been converted, but maybe empty...
-            return convert(dx)
-
-        try:
-            # attempt to add the width to x0; this works for
-            # datetime+timedelta, for instance
-
-            # only use the first element of x and x0.  This saves
-            # having to be sure addition works across the whole
-            # vector.  This is particularly an issue if
-            # x0 and dx are lists so x0 + dx just concatenates the lists.
-            # We can't just cast x0 and dx to numpy arrays because that
-            # removes the units from unit packages like `pint` that
-            # wrap numpy arrays.
-            try:
-                x0 = x0[0]
-            except (TypeError, IndexError, KeyError):
-                x0 = x0
-
-            try:
-                x = xconv[0]
-            except (TypeError, IndexError, KeyError):
-                x = xconv
-
-            delist = False
-            if not np.iterable(dx):
-                dx = [dx]
-                delist = True
-            dx = [convert(x0 + ddx) - x for ddx in dx]
-            if delist:
-                dx = dx[0]
-        except (ValueError, TypeError, AttributeError):
-            # if the above fails (for any reason) just fallback to what
-            # we do by default and convert dx by iteslf.
-            dx = convert(dx)
-        return dx
+        scalar_dz = np.ndim(dz) == 0
+        if axis.converter is not None:  # z was unitized.
+            if munits.ConversionInterface.is_numlike(dz):  # Scalar width.
+                if np.size(z_conv) == 1:
+                    dz = np.diff(axis.get_view_interval()) * dz
+                else:
+                    dz = np.array(dz) * np.ptp(z_conv) / (np.size(z_conv) - 1)
+            else:  # Unitized.
+                # cbook.flatten([]) is similar to atleast_1d here, but returns
+                # a list and keeps units.
+                z = [*cbook.flatten([z])]
+                dz = [*cbook.flatten([dz])]
+                if len(z) == 1:
+                    z = z * len(dz)
+                if len(dz) == 1:
+                    dz = dz * len(z)
+                dz = [axis.convert_units(_z + _dz) - axis.convert_units(_z)
+                      for _z, _dz in zip(z, dz)]
+        if scalar_dz and np.ndim(dz) > 0:
+            dz, = dz
+        return dz
 
     @_preprocess_data()
     @docstring.dedent_interpd
@@ -2088,7 +2066,8 @@ class Axes(_AxesBase):
             The height(s) of the bars.
 
         width : scalar or array-like, optional
-            The width(s) of the bars (default: 0.8).
+            The width(s) of the bars (default: 0.8, but see note below if *x*
+            has units).
 
         bottom : scalar or array-like, optional
             The y coordinate(s) of the bars bases (default: 0).
@@ -2166,14 +2145,19 @@ class Axes(_AxesBase):
         *xerr*, and *yerr* can be either scalars or sequences of
         length equal to the number of bars.  This enables you to use
         bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: *xerr* and *yerr* are passed directly to
-        :meth:`errorbar`, so they can also have shape 2xN for
-        independent specification of lower and upper errors.
+
+        If *x* has units, then *width* should normally also be specified with
+        units (so that they can be meaningfully added).  However, if a unitless
+        *width* is used (in particular, for the default *width*), then it
+        is interpreted as a fraction of the average inter-bar spacing.  For
+        example, if the bars are equally spaced, then a *width* of 1 makes the
+        bars contiguous.  As a special case, if there is a *single* bar, then
+        a unitless *width* is interpreted as a fraction of the axis (current)
+        view span.
 
         Other optional kwargs:
 
         %(Rectangle)s
-
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch._alias_map)
         color = kwargs.pop('color', None)
@@ -2226,18 +2210,16 @@ class Axes(_AxesBase):
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
-        if self.xaxis is not None:
-            x0 = x
-            x = np.asarray(self.convert_xunits(x))
-            width = self._convert_dx(width, x0, x, self.convert_xunits)
-            if xerr is not None:
-                xerr = self._convert_dx(xerr, x0, x, self.convert_xunits)
-        if self.yaxis is not None:
-            y0 = y
-            y = np.asarray(self.convert_yunits(y))
-            height = self._convert_dx(height, y0, y, self.convert_yunits)
-            if yerr is not None:
-                yerr = self._convert_dx(yerr, y0, y, self.convert_yunits)
+        x0 = x
+        x = self.convert_xunits(x)
+        width = self._convert_dz(self.xaxis, x0, x, width)
+        if xerr is not None:
+            xerr = self._convert_dz(self.xaxis, x0, x, xerr)
+        y0 = y
+        y = self.convert_yunits(y)
+        height = self._convert_dz(self.yaxis, y0, y, height)
+        if yerr is not None:
+            yerr = self._convert_dz(self.yaxis, y0, y, yerr)
 
         x, height, width, y, linewidth = np.broadcast_arrays(
             # Make args iterable too.
@@ -2376,8 +2358,9 @@ class Axes(_AxesBase):
         width : scalar or array-like
             The width(s) of the bars.
 
-        height : sequence of scalars, optional, default: 0.8
-            The heights of the bars.
+        height : sequence of scalars, optional
+            The heights of the bars (default: 0.8, but see note below if *y*
+            has units).
 
         left : sequence of scalars
             The x coordinates of the left sides of the bars (default: 0).
@@ -2452,14 +2435,19 @@ class Axes(_AxesBase):
         *xerr*, and *yerr* can be either scalars or sequences of
         length equal to the number of bars.  This enables you to use
         bar as the basis for stacked bar charts, or candlestick plots.
-        Detail: *xerr* and *yerr* are passed directly to
-        :meth:`errorbar`, so they can also have shape 2xN for
-        independent specification of lower and upper errors.
+
+        If *y* has units, then *height* should normally also be specified with
+        units (so that they can be meaningfully added).  However, if a unitless
+        *height* is used (in particular, for the default *height*), then it is
+        interpreted as a fraction of the average inter-bar spacing.  For
+        example, if the bars are equally spaced, then a *height* of 1 makes the
+        bars contiguous.  As a special case, if there is a *single* bar, then
+        a unitless *height* is interpreted as a fraction of the axis (current)
+        view span.
 
         Other optional kwargs:
 
         %(Rectangle)s
-
         """
         kwargs.setdefault('orientation', 'horizontal')
         patches = self.bar(x=left, height=height, width=width, bottom=y,
@@ -2535,9 +2523,8 @@ class Axes(_AxesBase):
                                  'with two elements (i.e. an Nx2 array)')
             # convert the absolute values, not the x and dx...
             x_conv = np.asarray(self.convert_xunits(xr[0]))
-            x1 = self._convert_dx(xr[1], xr[0], x_conv, self.convert_xunits)
+            x1 = self._convert_dz(self.xaxis, xr[0], x_conv, xr[1])
             xranges_conv.append((x_conv, x1))
-
         yrange_conv = self.convert_yunits(yrange)
 
         col = mcoll.BrokenBarHCollection(xranges_conv, yrange_conv, **kwargs)
