@@ -1345,22 +1345,16 @@ end"""
         Write the image *data* into the pdf file using png
         predictors with Flate compression.
         """
-
         buffer = BytesIO()
         _png.write_png(data, buffer)
         buffer.seek(8)
-        written = 0
-        header = bytearray(8)
         while True:
-            n = buffer.readinto(header)
-            assert n == 8
-            length, type = struct.unpack(b'!L4s', bytes(header))
+            length, type = struct.unpack(b'!L4s', buffer.read(8))
             if type == b'IDAT':
-                data = bytearray(length)
-                n = buffer.readinto(data)
-                assert n == length
-                self.currentstream.write(bytes(data))
-                written += n
+                data = buffer.read(length)
+                if len(data) != length:
+                    raise RuntimeError("truncated data")
+                self.currentstream.write(data)
             elif type == b'IEND':
                 break
             else:
