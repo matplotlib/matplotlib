@@ -238,12 +238,8 @@ class UniformTriRefiner(TriRefiner):
         # (can be -1 if border edge)
         # For slave and master we will identify the apex pointing to the edge
         # start
-        edge_elems = np.ravel(np.vstack([np.arange(ntri, dtype=np.int32),
-                                         np.arange(ntri, dtype=np.int32),
-                                         np.arange(ntri, dtype=np.int32)]))
-        edge_apexes = np.ravel(np.vstack([np.zeros(ntri, dtype=np.int32),
-                                          np.ones(ntri, dtype=np.int32),
-                                          np.full(ntri, 2, dtype=np.int32)]))
+        edge_elems = np.tile(np.arange(3, dtype=np.int32), ntri)
+        edge_apexes = np.repeat(np.arange(3, dtype=np.int32), ntri)
         edge_neighbors = neighbors[edge_elems, edge_apexes]
         mask_masters = (edge_elems > edge_neighbors)
 

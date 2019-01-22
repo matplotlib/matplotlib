@@ -552,7 +552,7 @@ class Path(object):
         vertices = simple_linear_interpolation(self.vertices, steps)
         codes = self.codes
         if codes is not None:
-            new_codes = np.full(((len(codes) - 1) * steps + 1, ), Path.LINETO,
+            new_codes = np.full((len(codes) - 1) * steps + 1, Path.LINETO,
                                 dtype=self.code_type)
             new_codes[0::steps] = codes
         else:
@@ -865,7 +865,7 @@ class Path(object):
         if is_wedge:
             length = n * 3 + 4
             vertices = np.zeros((length, 2), float)
-            codes = np.full((length, ), cls.CURVE4, dtype=cls.code_type)
+            codes = np.full(length, cls.CURVE4, dtype=cls.code_type)
             vertices[1] = [xA[0], yA[0]]
             codes[0:2] = [cls.MOVETO, cls.LINETO]
             codes[-2:] = [cls.LINETO, cls.CLOSEPOLY]
@@ -874,7 +874,7 @@ class Path(object):
         else:
             length = n * 3 + 1
             vertices = np.empty((length, 2), float)
-            codes = np.full((length, ), cls.CURVE4, dtype=cls.code_type)
+            codes = np.full(length, cls.CURVE4, dtype=cls.code_type)
             vertices[0] = [xA[0], yA[0]]
             codes[0] = cls.MOVETO
             vertex_offset = 1

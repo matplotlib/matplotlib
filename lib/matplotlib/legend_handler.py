@@ -231,7 +231,7 @@ class HandlerLine2D(HandlerNpoints):
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
                                              width, height, fontsize)
 
-        ydata = np.full(xdata.shape, ((height - ydescent) / 2), float)
+        ydata = np.full_like(xdata, ((height - ydescent) / 2))
         legline = Line2D(xdata, ydata)
 
         self.update_prop(legline, orig_handle, legend)
