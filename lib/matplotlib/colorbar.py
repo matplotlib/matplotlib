@@ -1230,11 +1230,7 @@ class Colorbar(ColorbarBase):
         ax = self.ax
         long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
 
-        if long_axis.get_scale() == 'log':
-            cbook._warn_external('minorticks_off() has no effect on a '
-                                 'logarithmic colorbar axis')
-        else:
-            long_axis.set_minor_locator(ticker.NullLocator())
+        long_axis.set_minor_locator(ticker.NullLocator())
 
 
 @docstring.Substitution(make_axes_kw_doc)
