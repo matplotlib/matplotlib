@@ -26,3 +26,5 @@ of ``mpl_toolkits.mplot3d`` are deprecated,
 - :func:`mpl_toolkits.mplot3d.proj3d.proj_transform_vec_clip`
 - :func:`mpl_toolkits.mplot3d.proj3d.vec_pad_ones`
 - :func:`mpl_toolkits.mplot3d.proj3d.proj_trans_clip_points`
+
+If your project relies on these functions, consider vendoring them.
