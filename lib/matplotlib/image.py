@@ -1447,9 +1447,9 @@ def pil_to_array(pilImage):
         # return MxN luminance array of uint16
         raw = pilImage.tobytes('raw', pilImage.mode)
         if pilImage.mode.endswith('B'):
-            x = np.fromstring(raw, '>u2')
+            x = np.frombuffer(raw, '>u2')
         else:
-            x = np.fromstring(raw, '<u2')
+            x = np.frombuffer(raw, '<u2')
         return x.reshape(pilImage.size[::-1]).astype('=u2')
     else:  # try to convert to an rgba image
         try:

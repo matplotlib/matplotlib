@@ -6,6 +6,7 @@ import numpy as np
 from io import BytesIO
 import os
 import tempfile
+import warnings
 import xml.parsers.expat
 
 import pytest
@@ -16,9 +17,11 @@ import matplotlib
 from matplotlib import dviread
 
 
-needs_usetex = pytest.mark.xfail(
-    not matplotlib.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    needs_usetex = pytest.mark.skipif(
+        not matplotlib.checkdep_usetex(True),
+        reason="This test needs a TeX installation")
 
 
 def test_visibility():
@@ -130,7 +133,7 @@ def _test_determinism_save(filename, usetex):
     "filename, usetex",
     # unique filenames to allow for parallel testing
     [("determinism_notex.svg", False),
-     needs_usetex(("determinism_tex.svg", True))])
+     pytest.param("determinism_tex.svg", True, marks=needs_usetex)])
 def test_determinism(filename, usetex):
     import sys
     from subprocess import check_output, STDOUT, CalledProcessError

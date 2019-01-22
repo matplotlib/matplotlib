@@ -23,14 +23,6 @@ from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 import pytest
 
 
-try:
-    from PIL import Image
-    HAS_PIL = True
-except ImportError:
-    HAS_PIL = False
-needs_pillow = pytest.mark.xfail(not HAS_PIL, reason='Test requires Pillow')
-
-
 @image_comparison(baseline_images=['image_interps'], style='mpl20')
 def test_image_interps():
     'make the basic nearest, bilinear and bicubic interps'
@@ -113,8 +105,8 @@ def test_image_python_io():
     plt.imread(buffer)
 
 
-@needs_pillow
 def test_imread_pil_uint16():
+    pytest.importorskip("PIL")
     img = plt.imread(os.path.join(os.path.dirname(__file__),
                      'baseline_images', 'test_image', 'uint16.tif'))
     assert (img.dtype == np.uint16)
@@ -122,8 +114,8 @@ def test_imread_pil_uint16():
 
 
 @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
-@needs_pillow
 def test_imread_fspath():
+    pytest.importorskip("PIL")
     from pathlib import Path
     img = plt.imread(
         Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
@@ -497,8 +489,8 @@ def test_nonuniformimage_setnorm():
     im.set_norm(plt.Normalize())
 
 
-@needs_pillow
 def test_jpeg_2d():
+    Image = pytest.importorskip('PIL.Image')
     # smoke test that mode-L pillow images work.
     imd = np.ones((10, 10), dtype='uint8')
     for i in range(10):
@@ -509,8 +501,9 @@ def test_jpeg_2d():
     ax.imshow(im)
 
 
-@needs_pillow
 def test_jpeg_alpha():
+    Image = pytest.importorskip('PIL.Image')
+
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
     # the alpha channel from left to right.

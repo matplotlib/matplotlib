@@ -29,7 +29,7 @@ except AttributeError:
     py_qt_ver = QtCore.__version_info__[0]
 
 if py_qt_ver != 4:
-    pytestmark = pytest.mark.xfail(reason='Qt4 is not available')
+    pytestmark = pytest.mark.skipif(reason='Qt4 is not available')
 
 
 @pytest.mark.backend('Qt4Agg')

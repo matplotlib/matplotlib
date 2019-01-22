@@ -3,6 +3,9 @@ language: python
 dist: xenial
 sudo: false
 
+services:
+  - xvfb
+  
 branches:
   except:
   - /^auto-backport-of-pr-\d*/
@@ -37,6 +40,7 @@ addons:
       - texlive-latex-extra
       - texlive-latex-recommended
       - texlive-xetex
+      - xvfb
 
 env:
   global:
@@ -53,9 +57,7 @@ env:
     - PANDAS=
     - PILLOW=pillow
     - PYPARSING=pyparsing
-    # pytest-timeout master depends on pytest>=3.6.  Testing with pytest 3.1 is
-    # still supported; this is tested by the first matrix entry.
-    - PYTEST='pytest>=3.6,<3.8'
+    - PYTEST='pytest>=3.6.1'
     - PYTEST_COV=pytest-cov
     - PYTEST_RERUNFAILURES=pytest-rerunfailures
     - PYTEST_PEP8=
@@ -72,6 +74,7 @@ matrix:
   include:
     - python: 2.7
       # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124.
+      # pytest>=3.6.1 due to https://github.com/pytest-dev/pytest/commit/b5a94d8e6c49201c8c79a7c52b8466e020e6d6b8
       env:
         - CYCLER=cycler==0.10
         - DATEUTIL=python-dateutil==2.1
@@ -80,10 +83,10 @@ matrix:
         - NUMPY=numpy==1.7.1
         - PANDAS='pandas<0.21.0'
         - PYPARSING=pyparsing==2.0.1
-        - PYTEST=pytest==3.1.0
+        - PYTEST=pytest==3.6.1
         - PYTEST_COV=pytest-cov==2.3.1
+        - PYTEST_RERUNFAILURES='pytest-rerunfailures<6'  # 6 needs pytest >=3.8
         - PYTEST_TIMEOUT=pytest-timeout==1.2.1  # Newer pytest-timeouts don't support pytest <3.4.
-        - PYTEST_RERUNFAILURES='pytest-rerunfailures<5'  # 5 needs pytest>=3.6
         - SPHINX=sphinx==1.3
     - python: 3.4
       env: PYTHON_ARGS=-OO
@@ -122,7 +125,7 @@ before_install:
     else
       brew update
       brew tap homebrew/gui
-      brew install python libpng ffmpeg imagemagick mplayer ccache
+      # brew install python libpng ffmpeg imagemagick mplayer ccache
       # We could install ghostscript and inkscape here to test svg and pdf
       # but this makes the test time really long.
       # brew install ghostscript inkscape
@@ -189,12 +192,6 @@ install:
     # Install matplotlib
     pip install -ve .
 
-before_script:
-  - |
-    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
-      export DISPLAY=:99.0
-      sh -e /etc/init.d/xvfb start
-    fi
 
 script: ci/travis/test_script.sh
 
