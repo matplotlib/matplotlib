@@ -1169,7 +1169,7 @@ class Axes3D(Axes):
 
         # nearest edge
         p0, p1 = min(self.tunit_edges(),
-                     key=lambda edge: proj3d.line2d_seg_dist(
+                     key=lambda edge: proj3d._line2d_seg_dist(
                          edge[0], edge[1], (xd, yd)))
 
         # scale the z value to match
@@ -2028,8 +2028,8 @@ class Axes3D(Axes):
             paths = linec.get_paths()
             if not paths:
                 continue
-            topverts = art3d.paths_to_3d_segments(paths, z - dz)
-            botverts = art3d.paths_to_3d_segments(paths, z + dz)
+            topverts = art3d._paths_to_3d_segments(paths, z - dz)
+            botverts = art3d._paths_to_3d_segments(paths, z + dz)
 
             color = linec.get_color()[0]
 
