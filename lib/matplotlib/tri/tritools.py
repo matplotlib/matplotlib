@@ -292,7 +292,7 @@ class TriAnalyzer(object):
         if n is None:
             n = np.size(mask)
         if mask is not None:
-            renum = -np.ones(n, dtype=np.int32)  # Default num is -1
+            renum = np.full(n, -1, dtype=np.int32)  # Default num is -1
             valid = np.arange(n, dtype=np.int32).compress(~mask, axis=0)
             renum[valid] = np.arange(np.size(valid, 0), dtype=np.int32)
             return renum
