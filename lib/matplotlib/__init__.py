@@ -1088,19 +1088,31 @@ def rc_file_defaults():
                          if k not in STYLE_BLACKLIST})
 
 
-def rc_file(fname):
+def rc_file(fname, *, use_default_template=True):
     """
     Update rc params from file.
 
     Style-blacklisted rc params (defined in
     `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+
+    Parameters
+    ----------
+    fname : str
+        Name of file parsed for matplotlib settings.
+
+    use_default_template : bool
+        If True, initialize with default parameters before updating with those
+        in the given file. If False, the current configuration persists
+        and only the parameters specified in the file are updated.
+
     """
     # Deprecation warnings were already handled in rc_params_from_file, no need
     # to reemit them here.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", mplDeprecation)
         from .style.core import STYLE_BLACKLIST
-        rc_from_file = rc_params_from_file(fname)
+        rc_from_file = rc_params_from_file(
+            fname, use_default_template=use_default_template)
         rcParams.update({k: rc_from_file[k] for k in rc_from_file
                          if k not in STYLE_BLACKLIST})
 
