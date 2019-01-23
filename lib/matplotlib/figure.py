@@ -2009,17 +2009,17 @@ default: 'top'
         Parameters
         ----------
 
-        fname : str or file-like object
-            A string containing a path to a filename, or a Python
-            file-like object, or possibly some backend-dependent object
-            such as :class:`~matplotlib.backends.backend_pdf.PdfPages`.
+        fname : str or PathLike or file-like object
+            A path, or a Python file-like object, or
+            possibly some backend-dependent object such as
+            `matplotlib.backends.backend_pdf.PdfPages`.
 
-            If *format* is *None* and *fname* is a string, the output
-            format is deduced from the extension of the filename. If
-            the filename has no extension, :rc:`savefig.format` is used.
+            If *format* is not set, then the output format is inferred from
+            the extension of *fname*, if any, and from :rc:`savefig.format`
+            otherwise.  If *format* is set, it determines the output format.
 
-            If *fname* is not a string, remember to specify *format* to
-            ensure that the correct backend is used.
+            Hence, if *fname* is not a path or has no extension, remember to
+            specify *format* to ensure that the correct backend is used.
 
         Other Parameters
         ----------------
@@ -2063,8 +2063,8 @@ default: 'top'
             output.
 
         format : str
-            One of the file extensions supported by the active
-            backend.  Most backends support png, pdf, ps, eps and svg.
+            The file format, e.g. 'png', 'pdf', 'svg', ... The behavior when
+            this is unset is documented under *fname*.
 
         transparent : bool
             If *True*, the axes patches will all be transparent; the

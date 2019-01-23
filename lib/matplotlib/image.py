@@ -1398,16 +1398,15 @@ def imread(fname, format=None):
 def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
            origin=None, dpi=100):
     """
-    Save an array as in image file.
-
-    The output formats available depend on the backend being used.
+    Save an array as an image file.
 
     Parameters
     ----------
-    fname : str or file-like
-        The filename or a Python file-like object to store the image in.
-        The necessary output format is inferred from the filename extension
-        but may be explicitly overwritten using *format*.
+    fname : str or PathLike file-like
+        A path or a Python file-like object to store the image in.
+        If *format* is not set, then the output format is inferred from the
+        extension of *fname*, if any, and from :rc:`savefig.format` otherwise.
+        If *format* is set, it determines the output format.
     arr : array-like
         The image data. The shape can be one of
         MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA).
@@ -1421,9 +1420,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         maps scalar data to colors. It is ignored for RGB(A) data.
         Defaults to :rc:`image.cmap` ('viridis').
     format : str, optional
-        The file format, e.g. 'png', 'pdf', 'svg', ... . If not given, the
-        format is deduced form the filename extension in *fname*.
-        See `.Figure.savefig` for details.
+        The file format, e.g. 'png', 'pdf', 'svg', ...  The behavior when this
+        is unset is documented under *fname*.
     origin : {'upper', 'lower'}, optional
         Indicates whether the ``(0, 0)`` index of the array is in the upper
         left or lower left corner of the axes.  Defaults to :rc:`image.origin`
