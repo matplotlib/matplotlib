@@ -1063,7 +1063,8 @@ class RadioButtons(AxesWidget):
             if (t.get_window_extent().contains(event.x, event.y)
                     or np.linalg.norm(pclicked - p.center) < p.radius):
                 ii[i] = np.linalg.norm(pclicked - p.center)
-        self.set_active(min(ii, key=ii.get))
+        if len(ii) > 0:
+            self.set_active(min(ii, key=ii.get))
 
     def set_active(self, index):
         """
