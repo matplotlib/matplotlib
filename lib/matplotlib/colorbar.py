@@ -538,11 +538,7 @@ class ColorbarBase(cm.ScalarMappable):
             long_axis.set_major_locator(locator)
             long_axis.set_major_formatter(formatter)
             if type(self.norm) == colors.LogNorm:
-                long_axis.set_minor_locator(_ColorbarLogLocator(self,
-                            base=10., subs='auto'))
-                long_axis.set_minor_formatter(
-                    ticker.LogFormatterSciNotation()
-                )
+                self.minorticks_on()
         else:
             _log.debug('Using fixed locator on colorbar')
             ticks, ticklabels, offset_string = self._ticker(locator, formatter)
@@ -601,6 +597,30 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             cbook._warn_external("set_ticks() must have been called.")
         self.stale = True
+
+    def minorticks_on(self):
+        """
+        Turns on the minor ticks on the colorbar without extruding
+        into the "extend regions".
+        """
+        ax = self.ax
+        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
+
+        if long_axis.get_scale() == 'log':
+            long_axis.set_minor_locator(_ColorbarLogLocator(self, base=10.,
+                                                            subs='auto'))
+            long_axis.set_minor_formatter(ticker.LogFormatterSciNotation())
+        else:
+            long_axis.set_minor_locator(_ColorbarAutoMinorLocator(self))
+
+    def minorticks_off(self):
+        """
+        Turns off the minor ticks on the colorbar.
+        """
+        ax = self.ax
+        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
+
+        long_axis.set_minor_locator(ticker.NullLocator())
 
     def _config_axes(self, X, Y):
         '''
@@ -1208,33 +1228,6 @@ class Colorbar(ColorbarBase):
         else:
             # use_gridspec was True
             ax.set_subplotspec(subplotspec)
-
-    def minorticks_on(self):
-        """
-        Turns on the minor ticks on the colorbar without extruding
-        into the "extend regions".
-        """
-        ax = self.ax
-        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
-
-        if long_axis.get_scale() == 'log':
-            cbook._warn_external('minorticks_on() has no effect on a '
-                                 'logarithmic colorbar axis')
-        else:
-            long_axis.set_minor_locator(_ColorbarAutoMinorLocator(self))
-
-    def minorticks_off(self):
-        """
-        Turns off the minor ticks on the colorbar.
-        """
-        ax = self.ax
-        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
-
-        if long_axis.get_scale() == 'log':
-            cbook._warn_external('minorticks_off() has no effect on a '
-                                 'logarithmic colorbar axis')
-        else:
-            long_axis.set_minor_locator(ticker.NullLocator())
 
 
 @docstring.Substitution(make_axes_kw_doc)

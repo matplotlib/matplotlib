@@ -307,6 +307,24 @@ def test_colorbar_minorticks_on_off():
         np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
                                        correct_minorticklocs)
 
+    # tests for github issue #13257 and PR #13265
+    data = np.random.uniform(low=1, high=10, size=(20, 20))
+
+    fig, ax = plt.subplots()
+    im = ax.pcolormesh(data, norm=LogNorm())
+    cbar = fig.colorbar(im)
+    default_minorticklocks = cbar.ax.yaxis.get_minorticklocs()
+
+    # test that minorticks turn off for LogNorm
+    cbar.minorticks_off()
+    assert np.array_equal(cbar.ax.yaxis.get_minorticklocs(),
+                          np.array([]))
+
+    # test that minorticks turn back on for LogNorm
+    cbar.minorticks_on()
+    assert np.array_equal(cbar.ax.yaxis.get_minorticklocs(),
+                          default_minorticklocks)
+
 
 def test_colorbar_autoticks():
     # Test new autotick modes. Needs to be classic because
