@@ -607,8 +607,8 @@ class ColorbarBase(cm.ScalarMappable):
         long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
 
         if long_axis.get_scale() == 'log':
-            long_axis.set_minor_locator(_ColorbarLogLocator(self,
-                                                            base=10., subs='auto'))
+            long_axis.set_minor_locator(_ColorbarLogLocator(self, base=10.,
+                                                            subs='auto'))
             long_axis.set_minor_formatter(ticker.LogFormatterSciNotation())
         else:
             long_axis.set_minor_locator(_ColorbarAutoMinorLocator(self))
