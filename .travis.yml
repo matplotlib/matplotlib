@@ -80,7 +80,7 @@ matrix:
         - EXTRAREQS='-r requirements/testing/travis_flake8.txt'
     - python: 3.5
       env:
-        - PINNEDVERS='-c requirements/testing/travis35.txt'
+        - PINNEDVERS='-c requirements/testing/travis35_pinned_vers.txt'
     - python: 3.6
       env:
         - DELETE_FONT_CACHE=1
@@ -131,7 +131,8 @@ install:
     python -mpip install --upgrade pip setuptools wheel
   - |
     # Install dependencies from PyPI.
-    python -mpip install --upgrade $PRE -r requirements/testing/travis_all.txt $EXTRAREQS $PINNEDVERS
+    python -mpip install --upgrade $PRE -r requirements/testing/travis_all.txt $EXTRAREQS 
+    python -mpip install --upgrade $PINNEDVERS
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the
