@@ -1,7 +1,7 @@
 """
-=======================================================
-Controlling the position of colorbars with Inset Locator
-=======================================================
+==============================================================
+Controlling the position and size of colorbars with Inset Axes
+==============================================================
 
 This example shows how to control the position, height, and width of
 colorbars using `~mpl_toolkits.axes_grid1.inset_axes`.
