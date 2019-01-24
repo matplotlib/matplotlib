@@ -1058,13 +1058,14 @@ class RadioButtons(AxesWidget):
             return
         xy = self.ax.transAxes.inverted().transform_point((event.x, event.y))
         pclicked = np.array([xy[0], xy[1]])
-        ii = {}
+        distances = {}
         for i, (p, t) in enumerate(zip(self.circles, self.labels)):
             if (t.get_window_extent().contains(event.x, event.y)
                     or np.linalg.norm(pclicked - p.center) < p.radius):
-                ii[i] = np.linalg.norm(pclicked - p.center)
-        if len(ii) > 0:
-            self.set_active(min(ii, key=ii.get))
+                distances[i] = np.linalg.norm(pclicked - p.center)
+        if len(distances) > 0:
+            closest = min(distances, key=distances.get)
+            self.set_active(closest)
 
     def set_active(self, index):
         """
