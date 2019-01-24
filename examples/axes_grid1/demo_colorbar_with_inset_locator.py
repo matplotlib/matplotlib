@@ -1,6 +1,6 @@
 """
 =======================================================
-Controling the position of colorbars With Inset Locator
+Controlling the position of colorbars with Inset Locator
 =======================================================
 
 This example shows how to control the position, height, and width of
