@@ -100,9 +100,7 @@ plt.show()
 
 fig = plt.figure()
 
-import matplotlib.gridspec as gridspec
-
-gs1 = gridspec.GridSpec(3, 1)
+gs1 = fig.add_gridspec(3, 1)
 ax1 = fig.add_subplot(gs1[0])
 ax2 = fig.add_subplot(gs1[1])
 ax3 = fig.add_subplot(gs1[2])
@@ -111,14 +109,9 @@ example_plot(ax1)
 example_plot(ax2)
 example_plot(ax3)
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", UserWarning)
-    # This raises warnings since tight layout cannot
-    # handle gridspec automatically. We are going to
-    # do that manually so we can filter the warning.
-    gs1.tight_layout(fig, rect=[None, None, 0.45, None])
+gs1.tight_layout(fig, rect=[None, None, 0.45, None])
 
-gs2 = gridspec.GridSpec(2, 1)
+gs2 = fig.add_gridspec(2, 1)
 ax4 = fig.add_subplot(gs2[0])
 ax5 = fig.add_subplot(gs2[1])
 
@@ -126,9 +119,9 @@ example_plot(ax4)
 example_plot(ax5)
 
 with warnings.catch_warnings():
-    # This raises warnings since tight layout cannot
-    # handle gridspec automatically. We are going to
-    # do that manually so we can filter the warning.
+    # gs2.tight_layout cannot handle the subplots from the first gridspec
+    # (gs1), so it will raise a warning. We are going to match the gridspecs
+    # manually so we can filter the warning away.
     warnings.simplefilter("ignore", UserWarning)
     gs2.tight_layout(fig, rect=[0.45, None, None, None])
 
@@ -153,6 +146,6 @@ plt.show()
 import matplotlib
 matplotlib.pyplot.tight_layout
 matplotlib.figure.Figure.tight_layout
+matplotlib.figure.Figure.add_gridspec
 matplotlib.figure.Figure.add_subplot
 matplotlib.pyplot.subplot2grid
-matplotlib.gridspec.GridSpec
