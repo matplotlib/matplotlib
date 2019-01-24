@@ -107,10 +107,10 @@ def test_tight_layout6():
 
         gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
 
-        gs2 = gridspec.GridSpec(3, 1)
+        gs2 = fig.add_gridspec(3, 1)
 
         for ss in gs2:
-            ax = fig.add_subplot(ss)
+            ax = ss.add_subplot()
             example_plot(ax)
             ax.set_title("")
             ax.set_xlabel("")

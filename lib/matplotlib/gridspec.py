@@ -371,6 +371,10 @@ class GridSpecFromSubplotSpec(GridSpecBase):
                     name=subspeclb.name + '.gridspec' + layoutbox.seq_id(),
                     artist=self)
 
+    @property
+    def figure(self):
+        return self.get_topmost_subplotspec().gridspec.figure
+
     def get_subplot_params(self, figure=None):
         """Return a dictionary of subplot layout parameters.
         """
@@ -542,3 +546,23 @@ class SubplotSpec(object):
         """
 
         return GridSpecFromSubplotSpec(nrows, ncols, self, **kwargs)
+
+    def add_subplot(self, **kwargs):
+        """
+        Add the subplot specified by *self* to the parent figure.
+
+        Note that the parent `GridSpec` must have its ``.parent`` attribute set
+        for this method to work; otherwise, a ValueError is raised.
+
+        Keyword arguments are forwarded to `Figure.add_subplot`.
+
+        Example
+        -------
+
+            gs = plt.figure().add_gridspec(2, 2)
+            ax = gs[0, 0].add_subplot()
+        """
+        if self._gridspec.figure is None:
+            raise ValueError("add_subplot() only works for GridSpecs created "
+                             "with a parent Figure")
+        return self._gridspec.figure.add_subplot(self, **kwargs)

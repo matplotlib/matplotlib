@@ -992,9 +992,9 @@ def subplot(*args, **kwargs):
     two subplots that are otherwise identical to be added to the figure,
     make sure you give them unique labels.
 
-    In rare circumstances, `.add_subplot` may be called with a single
-    argument, a subplot axes instance already created in the
-    present figure but not in the figure's list of axes.
+    In rare circumstances, `.subplot` may be called with a single argument, a
+    subplot axes instance already created in the present figure but not in the
+    figure's list of axes.
 
     See Also
     --------
