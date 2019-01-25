@@ -1053,12 +1053,14 @@ char *__append_to_string(char *p, char **buffer, size_t *buffersize,
             return NULL;
         }
         if ((size_t)(p - *buffer) >= *buffersize) {
+            char *newbuffer;
             ptrdiff_t diff = p - *buffer;
             *buffersize *= 2;
-            *buffer = (char *)realloc(*buffer, *buffersize);
-            if (*buffer == NULL) {
+            newbuffer = (char *)realloc(*buffer, *buffersize);
+            if (newbuffer == NULL) {
                 return NULL;
             }
+            *buffer = newbuffer;
             p = *buffer + diff;
         }
 
