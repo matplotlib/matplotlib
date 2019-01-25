@@ -2610,7 +2610,8 @@ default: 'top'
 
         Other Parameters
         ----------------
-        *kwargs* are passed to `.GridSpec`.
+        **kwargs
+            Keyword arguments are passed to `.GridSpec`.
 
         See Also
         --------
