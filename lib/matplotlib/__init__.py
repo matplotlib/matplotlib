@@ -968,8 +968,6 @@ with warnings.catch_warnings():
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(
                       rcParams['ps.usedistiller'])
 
-rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
-
 if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
 
