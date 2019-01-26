@@ -315,7 +315,6 @@ class TextToPath(object):
 
         # Gather font information and do some setup for combining
         # characters into strings.
-        # oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
             font, enc = self._get_ps_font_and_encoding(dvifont.texname)
             char_id = self._get_char_id_ps(font, glyph)

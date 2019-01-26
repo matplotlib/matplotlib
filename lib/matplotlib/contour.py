@@ -829,9 +829,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.antialiased is None and self.filled:
             self.antialiased = False  # eliminate artifacts; we are not
                                       # stroking the boundaries.
-            # The default for line contours will be taken from
-            # the LineCollection default, which uses the
-            # rcParams['lines.antialiased']
+            # The default for line contours will be taken from the
+            # LineCollection default, which uses :rc:`lines.antialiased`.
 
         self.nchunk = kwargs.pop('nchunk', 0)
         self.locator = kwargs.pop('locator', None)
