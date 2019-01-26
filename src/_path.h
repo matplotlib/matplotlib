@@ -1071,13 +1071,13 @@ char *__append_to_string(char *p, char **buffer, size_t *buffersize,
 }
 
 
-char *__add_number(double val, const char *format, int precision,
+char *__add_number(double val, char format_code, int precision,
                  char **buffer, char *p, size_t *buffersize)
 {
     char *result;
 
     char *str;
-    str = PyOS_double_to_string(val, format[0], precision, 0, NULL);
+    str = PyOS_double_to_string(val, format_code, precision, 0, NULL);
 
     // Delete trailing zeros and decimal point
     char *q = str;
@@ -1117,7 +1117,7 @@ int __convert_to_string(PathIterator &path,
                         char **buffer,
                         size_t *buffersize)
 {
-    const char *format = "f";
+    const char format_code = 'f';
 
     char *p = *buffer;
     double x[3];
@@ -1156,9 +1156,9 @@ int __convert_to_string(PathIterator &path,
             }
 
             for (int i = 0; i < size; ++i) {
-                if ((p = __add_number(x[i], format, precision, buffer, p, buffersize)) == NULL) return 1;
+                if ((p = __add_number(x[i], format_code, precision, buffer, p, buffersize)) == NULL) return 1;
                 if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
-                if ((p = __add_number(y[i], format, precision, buffer, p, buffersize)) == NULL) return 1;
+                if ((p = __add_number(y[i], format_code, precision, buffer, p, buffersize)) == NULL) return 1;
                 if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
             }
 
