@@ -7,6 +7,7 @@ from io import BytesIO
 from math import ceil
 import os
 import logging
+from pathlib import Path
 import urllib.parse
 import urllib.request
 
@@ -1430,24 +1431,48 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.
     """
-    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from matplotlib.figure import Figure
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
-    if (format == 'png'
-        or (format is None
-            and isinstance(fname, str)
-            and fname.lower().endswith('.png'))):
-        image = AxesImage(None, cmap=cmap, origin=origin)
-        image.set_data(arr)
-        image.set_clim(vmin, vmax)
-        image.write_png(fname)
-    else:
+    if format is None:
+        format = (Path(fname).suffix[1:] if isinstance(fname, str)
+                  else rcParams["savefig.format"]).lower()
+    if format in ["pdf", "ps", "eps", "svg"]:
+        # Vector formats that are not handled by PIL.
         fig = Figure(dpi=dpi, frameon=False)
-        FigureCanvas(fig)
         fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin,
                      resize=True)
         fig.savefig(fname, dpi=dpi, format=format, transparent=True)
+    else:
+        # Don't bother creating an image; this avoids rounding errors on the
+        # size when dividing and then multiplying by dpi.
+        sm = cm.ScalarMappable(cmap=cmap)
+        sm.set_clim(vmin, vmax)
+        if origin is None:
+            origin = rcParams["image.origin"]
+        if origin == "lower":
+            arr = arr[::-1]
+        rgba = sm.to_rgba(arr, bytes=True)
+        if format == "png":
+            _png.write_png(rgba, fname, dpi=dpi)
+        else:
+            try:
+                from PIL import Image
+            except ImportError as exc:
+                raise ImportError(
+                    f"Saving to {format} requires Pillow") from exc
+            pil_shape = (rgba.shape[1], rgba.shape[0])
+            image = Image.frombuffer(
+                "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
+            if format in ["jpg", "jpeg"]:
+                format = "jpeg"  # Pillow doesn't recognize "jpg".
+                color = tuple(
+                    int(x * 255)
+                    for x in mcolors.to_rgb(rcParams["savefig.facecolor"]))
+                background = Image.new("RGB", pil_shape, color)
+                background.paste(image, image)
+                image = background
+            image.save(fname, format=format, dpi=(dpi, dpi))
 
 
 def pil_to_array(pilImage):
