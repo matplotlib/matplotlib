@@ -72,6 +72,10 @@ def _check_dependencies():
         raise ImportError(
             "The following dependencies are missing to build the "
             "documentation: {}".format(", ".join(missing)))
+    if shutil.which('dot') is None:
+        raise OSError(
+            "No binary named dot - graphviz must be installed to build the "
+            "documentation")
 
 _check_dependencies()
 
@@ -83,10 +87,8 @@ import sphinxext.gallery_order as gallery_order
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
 
-if shutil.which('dot') is None:
-    raise OSError(
-        "No binary named dot - you need to install the Graph Visualization "
-        "software (usually packaged as 'graphviz') to build the documentation")
+# On Linux, prevent plt.show() from emitting a non-GUI backend warning.
+os.environ.pop("DISPLAY", None)
 
 autosummary_generate = True
 
