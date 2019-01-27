@@ -540,6 +540,18 @@ Tukey's `box plots <http://matplotlib.org/examples/pylab_examples/boxplot_demo.h
 `Violin plots <http://matplotlib.org/examples/statistics/violinplot_demo.html>`_ are closely related to box plots but add useful information such as the distribution of the sample data (density trace).
 Violin plots were added in Matplotlib 1.4.
 
+.. _how-to-threads:
+
+Working with threads
+--------------------
+
+Matplotlib is not thread-safe: in fact, there are known race conditions
+that affect certain artists.  Hence, if you work with threads, it is your
+responsibility to set up the proper locks to serialize access to Matplotlib
+artists.
+
+Note that (for the case where you are working with an interactive backend) most
+GUI backends *require* being run from the main thread as well.
 
 .. _howto-contribute:
 
