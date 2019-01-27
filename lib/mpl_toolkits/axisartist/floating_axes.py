@@ -112,8 +112,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
         # find angles
         if self.nth_coord == 0:
-            xx0 = np.empty_like(yy0)
-            xx0.fill(self.value)
+            xx0 = np.full_like(yy0, self.value)
 
             xx1, yy1 = transform_xy(xx0, yy0)
 
@@ -131,8 +130,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
-            yy0 = np.empty_like(xx0)
-            yy0.fill(self.value)
+            yy0 = np.full_like(xx0, self.value)
 
             xx1, yy1 = transform_xy(xx0, yy0)
 
@@ -372,15 +370,13 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         """
         x0, x1, y0, y1 = self._extremes
         tr = self._aux_trans
-        xx = np.linspace(x0, x1, 100)
-        yy0, yy1 = np.empty_like(xx), np.empty_like(xx)
-        yy0.fill(y0)
-        yy1.fill(y1)
 
+        xx = np.linspace(x0, x1, 100)
+        yy0 = np.full_like(xx, y0)
+        yy1 = np.full_like(xx, y1)
         yy = np.linspace(y0, y1, 100)
-        xx0, xx1 = np.empty_like(yy), np.empty_like(yy)
-        xx0.fill(x0)
-        xx1.fill(x1)
+        xx0 = np.full_like(yy, x0)
+        xx1 = np.full_like(yy, x1)
 
         xxx = np.concatenate([xx[:-1], xx1[:-1], xx[-1:0:-1], xx0])
         yyy = np.concatenate([yy0[:-1], yy[:-1], yy1[:-1], yy[::-1]])
