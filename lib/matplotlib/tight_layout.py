@@ -380,9 +380,6 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         if top is not None:
             top -= (1 - kwargs["top"])
 
-        #if h_pad is None: h_pad = pad
-        #if w_pad is None: w_pad = pad
-
         kwargs = auto_adjust_subplotpars(fig, renderer,
                                          nrows_ncols=(max_nrows, max_ncols),
                                          num1num2_list=num1num2_list,

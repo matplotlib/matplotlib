@@ -1425,7 +1425,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             self._arrow_relpos = None
             self.arrow_patch = None
 
-        #self._fw, self._fh = 0., 0. # for alignment
         self._box_alignment = box_alignment
 
         # frame
