@@ -115,9 +115,10 @@ See Matplotlib `INSTALL.rst` file for more information:
 """)
 
 import atexit
+from collections import namedtuple
 from collections.abc import MutableMapping
 import contextlib
-import distutils.version
+from distutils.version import LooseVersion
 import functools
 import importlib
 import inspect
@@ -179,9 +180,7 @@ def compare_versions(a, b):
             "3.0", message="compare_versions arguments should be strs.")
         b = b.decode('ascii')
     if a:
-        a = distutils.version.LooseVersion(a)
-        b = distutils.version.LooseVersion(b)
-        return a >= b
+        return LooseVersion(a) >= LooseVersion(b)
     else:
         return False
 
@@ -195,7 +194,7 @@ def _check_versions():
             ("pyparsing", "2.0.1"),
     ]:
         module = importlib.import_module(modname)
-        if distutils.version.LooseVersion(module.__version__) < minver:
+        if LooseVersion(module.__version__) < minver:
             raise ImportError("Matplotlib requires {}>={}; you have {}"
                               .format(modname, minver, module.__version__))
 
@@ -282,6 +281,117 @@ def _logged_cached(fmt, func=None):
     return wrapper
 
 
+_ExecInfo = namedtuple("_ExecInfo", "executable version")
+
+
+@functools.lru_cache()
+def _get_executable_info(name):
+    """
+    Get the version of some executable that Matplotlib optionally depends on.
+
+    .. warning:
+       The list of executables that this function supports is set according to
+       Matplotlib's internal needs, and may change without notice.
+
+    Parameters
+    ----------
+    name : str
+        The executable to query.  The following values are currently supported:
+        "dvipng", "gs", "inkscape", "magick", "pdftops".  This list is subject
+        to change without notice.
+
+    Returns
+    -------
+    If the executable is found, a namedtuple with fields ``executable`` (`str`)
+    and ``version`` (`distutils.version.LooseVersion`, or ``None`` if the
+    version cannot be determined).
+
+    Raises
+    ------
+    FileNotFoundError
+        If the executable is not found or older than the oldest version
+        supported by Matplotlib.
+    ValueError
+        If the executable is not one that we know how to query.
+    """
+
+    def impl(args, regex, min_ver=None):
+        # Execute the subprocess specified by args; capture stdout and stderr.
+        # Search for a regex match in the output; if the match succeeds, the
+        # first group of the match is the version.
+        # Return an _ExecInfo if the executable exists, and has a version of
+        # at least min_ver (if set); else, raise FileNotFoundError.
+        output = subprocess.check_output(
+            args, stderr=subprocess.STDOUT, universal_newlines=True)
+        match = re.search(regex, output)
+        if match:
+            version = LooseVersion(match.group(1))
+            if min_ver is not None and version < min_ver:
+                raise FileNotFoundError(
+                    f"You have {args[0]} version {version} but the minimum "
+                    f"version supported by Matplotlib is {min_ver}.")
+            return _ExecInfo(args[0], version)
+        else:
+            raise FileNotFoundError(
+                f"Failed to determine the version of {args[0]} from "
+                f"{' '.join(args)}, which output {output}")
+
+    if name == "dvipng":
+        return impl(["dvipng", "-version"], "(?m)^dvipng .* (.+)", "1.6")
+    elif name == "gs":
+        execs = (["gswin32c", "gswin64c", "mgs", "gs"]  # "mgs" for miktex.
+                 if sys.platform == "win32" else
+                 ["gs"])
+        for e in execs:
+            try:
+                return impl([e, "--version"], "(.*)", "9")
+            except FileNotFoundError:
+                pass
+        raise FileNotFoundError("Failed to find a Ghostscript installation")
+    elif name == "inkscape":
+        return impl(["inkscape", "-V"], "^Inkscape ([^ ]*)")
+    elif name == "magick":
+        path = None
+        if sys.platform == "win32":
+            # Check the registry to avoid confusing ImageMagick's convert with
+            # Windows's builtin convert.exe.
+            import winreg
+            binpath = ""
+            for flag in [0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY]:
+                try:
+                    with winreg.OpenKeyEx(
+                            winreg.HKEY_LOCAL_MACHINE,
+                            r"Software\Imagemagick\Current",
+                            0, winreg.KEY_QUERY_VALUE | flag) as hkey:
+                        binpath = winreg.QueryValueEx(hkey, "BinPath")[0]
+                except OSError:
+                    pass
+            if binpath:
+                for name in ["convert.exe", "magick.exe"]:
+                    candidate = Path(binpath, name)
+                    if candidate.exists():
+                        path = candidate
+                        break
+        else:
+            path = "convert"
+        if path is None:
+            raise FileNotFoundError(
+                "Failed to find an ImageMagick installation")
+        return impl([path, "--version"], r"^Version: ImageMagick (\S*)")
+    elif name == "pdftops":
+        info = impl(["pdftops", "-v"], "^pdftops version (.*)")
+        if info and not ("3.0" <= info.version
+                         # poppler version numbers.
+                         or "0.9" <= info.version <= "1.0"):
+            raise FileNotFoundError(
+                f"You have pdftops version {info.version} but the minimum "
+                f"version supported by Matplotlib is 3.0.")
+        return info
+    else:
+        raise ValueError("Unknown executable: {!r}".format(name))
+
+
+@cbook.deprecated("3.1")
 def checkdep_dvipng():
     try:
         s = subprocess.Popen(['dvipng', '-version'],
@@ -295,6 +405,7 @@ def checkdep_dvipng():
         return None
 
 
+@cbook.deprecated("3.1")
 def checkdep_ghostscript():
     if checkdep_ghostscript.executable is None:
         if sys.platform == 'win32':
@@ -320,6 +431,7 @@ checkdep_ghostscript.executable = None
 checkdep_ghostscript.version = None
 
 
+@cbook.deprecated("3.1")
 def checkdep_pdftops():
     try:
         s = subprocess.Popen(['pdftops', '-v'], stdout=subprocess.PIPE,
@@ -334,6 +446,7 @@ def checkdep_pdftops():
         return None
 
 
+@cbook.deprecated("3.1")
 def checkdep_inkscape():
     if checkdep_inkscape.version is None:
         try:
@@ -356,64 +469,39 @@ checkdep_inkscape.version = None
 def checkdep_ps_distiller(s):
     if not s:
         return False
-
-    flag = True
-    gs_exec, gs_v = checkdep_ghostscript()
-    if not gs_exec:
-        flag = False
-        _log.warning('matplotlibrc ps.usedistiller option can not be used '
-                     'unless ghostscript 9.0 or later is installed on your '
-                     'system.')
-
-    if s == 'xpdf':
-        pdftops_req = '3.0'
-        pdftops_req_alt = '0.9'  # poppler version numbers, ugh
-        pdftops_v = checkdep_pdftops()
-        if compare_versions(pdftops_v, pdftops_req):
-            pass
-        elif (compare_versions(pdftops_v, pdftops_req_alt) and not
-              compare_versions(pdftops_v, '1.0')):
-            pass
-        else:
-            flag = False
-            _log.warning('matplotlibrc ps.usedistiller can not be set to xpdf '
-                         'unless xpdf-%s or later is installed on your '
-                         'system.', pdftops_req)
-
-    if flag:
-        return s
-    else:
+    try:
+        _get_executable_info("gs")
+    except FileNotFoundError:
+        _log.warning(
+            "Setting rcParams['ps.usedistiller'] requires ghostscript.")
         return False
+    if s == "xpdf":
+        try:
+            _get_executable_info("pdftops")
+        except FileNotFoundError:
+            _log.warning(
+                "Setting rcParams['ps.usedistiller'] to 'xpdf' requires xpdf.")
+            return False
+    return s
 
 
 def checkdep_usetex(s):
     if not s:
         return False
-
-    gs_req = '9.00'
-    dvipng_req = '1.6'
-    flag = True
-
-    if shutil.which("tex") is None:
-        flag = False
-        _log.warning('matplotlibrc text.usetex option can not be used unless '
-                     'TeX is installed on your system.')
-
-    dvipng_v = checkdep_dvipng()
-    if not compare_versions(dvipng_v, dvipng_req):
-        flag = False
-        _log.warning('matplotlibrc text.usetex can not be used with *Agg '
-                     'backend unless dvipng-%s or later is installed on '
-                     'your system.', dvipng_req)
-
-    gs_exec, gs_v = checkdep_ghostscript()
-    if not compare_versions(gs_v, gs_req):
-        flag = False
-        _log.warning('matplotlibrc text.usetex can not be used unless '
-                     'ghostscript-%s or later is installed on your system.',
-                     gs_req)
-
-    return flag
+    if not shutil.which("tex"):
+        _log.warning("usetex mode requires TeX.")
+        return False
+    try:
+        _get_executable_info("dvipng")
+    except FileNotFoundError:
+        _log.warning("usetex mode requires dvipng.")
+        return False
+    try:
+        _get_executable_info("gs")
+    except FileNotFoundError:
+        _log.warning("usetex mode requires ghostscript.")
+        return False
+    return True
 
 
 @_logged_cached('$HOME=%s')

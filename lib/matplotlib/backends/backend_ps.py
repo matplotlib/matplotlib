@@ -17,6 +17,7 @@ import time
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import (
     cbook, _path, __version__, rcParams, checkdep_ghostscript)
 from matplotlib.backend_bases import (
@@ -1362,11 +1363,11 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     psfile = tmpfile + '.ps'
     dpi = rcParams['ps.distiller.res']
 
-    gs_exe, gs_version = checkdep_ghostscript()
     cbook._check_and_log_subprocess(
-        [gs_exe, "-dBATCH", "-dNOPAUSE", "-r%d" % dpi,
-         "-sDEVICE=ps2write", paper_option,
-         "-sOutputFile=%s" % psfile, tmpfile], _log)
+        [mpl._get_executable_info("gs").executable,
+         "-dBATCH", "-dNOPAUSE", "-r%d" % dpi, "-sDEVICE=ps2write",
+         paper_option, "-sOutputFile=%s" % psfile, tmpfile],
+        _log)
 
     os.remove(tmpfile)
     shutil.move(psfile, tmpfile)

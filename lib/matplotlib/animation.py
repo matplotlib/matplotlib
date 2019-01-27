@@ -33,6 +33,7 @@ import uuid
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib._animation_data import (
     DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
 from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
@@ -709,28 +710,16 @@ class ImageMagickBase(object):
     @classmethod
     def bin_path(cls):
         binpath = super().bin_path()
-        if sys.platform == 'win32' and binpath == 'convert':
-            # Check the registry to avoid confusing ImageMagick's convert with
-            # Windows's builtin convert.exe.
-            import winreg
-            binpath = ''
-            for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
-                try:
-                    with winreg.OpenKeyEx(
-                            winreg.HKEY_LOCAL_MACHINE,
-                            r'Software\Imagemagick\Current',
-                            0, winreg.KEY_QUERY_VALUE | flag) as hkey:
-                        parent = winreg.QueryValueEx(hkey, 'BinPath')[0]
-                except OSError:
-                    pass
-            if binpath:
-                for exe in ('convert.exe', 'magick.exe'):
-                    candidate = os.path.join(parent, exe)
-                    if os.path.exists(candidate):
-                        binpath = candidate
-                        break
-            rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
+        if binpath == 'convert':
+            binpath = mpl._get_executable_info('magick').executable
         return binpath
+
+    @classmethod
+    def isAvailable(cls):
+        try:
+            return super().isAvailable()
+        except FileNotFoundError:  # May be raised by get_executable_info.
+            return False
 
 
 # Combine ImageMagick options with pipe-based writing
