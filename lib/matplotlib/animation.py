@@ -1613,6 +1613,7 @@ class FuncAnimation(TimedAnimation):
         else:
             self._args = ()
         self._func = func
+        self._init_func = init_func
 
         # Amount of framedata to keep around for saving movies. This is only
         # used if we don't know how many frames there will be: in the case
@@ -1644,7 +1645,7 @@ class FuncAnimation(TimedAnimation):
             # As a workaround, convert save_count to a native python int.
             self.save_count = int(self.save_count)
 
-        self._init_func = init_func
+        self._cache_frame_data = cache_frame_data
 
         # Needs to be initialized so the draw functions work without checking
         self._save_seq = []
@@ -1654,8 +1655,6 @@ class FuncAnimation(TimedAnimation):
         # Need to reset the saved seq, since right now it will contain data
         # for a single frame from init, which is not what we want.
         self._save_seq = []
-
-        self._cache_frame_data = cache_frame_data
 
     def new_frame_seq(self):
         # Use the generating function to generate a new frame sequence
