@@ -598,24 +598,13 @@ class RadialTick(maxis.YTick):
             angle = (axes.get_rlabel_position() * direction +
                      offset) % 360 - 90
             tick_angle = 0
-            if angle > 90:
-                text_angle = angle - 180
-            elif angle < -90:
-                text_angle = angle + 180
-            else:
-                text_angle = angle
         else:
             angle = (thetamin * direction + offset) % 360 - 90
             if direction > 0:
                 tick_angle = np.deg2rad(angle)
             else:
                 tick_angle = np.deg2rad(angle + 180)
-            if angle > 90:
-                text_angle = angle - 180
-            elif angle < -90:
-                text_angle = angle + 180
-            else:
-                text_angle = angle
+        text_angle = (angle + 90) % 180 - 90  # between -90 and +90.
         mode, user_angle = self._labelrotation
         if mode == 'auto':
             text_angle += user_angle
@@ -646,18 +635,12 @@ class RadialTick(maxis.YTick):
         if full:
             self.label2.set_visible(False)
             self.tick2line.set_visible(False)
+        angle = (thetamax * direction + offset) % 360 - 90
+        if direction > 0:
+            tick_angle = np.deg2rad(angle)
         else:
-            angle = (thetamax * direction + offset) % 360 - 90
-            if direction > 0:
-                tick_angle = np.deg2rad(angle)
-            else:
-                tick_angle = np.deg2rad(angle + 180)
-            if angle > 90:
-                text_angle = angle - 180
-            elif angle < -90:
-                text_angle = angle + 180
-            else:
-                text_angle = angle
+            tick_angle = np.deg2rad(angle + 180)
+        text_angle = (angle + 90) % 180 - 90  # between -90 and +90.
         mode, user_angle = self._labelrotation
         if mode == 'auto':
             text_angle += user_angle
@@ -792,15 +775,8 @@ class _WedgeBbox(mtransforms.Bbox):
 
             # Ensure equal aspect ratio.
             w, h = self._points[1] - self._points[0]
-            if h < w:
-                deltah = (w - h) / 2.0
-                deltaw = 0.0
-            elif w < h:
-                deltah = 0.0
-                deltaw = (h - w) / 2.0
-            else:
-                deltah = 0.0
-                deltaw = 0.0
+            deltah = max(w - h, 0) / 2
+            deltaw = max(h - w, 0) / 2
             self._points += np.array([[-deltaw, -deltah], [deltaw, deltah]])
 
             self._invalid = 0
