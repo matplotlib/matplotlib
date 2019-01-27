@@ -706,8 +706,7 @@ class TestVoxels(object):
         x, y, z = np.indices((10, 10, 10))
         voxels = (x == y) | (y == z)
         voxels = voxels & ~(x * y * z < 1)
-        colors = np.zeros((10, 10, 10), dtype=np.object_)
-        colors.fill('C0')
+        colors = np.full((10, 10, 10), 'C0', dtype=np.object_)
         colors[(x < 5) & (y < 5)] = '0.25'
         colors[(x + z) < 10] = 'cyan'
         ax.voxels(voxels, facecolors=colors)

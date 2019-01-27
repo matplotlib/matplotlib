@@ -231,8 +231,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         # find angles
         if self.nth_coord == 0:
-            xx0 = np.empty_like(yy0)
-            xx0.fill(self.value)
+            xx0 = np.full_like(yy0, self.value)
 
             xx1, yy1 = transform_xy(xx0, yy0)
 
@@ -248,8 +247,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
-            yy0 = np.empty_like(xx0)
-            yy0.fill(self.value)
+            yy0 = np.full_like(xx0, self.value)
 
             xx1, yy1 = transform_xy(xx0, yy0)
 

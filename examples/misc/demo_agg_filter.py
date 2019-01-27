@@ -145,17 +145,13 @@ class GrowFilter(BaseFilter):
             self.color = color
 
     def __call__(self, im, dpi):
-        pad = self.pixels
         ny, nx, depth = im.shape
-        new_im = np.empty([pad*2 + ny, pad*2 + nx, depth], dtype="d")
-        alpha = new_im[:, :, 3]
-        alpha.fill(0)
-        alpha[pad:-pad, pad:-pad] = im[:, :, -1]
+        alpha = np.pad(im[..., -1], self.pixels, "constant")
         alpha2 = np.clip(smooth2d(alpha, self.pixels/72.*dpi) * 5, 0, 1)
+        new_im = np.empty((*alpha2.shape, 4))
         new_im[:, :, -1] = alpha2
         new_im[:, :, :-1] = self.color
-        offsetx, offsety = -pad, -pad
-
+        offsetx, offsety = -self.pixels, -self.pixels
         return new_im, offsetx, offsety
 
 
