@@ -46,32 +46,35 @@ class Axes3D(Axes):
     name = '3d'
     _shared_z_axes = cbook.Grouper()
 
+    @docstring.dedent_interpd
     def __init__(
             self, fig, rect=None, *args,
             azim=-60, elev=30, zscale=None, sharez=None, proj_type='persp',
             **kwargs):
-        '''
-        Build an :class:`Axes3D` instance in
-        :class:`~matplotlib.figure.Figure` *fig* with
-        *rect=[left, bottom, width, height]* in
-        :class:`~matplotlib.figure.Figure` coordinates
+        """
+        Parameters
+        ----------
+        fig : Figure
+            The parent figure.
+        rect : (float, float, float, float)
+            The ``(left, bottom, width, height)`` axes position.
+        azim : float, optional
+            Azimuthal viewing angle, defaults to -60.
+        elev : float, optional
+            Elevation viewing angle, defaults to 30.
+        zscale : [%(scale)s], optional
+            The z scale.  Note that currently, only a linear scale is
+            supported.
+        sharez : Axes3D, optional
+            Other axes to share z-limits with.
+        proj_type : {'persp', 'ortho'}
+            The projection type, default 'persp'.
 
-        Optional keyword arguments:
-
-          ================   =========================================
-          Keyword            Description
-          ================   =========================================
-          *azim*             Azimuthal viewing angle (default -60)
-          *elev*             Elevation viewing angle (default 30)
-          *zscale*           [%(scale)s]
-          *sharez*           Other axes to share z-limits with
-          *proj_type*        'persp' or 'ortho' (default 'persp')
-          ================   =========================================
-
-        .. versionadded :: 1.2.1
-            *sharez*
-
-        ''' % {'scale': ' | '.join(repr(x) for x in mscale.get_scale_names())}
+        Notes
+        -----
+        .. versionadded:: 1.2.1
+            The *sharez* parameter.
+        """
 
         if rect is None:
             rect = [0.0, 0.0, 1.0, 1.0]
@@ -1051,22 +1054,18 @@ class Axes3D(Axes):
         return M
 
     def mouse_init(self, rotate_btn=1, zoom_btn=3):
-        """Initializes mouse button callbacks to enable 3D rotation of
-        the axes.  Also optionally sets the mouse buttons for 3D rotation
-        and zooming.
+        """
+        Initializes mouse button callbacks to enable 3D rotation of the axes.
+        Also optionally sets the mouse buttons for 3D rotation and zooming.
 
-        ============  =======================================================
-        Argument      Description
-        ============  =======================================================
-        *rotate_btn*  The integer or list of integers specifying which mouse
-                      button or buttons to use for 3D rotation of the axes.
-                      Default = 1.
-
-        *zoom_btn*    The integer or list of integers specifying which mouse
-                      button or buttons to use to zoom the 3D axes.
-                      Default = 3.
-        ============  =======================================================
-
+        Parameters
+        ----------
+        rotate_btn : int or list of int
+            The mouse button or buttons to use for 3D rotation of the axes;
+            defaults to 1.
+        zoom_btn : int or list of int
+            The mouse button or buttons to use to zoom the 3D axes; defaults to
+            3.
         """
         self.button_pressed = None
         self._cids = [
@@ -1508,23 +1507,24 @@ class Axes3D(Axes):
     text2D = Axes.text
 
     def plot(self, xs, ys, *args, zdir='z', **kwargs):
-        '''
+        """
         Plot 2D or 3D data.
 
-        ==========  ================================================
-        Argument    Description
-        ==========  ================================================
-        *xs*, *ys*  x, y coordinates of vertices
-
-        *zs*        z value(s), either one for all points or one for
-                    each point.
-        *zdir*      Which direction to use as z ('x', 'y' or 'z')
-                    when plotting a 2D set.
-        ==========  ================================================
-
-        Other arguments are passed on to
-        :func:`~matplotlib.axes.Axes.plot`
-        '''
+        Parameters
+        ----------
+        xs : 1D array-like
+            x coordinates of vertices.
+        ys : 1D array-like
+            y coordinates of vertices.
+        zs : scalar or 1D array-like
+            z coordinates of vertices; either one for all points or one for
+            each point.
+        zdir : {'x', 'y', 'z'}
+            When plotting 2D data, the direction to use as z ('x', 'y' or 'z');
+            defaults to 'z'.
+        **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
+        """
         had_data = self.has_data()
 
         # `zs` can be passed positionally or as keyword; checking whether
@@ -2099,27 +2099,29 @@ class Axes3D(Axes):
 
     def contour(self, X, Y, Z, *args,
                 extend3d=False, stride=5, zdir='z', offset=None, **kwargs):
-        '''
+        """
         Create a 3D contour plot.
 
-        ==========  ================================================
-        Argument    Description
-        ==========  ================================================
-        *X*, *Y*,   Data values as numpy.arrays
-        *Z*
-        *extend3d*  Whether to extend contour in 3D (default: False)
-        *stride*    Stride (step size) for extending contour
-        *zdir*      The direction to use: x, y or z (default)
-        *offset*    If specified plot a projection of the contour
-                    lines on this position in plane normal to zdir
-        ==========  ================================================
+        Parameters
+        ----------
+        X, Y, Z : array-likes
+            Input data.
+        extend3d : bool
+            Whether to extend contour in 3D; defaults to False.
+        stride : int
+            Step size for extending contour.
+        zdir : {'x', 'y', 'z'}
+            The direction to use; defaults to 'z'.
+        offset : scalar
+            If specified, plot a projection of the contour lines at this
+            position in a plane normal to zdir
+        *args, **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.contour`.
 
-        The positional and other keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.contour`
-
-        Returns a :class:`~matplotlib.axes.Axes.contour`
-        '''
-
+        Returns
+        -------
+        matplotlib.contour.QuadContourSet
+        """
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
@@ -2136,30 +2138,33 @@ class Axes3D(Axes):
         """
         Create a 3D contour plot.
 
-        ==========  ================================================
-        Argument    Description
-        ==========  ================================================
-        *X*, *Y*,   Data values as numpy.arrays
-        *Z*
-        *extend3d*  Whether to extend contour in 3D (default: False)
-        *stride*    Stride (step size) for extending contour
-        *zdir*      The direction to use: x, y or z (default)
-        *offset*    If specified plot a projection of the contour
-                    lines on this position in plane normal to zdir
-        ==========  ================================================
-
-        Other keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.tricontour`
-
-        Returns a :class:`~matplotlib.axes.Axes.contour`
-
         .. versionchanged:: 1.3.0
             Added support for custom triangulations
 
-        EXPERIMENTAL:  This method currently produces incorrect output due to a
-        longstanding bug in 3D PolyCollection rendering.
-        """
+        .. note::
+            This method currently produces incorrect output due to a
+            longstanding bug in 3D PolyCollection rendering.
 
+        Parameters
+        ----------
+        X, Y, Z : array-likes
+            Input data.
+        extend3d : bool
+            Whether to extend contour in 3D; defaults to False.
+        stride : int
+            Step size for extending contour.
+        zdir : {'x', 'y', 'z'}
+            The direction to use; defaults to 'z'.
+        offset : scalar
+            If specified, plot a projection of the contour lines at this
+            position in a plane normal to zdir
+        *args, **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.tricontour`.
+
+        Returns
+        -------
+        matplotlib.tri.tricontour.TriContourSet
+        """
         had_data = self.has_data()
 
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(
@@ -2183,28 +2188,30 @@ class Axes3D(Axes):
         return cset
 
     def contourf(self, X, Y, Z, *args, zdir='z', offset=None, **kwargs):
-        '''
-        Create a 3D contourf plot.
+        """
+        Create a 3D filled contour plot.
 
-        ==========  ================================================
-        Argument    Description
-        ==========  ================================================
-        *X*, *Y*,   Data values as numpy.arrays
-        *Z*
-        *zdir*      The direction to use: x, y or z (default)
-        *offset*    If specified plot a projection of the filled contour
-                    on this position in plane normal to zdir
-        ==========  ================================================
+        Parameters
+        ----------
+        X, Y, Z : array-likes
+            Input data.
+        zdir : {'x', 'y', 'z'}
+            The direction to use; defaults to 'z'.
+        offset : scalar
+            If specified, plot a projection of the contour lines at this
+            position in a plane normal to zdir
+        *args, **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.contourf`.
 
-        The positional and keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.contourf`
+        Returns
+        -------
+        matplotlib.contour.QuadContourSet
 
-        Returns a :class:`~matplotlib.axes.Axes.contourf`
-
-        .. versionchanged :: 1.1.0
-            The *zdir* and *offset* kwargs were added.
-        '''
-
+        Notes
+        -----
+        .. versionadded:: 1.1.0
+            The *zdir* and *offset* parameters.
+        """
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
@@ -2218,30 +2225,36 @@ class Axes3D(Axes):
 
     def tricontourf(self, *args, zdir='z', offset=None, **kwargs):
         """
-        Create a 3D contourf plot.
+        Create a 3D filled contour plot.
 
-        ==========  ================================================
-        Argument    Description
-        ==========  ================================================
-        *X*, *Y*,   Data values as numpy.arrays
-        *Z*
-        *zdir*      The direction to use: x, y or z (default)
-        *offset*    If specified plot a projection of the contour
-                    lines on this position in plane normal to zdir
-        ==========  ================================================
+        .. note::
+            This method currently produces incorrect output due to a
+            longstanding bug in 3D PolyCollection rendering.
 
-        Other keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.tricontour`
+        Parameters
+        ----------
+        X, Y, Z : array-likes
+            Input data.
+        zdir : {'x', 'y', 'z'}
+            The direction to use; defaults to 'z'.
+        offset : scalar
+            If specified, plot a projection of the contour lines at this
+            position in a plane normal to zdir
+        *args, **kwargs
+            Other arguments are forwarded to
+            `matplotlib.axes.Axes.tricontourf`.
 
-        Returns a :class:`~matplotlib.axes.Axes.contour`
+        Returns
+        -------
+        matplotlib.tri.tricontour.TriContourSet
 
-        .. versionchanged :: 1.3.0
+        Notes
+        -----
+        .. versionadded:: 1.1.0
+            The *zdir* and *offset* parameters.
+        .. versionchanged:: 1.3.0
             Added support for custom triangulations
-
-        EXPERIMENTAL:  This method currently produces incorrect output due to a
-        longstanding bug in 3D PolyCollection rendering.
         """
-
         had_data = self.has_data()
 
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(
@@ -2365,25 +2378,28 @@ class Axes3D(Axes):
     scatter3D = scatter
 
     def bar(self, left, height, zs=0, zdir='z', *args, **kwargs):
-        '''
+        """
         Add 2D bar(s).
 
-        ==========  ================================================
-        Argument    Description
-        ==========  ================================================
-        *left*      The x coordinates of the left sides of the bars.
-        *height*    The height of the bars.
-        *zs*        Z coordinate of bars, if one value is specified
-                    they will all be placed at the same z.
-        *zdir*      Which direction to use as z ('x', 'y' or 'z')
-                    when plotting a 2D set.
-        ==========  ================================================
+        Parameters
+        ----------
+        left : 1D array-like
+            The x coordinates of the left sides of the bars.
+        height : 1D array-like
+            The height of the bars.
+        zs : scalar or 1D array-like
+            Z coordinate of bars; if a single value is specified, it will be
+            used for all bars.
+        zdir : {'x', 'y', 'z'}
+            When plotting 2D data, the direction to use as z ('x', 'y' or 'z');
+            defaults to 'z'.
+        **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.bar`.
 
-        Keyword arguments are passed onto :func:`~matplotlib.axes.Axes.bar`.
-
-        Returns a :class:`~mpl_toolkits.mplot3d.art3d.Patch3DCollection`
-        '''
-
+        Returns
+        -------
+        mpl_toolkits.mplot3d.art3d.Patch3DCollection
+        """
         had_data = self.has_data()
 
         patches = super().bar(left, height, *args, **kwargs)
