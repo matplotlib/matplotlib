@@ -2620,8 +2620,10 @@ class AutoMinorLocator(Locator):
             return []
 
         if self.ndivs is None:
-            x = int(np.round(10 ** (np.log10(majorstep) % 1)))
-            if x in [1, 5, 10]:
+
+            majorstep_no_exponent = 10 ** (np.log10(majorstep) % 1)
+
+            if np.isclose(majorstep_no_exponent, [1.0, 2.5, 5.0, 10.0]).any():
                 ndivs = 5
             else:
                 ndivs = 4
