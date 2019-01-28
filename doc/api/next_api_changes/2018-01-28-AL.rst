@@ -1,8 +1,8 @@
 New `Formatter.format_ticks` method
 ```````````````````````````````````
 
-The `Formatter` class gained a new `~Formatter.format_ticks` methods, which
-takes the list of all tick locations as single argument and returns the list
+The `Formatter` class gained a new `~Formatter.format_ticks` method, which
+takes the list of all tick locations as a single argument and returns the list
 of all formatted values.  It is called by the axis tick handling code and, by
 default, repeatedly calls `~Formatter.__call__`.
 
