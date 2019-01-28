@@ -1082,11 +1082,11 @@ void __add_number(double val, char format_code, int precision,
 
 
 template <class PathIterator>
-int __convert_to_string(PathIterator &path,
-                        int precision,
-                        char **codes,
-                        bool postfix,
-                        std::string& buffer)
+bool __convert_to_string(PathIterator &path,
+                         int precision,
+                         char **codes,
+                         bool postfix,
+                         std::string& buffer)
 {
     const char format_code = 'f';
 
@@ -1108,7 +1108,7 @@ int __convert_to_string(PathIterator &path,
             for (int i = 1; i < size; ++i) {
                 unsigned subcode = path.vertex(&x[i], &y[i]);
                 if (subcode != code) {
-                    return 2;
+                    return false;
                 }
             }
 
@@ -1140,25 +1140,25 @@ int __convert_to_string(PathIterator &path,
             last_y = y[size - 1];
         } else {
             // Unknown code value
-            return 2;
+            return false;
         }
 
         buffer += '\n';
     }
 
-    return 0;
+    return true;
 }
 
 template <class PathIterator>
-int convert_to_string(PathIterator &path,
-                      agg::trans_affine &trans,
-                      agg::rect_d &clip_rect,
-                      bool simplify,
-                      SketchParams sketch_params,
-                      int precision,
-                      char **codes,
-                      bool postfix,
-                      std::string& buffer)
+bool convert_to_string(PathIterator &path,
+                       agg::trans_affine &trans,
+                       agg::rect_d &clip_rect,
+                       bool simplify,
+                       SketchParams sketch_params,
+                       int precision,
+                       char **codes,
+                       bool postfix,
+                       std::string& buffer)
 {
     size_t buffersize;
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
@@ -1177,7 +1177,7 @@ int convert_to_string(PathIterator &path,
 
     buffersize = path.total_vertices() * (precision + 5) * 4;
     if (buffersize == 0) {
-        return 0;
+        return true;
     }
 
     if (sketch_params.scale != 0.0) {

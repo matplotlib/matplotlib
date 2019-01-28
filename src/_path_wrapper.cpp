@@ -685,7 +685,7 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     bool postfix;
     std::string buffer;
     PyObject *result;
-    int status;
+    bool status;
 
     if (!PyArg_ParseTuple(args,
                           "O&O&O&OO&iOO&:convert_to_string",
@@ -736,12 +736,8 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
                  path, trans, cliprect, simplify, sketch,
                  precision, codes, postfix, buffer)));
 
-    if (status) {
-        if (status == 1) {
-            PyErr_SetString(PyExc_MemoryError, "Memory error");
-        } else if (status == 2) {
-            PyErr_SetString(PyExc_ValueError, "Malformed path codes");
-        }
+    if (!status) {
+        PyErr_SetString(PyExc_ValueError, "Malformed path codes");
         return NULL;
     }
 
