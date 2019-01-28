@@ -145,7 +145,7 @@ biggest difference is that the artists responsible to draw axis line,
 ticks, ticklabel and axis labels are separated out from the mpl's Axis
 class, which are much more than artists in the original mpl. This
 change was strongly motivated to support curvilinear grid. Here are a
-few things that mpl_tootlkits.axisartist.Axes is different from original
+few things that mpl_toolkits.axisartist.Axes is different from original
 Axes from mpl.
 
 * Axis elements (axis line(spine), ticks, ticklabel and axis labels)
@@ -578,7 +578,7 @@ coordinates, or you may use Parasite Axes for convenience.::
     # A parasite axes with given transform
     ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
     # note that ax2.transData == tr + ax1.transData
-    # Anthing you draw in ax2 will match the ticks and grids of ax1.
+    # Anything you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png

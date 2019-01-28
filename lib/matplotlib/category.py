@@ -225,7 +225,7 @@ class UnitData(object):
             _log.info('Using categorical units to plot a list of strings '
                       'that are all parsable as floats or dates. If these '
                       'strings should be plotted as numbers, cast to the '
-                      'approriate data type before plotting.')
+                      'appropriate data type before plotting.')
 
 
 # Register the converter with Matplotlib's unit framework

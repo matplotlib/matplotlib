@@ -1264,7 +1264,7 @@ class FontManager(object):
                 return self.findfont(default_prop, fontext, directory, False)
             else:
                 # This is a hard fail -- we can't find anything reasonable,
-                # so just return the DejuVuSans.ttf
+                # so just return the DejaVuSans.ttf
                 _log.warning('findfont: Could not match %s. Returning %s.',
                              prop, self.defaultFont[fontext])
                 result = self.defaultFont[fontext]

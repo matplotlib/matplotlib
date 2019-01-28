@@ -234,7 +234,7 @@ class GridSpec(GridSpecBase):
                 parent=self.figure._layoutbox,
                 name='gridspec' + layoutbox.seq_id(),
                 artist=self)
-        # by default the layoutbox for a gridsepc will fill a figure.
+        # by default the layoutbox for a gridspec will fill a figure.
         # but this can change below if the gridspec is created from a
         # subplotspec. (GridSpecFromSubplotSpec)
 

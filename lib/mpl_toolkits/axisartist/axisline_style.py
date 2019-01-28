@@ -68,10 +68,9 @@ class _FancyAxislineStyle(object):
             """
             path_in_disp = self._line_transform.transform_path(self._line_path)
             mutation_size = self.get_mutation_scale()  # line_mutation_scale()
-            extented_path = self._extend_path(path_in_disp,
+            extended_path = self._extend_path(path_in_disp,
                                               mutation_size=mutation_size)
-
-            self._path_original = extented_path
+            self._path_original = extended_path
             FancyArrowPatch.draw(self, renderer)
 
     class FilledArrow(SimpleArrow):

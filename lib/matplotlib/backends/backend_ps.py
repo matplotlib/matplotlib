@@ -195,7 +195,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     _use_afm_rc_name = "ps.useafm"
 
     def __init__(self, width, height, pswriter, imagedpi=72):
-        # Although postscript itself is dpi independent, we need to imform the
+        # Although postscript itself is dpi independent, we need to inform the
         # image code about a requested dpi to generate high resolution images
         # and them scale them before embedding them.
         RendererBase.__init__(self)
@@ -731,7 +731,7 @@ grestore
 
     def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
         """
-        Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
+        Emit the PostScript snippet 'ps' with all the attributes from 'gc'
         applied.  'ps' must consist of PostScript commands to construct a path.
 
         The fill and/or stroke kwargs can be set to False if the
@@ -1417,7 +1417,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
 
 def get_bbox_header(lbrt, rotated=False):
     """
-    return a postscript header stringfor the given bbox lbrt=(l, b, r, t).
+    return a postscript header string for the given bbox lbrt=(l, b, r, t).
     Optionally, return rotate command.
     """
 

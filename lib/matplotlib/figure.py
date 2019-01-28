@@ -397,7 +397,7 @@ class Figure(Artist):
 
     def _repr_html_(self):
         # We can't use "isinstance" here, because then we'd end up importing
-        # webagg unconditiionally.
+        # webagg unconditionally.
         if 'WebAgg' in type(self.canvas).__name__:
             from matplotlib.backends import backend_webagg
             return backend_webagg.ipython_inline_display(self)
@@ -1856,7 +1856,7 @@ default: 'top'
 
         """
         ckey, cax = self._axstack.current_key_axes()
-        # if there exists an axes on the stack see if it maches
+        # if there exists an axes on the stack see if it matches
         # the desired axes configuration
         if cax is not None:
 

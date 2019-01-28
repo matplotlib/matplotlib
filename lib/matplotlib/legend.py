@@ -634,7 +634,7 @@ class Legend(Artist):
         fontsize = renderer.points_to_pixels(self._fontsize)
 
         # if mode == fill, set the width of the legend_box to the
-        # width of the paret (minus pads)
+        # width of the parent (minus pads)
         if self._mode in ["expand"]:
             pad = 2 * (self.borderaxespad + self.borderpad) * fontsize
             self._legend_box.set_width(self.get_bbox_to_anchor().width - pad)
@@ -734,7 +734,7 @@ class Legend(Artist):
         returned by the get_legend_handler_map method).
 
         It first checks if the *orig_handle* itself is a key in the
-        *legend_hanler_map* and return the associated value.
+        *legend_handler_map* and return the associated value.
         Otherwise, it checks for each of the classes in its
         method-resolution-order. If no matching key is found, it
         returns ``None``.

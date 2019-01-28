@@ -1180,7 +1180,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Key        Value Description
         ========   ===================================
         label      tick label for the boxplot
-        mean       arithemetic mean value
+        mean       arithmetic mean value
         med        50th percentile
         q1         first quartile (25th percentile)
         q3         third quartile (75th percentile)
@@ -1256,7 +1256,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         # restore whis to the input values in case it got changed in the loop
         whis = input_whis
 
-        # note tricksyness, append up here and then mutate below
+        # note tricksiness, append up here and then mutate below
         bxpstats.append(stats)
 
         # if empty, bail

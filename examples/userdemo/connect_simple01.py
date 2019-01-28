@@ -33,7 +33,7 @@ con = ConnectionPatch(xyA=xy, xyB=xy, coordsA=coordsA, coordsB=coordsB,
                       arrowstyle="->", shrinkB=5)
 ax2.add_artist(con)
 
-# Draw a line between the different points, defined in differnt coordinate
+# Draw a line between the different points, defined in different coordinate
 # systems.
 xyA = (0.6, 1.0)  # in axes coordinates
 xyB = (0.0, 0.2)  # x in axes coordinates, y in data coordinates

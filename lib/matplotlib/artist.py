@@ -1442,7 +1442,7 @@ def getp(obj, property=None):
         getp(obj, 'linestyle')  # get the linestyle property
 
     *obj* is a :class:`Artist` instance, e.g.,
-    :class:`~matplotllib.lines.Line2D` or an instance of a
+    :class:`~matplotlib.lines.Line2D` or an instance of a
     :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
     If the *property* is 'somename', this function returns
 

@@ -529,7 +529,7 @@ def _get_data_path():
 
     def get_candidate_paths():
         yield Path(__file__).with_name('mpl-data')
-        # setuptools' namespace_packages may highjack this init file
+        # setuptools' namespace_packages may hijack this init file
         # so need to try something known to be in Matplotlib, not basemap.
         import matplotlib.afm
         yield Path(matplotlib.afm.__file__).with_name('mpl-data')

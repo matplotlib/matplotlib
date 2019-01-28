@@ -415,7 +415,7 @@ def test_image_composite_alpha():
                   remove_text=True, style='mpl20')
 def test_rasterize_dpi():
     # This test should check rasterized rendering with high output resolution.
-    # It plots a rasterized line and a normal image with implot.  So it will
+    # It plots a rasterized line and a normal image with imshow.  So it will
     # catch when images end up in the wrong place in case of non-standard dpi
     # setting.  Instead of high-res rasterization I use low-res.  Therefore
     # the fact that the resolution is non-standard is easily checked by

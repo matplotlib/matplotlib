@@ -35,7 +35,7 @@ ax0.set_title('Set default color cycle to rgby')
 #    For the most general use-case, you can provide a cycler to
 #    `.set_prop_cycle`.
 #    Here, we use the convenient shortcut that we can alternatively pass
-#    one or more properties as keyword arguements. This creates and sets
+#    one or more properties as keyword arguments. This creates and sets
 #    a cycler iterating simultaneously over all properties.
 ax1.set_prop_cycle(color=['c', 'm', 'y', 'k'], lw=[1, 2, 3, 4])
 ax1.plot(yy)

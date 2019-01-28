@@ -188,7 +188,7 @@ class HostAxesBase:
         parasite_axes_class = parasite_axes_auxtrans_class_factory(axes_class)
         ax2 = parasite_axes_class(self, tr, viewlim_mode)
         # note that ax2.transData == tr + ax1.transData
-        # Anthing you draw in ax2 will match the ticks and grids of ax1.
+        # Anything you draw in ax2 will match the ticks and grids of ax1.
         self.parasites.append(ax2)
         ax2._remove_method = self.parasites.remove
         return ax2

@@ -284,7 +284,7 @@ class RendererAgg(RendererBase):
         """
         Restore the saved region. If bbox (instance of BboxBase, or
         its extents) is given, only the region specified by the bbox
-        will be restored. *xy* (a tuple of two floasts) optionally
+        will be restored. *xy* (a pair of floats) optionally
         specifies the new position (the LLC of the original region,
         not the LLC of the bbox) where the region will be restored.
 

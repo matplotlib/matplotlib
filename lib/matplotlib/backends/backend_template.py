@@ -16,7 +16,7 @@ any results.
 Copy this to backend_xxx.py and replace all instances of 'template'
 with 'xxx'.  Then implement the class methods and functions below, and
 add 'xxx' to the switchyard in matplotlib/backends/__init__.py and
-'xxx' to the backends list in the validate_backend methon in
+'xxx' to the backends list in the validate_backend method in
 matplotlib/__init__.py and you're off.  You can use your backend with::
 
   import matplotlib

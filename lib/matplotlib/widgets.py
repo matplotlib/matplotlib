@@ -1272,7 +1272,7 @@ class Cursor(AxesWidget):
     Other Parameters
     ----------------
     **lineprops
-        `.Line2D` porperties that control the appearance of the lines.
+        `.Line2D` properties that control the appearance of the lines.
         See also `~.Axes.axhline`.
 
     Examples
@@ -2188,7 +2188,7 @@ class RectangleSelector(_SelectorWidget):
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
             xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
-            # calculate dimensions of box or line get values in the right
+            # calcultate dimensions of box or line get values in the right
             # order
         elif self.spancoords == 'pixels':
             xmin, ymin = self.eventpress.x, self.eventpress.y

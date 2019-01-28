@@ -45,7 +45,7 @@ objects and Matplotlib dates:
      Out[1]: 732401
 
 All the Matplotlib date converters, tickers and formatters are timezone aware.
-If no explicit timezone is provided, the rcParam ``timezone`` is assumend.  If
+If no explicit timezone is provided, the rcParam ``timezone`` is assumed.  If
 you want to use a custom time zone, pass a :class:`datetime.tzinfo` instance
 with the tz keyword argument to :func:`num2date`, :func:`.plot_date`, and any
 custom date tickers or locators you create.
@@ -179,9 +179,7 @@ UTC = datetime.timezone.utc
 
 
 def _get_rc_timezone():
-    """
-    Retrieve the preferred timeszone from the rcParams dictionary.
-    """
+    """Retrieve the preferred timezone from the rcParams dictionary."""
     s = matplotlib.rcParams['timezone']
     if s == 'UTC':
         return UTC
@@ -568,7 +566,7 @@ def drange(dstart, dend, delta):
 
     # ensure, that an half open interval will be generated [dstart, dend)
     if dinterval_end >= dend:
-        # if the endpoint is greated than dend, just subtract one delta
+        # if the endpoint is greater than dend, just subtract one delta
         dinterval_end -= delta
         num -= 1
 

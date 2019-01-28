@@ -2517,12 +2517,11 @@ class _AxesBase(martist.Artist):
                 y = self.transAxes.inverted().transform(
                         (0., top))[1]
                 title.set_position((x, y))
-                # emperically, this doesn't always get the min to top,
+                # empirically, this doesn't always get the min to top,
                 # so we need to adjust again.
                 if title.get_window_extent(renderer).ymin < top:
-                    y = self.transAxes.inverted().transform(
-                        (0., 2 * top -
-                             title.get_window_extent(renderer).ymin))[1]
+                    _, y = self.transAxes.inverted().transform(
+                        (0., 2 * top - title.get_window_extent(renderer).ymin))
                     title.set_position((x, y))
             ymax = max(y, ymax)
         for title in titles:

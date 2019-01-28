@@ -143,7 +143,7 @@ _Matrix commands
   ones      - an array of ones
   rand      - an array from the uniform distribution [0,1]
   randn     - an array from the normal distribution
-  rot90     - rotate matrix k*90 degress counterclockwise
+  rot90     - rotate matrix k*90 degrees counterclockwise
   squeeze   - squeeze an array removing any dimensions of length 1
   tri       - a triangular matrix
   tril      - a lower triangular matrix

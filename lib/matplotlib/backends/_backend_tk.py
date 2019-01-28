@@ -305,7 +305,7 @@ class FigureCanvasTk(FigureCanvasBase):
         #
         # 3) process it as a motion notify event.  This also has pros
         #    and cons.  The mouse is moving relative to the window, but
-        #    this may surpise an event handler writer who is getting
+        #    this may surprise an event handler writer who is getting
         #   motion_notify_events even if the mouse has not moved
 
         # here are the three scenarios
