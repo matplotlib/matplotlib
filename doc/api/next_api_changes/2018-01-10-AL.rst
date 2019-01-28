@@ -1,0 +1,11 @@
+Changes in parameter names
+``````````````````````````
+
+- The ``arg`` parameter to `matplotlib.use` has been renamed to ``backend``.
+- The ``normed`` parameter to `Axes.hist2d` has been renamed to ``density``.
+- The ``s`` parameter to `Annotation` (and indirectly `Axes.annotation`) has
+  been renamed to ``text``.
+
+In each case, the old parameter name remains supported (it cannot be used
+simultaneously with the new name), but suppport for it will be dropped in
+Matplotlib 3.3.

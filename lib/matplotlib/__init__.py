@@ -1183,13 +1183,14 @@ class rc_context:
         self.__fallback()
 
 
-def use(arg, warn=False, force=True):
+@cbook._rename_parameter("3.1", "arg", "backend")
+def use(backend, warn=False, force=True):
     """
     Set the matplotlib backend to one of the known backends.
 
     Parameters
     ----------
-    arg : str
+    backend : str
         The backend to switch to.  This can either be one of the
         'standard' backend names:
 
@@ -1204,6 +1205,8 @@ def use(arg, warn=False, force=True):
         or a string of the form: ``module://my.module.name``.
 
         Note: Standard backend names are case-insensitive here.
+
+        *arg* is a deprecated synonym for this parameter.
 
     warn : bool, optional
         If True, warn if this is called after pyplot has been imported
@@ -1221,7 +1224,7 @@ def use(arg, warn=False, force=True):
     :ref:`backends`
     matplotlib.get_backend
     """
-    name = validate_backend(arg)
+    name = validate_backend(backend)
 
     # if setting back to the same thing, do nothing
     if (dict.__getitem__(rcParams, 'backend') == name):
