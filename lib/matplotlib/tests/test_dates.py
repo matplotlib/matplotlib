@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
+from matplotlib import rc_context
 
 
 def __has_pytz():
@@ -439,7 +440,6 @@ def test_auto_date_locator_intmult():
                                   mdates.date2num(date2))
         return locator
 
-    d1 = datetime.datetime(1997, 1, 1)
     results = ([datetime.timedelta(weeks=52 * 200),
                 ['1980-01-01 00:00:00+00:00', '2000-01-01 00:00:00+00:00',
                  '2020-01-01 00:00:00+00:00', '2040-01-01 00:00:00+00:00',
@@ -500,6 +500,7 @@ def test_auto_date_locator_intmult():
                 ],
                )
 
+    d1 = datetime.datetime(1997, 1, 1)
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
@@ -555,6 +556,77 @@ def test_concise_formatter():
         d2 = d1 + t_delta
         strings = _create_auto_date_locator(d1, d2)
         assert strings == expected
+
+
+def test_auto_date_locator_intmult_tz():
+    def _create_auto_date_locator(date1, date2, tz):
+        locator = mdates.AutoDateLocator(interval_multiples=True, tz=tz)
+        locator.create_dummy_axis()
+        locator.set_view_interval(mdates.date2num(date1),
+                                  mdates.date2num(date2))
+        return locator
+
+    results = ([datetime.timedelta(weeks=52*200),
+                ['1980-01-01 00:00:00-08:00', '2000-01-01 00:00:00-08:00',
+                 '2020-01-01 00:00:00-08:00', '2040-01-01 00:00:00-08:00',
+                 '2060-01-01 00:00:00-08:00', '2080-01-01 00:00:00-08:00',
+                 '2100-01-01 00:00:00-08:00', '2120-01-01 00:00:00-08:00',
+                 '2140-01-01 00:00:00-08:00', '2160-01-01 00:00:00-08:00',
+                 '2180-01-01 00:00:00-08:00', '2200-01-01 00:00:00-08:00']
+                ],
+               [datetime.timedelta(weeks=52),
+                ['1997-01-01 00:00:00-08:00', '1997-02-01 00:00:00-08:00',
+                 '1997-03-01 00:00:00-08:00', '1997-04-01 00:00:00-08:00',
+                 '1997-05-01 00:00:00-07:00', '1997-06-01 00:00:00-07:00',
+                 '1997-07-01 00:00:00-07:00', '1997-08-01 00:00:00-07:00',
+                 '1997-09-01 00:00:00-07:00', '1997-10-01 00:00:00-07:00',
+                 '1997-11-01 00:00:00-08:00', '1997-12-01 00:00:00-08:00']
+                ],
+               [datetime.timedelta(days=141),
+                ['1997-01-01 00:00:00-08:00', '1997-01-22 00:00:00-08:00',
+                 '1997-02-01 00:00:00-08:00', '1997-02-22 00:00:00-08:00',
+                 '1997-03-01 00:00:00-08:00', '1997-03-22 00:00:00-08:00',
+                 '1997-04-01 00:00:00-08:00', '1997-04-22 00:00:00-07:00',
+                 '1997-05-01 00:00:00-07:00', '1997-05-22 00:00:00-07:00']
+                ],
+               [datetime.timedelta(days=40),
+                ['1997-01-01 00:00:00-08:00', '1997-01-05 00:00:00-08:00',
+                 '1997-01-09 00:00:00-08:00', '1997-01-13 00:00:00-08:00',
+                 '1997-01-17 00:00:00-08:00', '1997-01-21 00:00:00-08:00',
+                 '1997-01-25 00:00:00-08:00', '1997-01-29 00:00:00-08:00',
+                 '1997-02-01 00:00:00-08:00', '1997-02-05 00:00:00-08:00',
+                 '1997-02-09 00:00:00-08:00']
+                ],
+               [datetime.timedelta(hours=40),
+                ['1997-01-01 00:00:00-08:00', '1997-01-01 04:00:00-08:00',
+                 '1997-01-01 08:00:00-08:00', '1997-01-01 12:00:00-08:00',
+                 '1997-01-01 16:00:00-08:00', '1997-01-01 20:00:00-08:00',
+                 '1997-01-02 00:00:00-08:00', '1997-01-02 04:00:00-08:00',
+                 '1997-01-02 08:00:00-08:00', '1997-01-02 12:00:00-08:00',
+                 '1997-01-02 16:00:00-08:00']
+                ],
+               [datetime.timedelta(minutes=20),
+                ['1997-01-01 00:00:00-08:00', '1997-01-01 00:05:00-08:00',
+                 '1997-01-01 00:10:00-08:00', '1997-01-01 00:15:00-08:00',
+                 '1997-01-01 00:20:00-08:00']
+                ],
+               [datetime.timedelta(seconds=40),
+                ['1997-01-01 00:00:00-08:00', '1997-01-01 00:00:05-08:00',
+                 '1997-01-01 00:00:10-08:00', '1997-01-01 00:00:15-08:00',
+                 '1997-01-01 00:00:20-08:00', '1997-01-01 00:00:25-08:00',
+                 '1997-01-01 00:00:30-08:00', '1997-01-01 00:00:35-08:00',
+                 '1997-01-01 00:00:40-08:00']
+                ]
+               )
+
+    tz = dateutil.tz.gettz('Canada/Pacific')
+    d1 = datetime.datetime(1997, 1, 1, tzinfo=tz)
+    for t_delta, expected in results:
+        with rc_context({'_internal.classic_mode': False}):
+            d2 = d1 + t_delta
+            locator = _create_auto_date_locator(d1, d2, tz)
+            st = list(map(str, mdates.num2date(locator(), tz=tz)))
+            assert st == expected
 
 
 @image_comparison(baseline_images=['date_inverted_limit'],
@@ -699,6 +771,30 @@ def test_rrulewrapper_pytz():
         return zi.localize(dt)
 
     _test_rrulewrapper(attach_tz, pytz.timezone)
+
+
+@pytest.mark.pytz
+@pytest.mark.skipif(not __has_pytz(), reason="Requires pytz")
+def test_yearlocator_pytz():
+    import pytz
+
+    tz = pytz.timezone('America/New_York')
+    x = [tz.localize(datetime.datetime(2010, 1, 1))
+            + datetime.timedelta(i) for i in range(2000)]
+    locator = mdates.AutoDateLocator(interval_multiples=True, tz=tz)
+    locator.create_dummy_axis()
+    locator.set_view_interval(mdates.date2num(x[0])-1.0,
+                              mdates.date2num(x[-1])+1.0)
+
+    np.testing.assert_allclose([733408.208333, 733773.208333, 734138.208333,
+                                734503.208333, 734869.208333,
+                                735234.208333, 735599.208333], locator())
+    expected = ['2009-01-01 00:00:00-05:00',
+                '2010-01-01 00:00:00-05:00', '2011-01-01 00:00:00-05:00',
+                '2012-01-01 00:00:00-05:00', '2013-01-01 00:00:00-05:00',
+                '2014-01-01 00:00:00-05:00', '2015-01-01 00:00:00-05:00']
+    st = list(map(str, mdates.num2date(locator(), tz=tz)))
+    assert st == expected
 
 
 def test_DayLocator():
