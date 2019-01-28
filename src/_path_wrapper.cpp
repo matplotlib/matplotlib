@@ -683,8 +683,7 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     PyObject *codesobj;
     char *codes[5];
     bool postfix;
-    char *buffer = NULL;
-    size_t buffersize;
+    std::string buffer;
     PyObject *result;
     int status;
 
@@ -735,11 +734,9 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     CALL_CPP("convert_to_string",
              (status = convert_to_string(
                  path, trans, cliprect, simplify, sketch,
-                 precision, codes, postfix, &buffer,
-                 &buffersize)));
+                 precision, codes, postfix, buffer)));
 
     if (status) {
-        free(buffer);
         if (status == 1) {
             PyErr_SetString(PyExc_MemoryError, "Memory error");
         } else if (status == 2) {
@@ -748,13 +745,11 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
         return NULL;
     }
 
-    if (buffersize == 0) {
+    if (buffer.size() == 0) {
         result = PyBytes_FromString("");
     } else {
-        result = PyBytes_FromStringAndSize(buffer, buffersize);
+        result = PyBytes_FromStringAndSize(buffer.c_str(), buffer.size());
     }
-
-    free(buffer);
 
     return result;
 }

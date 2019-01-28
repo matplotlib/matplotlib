@@ -8,6 +8,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <string>
 
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
@@ -1044,40 +1045,11 @@ void quad2cubic(double x0, double y0,
     outy[2] = y2;
 }
 
-char *__append_to_string(char *p, char **buffer, size_t *buffersize,
-                         const char *content)
+
+void __add_number(double val, char format_code, int precision,
+                  std::string& buffer)
 {
-    for (const char *i = content; *i; ++i) {
-        if (p < *buffer) {
-            /* This is just an internal error */
-            return NULL;
-        }
-        if ((size_t)(p - *buffer) >= *buffersize) {
-            char *newbuffer;
-            ptrdiff_t diff = p - *buffer;
-            *buffersize *= 2;
-            newbuffer = (char *)realloc(*buffer, *buffersize);
-            if (newbuffer == NULL) {
-                return NULL;
-            }
-            *buffer = newbuffer;
-            p = *buffer + diff;
-        }
-
-        *p++ = *i;
-    }
-
-    return p;
-}
-
-
-char *__add_number(double val, char format_code, int precision,
-                 char **buffer, char *p, size_t *buffersize)
-{
-    char *result;
-
-    char *str;
-    str = PyOS_double_to_string(val, format_code, precision, 0, NULL);
+    char *str = PyOS_double_to_string(val, format_code, precision, 0, NULL);
 
     // Delete trailing zeros and decimal point
     char *q = str;
@@ -1090,7 +1062,7 @@ char *__add_number(double val, char format_code, int precision,
         // Rewind through all the zeros
     }
 
-    // If the end is a decimal qoint, delete that too
+    // If the end is a decimal point, delete that too
     if (q >= str && *q == '.') {
         --q;
     }
@@ -1099,13 +1071,13 @@ char *__add_number(double val, char format_code, int precision,
     ++q;
     *q = 0;
 
-    if ((result = __append_to_string(p, buffer, buffersize, str)) == NULL) {
+    try {
+        buffer += str;
+    } catch (std::bad_alloc& e) {
         PyMem_Free(str);
-        return NULL;
+        throw e;
     }
     PyMem_Free(str);
-
-    return result;
 }
 
 
@@ -1114,12 +1086,10 @@ int __convert_to_string(PathIterator &path,
                         int precision,
                         char **codes,
                         bool postfix,
-                        char **buffer,
-                        size_t *buffersize)
+                        std::string& buffer)
 {
     const char format_code = 'f';
 
-    char *p = *buffer;
     double x[3];
     double y[3];
     double last_x = 0.0;
@@ -1131,7 +1101,7 @@ int __convert_to_string(PathIterator &path,
 
     while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
         if (code == 0x4f) {
-            if ((p = __append_to_string(p, buffer, buffersize, codes[4])) == NULL) return 1;
+            buffer += codes[4];
         } else if (code < 5) {
             size = sizes[code - 1];
 
@@ -1151,19 +1121,19 @@ int __convert_to_string(PathIterator &path,
             }
 
             if (!postfix) {
-                if ((p = __append_to_string(p, buffer, buffersize, codes[code - 1])) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
+                buffer += codes[code - 1];
+                buffer += ' ';
             }
 
             for (int i = 0; i < size; ++i) {
-                if ((p = __add_number(x[i], format_code, precision, buffer, p, buffersize)) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
-                if ((p = __add_number(y[i], format_code, precision, buffer, p, buffersize)) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
+                __add_number(x[i], format_code, precision, buffer);
+                buffer += ' ';
+                __add_number(y[i], format_code, precision, buffer);
+                buffer += ' ';
             }
 
             if (postfix) {
-                if ((p = __append_to_string(p, buffer, buffersize, codes[code - 1])) == NULL) return 1;
+                buffer += codes[code - 1];
             }
 
             last_x = x[size - 1];
@@ -1173,10 +1143,8 @@ int __convert_to_string(PathIterator &path,
             return 2;
         }
 
-        if ((p = __append_to_string(p, buffer, buffersize, "\n")) == NULL) return 1;
+        buffer += '\n';
     }
-
-    *buffersize = p - *buffer;
 
     return 0;
 }
@@ -1190,9 +1158,9 @@ int convert_to_string(PathIterator &path,
                       int precision,
                       char **codes,
                       bool postfix,
-                      char **buffer,
-                      size_t *buffersize)
+                      std::string& buffer)
 {
+    size_t buffersize;
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t> clipped_t;
@@ -1207,26 +1175,23 @@ int convert_to_string(PathIterator &path,
     clipped_t clipped(nan_removed, do_clip && !path.has_curves(), clip_rect);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
 
-    *buffersize = path.total_vertices() * (precision + 5) * 4;
-    if (*buffersize == 0) {
+    buffersize = path.total_vertices() * (precision + 5) * 4;
+    if (buffersize == 0) {
         return 0;
     }
 
     if (sketch_params.scale != 0.0) {
-        *buffersize *= 10;
+        buffersize *= 10;
     }
 
-    *buffer = (char *)malloc(*buffersize);
-    if (*buffer == NULL) {
-        return 1;
-    }
+    buffer.reserve(buffersize);
 
     if (sketch_params.scale == 0.0) {
-        return __convert_to_string(simplified, precision, codes, postfix, buffer, buffersize);
+        return __convert_to_string(simplified, precision, codes, postfix, buffer);
     } else {
         curve_t curve(simplified);
         sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
-        return __convert_to_string(sketch, precision, codes, postfix, buffer, buffersize);
+        return __convert_to_string(sketch, precision, codes, postfix, buffer);
     }
 
 }
