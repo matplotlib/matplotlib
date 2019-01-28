@@ -409,7 +409,7 @@ def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
 
 def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     """
-    Being similar to get_parallels, returns control points of two quadrativ
+    Being similar to get_parallels, returns control points of two quadratic
     bezier lines having a width roughly parallel to given one separated by
     *width*.
     """
@@ -460,31 +460,21 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
 
 def make_path_regular(p):
     """
-    fill in the codes if None.
+    If the :attr:`codes` attribute of `Path` *p* is None, return a copy of *p*
+    with the :attr:`codes` set to (MOVETO, LINETO, LINETO, ..., LINETO);
+    otherwise return *p* itself.
     """
     c = p.codes
     if c is None:
-        c = np.empty(p.vertices.shape[:1], "i")
-        c.fill(Path.LINETO)
+        c = np.full(len(p.vertices), Path.LINETO, dtype=Path.code_type)
         c[0] = Path.MOVETO
-
         return Path(p.vertices, c)
     else:
         return p
 
 
 def concatenate_paths(paths):
-    """
-    concatenate list of paths into a single path.
-    """
-
-    vertices = []
-    codes = []
-    for p in paths:
-        p = make_path_regular(p)
-        vertices.append(p.vertices)
-        codes.append(p.codes)
-
-    _path = Path(np.concatenate(vertices),
-                 np.concatenate(codes))
-    return _path
+    """Concatenate a list of paths into a single path."""
+    vertices = np.concatenate([p.vertices for p in paths])
+    codes = np.concatenate([make_path_regular(p).codes for p in paths])
+    return Path(vertices, codes)
