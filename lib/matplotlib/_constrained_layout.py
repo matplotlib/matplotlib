@@ -25,9 +25,9 @@ See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
 #         - axes + pos for the axes (i.e. the total area taken by axis and
 #            the actual "position" argument that needs to be sent to
 #             ax.set_position.)
-#           - The axes layout box will also encomapss the legend, and that is
-#             how legends get included (axes legeneds, not figure legends)
-#         - colorbars are sibblings of the axes if they are single-axes
+#           - The axes layout box will also encompass the legend, and that is
+#             how legends get included (axes legends, not figure legends)
+#         - colorbars are siblings of the axes if they are single-axes
 #           colorbars
 #        OR:
 #         - a gridspec can be inside a subplotspec.
@@ -40,7 +40,7 @@ See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
 #        colorbars.
 #   - suptitle:
 #      - right now suptitles are just stacked atop everything else in figure.
-#        Could imagine suptitles being gridspec suptitles, but not implimented
+#        Could imagine suptitles being gridspec suptitles, but not implemented
 #
 #   Todo:    AnchoredOffsetbox connected to gridspecs or axes.  This would
 #        be more general way to add extra-axes annotations.
@@ -118,9 +118,9 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     the axes (decorations) like the title, ticklabels, x-labels, etc.  This
     can include legends who overspill the axes boundaries.
     4. Constrain gridspec elements to line up:
-        a) if colnum0 neq colnumC, the two subplotspecs are stacked next to
+        a) if colnum0 != colnumC, the two subplotspecs are stacked next to
         each other, with the appropriate order.
-        b) if colnum0 == columnC line up the left or right side of the
+        b) if colnum0 == colnumC, line up the left or right side of the
         _poslayoutbox (depending if it is the min or max num that is equal).
         c) do the same for rows...
     5. The above doesn't constrain relative sizes of the _poslayoutboxes at
@@ -164,7 +164,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             _make_ghost_gridspec_slots(fig, gs)
 
     for nnn in range(2):
-        # do the algrithm twice.  This has to be done because decorators
+        # do the algorithm twice.  This has to be done because decorators
         # change size after the first re-position (i.e. x/yticklabels get
         # larger/smaller).  This second reposition tends to be much milder,
         # so doing twice makes things work OK.
@@ -192,7 +192,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
         if fig._layoutbox.constrained_layout_called < 1:
             # arrange the subplotspecs...  This is all done relative to each
-            # other.  Some subplotspecs conatain axes, and others contain
+            # other.  Some subplotspecs contain axes, and others contain
             # gridspecs the ones that contain gridspecs are a set proportion
             # of their parent gridspec.  The ones that contain axes are
             # not so constrained.
@@ -230,8 +230,8 @@ def _make_ghost_gridspec_slots(fig, gs):
     """
     Check for unoccupied gridspec slots and make ghost axes for these
     slots...  Do for each gs separately.  This is a pretty big kludge
-    but shoudn't have too much ill effect.  The worst is that
-    someone querrying the figure will wonder why there are more
+    but shouldn't have too much ill effect.  The worst is that
+    someone querying the figure will wonder why there are more
     axes than they thought.
     """
     nrows, ncols = gs.get_geometry()
@@ -512,7 +512,7 @@ def _arrange_subplotspecs(gs, hspace=0, wspace=0):
 
 def layoutcolorbarsingle(ax, cax, shrink, aspect, location, pad=0.05):
     """
-    Do the layout for a colorbar, to not oeverly pollute colorbar.py
+    Do the layout for a colorbar, to not overly pollute colorbar.py
 
     `pad` is in fraction of the original axis size.
     """
@@ -601,7 +601,7 @@ def _getmaxminrowcolumn(axs):
 
 def layoutcolorbargridspec(parents, cax, shrink, aspect, location, pad=0.05):
     """
-    Do the layout for a colorbar, to not oeverly pollute colorbar.py
+    Do the layout for a colorbar, to not overly pollute colorbar.py
 
     `pad` is in fraction of the original axis size.
     """

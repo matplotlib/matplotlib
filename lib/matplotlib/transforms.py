@@ -1337,7 +1337,7 @@ class Transform(TransformNode):
 
             (A + B) - (B)^-1 == A
 
-            # similarly, when B contains tree A, we can avoid decending A at
+            # similarly, when B contains tree A, we can avoid descending A at
             # all, basically:
             A - (A + B) == ((B + A) - A).inverted() or B^-1
 
@@ -1355,8 +1355,9 @@ class Transform(TransformNode):
         for remainder, sub_tree in other._iter_break_from_left_to_right():
             if sub_tree == self:
                 if not remainder.has_inverse:
-                    raise ValueError("The shortcut cannot be computed since "
-                     "other's transform includes a non-invertable component.")
+                    raise ValueError(
+                        "The shortcut cannot be computed since 'other' "
+                        "includes a non-invertible component")
                 return remainder.inverted()
 
         # if we have got this far, then there was no shortcut possible
@@ -2646,7 +2647,7 @@ class BboxTransformFrom(Affine2DBase):
 class ScaledTranslation(Affine2DBase):
     """
     A transformation that translates by *xt* and *yt*, after *xt* and *yt*
-    have been transformad by the given transform *scale_trans*.
+    have been transformed by *scale_trans*.
     """
     def __init__(self, xt, yt, scale_trans, **kwargs):
         Affine2DBase.__init__(self, **kwargs)

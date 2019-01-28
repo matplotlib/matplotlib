@@ -570,10 +570,10 @@ class Line2D(Artist):
               along the line between markers is determined by multiplying the
               display-coordinate distance of the axes bounding-box diagonal
               by the value of every.
-            - every=(0.5, 0.1) (i.e. a length-2 tuple of float), the
-              same functionality as every=0.1 is exhibited but the first
-              marker will be 0.5 multiplied by the
-              display-cordinate-diagonal-distance along the line.
+            - every=(0.5, 0.1) (i.e. a length-2 tuple of float), the same
+              functionality as every=0.1 is exhibited but the first marker will
+              be 0.5 multiplied by the display-coordinate-diagonal-distance
+              along the line.
 
         Notes
         -----

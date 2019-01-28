@@ -88,7 +88,7 @@ class Axes3D(Axes):
         self.zz_viewLim = unit_bbox()
         self.xy_dataLim = unit_bbox()
         self.zz_dataLim = unit_bbox()
-        # inihibit autoscale_view until the axes are defined
+        # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
         self.view_init(self.initial_elev, self.initial_azim)
         self._ready = 0
@@ -2873,7 +2873,7 @@ pivot='tail', normalize=False, **kwargs)
         voxel_faces = defaultdict(list)
 
         def permutation_matrices(n):
-            """ Generator of cyclic permutation matices """
+            """Generator of cyclic permutation matrices."""
             mat = np.eye(n, dtype=np.intp)
             for i in range(n):
                 yield mat

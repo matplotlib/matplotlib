@@ -203,7 +203,7 @@ def filtered_text(ax):
                    fmt='%1.1f',
                    fontsize=11)
 
-    # change clable color to black
+    # change clabel color to black
     from matplotlib.patheffects import Normal
     for t in cl:
         t.set_color("k")

@@ -237,7 +237,7 @@ plt.show()
 # Some more complex heatmap examples
 # ----------------------------------
 #
-# In the following we show the versitality of the previously created
+# In the following we show the versatility of the previously created
 # functions by applying it in different cases and using different arguments.
 #
 

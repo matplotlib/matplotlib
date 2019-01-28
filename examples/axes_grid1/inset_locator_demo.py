@@ -73,7 +73,7 @@ ax.add_patch(plt.Rectangle((.2, .4), .6, .5, ls="--", ec="c", fc="None",
                            transform=ax.transAxes))
 
 # We set the axis limits to something other than the default, in order to not
-# distract from the fact that axes coodinates are used here.
+# distract from the fact that axes coordinates are used here.
 ax.axis([0, 10, 0, 10])
 
 

@@ -372,7 +372,7 @@ example_plot(ax2)
 
 ###############################################################################
 # More complicated gridspec layouts are possible.  Note here we use the
-# convenenience functions ``add_gridspec`` and ``subgridspec``
+# convenience functions ``add_gridspec`` and ``subgridspec``.
 
 fig = plt.figure()
 

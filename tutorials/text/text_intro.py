@@ -103,9 +103,9 @@ plt.show()
 # Labels for x- and y-axis
 # ========================
 #
-# Specifying the labels for the x- and y-axis is strightforward, via the
-# `~matplotlib.axes.Axes.set_xlabel` and
-# `~matplotlib.axes.Axes.set_ylabel` methods.
+# Specifying the labels for the x- and y-axis is straightforward, via the
+# `~matplotlib.axes.Axes.set_xlabel` and `~matplotlib.axes.Axes.set_ylabel`
+# methods.
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -135,7 +135,7 @@ ax.set_ylabel('Damped oscillation [V]')
 plt.show()
 
 ###############################################################################
-# If you want to move the labels, you can specify the *labelpad* kyeword
+# If you want to move the labels, you can specify the *labelpad* keyword
 # argument, where the value is points (1/72", the same unit used to specify
 # fontsizes).
 
@@ -379,7 +379,7 @@ plt.show()
 # Matplotlib can accept `datetime.datetime` and `numpy.datetime64`
 # objects as plotting arguments.  Dates and times require special
 # formatting, which can often benefit from manual intervention. In
-# order to help, dates have spectial Locators and Formatters,
+# order to help, dates have special Locators and Formatters,
 # defined in the `matplotlib.dates` module.
 #
 # A simple example is as follows.  Note how we have to rotate the

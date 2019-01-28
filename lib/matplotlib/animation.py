@@ -51,7 +51,7 @@ else:
 
 # Other potential writing methods:
 # * http://pymedia.org/
-# * libmng (produces swf) python wrappers: https://github.com/libming/libming
+# * libming (produces swf) python wrappers: https://github.com/libming/libming
 # * Wrap x264 API:
 
 # (http://stackoverflow.com/questions/2940671/

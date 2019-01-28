@@ -53,10 +53,10 @@ def test_invisible_Line_rendering():
 
     # [Now interactive panning and zooming is very slow]
     # Time the canvas drawing:
-    t_unvisible_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
+    t_invisible_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
     # gives about 290 ms for N = 10**7 pts
 
-    slowdown_factor = (t_unvisible_line/t_no_line)
+    slowdown_factor = t_invisible_line / t_no_line
     slowdown_threshold = 2  # trying to avoid false positive failures
     assert slowdown_factor < slowdown_threshold
 

@@ -55,7 +55,7 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def epoch2float(value, unit):
-        """: Convert an Epoch value to a float suitible for plotting as a
+        """: Convert an Epoch value to a float suitable for plotting as a
               python datetime object.
 
         = INPUT VARIABLES
@@ -69,7 +69,7 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def duration2float(value):
-        """: Convert a Duration value to a float suitible for plotting as a
+        """: Convert a Duration value to a float suitable for plotting as a
               python datetime object.
 
         = INPUT VARIABLES

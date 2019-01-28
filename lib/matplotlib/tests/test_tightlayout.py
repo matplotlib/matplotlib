@@ -319,7 +319,7 @@ def test_badsubplotgrid():
 
 
 def test_collapsed():
-    # test that if a call to tight_layout will collapes the axes that
+    # test that if a call to tight_layout will collapses the axes that
     # it does not get applied:
     fig, ax = plt.subplots(tight_layout=True)
     ax.set_xlim([0, 1])

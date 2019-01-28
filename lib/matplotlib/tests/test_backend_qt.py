@@ -147,7 +147,7 @@ def test_fig_signals(qt_module):
 
     signal.signal(signal.SIGINT, CustomHandler)
 
-    # mainloop() sets SIGINT, starts Qt event loop (which trigers timer and
+    # mainloop() sets SIGINT, starts Qt event loop (which triggers timer and
     # exits) and then mainloop() resets SIGINT
     matplotlib.backends.backend_qt5._BackendQT5.mainloop()
 

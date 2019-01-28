@@ -940,7 +940,7 @@ end"""
 
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
-                # from ft2font: here we're just builting the widths table, but
+                # from ft2font: here we're just building the widths table, but
                 # the missing glyphs may not even be used in the actual string.
                 warnings.filterwarnings("ignore")
                 widths = [get_char_width(charcode)
@@ -1602,10 +1602,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         orig_alphas = getattr(gc, '_effective_alphas', (1.0, 1.0))
 
         if gc.get_rgb() is None:
-            # it should not matter what color here
-            # since linewidth should be 0
-            # unless affected by global settings in rcParams
-            # hence setting zero alpha just incase
+            # It should not matter what color here since linewidth should be
+            # 0 unless affected by global settings in rcParams, hence setting
+            # zero alpha just in case.
             gc.set_foreground((0, 0, 0, 0), isRGBA=True)
 
         if gc._forced_alpha:

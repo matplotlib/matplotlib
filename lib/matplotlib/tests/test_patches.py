@@ -216,9 +216,8 @@ def test_patch_custom_linestyle():
 
 
 def test_patch_linestyle_accents():
-    #: Test if linestyle can also be specified with short menoics
-    #: like "--"
-    #: c.f. Gihub issue #2136
+    #: Test if linestyle can also be specified with short mnemonics like "--"
+    #: c.f. Github issue #2136
     star = mpath.Path.unit_regular_star(6)
     circle = mpath.Path.unit_circle()
     # concatenate the star with an internal cutout of the circle

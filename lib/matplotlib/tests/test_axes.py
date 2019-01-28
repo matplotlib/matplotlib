@@ -424,7 +424,7 @@ def test_polar_annotations():
 @image_comparison(baseline_images=['polar_coords'], style='default',
                   remove_text=True)
 def test_polar_coord_annotations():
-    # You can also use polar notation on a catesian axes.  Here the
+    # You can also use polar notation on a cartesian axes.  Here the
     # native coordinate system ('data') is cartesian, so you need to
     # specify the xycoords and textcoords as 'polar' if you want to
     # use (theta, radius)
@@ -1466,7 +1466,7 @@ def test_bar_tick_label_multiple():
     baseline_images=['bar_tick_label_multiple_old_label_alignment'],
     extensions=['png'])
 def test_bar_tick_label_multiple_old_alignment():
-    # Test that the algnment for class is backward compatible
+    # Test that the alignment for class is backward compatible
     matplotlib.rcParams["ytick.alignment"] = "center"
     ax = plt.gca()
     ax.bar([1, 2.5], [1, 2], width=[0.2, 0.5], tick_label=['a', 'b'],
@@ -2628,7 +2628,7 @@ def test_boxplot_with_CIarray():
     ax = fig.add_subplot(111)
     CIs = np.array([[-1.5, 3.], [-1., 3.5]])
 
-    # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values
+    # show 1 boxplot with mpl medians/conf. intervals, 1 with manual values
     ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
                conf_intervals=CIs, notch=1)
     ax.set_ylim((-30, 30))
@@ -5850,7 +5850,7 @@ def test_bar_broadcast_args():
     ax.bar(range(4), 1)
     # Check that a horizontal chart with one width works.
     ax.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
-    # Check that edgecolor gets broadcasted.
+    # Check that edgecolor gets broadcast.
     rect1, rect2 = ax.bar([0, 1], [0, 1], edgecolor=(.1, .2, .3, .4))
     assert rect1.get_edgecolor() == rect2.get_edgecolor() == (.1, .2, .3, .4)
 

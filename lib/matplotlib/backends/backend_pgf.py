@@ -342,7 +342,7 @@ class LatexManager:
 
     def get_width_height_descent(self, text, prop):
         """
-        Get the width, total height and descent for a text typesetted by the
+        Get the width, total height and descent for a text typeset by the
         current LaTeX environment.
         """
 

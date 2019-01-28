@@ -1212,7 +1212,7 @@ class FigureImage(_ImageBase):
         fac = renderer.dpi/self.figure.dpi
         # fac here is to account for pdf, eps, svg backends where
         # figure.dpi is set to 72.  This means we need to scale the
-        # image (using magification) and offset it appropriately.
+        # image (using magnification) and offset it appropriately.
         bbox = Bbox([[self.ox/fac, self.oy/fac],
                      [(self.ox/fac + self._A.shape[1]),
                      (self.oy/fac + self._A.shape[0])]])

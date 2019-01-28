@@ -23,7 +23,7 @@ As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
 as `datetime.datetime` objects.
 
 If you prefer the pandas converters and locators, you can register their
-converter with the `matplolib.units` module::
+converter with the `matplotlib.units` module::
 
   from pandas.tseries import converter as pdtc
   pdtc.register()

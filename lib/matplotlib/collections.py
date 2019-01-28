@@ -728,7 +728,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha tranparencies of the collection.
+        Set the alpha transparencies of the collection.
 
         Parameters
         ----------

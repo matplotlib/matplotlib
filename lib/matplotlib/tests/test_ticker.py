@@ -686,7 +686,7 @@ class TestEngFormatter(object):
         (1, ('1', '1', '1.00')),
         (1.23456789, ('1.23457', '1', '1.23')),
         (999.9, ('999.9', '1 k', '999.90')),  # places=0: corner-case rounding
-        (999.9999, ('1 k', '1 k', '1.00 k')),  # corner-case roudning for all
+        (999.9999, ('1 k', '1 k', '1.00 k')),  # corner-case rounding for all
         (-999.9999, ('-1 k', '-1 k', '-1.00 k')),  # negative corner-case
         (1000, ('1 k', '1 k', '1.00 k')),
         (1001, ('1.001 k', '1 k', '1.00 k')),

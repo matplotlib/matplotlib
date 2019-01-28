@@ -331,7 +331,7 @@ class Sankey(object):
 
     def _revert(self, path, first_action=Path.LINETO):
         """
-        A path is not simply revertable by path[::-1] since the code
+        A path is not simply reversible by path[::-1] since the code
         specifies an action to take from the **previous** point.
         """
         reverse_path = []
@@ -784,7 +784,7 @@ class Sankey(object):
           Field             Description
           ===============   ===================================================
           *patch*           Sankey outline (an instance of
-                            :class:`~maplotlib.patches.PathPatch`)
+                            :class:`~matplotlib.patches.PathPatch`)
           *flows*           values of the flows (positive for input, negative
                             for output)
           *angles*          list of angles of the arrows [deg/90]

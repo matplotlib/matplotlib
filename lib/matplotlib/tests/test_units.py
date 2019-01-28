@@ -152,6 +152,6 @@ def test_jpl_barh_units():
     ax.set_xlim([b-1*day, b+w[-1]+1*day])
 
 
-def test_emtpy_arrays():
+def test_empty_arrays():
     # Check that plotting an empty array with a dtype works
     plt.scatter(np.array([], dtype='datetime64[ns]'), np.array([]))

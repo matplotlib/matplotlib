@@ -11,7 +11,7 @@ class TriAnalyzer(object):
     """
     Define basic tools for triangular mesh analysis and improvement.
 
-    A TriAnalizer encapsulates a :class:`~matplotlib.tri.Triangulation`
+    A TriAnalyzer encapsulates a :class:`~matplotlib.tri.Triangulation`
     object and provides basic tools for mesh analysis and mesh improvement.
 
     Parameters

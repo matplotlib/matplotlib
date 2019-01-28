@@ -48,7 +48,7 @@ def DEBUG_MSG(string, lvl=3, o=None):
 
 @cbook.deprecated("3.1")
 def debug_on_error(type, value, tb):
-    """Code due to Thomas Heller - published in Python Cookbook (O'Reilley)"""
+    """Code due to Thomas Heller - published in Python Cookbook (O'Reilly)"""
     import pdb
     import traceback
     traceback.print_exception(type, value, tb)
@@ -2038,7 +2038,7 @@ class _BackendWx(_Backend):
 
     @classmethod
     def new_figure_manager(cls, num, *args, **kwargs):
-        # Create a wx.App instance if it has not been created sofar.
+        # Create a wx.App instance if it has not been created so far.
         wxapp = wx.GetApp()
         if wxapp is None:
             wxapp = wx.App(False)

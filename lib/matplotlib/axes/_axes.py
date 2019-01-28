@@ -2059,7 +2059,7 @@ class Axes(_AxesBase):
                 dx = dx[0]
         except (ValueError, TypeError, AttributeError):
             # if the above fails (for any reason) just fallback to what
-            # we do by default and convert dx by iteslf.
+            # we do by default and convert dx by itself.
             dx = convert(dx)
         return dx
 
@@ -3536,7 +3536,7 @@ class Axes(_AxesBase):
                                 rcParams[rc_str.format(rc_name, prop_dict)])
             return dictionary
 
-        # Common property dictionnaries loading from rc
+        # Common property dicts loading from rc.
         flier_props = ['color', 'marker', 'markerfacecolor', 'markeredgecolor',
                        'markersize', 'linestyle', 'linewidth']
         default_props = ['color', 'linewidth', 'linestyle']
@@ -4261,7 +4261,7 @@ optional.
 
             - 'face': The edge color will always be the same as the face color.
             - 'none': No patch boundary will be drawn.
-            - A matplotib color or sequence of color.
+            - A Matplotlib color or sequence of color.
 
             Defaults to ``None``, in which case it takes the value of
             :rc:`scatter.edgecolors` = 'face'.
@@ -5253,7 +5253,7 @@ optional.
             By default, the nodes of the polygon defining the filled region
             will only be placed at the positions in the *y* array.  Such a
             polygon cannot describe the above semantics close to the
-            intersection.  The y-sections containing the intersecion are
+            intersection.  The y-sections containing the intersection are
             simply clipped.
 
             Setting *interpolate* to *True* will calculate the actual
@@ -5594,7 +5594,7 @@ optional.
     def _pcolorargs(funcname, *args, allmatch=False):
         # If allmatch is True, then the incoming X, Y, C must have matching
         # dimensions, taking into account that X and Y can be 1-D rather than
-        # 2-D.  This perfect match is required for Gouroud shading.  For flat
+        # 2-D.  This perfect match is required for Gouraud shading.  For flat
         # shading, X and Y specify boundaries, so we need one more boundary
         # than color in each direction.  For convenience, and consistent with
         # Matlab, we discard the last row and/or column of C if necessary to
@@ -6145,7 +6145,7 @@ optional.
             quadilaterals. There are different ways to do this:
 
             - Use tuples ``X=(xmin, xmax)`` and ``Y=(ymin, ymax)`` to define
-              a *uniform rectiangular grid*.
+              a *uniform rectangular grid*.
 
               The tuples define the outer edges of the grid. All individual
               quadrilaterals will be of the same size. This is the fastest
@@ -7975,7 +7975,7 @@ optional.
           automatically set to match the positions.
 
         vert : bool, default = True.
-          If true, plots the violins veritcally.
+          If true, plots the violins vertically.
           Otherwise, plots the violins horizontally.
 
         widths : array-like, default = 0.5

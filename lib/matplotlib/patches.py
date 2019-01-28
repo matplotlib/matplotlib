@@ -3188,7 +3188,7 @@ class ArrowStyle(_Style):
         def ensure_quadratic_bezier(path):
             """
             Some ArrowStyle class only works with a simple quadratic Bezier
-            curve (created with Arc3Connetion or Angle3Connector). This static
+            curve (created with Arc3Connection or Angle3Connector). This static
             method is to check if the provided path is a simple quadratic
             Bezier curve and returns its control points if true.
             """
@@ -4054,7 +4054,6 @@ class FancyArrowPatch(Patch):
 
         elif posA is None and posB is None and path is not None:
             self._posA_posB = None
-            self._connetors = None
         else:
             raise ValueError("either posA and posB, or path need to provided")
 
@@ -4297,7 +4296,7 @@ class FancyArrowPatch(Patch):
         with cbook._setattr_cm(self, _capstyle='round', _joinstyle='round'), \
                 self._bind_draw_path_function(renderer) as draw_path:
 
-            # FIXME : dpi_cor is for the dpi-dependecy of the linewidth. There
+            # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
             # could be room for improvement.
             self.set_dpi_cor(renderer.points_to_pixels(1.))
             path, fillable = self.get_path_in_displaycoord()

@@ -77,9 +77,9 @@ def _de_casteljau1(beta, t):
 
 
 def split_de_casteljau(beta, t):
-    """split a bezier segment defined by its controlpoints *beta*
-    into two separate segment divided at *t* and return their control points.
-
+    """
+    Split a bezier segment defined by its control points *beta* into two
+    separate segments divided at *t* and return their control points.
     """
     beta = np.asarray(beta)
     beta_list = [beta]
@@ -158,7 +158,7 @@ class BezierSegment(object):
     def __init__(self, control_points):
         """
         *control_points* : location of contol points. It needs have a
-         shpae of n * 2, where n is the order of the bezier line. 1<=
+         shape of n * 2, where n is the order of the bezier line. 1<=
          n <= 3 is supported.
         """
         _o = len(control_points)
@@ -363,7 +363,7 @@ def get_parallels(bezier2, width):
         get_normal_points(c2x, c2y, cos_t2, sin_t2, width)
     )
 
-    # find cm_left which is the intersectng point of a line through
+    # find cm_left which is the intersecting point of a line through
     # c1_left with angle t1 and a line through c2_left with angle
     # t2. Same with cm_right.
     if parallel_test != 0:

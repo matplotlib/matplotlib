@@ -715,7 +715,7 @@ class Path(object):
 
         Notes
         -----
-        The circle is approximated using 8 cubic Bezier curves, as decribed in
+        The circle is approximated using 8 cubic Bezier curves, as described in
 
           Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
           Bezier Cubic Splines <http://www.tinaja.com/glib/ellipse4.pdf>`_.
