@@ -403,7 +403,7 @@ class TextPath(Path):
 
     def __init__(self, xy, s, size=None, prop=None,
                  _interpolation_steps=1, usetex=False,
-                 *kl, **kwargs):
+                 *args, **kwargs):
         r"""
         Create a path from the text. Note that it simply is a path,
         not an artist. You need to use the `~.PathPatch` (or other artists)
@@ -449,7 +449,7 @@ class TextPath(Path):
         Also see :doc:`/gallery/text_labels_and_annotations/demo_text_path`.
         """
 
-        if kl or kwargs:
+        if args or kwargs:
             cbook.warn_deprecated(
                 "3.1", message="Additional agruments to TextPath used to be "
                 "ignored, but will trigger a TypeError %(removal)s.")

@@ -387,14 +387,14 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
 class FloatingAxesBase(object):
 
-    def __init__(self, *kl, **kwargs):
+    def __init__(self, *args, **kwargs):
         grid_helper = kwargs.get("grid_helper", None)
         if grid_helper is None:
             raise ValueError("FloatingAxes requires grid_helper argument")
         if not hasattr(grid_helper, "get_boundary"):
             raise ValueError("grid_helper must implement get_boundary method")
 
-        self._axes_class_floating.__init__(self, *kl, **kwargs)
+        self._axes_class_floating.__init__(self, *args, **kwargs)
 
         self.set_aspect(1.)
         self.adjust_axes_lim()

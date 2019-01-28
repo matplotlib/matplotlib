@@ -936,7 +936,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if dryrun:
             class NullWriter(object):
-                def write(self, *kl, **kwargs):
+                def write(self, *args, **kwargs):
                     pass
 
             self._pswriter = NullWriter()
@@ -1132,7 +1132,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if dryrun:
             class NullWriter(object):
-                def write(self, *kl, **kwargs):
+                def write(self, *args, **kwargs):
                     pass
 
             self._pswriter = NullWriter()
