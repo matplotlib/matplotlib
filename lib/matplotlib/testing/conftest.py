@@ -91,17 +91,8 @@ def pd():
     pd = pytest.importorskip('pandas')
     try:
         from pandas.plotting import (
-            register_matplotlib_converters as register)
+            deregister_matplotlib_converters as deregister)
+        deregister()
     except ImportError:
-        from pandas.tseries.converter import register
-    register()
-    try:
-        yield pd
-    finally:
-        try:
-            from pandas.plotting import (
-                deregister_matplotlib_converters as deregister)
-        except ImportError:
-            pass
-        else:
-            deregister()
+        pass
+    return pd
