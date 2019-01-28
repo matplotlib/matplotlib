@@ -16,6 +16,8 @@ import operator
 import os
 import platform
 import sys
+import signal
+import socket
 
 from packaging.version import parse as parse_version
 
@@ -74,22 +76,22 @@ else:
 
 
 def _setup_pyqt5plus():
-    global QtCore, QtGui, QtWidgets, __version__, is_pyqt5, \
+    global QtCore, QtGui, QtWidgets, QtNetwork, __version__, is_pyqt5, \
         _isdeleted, _getSaveFileName
 
     if QT_API == QT_API_PYQT6:
-        from PyQt6 import QtCore, QtGui, QtWidgets, sip
+        from PyQt6 import QtCore, QtGui, QtWidgets, QtNetwork, sip
         __version__ = QtCore.PYQT_VERSION_STR
         QtCore.Signal = QtCore.pyqtSignal
         QtCore.Slot = QtCore.pyqtSlot
         QtCore.Property = QtCore.pyqtProperty
         _isdeleted = sip.isdeleted
     elif QT_API == QT_API_PYSIDE6:
-        from PySide6 import QtCore, QtGui, QtWidgets, __version__
+        from PySide6 import QtCore, QtGui, QtWidgets, QtNetwork, __version__
         import shiboken6
         def _isdeleted(obj): return not shiboken6.isValid(obj)
     elif QT_API == QT_API_PYQT5:
-        from PyQt5 import QtCore, QtGui, QtWidgets
+        from PyQt5 import QtCore, QtGui, QtWidgets, QtNetwork
         import sip
         __version__ = QtCore.PYQT_VERSION_STR
         QtCore.Signal = QtCore.pyqtSignal
@@ -97,7 +99,7 @@ def _setup_pyqt5plus():
         QtCore.Property = QtCore.pyqtProperty
         _isdeleted = sip.isdeleted
     elif QT_API == QT_API_PYSIDE2:
-        from PySide2 import QtCore, QtGui, QtWidgets, __version__
+        from PySide2 import QtCore, QtGui, QtWidgets, QtNetwork, __version__
         import shiboken2
         def _isdeleted(obj): return not shiboken2.isValid(obj)
     else:
@@ -191,3 +193,49 @@ def _setDevicePixelRatio(obj, val):
     if hasattr(obj, 'setDevicePixelRatio'):
         # Not available on Qt4 or some older Qt5.
         obj.setDevicePixelRatio(val)
+
+
+class _allow_interrupt:
+    def __init__(self, qApp, old_sigint_handler):
+        self.interrupted_qobject = qApp
+        self.old_fd = None
+        if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
+            raise ValueError(f"Old SIGINT handler {old_sigint_handler}"
+                             f" will not be overridden")
+        self.old_sigint_handler = old_sigint_handler
+        self.caught_args = None
+
+        QAS = QtNetwork.QAbstractSocket
+        self.qt_socket = QAS(QAS.TcpSocket, qApp)
+        # Create a socket pair
+        self.wsock, self.rsock = socket.socketpair()
+        # Let Qt listen on the one end
+        self.qt_socket.setSocketDescriptor(self.rsock.fileno())
+        self.wsock.setblocking(False)
+        self.qt_socket.readyRead.connect(self._readSignal)
+
+    def __enter__(self):
+        signal.signal(signal.SIGINT, self._handle)
+        # And let Python write on the other end
+        self.old_fd = signal.set_wakeup_fd(self.wsock.fileno())
+
+    def __exit__(self, type, val, traceback):
+        signal.set_wakeup_fd(self.old_fd)
+        signal.signal(signal.SIGINT, self.old_sigint_handler)
+
+        self.wsock.close()
+        self.rsock.close()
+        self.qt_socket.abort()
+        if self.caught_args is not None:
+            self.old_sigint_handler(*self.caught_args)
+
+    def _readSignal(self):
+        # Read the written byte.
+        # Note: readyRead is blocked from
+        # occurring again until readData() was called, so call it,
+        # even if you don't need the value.
+        self.qt_socket.readData(1)
+
+    def _handle(self, *args):
+        self.caught_args = args
+        self.interrupted_qobject.quit()
