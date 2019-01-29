@@ -30,7 +30,7 @@ Those are described in detail throughout the following sections.
 
 .. warning::
 
-    As of Matplotlib 2.2, Constrained Layout is **experimental**.  The
+    Currently Constrained Layout is **experimental**.  The
     behaviour and API are subject to change, or the whole functionality
     may be removed without a deprecation period.  If you *require* your
     plots to be absolutely reproducible, get the Axes positions after
