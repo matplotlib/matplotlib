@@ -633,6 +633,16 @@ class YTick(Tick):
 
 
 class Ticker(object):
+    """
+    A container for the objects defining tick position and format.
+
+    Attributes
+    ----------
+    locator : `matplotlib.ticker.Locator` subclass
+        Determines the positions of the ticks.
+    formatter : `matplotlib.ticker.Formatter` subclass
+        Determines the format of the tick labels.
+    """
     locator = None
     formatter = None
 
@@ -671,11 +681,33 @@ class _LazyTickList(object):
 
 class Axis(martist.Artist):
     """
-    Public attributes
+    Base class for `.XAxis` and `.YAxis`.
 
-    * :attr:`axes.transData` - transform data coords to display coords
-    * :attr:`axes.transAxes` - transform axis coords to display coords
-    * :attr:`labelpad` - number of points between the axis and its label
+    Attributes
+    ----------
+    isDefault_label : bool
+
+    axes : `matplotlib.axes.Axes`
+        The `~.axes.Axes` to which the Axis belongs.
+    major : `matplotlib.axis.Ticker`
+        Determines the major tick positions and their label format.
+    minor : `matplotlib.axis.Ticker`
+        Determines the minor tick positions and their label format.
+    callbacks : `matplotlib.cbook.CallbackRegistry`
+
+    label : `.Text`
+        The axis label.
+    labelpad : float
+        The distance between the axis label and the tick labels.
+        Defaults to :rc:`axes.labelpad` = 4.
+    offsetText : `.Text`
+        A `.Text` object containing the data offset of the ticks (if any).
+    pickradius : float
+        The acceptance radius for containment tests. See also `.Axis.contains`.
+    majorTicks : list of `.Tick`
+        The major ticks.
+    minorTicks : list of `.Tick`
+        The minor ticks.
     """
     OFFSETTEXTPAD = 3
 
@@ -685,7 +717,13 @@ class Axis(martist.Artist):
 
     def __init__(self, axes, pickradius=15):
         """
-        Init the axis with the parent Axes instance
+        Parameters
+        ----------
+        axes : `matplotlib.axes.Axes`
+            The `~.axes.Axes` to which the created Axis belongs.
+        pickradius : float
+            The acceptance radius for containment tests. See also
+            `.Axis.contains`.
         """
         martist.Artist.__init__(self)
         self.set_figure(axes.figure)
@@ -721,19 +759,18 @@ class Axis(martist.Artist):
 
     def set_label_coords(self, x, y, transform=None):
         """
-        Set the coordinates of the label.  By default, the x
-        coordinate of the y label is determined by the tick label
-        bounding boxes, but this can lead to poor alignment of
-        multiple ylabels if there are multiple axes.  Ditto for the y
-        coordinate of the x label.
+        Set the coordinates of the label.
+
+        By default, the x coordinate of the y label is determined by the tick
+        label bounding boxes, but this can lead to poor alignment of multiple
+        ylabels if there are multiple axes.  Ditto for the y coordinate of
+        the x label.
 
         You can also specify the coordinate system of the label with
         the transform.  If None, the default coordinate system will be
         the axes coordinate system (0,0) is (left,bottom), (0.5, 0.5)
         is middle, etc
-
         """
-
         self._autolabelpos = False
         if transform is None:
             transform = self.axes.transAxes
