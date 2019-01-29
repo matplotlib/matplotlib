@@ -115,7 +115,11 @@ def test_utf16m_sfnt():
 def test_find_ttc():
     fp = FontProperties(family=["WenQuanYi Zen Hei"])
     font = findfont(fp)
-    assert Path(font).name == "wqy-zenhei.ttc"
+    if Path(font).name != "wqy-zenhei.ttc":
+        # This test appears to be flaky on Travis... investigate it.
+        print("system fonts:")
+        print(*findSystemFonts(), sep="\n")
+        pytest.fail("Failed to find wqy-zenhei.ttc")
 
     fig, ax = plt.subplots()
     ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
