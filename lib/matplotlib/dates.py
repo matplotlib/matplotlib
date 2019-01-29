@@ -1868,24 +1868,6 @@ class MicrosecondLocator(DateLocator):
         return self._interval
 
 
-def _close_to_dt(d1, d2, epsilon=5):
-    """
-    Assert that datetimes *d1* and *d2* are within *epsilon* microseconds.
-    """
-    delta = d2 - d1
-    mus = abs(delta.total_seconds() * 1e6)
-    assert mus < epsilon
-
-
-def _close_to_num(o1, o2, epsilon=5):
-    """
-    Assert that float ordinals *o1* and *o2* are within *epsilon*
-    microseconds.
-    """
-    delta = abs((o2 - o1) * MUSECONDS_PER_DAY)
-    assert delta < epsilon
-
-
 def epoch2num(e):
     """
     Convert an epoch or sequence of epochs to the new date format,
