@@ -253,6 +253,10 @@ class Formatter(TickHelper):
         """
         raise NotImplementedError('Derived must override')
 
+    def format_ticks(self, values):
+        """Return the tick labels for all the ticks at once."""
+        return [self(value, i) for i, value in enumerate(values)]
+
     def format_data(self, value):
         """
         Returns the full string representation of the value with the
@@ -291,7 +295,7 @@ class Formatter(TickHelper):
         return s
 
     def _set_locator(self, locator):
-        """ Subclasses may want to override this to set a locator. """
+        """Subclasses may want to override this to set a locator."""
         pass
 
 

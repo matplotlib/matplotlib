@@ -932,24 +932,18 @@ class Axis(martist.Artist):
         """
         Iterate through all of the major and minor ticks.
         """
-        majorLocs = self.major.locator()
-        majorTicks = self.get_major_ticks(len(majorLocs))
-        self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i)
-                       for i, val in enumerate(majorLocs)]
+        major_locs = self.major.locator()
+        major_ticks = self.get_major_ticks(len(major_locs))
+        self.major.formatter.set_locs(major_locs)
+        major_labels = self.major.formatter.format_ticks(major_locs)
 
-        minorLocs = self.minor.locator()
-        minorTicks = self.get_minor_ticks(len(minorLocs))
-        self.minor.formatter.set_locs(minorLocs)
-        minorLabels = [self.minor.formatter(val, i)
-                       for i, val in enumerate(minorLocs)]
+        minor_locs = self.minor.locator()
+        minor_ticks = self.get_minor_ticks(len(minor_locs))
+        self.minor.formatter.set_locs(minor_locs)
+        minor_labels = self.minor.formatter.format_ticks(minor_locs)
 
-        major_minor = [
-            (majorTicks, majorLocs, majorLabels),
-            (minorTicks, minorLocs, minorLabels)]
-
-        for group in major_minor:
-            yield from zip(*group)
+        yield from zip(major_ticks, major_locs, major_labels)
+        yield from zip(minor_ticks, minor_locs, minor_labels)
 
     def get_ticklabel_extents(self, renderer):
         """
