@@ -2257,13 +2257,9 @@ class LogLocator(Locator):
             # If we're a minor locator *that expects at least two ticks per
             # decade* and the major locator stride is 1 and there's no more
             # than one minor tick, switch to AutoLocator.
-            ticklocs = AutoLocator().tick_values(vmin, vmax)
-            # Don't overstrike the major labels.  Assumes major locs are
-            # at b = self._base
-            ticklocs = ticklocs[
-                ~is_close_to_int(np.log(ticklocs) / np.log(b))]
-            return ticklocs
-        return self.raise_if_exceeds(ticklocs)
+            return AutoLocator().tick_values(vmin, vmax)
+        else:
+            return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
@@ -2644,10 +2640,6 @@ class AutoMinorLocator(Locator):
         tmin = ((vmin - t0) // minorstep + 1) * minorstep
         tmax = ((vmax - t0) // minorstep + 1) * minorstep
         locs = np.arange(tmin, tmax, minorstep) + t0
-        mod = np.abs((locs - t0) % majorstep)
-        cond1 = mod > minorstep / 10.0
-        cond2 = ~np.isclose(mod, majorstep, atol=0)
-        locs = locs[cond1 & cond2]
 
         return self.raise_if_exceeds(locs)
 

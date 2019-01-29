@@ -1015,15 +1015,13 @@ class Axis(martist.Artist):
         """
         Iterate through all of the major and minor ticks.
         """
-        major_locs = self.major.locator()
-        major_ticks = self.get_major_ticks(len(major_locs))
+        major_locs = self.get_majorticklocs()
         major_labels = self.major.formatter.format_ticks(major_locs)
-
-        minor_locs = self.minor.locator()
-        minor_ticks = self.get_minor_ticks(len(minor_locs))
-        minor_labels = self.minor.formatter.format_ticks(minor_locs)
-
+        major_ticks = self.get_major_ticks(len(major_locs))
         yield from zip(major_ticks, major_locs, major_labels)
+        minor_locs = self.get_minorticklocs()
+        minor_labels = self.minor.formatter.format_ticks(minor_locs)
+        minor_ticks = self.get_minor_ticks(len(minor_locs))
         yield from zip(minor_ticks, minor_locs, minor_labels)
 
     def get_ticklabel_extents(self, renderer):
@@ -1304,18 +1302,29 @@ class Axis(martist.Artist):
         return self.get_majorticklines()
 
     def get_majorticklocs(self):
-        "Get the major tick locations in data coordinates as a numpy array"
+        """Get the array of major tick locations in data coordinates."""
         return self.major.locator()
 
     def get_minorticklocs(self):
-        "Get the minor tick locations in data coordinates as a numpy array"
-        return self.minor.locator()
+        """Get the array of minor tick locations in data coordinates."""
+        # Remove minor ticks duplicating major ticks.
+        major_locs = self.major.locator()
+        minor_locs = self.minor.locator()
+        transform = self._scale.get_transform()
+        tr_minor_locs = transform.transform(minor_locs)
+        tr_major_locs = transform.transform(major_locs)
+        lo, hi = sorted(transform.transform(self.get_view_interval()))
+        # Use the transformed view limits as scale.  1e-5 is the default rtol
+        # for np.isclose.
+        tol = (hi - lo) * 1e-5
+        minor_locs = [
+            loc for loc, tr_loc in zip(minor_locs, tr_minor_locs)
+            if not np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any()]
+        return minor_locs
 
     def get_ticklocs(self, minor=False):
-        "Get the tick locations in data coordinates as a numpy array"
-        if minor:
-            return self.minor.locator()
-        return self.major.locator()
+        """Get the array of tick locations in data coordinates."""
+        return self.get_minorticklocs() if minor else self.get_majorticklocs()
 
     def get_ticks_direction(self, minor=False):
         """
