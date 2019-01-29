@@ -14,8 +14,8 @@ class Container(tuple):
         return ("<{} object of {} artists>"
                 .format(type(self).__name__, len(self)))
 
-    def __new__(cls, *kl, **kwargs):
-        return tuple.__new__(cls, kl[0])
+    def __new__(cls, *args, **kwargs):
+        return tuple.__new__(cls, args[0])
 
     def __init__(self, kl, label=None):
 
