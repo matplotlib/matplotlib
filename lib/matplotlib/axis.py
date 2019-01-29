@@ -1,5 +1,5 @@
 """
-Classes for the ticks and x and y axis
+Classes for the ticks and x and y axis.
 """
 
 import datetime
@@ -33,22 +33,25 @@ _gridline_param_names = ['grid_' + name
 
 class Tick(martist.Artist):
     """
-    Abstract base class for the axis ticks, grid lines and labels
+    Abstract base class for the axis ticks, grid lines and labels.
 
-    1 refers to the bottom of the plot for xticks and the left for yticks
-    2 refers to the top of the plot for xticks and the right for yticks
+    Ticks mark a position on an Axis. They contain two lines as markers and
+    two labels; one each for the bottom and top positions (in case of an
+    `.XAxis`) or for the left and right positions (in case of a `.YAxis`).
 
     Attributes
     ----------
-    tick1line : Line2D
+    tick1line : `.Line2D`
+        The left/bottom tick marker.
+    tick2line : `.Line2D`
+        The right/top tick marker.
+    gridline : `.Line2D`
+        The grid line associated with the label position.
+    label1 : `.Text`
+        The left/bottom tick label.
+    label2 : `.Text`
+        The right/top tick label.
 
-    tick2line : Line2D
-
-    gridline : Line2D
-
-    label1 : Text
-
-    label2 : Text
     """
     def __init__(self, axes, loc, label,
                  size=None,  # points
