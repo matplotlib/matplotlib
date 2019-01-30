@@ -317,6 +317,8 @@ def _from_ordinalf(x, tz=None):
 _from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf)
 
 
+@cbook.deprecated(
+    "3.1", alternative="time.strptime or dateutil.parser.parse or datestr2num")
 class strpdate2num(object):
     """
     Use this class to parse date strings to matplotlib datenums when
@@ -333,6 +335,8 @@ class strpdate2num(object):
         return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
 
 
+@cbook.deprecated(
+    "3.1", alternative="time.strptime or dateutil.parser.parse or datestr2num")
 class bytespdate2num(strpdate2num):
     """
     Use this class to parse date strings to matplotlib datenums when
