@@ -195,7 +195,6 @@ class GridSpecBase:
 
         # convert padding from points to figure relative units....
 
-
         handles, labels, extra_args, kwargs = legend._parse_legend_args(
                 axs, handles=handles, labels=labels, **kwargs)
         leg = LegendLayout(self, self.figure, handles, labels, *extra_args,
