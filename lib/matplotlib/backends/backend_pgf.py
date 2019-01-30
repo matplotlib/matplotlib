@@ -498,7 +498,7 @@ class RendererPgf(RendererBase):
                 path.get_extents(transform).get_points()
             xmin, xmax = f * xmin, f * xmax
             ymin, ymax = f * ymin, f * ymax
-            repx, repy = int(math.ceil(xmax-xmin)), int(math.ceil(ymax-ymin))
+            repx, repy = math.ceil(xmax - xmin), math.ceil(ymax - ymin)
             writeln(self.fh,
                     r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
             for iy in range(repy):

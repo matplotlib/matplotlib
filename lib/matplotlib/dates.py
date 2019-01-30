@@ -1925,14 +1925,13 @@ def date_ticker_factory(span, tz=None, numticks=5):
         locator = WeekdayLocator(tz=tz)
         fmt = '%a, %b %d'
     elif days > numticks:
-        locator = DayLocator(interval=int(math.ceil(days / numticks)), tz=tz)
+        locator = DayLocator(interval=math.ceil(days / numticks), tz=tz)
         fmt = '%b %d'
     elif hrs > numticks:
-        locator = HourLocator(interval=int(math.ceil(hrs / numticks)), tz=tz)
+        locator = HourLocator(interval=math.ceil(hrs / numticks), tz=tz)
         fmt = '%H:%M\n%b %d'
     elif mins > numticks:
-        locator = MinuteLocator(interval=int(math.ceil(mins / numticks)),
-                                tz=tz)
+        locator = MinuteLocator(interval=math.ceil(mins / numticks), tz=tz)
         fmt = '%H:%M:%S'
     else:
         locator = MinuteLocator(tz=tz)
