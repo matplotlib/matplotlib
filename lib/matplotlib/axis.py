@@ -1013,7 +1013,7 @@ class Axis(martist.Artist):
 
     def iter_ticks(self):
         """
-        Iterate through all of the major and minor ticks.
+        Yield ``(Tick, location, label)`` tuples for major and minor ticks.
         """
         major_locs = self.get_majorticklocs()
         major_labels = self.major.formatter.format_ticks(major_locs)
