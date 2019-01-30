@@ -181,7 +181,8 @@ class GridSpecBase:
         """
         legend for this gridspec, offset from all the subplots.
 
-        See `.Figure.legend_outside` for details on how to call.
+        See the *outside* argument for `.Figure.legend` for details on how to
+        call.
         """
         if not (self.figure and self.figure.get_constrained_layout()):
             cbook._warn_external('legend_outside method needs '

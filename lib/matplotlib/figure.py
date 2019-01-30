@@ -1840,13 +1840,10 @@ default: 'top'
             self.legends.append(l)
         else:
             loc = kwargs.pop('loc')
-            if ax is None:
-                gs = self.get_gridspecs()[0]
+            if isinstance(ax, GridSpecBase):
+                gs = ax
             else:
-                if isinstance(ax, GridSpecBase):
-                    gs = ax
-                else:
-                    gs = ax[0].get_gridspec()
+                gs = ax[0].get_gridspec()
             l = gs.legend_outside(loc=loc, align=outside, handles=handles,
                                   labels=labels, **kwargs)
         l._remove_method = self.legends.remove
