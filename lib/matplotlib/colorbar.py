@@ -788,7 +788,6 @@ class ColorbarBase(cm.ScalarMappable):
             b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
         self._manual_tick_data_values = b
         ticks = self._locate(b)
-        formatter.set_locs(b)
         ticklabels = formatter.format_ticks(b)
         offset_string = formatter.get_offset()
         return ticks, ticklabels, offset_string

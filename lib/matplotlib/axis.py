@@ -934,12 +934,10 @@ class Axis(martist.Artist):
         """
         major_locs = self.major.locator()
         major_ticks = self.get_major_ticks(len(major_locs))
-        self.major.formatter.set_locs(major_locs)
         major_labels = self.major.formatter.format_ticks(major_locs)
 
         minor_locs = self.minor.locator()
         minor_ticks = self.get_minor_ticks(len(minor_locs))
-        self.minor.formatter.set_locs(minor_locs)
         minor_labels = self.minor.formatter.format_ticks(minor_locs)
 
         yield from zip(major_ticks, major_locs, major_labels)
