@@ -684,7 +684,6 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     char *codes[5];
     bool postfix;
     std::string buffer;
-    PyObject *result;
     bool status;
 
     if (!PyArg_ParseTuple(args,
@@ -741,13 +740,7 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
         return NULL;
     }
 
-    if (buffer.size() == 0) {
-        result = PyBytes_FromString("");
-    } else {
-        result = PyBytes_FromStringAndSize(buffer.c_str(), buffer.size());
-    }
-
-    return result;
+    return PyBytes_FromStringAndSize(buffer.c_str(), buffer.size());
 }
 
 
