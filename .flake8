@@ -28,36 +28,36 @@ per-file-ignores =
     tools/compare_backend_driver_results.py: E501
     tools/subset.py: E221, E251, E261, E302, E501
 
-    matplotlib/_cm.py: E202, E203, E302
-    matplotlib/_mathtext_data.py: E203, E261
-    matplotlib/backends/_backend_tk.py: E501
-    matplotlib/backends/backend_agg.py: E302
-    matplotlib/backends/backend_cairo.py: E203, E221, E402
-    matplotlib/backends/backend_gtk3.py: E203, E221, E222, E225, E251, E501
-    matplotlib/backends/backend_pgf.py: E731
-    matplotlib/backends/qt_editor/_formlayout.py: E501
-    matplotlib/font_manager.py: E203, E221, E251, E501
-    matplotlib/fontconfig_pattern.py: E201, E203, E221, E222, E225
-    matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
-    matplotlib/projections/geo.py: E203, E221, E502
-    matplotlib/pylab.py: E501
-    matplotlib/rcsetup.py: E501
-    matplotlib/tests/test_mathtext.py: E501
-    matplotlib/transforms.py: E201, E202, E203, E501
-    matplotlib/tri/triinterpolate.py: E201, E221
-    matplotlib/type1font.py: E731
+    lib/matplotlib/_cm.py: E202, E203, E302
+    lib/matplotlib/_mathtext_data.py: E203, E261
+    lib/matplotlib/backends/_backend_tk.py: E501
+    lib/matplotlib/backends/backend_agg.py: E302
+    lib/matplotlib/backends/backend_cairo.py: E203, E221, E402
+    lib/matplotlib/backends/backend_gtk3.py: E203, E221, E222, E225, E251, E501
+    lib/matplotlib/backends/backend_pgf.py: E731
+    lib/matplotlib/backends/qt_editor/_formlayout.py: E501
+    lib/matplotlib/font_manager.py: E203, E221, E251, E501
+    lib/matplotlib/fontconfig_pattern.py: E201, E203, E221, E222, E225
+    lib/matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
+    lib/matplotlib/projections/geo.py: E203, E221, E502
+    lib/matplotlib/pylab.py: E501
+    lib/matplotlib/rcsetup.py: E501
+    lib/matplotlib/tests/test_mathtext.py: E501
+    lib/matplotlib/transforms.py: E201, E202, E203, E501
+    lib/matplotlib/tri/triinterpolate.py: E201, E221
+    lib/matplotlib/type1font.py: E731
 
-    mpl_toolkits/axes_grid/axes_rgb.py: E501
-    mpl_toolkits/axes_grid1/axes_divider.py: E402, E501
-    mpl_toolkits/axes_grid1/axes_grid.py: E225
-    mpl_toolkits/axes_grid1/axes_size.py: E272, E501
-    mpl_toolkits/axes_grid1/colorbar.py: E225, E501
-    mpl_toolkits/axes_grid1/inset_locator.py: E501
-    mpl_toolkits/axisartist/angle_helper.py: E221
-    mpl_toolkits/axisartist/clip_path.py: E225
-    mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501
-    mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501
-    mpl_toolkits/tests/test_axes_grid1.py: E201, E202
+    lib/mpl_toolkits/axes_grid/axes_rgb.py: E501
+    lib/mpl_toolkits/axes_grid1/axes_divider.py: E402, E501
+    lib/mpl_toolkits/axes_grid1/axes_grid.py: E225
+    lib/mpl_toolkits/axes_grid1/axes_size.py: E272, E501
+    lib/mpl_toolkits/axes_grid1/colorbar.py: E225, E501
+    lib/mpl_toolkits/axes_grid1/inset_locator.py: E501
+    lib/mpl_toolkits/axisartist/angle_helper.py: E221
+    lib/mpl_toolkits/axisartist/clip_path.py: E225
+    lib/mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501
+    lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501
+    lib/mpl_toolkits/tests/test_axes_grid1.py: E201, E202
 
     doc/conf.py: E402, E501
     doc/sphinxext/github.py: E302, E501

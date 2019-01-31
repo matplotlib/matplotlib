@@ -1015,7 +1015,7 @@ class Axis(martist.Artist):
             tick_tups = [ti for ti in tick_tups if ilow <= ti[1] <= ihigh]
 
         if interval[1] <= interval[0]:
-             interval = interval[1], interval[0]
+            interval = interval[1], interval[0]
         inter = self.get_transform().transform(interval)
 
         ticks_to_draw = []

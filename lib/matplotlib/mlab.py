@@ -1461,8 +1461,8 @@ class GaussianKDE(object):
         elif (isString and bw_method == 'silverman'):
             self.covariance_factor = self.silverman_factor
         elif (np.isscalar(bw_method) and not isString):
-                self._bw_method = 'use constant'
-                self.covariance_factor = lambda: bw_method
+            self._bw_method = 'use constant'
+            self.covariance_factor = lambda: bw_method
         elif callable(bw_method):
             self._bw_method = bw_method
             self.covariance_factor = lambda: self._bw_method(self)

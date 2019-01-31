@@ -2133,11 +2133,10 @@ def matshow(A, fignum=None, **kwargs):
     fignum : None or int or False
         If *None*, create a new figure window with automatic numbering.
 
-        If *fignum* is an integer, draw into the figure with the given number
+        If a nonzero integer, draw into the figure with the given number
         (create it if it does not exist).
 
-        If 0 or *False*, use the current axes if it exists instead of creating
-        a new figure.
+        If 0, use the current axes (or create one if it does not exist).
 
         .. note::
 
@@ -2155,17 +2154,15 @@ def matshow(A, fignum=None, **kwargs):
 
     """
     A = np.asanyarray(A)
-    if fignum is False or fignum is 0:
+    if fignum == 0:
         ax = gca()
     else:
         # Extract actual aspect ratio of array and make appropriately sized
         # figure.
         fig = figure(fignum, figsize=figaspect(A))
         ax = fig.add_axes([0.15, 0.09, 0.775, 0.775])
-
     im = ax.matshow(A, **kwargs)
     sci(im)
-
     return im
 
 
