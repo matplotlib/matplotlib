@@ -835,13 +835,8 @@ class Axis(martist.Artist):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
     def get_children(self):
-        children = [self.label, self.offsetText]
-        majorticks = self.get_major_ticks()
-        minorticks = self.get_minor_ticks()
-
-        children.extend(majorticks)
-        children.extend(minorticks)
-        return children
+        return [self.label, self.offsetText,
+                *self.get_major_ticks(), *self.get_minor_ticks()]
 
     def cla(self):
         'clear the current axis'

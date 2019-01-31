@@ -536,15 +536,11 @@ class HandlerErrorbar(HandlerLine2D):
                 handle_caplines.append(capline_left)
                 handle_caplines.append(capline_right)
 
-        artists = []
-        artists.extend(handle_barlinecols)
-        artists.extend(handle_caplines)
-        artists.append(legline)
-        artists.append(legline_marker)
-
+        artists = [
+            *handle_barlinecols, *handle_caplines, legline, legline_marker,
+        ]
         for artist in artists:
             artist.set_transform(trans)
-
         return artists
 
 
@@ -634,13 +630,9 @@ class HandlerStem(HandlerNpointsYoffsets):
                               [bottom, bottom])
         self.update_prop(leg_baseline, baseline, legend)
 
-        artists = leg_stemlines
-        artists.append(leg_baseline)
-        artists.append(leg_markerline)
-
+        artists = [*leg_stemlines, leg_baseline, leg_markerline]
         for artist in artists:
             artist.set_transform(trans)
-
         return artists
 
     def _copy_collection_props(self, legend_handle, orig_handle):

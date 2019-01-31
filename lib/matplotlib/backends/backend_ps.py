@@ -398,11 +398,15 @@ grestore
         pid = self._clip_paths.get(key)
         if pid is None:
             pid = 'c%x' % len(self._clip_paths)
-            ps_cmd = ['/%s {' % pid]
-            ps_cmd.append(self._convert_path(clippath, clippath_transform,
-                                             simplify=False))
-            ps_cmd.extend(['clip', 'newpath', '} bind def\n'])
-            self._pswriter.write('\n'.join(ps_cmd))
+            clippath_bytes = self._convert_path(
+                clippath, clippath_transform, simplify=False)
+            self._pswriter.write(f"""\
+/{pid} {{
+{clippath_bytes}
+clip
+newpath
+}} bind def
+""")
             self._clip_paths[key] = pid
         return pid
 
@@ -497,11 +501,14 @@ grestore
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
             name = 'p%x_%x' % (self._path_collection_id, i)
-            ps_cmd = ['/%s {' % name,
-                      'newpath', 'translate']
-            ps_cmd.append(self._convert_path(path, transform, simplify=False))
-            ps_cmd.extend(['} bind def\n'])
-            write('\n'.join(ps_cmd))
+            path_bytes = self._convert_path(path, transform, simplify=False)
+            write(f"""\
+/{name} {{
+newpath
+translate
+{path_bytes}
+}} bind def
+""")
             path_codes.append(name)
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(

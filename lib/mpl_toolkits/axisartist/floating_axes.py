@@ -287,11 +287,9 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
         if axis in ["both", "x"]:
-            for gl in self.grid_info["lon_lines"]:
-                grid_lines.extend([gl])
+            grid_lines.extend(self.grid_info["lon_lines"])
         if axis in ["both", "y"]:
-            for gl in self.grid_info["lat_lines"]:
-                grid_lines.extend([gl])
+            grid_lines.extend(self.grid_info["lat_lines"])
         return grid_lines
 
     def get_boundary(self):

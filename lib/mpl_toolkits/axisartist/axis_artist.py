@@ -1232,18 +1232,14 @@ class AxisArtist(martist.Artist):
         dpi_cor = renderer.points_to_pixels(1.)
         self.dpi_transform.clear().scale(dpi_cor, dpi_cor)
 
-        bb = []
-
         self._update_ticks(renderer)
-
-        bb.extend(self.major_ticklabels.get_window_extents(renderer))
-        bb.extend(self.minor_ticklabels.get_window_extents(renderer))
-
         self._update_label(renderer)
-
-        bb.append(self.label.get_window_extent(renderer))
-        bb.append(self.offsetText.get_window_extent(renderer))
-
+        bb = [
+            *self.major_ticklabels.get_window_extents(renderer),
+            *self.minor_ticklabels.get_window_extents(renderer),
+            self.label.get_window_extent(renderer),
+            self.offsetText.get_window_extent(renderer),
+        ]
         bb = [b for b in bb if b and (b.width != 0 or b.height != 0)]
         if bb:
             _bbox = Bbox.union(bb)
