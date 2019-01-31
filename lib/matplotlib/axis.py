@@ -511,7 +511,7 @@ class XTick(Tick):
         self.stale = True
 
     def get_view_interval(self):
-        """Return the Interval instance for this axis view limits."""
+        # docstring inherited
         return self.axes.viewLim.intervalx
 
 
@@ -895,24 +895,47 @@ class Axis(martist.Artist):
         self.stale = True
 
     def get_view_interval(self):
-        'return the Interval instance for this axis view limits'
+        """Return the Interval instance for this axis view limits."""
         raise NotImplementedError('Derived must override')
 
     def set_view_interval(self, vmin, vmax, ignore=False):
+        """
+        Set the axis view limits.  This method is for internal use; Matplotlib
+        users should typically use e.g. `~Axes.set_xlim` and `~Axes.set_ylim`.
+
+        If *ignore* is False (the default), this method will never reduce the
+        preexisting view limits, only expand them if *vmin* or *vmax* are not
+        within them.  Moreover, the order of *vmin* and *vmax* does not matter;
+        the orientation of the axis will not change.
+
+        If *ignore* is True, the view limits will be set exactly to ``(vmin,
+        vmax)`` in that order.
+        """
         raise NotImplementedError('Derived must override')
 
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        """Return the Interval instance for this axis data limits."""
         raise NotImplementedError('Derived must override')
 
-    def set_data_interval(self):
-        '''set the axis data limits'''
+    def set_data_interval(self, vmin, vmax, ignore=False):
+        """
+        Set the axis data limits.  This method is for internal use.
+
+        If *ignore* is False (the default), this method will never reduce the
+        preexisting data limits, only expand them if *vmin* or *vmax* are not
+        within them.  Moreover, the order of *vmin* and *vmax* does not matter;
+        the orientation of the axis will not change.
+
+        If *ignore* is True, the data limits will be set exactly to ``(vmin,
+        vmax)`` in that order.
+        """
         raise NotImplementedError('Derived must override')
 
     def set_default_intervals(self):
-        '''set the default limits for the axis data and view interval if they
-        are not mutated'''
-
+        """
+        Set the default limits for the axis data and view interval if they
+        have not been not mutated yet.
+        """
         # this is mainly in support of custom object plotting.  For
         # example, if someone passes in a datetime object, we do not
         # know automagically how to set the default min/max of the
@@ -921,7 +944,6 @@ class Axis(martist.Artist):
         # default limits through the AxisInfo.default_limits
         # attribute, and the derived code below will check for that
         # and use it if is available (else just use 0..1)
-        pass
 
     def _set_artist_props(self, a):
         if a is None:
@@ -2028,19 +2050,11 @@ class XAxis(Axis):
             return "unknown"
 
     def get_view_interval(self):
-        'return the Interval instance for this axis view limits'
+        # docstring inherited
         return self.axes.viewLim.intervalx
 
     def set_view_interval(self, vmin, vmax, ignore=False):
-        """
-        If *ignore* is *False*, the order of vmin, vmax
-        does not matter; the original axis orientation will
-        be preserved. In addition, the view limits can be
-        expanded, but will not be reduced.  This method is
-        for mpl internal use; for normal use, see
-        :meth:`~matplotlib.axes.Axes.set_xlim`.
-
-        """
+        # docstring inherited
         if ignore:
             self.axes.viewLim.intervalx = vmin, vmax
         else:
@@ -2056,11 +2070,11 @@ class XAxis(Axis):
         return self.axes.dataLim.minposx
 
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.dataLim.intervalx
 
     def set_data_interval(self, vmin, vmax, ignore=False):
-        'set the axis data limits'
+        # docstring inherited
         if ignore:
             self.axes.dataLim.intervalx = vmin, vmax
         else:
@@ -2069,7 +2083,7 @@ class XAxis(Axis):
         self.stale = True
 
     def set_default_intervals(self):
-        'set the default limits for the axis interval if they are not mutated'
+        # docstring inherited
         xmin, xmax = 0., 1.
         dataMutated = self.axes.dataLim.mutatedx()
         viewMutated = self.axes.viewLim.mutatedx()
@@ -2412,19 +2426,11 @@ class YAxis(Axis):
         return 'unknown'
 
     def get_view_interval(self):
-        'return the Interval instance for this axis view limits'
+        # docstring inherited
         return self.axes.viewLim.intervaly
 
     def set_view_interval(self, vmin, vmax, ignore=False):
-        """
-        If *ignore* is *False*, the order of vmin, vmax
-        does not matter; the original axis orientation will
-        be preserved. In addition, the view limits can be
-        expanded, but will not be reduced.  This method is
-        for mpl internal use; for normal use, see
-        :meth:`~matplotlib.axes.Axes.set_ylim`.
-
-        """
+        # docstring inherited
         if ignore:
             self.axes.viewLim.intervaly = vmin, vmax
         else:
@@ -2441,11 +2447,11 @@ class YAxis(Axis):
         return self.axes.dataLim.minposy
 
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.dataLim.intervaly
 
     def set_data_interval(self, vmin, vmax, ignore=False):
-        'set the axis data limits'
+        # docstring inherited
         if ignore:
             self.axes.dataLim.intervaly = vmin, vmax
         else:
@@ -2454,7 +2460,7 @@ class YAxis(Axis):
         self.stale = True
 
     def set_default_intervals(self):
-        'set the default limits for the axis interval if they are not mutated'
+        # docstring inherited
         ymin, ymax = 0., 1.
         dataMutated = self.axes.dataLim.mutatedy()
         viewMutated = self.axes.viewLim.mutatedy()
