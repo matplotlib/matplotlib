@@ -217,7 +217,7 @@ def figure_edit(axes, parent=None):
             rgba = mcolors.to_rgba(color)
             line.set_alpha(None)
             line.set_color(rgba)
-            if marker is not 'none':
+            if not isinstance(marker, str) or marker != 'none':
                 line.set_marker(marker)
                 line.set_markersize(markersize)
                 line.set_markerfacecolor(markerfacecolor)

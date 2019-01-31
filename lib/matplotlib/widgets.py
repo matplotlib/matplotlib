@@ -762,7 +762,7 @@ class TextBox(AxesWidget):
 
     def _notify_submit_observers(self):
         for cid, func in self.submit_observers.items():
-                func(self.text)
+            func(self.text)
 
     def _release(self, event):
         if self.ignore(event):

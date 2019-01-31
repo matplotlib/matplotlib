@@ -108,7 +108,7 @@ class LogTransformBase(Transform):
                 # pass. On the other hand, in practice, we want to clip beyond
                 #     np.log10(np.nextafter(0, 1)) ~ -323
                 # so 1000 seems safe.
-                    out[a <= 0] = -1000
+                out[a <= 0] = -1000
         return out
 
     def __str__(self):
