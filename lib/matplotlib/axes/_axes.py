@@ -5406,21 +5406,25 @@ optional.
 
             - (M, N): an image with scalar data. The data is visualized
               using a colormap.
-            - (M, N, 3): an image with RGB values (float or uint8).
-            - (M, N, 4): an image with RGBA values (float or uint8), i.e.
-              including transparency.
+            - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
+            - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
+              i.e. including transparency.
 
             The first two dimensions (M, N) define the rows and columns of
             the image.
 
-            The RGB(A) values should be in the range [0 .. 1] for floats or
-            [0 .. 255] for integers.  Out-of-range values will be clipped to
-            these bounds.
+            Out-of-range RGB(A) values are clipped.
 
         cmap : str or `~matplotlib.colors.Colormap`, optional
-            A Colormap instance or registered colormap name. The colormap
-            maps scalar data to colors. It is ignored for RGB(A) data.
+            The Colormap instance or registered colormap name used to map
+            scalar data to colors. This parameter is ignored for RGB(A) data.
             Defaults to :rc:`image.cmap`.
+
+        norm : `~matplotlib.colors.Normalize`, optional
+            The `Normalize` instance used to scale scalar data to the [0, 1]
+            range before mapping to colors using *cmap*. By default, a linear
+            scaling mapping the lowest value to 0 and the highest to 1 is used.
+            This parameter is ignored for RGB(A) data.
 
         aspect : {'equal', 'auto'} or float, optional
             Controls the aspect ratio of the axes. The aspect is of particular
@@ -5462,22 +5466,15 @@ optional.
             which can be set by *filterrad*. Additionally, the antigrain image
             resize filter is controlled by the parameter *filternorm*.
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            If scalar data are used, the Normalize instance scales the
-            data values to the canonical colormap range [0,1] for mapping
-            to colors. By default, the data range is mapped to the
-            colorbar range using linear scaling. This parameter is ignored for
-            RGB(A) data.
+        alpha : scalar, optional
+            The alpha blending value, between 0 (transparent) and 1 (opaque).
+            This parameter is ignored for RGBA input data.
 
         vmin, vmax : scalar, optional
             When using scalar data and no explicit *norm*, *vmin* and *vmax*
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
             data. *vmin*, *vmax* are ignored if the *norm* parameter is used.
-
-        alpha : scalar, optional
-            The alpha blending value, between 0 (transparent) and 1 (opaque).
-            This parameter is ignored for RGBA input data.
 
         origin : {'upper', 'lower'}, optional
             Place the [0,0] index of the array in the upper left or lower left
