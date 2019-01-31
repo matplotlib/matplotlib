@@ -2998,7 +2998,7 @@ class _AxesBase(martist.Artist):
         get_xlim, set_xlim
         get_xbound, set_xbound
         """
-        self.set_xlim(self.get_xlim()[::-1], auto=None)
+        self.xaxis.set_inverted(not self.xaxis.get_inverted())
 
     def xaxis_inverted(self):
         """
@@ -3012,8 +3012,7 @@ class _AxesBase(martist.Artist):
         get_xlim, set_xlim
         get_xbound, set_xbound
         """
-        left, right = self.get_xlim()
-        return right < left
+        return self.xaxis.get_inverted()
 
     def get_xbound(self):
         """
@@ -3404,7 +3403,7 @@ class _AxesBase(martist.Artist):
         get_ylim, set_ylim
         get_ybound, set_ybound
         """
-        self.set_ylim(self.get_ylim()[::-1], auto=None)
+        self.yaxis.set_inverted(not self.yaxis.get_inverted())
 
     def yaxis_inverted(self):
         """
@@ -3418,8 +3417,7 @@ class _AxesBase(martist.Artist):
         get_ylim, set_ylim
         get_ybound, set_ybound
         """
-        bottom, top = self.get_ylim()
-        return top < bottom
+        return self.yaxis.get_inverted()
 
     def get_ybound(self):
         """

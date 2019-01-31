@@ -909,6 +909,31 @@ class Axis(martist.Artist):
         '''set the axis data limits'''
         raise NotImplementedError('Derived must override')
 
+    def get_inverted(self):
+        """
+        Return whether the axis is oriented in the "inverse" direction.
+
+        The "normal" direction is increasing to the right for the x-axis and to
+        the top for the y-axis; the "inverse" direction is increasing to the
+        left for the x-axis and to the bottom for the y-axis.
+        """
+        low, high = self.get_view_interval()
+        return high < low
+
+    def set_inverted(self, inverted):
+        """
+        Set whether the axis is oriented in the "inverse" direction.
+
+        The "normal" direction is increasing to the right for the x-axis and to
+        the top for the y-axis; the "inverse" direction is increasing to the
+        left for the x-axis and to the bottom for the y-axis.
+        """
+        a, b = self.get_view_interval()
+        if inverted:
+            self.set_view_interval(max(a, b), min(a, b), ignore=True)
+        else:
+            self.set_view_interval(min(a, b), max(a, b), ignore=True)
+
     def set_default_intervals(self):
         '''set the default limits for the axis data and view interval if they
         are not mutated'''
