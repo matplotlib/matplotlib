@@ -9,6 +9,7 @@ services:
 branches:
   except:
   - /^auto-backport-of-pr-\d*/
+  - /^v\d+\.\d+\.[\dx]+-doc$/
 
 cache:
   pip: true
