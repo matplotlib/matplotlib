@@ -650,18 +650,13 @@ class ScalarFormatter(Formatter):
         """
         self.locs = locs
         if len(self.locs) > 0:
-            vmin, vmax = self.axis.get_view_interval()
-            d = abs(vmax - vmin)
             if self._useOffset:
                 self._compute_offset()
-            self._set_orderOfMagnitude(d)
-            self._set_format(vmin, vmax)
+            self._set_order_of_magnitude()
+            self._set_format()
 
     def _compute_offset(self):
         locs = self.locs
-        if locs is None or not len(locs):
-            self.offset = 0
-            return
         # Restrict to visible ticks.
         vmin, vmax = sorted(self.axis.get_view_interval())
         locs = np.asarray(locs)
@@ -699,7 +694,7 @@ class ScalarFormatter(Formatter):
                        if abs_max // 10 ** oom >= 10**n
                        else 0)
 
-    def _set_orderOfMagnitude(self, range):
+    def _set_order_of_magnitude(self):
         # if scientific notation is to be used, find the appropriate exponent
         # if using an numerical offset, find the exponent after applying the
         # offset. When lower power limit = upper <> 0, use provided exponent.
@@ -719,7 +714,7 @@ class ScalarFormatter(Formatter):
             self.orderOfMagnitude = 0
             return
         if self.offset:
-            oom = math.floor(math.log10(range))
+            oom = math.floor(math.log10(vmax - vmin))
         else:
             if locs[0] > locs[-1]:
                 val = locs[0]
@@ -736,11 +731,11 @@ class ScalarFormatter(Formatter):
         else:
             self.orderOfMagnitude = 0
 
-    def _set_format(self, vmin, vmax):
+    def _set_format(self):
         # set the format string to format all the ticklabels
         if len(self.locs) < 2:
             # Temporarily augment the locations with the axis end points.
-            _locs = [*self.locs, vmin, vmax]
+            _locs = [*self.locs, *self.axis.get_view_interval()]
         else:
             _locs = self.locs
         locs = (np.asarray(_locs) - self.offset) / 10. ** self.orderOfMagnitude
