@@ -257,28 +257,32 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
                     unsampled=False, round_to_pixel_border=True):
         """
-        Normalize, rescale and color the image `A` from the given
-        in_bbox (in data space), to the given out_bbox (in pixel
-        space) clipped to the given clip_bbox (also in pixel space),
-        and magnified by the magnification factor.
+        Normalize, rescale, and colormap the image *A* from the given *in_bbox*
+        (in data space), to the given *out_bbox* (in pixel space) clipped to
+        the given *clip_bbox* (also in pixel space), and magnified by the
+        *magnification* factor.
 
-        `A` may be a greyscale image (MxN) with a dtype of `float32`,
-        `float64`, `float128`, `uint16` or `uint8`, or an RGBA image (MxNx4)
-        with a dtype of `float32`, `float64`, `float128`, or `uint8`.
+        *A* may be a greyscale image (M, N) with a dtype of float32, float64,
+        float128, uint16 or uint8, or an (M, N, 4) RGBA image with a dtype of
+        float32, float64, float128, or uint8.
 
-        If `unsampled` is True, the image will not be scaled, but an
+        If *unsampled* is True, the image will not be scaled, but an
         appropriate affine transformation will be returned instead.
 
-        If `round_to_pixel_border` is True, the output image size will
-        be rounded to the nearest pixel boundary.  This makes the
-        images align correctly with the axes.  It should not be used
-        in cases where you want exact scaling, however, such as
-        FigureImage.
+        If *round_to_pixel_border* is True, the output image size will be
+        rounded to the nearest pixel boundary.  This makes the images align
+        correctly with the axes.  It should not be used if exact scaling is
+        needed, such as for `FigureImage`.
 
-        Returns the resulting (image, x, y, trans), where (x, y) is
-        the upper left corner of the result in pixel space, and
-        `trans` is the affine transformation from the image to pixel
-        space.
+        Returns
+        -------
+        image : (M, N, 4) uint8 array
+            The RGBA image, resampled unless *unsampled* is True.
+        x, y : float
+            The upper left corner where the image should be drawn, in pixel
+            space.
+        trans : Affine2D
+            The affine transformation from image to pixel space.
         """
         if A is None:
             raise RuntimeError('You must first set the image '
@@ -534,7 +538,24 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         return output, clipped_bbox.x0, clipped_bbox.y0, t
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
-        raise RuntimeError('The make_image method must be overridden.')
+        """
+        Normalize, rescale, and colormap this image's data for rendering using
+        *renderer*, with the given *magnification*.
+
+        If *unsampled* is True, the image will not be scaled, but an
+        appropriate affine transformation will be returned instead.
+
+        Returns
+        -------
+        image : (M, N, 4) uint8 array
+            The RGBA image, resampled unless *unsampled* is True.
+        x, y : float
+            The upper left corner where the image should be drawn, in pixel
+            space.
+        trans : Affine2D
+            The affine transformation from image to pixel space.
+        """
+        raise NotImplementedError('The make_image method must be overridden')
 
     def _draw_unsampled_image(self, renderer, gc):
         """
@@ -679,7 +700,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         # This also needs to be here to override the inherited
         # cm.ScalarMappable.set_array method so it is not invoked by mistake.
-
         self.set_data(A)
 
     def get_interpolation(self):
@@ -831,12 +851,12 @@ class AxesImage(_ImageBase):
         return bbox.transformed(self.axes.transData)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
+        # docstring inherited
         trans = self.get_transform()
         # image is created in the canvas coordinate.
         x1, x2, y1, y2 = self.get_extent()
         bbox = Bbox(np.array([[x1, y1], [x2, y2]]))
         transformed_bbox = TransformedBbox(bbox, trans)
-
         return self._make_image(
             self._A, bbox, transformed_bbox, self.axes.bbox, magnification,
             unsampled=unsampled)
@@ -934,12 +954,11 @@ class NonUniformImage(AxesImage):
         return False
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
+        # docstring inherited
         if self._A is None:
             raise RuntimeError('You must first set the image array')
-
         if unsampled:
             raise ValueError('unsampled not supported on NonUniformImage')
-
         A = self._A
         if A.ndim == 2:
             if A.dtype != np.uint8:
@@ -958,7 +977,6 @@ class NonUniformImage(AxesImage):
                 B[:, :, 3] = 255
                 A = B
             self.is_grayscale = False
-
         x0, y0, v_width, v_height = self.axes.viewLim.bounds
         l, b, r, t = self.axes.bbox.extents
         width = (np.round(r) + 0.5) - (np.round(l) - 0.5)
@@ -969,7 +987,6 @@ class NonUniformImage(AxesImage):
                            int(height), int(width),
                            (x0, x0+v_width, y0, y0+v_height),
                            _interpd_[self._interpolation])
-
         return im, l, b, IdentityTransform()
 
     def set_data(self, x, y, A):
@@ -1068,6 +1085,7 @@ class PcolorImage(AxesImage):
             self.set_data(x, y, A)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
+        # docstring inherited
         if self._A is None:
             raise RuntimeError('You must first set the image array')
         if unsampled:
@@ -1209,6 +1227,7 @@ class FigureImage(_ImageBase):
                 -0.5 + self.oy, numrows-0.5 + self.oy)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
+        # docstring inherited
         fac = renderer.dpi/self.figure.dpi
         # fac here is to account for pdf, eps, svg backends where
         # figure.dpi is set to 72.  This means we need to scale the
@@ -1220,7 +1239,6 @@ class FigureImage(_ImageBase):
         width *= renderer.dpi
         height *= renderer.dpi
         clip = Bbox([[0, 0], [width, height]])
-
         return self._make_image(
             self._A, bbox, bbox, clip, magnification=magnification / fac,
             unsampled=unsampled, round_to_pixel_border=False)
@@ -1304,14 +1322,13 @@ class BboxImage(_ImageBase):
         return inside, {}
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
+        # docstring inherited
         width, height = renderer.get_canvas_width_height()
-
         bbox_in = self.get_window_extent(renderer).frozen()
         bbox_in._points /= [width, height]
         bbox_out = self.get_window_extent(renderer)
         clip = Bbox([[0, 0], [width, height]])
         self._transform = BboxTransform(Bbox([[0, 0], [1, 1]]), clip)
-
         return self._make_image(
             self._A,
             bbox_in, bbox_out, clip, magnification, unsampled=unsampled)
