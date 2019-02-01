@@ -445,10 +445,11 @@ class Axis(maxis.XAxis):
         self.stale = False
 
     def get_view_interval(self):
-        """return the Interval instance for this 3d axis view limits"""
+        # docstring inherited
         return self.v_interval
 
     def set_view_interval(self, vmin, vmax, ignore=False):
+        # docstring inherited
         if ignore:
             self.v_interval = vmin, vmax
         else:
@@ -468,17 +469,17 @@ class Axis(maxis.XAxis):
 
 class XAxis(Axis):
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.xy_dataLim.intervalx
 
 
 class YAxis(Axis):
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.xy_dataLim.intervaly
 
 
 class ZAxis(Axis):
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.zz_dataLim.intervalx
