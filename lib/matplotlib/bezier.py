@@ -94,16 +94,15 @@ def split_de_casteljau(beta, t):
     return left_beta, right_beta
 
 
-# FIXME spelling mistake in the name of the parameter ``tolerence``
-def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
-                                               inside_closedpath,
-                                               t0=0., t1=1., tolerence=0.01):
+@cbook._rename_parameter("3.1", "tolerence", "tolerance")
+def find_bezier_t_intersecting_with_closedpath(
+        bezier_point_at_t, inside_closedpath, t0=0., t1=1., tolerance=0.01):
     """ Find a parameter t0 and t1 of the given bezier path which
     bounds the intersecting points with a provided closed
     path(*inside_closedpath*). Search starts from *t0* and *t1* and it
     uses a simple bisecting algorithm therefore one of the end point
     must be inside the path while the orther doesn't. The search stop
-    when |t0-t1| gets smaller than the given tolerence.
+    when |t0-t1| gets smaller than the given tolerance.
     value for
 
     - bezier_point_at_t : a function which returns x, y coordinates at *t*
@@ -125,8 +124,8 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
 
     while True:
 
-        # return if the distance is smaller than the tolerence
-        if np.hypot(start[0] - end[0], start[1] - end[1]) < tolerence:
+        # return if the distance is smaller than the tolerance
+        if np.hypot(start[0] - end[0], start[1] - end[1]) < tolerance:
             return t0, t1
 
         # calculate the middle point
@@ -177,9 +176,9 @@ class BezierSegment(object):
         return _x, _y
 
 
-def split_bezier_intersecting_with_closedpath(bezier,
-                                              inside_closedpath,
-                                              tolerence=0.01):
+@cbook._rename_parameter("3.1", "tolerence", "tolerance")
+def split_bezier_intersecting_with_closedpath(
+        bezier, inside_closedpath, tolerance=0.01):
 
     """
     bezier : control points of the bezier segment
@@ -190,17 +189,17 @@ def split_bezier_intersecting_with_closedpath(bezier,
     bz = BezierSegment(bezier)
     bezier_point_at_t = bz.point_at_t
 
-    t0, t1 = find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
-                                                        inside_closedpath,
-                                                        tolerence=tolerence)
+    t0, t1 = find_bezier_t_intersecting_with_closedpath(
+        bezier_point_at_t, inside_closedpath, tolerance=tolerance)
 
     _left, _right = split_de_casteljau(bezier, (t0 + t1) / 2.)
     return _left, _right
 
 
-def find_r_to_boundary_of_closedpath(inside_closedpath, xy,
-                                     cos_t, sin_t,
-                                     rmin=0., rmax=1., tolerence=0.01):
+@cbook.deprecated("3.1")
+@cbook._rename_parameter("3.1", "tolerence", "tolerance")
+def find_r_to_boundary_of_closedpath(
+        inside_closedpath, xy, cos_t, sin_t, rmin=0., rmax=1., tolerance=0.01):
     """
     Find a radius r (centered at *xy*) between *rmin* and *rmax* at
     which it intersect with the path.
@@ -216,14 +215,14 @@ def find_r_to_boundary_of_closedpath(inside_closedpath, xy,
     def _f(r):
         return cos_t * r + cx, sin_t * r + cy
 
-    find_bezier_t_intersecting_with_closedpath(_f, inside_closedpath,
-                                               t0=rmin, t1=rmax,
-                                               tolerence=tolerence)
+    find_bezier_t_intersecting_with_closedpath(
+        _f, inside_closedpath, t0=rmin, t1=rmax, tolerance=tolerance)
 
 # matplotlib specific
 
 
-def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
+@cbook._rename_parameter("3.1", "tolerence", "tolerance")
+def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
     """ divide a path into two segment at the point where inside(x, y)
     becomes False.
     """
@@ -252,7 +251,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
 
     bp = bezier_path.reshape((-1, 2))
     left, right = split_bezier_intersecting_with_closedpath(
-        bp, inside, tolerence)
+        bp, inside, tolerance)
     if len(left) == 2:
         codes_left = [Path.LINETO]
         codes_right = [Path.MOVETO, Path.LINETO]
@@ -305,7 +304,8 @@ def get_cos_sin(x0, y0, x1, y1):
     return dx / d, dy / d
 
 
-def check_if_parallel(dx1, dy1, dx2, dy2, tolerence=1.e-5):
+@cbook._rename_parameter("3.1", "tolerence", "tolerance")
+def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
     """ returns
        * 1 if two lines are parralel in same direction
        * -1 if two lines are parralel in opposite direction
@@ -314,9 +314,9 @@ def check_if_parallel(dx1, dy1, dx2, dy2, tolerence=1.e-5):
     theta1 = np.arctan2(dx1, dy1)
     theta2 = np.arctan2(dx2, dy2)
     dtheta = np.abs(theta1 - theta2)
-    if dtheta < tolerence:
+    if dtheta < tolerance:
         return 1
-    elif np.abs(dtheta - np.pi) < tolerence:
+    elif np.abs(dtheta - np.pi) < tolerance:
         return -1
     else:
         return False

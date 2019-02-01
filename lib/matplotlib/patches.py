@@ -2770,28 +2770,20 @@ class ConnectionStyle(_Style):
 
         def _shrink(self, path, shrinkA, shrinkB):
             """
-            Shrink the path by fixed size (in points) with shrinkA and shrinkB
+            Shrink the path by fixed size (in points) with shrinkA and shrinkB.
             """
             if shrinkA:
-                x, y = path.vertices[0]
-                insideA = inside_circle(x, y, shrinkA)
-
+                insideA = inside_circle(*path.vertices[0], shrinkA)
                 try:
-                    left, right = split_path_inout(path, insideA)
-                    path = right
+                    left, path = split_path_inout(path, insideA)
                 except ValueError:
                     pass
-
             if shrinkB:
-                x, y = path.vertices[-1]
-                insideB = inside_circle(x, y, shrinkB)
-
+                insideB = inside_circle(*path.vertices[-1], shrinkB)
                 try:
-                    left, right = split_path_inout(path, insideB)
-                    path = left
+                    path, right = split_path_inout(path, insideB)
                 except ValueError:
                     pass
-
             return path
 
         def __call__(self, posA, posB,
@@ -3720,9 +3712,8 @@ class ArrowStyle(_Style):
 
             try:
                 arrow_out, arrow_in = \
-                      split_bezier_intersecting_with_closedpath(arrow_path,
-                                                                in_f,
-                                                                tolerence=0.01)
+                    split_bezier_intersecting_with_closedpath(
+                        arrow_path, in_f, tolerance=0.01)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3803,11 +3794,8 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length)
             try:
-                path_out, path_in = \
-                          split_bezier_intersecting_with_closedpath(
-                                arrow_path,
-                                in_f,
-                                tolerence=0.01)
+                path_out, path_in = split_bezier_intersecting_with_closedpath(
+                    arrow_path, in_f, tolerance=0.01)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3821,10 +3809,7 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length * .8)
             path_out, path_in = split_bezier_intersecting_with_closedpath(
-                                        arrow_path,
-                                        in_f,
-                                        tolerence=0.01
-                                )
+                arrow_path, in_f, tolerance=0.01)
             path_tail = path_out
 
             # head
@@ -3842,10 +3827,7 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x0, y0, tail_width * .3)
             path_in, path_out = split_bezier_intersecting_with_closedpath(
-                                    arrow_path,
-                                    in_f,
-                                    tolerence=0.01
-                                )
+                arrow_path, in_f, tolerance=0.01)
             tail_start = path_in[-1]
 
             head_right, head_left = head_r, head_l
