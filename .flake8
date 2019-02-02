@@ -61,9 +61,8 @@ per-file-ignores =
     lib/matplotlib/type1font.py: E731
     lib/matplotlib/widgets.py: E117
     lib/maplotlib/pyplot.py F632
-    lib/matplotlib/scale.py: 111
     lib/matplotlib/mlab.py: E117
-    lib/matplotlib/backends/qt_editor/figureoptions.py: F632 E117
+    lib/matplotlib/backends/qt_editor/figureoptions.py: F632, E117
 
     lib/mpl_toolkits/__init__.py: E261
     lib/mpl_toolkits/axes_grid/axes_rgb.py: E501
