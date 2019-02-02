@@ -1184,13 +1184,13 @@ class rc_context:
 @cbook._rename_parameter("3.1", "arg", "backend")
 def use(backend, warn=False, force=True):
     """
-    Set the matplotlib backend to one of the known backends.
+    Select the backend used for rendering and GUI integration.
 
     Parameters
     ----------
     backend : str
-        The backend to switch to.  This can either be one of the
-        'standard' backend names:
+        The backend to switch to.  This can either be one of the standard
+        backend names, which are case-insensitive:
 
         - interactive backends:
           GTK3Agg, GTK3Cairo, MacOSX, nbAgg,
@@ -1202,20 +1202,15 @@ def use(backend, warn=False, force=True):
 
         or a string of the form: ``module://my.module.name``.
 
-        Note: Standard backend names are case-insensitive here.
+    warn : bool, optional, default: False
+        If True and not *force*, warn that the call will have no effect if
+        this is called after pyplot has been imported and a backend is set up.
 
-        *arg* is a deprecated synonym for this parameter.
 
-    warn : bool, optional
-        If True, warn if this is called after pyplot has been imported
-        and a backend is set up.
-
-        defaults to False.
-
-    force : bool, optional
+    force : bool, optional, default: True
         If True, attempt to switch the backend.   An ImportError is raised if
         an interactive backend is selected, but another interactive
-        backend has already started.  This defaults to True.
+        backend has already started.
 
     See Also
     --------
@@ -1224,20 +1219,19 @@ def use(backend, warn=False, force=True):
     """
     name = validate_backend(backend)
 
-    # if setting back to the same thing, do nothing
-    if (dict.__getitem__(rcParams, 'backend') == name):
+    if dict.__getitem__(rcParams, 'backend') == name:
+        # Nothing to do if the requested backend is already set
         pass
-
-    # Check if we have already imported pyplot and triggered
-    # backend selection, do a bit more work
     elif 'matplotlib.pyplot' in sys.modules:
-        # If we are here then the requested is different than the current.
+        # pyplot has already been imported (which triggered backend selection)
+        # and the requested backend is different from the current one.
+
         # If we are going to force the switch, never warn, else, if warn
         # is True, then direct users to `plt.switch_backend`
         if (not force) and warn:
             cbook._warn_external(
-                ("matplotlib.pyplot as already been imported, "
-                 "this call will have no effect."))
+                "matplotlib.pyplot has already been imported, "
+                "this call will have no effect.")
 
         # if we are going to force switching the backend, pull in
         # `switch_backend` from pyplot.  This will only happen if
@@ -1245,11 +1239,11 @@ def use(backend, warn=False, force=True):
         if force:
             from matplotlib.pyplot import switch_backend
             switch_backend(name)
-    # Finally if pyplot is not imported update both rcParams and
-    # rcDefaults so restoring the defaults later with rcdefaults
-    # won't change the backend.  This is a bit of overkill as 'backend'
-    # is already in style.core.STYLE_BLACKLIST, but better to be safe.
     else:
+        # Finally if pyplot is not imported update both rcParams and
+        # rcDefaults so restoring the defaults later with rcdefaults
+        # won't change the backend.  This is a bit of overkill as 'backend'
+        # is already in style.core.STYLE_BLACKLIST, but better to be safe.
         rcParams['backend'] = rcParamsDefault['backend'] = name
 
 
