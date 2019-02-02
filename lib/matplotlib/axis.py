@@ -1769,6 +1769,43 @@ class Axis(martist.Artist):
         # Must be overridden in the subclass
         raise NotImplementedError()
 
+    def _get_ticks_position(self):
+        """
+        Helper for `XAxis.get_ticks_position` and `YAxis.get_ticks_position`.
+
+        Check the visibility of tick1line, label1, tick2line, and label2 on
+        the first major and the first minor ticks, and return
+
+        - 1 if only tick1line and label1 are visible (which corresponds to
+          "bottom" for the x-axis and "left" for the y-axis);
+        - 2 if only tick2line and label2 are visible (which corresponds to
+          "top" for the x-axis and "right" for the y-axis);
+        - "default" if only tick1line, tick2line and label1 are visible;
+        - "unknown" otherwise.
+        """
+        major = self.majorTicks[0]
+        minor = self.minorTicks[0]
+        if all(tick.tick1line.get_visible()
+               and not tick.tick2line.get_visible()
+               and tick.label1.get_visible()
+               and not tick.label2.get_visible()
+               for tick in [major, minor]):
+            return 1
+        elif all(tick.tick2line.get_visible()
+                 and not tick.tick1line.get_visible()
+                 and tick.label2.get_visible()
+                 and not tick.label1.get_visible()
+                 for tick in [major, minor]):
+            return 2
+        elif all(tick.tick1line.get_visible()
+                 and tick.tick2line.get_visible()
+                 and tick.label1.get_visible()
+                 and not tick.label2.get_visible()
+                 for tick in [major, minor]):
+            return "default"
+        else:
+            return "unknown"
+
     def get_label_position(self):
         """
         Return the label position (top or bottom)
@@ -2061,30 +2098,11 @@ class XAxis(Axis):
 
     def get_ticks_position(self):
         """
-        Return the ticks position (top, bottom, default or unknown)
+        Return the ticks position ("top", "bottom", "default", or "unknown").
         """
-        major = self.majorTicks[0]
-        minor = self.minorTicks[0]
-        if all(tick.tick1line.get_visible()
-               and not tick.tick2line.get_visible()
-               and tick.label1.get_visible()
-               and not tick.label2.get_visible()
-               for tick in [major, minor]):
-            return "bottom"
-        elif all(tick.tick2line.get_visible()
-                 and not tick.tick1line.get_visible()
-                 and tick.label2.get_visible()
-                 and not tick.label1.get_visible()
-                 for tick in [major, minor]):
-            return "top"
-        elif all(tick.tick1line.get_visible()
-                 and tick.tick2line.get_visible()
-                 and tick.label1.get_visible()
-                 and not tick.label2.get_visible()
-                 for tick in [major, minor]):
-            return "default"
-        else:
-            return "unknown"
+        return {1: "bottom", 2: "top",
+                "default": "default", "unknown": "unknown"}[
+                    self._get_ticks_position()]
 
     def get_view_interval(self):
         # docstring inherited
@@ -2434,33 +2452,11 @@ class YAxis(Axis):
 
     def get_ticks_position(self):
         """
-        Return the ticks position (left, right, both or unknown)
+        Return the ticks position ("left", "right", "default", or "unknown").
         """
-        majt = self.majorTicks[0]
-        mT = self.minorTicks[0]
-
-        majorRight = ((not majt.tick1On) and majt.tick2On and
-                      (not majt.label1On) and majt.label2On)
-        minorRight = ((not mT.tick1On) and mT.tick2On and
-                      (not mT.label1On) and mT.label2On)
-        if majorRight and minorRight:
-            return 'right'
-
-        majorLeft = (majt.tick1On and (not majt.tick2On) and
-                     majt.label1On and (not majt.label2On))
-        minorLeft = (mT.tick1On and (not mT.tick2On) and
-                     mT.label1On and (not mT.label2On))
-        if majorLeft and minorLeft:
-            return 'left'
-
-        majorDefault = (majt.tick1On and majt.tick2On and
-                        majt.label1On and (not majt.label2On))
-        minorDefault = (mT.tick1On and mT.tick2On and
-                        mT.label1On and (not mT.label2On))
-        if majorDefault and minorDefault:
-            return 'default'
-
-        return 'unknown'
+        return {1: "left", 2: "right",
+                "default": "default", "unknown": "unknown"}[
+                    self._get_ticks_position()]
 
     def get_view_interval(self):
         # docstring inherited
