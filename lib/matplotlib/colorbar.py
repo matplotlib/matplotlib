@@ -303,7 +303,51 @@ class _ColorbarLogLocator(ticker.LogLocator):
         return ticks
 
 
-class ColorbarBase(cm.ScalarMappable):
+class _ColorbarMappableDummy(object):
+    """
+    Private class to hold deprecated ColorbarBase methods that used to be
+    inhereted from ScalarMappable.
+    """
+    @cbook.deprecated("3.1", alternative="ScalarMappable.set_norm")
+    def set_norm(self, norm):
+        """
+        `.colorbar.Colorbar.set_norm` does nothing; set the norm on
+        the mappable associated with this colorbar.
+        """
+        pass
+
+    @cbook.deprecated("3.1", alternative="ScalarMappable.set_cmap")
+    def set_cmap(self, cmap):
+        """
+        `.colorbar.Colorbar.set_cmap` does nothing; set the norm on
+        the mappable associated with this colorbar.
+        """
+        pass
+
+    @cbook.deprecated("3.1", alternative="ScalarMappable.set_clim")
+    def set_clim(self, cmap):
+        """
+        `.colorbar.Colorbar.set_clim` does nothing; set the limits on
+        the mappable associated with this colorbar.
+        """
+        pass
+
+    @cbook.deprecated("3.1", alternative="ScalarMappable.get_cmap")
+    def get_cmap(self):
+        """
+        return the colormap
+        """
+        return self.cmap
+
+    @cbook.deprecated("3.1", alternative="ScalarMappable.get_clim")
+    def get_clim(self):
+        """
+        return the min, max of the color limits for image scaling
+        """
+        return self.norm.vmin, self.norm.vmax
+
+
+class ColorbarBase(_ColorbarMappableDummy):
     '''
     Draw a colorbar in an existing axes.
 
@@ -370,7 +414,8 @@ class ColorbarBase(cm.ScalarMappable):
         if norm is None:
             norm = colors.Normalize()
         self.alpha = alpha
-        cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
+        self.cmap = cmap
+        self.norm = norm
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
@@ -386,6 +431,8 @@ class ColorbarBase(cm.ScalarMappable):
         self.outline = None
         self.patch = None
         self.dividers = None
+        self.locator = None
+        self.formatter = None
         self._manual_tick_data_values = None
 
         if ticklocation == 'auto':
@@ -393,23 +440,17 @@ class ColorbarBase(cm.ScalarMappable):
         self.ticklocation = ticklocation
 
         self.set_label(label)
-        if cbook.iterable(ticks):
+        self._reset_locator_formatter_scale()
+
+        if np.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
             self.locator = ticks    # Handle default in _ticker()
-        if format is None:
-            if isinstance(self.norm, colors.LogNorm):
-                self.formatter = ticker.LogFormatterSciNotation()
-            elif isinstance(self.norm, colors.SymLogNorm):
-                self.formatter = ticker.LogFormatterSciNotation(
-                                        linthresh=self.norm.linthresh)
-            else:
-                self.formatter = ticker.ScalarFormatter()
-        elif isinstance(format, str):
+
+        if isinstance(format, str):
             self.formatter = ticker.FormatStrFormatter(format)
         else:
-            self.formatter = format  # Assume it is a Formatter
-        # The rest is in a method so we can recalculate when clim changes.
+            self.formatter = format  # Assume it is a Formatter or None
         self.draw_all()
 
     def _extend_lower(self):
@@ -431,7 +472,6 @@ class ColorbarBase(cm.ScalarMappable):
         Calculate any free parameters based on the current cmap and norm,
         and do all the drawing.
         '''
-
         # sets self._boundaries and self._values in real data units.
         # takes into account extend values:
         self._process_values()
@@ -450,12 +490,6 @@ class ColorbarBase(cm.ScalarMappable):
 
     def config_axis(self):
         ax = self.ax
-        if (isinstance(self.norm, colors.LogNorm)
-                and self._use_auto_colorbar_locator()):
-            # *both* axes are made log so that determining the
-            # mid point is easier.
-            ax.set_xscale('log')
-            ax.set_yscale('log')
 
         if self.orientation == 'vertical':
             long_axis, short_axis = ax.yaxis, ax.xaxis
@@ -503,6 +537,20 @@ class ColorbarBase(cm.ScalarMappable):
             else:
                 b = self._boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)
+
+        if formatter is None:
+            if isinstance(self.norm, colors.LogNorm):
+                formatter = ticker.LogFormatterSciNotation()
+            elif isinstance(self.norm, colors.SymLogNorm):
+                formatter = ticker.LogFormatterSciNotation(
+                                        linthresh=self.norm.linthresh)
+            else:
+                formatter = ticker.ScalarFormatter()
+        else:
+            formatter = self.formatter
+
+        self.locator = locator
+        self.formatter = formatter
         _log.debug('locator: %r', locator)
         return locator, formatter
 
@@ -516,6 +564,24 @@ class ColorbarBase(cm.ScalarMappable):
                 and ((type(self.norm) == colors.Normalize)
                     or (type(self.norm) == colors.LogNorm)))
 
+    def _reset_locator_formatter_scale(self):
+        """
+        Reset the locator et al to defaults.  Any user-hardcoded changes
+        need to be re-entered if this gets called (either at init, or when
+        the mappable normal gets changed: Colorbar.update_normal)
+        """
+        self.locator = None
+        self.formatter = None
+        if (isinstance(self.norm, colors.LogNorm)
+                and self._use_auto_colorbar_locator()):
+            # *both* axes are made log so that determining the
+            # mid point is easier.
+            self.ax.set_xscale('log')
+            self.ax.set_yscale('log')
+        else:
+            self.ax.set_xscale('linear')
+            self.ax.set_yscale('linear')
+
     def update_ticks(self):
         """
         Force the update of the ticks and ticklabels. This must be
@@ -525,7 +591,6 @@ class ColorbarBase(cm.ScalarMappable):
         # get the locator and formatter.  Defaults to
         # self.locator if not None..
         locator, formatter = self._get_ticker_locator_formatter()
-
         if self.orientation == 'vertical':
             long_axis, short_axis = ax.yaxis, ax.xaxis
         else:
@@ -1081,7 +1146,6 @@ class Colorbar(ColorbarBase):
             kw['boundaries'] = CS._levels
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
-            #kw['ticks'] = CS._levels
             kw.setdefault('ticks', ticker.FixedLocator(CS.levels, nbins=10))
             kw['filled'] = CS.filled
             ColorbarBase.__init__(self, ax, **kw)
@@ -1104,8 +1168,7 @@ class Colorbar(ColorbarBase):
         by :func:`colorbar_factory` and should not be called manually.
 
         """
-        self.set_cmap(mappable.get_cmap())
-        self.set_clim(mappable.get_clim())
+        _log.debug('colorbar mappable changed')
         self.update_normal(mappable)
 
     def add_lines(self, CS, erase=True):
@@ -1131,11 +1194,28 @@ class Colorbar(ColorbarBase):
                                erase=erase)
 
     def update_normal(self, mappable):
-        '''
-        update solid, lines, etc. Unlike update_bruteforce, it does
-        not clear the axes.  This is meant to be called when the image
-        or contour plot to which this colorbar belongs is changed.
-        '''
+        """
+        Update solid patches, lines, etc.
+
+        Unlike `.update_bruteforce`, this does not clear the axes.  This is
+        meant to be called when the norm of the image or contour plot to which
+        this colorbar belongs changes.
+
+        If the norm on the mappable is different than before, this resets the
+        locator and formatter for the axis, so if these have been customized,
+        they will need to be customized again.  However, if the norm only
+        changes values of *vmin*, *vmax* or *cmap* then the old formatter
+        and locator will be preserved.
+        """
+
+        _log.debug('colorbar update normal %r %r', mappable.norm, self.norm)
+        self.mappable = mappable
+        self.set_alpha(mappable.get_alpha())
+        self.cmap = mappable.cmap
+        if mappable.norm != self.norm:
+            self.norm = mappable.norm
+            self._reset_locator_formatter_scale()
+
         self.draw_all()
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
@@ -1157,15 +1237,16 @@ class Colorbar(ColorbarBase):
         # properties have been changed by methods other than the
         # colorbar methods, those changes will be lost.
         self.ax.cla()
+        self.locator = None
+        self.formatter = None
+
         # clearing the axes will delete outline, patch, solids, and lines:
         self.outline = None
         self.patch = None
         self.solids = None
         self.lines = list()
         self.dividers = None
-        self.set_alpha(mappable.get_alpha())
-        self.cmap = mappable.cmap
-        self.norm = mappable.norm
+        self.update_normal(mappable)
         self.draw_all()
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable

@@ -8,12 +8,10 @@ This tutorial shows how to build colorbars without an attached plot.
 Customized Colorbars
 ====================
 
-:class:`~matplotlib.colorbar.ColorbarBase` derives from
-:mod:`~matplotlib.cm.ScalarMappable` and puts a colorbar in a specified axes,
-so it has everything needed for a standalone colorbar. It can be used as-is to
-make a colorbar for a given colormap; it does not need a mappable object like
-an image. In this tutorial we will explore what can be done with standalone
-colorbar.
+`~matplotlib.colorbar.ColorbarBase` puts a colorbar in a specified axes,
+and can make a colorbar for a given colormap; it does not need a mappable
+object like an image. In this tutorial we will explore what can be done with
+standalone colorbar.
 
 Basic continuous colorbar
 -------------------------
