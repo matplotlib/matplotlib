@@ -17,7 +17,7 @@ from numbers import Integral
 import numpy as np
 
 from matplotlib import rcParams
-from matplotlib import backends, docstring
+from matplotlib import backends, docstring, projections
 from matplotlib import __version__ as _mpl_version
 from matplotlib import get_backend
 
@@ -1021,36 +1021,6 @@ default: 'top'
             func(self)
         self.stale = True
 
-    def _make_key(self, *args, **kwargs):
-        """Make a hashable key out of args and kwargs."""
-
-        def fixitems(items):
-            # items may have arrays and lists in them, so convert them
-            # to tuples for the key
-            ret = []
-            for k, v in items:
-                # some objects can define __getitem__ without being
-                # iterable and in those cases the conversion to tuples
-                # will fail. So instead of using the np.iterable(v) function
-                # we simply try and convert to a tuple, and proceed if not.
-                try:
-                    v = tuple(v)
-                except Exception:
-                    pass
-                ret.append((k, v))
-            return tuple(ret)
-
-        def fixlist(args):
-            ret = []
-            for a in args:
-                if np.iterable(a):
-                    a = tuple(a)
-                ret.append(a)
-            return tuple(ret)
-
-        key = fixlist(args), fixitems(kwargs.items())
-        return key
-
     def add_artist(self, artist, clip=False):
         """
         Add any :class:`~matplotlib.artist.Artist` to the figure.
@@ -1086,6 +1056,68 @@ default: 'top'
 
         self.stale = True
         return artist
+
+    def _make_key(self, *args, **kwargs):
+        """Make a hashable key out of args and kwargs."""
+
+        def fixitems(items):
+            # items may have arrays and lists in them, so convert them
+            # to tuples for the key
+            ret = []
+            for k, v in items:
+                # some objects can define __getitem__ without being
+                # iterable and in those cases the conversion to tuples
+                # will fail. So instead of using the np.iterable(v) function
+                # we simply try and convert to a tuple, and proceed if not.
+                try:
+                    v = tuple(v)
+                except Exception:
+                    pass
+                ret.append((k, v))
+            return tuple(ret)
+
+        def fixlist(args):
+            ret = []
+            for a in args:
+                if np.iterable(a):
+                    a = tuple(a)
+                ret.append(a)
+            return tuple(ret)
+
+        key = fixlist(args), fixitems(kwargs.items())
+        return key
+
+    def _process_projection_requirements(
+            self, *args, polar=False, projection=None, **kwargs):
+        """
+        Handle the args/kwargs to add_axes/add_subplot/gca, returning::
+
+            (axes_proj_class, proj_class_kwargs, proj_stack_key)
+
+        which can be used for new axes initialization/identification.
+        """
+        if polar:
+            if projection is not None and projection != 'polar':
+                raise ValueError(
+                    "polar=True, yet projection=%r. "
+                    "Only one of these arguments should be supplied." %
+                    projection)
+            projection = 'polar'
+
+        if isinstance(projection, str) or projection is None:
+            projection_class = projections.get_projection_class(projection)
+        elif hasattr(projection, '_as_mpl_axes'):
+            projection_class, extra_kwargs = projection._as_mpl_axes()
+            kwargs.update(**extra_kwargs)
+        else:
+            raise TypeError('projection must be a string, None or implement a '
+                            '_as_mpl_axes method. Got %r' % projection)
+
+        # Make the key without projection kwargs, this is used as a unique
+        # lookup for axes instances
+        key = self._make_key(*args, **kwargs)
+
+        return projection_class, kwargs, key
 
     @docstring.dedent_interpd
     def add_axes(self, *args, **kwargs):
@@ -1199,8 +1231,8 @@ default: 'top'
             if not np.isfinite(rect).all():
                 raise ValueError('all entries in rect must be finite '
                                  'not {}'.format(rect))
-            projection_class, kwargs, key = process_projection_requirements(
-                self, *args, **kwargs)
+            projection_class, kwargs, key = \
+                self._process_projection_requirements(*args, **kwargs)
 
             # check that an axes of this type doesn't already exist, if it
             # does, set it as active and return it
@@ -1212,12 +1244,7 @@ default: 'top'
             # create the new axes using the axes class given
             a = projection_class(self, rect, **kwargs)
 
-        self._axstack.add(key, a)
-        self.sca(a)
-        a._remove_method = self._remove_ax
-        self.stale = True
-        a.stale_callback = _stale_figure_callback
-        return a
+        return self._add_axes_internal(key, a)
 
     @docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
@@ -1351,8 +1378,8 @@ default: 'top'
             # in the hash)
             key = self._make_key(*args, **kwargs)
         else:
-            projection_class, kwargs, key = process_projection_requirements(
-                self, *args, **kwargs)
+            projection_class, kwargs, key = \
+                self._process_projection_requirements(*args, **kwargs)
 
             # try to find the axes with this key in the stack
             ax = self._axstack.get(key)
@@ -1371,12 +1398,17 @@ default: 'top'
                     self._axstack.remove(ax)
 
             a = subplot_class_factory(projection_class)(self, *args, **kwargs)
-        self._axstack.add(key, a)
-        self.sca(a)
-        a._remove_method = self._remove_ax
+
+        return self._add_axes_internal(key, a)
+
+    def _add_axes_internal(self, key, ax):
+        """Private helper for `add_axes` and `add_subplot`."""
+        self._axstack.add(key, ax)
+        self.sca(ax)
+        ax._remove_method = self._remove_ax
         self.stale = True
-        a.stale_callback = _stale_figure_callback
-        return a
+        ax.stale_callback = _stale_figure_callback
+        return ax
 
     def subplots(self, nrows=1, ncols=1, sharex=False, sharey=False,
                  squeeze=True, subplot_kw=None, gridspec_kw=None):
@@ -1868,8 +1900,8 @@ default: 'top'
             # if the user has specified particular projection detail
             # then build up a key which can represent this
             else:
-                projection_class, _, key = process_projection_requirements(
-                    self, **kwargs)
+                projection_class, _, key = \
+                    self._process_projection_requirements(**kwargs)
 
                 # let the returned axes have any gridspec by removing it from
                 # the key
