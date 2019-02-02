@@ -727,6 +727,7 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
             return NULL;
         }
         codes[i] = PyBytes_AsString(item);
+        Py_DECREF(item);
         if (codes[i] == NULL) {
             return NULL;
         }
