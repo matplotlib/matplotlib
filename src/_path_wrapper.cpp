@@ -680,14 +680,13 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     bool simplify = false;
     SketchParams sketch;
     int precision;
-    PyObject *codesobj;
     char *codes[5];
     bool postfix;
     std::string buffer;
     bool status;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&OO&iOO&:convert_to_string",
+                          "O&O&O&OO&i(yyyyy)O&:convert_to_string",
                           &convert_path,
                           &path,
                           &convert_trans_affine,
@@ -698,7 +697,11 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
                           &convert_sketch_params,
                           &sketch,
                           &precision,
-                          &codesobj,
+                          &codes[0],
+                          &codes[1],
+                          &codes[2],
+                          &codes[3],
+                          &codes[4],
                           &convert_bool,
                           &postfix)) {
         return NULL;
@@ -708,27 +711,6 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
         simplify = path.should_simplify();
     } else if (PyObject_IsTrue(simplifyobj)) {
         simplify = true;
-    }
-
-    if (!PySequence_Check(codesobj)) {
-        return NULL;
-    }
-    if (PySequence_Size(codesobj) != 5) {
-        PyErr_SetString(
-            PyExc_ValueError,
-            "codes must be a 5-length sequence of byte strings");
-        return NULL;
-    }
-    for (int i = 0; i < 5; ++i) {
-        PyObject *item = PySequence_GetItem(codesobj, i);
-        if (item == NULL) {
-            return NULL;
-        }
-        codes[i] = PyBytes_AsString(item);
-        Py_DECREF(item);
-        if (codes[i] == NULL) {
-            return NULL;
-        }
     }
 
     CALL_CPP("convert_to_string",
