@@ -54,6 +54,7 @@ Spectral functions
 """
 
 import csv
+import inspect
 
 import numpy as np
 
@@ -618,7 +619,7 @@ def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
 
 
 # Split out these keyword docs so that they can be used elsewhere
-docstring.interpd.update(Spectral=cbook.dedent("""
+docstring.interpd.update(Spectral=inspect.cleandoc("""
     Fs : scalar
         The sampling frequency (samples per time unit).  It is used
         to calculate the Fourier frequencies, freqs, in cycles per time
@@ -640,7 +641,7 @@ docstring.interpd.update(Spectral=cbook.dedent("""
 """))
 
 
-docstring.interpd.update(Single_Spectrum=cbook.dedent("""
+docstring.interpd.update(Single_Spectrum=inspect.cleandoc("""
     pad_to : int
         The number of points to which the data segment is padded when
         performing the FFT.  While not increasing the actual resolution of
@@ -652,7 +653,7 @@ docstring.interpd.update(Single_Spectrum=cbook.dedent("""
 """))
 
 
-docstring.interpd.update(PSD=cbook.dedent("""
+docstring.interpd.update(PSD=inspect.cleandoc("""
     pad_to : int
         The number of points to which the data segment is padded when
         performing the FFT.  This can be different from *NFFT*, which

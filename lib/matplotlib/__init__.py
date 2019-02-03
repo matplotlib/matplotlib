@@ -1435,7 +1435,7 @@ def _add_data_doc(docstring, replace_names):
     -------
         The augmented docstring.
     """
-    docstring = dedent(docstring) if docstring is not None else ""
+    docstring = inspect.cleandoc(docstring) if docstring is not None else ""
     repl = ("* All positional and all keyword arguments."
             if replace_names is None else
             ""
