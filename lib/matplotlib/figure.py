@@ -266,11 +266,13 @@ class Figure(Artist):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
 
     def __repr__(self):
-        return "<{clsname} size {h:g}x{w:g} with {naxes} Axes>".format(
-            clsname=self.__class__.__name__,
-            h=self.bbox.size[0], w=self.bbox.size[1],
-            naxes=len(self.axes),
-        )
+        clsname=self.__class__.__name__
+        h = self.bbox.size[0]
+        w = self.bbox.size[1]
+        naxes=len(self.axes)
+        uniqueid=id(self)
+        return (f"<{clsname} size {h:g}x{w:g} with {naxes} Axes; "
+                f"0x{uniqueid:x}>")
 
     def __init__(self,
                  figsize=None,
