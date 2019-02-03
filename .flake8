@@ -55,9 +55,13 @@ per-file-ignores =
     lib/mpl_toolkits/axes_grid1/colorbar.py: E225, E501
     lib/mpl_toolkits/axes_grid1/inset_locator.py: E501
     lib/mpl_toolkits/axisartist/angle_helper.py: E221
-    lib/mpl_toolkits/axisartist/clip_path.py: E225, E302, E501
-    lib/mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501, E231, E261, E303
-    lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501
+    lib/mpl_toolkits/axisartist/clip_path.py: E225, E302, E501, E303
+    lib/mpl_toolkits/axisartist/angle_helper.py: E302, E201, E303, E261, E222, E225
+    lib/mpl_toolkits/axisartist/axisline_style.py: E501, E231, E225, E303
+    lib/mpl_toolkits/axisartist/axislines.py: E501, E261, E225, E231, E303
+    lib/mpl_toolkits/axistartist/axis_artist.py: E501, E302, E261, E303, E701, E402
+    lib/mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501, E231, E261, E303, E302, E262
+    lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501, E231, E303
     lib/mpl_toolkits/tests/test_axes_grid1.py: E201, E202
 
     doc/conf.py: E402, E501
@@ -186,11 +190,11 @@ per-file-ignores =
     examples/pyplots/pyplot_simple.py: E231, E402
     examples/pyplots/pyplot_text.py: E402
     examples/pyplots/pyplot_three.py: E402
-    examples/pyplots/pyplot_two_subplots.py: E402, E261
+    examples/pyplots/pyplot_two_subplots.py: E402, E261, E302
     examples/pyplots/text_commands.py: E231, E402
     examples/pyplots/text_layout.py: E231, E402
     examples/pyplots/whats_new_1_subplot3d.py: E402
-    examples/pyplots/whats_new_98_4_fancy.py: E302, E402, E261
+    examples/pyplots/whats_new_98_4_fancy.py: E302, E402, E261, E225
     examples/pyplots/whats_new_98_4_fill_between.py: E225, E402
     examples/pyplots/whats_new_98_4_legend.py: E228, E402
     examples/pyplots/whats_new_99_axes_grid.py: E402
