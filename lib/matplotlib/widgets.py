@@ -2188,8 +2188,7 @@ class RectangleSelector(_SelectorWidget):
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
             xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
-            # calcultate dimensions of box or line get values in the right
-            # order
+            # calculate dimensions of box or line get values in the right order
         elif self.spancoords == 'pixels':
             xmin, ymin = self.eventpress.x, self.eventpress.y
             xmax, ymax = self.eventrelease.x, self.eventrelease.y

@@ -132,8 +132,8 @@ def test_formatter_ticker():
     ax.autoscale_view()
 
 
-@image_comparison(baseline_images=["twin_axis_locaters_formatters"])
-def test_twin_axis_locaters_formatters():
+@image_comparison(baseline_images=["twin_axis_locators_formatters"])
+def test_twin_axis_locators_formatters():
     vals = np.linspace(0, 1, num=5, endpoint=True)
     locs = np.sin(np.pi * vals / 2.0)
 
@@ -616,7 +616,7 @@ def test_shaped_data():
 
 
 def test_structured_data():
-    # support for stuctured data
+    # support for structured data
     pts = np.array([(1, 1), (2, 2)], dtype=[("ones", float), ("twos", float)])
 
     # this should not read second name as a format and raise ValueError

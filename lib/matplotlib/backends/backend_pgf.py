@@ -214,7 +214,7 @@ class LatexManager:
     """
     The LatexManager opens an instance of the LaTeX application for
     determining the metrics of text elements. The LaTeX environment can be
-    modified by setting fonts and/or a custem preamble in the rc parameters.
+    modified by setting fonts and/or a custom preamble in the rc parameters.
     """
     _unclean_instances = weakref.WeakSet()
 

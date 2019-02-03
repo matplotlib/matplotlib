@@ -3023,7 +3023,7 @@ class Parser(object):
             return [result]
 
         # We remove kerning on the last character for consistency (otherwise
-        # it will compute kerning based on non-shrinked characters and may put
+        # it will compute kerning based on non-shrunk characters and may put
         # them too close together when superscripted)
         # We change the width of the last character to match the advance to
         # consider some fonts with weird metrics: e.g. stix's f has a width of

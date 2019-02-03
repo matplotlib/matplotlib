@@ -147,7 +147,7 @@ class RendererWx(RendererBase):
     'renderer' instance used by many classes in the hierarchy.
     """
     # In wxPython, drawing is performed on a wxDC instance, which will
-    # generally be mapped to the client aread of the window displaying
+    # generally be mapped to the client area of the window displaying
     # the plot. Under wxPython, the wxDC instance has a wx.Pen which
     # describes the colour and weight of any lines drawn, and a wxBrush
     # which describes the fill colour of any closed polygon.
@@ -429,18 +429,13 @@ class GraphicsContextWx(GraphicsContextBase):
         self.renderer = renderer
 
     def select(self):
-        """
-        Select the current bitmap into this wxDC instance
-        """
-
+        """Select the current bitmap into this wxDC instance."""
         if sys.platform == 'win32':
             self.dc.SelectObject(self.bitmap)
             self.IsSelected = True
 
     def unselect(self):
-        """
-        Select a Null bitmasp into this wxDC instance
-        """
+        """Select a Null bitmap into this wxDC instance."""
         if sys.platform == 'win32':
             self.dc.SelectObject(wx.NullBitmap)
             self.IsSelected = False

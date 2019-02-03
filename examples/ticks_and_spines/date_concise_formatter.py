@@ -97,7 +97,7 @@ plt.show()
 # ticks that are "zeros".  These are tick values that are either the first of
 # the year, month, or day of month, or the zeroth hour, minute, or second.
 # These are usually the same as the format of
-# the ticks a level above.  For example if the axis limts mean the ticks are
+# the ticks a level above.  For example if the axis limits mean the ticks are
 # mostly days, then we label 1 Mar 2005 simply with a "Mar".  If the axis
 # limits are mostly hours, we label Feb 4 00:00 as simply "Feb-4".
 #

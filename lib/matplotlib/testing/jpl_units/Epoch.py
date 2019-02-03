@@ -213,7 +213,7 @@ class Epoch(object):
         - step      Step to use.
 
         = RETURN VALUE
-        - Returns a list contianing the requested Epoch values.
+        - Returns a list containing the requested Epoch values.
         """
         elems = []
 

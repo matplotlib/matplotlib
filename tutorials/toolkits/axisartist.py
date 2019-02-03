@@ -247,7 +247,7 @@ Similarly, to make ticklabels invisible ::
 
   ax.axis["bottom"].major_ticklabels.set_visible(False)
 
-AxisAritst provides a helper method to control the visibility of ticks,
+AxisArtist provides a helper method to control the visibility of ticks,
 ticklabels, and label. To make ticklabel invisible, ::
 
   ax.axis["bottom"].toggle(ticklabels=False)
@@ -415,7 +415,7 @@ direction can be more clear with curved axis.
    Demo Axis Direction
 
 The axis_direction can be adjusted in the AxisArtist level, or in the
-level of its child arists, i.e., ticks, ticklabels, and axis-label. ::
+level of its child artists, i.e., ticks, ticklabels, and axis-label. ::
 
   ax1.axis["left"].set_axis_direction("top")
 
