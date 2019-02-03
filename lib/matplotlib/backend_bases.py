@@ -2155,7 +2155,8 @@ class FigureCanvasBase(object):
         return TimerBase(*args, **kwargs)
 
     def flush_events(self):
-        """Flush the GUI events for the figure.
+        """
+        Flush the GUI events for the figure.
 
         Interactive backends need to reimplement this method.
         """
