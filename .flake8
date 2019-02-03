@@ -26,7 +26,7 @@ per-file-ignores =
     setupext.py: E501
 
     tools/compare_backend_driver_results.py: E501
-    tools/subset.py: E221, E251, E261, E302, E501
+    tools/subset.py: E221, E251, E261, E302, E501, E701, E231
 
     lib/matplotlib/_cm.py: E202, E203, E302
     lib/matplotlib/_mathtext_data.py: E203, E261
@@ -60,6 +60,8 @@ per-file-ignores =
     lib/matplotlib/mlab.py: E117
     lib/matplotlib/sphinxext/mathmpl.py: 302
     lib/matplotlib/sphinxext/plot_directive.py: E402, E302, E261
+    lib/matplotlib/projections/geo.py: E231, E261
+    lib/matplotlib/tests/test_image.py: E231
 
 
     lib/mpl_toolkits/__init__.py: E261
