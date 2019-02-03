@@ -47,6 +47,7 @@ per-file-ignores =
     lib/matplotlib/tri/triinterpolate.py: E201, E221
     lib/matplotlib/type1font.py: E731
 
+    lib/mpl_toolkits/__init__.py: E261
     lib/mpl_toolkits/axes_grid/axes_rgb.py: E501
     lib/mpl_toolkits/axes_grid1/axes_divider.py: E402, E501
     lib/mpl_toolkits/axes_grid1/axes_grid.py: E225
@@ -54,8 +55,8 @@ per-file-ignores =
     lib/mpl_toolkits/axes_grid1/colorbar.py: E225, E501
     lib/mpl_toolkits/axes_grid1/inset_locator.py: E501
     lib/mpl_toolkits/axisartist/angle_helper.py: E221
-    lib/mpl_toolkits/axisartist/clip_path.py: E225
-    lib/mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501
+    lib/mpl_toolkits/axisartist/clip_path.py: E225, E302, E501
+    lib/mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501, E231, E261, E303
     lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501
     lib/mpl_toolkits/tests/test_axes_grid1.py: E201, E202
 
@@ -105,7 +106,7 @@ per-file-ignores =
     examples/event_handling/poly_editor.py: E501
     examples/event_handling/viewlims.py: E501
     examples/images_contours_and_fields/affine_image.py: E402
-    examples/images_contours_and_fields/barb_demo.py: E402
+    examples/images_contours_and_fields/barb_demo.py: E402, E501
     examples/images_contours_and_fields/barcode_demo.py: E402
     examples/images_contours_and_fields/contour_corner_mask.py: E402
     examples/images_contours_and_fields/contour_demo.py: E402, E501
@@ -172,11 +173,11 @@ per-file-ignores =
     examples/pyplots/annotate_transform.py: E228, E251, E402, E501
     examples/pyplots/annotation_basic.py: E402
     examples/pyplots/annotation_polar.py: E231, E402
-    examples/pyplots/auto_subplots_adjust.py: E231, E302, E402
+    examples/pyplots/auto_subplots_adjust.py: E231, E302, E402, E261
     examples/pyplots/boxplot_demo_pyplot.py: E231, E402
     examples/pyplots/compound_path_demo.py: E231
     examples/pyplots/dollar_ticks.py: E402
-    examples/pyplots/fig_axes_customize_simple.py: E402
+    examples/pyplots/fig_axes_customize_simple.py: E402, E261
     examples/pyplots/fig_axes_labels_simple.py: E402
     examples/pyplots/fig_x.py: E402
     examples/pyplots/pyplot_formatstr.py: E231, E402
@@ -185,16 +186,16 @@ per-file-ignores =
     examples/pyplots/pyplot_simple.py: E231, E402
     examples/pyplots/pyplot_text.py: E402
     examples/pyplots/pyplot_three.py: E402
-    examples/pyplots/pyplot_two_subplots.py: E402
+    examples/pyplots/pyplot_two_subplots.py: E402, E261
     examples/pyplots/text_commands.py: E231, E402
     examples/pyplots/text_layout.py: E231, E402
     examples/pyplots/whats_new_1_subplot3d.py: E402
-    examples/pyplots/whats_new_98_4_fancy.py: E302, E402
+    examples/pyplots/whats_new_98_4_fancy.py: E302, E402, E261
     examples/pyplots/whats_new_98_4_fill_between.py: E225, E402
     examples/pyplots/whats_new_98_4_legend.py: E228, E402
     examples/pyplots/whats_new_99_axes_grid.py: E402
     examples/pyplots/whats_new_99_mplot3d.py: E402
-    examples/pyplots/whats_new_99_spines.py: E231, E402
+    examples/pyplots/whats_new_99_spines.py: E231, E402, E261
     examples/recipes/placing_text_boxes.py: E501
     examples/scales/power_norm.py: E402
     examples/scales/scales.py: E402
@@ -254,7 +255,7 @@ per-file-ignores =
     examples/user_interfaces/gtk_spreadsheet_sgskip.py: E402
     examples/user_interfaces/mathtext_wx_sgskip.py: E402, E501
     examples/user_interfaces/mpl_with_glade3_sgskip.py: E402
-    examples/user_interfaces/pylab_with_gtk_sgskip.py: E302, E402
+    examples/user_interfaces/pylab_with_gtk_sgskip.py: E302, E402, E501
     examples/user_interfaces/toolmanager_sgskip.py: E402
     examples/userdemo/custom_boxstyle01.py: E402
     examples/userdemo/pgf_preamble_sgskip.py: E402
