@@ -325,6 +325,12 @@ def test_colorbar_minorticks_on_off():
     assert np.array_equal(cbar.ax.yaxis.get_minorticklocs(),
                           default_minorticklocks)
 
+    # test issue #13339: minorticks for LogNorm should stay off
+    cbar.minorticks_off()
+    cbar.set_ticks([3, 5, 7, 9])
+    assert np.array_equal(cbar.ax.yaxis.get_minorticklocs(),
+                          np.array([]))
+
 
 def test_colorbar_autoticks():
     # Test new autotick modes. Needs to be classic because
