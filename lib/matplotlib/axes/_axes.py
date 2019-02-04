@@ -4464,7 +4464,7 @@ optional.
 
         marginals : bool, optional, default is *False*
             if marginals is *True*, plot the marginal density as
-            colormapped rectagles along the bottom of the x-axis and
+            colormapped rectangles along the bottom of the x-axis and
             left of the y-axis
 
         extent : scalar, optional, default is *None*
@@ -5064,7 +5064,7 @@ optional.
             position remain unfilled due to the adjacent *False* values.
 
         interpolate : bool, optional
-            This option is only relvant if *where* is used and the two curves
+            This option is only relevant if *where* is used and the two curves
             are crossing each other.
 
             Semantically, *where* is often used for *y1* > *y2* or similar.
@@ -5246,7 +5246,7 @@ optional.
             position remain unfilled due to the adjacent *False* values.
 
         interpolate : bool, optional
-            This option is only relvant if *where* is used and the two curves
+            This option is only relevant if *where* is used and the two curves
             are crossing each other.
 
             Semantically, *where* is often used for *x1* > *x2* or similar.
@@ -5257,7 +5257,7 @@ optional.
             simply clipped.
 
             Setting *interpolate* to *True* will calculate the actual
-            interscection point and extend the filled region up to this point.
+            intersection point and extend the filled region up to this point.
 
         step : {'pre', 'post', 'mid'}, optional
             Define *step* if the filling should be a step function,
@@ -6139,7 +6139,7 @@ optional.
 
         X, Y : tuple or array-like, default: ``(0, N)``, ``(0, M)``
             *X* and *Y* are used to specify the coordinates of the
-            quadilaterals. There are different ways to do this:
+            quadrilaterals. There are different ways to do this:
 
             - Use tuples ``X=(xmin, xmax)`` and ``Y=(ymin, ymax)`` to define
               a *uniform rectangular grid*.

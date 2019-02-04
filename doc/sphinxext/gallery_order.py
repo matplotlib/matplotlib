@@ -6,7 +6,7 @@ Paths are relative to the conf.py file.
 
 from sphinx_gallery.sorting import ExplicitOrder
 
-# Gallery sections shall be diplayed in the following order.
+# Gallery sections shall be displayed in the following order.
 # Non-matching sections are appended.
 explicit_order_folders = [
                           '../examples/lines_bars_and_markers',

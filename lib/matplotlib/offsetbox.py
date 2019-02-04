@@ -932,7 +932,7 @@ class AuxTransformBox(OffsetBox):
         bboxes = [c.get_window_extent(renderer) for c in self._children]
         ub = mtransforms.Bbox.union(bboxes)
 
-        # adjust ref_offset_tansform
+        # adjust ref_offset_transform
         self.ref_offset_transform.translate(-ub.x0, -ub.y0)
 
         # restor offset transform

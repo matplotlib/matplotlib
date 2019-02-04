@@ -451,7 +451,7 @@ class TextPath(Path):
 
         if args or kwargs:
             cbook.warn_deprecated(
-                "3.1", message="Additional agruments to TextPath used to be "
+                "3.1", message="Additional arguments to TextPath used to be "
                 "ignored, but will trigger a TypeError %(removal)s.")
 
         if prop is None:

@@ -101,7 +101,7 @@ def find_bezier_t_intersecting_with_closedpath(
     bounds the intersecting points with a provided closed
     path(*inside_closedpath*). Search starts from *t0* and *t1* and it
     uses a simple bisecting algorithm therefore one of the end point
-    must be inside the path while the orther doesn't. The search stop
+    must be inside the path while the other doesn't. The search stop
     when |t0-t1| gets smaller than the given tolerance.
     value for
 
@@ -307,8 +307,8 @@ def get_cos_sin(x0, y0, x1, y1):
 @cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
     """ returns
-       * 1 if two lines are parralel in same direction
-       * -1 if two lines are parralel in opposite direction
+       * 1 if two lines are parallel in same direction
+       * -1 if two lines are parallel in opposite direction
        * 0 otherwise
     """
     theta1 = np.arctan2(dx1, dy1)
@@ -368,7 +368,7 @@ def get_parallels(bezier2, width):
     # t2. Same with cm_right.
     if parallel_test != 0:
         # a special case for a straight line, i.e., angle between two
-        # lines are smaller than some (arbitrtay) value.
+        # lines are smaller than some (arbitrary) value.
         cmx_left, cmy_left = (
             0.5 * (c1x_left + c2x_left), 0.5 * (c1y_left + c2y_left)
         )

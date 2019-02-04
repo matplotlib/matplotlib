@@ -790,7 +790,7 @@ class Legend(Artist):
         # be given in the display coordinates.
 
         # The transformation of each handle will be automatically set
-        # to self.get_trasnform(). If the artist does not use its
+        # to self.get_transform(). If the artist does not use its
         # default transform (e.g., Collections), you need to
         # manually set their transform to the self.get_transform().
         legend_handler_map = self.get_legend_handler_map()

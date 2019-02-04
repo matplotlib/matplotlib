@@ -176,14 +176,14 @@ _Time series analysis
 
   bartlett  - M-point Bartlett window
   blackman  - M-point Blackman window
-  cohere    - the coherence using average periodiogram
-  csd       - the cross spectral density using average periodiogram
+  cohere    - the coherence using average periodogram
+  csd       - the cross spectral density using average periodogram
   fft       - the fast Fourier transform of vector x
   hamming   - M-point Hamming window
   hanning   - M-point Hanning window
   hist      - compute the histogram of x
   kaiser    - M length Kaiser window
-  psd       - the power spectral density using average periodiogram
+  psd       - the power spectral density using average periodogram
   sinc      - the sinc function of array x
 
 _Dates

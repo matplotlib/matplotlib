@@ -470,7 +470,7 @@ def test_linecollection_scaled_dashes():
 
 
 def test_handler_numpoints():
-    '''test legend handler with numponts less than or equal to 1'''
+    """Test legend handler with numpoints <= 1."""
     # related to #6921 and PR #8478
     fig, ax = plt.subplots()
     ax.plot(range(5), label='test')

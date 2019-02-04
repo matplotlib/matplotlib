@@ -39,7 +39,7 @@ def test_rcparams():
         assert mpl.rcParams['text.usetex'] == (not usetex)
     assert mpl.rcParams['text.usetex'] == usetex
 
-    # test context given filename (mpl.rc sets linewdith to 33)
+    # test context given filename (mpl.rc sets linewidth to 33)
     with mpl.rc_context(fname=fname):
         assert mpl.rcParams['lines.linewidth'] == 33
     assert mpl.rcParams['lines.linewidth'] == linewidth
