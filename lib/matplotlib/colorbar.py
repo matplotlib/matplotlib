@@ -579,6 +579,8 @@ class ColorbarBase(_ColorbarMappableDummy):
             # mid point is easier.
             self.ax.set_xscale('log')
             self.ax.set_yscale('log')
+
+            self.minorticks_on()
         else:
             self.ax.set_xscale('linear')
             self.ax.set_yscale('linear')
@@ -602,8 +604,6 @@ class ColorbarBase(_ColorbarMappableDummy):
             _log.debug('locator: %r', locator)
             long_axis.set_major_locator(locator)
             long_axis.set_major_formatter(formatter)
-            if type(self.norm) == colors.LogNorm:
-                self.minorticks_on()
         else:
             _log.debug('Using fixed locator on colorbar')
             ticks, ticklabels, offset_string = self._ticker(locator, formatter)
