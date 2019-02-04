@@ -1335,7 +1335,7 @@ class Axes(_AxesBase):
 
         Call signatures::
 
-            plot([x], y, [fmt], data=None, **kwargs)
+            plot([x], y, [fmt], *, data=None, **kwargs)
             plot([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
 
         The coordinates of the points or line nodes are given by *x*, *y*.
@@ -1358,6 +1358,7 @@ class Axes(_AxesBase):
         ...      linewidth=2, markersize=12)
 
         When conflicting with *fmt*, keyword arguments take precedence.
+
 
         **Plotting labelled data**
 
@@ -1406,19 +1407,19 @@ class Axes(_AxesBase):
         Alternatively, you can also change the style cycle using the
         'axes.prop_cycle' rcParam.
 
+
         Parameters
         ----------
         x, y : array-like or scalar
             The horizontal / vertical coordinates of the data points.
-            *x* values are optional. If not given, they default to
-            ``[0, ..., N-1]``.
+            *x* values are optional and default to `range(len(y))`.
 
-            Commonly, these parameters are arrays of length N. However,
-            scalars are supported as well (equivalent to an array with
-            constant value).
+            Commonly, these parameters are 1D arrays.
 
-            The parameters can also be 2-dimensional. Then, the columns
-            represent separate data sets.
+            They can also be scalars, or two-dimensional (in that case, the
+            columns represent separate data sets).
+
+            These arguments cannot be passed as keywords.
 
         fmt : str, optional
             A format string, e.g. 'ro' for red circles. See the *Notes*
@@ -1427,6 +1428,8 @@ class Axes(_AxesBase):
             Format strings are just an abbreviation for quickly setting
             basic line properties. All of these and more can also be
             controlled by keyword arguments.
+
+            This argument cannot be passed as keyword.
 
         data : indexable object, optional
             An object with labelled data. If given, provide the label names to
