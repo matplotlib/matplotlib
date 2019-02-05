@@ -7,7 +7,8 @@ import copy
 import numpy as np
 
 from matplotlib import (
-    artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
+    artist, cbook, lines as mlines, axis as maxis, patches as mpatches,
+    rcParams)
 from . import art3d, proj3d
 
 
@@ -133,6 +134,7 @@ class Axis(maxis.XAxis):
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
 
+    @cbook.deprecated("3.1")
     def get_tick_positions(self):
         majorLocs = self.major.locator()
         self.major.formatter.set_locs(majorLocs)
