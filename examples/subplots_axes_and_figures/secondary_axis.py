@@ -6,9 +6,9 @@ Secondary Axis
 Sometimes we want as secondary axis on a plot, for instance to convert
 radians to degrees on the same plot.  We can do this by making a child
 axes with only one axis visible via `.Axes.axes.secondary_xaxis` and
-`.Axes.axes.secondary_yaxis`.
-
-If we want to label the top of the axes:
+`.Axes.axes.secondary_yaxis`.  This secondary axis can have a different scale
+than the main axis by providing both a forward and an inverse conversion
+function in a tuple to the ``functions`` kwarg:
 """
 
 import matplotlib.pyplot as plt
@@ -18,22 +18,6 @@ import matplotlib.dates as mdates
 from matplotlib.transforms import Transform
 from matplotlib.ticker import (
     AutoLocator, AutoMinorLocator)
-
-fig, ax = plt.subplots(constrained_layout=True)
-x = np.arange(0, 360, 1)
-y = np.sin(2 * x * np.pi / 180)
-ax.plot(x, y)
-ax.set_xlabel('angle [degrees]')
-ax.set_ylabel('signal')
-ax.set_title('Sine wave')
-secax = ax.secondary_xaxis('top')
-plt.show()
-
-###########################################################################
-# However, its often useful to label the secondary axis with something
-# other than the labels in the main axis. In that case we need to provide
-# both a forward and an inverse conversion function in a tuple
-# to the ``functions`` kwarg:
 
 fig, ax = plt.subplots(constrained_layout=True)
 x = np.arange(0, 360, 1)
@@ -98,6 +82,7 @@ ax.plot(xdata, ydata, label='Plotted data')
 
 xold = np.arange(0, 11, 0.2)
 # fake data set relating x co-ordinate to another data-derived co-ordinate.
+# xnew must be monotonic, so we sort...
 xnew = np.sort(10 * np.exp(-xold / 4) + np.random.randn(len(xold)) / 3)
 
 ax.plot(xold[3:], xnew[3:], label='Transform data')

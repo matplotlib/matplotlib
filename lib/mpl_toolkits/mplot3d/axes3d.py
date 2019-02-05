@@ -829,7 +829,7 @@ class Axes3D(Axes):
 
     def set_zscale(self, value, **kwargs):
         """
-        Set the x-axis scale.
+        Set the z-axis scale.
 
         Parameters
         ----------

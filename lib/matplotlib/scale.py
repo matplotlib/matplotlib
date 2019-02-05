@@ -163,8 +163,7 @@ class FuncScale(ScaleBase):
 
         functions : (callable, callable)
             two-tuple of the forward and inverse functions for the scale.
-            The forward function must have an inverse and, for best behavior,
-            be monotonic.
+            The forward function must be monotonic
 
             Both functions must have the signature::
 
@@ -426,8 +425,7 @@ class FuncScaleLog(LogScale):
 
         functions : (callable, callable)
             two-tuple of the forward and inverse functions for the scale.
-            The forward function must have an inverse and, for best behavior,
-            be monotonic.
+            The forward function must be monotonic.
 
             Both functions must have the signature::
 
