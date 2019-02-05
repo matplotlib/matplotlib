@@ -114,7 +114,7 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         try {
             destbuffer = new agg::int8u[deststride * destheight];
         }
-        catch (std::bad_alloc) {
+        catch (const std::bad_alloc &) {
             TCL_APPEND_RESULT(interp, "could not allocate memory", (char *)NULL);
             return TCL_ERROR;
         }
