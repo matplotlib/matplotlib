@@ -1,0 +1,8 @@
+Changes to the internal tick handling API
+`````````````````````````````````````````
+
+``Axis.iter_ticks`` (which only served as a helper to the private
+``Axis._update_ticks``) is deprecated.
+
+The signature of the (private) ``Axis._update_ticks`` has been changed to not
+take the renderer as argument anymore (that argument is unused).
