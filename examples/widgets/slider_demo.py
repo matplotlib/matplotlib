@@ -48,15 +48,7 @@ button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')
 def reset(event):
     sfreq.reset()
     samp.reset()
+
+
 button.on_clicked(reset)
-
-rax = plt.axes([0.025, 0.5, 0.15, 0.15], facecolor=axcolor)
-radio = RadioButtons(rax, ('red', 'blue', 'green'), active=0)
-
-
-def colorfunc(label):
-    l.set_color(label)
-    fig.canvas.draw_idle()
-radio.on_clicked(colorfunc)
-
 plt.show()

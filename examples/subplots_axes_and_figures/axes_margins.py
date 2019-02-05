@@ -64,7 +64,7 @@ ax2.use_sticky_edges = False
 for ax, status in zip((ax1, ax2), ('Is', 'Is Not')):
     cells = ax.pcolor(x, y, x+y, cmap='inferno')  # sticky
     ax.add_patch(
-        plt.Polygon(poly_coords, color='forestgreen', alpha=0.5)
+        plt.Polygon(poly_coords, color='tab:green', alpha=0.5)
     )  # not sticky
     ax.margins(x=0.1, y=0.05)
     ax.set_aspect('equal')

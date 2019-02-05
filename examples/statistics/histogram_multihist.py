@@ -27,7 +27,7 @@ x = np.random.randn(1000, 3)
 fig, axes = plt.subplots(nrows=2, ncols=2)
 ax0, ax1, ax2, ax3 = axes.flatten()
 
-colors = ['red', 'tan', 'lime']
+colors = ['tab:red', 'tab:orange', 'tab:green']
 ax0.hist(x, n_bins, density=True, histtype='bar', color=colors, label=colors)
 ax0.legend(prop={'size': 10})
 ax0.set_title('bars with legend')

@@ -79,7 +79,7 @@ def pick_simple():
     # simple picking, lines, rectangles and text
     fig, (ax1, ax2) = plt.subplots(2, 1)
     ax1.set_title('click on points, rectangles or text', picker=True)
-    ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
+    ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='tab:red'))
     line, = ax1.plot(rand(100), 'o', picker=5)  # 5 points tolerance
 
     # pick the rectangle

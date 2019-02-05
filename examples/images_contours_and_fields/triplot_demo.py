@@ -39,7 +39,7 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
 
 fig1, ax1 = plt.subplots()
 ax1.set_aspect('equal')
-ax1.triplot(triang, 'bo-', lw=1)
+ax1.triplot(triang, marker='o', color='tab:blue', linestyle='-', lw=1)
 ax1.set_title('triplot of Delaunay triangulation')
 
 
@@ -98,7 +98,7 @@ triangles = np.asarray([
 
 fig2, ax2 = plt.subplots()
 ax2.set_aspect('equal')
-ax2.triplot(x, y, triangles, 'go-', lw=1.0)
+ax2.triplot(x, y, triangles, marker='o', color='tab:blue', linestyle='-', lw=1)
 ax2.set_title('triplot of user-specified triangulation')
 ax2.set_xlabel('Longitude (degrees)')
 ax2.set_ylabel('Latitude (degrees)')

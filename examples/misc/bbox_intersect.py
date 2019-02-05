@@ -30,9 +30,9 @@ for i in range(12):
     vertices = (np.random.random((2, 2)) - 0.5) * 6.0
     path = Path(vertices)
     if path.intersects_bbox(bbox):
-        color = 'r'
+        color = 'tab:red'
     else:
-        color = 'b'
+        color = 'tab:blue'
     ax.plot(vertices[:, 0], vertices[:, 1], color=color)
 
 plt.show()

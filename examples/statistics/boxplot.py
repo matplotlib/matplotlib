@@ -59,13 +59,13 @@ plt.show()
 ###############################################################################
 # Demonstrate how to customize the display different elements:
 
-boxprops = dict(linestyle='--', linewidth=3, color='darkgoldenrod')
-flierprops = dict(marker='o', markerfacecolor='green', markersize=12,
+boxprops = dict(linestyle='--', linewidth=3, color='tab:orange')
+flierprops = dict(marker='o', markerfacecolor='tab:green', markersize=12,
                   linestyle='none')
-medianprops = dict(linestyle='-.', linewidth=2.5, color='firebrick')
+medianprops = dict(linestyle='-.', linewidth=2.5, color='tab:red')
 meanpointprops = dict(marker='D', markeredgecolor='black',
-                      markerfacecolor='firebrick')
-meanlineprops = dict(linestyle='--', linewidth=2.5, color='purple')
+                      markerfacecolor='tab:red')
+meanlineprops = dict(linestyle='--', linewidth=2.5, color='tab:purple')
 
 fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
 axes[0, 0].boxplot(data, boxprops=boxprops)
@@ -92,6 +92,5 @@ for ax in axes.flatten():
     ax.set_yscale('log')
     ax.set_yticklabels([])
 
-fig.suptitle("I never said they'd be pretty")
 fig.subplots_adjust(hspace=0.4)
 plt.show()

@@ -1,7 +1,7 @@
 """
-====================================================
-Creating boxes from error bars using PatchCollection
-====================================================
+===========================================
+Boxes from error bars using PatchCollection
+===========================================
 
 In this example, we snazz up a pretty standard error bar plot by adding
 a rectangle patch defined by the limits of the bars in both the x- and
@@ -39,7 +39,7 @@ xerr = np.random.rand(2, n) + 0.1
 yerr = np.random.rand(2, n) + 0.2
 
 
-def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
+def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='tab:red',
                      edgecolor='None', alpha=0.5):
 
     # Create list for all the error patches

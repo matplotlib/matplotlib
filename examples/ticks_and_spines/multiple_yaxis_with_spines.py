@@ -38,9 +38,9 @@ make_patch_spines_invisible(par2)
 # Second, show the right spine.
 par2.spines["right"].set_visible(True)
 
-p1, = host.plot([0, 1, 2], [0, 1, 2], "b-", label="Density")
-p2, = par1.plot([0, 1, 2], [0, 3, 2], "r-", label="Temperature")
-p3, = par2.plot([0, 1, 2], [50, 30, 15], "g-", label="Velocity")
+p1, = host.plot([0, 1, 2], [0, 1, 2], label="Density", color='tab:blue')
+p2, = par1.plot([0, 1, 2], [0, 3, 2], label="Temperature", color='tab:orange')
+p3, = par2.plot([0, 1, 2], [50, 30, 15], label="Velocity", color='tab:green')
 
 host.set_xlim(0, 2)
 host.set_ylim(0, 2)

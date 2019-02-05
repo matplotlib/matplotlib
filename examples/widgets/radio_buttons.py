@@ -19,7 +19,7 @@ s1 = np.sin(4*np.pi*t)
 s2 = np.sin(8*np.pi*t)
 
 fig, ax = plt.subplots()
-l, = ax.plot(t, s0, lw=2, color='red')
+l, = ax.plot(t, s0, lw=2)
 plt.subplots_adjust(left=0.3)
 
 axcolor = 'lightgoldenrodyellow'
@@ -35,7 +35,7 @@ def hzfunc(label):
 radio.on_clicked(hzfunc)
 
 rax = plt.axes([0.05, 0.4, 0.15, 0.15], facecolor=axcolor)
-radio2 = RadioButtons(rax, ('red', 'blue', 'green'))
+radio2 = RadioButtons(rax, ('tab:red', 'tab:blue', 'tab:green'))
 
 
 def colorfunc(label):

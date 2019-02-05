@@ -16,6 +16,6 @@ fig, ax = plt.subplots()
 ax.plot(t, s)
 
 ax.grid(True, linestyle='-.')
-ax.tick_params(labelcolor='r', labelsize='medium', width=3)
+ax.tick_params(labelcolor='tab:red', labelsize='medium', width=3)
 
 plt.show()

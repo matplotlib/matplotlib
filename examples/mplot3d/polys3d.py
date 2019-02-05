@@ -44,7 +44,8 @@ for i in zs:
     ys = np.random.rand(len(xs))
     verts.append(polygon_under_graph(xs, ys))
 
-poly = PolyCollection(verts, facecolors=['r', 'g', 'b', 'y'], alpha=.6)
+colors = ['tab:red', 'tab:green', 'tab:blue', 'tab:orange']
+poly = PolyCollection(verts, facecolors=colors, alpha=.6)
 ax.add_collection3d(poly, zs=zs, zdir='y')
 
 ax.set_xlabel('X')

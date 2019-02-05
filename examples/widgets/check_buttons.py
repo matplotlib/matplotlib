@@ -19,9 +19,9 @@ s1 = np.sin(4*np.pi*t)
 s2 = np.sin(6*np.pi*t)
 
 fig, ax = plt.subplots()
-l0, = ax.plot(t, s0, visible=False, lw=2, color='k', label='2 Hz')
-l1, = ax.plot(t, s1, lw=2, color='r', label='4 Hz')
-l2, = ax.plot(t, s2, lw=2, color='g', label='6 Hz')
+l0, = ax.plot(t, s0, visible=False, lw=2, label='2 Hz')
+l1, = ax.plot(t, s1, lw=2, label='4 Hz')
+l2, = ax.plot(t, s2, lw=2, label='6 Hz')
 plt.subplots_adjust(left=0.2)
 
 lines = [l0, l1, l2]

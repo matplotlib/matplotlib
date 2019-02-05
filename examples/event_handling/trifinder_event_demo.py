@@ -53,8 +53,9 @@ trifinder = triang.get_trifinder()
 
 # Setup plot and callbacks.
 plt.subplot(111, aspect='equal')
-plt.triplot(triang, 'bo-')
-polygon = Polygon([[0, 0], [0, 0]], facecolor='y')  # dummy data for xs,ys
+plt.triplot(triang, marker='o', linestyle='-')
+# dummy data for xs,ys
+polygon = Polygon([[0, 0], [0, 0]], facecolor='tab:orange')
 update_polygon(-1)
 plt.gca().add_patch(polygon)
 plt.gcf().canvas.mpl_connect('motion_notify_event', motion_notify)

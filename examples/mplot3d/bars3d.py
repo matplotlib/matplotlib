@@ -20,7 +20,7 @@ np.random.seed(19680801)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-colors = ['r', 'g', 'b', 'y']
+colors = ['tab:red', 'tab:green', 'tab:blue', 'tab:orange']
 yticks = [3, 2, 1, 0]
 for c, k in zip(colors, yticks):
     # Generate the random data for the y=k 'layer'.
@@ -28,9 +28,9 @@ for c, k in zip(colors, yticks):
     ys = np.random.rand(20)
 
     # You can provide either a single color or an array with the same length as
-    # xs and ys. To demonstrate this, we color the first bar of each set cyan.
+    # xs and ys. To demonstrate this, we color the last bar of each set purple.
     cs = [c] * len(xs)
-    cs[0] = 'c'
+    cs[-1] = 'tab:purple'
 
     # Plot the bar graph given by xs and ys on the plane y=k with 80% opacity.
     ax.bar(xs, ys, zs=k, zdir='y', color=cs, alpha=0.8)

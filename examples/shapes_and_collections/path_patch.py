@@ -27,7 +27,7 @@ path_data = [
     ]
 codes, verts = zip(*path_data)
 path = mpath.Path(verts, codes)
-patch = mpatches.PathPatch(path, facecolor='r', alpha=0.5)
+patch = mpatches.PathPatch(path, facecolor='tab:red', alpha=0.5)
 ax.add_patch(patch)
 
 # plot control points and connecting lines

@@ -30,7 +30,7 @@ class RibbonBox:
     def get_stretched_image(self, stretch_factor):
         stretch_factor = max(stretch_factor, 1)
         ny, nx, nch = self.im.shape
-        ny2 = int(ny*stretch_factor)
+        ny2 = int(ny * stretch_factor)
         return np.vstack(
             [self.im[:self.cut_location],
              np.broadcast_to(
@@ -49,7 +49,7 @@ class RibbonBoxImage(BboxImage):
         bbox = self.get_window_extent(renderer)
         stretch_factor = bbox.height / bbox.width
 
-        ny = int(stretch_factor*self._ribbonbox.nx)
+        ny = int(stretch_factor * self._ribbonbox.nx)
         if self.get_array() is None or self.get_array().shape[0] != ny:
             arr = self._ribbonbox.get_stretched_image(stretch_factor)
             self.set_array(arr)
@@ -85,7 +85,7 @@ if True:
 
         ax.add_artist(rb_patch)
 
-        ax.annotate(r"%d" % (int(h/100.)*100),
+        ax.annotate(r"%d" % (int(h / 100) * 100),
                     (year, h), va="bottom", ha="center")
 
     patch_gradient = BboxImage(ax.bbox, interpolation="bicubic", zorder=0.1)

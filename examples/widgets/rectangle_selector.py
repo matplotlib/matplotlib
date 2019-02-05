@@ -37,9 +37,9 @@ fig, current_ax = plt.subplots()                 # make a new plotting range
 N = 100000                                       # If N is large one can see
 x = np.linspace(0.0, 10.0, N)                    # improvement by use blitting!
 
-plt.plot(x, +np.sin(.2*np.pi*x), lw=3.5, c='b', alpha=.7)  # plot something
-plt.plot(x, +np.cos(.2*np.pi*x), lw=3.5, c='r', alpha=.5)
-plt.plot(x, -np.sin(.2*np.pi*x), lw=3.5, c='g', alpha=.3)
+plt.plot(x, +np.sin(.2*np.pi*x), lw=3.5, alpha=.7)  # plot something
+plt.plot(x, +np.cos(.2*np.pi*x), lw=3.5, alpha=.5)
+plt.plot(x, -np.sin(.2*np.pi*x), lw=3.5, alpha=.3)
 
 print("\n      click  -->  release")
 

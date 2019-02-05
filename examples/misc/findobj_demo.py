@@ -31,7 +31,7 @@ def myfunc(x):
 
 
 for o in fig.findobj(myfunc):
-    o.set_color('blue')
+    o.set_color('tab:blue')
 
 # match on class instances
 for o in fig.findobj(text.Text):

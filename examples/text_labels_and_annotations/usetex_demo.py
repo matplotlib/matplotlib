@@ -36,11 +36,12 @@ plt.text(0, 0.1, r'$\delta$',
 plt.xticks((-1, 0, 1), ('$-1$', r'$\pm 0$', '$+1$'), color='k', size=20)
 
 # Left Y-axis labels, combine math mode and text mode
-plt.ylabel(r'\bf{phase field} $\phi$', {'color': 'C0', 'fontsize': 20})
+plt.ylabel(r'\bf{phase field} $\phi$', {'color': 'tab:blue', 'fontsize': 20})
 plt.yticks((0, 0.5, 1), (r'\bf{0}', r'\bf{.5}', r'\bf{1}'), color='k', size=20)
 
 # Right Y-axis labels
-plt.text(1.02, 0.5, r"\bf{level set} $\phi$", {'color': 'C2', 'fontsize': 20},
+plt.text(1.02, 0.5, r"\bf{level set} $\phi$",
+         {'color': 'tab:green', 'fontsize': 20},
          horizontalalignment='left',
          verticalalignment='center',
          rotation=90,
@@ -53,7 +54,8 @@ eq1 = r"\begin{eqnarray*}" + \
       r"|\nabla\phi| &=& 1,\\" + \
       r"\frac{\partial \phi}{\partial t} + U|\nabla \phi| &=& 0 " + \
       r"\end{eqnarray*}"
-plt.text(1, 0.9, eq1, {'color': 'C2', 'fontsize': 18}, va="top", ha="right")
+plt.text(1, 0.9, eq1, {'color': 'tab:green', 'fontsize': 18},
+         va="top", ha="right")
 
 # phase field equations
 eq2 = r'\begin{eqnarray*}' + \
@@ -61,9 +63,9 @@ eq2 = r'\begin{eqnarray*}' + \
       r'\frac{ \partial \phi } { \partial t } &=& -M_{ \phi } ' + \
       r'\frac{ \delta \mathcal{F} } { \delta \phi }' + \
       r'\end{eqnarray*}'
-plt.text(0.18, 0.18, eq2, {'color': 'C0', 'fontsize': 16})
+plt.text(0.18, 0.18, eq2, {'color': 'tab:blue', 'fontsize': 16})
 
-plt.text(-1, .30, r'gamma: $\gamma$', {'color': 'r', 'fontsize': 20})
-plt.text(-1, .18, r'Omega: $\Omega$', {'color': 'b', 'fontsize': 20})
+plt.text(-1, .30, r'gamma: $\gamma$', {'color': 'tab:red', 'fontsize': 20})
+plt.text(-1, .18, r'Omega: $\Omega$', {'color': 'tab:blue', 'fontsize': 20})
 
 plt.show()

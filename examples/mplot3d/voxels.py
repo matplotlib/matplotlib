@@ -26,9 +26,9 @@ voxels = cube1 | cube2 | link
 
 # set the colors of each object
 colors = np.empty(voxels.shape, dtype=object)
-colors[link] = 'red'
-colors[cube1] = 'blue'
-colors[cube2] = 'green'
+colors[link] = 'tab:red'
+colors[cube1] = 'tab:blue'
+colors[cube2] = 'tab:green'
 
 # and plot everything
 fig = plt.figure()
