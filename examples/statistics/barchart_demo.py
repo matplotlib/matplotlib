@@ -28,9 +28,9 @@ width = 0.35  # the width of the bars
 
 fig, ax = plt.subplots()
 rects1 = ax.bar(ind - width/2, men_means, width, yerr=men_std,
-                color='skyblue', label='Men')
+                color='SkyBlue', label='Men')
 rects2 = ax.bar(ind + width/2, women_means, width, yerr=women_std,
-                color='indianred', label='Women')
+                color='IndianRed', label='Women')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Scores')
