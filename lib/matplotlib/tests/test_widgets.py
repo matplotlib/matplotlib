@@ -1096,8 +1096,10 @@ def test_TextBox(ax, toolbar):
     assert text_change_event.call_count == 3
 
 
-def test_RadioButtons(ax):
-    radio = widgets.RadioButtons(ax, ('Radio 1', 'Radio 2', 'Radio 3'))
+@pytest.mark.parametrize('orientation', ['vertical', 'horizontal'])
+def test_RadioButtons(ax, orientation):
+    radio = widgets.RadioButtons(ax, ('Radio 1', 'Radio 2', 'Radio 3'),
+                                 orientation=orientation)
     radio.set_active(1)
     assert radio.value_selected == 'Radio 2'
     assert radio.index_selected == 1
