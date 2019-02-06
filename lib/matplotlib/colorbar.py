@@ -1437,7 +1437,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
 
-    cax = fig.add_axes(pbcb)
+    cax = fig.add_axes(pbcb, label="<colorbar>")
 
     # OK, now make a layoutbox for the cb axis.  Later, we will use this
     # to make the colorbar fit nicely.
@@ -1551,7 +1551,7 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     parent.set_anchor(panchor)
 
     fig = parent.get_figure()
-    cax = fig.add_subplot(gs2[1])
+    cax = fig.add_subplot(gs2[1], label="<colorbar>")
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
 

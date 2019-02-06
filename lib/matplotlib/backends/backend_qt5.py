@@ -758,30 +758,31 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             return size
 
     def edit_parameters(self):
-        allaxes = self.canvas.figure.get_axes()
-        if not allaxes:
+        axes = self.canvas.figure.get_axes()
+        if not axes:
             QtWidgets.QMessageBox.warning(
                 self.parent, "Error", "There are no axes to edit.")
             return
-        elif len(allaxes) == 1:
-            axes, = allaxes
+        elif len(axes) == 1:
+            ax, = axes
         else:
-            titles = []
-            for axes in allaxes:
-                name = (axes.get_title() or
-                        " - ".join(filter(None, [axes.get_xlabel(),
-                                                 axes.get_ylabel()])) or
-                        "<anonymous {} (id: {:#x})>".format(
-                            type(axes).__name__, id(axes)))
-                titles.append(name)
+            titles = [
+                ax.get_label() or
+                ax.get_title() or
+                " - ".join(filter(None, [ax.get_xlabel(), ax.get_ylabel()])) or
+                f"<anonymous {type(ax).__name__}>"
+                for ax in axes]
+            duplicate_titles = [
+                title for title in titles if titles.count(title) > 1]
+            for i, ax in enumerate(axes):
+                if titles[i] in duplicate_titles:
+                    titles[i] += f" (id: {id(ax):#x})"  # Deduplicate titles.
             item, ok = QtWidgets.QInputDialog.getItem(
                 self.parent, 'Customize', 'Select axes:', titles, 0, False)
-            if ok:
-                axes = allaxes[titles.index(item)]
-            else:
+            if not ok:
                 return
-
-        figureoptions.figure_edit(axes, self)
+            ax = axes[titles.index(item)]
+        figureoptions.figure_edit(ax, self)
 
     def _update_buttons_checked(self):
         # sync button checkstates to match active mode
