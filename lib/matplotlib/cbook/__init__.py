@@ -33,6 +33,7 @@ import numpy as np
 import matplotlib
 from .deprecation import (
     deprecated, warn_deprecated, _rename_parameter,
+    _suppress_matplotlib_deprecation_warning,
     MatplotlibDeprecationWarning, mplDeprecation)
 
 

@@ -1,10 +1,7 @@
-import warnings
-
 import pytest
 
 import matplotlib
 from matplotlib import cbook
-from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 def pytest_configure(config):
@@ -53,8 +50,7 @@ def mpl_test_settings(request):
                                 .format(backend, exc))
                 else:
                     raise
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+        with cbook._suppress_matplotlib_deprecation_warning():
             matplotlib.style.use(style)
         try:
             yield

@@ -1,5 +1,7 @@
+import contextlib
 import functools
 import inspect
+import warnings
 
 
 class MatplotlibDeprecationWarning(UserWarning):
@@ -306,3 +308,10 @@ def _rename_parameter(since, old, new, func=None):
     # pyplot would explicitly pass both arguments to the Axes method.
 
     return wrapper
+
+
+@contextlib.contextmanager
+def _suppress_matplotlib_deprecation_warning():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+        yield
