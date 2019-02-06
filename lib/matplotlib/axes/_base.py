@@ -3633,7 +3633,7 @@ class _AxesBase(martist.Artist):
 
     def get_yscale(self):
         """
-        Return the x-axis scale as string.
+        Return the y-axis scale as string.
 
         See Also
         --------
