@@ -731,36 +731,3 @@ code example page with the keyword ``codex`` for *code example* which
 shouldn't appear anywhere else on this site except in the FAQ.
 So if you want to search for an example that uses an
 ellipse, :ref:`search` for ``codex ellipse``.
-
-
-.. _how-to-cite-mpl:
-
-Cite Matplotlib
-===============
-
-If you want to refer to Matplotlib in a publication, you can use
-"Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
-in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `this
-reference page <https://doi.org/10.1109/MCSE.2007.55>`_)::
-
-  @article{Hunter:2007,
-	  Address = {10662 LOS VAQUEROS CIRCLE, PO BOX 3014, LOS ALAMITOS, CA 90720-1314 USA},
-	  Author = {Hunter, John D.},
-	  Date-Added = {2010-09-23 12:22:10 -0700},
-	  Date-Modified = {2010-09-23 12:22:10 -0700},
-	  Isi = {000245668100019},
-	  Isi-Recid = {155389429},
-	  Journal = {Computing In Science \& Engineering},
-	  Month = {May-Jun},
-	  Number = {3},
-	  Pages = {90--95},
-	  Publisher = {IEEE COMPUTER SOC},
-	  Times-Cited = {21},
-	  Title = {Matplotlib: A 2D graphics environment},
-	  Type = {Editorial Material},
-	  Volume = {9},
-	  Year = {2007},
-	  Abstract = {Matplotlib is a 2D graphics package used for Python for application
-                      development, interactive scripting, and publication-quality image
-                      generation across user interfaces and operating systems.},
-	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}
