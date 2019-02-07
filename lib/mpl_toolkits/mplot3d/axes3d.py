@@ -2361,17 +2361,13 @@ class Axes3D(Axes):
         xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
-        is_2d = not np.iterable(zs)
-        zs = np.broadcast_to(zs, len(xs))
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
                                         depthshade=depthshade)
 
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
 
-        #FIXME: why is this necessary?
-        if not is_2d:
-            self.auto_scale_xyz(xs, ys, zs, had_data)
+        self.auto_scale_xyz(xs, ys, zs, had_data)
 
         return patches
 
