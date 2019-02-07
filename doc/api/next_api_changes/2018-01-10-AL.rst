@@ -16,6 +16,11 @@ In each case, the old parameter name remains supported (it cannot be used
 simultaneously with the new name), but suppport for it will be dropped in
 Matplotlib 3.3.
 
+- The unused ``shape`` and ``imlim`` parameters to `Axes.imshow` are
+  deprecated.  To avoid triggering the deprecation warning, the ``filternorm``,
+  ``filterrad``, ``resample``, and ``url`` arguments should be passed by
+  keyword.
+
 Deprecations
 ````````````
 

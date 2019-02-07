@@ -5395,6 +5395,8 @@ optional.
 
     #### plotting z(x,y): imshow, pcolor and relatives, contour
     @_preprocess_data()
+    @cbook._delete_parameter("3.1", "shape")
+    @cbook._delete_parameter("3.1", "imlim")
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=None, vmin=None, vmax=None,
                origin=None, extent=None, shape=None, filternorm=1,
@@ -5507,9 +5509,6 @@ optional.
 
             See the example :doc:`/tutorials/intermediate/imshow_extent` for a
             more detailed description.
-
-        shape : scalars (columns, rows), optional, default: None
-            For raw buffer images.
 
         filternorm : bool, optional, default: True
             A parameter for the antigrain image resize filter (see the

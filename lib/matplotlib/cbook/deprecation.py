@@ -310,6 +310,63 @@ def _rename_parameter(since, old, new, func=None):
     return wrapper
 
 
+class _deprecated_parameter_class:
+    def __repr__(self):
+        return "<deprecated parameter>"
+
+
+_deprecated_parameter = _deprecated_parameter_class()
+
+
+def _delete_parameter(since, name, func=None):
+    """
+    Decorator indicating that parameter *name* of *func* is being deprecated.
+
+    The actual implementation of *func* should keep the *name* parameter in its
+    signature.
+
+    Parameters that come after the deprecated parameter effectively become
+    keyword-only (as they cannot be passed positionally without triggering the
+    DeprecationWarning on the deprecated parameter), and should be marked as
+    such after the deprecation period has passed and the deprecated parameter
+    is removed.
+
+    Examples
+    --------
+
+    ::
+        @_delete_parameter("3.1", "unused")
+        def func(used_arg, other_arg, unused, more_args): ...
+    """
+
+    if func is None:
+        return functools.partial(_delete_parameter, since, name)
+
+    signature = inspect.signature(func)
+    assert name in signature.parameters, (
+        f"Matplotlib internal error: {name!r} must be a parameter for "
+        f"{func.__name__}()")
+    func.__signature__ = signature.replace(parameters=[
+        param.replace(default=_deprecated_parameter) if param.name == name
+        else param
+        for param in signature.parameters.values()])
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        arguments = func.__signature__.bind(*args, **kwargs).arguments
+        # We cannot just check `name not in arguments` because the pyplot
+        # wrappers always pass all arguments explicitly.
+        if name in arguments and arguments[name] != _deprecated_parameter:
+            warn_deprecated(
+                since, message=f"The {name!r} parameter of {func.__name__}() "
+                f"is deprecated since Matplotlib {since} and will be removed "
+                f"%(removal)s.  If any parameter follows {name!r}, they "
+                f"should be pass as keyword, not positionally.")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 @contextlib.contextmanager
 def _suppress_matplotlib_deprecation_warning():
     with warnings.catch_warnings():
