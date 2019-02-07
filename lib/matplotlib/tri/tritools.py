@@ -180,12 +180,11 @@ class TriAnalyzer(object):
         while nadd != 0:
             # The active wavefront is the triangles from the border (unmasked
             # but with a least 1 neighbor equal to -1
-            wavefront = ((np.min(valid_neighbors, axis=1) == -1)
-                         & ~current_mask)
+            wavefront = (np.min(valid_neighbors, axis=1) == -1) & ~current_mask
             # The element from the active wavefront will be masked if their
             # circle ratio is bad.
-            added_mask = np.logical_and(wavefront, mask_bad_ratio)
-            current_mask = (added_mask | current_mask)
+            added_mask = wavefront & mask_bad_ratio
+            current_mask = added_mask | current_mask
             nadd = np.sum(added_mask)
 
             # now we have to update the tables valid_neighbors
