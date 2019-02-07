@@ -167,18 +167,18 @@ def is_min_version(found, minversion):
 # Define the display functions only if display_status is True.
 if options['display_status']:
     def print_line(char='='):
-        print(char * 79)
+        print(char * 80)
 
     def print_status(package, status):
-        initial_indent = "%18s: " % package
-        indent = ' ' * 24
-        print(textwrap.fill(str(status), width=79,
+        initial_indent = "%12s: " % package
+        indent = ' ' * 18
+        print(textwrap.fill(str(status), width=80,
                             initial_indent=initial_indent,
                             subsequent_indent=indent))
 
     def print_message(message):
-        indent = ' ' * 24 + "* "
-        print(textwrap.fill(str(message), width=79,
+        indent = ' ' * 18 + "* "
+        print(textwrap.fill(str(message), width=80,
                             initial_indent=indent,
                             subsequent_indent=indent))
 
@@ -593,16 +593,6 @@ class Python(SetupPackage):
     name = "python"
 
     def check(self):
-        if sys.version_info < (3, 5):
-            error = """
-Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
-Beginning with Matplotlib 3.0, Python 3.5 and above is required.
-
-This may be due to an out of date pip.
-
-Make sure you have pip >= 9.0.1.
-"""
-            raise CheckFailed(error)
         return sys.version
 
 
@@ -637,6 +627,14 @@ class Matplotlib(SetupPackage):
                 *_pkg_data_helper('matplotlib', 'backends/web_backend'),
             ],
         }
+
+    def get_install_requires(self):
+        return [
+            "cycler>=0.10",
+            "kiwisolver>=1.0.1",
+            "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
+            "python-dateutil>=2.1",
+        ]
 
 
 class SampleData(OptionalPackage):
@@ -1105,21 +1103,6 @@ class Tri(SetupPackage):
         ext = make_extension('matplotlib._tri', sources)
         Numpy().add_flags(ext)
         return ext
-
-
-class InstallRequires(SetupPackage):
-    name = "install_requires"
-
-    def check(self):
-        return "handled by setuptools"
-
-    def get_install_requires(self):
-        return [
-            "cycler>=0.10",
-            "kiwisolver>=1.0.1",
-            "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
-            "python-dateutil>=2.1",
-        ]
 
 
 class BackendAgg(OptionalBackendPackage):
