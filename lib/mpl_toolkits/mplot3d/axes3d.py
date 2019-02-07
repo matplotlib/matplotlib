@@ -490,22 +490,16 @@ class Axes3D(Axes):
                                          scalez=scalez)
 
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
-        x, y, z = map(np.asarray, (X, Y, Z))
-        try:
-            x, y = x.flatten(), y.flatten()
-            if Z is not None:
-                z = z.flatten()
-        except AttributeError:
-            raise
-
-        # This updates the bounding boxes as to keep a record as
-        # to what the minimum sized rectangular volume holds the
-        # data.
-        self.xy_dataLim.update_from_data_xy(np.array([x, y]).T, not had_data)
-        if z is not None:
+        # This updates the bounding boxes as to keep a record as to what the
+        # minimum sized rectangular volume holds the data.
+        X = np.reshape(X, -1)
+        Y = np.reshape(Y, -1)
+        self.xy_dataLim.update_from_data_xy(
+            np.column_stack([X, Y]), not had_data)
+        if Z is not None:
+            Z = np.reshape(Z, -1)
             self.zz_dataLim.update_from_data_xy(
-                np.array([z, z]).T, not had_data)
-
+                np.column_stack([Z, Z]), not had_data)
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
 
