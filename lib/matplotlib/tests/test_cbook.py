@@ -47,23 +47,21 @@ class Test_delete_masked_points(object):
     def test_string_seq(self):
         actual = dmp(self.arr_s, self.arr1)
         ind = [0, 1, 2, 5]
-        expected = (self.arr_s2.take(ind), self.arr2.take(ind))
+        expected = (self.arr_s2[ind], self.arr2[ind])
         assert_array_equal(actual[0], expected[0])
         assert_array_equal(actual[1], expected[1])
 
     def test_datetime(self):
         actual = dmp(self.arr_dt, self.arr3)
-        ind = [0, 1,  5]
-        expected = (self.arr_dt2.take(ind),
-                    self.arr3.take(ind).compressed())
+        ind = [0, 1, 5]
+        expected = (self.arr_dt2[ind], self.arr3[ind].compressed())
         assert_array_equal(actual[0], expected[0])
         assert_array_equal(actual[1], expected[1])
 
     def test_rgba(self):
         actual = dmp(self.arr3, self.arr_rgba)
         ind = [0, 1, 5]
-        expected = (self.arr3.take(ind).compressed(),
-                    self.arr_rgba.take(ind, axis=0))
+        expected = (self.arr3[ind].compressed(), self.arr_rgba[ind])
         assert_array_equal(actual[0], expected[0])
         assert_array_equal(actual[1], expected[1])
 

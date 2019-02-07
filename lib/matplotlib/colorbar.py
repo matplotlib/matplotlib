@@ -741,13 +741,11 @@ class ColorbarBase(_ColorbarMappableDummy):
         '''
         N = X.shape[0]
         ii = [0, 1, N - 2, N - 1, 2 * N - 1, 2 * N - 2, N + 1, N, 0]
-        x = np.take(np.ravel(np.transpose(X)), ii)
-        y = np.take(np.ravel(np.transpose(Y)), ii)
-        x = x.reshape((len(x), 1))
-        y = y.reshape((len(y), 1))
-        if self.orientation == 'horizontal':
-            return np.hstack((y, x))
-        return np.hstack((x, y))
+        x = X.T.reshape(-1)[ii]
+        y = Y.T.reshape(-1)[ii]
+        return (np.column_stack([y, x])
+                if self.orientation == 'horizontal' else
+                np.column_stack([x, y]))
 
     def _edges(self, X, Y):
         '''
@@ -1121,10 +1119,10 @@ class ColorbarBase(_ColorbarMappableDummy):
         i0[ibot] += 1
         ii[ibot] += 1
 
-        db = np.take(b, ii) - np.take(b, i0)
         y = self._y
-        dy = np.take(y, ii) - np.take(y, i0)
-        z = np.take(y, i0) + (xn - np.take(b, i0)) * dy / db
+        db = b[ii] - b[i0]
+        dy = y[ii] - y[i0]
+        z = y[i0] + (xn - b[i0]) * dy / db
         return z
 
     def set_alpha(self, alpha):
