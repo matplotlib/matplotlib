@@ -1341,7 +1341,7 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
     # Jacobi pre-conditioner
     kvec = A.diag
     # For diag elem < 1e-6 we keep 1e-6.
-    kvec = np.where(kvec > 1.e-6, kvec, 1.e-6)
+    kvec = np.maximum(kvec, 1e-6)
 
     # Initial guess
     if x0 is None:
