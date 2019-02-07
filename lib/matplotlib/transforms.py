@@ -282,7 +282,7 @@ class BboxBase(TransformNode):
 
     def is_unit(self):
         """Return whether this is the unit box (from (0, 0) to (1, 1))."""
-        return list(self.get_points().flatten()) == [0., 0., 1., 1.]
+        return self.get_points().tolist() == [[0., 0.], [1., 1.]]
 
     @property
     def x0(self):
@@ -413,13 +413,13 @@ class BboxBase(TransformNode):
     @property
     def bounds(self):
         """Return (:attr:`x0`, :attr:`y0`, :attr:`width`, :attr:`height`)."""
-        x0, y0, x1, y1 = self.get_points().flatten()
+        (x0, y0), (x1, y1) = self.get_points()
         return (x0, y0, x1 - x0, y1 - y0)
 
     @property
     def extents(self):
         """Return (:attr:`x0`, :attr:`y0`, :attr:`x1`, :attr:`y1`)."""
-        return self.get_points().flatten().copy()
+        return self.get_points().flatten()  # flatten returns a copy.
 
     def get_points(self):
         raise NotImplementedError
@@ -1758,10 +1758,10 @@ class Affine2DBase(AffineBase):
 
     def to_values(self):
         """
-        Return the values of the matrix as a sequence (a,b,c,d,e,f)
+        Return the values of the matrix as an ``(a, b, c, d, e, f)`` tuple.
         """
         mtx = self.get_matrix()
-        return tuple(mtx[:2].swapaxes(0, 1).flatten())
+        return tuple(mtx[:2].swapaxes(0, 1).flat)
 
     @staticmethod
     def matrix_from_values(a, b, c, d, e, f):
