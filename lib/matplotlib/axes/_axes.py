@@ -5814,23 +5814,21 @@ optional.
         # don't plot if C or any of the surrounding vertices are masked.
         mask = ma.getmaskarray(C) + xymask
 
-        compress = np.compress
-
-        ravelmask = (mask == 0).ravel()
-        X1 = compress(ravelmask, ma.filled(X[:-1, :-1]).ravel())
-        Y1 = compress(ravelmask, ma.filled(Y[:-1, :-1]).ravel())
-        X2 = compress(ravelmask, ma.filled(X[1:, :-1]).ravel())
-        Y2 = compress(ravelmask, ma.filled(Y[1:, :-1]).ravel())
-        X3 = compress(ravelmask, ma.filled(X[1:, 1:]).ravel())
-        Y3 = compress(ravelmask, ma.filled(Y[1:, 1:]).ravel())
-        X4 = compress(ravelmask, ma.filled(X[:-1, 1:]).ravel())
-        Y4 = compress(ravelmask, ma.filled(Y[:-1, 1:]).ravel())
+        unmask = ~mask
+        X1 = ma.filled(X[:-1, :-1])[unmask]
+        Y1 = ma.filled(Y[:-1, :-1])[unmask]
+        X2 = ma.filled(X[1:, :-1])[unmask]
+        Y2 = ma.filled(Y[1:, :-1])[unmask]
+        X3 = ma.filled(X[1:, 1:])[unmask]
+        Y3 = ma.filled(Y[1:, 1:])[unmask]
+        X4 = ma.filled(X[:-1, 1:])[unmask]
+        Y4 = ma.filled(Y[:-1, 1:])[unmask]
         npoly = len(X1)
 
         xy = np.stack([X1, Y1, X2, Y2, X3, Y3, X4, Y4, X1, Y1], axis=-1)
         verts = xy.reshape((npoly, 5, 2))
 
-        C = compress(ravelmask, ma.filled(C[0:Ny - 1, 0:Nx - 1]).ravel())
+        C = ma.filled(C[:Ny - 1, :Nx - 1])[unmask]
 
         linewidths = (0.25,)
         if 'linewidth' in kwargs:
