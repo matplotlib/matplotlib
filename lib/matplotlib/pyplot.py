@@ -25,7 +25,6 @@ from numbers import Number
 import re
 import sys
 import time
-import warnings
 
 from cycler import cycler
 import matplotlib
@@ -2262,9 +2261,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     if plotfuncs is None:
         plotfuncs = {}
-    from matplotlib.cbook import MatplotlibDeprecationWarning
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
+    with cbook._suppress_matplotlib_deprecation_warning():
         r = mlab._csv2rec(fname, comments=comments, skiprows=skiprows,
                           checkrows=checkrows, delimiter=delimiter,
                           names=names)

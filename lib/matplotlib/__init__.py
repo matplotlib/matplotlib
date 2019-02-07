@@ -132,7 +132,6 @@ import shutil
 import subprocess
 import tempfile
 import urllib.request
-import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
@@ -760,8 +759,7 @@ class RcParams(MutableMapping, dict):
 
     def __iter__(self):
         """Yield sorted list of keys."""
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
+        with cbook._suppress_matplotlib_deprecation_warning():
             yield from sorted(dict.__iter__(self))
 
     def __len__(self):
@@ -917,8 +915,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     iter_params = defaultParams.items()
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+    with cbook._suppress_matplotlib_deprecation_warning():
         config = RcParams([(key, default) for key, (default, _) in iter_params
                            if key not in _all_deprecated])
     config.update(config_from_file)
@@ -958,8 +955,7 @@ if dict.__getitem__(rcParams, 'examples.directory'):
         rcParams['examples.directory'] = _fullpath
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+with cbook._suppress_matplotlib_deprecation_warning():
     rcParamsOrig = RcParams(rcParams.copy())
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                                 defaultParams.items()
@@ -1062,8 +1058,7 @@ def rcdefaults():
     """
     # Deprecation warnings were already handled when creating rcParamsDefault,
     # no need to reemit them here.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", mplDeprecation)
+    with cbook._suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
         rcParams.clear()
         rcParams.update({k: v for k, v in rcParamsDefault.items()
@@ -1079,8 +1074,7 @@ def rc_file_defaults():
     """
     # Deprecation warnings were already handled when creating rcParamsOrig, no
     # need to reemit them here.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", mplDeprecation)
+    with cbook._suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
         rcParams.update({k: rcParamsOrig[k] for k in rcParamsOrig
                          if k not in STYLE_BLACKLIST})
@@ -1106,8 +1100,7 @@ def rc_file(fname, *, use_default_template=True):
     """
     # Deprecation warnings were already handled in rc_params_from_file, no need
     # to reemit them here.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", mplDeprecation)
+    with cbook._suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
         rc_from_file = rc_params_from_file(
             fname, use_default_template=use_default_template)

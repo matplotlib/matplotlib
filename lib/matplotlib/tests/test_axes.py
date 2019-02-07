@@ -5608,14 +5608,12 @@ def test_none_kwargs():
 
 
 def test_ls_ds_conflict():
-    with warnings.catch_warnings():
-        # Passing the drawstyle with the linestyle is deprecated since 3.1.
-        # We still need to test this until it's removed from the code.
-        # But we don't want to see the deprecation warning in the test.
-        warnings.filterwarnings('ignore',
-                                category=MatplotlibDeprecationWarning)
-        with pytest.raises(ValueError):
-            plt.plot(range(32), linestyle='steps-pre:', drawstyle='steps-post')
+    # Passing the drawstyle with the linestyle is deprecated since 3.1.
+    # We still need to test this until it's removed from the code.
+    # But we don't want to see the deprecation warning in the test.
+    with matplotlib.cbook._suppress_matplotlib_deprecation_warning(), \
+         pytest.raises(ValueError):
+        plt.plot(range(32), linestyle='steps-pre:', drawstyle='steps-post')
 
 
 def test_bar_uint8():
