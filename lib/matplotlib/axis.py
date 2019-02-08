@@ -230,11 +230,10 @@ class Tick(martist.Artist):
         return children
 
     def set_clip_path(self, clippath, transform=None):
+        # docstring inherited
         martist.Artist.set_clip_path(self, clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
         self.stale = True
-
-    set_clip_path.__doc__ = martist.Artist.set_clip_path.__doc__
 
     def get_pad_pixels(self):
         return self.figure.dpi * self._base_pad / 72

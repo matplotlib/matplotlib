@@ -1175,12 +1175,11 @@ class Barbs(mcollections.PolyCollection):
     def set_offsets(self, xy):
         """
         Set the offsets for the barb polygons.  This saves the offsets passed
-        in and actually sets version masked as appropriate for the existing
-        U/V data. *offsets* should be a sequence.
+        in and masks them as appropriate for the existing U/V data.
 
         Parameters
         ----------
-        offsets : sequence of pairs of floats
+        xy : sequence of pairs of floats
         """
         self.x = xy[:, 0]
         self.y = xy[:, 1]
@@ -1190,7 +1189,5 @@ class Barbs(mcollections.PolyCollection):
         xy = np.column_stack((x, y))
         mcollections.PolyCollection.set_offsets(self, xy)
         self.stale = True
-
-    set_offsets.__doc__ = mcollections.PolyCollection.set_offsets.__doc__
 
     barbs_doc = _barbs_doc

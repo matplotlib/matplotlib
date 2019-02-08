@@ -162,25 +162,21 @@ class BboxPatch(Patch):
         self.bbox = bbox
 
     def get_path(self):
+        # docstring inherited
         x0, y0, x1, y1 = self.bbox.extents
-
         verts = [(x0, y0),
                  (x1, y0),
                  (x1, y1),
                  (x0, y1),
                  (x0, y0),
                  (0, 0)]
-
         codes = [Path.MOVETO,
                  Path.LINETO,
                  Path.LINETO,
                  Path.LINETO,
                  Path.LINETO,
                  Path.CLOSEPOLY]
-
         return Path(verts, codes)
-
-    get_path.__doc__ = Patch.get_path.__doc__
 
 
 class BboxConnector(Patch):
@@ -316,10 +312,9 @@ class BboxConnector(Patch):
         self.loc2 = loc2
 
     def get_path(self):
+        # docstring inherited
         return self.connect_bbox(self.bbox1, self.bbox2,
                                  self.loc1, self.loc2)
-
-    get_path.__doc__ = Patch.get_path.__doc__
 
 
 class BboxConnectorPatch(BboxConnector):
@@ -367,13 +362,12 @@ class BboxConnectorPatch(BboxConnector):
         self.loc2b = loc2b
 
     def get_path(self):
+        # docstring inherited
         path1 = self.connect_bbox(self.bbox1, self.bbox2, self.loc1, self.loc2)
         path2 = self.connect_bbox(self.bbox2, self.bbox1,
                                   self.loc2b, self.loc1b)
         path_merged = [*path1.vertices, *path2.vertices, path1.vertices[0]]
         return Path(path_merged)
-
-    get_path.__doc__ = BboxConnector.get_path.__doc__
 
 
 def _add_inset_axes(parent_axes, inset_axes):
