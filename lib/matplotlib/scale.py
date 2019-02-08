@@ -163,7 +163,7 @@ class FuncScale(ScaleBase):
 
         functions : (callable, callable)
             two-tuple of the forward and inverse functions for the scale.
-            The forward function must be monotonic
+            The forward function must be monotonic.
 
             Both functions must have the signature::
 
@@ -411,7 +411,7 @@ class LogScale(ScaleBase):
 class FuncScaleLog(LogScale):
     """
     Provide an arbitrary scale with user-supplied function for the axis and
-    then put on a logarithmic axes
+    then put on a logarithmic axes.
     """
 
     name = 'functionlog'

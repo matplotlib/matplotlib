@@ -441,7 +441,7 @@ functions : 2-tuple of func, or Transform with an inverse
 
     If a 2-tuple of functions, the user specifies the transform
     function and its inverse.  i.e.
-    `functions=(lamda x: 2 / x, lambda x: 2 / x)` would be an
+    `functions=(lambda x: 2 / x, lambda x: 2 / x)` would be an
     reciprocal transform with a factor of 2.
 
     The user can also directly supply a subclass of

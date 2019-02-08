@@ -613,8 +613,7 @@ class Axes(_AxesBase):
         Examples
         --------
 
-        Add a secondary axes that shows both wavelength for the main
-        axes that shows wavenumber.
+        The main axis shows frequency, and the secondary axis shows period.
 
         .. plot::
 
