@@ -1023,6 +1023,7 @@ class TransformedBbox(BboxBase):
                         _indent_str(self._transform)))
 
     def get_points(self):
+        # docstring inherited
         if self._invalid:
             p = self._bbox.get_points()
             # Transform all four points, then make a new bounding box
@@ -1050,7 +1051,6 @@ class TransformedBbox(BboxBase):
 
             self._invalid = 0
         return self._points
-    get_points.__doc__ = Bbox.get_points.__doc__
 
     if DEBUG:
         _get_points = get_points
@@ -1108,6 +1108,7 @@ class LockableBbox(BboxBase):
                         _indent_str(self._locked_points)))
 
     def get_points(self):
+        # docstring inherited
         if self._invalid:
             points = self._bbox.get_points()
             self._points = np.where(self._locked_points.mask,
@@ -1115,7 +1116,6 @@ class LockableBbox(BboxBase):
                                     self._locked_points)
             self._invalid = 0
         return self._points
-    get_points.__doc__ = Bbox.get_points.__doc__
 
     if DEBUG:
         _get_points = get_points
@@ -1630,8 +1630,8 @@ class TransformWrapper(Transform):
                         _indent_str(self._child)))
 
     def frozen(self):
+        # docstring inherited
         return self._child.frozen()
-    frozen.__doc__ = Transform.frozen.__doc__
 
     def _set(self, child):
         self._child = child
@@ -1696,34 +1696,34 @@ class AffineBase(Transform):
         return NotImplemented
 
     def transform(self, values):
+        # docstring inherited
         return self.transform_affine(values)
-    transform.__doc__ = Transform.transform.__doc__
 
     def transform_affine(self, values):
+        # docstring inherited
         raise NotImplementedError('Affine subclasses should override this '
                                   'method.')
-    transform_affine.__doc__ = Transform.transform_affine.__doc__
 
     def transform_non_affine(self, points):
+        # docstring inherited
         return points
-    transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
     def transform_path(self, path):
+        # docstring inherited
         return self.transform_path_affine(path)
-    transform_path.__doc__ = Transform.transform_path.__doc__
 
     def transform_path_affine(self, path):
+        # docstring inherited
         return Path(self.transform_affine(path.vertices),
                     path.codes, path._interpolation_steps)
-    transform_path_affine.__doc__ = Transform.transform_path_affine.__doc__
 
     def transform_path_non_affine(self, path):
+        # docstring inherited
         return path
-    transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
 
     def get_affine(self):
+        # docstring inherited
         return self
-    get_affine.__doc__ = Transform.get_affine.__doc__
 
 
 class Affine2DBase(AffineBase):
@@ -1748,8 +1748,8 @@ class Affine2DBase(AffineBase):
     output_dims = 2
 
     def frozen(self):
+        # docstring inherited
         return Affine2D(self.get_matrix().copy())
-    frozen.__doc__ = AffineBase.frozen.__doc__
 
     @property
     def is_separable(self):
@@ -1783,26 +1783,26 @@ class Affine2DBase(AffineBase):
         return affine_transform(points, mtx)
 
     def transform_point(self, point):
+        # docstring inherited
         mtx = self.get_matrix()
         return affine_transform([point], mtx)[0]
-    transform_point.__doc__ = AffineBase.transform_point.__doc__
 
     if DEBUG:
         _transform_affine = transform_affine
 
         def transform_affine(self, points):
+            # docstring inherited
             # The major speed trap here is just converting to the
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
             if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
                 cbook._warn_external(
-                    ('A non-numpy array of type %s was passed in for ' +
-                     'transformation.  Please correct this.')
-                    % type(points))
+                    f'A non-numpy array of type {type(points)} was passed in '
+                    f'for transformation, which results in poor performance.')
             return self._transform_affine(points)
-    transform_affine.__doc__ = AffineBase.transform_affine.__doc__
 
     def inverted(self):
+        # docstring inherited
         if self._inverted is None or self._invalid:
             mtx = self.get_matrix()
             shorthand_name = None
@@ -1811,7 +1811,6 @@ class Affine2DBase(AffineBase):
             self._inverted = Affine2D(inv(mtx), shorthand_name=shorthand_name)
             self._invalid = 0
         return self._inverted
-    inverted.__doc__ = AffineBase.inverted.__doc__
 
 
 class Affine2D(Affine2DBase):
@@ -2036,43 +2035,48 @@ class IdentityTransform(Affine2DBase):
     _mtx = np.identity(3)
 
     def frozen(self):
+        # docstring inherited
         return self
-    frozen.__doc__ = Affine2DBase.frozen.__doc__
 
     def __str__(self):
         return ("{}()"
                 .format(type(self).__name__))
 
     def get_matrix(self):
+        # docstring inherited
         return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
     def transform(self, points):
+        # docstring inherited
         return np.asanyarray(points)
-    transform.__doc__ = Affine2DBase.transform.__doc__
 
-    transform_affine = transform
-    transform_affine.__doc__ = Affine2DBase.transform_affine.__doc__
+    def transform_affine(self, points):
+        # docstring inherited
+        return np.asanyarray(points)
 
-    transform_non_affine = transform
-    transform_non_affine.__doc__ = Affine2DBase.transform_non_affine.__doc__
+    def transform_non_affine(self, points):
+        # docstring inherited
+        return np.asanyarray(points)
 
     def transform_path(self, path):
+        # docstring inherited
         return path
-    transform_path.__doc__ = Affine2DBase.transform_path.__doc__
 
-    transform_path_affine = transform_path
-    transform_path_affine.__doc__ = Affine2DBase.transform_path_affine.__doc__
+    def transform_path_affine(self, path):
+        # docstring inherited
+        return path
 
-    transform_path_non_affine = transform_path
-    transform_path_non_affine.__doc__ = Affine2DBase.transform_path_non_affine.__doc__
+    def transform_path_non_affine(self, path):
+        # docstring inherited
+        return path
 
     def get_affine(self):
+        # docstring inherited
         return self
-    get_affine.__doc__ = Affine2DBase.get_affine.__doc__
 
-    inverted = get_affine
-    inverted.__doc__ = Affine2DBase.inverted.__doc__
+    def inverted(self):
+        # docstring inherited
+        return self
 
 
 class BlendedGenericTransform(Transform):
@@ -2133,8 +2137,8 @@ class BlendedGenericTransform(Transform):
         lambda self: self._x.has_inverse and self._y.has_inverse)
 
     def frozen(self):
+        # docstring inherited
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
-    frozen.__doc__ = Transform.frozen.__doc__
 
     def __str__(self):
         return ("{}(\n"
@@ -2145,6 +2149,7 @@ class BlendedGenericTransform(Transform):
                         _indent_str(self._y)))
 
     def transform_non_affine(self, points):
+        # docstring inherited
         if self._x.is_affine and self._y.is_affine:
             return points
         x = self._x
@@ -2170,13 +2175,13 @@ class BlendedGenericTransform(Transform):
             return np.ma.concatenate((x_points, y_points), 1)
         else:
             return np.concatenate((x_points, y_points), 1)
-    transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
     def inverted(self):
+        # docstring inherited
         return BlendedGenericTransform(self._x.inverted(), self._y.inverted())
-    inverted.__doc__ = Transform.inverted.__doc__
 
     def get_affine(self):
+        # docstring inherited
         if self._invalid or self._affine is None:
             if self._x == self._y:
                 self._affine = self._x.get_affine()
@@ -2190,7 +2195,6 @@ class BlendedGenericTransform(Transform):
                 self._affine = Affine2D(mtx)
             self._invalid = 0
         return self._affine
-    get_affine.__doc__ = Transform.get_affine.__doc__
 
 
 class BlendedAffine2D(Affine2DBase):
@@ -2254,6 +2258,7 @@ class BlendedAffine2D(Affine2DBase):
                         _indent_str(self._y)))
 
     def get_matrix(self):
+        # docstring inherited
         if self._invalid:
             if self._x == self._y:
                 self._mtx = self._x.get_matrix()
@@ -2267,7 +2272,6 @@ class BlendedAffine2D(Affine2DBase):
             self._inverted = None
             self._invalid = 0
         return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
 
 def blended_transform_factory(x_transform, y_transform):
@@ -2316,12 +2320,12 @@ class CompositeGenericTransform(Transform):
         self.set_children(a, b)
 
     def frozen(self):
+        # docstring inherited
         self._invalid = 0
         frozen = composite_transform_factory(self._a.frozen(), self._b.frozen())
         if not isinstance(frozen, CompositeGenericTransform):
             return frozen.frozen()
         return frozen
-    frozen.__doc__ = Transform.frozen.__doc__
 
     def _invalidate_internal(self, value, invalidating_node):
         # In some cases for a composite transform, an invalidating call to AFFINE_ONLY needs
@@ -2367,10 +2371,11 @@ class CompositeGenericTransform(Transform):
                         _indent_str(self._b)))
 
     def transform_affine(self, points):
+        # docstring inherited
         return self.get_affine().transform(points)
-    transform_affine.__doc__ = Transform.transform_affine.__doc__
 
     def transform_non_affine(self, points):
+        # docstring inherited
         if self._a.is_affine and self._b.is_affine:
             return points
         elif not self._a.is_affine and self._b.is_affine:
@@ -2378,9 +2383,9 @@ class CompositeGenericTransform(Transform):
         else:
             return self._b.transform_non_affine(
                                 self._a.transform(points))
-    transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
     def transform_path_non_affine(self, path):
+        # docstring inherited
         if self._a.is_affine and self._b.is_affine:
             return path
         elif not self._a.is_affine and self._b.is_affine:
@@ -2388,19 +2393,18 @@ class CompositeGenericTransform(Transform):
         else:
             return self._b.transform_path_non_affine(
                                     self._a.transform_path(path))
-    transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
 
     def get_affine(self):
+        # docstring inherited
         if not self._b.is_affine:
             return self._b.get_affine()
         else:
             return Affine2D(np.dot(self._b.get_affine().get_matrix(),
                                 self._a.get_affine().get_matrix()))
-    get_affine.__doc__ = Transform.get_affine.__doc__
 
     def inverted(self):
+        # docstring inherited
         return CompositeGenericTransform(self._b.inverted(), self._a.inverted())
-    inverted.__doc__ = Transform.inverted.__doc__
 
 
 class CompositeAffine2D(Affine2DBase):
@@ -2455,6 +2459,7 @@ class CompositeAffine2D(Affine2DBase):
                         _indent_str(self._b)))
 
     def get_matrix(self):
+        # docstring inherited
         if self._invalid:
             self._mtx = np.dot(
                 self._b.get_matrix(),
@@ -2462,7 +2467,6 @@ class CompositeAffine2D(Affine2DBase):
             self._inverted = None
             self._invalid = 0
         return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
 
 def composite_transform_factory(a, b):
@@ -2523,6 +2527,7 @@ class BboxTransform(Affine2DBase):
                         _indent_str(self._boxout)))
 
     def get_matrix(self):
+        # docstring inherited
         if self._invalid:
             inl, inb, inw, inh = self._boxin.bounds
             outl, outb, outw, outh = self._boxout.bounds
@@ -2537,7 +2542,6 @@ class BboxTransform(Affine2DBase):
             self._inverted = None
             self._invalid = 0
         return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
 
 class BboxTransformTo(Affine2DBase):
@@ -2569,6 +2573,7 @@ class BboxTransformTo(Affine2DBase):
                         _indent_str(self._boxout)))
 
     def get_matrix(self):
+        # docstring inherited
         if self._invalid:
             outl, outb, outw, outh = self._boxout.bounds
             if DEBUG and (outw == 0 or outh == 0):
@@ -2580,7 +2585,6 @@ class BboxTransformTo(Affine2DBase):
             self._inverted = None
             self._invalid = 0
         return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
 
 class BboxTransformToMaxOnly(BboxTransformTo):
@@ -2590,6 +2594,7 @@ class BboxTransformToMaxOnly(BboxTransformTo):
     :class:`Bbox` with a fixed upper left of (0, 0).
     """
     def get_matrix(self):
+        # docstring inherited
         if self._invalid:
             xmax, ymax = self._boxout.max
             if DEBUG and (xmax == 0 or ymax == 0):
@@ -2601,7 +2606,6 @@ class BboxTransformToMaxOnly(BboxTransformTo):
             self._inverted = None
             self._invalid = 0
         return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
 
 class BboxTransformFrom(Affine2DBase):
@@ -2628,6 +2632,7 @@ class BboxTransformFrom(Affine2DBase):
                         _indent_str(self._boxin)))
 
     def get_matrix(self):
+        # docstring inherited
         if self._invalid:
             inl, inb, inw, inh = self._boxin.bounds
             if DEBUG and (inw == 0 or inh == 0):
@@ -2641,7 +2646,6 @@ class BboxTransformFrom(Affine2DBase):
             self._inverted = None
             self._invalid = 0
         return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
 
 class ScaledTranslation(Affine2DBase):
@@ -2664,6 +2668,7 @@ class ScaledTranslation(Affine2DBase):
                         _indent_str(self._t)))
 
     def get_matrix(self):
+        # docstring inherited
         if self._invalid:
             xt, yt = self._scale_trans.transform_point(self._t)
             self._mtx = np.array([[1.0, 0.0, xt],
@@ -2673,7 +2678,6 @@ class ScaledTranslation(Affine2DBase):
             self._invalid = 0
             self._inverted = None
         return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
 
 class TransformedPath(TransformNode):

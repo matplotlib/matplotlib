@@ -4938,36 +4938,6 @@ optional.
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
-    # args can by either Y or y1,y2,... and all should be replaced
-    @_preprocess_data()
-    def stackplot(self, x, *args, **kwargs):
-        return mstack.stackplot(self, x, *args, **kwargs)
-    stackplot.__doc__ = mstack.stackplot.__doc__
-
-    @_preprocess_data(replace_names=["x", "y", "u", "v", "start_points"])
-    def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
-                   cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-                   minlength=0.1, transform=None, zorder=None,
-                   start_points=None, maxlength=4.0,
-                   integration_direction='both'):
-        stream_container = mstream.streamplot(
-            self, x, y, u, v,
-            density=density,
-            linewidth=linewidth,
-            color=color,
-            cmap=cmap,
-            norm=norm,
-            arrowsize=arrowsize,
-            arrowstyle=arrowstyle,
-            minlength=minlength,
-            start_points=start_points,
-            transform=transform,
-            zorder=zorder,
-            maxlength=maxlength,
-            integration_direction=integration_direction)
-        return stream_container
-    streamplot.__doc__ = mstream.streamplot.__doc__
-
     # args can be some combination of X, Y, U, V, C and all should be replaced
     @_preprocess_data()
     @docstring.dedent_interpd
@@ -6329,8 +6299,6 @@ optional.
     def clabel(self, CS, *args, **kwargs):
         return CS.clabel(*args, **kwargs)
     clabel.__doc__ = mcontour.ContourSet.clabel.__doc__
-
-    table = mtable.table
 
     #### Data analysis
 
@@ -8125,18 +8093,17 @@ optional.
 
         return artists
 
-    def tricontour(self, *args, **kwargs):
-        return mtri.tricontour(self, *args, **kwargs)
-    tricontour.__doc__ = mtri.tricontour.__doc__
+    # Methods that are entirely implemented in other modules.
 
-    def tricontourf(self, *args, **kwargs):
-        return mtri.tricontourf(self, *args, **kwargs)
-    tricontourf.__doc__ = mtri.tricontour.__doc__
+    table = mtable.table
 
-    def tripcolor(self, *args, **kwargs):
-        return mtri.tripcolor(self, *args, **kwargs)
-    tripcolor.__doc__ = mtri.tripcolor.__doc__
+    # args can by either Y or y1,y2,... and all should be replaced
+    stackplot = _preprocess_data()(mstack.stackplot)
 
-    def triplot(self, *args, **kwargs):
-        return mtri.triplot(self, *args, **kwargs)
-    triplot.__doc__ = mtri.triplot.__doc__
+    streamplot = _preprocess_data(
+        replace_names=["x", "y", "u", "v", "start_points"])(mstream.streamplot)
+
+    tricontour = mtri.tricontour
+    tricontourf = mtri.tricontourf
+    tripcolor = mtri.tripcolor
+    triplot = mtri.triplot

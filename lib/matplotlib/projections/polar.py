@@ -43,6 +43,7 @@ class PolarTransform(mtransforms.Transform):
                         self._apply_theta_transforms))
 
     def transform_non_affine(self, tr):
+        # docstring inherited
         xy = np.empty(tr.shape, float)
 
         t = tr[:, 0:1]
@@ -64,22 +65,19 @@ class PolarTransform(mtransforms.Transform):
         y[:] = np.where(mask, np.nan, r * np.sin(t))
 
         return xy
-    transform_non_affine.__doc__ = \
-        mtransforms.Transform.transform_non_affine.__doc__
 
     def transform_path_non_affine(self, path):
+        # docstring inherited
         vertices = path.vertices
         if len(vertices) == 2 and vertices[0, 0] == vertices[1, 0]:
             return mpath.Path(self.transform(vertices), path.codes)
         ipath = path.interpolated(path._interpolation_steps)
         return mpath.Path(self.transform(ipath.vertices), ipath.codes)
-    transform_path_non_affine.__doc__ = \
-        mtransforms.Transform.transform_path_non_affine.__doc__
 
     def inverted(self):
+        # docstring inherited
         return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin,
                                                 self._apply_theta_transforms)
-    inverted.__doc__ = mtransforms.Transform.inverted.__doc__
 
 
 class PolarAffine(mtransforms.Affine2DBase):
@@ -108,6 +106,7 @@ class PolarAffine(mtransforms.Affine2DBase):
                         mtransforms._indent_str(self._limits)))
 
     def get_matrix(self):
+        # docstring inherited
         if self._invalid:
             limits_scaled = self._limits.transformed(self._scale_transform)
             yscale = limits_scaled.ymax - limits_scaled.ymin
@@ -118,7 +117,6 @@ class PolarAffine(mtransforms.Affine2DBase):
             self._inverted = None
             self._invalid = 0
         return self._mtx
-    get_matrix.__doc__ = mtransforms.Affine2DBase.get_matrix.__doc__
 
 
 class InvertedPolarTransform(mtransforms.Transform):
@@ -148,6 +146,7 @@ class InvertedPolarTransform(mtransforms.Transform):
                         self._apply_theta_transforms))
 
     def transform_non_affine(self, xy):
+        # docstring inherited
         x = xy[:, 0:1]
         y = xy[:, 1:]
         r = np.hypot(x, y)
@@ -165,13 +164,11 @@ class InvertedPolarTransform(mtransforms.Transform):
             r *= self._axis.get_rsign()
 
         return np.concatenate((theta, r), 1)
-    transform_non_affine.__doc__ = \
-        mtransforms.Transform.transform_non_affine.__doc__
 
     def inverted(self):
+        # docstring inherited
         return PolarAxes.PolarTransform(self._axis, self._use_rmin,
                                         self._apply_theta_transforms)
-    inverted.__doc__ = mtransforms.Transform.inverted.__doc__
 
 
 class ThetaFormatter(mticker.Formatter):
@@ -752,6 +749,7 @@ class _WedgeBbox(mtransforms.Bbox):
                         mtransforms._indent_str(self._originLim)))
 
     def get_points(self):
+        # docstring inherited
         if self._invalid:
             points = self._viewLim.get_points().copy()
             # Scale angular limits to work with Wedge.
@@ -782,7 +780,6 @@ class _WedgeBbox(mtransforms.Bbox):
             self._invalid = 0
 
         return self._points
-    get_points.__doc__ = mtransforms.Bbox.get_points.__doc__
 
 
 class PolarAxes(Axes):
@@ -796,18 +793,14 @@ class PolarAxes(Axes):
     def __init__(self, *args,
                  theta_offset=0, theta_direction=1, rlabel_position=22.5,
                  **kwargs):
-        """
-        Create a new Polar Axes for a polar plot.
-        """
+        # docstring inherited
         self._default_theta_offset = theta_offset
         self._default_theta_direction = theta_direction
         self._default_rlabel_position = np.deg2rad(rlabel_position)
-
         super().__init__(*args, **kwargs)
         self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
-    __init__.__doc__ = Axes.__init__.__doc__
 
     def cla(self):
         Axes.cla(self)
