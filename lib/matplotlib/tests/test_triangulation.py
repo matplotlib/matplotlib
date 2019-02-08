@@ -1000,7 +1000,7 @@ def test_qhull_triangle_orientation():
     # github issue 4437.
     xi = np.linspace(-2, 2, 100)
     x, y = map(np.ravel, np.meshgrid(xi, xi))
-    w = np.logical_and(x > y - 1, np.logical_and(x < -1.95, y > -1.2))
+    w = (x > y - 1) & (x < -1.95) & (y > -1.2)
     x, y = x[w], y[w]
     theta = np.radians(25)
     x1 = x*np.cos(theta) - y*np.sin(theta)

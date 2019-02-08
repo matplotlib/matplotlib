@@ -139,9 +139,7 @@ def test_lines3d():
                 pytest.param('svg', marks=pytest.mark.xfail(strict=False))])
 def test_mixedsubplots():
     def f(t):
-        s1 = np.cos(2*np.pi*t)
-        e1 = np.exp(-t)
-        return np.multiply(s1, e1)
+        return np.cos(2*np.pi*t) * np.exp(-t)
 
     t1 = np.arange(0.0, 5.0, 0.1)
     t2 = np.arange(0.0, 5.0, 0.02)
