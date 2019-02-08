@@ -177,6 +177,7 @@ class Spine(mpatches.Patch):
         if self.axis is not None:
             self.axis.cla()
 
+    @cbook.deprecated("3.1")
     def is_frame_like(self):
         """return True if directly on axes frame
 
