@@ -702,11 +702,11 @@ class Quiver(mcollections.PolyCollection):
                        minsh - self.headlength, minsh], np.float64)
         y0 = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
         ii = [0, 1, 2, 3, 2, 1, 0, 0]
-        X = x.take(ii, 1)
-        Y = y.take(ii, 1)
+        X = x[:, ii]
+        Y = y[:, ii]
         Y[:, 3:-1] *= -1
-        X0 = x0.take(ii)
-        Y0 = y0.take(ii)
+        X0 = x0[ii]
+        Y0 = y0[ii]
         Y0[3:-1] *= -1
         shrink = length / minsh if minsh != 0. else 0.
         X0 = shrink * X0[np.newaxis, :]

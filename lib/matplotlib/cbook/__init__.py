@@ -1063,7 +1063,7 @@ def delete_masked_points(*args):
         if len(igood) < nrecs:
             for i, x in enumerate(margs):
                 if seqlist[i]:
-                    margs[i] = x.take(igood, axis=0)
+                    margs[i] = x[igood]
     for i, x in enumerate(margs):
         if seqlist[i] and isinstance(x, np.ma.MaskedArray):
             margs[i] = x.filled()
