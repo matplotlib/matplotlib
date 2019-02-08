@@ -2347,12 +2347,17 @@ class Axes3D(Axes):
         """
 
         had_data = self.has_data()
+        zs_orig = zs
 
         xs, ys, zs = np.broadcast_arrays(
             *[np.ravel(np.ma.filled(t, np.nan)) for t in [xs, ys, zs]])
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
         xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
+
+        # For xs and ys, 2D scatter() will do the copying.
+        if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
+            zs = zs.copy()
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
