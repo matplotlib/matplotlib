@@ -28,9 +28,9 @@ width = 0.35  # the width of the bars
 
 fig, ax = plt.subplots()
 rects1 = ax.bar(ind - width/2, men_means, width, yerr=men_std,
-                color='SkyBlue', label='Men')
+                label='Men')
 rects2 = ax.bar(ind + width/2, women_means, width, yerr=women_std,
-                color='IndianRed', label='Women')
+                label='Women')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Scores')
@@ -53,7 +53,7 @@ def autolabel(rects, xpos='center'):
 
     for rect in rects:
         height = rect.get_height()
-        ax.text(rect.get_x() + rect.get_width()*offset[xpos], 1.01*height,
+        ax.text(rect.get_x() + rect.get_width() * offset[xpos], 1.01 * height,
                 '{}'.format(height), ha=ha[xpos], va='bottom')
 
 
@@ -130,7 +130,7 @@ def plot_student_results(student, scores, cohort_size):
 
     rects = ax1.barh(pos, [scores[k].percentile for k in testNames],
                      align='center',
-                     height=0.5, color='m',
+                     height=0.5,
                      tick_label=testNames)
 
     ax1.set_title(student.name)
@@ -186,13 +186,13 @@ def plot_student_results(student, scores, cohort_size):
             align = 'left'
         else:
             # Shift the text to the left side of the right edge
-            xloc = 0.98*width
+            xloc = 0.98 * width
             # White on magenta
             clr = 'white'
             align = 'right'
 
         # Center the text vertically in the bar
-        yloc = rect.get_y() + rect.get_height()/2.0
+        yloc = rect.get_y() + rect.get_height() / 2
         label = ax1.text(xloc, yloc, rankStr, horizontalalignment=align,
                          verticalalignment='center', color=clr, weight='bold',
                          clip_on=True)
@@ -208,12 +208,13 @@ def plot_student_results(student, scores, cohort_size):
             'perc_labels': rect_labels,
             'cohort_label': cohort_label}
 
+
 student = Student('Johnny Doe', 2, 'boy')
 scores = dict(zip(testNames,
                   (Score(v, p) for v, p in
                    zip(['7', '48', '12:52', '17', '14'],
                        np.round(np.random.uniform(0, 1,
-                                                  len(testNames))*100, 0)))))
+                                                  len(testNames)) * 100, 0)))))
 cohort_size = 62  # The number of other 2nd grade boys
 
 arts = plot_student_results(student, scores, cohort_size)

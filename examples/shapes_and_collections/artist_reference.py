@@ -1,9 +1,9 @@
 """
 ================================
-Reference for matplotlib artists
+Reference for Matplotlib artists
 ================================
 
-This example displays several of matplotlib's graphics primitives (artists)
+This example displays several of Matplotlib's graphics primitives (artists)
 drawn using matplotlib API. A full list of artists and the documentation is
 available at :ref:`the artist API <artist-api>`.
 
