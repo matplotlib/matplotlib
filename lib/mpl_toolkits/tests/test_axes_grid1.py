@@ -1,5 +1,6 @@
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.testing.decorators import (
     image_comparison, remove_ticks_and_titles)
 
@@ -100,7 +101,10 @@ def test_twin_axes_empty_and_removed():
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
 
-def test_axesgrid_colorbar_log_smoketest():
+@pytest.mark.parametrize("legacy_colorbar", [False, True])
+def test_axesgrid_colorbar_log_smoketest(legacy_colorbar):
+    matplotlib.rcParams["mpl_toolkits.legacy_colorbar"] = legacy_colorbar
+
     fig = plt.figure()
     grid = AxesGrid(fig, 111,  # modified to be only subplot
                     nrows_ncols=(1, 1),
@@ -112,7 +116,11 @@ def test_axesgrid_colorbar_log_smoketest():
     Z = 10000 * np.random.rand(10, 10)
     im = grid[0].imshow(Z, interpolation="nearest", norm=LogNorm())
 
-    grid.cbar_axes[0].colorbar(im)
+    if legacy_colorbar:
+        with pytest.warns(MatplotlibDeprecationWarning):
+            grid.cbar_axes[0].colorbar(im)
+    else:
+        grid.cbar_axes[0].colorbar(im)
 
 
 @image_comparison(['inset_locator.png'], style='default', remove_text=True)

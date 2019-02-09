@@ -5,8 +5,12 @@ Demo Axes Grid
 
 Grid of 2x2 images with single or own colorbar.
 """
+
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
+
+
+plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def get_demo_image():
@@ -108,8 +112,8 @@ def demo_grid_with_each_cbar_labelled(fig):
     for ax, cax, vlim in zip(grid, grid.cbar_axes, limits):
         im = ax.imshow(Z, extent=extent, interpolation="nearest",
                        vmin=vlim[0], vmax=vlim[1])
-        cax.colorbar(im)
-        cax.set_yticks((vlim[0], vlim[1]))
+        cb = cax.colorbar(im)
+        cb.set_ticks((vlim[0], vlim[1]))
 
     # This affects all axes because we set share_all = True.
     grid.axes_llc.set_xticks([-2, 0, 2])
