@@ -613,8 +613,8 @@ class HandlerStem(HandlerNpointsYoffsets):
                          for x, y in zip(xdata_marker, ydata)]
 
         if using_linecoll:
-            # update_prop() usually takes two Line2D collections;
-            # override temporarily to copy properties from a LineCollection
+            # change the function used by update_prop() from the default 
+            # to one that handles LineCollection
             orig_update_func = self._update_prop_func
             self._update_prop_func = self._copy_collection_props
 
