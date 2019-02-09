@@ -205,42 +205,15 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
                  grid_locator2=None,
                  tick_formatter1=None,
                  tick_formatter2=None):
-        """
-        aux_trans : a transform from the source (curved) coordinate to
-        target (rectilinear) coordinate. An instance of MPL's Transform
-        (inverse transform should be defined) or a tuple of two callable
-        objects which defines the transform and its inverse. The callables
-        need take two arguments of array of source coordinates and
-        should return two target coordinates:
-        e.g., *x2, y2 = trans(x1, y1)*
-        """
-
-        self._old_values = None
-
+        # docstring inherited
         self._extremes = extremes
         extreme_finder = ExtremeFinderFixed(extremes)
-
         super().__init__(aux_trans,
                          extreme_finder,
                          grid_locator1=grid_locator1,
                          grid_locator2=grid_locator2,
                          tick_formatter1=tick_formatter1,
                          tick_formatter2=tick_formatter2)
-
-    # def update_grid_finder(self, aux_trans=None, **kw):
-    #     if aux_trans is not None:
-    #         self.grid_finder.update_transform(aux_trans)
-    #     self.grid_finder.update(**kw)
-    #     self.invalidate()
-
-    # def _update(self, x1, x2, y1, y2):
-    #     "bbox in 0-based image coordinates"
-    #     # update wcsgrid
-    #     if self.valid() and self._old_values == (x1, x2, y1, y2):
-    #         return
-    #     self._update_grid(x1, y1, x2, y2)
-    #     self._old_values = (x1, x2, y1, y2)
-    #     self._force_update = False
 
     def get_data_boundary(self, side):
         """
@@ -257,20 +230,18 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
                        axis_direction=None,
                        offset=None,
                        axes=None):
-
         if axes is None:
             axes = self.axes
-
         if axis_direction is None:
             axis_direction = loc
-
-        _helper = FixedAxisArtistHelper(self, loc,
-                                        nth_coord_ticks=nth_coord)
-
+        # This is not the same as the FixedAxisArtistHelper class used by
+        # grid_helper_curvelinear.GridHelperCurveLinear.new_fixed_axis!
+        _helper = FixedAxisArtistHelper(
+            self, loc, nth_coord_ticks=nth_coord)
         axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
+        # Perhaps should be moved to the base class?
         axisline.line.set_clip_on(True)
         axisline.line.set_clip_box(axisline.axes.bbox)
-
         return axisline
 
     # new_floating_axis will inherit the grid_helper's extremes.
@@ -295,9 +266,6 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
     #     return axis
 
     def _update_grid(self, x1, y1, x2, y2):
-
-        # self.grid_info = self.grid_finder.get_grid_info(x1, y1, x2, y2)
-
         if self.grid_info is None:
             self.grid_info = dict()
 
@@ -361,7 +329,6 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         if axis in ["both", "y"]:
             for gl in self.grid_info["lat_lines"]:
                 grid_lines.extend([gl])
-
         return grid_lines
 
     def get_boundary(self):
