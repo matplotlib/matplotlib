@@ -2640,8 +2640,8 @@ class Axes(_AxesBase):
         else:
             cbook._warn_external(
                 'In Matplotlib 3.3 individual lines on a stem plot will be '
-                'added as a LineCollection instead of individual lines.\n'
-                'This significantly improves the performance of a stem plot.\n'
+                'added as a LineCollection instead of individual lines. '
+                'This significantly improves the performance of a stem plot. '
                 'To remove this warning and switch to the new behaviour, '
                 'set the "use_line_collection" keyword argument to True.')
             stemlines = []
