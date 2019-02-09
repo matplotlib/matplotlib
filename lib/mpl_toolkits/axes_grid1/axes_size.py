@@ -52,7 +52,9 @@ class AddList(_Base):
 
 
 class Fixed(_Base):
-    "Simple fixed size with absolute part = *fixed_size* and relative part = 0"
+    """
+    Simple fixed size with absolute part = *fixed_size* and relative part = 0.
+    """
     def __init__(self, fixed_size):
         self.fixed_size = fixed_size
 
@@ -63,7 +65,11 @@ class Fixed(_Base):
 
 
 class Scaled(_Base):
-    "Simple scaled(?) size with absolute part = 0 and relative part = *scalable_size*"
+    """
+    Simple scaled(?) size with absolute part = 0 and
+    relative part = *scalable_size*.
+    """
+
     def __init__(self, scalable_size):
         self._scalable_size = scalable_size
 
