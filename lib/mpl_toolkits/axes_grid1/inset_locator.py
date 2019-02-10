@@ -131,12 +131,11 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
     def get_extent(self, renderer):
         bb = TransformedBbox(self.axes.viewLim,
                              self.parent_axes.transData)
-
         x, y, w, h = bb.bounds
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         pad = self.pad * fontsize
-
-        return abs(w * self.zoom) + 2 * pad, abs(h * self.zoom) + 2 * pad, pad, pad
+        return (abs(w * self.zoom) + 2 * pad, abs(h * self.zoom) + 2 * pad,
+                pad, pad)
 
 
 class BboxPatch(Patch):
@@ -304,7 +303,7 @@ class BboxConnector(Patch):
         if 'fill' in kwargs:
             Patch.__init__(self, **kwargs)
         else:
-            fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
+            fill = bool({'fc', 'facecolor', 'color'}.intersection(kwargs))
             Patch.__init__(self, fill=fill, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
@@ -323,10 +322,10 @@ class BboxConnectorPatch(BboxConnector):
         """
         Connect two bboxes with a quadrilateral.
 
-        The quadrilateral is specified by two lines that start and end at corners
-        of the bboxes. The four sides of the quadrilateral are defined by the two
-        lines given, the line between the two corners specified in *bbox1* and the
-        line between the two corners specified in *bbox2*.
+        The quadrilateral is specified by two lines that start and end at
+        corners of the bboxes. The four sides of the quadrilateral are defined
+        by the two lines given, the line between the two corners specified in
+        *bbox1* and the line between the two corners specified in *bbox2*.
 
         Parameters
         ----------
@@ -660,7 +659,7 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     if 'fill' in kwargs:
         pp = BboxPatch(rect, **kwargs)
     else:
-        fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
+        fill = bool({'fc', 'facecolor', 'color'}.intersection(kwargs))
         pp = BboxPatch(rect, fill=fill, **kwargs)
     parent_axes.add_patch(pp)
 

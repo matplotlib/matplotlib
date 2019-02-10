@@ -695,7 +695,7 @@ defaults to None
                         (self._colorbar_location == 'right'
                          and col == self._ncols-1)):
                     locator = self._divider.new_locator(
-                        nx=h_cb_pos[0], ny=v_ax_pos[self._nrows -1 - row])
+                        nx=h_cb_pos[0], ny=v_ax_pos[self._nrows - 1 - row])
                     self.cbar_axes[row].set_axes_locator(locator)
                 elif ((self._colorbar_location == 'bottom' and
                        row == self._nrows - 1) or
