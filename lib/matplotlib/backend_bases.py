@@ -1319,15 +1319,12 @@ class LocationEvent(Event):
             self._update_enter_leave()
             return
 
-        # Find all axes containing the mouse
         if self.canvas.mouse_grabber is None:
-            axes_list = [a for a in self.canvas.figure.get_axes()
-                         if a.in_axes(self)]
+            self.inaxes = self.canvas.inaxes((x, y))
         else:
-            axes_list = [self.canvas.mouse_grabber]
+            self.inaxes = self.canvas.mouse_grabber
 
-        if axes_list:
-            self.inaxes = cbook._topmost_artist(axes_list)
+        if self.inaxes is not None:
             try:
                 trans = self.inaxes.transData.inverted()
                 xdata, ydata = trans.transform_point((x, y))
@@ -1791,6 +1788,39 @@ class FigureCanvasBase(object):
 
         event = LocationEvent('figure_enter_event', self, x, y, guiEvent)
         self.callbacks.process('figure_enter_event', event)
+
+    @cbook.deprecated("2.1")
+    def idle_event(self, guiEvent=None):
+        """Called when GUI is idle."""
+        s = 'idle_event'
+        event = IdleEvent(s, self, guiEvent=guiEvent)
+        self.callbacks.process(s, event)
+
+    def inaxes(self, xy):
+        """
+        Check if a point is in an axes.
+
+        Parameters
+        ----------
+        xy : tuple or list
+            (x,y) coordinates.
+            x position - pixels from left of canvas.
+            y position - pixels from bottom of canvas.
+
+        Returns
+        -------
+        axes: topmost axes containing the point, or None if no axes.
+
+        """
+        axes_list = [a for a in self.figure.get_axes()
+                     if a.patch.contains_point(xy)]
+
+        if axes_list:
+            axes = cbook._topmost_artist(axes_list)
+        else:
+            axes = None
+
+        return axes
 
     def grab_mouse(self, ax):
         """
