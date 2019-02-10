@@ -427,10 +427,11 @@ class ToolEnableNavigation(ToolBase):
             return
 
         n = int(event.key) - 1
-        for i, a in enumerate(self.figure.get_axes()):
-            if (event.x is not None and event.y is not None
-                    and a.in_axes(event)):
-                a.set_navigate(i == n)
+        if n < len(self.figure.get_axes()):
+            for i, a in enumerate(self.figure.get_axes()):
+                if (event.x is not None and event.y is not None
+                        and a.in_axes(event)):
+                    a.set_navigate(i == n)
 
 
 class _ToolGridBase(ToolBase):
