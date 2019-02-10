@@ -1107,12 +1107,10 @@ class RadioButtons(AxesWidget):
 
     def on_clicked(self, func):
         """
-<<<<<<< HEAD
         Connect the callback function *func* to button click events.
-=======
+
         When the button is clicked, call *func* with button label
         When all buttons are cleared, call *func* with None
->>>>>>> 26a3c8e0c557cab7bb1356baf3c0e27068bb727e
 
         Returns a connection id, which can be used to disconnect the callback.
         """
@@ -1296,7 +1294,9 @@ class Cursor(AxesWidget):
       *horizOn*
         Controls the visibility of the horizontal line
 
-<<<<<<< HEAD
+      *vertOn*
+        Controls the visibility of the horizontal line
+
     Parameters
     ----------
     ax : `matplotlib.axes.Axes`
@@ -1313,10 +1313,6 @@ class Cursor(AxesWidget):
     **lineprops
         `.Line2D` properties that control the appearance of the lines.
         See also `~.Axes.axhline`.
-=======
-      *vertOn*
-        Controls the visibility of the horizontal line
->>>>>>> 26a3c8e0c557cab7bb1356baf3c0e27068bb727e
 
     and the visibility of the cursor itself with the *visible* attribute.
 
