@@ -595,7 +595,7 @@ class CheckButtons(AxesWidget):
         Callbacks will be triggered if :attr:`eventson` is True.
 
         """
-        if 0 > index >= len(self.labels):
+        if index < 0 or index >= len(self.labels):
             raise ValueError("Invalid CheckButton index: %d" % index)
 
         l1, l2 = self.lines[index]
@@ -1078,7 +1078,7 @@ class RadioButtons(AxesWidget):
         Callbacks will be triggered if :attr:`eventson` is True.
 
         """
-        if 0 > index >= len(self.labels):
+        if index < 0 or index >= len(self.labels):
             raise ValueError("Invalid RadioButton index: %d" % index)
 
         self.value_selected = self.labels[index].get_text()
