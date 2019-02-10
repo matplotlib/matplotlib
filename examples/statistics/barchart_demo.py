@@ -1,74 +1,27 @@
 """
-=============
-Barchart Demo
-=============
-
-Bar charts of many shapes and sizes with Matplotlib.
+===================================
+Percentiles as horizontal bar chart
+===================================
 
 Bar charts are useful for visualizing counts, or summary statistics
-with error bars. These examples show a few ways to do this with Matplotlib.
+with error bars. Also see the :doc:`/gallery/lines_bars_and_markers/barchart`
+or the :doc:`/gallery/lines_bars_and_markers/barh` example for simpler versions
+of those features.
+
+This example comes from an application in which grade school gym
+teachers wanted to be able to show parents how their child did across
+a handful of fitness tests, and importantly, relative to how other
+children did. To extract the plotting code for demo purposes, we'll
+just make up some data for little Johnny Doe.
 """
 
-###############################################################################
-# A bar plot with errorbars and height labels on individual bars.
-
-# Credit: Josh Hemann
-
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
 
-
-men_means, men_std = (20, 35, 30, 35, 27), (2, 3, 4, 1, 2)
-women_means, women_std = (25, 32, 34, 20, 25), (3, 5, 2, 3, 3)
-
-ind = np.arange(len(men_means))  # the x locations for the groups
-width = 0.35  # the width of the bars
-
-fig, ax = plt.subplots()
-rects1 = ax.bar(ind - width/2, men_means, width, yerr=men_std,
-                label='Men')
-rects2 = ax.bar(ind + width/2, women_means, width, yerr=women_std,
-                label='Women')
-
-# Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('Scores')
-ax.set_title('Scores by group and gender')
-ax.set_xticks(ind)
-ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
-ax.legend()
-
-
-def autolabel(rects, xpos='center'):
-    """
-    Attach a text label above each bar in *rects*, displaying its height.
-
-    *xpos* indicates which side to place the text w.r.t. the center of
-    the bar. It can be one of the following {'center', 'right', 'left'}.
-    """
-
-    ha = {'center': 'center', 'right': 'left', 'left': 'right'}
-    offset = {'center': 0.5, 'right': 0.57, 'left': 0.43}  # x_txt = x + w*off
-
-    for rect in rects:
-        height = rect.get_height()
-        ax.text(rect.get_x() + rect.get_width() * offset[xpos], 1.01 * height,
-                '{}'.format(height), ha=ha[xpos], va='bottom')
-
-
-autolabel(rects1, "left")
-autolabel(rects2, "right")
-
-fig.tight_layout()
-
-
-###############################################################################
-# This example comes from an application in which grade school gym
-# teachers wanted to be able to show parents how their child did across
-# a handful of fitness tests, and importantly, relative to how other
-# children did. To extract the plotting code for demo purposes, we'll
-# just make up some data for little Johnny Doe...
+np.random.seed(42)
 
 Student = namedtuple('Student', ['name', 'grade', 'gender'])
 Score = namedtuple('Score', ['score', 'percentile'])
@@ -142,10 +95,6 @@ def plot_student_results(student, scores, cohort_size):
 
     # Plot a solid vertical gridline to highlight the median position
     ax1.axvline(50, color='grey', alpha=0.25)
-    # set X-axis tick marks at the deciles
-    cohort_label = ax1.text(.5, -.07, 'Cohort Size: {0}'.format(cohort_size),
-                            horizontalalignment='center', size='small',
-                            transform=ax1.transAxes)
 
     # Set the right-hand Y-axis ticks and labels
     ax2 = ax1.twinx()
@@ -163,10 +112,11 @@ def plot_student_results(student, scores, cohort_size):
 
     ax2.set_ylabel('Test Scores')
 
-    ax2.set_xlabel(('Percentile Ranking Across '
-                    '{grade} Grade {gender}s').format(
-                        grade=attach_ordinal(student.grade),
-                        gender=student.gender.title()))
+    xlabel = ('Percentile Ranking Across {grade} Grade {gender}s\n'
+              'Cohort Size: {cohort_size}')
+    ax1.set_xlabel(xlabel.format(grade=attach_ordinal(student.grade),
+                                 gender=student.gender.title(),
+                                 cohort_size=cohort_size))
 
     rect_labels = []
     # Lastly, write in the ranking inside each bar to aid in interpretation
@@ -178,24 +128,25 @@ def plot_student_results(student, scores, cohort_size):
 
         rankStr = attach_ordinal(width)
         # The bars aren't wide enough to print the ranking inside
-        if width < 5:
+        if width < 40:
             # Shift the text to the right side of the right edge
-            xloc = width + 1
+            xloc = 5
             # Black against white background
             clr = 'black'
             align = 'left'
         else:
             # Shift the text to the left side of the right edge
-            xloc = 0.98 * width
+            xloc = -5
             # White on magenta
             clr = 'white'
             align = 'right'
 
         # Center the text vertically in the bar
         yloc = rect.get_y() + rect.get_height() / 2
-        label = ax1.text(xloc, yloc, rankStr, horizontalalignment=align,
-                         verticalalignment='center', color=clr, weight='bold',
-                         clip_on=True)
+        label = ax1.annotate(rankStr, xy=(width, yloc), xytext=(xloc, 0),
+                            textcoords="offset points",
+                            ha=align, va='center',
+                            color=clr, weight='bold', clip_on=True)
         rect_labels.append(label)
 
     # make the interactive mouse over give the bar title
@@ -205,8 +156,7 @@ def plot_student_results(student, scores, cohort_size):
             'ax': ax1,
             'ax_right': ax2,
             'bars': rects,
-            'perc_labels': rect_labels,
-            'cohort_label': cohort_label}
+            'perc_labels': rect_labels}
 
 
 student = Student('Johnny Doe', 2, 'boy')
@@ -219,3 +169,20 @@ cohort_size = 62  # The number of other 2nd grade boys
 
 arts = plot_student_results(student, scores, cohort_size)
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+matplotlib.axes.Axes.bar
+matplotlib.pyplot.bar
+matplotlib.axes.Axes.annotate
+matplotlib.pyplot.annotate
+matplotlib.axes.Axes.twinx

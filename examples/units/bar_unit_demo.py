@@ -3,7 +3,8 @@
 Group barchart with units
 =========================
 
-This is the same example as :doc:`/gallery/statistics/barchart_demo` in
+This is the same example as
+:doc:`the barchart</gallery/lines_bars_and_markers/barchart>` in
 centimeters.
 
 .. only:: builder_html
