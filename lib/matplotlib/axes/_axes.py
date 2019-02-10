@@ -3925,6 +3925,7 @@ class Axes(_AxesBase):
             positions = list(range(1, N + 1))
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
+        positions = np.array(positions)
 
         # width
         if widths is None:
