@@ -3925,7 +3925,10 @@ class Axes(_AxesBase):
             positions = list(range(1, N + 1))
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
+
         positions = np.array(positions)
+        if len(positions) > 0 and not isinstance(positions[0], Number):
+            raise TypeError("positions should be an iterable of numbers")
 
         # width
         if widths is None:
