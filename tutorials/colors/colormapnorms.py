@@ -141,7 +141,7 @@ fig.show()
 # Discrete bounds
 # ---------------
 #
-# Another normaization that comes with matplolib is
+# Another normaization that comes with Matplotlib is
 # :func:`colors.BoundaryNorm`.  In addition to *vmin* and *vmax*, this
 # takes as arguments boundaries between which data is to be mapped.  The
 # colors are then linearly distributed between these "bounds".  For

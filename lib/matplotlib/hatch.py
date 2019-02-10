@@ -169,7 +169,8 @@ class Stars(Shapes):
         self.num_rows = (hatch.count('*')) * density
         path = Path.unit_regular_star(5)
         self.shape_vertices = path.vertices
-        self.shape_codes = np.ones(len(self.shape_vertices)) * Path.LINETO
+        self.shape_codes = np.full(len(self.shape_vertices), Path.LINETO,
+                                   dtype=Path.code_type)
         self.shape_codes[0] = Path.MOVETO
         Shapes.__init__(self, hatch, density)
 
@@ -201,7 +202,7 @@ def get_path(hatchpattern, density=6):
         return Path(np.empty((0, 2)))
 
     vertices = np.empty((num_vertices, 2))
-    codes = np.empty((num_vertices,), np.uint8)
+    codes = np.empty(num_vertices, Path.code_type)
 
     cursor = 0
     for pattern in patterns:

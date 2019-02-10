@@ -8,11 +8,9 @@ import types
 
 import numpy as np
 
-import matplotlib
-
+import matplotlib as mpl
 from matplotlib import cbook, rcParams
-from matplotlib.cbook import (
-    _OrderedSet, _check_1d, _string_to_bool, index_of, get_label)
+from matplotlib.cbook import _OrderedSet, _check_1d, index_of, get_label
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -26,7 +24,6 @@ import matplotlib.spines as mspines
 import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext
 import matplotlib.image as mimage
-
 from matplotlib.rcsetup import cycler, validate_axisbelow
 
 _log = logging.getLogger(__name__)
@@ -34,9 +31,10 @@ _log = logging.getLogger(__name__)
 
 def _process_plot_format(fmt):
     """
-    Process a MATLAB style color/line style format string.  Return a
-    (*linestyle*, *color*) tuple as a result of the processing.  Default
-    values are ('-', 'b').  Example format strings include:
+    Convert a MATLAB style color/line style format string to a (*linestyle*,
+    *marker*, *color*) tuple.
+
+    Example format strings include:
 
     * 'ko': black circles
     * '.b': blue dots
@@ -73,46 +71,40 @@ def _process_plot_format(fmt):
     except ValueError:
         pass  # No, not just a color.
 
-    # handle the multi char special cases and strip them from the
-    # string
-    if fmt.find('--') >= 0:
-        linestyle = '--'
-        fmt = fmt.replace('--', '')
-    if fmt.find('-.') >= 0:
-        linestyle = '-.'
-        fmt = fmt.replace('-.', '')
-    if fmt.find(' ') >= 0:
-        linestyle = 'None'
-        fmt = fmt.replace(' ', '')
-
-    chars = [c for c in fmt]
-
     i = 0
-    while i < len(chars):
-        c = chars[i]
-        if c in mlines.lineStyles:
+    while i < len(fmt):
+        c = fmt[i]
+        if fmt[i:i+2] in mlines.lineStyles:  # First, the two-char styles.
+            if linestyle is not None:
+                raise ValueError(
+                    'Illegal format string "%s"; two linestyle symbols' % fmt)
+            linestyle = fmt[i:i+2]
+            i += 2
+        elif c in mlines.lineStyles:
             if linestyle is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two linestyle symbols' % fmt)
             linestyle = c
+            i += 1
         elif c in mlines.lineMarkers:
             if marker is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two marker symbols' % fmt)
             marker = c
+            i += 1
         elif c in mcolors.get_named_colors_mapping():
             if color is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two color symbols' % fmt)
             color = c
-        elif c == 'C' and i < len(chars) - 1:
-            color_cycle_number = int(chars[i + 1])
-            color = mcolors.to_rgba("C{}".format(color_cycle_number))
             i += 1
+        elif c == 'C' and i < len(fmt) - 1:
+            color_cycle_number = int(fmt[i + 1])
+            color = mcolors.to_rgba("C{}".format(color_cycle_number))
+            i += 2
         else:
             raise ValueError(
                 'Unrecognized character %c in format string' % c)
-        i += 1
 
     if linestyle is None and marker is None:
         linestyle = rcParams['lines.linestyle']
@@ -161,25 +153,77 @@ class _process_plot_var_args(object):
         self._prop_keys = prop_cycler.keys
 
     def __call__(self, *args, **kwargs):
+        # Process units.
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             xunits = kwargs.pop('xunits', self.axes.xaxis.units)
-
             if self.axes.name == 'polar':
                 xunits = kwargs.pop('thetaunits', xunits)
-
-            yunits = kwargs.pop('yunits', self.axes.yaxis.units)
-
-            if self.axes.name == 'polar':
-                yunits = kwargs.pop('runits', yunits)
-
             if xunits != self.axes.xaxis.units:
                 self.axes.xaxis.set_units(xunits)
-
+            yunits = kwargs.pop('yunits', self.axes.yaxis.units)
+            if self.axes.name == 'polar':
+                yunits = kwargs.pop('runits', yunits)
             if yunits != self.axes.yaxis.units:
                 self.axes.yaxis.set_units(yunits)
 
-        ret = self._grab_next_args(*args, **kwargs)
-        return ret
+        for pos_only in "xy":
+            if pos_only in kwargs:
+                raise TypeError("{} got an unexpected keyword argument {!r}"
+                                .format(self.command, pos_only))
+
+        if not args:
+            return
+
+        # Process the 'data' kwarg.
+        data = kwargs.pop("data", None)
+        if data is not None:
+            replaced = [mpl._replacer(data, arg) for arg in args]
+            if len(args) == 1:
+                label_namer_idx = 0
+            elif len(args) == 2:  # Can be x, y or y, c.
+                # Figure out what the second argument is.
+                # 1) If the second argument cannot be a format shorthand, the
+                #    second argument is the label_namer.
+                # 2) Otherwise (it could have been a format shorthand),
+                #    a) if we did perform a substitution, emit a warning, and
+                #       use it as label_namer.
+                #    b) otherwise, it is indeed a format shorthand; use the
+                #       first argument as label_namer.
+                try:
+                    _process_plot_format(args[1])
+                except ValueError:  # case 1)
+                    label_namer_idx = 1
+                else:
+                    if replaced[1] is not args[1]:  # case 2a)
+                        cbook._warn_external(
+                            "Second argument {!r} is ambiguous: could be a "
+                            "color spec but is in data; using as data.  "
+                            "Either rename the entry in data or use three "
+                            "arguments to plot.".format(args[1]),
+                            RuntimeWarning)
+                        label_namer_idx = 1
+                    else:  # case 2b)
+                        label_namer_idx = 0
+            elif len(args) == 3:
+                label_namer_idx = 1
+            else:
+                raise ValueError(
+                    "Using arbitrary long args with data is not supported due "
+                    "to ambiguity of arguments; use multiple plotting calls "
+                    "instead")
+            if kwargs.get("label") is None:
+                kwargs["label"] = mpl._label_from_arg(
+                    replaced[label_namer_idx], args[label_namer_idx])
+            args = replaced
+
+        # Repeatedly grab (x, y) or (x, y, format) from the front of args and
+        # massage them into arguments to plot() or fill().
+        while args:
+            this, args = args[:2], args[2:]
+            if args and isinstance(args[0], str):
+                this += args[0],
+                args = args[1:]
+            yield from self._plot_args(this, kwargs)
 
     def get_next_color(self):
         """Return the next color in the cycle."""
@@ -235,27 +279,15 @@ class _process_plot_var_args(object):
             y = y[:, np.newaxis]
         return x, y
 
-    def _getdefaults(self, ignore, *kwargs):
+    def _getdefaults(self, ignore, kw):
         """
-        Only advance the cycler if the cycler has information that
-        is not specified in any of the supplied tuple of dicts.
-        Ignore any keys specified in the `ignore` set.
-
-        Returns a copy of defaults dictionary if there are any
-        keys that are not found in any of the supplied dictionaries.
-        If the supplied dictionaries have non-None values for
-        everything the property cycler has, then just return
-        an empty dictionary. Ignored keys are excluded from the
-        returned dictionary.
-
+        If some keys in the property cycle (excluding those in the set
+        *ignore*) are absent or set to None in the dict *kw*, return a copy
+        of the next entry in the property cycle, excluding keys in *ignore*.
+        Otherwise, don't advance the property cycle, and return an empty dict.
         """
-        prop_keys = self._prop_keys
-        if ignore is None:
-            ignore = set()
-        prop_keys = prop_keys - ignore
-
-        if any(all(kw.get(k, None) is None for kw in kwargs)
-               for k in prop_keys):
+        prop_keys = self._prop_keys - ignore
+        if any(kw.get(k, None) is None for k in prop_keys):
             # Need to copy this dictionary or else the next time around
             # in the cycle, the dictionary could be missing entries.
             default_dict = next(self.prop_cycler).copy()
@@ -265,21 +297,18 @@ class _process_plot_var_args(object):
             default_dict = {}
         return default_dict
 
-    def _setdefaults(self, defaults, *kwargs):
+    def _setdefaults(self, defaults, kw):
         """
-        Given a defaults dictionary, and any other dictionaries,
-        update those other dictionaries with information in defaults if
-        none of the other dictionaries contains that information.
-
+        Add to the dict *kw* the entries in the dict *default* that are absent
+        or set to None in *kw*.
         """
         for k in defaults:
-            if all(kw.get(k, None) is None for kw in kwargs):
-                for kw in kwargs:
-                    kw[k] = defaults[k]
+            if kw.get(k, None) is None:
+                kw[k] = defaults[k]
 
     def _makeline(self, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
-        default_dict = self._getdefaults(None, kw)
+        default_dict = self._getdefaults(set(), kw)
         self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg
@@ -354,9 +383,6 @@ class _process_plot_var_args(object):
             if v is not None:
                 kw[k] = v
 
-        if 'label' not in kwargs or kwargs['label'] is None:
-            kwargs['label'] = get_label(tup[-1], None)
-
         if len(tup) == 2:
             x = _check_1d(tup[0])
             y = _check_1d(tup[-1])
@@ -381,18 +407,8 @@ class _process_plot_var_args(object):
             ret.append(seg)
         return ret
 
-    def _grab_next_args(self, *args, **kwargs):
-        while args:
-            this, args = args[:2], args[2:]
-            if args and isinstance(args[0], str):
-                this += args[0],
-                args = args[1:]
-            yield from self._plot_args(this, kwargs)
-
 
 class _AxesBase(martist.Artist):
-    """
-    """
     name = "rectilinear"
 
     _shared_x_axes = cbook.Grouper()
@@ -683,8 +699,7 @@ class _AxesBase(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        labels_align = matplotlib.rcParams["xtick.alignment"]
-
+        labels_align = rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(0, -1 * pad_points / 72,
                                               self.figure.dpi_scale_trans),
@@ -710,7 +725,7 @@ class _AxesBase(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        labels_align = matplotlib.rcParams["xtick.alignment"]
+        labels_align = rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(0, pad_points / 72,
                                               self.figure.dpi_scale_trans),
@@ -760,7 +775,7 @@ class _AxesBase(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        labels_align = matplotlib.rcParams["ytick.alignment"]
+        labels_align = rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(-1 * pad_points / 72, 0,
                                               self.figure.dpi_scale_trans),
@@ -786,8 +801,7 @@ class _AxesBase(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        labels_align = matplotlib.rcParams["ytick.alignment"]
-
+        labels_align = rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(pad_points / 72, 0,
                                               self.figure.dpi_scale_trans),
@@ -969,8 +983,7 @@ class _AxesBase(martist.Artist):
             x0, x1 = self._sharex.get_xlim()
             self.set_xlim(x0, x1, emit=False,
                           auto=self._sharex.get_autoscalex_on())
-            self.xaxis._scale = mscale.scale_factory(
-                    self._sharex.xaxis.get_scale(), self.xaxis)
+            self.xaxis._scale = self._sharex.xaxis._scale
         else:
             self.xaxis._set_scale('linear')
             try:
@@ -984,8 +997,7 @@ class _AxesBase(martist.Artist):
             y0, y1 = self._sharey.get_ylim()
             self.set_ylim(y0, y1, emit=False,
                           auto=self._sharey.get_autoscaley_on())
-            self.yaxis._scale = mscale.scale_factory(
-                    self._sharey.yaxis.get_scale(), self.yaxis)
+            self.yaxis._scale = self._sharey.yaxis._scale
         else:
             self.yaxis._set_scale('linear')
             try:
@@ -1309,10 +1321,7 @@ class _AxesBase(martist.Artist):
         which the adjustments for aspect ratios are done sequentially
         and independently on each Axes as it is drawn.
         """
-        if adjustable == 'box-forced':
-            cbook.warn_deprecated(
-                "2.2", name="box-forced", obj_type="keyword argument")
-        if adjustable not in ('box', 'datalim', 'box-forced'):
+        if adjustable not in ('box', 'datalim'):
             raise ValueError("argument must be 'box', or 'datalim'")
         if share:
             axes = set(self._shared_x_axes.get_siblings(self)
@@ -1478,7 +1487,7 @@ class _AxesBase(martist.Artist):
 
         figW, figH = self.get_figure().get_size_inches()
         fig_aspect = figH / figW
-        if self._adjustable in ['box', 'box-forced']:
+        if self._adjustable == 'box':
             if self in self._twinned_axes:
                 raise RuntimeError("Adjustable 'box' is not allowed in a"
                                    " twinned Axes.  Use 'datalim' instead.")
@@ -1752,7 +1761,7 @@ class _AxesBase(martist.Artist):
         `~.pyplot.viridis`, and other functions such as `~.pyplot.clim`.  The
         current image is an attribute of the current axes.
         """
-        if isinstance(im, matplotlib.contour.ContourSet):
+        if isinstance(im, mpl.contour.ContourSet):
             if im.collections[0] not in self.collections:
                 raise ValueError("ContourSet must be in current Axes")
         elif im not in self.images and im not in self.collections:
@@ -2278,8 +2287,7 @@ class _AxesBase(martist.Artist):
 
         if x is None and y is None:
             if tight is not True:
-                cbook._warn_external(
-                    'ignoring tight=%r in get mode' % (tight,))
+                cbook._warn_external(f'ignoring tight={tight!r} in get mode')
             return self._xmargin, self._ymargin
 
         if x is not None:
@@ -2509,12 +2517,11 @@ class _AxesBase(martist.Artist):
                 y = self.transAxes.inverted().transform(
                         (0., top))[1]
                 title.set_position((x, y))
-                # emperically, this doesn't always get the min to top,
+                # empirically, this doesn't always get the min to top,
                 # so we need to adjust again.
                 if title.get_window_extent(renderer).ymin < top:
-                    y = self.transAxes.inverted().transform(
-                        (0., 2 * top -
-                             title.get_window_extent(renderer).ymin))[1]
+                    _, y = self.transAxes.inverted().transform(
+                        (0., 2 * top - title.get_window_extent(renderer).ymin))
                     title.set_position((x, y))
             ymax = max(y, ymax)
         for title in titles:
@@ -2726,9 +2733,6 @@ class _AxesBase(martist.Artist):
         """
         if len(kwargs):
             b = True
-        elif b is not None:
-            b = _string_to_bool(b)
-
         if axis not in ['x', 'y', 'both']:
             raise ValueError("The argument 'axis' must be one of 'x', 'y' or "
                              "'both'.")
@@ -2994,7 +2998,7 @@ class _AxesBase(martist.Artist):
         get_xlim, set_xlim
         get_xbound, set_xbound
         """
-        self.set_xlim(self.get_xlim()[::-1], auto=None)
+        self.xaxis.set_inverted(not self.xaxis.get_inverted())
 
     def xaxis_inverted(self):
         """
@@ -3008,8 +3012,7 @@ class _AxesBase(martist.Artist):
         get_xlim, set_xlim
         get_xbound, set_xbound
         """
-        left, right = self.get_xlim()
-        return right < left
+        return self.xaxis.get_inverted()
 
     def get_xbound(self):
         """
@@ -3400,7 +3403,7 @@ class _AxesBase(martist.Artist):
         get_ylim, set_ylim
         get_ybound, set_ybound
         """
-        self.set_ylim(self.get_ylim()[::-1], auto=None)
+        self.yaxis.set_inverted(not self.yaxis.get_inverted())
 
     def yaxis_inverted(self):
         """
@@ -3414,8 +3417,7 @@ class _AxesBase(martist.Artist):
         get_ylim, set_ylim
         get_ybound, set_ybound
         """
-        bottom, top = self.get_ylim()
-        return top < bottom
+        return self.yaxis.get_inverted()
 
     def get_ybound(self):
         """
@@ -3631,7 +3633,7 @@ class _AxesBase(martist.Artist):
 
     def get_yscale(self):
         """
-        Return the x-axis scale as string.
+        Return the y-axis scale as string.
 
         See Also
         --------

@@ -217,7 +217,7 @@ class UnitDbl(object):
                       value 1 w/ the units of the start is used.
 
         = RETURN VALUE
-        - Returns a list contianing the requested UnitDbl values.
+        - Returns a list containing the requested UnitDbl values.
         """
         if step is None:
             step = UnitDbl(1, start._units)

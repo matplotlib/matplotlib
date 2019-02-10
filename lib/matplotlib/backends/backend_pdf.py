@@ -9,11 +9,11 @@ from datetime import datetime
 from functools import total_ordering
 from io import BytesIO
 import logging
-from math import ceil, cos, floor, pi, sin
+import math
 import os
+import pathlib
 import re
 import struct
-import sys
 import time
 import types
 import warnings
@@ -27,7 +27,6 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import get_realpath_and_stat, maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.afm import AFM
@@ -42,6 +41,7 @@ from matplotlib.dates import UTC
 from matplotlib import _path
 from matplotlib import _png
 from matplotlib import ttconv
+from . import _backend_pdf_ps
 
 _log = logging.getLogger(__name__)
 
@@ -707,7 +707,7 @@ class PdfFile(object):
             else:
                 # a normal TrueType font
                 _log.debug('Writing TrueType font.')
-                realpath, stat_key = get_realpath_and_stat(filename)
+                realpath, stat_key = cbook.get_realpath_and_stat(filename)
                 chars = self.used_characters.get(stat_key)
                 if chars is not None and len(chars[1]):
                     fonts[Fx] = self.embedTTF(realpath, chars[1])
@@ -890,9 +890,9 @@ end"""
             # Perhaps best to round away from zero for bounding
             # boxes and the like
             if value < 0:
-                return floor(value)
+                return math.floor(value)
             else:
-                return ceil(value)
+                return math.ceil(value)
 
         def embedTTFType3(font, characters, descriptor):
             """The Type 3-specific part of embedding a Truetype font"""
@@ -940,7 +940,7 @@ end"""
 
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
-                # from ft2font: here we're just builting the widths table, but
+                # from ft2font: here we're just building the widths table, but
                 # the missing glyphs may not even be used in the actual string.
                 warnings.filterwarnings("ignore")
                 widths = [get_char_width(charcode)
@@ -973,8 +973,13 @@ end"""
 
             # Make the charprocs array (using ttconv to generate the
             # actual outlines)
-            rawcharprocs = ttconv.get_pdf_charprocs(
-                os.fsencode(filename), glyph_ids)
+            try:
+                rawcharprocs = ttconv.get_pdf_charprocs(
+                    os.fsencode(filename), glyph_ids)
+            except RuntimeError:
+                _log.warning("The PDF backend does not currently support the "
+                             "selected font.")
+                raise
             charprocs = {}
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]
@@ -1340,22 +1345,16 @@ end"""
         Write the image *data* into the pdf file using png
         predictors with Flate compression.
         """
-
         buffer = BytesIO()
         _png.write_png(data, buffer)
         buffer.seek(8)
-        written = 0
-        header = bytearray(8)
         while True:
-            n = buffer.readinto(header)
-            assert n == 8
-            length, type = struct.unpack(b'!L4s', bytes(header))
+            length, type = struct.unpack(b'!L4s', buffer.read(8))
             if type == b'IDAT':
-                data = bytearray(length)
-                n = buffer.readinto(data)
-                assert n == length
-                self.currentstream.write(bytes(data))
-                written += n
+                data = buffer.read(length)
+                if len(data) != length:
+                    raise RuntimeError("truncated data")
+                self.currentstream.write(data)
             elif type == b'IEND':
                 break
             else:
@@ -1575,8 +1574,14 @@ end"""
         self.write(b"\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
 
 
-class RendererPdf(RendererBase):
-    afm_font_cache = maxdict(50)
+class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
+    @property
+    @cbook.deprecated("3.1")
+    def afm_font_cache(self, _cache=cbook.maxdict(50)):
+        return _cache
+
+    _afm_font_dir = pathlib.Path(rcParams["datapath"], "fonts", "pdfcorefonts")
+    _use_afm_rc_name = "pdf.use14corefonts"
 
     def __init__(self, file, image_dpi, height, width):
         RendererBase.__init__(self)
@@ -1597,10 +1602,9 @@ class RendererPdf(RendererBase):
         orig_alphas = getattr(gc, '_effective_alphas', (1.0, 1.0))
 
         if gc.get_rgb() is None:
-            # it should not matter what color here
-            # since linewidth should be 0
-            # unless affected by global settings in rcParams
-            # hence setting zero alpha just incase
+            # It should not matter what color here since linewidth should be
+            # 0 unless affected by global settings in rcParams, hence setting
+            # zero alpha just in case.
             gc.set_foreground((0, 0, 0, 0), isRGBA=True)
 
         if gc._forced_alpha:
@@ -1624,7 +1628,7 @@ class RendererPdf(RendererBase):
             fname = font
         else:
             fname = font.fname
-        realpath, stat_key = get_realpath_and_stat(fname)
+        realpath, stat_key = cbook.get_realpath_and_stat(fname)
         used_characters = self.file.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].update(map(ord, s))
@@ -1637,14 +1641,6 @@ class RendererPdf(RendererBase):
 
     def get_image_magnification(self):
         return self.image_dpi/72.0
-
-    def option_scale_image(self):
-        # docstring inherited
-        return True
-
-    def option_image_nocomposite(self):
-        # docstring inherited
-        return not rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, transform=None):
         # docstring inherited
@@ -1818,9 +1814,9 @@ class RendererPdf(RendererBase):
         if angle == oldangle == 0:
             self.file.output(x - oldx, y - oldy, Op.textpos)
         else:
-            angle = angle / 180.0 * pi
-            self.file.output(cos(angle), sin(angle),
-                             -sin(angle), cos(angle),
+            angle = math.radians(angle)
+            self.file.output(math.cos(angle), math.sin(angle),
+                             -math.sin(angle), math.cos(angle),
                              x, y, Op.textmatrix)
             self.file.output(0, 0, Op.textpos)
 
@@ -1836,10 +1832,11 @@ class RendererPdf(RendererBase):
         global_fonttype = rcParams['pdf.fonttype']
 
         # Set up a global transformation matrix for the whole math expression
-        a = angle / 180.0 * pi
+        a = math.radians(angle)
         self.file.output(Op.gsave)
-        self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
-                         Op.concat_matrix)
+        self.file.output(math.cos(a), math.sin(a),
+                         -math.sin(a), math.cos(a),
+                         x, y, Op.concat_matrix)
 
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
@@ -2058,9 +2055,10 @@ class RendererPdf(RendererBase):
             # Do the rotation and global translation as a single matrix
             # concatenation up front
             self.file.output(Op.gsave)
-            a = angle / 180.0 * pi
-            self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
-                             Op.concat_matrix)
+            a = math.radians(angle)
+            self.file.output(math.cos(a), math.sin(a),
+                             -math.sin(a), math.cos(a),
+                             x, y, Op.concat_matrix)
 
             # Output all the 1-byte characters in a BT/ET group, then
             # output all the 2-byte characters.
@@ -2118,71 +2116,6 @@ class RendererPdf(RendererBase):
             return draw_text_simple()
         else:
             return draw_text_woven(chunks)
-
-    def get_text_width_height_descent(self, s, prop, ismath):
-        # docstring inherited
-
-        if rcParams['text.usetex']:
-            texmanager = self.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=self)
-            return w, h, d
-
-        if ismath:
-            w, h, d, glyphs, rects, used_characters = \
-                self.mathtext_parser.parse(s, 72, prop)
-
-        elif rcParams['pdf.use14corefonts']:
-            font = self._get_font_afm(prop)
-            l, b, w, h, d = font.get_str_bbox_and_descent(s)
-            scale = prop.get_size_in_points()
-            w *= scale / 1000
-            h *= scale / 1000
-            d *= scale / 1000
-        else:
-            font = self._get_font_ttf(prop)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            w, h = font.get_width_height()
-            scale = (1.0 / 64.0)
-            w *= scale
-            h *= scale
-            d = font.get_descent()
-            d *= scale
-        return w, h, d
-
-    def _get_font_afm(self, prop):
-        key = hash(prop)
-        font = self.afm_font_cache.get(key)
-        if font is None:
-            filename = findfont(
-                prop, fontext='afm', directory=self.file._core14fontdir)
-            if filename is None:
-                filename = findfont(
-                    "Helvetica", fontext='afm',
-                    directory=self.file._core14fontdir)
-            font = self.afm_font_cache.get(filename)
-            if font is None:
-                with open(filename, 'rb') as fh:
-                    font = AFM(fh)
-                    self.afm_font_cache[filename] = font
-            self.afm_font_cache[key] = font
-        return font
-
-    def _get_font_ttf(self, prop):
-        filename = findfont(prop)
-        font = get_font(filename)
-        font.clear()
-        font.set_size(prop.get_size_in_points(), 72)
-        return font
-
-    def flipy(self):
-        # docstring inherited
-        return False
-
-    def get_canvas_width_height(self):
-        # docstring inherited
-        return self.file.width * 72.0, self.file.height * 72.0
 
     def new_gc(self):
         # docstring inherited

@@ -23,13 +23,6 @@ numbered_bases_to_rates = {v: k for k, v in rates_to_bases.items()}
 lettered_bases_to_rates = {v: 'r' + v for k, v in rates_to_bases.items()}
 
 
-def add_dicts(d1, d2):
-    """Adds two dicts and returns the result."""
-    result = d1.copy()
-    result.update(d2)
-    return result
-
-
 def make_arrow_plot(data, size=4, display='length', shape='right',
                     max_arrow_width=0.03, arrow_sep=0.02, alpha=0.5,
                     normalize_data=False, ec=None, labelcolor=None,

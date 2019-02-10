@@ -1,19 +1,17 @@
-import math
+from contextlib import contextmanager
 import logging
+import math
 import os.path
 import sys
 import tkinter as tk
 from tkinter.simpledialog import SimpleDialog
 import tkinter.filedialog
 import tkinter.messagebox
-from contextlib import contextmanager
 
 import numpy as np
 
-from . import _tkagg
-
 import matplotlib
-from matplotlib import backend_tools, rcParams
+from matplotlib import backend_tools, cbook, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
@@ -21,9 +19,10 @@ from matplotlib.backend_managers import ToolManager
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
+from . import _tkagg
 
 try:
-    from matplotlib._windowing import GetForegroundWindow, SetForegroundWindow
+    from ._tkagg import Win32_GetForegroundWindow, Win32_SetForegroundWindow
 except ImportError:
     @contextmanager
     def _restore_foreground_window_at_end():
@@ -31,12 +30,12 @@ except ImportError:
 else:
     @contextmanager
     def _restore_foreground_window_at_end():
-        foreground = GetForegroundWindow()
+        foreground = Win32_GetForegroundWindow()
         try:
             yield
         finally:
             if rcParams['tk.window_focus']:
-                SetForegroundWindow(foreground)
+                Win32_SetForegroundWindow(foreground)
 
 
 _log = logging.getLogger(__name__)
@@ -54,18 +53,6 @@ cursord = {
     cursors.SELECT_REGION: "tcross",
     cursors.WAIT: "watch",
     }
-
-
-def raise_msg_to_str(msg):
-    """msg is a return arg from a raise.  Join with new lines"""
-    if not isinstance(msg, str):
-        msg = '\n'.join(map(str, msg))
-    return msg
-
-
-def error_msg_tkpaint(msg, parent=None):
-    import tkinter.messagebox
-    tkinter.messagebox.showerror("matplotlib", msg)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):
@@ -318,7 +305,7 @@ class FigureCanvasTk(FigureCanvasBase):
         #
         # 3) process it as a motion notify event.  This also has pros
         #    and cons.  The mouse is moving relative to the window, but
-        #    this may surpise an event handler writer who is getting
+        #    this may surprise an event handler writer who is getting
         #   motion_notify_events even if the mouse has not moved
 
         # here are the three scenarios

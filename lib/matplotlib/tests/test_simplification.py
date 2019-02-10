@@ -49,7 +49,7 @@ def test_diamond():
 
 def test_noise():
     np.random.seed(0)
-    x = np.random.uniform(size=(50000,)) * 50
+    x = np.random.uniform(size=50000) * 50
 
     fig, ax = plt.subplots()
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)
@@ -190,7 +190,7 @@ def test_angled_antiparallel(angle, offset):
 def test_sine_plus_noise():
     np.random.seed(0)
     x = (np.sin(np.linspace(0, np.pi * 2.0, 50000)) +
-         np.random.uniform(size=(50000,)) * 0.01)
+         np.random.uniform(size=50000) * 0.01)
 
     fig, ax = plt.subplots()
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)

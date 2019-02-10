@@ -401,7 +401,7 @@ determined during the drawing time respecting the specified transform. ::
   box.drawing_area.add_artist(el)
 
 The ellipse in the above example will have width and height
-corresponding to 0.1 and 0.4 in data coordinateing and will be
+corresponding to 0.1 and 0.4 in data coordinates and will be
 automatically scaled when the view limits of the axes change.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box03_001.png

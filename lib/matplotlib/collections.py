@@ -6,7 +6,7 @@ polygons.
 The classes are not meant to be as flexible as their single element
 counterparts (e.g., you may not be able to select all line styles) but
 they are meant to be fast for common use cases (e.g., a large set of solid
-line segemnts)
+line segments).
 """
 
 import math
@@ -728,7 +728,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha tranparencies of the collection.
+        Set the alpha transparencies of the collection.
 
         Parameters
         ----------

@@ -18,16 +18,14 @@ import math
 import weakref
 
 import numpy as np
-
 from numpy import ma
-import matplotlib.collections as mcollections
-import matplotlib.transforms as transforms
-import matplotlib.text as mtext
+
+from matplotlib import cbook, docstring, font_manager
 import matplotlib.artist as martist
-from matplotlib import docstring
-import matplotlib.font_manager as font_manager
-from matplotlib.cbook import delete_masked_points
+import matplotlib.collections as mcollections
 from matplotlib.patches import CirclePolygon
+import matplotlib.text as mtext
+import matplotlib.transforms as transforms
 
 
 _quiver_doc = """
@@ -306,9 +304,8 @@ class QuiverKey(martist.Artist):
             # Hack: save and restore the Umask
             _mask = self.Q.Umask
             self.Q.Umask = ma.nomask
-            self.verts = self.Q._make_verts(np.array([self.U]),
-                                            np.zeros((1,)),
-                                            self.angle)
+            self.verts = self.Q._make_verts(
+                np.array([self.U]), np.zeros(1), self.angle)
             self.Q.Umask = _mask
             self.Q.pivot = _pivot
             kw = self.Q.polykw
@@ -381,7 +378,7 @@ class QuiverKey(martist.Artist):
 # arguments for doing colored vector plots.  Pulling it out here
 # allows both Quiver and Barbs to use it
 def _parse_args(*args):
-    X, Y, U, V, C = [None] * 5
+    X = Y = U = V = C = None
     args = list(args)
 
     # The use of atleast_1d allows for handling scalar arguments while also
@@ -390,6 +387,7 @@ def _parse_args(*args):
         C = np.atleast_1d(args.pop(-1))
     V = np.atleast_1d(args.pop(-1))
     U = np.atleast_1d(args.pop(-1))
+    cbook._check_not_matrix(U=U, V=V, C=C)
     if U.ndim == 1:
         nr, nc = 1, U.shape[0]
     else:
@@ -704,11 +702,11 @@ class Quiver(mcollections.PolyCollection):
                        minsh - self.headlength, minsh], np.float64)
         y0 = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
         ii = [0, 1, 2, 3, 2, 1, 0, 0]
-        X = x.take(ii, 1)
-        Y = y.take(ii, 1)
+        X = x[:, ii]
+        Y = y[:, ii]
         Y[:, 3:-1] *= -1
-        X0 = x0.take(ii)
-        Y0 = y0.take(ii)
+        X0 = x0[ii]
+        Y0 = y0[ii]
         Y0[3:-1] *= -1
         shrink = length / minsh if minsh != 0. else 0.
         X0 = shrink * X0[np.newaxis, :]
@@ -1145,13 +1143,12 @@ class Barbs(mcollections.PolyCollection):
         self.v = ma.masked_invalid(V, copy=False).ravel()
         if C is not None:
             c = ma.masked_invalid(C, copy=False).ravel()
-            x, y, u, v, c = delete_masked_points(self.x.ravel(),
-                                                 self.y.ravel(),
-                                                 self.u, self.v, c)
+            x, y, u, v, c = cbook.delete_masked_points(
+                self.x.ravel(), self.y.ravel(), self.u, self.v, c)
             _check_consistent_shapes(x, y, u, v, c)
         else:
-            x, y, u, v = delete_masked_points(self.x.ravel(), self.y.ravel(),
-                                              self.u, self.v)
+            x, y, u, v = cbook.delete_masked_points(
+                self.x.ravel(), self.y.ravel(), self.u, self.v)
             _check_consistent_shapes(x, y, u, v)
 
         magnitude = np.hypot(u, v)
@@ -1178,22 +1175,19 @@ class Barbs(mcollections.PolyCollection):
     def set_offsets(self, xy):
         """
         Set the offsets for the barb polygons.  This saves the offsets passed
-        in and actually sets version masked as appropriate for the existing
-        U/V data. *offsets* should be a sequence.
+        in and masks them as appropriate for the existing U/V data.
 
         Parameters
         ----------
-        offsets : sequence of pairs of floats
+        xy : sequence of pairs of floats
         """
         self.x = xy[:, 0]
         self.y = xy[:, 1]
-        x, y, u, v = delete_masked_points(self.x.ravel(), self.y.ravel(),
-                                          self.u, self.v)
+        x, y, u, v = cbook.delete_masked_points(
+            self.x.ravel(), self.y.ravel(), self.u, self.v)
         _check_consistent_shapes(x, y, u, v)
         xy = np.column_stack((x, y))
         mcollections.PolyCollection.set_offsets(self, xy)
         self.stale = True
-
-    set_offsets.__doc__ = mcollections.PolyCollection.set_offsets.__doc__
 
     barbs_doc = _barbs_doc

@@ -116,7 +116,7 @@ def test_clf_keyword():
 def test_figure():
     # named figure support
     fig = plt.figure('today')
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     ax.set_title(fig.get_label())
     ax.plot(np.arange(5))
     # plot red line in a different figure.
@@ -366,8 +366,8 @@ def test_subplots_shareax_loglabels():
 
 def test_savefig():
     fig = plt.figure()
-    msg = "savefig() takes 2 positional arguments but 3 were given"
-    with pytest.raises(TypeError, message=msg):
+    msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
+    with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
 
 

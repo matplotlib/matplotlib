@@ -3,7 +3,7 @@ The OffsetBox is a simple container artist. The child artist are meant
 to be drawn at a relative position to its parent.  The [VH]Packer,
 DrawingArea and TextArea are derived from the OffsetBox.
 
-The [VH]Packer automatically adjust the relative postisions of their
+The [VH]Packer automatically adjust the relative positions of their
 children, which should be instances of the OffsetBox. This is used to
 align similar artists together, e.g., in legend.
 
@@ -44,7 +44,7 @@ def bbox_artist(*args, **kwargs):
 
 def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     """
-    Geiven a list of (width, xdescent) of each boxes, calculate the
+    Given a list of (width, xdescent) of each boxes, calculate the
     total width and the x-offset positions of each items according to
     *mode*. xdescent is analogous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
@@ -699,9 +699,8 @@ class TextArea(OffsetBox):
             `~matplotlib.text.Text` instance contained inside TextArea.
 
         multilinebaseline : bool, optional
-            If `True`, baseline for multiline text is adjusted so that
-            it is (approximatedly) center-aligned with singleline
-            text.
+            If `True`, baseline for multiline text is adjusted so that it is
+            (approximately) center-aligned with singleline text.
 
         minimumdescent : bool, optional
             If `True`, the box has a minimum descent of "p".
@@ -741,9 +740,8 @@ class TextArea(OffsetBox):
         """
         Set multilinebaseline .
 
-        If True, baseline for multiline text is
-        adjusted so that it is (approximatedly) center-aligned with
-        singleline text.
+        If True, baseline for multiline text is adjusted so that it is
+        (approximately) center-aligned with single-line text.
         """
         self._multilinebaseline = t
         self.stale = True
@@ -934,7 +932,7 @@ class AuxTransformBox(OffsetBox):
         bboxes = [c.get_window_extent(renderer) for c in self._children]
         ub = mtransforms.Bbox.union(bboxes)
 
-        # adjust ref_offset_tansform
+        # adjust ref_offset_transform
         self.ref_offset_transform.translate(-ub.x0, -ub.y0)
 
         # restor offset transform
@@ -1425,7 +1423,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             self._arrow_relpos = None
             self.arrow_patch = None
 
-        #self._fw, self._fh = 0., 0. # for alignment
         self._box_alignment = box_alignment
 
         # frame
@@ -1627,7 +1624,7 @@ class DraggableBase(object):
      current implementation of DraggableLegend and DraggableAnnotation,
      *update_offset* places the artists simply in display
      coordinates. And *finalize_offset* recalculate their position in
-     the normalized axes coordinate and set a relavant attribute.
+     the normalized axes coordinate and set a relevant attribute.
     """
 
     def __init__(self, ref_artist, use_blit=False):

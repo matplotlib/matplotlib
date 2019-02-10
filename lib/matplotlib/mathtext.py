@@ -15,6 +15,7 @@ arbitrary fonts, but results may vary without proper tweaking and
 metrics for those fonts.
 """
 
+from collections import namedtuple
 import functools
 from io import StringIO
 import logging
@@ -222,9 +223,12 @@ class MathtextBackendBitmap(MathtextBackendAgg):
 
 class MathtextBackendPs(MathtextBackend):
     """
-    Store information to write a mathtext rendering to the PostScript
-    backend.
+    Store information to write a mathtext rendering to the PostScript backend.
     """
+
+    _PSResult = namedtuple(
+        "_PSResult", "width height depth pswriter used_characters")
+
     def __init__(self):
         self.pswriter = StringIO()
         self.lastfont = None
@@ -255,18 +259,19 @@ setfont
 
     def get_results(self, box, used_characters):
         ship(0, 0, box)
-        return (self.width,
-                self.height + self.depth,
-                self.depth,
-                self.pswriter,
-                used_characters)
+        return self._PSResult(self.width,
+                              self.height + self.depth,
+                              self.depth,
+                              self.pswriter,
+                              used_characters)
 
 
 class MathtextBackendPdf(MathtextBackend):
-    """
-    Store information to write a mathtext rendering to the PDF
-    backend.
-    """
+    """Store information to write a mathtext rendering to the PDF backend."""
+
+    _PDFResult = namedtuple(
+        "_PDFResult", "width height depth glyphs rects used_characters")
+
     def __init__(self):
         self.glyphs = []
         self.rects = []
@@ -283,12 +288,12 @@ class MathtextBackendPdf(MathtextBackend):
 
     def get_results(self, box, used_characters):
         ship(0, 0, box)
-        return (self.width,
-                self.height + self.depth,
-                self.depth,
-                self.glyphs,
-                self.rects,
-                used_characters)
+        return self._PDFResult(self.width,
+                               self.height + self.depth,
+                               self.depth,
+                               self.glyphs,
+                               self.rects,
+                               used_characters)
 
 
 class MathtextBackendSvg(MathtextBackend):
@@ -3018,7 +3023,7 @@ class Parser(object):
             return [result]
 
         # We remove kerning on the last character for consistency (otherwise
-        # it will compute kerning based on non-shrinked characters and may put
+        # it will compute kerning based on non-shrunk characters and may put
         # them too close together when superscripted)
         # We change the width of the last character to match the advance to
         # consider some fonts with weird metrics: e.g. stix's f has a width of

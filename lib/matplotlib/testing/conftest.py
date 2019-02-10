@@ -1,10 +1,7 @@
-import warnings
-
 import pytest
 
 import matplotlib
 from matplotlib import cbook
-from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 def pytest_configure(config):
@@ -53,8 +50,7 @@ def mpl_test_settings(request):
                                 .format(backend, exc))
                 else:
                     raise
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+        with cbook._suppress_matplotlib_deprecation_warning():
             matplotlib.style.use(style)
         try:
             yield
@@ -91,17 +87,8 @@ def pd():
     pd = pytest.importorskip('pandas')
     try:
         from pandas.plotting import (
-            register_matplotlib_converters as register)
+            deregister_matplotlib_converters as deregister)
+        deregister()
     except ImportError:
-        from pandas.tseries.converter import register
-    register()
-    try:
-        yield pd
-    finally:
-        try:
-            from pandas.plotting import (
-                deregister_matplotlib_converters as deregister)
-        except ImportError:
-            pass
-        else:
-            deregister()
+        pass
+    return pd

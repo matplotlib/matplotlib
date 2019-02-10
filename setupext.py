@@ -167,18 +167,18 @@ def is_min_version(found, minversion):
 # Define the display functions only if display_status is True.
 if options['display_status']:
     def print_line(char='='):
-        print(char * 79)
+        print(char * 80)
 
     def print_status(package, status):
-        initial_indent = "%18s: " % package
-        indent = ' ' * 24
-        print(textwrap.fill(str(status), width=79,
+        initial_indent = "%12s: " % package
+        indent = ' ' * 18
+        print(textwrap.fill(str(status), width=80,
                             initial_indent=initial_indent,
                             subsequent_indent=indent))
 
     def print_message(message):
-        indent = ' ' * 24 + "* "
-        print(textwrap.fill(str(message), width=79,
+        indent = ' ' * 18 + "* "
+        print(textwrap.fill(str(message), width=80,
                             initial_indent=indent,
                             subsequent_indent=indent))
 
@@ -593,16 +593,6 @@ class Python(SetupPackage):
     name = "python"
 
     def check(self):
-        if sys.version_info < (3, 5):
-            error = """
-Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
-Beginning with Matplotlib 3.0, Python 3.5 and above is required.
-
-This may be due to an out of date pip.
-
-Make sure you have pip >= 9.0.1.
-"""
-            raise CheckFailed(error)
         return sys.version
 
 
@@ -638,6 +628,14 @@ class Matplotlib(SetupPackage):
             ],
         }
 
+    def get_install_requires(self):
+        return [
+            "cycler>=0.10",
+            "kiwisolver>=1.0.1",
+            "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
+            "python-dateutil>=2.1",
+        ]
+
 
 class SampleData(OptionalPackage):
     """
@@ -656,30 +654,7 @@ class SampleData(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    pytest_min_version = '3.6'
     default_config = True
-
-    def check(self):
-        super().check()
-
-        msgs = []
-        msg_template = ('{package} is required to run the Matplotlib test '
-                        'suite. Please install it with pip or your preferred '
-                        'tool to run the test suite')
-
-        bad_pytest = msg_template.format(
-            package='pytest %s or later' % self.pytest_min_version
-        )
-        try:
-            import pytest
-            if is_min_version(pytest.__version__, self.pytest_min_version):
-                msgs += ['using pytest version %s' % pytest.__version__]
-            else:
-                msgs += [bad_pytest]
-        except ImportError:
-            msgs += [bad_pytest]
-
-        return ' / '.join(msgs)
 
     def get_packages(self):
         return setuptools.find_packages("lib", include=["*.tests"])
@@ -814,6 +789,13 @@ class LibAgg(SetupPackage):
                                for x in agg_sources)
 
 
+# For FreeType2 and libpng, we add a separate checkdep_foo.c source to at the
+# top of the extension sources.  This file is compiled first and immediately
+# aborts the compilation either with "foo.h: No such file or directory" if the
+# header is not found, or an appropriate error message if the header indicates
+# a too-old version.
+
+
 class FreeType(SetupPackage):
     name = "freetype"
     pkg_names = {
@@ -825,59 +807,8 @@ class FreeType(SetupPackage):
         "windows_url": "http://gnuwin32.sourceforge.net/packages/freetype.htm"
         }
 
-    def check(self):
-        if options.get('local_freetype'):
-            return "Using local version for testing"
-
-        if sys.platform == 'win32':
-            try:
-                check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
-            except CheckFailed:
-                check_include_file(get_include_dirs(), os.path.join('freetype2', 'ft2build.h'), 'freetype')
-            return 'Using unknown version found on system.'
-
-        status, output = subprocess.getstatusoutput(
-            "freetype-config --ftversion")
-        if status == 0:
-            version = output
-        else:
-            version = None
-
-        # Early versions of freetype grep badly inside freetype-config,
-        # so catch those cases. (tested with 2.5.3).
-        if version is None or 'No such file or directory\ngrep:' in version:
-            version = self.version_from_header()
-
-        # pkg_config returns the libtool version rather than the
-        # freetype version so we need to explicitly pass the version
-        # to _check_for_pkg_config
-        return self._check_for_pkg_config(
-            'freetype2', 'ft2build.h',
-            min_version='2.3', version=version)
-
-    def version_from_header(self):
-        version = 'unknown'
-        ext = self.get_extension()
-        if ext is None:
-            return version
-        # Return the first version found in the include dirs.
-        for include_dir in ext.include_dirs:
-            header_fname = os.path.join(include_dir, 'freetype.h')
-            if os.path.exists(header_fname):
-                major, minor, patch = 0, 0, 0
-                with open(header_fname, 'r') as fh:
-                    for line in fh:
-                        if line.startswith('#define FREETYPE_'):
-                            value = line.rsplit(' ', 1)[1].strip()
-                            if 'MAJOR' in line:
-                                major = value
-                            elif 'MINOR' in line:
-                                minor = value
-                            else:
-                                patch = value
-                return '.'.join([major, minor, patch])
-
     def add_flags(self, ext):
+        ext.sources.insert(0, 'src/checkdep_freetype2.c')
         if options.get('local_freetype'):
             src_path = os.path.join(
                 'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
@@ -1058,30 +989,11 @@ class Png(SetupPackage):
         "windows_url": "http://gnuwin32.sourceforge.net/packages/libpng.htm"
         }
 
-    def check(self):
-        if sys.platform == 'win32':
-            check_include_file(get_include_dirs(), 'png.h', 'png')
-            return 'Using unknown version found on system.'
-
-        status, output = subprocess.getstatusoutput("libpng-config --version")
-        if status == 0:
-            version = output
-        else:
-            version = None
-
-        try:
-            return self._check_for_pkg_config(
-                'libpng', 'png.h',
-                min_version='1.2', version=version)
-        except CheckFailed as e:
-            if has_include_file(get_include_dirs(), 'png.h'):
-                return str(e) + ' Using unknown version found on system.'
-            raise
-
     def get_extension(self):
         sources = [
+            'src/checkdep_libpng.c',
             'src/_png.cpp',
-            'src/mplutils.cpp'
+            'src/mplutils.cpp',
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
@@ -1193,21 +1105,6 @@ class Tri(SetupPackage):
         return ext
 
 
-class InstallRequires(SetupPackage):
-    name = "install_requires"
-
-    def check(self):
-        return "handled by setuptools"
-
-    def get_install_requires(self):
-        return [
-            "cycler>=0.10",
-            "kiwisolver>=1.0.1",
-            "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
-            "python-dateutil>=2.1",
-        ]
-
-
 class BackendAgg(OptionalBackendPackage):
     name = "agg"
     force = True
@@ -1248,8 +1145,10 @@ class BackendTkAgg(OptionalBackendPackage):
     def add_flags(self, ext):
         ext.include_dirs.insert(0, 'src')
         if sys.platform == 'win32':
-            # PSAPI library needed for finding Tcl/Tk at run time
-            ext.libraries.extend(['psapi'])
+            # psapi library needed for finding Tcl/Tk at run time.
+            # user32 library needed for window manipulation functions.
+            ext.libraries.extend(['psapi', 'user32'])
+            ext.extra_link_args.extend(["-mwindows"])
         elif sys.platform == 'linux':
             ext.libraries.extend(['dl'])
 
@@ -1272,32 +1171,6 @@ class BackendMacOSX(OptionalBackendPackage):
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         if platform.python_implementation().lower() == 'pypy':
             ext.extra_compile_args.append('-DPYPY=1')
-        return ext
-
-
-class Windowing(OptionalBackendPackage):
-    """
-    Builds the windowing extension.
-    """
-    name = "windowing"
-
-    def check_requirements(self):
-        if sys.platform != 'win32':
-            raise CheckFailed("Microsoft Windows only")
-        config = self.get_config()
-        if config is False:
-            raise CheckFailed("skipping due to configuration")
-        return ""
-
-    def get_extension(self):
-        sources = [
-            "src/_windowing.cpp"
-            ]
-        ext = make_extension('matplotlib._windowing', sources)
-        ext.include_dirs.extend(['C:/include'])
-        ext.libraries.extend(['user32'])
-        ext.library_dirs.extend(['C:/lib'])
-        ext.extra_link_args.append("-mwindows")
         return ext
 
 

@@ -4,14 +4,6 @@
 Working with Matplotlib on OSX
 ******************************
 
-.. contents::
-   :backlinks: none
-
-.. _osxframework_introduction:
-
-Introduction
-============
-
 On OSX, two different types of Python builds exist: a regular build and a
 framework build.  In order to interact correctly with OSX through the native
 GUI frameworks, you need a framework build of Python.  At the time of writing
@@ -48,4 +40,4 @@ conda
 The default python provided in (Ana)conda is not a framework build.  However,
 a framework build can easily be installed, both in the main environment and
 in conda envs: install python.app (``conda install python.app``) and use
-``pythonw`` rather than ``python``
+``pythonw`` rather than ``python``.

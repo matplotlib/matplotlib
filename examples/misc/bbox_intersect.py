@@ -18,7 +18,8 @@ np.random.seed(19680801)
 
 
 left, bottom, width, height = (-1, -1, 2, 2)
-rect = plt.Rectangle((left, bottom), width, height, facecolor="#aaaaaa")
+rect = plt.Rectangle((left, bottom), width, height,
+                     facecolor="black", alpha=0.1)
 
 fig, ax = plt.subplots()
 ax.add_patch(rect)

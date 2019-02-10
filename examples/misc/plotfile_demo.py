@@ -5,6 +5,7 @@ Plotfile Demo
 
 Example use of ``plotfile`` to plot data directly from a file.
 """
+
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 

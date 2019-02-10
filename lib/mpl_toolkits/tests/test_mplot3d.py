@@ -139,9 +139,7 @@ def test_lines3d():
                 pytest.param('svg', marks=pytest.mark.xfail(strict=False))])
 def test_mixedsubplots():
     def f(t):
-        s1 = np.cos(2*np.pi*t)
-        e1 = np.exp(-t)
-        return np.multiply(s1, e1)
+        return np.cos(2*np.pi*t) * np.exp(-t)
 
     t1 = np.arange(0.0, 5.0, 0.1)
     t2 = np.arange(0.0, 5.0, 0.02)
@@ -706,8 +704,7 @@ class TestVoxels(object):
         x, y, z = np.indices((10, 10, 10))
         voxels = (x == y) | (y == z)
         voxels = voxels & ~(x * y * z < 1)
-        colors = np.zeros((10, 10, 10), dtype=np.object_)
-        colors.fill('C0')
+        colors = np.full((10, 10, 10), 'C0', dtype=np.object_)
         colors[(x < 5) & (y < 5)] = '0.25'
         colors[(x + z) < 10] = 'cyan'
         ax.voxels(voxels, facecolors=colors)
@@ -813,6 +810,18 @@ class TestVoxels(object):
         # Poly3DCollection
         with pytest.raises(AttributeError):
             ax.voxels(filled=filled, x=x, y=y, z=z)
+
+
+def test_line3d_set_get_data_3d():
+    x, y, z = [0, 1], [2, 3], [4, 5]
+    x2, y2, z2 = [6, 7], [8, 9], [10, 11]
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    lines = ax.plot(x, y, z)
+    line = lines[0]
+    np.testing.assert_array_equal((x, y, z), line.get_data_3d())
+    line.set_data_3d(x2, y2, z2)
+    np.testing.assert_array_equal((x2, y2, z2), line.get_data_3d())
 
 
 def test_inverted_cla():

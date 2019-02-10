@@ -25,7 +25,6 @@ from numbers import Number
 import re
 import sys
 import time
-import warnings
 
 from cycler import cycler
 import matplotlib
@@ -33,9 +32,8 @@ import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import (
-    dedent, deprecated, silent_list, warn_deprecated, _string_to_bool)
 from matplotlib import cbook
+from matplotlib.cbook import dedent, deprecated, silent_list, warn_deprecated
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
@@ -168,7 +166,7 @@ def uninstall_repl_displayhook():
 draw_all = _pylab_helpers.Gcf.draw_all
 
 
-@docstring.copy_dedent(Artist.findobj)
+@docstring.copy(Artist.findobj)
 def findobj(o=None, match=None, include_self=True):
     if o is None:
         o = gcf()
@@ -191,8 +189,11 @@ def switch_backend(newbackend):
     close("all")
 
     if newbackend is rcsetup._auto_backend_sentinel:
-        for candidate in ["macosx", "qt5agg", "qt4agg", "gtk3agg", "gtk3cairo",
-                          "tkagg", "wxagg", "agg", "cairo"]:
+        # Don't try to fallback on the cairo-based backends as they each have
+        # an additional dependency (pycairo) over the agg-based backend, and
+        # are of worse quality.
+        for candidate in ["macosx", "qt5agg", "qt4agg", "gtk3agg", "tkagg",
+                          "wxagg", "agg"]:
             try:
                 switch_backend(candidate)
             except ImportError:
@@ -298,17 +299,17 @@ def pause(interval):
         time.sleep(interval)
 
 
-@docstring.copy_dedent(matplotlib.rc)
+@docstring.copy(matplotlib.rc)
 def rc(group, **kwargs):
     matplotlib.rc(group, **kwargs)
 
 
-@docstring.copy_dedent(matplotlib.rc_context)
+@docstring.copy(matplotlib.rc_context)
 def rc_context(rc=None, fname=None):
     return matplotlib.rc_context(rc, fname)
 
 
-@docstring.copy_dedent(matplotlib.rcdefaults)
+@docstring.copy(matplotlib.rcdefaults)
 def rcdefaults():
     matplotlib.rcdefaults()
     if matplotlib.is_interactive():
@@ -430,7 +431,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         If num is a string, the window title will be set to this figure's
         `num`.
 
-    figsize : tuple of integers, optional, default: None
+    figsize : (float, float), optional, default: None
         width, height in inches. If not provided, defaults to
         :rc:`figure.figsize` = ``[6.4, 4.8]``.
 
@@ -610,12 +611,12 @@ def get_current_fig_manager():
     return figManager
 
 
-@docstring.copy_dedent(FigureCanvasBase.mpl_connect)
+@docstring.copy(FigureCanvasBase.mpl_connect)
 def connect(s, func):
     return get_current_fig_manager().canvas.mpl_connect(s, func)
 
 
-@docstring.copy_dedent(FigureCanvasBase.mpl_disconnect)
+@docstring.copy(FigureCanvasBase.mpl_disconnect)
 def disconnect(cid):
     return get_current_fig_manager().canvas.mpl_disconnect(cid)
 
@@ -685,7 +686,7 @@ def draw():
     get_current_fig_manager().canvas.draw_idle()
 
 
-@docstring.copy_dedent(Figure.savefig)
+@docstring.copy(Figure.savefig)
 def savefig(*args, **kwargs):
     fig = gcf()
     res = fig.savefig(*args, **kwargs)
@@ -693,7 +694,7 @@ def savefig(*args, **kwargs):
     return res
 
 
-@docstring.copy_dedent(Figure.ginput)
+@docstring.copy(Figure.ginput)
 def ginput(*args, **kwargs):
     """
     Blocking call to interact with the figure.
@@ -706,7 +707,7 @@ def ginput(*args, **kwargs):
     return gcf().ginput(*args, **kwargs)
 
 
-@docstring.copy_dedent(Figure.waitforbuttonpress)
+@docstring.copy(Figure.waitforbuttonpress)
 def waitforbuttonpress(*args, **kwargs):
     """
     Blocking call to interact with the figure.
@@ -723,17 +724,17 @@ def waitforbuttonpress(*args, **kwargs):
 ## Putting things in figures ##
 
 
-@docstring.copy_dedent(Figure.text)
+@docstring.copy(Figure.text)
 def figtext(x, y, s, *args, **kwargs):
     return gcf().text(x, y, s, *args, **kwargs)
 
 
-@docstring.copy_dedent(Figure.suptitle)
+@docstring.copy(Figure.suptitle)
 def suptitle(t, **kwargs):
     return gcf().suptitle(t, **kwargs)
 
 
-@docstring.copy_dedent(Figure.figimage)
+@docstring.copy(Figure.figimage)
 def figimage(*args, **kwargs):
     return gcf().figimage(*args, **kwargs)
 
@@ -844,18 +845,8 @@ def axes(arg=None, **kwargs):
 
     if arg is None:
         return subplot(111, **kwargs)
-
-    if isinstance(arg, Axes):
-        warn_deprecated("2.2",
-                        message="Using pyplot.axes(ax) with ax an Axes "
-                                "argument is deprecated. Please use "
-                                "pyplot.sca(ax) instead.")
-        ax = arg
-        sca(ax)
-        return ax
     else:
-        rect = arg
-        return gcf().add_axes(rect, **kwargs)
+        return gcf().add_axes(arg, **kwargs)
 
 
 def delaxes(ax=None):
@@ -995,7 +986,7 @@ def subplot(*args, **kwargs):
     *kwargs*) then it will simply make that subplot current and
     return it.  This behavior is deprecated. Meanwhile, if you do
     not want this behavior (i.e., you want to force the creation of a
-    new suplot), you must use a unique set of args and kwargs.  The axes
+    new subplot), you must use a unique set of args and kwargs.  The axes
     *label* attribute has been exposed for this purpose: if you want
     two subplots that are otherwise identical to be added to the figure,
     make sure you give them unique labels.
@@ -1371,7 +1362,6 @@ def box(on=None):
     ax = gca()
     if on is None:
         on = not ax.get_frame_on()
-    on = _string_to_bool(on)
     ax.set_frame_on(on)
 
 ## Axis ##
@@ -1457,8 +1447,7 @@ def xticks(ticks=None, labels=None, **kwargs):
 
     Call signatures::
 
-        locs, labels = xticks()           # Get locations and labels
-
+        locs, labels = xticks()            # Get locations and labels
         xticks(ticks, [labels], **kwargs)  # Set locations and labels
 
     Parameters
@@ -1534,8 +1523,7 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     Call signatures::
 
-        locs, labels = yticks()           # Get locations and labels
-
+        locs, labels = yticks()            # Get locations and labels
         yticks(ticks, [labels], **kwargs)  # Set locations and labels
 
     Parameters
@@ -2115,12 +2103,12 @@ def set_cmap(cmap):
         im.set_cmap(cmap)
 
 
-@docstring.copy_dedent(matplotlib.image.imread)
+@docstring.copy(matplotlib.image.imread)
 def imread(fname, format=None):
     return matplotlib.image.imread(fname, format)
 
 
-@docstring.copy_dedent(matplotlib.image.imsave)
+@docstring.copy(matplotlib.image.imsave)
 def imsave(fname, arr, **kwargs):
     return matplotlib.image.imsave(fname, arr, **kwargs)
 
@@ -2144,11 +2132,10 @@ def matshow(A, fignum=None, **kwargs):
     fignum : None or int or False
         If *None*, create a new figure window with automatic numbering.
 
-        If *fignum* is an integer, draw into the figure with the given number
+        If a nonzero integer, draw into the figure with the given number
         (create it if it does not exist).
 
-        If 0 or *False*, use the current axes if it exists instead of creating
-        a new figure.
+        If 0, use the current axes (or create one if it does not exist).
 
         .. note::
 
@@ -2166,17 +2153,15 @@ def matshow(A, fignum=None, **kwargs):
 
     """
     A = np.asanyarray(A)
-    if fignum is False or fignum is 0:
+    if fignum == 0:
         ax = gca()
     else:
         # Extract actual aspect ratio of array and make appropriately sized
         # figure.
         fig = figure(fignum, figsize=figaspect(A))
         ax = fig.add_axes([0.15, 0.09, 0.775, 0.775])
-
     im = ax.matshow(A, **kwargs)
     sci(im)
-
     return im
 
 
@@ -2276,9 +2261,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     if plotfuncs is None:
         plotfuncs = {}
-    from matplotlib.cbook import MatplotlibDeprecationWarning
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
+    with cbook._suppress_matplotlib_deprecation_warning():
         r = mlab._csv2rec(fname, comments=comments, skiprows=skiprows,
                           checkrows=checkrows, delimiter=delimiter,
                           names=names)
@@ -2334,14 +2317,6 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
         fig.autofmt_xdate()
 
 
-def _autogen_docstring(base):
-    """Autogenerated wrappers will get their docstring from a base function
-    with an addendum."""
-    msg = ''
-    addendum = docstring.Appender(msg, '\n\n')
-    return lambda func: addendum(docstring.copy_dedent(base)(func))
-
-
 # If rcParams['backend_fallback'] is true, and an interactive backend is
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
@@ -2364,14 +2339,14 @@ install_repl_displayhook()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.acorr)
+@docstring.copy(Axes.acorr)
 def acorr(x, *, data=None, **kwargs):
     return gca().acorr(
         x, **({"data": data} if data is not None else {}), **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.angle_spectrum)
+@docstring.copy(Axes.angle_spectrum)
 def angle_spectrum(
         x, Fs=None, Fc=None, window=None, pad_to=None, sides=None, *,
         data=None, **kwargs):
@@ -2381,55 +2356,55 @@ def angle_spectrum(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.annotate)
+@docstring.copy(Axes.annotate)
 def annotate(s, xy, *args, **kwargs):
     return gca().annotate(s, xy, *args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.arrow)
+@docstring.copy(Axes.arrow)
 def arrow(x, y, dx, dy, **kwargs):
     return gca().arrow(x, y, dx, dy, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.autoscale)
+@docstring.copy(Axes.autoscale)
 def autoscale(enable=True, axis='both', tight=None):
     return gca().autoscale(enable=enable, axis=axis, tight=tight)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.axhline)
+@docstring.copy(Axes.axhline)
 def axhline(y=0, xmin=0, xmax=1, **kwargs):
     return gca().axhline(y=y, xmin=xmin, xmax=xmax, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.axhspan)
+@docstring.copy(Axes.axhspan)
 def axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs):
     return gca().axhspan(ymin, ymax, xmin=xmin, xmax=xmax, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.axis)
+@docstring.copy(Axes.axis)
 def axis(*v, **kwargs):
     return gca().axis(*v, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.axvline)
+@docstring.copy(Axes.axvline)
 def axvline(x=0, ymin=0, ymax=1, **kwargs):
     return gca().axvline(x=x, ymin=ymin, ymax=ymax, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.axvspan)
+@docstring.copy(Axes.axvspan)
 def axvspan(xmin, xmax, ymin=0, ymax=1, **kwargs):
     return gca().axvspan(xmin, xmax, ymin=ymin, ymax=ymax, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.bar)
+@docstring.copy(Axes.bar)
 def bar(
         x, height, width=0.8, bottom=None, *, align='center',
         data=None, **kwargs):
@@ -2439,21 +2414,21 @@ def bar(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.barbs)
+@docstring.copy(Axes.barbs)
 def barbs(*args, data=None, **kw):
     return gca().barbs(
         *args, **({"data": data} if data is not None else {}), **kw)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.barh)
+@docstring.copy(Axes.barh)
 def barh(y, width, height=0.8, left=None, *, align='center', **kwargs):
     return gca().barh(
         y, width, height=height, left=left, align=align, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.boxplot)
+@docstring.copy(Axes.boxplot)
 def boxplot(
         x, notch=None, sym=None, vert=None, whis=None,
         positions=None, widths=None, patch_artist=None,
@@ -2478,7 +2453,7 @@ def boxplot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.broken_barh)
+@docstring.copy(Axes.broken_barh)
 def broken_barh(xranges, yrange, *, data=None, **kwargs):
     return gca().broken_barh(
         xranges, yrange, **({"data": data} if data is not None else
@@ -2486,19 +2461,19 @@ def broken_barh(xranges, yrange, *, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.cla)
+@docstring.copy(Axes.cla)
 def cla():
     return gca().cla()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.clabel)
+@docstring.copy(Axes.clabel)
 def clabel(CS, *args, **kwargs):
     return gca().clabel(CS, *args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.cohere)
+@docstring.copy(Axes.cohere)
 def cohere(
         x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
         window=mlab.window_hanning, noverlap=0, pad_to=None,
@@ -2511,7 +2486,7 @@ def cohere(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.contour)
+@docstring.copy(Axes.contour)
 def contour(*args, data=None, **kwargs):
     __ret = gca().contour(
         *args, **({"data": data} if data is not None else {}),
@@ -2521,7 +2496,7 @@ def contour(*args, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.contourf)
+@docstring.copy(Axes.contourf)
 def contourf(*args, data=None, **kwargs):
     __ret = gca().contourf(
         *args, **({"data": data} if data is not None else {}),
@@ -2531,7 +2506,7 @@ def contourf(*args, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.csd)
+@docstring.copy(Axes.csd)
 def csd(
         x, y, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
@@ -2544,7 +2519,7 @@ def csd(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.errorbar)
+@docstring.copy(Axes.errorbar)
 def errorbar(
         x, y, yerr=None, xerr=None, fmt='', ecolor=None,
         elinewidth=None, capsize=None, barsabove=False, lolims=False,
@@ -2559,7 +2534,7 @@ def errorbar(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.eventplot)
+@docstring.copy(Axes.eventplot)
 def eventplot(
         positions, orientation='horizontal', lineoffsets=1,
         linelengths=1, linewidths=None, colors=None,
@@ -2572,7 +2547,7 @@ def eventplot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.fill)
+@docstring.copy(Axes.fill)
 def fill(*args, data=None, **kwargs):
     return gca().fill(
         *args, **({"data": data} if data is not None else {}),
@@ -2580,7 +2555,7 @@ def fill(*args, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.fill_between)
+@docstring.copy(Axes.fill_between)
 def fill_between(
         x, y1, y2=0, where=None, interpolate=False, step=None, *,
         data=None, **kwargs):
@@ -2590,7 +2565,7 @@ def fill_between(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.fill_betweenx)
+@docstring.copy(Axes.fill_betweenx)
 def fill_betweenx(
         y, x1, x2=0, where=None, step=None, interpolate=False, *,
         data=None, **kwargs):
@@ -2600,13 +2575,13 @@ def fill_betweenx(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.grid)
+@docstring.copy(Axes.grid)
 def grid(b=None, which='major', axis='both', **kwargs):
     return gca().grid(b=b, which=which, axis=axis, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.hexbin)
+@docstring.copy(Axes.hexbin)
 def hexbin(
         x, y, C=None, gridsize=100, bins=None, xscale='linear',
         yscale='linear', extent=None, cmap=None, norm=None, vmin=None,
@@ -2625,7 +2600,7 @@ def hexbin(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.hist)
+@docstring.copy(Axes.hist)
 def hist(
         x, bins=None, range=None, density=None, weights=None,
         cumulative=False, bottom=None, histtype='bar', align='mid',
@@ -2641,20 +2616,20 @@ def hist(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.hist2d)
+@docstring.copy(Axes.hist2d)
 def hist2d(
-        x, y, bins=10, range=None, normed=False, weights=None,
+        x, y, bins=10, range=None, density=False, weights=None,
         cmin=None, cmax=None, *, data=None, **kwargs):
     __ret = gca().hist2d(
-        x, y, bins=bins, range=range, normed=normed, weights=weights,
-        cmin=cmin, cmax=cmax, **({"data": data} if data is not None
-        else {}), **kwargs)
+        x, y, bins=bins, range=range, density=density,
+        weights=weights, cmin=cmin, cmax=cmax, **({"data": data} if
+        data is not None else {}), **kwargs)
     sci(__ret[-1])
     return __ret
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.hlines)
+@docstring.copy(Axes.hlines)
 def hlines(
         y, xmin, xmax, colors='k', linestyles='solid', label='', *,
         data=None, **kwargs):
@@ -2665,11 +2640,12 @@ def hlines(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.imshow)
+@docstring.copy(Axes.imshow)
 def imshow(
         X, cmap=None, norm=None, aspect=None, interpolation=None,
         alpha=None, vmin=None, vmax=None, origin=None, extent=None,
-        shape=None, filternorm=1, filterrad=4.0, imlim=None,
+        shape=cbook.deprecation._deprecated_parameter, filternorm=1,
+        filterrad=4.0, imlim=cbook.deprecation._deprecated_parameter,
         resample=None, url=None, *, data=None, **kwargs):
     __ret = gca().imshow(
         X, cmap=cmap, norm=norm, aspect=aspect,
@@ -2683,25 +2659,25 @@ def imshow(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.legend)
+@docstring.copy(Axes.legend)
 def legend(*args, **kwargs):
     return gca().legend(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.locator_params)
+@docstring.copy(Axes.locator_params)
 def locator_params(axis='both', tight=None, **kwargs):
     return gca().locator_params(axis=axis, tight=tight, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.loglog)
+@docstring.copy(Axes.loglog)
 def loglog(*args, **kwargs):
     return gca().loglog(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.magnitude_spectrum)
+@docstring.copy(Axes.magnitude_spectrum)
 def magnitude_spectrum(
         x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
         scale=None, *, data=None, **kwargs):
@@ -2712,25 +2688,25 @@ def magnitude_spectrum(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.margins)
+@docstring.copy(Axes.margins)
 def margins(*margins, x=None, y=None, tight=True):
     return gca().margins(*margins, x=x, y=y, tight=tight)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.minorticks_off)
+@docstring.copy(Axes.minorticks_off)
 def minorticks_off():
     return gca().minorticks_off()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.minorticks_on)
+@docstring.copy(Axes.minorticks_on)
 def minorticks_on():
     return gca().minorticks_on()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.pcolor)
+@docstring.copy(Axes.pcolor)
 def pcolor(
         *args, alpha=None, norm=None, cmap=None, vmin=None,
         vmax=None, data=None, **kwargs):
@@ -2743,7 +2719,7 @@ def pcolor(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.pcolormesh)
+@docstring.copy(Axes.pcolormesh)
 def pcolormesh(
         *args, alpha=None, norm=None, cmap=None, vmin=None,
         vmax=None, shading='flat', antialiased=False, data=None,
@@ -2757,7 +2733,7 @@ def pcolormesh(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.phase_spectrum)
+@docstring.copy(Axes.phase_spectrum)
 def phase_spectrum(
         x, Fs=None, Fc=None, window=None, pad_to=None, sides=None, *,
         data=None, **kwargs):
@@ -2767,7 +2743,7 @@ def phase_spectrum(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.pie)
+@docstring.copy(Axes.pie)
 def pie(
         x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1,
@@ -2785,7 +2761,7 @@ def pie(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.plot)
+@docstring.copy(Axes.plot)
 def plot(*args, scalex=True, scaley=True, data=None, **kwargs):
     return gca().plot(
         *args, scalex=scalex, scaley=scaley, **({"data": data} if data
@@ -2793,7 +2769,7 @@ def plot(*args, scalex=True, scaley=True, data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.plot_date)
+@docstring.copy(Axes.plot_date)
 def plot_date(
         x, y, fmt='o', tz=None, xdate=True, ydate=False, *,
         data=None, **kwargs):
@@ -2803,7 +2779,7 @@ def plot_date(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.psd)
+@docstring.copy(Axes.psd)
 def psd(
         x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
@@ -2816,7 +2792,7 @@ def psd(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.quiver)
+@docstring.copy(Axes.quiver)
 def quiver(*args, data=None, **kw):
     __ret = gca().quiver(
         *args, **({"data": data} if data is not None else {}), **kw)
@@ -2825,40 +2801,41 @@ def quiver(*args, data=None, **kw):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.quiverkey)
+@docstring.copy(Axes.quiverkey)
 def quiverkey(Q, X, Y, U, label, **kw):
     return gca().quiverkey(Q, X, Y, U, label, **kw)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.scatter)
+@docstring.copy(Axes.scatter)
 def scatter(
         x, y, s=None, c=None, marker=None, cmap=None, norm=None,
         vmin=None, vmax=None, alpha=None, linewidths=None, verts=None,
-        edgecolors=None, *, data=None, **kwargs):
+        edgecolors=None, *, plotnonfinite=False, data=None, **kwargs):
     __ret = gca().scatter(
         x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
         vmin=vmin, vmax=vmax, alpha=alpha, linewidths=linewidths,
-        verts=verts, edgecolors=edgecolors, **({"data": data} if data
-        is not None else {}), **kwargs)
+        verts=verts, edgecolors=edgecolors,
+        plotnonfinite=plotnonfinite, **({"data": data} if data is not
+        None else {}), **kwargs)
     sci(__ret)
     return __ret
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.semilogx)
+@docstring.copy(Axes.semilogx)
 def semilogx(*args, **kwargs):
     return gca().semilogx(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.semilogy)
+@docstring.copy(Axes.semilogy)
 def semilogy(*args, **kwargs):
     return gca().semilogy(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.specgram)
+@docstring.copy(Axes.specgram)
 def specgram(
         x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
         noverlap=None, cmap=None, xextent=None, pad_to=None,
@@ -2875,7 +2852,7 @@ def specgram(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.spy)
+@docstring.copy(Axes.spy)
 def spy(
         Z, precision=0, marker=None, markersize=None, aspect='equal',
         origin='upper', **kwargs):
@@ -2887,15 +2864,17 @@ def spy(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.stackplot)
-def stackplot(x, *args, data=None, **kwargs):
+@docstring.copy(Axes.stackplot)
+def stackplot(
+        x, *args, labels=(), colors=None, baseline='zero', data=None,
+        **kwargs):
     return gca().stackplot(
-        x, *args, **({"data": data} if data is not None else {}),
-        **kwargs)
+        x, *args, labels=labels, colors=colors, baseline=baseline,
+        **({"data": data} if data is not None else {}), **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.stem)
+@docstring.copy(Axes.stem)
 def stem(
         *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
         label=None, data=None):
@@ -2906,7 +2885,7 @@ def stem(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.step)
+@docstring.copy(Axes.step)
 def step(x, y, *args, where='pre', data=None, **kwargs):
     return gca().step(
         x, y, *args, where=where, **({"data": data} if data is not
@@ -2914,7 +2893,7 @@ def step(x, y, *args, where='pre', data=None, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.streamplot)
+@docstring.copy(Axes.streamplot)
 def streamplot(
         x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
         norm=None, arrowsize=1, arrowstyle='-|>', minlength=0.1,
@@ -2933,25 +2912,35 @@ def streamplot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.table)
-def table(**kwargs):
-    return gca().table(**kwargs)
+@docstring.copy(Axes.table)
+def table(
+        cellText=None, cellColours=None, cellLoc='right',
+        colWidths=None, rowLabels=None, rowColours=None,
+        rowLoc='left', colLabels=None, colColours=None,
+        colLoc='center', loc='bottom', bbox=None, edges='closed',
+        **kwargs):
+    return gca().table(
+        cellText=cellText, cellColours=cellColours, cellLoc=cellLoc,
+        colWidths=colWidths, rowLabels=rowLabels,
+        rowColours=rowColours, rowLoc=rowLoc, colLabels=colLabels,
+        colColours=colColours, colLoc=colLoc, loc=loc, bbox=bbox,
+        edges=edges, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.text)
+@docstring.copy(Axes.text)
 def text(x, y, s, fontdict=None, withdash=False, **kwargs):
     return gca().text(x, y, s, fontdict=fontdict, withdash=withdash, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.tick_params)
+@docstring.copy(Axes.tick_params)
 def tick_params(axis='both', **kwargs):
     return gca().tick_params(axis=axis, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.ticklabel_format)
+@docstring.copy(Axes.ticklabel_format)
 def ticklabel_format(
         *, axis='both', style='', scilimits=None, useOffset=None,
         useLocale=None, useMathText=None):
@@ -2962,7 +2951,7 @@ def ticklabel_format(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.tricontour)
+@docstring.copy(Axes.tricontour)
 def tricontour(*args, **kwargs):
     __ret = gca().tricontour(*args, **kwargs)
     if __ret._A is not None: sci(__ret)  # noqa
@@ -2970,7 +2959,7 @@ def tricontour(*args, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.tricontourf)
+@docstring.copy(Axes.tricontourf)
 def tricontourf(*args, **kwargs):
     __ret = gca().tricontourf(*args, **kwargs)
     if __ret._A is not None: sci(__ret)  # noqa
@@ -2978,21 +2967,25 @@ def tricontourf(*args, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_autogen_docstring(Axes.tripcolor)
-def tripcolor(*args, **kwargs):
-    __ret = gca().tripcolor(*args, **kwargs)
+@docstring.copy(Axes.tripcolor)
+def tripcolor(
+        *args, alpha=1.0, norm=None, cmap=None, vmin=None, vmax=None,
+        shading='flat', facecolors=None, **kwargs):
+    __ret = gca().tripcolor(
+        *args, alpha=alpha, norm=norm, cmap=cmap, vmin=vmin,
+        vmax=vmax, shading=shading, facecolors=facecolors, **kwargs)
     sci(__ret)
     return __ret
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.triplot)
+@docstring.copy(Axes.triplot)
 def triplot(*args, **kwargs):
     return gca().triplot(*args, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.violinplot)
+@docstring.copy(Axes.violinplot)
 def violinplot(
         dataset, positions=None, vert=True, widths=0.5,
         showmeans=False, showextrema=True, showmedians=False,
@@ -3005,7 +2998,7 @@ def violinplot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.vlines)
+@docstring.copy(Axes.vlines)
 def vlines(
         x, ymin, ymax, colors='k', linestyles='solid', label='', *,
         data=None, **kwargs):
@@ -3016,7 +3009,7 @@ def vlines(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.xcorr)
+@docstring.copy(Axes.xcorr)
 def xcorr(
         x, y, normed=True, detrend=mlab.detrend_none, usevlines=True,
         maxlags=10, *, data=None, **kwargs):
@@ -3027,40 +3020,40 @@ def xcorr(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes._sci)
+@docstring.copy(Axes._sci)
 def sci(im):
     return gca()._sci(im)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.set_title)
+@docstring.copy(Axes.set_title)
 def title(label, fontdict=None, loc='center', pad=None, **kwargs):
     return gca().set_title(
         label, fontdict=fontdict, loc=loc, pad=pad, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.set_xlabel)
+@docstring.copy(Axes.set_xlabel)
 def xlabel(xlabel, fontdict=None, labelpad=None, **kwargs):
     return gca().set_xlabel(
         xlabel, fontdict=fontdict, labelpad=labelpad, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.set_ylabel)
+@docstring.copy(Axes.set_ylabel)
 def ylabel(ylabel, fontdict=None, labelpad=None, **kwargs):
     return gca().set_ylabel(
         ylabel, fontdict=fontdict, labelpad=labelpad, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.set_xscale)
+@docstring.copy(Axes.set_xscale)
 def xscale(value, **kwargs):
     return gca().set_xscale(value, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@docstring.copy_dedent(Axes.set_yscale)
+@docstring.copy(Axes.set_yscale)
 def yscale(value, **kwargs):
     return gca().set_yscale(value, **kwargs)
 

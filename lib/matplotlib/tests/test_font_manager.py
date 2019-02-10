@@ -1,3 +1,5 @@
+from io import BytesIO
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -6,10 +8,12 @@ import warnings
 import numpy as np
 import pytest
 
+from matplotlib import font_manager as fm
 from matplotlib.font_manager import (
-    findfont, FontProperties, fontManager, json_dump, json_load, get_font,
-    get_fontconfig_fonts, is_opentype_cff_font)
-from matplotlib import rc_context
+    findfont, findSystemFonts, FontProperties, fontManager, json_dump,
+    json_load, get_font, get_fontconfig_fonts, is_opentype_cff_font,
+    MSUserFontDirectories)
+from matplotlib import pyplot as plt, rc_context
 
 has_fclist = shutil.which('fc-list') is not None
 
@@ -91,7 +95,7 @@ def test_hinting_factor(factor):
 
 
 @pytest.mark.skipif(sys.platform != "win32",
-                   reason="Need Windows font to test against")
+                    reason="Need Windows font to test against")
 def test_utf16m_sfnt():
     segoe_ui_semibold = None
     for f in fontManager.ttflist:
@@ -105,3 +109,50 @@ def test_utf16m_sfnt():
     # Check that we successfully read the "semibold" from the font's
     # sfnt table and set its weight accordingly
     assert segoe_ui_semibold.weight == "semibold"
+
+
+@pytest.mark.xfail(not (os.environ.get("TRAVIS") and sys.platform == "linux"),
+                   reason="Font may be missing.")
+def test_find_ttc():
+    fp = FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(findfont(fp)).name != "wqy-zenhei.ttc":
+        # Travis appears to fail to pick up the ttc file sometimes.  Try to
+        # rebuild the cache and try again.
+        fm._rebuild()
+        assert Path(findfont(fp)).name == "wqy-zenhei.ttc"
+
+    fig, ax = plt.subplots()
+    ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
+    fig.savefig(BytesIO(), format="raw")
+    fig.savefig(BytesIO(), format="svg")
+    with pytest.raises(RuntimeError):
+        fig.savefig(BytesIO(), format="pdf")
+    with pytest.raises(RuntimeError):
+        fig.savefig(BytesIO(), format="ps")
+
+
+def test_user_fonts():
+    if not os.environ.get('APPVEYOR', False):
+        pytest.xfail('This test does only work on appveyor since user fonts '
+                     'are Windows specific and the developer\'s font '
+                     'directory should remain unchanged')
+
+    font_test_file = 'mpltest.ttf'
+
+    # Precondition: the test font should not be available
+    fonts = findSystemFonts()
+    assert not any(font_test_file in font for font in fonts)
+
+    user_fonts_dir = MSUserFontDirectories[0]
+
+    # Make sure that the user font directory exists (this is probably not the
+    # case on Windows versions < 1809)
+    os.makedirs(user_fonts_dir)
+
+    # Copy the test font to the user font directory
+    shutil.copyfile(os.path.join(os.path.dirname(__file__), font_test_file),
+                    os.path.join(user_fonts_dir, font_test_file))
+
+    # Now, the font should be available
+    fonts = findSystemFonts()
+    assert any(font_test_file in font for font in fonts)

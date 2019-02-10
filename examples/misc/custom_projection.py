@@ -406,18 +406,14 @@ class HammerAxes(GeoAxes):
             x = (2 * sqrt2) * (cos_latitude * np.sin(half_long)) / alpha
             y = (sqrt2 * np.sin(latitude)) / alpha
             return np.column_stack([x, y])
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def transform_path_non_affine(self, path):
             # vertices = path.vertices
             ipath = path.interpolated(self._resolution)
             return Path(self.transform(ipath.vertices), ipath.codes)
-        transform_path_non_affine.__doc__ = \
-            Transform.transform_path_non_affine.__doc__
 
         def inverted(self):
             return HammerAxes.InvertedHammerTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedHammerTransform(Transform):
         input_dims = 2
@@ -434,11 +430,9 @@ class HammerAxes(GeoAxes):
             longitude = 2 * np.arctan((z * x) / (2 * (2 * z ** 2 - 1)))
             latitude = np.arcsin(y*z)
             return np.column_stack([longitude, latitude])
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def inverted(self):
             return HammerAxes.HammerTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, **kwargs):
         self._longitude_cap = np.pi / 2.0
@@ -450,8 +444,7 @@ class HammerAxes(GeoAxes):
         return self.HammerTransform(resolution)
 
 
-# Now register the projection with matplotlib so the user can select
-# it.
+# Now register the projection with Matplotlib so the user can select it.
 register_projection(HammerAxes)
 
 

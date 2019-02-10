@@ -3,9 +3,13 @@ language: python
 dist: xenial
 sudo: false
 
+services:
+  - xvfb
+
 branches:
   except:
   - /^auto-backport-of-pr-\d*/
+  - /^v\d+\.\d+\.[\dx]+-doc$/
 
 cache:
   pip: true
@@ -29,17 +33,21 @@ addons:
       - graphviz
       - inkscape
       - libcairo2
+      - libcairo2-dev
+      - libffi-dev
       - libgeos-dev
-      - libgirepository-1.0.1
+      - libgirepository1.0-dev
       - lmodern
       - otf-freefont
       - pgf
+      - pkg-config
       - texlive-fonts-recommended
       - texlive-latex-base
       - texlive-latex-extra
       - texlive-latex-recommended
       - texlive-xetex
       - texlive-luatex
+      - ttf-wqy-zenhei
 
 env:
   global:
@@ -63,7 +71,7 @@ env:
     - NPROC=2
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
-    - PYTEST_ADDOPTS="-raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - PYTEST_ADDOPTS="-raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC --log-level=DEBUG"
     - RUN_PYTEST=1
     - RUN_FLAKE8=
 
@@ -83,7 +91,8 @@ matrix:
     - python: 3.7
       sudo: true
     - python: "nightly"
-      env: PRE=--pre
+      env:
+        - PRE=--pre
     - os: osx
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       only: master
@@ -107,7 +116,7 @@ before_install: |
     ci/silence brew update
     brew uninstall numpy gdal postgis
     brew upgrade python
-    brew install ffmpeg imagemagick mplayer ccache
+    brew install ffmpeg imagemagick mplayer ccache font-wenquanyi-zen-hei
     hash -r
     which python
     python --version
@@ -132,10 +141,11 @@ install:
     # install was successful by trying to import the toolkit (sometimes, the
     # install appears to be successful but shared libraries cannot be loaded at
     # runtime, so an actual import is a better check).
-    python -mpip install --upgrade cairocffi>=0.8 pgi>=0.0.11.2 &&
-      python -c 'import pgi as gi; gi.require_version("Gtk", "3.0"); from pgi.repository import Gtk' &&
-      echo 'pgi is available' ||
-      echo 'pgi is not available'
+    python -mpip install --upgrade pycairo cairocffi>=0.8
+    python -mpip install --upgrade PyGObject &&
+      python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+      echo 'PyGObject is available' ||
+      echo 'PyGObject is not available'
     python -mpip install --upgrade pyqt5 &&
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
@@ -152,10 +162,6 @@ install:
     python -mpip install -ve .
 
 before_script: |
-  if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
-    export DISPLAY=:99.0
-    sh -e /etc/init.d/xvfb start
-  fi
   if [[ $DELETE_FONT_CACHE == 1 ]]; then
     rm -rf ~/.cache/matplotlib
   fi

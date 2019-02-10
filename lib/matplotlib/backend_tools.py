@@ -271,16 +271,15 @@ class SetCursorBase(ToolBase):
         self._set_cursor_cbk(event.canvasevent)
 
     def _add_tool(self, tool):
-        """set the cursor when the tool is triggered"""
+        """Set the cursor when the tool is triggered."""
         if getattr(tool, 'cursor', None) is not None:
             self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
                                                  self._tool_trigger_cbk)
 
     def _add_tool_cbk(self, event):
-        """Process every newly added tool"""
+        """Process every newly added tool."""
         if event.tool is self:
             return
-
         self._add_tool(event.tool)
 
     def _set_cursor_cbk(self, event):
@@ -853,7 +852,7 @@ class ToolZoom(ZoomPanBase):
         return
 
     def _press(self, event):
-        """the _press mouse button in zoom to rect mode callback"""
+        """Callback for mouse button presses in zoom-to-rectangle mode."""
 
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
@@ -895,7 +894,7 @@ class ToolZoom(ZoomPanBase):
         self._mouse_move(event)
 
     def _mouse_move(self, event):
-        """the drag callback in zoom mode"""
+        """Callback for mouse moves in zoom-to-rectangle mode."""
 
         if self._xypress:
             x, y = event.x, event.y
@@ -910,7 +909,7 @@ class ToolZoom(ZoomPanBase):
                 'rubberband', self, data=(x1, y1, x2, y2))
 
     def _release(self, event):
-        """the release mouse button callback in zoom to rect mode"""
+        """Callback for mouse button releases in zoom-to-rectangle mode."""
 
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)

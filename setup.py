@@ -48,9 +48,7 @@ mpl_packages = [
     setupext.Matplotlib(),
     setupext.Python(),
     setupext.Platform(),
-    'Required dependencies and extensions',
     setupext.Numpy(),
-    setupext.InstallRequires(),
     setupext.LibAgg(),
     setupext.FreeType(),
     setupext.FT2Font(),
@@ -69,7 +67,6 @@ mpl_packages = [
     setupext.BackendAgg(),
     setupext.BackendTkAgg(),
     setupext.BackendMacOSX(),
-    setupext.Windowing(),
     'Optional package data',
     setupext.Dlls(),
     ]

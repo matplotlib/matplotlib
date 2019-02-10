@@ -11,9 +11,9 @@ class SimpleChainedObjects(object):
         _a = SimpleChainedObjects([getattr(a, k) for a in self._objects])
         return _a
 
-    def __call__(self, *kl, **kwargs):
+    def __call__(self, *args, **kwargs):
         for m in self._objects:
-            m(*kl, **kwargs)
+            m(*args, **kwargs)
 
 
 class Axes(maxes.Axes):
@@ -70,7 +70,8 @@ class SimpleAxisArtist(Artist):
         elif isinstance(axis, YAxis):
             self._axis_direction = ["left", "right"][axisnum-1]
         else:
-            raise ValueError("axis must be instance of XAxis or YAxis : %s is provided" % (axis,))
+            raise ValueError(
+                f"axis must be instance of XAxis or YAxis, but got {axis}")
         Artist.__init__(self)
 
     @property

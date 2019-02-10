@@ -77,7 +77,7 @@ class Epoch(object):
             self._jd = float(jd)
 
             # Resolve seconds down to [ 0, 86400)
-            deltaDays = int(math.floor(self._seconds / 86400.0))
+            deltaDays = math.floor(self._seconds / 86400)
             self._jd += deltaDays
             self._seconds -= deltaDays * 86400.0
 
@@ -213,7 +213,7 @@ class Epoch(object):
         - step      Step to use.
 
         = RETURN VALUE
-        - Returns a list contianing the requested Epoch values.
+        - Returns a list containing the requested Epoch values.
         """
         elems = []
 

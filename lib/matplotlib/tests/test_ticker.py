@@ -183,6 +183,10 @@ class TestLogLocator(object):
         loc = mticker.LogLocator(subs="all")
         assert_array_equal(loc.tick_values(0.45, 0.55),
                            [0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56])
+        # check that we *skip* 1.0, and 10, because this is a minor locator
+        loc = mticker.LogLocator(subs=np.arange(2, 10))
+        assert 1.0 not in loc.tick_values(0.9, 20.)
+        assert 10.0 not in loc.tick_values(0.9, 20.)
 
     def test_set_params(self):
         """
@@ -587,7 +591,7 @@ class TestLogFormatter(object):
     @pytest.mark.parametrize('value, domain, expected', pprint_data)
     def test_pprint(self, value, domain, expected):
         fmt = mticker.LogFormatter()
-        label = fmt.pprint_val(value, domain)
+        label = fmt._pprint_val(value, domain)
         assert label == expected
 
     def _sub_labels(self, axis, subs=()):
@@ -682,7 +686,7 @@ class TestEngFormatter(object):
         (1, ('1', '1', '1.00')),
         (1.23456789, ('1.23457', '1', '1.23')),
         (999.9, ('999.9', '1 k', '999.90')),  # places=0: corner-case rounding
-        (999.9999, ('1 k', '1 k', '1.00 k')),  # corner-case roudning for all
+        (999.9999, ('1 k', '1 k', '1.00 k')),  # corner-case rounding for all
         (-999.9999, ('-1 k', '-1 k', '-1.00 k')),  # negative corner-case
         (1000, ('1 k', '1 k', '1.00 k')),
         (1001, ('1.001 k', '1 k', '1.00 k')),
