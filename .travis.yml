@@ -41,12 +41,13 @@ addons:
       - otf-freefont
       - pgf
       - pkg-config
+      - qtbase5-dev
       - texlive-fonts-recommended
       - texlive-latex-base
       - texlive-latex-extra
       - texlive-latex-recommended
-      - texlive-xetex
       - texlive-luatex
+      - texlive-xetex
       - ttf-wqy-zenhei
 
 env:
