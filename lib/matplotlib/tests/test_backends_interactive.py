@@ -21,8 +21,8 @@ def _get_testable_interactive_backends():
     for deps, backend in [
             (["cairo", "gi"], "gtk3agg"),
             (["cairo", "gi"], "gtk3cairo"),
-            (["PyQt5"], "qt5agg"),
-            (["PyQt5", "cairocffi"], "qt5cairo"),
+            (["matplotlib.backends.qt_compat"], "qt5agg"),
+            (["matplotlib.backends.qt_compat", "cairocffi"], "qt5cairo"),
             (["tkinter"], "tkagg"),
             (["wx"], "wx"),
             (["wx"], "wxagg"),

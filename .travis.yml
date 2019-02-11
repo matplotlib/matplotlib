@@ -146,10 +146,10 @@ install:
       python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
       echo 'PyGObject is available' ||
       echo 'PyGObject is not available'
-    python -mpip install --upgrade pyqt5 &&
-      python -c 'import PyQt5.QtCore' &&
-      echo 'PyQt5 is available' ||
-      echo 'PyQt5 is not available'
+    python -mpip install --upgrade pyside2 &&
+      python -c 'import PySide2.QtCore' &&
+      echo 'PySide2 is available' ||
+      echo 'PySide2 is not available'
     python -mpip install --upgrade \
       -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
       wxPython &&
