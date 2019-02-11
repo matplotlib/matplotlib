@@ -159,7 +159,7 @@ def download_or_cache(url, sha):
 _freetype_hashes = {
     '2.6.1': '0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014',
     '2.6.2': '8da42fc4904e600be4b692555ae1dcbf532897da9c5b9fb5ebd3758c77e5c2d4',
-   '2.6.3': '7942096c40ee6fea882bd4207667ad3f24bff568b96b10fd3885e11a7baad9a3',
+    '2.6.3': '7942096c40ee6fea882bd4207667ad3f24bff568b96b10fd3885e11a7baad9a3',
     '2.6.4': '27f0e38347a1850ad57f84fc4dfed68ba0bc30c96a6fa6138ef84d485dd9a8d7',
     '2.6.5': '3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a',
     '2.7': '7b657d5f872b0ab56461f3bd310bd1c5ec64619bd15f0d8e08282d494d9cfea4',
