@@ -101,6 +101,8 @@ def download_or_cache(url, sha):
     cache_dir = _get_xdg_cache_dir()
 
     def get_from_cache(local_fn):
+        if cache_dir is None:
+            raise Exception("no cache dir")
         cache_filename = os.path.join(cache_dir, local_fn)
         with open(cache_filename, 'rb') as fin:
             print('opened the file')
@@ -112,6 +114,9 @@ def download_or_cache(url, sha):
         return buf
 
     def write_cache(local_fn, data):
+        if cache_dir is None:
+            raise Exception("no cache dir")
+
         cache_filename = os.path.join(cache_dir, local_fn)
         makedirs(cache_dir, exist_ok=True)
         if sys.version_info < (3, ):
@@ -126,14 +131,10 @@ def download_or_cache(url, sha):
             fout.write(data.read())
         data.seek(old_pos)
 
-    if cache_dir is not None:
-        try:
-            file_contents = get_from_cache(sha)
-        except Exception:
-            file_contents = None
-
-    if file_contents is not None:
-        return file_contents
+    try:
+        return get_from_cache(sha)
+    except Exception:
+        pass
 
     with urlopen(
             Request(url, headers={"User-Agent": ""})) as req:
@@ -145,11 +146,10 @@ def download_or_cache(url, sha):
     if file_sha != sha:
         raise Exception
 
-    if cache_dir is not None:
-        try:
-            write_cache(sha, file_contents)
-        except:
-            pass
+    try:
+        write_cache(sha, file_contents)
+    except Exception:
+        pass
 
     file_contents.seek(0)
     return file_contents
