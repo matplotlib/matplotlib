@@ -136,7 +136,10 @@ def download_or_cache(url, sha):
     file_sha = get_fd_hash(file_contents)
 
     if file_sha != sha:
-        raise Exception
+        raise Exception(("The download file does not match the "
+                         "expected sha.  {url} was expected to have "
+                         "{sha} but it had {file_sha}").format(
+                             sha=sha, file_sha=file_sha, url=url))
 
     try:
         write_cache(sha, file_contents)
