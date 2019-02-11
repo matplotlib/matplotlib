@@ -73,14 +73,6 @@ def get_fd_hash(fd):
     return hasher.hexdigest()
 
 
-def get_file_hash(filename):
-    """
-    Get the SHA256 hash of a given filename.
-    """
-    with open(filename, 'rb') as fd:
-        return get_fd_hash(fd)
-
-
 def download_or_cache(url, sha):
     """
     Get bytes from the given url or local cache.
@@ -344,14 +336,6 @@ def get_buffer_hash(fd):
         hasher.update(buf)
         buf = fd.read(BLOCKSIZE)
     return hasher.hexdigest()
-
-
-def get_file_hash(filename):
-    """
-    Get the SHA256 hash of a given filename.
-    """
-    with open(filename, 'rb') as fd:
-        return get_buffer_hash(fd)
 
 
 class PkgConfig(object):
