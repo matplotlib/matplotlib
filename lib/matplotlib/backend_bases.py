@@ -1789,13 +1789,6 @@ class FigureCanvasBase(object):
         event = LocationEvent('figure_enter_event', self, x, y, guiEvent)
         self.callbacks.process('figure_enter_event', event)
 
-    @cbook.deprecated("2.1")
-    def idle_event(self, guiEvent=None):
-        """Called when GUI is idle."""
-        s = 'idle_event'
-        event = IdleEvent(s, self, guiEvent=guiEvent)
-        self.callbacks.process(s, event)
-
     def inaxes(self, xy):
         """
         Check if a point is in an axes.
