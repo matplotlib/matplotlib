@@ -273,7 +273,7 @@ if __name__ == '__main__':
         development and web application servers targeting multiple user
         interfaces and hardcopy output formats.
         """,
-        license="BSD",
+        license="PSF",
         packages=packages,
         namespace_packages=namespace_packages,
         platforms='any',
