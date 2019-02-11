@@ -43,7 +43,8 @@ else:
 from distutils.dist import Distribution
 
 import setupext
-from setupext import print_line, print_raw, print_message, print_status
+from setupext import (print_line, print_raw, print_message, print_status,
+                      download_or_cache)
 
 # Get the version from versioneer
 import versioneer
@@ -121,6 +122,7 @@ def _download_jquery_to(dest):
     # Note: When bumping the jquery-ui version, also update the versions in
     # single_figure.html and all_figures.html.
     url = "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip"
+    sha = 'f8233674366ab36b2c34c577ec77a3d70cac75d2e387d8587f3836345c0f624d'
     if not os.path.exists(os.path.join(dest, "jquery-ui-1.12.1")):
         try:
             os.makedirs(dest)
@@ -130,10 +132,9 @@ def _download_jquery_to(dest):
         # jQueryUI's website blocks direct downloads from urllib.request's
         # default User-Agent, but not (for example) wget; so I don't feel too
         # bad passing in an empty User-Agent.
-        with urllib.request.urlopen(
-                urllib.request.Request(url, headers={"User-Agent": ""})) \
-                as req:
-            ZipFile(BytesIO(req.read())).extractall(dest)
+        buff = download_or_cache(url, sha)
+        with ZipFile(buff) as zf:
+            zf.extractall(dest)
 
 
 # Relying on versioneer's implementation detail.
