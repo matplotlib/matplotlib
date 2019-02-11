@@ -38,12 +38,13 @@ addons:
       - lmodern
       - otf-freefont
       - pgf
+      - qtbase5-dev
       - texlive-fonts-recommended
       - texlive-latex-base
       - texlive-latex-extra
       - texlive-latex-recommended
-      - texlive-xetex
       - texlive-luatex
+      - texlive-xetex
 
 env:
   global:
