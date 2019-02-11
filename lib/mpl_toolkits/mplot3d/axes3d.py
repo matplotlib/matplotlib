@@ -536,11 +536,7 @@ class Axes3D(Axes):
             self._shared_x_axes.clean()
             x0, x1 = self.xy_dataLim.intervalx
             xlocator = self.xaxis.get_major_locator()
-            try:
-                x0, x1 = xlocator.nonsingular(x0, x1)
-            except AttributeError:
-                x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False,
-                                                         expander=0.05)
+            x0, x1 = xlocator.nonsingular(x0, x1)
             if self._xmargin > 0:
                 delta = (x1 - x0) * self._xmargin
                 x0 -= delta
@@ -553,11 +549,7 @@ class Axes3D(Axes):
             self._shared_y_axes.clean()
             y0, y1 = self.xy_dataLim.intervaly
             ylocator = self.yaxis.get_major_locator()
-            try:
-                y0, y1 = ylocator.nonsingular(y0, y1)
-            except AttributeError:
-                y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False,
-                                                         expander=0.05)
+            y0, y1 = ylocator.nonsingular(y0, y1)
             if self._ymargin > 0:
                 delta = (y1 - y0) * self._ymargin
                 y0 -= delta
@@ -570,11 +562,7 @@ class Axes3D(Axes):
             self._shared_z_axes.clean()
             z0, z1 = self.zz_dataLim.intervalx
             zlocator = self.zaxis.get_major_locator()
-            try:
-                z0, z1 = zlocator.nonsingular(z0, z1)
-            except AttributeError:
-                z0, z1 = mtransforms.nonsingular(z0, z1, increasing=False,
-                                                         expander=0.05)
+            z0, z1 = zlocator.nonsingular(z0, z1)
             if self._zmargin > 0:
                 delta = (z1 - z0) * self._zmargin
                 z0 -= delta
@@ -633,10 +621,9 @@ class Axes3D(Axes):
 
         if left == right:
             cbook._warn_external(
-                ('Attempting to set identical left==right results\n'
-                 'in singular transformations; automatically expanding.\n'
-                 'left=%s, right=%s') % (left, right))
-        left, right = mtransforms.nonsingular(left, right, increasing=False)
+                f"Attempting to set identical left == right == {left} results "
+                f"in singular transformations; automatically expanding.")
+        left, right = self.xaxis.get_major_locator().nonsingular(left, right)
         left, right = self.xaxis.limit_range_for_scale(left, right)
         self.xy_viewLim.intervalx = (left, right)
 
@@ -689,12 +676,12 @@ class Axes3D(Axes):
         if top is None:
             top = old_top
 
-        if top == bottom:
+        if bottom == top:
             cbook._warn_external(
-                ('Attempting to set identical bottom==top results\n'
-                 'in singular transformations; automatically expanding.\n'
-                 'bottom=%s, top=%s') % (bottom, top))
-        bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
+                f"Attempting to set identical bottom == top == {bottom} "
+                f"results in singular transformations; automatically "
+                f"expanding.")
+        bottom, top = self.yaxis.get_major_locator().nonsingular(bottom, top)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
         self.xy_viewLim.intervaly = (bottom, top)
 
@@ -747,12 +734,12 @@ class Axes3D(Axes):
         if top is None:
             top = old_top
 
-        if top == bottom:
+        if bottom == top:
             cbook._warn_external(
-                ('Attempting to set identical bottom==top results\n'
-                 'in singular transformations; automatically expanding.\n'
-                 'bottom=%s, top=%s') % (bottom, top))
-        bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
+                f"Attempting to set identical bottom == top == {bottom} "
+                f"results in singular transformations; automatically "
+                f"expanding.")
+        bottom, top = self.zaxis.get_major_locator().nonsingular(bottom, top)
         bottom, top = self.zaxis.limit_range_for_scale(bottom, top)
         self.zz_viewLim.intervalx = (bottom, top)
 
