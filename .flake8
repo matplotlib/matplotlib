@@ -224,6 +224,7 @@ per-file-ignores =
     examples/subplots_axes_and_figures/axes_zoom_effect.py: E402
     examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
     examples/subplots_axes_and_figures/demo_tight_layout.py: E402
+    examples/subplots_axes_and_figures/secondary_axis.py: E402
     examples/subplots_axes_and_figures/two_scales.py: E402
     examples/subplots_axes_and_figures/zoom_inset_axes.py: E402
     examples/tests/backend_driver_sgskip.py: E402, E501

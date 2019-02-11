@@ -2500,8 +2500,17 @@ class _AxesBase(martist.Artist):
             title.set_position((x, 1.0))
             # need to check all our twins too...
             axs = self._twinned_axes.get_siblings(self)
-
-            top = 0  # the top of all the axes twinned with this axes...
+            # and all the children
+            for ax in self.child_axes:
+                if ax is not None:
+                    locator = ax.get_axes_locator()
+                    if locator:
+                        pos = locator(self, renderer)
+                        ax.apply_aspect(pos)
+                    else:
+                        ax.apply_aspect()
+                    axs = axs + [ax]
+            top = 0
             for ax in axs:
                 try:
                     if (ax.xaxis.get_label_position() == 'top'
@@ -2544,6 +2553,8 @@ class _AxesBase(martist.Artist):
 
         # prevent triggering call backs during the draw process
         self._stale = True
+
+        # loop over self and child axes...
         locator = self.get_axes_locator()
         if locator:
             pos = locator(self, renderer)
@@ -4314,6 +4325,9 @@ class _AxesBase(martist.Artist):
         bb_yaxis = self.yaxis.get_tightbbox(renderer)
         if bb_yaxis:
             bb.append(bb_yaxis)
+
+        self._update_title_position(renderer)
+        bb.append(self.get_window_extent(renderer))
 
         self._update_title_position(renderer)
         if self.title.get_visible():

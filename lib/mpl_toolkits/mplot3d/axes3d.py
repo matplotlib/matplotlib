@@ -801,8 +801,6 @@ class Axes3D(Axes):
         """
         Return the zaxis scale string %s
 
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         """ % (", ".join(mscale.get_scale_names()))
         return self.zaxis.get_scale()
 
@@ -829,24 +827,34 @@ class Axes3D(Axes):
             This function was added, but not tested. Please report any bugs.
         """
 
-    @docstring.dedent_interpd
     def set_zscale(self, value, **kwargs):
         """
-        Set the scaling of the z-axis: %(scale)s
+        Set the z-axis scale.
 
-        ACCEPTS: [%(scale)s]
+        Parameters
+        ----------
+        value : {"linear", "log", "symlog", "logit", ...}
+            The axis scale type to apply.
 
-        Different kwargs are accepted, depending on the scale:
+        **kwargs
+            Different keyword arguments are accepted, depending on the scale.
+            See the respective class keyword arguments:
 
-        %(scale_docs)s
+            - `matplotlib.scale.LinearScale`
+            - `matplotlib.scale.LogScale`
+            - `matplotlib.scale.SymmetricalLogScale`
+            - `matplotlib.scale.LogitScale`
 
-        .. note ::
-            Currently, Axes3D objects only supports linear scales.
-            Other scales may or may not work, and support for these
-            is improving with each release.
+        Notes
+        -----
+        Currently, Axes3D objects only supports linear scales.
+        Other scales may or may not work, and support for these
+        is improving with each release.
 
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
+        By default, Matplotlib supports the above mentioned scales.
+        Additionally, custom scales may be registered using
+        `matplotlib.scale.register_scale`. These scales may then also
+        be used here as support is added.
         """
         self.zaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scaley=False)
