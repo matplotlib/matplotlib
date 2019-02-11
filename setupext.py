@@ -2,6 +2,7 @@ import builtins
 import configparser
 from distutils import sysconfig, version
 from distutils.core import Extension
+from io import BytesIO
 import glob
 import hashlib
 import importlib
@@ -9,15 +10,35 @@ import logging
 import os
 import pathlib
 import platform
+import setuptools
 import shutil
 import subprocess
 import sys
 import tarfile
 import textwrap
 import urllib.request
-
-import setuptools
 import versioneer
+import warnings
+
+if sys.version_info < (3, ):
+    from urllib2 import urlopen, Request
+
+    class FileExistsError(OSError):
+        pass
+
+    def makedirs(path, exist_ok=True):
+        if not exist_ok:
+            raise ValueError("this backport only supports exist_ok is True")
+        if not path or os.path.exists(path):
+            return
+        head, tail = os.path.split(path)
+
+        makedirs(head, exist_ok=True)
+        os.makedirs(path)
+
+else:
+    from urllib.request import urlopen, Request
+    from os import makedirs
 
 _log = logging.getLogger(__name__)
 
@@ -36,11 +57,109 @@ def _get_xdg_cache_dir():
     return os.path.join(cache_dir, 'matplotlib')
 
 
+def get_fd_hash(fd):
+    """
+    Compute the sha256 hash of the bytes in a file-like
+    """
+    BLOCKSIZE = 1 << 16
+    hasher = hashlib.sha256()
+    old_pos = fd.tell()
+    fd.seek(0)
+    buf = fd.read(BLOCKSIZE)
+    while buf:
+        hasher.update(buf)
+        buf = fd.read(BLOCKSIZE)
+    fd.seek(old_pos)
+    return hasher.hexdigest()
+
+
+def get_file_hash(filename):
+    """
+    Get the SHA256 hash of a given filename.
+    """
+    with open(filename, 'rb') as fd:
+        return get_fd_hash(fd)
+
+
+def download_or_cache(url, sha):
+    """
+    Get bytes from the given url or local cache.
+
+    Parameters
+    ----------
+    url : str
+        The url to download
+
+    sha : str
+        The sha256 of the file
+
+    Returns
+    -------
+    BytesIO
+        The file loaded into memory.
+    """
+    cache_dir = _get_xdg_cache_dir()
+
+    def get_from_cache(local_fn):
+        cache_filename = os.path.join(cache_dir, local_fn)
+        with open(cache_filename, 'rb') as fin:
+            print('opened the file')
+            buf = BytesIO(fin.read())
+        file_sha = get_fd_hash(buf)
+        if file_sha != sha:
+            return None
+        buf.seek(0)
+        return buf
+
+    def write_cache(local_fn, data):
+        cache_filename = os.path.join(cache_dir, local_fn)
+        makedirs(cache_dir, exist_ok=True)
+        if sys.version_info < (3, ):
+            if os.path.exists(cache_filename):
+                raise FileExistsError
+            mode = 'wb'
+        else:
+            mode = 'bx'
+        old_pos = data.tell()
+        data.seek(0)
+        with open(cache_filename, mode=mode) as fout:
+            fout.write(data.read())
+        data.seek(old_pos)
+
+    if cache_dir is not None:
+        try:
+            file_contents = get_from_cache(sha)
+        except Exception:
+            file_contents = None
+
+    if file_contents is not None:
+        return file_contents
+
+    with urlopen(
+            Request(url, headers={"User-Agent": ""})) as req:
+        file_contents = BytesIO(req.read())
+        file_contents.seek(0)
+
+    file_sha = get_fd_hash(file_contents)
+
+    if file_sha != sha:
+        raise Exception
+
+    if cache_dir is not None:
+        try:
+            write_cache(sha, file_contents)
+        except:
+            pass
+
+    file_contents.seek(0)
+    return file_contents
+
+
 # SHA256 hashes of the FreeType tarballs
 _freetype_hashes = {
     '2.6.1': '0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014',
     '2.6.2': '8da42fc4904e600be4b692555ae1dcbf532897da9c5b9fb5ebd3758c77e5c2d4',
-    '2.6.3': '7942096c40ee6fea882bd4207667ad3f24bff568b96b10fd3885e11a7baad9a3',
+   '2.6.3': '7942096c40ee6fea882bd4207667ad3f24bff568b96b10fd3885e11a7baad9a3',
     '2.6.4': '27f0e38347a1850ad57f84fc4dfed68ba0bc30c96a6fa6138ef84d485dd9a8d7',
     '2.6.5': '3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a',
     '2.7': '7b657d5f872b0ab56461f3bd310bd1c5ec64619bd15f0d8e08282d494d9cfea4',
@@ -217,18 +336,22 @@ def make_extension(name, files, *args, **kwargs):
     return ext
 
 
+def get_buffer_hash(fd):
+    BLOCKSIZE = 1 << 16
+    hasher = hashlib.sha256()
+    buf = fd.read(BLOCKSIZE)
+    while buf:
+        hasher.update(buf)
+        buf = fd.read(BLOCKSIZE)
+    return hasher.hexdigest()
+
+
 def get_file_hash(filename):
     """
     Get the SHA256 hash of a given filename.
     """
-    BLOCKSIZE = 1 << 16
-    hasher = hashlib.sha256()
     with open(filename, 'rb') as fd:
-        buf = fd.read(BLOCKSIZE)
-        while buf:
-            hasher.update(buf)
-            buf = fd.read(BLOCKSIZE)
-    return hasher.hexdigest()
+        return get_buffer_hash(fd)
 
 
 class PkgConfig(object):
