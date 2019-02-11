@@ -1411,9 +1411,9 @@ class Locator(TickHelper):
     """
     Determine the tick locations;
 
-    Note, you should not use the same locator between different
-    :class:`~matplotlib.axis.Axis` because the locator stores references to
-    the Axis data and view limits
+    Note that the same locator should not be used across multiple
+    `~matplotlib.axis.Axis` because the locator stores references to the Axis
+    data and view limits.
     """
 
     # Some automatic tick locators can generate so many ticks they
@@ -1463,12 +1463,15 @@ class Locator(TickHelper):
                                    len(locs), locs[0], locs[-1]))
         return locs
 
+    def nonsingular(self, v0, v1):
+        """Modify the endpoints of a range as needed to avoid singularities."""
+        return mtransforms.nonsingular(v0, v1, increasing=False, expander=.05)
+
     def view_limits(self, vmin, vmax):
         """
-        select a scale for the range from vmin to vmax
+        Select a scale for the range from vmin to vmax.
 
-        Normally this method is overridden by subclasses to
-        change locator behaviour.
+        Subclasses should override this method to change locator behaviour.
         """
         return mtransforms.nonsingular(vmin, vmax)
 

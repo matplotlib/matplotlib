@@ -2423,13 +2423,7 @@ class _AxesBase(martist.Artist):
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = getattr(bb, interval)
             locator = axis.get_major_locator()
-            try:
-                # e.g., DateLocator has its own nonsingular()
-                x0, x1 = locator.nonsingular(x0, x1)
-            except AttributeError:
-                # Default nonsingular for, e.g., MaxNLocator
-                x0, x1 = mtransforms.nonsingular(
-                    x0, x1, increasing=False, expander=0.05)
+            x0, x1 = locator.nonsingular(x0, x1)
 
             # Add the margin in figure space and then transform back, to handle
             # non-linear scales.
@@ -2443,7 +2437,7 @@ class _AxesBase(martist.Artist):
             x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minpos)
             x0t, x1t = transform.transform([x0, x1])
 
-            if (np.isfinite(x1t) and np.isfinite(x0t)):
+            if np.isfinite(x1t) and np.isfinite(x0t):
                 delta = (x1t - x0t) * margin
             else:
                 # If at least one bound isn't finite, set margin to zero
@@ -3216,13 +3210,6 @@ class _AxesBase(martist.Artist):
         if right is None:
             right = old_right
 
-        if left == right:
-            cbook._warn_external(
-                ('Attempting to set identical left==right results\n'
-                 'in singular transformations; automatically expanding.\n'
-                 'left=%s, right=%s') % (left, right))
-        left, right = mtransforms.nonsingular(left, right, increasing=False)
-
         if self.get_xscale() == 'log':
             if left <= 0:
                 cbook._warn_external(
@@ -3236,7 +3223,11 @@ class _AxesBase(martist.Artist):
                     'log-scaled axis.\n'
                     'Invalid limit will be ignored.')
                 right = old_right
-
+        if left == right:
+            cbook._warn_external(
+                f"Attempting to set identical left == right == {left} results "
+                f"in singular transformations; automatically expanding.")
+        left, right = self.xaxis.get_major_locator().nonsingular(left, right)
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
         self.viewLim.intervalx = (left, right)
@@ -3603,14 +3594,6 @@ class _AxesBase(martist.Artist):
         if top is None:
             top = old_top
 
-        if bottom == top:
-            cbook._warn_external(
-                ('Attempting to set identical bottom==top results\n'
-                 'in singular transformations; automatically expanding.\n'
-                 'bottom=%s, top=%s') % (bottom, top))
-
-        bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
-
         if self.get_yscale() == 'log':
             if bottom <= 0:
                 cbook._warn_external(
@@ -3624,6 +3607,12 @@ class _AxesBase(martist.Artist):
                     'log-scaled axis.\n'
                     'Invalid limit will be ignored.')
                 top = old_top
+        if bottom == top:
+            cbook._warn_external(
+                f"Attempting to set identical bottom == top == {bottom} "
+                f"results in singular transformations; automatically "
+                f"expanding.")
+        bottom, top = self.yaxis.get_major_locator().nonsingular(bottom, top)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
         self.viewLim.intervaly = (bottom, top)
