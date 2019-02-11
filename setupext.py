@@ -119,7 +119,7 @@ def download_or_cache(url, sha):
                 raise FileExistsError
             mode = 'wb'
         else:
-            mode = 'bx'
+            mode = 'xb'
         old_pos = data.tell()
         data.seek(0)
         with open(cache_filename, mode=mode) as fout:
