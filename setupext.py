@@ -973,71 +973,39 @@ class FreeType(SetupPackage):
 
         if os.path.isfile(os.path.join(src_path, 'objs', '.libs', libfreetype)):
             return
+        if not os.path.exists('build'):
+            os.makedirs('build')
 
+        url_fmts = [
+            ('https://downloads.sourceforge.net/project/freetype'
+             '/freetype2/{version}/{tarball}'),
+            ('https://download.savannah.gnu.org/releases/freetype'
+             '/{tarball}')
+        ]
         tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
-        tarball_path = os.path.join('build', tarball)
-        try:
-            tarball_cache_dir = _get_xdg_cache_dir()
-            tarball_cache_path = os.path.join(tarball_cache_dir, tarball)
-        except Exception:
-            # again, do not really care if this fails
-            tarball_cache_dir = None
-            tarball_cache_path = None
-        if not os.path.isfile(tarball_path):
-            if (tarball_cache_path is not None and
-                    os.path.isfile(tarball_cache_path)):
-                if get_file_hash(tarball_cache_path) == LOCAL_FREETYPE_HASH:
-                    os.makedirs('build', exist_ok=True)
-                    try:
-                        shutil.copy(tarball_cache_path, tarball_path)
-                        print('Using cached tarball: {}'
-                              .format(tarball_cache_path))
-                    except OSError:
-                        # If this fails, oh well just re-download
-                        pass
 
-            if not os.path.isfile(tarball_path):
-                if not os.path.exists('build'):
-                    os.makedirs('build')
-
-                url_fmts = [
-                    'https://downloads.sourceforge.net/project/freetype'
-                    '/freetype2/{version}/{tarball}',
-                    'https://download.savannah.gnu.org/releases/freetype'
-                    '/{tarball}'
-                ]
-                for url_fmt in url_fmts:
-                    tarball_url = url_fmt.format(
-                        version=LOCAL_FREETYPE_VERSION, tarball=tarball)
-
-                    print("Downloading {}".format(tarball_url))
-                    try:
-                        urllib.request.urlretrieve(tarball_url, tarball_path)
-                    except IOError:  # URLError (a subclass) on Py3.
-                        print("Failed to download {}".format(tarball_url))
-                    else:
-                        if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
-                            print("Invalid hash.")
-                        else:
-                            break
-                else:
-                    raise IOError("Failed to download FreeType. You can "
-                                  "download the file by alternative means and "
-                                  "copy it to {}".format(tarball_path))
-                os.makedirs(tarball_cache_dir, exist_ok=True)
-                try:
-                    shutil.copy(tarball_path, tarball_cache_path)
-                    print('Cached tarball at {}'.format(tarball_cache_path))
-                except OSError:
-                    # If this fails, we can always re-download.
-                    pass
-
-            if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
-                raise IOError(
-                    "{} does not match expected hash.".format(tarball))
+        for url_fmt in url_fmts:
+            tarball_url = url_fmt.format(
+                version=LOCAL_FREETYPE_VERSION, tarball=tarball)
+            try:
+                tar_contents = download_or_cache(tarball_url,
+                                                 LOCAL_FREETYPE_HASH)
+                break
+            except Exception as ex:
+                raise ex
+        else:
+            target_urls = [url_fmt.format(
+                version=LOCAL_FREETYPE_VERSION, tarball=tarball)
+                           for url_fmt in url_fmts]
+            raise IOError("Failed to download FreeType.  Please download " +
+                          "one of {target_urls} ".format(
+                              target_urls=target_urls) +
+                          "and extract it into the build directory "
+                          "at the top-level of the source repository")
 
         print("Building {}".format(tarball))
-        with tarfile.open(tarball_path, "r:gz") as tgz:
+        tar_contents.seek(0)
+        with tarfile.open(tarball, mode="r:gz", fileobj=tar_contents) as tgz:
             tgz.extractall("build")
 
         if sys.platform != 'win32':
