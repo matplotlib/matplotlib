@@ -495,7 +495,11 @@ def test_flatiter():
 def test_reshape2d():
     class dummy():
         pass
+    xnew = cbook._reshape_2D([], 'x')
+    assert np.shape(xnew) == (1, 0)
+
     x = [dummy() for j in range(5)]
+
     xnew = cbook._reshape_2D(x, 'x')
     assert np.shape(xnew) == (1, 5)
 
