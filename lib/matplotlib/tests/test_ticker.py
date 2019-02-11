@@ -99,9 +99,7 @@ class TestAutoMinorLocator(object):
     # NB: the following values are assuming that *xlim* is [0, 5]
     params = [
         (0, 0),  # no major tick => no minor tick either
-        (1, 0),  # a single major tick => no minor tick
-        (2, 4),  # 1 "nice" major step => 1*5 minor **divisions**
-        (3, 6)   # 2 "not nice" major steps => 2*4 minor **divisions**
+        (1, 0)   # a single major tick => no minor tick
     ]
 
     @pytest.mark.parametrize('nb_majorticks, expected_nb_minorticks', params)
@@ -115,6 +113,32 @@ class TestAutoMinorLocator(object):
         ax.minorticks_on()
         ax.xaxis.set_minor_locator(mticker.AutoMinorLocator())
         assert len(ax.xaxis.get_minorticklocs()) == expected_nb_minorticks
+
+    majorstep_minordivisions = [(1, 5),
+                                (2, 4),
+                                (2.5, 5),
+                                (5, 5),
+                                (10, 5)]
+
+    # This test is meant to verify the parameterization for
+    # test_number_of_minor_ticks
+    def test_using_all_default_major_steps(self):
+        with matplotlib.rc_context({'_internal.classic_mode': False}):
+            majorsteps = [x[0] for x in self.majorstep_minordivisions]
+            assert np.allclose(majorsteps, mticker.AutoLocator()._steps)
+
+    @pytest.mark.parametrize('major_step, expected_nb_minordivisions',
+                             majorstep_minordivisions)
+    def test_number_of_minor_ticks(
+            self, major_step, expected_nb_minordivisions):
+        fig, ax = plt.subplots()
+        xlims = (0, major_step)
+        ax.set_xlim(*xlims)
+        ax.set_xticks(xlims)
+        ax.minorticks_on()
+        ax.xaxis.set_minor_locator(mticker.AutoMinorLocator())
+        nb_minor_divisions = len(ax.xaxis.get_minorticklocs()) + 1
+        assert nb_minor_divisions == expected_nb_minordivisions
 
     limits = [(0, 1.39), (0, 0.139),
               (0, 0.11e-19), (0, 0.112e-12),
