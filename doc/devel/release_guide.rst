@@ -189,12 +189,15 @@ Building binaries
 We distribute mac, windows, and many linux wheels as well as a source
 tarball via pypi.  Before uploading anything, contact the various
 builders.  Mac and manylinux wheels are built on travis .  You need to
-edit the :file:`.travis.yml` file and push to master of `the build
-project <https://github.com/MacPython/matplotlib-wheels>`__.
+edit the :file:`.travis.yml` file and push to the correct branch of
+`the build project
+<https://github.com/MacPython/matplotlib-wheels>`__.  For new minor
+version create a new branch, for bug-fixes continue to use the current
+release branch.
 
-Update the ``master`` branch (for pre-releases the ``devel`` branch)
-of the `conda-forge feedstock
-<https://github.com/conda-forge/matplotlib-feedstock>`__ via pull request.
+The auto-tick bot should open a pull request into the `conda-forge
+feedstock <https://github.com/conda-forge/matplotlib-feedstock>`__.
+Review and merge (if you have the power to).
 
 .. warning
 
@@ -215,12 +218,14 @@ If this is a final release the following downstream packagers should be contacte
 
 This can be done ahead of collecting all of the binaries and uploading to pypi.
 
+
 .. _release_upload_bin:
 
 make distribution and upload to pypi / SF
 -----------------------------------------
 
-Once you have collected all of the wheels, generate the tarball ::
+Once you have collected all of the wheels (expect this to take about a
+day), generate the tarball ::
 
   git checkout v2.0.0
   git clean -xfd
