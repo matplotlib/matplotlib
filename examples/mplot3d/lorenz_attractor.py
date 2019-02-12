@@ -38,9 +38,9 @@ dt = 0.01
 num_steps = 10000
 
 # Need one more for the initial values
-xs = np.empty((num_steps + 1,))
-ys = np.empty((num_steps + 1,))
-zs = np.empty((num_steps + 1,))
+xs = np.empty(num_steps + 1)
+ys = np.empty(num_steps + 1)
+zs = np.empty(num_steps + 1)
 
 # Set initial values
 xs[0], ys[0], zs[0] = (0., 1., 1.05)

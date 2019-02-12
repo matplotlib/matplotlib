@@ -49,6 +49,10 @@ import numpy as np
 from matplotlib import cbook
 
 
+class ConversionError(TypeError):
+    pass
+
+
 class AxisInfo(object):
     """
     Information to support default axis labeling, tick labeling, and

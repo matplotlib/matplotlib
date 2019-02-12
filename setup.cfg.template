@@ -41,8 +41,6 @@
 #
 # - Tk support requires Tk development headers and Tkinter.
 # - Mac OSX backend requires the Cocoa headers included with XCode.
-# - Windowing is MS-Windows specific, and requires the "windows.h"
-#   header.
 #
 # The other GUI toolkits do not require any extension code, and can be
 # used as long as the libraries are installed on your system --
@@ -61,7 +59,6 @@
 #agg = auto
 #macosx = auto
 #tkagg = auto
-#windowing = auto
 
 [rc_options]
 # User-configurable options

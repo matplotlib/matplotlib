@@ -154,7 +154,7 @@ def test_tight_layout8():
 
 @image_comparison(baseline_images=['tight_layout9'])
 def test_tight_layout9():
-    # Test tight_layout for non-visible suplots
+    # Test tight_layout for non-visible subplots
     # GH 8244
     f, axarr = plt.subplots(2, 2)
     axarr[1][1].set_visible(False)
@@ -319,7 +319,7 @@ def test_badsubplotgrid():
 
 
 def test_collapsed():
-    # test that if a call to tight_layout will collapes the axes that
+    # test that if a call to tight_layout will collapses the axes that
     # it does not get applied:
     fig, ax = plt.subplots(tight_layout=True)
     ax.set_xlim([0, 1])

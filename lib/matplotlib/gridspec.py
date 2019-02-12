@@ -63,7 +63,7 @@ class GridSpecBase(object):
 
     def new_subplotspec(self, loc, rowspan=1, colspan=1):
         """
-        create and return a SuplotSpec instance.
+        create and return a SubplotSpec instance.
         """
         loc1, loc2 = loc
         subplotspec = self[loc1:loc1+rowspan, loc2:loc2+colspan]
@@ -142,7 +142,7 @@ class GridSpecBase(object):
         return fig_bottoms, fig_tops, fig_lefts, fig_rights
 
     def __getitem__(self, key):
-        """Create and return a SuplotSpec instance.
+        """Create and return a SubplotSpec instance.
         """
         nrows, ncols = self.get_geometry()
 
@@ -234,7 +234,7 @@ class GridSpec(GridSpecBase):
                 parent=self.figure._layoutbox,
                 name='gridspec' + layoutbox.seq_id(),
                 artist=self)
-        # by default the layoutbox for a gridsepc will fill a figure.
+        # by default the layoutbox for a gridspec will fill a figure.
         # but this can change below if the gridspec is created from a
         # subplotspec. (GridSpecFromSubplotSpec)
 
@@ -255,16 +255,15 @@ class GridSpec(GridSpecBase):
 
     def update(self, **kwargs):
         """
-        Update the current values.  If any kwarg is None, default to
-        the current value, if set, otherwise to rc.
-        """
+        Update the current values.
 
+        Values set to None use the rcParams value.
+        """
         for k, v in kwargs.items():
             if k in self._AllowedKeys:
                 setattr(self, k, v)
             else:
-                raise AttributeError("%s is unknown keyword" % (k,))
-
+                raise AttributeError(f"{k} is an unknown keyword")
         for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
                 # copied from Figure.subplots_adjust
@@ -284,18 +283,11 @@ class GridSpec(GridSpecBase):
                         ax.update_params()
                         ax._set_position(ax.figbox)
 
-    def get_subplot_params(self, figure=None, fig=None):
+    def get_subplot_params(self, figure=None):
         """
         Return a dictionary of subplot layout parameters. The default
         parameters are from rcParams unless a figure attribute is set.
         """
-        if fig is not None:
-            cbook.warn_deprecated("2.2", name="fig",
-                                  obj_type="keyword argument",
-                                  alternative="figure")
-        if figure is None:
-            figure = fig
-
         if figure is None:
             kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
             subplotpars = mpl.figure.SubplotParams(**kw)
@@ -379,16 +371,9 @@ class GridSpecFromSubplotSpec(GridSpecBase):
                     name=subspeclb.name + '.gridspec' + layoutbox.seq_id(),
                     artist=self)
 
-    def get_subplot_params(self, figure=None, fig=None):
+    def get_subplot_params(self, figure=None):
         """Return a dictionary of subplot layout parameters.
         """
-        if fig is not None:
-            cbook.warn_deprecated("2.2", name="fig",
-                                  obj_type="keyword argument",
-                                  alternative="figure")
-        if figure is None:
-            figure = fig
-
         hspace = (self._hspace if self._hspace is not None
                   else figure.subplotpars.hspace if figure is not None
                   else rcParams["figure.subplot.hspace"])

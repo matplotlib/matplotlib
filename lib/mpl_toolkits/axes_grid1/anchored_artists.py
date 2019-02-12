@@ -10,7 +10,6 @@ __all__ = ['AnchoredDrawingArea', 'AnchoredAuxTransformBox',
 
 
 class AnchoredDrawingArea(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, width, height, xdescent, ydescent,
                  loc, pad=0.4, borderpad=0.5, prop=None, frameon=True,
                  **kwargs):
@@ -87,7 +86,6 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
 
 
 class AnchoredAuxTransformBox(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, loc,
                  pad=0.4, borderpad=0.5, prop=None, frameon=True, **kwargs):
         """
@@ -160,7 +158,6 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
 
 
 class AnchoredEllipse(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, width, height, angle, loc,
                  pad=0.1, borderpad=0.1, prop=None, frameon=True, **kwargs):
         """
@@ -226,7 +223,6 @@ class AnchoredEllipse(AnchoredOffsetbox):
 
 
 class AnchoredSizeBar(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2,
                  frameon=True, size_vertical=0, color='black',
@@ -375,7 +371,6 @@ class AnchoredSizeBar(AnchoredOffsetbox):
 
 
 class AnchoredDirectionArrows(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, label_x, label_y, length=0.15,
                  fontsize=0.08, loc=2, angle=0, aspect_ratio=1, pad=0.4,
                  borderpad=0.4, frameon=False, color='w', alpha=1,

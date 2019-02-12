@@ -34,6 +34,8 @@ The TkAgg backend had its own implementation of the `round` function. This
 was unused internally and has been removed. Instead, use either the
 `round` builtin function or `numpy.round`.
 
+.. _v200_deprecate_hold:
+
 'hold' functionality deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The 'hold' keyword argument and all functions and methods related
@@ -168,7 +170,7 @@ call the function with ::
 where "ax" is an ``Axes3d`` object created with something like ::
 
    import mpl_toolkits.mplot3d.axes3d
-   ax = plt.sublot(111, projection='3d')
+   ax = plt.subplot(111, projection='3d')
 
 
 Stale figure behavior

@@ -74,13 +74,15 @@ class Path(object):
 
     """
 
+    code_type = np.uint8
+
     # Path codes
-    STOP = 0         # 1 vertex
-    MOVETO = 1       # 1 vertex
-    LINETO = 2       # 1 vertex
-    CURVE3 = 3       # 2 vertices
-    CURVE4 = 4       # 3 vertices
-    CLOSEPOLY = 79   # 1 vertex
+    STOP = code_type(0)         # 1 vertex
+    MOVETO = code_type(1)       # 1 vertex
+    LINETO = code_type(2)       # 1 vertex
+    CURVE3 = code_type(3)       # 2 vertices
+    CURVE4 = code_type(4)       # 3 vertices
+    CLOSEPOLY = code_type(79)   # 1 vertex
 
     #: A dictionary mapping Path codes to the number of vertices that the
     #: code expects.
@@ -90,8 +92,6 @@ class Path(object):
                              CURVE3: 2,
                              CURVE4: 3,
                              CLOSEPOLY: 1}
-
-    code_type = np.uint8
 
     def __init__(self, vertices, codes=None, _interpolation_steps=1,
                  closed=False, readonly=False):
@@ -312,7 +312,7 @@ class Path(object):
         stride = numsides + 1
         nverts = numpolys * stride
         verts = np.zeros((nverts, 2))
-        codes = np.ones(nverts, int) * cls.LINETO
+        codes = np.full(nverts, cls.LINETO, dtype=cls.code_type)
         codes[0::stride] = cls.MOVETO
         codes[numsides::stride] = cls.CLOSEPOLY
         for i in range(numsides):
@@ -399,24 +399,22 @@ class Path(object):
                                snap=snap, stroke_width=stroke_width,
                                simplify=simplify, curves=curves,
                                sketch=sketch)
-        vertices = cleaned.vertices
-        codes = cleaned.codes
-        len_vertices = vertices.shape[0]
 
         # Cache these object lookups for performance in the loop.
         NUM_VERTICES_FOR_CODE = self.NUM_VERTICES_FOR_CODE
         STOP = self.STOP
 
-        i = 0
-        while i < len_vertices:
-            code = codes[i]
+        vertices = iter(cleaned.vertices)
+        codes = iter(cleaned.codes)
+        for curr_vertices, code in zip(vertices, codes):
             if code == STOP:
-                return
-            else:
-                num_vertices = NUM_VERTICES_FOR_CODE[code]
-                curr_vertices = vertices[i:i+num_vertices].flatten()
-                yield curr_vertices, code
-                i += num_vertices
+                break
+            extra_vertices = NUM_VERTICES_FOR_CODE[code] - 1
+            if extra_vertices:
+                for i in range(extra_vertices):
+                    next(codes)
+                    curr_vertices = np.append(curr_vertices, next(vertices))
+            yield curr_vertices, code
 
     def cleaned(self, transform=None, remove_nans=False, clip=None,
                 quantize=False, simplify=False, curves=False,
@@ -554,7 +552,8 @@ class Path(object):
         vertices = simple_linear_interpolation(self.vertices, steps)
         codes = self.codes
         if codes is not None:
-            new_codes = Path.LINETO * np.ones(((len(codes) - 1) * steps + 1, ))
+            new_codes = np.full((len(codes) - 1) * steps + 1, Path.LINETO,
+                                dtype=self.code_type)
             new_codes[0::steps] = codes
         else:
             new_codes = None
@@ -716,7 +715,7 @@ class Path(object):
 
         Notes
         -----
-        The circle is approximated using 8 cubic Bezier curves, as decribed in
+        The circle is approximated using 8 cubic Bezier curves, as described in
 
           Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
           Bezier Cubic Splines <http://www.tinaja.com/glib/ellipse4.pdf>`_.
@@ -804,7 +803,7 @@ class Path(object):
 
                 float)
 
-            codes = cls.CURVE4 * np.ones(14)
+            codes = np.full(14, cls.CURVE4, dtype=cls.code_type)
             codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
@@ -866,7 +865,7 @@ class Path(object):
         if is_wedge:
             length = n * 3 + 4
             vertices = np.zeros((length, 2), float)
-            codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
+            codes = np.full(length, cls.CURVE4, dtype=cls.code_type)
             vertices[1] = [xA[0], yA[0]]
             codes[0:2] = [cls.MOVETO, cls.LINETO]
             codes[-2:] = [cls.LINETO, cls.CLOSEPOLY]
@@ -875,7 +874,7 @@ class Path(object):
         else:
             length = n * 3 + 1
             vertices = np.empty((length, 2), float)
-            codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
+            codes = np.full(length, cls.CURVE4, dtype=cls.code_type)
             vertices[0] = [xA[0], yA[0]]
             codes[0] = cls.MOVETO
             vertex_offset = 1

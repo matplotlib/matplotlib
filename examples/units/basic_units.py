@@ -122,9 +122,8 @@ class TaggedValue(metaclass=TaggedValueMeta):
         # generate a new subclass for value
         value_class = type(value)
         try:
-            subcls = type('TaggedValue_of_%s' % (value_class.__name__),
-                          tuple([cls, value_class]),
-                          {})
+            subcls = type(f'TaggedValue_of_{value_class.__name__}',
+                          (cls, value_class), {})
             if subcls not in units.registry:
                 units.registry[subcls] = basicConverter
             return object.__new__(subcls)
@@ -196,7 +195,7 @@ class BasicUnit(object):
         self.conversions = dict()
 
     def __repr__(self):
-        return 'BasicUnit(%s)' % self.name
+        return f'BasicUnit({self.name})'
 
     def __str__(self):
         return self.fullname
@@ -314,9 +313,9 @@ def rad_fn(x, pos=None):
     elif n == -2:
         return r'$-\pi$'
     elif n % 2 == 0:
-        return r'$%s\pi$' % (n//2,)
+        return fr'${n//2}\pi$'
     else:
-        return r'$%s\pi/2$' % (n,)
+        return fr'${n}\pi/2$'
 
 
 class BasicUnitConverter(units.ConversionInterface):

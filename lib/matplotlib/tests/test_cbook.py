@@ -47,23 +47,21 @@ class Test_delete_masked_points(object):
     def test_string_seq(self):
         actual = dmp(self.arr_s, self.arr1)
         ind = [0, 1, 2, 5]
-        expected = (self.arr_s2.take(ind), self.arr2.take(ind))
+        expected = (self.arr_s2[ind], self.arr2[ind])
         assert_array_equal(actual[0], expected[0])
         assert_array_equal(actual[1], expected[1])
 
     def test_datetime(self):
         actual = dmp(self.arr_dt, self.arr3)
-        ind = [0, 1,  5]
-        expected = (self.arr_dt2.take(ind),
-                    self.arr3.take(ind).compressed())
+        ind = [0, 1, 5]
+        expected = (self.arr_dt2[ind], self.arr3[ind].compressed())
         assert_array_equal(actual[0], expected[0])
         assert_array_equal(actual[1], expected[1])
 
     def test_rgba(self):
         actual = dmp(self.arr3, self.arr_rgba)
         ind = [0, 1, 5]
-        expected = (self.arr3.take(ind).compressed(),
-                    self.arr_rgba.take(ind, axis=0))
+        expected = (self.arr3[ind].compressed(), self.arr_rgba[ind])
         assert_array_equal(actual[0], expected[0])
         assert_array_equal(actual[1], expected[1])
 
@@ -497,7 +495,11 @@ def test_flatiter():
 def test_reshape2d():
     class dummy():
         pass
+    xnew = cbook._reshape_2D([], 'x')
+    assert np.shape(xnew) == (1, 0)
+
     x = [dummy() for j in range(5)]
+
     xnew = cbook._reshape_2D(x, 'x')
     assert np.shape(xnew) == (1, 5)
 
@@ -539,7 +541,7 @@ def test_contiguous_regions():
 
 
 def test_safe_first_element_pandas_series(pd):
-    # delibrately create a pandas series with index not starting from 0
+    # deliberately create a pandas series with index not starting from 0
     s = pd.Series(range(5), index=range(10, 15))
     actual = cbook.safe_first_element(s)
     assert actual == 0

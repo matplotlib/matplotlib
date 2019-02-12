@@ -321,7 +321,8 @@ class _BackendWebAgg(_Backend):
     def show():
         WebAggApplication.initialize()
 
-        url = "http://127.0.0.1:{port}{prefix}".format(
+        url = "http://{address}:{port}{prefix}".format(
+            address=WebAggApplication.address,
             port=WebAggApplication.port,
             prefix=WebAggApplication.url_prefix)
 

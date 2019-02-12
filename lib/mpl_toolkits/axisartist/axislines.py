@@ -38,15 +38,15 @@ those of Axes.xaxis unless explicitly specified.
 In addition to AxisArtist, the Axes will have *gridlines* attribute,
 which obviously draws grid lines. The gridlines needs to be separated
 from the axis as some gridlines can never pass any axis.
-
 """
+
 import numpy as np
 
-from matplotlib import cbook
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 import matplotlib.artist as martist
 import matplotlib.axes as maxes
 from matplotlib.path import Path
+from mpl_toolkits.axes_grid1 import mpl_axes
 from .axisline_style import AxislineStyle
 from .axis_artist import AxisArtist, GridlinesCollection
 
@@ -226,14 +226,12 @@ class AxisArtistHelperRectlinear(object):
             major = self.axis.major
             majorLocs = major.locator()
             major.formatter.set_locs(majorLocs)
-            majorLabels = [major.formatter(val, i)
-                           for i, val in enumerate(majorLocs)]
+            majorLabels = major.formatter.format_ticks(majorLocs)
 
             minor = self.axis.minor
             minorLocs = minor.locator()
             minor.formatter.set_locs(minorLocs)
-            minorLabels = [minor.formatter(val, i)
-                           for i, val in enumerate(minorLocs)]
+            minorLabels = minor.formatter.format_ticks(minorLocs)
 
             trans_tick = self.get_tick_transform(axes)
 
@@ -323,14 +321,12 @@ class AxisArtistHelperRectlinear(object):
             major = self.axis.major
             majorLocs = major.locator()
             major.formatter.set_locs(majorLocs)
-            majorLabels = [major.formatter(val, i)
-                           for i, val in enumerate(majorLocs)]
+            majorLabels = major.formatter.format_ticks(majorLocs)
 
             minor = self.axis.minor
             minorLocs = minor.locator()
             minor.formatter.set_locs(minorLocs)
-            minorLabels = [minor.formatter(val, i)
-                           for i, val in enumerate(minorLocs)]
+            minorLabels = minor.formatter.format_ticks(minorLocs)
 
             tr2ax = axes.transData + axes.transAxes.inverted()
 
@@ -487,6 +483,7 @@ class GridHelperRectlinear(GridHelperBase):
         return gridlines
 
 
+@cbook.deprecated("3.1")
 class SimpleChainedObjects(object):
     def __init__(self, objects):
         self._objects = objects
@@ -495,13 +492,14 @@ class SimpleChainedObjects(object):
         _a = SimpleChainedObjects([getattr(a, k) for a in self._objects])
         return _a
 
-    def __call__(self, *kl, **kwargs):
+    def __call__(self, *args, **kwargs):
         for m in self._objects:
-            m(*kl, **kwargs)
+            m(*args, **kwargs)
 
 
 class Axes(maxes.Axes):
 
+    @cbook.deprecated("3.1")
     class AxisDict(dict):
         def __init__(self, axes):
             self.axes = axes
@@ -549,7 +547,7 @@ class Axes(maxes.Axes):
         if axes is None:
             axes = self
 
-        self._axislines = self.AxisDict(self)
+        self._axislines = mpl_axes.Axes.AxisDict(self)
         new_fixed_axis = self.get_grid_helper().new_fixed_axis
         for loc in ["bottom", "top", "left", "right"]:
             self._axislines[loc] = new_fixed_axis(loc=loc, axes=axes,

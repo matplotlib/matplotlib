@@ -614,10 +614,6 @@ validate_legend_loc = ValidateInStrings(
 def validate_svg_fonttype(s):
     if s in ["none", "path"]:
         return s
-    if s == "svgfont":
-        cbook.warn_deprecated(
-            "2.2", message="'svgfont' support for svg.fonttype is deprecated.")
-        return s
     raise ValueError("Unrecognized svg.fonttype string '{}'; "
                      "valid strings are 'none', 'path'")
 
@@ -1067,6 +1063,7 @@ defaultParams = {
     'boxplot.flierprops.marker': ['o', validate_string],
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['black', validate_color],
+    'boxplot.flierprops.markeredgewidth': [1.0, validate_float],
     'boxplot.flierprops.markersize': [6, validate_float],
     'boxplot.flierprops.linestyle': ['none', _validate_linestyle],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
@@ -1230,6 +1227,7 @@ defaultParams = {
 
     # scatter props
     'scatter.marker': ['o', validate_string],
+    'scatter.edgecolors': ['face', validate_string],
 
     # TODO validate that these are valid datetime format strings
     'date.autoformatter.year': ['%Y', validate_string],

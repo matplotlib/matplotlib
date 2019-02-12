@@ -32,7 +32,9 @@ import numpy as np
 
 import matplotlib
 from .deprecation import (
-    mplDeprecation, deprecated, warn_deprecated, MatplotlibDeprecationWarning)
+    deprecated, warn_deprecated, _rename_parameter, _delete_parameter,
+    _suppress_matplotlib_deprecation_warning,
+    MatplotlibDeprecationWarning, mplDeprecation)
 
 
 @deprecated("3.0")
@@ -453,21 +455,6 @@ def is_scalar_or_string(val):
     return isinstance(val, str) or not np.iterable(val)
 
 
-def _string_to_bool(s):
-    """Parses the string argument as a boolean"""
-    if not isinstance(s, str):
-        return bool(s)
-    warn_deprecated("2.2", message="Passing one of 'on', 'true', 'off', "
-                    "'false' as a boolean is deprecated; use an actual "
-                    "boolean (True/False) instead.")
-    if s.lower() in ['on', 'true']:
-        return True
-    if s.lower() in ['off', 'false']:
-        return False
-    raise ValueError('String "%s" must be one of: '
-                     '"on", "off", "true", or "false"' % s)
-
-
 def get_sample_data(fname, asfileobj=True):
     """
     Return a sample data file.  *fname* is a path relative to the
@@ -573,6 +560,7 @@ _find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 _dedent_regex = {}
 
 
+@deprecated("3.1", alternative="inspect.cleandoc")
 def dedent(s):
     """
     Remove excess indentation from docstring *s*.
@@ -791,6 +779,7 @@ def report_memory(i=0):  # argument may go away
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 
 
+@deprecated("3.1")
 def safezip(*args):
     """make sure *args* are equal len before zipping"""
     Nx = len(args[0])
@@ -879,7 +868,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
                 recurse(referent, start, all, current_path + [obj])
 
     for obj in objects:
-        outstream.write("Examining: %r\n" % (obj,))
+        outstream.write(f"Examining: {obj!r}\n")
         recurse(obj, obj, {}, [])
 
 
@@ -1074,7 +1063,7 @@ def delete_masked_points(*args):
         if len(igood) < nrecs:
             for i, x in enumerate(margs):
                 if seqlist[i]:
-                    margs[i] = x.take(igood, axis=0)
+                    margs[i] = x[igood]
     for i, x in enumerate(margs):
         if seqlist[i] and isinstance(x, np.ma.MaskedArray):
             margs[i] = x.filled()
@@ -1194,7 +1183,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Key        Value Description
         ========   ===================================
         label      tick label for the boxplot
-        mean       arithemetic mean value
+        mean       arithmetic mean value
         med        50th percentile
         q1         first quartile (25th percentile)
         q3         third quartile (75th percentile)
@@ -1270,7 +1259,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         # restore whis to the input values in case it got changed in the loop
         whis = input_whis
 
-        # note tricksyness, append up here and then mutate below
+        # note tricksiness, append up here and then mutate below
         bxpstats.append(stats)
 
         # if empty, bail
@@ -1353,51 +1342,6 @@ ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 
-@deprecated('2.2')
-def align_iterators(func, *iterables):
-    """
-    This generator takes a bunch of iterables that are ordered by func
-    It sends out ordered tuples::
-
-       (func(row), [rows from all iterators matching func(row)])
-
-    It is used by :func:`matplotlib.mlab.recs_join` to join record arrays
-    """
-    class myiter:
-        def __init__(self, it):
-            self.it = it
-            self.key = self.value = None
-            self.iternext()
-
-        def iternext(self):
-            try:
-                self.value = next(self.it)
-                self.key = func(self.value)
-            except StopIteration:
-                self.value = self.key = None
-
-        def __call__(self, key):
-            retval = None
-            if key == self.key:
-                retval = self.value
-                self.iternext()
-            elif self.key and key > self.key:
-                raise ValueError("Iterator has been left behind")
-            return retval
-
-    # This can be made more efficient by not computing the minimum key for each
-    # iteration
-    iters = [myiter(it) for it in iterables]
-    minvals = minkey = True
-    while True:
-        minvals = ([_f for _f in [it.key for it in iters] if _f])
-        if minvals:
-            minkey = min(minvals)
-            yield (minkey, [it(minkey) for it in iters])
-        else:
-            break
-
-
 def contiguous_regions(mask):
     """
     Return a list of (ind0, ind1) such that mask[ind0:ind1].all() is
@@ -1472,6 +1416,8 @@ def _reshape_2D(X, name):
     """
     # Iterate over columns for ndarrays, over rows otherwise.
     X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
+    if len(X) == 0:
+        return [[]]
     if X.ndim == 1 and not isinstance(X[0], collections.abc.Iterable):
         # 1D array of scalars: directly return it.
         return [X]
@@ -1799,9 +1745,11 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         if tmp:
             ret[canonical] = tmp[-1]
             if len(tmp) > 1:
-                _warn_external("Saw kwargs {seen!r} which are all aliases for "
-                               "{canon!r}.  Kept value from {used!r}".format(
-                               seen=seen, canon=canonical, used=seen[-1]))
+                warn_deprecated(
+                    "3.1", message=f"Saw kwargs {seen!r} which are all "
+                    f"aliases for {canonical!r}.  Kept value from "
+                    f"{seen[-1]!r}.  Passing multiple aliases for the same "
+                    f"property will raise a TypeError %(removal)s.")
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input
@@ -1829,6 +1777,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     return ret
 
 
+@deprecated("3.1")
 def get_label(y, default_name):
     try:
         return y.name
@@ -2175,3 +2124,13 @@ def _check_and_log_subprocess(command, logger, **kwargs):
             .format(command, exc.output.decode('utf-8')))
     logger.debug(report)
     return report
+
+
+def _check_not_matrix(**kwargs):
+    """
+    If any value in *kwargs* is a `np.matrix`, raise a TypeError with the key
+    name in its message.
+    """
+    for k, v in kwargs.items():
+        if isinstance(v, np.matrix):
+            raise TypeError(f"Argument {k!r} cannot be a np.matrix")

@@ -264,7 +264,7 @@ class ContourLabeler(object):
         if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
 
-        lev, ismath = text.Text.is_math_text(lev)
+        lev, ismath = text.Text()._preprocess_math(lev)
         if ismath == 'TeX':
             if not hasattr(self, '_TeX_manager'):
                 self._TeX_manager = texmanager.TexManager()
@@ -279,33 +279,6 @@ class ContourLabeler(object):
         else:
             # width is much less than "font size"
             lw = (len(lev)) * fsize * 0.6
-
-        return lw
-
-    @cbook.deprecated("2.2")
-    def get_real_label_width(self, lev, fmt, fsize):
-        """
-        This computes actual onscreen label width.
-        This uses some black magic to determine onscreen extent of non-drawn
-        label.  This magic may not be very robust.
-
-        This method is not being used, and may be modified or removed.
-        """
-        # Find middle of axes
-        xx = np.mean(np.asarray(self.ax.axis()).reshape(2, 2), axis=1)
-
-        # Temporarily create text object
-        t = text.Text(xx[0], xx[1])
-        self.set_label_props(t, self.get_text(lev, fmt), 'k')
-
-        # Some black magic to get onscreen extent
-        # NOTE: This will only work for already drawn figures, as the canvas
-        # does not have a renderer otherwise.  This is the reason this function
-        # can't be integrated into the rest of the code.
-        bbox = t.get_window_extent(renderer=self.ax.figure.canvas.renderer)
-
-        # difference in pixel extent of image
-        lw = np.diff(bbox.corners()[0::2, 0])[0]
 
         return lw
 
@@ -856,9 +829,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.antialiased is None and self.filled:
             self.antialiased = False  # eliminate artifacts; we are not
                                       # stroking the boundaries.
-            # The default for line contours will be taken from
-            # the LineCollection default, which uses the
-            # rcParams['lines.antialiased']
+            # The default for line contours will be taken from the
+            # LineCollection default, which uses :rc:`lines.antialiased`.
 
         self.nchunk = kwargs.pop('nchunk', 0)
         self.locator = kwargs.pop('locator', None)
@@ -1766,14 +1738,42 @@ class QuadContourSet(ContourSet):
             are not given explicitly via *levels*.
             Defaults to `~.ticker.MaxNLocator`.
 
-        extend : {'neither', 'both', 'min', 'max'}, optional
-            Unless this is 'neither', contour levels are automatically
-            added to one or both ends of the range so that all data
-            are included. These added ranges are then mapped to the
-            special colormap values which default to the ends of the
-            colormap range, but can be set via
-            :meth:`matplotlib.colors.Colormap.set_under` and
-            :meth:`matplotlib.colors.Colormap.set_over` methods.
+        extend : {'neither', 'both', 'min', 'max'}, optional, default: \
+'neither'
+            Determines the ``contourf``-coloring of values that are outside the
+            *levels* range.
+
+            If 'neither', values outside the *levels* range are not colored.
+            If 'min', 'max' or 'both', color the values below, above or below
+            and above the *levels* range.
+
+            Values below ``min(levels)`` and above ``max(levels)`` are mapped
+            to the under/over values of the `.Colormap`. Note, that most
+            colormaps do not have dedicated colors for these by default, so
+            that the over and under values are the edge values of the colormap.
+            You may want to set these values explicitly using
+            `.Colormap.set_under` and `.Colormap.set_over`.
+
+            .. note::
+
+                An exising `.QuadContourSet` does not get notified if
+                properties of its colormap are changed. Therefore, an explicit
+                call `.QuadContourSet.changed()` is needed after modifying the
+                colormap. The explicit call can be left out, if a colorbar is
+                assigned to the `.QuadContourSet` because it internally calls
+                `.QuadContourSet.changed()`.
+
+            Example::
+
+                x = np.arange(1, 10)
+                y = x.reshape(-1, 1)
+                h = x * y
+
+                cs = plt.contourf(h, levels=[10, 30, 50],
+                    colors=['#808080', '#A0A0A0', '#C0C0C0'], extend='both')
+                cs.cmap.set_over('red')
+                cs.cmap.set_under('blue')
+                cs.changed()
 
         xunits, yunits : registered units, optional
             Override axis units by specifying an instance of a

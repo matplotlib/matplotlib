@@ -16,7 +16,9 @@ cbook.warn_deprecated('3.0', obj_type='module', name='backends.windowing')
 try:
     if not rcParams['tk.window_focus']:
         raise ImportError
-    from matplotlib._windowing import GetForegroundWindow, SetForegroundWindow
+    from matplotlib.backends._tkagg import (
+        Win32_GetForegroundWindow as GetForegroundWindow,
+        Win32_SetForegroundWindow as SetForegroundWindow)
 
 except ImportError:
 

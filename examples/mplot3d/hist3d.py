@@ -31,6 +31,6 @@ zpos = 0
 dx = dy = 0.5 * np.ones_like(zpos)
 dz = hist.ravel()
 
-ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
 
 plt.show()

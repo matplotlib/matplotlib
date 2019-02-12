@@ -923,11 +923,14 @@ class GraphicsContextBase(object):
 
     def set_foreground(self, fg, isRGBA=False):
         """
-        Set the foreground color.  fg can be a MATLAB format string, a
-        html hex color string, an rgb or rgba unit tuple, or a float between 0
-        and 1.  In the latter case, grayscale is used.
+        Set the foreground color.
 
-        If you know fg is rgba, set ``isRGBA=True`` for efficiency.
+        Parameters
+        ----------
+        fg : color
+        isRGBA : bool
+            If *fg* is known to be an ``(r, g, b, a)`` tuple, *isRGBA* can be
+            set to True to improve performance.
         """
         if self._forced_alpha and isRGBA:
             self._rgb = fg[:3] + (self._alpha,)
@@ -1265,12 +1268,7 @@ class ResizeEvent(Event):
 
 
 class CloseEvent(Event):
-    """
-    An event triggered by a figure being closed
-
-    """
-    def __init__(self, name, canvas, guiEvent=None):
-        Event.__init__(self, name, canvas, guiEvent)
+    """An event triggered by a figure being closed."""
 
 
 class LocationEvent(Event):
@@ -1321,15 +1319,12 @@ class LocationEvent(Event):
             self._update_enter_leave()
             return
 
-        # Find all axes containing the mouse
         if self.canvas.mouse_grabber is None:
-            axes_list = [a for a in self.canvas.figure.get_axes()
-                         if a.in_axes(self)]
+            self.inaxes = self.canvas.inaxes((x, y))
         else:
-            axes_list = [self.canvas.mouse_grabber]
+            self.inaxes = self.canvas.mouse_grabber
 
-        if axes_list:
-            self.inaxes = cbook._topmost_artist(axes_list)
+        if self.inaxes is not None:
             try:
                 trans = self.inaxes.transData.inverted()
                 xdata, ydata = trans.transform_point((x, y))
@@ -1432,10 +1427,10 @@ class MouseEvent(LocationEvent):
         self.dblclick = dblclick
 
     def __str__(self):
-        return ("MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%s " +
-                "dblclick=%s inaxes=%s") % (self.x, self.y, self.xdata,
-                                            self.ydata, self.button,
-                                            self.dblclick, self.inaxes)
+        return (f"{self.name}: "
+                f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
+                f"button={self.button} dblclick={self.dblclick} "
+                f"inaxes={self.inaxes}")
 
 
 class PickEvent(Event):
@@ -1597,34 +1592,6 @@ class FigureCanvasBase(object):
         to a file, rather than rendering for an on-screen buffer.
         """
         return self._is_saving
-
-    @cbook.deprecated("2.2")
-    def onRemove(self, ev):
-        """
-        Mouse event processor which removes the top artist
-        under the cursor.  Connect this to the 'mouse_press_event'
-        using::
-
-            canvas.mpl_connect('mouse_press_event',canvas.onRemove)
-        """
-        # Find the top artist under the cursor
-        under = cbook._topmost_artist(self.figure.hitlist(ev))
-        h = None
-        if under:
-            h = under[-1]
-
-        # Try deleting that artist, or its parent if you
-        # can't delete the artist
-        while h:
-            if h.remove():
-                self.draw_idle()
-                break
-            parent = None
-            for p in under:
-                if h in p.get_children():
-                    parent = p
-                    break
-            h = parent
 
     def pick(self, mouseevent):
         if not self.widgetlock.locked():
@@ -1822,6 +1789,32 @@ class FigureCanvasBase(object):
         event = LocationEvent('figure_enter_event', self, x, y, guiEvent)
         self.callbacks.process('figure_enter_event', event)
 
+    def inaxes(self, xy):
+        """
+        Check if a point is in an axes.
+
+        Parameters
+        ----------
+        xy : tuple or list
+            (x,y) coordinates.
+            x position - pixels from left of canvas.
+            y position - pixels from bottom of canvas.
+
+        Returns
+        -------
+        axes: topmost axes containing the point, or None if no axes.
+
+        """
+        axes_list = [a for a in self.figure.get_axes()
+                     if a.patch.contains_point(xy)]
+
+        if axes_list:
+            axes = cbook._topmost_artist(axes_list)
+        else:
+            axes = None
+
+        return axes
+
     def grab_mouse(self, ax):
         """
         Set the child axes which are currently grabbing the mouse events.
@@ -1853,8 +1846,8 @@ class FigureCanvasBase(object):
         Even if multiple calls to `draw_idle` occur before control returns
         to the GUI event loop, the figure will only be rendered once.
 
-        Note
-        ----
+        Notes
+        -----
         Backends may choose to override the method and implement their own
         strategy to prevent multiple renderings.
 
@@ -1932,10 +1925,10 @@ class FigureCanvasBase(object):
         dpi : scalar, optional
             the dots per inch to save the figure in; if None, use savefig.dpi
 
-        facecolor : color spec or None, optional
+        facecolor : color or None, optional
             the facecolor of the figure; if None, defaults to savefig.facecolor
 
-        edgecolor : color spec or None, optional
+        edgecolor : color or None, optional
             the edgecolor of the figure; if None, defaults to savefig.edgecolor
 
         format : str, optional
@@ -1991,7 +1984,6 @@ class FigureCanvasBase(object):
             origfacecolor = self.figure.get_facecolor()
             origedgecolor = self.figure.get_edgecolor()
 
-            self.figure.dpi = dpi
             self.figure.set_facecolor(facecolor)
             self.figure.set_edgecolor(edgecolor)
 
@@ -2376,21 +2368,20 @@ def key_press_handler(event, canvas, toolbar=None):
                 _log.warning(str(exc))
                 ax.set_xscale('linear')
             ax.figure.canvas.draw_idle()
-
-    elif (event.key.isdigit() and event.key != '0') or event.key in all_keys:
-        # keys in list 'all' enables all axes (default key 'a'),
-        # otherwise if key is a number only enable this particular axes
-        # if it was the axes, where the event was raised
-        if event.key not in all_keys:
-            n = int(event.key) - 1
-        for i, a in enumerate(canvas.figure.get_axes()):
-            # consider axes, in which the event was raised
-            # FIXME: Why only this axes?
+    # enable nagivation for all axes that contain the event (default key 'a')
+    elif event.key in all_keys:
+        for a in canvas.figure.get_axes():
             if (event.x is not None and event.y is not None
-                    and a.in_axes(event)):
-                if event.key in all_keys:
-                    a.set_navigate(True)
-                else:
+                    and a.in_axes(event)):  # FIXME: Why only these?
+                a.set_navigate(True)
+    # enable navigation only for axes with this index (if such an axes exist,
+    # otherwise do nothing)
+    elif event.key.isdigit() and event.key != '0':
+        n = int(event.key) - 1
+        if n < len(canvas.figure.get_axes()):
+            for i, a in enumerate(canvas.figure.get_axes()):
+                if (event.x is not None and event.y is not None
+                        and a.in_axes(event)):  # FIXME: Why only these?
                     a.set_navigate(i == n)
 
 
@@ -2462,10 +2453,6 @@ class FigureManagerBase(object):
         """
         if rcParams['toolbar'] != 'toolmanager':
             key_press_handler(event, self.canvas, self.canvas.toolbar)
-
-    @cbook.deprecated("2.2")
-    def show_popup(self, msg):
-        """Display message in a popup -- GUI only."""
 
     def get_window_title(self):
         """Get the title text of the window containing the figure.

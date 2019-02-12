@@ -132,7 +132,6 @@ import shutil
 import subprocess
 import tempfile
 import urllib.request
-import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
@@ -155,7 +154,7 @@ _log = logging.getLogger(__name__)
 __bibtex__ = r"""@Article{Hunter:2007,
   Author    = {Hunter, J. D.},
   Title     = {Matplotlib: A 2D graphics environment},
-  Journal   = {Computing In Science \& Engineering},
+  Journal   = {Computing in Science \& Engineering},
   Volume    = {9},
   Number    = {3},
   Pages     = {90--95},
@@ -169,7 +168,7 @@ __bibtex__ = r"""@Article{Hunter:2007,
 
 
 def compare_versions(a, b):
-    "return True if a is greater than or equal to b"
+    "Return whether version *a* is greater than or equal to version *b*."
     if isinstance(a, bytes):
         cbook.warn_deprecated(
             "3.0", message="compare_versions arguments should be strs.")
@@ -249,132 +248,6 @@ def _set_logger_verbose_level(level_str='silent', file_str='sys.stdout'):
         console = logging.StreamHandler(fileo)
         console.setLevel(newlev)
         _log.addHandler(console)
-
-
-def _parse_commandline():
-    """
-    Check for --verbose-LEVEL type command line arguments and
-    set logging level appropriately.
-    """
-
-    levels = ('silent', 'helpful', 'debug', 'debug-annoying',
-              'info', 'warning')
-
-    for arg in sys.argv[1:]:
-        if arg.startswith('--verbose-'):
-            level_str = arg[10:]
-            # If it doesn't match one of ours, then don't even
-            # bother noting it, we are just a 3rd-party library
-            # to somebody else's script.
-            if level_str in levels:
-                _set_logger_verbose_level(level_str)
-
-_parse_commandline()
-
-
-class Verbose(object):
-    """
-    A class to handle reporting.  Set the fileo attribute to any file
-    instance to handle the output.  Default is sys.stdout
-    """
-    levels = ('silent', 'helpful', 'debug', 'debug-annoying')
-    vald = {level: i for i, level in enumerate(levels)}
-
-    # parse the verbosity from the command line; flags look like
-    # --verbose-silent or --verbose-helpful
-    _commandLineVerbose = None
-
-    for arg in sys.argv[1:]:
-        if not arg.startswith('--verbose-'):
-            continue
-        level_str = arg[10:]
-        # If it doesn't match one of ours, then don't even
-        # bother noting it, we are just a 3rd-party library
-        # to somebody else's script.
-        if level_str in levels:
-            _commandLineVerbose = level_str
-
-    @cbook.deprecated("2.2", message=_verbose_msg)
-    def __init__(self):
-        self.set_level('silent')
-        self.fileo = sys.stdout
-
-    @cbook.deprecated("2.2", message=_verbose_msg)
-    def set_level(self, level):
-        'set the verbosity to one of the Verbose.levels strings'
-
-        if self._commandLineVerbose is not None:
-            level = self._commandLineVerbose
-        if level not in self.levels:
-            cbook._warn_external('matplotlib: unrecognized --verbose-* '
-                                 'string "%s". Legal values are %s' %
-                                 (level, self.levels))
-        else:
-            self.level = level
-
-    @cbook.deprecated("2.2", message=_verbose_msg)
-    def set_fileo(self, fname):
-        std = {
-            'sys.stdout': sys.stdout,
-            'sys.stderr': sys.stderr,
-        }
-        if fname in std:
-            self.fileo = std[fname]
-        else:
-            try:
-                fileo = open(fname, 'w')
-            except IOError:
-                raise ValueError('Verbose object could not open log file "{0}"'
-                                 ' for writing.\nCheck your matplotlibrc '
-                                 'verbose.fileo setting'.format(fname))
-            else:
-                self.fileo = fileo
-
-    @cbook.deprecated("2.2", message=_verbose_msg)
-    def report(self, s, level='helpful'):
-        """
-        print message s to self.fileo if self.level>=level.  Return
-        value indicates whether a message was issued
-
-        """
-        if self.ge(level):
-            print(s, file=self.fileo)
-            return True
-        return False
-
-    @cbook.deprecated("2.2", message=_verbose_msg)
-    def wrap(self, fmt, func, level='helpful', always=True):
-        """
-        return a callable function that wraps func and reports it
-        output through the verbose handler if current verbosity level
-        is higher than level
-
-        if always is True, the report will occur on every function
-        call; otherwise only on the first time the function is called
-        """
-        assert callable(func)
-
-        def wrapper(*args, **kwargs):
-            ret = func(*args, **kwargs)
-
-            if (always or not wrapper._spoke):
-                spoke = self.report(fmt % ret, level)
-                if not wrapper._spoke:
-                    wrapper._spoke = spoke
-            return ret
-        wrapper._spoke = False
-        wrapper.__doc__ = func.__doc__
-        return wrapper
-
-    @cbook.deprecated("2.2", message=_verbose_msg)
-    def ge(self, level):
-        'return true if self.level is >= level'
-        return self.vald[self.level] >= self.vald[level]
-
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    verbose = Verbose()
 
 
 def _logged_cached(fmt, func=None):
@@ -655,7 +528,7 @@ def _get_data_path():
 
     def get_candidate_paths():
         yield Path(__file__).with_name('mpl-data')
-        # setuptools' namespace_packages may highjack this init file
+        # setuptools' namespace_packages may hijack this init file
         # so need to try something known to be in Matplotlib, not basemap.
         import matplotlib.afm
         yield Path(matplotlib.afm.__file__).with_name('mpl-data')
@@ -844,8 +717,8 @@ class RcParams(MutableMapping, dict):
             dict.__setitem__(self, key, cval)
         except KeyError:
             raise KeyError(
-                '%s is not a valid rc parameter. See rcParams.keys() for a '
-                'list of valid parameters.' % (key,))
+                f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                f"a list of valid parameters)")
 
     def __getitem__(self, key):
         if key in _deprecated_map:
@@ -886,8 +759,7 @@ class RcParams(MutableMapping, dict):
 
     def __iter__(self):
         """Yield sorted list of keys."""
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
+        with cbook._suppress_matplotlib_deprecation_warning():
             yield from sorted(dict.__iter__(self))
 
     def __len__(self):
@@ -1043,8 +915,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     iter_params = defaultParams.items()
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+    with cbook._suppress_matplotlib_deprecation_warning():
         config = RcParams([(key, default) for key, (default, _) in iter_params
                            if key not in _all_deprecated])
     config.update(config_from_file)
@@ -1084,8 +955,7 @@ if dict.__getitem__(rcParams, 'examples.directory'):
         rcParams['examples.directory'] = _fullpath
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+with cbook._suppress_matplotlib_deprecation_warning():
     rcParamsOrig = RcParams(rcParams.copy())
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                                 defaultParams.items()
@@ -1093,8 +963,6 @@ with warnings.catch_warnings():
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(
                       rcParams['ps.usedistiller'])
-
-rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
 
 if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
@@ -1190,8 +1058,7 @@ def rcdefaults():
     """
     # Deprecation warnings were already handled when creating rcParamsDefault,
     # no need to reemit them here.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", mplDeprecation)
+    with cbook._suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
         rcParams.clear()
         rcParams.update({k: v for k, v in rcParamsDefault.items()
@@ -1207,26 +1074,36 @@ def rc_file_defaults():
     """
     # Deprecation warnings were already handled when creating rcParamsOrig, no
     # need to reemit them here.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", mplDeprecation)
+    with cbook._suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
         rcParams.update({k: rcParamsOrig[k] for k in rcParamsOrig
                          if k not in STYLE_BLACKLIST})
 
 
-def rc_file(fname):
+def rc_file(fname, *, use_default_template=True):
     """
     Update rc params from file.
 
     Style-blacklisted rc params (defined in
     `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+
+    Parameters
+    ----------
+    fname : str
+        Name of file parsed for matplotlib settings.
+
+    use_default_template : bool
+        If True, initialize with default parameters before updating with those
+        in the given file. If False, the current configuration persists
+        and only the parameters specified in the file are updated.
+
     """
     # Deprecation warnings were already handled in rc_params_from_file, no need
     # to reemit them here.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", mplDeprecation)
+    with cbook._suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
-        rc_from_file = rc_params_from_file(fname)
+        rc_from_file = rc_params_from_file(
+            fname, use_default_template=use_default_template)
         rcParams.update({k: rc_from_file[k] for k in rc_from_file
                          if k not in STYLE_BLACKLIST})
 
@@ -1297,15 +1174,16 @@ class rc_context:
         self.__fallback()
 
 
-def use(arg, warn=False, force=True):
+@cbook._rename_parameter("3.1", "arg", "backend")
+def use(backend, warn=False, force=True):
     """
-    Set the matplotlib backend to one of the known backends.
+    Select the backend used for rendering and GUI integration.
 
     Parameters
     ----------
-    arg : str
-        The backend to switch to.  This can either be one of the
-        'standard' backend names:
+    backend : str
+        The backend to switch to.  This can either be one of the standard
+        backend names, which are case-insensitive:
 
         - interactive backends:
           GTK3Agg, GTK3Cairo, MacOSX, nbAgg,
@@ -1317,40 +1195,36 @@ def use(arg, warn=False, force=True):
 
         or a string of the form: ``module://my.module.name``.
 
-        Note: Standard backend names are case-insensitive here.
+    warn : bool, optional, default: False
+        If True and not *force*, warn that the call will have no effect if
+        this is called after pyplot has been imported and a backend is set up.
 
-    warn : bool, optional
-        If True, warn if this is called after pyplot has been imported
-        and a backend is set up.
 
-        defaults to False.
-
-    force : bool, optional
+    force : bool, optional, default: True
         If True, attempt to switch the backend.   An ImportError is raised if
         an interactive backend is selected, but another interactive
-        backend has already started.  This defaults to True.
+        backend has already started.
 
     See Also
     --------
     :ref:`backends`
     matplotlib.get_backend
     """
-    name = validate_backend(arg)
+    name = validate_backend(backend)
 
-    # if setting back to the same thing, do nothing
-    if (dict.__getitem__(rcParams, 'backend') == name):
+    if dict.__getitem__(rcParams, 'backend') == name:
+        # Nothing to do if the requested backend is already set
         pass
-
-    # Check if we have already imported pyplot and triggered
-    # backend selection, do a bit more work
     elif 'matplotlib.pyplot' in sys.modules:
-        # If we are here then the requested is different than the current.
+        # pyplot has already been imported (which triggered backend selection)
+        # and the requested backend is different from the current one.
+
         # If we are going to force the switch, never warn, else, if warn
         # is True, then direct users to `plt.switch_backend`
         if (not force) and warn:
             cbook._warn_external(
-                ("matplotlib.pyplot as already been imported, "
-                 "this call will have no effect."))
+                "matplotlib.pyplot has already been imported, "
+                "this call will have no effect.")
 
         # if we are going to force switching the backend, pull in
         # `switch_backend` from pyplot.  This will only happen if
@@ -1358,11 +1232,11 @@ def use(arg, warn=False, force=True):
         if force:
             from matplotlib.pyplot import switch_backend
             switch_backend(name)
-    # Finally if pyplot is not imported update both rcParams and
-    # rcDefaults so restoring the defaults later with rcdefaults
-    # won't change the backend.  This is a bit of overkill as 'backend'
-    # is already in style.core.STYLE_BLACKLIST, but better to be safe.
     else:
+        # Finally if pyplot is not imported update both rcParams and
+        # rcDefaults so restoring the defaults later with rcdefaults
+        # won't change the backend.  This is a bit of overkill as 'backend'
+        # is already in style.core.STYLE_BLACKLIST, but better to be safe.
         rcParams['backend'] = rcParamsDefault['backend'] = name
 
 
@@ -1450,7 +1324,7 @@ def _init_tests():
 
 def test(verbosity=None, coverage=False, switch_backend_warn=True,
          recursionlimit=0, **kwargs):
-    """run the matplotlib test suite"""
+    """Run the matplotlib test suite."""
     _init_tests()
     if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
         raise ImportError("Matplotlib test data is not installed")
@@ -1499,19 +1373,29 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
 test.__test__ = False  # pytest: this function is not a test
 
 
-def _replacer(data, key):
-    """Either returns data[key] or passes data back. Also
-    converts input data to a sequence as needed.
+def _replacer(data, value):
     """
-    # if key isn't a string don't bother
-    if not isinstance(key, str):
-        return key
-    # try to use __getitem__
+    Either returns ``data[value]`` or passes ``data`` back, converts either to
+    a sequence.
+    """
     try:
-        return sanitize_sequence(data[key])
-    # key does not exist, silently fall back to key
-    except KeyError:
-        return key
+        # if key isn't a string don't bother
+        if isinstance(value, str):
+            # try to use __getitem__
+            value = data[value]
+    except Exception:
+        # key does not exist, silently fall back to key
+        pass
+    return sanitize_sequence(value)
+
+
+def _label_from_arg(y, default_name):
+    try:
+        return y.name
+    except AttributeError:
+        if isinstance(default_name, str):
+            return default_name
+    return None
 
 
 _DATA_DOC_APPENDIX = """
@@ -1528,261 +1412,152 @@ _DATA_DOC_APPENDIX = """
 """
 
 
-def _add_data_doc(docstring, replace_names, replace_all_args):
+def _add_data_doc(docstring, replace_names):
     """Add documentation for a *data* field to the given docstring.
 
     Parameters
     ----------
     docstring : str
         The input docstring.
-    replace_names : list of strings or None
+    replace_names : list of str or None
         The list of parameter names which arguments should be replaced by
-        `data[name]`. If None, all arguments are replaced if they are
-        included in `data`.
-    replace_all_args : bool
-        If True, all arguments in *args get replaced, even if they are not
-        in replace_names.
+        ``data[name]`` (if ``data[name]`` does not throw an exception).  If
+        None, replacement is attempted for all arguments.
 
     Returns
     -------
         The augmented docstring.
     """
-    if docstring is None:
-        docstring = ''
-    else:
-        docstring = dedent(docstring)
-    _repl = ""
-    if replace_names is None:
-        _repl = "* All positional and all keyword arguments."
-    else:
-        if len(replace_names) != 0:
-            _repl = "* All arguments with the following names: '{names}'."
-        if replace_all_args:
-            _repl += "\n    * All positional arguments."
-        _repl = _repl.format(names="', '".join(sorted(replace_names)))
-    return docstring + _DATA_DOC_APPENDIX.format(replaced=_repl)
+    docstring = inspect.cleandoc(docstring) if docstring is not None else ""
+    repl = ("* All positional and all keyword arguments."
+            if replace_names is None else
+            ""
+            if len(replace_names) == 0 else
+            "* All arguments with the following names: {}.".format(
+                ", ".join(map(repr, sorted(replace_names)))))
+    return docstring + _DATA_DOC_APPENDIX.format(replaced=repl)
 
 
-def _preprocess_data(replace_names=None, replace_all_args=False,
-                     label_namer=None, positional_parameter_names=None):
+def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     """
-    A decorator to add a 'data' kwarg to any a function.  The signature
-    of the input function must include the ax argument at the first position ::
+    A decorator to add a 'data' kwarg to a function.
 
-       def foo(ax, *args, **kwargs)
+    ::
+        @_preprocess_data()
+        def func(ax, *args, **kwargs): ...
 
-    so this is suitable for use with Axes methods.
+    is a function with signature ``decorated(ax, *args, data=None, **kwargs)``
+    with the following behavior:
+
+    - if called with ``data=None``, forward the other arguments to ``func``;
+    - otherwise, *data* must be a mapping; for any argument passed in as a
+      string ``name``, replace the argument by ``data[name]`` (if this does not
+      throw an exception), then forward the arguments to ``func``.
+
+    In either case, any argument that is a `MappingView` is also converted to a
+    list.
 
     Parameters
     ----------
-    replace_names : list of strings, optional, default: None
-        The list of parameter names which arguments should be replaced by
-        `data[name]`. If None, all arguments are replaced if they are
-        included in `data`.
-    replace_all_args : bool, default: False
-        If True, all arguments in *args get replaced, even if they are not
-        in replace_names.
+    replace_names : list of str or None, optional, default: None
+        The list of parameter names for which lookup into *data* should be
+        attempted. If None, replacement is attempted for all arguments.
     label_namer : string, optional, default: None
-        The name of the parameter which argument should be used as label, if
-        label is not set. If None, the label keyword argument is not set.
-    positional_parameter_names : list of strings or callable, optional
-        The full list of positional parameter names (excluding an explicit
-        `ax`/'self' argument at the first place and including all possible
-        positional parameter in `*args`), in the right order. Can also include
-        all other keyword parameter. Only needed if the wrapped function does
-        contain `*args` and (replace_names is not None or replace_all_args is
-        False). If it is a callable, it will be called with the actual
-        tuple of *args and the data and should return a list like
-        above.
-        NOTE: callables should only be used when the names and order of *args
-        can only be determined at runtime. Please use list of names
-        when the order and names of *args is clear before runtime!
+        If set e.g. to "namer" (which must be a kwarg in the function's
+        signature -- not as ``**kwargs``), if the *namer* argument passed in is
+        a (string) key of *data* and no *label* kwarg is passed, then use the
+        (string) value of the *namer* as *label*. ::
 
-    .. note:: decorator also converts MappingView input data to list.
+            @_preprocess_data(label_namer="foo")
+            def func(foo, label=None): ...
+
+            func("key", data={"key": value})
+            # is equivalent to
+            func.__wrapped__(value, label="key")
     """
+
+    if func is None:  # Return the actual decorator.
+        return functools.partial(
+            _preprocess_data,
+            replace_names=replace_names, label_namer=label_namer)
+
+    sig = inspect.signature(func)
+    varargs_name = None
+    varkwargs_name = None
+    arg_names = []
+    params = list(sig.parameters.values())
+    for p in params:
+        if p.kind is Parameter.VAR_POSITIONAL:
+            varargs_name = p.name
+        elif p.kind is Parameter.VAR_KEYWORD:
+            varkwargs_name = p.name
+        else:
+            arg_names.append(p.name)
+    data_param = Parameter("data", Parameter.KEYWORD_ONLY, default=None)
+    if varkwargs_name:
+        params.insert(-1, data_param)
+    else:
+        params.append(data_param)
+    new_sig = sig.replace(parameters=params)
+    arg_names = arg_names[1:]  # remove the first "ax" / self arg
+
     if replace_names is not None:
         replace_names = set(replace_names)
 
-    def param(func):
-        sig = inspect.signature(func)
-        _has_varargs = False
-        _has_varkwargs = False
-        _arg_names = []
-        params = list(sig.parameters.values())
-        for p in params:
-            if p.kind is Parameter.VAR_POSITIONAL:
-                _has_varargs = True
-            elif p.kind is Parameter.VAR_KEYWORD:
-                _has_varkwargs = True
-            else:
-                _arg_names.append(p.name)
-        data_param = Parameter('data', Parameter.KEYWORD_ONLY, default=None)
-        if _has_varkwargs:
-            params.insert(-1, data_param)
-        else:
-            params.append(data_param)
-        new_sig = sig.replace(parameters=params)
-        # Import-time check: do we have enough information to replace *args?
-        arg_names_at_runtime = False
-        # there can't be any positional arguments behind *args and no
-        # positional args can end up in **kwargs, so only *varargs make
-        # problems.
-        # http://stupidpythonideas.blogspot.de/2013/08/arguments-and-parameters.html
-        if not _has_varargs:
-            # all args are "named", so no problem
-            # remove the first "ax" / self arg
-            arg_names = _arg_names[1:]
-        else:
-            # Here we have "unnamed" variables and we need a way to determine
-            # whether to replace a arg or not
-            if replace_names is None:
-                # all argnames should be replaced
-                arg_names = None
-            elif len(replace_names) == 0:
-                # No argnames should be replaced
-                arg_names = []
-            elif len(_arg_names) > 1 and (positional_parameter_names is None):
-                # we got no manual parameter names but more than an 'ax' ...
-                if len(replace_names - set(_arg_names[1:])) == 0:
-                    # all to be replaced arguments are in the list
-                    arg_names = _arg_names[1:]
-                else:
-                    raise AssertionError(
-                        "Got unknown 'replace_names' and wrapped function "
-                        "{!r} uses '*args', need 'positional_parameter_names'"
-                        .format(func.__name__))
-            else:
-                if positional_parameter_names is not None:
-                    if callable(positional_parameter_names):
-                        # determined by the function at runtime
-                        arg_names_at_runtime = True
-                        # so that we don't compute the label_pos at import time
-                        arg_names = []
-                    else:
-                        arg_names = positional_parameter_names
-                else:
-                    if replace_all_args:
-                        arg_names = []
-                    else:
-                        raise AssertionError(
-                            "Got 'replace_names' and wrapped function {!r} "
-                            "uses *args, need 'positional_parameter_names' or "
-                            "'replace_all_args'".format(func.__name__))
+    assert (replace_names or set()) <= set(arg_names) or varkwargs_name, (
+        "Matplotlib internal error: invalid replace_names ({!r}) for {!r}"
+        .format(replace_names, func.__name__))
+    assert label_namer is None or label_namer in arg_names, (
+        "Matplotlib internal error: invalid label_namer ({!r}) for {!r}"
+            .format(label_namer, func.__name__))
 
-        # compute the possible label_namer and label position in positional
-        # arguments
-        label_pos = 9999  # bigger than all "possible" argument lists
-        label_namer_pos = 9999  # bigger than all "possible" argument lists
-        if (label_namer and  # we actually want a label here ...
-                arg_names and  # and we can determine a label in *args ...
-                label_namer in arg_names):  # and it is in *args
-            label_namer_pos = arg_names.index(label_namer)
-            if "label" in arg_names:
-                label_pos = arg_names.index("label")
+    @functools.wraps(func)
+    def inner(ax, *args, data=None, **kwargs):
+        if data is None:
+            return func(ax, *map(sanitize_sequence, args), **kwargs)
 
-        # Check the case we know a label_namer but we can't find it the
-        # arg_names... Unfortunately the label_namer can be in **kwargs,
-        # which we can't detect here and which results in a non-set label
-        # which might surprise the user :-(
-        if label_namer and not arg_names_at_runtime and not _has_varkwargs:
-            if not arg_names:
-                raise AssertionError(
-                    "label_namer {!r} can't be found as the parameter without "
-                    "'positional_parameter_names'".format(label_namer))
-            elif label_namer not in arg_names:
-                raise AssertionError(
-                    "label_namer {!r} can't be found in the parameter names "
-                    "(known argnames: %s).".format(label_namer, arg_names))
-            else:
-                # this is the case when the name is in arg_names
-                pass
+        bound = new_sig.bind(ax, *args, **kwargs)
+        needs_label = (label_namer
+                       and "label" not in bound.arguments
+                       and "label" not in bound.kwargs)
+        auto_label = (bound.arguments.get(label_namer)
+                      or bound.kwargs.get(label_namer))
 
-        @functools.wraps(func)
-        def inner(ax, *args, data=None, **kwargs):
-            # this is needed because we want to change these values if
-            # arg_names_at_runtime==True, but python does not allow assigning
-            # to a variable in a outer scope. So use some new local ones and
-            # set them to the already computed values.
-            _label_pos = label_pos
-            _label_namer_pos = label_namer_pos
-            _arg_names = arg_names
-
-            label = None
-
-            if data is None:  # data validation
-                args = tuple(sanitize_sequence(a) for a in args)
-            else:
-                if arg_names_at_runtime:
-                    # update the information about replace names and
-                    # label position
-                    _arg_names = positional_parameter_names(args, data)
-                    if (label_namer and  # we actually want a label here ...
-                            _arg_names and  # and we can find a label in *args
-                            (label_namer in _arg_names)):  # and it is in *args
-                        _label_namer_pos = _arg_names.index(label_namer)
-                        if "label" in _arg_names:
-                            _label_pos = arg_names.index("label")
-
-                # save the current label_namer value so that it can be used as
-                # a label
-                if _label_namer_pos < len(args):
-                    label = args[_label_namer_pos]
-                else:
-                    label = kwargs.get(label_namer, None)
-                # ensure a string, as label can't be anything else
-                if not isinstance(label, str):
-                    label = None
-
-                if replace_names is None or replace_all_args:
-                    # all should be replaced
-                    args = tuple(_replacer(data, a) for
-                                 j, a in enumerate(args))
-                else:
-                    # An arg is replaced if the arg_name of that position is
-                    #   in replace_names ...
-                    if len(_arg_names) < len(args):
-                        raise RuntimeError(
-                            "Got more args than function expects")
-                    args = tuple(_replacer(data, a)
-                                 if _arg_names[j] in replace_names else a
-                                 for j, a in enumerate(args))
-
+        for k, v in bound.arguments.items():
+            if k == varkwargs_name:
+                for k1, v1 in v.items():
+                    if replace_names is None or k1 in replace_names:
+                        v[k1] = _replacer(data, v1)
+            elif k == varargs_name:
                 if replace_names is None:
-                    # replace all kwargs ...
-                    kwargs = {k: _replacer(data, v) for k, v in kwargs.items()}
-                else:
-                    # ... or only if a kwarg of that name is in replace_names
-                    kwargs = {
-                        k: _replacer(data, v) if k in replace_names else v
-                        for k, v in kwargs.items()}
+                    bound.arguments[k] = tuple(_replacer(data, v1) for v1 in v)
+            else:
+                if replace_names is None or k in replace_names:
+                    bound.arguments[k] = _replacer(data, v)
 
-            # replace the label if this func "wants" a label arg and the user
-            # didn't set one. Note: if the user puts in "label=None", it does
-            # *NOT* get replaced!
-            user_supplied_label = (
-                len(args) >= _label_pos or  # label is included in args
-                'label' in kwargs  # ... or in kwargs
-            )
-            if label_namer and not user_supplied_label:
-                if _label_namer_pos < len(args):
-                    kwargs['label'] = get_label(args[_label_namer_pos], label)
-                elif label_namer in kwargs:
-                    kwargs['label'] = get_label(kwargs[label_namer], label)
-                else:
-                    cbook._warn_external(
-                        "Tried to set a label via parameter %r in func %r but "
-                        "couldn't find such an argument.\n(This is a "
-                        "programming error, please report to the Matplotlib "
-                        "list!)" % (label_namer, func.__name__),
-                        RuntimeWarning)
-            return func(ax, *args, **kwargs)
+        bound.apply_defaults()
+        del bound.arguments["data"]
 
-        inner.__doc__ = _add_data_doc(inner.__doc__,
-                                      replace_names, replace_all_args)
-        inner.__signature__ = new_sig
-        return inner
+        if needs_label:
+            all_kwargs = {**bound.arguments, **bound.kwargs}
+            # label_namer will be in all_kwargs as we asserted above that
+            # `label_namer is None or label_namer in arg_names`.
+            label = _label_from_arg(all_kwargs[label_namer], auto_label)
+            if "label" in arg_names:
+                bound.arguments["label"] = label
+                try:
+                    bound.arguments.move_to_end(varkwargs_name)
+                except KeyError:
+                    pass
+            else:
+                bound.arguments.setdefault(varkwargs_name, {})["label"] = label
 
-    return param
+        return func(*bound.args, **bound.kwargs)
+
+    inner.__doc__ = _add_data_doc(inner.__doc__, replace_names)
+    inner.__signature__ = new_sig
+    return inner
+
 
 _log.debug('matplotlib version %s', __version__)
 _log.debug('interactive is %s', is_interactive())

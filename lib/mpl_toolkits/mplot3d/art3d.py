@@ -162,6 +162,40 @@ class Line3D(lines.Line2D):
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
+    def set_data_3d(self, *args):
+        """
+        Set the x, y and z data
+
+        Parameters
+        ----------
+        x : array_like
+            The x-data to be plotted
+        y : array_like
+            The y-data to be plotted
+        z : array_like
+            The z-data to be plotted
+
+        Notes
+        -----
+        Accepts x, y, z arguments or a single array_like (x, y, z)
+        """
+        if len(args) == 1:
+            self._verts3d = args[0]
+        else:
+            self._verts3d = args
+        self.stale = True
+
+    def get_data_3d(self):
+        """
+        Get the current data
+
+        Returns
+        -------
+        verts3d : length-3 tuple or array_likes
+            The current data as a tuple or array_likes
+        """
+        return self._verts3d
+
     @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
@@ -806,12 +840,12 @@ def _zalpha(colors, zs):
     #        in all three dimensions. Otherwise, at certain orientations,
     #        the min and max zs are very close together.
     #        Should really normalize against the viewing depth.
-    colors = _get_colors(colors, len(zs))
-    if len(zs):
-        norm = Normalize(min(zs), max(zs))
-        sats = 1 - norm(zs) * 0.7
-        colors = [(c[0], c[1], c[2], c[3] * s) for c, s in zip(colors, sats)]
-    return colors
+    if len(zs) == 0:
+        return np.zeros((0, 4))
+    norm = Normalize(min(zs), max(zs))
+    sats = 1 - norm(zs) * 0.7
+    rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
+    return np.column_stack([rgba[:, :3], rgba[:, 3] * sats])
 
 
 @cbook.deprecated("3.1")

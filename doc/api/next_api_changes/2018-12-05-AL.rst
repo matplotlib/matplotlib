@@ -1,0 +1,4 @@
+Deprecations
+````````````
+
+The ``backend_pgf.LatexManagerFactory`` class is deprecated.

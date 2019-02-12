@@ -11,7 +11,22 @@ from matplotlib.backend_bases import (
 from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
-from ._gtk3_compat import GLib, GObject, Gtk, Gdk
+
+try:
+    import gi
+except ImportError:
+    raise ImportError("The GTK3 backends require PyGObject")
+
+try:
+    # :raises ValueError: If module/version is already loaded, already
+    # required, or unavailable.
+    gi.require_version("Gtk", "3.0")
+except ValueError as e:
+    # in this case we want to re-raise as ImportError so the
+    # auto-backend selection logic correctly skips.
+    raise ImportError from e
+
+from gi.repository import GLib, GObject, Gtk, Gdk
 
 
 _log = logging.getLogger(__name__)
@@ -172,7 +187,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.set_double_buffered(True)
         self.set_can_focus(True)
         self._renderer_init()
-        default_context = GLib.main_context_get_thread_default() or GLib.main_context_default()
 
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
@@ -278,11 +292,8 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         pass
 
     def draw(self):
-        if self.get_visible() and self.get_mapped():
+        if self.is_drawable():
             self.queue_draw()
-            # do a synchronous draw (its less efficient than an async draw,
-            # but is required if/when animation is used)
-            self.get_property("window").process_updates(False)
 
     def draw_idle(self):
         if self._idle_draw_id != 0:

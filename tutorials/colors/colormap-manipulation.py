@@ -181,7 +181,7 @@ plot_linearmap(cdict)
 # and for values passed to the colormap between ``x[i]`` and ``x[i+1]``,
 # the interpolation is between ``yright[i]`` and ``yleft[i+1]``.
 #
-# In the example below there is a discontiuity in red at 0.5.  The
+# In the example below there is a discontinuity in red at 0.5.  The
 # interpolation between 0 and 0.5 goes from 0.3 to 1, and between 0.5 and 1
 # it goes from 0.9 to 1.  Note that red[0, 1], and red[2, 2] are both
 # superfluous to the interpolation because red[0, 1] is the value to the

@@ -240,6 +240,7 @@ class PathGenerator
             throw py::exception();
         }
         if (!convert_path(item, &path)) {
+            Py_DECREF(item);
             throw py::exception();
         }
         Py_DECREF(item);

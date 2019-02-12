@@ -276,86 +276,88 @@ class Text(Artist):
         if key in self._cached:
             return self._cached[key]
 
-        horizLayout = []
-
         thisx, thisy = 0.0, 0.0
-        xmin, ymin = 0.0, 0.0
-        width, height = 0.0, 0.0
-        lines = self.get_text().split('\n')
+        lines = self.get_text().split("\n")  # Ensures lines is not empty.
 
-        whs = np.zeros((len(lines), 2))
-        horizLayout = np.zeros((len(lines), 4))
+        ws = []
+        hs = []
+        xs = []
+        ys = []
 
         # Full vertical extent of font, including ascenders and descenders:
-        tmp, lp_h, lp_bl = renderer.get_text_width_height_descent('lp',
-                                                         self._fontproperties,
-                                                         ismath=False)
-        offsety = (lp_h - lp_bl) * self._linespacing
+        _, lp_h, lp_d = renderer.get_text_width_height_descent(
+            "lp", self._fontproperties,
+            ismath="TeX" if self.get_usetex() else False)
+        min_dy = (lp_h - lp_d) * self._linespacing
 
-        baseline = 0
         for i, line in enumerate(lines):
-            clean_line, ismath = self.is_math_text(line, self.get_usetex())
+            clean_line, ismath = self._preprocess_math(line)
             if clean_line:
-                w, h, d = renderer.get_text_width_height_descent(clean_line,
-                                                        self._fontproperties,
-                                                        ismath=ismath)
+                w, h, d = renderer.get_text_width_height_descent(
+                    clean_line, self._fontproperties, ismath=ismath)
             else:
-                w, h, d = 0, 0, 0
+                w = h = d = 0
 
-            # For multiline text, increase the line spacing when the
-            # text net-height(excluding baseline) is larger than that
-            # of a "l" (e.g., use of superscripts), which seems
-            # what TeX does.
+            # For multiline text, increase the line spacing when the text
+            # net-height (excluding baseline) is larger than that of a "l"
+            # (e.g., use of superscripts), which seems what TeX does.
             h = max(h, lp_h)
-            d = max(d, lp_bl)
+            d = max(d, lp_d)
 
-            whs[i] = w, h
+            ws.append(w)
+            hs.append(h)
 
+            # Metrics of the last line that are needed later:
             baseline = (h - d) - thisy
+
             if i == 0:
                 # position at baseline
                 thisy = -(h - d)
             else:
                 # put baseline a good distance from bottom of previous line
-                thisy -= max(offsety, (h - d) * self._linespacing)
-            horizLayout[i] = thisx, thisy, w, h
+                thisy -= max(min_dy, (h - d) * self._linespacing)
+
+            xs.append(thisx)  # == 0.
+            ys.append(thisy)
+
             thisy -= d
-            width = max(width, w)
-            descent = d
+
+        # Metrics of the last line that are needed later:
+        descent = d
 
         # Bounding box definition:
+        width = max(ws)
+        xmin = 0
+        xmax = width
         ymax = 0
-        # ymin is baseline of previous line minus the descent of this line
-        ymin = horizLayout[-1][1] - descent
+        ymin = ys[-1] - descent  # baseline of last line minus its descent
         height = ymax - ymin
-        xmax = xmin + width
 
         # get the rotation matrix
         M = Affine2D().rotate_deg(self.get_rotation())
 
-        offsetLayout = np.zeros((len(lines), 2))
-        offsetLayout[:] = horizLayout[:, 0:2]
         # now offset the individual text lines within the box
-        if len(lines) > 1:  # do the multiline aligment
-            malign = self._get_multialignment()
-            if malign == 'center':
-                offsetLayout[:, 0] += width / 2.0 - horizLayout[:, 2] / 2.0
-            elif malign == 'right':
-                offsetLayout[:, 0] += width - horizLayout[:, 2]
+        malign = self._get_multialignment()
+        if malign == 'left':
+            offset_layout = [(x, y) for x, y in zip(xs, ys)]
+        elif malign == 'center':
+            offset_layout = [(x + width / 2 - w / 2, y)
+                             for x, y, w in zip(xs, ys, ws)]
+        elif malign == 'right':
+            offset_layout = [(x + width - w, y)
+                             for x, y, w in zip(xs, ys, ws)]
 
         # the corners of the unrotated bounding box
-        cornersHoriz = np.array(
-            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)], float)
+        corners_horiz = np.array(
+            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
 
         # now rotate the bbox
-        cornersRotated = M.transform(cornersHoriz)
-
-        txs = cornersRotated[:, 0]
-        tys = cornersRotated[:, 1]
-
+        corners_rotated = M.transform(corners_horiz)
         # compute the bounds of the rotated box
-        xmin, xmax = txs.min(), txs.max()
-        ymin, ymax = tys.min(), tys.max()
+        xmin = corners_rotated[:, 0].min()
+        xmax = corners_rotated[:, 0].max()
+        ymin = corners_rotated[:, 1].min()
+        ymax = corners_rotated[:, 1].max()
         width = xmax - xmin
         height = ymax - ymin
 
@@ -369,16 +371,16 @@ class Text(Artist):
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
             if halign == 'center':
-                offsetx = (xmin + width / 2.0)
+                offsetx = (xmin + xmax) / 2
             elif halign == 'right':
-                offsetx = (xmin + width)
+                offsetx = xmax
             else:
                 offsetx = xmin
 
             if valign == 'center':
-                offsety = (ymin + height / 2.0)
+                offsety = (ymin + ymax) / 2
             elif valign == 'top':
-                offsety = (ymin + height)
+                offsety = ymax
             elif valign == 'baseline':
                 offsety = ymin + descent
             elif valign == 'center_baseline':
@@ -386,8 +388,8 @@ class Text(Artist):
             else:
                 offsety = ymin
         else:
-            xmin1, ymin1 = cornersHoriz[0]
-            xmax1, ymax1 = cornersHoriz[2]
+            xmin1, ymin1 = corners_horiz[0]
+            xmax1, ymax1 = corners_horiz[2]
 
             if halign == 'center':
                 offsetx = (xmin1 + xmax1) / 2.0
@@ -403,7 +405,7 @@ class Text(Artist):
             elif valign == 'baseline':
                 offsety = ymax1 - baseline
             elif valign == 'center_baseline':
-                offsety = (ymin1 + ymax1 - baseline) / 2.0
+                offsety = ymax1 - baseline / 2.0
             else:
                 offsety = ymin1
 
@@ -415,12 +417,9 @@ class Text(Artist):
         bbox = Bbox.from_bounds(xmin, ymin, width, height)
 
         # now rotate the positions around the first x,y position
-        xys = M.transform(offsetLayout)
-        xys -= (offsetx, offsety)
+        xys = M.transform(offset_layout) - (offsetx, offsety)
 
-        xs, ys = xys[:, 0], xys[:, 1]
-
-        ret = bbox, list(zip(lines, whs, xs, ys)), descent
+        ret = bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
         self._cached[key] = ret
         return ret
 
@@ -699,8 +698,7 @@ class Text(Artist):
                 y = y + posy
                 if renderer.flipy():
                     y = canvash - y
-                clean_line, ismath = textobj.is_math_text(line,
-                                                          self.get_usetex())
+                clean_line, ismath = textobj._preprocess_math(line)
 
                 if textobj.get_path_effects():
                     from matplotlib.patheffects import PathEffectRenderer
@@ -1145,15 +1143,18 @@ class Text(Artist):
 
         Parameters
         ----------
-        s : string or object castable to string (but ``None`` becomes ``''``)
+        s : object
+            Any object gets converted to its `str`, except ``None`` which
+            becomes ``''``.
         """
         if s is None:
             s = ''
         if s != self._text:
-            self._text = '%s' % (s,)
+            self._text = str(s)
             self.stale = True
 
     @staticmethod
+    @cbook.deprecated("3.1")
     def is_math_text(s, usetex=None):
         """
         Returns a cleaned string and a boolean flag.
@@ -1175,6 +1176,27 @@ class Text(Artist):
             return s, True
         else:
             return s.replace(r'\$', '$'), False
+
+    def _preprocess_math(self, s):
+        """
+        Return the string *s* after mathtext preprocessing, and the kind of
+        mathtext support needed.
+
+        - If *self* is configured to use TeX, return *s* unchanged except that
+          a single space gets escaped, and the flag "TeX".
+        - Otherwise, if *s* is mathtext (has an even number of unescaped dollar
+          signs), return *s* and the flag True.
+        - Otherwise, return *s* with dollar signs unescaped, and the flag
+          False.
+        """
+        if self.get_usetex():
+            if s == " ":
+                s = r"\ "
+            return s, "TeX"
+        elif cbook.is_math_text(s):
+            return s, True
+        else:
+            return s.replace(r"\$", "$"), False
 
     def set_fontproperties(self, fp):
         """
@@ -1204,16 +1226,8 @@ class Text(Artist):
         self.stale = True
 
     def get_usetex(self):
-        """
-        Return whether this `Text` object uses TeX for rendering.
-
-        If the user has not manually set this value, it defaults to
-        :rc:`text.usetex`.
-        """
-        if self._usetex is None:
-            return rcParams['text.usetex']
-        else:
-            return self._usetex
+        """Return whether this `Text` object uses TeX for rendering."""
+        return self._usetex
 
     def set_fontname(self, fontname):
         """
@@ -1319,7 +1333,8 @@ class TextWithDash(Text):
                       multialignment=multialignment,
                       fontproperties=fontproperties,
                       rotation=rotation,
-                      linespacing=linespacing)
+                      linespacing=linespacing,
+                      )
 
         # The position (x,y) values for text and dashline
         # are bogus as given in the instantiation; they will
@@ -1956,7 +1971,8 @@ class Annotation(Text, _AnnotationBase):
     def __str__(self):
         return "Annotation(%g, %g, %r)" % (self.xy[0], self.xy[1], self._text)
 
-    def __init__(self, s, xy,
+    @cbook._rename_parameter("3.1", "s", "text")
+    def __init__(self, text, xy,
                  xytext=None,
                  xycoords='data',
                  textcoords=None,
@@ -1964,7 +1980,7 @@ class Annotation(Text, _AnnotationBase):
                  annotation_clip=None,
                  **kwargs):
         """
-        Annotate the point *xy* with text *s*.
+        Annotate the point *xy* with text *text*.
 
         In the simplest form, the text is placed at *xy*.
 
@@ -1974,8 +1990,9 @@ class Annotation(Text, _AnnotationBase):
 
         Parameters
         ----------
-        s : str
-            The text of the annotation.
+        text : str
+            The text of the annotation.  *s* is a deprecated synonym for this
+            parameter.
 
         xy : (float, float)
             The point *(x,y)* to annotate.
@@ -2150,7 +2167,7 @@ class Annotation(Text, _AnnotationBase):
             xytext = self.xy
         x, y = xytext
 
-        Text.__init__(self, x, y, s, **kwargs)
+        Text.__init__(self, x, y, text, **kwargs)
 
         self.arrowprops = arrowprops
 

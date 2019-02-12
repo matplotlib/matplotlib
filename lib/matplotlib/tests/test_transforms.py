@@ -296,7 +296,7 @@ class BasicTransformTests(unittest.TestCase):
         assert r1.contains_branch(r2)
         assert r1.contains_branch(self.ta1)
         assert not r1.contains_branch(self.ta2)
-        assert not r1.contains_branch((self.ta2 + self.ta2))
+        assert not r1.contains_branch(self.ta2 + self.ta2)
 
         assert r1 == r2
 
@@ -309,10 +309,10 @@ class BasicTransformTests(unittest.TestCase):
         assert not self.stack2_subset.contains_branch(self.stack1)
         assert not self.stack2_subset.contains_branch(self.stack2)
 
-        assert self.stack1.contains_branch((self.ta2 + self.ta3))
-        assert self.stack2.contains_branch((self.ta2 + self.ta3))
+        assert self.stack1.contains_branch(self.ta2 + self.ta3)
+        assert self.stack2.contains_branch(self.ta2 + self.ta3)
 
-        assert not self.stack1.contains_branch((self.tn1 + self.ta2))
+        assert not self.stack1.contains_branch(self.tn1 + self.ta2)
 
     def test_affine_simplification(self):
         # tests that a transform stack only calls as much is absolutely

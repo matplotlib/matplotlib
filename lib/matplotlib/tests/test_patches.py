@@ -216,9 +216,8 @@ def test_patch_custom_linestyle():
 
 
 def test_patch_linestyle_accents():
-    #: Test if linestyle can also be specified with short menoics
-    #: like "--"
-    #: c.f. Gihub issue #2136
+    #: Test if linestyle can also be specified with short mnemonics like "--"
+    #: c.f. Github issue #2136
     star = mpath.Path.unit_regular_star(6)
     circle = mpath.Path.unit_circle()
     # concatenate the star with an internal cutout of the circle
@@ -392,6 +391,14 @@ def test_connection_patch():
                                    coordsA='data', coordsB='data',
                                    axesA=ax2, axesB=ax1,
                                    arrowstyle="->")
+    ax2.add_artist(con)
+
+    xyA = (0.6, 1.0)  # in axes coordinates
+    xyB = (0.0, 0.2)  # x in axes coordinates, y in data coordinates
+    coordsA = "axes fraction"
+    coordsB = ax2.get_yaxis_transform()
+    con = mpatches.ConnectionPatch(xyA=xyA, xyB=xyB, coordsA=coordsA,
+                                    coordsB=coordsB, arrowstyle="-")
     ax2.add_artist(con)
 
 

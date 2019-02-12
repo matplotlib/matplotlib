@@ -484,6 +484,7 @@ class Legend(Artist):
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
 
+        self._loc_used_default = loc is None
         if loc is None:
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
@@ -568,7 +569,10 @@ class Legend(Artist):
         else:
             self.get_frame().set_alpha(framealpha)
 
-        self._loc = loc
+        tmp = self._loc_used_default
+        self._set_loc(loc)
+        self._loc_used_default = tmp  # ignore changes done by _set_loc
+
         # figure out title fontsize:
         if title_fontsize is None:
             title_fontsize = rcParams['legend.title_fontsize']
@@ -592,6 +596,7 @@ class Legend(Artist):
         # find_offset function will be provided to _legend_box and
         # _legend_box will draw itself at the location of the return
         # value of the find_offset.
+        self._loc_used_default = False
         self._loc_real = loc
         self.stale = True
         self._legend_box.set_offset(self._findoffset)
@@ -629,7 +634,7 @@ class Legend(Artist):
         fontsize = renderer.points_to_pixels(self._fontsize)
 
         # if mode == fill, set the width of the legend_box to the
-        # width of the paret (minus pads)
+        # width of the parent (minus pads)
         if self._mode in ["expand"]:
             pad = 2 * (self.borderaxespad + self.borderpad) * fontsize
             self._legend_box.set_width(self.get_bbox_to_anchor().width - pad)
@@ -729,7 +734,7 @@ class Legend(Artist):
         returned by the get_legend_handler_map method).
 
         It first checks if the *orig_handle* itself is a key in the
-        *legend_hanler_map* and return the associated value.
+        *legend_handler_map* and return the associated value.
         Otherwise, it checks for each of the classes in its
         method-resolution-order. If no matching key is found, it
         returns ``None``.
@@ -785,7 +790,7 @@ class Legend(Artist):
         # be given in the display coordinates.
 
         # The transformation of each handle will be automatically set
-        # to self.get_trasnform(). If the artist does not use its
+        # to self.get_transform(). If the artist does not use its
         # default transform (e.g., Collections), you need to
         # manually set their transform to the self.get_transform().
         legend_handler_map = self.get_legend_handler_map()
@@ -1108,6 +1113,12 @@ class Legend(Artist):
         assert self.isaxes
 
         verts, bboxes, lines, offsets = self._auto_legend_data()
+        if self._loc_used_default and verts.shape[0] > 200000:
+            # this size results in a 3+ second render time on a good machine
+            cbook._warn_external(
+                'Creating legend with loc="best" can be slow with large '
+                'amounts of data.'
+            )
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         if consider is None:
@@ -1175,37 +1186,6 @@ class Legend(Artist):
     def get_draggable(self):
         """Return ``True`` if the legend is draggable, ``False`` otherwise."""
         return self._draggable is not None
-
-    def draggable(self, state=None, use_blit=False, update="loc"):
-        """
-        Set the draggable state -- if state is
-
-          * None : toggle the current state
-
-          * True : turn draggable on
-
-          * False : turn draggable off
-
-        If draggable is on, you can drag the legend on the canvas with
-        the mouse. The `.DraggableLegend` helper instance is returned if
-        draggable is on.
-
-        The update parameter control which parameter of the legend changes
-        when dragged. If update is "loc", the *loc* parameter of the legend
-        is changed. If "bbox", the *bbox_to_anchor* parameter is changed.
-        """
-        warn_deprecated("2.2",
-                        message="Legend.draggable() is deprecated in "
-                                "favor of Legend.set_draggable(). "
-                                "Legend.draggable may be reintroduced as a "
-                                "property in future releases.")
-
-        if state is None:
-            state = not self.get_draggable()  # toggle state
-
-        self.set_draggable(state, use_blit, update)
-
-        return self._draggable
 
 
 # Helper functions to parse legend arguments for both `figure.legend` and

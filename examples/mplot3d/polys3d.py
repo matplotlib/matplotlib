@@ -20,18 +20,11 @@ import numpy as np
 np.random.seed(19680801)
 
 
-def cc(arg):
-    '''
-    Shorthand to convert 'named' colors to rgba format at 60% opacity.
-    '''
-    return mcolors.to_rgba(arg, alpha=0.6)
-
-
 def polygon_under_graph(xlist, ylist):
-    '''
+    """
     Construct the vertex list which defines the polygon filling the space under
     the (xlist, ylist) line graph.  Assumes the xs are in ascending order.
-    '''
+    """
     return [(xlist[0], 0.), *zip(xlist, ylist), (xlist[-1], 0.)]
 
 
@@ -51,7 +44,7 @@ for i in zs:
     ys = np.random.rand(len(xs))
     verts.append(polygon_under_graph(xs, ys))
 
-poly = PolyCollection(verts, facecolors=[cc('r'), cc('g'), cc('b'), cc('y')])
+poly = PolyCollection(verts, facecolors=['r', 'g', 'b', 'y'], alpha=.6)
 ax.add_collection3d(poly, zs=zs, zdir='y')
 
 ax.set_xlabel('X')

@@ -95,5 +95,5 @@ def animate(i):
 
 
 ani = animation.FuncAnimation(fig, animate, range(1, len(y)),
-                              interval=25, blit=True, init_func=init)
+                              interval=dt*1000, blit=True, init_func=init)
 plt.show()

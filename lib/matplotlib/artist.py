@@ -359,25 +359,6 @@ class Artist(object):
             self._transform = self._transform._as_mpl_transform(self.axes)
         return self._transform
 
-    @cbook.deprecated("2.2")
-    def hitlist(self, event):
-        """
-        List the children of the artist which contain the mouse event *event*.
-        """
-        L = []
-        try:
-            hascursor, info = self.contains(event)
-            if hascursor:
-                L.append(self)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            print("while checking", self.__class__)
-
-        for a in self.get_children():
-            L.extend(a.hitlist(event))
-        return L
-
     def get_children(self):
         r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
@@ -534,11 +515,6 @@ class Artist(object):
         set_picker, pickable, pick
         """
         return self._picker
-
-    @cbook.deprecated("2.2", alternative="artist.figure is not None")
-    def is_figure_set(self):
-        """Returns whether the artist is assigned to a `.Figure`."""
-        return self.figure is not None
 
     def get_url(self):
         """Return the url."""
@@ -1026,7 +1002,7 @@ class Artist(object):
 
         When performing autoscaling, if a data limit coincides with a value in
         the corresponding sticky_edges list, then no margin will be added--the
-        view limit "sticks" to the edge. A typical usecase is histograms,
+        view limit "sticks" to the edge. A typical use case is histograms,
         where one usually expects no margin on the bottom edge (0) of the
         histogram.
 
@@ -1064,12 +1040,12 @@ class Artist(object):
         return ArtistInspector(self).properties()
 
     def set(self, **kwargs):
-        """A property batch setter. Pass *kwargs* to set properties.
-        """
+        """A property batch setter.  Pass *kwargs* to set properties."""
+        kwargs = cbook.normalize_kwargs(
+            kwargs, getattr(type(self), "_alias_map", {}))
         props = OrderedDict(
             sorted(kwargs.items(), reverse=True,
                    key=lambda x: (self._prop_order.get(x[0], 0), x[0])))
-
         return self.update(props)
 
     def findobj(self, match=None, include_self=True):
@@ -1466,7 +1442,7 @@ def getp(obj, property=None):
         getp(obj, 'linestyle')  # get the linestyle property
 
     *obj* is a :class:`Artist` instance, e.g.,
-    :class:`~matplotllib.lines.Line2D` or an instance of a
+    :class:`~matplotlib.lines.Line2D` or an instance of a
     :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
     If the *property* is 'somename', this function returns
 

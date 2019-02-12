@@ -240,7 +240,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self._dpi_ratio_prev = None
 
         self._draw_pending = False
-        self._erase_before_paint = False
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
 
@@ -491,7 +490,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             return
         with cbook._setattr_cm(self, _is_drawing=True):
             super().draw()
-        self._erase_before_paint = True
         self.update()
 
     def draw_idle(self):
@@ -1126,6 +1124,11 @@ class _BackendQT5(_Backend):
 
     @staticmethod
     def mainloop():
-        # allow KeyboardInterrupt exceptions to close the plot window.
+        old_signal = signal.getsignal(signal.SIGINT)
+        # allow SIGINT exceptions to close the plot window.
         signal.signal(signal.SIGINT, signal.SIG_DFL)
-        qApp.exec_()
+        try:
+            qApp.exec_()
+        finally:
+            # reset the SIGINT exception handler
+            signal.signal(signal.SIGINT, old_signal)

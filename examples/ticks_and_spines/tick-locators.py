@@ -66,7 +66,7 @@ ax.text(0.0, 0.1, "LinearLocator(numticks=3)",
 # Index Locator
 ax = plt.subplot(n, 1, 5)
 setup(ax)
-ax.plot(range(0, 5), [0]*5, color='White')
+ax.plot(range(0, 5), [0]*5, color='white')
 ax.xaxis.set_major_locator(ticker.IndexLocator(base=.5, offset=.25))
 ax.text(0.0, 0.1, "IndexLocator(base=0.5, offset=0.25)",
         fontsize=14, transform=ax.transAxes)

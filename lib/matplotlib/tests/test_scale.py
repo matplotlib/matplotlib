@@ -1,6 +1,7 @@
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.scale import Log10Transform, InvertedLog10Transform
+
 import numpy as np
 import io
 import platform
@@ -148,3 +149,21 @@ def test_invalid_log_lims():
     with pytest.warns(UserWarning):
         ax.set_ylim(top=-1)
     assert ax.get_ylim() == original_ylim
+
+
+@image_comparison(baseline_images=['function_scales'], remove_text=True,
+                  extensions=['png'], style='mpl20')
+def test_function_scale():
+    def inverse(x):
+        return x**2
+
+    def forward(x):
+        return x**(1/2)
+
+    fig, ax = plt.subplots()
+
+    x = np.arange(1, 1000)
+
+    ax.plot(x, x)
+    ax.set_xscale('function', functions=(forward, inverse))
+    ax.set_xlim(1, 1000)

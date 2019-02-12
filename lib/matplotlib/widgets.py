@@ -235,10 +235,9 @@ class Button(AxesWidget):
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call this *func* with event.
+        Connect the callback function *func* to button click events.
 
-        A connection id is returned. It can be used to disconnect
-        the button from its callback.
+        Returns a connection id, which can be used to disconnect the callback.
         """
         cid = self.cnt
         self.observers[cid] = func
@@ -246,7 +245,7 @@ class Button(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
+        """Remove the callback function with connection id *cid*."""
         try:
             del self.observers[cid]
         except KeyError:
@@ -648,9 +647,9 @@ class CheckButtons(AxesWidget):
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call *func* with button label
+        Connect the callback function *func* to button click events.
 
-        A connection id is returned which can be used to disconnect
+        Returns a connection id, which can be used to disconnect the callback.
         """
         cid = self.cnt
         self.observers[cid] = func
@@ -795,7 +794,7 @@ class TextBox(AxesWidget):
 
     def _notify_submit_observers(self):
         for cid, func in self.submit_observers.items():
-                func(self.text)
+            func(self.text)
 
     def _release(self, event):
         if self.ignore(event):
@@ -974,40 +973,40 @@ class RadioButtons(AxesWidget):
     """
     A GUI neutral radio button.
 
-    For the buttons to remain responsive
-    you must keep a reference to this object.
+    For the buttons to remain responsive you must keep a reference to this
+    object.
 
-    The following attributes are exposed:
+    Connect to the RadioButtons with the :meth:`on_clicked` method.
 
-     *ax*
-        The :class:`matplotlib.axes.Axes` instance the buttons are in
 
-     *activecolor*
-        The color of the button when clicked
+    Attributes
+    ----------
+    ax
+        The containing `~.axes.Axes` instance.
+    activecolor
+        The color of the selected button.
+    labels
+        A list of `~.text.Text` instances containing the button labels.
+    circles
+        A list of `~.patches.Circle` instances defining the buttons.
+    value_selected : str
+        The label text of the currently selected button.
 
-     *labels*
-        A list of :class:`matplotlib.text.Text` instances
-
-     *circles*
-        A list of :class:`matplotlib.patches.Circle` instances
-
-     *value_selected*
-        A string listing the current value selected
-
-    Connect to the RadioButtons with the :meth:`on_clicked` method
     """
     def __init__(self, ax, labels, active=0, activecolor='blue'):
         """
-        Add radio buttons to :class:`matplotlib.axes.Axes` instance *ax*
+        Add radio buttons to an `~.axes.Axes`.
 
-        *labels*
-            A len(buttons) list of labels as strings
-
-        *active*
-            The index into labels for the button that is active
-
-        *activecolor*
-            The color of the button when clicked
+        Parameters
+        ----------
+        ax : `~matplotlib.axes.Axes`
+            The axes to add the buttons to.
+        labels : list of str
+            The button labels.
+        active : int
+            The index of the initially selected button.
+        activecolor : color
+            The color of the selected button.
         """
         AxesWidget.__init__(self, ax)
         self.activecolor = activecolor
@@ -1059,22 +1058,20 @@ class RadioButtons(AxesWidget):
             return
         xy = self.ax.transAxes.inverted().transform_point((event.x, event.y))
         pclicked = np.array([xy[0], xy[1]])
+        distances = {}
         for i, (p, t) in enumerate(zip(self.circles, self.labels)):
             if (t.get_window_extent().contains(event.x, event.y)
                     or np.linalg.norm(pclicked - p.center) < p.radius):
-                self.set_active(i)
-                break
+                distances[i] = np.linalg.norm(pclicked - p.center)
+        if len(distances) > 0:
+            closest = min(distances, key=distances.get)
+            self.set_active(closest)
 
     def set_active(self, index):
         """
-        Trigger which radio button to make active.
-
-        *index* is an index into the original label list
-            that this object was constructed with.
-            Raise ValueError if the index is invalid.
+        Select button with number *index*.
 
         Callbacks will be triggered if :attr:`eventson` is True.
-
         """
         if 0 > index >= len(self.labels):
             raise ValueError("Invalid RadioButton index: %d" % index)
@@ -1098,9 +1095,9 @@ class RadioButtons(AxesWidget):
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call *func* with button label
+        Connect the callback function *func* to button click events.
 
-        A connection id is returned which can be used to disconnect
+        Returns a connection id, which can be used to disconnect the callback.
         """
         cid = self.cnt
         self.observers[cid] = func
@@ -1108,7 +1105,7 @@ class RadioButtons(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
+        """Remove the observer with connection id *cid*."""
         try:
             del self.observers[cid]
         except KeyError:
@@ -1275,7 +1272,7 @@ class Cursor(AxesWidget):
     Other Parameters
     ----------------
     **lineprops
-        `.Line2D` porperties that control the appearance of the lines.
+        `.Line2D` properties that control the appearance of the lines.
         See also `~.Axes.axhline`.
 
     Examples
@@ -2191,8 +2188,7 @@ class RectangleSelector(_SelectorWidget):
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
             xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
-            # calculate dimensions of box or line get values in the right
-            # order
+            # calculate dimensions of box or line get values in the right order
         elif self.spancoords == 'pixels':
             xmin, ymin = self.eventpress.x, self.eventpress.y
             xmax, ymax = self.eventrelease.x, self.eventrelease.y

@@ -42,7 +42,7 @@ API Changes for 3.0.1
 `.tight_layout.auto_adjust_subplotpars` can return ``None`` now if the new
 subplotparams will collapse axes to zero width or height.  This prevents
 ``tight_layout`` from being executed.  Similarly
-`.tight_layout.get_tight_layout_figure` will return None.  
+`.tight_layout.get_tight_layout_figure` will return None.
 
 API Changes for 3.0.0
 =====================
@@ -359,7 +359,7 @@ Changes regarding the text.latex.unicode rcParam
 ------------------------------------------------
 
 The rcParam now defaults to True and is deprecated (i.e., in future versions
-of Maplotlib, unicode input will always be supported).
+of Matplotlib, unicode input will always be supported).
 
 Moreover, the underlying implementation now uses ``\usepackage[utf8]{inputenc}``
 instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
@@ -514,7 +514,7 @@ Removals
 Hold machinery
 ``````````````
 
-Setting or unsetting ``hold`` (deprecated in version 2.1) has now
+Setting or unsetting ``hold`` (:ref:`deprecated in version 2.0<v200_deprecate_hold>`) has now
 been completely removed. Matplotlib now always behaves as if ``hold=True``.
 To clear an axes you can manually use :meth:`~.axes.Axes.cla()`,
 or to clear an entire figure use :meth:`~.figure.Figure.clf()`.

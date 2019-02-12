@@ -30,7 +30,3 @@ def test_override_builtins():
                 overridden = True
 
     assert not overridden
-
-
-def test_verbose():
-    assert isinstance(matplotlib.verbose, matplotlib.Verbose)

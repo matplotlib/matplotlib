@@ -596,8 +596,8 @@ class ColorbarBase(cm.ScalarMappable):
         if b is not None:
             self._boundaries = np.asarray(b, dtype=float)
             if self.values is None:
-                self._values = 0.5*(self._boundaries[:-1]
-                                        + self._boundaries[1:])
+                self._values = (self._boundaries[:-1]
+                                + self._boundaries[1:]) / 2
                 if isinstance(self.norm, colors.NoNorm):
                     self._values = (self._values + 0.00001).astype(np.int16)
                 return
@@ -606,7 +606,7 @@ class ColorbarBase(cm.ScalarMappable):
         if self.values is not None:
             self._values = np.array(self.values)
             if self.boundaries is None:
-                b = np.zeros(len(self.values)+1, 'd')
+                b = np.zeros(len(self.values) + 1)
                 b[1:-1] = 0.5*(self._values[:-1] - self._values[1:])
                 b[0] = 2.0*b[1] - b[2]
                 b[-1] = 2.0*b[-2] - b[-3]
@@ -617,22 +617,16 @@ class ColorbarBase(cm.ScalarMappable):
         # Neither boundaries nor values are specified;
         # make reasonable ones based on cmap and norm.
         if isinstance(self.norm, colors.NoNorm):
-            b = self._uniform_y(self.cmap.N+1) * self.cmap.N - 0.5
-            v = np.zeros((len(b)-1,), dtype=np.int16)
-            v = np.arange(self.cmap.N, dtype=np.int16)
-            self._boundaries = b
-            self._values = v
+            self._boundaries = (
+                self._uniform_y(self.cmap.N + 1) * self.cmap.N - 0.5)
+            self._values = np.arange(self.cmap.N, dtype=np.int16)
             return
         elif isinstance(self.norm, colors.BoundaryNorm):
-            b = np.array(self.norm.boundaries)
-            v = np.zeros((len(b)-1,), dtype=float)
-            bi = self.norm.boundaries
-            v = 0.5*(bi[:-1] + bi[1:])
-            self._boundaries = b
-            self._values = v
+            self._boundaries = np.array(self.norm.boundaries)
+            self._values = (self._boundaries[:-1] + self._boundaries[1:]) / 2
             return
         else:
-            b = self._uniform_y(self.cmap.N+1)
+            b = self._uniform_y(self.cmap.N + 1)
 
         self._process_values(b)
 

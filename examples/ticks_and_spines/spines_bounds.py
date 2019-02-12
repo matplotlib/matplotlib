@@ -16,8 +16,8 @@ y = np.sin(x)
 y2 = y + 0.1 * np.random.normal(size=x.shape)
 
 fig, ax = plt.subplots()
-ax.plot(x, y, 'k--')
-ax.plot(x, y2, 'ro')
+ax.plot(x, y)
+ax.plot(x, y2)
 
 # set ticks and tick labels
 ax.set_xlim((0, 2*np.pi))

@@ -20,12 +20,7 @@ np.random.seed(19680801)
 data1 = np.random.random([6, 50])
 
 # set different colors for each set of positions
-colors1 = np.array([[1, 0, 0],
-                    [0, 1, 0],
-                    [0, 0, 1],
-                    [1, 1, 0],
-                    [1, 0, 1],
-                    [0, 1, 1]])
+colors1 = ['C{}'.format(i) for i in range(6)]
 
 # set different line properties for each set of positions
 # note that some overlap
@@ -49,7 +44,7 @@ data2 = np.random.gamma(4, size=[60, 50])
 # use individual values for the parameters this time
 # these values will be used for all data sets (except lineoffsets2, which
 # sets the increment between each data set in this usage)
-colors2 = [[0, 0, 0]]
+colors2 = 'black'
 lineoffsets2 = 1
 linelengths2 = 1
 

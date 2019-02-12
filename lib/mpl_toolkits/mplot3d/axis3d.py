@@ -7,7 +7,8 @@ import copy
 import numpy as np
 
 from matplotlib import (
-    artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
+    artist, cbook, lines as mlines, axis as maxis, patches as mpatches,
+    rcParams)
 from . import art3d, proj3d
 
 
@@ -45,7 +46,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
 
 
 class Axis(maxis.XAxis):
-
+    """An Axis class for the 3D plots. """
     # These points from the unit cube make up the x, y and z-planes
     _PLANES = (
         (0, 3, 7, 4), (1, 2, 6, 5),     # yz planes
@@ -133,6 +134,7 @@ class Axis(maxis.XAxis):
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
 
+    @cbook.deprecated("3.1")
     def get_tick_positions(self):
         majorLocs = self.major.locator()
         self.major.formatter.set_locs(majorLocs)
@@ -445,10 +447,11 @@ class Axis(maxis.XAxis):
         self.stale = False
 
     def get_view_interval(self):
-        """return the Interval instance for this 3d axis view limits"""
+        # docstring inherited
         return self.v_interval
 
     def set_view_interval(self, vmin, vmax, ignore=False):
+        # docstring inherited
         if ignore:
             self.v_interval = vmin, vmax
         else:
@@ -468,17 +471,17 @@ class Axis(maxis.XAxis):
 
 class XAxis(Axis):
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.xy_dataLim.intervalx
 
 
 class YAxis(Axis):
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.xy_dataLim.intervaly
 
 
 class ZAxis(Axis):
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.zz_dataLim.intervalx

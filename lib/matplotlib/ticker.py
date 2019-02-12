@@ -253,6 +253,10 @@ class Formatter(TickHelper):
         """
         raise NotImplementedError('Derived must override')
 
+    def format_ticks(self, values):
+        """Return the tick labels for all the ticks at once."""
+        return [self(value, i) for i, value in enumerate(values)]
+
     def format_data(self, value):
         """
         Returns the full string representation of the value with the
@@ -291,7 +295,7 @@ class Formatter(TickHelper):
         return s
 
     def _set_locator(self, locator):
-        """ Subclasses may want to override this to set a locator. """
+        """Subclasses may want to override this to set a locator."""
         pass
 
 
@@ -646,18 +650,13 @@ class ScalarFormatter(Formatter):
         """
         self.locs = locs
         if len(self.locs) > 0:
-            vmin, vmax = self.axis.get_view_interval()
-            d = abs(vmax - vmin)
             if self._useOffset:
                 self._compute_offset()
-            self._set_orderOfMagnitude(d)
-            self._set_format(vmin, vmax)
+            self._set_order_of_magnitude()
+            self._set_format()
 
     def _compute_offset(self):
         locs = self.locs
-        if locs is None or not len(locs):
-            self.offset = 0
-            return
         # Restrict to visible ticks.
         vmin, vmax = sorted(self.axis.get_view_interval())
         locs = np.asarray(locs)
@@ -695,7 +694,7 @@ class ScalarFormatter(Formatter):
                        if abs_max // 10 ** oom >= 10**n
                        else 0)
 
-    def _set_orderOfMagnitude(self, range):
+    def _set_order_of_magnitude(self):
         # if scientific notation is to be used, find the appropriate exponent
         # if using an numerical offset, find the exponent after applying the
         # offset. When lower power limit = upper <> 0, use provided exponent.
@@ -715,7 +714,7 @@ class ScalarFormatter(Formatter):
             self.orderOfMagnitude = 0
             return
         if self.offset:
-            oom = math.floor(math.log10(range))
+            oom = math.floor(math.log10(vmax - vmin))
         else:
             if locs[0] > locs[-1]:
                 val = locs[0]
@@ -732,11 +731,11 @@ class ScalarFormatter(Formatter):
         else:
             self.orderOfMagnitude = 0
 
-    def _set_format(self, vmin, vmax):
+    def _set_format(self):
         # set the format string to format all the ticklabels
         if len(self.locs) < 2:
             # Temporarily augment the locations with the axis end points.
-            _locs = [*self.locs, vmin, vmax]
+            _locs = [*self.locs, *self.axis.get_view_interval()]
         else:
             _locs = self.locs
         locs = (np.asarray(_locs) - self.offset) / 10. ** self.orderOfMagnitude
@@ -1412,9 +1411,9 @@ class Locator(TickHelper):
     """
     Determine the tick locations;
 
-    Note, you should not use the same locator between different
-    :class:`~matplotlib.axis.Axis` because the locator stores references to
-    the Axis data and view limits
+    Note that the same locator should not be used across multiple
+    `~matplotlib.axis.Axis` because the locator stores references to the Axis
+    data and view limits.
     """
 
     # Some automatic tick locators can generate so many ticks they
@@ -1442,7 +1441,7 @@ class Locator(TickHelper):
 
     def set_params(self, **kwargs):
         """
-        Do nothing, and rase a warning. Any locator class not supporting the
+        Do nothing, and raise a warning. Any locator class not supporting the
         set_params() function will call this.
         """
         cbook._warn_external(
@@ -1464,12 +1463,15 @@ class Locator(TickHelper):
                                    len(locs), locs[0], locs[-1]))
         return locs
 
+    def nonsingular(self, v0, v1):
+        """Modify the endpoints of a range as needed to avoid singularities."""
+        return mtransforms.nonsingular(v0, v1, increasing=False, expander=.05)
+
     def view_limits(self, vmin, vmax):
         """
-        select a scale for the range from vmin to vmax
+        Select a scale for the range from vmin to vmax.
 
-        Normally this method is overridden by subclasses to
-        change locator behaviour.
+        Subclasses should override this method to change locator behaviour.
         """
         return mtransforms.nonsingular(vmin, vmax)
 
@@ -1824,12 +1826,12 @@ class MaxNLocator(Locator):
     """
     Select no more than N intervals at nice locations.
     """
-    default_params = dict(nbins=10,
-                          steps=None,
-                          integer=False,
-                          symmetric=False,
-                          prune=None,
-                          min_n_ticks=2)
+    _default_params = dict(nbins=10,
+                           steps=None,
+                           integer=False,
+                           symmetric=False,
+                           prune=None,
+                           min_n_ticks=2)
 
     def __init__(self, *args, **kwargs):
         """
@@ -1840,7 +1842,7 @@ class MaxNLocator(Locator):
             ticks.  If the string `'auto'`, the number of bins will be
             automatically determined based on the length of the axis.
 
-        steps: array-like, optional
+        steps : array-like, optional
             Sequence of nice numbers starting with 1 and ending with 10;
             e.g., [1, 2, 4, 5, 10], where the values are acceptable
             tick multiples.  i.e. for the example, 20, 40, 60 would be
@@ -1871,12 +1873,17 @@ class MaxNLocator(Locator):
 
         """
         if args:
+            if 'nbins' in kwargs:
+                cbook.deprecated("3.1",
+                                 message='Calling MaxNLocator with positional '
+                                         'and keyword parameter *nbins* is '
+                                         'considered an error and will fail '
+                                         'in future versions of matplotlib.')
             kwargs['nbins'] = args[0]
             if len(args) > 1:
                 raise ValueError(
                     "Keywords are required for all arguments except 'nbins'")
-        self.set_params(**self.default_params)
-        self.set_params(**kwargs)
+        self.set_params(**{**self._default_params, **kwargs})
 
     @staticmethod
     def _validate_steps(steps):
@@ -1893,6 +1900,16 @@ class MaxNLocator(Locator):
             steps = np.hstack((steps, 10))
         return steps
 
+    @cbook.deprecated("3.1")
+    @property
+    def default_params(self):
+        return self._default_params
+
+    @cbook.deprecated("3.1")
+    @default_params.setter
+    def default_params(self, params):
+        self._default_params = params
+
     @staticmethod
     def _staircase(steps):
         # Make an extended staircase within which the needed
@@ -1902,30 +1919,52 @@ class MaxNLocator(Locator):
         return np.hstack(flights)
 
     def set_params(self, **kwargs):
-        """Set parameters within this locator."""
+        """
+        Set parameters for this locator.
+
+        Parameters
+        ----------
+        nbins : int or 'auto', optional
+            see `.MaxNLocator`
+        steps : array-like, optional
+            see `.MaxNLocator`
+        integer : bool, optional
+            see `.MaxNLocator`
+        symmetric : bool, optional
+            see `.MaxNLocator`
+        prune : {'lower', 'upper', 'both', None}, optional
+            see `.MaxNLocator`
+        min_n_ticks : int, optional
+            see `.MaxNLocator`
+        """
         if 'nbins' in kwargs:
-            self._nbins = kwargs['nbins']
+            self._nbins = kwargs.pop('nbins')
             if self._nbins != 'auto':
                 self._nbins = int(self._nbins)
         if 'symmetric' in kwargs:
-            self._symmetric = kwargs['symmetric']
+            self._symmetric = kwargs.pop('symmetric')
         if 'prune' in kwargs:
-            prune = kwargs['prune']
+            prune = kwargs.pop('prune')
             if prune is not None and prune not in ['upper', 'lower', 'both']:
                 raise ValueError(
                     "prune must be 'upper', 'lower', 'both', or None")
             self._prune = prune
         if 'min_n_ticks' in kwargs:
-            self._min_n_ticks = max(1, kwargs['min_n_ticks'])
+            self._min_n_ticks = max(1, kwargs.pop('min_n_ticks'))
         if 'steps' in kwargs:
-            steps = kwargs['steps']
+            steps = kwargs.pop('steps')
             if steps is None:
                 self._steps = np.array([1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10])
             else:
                 self._steps = self._validate_steps(steps)
             self._extended_steps = self._staircase(self._steps)
         if 'integer' in kwargs:
-            self._integer = kwargs['integer']
+            self._integer = kwargs.pop('integer')
+        if kwargs:
+            key, _ = kwargs.popitem()
+            cbook.warn_deprecated("3.1",
+                                  message="MaxNLocator.set_params got an "
+                                          f"unexpected parameter: {key}")
 
     def _raw_ticks(self, vmin, vmax):
         """
@@ -2056,9 +2095,7 @@ def is_decade(x, base=10):
 
 
 def is_close_to_int(x):
-    if not np.isfinite(x):
-        return False
-    return abs(x - round(x)) < 1e-10
+    return abs(x - np.round(x)) < 1e-10
 
 
 class LogLocator(Locator):
@@ -2219,7 +2256,12 @@ class LogLocator(Locator):
             # If we're a minor locator *that expects at least two ticks per
             # decade* and the major locator stride is 1 and there's no more
             # than one minor tick, switch to AutoLocator.
-            return AutoLocator().tick_values(vmin, vmax)
+            ticklocs = AutoLocator().tick_values(vmin, vmax)
+            # Don't overstrike the major labels.  Assumes major locs are
+            # at b = self._base
+            ticklocs = ticklocs[
+                ~is_close_to_int(np.log(ticklocs) / np.log(b))]
+            return ticklocs
         return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
@@ -2581,8 +2623,10 @@ class AutoMinorLocator(Locator):
             return []
 
         if self.ndivs is None:
-            x = int(np.round(10 ** (np.log10(majorstep) % 1)))
-            if x in [1, 5, 10]:
+
+            majorstep_no_exponent = 10 ** (np.log10(majorstep) % 1)
+
+            if np.isclose(majorstep_no_exponent, [1.0, 2.5, 5.0, 10.0]).any():
                 ndivs = 5
             else:
                 ndivs = 4

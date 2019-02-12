@@ -132,8 +132,8 @@ def test_formatter_ticker():
     ax.autoscale_view()
 
 
-@image_comparison(baseline_images=["twin_axis_locaters_formatters"])
-def test_twin_axis_locaters_formatters():
+@image_comparison(baseline_images=["twin_axis_locators_formatters"])
+def test_twin_axis_locators_formatters():
     vals = np.linspace(0, 1, num=5, endpoint=True)
     locs = np.sin(np.pi * vals / 2.0)
 
@@ -424,7 +424,7 @@ def test_polar_annotations():
 @image_comparison(baseline_images=['polar_coords'], style='default',
                   remove_text=True)
 def test_polar_coord_annotations():
-    # You can also use polar notation on a catesian axes.  Here the
+    # You can also use polar notation on a cartesian axes.  Here the
     # native coordinate system ('data') is cartesian, so you need to
     # specify the xycoords and textcoords as 'polar' if you want to
     # use (theta, radius)
@@ -616,7 +616,7 @@ def test_shaped_data():
 
 
 def test_structured_data():
-    # support for stuctured data
+    # support for structured data
     pts = np.array([(1, 1), (2, 2)], dtype=[("ones", float), ("twos", float)])
 
     # this should not read second name as a format and raise ValueError
@@ -630,13 +630,13 @@ def test_const_xy():
     fig = plt.figure()
 
     plt.subplot(311)
-    plt.plot(np.arange(10), np.ones((10,)))
+    plt.plot(np.arange(10), np.ones(10))
 
     plt.subplot(312)
-    plt.plot(np.ones((10,)), np.arange(10))
+    plt.plot(np.ones(10), np.arange(10))
 
     plt.subplot(313)
-    plt.plot(np.ones((10,)), np.ones((10,)), 'o')
+    plt.plot(np.ones(10), np.ones(10), 'o')
 
 
 @image_comparison(baseline_images=['polar_wrap_180', 'polar_wrap_360'],
@@ -1466,7 +1466,7 @@ def test_bar_tick_label_multiple():
     baseline_images=['bar_tick_label_multiple_old_label_alignment'],
     extensions=['png'])
 def test_bar_tick_label_multiple_old_alignment():
-    # Test that the algnment for class is backward compatible
+    # Test that the alignment for class is backward compatible
     matplotlib.rcParams["ytick.alignment"] = "center"
     ax = plt.gca()
     ax.bar([1, 2.5], [1, 2], width=[0.2, 0.5], tick_label=['a', 'b'],
@@ -1496,6 +1496,52 @@ def test_barh_tick_label():
     ax = plt.gca()
     ax.barh([1, 2.5], [1, 2], height=[0.2, 0.5], tick_label=['a', 'b'],
             align='center')
+
+
+def test_bar_timedelta():
+    """smoketest that bar can handle width and height in delta units"""
+    fig, ax = plt.subplots()
+    ax.bar(datetime.datetime(2018, 1, 1), 1.,
+           width=datetime.timedelta(hours=3))
+    ax.bar(datetime.datetime(2018, 1, 1), 1.,
+           xerr=datetime.timedelta(hours=2),
+           width=datetime.timedelta(hours=3))
+    fig, ax = plt.subplots()
+    ax.barh(datetime.datetime(2018, 1, 1), 1,
+            height=datetime.timedelta(hours=3))
+    ax.barh(datetime.datetime(2018, 1, 1), 1,
+            height=datetime.timedelta(hours=3),
+            yerr=datetime.timedelta(hours=2))
+    fig, ax = plt.subplots()
+    ax.barh([datetime.datetime(2018, 1, 1), datetime.datetime(2018, 1, 1)],
+            np.array([1, 1.5]),
+            height=datetime.timedelta(hours=3))
+    ax.barh([datetime.datetime(2018, 1, 1), datetime.datetime(2018, 1, 1)],
+            np.array([1, 1.5]),
+            height=[datetime.timedelta(hours=t) for t in [1, 2]])
+    ax.broken_barh([(datetime.datetime(2018, 1, 1),
+                     datetime.timedelta(hours=1))],
+                   (10, 20))
+
+
+def test_bar_pandas(pd):
+    # Smoke test for pandas
+
+    fig, ax = plt.subplots()
+
+    df = pd.DataFrame(
+        {'year': [2018, 2018, 2018],
+         'month': [1, 1, 1],
+         'day': [1, 2, 3],
+         'value': [1, 2, 3]})
+    df['date'] = pd.to_datetime(df[['year', 'month', 'day']])
+
+    monthly = df[['date', 'value']].groupby(['date']).sum()
+    dates = monthly.index
+    forecast = monthly['value']
+    baseline = monthly['value']
+    ax.bar(dates, forecast, width=10, align='center')
+    ax.plot(dates, baseline, color='orange', lw=4)
 
 
 @image_comparison(baseline_images=['hist_log'],
@@ -1691,6 +1737,17 @@ def test_hist2d_transpose():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist2d(x, y, bins=10, rasterized=True)
+
+
+def test_hist2d_density_normed():
+    x, y = np.random.random((2, 100))
+    ax = plt.figure().subplots()
+    for obj in [ax, plt]:
+        obj.hist2d(x, y, density=True)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            obj.hist2d(x, y, normed=True)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            obj.hist2d(x, y, density=True, normed=True)
 
 
 class TestScatter(object):
@@ -1971,8 +2028,7 @@ def test_pyplot_axes():
     # test focusing of Axes in other Figure
     fig1, ax1 = plt.subplots()
     fig2, ax2 = plt.subplots()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert ax1 is plt.axes(ax1)
+    plt.sca(ax1)
     assert ax1 is plt.gca()
     assert fig1 is plt.gcf()
     plt.close(fig1)
@@ -2583,7 +2639,7 @@ def test_boxplot_with_CIarray():
     ax = fig.add_subplot(111)
     CIs = np.array([[-1.5, 3.], [-1., 3.5]])
 
-    # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values
+    # show 1 boxplot with mpl medians/conf. intervals, 1 with manual values
     ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
                conf_intervals=CIs, notch=1)
     ax.set_ylim((-30, 30))
@@ -3617,14 +3673,14 @@ def test_step_linestyle():
         ax.set_ylim([-1, 7])
 
     # Reuse testcase from above for a labeled data test
-    data = {"x": x, "y": y, "y1": y+1, "y2": y+2}
+    data = {"X": x, "Y0": y, "Y1": y+1, "Y2": y+2}
     fig, ax_lst = plt.subplots(2, 2)
     ax_lst = ax_lst.flatten()
     ln_styles = ['-', '--', '-.', ':']
     for ax, ls in zip(ax_lst, ln_styles):
-        ax.step("x", "y", lw=5, linestyle=ls, where='pre', data=data)
-        ax.step("x", "y1", lw=5, linestyle=ls, where='mid', data=data)
-        ax.step("x", "y2", lw=5, linestyle=ls, where='post', data=data)
+        ax.step("X", "Y0", lw=5, linestyle=ls, where='pre', data=data)
+        ax.step("X", "Y1", lw=5, linestyle=ls, where='mid', data=data)
+        ax.step("X", "Y2", lw=5, linestyle=ls, where='post', data=data)
         ax.set_xlim([-1, 5])
         ax.set_ylim([-1, 7])
 
@@ -4874,6 +4930,20 @@ def test_pie_rotatelabels_true():
     plt.axis('equal')
 
 
+@image_comparison(baseline_images=['pie_no_label'], extensions=['png'])
+def test_pie_nolabel_but_legend():
+    labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
+    sizes = [15, 30, 45, 10]
+    colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
+    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+            autopct='%1.1f%%', shadow=True, startangle=90, labeldistance=None,
+            rotatelabels=True)
+    plt.axis('equal')
+    plt.ylim(-1.2, 1.2)
+    plt.legend()
+
+
 def test_pie_textprops():
     data = [23, 34, 45]
     labels = ["Long name 1", "Long name 2", "Long name 3"]
@@ -5184,7 +5254,7 @@ def test_violin_point_mass():
 
 
 def generate_errorbar_inputs():
-    base_xy = cycler('x', [np.arange(5)]) + cycler('y', [np.ones((5, ))])
+    base_xy = cycler('x', [np.arange(5)]) + cycler('y', [np.ones(5)])
     err_cycler = cycler('err', [1,
                                 [1, 1, 1, 1, 1],
                                 [[1, 1, 1, 1, 1],
@@ -5419,6 +5489,15 @@ def test_broken_barh_empty():
     ax.broken_barh([], (.1, .5))
 
 
+def test_broken_barh_timedelta():
+    """Check that timedelta works as x, dx pair for this method """
+    fig, ax = plt.subplots()
+    pp = ax.broken_barh([(datetime.datetime(2018, 11, 9, 0, 0, 0),
+                          datetime.timedelta(hours=1))], [1, 2])
+    assert pp.get_paths()[0].vertices[0, 0] == 737007.0
+    assert pp.get_paths()[0].vertices[2, 0] == 737007.0 + 1 / 24
+
+
 def test_pandas_pcolormesh(pd):
     time = pd.date_range('2000-01-01', periods=10)
     depth = np.arange(20)
@@ -5529,14 +5608,12 @@ def test_none_kwargs():
 
 
 def test_ls_ds_conflict():
-    with warnings.catch_warnings():
-        # Passing the drawstyle with the linestyle is deprecated since 3.1.
-        # We still need to test this until it's removed from the code.
-        # But we don't want to see the deprecation warning in the test.
-        warnings.filterwarnings('ignore',
-                                category=MatplotlibDeprecationWarning)
-        with pytest.raises(ValueError):
-            plt.plot(range(32), linestyle='steps-pre:', drawstyle='steps-post')
+    # Passing the drawstyle with the linestyle is deprecated since 3.1.
+    # We still need to test this until it's removed from the code.
+    # But we don't want to see the deprecation warning in the test.
+    with matplotlib.cbook._suppress_matplotlib_deprecation_warning(), \
+         pytest.raises(ValueError):
+        plt.plot(range(32), linestyle='steps-pre:', drawstyle='steps-post')
 
 
 def test_bar_uint8():
@@ -5782,7 +5859,7 @@ def test_bar_broadcast_args():
     ax.bar(range(4), 1)
     # Check that a horizontal chart with one width works.
     ax.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
-    # Check that edgecolor gets broadcasted.
+    # Check that edgecolor gets broadcast.
     rect1, rect2 = ax.bar([0, 1], [0, 1], edgecolor=(.1, .2, .3, .4))
     assert rect1.get_edgecolor() == rect2.get_edgecolor() == (.1, .2, .3, .4)
 
@@ -5988,3 +6065,44 @@ def test_annotate_across_transforms():
     ax.annotate("", xy=(x[150], y[150]), xycoords=ax.transData,
             xytext=(1, 0), textcoords=axins.transAxes,
             arrowprops=dict(arrowstyle="->"))
+
+
+def test_deprecated_uppercase_colors():
+    # Remove after end of deprecation period.
+    fig, ax = plt.subplots()
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.plot([1, 2], color="B")
+        fig.canvas.draw()
+
+
+@image_comparison(baseline_images=['secondary_xy'], style='mpl20',
+        extensions=['png'])
+def test_secondary_xy():
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
+
+    def invert(x):
+        with np.errstate(divide='ignore'):
+            return 1 / x
+
+    for nn, ax in enumerate(axs):
+        ax.plot(np.arange(2, 11), np.arange(2, 11))
+        if nn == 0:
+            secax = ax.secondary_xaxis
+        else:
+            secax = ax.secondary_yaxis
+
+        axsec = secax(0.2, functions=(invert, invert))
+        axsec = secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
+        axsec = secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
+        axsec = secax(0.8)
+
+
+def test_secondary_fail():
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(2, 11), np.arange(2, 11))
+    with pytest.raises(ValueError):
+        axsec = ax.secondary_xaxis(0.2, functions=(lambda x: 1 / x))
+    with pytest.raises(ValueError):
+        axsec = ax.secondary_xaxis('right')
+    with pytest.raises(ValueError):
+        axsec = ax.secondary_yaxis('bottom')

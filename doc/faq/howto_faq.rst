@@ -23,7 +23,7 @@ As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
 as `datetime.datetime` objects.
 
 If you prefer the pandas converters and locators, you can register their
-converter with the `matplolib.units` module::
+converter with the `matplotlib.units` module::
 
   from pandas.tseries import converter as pdtc
   pdtc.register()
@@ -540,6 +540,18 @@ Tukey's `box plots <http://matplotlib.org/examples/pylab_examples/boxplot_demo.h
 `Violin plots <http://matplotlib.org/examples/statistics/violinplot_demo.html>`_ are closely related to box plots but add useful information such as the distribution of the sample data (density trace).
 Violin plots were added in Matplotlib 1.4.
 
+.. _how-to-threads:
+
+Working with threads
+--------------------
+
+Matplotlib is not thread-safe: in fact, there are known race conditions
+that affect certain artists.  Hence, if you work with threads, it is your
+responsibility to set up the proper locks to serialize access to Matplotlib
+artists.
+
+Note that (for the case where you are working with an interactive backend) most
+GUI backends *require* being run from the main thread as well.
 
 .. _howto-contribute:
 
@@ -719,36 +731,3 @@ code example page with the keyword ``codex`` for *code example* which
 shouldn't appear anywhere else on this site except in the FAQ.
 So if you want to search for an example that uses an
 ellipse, :ref:`search` for ``codex ellipse``.
-
-
-.. _how-to-cite-mpl:
-
-Cite Matplotlib
-===============
-
-If you want to refer to Matplotlib in a publication, you can use
-"Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
-in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `this
-reference page <https://doi.org/10.1109/MCSE.2007.55>`_)::
-
-  @article{Hunter:2007,
-	  Address = {10662 LOS VAQUEROS CIRCLE, PO BOX 3014, LOS ALAMITOS, CA 90720-1314 USA},
-	  Author = {Hunter, John D.},
-	  Date-Added = {2010-09-23 12:22:10 -0700},
-	  Date-Modified = {2010-09-23 12:22:10 -0700},
-	  Isi = {000245668100019},
-	  Isi-Recid = {155389429},
-	  Journal = {Computing In Science \& Engineering},
-	  Month = {May-Jun},
-	  Number = {3},
-	  Pages = {90--95},
-	  Publisher = {IEEE COMPUTER SOC},
-	  Times-Cited = {21},
-	  Title = {Matplotlib: A 2D graphics environment},
-	  Type = {Editorial Material},
-	  Volume = {9},
-	  Year = {2007},
-	  Abstract = {Matplotlib is a 2D graphics package used for Python for application
-                      development, interactive scripting, and publication-quality image
-                      generation across user interfaces and operating systems.},
-	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}

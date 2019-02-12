@@ -20,13 +20,13 @@ from matplotlib.backend_bases import (
     StatusbarBase)
 from matplotlib.backend_bases import _has_pil
 
+from matplotlib import cbook, rcParams, backend_tools
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 from matplotlib.widgets import SubplotTool
-from matplotlib.backend_managers import ToolManager
-from matplotlib import cbook, rcParams, backend_tools
 
 import wx
 
@@ -38,30 +38,25 @@ _log = logging.getLogger(__name__)
 # traceback is performed, and pdb activated, for all uncaught exceptions in
 # this case
 _DEBUG = 5
-if _DEBUG < 5:
-    import traceback
-    import pdb
 _DEBUG_lvls = {1: 'Low ', 2: 'Med ', 3: 'High', 4: 'Error'}
 
 
 def DEBUG_MSG(string, lvl=3, o=None):
     if lvl >= _DEBUG:
-        cls = o.__class__
-        # Jeremy, often times the commented line won't print but the
-        # one below does.  I think WX is redefining stderr, damned
-        # beast
-        # print("%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls),
-        #       file=sys.stderr)
-        print("%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls))
+        print(f"{_DEBUG_lvls[lvl]}- {string} in {type(o)}")
 
 
+@cbook.deprecated("3.1")
 def debug_on_error(type, value, tb):
-    """Code due to Thomas Heller - published in Python Cookbook (O'Reilley)"""
+    """Code due to Thomas Heller - published in Python Cookbook (O'Reilly)"""
+    import pdb
+    import traceback
     traceback.print_exception(type, value, tb)
     print()
-    pdb.pm()  # jdh uncomment
+    pdb.pm()
 
 
+@cbook.deprecated("3.1")
 class fake_stderr(object):
     """
     Wx does strange things with stderr, as it makes the assumption that
@@ -96,6 +91,7 @@ def error_msg_wx(msg, parent=None):
     return None
 
 
+@cbook.deprecated("3.1")
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines."""
     if not isinstance(msg, str):
@@ -151,7 +147,7 @@ class RendererWx(RendererBase):
     'renderer' instance used by many classes in the hierarchy.
     """
     # In wxPython, drawing is performed on a wxDC instance, which will
-    # generally be mapped to the client aread of the window displaying
+    # generally be mapped to the client area of the window displaying
     # the plot. Under wxPython, the wxDC instance has a wx.Pen which
     # describes the colour and weight of any lines drawn, and a wxBrush
     # which describes the fill colour of any closed polygon.
@@ -433,18 +429,13 @@ class GraphicsContextWx(GraphicsContextBase):
         self.renderer = renderer
 
     def select(self):
-        """
-        Select the current bitmap into this wxDC instance
-        """
-
+        """Select the current bitmap into this wxDC instance."""
         if sys.platform == 'win32':
             self.dc.SelectObject(self.bitmap)
             self.IsSelected = True
 
     def unselect(self):
-        """
-        Select a Null bitmasp into this wxDC instance
-        """
+        """Select a Null bitmap into this wxDC instance."""
         if sys.platform == 'win32':
             self.dc.SelectObject(wx.NullBitmap)
             self.IsSelected = False
@@ -1091,22 +1082,16 @@ class FigureCanvasWx(_FigureCanvasWxBase):
             image = self.bitmap.ConvertToImage()
             image.SetOption(wx.IMAGE_OPTION_QUALITY, str(jpeg_quality))
 
-        # Now that we have rendered into the bitmap, save it
-        # to the appropriate file type and clean up
+        # Now that we have rendered into the bitmap, save it to the appropriate
+        # file type and clean up.
         if isinstance(filename, str):
             if not image.SaveFile(filename, filetype):
-                DEBUG_MSG('print_figure() file save error', 4, self)
-                raise RuntimeError(
-                    'Could not save figure to %s\n' %
-                    (filename))
+                raise RuntimeError(f'Could not save figure to {filename}')
         elif cbook.is_writable_file_like(filename):
             if not isinstance(image, wx.Image):
                 image = image.ConvertToImage()
             if not image.SaveStream(filename, filetype):
-                DEBUG_MSG('print_figure() file save error', 4, self)
-                raise RuntimeError(
-                    'Could not save figure to %s\n' %
-                    (filename))
+                raise RuntimeError(f'Could not save figure to {filename}')
 
         # Restore everything to normal
         self.bitmap = origBitmap
@@ -1179,15 +1164,6 @@ class FigureFrameWx(wx.Frame):
         self.Fit()
 
         self.canvas.SetMinSize((2, 2))
-
-        # give the window a matplotlib icon rather than the stock one.
-        # This is not currently working on Linux and is untested elsewhere.
-        # icon_path = os.path.join(matplotlib.rcParams['datapath'],
-        #                         'images', 'matplotlib.png')
-        # icon = wx.IconFromBitmap(wx.Bitmap(icon_path))
-        #  for xpm type icons try:
-        # icon = wx.Icon(icon_path, wx.BITMAP_TYPE_XPM)
-        #  self.SetIcon(icon)
 
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
@@ -1325,6 +1301,7 @@ def _set_frame_icon(frame):
     frame.SetIcons(bundle)
 
 
+@cbook.deprecated("3.1")
 class MenuButtonWx(wx.Button):
     """
     wxPython does not permit a menu to be incorporated directly into a toolbar.
@@ -1402,7 +1379,7 @@ class MenuButtonWx(wx.Button):
         """Ensures that there are entries for max_axis axes in the menu
         (selected by default)."""
         if maxAxis > len(self._axisId):
-            for i in range(len(self._axisId) + 1, maxAxis + 1, 1):
+            for i in range(len(self._axisId) + 1, maxAxis + 1):
                 menuId = wx.NewId()
                 self._axisId.append(menuId)
                 self._menu.Append(menuId, "Axis %d" % i,
@@ -1435,27 +1412,6 @@ cursord = {
     cursors.SELECT_REGION: wx.CURSOR_CROSS,
     cursors.WAIT: wx.CURSOR_WAIT,
 }
-
-
-@cbook.deprecated("2.2")
-class SubplotToolWX(wx.Frame):
-    def __init__(self, targetfig):
-        global FigureManager  # placates pyflakes: created by @_Backend.export
-        wx.Frame.__init__(self, None, -1, "Configure subplots")
-
-        toolfig = Figure((6, 3))
-        canvas = FigureCanvasWx(self, -1, toolfig)
-
-        # Create a figure manager to manage things
-        FigureManager(canvas, 1, self)
-
-        # Now put all into a sizer
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        # This way of adding to sizer allows resizing
-        sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
-        self.SetSizer(sizer)
-        self.Fit()
-        SubplotTool(targetfig, toolfig)
 
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
@@ -1658,11 +1614,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.EnableTool(self.wx_ids['Forward'], can_forward)
 
 
-@cbook.deprecated("2.2", alternative="NavigationToolbar2Wx")
-class Toolbar(NavigationToolbar2Wx):
-    pass
-
-
 class StatusBarWx(wx.StatusBar):
     """
     A status bar is added to _FigureFrame to allow measurements and the
@@ -1673,15 +1624,9 @@ class StatusBarWx(wx.StatusBar):
     def __init__(self, parent, *args, **kwargs):
         wx.StatusBar.__init__(self, parent, -1)
         self.SetFieldsCount(2)
-        self.SetStatusText("None", 1)
-        # self.SetStatusText("Measurement: None", 2)
-        # self.Reposition()
 
     def set_function(self, string):
         self.SetStatusText("%s" % string, 1)
-
-    # def set_measurement(self, string):
-    #    self.SetStatusText("Measurement: %s" % string, 2)
 
 
 # tools for matplotlib.backend_managers.ToolManager:
@@ -1991,6 +1936,7 @@ backend_tools.ToolCopyToClipboard = ToolCopyToClipboardWx
 
 # < Additions for printing support: Matt Newville
 
+@cbook.deprecated("3.1")
 class PrintoutWx(wx.Printout):
     """
     Simple wrapper around wx Printout class -- all the real work
@@ -2072,7 +2018,6 @@ class PrintoutWx(wx.Printout):
         self.canvas.figure.dpi = fig_dpi
         self.canvas.draw()
         return True
-# >
 
 
 @_Backend.export
@@ -2088,7 +2033,7 @@ class _BackendWx(_Backend):
 
     @classmethod
     def new_figure_manager(cls, num, *args, **kwargs):
-        # Create a wx.App instance if it has not been created sofar.
+        # Create a wx.App instance if it has not been created so far.
         wxapp = wx.GetApp()
         if wxapp is None:
             wxapp = wx.App(False)

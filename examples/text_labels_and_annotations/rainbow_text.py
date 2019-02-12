@@ -5,7 +5,7 @@ Rainbow text
 
 The example shows how to string together several text objects.
 
-HISTORY
+History
 -------
 On the matplotlib-users list back in February 2012, Gökhan Sever asked the
 following question:

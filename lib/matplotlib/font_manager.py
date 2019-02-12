@@ -99,6 +99,10 @@ MSFontDirectories = [
     r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts',
     r'SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts']
 
+MSUserFontDirectories = [
+    os.path.join(str(Path.home()), r'AppData\Local\Microsoft\Windows\Fonts'),
+    os.path.join(str(Path.home()), r'AppData\Roaming\Microsoft\Windows\Fonts')]
+
 X11FontDirectories = [
     # an old standard installation point
     "/usr/X11R6/lib/X11/fonts/TTF/",
@@ -129,9 +133,12 @@ def get_fontext_synonyms(fontext):
     Return a list of file extensions extensions that are synonyms for
     the given file extension *fileext*.
     """
-    return {'ttf': ('ttf', 'otf'),
-            'otf': ('ttf', 'otf'),
-            'afm': ('afm',)}[fontext]
+    return {
+        'afm': ['afm'],
+        'otf': ['otf', 'ttc', 'ttf'],
+        'ttc': ['otf', 'ttc', 'ttf'],
+        'ttf': ['otf', 'ttc', 'ttf'],
+    }[fontext]
 
 
 def list_fonts(directory, extensions):
@@ -164,12 +171,64 @@ def win32FontDirectory():
         return os.path.join(os.environ['WINDIR'], 'Fonts')
 
 
+def _win32RegistryFonts(reg_domain, base_dir):
+    r"""
+    Searches for fonts in the Windows registry.
+
+    Parameters
+    ----------
+    reg_domain : int
+        The top level registry domain (e.g. HKEY_LOCAL_MACHINE).
+
+    base_dir : str
+        The path to the folder where the font files are usually located (e.g.
+        C:\Windows\Fonts). If only the filename of the font is stored in the
+        registry, the absolute path is built relative to this base directory.
+
+    Returns
+    -------
+    `set`
+        `pathlib.Path` objects with the absolute path to the font files found.
+
+    """
+    import winreg
+    items = set()
+
+    for reg_path in MSFontDirectories:
+        try:
+            with winreg.OpenKey(reg_domain, reg_path) as local:
+                for j in range(winreg.QueryInfoKey(local)[1]):
+                    # value may contain the filename of the font or its
+                    # absolute path.
+                    key, value, tp = winreg.EnumValue(local, j)
+                    if not isinstance(value, str):
+                        continue
+
+                    # Work around for https://bugs.python.org/issue25778, which
+                    # is fixed in Py>=3.6.1.
+                    value = value.split("\0", 1)[0]
+
+                    try:
+                        # If value contains already an absolute path, then it
+                        # is not changed further.
+                        path = Path(base_dir, value).resolve()
+                    except RuntimeError:
+                        # Don't fail with invalid entries.
+                        continue
+
+                    items.add(path)
+        except (OSError, MemoryError):
+            continue
+
+    return items
+
+
 def win32InstalledFonts(directory=None, fontext='ttf'):
     """
     Search for fonts in the specified font directory, or use the
-    system directories if none given.  A list of TrueType font
-    filenames are returned by default, or AFM fonts if *fontext* ==
-    'afm'.
+    system directories if none given. Additionally, it is searched for user
+    fonts installed. A list of TrueType font filenames are returned by default,
+    or AFM fonts if *fontext* == 'afm'.
     """
     import winreg
 
@@ -179,26 +238,16 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
 
     items = set()
-    for fontdir in MSFontDirectories:
-        try:
-            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, fontdir) as local:
-                for j in range(winreg.QueryInfoKey(local)[1]):
-                    key, direc, tp = winreg.EnumValue(local, j)
-                    if not isinstance(direc, str):
-                        continue
-                    # Work around for https://bugs.python.org/issue25778, which
-                    # is fixed in Py>=3.6.1.
-                    direc = direc.split("\0", 1)[0]
-                    try:
-                        path = Path(directory, direc).resolve()
-                    except RuntimeError:
-                        # Don't fail with invalid entries.
-                        continue
-                    if path.suffix.lower() in fontext:
-                        items.add(str(path))
-        except (OSError, MemoryError):
-            continue
-    return list(items)
+
+    # System fonts
+    items.update(_win32RegistryFonts(winreg.HKEY_LOCAL_MACHINE, directory))
+
+    # User fonts
+    for userdir in MSUserFontDirectories:
+        items.update(_win32RegistryFonts(winreg.HKEY_CURRENT_USER, userdir))
+
+    # Keep only paths with matching file extension.
+    return [str(path) for path in items if path.suffix.lower() in fontext]
 
 
 @cbook.deprecated("3.1")
@@ -250,7 +299,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
 
     if fontpaths is None:
         if sys.platform == 'win32':
-            fontpaths = [win32FontDirectory()]
+            fontpaths = MSUserFontDirectories + [win32FontDirectory()]
             # now get all installed fonts directly...
             fontfiles.update(win32InstalledFonts(fontext=fontext))
         else:
@@ -964,19 +1013,13 @@ class FontManager(object):
         self.defaultFamily = {
             'ttf': 'DejaVu Sans',
             'afm': 'Helvetica'}
-        self.defaultFont = {}
 
         ttffiles = findSystemFonts(paths) + findSystemFonts()
-        self.defaultFont['ttf'] = next(
-            (fname for fname in ttffiles
-             if fname.lower().endswith("dejavusans.ttf")),
-            ttffiles[0])
         self.ttflist = createFontList(ttffiles)
 
         afmfiles = (findSystemFonts(paths, fontext='afm')
                     + findSystemFonts(fontext='afm'))
         self.afmlist = createFontList(afmfiles, fontext='afm')
-        self.defaultFont['afm'] = afmfiles[0] if afmfiles else None
 
     @cbook.deprecated("3.0")
     @property
@@ -987,6 +1030,13 @@ class FontManager(object):
     @property
     def afmfiles(self):
         return [font.fname for font in self.afmlist]
+
+    @property
+    def defaultFont(self):
+        # Lazily evaluated (findfont then caches the result) to avoid including
+        # the venv path in the json serialization.
+        return {ext: self.findfont(family, fontext=ext)
+                for ext, family in self.defaultFamily.items()}
 
     def get_default_weight(self):
         """
@@ -1172,10 +1222,9 @@ class FontManager(object):
 
         if not isinstance(prop, FontProperties):
             prop = FontProperties(prop)
-        fname = prop.get_file()
 
+        fname = prop.get_file()
         if fname is not None:
-            _log.debug('findfont returning %s', fname)
             return fname
 
         if fontext == 'afm':
@@ -1186,19 +1235,19 @@ class FontManager(object):
         best_score = 1e64
         best_font = None
 
+        _log.debug('findfont: Matching %s.', prop)
         for font in fontlist:
             if (directory is not None and
                     Path(directory) not in Path(font.fname).parents):
                 continue
-            # Matching family should have highest priority, so it is multiplied
-            # by 10.0
-            score = \
-                self.score_family(prop.get_family(), font.name) * 10.0 + \
-                self.score_style(prop.get_style(), font.style) + \
-                self.score_variant(prop.get_variant(), font.variant) + \
-                self.score_weight(prop.get_weight(), font.weight) + \
-                self.score_stretch(prop.get_stretch(), font.stretch) + \
-                self.score_size(prop.get_size(), font.size)
+            # Matching family should have top priority, so multiply it by 10.
+            score = (self.score_family(prop.get_family(), font.name) * 10
+                     + self.score_style(prop.get_style(), font.style)
+                     + self.score_variant(prop.get_variant(), font.variant)
+                     + self.score_weight(prop.get_weight(), font.weight)
+                     + self.score_stretch(prop.get_stretch(), font.stretch)
+                     + self.score_size(prop.get_size(), font.size))
+            _log.debug('findfont: score(%s) = %s', font, score)
             if score < best_score:
                 best_score = score
                 best_font = font
@@ -1215,7 +1264,7 @@ class FontManager(object):
                 return self.findfont(default_prop, fontext, directory, False)
             else:
                 # This is a hard fail -- we can't find anything reasonable,
-                # so just return the DejuVuSans.ttf
+                # so just return the DejaVuSans.ttf
                 _log.warning('findfont: Could not match %s. Returning %s.',
                              prop, self.defaultFont[fontext])
                 result = self.defaultFont[fontext]

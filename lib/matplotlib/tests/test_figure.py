@@ -1,6 +1,5 @@
 from pathlib import Path
 import platform
-import sys
 import warnings
 
 from matplotlib import rcParams
@@ -116,7 +115,7 @@ def test_clf_keyword():
 def test_figure():
     # named figure support
     fig = plt.figure('today')
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     ax.set_title(fig.get_label())
     ax.plot(np.arange(5))
     # plot red line in a different figure.
@@ -148,7 +147,7 @@ def test_gca():
 
     ax2 = fig.add_subplot(121, projection='polar')
     assert fig.gca() is ax2
-    assert fig.gca(polar=True)is ax2
+    assert fig.gca(polar=True) is ax2
 
     ax3 = fig.add_subplot(122)
     assert fig.gca() is ax3
@@ -366,8 +365,8 @@ def test_subplots_shareax_loglabels():
 
 def test_savefig():
     fig = plt.figure()
-    msg = "savefig() takes 2 positional arguments but 3 were given"
-    with pytest.raises(TypeError, message=msg):
+    msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
+    with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
 
 
@@ -429,20 +428,20 @@ def test_tightbbox():
     t = ax.text(1., 0.5, 'This dangles over end')
     renderer = fig.canvas.get_renderer()
     x1Nom0 = 9.035  # inches
-    assert np.abs(t.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
-    assert np.abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
-    assert np.abs(fig.get_tightbbox(renderer).x1 - x1Nom0) < 0.05
-    assert np.abs(fig.get_tightbbox(renderer).x0 - 0.679) < 0.05
+    assert abs(t.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
+    assert abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
+    assert abs(fig.get_tightbbox(renderer).x1 - x1Nom0) < 0.05
+    assert abs(fig.get_tightbbox(renderer).x0 - 0.679) < 0.05
     # now exclude t from the tight bbox so now the bbox is quite a bit
     # smaller
     t.set_in_layout(False)
     x1Nom = 7.333
-    assert np.abs(ax.get_tightbbox(renderer).x1 - x1Nom * fig.dpi) < 2
-    assert np.abs(fig.get_tightbbox(renderer).x1 - x1Nom) < 0.05
+    assert abs(ax.get_tightbbox(renderer).x1 - x1Nom * fig.dpi) < 2
+    assert abs(fig.get_tightbbox(renderer).x1 - x1Nom) < 0.05
 
     t.set_in_layout(True)
     x1Nom = 7.333
-    assert np.abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
+    assert abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
     # test bbox_extra_artists method...
-    assert np.abs(ax.get_tightbbox(renderer,
-                        bbox_extra_artists=[]).x1 - x1Nom * fig.dpi) < 2
+    assert abs(ax.get_tightbbox(renderer, bbox_extra_artists=[]).x1
+               - x1Nom * fig.dpi) < 2

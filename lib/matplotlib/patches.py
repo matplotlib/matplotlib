@@ -1,5 +1,6 @@
 import contextlib
 import functools
+import inspect
 import math
 from numbers import Number
 import textwrap
@@ -2435,8 +2436,8 @@ class BoxStyle(_Style):
             return Path(saw_vertices, codes)
 
     if __doc__:  # __doc__ could be None if -OO optimization is enabled
-        __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableBoxstyles": _pprint_styles(_style_list)}
+        __doc__ = inspect.cleandoc(__doc__) % {
+            "AvailableBoxstyles": _pprint_styles(_style_list)}
 
 docstring.interpd.update(
     AvailableBoxstyles=_pprint_styles(BoxStyle._style_list),
@@ -2770,28 +2771,20 @@ class ConnectionStyle(_Style):
 
         def _shrink(self, path, shrinkA, shrinkB):
             """
-            Shrink the path by fixed size (in points) with shrinkA and shrinkB
+            Shrink the path by fixed size (in points) with shrinkA and shrinkB.
             """
             if shrinkA:
-                x, y = path.vertices[0]
-                insideA = inside_circle(x, y, shrinkA)
-
+                insideA = inside_circle(*path.vertices[0], shrinkA)
                 try:
-                    left, right = split_path_inout(path, insideA)
-                    path = right
+                    left, path = split_path_inout(path, insideA)
                 except ValueError:
                     pass
-
             if shrinkB:
-                x, y = path.vertices[-1]
-                insideB = inside_circle(x, y, shrinkB)
-
+                insideB = inside_circle(*path.vertices[-1], shrinkB)
                 try:
-                    left, right = split_path_inout(path, insideB)
-                    path = left
+                    path, right = split_path_inout(path, insideB)
                 except ValueError:
                     pass
-
             return path
 
         def __call__(self, posA, posB,
@@ -3112,8 +3105,8 @@ class ConnectionStyle(_Style):
             return Path(vertices, codes)
 
     if __doc__:
-        __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableConnectorstyles": _pprint_styles(_style_list)}
+        __doc__ = inspect.cleandoc(__doc__) % {
+            "AvailableConnectorstyles": _pprint_styles(_style_list)}
 
 
 def _point_along_a_line(x0, y0, x1, y1, d):
@@ -3188,7 +3181,7 @@ class ArrowStyle(_Style):
         def ensure_quadratic_bezier(path):
             """
             Some ArrowStyle class only works with a simple quadratic Bezier
-            curve (created with Arc3Connetion or Angle3Connector). This static
+            curve (created with Arc3Connection or Angle3Connector). This static
             method is to check if the provided path is a simple quadratic
             Bezier curve and returns its control points if true.
             """
@@ -3720,9 +3713,8 @@ class ArrowStyle(_Style):
 
             try:
                 arrow_out, arrow_in = \
-                      split_bezier_intersecting_with_closedpath(arrow_path,
-                                                                in_f,
-                                                                tolerence=0.01)
+                    split_bezier_intersecting_with_closedpath(
+                        arrow_path, in_f, tolerance=0.01)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3803,11 +3795,8 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length)
             try:
-                path_out, path_in = \
-                          split_bezier_intersecting_with_closedpath(
-                                arrow_path,
-                                in_f,
-                                tolerence=0.01)
+                path_out, path_in = split_bezier_intersecting_with_closedpath(
+                    arrow_path, in_f, tolerance=0.01)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3821,10 +3810,7 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length * .8)
             path_out, path_in = split_bezier_intersecting_with_closedpath(
-                                        arrow_path,
-                                        in_f,
-                                        tolerence=0.01
-                                )
+                arrow_path, in_f, tolerance=0.01)
             path_tail = path_out
 
             # head
@@ -3842,10 +3828,7 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x0, y0, tail_width * .3)
             path_in, path_out = split_bezier_intersecting_with_closedpath(
-                                    arrow_path,
-                                    in_f,
-                                    tolerence=0.01
-                                )
+                arrow_path, in_f, tolerance=0.01)
             tail_start = path_in[-1]
 
             head_right, head_left = head_r, head_l
@@ -3913,8 +3896,8 @@ class ArrowStyle(_Style):
             return path, True
 
     if __doc__:
-        __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableArrowstyles": _pprint_styles(_style_list)}
+        __doc__ = inspect.cleandoc(__doc__) % {
+            "AvailableArrowstyles": _pprint_styles(_style_list)}
 
 
 docstring.interpd.update(
@@ -4054,7 +4037,6 @@ class FancyArrowPatch(Patch):
 
         elif posA is None and posB is None and path is not None:
             self._posA_posB = None
-            self._connetors = None
         else:
             raise ValueError("either posA and posB, or path need to provided")
 
@@ -4297,7 +4279,7 @@ class FancyArrowPatch(Patch):
         with cbook._setattr_cm(self, _capstyle='round', _joinstyle='round'), \
                 self._bind_draw_path_function(renderer) as draw_path:
 
-            # FIXME : dpi_cor is for the dpi-dependecy of the linewidth. There
+            # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
             # could be room for improvement.
             self.set_dpi_cor(renderer.points_to_pixels(1.))
             path, fillable = self.get_path_in_displaycoord()
@@ -4386,6 +4368,8 @@ class ConnectionPatch(FancyArrowPatch):
                             system.
         =================   ===================================================
 
+        Alternatively they can be set to any valid
+        `~matplotlib.transforms.Transform`.
         """
         if coordsB is None:
             coordsB = coordsA
@@ -4518,6 +4502,11 @@ class ConnectionPatch(FancyArrowPatch):
             #(0,0) is lower left, (1,1) is upper right of axes
             trans = axes.transAxes
             return trans.transform_point((x, y))
+        elif isinstance(s, transforms.Transform):
+            return s.transform_point((x, y))
+        else:
+            raise ValueError("{} is not a valid coordinate "
+                             "transformation.".format(s))
 
     def set_annotation_clip(self, b):
         """

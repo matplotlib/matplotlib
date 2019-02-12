@@ -10,9 +10,10 @@ multiple axes at drawing time.
     object that can be used to set the axes_locator of the axes.
 """
 
-import matplotlib.transforms as mtransforms
 from matplotlib import cbook
 from matplotlib.axes import SubplotBase
+from matplotlib.gridspec import SubplotSpec, GridSpec
+import matplotlib.transforms as mtransforms
 from . import axes_size as Size
 
 
@@ -347,9 +348,6 @@ class AxesLocator(object):
             return None
 
 
-from matplotlib.gridspec import SubplotSpec, GridSpec
-
-
 class SubplotDivider(Divider):
     """
     The Divider class whose rectangle area is specified as a subplot geometry.
@@ -396,7 +394,7 @@ class SubplotDivider(Divider):
                 self._subplotspec = GridSpec(rows, cols)[int(num)-1]
                 # num - 1 for converting from MATLAB to python indexing
         else:
-            raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
+            raise ValueError(f'Illegal argument(s) to subplot: {args}')
 
         # total = rows*cols
         # num -= 1    # convert from matlab to python indexing
@@ -539,32 +537,26 @@ class AxesDivider(Divider):
             instance of the given class. Otherwise, the same class of the
             main axes will be used.
         """
-
         if pad:
             if not isinstance(pad, Size._Base):
-                pad = Size.from_any(pad,
-                                    fraction_ref=self._xref)
+                pad = Size.from_any(pad, fraction_ref=self._xref)
             if pack_start:
                 self._horizontal.insert(0, pad)
                 self._xrefindex += 1
             else:
                 self._horizontal.append(pad)
-
         if not isinstance(size, Size._Base):
-            size = Size.from_any(size,
-                                 fraction_ref=self._xref)
-
+            size = Size.from_any(size, fraction_ref=self._xref)
         if pack_start:
             self._horizontal.insert(0, size)
             self._xrefindex += 1
             locator = self.new_locator(nx=0, ny=self._yrefindex)
         else:
             self._horizontal.append(size)
-            locator = self.new_locator(nx=len(self._horizontal)-1, ny=self._yrefindex)
-
+            locator = self.new_locator(
+                nx=len(self._horizontal) - 1, ny=self._yrefindex)
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
-
         return ax
 
     def new_vertical(self, size, pad=None, pack_start=False, **kwargs):
@@ -589,21 +581,16 @@ class AxesDivider(Divider):
             instance of the given class. Otherwise, the same class of the
             main axes will be used.
         """
-
         if pad:
             if not isinstance(pad, Size._Base):
-                pad = Size.from_any(pad,
-                                    fraction_ref=self._yref)
+                pad = Size.from_any(pad, fraction_ref=self._yref)
             if pack_start:
                 self._vertical.insert(0, pad)
                 self._yrefindex += 1
             else:
                 self._vertical.append(pad)
-
         if not isinstance(size, Size._Base):
-            size = Size.from_any(size,
-                                 fraction_ref=self._yref)
-
+            size = Size.from_any(size, fraction_ref=self._yref)
         if pack_start:
             self._vertical.insert(0, size)
             self._yrefindex += 1
@@ -611,10 +598,8 @@ class AxesDivider(Divider):
         else:
             self._vertical.append(size)
             locator = self.new_locator(nx=self._xrefindex, ny=len(self._vertical)-1)
-
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
-
         return ax
 
     def append_axes(self, position, size, pad=None, add_to_figure=True,
