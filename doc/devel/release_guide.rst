@@ -252,6 +252,8 @@ You will need to manually edit :file:`versions.html` to show the last
 
 Congratulations you have now done the third scariest part!
 
+If you have access, clear the cloudflare caches.
+
 It typically takes about 5-10 minutes for GitHub to process the push
 and update the live web page (remember to clear your browser cache).
 
