@@ -58,8 +58,8 @@ Review and commit changes.  Some issue/PR titles may not be valid rst (the most 
 
 .. _release_chkdocs:
 
-Check and updating Docs
------------------------
+Update and Validate the Docs
+----------------------------
 
 Before tagging, update the "what's new" and API changes listings.
 
