@@ -41,11 +41,8 @@ def test_compiletime_checks():
     """test decorator invocations -> no replacements"""
 
     def func(ax, x, y): pass
-
     def func_args(ax, x, y, *args): pass
-
     def func_kwargs(ax, x, y, **kwargs): pass
-
     def func_no_ax_args(*args, **kwargs): pass
 
     # this is ok
