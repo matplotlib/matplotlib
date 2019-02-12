@@ -79,7 +79,7 @@ In both cases step 3 will have to be un-done right after the release.
 
 Finally, make sure that the docs build cleanly ::
 
-  make -Cdoc O-n=$(nproc) html latexpdf
+  make -Cdoc O=-j$(nproc) html latexpdf
 
 After the docs are built, check that all of the links, internal and external, are still
 valid.  We use ``linkchecker`` for this, which has not been ported to python3 yet.  You will
