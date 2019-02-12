@@ -8,6 +8,11 @@
 
 A guide for developers who are doing a matplotlib release.
 
+.. note
+
+   This assumes that a read-only remote for the canonical repository is
+   ``remote`` and a read/write remote is ``DANGER``
+
 All Releases
 ============
 
@@ -42,6 +47,13 @@ We automatically extract GitHub issue, PRs, and authors from GitHub via the API:
 
 Review and commit changes.  Some issue/PR titles may not be valid rst (the most common issue is
 ``*`` which is interpreted as unclosed markup).
+
+.. note
+
+   Make sure you authenticate against the github API (either via
+   keyring or via putting an oauth token in :file:`~/.ghoauth`).  If you
+   do not you will get blocked by github for going over the API rate
+   limits.
 
 
 .. _release_chkdocs:
@@ -181,6 +193,11 @@ project <https://github.com/MacPython/matplotlib-wheels>`__.
 Update the ``master`` branch (for pre-releases the ``devel`` branch)
 of the `conda-forge feedstock
 <https://github.com/conda-forge/matplotlib-feedstock>`__ via pull request.
+
+.. warning
+
+   Because this is automated, it is extremely important to bump all branches
+   away from the tag as discussed in :ref:`release_tag`.
 
 If this is a final release the following downstream packagers should be contacted:
 
