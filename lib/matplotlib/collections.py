@@ -16,6 +16,7 @@ import numpy as np
 import matplotlib as mpl
 from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
                lines as mlines, path as mpath, transforms)
+import warnings
 
 
 @cbook._define_aliases({
@@ -868,6 +869,7 @@ class _CollectionWithSizes(Collection):
 class PathCollection(_CollectionWithSizes):
     """
     This is the most basic :class:`Collection` subclass.
+    A :class:`PathCollection` is e.g. created by a :meth:`~.Axes.scatter` plot.
     """
     @docstring.dedent_interpd
     def __init__(self, paths, sizes=None, **kwargs):
@@ -889,6 +891,133 @@ class PathCollection(_CollectionWithSizes):
 
     def get_paths(self):
         return self._paths
+
+    def legend_elements(self, prop="colors", num="auto",
+                     fmt=None, func=lambda x: x, **kwargs):
+        """
+        Creates legend handles and labels for a PathCollection. This is useful
+        for obtaining a legend for a :meth:`~.Axes.scatter` plot. E.g.::
+
+            scatter = plt.scatter([1,2,3], [4,5,6], c=[7,2,3])
+            plt.legend(*scatter.legend_elements())
+
+        Also see the :ref:`automatedlegendcreation` example.
+
+        Parameters
+        ----------
+        prop : string, optional, default *"colors"*
+            Can be *"colors"* or *"sizes"*. In case of *"colors"*, the legend
+            handles will show the different colors of the collection. In case
+            of "sizes", the legend will show the different sizes.
+        num : int, None, "auto" (default), array-like, or `~.ticker.Locator`,
+            optional
+            Target number of elements to create.
+            If None, use all unique elements of the mappable array. If an
+            integer, target to use *num* elements in the normed range.
+            If *"auto"*, try to determine which option better suits the nature
+            of the data.
+            The number of created elements may slightly deviate from *num* due
+            to a `~.ticker.Locator` being used to find useful locations.
+            If a list or array, use exactly those elements for the legend.
+            Finally, a `~.ticker.Locator` can be provided.
+        fmt : string, `~matplotlib.ticker.Formatter`, or None (default)
+            The format or formatter to use for the labels. If a string must be
+            a valid input for a `~.StrMethodFormatter`. If None (the default),
+            use a `~.ScalarFormatter`.
+        func : function, default *lambda x: x*
+            Function to calculate the labels. Often the size (or color)
+            argument to :meth:`~.Axes.scatter` will have been pre-processed
+            by the user using a function *s = f(x)* to make the markers
+            visible; e.g. *size = np.log10(x)*. Providing the inverse of this
+            function here allows that pre-processing to be inverted, so that
+            the legend labels have the correct values;
+            e.g. *func = np.exp(x, 10)*.
+        kwargs : further parameters
+            Allowed kwargs are *color* and *size*. E.g. it may be useful to
+            set the color of the markers if *prop="sizes"* is used; similarly
+            to set the size of the markers if *prop="colors"* is used.
+            Any further parameters are passed onto the `.Line2D` instance.
+            This may be useful to e.g. specify a different *markeredgecolor* or
+            *alpha* for the legend handles.
+
+        Returns
+        -------
+        tuple (handles, labels)
+            with *handles* being a list of `.Line2D`  objects
+            and *labels* a matching list of strings.
+        """
+        handles = []
+        labels = []
+        hasarray = self.get_array() is not None
+        if fmt is None:
+            fmt = mpl.ticker.ScalarFormatter(useOffset=False, useMathText=True)
+        elif isinstance(fmt, str):
+            fmt = mpl.ticker.StrMethodFormatter(fmt)
+        fmt.create_dummy_axis()
+
+        if prop == "colors":
+            if not hasarray:
+                warnings.warn("Collection without array used. Make sure to "
+                              "specify the values to be colormapped via the "
+                              "`c` argument.")
+                return handles, labels
+            u = np.unique(self.get_array())
+            size = kwargs.pop("size", mpl.rcParams["lines.markersize"])
+        elif prop == "sizes":
+            u = np.unique(self.get_sizes())
+            color = kwargs.pop("color", "k")
+        else:
+            raise ValueError("Valid values for `prop` are 'colors' or "
+                             f"'sizes'. You supplied '{prop}' instead.")
+
+        fmt.set_bounds(func(u).min(), func(u).max())
+        if num == "auto":
+            num = 9
+            if len(u) <= num:
+                num = None
+        if num is None:
+            values = u
+            label_values = func(values)
+        else:
+            if prop == "colors":
+                arr = self.get_array()
+            elif prop == "sizes":
+                arr = self.get_sizes()
+            if isinstance(num, mpl.ticker.Locator):
+                loc = num
+            elif np.iterable(num):
+                loc = mpl.ticker.FixedLocator(num)
+            else:
+                num = int(num)
+                loc = mpl.ticker.MaxNLocator(nbins=num, min_n_ticks=num-1,
+                                             steps=[1, 2, 2.5, 3, 5, 6, 8, 10])
+            label_values = loc.tick_values(func(arr).min(), func(arr).max())
+            cond = ((label_values >= func(arr).min()) &
+                    (label_values <= func(arr).max()))
+            label_values = label_values[cond]
+            xarr = np.linspace(arr.min(), arr.max(), 256)
+            values = np.interp(label_values, func(xarr), xarr)
+
+        kw = dict(markeredgewidth=self.get_linewidths()[0],
+                  alpha=self.get_alpha())
+        kw.update(kwargs)
+
+        for val, lab in zip(values, label_values):
+            if prop == "colors":
+                color = self.cmap(self.norm(val))
+            elif prop == "sizes":
+                size = np.sqrt(val)
+                if np.isclose(size, 0.0):
+                    continue
+            h = mlines.Line2D([0], [0], ls="", color=color, ms=size,
+                              marker=self.get_paths()[0], **kw)
+            handles.append(h)
+            if hasattr(fmt, "set_locs"):
+                fmt.set_locs(label_values)
+            l = fmt(lab)
+            labels.append(l)
+
+        return handles, labels
 
 
 class PolyCollection(_CollectionWithSizes):
