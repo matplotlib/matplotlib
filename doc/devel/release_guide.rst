@@ -168,12 +168,14 @@ On this branch un-comment the globs from :ref:`release_chkdocs`.  And then ::
 Release Management / DOI
 ------------------------
 
-Via the GitHub UI (chase down link), turn the newly pushed tag into a
-release.  If this is a pre-release remember to mark it as such.
+Via the `GitHub UI
+<https://github.com/matplotlib/matplotlib/releases>`__, turn the newly
+pushed tag into a release.  If this is a pre-release remember to mark
+it as such.
 
 For final releases also get a DOI from `zenodo
-<https://zenodo.org/>`__ and edit :file:`doc/_templates/citing.html`
-with DOI link and commit to the VER-doc branch and push to GitHub ::
+<https://zenodo.org/>`__ and edit :file:`doc/citing.rst` with DOI link
+and commit to the VER-doc branch and push to GitHub ::
 
   git checkout v2.0.0-doc
   emacs doc/_templates/citing.html
