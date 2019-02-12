@@ -17,7 +17,7 @@ from matplotlib import (
     rc_context, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 
 import pytest
@@ -103,6 +103,15 @@ def test_image_python_io():
     fig.savefig(buffer)
     buffer.seek(0)
     plt.imread(buffer)
+
+
+@check_figures_equal()
+def test_imshow_pil(fig_test, fig_ref):
+    pytest.importorskip("PIL")
+    img = plt.imread(os.path.join(os.path.dirname(__file__),
+                     'baseline_images', 'test_image', 'uint16.tif'))
+    fig_test.subplots().imshow(img)
+    fig_ref.subplots().imshow(np.asarray(img))
 
 
 def test_imread_pil_uint16():
