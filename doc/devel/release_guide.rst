@@ -46,13 +46,26 @@ Review and commit changes.  Some issue/PR titles may not be valid rst (the most 
 
 .. _release_chkdocs:
 
-Check Docs
-----------
+Check and updating Docs
+-----------------------
 
-Before tagging, update the what's new listing in :file:`doc/users/whats_new.rst`
-by merging all files in :file:`doc/users/next_whats_new/` coherently. Also,
-temporarily comment out the include and toctree glob; re-instate these after a
-release. Finally, make sure that the docs build cleanly ::
+Before tagging, update the "what's new" and API changes listings.
+
+ 1. copy the current content to a file in :file:`doc/users/prev_whats_new`
+ 2. merging all of the files in :file:`doc/users/next_whats_new/` into
+    :file:`doc/users/whats_new.rst` and deleting the individiual files
+ 3. comment out the next whats new glob at the top
+
+Similarly for the API changes
+
+ 1. copy the current api changes to a file is :file:`doc/api/prev_api_changes`
+ 2. merge all of the files in :file:`doc/api/next_api_changes/` into
+    :file:`doc//whats_new.rst`
+ 3. comment out the next API changes at the top.
+
+In both cases step 3 will have to be un-done right after the release.
+
+Finally, make sure that the docs build cleanly ::
 
   make -Cdoc O-n=$(nproc) html latexpdf
 
@@ -130,7 +143,11 @@ and if this is a major or minor release, also create a bug-fix branch (a
 micro release will be cut off of this branch)::
 
    git branch v2.0.x
+
+On this branch un-comment the globs from :ref:`release_chkdocs`.  And then ::
+
    git push DANGER v2.0.x
+
 
 
 
