@@ -42,14 +42,13 @@ extensions = [
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.only_directives',
     'matplotlib.sphinxext.plot_directive',
+    'matplotlib.sphinxext.mathmpl',
     'sphinxext.custom_roles',
     'sphinxext.github',
     'sphinxext.math_symbol_table',
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
 ]
-if sphinx.version_info < (1, 8):
-    extensions.append('matplotlib.sphinxext.mathmpl')
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
