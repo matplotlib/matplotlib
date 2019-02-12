@@ -54,7 +54,7 @@ by merging all files in :file:`doc/users/next_whats_new/` coherently. Also,
 temporarily comment out the include and toctree glob; re-instate these after a
 release. Finally, make sure that the docs build cleanly ::
 
-  make -Cdoc O=-n$(nproc) html latexpdf
+  make -Cdoc O-n=$(nproc) html latexpdf
 
 After the docs are built, check that all of the links, internal and external, are still
 valid.  We use ``linkchecker`` for this, which has not been ported to python3 yet.  You will
