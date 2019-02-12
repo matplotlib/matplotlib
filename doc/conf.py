@@ -22,6 +22,7 @@ from glob import glob
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 sys.path.append(os.path.abspath('.'))
+sys.path.append('.')
 
 # General configuration
 # ---------------------
@@ -39,9 +40,9 @@ extensions = [
     'IPython.sphinxext.ipython_directive',
     'numpydoc',  # Needs to be loaded *after* autodoc.
     'sphinx_gallery.gen_gallery',
-    'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.only_directives',
     'matplotlib.sphinxext.plot_directive',
+    'matplotlib.sphinxext.mathmpl',
     'sphinxext.custom_roles',
     'sphinxext.github',
     'sphinxext.math_symbol_table',
@@ -93,7 +94,10 @@ if not has_dot:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
-autodoc_default_flags = ['members', 'undoc-members']
+if sphinx.version_info < (1, 8):
+    autodoc_default_flags = ['members', 'undoc-members']
+else:
+    autodoc_default_options = {'members': None, 'undoc-members': None}
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
