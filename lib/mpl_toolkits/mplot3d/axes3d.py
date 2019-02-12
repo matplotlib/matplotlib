@@ -1027,7 +1027,7 @@ class Axes3D(Axes):
 
         self.eye = E
         self.vvec = R - E
-        self.vvec = self.vvec / proj3d._mod(self.vvec)
+        self.vvec = self.vvec / np.linalg.norm(self.vvec)
 
         if abs(relev) > np.pi/2:
             # upside down
@@ -1762,9 +1762,9 @@ class Axes3D(Axes):
             # chosen for backwards-compatibility
             lightsource = LightSource(azdeg=225, altdeg=19.4712)
 
-        shade = np.array([np.dot(n / proj3d._mod(n), lightsource.direction)
-                          if proj3d._mod(n) else np.nan
-                          for n in normals])
+        with np.errstate(invalid="ignore"):
+            shade = ((normals / np.linalg.norm(normals, axis=1, keepdims=True))
+                     @ lightsource.direction)
         mask = ~np.isnan(shade)
 
         if mask.any():

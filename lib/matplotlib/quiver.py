@@ -983,10 +983,10 @@ class Barbs(mcollections.PolyCollection):
             mag = half * (mag / half + 0.5).astype(int)
 
         num_flags = np.floor(mag / flag).astype(int)
-        mag = np.mod(mag, flag)
+        mag = mag % flag
 
         num_barb = np.floor(mag / full).astype(int)
-        mag = np.mod(mag, full)
+        mag = mag % full
 
         half_flag = mag >= half
         empty_flag = ~(half_flag | (num_flags > 0) | (num_barb > 0))
