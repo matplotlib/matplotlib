@@ -192,7 +192,7 @@ builders.  Mac and manylinux wheels are built on travis .  You need to
 edit the :file:`.travis.yml` file and push to the correct branch of
 `the build project
 <https://github.com/MacPython/matplotlib-wheels>`__.  For new minor
-version create a new branch, for bug-fixes continue to use the current
+versions create a new branch, for bug-fixes continue to use the current
 release branch.
 
 The auto-tick bot should open a pull request into the `conda-forge
