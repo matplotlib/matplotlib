@@ -269,7 +269,7 @@ there are directories containing the documentation for older versions.
 The documentation for current master are built on travis and push to
 the `devdocs <https://github.com/matplotlib/devdocs/>`__ repository.
 These are available at `matplotlib.org/devdocs
-<http://matplotlib.org/devdocs>`__.
+<https://matplotlib.org/devdocs>`__.
 
 Assuming you have this repository checked out in the same directory as
 matplotlib ::
@@ -314,5 +314,5 @@ numpy/scipy/scikit-image mailing lists.
 
 In addition, announcements should be made on social networks (twitter
 via the ``@matplotlib`` account, any other via personal accounts).
-`NumFOCUS <http://www.numfocus.org/>`__ should be contacted for
+`NumFOCUS <https://www.numfocus.org/>`__ should be contacted for
 inclusion in their newsletter.
