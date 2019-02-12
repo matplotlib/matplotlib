@@ -267,9 +267,9 @@ version of the release notes along with acknowledgments should be sent to
 - matplotlib-announce@python.org
 
 For final releases announcements should also be sent to the
-numpy/scipy/jupyter mailing lists and python-announce.
+numpy/scipy/scikit-image mailing lists.
 
-In addition, announcements should be made on social networks (twitter,
-g+, FB).  For major release, `NumFOCUS <http://www.numfocus.org/>`__
-should be contacted for inclusion in their newsletter and maybe to
-have something posted on their blog.
+In addition, announcements should be made on social networks (twitter
+via the ``@matplotlib`` account, any other via personal accounts).
+`NumFOCUS <http://www.numfocus.org/>`__ should be contacted for
+inclusion in their newsletter.
