@@ -1027,7 +1027,7 @@ class Axes3D(Axes):
 
         self.eye = E
         self.vvec = R - E
-        self.vvec = self.vvec / proj3d.mod(self.vvec)
+        self.vvec = self.vvec / proj3d._mod(self.vvec)
 
         if abs(relev) > np.pi/2:
             # upside down
@@ -1162,7 +1162,7 @@ class Axes3D(Axes):
 
         # nearest edge
         p0, p1 = min(self.tunit_edges(),
-                     key=lambda edge: proj3d.line2d_seg_dist(
+                     key=lambda edge: proj3d._line2d_seg_dist(
                          edge[0], edge[1], (xd, yd)))
 
         # scale the z value to match
@@ -1209,8 +1209,8 @@ class Axes3D(Axes):
             # get the x and y pixel coords
             if dx == 0 and dy == 0:
                 return
-            self.elev = art3d.norm_angle(self.elev - (dy/h)*180)
-            self.azim = art3d.norm_angle(self.azim - (dx/w)*180)
+            self.elev = art3d._norm_angle(self.elev - (dy/h)*180)
+            self.azim = art3d._norm_angle(self.azim - (dx/w)*180)
             self.get_proj()
             self.stale = True
             self.figure.canvas.draw_idle()
@@ -1762,8 +1762,8 @@ class Axes3D(Axes):
             # chosen for backwards-compatibility
             lightsource = LightSource(azdeg=225, altdeg=19.4712)
 
-        shade = np.array([np.dot(n / proj3d.mod(n), lightsource.direction)
-                          if proj3d.mod(n) else np.nan
+        shade = np.array([np.dot(n / proj3d._mod(n), lightsource.direction)
+                          if proj3d._mod(n) else np.nan
                           for n in normals])
         mask = ~np.isnan(shade)
 
@@ -2029,8 +2029,8 @@ class Axes3D(Axes):
             paths = linec.get_paths()
             if not paths:
                 continue
-            topverts = art3d.paths_to_3d_segments(paths, z - dz)
-            botverts = art3d.paths_to_3d_segments(paths, z + dz)
+            topverts = art3d._paths_to_3d_segments(paths, z - dz)
+            botverts = art3d._paths_to_3d_segments(paths, z + dz)
 
             color = linec.get_color()[0]
 
@@ -2394,7 +2394,7 @@ class Axes3D(Axes):
         verts = []
         verts_zs = []
         for p, z in zip(patches, zs):
-            vs = art3d.get_patch_verts(p)
+            vs = art3d._get_patch_verts(p)
             verts += vs.tolist()
             verts_zs += [z] * len(vs)
             art3d.patch_2d_to_3d(p, z, zdir)

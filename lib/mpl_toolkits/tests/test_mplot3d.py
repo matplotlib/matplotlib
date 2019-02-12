@@ -2,7 +2,9 @@ import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from matplotlib import cm
+from matplotlib import path as mpath
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
@@ -618,8 +620,8 @@ def test_lines_dists():
     ys = (100, 150, 30, 200)
     ax.scatter(xs, ys)
 
-    dist = proj3d.line2d_seg_dist(p0, p1, (xs[0], ys[0]))
-    dist = proj3d.line2d_seg_dist(p0, p1, np.array((xs, ys)))
+    dist = proj3d._line2d_seg_dist(p0, p1, (xs[0], ys[0]))
+    dist = proj3d._line2d_seg_dist(p0, p1, np.array((xs, ys)))
     for x, y, d in zip(xs, ys, dist):
         c = Circle((x, y), d, fill=0)
         ax.add_patch(c)
@@ -842,3 +844,58 @@ def test_inverted_cla():
     assert not ax.xaxis_inverted()
     assert not ax.yaxis_inverted()
     assert not ax.zaxis_inverted()
+
+
+def test_art3d_deprecated():
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.norm_angle(0.0)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.norm_text_angle(0.0)
+
+    path = mpath.Path(np.empty((0, 2)))
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.path_to_3d_segment(path)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.paths_to_3d_segments([path])
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.path_to_3d_segment_with_codes(path)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.paths_to_3d_segments_with_codes([path])
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.get_colors([], 1)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        art3d.zalpha([], [])
+
+
+def test_proj3d_deprecated():
+    with pytest.warns(MatplotlibDeprecationWarning):
+        proj3d.line2d([0, 1], [0, 1])
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        proj3d.line2d_dist([0, 1, 3], [0, 1])
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        proj3d.mod([1, 1, 1])
+
+    vec = np.arange(4)
+    M = np.ones((4, 4))
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        proj3d.proj_transform_vec(vec, M)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        proj3d.proj_transform_vec_clip(vec, M)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        proj3d.vec_pad_ones(np.ones(3), np.ones(3), np.ones(3))
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        proj3d.proj_trans_clip_points(np.ones((4, 3)), M)
