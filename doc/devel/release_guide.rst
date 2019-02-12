@@ -64,7 +64,7 @@ Check and updating Docs
 Before tagging, update the "what's new" and API changes listings.
 
  1. copy the current content to a file in :file:`doc/users/prev_whats_new`
- 2. merging all of the files in :file:`doc/users/next_whats_new/` into
+ 2. merge all of the files in :file:`doc/users/next_whats_new/` into
     :file:`doc/users/whats_new.rst` and deleting the individiual files
  3. comment out the next whats new glob at the top
 
