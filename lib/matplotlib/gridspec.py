@@ -146,17 +146,25 @@ class GridSpecBase(object):
         """
         nrows, ncols = self.get_geometry()
 
-        def _normalize(key, size):  # Includes last index.
+        def _normalize(key, size, axis):  # Includes last index.
+            orig_key = key
             if isinstance(key, slice):
                 start, stop, _ = key.indices(size)
                 if stop > start:
                     return start, stop - 1
+                raise IndexError("GridSpec slice would result in no space "
+                                 "allocated for subplot")
             else:
                 if key < 0:
-                    key += size
+                    key = key + size
                 if 0 <= key < size:
                     return key, key
-            raise IndexError("invalid index")
+                elif axis is not None:
+                    raise IndexError(f"index {orig_key} is out of bounds for "
+                                     f"axis {axis} with size {size}")
+                else:  # flat index
+                    raise IndexError(f"index {orig_key} is out of bounds for "
+                                     f"GridSpec with size {size}")
 
         if isinstance(key, tuple):
             try:
@@ -164,9 +172,10 @@ class GridSpecBase(object):
             except ValueError:
                 raise ValueError("unrecognized subplot spec")
             num1, num2 = np.ravel_multi_index(
-                [_normalize(k1, nrows), _normalize(k2, ncols)], (nrows, ncols))
+                [_normalize(k1, nrows, 0), _normalize(k2, ncols, 1)],
+                (nrows, ncols))
         else:  # Single key
-            num1, num2 = _normalize(key, nrows * ncols)
+            num1, num2 = _normalize(key, nrows * ncols, None)
 
         return SubplotSpec(self, num1, num2)
 
