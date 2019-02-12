@@ -635,15 +635,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Note that this function does *not* update the normalization used.
         """
-        # check if data is PIL Image without importing Image
-        if hasattr(A, 'getpixel'):
-            if A.mode == 'L':
-                # greyscale image, but our logic assumes rgba:
-                self._A = pil_to_array(A.convert('RGBA'))
-            else:
-                self._A = pil_to_array(A)
-        else:
-            self._A = cbook.safe_masked_invalid(A, copy=True)
+        self._A = cbook.safe_masked_invalid(A, copy=True)
 
         if (self._A.dtype != np.uint8 and
                 not np.can_cast(self._A.dtype, float, "same_kind")):
