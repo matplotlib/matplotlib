@@ -154,8 +154,9 @@ Different exception types for undocumented options
   and ``right`` arguments.  :meth:`~matplotlib.axes.Axes.set_ylim` and the
   3D equivalents (e.g. :meth:`~mpl_toolkits.axes.Axes3D.set_zlim3d`) had a
   corresponding problem.
-  The ``_min`` and ``_max`` arguments are now deprecated, and a ``TypeError``
-  will be raised if they would override the earlier limit arguments.
+  A ``TypeError`` will be raised if they would override the earlier
+  limit arguments.  In 3.0 these were kwargs were deprecated, but in 3.1
+  the deprecation was undone.
 
 
 Improved call signature for ``Axes.margins``
