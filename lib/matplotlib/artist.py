@@ -232,6 +232,9 @@ class Artist(object):
     def get_window_extent(self, renderer):
         """
         Get the axes bounding box in display space.
+
+        The bounding box' width and height are nonnegative.
+
         Subclasses should override for inclusion in the bounding box
         "tight" calculation. Default is to return an empty bounding
         box at 0, 0.
