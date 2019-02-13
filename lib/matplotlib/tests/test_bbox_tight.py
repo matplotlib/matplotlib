@@ -1,4 +1,5 @@
 import numpy as np
+from io import BytesIO
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -86,3 +87,12 @@ def test_bbox_inches_tight_raster():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot([1.0, 2.0], rasterized=True)
+
+
+def test_only_on_non_finite_bbox():
+
+    fig, ax = plt.subplots()
+    ax.annotate("", xy=(0, float('nan')))
+    ax.set_axis_off()
+    # we only need to test that it does not error out on save
+    fig.savefig(BytesIO(), bbox_inches='tight', format='png')
