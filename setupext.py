@@ -97,7 +97,6 @@ def download_or_cache(url, sha):
             raise Exception("no cache dir")
         cache_filename = os.path.join(cache_dir, local_fn)
         with open(cache_filename, 'rb') as fin:
-            print('opened the file')
             buf = BytesIO(fin.read())
         file_sha = get_fd_hash(buf)
         if file_sha != sha:
@@ -128,6 +127,9 @@ def download_or_cache(url, sha):
     except Exception:
         pass
 
+    # jQueryUI's website blocks direct downloads from urllib.request's
+    # default User-Agent, but not (for example) wget; so I don't feel too
+    # bad passing in an empty User-Agent.
     with urlopen(
             Request(url, headers={"User-Agent": ""})) as req:
         file_contents = BytesIO(req.read())
@@ -971,9 +973,12 @@ class FreeType(SetupPackage):
         ]
         tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
 
-        for url_fmt in url_fmts:
-            tarball_url = url_fmt.format(
-                version=LOCAL_FREETYPE_VERSION, tarball=tarball)
+        target_urls = [
+            url_fmt.format(version=LOCAL_FREETYPE_VERSION,
+                           tarball=tarball)
+            for url_fmt in url_fmts]
+
+        for tarball_url in target_urls:
             try:
                 tar_contents = download_or_cache(tarball_url,
                                                  LOCAL_FREETYPE_HASH)
@@ -981,9 +986,6 @@ class FreeType(SetupPackage):
             except Exception as ex:
                 raise ex
         else:
-            target_urls = [url_fmt.format(
-                version=LOCAL_FREETYPE_VERSION, tarball=tarball)
-                           for url_fmt in url_fmts]
             raise IOError("Failed to download FreeType.  Please download " +
                           "one of {target_urls} ".format(
                               target_urls=target_urls) +

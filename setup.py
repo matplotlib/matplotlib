@@ -44,7 +44,7 @@ from distutils.dist import Distribution
 
 import setupext
 from setupext import (print_line, print_raw, print_message, print_status,
-                      download_or_cache)
+                      download_or_cache, makedirs as _makedirs)
 
 # Get the version from versioneer
 import versioneer
@@ -124,15 +124,13 @@ def _download_jquery_to(dest):
     url = "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip"
     sha = 'f8233674366ab36b2c34c577ec77a3d70cac75d2e387d8587f3836345c0f624d'
     if not os.path.exists(os.path.join(dest, "jquery-ui-1.12.1")):
+        _makedirs(dest, exist_ok=True)
         try:
-            os.makedirs(dest)
-        except OSError:
-            pass
-        print("DOWNLOADING JQUERY TO {}".format(dest))
-        # jQueryUI's website blocks direct downloads from urllib.request's
-        # default User-Agent, but not (for example) wget; so I don't feel too
-        # bad passing in an empty User-Agent.
-        buff = download_or_cache(url, sha)
+            buff = download_or_cache(url, sha)
+        except Exception:
+            raise IOError("Failed to download jquery-ui.  Please download " +
+                          "{url} and extract it to {dest}.".format(
+                              url=url, dest=dest))
         with ZipFile(buff) as zf:
             zf.extractall(dest)
 
