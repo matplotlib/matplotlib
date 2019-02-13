@@ -1665,6 +1665,20 @@ def test_hist_datetime_datasets():
     ax.hist(data, stacked=False)
 
 
+@pytest.mark.parametrize('data, expected_number_of_hists',
+                         [([], 1),
+                          ([[]], 1),
+                          ([[], []], 2)])
+def test_hist_with_empty_input(data, expected_number_of_hists):
+    hists, _, _ = plt.hist(data)
+    hists = np.asarray(hists)
+
+    if hists.ndim == 1:
+        assert 1 == expected_number_of_hists
+    else:
+        assert hists.shape[0] == expected_number_of_hists
+
+
 def contour_dat():
     x = np.linspace(-3, 5, 150)
     y = np.linspace(-3, 5, 120)
