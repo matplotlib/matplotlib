@@ -277,3 +277,10 @@ def test_artist_inspector_get_valid_values(accept_clause, expected):
     """ % accept_clause
     valid_values = martist.ArtistInspector(TestArtist).get_valid_values('f')
     assert valid_values == expected
+
+
+def test_artist_inspector_get_aliases():
+    # test the correct format and type of get_aliases method
+    ai = martist.ArtistInspector(mlines.Line2D)
+    aliases = ai.get_aliases()
+    assert aliases["linewidth"] == {"lw"}
