@@ -110,9 +110,33 @@ class DraggableLegend(DraggableOffsetBox):
 
 
 _legend_kw_doc = '''
-loc : int or string or pair of floats, default: :rc:`legend.loc` ('best' for \
-axes, 'upper right' for figures)
-    The location of the legend. Possible codes are:
+loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
+'upper right' for figures)
+    The location of the legend.
+
+    The strings
+    ``'upper left', 'upper right', 'lower left', 'lower right'``
+    place the legend at the corresponding corner of the axes/figure.
+
+    The strings
+    ``'upper center', 'lower center', 'center left', 'center right'``
+    place the legend at the center of the corresponding edge of the
+    axes/figure.
+
+    The string ``'center'`` places the legend at the center of the axes/figure.
+
+    The string ``'best'`` places the legend at the location, among the nine
+    locations defined so far, with the minimum overlap with other drawn
+    artists.  This option can be quite slow for plots with large amounts of
+    data; your plotting speed may benefit from providing a specific location.
+
+    The location can also be a 2-tuple giving the coordinates of the lower-left
+    corner of the legend in axes coordinates (in which case *bbox_to_anchor*
+    will be ignored).
+
+    For back-compatibility, ``'center right'`` (but no other location) can also
+    be spelled ``'right'``, and each "string" locations can also be given as a
+    numeric value:
 
         ===============   =============
         Location String   Location Code
@@ -129,15 +153,6 @@ axes, 'upper right' for figures)
         'upper center'    9
         'center'          10
         ===============   =============
-
-
-    Alternatively can be a 2-tuple giving ``x, y`` of the lower-left
-    corner of the legend in axes coordinates (in which case
-    ``bbox_to_anchor`` will be ignored).
-
-    The 'best' option can be quite slow for plots with large amounts
-    of data. Your plotting speed may benefit from providing a specific
-    location.
 
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
