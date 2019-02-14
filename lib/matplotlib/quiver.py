@@ -455,7 +455,6 @@ class Quiver(mcollections.PolyCollection):
         self.scale_units = scale_units
         self.angles = angles
         self.width = width
-        self.color = color
 
         if pivot.lower() == 'mid':
             pivot = 'middle'
@@ -466,7 +465,7 @@ class Quiver(mcollections.PolyCollection):
                       keys=self._PIVOT_VALS, inp=pivot))
 
         self.transform = kw.pop('transform', ax.transData)
-        kw.setdefault('facecolors', self.color)
+        kw.setdefault('facecolors', color)
         kw.setdefault('linewidths', (0,))
         mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
                                              transOffset=self.transform,
@@ -494,6 +493,11 @@ class Quiver(mcollections.PolyCollection):
 
         self._cid = self.ax.figure.callbacks.connect('dpi_changed',
                                                      on_dpi_change)
+
+    @cbook.deprecated("3.1", alternative="get_facecolor()")
+    @property
+    def color(self):
+        return self.get_facecolor()
 
     def remove(self):
         """
