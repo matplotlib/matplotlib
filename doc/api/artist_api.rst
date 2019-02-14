@@ -43,15 +43,6 @@ Interactive
    Artist.set_picker
    Artist.contains
 
-Margins and Autoscaling
------------------------
-
-.. autosummary::
-   :toctree: _as_gen
-   :nosignatures:
-
-   Artist.sticky_edges
-
 Clipping
 --------
 
@@ -172,13 +163,16 @@ Metadata
    Artist.set_url
    Artist.aname
 
-Stale
------
+Miscellaneous
+-------------
 
 .. autosummary::
    :toctree: _as_gen
    :nosignatures:
 
+   Artist.sticky_edges
+   Artist.set_in_layout
+   Artist.get_in_layout
    Artist.stale
 
 Functions
