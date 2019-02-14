@@ -748,13 +748,13 @@ class HandlerAnnotation(HandlerBase):
     Parameters
     ----------
     pad : float, optional
-        If None, fall back to `legend.borderpad` asstr the default.
-        In units of fraction of font size.
-        Default is None.
+    If None, fall back to `legend.borderpad` asstr the default.
+    In units of fraction of font size.
+    Default is None.
     width_ratios : tuple, optional
-        The relative width of the respective text/arrow legend annotation pair.
-        Must be of length 2.
-        Default is [1,4].
+    The relative width of the respective text/arrow legend annotation pair.
+    Must be of length 2.
+    Default is [1,4].
     """
 
     def __init__(
