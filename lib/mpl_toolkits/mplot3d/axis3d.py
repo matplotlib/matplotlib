@@ -137,9 +137,7 @@ class Axis(maxis.XAxis):
     @cbook.deprecated("3.1")
     def get_tick_positions(self):
         majorLocs = self.major.locator()
-        self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i)
-                       for i, val in enumerate(majorLocs)]
+        majorLabels = self.major.formatter.format_ticks(majorLocs)
         return majorLabels, majorLocs
 
     def get_major_ticks(self, numticks=None):
@@ -238,11 +236,8 @@ class Axis(maxis.XAxis):
             locmin, locmax = locmax, locmin
 
         # Rudimentary clipping
-        majorLocs = [loc for loc in majorLocs if
-                     locmin <= loc <= locmax]
-        self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i)
-                       for i, val in enumerate(majorLocs)]
+        majorLocs = [loc for loc in majorLocs if locmin <= loc <= locmax]
+        majorLabels = self.major.formatter.format_ticks(majorLocs)
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 

@@ -291,11 +291,9 @@ class FormatterPrettyPrint(object):
     def __call__(self, direction, factor, values):
         if not self._ignore_factor:
             if factor is None:
-                factor = 1.
-            values = [v/factor for v in values]
-        #values = [v for v in values]
-        self._fmt.set_locs(values)
-        return [self._fmt(v) for v in values]
+                factor = 1
+            values = [v / factor for v in values]
+        return self._fmt.format_ticks(values)
 
 
 class DictFormatter(object):
