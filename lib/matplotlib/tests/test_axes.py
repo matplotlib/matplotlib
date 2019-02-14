@@ -16,6 +16,7 @@ import pytest
 import warnings
 
 import matplotlib
+import matplotlib as mpl
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
 import matplotlib.pyplot as plt
@@ -5220,14 +5221,21 @@ def test_no_None():
         plt.plot(None, None)
 
 
-def test_pcolor_fast_non_uniform():
-    Z = np.arange(6).reshape((3, 2))
-    X = np.array([0, 1, 2, 10])
-    Y = np.array([0, 1, 2])
-
-    plt.figure()
-    ax = plt.subplot(111)
-    ax.pcolorfast(X, Y, Z.T)
+@pytest.mark.parametrize(
+    "xy, cls", [
+        ((), mpl.image.AxesImage),  # (0, N)
+        (((3, 7), (2, 6)), mpl.image.AxesImage),  # (xmin, xmax)
+        ((range(5), range(4)), mpl.image.AxesImage),  # regular grid
+        (([1, 2, 4, 8, 16], [0, 1, 2, 3]),  # irregular grid
+         mpl.image.PcolorImage),
+        ((np.random.random((4, 5)), np.random.random((4, 5))),  # 2D coords
+         mpl.collections.QuadMesh),
+    ]
+)
+def test_pcolorfast_colormapped(xy, cls):
+    fig, ax = plt.subplots()
+    data = np.arange(12).reshape((3, 4))
+    assert type(ax.pcolorfast(*xy, data)) == cls
 
 
 def test_shared_scale():
