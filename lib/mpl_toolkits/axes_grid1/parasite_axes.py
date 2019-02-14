@@ -36,6 +36,18 @@ class ParasiteAxesBase:
             self.xaxis.set_zorder(2.5)
             self.yaxis.set_zorder(2.5)
 
+    def pick(self, mouseevent):
+        # This most likely goes to Artist.pick (depending on axes_class given
+        # to the factory), which only handles pick events registered on the
+        # axes associated with each child:
+        super().pick(mouseevent)
+        # But parasite axes are additionally given pick events from their host
+        # axes (cf. HostAxesBase.pick), which we handle here:
+        for a in self.get_children():
+            if (hasattr(mouseevent.inaxes, "parasites")
+                    and self in mouseevent.inaxes.parasites):
+                a.pick(mouseevent)
+
 
 @functools.lru_cache(None)
 def parasite_axes_class_factory(axes_class=None):
@@ -231,6 +243,13 @@ class HostAxesBase:
         for ax in self.parasites:
             ax.cla()
         super().cla()
+
+    def pick(self, mouseevent):
+        super().pick(mouseevent)
+        # Also pass pick events on to parasite axes and, in turn, their
+        # children (cf. ParasiteAxesBase.pick)
+        for a in self.parasites:
+            a.pick(mouseevent)
 
     def twinx(self, axes_class=None):
         """
