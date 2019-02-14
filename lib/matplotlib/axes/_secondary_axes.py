@@ -43,11 +43,12 @@ def _make_secondary_locator(rect, parent):
     *parent*.
     """
     _rect = mtransforms.Bbox.from_bounds(*rect)
-    bb = mtransforms.TransformedBbox(_rect, parent.transAxes)
-    tr = parent.figure.transFigure.inverted()
-    bb = mtransforms.TransformedBbox(bb, tr)
-
     def secondary_locator(ax, renderer):
+        # delay evaluating transform until draw time because the
+        # parent transform may have changed (i.e. if window reesized)
+        bb = mtransforms.TransformedBbox(_rect, parent.transAxes)
+        tr = parent.figure.transFigure.inverted()
+        bb = mtransforms.TransformedBbox(bb, tr)
         return bb
 
     return secondary_locator
