@@ -1209,7 +1209,7 @@ class ArtistInspector(object):
                 continue
             propname = re.search("`({}.*)`".format(name[:4]),  # get_.*/set_.*
                                  inspect.getdoc(func)).group(1)
-            aliases.setdefault(propname, set()).add(name[4:])
+            aliases.setdefault(propname[4:], set()).add(name[4:])
         return aliases
 
     _get_valid_values_regex = re.compile(
