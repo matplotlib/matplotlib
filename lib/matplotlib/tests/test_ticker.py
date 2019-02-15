@@ -897,3 +897,29 @@ def test_minorticks_rc():
     minorticksubplot(True, False, 2)
     minorticksubplot(False, True, 3)
     minorticksubplot(True, True, 4)
+
+
+def test_multiple_assignment():
+    fig = plt.figure()
+
+    ax = fig.subplots()
+    fmt = mticker.NullFormatter()
+    ax.xaxis.set_major_formatter(fmt)
+    ax.yaxis.set_major_formatter(fmt)
+    fig.canvas.draw()  # No error.
+    fig.clf()
+
+    ax = fig.subplots()
+    fmt = mticker.ScalarFormatter()
+    ax.xaxis.set_major_formatter(fmt)
+    ax.xaxis.set_minor_formatter(fmt)
+    fig.canvas.draw()  # No error.
+    fig.clf()
+
+    ax = fig.subplots()
+    fmt = mticker.ScalarFormatter()
+    ax.xaxis.set_major_formatter(fmt)
+    ax.yaxis.set_major_formatter(fmt)
+    with pytest.raises(RuntimeError):
+        fig.canvas.draw()
+    fig.clf()

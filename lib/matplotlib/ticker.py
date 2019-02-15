@@ -217,11 +217,41 @@ class _DummyAxis(object):
         return 9
 
 
-class TickHelper(object):
-    axis = None
+class TickHelper:
+    # TickHelpers that access their axis attribute can only be assigned to
+    # one Axis at a time, but we don't know a priori whether they will (e.g.,
+    # NullFormatter doesn't, but ScalarFormatter does).  So keep track of all
+    # Axises that a TickHelper is assigned to (in a set: a TickHelper could be
+    # assigned both as major and minor helper on a single axis), but only error
+    # out after multiple assignment when the attribute is accessed.
 
-    def set_axis(self, axis):
-        self.axis = axis
+    # As an escape hatch, allow resetting the axis by first setting it to None.
+
+    @property
+    def axis(self):
+        # We can't set the '_set_axises' attribute in TickHelper.__init__
+        # (without a deprecation period) because subclasses didn't have to call
+        # super().__init__ so far so they likely didn't.
+        set_axises = getattr(self, "_set_axises", set())
+        if len(set_axises) == 0:
+            return None
+        elif len(set_axises) == 1:
+            axis, = set_axises
+            return axis
+        else:
+            raise RuntimeError(
+                f"The 'axis' attribute of this {type(self).__name__} object "
+                f"has been set multiple times, but a {type(self).__name__} "
+                f"can only be used for one Axis at a time")
+
+    @axis.setter
+    def axis(self, axis):
+        if not hasattr(self, "_set_axises") or axis is None:
+            self._set_axises = set()
+        if axis is not None:
+            self._set_axises.add(axis)
+
+    set_axis = axis.fset
 
     def create_dummy_axis(self, **kwargs):
         if self.axis is None:

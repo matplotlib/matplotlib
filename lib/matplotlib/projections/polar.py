@@ -198,6 +198,14 @@ class _AxisWrapper(object):
     def __init__(self, axis):
         self._axis = axis
 
+    def __eq__(self, other):
+        # Needed so that assignment, as the locator.axis attribute, of another
+        # _AxisWrapper wrapping the same axis works.
+        return self._axis == other._axis
+
+    def __hash__(self):
+        return hash((type(self), *sorted(vars(self).items())))
+
     def get_view_interval(self):
         return np.rad2deg(self._axis.get_view_interval())
 
@@ -227,10 +235,11 @@ class ThetaLocator(mticker.Locator):
     """
     def __init__(self, base):
         self.base = base
-        self.axis = self.base.axis = _AxisWrapper(self.base.axis)
+        self.set_axis(self.base.axis)
 
     def set_axis(self, axis):
-        self.axis = _AxisWrapper(axis)
+        super().set_axis(_AxisWrapper(axis))
+        self.base.set_axis(None)  # Bypass prevention of axis resetting.
         self.base.set_axis(self.axis)
 
     def __call__(self):
@@ -383,7 +392,6 @@ class ThetaAxis(maxis.XAxis):
     def cla(self):
         super().cla()
         self.set_ticks_position('none')
-        self._wrap_locator_formatter()
 
     def _set_scale(self, value, **kwargs):
         super()._set_scale(value, **kwargs)

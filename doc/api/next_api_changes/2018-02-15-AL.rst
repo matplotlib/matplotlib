@@ -1,0 +1,17 @@
+Axis-dependent Locators and Formatters explicitly error out when used over multiple Axis
+````````````````````````````````````````````````````````````````````````````````````````
+
+Certain Locators and Formatters (e.g. the default `AutoLocator` and
+`ScalarFormatter`) can only be used meaningfully on one Axis object at a time
+(i.e., attempting to use a single `AutoLocator` instance on the x and the y
+axis of an Axes, or the x axis of two different Axes, would result in
+nonsensical results).
+
+Such "double-use" is now detected and raises a RuntimeError *at canvas draw
+time*.  The exception is not raised when the second Axis is registered in order
+to avoid incorrectly raising exceptions for the Locators and Formatters that
+*can* be used on multiple Axis objects simultaneously (e.g. `NullLocator` and
+`FuncFormatter`).
+
+In case a Locator or a Formatter really needs to be reassigned from one axis to
+another, first set its axis to None to bypass this protection.

@@ -1589,11 +1589,19 @@ default: 'top'
             return axarr
 
     def _remove_ax(self, ax):
-        def _reset_loc_form(axis):
-            axis.set_major_formatter(axis.get_major_formatter())
-            axis.set_major_locator(axis.get_major_locator())
-            axis.set_minor_formatter(axis.get_minor_formatter())
-            axis.set_minor_locator(axis.get_minor_locator())
+        def _reset_tickers(axis):
+            major_formatter = axis.get_major_formatter()
+            major_formatter.set_axis(None)  # Bypass prevention of axis reset.
+            axis.set_major_formatter(major_formatter)
+            major_locator = axis.get_major_locator()
+            major_locator.set_axis(None)
+            axis.set_major_locator(major_locator)
+            minor_formatter = axis.get_minor_formatter()
+            minor_formatter.set_axis(None)
+            axis.set_minor_formatter(minor_formatter)
+            minor_locator = axis.get_minor_locator()
+            minor_locator.set_axis(None)
+            axis.set_minor_locator(minor_locator)
 
         def _break_share_link(ax, grouper):
             siblings = grouper.get_siblings(ax)
@@ -1607,11 +1615,11 @@ default: 'top'
         self.delaxes(ax)
         last_ax = _break_share_link(ax, ax._shared_y_axes)
         if last_ax is not None:
-            _reset_loc_form(last_ax.yaxis)
+            _reset_tickers(last_ax.yaxis)
 
         last_ax = _break_share_link(ax, ax._shared_x_axes)
         if last_ax is not None:
-            _reset_loc_form(last_ax.xaxis)
+            _reset_tickers(last_ax.xaxis)
 
     def clf(self, keep_observers=False):
         """
