@@ -2436,7 +2436,7 @@ def boxplot(
         meanline=None, showmeans=None, showcaps=None, showbox=None,
         showfliers=None, boxprops=None, labels=None, flierprops=None,
         medianprops=None, meanprops=None, capprops=None,
-        whiskerprops=None, manage_xticks=True, autorange=False,
+        whiskerprops=None, manage_ticks=True, autorange=False,
         zorder=None, *, data=None):
     return gca().boxplot(
         x, notch=notch, sym=sym, vert=vert, whis=whis,
@@ -2447,7 +2447,7 @@ def boxplot(
         showfliers=showfliers, boxprops=boxprops, labels=labels,
         flierprops=flierprops, medianprops=medianprops,
         meanprops=meanprops, capprops=capprops,
-        whiskerprops=whiskerprops, manage_xticks=manage_xticks,
+        whiskerprops=whiskerprops, manage_ticks=manage_ticks,
         autorange=autorange, zorder=zorder, **({"data": data} if data
         is not None else {}))
 
