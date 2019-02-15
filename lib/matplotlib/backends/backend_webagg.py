@@ -53,6 +53,7 @@ class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
         show()
 
     def new_timer(self, *args, **kwargs):
+        # docstring inherited
         return TimerTornado(*args, **kwargs)
 
 

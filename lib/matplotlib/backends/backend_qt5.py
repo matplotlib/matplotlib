@@ -448,28 +448,15 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return '+'.join(mods + [key])
 
     def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.Timer`.  This is useful for getting
-        periodic events through the backend's native event
-        loop. Implemented only for backends with GUIs.
-
-        Other Parameters
-        ----------------
-        interval : scalar
-            Timer interval in milliseconds
-
-        callbacks : list
-            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
-            will be executed by the timer every *interval*.
-
-        """
+        # docstring inherited
         return TimerQT(*args, **kwargs)
 
     def flush_events(self):
+        # docstring inherited
         qApp.processEvents()
 
     def start_event_loop(self, timeout=0):
+        # docstring inherited
         if hasattr(self, "_event_loop") and self._event_loop.isRunning():
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
@@ -478,6 +465,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         event_loop.exec_()
 
     def stop_event_loop(self, event=None):
+        # docstring inherited
         if hasattr(self, "_event_loop"):
             self._event_loop.quit()
 

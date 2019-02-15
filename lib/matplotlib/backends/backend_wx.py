@@ -441,11 +441,7 @@ class GraphicsContextWx(GraphicsContextBase):
             self.IsSelected = False
 
     def set_foreground(self, fg, isRGBA=None):
-        """
-        Set the foreground color.  fg can be a matlab format string, a
-        html hex color string, an rgb unit tuple, or a float between 0
-        and 1.  In the latter case, grayscale is used.
-        """
+        # docstring inherited
         # Implementation note: wxPython has a separate concept of pen and
         # brush - the brush fills any outline trace left by the pen.
         # Here we set both to the same colour - if a figure is not to be
@@ -460,9 +456,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.unselect()
 
     def set_linewidth(self, w):
-        """
-        Set the line width.
-        """
+        # docstring inherited
         w = float(w)
         DEBUG_MSG("set_linewidth()", 1, self)
         self.select()
@@ -477,9 +471,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.unselect()
 
     def set_capstyle(self, cs):
-        """
-        Set the capstyle as a string in ('butt', 'round', 'projecting')
-        """
+        # docstring inherited
         DEBUG_MSG("set_capstyle()", 1, self)
         self.select()
         GraphicsContextBase.set_capstyle(self, cs)
@@ -488,9 +480,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.unselect()
 
     def set_joinstyle(self, js):
-        """
-        Set the join style to be one of ('miter', 'round', 'bevel')
-        """
+        # docstring inherited
         DEBUG_MSG("set_joinstyle()", 1, self)
         self.select()
         GraphicsContextBase.set_joinstyle(self, js)
@@ -657,9 +647,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 wx.TheClipboard.Flush()
 
     def draw_idle(self):
-        """
-        Delay rendering until the GUI is idle.
-        """
+        # docstring inherited
         DEBUG_MSG("draw_idle()", 1, self)
         self._isDrawn = False  # Force redraw
         # Triggering a paint event is all that is needed to defer drawing
@@ -668,59 +656,28 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.Refresh(eraseBackground=False)
 
     def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.Timer`. This is useful for getting periodic
-        events through the backend's native event loop. Implemented only
-        for backends with GUIs.
-
-        Other Parameters
-        ----------------
-        interval : scalar
-            Timer interval in milliseconds
-        callbacks : list
-            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
-            will be executed by the timer every *interval*.
-
-        """
+        # docstring inherited
         return TimerWx(*args, **kwargs)
 
     def flush_events(self):
+        # docstring inherited
         wx.Yield()
 
     def start_event_loop(self, timeout=0):
-        """
-        Start an event loop.  This is used to start a blocking event
-        loop so that interactive functions, such as ginput and
-        waitforbuttonpress, can wait for events.  This should not be
-        confused with the main GUI event loop, which is always running
-        and has nothing to do with this.
-
-        This call blocks until a callback function triggers
-        stop_event_loop() or *timeout* is reached.  If *timeout* is
-        <=0, never timeout.
-
-        Raises RuntimeError if event loop is already running.
-        """
+        # docstring inherited
         if hasattr(self, '_event_loop'):
             raise RuntimeError("Event loop already running")
         timer = wx.Timer(self, id=wx.ID_ANY)
         if timeout > 0:
             timer.Start(timeout * 1000, oneShot=True)
             self.Bind(wx.EVT_TIMER, self.stop_event_loop, id=timer.GetId())
-
         # Event loop handler for start/stop event loop
         self._event_loop = wx.GUIEventLoop()
         self._event_loop.Run()
         timer.Stop()
 
     def stop_event_loop(self, event=None):
-        """
-        Stop an event loop.  This is used to stop a blocking event
-        loop so that interactive functions, such as ginput and
-        waitforbuttonpress, can wait for events.
-
-        """
+        # docstring inherited
         if hasattr(self, '_event_loop'):
             if self._event_loop.IsRunning():
                 self._event_loop.Exit()
@@ -780,6 +737,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     }
 
     def print_figure(self, filename, *args, **kwargs):
+        # docstring inherited
         super().print_figure(filename, *args, **kwargs)
         # Restore the current view; this is needed because the artist contains
         # methods rely on particular attributes of the rendered figure for
