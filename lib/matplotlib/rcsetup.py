@@ -1146,7 +1146,7 @@ defaultParams = {
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation': ['nearest', validate_string],
-    'image.cmap':          ['viridis', validate_string],        # one of gray, jet, etc
+    'image.cmap':          ['viridis', validate_string],  # gray, jet, etc.
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper',
                             ValidateInStrings('image.origin', ['upper', 'lower'])],
@@ -1317,12 +1317,10 @@ defaultParams = {
     'ytick.direction':   ['out', validate_string],            # direction of yticks
     'ytick.alignment': ["center_baseline", _validate_alignment],
 
-
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
     'grid.linestyle':    ['-', _validate_linestyle],  # solid
     'grid.linewidth':    [0.8, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
-
 
     ## figure props
     # figure title
@@ -1369,8 +1367,7 @@ defaultParams = {
     'savefig.facecolor':   ['white', validate_color],
     'savefig.edgecolor':   ['white', validate_color],
     'savefig.frameon':     [True, validate_bool],
-    'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
-                                                                 #white
+    'savefig.orientation': ['portrait', validate_orientation],
     'savefig.jpeg_quality': [95, validate_int],
     # value checked by backend at runtime
     'savefig.format':     ['png', update_savefig_format],
@@ -1386,7 +1383,7 @@ defaultParams = {
 
     # Set the papersize/type
     'ps.papersize':     ['letter', validate_ps_papersize],
-    'ps.useafm':        [False, validate_bool],  # Set PYTHONINSPECT
+    'ps.useafm':        [False, validate_bool],
     # use ghostscript or xpdf to distill ps output
     'ps.usedistiller':  [False, validate_ps_distiller],
     'ps.distiller.res': [6000, validate_int],     # dpi
