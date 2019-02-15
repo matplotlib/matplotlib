@@ -6625,10 +6625,7 @@ optional.
         # basic input validation
         input_empty = np.size(x) == 0
         # Massage 'x' for processing.
-        if input_empty:
-            x = [np.array([])]
-        else:
-            x = cbook._reshape_2D(x, 'x')
+        x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
 
         # Process unit information

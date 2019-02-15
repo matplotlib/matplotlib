@@ -1,0 +1,6 @@
+Modify output of Axes.hist when input consists of multiple empty lists
+``````````````````````````````````````````````````````````````````````
+
+Input that consists of multiple empty lists will now return a list of histogram
+values for each one of the lists. For example, an input of ``[[],[]]`` will
+return 2 lists of histogram values. Previously, a single list was returned.
