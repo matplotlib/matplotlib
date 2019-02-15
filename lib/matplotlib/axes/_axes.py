@@ -2625,7 +2625,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-             label=None):
+             label=None, use_line_collection=False):
         """
         Create a stem plot.
 
@@ -2684,6 +2684,13 @@ class Axes(_AxesBase):
         label : str, optional, default: None
             The label to use for the stems in legends.
 
+        use_line_collection : bool, optional, default: False
+            If ``True``, store and plot the stem lines as a
+            `~.collections.LineCollection` instead of individual lines. This
+            significantly increases performance, and will become the default
+            option in Matplotlib 3.3. If ``False``, defaults to the old
+            behavior of using a list of `.Line2D` objects.
+
 
         Returns
         -------
@@ -2715,6 +2722,9 @@ class Axes(_AxesBase):
             x = y
             y = np.asarray(args[0], dtype=float)
             args = args[1:]
+        self._process_unit_info(xdata=x, ydata=y)
+        x = self.convert_xunits(x)
+        y = self.convert_yunits(y)
 
         # defaults for formats
         if linefmt is None:
@@ -2763,15 +2773,31 @@ class Axes(_AxesBase):
         else:
             basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
+        # New behaviour in 3.1 is to use a LineCollection for the stemlines
+        if use_line_collection:
+            stemlines = []
+            stemlines = [((xi, bottom), (xi, yi)) for xi, yi in zip(x, y)]
+            stemlines = mcoll.LineCollection(stemlines, linestyles=linestyle,
+                                             colors=linecolor,
+                                             label='_nolegend_')
+            self.add_collection(stemlines)
+        # Old behaviour is to plot each of the lines individually
+        else:
+            cbook._warn_external(
+                'In Matplotlib 3.3 individual lines on a stem plot will be '
+                'added as a LineCollection instead of individual lines. '
+                'This significantly improves the performance of a stem plot. '
+                'To remove this warning and switch to the new behaviour, '
+                'set the "use_line_collection" keyword argument to True.')
+            stemlines = []
+            for xi, yi in zip(x, y):
+                l, = self.plot([xi, xi], [bottom, yi],
+                               color=linecolor, linestyle=linestyle,
+                               marker=linemarker, label="_nolegend_")
+                stemlines.append(l)
+
         markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
                                 marker=markermarker, label="_nolegend_")
-
-        stemlines = []
-        for thisx, thisy in zip(x, y):
-            l, = self.plot([thisx, thisx], [bottom, thisy],
-                           color=linecolor, linestyle=linestyle,
-                           marker=linemarker, label="_nolegend_")
-            stemlines.append(l)
 
         baseline, = self.plot([np.min(x), np.max(x)], [bottom, bottom],
                               color=basecolor, linestyle=basestyle,
@@ -2780,7 +2806,6 @@ class Axes(_AxesBase):
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
         self.add_container(stem_container)
-
         return stem_container
 
     @_preprocess_data(replace_names=["x", "explode", "labels", "colors"])

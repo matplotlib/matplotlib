@@ -589,8 +589,11 @@ class HandlerStem(HandlerNpointsYoffsets):
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
                        trans):
-
         markerline, stemlines, baseline = orig_handle
+        # Check to see if the stemcontainer is storing lines as a list or a
+        # LineCollection. Eventually using a list will be removed, and this
+        # logic can also be removed.
+        using_linecoll = isinstance(stemlines, mcoll.LineCollection)
 
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
                                              width, height, fontsize)
@@ -609,22 +612,42 @@ class HandlerStem(HandlerNpointsYoffsets):
         leg_stemlines = [Line2D([x, x], [bottom, y])
                          for x, y in zip(xdata_marker, ydata)]
 
-        for lm, m in zip(leg_stemlines, stemlines):
-            self.update_prop(lm, m, legend)
+        if using_linecoll:
+            # change the function used by update_prop() from the default
+            # to one that handles LineCollection
+            orig_update_func = self._update_prop_func
+            self._update_prop_func = self._copy_collection_props
+
+            for line in leg_stemlines:
+                self.update_prop(line, stemlines, legend)
+
+        else:
+            for lm, m in zip(leg_stemlines, stemlines):
+                self.update_prop(lm, m, legend)
+
+        if using_linecoll:
+            self._update_prop_func = orig_update_func
 
         leg_baseline = Line2D([np.min(xdata), np.max(xdata)],
                               [bottom, bottom])
-
         self.update_prop(leg_baseline, baseline, legend)
 
-        artists = [leg_markerline]
-        artists.extend(leg_stemlines)
+        artists = leg_stemlines
         artists.append(leg_baseline)
+        artists.append(leg_markerline)
 
         for artist in artists:
             artist.set_transform(trans)
 
         return artists
+
+    def _copy_collection_props(self, legend_handle, orig_handle):
+        """
+        Method to copy properties from a LineCollection (orig_handle) to a
+        Line2D (legend_handle).
+        """
+        legend_handle.set_color(orig_handle.get_color()[0])
+        legend_handle.set_linestyle(orig_handle.get_linestyle()[0])
 
 
 class HandlerTuple(HandlerBase):

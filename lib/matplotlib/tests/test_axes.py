@@ -3143,6 +3143,28 @@ def test_hist_stacked_weighted():
     ax.hist((d1, d2), weights=(w1, w2), histtype="stepfilled", stacked=True)
 
 
+@pytest.mark.parametrize("use_line_collection", [True, False],
+                         ids=['w/ line collection', 'w/o line collection'])
+@image_comparison(baseline_images=['stem'], extensions=['png'], style='mpl20',
+                  remove_text=True)
+def test_stem(use_line_collection):
+    x = np.linspace(0.1, 2 * np.pi, 100)
+    args = (x, np.cos(x))
+    # Label is a single space to force a legend to be drawn, but to avoid any
+    # text being drawn
+    kwargs = dict(linefmt='C2-.', markerfmt='k+', basefmt='C1-.',
+                  label=' ', use_line_collection=use_line_collection)
+
+    fig, ax = plt.subplots()
+    if use_line_collection:
+        ax.stem(*args, **kwargs)
+    else:
+        with pytest.warns(UserWarning):
+            ax.stem(*args, **kwargs)
+
+    ax.legend()
+
+
 def test_stem_args():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
