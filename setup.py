@@ -165,9 +165,12 @@ def _download_jquery_to(dest):
 
 
 # Relying on versioneer's implementation detail.
-class sdist_with_jquery(cmdclass['sdist']):
+_orgin_sdist = cmdclass['sdist']
+
+
+class sdist_with_jquery(_orgin_sdist):
     def make_release_tree(self, base_dir, files):
-        super(sdist_with_jquery, self).make_release_tree(base_dir, files)
+        _orgin_sdist.make_release_tree(self, base_dir, files)
         _download_jquery_to(
             os.path.join(base_dir, "lib/matplotlib/backends/web_backend/"))
 
@@ -175,14 +178,14 @@ class sdist_with_jquery(cmdclass['sdist']):
 # Affects install and bdist_wheel.
 class install_lib_with_jquery(InstallLibCommand):
     def run(self):
-        super(install_lib_with_jquery, self).run()
+        InstallLibCommand.run(self)
         _download_jquery_to(
             os.path.join(self.install_dir, "matplotlib/backends/web_backend/"))
 
 
 class develop_with_jquery(DevelopCommand):
     def run(self):
-        super(develop_with_jquery, self).run()
+        DevelopCommand.run(self)
         _download_jquery_to("lib/matplotlib/backends/web_backend/")
 
 
