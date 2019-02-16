@@ -32,6 +32,7 @@ import textwrap
 
 import versioneer
 import warnings
+import contextlib
 
 if sys.version_info < (3, ):
     from urllib2 import urlopen, Request
@@ -144,8 +145,8 @@ def download_or_cache(url, sha):
     # jQueryUI's website blocks direct downloads from urllib.request's
     # default User-Agent, but not (for example) wget; so I don't feel too
     # bad passing in an empty User-Agent.
-    with urlopen(
-            Request(url, headers={"User-Agent": ""})) as req:
+    with contextlib.closing(urlopen(
+            Request(url, headers={"User-Agent": ""}))) as req:
         file_contents = BytesIO(req.read())
         file_contents.seek(0)
 
