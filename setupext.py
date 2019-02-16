@@ -1317,11 +1317,10 @@ if errorlevel 1 (
   copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
 )
 """
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
+            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64
             # Note: freetype has no build profile for 2014, so we don't bother...
             vc = 'vc2010' if VS2010 else 'vc2008'
             WinXX = 'x64' if X64 else 'Win32'
-            tar_extract(tarball_path, "build")
             # This is only false for py2.7, even on py3.5...
             if not VS2010:
                 fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
