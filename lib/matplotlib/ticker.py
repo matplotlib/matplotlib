@@ -2647,9 +2647,9 @@ class AutoMinorLocator(Locator):
         mod = np.abs((locs - t0) % majorstep)
         cond1 = mod > minorstep / 10.0
         cond2 = ~np.isclose(mod, majorstep, atol=0)
-        locs = locs.compress(cond1 & cond2)
+        locs = locs[cond1 & cond2]
 
-        return self.raise_if_exceeds(np.array(locs))
+        return self.raise_if_exceeds(locs)
 
     def tick_values(self, vmin, vmax):
         raise NotImplementedError('Cannot get tick locations for a '

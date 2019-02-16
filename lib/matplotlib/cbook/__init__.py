@@ -1311,14 +1311,14 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             hival = np.percentile(x, whis[1])
 
         # get high extreme
-        wiskhi = np.compress(x <= hival, x)
+        wiskhi = x[x <= hival]
         if len(wiskhi) == 0 or np.max(wiskhi) < q3:
             stats['whishi'] = q3
         else:
             stats['whishi'] = np.max(wiskhi)
 
         # get low extreme
-        wisklo = np.compress(x >= loval, x)
+        wisklo = x[x >= loval]
         if len(wisklo) == 0 or np.min(wisklo) > q1:
             stats['whislo'] = q1
         else:
@@ -1326,8 +1326,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
         # compute a single array of outliers
         stats['fliers'] = np.hstack([
-            np.compress(x < stats['whislo'], x),
-            np.compress(x > stats['whishi'], x)
+            x[x < stats['whislo']],
+            x[x > stats['whishi']],
         ])
 
         # add in the remaining stats

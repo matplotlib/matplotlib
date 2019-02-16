@@ -112,7 +112,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
             C = C[maskedTris].mean(axis=1)
         elif tri.mask is not None:
             # Remove color values of masked triangles.
-            C = C.compress(1-tri.mask)
+            C = C[~tri.mask]
 
         collection = PolyCollection(verts, **kwargs)
 

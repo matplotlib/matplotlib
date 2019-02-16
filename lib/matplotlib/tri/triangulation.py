@@ -117,7 +117,7 @@ class Triangulation(object):
         Return an array of triangles that are not masked.
         """
         if self.mask is not None:
-            return self.triangles.compress(1 - self.mask, axis=0)
+            return self.triangles[~self.mask]
         else:
             return self.triangles
 
