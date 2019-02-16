@@ -31,7 +31,6 @@ if __name__ == '__main__':
 from io import BytesIO
 import os
 from string import Template
-import urllib.request
 from zipfile import ZipFile
 
 from setuptools import setup
