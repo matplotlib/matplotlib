@@ -1170,8 +1170,8 @@ class FreeType(SetupPackage):
                 tar_contents = download_or_cache(tarball_url,
                                                  LOCAL_FREETYPE_HASH)
                 break
-            except Exception as ex:
-                raise ex
+            except Exception:
+                pass
         else:
             raise IOError("Failed to download FreeType.  Please download " +
                           "one of {target_urls} ".format(
