@@ -86,6 +86,8 @@ The following attributes can be customized (use the ``set_xxx`` methods):
 # angles are given in data coordinate - need to convert it to canvas coordinate
 
 
+from operator import methodcaller
+
 import numpy as np
 
 from matplotlib import cbook, rcParams
@@ -159,34 +161,31 @@ class UnimplementedException(Exception):
 
 
 class AttributeCopier:
+    @cbook.deprecated("3.2")
     def __init__(self, ref_artist, klass=Artist):
         self._klass = klass
         self._ref_artist = ref_artist
         super().__init__()
 
+    @cbook.deprecated("3.2")
     def set_ref_artist(self, artist):
         self._ref_artist = artist
 
     def get_ref_artist(self):
+        """
+        Return the underlying artist that actually defines some properties
+        (e.g., color) of this artist.
+        """
         raise RuntimeError("get_ref_artist must overridden")
-    #return self._ref_artist
 
-    def get_attribute_from_ref_artist(self, attr_name, default_value):
-        get_attr_method_name = "get_"+attr_name
-        c = getattr(self._klass, get_attr_method_name)(self)
-        if c == 'auto':
-            ref_artist = self.get_ref_artist()
-            if ref_artist:
-                attr = getattr(ref_artist,
-                               get_attr_method_name)()
-                return attr
-            else:
-                return default_value
-
-        return c
+    @cbook._delete_parameter("3.2", "default_value")
+    def get_attribute_from_ref_artist(self, attr_name, default_value=None):
+        getter = methodcaller("get_" + attr_name)
+        prop = getter(super())
+        return getter(self.get_ref_artist()) if prop == "auto" else prop
 
 
-class Ticks(Line2D, AttributeCopier):
+class Ticks(AttributeCopier, Line2D):
     """
     Ticks are derived from Line2D, and note that ticks themselves
     are markers. Thus, you should use set_mec, set_mew, etc.
@@ -211,23 +210,20 @@ class Ticks(Line2D, AttributeCopier):
                 kwargs["markeredgewidth"] = "auto"
 
         Line2D.__init__(self, [0.], [0.], **kwargs)
-        AttributeCopier.__init__(self, self._axis, klass=Line2D)
         self.set_snap(True)
 
     def get_ref_artist(self):
-        return self._ref_artist.majorTicks[0].tick1line
+        # docstring inherited
+        return self._axis.majorTicks[0].tick1line
 
     def get_color(self):
-        return self.get_attribute_from_ref_artist("color", "k")
+        return self.get_attribute_from_ref_artist("color")
 
     def get_markeredgecolor(self):
-        if self._markeredgecolor == 'auto':
-            return self.get_color()
-        else:
-            return self._markeredgecolor
+        return self.get_attribute_from_ref_artist("markeredgecolor")
 
     def get_markeredgewidth(self):
-        return self.get_attribute_from_ref_artist("markeredgewidth", .5)
+        return self.get_attribute_from_ref_artist("markeredgewidth")
 
     def set_tick_out(self, b):
         """
@@ -401,7 +397,7 @@ class LabelBase(mtext.Text):
         return bbox
 
 
-class AxisLabel(LabelBase, AttributeCopier):
+class AxisLabel(AttributeCopier, LabelBase):
     """
     Axis Label. Derived from Text. The position of the text is updated
     in the fly, so changing text position has no effect. Otherwise, the
@@ -411,11 +407,8 @@ class AxisLabel(LabelBase, AttributeCopier):
     """
 
     def __init__(self, *args, axis_direction="bottom", axis=None, **kwargs):
-
         self._axis = axis
         LabelBase.__init__(self, *args, **kwargs)
-        AttributeCopier.__init__(self, self._axis, klass=LabelBase)
-
         self.set_axis_direction(axis_direction)
         self._pad = 5
         self._extra_pad = 0
@@ -449,6 +442,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         return self._extra_pad
 
     def get_ref_artist(self):
+        # docstring inherited
         return self._axis.get_label()
 
     def get_text(self):
@@ -501,7 +495,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         self.set_default_angle(d)
 
     def get_color(self):
-        return self.get_attribute_from_ref_artist("color", "k")
+        return self.get_attribute_from_ref_artist("color")
 
     def draw(self, renderer):
         if not self.get_visible():
@@ -526,7 +520,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         return bb
 
 
-class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
+class TickLabels(AxisLabel):  # mtext.Text
     """
     Tick Labels. While derived from Text, this single artist draws all
     ticklabels. As in AxisLabel, the position of the text is updated
@@ -543,8 +537,8 @@ class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
         self.set_axis_direction(axis_direction)
         self._axislabel_pad = 0
 
-    # attribute copier
     def get_ref_artist(self):
+        # docstring inherited
         return self._axis.get_ticklabels()[0]
 
     def set_axis_direction(self, label_direction):
