@@ -5,19 +5,54 @@ from importlib import import_module
 from distutils import sysconfig
 from distutils import version
 from distutils.core import Extension
+import hashlib
+
 import distutils.command.build_ext
+from io import BytesIO
+
 import glob
 import multiprocessing
 import os
 import platform
+
 import re
+
+import setuptools
+import shutil
+
 import subprocess
 from subprocess import check_output
 import sys
 import warnings
 from textwrap import fill
 import shutil
+
+import tarfile
+import textwrap
+
 import versioneer
+import warnings
+import contextlib
+
+if sys.version_info < (3, ):
+    from urllib2 import urlopen, Request
+
+    class FileExistsError(OSError):
+        pass
+
+    def makedirs(path, exist_ok=True):
+        if not exist_ok:
+            raise ValueError("this backport only supports exist_ok is True")
+        if not path or os.path.exists(path):
+            return
+        head, tail = os.path.split(path)
+
+        makedirs(head, exist_ok=True)
+        os.makedirs(path)
+
+else:
+    from urllib.request import urlopen, Request
+    from os import makedirs
 
 
 PY3min = (sys.version_info[0] >= 3)
@@ -35,6 +70,101 @@ def _get_xdg_cache_dir():
         if cache_dir.startswith('~/'):  # Expansion failed.
             return None
     return os.path.join(cache_dir, 'matplotlib')
+
+
+def get_fd_hash(fd):
+    """
+    Compute the sha256 hash of the bytes in a file-like
+    """
+    BLOCKSIZE = 1 << 16
+    hasher = hashlib.sha256()
+    old_pos = fd.tell()
+    fd.seek(0)
+    buf = fd.read(BLOCKSIZE)
+    while buf:
+        hasher.update(buf)
+        buf = fd.read(BLOCKSIZE)
+    fd.seek(old_pos)
+    return hasher.hexdigest()
+
+
+def download_or_cache(url, sha):
+    """
+    Get bytes from the given url or local cache.
+
+    Parameters
+    ----------
+    url : str
+        The url to download
+
+    sha : str
+        The sha256 of the file
+
+    Returns
+    -------
+    BytesIO
+        The file loaded into memory.
+    """
+    cache_dir = _get_xdg_cache_dir()
+
+    def get_from_cache(local_fn):
+        if cache_dir is None:
+            raise Exception("no cache dir")
+        cache_filename = os.path.join(cache_dir, local_fn)
+        with open(cache_filename, 'rb') as fin:
+            buf = BytesIO(fin.read())
+        file_sha = get_fd_hash(buf)
+        if file_sha != sha:
+            return None
+        buf.seek(0)
+        return buf
+
+    def write_cache(local_fn, data):
+        if cache_dir is None:
+            raise Exception("no cache dir")
+
+        cache_filename = os.path.join(cache_dir, local_fn)
+        makedirs(cache_dir, exist_ok=True)
+        if sys.version_info < (3, ):
+            if os.path.exists(cache_filename):
+                raise FileExistsError
+            mode = 'wb'
+        else:
+            mode = 'xb'
+        old_pos = data.tell()
+        data.seek(0)
+        with open(cache_filename, mode=mode) as fout:
+            fout.write(data.read())
+        data.seek(old_pos)
+
+    try:
+        return get_from_cache(sha)
+    except Exception:
+        pass
+
+    # jQueryUI's website blocks direct downloads from urllib.request's
+    # default User-Agent, but not (for example) wget; so I don't feel too
+    # bad passing in an empty User-Agent.
+    with contextlib.closing(urlopen(
+            Request(url, headers={"User-Agent": ""}))) as req:
+        file_contents = BytesIO(req.read())
+        file_contents.seek(0)
+
+    file_sha = get_fd_hash(file_contents)
+
+    if file_sha != sha:
+        raise Exception(("The download file does not match the "
+                         "expected sha.  {url} was expected to have "
+                         "{sha} but it had {file_sha}").format(
+                             sha=sha, file_sha=file_sha, url=url))
+
+    try:
+        write_cache(sha, file_contents)
+    except Exception:
+        pass
+
+    file_contents.seek(0)
+    return file_contents
 
 
 # SHA256 hashes of the FreeType tarballs
@@ -278,18 +408,14 @@ def make_extension(name, files, *args, **kwargs):
     return ext
 
 
-def get_file_hash(filename):
-    """
-    Get the SHA256 hash of a given filename.
-    """
-    import hashlib
+def get_buffer_hash(fd):
     BLOCKSIZE = 1 << 16
     hasher = hashlib.sha256()
-    with open(filename, 'rb') as fd:
+    buf = fd.read(BLOCKSIZE)
+    while buf:
+        hasher.update(buf)
         buf = fd.read(BLOCKSIZE)
-        while len(buf) > 0:
-            hasher.update(buf)
-            buf = fd.read(BLOCKSIZE)
+
     return hasher.hexdigest()
 
 
@@ -1128,90 +1254,46 @@ class FreeType(SetupPackage):
 
         if os.path.isfile(os.path.join(src_path, 'objs', '.libs', libfreetype)):
             return
+        if not os.path.exists('build'):
+            os.makedirs('build')
 
+        url_fmts = [
+            ('https://downloads.sourceforge.net/project/freetype'
+             '/freetype2/{version}/{tarball}'),
+            ('https://download.savannah.gnu.org/releases/freetype'
+             '/{tarball}')
+        ]
         tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
-        tarball_path = os.path.join('build', tarball)
-        try:
-            tarball_cache_dir = _get_xdg_cache_dir()
-            tarball_cache_path = os.path.join(tarball_cache_dir, tarball)
-        except:
-            # again, do not really care if this fails
-            tarball_cache_dir = None
-            tarball_cache_path = None
-        if not os.path.isfile(tarball_path):
-            if (tarball_cache_path is not None and
-                    os.path.isfile(tarball_cache_path)):
-                if get_file_hash(tarball_cache_path) == LOCAL_FREETYPE_HASH:
-                    try:
-                        os.makedirs('build')
-                    except OSError:
-                        # Don't care if it exists.
-                        pass
-                    try:
-                        shutil.copy(tarball_cache_path, tarball_path)
-                        print('Using cached tarball: {}'
-                              .format(tarball_cache_path))
-                    except OSError:
-                        # If this fails, oh well just re-download
-                        pass
 
-            if not os.path.isfile(tarball_path):
-                if PY3min:
-                    from urllib.request import urlretrieve
-                else:
-                    from urllib import urlretrieve
+        target_urls = [
+            url_fmt.format(version=LOCAL_FREETYPE_VERSION,
+                           tarball=tarball)
+            for url_fmt in url_fmts]
 
-                if not os.path.exists('build'):
-                    os.makedirs('build')
+        for tarball_url in target_urls:
+            try:
+                tar_contents = download_or_cache(tarball_url,
+                                                 LOCAL_FREETYPE_HASH)
+                break
+            except Exception:
+                pass
+        else:
+            raise IOError("Failed to download FreeType.  Please download " +
+                          "one of {target_urls} ".format(
+                              target_urls=target_urls) +
+                          "and extract it into the build directory "
+                          "at the top-level of the source repository")
 
-                url_fmts = [
-                    'https://downloads.sourceforge.net/project/freetype'
-                    '/freetype2/{version}/{tarball}',
-                    'https://download.savannah.gnu.org/releases/freetype'
-                    '/{tarball}'
-                ]
-                for url_fmt in url_fmts:
-                    tarball_url = url_fmt.format(
-                        version=LOCAL_FREETYPE_VERSION, tarball=tarball)
-
-                    print("Downloading {0}".format(tarball_url))
-                    try:
-                        urlretrieve(tarball_url, tarball_path)
-                    except IOError:  # URLError (a subclass) on Py3.
-                        print("Failed to download {0}".format(tarball_url))
-                    else:
-                        if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
-                            print("Invalid hash.")
-                        else:
-                            break
-                else:
-                    raise IOError("Failed to download freetype. "
-                                  "You can download the file by "
-                                  "alternative means and copy it "
-                                  " to '{0}'".format(tarball_path))
-                try:
-                    os.makedirs(tarball_cache_dir)
-                except OSError:
-                    # Don't care if it exists.
-                    pass
-                try:
-                    shutil.copy(tarball_path, tarball_cache_path)
-                    print('Cached tarball at: {}'.format(tarball_cache_path))
-                except OSError:
-                    # If this fails, we can always re-download.
-                    pass
-
-            if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
-                raise IOError(
-                    "{0} does not match expected hash.".format(tarball))
+        print("Building {}".format(tarball))
+        tar_contents.seek(0)
+        with tarfile.open(tarball, mode="r:gz", fileobj=tar_contents) as tgz:
+            tgz.extractall("build")
 
         print("Building {0}".format(tarball))
         if sys.platform != 'win32':
             # compilation on all other platforms than windows
             cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
 
-            subprocess.check_call(
-                ['tar', 'zxf', tarball], cwd='build')
             subprocess.check_call(
                 [cflags + './configure --with-zlib=no --with-bzip2=no '
                  '--with-png=no --with-harfbuzz=no'], shell=True, cwd=src_path)
@@ -1235,11 +1317,10 @@ if errorlevel 1 (
   copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
 )
 """
-            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
+            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64
             # Note: freetype has no build profile for 2014, so we don't bother...
             vc = 'vc2010' if VS2010 else 'vc2008'
             WinXX = 'x64' if X64 else 'Win32'
-            tar_extract(tarball_path, "build")
             # This is only false for py2.7, even on py3.5...
             if not VS2010:
                 fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
