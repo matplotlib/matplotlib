@@ -1,0 +1,8 @@
+`Collection` gained the ``c`` alias for the ``color`` property
+``````````````````````````````````````````````````````````````
+
+For consistency with functions returning `Line2D`\s (e.g. `~Axes.plot`), the
+color of the artists returned by functions returning `Collection` subclasses
+(e.g. `~Axes.fill_between`) can now be set using the ``c`` shorthand (e.g.
+``ax.fill_between(..., c="red")``) -- except for `~Axes.scatter`, which already
+has a ``c`` parameter.

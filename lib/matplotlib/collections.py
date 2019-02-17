@@ -21,6 +21,7 @@ import warnings
 
 @cbook._define_aliases({
     "antialiased": ["antialiaseds", "aa"],
+    "color": ["c"],
     "edgecolor": ["edgecolors", "ec"],
     "facecolor": ["facecolors", "fc"],
     "linestyle": ["linestyles", "dashes", "ls"],
