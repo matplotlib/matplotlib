@@ -63,12 +63,14 @@ Update and Validate the Docs
 
 Before tagging, update the "what's new" and "API changes" listings.
 
+for the "what's new"
+
  1. copy the current content to a file in :file:`doc/users/prev_whats_new`
  2. merge all of the files in :file:`doc/users/next_whats_new/` into
     :file:`doc/users/whats_new.rst` and delete the individual files
  3. comment out the next whats new glob at the top
 
-Similarly for the API changes
+Similarly for the "API changes"
 
  1. copy the current api changes to a file is :file:`doc/api/prev_api_changes`
  2. merge all of the files in :file:`doc/api/next_api_changes/` into
