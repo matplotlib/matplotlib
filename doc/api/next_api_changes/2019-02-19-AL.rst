@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+The unused `Locator.autoscale()` method is deprecated (pass the axis limits to
+`Locator.view_limits()` instead).

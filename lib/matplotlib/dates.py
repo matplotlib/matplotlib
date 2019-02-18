@@ -1196,6 +1196,7 @@ class RRuleLocator(DateLocator):
     def _get_interval(self):
         return self.rule._rrule._interval
 
+    @cbook.deprecated("3.2")
     def autoscale(self):
         """
         Set the view limits to include the data range.
@@ -1355,6 +1356,7 @@ class AutoDateLocator(DateLocator):
         else:
             return RRuleLocator.get_unit_generic(self._freq)
 
+    @cbook.deprecated("3.2")
     def autoscale(self):
         'Try to choose the view limits intelligently.'
         dmin, dmax = self.datalim_to_dt()
@@ -1531,6 +1533,7 @@ class YearLocator(DateLocator):
 
             ticks.append(dt)
 
+    @cbook.deprecated("3.2")
     def autoscale(self):
         """
         Set the view limits to include the data range.

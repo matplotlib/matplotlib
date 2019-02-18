@@ -225,6 +225,7 @@ class ThetaLocator(mticker.Locator):
         else:
             return np.deg2rad(self.base())
 
+    @cbook.deprecated("3.2")
     def autoscale(self):
         return self.base.autoscale()
 
@@ -414,6 +415,7 @@ class RadialLocator(mticker.Locator):
         else:
             return [tick for tick in self.base() if tick > rorigin]
 
+    @cbook.deprecated("3.2")
     def autoscale(self):
         return self.base.autoscale()
 
