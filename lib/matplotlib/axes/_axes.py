@@ -6410,10 +6410,11 @@ optional.
         """
         Plot a histogram.
 
-        Compute and draw the histogram of *x*. The return value is a
-        tuple (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
-        [*patches0*, *patches1*,...]) if the input contains multiple
-        data.
+        Compute and draw the histogram of *x*.  The return value is a tuple
+        (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*, [*patches0*,
+        *patches1*,...]) if the input contains multiple data.  See the
+        documentation of the *weights* parameter to draw a histogram of
+        already-binned data.
 
         Multiple data can be provided via *x* as a list of datasets
         of potentially different length ([*x0*, *x1*, ...]), or as
@@ -6487,7 +6488,16 @@ optional.
             the weights are normalized, so that the integral of the density
             over the range remains 1.
 
-            Default is ``None``
+            Default is ``None``.
+
+            This parameter can be used to draw a histogram of data that has
+            already been binned, e.g. using `np.histogram` (by treating each
+            bin as a single point with a weight equal to its count) ::
+
+                counts, bins = np.histogram(data)
+                plt.hist(bins[:-1], bins, weights=counts)
+
+            (or you may alternatively use `~.bar()`).
 
         cumulative : bool, optional
             If ``True``, then a histogram is computed where each bin gives the
