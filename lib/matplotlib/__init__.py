@@ -206,48 +206,43 @@ if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
 
-_verbose_msg = """\
-matplotlib.verbose is deprecated;
-Command line argument --verbose-LEVEL is deprecated.
-This functionality is now provided by the standard
-python logging library.  To get more (or less) logging output:
-    import logging
-    logger = logging.getLogger('matplotlib')
-    logger.set_level(logging.INFO)"""
-
-
-def _set_logger_verbose_level(level_str='silent', file_str='sys.stdout'):
+# The decorator ensures this always returns the same handler (and it is only
+# attached once).
+@functools.lru_cache()
+def _ensure_handler():
     """
-    Use a --verbose-LEVEL level to set the logging level:
+    The first time this function is called, attach a `StreamHandler` using the
+    same format as `logging.basicConfig` to the Matplotlib root logger.
 
+    Return this handler every time this function is called.
     """
-    levelmap = {'silent': logging.WARNING, 'helpful': logging.INFO,
-                'debug': logging.DEBUG, 'debug-annoying': logging.DEBUG,
-                'info': logging.INFO, 'warning': logging.WARNING}
-    # Check that current state of logger isn't already more verbose
-    # than the requested level.  If it is more verbose, then leave more
-    # verbose.
-    newlev = levelmap[level_str]
-    oldlev = _log.getEffectiveLevel()
-    if newlev < oldlev:
-        _log.setLevel(newlev)
-        std = {
-            'sys.stdout': sys.stdout,
-            'sys.stderr': sys.stderr,
-        }
-        if file_str in std:
-            fileo = std[file_str]
-        else:
-            fileo = sys.stdout
-            try:
-                fileo = open(file_str, 'w')
-                # if this fails, we will just write to stdout
-            except IOError:
-                _log.warning('could not open log file "{0}" for writing. '
-                             'Check your matplotlibrc'.format(file_str))
-        console = logging.StreamHandler(fileo)
-        console.setLevel(newlev)
-        _log.addHandler(console)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
+    _log.addHandler(handler)
+    return handler
+
+
+def set_loglevel(level):
+    """
+    Sets the Matplotlib's root logger and root logger handler level, creating
+    the handler if it does not exist yet.
+
+    Typically, one should call ``set_loglevel("info")`` or
+    ``set_loglevel("debug")`` to get additional debugging information.
+
+    Parameters
+    ----------
+    level : {"notset", "debug", "info", "warning", "error", "critical"}
+        The log level of the handler.
+
+    Notes
+    -----
+    The first time this function is called, an additional handler is attached
+    to Matplotlib's root handler; this handler is reused every time and this
+    function simply manipulates the logger and handler's level.
+    """
+    _log.setLevel(level.upper())
+    _ensure_handler().setLevel(level.upper())
 
 
 def _logged_cached(fmt, func=None):
