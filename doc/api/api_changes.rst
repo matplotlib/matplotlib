@@ -20,10 +20,13 @@ This pages lists API changes for the most recent version of Matplotlib.
 
 .. note::
 
-  The list below is a table of contents of individual files from the 'next_api_changes' folder.
-  When a release is made
+   The list below is a table of contents of individual files from the
+   'next_api_changes' folder.
 
-    - The full text list below should be moved into its own file in 'prev_api_changes'
+   When a release is made
+
+    - The full text list below should be moved into its own file in
+      'prev_api_changes'
     - All the files in 'next_api_changes' should be moved to the bottom of this page
     - This note, and the toctree below should be commented out
 
