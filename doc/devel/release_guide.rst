@@ -199,7 +199,7 @@ The auto-tick bot should open a pull request into the `conda-forge
 feedstock <https://github.com/conda-forge/matplotlib-feedstock>`__.
 Review and merge (if you have the power to).
 
-.. warning
+.. warning::
 
    Because this is automated, it is extremely important to bump all branches
    away from the tag as discussed in :ref:`release_tag`.
