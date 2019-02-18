@@ -1149,21 +1149,17 @@ class Axis(martist.Artist):
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
         self.offsetText.set_text(self.major.formatter.get_offset())
 
-        bb = []
-
-        for a in [self.label, self.offsetText]:
-            bbox = a.get_window_extent(renderer)
-            if (np.isfinite(bbox.width) and np.isfinite(bbox.height) and
-                    a.get_visible()):
-                bb.append(bbox)
-        bb.extend(ticklabelBoxes)
-        bb.extend(ticklabelBoxes2)
-        bb = [b for b in bb if ((b.width != 0 or b.height != 0) and
-                                np.isfinite(b.width) and
-                                np.isfinite(b.height))]
-        if bb:
-            _bbox = mtransforms.Bbox.union(bb)
-            return _bbox
+        bboxes = [
+            *(a.get_window_extent(renderer)
+              for a in [self.label, self.offsetText]
+              if a.get_visible()),
+            *ticklabelBoxes,
+            *ticklabelBoxes2,
+        ]
+        bboxes = [b for b in bboxes
+                  if 0 < b.width < np.inf and 0 < b.height < np.inf]
+        if bboxes:
+            return mtransforms.Bbox.union(bboxes)
         else:
             return None
 
