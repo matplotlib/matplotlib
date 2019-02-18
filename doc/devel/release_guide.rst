@@ -6,9 +6,13 @@
  Release Guide
 ===============
 
-A guide for developers who are doing a matplotlib release.
 
-.. note
+.. admonition::  This document is only relevant for matplotlib release managers.
+
+   A guide for developers who are doing a matplotlib release.
+
+
+.. note::
 
    This assumes that a read-only remote for the canonical repository is
    ``remote`` and a read/write remote is ``DANGER``
