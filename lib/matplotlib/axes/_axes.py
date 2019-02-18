@@ -3884,70 +3884,38 @@ class Axes(_AxesBase):
             zorder = mlines.Line2D.zorder
 
         zdelta = 0.1
+
+        def with_rcdefaults(subkey, explicit, zdelta=0):
+            d = {k.split('.')[-1]: v for k, v in rcParams.items()
+                 if k.startswith(f'boxplot.{subkey}')}
+            d['zorder'] = zorder + zdelta
+            if explicit is not None:
+                d.update(explicit)
+            return d
+
         # box properties
-        final_boxprops = dict(
-            linestyle=rcParams['boxplot.boxprops.linestyle'],
-            linewidth=rcParams['boxplot.boxprops.linewidth'],
-        )
         if patch_artist:
-            final_boxprops.update(
+            final_boxprops = dict(
+                linestyle=rcParams['boxplot.boxprops.linestyle'],
+                linewidth=rcParams['boxplot.boxprops.linewidth'],
                 edgecolor=rcParams['boxplot.boxprops.color'],
                 facecolor=('white' if rcParams['_internal.classic_mode'] else
                            rcParams['patch.facecolor']),
+                zorder=zorder,
             )
+            if boxprops is not None:
+                final_boxprops.update(boxprops)
         else:
-            final_boxprops.update(
-                color=rcParams['boxplot.boxprops.color'],
-            )
-
-        final_boxprops['zorder'] = zorder
-        if boxprops is not None:
-            final_boxprops.update(boxprops)
-
-        # whisker properties
-        final_whiskerprops = {
-            k.split('.')[-1]: v for k, v in rcParams.items()
-            if k.startswith('boxplot.whiskerprops')
-        }
-        final_whiskerprops['zorder'] = zorder
-        if whiskerprops is not None:
-            final_whiskerprops.update(whiskerprops)
-        # cap properties
-        final_capprops = {
-            k.split('.')[-1]: v for k, v in rcParams.items()
-            if k.startswith('boxplot.capprops')
-        }
-        final_capprops['zorder'] = zorder
-        if capprops is not None:
-            final_capprops.update(capprops)
-        # flier properties
-        final_flierprops = {
-            k.split('.')[-1]: v for k, v in rcParams.items()
-            if k.startswith('boxplot.flierprops')
-        }
-        final_flierprops['zorder'] = zorder
-        if flierprops is not None:
-            final_flierprops.update(flierprops)
-        # median line properties
-        final_medianprops = {
-            k.split('.')[-1]: v for k, v in rcParams.items()
-            if k.startswith('boxplot.medianprops')
-        }
-        final_medianprops['zorder'] = zorder + zdelta
-        if medianprops is not None:
-            final_medianprops.update(medianprops)
-        # mean (line or point) properties
-        final_meanprops = {
-            k.split('.')[-1]: v for k, v in rcParams.items()
-            if k.startswith('boxplot.meanprops')
-        }
-        if meanline:
-            final_meanprops['marker'] = ''
-        else:
-            final_meanprops['linestyle'] = ''
-        final_meanprops['zorder'] = zorder + zdelta
-        if meanprops is not None:
-            final_meanprops.update(meanprops)
+            final_boxprops = with_rcdefaults('boxprops', boxprops)
+        final_whiskerprops = with_rcdefaults('whiskerprops', whiskerprops)
+        final_capprops = with_rcdefaults('capprops', capprops)
+        final_flierprops = with_rcdefaults('flierprops', flierprops)
+        final_medianprops = with_rcdefaults('medianprops', medianprops, zdelta)
+        final_meanprops = with_rcdefaults('meanprops', meanprops, zdelta)
+        removed_prop = 'marker' if meanline else 'linestyle'
+        # Only remove the property if it's not set explicitly as a parameter.
+        if meanprops is None or removed_prop not in meanprops:
+            final_meanprops[removed_prop] = ''
 
         def to_vc(xs, ys):
             # convert arguments to verts and codes, append (0, 0) (ignored).
