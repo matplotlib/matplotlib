@@ -61,7 +61,7 @@ Review and commit changes.  Some issue/PR titles may not be valid rst (the most 
 Update and Validate the Docs
 ----------------------------
 
-Before tagging, update the "what's new" and API changes listings.
+Before tagging, update the "what's new" and "API changes" listings.
 
  1. copy the current content to a file in :file:`doc/users/prev_whats_new`
  2. merge all of the files in :file:`doc/users/next_whats_new/` into
