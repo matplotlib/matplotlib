@@ -3429,6 +3429,7 @@ class Axes(_AxesBase):
 
         return errorbar_container  # (l0, caplines, barcols)
 
+    @cbook._rename_parameter("3.1", "manage_xticks", "manage_ticks")
     @_preprocess_data()
     def boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
                 positions=None, widths=None, patch_artist=None,
@@ -3437,7 +3438,7 @@ class Axes(_AxesBase):
                 showbox=None, showfliers=None, boxprops=None,
                 labels=None, flierprops=None, medianprops=None,
                 meanprops=None, capprops=None, whiskerprops=None,
-                manage_xticks=True, autorange=False, zorder=None):
+                manage_ticks=True, autorange=False, zorder=None):
         """
         Make a box and whisker plot.
 
@@ -3538,8 +3539,9 @@ class Axes(_AxesBase):
             Labels for each dataset. Length must be compatible with
             dimensions of ``x``.
 
-        manage_xticks : bool, optional (True)
-            If the function should adjust the xlim and xtick locations.
+        manage_ticks : bool, optional (True)
+            If True, the tick locations and labels will be adjusted to match
+            the boxplot positions.
 
         autorange : bool, optional (False)
             When `True` and the data are distributed such that the 25th and
@@ -3729,15 +3731,16 @@ class Axes(_AxesBase):
                            medianprops=medianprops, meanprops=meanprops,
                            meanline=meanline, showfliers=showfliers,
                            capprops=capprops, whiskerprops=whiskerprops,
-                           manage_xticks=manage_xticks, zorder=zorder)
+                           manage_ticks=manage_ticks, zorder=zorder)
         return artists
 
+    @cbook._rename_parameter("3.1", "manage_xticks", "manage_ticks")
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
             showcaps=True, showbox=True, showfliers=True,
             boxprops=None, whiskerprops=None, flierprops=None,
             medianprops=None, capprops=None, meanprops=None,
-            meanline=False, manage_xticks=True, zorder=None):
+            meanline=False, manage_ticks=True, zorder=None):
         """
         Drawing function for box and whisker plots.
 
@@ -3841,11 +3844,12 @@ class Axes(_AxesBase):
           *meanprops*. Not recommended if *shownotches* is also True.
           Otherwise, means will be shown as points.
 
-        manage_xticks : bool, default = True
-          If the function should adjust the xlim and xtick locations.
+        manage_ticks : bool, default = True
+          If True, the tick locations and labels will be adjusted to match the
+          boxplot positions.
 
-        zorder : scalar,  default = None
-          The zorder of the resulting boxplot
+        zorder : scalar, default = None
+          The zorder of the resulting boxplot.
 
         Returns
         -------
@@ -4117,21 +4121,38 @@ class Axes(_AxesBase):
                     flier_x, flier_y, **final_flierprops
                 ))
 
-        # fix our axes/ticks up a little
-        if vert:
-            setticks = self.set_xticks
-            setlim = self.set_xlim
-            setlabels = self.set_xticklabels
-        else:
-            setticks = self.set_yticks
-            setlim = self.set_ylim
-            setlabels = self.set_yticklabels
+        if manage_ticks:
+            axis_name = "x" if vert else "y"
+            interval = getattr(self.dataLim, f"interval{axis_name}")
+            axis = getattr(self, f"{axis_name}axis")
+            positions = axis.convert_units(positions)
+            # The 0.5 additional padding ensures reasonable-looking boxes
+            # even when drawing a single box.  We set the sticky edge to
+            # prevent margins expansion, in order to match old behavior (back
+            # when separate calls to boxplot() would completely reset the axis
+            # limits regardless of what was drawn before).  The sticky edges
+            # are attached to the median lines, as they are always present.
+            interval[:] = (min(interval[0], min(positions) - .5),
+                           max(interval[1], max(positions) + .5))
+            for median, position in zip(medians, positions):
+                getattr(median.sticky_edges, axis_name).extend(
+                    [position - .5, position + .5])
+            # Modified from Axis.set_ticks and Axis.set_ticklabels.
+            locator = axis.get_major_locator()
+            if not isinstance(axis.get_major_locator(),
+                              mticker.FixedLocator):
+                locator = mticker.FixedLocator([])
+                axis.set_major_locator(locator)
+            locator.locs = np.array([*locator.locs, *positions])
+            formatter = axis.get_major_formatter()
+            if not isinstance(axis.get_major_formatter(),
+                              mticker.FixedFormatter):
+                formatter = mticker.FixedFormatter([])
+                axis.set_major_formatter(formatter)
+            formatter.seq = [*formatter.seq, *datalabels]
 
-        if manage_xticks:
-            newlimits = min(positions) - 0.5, max(positions) + 0.5
-            setlim(newlimits)
-            setticks(positions)
-            setlabels(datalabels)
+            self.autoscale_view(
+                scalex=self._autoscaleXon, scaley=self._autoscaleYon)
 
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)

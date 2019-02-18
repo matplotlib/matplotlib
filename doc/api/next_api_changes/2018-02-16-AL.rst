@@ -1,0 +1,11 @@
+API changes
+```````````
+
+The ``manage_xticks`` parameter of `~Axes.boxplot` and `~Axes.bxp` has been
+renamed (with a deprecation period) to ``manage_ticks``, to take into account
+the fact that it manages either x or y ticks depending on the ``vert``
+parameter.
+
+When ``manage_ticks`` is True (the default), these methods now attempt to take
+previously drawn boxplots into account when setting the axis limits, ticks, and
+tick labels.

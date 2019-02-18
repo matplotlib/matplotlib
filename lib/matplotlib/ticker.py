@@ -335,8 +335,7 @@ class NullFormatter(Formatter):
 
 class FixedFormatter(Formatter):
     """
-    Return fixed strings for tick labels based only on position, not
-    value.
+    Return fixed strings for tick labels based only on position, not value.
     """
     def __init__(self, seq):
         """
