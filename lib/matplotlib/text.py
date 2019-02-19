@@ -96,6 +96,7 @@ def _get_textbox(text, renderer):
 
 
 @cbook._define_aliases({
+    "color": ["c"],
     "fontfamily": ["family"],
     "fontproperties": ["font_properties"],
     "horizontalalignment": ["ha"],
