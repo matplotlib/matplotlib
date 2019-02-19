@@ -1252,44 +1252,51 @@ class FreeType(SetupPackage):
         else:
             libfreetype = 'libfreetype.a'
 
-        if os.path.isfile(os.path.join(src_path, 'objs', '.libs', libfreetype)):
+        # bailing because it is already built
+        if os.path.isfile(os.path.join(
+                src_path, 'objs', '.libs', libfreetype)):
             return
-        if not os.path.exists('build'):
-            os.makedirs('build')
 
-        url_fmts = [
-            ('https://downloads.sourceforge.net/project/freetype'
-             '/freetype2/{version}/{tarball}'),
-            ('https://download.savannah.gnu.org/releases/freetype'
-             '/{tarball}')
-        ]
-        tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
+        # do we need to download / load the source from cache?
+        if not os.path.exists(src_path):
+            if not os.path.exists('build'):
+                os.makedirs('build')
 
-        target_urls = [
-            url_fmt.format(version=LOCAL_FREETYPE_VERSION,
-                           tarball=tarball)
-            for url_fmt in url_fmts]
+            url_fmts = [
+                ('https://downloads.sourceforge.net/project/freetype'
+                 '/freetype2/{version}/{tarball}'),
+                ('https://download.savannah.gnu.org/releases/freetype'
+                 '/{tarball}')
+            ]
+            tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
 
-        for tarball_url in target_urls:
-            try:
-                tar_contents = download_or_cache(tarball_url,
-                                                 LOCAL_FREETYPE_HASH)
-                break
-            except Exception:
-                pass
-        else:
-            raise IOError("Failed to download FreeType.  Please download " +
-                          "one of {target_urls} ".format(
-                              target_urls=target_urls) +
-                          "and extract it into the build directory "
-                          "at the top-level of the source repository")
+            target_urls = [
+                url_fmt.format(version=LOCAL_FREETYPE_VERSION,
+                               tarball=tarball)
+                for url_fmt in url_fmts]
 
-        print("Building {}".format(tarball))
-        tar_contents.seek(0)
-        with tarfile.open(tarball, mode="r:gz", fileobj=tar_contents) as tgz:
-            tgz.extractall("build")
+            for tarball_url in target_urls:
+                try:
+                    tar_contents = download_or_cache(tarball_url,
+                                                     LOCAL_FREETYPE_HASH)
+                    break
+                except Exception:
+                    pass
+            else:
+                raise IOError("Failed to download FreeType.  Please download "
+                              "one of {target_urls} and extract it into "
+                              "{src_path} at the top-level of the source "
+                              "repository".format(
+                                  target_urls=target_urls, src_path=src_path))
 
-        print("Building {0}".format(tarball))
+            print("Extracting {}".format(tarball))
+            # just to be sure
+            tar_contents.seek(0)
+            with tarfile.open(tarball, mode="r:gz",
+                              fileobj=tar_contents) as tgz:
+                tgz.extractall("build")
+
+        print("Building freetype in {}".format(src_path))
         if sys.platform != 'win32':
             # compilation on all other platforms than windows
             cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
