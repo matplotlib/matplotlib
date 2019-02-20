@@ -1,6 +1,6 @@
 """
 ===============
-Embedding In Tk
+Embedding in Tk
 ===============
 
 """
