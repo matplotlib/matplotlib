@@ -172,6 +172,8 @@ def to_rgba(c, alpha=None):
     try:
         rgba = _colors_full_map.cache[c, alpha]
     except (KeyError, TypeError):  # Not in cache, or unhashable.
+        rgba = None
+    if rgba is None:  # Suppress exception chaining of cache lookup failure.
         rgba = _to_rgba_no_colorcycle(c, alpha)
         try:
             _colors_full_map.cache[c, alpha] = rgba
