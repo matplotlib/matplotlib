@@ -11,6 +11,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def test_aspect_equal_error():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    with pytest.raises(NotImplementedError):
+        ax.set_aspect('equal')
+
+
 @image_comparison(baseline_images=['bar3d'], remove_text=True)
 def test_bar3d():
     fig = plt.figure()

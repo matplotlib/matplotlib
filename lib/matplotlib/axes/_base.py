@@ -1271,11 +1271,18 @@ class _AxesBase(martist.Artist):
         if not (cbook._str_equal(aspect, 'equal')
                 or cbook._str_equal(aspect, 'auto')):
             aspect = float(aspect)  # raise ValueError if necessary
+
+        if (not cbook._str_equal(aspect, 'auto')) and self.name == '3d':
+            raise NotImplementedError(
+                'It is not currently possible to manually set the aspect '
+                'on 3D axes')
+
         if share:
             axes = set(self._shared_x_axes.get_siblings(self)
                        + self._shared_y_axes.get_siblings(self))
         else:
             axes = [self]
+
         for ax in axes:
             ax._aspect = aspect
 
