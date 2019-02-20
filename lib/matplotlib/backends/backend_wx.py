@@ -75,7 +75,7 @@ class fake_stderr(object):
 PIXELS_PER_INCH = 75
 
 # Delay time for idle checks
-IDLE_DELAY = 5
+IDLE_DELAY = 5  # Documented as deprecated as of Matplotlib 3.1.
 
 
 def error_msg_wx(msg, parent=None):
