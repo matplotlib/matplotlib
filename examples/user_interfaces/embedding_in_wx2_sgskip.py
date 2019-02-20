@@ -1,7 +1,7 @@
 """
-================
-Embedding In Wx2
-================
+==================
+Embedding in wx #2
+==================
 
 An example of how to use wxagg in an application with the new
 toolbar - comment out the add_toolbar line for no toolbar

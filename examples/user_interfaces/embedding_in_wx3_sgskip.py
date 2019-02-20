@@ -1,7 +1,7 @@
 """
-================
-Embedding In Wx3
-================
+==================
+Embedding in wx #3
+==================
 
 Copyright (C) 2003-2004 Andrew Straw, Jeremy O'Donoghue and others
 
