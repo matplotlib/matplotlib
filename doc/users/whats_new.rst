@@ -21,6 +21,21 @@ revision, see the :ref:`github-stats`.
 
    next_whats_new/*
 
+New in Matplotlib 2.2.4
+=======================
+
+
+``:math:`` directive renamed to ``:mathmpl:``
+---------------------------------------------
+
+The ``:math:`` rst role provided by `matplotlib.sphinxext.mathmpl` has been
+renamed to ``:mathmpl:`` to avoid conflicting with the ``:math:`` role that
+Sphinx 1.8 provides by default.  (``:mathmpl:`` uses Matplotlib to render math
+expressions to images embedded in html, whereas Sphinx uses MathJax.)
+
+When using Sphinx<1.8, both names (``:math:`` and ``:mathmpl:``) remain
+available for backcompatibility.
+
 
 New in Matplotlib 2.2
 =====================
