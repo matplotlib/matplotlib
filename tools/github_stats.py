@@ -162,7 +162,7 @@ if __name__ == "__main__":
                 state='closed',
                 auth=True,
         )
-        issues, pulls = split_pulls(issues_and_pulls)
+        issues, pulls = split_pulls(issues_and_pulls, project=project)
     else:
         issues = issues_closed_since(since, project=project, pulls=False)
         pulls = issues_closed_since(since, project=project, pulls=True)

@@ -71,7 +71,7 @@ def get_auth_token():
     return token
 
 def make_auth_header():
-    return {'Authorization': 'token ' + get_auth_token()}
+    return {'Authorization': 'token ' + get_auth_token().replace("\n","")}
 
 def post_issue_comment(project, num, body):
     url = 'https://api.github.com/repos/{project}/issues/{num}/comments'.format(project=project, num=num)
