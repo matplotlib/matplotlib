@@ -383,7 +383,7 @@ def xkcd(scale=1, length=100, randomness=2):
 
     from matplotlib import patheffects
     return rc_context({
-        'font.family': ['xkcd', 'Humor Sans', 'Comic Sans MS'],
+        'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Sans MS'],
         'font.size': 14.0,
         'path.sketch': (scale, length, randomness),
         'path.effects': [patheffects.withStroke(linewidth=4, foreground="w")],
