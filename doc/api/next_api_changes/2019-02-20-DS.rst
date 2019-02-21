@@ -1,0 +1,7 @@
+Equal aspect axes for 3D plots disabled
+```````````````````````````````````````
+
+Setting the aspect on 3D axes previously returned non-sensical
+results (e.g. see https://github.com/matplotlib/matplotlib/issues/1077).
+Calling ``ax.set_aspect('equal')`` or ``ax.set_aspect(num)``
+on a 3D axes now raises a ``NotImplementedError``.
