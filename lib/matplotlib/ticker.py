@@ -1235,10 +1235,7 @@ class EngFormatter(Formatter):
         """
         Replace hyphens with a unicode minus.
         """
-        if rcParams['axes.unicode_minus'] and not rcParams['text.usetex']:
-            return s.replace('-', '\N{MINUS SIGN}')
-        else:
-            return s
+        return ScalarFormatter.fix_minus(self, s)
 
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
