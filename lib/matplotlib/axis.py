@@ -539,14 +539,20 @@ class Ticker:
     """
 
     def __init__(self):
+        self._axis = None
         self._locator = None
         self._formatter = None
         self._locator_is_default = True
         self._formatter_is_default = True
 
+    # The machinery below allows TickHelpers to be shared over multiple Axis.
+
     @property
     def locator(self):
-        return self._locator
+        locator = self._locator
+        if locator is not None:
+            locator.set_axis(self._axis)
+        return locator
 
     @locator.setter
     def locator(self, locator):
@@ -557,7 +563,10 @@ class Ticker:
 
     @property
     def formatter(self):
-        return self._formatter
+        formatter = self._formatter
+        if formatter is not None:
+            formatter.set_axis(self._axis)
+        return formatter
 
     @formatter.setter
     def formatter(self, formatter):
@@ -565,6 +574,10 @@ class Ticker:
             raise TypeError('formatter must be a subclass of '
                             'matplotlib.ticker.Formatter')
         self._formatter = formatter
+
+    @locator.setter
+    def locator(self, locator):
+        self._locator = locator
 
 
 class _LazyTickList:
@@ -653,8 +666,8 @@ class Axis(martist.Artist):
         self.isDefault_label = True
 
         self.axes = axes
-        self.major = Ticker()
-        self.minor = Ticker()
+        self._major = Ticker()
+        self._minor = Ticker()
         self.callbacks = cbook.CallbackRegistry()
 
         self._autolabelpos = True
@@ -679,6 +692,28 @@ class Axis(martist.Artist):
 
         self.clear()
         self._set_scale('linear')
+
+    # The machinery below allows TickHelpers to be shared over multiple Axis.
+
+    @property
+    def major(self):
+        major = self._major
+        major._axis = self
+        return major
+
+    @major.setter
+    def major(self, major):
+        self._major = major
+
+    @property
+    def minor(self):
+        minor = self._minor
+        minor._axis = self
+        return minor
+
+    @minor.setter
+    def minor(self, minor):
+        self._minor = minor
 
     @property
     def isDefault_majloc(self):
