@@ -423,18 +423,12 @@ locators as desired because the two axes are independent.
 Generate images without having a window appear
 ----------------------------------------------
 
-The easiest way to do this is use a non-interactive backend (see
-:ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
-your figure-generating script, just call the
-:func:`matplotlib.use` directive before importing pylab or
-pyplot::
+Simply do not call `~matplotlib.pyplot.show`, and directly save the figure to
+the desired format::
 
-    import matplotlib
-    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    plt.plot([1,2,3])
-    plt.savefig('myfig')
-
+    plt.plot([1, 2, 3])
+    plt.savefig('myfig.png')
 
 .. seealso::
 
@@ -454,7 +448,7 @@ the mainloop. Because this mainloop is blocking by default (i.e., script
 execution is paused), you should only call this once per script, at the end.
 Script execution is resumed after the last window is closed. Therefore, if
 you are using Matplotlib to generate only images and do not want a user
-interface window, you do not need to call ``show``  (see :ref:`howto-batch`
+interface window, you do not need to call ``show`` (see :ref:`howto-batch`
 and :ref:`what-is-a-backend`).
 
 .. note::
@@ -641,66 +635,44 @@ Looking for something to do?  Search for `TODO <../search.html?q=todo>`_
 or look at the open issues on github.
 
 
-
-
 .. _howto-webapp:
 
 Matplotlib in a web application server
 ======================================
 
-Many users report initial problems trying to use Matplotlib in web
-application servers, because by default Matplotlib ships configured to
-work with a graphical user interface which may require an X11
-connection.  Since many barebones application servers do not have X11
-enabled, you may get errors if you don't configure Matplotlib for use
-in these environments.  Most importantly, you need to decide what
-kinds of images you want to generate (PNG, PDF, SVG) and configure the
-appropriate default backend.  For 99% of users, this will be the Agg
-backend, which uses the C++
-`antigrain <http://antigrain.com>`_
-rendering engine to make nice PNGs.  The Agg backend is also
-configured to recognize requests to generate other output formats
-(PDF, PS, EPS, SVG).  The easiest way to configure Matplotlib to use
-Agg is to call::
+In general, the simplest solution when using Matplotlib in a web server is
+to completely avoid using pyplot (pyplot maintains references to the opened
+figures to make `~.matplotlib.pyplot.show` work, but this will cause memory
+leaks unless the figures are properly closed).  Since Matplotlib 3.1, one
+can directly create figures using the `Figure` constructor and save them to
+in-memory buffers.  The following example uses Flask_, but other frameworks
+work similarly::
 
-    # do this before importing pylab or pyplot
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
+   import base64
+   from io import BytesIO
 
-For more on configuring your backend, see :ref:`what-is-a-backend`.
+   from flask import Flask
+   from matplotlib.figure import Figure
 
-Alternatively, you can avoid pylab/pyplot altogether, which will give
-you a little more control, by calling the API directly as shown in
-:doc:`/gallery/user_interfaces/canvasagg`.
+   app = Flask(__name__)
 
-You can either generate hardcopy on the filesystem by calling
-`.Figure.savefig()`::
+   @app.route("/")
+   def hello():
+      # Generate the figure **without using pyplot**.
+      fig = Figure()
+      ax = fig.subplots()
+      ax.plot([1, 2])
+      # Save it to a temporary buffer.
+      buf = BytesIO()
+      fig.savefig(buf, format="png")
+      # Embed the result in the html output.
+      data = base64.b64encode(buf.getbuffer()).decode("ascii")
+      return f"<img src='data:image/png;base64,{data}'/>"
 
-    # do this before importing pylab or pyplot
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot([1,2,3])
-    fig.savefig('test.png')
+.. _Flask: http://flask.pocoo.org/
 
-or by saving to a file handle::
-
-    import sys
-    fig.savefig(sys.stdout)
-
-Here is an example using `Pillow <https://pillow.readthedocs.io/en/latest/>`_.
-First, the figure is saved to a BytesIO object which is then fed to
-Pillow for further processing::
-
-    from io import BytesIO
-    from PIL import Image
-    imgdata = BytesIO()
-    fig.savefig(imgdata, format='png')
-    imgdata.seek(0)  # rewind the data
-    im = Image.open(imgdata)
+When using Matplotlib versions older than 3.1, it is necessary to explicitly
+instantiate an Agg canvas; see e.g. :doc:`/gallery/user_interfaces/canvasagg`.
 
 
 .. _howto-click-maps:
