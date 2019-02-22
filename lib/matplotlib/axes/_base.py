@@ -3152,8 +3152,7 @@ class _AxesBase(martist.Artist):
             False turns off (default action), None leaves unchanged.
 
         xmin, xmax : scalar, optional
-            These arguments are deprecated and will be removed in a future
-            version.  They are equivalent to left and right respectively,
+            They are equivalent to left and right respectively,
             and it is an error to pass both *xmin* and *left* or
             *xmax* and *right*.
 
@@ -3195,14 +3194,10 @@ class _AxesBase(martist.Artist):
         if right is None and np.iterable(left):
             left, right = left
         if xmin is not None:
-            cbook.warn_deprecated('3.0', name='`xmin`',
-                                  alternative='`left`', obj_type='argument')
             if left is not None:
                 raise TypeError('Cannot pass both `xmin` and `left`')
             left = xmin
         if xmax is not None:
-            cbook.warn_deprecated('3.0', name='`xmax`',
-                                  alternative='`right`', obj_type='argument')
             if right is not None:
                 raise TypeError('Cannot pass both `xmax` and `right`')
             right = xmax
@@ -3536,8 +3531,7 @@ class _AxesBase(martist.Artist):
             *False* turns off (default action), *None* leaves unchanged.
 
         ymin, ymax : scalar, optional
-            These arguments are deprecated and will be removed in a future
-            version.  They are equivalent to bottom and top respectively,
+            They are equivalent to bottom and top respectively,
             and it is an error to pass both *ymin* and *bottom* or
             *ymax* and *top*.
 
@@ -3578,14 +3572,10 @@ class _AxesBase(martist.Artist):
         if top is None and np.iterable(bottom):
             bottom, top = bottom
         if ymin is not None:
-            cbook.warn_deprecated('3.0', name='`ymin`',
-                                  alternative='`bottom`', obj_type='argument')
             if bottom is not None:
                 raise TypeError('Cannot pass both `ymin` and `bottom`')
             bottom = ymin
         if ymax is not None:
-            cbook.warn_deprecated('3.0', name='`ymax`',
-                                  alternative='`top`', obj_type='argument')
             if top is not None:
                 raise TypeError('Cannot pass both `ymax` and `top`')
             top = ymax
