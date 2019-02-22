@@ -1367,6 +1367,8 @@ class MouseButton(IntEnum):
     LEFT = 1
     MIDDLE = 2
     RIGHT = 3
+    BACK = 8
+    FORWARD = 9
 
 
 class MouseEvent(LocationEvent):
@@ -2386,6 +2388,18 @@ def key_press_handler(event, canvas, toolbar=None):
                     a.set_navigate(i == n)
 
 
+def button_press_handler(event, canvas, toolbar=None):
+    """
+    The default Matplotlib button actions for extra mouse buttons.
+    """
+    if toolbar is not None:
+        button_name = str(MouseButton(event.button))
+        if button_name in rcParams['keymap.back']:
+            toolbar.back()
+        elif button_name in rcParams['keymap.forward']:
+            toolbar.forward()
+
+
 class NonGuiException(Exception):
     pass
 
@@ -2403,11 +2417,19 @@ class FigureManagerBase(object):
         The figure number
 
     key_press_handler_id : int
-        The default key handler cid, when using the toolmanager.  Can be used
-        to disable default key press handling ::
+        The default key handler cid, when using the toolmanager.
+        To disable the default key press handling use::
 
             figure.canvas.mpl_disconnect(
                 figure.canvas.manager.key_press_handler_id)
+
+    button_press_handler_id : int
+        The default mouse button handler cid, when using the toolmanager.
+        To disable the default button press handling use::
+
+            figure.canvas.mpl_disconnect(
+                figure.canvas.manager.button_press_handler_id)
+
     """
     def __init__(self, canvas, num):
         self.canvas = canvas
@@ -2415,10 +2437,14 @@ class FigureManagerBase(object):
         self.num = num
 
         self.key_press_handler_id = None
+        self.button_press_handler_id = None
         if rcParams['toolbar'] != 'toolmanager':
             self.key_press_handler_id = self.canvas.mpl_connect(
                 'key_press_event',
                 self.key_press)
+            self.button_press_handler_id = self.canvas.mpl_connect(
+                'button_press_event',
+                self.button_press)
 
         self.toolmanager = None
         self.toolbar = None
@@ -2454,6 +2480,13 @@ class FigureManagerBase(object):
         """
         if rcParams['toolbar'] != 'toolmanager':
             key_press_handler(event, self.canvas, self.canvas.toolbar)
+
+    def button_press(self, event):
+        """
+        The default Matplotlib button actions for extra mouse buttons.
+        """
+        if rcParams['toolbar'] != 'toolmanager':
+            button_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def get_window_title(self):
         """Get the title text of the window containing the figure.
