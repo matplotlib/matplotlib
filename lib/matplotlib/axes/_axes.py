@@ -3637,33 +3637,23 @@ class Axes(_AxesBase):
         if showfliers is None:
             showfliers = rcParams['boxplot.showfliers']
 
-        def _update_dict(dictionary, rc_name, properties):
-            """ Loads properties in the dictionary from rc file if not already
-            in the dictionary"""
-            rc_str = 'boxplot.{0}.{1}'
-            if dictionary is None:
-                dictionary = dict()
-            for prop_dict in properties:
-                dictionary.setdefault(prop_dict,
-                                rcParams[rc_str.format(rc_name, prop_dict)])
-            return dictionary
-
-        # Common property dicts loading from rc.
-        flier_props = ['color', 'marker', 'markerfacecolor', 'markeredgecolor',
-                       'markersize', 'linestyle', 'linewidth']
-        default_props = ['color', 'linewidth', 'linestyle']
-
-        boxprops = _update_dict(boxprops, 'boxprops', default_props)
-        whiskerprops = _update_dict(whiskerprops, 'whiskerprops',
-                                                            default_props)
-        capprops = _update_dict(capprops, 'capprops', default_props)
-        medianprops = _update_dict(medianprops, 'medianprops', default_props)
-        meanprops = _update_dict(meanprops, 'meanprops', default_props)
-        flierprops = _update_dict(flierprops, 'flierprops', flier_props)
+        if boxprops is None:
+            boxprops = {}
+        if whiskerprops is None:
+            whiskerprops = {}
+        if capprops is None:
+            capprops = {}
+        if medianprops is None:
+            medianprops = {}
+        if meanprops is None:
+            meanprops = {}
+        if flierprops is None:
+            flierprops = {}
 
         if patch_artist:
-            boxprops['linestyle'] = 'solid'
-            boxprops['edgecolor'] = boxprops.pop('color')
+            boxprops['linestyle'] = 'solid'  # Not consistent with bxp.
+            if 'color' in boxprops:
+                boxprops['edgecolor'] = boxprops.pop('color')
 
         # if non-default sym value, put it into the flier dictionary
         # the logic for providing the default symbol ('b+') now lives
@@ -3898,92 +3888,38 @@ class Axes(_AxesBase):
             zorder = mlines.Line2D.zorder
 
         zdelta = 0.1
+
+        def with_rcdefaults(subkey, explicit, zdelta=0):
+            d = {k.split('.')[-1]: v for k, v in rcParams.items()
+                 if k.startswith(f'boxplot.{subkey}')}
+            d['zorder'] = zorder + zdelta
+            if explicit is not None:
+                d.update(explicit)
+            return d
+
         # box properties
         if patch_artist:
             final_boxprops = dict(
                 linestyle=rcParams['boxplot.boxprops.linestyle'],
+                linewidth=rcParams['boxplot.boxprops.linewidth'],
                 edgecolor=rcParams['boxplot.boxprops.color'],
-                facecolor=rcParams['patch.facecolor'],
-                linewidth=rcParams['boxplot.boxprops.linewidth']
+                facecolor=('white' if rcParams['_internal.classic_mode'] else
+                           rcParams['patch.facecolor']),
+                zorder=zorder,
             )
-            if rcParams['_internal.classic_mode']:
-                final_boxprops['facecolor'] = 'white'
+            if boxprops is not None:
+                final_boxprops.update(boxprops)
         else:
-            final_boxprops = dict(
-                linestyle=rcParams['boxplot.boxprops.linestyle'],
-                color=rcParams['boxplot.boxprops.color'],
-            )
-
-        final_boxprops['zorder'] = zorder
-        if boxprops is not None:
-            final_boxprops.update(boxprops)
-
-        # other (cap, whisker) properties
-        final_whiskerprops = dict(
-            linestyle=rcParams['boxplot.whiskerprops.linestyle'],
-            linewidth=rcParams['boxplot.whiskerprops.linewidth'],
-            color=rcParams['boxplot.whiskerprops.color'],
-        )
-
-        final_capprops = dict(
-            linestyle=rcParams['boxplot.capprops.linestyle'],
-            linewidth=rcParams['boxplot.capprops.linewidth'],
-            color=rcParams['boxplot.capprops.color'],
-        )
-
-        final_capprops['zorder'] = zorder
-        if capprops is not None:
-            final_capprops.update(capprops)
-
-        final_whiskerprops['zorder'] = zorder
-        if whiskerprops is not None:
-            final_whiskerprops.update(whiskerprops)
-
-        # set up the default flier properties
-        final_flierprops = dict(
-            linestyle=rcParams['boxplot.flierprops.linestyle'],
-            linewidth=rcParams['boxplot.flierprops.linewidth'],
-            color=rcParams['boxplot.flierprops.color'],
-            marker=rcParams['boxplot.flierprops.marker'],
-            markerfacecolor=rcParams['boxplot.flierprops.markerfacecolor'],
-            markeredgecolor=rcParams['boxplot.flierprops.markeredgecolor'],
-            markeredgewidth=rcParams['boxplot.flierprops.markeredgewidth'],
-            markersize=rcParams['boxplot.flierprops.markersize'],
-        )
-
-        final_flierprops['zorder'] = zorder
-        # flier (outlier) properties
-        if flierprops is not None:
-            final_flierprops.update(flierprops)
-
-        # median line properties
-        final_medianprops = dict(
-            linestyle=rcParams['boxplot.medianprops.linestyle'],
-            linewidth=rcParams['boxplot.medianprops.linewidth'],
-            color=rcParams['boxplot.medianprops.color'],
-        )
-        final_medianprops['zorder'] = zorder + zdelta
-        if medianprops is not None:
-            final_medianprops.update(medianprops)
-
-        # mean (line or point) properties
-        if meanline:
-            final_meanprops = dict(
-                linestyle=rcParams['boxplot.meanprops.linestyle'],
-                linewidth=rcParams['boxplot.meanprops.linewidth'],
-                color=rcParams['boxplot.meanprops.color'],
-            )
-        else:
-            final_meanprops = dict(
-                linestyle='',
-                marker=rcParams['boxplot.meanprops.marker'],
-                markerfacecolor=rcParams['boxplot.meanprops.markerfacecolor'],
-                markeredgecolor=rcParams['boxplot.meanprops.markeredgecolor'],
-                markersize=rcParams['boxplot.meanprops.markersize'],
-            )
-        final_meanprops['zorder'] = zorder + zdelta
-        if meanprops is not None:
-            final_meanprops.update(meanprops)
+            final_boxprops = with_rcdefaults('boxprops', boxprops)
+        final_whiskerprops = with_rcdefaults('whiskerprops', whiskerprops)
+        final_capprops = with_rcdefaults('capprops', capprops)
+        final_flierprops = with_rcdefaults('flierprops', flierprops)
+        final_medianprops = with_rcdefaults('medianprops', medianprops, zdelta)
+        final_meanprops = with_rcdefaults('meanprops', meanprops, zdelta)
+        removed_prop = 'marker' if meanline else 'linestyle'
+        # Only remove the property if it's not set explicitly as a parameter.
+        if meanprops is None or removed_prop not in meanprops:
+            final_meanprops[removed_prop] = ''
 
         def to_vc(xs, ys):
             # convert arguments to verts and codes, append (0, 0) (ignored).

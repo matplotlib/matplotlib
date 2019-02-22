@@ -1,0 +1,8 @@
+`~Axes.bxp` now respects :rc:`boxplot.boxprops.linewidth` even when *patch_artist* is set
+`````````````````````````````````````````````````````````````````````````````````````````
+
+Previously, when the *patch_artist* parameter was set, `~Axes.bxp` would ignore
+:rc:`boxplot.boxprops.linewidth`.  This was an oversight -- in particular,
+`~Axes.boxplot` did not ignore it.
+
+This oversight is now fixed.
