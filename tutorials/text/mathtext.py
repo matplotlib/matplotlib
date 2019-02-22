@@ -80,15 +80,16 @@ Fractions, binomials, and stacked numbers
 -----------------------------------------
 
 Fractions, binomials, and stacked numbers can be created with the
-``\frac{}{}``, ``\binom{}{}`` and ``\stackrel{}{}`` commands, respectively::
+``\frac{}{}``, ``\binom{}{}`` and ``\genfrac{}{}{}{}{}{}`` commands,
+respectively::
 
-    r'$\frac{3}{4} \binom{3}{4} \stackrel{3}{4}$'
+    r'$\frac{3}{4} \binom{3}{4} \genfrac{}{}{0}{}{3}{4}$'
 
 produces
 
 .. math::
 
-    \frac{3}{4} \binom{3}{4} \stackrel{3}{4}
+    \frac{3}{4} \binom{3}{4} \stackrel{}{}{0}{}{3}{4}
 
 Fractions can be arbitrarily nested::
 
