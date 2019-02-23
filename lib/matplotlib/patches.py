@@ -134,7 +134,7 @@ class Patch(artist.Artist):
         vertices = self.get_path().vertices
         # if the current path is concatenated by multiple sub paths.
         # get the indexes of the starting code(MOVETO) of all sub paths
-        idxs, = np.where(codes == 1)
+        idxs, = np.where(codes == Path.MOVETO)
         # Don't split before the first MOVETO.
         idxs = idxs[1:]
         return any(
