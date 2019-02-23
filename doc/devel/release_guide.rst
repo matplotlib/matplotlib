@@ -32,11 +32,16 @@ tagged commit should be tested locally before it is uploaded::
    pytest -n 8 .
 
 
-In addition the following two tests should be run and manually inspected::
+In addition the following test should be run and manually inspected::
 
-   python unit/memleak_hawaii3.py
+   python unit/memleak.py agg agg.pdf
+
+
+In addition the following should be run and manually inspected, but
+is currently broken::
+
    pushd examples/tests/
-   python backend_driver.py
+   python backend_driver_sgskip.py
    popd
 
 
