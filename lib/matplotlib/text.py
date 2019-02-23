@@ -194,7 +194,7 @@ class Text(Artist):
         -------
         bool : bool
         """
-        if callable(self._contains):
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         if not self.get_visible() or self._renderer is None:
