@@ -184,6 +184,6 @@ plt.plot(data)
 #
 #
 # .. _matplotlibrc: http://matplotlib.org/users/customizing.html
-# .. _ggplot: http://ggplot2.org/
+# .. _ggplot: https://www.anaconda.com/distribution/
 # .. _R: https://www.r-project.org/
 # .. _provided by Matplotlib: https://github.com/matplotlib/matplotlib/tree/master/lib/matplotlib/mpl-data/stylelib

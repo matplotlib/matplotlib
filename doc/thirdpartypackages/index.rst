@@ -62,7 +62,7 @@ plotnine
 ========
 
 `plotnine <https://plotnine.readthedocs.io/en/stable/>`_ implements a grammar
-of graphics, similar to R's `ggplot2 <http://ggplot2.org/>`_. The grammar allows
+of graphics, similar to R's `ggplot2 <https://ggplot2.tidyverse.org/>`_. The grammar allows
 users to compose plots by explicitly mapping data to the visual objects that
 make up the plot.
 

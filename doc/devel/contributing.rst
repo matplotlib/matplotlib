@@ -64,7 +64,7 @@ environment to build Matplotlib from source.
 To work on Matplotlib sources, it is strongly recommended to set up an alternative
 development environment, using the something like `virtual environments in python
 <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_, or a
-`conda environment <http://conda.pydata.org/docs/using/envs.html>`_.
+`conda environment <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_.
 
 If you choose to use an already existing environment, and not a clean virtual or
 conda environment, uninstall the current version of Matplotlib in that environment
