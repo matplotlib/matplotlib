@@ -2111,6 +2111,12 @@ def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
 
 
 def _check_and_log_subprocess(command, logger, **kwargs):
+    """
+    Run *command* using `subprocess.check_output`.  If it succeeds, return the
+    output (stdout and stderr); if not, raise an exception whose text includes
+    the failed command and captured output.  Both the command and the output
+    are logged at DEBUG level on *logger*.
+    """
     logger.debug(command)
     try:
         report = subprocess.check_output(
@@ -2134,3 +2140,19 @@ def _check_not_matrix(**kwargs):
     for k, v in kwargs.items():
         if isinstance(v, np.matrix):
             raise TypeError(f"Argument {k!r} cannot be a np.matrix")
+
+
+def _check_in_list(values, **kwargs):
+    """
+    For each *key, value* pair in *kwargs*, check that *value* is in *values*;
+    if not, raise an appropriate ValueError.
+
+    Examples
+    --------
+    >>> cbook._check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
+    """
+    for k, v in kwargs.items():
+        if v not in values:
+            raise ValueError(
+                "{!r} is not a valid value for {}; supported values are {}"
+                .format(v, k, ', '.join(map(repr, values))))

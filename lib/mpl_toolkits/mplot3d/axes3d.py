@@ -1405,8 +1405,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        if axis not in ['x', 'y', 'z', 'both']:
-            raise ValueError("axis must be one of 'x', 'y', 'z' or 'both'")
+        cbook._check_in_list(['x', 'y', 'z', 'both'], axis=axis)
         if axis in ['x', 'y', 'both']:
             super().tick_params(axis, **kwargs)
         if axis in ['z', 'both']:

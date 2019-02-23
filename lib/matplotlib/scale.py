@@ -349,10 +349,12 @@ class LogScale(ScaleBase):
             base = kwargs.pop('basex', 10.0)
             subs = kwargs.pop('subsx', None)
             nonpos = kwargs.pop('nonposx', 'clip')
+            cbook._check_in_list(['mask', 'clip'], nonposx=nonpos)
         else:
             base = kwargs.pop('basey', 10.0)
             subs = kwargs.pop('subsy', None)
             nonpos = kwargs.pop('nonposy', 'clip')
+            cbook._check_in_list(['mask', 'clip'], nonposy=nonpos)
 
         if len(kwargs):
             raise ValueError(("provided too many kwargs, can only pass "
@@ -360,8 +362,6 @@ class LogScale(ScaleBase):
                               "{'basey', 'subsy', nonposy'}.  You passed ") +
                              "{!r}".format(kwargs))
 
-        if nonpos not in ['mask', 'clip']:
-            raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
 
@@ -664,9 +664,7 @@ class LogitScale(ScaleBase):
           values beyond ]0, 1[ can be masked as invalid, or clipped to a number
           very close to 0 or 1
         """
-        if nonpos not in ['mask', 'clip']:
-            raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")
-
+        cbook._check_in_list(['mask', 'clip'], nonpos=nonpos)
         self._transform = LogitTransform(nonpos)
 
     def get_transform(self):

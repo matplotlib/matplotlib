@@ -838,12 +838,9 @@ class FigureCanvasPS(FigureCanvasBase):
                                (papertype, ', '.join(papersize)))
 
         orientation = orientation.lower()
-        if orientation == 'landscape':
-            isLandscape = True
-        elif orientation == 'portrait':
-            isLandscape = False
-        else:
-            raise RuntimeError('Orientation must be "portrait" or "landscape"')
+        cbook._check_in_list(['landscape', 'portrait'],
+                             orientation=orientation)
+        isLandscape = (orientation == 'landscape')
 
         self.figure.set_dpi(72)  # Override the dpi kwarg
 
