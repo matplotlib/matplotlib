@@ -128,7 +128,7 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-        if callable(self._contains):
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         radius = self._process_radius(radius)
         inside = self.get_path().contains_point(
