@@ -1189,9 +1189,8 @@ class PolarAxes(Axes):
                                  'argument and kwarg "ymax"')
             else:
                 top = ymax
-        if top is None and len(bottom) == 2:
-            top = bottom[1]
-            bottom = bottom[0]
+        if top is None and np.iterable(bottom):
+            bottom, top = bottom[0], bottom[1]
 
         return super().set_ylim(bottom=bottom, top=top, emit=emit, auto=auto)
 
