@@ -131,9 +131,18 @@ class Patch(artist.Artist):
         if self._contains is not None:
             return self._contains(self, mouseevent)
         radius = self._process_radius(radius)
-        inside = self.get_path().contains_point(
-            (mouseevent.x, mouseevent.y), self.get_transform(), radius)
-        return inside, {}
+        codes = self.get_path().codes
+        vertices = self.get_path().vertices
+        # if the current path is concatenated by multiple sub paths.
+        # get the indexes of the starting code(MOVETO) of all sub paths
+        idxs, = np.where(codes == Path.MOVETO)
+        # Don't split before the first MOVETO.
+        idxs = idxs[1:]
+        return any(
+            subpath.contains_point(
+                (mouseevent.x, mouseevent.y), self.get_transform(), radius)
+            for subpath in map(
+                Path, np.split(vertices, idxs), np.split(codes, idxs))), {}
 
     def contains_point(self, point, radius=None):
         """
