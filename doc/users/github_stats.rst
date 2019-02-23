@@ -137,7 +137,19 @@ Issues (14):
 * :ghissue:`13201`: test_backend_qt tests failing
 * :ghissue:`13013`: v3.0.2 local html docs "git describe" error
 * :ghissue:`13051`: Missing self in image_slices_viewer
-* :ghissue:`12920`: Incorrect return type in mplot3d documentation 
+* :ghissue:`12920`: Incorrect return type in mplot3d documentation
 * :ghissue:`12907`: Tiny typo in documentation of matplotlib.figure.Figure.colorbar
 * :ghissue:`12892`: GTK3Cairo Backend Legend TypeError
 * :ghissue:`12815`: DOC: matplotlib.dates datestr2num function documentation is missing
+
+
+
+Previous Github Stats
+---------------------
+
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    prev_whats_new/github_stats_*
