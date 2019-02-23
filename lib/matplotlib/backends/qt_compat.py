@@ -4,11 +4,10 @@ Qt binding and backend selector.
 The selection logic is as follows:
 - if any of PyQt5, PySide2, PyQt4 or PySide have already been imported
   (checked in that order), use it;
-- otherwise, if the QT_API environment variable (used by Enthought) is
-  set, use it to determine which binding to use (but do not change the
-  backend based on it; i.e. if the Qt4Agg backend is requested but QT_API
-  is set to "pyqt5", then actually use Qt4 with the binding specified by
-  ``rcParams["backend.qt4"]``;
+- otherwise, if the QT_API environment variable (used by Enthought) is set, use
+  it to determine which binding to use (but do not change the backend based on
+  it; i.e. if the Qt5Agg backend is requested but QT_API is set to "pyqt4",
+  then actually use Qt5 with PyQt5 or PySide2 (whichever can be imported);
 - otherwise, use whatever the rcParams indicate.
 """
 
@@ -33,31 +32,25 @@ _ETS = {"pyqt5": QT_API_PYQT5, "pyside2": QT_API_PYSIDE2,
 # First, check if anything is already imported.
 if "PyQt5" in sys.modules:
     QT_API = QT_API_PYQT5
-    dict.__setitem__(rcParams, "backend.qt5", QT_API)
 elif "PySide2" in sys.modules:
     QT_API = QT_API_PYSIDE2
-    dict.__setitem__(rcParams, "backend.qt5", QT_API)
 elif "PyQt4" in sys.modules:
     QT_API = QT_API_PYQTv2
-    dict.__setitem__(rcParams, "backend.qt4", QT_API)
 elif "PySide" in sys.modules:
     QT_API = QT_API_PYSIDE
-    dict.__setitem__(rcParams, "backend.qt4", QT_API)
 # Otherwise, check the QT_API environment variable (from Enthought).  This can
 # only override the binding, not the backend (in other words, we check that the
 # requested backend actually matches).
 elif rcParams["backend"] in ["Qt5Agg", "Qt5Cairo"]:
-    if QT_API_ENV == "pyqt5":
-        dict.__setitem__(rcParams, "backend.qt5", QT_API_PYQT5)
-    elif QT_API_ENV == "pyside2":
-        dict.__setitem__(rcParams, "backend.qt5", QT_API_PYSIDE2)
-    QT_API = dict.__getitem__(rcParams, "backend.qt5")
+    if QT_API_ENV in ["pyqt5", "pyside2"]:
+        QT_API = _ETS[QT_API_ENV]
+    else:
+        QT_API = None
 elif rcParams["backend"] in ["Qt4Agg", "Qt4Cairo"]:
-    if QT_API_ENV == "pyqt4":
-        dict.__setitem__(rcParams, "backend.qt4", QT_API_PYQTv2)
-    elif QT_API_ENV == "pyside":
-        dict.__setitem__(rcParams, "backend.qt4", QT_API_PYSIDE)
-    QT_API = dict.__getitem__(rcParams, "backend.qt4")
+    if QT_API_ENV in ["pyqt4", "pyside"]:
+        QT_API = _ETS[QT_API_ENV]
+    else:
+        QT_API = None
 # A non-Qt backend was selected but we still got there (possible, e.g., when
 # fully manually embedding Matplotlib in a Qt app without using pyplot).
 else:
