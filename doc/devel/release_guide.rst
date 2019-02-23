@@ -74,6 +74,9 @@ Review and commit changes.  Some issue/PR titles may not be valid rst (the most 
 Update and Validate the Docs
 ----------------------------
 
+Merge the most recent 'doc' branch (``v3.0.2-doc``) into the branch you
+are going to tag on and delete the doc branch on GitHub.
+
 Before tagging, update the "what's new" and "API changes" listings.
 
 for the "what's new"
