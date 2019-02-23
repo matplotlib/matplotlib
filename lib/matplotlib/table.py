@@ -438,7 +438,7 @@ class Table(Artist):
 
     def contains(self, mouseevent):
         # docstring inherited
-        if callable(self._contains):
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         # TODO: Return index of the cell containing the cursor so that the user
