@@ -826,40 +826,35 @@ class Axis(martist.Artist):
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
         """
-        blacklist = ['tick1On', 'tick2On', 'label1On', 'label2On', 'gridOn']
         dicts = []
-        blacklist_dicts = []
         if which == 'major' or which == 'both':
             dicts.append(self._major_tick_kw)
         if which == 'minor' or which == 'both':
             dicts.append(self._minor_tick_kw)
         kwtrans = self._translate_tick_kw(kw)
 
+        # this stashes the parameter changes so any new ticks will
+        # automatically get them
         for d in dicts:
             if reset:
                 d.clear()
-            blacklist_dicts.append(
-                {
-                    k: d.pop(k) for k in blacklist
-                    if k in d.keys() and k not in kwtrans.keys()
-                }
-            )
             d.update(kwtrans)
 
         if reset:
             self.reset_ticks()
         else:
+            # apply the new kwargs to the existing ticks
             if which == 'major' or which == 'both':
                 for tick in self.majorTicks:
-                    tick._apply_params(**self._major_tick_kw)
+                    tick._apply_params(**kwtrans)
             if which == 'minor' or which == 'both':
                 for tick in self.minorTicks:
-                    tick._apply_params(**self._minor_tick_kw)
+                    tick._apply_params(**kwtrans)
+            # special-case label color to also apply to the offset
+            # text
             if 'labelcolor' in kwtrans:
                 self.offsetText.set_color(kwtrans['labelcolor'])
 
-        for d, bd in zip(dicts, blacklist_dicts):
-            d.update(bd)
         self.stale = True
 
     @staticmethod
