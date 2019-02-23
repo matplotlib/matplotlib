@@ -1,0 +1,5 @@
+``Axes3D.voxels`` now shades the resulting voxels
+-------------------------------------------------
+
+See Whats new for details.  The previous behavior can be achieved by passing
+``shade=False``.
