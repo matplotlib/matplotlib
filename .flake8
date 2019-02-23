@@ -103,6 +103,7 @@ per-file-ignores =
     examples/images_contours_and_fields/affine_image.py: E402
     examples/images_contours_and_fields/barb_demo.py: E402
     examples/images_contours_and_fields/barcode_demo.py: E402
+    examples/images_contours_and_fields/colorbar_annotation_demo.py: E402
     examples/images_contours_and_fields/contour_corner_mask.py: E402
     examples/images_contours_and_fields/contour_demo.py: E402, E501
     examples/images_contours_and_fields/contour_image.py: E402
