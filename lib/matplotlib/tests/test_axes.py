@@ -2841,7 +2841,8 @@ def test_errorbar():
     fig, axs = plt.subplots(nrows=2, ncols=2, sharex=True)
     ax = axs[0, 0]
     # Try a Nx1 shaped error just to check
-    ax.errorbar(x, y, yerr=np.reshape(yerr, (len(y), 1)), fmt='o')
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.errorbar(x, y, yerr=np.reshape(yerr, (len(y), 1)), fmt='o')
     ax.set_title('Vert. symmetric')
 
     # With 4 subplots, reduce the number of axis ticks to avoid crowding.
@@ -5219,9 +5220,12 @@ def generate_errorbar_inputs():
 
 @pytest.mark.parametrize('kwargs', generate_errorbar_inputs())
 def test_errorbar_inputs_shotgun(kwargs):
-    ax = plt.gca()
-    eb = ax.errorbar(**kwargs)
-    eb.remove()
+    with warnings.catch_warnings():
+        # (n, 1)-shaped error deprecation already tested by test_errorbar.
+        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+        ax = plt.gca()
+        eb = ax.errorbar(**kwargs)
+        eb.remove()
 
 
 @image_comparison(baseline_images=["dash_offset"], remove_text=True)

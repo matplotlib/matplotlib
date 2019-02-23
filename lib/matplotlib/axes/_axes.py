@@ -3309,6 +3309,12 @@ class Axes(_AxesBase):
                     or len(b_sh) > 2 or (len(b_sh) == 2 and b_sh[1] != 1)):
                 raise ValueError(
                     "err must be a scalar or a 1D or (2, n) array-like")
+            if len(a_sh) == 2 or len(b_sh) == 2:
+                cbook.warn_deprecated(
+                    "3.1", message="Support for passing a (n, 1)-shaped error "
+                    "array to errorbar() is deprecated since Matplotlib "
+                    "%(since)s and will be removed %(removal)s; pass a 1D "
+                    "array instead.")
             # Using list comprehensions rather than arrays to preserve units.
             for e in [a, b]:
                 if len(data) != len(e):
