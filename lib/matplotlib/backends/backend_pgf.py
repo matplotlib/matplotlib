@@ -145,32 +145,20 @@ def _font_properties_str(prop):
 
 
 def make_pdf_to_png_converter():
-    """
-    Returns a function that converts a pdf file to a png file.
-    """
-
-    tools_available = []
-    # check for pdftocairo
-    try:
-        subprocess.check_output(["pdftocairo", "-v"], stderr=subprocess.STDOUT)
-        tools_available.append("pdftocairo")
-    except OSError:
-        pass
-    # check for ghostscript
-    gs, ver = mpl.checkdep_ghostscript()
-    if gs:
-        tools_available.append("gs")
-
-    # pick converter
-    if "pdftocairo" in tools_available:
+    """Returns a function that converts a pdf file to a png file."""
+    if shutil.which("pdftocairo"):
         def cairo_convert(pdffile, pngfile, dpi):
             cmd = ["pdftocairo", "-singlefile", "-png", "-r", "%d" % dpi,
                    pdffile, os.path.splitext(pngfile)[0]]
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         return cairo_convert
-    elif "gs" in tools_available:
+    try:
+        gs_info = mpl._get_executable_info("gs")
+    except FileNotFoundError:
+        pass
+    else:
         def gs_convert(pdffile, pngfile, dpi):
-            cmd = [gs,
+            cmd = [gs_info.executable,
                    '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dNOPROMPT',
                    '-dUseCIEColor', '-dTextAlphaBits=4',
                    '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE',
@@ -178,8 +166,7 @@ def make_pdf_to_png_converter():
                    '-r%d' % dpi, pdffile]
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         return gs_convert
-    else:
-        raise RuntimeError("No suitable pdf to png renderer found.")
+    raise RuntimeError("No suitable pdf to png renderer found.")
 
 
 class LatexError(Exception):
