@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``checkdep_dvipng``, ``checkdep_ghostscript``, ``checkdep_pdftops``, and
+``checkdep_inkscape`` are deprecated.

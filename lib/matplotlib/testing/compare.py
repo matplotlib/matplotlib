@@ -15,7 +15,7 @@ from tempfile import TemporaryFile
 
 import numpy as np
 
-import matplotlib
+import matplotlib as mpl
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import _png, cbook
 
@@ -76,7 +76,7 @@ def compare_float(expected, actual, relTol=None, absTol=None):
 
 
 def get_cache_dir():
-    cachedir = matplotlib.get_cachedir()
+    cachedir = mpl.get_cachedir()
     if cachedir is None:
         raise RuntimeError('Could not find a suitable configuration directory')
     cache_dir = os.path.join(cachedir, 'test_cache')
@@ -99,11 +99,11 @@ def get_file_hash(path, block_size=2 ** 20):
             md5.update(data)
 
     if path.endswith('.pdf'):
-        from matplotlib import checkdep_ghostscript
-        md5.update(checkdep_ghostscript()[1].encode('utf-8'))
+        md5.update(str(mpl._get_executable_info("gs").version)
+                   .encode('utf-8'))
     elif path.endswith('.svg'):
-        from matplotlib import checkdep_inkscape
-        md5.update(checkdep_inkscape().encode('utf-8'))
+        md5.update(str(mpl._get_executable_info("inkscape").version)
+                   .encode('utf-8'))
 
     return md5.hexdigest()
 
@@ -175,7 +175,7 @@ class _GSConverter(_Converter):
         if not self._proc:
             self._stdout = TemporaryFile()
             self._proc = subprocess.Popen(
-                [matplotlib.checkdep_ghostscript.executable,
+                [mpl._get_executable_info("gs").executable,
                  "-dNOPAUSE", "-sDEVICE=png16m"],
                 # As far as I can see, ghostscript never outputs to stderr.
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -264,10 +264,17 @@ class _SVGConverter(_Converter):
 
 
 def _update_converter():
-    gs, gs_v = matplotlib.checkdep_ghostscript()
-    if gs_v is not None:
+    try:
+        mpl._get_executable_info("gs")
+    except FileNotFoundError:
+        pass
+    else:
         converter['pdf'] = converter['eps'] = _GSConverter()
-    if matplotlib.checkdep_inkscape() is not None:
+    try:
+        mpl._get_executable_info("inkscape")
+    except FileNotFoundError:
+        pass
+    else:
         converter['svg'] = _SVGConverter()
 
 
