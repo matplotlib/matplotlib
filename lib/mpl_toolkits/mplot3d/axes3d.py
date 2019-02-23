@@ -2733,7 +2733,8 @@ pivot='tail', normalize=False, **kwargs)
 
     quiver3D = quiver
 
-    def voxels(self, *args, facecolors=None, edgecolors=None, **kwargs):
+    def voxels(self, *args, facecolors=None, edgecolors=None, shade=True,
+               lightsource=None, **kwargs):
         """
         ax.voxels([x, y, z,] /, filled, facecolors=None, edgecolors=None, \
 **kwargs)
@@ -2775,6 +2776,17 @@ pivot='tail', normalize=False, **kwargs)
                 corresponding voxel. The size must match the voxels.
               - A 4D ndarray of rgb/rgba data, with the components along the
                 last axis.
+
+        shade : bool
+            Whether to shade the facecolors. Defaults to True. Shading is
+            always disabled when *cmap* is specified.
+
+            .. versionadded:: 3.1
+
+        lightsource : `~matplotlib.colors.LightSource`
+            The lightsource to use when *shade* is True.
+
+            .. versionadded:: 3.1
 
         **kwargs
             Additional keyword arguments to pass onto
@@ -2849,9 +2861,9 @@ pivot='tail', normalize=False, **kwargs)
         # points lying on corners of a square
         square = np.array([
             [0, 0, 0],
-            [0, 1, 0],
+            [1, 0, 0],
             [1, 1, 0],
-            [1, 0, 0]
+            [0, 1, 0],
         ], dtype=np.intp)
 
         voxel_faces = defaultdict(list)
@@ -2872,7 +2884,8 @@ pivot='tail', normalize=False, **kwargs)
             qinds = np.arange(qc)
             rinds = np.arange(rc)
 
-            square_rot = square.dot(permute.T)
+            square_rot_pos = square.dot(permute.T)
+            square_rot_neg = square_rot_pos[::-1]
 
             # iterate within the current plane
             for p in pinds:
@@ -2885,7 +2898,7 @@ pivot='tail', normalize=False, **kwargs)
                     p0 = permute.dot([p, q, 0])
                     i0 = tuple(p0)
                     if filled[i0]:
-                        voxel_faces[i0].append(p0 + square_rot)
+                        voxel_faces[i0].append(p0 + square_rot_neg)
 
                     # draw middle faces
                     for r1, r2 in zip(rinds[:-1], rinds[1:]):
@@ -2896,16 +2909,16 @@ pivot='tail', normalize=False, **kwargs)
                         i2 = tuple(p2)
 
                         if filled[i1] and not filled[i2]:
-                            voxel_faces[i1].append(p2 + square_rot)
+                            voxel_faces[i1].append(p2 + square_rot_pos)
                         elif not filled[i1] and filled[i2]:
-                            voxel_faces[i2].append(p2 + square_rot)
+                            voxel_faces[i2].append(p2 + square_rot_neg)
 
                     # draw upper faces
                     pk = permute.dot([p, q, rc-1])
                     pk2 = permute.dot([p, q, rc])
                     ik = tuple(pk)
                     if filled[ik]:
-                        voxel_faces[ik].append(pk2 + square_rot)
+                        voxel_faces[ik].append(pk2 + square_rot_pos)
 
         # iterate over the faces, and generate a Poly3DCollection for each
         # voxel
@@ -2924,9 +2937,20 @@ pivot='tail', normalize=False, **kwargs)
                     face[:, 2] = z[ind]
                     faces.append(face)
 
+            # shade the faces
+            facecolor = facecolors[coord]
+            edgecolor = edgecolors[coord]
+            if shade:
+                normals = self._generate_normals(faces)
+                facecolor = self._shade_colors(facecolor, normals, lightsource)
+                if edgecolor is not None:
+                    edgecolor = self._shade_colors(
+                        edgecolor, normals, lightsource
+                    )
+
             poly = art3d.Poly3DCollection(faces,
-                facecolors=facecolors[coord],
-                edgecolors=edgecolors[coord],
+                facecolors=facecolor,
+                edgecolors=edgecolor,
                 **kwargs
             )
             self.add_collection3d(poly)
