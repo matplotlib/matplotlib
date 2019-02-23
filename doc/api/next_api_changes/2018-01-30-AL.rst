@@ -1,0 +1,10 @@
+Minor Locator no longer try to avoid overstriking major Locators
+````````````````````````````````````````````````````````````````
+
+Previously, certain locator classes (`LogLocator`, `AutoMinorLocator`)
+contained custom logic to avoid emitting tick locations that collided with
+major ticks when they were used as minor locators.
+
+This logic has now moved to the Axis class; thus, for example,
+``xaxis.minor.locator()`` now includes positions that collide with
+``xaxis.major.locator()``, but ``xaxis.get_minorticklocs()`` does not.

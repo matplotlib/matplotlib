@@ -1,6 +1,7 @@
 import warnings
 
 import numpy as np
+from numpy.testing import assert_array_equal
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -161,8 +162,6 @@ def test_tight_layout9():
     plt.tight_layout()
 
 
-# The following test is misleading when the text is removed.
-@image_comparison(baseline_images=['outward_ticks'], remove_text=False)
 def test_outward_ticks():
     'Test automatic use of tight_layout'
     fig = plt.figure()
@@ -173,8 +172,6 @@ def test_outward_ticks():
         tickdir='out', length=32, width=3, tick1On=True, which='minor')
     ax.yaxis.set_tick_params(
         tickdir='out', length=32, width=3, tick1On=True, which='minor')
-    # The following minor ticks are not labelled, and they
-    # are drawn over the major ticks and labels--ugly!
     ax.xaxis.set_ticks([0], minor=True)
     ax.yaxis.set_ticks([0], minor=True)
     ax = fig.add_subplot(222)
@@ -187,6 +184,14 @@ def test_outward_ticks():
     ax.xaxis.set_tick_params(tickdir='out', length=32, width=3)
     ax.yaxis.set_tick_params(tickdir='out', length=32, width=3)
     plt.tight_layout()
+    assert_array_equal(
+        np.round([ax.get_position().get_points() for ax in fig.axes], 3),
+        # These values were obtained after visual checking that they correspond
+        # to a tight layouting that did take the ticks into account.
+        [[[0.091, 0.590], [0.437, 0.903]],
+         [[0.581, 0.590], [0.927, 0.903]],
+         [[0.091, 0.140], [0.437, 0.454]],
+         [[0.581, 0.140], [0.927, 0.454]]])
 
 
 def add_offsetboxes(ax, size=10, margin=.1, color='black'):
