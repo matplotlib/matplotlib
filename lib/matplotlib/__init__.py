@@ -695,9 +695,6 @@ _deprecated_map = {}
 # rcParams deprecated; some can manually be mapped to another key.
 # Values are tuples of (version, new_name_or_None).
 _deprecated_ignore_map = {
-    'text.dvipnghack': ('2.1', None),
-    'nbagg.transparent': ('2.2', 'figure.facecolor'),
-    'plugins.directory': ('2.2', None),
     'pgf.debug': ('3.0', None),
 }
 
@@ -705,9 +702,6 @@ _deprecated_ignore_map = {
 # listed in the rcParams (not included in _all_deprecated).
 # Values are tuples of (version,)
 _deprecated_remain_as_none = {
-    'axes.hold': ('2.1',),
-    'backend.qt4': ('2.2',),
-    'backend.qt5': ('2.2',),
     'text.latex.unicode': ('3.0',),
 }
 
@@ -771,14 +765,8 @@ class RcParams(MutableMapping, dict):
                 val = alt_val(val)
             elif key in _deprecated_remain_as_none and val is not None:
                 version, = _deprecated_remain_as_none[key]
-                addendum = ''
-                if key.startswith('backend'):
-                    addendum = (
-                        "In order to force the use of a specific Qt binding, "
-                        "either import that binding first, or set the QT_API "
-                        "environment variable.")
                 cbook.warn_deprecated(
-                    version, name=key, obj_type="rcparam", addendum=addendum)
+                    version, name=key, obj_type="rcparam")
             elif key in _deprecated_ignore_map:
                 version, alt_key = _deprecated_ignore_map[key]
                 cbook.warn_deprecated(

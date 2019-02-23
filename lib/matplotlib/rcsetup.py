@@ -267,12 +267,14 @@ def validate_backend(s):
     return backend
 
 
+@cbook.deprecated("3.1")
 def validate_qt4(s):
     if s is None:
         return None
     return ValidateInStrings("backend.qt4", ['PyQt4', 'PySide', 'PyQt4v2'])(s)
 
 
+@cbook.deprecated("3.1")
 def validate_qt5(s):
     if s is None:
         return None
@@ -993,13 +995,10 @@ def _validate_linestyle(ls):
 defaultParams = {
     'backend':           [_auto_backend_sentinel, validate_backend],
     'backend_fallback':  [True, validate_bool],
-    'backend.qt4':       [None, validate_qt4],
-    'backend.qt5':       [None, validate_qt5],
     'webagg.port':       [8988, validate_int],
     'webagg.address':    ['127.0.0.1', validate_webagg_address],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
-    'nbagg.transparent':       [True, validate_bool],
     'toolbar':           ['toolbar2', validate_toolbar],
     'datapath':          [None, validate_path_exists],  # handled by
                                                         # _get_data_path_cached
@@ -1129,7 +1128,6 @@ defaultParams = {
     'text.latex.unicode':  [True, validate_bool],
     'text.latex.preamble': ['', _validate_tex_preamble],
     'text.latex.preview':  [False, validate_bool],
-    'text.dvipnghack':     [None, validate_bool_maybe_none],
     'text.hinting':        ['auto', validate_hinting],
     'text.hinting_factor': [8, validate_int],
     'text.antialiased':    [True, validate_bool],
@@ -1412,8 +1410,6 @@ defaultParams = {
 
     # set this when you want to generate hardcopy docstring
     'docstring.hardcopy': [False, validate_bool],
-    # where plugin directory is locate
-    'plugins.directory':  ['.matplotlib_plugins', validate_string],
 
     'path.simplify': [True, validate_bool],
     'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
