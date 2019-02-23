@@ -101,6 +101,7 @@ need to create a python2 environment with ``requests==2.9.0`` and linkchecker ::
   pip install linkchecker
   pushd doc/build/html
   linkchecker index.html --check-extern
+  popd
 
 Address any issues which may arise.  The internal links are checked on travis, this should only
 flag failed external links.
