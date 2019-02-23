@@ -1,4 +1,4 @@
-.. _github-stats_223:
+.. _github-stats_2-2-3:
 
 GitHub Stats
 ============
