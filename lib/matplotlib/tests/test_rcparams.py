@@ -124,7 +124,6 @@ def test_Bug_2543():
             _copy = mpl.rcParams.copy()
             for key in _copy:
                 mpl.rcParams[key] = _copy[key]
-            mpl.rcParams['text.dvipnghack'] = None
         with mpl.rc_context():
             _deep_copy = copy.deepcopy(mpl.rcParams)
         # real test is that this does not raise
