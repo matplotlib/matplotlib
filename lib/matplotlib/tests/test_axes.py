@@ -1085,7 +1085,10 @@ def test_fill_between_interpolate_decreasing():
     ax.set_ylim(800, 600)
 
 
-@image_comparison(baseline_images=['symlog'])
+# test_symlog and test_symlog2 used to have baseline images in all three
+# formats, but the png and svg baselines got invalidated by the removal of
+# minor tick overstriking.
+@image_comparison(baseline_images=['symlog'], extensions=['pdf'])
 def test_symlog():
     x = np.array([0, 1, 2, 4, 6, 9, 12, 24])
     y = np.array([1000000, 500000, 100000, 100, 5, 0, 0, 0])
@@ -1097,7 +1100,7 @@ def test_symlog():
     ax.set_ylim(-1, 10000000)
 
 
-@image_comparison(baseline_images=['symlog2'],
+@image_comparison(baseline_images=['symlog2'], extensions=['pdf'],
                   remove_text=True)
 def test_symlog2():
     # Numbers from -50 to 50, with 0.1 as step
