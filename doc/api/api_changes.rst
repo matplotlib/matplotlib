@@ -13,11 +13,11 @@ For new features that were added to Matplotlib, please see
 .. for a release comment out the toctree below
 
 
-.. toctree::
-   :glob:
-   :maxdepth: 1
+   .. toctree::
+      :glob:
+      :maxdepth: 1
 
-   next_api_changes/*
+      next_api_changes/*
 
 
 API Changes in 2.2.0
