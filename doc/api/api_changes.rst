@@ -52,5 +52,3 @@ Switching backends via `matplotlib.use` is now allowed by default,
 regardless of whether `matplotlib.pyplot` has been imported. If the user
 tries to switch from an already-started interactive backend to a different
 interactive backend, an ImportError will be raised.
-
-
