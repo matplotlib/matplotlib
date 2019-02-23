@@ -102,6 +102,7 @@ class TextToPath(object):
         d /= 64.0
         return w * scale, h * scale, d * scale
 
+    @cbook._delete_parameter("3.1", "usetex")
     def get_text_path(self, prop, s, ismath=False, usetex=False):
         """
         Convert text *s* to path (a tuple of vertices and codes for
@@ -116,12 +117,11 @@ class TextToPath(object):
         s : str
             The text to be converted.
 
-        usetex : bool, optional
-            Whether to use tex rendering. Defaults to ``False``.
+        ismath : {False, True, "TeX"}
+            If True, use mathtext parser.  If "TeX", use tex for renderering.
 
-        ismath : bool, optional
-            If True, use mathtext parser. Effective only if
-            ``usetex == False``.
+        usetex : bool, optional
+            If set, forces *ismath* to True.  This parameter is deprecated.
 
         Returns
         -------
@@ -146,16 +146,15 @@ class TextToPath(object):
 
         Also see `TextPath` for a more direct way to create a path from a text.
         """
-        if not usetex:
-            if not ismath:
-                font = self._get_font(prop)
-                glyph_info, glyph_map, rects = self.get_glyphs_with_font(
-                                                    font, s)
-            else:
-                glyph_info, glyph_map, rects = self.get_glyphs_mathtext(
-                                                    prop, s)
-        else:
+        if usetex:
+            ismath = "TeX"
+        if ismath == "TeX":
             glyph_info, glyph_map, rects = self.get_glyphs_tex(prop, s)
+        elif not ismath:
+            font = self._get_font(prop)
+            glyph_info, glyph_map, rects = self.get_glyphs_with_font(font, s)
+        else:
+            glyph_info, glyph_map, rects = self.get_glyphs_mathtext(prop, s)
 
         verts, codes = [], []
 
@@ -448,6 +447,8 @@ class TextPath(Path):
 
         Also see :doc:`/gallery/text_labels_and_annotations/demo_text_path`.
         """
+        # Circular import.
+        from matplotlib.text import Text
 
         if args or kwargs:
             cbook.warn_deprecated(
@@ -463,8 +464,13 @@ class TextPath(Path):
         self.set_size(size)
 
         self._cached_vertices = None
-        self._vertices, self._codes = \
-            self.text_get_vertices_codes(prop, s, usetex=usetex)
+        s, ismath = Text(usetex=usetex)._preprocess_math(s)
+        if ismath == "TeX":
+            self._vertices, self._codes = text_to_path.get_text_path(
+                prop, s, usetex=True)
+        else:
+            self._vertices, self._codes = text_to_path.get_text_path(
+                prop, s, ismath=ismath)
         self._should_simplify = False
         self._simplify_threshold = rcParams['path.simplify_threshold']
         self._interpolation_steps = _interpolation_steps
@@ -507,6 +513,7 @@ class TextPath(Path):
             self._cached_vertices = tr.transform(self._vertices)
             self._invalid = False
 
+    @cbook.deprecated("3.1")
     def is_math_text(self, s):
         """
         Returns True if the given string *s* contains any mathtext.
@@ -526,6 +533,7 @@ class TextPath(Path):
         else:
             return s.replace(r'\$', '$'), False
 
+    @cbook.deprecated("3.1", alternative="TextPath")
     def text_get_vertices_codes(self, prop, s, usetex):
         """
         Convert string *s* to a (vertices, codes) pair using font property
