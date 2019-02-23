@@ -50,7 +50,11 @@ is currently broken::
 GitHub Stats
 ------------
 
-We automatically extract GitHub issue, PRs, and authors from GitHub via the API::
+
+We automatically extract GitHub issue, PRs, and authors from GitHub via the API.
+copy the current :file:`github_stats.rst` to :file:`github_stats_X.Y.Z.rst`.
+
+To re-generate the updated ::
 
   python tools/github_stats.py --since-tag v2.2.0 --milestone=v3.0 --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
 
