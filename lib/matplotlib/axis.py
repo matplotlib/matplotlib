@@ -204,9 +204,7 @@ class Tick(martist.Artist):
         else:
             mode = 'default'
             angle = labelrotation
-        if mode not in ('auto', 'default'):
-            raise ValueError("Label rotation mode must be 'default' or "
-                             "'auto', not '{}'.".format(mode))
+        cbook._check_in_list(['auto', 'default'], labelrotation=mode)
         self._labelrotation = (mode, angle)
 
     def apply_tickdir(self, tickdir):
@@ -1269,8 +1267,7 @@ class Axis(martist.Artist):
             elif which == 'both':
                 return self.get_majorticklabels() + self.get_minorticklabels()
             else:
-                raise ValueError("`which` must be one of ('minor', 'major', "
-                                 "'both') not " + str(which))
+                cbook._check_in_list(['major', 'minor', 'both'], which=which)
         if minor:
             return self.get_minorticklabels()
         return self.get_majorticklabels()
@@ -1426,9 +1423,7 @@ class Axis(martist.Artist):
                                      'grid will be enabled.')
             b = True
         which = which.lower()
-        if which not in ['major', 'minor', 'both']:
-            raise ValueError("The argument 'which' must be one of 'major', "
-                             "'minor' or 'both'.")
+        cbook._check_in_list(['major', 'minor', 'both'], which=which)
         gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
 
         if which in ['minor', 'both']:

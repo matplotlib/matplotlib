@@ -463,9 +463,7 @@ class AxisLabel(LabelBase, AttributeCopier):
                                top=("bottom", "center"))
 
     def set_default_alignment(self, d):
-        if d not in ["left", "right", "top", "bottom"]:
-            raise ValueError(
-                'direction must be on of "left", "right", "top", "bottom"')
+        cbook._check_in_list(["left", "right", "top", "bottom"], d=d)
         va, ha = self._default_alignments[d]
         self.set_va(va)
         self.set_ha(ha)
@@ -476,9 +474,7 @@ class AxisLabel(LabelBase, AttributeCopier):
                            top=180)
 
     def set_default_angle(self, d):
-        if d not in ["left", "right", "top", "bottom"]:
-            raise ValueError(
-                'direction must be on of "left", "right", "top", "bottom"')
+        cbook._check_in_list(["left", "right", "top", "bottom"], d=d)
         self.set_rotation(self._default_angles[d])
 
     def set_axis_direction(self, d):
@@ -500,9 +496,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         axis.
 
         """
-        if d not in ["left", "right", "top", "bottom"]:
-            raise ValueError(
-                'direction must be on of "left", "right", "top", "bottom"')
+        cbook._check_in_list(["left", "right", "top", "bottom"], d=d)
         self.set_default_alignment(d)
         self.set_default_angle(d)
 
@@ -558,8 +552,7 @@ class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
         Adjust the text angle and text alignment of ticklabels
         according to the matplotlib convention.
 
-        The *label_direction* must be one of [left, right, bottom,
-        top].
+        The *label_direction* must be one of [left, right, bottom, top].
 
         =====================    ========== ========= ========== ==========
         property                 left       bottom    right      top
@@ -569,15 +562,12 @@ class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
         ticklabel ha             right      center    right      center
         =====================    ========== ========= ========== ==========
 
-
         Note that the text angles are actually relative to (90 + angle
         of the direction to the ticklabel), which gives 0 for bottom
         axis.
         """
-
-        if label_direction not in ["left", "right", "top", "bottom"]:
-            raise ValueError(
-                'direction must be one of "left", "right", "top", "bottom"')
+        cbook._check_in_list(["left", "right", "top", "bottom"],
+                             label_direction=label_direction)
         self._axis_direction = label_direction
         self.set_default_alignment(label_direction)
         self.set_default_angle(label_direction)
@@ -831,8 +821,7 @@ class AxisArtist(martist.Artist):
         ticklabels, labels following the matplotlib convention for
         the rectangle axes.
 
-        The *axis_direction* must be one of [left, right, bottom,
-        top].
+        The *axis_direction* must be one of [left, right, bottom, top].
 
         =====================    ========== ========= ========== ==========
         property                 left       bottom    right      top
@@ -847,17 +836,13 @@ class AxisArtist(martist.Artist):
         axislabel ha             right      center    right      center
         =====================    ========== ========= ========== ==========
 
-
         Note that the direction "+" and "-" are relative to the direction of
         the increasing coordinate. Also, the text angles are actually
         relative to (90 + angle of the direction to the ticklabel),
         which gives 0 for bottom axis.
-
         """
-
-        if axis_direction not in ["left", "right", "top", "bottom"]:
-            raise ValueError(
-                'direction must be on of "left", "right", "top", "bottom"')
+        cbook._check_in_list(["left", "right", "top", "bottom"],
+                             axis_direction=axis_direction)
         self._axis_direction = axis_direction
         if axis_direction in ["left", "top"]:
             self.set_ticklabel_direction("-")
@@ -865,7 +850,6 @@ class AxisArtist(martist.Artist):
         else:
             self.set_ticklabel_direction("+")
             self.set_axislabel_direction("+")
-
         self.major_ticklabels.set_axis_direction(axis_direction)
         self.label.set_axis_direction(axis_direction)
 
@@ -880,14 +864,8 @@ class AxisArtist(martist.Artist):
         ----------
         tick_direction : {"+", "-"}
         """
-
-        if tick_direction not in ["+", "-"]:
-            raise ValueError('direction must be one of "+", "-"')
-
-        if tick_direction == "-":
-            self._ticklabel_add_angle = 180
-        else:
-            self._ticklabel_add_angle = 0
+        cbook._check_in_list(["+", "-"], tick_direction=tick_direction)
+        self._ticklabel_add_angle = {"+": 0, "-": 180}[tick_direction]
 
     def invert_ticklabel_direction(self):
         self._ticklabel_add_angle = (self._ticklabel_add_angle + 180) % 360
@@ -905,13 +883,8 @@ class AxisArtist(martist.Artist):
         ----------
         tick_direction : {"+", "-"}
         """
-        if label_direction not in ["+", "-"]:
-            raise ValueError('direction must be one of "+", "-"')
-
-        if label_direction == "-":
-            self._axislabel_add_angle = 180
-        else:
-            self._axislabel_add_angle = 0
+        cbook._check_in_list(["+", "-"], label_direction=label_direction)
+        self._axislabel_add_angle = {"+": 0, "-": 180}[label_direction]
 
     def get_transform(self):
         return self.axes.transAxes + self.offset_transform

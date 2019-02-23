@@ -939,10 +939,7 @@ class Text(Artist):
         ----------
         align : {'center', 'right', 'left'}
         """
-        legal = ('center', 'right', 'left')
-        if align not in legal:
-            raise ValueError('Horizontal alignment must be one of %s' %
-                             str(legal))
+        cbook._check_in_list(['center', 'right', 'left'], align=align)
         self._horizontalalignment = align
         self.stale = True
 
@@ -957,10 +954,7 @@ class Text(Artist):
         ----------
         align : {'left', 'right', 'center'}
         """
-        legal = ('center', 'right', 'left')
-        if align not in legal:
-            raise ValueError('Horizontal alignment must be one of %s' %
-                             str(legal))
+        cbook._check_in_list(['center', 'right', 'left'], align=align)
         self._multialignment = align
         self.stale = True
 
@@ -1128,11 +1122,9 @@ class Text(Artist):
         ----------
         align : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
         """
-        legal = ('top', 'bottom', 'center', 'baseline', 'center_baseline')
-        if align not in legal:
-            raise ValueError('Vertical alignment must be one of %s' %
-                             str(legal))
-
+        cbook._check_in_list(
+            ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
+            align=align)
         self._verticalalignment = align
         self.stale = True
 
@@ -1690,8 +1682,7 @@ class OffsetFrom(object):
         ----------
         unit : {'points', 'pixels'}
         '''
-        if unit not in ["points", "pixels"]:
-            raise ValueError("'unit' must be one of [ 'points' | 'pixels' ]")
+        cbook._check_in_list(["points", "pixels"], unit=unit)
         self._unit = unit
 
     def get_unit(self):

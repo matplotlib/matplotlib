@@ -464,8 +464,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         offset_position : {'screen', 'data'}
         """
-        if offset_position not in ('screen', 'data'):
-            raise ValueError("offset_position must be 'screen' or 'data'")
+        cbook._check_in_list(['screen', 'data'],
+                             offset_position=offset_position)
         self._offset_position = offset_position
         self.stale = True
 
@@ -1490,7 +1490,8 @@ class EventCollection(LineCollection):
                         coord1 in positions]
             self._is_horizontal = False
         else:
-            raise ValueError("orientation must be 'horizontal' or 'vertical'")
+            cbook._check_in_list(['horizontal', 'vertical'],
+                                 orientation=orientation)
 
         LineCollection.__init__(self,
                                 segments,
@@ -1583,8 +1584,8 @@ class EventCollection(LineCollection):
         elif orientation.lower() == 'vertical':
             is_horizontal = False
         else:
-            raise ValueError("orientation must be 'horizontal' or 'vertical'")
-
+            cbook._check_in_list(['horizontal', 'vertical'],
+                                 orientation=orientation)
         if is_horizontal == self.is_horizontal():
             return
         self.switch_orientation()

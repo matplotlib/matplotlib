@@ -1,0 +1,5 @@
+Changed exceptions
+``````````````````
+
+- `mpl_toolkits.axes_grid1.axes_size.GetExtentHelper` now raises `ValueError`
+  for invalid directions instead of `KeyError`.
