@@ -1,6 +1,6 @@
 import functools
 
-from matplotlib import artist as martist, transforms as mtransforms
+from matplotlib import artist as martist, cbook, transforms as mtransforms
 from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
 from .mpl_axes import Axes
@@ -82,10 +82,8 @@ class ParasiteAxesAuxTransBase:
                 self.transAxes, self.transData)
 
     def set_viewlim_mode(self, mode):
-        if mode not in [None, "equal", "transform"]:
-            raise ValueError("Unknown mode: %s" % (mode,))
-        else:
-            self._viewlim_mode = mode
+        cbook._check_in_list([None, "equal", "transform"], mode=mode)
+        self._viewlim_mode = mode
 
     def get_viewlim_mode(self):
         return self._viewlim_mode
@@ -101,7 +99,7 @@ class ParasiteAxesAuxTransBase:
             self.axes.viewLim.set(
                 viewlim.transformed(self.transAux.inverted()))
         else:
-            raise ValueError("Unknown mode: %s" % (self._viewlim_mode,))
+            cbook._check_in_list([None, "equal", "transform"], mode=mode)
 
     def _pcolor(self, super_pcolor, *XYC, **kwargs):
         if len(XYC) == 1:

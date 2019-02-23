@@ -459,10 +459,7 @@ class Quiver(mcollections.PolyCollection):
         if pivot.lower() == 'mid':
             pivot = 'middle'
         self.pivot = pivot.lower()
-        if self.pivot not in self._PIVOT_VALS:
-            raise ValueError(
-                'pivot must be one of {keys}, you passed {inp}'.format(
-                      keys=self._PIVOT_VALS, inp=pivot))
+        cbook._check_in_list(self._PIVOT_VALS, pivot=self.pivot)
 
         self.transform = kw.pop('transform', ax.transData)
         kw.setdefault('facecolors', color)

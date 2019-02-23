@@ -3,12 +3,12 @@ import types
 
 import numpy as np
 
+from matplotlib import cbook, rcParams
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
-from matplotlib import rcParams
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.spines as mspines
@@ -908,9 +908,7 @@ class PolarAxes(Axes):
             self._r_label_position + self.transData)
 
     def get_xaxis_transform(self, which='grid'):
-        if which not in ['tick1', 'tick2', 'grid']:
-            raise ValueError(
-                "'which' must be one of 'tick1', 'tick2', or 'grid'")
+        cbook._check_in_list(['tick1', 'tick2', 'grid'], which=which)
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -925,8 +923,7 @@ class PolarAxes(Axes):
         elif which == 'grid':
             return self._yaxis_transform
         else:
-            raise ValueError(
-                "'which' must be one of 'tick1', 'tick2', or 'grid'")
+            cbook._check_in_list(['tick1', 'tick2', 'grid'], which=which)
 
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx
@@ -1085,8 +1082,9 @@ class PolarAxes(Axes):
         elif direction in ('counterclockwise', 'anticlockwise', 1):
             mtx[0, 0] = 1
         else:
-            raise ValueError(
-                "direction must be 1, -1, clockwise or counterclockwise")
+            cbook._check_in_list(
+                [-1, 1, 'clockwise', 'counterclockwise', 'anticlockwise'],
+                direction=direction)
         self._direction.invalidate()
 
     def get_theta_direction(self):

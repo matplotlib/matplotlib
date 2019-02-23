@@ -1328,8 +1328,7 @@ class _AxesBase(martist.Artist):
         which the adjustments for aspect ratios are done sequentially
         and independently on each Axes as it is drawn.
         """
-        if adjustable not in ('box', 'datalim'):
-            raise ValueError("argument must be 'box', or 'datalim'")
+        cbook._check_in_list(["box", "datalim"], adjustable=adjustable)
         if share:
             axes = set(self._shared_x_axes.get_siblings(self)
                        + self._shared_y_axes.get_siblings(self))
@@ -2745,9 +2744,7 @@ class _AxesBase(martist.Artist):
         """
         if len(kwargs):
             b = True
-        if axis not in ['x', 'y', 'both']:
-            raise ValueError("The argument 'axis' must be one of 'x', 'y' or "
-                             "'both'.")
+        cbook._check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
             self.xaxis.grid(b, which=which, **kwargs)
         if axis in ['y', 'both']:
@@ -2963,8 +2960,7 @@ class _AxesBase(martist.Artist):
         also be red.  Gridlines will be red and translucent.
 
         """
-        if axis not in ['x', 'y', 'both']:
-            raise ValueError("axis must be one of 'x', 'y' or 'both'")
+        cbook._check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
             xkw = dict(kwargs)
             xkw.pop('left', None)

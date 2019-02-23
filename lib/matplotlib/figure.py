@@ -1524,23 +1524,17 @@ default: 'top'
             sharex = "all" if sharex else "none"
         if isinstance(sharey, bool):
             sharey = "all" if sharey else "none"
-        share_values = ["all", "row", "col", "none"]
-        if sharex not in share_values:
-            # This check was added because it is very easy to type
-            # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
-            # In most cases, no error will ever occur, but mysterious behavior
-            # will result because what was intended to be the subplot index is
-            # instead treated as a bool for sharex.
-            if isinstance(sharex, Integral):
-                cbook._warn_external("sharex argument to subplots() was an "
-                                     "integer. Did you intend to use "
-                                     "subplot() (without 's')?")
-
-            raise ValueError("sharex [%s] must be one of %s" %
-                             (sharex, share_values))
-        if sharey not in share_values:
-            raise ValueError("sharey [%s] must be one of %s" %
-                             (sharey, share_values))
+        # This check was added because it is very easy to type
+        # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
+        # In most cases, no error will ever occur, but mysterious behavior
+        # will result because what was intended to be the subplot index is
+        # instead treated as a bool for sharex.
+        if isinstance(sharex, Integral):
+            cbook._warn_external(
+                "sharex argument to subplots() was an integer.  Did you "
+                "intend to use subplot() (without 's')?")
+        cbook._check_in_list(["all", "row", "col", "none"],
+                             sharex=sharex, sharey=sharey)
         if subplot_kw is None:
             subplot_kw = {}
         if gridspec_kw is None:

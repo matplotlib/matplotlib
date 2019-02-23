@@ -267,7 +267,6 @@ class Divider(object):
         return AxesLocator(self, nx, ny, nx1, ny1)
 
     def append_size(self, position, size):
-
         if position == "left":
             self._horizontal.insert(0, size)
             self._xrefindex += 1
@@ -279,8 +278,8 @@ class Divider(object):
         elif position == "top":
             self._vertical.append(size)
         else:
-            raise ValueError("the position must be one of left," +
-                             " right, bottom, or top")
+            cbook._check_in_list(["left", "right", "bottom", "top"],
+                                 position=position)
 
     def add_auto_adjustable_area(self,
                                  use_axes, pad=0.1,
@@ -613,7 +612,6 @@ class AxesDivider(Divider):
 
          *size* and *pad* should be axes_grid.axes_size compatible.
         """
-
         if position == "left":
             ax = self.new_horizontal(size, pad, pack_start=True, **kwargs)
         elif position == "right":
@@ -623,9 +621,8 @@ class AxesDivider(Divider):
         elif position == "top":
             ax = self.new_vertical(size, pad, pack_start=False, **kwargs)
         else:
-            raise ValueError("the position must be one of left," +
-                             " right, bottom, or top")
-
+            cbook._check_in_list(["left", "right", "bottom", "top"],
+                                 position=position)
         if add_to_figure:
             self._fig.add_axes(ax)
         return ax

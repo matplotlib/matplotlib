@@ -14,7 +14,7 @@ from numbers import Integral
 
 import numpy as np
 
-from . import rcParams
+from . import cbook, rcParams
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -1760,8 +1760,7 @@ class SpanSelector(_SelectorWidget):
 
         rectprops['animated'] = self.useblit
 
-        if direction not in ['horizontal', 'vertical']:
-            raise ValueError("direction must be 'horizontal' or 'vertical'")
+        cbook._check_in_list(['horizontal', 'vertical'], direction=direction)
         self.direction = direction
 
         self.rect = None
@@ -2109,9 +2108,7 @@ class RectangleSelector(_SelectorWidget):
         self.minspanx = minspanx
         self.minspany = minspany
 
-        if spancoords not in ('data', 'pixels'):
-            raise ValueError("'spancoords' must be 'data' or 'pixels'")
-
+        cbook._check_in_list(['data', 'pixels'], spancoords=spancoords)
         self.spancoords = spancoords
         self.drawtype = drawtype
 
@@ -2193,7 +2190,8 @@ class RectangleSelector(_SelectorWidget):
             xmin, ymin = self.eventpress.x, self.eventpress.y
             xmax, ymax = self.eventrelease.x, self.eventrelease.y
         else:
-            raise ValueError('spancoords must be "data" or "pixels"')
+            cbook._check_in_list(['data', 'pixels'],
+                                 spancoords=self.spancoords)
 
         if xmin > xmax:
             xmin, xmax = xmax, xmin

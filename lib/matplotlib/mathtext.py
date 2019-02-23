@@ -3351,14 +3351,10 @@ class MathTextParser(object):
             font_output = StandardPsFonts(prop)
         else:
             backend = self._backend_mapping[self._output]()
-            fontset = rcParams['mathtext.fontset']
-            fontset_class = self._font_type_mapping.get(fontset.lower())
-            if fontset_class is not None:
-                font_output = fontset_class(prop, backend)
-            else:
-                raise ValueError(
-                    "mathtext.fontset must be either 'cm', 'dejavuserif', "
-                    "'dejavusans', 'stix', 'stixsans', or 'custom'")
+            fontset = rcParams['mathtext.fontset'].lower()
+            cbook._check_in_list(self._font_type_mapping, fontset=fontset)
+            fontset_class = self._font_type_mapping[fontset]
+            font_output = fontset_class(prop, backend)
 
         fontsize = prop.get_size_in_points()
 
