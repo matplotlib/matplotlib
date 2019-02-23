@@ -24,7 +24,7 @@ revision, see the :ref:`github-stats`.
 
 
 axes_grid1 and axisartist Axes no longer draw spines twice
-``````````````````````````````````````````````````````````
+----------------------------------------------------------
 
 Previously, spines of `axes_grid1` and `axisartist` Axes would be drawn twice,
 leading to a "bold" appearance.  This is no longer the case.
