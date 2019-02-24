@@ -697,10 +697,14 @@ class TestEngFormatter(object):
     # (input, expected) where ''expected'' corresponds to the outputs
     # respectively returned when (places=None, places=0, places=2)
     raw_format_data = [
-        (-1234.56789, ('-1.23457 k', '-1 k', '-1.23 k')),
-        (-1.23456789, ('-1.23457', '-1', '-1.23')),
-        (-0.123456789, ('-123.457 m', '-123 m', '-123.46 m')),
-        (-0.00123456789, ('-1.23457 m', '-1 m', '-1.23 m')),
+        (-1234.56789, ('\N{MINUS SIGN}1.23457 k', '\N{MINUS SIGN}1 k',
+                       '\N{MINUS SIGN}1.23 k')),
+        (-1.23456789, ('\N{MINUS SIGN}1.23457', '\N{MINUS SIGN}1',
+                       '\N{MINUS SIGN}1.23')),
+        (-0.123456789, ('\N{MINUS SIGN}123.457 m', '\N{MINUS SIGN}123 m',
+                        '\N{MINUS SIGN}123.46 m')),
+        (-0.00123456789, ('\N{MINUS SIGN}1.23457 m', '\N{MINUS SIGN}1 m',
+                          '\N{MINUS SIGN}1.23 m')),
         (-0.0, ('0', '0', '0.00')),
         (-0, ('0', '0', '0.00')),
         (0, ('0', '0', '0.00')),
@@ -711,7 +715,8 @@ class TestEngFormatter(object):
         (1.23456789, ('1.23457', '1', '1.23')),
         (999.9, ('999.9', '1 k', '999.90')),  # places=0: corner-case rounding
         (999.9999, ('1 k', '1 k', '1.00 k')),  # corner-case rounding for all
-        (-999.9999, ('-1 k', '-1 k', '-1.00 k')),  # negative corner-case
+        (-999.9999, ('\N{MINUS SIGN}1 k', '\N{MINUS SIGN}1 k',
+                     '\N{MINUS SIGN}1.00 k')),  # negative corner-case
         (1000, ('1 k', '1 k', '1.00 k')),
         (1001, ('1.001 k', '1 k', '1.00 k')),
         (100001, ('100.001 k', '100 k', '100.00 k')),
