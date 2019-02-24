@@ -32,11 +32,16 @@ tagged commit should be tested locally before it is uploaded::
    pytest -n 8 .
 
 
-In addition the following two tests should be run and manually inspected::
+In addition the following test should be run and manually inspected::
 
-   python unit/memleak_hawaii3.py
+   python unit/memleak.py agg agg.pdf
+
+
+In addition the following should be run and manually inspected, but
+is currently broken::
+
    pushd examples/tests/
-   python backend_driver.py
+   python backend_driver_sgskip.py
    popd
 
 
@@ -45,7 +50,11 @@ In addition the following two tests should be run and manually inspected::
 GitHub Stats
 ------------
 
-We automatically extract GitHub issue, PRs, and authors from GitHub via the API::
+
+We automatically extract GitHub issue, PRs, and authors from GitHub via the API.
+copy the current :file:`github_stats.rst` to :file:`github_stats_X.Y.Z.rst`.
+
+To re-generate the updated ::
 
   python tools/github_stats.py --since-tag v2.2.0 --milestone=v3.0 --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
 
@@ -64,6 +73,9 @@ Review and commit changes.  Some issue/PR titles may not be valid rst (the most 
 
 Update and Validate the Docs
 ----------------------------
+
+Merge the most recent 'doc' branch (``v3.0.2-doc``) into the branch you
+are going to tag on and delete the doc branch on GitHub.
 
 Before tagging, update the "what's new" and "API changes" listings.
 
@@ -96,6 +108,7 @@ need to create a python2 environment with ``requests==2.9.0`` and linkchecker ::
   pip install linkchecker
   pushd doc/build/html
   linkchecker index.html --check-extern
+  popd
 
 Address any issues which may arise.  The internal links are checked on travis, this should only
 flag failed external links.
