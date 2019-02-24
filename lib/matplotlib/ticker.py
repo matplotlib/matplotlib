@@ -1200,7 +1200,8 @@ class EngFormatter(Formatter):
          24: "Y"
     }
 
-    def __init__(self, unit="", places=None, sep=" ", useMathText=None):
+    def __init__(self, unit="", places=None, sep=" ", usetex=None,
+                 useMathText=None):
         """
         Parameters
         ----------
@@ -1226,13 +1227,31 @@ class EngFormatter(Formatter):
             * ``sep="\\N{THIN SPACE}"`` (``U+2009``);
             * ``sep="\\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
             * ``sep="\\N{NO-BREAK SPACE}"`` (``U+00A0``).
+                `
+        usetex : bool (default: None)
+            To enable/disable the use of TeX's math mode for rendering the
+            numbers in the formatter.
+
+        useMathText : bool (default: None)
+            To enable/disable the use mathtext for rendering the numbers in
+            the formatter.
         """
         self.unit = unit
         self.places = places
         self.sep = sep
-        if useMathText is None:
-            useMathText = rcParams['axes.formatter.use_mathtext']
+        self.set_usetex(usetex)
         self.set_useMathText(useMathText)
+
+    def get_usetex(self):
+        return self._usetex
+
+    def set_usetex(self, val):
+        if val is None:
+            self._usetex = rcParams['text.usetex']
+        else:
+            self._usetex = val
+
+    usetex = property(fget=get_usetex, fset=set_usetex)
 
     def get_useMathText(self):
         return self._useMathText
@@ -1295,7 +1314,7 @@ class EngFormatter(Formatter):
             pow10 += 3
 
         prefix = self.ENG_PREFIXES[int(pow10)]
-        if self._useMathText:
+        if self._usetex or self._useMathText:
             formatted = "${mant:{fmt}}${sep}{prefix}".format(
                 mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
         else:
