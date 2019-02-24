@@ -1227,7 +1227,7 @@ class EngFormatter(Formatter):
             * ``sep="\\N{THIN SPACE}"`` (``U+2009``);
             * ``sep="\\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
             * ``sep="\\N{NO-BREAK SPACE}"`` (``U+00A0``).
-                `
+
         usetex : bool (default: None)
             To enable/disable the use of TeX's math mode for rendering the
             numbers in the formatter.
