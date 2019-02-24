@@ -1200,7 +1200,7 @@ class EngFormatter(Formatter):
          24: "Y"
     }
 
-    def __init__(self, unit="", places=None, sep=" ", usetex=None,
+    def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
                  useMathText=None):
         """
         Parameters
