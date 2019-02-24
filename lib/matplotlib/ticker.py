@@ -2061,6 +2061,7 @@ class MaxNLocator(Locator):
             return dmin, dmax
 
 
+@cbook.deprecated("3.1")
 def decade_down(x, base=10):
     'floor x to the nearest lower decade'
     if x == 0.0:
@@ -2069,6 +2070,7 @@ def decade_down(x, base=10):
     return base ** lx
 
 
+@cbook.deprecated("3.1")
 def decade_up(x, base=10):
     'ceil x to the nearest higher decade'
     if x == 0.0:
@@ -2092,6 +2094,56 @@ def is_decade(x, base=10):
         return True
     lx = np.log(np.abs(x)) / np.log(base)
     return is_close_to_int(lx)
+
+
+def _decade_less_equal(x, base):
+    """
+    Return the largest integer power of *base* that's less or equal to *x*.
+
+    If *x* is negative, the exponent will be *greater*.
+    """
+    return (x if x == 0 else
+            -_decade_greater_equal(-x, base) if x < 0 else
+            base ** np.floor(np.log(x) / np.log(base)))
+
+
+def _decade_greater_equal(x, base):
+    """
+    Return the smallest integer power of *base* that's greater or equal to *x*.
+
+    If *x* is negative, the exponent will be *smaller*.
+    """
+    return (x if x == 0 else
+            -_decade_less_equal(-x, base) if x < 0 else
+            base ** np.ceil(np.log(x) / np.log(base)))
+
+
+def _decade_less(x, base):
+    """
+    Return the largest integer power of *base* that's less than *x*.
+
+    If *x* is negative, the exponent will be *greater*.
+    """
+    if x < 0:
+        return -_decade_greater(-x, base)
+    less = _decade_less_equal(x, base)
+    if less == x:
+        less /= base
+    return less
+
+
+def _decade_greater(x, base):
+    """
+    Return the smallest integer power of *base* that's greater than *x*.
+
+    If *x* is negative, the exponent will be *smaller*.
+    """
+    if x < 0:
+        return -_decade_less(-x, base)
+    greater = _decade_greater_equal(x, base)
+    if greater == x:
+        greater *= base
+    return greater
 
 
 def is_close_to_int(x):
@@ -2271,10 +2323,8 @@ class LogLocator(Locator):
             vmin = b ** (vmax - self.numdecs)
 
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            if not is_decade(vmin, self._base):
-                vmin = decade_down(vmin, self._base)
-            if not is_decade(vmax, self._base):
-                vmax = decade_up(vmax, self._base)
+            vmin = _decade_less_equal(vmin, self._base)
+            vmax = _decade_greater_equal(vmax, self._base)
 
         return vmin, vmax
 
@@ -2296,8 +2346,8 @@ class LogLocator(Locator):
         if vmin <= 0:
             vmin = minpos
         if vmin == vmax:
-            vmin = decade_down(vmin, self._base)
-            vmax = decade_up(vmax, self._base)
+            vmin = _decade_less(vmin, self._base)
+            vmax = _decade_greater(vmax, self._base)
         return vmin, vmax
 
 
@@ -2451,24 +2501,11 @@ class SymmetricalLogLocator(Locator):
             vmin, vmax = vmax, vmin
 
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            if not is_decade(abs(vmin), b):
-                if vmin < 0:
-                    vmin = -decade_up(-vmin, b)
-                else:
-                    vmin = decade_down(vmin, b)
-            if not is_decade(abs(vmax), b):
-                if vmax < 0:
-                    vmax = -decade_down(-vmax, b)
-                else:
-                    vmax = decade_up(vmax, b)
-
+            vmin = _decade_less_equal(vmin, b)
+            vmax = _decade_greater_equal(vmax, b)
             if vmin == vmax:
-                if vmin < 0:
-                    vmin = -decade_up(-vmin, b)
-                    vmax = -decade_down(-vmax, b)
-                else:
-                    vmin = decade_down(vmin, b)
-                    vmax = decade_up(vmax, b)
+                vmin = _decade_less(vmin, b)
+                vmax = _decade_greater(vmax, b)
 
         result = mtransforms.nonsingular(vmin, vmax)
         return result
