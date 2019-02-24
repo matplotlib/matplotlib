@@ -18,7 +18,7 @@ and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
-
+import copy
 import logging
 
 import numpy as np
@@ -489,6 +489,7 @@ class ColorbarBase(_ColorbarMappableDummy):
         # units:
         X, Y = self._mesh()
         C = self._values[:, np.newaxis]
+        # decide minor/major axis
         self.config_axis()
         self._config_axes(X, Y)
         if self.filled:
@@ -565,10 +566,8 @@ class ColorbarBase(_ColorbarMappableDummy):
         Return if we should use an adjustable tick locator or a fixed
         one.  (check is used twice so factored out here...)
         """
-        return (self.boundaries is None
-                and self.values is None
-                and ((type(self.norm) == colors.Normalize)
-                    or (type(self.norm) == colors.LogNorm)))
+        return ((type(self.norm) == colors.Normalize)
+                    or (type(self.norm) == colors.LogNorm))
 
     def _reset_locator_formatter_scale(self):
         """
@@ -578,13 +577,11 @@ class ColorbarBase(_ColorbarMappableDummy):
         """
         self.locator = None
         self.formatter = None
-        if (isinstance(self.norm, colors.LogNorm)
-                and self._use_auto_colorbar_locator()):
+        if (isinstance(self.norm, colors.LogNorm)):
             # *both* axes are made log so that determining the
             # mid point is easier.
             self.ax.set_xscale('log')
             self.ax.set_yscale('log')
-
             self.minorticks_on()
         else:
             self.ax.set_xscale('linear')
@@ -1066,26 +1063,35 @@ class ColorbarBase(_ColorbarMappableDummy):
         These are suitable for a vertical colorbar; swapping and
         transposition for a horizontal colorbar are done outside
         this function.
-        '''
-        # if boundaries and values are None, then we can go ahead and
-        # scale this up for Auto tick location.  Otherwise we
-        # want to keep normalized between 0 and 1 and use manual tick
-        # locations.
 
+        These are scaled between vmin and vmax
+        '''
+        # copy the norm and change the vmin and vmax to the vmin and
+        # vmax of the colorbar, not the norm.  This allows the situation
+        # where the colormap has a narrower range than the colorbar, to
+        # accomodate extra contours:
+        norm = copy.copy(self.norm)
+        norm.vmin = self.vmin
+        norm.vmax = self.vmax
         x = np.array([0.0, 1.0])
         if self.spacing == 'uniform':
             y = self._uniform_y(self._central_N())
         else:
             y = self._proportional_y()
-        if self._use_auto_colorbar_locator():
-            y = self.norm.inverse(y)
-            x = self.norm.inverse(x)
+        xmid = np.array([0.5])
+        try:
+            y = norm.inverse(y)
+            x = norm.inverse(x)
+            xmid = norm.inverse(xmid)
+        except ValueError:
+            # occurs for norms that don't have an inverse, in
+            # which case manually scale:
+            dv = self.vmax - self.vmin
+            x = x * dv + self.vmin
+            y = y * dv + self.vmin
+            xmid = xmid * dv + self.vmin
         self._y = y
         X, Y = np.meshgrid(x, y)
-        if self._use_auto_colorbar_locator():
-            xmid = self.norm.inverse(0.5)
-        else:
-            xmid = 0.5
         if self._extend_lower() and not self.extendrect:
             X[0, :] = xmid
         if self._extend_upper() and not self.extendrect:
