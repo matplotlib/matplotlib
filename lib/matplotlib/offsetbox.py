@@ -27,7 +27,7 @@ from matplotlib.patches import (
     FancyBboxPatch, FancyArrowPatch, bbox_artist as mbbox_artist)
 from matplotlib.text import _AnnotationBase
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
-
+from matplotlib.cbook import (_COMPASS_LOCS, _map_loc_to_compass)
 
 DEBUG = False
 
@@ -963,19 +963,6 @@ class AnchoredOffsetbox(OffsetBox):
     """
     zorder = 5  # zorder of the legend
 
-    # Location codes
-    codes = {'upper right': 1,
-             'upper left': 2,
-             'lower left': 3,
-             'lower right': 4,
-             'right': 5,
-             'center left': 6,
-             'center right': 7,
-             'lower center': 8,
-             'upper center': 9,
-             'center': 10,
-             }
-
     def __init__(self, loc,
                  pad=0.4, borderpad=0.5,
                  child=None, prop=None, frameon=True,
@@ -983,19 +970,26 @@ class AnchoredOffsetbox(OffsetBox):
                  bbox_transform=None,
                  **kwargs):
         """
-        loc is a string or an integer specifying the legend location.
+        loc is a string or an integer specifying the box location.
         The valid location codes are::
 
-        'upper right'  : 1,
-        'upper left'   : 2,
-        'lower left'   : 3,
-        'lower right'  : 4,
-        'right'        : 5, (same as 'center right', for back-compatibility)
-        'center left'  : 6,
-        'center right' : 7,
-        'lower center' : 8,
-        'upper center' : 9,
-        'center'       : 10,
+            ============  ==============  ===============  =============
+            Compass Code  Compass String  Location String  Location Code
+            ============  ==============  ===============  =============
+            'NE'          'northeast'     'upper right'    1
+            'NW'          'northwest'     'upper left'     2
+            'SW'          'southwest'     'lower left'     3
+            'SE'          'southeast'     'lower right'    4
+            ..                            'right'          5
+            'W'           'west'          'center left'    6
+            'E'           'east'          'center right'   7
+            'S'           'south'         'lower center'   8
+            'N'           'north'         'upper center'   9
+            'C'           'center'        'center'         10
+            ============  ==============  ===============  =============
+
+        'rigth' (5) and 'center right' (7) are identical locations. See
+        `~.Axes.legend` docstring for explanation.
 
         pad : pad around the child for drawing a frame. given in
           fraction of fontsize.
@@ -1018,14 +1012,6 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
 
-        if isinstance(loc, str):
-            try:
-                loc = self.codes[loc]
-            except KeyError:
-                raise ValueError('Unrecognized location "%s". Valid '
-                                 'locations are\n\t%s\n'
-                                 % (loc, '\n\t'.join(self.codes)))
-
         self.loc = loc
         self.borderpad = borderpad
         self.pad = pad
@@ -1047,6 +1033,23 @@ class AnchoredOffsetbox(OffsetBox):
             )
         self.patch.set_boxstyle("square", pad=0)
         self._drawFrame = frameon
+
+    def set_loc(self, loc):
+        """
+        Set the box location. For possible values see the `~.AnchoredOffsetbox`
+        docstring.
+        """
+        self._loc = _map_loc_to_compass(loc)
+        self.stale = True
+
+    def get_loc(self):
+        """
+        Get the box location. This will be one of 'NE', 'NW',
+         'SW', 'SE', 'E', 'W', 'E', 'S', 'N', 'C'.
+        """
+        return self._loc
+
+    loc = property(get_loc, set_loc)
 
     def set_child(self, child):
         "set the child to be anchored"
@@ -1179,25 +1182,9 @@ class AnchoredOffsetbox(OffsetBox):
         return the position of the bbox anchored at the parentbbox
         with the loc code, with the borderpad.
         """
-        assert loc in range(1, 11)  # called only internally
-
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
-
-        anchor_coefs = {UR: "NE",
-                        UL: "NW",
-                        LL: "SW",
-                        LR: "SE",
-                        R: "E",
-                        CL: "W",
-                        CR: "E",
-                        LC: "S",
-                        UC: "N",
-                        C: "C"}
-
-        c = anchor_coefs[loc]
-
+        assert loc in _COMPASS_LOCS  # called only internally
         container = parentbbox.padded(-borderpad)
-        anchored_box = bbox.anchored(c, container=container)
+        anchored_box = bbox.anchored(loc, container=container)
         return anchored_box.x0, anchored_box.y0
 
 

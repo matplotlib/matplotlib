@@ -2156,3 +2156,86 @@ def _check_in_list(values, **kwargs):
             raise ValueError(
                 "{!r} is not a valid value for {}; supported values are {}"
                 .format(v, k, ', '.join(map(repr, values))))
+
+
+# Theses are the valid compass notation codes used internally by legend
+# and other anchored boxes.
+_COMPASS_LOCS = ['NE', 'NW', 'SW', 'SE', 'E', 'W', 'S', 'N', 'C']
+
+
+def _map_loc_to_compass(loc, **kwargs):
+    """
+    Map a location (string) to a compass notation string. This is used by
+    AnchoredOffsetbox and Legend.
+    
+    loc        : A location, like 'upper right', 'NE', 'northeast', 1
+    allowtuple : bool, Whether to allow a tuple of numbers like (0.5, 0.2).
+                 This is useful for legends; other artists may not allow this.
+    allowbest  : bool, Whether to allow for 'best' or 0 as input for loc.
+    warnonly   : bool, if True, warn on invalid input and use fallback,
+                       if False, error out.
+    fallback   : The fallback return value in case of warnonly=True.
+    asrcparam  : string, Use if this function is used as validator for rcParams
+    """
+    codes = {
+             'upper right':  'NE', 'northeast': 'NE', 1: 'NE',
+             'upper left':   'NW', 'northwest': 'NW', 2: 'NW',
+             'lower left':   'SW', 'southwest': 'SW', 3: 'SW',
+             'lower right':  'SE', 'southeast': 'SE', 4: 'SE',
+             'right':        'E',                     5: 'E',
+             'center left':  'W',  'west':      'W',  6: 'W',
+             'center right': 'E',  'east':      'E',  7: 'E',
+             'lower center': 'S',  'south':     'S',  8: 'S',
+             'upper center': 'N',  'north':     'N',  9: 'N',
+             'center':       'C',                    10: 'C'
+             }
+    
+    allowtuple = kwargs.get("allowtuple", False)
+    allowbest = kwargs.get("allowbest", False)
+    fallback = kwargs.get("fallback", 'NE')
+    warnonly = kwargs.get("warnonly", False)
+    asrcparam = kwargs.get("asrcparam", None)
+    
+    if allowbest:
+        codes.update({'best': 'best', 0: 'best'})
+
+    if loc in _COMPASS_LOCS:
+        return loc
+
+    if isinstance(loc, str) or isinstance(loc, int):
+        if loc in codes:
+            return codes[loc]
+
+    if allowtuple:
+        if hasattr(loc, '__len__') and len(loc) == 2:
+            x, y = loc[0], loc[1]
+            if isinstance(x, numbers.Number) and isinstance(y, numbers.Number):
+                return tuple((x, y))
+
+    msg = "Unrecognized location {!r}. ".format(loc)
+    if asrcparam:
+        msg += "This is no valid rc parameter for {!r}. ".format(asrcparam)
+    if isinstance(loc, str):
+        if loc.lower() in codes:
+            fallback = codes[loc.lower()]
+        elif loc.upper() in _COMPASS_LOCS:
+            fallback = loc.upper()
+        msg += "Location strings are now case-sensitive. "
+    if warnonly:
+        msg += "Falling back on {!r}. ".format(fallback)
+    if not allowbest and loc in [0, 'best']:
+        msg += "Automatic legend placement (loc='best') is not "
+        msg += "implemented for figure legends or other artists. "
+    vcodes = [k for k in codes if not isinstance(k, int)] + _COMPASS_LOCS
+    msg += "Valid locations are '{}'".format("', '".join(vcodes))
+    if not asrcparam:
+        startn = 0 if allowbest else 1
+        msg += " as well as the numbers {} to 10. ".format(startn)
+        if allowtuple:
+            msg += " In addition a tuple (x,y) of coordinates can be supplied."
+    if warnonly:
+        msg += " This will raise an exception %(removal)s."
+        warn_deprecated("3.1", message=msg)
+        return fallback
+    else:
+        raise ValueError(msg)

@@ -79,25 +79,39 @@ def test_offsetbox_clip_children():
     assert fig.stale
 
 
-def test_offsetbox_loc_codes():
-    # Check that valid string location codes all work with an AnchoredOffsetbox
-    codes = {'upper right': 1,
-             'upper left': 2,
-             'lower left': 3,
-             'lower right': 4,
-             'right': 5,
-             'center left': 6,
-             'center right': 7,
-             'lower center': 8,
-             'upper center': 9,
-             'center': 10,
-             }
-    fig, ax = plt.subplots()
-    da = DrawingArea(100, 100)
-    for code in codes:
-        anchored_box = AnchoredOffsetbox(loc=code, child=da)
+_loc_values = [['NW', 'N', 'NE', 'W', 'C', 'E', 'SW', 'S', 'SE'],
+               ['northwest', 'north', 'northeast', 'west', 'center',
+                'east', 'southwest', 'south', 'southeast'],
+               ['upper left', 'upper center', 'upper right', 'center left',
+                'center', 'right', 'lower left', 'lower center',
+                'lower right']]
+
+
+@pytest.mark.parametrize('locs', _loc_values)
+def test_offsetbox_loc_codes(locs):
+
+    codes = [2, 9, 1, 6, 10, 7, 3, 8, 4]
+
+    fig1, axes1 = plt.subplots(3, 3)
+    fig2, axes2 = plt.subplots(3, 3)
+
+    for ax, loc in zip(axes1.flat, locs):
+        da = DrawingArea(50, 50)
+        anchored_box = AnchoredOffsetbox(loc=loc, child=da)
         ax.add_artist(anchored_box)
-    fig.canvas.draw()
+
+    for ax, loc in zip(axes2.flat, codes):
+        da = DrawingArea(50, 50)
+        anchored_box = AnchoredOffsetbox(loc="NW", child=da)
+        ax.add_artist(anchored_box)
+        anchored_box.set_loc(loc)
+
+    for ax1, ax2 in zip(axes1.flat, axes2.flat):
+        ab1, = ax1.findobj(match=AnchoredOffsetbox)
+        ab2, = ax2.findobj(match=AnchoredOffsetbox)
+        assert ab1.get_loc() == ab2.get_loc()
+    fig1.canvas.draw()
+    fig2.canvas.draw()
 
 
 def test_expand_with_tight_layout():
