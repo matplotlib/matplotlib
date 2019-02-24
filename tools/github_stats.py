@@ -227,3 +227,16 @@ if __name__ == "__main__":
         print()
         print('Issues (%d):\n' % n_issues)
         report(issues, show_urls)
+    print()
+    print()
+    print("""Previous GitHub Stats
+---------------------
+
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    github_stats_*
+
+""")
