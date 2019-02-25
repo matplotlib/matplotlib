@@ -1067,7 +1067,7 @@ void cleanup_path(PathIterator &path,
         __cleanup_path(simplified, vertices, codes);
     } else {
         curve_t curve(simplified);
-        sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
+        sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness, sketch_params.seed);
         __cleanup_path(sketch, vertices, codes);
     }
 }
@@ -1232,7 +1232,7 @@ bool convert_to_string(PathIterator &path,
         return __convert_to_string(simplified, precision, codes, postfix, buffer);
     } else {
         curve_t curve(simplified);
-        sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
+        sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness, sketch_params.seed);
         return __convert_to_string(sketch, precision, codes, postfix, buffer);
     }
 

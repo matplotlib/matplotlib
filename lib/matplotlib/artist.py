@@ -671,19 +671,21 @@ class Artist:
         -------
         tuple or None
 
-            A 3-tuple with the following elements:
+            A 4-tuple with the following elements:
 
             - *scale*: The amplitude of the wiggle perpendicular to the
               source line.
             - *length*: The length of the wiggle along the line.
             - *randomness*: The scale factor by which the length is
               shrunken or expanded.
+            - *seed*: Seed for the internal pseudo-random number
+              generator.
 
             Returns *None* if no sketch parameters were set.
         """
         return self._sketch
 
-    def set_sketch_params(self, scale=None, length=None, randomness=None):
+    def set_sketch_params(self, scale=None, length=None, randomness=None, seed=0):
         """
         Set the sketch parameters.
 
@@ -702,13 +704,18 @@ class Artist:
 
             The PGF backend uses this argument as an RNG seed and not as
             described above. Using the same seed yields the same random shape.
+        seed : int, optional
+            Seed for the internal pseudo-random number generator.
+            For the same seed, the result will be exactly the same.
 
-            .. ACCEPTS: (scale: float, length: float, randomness: float)
+            .. versionadded:: 3.8
+
+            .. ACCEPTS: (scale: float, length: float, randomness: float, seed: int)
         """
         if scale is None:
             self._sketch = None
         else:
-            self._sketch = (scale, length or 128.0, randomness or 16.0)
+            self._sketch = (scale, length or 128.0, randomness or 16.0, seed)
         self.stale = True
 
     def set_path_effects(self, path_effects):

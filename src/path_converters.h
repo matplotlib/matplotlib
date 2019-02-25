@@ -1004,8 +1004,10 @@ class Sketch
 
        randomness: the factor that the sketch length will randomly
        shrink and expand.
+
+       seed: seed for the built-in pseudo-random number generator.
     */
-    Sketch(VertexSource &source, double scale, double length, double randomness)
+    Sketch(VertexSource &source, double scale, double length, double randomness, int seed)
         : m_source(&source),
           m_scale(scale),
           m_length(length),
@@ -1015,7 +1017,7 @@ class Sketch
           m_last_y(0.0),
           m_has_last(false),
           m_p(0.0),
-          m_rand(0)
+          m_rand(seed)
     {
         rewind(0);
         const double d_M_PI = 3.14159265358979323846;
