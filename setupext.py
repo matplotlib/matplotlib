@@ -434,6 +434,7 @@ class Matplotlib(SetupPackage):
         ext = Extension(
             "matplotlib._path", [
                 "src/py_converters.cpp",
+                "src/path_converters.cpp",
                 "src/_path_wrapper.cpp",
             ])
         add_numpy_flags(ext)

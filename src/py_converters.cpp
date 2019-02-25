@@ -456,11 +456,11 @@ int convert_sketch_params(PyObject *obj, void *sketchp)
     if (obj == NULL || obj == Py_None) {
         sketch->scale = 0.0;
     } else if (!PyArg_ParseTuple(obj,
-                                 "ddd|d:sketch_params",
+                                 "dddi:sketch_params",
                                  &sketch->scale,
                                  &sketch->length,
                                  &sketch->randomness,
-                                 &sketch->seed /*optional*/ )) {
+                                 &sketch->seed)) {
         return 0;
     }
 
