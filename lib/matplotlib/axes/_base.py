@@ -576,18 +576,21 @@ class _AxesBase(martist.Artist):
 
     def get_window_extent(self, *args, **kwargs):
         """
-        get the axes bounding box in display space; *args* and
-        *kwargs* are empty
+        Return the axes bounding box in display space; *args* and *kwargs*
+        are empty.
+
+        This bounding box does not include the spines, ticks, ticklables,
+        or other labels.  For a bounding box including these elements use
+        `~matplotlib.axes.Axes.get_tightbbox`.
+
+        See Also
+        --------
+        matplotlib.axes.Axes.get_tightbbox
+        matplotlib.axis.Axis.get_tightbbox
+        matplotlib.spines.get_window_extent
+
         """
-        bbox = self.bbox
-        x_pad = 0
-        if self.axison and self.xaxis.get_visible():
-            x_pad = self.xaxis.get_tick_padding()
-        y_pad = 0
-        if self.axison and self.yaxis.get_visible():
-            y_pad = self.yaxis.get_tick_padding()
-        return mtransforms.Bbox([[bbox.x0 - x_pad, bbox.y0 - y_pad],
-                                 [bbox.x1 + x_pad, bbox.y1 + y_pad]])
+        return self.bbox
 
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
@@ -4286,6 +4289,13 @@ class _AxesBase(martist.Artist):
         -------
         bbox : `.BboxBase`
             bounding box in figure pixel coordinates.
+
+        See Also
+        --------
+        matplotlib.axis.Axes.get_window_extent
+        matplotlib.axis.Axis.get_tightbbox
+        matplotlib.spines.get_window_extent
+
         """
 
         bb = []
@@ -4300,13 +4310,14 @@ class _AxesBase(martist.Artist):
         else:
             self.apply_aspect()
 
-        bb_xaxis = self.xaxis.get_tightbbox(renderer)
-        if bb_xaxis:
-            bb.append(bb_xaxis)
+        if self.axison:
+            bb_xaxis = self.xaxis.get_tightbbox(renderer)
+            if bb_xaxis:
+                bb.append(bb_xaxis)
 
-        bb_yaxis = self.yaxis.get_tightbbox(renderer)
-        if bb_yaxis:
-            bb.append(bb_yaxis)
+            bb_yaxis = self.yaxis.get_tightbbox(renderer)
+            if bb_yaxis:
+                bb.append(bb_yaxis)
 
         self._update_title_position(renderer)
         bb.append(self.get_window_extent(renderer))
