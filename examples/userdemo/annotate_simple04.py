@@ -9,9 +9,7 @@ import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(figsize=(3, 3))
 
-ann = ax.annotate("Test",
-                  xy=(0.2, 0.2), xycoords='data',
-                  xytext=(0.8, 0.8), textcoords='data',
+ann = ax.annotate("Test", xy=(0.2, 0.2), xytext=(0.8, 0.8),
                   size=20, va="center", ha="center",
                   bbox=dict(boxstyle="round4", fc="w"),
                   arrowprops=dict(arrowstyle="-|>",
@@ -20,9 +18,7 @@ ann = ax.annotate("Test",
                                   fc="w"),
                   )
 
-ann = ax.annotate("Test",
-                  xy=(0.2, 0.2), xycoords='data',
-                  xytext=(0.8, 0.8), textcoords='data',
+ann = ax.annotate("Test", xy=(0.2, 0.2), xytext=(0.8, 0.8),
                   size=20, va="center", ha="center",
                   bbox=dict(boxstyle="round4", fc="w"),
                   arrowprops=dict(arrowstyle="-|>",

@@ -17,9 +17,7 @@ ax = axs.flat[0]
 ax.plot([x1, x2], [y1, y2], ".")
 el = mpatches.Ellipse((x1, y1), 0.3, 0.4, angle=30, alpha=0.2)
 ax.add_artist(el)
-ax.annotate("",
-            xy=(x1, y1), xycoords='data',
-            xytext=(x2, y2), textcoords='data',
+ax.annotate("", xy=(x1, y1), xytext=(x2, y2),
             arrowprops=dict(arrowstyle="-",
                             color="0.5",
                             patchB=None,
@@ -33,9 +31,7 @@ ax = axs.flat[1]
 ax.plot([x1, x2], [y1, y2], ".")
 el = mpatches.Ellipse((x1, y1), 0.3, 0.4, angle=30, alpha=0.2)
 ax.add_artist(el)
-ax.annotate("",
-            xy=(x1, y1), xycoords='data',
-            xytext=(x2, y2), textcoords='data',
+ax.annotate("", xy=(x1, y1), xytext=(x2, y2),
             arrowprops=dict(arrowstyle="-",
                             color="0.5",
                             patchB=el,
@@ -49,9 +45,7 @@ ax = axs.flat[2]
 ax.plot([x1, x2], [y1, y2], ".")
 el = mpatches.Ellipse((x1, y1), 0.3, 0.4, angle=30, alpha=0.2)
 ax.add_artist(el)
-ax.annotate("",
-            xy=(x1, y1), xycoords='data',
-            xytext=(x2, y2), textcoords='data',
+ax.annotate("", xy=(x1, y1), xytext=(x2, y2),
             arrowprops=dict(arrowstyle="-",
                             color="0.5",
                             patchB=el,
@@ -65,9 +59,7 @@ ax = axs.flat[3]
 ax.plot([x1, x2], [y1, y2], ".")
 el = mpatches.Ellipse((x1, y1), 0.3, 0.4, angle=30, alpha=0.2)
 ax.add_artist(el)
-ax.annotate("",
-            xy=(x1, y1), xycoords='data',
-            xytext=(x2, y2), textcoords='data',
+ax.annotate("", xy=(x1, y1), xytext=(x2, y2),
             arrowprops=dict(arrowstyle="fancy",
                             color="0.5",
                             patchB=el,

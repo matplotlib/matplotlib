@@ -29,7 +29,6 @@ offsetbox = TextArea("Test 1", minimumdescent=False)
 
 ab = AnnotationBbox(offsetbox, xy,
                     xybox=(-20, 40),
-                    xycoords='data',
                     boxcoords="offset points",
                     arrowprops=dict(arrowstyle="->"))
 ax.add_artist(ab)
@@ -39,8 +38,7 @@ offsetbox = TextArea("Test", minimumdescent=False)
 
 ab = AnnotationBbox(offsetbox, xy,
                     xybox=(1.02, xy[1]),
-                    xycoords='data',
-                    boxcoords=("axes fraction", "data"),
+                    boxcoords=ax.get_yaxis_transform(),
                     box_alignment=(0., 0.5),
                     arrowprops=dict(arrowstyle="->"))
 ax.add_artist(ab)
@@ -55,8 +53,7 @@ da.add_artist(p)
 
 ab = AnnotationBbox(da, xy,
                     xybox=(1.02, xy[1]),
-                    xycoords='data',
-                    boxcoords=("axes fraction", "data"),
+                    boxcoords=ax.get_yaxis_transform(),
                     box_alignment=(0., 0.5),
                     arrowprops=dict(arrowstyle="->"))
 
@@ -69,7 +66,6 @@ im.image.axes = ax
 
 ab = AnnotationBbox(im, xy,
                     xybox=(-50., 50.),
-                    xycoords='data',
                     boxcoords="offset points",
                     pad=0.3,
                     arrowprops=dict(arrowstyle="->"))
@@ -85,7 +81,6 @@ imagebox.image.axes = ax
 
 ab = AnnotationBbox(imagebox, xy,
                     xybox=(120., -80.),
-                    xycoords='data',
                     boxcoords="offset points",
                     pad=0.5,
                     arrowprops=dict(

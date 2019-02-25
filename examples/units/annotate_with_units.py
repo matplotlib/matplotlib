@@ -19,14 +19,14 @@ fig, ax = plt.subplots()
 ax.annotate("Note 01", [0.5*cm, 0.5*cm])
 
 # xy and text both unitized
-ax.annotate('local max', xy=(3*cm, 1*cm), xycoords='data',
-            xytext=(0.8*cm, 0.95*cm), textcoords='data',
+ax.annotate('local max', xy=(3*cm, 1*cm),
+            xytext=(0.8*cm, 0.95*cm),
             arrowprops=dict(facecolor='black', shrink=0.05),
             horizontalalignment='right', verticalalignment='top')
 
 # mixing units w/ nonunits
-ax.annotate('local max', xy=(3*cm, 1*cm), xycoords='data',
-            xytext=(0.8, 0.95), textcoords='axes fraction',
+ax.annotate('local max', xy=(3*cm, 1*cm),
+            xytext=(0.8, 0.95), textcoords=ax.transAxes,
             arrowprops=dict(facecolor='black', shrink=0.05),
             horizontalalignment='right', verticalalignment='top')
 

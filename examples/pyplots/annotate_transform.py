@@ -7,8 +7,10 @@ This example shows how to use different coordinate systems for annotations.
 For a complete overview of the annotation capabilities, also see the
 :doc:`annotation tutorial</tutorials/text/annotations>`.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.transforms import IdentityTransform
 
 x = np.arange(0, 10, 0.005)
 y = np.exp(-x/2.) * np.sin(2*np.pi*x)
@@ -27,17 +29,13 @@ arrowprops = dict(
     connectionstyle = "angle,angleA=0,angleB=90,rad=10")
 
 offset = 72
-ax.annotate('data = (%.1f, %.1f)'%(xdata, ydata),
-            (xdata, ydata), xytext=(-2*offset, offset), textcoords='offset points',
+ax.annotate(f'data = ({xdata:.1f}, {ydata:.1f})', (xdata, ydata),
+            xytext=(-2*offset, offset), textcoords='offset points',
             bbox=bbox, arrowprops=arrowprops)
-
-
-disp = ax.annotate('display = (%.1f, %.1f)'%(xdisplay, ydisplay),
-            (xdisplay, ydisplay), xytext=(0.5*offset, -offset),
-            xycoords='figure pixels',
-            textcoords='offset points',
+ax.annotate(f'display = ({xdisplay:.1f}, {ydisplay:.1f})',
+            (xdisplay, ydisplay), xycoords=IdentityTransform(),
+            xytext=(0.5*offset, -offset), textcoords='offset points',
             bbox=bbox, arrowprops=arrowprops)
-
 
 plt.show()
 
