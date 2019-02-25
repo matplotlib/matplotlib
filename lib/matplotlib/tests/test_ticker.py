@@ -694,38 +694,48 @@ class TestStrMethodFormatter(object):
 
 
 class TestEngFormatter(object):
-    # (input, expected) where ''expected'' corresponds to the outputs
-    # respectively returned when (places=None, places=0, places=2)
+    # (unicode_minus, input, expected) where ''expected'' corresponds to the
+    # outputs respectively returned when (places=None, places=0, places=2)
+    # unicode_minus is a boolean value for the rcParam['axes.unicode_minus']
     raw_format_data = [
-        (-1234.56789, ('\N{MINUS SIGN}1.23457 k', '\N{MINUS SIGN}1 k',
-                       '\N{MINUS SIGN}1.23 k')),
-        (-1.23456789, ('\N{MINUS SIGN}1.23457', '\N{MINUS SIGN}1',
-                       '\N{MINUS SIGN}1.23')),
-        (-0.123456789, ('\N{MINUS SIGN}123.457 m', '\N{MINUS SIGN}123 m',
-                        '\N{MINUS SIGN}123.46 m')),
-        (-0.00123456789, ('\N{MINUS SIGN}1.23457 m', '\N{MINUS SIGN}1 m',
-                          '\N{MINUS SIGN}1.23 m')),
-        (-0.0, ('0', '0', '0.00')),
-        (-0, ('0', '0', '0.00')),
-        (0, ('0', '0', '0.00')),
-        (1.23456789e-6, ('1.23457 µ', '1 µ', '1.23 µ')),
-        (0.123456789, ('123.457 m', '123 m', '123.46 m')),
-        (0.1, ('100 m', '100 m', '100.00 m')),
-        (1, ('1', '1', '1.00')),
-        (1.23456789, ('1.23457', '1', '1.23')),
-        (999.9, ('999.9', '1 k', '999.90')),  # places=0: corner-case rounding
-        (999.9999, ('1 k', '1 k', '1.00 k')),  # corner-case rounding for all
-        (-999.9999, ('\N{MINUS SIGN}1 k', '\N{MINUS SIGN}1 k',
-                     '\N{MINUS SIGN}1.00 k')),  # negative corner-case
-        (1000, ('1 k', '1 k', '1.00 k')),
-        (1001, ('1.001 k', '1 k', '1.00 k')),
-        (100001, ('100.001 k', '100 k', '100.00 k')),
-        (987654.321, ('987.654 k', '988 k', '987.65 k')),
-        (1.23e27, ('1230 Y', '1230 Y', '1230.00 Y'))  # OoR value (> 1000 Y)
+        (False, -1234.56789, ('-1.23457 k', '-1 k', '-1.23 k')),
+        (True, -1234.56789, ('\N{MINUS SIGN}1.23457 k', '\N{MINUS SIGN}1 k',
+                             '\N{MINUS SIGN}1.23 k')),
+        (False, -1.23456789, ('-1.23457', '-1', '-1.23')),
+        (True, -1.23456789, ('\N{MINUS SIGN}1.23457', '\N{MINUS SIGN}1',
+                             '\N{MINUS SIGN}1.23')),
+        (False, -0.123456789, ('-123.457 m', '-123 m', '-123.46 m')),
+        (True, -0.123456789, ('\N{MINUS SIGN}123.457 m', '\N{MINUS SIGN}123 m',
+                              '\N{MINUS SIGN}123.46 m')),
+        (False, -0.00123456789, ('-1.23457 m', '-1 m', '-1.23 m')),
+        (True, -0.00123456789, ('\N{MINUS SIGN}1.23457 m', '\N{MINUS SIGN}1 m',
+                                '\N{MINUS SIGN}1.23 m')),
+        (True, -0.0, ('0', '0', '0.00')),
+        (True, -0, ('0', '0', '0.00')),
+        (True, 0, ('0', '0', '0.00')),
+        (True, 1.23456789e-6, ('1.23457 µ', '1 µ', '1.23 µ')),
+        (True, 0.123456789, ('123.457 m', '123 m', '123.46 m')),
+        (True, 0.1, ('100 m', '100 m', '100.00 m')),
+        (True, 1, ('1', '1', '1.00')),
+        (True, 1.23456789, ('1.23457', '1', '1.23')),
+        # places=0: corner-case rounding
+        (True, 999.9, ('999.9', '1 k', '999.90')),
+        # corner-case rounding for all
+        (True, 999.9999, ('1 k', '1 k', '1.00 k')),
+        # negative corner-case
+        (False, -999.9999, ('-1 k', '-1 k', '-1.00 k')),
+        (True, -999.9999, ('\N{MINUS SIGN}1 k', '\N{MINUS SIGN}1 k',
+                           '\N{MINUS SIGN}1.00 k')),
+        (True, 1000, ('1 k', '1 k', '1.00 k')),
+        (True, 1001, ('1.001 k', '1 k', '1.00 k')),
+        (True, 100001, ('100.001 k', '100 k', '100.00 k')),
+        (True, 987654.321, ('987.654 k', '988 k', '987.65 k')),
+        # OoR value (> 1000 Y)
+        (True, 1.23e27, ('1230 Y', '1230 Y', '1230.00 Y'))
     ]
 
-    @pytest.mark.parametrize('input, expected', raw_format_data)
-    def test_params(self, input, expected):
+    @pytest.mark.parametrize('unicode_minus, input, expected', raw_format_data)
+    def test_params(self, unicode_minus, input, expected):
         """
         Test the formatting of EngFormatter for various values of the 'places'
         argument, in several cases:
@@ -738,7 +748,8 @@ class TestEngFormatter(object):
 
         UNIT = 's'  # seconds
         DIGITS = '0123456789'  # %timeit showed 10-20% faster search than set
-
+        plt.rcdefaults()
+        plt.rcParams['axes.unicode_minus'] = unicode_minus
         # Case 0: unit='' (default) and sep=' ' (default).
         # 'expected' already corresponds to this reference case.
         exp_outputs = expected
