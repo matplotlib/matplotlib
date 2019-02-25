@@ -859,6 +859,9 @@ class Axis(martist.Artist):
         if which == 'minor' or which == 'both':
             dicts.append(self._minor_tick_kw)
         kwtrans = self._translate_tick_kw(kw)
+
+        # this stashes the parameter changes so any new ticks will
+        # automatically get them
         for d in dicts:
             if reset:
                 d.clear()
@@ -867,14 +870,18 @@ class Axis(martist.Artist):
         if reset:
             self.reset_ticks()
         else:
+            # apply the new kwargs to the existing ticks
             if which == 'major' or which == 'both':
                 for tick in self.majorTicks:
-                    tick._apply_params(**self._major_tick_kw)
+                    tick._apply_params(**kwtrans)
             if which == 'minor' or which == 'both':
                 for tick in self.minorTicks:
-                    tick._apply_params(**self._minor_tick_kw)
+                    tick._apply_params(**kwtrans)
+            # special-case label color to also apply to the offset
+            # text
             if 'labelcolor' in kwtrans:
                 self.offsetText.set_color(kwtrans['labelcolor'])
+
         self.stale = True
 
     @staticmethod
