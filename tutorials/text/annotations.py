@@ -10,7 +10,7 @@ Annotating text with Matplotlib.
 .. _annotations-tutorial:
 
 Basic annotation
-================
+----------------
 
 The uses of the basic :func:`~matplotlib.pyplot.text` will place text
 at an arbitrary position on the Axes.  A common use case of text is to
@@ -103,12 +103,11 @@ Do not proceed unless you have already read :ref:`annotations-tutorial`,
 
 .. _plotting-guide-annotation:
 
-Advanced Annotation
-===================
-
+Advanced Annotations
+--------------------
 
 Annotating with Text with Box
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's start with a simple example.
 
@@ -173,10 +172,8 @@ of bbox argument when initializing the text instance) ::
    bb.set_boxstyle("rarrow,pad=0.6")
 
 
-
-
 Annotating with Arrow
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 The :func:`~matplotlib.pyplot.annotate` function in the pyplot module
 (or annotate method of the Axes class) is used to draw an arrow
@@ -330,7 +327,7 @@ lower-left corner and (1,1) means top-right.
 
 
 Placing Artist at the anchored location of the Axes
----------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are classes of artists that can be placed at an anchored location
 in the Axes. A common example is the legend.  This type of artist can
@@ -426,7 +423,7 @@ Note that unlike the legend, the ``bbox_transform`` is set
 to IdentityTransform by default.
 
 Using Complex Coordinates with Annotations
-------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Annotation in matplotlib supports several types of coordinates as
 described in :ref:`annotations-tutorial`. For an advanced user who wants
@@ -517,7 +514,7 @@ more control, it supports a few other options.
     :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
 
 Using ConnectionPatch
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 The ConnectionPatch is like an annotation without text. While the annotate
 function is recommended in most situations, the ConnectionPatch is useful when
@@ -546,10 +543,10 @@ axes.
 
 
 Advanced Topics
-~~~~~~~~~~~~~~~
+---------------
 
 Zoom effect between Axes
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``mpl_toolkits.axes_grid1.inset_locator`` defines some patch classes useful
 for interconnecting two axes. Understanding the code requires some
@@ -566,7 +563,7 @@ straight forward.
 
 
 Define Custom BoxStyle
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 You can use a custom box style. The value for the ``boxstyle`` can be a
 callable object in the following forms.::
