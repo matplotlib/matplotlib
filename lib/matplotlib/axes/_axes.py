@@ -36,6 +36,25 @@ from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
+try:
+    from numpy.lib.histograms import histogram_bin_edges
+except ImportError:
+    def histogram_bin_edges(arr, bins, range=None, weights=None):
+        if isinstance(bins, str):
+            # rather than backporting the internals, just do the full
+            # computation.  If this is too slow for users, they can
+            # update numpy, or pick a manual number of bins
+            return np.histogram(arr, bins, range, weights)[1]
+        else:
+            if bins is None:
+                # hard-code numpy's default
+                bins = 10
+            if range is None:
+                range = np.min(arr), np.max(arr)
+
+            return np.linspace(*range, bins + 1)
+
+
 _log = logging.getLogger(__name__)
 
 
@@ -6611,10 +6630,8 @@ optional.
         if bin_range is not None:
             bin_range = self.convert_xunits(bin_range)
 
-        # Check whether bins or range are given explicitly.
-        binsgiven = ((np.iterable(bins) and
-                      not isinstance(bins, str)) or
-                     bin_range is not None)
+        # this in True for 1D arrays, and False for None and str
+        bins_array_given = np.ndim(bins) == 1
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
@@ -6640,22 +6657,24 @@ optional.
                     "sets and %d colors were provided" % (nx, len(color)))
                 raise ValueError(error_message)
 
+        hist_kwargs = dict()
+
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
         # and supply that to np.histogram.
-        if not binsgiven and not input_empty:
-            xmin = np.inf
-            xmax = -np.inf
-            for xi in x:
-                if len(xi) > 0:
-                    xmin = min(xmin, np.nanmin(xi))
-                    xmax = max(xmax, np.nanmax(xi))
-            bin_range = (xmin, xmax)
+        if not bins_array_given and not input_empty and len(x) > 1:
+            if weights is not None:
+                _w = np.concatenate(w)
+            else:
+                _w = None
+            bins = histogram_bin_edges(np.concatenate(x),
+                                       bins, bin_range, _w)
+        else:
+            hist_kwargs['range'] = bin_range
+
         density = bool(density) or bool(normed)
         if density and not stacked:
-            hist_kwargs = dict(range=bin_range, density=density)
-        else:
-            hist_kwargs = dict(range=bin_range)
+            hist_kwargs = dict(density=density)
 
         # List to store all the top coordinates of the histograms
         tops = []
