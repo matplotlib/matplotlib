@@ -184,14 +184,15 @@ def test_outward_ticks():
     ax.xaxis.set_tick_params(tickdir='out', length=32, width=3)
     ax.yaxis.set_tick_params(tickdir='out', length=32, width=3)
     plt.tight_layout()
-    assert_array_equal(
-        np.round([ax.get_position().get_points() for ax in fig.axes], 3),
-        # These values were obtained after visual checking that they correspond
-        # to a tight layouting that did take the ticks into account.
-        [[[0.091, 0.590], [0.437, 0.903]],
-         [[0.581, 0.590], [0.927, 0.903]],
-         [[0.091, 0.140], [0.437, 0.454]],
-         [[0.581, 0.140], [0.927, 0.454]]])
+    # These values were obtained after visual checking that they correspond
+    # to a tight layouting that did take the ticks into account.
+    ans = [[[0.091, 0.607], [0.433, 0.933]],
+           [[0.579, 0.607], [0.922, 0.933]],
+           [[0.091, 0.140], [0.433, 0.466]],
+           [[0.579, 0.140], [0.922, 0.466]]]
+    for nn, ax in enumerate(fig.axes):
+        assert_array_equal(np.round(ax.get_position().get_points(), 3),
+                           ans[nn])
 
 
 def add_offsetboxes(ax, size=10, margin=.1, color='black'):
