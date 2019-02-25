@@ -1,0 +1,16 @@
+`matplotlib.colorbar.Colorbar` uses un-normalized axes for all mappables
+------------------------------------------------------------------------
+
+Before 3.0, `matplotlib.colorbar.Colorbar` (`~.Figure.colorbar`) normalized
+all axes limits between 0 and 1 and had custom tickers to handle the
+labelling of the colorbar ticks.  After 3.0, colorbars constructed from
+mappables that were *not* contours were constructed with axes that had
+limits between ``vmin`` and ``vmax`` of the mappable's norm, and the tickers
+were made children of the normal axes tickers.
+
+This version of Matplotlib extends that to mappables made by contours, and
+allows the axes to run between the lowest boundary in the contour and the
+highest.
+
+Code that worked around the normalization between 0 and 1 will need to be
+modified.
