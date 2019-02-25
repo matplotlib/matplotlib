@@ -746,10 +746,10 @@ class TestEngFormatter(object):
         Note that cases 2. and 3. are looped over several separator strings.
         """
 
+        plt.rcParams['axes.unicode_minus'] = unicode_minus
         UNIT = 's'  # seconds
         DIGITS = '0123456789'  # %timeit showed 10-20% faster search than set
-        plt.rcdefaults()
-        plt.rcParams['axes.unicode_minus'] = unicode_minus
+
         # Case 0: unit='' (default) and sep=' ' (default).
         # 'expected' already corresponds to this reference case.
         exp_outputs = expected
