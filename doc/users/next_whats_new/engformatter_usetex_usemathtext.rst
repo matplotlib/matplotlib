@@ -1,7 +1,7 @@
 `EngFormatter` now accepts `usetex`, `useMathText` as keyword only arguments
 ``````````````````````````````````````````````````````````````````````````````````````````````
 
-A public API has been added to `EngFormatter` control how the numbers in the ticklabels will be rendered.
+A public API has been added to `EngFormatter` to control how the numbers in the ticklabels will be rendered.
 By default, `useMathText` evaluates to `rcParams['axes.formatter.use_mathtext']` and
 `usetex` evaluates to `rcParams['text.usetex']`.
 
