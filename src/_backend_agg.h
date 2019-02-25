@@ -483,7 +483,7 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
     snapped_t snapped(clipped, gc.snap_mode, path.total_vertices(), snapping_linewidth);
     simplify_t simplified(snapped, simplify, path.simplify_threshold());
     curve_t curve(simplified);
-    sketch_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+    sketch_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness, gc.sketch.seed);
 
     _draw_path(sketch, has_clippath, face, gc);
 }

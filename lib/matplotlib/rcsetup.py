@@ -565,6 +565,15 @@ def validate_sketch(s):
         raise ValueError("Expected a (scale, length, randomness) triplet")
 
 
+def validate_sketch_seed(s):
+    s = validate_int(s)
+
+    if s >= 0:
+        return s
+    else:
+        raise ValueError("seed must be a non negative integer")
+
+
 def _validate_greaterthan_minushalf(s):
     s = validate_float(s)
     if s > -0.5:
@@ -1288,6 +1297,7 @@ _validators = {
     "path.simplify_threshold": _validate_greaterequal0_lessequal1,
     "path.snap":               validate_bool,
     "path.sketch":             validate_sketch,
+    "path.sketch_seed":        validate_sketch_seed,
     "path.effects":            validate_anylist,
     "agg.path.chunksize":      validate_int,  # 0 to disable chunking
 

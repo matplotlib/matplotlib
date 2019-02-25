@@ -754,6 +754,19 @@ class RendererBase:
 
         return _setattr_cm(self, **no_ops)
 
+    @property
+    def _seed_increment(self):
+        """
+        seed increment for renderer.
+        It is used to implement the rolling characteristic for seed
+        """
+        self.__seed_increment += 1
+        return self.__seed_increment
+
+    @_seed_increment.setter
+    def _seed_increment(self, value):
+        self.__seed_increment = value
+
 
 class GraphicsContextBase:
     """An abstract base class that provides color, line styles, etc."""
@@ -1062,7 +1075,8 @@ class GraphicsContextBase:
         """
         return self._sketch
 
-    def set_sketch_params(self, scale=None, length=None, randomness=None):
+    def set_sketch_params(self, scale=None, length=None, randomness=None,
+                          seed=None):
         """
         Set the sketch parameters.
 
@@ -1076,10 +1090,19 @@ class GraphicsContextBase:
             The length of the wiggle along the line, in pixels.
         randomness : float, default: 16
             The scale factor by which the length is shrunken or expanded.
+        seed : int, optional
+            Seed for the internal pseudo-random number generator.
+
+            .. versionadded:: 3.8
         """
+
         self._sketch = (
             None if scale is None
-            else (scale, length or 128., randomness or 16.))
+            else (scale,
+                  length or rcParams['path.sketch'][1],
+                  randomness or rcParams['path.sketch'][2],
+                  seed or rcParams['path.sketch_seed'])
+        )
 
 
 class TimerBase:

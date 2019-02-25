@@ -991,6 +991,7 @@ class PathSimplifier : protected EmbeddedQueue<9>
     }
 };
 
+
 template <class VertexSource>
 class Sketch
 {
@@ -1004,8 +1005,10 @@ class Sketch
 
        randomness: the factor that the sketch length will randomly
        shrink and expand.
+
+       seed: seed for the built-in pseudo-random number generator.
     */
-    Sketch(VertexSource &source, double scale, double length, double randomness)
+    Sketch(VertexSource &source, double scale, double length, double randomness, int seed)
         : m_source(&source),
           m_scale(scale),
           m_length(length),
@@ -1015,9 +1018,9 @@ class Sketch
           m_last_y(0.0),
           m_has_last(false),
           m_p(0.0),
-          m_rand(0)
+          m_rand(0),
+          m_seed(seed)
     {
-        rewind(0);
         const double d_M_PI = 3.14159265358979323846;
         m_p_scale = (2.0 * d_M_PI) / (m_length * m_randomness);
         m_log_randomness = 2.0 * log(m_randomness);
@@ -1081,7 +1084,7 @@ class Sketch
         m_has_last = false;
         m_p = 0.0;
         if (m_scale != 0.0) {
-            m_rand.seed(0);
+            m_rand.seed(m_seed);
             m_segmented.rewind(path_id);
         } else {
             m_source->rewind(path_id);
@@ -1101,6 +1104,7 @@ class Sketch
     RandomNumberGenerator m_rand;
     double m_p_scale;
     double m_log_randomness;
+    int m_seed;
 };
 
 #endif // MPL_PATH_CONVERTERS_H

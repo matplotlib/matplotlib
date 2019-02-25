@@ -823,7 +823,8 @@ class Line2D(Artist):
             gc.set_foreground(ec_rgba, isRGBA=True)
             if self.get_sketch_params() is not None:
                 scale, length, randomness = self.get_sketch_params()
-                gc.set_sketch_params(scale/2, length/2, 2*randomness)
+                seed = self._sketch_seed
+                gc.set_sketch_params(scale/2, length/2, 2*randomness, seed)
 
             marker = self._marker
 

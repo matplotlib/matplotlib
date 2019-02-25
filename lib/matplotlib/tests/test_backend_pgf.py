@@ -384,7 +384,7 @@ def test_sketch_params():
     ax.set_yticks([])
     ax.set_frame_on(False)
     handle, = ax.plot([0, 1])
-    handle.set_sketch_params(scale=5, length=30, randomness=42)
+    handle.set_sketch_params(scale=5, length=30, randomness=42, seed=0)
 
     with BytesIO() as fd:
         fig.savefig(fd, format='pgf')

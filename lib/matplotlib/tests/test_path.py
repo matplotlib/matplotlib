@@ -8,10 +8,11 @@ import pytest
 from matplotlib import patches
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 from matplotlib.backend_bases import MouseEvent
+from matplotlib import rcParams
 
 
 def test_empty_closed_path():
@@ -241,13 +242,23 @@ def test_make_compound_path_stops():
     assert np.sum(compound_path.codes == Path.STOP) == 0
 
 
+def test_path_sketch_seed():
+    # the default value of path.sketch_seed should be 0
+    assert rcParams['path.sketch_seed'] == 0
+
+
+def test_xkcd_seed_update():
+    # when passing a seed to xkcd, the global rcParam should be updated
+    with plt.xkcd(seed=2000):
+        assert rcParams['path.sketch_seed'] == 2000
+
+
 @image_comparison(['xkcd.png'], remove_text=True)
 def test_xkcd():
     np.random.seed(0)
 
     x = np.linspace(0, 2 * np.pi, 100)
     y = np.sin(x)
-
     with plt.xkcd():
         fig, ax = plt.subplots()
         ax.plot(x, y)
@@ -261,12 +272,82 @@ def test_xkcd_marker():
     y1 = x
     y2 = 5 - x
     y3 = 2.5 * np.ones(8)
-
     with plt.xkcd():
         fig, ax = plt.subplots()
         ax.plot(x, y1, '+', ms=10)
         ax.plot(x, y2, 'o', ms=10)
         ax.plot(x, y3, '^', ms=10)
+
+
+@check_figures_equal(extensions=['png'])
+def test_xkcd_override(fig_test, fig_ref):
+    x = np.linspace(0.7, 1.42, 100)
+    y = x ** 2
+
+    ln = fig_ref.add_subplot().plot(x, y)
+    ln_test = fig_test.add_subplot().plot(x, y)
+
+    with plt.xkcd():
+        ln[0].set_sketch_params(3, 120, 40, 420)
+
+    # set_sketch should override seed set by xkcd
+    with plt.xkcd(seed=5885):
+        ln_test[0].set_sketch_params(3, 120, 40, 420)
+
+
+@check_figures_equal(extensions=['png'])
+def test_artist_seed(fig_test, fig_ref):
+    x = np.linspace(0.7, 1.42, 100)
+    y = [0.7]*100
+
+    ax_ref = fig_ref.add_subplot()
+    ax_test = fig_test.add_subplot()
+
+    ln = ax_ref.plot(x, y)
+    ln_test = ax_test.plot(x, y)
+
+    ln[0].set_sketch_params(3, 120, 40, 19680801)
+
+    # set_sketch_params seed should override seed set by rcParam
+    # when seed is passed in set_sketch, it should be used
+    # else rcParam should be used as seed
+    rcParams['path.sketch_seed'] = 59856
+    ln_test[0].set_sketch_params(3, 120, 40, 19680801)
+
+
+@check_figures_equal(extensions=['png'])
+def test_path_seed(fig_test, fig_ref):
+    x = x = np.linspace(0, 5, 200)
+    y = 20*np.sin(x)
+
+    ax_ref = fig_ref.add_subplot()
+    ax_test = fig_test.add_subplot()
+
+    rcParams['path.sketch_seed'] = 645
+    rcParams['path.sketch'] = 3, 120, 40
+
+    ln = ax_ref.plot(x, y)
+
+    ln_test = ax_test.plot(x, y)
+    ln_test[0].set_sketch_params(3, 120, 40, 645)
+
+
+@check_figures_equal(extensions=['png'])
+def test_xkcd_seed(fig_test, fig_ref):
+    x = x = np.linspace(0, 5, 200)
+    y = 20*np.sin(x)
+
+    ax_ref = fig_ref.add_subplot()
+    ax_test = fig_test.add_subplot()
+
+    with plt.xkcd(seed=20):
+        ln = ax_ref.plot(x, y)
+        ln[0].set_sketch_params(3, 120, 40)
+
+    with plt.xkcd(seed=40):
+        rcParams['path.sketch_seed'] = 20
+        ln_test = ax_test.plot(x, y)
+        ln_test[0].set_sketch_params(3, 120, 40)
 
 
 @image_comparison(['marker_paths.pdf'], remove_text=True)

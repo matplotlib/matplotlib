@@ -677,6 +677,7 @@
                     #     - *randomness* is the factor by which the length is
                     #         randomly scaled.
 #path.effects:
+#path.sketch_seed: 0 # seed for the internal pseudo number generator.
 
 
 ## ***************************************************************************

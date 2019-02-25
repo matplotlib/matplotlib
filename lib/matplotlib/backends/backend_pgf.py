@@ -575,7 +575,7 @@ class RendererPgf(RendererBase):
             # and has a separate "scale" argument for the amplitude.
             # -> Use "randomness" as PRNG seed to allow the user to force the
             # same shape on multiple sketched lines
-            scale, length, randomness = sketch_params
+            scale, length, randomness, seed = sketch_params
             if scale is not None:
                 # make matplotlib and PGF rendering visually similar
                 length *= 0.5

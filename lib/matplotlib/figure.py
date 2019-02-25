@@ -45,6 +45,7 @@ from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
     DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
+
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -3141,6 +3142,7 @@ None}, default: None
 
             artists = self._get_draw_artists(renderer)
             try:
+                renderer._seed_increment = 0
                 renderer.open_group('figure', gid=self.get_gid())
                 if self.axes and self.get_layout_engine() is not None:
                     try:

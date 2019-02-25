@@ -563,7 +563,9 @@ class Patch(artist.Artist):
             gc.set_hatch_color(self._hatch_color)
 
         if self.get_sketch_params() is not None:
-            gc.set_sketch_params(*self.get_sketch_params())
+            scale, length, randomness = self.get_sketch_params()
+            gc.set_sketch_params(scale, length, randomness,
+                                 self._sketch_seed+renderer._seed_increment)
 
         if self.get_path_effects():
             from matplotlib.patheffects import PathEffectRenderer

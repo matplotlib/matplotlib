@@ -23,6 +23,7 @@ struct SketchParams
     double scale;
     double length;
     double randomness;
+    int seed;
 };
 
 class Dashes
