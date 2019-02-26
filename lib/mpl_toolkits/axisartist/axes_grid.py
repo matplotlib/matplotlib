@@ -1,8 +1,8 @@
 import mpl_toolkits.axes_grid1.axes_grid as axes_grid_orig
-from .axes_divider import LocatableAxes
+from .axislines import Axes
 
 
-class CbarAxes(axes_grid_orig.CbarAxesBase, LocatableAxes):
+class CbarAxes(axes_grid_orig.CbarAxesBase, Axes):
     def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
         self._default_label_on = False
@@ -15,11 +15,11 @@ class CbarAxes(axes_grid_orig.CbarAxesBase, LocatableAxes):
 
 
 class Grid(axes_grid_orig.Grid):
-    _defaultLocatableAxesClass = LocatableAxes
+    _defaultAxesClass = Axes
 
 
 class ImageGrid(axes_grid_orig.ImageGrid):
-    _defaultLocatableAxesClass = LocatableAxes
+    _defaultAxesClass = Axes
     _defaultCbarAxesClass = CbarAxes
 
 

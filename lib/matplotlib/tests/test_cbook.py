@@ -2,6 +2,7 @@ import itertools
 import pickle
 from weakref import ref
 import warnings
+from unittest.mock import patch, Mock
 
 from datetime import datetime
 
@@ -46,23 +47,21 @@ class Test_delete_masked_points(object):
     def test_string_seq(self):
         actual = dmp(self.arr_s, self.arr1)
         ind = [0, 1, 2, 5]
-        expected = (self.arr_s2.take(ind), self.arr2.take(ind))
+        expected = (self.arr_s2[ind], self.arr2[ind])
         assert_array_equal(actual[0], expected[0])
         assert_array_equal(actual[1], expected[1])
 
     def test_datetime(self):
         actual = dmp(self.arr_dt, self.arr3)
-        ind = [0, 1,  5]
-        expected = (self.arr_dt2.take(ind),
-                    self.arr3.take(ind).compressed())
+        ind = [0, 1, 5]
+        expected = (self.arr_dt2[ind], self.arr3[ind].compressed())
         assert_array_equal(actual[0], expected[0])
         assert_array_equal(actual[1], expected[1])
 
     def test_rgba(self):
         actual = dmp(self.arr3, self.arr_rgba)
         ind = [0, 1, 5]
-        expected = (self.arr3.take(ind).compressed(),
-                    self.arr_rgba.take(ind, axis=0))
+        expected = (self.arr3[ind].compressed(), self.arr_rgba[ind])
         assert_array_equal(actual[0], expected[0])
         assert_array_equal(actual[1], expected[1])
 
@@ -350,6 +349,15 @@ def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
         assert len(w) == 0
 
 
+def test_warn_external_frame_embedded_python():
+    with patch.object(cbook, "sys") as mock_sys:
+        mock_sys._getframe = Mock(return_value=None)
+        with warnings.catch_warnings(record=True) as w:
+            cbook._warn_external("dummy")
+    assert len(w) == 1
+    assert str(w[0].message) == "dummy"
+
+
 def test_to_prestep():
     x = np.arange(4)
     y1 = np.arange(4)
@@ -482,3 +490,58 @@ def test_flatiter():
 
     assert 0 == next(it)
     assert 1 == next(it)
+
+
+def test_reshape2d():
+    class dummy():
+        pass
+    xnew = cbook._reshape_2D([], 'x')
+    assert np.shape(xnew) == (1, 0)
+
+    x = [dummy() for j in range(5)]
+
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (1, 5)
+
+    x = np.arange(5)
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (1, 5)
+
+    x = [[dummy() for j in range(5)] for i in range(3)]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (3, 5)
+
+    # this is strange behaviour, but...
+    x = np.random.rand(3, 5)
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (5, 3)
+
+
+def test_contiguous_regions():
+    a, b, c = 3, 4, 5
+    # Starts and ends with True
+    mask = [True]*a + [False]*b + [True]*c
+    expected = [(0, a), (a+b, a+b+c)]
+    assert cbook.contiguous_regions(mask) == expected
+    d, e = 6, 7
+    # Starts with True ends with False
+    mask = mask + [False]*e
+    assert cbook.contiguous_regions(mask) == expected
+    # Starts with False ends with True
+    mask = [False]*d + mask[:-e]
+    expected = [(d, d+a), (d+a+b, d+a+b+c)]
+    assert cbook.contiguous_regions(mask) == expected
+    # Starts and ends with False
+    mask = mask + [False]*e
+    assert cbook.contiguous_regions(mask) == expected
+    # No True in mask
+    assert cbook.contiguous_regions([False]*5) == []
+    # Empty mask
+    assert cbook.contiguous_regions([]) == []
+
+
+def test_safe_first_element_pandas_series(pd):
+    # deliberately create a pandas series with index not starting from 0
+    s = pd.Series(range(5), index=range(10, 15))
+    actual = cbook.safe_first_element(s)
+    assert actual == 0

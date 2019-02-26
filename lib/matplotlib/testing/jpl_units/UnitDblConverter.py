@@ -1,26 +1,13 @@
-# ==========================================================================
-#
-# UnitDblConverter
-#
-# ==========================================================================
-
 """UnitDblConverter module containing class UnitDblConverter."""
 
-# ==========================================================================
-# Place all imports after here.
-#
 import numpy as np
+
 import matplotlib.units as units
 import matplotlib.projections.polar as polar
-from matplotlib.cbook import iterable
-#
-# Place all imports before here.
-# ==========================================================================
 
 __all__ = ['UnitDblConverter']
 
 
-# ==========================================================================
 # A special function for use with the matplotlib FuncFormatter class
 # for formatting axes with radian units.
 # This was copied from matplotlib example code.
@@ -34,12 +21,11 @@ def rad_fn(x, pos=None):
     elif n == 2:
         return r'$\pi$'
     elif n % 2 == 0:
-        return r'$%s\pi$' % (n/2,)
+        return fr'${n//2}\pi$'
     else:
-        return r'$%s\pi/2$' % (n,)
+        return fr'${n}\pi/2$'
 
 
-# ==========================================================================
 class UnitDblConverter(units.ConversionInterface):
     """: A matplotlib converter class.  Provides matplotlib conversion
           functionality for the Monte UnitDbl class.
@@ -51,7 +37,6 @@ class UnitDblConverter(units.ConversionInterface):
        "time": 'sec',
        }
 
-    # -----------------------------------------------------------------------
     @staticmethod
     def axisinfo(unit, axis):
         """: Returns information on how to handle an axis that has Epoch data.
@@ -75,7 +60,7 @@ class UnitDblConverter(units.ConversionInterface):
         else:
             label = None
 
-        if (label == "deg") and isinstance(axis.axes, polar.PolarAxes):
+        if label == "deg" and isinstance(axis.axes, polar.PolarAxes):
             # If we want degrees for a polar plot, use the PolarPlotFormatter
             majfmt = polar.PolarAxes.ThetaFormatter()
         else:
@@ -83,7 +68,6 @@ class UnitDblConverter(units.ConversionInterface):
 
         return units.AxisInfo(majfmt=majfmt, label=label)
 
-    # -----------------------------------------------------------------------
     @staticmethod
     def convert(value, unit, axis):
         """: Convert value using unit to a float.  If value is a sequence, return
@@ -101,7 +85,7 @@ class UnitDblConverter(units.ConversionInterface):
 
         isNotUnitDbl = True
 
-        if iterable(value) and not isinstance(value, str):
+        if np.iterable(value) and not isinstance(value, str):
             if len(value) == 0:
                 return []
             else:
@@ -110,13 +94,13 @@ class UnitDblConverter(units.ConversionInterface):
         # We need to check to see if the incoming value is actually a
         # UnitDbl and set a flag.  If we get an empty list, then just
         # return an empty list.
-        if (isinstance(value, U.UnitDbl)):
+        if isinstance(value, U.UnitDbl):
             isNotUnitDbl = False
 
         # If the incoming value behaves like a number, but is not a UnitDbl,
         # then just return it because we don't know how to convert it
         # (or it is already converted)
-        if (isNotUnitDbl and units.ConversionInterface.is_numlike(value)):
+        if isNotUnitDbl and units.ConversionInterface.is_numlike(value):
             return value
 
         # If no units were specified, then get the default units to use.
@@ -130,7 +114,6 @@ class UnitDblConverter(units.ConversionInterface):
 
         return value.convert(unit)
 
-    # -----------------------------------------------------------------------
     @staticmethod
     def default_units(value, axis):
         """: Return the default unit for value, or None.
@@ -145,7 +128,7 @@ class UnitDblConverter(units.ConversionInterface):
 
         # Determine the default units based on the user preferences set for
         # default units when printing a UnitDbl.
-        if iterable(value) and not isinstance(value, str):
+        if np.iterable(value) and not isinstance(value, str):
             return UnitDblConverter.default_units(value[0], axis)
         else:
             return UnitDblConverter.defaults[value.type()]

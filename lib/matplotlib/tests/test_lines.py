@@ -2,7 +2,6 @@
 Tests specific to the lines module.
 """
 
-from io import BytesIO
 import itertools
 import timeit
 
@@ -32,7 +31,7 @@ def test_invisible_Line_rendering():
     """
     # Creates big x and y data:
     N = 10**7
-    x = np.linspace(0,1,N)
+    x = np.linspace(0, 1, N)
     y = np.random.normal(size=N)
 
     # Create a plot figure:
@@ -40,7 +39,7 @@ def test_invisible_Line_rendering():
     ax = plt.subplot(111)
 
     # Create a "big" Line instance:
-    l = mlines.Line2D(x,y)
+    l = mlines.Line2D(x, y)
     l.set_visible(False)
     # but don't add it to the Axis instance `ax`
 
@@ -54,11 +53,11 @@ def test_invisible_Line_rendering():
 
     # [Now interactive panning and zooming is very slow]
     # Time the canvas drawing:
-    t_unvisible_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
+    t_invisible_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
     # gives about 290 ms for N = 10**7 pts
 
-    slowdown_factor = (t_unvisible_line/t_no_line)
-    slowdown_threshold = 2 # trying to avoid false positive failures
+    slowdown_factor = t_invisible_line / t_no_line
+    slowdown_threshold = 2  # trying to avoid false positive failures
     assert slowdown_factor < slowdown_threshold
 
 
@@ -144,7 +143,8 @@ def test_set_drawstyle():
     assert len(line.get_path().vertices) == len(x)
 
 
-@image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
+@image_comparison(baseline_images=['line_collection_dashes'],
+                  remove_text=True, style='mpl20')
 def test_set_line_coll_dash_image():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)

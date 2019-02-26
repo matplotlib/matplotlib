@@ -1,10 +1,6 @@
-******
-ticker
-******
-
-
-:mod:`matplotlib.ticker`
-========================
+*********************
+``matplotlib.ticker``
+*********************
 
 .. automodule:: matplotlib.ticker
    :members:

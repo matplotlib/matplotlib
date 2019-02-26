@@ -4,7 +4,6 @@ Provides a collection of utilities for comparing (image) results.
 """
 
 import atexit
-import functools
 import hashlib
 import os
 from pathlib import Path
@@ -16,11 +15,9 @@ from tempfile import TemporaryFile
 
 import numpy as np
 
-import matplotlib
+import matplotlib as mpl
 from matplotlib.testing.exceptions import ImageComparisonFailure
-from matplotlib import _png
-from matplotlib import _get_cachedir
-from matplotlib import cbook
+from matplotlib import _png, cbook
 
 __all__ = ['compare_float', 'compare_images', 'comparable_formats']
 
@@ -79,7 +76,7 @@ def compare_float(expected, actual, relTol=None, absTol=None):
 
 
 def get_cache_dir():
-    cachedir = _get_cachedir()
+    cachedir = mpl.get_cachedir()
     if cachedir is None:
         raise RuntimeError('Could not find a suitable configuration directory')
     cache_dir = os.path.join(cachedir, 'test_cache')
@@ -102,11 +99,11 @@ def get_file_hash(path, block_size=2 ** 20):
             md5.update(data)
 
     if path.endswith('.pdf'):
-        from matplotlib import checkdep_ghostscript
-        md5.update(checkdep_ghostscript()[1].encode('utf-8'))
+        md5.update(str(mpl._get_executable_info("gs").version)
+                   .encode('utf-8'))
     elif path.endswith('.svg'):
-        from matplotlib import checkdep_inkscape
-        md5.update(checkdep_inkscape().encode('utf-8'))
+        md5.update(str(mpl._get_executable_info("inkscape").version)
+                   .encode('utf-8'))
 
     return md5.hexdigest()
 
@@ -178,7 +175,7 @@ class _GSConverter(_Converter):
         if not self._proc:
             self._stdout = TemporaryFile()
             self._proc = subprocess.Popen(
-                [matplotlib.checkdep_ghostscript.executable,
+                [mpl._get_executable_info("gs").executable,
                  "-dNOPAUSE", "-sDEVICE=png16m"],
                 # As far as I can see, ghostscript never outputs to stderr.
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -267,10 +264,17 @@ class _SVGConverter(_Converter):
 
 
 def _update_converter():
-    gs, gs_v = matplotlib.checkdep_ghostscript()
-    if gs_v is not None:
+    try:
+        mpl._get_executable_info("gs")
+    except FileNotFoundError:
+        pass
+    else:
         converter['pdf'] = converter['eps'] = _GSConverter()
-    if matplotlib.checkdep_inkscape() is not None:
+    try:
+        mpl._get_executable_info("inkscape")
+    except FileNotFoundError:
+        pass
+    else:
         converter['svg'] = _SVGConverter()
 
 
@@ -284,8 +288,13 @@ _update_converter()
 
 def comparable_formats():
     """
-    Returns the list of file formats that compare_images can compare
+    Return the list of file formats that `.compare_images` can compare
     on this system.
+
+    Returns
+    -------
+    supported_formats : list of str
+        E.g. ``['png', 'pdf', 'svg', 'eps']``.
 
     """
     return ['png', *converter]
@@ -293,15 +302,12 @@ def comparable_formats():
 
 def convert(filename, cache):
     """
-    Convert the named file into a png file.  Returns the name of the
-    created file.
+    Convert the named file to png; return the name of the created file.
 
     If *cache* is True, the result of the conversion is cached in
-    `matplotlib._get_cachedir() + '/test_cache/'`.  The caching is based
-    on a hash of the exact contents of the input file.  The is no limit
-    on the size of the cache, so it may need to be manually cleared
-    periodically.
-
+    `matplotlib.get_cachedir() + '/test_cache/'`.  The caching is based on a
+    hash of the exact contents of the input file.  There is no limit on the
+    size of the cache, so it may need to be manually cleared periodically.
     """
     base, extension = filename.rsplit('.', 1)
     if extension not in converter:
@@ -353,14 +359,14 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
     return actual_image, expected_image
 
 
-def calculate_rms(expectedImage, actualImage):
+def calculate_rms(expected_image, actual_image):
     "Calculate the per-pixel errors, then compute the root mean square error."
-    if expectedImage.shape != actualImage.shape:
+    if expected_image.shape != actual_image.shape:
         raise ImageComparisonFailure(
             "Image sizes do not match expected size: {} "
-            "actual size {}".format(expectedImage.shape, actualImage.shape))
+            "actual size {}".format(expected_image.shape, actual_image.shape))
     # Convert to float to avoid overflowing finite integer types.
-    return np.sqrt(((expectedImage - actualImage).astype(float) ** 2).mean())
+    return np.sqrt(((expected_image - actual_image).astype(float) ** 2).mean())
 
 
 def compare_images(expected, actual, tol, in_decorator=False):
@@ -375,21 +381,41 @@ def compare_images(expected, actual, tol, in_decorator=False):
     ----------
     expected : str
         The filename of the expected image.
-    actual :str
+    actual : str
         The filename of the actual image.
     tol : float
         The tolerance (a color value difference, where 255 is the
         maximal difference).  The test fails if the average pixel
         difference is greater than this value.
     in_decorator : bool
-        If called from image_comparison decorator, this should be
-        True. (default=False)
+        Determines the output format. If called from image_comparison
+        decorator, this should be True. (default=False)
+
+    Returns
+    -------
+    comparison_result : None or dict or str
+        Return *None* if the images are equal within the given tolerance.
+
+        If the images differ, the return value depends on  *in_decorator*.
+        If *in_decorator* is true, a dict with the following entries is
+        returned:
+
+        - *rms*: The RMS of the image difference.
+        - *expected*: The filename of the expected image.
+        - *actual*: The filename of the actual image.
+        - *diff_image*: The filename of the difference image.
+        - *tol*: The comparison tolerance.
+
+        Otherwise, a human-readable multi-line string representation of this
+        information is returned.
 
     Examples
     --------
-    img1 = "./baseline/plot.png"
-    img2 = "./output/plot.png"
-    compare_images(img1, img2, 0.001):
+    ::
+
+        img1 = "./baseline/plot.png"
+        img2 = "./output/plot.png"
+        compare_images(img1, img2, 0.001)
 
     """
     if not os.path.exists(actual):
@@ -409,26 +435,26 @@ def compare_images(expected, actual, tol, in_decorator=False):
         expected = convert(expected, True)
 
     # open the image files and remove the alpha channel (if it exists)
-    expectedImage = _png.read_png_int(expected)
-    actualImage = _png.read_png_int(actual)
-    expectedImage = expectedImage[:, :, :3]
-    actualImage = actualImage[:, :, :3]
+    expected_image = _png.read_png_int(expected)
+    actual_image = _png.read_png_int(actual)
+    expected_image = expected_image[:, :, :3]
+    actual_image = actual_image[:, :, :3]
 
-    actualImage, expectedImage = crop_to_same(
-        actual, actualImage, expected, expectedImage)
+    actual_image, expected_image = crop_to_same(
+        actual, actual_image, expected, expected_image)
 
     diff_image = make_test_filename(actual, 'failed-diff')
 
     if tol <= 0:
-        if np.array_equal(expectedImage, actualImage):
+        if np.array_equal(expected_image, actual_image):
             return None
 
     # convert to signed integers, so that the images can be subtracted without
     # overflow
-    expectedImage = expectedImage.astype(np.int16)
-    actualImage = actualImage.astype(np.int16)
+    expected_image = expected_image.astype(np.int16)
+    actual_image = actual_image.astype(np.int16)
 
-    rms = calculate_rms(expectedImage, actualImage)
+    rms = calculate_rms(expected_image, actual_image)
 
     if rms <= tol:
         return None
@@ -451,22 +477,32 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
 
 def save_diff_image(expected, actual, output):
+    '''
+    Parameters
+    ----------
+    expected : str
+        File path of expected image.
+    actual : str
+        File path of actual image.
+    output : str
+        File path to save difference image to.
+    '''
     # Drop alpha channels, similarly to compare_images.
-    expectedImage = _png.read_png(expected)[..., :3]
-    actualImage = _png.read_png(actual)[..., :3]
-    actualImage, expectedImage = crop_to_same(
-        actual, actualImage, expected, expectedImage)
-    expectedImage = np.array(expectedImage).astype(float)
-    actualImage = np.array(actualImage).astype(float)
-    if expectedImage.shape != actualImage.shape:
+    expected_image = _png.read_png(expected)[..., :3]
+    actual_image = _png.read_png(actual)[..., :3]
+    actual_image, expected_image = crop_to_same(
+        actual, actual_image, expected, expected_image)
+    expected_image = np.array(expected_image).astype(float)
+    actual_image = np.array(actual_image).astype(float)
+    if expected_image.shape != actual_image.shape:
         raise ImageComparisonFailure(
             "Image sizes do not match expected size: {} "
-            "actual size {}".format(expectedImage.shape, actualImage.shape))
-    absDiffImage = np.abs(expectedImage - actualImage)
+            "actual size {}".format(expected_image.shape, actual_image.shape))
+    abs_diff_image = np.abs(expected_image - actual_image)
 
     # expand differences in luminance domain
-    absDiffImage *= 255 * 10
-    save_image_np = np.clip(absDiffImage, 0, 255).astype(np.uint8)
+    abs_diff_image *= 255 * 10
+    save_image_np = np.clip(abs_diff_image, 0, 255).astype(np.uint8)
     height, width, depth = save_image_np.shape
 
     # The PDF renderer doesn't produce an alpha channel, but the

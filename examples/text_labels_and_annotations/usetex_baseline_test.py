@@ -5,13 +5,11 @@ Usetex Baseline Test
 
 """
 
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.axes as maxes
 
 from matplotlib import rcParams
 rcParams['text.usetex'] = True
-rcParams['text.latex.unicode'] = True
 
 
 class Axes(maxes.Axes):
@@ -72,5 +70,4 @@ for i, usetex, preview in [[0, False, False],
     test_window_extent(ax, usetex=usetex, preview=preview)
 
 
-plt.draw()
 plt.show()

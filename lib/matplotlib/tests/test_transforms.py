@@ -70,7 +70,7 @@ def test_external_transform_api():
 
 
 @image_comparison(baseline_images=['pre_transform_data'],
-                  tol=0.08)
+                  tol=0.08, remove_text=True, style='mpl20')
 def test_pre_transform_plotting():
     # a catch-all for as many as possible plot layouts which handle
     # pre-transforming the data NOTE: The axis range is important in this
@@ -296,7 +296,7 @@ class BasicTransformTests(unittest.TestCase):
         assert r1.contains_branch(r2)
         assert r1.contains_branch(self.ta1)
         assert not r1.contains_branch(self.ta2)
-        assert not r1.contains_branch((self.ta2 + self.ta2))
+        assert not r1.contains_branch(self.ta2 + self.ta2)
 
         assert r1 == r2
 
@@ -309,10 +309,10 @@ class BasicTransformTests(unittest.TestCase):
         assert not self.stack2_subset.contains_branch(self.stack1)
         assert not self.stack2_subset.contains_branch(self.stack2)
 
-        assert self.stack1.contains_branch((self.ta2 + self.ta3))
-        assert self.stack2.contains_branch((self.ta2 + self.ta3))
+        assert self.stack1.contains_branch(self.ta2 + self.ta3)
+        assert self.stack2.contains_branch(self.ta2 + self.ta3)
 
-        assert not self.stack1.contains_branch((self.tn1 + self.ta2))
+        assert not self.stack1.contains_branch(self.tn1 + self.ta2)
 
     def test_affine_simplification(self):
         # tests that a transform stack only calls as much is absolutely

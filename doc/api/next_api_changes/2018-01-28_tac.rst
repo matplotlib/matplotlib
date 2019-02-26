@@ -1,0 +1,5 @@
+De-deprecate xmin, xmax kwargs to set_xlim and ymin, ymax kwargs to set_ylim
+````````````````````````````````````````````````````````````````````````````
+
+These kwargs were deprecated in 3.0, but due to user feedback and the
+semantics of the new names are problematic for non-rectangular axes.

@@ -42,7 +42,7 @@ Zm = np.ma.masked_where(Z > 1.2, Z)
 # range to which the regular palette color scale is applied.
 # Anything above that range is colored based on palette.set_over, etc.
 
-# set up the Axes objets
+# set up the Axes objects
 fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 5.4))
 
 # plot using 'continuous' color map
@@ -91,4 +91,3 @@ matplotlib.figure.Figure.colorbar
 matplotlib.pyplot.colorbar
 matplotlib.colors.BoundaryNorm
 matplotlib.colorbar.ColorbarBase.set_label
-

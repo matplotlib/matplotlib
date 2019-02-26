@@ -11,10 +11,9 @@ from matplotlib import backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, cursors, ToolContainerBase, StatusbarBase)
+    TimerBase, cursors, ToolContainerBase, StatusbarBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
-from matplotlib.figure import Figure
 from matplotlib.backend_managers import ToolManager
 
 from .qt_compat import (
@@ -163,10 +162,10 @@ def _allow_super_init(__init__):
             next_coop_init.__init__(self, *args, **kwargs)
 
         @functools.wraps(__init__)
-        def wrapper(self, **kwargs):
+        def wrapper(self, *args, **kwargs):
             with cbook._setattr_cm(QtWidgets.QWidget,
                                    __init__=cooperative_qwidget_init):
-                __init__(self, **kwargs)
+                __init__(self, *args, **kwargs)
 
         return wrapper
 
@@ -214,11 +213,11 @@ class TimerQT(TimerBase):
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     # map Qt button codes to MouseEvent's ones:
-    buttond = {QtCore.Qt.LeftButton: 1,
-               QtCore.Qt.MidButton: 2,
-               QtCore.Qt.RightButton: 3,
-               # QtCore.Qt.XButton1: None,
-               # QtCore.Qt.XButton2: None,
+    buttond = {QtCore.Qt.LeftButton: MouseButton.LEFT,
+               QtCore.Qt.MidButton: MouseButton.MIDDLE,
+               QtCore.Qt.RightButton: MouseButton.RIGHT,
+               QtCore.Qt.XButton1: MouseButton.BACK,
+               QtCore.Qt.XButton2: MouseButton.FORWARD,
                }
 
     @_allow_super_init
@@ -291,7 +290,11 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return int(w / self._dpi_ratio), int(h / self._dpi_ratio)
 
     def enterEvent(self, event):
-        x, y = self.mouseEventCoords(event.pos())
+        try:
+            x, y = self.mouseEventCoords(event.pos())
+        except AttributeError:
+            # the event from PyQt4 does not include the position
+            x = y = None
         FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def leaveEvent(self, event):
@@ -372,9 +375,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if key is not None:
             FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
+    @cbook.deprecated("3.0", alternative="event.guiEvent.isAutoRepeat")
     @property
-    @cbook.deprecated("3.0", "Manually check `event.guiEvent.isAutoRepeat()` "
-                      "in the event handler.")
     def keyAutoRepeat(self):
         """
         If True, enable auto-repeat for key events.
@@ -382,8 +384,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return self._keyautorepeat
 
     @keyAutoRepeat.setter
-    @cbook.deprecated("3.0", "Manually check `event.guiEvent.isAutoRepeat()` "
-                      "in the event handler.")
     def keyAutoRepeat(self, val):
         self._keyautorepeat = bool(val)
 
@@ -448,28 +448,15 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return '+'.join(mods + [key])
 
     def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.Timer`.  This is useful for getting
-        periodic events through the backend's native event
-        loop. Implemented only for backends with GUIs.
-
-        Other Parameters
-        ----------------
-        interval : scalar
-            Timer interval in milliseconds
-
-        callbacks : list
-            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
-            will be executed by the timer every *interval*.
-
-        """
+        # docstring inherited
         return TimerQT(*args, **kwargs)
 
     def flush_events(self):
+        # docstring inherited
         qApp.processEvents()
 
     def start_event_loop(self, timeout=0):
+        # docstring inherited
         if hasattr(self, "_event_loop") and self._event_loop.isRunning():
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
@@ -478,6 +465,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         event_loop.exec_()
 
     def stop_event_loop(self, event=None):
+        # docstring inherited
         if hasattr(self, "_event_loop"):
             self._event_loop.quit()
 
@@ -671,7 +659,6 @@ class FigureManagerQT(FigureManagerBase):
         if self.window._destroying:
             return
         self.window._destroying = True
-        self.window.destroyed.connect(self._widgetclosed)
         if self.toolbar:
             self.toolbar.destroy()
         self.window.close()
@@ -759,30 +746,31 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             return size
 
     def edit_parameters(self):
-        allaxes = self.canvas.figure.get_axes()
-        if not allaxes:
+        axes = self.canvas.figure.get_axes()
+        if not axes:
             QtWidgets.QMessageBox.warning(
                 self.parent, "Error", "There are no axes to edit.")
             return
-        elif len(allaxes) == 1:
-            axes, = allaxes
+        elif len(axes) == 1:
+            ax, = axes
         else:
-            titles = []
-            for axes in allaxes:
-                name = (axes.get_title() or
-                        " - ".join(filter(None, [axes.get_xlabel(),
-                                                 axes.get_ylabel()])) or
-                        "<anonymous {} (id: {:#x})>".format(
-                            type(axes).__name__, id(axes)))
-                titles.append(name)
+            titles = [
+                ax.get_label() or
+                ax.get_title() or
+                " - ".join(filter(None, [ax.get_xlabel(), ax.get_ylabel()])) or
+                f"<anonymous {type(ax).__name__}>"
+                for ax in axes]
+            duplicate_titles = [
+                title for title in titles if titles.count(title) > 1]
+            for i, ax in enumerate(axes):
+                if titles[i] in duplicate_titles:
+                    titles[i] += f" (id: {id(ax):#x})"  # Deduplicate titles.
             item, ok = QtWidgets.QInputDialog.getItem(
                 self.parent, 'Customize', 'Select axes:', titles, 0, False)
-            if ok:
-                axes = allaxes[titles.index(item)]
-            else:
+            if not ok:
                 return
-
-        figureoptions.figure_edit(axes, self)
+            ax = axes[titles.index(item)]
+        figureoptions.figure_edit(ax, self)
 
     def _update_buttons_checked(self):
         # sync button checkstates to match active mode
@@ -854,6 +842,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 QtWidgets.QMessageBox.critical(
                     self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+
+    def set_history_buttons(self):
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        self._actions['back'].setEnabled(can_backward)
+        self._actions['forward'].setEnabled(can_forward)
 
 
 class SubplotToolQt(UiSubplotTool):
@@ -1109,6 +1103,7 @@ def exception_handler(type, value, tb):
 
 @_Backend.export
 class _BackendQT5(_Backend):
+    required_interactive_framework = "qt5"
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
 
@@ -1118,6 +1113,11 @@ class _BackendQT5(_Backend):
 
     @staticmethod
     def mainloop():
-        # allow KeyboardInterrupt exceptions to close the plot window.
+        old_signal = signal.getsignal(signal.SIGINT)
+        # allow SIGINT exceptions to close the plot window.
         signal.signal(signal.SIGINT, signal.SIG_DFL)
-        qApp.exec_()
+        try:
+            qApp.exec_()
+        finally:
+            # reset the SIGINT exception handler
+            signal.signal(signal.SIGINT, old_signal)

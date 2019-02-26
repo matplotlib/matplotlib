@@ -1,6 +1,5 @@
-
 """
-provides a classes of simple units that will be used with AxesDivider
+Provides classes of simple units that will be used with AxesDivider
 class (or others) to determine the size of each axes. The unit
 classes define `get_size` method that returns a tuple of two floats,
 meaning relative and absolute sizes, respectively.
@@ -8,10 +7,11 @@ meaning relative and absolute sizes, respectively.
 Note that this class is nothing more than a simple tuple of two
 floats. Take a look at the Divider class to see how these two
 values are used.
-
 """
+
 from numbers import Number
 
+from matplotlib import cbook
 from matplotlib.axes import Axes
 
 
@@ -19,7 +19,7 @@ class _Base(object):
     "Base class"
 
     def __rmul__(self, other):
-        float(other) # just to check if number if given
+        float(other)  # just to check if number if given
         return Fraction(other, self)
 
     def __add__(self, other):
@@ -53,7 +53,9 @@ class AddList(_Base):
 
 
 class Fixed(_Base):
-    "Simple fixed size  with absolute part = *fixed_size* and relative part = 0"
+    """
+    Simple fixed size with absolute part = *fixed_size* and relative part = 0.
+    """
     def __init__(self, fixed_size):
         self.fixed_size = fixed_size
 
@@ -64,7 +66,11 @@ class Fixed(_Base):
 
 
 class Scaled(_Base):
-    "Simple scaled(?) size with absolute part = 0 and relative part = *scalable_size*"
+    """
+    Simple scaled(?) size with absolute part = 0 and
+    relative part = *scalable_size*.
+    """
+
     def __init__(self, scalable_size):
         self._scalable_size = scalable_size
 
@@ -290,37 +296,21 @@ class SizeFromFunc(_Base):
 
 
 class GetExtentHelper(object):
-    def _get_left(tight_bbox, axes_bbox):
-        return axes_bbox.xmin - tight_bbox.xmin
-
-    def _get_right(tight_bbox, axes_bbox):
-        return tight_bbox.xmax - axes_bbox.xmax
-
-    def _get_bottom(tight_bbox, axes_bbox):
-        return axes_bbox.ymin - tight_bbox.ymin
-
-    def _get_top(tight_bbox, axes_bbox):
-        return tight_bbox.ymax - axes_bbox.ymax
-
-    _get_func_map = dict(left=_get_left,
-                         right=_get_right,
-                         bottom=_get_bottom,
-                         top=_get_top)
-
-    del _get_left, _get_right, _get_bottom, _get_top
+    _get_func_map = {
+        "left":   lambda self, axes_bbox: axes_bbox.xmin - self.xmin,
+        "right":  lambda self, axes_bbox: self.xmax - axes_bbox.xmax,
+        "bottom": lambda self, axes_bbox: axes_bbox.ymin - self.ymin,
+        "top":    lambda self, axes_bbox: self.ymax - axes_bbox.ymax,
+    }
 
     def __init__(self, ax, direction):
-        if isinstance(ax, Axes):
-            self._ax_list = [ax]
-        else:
-            self._ax_list = ax
-
-        try:
-            self._get_func = self._get_func_map[direction]
-        except KeyError:
-            raise KeyError("direction must be one of left, right, bottom, top")
+        cbook._check_in_list(self._get_func_map, direction=direction)
+        self._ax_list = [ax] if isinstance(ax, Axes) else ax
+        self._direction = direction
 
     def __call__(self, renderer):
-        vl = [self._get_func(ax.get_tightbbox(renderer, False),
-                             ax.bbox) for ax in self._ax_list]
+        get_func = self._get_func_map[self._direction]
+        vl = [get_func(ax.get_tightbbox(renderer, call_axes_locator=False),
+                       ax.bbox)
+              for ax in self._ax_list]
         return max(vl)

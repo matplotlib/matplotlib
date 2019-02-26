@@ -46,7 +46,11 @@ from numbers import Number
 
 import numpy as np
 
-from matplotlib.cbook import iterable, safe_first_element
+from matplotlib import cbook
+
+
+class ConversionError(TypeError):
+    pass
 
 
 class AxisInfo(object):
@@ -122,7 +126,7 @@ class ConversionInterface(object):
         current unit.  The converter may be passed these floats, or
         arrays of them, even when units are set.
         """
-        if iterable(x):
+        if np.iterable(x):
             for thisx in x:
                 return isinstance(thisx, Number)
         else:
@@ -160,13 +164,16 @@ class Registry(dict):
             x = x.values
 
         # If x is an array, look inside the array for data with units
-        if isinstance(x, np.ndarray) and x.size:
+        if isinstance(x, np.ndarray):
+            # If there are no elements in x, infer the units from its dtype
+            if not x.size:
+                return self.get_converter(np.array([0], dtype=x.dtype))
             xravel = x.ravel()
             try:
                 # pass the first value of x that is not masked back to
                 # get_converter
                 if not np.all(xravel.mask):
-                    # some elements are not masked
+                    # Get first non-masked item
                     converter = self.get_converter(
                         xravel[np.argmin(xravel.mask)])
                     return converter
@@ -184,7 +191,7 @@ class Registry(dict):
         # If we haven't found a converter yet, try to get the first element
         if converter is None:
             try:
-                thisx = safe_first_element(x)
+                thisx = cbook.safe_first_element(x)
             except (TypeError, StopIteration):
                 pass
             else:

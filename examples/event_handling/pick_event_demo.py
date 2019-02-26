@@ -74,7 +74,9 @@ from matplotlib.image import AxesImage
 import numpy as np
 from numpy.random import rand
 
-if 1:  # simple picking, lines, rectangles and text
+
+def pick_simple():
+    # simple picking, lines, rectangles and text
     fig, (ax1, ax2) = plt.subplots(2, 1)
     ax1.set_title('click on points, rectangles or text', picker=True)
     ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
@@ -91,7 +93,7 @@ if 1:  # simple picking, lines, rectangles and text
             xdata = thisline.get_xdata()
             ydata = thisline.get_ydata()
             ind = event.ind
-            print('onpick1 line:', zip(np.take(xdata, ind), np.take(ydata, ind)))
+            print('onpick1 line:', np.column_stack([xdata[ind], ydata[ind]]))
         elif isinstance(event.artist, Rectangle):
             patch = event.artist
             print('onpick1 patch:', patch.get_path())
@@ -101,7 +103,9 @@ if 1:  # simple picking, lines, rectangles and text
 
     fig.canvas.mpl_connect('pick_event', onpick1)
 
-if 1:  # picking with a custom hit test function
+
+def pick_custom_hit():
+    # picking with a custom hit test function
     # you can define custom pickers by setting picker to a callable
     # function.  The function has the signature
     #
@@ -122,12 +126,13 @@ if 1:  # picking with a custom hit test function
         xdata = line.get_xdata()
         ydata = line.get_ydata()
         maxd = 0.05
-        d = np.sqrt((xdata - mouseevent.xdata)**2. + (ydata - mouseevent.ydata)**2.)
+        d = np.sqrt(
+            (xdata - mouseevent.xdata)**2 + (ydata - mouseevent.ydata)**2)
 
-        ind = np.nonzero(np.less_equal(d, maxd))
+        ind, = np.nonzero(d <= maxd)
         if len(ind):
-            pickx = np.take(xdata, ind)
-            picky = np.take(ydata, ind)
+            pickx = xdata[ind]
+            picky = ydata[ind]
             props = dict(ind=ind, pickx=pickx, picky=picky)
             return True, props
         else:
@@ -142,20 +147,23 @@ if 1:  # picking with a custom hit test function
     fig.canvas.mpl_connect('pick_event', onpick2)
 
 
-if 1:  # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
+def pick_scatter_plot():
+    # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
 
     x, y, c, s = rand(4, 100)
 
     def onpick3(event):
         ind = event.ind
-        print('onpick3 scatter:', ind, np.take(x, ind), np.take(y, ind))
+        print('onpick3 scatter:', ind, x[ind], y[ind])
 
     fig, ax = plt.subplots()
     col = ax.scatter(x, y, 100*s, c, picker=True)
     #fig.savefig('pscoll.eps')
     fig.canvas.mpl_connect('pick_event', onpick3)
 
-if 1:  # picking images (matplotlib.image.AxesImage)
+
+def pick_image():
+    # picking images (matplotlib.image.AxesImage)
     fig, ax = plt.subplots()
     im1 = ax.imshow(rand(10, 5), extent=(1, 2, 1, 2), picker=True)
     im2 = ax.imshow(rand(5, 10), extent=(3, 4, 1, 2), picker=True)
@@ -173,4 +181,9 @@ if 1:  # picking images (matplotlib.image.AxesImage)
     fig.canvas.mpl_connect('pick_event', onpick4)
 
 
-plt.show()
+if __name__ == '__main__':
+    pick_simple()
+    pick_custom_hit()
+    pick_scatter_plot()
+    pick_image()
+    plt.show()

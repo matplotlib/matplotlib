@@ -8,7 +8,6 @@ Many ways to plot images in Matplotlib.
 The most common way to plot images in Matplotlib is with
 :meth:`~.axes.Axes.imshow`. The following examples demonstrate much of the
 functionality of imshow and the many images you can create.
-
 """
 
 import numpy as np
@@ -54,7 +53,7 @@ w, h = 512, 512
 
 with cbook.get_sample_data('ct.raw.gz', asfileobj=True) as datafile:
     s = datafile.read()
-A = np.fromstring(s, np.uint16).astype(float).reshape((w, h))
+A = np.frombuffer(s, np.uint16).astype(float).reshape((w, h))
 A /= A.max()
 
 fig, ax = plt.subplots()
@@ -85,14 +84,9 @@ plt.show()
 # the pixel center will have the same color as it does with nearest, but
 # other pixels will be interpolated between the neighboring pixels.
 #
-# Earlier versions of matplotlib (<0.63) tried to hide the edge effects
-# from you by setting the view limits so that they would not be visible.
-# A recent bugfix in antigrain, and a new implementation in the
-# matplotlib._image module which takes advantage of this fix, no longer
-# makes this necessary.  To prevent edge effects, when doing
-# interpolation, the matplotlib._image module now pads the input array
-# with identical pixels around the edge.  e.g., if you have a 5x5 array
-# with colors a-y as below::
+# To prevent edge effects when doing interpolation, Matplotlib pads the input
+# array with identical pixels around the edge: if you have a 5x5 array with
+# colors a-y as below::
 #
 #   a b c d e
 #   f g h i j
@@ -100,7 +94,7 @@ plt.show()
 #   p q r s t
 #   u v w x y
 #
-# the _image module creates the padded array,::
+# Matplotlib computes the interpolation and resizing on the padded array ::
 #
 #   a a b c d e e
 #   a a b c d e e
@@ -110,16 +104,17 @@ plt.show()
 #   o u v w x y y
 #   o u v w x y y
 #
-# does the interpolation/resizing, and then extracts the central region.
-# This allows you to plot the full range of your array w/o edge effects,
-# and for example to layer multiple images of different sizes over one
-# another with different interpolation methods - see
-# :doc:`/gallery/images_contours_and_fields/layer_images`.
-# It also implies a performance hit, as this
-# new temporary, padded array must be created.  Sophisticated
-# interpolation also implies a performance hit, so if you need maximal
-# performance or have very large images, interpolation='nearest' is
-# suggested.
+# and then extracts the central region of the result.  (Extremely old versions
+# of Matplotlib (<0.63) did not pad the array, but instead adjusted the view
+# limits to hide the affected edge areas.)
+#
+# This approach allows plotting the full extent of an array without
+# edge effects, and for example to layer multiple images of different
+# sizes over one another with different interpolation methods -- see
+# :doc:`/gallery/images_contours_and_fields/layer_images`.  It also implies
+# a performance hit, as this new temporary, padded array must be created.
+# Sophisticated interpolation also implies a performance hit; for maximal
+# performance or very large images, interpolation='nearest' is suggested.
 
 A = np.random.rand(5, 5)
 

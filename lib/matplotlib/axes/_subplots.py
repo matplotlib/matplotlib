@@ -1,10 +1,9 @@
 import functools
-import warnings
+import uuid
 
-from matplotlib import docstring
+from matplotlib import cbook, docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
-from matplotlib.cbook import mplDeprecation
 from matplotlib.gridspec import GridSpec, SubplotSpec
 import matplotlib._layoutbox as layoutbox
 
@@ -57,13 +56,12 @@ class SubplotBase(object):
             else:
                 if num < 1 or num > rows*cols:
                     raise ValueError(
-                        ("num must be 1 <= num <= {maxn}, not {num}"
-                        ).format(maxn=rows*cols, num=num))
+                        f"num must be 1 <= num <= {rows*cols}, not {num}")
                 self._subplotspec = GridSpec(
                         rows, cols, figure=self.figure)[int(num) - 1]
                 # num - 1 for converting from MATLAB to python indexing
         else:
-            raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
+            raise ValueError(f'Illegal argument(s) to subplot: {args}')
 
         self.update_params()
 
@@ -117,6 +115,10 @@ class SubplotBase(object):
         """set the SubplotSpec instance associated with the subplot"""
         self._subplotspec = subplotspec
 
+    def get_gridspec(self):
+        """get the GridSpec instance associated with the subplot"""
+        return self._subplotspec.get_gridspec()
+
     def update_params(self):
         """update the subplot position from fig.subplotpars"""
 
@@ -156,33 +158,45 @@ class SubplotBase(object):
             self.get_yaxis().get_offset_text().set_visible(False)
             self.set_ylabel("")
 
-    def _make_twin_axes(self, *kl, **kwargs):
+    def _make_twin_axes(self, *args, **kwargs):
         """
         Make a twinx axes of self. This is used for twinx and twiny.
         """
-        from matplotlib.projections import process_projection_requirements
         if 'sharex' in kwargs and 'sharey' in kwargs:
             # The following line is added in v2.2 to avoid breaking Seaborn,
             # which currently uses this internal API.
             if kwargs["sharex"] is not self and kwargs["sharey"] is not self:
-                raise ValueError("Twinned Axes may share only one axis.")
-        kl = (self.get_subplotspec(),) + kl
-        projection_class, kwargs, key = process_projection_requirements(
-            self.figure, *kl, **kwargs)
-
-        ax2 = subplot_class_factory(projection_class)(self.figure,
-                                                      *kl, **kwargs)
-        self.figure.add_subplot(ax2)
+                raise ValueError("Twinned Axes may share only one axis")
+        # The dance here with label is to force add_subplot() to create a new
+        # Axes (by passing in a label never seen before).  Note that this does
+        # not affect plot reactivation by subplot() as twin axes can never be
+        # reactivated by subplot().
+        sentinel = str(uuid.uuid4())
+        real_label = kwargs.pop("label", sentinel)
+        twin = self.figure.add_subplot(
+            self.get_subplotspec(), *args, label=sentinel, **kwargs)
+        if real_label is not sentinel:
+            twin.set_label(real_label)
         self.set_adjustable('datalim')
-        ax2.set_adjustable('datalim')
-
-        if self._layoutbox is not None and ax2._layoutbox is not None:
+        twin.set_adjustable('datalim')
+        if self._layoutbox is not None and twin._layoutbox is not None:
             # make the layout boxes be explicitly the same
-            ax2._layoutbox.constrain_same(self._layoutbox)
-            ax2._poslayoutbox.constrain_same(self._poslayoutbox)
+            twin._layoutbox.constrain_same(self._layoutbox)
+            twin._poslayoutbox.constrain_same(self._poslayoutbox)
+        self._twinned_axes.join(self, twin)
+        return twin
 
-        self._twinned_axes.join(self, ax2)
-        return ax2
+
+# this here to support cartopy which was using a private part of the
+# API to register their Axes subclasses.
+
+# In 3.1 this should be changed to a dict subclass that warns on use
+# In 3.3 to a dict subclass that raises a useful exception on use
+# In 3.4 should be removed
+
+# The slow timeline is to give cartopy enough time to get several
+# release out before we break them.
+_subplot_classes = {}
 
 
 @functools.lru_cache(None)
@@ -196,9 +210,16 @@ def subplot_class_factory(axes_class=None):
     """
     if axes_class is None:
         axes_class = Axes
-    return type("%sSubplot" % axes_class.__name__,
-                (SubplotBase, axes_class),
-                {'_axes_class': axes_class})
+    try:
+        # Avoid creating two different instances of GeoAxesSubplot...
+        # Only a temporary backcompat fix.  This should be removed in
+        # 3.4
+        return next(cls for cls in SubplotBase.__subclasses__()
+                    if cls.__bases__ == (SubplotBase, axes_class))
+    except StopIteration:
+        return type("%sSubplot" % axes_class.__name__,
+                    (SubplotBase, axes_class),
+                    {'_axes_class': axes_class})
 
 
 # This is provided for backward compatibility
@@ -215,4 +236,6 @@ def _picklable_subplot_class_constructor(axes_class):
 
 
 docstring.interpd.update(Axes=martist.kwdoc(Axes))
+docstring.dedent_interpd(Axes.__init__)
+
 docstring.interpd.update(Subplot=martist.kwdoc(Axes))

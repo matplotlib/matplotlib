@@ -36,8 +36,7 @@ codes = [
 
 path = Path(verts, codes)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 patch = patches.PathPatch(path, facecolor='orange', lw=2)
 ax.add_patch(patch)
 ax.set_xlim(-2, 2)
@@ -91,8 +90,7 @@ codes = [
 
 path = Path(verts, codes)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 patch = patches.PathPatch(path, facecolor='none', lw=2)
 ax.add_patch(patch)
 
@@ -182,9 +180,7 @@ import numpy as np
 import matplotlib.patches as patches
 import matplotlib.path as path
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-
+fig, ax = plt.subplots()
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 

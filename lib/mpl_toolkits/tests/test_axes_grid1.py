@@ -1,10 +1,12 @@
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import (
+    image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1 import AxesGrid
+from mpl_toolkits.axes_grid1 import ImageGrid
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes,
     mark_inset,
@@ -15,12 +17,16 @@ from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar,
     AnchoredDirectionArrows)
 
+from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
-from matplotlib.transforms import Bbox, TransformedBbox, \
-     blended_transform_factory
+from matplotlib.transforms import Bbox, TransformedBbox
 from itertools import product
 
+import pytest
+import platform
+
 import numpy as np
+from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 
 @image_comparison(baseline_images=['divider_append_axes'])
@@ -72,9 +78,9 @@ def test_twin_axes_empty_and_removed():
     matplotlib.rcParams.update({"font.size": 8})
     matplotlib.rcParams.update({"xtick.labelsize": 8})
     matplotlib.rcParams.update({"ytick.labelsize": 8})
-    generators = [ "twinx", "twiny", "twin" ]
-    modifiers = [ "", "host invisible", "twin removed", "twin invisible",
-        "twin removed\nhost invisible" ]
+    generators = ["twinx", "twiny", "twin"]
+    modifiers = ["", "host invisible", "twin removed", "twin invisible",
+                 "twin removed\nhost invisible"]
     # Unmodified host subplot at the beginning for reference
     h = host_subplot(len(modifiers)+1, len(generators), 2)
     h.text(0.5, 0.5, "host_subplot", horizontalalignment="center",
@@ -184,8 +190,9 @@ def test_inset_axes():
     ax.imshow(Z2, extent=extent, interpolation="nearest",
               origin="lower")
 
-    # creating our inset axes without a bbox_transform parameter
-    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1))
+    # creating our inset axes with a bbox_transform parameter
+    axins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1),
+                       bbox_transform=ax.transAxes)
 
     axins.imshow(Z2, extent=extent, interpolation="nearest",
                  origin="lower")
@@ -212,19 +219,48 @@ def test_inset_axes():
     ax.add_artist(asb)
 
 
-def test_inset_axes_without_transform_should_use_parent_axes():
-    # creating our figure
-    fig = plt.figure(dpi=150)
+def test_inset_axes_complete():
+    dpi = 100
+    figsize = (6, 5)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    fig.subplots_adjust(.1, .1, .9, .9)
 
-    # gca method gets current axes of the figure
-    ax = plt.gca()
-    ax.plot([0.0, 0.25, 0.50, 1.0], [0.1, 0.2, 0.4, 0.9], color='b')
+    ins = inset_axes(ax, width=2., height=2., borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array(((0.9*figsize[0]-2.)/figsize[0],
+                      (0.9*figsize[1]-2.)/figsize[1], 0.9, 0.9)))
 
-    # creating our inset_axes. without a bbox_transform parameter
-    ax_ins = inset_axes(ax, width=1., height=1., bbox_to_anchor=(1, 1))
-    ax_ins.plot([0.0, 0.25, 0.50, 1.0], [0.9, 0.4, 0.2, 0.1], color='r')
+    ins = inset_axes(ax, width="40%", height="30%", borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array((.9-.8*.4, .9-.8*.3, 0.9, 0.9)))
 
-    assert ax.transAxes == ax_ins.transAxes
+    ins = inset_axes(ax, width=1., height=1.2, bbox_to_anchor=(200, 100),
+                     loc=3, borderpad=0)
+    fig.canvas.draw()
+    assert_array_almost_equal(
+            ins.get_position().extents,
+            np.array((200./dpi/figsize[0], 100./dpi/figsize[1],
+                     (200./dpi+1)/figsize[0], (100./dpi+1.2)/figsize[1])))
+
+    ins1 = inset_axes(ax, width="35%", height="60%", loc=3, borderpad=1)
+    ins2 = inset_axes(ax, width="100%", height="100%",
+                      bbox_to_anchor=(0, 0, .35, .60),
+                      bbox_transform=ax.transAxes, loc=3, borderpad=1)
+    fig.canvas.draw()
+    assert_array_equal(ins1.get_position().extents,
+                       ins2.get_position().extents)
+
+    with pytest.raises(ValueError):
+        ins = inset_axes(ax, width="40%", height="30%",
+                         bbox_to_anchor=(0.4, 0.5))
+
+    with pytest.warns(UserWarning):
+        ins = inset_axes(ax, width="40%", height="30%",
+                         bbox_transform=ax.transAxes)
 
 
 @image_comparison(
@@ -325,6 +361,7 @@ def test_zooming_with_inverted_axes():
 
 
 @image_comparison(baseline_images=['anchored_direction_arrows'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   extensions=['png'])
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
@@ -346,3 +383,101 @@ def test_anchored_direction_arrows_many_args():
             sep_x=-0.06, sep_y=-0.08, back_length=0.1, head_width=9,
             head_length=10, tail_width=5)
     ax.add_artist(direction_arrows)
+
+
+def test_axes_locatable_position():
+    fig, ax = plt.subplots()
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes('right', size='5%', pad='2%')
+    fig.canvas.draw()
+    assert np.isclose(cax.get_position(original=False).width,
+                      0.03621495327102808)
+
+
+@image_comparison(baseline_images=['image_grid'], extensions=['png'],
+                  remove_text=True, style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight'})
+def test_image_grid():
+    # test that image grid works with bbox_inches=tight.
+    im = np.arange(100).reshape((10, 10))
+
+    fig = plt.figure(1, (4, 4))
+    grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
+
+    for i in range(4):
+        grid[i].imshow(im)
+        grid[i].set_title('test {0}{0}'.format(i))
+
+
+def test_gettightbbox():
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    l, = ax.plot([1, 2, 3], [0, 1, 0])
+
+    ax_zoom = zoomed_inset_axes(ax, 4)
+    ax_zoom.plot([1, 2, 3], [0, 1, 0])
+
+    mark_inset(ax, ax_zoom, loc1=1, loc2=3, fc="none", ec='0.3')
+
+    remove_ticks_and_titles(fig)
+    bbox = fig.get_tightbbox(fig.canvas.get_renderer())
+    np.testing.assert_array_almost_equal(bbox.extents,
+                                         [-17.7, -13.9, 7.2, 5.4])
+
+
+@pytest.mark.parametrize("click_on", ["big", "small"])
+@pytest.mark.parametrize("big_on_axes,small_on_axes", [
+    ("gca", "gca"),
+    ("host", "host"),
+    ("host", "parasite"),
+    ("parasite", "host"),
+    ("parasite", "parasite")
+])
+def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
+    """Test pick events on normal, host or parasite axes."""
+    # Two rectangles are drawn and "clicked on", a small one and a big one
+    # enclosing the small one. The axis on which they are drawn as well as the
+    # rectangle that is clicked on are varied.
+    # In each case we expect that both rectangles are picked if we click on the
+    # small one and only the big one is picked if we click on the big one.
+    # Also tests picking on normal axes ("gca") as a control.
+    big = plt.Rectangle((0.25, 0.25), 0.5, 0.5, picker=5)
+    small = plt.Rectangle((0.4, 0.4), 0.2, 0.2, facecolor="r", picker=5)
+    # Machinery for "receiving" events
+    received_events = []
+    def on_pick(event):
+        received_events.append(event)
+    plt.gcf().canvas.mpl_connect('pick_event', on_pick)
+    # Shortcut
+    rectangles_on_axes = (big_on_axes, small_on_axes)
+    # Axes setup
+    axes = {"gca": None, "host": None, "parasite": None}
+    if "gca" in rectangles_on_axes:
+        axes["gca"] = plt.gca()
+    if "host" in rectangles_on_axes or "parasite" in rectangles_on_axes:
+        axes["host"] = host_subplot(111)
+        axes["parasite"] = axes["host"].twin()
+    # Add rectangles to axes
+    axes[big_on_axes].add_patch(big)
+    axes[small_on_axes].add_patch(small)
+    # Simulate picking with click mouse event
+    if click_on == "big":
+        click_axes = axes[big_on_axes]
+        axes_coords = (0.3, 0.3)
+    else:
+        click_axes = axes[small_on_axes]
+        axes_coords = (0.5, 0.5)
+    # In reality mouse events never happen on parasite axes, only host axes
+    if click_axes is axes["parasite"]:
+        click_axes = axes["host"]
+    (x, y) = click_axes.transAxes.transform(axes_coords)
+    m = MouseEvent("button_press_event", click_axes.figure.canvas, x, y,
+                   button=1)
+    click_axes.pick(m)
+    # Checks
+    expected_n_events = 2 if click_on == "small" else 1
+    assert len(received_events) == expected_n_events
+    event_rects = [event.artist for event in received_events]
+    assert big in event_rects
+    if click_on == "small":
+        assert small in event_rects

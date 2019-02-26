@@ -11,7 +11,22 @@ from matplotlib.backend_bases import (
 from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
-from ._gtk3_compat import GLib, GObject, Gtk, Gdk
+
+try:
+    import gi
+except ImportError:
+    raise ImportError("The GTK3 backends require PyGObject")
+
+try:
+    # :raises ValueError: If module/version is already loaded, already
+    # required, or unavailable.
+    gi.require_version("Gtk", "3.0")
+except ValueError as e:
+    # in this case we want to re-raise as ImportError so the
+    # auto-backend selection logic correctly skips.
+    raise ImportError from e
+
+from gi.repository import GLib, GObject, Gtk, Gdk
 
 
 _log = logging.getLogger(__name__)
@@ -23,13 +38,18 @@ backend_version = "%s.%s.%s" % (
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
 
-cursord = {
-    cursors.MOVE          : Gdk.Cursor.new(Gdk.CursorType.FLEUR),
-    cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
-    cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
-    cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
-    cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
+try:
+    cursord = {
+        cursors.MOVE          : Gdk.Cursor.new(Gdk.CursorType.FLEUR),
+        cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
+        cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
+        cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
+        cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
     }
+except TypeError as exc:
+    # Happens when running headless.  Convert to ImportError to cooperate with
+    # backend switching.
+    raise ImportError(exc)
 
 
 class TimerGTK3(TimerBase):
@@ -167,7 +187,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.set_double_buffered(True)
         self.set_can_focus(True)
         self._renderer_init()
-        default_context = GLib.main_context_get_thread_default() or GLib.main_context_default()
 
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
@@ -262,7 +281,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
             return
         w, h = event.width, event.height
         if w < 3 or h < 3:
-            return # empty fig
+            return  # empty fig
         # resize the figure (in inches)
         dpi = self.figure.dpi
         self.figure.set_size_inches(w / dpi, h / dpi, forward=False)
@@ -273,13 +292,12 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         pass
 
     def draw(self):
-        if self.get_visible() and self.get_mapped():
+        # docstring inherited
+        if self.is_drawable():
             self.queue_draw()
-            # do a synchronous draw (its less efficient than an async draw,
-            # but is required if/when animation is used)
-            self.get_property("window").process_updates(False)
 
     def draw_idle(self):
+        # docstring inherited
         if self._idle_draw_id != 0:
             return
         def idle_draw(*args):
@@ -291,22 +309,11 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self._idle_draw_id = GLib.idle_add(idle_draw)
 
     def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
-
-        Other Parameters
-        ----------------
-        interval : scalar
-            Timer interval in milliseconds
-        callbacks : list
-            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
-            will be executed by the timer every *interval*.
-        """
+        # docstring inherited
         return TimerGTK3(*args, **kwargs)
 
     def flush_events(self):
+        # docstring inherited
         Gdk.threads_enter()
         while Gtk.events_pending():
             Gtk.main_iteration()
@@ -487,6 +494,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.set_style(Gtk.ToolbarStyle.ICONS)
         basedir = os.path.join(rcParams['datapath'], 'images')
 
+        self._gtk_ids = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.insert(Gtk.SeparatorToolItem(), -1)
@@ -494,7 +502,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
             image.set_from_file(fname)
-            tbutton = Gtk.ToolButton()
+            self._gtk_ids[text] = tbutton = Gtk.ToolButton()
             tbutton.set_label(text)
             tbutton.set_icon_widget(image)
             self.insert(tbutton, -1)
@@ -566,6 +574,12 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def _get_canvas(self, fig):
         return self.canvas.__class__(fig)
+
+    def set_history_buttons(self):
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        self._gtk_ids['Back'].set_sensitive(can_backward)
+        self._gtk_ids['Forward'].set_sensitive(can_forward)
 
 
 class FileChooserDialog(Gtk.FileChooserDialog):
@@ -942,7 +956,7 @@ window_icon = os.path.join(
 
 
 def error_msg_gtk(msg, parent=None):
-    if parent is not None: # find the toplevel Gtk.Window
+    if parent is not None:  # find the toplevel Gtk.Window
         parent = parent.get_toplevel()
         if not parent.is_toplevel():
             parent = None
@@ -971,6 +985,7 @@ Toolbar = ToolbarGTK3
 
 @_Backend.export
 class _BackendGTK3(_Backend):
+    required_interactive_framework = "gtk3"
     FigureCanvas = FigureCanvasGTK3
     FigureManager = FigureManagerGTK3
 

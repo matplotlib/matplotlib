@@ -63,7 +63,7 @@ plt.show()
 ###############################################################################
 # Here we attach legends to more complex plots.
 
-fig, axes = plt.subplots(3, 1)
+fig, axes = plt.subplots(3, 1, constrained_layout=True)
 top_ax, middle_ax, bottom_ax = axes
 
 top_ax.bar([0, 1, 2], [0.2, 0.3, 0.1], width=0.4, label="Bar 1",
@@ -81,13 +81,12 @@ middle_ax.legend()
 bottom_ax.stem([0.3, 1.5, 2.7], [1, 3.6, 2.7], label="stem test")
 bottom_ax.legend()
 
-plt.subplots_adjust(hspace=0.7)
 plt.show()
 
 ###############################################################################
 # Now we'll showcase legend entries with more than one legend key.
 
-fig, (ax1, ax2) = plt.subplots(2, 1)
+fig, (ax1, ax2) = plt.subplots(2, 1, constrained_layout=True)
 
 # First plot: two legend keys for a single entry
 p1 = ax1.scatter([1], [5], c='r', marker='s', s=100)
@@ -114,7 +113,6 @@ rpos = ax2.bar(x_left, y_pos, width=0.5, color='k', label='+1')
 l = ax2.legend([(rpos, rneg), (rneg, rpos)], ['pad!=0', 'pad=0'],
                handler_map={(rpos, rneg): HandlerTuple(ndivide=None),
                             (rneg, rpos): HandlerTuple(ndivide=None, pad=0.)})
-
 plt.show()
 
 ###############################################################################
@@ -135,7 +133,7 @@ class HandlerDashedLines(HandlerLineCollection):
         leglines = []
         # divide the vertical space where the lines will go
         # into equal parts based on the number of lines
-        ydata = ((height) / (numlines + 1)) * np.ones(xdata.shape, float)
+        ydata = np.full_like(xdata, height / (numlines + 1))
         # for each line, create the line at the proper location
         # and set the dash pattern
         for i in range(numlines):
@@ -171,7 +169,6 @@ styles = ['solid', 'dashed', 'dashed', 'dashed', 'solid']
 lines = []
 for i, color, style in zip(range(5), colors, styles):
     ax.plot(x, np.sin(x) - .1 * i, c=color, ls=style)
-
 
 # make proxy artists
 # make list of one line -- doesn't matter what the coordinates are

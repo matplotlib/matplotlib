@@ -13,17 +13,18 @@ Displays Agg images in the browser, with interactivity
 import datetime
 from io import StringIO
 import json
+import logging
 import os
 from pathlib import Path
-import warnings
 
 import numpy as np
 import tornado
 
+from matplotlib import backend_bases, cbook, _png
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import _Backend
-from matplotlib import backend_bases, _png
 
+_log = logging.getLogger(__name__)
 
 # http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
 _SHIFT_LUT = {59: ':',
@@ -162,10 +163,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         Note: diff images may not contain transparency, therefore upon
         draw this mode may be changed if the resulting image has any
         transparent component.
-
         """
-        if mode not in ['full', 'diff']:
-            raise ValueError('image mode must be either full or diff.')
+        cbook._check_in_list(['full', 'diff'], mode=mode)
         if self._current_image_mode != mode:
             self._current_image_mode = mode
             self.handle_send_image_mode(None)
@@ -241,8 +240,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         return handler(event)
 
     def handle_unknown_event(self, event):
-        warnings.warn('Unhandled message type {0}. {1}'.format(
-            event['type'], event), stacklevel=2)
+        _log.warning('Unhandled message type {0}. {1}'.format(
+                     event['type'], event))
 
     def handle_ack(self, event):
         # Network latency tends to decrease if traffic is flowing

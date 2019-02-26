@@ -148,20 +148,12 @@ import textwrap
 import traceback
 import warnings
 
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.images import Image
-align = Image.align
-import sphinx
-
-sphinx_version = sphinx.__version__.split(".")
-# The split is necessary for sphinx beta versions where the string is
-# '6b1'
-sphinx_version = tuple([int(re.split('[^0-9]', x)[0])
-                        for x in sphinx_version[:2]])
-
 import jinja2  # Sphinx dependency.
 
 import matplotlib
+from matplotlib.backend_bases import FigureManagerBase
 try:
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("error", UserWarning)
@@ -172,13 +164,17 @@ except UserWarning:
 else:
     import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers, cbook
+align = Image.align
 
 __version__ = 2
 
-#------------------------------------------------------------------------------
-# Registration hook
-#------------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
+# Registration hook
+# -----------------------------------------------------------------------------
+
+
+@cbook.deprecated("3.1", alternative="PlotDirective")
 def plot_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
     """Implementation of the ``.. plot::`` directive.
@@ -246,25 +242,42 @@ def mark_plot_labels(app, document):
                     break
 
 
+class PlotDirective(Directive):
+    """Implementation of the ``.. plot::`` directive.
+
+    See the module docstring for details.
+    """
+
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 2
+    final_argument_whitespace = False
+    option_spec = {
+        'alt': directives.unchanged,
+        'height': directives.length_or_unitless,
+        'width': directives.length_or_percentage_or_unitless,
+        'scale': directives.nonnegative_int,
+        'align': _option_align,
+        'class': directives.class_option,
+        'include-source': _option_boolean,
+        'format': _option_format,
+        'context': _option_context,
+        'nofigs': directives.flag,
+        'encoding': directives.encoding,
+        }
+
+    def run(self):
+        """Run the plot directive."""
+        return run(self.arguments, self.content, self.options,
+                   self.state_machine, self.state, self.lineno)
+
+
 def setup(app):
+    import matplotlib
     setup.app = app
     setup.config = app.config
     setup.confdir = app.confdir
-
-    options = {'alt': directives.unchanged,
-               'height': directives.length_or_unitless,
-               'width': directives.length_or_percentage_or_unitless,
-               'scale': directives.nonnegative_int,
-               'align': _option_align,
-               'class': directives.class_option,
-               'include-source': _option_boolean,
-               'format': _option_format,
-               'context': _option_context,
-               'nofigs': directives.flag,
-               'encoding': directives.encoding
-               }
-
-    app.add_directive('plot', plot_directive, True, (0, 2, False), **options)
+    app.add_directive('plot', PlotDirective)
     app.add_config_value('plot_pre_code', None, True)
     app.add_config_value('plot_include_source', False, True)
     app.add_config_value('plot_html_show_source_link', True, True)
@@ -278,12 +291,15 @@ def setup(app):
 
     app.connect('doctree-read', mark_plot_labels)
 
-    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
+    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
+                'version': matplotlib.__version__}
     return metadata
 
-#------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Doctest handling
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def contains_doctest(text):
     try:
@@ -301,7 +317,6 @@ def unescape_doctest(text):
     """
     Extract code from a piece of text, which contains either Python code
     or doctests.
-
     """
     if not contains_doctest(text):
         return text
@@ -319,11 +334,7 @@ def unescape_doctest(text):
 
 
 def split_code_at_show(text):
-    """
-    Split code at plt.show()
-
-    """
-
+    """Split code at plt.show()."""
     parts = []
     is_doctest = contains_doctest(text)
 
@@ -342,16 +353,15 @@ def split_code_at_show(text):
 
 
 def remove_coding(text):
-    r"""
-    Remove the coding comment, which six.exec\_ doesn't like.
-    """
+    r"""Remove the coding comment, which six.exec\_ doesn't like."""
     cbook.warn_deprecated('3.0', name='remove_coding', removal='3.1')
-    sub_re = re.compile("^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
+    sub_re = re.compile(r"^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
     return sub_re.sub("", text)
 
-#------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Template
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 TEMPLATE = """
@@ -431,6 +441,7 @@ Exception occurred rendering plot.
 # :context: option
 plot_context = dict()
 
+
 class ImageFile(object):
     def __init__(self, basename, dirname):
         self.basename = basename
@@ -498,9 +509,13 @@ def run_code(code, code_path, ns=None, function_name=None):
                     exec(str(setup.config.plot_pre_code), ns)
             if "__main__" in code:
                 ns['__name__'] = '__main__'
-            exec(code, ns)
-            if function_name is not None:
-                exec(function_name + "()", ns)
+
+            # Patch out non-interactive show() to avoid triggering a warning.
+            with cbook._setattr_cm(FigureManagerBase, show=lambda self: None):
+                exec(code, ns)
+                if function_name is not None:
+                    exec(function_name + "()", ns)
+
         except (Exception, SystemExit) as err:
             raise PlotError(traceback.format_exc())
         finally:
@@ -717,7 +732,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     dest_dir = os.path.abspath(os.path.join(setup.app.builder.outdir,
                                             source_rel_dir))
     if not os.path.exists(dest_dir):
-        os.makedirs(dest_dir) # no problem here for me, but just use built-ins
+        os.makedirs(dest_dir)  # no problem here for me, but just use built-ins
 
     # how to link to files from the RST file
     dest_dir_link = os.path.join(relpath(setup.confdir, rst_dir),

@@ -1,4 +1,4 @@
-import tkinter as Tk
+import tkinter as tk
 
 import numpy as np
 
@@ -6,8 +6,7 @@ from matplotlib import cbook
 from matplotlib.backends import _tkagg
 
 
-cbook.warn_deprecated(
-    "3.0", "The matplotlib.backends.tkagg module is deprecated.")
+cbook.warn_deprecated("3.0", name=__name__, obj_type="module")
 
 
 def blit(photoimage, aggimage, bbox=None, colormode=1):
@@ -26,7 +25,7 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
         tk.call(
             "PyAggImagePhoto", photoimage,
             dataptr, colormode, bboxptr)
-    except Tk.TclError:
+    except tk.TclError:
         if hasattr(tk, 'interpaddr'):
             _tkagg.tkinit(tk.interpaddr(), 1)
         else:
@@ -35,12 +34,14 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
         tk.call("PyAggImagePhoto", photoimage,
                 dataptr, colormode, bboxptr)
 
+
 def test(aggimage):
-    r = Tk.Tk()
-    c = Tk.Canvas(r, width=aggimage.width, height=aggimage.height)
+    r = tk.Tk()
+    c = tk.Canvas(r, width=aggimage.width, height=aggimage.height)
     c.pack()
-    p = Tk.PhotoImage(width=aggimage.width, height=aggimage.height)
+    p = tk.PhotoImage(width=aggimage.width, height=aggimage.height)
     blit(p, aggimage)
-    c.create_image(aggimage.width,aggimage.height,image=p)
+    c.create_image(aggimage.width, aggimage.height, image=p)
     blit(p, aggimage)
-    while True: r.update_idletasks()
+    while True:
+        r.update_idletasks()

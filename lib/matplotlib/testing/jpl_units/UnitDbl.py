@@ -1,26 +1,11 @@
-# ==========================================================================
-#
-# UnitDbl
-#
-# ==========================================================================
-
-
 """UnitDbl module."""
 
-# ==========================================================================
-# Place all imports after here.
-#
 import operator
-#
-# Place all imports before here.
-# ==========================================================================
 
 
-# ==========================================================================
 class UnitDbl(object):
     """Class UnitDbl in development.
     """
-    # ----------------------------------------------------------------------
     # Unit conversion table.  Small subset of the full one but enough
     # to test the required functions.  First field is a scale factor to
     # convert the input units to the units of the second field.  Only
@@ -44,7 +29,6 @@ class UnitDbl(object):
         "sec": "time",
         }
 
-    # ----------------------------------------------------------------------
     def __init__(self, value, units):
         """Create a new UnitDbl object.
 
@@ -67,7 +51,6 @@ class UnitDbl(object):
         self._value = float(value * data[0])
         self._units = data[1]
 
-    # ----------------------------------------------------------------------
     def convert(self, units):
         """Convert the UnitDbl to a specific set of units.
 
@@ -96,22 +79,18 @@ class UnitDbl(object):
 
         return self._value / data[0]
 
-    # ----------------------------------------------------------------------
     def __abs__(self):
         """Return the absolute value of this UnitDbl."""
         return UnitDbl(abs(self._value), self._units)
 
-    # ----------------------------------------------------------------------
     def __neg__(self):
         """Return the negative value of this UnitDbl."""
         return UnitDbl(-self._value, self._units)
 
-    # ----------------------------------------------------------------------
     def __bool__(self):
         """Return the truth value of a UnitDbl."""
         return bool(self._value)
 
-    # ----------------------------------------------------------------------
     def __eq__(self, rhs):
         return self._cmp(rhs, operator.eq)
 
@@ -147,7 +126,6 @@ class UnitDbl(object):
         self.checkSameUnits(rhs, "compare")
         return op(self._value, rhs._value)
 
-    # ----------------------------------------------------------------------
     def __add__(self, rhs):
         """Add two UnitDbl's.
 
@@ -164,7 +142,6 @@ class UnitDbl(object):
         self.checkSameUnits(rhs, "add")
         return UnitDbl(self._value + rhs._value, self._units)
 
-    # ----------------------------------------------------------------------
     def __sub__(self, rhs):
         """Subtract two UnitDbl's.
 
@@ -181,7 +158,6 @@ class UnitDbl(object):
         self.checkSameUnits(rhs, "subtract")
         return UnitDbl(self._value - rhs._value, self._units)
 
-    # ----------------------------------------------------------------------
     def __mul__(self, rhs):
         """Scale a UnitDbl by a value.
 
@@ -193,7 +169,6 @@ class UnitDbl(object):
         """
         return UnitDbl(self._value * rhs, self._units)
 
-    # ----------------------------------------------------------------------
     def __rmul__(self, lhs):
         """Scale a UnitDbl by a value.
 
@@ -205,7 +180,6 @@ class UnitDbl(object):
         """
         return UnitDbl(self._value * lhs, self._units)
 
-    # ----------------------------------------------------------------------
     def __div__(self, rhs):
         """Divide a UnitDbl by a value.
 
@@ -217,22 +191,18 @@ class UnitDbl(object):
         """
         return UnitDbl(self._value / rhs, self._units)
 
-    # ----------------------------------------------------------------------
     def __str__(self):
         """Print the UnitDbl."""
         return "%g *%s" % (self._value, self._units)
 
-    # ----------------------------------------------------------------------
     def __repr__(self):
         """Print the UnitDbl."""
         return "UnitDbl(%g, '%s')" % (self._value, self._units)
 
-    # ----------------------------------------------------------------------
     def type(self):
         """Return the type of UnitDbl data."""
         return self._types[self._units]
 
-    # ----------------------------------------------------------------------
     def range(start, stop, step=None):
         """Generate a range of UnitDbl objects.
 
@@ -247,7 +217,7 @@ class UnitDbl(object):
                       value 1 w/ the units of the start is used.
 
         = RETURN VALUE
-        - Returns a list contianing the requested UnitDbl values.
+        - Returns a list containing the requested UnitDbl values.
         """
         if step is None:
             step = UnitDbl(1, start._units)
@@ -267,7 +237,6 @@ class UnitDbl(object):
 
     range = staticmethod(range)
 
-    # ----------------------------------------------------------------------
     def checkUnits(self, units):
         """Check to see if some units are valid.
 
@@ -282,7 +251,6 @@ class UnitDbl(object):
                              "types of %s" % (
                                 units, list(self.allowed.keys())))
 
-    # ----------------------------------------------------------------------
     def checkSameUnits(self, rhs, func):
         """Check to see if units are the same.
 
@@ -299,5 +267,3 @@ class UnitDbl(object):
                     "LHS: %s\n" \
                     "RHS: %s" % (func, self._units, rhs._units)
             raise ValueError(msg)
-
-# ==========================================================================

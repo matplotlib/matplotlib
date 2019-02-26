@@ -3,7 +3,7 @@ The OffsetBox is a simple container artist. The child artist are meant
 to be drawn at a relative position to its parent.  The [VH]Packer,
 DrawingArea and TextArea are derived from the OffsetBox.
 
-The [VH]Packer automatically adjust the relative postisions of their
+The [VH]Packer automatically adjust the relative positions of their
 children, which should be instances of the OffsetBox. This is used to
 align similar artists together, e.g., in legend.
 
@@ -14,26 +14,19 @@ Text instance. The width and height of the TextArea instance is the
 width and height of the its child text.
 """
 
-import warnings
-
 import numpy as np
 
-import matplotlib.transforms as mtransforms
+from matplotlib import cbook, docstring, rcParams
 import matplotlib.artist as martist
-import matplotlib.text as mtext
 import matplotlib.path as mpath
-from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
-
+import matplotlib.text as mtext
+import matplotlib.transforms as mtransforms
 from matplotlib.font_manager import FontProperties
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
-from matplotlib import rcParams
-
-from matplotlib import docstring
-
 from matplotlib.image import BboxImage
-
-from matplotlib.patches import bbox_artist as mbbox_artist
+from matplotlib.patches import (
+    FancyBboxPatch, FancyArrowPatch, bbox_artist as mbbox_artist)
 from matplotlib.text import _AnnotationBase
+from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
 
 DEBUG = False
@@ -51,7 +44,7 @@ def bbox_artist(*args, **kwargs):
 
 def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     """
-    Geiven a list of (width, xdescent) of each boxes, calculate the
+    Given a list of (width, xdescent) of each boxes, calculate the
     total width and the x-offset positions of each items according to
     *mode*. xdescent is analogous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
@@ -179,9 +172,16 @@ class OffsetBox(martist.Artist):
 
     def set_offset(self, xy):
         """
-        Set the offset
+        Set the offset.
 
-        accepts x, y, tuple, or a callable object.
+        Parameters
+        ----------
+        xy : (float, float) or callable
+            The (x,y) coordinates of the offset in display units.
+            A callable must have the signature::
+
+                def offset(width, height, xdescent, ydescent, renderer) \
+-> (float, float)
         """
         self._offset = xy
         self.stale = True
@@ -602,9 +602,12 @@ class DrawingArea(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinate in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -691,12 +694,13 @@ class TextArea(OffsetBox):
         s : str
             a string to be displayed.
 
-        textprops : `~matplotlib.font_manager.FontProperties`, optional
+        textprops : dictionary, optional, default: None
+            Dictionary of keyword parameters to be passed to the
+            `~matplotlib.text.Text` instance contained inside TextArea.
 
         multilinebaseline : bool, optional
-            If `True`, baseline for multiline text is adjusted so that
-            it is (approximatedly) center-aligned with singleline
-            text.
+            If `True`, baseline for multiline text is adjusted so that it is
+            (approximately) center-aligned with singleline text.
 
         minimumdescent : bool, optional
             If `True`, the box has a minimum descent of "p".
@@ -736,9 +740,8 @@ class TextArea(OffsetBox):
         """
         Set multilinebaseline .
 
-        If True, baseline for multiline text is
-        adjusted so that it is (approximatedly) center-aligned with
-        singleline text.
+        If True, baseline for multiline text is adjusted so that it is
+        (approximately) center-aligned with single-line text.
         """
         self._multilinebaseline = t
         self.stale = True
@@ -773,9 +776,12 @@ class TextArea(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinates in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -798,14 +804,11 @@ class TextArea(OffsetBox):
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
-        clean_line, ismath = self._text.is_math_text(self._text._text)
         _, h_, d_ = renderer.get_text_width_height_descent(
             "lp", self._text._fontproperties, ismath=False)
 
         bbox, info, d = self._text._get_layout(renderer)
         w, h = bbox.width, bbox.height
-
-        line = info[-1][0]  # last line
 
         self._baseline_transform.clear()
 
@@ -842,7 +845,7 @@ class TextArea(OffsetBox):
 
 class AuxTransformBox(OffsetBox):
     """
-    Offset Box with the aux_transform . Its children will be
+    Offset Box with the aux_transform. Its children will be
     transformed with the aux_transform first then will be
     offseted. The absolute coordinate of the aux_transform is meaning
     as it will be automatically adjust so that the left-lower corner
@@ -891,9 +894,12 @@ class AuxTransformBox(OffsetBox):
 
     def set_offset(self, xy):
         """
-        set offset of the container.
+        Set the offset of the container.
 
-        Accept : tuple of x,y coordinate in display units.
+        Parameters
+        ----------
+        xy : (float, float)
+            The (x,y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -926,7 +932,7 @@ class AuxTransformBox(OffsetBox):
         bboxes = [c.get_window_extent(renderer) for c in self._children]
         ub = mtransforms.Bbox.union(bboxes)
 
-        # adjust ref_offset_tansform
+        # adjust ref_offset_transform
         self.ref_offset_transform.translate(-ub.x0, -ub.y0)
 
         # restor offset transform
@@ -1217,8 +1223,9 @@ class AnchoredText(AnchoredOffsetbox):
         borderpad : float, optional
             Pad between the frame and the axes (or *bbox_to_anchor*).
 
-        prop : `matplotlib.font_manager.FontProperties`
-            Font properties.
+        prop : dictionary, optional, default: None
+            Dictionary of keyword parameters to be passed to the
+            `~matplotlib.text.Text` instance contained inside AnchoredText.
 
         Notes
         -----
@@ -1230,8 +1237,11 @@ class AnchoredText(AnchoredOffsetbox):
             prop = {}
         badkwargs = {'ha', 'horizontalalignment', 'va', 'verticalalignment'}
         if badkwargs & set(prop):
-            warnings.warn("Mixing horizontalalignment or verticalalignment "
-                          "with AnchoredText is not supported.")
+            cbook.warn_deprecated(
+                "3.1", message="Mixing horizontalalignment or "
+                "verticalalignment with AnchoredText is not supported, "
+                "deprecated since %(version)s, and will raise an exception "
+                "%(removal)s.")
 
         self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
@@ -1294,9 +1304,12 @@ class OffsetImage(OffsetBox):
 
 #     def set_offset(self, xy):
 #         """
-#         set offset of the container.
-
-#         Accept : tuple of x,y coordinate in display units.
+#         Set the offset of the container.
+#
+#         Parameters
+#         ----------
+#         xy : (float, float)
+#             The (x,y) coordinates of the offset in display units.
 #         """
 #         self._offset = xy
 
@@ -1410,7 +1423,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             self._arrow_relpos = None
             self.arrow_patch = None
 
-        #self._fw, self._fh = 0., 0. # for alignment
         self._box_alignment = box_alignment
 
         # frame
@@ -1526,8 +1538,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         ox1, oy1 = x, y
 
         if self.arrowprops:
-            x0, y0 = x, y
-
             d = self.arrowprops.copy()
 
             # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
@@ -1614,9 +1624,9 @@ class DraggableBase(object):
      current implementation of DraggableLegend and DraggableAnnotation,
      *update_offset* places the artists simply in display
      coordinates. And *finalize_offset* recalculate their position in
-     the normalized axes coordinate and set a relavant attribute.
-
+     the normalized axes coordinate and set a relevant attribute.
     """
+
     def __init__(self, ref_artist, use_blit=False):
         self.ref_artist = ref_artist
         self.got_artist = False
@@ -1631,14 +1641,14 @@ class DraggableBase(object):
         self.cids = [c2, c3]
 
     def on_motion(self, evt):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
             self.canvas.draw()
 
     def on_motion_blit(self, evt):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
@@ -1647,7 +1657,7 @@ class DraggableBase(object):
             self.canvas.blit(self.ref_artist.figure.bbox)
 
     def on_pick(self, evt):
-        if evt.artist == self.ref_artist:
+        if self._check_still_parented() and evt.artist == self.ref_artist:
 
             self.mouse_x = evt.mouseevent.x
             self.mouse_y = evt.mouseevent.y
@@ -1668,13 +1678,20 @@ class DraggableBase(object):
             self.save_offset()
 
     def on_release(self, event):
-        if self.got_artist:
+        if self._check_still_parented() and self.got_artist:
             self.finalize_offset()
             self.got_artist = False
             self.canvas.mpl_disconnect(self._c1)
 
             if self._use_blit:
                 self.ref_artist.set_animated(False)
+
+    def _check_still_parented(self):
+        if self.ref_artist.figure is None:
+            self.disconnect()
+            return False
+        else:
+            return True
 
     def disconnect(self):
         """disconnect the callbacks"""
@@ -1741,45 +1758,3 @@ class DraggableAnnotation(DraggableBase):
         ann = self.annotation
         ann.xyann = ann.get_transform().inverted().transform(
             (self.ox + dx, self.oy + dy))
-
-
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    fig = plt.figure(1)
-    fig.clf()
-    ax = plt.subplot(121)
-
-    #txt = ax.text(0.5, 0.5, "Test", size=30, ha="center", color="w")
-    kwargs = dict()
-
-    a = np.arange(256).reshape(16, 16) / 256.
-    myimage = OffsetImage(a,
-                          zoom=2,
-                          norm=None,
-                          origin=None,
-                          **kwargs
-                          )
-    ax.add_artist(myimage)
-
-    myimage.set_offset((100, 100))
-
-    myimage2 = OffsetImage(a,
-                           zoom=2,
-                           norm=None,
-                           origin=None,
-                           **kwargs
-                           )
-    ann = AnnotationBbox(myimage2, (0.5, 0.5),
-                         xybox=(30, 30),
-                         xycoords='data',
-                         boxcoords="offset points",
-                         frameon=True, pad=0.4,  # BboxPatch
-                         bboxprops=dict(boxstyle="round", fc="y"),
-                         fontsize=None,
-                         arrowprops=dict(arrowstyle="->"),
-                         )
-
-    ax.add_artist(ann)
-
-    plt.draw()
-    plt.show()

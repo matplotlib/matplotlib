@@ -1,4 +1,4 @@
-"""
+r"""
 ==============================
 Overview of axes_grid1 toolkit
 ==============================
@@ -127,10 +127,10 @@ ImageGrid takes following arguments,
   data limits (similar to aspect parameter in mpl).
 
  *share_all*
-  if True, xaxis  and yaxis of all axes are shared.
+  if True, xaxis and yaxis of all axes are shared.
 
  *direction*
-  direction of increasing axes number.   For "row",
+  direction of increasing axes number.  For "row",
 
    +---------+---------+
    | grid[0] | grid[1] |
@@ -259,7 +259,7 @@ the host axes and then drawn according to their zorder.  The host and
 parasite axes modifies some of the axes behavior. For example, color
 cycle for plot lines are shared between host and parasites. Also, the
 legend command in host, creates a legend that includes lines in the
-parasite axes.  To create a host axes, you may use *host_suplot* or
+parasite axes.  To create a host axes, you may use *host_subplot* or
 *host_axes* command.
 
 
@@ -388,7 +388,7 @@ yaxis of each axes are shared. ::
 
     from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 
-    fig = plt.figure(1)
+    fig = plt.figure()
     ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
 
     r, g, b = get_rgb() # r,g,b are 2-d images

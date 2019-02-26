@@ -1,0 +1,6 @@
+`Text` gained the ``c`` alias for the ``color`` property
+````````````````````````````````````````````````````````
+
+For consistency with `Line2D`, the `Text` class gained the ``c``
+alias for the ``color`` property; one is thus now allowed to write
+``ax.text(.5, .5, "foo", c="red")``.

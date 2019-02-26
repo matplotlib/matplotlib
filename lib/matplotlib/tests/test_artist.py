@@ -36,7 +36,7 @@ def test_patch_transform_of_none():
     # Providing a transform of None puts the ellipse in device coordinates.
     e = mpatches.Ellipse(xy_pix, width=120, height=120, fc='coral',
                          transform=None, alpha=0.5)
-    assert e.is_transform_set() is True
+    assert e.is_transform_set()
     ax.add_patch(e)
     assert isinstance(e._transform, mtransforms.IdentityTransform)
 
@@ -51,10 +51,10 @@ def test_patch_transform_of_none():
     e = mpatches.Ellipse(xy_pix, width=120, height=120, fc='coral',
                          alpha=0.5)
     intermediate_transform = e.get_transform()
-    assert e.is_transform_set() is False
+    assert not e.is_transform_set()
     ax.add_patch(e)
     assert e.get_transform() != intermediate_transform
-    assert e.is_transform_set() is True
+    assert e.is_transform_set()
     assert e._transform == ax.transData
 
 
@@ -129,8 +129,7 @@ def test_cull_markers():
     x = np.random.random(20000)
     y = np.random.random(20000)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.plot(x, y, 'k.')
     ax.set_xlim(2, 3)
 
@@ -185,8 +184,8 @@ def test_remove():
     assert not ax.stale
     assert not ln.stale
 
-    assert im in ax.mouseover_set
-    assert ln not in ax.mouseover_set
+    assert im in ax._mouseover_set
+    assert ln not in ax._mouseover_set
     assert im.axes is ax
 
     im.remove()
@@ -196,7 +195,7 @@ def test_remove():
         assert art.axes is None
         assert art.figure is None
 
-    assert im not in ax.mouseover_set
+    assert im not in ax._mouseover_set
     assert fig.stale
     assert ax.stale
 
@@ -259,10 +258,11 @@ def test_None_zorder():
 
 @pytest.mark.parametrize('accept_clause, expected', [
     ('', 'unknown'),
-    ("ACCEPTS: [ '-' | '--' | '-.' ]", "[ '-' | '--' | '-.' ] "),
-    ('ACCEPTS: Some description.', 'Some description. '),
-    ('.. ACCEPTS: Some description.', 'Some description. '),
+    ("ACCEPTS: [ '-' | '--' | '-.' ]", "[ '-' | '--' | '-.' ]"),
+    ('ACCEPTS: Some description.', 'Some description.'),
+    ('.. ACCEPTS: Some description.', 'Some description.'),
     ('arg : int', 'int'),
+    ('*arg : int', 'int'),
     ('arg : int\nACCEPTS: Something else.', 'Something else. '),
 ])
 def test_artist_inspector_get_valid_values(accept_clause, expected):
@@ -277,3 +277,10 @@ def test_artist_inspector_get_valid_values(accept_clause, expected):
     """ % accept_clause
     valid_values = martist.ArtistInspector(TestArtist).get_valid_values('f')
     assert valid_values == expected
+
+
+def test_artist_inspector_get_aliases():
+    # test the correct format and type of get_aliases method
+    ai = martist.ArtistInspector(mlines.Line2D)
+    aliases = ai.get_aliases()
+    assert aliases["linewidth"] == {"lw"}

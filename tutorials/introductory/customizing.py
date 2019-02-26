@@ -86,7 +86,7 @@ print(plt.style.available)
 # for limiting your changes to a specific scope. To isolate your styling
 # changes, you can write something like the following:
 
-with plt.style.context(('dark_background')):
+with plt.style.context('dark_background'):
     plt.plot(np.sin(np.linspace(0, 2 * np.pi)), 'r-o')
 plt.show()
 
@@ -154,8 +154,8 @@ plt.plot(data)
 #
 # 4. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
 #    :file:`{INSTALL}` is something like
-#    :file:`/usr/lib/python3.5/site-packages` on Linux, and maybe
-#    :file:`C:\\Python35\\Lib\\site-packages` on Windows. Every time you
+#    :file:`/usr/lib/python3.7/site-packages` on Linux, and maybe
+#    :file:`C:\\Python37\\Lib\\site-packages` on Windows. Every time you
 #    install matplotlib, this file will be overwritten, so if you want
 #    your customizations to be saved, please move this file to your
 #    user-specific matplotlib directory.
@@ -171,12 +171,6 @@ plt.plot(data)
 #   '/home/foo/.config/matplotlib/matplotlibrc'
 #
 # See below for a sample :ref:`matplotlibrc file<matplotlibrc-sample>`.
-# Although all parameters are optional, you should almost always set the
-# `backend` or else matplotlib will choose `Agg`, a *non-interactive* backend.
-# This can lead to unexpected behavior, since if you do not have a
-# :file:`matplotlibrc` file, it would normally fall back to
-# :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, which is often set to an
-# interactive backend by the package maintainer.
 #
 # .. _matplotlibrc-sample:
 #

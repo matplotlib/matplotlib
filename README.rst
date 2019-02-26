@@ -1,8 +1,11 @@
-|Travis|_ |AppVeyor|_ |Codecov|_ |PyPi|_ |Gitter|_ |Depsy|_
+|Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_ |PyPi|_ |Gitter|_ |NUMFocus|_ |GitTutorial|_
 
 
 .. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
 .. _Travis: https://travis-ci.org/matplotlib/matplotlib
+
+.. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=master
+.. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=master
 
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=master&svg=true
 .. _AppVeyor: https://ci.appveyor.com/project/matplotlib/matplotlib
@@ -10,18 +13,20 @@
 .. |Codecov| image:: https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=master&service=github
 .. _Codecov: https://codecov.io/github/matplotlib/matplotlib?branch=master
 
+.. |LGTM| image:: https://img.shields.io/lgtm/grade/python/g/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
+.. _LGTM: https://lgtm.com/projects/g/matplotlib/matplotlib
+
 .. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
 .. _PyPi: https://badge.fury.io/py/matplotlib
 
-.. |Gitter| image:: https://img.shields.io/gitter/room/nwjs/nw.js.svg
-   :target: https://gitter.im/matplotlib/matplotlib?utm_source=share-link&utm_medium=link&utm_campaign=share-link
-
-.. |Depsy| image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
-.. _Depsy: http://depsy.org/package/python/matplotlib
+.. |Gitter| image:: https://badges.gitter.im/matplotlib/matplotlib.png
+.. _Gitter: https://gitter.im/matplotlib/matplotlib
 
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: http://www.numfocus.org
 
+.. |GitTutorial| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
+.. _GitTutorial: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
 
 ##########
 Matplotlib
@@ -73,7 +78,8 @@ matplotlib's communication channels include active mailing lists:
 
 The first is a good starting point for general questions and discussions.
 
-`Gitter <https://gitter.im/matplotlib/matplotlib>`_ is for coordinating development and asking questions directly related to contributing to matplotlib.
+Gitter_ is for coordinating development and asking questions directly related
+to contributing to matplotlib.
 
 Contribute
 ==========
@@ -85,4 +91,4 @@ You want to tell us about it – best of all!
 
 Start at the `contributing guide <http://matplotlib.org/devdocs/devel/contributing.html>`_!
 
-Developer notes are now at `Developer Discussions <https://github.com/orgs/matplotlib/teams/developers/discussions>`_
+Developer notes are now at `Developer Discussions <https://github.com/orgs/matplotlib/teams/developers/discussions>`_ (Note: For technical reasons, this is currently only accessible for matplotlib developers.)

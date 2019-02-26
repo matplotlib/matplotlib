@@ -680,16 +680,13 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     bool simplify = false;
     SketchParams sketch;
     int precision;
-    PyObject *codesobj;
     char *codes[5];
     bool postfix;
-    char *buffer = NULL;
-    size_t buffersize;
-    PyObject *result;
-    int status;
+    std::string buffer;
+    bool status;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&OO&iOO&:convert_to_string",
+                          "O&O&O&OO&i(yyyyy)O&:convert_to_string",
                           &convert_path,
                           &path,
                           &convert_trans_affine,
@@ -700,7 +697,11 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
                           &convert_sketch_params,
                           &sketch,
                           &precision,
-                          &codesobj,
+                          &codes[0],
+                          &codes[1],
+                          &codes[2],
+                          &codes[3],
+                          &codes[4],
                           &convert_bool,
                           &postfix)) {
         return NULL;
@@ -712,51 +713,17 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
         simplify = true;
     }
 
-    if (!PySequence_Check(codesobj)) {
-        return NULL;
-    }
-    if (PySequence_Size(codesobj) != 5) {
-        PyErr_SetString(
-            PyExc_ValueError,
-            "codes must be a 5-length sequence of byte strings");
-        return NULL;
-    }
-    for (int i = 0; i < 5; ++i) {
-        PyObject *item = PySequence_GetItem(codesobj, i);
-        if (item == NULL) {
-            return NULL;
-        }
-        codes[i] = PyBytes_AsString(item);
-        if (codes[i] == NULL) {
-            return NULL;
-        }
-    }
-
     CALL_CPP("convert_to_string",
              (status = convert_to_string(
                  path, trans, cliprect, simplify, sketch,
-                 precision, codes, postfix, &buffer,
-                 &buffersize)));
+                 precision, codes, postfix, buffer)));
 
-    if (status) {
-        free(buffer);
-        if (status == 1) {
-            PyErr_SetString(PyExc_MemoryError, "Memory error");
-        } else if (status == 2) {
-            PyErr_SetString(PyExc_ValueError, "Malformed path codes");
-        }
+    if (!status) {
+        PyErr_SetString(PyExc_ValueError, "Malformed path codes");
         return NULL;
     }
 
-    if (buffersize == 0) {
-        result = PyBytes_FromString("");
-    } else {
-        result = PyBytes_FromStringAndSize(buffer, buffersize);
-    }
-
-    free(buffer);
-
-    return result;
+    return PyBytes_FromStringAndSize(buffer.c_str(), buffer.size());
 }
 
 

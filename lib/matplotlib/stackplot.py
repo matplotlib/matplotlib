@@ -15,7 +15,7 @@ def stackplot(axes, x, *args,
               labels=(), colors=None, baseline='zero',
               **kwargs):
     """
-    Draws a stacked area plot.
+    Draw a stacked area plot.
 
     Parameters
     ----------
@@ -29,7 +29,7 @@ def stackplot(axes, x, *args,
             stackplot(x, y)               # where y is MxN
             stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
 
-    baseline : ['zero' | 'sym' | 'wiggle' | 'weighted_wiggle']
+    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:
 
         - ``'zero'``: Constant zero baseline, i.e. a simple stacked plot.
@@ -47,7 +47,7 @@ def stackplot(axes, x, *args,
         A list or tuple of colors. These will be cycled through and used to
         colour the stacked areas.
 
-    **kwargs :
+    **kwargs
         All other keyword arguments are passed to `Axes.fill_between()`.
 
 
@@ -82,7 +82,6 @@ def stackplot(axes, x, *args,
         stack += first_line
 
     elif baseline == 'weighted_wiggle':
-        m, n = y.shape
         total = np.sum(y, 0)
         # multiply by 1/total (or zero) to avoid infinities in the division:
         inv_total = np.zeros_like(total)

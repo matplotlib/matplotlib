@@ -10,7 +10,6 @@ __all__ = ['AnchoredDrawingArea', 'AnchoredAuxTransformBox',
 
 
 class AnchoredDrawingArea(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, width, height, xdescent, ydescent,
                  loc, pad=0.4, borderpad=0.5, prop=None, frameon=True,
                  **kwargs):
@@ -57,7 +56,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
         frameon : bool, optional
             If True, draw a box around this artists. Defaults to True.
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 
@@ -87,7 +86,6 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
 
 
 class AnchoredAuxTransformBox(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, loc,
                  pad=0.4, borderpad=0.5, prop=None, frameon=True, **kwargs):
         """
@@ -131,7 +129,7 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
         frameon : bool, optional
             If True, draw a box around this artists. Defaults to True.
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 
@@ -160,7 +158,6 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
 
 
 class AnchoredEllipse(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, width, height, angle, loc,
                  pad=0.1, borderpad=0.1, prop=None, frameon=True, **kwargs):
         """
@@ -206,7 +203,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
         prop : `matplotlib.font_manager.FontProperties`, optional
             Font property used as a reference for paddings.
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 
@@ -226,7 +223,6 @@ class AnchoredEllipse(AnchoredOffsetbox):
 
 
 class AnchoredSizeBar(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2,
                  frameon=True, size_vertical=0, color='black',
@@ -299,7 +295,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
             Defaults to True if `size_vertical` is greater than
             zero and False otherwise.
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 
@@ -321,8 +317,8 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         --------
         >>> import matplotlib.pyplot as plt
         >>> import numpy as np
-        >>> from mpl_toolkits.axes_grid1.anchored_artists import \
-AnchoredSizeBar
+        >>> from mpl_toolkits.axes_grid1.anchored_artists import (
+        ...     AnchoredSizeBar)
         >>> fig, ax = plt.subplots()
         >>> ax.imshow(np.random.random((10,10)))
         >>> bar = AnchoredSizeBar(ax.transData, 3, '3 data units', 4)
@@ -333,10 +329,10 @@ AnchoredSizeBar
 
         >>> import matplotlib.font_manager as fm
         >>> fontprops = fm.FontProperties(size=14, family='monospace')
-        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, \
-sep=5, borderpad=0.5, frameon=False, \
-size_vertical=0.5, color='white', \
-fontproperties=fontprops)
+        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5,
+        ...                       sep=5, borderpad=0.5, frameon=False,
+        ...                       size_vertical=0.5, color='white',
+        ...                       fontproperties=fontprops)
         """
         if fill_bar is None:
             fill_bar = size_vertical > 0
@@ -375,7 +371,6 @@ fontproperties=fontprops)
 
 
 class AnchoredDirectionArrows(AnchoredOffsetbox):
-    @docstring.dedent
     def __init__(self, transform, label_x, label_y, length=0.15,
                  fontsize=0.08, loc=2, angle=0, aspect_ratio=1, pad=0.4,
                  borderpad=0.4, frameon=False, color='w', alpha=1,
@@ -477,7 +472,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
             :class:`matplotlib.text.TextPath` and
             `matplotlib.patches.FancyArrowPatch`
 
-        **kwargs :
+        **kwargs
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
 
@@ -505,8 +500,8 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         --------
         >>> import matplotlib.pyplot as plt
         >>> import numpy as np
-        >>> from mpl_toolkits.axes_grid1.anchored_artists import \
-        ...     AnchoredDirectionArrows
+        >>> from mpl_toolkits.axes_grid1.anchored_artists import (
+        ...     AnchoredDirectionArrows)
         >>> fig, ax = plt.subplots()
         >>> ax.imshow(np.random.random((10,10)))
         >>> arrows = AnchoredDirectionArrows(ax.transAxes, '111', '110')
@@ -519,9 +514,11 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         >>> import matplotlib.font_manager as fm
         >>> fontprops = fm.FontProperties(family='monospace')
         >>> arrows = AnchoredDirectionArrows(ax.transAxes, 'East', 'South',
-        ... loc='lower left', color='k', aspect_ratio=-1, sep_x=0.02,
-        ... sep_y=-0.01, text_props={'ec':'w', 'fc':'k'},
-        ... fontproperties=fontprops)
+        ...                                  loc='lower left', color='k',
+        ...                                  aspect_ratio=-1, sep_x=0.02,
+        ...                                  sep_y=-0.01,
+        ...                                  text_props={'ec':'w', 'fc':'k'},
+        ...                                  fontproperties=fontprops)
         """
         if arrow_props is None:
             arrow_props = {}

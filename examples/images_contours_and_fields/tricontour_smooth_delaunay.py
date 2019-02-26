@@ -61,7 +61,7 @@ init_mask_frac = 0.0    # Float > 0. adjusting the proportion of
 
 min_circle_ratio = .01  # Minimum circle ratio - border triangles with circle
                         # ratio below this will be masked if they touch a
-                        # border. Suggested value 0.01 ; Use -1 to keep
+                        # border. Suggested value 0.01; use -1 to keep
                         # all triangles.
 
 # Random points

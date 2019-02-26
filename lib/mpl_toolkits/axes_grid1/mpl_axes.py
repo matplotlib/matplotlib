@@ -11,9 +11,9 @@ class SimpleChainedObjects(object):
         _a = SimpleChainedObjects([getattr(a, k) for a in self._objects])
         return _a
 
-    def __call__(self, *kl, **kwargs):
+    def __call__(self, *args, **kwargs):
         for m in self._objects:
-            m(*kl, **kwargs)
+            m(*args, **kwargs)
 
 
 class Axes(maxes.Axes):
@@ -50,10 +50,9 @@ class Axes(maxes.Axes):
             left=SimpleAxisArtist(self.yaxis, 1, self.spines["left"]),
             right=SimpleAxisArtist(self.yaxis, 2, self.spines["right"]))
 
-    def _get_axislines(self):
+    @property
+    def axis(self):
         return self._axislines
-
-    axis = property(_get_axislines)
 
     def cla(self):
         super().cla()
@@ -71,26 +70,25 @@ class SimpleAxisArtist(Artist):
         elif isinstance(axis, YAxis):
             self._axis_direction = ["left", "right"][axisnum-1]
         else:
-            raise ValueError("axis must be instance of XAxis or YAxis : %s is provided" % (axis,))
+            raise ValueError(
+                f"axis must be instance of XAxis or YAxis, but got {axis}")
         Artist.__init__(self)
 
-
-    def _get_major_ticks(self):
+    @property
+    def major_ticks(self):
         tickline = "tick%dline" % self._axisnum
         return SimpleChainedObjects([getattr(tick, tickline)
                                      for tick in self._axis.get_major_ticks()])
 
-    def _get_major_ticklabels(self):
+    @property
+    def major_ticklabels(self):
         label = "label%d" % self._axisnum
         return SimpleChainedObjects([getattr(tick, label)
                                      for tick in self._axis.get_major_ticks()])
 
-    def _get_label(self):
+    @property
+    def label(self):
         return self._axis.label
-
-    major_ticks = property(_get_major_ticks)
-    major_ticklabels = property(_get_major_ticklabels)
-    label = property(_get_label)
 
     def set_visible(self, b):
         self.toggle(all=b)
@@ -134,11 +132,3 @@ class SimpleAxisArtist(Artist):
             elif _label:
                 self._axis.label.set_visible(True)
                 self._axis.set_label_position(self._axis_direction)
-
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = Axes(fig, [0.1, 0.1, 0.8, 0.8])
-    fig.add_axes(ax)
-    ax.cla()

@@ -6,12 +6,14 @@ Parametric Curve
 This example demonstrates plotting a parametric curve in 3D.
 '''
 
-import matplotlib as mpl
-from mpl_toolkits.mplot3d import Axes3D
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-mpl.rcParams['legend.fontsize'] = 10
+
+plt.rcParams['legend.fontsize'] = 10
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')

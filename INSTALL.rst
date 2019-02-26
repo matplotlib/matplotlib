@@ -1,5 +1,3 @@
-.. _pip: https://pypi.python.org/pypi/pip/
-
 ==========
 Installing
 ==========
@@ -17,8 +15,8 @@ Installing an official release
 Matplotlib and its dependencies are available as wheel packages for macOS,
 Windows and Linux distributions::
 
-  python -mpip install -U pip
-  python -mpip install -U matplotlib
+  python -m pip install -U pip
+  python -m pip install -U matplotlib
 
 .. note::
 
@@ -42,7 +40,7 @@ Test data
 ---------
 
 The wheels (:file:`*.whl`) on the `PyPI download page
-<https://pypi.python.org/pypi/matplotlib/>`_ do not contain test data
+<https://pypi.org/project/matplotlib/>`_ do not contain test data
 or example code.
 
 If you want to try the many demos that come in the Matplotlib source
@@ -53,7 +51,7 @@ To run the test suite:
 
 * extract the :file:`lib/matplotlib/tests` or :file:`lib/mpl_toolkits/tests`
   directories from the source distribution;
-* install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
+* install test dependencies: `pytest <https://pypi.org/project/pytest>`_,
   Pillow, MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
   <https://inkscape.org/>`_;
 * run ``python -mpytest``.
@@ -94,9 +92,9 @@ If you are interested in contributing to Matplotlib development,
 running the latest source code, or just like to build everything
 yourself, it is not difficult to build Matplotlib from source.  Grab
 the latest *tar.gz* release file from `the PyPI files page
-<https://pypi.python.org/pypi/matplotlib/>`_, or if you want to
+<https://pypi.org/project/matplotlib/>`_, or if you want to
 develop Matplotlib or just need the latest bugfixed version, grab the
-latest git version :ref:`install-from-git`.
+latest git version, and see :ref:`install-from-git`.
 
 The standard environment variables `CC`, `CXX`, `PKG_CONFIG` are respected.
 This means you can set them if your toolchain is prefixed. This may be used for
@@ -135,30 +133,32 @@ Dependencies
 
 Matplotlib requires the following dependencies:
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.5)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.6)
 * `FreeType <https://www.freetype.org/>`_ (>= 2.3)
 * `libpng <http://www.libpng.org>`_ (>= 1.2)
-* `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
+* `NumPy <http://www.numpy.org>`_ (>= 1.11)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
-* `dateutil <https://pypi.python.org/pypi/python-dateutil>`_ (>= 2.1)
+* `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.1)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.0)
 * `pyparsing <https://pyparsing.wikispaces.com/>`_
-* `pytz <http://pytz.sourceforge.net/>`_
 
 Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
-* :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the TkAgg backend;
-* `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4) or
-  `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
-* `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
-* :term:`wxpython` (>= 4): for the WX or WXAgg backend;
-* `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`_ (>=0.8) or
-  `pycairo <https://pypi.python.org/pypi/pycairo>`_: for the cairo-based
-  backends (the latter is required for GTK3Cairo);
-* `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend;
+* :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends;
+* `PyQt4 <https://pypi.org/project/PyQt4>`_ (>= 4.6) or
+  `PySide <https://pypi.org/project/PySide>`_ (>= 1.0.3): for the Qt4-based
+  backends;
+* `PyQt5 <https://pypi.org/project/PyQt5>`_: for the Qt5-based backends;
+* `PyGObject <https://pypi.org/project/PyGObject/>`_: for the GTK3-based
+  backends;
+* :term:`wxpython` (>= 4): for the WX-based backends;
+* `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`_ (>= 0.8) or
+  `pycairo <https://pypi.org/project/pycairo>`_: for the cairo-based
+  backends;
+* `Tornado <https://pypi.org/project/tornado>`_: for the WebAgg backend;
 
 For better support of animation output format and image file formats, LaTeX,
 etc., you can install the following:
@@ -167,10 +167,10 @@ etc., you can install the following:
   <https://libav.org/avconv.html>`_: for saving movies;
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
   animated gifs;
-* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>=3.4): for a larger
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 3.4): for a larger
   selection of image file formats: JPEG, BMP, and TIFF image files;
-* `LaTeX <https://miktex.org/>`_ and `GhostScript
-  <https://ghostscript.com/download/>`_ (for rendering text with LaTeX).
+* `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
+  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
 
 .. note::
 
@@ -249,7 +249,7 @@ Building on Windows
 -------------------
 
 The Python shipped from https://www.python.org is compiled with Visual Studio
-2015 for 3.5 and 3.6.  Python extensions should be compiled with the same
+2015 for 3.5+.  Python extensions should be compiled with the same
 compiler, see e.g.
 https://packaging.python.org/guides/packaging-binary-extensions/#setting-up-a-build-environment-on-windows
 for how to set up a build environment.
@@ -261,8 +261,8 @@ at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.
 There are a few possibilities to build Matplotlib on Windows:
 
 * Wheels via `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_
-* Wheels by using conda packages
-* Conda packages
+* Wheels by using conda packages (see below)
+* Conda packages (see below)
 
 Wheel builds using conda packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -271,35 +271,22 @@ This is a wheel build, but we use conda packages to get all the requirements.
 The binary requirements (png, FreeType,...) are statically linked and therefore
 not needed during the wheel install.
 
+Set up the conda environment. Note, if you want a qt backend, add ``pyqt`` to
+the list of conda packages.
+
 ::
 
-  # create a new environment with the required packages
-  conda create -n "matplotlib_build" python=3.5 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
-  activate matplotlib_build
-  # if you want a qt backend, you also have to install pyqt (be aware that pyqt doesn't mix well if
-  # you have created the environment with conda-forge already activated...)
-  conda install pyqt
-  # this package is only available in the conda-forge channel
-  conda install -c conda-forge msinttypes
+  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype msinttypes
+  conda activate matplotlib_build
 
-  # copy the libs which have "wrong" names
-  set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
-  mkdir lib || cmd /c "exit /b 0"
-  copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
-  copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
+For building, call the script ``build_alllocal.cmd`` in the root folder of the
+repository::
 
-  # Make the header files and the rest of the static libs available during the build
-  # CONDA_DEFAULT_ENV is a env variable which is set to the currently active environment path
-  set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
+  build_alllocal.cmd
 
-  # build the wheel
-  python setup.py bdist_wheel
-
-The `build_alllocal.cmd` script in the root folder automates these steps if
-you have already created and activated the conda environment.
 
 Conda packages
 ^^^^^^^^^^^^^^
 
 The conda packaging scripts for Matplotlib are available at
-https://github.com/conda-forge/python-feedstock.
+https://github.com/conda-forge/matplotlib-feedstock.

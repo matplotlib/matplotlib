@@ -9,11 +9,11 @@ from datetime import datetime
 from functools import total_ordering
 from io import BytesIO
 import logging
-from math import ceil, cos, floor, pi, sin
+import math
 import os
+import pathlib
 import re
 import struct
-import sys
 import time
 import types
 import warnings
@@ -27,8 +27,6 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import (get_realpath_and_stat,
-                              is_writable_file_like, maxdict)
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.afm import AFM
@@ -43,6 +41,7 @@ from matplotlib.dates import UTC
 from matplotlib import _path
 from matplotlib import _png
 from matplotlib import ttconv
+from . import _backend_pdf_ps
 
 _log = logging.getLogger(__name__)
 
@@ -654,15 +653,12 @@ class PdfFile(object):
 
         return Fx
 
+    @cbook.deprecated("3.0")
     @property
     def texFontMap(self):
         # lazy-load texFontMap, it takes a while to parse
         # and usetex is a relatively rare use case
-        if self._texFontMap is None:
-            self._texFontMap = dviread.PsfontsMap(
-                dviread.find_tex_file('pdftex.map'))
-
-        return self._texFontMap
+        return dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
 
     def dviFontName(self, dvifont):
         """
@@ -675,7 +671,8 @@ class PdfFile(object):
         if dvi_info is not None:
             return dvi_info.pdfname
 
-        psfont = self.texFontMap[dvifont.texname]
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+        psfont = tex_font_map[dvifont.texname]
         if psfont.filename is None:
             raise ValueError(
                 "No usable font file found for {} (TeX: {}); "
@@ -710,7 +707,7 @@ class PdfFile(object):
             else:
                 # a normal TrueType font
                 _log.debug('Writing TrueType font.')
-                realpath, stat_key = get_realpath_and_stat(filename)
+                realpath, stat_key = cbook.get_realpath_and_stat(filename)
                 chars = self.used_characters.get(stat_key)
                 if chars is not None and len(chars[1]):
                     fonts[Fx] = self.embedTTF(realpath, chars[1])
@@ -893,9 +890,9 @@ end"""
             # Perhaps best to round away from zero for bounding
             # boxes and the like
             if value < 0:
-                return floor(value)
+                return math.floor(value)
             else:
-                return ceil(value)
+                return math.ceil(value)
 
         def embedTTFType3(font, characters, descriptor):
             """The Type 3-specific part of embedding a Truetype font"""
@@ -941,8 +938,13 @@ end"""
                     s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
                 return cvt(width)
 
-            widths = [get_char_width(charcode)
-                      for charcode in range(firstchar, lastchar+1)]
+            with warnings.catch_warnings():
+                # Ignore 'Required glyph missing from current font' warning
+                # from ft2font: here we're just building the widths table, but
+                # the missing glyphs may not even be used in the actual string.
+                warnings.filterwarnings("ignore")
+                widths = [get_char_width(charcode)
+                          for charcode in range(firstchar, lastchar+1)]
             descriptor['MaxWidth'] = max(widths)
 
             # Make the "Differences" array, sort the ccodes < 255 from
@@ -971,8 +973,13 @@ end"""
 
             # Make the charprocs array (using ttconv to generate the
             # actual outlines)
-            rawcharprocs = ttconv.get_pdf_charprocs(
-                filename.encode(sys.getfilesystemencoding()), glyph_ids)
+            try:
+                rawcharprocs = ttconv.get_pdf_charprocs(
+                    os.fsencode(filename), glyph_ids)
+            except RuntimeError:
+                _log.warning("The PDF backend does not currently support the "
+                             "selected font.")
+                raise
             charprocs = {}
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]
@@ -1338,22 +1345,16 @@ end"""
         Write the image *data* into the pdf file using png
         predictors with Flate compression.
         """
-
         buffer = BytesIO()
         _png.write_png(data, buffer)
         buffer.seek(8)
-        written = 0
-        header = bytearray(8)
         while True:
-            n = buffer.readinto(header)
-            assert n == 8
-            length, type = struct.unpack(b'!L4s', bytes(header))
+            length, type = struct.unpack(b'!L4s', buffer.read(8))
             if type == b'IDAT':
-                data = bytearray(length)
-                n = buffer.readinto(data)
-                assert n == length
-                self.currentstream.write(bytes(data))
-                written += n
+                data = buffer.read(length)
+                if len(data) != length:
+                    raise RuntimeError("truncated data")
+                self.currentstream.write(data)
             elif type == b'IEND':
                 break
             else:
@@ -1518,23 +1519,16 @@ end"""
 
     def writeXref(self):
         """Write out the xref table."""
-
         self.startxref = self.fh.tell() - self.tell_base
         self.write(b"xref\n0 %d\n" % self.nextObject)
-        i = 0
-        borken = False
-        for offset, generation, name in self.xrefTable:
+        for i, (offset, generation, name) in enumerate(self.xrefTable):
             if offset is None:
-                print('No offset for object %d (%s)' % (i, name),
-                      file=sys.stderr)
-                borken = True
+                raise AssertionError(
+                    'No offset for object %d (%s)' % (i, name))
             else:
                 key = b"f" if name == 'the zero object' else b"n"
                 text = b"%010d %05d %b \n" % (offset, generation, key)
                 self.write(text)
-            i += 1
-        if borken:
-            raise AssertionError('Indirect object does not exist')
 
     def writeInfoDict(self):
         """Write out the info dictionary, checking it for good form"""
@@ -1559,11 +1553,11 @@ end"""
                     'Trapped': check_trapped}
         for k in self.infoDict:
             if k not in keywords:
-                warnings.warn('Unknown infodict keyword: %s' % k, stacklevel=2)
+                cbook._warn_external('Unknown infodict keyword: %s' % k)
             else:
                 if not keywords[k](self.infoDict[k]):
-                    warnings.warn('Bad value for infodict keyword %s' % k,
-                                  stacklevel=2)
+                    cbook._warn_external(
+                        'Bad value for infodict keyword %s' % k)
 
         self.infoObject = self.reserveObject('info')
         self.writeObject(self.infoObject, self.infoDict)
@@ -1580,8 +1574,14 @@ end"""
         self.write(b"\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
 
 
-class RendererPdf(RendererBase):
-    afm_font_cache = maxdict(50)
+class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
+    @property
+    @cbook.deprecated("3.1")
+    def afm_font_cache(self, _cache=cbook.maxdict(50)):
+        return _cache
+
+    _afm_font_dir = pathlib.Path(rcParams["datapath"], "fonts", "pdfcorefonts")
+    _use_afm_rc_name = "pdf.use14corefonts"
 
     def __init__(self, file, image_dpi, height, width):
         RendererBase.__init__(self)
@@ -1602,10 +1602,9 @@ class RendererPdf(RendererBase):
         orig_alphas = getattr(gc, '_effective_alphas', (1.0, 1.0))
 
         if gc.get_rgb() is None:
-            # it should not matter what color here
-            # since linewidth should be 0
-            # unless affected by global settings in rcParams
-            # hence setting zero alpha just incase
+            # It should not matter what color here since linewidth should be
+            # 0 unless affected by global settings in rcParams, hence setting
+            # zero alpha just in case.
             gc.set_foreground((0, 0, 0, 0), isRGBA=True)
 
         if gc._forced_alpha:
@@ -1624,13 +1623,12 @@ class RendererPdf(RendererBase):
         gc._effective_alphas = orig_alphas
 
     def track_characters(self, font, s):
-        """Keeps track of which characters are required from
-        each font."""
+        """Keeps track of which characters are required from each font."""
         if isinstance(font, str):
             fname = font
         else:
             fname = font.fname
-        realpath, stat_key = get_realpath_and_stat(fname)
+        realpath, stat_key = cbook.get_realpath_and_stat(fname)
         used_characters = self.file.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].update(map(ord, s))
@@ -1644,20 +1642,9 @@ class RendererPdf(RendererBase):
     def get_image_magnification(self):
         return self.image_dpi/72.0
 
-    def option_scale_image(self):
-        """
-        pdf backend support arbitrary scaling of image.
-        """
-        return True
-
-    def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
-        return not rcParams['image.composite_image']
-
     def draw_image(self, gc, x, y, im, transform=None):
+        # docstring inherited
+
         h, w = im.shape[:2]
         if w == 0 or h == 0:
             return
@@ -1686,6 +1673,7 @@ class RendererPdf(RendererBase):
                              imob, Op.use_xobject, Op.grestore)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         self.check_gc(gc, rgbFace)
         self.file.writePath(
             path, transform,
@@ -1765,6 +1753,8 @@ class RendererPdf(RendererBase):
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
+        # docstring inherited
+
         # Same logic as in draw_path_collection
         len_marker_path = len(marker_path)
         uses = len(path)
@@ -1824,9 +1814,9 @@ class RendererPdf(RendererBase):
         if angle == oldangle == 0:
             self.file.output(x - oldx, y - oldy, Op.textpos)
         else:
-            angle = angle / 180.0 * pi
-            self.file.output(cos(angle), sin(angle),
-                             -sin(angle), cos(angle),
+            angle = math.radians(angle)
+            self.file.output(math.cos(angle), math.sin(angle),
+                             -math.sin(angle), math.cos(angle),
                              x, y, Op.textmatrix)
             self.file.output(0, 0, Op.textpos)
 
@@ -1842,10 +1832,11 @@ class RendererPdf(RendererBase):
         global_fonttype = rcParams['pdf.fonttype']
 
         # Set up a global transformation matrix for the whole math expression
-        a = angle / 180.0 * pi
+        a = math.radians(angle)
         self.file.output(Op.gsave)
-        self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
-                         Op.concat_matrix)
+        self.file.output(math.cos(a), math.sin(a),
+                         -math.sin(a), math.cos(a),
+                         x, y, Op.concat_matrix)
 
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
@@ -1897,11 +1888,12 @@ class RendererPdf(RendererBase):
         self.file.output(Op.grestore)
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+        # docstring inherited
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
         with dviread.Dvi(dvifile, 72) as dvi:
-            page = next(iter(dvi))
+            page, = dvi
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
@@ -1980,6 +1972,8 @@ class RendererPdf(RendererBase):
         return s.encode('utf-16be', 'replace')
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         # TODO: combine consecutive texts into one BT/ET delimited section
 
         # This function is rather complex, since there is no way to
@@ -2001,7 +1995,6 @@ class RendererPdf(RendererBase):
 
         if rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
-            l, b, w, h = font.get_str_bbox(s)
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
@@ -2016,9 +2009,11 @@ class RendererPdf(RendererBase):
                 fonttype = 42
 
         def check_simple_method(s):
-            """Determine if we should use the simple or woven method
-            to output this text, and chunks the string into 1-byte and
-            2-byte sections if necessary."""
+            """
+            Determine if we should use the simple or woven method to output
+            this text, and chunks the string into 1-byte and 2-byte sections if
+            necessary.
+            """
             use_simple_method = True
             chunks = []
 
@@ -2051,17 +2046,19 @@ class RendererPdf(RendererBase):
                              Op.end_text)
 
         def draw_text_woven(chunks):
-            """Outputs text using the woven method, alternating
-            between chunks of 1-byte characters and 2-byte characters.
-            Only used for Type 3 fonts."""
+            """
+            Outputs text using the woven method, alternating between chunks of
+            1-byte and 2-byte characters.  Only used for Type 3 fonts.
+            """
             chunks = [(a, ''.join(b)) for a, b in chunks]
 
             # Do the rotation and global translation as a single matrix
             # concatenation up front
             self.file.output(Op.gsave)
-            a = angle / 180.0 * pi
-            self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
-                             Op.concat_matrix)
+            a = math.radians(angle)
+            self.file.output(math.cos(a), math.sin(a),
+                             -math.sin(a), math.cos(a),
+                             x, y, Op.concat_matrix)
 
             # Output all the 1-byte characters in a BT/ET group, then
             # output all the 2-byte characters.
@@ -2120,68 +2117,8 @@ class RendererPdf(RendererBase):
         else:
             return draw_text_woven(chunks)
 
-    def get_text_width_height_descent(self, s, prop, ismath):
-        if rcParams['text.usetex']:
-            texmanager = self.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=self)
-            return w, h, d
-
-        if ismath:
-            w, h, d, glyphs, rects, used_characters = \
-                self.mathtext_parser.parse(s, 72, prop)
-
-        elif rcParams['pdf.use14corefonts']:
-            font = self._get_font_afm(prop)
-            l, b, w, h, d = font.get_str_bbox_and_descent(s)
-            scale = prop.get_size_in_points()
-            w *= scale / 1000
-            h *= scale / 1000
-            d *= scale / 1000
-        else:
-            font = self._get_font_ttf(prop)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            w, h = font.get_width_height()
-            scale = (1.0 / 64.0)
-            w *= scale
-            h *= scale
-            d = font.get_descent()
-            d *= scale
-        return w, h, d
-
-    def _get_font_afm(self, prop):
-        key = hash(prop)
-        font = self.afm_font_cache.get(key)
-        if font is None:
-            filename = findfont(
-                prop, fontext='afm', directory=self.file._core14fontdir)
-            if filename is None:
-                filename = findfont(
-                    "Helvetica", fontext='afm',
-                    directory=self.file._core14fontdir)
-            font = self.afm_font_cache.get(filename)
-            if font is None:
-                with open(filename, 'rb') as fh:
-                    font = AFM(fh)
-                    self.afm_font_cache[filename] = font
-            self.afm_font_cache[key] = font
-        return font
-
-    def _get_font_ttf(self, prop):
-        filename = findfont(prop)
-        font = get_font(filename)
-        font.clear()
-        font.set_size(prop.get_size_in_points(), 72)
-        return font
-
-    def flipy(self):
-        return False
-
-    def get_canvas_width_height(self):
-        return self.file.width * 72.0, self.file.height * 72.0
-
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextPdf(self.file)
 
 

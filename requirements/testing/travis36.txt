@@ -1,5 +1,6 @@
 # Extra pip requirements for the travis python 3.6 build
 
-pandas<0.21.0
-jupyter
-pytest-pep8
+ipykernel
+nbconvert[execute]
+pandas
+pytz

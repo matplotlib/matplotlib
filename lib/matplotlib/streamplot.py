@@ -20,61 +20,64 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
                maxlength=4.0, integration_direction='both'):
-    """Draws streamlines of a vector flow.
+    """
+    Draw streamlines of a vector flow.
 
-    *x*, *y* : 1d arrays
-        an *evenly spaced* grid.
-    *u*, *v* : 2d arrays
-        x and y-velocities. Number of rows should match length of y, and
-        the number of columns should match x.
-    *density* : float or 2-tuple
-        Controls the closeness of streamlines. When `density = 1`, the domain
+    Parameters
+    ----------
+    x, y : 1d arrays
+        An evenly spaced grid.
+    u, v : 2d arrays
+        *x* and *y*-velocities. Number of rows should match length of *y*, and
+        the number of columns should match *x*.
+    density : float or 2-tuple
+        Controls the closeness of streamlines. When ``density = 1``, the domain
         is divided into a 30x30 grid---*density* linearly scales this grid.
         Each cell in the grid can have, at most, one traversing streamline.
         For different densities in each direction, use [density_x, density_y].
-    *linewidth* : numeric or 2d array
-        vary linewidth when given a 2d array with the same shape as velocities.
-    *color* : matplotlib color code, or 2d array
+    linewidth : numeric or 2d array
+        Vary linewidth when given a 2d array with the same shape as velocities.
+    color : matplotlib color code, or 2d array
         Streamline color. When given an array with the same shape as
         velocities, *color* values are converted to colors using *cmap*.
-    *cmap* : :class:`~matplotlib.colors.Colormap`
+    cmap : `~matplotlib.colors.Colormap`
         Colormap used to plot streamlines and arrows. Only necessary when using
         an array input for *color*.
-    *norm* : :class:`~matplotlib.colors.Normalize`
-        Normalize object used to scale luminance data to 0, 1. If None, stretch
-        (min, max) to (0, 1). Only necessary when *color* is an array.
-    *arrowsize* : float
+    norm : `~matplotlib.colors.Normalize`
+        Normalize object used to scale luminance data to 0, 1. If ``None``,
+        stretch (min, max) to (0, 1). Only necessary when *color* is an array.
+    arrowsize : float
         Factor scale arrow size.
-    *arrowstyle* : str
+    arrowstyle : str
         Arrow style specification.
-        See :class:`~matplotlib.patches.FancyArrowPatch`.
-    *minlength* : float
+        See `~matplotlib.patches.FancyArrowPatch`.
+    minlength : float
         Minimum length of streamline in axes coordinates.
-    *start_points*: Nx2 array
+    start_points : Nx2 array
         Coordinates of starting points for the streamlines.
-        In data coordinates, the same as the ``x`` and ``y`` arrays.
-    *zorder* : int
-        any number
-    *maxlength* : float
+        In data coordinates, the same as the *x* and *y* arrays.
+    zorder : int
+        Any number.
+    maxlength : float
         Maximum length of streamline in axes coordinates.
-    *integration_direction* : ['forward', 'backward', 'both']
+    integration_direction : ['forward' | 'backward' | 'both']
         Integrate the streamline in forward, backward or both directions.
+        default is ``'both'``.
 
-    Returns:
+    Returns
+    -------
+    stream_container : StreamplotSet
+        Container object with attributes
 
-        *stream_container* : StreamplotSet
-            Container object with attributes
+        - lines: `matplotlib.collections.LineCollection` of streamlines
 
-                - lines: `matplotlib.collections.LineCollection` of streamlines
+        - arrows: collection of `matplotlib.patches.FancyArrowPatch`
+          objects representing arrows half-way along stream
+          lines.
 
-                - arrows: collection of `matplotlib.patches.FancyArrowPatch`
-                  objects representing arrows half-way along stream
-                  lines.
-
-            This container will probably change in the future to allow changes
-            to the colormap, alpha, etc. for both lines and arrows, but these
-            changes should be backward compatible.
-
+        This container will probably change in the future to allow changes
+        to the colormap, alpha, etc. for both lines and arrows, but these
+        changes should be backward compatible.
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
@@ -190,7 +193,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         streamlines.extend(np.hstack([points[:-1], points[1:]]))
 
         # Add arrows half way along each trajectory.
-        s = np.cumsum(np.sqrt(np.diff(tx) ** 2 + np.diff(ty) ** 2))
+        s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
         n = np.searchsorted(s, s[-1] / 2.)
         arrow_tail = (tx[n], ty[n])
         arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
@@ -269,8 +272,8 @@ class DomainMap(object):
 
     def grid2mask(self, xi, yi):
         """Return nearest space in mask-coords from given grid-coords."""
-        return (int((xi * self.x_grid2mask) + 0.5),
-                int((yi * self.y_grid2mask) + 0.5))
+        return (int(xi * self.x_grid2mask + 0.5),
+                int(yi * self.y_grid2mask + 0.5))
 
     def mask2grid(self, xm, ym):
         return xm * self.x_mask2grid, ym * self.y_mask2grid
@@ -335,6 +338,11 @@ class Grid(object):
         self.width = x[-1] - x[0]
         self.height = y[-1] - y[0]
 
+        if not np.allclose(np.diff(x), self.width / (self.nx - 1)):
+            raise ValueError("'x' values must be equally spaced")
+        if not np.allclose(np.diff(y), self.height / (self.ny - 1)):
+            raise ValueError("'y' values must be equally spaced")
+
     @property
     def shape(self):
         return self.ny, self.nx
@@ -356,15 +364,12 @@ class StreamMask(object):
     """
 
     def __init__(self, density):
-        if np.isscalar(density):
-            if density <= 0:
-                raise ValueError("If a scalar, 'density' must be positive")
-            self.nx = self.ny = int(30 * density)
-        else:
-            if len(density) != 2:
-                raise ValueError("'density' can have at maximum 2 dimensions")
-            self.nx = int(30 * density[0])
-            self.ny = int(30 * density[1])
+        try:
+            self.nx, self.ny = (30 * np.broadcast_to(density, 2)).astype(int)
+        except ValueError:
+            raise ValueError("'density' must be a scalar or be of length 2")
+        if self.nx < 0 or self.ny < 0:
+            raise ValueError("'density' must be positive")
         self._mask = np.zeros((self.ny, self.nx))
         self.shape = self._mask.shape
 
@@ -539,7 +544,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
 
         nx, ny = dmap.grid.shape
         # Error is normalized to the axes coordinates
-        error = np.sqrt(((dx2 - dx1) / nx) ** 2 + ((dy2 - dy1) / ny) ** 2)
+        error = np.hypot((dx2 - dx1) / nx, (dy2 - dy1) / ny)
 
         # Only save step if within error tolerance
         if error < maxerror:
@@ -603,11 +608,11 @@ def interpgrid(a, xi, yi):
         x = int(xi)
         y = int(yi)
         # conditional is faster than clipping for integers
-        if x == (Nx - 2):
+        if x == (Nx - 1):
             xn = x
         else:
             xn = x + 1
-        if y == (Ny - 2):
+        if y == (Ny - 1):
             yn = y
         else:
             yn = y + 1
@@ -642,7 +647,6 @@ def _gen_starting_points(shape):
     xlast = nx - 1
     ylast = ny - 1
     x, y = 0, 0
-    i = 0
     direction = 'right'
     for i in range(nx * ny):
 

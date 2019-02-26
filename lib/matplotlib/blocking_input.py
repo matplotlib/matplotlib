@@ -23,8 +23,6 @@ import logging
 from numbers import Integral
 
 import matplotlib.lines as mlines
-import numpy as np
-
 
 _log = logging.getLogger(__name__)
 
@@ -137,7 +135,7 @@ class BlockingMouseInput(BlockingInput):
             self.mouse_event_pop(event)
         elif button == self.button_stop:
             self.mouse_event_stop(event)
-        else:
+        elif button == self.button_add:
             self.mouse_event_add(event)
 
     def key_event(self):
@@ -157,14 +155,26 @@ class BlockingMouseInput(BlockingInput):
             self.mouse_event_add(event)
 
     def mouse_event_add(self, event):
-        """Process an button-1 event (add a click if inside axes)."""
+        """
+        Process an button-1 event (add a click if inside axes).
+
+        Parameters
+        ----------
+        event : `~.backend_bases.MouseEvent`
+        """
         if event.inaxes:
             self.add_click(event)
         else:  # If not a valid click, remove from event list.
             BlockingInput.pop(self)
 
     def mouse_event_stop(self, event):
-        """Process an button-2 event (end blocking input)."""
+        """
+        Process an button-2 event (end blocking input).
+
+        Parameters
+        ----------
+        event : `~.backend_bases.MouseEvent`
+        """
         # Remove last event just for cleanliness.
         BlockingInput.pop(self)
         # This will exit even if not in infinite mode.  This is consistent with
@@ -173,7 +183,13 @@ class BlockingMouseInput(BlockingInput):
         self.fig.canvas.stop_event_loop()
 
     def mouse_event_pop(self, event):
-        """Process an button-3 event (remove the last click)."""
+        """
+        Process an button-3 event (remove the last click).
+
+        Parameters
+        ----------
+        event : `~.backend_bases.MouseEvent`
+        """
         # Remove this last event.
         BlockingInput.pop(self)
         # Now remove any existing clicks if possible.
@@ -181,7 +197,13 @@ class BlockingMouseInput(BlockingInput):
             self.pop(event)
 
     def add_click(self, event):
-        """Add the coordinates of an event to the list of clicks."""
+        """
+        Add the coordinates of an event to the list of clicks.
+
+        Parameters
+        ----------
+        event : `~.backend_bases.MouseEvent`
+        """
         self.clicks.append((event.xdata, event.ydata))
         _log.info("input %i: %f, %f",
                   len(self.clicks), event.xdata, event.ydata)
@@ -194,7 +216,13 @@ class BlockingMouseInput(BlockingInput):
             self.fig.canvas.draw()
 
     def pop_click(self, event, index=-1):
-        """Remove a click (by default, the last) from the list of clicks."""
+        """
+        Remove a click (by default, the last) from the list of clicks.
+
+        Parameters
+        ----------
+        event : `~.backend_bases.MouseEvent`
+        """
         self.clicks.pop(index)
         if self.show_clicks:
             self.marks.pop(index).remove()
@@ -210,6 +238,12 @@ class BlockingMouseInput(BlockingInput):
         BlockingInput.pop(self, index)
 
     def cleanup(self, event=None):
+        """
+        Parameters
+        ----------
+        event : `~.backend_bases.MouseEvent`, optional
+            Not used
+        """
         # Clean the figure.
         if self.show_clicks:
             for mark in self.marks:
@@ -248,7 +282,13 @@ class BlockingContourLabeler(BlockingMouseInput):
         self.button3(event)
 
     def button1(self, event):
-        """Process an button-1 event (add a label to a contour)."""
+        """
+        Process an button-1 event (add a label to a contour).
+
+        Parameters
+        ----------
+        event : `~.backend_bases.MouseEvent`
+        """
         # Shorthand
         if event.inaxes == self.cs.ax:
             self.cs.add_label_near(event.x, event.y, self.inline,
@@ -265,6 +305,10 @@ class BlockingContourLabeler(BlockingMouseInput):
         Unfortunately, if one is doing inline labels, then there is currently
         no way to fix the broken contour - once humpty-dumpty is broken, he
         can't be put back together.  In inline mode, this does nothing.
+
+        Parameters
+        ----------
+        event : `~.backend_bases.MouseEvent`
         """
         if self.inline:
             pass

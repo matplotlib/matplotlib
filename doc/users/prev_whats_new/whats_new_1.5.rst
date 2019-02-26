@@ -36,16 +36,12 @@ that the draw command is deferred and only called once.
 The upshot of this is that for interactive backends (including
 ``%matplotlib notebook``) in interactive mode (with ``plt.ion()``)
 
-.. ipython :: python
+.. code-block :: python
 
    import matplotlib.pyplot as plt
-
    fig, ax = plt.subplots()
-
    ln, = ax.plot([0, 1, 4, 9, 16])
-
    plt.show()
-
    ln.set_color('g')
 
 
@@ -377,8 +373,8 @@ kwargs names is not ideal, but `Axes.fill_between` already has a
 
 This is particularly useful for plotting pre-binned histograms.
 
-.. figure:: ../../gallery/api/images/sphx_glr_filled_step_001.png
-   :target: ../../gallery/api/filled_step.html
+.. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_filled_step_001.png
+   :target: ../../gallery/lines_bars_and_markers/filled_step.html
    :align: center
    :scale: 50
 

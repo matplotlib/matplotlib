@@ -12,8 +12,7 @@ def test_truetype_conversion():
     fontname = os.path.abspath(fontname)
     fontprop = FontProperties(fname=fontname, size=80)
     matplotlib.rcParams['pdf.fonttype'] = 3
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.text(0, 0, "ABCDE", fontproperties=fontprop)
     ax.set_xticks([])
     ax.set_yticks([])

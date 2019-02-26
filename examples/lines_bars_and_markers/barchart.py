@@ -1,12 +1,17 @@
 """
-========
-Barchart
-========
+=============================
+Grouped bar chart with labels
+=============================
 
-A bar plot with errorbars and height labels on individual bars.
+Bar charts are useful for visualizing counts, or summary statistics
+with error bars. This example shows a ways to create a grouped bar chart
+with Matplotlib and also how to annotate bars with labels.
 """
-import numpy as np
+
+import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 men_means, men_std = (20, 35, 30, 35, 27), (2, 3, 4, 1, 2)
 women_means, women_std = (25, 32, 34, 20, 25), (3, 5, 2, 3, 3)
@@ -16,9 +21,9 @@ width = 0.35  # the width of the bars
 
 fig, ax = plt.subplots()
 rects1 = ax.bar(ind - width/2, men_means, width, yerr=men_std,
-                color='SkyBlue', label='Men')
+                label='Men')
 rects2 = ax.bar(ind + width/2, women_means, width, yerr=women_std,
-                color='IndianRed', label='Women')
+                label='Women')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Scores')
@@ -36,17 +41,37 @@ def autolabel(rects, xpos='center'):
     the bar. It can be one of the following {'center', 'right', 'left'}.
     """
 
-    xpos = xpos.lower()  # normalize the case of the parameter
     ha = {'center': 'center', 'right': 'left', 'left': 'right'}
-    offset = {'center': 0.5, 'right': 0.57, 'left': 0.43}  # x_txt = x + w*off
+    offset = {'center': 0, 'right': 1, 'left': -1}
 
     for rect in rects:
         height = rect.get_height()
-        ax.text(rect.get_x() + rect.get_width()*offset[xpos], 1.01*height,
-                '{}'.format(height), ha=ha[xpos], va='bottom')
+        ax.annotate('{}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(offset[xpos]*3, 3),  # use 3 points offset
+                    textcoords="offset points",  # in both directions
+                    ha=ha[xpos], va='bottom')
 
 
 autolabel(rects1, "left")
 autolabel(rects2, "right")
 
+fig.tight_layout()
+
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+matplotlib.axes.Axes.bar
+matplotlib.pyplot.bar
+matplotlib.axes.Axes.annotate
+matplotlib.pyplot.annotate

@@ -12,7 +12,7 @@ An introduction to the pyplot interface.
 # ===============
 #
 # :mod:`matplotlib.pyplot` is a collection of command style functions
-# that make matplotlib  work like MATLAB.
+# that make matplotlib work like MATLAB.
 # Each ``pyplot`` function makes
 # some change to a figure: e.g., creates a figure, creates a plotting area
 # in a figure, plots some lines in a plotting area, decorates the plot
@@ -131,7 +131,7 @@ plt.show()
 names = ['group_a', 'group_b', 'group_c']
 values = [1, 10, 100]
 
-plt.figure(1, figsize=(9, 3))
+plt.figure(figsize=(9, 3))
 
 plt.subplot(131)
 plt.bar(names, values)
@@ -164,7 +164,7 @@ plt.show()
 #   ``line,`` to get the first element of that list::
 #
 #       line, = plt.plot(x, y, '-')
-#       line.set_antialiased(False) # turn off antialising
+#       line.set_antialiased(False) # turn off antialiasing
 #
 # * Use the :func:`~matplotlib.pyplot.setp` command.  The example below
 #   uses a MATLAB-style command to set multiple properties
@@ -200,7 +200,6 @@ plt.show()
 # label                   any string
 # linestyle or ls         [ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ...]
 # linewidth or lw         float value in points
-# lod                     [True | False]
 # marker                  [ ``'+'`` | ``','`` | ``'.'`` | ``'1'`` | ``'2'`` | ``'3'`` | ``'4'`` ]
 # markeredgecolor or mec  any matplotlib color
 # markeredgewidth or mew  float value in points
@@ -254,7 +253,7 @@ def f(t):
 t1 = np.arange(0.0, 5.0, 0.1)
 t2 = np.arange(0.0, 5.0, 0.02)
 
-plt.figure(1)
+plt.figure()
 plt.subplot(211)
 plt.plot(t1, f(t1), 'bo', t2, f(t2), 'k')
 
@@ -433,7 +432,7 @@ y.sort()
 x = np.arange(len(y))
 
 # plot with various axes scales
-plt.figure(1)
+plt.figure()
 
 # linear
 plt.subplot(221)

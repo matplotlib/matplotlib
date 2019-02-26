@@ -67,13 +67,6 @@ Glossary
       channel.  PDF was designed in part as a next-generation document
       format to replace postscript
 
-  pgi
-      `pgi <https://pypi.python.org/pypi/pgi/>` exists as a relatively
-      new Python wrapper to GTK3 and acts as a pure python alternative to
-      PyGObject.  pgi still exists in its infancy, currently missing many
-      features of PyGObject.  However Matplotlib does not use any of these
-      missing features.
-
   PyGObject
       `PyGObject <http://www.pygtk.org/>`_ provides Python wrappers for the
       :term:`GTK` widgets library
@@ -89,12 +82,6 @@ Glossary
       `python <https://www.python.org>`_ is an object oriented interpreted
       language widely used for scripting, application development, web
       application servers, scientific computing and more.
-
-  pytz
-      `pytz <http://pythonhosted.org/pytz/>`_ provides the Olson tz
-      database in Python. it allows accurate and cross platform
-      timezone calculations and solves the issue of ambiguous times at
-      the end of daylight savings
 
   Qt
       `Qt <https://www.qt.io/>`__ is a cross-platform

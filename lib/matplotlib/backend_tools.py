@@ -13,7 +13,7 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 
 import re
 import time
-import warnings
+import logging
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -22,10 +22,12 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 
+_log = logging.getLogger(__name__)
+
 
 class Cursors(object):
     """Simple namespace for cursor reference"""
-    HAND, POINTER, SELECT_REGION, MOVE, WAIT = list(range(5))
+    HAND, POINTER, SELECT_REGION, MOVE, WAIT = range(5)
 cursors = Cursors()
 
 # Views positions tool
@@ -41,11 +43,11 @@ class ToolBase(object):
 
     Attributes
     ----------
-    toolmanager: `matplotlib.backend_managers.ToolManager`
+    toolmanager : `matplotlib.backend_managers.ToolManager`
         ToolManager that controls this Tool
-    figure: `FigureCanvas`
+    figure : `FigureCanvas`
         Figure instance that is affected by this Tool
-    name: String
+    name : string
         Used as **Id** of the tool, has to be unique among tools of the same
         ToolManager
     """
@@ -75,9 +77,9 @@ class ToolBase(object):
     """
 
     def __init__(self, toolmanager, name):
-        warnings.warn('Treat the new Tool classes introduced in v1.5 as ' +
-                      'experimental for now, the API will likely change in ' +
-                      'version 2.1, and some tools might change name')
+        cbook._warn_external(
+            'The new Tool classes introduced in v1.5 are experimental; their '
+            'API (including names) will likely change in future versions.')
         self._name = name
         self._toolmanager = toolmanager
         self._figure = None
@@ -106,7 +108,7 @@ class ToolBase(object):
 
         Parameters
         ----------
-        figure: `Figure`
+        figure : `Figure`
         """
         self._figure = figure
 
@@ -119,11 +121,11 @@ class ToolBase(object):
 
         Parameters
         ----------
-        event: `Event`
+        event : `Event`
             The Canvas event that caused this tool to be called
-        sender: object
+        sender : object
             Object that requested the tool to be triggered
-        data: object
+        data : object
             Extra data
         """
 
@@ -190,7 +192,6 @@ class ToolToggleBase(ToolBase):
 
         `trigger` calls this method when `toggled` is False
         """
-
         pass
 
     def disable(self, event=None):
@@ -206,7 +207,6 @@ class ToolToggleBase(ToolBase):
         * Another `ToolToggleBase` derived tool is triggered
           (from the same `ToolManager`)
         """
-
         pass
 
     @property
@@ -271,16 +271,15 @@ class SetCursorBase(ToolBase):
         self._set_cursor_cbk(event.canvasevent)
 
     def _add_tool(self, tool):
-        """set the cursor when the tool is triggered"""
+        """Set the cursor when the tool is triggered."""
         if getattr(tool, 'cursor', None) is not None:
             self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
                                                  self._tool_trigger_cbk)
 
     def _add_tool_cbk(self, event):
-        """Process every newly added tool"""
+        """Process every newly added tool."""
         if event.tool is self:
             return
-
         self._add_tool(event.tool)
 
     def _set_cursor_cbk(self, event):
@@ -337,7 +336,7 @@ class ToolCursorPosition(ToolBase):
             except (ValueError, OverflowError):
                 pass
             else:
-                artists = [a for a in event.inaxes.mouseover_set
+                artists = [a for a in event.inaxes._mouseover_set
                            if a.contains(event) and a.get_visible()]
 
                 if artists:
@@ -428,10 +427,11 @@ class ToolEnableNavigation(ToolBase):
             return
 
         n = int(event.key) - 1
-        for i, a in enumerate(self.figure.get_axes()):
-            if (event.x is not None and event.y is not None
-                    and a.in_axes(event)):
-                a.set_navigate(i == n)
+        if n < len(self.figure.get_axes()):
+            for i, a in enumerate(self.figure.get_axes()):
+                if (event.x is not None and event.y is not None
+                        and a.in_axes(event)):
+                    a.set_navigate(i == n)
 
 
 class _ToolGridBase(ToolBase):
@@ -460,9 +460,9 @@ class _ToolGridBase(ToolBase):
         Returns True/False if all grid lines are on or off, None if they are
         not all in the same state.
         """
-        if all(tick.gridOn for tick in ticks):
+        if all(tick.gridline.get_visible() for tick in ticks):
             return True
-        elif not any(tick.gridOn for tick in ticks):
+        elif not any(tick.gridline.get_visible() for tick in ticks):
             return False
         else:
             return None
@@ -853,7 +853,7 @@ class ToolZoom(ZoomPanBase):
         return
 
     def _press(self, event):
-        """the _press mouse button in zoom to rect mode callback"""
+        """Callback for mouse button presses in zoom-to-rectangle mode."""
 
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
@@ -895,7 +895,7 @@ class ToolZoom(ZoomPanBase):
         self._mouse_move(event)
 
     def _mouse_move(self, event):
-        """the drag callback in zoom mode"""
+        """Callback for mouse moves in zoom-to-rectangle mode."""
 
         if self._xypress:
             x, y = event.x, event.y
@@ -910,7 +910,7 @@ class ToolZoom(ZoomPanBase):
                 'rubberband', self, data=(x1, y1, x2, y2))
 
     def _release(self, event):
-        """the release mouse button callback in zoom to rect mode"""
+        """Callback for mouse button releases in zoom-to-rectangle mode."""
 
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
@@ -1039,25 +1039,25 @@ class ToolHelpBase(ToolBase):
         keymaps = self.toolmanager.get_tool_keymap(name)
         return ", ".join(self.format_shortcut(keymap) for keymap in keymaps)
 
-    def _get_help_text(self):
+    def _get_help_entries(self):
         entries = []
         for name, tool in sorted(self.toolmanager.tools.items()):
             if not tool.description:
                 continue
-            entries.append(
-                "{}: {}\n\t{}".format(
-                    name, self._format_tool_keymap(name), tool.description))
+            entries.append((name, self._format_tool_keymap(name),
+                            tool.description))
+        return entries
+
+    def _get_help_text(self):
+        entries = self._get_help_entries()
+        entries = ["{}: {}\n\t{}".format(*entry) for entry in entries]
         return "\n".join(entries)
 
     def _get_help_html(self):
         fmt = "<tr><td>{}</td><td>{}</td><td>{}</td></tr>"
         rows = [fmt.format(
             "<b>Action</b>", "<b>Shortcuts</b>", "<b>Description</b>")]
-        for name, tool in sorted(self.toolmanager.tools.items()):
-            if not tool.description:
-                continue
-            rows.append(fmt.format(
-                name, self._format_tool_keymap(name), tool.description))
+        rows += [fmt.format(*row) for row in self._get_help_entries()]
         return ("<style>td {padding: 0px 4px}</style>"
                 "<table><thead>" + rows[0] + "</thead>"
                 "<tbody>".join(rows[1:]) + "</tbody></table>")
@@ -1108,7 +1108,7 @@ def add_tools_to_manager(toolmanager, tools=default_tools):
 
     Parameters
     ----------
-    toolmanager: ToolManager
+    toolmanager : ToolManager
         `backend_managers.ToolManager` object that will get the tools added
     tools : {str: class_like}, optional
         The tools to add in a {name: tool} dict, see `add_tool` for more
@@ -1125,7 +1125,7 @@ def add_tools_to_container(container, tools=default_toolbar_tools):
 
     Parameters
     ----------
-    container: Container
+    container : Container
         `backend_bases.ToolContainerBase` object that will get the tools added
     tools : list, optional
         List in the form

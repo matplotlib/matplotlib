@@ -82,10 +82,12 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         return renderer
 
     def draw(self):
+        # docstring inherited
         self.invalidate()
         self.flush_events()
 
     def draw_idle(self, *args, **kwargs):
+        # docstring inherited
         self.invalidate()
 
     def blit(self, bbox=None):
@@ -102,19 +104,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         self.draw_idle()
 
     def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of `backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
-
-        Other Parameters
-        ----------------
-        interval : scalar
-            Timer interval in milliseconds
-        callbacks : list
-            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
-            will be executed by the timer every *interval*.
-        """
+        # docstring inherited
         return TimerMac(*args, **kwargs)
 
 
@@ -162,12 +152,12 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def save_figure(self, *args):
         filename = _macosx.choose_save_file('Save the figure',
                                             self.canvas.get_default_filename())
-        if filename is None: # Cancel
+        if filename is None:  # Cancel
             return
         self.canvas.figure.savefig(filename)
 
     def prepare_configure_subplots(self):
-        toolfig = Figure(figsize=(6,3))
+        toolfig = Figure(figsize=(6, 3))
         canvas = FigureCanvasMac(toolfig)
         toolfig.subplots_adjust(top=0.9)
         tool = SubplotTool(self.canvas.figure, toolfig)
@@ -185,6 +175,7 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
 @_Backend.export
 class _BackendMac(_Backend):
+    required_interactive_framework = "macosx"
     FigureCanvas = FigureCanvasMac
     FigureManager = FigureManagerMac
 

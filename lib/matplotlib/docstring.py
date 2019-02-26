@@ -1,48 +1,49 @@
-import sys
-import types
+import inspect
 
 from matplotlib import cbook
 
 
 class Substitution(object):
     """
-    A decorator to take a function's docstring and perform string
-    substitution on it.
+    A decorator that performs %-substitution on an object's docstring.
 
-    This decorator should be robust even if func.__doc__ is None
-    (for example, if -OO was passed to the interpreter)
+    This decorator should be robust even if ``obj.__doc__`` is None (for
+    example, if -OO was passed to the interpreter).
 
-    Usage: construct a docstring.Substitution with a sequence or
-    dictionary suitable for performing substitution; then
-    decorate a suitable function with the constructed object. e.g.
+    Usage: construct a docstring.Substitution with a sequence or dictionary
+    suitable for performing substitution; then decorate a suitable function
+    with the constructed object, e.g.::
 
-    sub_author_name = Substitution(author='Jason')
+        sub_author_name = Substitution(author='Jason')
 
-    @sub_author_name
-    def some_function(x):
-        "%(author)s wrote this function"
+        @sub_author_name
+        def some_function(x):
+            "%(author)s wrote this function"
 
-    # note that some_function.__doc__ is now "Jason wrote this function"
+        # note that some_function.__doc__ is now "Jason wrote this function"
 
-    One can also use positional arguments.
+    One can also use positional arguments::
 
-    sub_first_last_names = Substitution('Edgar Allen', 'Poe')
+        sub_first_last_names = Substitution('Edgar Allen', 'Poe')
 
-    @sub_first_last_names
-    def some_function(x):
-        "%s %s wrote the Raven"
+        @sub_first_last_names
+        def some_function(x):
+            "%s %s wrote the Raven"
     """
     def __init__(self, *args, **kwargs):
-        assert not (len(args) and len(kwargs)), \
-                "Only positional or keyword args are allowed"
+        if args and kwargs:
+            raise TypeError("Only positional or keyword args are allowed")
         self.params = args or kwargs
 
     def __call__(self, func):
-        func.__doc__ = func.__doc__ and func.__doc__ % self.params
+        if func.__doc__:
+            func.__doc__ %= self.params
         return func
 
     def update(self, *args, **kwargs):
-        "Assume self.params is a dict and update it with supplied args"
+        """
+        Update ``self.params`` (which must be a dict) with the supplied args.
+        """
         self.params.update(*args, **kwargs)
 
     @classmethod
@@ -58,6 +59,7 @@ class Substitution(object):
         return result
 
 
+@cbook.deprecated("3.1")
 class Appender(object):
     """
     A function decorator that will append an addendum to the docstring
@@ -87,6 +89,7 @@ class Appender(object):
         return func
 
 
+@cbook.deprecated("3.1", alternative="inspect.getdoc()")
 def dedent(func):
     "Dedent a docstring (if present)"
     func.__doc__ = func.__doc__ and cbook.dedent(func.__doc__)
@@ -101,17 +104,19 @@ def copy(source):
         return target
     return do_copy
 
-# create a decorator that will house the various documentation that
-#  is reused throughout matplotlib
+
+# Create a decorator that will house the various docstring snippets reused
+# throughout Matplotlib.
 interpd = Substitution()
 
 
 def dedent_interpd(func):
-    """A special case of the interpd that first performs a dedent on
-    the incoming docstring"""
-    return interpd(dedent(func))
+    """Dedent *func*'s docstring, then interpolate it with ``interpd``."""
+    func.__doc__ = inspect.getdoc(func)
+    return interpd(func)
 
 
+@cbook.deprecated("3.1", alternative="docstring.copy() and cbook.dedent()")
 def copy_dedent(source):
     """A decorator that will copy the docstring from the source and
     then dedent it"""

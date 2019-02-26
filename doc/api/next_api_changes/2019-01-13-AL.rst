@@ -1,0 +1,20 @@
+Deprecations
+````````````
+
+``Text.is_math_text`` is deprecated.
+
+``TextPath.is_math_text`` and ``TextPath.text_get_vertices_codes`` are
+deprecated.  As an alternative to the latter, construct a new ``TextPath``
+object.
+
+The ``usetex`` parameter of ``TextToPath.get_text_path`` is deprecated and
+folded into the ``ismath`` parameter, which can now take the values False,
+True, and "TeX", consistently with other low-level text processing functions.
+
+Behavior changes
+````````````````
+
+Previously, if :rc:`text.usetex` was True, then constructing a `TextPath` on
+a non-mathtext string with ``usetex=False`` would rely on the mathtext parser
+(but not on usetex support!) to parse the string.  The mathtext parser is not
+invoked anymore, which may cause slight changes in glyph positioning.

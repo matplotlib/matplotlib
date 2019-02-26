@@ -10,10 +10,10 @@ multiple axes at drawing time.
     object that can be used to set the axes_locator of the axes.
 """
 
-import functools
-
-import matplotlib.transforms as mtransforms
+from matplotlib import cbook
 from matplotlib.axes import SubplotBase
+from matplotlib.gridspec import SubplotSpec, GridSpec
+import matplotlib.transforms as mtransforms
 from . import axes_size as Size
 
 
@@ -267,7 +267,6 @@ class Divider(object):
         return AxesLocator(self, nx, ny, nx1, ny1)
 
     def append_size(self, position, size):
-
         if position == "left":
             self._horizontal.insert(0, size)
             self._xrefindex += 1
@@ -279,8 +278,8 @@ class Divider(object):
         elif position == "top":
             self._vertical.append(size)
         else:
-            raise ValueError("the position must be one of left," +
-                             " right, bottom, or top")
+            cbook._check_in_list(["left", "right", "bottom", "top"],
+                                 position=position)
 
     def add_auto_adjustable_area(self,
                                  use_axes, pad=0.1,
@@ -348,9 +347,6 @@ class AxesLocator(object):
             return None
 
 
-from matplotlib.gridspec import SubplotSpec, GridSpec
-
-
 class SubplotDivider(Divider):
     """
     The Divider class whose rectangle area is specified as a subplot geometry.
@@ -362,7 +358,7 @@ class SubplotDivider(Divider):
         Parameters
         ----------
         fig : :class:`matplotlib.figure.Figure`
-        args : tuple (*numRows*, *numCols*, *plotNum*)
+        *args : tuple (*numRows*, *numCols*, *plotNum*)
             The array of subplots in the figure has dimensions *numRows*,
             *numCols*, and *plotNum* is the number of the subplot
             being created.  *plotNum* starts at 1 in the upper left
@@ -397,7 +393,7 @@ class SubplotDivider(Divider):
                 self._subplotspec = GridSpec(rows, cols)[int(num)-1]
                 # num - 1 for converting from MATLAB to python indexing
         else:
-            raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
+            raise ValueError(f'Illegal argument(s) to subplot: {args}')
 
         # total = rows*cols
         # num -= 1    # convert from matlab to python indexing
@@ -540,32 +536,26 @@ class AxesDivider(Divider):
             instance of the given class. Otherwise, the same class of the
             main axes will be used.
         """
-
         if pad:
             if not isinstance(pad, Size._Base):
-                pad = Size.from_any(pad,
-                                    fraction_ref=self._xref)
+                pad = Size.from_any(pad, fraction_ref=self._xref)
             if pack_start:
                 self._horizontal.insert(0, pad)
                 self._xrefindex += 1
             else:
                 self._horizontal.append(pad)
-
         if not isinstance(size, Size._Base):
-            size = Size.from_any(size,
-                                 fraction_ref=self._xref)
-
+            size = Size.from_any(size, fraction_ref=self._xref)
         if pack_start:
             self._horizontal.insert(0, size)
             self._xrefindex += 1
             locator = self.new_locator(nx=0, ny=self._yrefindex)
         else:
             self._horizontal.append(size)
-            locator = self.new_locator(nx=len(self._horizontal)-1, ny=self._yrefindex)
-
+            locator = self.new_locator(
+                nx=len(self._horizontal) - 1, ny=self._yrefindex)
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
-
         return ax
 
     def new_vertical(self, size, pad=None, pack_start=False, **kwargs):
@@ -590,21 +580,16 @@ class AxesDivider(Divider):
             instance of the given class. Otherwise, the same class of the
             main axes will be used.
         """
-
         if pad:
             if not isinstance(pad, Size._Base):
-                pad = Size.from_any(pad,
-                                    fraction_ref=self._yref)
+                pad = Size.from_any(pad, fraction_ref=self._yref)
             if pack_start:
                 self._vertical.insert(0, pad)
                 self._yrefindex += 1
             else:
                 self._vertical.append(pad)
-
         if not isinstance(size, Size._Base):
-            size = Size.from_any(size,
-                                 fraction_ref=self._yref)
-
+            size = Size.from_any(size, fraction_ref=self._yref)
         if pack_start:
             self._vertical.insert(0, size)
             self._yrefindex += 1
@@ -612,10 +597,8 @@ class AxesDivider(Divider):
         else:
             self._vertical.append(size)
             locator = self.new_locator(nx=self._xrefindex, ny=len(self._vertical)-1)
-
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
-
         return ax
 
     def append_axes(self, position, size, pad=None, add_to_figure=True,
@@ -629,7 +612,6 @@ class AxesDivider(Divider):
 
          *size* and *pad* should be axes_grid.axes_size compatible.
         """
-
         if position == "left":
             ax = self.new_horizontal(size, pad, pack_start=True, **kwargs)
         elif position == "right":
@@ -639,9 +621,8 @@ class AxesDivider(Divider):
         elif position == "top":
             ax = self.new_vertical(size, pad, pack_start=False, **kwargs)
         else:
-            raise ValueError("the position must be one of left," +
-                             " right, bottom, or top")
-
+            cbook._check_in_list(["left", "right", "bottom", "top"],
+                                 position=position)
         if add_to_figure:
             self._fig.add_axes(ax)
         return ax
@@ -863,62 +844,23 @@ class VBoxDivider(HBoxDivider):
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
 
+@cbook.deprecated('3.0',
+                  addendum=' There is no alternative. Deriving from '
+                           'matplotlib.axes.Axes provides this functionality '
+                           'already.')
 class LocatableAxesBase(object):
-    def __init__(self, *kl, **kw):
-
-        self._axes_class.__init__(self, *kl, **kw)
-
-        self._locator = None
-        self._locator_renderer = None
-
-    def set_axes_locator(self, locator):
-        self._locator = locator
-
-    def get_axes_locator(self):
-        return self._locator
-
-    def apply_aspect(self, position=None):
-
-        if self.get_axes_locator() is None:
-            self._axes_class.apply_aspect(self, position)
-        else:
-            pos = self.get_axes_locator()(self, self._locator_renderer)
-            self._axes_class.apply_aspect(self, position=pos)
-
-    def draw(self, renderer=None, inframe=False):
-
-        self._locator_renderer = renderer
-
-        self._axes_class.draw(self, renderer, inframe)
-
-    def _make_twin_axes(self, *kl, **kwargs):
-        """
-        Need to overload so that twinx/twiny will work with
-        these axes.
-        """
-        if 'sharex' in kwargs and 'sharey' in kwargs:
-            raise ValueError("Twinned Axes may share only one axis.")
-        ax2 = type(self)(self.figure, self.get_position(True), *kl, **kwargs)
-        ax2.set_axes_locator(self.get_axes_locator())
-        self.figure.add_axes(ax2)
-        self.set_adjustable('datalim')
-        ax2.set_adjustable('datalim')
-        self._twinned_axes.join(self, ax2)
-        return ax2
+    pass
 
 
-@functools.lru_cache(None)
+@cbook.deprecated('3.0',
+                  addendum=' There is no alternative. Classes derived from '
+                           'matplotlib.axes.Axes provide this functionality '
+                           'already.')
 def locatable_axes_factory(axes_class):
-    return type("Locatable%s" % axes_class.__name__,
-                (LocatableAxesBase, axes_class),
-                {'_axes_class': axes_class})
+    return axes_class
 
 
 def make_axes_locatable(axes):
-    if not hasattr(axes, "set_axes_locator"):
-        new_class = locatable_axes_factory(type(axes))
-        axes.__class__ = new_class
-
     divider = AxesDivider(axes)
     locator = divider.new_locator(nx=0, ny=0)
     axes.set_axes_locator(locator)
@@ -939,6 +881,17 @@ def make_axes_area_auto_adjustable(ax,
     divider.add_auto_adjustable_area(use_axes=use_axes, pad=pad,
                                      adjust_dirs=adjust_dirs)
 
-#from matplotlib.axes import Axes
-from .mpl_axes import Axes
-LocatableAxes = locatable_axes_factory(Axes)
+
+from .mpl_axes import Axes as _Axes
+
+
+@cbook.deprecated('3.0',
+                  alternative='mpl_toolkits.axes_grid1.mpl_axes.Axes')
+class Axes(_Axes):
+    pass
+
+
+@cbook.deprecated('3.0',
+                  alternative='mpl_toolkits.axes_grid1.mpl_axes.Axes')
+class LocatableAxes(_Axes):
+    pass

@@ -18,12 +18,12 @@ def run_memleak_test(bench, iterations, report):
     starti = min(50, iterations // 2)
     endi = iterations
 
-    malloc_arr = np.empty((endi,), dtype=np.int64)
-    rss_arr = np.empty((endi,), dtype=np.int64)
-    rss_peaks = np.empty((endi,), dtype=np.int64)
-    nobjs_arr = np.empty((endi,), dtype=np.int64)
-    garbage_arr = np.empty((endi,), dtype=np.int64)
-    open_files_arr = np.empty((endi,), dtype=np.int64)
+    malloc_arr = np.empty(endi, dtype=np.int64)
+    rss_arr = np.empty(endi, dtype=np.int64)
+    rss_peaks = np.empty(endi, dtype=np.int64)
+    nobjs_arr = np.empty(endi, dtype=np.int64)
+    garbage_arr = np.empty(endi, dtype=np.int64)
+    open_files_arr = np.empty(endi, dtype=np.int64)
     rss_peak = 0
 
     p = psutil.Process()
@@ -127,14 +127,13 @@ if __name__ == '__main__':
                         help="Turn on interactive mode to actually open "
                         "windows.  Only works with some GUI backends.")
 
-
     args = parser.parse_args()
 
     import matplotlib
     matplotlib.use(args.backend[0])
 
     if args.interactive:
-        from matplotlib import pyplot as plt
+        import matplotlib.pyplot as plt
         plt.ion()
 
     run_memleak_test(

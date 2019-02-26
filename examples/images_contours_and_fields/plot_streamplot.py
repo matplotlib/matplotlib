@@ -20,7 +20,7 @@ w = 3
 Y, X = np.mgrid[-w:w:100j, -w:w:100j]
 U = -1 - X**2 + Y
 V = 1 + X - Y**2
-speed = np.sqrt(U*U + V*V)
+speed = np.sqrt(U**2 + V**2)
 
 fig = plt.figure(figsize=(7, 9))
 gs = gridspec.GridSpec(nrows=3, ncols=2, height_ratios=[1, 1, 2])
@@ -85,4 +85,3 @@ matplotlib.axes.Axes.streamplot
 matplotlib.pyplot.streamplot
 matplotlib.gridspec
 matplotlib.gridspec.GridSpec
-

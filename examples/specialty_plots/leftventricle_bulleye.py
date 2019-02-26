@@ -1,7 +1,7 @@
 """
-=====================
-Leftventricle Bulleye
-=====================
+=======================
+Left ventricle bullseye
+=======================
 
 This example demonstrates how to create the 17 segment model for the left
 ventricle recommended by the American Heart Association (AHA).
@@ -21,7 +21,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
     ax : axes
     data : list of int and float
         The intensity values for each of the 17 segments
-    segBold: list of int, optional
+    segBold : list of int, optional
         A list with the segments to highlight
     cmap : ColorMap or None, optional
         Optional argument to set the desired colormap
@@ -61,7 +61,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
     for i in range(r.shape[0]):
         ax.plot(theta, np.repeat(r[i], theta.shape), '-k', lw=linewidth)
 
-    # Create the bounds for the segments  1-12
+    # Create the bounds for the segments 1-12
     for i in range(6):
         theta_i = np.deg2rad(i * 60)
         ax.plot([theta_i, theta_i], [r[1], 1], '-k', lw=linewidth)

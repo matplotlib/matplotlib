@@ -1,0 +1,52 @@
+Removal of deprecated :mod:`matplotlib.pylab` code
+--------------------------------------------------
+
+Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
+in Matplotlib 2.2 has been removed. This means the following functions are
+no longer available in the `matplotlib.pylab` module:
+
+  - ``amap``
+  - ``base_repr``
+  - ``binary_repr``
+  - ``bivariate_normal``
+  - ``center_matrix``
+  - ``csv2rec`` (use `numpy.recarray.tofile` instead)
+  - ``dist`` (use `numpy.hypot` instead)
+  - ``dist_point_to_segment``
+  - ``distances_along_curve``
+  - ``entropy`` (use `scipy.stats.entropy` instead)
+  - ``exp_safe`` (use `numpy.exp` instead)
+  - ``fftsurr``
+  - ``find`` (use ``np.nonzero(np.ravel(condition))`` instead)
+  - ``frange`` (use `numpy.arange` instead)
+  - ``get_sparse_matrix``
+  - ``get_xyz_where``
+  - ``griddata`` (use `scipy.interpolate.griddata` instead)
+  - ``identity`` (use `numpy.identity` instead)
+  - ``inside_poly``
+  - ``is_closed_polygon``
+  - ``ispower2``
+  - ``isvector``
+  - ``l1norm`` (use ``numpy.linalg.norm(a, ord=1)`` instead)
+  - ``l2norm`` (use ``numpy.linalg.norm(a, ord=2)`` instead)
+  - ``log2`` (use `numpy.log2` instead)
+  - ``longest_contiguous_ones``
+  - ``longest_ones``
+  - ``movavg``
+  - ``norm_flat`` (use ``numpy.linalg.norm(a.flat, ord=2)`` instead)
+  - ``normpdf`` (use `scipy.stats.norm.pdf` instead)
+  - ``path_length``
+  - ``poly_below``
+  - ``poly_between``
+  - ``prctile`` (use `numpy.percentile` instead)
+  - ``prctile_rank``
+  - ``rec2csv`` (use `numpy.recarray.tofile` instead)
+  - ``rec_append_fields``
+  - ``rec_drop_fields``
+  - ``rec_join``
+  - ``rk4`` (use `scipy.integrate.ode` instead)
+  - ``rms_flat``
+  - ``segments_intersect``
+  - ``slopes``
+  - ``stineman_interp``
+  - ``vector_lengths``

@@ -1,0 +1,5 @@
+Axes.tick_params argument checking
+``````````````````````````````````
+
+`Axes.tick_params` silently did nothing when an invalid *axis* parameter was
+supplied. This behavior is changed to raise a ValueError instead.

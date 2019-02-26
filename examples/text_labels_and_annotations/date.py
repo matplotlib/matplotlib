@@ -16,7 +16,6 @@ These can convert between `datetime.datetime` objects and
 :class:`numpy.datetime64` objects.
 """
 
-import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates

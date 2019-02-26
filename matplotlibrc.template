@@ -29,15 +29,17 @@
 
 ##### CONFIGURATION BEGINS HERE
 
-## The default backend; one of GTK3Agg GTK3Cairo MacOSX Qt4Agg Qt5Agg TkAgg
-## WX WXAgg Agg Cairo PS PDF SVG Template.
+## The default backend. If you omit this parameter, the first
+## working backend from the following list is used:
+## MacOSX Qt5Agg Qt4Agg Gtk3Agg TkAgg WxAgg Agg
+##
+## Other choices include:
+## Qt5Cairo Qt4Cairo GTK3Cairo TkCairo WxCairo Cairo Wx PS PDF SVG Template.
+##
 ## You can also deploy your own backend outside of matplotlib by
 ## referring to the module name (which must be in the PYTHONPATH) as
 ## 'module://my_backend'.
-##
-## If you omit this parameter, it will always default to "Agg", which is a
-## non-interactive backend.
-backend      : $TEMPLATE_BACKEND
+#backend      : Agg
 
 ## Note that this can be overridden by the environment variable
 ## QT_API used by Enthought Tool Suite (ETS); valid values are
@@ -127,6 +129,7 @@ backend      : $TEMPLATE_BACKEND
 #boxplot.flierprops.marker          : o
 #boxplot.flierprops.markerfacecolor : none
 #boxplot.flierprops.markeredgecolor : black
+#boxplot.flierprops.markeredgewidth : 1.0
 #boxplot.flierprops.markersize      : 6
 #boxplot.flierprops.linestyle       : none
 #boxplot.flierprops.linewidth       : 1.0
@@ -225,19 +228,21 @@ backend      : $TEMPLATE_BACKEND
                               ## If another font is desired which can loaded using the
                               ## LaTeX \usepackage command, please inquire at the
                               ## matplotlib mailing list
-#text.latex.unicode : False ## use "ucs" and "inputenc" LaTeX packages for handling
-                            ## unicode strings.
 #text.latex.preamble :      ## IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
                             ## AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
                             ## IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
-                            ## preamble is a comma separated list of LaTeX statements
-                            ## that are included in the LaTeX document preamble.
-                            ## An example:
-                            ## text.latex.preamble : \usepackage{bm},\usepackage{euler}
+                            ## text.latex.preamble is a single line of LaTeX code that
+                            ## will be passed on to the LaTeX system. It may contain
+                            ## any code that is valid for the LaTeX "preamble", i.e.
+                            ## between the "\documentclass" and "\begin{document}"
+                            ## statements.
+                            ## Note that it has to be put on a single line, which may
+                            ## become quite long.
                             ## The following packages are always loaded with usetex, so
                             ## beware of package collisions: color, geometry, graphicx,
-                            ## type1cm, textcomp. Adobe Postscript (PSSNFS) font packages
-                            ## may also be loaded, depending on your font settings
+                            ## type1cm, textcomp.
+                            ## Adobe Postscript (PSSNFS) font packages may also be
+                            ## loaded, depending on your font settings.
 #text.latex.preview : False
 
 #text.hinting : auto   ## May be one of the following:
@@ -415,7 +420,7 @@ backend      : $TEMPLATE_BACKEND
 #legend.scatterpoints : 1        ## number of scatter points
 #legend.markerscale   : 1.0      ## the relative size of legend markers vs. original
 #legend.fontsize      : medium
-#legend.title_fontsize    : None ## None sets to the same as the default axes.  
+#legend.title_fontsize    : None ## None sets to the same as the default axes.
 ## Dimensions as fraction of fontsize:
 #legend.borderpad     : 0.4      ## border whitespace
 #legend.labelspacing  : 0.5      ## the vertical space between the legend entries
@@ -485,6 +490,7 @@ backend      : $TEMPLATE_BACKEND
 
 #### SCATTER PLOTS
 #scatter.marker : o               ## The default marker type for scatter plots.
+#scatter.edgecolors : face        ## The default edgecolors for scatter plots.
 
 #### Agg rendering
 #### Warning: experimental, 2008/10/10
@@ -562,13 +568,11 @@ backend      : $TEMPLATE_BACKEND
 #svg.fonttype :   path         ## How to handle SVG fonts:
    ##     none: Assume fonts are installed on the machine where the SVG will be viewed.
    ##     path: Embed characters as paths -- supported by most SVG renderers
-   ##     svgfont: Embed characters as SVG fonts -- supported only by Chrome,
-   ##                Opera and Safari
 #svg.hashsalt : None           ## if not None, use this string as hash salt
                                ## instead of uuid4
 ### pgf parameter
 #pgf.rcfonts : True
-#pgf.preamble :
+#pgf.preamble :            ## see text.latex.preamble for documentation
 #pgf.texsystem : xelatex
 
 ### docstring params
@@ -579,8 +583,8 @@ backend      : $TEMPLATE_BACKEND
 ## Leave the field(s) empty if you don't need a key-map. (i.e., fullscreen : '')
 #keymap.fullscreen : f, ctrl+f       ## toggling
 #keymap.home : h, r, home            ## home or reset mnemonic
-#keymap.back : left, c, backspace    ## forward / backward keys to enable
-#keymap.forward : right, v           ##   left handed quick navigation
+#keymap.back : left, c, backspace, MouseButton.BACK  ## forward / backward keys
+#keymap.forward : right, v, MouseButton.FORWARD      ## for quick navigation
 #keymap.pan : p                      ## pan mnemonic
 #keymap.zoom : o                     ## zoom mnemonic
 #keymap.save : s, ctrl+s             ## saving current figure
@@ -593,9 +597,6 @@ backend      : $TEMPLATE_BACKEND
 #keymap.xscale : k, L                ## toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 ## enable all axes
 #keymap.copy : ctrl+c, cmd+c         ## Copy figure to clipboard
-
-## Control location of examples data files
-#examples.directory :              ## directory to look in for custom installation
 
 ###ANIMATION settings
 #animation.html :  none            ## How to display the animation as HTML in

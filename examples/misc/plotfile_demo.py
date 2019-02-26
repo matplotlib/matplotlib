@@ -5,9 +5,8 @@ Plotfile Demo
 
 Example use of ``plotfile`` to plot data directly from a file.
 """
-import matplotlib.pyplot as plt
-import numpy as np
 
+import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 
 fname = cbook.get_sample_data('msft.csv', asfileobj=False)

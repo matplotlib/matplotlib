@@ -166,7 +166,7 @@ def test_auto_column():
     tb3.auto_set_column_width(0)
     tb3.auto_set_column_width(1)
 
-    #4 non integer interable input
+    #4 non integer iterable input
     ax4 = fig.add_subplot(4, 1, 4)
     ax4.axis('off')
     tb4 = ax4.table(cellText=[['Fit Text', 2],

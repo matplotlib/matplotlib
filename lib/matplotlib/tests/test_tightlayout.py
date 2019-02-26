@@ -1,6 +1,7 @@
 import warnings
 
 import numpy as np
+from numpy.testing import assert_array_equal
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -19,8 +20,7 @@ def example_plot(ax, fontsize=12):
 @image_comparison(baseline_images=['tight_layout1'])
 def test_tight_layout1():
     'Test tight_layout for a single subplot'
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     example_plot(ax, fontsize=24)
     plt.tight_layout()
 
@@ -133,9 +133,8 @@ def test_tight_layout6():
 @image_comparison(baseline_images=['tight_layout7'])
 def test_tight_layout7():
     # tight layout with left and right titles
-    fig = plt.figure()
     fontsize = 24
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.plot([1, 2])
     ax.locator_params(nbins=3)
     ax.set_xlabel('x-label', fontsize=fontsize)
@@ -156,15 +155,13 @@ def test_tight_layout8():
 
 @image_comparison(baseline_images=['tight_layout9'])
 def test_tight_layout9():
-    # Test tight_layout for non-visible suplots
+    # Test tight_layout for non-visible subplots
     # GH 8244
     f, axarr = plt.subplots(2, 2)
     axarr[1][1].set_visible(False)
     plt.tight_layout()
 
 
-# The following test is misleading when the text is removed.
-@image_comparison(baseline_images=['outward_ticks'], remove_text=False)
 def test_outward_ticks():
     'Test automatic use of tight_layout'
     fig = plt.figure()
@@ -175,8 +172,6 @@ def test_outward_ticks():
         tickdir='out', length=32, width=3, tick1On=True, which='minor')
     ax.yaxis.set_tick_params(
         tickdir='out', length=32, width=3, tick1On=True, which='minor')
-    # The following minor ticks are not labelled, and they
-    # are drawn over the major ticks and labels--ugly!
     ax.xaxis.set_ticks([0], minor=True)
     ax.yaxis.set_ticks([0], minor=True)
     ax = fig.add_subplot(222)
@@ -189,6 +184,15 @@ def test_outward_ticks():
     ax.xaxis.set_tick_params(tickdir='out', length=32, width=3)
     ax.yaxis.set_tick_params(tickdir='out', length=32, width=3)
     plt.tight_layout()
+    # These values were obtained after visual checking that they correspond
+    # to a tight layouting that did take the ticks into account.
+    ans = [[[0.091, 0.607], [0.433, 0.933]],
+           [[0.579, 0.607], [0.922, 0.933]],
+           [[0.091, 0.140], [0.433, 0.466]],
+           [[0.579, 0.140], [0.922, 0.466]]]
+    for nn, ax in enumerate(fig.axes):
+        assert_array_equal(np.round(ax.get_position().get_points(), 3),
+                           ans[nn])
 
 
 def add_offsetboxes(ax, size=10, margin=.1, color='black'):
@@ -306,4 +310,31 @@ def test_big_decorators_vertical():
     axs[1].set_ylabel('b' * 20)
     with warnings.catch_warnings(record=True) as w:
         fig.tight_layout()
+        assert len(w) == 1
+
+
+def test_badsubplotgrid():
+    # test that we get warning for mismatched subplot grids rather
+    # than an error
+    ax1 = plt.subplot2grid((4, 5), (0, 0))
+    # this is the bad entry:
+    ax5 = plt.subplot2grid((5, 5), (0, 3), colspan=3, rowspan=5)
+    with warnings.catch_warnings(record=True) as w:
+        plt.tight_layout()
+        assert len(w) == 1
+
+
+def test_collapsed():
+    # test that if a call to tight_layout will collapses the axes that
+    # it does not get applied:
+    fig, ax = plt.subplots(tight_layout=True)
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+
+    ax.annotate('BIG LONG STRING', xy=(1.25, 2), xytext=(10.5, 1.75),)
+    p1 = ax.get_position()
+    with warnings.catch_warnings(record=True) as w:
+        plt.tight_layout()
+        p2 = ax.get_position()
+        assert p1.width == p2.width
         assert len(w) == 1

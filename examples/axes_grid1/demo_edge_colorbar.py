@@ -3,6 +3,8 @@
 Demo Edge Colorbar
 ==================
 
+This example shows how to use one common colorbar for each row or column
+of an image grid.
 """
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import AxesGrid
@@ -21,7 +23,7 @@ def demo_bottom_cbar(fig):
     """
     A grid of 2x2 images with a colorbar for each column.
     """
-    grid = AxesGrid(fig, 121,  # similar to subplot(132)
+    grid = AxesGrid(fig, 121,  # similar to subplot(121)
                     nrows_ncols=(2, 2),
                     axes_pad=0.10,
                     share_all=True,
@@ -54,8 +56,7 @@ def demo_right_cbar(fig):
     """
     A grid of 2x2 images. Each row has its own colorbar.
     """
-
-    grid = AxesGrid(F, 122,  # similar to subplot(122)
+    grid = AxesGrid(fig, 122,  # similar to subplot(122)
                     nrows_ncols=(2, 2),
                     axes_pad=0.10,
                     label_mode="1",
@@ -82,13 +83,10 @@ def demo_right_cbar(fig):
     grid.axes_llc.set_yticks([-2, 0, 2])
 
 
-if 1:
-    F = plt.figure(1, (5.5, 2.5))
+fig = plt.figure(figsize=(5.5, 2.5))
+fig.subplots_adjust(left=0.05, right=0.93)
 
-    F.subplots_adjust(left=0.05, right=0.93)
+demo_bottom_cbar(fig)
+demo_right_cbar(fig)
 
-    demo_bottom_cbar(F)
-    demo_right_cbar(F)
-
-    plt.draw()
-    plt.show()
+plt.show()

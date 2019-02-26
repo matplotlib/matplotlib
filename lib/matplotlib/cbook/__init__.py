@@ -7,13 +7,11 @@ it imports matplotlib only at runtime.
 """
 
 import collections
+import collections.abc
 import contextlib
-import datetime
-import errno
 import functools
 import glob
 import gzip
-import io
 import itertools
 import locale
 import numbers
@@ -21,18 +19,22 @@ import operator
 import os
 from pathlib import Path
 import re
+import subprocess
 import sys
 import time
 import traceback
 import types
 import warnings
-from weakref import ref, WeakKeyDictionary
+import weakref
+from weakref import WeakMethod
 
 import numpy as np
 
 import matplotlib
-from .deprecation import deprecated, warn_deprecated
-from .deprecation import mplDeprecation, MatplotlibDeprecationWarning
+from .deprecation import (
+    deprecated, warn_deprecated, _rename_parameter, _delete_parameter,
+    _suppress_matplotlib_deprecation_warning,
+    MatplotlibDeprecationWarning, mplDeprecation)
 
 
 @deprecated("3.0")
@@ -61,100 +63,26 @@ def unicode_safe(s):
     return s
 
 
-class _BoundMethodProxy(object):
-    """
-    Our own proxy object which enables weak references to bound and unbound
-    methods and arbitrary callables. Pulls information about the function,
-    class, and instance out of a bound method. Stores a weak reference to the
-    instance to support garbage collection.
-
-    @organization: IBM Corporation
-    @copyright: Copyright (c) 2005, 2006 IBM Corporation
-    @license: The BSD License
-
-    Minor bugfixes by Michael Droettboom
-    """
-    def __init__(self, cb):
-        self._hash = hash(cb)
-        self._destroy_callbacks = []
-        try:
-            try:
-                self.inst = ref(cb.__self__, self._destroy)
-            except TypeError:
-                self.inst = None
-            self.func = cb.__func__
-            self.klass = cb.__self__.__class__
-        except AttributeError:
-            self.inst = None
-            self.func = cb
-            self.klass = None
-
-    def add_destroy_callback(self, callback):
-        self._destroy_callbacks.append(_BoundMethodProxy(callback))
-
-    def _destroy(self, wk):
-        for callback in self._destroy_callbacks:
-            try:
-                callback(self)
-            except ReferenceError:
-                pass
-
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        # de-weak reference inst
-        inst = d['inst']
-        if inst is not None:
-            d['inst'] = inst()
-        return d
-
-    def __setstate__(self, statedict):
-        self.__dict__ = statedict
-        inst = statedict['inst']
-        # turn inst back into a weakref
-        if inst is not None:
-            self.inst = ref(inst)
-
-    def __call__(self, *args, **kwargs):
-        """
-        Proxy for a call to the weak referenced object. Take
-        arbitrary params to pass to the callable.
-
-        Raises `ReferenceError`: When the weak reference refers to
-        a dead object
-        """
-        if self.inst is not None and self.inst() is None:
-            raise ReferenceError
-        elif self.inst is not None:
-            # build a new instance method with a strong reference to the
-            # instance
-
-            mtd = types.MethodType(self.func, self.inst())
-
-        else:
-            # not a bound method, just return the func
-            mtd = self.func
-        # invoke the callable and return the result
-        return mtd(*args, **kwargs)
-
-    def __eq__(self, other):
-        """
-        Compare the held function and instance with that held by
-        another proxy.
-        """
-        try:
-            if self.inst is None:
-                return self.func == other.func and other.inst is None
-            else:
-                return self.func == other.func and self.inst() == other.inst()
-        except Exception:
-            return False
-
-    def __hash__(self):
-        return self._hash
-
-
 def _exception_printer(exc):
     traceback.print_exc()
+
+
+class _StrongRef:
+    """
+    Wrapper similar to a weakref, but keeping a strong reference to the object.
+    """
+
+    def __init__(self, obj):
+        self._obj = obj
+
+    def __call__(self):
+        return self._obj
+
+    def __eq__(self, other):
+        return isinstance(other, _StrongRef) and self._obj == other._obj
+
+    def __hash__(self):
+        return hash(self._obj)
 
 
 class CallbackRegistry(object):
@@ -179,20 +107,13 @@ class CallbackRegistry(object):
         >>> callbacks.disconnect(id_eat)
         >>> callbacks.process('eat', 456)      # nothing will be called
 
-    In practice, one should always disconnect all callbacks when they
-    are no longer needed to avoid dangling references (and thus memory
-    leaks).  However, real code in matplotlib rarely does so, and due
-    to its design, it is rather difficult to place this kind of code.
-    To get around this, and prevent this class of memory leaks, we
-    instead store weak references to bound methods only, so when the
-    destination object needs to die, the CallbackRegistry won't keep
-    it alive.  The Python stdlib weakref module can not create weak
-    references to bound methods directly, so we need to create a proxy
-    object to handle weak references to bound methods (or regular free
-    functions).  This technique was shared by Peter Parente on his
-    `"Mindtrove" blog
-    <http://mindtrove.info/python-weak-references/>`_.
-
+    In practice, one should always disconnect all callbacks when they are
+    no longer needed to avoid dangling references (and thus memory leaks).
+    However, real code in Matplotlib rarely does so, and due to its design,
+    it is rather difficult to place this kind of code.  To get around this,
+    and prevent this class of memory leaks, we instead store weak references
+    to bound methods only, so when the destination object needs to die, the
+    CallbackRegistry won't keep it alive.
 
     Parameters
     ----------
@@ -211,12 +132,17 @@ class CallbackRegistry(object):
 
           def h(exc):
               traceback.print_exc()
-
     """
+
+    # We maintain two mappings:
+    #   callbacks: signal -> {cid -> callback}
+    #   _func_cid_map: signal -> {callback -> cid}
+    # (actually, callbacks are weakrefs to the actual callbacks).
+
     def __init__(self, exception_handler=_exception_printer):
         self.exception_handler = exception_handler
-        self.callbacks = dict()
-        self._cid = 0
+        self.callbacks = {}
+        self._cid_gen = itertools.count()
         self._func_cid_map = {}
 
     # In general, callbacks may not be pickled; thus, we simply recreate an
@@ -236,18 +162,17 @@ class CallbackRegistry(object):
     def connect(self, s, func):
         """Register *func* to be called when signal *s* is generated.
         """
-        self._func_cid_map.setdefault(s, WeakKeyDictionary())
-        # Note proxy not needed in python 3.
-        # TODO rewrite this when support for python2.x gets dropped.
-        proxy = _BoundMethodProxy(func)
+        self._func_cid_map.setdefault(s, {})
+        try:
+            proxy = WeakMethod(func, self._remove_proxy)
+        except TypeError:
+            proxy = _StrongRef(func)
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
 
-        proxy.add_destroy_callback(self._remove_proxy)
-        self._cid += 1
-        cid = self._cid
+        cid = next(self._cid_gen)
         self._func_cid_map[s][proxy] = cid
-        self.callbacks.setdefault(s, dict())
+        self.callbacks.setdefault(s, {})
         self.callbacks[s][cid] = proxy
         return cid
 
@@ -257,7 +182,6 @@ class CallbackRegistry(object):
                 del self.callbacks[signal][proxies[proxy]]
             except KeyError:
                 pass
-
             if len(self.callbacks[signal]) == 0:
                 del self.callbacks[signal]
                 del self._func_cid_map[signal]
@@ -284,12 +208,11 @@ class CallbackRegistry(object):
         All of the functions registered to receive callbacks on *s* will be
         called with ``*args`` and ``**kwargs``.
         """
-        if s in self.callbacks:
-            for cid, proxy in list(self.callbacks[s].items()):
+        for cid, ref in list(self.callbacks.get(s, {}).items()):
+            func = ref()
+            if func is not None:
                 try:
-                    proxy(*args, **kwargs)
-                except ReferenceError:
-                    self._remove_proxy(proxy)
+                    func(*args, **kwargs)
                 # this does not capture KeyboardInterrupt, SystemExit,
                 # and GeneratorExit
                 except Exception as exc:
@@ -346,19 +269,19 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Parameters
     ----------
-        local_var: any object
+        local_var : any object
             The local variable (highest priority)
 
-        kwargs: dict
+        kwargs : dict
             Dictionary of keyword arguments; modified in place
 
-        keys: str(s)
+        keys : str(s)
             Name(s) of keyword arguments to process, in descending order of
             priority
 
     Returns
     -------
-        out: any object
+        out : any object
             Either local_var or one of kwargs[key] for key in keys
 
     Raises
@@ -375,17 +298,31 @@ def local_over_kwdict(local_var, kwargs, *keys):
             if out is None:
                 out = kwarg_val
             else:
-                warnings.warn('"%s" keyword argument will be ignored' % key,
-                              IgnoredKeywordWarning)
+                _warn_external('"%s" keyword argument will be ignored' % key,
+                               IgnoredKeywordWarning)
     return out
 
 
 def strip_math(s):
-    """remove latex formatting from mathtext"""
-    remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
-    s = s[1:-1]
-    for r in remove:
-        s = s.replace(r, '')
+    """
+    Remove latex formatting from mathtext.
+
+    Only handles fully math and fully non-math strings.
+    """
+    if len(s) >= 2 and s[0] == s[-1] == "$":
+        s = s[1:-1]
+        for tex, plain in [
+                (r"\times", "x"),  # Specifically for Formatter support.
+                (r"\mathdefault", ""),
+                (r"\rm", ""),
+                (r"\cal", ""),
+                (r"\tt", ""),
+                (r"\it", ""),
+                ("\\", ""),
+                ("{", ""),
+                ("}", ""),
+        ]:
+            s = s.replace(tex, plain)
     return s
 
 
@@ -403,6 +340,7 @@ class Bunch(types.SimpleNamespace):
     pass
 
 
+@deprecated('3.1', alternative='np.iterable')
 def iterable(obj):
     """return true if *obj* is iterable"""
     try:
@@ -439,19 +377,42 @@ def file_requires_unicode(x):
         return False
 
 
-@deprecated('3.0', 'isinstance(..., numbers.Number)')
+@deprecated('3.0', alternative='isinstance(..., numbers.Number)')
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
     return isinstance(obj, (numbers.Number, np.number))
 
 
-def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
+def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
-    *fname* can be an `os.PathLike` or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz.  *flag* is a
-    read/write flag for :func:`file`
+    Convert a path to an open file handle or pass-through a file-like object.
+
+    Consider using `open_file_cm` instead, as it allows one to properly close
+    newly created file objects more easily.
+
+    Parameters
+    ----------
+    fname : str or PathLike or file-like object
+        If `str` or `os.PathLike`, the file is opened using the flags specified
+        by *flag* and *encoding*.  If a file-like object, it is passed through.
+    flag : str, default 'r'
+        Passed as the *mode* argument to `open` when *fname* is `str` or
+        `os.PathLike`; ignored if *fname* is file-like.
+    return_opened : bool, default False
+        If True, return both the file object and a boolean indicating whether
+        this was a new file (that the caller needs to close).  If False, return
+        only the new file.
+    encoding : str or None, default None
+        Passed as the *mode* argument to `open` when *fname* is `str` or
+        `os.PathLike`; ignored if *fname* is file-like.
+
+    Returns
+    -------
+    fh : file-like
+    opened : bool
+        *opened* is only returned if *return_opened* is True.
     """
-    if isinstance(fname, getattr(os, "PathLike", ())):
+    if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if isinstance(fname, str):
         if fname.endswith('.gz'):
@@ -491,22 +452,7 @@ def open_file_cm(path_or_file, mode="r", encoding=None):
 
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
-    return isinstance(val, str) or not iterable(val)
-
-
-def _string_to_bool(s):
-    """Parses the string argument as a boolean"""
-    if not isinstance(s, str):
-        return bool(s)
-    warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
-                    "boolean is deprecated; use an actual boolean "
-                    "(True/False) instead.")
-    if s.lower() in ['on', 'true']:
-        return True
-    if s.lower() in ['off', 'false']:
-        return False
-    raise ValueError('String "%s" must be one of: '
-                     '"on", "off", "true", or "false"' % s)
+    return isinstance(val, str) or not np.iterable(val)
 
 
 def get_sample_data(fname, asfileobj=True):
@@ -522,7 +468,8 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    if matplotlib.rcParams['examples.directory']:
+    # Don't trigger deprecation warning when just fetching.
+    if dict.__getitem__(matplotlib.rcParams, 'examples.directory'):
         root = matplotlib.rcParams['examples.directory']
     else:
         root = os.path.join(matplotlib._get_data_path(), 'sample_data')
@@ -613,6 +560,7 @@ _find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 _dedent_regex = {}
 
 
+@deprecated("3.1", alternative="inspect.cleandoc")
 def dedent(s):
     """
     Remove excess indentation from docstring *s*.
@@ -783,7 +731,7 @@ class Stack(object):
                 bubbles.append(thiso)
             else:
                 self.push(thiso)
-        for thiso in bubbles:
+        for _ in bubbles:
             self.push(o)
         return o
 
@@ -799,45 +747,29 @@ class Stack(object):
 
 
 def report_memory(i=0):  # argument may go away
-    """return the memory consumed by process"""
-    from subprocess import Popen, PIPE
+    """Return the memory consumed by the process."""
+    def call(command, os_name):
+        try:
+            return subprocess.check_output(command)
+        except subprocess.CalledProcessError:
+            raise NotImplementedError(
+                "report_memory works on %s only if "
+                "the '%s' program is found" % (os_name, command[0])
+            )
+
     pid = os.getpid()
     if sys.platform == 'sunos5':
-        try:
-            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Sun OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[-1].strip())
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'osz'], 'Sun OS')
+        mem = int(lines[-1].strip())
     elif sys.platform == 'linux':
-        try:
-            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Linux only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[1])
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,sz'], 'Linux')
+        mem = int(lines[1].split()[1])
     elif sys.platform == 'darwin':
-        try:
-            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Mac OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[0])
+        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'], 'Mac OS')
+        mem = int(lines[1].split()[0])
     elif sys.platform == 'win32':
-        try:
-            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
-                       stdout=PIPE).stdout.read()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Windows only if "
-                "the 'tasklist' program is found")
-        mem = int(a2.strip().split()[-2].replace(',', ''))
+        lines = call(["tasklist", "/nh", "/fi", "pid eq %d" % pid], 'Windows')
+        mem = int(lines.strip().split()[-2].replace(',', ''))
     else:
         raise NotImplementedError(
             "We don't have a memory monitor for %s" % sys.platform)
@@ -847,6 +779,7 @@ def report_memory(i=0):  # argument may go away
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 
 
+@deprecated("3.1")
 def safezip(*args):
     """make sure *args* are equal len before zipping"""
     Nx = len(args[0])
@@ -887,7 +820,6 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
         If True, print the number of objects reached as they are found.
     """
     import gc
-    from types import FrameType
 
     def print_path(path):
         for i, step in enumerate(path):
@@ -928,7 +860,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             # Don't go back through the original list of objects, or
             # through temporary references to the object, since those
             # are just an artifact of the cycle detector itself.
-            elif referent is objects or isinstance(referent, FrameType):
+            elif referent is objects or isinstance(referent, types.FrameType):
                 continue
 
             # We haven't seen this object before, so recurse
@@ -936,7 +868,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
                 recurse(referent, start, all, current_path + [obj])
 
     for obj in objects:
-        outstream.write("Examining: %r\n" % (obj,))
+        outstream.write(f"Examining: {obj!r}\n")
         recurse(obj, obj, {}, [])
 
 
@@ -977,10 +909,10 @@ class Grouper(object):
 
     """
     def __init__(self, init=()):
-        self._mapping = {ref(x): [ref(x)] for x in init}
+        self._mapping = {weakref.ref(x): [weakref.ref(x)] for x in init}
 
     def __contains__(self, item):
-        return ref(item) in self._mapping
+        return weakref.ref(item) in self._mapping
 
     def clean(self):
         """Clean dead weak references from the dictionary."""
@@ -995,10 +927,10 @@ class Grouper(object):
         Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
-        set_a = mapping.setdefault(ref(a), [ref(a)])
+        set_a = mapping.setdefault(weakref.ref(a), [weakref.ref(a)])
 
         for arg in args:
-            set_b = mapping.get(ref(arg), [ref(arg)])
+            set_b = mapping.get(weakref.ref(arg), [weakref.ref(arg)])
             if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
@@ -1011,13 +943,14 @@ class Grouper(object):
     def joined(self, a, b):
         """Returns True if *a* and *b* are members of the same set."""
         self.clean()
-        return self._mapping.get(ref(a), object()) is self._mapping.get(ref(b))
+        return (self._mapping.get(weakref.ref(a), object())
+                is self._mapping.get(weakref.ref(b)))
 
     def remove(self, a):
         self.clean()
-        set_a = self._mapping.pop(ref(a), None)
+        set_a = self._mapping.pop(weakref.ref(a), None)
         if set_a:
-            set_a.remove(ref(a))
+            set_a.remove(weakref.ref(a))
 
     def __iter__(self):
         """
@@ -1033,7 +966,7 @@ class Grouper(object):
     def get_siblings(self, a):
         """Returns all of the items joined with *a*, including itself."""
         self.clean()
-        siblings = self._mapping.get(ref(a), [ref(a)])
+        siblings = self._mapping.get(weakref.ref(a), [weakref.ref(a)])
         return [x() for x in siblings]
 
 
@@ -1094,13 +1027,13 @@ def delete_masked_points(*args):
     """
     if not len(args):
         return ()
-    if isinstance(args[0], str) or not iterable(args[0]):
+    if is_scalar_or_string(args[0]):
         raise ValueError("First argument must be a sequence")
     nrecs = len(args[0])
     margs = []
     seqlist = [False] * len(args)
     for i, x in enumerate(args):
-        if not isinstance(x, str) and iterable(x) and len(x) == nrecs:
+        if not isinstance(x, str) and np.iterable(x) and len(x) == nrecs:
             seqlist[i] = True
             if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
@@ -1122,7 +1055,7 @@ def delete_masked_points(*args):
                 mask = np.isfinite(xd)
                 if isinstance(mask, np.ndarray):
                     masks.append(mask)
-            except:  # Fixme: put in tuple of possible exceptions?
+            except Exception:  # Fixme: put in tuple of possible exceptions?
                 pass
     if len(masks):
         mask = np.logical_and.reduce(masks)
@@ -1130,10 +1063,70 @@ def delete_masked_points(*args):
         if len(igood) < nrecs:
             for i, x in enumerate(margs):
                 if seqlist[i]:
-                    margs[i] = x.take(igood, axis=0)
+                    margs[i] = x[igood]
     for i, x in enumerate(margs):
         if seqlist[i] and isinstance(x, np.ma.MaskedArray):
             margs[i] = x.filled()
+    return margs
+
+
+def _combine_masks(*args):
+    """
+    Find all masked and/or non-finite points in a set of arguments,
+    and return the arguments as masked arrays with a common mask.
+
+    Arguments can be in any of 5 categories:
+
+    1) 1-D masked arrays
+    2) 1-D ndarrays
+    3) ndarrays with more than one dimension
+    4) other non-string iterables
+    5) anything else
+
+    The first argument must be in one of the first four categories;
+    any argument with a length differing from that of the first
+    argument (and hence anything in category 5) then will be
+    passed through unchanged.
+
+    Masks are obtained from all arguments of the correct length
+    in categories 1, 2, and 4; a point is bad if masked in a masked
+    array or if it is a nan or inf.  No attempt is made to
+    extract a mask from categories 2 and 4 if :meth:`np.isfinite`
+    does not yield a Boolean array.  Category 3 is included to
+    support RGB or RGBA ndarrays, which are assumed to have only
+    valid values and which are passed through unchanged.
+
+    All input arguments that are not passed unchanged are returned
+    as masked arrays if any masked points are found, otherwise as
+    ndarrays.
+
+    """
+    if not len(args):
+        return ()
+    if is_scalar_or_string(args[0]):
+        raise ValueError("First argument must be a sequence")
+    nrecs = len(args[0])
+    margs = []  # Output args; some may be modified.
+    seqlist = [False] * len(args)  # Flags: True if output will be masked.
+    masks = []    # List of masks.
+    for i, x in enumerate(args):
+        if is_scalar_or_string(x) or len(x) != nrecs:
+            margs.append(x)  # Leave it unmodified.
+        else:
+            if isinstance(x, np.ma.MaskedArray) and x.ndim > 1:
+                raise ValueError("Masked arrays must be 1-D")
+            x = np.asanyarray(x)
+            if x.ndim == 1:
+                x = safe_masked_invalid(x)
+                seqlist[i] = True
+                if np.ma.is_masked(x):
+                    masks.append(np.ma.getmaskarray(x))
+            margs.append(x)  # Possibly modified.
+    if len(masks):
+        mask = np.logical_or.reduce(masks)
+        for i, x in enumerate(margs):
+            if seqlist[i]:
+                margs[i] = np.ma.array(x, mask=mask)
     return margs
 
 
@@ -1176,10 +1169,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         dimensions of `X`.
 
     autorange : bool, optional (False)
-        When `True` and the data are distributed such that the  25th and
-        75th percentiles are equal, ``whis`` is set to ``'range'`` such
-        that the whisker ends are at the minimum and maximum of the
-        data.
+        When `True` and the data are distributed such that the 25th and 75th
+        percentiles are equal, ``whis`` is set to ``'range'`` such that the
+        whisker ends are at the minimum and maximum of the data.
 
     Returns
     -------
@@ -1191,7 +1183,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Key        Value Description
         ========   ===================================
         label      tick label for the boxplot
-        mean       arithemetic mean value
+        mean       arithmetic mean value
         med        50th percentile
         q1         first quartile (25th percentile)
         q3         third quartile (75th percentile)
@@ -1267,7 +1259,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         # restore whis to the input values in case it got changed in the loop
         whis = input_whis
 
-        # note tricksyness, append up here and then mutate below
+        # note tricksiness, append up here and then mutate below
         bxpstats.append(stats)
 
         # if empty, bail
@@ -1319,14 +1311,14 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             hival = np.percentile(x, whis[1])
 
         # get high extreme
-        wiskhi = np.compress(x <= hival, x)
+        wiskhi = x[x <= hival]
         if len(wiskhi) == 0 or np.max(wiskhi) < q3:
             stats['whishi'] = q3
         else:
             stats['whishi'] = np.max(wiskhi)
 
         # get low extreme
-        wisklo = np.compress(x >= loval, x)
+        wisklo = x[x >= loval]
         if len(wisklo) == 0 or np.min(wisklo) > q1:
             stats['whislo'] = q1
         else:
@@ -1334,8 +1326,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
         # compute a single array of outliers
         stats['fliers'] = np.hstack([
-            np.compress(x < stats['whislo'], x),
-            np.compress(x > stats['whishi'], x)
+            x[x < stats['whislo']],
+            x[x > stats['whishi']],
         ])
 
         # add in the remaining stats
@@ -1348,51 +1340,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 # backends; the reverse mapper is for mapping full names to short ones.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 ls_mapper_r = {v: k for k, v in ls_mapper.items()}
-
-
-@deprecated('2.2')
-def align_iterators(func, *iterables):
-    """
-    This generator takes a bunch of iterables that are ordered by func
-    It sends out ordered tuples::
-
-       (func(row), [rows from all iterators matching func(row)])
-
-    It is used by :func:`matplotlib.mlab.recs_join` to join record arrays
-    """
-    class myiter:
-        def __init__(self, it):
-            self.it = it
-            self.key = self.value = None
-            self.iternext()
-
-        def iternext(self):
-            try:
-                self.value = next(self.it)
-                self.key = func(self.value)
-            except StopIteration:
-                self.value = self.key = None
-
-        def __call__(self, key):
-            retval = None
-            if key == self.key:
-                retval = self.value
-                self.iternext()
-            elif self.key and key > self.key:
-                raise ValueError("Iterator has been left behind")
-            return retval
-
-    # This can be made more efficient by not computing the minimum key for each
-    # iteration
-    iters = [myiter(it) for it in iterables]
-    minvals = minkey = True
-    while True:
-        minvals = ([_f for _f in [it.key for it in iters] if _f])
-        if minvals:
-            minkey = min(minvals)
-            yield (minkey, [it(minkey) for it in iters])
-        else:
-            break
 
 
 def contiguous_regions(mask):
@@ -1469,7 +1416,9 @@ def _reshape_2D(X, name):
     """
     # Iterate over columns for ndarrays, over rows otherwise.
     X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
-    if X.ndim == 1 and X.dtype.type != np.object_:
+    if len(X) == 0:
+        return [[]]
+    if X.ndim == 1 and not isinstance(X[0], collections.abc.Iterable):
         # 1D array of scalars: directly return it.
         return [X]
     elif X.ndim in [1, 2]:
@@ -1638,7 +1587,8 @@ def pts_to_midstep(x, *args):
         The x location of the steps. May be empty.
 
     y1, ..., yp : array
-        y arrays to be turned into steps; all must be the same length as ``x``.
+        y arrays to be turned into steps; all must be the same length as
+        ``x``.
 
     Returns
     -------
@@ -1697,7 +1647,7 @@ def index_of(y):
 
 
 def safe_first_element(obj):
-    if isinstance(obj, collections.Iterator):
+    if isinstance(obj, collections.abc.Iterator):
         # needed to accept `array.flat` as input.
         # np.flatiter reports as an instance of collections.Iterator
         # but can still be indexed via [].
@@ -1714,7 +1664,8 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    return list(data) if isinstance(data, collections.MappingView) else data
+    return (list(data) if isinstance(data, collections.abc.MappingView)
+            else data)
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
@@ -1794,9 +1745,11 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         if tmp:
             ret[canonical] = tmp[-1]
             if len(tmp) > 1:
-                warnings.warn("Saw kwargs {seen!r} which are all aliases for "
-                              "{canon!r}.  Kept value from {used!r}".format(
-                                  seen=seen, canon=canonical, used=seen[-1]))
+                warn_deprecated(
+                    "3.1", message=f"Saw kwargs {seen!r} which are all "
+                    f"aliases for {canonical!r}.  Kept value from "
+                    f"{seen[-1]!r}.  Passing multiple aliases for the same "
+                    f"property will raise a TypeError %(removal)s.")
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input
@@ -1824,6 +1777,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     return ret
 
 
+@deprecated("3.1")
 def get_label(y, default_name):
     try:
         return y.name
@@ -1984,10 +1938,11 @@ def _define_aliases(alias_d, cls=None):
     can be used by `~.normalize_kwargs` (which assumes that higher priority
     aliases come last).
     """
-    if cls is None:
+    if cls is None:  # Return the actual class decorator.
         return functools.partial(_define_aliases, alias_d)
 
     def make_alias(name):  # Enforce a closure over *name*.
+        @functools.wraps(getattr(cls, name))
         def method(self, *args, **kwargs):
             return getattr(self, name)(*args, **kwargs)
         return method
@@ -2000,7 +1955,7 @@ def _define_aliases(alias_d, cls=None):
                 for alias in aliases:
                     method = make_alias(prefix + prop)
                     method.__name__ = prefix + alias
-                    method.__doc__ = "alias for `{}`".format(prefix + prop)
+                    method.__doc__ = "Alias for `{}`.".format(prefix + prop)
                     setattr(cls, prefix + alias, method)
         if not exists:
             raise ValueError(
@@ -2011,6 +1966,45 @@ def _define_aliases(alias_d, cls=None):
         raise NotImplementedError("Parent class already defines aliases")
     cls._alias_map = alias_d
     return cls
+
+
+def _array_perimeter(arr):
+    """
+    Get the elements on the perimeter of ``arr``,
+
+    Parameters
+    ----------
+    arr : ndarray, shape (M, N)
+        The input array
+
+    Returns
+    -------
+    perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
+        The elements on the perimeter of the array::
+
+            [arr[0,0] ... arr[0,-1] ... arr[-1, -1] ... arr[-1,0] ...]
+
+    Examples
+    --------
+    >>> i, j = np.ogrid[:3,:4]
+    >>> a = i*10 + j
+    >>> a
+    array([[ 0,  1,  2,  3],
+           [10, 11, 12, 13],
+           [20, 21, 22, 23]])
+    >>> _array_perimeter(a)
+    array([ 0,  1,  2,  3, 13, 23, 22, 21, 20, 10])
+    """
+    # note we use Python's half-open ranges to avoid repeating
+    # the corners
+    forward = np.s_[0:-1]      # [0 ... -1)
+    backward = np.s_[-1:0:-1]  # [-1 ... 0)
+    return np.concatenate((
+        arr[0, forward],
+        arr[forward, -1],
+        arr[-1, backward],
+        arr[backward, 0],
+    ))
 
 
 @contextlib.contextmanager
@@ -2041,9 +2035,124 @@ def _warn_external(message, category=None):
     etc.).
     """
     frame = sys._getframe()
-    for stacklevel in itertools.count(1):
+    for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
+        if frame is None:
+            # when called in embedded context may hit frame is None
+            break
         if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
-                        frame.f_globals["__name__"]):
+                        # Work around sphinx-gallery not setting __name__.
+                        frame.f_globals.get("__name__", "")):
             break
         frame = frame.f_back
     warnings.warn(message, category, stacklevel)
+
+
+class _OrderedSet(collections.abc.MutableSet):
+    def __init__(self):
+        self._od = collections.OrderedDict()
+
+    def __contains__(self, key):
+        return key in self._od
+
+    def __iter__(self):
+        return iter(self._od)
+
+    def __len__(self):
+        return len(self._od)
+
+    def add(self, key):
+        self._od.pop(key, None)
+        self._od[key] = None
+
+    def discard(self, key):
+        self._od.pop(key, None)
+
+
+# Agg's buffers are unmultiplied RGBA8888, which neither PyQt4 nor cairo
+# support; however, both do support premultiplied ARGB32.
+
+
+def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
+    """
+    Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
+    """
+    rgba = np.take(  # .take() ensures C-contiguity of the result.
+        buf,
+        [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
+    rgb = rgba[..., :-1]
+    alpha = rgba[..., -1]
+    # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
+    mask = alpha != 0
+    for channel in np.rollaxis(rgb, -1):
+        channel[mask] = (
+            (channel[mask].astype(int) * 255 + alpha[mask] // 2)
+            // alpha[mask])
+    return rgba
+
+
+def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
+    """
+    Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
+    """
+    if sys.byteorder == "little":
+        argb32 = np.take(rgba8888, [2, 1, 0, 3], axis=2)
+        rgb24 = argb32[..., :-1]
+        alpha8 = argb32[..., -1:]
+    else:
+        argb32 = np.take(rgba8888, [3, 0, 1, 2], axis=2)
+        alpha8 = argb32[..., :1]
+        rgb24 = argb32[..., 1:]
+    # Only bother premultiplying when the alpha channel is not fully opaque,
+    # as the cost is not negligible.  The unsafe cast is needed to do the
+    # multiplication in-place in an integer buffer.
+    if alpha8.min() != 0xff:
+        np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
+    return argb32
+
+
+def _check_and_log_subprocess(command, logger, **kwargs):
+    """
+    Run *command* using `subprocess.check_output`.  If it succeeds, return the
+    output (stdout and stderr); if not, raise an exception whose text includes
+    the failed command and captured output.  Both the command and the output
+    are logged at DEBUG level on *logger*.
+    """
+    logger.debug(command)
+    try:
+        report = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, **kwargs)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            'The command\n'
+            '    {}\n'
+            'failed and generated the following output:\n'
+            '{}'
+            .format(command, exc.output.decode('utf-8')))
+    logger.debug(report)
+    return report
+
+
+def _check_not_matrix(**kwargs):
+    """
+    If any value in *kwargs* is a `np.matrix`, raise a TypeError with the key
+    name in its message.
+    """
+    for k, v in kwargs.items():
+        if isinstance(v, np.matrix):
+            raise TypeError(f"Argument {k!r} cannot be a np.matrix")
+
+
+def _check_in_list(values, **kwargs):
+    """
+    For each *key, value* pair in *kwargs*, check that *value* is in *values*;
+    if not, raise an appropriate ValueError.
+
+    Examples
+    --------
+    >>> cbook._check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
+    """
+    for k, v in kwargs.items():
+        if v not in values:
+            raise ValueError(
+                "{!r} is not a valid value for {}; supported values are {}"
+                .format(v, k, ', '.join(map(repr, values))))

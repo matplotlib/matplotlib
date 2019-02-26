@@ -1,14 +1,12 @@
-from matplotlib.backend_bases import FigureCanvasBase
-from matplotlib.backend_bases import RendererBase
+import re
 
+from matplotlib.backend_bases import (
+    FigureCanvasBase, LocationEvent, RendererBase)
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
-
-import numpy as np
 import os
-import shutil
-import tempfile
+import numpy as np
 import pytest
 
 
@@ -51,21 +49,20 @@ def test_uses_per_path():
     check(id, paths, tforms, offsets, facecolors[0:1], edgecolors)
 
 
-def test_get_default_filename():
-    try:
-        test_dir = tempfile.mkdtemp()
-        plt.rcParams['savefig.directory'] = test_dir
-        fig = plt.figure()
-        canvas = FigureCanvasBase(fig)
-        filename = canvas.get_default_filename()
-        assert filename == 'image.png'
-    finally:
-        shutil.rmtree(test_dir)
+def test_get_default_filename(tmpdir):
+    plt.rcParams['savefig.directory'] = str(tmpdir)
+    fig = plt.figure()
+    canvas = FigureCanvasBase(fig)
+    filename = canvas.get_default_filename()
+    assert filename == 'image.png'
 
 
 @pytest.mark.backend('pdf')
-def test_non_gui_warning():
+def test_non_gui_warning(monkeypatch):
     plt.subplots()
+
+    monkeypatch.setitem(os.environ, "DISPLAY", ":999")
+
     with pytest.warns(UserWarning) as rec:
         plt.show()
         assert len(rec) == 1
@@ -77,3 +74,28 @@ def test_non_gui_warning():
         assert len(rec) == 1
         assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
                 in str(rec[0].message))
+
+
+@pytest.mark.parametrize(
+    "x, y", [(42, 24), (None, 42), (None, None), (200, 100.01), (205.75, 2.0)])
+def test_location_event_position(x, y):
+    # LocationEvent should cast its x and y arguments to int unless it is None.
+    fig, ax = plt.subplots()
+    canvas = FigureCanvasBase(fig)
+    event = LocationEvent("test_event", canvas, x, y)
+    if x is None:
+        assert event.x is None
+    else:
+        assert event.x == int(x)
+        assert isinstance(event.x, int)
+    if y is None:
+        assert event.y is None
+    else:
+        assert event.y == int(y)
+        assert isinstance(event.y, int)
+    if x is not None and y is not None:
+        assert re.match(
+            "x={} +y={}".format(ax.format_xdata(x), ax.format_ydata(y)),
+            ax.format_coord(x, y))
+        ax.fmt_xdata = ax.fmt_ydata = lambda x: "foo"
+        assert re.match("x=foo +y=foo", ax.format_coord(x, y))

@@ -1,62 +1,58 @@
 """
 ===============
-Pyplot With GTK
+pyplot with GTK
 ===============
 
-An example of how to use pyplot to manage your figure windows, but
-modify the GUI by accessing the underlying gtk widgets
+An example of how to use pyplot to manage your figure windows, but modify the
+GUI by accessing the underlying GTK widgets.
 """
+
 import matplotlib
 matplotlib.use('GTK3Agg')  # or 'GTK3Cairo'
 import matplotlib.pyplot as plt
 
-
-fig, ax = plt.subplots()
-plt.plot([1, 2, 3], 'ro-', label='easy as 1 2 3')
-plt.plot([1, 4, 9], 'gs--', label='easy as 1 2 3 squared')
-plt.legend()
-
-
-manager = plt.get_current_fig_manager()
-# you can also access the window or vbox attributes this way
-toolbar = manager.toolbar
-
-# now let's add a button to the toolbar
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-pos = 8  # where to insert this in the mpl toolbar
-button = Gtk.Button('Click me')
+
+
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3], 'ro-', label='easy as 1 2 3')
+ax.plot([1, 4, 9], 'gs--', label='easy as 1 2 3 squared')
+ax.legend()
+
+manager = fig.canvas.manager
+# you can access the window or vbox attributes this way
+toolbar = manager.toolbar
+vbox = manager.vbox
+
+# now let's add a button to the toolbar
+button = Gtk.Button(label='Click me')
 button.show()
-
-
-def clicked(button):
-    print('hi mom')
-button.connect('clicked', clicked)
+button.connect('clicked', lambda button: print('hi mom'))
 
 toolitem = Gtk.ToolItem()
 toolitem.show()
 toolitem.set_tooltip_text('Click me for fun and profit')
-
 toolitem.add(button)
+
+pos = 8  # where to insert this in the mpl toolbar
 toolbar.insert(toolitem, pos)
-pos += 1
 
 # now let's add a widget to the vbox
 label = Gtk.Label()
 label.set_markup('Drag mouse over axes for position')
 label.show()
-vbox = manager.vbox
 vbox.pack_start(label, False, False, 0)
-vbox.reorder_child(manager.toolbar, -1)
-
+vbox.reorder_child(toolbar, -1)
 
 def update(event):
     if event.xdata is None:
         label.set_markup('Drag mouse over axes for position')
     else:
-        label.set_markup('<span color="#ef0000">x,y=(%f, %f)</span>' % (event.xdata, event.ydata))
+        label.set_markup(
+            f'<span color="#ef0000">x,y=({event.xdata}, {event.ydata})</span>')
 
-plt.connect('motion_notify_event', update)
+fig.canvas.mpl_connect('motion_notify_event', update)
 
 plt.show()

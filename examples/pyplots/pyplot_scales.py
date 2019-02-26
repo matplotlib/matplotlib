@@ -22,7 +22,7 @@ y.sort()
 x = np.arange(len(y))
 
 # plot with various axes scales
-plt.figure(1)
+plt.figure()
 
 # linear
 plt.subplot(221)
@@ -79,4 +79,4 @@ matplotlib.pyplot.subplots_adjust
 matplotlib.pyplot.gca
 matplotlib.pyplot.yscale
 matplotlib.ticker.NullFormatter
-matplotlib.axis.Axis.set_minor_formatter 
+matplotlib.axis.Axis.set_minor_formatter

@@ -6,7 +6,9 @@
 Demonstrates a very basic plot of a 3D surface using a solid color.
 '''
 
-from mpl_toolkits.mplot3d import Axes3D
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -22,6 +24,6 @@ y = 10 * np.outer(np.sin(u), np.sin(v))
 z = 10 * np.outer(np.ones(np.size(u)), np.cos(v))
 
 # Plot the surface
-ax.plot_surface(x, y, z, color='b')
+ax.plot_surface(x, y, z)
 
 plt.show()

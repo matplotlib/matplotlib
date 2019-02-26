@@ -1,0 +1,18 @@
+get_window_extents changes:
+---------------------------
+
+`.matplotlib.axes.Axes.get_window_extent` used to return a bounding box
+that was slightly larger than the axes, presumably to take into account
+the ticks that may be on a spine.  However, it was not scaling the tick sizes
+according to the dpi of the canvas, and it did not check if the ticks were
+visible, or on the spine.
+
+Now  `.matplotlib.axes.Axes.get_window_extent` just returns the axes extent
+with no padding for ticks.
+
+This affects `.matplotlib.axes.Axes.get_tightbbox` in cases where there are
+outward ticks with no tick labels, and it also removes the (small) pad around
+axes in that case.  
+
+`.spines.get_window_extent` now takes into account ticks that are on the
+spine.

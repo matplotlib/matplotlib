@@ -38,24 +38,35 @@ being used.
 """
 
 from collections import namedtuple
+import logging
 import re
-import sys
+
 
 from ._mathtext_data import uni2type1
 from matplotlib.cbook import deprecated
 
 
-# some afm files have floats where we are expecting ints -- there is
-# probably a better way to handle this (support floats, round rather
-# than truncate).  But I don't know what the best approach is now and
-# this change to _to_int should at least prevent mpl from crashing on
-# these JDH (2009-11-06)
+_log = logging.getLogger(__name__)
+
 
 def _to_int(x):
+    # Some AFM files have floats where we are expecting ints -- there is
+    # probably a better way to handle this (support floats, round rather
+    # than truncate).  But I don't know what the best approach is now and
+    # this change to _to_int should at least prevent mpl from crashing on
+    # these JDH (2009-11-06)
     return int(float(x))
 
 
-_to_float = float
+def _to_float(x):
+    # Some AFM files use "," instead of "." as decimal separator -- this
+    # shouldn't be ambiguous (unless someone is wicked enough to use "," as
+    # thousands separator...).
+    if isinstance(x, bytes):
+        # Encoding doesn't really matter -- if we have codepoints >127 the call
+        # to float() will error anyways.
+        x = x.decode('latin-1')
+    return float(x.replace(',', '.'))
 
 
 def _to_str(x):
@@ -80,10 +91,8 @@ def _to_bool(s):
 
 def _sanity_check(fh):
     """
-    Check if the file at least looks like AFM.
-    If not, raise :exc:`RuntimeError`.
+    Check if the file looks like AFM; if it doesn't, raise `RuntimeError`.
     """
-
     # Remember the file position in case the caller wants to
     # do something else with the file.
     pos = fh.tell()
@@ -91,7 +100,6 @@ def _sanity_check(fh):
         line = next(fh)
     finally:
         fh.seek(pos, 0)
-
     # AFM spec, Section 4: The StartFontMetrics keyword [followed by a
     # version number] must be the first line in the file, and the
     # EndFontMetrics keyword must be the last non-empty line in the
@@ -118,7 +126,7 @@ def _parse_header(fh):
       XHeight, Ascender, Descender, StartCharMetrics
 
     """
-    headerConverters = {
+    header_converters = {
         b'StartFontMetrics': _to_float,
         b'FontName': _to_str,
         b'FullName': _to_str,
@@ -127,10 +135,13 @@ def _parse_header(fh):
         b'ItalicAngle': _to_float,
         b'IsFixedPitch': _to_bool,
         b'FontBBox': _to_list_of_ints,
-        b'UnderlinePosition': _to_int,
-        b'UnderlineThickness': _to_int,
+        b'UnderlinePosition': _to_float,
+        b'UnderlineThickness': _to_float,
         b'Version': _to_str,
-        b'Notice': _to_str,
+        # Some AFM files have non-ASCII characters (which are not allowed by
+        # the spec).  Given that there is actually no public API to even access
+        # this field, just return it as straight bytes.
+        b'Notice': lambda x: x,
         b'EncodingScheme': _to_str,
         b'CapHeight': _to_float,  # Is the second version a mistake, or
         b'Capheight': _to_float,  # do some AFM files contain 'Capheight'? -JKS
@@ -158,14 +169,14 @@ def _parse_header(fh):
             val = b''
 
         try:
-            d[key] = headerConverters[key](val)
-        except ValueError:
-            print('Value error parsing header in AFM:', key, val,
-                  file=sys.stderr)
-            continue
+            converter = header_converters[key]
         except KeyError:
-            print('Found an unknown keyword in AFM header (was %r)' % key,
-                  file=sys.stderr)
+            _log.error('Found an unknown keyword in AFM header (was %r)' % key)
+            continue
+        try:
+            d[key] = converter(val)
+        except ValueError:
+            _log.error('Value error parsing header in AFM: %s, %s', key, val)
             continue
         if key == b'StartCharMetrics':
             return d
@@ -357,7 +368,7 @@ def _parse_optional(fh):
     return d[b'StartKernData'], d[b'StartComposites']
 
 
-@deprecated("3.0", "Use the class AFM instead.")
+@deprecated("3.0", alternative="the AFM class")
 def parse_afm(fh):
     return _parse_afm(fh)
 

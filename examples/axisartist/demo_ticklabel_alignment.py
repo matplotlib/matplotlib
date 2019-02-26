@@ -22,7 +22,7 @@ def setup_axes(fig, rect):
     return ax
 
 
-fig = plt.figure(1, figsize=(3, 5))
+fig = plt.figure(figsize=(3, 5))
 fig.subplots_adjust(left=0.5, hspace=0.7)
 
 ax = setup_axes(fig, 311)

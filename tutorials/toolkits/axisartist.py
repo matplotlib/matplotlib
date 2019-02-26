@@ -1,4 +1,4 @@
-"""
+r"""
 ==============================
 Overview of axisartist toolkit
 ==============================
@@ -51,7 +51,7 @@ Matplotlib).
 To create an axes, ::
 
   import mpl_toolkits.axisartist as AA
-  fig = plt.figure(1)
+  fig = plt.figure()
   ax = AA.Axes(fig, [0.1, 0.1, 0.8, 0.8])
   fig.add_axes(ax)
 
@@ -145,7 +145,7 @@ biggest difference is that the artists responsible to draw axis line,
 ticks, ticklabel and axis labels are separated out from the mpl's Axis
 class, which are much more than artists in the original mpl. This
 change was strongly motivated to support curvilinear grid. Here are a
-few things that mpl_tootlkits.axisartist.Axes is different from original
+few things that mpl_toolkits.axisartist.Axes is different from original
 Axes from mpl.
 
 * Axis elements (axis line(spine), ticks, ticklabel and axis labels)
@@ -247,7 +247,7 @@ Similarly, to make ticklabels invisible ::
 
   ax.axis["bottom"].major_ticklabels.set_visible(False)
 
-AxisAritst provides a helper method to control the visibility of ticks,
+AxisArtist provides a helper method to control the visibility of ticks,
 ticklabels, and label. To make ticklabel invisible, ::
 
   ax.axis["bottom"].toggle(ticklabels=False)
@@ -415,7 +415,7 @@ direction can be more clear with curved axis.
    Demo Axis Direction
 
 The axis_direction can be adjusted in the AxisArtist level, or in the
-level of its child arists, i.e., ticks, ticklabels, and axis-label. ::
+level of its child artists, i.e., ticks, ticklabels, and axis-label. ::
 
   ax1.axis["left"].set_axis_direction("top")
 
@@ -479,8 +479,8 @@ Alignment of TickLabels are treated specially. See below
 
    Demo Ticklabel Alignment
 
-Adjusting  pad
---------------
+Adjusting pad
+-------------
 
 To change the pad between ticks and ticklabels ::
 
@@ -509,7 +509,7 @@ while ticks and grids are drawn for curved coordinate, the data
 transform of the axes itself (ax.transData) is still rectilinear
 (image) coordinate. ::
 
-    from  mpl_toolkits.axisartist.grid_helper_curvelinear \
+    from mpl_toolkits.axisartist.grid_helper_curvelinear \
          import GridHelperCurveLinear
     from mpl_toolkits.axisartist import Subplot
 
@@ -535,7 +535,7 @@ curved coordinate system may have a limited range, or may have
 cycles. In those cases, a more customized version of grid helper is
 required. ::
 
-    import  mpl_toolkits.axisartist.angle_helper as angle_helper
+    import mpl_toolkits.axisartist.angle_helper as angle_helper
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree
@@ -578,7 +578,7 @@ coordinates, or you may use Parasite Axes for convenience.::
     # A parasite axes with given transform
     ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
     # note that ax2.transData == tr + ax1.transData
-    # Anthing you draw in ax2 will match the ticks and grids of ax1.
+    # Anything you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png

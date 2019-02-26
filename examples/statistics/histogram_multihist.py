@@ -1,7 +1,7 @@
 """
-=============================================================
-Demo of the histogram (hist) function with multiple data sets
-=============================================================
+=====================================================
+The histogram (hist) function with multiple data sets
+=====================================================
 
 Plot histogram with multiple sample sets and demonstrate:
 

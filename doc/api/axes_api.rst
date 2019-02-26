@@ -1,19 +1,27 @@
-====
-axes
-====
+*******************
+``matplotlib.axes``
+*******************
 
 .. currentmodule:: matplotlib.axes
-
-.. autoclass:: Axes
-   :no-members:
-   :no-undoc-members:
-   :show-inheritance:
 
 .. contents:: Table of Contents
    :depth: 2
    :local:
    :backlinks: entry
    :class: multicol-toc
+
+.. automodule:: matplotlib.axes
+   :no-members:
+   :no-undoc-members:
+
+The Axes class
+==============
+
+.. autoclass:: Axes
+   :no-members:
+   :no-undoc-members:
+   :show-inheritance:
+
 
 Subplots
 ========
@@ -177,6 +185,11 @@ Text and Annotations
    Axes.text
    Axes.table
    Axes.arrow
+   Axes.inset_axes
+   Axes.indicate_inset
+   Axes.indicate_inset_zoom
+   Axes.secondary_xaxis
+   Axes.secondary_yaxis
 
 
 Fields
@@ -424,6 +437,7 @@ Adding Artists
    :nosignatures:
 
    Axes.add_artist
+   Axes.add_child_axes
    Axes.add_collection
    Axes.add_container
    Axes.add_image
@@ -660,7 +674,6 @@ Other
    :nosignatures:
 
    Axes.zorder
-   Axes.aname
    Axes.get_default_bbox_extra_artists
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data

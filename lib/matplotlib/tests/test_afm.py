@@ -1,8 +1,12 @@
 from io import BytesIO
 
-import matplotlib.afm as afm
+from matplotlib import afm
+from matplotlib import font_manager as fm
 
 
+# See note in afm.py re: use of comma as decimal separator in the
+# UnderlineThickness field and re: use of non-ASCII characters in the Notice
+# field.
 AFM_TEST_DATA = b"""StartFontMetrics 2.0
 Comment Comments are ignored.
 Comment Creation Date:Mon Nov 13 12:34:11 GMT 2017
@@ -14,9 +18,9 @@ Weight Bold
 ItalicAngle 0.0
 IsFixedPitch false
 UnderlinePosition -100
-UnderlineThickness 50
+UnderlineThickness 56,789
 Version 001.000
-Notice Copyright (c) 2017 No one.
+Notice Copyright \xa9 2017 No one.
 FontBBox 0 -321 1234 369
 StartCharMetrics 3
 C 0 ; WX 250 ; N space ; B 0 0 0 0 ;
@@ -50,9 +54,9 @@ def test_parse_header():
         b'ItalicAngle': 0.0,
         b'IsFixedPitch': False,
         b'UnderlinePosition': -100,
-        b'UnderlineThickness': 50,
+        b'UnderlineThickness': 56.789,
         b'Version': '001.000',
-        b'Notice': 'Copyright (c) 2017 No one.',
+        b'Notice': b'Copyright \xa9 2017 No one.',
         b'FontBBox': [0, -321, 1234, 369],
         b'StartCharMetrics': 3,
     }
@@ -75,6 +79,12 @@ def test_parse_char_metrics():
 
 def test_get_familyname_guessed():
     fh = BytesIO(AFM_TEST_DATA)
-    fm = afm.AFM(fh)
-    del fm._header[b'FamilyName']  # remove FamilyName, so we have to guess
-    assert fm.get_familyname() == 'My Font'
+    font = afm.AFM(fh)
+    del font._header[b'FamilyName']  # remove FamilyName, so we have to guess
+    assert font.get_familyname() == 'My Font'
+
+
+def test_font_manager_weight_normalization():
+    font = afm.AFM(BytesIO(
+        AFM_TEST_DATA.replace(b"Weight Bold\n", b"Weight Custom\n")))
+    assert fm.afmFontProperty("", font).weight == "normal"

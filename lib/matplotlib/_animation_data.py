@@ -4,6 +4,12 @@ JS_INCLUDE = """
 href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/
 css/font-awesome.min.css">
 <script language="javascript">
+  function isInternetExplorer() {
+    ua = navigator.userAgent;
+    /* MSIE used to detect old browsers and Trident used to newer ones*/
+    return ua.indexOf("MSIE ") > -1 || ua.indexOf("Trident/") > -1;
+  }
+
   /* Define the Animation class */
   function Animation(frames, img_id, slider_id, interval, loop_select_id){
     this.img_id = img_id;
@@ -20,7 +26,15 @@ css/font-awesome.min.css">
      this.frames[i] = new Image();
      this.frames[i].src = frames[i];
     }
-    document.getElementById(this.slider_id).max = this.frames.length - 1;
+    var slider = document.getElementById(this.slider_id);
+    slider.max = this.frames.length - 1;
+    if (isInternetExplorer()) {
+        // switch from oninput to onchange because IE <= 11 does not conform
+        // with W3C specification. It ignores oninput and onchange behaves
+        // like oninput. In contrast, Mircosoft Edge behaves correctly.
+        slider.setAttribute('onchange', slider.getAttribute('oninput'));
+        slider.setAttribute('oninput', null);
+    }
     this.set_frame(this.current_frame);
   }
 
@@ -146,39 +160,74 @@ css/font-awesome.min.css">
 """
 
 
+# Style definitions for the HTML template
+STYLE_INCLUDE = """
+<style>
+.animation {
+    display: inline-block;
+    text-align: center;
+}
+input[type=range].anim-slider {
+    width: 374px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.anim-buttons {
+    margin: 8px 0px;
+}
+.anim-buttons button {
+    padding: 0;
+    width: 36px;
+}
+.anim-state label {
+    margin-right: 8px;
+}
+.anim-state input {
+    margin: 0;
+    vertical-align: middle;
+}
+</style>
+"""
+
+
 # HTML template for HTMLWriter
 DISPLAY_TEMPLATE = """
-<div class="animation" align="center">
-    <img id="_anim_img{id}">
-    <br>
-    <input id="_anim_slider{id}" type="range" style="width:350px"
+<div class="animation">
+  <img id="_anim_img{id}">
+  <div class="anim-controls">
+    <input id="_anim_slider{id}" type="range" class="anim-slider"
            name="points" min="0" max="1" step="1" value="0"
-           onchange="anim{id}.set_frame(parseInt(this.value));"></input>
-    <br>
-    <button onclick="anim{id}.slower()"><i class="fa fa-minus"></i></button>
-    <button onclick="anim{id}.first_frame()"><i class="fa fa-fast-backward">
-        </i></button>
-    <button onclick="anim{id}.previous_frame()">
-        <i class="fa fa-step-backward"></i></button>
-    <button onclick="anim{id}.reverse_animation()">
-        <i class="fa fa-play fa-flip-horizontal"></i></button>
-    <button onclick="anim{id}.pause_animation()"><i class="fa fa-pause">
-        </i></button>
-    <button onclick="anim{id}.play_animation()"><i class="fa fa-play"></i>
-        </button>
-    <button onclick="anim{id}.next_frame()"><i class="fa fa-step-forward">
-        </i></button>
-    <button onclick="anim{id}.last_frame()"><i class="fa fa-fast-forward">
-        </i></button>
-    <button onclick="anim{id}.faster()"><i class="fa fa-plus"></i></button>
-  <form action="#n" name="_anim_loop_select{id}" class="anim_control">
-    <input type="radio" name="state"
-           value="once" {once_checked}> Once </input>
-    <input type="radio" name="state"
-           value="loop" {loop_checked}> Loop </input>
-    <input type="radio" name="state"
-           value="reflect" {reflect_checked}> Reflect </input>
-  </form>
+           oninput="anim{id}.set_frame(parseInt(this.value));"></input>
+    <div class="anim-buttons">
+      <button onclick="anim{id}.slower()"><i class="fa fa-minus"></i></button>
+      <button onclick="anim{id}.first_frame()"><i class="fa fa-fast-backward">
+          </i></button>
+      <button onclick="anim{id}.previous_frame()">
+          <i class="fa fa-step-backward"></i></button>
+      <button onclick="anim{id}.reverse_animation()">
+          <i class="fa fa-play fa-flip-horizontal"></i></button>
+      <button onclick="anim{id}.pause_animation()"><i class="fa fa-pause">
+          </i></button>
+      <button onclick="anim{id}.play_animation()"><i class="fa fa-play"></i>
+          </button>
+      <button onclick="anim{id}.next_frame()"><i class="fa fa-step-forward">
+          </i></button>
+      <button onclick="anim{id}.last_frame()"><i class="fa fa-fast-forward">
+          </i></button>
+      <button onclick="anim{id}.faster()"><i class="fa fa-plus"></i></button>
+    </div>
+    <form action="#n" name="_anim_loop_select{id}" class="anim-state">
+      <input type="radio" name="state" value="once" id="_anim_radio1_{id}"
+             {once_checked}>
+      <label for="_anim_radio1_{id}">Once</label>
+      <input type="radio" name="state" value="loop" id="_anim_radio2_{id}"
+             {loop_checked}>
+      <label for="_anim_radio2_{id}">Loop</label>
+      <input type="radio" name="state" value="reflect" id="_anim_radio3_{id}"
+             {reflect_checked}>
+      <label for="_anim_radio3_{id}">Reflect</label>
+    </form>
+  </div>
 </div>
 
 
@@ -201,6 +250,7 @@ DISPLAY_TEMPLATE = """
   }})()
 </script>
 """
+
 
 INCLUDED_FRAMES = """
   for (var i=0; i<{Nframes}; i++){{

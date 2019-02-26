@@ -17,7 +17,6 @@ Notice how the label for the y axis is provided using unicode!
 import numpy as np
 import matplotlib
 matplotlib.rcParams['text.usetex'] = True
-matplotlib.rcParams['text.latex.unicode'] = True
 import matplotlib.pyplot as plt
 
 

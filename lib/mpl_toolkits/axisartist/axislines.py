@@ -5,14 +5,13 @@ ticks, ticklabels and axis labels are separated out from mpl's Axis
 class. Originally, this change was motivated to support curvilinear
 grid. Here are a few reasons that I came up with a new axes class:
 
+* "top" and "bottom" x-axis (or "left" and "right" y-axis) can have
+  different ticks (tick locations and labels). This is not possible
+  with the current mpl, although some twin axes trick can help.
 
- * "top" and "bottom" x-axis (or "left" and "right" y-axis) can have
-   different ticks (tick locations and labels). This is not possible
-   with the current mpl, although some twin axes trick can help.
+* Curvilinear grid.
 
- * Curvilinear grid.
-
- * angled ticks.
+* angled ticks.
 
 In the new axes class, xaxis and yaxis is set to not visible by
 default, and new set of artist (AxisArtist) are defined to draw axis
@@ -24,11 +23,11 @@ instance responsible to draw left y-axis. The default Axes.axis contains
 AxisArtist can be considered as a container artist and
 has following children artists which will draw ticks, labels, etc.
 
- * line
- * major_ticks, major_ticklabels
- * minor_ticks, minor_ticklabels
- * offsetText
- * label
+* line
+* major_ticks, major_ticklabels
+* minor_ticks, minor_ticklabels
+* offsetText
+* label
 
 Note that these are separate artists from Axis class of the
 original mpl, thus most of tick-related command in the original mpl
@@ -39,17 +38,15 @@ those of Axes.xaxis unless explicitly specified.
 In addition to AxisArtist, the Axes will have *gridlines* attribute,
 which obviously draws grid lines. The gridlines needs to be separated
 from the axis as some gridlines can never pass any axis.
-
 """
-import warnings
 
 import numpy as np
 
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 import matplotlib.artist as martist
 import matplotlib.axes as maxes
 from matplotlib.path import Path
-from matplotlib.transforms import Bbox
+from mpl_toolkits.axes_grid1 import mpl_axes
 from .axisline_style import AxislineStyle
 from .axis_artist import AxisArtist, GridlinesCollection
 
@@ -144,7 +141,7 @@ class AxisArtistHelper(object):
             _verts = np.array([[0., 0.],
                                [1., 1.]])
             fixed_coord = 1-nth_coord
-            _verts[:,fixed_coord] = self.passthru_pt[fixed_coord]
+            _verts[:, fixed_coord] = self.passthru_pt[fixed_coord]
 
             # axis line in transAxes
             self._path = Path(_verts)
@@ -198,7 +195,8 @@ class AxisArtistHelper(object):
             return self.nth_coord
 
         def get_line(self, axes):
-            raise RuntimeError("get_line method should be defined by the derived class")
+            raise RuntimeError(
+                "get_line method should be defined by the derived class")
 
 
 class AxisArtistHelperRectlinear(object):
@@ -227,13 +225,11 @@ class AxisArtistHelperRectlinear(object):
 
             major = self.axis.major
             majorLocs = major.locator()
-            major.formatter.set_locs(majorLocs)
-            majorLabels = [major.formatter(val, i) for i, val in enumerate(majorLocs)]
+            majorLabels = major.formatter.format_ticks(majorLocs)
 
             minor = self.axis.minor
             minorLocs = minor.locator()
-            minor.formatter.set_locs(minorLocs)
-            minorLabels = [minor.formatter(val, i) for i, val in enumerate(minorLocs)]
+            minorLabels = minor.formatter.format_ticks(minorLocs)
 
             trans_tick = self.get_tick_transform(axes)
 
@@ -242,13 +238,14 @@ class AxisArtistHelperRectlinear(object):
             def _f(locs, labels):
                 for x, l in zip(locs, labels):
 
-                    c = list(self.passthru_pt) # copy
+                    c = list(self.passthru_pt)  # copy
                     c[self.nth_coord] = x
 
                     # check if the tick point is inside axes
                     c2 = tr2ax.transform_point(c)
-                    #delta=0.00001
-                    if 0. -self.delta1<= c2[self.nth_coord] <= 1.+self.delta2:
+                    if (0 - self.delta1
+                            <= c2[self.nth_coord]
+                            <= 1 + self.delta2):
                         yield c, angle_normal, angle_tangent, l
 
             return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)
@@ -264,11 +261,10 @@ class AxisArtistHelperRectlinear(object):
             _verts = np.array([[0., 0.],
                                [1., 1.]])
 
-            fixed_coord = 1-self.nth_coord
-            trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
-            p = trans_passingthrough_point.transform_point([self._value,
-                                                            self._value])
-            _verts[:,fixed_coord] = p[fixed_coord]
+            fixed_coord = 1 - self.nth_coord
+            p = (axes.transData + axes.transAxes.inverted()).transform_point(
+                [self._value, self._value])
+            _verts[:, fixed_coord] = p[fixed_coord]
 
             return Path(_verts)
 
@@ -284,12 +280,6 @@ class AxisArtistHelperRectlinear(object):
 
             get_label_transform() returns a transform of (transAxes+offset)
             """
-            loc = self._axis_direction
-            #angle = dict(left=0,
-            #             right=0,
-            #             bottom=.5*np.pi,
-            #             top=.5*np.pi)[loc]
-
             if self.nth_coord == 0:
                 angle = 0
             else:
@@ -298,9 +288,8 @@ class AxisArtistHelperRectlinear(object):
             _verts = [0.5, 0.5]
 
             fixed_coord = 1-self.nth_coord
-            trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
-            p = trans_passingthrough_point.transform_point([self._value,
-                                                            self._value])
+            p = (axes.transData + axes.transAxes.inverted()).transform_point(
+                [self._value, self._value])
             _verts[fixed_coord] = p[fixed_coord]
             if not (0. <= _verts[fixed_coord] <= 1.):
                 return None, None
@@ -330,12 +319,12 @@ class AxisArtistHelperRectlinear(object):
             major = self.axis.major
             majorLocs = major.locator()
             major.formatter.set_locs(majorLocs)
-            majorLabels = [major.formatter(val, i) for i, val in enumerate(majorLocs)]
+            majorLabels = major.formatter.format_ticks(majorLocs)
 
             minor = self.axis.minor
             minorLocs = minor.locator()
             minor.formatter.set_locs(minorLocs)
-            minorLabels = [minor.formatter(val, i) for i, val in enumerate(minorLocs)]
+            minorLabels = minor.formatter.format_ticks(minorLocs)
 
             tr2ax = axes.transData + axes.transAxes.inverted()
 
@@ -425,7 +414,8 @@ class GridHelperRectlinear(GridHelperBase):
                        ):
 
         if axes is None:
-            warnings.warn("'new_fixed_axis' explicitly requires the axes keyword.")
+            cbook._warn_external(
+                "'new_fixed_axis' explicitly requires the axes keyword.")
             axes = self.axes
 
         _helper = AxisArtistHelperRectlinear.Fixed(axes, loc, nth_coord)
@@ -444,12 +434,9 @@ class GridHelperRectlinear(GridHelperBase):
                           ):
 
         if axes is None:
-            warnings.warn(
+            cbook._warn_external(
                 "'new_floating_axis' explicitly requires the axes keyword.")
             axes = self.axes
-
-        passthrough_point = (value, value)
-        transform = axes.transData
 
         _helper = AxisArtistHelperRectlinear.Floating(
             axes, nth_coord, value, axis_direction)
@@ -494,6 +481,7 @@ class GridHelperRectlinear(GridHelperBase):
         return gridlines
 
 
+@cbook.deprecated("3.1")
 class SimpleChainedObjects(object):
     def __init__(self, objects):
         self._objects = objects
@@ -502,13 +490,14 @@ class SimpleChainedObjects(object):
         _a = SimpleChainedObjects([getattr(a, k) for a in self._objects])
         return _a
 
-    def __call__(self, *kl, **kwargs):
+    def __call__(self, *args, **kwargs):
         for m in self._objects:
-            m(*kl, **kwargs)
+            m(*args, **kwargs)
 
 
 class Axes(maxes.Axes):
 
+    @cbook.deprecated("3.1")
     class AxisDict(dict):
         def __init__(self, axes):
             self.axes = axes
@@ -556,7 +545,7 @@ class Axes(maxes.Axes):
         if axes is None:
             axes = self
 
-        self._axislines = self.AxisDict(self)
+        self._axislines = mpl_axes.Axes.AxisDict(self)
         new_fixed_axis = self.get_grid_helper().new_fixed_axis
         for loc in ["bottom", "top", "left", "right"]:
             self._axislines[loc] = new_fixed_axis(loc=loc, axes=axes,
@@ -616,12 +605,10 @@ class Axes(maxes.Axes):
             return
 
         if b is None:
-
-            if self.axes.xaxis._gridOnMinor or self.axes.xaxis._gridOnMajor or \
-                   self.axes.yaxis._gridOnMinor or self.axes.yaxis._gridOnMajor:
-                b=True
-            else:
-                b=False
+            b = (self.axes.xaxis._gridOnMinor
+                    or self.axes.xaxis._gridOnMajor
+                    or self.axes.yaxis._gridOnMinor
+                    or self.axes.yaxis._gridOnMajor)
 
         self.gridlines.set_which(which)
         self.gridlines.set_axis(axis)
@@ -651,33 +638,12 @@ class Axes(maxes.Axes):
                                  )
         return axis
 
-
     def new_floating_axis(self, nth_coord, value, axis_direction="bottom"):
         gh = self.get_grid_helper()
         axis = gh.new_floating_axis(nth_coord, value,
                                     axis_direction=axis_direction,
                                     axes=self)
         return axis
-
-    def draw(self, renderer, inframe=False):
-        if not self._axisline_on:
-            super().draw(renderer, inframe)
-            return
-        orig_artists = self.artists
-        self.artists = [
-            *self.artists, *self._axislines.values(), self.gridlines]
-        super().draw(renderer, inframe)
-        self.artists = orig_artists
-
-    def get_tightbbox(self, renderer, call_axes_locator=True):
-        bb0 = super().get_tightbbox(renderer, call_axes_locator)
-        if not self._axisline_on:
-            return bb0
-        bb = [bb0] + [axisline.get_tightbbox(renderer)
-                      for axisline in self._axislines.values()
-                      if axisline.get_visible()]
-        bbox = Bbox.union([b for b in bb if b and (b.width!=0 or b.height!=0)])
-        return bbox
 
 
 Subplot = maxes.subplot_class_factory(Axes)
@@ -702,7 +668,6 @@ class AxesZero(Axes):
                                        value=0.,
                                        axis_direction="left",
                                        axes=self)
-
 
         yaxis_zero.line.set_clip_path(self.patch)
         yaxis_zero.set_visible(False)

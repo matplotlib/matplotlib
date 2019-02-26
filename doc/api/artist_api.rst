@@ -1,8 +1,8 @@
 .. _artist-api:
 
-******
-artist
-******
+*********************
+``matplotlib.artist``
+*********************
 
 .. inheritance-diagram:: matplotlib.axes._axes.Axes matplotlib.axes._base._AxesBase matplotlib.axis.Axis matplotlib.axis.Tick matplotlib.axis.XAxis matplotlib.axis.XTick matplotlib.axis.YAxis matplotlib.axis.YTick matplotlib.collections.AsteriskPolygonCollection matplotlib.collections.BrokenBarHCollection matplotlib.collections.CircleCollection matplotlib.collections.Collection matplotlib.collections.EllipseCollection matplotlib.collections.EventCollection matplotlib.collections.LineCollection matplotlib.collections.PatchCollection matplotlib.collections.PathCollection matplotlib.collections.PolyCollection matplotlib.collections.QuadMesh matplotlib.collections.RegularPolyCollection matplotlib.collections.StarPolygonCollection matplotlib.collections.TriMesh matplotlib.collections._CollectionWithSizes matplotlib.contour.ClabelText matplotlib.figure.Figure matplotlib.image.AxesImage matplotlib.image.BboxImage matplotlib.image.FigureImage matplotlib.image.NonUniformImage matplotlib.image.PcolorImage matplotlib.image._ImageBase matplotlib.legend.Legend matplotlib.lines.Line2D matplotlib.offsetbox.AnchoredOffsetbox matplotlib.offsetbox.AnchoredText matplotlib.offsetbox.AnnotationBbox matplotlib.offsetbox.AuxTransformBox matplotlib.offsetbox.DrawingArea matplotlib.offsetbox.HPacker matplotlib.offsetbox.OffsetBox matplotlib.offsetbox.OffsetImage matplotlib.offsetbox.PackerBase matplotlib.offsetbox.PaddedBox matplotlib.offsetbox.TextArea matplotlib.offsetbox.VPacker matplotlib.patches.Arc matplotlib.patches.Arrow matplotlib.patches.Circle matplotlib.patches.CirclePolygon matplotlib.patches.ConnectionPatch matplotlib.patches.Ellipse matplotlib.patches.FancyArrow matplotlib.patches.FancyArrowPatch matplotlib.patches.FancyBboxPatch matplotlib.patches.Patch matplotlib.patches.PathPatch matplotlib.patches.Polygon matplotlib.patches.Rectangle matplotlib.patches.RegularPolygon matplotlib.patches.Shadow matplotlib.patches.Wedge matplotlib.patches.YAArrow matplotlib.projections.geo.AitoffAxes matplotlib.projections.geo.GeoAxes matplotlib.projections.geo.HammerAxes matplotlib.projections.geo.LambertAxes matplotlib.projections.geo.MollweideAxes matplotlib.projections.polar.PolarAxes matplotlib.quiver.Barbs matplotlib.quiver.Quiver matplotlib.quiver.QuiverKey matplotlib.spines.Spine matplotlib.table.Cell matplotlib.table.CustomCell matplotlib.table.Table matplotlib.text.Annotation matplotlib.text.Text matplotlib.text.TextWithDash
    :parts: 1
@@ -30,27 +30,18 @@ Interactive
    :nosignatures:
 
    Artist.add_callback
-   Artist.format_cursor_data
-   Artist.get_contains
-   Artist.get_cursor_data
-   Artist.get_picker
-   Artist.mouseover
+   Artist.remove_callback
    Artist.pchanged
+   Artist.get_cursor_data
+   Artist.format_cursor_data
+   Artist.mouseover
+   Artist.contains
+   Artist.set_contains
+   Artist.get_contains
    Artist.pick
    Artist.pickable
-   Artist.remove_callback
-   Artist.set_contains
    Artist.set_picker
-   Artist.contains
-
-Margins and Autoscaling
------------------------
-
-.. autosummary::
-   :toctree: _as_gen
-   :nosignatures:
-
-   Artist.sticky_edges
+   Artist.get_picker
 
 Clipping
 --------
@@ -59,12 +50,12 @@ Clipping
    :toctree: _as_gen
    :nosignatures:
 
-   Artist.get_clip_box
-   Artist.get_clip_on
-   Artist.get_clip_path
-   Artist.set_clip_box
    Artist.set_clip_on
+   Artist.get_clip_on
+   Artist.set_clip_box
+   Artist.get_clip_box
    Artist.set_clip_path
+   Artist.get_clip_path
 
 Bulk Properties
 ---------------
@@ -86,29 +77,29 @@ Drawing
    :nosignatures:
 
    Artist.draw
-   Artist.get_animated
    Artist.set_animated
+   Artist.get_animated
 
-   Artist.get_agg_filter
-
+   Artist.set_alpha
    Artist.get_alpha
+   Artist.set_snap
    Artist.get_snap
+   Artist.set_visible
    Artist.get_visible
+   Artist.zorder
+   Artist.set_zorder
    Artist.get_zorder
    Artist.set_agg_filter
-   Artist.set_alpha
 
    Artist.set_sketch_params
-   Artist.set_snap
-   Artist.get_rasterized
    Artist.get_sketch_params
-   Artist.set_path_effects
    Artist.set_rasterized
-   Artist.zorder
-   Artist.set_visible
-   Artist.set_zorder
-   Artist.get_window_extent
+   Artist.get_rasterized
+   Artist.set_path_effects
    Artist.get_path_effects
+
+   Artist.get_agg_filter
+   Artist.get_window_extent
    Artist.get_transformed_clip_path_and_affine
 
 Figure and Axes
@@ -164,21 +155,23 @@ Metadata
    :toctree: _as_gen
    :nosignatures:
 
-   Artist.get_gid
-   Artist.get_label
    Artist.set_gid
+   Artist.get_gid
    Artist.set_label
-   Artist.get_url
+   Artist.get_label
    Artist.set_url
-   Artist.aname
+   Artist.get_url
 
-Stale
------
+Miscellaneous
+-------------
 
 .. autosummary::
    :toctree: _as_gen
    :nosignatures:
 
+   Artist.sticky_edges
+   Artist.set_in_layout
+   Artist.get_in_layout
    Artist.stale
 
 Functions

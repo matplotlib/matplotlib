@@ -34,7 +34,7 @@ def nice_repr(text):
 
 def math_repr(text):
     tx = repr(text).lstrip('u').strip("'").strip("$")
-    return "'\${}\$'".format(tx)
+    return r"'\${}\$'".format(tx)
 
 
 def split_list(a_list):
@@ -65,7 +65,6 @@ for ax, markers in zip(axes, split_list(unfilled_markers)):
 plt.show()
 
 
-
 ###############################################################################
 # Plot all filled markers.
 
@@ -86,8 +85,8 @@ plt.show()
 #
 #
 # Use :doc:`MathText </tutorials/text/mathtext>`, to use custom marker symbols,
-# like e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer to the
-# `STIX font table <http://www.stixfonts.org/allGlyphs.html>`_.
+# like e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer
+# to the `STIX font table <http://www.stixfonts.org/allGlyphs.html>`_.
 # Also see the :doc:`/gallery/text_labels_and_annotations/stix_fonts_demo`.
 
 

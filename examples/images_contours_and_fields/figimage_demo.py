@@ -8,7 +8,6 @@ This illustrates placing images directly in the figure, with no Axes objects.
 """
 import numpy as np
 import matplotlib
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 
 

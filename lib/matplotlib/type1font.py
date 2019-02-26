@@ -243,14 +243,13 @@ class Type1Font(object):
         def fontname(name):
             result = name
             if slant:
-                result += b'_Slant_' + str(int(1000 * slant)).encode('ascii')
+                result += b'_Slant_%d' % int(1000 * slant)
             if extend != 1.0:
-                result += b'_Extend_' + str(int(1000 * extend)).encode('ascii')
+                result += b'_Extend_%d' % int(1000 * extend)
             return result
 
         def italicangle(angle):
-            return (str(float(angle) - np.arctan(slant) / np.pi * 180)
-                    .encode('ascii'))
+            return b'%a' % (float(angle) - np.arctan(slant) / np.pi * 180)
 
         def fontmatrix(array):
             array = array.lstrip(b'[').rstrip(b']').split()
@@ -264,19 +263,21 @@ class Type1Font(object):
             newmatrix = np.dot(modifier, oldmatrix)
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
+            # Not directly using `b'%a' % x for x in array` for now as that
+            # produces longer reprs on numpy<1.14, causing test failures.
             as_string = '[' + ' '.join(str(x) for x in array) + ']'
             return as_string.encode('latin-1')
 
         def replace(fun):
             def replacer(tokens):
                 token, value = next(tokens)      # name, e.g., /FontMatrix
-                yield bytes(value)
+                yield value
                 token, value = next(tokens)      # possible whitespace
                 while token is _TokenType.whitespace:
-                    yield bytes(value)
+                    yield value
                     token, value = next(tokens)
                 if value != b'[':                # name/number/etc.
-                    yield bytes(fun(value))
+                    yield fun(value)
                 else:                            # array, e.g., [1 2 3]
                     result = b''
                     while value != b']':
@@ -298,9 +299,8 @@ class Type1Font(object):
 
         for token, value in tokens:
             if token is _TokenType.name and value in table:
-                for value in table[value](itertools.chain([(token, value)],
-                                                          tokens)):
-                    yield value
+                yield from table[value](
+                    itertools.chain([(token, value)], tokens))
             else:
                 yield value
 

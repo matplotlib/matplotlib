@@ -19,9 +19,7 @@ import itertools
 import kiwisolver as kiwi
 import logging
 import numpy as np
-import warnings
 
-import matplotlib
 
 _log = logging.getLogger(__name__)
 
@@ -89,7 +87,7 @@ class LayoutBox(object):
         self.min_height = Variable(str(sn + 'min_height'))
         self.pref_width = Variable(str(sn + 'pref_width'))
         self.pref_height = Variable(str(sn + 'pref_height'))
-        # margis are only used for axes-position layout boxes.  maybe should
+        # margins are only used for axes-position layout boxes.  maybe should
         # be a separate subclass:
         self.left_margin = Variable(str(sn + 'left_margin'))
         self.right_margin = Variable(str(sn + 'right_margin'))
@@ -119,11 +117,11 @@ class LayoutBox(object):
         margin between the position of the axes and the outer edge of
         the axes.
 
-        Margins are variable because they change with the fogure size.
+        Margins are variable because they change with the figure size.
 
         Margin minimums are set to make room for axes decorations.  However,
         the margins can be larger if we are mathicng the position size to
-        otehr axes.
+        other axes.
         """
         sol = self.solver
 
@@ -236,7 +234,7 @@ class LayoutBox(object):
               self.bottom == bottom,
               self.top == top]
         for c in hc:
-            self.solver.addConstraint((c | strength))
+            self.solver.addConstraint(c | strength)
         # self.solver.updateVariables()
 
     def constrain_same(self, other, strength='strong'):
@@ -248,7 +246,7 @@ class LayoutBox(object):
               self.bottom == other.bottom,
               self.top == other.top]
         for c in hc:
-            self.solver.addConstraint((c | strength))
+            self.solver.addConstraint(c | strength)
 
     def constrain_left_margin(self, margin, strength='strong'):
         c = (self.left == self.parent.left + margin)
@@ -469,7 +467,7 @@ class LayoutBox(object):
               self.width == parent.width * width,
               self.height == parent.height * height]
         for c in cs:
-            self.solver.addConstraint((c | 'required'))
+            self.solver.addConstraint(c | 'required')
 
         return lb
 
@@ -709,7 +707,6 @@ def plot_children(fig, box, level=0, printit=True):
     if printit:
         print("Level:", level)
     for child in box.children:
-        rect = child.get_rect()
         if printit:
             print(child)
         ax.add_patch(

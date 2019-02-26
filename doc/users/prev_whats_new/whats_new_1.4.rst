@@ -160,8 +160,8 @@ matplotlib internals were cleaned up to support using such transforms in
 :class:`~matplotlib.Axes`. This transform is important for some plot types,
 specifically the Skew-T used in meteorology.
 
-.. figure:: ../../gallery/api/images/sphx_glr_skewt_001.png
-   :target: ../../gallery/api/skewt.html
+.. figure:: ../../gallery/specialty_plots/images/sphx_glr_skewt_001.png
+   :target: ../../gallery/specialty_plots/skewt.html
    :align: center
    :scale: 50
 

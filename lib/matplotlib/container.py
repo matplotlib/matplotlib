@@ -14,8 +14,8 @@ class Container(tuple):
         return ("<{} object of {} artists>"
                 .format(type(self).__name__, len(self)))
 
-    def __new__(cls, *kl, **kwargs):
-        return tuple.__new__(cls, kl[0])
+    def __new__(cls, *args, **kwargs):
+        return tuple.__new__(cls, args[0])
 
     def __init__(self, kl, label=None):
 
@@ -52,10 +52,11 @@ class Container(tuple):
 
         Parameters
         ----------
-        s : string or anything printable with '%s' conversion.
+        s : object
+            Any object other than None gets converted to its `str`.
         """
         if s is not None:
-            self._label = '%s' % (s, )
+            self._label = str(s)
         else:
             self._label = None
         self.pchanged()
@@ -174,10 +175,17 @@ class StemContainer(Container):
 
     baseline : :class:`~matplotlib.lines.Line2D`
         The artist of the horizontal baseline.
-
     """
-
     def __init__(self, markerline_stemlines_baseline, **kwargs):
+        """
+        Parameters
+        ----------
+        markerline_stemlines_baseline : tuple
+            Tuple of ``(markerline, stemlines, baseline)``.
+            ``markerline`` contains the `LineCollection` of the markers,
+            ``stemlines`` is a `LineCollection` of the main lines,
+            ``baseline`` is the `Line2D` of the baseline.
+        """
         markerline, stemlines, baseline = markerline_stemlines_baseline
         self.markerline = markerline
         self.stemlines = stemlines

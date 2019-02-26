@@ -1,10 +1,6 @@
-*********
-offsetbox
-*********
-
-
-:mod:`matplotlib.offsetbox`
-===========================
+************************
+``matplotlib.offsetbox``
+************************
 
 .. automodule:: matplotlib.offsetbox
    :members:

@@ -14,7 +14,7 @@ Because it embeds fonts directly in output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.
 `FreeType <https://www.freetype.org/>`_ support
 produces very nice, antialiased fonts, that look good even at small
-raster sizes.  matplotlib includes its own
+raster sizes.  Matplotlib includes its own
 :mod:`matplotlib.font_manager` (thanks to Paul Barrett), which
 implements a cross platform, `W3C <http://www.w3.org/>`
 compliant font finding algorithm.
@@ -23,7 +23,7 @@ The user has a great deal of control over text properties (font size, font
 weight, text location and color, etc.) with sensible defaults set in
 the :doc:`rc file </tutorials/introductory/customizing>`.
 And significantly, for those interested in mathematical
-or scientific figures, matplotlib implements a large number of TeX
+or scientific figures, Matplotlib implements a large number of TeX
 math symbols and commands, supporting :doc:`mathematical expressions
 </tutorials/text/mathtext>` anywhere in your figure.
 
@@ -103,9 +103,9 @@ plt.show()
 # Labels for x- and y-axis
 # ========================
 #
-# Specifying the labels for the x- and y-axis is strightforward, via the
-# `~matplotlib.axes.Axes.set_xlabel` and
-# `~matplotlib.axes.Axes.set_ylabel` methods.
+# Specifying the labels for the x- and y-axis is straightforward, via the
+# `~matplotlib.axes.Axes.set_xlabel` and `~matplotlib.axes.Axes.set_ylabel`
+# methods.
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -135,7 +135,7 @@ ax.set_ylabel('Damped oscillation [V]')
 plt.show()
 
 ###############################################################################
-# If you want to move the labels, you can specify the *labelpad* kyeword
+# If you want to move the labels, you can specify the *labelpad* keyword
 # argument, where the value is points (1/72", the same unit used to specify
 # fontsizes).
 
@@ -211,8 +211,8 @@ for ax, loc in zip(axs, locs):
 plt.show()
 
 ##############################################################################
-# Vertical spacing for titles is controlled via ``rcParams[axes.titlepad]``,
-# which defaults to 5 points.  Setting to a different value moves the title.
+# Vertical spacing for titles is controlled via :rc:`axes.titlepad`, which
+# defaults to 5 points.  Setting to a different value moves the title.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(top=0.8)
@@ -379,7 +379,7 @@ plt.show()
 # Matplotlib can accept `datetime.datetime` and `numpy.datetime64`
 # objects as plotting arguments.  Dates and times require special
 # formatting, which can often benefit from manual intervention. In
-# order to help, dates have spectial Locators and Formatters,
+# order to help, dates have special Locators and Formatters,
 # defined in the `matplotlib.dates` module.
 #
 # A simple example is as follows.  Note how we have to rotate the
@@ -394,26 +394,15 @@ ax.plot(time, y1)
 ax.tick_params(axis='x', rotation=70)
 plt.show()
 
-##############################################################################
-# Maybe the format of the labels above is acceptable, but the choices is
-# rather idiosyncratic.  We can make the ticks fall on the start of the month
-# by modifying `matplotlib.dates.AutoDateLocator`
-import matplotlib.dates as mdates
-
-locator = mdates.AutoDateLocator(interval_multiples=True)
-
-fig, ax = plt.subplots(figsize=(5, 3), tight_layout=True)
-ax.xaxis.set_major_locator(locator)
-ax.plot(time, y1)
-ax.tick_params(axis='x', rotation=70)
-plt.show()
 
 ##############################################################################
-# However, this changes the tick labels. The easiest fix is to pass a format
+# We can pass a format
 # to `matplotlib.dates.DateFormatter`.  Also note that the 29th and the
 # next month are very close together.  We can fix this by using the
 # `dates.DayLocator` class, which allows us to specify a list of days of the
 # month to use. Similar formatters are listed in the `matplotlib.dates` module.
+
+import matplotlib.dates as mdates
 
 locator = mdates.DayLocator(bymonthday=[1, 15])
 formatter = mdates.DateFormatter('%b %d')
@@ -429,6 +418,6 @@ plt.show()
 # Legends and Annotations
 # =======================
 #
-#   - Legends: :doc:`/tutorials/intermediate/legend_guide`
-#   - Annotations: :doc:`/tutorials/text/annotations`
+# - Legends: :doc:`/tutorials/intermediate/legend_guide`
+# - Annotations: :doc:`/tutorials/text/annotations`
 #

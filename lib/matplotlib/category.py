@@ -12,35 +12,47 @@ class:`.UnitData` that creates and stores the string-to-integer mapping.
 """
 
 from collections import OrderedDict
+import dateutil.parser
 import itertools
+import logging
 
 import numpy as np
 
+import matplotlib.cbook as cbook
 import matplotlib.units as units
 import matplotlib.ticker as ticker
+
+
+_log = logging.getLogger(__name__)
 
 
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
-        """Converts strings in value to floats using
-        mapping information store in the  unit object
+        """Convert strings in value to floats using
+        mapping information store in the unit object.
 
         Parameters
         ----------
         value : string or iterable
-            value or list of values to be converted
-        unit : :class:`.UnitData`
-           object string unit information for value
-        axis : :class:`~matplotlib.Axis.axis`
-            axis on which the converted value is plotted
+            Value or list of values to be converted.
+        unit : `.UnitData`
+            An object mapping strings to integers.
+        axis : `~matplotlib.axis.Axis`
+            axis on which the converted value is plotted.
+
+            .. note:: *axis* is unused.
 
         Returns
         -------
-        mapped_ value : float or ndarray[float]
-
-        .. note:: axis is not used in this function
+        mapped_value : float or ndarray[float]
         """
+        if unit is None:
+            raise ValueError(
+                'Missing category information for StrCategoryConverter; '
+                'this might be caused by unintendedly mixing categorical and '
+                'numeric data')
+
         # dtype = object preserves numerical pass throughs
         values = np.atleast_1d(np.array(value, dtype=object))
 
@@ -63,15 +75,15 @@ class StrCategoryConverter(units.ConversionInterface):
         """Sets the default axis ticks and labels
 
         Parameters
-        ---------
-        unit : :class:`.UnitData`
+        ----------
+        unit : `.UnitData`
             object string unit information for value
-        axis : :class:`~matplotlib.Axis.axis`
+        axis : `~matplotlib.Axis.axis`
             axis for which information is being set
 
         Returns
         -------
-        :class:~matplotlib.units.AxisInfo~
+        axisinfo : `~matplotlib.units.AxisInfo`
             Information to support default tick labeling
 
         .. note: axis is not used
@@ -89,12 +101,12 @@ class StrCategoryConverter(units.ConversionInterface):
         Parameters
         ----------
         data : string or iterable of strings
-        axis : :class:`~matplotlib.Axis.axis`
+        axis : `~matplotlib.Axis.axis`
             axis on which the data is plotted
 
         Returns
         -------
-        class:~.UnitData~
+        class : `.UnitData`
             object storing string to integer mapping
         """
         # the conversion call stack is supposed to be
@@ -160,21 +172,36 @@ class UnitData(object):
 
         Parameters
         ----------
-        data: iterable
-              sequence of string values
+        data : iterable
+            sequence of string values
         """
         self._mapping = OrderedDict()
         self._counter = itertools.count()
         if data is not None:
             self.update(data)
 
+    @staticmethod
+    def _str_is_convertible(val):
+        """
+        Helper method to see if a string can be cast to float or
+        parsed as date.
+        """
+        try:
+            float(val)
+        except ValueError:
+            try:
+                dateutil.parser.parse(val)
+            except ValueError:
+                return False
+        return True
+
     def update(self, data):
         """Maps new values to integer identifiers.
 
         Parameters
         ----------
-        data: iterable
-              sequence of string values
+        data : iterable
+            sequence of string values
 
         Raises
         ------
@@ -183,14 +210,25 @@ class UnitData(object):
         """
         data = np.atleast_1d(np.array(data, dtype=object))
 
+        # check if convertible to number:
+        convertible = True
         for val in OrderedDict.fromkeys(data):
+            # OrderedDict just iterates over unique values in data.
             if not isinstance(val, (str, bytes)):
                 raise TypeError("{val!r} is not a string".format(val=val))
+            if convertible:
+                # this will only be called so long as convertible is True.
+                convertible = self._str_is_convertible(val)
             if val not in self._mapping:
                 self._mapping[val] = next(self._counter)
+        if convertible:
+            _log.info('Using categorical units to plot a list of strings '
+                      'that are all parsable as floats or dates. If these '
+                      'strings should be plotted as numbers, cast to the '
+                      'appropriate data type before plotting.')
 
 
-# Connects the convertor to matplotlib
+# Register the converter with Matplotlib's unit framework
 units.registry[str] = StrCategoryConverter()
 units.registry[np.str_] = StrCategoryConverter()
 units.registry[bytes] = StrCategoryConverter()

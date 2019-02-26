@@ -67,13 +67,13 @@ doc/tutorials
 doc/modules
 doc/pyplots/tex_demo.png
 lib/dateutil
+examples/*/*.eps
 examples/*/*.pdf
 examples/*/*.png
 examples/*/*.svg
-examples/*/*.eps
 examples/*/*.svgz
 examples/tests/*
-!examples/tests/backend_driver.py
+!examples/tests/backend_driver_sgskip.py
 result_images
 
 # Nose/Pytest generated files #
@@ -95,3 +95,8 @@ lib/z.lib
 #################
 
 .ipynb_checkpoints/
+
+# Vendored dependencies #
+#########################
+
+jquery-ui-*/

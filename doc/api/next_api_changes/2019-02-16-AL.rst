@@ -1,0 +1,10 @@
+Changes in AFM parsing
+``````````````````````
+
+In accordance with the AFM spec, the AFM parser no longer truncates the
+``UnderlinePosition`` and ``UnderlineThickness`` fields to integers.
+
+The ``Notice`` field (which can only be publically accessed by the deprecated
+``afm.parse_afm`` API) is no longer decoded to a `str`, but instead kept as
+`bytes`, to support non-conformant AFM files that use non-ASCII characters in
+that field.

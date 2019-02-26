@@ -1,3 +1,6 @@
+import inspect
+import textwrap
+
 import numpy as np
 from numpy import ma
 
@@ -24,6 +27,21 @@ class ScaleBase(object):
     And optionally:
       - :meth:`limit_range_for_scale`
     """
+
+    def __init__(self, axis, **kwargs):
+        r"""
+        Construct a new scale.
+
+        Notes
+        -----
+        The following note is for scale implementors.
+
+        For back-compatibility reasons, scales take an `~matplotlib.axis.Axis`
+        object as first argument.  However, this argument should not
+        be used: a single scale object should be usable by multiple
+        `~matplotlib.axis.Axis`\es at the same time.
+        """
+
     def get_transform(self):
         """
         Return the :class:`~matplotlib.transforms.Transform` object
@@ -58,7 +76,12 @@ class LinearScale(ScaleBase):
     name = 'linear'
 
     def __init__(self, axis, **kwargs):
-        pass
+        # This method is present only to prevent inheritance of the base class'
+        # constructor docstring, which would otherwise end up interpolated into
+        # the docstring of Axis.set_scale.
+        """
+        """
+        super().__init__(axis, **kwargs)
 
     def set_default_locators_and_formatters(self, axis):
         """
@@ -69,7 +92,8 @@ class LinearScale(ScaleBase):
         axis.set_major_formatter(ScalarFormatter())
         axis.set_minor_formatter(NullFormatter())
         # update the minor locator for x and y axis based on rcParams
-        if rcParams['xtick.minor.visible']:
+        if (axis.axis_name == 'x' and rcParams['xtick.minor.visible']
+            or axis.axis_name == 'y' and rcParams['ytick.minor.visible']):
             axis.set_minor_locator(AutoMinorLocator())
         else:
             axis.set_minor_locator(NullLocator())
@@ -80,6 +104,95 @@ class LinearScale(ScaleBase):
         :class:`~matplotlib.transforms.IdentityTransform`.
         """
         return IdentityTransform()
+
+
+class FuncTransform(Transform):
+    """
+    A simple transform that takes and arbitrary function for the
+    forward and inverse transform.
+    """
+
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
+    def __init__(self, forward, inverse):
+        """
+        Parameters
+        ----------
+
+        forward : callable
+            The forward function for the transform.  This function must have
+            an inverse and, for best behavior, be monotonic.
+            It must have the signature::
+
+               def forward(values: array-like) -> array-like
+
+        inverse : callable
+            The inverse of the forward function.  Signature as ``forward``.
+        """
+        super().__init__()
+        if callable(forward) and callable(inverse):
+            self._forward = forward
+            self._inverse = inverse
+        else:
+            raise ValueError('arguments to FuncTransform must '
+                             'be functions')
+
+    def transform_non_affine(self, values):
+        return self._forward(values)
+
+    def inverted(self):
+        return FuncTransform(self._inverse, self._forward)
+
+
+class FuncScale(ScaleBase):
+    """
+    Provide an arbitrary scale with user-supplied function for the axis.
+    """
+
+    name = 'function'
+
+    def __init__(self, axis, functions):
+        """
+        Parameters
+        ----------
+
+        axis: the axis for the scale
+
+        functions : (callable, callable)
+            two-tuple of the forward and inverse functions for the scale.
+            The forward function must be monotonic.
+
+            Both functions must have the signature::
+
+               def forward(values: array-like) -> array-like
+        """
+        forward, inverse = functions
+        transform = FuncTransform(forward, inverse)
+        self._transform = transform
+
+    def get_transform(self):
+        """
+        The transform for arbitrary scaling
+        """
+        return self._transform
+
+    def set_default_locators_and_formatters(self, axis):
+        """
+        Set the locators and formatters to the same defaults as the
+        linear scale.
+        """
+        axis.set_major_locator(AutoLocator())
+        axis.set_major_formatter(ScalarFormatter())
+        axis.set_minor_formatter(NullFormatter())
+        # update the minor locator for x and y axis based on rcParams
+        if (axis.axis_name == 'x' and rcParams['xtick.minor.visible']
+            or axis.axis_name == 'y' and rcParams['ytick.minor.visible']):
+            axis.set_minor_locator(AutoMinorLocator())
+        else:
+            axis.set_minor_locator(NullLocator())
 
 
 class LogTransformBase(Transform):
@@ -107,7 +220,7 @@ class LogTransformBase(Transform):
                 # pass. On the other hand, in practice, we want to clip beyond
                 #     np.log10(np.nextafter(0, 1)) ~ -323
                 # so 1000 seems safe.
-                    out[a <= 0] = -1000
+                out[a <= 0] = -1000
         return out
 
     def __str__(self):
@@ -220,7 +333,7 @@ class LogScale(ScaleBase):
         *basex*/*basey*:
            The base of the logarithm
 
-        *nonposx*/*nonposy*: ['mask' | 'clip' ]
+        *nonposx*/*nonposy*: {'mask', 'clip'}
           non-positive values in *x* or *y* can be masked as
           invalid, or clipped to a very small positive number
 
@@ -236,10 +349,12 @@ class LogScale(ScaleBase):
             base = kwargs.pop('basex', 10.0)
             subs = kwargs.pop('subsx', None)
             nonpos = kwargs.pop('nonposx', 'clip')
+            cbook._check_in_list(['mask', 'clip'], nonposx=nonpos)
         else:
             base = kwargs.pop('basey', 10.0)
             subs = kwargs.pop('subsy', None)
             nonpos = kwargs.pop('nonposy', 'clip')
+            cbook._check_in_list(['mask', 'clip'], nonposy=nonpos)
 
         if len(kwargs):
             raise ValueError(("provided too many kwargs, can only pass "
@@ -247,8 +362,6 @@ class LogScale(ScaleBase):
                               "{'basey', 'subsy', nonposy'}.  You passed ") +
                              "{!r}".format(kwargs))
 
-        if nonpos not in ['mask', 'clip']:
-            raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
 
@@ -293,6 +406,46 @@ class LogScale(ScaleBase):
 
         return (minpos if vmin <= 0 else vmin,
                 minpos if vmax <= 0 else vmax)
+
+
+class FuncScaleLog(LogScale):
+    """
+    Provide an arbitrary scale with user-supplied function for the axis and
+    then put on a logarithmic axes.
+    """
+
+    name = 'functionlog'
+
+    def __init__(self, axis, functions, base=10):
+        """
+        Parameters
+        ----------
+
+        axis: the axis for the scale
+
+        functions : (callable, callable)
+            two-tuple of the forward and inverse functions for the scale.
+            The forward function must be monotonic.
+
+            Both functions must have the signature::
+
+                def forward(values: array-like) -> array-like
+
+        base : float
+            logarithmic base of the scale (default = 10)
+
+        """
+        forward, inverse = functions
+        self.base = base
+        self.subs = None
+        transform = FuncTransform(forward, inverse) + LogTransform(base)
+        self._transform = transform
+
+    def get_transform(self):
+        """
+        The transform for arbitrary scaling
+        """
+        return self._transform
 
 
 class SymmetricalLogTransform(Transform):
@@ -507,13 +660,11 @@ class LogitScale(ScaleBase):
 
     def __init__(self, axis, nonpos='mask'):
         """
-        *nonpos*: ['mask' | 'clip' ]
+        *nonpos*: {'mask', 'clip'}
           values beyond ]0, 1[ can be masked as invalid, or clipped to a number
           very close to 0 or 1
         """
-        if nonpos not in ['mask', 'clip']:
-            raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")
-
+        cbook._check_in_list(['mask', 'clip'], nonpos=nonpos)
         self._transform = LogitTransform(nonpos)
 
     def get_transform(self):
@@ -545,6 +696,8 @@ _scale_mapping = {
     'log':    LogScale,
     'symlog': SymmetricalLogScale,
     'logit':  LogitScale,
+    'function': FuncScale,
+    'functionlog': FuncScaleLog,
     }
 
 
@@ -556,18 +709,17 @@ def scale_factory(scale, axis, **kwargs):
     """
     Return a scale class by name.
 
-    ACCEPTS: [ %(names)s ]
+    Parameters
+    ----------
+    scale : {%(names)s}
+    axis : Axis
     """
     scale = scale.lower()
-    if scale is None:
-        scale = 'linear'
-
     if scale not in _scale_mapping:
         raise ValueError("Unknown scale type '%s'" % scale)
-
     return _scale_mapping[scale](axis, **kwargs)
-scale_factory.__doc__ = cbook.dedent(scale_factory.__doc__) % \
-    {'names': " | ".join(get_scale_names())}
+scale_factory.__doc__ = scale_factory.__doc__ % {
+    "names": ", ".join(get_scale_names())}
 
 
 def register_scale(scale_class):
@@ -579,24 +731,32 @@ def register_scale(scale_class):
     _scale_mapping[scale_class.name] = scale_class
 
 
+@cbook.deprecated(
+    '3.1', message='get_scale_docs() is considered private API since '
+                   '3.1 and will be removed from the public API in 3.3.')
 def get_scale_docs():
     """
     Helper function for generating docstrings related to scales.
     """
+    return _get_scale_docs()
+
+
+def _get_scale_docs():
+    """
+    Helper function for generating docstrings related to scales.
+    """
     docs = []
-    for name in get_scale_names():
-        scale_class = _scale_mapping[name]
-        docs.append("    '%s'" % name)
-        docs.append("")
-        class_docs = cbook.dedent(scale_class.__init__.__doc__)
-        class_docs = "".join(["        %s\n" %
-                              x for x in class_docs.split("\n")])
-        docs.append(class_docs)
-        docs.append("")
+    for name, scale_class in _scale_mapping.items():
+        docs.extend([
+            f"    {name!r}",
+            "",
+            textwrap.indent(inspect.getdoc(scale_class.__init__), " " * 8),
+            ""
+        ])
     return "\n".join(docs)
 
 
 docstring.interpd.update(
     scale=' | '.join([repr(x) for x in get_scale_names()]),
-    scale_docs=get_scale_docs().rstrip(),
+    scale_docs=_get_scale_docs().rstrip(),
     )

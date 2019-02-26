@@ -11,7 +11,7 @@ This demo illustrates a bug in quadmesh with masked data.
 
 import copy
 
-from matplotlib import cm, colors, pyplot as plt
+from matplotlib import cm, pyplot as plt
 import numpy as np
 
 n = 12

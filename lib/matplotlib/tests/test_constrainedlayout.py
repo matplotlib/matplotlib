@@ -94,9 +94,9 @@ def test_constrained_layout5():
 def test_constrained_layout6():
     'Test constrained_layout for nested gridspecs'
     fig = plt.figure(constrained_layout=True)
-    gs = gridspec.GridSpec(1, 2, figure=fig)
-    gsl = gridspec.GridSpecFromSubplotSpec(2, 2, gs[0])
-    gsr = gridspec.GridSpecFromSubplotSpec(1, 2, gs[1])
+    gs = fig.add_gridspec(1, 2, figure=fig)
+    gsl = gs[0].subgridspec(2, 2)
+    gsr = gs[1].subgridspec(1, 2)
     axsl = []
     for gs in gsl:
         ax = fig.add_subplot(gs)
@@ -163,7 +163,6 @@ def test_constrained_layout9():
     'Test for handling suptitle and for sharex and sharey'
     fig, axs = plt.subplots(2, 2, constrained_layout=True,
                             sharex=False, sharey=False)
-    # ax = fig.add_subplot(111)
     for ax in axs.flatten():
         pcm = example_pcolor(ax, fontsize=24)
         ax.set_xlabel('')
@@ -379,3 +378,29 @@ def test_constrained_layout23():
     for i in range(2):
         fig, ax = plt.subplots(num="123", constrained_layout=True, clear=True)
         fig.suptitle("Suptitle{}".format(i))
+
+
+# This test occasionally fails the image comparison tests, so we mark as
+# flaky.  Apparently the constraint solver occasionally doesn't fully
+# optimize.  Would be nice if this were more deterministic...
+@pytest.mark.timeout(30)
+@pytest.mark.flaky(reruns=3)
+@image_comparison(baseline_images=['test_colorbar_location'],
+        extensions=['png'], remove_text=True, style='mpl20')
+def test_colorbar_location():
+    """
+    Test that colorbar handling is as expected for various complicated
+    cases...
+    """
+
+    fig, axs = plt.subplots(4, 5, constrained_layout=True)
+    for ax in axs.flatten():
+        pcm = example_pcolor(ax)
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+    fig.colorbar(pcm, ax=axs[:, 1], shrink=0.4)
+    fig.colorbar(pcm, ax=axs[-1, :2], shrink=0.5, location='bottom')
+    fig.colorbar(pcm, ax=axs[0, 2:], shrink=0.5, location='bottom')
+    fig.colorbar(pcm, ax=axs[-2, 3:], shrink=0.5, location='top')
+    fig.colorbar(pcm, ax=axs[0, 0], shrink=0.5, location='left')
+    fig.colorbar(pcm, ax=axs[1:3, 2], shrink=0.5, location='right')

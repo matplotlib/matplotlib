@@ -1,6 +1,6 @@
 """
 =========================================
-Tick formatting using the ScalarFromatter
+Tick formatting using the ScalarFormatter
 =========================================
 
 The example shows use of ScalarFormatter with different settings.

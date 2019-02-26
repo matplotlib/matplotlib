@@ -16,8 +16,10 @@ extern "C" {
 #   ifdef _POSIX_C_SOURCE
 #       undef _POSIX_C_SOURCE
 #   endif
+#   ifndef _AIX
 #   ifdef _XOPEN_SOURCE
 #       undef _XOPEN_SOURCE
+#   endif
 #   endif
 }
 
@@ -127,6 +129,9 @@ const char *Py_write_png__doc__ =
     "    - Source: Device used to create the image\n"
     "    - Comment: Miscellaneous comment; conversion\n"
     "               from other image format\n"
+    "\n"
+    "    For more details see the PNG specification:\n"
+    "    https://www.w3.org/TR/2003/REC-PNG-20031110/#11keywords\n"
     "\n"
     "Returns\n"
     "-------\n"

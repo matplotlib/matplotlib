@@ -13,14 +13,8 @@ This example demonstrates how to:
 Using `matplotlib.backend_managers.ToolManager`
 """
 
-
-import matplotlib
-# Change to the desired backend
-matplotlib.use('GTK3Cairo')
-# matplotlib.use('TkAgg')
-# matplotlib.use('QT5Agg')
-matplotlib.rcParams['toolbar'] = 'toolmanager'
 import matplotlib.pyplot as plt
+plt.rcParams['toolbar'] = 'toolmanager'
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
 
 
@@ -67,7 +61,6 @@ class GroupHideTool(ToolToggleBase):
         self.set_lines_visibility(False)
 
     def set_lines_visibility(self, state):
-        gr_lines = []
         for ax in self.figure.get_axes():
             for line in ax.get_lines():
                 if line.get_gid() == self.gid:

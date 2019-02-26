@@ -30,8 +30,8 @@ def demo_simple_grid(fig):
                      )
 
     Z, extent = get_demo_image()
-    for i in range(4):
-        im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
+    for ax in grid:
+        im = ax.imshow(Z, extent=extent, interpolation="nearest")
 
     # This only affects axes in first column and second row as share_all =
     # False.
@@ -53,8 +53,8 @@ def demo_grid_with_single_cbar(fig):
                      )
 
     Z, extent = get_demo_image()
-    for i in range(4):
-        im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
+    for ax in grid:
+        im = ax.imshow(Z, extent=extent, interpolation="nearest")
     grid.cbar_axes[0].colorbar(im)
 
     for cax in grid.cbar_axes:
@@ -69,7 +69,6 @@ def demo_grid_with_each_cbar(fig):
     """
     A grid of 2x2 images. Each image has its own colorbar.
     """
-
     grid = ImageGrid(fig, 143,  # similar to subplot(143)
                      nrows_ncols=(2, 2),
                      axes_pad=0.1,
@@ -81,11 +80,9 @@ def demo_grid_with_each_cbar(fig):
                      cbar_pad="2%",
                      )
     Z, extent = get_demo_image()
-    for i in range(4):
-        im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
-        grid.cbar_axes[i].colorbar(im)
-
-    for cax in grid.cbar_axes:
+    for ax, cax in zip(grid, grid.cbar_axes):
+        im = ax.imshow(Z, extent=extent, interpolation="nearest")
+        cax.colorbar(im)
         cax.toggle_label(False)
 
     # This affects all axes because we set share_all = True.
@@ -97,7 +94,6 @@ def demo_grid_with_each_cbar_labelled(fig):
     """
     A grid of 2x2 images. Each image has its own colorbar.
     """
-
     grid = ImageGrid(fig, 144,  # similar to subplot(144)
                      nrows_ncols=(2, 2),
                      axes_pad=(0.45, 0.15),
@@ -112,28 +108,23 @@ def demo_grid_with_each_cbar_labelled(fig):
 
     # Use a different colorbar range every time
     limits = ((0, 1), (-2, 2), (-1.7, 1.4), (-1.5, 1))
-    for i in range(4):
-        im = grid[i].imshow(Z, extent=extent, interpolation="nearest",
-                            vmin=limits[i][0], vmax=limits[i][1])
-        grid.cbar_axes[i].colorbar(im)
-
-    for i, cax in enumerate(grid.cbar_axes):
-        cax.set_yticks((limits[i][0], limits[i][1]))
+    for ax, cax, vlim in zip(grid, grid.cbar_axes, limits):
+        im = ax.imshow(Z, extent=extent, interpolation="nearest",
+                       vmin=vlim[0], vmax=vlim[1])
+        cax.colorbar(im)
+        cax.set_yticks((vlim[0], vlim[1]))
 
     # This affects all axes because we set share_all = True.
     grid.axes_llc.set_xticks([-2, 0, 2])
     grid.axes_llc.set_yticks([-2, 0, 2])
 
 
-if 1:
-    F = plt.figure(1, (10.5, 2.5))
+fig = plt.figure(figsize=(10.5, 2.5))
+fig.subplots_adjust(left=0.05, right=0.95)
 
-    F.subplots_adjust(left=0.05, right=0.95)
+demo_simple_grid(fig)
+demo_grid_with_single_cbar(fig)
+demo_grid_with_each_cbar(fig)
+demo_grid_with_each_cbar_labelled(fig)
 
-    demo_simple_grid(F)
-    demo_grid_with_single_cbar(F)
-    demo_grid_with_each_cbar(F)
-    demo_grid_with_each_cbar_labelled(F)
-
-    plt.draw()
-    plt.show()
+plt.show()
