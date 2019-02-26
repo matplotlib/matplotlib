@@ -3,8 +3,6 @@
 #ifndef MPL_PATH_H
 #define MPL_PATH_H
 
-#include <cstdio>
-
 #include <limits>
 #include <math.h>
 #include <vector>
