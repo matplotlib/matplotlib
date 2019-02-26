@@ -1445,6 +1445,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         resolution of the output image.
     """
     from matplotlib.figure import Figure
+    from matplotlib import _png
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if format is None:
