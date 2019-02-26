@@ -3,9 +3,7 @@
 Demo of 3D bar charts
 =====================
 
-A basic demo of how to plot 3D bars with and without
-shading.
-
+A basic demo of how to plot 3D bars with and without shading.
 """
 
 import numpy as np
