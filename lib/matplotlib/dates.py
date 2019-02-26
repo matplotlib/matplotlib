@@ -55,10 +55,10 @@ formatters are provided in this module.  See
 :mod:`matplotlib.ticker` for general information on tick locators
 and formatters.  These are described below.
 
+The dateutil_ module provides additional code to handle date ticking, making it
+easy to place ticks on any kinds of dates.  See examples below.
 
-The `dateutil module <https://dateutil.readthedocs.io>`_ provides
-additional code to handle date ticking, making it easy to place ticks
-on any kinds of dates.  See examples below.
+.. _dateutil: https://dateutil.readthedocs.io
 
 Date tickers
 ------------
@@ -104,13 +104,10 @@ Here are all the date tickers:
 
     * :class:`YearLocator`: locate years that are multiples of base
 
-    * :class:`RRuleLocator`: locate using a
-      :class:`matplotlib.dates.rrulewrapper`.  The
-      :class:`rrulewrapper` is a simple wrapper around a
-      :class:`dateutil.rrule` (`dateutil
-      <https://dateutil.readthedocs.io>`_) which allow almost
-      arbitrary date tick specifications.  See `rrule example
-      <../gallery/ticks_and_spines/date_demo_rrule.html>`_.
+    * :class:`RRuleLocator`: locate using a `matplotlib.dates.rrulewrapper`.
+      `.rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule`
+      which allow almost arbitrary date tick specifications.  See :doc:`rrule
+      example </gallery/ticks_and_spines/date_demo_rrule>`.
 
     * :class:`AutoDateLocator`: On autoscale, this class picks the best
       :class:`DateLocator` (e.g., :class:`RRuleLocator`)
