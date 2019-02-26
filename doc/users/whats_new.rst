@@ -15,11 +15,26 @@ revision, see the :ref:`github-stats`.
    For a release, add a new section after this, then comment out the include
    and toctree below by indenting them. Uncomment them after the release.
 
-.. toctree::
-   :glob:
-   :maxdepth: 1
+   .. toctree::
+      :glob:
+      :maxdepth: 1
 
-   next_whats_new/*
+      next_whats_new/*
+
+New in Matplotlib 2.2.4
+=======================
+
+
+``:math:`` directive renamed to ``:mathmpl:``
+---------------------------------------------
+
+The ``:math:`` rst role provided by `matplotlib.sphinxext.mathmpl` has been
+renamed to ``:mathmpl:`` to avoid conflicting with the ``:math:`` role that
+Sphinx 1.8 provides by default.  (``:mathmpl:`` uses Matplotlib to render math
+expressions to images embedded in html, whereas Sphinx uses MathJax.)
+
+When using Sphinx<1.8, both names (``:math:`` and ``:mathmpl:``) remain
+available for backcompatibility.
 
 
 New in Matplotlib 2.2
@@ -141,10 +156,10 @@ A new dark blue/yellow colormap named 'cividis' was added. Like
 viridis, cividis is perceptually uniform and colorblind
 friendly. However, cividis also goes a step further: not only is it
 usable by colorblind users, it should actually look effectively
-identical to colorblind and non-colorblind users. For more details,
-see Nunez J, Anderton C, and Renslow R. (submitted). Optimizing
-colormaps with consideration for color vision deficiency to enable
-accurate interpretation of scientific data."
+identical to colorblind and non-colorblind users. For more details
+see `Nuñez J, Anderton C, and Renslow R: "Optimizing colormaps with consideration
+for color vision deficiency to enable accurate interpretation of scientific data"
+<https://doi.org/10.1371/journal.pone.0199239>`_.
 
 .. plot::
 
@@ -347,7 +362,7 @@ TkAgg backend reworked to support PyPy
 PyPy_ can now plot using the TkAgg backend, supported on PyPy 5.9
 and greater (both PyPy for python 2.7 and PyPy for python 3.5).
 
-.. _PyPy: https:/www.pypy.org
+.. _PyPy: https://www.pypy.org
 
 
 

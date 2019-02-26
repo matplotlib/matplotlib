@@ -84,7 +84,7 @@ excellent Python scientific software collections that are now available:
 - Canopy_ from Enthought_
 
 .. _Canopy: https://www.enthought.com/products/canopy/
-.. _Anaconda: https://www.continuum.io/downloads
+.. _Anaconda: https://www.anaconda.com/distribution/
 .. _Enthought: https://www.enthought.com
 .. _Continuum Analytics: https://www.continuum.io
 
