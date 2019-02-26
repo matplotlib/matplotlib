@@ -801,16 +801,14 @@ class GraphicsContextBase(object):
 
     def get_dashes(self):
         """
-        Return the dash information as an offset dashlist tuple.
+        Return the dash style as an (offset, dash-list) pair.
 
-        The dash list is a even size list that gives the ink on, ink
-        off in pixels.
+        The dash list is a even-length list that gives the ink on, ink off in
+        points.  See p. 107 of to PostScript `blue book`_ for more info.
 
-        See p107 of to PostScript `BLUEBOOK
-        <https://www-cdf.fnal.gov/offline/PostScript/BLUEBOOK.PDF>`_
-        for more info.
+        Default value is (None, None).
 
-        Default value is None
+        .. _blue book: https://www-cdf.fnal.gov/offline/PostScript/BLUEBOOK.PDF
         """
         return self._dashes
 
@@ -904,13 +902,18 @@ class GraphicsContextBase(object):
 
         Parameters
         ----------
-        dash_offset : float
-            is the offset (usually 0).
+        dash_offset : float or None
+            The offset (usually 0).
+        dash_list : array_like or None
+            The on-off sequence as points.
 
-        dash_list : array_like
-            specifies the on-off sequence as points.
-            ``(None, None)`` specifies a solid line
+        Notes
+        -----
+        ``(None, None)`` specifies a solid line.
 
+        See p. 107 of to PostScript `blue book`_ for more info.
+
+        .. _blue book: https://www-cdf.fnal.gov/offline/PostScript/BLUEBOOK.PDF
         """
         if dash_list is not None:
             dl = np.asarray(dash_list)
