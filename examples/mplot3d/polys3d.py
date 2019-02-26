@@ -8,9 +8,6 @@ graph. In this example polygons are semi-transparent, creating a sort
 of 'jagged stained glass' effect.
 """
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
-
 from matplotlib.collections import PolyCollection
 import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors

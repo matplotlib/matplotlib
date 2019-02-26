@@ -6,9 +6,6 @@
 Demonstrates plotting a 3D surface colored in a checkerboard pattern.
 '''
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
-
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LinearLocator
 import numpy as np

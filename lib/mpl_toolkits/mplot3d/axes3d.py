@@ -21,7 +21,6 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
-import matplotlib.projections as proj
 import matplotlib.scale as mscale
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes, rcParams
@@ -2975,10 +2974,3 @@ def get_test_data(delta=0.05):
     Y = Y * 10
     Z = Z * 500
     return X, Y, Z
-
-
-########################################################
-# Register Axes3D as a 'projection' object available
-# for use just like any other axes
-########################################################
-proj.projection_registry.register(Axes3D)
