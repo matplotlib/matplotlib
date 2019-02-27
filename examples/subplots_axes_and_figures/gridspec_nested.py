@@ -24,22 +24,16 @@ gs0 = gridspec.GridSpec(1, 2, figure=f)
 
 gs00 = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=gs0[0])
 
-ax1 = plt.Subplot(f, gs00[:-1, :])
-f.add_subplot(ax1)
-ax2 = plt.Subplot(f, gs00[-1, :-1])
-f.add_subplot(ax2)
-ax3 = plt.Subplot(f, gs00[-1, -1])
-f.add_subplot(ax3)
+ax1 = f.add_subplot(gs00[:-1, :])
+ax2 = f.add_subplot(gs00[-1, :-1])
+ax3 = f.add_subplot(gs00[-1, -1])
 
+# the following syntax does the same as the GridSpecFromSubplotSpec call above:
+gs01 = gs0[1].subgridspec(3, 3)
 
-gs01 = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=gs0[1])
-
-ax4 = plt.Subplot(f, gs01[:, :-1])
-f.add_subplot(ax4)
-ax5 = plt.Subplot(f, gs01[:-1, -1])
-f.add_subplot(ax5)
-ax6 = plt.Subplot(f, gs01[-1, -1])
-f.add_subplot(ax6)
+ax4 = f.add_subplot(gs01[:, :-1])
+ax5 = f.add_subplot(gs01[:-1, -1])
+ax6 = f.add_subplot(gs01[-1, -1])
 
 plt.suptitle("GridSpec Inside GridSpec")
 format_axes(f)
