@@ -242,7 +242,7 @@ for i in range(16):
     inner_grid = outer_grid[i].subgridspec(3, 3, wspace=0.0, hspace=0.0)
     a, b = int(i/4)+1, i % 4+1
     for j, (c, d) in enumerate(product(range(1, 4), repeat=2)):
-        ax = plt.Subplot(fig11, inner_grid[j])
+        ax = fig11.add_subplot(inner_grid[j])
         ax.plot(*squiggle_xy(a, b, c, d))
         ax.set_xticks([])
         ax.set_yticks([])
