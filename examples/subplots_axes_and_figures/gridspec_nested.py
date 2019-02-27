@@ -28,7 +28,7 @@ ax1 = f.add_subplot(gs00[:-1, :])
 ax2 = f.add_subplot(gs00[-1, :-1])
 ax3 = f.add_subplot(gs00[-1, -1])
 
-# the following syntax is the same as the GridSpecFromSubplotSpec call above:
+# the following syntax does the same as the GridSpecFromSubplotSpec call above:
 gs01 = gs0[1].subgridspec(3, 3)
 
 ax4 = f.add_subplot(gs01[:, :-1])
