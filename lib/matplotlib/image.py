@@ -1529,8 +1529,10 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
     Parameters
     ----------
     infile : str or file-like
-        The image file -- must be PNG, Pillow-readable if you have `Pillow
-        <http://python-pillow.org/>`_ installed.
+        The image file -- must be PNG, or Pillow-readable if you have Pillow_
+        installed.
+
+        .. _Pillow: http://python-pillow.org/
 
     thumbfile : str or file-like
         The thumbnail filename.
