@@ -8,7 +8,6 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-import matplotlib._contour as _contour
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
@@ -1451,6 +1450,8 @@ class QuadContourSet(ContourSet):
             self._mins = args[0]._mins
             self._maxs = args[0]._maxs
         else:
+            import matplotlib._contour as _contour
+
             self._corner_mask = kwargs.pop('corner_mask', None)
             if self._corner_mask is None:
                 self._corner_mask = mpl.rcParams['contour.corner_mask']

@@ -132,7 +132,6 @@ import re
 import shutil
 import subprocess
 import tempfile
-import urllib.request
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
@@ -874,6 +873,7 @@ def is_url(filename):
 @contextlib.contextmanager
 def _open_file_or_url(fname):
     if is_url(fname):
+        import urllib.request
         with urllib.request.urlopen(fname) as f:
             yield (line.decode('utf-8') for line in f)
     else:

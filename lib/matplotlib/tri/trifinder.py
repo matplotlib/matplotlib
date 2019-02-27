@@ -1,7 +1,6 @@
 import numpy as np
 
 from matplotlib.tri import Triangulation
-import matplotlib._tri as _tri
 
 
 class TriFinder(object):
@@ -35,6 +34,7 @@ class TrapezoidMapTriFinder(TriFinder):
     this should not be relied upon.
     """
     def __init__(self, triangulation):
+        from matplotlib import _tri
         TriFinder.__init__(self, triangulation)
         self._cpp_trifinder = _tri.TrapezoidMapTriFinder(
             triangulation.get_cpp_triangulation())
