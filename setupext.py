@@ -319,7 +319,7 @@ def make_extension(name, files, *args, **kwargs):
     Any additional arguments are passed to the
     `distutils.core.Extension` constructor.
     """
-    ext = DelayedExtension(name, files, *args, **kwargs)
+    ext = Extension(name, files, *args, **kwargs)
     for dir in get_base_dirs():
         include_dir = os.path.join(dir, 'include')
         if os.path.exists(include_dir):
@@ -329,7 +329,6 @@ def make_extension(name, files, *args, **kwargs):
             if os.path.exists(lib_dir):
                 ext.library_dirs.append(lib_dir)
     ext.include_dirs.append('.')
-
     return ext
 
 
@@ -789,79 +788,12 @@ class Tests(OptionalPackage):
         }
 
 
-class DelayedExtension(Extension, object):
-    """
-    A distutils Extension subclass where some of its members
-    may have delayed computation until reaching the build phase.
-
-    This is so we can, for example, get the Numpy include dirs
-    after pip has installed Numpy for us if it wasn't already
-    on the system.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._finalized = False
-        self._hooks = {}
-
-    def add_hook(self, member, func):
-        """
-        Add a hook to dynamically compute a member.
-
-        Parameters
-        ----------
-        member : string
-            The name of the member
-
-        func : callable
-            The function to call to get dynamically-computed values
-            for the member.
-        """
-        self._hooks[member] = func
-
-    def finalize(self):
-        self._finalized = True
-
-    class DelayedMember(property):
-        def __init__(self, name):
-            self._name = name
-
-        def __get__(self, obj, objtype=None):
-            result = getattr(obj, '_' + self._name, [])
-
-            if obj._finalized:
-                if self._name in obj._hooks:
-                    result = obj._hooks[self._name]() + result
-
-            return result
-
-        def __set__(self, obj, value):
-            setattr(obj, '_' + self._name, value)
-
-    include_dirs = DelayedMember('include_dirs')
-
-
 class Numpy(SetupPackage):
     name = "numpy"
 
-    @staticmethod
-    def include_dirs_hook():
-        if hasattr(builtins, '__NUMPY_SETUP__'):
-            del builtins.__NUMPY_SETUP__
-        import numpy
-        importlib.reload(numpy)
-
-        ext = Extension('test', [])
-        ext.include_dirs.append(numpy.get_include())
-        if not has_include_file(
-                ext.include_dirs, os.path.join("numpy", "arrayobject.h")):
-            _log.warning(
-                "The C headers for numpy could not be found. "
-                "You may need to install the development package")
-
-        return [numpy.get_include()]
-
     def add_flags(self, ext):
-        ext.add_hook('include_dirs', self.include_dirs_hook)
+        import numpy as np
+        ext.include_dirs.append(np.get_include())
         ext.define_macros.extend([
             # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for each
             # extension.
