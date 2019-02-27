@@ -1,5 +1,7 @@
+import functools
 import logging
 import os
+from pathlib import Path
 import sys
 
 import matplotlib
@@ -521,6 +523,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
         self.show_all()
 
+    @cbook.deprecated("3.1")
     def get_filechooser(self):
         fc = FileChooserDialog(
             title='Save the figure',
@@ -532,24 +535,54 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         return fc
 
     def save_figure(self, *args):
-        chooser = self.get_filechooser()
-        fname, format = chooser.get_filename_from_user()
-        chooser.destroy()
-        if fname:
-            startpath = os.path.expanduser(rcParams['savefig.directory'])
-            # Save dir for next time, unless empty str (i.e., use cwd).
-            if startpath != "":
-                rcParams['savefig.directory'] = os.path.dirname(fname)
-            try:
-                self.canvas.figure.savefig(fname, format=format)
-            except Exception as e:
-                error_msg_gtk(str(e), parent=self)
+        dialog = Gtk.FileChooserDialog(
+            title="Save the figure",
+            parent=self.canvas.get_toplevel(),
+            action=Gtk.FileChooserAction.SAVE,
+            buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                     Gtk.STOCK_SAVE,   Gtk.ResponseType.OK),
+        )
+        for name, fmts \
+                in self.canvas.get_supported_filetypes_grouped().items():
+            ff = Gtk.FileFilter()
+            ff.set_name(name)
+            for fmt in fmts:
+                ff.add_pattern("*." + fmt)
+            dialog.add_filter(ff)
+            if self.canvas.get_default_filetype() in fmts:
+                dialog.set_filter(ff)
+
+        @functools.partial(dialog.connect, "notify::filter")
+        def on_notify_filter(*args):
+            name = dialog.get_filter().get_name()
+            fmt = self.canvas.get_supported_filetypes_grouped()[name][0]
+            dialog.set_current_name(
+                str(Path(dialog.get_current_name()).with_suffix("." + fmt)))
+
+        dialog.set_current_folder(rcParams["savefig.directory"])
+        dialog.set_current_name(self.canvas.get_default_filename())
+        dialog.set_do_overwrite_confirmation(True)
+
+        response = dialog.run()
+        fname = dialog.get_filename()
+        ff = dialog.get_filter()  # Doesn't autoadjust to filename :/
+        fmt = self.canvas.get_supported_filetypes_grouped()[ff.get_name()][0]
+        dialog.destroy()
+        if response == Gtk.ResponseType.CANCEL:
+            return
+        # Save dir for next time, unless empty str (which means use cwd).
+        if rcParams['savefig.directory']:
+            rcParams['savefig.directory'] = os.path.dirname(fname)
+        try:
+            self.canvas.figure.savefig(fname, format=fmt)
+        except Exception as e:
+            error_msg_gtk(str(e), parent=self)
 
     def configure_subplots(self, button):
         toolfig = Figure(figsize=(6, 3))
         canvas = self._get_canvas(toolfig)
         toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.canvas.figure, toolfig)
+        tool = SubplotTool(self.canvas.figure, toolfig)
 
         w = int(toolfig.bbox.width)
         h = int(toolfig.bbox.height)
@@ -582,6 +615,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self._gtk_ids['Forward'].set_sensitive(can_forward)
 
 
+@cbook.deprecated("3.1")
 class FileChooserDialog(Gtk.FileChooserDialog):
     """GTK+ file selector which remembers the last file/directory
     selected and presents the user with a menu of supported image formats
@@ -777,6 +811,7 @@ class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
 
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
 
+    @cbook.deprecated("3.1")
     def get_filechooser(self):
         fc = FileChooserDialog(
             title='Save the figure',
@@ -788,21 +823,11 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
         return fc
 
     def trigger(self, *args, **kwargs):
-        chooser = self.get_filechooser()
-        fname, format_ = chooser.get_filename_from_user()
-        chooser.destroy()
-        if fname:
-            startpath = os.path.expanduser(rcParams['savefig.directory'])
-            if startpath == '':
-                # explicitly missing key or empty str signals to use cwd
-                rcParams['savefig.directory'] = startpath
-            else:
-                # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(fname)
-            try:
-                self.figure.canvas.print_figure(fname, format=format_)
-            except Exception as e:
-                error_msg_gtk(str(e), parent=self)
+
+        class PseudoToolbar:
+            canvas = self.figure.canvas
+
+        return NavigationToolbar2GTK3.save_figure(PseudoToolbar())
 
 
 class SetCursorGTK3(backend_tools.SetCursorBase):
