@@ -1,6 +1,7 @@
 from .. import axes, cbook
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class ProjectionRegistry:
@@ -38,7 +39,9 @@ projection_registry.register(
     AitoffAxes,
     HammerAxes,
     LambertAxes,
-    MollweideAxes)
+    MollweideAxes,
+    Axes3D,
+)
 
 
 def register_projection(cls):

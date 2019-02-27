@@ -8,8 +8,6 @@ A basic demo of how to plot 3D bars with and without shading.
 
 import numpy as np
 import matplotlib.pyplot as plt
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 
 # setup the figure and axes

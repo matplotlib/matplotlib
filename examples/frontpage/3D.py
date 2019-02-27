@@ -6,8 +6,6 @@ Frontpage 3D example
 This example reproduces the frontpage 3D example.
 
 """
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 from matplotlib import cbook
 from matplotlib import cm

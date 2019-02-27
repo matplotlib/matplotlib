@@ -16,8 +16,6 @@ Flow"`_ in a 3-dimensional space using mplot3d.
 
 import numpy as np
 import matplotlib.pyplot as plt
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 
 def lorenz(x, y, z, s=10, r=28, b=2.667):
