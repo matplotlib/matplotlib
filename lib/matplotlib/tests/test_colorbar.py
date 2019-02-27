@@ -401,6 +401,15 @@ def test_colorbar_get_ticks():
     assert defTicks.get_ticks().tolist() == levels
 
 
+def test_colorbar_inverted_ticks():
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh(np.arange(4).reshape(2, 2))
+    cbar = fig.colorbar(pc, ax=ax)
+    ticks = cbar.get_ticks()
+    cbar.ax.invert_yaxis()
+    assert cbar.get_ticks() == ticks
+
+
 def test_colorbar_lognorm_extension():
     # Test that colorbar with lognorm is extended correctly
     f, ax = plt.subplots()
