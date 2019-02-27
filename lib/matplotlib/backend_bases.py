@@ -876,10 +876,8 @@ class GraphicsContextBase(object):
 
     def set_capstyle(self, cs):
         """Set the capstyle to be one of ('butt', 'round', 'projecting')."""
-        if cs in ('butt', 'round', 'projecting'):
-            self._capstyle = cs
-        else:
-            raise ValueError('Unrecognized cap style.  Found %s' % cs)
+        cbook._check_in_list(['butt', 'round', 'projecting'], cs=cs)
+        self._capstyle = cs
 
     def set_clip_rectangle(self, rectangle):
         """
@@ -941,10 +939,8 @@ class GraphicsContextBase(object):
 
     def set_joinstyle(self, js):
         """Set the join style to be one of ('miter', 'round', 'bevel')."""
-        if js in ('miter', 'round', 'bevel'):
-            self._joinstyle = js
-        else:
-            raise ValueError('Unrecognized join style.  Found %s' % js)
+        cbook._check_in_list(['miter', 'round', 'bevel'], js=js)
+        self._joinstyle = js
 
     def set_linewidth(self, w):
         """Set the linewidth in points."""
