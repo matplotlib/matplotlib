@@ -311,12 +311,9 @@ class GridHelperCurveLinear(GridHelperBase):
         e.g., ``x2, y2 = trans(x1, y1)``
         """
         super().__init__()
-
         self.grid_info = None
         self._old_values = None
-        # self._grid_params = dict()
         self._aux_trans = aux_trans
-
         self.grid_finder = GridFinder(aux_trans,
                                       extreme_finder,
                                       grid_locator1,
@@ -325,24 +322,18 @@ class GridHelperCurveLinear(GridHelperBase):
                                       tick_formatter2)
 
     def update_grid_finder(self, aux_trans=None, **kw):
-
         if aux_trans is not None:
             self.grid_finder.update_transform(aux_trans)
-
         self.grid_finder.update(**kw)
         self.invalidate()
 
     def _update(self, x1, x2, y1, y2):
         "bbox in 0-based image coordinates"
         # update wcsgrid
-
         if self.valid() and self._old_values == (x1, x2, y1, y2):
             return
-
         self._update_grid(x1, y1, x2, y2)
-
         self._old_values = (x1, x2, y1, y2)
-
         self._force_update = False
 
     def new_fixed_axis(self, loc,
@@ -350,19 +341,15 @@ class GridHelperCurveLinear(GridHelperBase):
                        axis_direction=None,
                        offset=None,
                        axes=None):
-
         if axes is None:
             axes = self.axes
-
         if axis_direction is None:
             axis_direction = loc
-        _helper = FixedAxisArtistHelper(self, loc,
-                                        # nth_coord,
-                                        nth_coord_ticks=nth_coord,
-                                        )
-
+        _helper = FixedAxisArtistHelper(
+            self, loc, nth_coord_ticks=nth_coord)
         axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
-
+        # Why is clip not set on axisline, unlike in new_floating_axis or in
+        # the floating_axig.GridHelperCurveLinear subclass?
         return axisline
 
     def new_floating_axis(self, nth_coord,
@@ -401,14 +388,12 @@ class GridHelperCurveLinear(GridHelperBase):
 
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
-
         if axis in ["both", "x"]:
             for gl in self.grid_info["lon"]["lines"]:
                 grid_lines.extend(gl)
         if axis in ["both", "y"]:
             for gl in self.grid_info["lat"]["lines"]:
                 grid_lines.extend(gl)
-
         return grid_lines
 
     def get_tick_iterator(self, nth_coord, axis_side, minor=False):
