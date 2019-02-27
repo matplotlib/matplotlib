@@ -38,7 +38,6 @@ from matplotlib.transforms import Bbox, BboxBase
 from matplotlib import colors as mcolors
 
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
-from matplotlib import _png
 
 from matplotlib.backend_bases import _has_pil
 
@@ -499,6 +498,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             If the 'pnginfo' key is present, it completely overrides
             *metadata*, including the default 'Software' key.
         """
+        from matplotlib import _png
 
         if metadata is None:
             metadata = {}

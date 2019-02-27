@@ -41,7 +41,7 @@ import subprocess
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _png, cbook, dviread, rcParams
+from matplotlib import cbook, dviread, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -397,6 +397,7 @@ class TexManager(object):
 
     def get_grey(self, tex, fontsize=None, dpi=None):
         """Return the alpha channel."""
+        from matplotlib import _png
         key = tex, self.get_font_config(), fontsize, dpi
         alpha = self.grey_arrayd.get(key)
         if alpha is None:

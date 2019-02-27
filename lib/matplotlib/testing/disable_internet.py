@@ -3,7 +3,6 @@
 
 import contextlib
 import socket
-import urllib.request
 
 # save original socket method for restoration
 # These are global so that re-calling the turn_off_internet function doesn't
@@ -76,6 +75,7 @@ def turn_off_internet(verbose=False):
     using some other means of accessing the internet, but all default python
     modules (urllib, requests, etc.) use socket [citation needed].
     """
+    import urllib.request
 
     global INTERNET_OFF
     global _orig_opener
@@ -108,6 +108,7 @@ def turn_on_internet(verbose=False):
     """
     Restore internet access.  Not used, but kept in case it is needed.
     """
+    import urllib.request
 
     global INTERNET_OFF
     global _orig_opener

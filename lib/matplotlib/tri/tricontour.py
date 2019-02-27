@@ -2,7 +2,6 @@ import numpy as np
 
 from matplotlib.contour import ContourSet
 from matplotlib.tri.triangulation import Triangulation
-import matplotlib._tri as _tri
 
 
 class TriContourSet(ContourSet):
@@ -44,6 +43,7 @@ class TriContourSet(ContourSet):
             if self.levels is None:
                 self.levels = args[0].levels
         else:
+            from matplotlib import _tri
             tri, z = self._contour_args(args, kwargs)
             C = _tri.TriContourGenerator(tri.get_cpp_triangulation(), z)
             self._mins = [tri.x.min(), tri.y.min()]
