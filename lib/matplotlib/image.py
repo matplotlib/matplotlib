@@ -9,7 +9,6 @@ import os
 import logging
 from pathlib import Path
 import urllib.parse
-import urllib.request
 
 import numpy as np
 
@@ -22,7 +21,6 @@ import matplotlib.cbook as cbook
 
 # For clarity, names from _image are given explicitly in this module:
 import matplotlib._image as _image
-import matplotlib._png as _png
 
 # For user convenience, the names from _image are also imported into
 # the image namespace:
@@ -635,6 +633,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def write_png(self, fname):
         """Write the image to png file with fname"""
+        from matplotlib import _png
         im = self.to_rgba(self._A[::-1] if self.origin == 'lower' else self._A,
                           bytes=True, norm=True)
         _png.write_png(im, fname)
@@ -1359,7 +1358,11 @@ def imread(fname, format=None):
     .. _Pillow documentation: http://pillow.readthedocs.io/en/latest/
     """
 
-    handlers = {'png': _png.read_png, }
+    def read_png(*args, **kwargs):
+        from matplotlib import _png
+        return _png.read_png(*args, **kwargs)
+
+    handlers = {'png': read_png, }
     if format is None:
         if isinstance(fname, str):
             parsed = urllib.parse.urlparse(fname)
@@ -1396,7 +1399,8 @@ def imread(fname, format=None):
         parsed = urllib.parse.urlparse(fname)
         # If fname is a URL, download the data
         if len(parsed.scheme) > 1:
-            fd = BytesIO(urllib.request.urlopen(fname).read())
+            from urllib import request
+            fd = BytesIO(request.urlopen(fname).read())
             return handler(fd)
         else:
             with open(fname, 'rb') as fd:
@@ -1441,6 +1445,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         resolution of the output image.
     """
     from matplotlib.figure import Figure
+    from matplotlib import _png
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if format is None:

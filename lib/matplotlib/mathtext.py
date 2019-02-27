@@ -32,7 +32,7 @@ from pyparsing import (
 
 ParserElement.enablePackrat()
 
-from matplotlib import _png, cbook, colors as mcolors, get_data_path, rcParams
+from matplotlib import cbook, colors as mcolors, get_data_path, rcParams
 from matplotlib.afm import AFM
 from matplotlib.cbook import get_realpath_and_stat
 from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
@@ -3450,6 +3450,7 @@ class MathTextParser(object):
         Returns the offset of the baseline from the bottom of the
         image in pixels.
         """
+        from matplotlib import _png
         rgba, depth = self.to_rgba(
             texstr, color=color, dpi=dpi, fontsize=fontsize)
         _png.write_png(rgba, filename)
