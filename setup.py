@@ -24,7 +24,7 @@ from string import Template
 import urllib.request
 from zipfile import ZipFile
 
-from setuptools import setup
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as BuildExtCommand
 from setuptools.command.develop import develop as DevelopCommand
 from setuptools.command.install_lib import install_lib as InstallLibCommand
@@ -101,6 +101,11 @@ class NoopTestCommand(TestCommand):
 
 
 class BuildExtraLibraries(BuildExtCommand):
+    def finalize_options(self):
+        self.distribution.ext_modules[:] = filter(
+            None, (package.get_extension() for package in good_packages))
+        super().finalize_options()
+
     def build_extensions(self):
         # Remove the -Wstrict-prototypes option, it's not valid for C++.  Fixed
         # in Py3.7 as bpo-5755.
@@ -171,7 +176,9 @@ if __name__ == '__main__':
     packages = []
     namespace_packages = []
     py_modules = []
-    ext_modules = []
+    # Dummy extension to trigger build_ext, which will swap it out with real
+    # extensions that can depend on numpy for the build.
+    ext_modules = [Extension('', [])]
     package_data = {}
     package_dir = {'': 'lib'}
     install_requires = []
@@ -230,9 +237,8 @@ if __name__ == '__main__':
             packages.extend(package.get_packages())
             namespace_packages.extend(package.get_namespace_packages())
             py_modules.extend(package.get_py_modules())
-            ext = package.get_extension()
-            if ext is not None:
-                ext_modules.append(ext)
+            # Extension modules only get added in build_ext, as numpy will have
+            # been installed (as setup_requires) at that point.
             data = package.get_package_data()
             for key, val in data.items():
                 package_data.setdefault(key, [])
@@ -251,11 +257,6 @@ if __name__ == '__main__':
                 'backend: {}'.format(setupext.options['backend']))
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
             fd.write(''.join(template_lines))
-
-        # Finalize the extension modules so they can get the Numpy include
-        # dirs
-        for mod in ext_modules:
-            mod.finalize()
 
     # Finally, pass this all along to distutils to do the heavy lifting.
     setup(
