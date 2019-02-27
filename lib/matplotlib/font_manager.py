@@ -600,12 +600,13 @@ class FontProperties(object):
     approach allows all text sizes to be made larger or smaller based
     on the font manager's default font size.
 
-    This class will also accept a `fontconfig
-    <https://www.freedesktop.org/wiki/Software/fontconfig/>`_ pattern, if it is
-    the only argument provided.  See the documentation on `fontconfig patterns
-    <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_.
-    This support does not require fontconfig to be installed.  We are merely
-    borrowing its pattern syntax for use here.
+    This class will also accept a fontconfig_ pattern_, if it is the only
+    argument provided.  This support does not require fontconfig to be
+    installed.  We are merely borrowing its pattern syntax for use here.
+
+    .. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
+    .. _pattern:
+       https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
 
     Note that Matplotlib's internal font manager and fontconfig use a
     different algorithm to lookup fonts, so the results of the same pattern
@@ -728,11 +729,8 @@ class FontProperties(object):
 
     def get_fontconfig_pattern(self):
         """
-        Get a fontconfig pattern suitable for looking up the font as
+        Get a fontconfig_ pattern_ suitable for looking up the font as
         specified with fontconfig's ``fc-match`` utility.
-
-        See the documentation on `fontconfig patterns
-        <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_.
 
         This support does not require fontconfig to be installed or
         support for it to be enabled.  We are merely borrowing its
@@ -842,10 +840,7 @@ class FontProperties(object):
 
     def set_fontconfig_pattern(self, pattern):
         """
-        Set the properties by parsing a fontconfig *pattern*.
-
-        See the documentation on `fontconfig patterns
-        <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_.
+        Set the properties by parsing a fontconfig_ *pattern*.
 
         This support does not require fontconfig to be installed or
         support for it to be enabled.  We are merely borrowing its
