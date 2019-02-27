@@ -410,7 +410,7 @@ class SubplotSpec(object):
         """
         The subplot will occupy the num1-th cell of the given
         gridspec.  If num2 is provided, the subplot will span between
-        num1-th cell and num2-th cell.
+        num1-th cell and num2-th cell *inclusive*.
 
         The index starts from 0.
         """
@@ -429,6 +429,17 @@ class SubplotSpec(object):
                     artist=self)
         else:
             self._layoutbox = None
+
+    # num2 is a property only to handle the case where it is None and someone
+    # mutates num1.
+
+    @property
+    def num2(self):
+        return self.num1 if self._num2 is None else self._num2
+
+    @num2.setter
+    def num2(self, value):
+        self._num2 = value
 
     def __getstate__(self):
         state = self.__dict__
@@ -464,11 +475,7 @@ class SubplotSpec(object):
         gridspec = self.get_gridspec()
         nrows, ncols = gridspec.get_geometry()
         row_start, col_start = divmod(self.num1, ncols)
-        if self.num2 is not None:
-            row_stop, col_stop = divmod(self.num2, ncols)
-        else:
-            row_stop = row_start
-            col_stop = col_start
+        row_stop, col_stop = divmod(self.num2, ncols)
         return nrows, ncols, row_start, row_stop, col_start, col_stop
 
     def get_position(self, figure, return_all=False):
@@ -476,9 +483,7 @@ class SubplotSpec(object):
         """
         gridspec = self.get_gridspec()
         nrows, ncols = gridspec.get_geometry()
-        rows, cols = np.unravel_index(
-            [self.num1] if self.num2 is None else [self.num1, self.num2],
-            (nrows, ncols))
+        rows, cols = np.unravel_index([self.num1, self.num2], (nrows, ncols))
         fig_bottoms, fig_tops, fig_lefts, fig_rights = \
             gridspec.get_grid_positions(figure)
 

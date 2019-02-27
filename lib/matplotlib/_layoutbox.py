@@ -438,24 +438,13 @@ class LayoutBox(object):
         figLefts = [left + cellWs[2 * colNum] for colNum in range(ncols)]
         figRights = [left + cellWs[2 * colNum + 1] for colNum in range(ncols)]
 
-        rowNum, colNum = divmod(subspec.num1, ncols)
-        figBottom = figBottoms[rowNum]
-        figTop = figTops[rowNum]
-        figLeft = figLefts[colNum]
-        figRight = figRights[colNum]
+        rowNum1, colNum1 = divmod(subspec.num1, ncols)
+        rowNum2, colNum2 = divmod(subspec.num2, ncols)
+        figBottom = min(figBottoms[rowNum1], figBottoms[rowNum2])
+        figTop = max(figTops[rowNum1], figTops[rowNum2])
+        figLeft = min(figLefts[colNum1], figLefts[colNum2])
+        figRight = max(figRights[colNum1], figRights[colNum2])
 
-        if subspec.num2 is not None:
-
-            rowNum2, colNum2 = divmod(subspec.num2, ncols)
-            figBottom2 = figBottoms[rowNum2]
-            figTop2 = figTops[rowNum2]
-            figLeft2 = figLefts[colNum2]
-            figRight2 = figRights[colNum2]
-
-            figBottom = min(figBottom, figBottom2)
-            figLeft = min(figLeft, figLeft2)
-            figTop = max(figTop, figTop2)
-            figRight = max(figRight, figRight2)
         # These are numbers relative to 0,0,1,1.  Need to constrain
         # relative to parent.
 
