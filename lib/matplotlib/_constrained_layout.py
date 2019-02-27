@@ -245,8 +245,6 @@ def _make_ghost_gridspec_slots(fig, gs):
             axs += [ax]
     for ax in axs:
         ss0 = ax.get_subplotspec()
-        if ss0.num2 is None:
-            ss0.num2 = ss0.num1
         hassubplotspec[ss0.num1:(ss0.num2 + 1)] = True
     for nn, hss in enumerate(hassubplotspec):
         if not hss:
@@ -342,8 +340,6 @@ def _align_spines(fig, gs):
 
     for n, ax in enumerate(axs):
         ss0 = ax.get_subplotspec()
-        if ss0.num2 is None:
-            ss0.num2 = ss0.num1
         rownummin[n], colnummin[n] = divmod(ss0.num1, ncols)
         rownummax[n], colnummax[n] = divmod(ss0.num2, ncols)
         width[n] = np.sum(
@@ -483,16 +479,12 @@ def _arrange_subplotspecs(gs, hspace=0, wspace=0):
     for child0 in sschildren:
         ss0 = child0.artist
         nrows, ncols = ss0.get_gridspec().get_geometry()
-        if ss0.num2 is None:
-            ss0.num2 = ss0.num1
         rowNum0min, colNum0min = divmod(ss0.num1, ncols)
         rowNum0max, colNum0max = divmod(ss0.num2, ncols)
         sschildren = sschildren[1:]
         for childc in sschildren:
             ssc = childc.artist
             rowNumCmin, colNumCmin = divmod(ssc.num1, ncols)
-            if ssc.num2 is None:
-                ssc.num2 = ssc.num1
             rowNumCmax, colNumCmax = divmod(ssc.num2, ncols)
             # OK, this tells us the relative layout of ax
             # with axc
