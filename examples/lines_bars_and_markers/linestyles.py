@@ -16,10 +16,9 @@ cycler in :doc:`property_cycle </tutorials/intermediate/color_cycle>`.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.transforms import blended_transform_factory
 
 linestyle_str = [
-     ('solid', 'solid'),       # Same as (0, ()) or '-'
+     ('solid', 'solid'),      # Same as (0, ()) or '-'
      ('dotted', 'dotted'),    # Same as (0, (1, 1)) or '.'
      ('dashed', 'dashed'),    # Same as '--'
      ('dashdot', 'dashdot')]  # Same as '-.'
@@ -55,11 +54,11 @@ def plot_linestyles(ax, linestyles):
 
     # For each line style, add a text annotation with a small offset from
     # the reference point (0 in Axes coords, y tick value in Data coords).
-    reference_transform = blended_transform_factory(ax.transAxes, ax.transData)
     for i, (name, linestyle) in enumerate(linestyles):
-        ax.annotate(repr(linestyle), xy=(0.0, i), xycoords=reference_transform,
-                    xytext=(-6, -12), textcoords='offset points', color="blue",
-                    fontsize=8, ha="right", family="monospace")
+        ax.annotate(repr(linestyle),
+                    xy=(0.0, i), xycoords=ax.get_yaxis_transform(),
+                    xytext=(-6, -12), textcoords='offset points',
+                    color="blue", fontsize=8, ha="right", family="monospace")
 
 
 fig, (ax0, ax1) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [1, 3]},
