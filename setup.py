@@ -60,7 +60,6 @@ mpl_packages = [
     setupext.Matplotlib(),
     setupext.Python(),
     setupext.Platform(),
-    setupext.Numpy(),
     setupext.LibAgg(),
     setupext.FreeType(),
     setupext.FT2Font(),
@@ -178,21 +177,13 @@ if __name__ == '__main__':
     packages = []
     namespace_packages = []
     py_modules = []
-    # Dummy extension to trigger build_ext, which will swap it out with real
-    # extensions that can depend on numpy for the build.
-    ext_modules = [Extension('', [])]
     package_data = {}
-    package_dir = {'': 'lib'}
-    install_requires = []
-    setup_requires = []
 
     # If the user just queries for information, don't bother figuring out which
     # packages to build or install.
-    if (any('--' + opt in sys.argv for opt in
-            Distribution.display_option_names + ['help']) or
-            'clean' in sys.argv):
-        setup_requires = []
-    else:
+    if not (any('--' + opt in sys.argv
+                for opt in [*Distribution.display_option_names, 'help'])
+            or 'clean' in sys.argv):
         # Go through all of the packages and figure out which ones we are
         # going to build/install.
         print_line()
@@ -245,8 +236,6 @@ if __name__ == '__main__':
             for key, val in data.items():
                 package_data.setdefault(key, [])
                 package_data[key] = list(set(val + package_data[key]))
-            install_requires.extend(package.get_install_requires())
-            setup_requires.extend(package.get_setup_requires())
 
         # Write the default matplotlibrc file
         with open('matplotlibrc.template') as fd:
@@ -268,6 +257,12 @@ if __name__ == '__main__':
         author="John D. Hunter, Michael Droettboom",
         author_email="matplotlib-users@python.org",
         url="https://matplotlib.org",
+        download_url="https://matplotlib.org/users/installing.html",
+        project_urls={
+            'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
+            'Documentation': 'https://matplotlib.org/contents.html',
+            'Source Code': 'https://github.com/matplotlib/matplotlib'
+        },
         long_description="""
         Matplotlib strives to produce publication quality 2D graphics
         for interactive graphing, scientific publishing, user interface
@@ -279,21 +274,24 @@ if __name__ == '__main__':
         namespace_packages=namespace_packages,
         platforms='any',
         py_modules=py_modules,
-        ext_modules=ext_modules,
-        package_dir=package_dir,
+        # Dummy extension to trigger build_ext, which will swap it out with
+        # real extensions that can depend on numpy for the build.
+        ext_modules=[Extension("", [])],
+        package_dir={"": "lib"},
         package_data=package_data,
         classifiers=classifiers,
-        download_url="https://matplotlib.org/users/installing.html",
-        project_urls={
-            'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
-            'Documentation': 'https://matplotlib.org/contents.html',
-            'Source Code': 'https://github.com/matplotlib/matplotlib'
-        },
 
         python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
-        # List third-party Python packages that we require
-        install_requires=install_requires,
-        setup_requires=setup_requires,
+        setup_requires=[
+            "numpy>=1.11",
+        ],
+        install_requires=[
+            "cycler>=0.10",
+            "kiwisolver>=1.0.1",
+            "numpy>=1.11",
+            "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
+            "python-dateutil>=2.1",
+        ],
 
         # matplotlib has C/C++ extensions, so it's not zip safe.
         # Telling setuptools this prevents it from doing an automatic
