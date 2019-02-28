@@ -673,6 +673,7 @@ class Axes(_AxesBase):
             raise ValueError('secondary_yaxis location must be either '
                              'a float or "left"/"right"')
 
+    @cbook._delete_parameter("3.1", "withdash")
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
         Add text to the axes.
@@ -748,7 +749,8 @@ class Axes(_AxesBase):
         # the withdash kwarg and simply delegate whether there's
         # a dash to TextWithDash and dashlength.
 
-        if withdash:
+        if (withdash
+                and withdash is not cbook.deprecation._deprecated_parameter):
             t = mtext.TextWithDash(x, y, text=s)
         else:
             t = mtext.Text(x, y, text=s)
