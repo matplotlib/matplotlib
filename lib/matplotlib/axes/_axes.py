@@ -7541,11 +7541,10 @@ optional.
         %(PSD)s
 
         mode : {'default', 'psd', 'magnitude', 'angle', 'phase'}
-            What sort of spectrum to use.  Default is 'psd', which takes
-            the power spectral density.  'complex' returns the complex-valued
-            frequency spectrum.  'magnitude' returns the magnitude spectrum.
-            'angle' returns the phase spectrum without unwrapping.  'phase'
-            returns the phase spectrum with unwrapping.
+            What sort of spectrum to use.  Default is 'psd', which takes the
+            power spectral density.  'magnitude' returns the magnitude
+            spectrum.  'angle' returns the phase spectrum without unwrapping.
+            'phase' returns the phase spectrum with unwrapping.
 
         noverlap : int
             The number of points of overlap between blocks.  The
