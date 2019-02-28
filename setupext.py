@@ -17,28 +17,9 @@ import sys
 import tarfile
 import textwrap
 import urllib.request
+from urllib.request import Request
 import versioneer
 import warnings
-
-if sys.version_info < (3, ):
-    from urllib2 import urlopen, Request
-
-    class FileExistsError(OSError):
-        pass
-
-    def makedirs(path, exist_ok=True):
-        if not exist_ok:
-            raise ValueError("this backport only supports exist_ok is True")
-        if not path or os.path.exists(path):
-            return
-        head, tail = os.path.split(path)
-
-        makedirs(head, exist_ok=True)
-        os.makedirs(path)
-
-else:
-    from urllib.request import urlopen, Request
-    from os import makedirs
 
 _log = logging.getLogger(__name__)
 
@@ -95,11 +76,8 @@ def download_or_cache(url, sha):
     def get_from_cache(local_fn):
         if cache_dir is None:
             raise Exception("no cache dir")
-        cache_filename = os.path.join(cache_dir, local_fn)
-        with open(cache_filename, 'rb') as fin:
-            buf = BytesIO(fin.read())
-        file_sha = get_fd_hash(buf)
-        if file_sha != sha:
+        buf = BytesIO(pathlib.Path(cache_dir, local_fn).read_bytes())
+        if get_fd_hash(buf) != sha:
             return None
         buf.seek(0)
         return buf
@@ -107,18 +85,11 @@ def download_or_cache(url, sha):
     def write_cache(local_fn, data):
         if cache_dir is None:
             raise Exception("no cache dir")
-
         cache_filename = os.path.join(cache_dir, local_fn)
-        makedirs(cache_dir, exist_ok=True)
-        if sys.version_info < (3, ):
-            if os.path.exists(cache_filename):
-                raise FileExistsError
-            mode = 'wb'
-        else:
-            mode = 'xb'
+        os.makedirs(cache_dir, exist_ok=True)
         old_pos = data.tell()
         data.seek(0)
-        with open(cache_filename, mode=mode) as fout:
+        with open(cache_filename, "xb") as fout:
             fout.write(data.read())
         data.seek(old_pos)
 
@@ -130,7 +101,7 @@ def download_or_cache(url, sha):
     # jQueryUI's website blocks direct downloads from urllib.request's
     # default User-Agent, but not (for example) wget; so I don't feel too
     # bad passing in an empty User-Agent.
-    with urlopen(
+    with urllib.request.urlopen(
             Request(url, headers={"User-Agent": ""})) as req:
         file_contents = BytesIO(req.read())
         file_contents.seek(0)
@@ -899,8 +870,7 @@ class FreeType(SetupPackage):
 
         # do we need to download / load the source from cache?
         if not os.path.exists(src_path):
-            if not os.path.exists('build'):
-                os.makedirs('build')
+            os.makedirs('build', exist_ok=True)
 
             url_fmts = [
                 ('https://downloads.sourceforge.net/project/freetype'
