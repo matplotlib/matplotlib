@@ -59,6 +59,11 @@ class GridSpecBase:
             optionals=height_arg + width_arg,
             )
 
+    nrows = property(lambda self: self._nrows,
+                     doc="The number of rows in the grid.")
+    ncols = property(lambda self: self._ncols,
+                     doc="The number of columns in the grid.")
+
     def get_geometry(self):
         """
         Return a tuple containing the number of rows and columns in the grid.
@@ -565,6 +570,18 @@ class SubplotSpec:
         row_start, col_start = divmod(self.num1, ncols)
         row_stop, col_stop = divmod(self.num2, ncols)
         return nrows, ncols, row_start, row_stop, col_start, col_stop
+
+    @property
+    def rowspan(self):
+        """The rows spanned by this subplot, as a `range` object."""
+        ncols = self.get_gridspec().ncols
+        return range(self.num1 // ncols, self.num2 // ncols + 1)
+
+    @property
+    def colspan(self):
+        """The columns spanned by this subplot, as a `range` object."""
+        ncols = self.get_gridspec().ncols
+        return range(self.num1 % ncols, self.num2 % ncols + 1)
 
     def get_position(self, figure, return_all=False):
         """
