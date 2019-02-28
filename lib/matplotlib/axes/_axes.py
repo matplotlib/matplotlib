@@ -6254,7 +6254,7 @@ optional.
                 "'norm' must be an instance of 'mcolors.Normalize'")
 
         C = args[-1]
-        nr, nc = C.shape
+        nr, nc = np.shape(C)
         if len(args) == 1:
             style = "image"
             x = [0, nc]
@@ -6282,54 +6282,29 @@ optional.
             raise TypeError("need 1 argument or 3 arguments")
 
         if style == "quadmesh":
-
-            # convert to one dimensional arrays
-            # This should also be moved to the QuadMesh class
-
             # data point in each cell is value at lower left corner
-            C = ma.ravel(C)
-            X = x.ravel()
-            Y = y.ravel()
-            Nx = nc + 1
-            Ny = nr + 1
-
-            # The following needs to be cleaned up; the renderer
-            # requires separate contiguous arrays for X and Y,
-            # but the QuadMesh class requires the 2D array.
-            coords = np.empty(((Nx * Ny), 2), np.float64)
-            coords[:, 0] = X
-            coords[:, 1] = Y
-
-            # The QuadMesh class can also be changed to
-            # handle relevant superclass kwargs; the initializer
-            # should do much more than it does now.
-            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None")
-            collection.set_alpha(alpha)
-            collection.set_array(C)
-            collection.set_cmap(cmap)
-            collection.set_norm(norm)
+            coords = np.stack([x, y], axis=-1)
+            collection = mcoll.QuadMesh(
+                nc, nr, coords,
+                array=np.ma.ravel(C), alpha=alpha, cmap=cmap, norm=norm,
+                antialiased=False, edgecolors="none")
             self.add_collection(collection, autolim=False)
-            xl, xr, yb, yt = X.min(), X.max(), Y.min(), Y.max()
+            xl, xr, yb, yt = x.min(), x.max(), y.min(), y.max()
             ret = collection
 
         else:  # It's one of the two image styles.
-            xl, xr, yb, yt = x[0], x[-1], y[0], y[-1]
-
+            extent = xl, xr, yb, yt = x[0], x[-1], y[0], y[-1]
             if style == "image":
-                im = mimage.AxesImage(self, cmap, norm,
-                                      interpolation='nearest',
-                                      origin='lower',
-                                      extent=(xl, xr, yb, yt),
-                                      **kwargs)
-                im.set_data(C)
-                im.set_alpha(alpha)
+                im = mimage.AxesImage(
+                    self, cmap, norm,
+                    data=C, alpha=alpha, extent=extent,
+                    interpolation='nearest', origin='lower',
+                    **kwargs)
             elif style == "pcolorimage":
-                im = mimage.PcolorImage(self, x, y, C,
-                                        cmap=cmap,
-                                        norm=norm,
-                                        alpha=alpha,
-                                        **kwargs)
-                im.set_extent((xl, xr, yb, yt))
+                im = mimage.PcolorImage(
+                    self, x, y, C,
+                    cmap=cmap, norm=norm, alpha=alpha, extent=extent,
+                    **kwargs)
             self.add_image(im)
             ret = im
 
