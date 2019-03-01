@@ -894,9 +894,8 @@ def test_imshow_bignumbers_real():
      lambda: colors.PowerNorm(1)])
 def test_empty_imshow(make_norm):
     fig, ax = plt.subplots()
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", "Attempting to set identical left==right")
+    with pytest.warns(UserWarning,
+                      match="Attempting to set identical left == right"):
         im = ax.imshow([[]], norm=make_norm())
     im.set_extent([-5, 5, -5, 5])
     fig.canvas.draw()

@@ -233,10 +233,8 @@ class TestNullLocator(object):
         Should not exception, and should raise a warning.
         """
         loc = mticker.NullLocator()
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+        with pytest.warns(UserWarning):
             loc.set_params()
-            assert len(w) == 1
 
 
 class TestLogitLocator(object):

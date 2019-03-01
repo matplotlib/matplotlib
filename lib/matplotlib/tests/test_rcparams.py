@@ -2,13 +2,12 @@ from collections import OrderedDict
 import copy
 import os
 from unittest import mock
-import warnings
 
 from cycler import cycler, Cycler
 import pytest
 
 import matplotlib as mpl
-from matplotlib.cbook import MatplotlibDeprecationWarning
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
@@ -91,22 +90,15 @@ def test_rcparams_update():
     rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
     bad_dict = {'figure.figsize': (3.5, 42, 1)}
     # make sure validation happens on input
-    with pytest.raises(ValueError):
-
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore',
-                                message='.*(validate)',
-                                category=UserWarning)
-            rc.update(bad_dict)
+    with pytest.raises(ValueError), \
+         pytest.warns(UserWarning, match="validate"):
+        rc.update(bad_dict)
 
 
 def test_rcparams_init():
-    with pytest.raises(ValueError):
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore',
-                                message='.*(validate)',
-                                category=UserWarning)
-            mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
+    with pytest.raises(ValueError), \
+         pytest.warns(UserWarning, match="validate"):
+        mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
 
 
 def test_Bug_2543():
@@ -117,9 +109,7 @@ def test_Bug_2543():
     # We filter warnings at this stage since a number of them are raised
     # for deprecated rcparams as they should. We don't want these in the
     # printed in the test suite.
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore',
-                                category=MatplotlibDeprecationWarning)
+    with cbook._suppress_matplotlib_deprecation_warning():
         with mpl.rc_context():
             _copy = mpl.rcParams.copy()
             for key in _copy:

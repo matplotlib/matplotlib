@@ -1,6 +1,5 @@
 from pathlib import Path
 import platform
-import warnings
 
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -154,11 +153,9 @@ def test_gca():
 
     # the final request for a polar axes will end up creating one
     # with a spec of 111.
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter('always')
+    with pytest.warns(UserWarning):
         # Changing the projection will throw a warning
         assert fig.gca(polar=True) is not ax3
-        assert len(w) == 1
     assert fig.gca(polar=True) is not ax2
     assert fig.gca().get_geometry() == (1, 1, 1)
 
@@ -204,11 +201,9 @@ def test_alpha():
 
 
 def test_too_many_figures():
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
+    with pytest.warns(RuntimeWarning):
         for i in range(rcParams['figure.max_open_warning'] + 1):
             plt.figure()
-        assert len(w) == 1
 
 
 def test_iterability_axes_argument():

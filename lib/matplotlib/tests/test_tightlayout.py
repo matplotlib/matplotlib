@@ -2,6 +2,7 @@ import warnings
 
 import numpy as np
 from numpy.testing import assert_array_equal
+import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -267,30 +268,18 @@ def test_tight_layout_offsetboxes():
 
 
 def test_empty_layout():
-    """Tests that tight layout doesn't cause an error when there are
-    no axes.
-    """
-
+    """Test that tight layout doesn't cause an error when there are no axes."""
     fig = plt.gcf()
     fig.tight_layout()
 
 
-def test_verybig_decorators_horizontal():
-    "Test that warning emitted when xlabel too big"
+@pytest.mark.parametrize("label", ["xlabel", "ylabel"])
+def test_verybig_decorators(label):
+    """Test that warning emitted when xlabel/ylabel too big."""
     fig, ax = plt.subplots(figsize=(3, 2))
-    ax.set_xlabel('a' * 100)
-    with warnings.catch_warnings(record=True) as w:
+    ax.set(**{label: 'a' * 100})
+    with pytest.warns(UserWarning):
         fig.tight_layout()
-        assert len(w) == 1
-
-
-def test_verybig_decorators_vertical():
-    "Test that warning emitted when xlabel too big"
-    fig, ax = plt.subplots(figsize=(3, 2))
-    ax.set_ylabel('a' * 100)
-    with warnings.catch_warnings(record=True) as w:
-        fig.tight_layout()
-        assert len(w) == 1
 
 
 def test_big_decorators_horizontal():
@@ -298,9 +287,8 @@ def test_big_decorators_horizontal():
     fig, axs = plt.subplots(1, 2, figsize=(3, 2))
     axs[0].set_xlabel('a' * 30)
     axs[1].set_xlabel('b' * 30)
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning):
         fig.tight_layout()
-        assert len(w) == 1
 
 
 def test_big_decorators_vertical():
@@ -308,9 +296,8 @@ def test_big_decorators_vertical():
     fig, axs = plt.subplots(2, 1, figsize=(3, 2))
     axs[0].set_ylabel('a' * 20)
     axs[1].set_ylabel('b' * 20)
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning):
         fig.tight_layout()
-        assert len(w) == 1
 
 
 def test_badsubplotgrid():
@@ -319,9 +306,8 @@ def test_badsubplotgrid():
     ax1 = plt.subplot2grid((4, 5), (0, 0))
     # this is the bad entry:
     ax5 = plt.subplot2grid((5, 5), (0, 3), colspan=3, rowspan=5)
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning):
         plt.tight_layout()
-        assert len(w) == 1
 
 
 def test_collapsed():
@@ -333,8 +319,7 @@ def test_collapsed():
 
     ax.annotate('BIG LONG STRING', xy=(1.25, 2), xytext=(10.5, 1.75),)
     p1 = ax.get_position()
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning):
         plt.tight_layout()
         p2 = ax.get_position()
         assert p1.width == p2.width
-        assert len(w) == 1

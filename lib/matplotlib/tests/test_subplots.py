@@ -1,5 +1,4 @@
 import itertools
-import warnings
 
 import numpy
 import matplotlib.pyplot as plt
@@ -122,16 +121,15 @@ def test_exceptions():
         plt.subplots(2, 2, sharey='blah')
     # We filter warnings in this test which are genuine since
     # the point of this test is to ensure that this raises.
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore',
-                                message='.*sharex argument to subplots',
-                                category=UserWarning)
-        with pytest.raises(ValueError):
-            plt.subplots(2, 2, -1)
-        with pytest.raises(ValueError):
-            plt.subplots(2, 2, 0)
-        with pytest.raises(ValueError):
-            plt.subplots(2, 2, 5)
+    with pytest.warns(UserWarning, match='.*sharex argument to subplots'), \
+         pytest.raises(ValueError):
+        plt.subplots(2, 2, -1)
+    with pytest.warns(UserWarning, match='.*sharex argument to subplots'), \
+         pytest.raises(ValueError):
+        plt.subplots(2, 2, 0)
+    with pytest.warns(UserWarning, match='.*sharex argument to subplots'), \
+         pytest.raises(ValueError):
+        plt.subplots(2, 2, 5)
 
 
 @image_comparison(baseline_images=['subplots_offset_text'], remove_text=False)
