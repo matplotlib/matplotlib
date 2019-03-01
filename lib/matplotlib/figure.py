@@ -1804,6 +1804,7 @@ default: 'top'
         self.stale = True
         return l
 
+    @cbook._delete_parameter("3.1", "withdash")
     @docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
         """
