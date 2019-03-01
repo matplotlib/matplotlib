@@ -1245,6 +1245,7 @@ docstring.interpd.update(Text=artist.kwdoc(Text))
 docstring.dedent_interpd(Text.__init__)
 
 
+@cbook.deprecated("3.1", alternative="Annotation")
 class TextWithDash(Text):
     """
     This is basically a :class:`~matplotlib.text.Text` with a dash
