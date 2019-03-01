@@ -606,6 +606,8 @@ def _get_data_path():
         if not os.path.isdir(path):
             raise RuntimeError('Path in environment MATPLOTLIBDATA not a '
                                'directory')
+        cbook.warn_deprecated(
+            "3.1", name="MATPLOTLIBDATA", obj_type="environment variable")
         return path
 
     def get_candidate_paths():
