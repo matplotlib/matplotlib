@@ -363,3 +363,5 @@ texinfo_documents = [
 # numpydoc config
 
 numpydoc_show_class_members = False
+
+latex_engine = 'xelatex'  # or 'lualatex'
