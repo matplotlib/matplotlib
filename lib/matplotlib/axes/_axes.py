@@ -206,7 +206,8 @@ class Axes(_AxesBase):
             The label text.
 
         labelpad : scalar, optional, default: None
-            Spacing in points between the label and the x-axis.
+            Spacing in points from the axes bounding box including ticks
+            and tick labels.
 
         Other Parameters
         ----------------
@@ -238,7 +239,8 @@ class Axes(_AxesBase):
             The label text.
 
         labelpad : scalar, optional, default: None
-            Spacing in points between the label and the y-axis.
+            Spacing in points from the axes bounding box including ticks
+            and tick labels.
 
         Other Parameters
         ----------------
