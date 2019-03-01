@@ -415,6 +415,7 @@ Just for fun, Matplotlib supports plotting in the style of `xkcd
    :scale: 50
 
    Xkcd
+
 """
 
 ###################################################################
