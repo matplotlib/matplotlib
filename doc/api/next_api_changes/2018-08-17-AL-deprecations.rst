@@ -12,3 +12,6 @@ The following API elements are deprecated:
 - ``cbook.get_label``, ``cbook.iterable``,
 - ``font_manager.OSXInstalledFonts``,
 - ``mlab.demean``,
+
+The following environment variables are deprecated:
+- ``MATPLOTLIBDATA``,
