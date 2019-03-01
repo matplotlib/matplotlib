@@ -204,20 +204,26 @@ class GridSpec(GridSpecBase):
         ncols : int
             Number or columns in grid.
 
-        figure : ~.figure.Figure, optional
+        figure : `~.figure.Figure`, optional
 
-        left, right, top, bottom : float
+        left, right, top, bottom : float, optional
             Extent of the subplots as a fraction of figure width or height.
             Left cannot be larger than right, and bottom cannot be larger than
             top.
 
-        wspace : float
+        wspace : float, optional
             The amount of width reserved for space between subplots,
             expressed as a fraction of the average axis width.
 
-        hspace : float
+        hspace : float, optional
             The amount of height reserved for space between subplots,
             expressed as a fraction of the average axis height.
+
+        width_ratios : length *ncols* iterable, optional
+            Width ratios of the columns.
+
+        height_ratios : length *nrows* iterable, optional
+            Height ratios of the rows.
 
         Notes
         -----
