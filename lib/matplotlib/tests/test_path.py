@@ -283,7 +283,7 @@ def test_path_intersect_path():
 
         transform = transforms.Affine2D().rotate(np.deg2rad(phi))
 
-        # a nd b intersect at angle phi
+        # a and b intersect at angle phi
         a = Path([(-2, 0), (2, 0)])
         b = transform.transform_path(a)
         assert a.intersects_path(b) and b.intersects_path(a)
