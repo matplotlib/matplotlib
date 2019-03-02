@@ -275,9 +275,13 @@ def test_path_deepcopy():
 
 def test_path_intersect_path():
     # test for the range of intersection angles
-    for phi in np.linspace(0, 2*np.pi, 180):
+    base_angles = np.array([0, 15, 30, 45, 60, 75, 90, 105, 120, 135])
+    angles = np.concatenate([base_angles, base_angles + 1, base_angles - 1])
+    eps_array = [1e-5, 1e-8, 1e-10, 1e-12]
 
-        transform = transforms.Affine2D().rotate(phi)
+    for phi in angles:
+
+        transform = transforms.Affine2D().rotate(np.deg2rad(phi))
 
         # a nd b intersect at angle phi
         a = Path([(-2, 0), (2, 0)])
@@ -300,7 +304,7 @@ def test_path_intersect_path():
         assert a.intersects_path(b) and b.intersects_path(a)
 
         # self-intersect
-        assert a.intersects_path(a), np.rad2deg(phi)
+        assert a.intersects_path(a)
 
         # a contains b
         a = transform.transform_path(Path([(0, 0), (5, 5)]))
@@ -321,22 +325,19 @@ def test_path_intersect_path():
         # `isclose` function from src/_path.h
 
         # a and b are parallel but do not touch
-        for power in range(5, 13):
-            eps = 10**(-power)
+        for eps in eps_array:
             a = transform.transform_path(Path([(0, 1), (0, 5)]))
             b = transform.transform_path(Path([(0 + eps, 1), (0 + eps, 5)]))
             assert not a.intersects_path(b) and not b.intersects_path(a)
 
         # a and b are on the same line but do not intersect (really close)
-        for power in range(5, 13):
-            eps = 10**(-power)
+        for eps in eps_array:
             a = transform.transform_path(Path([(0, 1), (0, 5)]))
             b = transform.transform_path(Path([(0, 5 + eps), (0, 7)]))
             assert not a.intersects_path(b) and not b.intersects_path(a)
 
         # a and b are on the same line and intersect (really close)
-        for power in range(5, 13):
-            eps = 10**(-power)
+        for eps in eps_array:
             a = transform.transform_path(Path([(0, 1), (0, 5)]))
             b = transform.transform_path(Path([(0, 5 - eps), (0, 7)]))
             assert a.intersects_path(b) and b.intersects_path(a)
