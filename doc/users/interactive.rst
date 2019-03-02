@@ -1,6 +1,7 @@
 .. currentmodule:: matplotlib
 
 .. _mpl-shell:
+
 ===================
  Interactive plots
 ===================
@@ -13,19 +14,36 @@
 
 
 By default, matplotlib defers drawing until explicitly asked.  Drawing
-can be an expensive operation, and you do not want to re-render the
-figure every time a single property is changed, only once after all
-the properties have changed and the figure is displayed on the screen
-or saved to disk.  When working in a shell, one typically wants the
-figure to re-draw after every user command (ex when the prompt comes
-back).  *interactive* mode of :mod:`~.pyplot` takes care of arranging
-such that if any open figures are :ref:`stale <stale_artists>`, they
-will be re-drawn just before the prompt is returned to the user.
+may be an expensive operation and some changes to the figure may leave
+it in an inconsistent state, hence we only want to render the figure
+just before the figure is displayed on the screen or saved to disk.
+In the case of scripts this is easy to arrange, we simple do nothing
+until ``savefig`` is called.  However, when working interactively,
+either at a terminal or in a notebook, we would like the figure to
+automatically re-render when we change.  Further, we would like the
+figures respond to user input (mouse and keyboard) to interact with
+and explore the data.
+
+To get this functionality we need a combination of an interactive
+backend (to handle the user interaction with the figure) and an
+interactive interpreter (to handle the input of user code).  Together
+these tools need to:
+
+- Take text from the user and execute it in the Python interpreter
+- Ensure that any created figures are put on the screen
+- Trigger a re-render of the figure when the user has mutated it
+- When not actively executing user input, run the event loop so we can
+  get user input on the figure (see
+  :ref:`interactive_figures_and_eventloops` for details)
+
+
 
 .. _ipython-pylab:
 
-IPython to the rescue
-=====================
+IPython to the rescue!
+======================
+
+To support interactive
 
 We recommend using IPython for an interactive shell.  In addition to
 all of it's features (improved tab-completion, magics,
@@ -72,7 +90,7 @@ will be reflected immediately.
 
 .. _other-shells:
 
-Other python interpreters
+Other Python interpreters
 =========================
 
 If you can not or do not want to use IPython, interactive mode
@@ -97,6 +115,72 @@ example, if you use the IDLE IDE you must use the 'tkagg' backend (as
 IDLE is a Tk application..  However, if you use spyder, the
 interactive shell is run in a sub process of the GUI and you can use
 any backend.
+
+
+PyCharm
+-------
+
+TODO: links to pycharm docs on configuring Matplotlib backends
+
+Spyder
+------
+
+TODO: links to spyder docs on configuring Matplotlib backends
+
+VSCode
+------
+
+TODO: links to vscode docs on configuring Matplotlib backends (?)
+
+
+Jupyter Notebooks / Jupyter Lab
+-------------------------------
+
+.. warning::
+
+   To get the interactive functionality described here, you must be
+   using an interactive backend, however he 'inline' backend is not.
+   It renders the figure once and inserts a static image into the
+   notebook everytime the cell in run.  Being static these plots can
+   not be panned / zoomed or take user input.
+
+Jupyter uses a different architecture than a traditional interactive
+terminal.  Rather than the user interface running in the same process
+as your interpreter, the user interacts with a javascript front end
+running in a browser which communicates with a server which in turn
+communicates with a kernel that actually runs the python.  This means
+for interactive figures our UI needs to also be written in javascript
+and run inside of the jupyter front end.
+
+To get interactive figures in the 'classic' notebook or jupyter lab use
+the `ipympl` backend (must be installed separately) which uses the `ipywidget`
+framework and which enabled by using ::
+
+  %matplotlib widget
+
+If you only need to use the classic notebook you can also use ::
+
+  %matplotlib notebook
+
+which uses the `nbagg` backend which ships with Matplotlib (but does
+not work with JLab because, for security reasons, you can no longer
+inject arbitrary javascript into the front end).
+
+GUIs + jupyter
+~~~~~~~~~~~~~~
+
+If you are running your jupyter server locally you can use one of the
+GUI backends, however if you ever move that notebook to a remote
+server it will cease to work correctly.  What is happening is that
+when you create a figure the process running your kernel creates and
+shows a GUI window.  If that process is on the same computer as you,
+then you will see it, however if it is running on a remote computer it
+will try to open the GUI window on _that_ computer.  This will either
+fail by raising an exception (as many linux servers do not have an
+XServer running) or run cleanly, but leave you with no way to access
+your figure.
+
+
 
 
 .. _controlling-interactive:

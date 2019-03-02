@@ -122,6 +122,9 @@ intersphinx_mapping = {
     'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'pytest': ('https://pytest.org/en/stable', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
+    'cycler': ('https://matplotlib.org/cycler', None),
+    'ipympl': ('https://matplotlib.org/ipympl', None),
+    'ipywidget': ('', None),
 }
 
 
