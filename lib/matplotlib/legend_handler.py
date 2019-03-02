@@ -35,7 +35,9 @@ import matplotlib.colors as mcolors
 
 
 def update_from_first_child(tgt, src):
-    tgt.update_from(src.get_children()[0])
+    first_child = next(iter(src.get_children()), None)
+    if first_child is not None:
+        tgt.update_from(first_child)
 
 
 class HandlerBase(object):

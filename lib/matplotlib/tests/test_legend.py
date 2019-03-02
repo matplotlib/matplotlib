@@ -477,6 +477,14 @@ def test_handler_numpoints():
     ax.legend(numpoints=0.5)
 
 
+def test_empty_bar_chart_with_legend():
+    """Test legend when bar chart is empty with a label."""
+    # related to issue #13003. Calling plt.legend() should not
+    # raise an IndexError.
+    plt.bar([], [], label='test')
+    plt.legend()
+
+
 def test_shadow_framealpha():
     # Test if framealpha is activated when shadow is True
     # and framealpha is not explicitly passed'''
