@@ -187,27 +187,14 @@ def test_no_length_frames():
 
 
 def test_movie_writer_registry():
-    ffmpeg_path = mpl.rcParams['animation.ffmpeg_path']
-    # Not sure about the first state as there could be some writer
-    # which set rcparams
-    # assert not animation.writers._dirty
     assert len(animation.writers._registered) > 0
-    animation.writers.list()  # resets dirty state
-    assert not animation.writers._dirty
     mpl.rcParams['animation.ffmpeg_path'] = "not_available_ever_xxxx"
-    assert animation.writers._dirty
-    animation.writers.list()  # resets
-    assert not animation.writers._dirty
     assert not animation.writers.is_available("ffmpeg")
     # something which is guaranteed to be available in path
     # and exits immediately
     bin = "true" if sys.platform != 'win32' else "where"
     mpl.rcParams['animation.ffmpeg_path'] = bin
-    assert animation.writers._dirty
-    animation.writers.list()  # resets
-    assert not animation.writers._dirty
     assert animation.writers.is_available("ffmpeg")
-    mpl.rcParams['animation.ffmpeg_path'] = ffmpeg_path
 
 
 @pytest.mark.skipif(
@@ -248,18 +235,14 @@ def test_failing_ffmpeg(tmpdir, monkeypatch):
     succeeds when called with no arguments (so that it gets registered by
     `isAvailable`), but fails otherwise, and add it to the $PATH.
     """
-    try:
-        with tmpdir.as_cwd():
-            monkeypatch.setenv("PATH", ".:" + os.environ["PATH"])
-            exe_path = Path(str(tmpdir), "ffmpeg")
-            exe_path.write_text("#!/bin/sh\n"
-                                "[[ $@ -eq 0 ]]\n")
-            os.chmod(str(exe_path), 0o755)
-            animation.writers.reset_available_writers()
-            with pytest.raises(subprocess.CalledProcessError):
-                make_animation().save("test.mpeg")
-    finally:
-        animation.writers.reset_available_writers()
+    with tmpdir.as_cwd():
+        monkeypatch.setenv("PATH", ".:" + os.environ["PATH"])
+        exe_path = Path(str(tmpdir), "ffmpeg")
+        exe_path.write_text("#!/bin/sh\n"
+                            "[[ $@ -eq 0 ]]\n")
+        os.chmod(str(exe_path), 0o755)
+        with pytest.raises(subprocess.CalledProcessError):
+            make_animation().save("test.mpeg")
 
 
 @pytest.mark.parametrize("cache_frame_data, weakref_assertion_fn", [

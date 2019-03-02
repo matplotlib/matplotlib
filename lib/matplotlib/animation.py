@@ -98,13 +98,11 @@ def adjusted_figsize(w, h, dpi, n):
 class MovieWriterRegistry(object):
     '''Registry of available writer classes by human readable name.'''
     def __init__(self):
-        self.avail = dict()
         self._registered = dict()
-        self._dirty = False
 
+    @cbook.deprecated("3.2")
     def set_dirty(self):
         """Sets a flag to re-setup the writers."""
-        self._dirty = True
 
     def register(self, name):
         """Decorator for registering a class under a name.
@@ -115,32 +113,27 @@ class MovieWriterRegistry(object):
             class Foo:
                 pass
         """
-        def wrapper(writerClass):
-            self._registered[name] = writerClass
-            if writerClass.isAvailable():
-                self.avail[name] = writerClass
-            return writerClass
+        def wrapper(writer_cls):
+            self._registered[name] = writer_cls
+            return writer_cls
         return wrapper
 
+    @cbook.deprecated("3.2")
     def ensure_not_dirty(self):
         """If dirty, reasks the writers if they are available"""
-        if self._dirty:
-            self.reset_available_writers()
 
+    @cbook.deprecated("3.2")
     def reset_available_writers(self):
         """Reset the available state of all registered writers"""
-        self.avail = {name: writerClass
-                      for name, writerClass in self._registered.items()
-                      if writerClass.isAvailable()}
-        self._dirty = False
 
-    def list(self):
-        '''Get a list of available MovieWriters.'''
-        self.ensure_not_dirty()
-        return list(self.avail)
+    @cbook.deprecated("3.2")
+    @property
+    def avail(self):
+        return {name: self._registered[name] for name in self.list()}
 
     def is_available(self, name):
-        '''Check if given writer is available by name.
+        """
+        Check if given writer is available by name.
 
         Parameters
         ----------
@@ -149,19 +142,28 @@ class MovieWriterRegistry(object):
         Returns
         -------
         available : bool
-        '''
-        self.ensure_not_dirty()
-        return name in self.avail
+        """
+        try:
+            cls = self._registered[name]
+        except KeyError:
+            return False
+        return cls.isAvailable()
+
+    def __iter__(self):
+        """Iterate over names of available writer class."""
+        for name in self._registered:
+            if self.is_available(name):
+                yield name
+
+    def list(self):
+        """Get a list of available MovieWriters."""
+        return [*self]
 
     def __getitem__(self, name):
-        self.ensure_not_dirty()
-        if not self.avail:
-            raise RuntimeError("No MovieWriters available!")
-        try:
-            return self.avail[name]
-        except KeyError:
-            raise RuntimeError(
-                'Requested MovieWriter ({}) not available'.format(name))
+        """Get an available writer class from its name."""
+        if self.is_available(name):
+            return self._registered[name]
+        raise RuntimeError(f"Requested MovieWriter ({name}) not available")
 
 
 writers = MovieWriterRegistry()
@@ -1071,22 +1073,21 @@ class Animation(object):
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
         if isinstance(writer, str):
-            if writer in writers.avail:
+            if writers.is_available(writer):
                 writer = writers[writer](fps, codec, bitrate,
                                          extra_args=extra_args,
                                          metadata=metadata)
             else:
-                if writers.list():
-                    alt_writer = writers[writers.list()[0]]
-                    _log.warning("MovieWriter %s unavailable; trying to use "
-                                 "%s instead.", writer, alt_writer)
-                    writer = alt_writer(
-                        fps, codec, bitrate,
-                        extra_args=extra_args, metadata=metadata)
-                else:
+                alt_writer = next(writers, None)
+                if alt_writer is None:
                     raise ValueError("Cannot save animation: no writers are "
                                      "available. Please install ffmpeg to "
                                      "save animations.")
+                _log.warning("MovieWriter %s unavailable; trying to use %s "
+                             "instead.", writer, alt_writer)
+                writer = alt_writer(
+                    fps, codec, bitrate,
+                    extra_args=extra_args, metadata=metadata)
         _log.info('Animation.save using %s', type(writer))
 
         if 'bbox_inches' in savefig_kwargs:

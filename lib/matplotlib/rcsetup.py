@@ -927,6 +927,7 @@ def validate_hist_bins(s):
                      " a sequence of floats".format(valid_strs))
 
 
+@cbook.deprecated("3.2")
 def validate_animation_writer_path(p):
     # Make sure it's a string and then figure out if the animations
     # are already loaded and reset the writers (which will validate
@@ -1454,15 +1455,15 @@ defaultParams = {
     # Additional arguments for HTML writer
     'animation.html_args':    [[], validate_stringlist],
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
-    'animation.ffmpeg_path':  ['ffmpeg', validate_animation_writer_path],
+    'animation.ffmpeg_path':  ['ffmpeg', validate_string],
     # Additional arguments for ffmpeg movie writer (using pipes)
     'animation.ffmpeg_args':   [[], validate_stringlist],
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
-    'animation.avconv_path':   ['avconv', validate_animation_writer_path],
+    'animation.avconv_path':   ['avconv', validate_string],
     # Additional arguments for avconv movie writer (using pipes)
     'animation.avconv_args':   [[], validate_stringlist],
      # Path to convert binary. If just binary name, subprocess uses $PATH.
-    'animation.convert_path':  ['convert', validate_animation_writer_path],
+    'animation.convert_path':  ['convert', validate_string],
      # Additional arguments for convert movie writer (using pipes)
     'animation.convert_args':  [[], validate_stringlist],
 
