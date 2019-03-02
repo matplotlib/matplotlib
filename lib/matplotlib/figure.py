@@ -2474,7 +2474,6 @@ default: 'top'
         See Also
         --------
         matplotlib.figure.Figure.align_ylabels
-
         matplotlib.figure.Figure.align_labels
 
         Notes
@@ -2492,31 +2491,24 @@ default: 'top'
             axs[0].set_xlabel('XLabel 0')
             axs[1].set_xlabel('XLabel 1')
             fig.align_xlabels()
-
         """
-
         if axs is None:
             axs = self.axes
-        axs = np.asarray(axs).ravel()
+        axs = np.ravel(axs)
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_xlabel())
-            ss = ax.get_subplotspec()
-            nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
-            labpo = ax.xaxis.get_label_position()  # top or bottom
-
-            # loop through other axes, and search for label positions
-            # that are same as this one, and that share the appropriate
-            # row number.
-            #  Add to a grouper associated with each axes of sibblings.
+            rowspan = ax.get_subplotspec().rowspan
+            pos = ax.xaxis.get_label_position()  # top or bottom
+            # Search through other axes for label positions that are same as
+            # this one and that share the appropriate row number.
+            # Add to a grouper associated with each axes of siblings.
             # This list is inspected in `axis.draw` by
             # `axis._update_label_position`.
             for axc in axs:
-                if axc.xaxis.get_label_position() == labpo:
-                    ss = axc.get_subplotspec()
-                    nrows, ncols, rowc0, rowc1, colc, col1 = \
-                            ss.get_rows_columns()
-                    if (labpo == 'bottom' and rowc1 == row1 or
-                        labpo == 'top' and rowc0 == row0):
+                if axc.xaxis.get_label_position() == pos:
+                    rowspanc = axc.get_subplotspec().rowspan
+                    if (pos == 'top' and rowspan.start == rowspanc.start or
+                            pos == 'bottom' and rowspan.stop == rowspanc.stop):
                         # grouper for groups of xlabels to align
                         self._align_xlabel_grp.join(ax, axc)
 
@@ -2543,7 +2535,6 @@ default: 'top'
         See Also
         --------
         matplotlib.figure.Figure.align_xlabels
-
         matplotlib.figure.Figure.align_labels
 
         Notes
@@ -2560,33 +2551,26 @@ default: 'top'
             axs[0].set_ylabel('YLabel 0')
             axs[1].set_ylabel('YLabel 1')
             fig.align_ylabels()
-
         """
-
         if axs is None:
             axs = self.axes
-        axs = np.asarray(axs).ravel()
+        axs = np.ravel(axs)
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_ylabel())
-            ss = ax.get_subplotspec()
-            nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
-            labpo = ax.yaxis.get_label_position()  # left or right
-            # loop through other axes, and search for label positions
-            # that are same as this one, and that share the appropriate
-            # column number.
-            # Add to a list associated with each axes of sibblings.
+            colspan = ax.get_subplotspec().colspan
+            pos = ax.yaxis.get_label_position()  # left or right
+            # Search through other axes for label positions that are same as
+            # this one and that share the appropriate column number.
+            # Add to a list associated with each axes of siblings.
             # This list is inspected in `axis.draw` by
             # `axis._update_label_position`.
             for axc in axs:
-                if axc != ax:
-                    if axc.yaxis.get_label_position() == labpo:
-                        ss = axc.get_subplotspec()
-                        nrows, ncols, row0, row1, colc0, colc1 = \
-                                ss.get_rows_columns()
-                        if (labpo == 'left' and colc0 == col0 or
-                            labpo == 'right' and colc1 == col1):
-                            # grouper for groups of ylabels to align
-                            self._align_ylabel_grp.join(ax, axc)
+                if axc.yaxis.get_label_position() == pos:
+                    colspanc = axc.get_subplotspec().colspan
+                    if (pos == 'left' and colspan.start == colspanc.start or
+                            pos == 'right' and colspan.stop == colspanc.stop):
+                        # grouper for groups of ylabels to align
+                        self._align_ylabel_grp.join(ax, axc)
 
     def align_labels(self, axs=None):
         """
