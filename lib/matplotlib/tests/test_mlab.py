@@ -1,5 +1,4 @@
 import tempfile
-import warnings
 
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal_nulp)
@@ -1859,13 +1858,9 @@ class TestSpectral(object):
         assert spec.shape[1] == self.t_specgram.shape[0]
 
     def test_specgram_warn_only1seg(self):
-        """Warning should be raised if len(x) <= NFFT. """
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always", category=UserWarning)
+        """Warning should be raised if len(x) <= NFFT."""
+        with pytest.warns(UserWarning, match="Only one segment is calculated"):
             mlab.specgram(x=self.y, NFFT=len(self.y), Fs=self.Fs)
-        assert len(w) == 1
-        assert issubclass(w[0].category, UserWarning)
-        assert str(w[0].message).startswith("Only one segment is calculated")
 
     def test_psd_csd_equal(self):
         freqs = self.freqs_density

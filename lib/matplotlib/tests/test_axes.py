@@ -5233,9 +5233,8 @@ def generate_errorbar_inputs():
 
 @pytest.mark.parametrize('kwargs', generate_errorbar_inputs())
 def test_errorbar_inputs_shotgun(kwargs):
-    with warnings.catch_warnings():
-        # (n, 1)-shaped error deprecation already tested by test_errorbar.
-        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+    # (n, 1)-shaped error deprecation already tested by test_errorbar.
+    with mpl.cbook._suppress_matplotlib_deprecation_warning():
         ax = plt.gca()
         eb = ax.errorbar(**kwargs)
         eb.remove()
