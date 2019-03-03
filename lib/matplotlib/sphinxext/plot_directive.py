@@ -303,6 +303,7 @@ def setup(app):
     app.add_config_value('plot_html_show_source_link', True, True)
     app.add_config_value('plot_formats', ['png', 'hires.png', 'pdf'], True)
     app.add_config_value('plot_basedir', None, True)
+    app.add_config_value('plot_path_resolution_method', 'old', True)
     app.add_config_value('plot_html_show_formats', True, True)
     app.add_config_value('plot_rcparams', {}, True)
     app.add_config_value('plot_apply_rcparams', False, True)
