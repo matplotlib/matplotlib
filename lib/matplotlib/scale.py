@@ -195,6 +195,7 @@ class FuncScale(ScaleBase):
             axis.set_minor_locator(NullLocator())
 
 
+@cbook.deprecated("3.1", alternative="LogTransform")
 class LogTransformBase(Transform):
     input_dims = 1
     output_dims = 1
@@ -206,28 +207,14 @@ class LogTransformBase(Transform):
         self._clip = {"clip": True, "mask": False}[nonpos]
 
     def transform_non_affine(self, a):
-        # Ignore invalid values due to nans being passed to the transform
-        with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.log(a)
-            out /= np.log(self.base)
-            if self._clip:
-                # SVG spec says that conforming viewers must support values up
-                # to 3.4e38 (C float); however experiments suggest that
-                # Inkscape (which uses cairo for rendering) runs into cairo's
-                # 24-bit limit (which is apparently shared by Agg).
-                # Ghostscript (used for pdf rendering appears to overflow even
-                # earlier, with the max value around 2 ** 15 for the tests to
-                # pass. On the other hand, in practice, we want to clip beyond
-                #     np.log10(np.nextafter(0, 1)) ~ -323
-                # so 1000 seems safe.
-                out[a <= 0] = -1000
-        return out
+        return LogTransform.transform_non_affine(self, a)
 
     def __str__(self):
         return "{}({!r})".format(
             type(self).__name__, "clip" if self._clip else "mask")
 
 
+@cbook.deprecated("3.1", alternative="InvertedLogTransform")
 class InvertedLogTransformBase(Transform):
     input_dims = 1
     output_dims = 1
@@ -241,6 +228,7 @@ class InvertedLogTransformBase(Transform):
         return "{}()".format(type(self).__name__)
 
 
+@cbook.deprecated("3.1", alternative="LogTransform")
 class Log10Transform(LogTransformBase):
     base = 10.0
 
@@ -248,6 +236,7 @@ class Log10Transform(LogTransformBase):
         return InvertedLog10Transform()
 
 
+@cbook.deprecated("3.1", alternative="InvertedLogTransform")
 class InvertedLog10Transform(InvertedLogTransformBase):
     base = 10.0
 
@@ -255,6 +244,7 @@ class InvertedLog10Transform(InvertedLogTransformBase):
         return Log10Transform()
 
 
+@cbook.deprecated("3.1", alternative="LogTransform")
 class Log2Transform(LogTransformBase):
     base = 2.0
 
@@ -262,6 +252,7 @@ class Log2Transform(LogTransformBase):
         return InvertedLog2Transform()
 
 
+@cbook.deprecated("3.1", alternative="InvertedLogTransform")
 class InvertedLog2Transform(InvertedLogTransformBase):
     base = 2.0
 
@@ -269,6 +260,7 @@ class InvertedLog2Transform(InvertedLogTransformBase):
         return Log2Transform()
 
 
+@cbook.deprecated("3.1", alternative="LogTransform")
 class NaturalLogTransform(LogTransformBase):
     base = np.e
 
@@ -276,6 +268,7 @@ class NaturalLogTransform(LogTransformBase):
         return InvertedNaturalLogTransform()
 
 
+@cbook.deprecated("3.1", alternative="InvertedLogTransform")
 class InvertedNaturalLogTransform(InvertedLogTransformBase):
     base = np.e
 
@@ -283,19 +276,62 @@ class InvertedNaturalLogTransform(InvertedLogTransformBase):
         return NaturalLogTransform()
 
 
-class LogTransform(LogTransformBase):
+class LogTransform(Transform):
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
     def __init__(self, base, nonpos='clip'):
-        LogTransformBase.__init__(self, nonpos)
+        Transform.__init__(self)
         self.base = base
+        self._clip = {"clip": True, "mask": False}[nonpos]
+
+    def __str__(self):
+        return "{}(base={}, nonpos={!r})".format(
+            type(self).__name__, self.base, "clip" if self._clip else "mask")
+
+    def transform_non_affine(self, a):
+        # Ignore invalid values due to nans being passed to the transform.
+        with np.errstate(divide="ignore", invalid="ignore"):
+            log = {np.e: np.log, 2: np.log2, 10: np.log10}.get(self.base)
+            if log:  # If possible, do everything in a single call to Numpy.
+                out = log(a)
+            else:
+                out = np.log(a)
+                out /= np.log(self.base)
+            if self._clip:
+                # SVG spec says that conforming viewers must support values up
+                # to 3.4e38 (C float); however experiments suggest that
+                # Inkscape (which uses cairo for rendering) runs into cairo's
+                # 24-bit limit (which is apparently shared by Agg).
+                # Ghostscript (used for pdf rendering appears to overflow even
+                # earlier, with the max value around 2 ** 15 for the tests to
+                # pass. On the other hand, in practice, we want to clip beyond
+                #     np.log10(np.nextafter(0, 1)) ~ -323
+                # so 1000 seems safe.
+                out[a <= 0] = -1000
+        return out
 
     def inverted(self):
         return InvertedLogTransform(self.base)
 
 
 class InvertedLogTransform(InvertedLogTransformBase):
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
     def __init__(self, base):
-        InvertedLogTransformBase.__init__(self)
+        Transform.__init__(self)
         self.base = base
+
+    def __str__(self):
+        return "{}(base={})".format(type(self).__name__, self.base)
+
+    def transform_non_affine(self, a):
+        return ma.power(self.base, a)
 
     def inverted(self):
         return LogTransform(self.base)
@@ -303,17 +339,7 @@ class InvertedLogTransform(InvertedLogTransformBase):
 
 class LogScale(ScaleBase):
     """
-    A standard logarithmic scale.  Care is taken so non-positive
-    values are not plotted.
-
-    For computational efficiency (to push as much as possible to Numpy
-    C code in the common cases), this scale provides different
-    transforms depending on the base of the logarithm:
-
-       - base 10 (:class:`Log10Transform`)
-       - base 2 (:class:`Log2Transform`)
-       - base e (:class:`NaturalLogTransform`)
-       - arbitrary base (:class:`LogTransform`)
+    A standard logarithmic scale.  Care is taken to only plot positive values.
     """
     name = 'log'
 
@@ -365,17 +391,12 @@ class LogScale(ScaleBase):
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
 
-        if base == 10.0:
-            self._transform = self.Log10Transform(nonpos)
-        elif base == 2.0:
-            self._transform = self.Log2Transform(nonpos)
-        elif base == np.e:
-            self._transform = self.NaturalLogTransform(nonpos)
-        else:
-            self._transform = self.LogTransform(base, nonpos)
-
-        self.base = base
+        self._transform = self.LogTransform(base, nonpos)
         self.subs = subs
+
+    @property
+    def base(self):
+        return self._transform.base
 
     def set_default_locators_and_formatters(self, axis):
         """
@@ -436,10 +457,12 @@ class FuncScaleLog(LogScale):
 
         """
         forward, inverse = functions
-        self.base = base
         self.subs = None
-        transform = FuncTransform(forward, inverse) + LogTransform(base)
-        self._transform = transform
+        self._transform = FuncTransform(forward, inverse) + LogTransform(base)
+
+    @property
+    def base(self):
+        return self._transform._b.base  # Base of the LogTransform.
 
     def get_transform(self):
         """
