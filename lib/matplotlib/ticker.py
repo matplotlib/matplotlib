@@ -1272,6 +1272,12 @@ class EngFormatter(Formatter):
 
     useMathText = property(fget=get_useMathText, fset=set_useMathText)
 
+    def fix_minus(self, s):
+        """
+        Replace hyphens with a unicode minus.
+        """
+        return ScalarFormatter.fix_minus(self, s)
+
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
         # Remove the trailing separator when there is neither prefix nor unit
