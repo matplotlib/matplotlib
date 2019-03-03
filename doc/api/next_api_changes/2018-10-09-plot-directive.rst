@@ -21,7 +21,7 @@ files in the host system.
 Since this will break documentations that were depending on the old behavior,
 there is a deprecation period and a new configuration option is introduced to
 get the old behavior. To get the old behavior specify
-``plot_dir_resolve_method='absolute'`` in ``conf.py`` and specify
-``plot_dir_resolve_method='relative'`` to get the new behavior. The old
-behavior might be removed in future. The users are advised to switch to the new
+``plot_path_resolution_method='old'`` in ``conf.py`` and specify
+``plot_path_resolution_method='relative'`` to get the new behavior. The old
+behavior will be removed in future. The users are advised to switch to the new
 behavior and fix the plot directives accordingly.
