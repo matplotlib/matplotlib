@@ -5282,8 +5282,7 @@ def test_title_location_roundtrip():
 
 
 @image_comparison(baseline_images=["loglog"], remove_text=True,
-                  extensions=['png'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+                  extensions=['png'], tol=0.02)
 def test_loglog():
     fig, ax = plt.subplots()
     x = np.arange(1, 11)
