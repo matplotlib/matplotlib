@@ -32,18 +32,3 @@ def test_usetex():
             fontsize=24)
     ax.set_xticks([])
     ax.set_yticks([])
-
-
-@needs_usetex
-def test_usetex_engformatter():
-    matplotlib.rcParams['text.usetex'] = True
-    fig, ax = plt.subplots()
-    ax.plot([0, 500, 1000], [0, 500, 1000])
-    ax.set_xticks([0, 500, 1000])
-    formatter = EngFormatter()
-    ax.xaxis.set_major_formatter(formatter)
-    fig.canvas.draw()
-    x_tick_label_text = [label.get_text() for label in ax.get_xticklabels()]
-    # Checking if the dollar `$` signs have been inserted around numbers
-    # in tick label text.
-    assert x_tick_label_text == ['$0$', '$500$', '$1$ k']
