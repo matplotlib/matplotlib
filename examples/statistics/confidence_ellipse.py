@@ -39,15 +39,17 @@ def confidence_ellipse(x, y, ax, n_std=3.0, **kwargs):
     Parameters
     ----------
     x, y : array_like, shape (n, )
-        Input data
+        Input data.
 
-    ax : matplotlib.axes object to the ellipse into
+    ax : matplotlib.axes.Axes
+        The axes object to draw the ellipse into.
 
-    n_std : number of standard deviations to determine the ellipse's radiuses
+    n_std : float
+        The number of standard deviations to determine the ellipse's radiuses.
 
     Returns
     -------
-    None
+    matplotlib.patches.Ellipse
 
     Other parameters
     ----------------
@@ -83,7 +85,7 @@ def confidence_ellipse(x, y, ax, n_std=3.0, **kwargs):
         .translate(mean_x, mean_y)
 
     ellipse.set_transform(transf + ax.transData)
-    ax.add_patch(ellipse)
+    return ax.add_patch(ellipse)
 
 
 #############################################################################
@@ -107,89 +109,43 @@ def get_correlated_dataset(n, dependency, mu, scale):
 
 #############################################################################
 #
-# Positive correlation
-# """"""""""""""""""""
+# Positive, negative and weak correlation
+# """""""""""""""""""""""""""""""""""""""
 #
-
-fig, ax_pos = plt.subplots(figsize=(6, 6))
-np.random.seed(1234)
-
-dependency_pos = np.array([
-    [0.85, 0.35],
-    [0.15, -0.65]
-])
-mu = np.array([2, 4]).T
-scale = np.array([3, 5]).T
-
-# Indicate the x- and y-axis
-ax_pos.axvline(c='grey', lw=1)
-ax_pos.axhline(c='grey', lw=1)
-
-x, y = get_correlated_dataset(500, dependency_pos, mu, scale)
-confidence_ellipse(x, y, ax_pos, facecolor='none', edgecolor='red')
-
-# Also plot the dataset itself, for reference
-ax_pos.scatter(x, y, s=0.5)
-# Mark the mean ("mu")
-ax_pos.scatter([mu[0]], [mu[1]], c='red', s=3)
-ax_pos.set_title(f'Positive correlation')
-plt.show()
-
-
-#############################################################################
-#
-# Negative correlation
-# """"""""""""""""""""
-#
-
-fig, ax_neg = plt.subplots(figsize=(6, 6))
-dependency_neg = np.array([
-    [0.9, -0.4],
-    [0.1, -0.6]
-])
-mu = np.array([2, 4]).T
-scale = np.array([3, 5]).T
-
-ax_neg.axvline(c='grey', lw=1)
-ax_neg.axhline(c='grey', lw=1)
-
-x, y = get_correlated_dataset(500, dependency_neg, mu, scale)
-confidence_ellipse(x, y, ax_neg, facecolor='none', edgecolor='red')
-
-ax_neg.scatter(x, y, s=0.5)
-
-ax_neg.scatter([mu[0]], [mu[1]], c='red', s=3)
-ax_neg.set_title(f'Negative correlation')
-plt.show()
-
-
-#############################################################################
-#
-# Weak correlation
-# """"""""""""""""
-#
-# This is still an ellipse, not a circle because x and y
-# are differently scaled. However, the fact that x and y are uncorrelated
-# is shown by the axes of the ellipse being aligned with the x- and y-axis
+# Note that the shape for the weak correlation (right) is an ellipse,
+# not a circle because x and y are differently scaled.
+# However, the fact that x and y are uncorrelated is shown by
+# the axes of the ellipse being aligned with the x- and y-axis
 # of the coordinate system.
 
-fig, ax_uncorrel = plt.subplots(figsize=(6, 6))
+np.random.seed(0)
 
-in_dependency = np.array([
-    [1, 0],
-    [0, 1]
-])
+PARAMETERS = {
+    'Positive correlation': np.array([[0.85, 0.35],
+                                      [0.15, -0.65]]),
+    'Negative correlation': np.array([[0.9, -0.4],
+                                      [0.1, -0.6]]),
+    'Weak correlation': np.array([[1, 0],
+                                  [0, 1]]),
+}
+    
 mu = np.array([2, 4]).T
-scale = np.array([5, 3]).T
+scale = np.array([3, 5]).T
 
-ax_uncorrel.axvline(c='grey', lw=1)
-ax_uncorrel.axhline(c='grey', lw=1)
+fig, axs = plt.subplots(1, 3, figsize=(9, 3))
+for ax, (title, dependency) in zip(axs, PARAMETERS.items()):
+    x, y = get_correlated_dataset(800, dependency, mu, scale)
+    ax.scatter(x, y, s=0.5)
+    
+    ax.axvline(c='grey', lw=1)
+    ax.axhline(c='grey', lw=1)
 
-x, y = get_correlated_dataset(500, in_dependency, mu, scale)
-confidence_ellipse(x, y, ax_uncorrel, facecolor='none', edgecolor='red')
-ax_uncorrel.scatter(x, y, s=0.5)
-ax_uncorrel.scatter([mu[0]], [mu[1]], c='red', s=3)
-ax_uncorrel.set_title(f'Weak correlation')
+    confidence_ellipse(x, y, ax, facecolor='none', edgecolor='red')
+
+    ax.scatter([mu[0]], [mu[1]], c='red', s=3)
+    ax.set_title(title)
+    
+plt.show()
 
 
 #############################################################################
