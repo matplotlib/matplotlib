@@ -18,7 +18,6 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import is_writable_file_like
 from matplotlib.path import Path
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
@@ -385,8 +384,8 @@ class RendererPgf(RendererBase):
             Matplotlib figure to initialize height, width and dpi from.
         fh : file-like
             File handle for the output of the drawing commands.
-
         """
+
         RendererBase.__init__(self)
         self.dpi = figure.dpi
         self.fh = fh
@@ -842,16 +841,10 @@ class FigureCanvasPgf(FigureCanvasBase):
         if kwargs.get("dryrun", False):
             self._print_pgf_to_fh(None, *args, **kwargs)
             return
-
-        # figure out where the pgf is to be written to
-        if isinstance(fname_or_fh, str):
-            with open(fname_or_fh, "w", encoding="utf-8") as fh:
-                self._print_pgf_to_fh(fh, *args, **kwargs)
-        elif is_writable_file_like(fname_or_fh):
-            fh = codecs.getwriter("utf-8")(fname_or_fh)
-            self._print_pgf_to_fh(fh, *args, **kwargs)
-        else:
-            raise ValueError("filename must be a path")
+        with cbook.open_file_cm(fname_or_fh, "w", encoding="utf-8") as file:
+            if not cbook.file_requires_unicode(file):
+                file = codecs.getwriter("utf-8")(file)
+            self._print_pgf_to_fh(file, *args, **kwargs)
 
     def _print_pdf_to_fh(self, fh, *args, **kwargs):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
@@ -896,21 +889,12 @@ class FigureCanvasPgf(FigureCanvasBase):
                 TmpDirCleaner.add(tmpdir)
 
     def print_pdf(self, fname_or_fh, *args, **kwargs):
-        """
-        Use LaTeX to compile a Pgf generated figure to PDF.
-        """
+        """Use LaTeX to compile a Pgf generated figure to PDF."""
         if kwargs.get("dryrun", False):
             self._print_pgf_to_fh(None, *args, **kwargs)
             return
-
-        # figure out where the pdf is to be written to
-        if isinstance(fname_or_fh, str):
-            with open(fname_or_fh, "wb") as fh:
-                self._print_pdf_to_fh(fh, *args, **kwargs)
-        elif is_writable_file_like(fname_or_fh):
-            self._print_pdf_to_fh(fname_or_fh, *args, **kwargs)
-        else:
-            raise ValueError("filename must be a path or a file-like object")
+        with cbook.open_file_cm(fname_or_fh, "wb") as file:
+            self._print_pdf_to_fh(file, *args, **kwargs)
 
     def _print_png_to_fh(self, fh, *args, **kwargs):
         converter = make_pdf_to_png_converter()
@@ -933,20 +917,12 @@ class FigureCanvasPgf(FigureCanvasBase):
                 TmpDirCleaner.add(tmpdir)
 
     def print_png(self, fname_or_fh, *args, **kwargs):
-        """
-        Use LaTeX to compile a pgf figure to pdf and convert it to png.
-        """
+        """Use LaTeX to compile a pgf figure to pdf and convert it to png."""
         if kwargs.get("dryrun", False):
             self._print_pgf_to_fh(None, *args, **kwargs)
             return
-
-        if isinstance(fname_or_fh, str):
-            with open(fname_or_fh, "wb") as fh:
-                self._print_png_to_fh(fh, *args, **kwargs)
-        elif is_writable_file_like(fname_or_fh):
-            self._print_png_to_fh(fname_or_fh, *args, **kwargs)
-        else:
-            raise ValueError("filename must be a path or a file-like object")
+        with cbook.open_file_cm(fname_or_fh, "wb") as file:
+            self._print_png_to_fh(file, *args, **kwargs)
 
     def get_renderer(self):
         return RendererPgf(self.figure, None, dummy=True)
