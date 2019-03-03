@@ -813,6 +813,14 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
     return count;
 }
 
+
+inline bool isclose(double a, double b, double rtol, double atol)
+{
+    // as per python's math.isclose
+    return fabs(a-b) <= fmax(rtol * fmax(fabs(a), fabs(b)), atol);
+}
+
+
 inline bool segments_intersect(const double &x1,
                                const double &y1,
                                const double &x2,
@@ -822,8 +830,27 @@ inline bool segments_intersect(const double &x1,
                                const double &x4,
                                const double &y4)
 {
+    // relative and absolute tolerance values are chosen empirically
+    // it looks the atol value matters here bacause of round-off errors
+    const double rtol = 1e-10;
+    const double atol = 1e-13;
+    // determinant
     double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
-    if (den == 0.0) {
+
+    if (isclose(den, 0.0, rtol, atol)) {  // collinear segments
+        if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
+                                    // and lie on the same line
+            return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
+                   (fmin(y3, y4) <= fmin(y1, y2) && fmin(y1, y2) <= fmax(y3, y4));
+        }
+        else {
+            double intercept = (y1*x2 - y2*x1)*(x4 - x3) - (y3*x4 - y4*x3)*(x1 - x2);
+            if (isclose(intercept, 0.0, rtol, atol)) { // segments lie on the same line
+                return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
+                       (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
+            }
+        }
+       
         return false;
     }
 
@@ -833,7 +860,10 @@ inline bool segments_intersect(const double &x1,
     double u1 = n1 / den;
     double u2 = n2 / den;
 
-    return (u1 >= 0.0 && u1 <= 1.0 && u2 >= 0.0 && u2 <= 1.0);
+    return ((u1 > 0.0 || isclose(u1, 0.0, rtol, atol)) && 
+            (u1 < 1.0 || isclose(u1, 1.0, rtol, atol)) && 
+            (u2 > 0.0 || isclose(u2, 0.0, rtol, atol)) && 
+            (u2 < 1.0 || isclose(u2, 1.0, rtol, atol)));
 }
 
 template <class PathIterator1, class PathIterator2>
