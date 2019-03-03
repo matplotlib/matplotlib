@@ -100,11 +100,26 @@ The plot directive has the following configuration options:
             import numpy as np
             from matplotlib import pyplot as plt
 
+    plot_dir_resolve_method
+        The method to use for resolving file names that come after the
+        ``plot::`` directive. Two options are available: ``relative`` and
+        ``absolute``. Defaults to ``absolute`` but the default value will
+        change to ``relative`` in future versions. The ``absolute`` method
+        is deprecated and might be removed in future. See the ``plot_basedir``
+        for explanation of methods.
+
     plot_basedir
-        Base directory, to which ``plot::`` file names are relative
-        to. Defaults to the source directory. Only absolute paths are treated
-        relative to this option. Relative paths are found relative to the
-        directory of the file containing the directive.
+        Base directory, to which ``plot::`` file names are relative.
+        Defaults to the source directory.
+
+        If ``plot_dir_resolve_method`` is ``relative``, relative file names are
+        found relative to the directory of the file containing the directive.
+        Absolute file names (paths starting with ``/``) are found relative to
+        ``plot_basedir``.
+
+        If ``plot_dir_resolve_method`` is ``absolute``, all files are found
+        relative to ``plot_basedir`` whether the paths start with ``/`` or not.
+        This method is deprecated and may be removed in future.
 
     plot_formats
         File formats to generate. List of tuples or strings::
@@ -671,13 +686,36 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     if len(arguments):
 
-        if arguments[0].startswith('/'):
-            arguments[0] = arguments[0][1:]
-            src_dir = config.plot_basedir or setup.app.builder.srcdir
-        else:
-            src_dir = rst_dir
+        # if the new method is selected for resolving paths
+        if config.plot_dir_resolve_method.lower() == 'relative':
 
-        source_file_name = os.path.join(src_dir, directives.uri(arguments[0]))
+            if arguments[0].startswith('/'):
+                arguments[0] = arguments[0][1:]
+                src_dir = config.plot_basedir or setup.app.builder.srcdir
+            else:
+                src_dir = rst_dir
+
+            source_file_name = os.path.join(src_dir, directives.uri(arguments[0]))
+
+        else:
+
+            cbook.warn_deprecated(
+                '3.2', message='You are using an old method '
+                'to resolve filenames of the ``.. ::plot`` directive. Please '
+                'switch to the new method by specifying '
+                '``plot_dir_resolve_method=\'relative\'`` in your conf.py '
+                'and fix the filenames accordingly. Please see '
+                'matplotlib/doc/api/next_api_changes/2018-10-09-plot-directive.rst '
+                'for more information. The old method will be removed in '
+                '%(removal)s.', removal='4.0')
+
+            if not config.plot_basedir:
+                source_file_name = os.path.join(
+                    setup.app.builder.srcdir, directives.uri(arguments[0]))
+
+            else:
+                source_file_name = os.path.join(
+                    setup.confdir, config.plot_basedir, directives.uri(arguments[0]))
 
         # If there is content, it will be passed as a caption.
         caption = '\n'.join(content)
