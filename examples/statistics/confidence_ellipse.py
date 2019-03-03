@@ -128,7 +128,7 @@ PARAMETERS = {
     'Weak correlation': np.array([[1, 0],
                                   [0, 1]]),
 }
-    
+
 mu = np.array([2, 4]).T
 scale = np.array([3, 5]).T
 
@@ -136,7 +136,7 @@ fig, axs = plt.subplots(1, 3, figsize=(9, 3))
 for ax, (title, dependency) in zip(axs, PARAMETERS.items()):
     x, y = get_correlated_dataset(800, dependency, mu, scale)
     ax.scatter(x, y, s=0.5)
-    
+
     ax.axvline(c='grey', lw=1)
     ax.axhline(c='grey', lw=1)
 
@@ -144,7 +144,7 @@ for ax, (title, dependency) in zip(axs, PARAMETERS.items()):
 
     ax.scatter([mu[0]], [mu[1]], c='red', s=3)
     ax.set_title(title)
-    
+
 plt.show()
 
 
