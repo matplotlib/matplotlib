@@ -12,6 +12,20 @@ explained and proved here:
 https://carstenschelp.github.io/2018/09/14/Plot_Confidence_Ellipse_001.html
 """
 
+#############################################################################
+#
+# The plotting function itself
+# """"""""""""""""""""""""""""
+#
+# This function plots the confidence ellipse of the covariance of the given
+# array-like variables x and y. The ellipse is plotted into the given
+# axes-object ax.
+#
+# The radiuses of the ellipse can be controlled by n_std which is the number
+# of standard deviations. The default value is 3 which makes the ellipse
+# enclose 99.7% of the points (given the data is normally distributed
+# like in these examples).
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
@@ -72,6 +86,16 @@ def confidence_ellipse(x, y, ax, n_std=3.0, **kwargs):
     ax.add_patch(ellipse)
 
 
+#############################################################################
+#
+# A helper function to create a correlated dataset
+# """"""""""""""""""""""""""""""""""""""""""""""""
+#
+# Creates a random two-dimesional dataset with the specified
+# two-dimensional mean (mu) and dimensions (scale).
+# The correlation can be controlled by the param 'dependency',
+# a 2x2 matrix.
+
 def get_correlated_dataset(n, dependency, mu, scale):
     latent = np.random.randn(n, 2)
     dependent = latent.dot(dependency)
@@ -80,37 +104,45 @@ def get_correlated_dataset(n, dependency, mu, scale):
     # return x and y of the new, correlated dataset
     return scaled_with_offset[:, 0], scaled_with_offset[:, 1]
 
-fig, ((ax_pos, ax_neg, ax_uncorrel), (ax_nstd1, ax_nstd2, ax_kwargs))\
-    = plt.subplots(nrows=2, ncols=3, figsize=(9, 6),
-        sharex=True, sharey=True)
+
+#############################################################################
+#
+# Positive correlation
+# """"""""""""""""""""
+#
+
+fig, ax_pos = plt.subplots(figsize=(6, 6))
 np.random.seed(1234)
 
-# Demo top left: positive correlation
-
-# Create a matrix that transforms the independent
-# "latent" dataset into a dataset where x and y are
-# correlated - positive correlation, in this case.
 dependency_pos = np.array([
     [0.85, 0.35],
     [0.15, -0.65]
 ])
-mu_pos = np.array([2, 4]).T
-scale_pos = np.array([3, 5]).T
+mu = np.array([2, 4]).T
+scale = np.array([3, 5]).T
 
 # Indicate the x- and y-axis
 ax_pos.axvline(c='grey', lw=1)
 ax_pos.axhline(c='grey', lw=1)
 
-x, y = get_correlated_dataset(500, dependency_pos, mu_pos, scale_pos)
+x, y = get_correlated_dataset(500, dependency_pos, mu, scale)
 confidence_ellipse(x, y, ax_pos, facecolor='none', edgecolor='red')
 
 # Also plot the dataset itself, for reference
 ax_pos.scatter(x, y, s=0.5)
 # Mark the mean ("mu")
-ax_pos.scatter([mu_pos[0]], [mu_pos[1]], c='red', s=3)
+ax_pos.scatter([mu[0]], [mu[1]], c='red', s=3)
 ax_pos.set_title(f'Positive correlation')
+plt.show()
 
-# Demo top middle: negative correlation
+
+#############################################################################
+#
+# Negative correlation
+# """"""""""""""""""""
+#
+
+fig, ax_neg = plt.subplots(figsize=(6, 6))
 dependency_neg = np.array([
     [0.9, -0.4],
     [0.1, -0.6]
@@ -118,22 +150,30 @@ dependency_neg = np.array([
 mu = np.array([2, 4]).T
 scale = np.array([3, 5]).T
 
-# Indicate the x- and y-axes
 ax_neg.axvline(c='grey', lw=1)
 ax_neg.axhline(c='grey', lw=1)
 
 x, y = get_correlated_dataset(500, dependency_neg, mu, scale)
 confidence_ellipse(x, y, ax_neg, facecolor='none', edgecolor='red')
-# Again, plot the dataset itself, for reference
+
 ax_neg.scatter(x, y, s=0.5)
-# Mark the mean ("mu")
+
 ax_neg.scatter([mu[0]], [mu[1]], c='red', s=3)
 ax_neg.set_title(f'Negative correlation')
+plt.show()
 
-# Demo top right: uncorrelated dataset
-# This uncorrelated plot (bottom left) is not a circle since x and y
+
+#############################################################################
+#
+# Weak correlation
+# """"""""""""""""
+#
+# This is still an ellipse, not a circle because x and y
 # are differently scaled. However, the fact that x and y are uncorrelated
-# is shown however by the ellipse being aligned with the x- and y-axis.
+# is shown by the axes of the ellipse being aligned with the x- and y-axis
+# of the coordinate system.
+
+fig, ax_uncorrel = plt.subplots(figsize=(6, 6))
 
 in_dependency = np.array([
     [1, 0],
@@ -151,47 +191,50 @@ ax_uncorrel.scatter(x, y, s=0.5)
 ax_uncorrel.scatter([mu[0]], [mu[1]], c='red', s=3)
 ax_uncorrel.set_title(f'Weak correlation')
 
-# Demo bottom left and middle: ellipse two standard deviations wide
-# In the confidence_ellipse function the default of the number
-# of standard deviations is 3, which makes the ellipse enclose
-# 99.7% of the points when the data is normally distributed.
-# This demo shows a two plots of the same dataset with different
-# values for "n_std".
-dependency_nstd_1 = np.array([
+
+#############################################################################
+#
+# Different number of standard deviations
+# """""""""""""""""""""""""""""""""""""""
+#
+# A plot with n_std = 3 (gray), 2 (blue) and 1 (red)
+
+fig, ax_nstd = plt.subplots(figsize=(6, 6))
+
+dependency_nstd = np.array([
     [0.8, 0.75],
     [-0.2, 0.35]
 ])
 mu = np.array([0, 0]).T
 scale = np.array([8, 5]).T
 
-ax_kwargs.axvline(c='grey', lw=1)
-ax_kwargs.axhline(c='grey', lw=1)
+ax_nstd.axvline(c='grey', lw=1)
+ax_nstd.axhline(c='grey', lw=1)
 
-x, y = get_correlated_dataset(500, dependency_nstd_1, mu, scale)
-# Onde standard deviation
-# Now plot the dataset first ("under" the ellipse) in order to
-# demonstrate the transparency of the ellipse (alpha).
-ax_nstd1.scatter(x, y, s=0.5)
-confidence_ellipse(x, y, ax_nstd1, n_std=1,
+x, y = get_correlated_dataset(500, dependency_nstd, mu, scale)
+ax_nstd.scatter(x, y, s=0.5)
+
+confidence_ellipse(x, y, ax_nstd, n_std=1,
     facecolor='none', edgecolor='red')
-confidence_ellipse(x, y, ax_nstd1, n_std=3,
+confidence_ellipse(x, y, ax_nstd, n_std=2,
+    facecolor='none', edgecolor='blue')
+confidence_ellipse(x, y, ax_nstd, n_std=3,
     facecolor='none', edgecolor='gray', linestyle='--')
 
-ax_nstd1.scatter([mu[0]], [mu[1]], c='red', s=3)
-ax_nstd1.set_title(f'One standard deviation')
-
-# Two standard deviations
-ax_nstd2.scatter(x, y, s=0.5)
-confidence_ellipse(x, y, ax_nstd2, n_std=2,
-    facecolor='none', edgecolor='red')
-confidence_ellipse(x, y, ax_nstd2, n_std=3,
-    facecolor='none', edgecolor='gray', linestyle='--')
-
-ax_nstd2.scatter([mu[0]], [mu[1]], c='red', s=3)
-ax_nstd2.set_title(f'Two standard deviations')
+ax_nstd.scatter([mu[0]], [mu[1]], c='red', s=3)
+ax_nstd.set_title(f'Different standard deviations')
+plt.show()
 
 
-# Demo bottom right: Using kwargs
+#############################################################################
+#
+# Using the keyword arguments
+# """""""""""""""""""""""""""
+#
+# Use the kwargs specified for matplotlib.patches.Patch in order
+# to have the ellipse rendered in different ways.
+
+fig, ax_kwargs = plt.subplots(figsize=(6, 6))
 dependency_kwargs = np.array([
     [-0.8, 0.5],
     [-0.2, 0.5]
