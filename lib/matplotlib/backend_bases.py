@@ -1597,6 +1597,11 @@ class FigureCanvasBase(object):
         if not ip:
             return
         from IPython.core import pylabtools as pt
+        if (not hasattr(pt, "backend2gui")
+                or not hasattr(ip, "enable_matplotlib")):
+            # In case we ever move the patch to IPython and remove these APIs,
+            # don't break on our side.
+            return
         backend_mod = sys.modules[cls.__module__]
         rif = getattr(backend_mod, "required_interactive_framework", None)
         backend2gui_rif = {"qt5": "qt", "qt4": "qt", "gtk3": "gtk3",
