@@ -454,6 +454,24 @@ def test_poly_collection_2d_to_3d_empty():
     assert poly.get_paths() == []
 
 
+@image_comparison(baseline_images=['poly3dcollection_alpha'],
+                  remove_text=True, extensions=['png'])
+def test_poly3dcollection_alpha():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    poly1 = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], float)
+    poly2 = np.array([[0, 1, 1], [1, 1, 1], [1, 1, 0]], float)
+    c1 = art3d.Poly3DCollection([poly1], linewidths=3, edgecolor='k',
+                                facecolor=(0.5, 0.5, 1), closed=True)
+    c1.set_alpha(0.5)
+    c2 = art3d.Poly3DCollection([poly2], linewidths=3, edgecolor='k',
+                                facecolor=(1, 0.5, 0.5), closed=False)
+    c2.set_alpha(0.5)
+    ax.add_collection3d(c1)
+    ax.add_collection3d(c2)
+
+
 @image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])
 def test_axes3d_labelpad():
     from matplotlib import rcParams
