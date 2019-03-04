@@ -10,6 +10,10 @@ The approach that is used to obtain the correct geometry is
 explained and proved here:
 
 https://carstenschelp.github.io/2018/09/14/Plot_Confidence_Ellipse_001.html
+
+The method avoids the use of an iterative eigen decomposition algorithm
+and makes use of the fact that a normalized covariance matrix (composed of
+pearson correlation coefficients and ones) is particularly easy to handle.
 """
 
 #############################################################################
@@ -25,6 +29,7 @@ https://carstenschelp.github.io/2018/09/14/Plot_Confidence_Ellipse_001.html
 # of standard deviations. The default value is 3 which makes the ellipse
 # enclose 99.7% of the points (given the data is normally distributed
 # like in these examples).
+
 
 import numpy as np
 import matplotlib.pyplot as plt
