@@ -758,7 +758,7 @@ class Poly3DCollection(PolyCollection):
                 raise TypeError('alpha must be a float or None')
         artist.Artist.set_alpha(self, alpha)
         try:
-            self._facecolors = mcolors.to_rgba_array(
+            self._facecolors3d = mcolors.to_rgba_array(
                 self._facecolors3d, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
