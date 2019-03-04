@@ -7,7 +7,9 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
+from numbers import Integral
 import warnings
+
 import matplotlib as mpl
 import numpy as np
 from numpy import ma
@@ -1211,7 +1213,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 levels_arg = args[0]
         else:
             levels_arg = self.levels
-        if isinstance(levels_arg, int):
+        if isinstance(levels_arg, Integral):
             self.levels = self._autolev(levels_arg)
         else:
             self.levels = np.asarray(levels_arg).astype(np.float64)
