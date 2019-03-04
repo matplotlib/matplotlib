@@ -1,22 +1,23 @@
 """
-============
-Ftface Props
-============
+===============
+Font properties
+===============
 
-This is a demo script to show you how to use all the properties of an
-FT2Font object.  These describe global font properties.  For
-individual character metrics, use the Glyph object, as returned by
-load_char
+This example lists the attributes of an `FT2Font` object, which describe global
+font properties.  For individual character metrics, use the `Glyph` object, as
+returned by `load_char`.
 """
+
+import os
+
 import matplotlib
 import matplotlib.ft2font as ft
 
 
-#fname = '/usr/local/share/matplotlib/VeraIt.ttf'
-fname = matplotlib.get_data_path() + '/fonts/ttf/DejaVuSans-Oblique.ttf'
-#fname = '/usr/local/share/matplotlib/cmr10.ttf'
-
-font = ft.FT2Font(fname)
+font = ft.FT2Font(
+    # Use a font shipped with Matplotlib.
+    os.path.join(matplotlib.get_data_path(),
+                 'fonts/ttf/DejaVuSans-Oblique.ttf'))
 
 print('Num faces   :', font.num_faces)        # number of faces in file
 print('Num glyphs  :', font.num_glyphs)       # number of glyphs in the face
@@ -61,7 +62,3 @@ for style in ('Italic',
               'External stream'):
     bitpos = getattr(ft, style.replace(' ', '_').upper()) - 1
     print('%-17s:' % style, bool(font.style_flags & (1 << bitpos)))
-
-print(dir(font))
-
-print(font.get_kerning)
