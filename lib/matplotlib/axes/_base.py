@@ -492,7 +492,6 @@ class _AxesBase(martist.Artist):
         self.set_axisbelow(rcParams['axes.axisbelow'])
 
         self._rasterization_zorder = None
-        self._connected = {}  # a dict from events to (id, func)
         self.cla()
 
         # funcs used to format x and y - fall back on major formatters
