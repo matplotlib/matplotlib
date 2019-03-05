@@ -470,6 +470,8 @@ class _AxesBase(martist.Artist):
         self._aspect = 'auto'
         self._adjustable = 'box'
         self._anchor = 'C'
+        self._stale_viewlim_x = False
+        self._stale_viewlim_y = False
         self._sharex = sharex
         self._sharey = sharey
         if sharex is not None:
@@ -615,11 +617,40 @@ class _AxesBase(martist.Artist):
                                                 fig.transFigure)
         # these will be updated later as data is added
         self.dataLim = mtransforms.Bbox.null()
-        self.viewLim = mtransforms.Bbox.unit()
+        self._viewLim = mtransforms.Bbox.unit()
         self.transScale = mtransforms.TransformWrapper(
             mtransforms.IdentityTransform())
 
         self._set_lim_and_transforms()
+
+    def _unstale_viewLim(self):
+        # We should arrange to store this information once per share-group
+        # instead of on every axis.
+        scalex = any(ax._stale_viewlim_x
+                     for ax in self._shared_x_axes.get_siblings(self))
+        scaley = any(ax._stale_viewlim_y
+                     for ax in self._shared_y_axes.get_siblings(self))
+        if scalex or scaley:
+            for ax in self._shared_x_axes.get_siblings(self):
+                ax._stale_viewlim_x = False
+            for ax in self._shared_y_axes.get_siblings(self):
+                ax._stale_viewlim_y = False
+            self.autoscale_view(scalex=scalex, scaley=scaley)
+
+    @property
+    def viewLim(self):
+        self._unstale_viewLim()
+        return self._viewLim
+
+    # API could be better, right now this is just to match the old calls to
+    # autoscale_view() after each plotting method.
+    def _request_autoscale_view(self, tight=None, scalex=True, scaley=True):
+        if tight is not None:
+            self._tight = tight
+        if scalex:
+            self._stale_viewlim_x = True  # Else keep old state.
+        if scaley:
+            self._stale_viewlim_y = True
 
     def _set_lim_and_transforms(self):
         """
@@ -645,7 +676,7 @@ class _AxesBase(martist.Artist):
         # An affine transformation on the data, generally to limit the
         # range of the axes
         self.transLimits = mtransforms.BboxTransformFrom(
-            mtransforms.TransformedBbox(self.viewLim, self.transScale))
+            mtransforms.TransformedBbox(self._viewLim, self.transScale))
 
         # The parentheses are important for efficiency here -- they
         # group the last two (which are usually affines) separately
@@ -1862,6 +1893,9 @@ class _AxesBase(martist.Artist):
             collection.set_clip_path(self.patch)
 
         if autolim:
+            # Make sure viewLim is not stale (mostly to match
+            # pre-lazy-autoscale behavior, which is not really better).
+            self._unstale_viewLim()
             self.update_datalim(collection.get_datalim(self.transData))
 
         self.stale = True
@@ -2019,7 +2053,7 @@ class _AxesBase(martist.Artist):
         Currently forces updates of data limits and view limits.
         """
         self.relim()
-        self.autoscale_view(scalex=scalex, scaley=scaley)
+        self._request_autoscale_view(scalex=scalex, scaley=scaley)
 
     def relim(self, visible_only=False):
         """
@@ -2313,7 +2347,7 @@ class _AxesBase(martist.Artist):
         if y is not None:
             self.set_ymargin(y)
 
-        self.autoscale_view(
+        self._request_autoscale_view(
             tight=tight, scalex=(x is not None), scaley=(y is not None)
         )
 
@@ -2375,7 +2409,7 @@ class _AxesBase(martist.Artist):
             self._xmargin = 0
         if tight and scaley:
             self._ymargin = 0
-        self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley)
+        self._request_autoscale_view(tight=tight, scalex=scalex, scaley=scaley)
 
     def autoscale_view(self, tight=None, scalex=True, scaley=True):
         """
@@ -2556,11 +2590,12 @@ class _AxesBase(martist.Artist):
         """Draw everything (plot lines, axes, labels)"""
         if renderer is None:
             renderer = self.figure._cachedRenderer
-
         if renderer is None:
             raise RuntimeError('No renderer defined')
         if not self.get_visible():
             return
+        self._unstale_viewLim()
+
         renderer.open_group('axes')
 
         # prevent triggering call backs during the draw process
@@ -2886,7 +2921,7 @@ class _AxesBase(martist.Artist):
             self.xaxis.get_major_locator().set_params(**kwargs)
         if _y:
             self.yaxis.get_major_locator().set_params(**kwargs)
-        self.autoscale_view(tight=tight, scalex=_x, scaley=_y)
+        self._request_autoscale_view(tight=tight, scalex=_x, scaley=_y)
 
     def tick_params(self, axis='both', **kwargs):
         """Change the appearance of ticks, tick labels, and gridlines.
@@ -3122,7 +3157,6 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         The limit value after call to convert(), or None if limit is None.
-
         """
         if limit is not None:
             converted_limit = convert(limit)
@@ -3214,11 +3248,14 @@ class _AxesBase(martist.Artist):
         left = self._validate_converted_limits(left, self.convert_xunits)
         right = self._validate_converted_limits(right, self.convert_xunits)
 
-        old_left, old_right = self.get_xlim()
-        if left is None:
-            left = old_left
-        if right is None:
-            right = old_right
+        if left is None or right is None:
+            # Axes init calls set_xlim(0, 1) before get_xlim() can be called,
+            # so only grab the limits if we really need them.
+            old_left, old_right = self.get_xlim()
+            if left is None:
+                left = old_left
+            if right is None:
+                right = old_right
 
         if self.get_xscale() == 'log':
             if left <= 0:
@@ -3240,7 +3277,7 @@ class _AxesBase(martist.Artist):
         left, right = self.xaxis.get_major_locator().nonsingular(left, right)
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
-        self.viewLim.intervalx = (left, right)
+        self._viewLim.intervalx = (left, right)
         if auto is not None:
             self._autoscaleXon = bool(auto)
 
@@ -3297,8 +3334,7 @@ class _AxesBase(martist.Artist):
             ax.xaxis._set_scale(value, **kwargs)
             ax._update_transScale()
             ax.stale = True
-
-        self.autoscale_view(scaley=False)
+        self._request_autoscale_view(scaley=False)
 
     def get_xticks(self, minor=False):
         """Return the x ticks as a list of locations"""
@@ -3592,12 +3628,14 @@ class _AxesBase(martist.Artist):
         bottom = self._validate_converted_limits(bottom, self.convert_yunits)
         top = self._validate_converted_limits(top, self.convert_yunits)
 
-        old_bottom, old_top = self.get_ylim()
-
-        if bottom is None:
-            bottom = old_bottom
-        if top is None:
-            top = old_top
+        if bottom is None or top is None:
+            # Axes init calls set_ylim(0, 1) before get_ylim() can be called,
+            # so only grab the limits if we really need them.
+            old_bottom, old_top = self.get_ylim()
+            if bottom is None:
+                bottom = old_bottom
+            if top is None:
+                top = old_top
 
         if self.get_yscale() == 'log':
             if bottom <= 0:
@@ -3620,7 +3658,7 @@ class _AxesBase(martist.Artist):
         bottom, top = self.yaxis.get_major_locator().nonsingular(bottom, top)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
-        self.viewLim.intervaly = (bottom, top)
+        self._viewLim.intervaly = (bottom, top)
         if auto is not None:
             self._autoscaleYon = bool(auto)
 
@@ -3677,7 +3715,7 @@ class _AxesBase(martist.Artist):
             ax.yaxis._set_scale(value, **kwargs)
             ax._update_transScale()
             ax.stale = True
-        self.autoscale_view(scalex=False)
+        self._request_autoscale_view(scalex=False)
 
     def get_yticks(self, minor=False):
         """Return the y ticks as a list of locations"""

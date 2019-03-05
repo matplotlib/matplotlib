@@ -32,6 +32,7 @@ def test_bbox_inches_tight():
         yoff = yoff + data[row]
         cellText.append([''])
     plt.xticks([])
+    plt.xlim(0, 5)
     plt.legend([''] * 5, loc=(1.2, 0.2))
     # Add a table at the bottom of the axes
     cellText.reverse()

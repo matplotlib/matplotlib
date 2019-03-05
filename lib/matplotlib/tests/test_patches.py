@@ -363,6 +363,9 @@ def test_multi_color_hatch():
         rect.set_edgecolor('C{}'.format(i))
         rect.set_hatch('/')
 
+    ax.autoscale_view()
+    ax.autoscale(False)
+
     for i in range(5):
         with mstyle.context({'hatch.color': 'C{}'.format(i)}):
             r = Rectangle((i - .8 / 2, 5), .8, 1, hatch='//', fc='none')

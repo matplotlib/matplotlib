@@ -840,7 +840,7 @@ class Axes(_AxesBase):
         trans = self.get_yaxis_transform(which='grid')
         l = mlines.Line2D([xmin, xmax], [y, y], transform=trans, **kwargs)
         self.add_line(l)
-        self.autoscale_view(scalex=False, scaley=scaley)
+        self._request_autoscale_view(scalex=False, scaley=scaley)
         return l
 
     @docstring.dedent_interpd
@@ -909,7 +909,7 @@ class Axes(_AxesBase):
         trans = self.get_xaxis_transform(which='grid')
         l = mlines.Line2D([x, x], [ymin, ymax], transform=trans, **kwargs)
         self.add_line(l)
-        self.autoscale_view(scalex=scalex, scaley=False)
+        self._request_autoscale_view(scalex=scalex, scaley=False)
         return l
 
     @docstring.dedent_interpd
@@ -965,7 +965,7 @@ class Axes(_AxesBase):
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
-        self.autoscale_view(scalex=False)
+        self._request_autoscale_view(scalex=False)
         return p
 
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
@@ -1030,7 +1030,7 @@ class Axes(_AxesBase):
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
-        self.autoscale_view(scaley=False)
+        self._request_autoscale_view(scaley=False)
         return p
 
     @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
@@ -1105,7 +1105,7 @@ class Axes(_AxesBase):
             corners = (minx, miny), (maxx, maxy)
 
             self.update_datalim(corners)
-            self.autoscale_view()
+            self._request_autoscale_view()
 
         return lines
 
@@ -1182,7 +1182,7 @@ class Axes(_AxesBase):
 
             corners = (minx, miny), (maxx, maxy)
             self.update_datalim(corners)
-            self.autoscale_view()
+            self._request_autoscale_view()
 
         return lines
 
@@ -1398,7 +1398,7 @@ class Axes(_AxesBase):
                 else:  # "horizontal", None or "none" (see EventCollection)
                     corners = (minpos, minline), (maxpos, maxline)
                 self.update_datalim(corners)
-                self.autoscale_view()
+                self._request_autoscale_view()
 
         return colls
 
@@ -1642,7 +1642,7 @@ class Axes(_AxesBase):
         lines = [*self._get_lines(*args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
-        self.autoscale_view(scalex=scalex, scaley=scaley)
+        self._request_autoscale_view(scalex=scalex, scaley=scaley)
         return lines
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
@@ -1718,7 +1718,7 @@ class Axes(_AxesBase):
 
         ret = self.plot(x, y, fmt, **kwargs)
 
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         return ret
 
@@ -2422,7 +2422,7 @@ class Axes(_AxesBase):
                 ymin = ymin - np.max(yerr)
             ymin = max(ymin * 0.9, 1e-100)
             self.dataLim.intervaly = (ymin, ymax)
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         bar_container = BarContainer(patches, errorbar, label=label)
         self.add_container(bar_container)
@@ -2623,7 +2623,7 @@ class Axes(_AxesBase):
 
         col = mcoll.BrokenBarHCollection(xranges_conv, yrange_conv, **kwargs)
         self.add_collection(col, autolim=True)
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         return col
 
@@ -3429,7 +3429,7 @@ class Axes(_AxesBase):
         for l in caplines:
             self.add_line(l)
 
-        self.autoscale_view()
+        self._request_autoscale_view()
         errorbar_container = ErrorbarContainer((data_line, tuple(caplines),
                                                 tuple(barcols)),
                                                has_xerr=(xerr is not None),
@@ -4101,7 +4101,7 @@ class Axes(_AxesBase):
                 axis.set_major_formatter(formatter)
             formatter.seq = [*formatter.seq, *datalabels]
 
-            self.autoscale_view(
+            self._request_autoscale_view(
                 scalex=self._autoscaleXon, scaley=self._autoscaleYon)
 
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
@@ -4479,7 +4479,7 @@ optional.
                 self.set_ymargin(0.05)
 
         self.add_collection(collection)
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         return collection
 
@@ -4832,9 +4832,7 @@ optional.
 
         corners = ((xmin, ymin), (xmax, ymax))
         self.update_datalim(corners)
-        collection.sticky_edges.x[:] = [xmin, xmax]
-        collection.sticky_edges.y[:] = [ymin, ymax]
-        self.autoscale_view(tight=True)
+        self._request_autoscale_view(tight=True)
 
         # add the collection last
         self.add_collection(collection, autolim=False)
@@ -5004,7 +5002,7 @@ optional.
         q = mquiver.Quiver(self, *args, **kw)
 
         self.add_collection(q, autolim=True)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
@@ -5020,7 +5018,7 @@ optional.
 
         b = mquiver.Barbs(self, *args, **kw)
         self.add_collection(b, autolim=True)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return b
 
     # Uses a custom implementation of data-kwarg handling in
@@ -5075,7 +5073,7 @@ optional.
         for poly in self._get_patches_for_fill(*args, data=data, **kwargs):
             self.add_patch(poly)
             patches.append(poly)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return patches
 
     @_preprocess_data(replace_names=["x", "y1", "y2", "where"])
@@ -5257,7 +5255,7 @@ optional.
         self.dataLim.update_from_data_xy(XY2, self.ignore_existing_data_limits,
                                          updatex=False, updatey=True)
         self.add_collection(collection, autolim=False)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return collection
 
     @_preprocess_data(replace_names=["y", "x1", "x2", "where"])
@@ -5438,7 +5436,7 @@ optional.
         self.dataLim.update_from_data_xy(X2Y, self.ignore_existing_data_limits,
                                          updatex=True, updatey=False)
         self.add_collection(collection, autolim=False)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return collection
 
     #### plotting z(x,y): imshow, pcolor and relatives, contour
@@ -5937,7 +5935,7 @@ optional.
         collection.sticky_edges.y[:] = [miny, maxy]
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return collection
 
     @_preprocess_data()
@@ -6150,7 +6148,7 @@ optional.
         collection.sticky_edges.y[:] = [miny, maxy]
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return collection
 
     @_preprocess_data()
@@ -6320,14 +6318,14 @@ optional.
         ret.sticky_edges.x[:] = [xl, xr]
         ret.sticky_edges.y[:] = [yb, yt]
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
-        self.autoscale_view(tight=True)
+        self._request_autoscale_view(tight=True)
         return ret
 
     @_preprocess_data()
     def contour(self, *args, **kwargs):
         kwargs['filled'] = False
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return contours
     contour.__doc__ = mcontour.QuadContourSet._contour_doc
 
@@ -6335,7 +6333,7 @@ optional.
     def contourf(self, *args, **kwargs):
         kwargs['filled'] = True
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return contours
     contourf.__doc__ = mcontour.QuadContourSet._contour_doc
 
@@ -6842,7 +6840,7 @@ optional.
 
         self.set_autoscalex_on(_saved_autoscalex)
         self.set_autoscaley_on(_saved_autoscaley)
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         if label is None:
             labels = [None]

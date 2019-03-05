@@ -1670,6 +1670,15 @@ class LinearLocator(Locator):
         else:
             self.presets = presets
 
+    @property
+    def numticks(self):
+        # Old hard-coded default.
+        return self._numticks if self._numticks is not None else 11
+
+    @numticks.setter
+    def numticks(self, numticks):
+        self._numticks = numticks
+
     def set_params(self, numticks=None, presets=None):
         """Set parameters within this locator."""
         if presets is not None:
@@ -1690,17 +1699,11 @@ class LinearLocator(Locator):
         if (vmin, vmax) in self.presets:
             return self.presets[(vmin, vmax)]
 
-        if self.numticks is None:
-            self._set_numticks()
-
         if self.numticks == 0:
             return []
         ticklocs = np.linspace(vmin, vmax, self.numticks)
 
         return self.raise_if_exceeds(ticklocs)
-
-    def _set_numticks(self):
-        self.numticks = 11  # todo; be smart here; this is just for dev
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
@@ -2376,25 +2379,28 @@ class LogLocator(Locator):
         return vmin, vmax
 
     def nonsingular(self, vmin, vmax):
-        if not np.isfinite(vmin) or not np.isfinite(vmax):
-            return 1, 10  # initial range, no data plotted yet
-
+        swap_vlims = False
         if vmin > vmax:
+            swap_vlims = True
             vmin, vmax = vmax, vmin
-        if vmax <= 0:
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            vmin, vmax = 1, 10  # Initial range, no data plotted yet.
+        elif vmax <= 0:
             cbook._warn_external(
                 "Data has no positive values, and therefore cannot be "
                 "log-scaled.")
-            return 1, 10
-
-        minpos = self.axis.get_minpos()
-        if not np.isfinite(minpos):
-            minpos = 1e-300  # This should never take effect.
-        if vmin <= 0:
-            vmin = minpos
-        if vmin == vmax:
-            vmin = _decade_less(vmin, self._base)
-            vmax = _decade_greater(vmax, self._base)
+            vmin, vmax = 1, 10
+        else:
+            minpos = self.axis.get_minpos()
+            if not np.isfinite(minpos):
+                minpos = 1e-300  # This should never take effect.
+            if vmin <= 0:
+                vmin = minpos
+            if vmin == vmax:
+                vmin = _decade_less(vmin, self._base)
+                vmax = _decade_greater(vmax, self._base)
+        if swap_vlims:
+            vmin, vmax = vmax, vmin
         return vmin, vmax
 
 
