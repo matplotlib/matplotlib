@@ -350,6 +350,7 @@ def iterable(obj):
     return True
 
 
+@deprecated("3.1", alternative="isinstance(..., collections.abc.Hashable)")
 def is_hashable(obj):
     """Returns true if *obj* can be hashed"""
     try:
