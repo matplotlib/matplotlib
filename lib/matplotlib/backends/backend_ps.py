@@ -420,14 +420,12 @@ grestore
         if debugPS:
             self._pswriter.write('% draw_markers \n')
 
-        if rgbFace:
-            if len(rgbFace) == 4 and rgbFace[3] == 0:
-                ps_color = None
-            else:
-                if rgbFace[0] == rgbFace[1] == rgbFace[2]:
-                    ps_color = '%1.3f setgray' % rgbFace[0]
-                else:
-                    ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
+        ps_color = (
+            None
+            if _is_transparent(rgbFace)
+            else '%1.3f setgray' % rgbFace[0]
+            if rgbFace[0] == rgbFace[1] == rgbFace[2]
+            else '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3])
 
         # construct the generic marker command:
 
@@ -562,7 +560,7 @@ grestore
         if debugPS:
             write("% text\n")
 
-        if len(gc.get_rgb()) == 4 and gc.get_rgb()[3] == 0:
+        if _is_transparent(gc.get_rgb()):
             return  # Special handling for fully transparent.
 
         if ismath == 'TeX':
@@ -744,10 +742,12 @@ grestore
         write = self._pswriter.write
         if debugPS and command:
             write("% "+command+"\n")
-        mightstroke = gc.shouldstroke()
-        stroke = stroke and mightstroke
-        fill = (fill and rgbFace is not None and
-                (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
+        mightstroke = (gc.get_linewidth() > 0
+                       and not _is_transparent(gc.get_rgb()))
+        if not mightstroke:
+            stroke = False
+        if _is_transparent(rgbFace):
+            fill = False
         hatch = gc.get_hatch()
 
         if mightstroke:
@@ -793,6 +793,21 @@ grestore
         write("grestore\n")
 
 
+def _is_transparent(rgb_or_rgba):
+    if rgb_or_rgba is None:
+        return True  # Consistent with rgbFace semantics.
+    elif len(rgb_or_rgba) == 4:
+        if rgb_or_rgba[3] == 0:
+            return True
+        if rgb_or_rgba[3] != 1:
+            _log.warning(
+                "The PostScript backend does not support transparency; "
+                "partially transparent artists will be rendered opaque.")
+        return False
+    else:  # len() == 3.
+        return False
+
+
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt': 0, 'round': 1, 'projecting': 2}[
@@ -802,6 +817,7 @@ class GraphicsContextPS(GraphicsContextBase):
         return {'miter': 0, 'round': 1, 'bevel': 2}[
             GraphicsContextBase.get_joinstyle(self)]
 
+    @cbook.deprecated("3.1")
     def shouldstroke(self):
         return (self.get_linewidth() > 0.0 and
                 (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))

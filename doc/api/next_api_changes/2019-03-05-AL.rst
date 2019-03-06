@@ -1,0 +1,3 @@
+Deprecations
+````````````
+``GraphicsContextPS.shouldstroke`` is deprecated.
