@@ -1589,7 +1589,7 @@ class _AxesBase(martist.Artist):
             else:
                 self.set_xbound((x0, x1))
 
-    def axis(self, *v, **kwargs):
+    def axis(self, *args, **kwargs):
         """
         Convenience method to get or set some axis properties.
 
@@ -1606,14 +1606,15 @@ class _AxesBase(martist.Artist):
             The axis limits to be set. Either none or all of the limits must
             be given.
 
-        option : str
-            Possible values:
+        option : bool or str
+            If a bool, turns axis lines and labels on or off. If a string,
+            possible values are:
 
             ======== ==========================================================
             Value    Description
             ======== ==========================================================
-            'on'     Turn on axis lines and labels.
-            'off'    Turn off axis lines and labels.
+            'on'     Turn on axis lines and labels. Same as ``True``.
+            'off'    Turn off axis lines and labels. Same as ``False``.
             'equal'  Set equal scaling (i.e., make circles circular) by
                      changing axis limits.
             'scaled' Set equal scaling (i.e., make circles circular) by
@@ -1642,15 +1643,15 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_ylim
         """
 
-        if len(v) == len(kwargs) == 0:
+        if len(args) == len(kwargs) == 0:
             xmin, xmax = self.get_xlim()
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax
 
         emit = kwargs.get('emit', True)
 
-        if len(v) == 1 and isinstance(v[0], str):
-            s = v[0].lower()
+        if len(args) == 1 and isinstance(args[0], str):
+            s = args[0].lower()
             if s == 'on':
                 self.set_axis_on()
             elif s == 'off':
@@ -1695,7 +1696,7 @@ class _AxesBase(martist.Artist):
             return xmin, xmax, ymin, ymax
 
         try:
-            v[0]
+            args[0]
         except IndexError:
             xmin = kwargs.get('xmin', None)
             xmax = kwargs.get('xmax', None)
@@ -1712,9 +1713,18 @@ class _AxesBase(martist.Artist):
             ymin, ymax = self.set_ylim(ymin, ymax, emit=emit, auto=auto)
             return xmin, xmax, ymin, ymax
 
-        v = v[0]
+        v = args[0]
+        if isinstance(v, bool):
+            if v:
+                self.set_axis_on()
+            else:
+                self.set_axis_off()
+            xmin, xmax = self.get_xlim()
+            ymin, ymax = self.get_ylim()
+            return xmin, xmax, ymin, ymax
+
         if len(v) != 4:
-            raise ValueError('v must contain [xmin xmax ymin ymax]')
+            raise ValueError('args must contain [xmin xmax ymin ymax]')
 
         self.set_xlim([v[0], v[1]], emit=emit, auto=False)
         self.set_ylim([v[2], v[3]], emit=emit, auto=False)
