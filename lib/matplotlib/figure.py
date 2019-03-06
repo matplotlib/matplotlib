@@ -411,6 +411,18 @@ class Figure(Artist):
         :class:`~matplotlib.backend_bases.FigureManagerBase`, and
         will raise an AttributeError.
 
+        .. warning::
+            This does not manage an GUI event loop. Consequently, the figure
+            may only be shown briefly or not shown at all if you or your
+            environment are not managing an event loop.
+
+            Proper use cases for `.Figure.show` include running this from a
+            GUI application or an IPython shell.
+
+            If you're running a pure python shell or executing a non-GUI
+            python script, you should use `matplotlib.pyplot.show` instead,
+            which takes care of managing the event loop for you.
+
         Parameters
         ----------
         warn : bool
