@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``cbook.is_hashable`` is deprecated (use
+``isinstance(..., collections.abc.Hashable)`` instead).
