@@ -371,6 +371,50 @@ def _delete_parameter(since, name, func=None):
     return wrapper
 
 
+def _make_keyword_only(since, name, func=None):
+    """
+    Decorator indicating that passing parameter *name* (or any of the following
+    ones) positionally to *func* is being deprecated.
+
+    Note that this decorator **cannot** be applied to a function that has a
+    pyplot-level wrapper, as the wrapper always pass all arguments by keyword.
+    If it is used, users will see spurious DeprecationWarnings every time they
+    call the pyplot wrapper.
+    """
+
+    if func is None:
+        return functools.partial(_make_keyword_only, since, name)
+
+    signature = inspect.signature(func)
+    POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
+    KWO = inspect.Parameter.KEYWORD_ONLY
+    assert (name in signature.parameters
+            and signature.parameters[name].kind == POK), (
+        f"Matplotlib internal error: {name!r} must be a positional-or-keyword "
+        f"parameter for {func.__name__}()")
+    names = [*signature.parameters]
+    kwonly = [name for name in names[names.index(name):]
+              if signature.parameters[name].kind == POK]
+    func.__signature__ = signature.replace(parameters=[
+        param.replace(kind=inspect.Parameter.KEYWORD_ONLY)
+        if param.name in kwonly
+        else param
+        for param in signature.parameters.values()])
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        bound = signature.bind(*args, **kwargs)
+        if name in bound.arguments and name not in kwargs:
+            warn_deprecated(
+                since, message="Passing the %(name)s %(obj_type)s "
+                "positionally is deprecated since Matplotlib %(since)s; the "
+                "parameter will become keyword-only %(removal)s.",
+                name=name, obj_type=f"parameter of {func.__name__}()")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 @contextlib.contextmanager
 def _suppress_matplotlib_deprecation_warning():
     with warnings.catch_warnings():

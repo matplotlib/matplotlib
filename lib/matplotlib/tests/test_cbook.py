@@ -13,7 +13,8 @@ import pytest
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
-from matplotlib.cbook import delete_masked_points as dmp
+from matplotlib.cbook import (
+    MatplotlibDeprecationWarning, delete_masked_points as dmp)
 
 
 def test_is_hashable():
@@ -545,3 +546,17 @@ def test_safe_first_element_pandas_series(pd):
     s = pd.Series(range(5), index=range(10, 15))
     actual = cbook.safe_first_element(s)
     assert actual == 0
+
+
+def test_make_keyword_only(recwarn):
+    @cbook._make_keyword_only("3.0", "arg")
+    def func(pre, arg, post=None):
+        pass
+
+    func(1, arg=2)
+    assert len(recwarn) == 0
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        func(1, 2)
+    with pytest.warns(MatplotlibDeprecationWarning):
+        func(1, 2, 3)
