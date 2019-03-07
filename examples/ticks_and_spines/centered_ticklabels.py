@@ -35,6 +35,7 @@ fig, ax = plt.subplots()
 ax.plot(date, r.adj_close)
 
 ax.xaxis.set_major_locator(dates.MonthLocator())
+# 16 is a slight approximation since months differ in number of days.
 ax.xaxis.set_minor_locator(dates.MonthLocator(bymonthday=16))
 
 ax.xaxis.set_major_formatter(ticker.NullFormatter())
