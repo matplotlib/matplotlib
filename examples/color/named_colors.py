@@ -1,7 +1,7 @@
 """
-========================
-Visualizing named colors
-========================
+====================
+List of named colors
+====================
 
 This plots a list of the named colors supported in matplotlib. Note that
 :ref:`xkcd colors <xkcd-colors>` are supported as well, but are not listed here
