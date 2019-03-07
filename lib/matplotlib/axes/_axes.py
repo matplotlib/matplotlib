@@ -803,6 +803,7 @@ class Axes(_AxesBase):
         --------
         hlines : Add horizontal lines in data coordinates.
         axhspan : Add a horizontal span (rectangle) across the axis.
+        axhline : Add a line with an arbitrary slope.
 
         Examples
         --------
@@ -888,6 +889,7 @@ class Axes(_AxesBase):
         --------
         vlines : Add vertical lines in data coordinates.
         axvspan : Add a vertical span (rectangle) across the axis.
+        axline : Add a line with an abritrary slope.
         """
 
         if "transform" in kwargs:
@@ -931,7 +933,7 @@ class Axes(_AxesBase):
 
         Examples
         --------
-        * Draw a thick red line passing through (0, 0) with a gradient of 1::
+        Draw a thick red line passing through (0, 0) and (1, 1)::
 
             >>> axline((0, 0), (1, 1), linewidth=4, color='r')
 
