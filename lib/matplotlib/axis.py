@@ -191,7 +191,7 @@ class Tick(martist.Artist):
     del _old_name, _new_name
 
     @property
-    @cbook.deprecated("3.1", alternative="Tick.label1")
+    @cbook.deprecated("3.1", alternative="Tick.label1", pending=True)
     def label(self):
         return self.label1
 
