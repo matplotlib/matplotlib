@@ -361,7 +361,8 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
                                      ax_bbox_list=ax_bbox_list,
                                      pad=pad, h_pad=h_pad, w_pad=w_pad)
 
-    if rect is not None:
+    # kwargs can be none if tight_layout fails...
+    if rect is not None and kwargs is not None:
         # if rect is given, the whole subplots area (including
         # labels) will fit into the rect instead of the
         # figure. Note that the rect argument of
