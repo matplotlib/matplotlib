@@ -11,7 +11,7 @@ with ``xaxis.major.locator()``, but ``xaxis.get_minorticklocs()`` does not.
 
 If you were relying on both the major and minor tick labels to appear on the
 same tick, you may need to update your code.  For example, the following
-snippet labeled days using major ticks and hours and minutes using minor
+snippet labeled days using major ticks, and hours and minutes using minor
 ticks::
 
     import numpy as np
