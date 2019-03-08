@@ -16,6 +16,7 @@ not possible to directly pass alpha values to :func:`matplotlib.pyplot.imshow`.
 First we will generate some data, in this case, we'll create two 2-D "blobs"
 in a 2-D grid. One blob will be positive, and the other negative.
 """
+
 # sphinx_gallery_thumbnail_number = 3
 import numpy as np
 import matplotlib.pyplot as plt
@@ -43,9 +44,8 @@ gauss_y_high = normal_pdf(yy, means_high[1], var[0])
 gauss_x_low = normal_pdf(xx, means_low[0], var[1])
 gauss_y_low = normal_pdf(yy, means_low[1], var[1])
 
-weights_high = np.array(np.meshgrid(gauss_x_high, gauss_y_high)).prod(0)
-weights_low = -1 * np.array(np.meshgrid(gauss_x_low, gauss_y_low)).prod(0)
-weights = weights_high + weights_low
+weights = (np.outer(gauss_y_high, gauss_x_high)
+           - np.outer(gauss_y_low, gauss_x_low))
 
 # We'll also create a grey background into which the pixels will fade
 greys = np.full((*weights.shape, 3), 70, dtype=np.uint8)
