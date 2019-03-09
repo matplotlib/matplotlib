@@ -72,6 +72,7 @@ def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
     ellipse = Ellipse((0, 0),
         width=ell_radius_x * 2,
         height=ell_radius_y * 2,
+        facecolor=facecolor,
         **kwargs)
 
     # Calculating the stdandard deviation of x from
@@ -147,7 +148,7 @@ for ax, (title, dependency) in zip(axs, PARAMETERS.items()):
 
     confidence_ellipse(x, y, ax, facecolor='none', edgecolor='red')
 
-    ax.scatter([mu[0]], [mu[1]], c='red', s=3)
+    ax.scatter(mu[0], mu[1], c='red', s=3)
     ax.set_title(title)
 
 plt.show()
@@ -182,7 +183,7 @@ confidence_ellipse(x, y, ax_nstd, n_std=2,
 confidence_ellipse(x, y, ax_nstd, n_std=3,
     facecolor='none', edgecolor='gray', linestyle='--')
 
-ax_nstd.scatter([mu[0]], [mu[1]], c='red', s=3)
+ax_nstd.scatter(mu[0], mu[1], c='red', s=3)
 ax_nstd.set_title(f'Different standard deviations')
 plt.show()
 
@@ -213,7 +214,7 @@ ax_kwargs.scatter(x, y, s=0.5)
 confidence_ellipse(x, y, ax_kwargs,
     alpha=0.5, facecolor='pink', edgecolor='purple')
 
-ax_kwargs.scatter([mu[0]], [mu[1]], c='red', s=3)
+ax_kwargs.scatter(mu[0], mu[1], c='red', s=3)
 ax_kwargs.set_title(f'Using kwargs')
 
 fig.subplots_adjust(hspace=0.25)
