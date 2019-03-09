@@ -177,14 +177,15 @@ x, y = get_correlated_dataset(500, dependency_nstd, mu, scale)
 ax_nstd.scatter(x, y, s=0.5)
 
 confidence_ellipse(x, y, ax_nstd, n_std=1,
-    facecolor='none', edgecolor='red')
+    label=r'$1\sigma$', edgecolor='firebrick')
 confidence_ellipse(x, y, ax_nstd, n_std=2,
-    facecolor='none', edgecolor='blue')
+    label=r'$2\sigma$', edgecolor='fuchsia', linestyle='--')
 confidence_ellipse(x, y, ax_nstd, n_std=3,
-    facecolor='none', edgecolor='gray', linestyle='--')
+    label=r'$3\sigma$', edgecolor='blue', linestyle=':')
 
 ax_nstd.scatter(mu[0], mu[1], c='red', s=3)
 ax_nstd.set_title(f'Different standard deviations')
+ax_nstd.legend()
 plt.show()
 
 
