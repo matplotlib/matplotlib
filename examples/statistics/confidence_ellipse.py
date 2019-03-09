@@ -134,7 +134,7 @@ PARAMETERS = {
                                   [0, 1]]),
 }
 
-mu = np.array([2, 4]).T
+mu = 2, 4
 scale = np.array([3, 5]).T
 
 fig, axs = plt.subplots(1, 3, figsize=(9, 3))
