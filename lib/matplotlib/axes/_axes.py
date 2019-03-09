@@ -4478,6 +4478,8 @@ optional.
             if self._ymargin < 0.05 and x.size > 0:
                 self.set_ymargin(0.05)
 
+        self.update_datalim(collection.get_datalim_simple(self.transData))
+        self.autoscale_view()
         self.add_collection(collection)
         self.autoscale_view()
 

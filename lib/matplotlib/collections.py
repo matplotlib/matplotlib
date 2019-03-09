@@ -178,19 +178,40 @@ class Collection(artist.Artist, cm.ScalarMappable):
             t = t._as_mpl_transform(self.axes)
         return t
 
+    def get_datalim_simple(self, transData):
+        offsets = self._offsets
+        transOffset = self.get_offset_transform()
+        offsets = transOffset.transform(offsets)
+        minx = np.Inf
+        maxx = -np.Inf
+        miny = np.Inf
+        maxy = -np.Inf
+        for off in offsets:
+            x = off[0]
+            y = off[1]
+            if x < minx:
+                minx = x
+            if x > maxx:
+                maxx = x
+            if y < miny:
+                miny = y
+            if y > maxy:
+                maxy = y
+        bb = transforms.Bbox([[minx, miny], [maxx, maxy]])
+        return bb.inverse_transformed(transData)
+
+
     def get_datalim(self, transData):
         transform = self.get_transform()
         transOffset = self.get_offset_transform()
         offsets = self._offsets
         paths = self.get_paths()
-
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(p) for p in paths]
             transform = transform.get_affine()
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
-
         if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # get_path_collection_extents handles nan but not masked arrays
@@ -364,6 +385,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
             if isinstance(self._picker, Number) and
                self._picker is not True  # the bool, not just nonzero or 1
             else self._pickradius)
+
+        if self.axes and self.get_offset_position() == "data":
+            self.axes._unstale_viewLim()
 
         transform, transOffset, offsets, paths = self._prepare_points()
 
