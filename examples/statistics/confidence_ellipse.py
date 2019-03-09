@@ -147,7 +147,7 @@ for ax, (title, dependency) in zip(axs, PARAMETERS.items()):
 
     confidence_ellipse(x, y, ax, facecolor='none', edgecolor='red')
 
-    ax.scatter([mu[0]], [mu[1]], c='red', s=3)
+    ax.scatter(mu[0], mu[1], c='red', s=3)
     ax.set_title(title)
 
 plt.show()
