@@ -4020,6 +4020,9 @@ class FancyArrowPatch(Patch):
         -----
         Valid kwargs are:
         %(Patch)s
+
+        In contrast to other patches, the default ``capstyle`` and
+        ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
         """
         if arrow_transmuter is not None:
             cbook.warn_deprecated(
@@ -4035,6 +4038,10 @@ class FancyArrowPatch(Patch):
                          ' and will be removed in Matplotlib 3.1'),
                 name='connector',
                 obj_type='keyword argument')
+        # Traditionally, the cap- and joinstyle for FancyArrowPatch are round
+        kwargs.setdefault("joinstyle", "round")
+        kwargs.setdefault("capstyle", "round")
+
         Patch.__init__(self, **kwargs)
 
         if posA is not None and posB is not None and path is None:
@@ -4284,9 +4291,7 @@ class FancyArrowPatch(Patch):
         if not self.get_visible():
             return
 
-        # FancyArrowPatch has traditionally forced the capstyle and joinstyle.
-        with cbook._setattr_cm(self, _capstyle='round', _joinstyle='round'), \
-                self._bind_draw_path_function(renderer) as draw_path:
+        with self._bind_draw_path_function(renderer) as draw_path:
 
             # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
             # could be room for improvement.
