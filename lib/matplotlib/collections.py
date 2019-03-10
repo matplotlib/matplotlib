@@ -146,6 +146,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._joinstyle = None
 
         self._offsets = np.zeros((1, 2))
+        # save if offsets passed in were none...
+        self._offsetsNone = offsets is None
         self._uniform_offsets = None
         if offsets is not None:
             offsets = np.asanyarray(offsets, float)
@@ -179,9 +181,30 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return t
 
     def get_datalim(self, transData):
+
+        # Get the automatic datalim of the collection.
+        #
+        # This operation depends on the transforms for the data in the
+        # collection and whether the collection has offsets.
+        #
+        # 1) offsets = None, transform child of transData: use the paths for
+        # the automatic limits (i.e. for LineCollection in streamline).
+        # 2) offsets != None: offset_transform is child of transData:
+        #    a) transform is child of transData: use the path + offset for
+        #       limits (i.e for bar).
+        #    b) transform is not a child of transData: just use the offsets
+        #       for the limits (i.e. for scatter)
+        # 3) otherwise return a null Bbox.
+
         transform = self.get_transform()
         transOffset = self.get_offset_transform()
+        if (not self._offsetsNone and
+            not transOffset.contains_branch(transData)):
+            # if there are offsets but in some co-ords other than data,
+            # then don't use them for autoscaling.
+            return transforms.Bbox.null()
         offsets = self._offsets
+
         paths = self.get_paths()
 
         if not transform.is_affine:
@@ -196,13 +219,30 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # get_path_collection_extents handles nan but not masked arrays
 
         if len(paths) and len(offsets):
-            result = mpath.get_path_collection_extents(
-                transform.frozen(), paths, self.get_transforms(),
-                offsets, transOffset.frozen())
-            result = result.inverse_transformed(transData)
-        else:
-            result = transforms.Bbox.null()
-        return result
+            if transform.contains_branch(transData):
+                # collections that are just in data units (like quiver)
+                # can properly have the axes limits set by their shape +
+                # offset.  LineCollections that have no offsets can
+                # also use this algorithm (like streamplot).
+                result = mpath.get_path_collection_extents(
+                    transform.frozen(), paths, self.get_transforms(),
+                    offsets, transOffset.frozen())
+                return result.inverse_transformed(transData)
+            if not self._offsetsNone:
+                # this is for collections that have their paths (shapes)
+                # in physical, axes-relative, or figure-relative units
+                # (i.e. like scatter). We can't uniquely set limits based on
+                # those shapes, so we just set the limits based on their
+                # location.
+                # Finish the transform:
+                offsets = (transOffset +
+                           transData.inverted()).transform(offsets)
+                offsets = np.ma.masked_invalid(offsets)
+                if not offsets.mask.all():
+                    points = np.row_stack((offsets.min(axis=0),
+                                           offsets.max(axis=0)))
+                    return transforms.Bbox(points)
+        return transforms.Bbox.null()
 
     def get_window_extent(self, renderer):
         # TODO: check to ensure that this does not fail for
@@ -1299,7 +1339,6 @@ class LineCollection(Collection):
             antialiaseds = (mpl.rcParams['lines.antialiased'],)
 
         colors = mcolors.to_rgba_array(colors)
-
         Collection.__init__(
             self,
             edgecolors=colors,
