@@ -1928,7 +1928,7 @@ class ToolHandles(object):
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
         self.ax = ax
 
-        props = dict(marker=marker, markersize=7, mfc='w', ls='none',
+        props = dict(marker=marker, markersize=7, markerfacecolor='w', ls='none',
                      alpha=0.5, visible=False, label='_nolegend_')
         props.update(marker_props if marker_props is not None else {})
         self._markers = Line2D(x, y, animated=useblit, **props)
@@ -2115,9 +2115,10 @@ class RectangleSelector(_SelectorWidget):
         self.maxdist = maxdist
 
         if rectprops is None:
-            props = dict(mec='r')
+            props = dict(markeredgecolor='r')
         else:
-            props = dict(mec=rectprops.get('edgecolor', 'r'))
+            props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
+        props.update(marker_props if marker_props is not None else {})
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
         self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
