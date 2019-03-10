@@ -2003,7 +2003,7 @@ class RectangleSelector(_SelectorWidget):
         ax.plot(x, y)
 
         toggle_selector.RS = RectangleSelector(ax, onselect, drawtype='line')
-        fig.canvas.connect('key_press_event', toggle_selector)
+        fig.canvas.mpl_connect('key_press_event', toggle_selector)
         plt.show()
     """
 
@@ -2432,7 +2432,7 @@ class EllipseSelector(RectangleSelector):
         ax.plot(x, y)
 
         toggle_selector.ES = EllipseSelector(ax, onselect, drawtype='line')
-        fig.canvas.connect('key_press_event', toggle_selector)
+        fig.canvas.mpl_connect('key_press_event', toggle_selector)
         plt.show()
     """
     _shape_klass = Ellipse
