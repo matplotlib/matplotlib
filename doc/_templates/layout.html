@@ -162,7 +162,11 @@ parents[-1].link|e }}" />
     {%- endif %}
 {%- endblock %}
 {%- block extrahead %}
-  <link rel="canonical" href="https://matplotlib.org/{{pagename}}.html" />
+{%- if '+' in release %}
+    <link rel="canonical" href="https://matplotlib.org/devdocs/{{pagename}}.html" />
+{%- else %}
+    <link rel="canonical" href="https://matplotlib.org/{{version}}/{{pagename}}.html" />
+{%- endif %}
 {% endblock %}
 
 

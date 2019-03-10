@@ -754,18 +754,15 @@ class Legend(Artist):
         method-resolution-order. If no matching key is found, it
         returns ``None``.
         """
-        if is_hashable(orig_handle):
-            try:
-                return legend_handler_map[orig_handle]
-            except KeyError:
-                pass
-
+        try:
+            return legend_handler_map[orig_handle]
+        except (TypeError, KeyError):  # TypeError if unhashable.
+            pass
         for handle_type in type(orig_handle).mro():
             try:
                 return legend_handler_map[handle_type]
             except KeyError:
                 pass
-
         return None
 
     def _init_legend_box(self, handles, labels, markerfirst=True):

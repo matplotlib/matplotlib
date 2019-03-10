@@ -51,7 +51,7 @@ ax.axis('off')  # clear x-axis and y-axis
 
 w, h = 512, 512
 
-with cbook.get_sample_data('ct.raw.gz', asfileobj=True) as datafile:
+with cbook.get_sample_data('ct.raw.gz') as datafile:
     s = datafile.read()
 A = np.frombuffer(s, np.uint16).astype(float).reshape((w, h))
 A /= A.max()

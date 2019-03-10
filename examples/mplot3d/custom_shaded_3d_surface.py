@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Load and format data
-filename = cbook.get_sample_data('jacksboro_fault_dem.npz', asfileobj=False)
-with np.load(filename) as dem:
+with cbook.get_sample_data('jacksboro_fault_dem.npz') as file, \
+     np.load(file) as dem:
     z = dem['elevation']
     nrows, ncols = z.shape
     x = np.linspace(dem['xmin'], dem['xmax'], ncols)

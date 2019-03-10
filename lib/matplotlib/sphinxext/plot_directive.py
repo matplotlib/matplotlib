@@ -419,11 +419,13 @@ TEMPLATE = """
 {{ only_texinfo }}
 
    {% for img in images %}
+   {% if 'png' in img.formats -%}
    .. image:: {{ build_dir }}/{{ img.basename }}.png
       {% for option in options -%}
       {{ option }}
       {% endfor %}
 
+   {% endif -%}
    {% endfor %}
 
 """

@@ -323,3 +323,5 @@ def test_collapsed():
         plt.tight_layout()
         p2 = ax.get_position()
         assert p1.width == p2.width
+    # test that passing a rect doesn't crash...
+    plt.tight_layout(rect=[0, 0, 0.8, 0.8])
