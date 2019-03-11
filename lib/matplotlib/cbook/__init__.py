@@ -1416,8 +1416,15 @@ def _reshape_2D(X, name):
 
     *name* is used to generate the error message for invalid inputs.
     """
+    # Delete masked points for MaskedArray
+    if isinstance(X, np.ndarray):
+        X = X.T
+    elif len(X) and isinstance(X[0], np.ma.MaskedArray):
+        X = np.asarray([delete_masked_points(x).pop() for x in X])
+    else:
+        X = np.asarray(X)
+    X = np.atleast_1d(X)
     # Iterate over columns for ndarrays, over rows otherwise.
-    X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
     if len(X) == 0:
         return [[]]
     if X.ndim == 1 and not isinstance(X[0], collections.abc.Iterable):
