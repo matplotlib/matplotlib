@@ -159,6 +159,8 @@ class Spine(mpatches.Patch):
         # correct:
         self._adjust_location()
         bb = super().get_window_extent(renderer=renderer)
+        if self.axis is None:
+            return bb
         bboxes = [bb]
         tickstocheck = [self.axis.majorTicks[0]]
         if len(self.axis.minorTicks) > 1:
