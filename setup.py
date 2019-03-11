@@ -8,14 +8,16 @@ setup.cfg.template for more information.
 # and/or pip.
 import sys
 
-if sys.version_info < (3, 6):
+min_version = (3, 6)
+
+if sys.version_info < min_version:
     error = """
-Beginning with Matplotlib 3.1, Python 3.6 or above is required.
+Beginning with Matplotlib 3.1, Python {0} or above is required.
 
 This may be due to an out of date pip.
 
 Make sure you have pip >= 9.0.1.
-"""
+""".format('.'.join(str(n) for n in min_version)),
     sys.exit(error)
 
 from io import BytesIO
@@ -283,7 +285,7 @@ if __name__ == '__main__':
         classifiers=classifiers,
         download_url="http://matplotlib.org/users/installing.html",
 
-        python_requires='>=3.6',
+        python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
         # List third-party Python packages that we require
         install_requires=install_requires,
         setup_requires=setup_requires,
