@@ -704,6 +704,7 @@ _deprecated_ignore_map = {
 # Values are tuples of (version,)
 _deprecated_remain_as_none = {
     'text.latex.unicode': ('3.0',),
+    'savefig.frameon': ('3.1',),
 }
 
 
