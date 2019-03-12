@@ -379,6 +379,12 @@ def test_arrow_simple():
                  head_length=theta / 10)
 
 
+def test_arrow_empty():
+    _, ax = plt.subplots()
+    # Create an empty FancyArrow
+    ax.arrow(0, 0, 0, 0, head_length=0)
+
+
 def test_annotate_default_arrow():
     # Check that we can make an annotation arrow with only default properties.
     fig, ax = plt.subplots()
