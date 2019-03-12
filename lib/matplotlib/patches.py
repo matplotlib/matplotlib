@@ -1269,7 +1269,7 @@ class FancyArrow(Polygon):
         else:
             length = distance + head_length
         if not length:
-            verts = []  # display nothing if empty
+            verts = np.empty([0, 2])  # display nothing if empty
         else:
             # start by drawing horizontal arrow, point at (0,0)
             hw, hl, hs, lw = head_width, head_length, overhang, width
