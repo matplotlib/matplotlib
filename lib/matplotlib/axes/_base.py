@@ -1617,13 +1617,15 @@ class _AxesBase(martist.Artist):
             'equal'  Set equal scaling (i.e., make circles circular) by
                      changing axis limits.
             'scaled' Set equal scaling (i.e., make circles circular) by
-                     changing dimensions of the plot box.
-            'tight'  Set limits just large enough to show all data.
+                     changing dimensions of the plot box, then disable further
+                     autoscaling.
+            'tight'  Set limits just large enough to show all data, then
+                     disable further autoscaling.
             'auto'   Automatic scaling (fill plot box with data).
             'normal' Same as 'auto'; deprecated.
             'image'  'scaled' with axis limits equal to data limits.
             'square' Square plot; similar to 'scaled', but initially forcing
-                     ``xmax-xmin = ymax-ymin``.
+                     ``xmax-xmin == ymax-ymin``.
             ======== ==========================================================
 
         emit : bool, optional, default *True*
@@ -2348,16 +2350,12 @@ class _AxesBase(martist.Artist):
             None leaves the autoscaling state unchanged.
 
         axis : {'both', 'x', 'y'}, optional
-            which axis to operate on; default is 'both'
+            Which axis to operate on; default is 'both'.
 
         tight : bool or None, optional
-            If True, set view limits to data limits;
-            if False, let the locator and margins expand the view limits;
-            if None, use tight scaling if the only artist is an image,
-            otherwise treat *tight* as False.
-            The *tight* setting is retained for future autoscaling
-            until it is explicitly changed.
-
+            If True, first set the margins to zero.  Then, this argument is
+            forwarded to `autoscale_view` (regardless of its value); see the
+            description of its behavior there.
         """
         if enable is None:
             scalex = True
@@ -2381,17 +2379,31 @@ class _AxesBase(martist.Artist):
         """
         Autoscale the view limits using the data limits.
 
-        You can selectively autoscale only a single axis, e.g., the xaxis by
-        setting *scaley* to *False*.  The autoscaling preserves any
-        axis direction reversal that has already been done.
+        Parameters
+        ----------
+        tight : bool or None
+            If *True*, only expand the axis limits using the margins.  Note
+            that unlike for `autoscale`, ``tight=True`` does *not* set the
+            margins to zero.
 
-        If *tight* is *False*, the axis major locator will be used
-        to expand the view limits if rcParams['axes.autolimit_mode']
-        is 'round_numbers'.  Note that any margins that are in effect
-        will be applied first, regardless of whether *tight* is
-        *True* or *False*.  Specifying *tight* as *True* or *False*
-        saves the setting as a private attribute of the Axes; specifying
-        it as *None* (the default) applies the previously saved value.
+            If *False* and :rc:`axes.autolimit_mode` is 'round_numbers', then
+            after expansion by the margins, further expand the axis limits
+            using the axis major locator.
+
+            If None (the default), reuse the value set in the previous call to
+            `autoscale_view` (the initial value is False, but the default style
+            sets :rc:`axes.autolimit_mode` to 'data', in which case this
+            behaves like True).
+
+        scalex : bool
+            Whether to autoscale the x axis (default is True).
+
+        scaley : bool
+            Whether to autoscale the x axis (default is True).
+
+        Notes
+        -----
+        The autoscaling preserves any preexisting axis direction reversal.
 
         The data limits are not updated automatically when artist data are
         changed after the artist has been added to an Axes instance.  In that
