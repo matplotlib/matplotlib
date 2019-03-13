@@ -173,7 +173,7 @@ def draw_if_interactive():
     """
 
 
-def show(block=None):
+def show(*, block=None):
     """
     For image backends - is not required.
     For GUI backends - show() is usually the last line of a pyplot script and
