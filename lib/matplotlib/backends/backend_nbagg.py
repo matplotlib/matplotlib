@@ -17,7 +17,7 @@ except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.kernel.comm import Comm
 
-from matplotlib import is_interactive
+from matplotlib import cbook, is_interactive
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, NavigationToolbar2)
@@ -241,7 +241,13 @@ class _BackendNbAgg(_Backend):
         manager.show()
 
     @staticmethod
-    def show(*args, **kwargs):
+    def show(*args, block=None, **kwargs):
+        if args or kwargs:
+            cbook.warn_deprecated(
+                "3.1", message="Passing arguments to show(), other than "
+                "passing 'block' by keyword, is deprecated %(since)s, and "
+                "support for it will be removed %(removal)s.")
+
         ## TODO: something to do when keyword block==False ?
         from matplotlib._pylab_helpers import Gcf
 
