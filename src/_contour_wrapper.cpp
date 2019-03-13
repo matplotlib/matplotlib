@@ -1,7 +1,7 @@
-#include "src/_contour.h"
-#include "src/mplutils.h"
-#include "src/py_converters.h"
-#include "src/py_exceptions.h"
+#include "_contour.h"
+#include "mplutils.h"
+#include "py_converters.h"
+#include "py_exceptions.h"
 
 /* QuadContourGenerator */
 
