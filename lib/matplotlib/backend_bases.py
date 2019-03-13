@@ -3217,8 +3217,10 @@ class _Backend(object):
                 cls.trigger_manager_draw(manager)
 
     @classmethod
+    @cbook._make_keyword_only("3.1", "block")
     def show(cls, block=None):
-        """Show all figures.
+        """
+        Show all figures.
 
         `show` blocks by calling `mainloop` if *block* is ``True``, or if it
         is ``None`` and we are neither in IPython's ``%pylab`` mode, nor in
