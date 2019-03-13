@@ -1,6 +1,6 @@
 #include "_tri.h"
-#include "src/mplutils.h"
-#include "src/py_exceptions.h"
+#include "../mplutils.h"
+#include "../py_exceptions.h"
 
 
 /* Triangulation */
