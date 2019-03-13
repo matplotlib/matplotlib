@@ -266,15 +266,15 @@ def test_inverted_cla():
     plt.close(fig)
 
 
-@image_comparison(baseline_images=["minorticks_on_rcParams_both"],
-                  extensions=['png'])
-def test_minorticks_on_rcParams_both():
-    fig = plt.figure()
-    matplotlib.rcParams['xtick.minor.visible'] = True
-    matplotlib.rcParams['ytick.minor.visible'] = True
-
-    plt.plot([0, 1], [0, 1])
-    plt.axis([0, 1, 0, 1])
+@check_figures_equal(extensions=["png"])
+def test_minorticks_on_rcParams_both(fig_test, fig_ref):
+    with matplotlib.rc_context({"xtick.minor.visible": True,
+                                "ytick.minor.visible": True}):
+        ax_test = fig_test.subplots()
+        ax_test.plot([0, 1], [0, 1])
+    ax_ref = fig_ref.subplots()
+    ax_ref.plot([0, 1], [0, 1])
+    ax_ref.minorticks_on()
 
 
 @image_comparison(baseline_images=["autoscale_tiny_range"], remove_text=True)
