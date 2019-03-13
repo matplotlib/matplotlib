@@ -1,9 +1,10 @@
 import configparser
 from distutils import sysconfig
 from distutils.core import Extension
-from io import BytesIO
+import functools
 import glob
 import hashlib
+from io import BytesIO
 import logging
 import os
 import pathlib
@@ -203,83 +204,73 @@ def get_buffer_hash(fd):
     return hasher.hexdigest()
 
 
-class PkgConfig(object):
-    """This is a class for communicating with pkg-config."""
-
-    def __init__(self):
-        """Determines whether pkg-config exists on this machine."""
-        self.pkg_config = None
-        if sys.platform != 'win32':
-            pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
-            if shutil.which(pkg_config) is not None:
-                self.pkg_config = pkg_config
-                self.set_pkgconfig_path()
-            else:
-                print("IMPORTANT WARNING:\n"
-                      "    pkg-config is not installed.\n"
-                      "    matplotlib may not be able to find some of its dependencies")
-
-    def set_pkgconfig_path(self):
-        pkgconfig_path = sysconfig.get_config_var('LIBDIR')
-        if pkgconfig_path is None:
-            return
-
-        pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
-        if not os.path.isdir(pkgconfig_path):
-            return
-
+@functools.lru_cache(1)  # We only need to compute this once.
+def get_pkg_config():
+    """
+    Get path to pkg-config and set up the PKG_CONFIG environment variable.
+    """
+    if sys.platform == 'win32':
+        return None
+    pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
+    if shutil.which(pkg_config) is None:
+        print("IMPORTANT WARNING:\n"
+              "    pkg-config is not installed.\n"
+              "    matplotlib may not be able to find some of its dependencies.")
+        return None
+    pkg_config_path = sysconfig.get_config_var('LIBDIR')
+    if pkg_config_path is not None:
+        pkg_config_path = os.path.join(pkg_config_path, 'pkgconfig')
         try:
-            os.environ['PKG_CONFIG_PATH'] += ':' + pkgconfig_path
+            os.environ['PKG_CONFIG_PATH'] += ':' + pkg_config_path
         except KeyError:
-            os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
-
-    def setup_extension(
-            self, ext, package,
-            atleast_version=None, alt_exec=None, default_libraries=()):
-        """Add parameters to the given *ext* for the given *package*."""
-
-        # First, try to get the flags from pkg-config.
-
-        cmd = ([self.pkg_config, package] if self.pkg_config else alt_exec)
-        if cmd is not None:
-            try:
-                if self.pkg_config and atleast_version:
-                    subprocess.check_call(
-                        [*cmd, f"--atleast-version={atleast_version}"])
-                # Use sys.getfilesystemencoding() to allow round-tripping
-                # when passed back to later subprocess calls; do not use
-                # locale.getpreferredencoding() which universal_newlines=True
-                # would do.
-                cflags = shlex.split(
-                    os.fsdecode(subprocess.check_output([*cmd, "--cflags"])))
-                libs = shlex.split(
-                    os.fsdecode(subprocess.check_output([*cmd, "--libs"])))
-            except (OSError, subprocess.CalledProcessError):
-                pass
-            else:
-                ext.extra_compile_args.extend(cflags)
-                ext.extra_link_args.extend(libs)
-                return
-
-        # If that fails, fall back on the defaults.
-
-        # conda Windows header and library paths.
-        # https://github.com/conda/conda/issues/2312 re: getting the env dir.
-        if sys.platform == 'win32':
-            conda_env_path = (os.getenv('CONDA_PREFIX')  # conda >= 4.1
-                              or os.getenv('CONDA_DEFAULT_ENV'))  # conda < 4.1
-            if conda_env_path and os.path.isdir(conda_env_path):
-                ext.include_dirs.append(os.fspath(
-                    pathlib.Path(conda_env_path, "Library/include")))
-                ext.library_dirs.append(os.fspath(
-                    pathlib.Path(conda_env_path, "Library/lib")))
-
-        # Default linked libs.
-        ext.libraries.extend(default_libraries)
+            os.environ['PKG_CONFIG_PATH'] = pkg_config_path
+    return pkg_config
 
 
-# The PkgConfig class should be used through this singleton
-pkg_config = PkgConfig()
+def pkg_config_setup_extension(
+        ext, package,
+        atleast_version=None, alt_exec=None, default_libraries=()):
+    """Add parameters to the given *ext* for the given *package*."""
+
+    # First, try to get the flags from pkg-config.
+
+    pkg_config = get_pkg_config()
+    cmd = [pkg_config, package] if pkg_config else alt_exec
+    if cmd is not None:
+        try:
+            if pkg_config and atleast_version:
+                subprocess.check_call(
+                    [*cmd, f"--atleast-version={atleast_version}"])
+            # Use sys.getfilesystemencoding() to allow round-tripping
+            # when passed back to later subprocess calls; do not use
+            # locale.getpreferredencoding() which universal_newlines=True
+            # would do.
+            cflags = shlex.split(
+                os.fsdecode(subprocess.check_output([*cmd, "--cflags"])))
+            libs = shlex.split(
+                os.fsdecode(subprocess.check_output([*cmd, "--libs"])))
+        except (OSError, subprocess.CalledProcessError):
+            pass
+        else:
+            ext.extra_compile_args.extend(cflags)
+            ext.extra_link_args.extend(libs)
+            return
+
+    # If that fails, fall back on the defaults.
+
+    # conda Windows header and library paths.
+    # https://github.com/conda/conda/issues/2312 re: getting the env dir.
+    if sys.platform == 'win32':
+        conda_env_path = (os.getenv('CONDA_PREFIX')  # conda >= 4.1
+                          or os.getenv('CONDA_DEFAULT_ENV'))  # conda < 4.1
+        if conda_env_path and os.path.isdir(conda_env_path):
+            ext.include_dirs.append(os.fspath(
+                pathlib.Path(conda_env_path, "Library/include")))
+            ext.library_dirs.append(os.fspath(
+                pathlib.Path(conda_env_path, "Library/lib")))
+
+    # Default linked libs.
+    ext.libraries.extend(default_libraries)
 
 
 class CheckFailed(Exception):
@@ -577,7 +568,7 @@ class FreeType(SetupPackage):
                 0, os.path.join(src_path, 'objs', '.libs', libfreetype))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
         else:
-            pkg_config.setup_extension(
+            pkg_config_setup_extension(
                 # FreeType 2.3 has libtool version 9.11.3 as can be checked
                 # from the tarball.  For FreeType>=2.4, there is a conversion
                 # table in docs/VERSIONS.txt in the FreeType source tree.
@@ -724,7 +715,7 @@ class Png(SetupPackage):
             'src/mplutils.cpp',
             ]
         ext = Extension('matplotlib._png', sources)
-        pkg_config.setup_extension(
+        pkg_config_setup_extension(
             ext, 'libpng',
             atleast_version='1.2',
             alt_exec=['libpng-config', '--ldflags'],
