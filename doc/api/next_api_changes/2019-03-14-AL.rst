@@ -1,0 +1,6 @@
+Deprecations
+````````````
+
+Passing more than one positional argument or unsupported keyword arguments to
+`~matplotlib.axes.Axes.axis()` is deprecated (such arguments used to be
+silently ignored).
