@@ -184,7 +184,7 @@ confidence_ellipse(x, y, ax_nstd, n_std=3,
     label=r'$3\sigma$', edgecolor='blue', linestyle=':')
 
 ax_nstd.scatter(mu[0], mu[1], c='red', s=3)
-ax_nstd.set_title(f'Different standard deviations')
+ax_nstd.set_title('Different standard deviations')
 ax_nstd.legend()
 plt.show()
 
