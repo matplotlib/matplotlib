@@ -159,7 +159,7 @@ plt.show()
 # Different number of standard deviations
 # """""""""""""""""""""""""""""""""""""""
 #
-# A plot with n_std = 3 (gray), 2 (blue) and 1 (red)
+# A plot with n_std = 3 (blue), 2 (purple) and 1 (red)
 
 fig, ax_nstd = plt.subplots(figsize=(6, 6))
 
