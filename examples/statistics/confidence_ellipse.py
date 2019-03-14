@@ -136,7 +136,7 @@ PARAMETERS = {
 }
 
 mu = 2, 4
-scale = np.array([3, 5]).T
+scale = 3, 5
 
 fig, axs = plt.subplots(1, 3, figsize=(9, 3))
 for ax, (title, dependency) in zip(axs, PARAMETERS.items()):
@@ -167,8 +167,8 @@ dependency_nstd = np.array([
     [0.8, 0.75],
     [-0.2, 0.35]
 ])
-mu = np.array([0, 0]).T
-scale = np.array([8, 5]).T
+mu = 0, 0
+scale = 8, 5
 
 ax_nstd.axvline(c='grey', lw=1)
 ax_nstd.axhline(c='grey', lw=1)
@@ -202,8 +202,8 @@ dependency_kwargs = np.array([
     [-0.8, 0.5],
     [-0.2, 0.5]
 ])
-mu = np.array([2, -3]).T
-scale = np.array([6, 5]).T
+mu = 2, -3
+scale = 6, 5
 
 ax_kwargs.axvline(c='grey', lw=1)
 ax_kwargs.axhline(c='grey', lw=1)
