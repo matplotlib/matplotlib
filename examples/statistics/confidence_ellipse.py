@@ -146,7 +146,7 @@ for ax, (title, dependency) in zip(axs, PARAMETERS.items()):
     ax.axvline(c='grey', lw=1)
     ax.axhline(c='grey', lw=1)
 
-    confidence_ellipse(x, y, ax, facecolor='none', edgecolor='red')
+    confidence_ellipse(x, y, ax, edgecolor='red')
 
     ax.scatter(mu[0], mu[1], c='red', s=3)
     ax.set_title(title)
