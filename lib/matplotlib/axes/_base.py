@@ -1595,7 +1595,7 @@ class _AxesBase(martist.Artist):
         Call signatures::
 
           xmin, xmax, ymin, ymax = axis()
-          xmin, xmax, ymin, ymax = axis(xmin, xmax, ymin, ymax)
+          xmin, xmax, ymin, ymax = axis([xmin, xmax, ymin, ymax])
           xmin, xmax, ymin, ymax = axis(option)
           xmin, xmax, ymin, ymax = axis(**kwargs)
 
