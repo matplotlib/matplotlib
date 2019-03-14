@@ -81,8 +81,9 @@ Other useful invocations include
    # Build pdf docs.
    make latexpdf
 
-The ``SPHINXOPTS`` variable is set to ``-W`` by default to turn warnings into
-errors.  To unset it, use
+The ``SPHINXOPTS`` variable is set to ``-W --keep-going`` by default to build
+the complete docs but exit with exit status 1 if there are warnings.  To unset
+it, use
 
 .. code-block:: sh
 
@@ -98,7 +99,7 @@ Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
 html``.
 
 On Windows, options needs to be set as environment variables, e.g. ``set O=-W
--j4 & make html``.
+--keep-going -j4 & make html``.
 
 .. _writing-rest-pages:
 
