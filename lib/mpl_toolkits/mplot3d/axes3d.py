@@ -205,16 +205,26 @@ class Axes3D(Axes):
                                   self.xy_dataLim.intervaly, self)
         self.zaxis = axis3d.ZAxis('z', self.zz_viewLim.intervalx,
                                   self.zz_dataLim.intervalx, self)
-        # Provide old aliases
-        self.w_xaxis = self.xaxis
-        self.w_yaxis = self.yaxis
-        self.w_zaxis = self.zaxis
-
         for ax in self.xaxis, self.yaxis, self.zaxis:
             ax.init3d()
 
     def get_zaxis(self):
         '''Return the ``ZAxis`` (`~.axis3d.Axis`) instance.'''
+        return self.zaxis
+
+    @cbook.deprecated("3.1", alternative="xaxis", pending=True)
+    @property
+    def w_xaxis(self):
+        return self.xaxis
+
+    @cbook.deprecated("3.1", alternative="yaxis", pending=True)
+    @property
+    def w_yaxis(self):
+        return self.yaxis
+
+    @cbook.deprecated("3.1", alternative="zaxis", pending=True)
+    @property
+    def w_zaxis(self):
         return self.zaxis
 
     def _get_axis_list(self):
