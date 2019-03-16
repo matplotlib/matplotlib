@@ -1,21 +1,24 @@
-# Seaborn notebook context
-figure.figsize: 8.0, 5.5
-axes.labelsize: 11
+# seaborn notebook context
+# see seaborn.rcmod.plotting_context()
+font.size: 12
+axes.labelsize: 12
 axes.titlesize: 12
-xtick.labelsize: 10
-ytick.labelsize: 10
-legend.fontsize: 10
+xtick.labelsize: 11
+ytick.labelsize: 11
+legend.fontsize: 11
 
+axes.linewidth: 1.25
 grid.linewidth: 1
-lines.linewidth: 1.75
-patch.linewidth: .3
-lines.markersize: 7
-lines.markeredgewidth: 0
+lines.linewidth: 1.5
+lines.markersize: 6
+patch.linewidth: 1
 
-xtick.major.width: 1
-ytick.major.width: 1
-xtick.minor.width: .5
-ytick.minor.width: .5
+xtick.major.width: 1.25
+ytick.major.width: 1.25
+xtick.minor.width: 1
+ytick.minor.width: 1
 
-xtick.major.pad: 7
-ytick.major.pad: 7
+xtick.major.size: 6
+ytick.major.size: 6
+xtick.minor.size: 4
+ytick.minor.size: 4

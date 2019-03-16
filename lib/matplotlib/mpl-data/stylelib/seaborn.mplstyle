@@ -1,57 +1,76 @@
-# default seaborn aesthetic
-# darkgrid + deep palette + notebook context
+# default seaborn aesthetic based on seaborn 0.9:
+#   style="darkgrid"
+#   context="notebook"
+#   palette="deep"
+
+
+# common parameters (see style_dict in seaborn.rcmod.axes_style()):
+figure.facecolor: white
+axes.labelcolor: 0.15
+
+xtick.direction: out
+ytick.direction: out
+xtick.color: .15
+ytick.color: .15
 
 axes.axisbelow: True
-axes.edgecolor: white
-axes.facecolor: EAEAF2
-axes.grid: True
-axes.labelcolor: .15
-axes.labelsize: 11
-axes.linewidth: 0
-axes.prop_cycle: cycler('color', ['4C72B0', '55A868', 'C44E52', '8172B2', 'CCB974', '64B5CD'])
-axes.titlesize: 12
-
-figure.facecolor: white
-figure.figsize: 8.0, 5.5
-
-font.family: sans-serif
-font.sans-serif: Arial, Liberation Sans, DejaVu Sans, Bitstream Vera Sans, sans-serif
-
-grid.color: white
 grid.linestyle: -
-grid.linewidth: 1
-
-image.cmap: Greys
-
-legend.fontsize: 10
-legend.frameon: False
-legend.numpoints: 1
-legend.scatterpoints: 1
-
-lines.linewidth: 1.75
-lines.markeredgewidth: 0
-lines.markersize: 7
-lines.solid_capstyle: round
-
-patch.facecolor: 4C72B0
-patch.linewidth: .3
 
 text.color: .15
+font.family: sans-serif
+font.sans-serif: Arial, DejaVu Sans, Liberation Sans, Bitstream Vera Sans, sans-serif
 
-xtick.color: .15
-xtick.direction: out
-xtick.labelsize: 10
-xtick.major.pad: 7
-xtick.major.size: 0
-xtick.major.width: 1
-xtick.minor.size: 0
-xtick.minor.width: .5
+lines.solid_capstyle: round
+patch.edgecolor: w
+patch.force_edgecolor: True
 
-ytick.color: .15
-ytick.direction: out
-ytick.labelsize: 10
-ytick.major.pad: 7
-ytick.major.size: 0
-ytick.major.width: 1
-ytick.minor.size: 0
-ytick.minor.width: .5
+# seaborn image.cmap is "rocket", but we do not have that
+image.cmap: Greys
+
+xtick.top: False
+ytick.right: False
+
+
+# darkgrid parameters
+axes.grid: True
+axes.facecolor: EAEAF2
+axes.edgecolor: white
+grid.color: white
+axes.spines.left: True
+axes.spines.bottom: True
+axes.spines.right: True
+axes.spines.top: True
+
+xtick.bottom: False
+ytick.left: False
+
+
+# plotting_context (see seaborn.rcmod.plotting_context()):
+# notebook context = base context (scale=1)
+font.size: 12
+axes.labelsize: 12
+axes.titlesize: 12
+xtick.labelsize: 11
+ytick.labelsize: 11
+legend.fontsize: 11
+
+axes.linewidth: 1.25
+grid.linewidth: 1
+lines.linewidth: 1.5
+lines.markersize: 6
+patch.linewidth: 1
+
+xtick.major.width: 1.25
+ytick.major.width: 1.25
+xtick.minor.width: 1
+ytick.minor.width: 1
+
+xtick.major.size: 6
+ytick.major.size: 6
+xtick.minor.size: 4
+ytick.minor.size: 4
+
+
+# palette "deep"
+axes.prop_cycle: cycler('color', ['4C72B0', 'DD8452', '55A868', 'C44E52', '8172B3', '937860', 'DA8BC3', '8C8C8C', 'CCB974', '64B5CD'])
+patch.facecolor: 4C72B0

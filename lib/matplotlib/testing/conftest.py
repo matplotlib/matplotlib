@@ -1,3 +1,5 @@
+from distutils.version import LooseVersion
+
 import pytest
 
 import matplotlib
@@ -92,3 +94,11 @@ def pd():
     except ImportError:
         pass
     return pd
+
+
+@pytest.fixture
+def seaborn():
+    seaborn = pytest.importorskip('seaborn')
+    if LooseVersion(seaborn.__version__) < LooseVersion('0.9'):
+        pytest.skip('seaborn style comparisons need at least seaborn 0.9')
+    return seaborn

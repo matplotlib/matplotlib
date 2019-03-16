@@ -1,3 +1,3 @@
-# Seaborn dark palette
-axes.prop_cycle: cycler('color', ['001C7F', '017517', '8C0900', '7600A1', 'B8860B', '006374'])
+# seaborn dark palette
+axes.prop_cycle: cycler('color', ['001C7F', 'B1400D', '12711C', '8C0800', '591E71', '592F0D', 'A23582', '3C3C3C', 'B8850A', '006374'])
 patch.facecolor: 001C7F

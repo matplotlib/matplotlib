@@ -1,0 +1,3 @@
+# seaborn bright6 palette
+axes.prop_cycle: cycler('color', ['023EFF', '1AC938', 'E8000B', '8B2BE2', 'FFC400', '00D7FF'])
+patch.facecolor: 023EFF

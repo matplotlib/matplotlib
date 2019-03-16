@@ -1,3 +1,3 @@
-# Seaborn colorblind palette
-axes.prop_cycle: cycler('color', ['0072B2', '009E73', 'D55E00', 'CC79A7', 'F0E442', '56B4E9'])
-patch.facecolor: 0072B2
+# seaborn colorblind palette
+axes.prop_cycle: cycler('color', ['0173B2', 'DE8F05', '029E73', 'D55E00', 'CC78BC', 'CA9161', 'FBAFE4', '949494', 'ECE133', '56B4E9'])
+patch.facecolor: 0173B2

@@ -1,6 +1,8 @@
 from collections import OrderedDict
 from contextlib import contextmanager
+from distutils.version import LooseVersion
 import gc
+import numpy as np
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -9,6 +11,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt, style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
+from matplotlib.testing.decorators import check_figures_equal
 
 
 PARAM = 'image.cmap'
@@ -160,3 +163,93 @@ def test_xkcd_cm():
     with plt.xkcd():
         assert mpl.rcParams["path.sketch"] == (1, 100, 2)
     assert mpl.rcParams["path.sketch"] is None
+
+
+@check_figures_equal(extensions=["png"])
+def test_seaborn_style(fig_test, fig_ref):
+    seaborn = pytest.importorskip('seaborn')
+    if LooseVersion(seaborn.__version__) < LooseVersion('0.9'):
+        pytest.skip('seaborn style comparisons need at least seaborn 0.9')
+    return seaborn
+
+    def make_plot(fig):
+        ax1 = fig.add_subplot(121)
+        x = np.linspace(0, 14, 100)
+        for i in range(1, 7):
+            ax1.plot(x, np.sin(x + i * .5) * (7 - i) + 10)
+        heights = [1, 3, 8, 4, 2]
+        ax1.bar(range(5), heights)
+        ax1.bar(range(5, 10), heights)
+        ax1.bar(range(10, 15), heights)
+        ax1.set_title('lines and bars')
+
+        ax2 = fig.add_subplot(122)
+        x = np.tile(np.linspace(0, 1, 20), 2).reshape(-1, 2)
+        x[:, 1] /= 2
+        x[0, 1] = 0.8
+        ax2.boxplot(x)
+        x = np.linspace(0.8, 2.2, 8)
+        ax2.plot(x, np.exp(-x), 'o')
+        ax2.set_title('markers and boxes')
+
+    mpl.rcParams.update(mpl.rcParamsDefault)
+    plt.style.use('seaborn')
+    make_plot(fig_test)
+
+    mpl.rcParams.update(mpl.rcParamsDefault)
+    seaborn.set()
+    make_plot(fig_ref)
+
+
+@pytest.mark.parametrize(
+    'style_name', ['dark', 'darkgrid', 'ticks', 'white', 'whitegrid'])
+def test_seaborn_styles(seaborn, style_name):
+    """
+    Test that after applying a style the style-related rcParams are identical
+    to the ones seaborn will define seaborn.rcmod.axes_style().
+    """
+    import seaborn.rcmod
+    style_dict = seaborn.rcmod.axes_style(style_name)
+
+    mpl.rcParams.update(mpl.rcParamsDefault)
+    mpl.style.use(f'seaborn-{style_name}')
+    for key, val in style_dict.items():
+        if key == 'image.cmap':
+            continue  # we don't have the seaborn color maps
+        assert mpl.rcParams[key] == val, \
+            f"Style '{style_name}' deviates in key '{key}'"
+
+
+@pytest.mark.parametrize(
+    'context_name', ['paper', 'notebook', 'talk', 'poster'])
+def test_seaborn_context(seaborn, context_name):
+    """
+    Test that after applying a style the context-related rcParams are identical
+    to the ones seaborn will define seaborn.rcmod.plotting_context().
+    """
+    import seaborn.rcmod
+    mpl.style.use(f'seaborn-{context_name}')
+    for key, val in seaborn.rcmod.plotting_context(context_name).items():
+        assert mpl.rcParams[key] == pytest.approx(val), \
+            f"Context '{context_name}' deviates in key '{key}'"
+
+
+def test_seaborn_palettes(seaborn):
+    """
+    Test that after applying a style rcParams['axes.prop_cycle'] is set to the
+    values defined in seaborn.palettes.SEABORN_PALETTES.
+    Test that rcParams['patch.facecolor'] is set to the first color in the
+    cycle.
+    """
+    from seaborn.palettes import SEABORN_PALETTES
+    for name, colors in SEABORN_PALETTES.items():
+        # seaborn-dark was already used for the dark style.
+        # Therefore, Matplotlib uses seaborn-dark-palette as mpl style name.
+        deviating_mpl_style_name = {
+            'dark': 'dark-palette',
+            'dark6': 'dark6-palette',
+        }
+        name = deviating_mpl_style_name.get(name, name)
+        mpl.style.use(f'seaborn-{name}')
+        assert mpl.rcParams['axes.prop_cycle'].by_key()['color'] == colors
+        assert mpl.rcParams['patch.facecolor'] == colors[0]

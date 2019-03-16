@@ -1,30 +1,41 @@
-# Seaborn common parameters
-# .15 = dark_gray
-# .8 = light_gray
+# seaborn darkgrid style
+
+# common parameters (see style_dict in seaborn.rcmod.axes_style()):
 figure.facecolor: white
-text.color: .15
 axes.labelcolor: .15
-legend.frameon: False
-legend.numpoints: 1
-legend.scatterpoints: 1
+
 xtick.direction: out
 ytick.direction: out
 xtick.color: .15
 ytick.color: .15
-axes.axisbelow: True
-image.cmap: Greys
-font.family: sans-serif
-font.sans-serif: Arial, Liberation Sans, DejaVu Sans, Bitstream Vera Sans, sans-serif
-grid.linestyle: -
-lines.solid_capstyle: round
 
-# Seaborn darkgrid parameters
+axes.axisbelow: True
+grid.linestyle: -
+
+text.color: .15
+font.family: sans-serif
+font.sans-serif: Arial, DejaVu Sans, Liberation Sans, Bitstream Vera Sans, sans-serif
+
+lines.solid_capstyle: round
+patch.edgecolor: w
+patch.force_edgecolor: True
+
+# seaborn image.cmap is "rocket", but we do not have that
+image.cmap: Greys
+
+xtick.top: False
+ytick.right: False
+
+
+# darkgrid parameters
 axes.grid: True
 axes.facecolor: EAEAF2
 axes.edgecolor: white
-axes.linewidth: 0
 grid.color: white
-xtick.major.size: 0
-ytick.major.size: 0
-xtick.minor.size: 0
-ytick.minor.size: 0
+axes.spines.left: True
+axes.spines.bottom: True
+axes.spines.right: True
+axes.spines.top: True
+
+xtick.bottom: False
+ytick.left: False

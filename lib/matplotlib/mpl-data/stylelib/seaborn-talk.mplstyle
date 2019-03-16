@@ -1,21 +1,24 @@
-# Seaborn talk context
-figure.figsize: 10.4, 7.15
-axes.labelsize: 14.3
-axes.titlesize: 15.6
-xtick.labelsize: 13
-ytick.labelsize: 13
-legend.fontsize: 13
+# seaborn talk context
+# see seaborn.rcmod.plotting_context()
+font.size: 18
+axes.labelsize: 18
+axes.titlesize: 18
+xtick.labelsize: 16.5
+ytick.labelsize: 16.5
+legend.fontsize: 16.5
 
-grid.linewidth: 1.3
-lines.linewidth: 2.275
-patch.linewidth: 0.39
-lines.markersize: 9.1
-lines.markeredgewidth: 0
+axes.linewidth: 1.875
+grid.linewidth: 1.5
+lines.linewidth: 2.25
+lines.markersize: 9
+patch.linewidth: 1.5
 
-xtick.major.width: 1.3
-ytick.major.width: 1.3
-xtick.minor.width: 0.65
-ytick.minor.width: 0.65
+xtick.major.width: 1.875
+ytick.major.width: 1.875
+xtick.minor.width: 1.5
+ytick.minor.width: 1.5
 
-xtick.major.pad: 9.1
-ytick.major.pad: 9.1
+xtick.major.size: 9
+ytick.major.size: 9
+xtick.minor.size: 6
+ytick.minor.size: 6

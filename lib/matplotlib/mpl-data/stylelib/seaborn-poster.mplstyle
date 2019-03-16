@@ -1,21 +1,24 @@
-# Seaborn poster context
-figure.figsize: 12.8, 8.8
-axes.labelsize: 17.6
-axes.titlesize: 19.2
-xtick.labelsize: 16
-ytick.labelsize: 16
-legend.fontsize: 16
+# seaborn poster context
+# see seaborn.rcmod.plotting_context()
+font.size: 24
+axes.labelsize: 24
+axes.titlesize: 24
+xtick.labelsize: 22
+ytick.labelsize: 22
+legend.fontsize: 22
 
-grid.linewidth: 1.6
-lines.linewidth: 2.8
-patch.linewidth: 0.48
-lines.markersize: 11.2
-lines.markeredgewidth: 0
+axes.linewidth: 2.5
+grid.linewidth: 2
+lines.linewidth: 3
+lines.markersize: 12
+patch.linewidth: 2
 
-xtick.major.width: 1.6
-ytick.major.width: 1.6
-xtick.minor.width: 0.8
-ytick.minor.width: 0.8
+xtick.major.width: 2.5
+ytick.major.width: 2.5
+xtick.minor.width: 2
+ytick.minor.width: 2
 
-xtick.major.pad: 11.2
-ytick.major.pad: 11.2
+xtick.major.size: 12
+ytick.major.size: 12
+xtick.minor.size: 8
+ytick.minor.size: 8

@@ -4,3 +4,4 @@ ipykernel
 nbconvert[execute]
 pandas
 pytz
+seaborn>0.9
