@@ -186,6 +186,13 @@ def test_no_length_frames():
      .save('unused.null', writer=NullMovieWriter()))
 
 
+def test_generator_expression_repeat():
+    """A generator expression cannot be used for frames if repeat=True"""
+    with pytest.raises(ValueError) as e:
+        make_animation(frames=(i for i in range(5)), repeat=True)
+    assert 'frames must be iterable multiple times' in str(e)
+
+
 def test_movie_writer_registry():
     ffmpeg_path = mpl.rcParams['animation.ffmpeg_path']
     # Not sure about the first state as there could be some writer

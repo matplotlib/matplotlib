@@ -19,6 +19,7 @@
 import abc
 import base64
 import contextlib
+import copy
 from io import BytesIO, TextIOWrapper
 import itertools
 import logging
@@ -1545,6 +1546,14 @@ class FuncAnimation(TimedAnimation):
         - If an iterable, then simply use the values provided.  If the
           iterable has a length, it will override the *save_count* kwarg.
 
+          Note that when using ``repeat=True`` (the default) *frames* must
+          be iterable multiple times. This is true for most common iterables.
+
+          However, e.g. generator expressions and possibly some custom classes
+          that implement the iterator protocol cannot be used. Technically, we
+          require either ``iter(frames) is not frames`` or *frames* must
+          support ``copy.copy(frames)``).
+
         - If an integer, then equivalent to passing ``range(frames)``
 
         - If a generator function, then must have the signature::
@@ -1623,6 +1632,19 @@ class FuncAnimation(TimedAnimation):
         elif callable(frames):
             self._iter_gen = frames
         elif np.iterable(frames):
+            if iter(frames) is not frames or not kwargs.get('repeat', True):
+                self._iter_gen = lambda: iter(frames)
+            else:
+                # Since repeat=True we copy frames, to ensure that _iter_gen()
+                # returns a new iterator on each call.
+                try:
+                    # Fail early if we cannot copy frames.
+                    copy.copy(frames)
+                except TypeError:
+                    raise ValueError(
+                        'frames must be iterable multiple times if '
+                        'repeat=True.')
+                self._iter_gen = lambda: iter(copy.copy(frames))
             self._iter_gen = lambda: iter(frames)
             if hasattr(frames, '__len__'):
                 self.save_count = len(frames)
