@@ -47,8 +47,7 @@ ax.text(1, 4.7, '(default)')
 
 ax.set_xlim(-1.5, 2.75)
 ax.set_ylim(-.5, 5.5)
-ax.xaxis.set_visible(False)
-ax.yaxis.set_visible(False)
+ax.set_axis_off()
 plt.show()
 
 
@@ -66,17 +65,16 @@ fig, ax = plt.subplots(figsize=(8, 2))
 ax.set_title('Cap style')
 
 for x, style in enumerate(['butt', 'round', 'projecting']):
-    ax.text(x, 1, style)
+    ax.text(x+0.25, 1, style, ha='center')
     xx = [x, x+0.5]
     yy = [0, 0]
     ax.plot(xx, yy, lw=12, color='tab:blue', solid_capstyle=style)
     ax.plot(xx, yy, lw=1, color='black')
     ax.plot(xx, yy, 'o', color='tab:red', markersize=3)
-ax.text(2, 0.7, '(default)')
+ax.text(2.25, 0.7, '(default)', ha='center')
 
 ax.set_ylim(-.5, 1.5)
-ax.xaxis.set_visible(False)
-ax.yaxis.set_visible(False)
+ax.set_axis_off()
 
 
 #############################################################################

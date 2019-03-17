@@ -41,7 +41,7 @@ linestyle_tuple = [
      ('densely dashdotdotted', (0, (3, 1, 1, 1, 1, 1)))]
 
 
-def plot_linestyles(ax, linestyles):
+def plot_linestyles(ax, linestyles, title):
     X, Y = np.linspace(0, 100, 10), np.zeros(10)
     yticklabels = []
 
@@ -49,8 +49,13 @@ def plot_linestyles(ax, linestyles):
         ax.plot(X, Y+i, linestyle=linestyle, linewidth=1.5, color='black')
         yticklabels.append(name)
 
-    ax.set(xticks=[], ylim=(-0.5, len(linestyles)-0.5),
-           yticks=np.arange(len(linestyles)), yticklabels=yticklabels)
+    ax.set_title(title)
+    ax.set(ylim=(-0.5, len(linestyles)-0.5),
+           yticks=np.arange(len(linestyles)),
+           yticklabels=yticklabels)
+    ax.tick_params(left=False, bottom=False, labelbottom=False)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
 
     # For each line style, add a text annotation with a small offset from
     # the reference point (0 in Axes coords, y tick value in Data coords).
@@ -64,8 +69,8 @@ def plot_linestyles(ax, linestyles):
 fig, (ax0, ax1) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [1, 3]},
                                figsize=(10, 8))
 
-plot_linestyles(ax0, linestyle_str[::-1])
-plot_linestyles(ax1, linestyle_tuple[::-1])
+plot_linestyles(ax0, linestyle_str[::-1], title='Named linestyles')
+plot_linestyles(ax1, linestyle_tuple[::-1], title='Parametrized linestyles')
 
 plt.tight_layout()
 plt.show()
