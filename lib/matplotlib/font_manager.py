@@ -517,8 +517,6 @@ def createFontList(fontfiles, fontext='ttf'):
         fname = os.path.split(fpath)[1]
         if fname in seen:
             continue
-        else:
-            seen.add(fname)
         if fontext == 'afm':
             try:
                 with open(fpath, 'rb') as fh:
@@ -551,6 +549,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
 
         fontlist.append(prop)
+        seen.add(fname)
     return fontlist
 
 
