@@ -223,21 +223,10 @@ class Axis(maxis.XAxis):
         self.label._transform = self.axes.transData
         renderer.open_group('axis3d')
 
-        # code from XAxis
-        majorTicks = self.get_major_ticks()
-        majorLocs = self.major.locator()
+        ticks = self._update_ticks()
 
         info = self._axinfo
         index = info['i']
-
-        # filter locations here so that no extra grid lines are drawn
-        locmin, locmax = self.get_view_interval()
-        if locmin > locmax:
-            locmin, locmax = locmax, locmin
-
-        # Rudimentary clipping
-        majorLocs = [loc for loc in majorLocs if locmin <= loc <= locmax]
-        majorLabels = self.major.formatter.format_ticks(majorLocs)
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
@@ -259,9 +248,9 @@ class Axis(maxis.XAxis):
 
         # Grid points where the planes meet
         xyz0 = []
-        for val in majorLocs:
+        for tick in ticks:
             coord = minmax.copy()
-            coord[index] = val
+            coord[index] = tick.get_loc()
             xyz0.append(coord)
 
         # Draw labels
@@ -373,14 +362,14 @@ class Axis(maxis.XAxis):
             xyz1 = copy.deepcopy(xyz0)
             newindex = (index + 1) % 3
             newval = get_flip_min_max(xyz1[0], newindex, mins, maxs)
-            for i in range(len(majorLocs)):
+            for i in range(len(ticks)):
                 xyz1[i][newindex] = newval
 
             # Grid points at end of the other plane
             xyz2 = copy.deepcopy(xyz0)
             newindex = (index + 2) % 3
             newval = get_flip_min_max(xyz2[0], newindex, mins, maxs)
-            for i in range(len(majorLocs)):
+            for i in range(len(ticks)):
                 xyz2[i][newindex] = newval
 
             lines = list(zip(xyz1, xyz0, xyz2))
@@ -401,13 +390,11 @@ class Axis(maxis.XAxis):
         else:
             ticksign = -1
 
-        for tick, loc, label in zip(majorTicks, majorLocs, majorLabels):
-            if tick is None:
-                continue
+        for tick in ticks:
 
             # Get tick line positions
             pos = copy.copy(edgep1)
-            pos[index] = loc
+            pos[index] = tick.get_loc()
             pos[tickdir] = (
                 edgep1[tickdir]
                 + info['tick']['outward_factor'] * ticksign * tickdelta)
@@ -434,8 +421,6 @@ class Axis(maxis.XAxis):
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(info['tick']['linewidth'])
             tick.tick1line.set_color(info['tick']['color'])
-            tick.set_label1(label)
-            tick.set_label2(label)
             tick.draw(renderer)
 
         renderer.close_group('axis3d')

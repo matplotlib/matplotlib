@@ -348,8 +348,7 @@ class TestScalarFormatter(object):
                                     UserWarning)
             ax.set_xlim(left, right)
         assert len(w) == (1 if left == right else 0)
-        # Update ticks.
-        next(ax.get_xaxis().iter_ticks())
+        ax.get_xaxis()._update_ticks()
         assert formatter.offset == offset
 
         with warnings.catch_warnings(record=True) as w:
@@ -357,8 +356,7 @@ class TestScalarFormatter(object):
                                     UserWarning)
             ax.set_xlim(right, left)
         assert len(w) == (1 if left == right else 0)
-        # Update ticks.
-        next(ax.get_xaxis().iter_ticks())
+        ax.get_xaxis()._update_ticks()
         assert formatter.offset == offset
 
     @pytest.mark.parametrize('use_offset', use_offset_data)
