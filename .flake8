@@ -182,7 +182,6 @@ per-file-ignores =
     examples/pyplots/text_commands.py: E231, E402
     examples/pyplots/text_layout.py: E231, E402
     examples/pyplots/whats_new_1_subplot3d.py: E402
-    examples/pyplots/whats_new_98_4_fancy.py: E302, E402
     examples/pyplots/whats_new_98_4_fill_between.py: E225, E402
     examples/pyplots/whats_new_98_4_legend.py: E228, E402
     examples/pyplots/whats_new_99_axes_grid.py: E402
@@ -229,6 +228,7 @@ per-file-ignores =
     examples/text_labels_and_annotations/annotation_demo.py: E501
     examples/text_labels_and_annotations/demo_text_rotation_mode.py: E402
     examples/text_labels_and_annotations/custom_legends.py: E402
+    examples/text_labels_and_annotations/fancyarrow_demo.py: E402
     examples/text_labels_and_annotations/font_family_rc_sgskip.py: E402
     examples/text_labels_and_annotations/font_file.py: E402
     examples/text_labels_and_annotations/legend.py: E402

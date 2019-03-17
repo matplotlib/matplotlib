@@ -49,12 +49,19 @@ boxes and connectors in annotations.  See
 :class:`~matplotlib.patches.ArrowStyle`, and
 :class:`~matplotlib.patches.ConnectionStyle`.
 
-.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_98_4_fancy_001.png
-   :target: ../../gallery/pyplots/whats_new_98_4_fancy.html
+.. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_fancybox_demo_001.png
+   :target: ../../gallery/shapes_and_collections/fancybox_demo.html
    :align: center
    :scale: 50
 
-   Whats New 98 4 Fancy
+   Fancybox Demo
+
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_fancyarrow_demo_001.png
+   :target: ../../gallery/text_labels_and_annotations/fancyarrow_demo.html
+   :align: center
+   :scale: 50
+
+   Fancyarrow Demo
 
 .. _psd-amplitude:
 
