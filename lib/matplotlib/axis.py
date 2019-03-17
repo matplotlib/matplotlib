@@ -1016,6 +1016,7 @@ class Axis(martist.Artist):
             return
         a.set_figure(self.figure)
 
+    @cbook.deprecated("3.1")
     def iter_ticks(self):
         """
         Yield ``(Tick, location, label)`` tuples for major and minor ticks.
@@ -1035,7 +1036,7 @@ class Axis(martist.Artist):
         of the axes.
         """
 
-        ticks_to_draw = self._update_ticks(renderer)
+        ticks_to_draw = self._update_ticks()
         ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
                                                                 renderer)
 
@@ -1058,20 +1059,38 @@ class Axis(martist.Artist):
         """get whether the axis has smart bounds"""
         return self._smart_bounds
 
-    def _update_ticks(self, renderer):
+    def _update_ticks(self):
         """
-        Update ticks (position and labels) using the current data
-        interval of the axes. Returns a list of ticks that will be
-        drawn.
+        Update ticks (position and labels) using the current data interval of
+        the axes.  Return the list of ticks that will be drawn.
         """
 
-        interval = self.get_view_interval()
-        tick_tups = list(self.iter_ticks())  # iter_ticks calls the locator
-        if self._smart_bounds and tick_tups:
+        major_locs = self.major.locator()
+        major_ticks = self.get_major_ticks(len(major_locs))
+        self.major.formatter.set_locs(major_locs)
+        major_labels = self.major.formatter.format_ticks(major_locs)
+        for tick, loc, label in zip(major_ticks, major_locs, major_labels):
+            tick.update_position(loc)
+            tick.set_label1(label)
+            tick.set_label2(label)
+        minor_locs = self.minor.locator()
+        minor_ticks = self.get_minor_ticks(len(minor_locs))
+        self.minor.formatter.set_locs(minor_locs)
+        minor_labels = self.minor.formatter.format_ticks(minor_locs)
+        for tick, loc, label in zip(minor_ticks, minor_locs, minor_labels):
+            tick.update_position(loc)
+            tick.set_label1(label)
+            tick.set_label2(label)
+        ticks = [*major_ticks, *minor_ticks]
+
+        view_low, view_high = self.get_view_interval()
+        if view_low > view_high:
+            view_low, view_high = view_high, view_low
+
+        if self._smart_bounds and ticks:
             # handle inverted limits
-            view_low, view_high = sorted(interval)
             data_low, data_high = sorted(self.get_data_interval())
-            locs = np.sort([ti[1] for ti in tick_tups])
+            locs = np.sort([tick.get_loc() for tick in ticks])
             if data_low <= view_low:
                 # data extends beyond view, take view as limit
                 ilow = view_low
@@ -1096,33 +1115,21 @@ class Axis(martist.Artist):
                 else:
                     # No ticks (why not?), take last tick
                     ihigh = locs[-1]
-            tick_tups = [ti for ti in tick_tups if ilow <= ti[1] <= ihigh]
+            ticks = [tick for tick in ticks if ilow <= tick.get_loc() <= ihigh]
 
-        if interval[1] <= interval[0]:
-            interval = interval[1], interval[0]
-        inter = self.get_transform().transform(interval)
+        interval_t = self.get_transform().transform([view_low, view_high])
 
         ticks_to_draw = []
-        for tick, loc, label in tick_tups:
-            # draw each tick if it is in interval.   Note the transform
-            # to pixel space to take care of log transforms etc.
-            # interval_contains has a floating point tolerance.
-            if tick is None:
-                continue
-            # NB: always update labels and position to avoid issues like #9397
-            tick.update_position(loc)
-            tick.set_label1(label)
-            tick.set_label2(label)
+        for tick in ticks:
             try:
-                loct = self.get_transform().transform(loc)
+                loc_t = self.get_transform().transform(tick.get_loc())
             except AssertionError:
                 # transforms.transform doesn't allow masked values but
                 # some scales might make them, so we need this try/except.
-                loct = None
-                continue
-            if not mtransforms._interval_contains_close(inter, loct):
-                continue
-            ticks_to_draw.append(tick)
+                pass
+            else:
+                if mtransforms._interval_contains_close(interval_t, loc_t):
+                    ticks_to_draw.append(tick)
 
         return ticks_to_draw
 
@@ -1141,7 +1148,7 @@ class Axis(martist.Artist):
         if not self.get_visible():
             return
 
-        ticks_to_draw = self._update_ticks(renderer)
+        ticks_to_draw = self._update_ticks()
 
         self._update_label_position(renderer)
 
@@ -1182,7 +1189,7 @@ class Axis(martist.Artist):
             return
         renderer.open_group(__name__)
 
-        ticks_to_draw = self._update_ticks(renderer)
+        ticks_to_draw = self._update_ticks()
         ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
                                                                 renderer)
 
@@ -1948,7 +1955,7 @@ class XAxis(Axis):
         grp = self.figure._align_xlabel_grp
         # if we want to align labels from other axes:
         for nn, axx in enumerate(grp.get_siblings(self.axes)):
-            ticks_to_draw = axx.xaxis._update_ticks(renderer)
+            ticks_to_draw = axx.xaxis._update_ticks()
             tlb, tlb2 = axx.xaxis._get_tick_bboxes(ticks_to_draw, renderer)
             bboxes.extend(tlb)
             bboxes2.extend(tlb2)
@@ -2262,7 +2269,7 @@ class YAxis(Axis):
         grp = self.figure._align_ylabel_grp
         # if we want to align labels from other axes:
         for axx in grp.get_siblings(self.axes):
-            ticks_to_draw = axx.yaxis._update_ticks(renderer)
+            ticks_to_draw = axx.yaxis._update_ticks()
             tlb, tlb2 = axx.yaxis._get_tick_bboxes(ticks_to_draw, renderer)
             bboxes.extend(tlb)
             bboxes2.extend(tlb2)
