@@ -2440,6 +2440,16 @@ class _AxesBase(martist.Artist):
                 dl.extend(y_finite)
 
             bb = mtransforms.BboxBase.union(dl)
+            # fall back on the viewlimits if this is not finite:
+            vl = None
+            if not np.isfinite(bb.intervalx).all():
+                vl = mtransforms.BboxBase.union([ax.viewLim for ax in shared])
+                bb.intervalx = vl.intervalx
+            if not np.isfinite(bb.intervaly).all():
+                if vl is None:
+                    vl = mtransforms.BboxBase.union(
+                        [ax.viewLim for ax in shared])
+                bb.intervaly = vl.intervaly
             x0, x1 = getattr(bb, interval)
             locator = axis.get_major_locator()
             x0, x1 = locator.nonsingular(x0, x1)
