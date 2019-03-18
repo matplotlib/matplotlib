@@ -1518,28 +1518,26 @@ class Transform(TransformNode):
 
     def transform_angles(self, angles, pts, radians=False, pushoff=1e-5):
         """
-        Performs transformation on a set of angles anchored at
-        specific locations.
+        Transforms a set of angles anchored at specific locations.
 
-        The *angles* must be a column vector (i.e., numpy array).
+        Parameters
+        ----------
+        angles : (N,) array-like
+            The angles to transform.
+        pts : (N, 2) array-like
+            The points where the angles are anchored.
+        radians : bool, default False
+            Whether *angles* are in degrees (the default) or in radians.
+        pushoff : float
+            For each point in *pts* and angle in *angles*, the transformed
+            angle is computed by transforming a segment of length *pushoff*
+            starting at that point and making that angle relative to the
+            horizontal axis, and measuring the angle between the horizontal
+            axis and the transformed segment.
 
-        The *pts* must be a two-column numpy array of x,y positions
-        (angle transforms currently only work in 2D).  This array must
-        have the same number of rows as *angles*.
-
-        *radians* indicates whether or not input angles are given in
-         radians (True) or degrees (False; the default).
-
-        *pushoff* is the distance to move away from *pts* for
-         determining transformed angles (see discussion of method
-         below).
-
-        The transformed angles are returned in an array with the same
-        size as *angles*.
-
-        The generic version of this method uses a very generic
-        algorithm that transforms *pts*, as well as locations very
-        close to *pts*, to find the angle in the transformed system.
+        Returns
+        -------
+        transformed_angles : (N,) array
         """
         # Must be 2D
         if self.input_dims != 2 or self.output_dims != 2:
