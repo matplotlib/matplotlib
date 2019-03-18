@@ -221,6 +221,96 @@ def test_Normalize():
     assert 0 < norm(1 + 50 * eps) < 1
 
 
+def test_DivergingNorm_autoscale():
+    norm = mcolors.DivergingNorm(vcenter=20)
+    norm.autoscale([10, 20, 30, 40])
+    assert norm.vmin == 10.
+    assert norm.vmax == 40.
+
+
+def test_DivergingNorm_autoscale_None_vmin():
+    norm = mcolors.DivergingNorm(2, vmin=0, vmax=None)
+    norm.autoscale_None([1, 2, 3, 4, 5])
+    assert norm(5) == 1
+    assert norm.vmax == 5
+
+
+def test_DivergingNorm_autoscale_None_vmax():
+    norm = mcolors.DivergingNorm(2, vmin=None, vmax=10)
+    norm.autoscale_None([1, 2, 3, 4, 5])
+    assert norm(1) == 0
+    assert norm.vmin == 1
+
+
+def test_DivergingNorm_scale():
+    norm = mcolors.DivergingNorm(2)
+    assert norm.scaled() is False
+    norm([1, 2, 3, 4])
+    assert norm.scaled() is True
+
+
+def test_DivergingNorm_scaleout_center():
+    # test the vmin never goes above vcenter
+    norm = mcolors.DivergingNorm(vcenter=0)
+    x = norm([1, 2, 3, 5])
+    assert norm.vmin == 0
+    assert norm.vmax == 5
+
+
+def test_DivergingNorm_scaleout_center_max():
+    # test the vmax never goes below vcenter
+    norm = mcolors.DivergingNorm(vcenter=0)
+    x = norm([-1, -2, -3, -5])
+    assert norm.vmax == 0
+    assert norm.vmin == -5
+
+
+def test_DivergingNorm_Even():
+    norm = mcolors.DivergingNorm(vmin=-1, vcenter=0, vmax=4)
+    vals = np.array([-1.0, -0.5, 0.0, 1.0, 2.0, 3.0, 4.0])
+    expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
+    assert_array_equal(norm(vals), expected)
+
+
+def test_DivergingNorm_Odd():
+    norm = mcolors.DivergingNorm(vmin=-2, vcenter=0, vmax=5)
+    vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+    expected = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    assert_array_equal(norm(vals), expected)
+
+
+def test_DivergingNorm_VminEqualsVcenter():
+    with pytest.raises(ValueError):
+        norm = mcolors.DivergingNorm(vmin=-2, vcenter=-2, vmax=2)
+
+
+def test_DivergingNorm_VmaxEqualsVcenter():
+    with pytest.raises(ValueError):
+        norm = mcolors.DivergingNorm(vmin=-2, vcenter=2, vmax=2)
+
+
+def test_DivergingNorm_VminGTVcenter():
+    with pytest.raises(ValueError):
+        norm = mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=20)
+
+
+def test_DivergingNorm_DivergingNorm_VminGTVmax():
+    with pytest.raises(ValueError):
+        norm = mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=5)
+
+
+def test_DivergingNorm_VcenterGTVmax():
+    vals = np.arange(50)
+    with pytest.raises(ValueError):
+        norm = mcolors.DivergingNorm(vmin=10, vcenter=25, vmax=20)
+
+
+def test_DivergingNorm_premature_scaling():
+    norm = mcolors.DivergingNorm(vcenter=2)
+    with pytest.raises(ValueError):
+        norm.inverse(np.array([0.1, 0.5, 0.9]))
+
+
 def test_SymLogNorm():
     """
     Test SymLogNorm behavior

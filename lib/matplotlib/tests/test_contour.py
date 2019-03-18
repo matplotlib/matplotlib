@@ -404,7 +404,10 @@ def test_contourf_log_extension():
 
 
 @image_comparison(baseline_images=['contour_addlines'],
-                  extensions=['png'], remove_text=True, style='mpl20')
+                  extensions=['png'], remove_text=True, style='mpl20',
+                  tol=0.03)
+# tolerance is because image changed minutely when tick finding on
+# colorbars was cleaned up...
 def test_contour_addlines():
     fig, ax = plt.subplots()
     np.random.seed(19680812)
