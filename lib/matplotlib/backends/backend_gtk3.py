@@ -692,34 +692,6 @@ class FileChooserDialog(Gtk.FileChooserDialog):
             return None, self.ext
 
 
-class RubberbandGTK3(backend_tools.RubberbandBase):
-    def __init__(self, *args, **kwargs):
-        backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
-        self.ctx = None
-
-    def draw_rubberband(self, x0, y0, x1, y1):
-        # 'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/
-        # Recipe/189744'
-        self.ctx = self.figure.canvas.get_property("window").cairo_create()
-
-        # todo: instead of redrawing the entire figure, copy the part of
-        # the figure that was covered by the previous rubberband rectangle
-        self.figure.canvas.draw()
-
-        height = self.figure.bbox.height
-        y1 = height - y1
-        y0 = height - y0
-        w = abs(x1 - x0)
-        h = abs(y1 - y0)
-        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
-
-        self.ctx.new_path()
-        self.ctx.set_line_width(0.5)
-        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
-        self.ctx.set_source_rgb(0, 0, 0)
-        self.ctx.stroke()
-
-
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     _icon_extension = '.png'
 
@@ -809,6 +781,12 @@ class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
         self.push(self._context, s)
 
 
+class RubberbandGTK3(backend_tools.RubberbandBase):
+    def draw_rubberband(self, x0, y0, x1, y1):
+        NavigationToolbar2GTK3.draw_rubberband(
+            self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
+
+
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
 
     @cbook.deprecated("3.1")
@@ -832,7 +810,8 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
 
 class SetCursorGTK3(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
-        self.figure.canvas.get_property("window").set_cursor(cursord[cursor])
+        NavigationToolbar2GTK3.set_cursor(
+            self._make_classic_style_pseudo_toolbar(), cursor)
 
 
 class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
