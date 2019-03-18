@@ -861,6 +861,12 @@ figcaption {
 }
 
 
+
+#plotting-contest a {
+  color: #fff;
+  text-decoration:underline;
+}
+
 /* "Go to released version" message. */
 #unreleased-message {
   background: #d62728;
