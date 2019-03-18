@@ -584,6 +584,8 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
     """
     def __init__(self, canvas, window):
         self.canvas = canvas
+        # Avoid using self.window (prefer self.canvas.manager.window), so that
+        # Tool implementations can reuse the methods.
         self.window = window
         NavigationToolbar2.__init__(self, canvas)
 
@@ -602,16 +604,15 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             self.canvas._tkcanvas.delete(self.lastrect)
         self.lastrect = self.canvas._tkcanvas.create_rectangle(x0, y0, x1, y1)
 
-        #self.canvas.draw()
-
     def release(self, event):
         if hasattr(self, "lastrect"):
             self.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect
 
     def set_cursor(self, cursor):
-        self.window.configure(cursor=cursord[cursor])
-        self.window.update_idletasks()
+        window = self.canvas.manager.window
+        window.configure(cursor=cursord[cursor])
+        window.update_idletasks()
 
     def _Button(self, text, file, command, extension='.gif'):
         img_file = os.path.join(
@@ -684,7 +685,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         initialdir = os.path.expanduser(rcParams['savefig.directory'])
         initialfile = self.canvas.get_default_filename()
         fname = tkinter.filedialog.asksaveasfilename(
-            master=self.window,
+            master=self.canvas.manager.window,
             title='Save the figure',
             filetypes=tk_filetypes,
             defaultextension=defaultextension,
@@ -765,9 +766,6 @@ class ToolTip(object):
 
 
 class RubberbandTk(backend_tools.RubberbandBase):
-    def __init__(self, *args, **kwargs):
-        backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
-
     def draw_rubberband(self, x0, y0, x1, y1):
         height = self.figure.canvas.figure.bbox.height
         y0 = height - y0
@@ -785,7 +783,8 @@ class RubberbandTk(backend_tools.RubberbandBase):
 
 class SetCursorTk(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
-        self.figure.canvas.manager.window.configure(cursor=cursord[cursor])
+        NavigationToolbar2Tk.set_cursor(
+            self._make_classic_style_pseudo_toolbar(), cursor)
 
 
 class ToolbarTk(ToolContainerBase, tk.Frame):
@@ -885,47 +884,8 @@ class StatusbarTk(StatusbarBase, tk.Frame):
 
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
-        filetypes = self.figure.canvas.get_supported_filetypes().copy()
-        default_filetype = self.figure.canvas.get_default_filetype()
-
-        # Tk doesn't provide a way to choose a default filetype,
-        # so we just have to put it first
-        default_filetype_name = filetypes.pop(default_filetype)
-        sorted_filetypes = ([(default_filetype, default_filetype_name)]
-                            + sorted(filetypes.items()))
-        tk_filetypes = [(name, '*.%s' % ext) for ext, name in sorted_filetypes]
-
-        # adding a default extension seems to break the
-        # asksaveasfilename dialog when you choose various save types
-        # from the dropdown.  Passing in the empty string seems to
-        # work - JDH!
-        # defaultextension = self.figure.canvas.get_default_filetype()
-        defaultextension = ''
-        initialdir = os.path.expanduser(rcParams['savefig.directory'])
-        initialfile = self.figure.canvas.get_default_filename()
-        fname = tkinter.filedialog.asksaveasfilename(
-            master=self.figure.canvas.manager.window,
-            title='Save the figure',
-            filetypes=tk_filetypes,
-            defaultextension=defaultextension,
-            initialdir=initialdir,
-            initialfile=initialfile,
-            )
-
-        if fname == "" or fname == ():
-            return
-        else:
-            if initialdir == '':
-                # explicitly missing key or empty str signals to use cwd
-                rcParams['savefig.directory'] = initialdir
-            else:
-                # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(str(fname))
-            try:
-                # This method will handle the delegation to the correct type
-                self.figure.savefig(fname)
-            except Exception as e:
-                tkinter.messagebox.showerror("Error saving file", str(e))
+        NavigationToolbar2Tk.save_figure(
+            self._make_classic_style_pseudo_toolbar())
 
 
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):

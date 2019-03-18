@@ -806,7 +806,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def configure_subplots(self):
         image = os.path.join(matplotlib.rcParams['datapath'],
                              'images', 'matplotlib.png')
-        dia = SubplotToolQt(self.canvas.figure, self.parent)
+        dia = SubplotToolQt(self.canvas.figure, self.canvas.parent())
         dia.setWindowIcon(QtGui.QIcon(image))
         dia.exec_()
 
@@ -828,7 +828,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             filters.append(filter)
         filters = ';;'.join(filters)
 
-        fname, filter = _getSaveFileName(self.parent,
+        fname, filter = _getSaveFileName(self.canvas.parent(),
                                          "Choose a filename to save to",
                                          start, filters, selectedFilter)
         if fname:
@@ -994,65 +994,30 @@ class StatusbarQt(StatusbarBase, QtWidgets.QLabel):
 
 class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        image = os.path.join(matplotlib.rcParams['datapath'],
-                             'images', 'matplotlib.png')
-        parent = self.canvas.manager.window
-        dia = SubplotToolQt(self.figure, parent)
-        dia.setWindowIcon(QtGui.QIcon(image))
-        dia.exec_()
+        NavigationToolbar2QT.configure_subplots(
+            self._make_classic_style_pseudo_toolbar())
 
 
 class SaveFigureQt(backend_tools.SaveFigureBase):
     def trigger(self, *args):
-        filetypes = self.canvas.get_supported_filetypes_grouped()
-        sorted_filetypes = sorted(filetypes.items())
-        default_filetype = self.canvas.get_default_filetype()
-
-        startpath = os.path.expanduser(
-            matplotlib.rcParams['savefig.directory'])
-        start = os.path.join(startpath, self.canvas.get_default_filename())
-        filters = []
-        selectedFilter = None
-        for name, exts in sorted_filetypes:
-            exts_list = " ".join(['*.%s' % ext for ext in exts])
-            filter = '%s (%s)' % (name, exts_list)
-            if default_filetype in exts:
-                selectedFilter = filter
-            filters.append(filter)
-        filters = ';;'.join(filters)
-
-        parent = self.canvas.manager.window
-        fname, filter = _getSaveFileName(parent,
-                                         "Choose a filename to save to",
-                                         start, filters, selectedFilter)
-        if fname:
-            # Save dir for next time, unless empty str (i.e., use cwd).
-            if startpath != "":
-                matplotlib.rcParams['savefig.directory'] = (
-                    os.path.dirname(fname))
-            try:
-                self.canvas.figure.savefig(fname)
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(
-                    self, "Error saving file", str(e),
-                    QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+        NavigationToolbar2QT.save_figure(
+            self._make_classic_style_pseudo_toolbar())
 
 
 class SetCursorQt(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
-        self.canvas.setCursor(cursord[cursor])
+        NavigationToolbar2QT.set_cursor(
+            self._make_classic_style_pseudo_toolbar(), cursor)
 
 
 class RubberbandQt(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
-        height = self.canvas.figure.bbox.height
-        y1 = height - y1
-        y0 = height - y0
-        rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
-        self.canvas.drawRectangle(rect)
+        NavigationToolbar2QT.draw_rubberband(
+            self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
 
     def remove_rubberband(self):
-        self.canvas.drawRectangle(None)
+        NavigationToolbar2QT.remove_rubberband(
+            self._make_classic_style_pseudo_toolbar())
 
 
 class HelpQt(backend_tools.ToolHelpBase):
