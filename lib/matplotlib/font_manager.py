@@ -490,23 +490,25 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
             try:
                 prop = afmFontProperty(fpath, font)
-            except KeyError:
+            except KeyError as exc:
+                _log.info("Could not extract properties for %s: %s",
+                          fpath, exc)
                 continue
         else:
             try:
                 font = ft2font.FT2Font(fpath)
-            except RuntimeError:
-                _log.info("Could not open font file %s", fpath)
+            except (OSError, RuntimeError) as exc:
+                _log.info("Could not open font file %s: %s", fpath, exc)
                 continue
             except UnicodeError:
                 _log.info("Cannot handle unicode filenames")
                 continue
-            except OSError:
-                _log.info("IO error - cannot open font file %s", fpath)
-                continue
             try:
                 prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError, ValueError, NotImplementedError):
+            except (KeyError, RuntimeError, ValueError,
+                    NotImplementedError) as exc:
+                _log.info("Could not extract properties for %s: %s",
+                          fpath, exc)
                 continue
 
         fontlist.append(prop)
