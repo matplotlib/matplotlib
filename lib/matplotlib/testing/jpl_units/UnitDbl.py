@@ -203,6 +203,7 @@ class UnitDbl(object):
         """Return the type of UnitDbl data."""
         return self._types[self._units]
 
+    @staticmethod
     def range(start, stop, step=None):
         """Generate a range of UnitDbl objects.
 
@@ -234,8 +235,6 @@ class UnitDbl(object):
             i += 1
 
         return elems
-
-    range = staticmethod(range)
 
     def checkUnits(self, units):
         """Check to see if some units are valid.

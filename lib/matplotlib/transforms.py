@@ -264,6 +264,7 @@ class BboxBase(TransformNode):
     is_affine = True
 
     if DEBUG:
+        @staticmethod
         def _check(points):
             if isinstance(points, np.ma.MaskedArray):
                 cbook._warn_external("Bbox bounds are a masked array.")
@@ -271,7 +272,6 @@ class BboxBase(TransformNode):
             if (points[1, 0] - points[0, 0] == 0 or
                 points[1, 1] - points[0, 1] == 0):
                 cbook._warn_external("Singular Bbox.")
-        _check = staticmethod(_check)
 
     def frozen(self):
         return Bbox(self.get_points().copy())

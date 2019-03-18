@@ -899,12 +899,10 @@ def _rc_params_in_file(fname, fail_on_error=False):
     Unlike `rc_params_from_file`, the configuration class only contains the
     parameters specified in the file (i.e. default values are not filled in).
     """
-    cnt = 0
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
         try:
-            for line in fd:
-                cnt += 1
+            for cnt, line in enumerate(fd, 1):
                 strippedline = line.split('#', 1)[0].strip()
                 if not strippedline:
                     continue

@@ -809,7 +809,7 @@ class TextBox(AxesWidget):
         if self.capturekeystrokes:
             key = event.key
 
-            if(len(key) == 1):
+            if len(key) == 1:
                 self.text = (self.text[:self.cursor_index] + key +
                              self.text[self.cursor_index:])
                 self.cursor_index += 1

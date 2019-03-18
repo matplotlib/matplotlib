@@ -2968,7 +2968,6 @@ class Axes(_AxesBase):
         slices = []
         autotexts = []
 
-        i = 0
         for frac, label, expl in zip(x, labels, explode):
             x, y = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
@@ -3032,7 +3031,6 @@ class Axes(_AxesBase):
                 autotexts.append(t)
 
             theta1 = theta2
-            i += 1
 
         if not frame:
             self.set_frame_on(False)

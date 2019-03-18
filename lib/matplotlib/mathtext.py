@@ -1898,9 +1898,9 @@ class GlueSpec(object):
             self.shrink,
             self.shrink_order)
 
+    @classmethod
     def factory(cls, glue_type):
         return cls._types[glue_type]
-    factory = classmethod(factory)
 
 
 GlueSpec._types = {
@@ -2101,13 +2101,13 @@ class Ship(object):
         self.off_v       = oy + box.height
         self.hlist_out(box)
 
+    @staticmethod
     def clamp(value):
         if value < -1000000000.:
             return -1000000000.
         if value > 1000000000.:
             return 1000000000.
         return value
-    clamp = staticmethod(clamp)
 
     def hlist_out(self, box):
         cur_g         = 0
