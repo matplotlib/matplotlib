@@ -1,0 +1,22 @@
+Timer.remove_callback won't consider ``*args, **kwargs`` in a future version
+````````````````````````````````````````````````````````````````````````````
+
+Currently, ``Timer.remove_callback(func, *args, **kwargs)`` removes a callback
+previously added by ``Timer.add_callback(func, *args, **kwargs)``, but if
+``*args, **kwargs`` is not passed in (``Timer.remove_callback(func)``), then
+the first callback with a matching ``func`` is removed, regardless of whether
+it was added with or without ``*args, **kwargs``.
+
+In a future version, ``Timer.remove_callback`` will always use the latter
+behavior (not consider ``*args, **kwargs``); to specifically consider them, add
+the callback as a `functools.partial` object ::
+
+   cb = timer.add_callback(functools.partial(func, *args, **kwargs))
+   # ...
+   # later
+   timer.remove_callback(cb)
+
+``Timer.add_callback`` was modified to return *func* to simplify the above
+usage (previously it returned None); this also allows using it as a decorator.
+
+The new API is modelled after `atexit.register` / `atexit.unregister`.
