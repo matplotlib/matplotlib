@@ -1526,8 +1526,8 @@ class Transform(TransformNode):
             The angles to transform.
         pts : (N, 2) array-like
             The points where the angles are anchored.
-        radians : bool, default False
-            Whether *angles* are in degrees (the default) or in radians.
+        radians : bool, default: False
+            Whether *angles* are radians or degrees.
         pushoff : float
             For each point in *pts* and angle in *angles*, the transformed
             angle is computed by transforming a segment of length *pushoff*
