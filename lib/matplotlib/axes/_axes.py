@@ -6172,6 +6172,10 @@ optional.
             A 2D array or masked array. The values will be color-mapped.
             This argument can only be passed positionally.
 
+            C can in some cases be 3D with the last dimension as rgb(a).
+            This is available when C qualifies for image or pcolorimage type,
+            will throw a TypeError if C is 3D and quadmesh.
+
         X, Y : tuple or array-like, default: ``(0, N)``, ``(0, M)``
             *X* and *Y* are used to specify the coordinates of the
             quadrilaterals. There are different ways to do this:
@@ -6245,7 +6249,7 @@ optional.
                 "'norm' must be an instance of 'mcolors.Normalize'")
 
         C = args[-1]
-        nr, nc = np.shape(C)
+        nr, nc = np.shape(C)[:2]
         if len(args) == 1:
             style = "image"
             x = [0, nc]
@@ -6266,6 +6270,10 @@ optional.
                     else:
                         style = "pcolorimage"
             elif x.ndim == 2 and y.ndim == 2:
+                if C.ndim > 2:
+                    raise ValueError(
+                        'pcolorfast needs to use quadmesh, '
+                        'which is not supported when x and y are 2D and C 3D')
                 style = "quadmesh"
             else:
                 raise TypeError("arguments do not match valid signatures")
