@@ -875,8 +875,8 @@ class ColorbarBase(_ColorbarMappableDummy):
                                       + self._boundaries[1:])
                 if isinstance(self.norm, colors.NoNorm):
                     self._values = (self._values + 0.00001).astype(np.int16)
-                return
-            self._values = np.array(self.values)
+            else:
+                self._values = np.array(self.values)
             return
         if self.values is not None:
             self._values = np.array(self.values)
@@ -1113,20 +1113,19 @@ class ColorbarBase(_ColorbarMappableDummy):
             b = self.norm(self._boundaries, clip=False).filled()
             xn = self.norm(x, clip=False).filled()
 
-        # The rest is linear interpolation with extrapolation at ends.
-        ii = np.searchsorted(b, xn)
-        i0 = ii - 1
-        itop = (ii == len(b))
-        ibot = (ii == 0)
-        i0[itop] -= 1
-        ii[itop] -= 1
-        i0[ibot] += 1
-        ii[ibot] += 1
+        bunique = b
+        yunique = self._y
+        # trim extra b values at beginning and end if they are
+        # not unique.  These are here for extended colorbars, and are not
+        # wanted for the interpolation.
+        if b[0] == b[1]:
+            bunique = bunique[1:]
+            yunique = yunique[1:]
+        if b[-1] == b[-2]:
+            bunique = bunique[:-1]
+            yunique = yunique[:-1]
 
-        y = self._y
-        db = b[ii] - b[i0]
-        dy = y[ii] - y[i0]
-        z = y[i0] + (xn - b[i0]) * dy / db
+        z = np.interp(xn, bunique, yunique)
         return z
 
     def set_alpha(self, alpha):
