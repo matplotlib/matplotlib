@@ -145,6 +145,7 @@ per-file-ignores =
     examples/lines_bars_and_markers/span_regions.py: E402
     examples/lines_bars_and_markers/stem_plot.py: E402
     examples/lines_bars_and_markers/step_demo.py: E402
+    examples/lines_bars_and_markers/timeline.py: E402
     examples/misc/agg_buffer.py: E402
     examples/misc/anchored_artists.py: E501
     examples/misc/contour_manual.py: E501
