@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
-@image_comparison(baseline_images=['agg_filter_alpha'])
+@image_comparison(baseline_images=['agg_filter_alpha'],
+                  extensions=['png', 'pdf'])
 def test_agg_filter_alpha():
     ax = plt.axes()
     x, y = np.mgrid[0:7, 0:8]
