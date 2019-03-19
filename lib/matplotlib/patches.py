@@ -91,7 +91,6 @@ class Patch(artist.Artist):
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
-        self._combined_transform = transforms.IdentityTransform()
 
         if len(kwargs):
             self.update(kwargs)
