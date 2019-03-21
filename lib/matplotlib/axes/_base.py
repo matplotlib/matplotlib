@@ -1265,8 +1265,8 @@ class _AxesBase(martist.Artist):
                 'on 3D axes')
 
         if share:
-            axes = set(self._shared_x_axes.get_siblings(self)
-                       + self._shared_y_axes.get_siblings(self))
+            axes = {*self._shared_x_axes.get_siblings(self),
+                    *self._shared_y_axes.get_siblings(self)}
         else:
             axes = [self]
 
@@ -1317,8 +1317,8 @@ class _AxesBase(martist.Artist):
         """
         cbook._check_in_list(["box", "datalim"], adjustable=adjustable)
         if share:
-            axes = set(self._shared_x_axes.get_siblings(self)
-                       + self._shared_y_axes.get_siblings(self))
+            axes = {*self._shared_x_axes.get_siblings(self),
+                    *self._shared_y_axes.get_siblings(self)}
         else:
             axes = [self]
         for ax in axes:
@@ -1385,8 +1385,8 @@ class _AxesBase(martist.Artist):
             raise ValueError('argument must be among %s' %
                              ', '.join(mtransforms.Bbox.coefs))
         if share:
-            axes = set(self._shared_x_axes.get_siblings(self)
-                       + self._shared_y_axes.get_siblings(self))
+            axes = {*self._shared_x_axes.get_siblings(self),
+                    *self._shared_y_axes.get_siblings(self)}
         else:
             axes = [self]
         for ax in axes:
