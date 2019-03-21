@@ -915,6 +915,8 @@ def test_nonfinite_limits():
 
 @image_comparison(['imshow', 'imshow'], remove_text=True, style='mpl20')
 def test_imshow():
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
     # Create a NxN image
     N = 100
     (x, y) = np.indices((N, N))
@@ -936,6 +938,8 @@ def test_imshow():
 @image_comparison(['imshow_clip'], style='mpl20')
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
 
     # Create a NxN image
     N = 100
@@ -3732,6 +3736,10 @@ def test_subplot_key_hash():
                   remove_text=True, tol=0.07, style='default')
 def test_specgram_freqs():
     '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
+
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
+
     n = 1000
     Fs = 10.
 
@@ -3784,6 +3792,10 @@ def test_specgram_freqs():
                   remove_text=True, tol=0.01, style='default')
 def test_specgram_noise():
     '''test axes.specgram in default (psd) mode with noise stimuli'''
+
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
+
     np.random.seed(0)
 
     n = 1000
@@ -3831,6 +3843,10 @@ def test_specgram_noise():
                   remove_text=True, tol=0.07, style='default')
 def test_specgram_magnitude_freqs():
     '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
+
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
+
     n = 1000
     Fs = 10.
 
@@ -3886,6 +3902,10 @@ def test_specgram_magnitude_freqs():
                   remove_text=True, style='default')
 def test_specgram_magnitude_noise():
     '''test axes.specgram in magnitude mode with noise stimuli'''
+
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
+
     np.random.seed(0)
 
     n = 1000
@@ -3932,6 +3952,10 @@ def test_specgram_magnitude_noise():
                   remove_text=True, tol=0.007, style='default')
 def test_specgram_angle_freqs():
     '''test axes.specgram in angle mode with sinusoidal stimuli'''
+
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
+
     n = 1000
     Fs = 10.
 
@@ -3986,6 +4010,10 @@ def test_specgram_angle_freqs():
                   remove_text=True, style='default')
 def test_specgram_noise_angle():
     '''test axes.specgram in angle mode with noise stimuli'''
+
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
+
     np.random.seed(0)
 
     n = 1000
@@ -4032,6 +4060,9 @@ def test_specgram_noise_angle():
                   remove_text=True, style='default')
 def test_specgram_freqs_phase():
     '''test axes.specgram in phase mode with sinusoidal stimuli'''
+
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
     n = 1000
     Fs = 10.
 
@@ -4086,6 +4117,9 @@ def test_specgram_freqs_phase():
                   remove_text=True, style='default')
 def test_specgram_noise_phase():
     '''test axes.specgram in phase mode with noise stimuli'''
+
+    # use former defaults to match existing baseline image
+    matplotlib.rcParams['image.interpolation'] = 'nearest'
     np.random.seed(0)
 
     n = 1000

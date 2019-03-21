@@ -115,6 +115,88 @@ def test_image_python_io():
     plt.imread(buffer)
 
 
+@check_figures_equal(extensions=['png'])
+def test_imshow_subsample(fig_test, fig_ref):
+    # data is bigger than figure, so subsampling with hanning
+    np.random.seed(19680801)
+    dpi = 100
+    A = np.random.rand(int(dpi * 5), int(dpi * 5))
+    for fig in [fig_test, fig_ref]:
+        fig.set_size_inches(2, 2)
+
+    axs = fig_test.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='antialiased')
+    axs = fig_ref.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='hanning')
+
+
+@check_figures_equal(extensions=['png'])
+def test_imshow_samesample(fig_test, fig_ref):
+    # exact resample, so should be same as nearest....
+    np.random.seed(19680801)
+    dpi = 100
+    A = np.random.rand(int(dpi * 5), int(dpi * 5))
+    for fig in [fig_test, fig_ref]:
+        fig.set_size_inches(5, 5)
+    axs = fig_test.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='antialiased')
+    axs = fig_ref.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='nearest')
+
+
+@check_figures_equal(extensions=['png'])
+def test_imshow_doublesample(fig_test, fig_ref):
+    # should be exactly a double sample, so should use nearest neighbour
+    # which is the same as "none"
+    np.random.seed(19680801)
+    dpi = 100
+    A = np.random.rand(int(dpi * 5), int(dpi * 5))
+    for fig in [fig_test, fig_ref]:
+        fig.set_size_inches(10, 10)
+    axs = fig_test.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='antialiased')
+    axs = fig_ref.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='nearest')
+
+
+@check_figures_equal(extensions=['png'])
+def test_imshow_upsample(fig_test, fig_ref):
+    # should be less than 3 upsample, so should be nearest...
+    np.random.seed(19680801)
+    dpi = 100
+    A = np.random.rand(int(dpi * 3), int(dpi * 3))
+    for fig in [fig_test, fig_ref]:
+        fig.set_size_inches(2.9, 2.9)
+    axs = fig_test.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='antialiased')
+    axs = fig_ref.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='hanning')
+
+
+@check_figures_equal(extensions=['png'])
+def test_imshow_upsample3(fig_test, fig_ref):
+    # should be greater than 3 upsample, so should be nearest...
+    np.random.seed(19680801)
+    dpi = 100
+    A = np.random.rand(int(dpi * 3), int(dpi * 3))
+    for fig in [fig_test, fig_ref]:
+        fig.set_size_inches(9.1, 9.1)
+    axs = fig_test.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='antialiased')
+    axs = fig_ref.subplots()
+    axs.set_position([0, 0, 1, 1])
+    axs.imshow(A, interpolation='nearest')
+
+
 @check_figures_equal()
 def test_imshow_pil(fig_test, fig_ref):
     style.use("default")
@@ -503,7 +585,8 @@ def test_bbox_image_inverted():
 
     fig, ax = plt.subplots()
     bbox_im = BboxImage(
-        TransformedBbox(Bbox([[100, 100], [0, 0]]), ax.transData))
+        TransformedBbox(Bbox([[100, 100], [0, 0]]), ax.transData),
+        interpolation='nearest')
     bbox_im.set_data(image)
     bbox_im.set_clip_on(False)
     ax.set_xlim(0, 100)
@@ -513,7 +596,8 @@ def test_bbox_image_inverted():
     image = np.identity(10)
 
     bbox_im = BboxImage(TransformedBbox(Bbox([[0.1, 0.2], [0.3, 0.25]]),
-                                        ax.figure.transFigure))
+                                        ax.figure.transFigure),
+                                        interpolation='nearest')
     bbox_im.set_data(image)
     bbox_im.set_clip_on(False)
     ax.add_artist(bbox_im)
@@ -854,8 +938,10 @@ def test_imshow_masked_interpolation():
     data = np.ma.masked_array(data, mask)
 
     fig, ax_grid = plt.subplots(3, 6)
+    interps = sorted(mimage._interpd_)
+    interps.remove('antialiased')
 
-    for interp, ax in zip(sorted(mimage._interpd_), ax_grid.ravel()):
+    for interp, ax in zip(interps, ax_grid.ravel()):
         ax.set_title(interp)
         ax.imshow(data, norm=n, cmap=cm, interpolation=interp)
         ax.axis('off')
@@ -892,12 +978,13 @@ def test_imshow_clips_rgb_to_valid_range(dtype):
 @image_comparison(['imshow_flatfield.png'], remove_text=True, style='mpl20')
 def test_imshow_flatfield():
     fig, ax = plt.subplots()
-    im = ax.imshow(np.ones((5, 5)))
+    im = ax.imshow(np.ones((5, 5)), interpolation='nearest')
     im.set_clim(.5, 1.5)
 
 
 @image_comparison(['imshow_bignumbers.png'], remove_text=True, style='mpl20')
 def test_imshow_bignumbers():
+    rcParams['image.interpolation'] = 'nearest'
     # putting a big number in an array of integers shouldn't
     # ruin the dynamic range of the resolved bits.
     fig, ax = plt.subplots()
@@ -909,6 +996,7 @@ def test_imshow_bignumbers():
 @image_comparison(['imshow_bignumbers_real.png'],
                   remove_text=True, style='mpl20')
 def test_imshow_bignumbers_real():
+    rcParams['image.interpolation'] = 'nearest'
     # putting a big number in an array of integers shouldn't
     # ruin the dynamic range of the resolved bits.
     fig, ax = plt.subplots()
