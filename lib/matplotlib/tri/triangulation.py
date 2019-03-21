@@ -134,12 +134,9 @@ class Triangulation:
         the possible args and kwargs.
         """
         if isinstance(args[0], Triangulation):
-            triangulation = args[0]
-            args = args[1:]
+            triangulation, *args = args
         else:
-            x = args[0]
-            y = args[1]
-            args = args[2:]  # Consumed first two args.
+            x, y, *args = args
 
             # Check triangles in kwargs then args.
             triangles = kwargs.pop('triangles', None)
