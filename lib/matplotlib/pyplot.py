@@ -2176,6 +2176,7 @@ def polar(*args, **kwargs):
     return ret
 
 
+@cbook.deprecated("3.1")
 def plotfile(fname, cols=(0,), plotfuncs=None,
              comments='#', skiprows=0, checkrows=5, delimiter=',',
              names=None, subplots=True, newfig=True, **kwargs):

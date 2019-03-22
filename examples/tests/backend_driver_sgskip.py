@@ -212,7 +212,6 @@ files['pylab'] = [
     'pcolor_log.py',
     'pcolor_small.py',
     'pie_demo2.py',
-    'plotfile_demo.py',
     'polar_demo.py',
     'polar_legend.py',
     'psd_demo.py',
