@@ -5,6 +5,7 @@ import logging
 import math
 import operator
 from numbers import Number
+from decimal import Decimal
 
 import numpy as np
 from numpy import ma

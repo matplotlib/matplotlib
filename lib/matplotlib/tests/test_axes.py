@@ -11,6 +11,7 @@ import dateutil.tz as dutz
 import numpy as np
 from numpy import ma
 from cycler import cycler
+from decimal import Decimal
 import pytest
 
 import warnings
