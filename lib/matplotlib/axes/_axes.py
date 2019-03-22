@@ -2348,7 +2348,7 @@ class Axes(_AxesBase):
         if (orientation == 'vertical' and x.size > 0
             and isinstance(x[0], Decimal)):
             width = np.array([Decimal(itm) for itm in width])
-        elif (orientation == 'horizontal' and y.size > 0 
+        elif (orientation == 'horizontal' and y.size > 0
               and isinstance(y[0], Decimal)):
             height = np.array([Decimal(itm) for itm in height])
 
