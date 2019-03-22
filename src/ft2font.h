@@ -119,7 +119,6 @@ class FT2Font
     FT_Face face;
     FT_Matrix matrix; /* transformation matrix */
     FT_Vector pen;    /* untransformed origin  */
-    FT_Error error;
     std::vector<FT_Glyph> glyphs;
     std::vector<FT_Vector> pos;
     FT_BBox bbox;
