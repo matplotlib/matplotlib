@@ -3,7 +3,6 @@ from io import BytesIO
 import os
 import tempfile
 import warnings
-import xml.parsers.expat
 
 import pytest
 
