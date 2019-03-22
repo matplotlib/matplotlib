@@ -175,6 +175,7 @@ class FigureCanvasTk(FigureCanvasBase):
                65455: '/',
                65439: 'dec',
                65421: 'enter',
+               65289: 'tab',
                }
 
     _keycode_lookup = {
@@ -204,6 +205,7 @@ class FigureCanvasTk(FigureCanvasBase):
         self._resize_callback = resize_callback
         self._tkcanvas.bind("<Configure>", self.resize)
         self._tkcanvas.bind("<Key>", self.key_press)
+        self._tkcanvas.bind("<Tab>", self.tab_event)
         self._tkcanvas.bind("<Motion>", self.motion_notify_event)
         self._tkcanvas.bind("<Enter>", self.enter_notify_event)
         self._tkcanvas.bind("<Leave>", self.leave_notify_event)
@@ -452,6 +454,11 @@ class FigureCanvasTk(FigureCanvasBase):
                     key = '{0}+{1}'.format(prefix, key)
 
         return key
+
+    def tab_event(self, event):
+        self._tkcanvas.focus_set()
+        self.key_press(event)
+        return 'break'
 
     def key_press(self, event):
         key = self._get_key(event)
