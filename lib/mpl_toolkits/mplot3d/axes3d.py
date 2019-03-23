@@ -2729,12 +2729,28 @@ pivot='tail', normalize=False, **kwargs)
             # transpose to get a list of lines
             heads = heads.swapaxes(0, 1)
 
-            lines = [*shafts, *heads]
+            #create seperate lists for lines, left arrow head lines, and right arrow head lines
+            #from the computed lines and heads to be used for generating gradients
+            lines = shafts
+            arrows1 = []
+            arrows2 = []
+            for a in range(len(heads)):
+                if a % 2 == 0:
+                    arrows1.append(heads[a])
+                else:
+                    arrows2.append(heads[a])
         else:
+            arrows1 = []
+            arrows2 = []
             lines = []
 
+        #generate 3D lines with gradient for body, left arrow head lines, and right arrow head lines
         linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
+        arrow1c = art3d.Line3DCollection(arrows1, *args[argi:], **kwargs)
+        arrow2c = art3d.Line3DCollection(arrows2, *args[argi:], **kwargs)
         self.add_collection(linec)
+        self.add_collection(arrow1c)
+        self.add_collection(arrow2c)
 
         self.auto_scale_xyz(XYZ[:, 0], XYZ[:, 1], XYZ[:, 2], had_data)
 
