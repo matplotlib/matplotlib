@@ -1420,7 +1420,7 @@ def _reshape_2D(X, name):
     # Delete masked points for MaskedArray
     if isinstance(X, np.ndarray):
         X = X.T
-    elif len(X) and isinstance(next(iter(X), None), np.ma.MaskedArray):
+    elif isinstance(next(iter(X), None), np.ma.MaskedArray):
         X = np.asarray([delete_masked_points(x).pop() for x in X])
     else:
         X = np.asarray(X)
