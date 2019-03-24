@@ -2779,8 +2779,9 @@ class Axes(_AxesBase):
 
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
         if use_line_collection:
-            stemlines = []
             stemlines = [((xi, bottom), (xi, yi)) for xi, yi in zip(x, y)]
+            if linestyle is None:
+                linestyle = rcParams['lines.linestyle']
             stemlines = mcoll.LineCollection(stemlines, linestyles=linestyle,
                                              colors=linecolor,
                                              label='_nolegend_')
