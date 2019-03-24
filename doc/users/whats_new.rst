@@ -131,7 +131,7 @@ Support for axes.prop_cycle property *markevery* in rcParams
 The Matplotlib ``rcParams`` settings object now supports configuration
 of the attribute `axes.prop_cycle` with cyclers using the `markevery`
 Line2D object property. An example of this feature is provided at
-:doc:`gallery/lines_bars_and_markers/markevery_prop_cycle`.
+:doc:`/gallery/lines_bars_and_markers/markevery_prop_cycle`.
 
 Multipage PDF support for pgf backend
 -------------------------------------
