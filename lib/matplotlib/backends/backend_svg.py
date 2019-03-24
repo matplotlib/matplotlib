@@ -283,7 +283,6 @@ class RendererSVG(RendererBase):
             self.basename = basename
             self._imaged = {}
         self._clipd = OrderedDict()
-        self._char_defs = {}
         self._markers = {}
         self._path_collection_id = 0
         self._imaged = {}

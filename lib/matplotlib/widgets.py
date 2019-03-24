@@ -1837,7 +1837,6 @@ class SpanSelector(_SelectorWidget):
         """on button release event"""
         if self.pressv is None:
             return
-        self.buttonDown = False
 
         self.rect.set_visible(False)
 
@@ -1863,6 +1862,11 @@ class SpanSelector(_SelectorWidget):
             return
         self.onselect(vmin, vmax)
         self.pressv = None
+        return False
+
+    @cbook.deprecated("3.1")
+    @property
+    def buttonDown(self):
         return False
 
     def _onmove(self, event):
