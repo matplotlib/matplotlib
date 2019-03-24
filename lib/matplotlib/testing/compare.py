@@ -173,7 +173,6 @@ class _Converter(object):
 class _GSConverter(_Converter):
     def __call__(self, orig, dest):
         if not self._proc:
-            self._stdout = TemporaryFile()
             self._proc = subprocess.Popen(
                 [mpl._get_executable_info("gs").executable,
                  "-dNOPAUSE", "-sDEVICE=png16m"],

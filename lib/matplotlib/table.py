@@ -322,10 +322,8 @@ class Table(Artist):
         # use axes coords
         self.set_transform(ax.transAxes)
 
-        self._texts = []
         self._cells = {}
         self._edges = None
-        self._autoRows = []
         self._autoColumns = []
         self._autoFontsize = True
         self.update(kwargs)
