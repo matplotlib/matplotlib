@@ -2147,12 +2147,12 @@ class Axes(_AxesBase):
 
     def _decimal_convert(self, data):
         """
-        Small helper function to force the convertion from Decimal to float.
+        Small helper function to force the conversion from Decimal to float.
 
         Parameters
         ----------
         data : array_like
-            The input data we want to force the convertion.
+            The input data we want to force the conversion.
 
         Returns
         ----------
