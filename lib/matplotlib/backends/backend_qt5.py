@@ -711,8 +711,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                                        'Customize', self.edit_parameters)
                     a.setToolTip('Edit axis, curve and image parameters')
 
-        self.buttons = {}
-
         # Add the x,y location widget at the right side of the toolbar
         # The stretch factor is 1 which means any resizing of the toolbar
         # will resize this label instead of the buttons.
@@ -735,6 +733,11 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if is_pyqt5():
             self.setIconSize(QtCore.QSize(24, 24))
             self.layout().setSpacing(12)
+
+    @cbook.deprecated("3.1")
+    @property
+    def buttons(self):
+        return {}
 
     if is_pyqt5():
         # For some reason, self.setMinimumHeight doesn't seem to carry over to

@@ -400,8 +400,6 @@ class Line2D(Artist):
         self.set_markeredgecolor(markeredgecolor)
         self.set_markeredgewidth(markeredgewidth)
 
-        self.verticalOffset = None
-
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support)
         self.update(kwargs)
@@ -423,6 +421,11 @@ class Line2D(Artist):
         self._x_filled = None  # used in subslicing; only x is needed
 
         self.set_data(xdata, ydata)
+
+    @cbook.deprecated("3.1")
+    @property
+    def verticalOffset(self):
+        return None
 
     def contains(self, mouseevent):
         """
