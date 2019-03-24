@@ -3070,6 +3070,19 @@ def test_stem(use_line_collection):
     ax.legend()
 
 
+@check_figures_equal(extensions=['png'])
+def test_stem_params(fig_test, fig_ref):
+    x = np.linspace(0, 3.14, 37)
+    y = np.sin(x)
+
+    ax = fig_test.subplots()
+    ax.stem(x, y, linefmt='grey', use_line_collection=True)
+
+    ax = fig_ref.subplots()
+    with pytest.warns(UserWarning):
+        ax.stem(x, y, linefmt='grey')
+
+
 def test_stem_args():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
