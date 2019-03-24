@@ -1507,28 +1507,36 @@ def test_bar_tick_label_multiple_old_alignment():
            align='center')
 
 
-@image_comparison(
-    baseline_images=['bar_decimal_center'],
-    extensions=['png'])
-def test_bar_decimal_center():
+@check_figures_equal(extensions=["png"])
+def test_bar_decimal_center(fig_test, fig_ref):
     # Test vertical, align-center bar chart with Decimal() input
     # No exception should be raised
-    ax = plt.gca()
-    x = [Decimal(x) for x in [1.5, 8.4, 5.3, 4.2]]
-    y = [Decimal(y) for y in [1.1, 2.2, 3.3, 4.4]]
+    ax = fig_test.subplots()
+    x0 = [1.5, 8.4, 5.3, 4.2]
+    y0 = [1.1, 2.2, 3.3, 4.4]
+    x = [Decimal(x) for x in x0]
+    y = [Decimal(y) for y in y0]
+    # Test image
     ax.bar(x, y, align='center')
+    # Reference image
+    ax = fig_ref.subplots()
+    ax.bar(x0, y0, align='center')
 
 
-@image_comparison(
-    baseline_images=['barh_decimal_center'],
-    extensions=['png'])
-def test_barh_decimal_center():
+@check_figures_equal(extensions=["png"])
+def test_barh_decimal_center(fig_test, fig_ref):
     # Test horizontal, align-center bar chart with Decimal() input
     # No exception should be raised
-    ax = plt.gca()
-    x = [Decimal(x) for x in [1.5, 8.4, 5.3, 4.2]]
-    y = [Decimal(y) for y in [1.1, 2.2, 3.3, 4.4]]
+    ax = fig_test.subplots()
+    x0 = [1.5, 8.4, 5.3, 4.2]
+    y0 = [1.1, 2.2, 3.3, 4.4]
+    x = [Decimal(x) for x in x0]
+    y = [Decimal(y) for y in y0]
+    # Test image
     ax.barh(x, y, height=[0.5, 0.5, 1, 1], align='center')
+    # Reference image
+    ax = fig_ref.subplots()
+    ax.barh(x0, y0, height=[0.5, 0.5, 1, 1], align='center')
 
 
 def test_bar_color_none_alpha():

@@ -2145,6 +2145,26 @@ class Axes(_AxesBase):
             dx = convert(dx)
         return dx
 
+    def _decimal_convert(self, data):
+        """
+        Small helper function to force the convertion from Decimal to float.
+
+        Parameters
+        ----------
+        data : array_like
+            The input data we want to force the convertion.
+
+        Returns
+        ----------
+        ans : the data after convertion.
+        """
+        # If the data is masked array, then use asarray function from numpy.ma
+        # module, otherwise use numpy.asarray
+        convert = np.asarray
+        if isinstance(data, ma.MaskedArray):
+            convert = ma.asarray
+        return convert(data, dtype=np.float)
+
     @_preprocess_data()
     @docstring.dedent_interpd
     def bar(self, x, height, width=0.8, bottom=None, *, align="center",
@@ -2310,14 +2330,24 @@ class Axes(_AxesBase):
         # subtracted uniformly
         if self.xaxis is not None:
             x0 = x
-            x = np.asarray(self.convert_xunits(x))
+            # self.convert_xunits doesn't convert Decimal input, use
+            # _decimal_convert to force conversion
+            x = self._decimal_convert(self.convert_xunits(x))
             width = self._convert_dx(width, x0, x, self.convert_xunits)
+            # width is the input height when orientation is horizontal
+            # use _decimal_convert to force conversion between Decimal and
+            # float
+            width = self._decimal_convert(width)
             if xerr is not None:
                 xerr = self._convert_dx(xerr, x0, x, self.convert_xunits)
         if self.yaxis is not None:
             y0 = y
-            y = np.asarray(self.convert_yunits(y))
+            # y is the input x when orientation is horizontal. Force convertion
+            # between Decimal and float
+            y = self._decimal_convert(self.convert_yunits(y))
             height = self._convert_dx(height, y0, y, self.convert_yunits)
+            # Force convertion between Decimal and float
+            height = self._decimal_convert(height)
             if yerr is not None:
                 yerr = self._convert_dx(yerr, y0, y, self.convert_yunits)
 
@@ -2344,14 +2374,6 @@ class Axes(_AxesBase):
                 itertools.cycle(mcolors.to_rgba_array(edgecolor)),
                 # Fallback if edgecolor == "none".
                 itertools.repeat('none'))
-
-        # Resolve the float - Decimal TypeError
-        if (orientation == 'vertical' and x.size > 0
-            and isinstance(x[0], Decimal)):
-            width = np.array([Decimal(itm) for itm in width])
-        elif (orientation == 'horizontal' and y.size > 0
-              and isinstance(y[0], Decimal)):
-            height = np.array([Decimal(itm) for itm in height])
 
         # We will now resolve the alignment and really have
         # left, bottom, width, height vectors
