@@ -957,7 +957,7 @@ class Animation(object):
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
              bitrate=None, extra_args=None, metadata=None, extra_anim=None,
-             savefig_kwargs=None, progress_callback=None):
+             savefig_kwargs=None, *, progress_callback=None):
         """
         Save the animation as a movie file by drawing every frame.
 
