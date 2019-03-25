@@ -705,6 +705,8 @@ _deprecated_ignore_map = {
 _deprecated_remain_as_none = {
     'text.latex.unicode': ('3.0',),
     'savefig.frameon': ('3.1',),
+    'verbose.fileo': ('3.1',),
+    'verbose.level': ('3.1',),
 }
 
 
@@ -927,19 +929,6 @@ def _rc_params_in_file(fname, fail_on_error=False):
             raise
 
     config = RcParams()
-
-    for key in ('verbose.level', 'verbose.fileo'):
-        if key in rc_temp:
-            val, line, cnt = rc_temp.pop(key)
-            if fail_on_error:
-                config[key] = val  # try to convert to proper type or raise
-            else:
-                try:
-                    config[key] = val  # try to convert to proper type or skip
-                except Exception as msg:
-                    error_details = _error_details_fmt % (cnt, line, fname)
-                    _log.warning('Bad val %r on %s\n\t%s',
-                                 val, error_details, msg)
 
     for key, (val, line, cnt) in rc_temp.items():
         if key in defaultParams:
