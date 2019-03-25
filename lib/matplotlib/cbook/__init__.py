@@ -1418,10 +1418,12 @@ def _reshape_2D(X, name):
     """
     # Iterate over columns for ndarrays, over rows otherwise.
     # Delete masked points for MaskedArray
-    if isinstance(X, np.ndarray):
-        X = X.T
+    if isinstance(X, np.ma.MaskedArray):
+        X = np.asarray(delete_masked_points(X))
     elif isinstance(next(iter(X), None), np.ma.MaskedArray):
         X = np.asarray([delete_masked_points(x).pop() for x in X])
+    elif isinstance(X, np.ndarray):
+        X = X.T
     else:
         X = np.asarray(X)
     X = np.atleast_1d(X)

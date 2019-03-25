@@ -2821,6 +2821,27 @@ def test_boxplot_not_single():
     assert [t.get_text() for t in ax.get_xticklabels()] == ["3", "5"]
 
 
+def test_boxplot_masked_array():
+    fig, ax = plt.subplots()
+    data = [1, 2, 3, -1, -1, 6]
+    data_to_plot = np.ma.masked_less(data, 0)
+    ax.boxplot(data_to_plot)
+    fig.canvas.draw()
+    assert ax.get_ylim() == (1, 6)
+
+
+def test_boxplot_masked_array_multiple():
+    fig, ax = plt.subplots()
+    data1 = [1, 2, 3, -1, -1, 6]
+    data2 = [4, 5, -2]
+    masked_data1 = np.ma.masked_less(data1, 0)
+    masked_data2 = np.ma.masked_less(data2, -1)
+    data_to_plot = [masked_data1, masked_data2]
+    ax.boxplot(data_to_plot)
+    fig.canvas.draw()
+    assert ax.get_ylim() == (1, 6)
+
+
 def test_tick_space_size_0():
     # allow font size to be zero, which affects ticks when there is
     # no other text in the figure.

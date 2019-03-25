@@ -520,12 +520,12 @@ def test_reshape2d():
     mask = [False, False, False, True, True, False]
     arr1 = [1, 2, 3, np.nan, np.nan, 6]
     arr2 = np.ma.array(arr1, mask=mask)
-    xnew = cbook._reshape_2D([arr2], 'x')
+    xnew = cbook._reshape_2D(arr2, 'x')
     assert np.shape(xnew) == (1, 4)
 
     arr1 = [1, 2, 3, 6]
     arr2 = np.ma.array(arr1)
-    xnew = cbook._reshape_2D([arr2], 'x')
+    xnew = cbook._reshape_2D(arr2, 'x')
     assert np.shape(xnew) == (1, 4)
 
 
