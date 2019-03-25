@@ -8,6 +8,7 @@ Illustrate the scale transformations applied to axes, e.g. log, symlog, logit.
 The last two examples are examples of using the ``'function'`` scale by
 supplying forward and inverse functions for the scale transformation.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter, FixedLocator
@@ -54,6 +55,8 @@ ax.plot(x, y)
 ax.set_yscale('logit')
 ax.set_title('logit')
 ax.grid(True)
+# Format the minor tick labels of the y-axis into empty strings with
+# `NullFormatter`, to avoid cumbering the axis with too many labels.
 ax.yaxis.set_minor_formatter(NullFormatter())
 
 
