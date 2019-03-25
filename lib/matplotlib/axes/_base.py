@@ -2536,8 +2536,9 @@ class _AxesBase(martist.Artist):
             top = 0
             for ax in axs:
                 try:
-                    if (ax.xaxis.get_label_position() == 'top'
-                            or ax.xaxis.get_ticks_position() == 'top'):
+                    choices = ['top', 'unknown']
+                    if (ax.xaxis.get_label_position() == 'top' or
+                            ax.xaxis.get_ticks_position() in choices):
                         bb = ax.xaxis.get_tightbbox(renderer)
                     else:
                         bb = ax.get_window_extent(renderer)
