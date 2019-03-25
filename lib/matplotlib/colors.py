@@ -1843,24 +1843,23 @@ class LightSource(object):
         intensity = intensity[..., 0]
         intensity = 2 * intensity - 1
 
-        # convert to rgb, then rgb to hsv
+        # Convert to rgb, then rgb to hsv
         hsv = rgb_to_hsv(rgb[:, :, 0:3])
+        hue, sat, val = np.moveaxis(hsv, -1, 0)
 
-        # modify hsv values to simulate illumination.
-        np.putmask(hsv[:, :, 1],  # i.e. A[mask] = B[mask].
-                   (np.abs(hsv[:, :, 1]) > 1.e-10) & (intensity > 0),
-                   (1 - intensity) * hsv[:, :, 1] + intensity * hsv_max_sat)
-        np.putmask(hsv[:, :, 2],
-                   intensity > 0,
-                   (1 - intensity) * hsv[:, :, 2] + intensity * hsv_max_val)
-        np.putmask(hsv[:, :, 1],
-                   (np.abs(hsv[:, :, 1]) > 1.e-10) & (intensity < 0),
-                   (1 + intensity) * hsv[:, :, 1] - intensity * hsv_min_sat)
-        np.putmask(hsv[:, :, 2],
-                   intensity < 0,
-                   (1 + intensity) * hsv[:, :, 2] - intensity * hsv_min_val)
+        # Modify hsv values (in place) to simulate illumination.
+        # putmask(A, mask, B) <=> A[mask] = B[mask]
+        np.putmask(sat, (np.abs(sat) > 1.e-10) & (intensity > 0),
+                   (1 - intensity) * sat + intensity * hsv_max_sat)
+        np.putmask(sat, (np.abs(sat) > 1.e-10) & (intensity < 0),
+                   (1 + intensity) * sat - intensity * hsv_min_sat)
+        np.putmask(val, intensity > 0,
+                   (1 - intensity) * val + intensity * hsv_max_val)
+        np.putmask(val, intensity < 0,
+                   (1 + intensity) * val - intensity * hsv_min_val)
         np.clip(hsv[:, :, 1:], 0, 1, out=hsv[:, :, 1:])
-        # convert modified hsv back to rgb.
+
+        # Convert modified hsv back to rgb.
         return hsv_to_rgb(hsv)
 
     def blend_soft_light(self, rgb, intensity):
