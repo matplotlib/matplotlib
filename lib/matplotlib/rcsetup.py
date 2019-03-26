@@ -472,13 +472,20 @@ validate_fontset = ValidateInStrings(
 validate_mathtext_default = ValidateInStrings(
     'default',
     "rm cal it tt sf bf default bb frak circled scr regular".split())
-validate_verbose = ValidateInStrings(
-    'verbose',
-    ['silent', 'helpful', 'debug', 'debug-annoying'])
 _validate_alignment = ValidateInStrings(
     'alignment',
     ['center', 'top', 'bottom', 'baseline',
      'center_baseline'])
+
+
+_validate_verbose = ValidateInStrings(
+    'verbose',
+    ['silent', 'helpful', 'debug', 'debug-annoying'])
+
+
+@cbook.deprecated("3.1")
+def validate_verbose(s):
+    return _validate_verbose(s)
 
 
 def validate_whiskers(s):
@@ -1006,7 +1013,7 @@ defaultParams = {
     'timezone':          ['UTC', validate_string],
 
     # the verbosity setting
-    'verbose.level': ['silent', validate_verbose],
+    'verbose.level': ['silent', _validate_verbose],
     'verbose.fileo': ['sys.stdout', validate_string],
 
     # line props
