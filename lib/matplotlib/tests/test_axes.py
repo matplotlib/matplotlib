@@ -2823,7 +2823,7 @@ def test_boxplot_not_single():
 
 def test_boxplot_masked_array():
     fig, ax = plt.subplots()
-    data = [1, 2, 3, -1, -1, 6]
+    data = np.array([1, 2, 3, -1, -1, 6])
     data_to_plot = np.ma.masked_less(data, 0)
     ax.boxplot(data_to_plot)
     fig.canvas.draw()
@@ -2832,14 +2832,41 @@ def test_boxplot_masked_array():
 
 def test_boxplot_masked_array_multiple():
     fig, ax = plt.subplots()
-    data1 = [1, 2, 3, -1, -1, 6]
-    data2 = [4, 5, -2]
+    data1 = np.array([1, 2, 3, -1, -1, 6])
+    data2 = np.array([4, 5, -2])
     masked_data1 = np.ma.masked_less(data1, 0)
     masked_data2 = np.ma.masked_less(data2, -1)
     data_to_plot = [masked_data1, masked_data2]
     ax.boxplot(data_to_plot)
     fig.canvas.draw()
     assert ax.get_ylim() == (1, 6)
+
+
+def test_boxplot_masked_array_2d():
+    fig, ax = plt.subplots()
+    data = np.array([[1, 2, 3, -1], [3, 2, -1, 1]])
+    masked_data = np.ma.masked_less(data, 0)
+    ax.boxplot(masked_data)
+    fig.canvas.draw()
+    assert ax.get_ylim() == (1, 3)
+
+
+def test_boxplot_masked_array_no_mask():
+    fig, ax = plt.subplots()
+    data = np.ma.array([1, 2, 3, -1, -1, 6])
+    ax.boxplot(data)
+    fig.canvas.draw()
+    assert ax.get_ylim() == (-1, 6)
+
+
+def test_boxplot_masked_array_multiple_no_mask():
+    fig, ax = plt.subplots()
+    data1 = np.ma.array([1, 2, 3, -1, -1, 6])
+    data2 = np.ma.array([4, 5, -2])
+    data_to_plot = [data1, data2]
+    ax.boxplot(data_to_plot)
+    fig.canvas.draw()
+    assert ax.get_ylim() == (-2, 6)
 
 
 def test_tick_space_size_0():
