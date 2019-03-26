@@ -602,8 +602,8 @@ class FontProperties(object):
     on the font manager's default font size.
 
     This class will also accept a fontconfig_ pattern_, if it is the only
-    argument provided.  This support does not require fontconfig to be
-    installed.  We are merely borrowing its pattern syntax for use here.
+    argument provided.  This support does not depend on fontconfig; we are
+    merely borrowing its pattern syntax for use here.
 
     .. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
     .. _pattern:
@@ -733,8 +733,7 @@ class FontProperties(object):
         Get a fontconfig_ pattern_ suitable for looking up the font as
         specified with fontconfig's ``fc-match`` utility.
 
-        This support does not require fontconfig to be installed or
-        support for it to be enabled.  We are merely borrowing its
+        This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
         return generate_fontconfig_pattern(self)
@@ -843,8 +842,7 @@ class FontProperties(object):
         """
         Set the properties by parsing a fontconfig_ *pattern*.
 
-        This support does not require fontconfig to be installed or
-        support for it to be enabled.  We are merely borrowing its
+        This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
         for key, val in self._parse_fontconfig_pattern(pattern).items():
