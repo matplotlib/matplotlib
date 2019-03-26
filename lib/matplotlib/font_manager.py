@@ -114,6 +114,8 @@ X11FontDirectories = [
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
     # user fonts
+    str(Path(os.environ.get('XDG_DATA_HOME',
+                            Path.home() / ".local/share")) / "fonts"),
     str(Path.home() / ".fonts"),
 ]
 
