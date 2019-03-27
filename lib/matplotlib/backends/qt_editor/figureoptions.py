@@ -44,6 +44,7 @@ def figure_edit(axes, parent=None):
     xmin, xmax = map(float, axes.get_xlim())
     ymin, ymax = map(float, axes.get_ylim())
     general = [('Title', axes.get_title()),
+               ('Size', axes.title().get_size()),
                sep,
                (None, "<b>X-Axis</b>"),
                ('Left', xmin), ('Right', xmax),
@@ -187,15 +188,15 @@ def figure_edit(axes, parent=None):
             raise ValueError("Unexpected field")
 
         # Set / General
-        (title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale,
-         generate_legend) = general
+        (title, titleSize, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel,
+         yscale, generate_legend) = general
 
         if axes.get_xscale() != xscale:
             axes.set_xscale(xscale)
         if axes.get_yscale() != yscale:
             axes.set_yscale(yscale)
 
-        axes.set_title(title)
+        axes.set_title(title, size=titleSize)
         axes.set_xlim(xmin, xmax)
         axes.set_xlabel(xlabel)
         axes.set_ylim(ymin, ymax)
