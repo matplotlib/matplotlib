@@ -1609,13 +1609,14 @@ class Arc(Ellipse):
             The length of the vertical axis.
 
         angle : float
-            Rotation of the ellipse in degrees (anti-clockwise).
+            Rotation of the ellipse in degrees (counterclockwise).
 
         theta1, theta2 : float, optional
             Starting and ending angles of the arc in degrees. These values
-            are relative to *angle*, .e.g. if *angle* = 45 and *theta1* = 90
+            are relative to *angle*, e.g. if *angle* = 45 and *theta1* = 90
             the absolute starting angle is 135.
             Default *theta1* = 0, *theta2* = 360, i.e. a complete ellipse.
+            The arc is drawn in the counterclockwise direction.
 
         Other Parameters
         ----------------
