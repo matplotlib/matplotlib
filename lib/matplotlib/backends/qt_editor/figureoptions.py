@@ -44,7 +44,7 @@ def figure_edit(axes, parent=None):
     xmin, xmax = map(float, axes.get_xlim())
     ymin, ymax = map(float, axes.get_ylim())
     general = [('Title', axes.get_title()),
-               ('Size', axes.title().get_size()),
+               ('Size', axes.title.get_size()),
                sep,
                (None, "<b>X-Axis</b>"),
                ('Left', xmin), ('Right', xmax),
