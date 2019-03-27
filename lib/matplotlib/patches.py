@@ -1617,6 +1617,10 @@ class Arc(Ellipse):
             the absolute starting angle is 135.
             Default *theta1* = 0, *theta2* = 360, i.e. a complete ellipse.
             The arc is drawn in the counterclockwise direction.
+            Negative angles are valid, and increase negatively in the clockwise
+            direction.
+            Angles greater than 360 or smaller than -360 are represented by an
+            equivalent angle in the range (-360, 360).
 
         Other Parameters
         ----------------
