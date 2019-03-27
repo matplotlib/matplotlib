@@ -3070,6 +3070,19 @@ def test_stem(use_line_collection):
     ax.legend()
 
 
+@check_figures_equal(extensions=['png'])
+def test_stem_params(fig_test, fig_ref):
+    x = np.linspace(0, 3.14, 37)
+    y = np.sin(x)
+
+    ax = fig_test.subplots()
+    ax.stem(x, y, linefmt='grey', use_line_collection=True)
+
+    ax = fig_ref.subplots()
+    with pytest.warns(UserWarning):
+        ax.stem(x, y, linefmt='grey')
+
+
 def test_stem_args():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -5705,6 +5718,16 @@ def test_title_xticks_top():
     # Test that title moves if xticks on top of axes.
     fig, ax = plt.subplots()
     ax.xaxis.set_ticks_position('top')
+    ax.set_title('xlabel top')
+    fig.canvas.draw()
+    assert ax.title.get_position()[1] > 1.04
+
+
+def test_title_xticks_top_both():
+    # Test that title moves if xticks on top of axes.
+    fig, ax = plt.subplots()
+    ax.tick_params(axis="x", bottom=True, top=True,
+                             labelbottom=True, labeltop=True)
     ax.set_title('xlabel top')
     fig.canvas.draw()
     assert ax.title.get_position()[1] > 1.04

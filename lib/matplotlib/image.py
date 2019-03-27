@@ -1258,6 +1258,8 @@ class FigureImage(_ImageBase):
 
 class BboxImage(_ImageBase):
     """The Image class whose size is determined by the given bbox."""
+
+    @cbook._delete_parameter("3.1", "interp_at_native")
     def __init__(self, bbox,
                  cmap=None,
                  norm=None,
@@ -1273,16 +1275,7 @@ class BboxImage(_ImageBase):
         cmap is a colors.Colormap instance
         norm is a colors.Normalize instance to map luminance to 0-1
 
-        interp_at_native is a flag that determines whether or not
-        interpolation should still be applied when the image is
-        displayed at its native resolution.  A common use case for this
-        is when displaying an image for annotational purposes; it is
-        treated similarly to Photoshop (interpolation is only used when
-        displaying the image at non-native resolutions).
-
-
         kwargs are an optional list of Artist keyword args
-
         """
         super().__init__(
             None,
@@ -1297,8 +1290,13 @@ class BboxImage(_ImageBase):
         )
 
         self.bbox = bbox
-        self.interp_at_native = interp_at_native
+        self._interp_at_native = interp_at_native
         self._transform = IdentityTransform()
+
+    @cbook.deprecated("3.1")
+    @property
+    def interp_at_native(self):
+        return self._interp_at_native
 
     def get_transform(self):
         return self._transform

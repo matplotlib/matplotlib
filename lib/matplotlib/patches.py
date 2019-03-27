@@ -91,7 +91,6 @@ class Patch(artist.Artist):
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
-        self._combined_transform = transforms.IdentityTransform()
 
         if len(kwargs):
             self.update(kwargs)
@@ -328,19 +327,8 @@ class Patch(artist.Artist):
         self.set_edgecolor(c)
 
     def set_alpha(self, alpha):
-        """
-        Set the alpha transparency of the patch.
-
-        Parameters
-        ----------
-        alpha : float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
+        # docstring inherited
+        super().set_alpha(alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
         # stale is already True
