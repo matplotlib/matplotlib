@@ -475,9 +475,6 @@ class Quiver(mcollections.PolyCollection):
         self.set_UVC(U, V, C)
         self._initialized = False
 
-        self.keyvec = None
-        self.keytext = None
-
         # try to prevent closure over the real self
         weak_self = weakref.ref(self)
 
@@ -498,6 +495,16 @@ class Quiver(mcollections.PolyCollection):
     @property
     def color(self):
         return self.get_facecolor()
+
+    @cbook.deprecated("3.1")
+    @property
+    def keyvec(self):
+        return None
+
+    @cbook.deprecated("3.1")
+    @property
+    def keytext(self):
+        return None
 
     def remove(self):
         """

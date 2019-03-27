@@ -414,15 +414,14 @@ Just for fun, Matplotlib supports plotting in the style of `xkcd
    :scale: 50
 
    xkcd
+
+Subplot example
+===============
+
+Many plot types can be combined in one figure to create
+powerful and flexible representations of data.
 """
 
-###################################################################
-# Subplot example
-# ===============
-#
-# Many plot types can be combined in one figure to create
-# powerful and flexible representations of data.
-#
 import matplotlib.pyplot as plt
 import numpy as np
 

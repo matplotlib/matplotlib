@@ -58,7 +58,12 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
 
 if __name__ == "__main__":
-    qapp = QtWidgets.QApplication(sys.argv)
+    # Check whether there is already a running QApplication (e.g., if running
+    # from an IDE).
+    qapp = QtWidgets.QApplication.instance()
+    if not qapp:
+        qapp = QtWidgets.QApplication(sys.argv)
+
     app = ApplicationWindow()
     app.show()
     qapp.exec_()
