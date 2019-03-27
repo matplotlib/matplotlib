@@ -2566,7 +2566,7 @@ class Axes(_AxesBase):
             The x-positions and extends of the rectangles. For each tuple
             (*xmin*, *xwidth*) a rectangle is drawn from *xmin* to *xmin* +
             *xwidth*.
-        yranges : (*ymin*, *ymax*)
+        yranges : (*ymin*, *ywidth*)
             The y-position and extend for all the rectangles.
 
         Other Parameters
