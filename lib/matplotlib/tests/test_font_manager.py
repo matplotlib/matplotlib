@@ -137,7 +137,8 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
 
     # Precondition: the test font should not be available
     fonts = findSystemFonts()
-    assert not any(font_test_file in font for font in fonts)
+    if any(font_test_file in font for font in fonts):
+        pytest.skip(f'{font_test_file} already exists in system fonts')
 
     # Prepare a temporary user font directory
     user_fonts_dir = tmpdir.join('fonts')
@@ -167,7 +168,8 @@ def test_user_fonts_win32():
 
     # Precondition: the test font should not be available
     fonts = findSystemFonts()
-    assert not any(font_test_file in font for font in fonts)
+    if any(font_test_file in font for font in fonts):
+        pytest.skip(f'{font_test_file} already exists in system fonts')
 
     user_fonts_dir = MSUserFontDirectories[0]
 
