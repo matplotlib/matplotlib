@@ -3,14 +3,17 @@
 Animated 3D random walk
 =======================
 
+This generates 50 lines using random walk
+and animates their creation in a 3D space
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from mpl_toolkits.mplot3d import Axes3D
 
 # Fixing random state for reproducibility
-np.random.seed(19680801)
+np.random.seed(20160425)
 
 
 def gen_rand_line(length, dims=2):
@@ -42,7 +45,7 @@ def update_lines(num, dataLines, lines):
 
 # Attaching 3D axis to the figure
 fig = plt.figure()
-ax = fig.add_subplot(projection="3d")
+ax = fig.add_subplot(111, projection="3d")
 
 # Fifty lines of random 3-D lines
 data = [gen_rand_line(25, 3) for index in range(50)]
