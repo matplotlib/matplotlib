@@ -1605,8 +1605,8 @@ class Arc(Ellipse):
             the absolute starting angle is 135.
             Default *theta1* = 0, *theta2* = 360, i.e. a complete ellipse.
             The arc is drawn in the counterclockwise direction.
-            Angles greater than or equal to 360, or smaller than 0, are 
-            represented by an equivalent angle in the range [0, 360), by 
+            Angles greater than or equal to 360, or smaller than 0, are
+            represented by an equivalent angle in the range [0, 360), by
             taking the input value mod 360.
 
         Other Parameters
