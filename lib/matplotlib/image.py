@@ -1379,12 +1379,20 @@ def imread(fname, format=None):
     if format is None:
         if isinstance(fname, str):
             parsed = urllib.parse.urlparse(fname)
-            # If the string is a URL, assume png
+            # If the string is a URL (Windows paths appear as if they have a
+            # length-1 scheme), assume png.
             if len(parsed.scheme) > 1:
                 ext = 'png'
             else:
                 basename, ext = os.path.splitext(fname)
                 ext = ext.lower()[1:]
+        elif hasattr(fname, 'geturl'):  # Returned by urlopen().
+            # We could try to parse the url's path and use the extension, but
+            # returning png is consistent with the block above.  Note that this
+            # if clause has to come before checking for fname.name as
+            # urlopen("file:///...") also has a name attribute (with the fixed
+            # value "<urllib response>").
+            ext = 'png'
         elif hasattr(fname, 'name'):
             basename, ext = os.path.splitext(fname.name)
             ext = ext.lower()[1:]
