@@ -478,6 +478,13 @@ def test_axes3d_cla():
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
 
 
+@image_comparison(['axes3d_rotated.png'])
+def test_axes3d_rotated():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, projection='3d')
+    ax.view_init(90, 45)  # look down, rotated. Should be square
+
+
 def test_plotsurface_1d_raises():
     x = np.linspace(0.5, 10, num=100)
     y = np.linspace(0.5, 10, num=100)
