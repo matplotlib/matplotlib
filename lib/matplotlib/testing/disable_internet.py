@@ -4,6 +4,10 @@
 import contextlib
 import socket
 
+from matplotlib import cbook
+cbook.warn_deprecated("3.2", name=__name__, obj_type="module",
+                      alternative="pytest-remotedata")
+
 # save original socket method for restoration
 # These are global so that re-calling the turn_off_internet function doesn't
 # overwrite them again

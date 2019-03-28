@@ -30,15 +30,6 @@
    :show-inheritance:
 
 
-:mod:`matplotlib.testing.disable_internet`
-==========================================
-
-.. automodule:: matplotlib.testing.disable_internet
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 :mod:`matplotlib.testing.exceptions`
 ====================================
 
