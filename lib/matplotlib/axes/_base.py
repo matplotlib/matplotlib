@@ -1499,9 +1499,9 @@ class _AxesBase(martist.Artist):
         """
         Adjust the Axes for a specified data aspect ratio.
 
-        Depending on `.get_adjustable` this will modify either the Axes box
-        (position) or the view limits. In the former case, `.get_anchor`
-        will affect the position.
+        Depending on `.get_adjustable` this will modify either the
+        Axes box (position) or the view limits. In the former case,
+        `~matplotlib.axes.Axes.get_anchor` will affect the position.
 
         Notes
         -----
