@@ -862,6 +862,11 @@ figcaption {
 
 
 
+#GSOC-banner a {
+  color: #fff;
+  text-decoration:underline;
+}
+
 #plotting-contest a {
   color: #fff;
   text-decoration:underline;
