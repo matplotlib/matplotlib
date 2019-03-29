@@ -169,7 +169,6 @@ class Axes(_AxesBase):
             properties.
         """
         try:
-
             if loc is None:
                 loc = rcParams['axes.titlelocation']
 
