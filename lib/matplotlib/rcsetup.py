@@ -998,6 +998,8 @@ def _validate_linestyle(ls):
                          "sequence.".format(ls))
 
 
+validate_axes_titlelocation = ValidateInStrings('axes.titlelocation', ['left', 'center', 'right'])
+
 # a map from key -> value, converter
 defaultParams = {
     'backend':           [_auto_backend_sentinel, validate_backend],
@@ -1180,7 +1182,7 @@ defaultParams = {
 
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
-    'axes.titlelocation':    ['center', validate_string],  # alignment of axes title
+    'axes.titlelocation':    ['center', validate_axes_titlelocation],  # alignment of axes title
     'axes.titleweight':      ['normal', validate_string],  # font weight of axes title
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
