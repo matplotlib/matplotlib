@@ -363,7 +363,7 @@ def _get_executable_info(name):
                 for name in ["convert.exe", "magick.exe"]:
                     candidate = Path(binpath, name)
                     if candidate.exists():
-                        path = candidate
+                        path = str(candidate)
                         break
         else:
             path = "convert"
