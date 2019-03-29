@@ -174,10 +174,35 @@ etc., you can install the following:
 
 .. note::
 
-   Matplotlib depends on non-Python libraries. `pkg-config
-   <https://www.freedesktop.org/wiki/Software/pkg-config/>`_ can be used
-   to find required non-Python libraries and thus make the install go more
-   smoothly if the libraries and headers are not in the expected locations.
+   Matplotlib depends on non-Python libraries.
+
+   On Linux and OSX, pkg-config_ can be used to find required non-Python
+   libraries and thus make the install go more smoothly if the libraries and
+   headers are not in the expected locations.
+
+   .. _pkg-config: https://www.freedesktop.org/wiki/Software/pkg-config/
+
+   If not using pkg-config (in particular on Windows), you may need to set the
+   include path (to the FreeType, libpng, and zlib headers) and link path (to
+   the FreeType, libpng, and zlib libraries) explicitly, if they are not in
+   standard locations.  This can be done using standard environment variables
+   -- on Linux and OSX:
+
+   .. code-block:: sh
+
+      export CFLAGS='-I/directory/containing/ft2build.h ...'
+      export LDFLAGS='-L/directory/containing/libfreetype.so ...'
+
+   and on Windows:
+
+   .. code-block:: bat
+
+      set CL=/IC:\directory\containing\ft2build.h ...
+      set LINK=/LIBPATH:C:\directory\containing\freetype.lib ...
+
+   where ``...`` means "also give, in the same format, the directories
+   containing ``png.h`` and ``zlib.h`` for the include path, and for
+   ``libpng.so``/``png.lib`` and ``libz.so``/``z.lib`` for the link path."
 
 .. note::
 

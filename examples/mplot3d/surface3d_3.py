@@ -36,6 +36,6 @@ surf = ax.plot_surface(X, Y, Z, facecolors=colors, linewidth=0)
 
 # Customize the z axis.
 ax.set_zlim(-1, 1)
-ax.w_zaxis.set_major_locator(LinearLocator(6))
+ax.zaxis.set_major_locator(LinearLocator(6))
 
 plt.show()

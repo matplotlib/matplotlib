@@ -541,7 +541,6 @@
                                 ## leave empty to always use current working directory
 #savefig.transparent : False    ## setting that controls whether figures are saved with a
                                 ## transparent background by default
-#savefig.frameon : True			## enable frame of figure when saving
 #savefig.orientation : portrait	## Orientation of saved figure
 
 ### tk backend params

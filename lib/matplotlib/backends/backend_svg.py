@@ -283,7 +283,6 @@ class RendererSVG(RendererBase):
             self.basename = basename
             self._imaged = {}
         self._clipd = OrderedDict()
-        self._char_defs = {}
         self._markers = {}
         self._path_collection_id = 0
         self._imaged = {}
@@ -318,7 +317,9 @@ class RendererSVG(RendererBase):
         writer = self.writer
         default_style = generate_css({
             'stroke-linejoin': 'round',
-            'stroke-linecap': 'butt'})
+            'stroke-linecap': 'butt',
+            'white-space': 'pre',
+        })
         writer.start('defs')
         writer.start('style', type='text/css')
         writer.data('*{%s}\n' % default_style)

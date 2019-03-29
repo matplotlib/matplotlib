@@ -517,8 +517,6 @@ def createFontList(fontfiles, fontext='ttf'):
         fname = os.path.split(fpath)[1]
         if fname in seen:
             continue
-        else:
-            seen.add(fname)
         if fontext == 'afm':
             try:
                 with open(fpath, 'rb') as fh:
@@ -531,26 +529,29 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
             try:
                 prop = afmFontProperty(fpath, font)
-            except KeyError:
+            except KeyError as exc:
+                _log.info("Could not extract properties for %s: %s",
+                          fpath, exc)
                 continue
         else:
             try:
                 font = ft2font.FT2Font(fpath)
-            except RuntimeError:
-                _log.info("Could not open font file %s", fpath)
+            except (OSError, RuntimeError) as exc:
+                _log.info("Could not open font file %s: %s", fpath, exc)
                 continue
             except UnicodeError:
                 _log.info("Cannot handle unicode filenames")
                 continue
-            except OSError:
-                _log.info("IO error - cannot open font file %s", fpath)
-                continue
             try:
                 prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError, ValueError, NotImplementedError):
+            except (KeyError, RuntimeError, ValueError,
+                    NotImplementedError) as exc:
+                _log.info("Could not extract properties for %s: %s",
+                          fpath, exc)
                 continue
 
         fontlist.append(prop)
+        seen.add(fname)
     return fontlist
 
 
@@ -601,8 +602,8 @@ class FontProperties(object):
     on the font manager's default font size.
 
     This class will also accept a fontconfig_ pattern_, if it is the only
-    argument provided.  This support does not require fontconfig to be
-    installed.  We are merely borrowing its pattern syntax for use here.
+    argument provided.  This support does not depend on fontconfig; we are
+    merely borrowing its pattern syntax for use here.
 
     .. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
     .. _pattern:
@@ -732,8 +733,7 @@ class FontProperties(object):
         Get a fontconfig_ pattern_ suitable for looking up the font as
         specified with fontconfig's ``fc-match`` utility.
 
-        This support does not require fontconfig to be installed or
-        support for it to be enabled.  We are merely borrowing its
+        This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
         return generate_fontconfig_pattern(self)
@@ -842,8 +842,7 @@ class FontProperties(object):
         """
         Set the properties by parsing a fontconfig_ *pattern*.
 
-        This support does not require fontconfig to be installed or
-        support for it to be enabled.  We are merely borrowing its
+        This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
         for key, val in self._parse_fontconfig_pattern(pattern).items():

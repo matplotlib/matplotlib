@@ -1595,7 +1595,7 @@ class _AxesBase(martist.Artist):
         Call signatures::
 
           xmin, xmax, ymin, ymax = axis()
-          xmin, xmax, ymin, ymax = axis(xmin, xmax, ymin, ymax)
+          xmin, xmax, ymin, ymax = axis([xmin, xmax, ymin, ymax])
           xmin, xmax, ymin, ymax = axis(option)
           xmin, xmax, ymin, ymax = axis(**kwargs)
 
@@ -2439,6 +2439,16 @@ class _AxesBase(martist.Artist):
                 dl.extend(y_finite)
 
             bb = mtransforms.BboxBase.union(dl)
+            # fall back on the viewlimits if this is not finite:
+            vl = None
+            if not np.isfinite(bb.intervalx).all():
+                vl = mtransforms.BboxBase.union([ax.viewLim for ax in shared])
+                bb.intervalx = vl.intervalx
+            if not np.isfinite(bb.intervaly).all():
+                if vl is None:
+                    vl = mtransforms.BboxBase.union(
+                        [ax.viewLim for ax in shared])
+                bb.intervaly = vl.intervaly
             x0, x1 = getattr(bb, interval)
             locator = axis.get_major_locator()
             x0, x1 = locator.nonsingular(x0, x1)
@@ -2504,10 +2514,8 @@ class _AxesBase(martist.Artist):
                     return
             self._autotitlepos = True
 
-        ymax = -10
         for title in titles:
-            x, y0 = title.get_position()
-            y = 1
+            x, _ = title.get_position()
             # need to start again in case of window resizing
             title.set_position((x, 1.0))
             # need to check all our twins too...
@@ -2524,19 +2532,15 @@ class _AxesBase(martist.Artist):
                     axs = axs + [ax]
             top = 0
             for ax in axs:
-                try:
-                    if (ax.xaxis.get_label_position() == 'top'
-                            or ax.xaxis.get_ticks_position() == 'top'):
-                        bb = ax.xaxis.get_tightbbox(renderer)
-                    else:
-                        bb = ax.get_window_extent(renderer)
+                if (ax.xaxis.get_ticks_position() in ['top', 'unknown']
+                        or ax.xaxis.get_label_position() == 'top'):
+                    bb = ax.xaxis.get_tightbbox(renderer)
+                else:
+                    bb = ax.get_window_extent(renderer)
+                if bb is not None:
                     top = max(top, bb.ymax)
-                except AttributeError:
-                    # this happens for an empty bb
-                    y = 1
             if title.get_window_extent(renderer).ymin < top:
-                y = self.transAxes.inverted().transform(
-                        (0., top))[1]
+                _, y = self.transAxes.inverted().transform((0, top))
                 title.set_position((x, y))
                 # empirically, this doesn't always get the min to top,
                 # so we need to adjust again.
@@ -2544,10 +2548,11 @@ class _AxesBase(martist.Artist):
                     _, y = self.transAxes.inverted().transform(
                         (0., 2 * top - title.get_window_extent(renderer).ymin))
                     title.set_position((x, y))
-            ymax = max(y, ymax)
+
+        ymax = max(title.get_position()[1] for title in titles)
         for title in titles:
             # now line up all the titles at the highest baseline.
-            x, y0 = title.get_position()
+            x, _ = title.get_position()
             title.set_position((x, ymax))
 
     # Drawing

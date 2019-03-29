@@ -84,7 +84,6 @@ install:
   # and for the wheels
   - del %LIBRARY_LIB%\png.lib
   - del %LIBRARY_LIB%\z.lib
-  - set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
   # enables the local freetype build
   - set MPLLOCALFREETYPE=1
   # Show the installed packages + versions
@@ -92,6 +91,7 @@ install:
 
 test_script:
   # Now build the thing..
+  - set LINK=/LIBPATH:%cd%\lib
   - pip install -ve .
   # these should show no z, png, or freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"

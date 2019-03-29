@@ -266,15 +266,15 @@ def test_inverted_cla():
     plt.close(fig)
 
 
-@image_comparison(baseline_images=["minorticks_on_rcParams_both"],
-                  extensions=['png'])
-def test_minorticks_on_rcParams_both():
-    fig = plt.figure()
-    matplotlib.rcParams['xtick.minor.visible'] = True
-    matplotlib.rcParams['ytick.minor.visible'] = True
-
-    plt.plot([0, 1], [0, 1])
-    plt.axis([0, 1, 0, 1])
+@check_figures_equal(extensions=["png"])
+def test_minorticks_on_rcParams_both(fig_test, fig_ref):
+    with matplotlib.rc_context({"xtick.minor.visible": True,
+                                "ytick.minor.visible": True}):
+        ax_test = fig_test.subplots()
+        ax_test.plot([0, 1], [0, 1])
+    ax_ref = fig_ref.subplots()
+    ax_ref.plot([0, 1], [0, 1])
+    ax_ref.minorticks_on()
 
 
 @image_comparison(baseline_images=["autoscale_tiny_range"], remove_text=True)
@@ -377,6 +377,12 @@ def test_arrow_simple():
                  head_starts_at_zero=head_starts_at_zero,
                  head_width=theta / 10,
                  head_length=theta / 10)
+
+
+def test_arrow_empty():
+    _, ax = plt.subplots()
+    # Create an empty FancyArrow
+    ax.arrow(0, 0, 0, 0, head_length=0)
 
 
 def test_annotate_default_arrow():
@@ -3064,6 +3070,19 @@ def test_stem(use_line_collection):
     ax.legend()
 
 
+@check_figures_equal(extensions=['png'])
+def test_stem_params(fig_test, fig_ref):
+    x = np.linspace(0, 3.14, 37)
+    y = np.sin(x)
+
+    ax = fig_test.subplots()
+    ax.stem(x, y, linefmt='grey', use_line_collection=True)
+
+    ax = fig_ref.subplots()
+    with pytest.warns(UserWarning):
+        ax.stem(x, y, linefmt='grey')
+
+
 def test_stem_args():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -5184,6 +5203,21 @@ def test_pcolorfast_colormapped(xy, cls):
     assert type(ax.pcolorfast(*xy, data)) == cls
 
 
+def test_pcolor_fast_RGB():
+
+    fig, ax = plt.subplots(1, 1)
+
+    np.random.seed(19680801)
+    C = np.random.rand(10, 10, 3)  # RGB image [0,1]
+    x = np.arange(11, dtype=np.float)
+    y = np.arange(11, dtype=np.float)
+
+    xv, yv = np.meshgrid(x, y)
+
+    with pytest.raises(ValueError):
+        ax.pcolorfast(xv, yv, C)
+
+
 def test_shared_scale():
     fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
 
@@ -5684,6 +5718,16 @@ def test_title_xticks_top():
     # Test that title moves if xticks on top of axes.
     fig, ax = plt.subplots()
     ax.xaxis.set_ticks_position('top')
+    ax.set_title('xlabel top')
+    fig.canvas.draw()
+    assert ax.title.get_position()[1] > 1.04
+
+
+def test_title_xticks_top_both():
+    # Test that title moves if xticks on top of axes.
+    fig, ax = plt.subplots()
+    ax.tick_params(axis="x", bottom=True, top=True,
+                             labelbottom=True, labeltop=True)
     ax.set_title('xlabel top')
     fig.canvas.draw()
     assert ax.title.get_position()[1] > 1.04
@@ -6271,6 +6315,14 @@ def test_minor_accountedfor():
                            atol=1e-2)
 
 
+def test_get_tightbbox_polar():
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    fig.canvas.draw()
+    bb = ax.get_tightbbox(fig.canvas.get_renderer())
+    assert_allclose(bb.extents,
+        [107.7778,  29.2778, 539.7847, 450.7222], rtol=1e-03)
+
+
 @check_figures_equal(extensions=["png"])
 def test_axis_bool_arguments(fig_test, fig_ref):
     # Test if False and "off" give the same
@@ -6281,3 +6333,16 @@ def test_axis_bool_arguments(fig_test, fig_ref):
     ax.axis(False)
     ax.axis(True)
     fig_ref.add_subplot(212).axis("on")
+
+
+def test_datetime_masked():
+    # make sure that all-masked data falls back to the viewlim
+    # set in convert.axisinfo....
+    x = np.array([datetime.datetime(2017, 1, n) for n in range(1, 6)])
+    y = np.array([1, 2, 3, 4, 5])
+    m = np.ma.masked_greater(y, 0)
+
+    fig, ax = plt.subplots()
+    ax.plot(x, m)
+    # these are the default viewlim
+    assert ax.get_xlim() == (730120.0, 733773.0)

@@ -1837,7 +1837,6 @@ class SpanSelector(_SelectorWidget):
         """on button release event"""
         if self.pressv is None:
             return
-        self.buttonDown = False
 
         self.rect.set_visible(False)
 
@@ -1863,6 +1862,11 @@ class SpanSelector(_SelectorWidget):
             return
         self.onselect(vmin, vmax)
         self.pressv = None
+        return False
+
+    @cbook.deprecated("3.1")
+    @property
+    def buttonDown(self):
         return False
 
     def _onmove(self, event):
@@ -2003,7 +2007,7 @@ class RectangleSelector(_SelectorWidget):
         ax.plot(x, y)
 
         toggle_selector.RS = RectangleSelector(ax, onselect, drawtype='line')
-        fig.canvas.connect('key_press_event', toggle_selector)
+        fig.canvas.mpl_connect('key_press_event', toggle_selector)
         plt.show()
     """
 
@@ -2432,7 +2436,7 @@ class EllipseSelector(RectangleSelector):
         ax.plot(x, y)
 
         toggle_selector.ES = EllipseSelector(ax, onselect, drawtype='line')
-        fig.canvas.connect('key_press_event', toggle_selector)
+        fig.canvas.mpl_connect('key_press_event', toggle_selector)
         plt.show()
     """
     _shape_klass = Ellipse

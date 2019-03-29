@@ -34,6 +34,7 @@ graphics contexts must implement to serve as a matplotlib backend
 
 from contextlib import contextmanager
 from enum import IntEnum
+import functools
 import importlib
 import io
 import logging
@@ -44,6 +45,7 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import (
     backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
     widgets, get_backend, is_interactive, rcParams)
@@ -1037,7 +1039,7 @@ class GraphicsContextBase(object):
 
 
 class TimerBase(object):
-    '''
+    """
     A base class for providing timer events, useful for things animations.
     Backends need to implement a few specific methods in order to use their
     own timing mechanisms so that the timer events are integrated into their
@@ -1080,8 +1082,7 @@ class TimerBase(object):
         Stores list of (func, args, kwargs) tuples that will be called upon
         timer events. This list can be manipulated directly, or the
         functions `add_callback` and `remove_callback` can be used.
-
-    '''
+    """
     def __init__(self, interval=None, callbacks=None):
         #Initialize empty callbacks list and setup default settings if necssary
         if callbacks is None:
@@ -1100,22 +1101,25 @@ class TimerBase(object):
         self._timer = None
 
     def __del__(self):
-        'Need to stop timer and possibly disconnect timer.'
+        """Need to stop timer and possibly disconnect timer."""
         self._timer_stop()
 
     def start(self, interval=None):
-        '''
-        Start the timer object. `interval` is optional and will be used
-        to reset the timer interval first if provided.
-        '''
+        """
+        Start the timer object.
+
+        Parameters
+        ----------
+        interval : int, optional
+            Timer interval in milliseconds; overrides a previously set interval
+            if provided.
+        """
         if interval is not None:
             self._set_interval(interval)
         self._timer_start()
 
     def stop(self):
-        '''
-        Stop the timer.
-        '''
+        """Stop the timer."""
         self._timer_stop()
 
     def _timer_start(self):
@@ -1146,19 +1150,33 @@ class TimerBase(object):
         self._timer_set_single_shot()
 
     def add_callback(self, func, *args, **kwargs):
-        '''
+        """
         Register *func* to be called by timer when the event fires. Any
         additional arguments provided will be passed to *func*.
-        '''
+
+        This function returns *func*, which makes it possible to use it as a
+        decorator.
+        """
         self.callbacks.append((func, args, kwargs))
+        return func
 
     def remove_callback(self, func, *args, **kwargs):
-        '''
-        Remove *func* from list of callbacks. *args* and *kwargs* are optional
-        and used to distinguish between copies of the same function registered
-        to be called with different arguments.
-        '''
+        """
+        Remove *func* from list of callbacks.
+
+        *args* and *kwargs* are optional and used to distinguish between copies
+        of the same function registered to be called with different arguments.
+        This behavior is deprecated.  In the future, `*args, **kwargs` won't be
+        considered anymore; to keep a specific callback removable by itself,
+        pass it to `add_callback` as a `functools.partial` object.
+        """
         if args or kwargs:
+            cbook.warn_deprecated(
+                "3.1", "In a future version, Timer.remove_callback will not "
+                "take *args, **kwargs anymore, but remove all callbacks where "
+                "the callable matches; to keep a specific callback removable "
+                "by itself, pass it to add_callback as a functools.partial "
+                "object.")
             self.callbacks.remove((func, args, kwargs))
         else:
             funcs = [c[0] for c in self.callbacks]
@@ -1172,11 +1190,11 @@ class TimerBase(object):
         """Used to set single shot on underlying timer object."""
 
     def _on_timer(self):
-        '''
+        """
         Runs all function that have been registered as callbacks. Functions
         can return False (or 0) if they should not be called any more. If there
         are no callbacks, the timer is automatically stopped.
-        '''
+        """
         for func, args, kwargs in self.callbacks:
             ret = func(*args, **kwargs)
             # docstring above explains why we use `if ret == 0` here,
@@ -1563,6 +1581,7 @@ class FigureCanvasBase(object):
                          'Tagged Image File Format')
 
     def __init__(self, figure):
+        self._fix_ipython_backend2gui()
         self._is_idle_drawing = True
         self._is_saving = False
         figure.set_canvas(self)
@@ -1578,6 +1597,40 @@ class FigureCanvasBase(object):
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
+
+    @classmethod
+    @functools.lru_cache()
+    def _fix_ipython_backend2gui(cls):
+        # Fix hard-coded module -> toolkit mapping in IPython (used for
+        # `ipython --auto`).  This cannot be done at import time due to
+        # ordering issues, so we do it when creating a canvas, and should only
+        # be done once per class (hence the `lru_cache(1)`).
+        if "IPython" not in sys.modules:
+            return
+        import IPython
+        ip = IPython.get_ipython()
+        if not ip:
+            return
+        from IPython.core import pylabtools as pt
+        if (not hasattr(pt, "backend2gui")
+                or not hasattr(ip, "enable_matplotlib")):
+            # In case we ever move the patch to IPython and remove these APIs,
+            # don't break on our side.
+            return
+        backend_mod = sys.modules[cls.__module__]
+        rif = getattr(backend_mod, "required_interactive_framework", None)
+        backend2gui_rif = {"qt5": "qt", "qt4": "qt", "gtk3": "gtk3",
+                           "wx": "wx", "macosx": "osx"}.get(rif)
+        if backend2gui_rif:
+            pt.backend2gui[get_backend()] = backend2gui_rif
+            # Work around pylabtools.find_gui_and_backend always reading from
+            # rcParamsOrig.
+            orig_origbackend = mpl.rcParamsOrig["backend"]
+            try:
+                mpl.rcParamsOrig["backend"] = mpl.rcParams["backend"]
+                ip.enable_matplotlib()
+            finally:
+                mpl.rcParamsOrig["backend"] = orig_origbackend
 
     @contextmanager
     def _idle_draw_cntx(self):
@@ -3216,8 +3269,10 @@ class _Backend(object):
                 cls.trigger_manager_draw(manager)
 
     @classmethod
+    @cbook._make_keyword_only("3.1", "block")
     def show(cls, block=None):
-        """Show all figures.
+        """
+        Show all figures.
 
         `show` blocks by calling `mainloop` if *block* is ``True``, or if it
         is ``None`` and we are neither in IPython's ``%pylab`` mode, nor in

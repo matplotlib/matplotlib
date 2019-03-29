@@ -23,9 +23,5 @@ mkdir lib || cmd /c "exit /b 0"
 copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
 copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
 
-:: Make the header files and the rest of the static libs available during the build
-:: CONDA_PREFIX is a env variable which is set to the currently active environment path
-set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
-
 :: build the target
 python setup.py %TARGET%

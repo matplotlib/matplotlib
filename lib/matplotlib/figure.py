@@ -2032,7 +2032,7 @@ default: 'top'
         """Whenever the axes state change, ``func(self)`` will be called."""
         self._axobservers.append(func)
 
-    def savefig(self, fname, *, frameon=None, transparent=None, **kwargs):
+    def savefig(self, fname, *, transparent=None, **kwargs):
         """
         Save the current figure.
 
@@ -2114,11 +2114,6 @@ default: 'top'
             transparency of these patches will be restored to their
             original values upon exit of this function.
 
-        frameon : bool
-            If *True*, the figure patch will be colored, if *False*, the
-            figure background will be transparent.  If not provided, the
-            rcParam 'savefig.frameon' will be used.
-
         bbox_inches : str or `~matplotlib.transforms.Bbox`, optional
             Bbox in inches. Only the given portion of the figure is
             saved. If 'tight', try to figure out the tight bbox of
@@ -2150,8 +2145,14 @@ default: 'top'
         """
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
-        if frameon is None:
-            frameon = rcParams['savefig.frameon']
+        if "frameon" in kwargs:
+            cbook.warn_deprecated("3.1", name="frameon", obj_type="kwarg",
+                                  alternative="facecolor")
+            frameon = kwargs.pop("frameon")
+            if frameon is None:
+                frameon = dict.__getitem__(rcParams, 'savefig.frameon')
+        else:
+            frameon = False  # Won't pass "if frameon:" below.
         if transparent is None:
             transparent = rcParams['savefig.transparent']
 
@@ -2296,7 +2297,6 @@ default: 'top'
         terminates input and any other key (not already used by the window
         manager) selects a point.
         """
-
         blocking_mouse_input = BlockingMouseInput(self,
                                                   mouse_add=mouse_add,
                                                   mouse_pop=mouse_pop,
@@ -2314,7 +2314,6 @@ default: 'top'
 
         If *timeout* is negative, does not timeout.
         """
-
         blocking_input = BlockingKeyMouseInput(self)
         return blocking_input(timeout=timeout)
 

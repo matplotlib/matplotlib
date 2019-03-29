@@ -702,28 +702,11 @@ def savefig(*args, **kwargs):
 
 @docstring.copy(Figure.ginput)
 def ginput(*args, **kwargs):
-    """
-    Blocking call to interact with the figure.
-
-    This will wait for *n* clicks from the user and return a list of the
-    coordinates of each click.
-
-    If *timeout* is negative, does not timeout.
-    """
     return gcf().ginput(*args, **kwargs)
 
 
 @docstring.copy(Figure.waitforbuttonpress)
 def waitforbuttonpress(*args, **kwargs):
-    """
-    Blocking call to interact with the figure.
-
-    This will wait for *n* key or mouse clicks from the user and
-    return a list containing True's for keyboard clicks and False's
-    for mouse clicks.
-
-    If *timeout* is negative, does not timeout.
-    """
     return gcf().waitforbuttonpress(*args, **kwargs)
 
 

@@ -91,7 +91,6 @@ class Patch(artist.Artist):
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
-        self._combined_transform = transforms.IdentityTransform()
 
         if len(kwargs):
             self.update(kwargs)
@@ -328,19 +327,8 @@ class Patch(artist.Artist):
         self.set_edgecolor(c)
 
     def set_alpha(self, alpha):
-        """
-        Set the alpha transparency of the patch.
-
-        Parameters
-        ----------
-        alpha : float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
+        # docstring inherited
+        super().set_alpha(alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
         # stale is already True
@@ -1269,7 +1257,7 @@ class FancyArrow(Polygon):
         else:
             length = distance + head_length
         if not length:
-            verts = []  # display nothing if empty
+            verts = np.empty([0, 2])  # display nothing if empty
         else:
             # start by drawing horizontal arrow, point at (0,0)
             hw, hl, hs, lw = head_width, head_length, overhang, width
@@ -4020,6 +4008,9 @@ class FancyArrowPatch(Patch):
         -----
         Valid kwargs are:
         %(Patch)s
+
+        In contrast to other patches, the default ``capstyle`` and
+        ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
         """
         if arrow_transmuter is not None:
             cbook.warn_deprecated(
@@ -4035,6 +4026,10 @@ class FancyArrowPatch(Patch):
                          ' and will be removed in Matplotlib 3.1'),
                 name='connector',
                 obj_type='keyword argument')
+        # Traditionally, the cap- and joinstyle for FancyArrowPatch are round
+        kwargs.setdefault("joinstyle", "round")
+        kwargs.setdefault("capstyle", "round")
+
         Patch.__init__(self, **kwargs)
 
         if posA is not None and posB is not None and path is None:
@@ -4284,9 +4279,7 @@ class FancyArrowPatch(Patch):
         if not self.get_visible():
             return
 
-        # FancyArrowPatch has traditionally forced the capstyle and joinstyle.
-        with cbook._setattr_cm(self, _capstyle='round', _joinstyle='round'), \
-                self._bind_draw_path_function(renderer) as draw_path:
+        with self._bind_draw_path_function(renderer) as draw_path:
 
             # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
             # could be room for improvement.

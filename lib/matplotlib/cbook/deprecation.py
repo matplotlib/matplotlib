@@ -24,16 +24,16 @@ mplDeprecation = MatplotlibDeprecationWarning
 def _generate_deprecation_warning(
         since, message='', name='', alternative='', pending=False,
         obj_type='attribute', addendum='', *, removal=''):
-
-    if removal == "":
-        removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
-            since, "two minor releases later")
-    elif removal:
-        if pending:
+    if pending:
+        if removal:
             raise ValueError(
                 "A pending deprecation cannot have a scheduled removal")
-        removal = "in {}".format(removal)
-
+    else:
+        if removal:
+            removal = "in {}".format(removal)
+        else:
+            removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
+                since, "two minor releases later")
     if not message:
         message = (
             "\nThe %(name)s %(obj_type)s"
@@ -46,10 +46,8 @@ def _generate_deprecation_warning(
             + "."
             + (" Use %(alternative)s instead." if alternative else "")
             + (" %(addendum)s" if addendum else ""))
-
     warning_cls = (PendingDeprecationWarning if pending
                    else MatplotlibDeprecationWarning)
-
     return warning_cls(message % dict(
         func=name, name=name, obj_type=obj_type, since=since, removal=removal,
         alternative=alternative, addendum=addendum))
@@ -366,6 +364,50 @@ def _delete_parameter(since, name, func=None):
                 f"is deprecated since Matplotlib {since} and will be removed "
                 f"%(removal)s.  If any parameter follows {name!r}, they "
                 f"should be pass as keyword, not positionally.")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def _make_keyword_only(since, name, func=None):
+    """
+    Decorator indicating that passing parameter *name* (or any of the following
+    ones) positionally to *func* is being deprecated.
+
+    Note that this decorator **cannot** be applied to a function that has a
+    pyplot-level wrapper, as the wrapper always pass all arguments by keyword.
+    If it is used, users will see spurious DeprecationWarnings every time they
+    call the pyplot wrapper.
+    """
+
+    if func is None:
+        return functools.partial(_make_keyword_only, since, name)
+
+    signature = inspect.signature(func)
+    POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
+    KWO = inspect.Parameter.KEYWORD_ONLY
+    assert (name in signature.parameters
+            and signature.parameters[name].kind == POK), (
+        f"Matplotlib internal error: {name!r} must be a positional-or-keyword "
+        f"parameter for {func.__name__}()")
+    names = [*signature.parameters]
+    kwonly = [name for name in names[names.index(name):]
+              if signature.parameters[name].kind == POK]
+    func.__signature__ = signature.replace(parameters=[
+        param.replace(kind=inspect.Parameter.KEYWORD_ONLY)
+        if param.name in kwonly
+        else param
+        for param in signature.parameters.values()])
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        bound = signature.bind(*args, **kwargs)
+        if name in bound.arguments and name not in kwargs:
+            warn_deprecated(
+                since, message="Passing the %(name)s %(obj_type)s "
+                "positionally is deprecated since Matplotlib %(since)s; the "
+                "parameter will become keyword-only %(removal)s.",
+                name=name, obj_type=f"parameter of {func.__name__}()")
         return func(*args, **kwargs)
 
     return wrapper

@@ -2569,7 +2569,7 @@ class Axes(_AxesBase):
             The x-positions and extends of the rectangles. For each tuple
             (*xmin*, *xwidth*) a rectangle is drawn from *xmin* to *xmin* +
             *xwidth*.
-        yranges : (*ymin*, *ymax*)
+        yrange : (*ymin*, *yheight*)
             The y-position and extend for all the rectangles.
 
         Other Parameters
@@ -2782,8 +2782,9 @@ class Axes(_AxesBase):
 
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
         if use_line_collection:
-            stemlines = []
             stemlines = [((xi, bottom), (xi, yi)) for xi, yi in zip(x, y)]
+            if linestyle is None:
+                linestyle = rcParams['lines.linestyle']
             stemlines = mcoll.LineCollection(stemlines, linestyles=linestyle,
                                              colors=linecolor,
                                              label='_nolegend_')
@@ -4678,26 +4679,14 @@ optional.
         if C is None:
             lattice1 = np.zeros((nx1, ny1))
             lattice2 = np.zeros((nx2, ny2))
-
-            cond1 = (0 <= ix1) * (ix1 < nx1) * (0 <= iy1) * (iy1 < ny1)
-            cond2 = (0 <= ix2) * (ix2 < nx2) * (0 <= iy2) * (iy2 < ny2)
-
-            cond1 *= bdist
-            cond2 *= np.logical_not(bdist)
-            ix1, iy1 = ix1[cond1], iy1[cond1]
-            ix2, iy2 = ix2[cond2], iy2[cond2]
-
-            for ix, iy in zip(ix1, iy1):
-                lattice1[ix, iy] += 1
-            for ix, iy in zip(ix2, iy2):
-                lattice2[ix, iy] += 1
-
-            # threshold
+            c1 = (0 <= ix1) & (ix1 < nx1) & (0 <= iy1) & (iy1 < ny1) & bdist
+            c2 = (0 <= ix2) & (ix2 < nx2) & (0 <= iy2) & (iy2 < ny2) & ~bdist
+            np.add.at(lattice1, (ix1[c1], iy1[c1]), 1)
+            np.add.at(lattice2, (ix2[c2], iy2[c2]), 1)
             if mincnt is not None:
                 lattice1[lattice1 < mincnt] = np.nan
                 lattice2[lattice2 < mincnt] = np.nan
-            accum = np.hstack((lattice1.ravel(),
-                               lattice2.ravel()))
+            accum = np.concatenate([lattice1.ravel(), lattice2.ravel()])
             good_idxs = ~np.isnan(accum)
 
         else:
@@ -4754,9 +4743,8 @@ optional.
         offsets = offsets[good_idxs, :]
         accum = accum[good_idxs]
 
-        polygon = np.zeros((6, 2), float)
-        polygon[:, 0] = sx * np.array([0.5, 0.5, 0.0, -0.5, -0.5, 0.0])
-        polygon[:, 1] = sy * np.array([-0.5, 0.5, 1.0, 0.5, -0.5, -1.0]) / 3.0
+        polygon = [sx, sy / 3] * np.array(
+            [[.5, -.5], [.5, .5], [0., 1.], [-.5, .5], [-.5, -.5], [0., -1.]])
 
         if linewidths is None:
             linewidths = [1.0]
@@ -6188,6 +6176,10 @@ optional.
             A 2D array or masked array. The values will be color-mapped.
             This argument can only be passed positionally.
 
+            C can in some cases be 3D with the last dimension as rgb(a).
+            This is available when C qualifies for image or pcolorimage type,
+            will throw a TypeError if C is 3D and quadmesh.
+
         X, Y : tuple or array-like, default: ``(0, N)``, ``(0, M)``
             *X* and *Y* are used to specify the coordinates of the
             quadrilaterals. There are different ways to do this:
@@ -6261,7 +6253,7 @@ optional.
                 "'norm' must be an instance of 'mcolors.Normalize'")
 
         C = args[-1]
-        nr, nc = np.shape(C)
+        nr, nc = np.shape(C)[:2]
         if len(args) == 1:
             style = "image"
             x = [0, nc]
@@ -6282,6 +6274,10 @@ optional.
                     else:
                         style = "pcolorimage"
             elif x.ndim == 2 and y.ndim == 2:
+                if C.ndim > 2:
+                    raise ValueError(
+                        'pcolorfast needs to use quadmesh, '
+                        'which is not supported when x and y are 2D and C 3D')
                 style = "quadmesh"
             else:
                 raise TypeError("arguments do not match valid signatures")

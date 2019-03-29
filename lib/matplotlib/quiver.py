@@ -304,8 +304,11 @@ class QuiverKey(martist.Artist):
             # Hack: save and restore the Umask
             _mask = self.Q.Umask
             self.Q.Umask = ma.nomask
+            u = self.U * np.cos(np.radians(self.angle))
+            v = self.U * np.sin(np.radians(self.angle))
+            angle = self.Q.angles if isinstance(self.Q.angles, str) else 'uv'
             self.verts = self.Q._make_verts(
-                np.array([self.U]), np.zeros(1), self.angle)
+                np.array([u]), np.array([v]), angle)
             self.Q.Umask = _mask
             self.Q.pivot = _pivot
             kw = self.Q.polykw
@@ -472,9 +475,6 @@ class Quiver(mcollections.PolyCollection):
         self.set_UVC(U, V, C)
         self._initialized = False
 
-        self.keyvec = None
-        self.keytext = None
-
         # try to prevent closure over the real self
         weak_self = weakref.ref(self)
 
@@ -495,6 +495,16 @@ class Quiver(mcollections.PolyCollection):
     @property
     def color(self):
         return self.get_facecolor()
+
+    @cbook.deprecated("3.1")
+    @property
+    def keyvec(self):
+        return None
+
+    @cbook.deprecated("3.1")
+    @property
+    def keytext(self):
+        return None
 
     def remove(self):
         """
