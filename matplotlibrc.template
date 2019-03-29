@@ -293,8 +293,9 @@
 #axes.grid           : False   ## display grid or not
 #axes.grid.axis      : both    ## which axis the grid should apply to
 #axes.grid.which     : major   ## gridlines at major, minor or both ticks
+#axes.titlelocation  : center  ## alignment of the title,
+                               ## possible values are left, right and center
 #axes.titlesize      : large   ## fontsize of the axes title
-#axes.titlelocation  : center  ## alignment of the title
 #axes.titleweight    : normal  ## font weight of title
 #axes.titlepad       : 6.0     ## pad between axes and title in points
 #axes.labelsize      : medium  ## fontsize of the x any y labels

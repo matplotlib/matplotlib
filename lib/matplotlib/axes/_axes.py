@@ -150,7 +150,7 @@ class Axes(_AxesBase):
                 'horizontalalignment': loc}
 
         loc : {'center', 'left', 'right'}, str, optional
-            Which title to set, defaults to 'center'
+            Which title to set, defaults to rcParams['axes.titlelocation']
 
         pad : float
             The offset of the title from the top of the axes, in points.
