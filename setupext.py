@@ -586,13 +586,11 @@ class Tests(OptionalPackage):
         return {
             'matplotlib': [
                 *_pkg_data_helper('matplotlib', 'tests/baseline_images'),
+                *_pkg_data_helper('matplotlib', 'tests/tinypages'),
                 'tests/cmr10.pfb',
                 'tests/mpltest.ttf',
                 'tests/test_rcparams.rc',
                 'tests/test_utf32_be_rcparams.rc',
-                'sphinxext/tests/tinypages/*.rst',
-                'sphinxext/tests/tinypages/*.py',
-                'sphinxext/tests/tinypages/_static/*',
             ],
             'mpl_toolkits': [
                 *_pkg_data_helper('mpl_toolkits', 'tests/baseline_images'),
