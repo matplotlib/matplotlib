@@ -758,9 +758,9 @@ class ListedColormap(Colormap):
         List of Matplotlib color specifications, or an equivalent Nx3 or Nx4
         floating point array (*N* rgb or rgba values).
     name : str, optional
-        String to identify the colormap
+        String to identify the colormap.
     N : int, optional
-        Number of entries in the map. The default is *None*,in which case there
+        Number of entries in the map. The default is *None*, in which case there
         is one colormap entry for each element in the list of colors. If::
 
             N < len(colors)
