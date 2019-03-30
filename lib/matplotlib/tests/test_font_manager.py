@@ -12,7 +12,7 @@ from matplotlib import font_manager as fm
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontProperties, fontManager, json_dump,
     json_load, get_font, get_fontconfig_fonts, is_opentype_cff_font,
-    MSUserFontDirectories)
+    MSUserFontDirectories, _call_fc_list)
 from matplotlib import pyplot as plt, rc_context
 
 has_fclist = shutil.which('fc-list') is not None
@@ -131,7 +131,34 @@ def test_find_ttc():
         fig.savefig(BytesIO(), format="ps")
 
 
-def test_user_fonts():
+@pytest.mark.skipif(sys.platform != 'linux', reason='Linux only')
+def test_user_fonts_linux(tmpdir, monkeypatch):
+    font_test_file = 'mpltest.ttf'
+
+    # Precondition: the test font should not be available
+    fonts = findSystemFonts()
+    if any(font_test_file in font for font in fonts):
+        pytest.skip(f'{font_test_file} already exists in system fonts')
+
+    # Prepare a temporary user font directory
+    user_fonts_dir = tmpdir.join('fonts')
+    user_fonts_dir.ensure(dir=True)
+    shutil.copyfile(Path(__file__).parent / font_test_file,
+                    user_fonts_dir.join(font_test_file))
+
+    with monkeypatch.context() as m:
+        m.setenv('XDG_DATA_HOME', str(tmpdir))
+        _call_fc_list.cache_clear()
+        # Now, the font should be available
+        fonts = findSystemFonts()
+        assert any(font_test_file in font for font in fonts)
+
+    # Make sure the temporary directory is no longer cached.
+    _call_fc_list.cache_clear()
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='Windows only')
+def test_user_fonts_win32():
     if not os.environ.get('APPVEYOR', False):
         pytest.xfail('This test does only work on appveyor since user fonts '
                      'are Windows specific and the developer\'s font '
@@ -141,7 +168,8 @@ def test_user_fonts():
 
     # Precondition: the test font should not be available
     fonts = findSystemFonts()
-    assert not any(font_test_file in font for font in fonts)
+    if any(font_test_file in font for font in fonts):
+        pytest.skip(f'{font_test_file} already exists in system fonts')
 
     user_fonts_dir = MSUserFontDirectories[0]
 
