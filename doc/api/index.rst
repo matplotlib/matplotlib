@@ -1,8 +1,8 @@
 .. _api-index:
 
-####################
-  The Matplotlib API
-####################
+##################
+The Matplotlib API
+##################
 
 .. toctree::
    :maxdepth: 1

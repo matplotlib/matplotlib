@@ -39,7 +39,7 @@ Further reading:
   plotting functions.
 - Most of the :ref:`examples <examples-index>` use the object-oriented approach
   (except for the pyplot section)
-- The list of :doc:`matplotlib modules </api/index>`.
+- The list of :doc:`Mwatplotlib modules </api/index>`.
 
 The pylab API (disapproved)
 ---------------------------

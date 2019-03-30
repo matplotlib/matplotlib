@@ -37,11 +37,12 @@ endif %}>
           {%- if not loop.first %}{{ reldelim2 }}{% endif %}</li>
         {%- endfor %}
 
-        <li><a href="{{ pathto('index') }}">home</a>|&nbsp;</li>
-        <li><a href="{{ pathto('gallery/index') }}">examples</a>|&nbsp;</li>
-        <li><a href="{{ pathto('tutorials/index') }}">tutorials</a>|&nbsp;</li>
+        <li><a href="{{ pathto('index') }}">Home</a>|&nbsp;</li>
+        <li><a href="{{ pathto('gallery/index') }}">Examples</a>|&nbsp;</li>
+        <li><a href="{{ pathto('tutorials/index') }}">Tutorials</a>|&nbsp;</li>
         <li><a href="{{ pathto('api/api_overview') }}">API</a>|&nbsp;</li>
-        <li><a href="{{ pathto('contents') }}">docs</a> &raquo;</li>
+        <li><a href="{{ pathto('api/index') }}">Modules</a>|&nbsp;</li>
+        <li><a href="{{ pathto('contents') }}">Contents</a> &raquo;</li>
 
         {%- for parent in parents %}
           <li><a href="{{ parent.link|e }}" {% if loop.last %}{{
