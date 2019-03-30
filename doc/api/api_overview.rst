@@ -25,7 +25,7 @@ Further reading:
 The object-oriented API
 -----------------------
 
-At its core, Matbplotlib is object-oriented. We recommend directly working
+At its core, Matplotlib is object-oriented. We recommend directly working
 with the objects, if you need more control and customization of your plots.
 
 In many cases you will create a `.Figure` and one or more
@@ -41,7 +41,6 @@ Further reading:
   (except for the pyplot section)
 - The list of :doc:`matplotlib modules </api/index>`.
 
-
 The pylab API (disapproved)
 ---------------------------
 
@@ -51,6 +50,6 @@ The pylab API (disapproved)
    instead.
 
 `matplotlib.pylab` is a module that includes `matplotlib.pyplot`, `numpy`
-and some additional functions within a single namespace. It's original puropse
+and some additional functions within a single namespace. Its original purpose
 was to mimic a MATLAB-like way of working by importing all functions into the
 global namespace. This is considered bad style nowadays.
