@@ -163,7 +163,7 @@ def win32FontDirectory():
 
       \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
 
-    If the key is not found, $WINDIR/Fonts will be returned.
+    If the key is not found, ``%WINDIR%\Fonts`` will be returned.
     """
     import winreg
     try:
