@@ -1316,6 +1316,9 @@ class Axis(martist.Artist):
         # Remove minor ticks duplicating major ticks.
         major_locs = self.major.locator()
         minor_locs = self.minor.locator()
+        # we do check when we set the attribute that this is a Locator
+        # subclass, use getattr out of an over abundance of caution
+        remove_overlaps = getattr(self.minor.locator, 'remove_overlaps', True)
         transform = self._scale.get_transform()
         tr_minor_locs = transform.transform(minor_locs)
         tr_major_locs = transform.transform(major_locs)
@@ -1325,7 +1328,8 @@ class Axis(martist.Artist):
         tol = (hi - lo) * 1e-5
         minor_locs = [
             loc for loc, tr_loc in zip(minor_locs, tr_minor_locs)
-            if not np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any()]
+            if (not remove_overlaps or
+                not np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any())]
         return minor_locs
 
     def get_ticklocs(self, minor=False):

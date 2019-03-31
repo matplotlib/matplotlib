@@ -1469,6 +1469,11 @@ class Locator(TickHelper):
     # many ticks are generated.
     MAXTICKS = 1000
 
+    # Default to requsting minor locators have overlapping ticks with the
+    # major locator removed.  If you want to have overlapping ticks, set
+    # this to False on the Locator instance.
+    remove_overlaps = True
+
     def tick_values(self, vmin, vmax):
         """
         Return the values of the located ticks given **vmin** and **vmax**.
