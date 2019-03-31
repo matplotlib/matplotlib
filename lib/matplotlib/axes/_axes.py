@@ -39,7 +39,12 @@ from matplotlib.axes._secondary_axes import SecondaryAxis
 try:
     from numpy.lib.histograms import histogram_bin_edges
 except ImportError:
+    # this function is new in np 1.15
     def histogram_bin_edges(arr, bins, range=None, weights=None):
+        # this in True for 1D arrays, and False for None and str
+        if np.ndim(bins) == 1:
+            return bins
+
         if isinstance(bins, str):
             # rather than backporting the internals, just do the full
             # computation.  If this is too slow for users, they can
@@ -6630,9 +6635,6 @@ optional.
         if bin_range is not None:
             bin_range = self.convert_xunits(bin_range)
 
-        # this in True for 1D arrays, and False for None and str
-        bins_array_given = np.ndim(bins) == 1
-
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
             w = cbook._reshape_2D(weights, 'weights')
@@ -6659,14 +6661,32 @@ optional.
 
         hist_kwargs = dict()
 
+        # if the bin_range is not given, compute without nan numpy
+        # does not do this for us when guessing the range (but will
+        # happily ignore nans when computing the histogram).
+        if bin_range is None:
+            xmin = np.inf
+            xmax = -np.inf
+            for xi in x:
+                if len(xi):
+                    # python's min/max ignore nan,
+                    # np.minnan returns nan for all nan input
+                    xmin = min(xmin, np.nanmin(xi))
+                    xmax = max(xmax, np.nanmax(xi))
+            # make sure we have seen at least one non-nan and finite
+            # value before we reset the bin range
+            if not np.isnan([xmin, xmax]).any() and not (xmin > xmax):
+                bin_range = (xmin, xmax)
+
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
         # and supply that to np.histogram.
-        if not bins_array_given and not input_empty and len(x) > 1:
+        if not input_empty and len(x) > 1:
             if weights is not None:
                 _w = np.concatenate(w)
             else:
                 _w = None
+
             bins = histogram_bin_edges(np.concatenate(x),
                                        bins, bin_range, _w)
         else:
