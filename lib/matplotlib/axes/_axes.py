@@ -6656,36 +6656,28 @@ optional.
             hist_kwargs = dict(range=bin_range)
 
         # List to store all the top coordinates of the histograms
-        tops = []
-        mlast = None
+        tops = []  # Will have shape (n_datasets, n_bins).
         # Loop through datasets
         for i in range(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
-            m = m.astype(float)  # causes problems later if it's an int
-            if mlast is None:
-                mlast = np.zeros(len(bins)-1, m.dtype)
-            if stacked:
-                m += mlast
-                mlast[:] = m
             tops.append(m)
-
-        # If a stacked density plot, normalize so the area of all the stacked
-        # histograms together is 1
-        if stacked and density:
-            db = np.diff(bins)
-            for m in tops:
-                m[:] = (m / db) / tops[-1].sum()
+        tops = np.array(tops, float)  # causes problems later if it's an int
+        if stacked:
+            tops = tops.cumsum(axis=0)
+            # If a stacked density plot, normalize so the area of all the
+            # stacked histograms together is 1
+            if density:
+                tops = (tops / np.diff(bins)) / tops[-1].sum()
         if cumulative:
             slc = slice(None)
             if isinstance(cumulative, Number) and cumulative < 0:
                 slc = slice(None, None, -1)
-
             if density:
-                tops = [(m * np.diff(bins))[slc].cumsum()[slc] for m in tops]
+                tops = (tops * np.diff(bins))[:, slc].cumsum(axis=1)[:, slc]
             else:
-                tops = [m[slc].cumsum()[slc] for m in tops]
+                tops = tops[:, slc].cumsum(axis=1)[:, slc]
 
         patches = []
 
