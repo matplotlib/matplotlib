@@ -3214,7 +3214,7 @@ class Axes(_AxesBase):
         # The actual errorbar function works even if lengths of x and y
         # dont matches with "ecolor" inorder to retain the same behavior
         # the new change will only effect if lengths matches
-        if iterable(ecolor) and len(ecolor) == len(x) and len(ecolor) == len(y):
+        if np.iterable(ecolor) and len(ecolor) == len(x) and len(ecolor) == len(y):
             # To get np.nan indices in both x and y lists
             nan_indices = list(np.where(np.isnan(x))[
                                0]) + list(np.where(np.isnan(y))[0])
