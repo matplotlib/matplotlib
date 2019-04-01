@@ -760,8 +760,9 @@ class ListedColormap(Colormap):
     name : str, optional
         String to identify the colormap.
     N : int, optional
-        Number of entries in the map. The default is *None*, in which case there
-        is one colormap entry for each element in the list of colors. If::
+        Number of entries in the map. The default is *None*, in which case
+        there is one colormap entry for each element in the list of colors.
+        If::
 
             N < len(colors)
 
