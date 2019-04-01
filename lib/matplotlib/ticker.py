@@ -302,7 +302,13 @@ class Formatter(TickHelper):
 
 class IndexFormatter(Formatter):
     """
-    Format the position x to the nearest i-th label where i=int(x+0.5)
+    Format the position x to the nearest i-th label where ``i = int(x + 0.5)``.
+    Positions where ``i < 0`` or ``i > len(list)`` have no tick labels.
+
+    Parameters
+    ----------
+    labels : list
+        List of labels.
     """
     def __init__(self, labels):
         self.labels = labels
