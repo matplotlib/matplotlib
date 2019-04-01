@@ -6573,17 +6573,12 @@ optional.
         if bins is None:
             bins = rcParams['hist.bins']
 
-        # Validate string inputs here so we don't have to clutter
-        # subsequent code.
-        if histtype not in ['bar', 'barstacked', 'step', 'stepfilled']:
-            raise ValueError("histtype %s is not recognized" % histtype)
-
-        if align not in ['left', 'mid', 'right']:
-            raise ValueError("align kwarg %s is not recognized" % align)
-
-        if orientation not in ['horizontal', 'vertical']:
-            raise ValueError(
-                "orientation kwarg %s is not recognized" % orientation)
+        # Validate string inputs here to avoid cluttering subsequent code.
+        cbook._check_in_list(['bar', 'barstacked', 'step', 'stepfilled'],
+                             histtype=histtype)
+        cbook._check_in_list(['left', 'mid', 'right'], align=align)
+        cbook._check_in_list(['horizontal', 'vertical'],
+                             orientation=orientation)
 
         if histtype == 'barstacked' and not stacked:
             stacked = True
