@@ -1064,19 +1064,18 @@ class Axis(martist.Artist):
         Update ticks (position and labels) using the current data interval of
         the axes.  Return the list of ticks that will be drawn.
         """
-
-        major_locs = self.major.locator()
+        major_locs = self.get_majorticklocs()
+        major_labels = self.major.formatter.format_ticks(major_locs)
         major_ticks = self.get_major_ticks(len(major_locs))
         self.major.formatter.set_locs(major_locs)
-        major_labels = self.major.formatter.format_ticks(major_locs)
         for tick, loc, label in zip(major_ticks, major_locs, major_labels):
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
-        minor_locs = self.minor.locator()
+        minor_locs = self.get_minorticklocs()
+        minor_labels = self.minor.formatter.format_ticks(minor_locs)
         minor_ticks = self.get_minor_ticks(len(minor_locs))
         self.minor.formatter.set_locs(minor_locs)
-        minor_labels = self.minor.formatter.format_ticks(minor_locs)
         for tick, loc, label in zip(minor_ticks, minor_locs, minor_labels):
             tick.update_position(loc)
             tick.set_label1(label)
