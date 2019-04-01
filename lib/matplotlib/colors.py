@@ -745,35 +745,34 @@ class LinearSegmentedColormap(Colormap):
 
 
 class ListedColormap(Colormap):
-    """Colormap object generated from a list of colors.
+    """
+    Colormap object generated from a list of colors.
 
     This may be most useful when indexing directly into a colormap,
     but it can also be used to generate special colormaps for ordinary
     mapping.
+
+    Parameters
+    ----------
+    colors : list, array
+        List of Matplotlib color specifications, or an equivalent Nx3 or Nx4
+        floating point array (*N* rgb or rgba values).
+    name : str, optional
+        String to identify the colormap.
+    N : int, optional
+        Number of entries in the map. The default is *None*, in which case
+        there is one colormap entry for each element in the list of colors.
+        If::
+
+            N < len(colors)
+
+        the list will be truncated at *N*. If::
+
+            N > len(colors)
+
+        the list will be extended by repetition.
     """
     def __init__(self, colors, name='from_list', N=None):
-        """
-        Make a colormap from a list of colors.
-
-        *colors*
-            a list of matplotlib color specifications,
-            or an equivalent Nx3 or Nx4 floating point array
-            (*N* rgb or rgba values)
-        *name*
-            a string to identify the colormap
-        *N*
-            the number of entries in the map.  The default is *None*,
-            in which case there is one colormap entry for each
-            element in the list of colors.  If::
-
-                N < len(colors)
-
-            the list will be truncated at *N*.  If::
-
-                N > len(colors)
-
-            the list will be extended by repetition.
-        """
         self.monochrome = False  # True only if all colors in map are
                                  # identical; needed for contouring.
         if N is None:
