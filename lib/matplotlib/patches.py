@@ -3943,27 +3943,28 @@ class FancyArrowPatch(Patch):
                  dpi_cor=1,
                  **kwargs):
         """
-        If *posA* and *posB* are given, a path connecting two points is
-        created according to *connectionstyle*. The path will be
-        clipped with *patchA* and *patchB* and further shrunken by
-        *shrinkA* and *shrinkB*. An arrow is drawn along this
-        resulting path using the *arrowstyle* parameter.
+        There are two ways for defining an arrow:
 
-        Alternatively if *path* is provided, an arrow is drawn along this path
-        and *patchA*, *patchB*, *shrinkA*, and *shrinkB* are ignored.
+        - If *posA* and *posB* are given, a path connecting two points is
+          created according to *connectionstyle*. The path will be
+          clipped with *patchA* and *patchB* and further shrunken by
+          *shrinkA* and *shrinkB*. An arrow is drawn along this
+          resulting path using the *arrowstyle* parameter.
+
+        - Alternatively if *path* is provided, an arrow is drawn along this
+          path and *patchA*, *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
         Parameters
         ----------
 
-        posA, posB : None, tuple, optional (default: None)
+        posA, posB : (float, float), optional (default: None)
             (x,y) coordinates of arrow tail and arrow head respectively.
 
-        path : None, Path (default: None)
-            :class:`matplotlib.path.Path` instance. If provided, an arrow is
-            drawn along this path and *patchA*, *patchB*, *shrinkA*, and
-            *shrinkB* are ignored.
+        path : `~matplotlib.path.Path`, optional (default: None)
+            If provided, an arrow is drawn along this path and *patchA*,
+            *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
-        arrowstyle : str or ArrowStyle, optional (default: 'simple')
+        arrowstyle : str or `.ArrowStyle`, optional (default: 'simple')
             Describes how the fancy arrow will be
             drawn. It can be string of the available arrowstyle names,
             with optional comma-separated attributes, or an
@@ -3974,10 +3975,10 @@ class FancyArrowPatch(Patch):
             %(AvailableArrowstyles)s
 
         arrow_transmuter
-            Ignored
+            Ignored.
 
-        connectionstyle : str, ConnectionStyle, or None, optional
-        (default: 'arc3')
+        connectionstyle : str or `.ConnectionStyle` or None, optional \
+(default: 'arc3')
             Describes how *posA* and *posB* are connected. It can be an
             instance of the :class:`ConnectionStyle` class or a string of the
             connectionstyle name, with optional comma-separated attributes. The
@@ -3986,35 +3987,37 @@ class FancyArrowPatch(Patch):
             %(AvailableConnectorstyles)s
 
         connector
-            Ignored
+            Ignored.
 
-        patchA, patchB : None, Patch, optional (default: None)
+        patchA, patchB : `.Patch`, optional (default: None)
             Head and tail patch respectively. :class:`matplotlib.patch.Patch`
             instance.
 
-        shrinkA, shrinkB : scalar, optional (default: 2)
-            Shrinking factor of the tail and head of the arrow respectively
+        shrinkA, shrinkB : float, optional (default: 2)
+            Shrinking factor of the tail and head of the arrow respectively.
 
-        mutation_scale : scalar, optional (default: 1)
+        mutation_scale : float, optional (default: 1)
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
             will be scaled.
 
-        mutation_aspect : None, scalar, optional (default: None)
+        mutation_aspect : None or float, optional (default: None)
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it.
 
-        dpi_cor : scalar, optional (default: 1)
+        dpi_cor : float, optional (default: 1)
             dpi_cor is currently used for linewidth-related things and shrink
             factor. Mutation scale is affected by this.
 
-        Notes
-        -----
-        Valid kwargs are:
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties, optional
+            Here is a list of available `.Patch` properties:
+
         %(Patch)s
 
-        In contrast to other patches, the default ``capstyle`` and
-        ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
+            In contrast to other patches, the default ``capstyle`` and
+            ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
         """
         if arrow_transmuter is not None:
             cbook.warn_deprecated(
