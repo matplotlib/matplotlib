@@ -968,8 +968,39 @@ class Encoding(object):
             raise ValueError("Cannot locate end of encoding in {}"
                              .format(file))
         data = data[:end]
-
         return re.findall(br'/([^][{}<>\s]+)', data)
+
+
+# Note: this function should ultimately replace the Encoding class, which
+# appears to be mostly broken: because it uses b''.join(), there is no
+# whitespace left between glyph names (only slashes) so the final re.findall
+# returns a single string with all glyph names.  However this does not appear
+# to bother backend_pdf, so that needs to be investigated more.  (The fixed
+# version below is necessary for textpath/backend_svg, though.)
+def _parse_enc(path):
+    r"""
+    Parses a \*.enc file referenced from a psfonts.map style file.
+    The format this class understands is a very limited subset of PostScript.
+
+    Parameters
+    ----------
+    path : os.PathLike
+
+    Returns
+    -------
+    encoding : list
+        The nth entry of the list is the PostScript glyph name of the nth
+        glyph.
+    """
+    with open(path, encoding="ascii") as file:
+        no_comments = "\n".join(line.split("%")[0].rstrip() for line in file)
+    array = re.search(r"(?s)\[(.*)\]", no_comments).group(1)
+    lines = [line for line in array.split("\n") if line]
+    if all(line.startswith("/") for line in lines):
+        return [line[1:] for line in lines]
+    else:
+        raise ValueError(
+            "Failed to parse {} as Postscript encoding".format(path))
 
 
 @lru_cache()
