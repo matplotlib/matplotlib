@@ -640,8 +640,36 @@ class Ticker(object):
     formatter : `matplotlib.ticker.Formatter` subclass
         Determines the format of the tick labels.
     """
-    locator = None
-    formatter = None
+
+    def __init__(self):
+        self._locator = None
+        self._formatter = None
+
+    @property
+    def locator(self):
+        return self._locator
+
+    @locator.setter
+    def locator(self, locator):
+        if not isinstance(locator, mticker.Locator):
+            cbook.warn_deprecated(
+                "3.2", message="Support for locators that do not subclass "
+                "matplotlib.ticker.Locator is deprecated since %(since)s and "
+                "support for them will be removed %(removal)s.")
+        self._locator = locator
+
+    @property
+    def formatter(self):
+        return self._formatter
+
+    @formatter.setter
+    def formatter(self, formatter):
+        if not isinstance(formatter, mticker.Formatter):
+            cbook.warn_deprecated(
+                "3.2", message="Support for formatters that do not subclass "
+                "matplotlib.ticker.Formatter is deprecated since %(since)s "
+                "and support for them will be removed %(removal)s.")
+        self._formatter = formatter
 
 
 class _LazyTickList(object):
