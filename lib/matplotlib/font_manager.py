@@ -1246,10 +1246,7 @@ class FontManager(object):
         if fname is not None:
             return fname
 
-        if fontext == 'afm':
-            fontlist = self.afmlist
-        else:
-            fontlist = self.ttflist
+        fontlist = self.afmlist if fontext == 'afm' else self.ttflist
 
         best_score = 1e64
         best_font = None
@@ -1273,36 +1270,37 @@ class FontManager(object):
             if score == 0:
                 break
 
-        if best_font is None or best_score >= 10.0:
-            if fallback_to_default:
-                _log.warning(
-                    'findfont: Font family %s not found. Falling back to %s.',
-                    prop.get_family(), self.defaultFamily[fontext])
-                default_prop = prop.copy()
-                default_prop.set_family(self.defaultFamily[fontext])
-                return self.findfont(default_prop, fontext, directory, False)
-            else:
-                # This is a hard fail -- we can't find anything reasonable,
-                # so just return the DejaVuSans.ttf
-                _log.warning('findfont: Could not match %s. Returning %s.',
-                             prop, self.defaultFont[fontext])
-                result = self.defaultFont[fontext]
-        else:
+        if (best_font is not None and os.path.isfile(best_font.fname)
+                and best_score < 10):
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
                        prop, best_font.name, best_font.fname, best_score)
-            result = best_font.fname
+            return best_font.fname
 
-        if not os.path.isfile(result):
-            if rebuild_if_missing:
-                _log.info(
-                    'findfont: Found a missing font file.  Rebuilding cache.')
-                _rebuild()
-                return fontManager.findfont(
-                    prop, fontext, directory, True, False)
-            else:
-                raise ValueError("No valid font could be found")
-
-        return result
+        # No sufficently good font found.
+        if rebuild_if_missing:
+            _log.info(
+                'findfont: Found a missing font file.  Rebuilding cache.')
+            _rebuild()
+            return self.findfont(prop, fontext, directory,
+                                 fallback_to_default=True,
+                                 rebuild_if_missing=False)
+        elif fallback_to_default:
+            _log.warning(
+                'findfont: Font family %s not found. Falling back to %s.',
+                prop.get_family(), self.defaultFamily[fontext])
+            default_prop = prop.copy()
+            default_prop.set_family(self.defaultFamily[fontext])
+            return self.findfont(default_prop, fontext, directory,
+                                 fallback_to_default=False)
+        else:
+            # This is a hard fail -- we can't find anything reasonable,
+            # so just return the DejaVuSans.ttf
+            _log.warning('findfont: Could not match %s. Returning %s.',
+                         prop, self.defaultFont[fontext])
+            font_filename = self.defaultFont[fontext]
+            if os.path.isfile(font_filename):
+                return font_filename
+            raise ValueError("No valid font could be found")
 
 
 @lru_cache()
