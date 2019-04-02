@@ -2,7 +2,7 @@
 
 #ifndef MPL_NUMPY_CPP_H
 #define MPL_NUMPY_CPP_H
-
+#define PY_SSIZE_T_CLEAN
 /***************************************************************************
  * This file is based on original work by Mark Wiebe, available at:
  *
