@@ -2,7 +2,6 @@
 A PostScript backend, which can produce both PostScript .ps and .eps.
 """
 
-import binascii
 import datetime
 import glob
 from io import StringIO, TextIOWrapper
@@ -13,26 +12,28 @@ import re
 import shutil
 import subprocess
 from tempfile import TemporaryDirectory
+import textwrap
 import time
 
 import numpy as np
 
-from matplotlib import cbook, __version__, rcParams, checkdep_ghostscript
-from matplotlib.afm import AFM
+import matplotlib as mpl
+from matplotlib import (
+    cbook, _path, __version__, rcParams, checkdep_ghostscript)
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
-                              maxdict, file_requires_unicode)
-from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
+                              file_requires_unicode)
+from matplotlib.font_manager import is_opentype_cff_font, get_font
 from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
-from matplotlib import _path
 from matplotlib.transforms import Affine2D
 from matplotlib.backends.backend_mixed import MixedModeRenderer
+from . import _backend_pdf_ps
 
 _log = logging.getLogger(__name__)
 
@@ -165,7 +166,8 @@ def quote_ps_string(s):
 
 
 def _move_path_to_path_or_stream(src, dst):
-    """Move the contents of file at *src* to path-or-filelike *dst*.
+    """
+    Move the contents of file at *src* to path-or-filelike *dst*.
 
     If *dst* is a path, the metadata of *src* are *not* copied.
     """
@@ -179,20 +181,24 @@ def _move_path_to_path_or_stream(src, dst):
         shutil.move(src, dst, copy_function=shutil.copyfile)
 
 
-class RendererPS(RendererBase):
+class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     """
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles.
     """
 
-    afmfontd = maxdict(50)
+    @property
+    @cbook.deprecated("3.1")
+    def afmfontd(self, _cache=cbook.maxdict(50)):
+        return _cache
+
+    _afm_font_dir = pathlib.Path(rcParams["datapath"], "fonts", "afm")
+    _use_afm_rc_name = "ps.useafm"
 
     def __init__(self, width, height, pswriter, imagedpi=72):
-        """
-        Although postscript itself is dpi independent, we need to
-        imform the image code about a requested dpi to generate high
-        res images and them scale them before embeddin them
-        """
+        # Although postscript itself is dpi independent, we need to inform the
+        # image code about a requested dpi to generate high resolution images
+        # and them scale them before embedding them.
         RendererBase.__init__(self)
         self.width = width
         self.height = height
@@ -218,12 +224,8 @@ class RendererPS(RendererBase):
         self.used_characters = {}
         self.mathtext_parser = MathTextParser("PS")
 
-        self._afm_font_dir = os.path.join(
-            rcParams['datapath'], 'fonts', 'afm')
-
     def track_characters(self, font, s):
-        """Keeps track of which characters are required from
-        each font."""
+        """Keeps track of which characters are required from each font."""
         realpath, stat_key = get_realpath_and_stat(font.fname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
@@ -325,92 +327,6 @@ class RendererPS(RendererBase):
         self._hatches[hatch] = name
         return name
 
-    def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
-        return self.width * 72.0, self.height * 72.0
-
-    def get_text_width_height_descent(self, s, prop, ismath):
-        """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
-
-        """
-        if rcParams['text.usetex']:
-            texmanager = self.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=self)
-            return w, h, d
-
-        if ismath:
-            width, height, descent, pswriter, used_characters = \
-                self.mathtext_parser.parse(s, 72, prop)
-            return width, height, descent
-
-        if rcParams['ps.useafm']:
-            if ismath:
-                s = s[1:-1]
-            font = self._get_font_afm(prop)
-            l, b, w, h, d = font.get_str_bbox_and_descent(s)
-
-            fontsize = prop.get_size_in_points()
-            scale = 0.001 * fontsize
-            w *= scale
-            h *= scale
-            d *= scale
-            return w, h, d
-
-        font = self._get_font_ttf(prop)
-        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-        w, h = font.get_width_height()
-        w /= 64  # convert from subpixels
-        h /= 64
-        d = font.get_descent()
-        d /= 64
-        return w, h, d
-
-    def flipy(self):
-        'return true if small y numbers are top for renderer'
-        return False
-
-    def _get_font_afm(self, prop):
-        key = hash(prop)
-        font = self.afmfontd.get(key)
-        if font is None:
-            fname = findfont(prop, fontext='afm', directory=self._afm_font_dir)
-            if fname is None:
-                fname = findfont(
-                    "Helvetica", fontext='afm', directory=self._afm_font_dir)
-            font = self.afmfontd.get(fname)
-            if font is None:
-                with open(fname, 'rb') as fh:
-                    font = AFM(fh)
-                self.afmfontd[fname] = font
-            self.afmfontd[key] = font
-        return font
-
-    def _get_font_ttf(self, prop):
-        fname = findfont(prop)
-        font = get_font(fname)
-        font.clear()
-        size = prop.get_size_in_points()
-        font.set_size(size, 72.0)
-        return font
-
-    def _rgb(self, rgba):
-        h, w = rgba.shape[:2]
-        rgb = rgba[::-1, :, :3]
-        return h, w, rgb.tostring()
-
-    def _hex_lines(self, s, chars_per_line=128):
-        s = binascii.b2a_hex(s)
-        nhex = len(s)
-        lines = []
-        for i in range(0, nhex, chars_per_line):
-            limit = min(i+chars_per_line, nhex)
-            lines.append(s[i:limit])
-        return lines
-
     def get_image_magnification(self):
         """
         Get the factor by which to magnify images passed to draw_image.
@@ -419,34 +335,15 @@ class RendererPS(RendererBase):
         """
         return self.image_magnification
 
-    def option_scale_image(self):
-        """
-        ps backend support arbitrary scaling of image.
-        """
-        return True
-
-    def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
-        return not rcParams['image.composite_image']
-
-    def _get_image_h_w_bits_command(self, im):
-        h, w, bits = self._rgb(im)
-        imagecmd = "false 3 colorimage"
-
-        return h, w, bits, imagecmd
-
     def draw_image(self, gc, x, y, im, transform=None):
-        """
-        Draw the Image instance into the current axes; x is the
-        distance in pixels from the left hand side of the canvas and y
-        is the distance from bottom
-        """
+        # docstring inherited
 
-        h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
-        hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
+        h, w = im.shape[:2]
+        imagecmd = "false 3 colorimage"
+        data = im[::-1, :, :3]  # Vertically flipped rgb values.
+        # data.tobytes().hex() has no spaces, so can be linewrapped by relying
+        # on textwrap.fill breaking long words.
+        hexlines = textwrap.fill(data.tobytes().hex(), 128)
 
         if transform is None:
             matrix = "1 0 0 1 0 0"
@@ -510,9 +407,7 @@ grestore
         return pid
 
     def draw_path(self, gc, path, transform, rgbFace=None):
-        """
-        Draws a Path instance using the given affine transform.
-        """
+        # docstring inherited
         clip = rgbFace is None and gc.get_hatch_path() is None
         simplify = path.should_simplify and clip
         ps = self._convert_path(path, transform, clip=clip, simplify=simplify)
@@ -520,22 +415,17 @@ grestore
 
     def draw_markers(
             self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
-        """
-        Draw the markers defined by path at each of the positions in x
-        and y.  path coordinates are points, x and y coords will be
-        transformed by the transform
-        """
+        # docstring inherited
+
         if debugPS:
             self._pswriter.write('% draw_markers \n')
 
-        if rgbFace:
-            if len(rgbFace) == 4 and rgbFace[3] == 0:
-                ps_color = None
-            else:
-                if rgbFace[0] == rgbFace[1] == rgbFace[2]:
-                    ps_color = '%1.3f setgray' % rgbFace[0]
-                else:
-                    ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
+        ps_color = (
+            None
+            if _is_transparent(rgbFace)
+            else '%1.3f setgray' % rgbFace[0]
+            if rgbFace[0] == rgbFace[1] == rgbFace[2]
+            else '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3])
 
         # construct the generic marker command:
 
@@ -624,9 +514,8 @@ grestore
         self._path_collection_id += 1
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
-        """
-        draw a Text instance
-        """
+        # docstring inherited
+
         w, h, bl = self.get_text_width_height_descent(s, prop, ismath)
         fontsize = prop.get_size_in_points()
         thetext = 'psmarker%d' % self.textcnt
@@ -664,15 +553,14 @@ grestore
         self.textcnt += 1
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
-        """
-        Draw a Text instance.
-        """
+        # docstring inherited
+
         # local to avoid repeated attribute lookups
         write = self._pswriter.write
         if debugPS:
             write("% text\n")
 
-        if len(gc.get_rgb()) == 4 and gc.get_rgb()[3] == 0:
+        if _is_transparent(gc.get_rgb()):
             return  # Special handling for fully transparent.
 
         if ismath == 'TeX':
@@ -769,6 +657,7 @@ grestore
             self._pswriter.write(ps)
 
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextPS()
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
@@ -841,7 +730,7 @@ grestore
 
     def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
         """
-        Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
+        Emit the PostScript snippet 'ps' with all the attributes from 'gc'
         applied.  'ps' must consist of PostScript commands to construct a path.
 
         The fill and/or stroke kwargs can be set to False if the
@@ -853,10 +742,12 @@ grestore
         write = self._pswriter.write
         if debugPS and command:
             write("% "+command+"\n")
-        mightstroke = gc.shouldstroke()
-        stroke = stroke and mightstroke
-        fill = (fill and rgbFace is not None and
-                (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
+        mightstroke = (gc.get_linewidth() > 0
+                       and not _is_transparent(gc.get_rgb()))
+        if not mightstroke:
+            stroke = False
+        if _is_transparent(rgbFace):
+            fill = False
         hatch = gc.get_hatch()
 
         if mightstroke:
@@ -902,6 +793,21 @@ grestore
         write("grestore\n")
 
 
+def _is_transparent(rgb_or_rgba):
+    if rgb_or_rgba is None:
+        return True  # Consistent with rgbFace semantics.
+    elif len(rgb_or_rgba) == 4:
+        if rgb_or_rgba[3] == 0:
+            return True
+        if rgb_or_rgba[3] != 1:
+            _log.warning(
+                "The PostScript backend does not support transparency; "
+                "partially transparent artists will be rendered opaque.")
+        return False
+    else:  # len() == 3.
+        return False
+
+
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt': 0, 'round': 1, 'projecting': 2}[
@@ -911,14 +817,13 @@ class GraphicsContextPS(GraphicsContextBase):
         return {'miter': 0, 'round': 1, 'bevel': 2}[
             GraphicsContextBase.get_joinstyle(self)]
 
+    @cbook.deprecated("3.1")
     def shouldstroke(self):
         return (self.get_linewidth() > 0.0 and
                 (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))
 
 
 class FigureCanvasPS(FigureCanvasBase):
-    _renderer_class = RendererPS
-
     fixed_dpi = 72
 
     def draw(self):
@@ -950,12 +855,9 @@ class FigureCanvasPS(FigureCanvasBase):
                                (papertype, ', '.join(papersize)))
 
         orientation = orientation.lower()
-        if orientation == 'landscape':
-            isLandscape = True
-        elif orientation == 'portrait':
-            isLandscape = False
-        else:
-            raise RuntimeError('Orientation must be "portrait" or "landscape"')
+        cbook._check_in_list(['landscape', 'portrait'],
+                             orientation=orientation)
+        isLandscape = (orientation == 'landscape')
 
         self.figure.set_dpi(72)  # Override the dpi kwarg
 
@@ -990,9 +892,9 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if isinstance(outfile, (str, getattr(os, "PathLike", ()),)):
-            outfile = title = getattr(os, "fspath", lambda obj: obj)(outfile)
-            title = title.encode("latin-1", "replace").decode()
+        if isinstance(outfile, (str, os.PathLike)):
+            outfile = title = os.fspath(outfile)
+            title = title.encode("ascii", "replace").decode("ascii")
             passed_in_file_object = False
         elif is_writable_file_like(outfile):
             title = None
@@ -1048,7 +950,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if dryrun:
             class NullWriter(object):
-                def write(self, *kl, **kwargs):
+                def write(self, *args, **kwargs):
                     pass
 
             self._pswriter = NullWriter()
@@ -1056,8 +958,7 @@ class FigureCanvasPS(FigureCanvasBase):
             self._pswriter = StringIO()
 
         # mixed mode rendering
-        ps_renderer = self._renderer_class(width, height, self._pswriter,
-                                           imagedpi=dpi)
+        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(
             self.figure, width, height, dpi, ps_renderer,
             bbox_inches_restore=bbox_inches_restore)
@@ -1120,10 +1021,7 @@ class FigureCanvasPS(FigureCanvasBase):
                         ps_renderer.used_characters.values():
                     if len(chars):
                         font = get_font(font_filename)
-                        glyph_ids = []
-                        for c in chars:
-                            gind = font.get_char_index(c)
-                            glyph_ids.append(gind)
+                        glyph_ids = [font.get_char_index(c) for c in chars]
 
                         fonttype = rcParams['ps.fonttype']
 
@@ -1143,8 +1041,14 @@ class FigureCanvasPS(FigureCanvasBase):
                                 "time; consider using the Cairo backend")
                         else:
                             fh.flush()
-                            convert_ttf_to_ps(os.fsencode(font_filename),
-                                              fh, fonttype, glyph_ids)
+                            try:
+                                convert_ttf_to_ps(os.fsencode(font_filename),
+                                                  fh, fonttype, glyph_ids)
+                            except RuntimeError:
+                                _log.warning("The PostScript backend does not "
+                                             "currently support the selected "
+                                             "font.")
+                                raise
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
@@ -1242,7 +1146,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if dryrun:
             class NullWriter(object):
-                def write(self, *kl, **kwargs):
+                def write(self, *args, **kwargs):
                     pass
 
             self._pswriter = NullWriter()
@@ -1250,8 +1154,7 @@ class FigureCanvasPS(FigureCanvasBase):
             self._pswriter = StringIO()
 
         # mixed mode rendering
-        ps_renderer = self._renderer_class(width, height,
-                                           self._pswriter, imagedpi=dpi)
+        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
                                      width, height, dpi, ps_renderer,
                                      bbox_inches_restore=bbox_inches_restore)
@@ -1473,11 +1376,11 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     psfile = tmpfile + '.ps'
     dpi = rcParams['ps.distiller.res']
 
-    gs_exe, gs_version = checkdep_ghostscript()
     cbook._check_and_log_subprocess(
-        [gs_exe, "-dBATCH", "-dNOPAUSE", "-r%d" % dpi,
-         "-sDEVICE=ps2write", paper_option,
-         "-sOutputFile=%s" % psfile, tmpfile], _log)
+        [mpl._get_executable_info("gs").executable,
+         "-dBATCH", "-dNOPAUSE", "-r%d" % dpi, "-sDEVICE=ps2write",
+         paper_option, "-sOutputFile=%s" % psfile, tmpfile],
+        _log)
 
     os.remove(tmpfile)
     shutil.move(psfile, tmpfile)
@@ -1528,7 +1431,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
 
 def get_bbox_header(lbrt, rotated=False):
     """
-    return a postscript header stringfor the given bbox lbrt=(l, b, r, t).
+    return a postscript header string for the given bbox lbrt=(l, b, r, t).
     Optionally, return rotate command.
     """
 

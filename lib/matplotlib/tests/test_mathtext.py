@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import matplotlib
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext
 
@@ -163,6 +163,10 @@ def baseline_images(request, fontset, index):
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
+# In the following two tests, use recwarn to suppress warnings regarding the
+# deprecation of \stackrel and \mathcircled.
+
+
 @pytest.mark.parametrize('index, test', enumerate(math_tests),
                          ids=[str(index) for index in range(len(math_tests))])
 @pytest.mark.parametrize('fontset',
@@ -170,7 +174,7 @@ def baseline_images(request, fontset, index):
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
 @image_comparison(baseline_images=None)
-def test_mathtext_rendering(baseline_images, fontset, index, test):
+def test_mathtext_rendering(baseline_images, fontset, index, test, recwarn):
     matplotlib.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
@@ -184,7 +188,7 @@ def test_mathtext_rendering(baseline_images, fontset, index, test):
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'])
-def test_mathfont_rendering(baseline_images, fontset, index, test):
+def test_mathfont_rendering(baseline_images, fontset, index, test, recwarn):
     matplotlib.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
@@ -271,3 +275,9 @@ def test_single_minus_sign():
 
     # If this fails, it would be all white
     assert not np.all(array == 0xff)
+
+
+@check_figures_equal(extensions=["png"])
+def test_spaces(fig_test, fig_ref):
+    fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
+    fig_ref.subplots().set_title(r"$1\/2\:3~4$")

@@ -941,7 +941,7 @@ _Set3_data = (
     )
 
 
-# The next 7 palettes are from the Yorick scientific visalisation package,
+# The next 7 palettes are from the Yorick scientific visualization package,
 # an evolution of the GIST package, both by David H. Munro.
 # They are released under a BSD-like license (see LICENSE_YORICK in
 # the license directory of the matplotlib source distribution).

@@ -13,6 +13,7 @@ import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
 from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
+from matplotlib import rc_context
 
 
 def test_legend_ordereddict():
@@ -469,11 +470,19 @@ def test_linecollection_scaled_dashes():
 
 
 def test_handler_numpoints():
-    '''test legend handler with numponts less than or equal to 1'''
+    """Test legend handler with numpoints <= 1."""
     # related to #6921 and PR #8478
     fig, ax = plt.subplots()
     ax.plot(range(5), label='test')
     ax.legend(numpoints=0.5)
+
+
+def test_empty_bar_chart_with_legend():
+    """Test legend when bar chart is empty with a label."""
+    # related to issue #13003. Calling plt.legend() should not
+    # raise an IndexError.
+    plt.bar([], [], label='test')
+    plt.legend()
 
 
 def test_shadow_framealpha():
@@ -538,24 +547,6 @@ def test_get_set_draggable():
     assert not legend.get_draggable()
 
 
-def test_draggable():
-    legend = plt.legend()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable(True)
-    assert legend.get_draggable()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable(False)
-    assert not legend.get_draggable()
-
-    # test toggle
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable()
-    assert legend.get_draggable()
-    with pytest.warns(MatplotlibDeprecationWarning):
-        legend.draggable()
-    assert not legend.get_draggable()
-
-
 def test_alpha_handles():
     x, n, hh = plt.hist([1, 2, 3], alpha=0.25, label='data', color='red')
     legend = plt.legend()
@@ -563,3 +554,28 @@ def test_alpha_handles():
         lh.set_alpha(1.0)
     assert lh.get_facecolor()[:-1] == hh[1].get_facecolor()[:-1]
     assert lh.get_edgecolor()[:-1] == hh[1].get_edgecolor()[:-1]
+
+
+def test_warn_big_data_best_loc():
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(200001), label='Is this big data?')
+    with pytest.warns(UserWarning) as records:
+        with rc_context({'legend.loc': 'best'}):
+            l = ax.legend()
+        fig.canvas.draw()
+    # The _find_best_position method of Legend is called twice, duplicating
+    # the warning message.
+    assert len(records) == 2
+    for record in records:
+        assert str(record.message) == (
+            'Creating legend with loc="best" can be slow with large'
+            ' amounts of data.')
+
+
+def test_no_warn_big_data_when_loc_specified():
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(200001), label='Is this big data?')
+    with pytest.warns(None) as records:
+        l = ax.legend('best')
+        fig.canvas.draw()
+    assert len(records) == 0

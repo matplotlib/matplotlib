@@ -14,6 +14,7 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 import re
 import time
 import logging
+from types import SimpleNamespace
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -77,9 +78,9 @@ class ToolBase(object):
     """
 
     def __init__(self, toolmanager, name):
-        _log.warning('Treat the new Tool classes introduced in v1.5 as '
-                     'experimental for now, the API will likely change in '
-                     'version 2.1, and some tools might change name')
+        cbook._warn_external(
+            'The new Tool classes introduced in v1.5 are experimental; their '
+            'API (including names) will likely change in future versions.')
         self._name = name
         self._toolmanager = toolmanager
         self._figure = None
@@ -101,6 +102,15 @@ class ToolBase(object):
     @property
     def toolmanager(self):
         return self._toolmanager
+
+    def _make_classic_style_pseudo_toolbar(self):
+        """
+        Return a placeholder object with a single `canvas` attribute.
+
+        This is useful to reuse the implementations of tools already provided
+        by the classic Toolbars.
+        """
+        return SimpleNamespace(canvas=self.canvas)
 
     def set_figure(self, figure):
         """
@@ -271,16 +281,15 @@ class SetCursorBase(ToolBase):
         self._set_cursor_cbk(event.canvasevent)
 
     def _add_tool(self, tool):
-        """set the cursor when the tool is triggered"""
+        """Set the cursor when the tool is triggered."""
         if getattr(tool, 'cursor', None) is not None:
             self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
                                                  self._tool_trigger_cbk)
 
     def _add_tool_cbk(self, event):
-        """Process every newly added tool"""
+        """Process every newly added tool."""
         if event.tool is self:
             return
-
         self._add_tool(event.tool)
 
     def _set_cursor_cbk(self, event):
@@ -428,10 +437,11 @@ class ToolEnableNavigation(ToolBase):
             return
 
         n = int(event.key) - 1
-        for i, a in enumerate(self.figure.get_axes()):
-            if (event.x is not None and event.y is not None
-                    and a.in_axes(event)):
-                a.set_navigate(i == n)
+        if n < len(self.figure.get_axes()):
+            for i, a in enumerate(self.figure.get_axes()):
+                if (event.x is not None and event.y is not None
+                        and a.in_axes(event)):
+                    a.set_navigate(i == n)
 
 
 class _ToolGridBase(ToolBase):
@@ -853,7 +863,7 @@ class ToolZoom(ZoomPanBase):
         return
 
     def _press(self, event):
-        """the _press mouse button in zoom to rect mode callback"""
+        """Callback for mouse button presses in zoom-to-rectangle mode."""
 
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
@@ -895,7 +905,7 @@ class ToolZoom(ZoomPanBase):
         self._mouse_move(event)
 
     def _mouse_move(self, event):
-        """the drag callback in zoom mode"""
+        """Callback for mouse moves in zoom-to-rectangle mode."""
 
         if self._xypress:
             x, y = event.x, event.y
@@ -910,7 +920,7 @@ class ToolZoom(ZoomPanBase):
                 'rubberband', self, data=(x1, y1, x2, y2))
 
     def _release(self, event):
-        """the release mouse button callback in zoom to rect mode"""
+        """Callback for mouse button releases in zoom-to-rectangle mode."""
 
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)

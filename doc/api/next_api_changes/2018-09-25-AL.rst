@@ -1,0 +1,6 @@
+Deprecations
+````````````
+
+The ``frameon`` kwarg to ``savefig`` and the ``savefig.frameon`` rcParam
+are deprecated.  To emulate ``frameon = False``, set ``facecolor`` to fully
+transparent (``"none"``, or ``(0, 0, 0, 0)``).

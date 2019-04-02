@@ -422,5 +422,5 @@ for cmap_category, cmap_list in cmaps.items():
 # .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 # .. [colorblindness] http://www.color-blindness.com/
 # .. [vischeck] http://www.vischeck.com/vischeck/
-# .. [IBM] https://dx.doi.org/10.1109/VISUAL.1995.480803
+# .. [IBM] https://doi.org/10.1109/VISUAL.1995.480803
 # .. [palettable] https://jiffyclub.github.io/palettable/

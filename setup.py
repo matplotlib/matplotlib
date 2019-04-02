@@ -7,20 +7,30 @@ setup.cfg.template for more information.
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
 import sys
-from setuptools import setup
-from setuptools.command.test import test as TestCommand
-from setuptools.command.build_ext import build_ext as BuildExtCommand
 
-if sys.version_info < (3, 5):
+min_version = (3, 6)
+
+if sys.version_info < min_version:
     error = """
-Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
-Beginning with Matplotlib 3.0, Python 3.5 and above is required.
+Beginning with Matplotlib 3.1, Python {0} or above is required.
 
 This may be due to an out of date pip.
 
 Make sure you have pip >= 9.0.1.
-"""
+""".format('.'.join(str(n) for n in min_version)),
     sys.exit(error)
+
+from io import BytesIO
+import os
+from string import Template
+import urllib.request
+from zipfile import ZipFile
+
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext as BuildExtCommand
+from setuptools.command.develop import develop as DevelopCommand
+from setuptools.command.install_lib import install_lib as InstallLibCommand
+from setuptools.command.test import test as TestCommand
 
 # The setuptools version of sdist adds a setup.cfg file to the tree.
 # We don't want that, so we simply remove it, and it will fall back to
@@ -35,7 +45,8 @@ else:
 from distutils.dist import Distribution
 
 import setupext
-from setupext import print_line, print_raw, print_message, print_status
+from setupext import (print_line, print_raw, print_message, print_status,
+                      download_or_cache)
 
 # Get the version from versioneer
 import versioneer
@@ -49,9 +60,7 @@ mpl_packages = [
     setupext.Matplotlib(),
     setupext.Python(),
     setupext.Platform(),
-    'Required dependencies and extensions',
     setupext.Numpy(),
-    setupext.InstallRequires(),
     setupext.LibAgg(),
     setupext.FreeType(),
     setupext.FT2Font(),
@@ -70,7 +79,6 @@ mpl_packages = [
     setupext.BackendAgg(),
     setupext.BackendTkAgg(),
     setupext.BackendMacOSX(),
-    setupext.Windowing(),
     'Optional package data',
     setupext.Dlls(),
     ]
@@ -82,7 +90,6 @@ classifiers = [
     'License :: OSI Approved :: Python Software Foundation License',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Topic :: Scientific/Engineering :: Visualization',
@@ -96,6 +103,11 @@ class NoopTestCommand(TestCommand):
 
 
 class BuildExtraLibraries(BuildExtCommand):
+    def finalize_options(self):
+        self.distribution.ext_modules[:] = filter(
+            None, (package.get_extension() for package in good_packages))
+        super().finalize_options()
+
     def build_extensions(self):
         # Remove the -Wstrict-prototypes option, it's not valid for C++.  Fixed
         # in Py3.7 as bpo-5755.
@@ -112,6 +124,51 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
 cmdclass['build_ext'] = BuildExtraLibraries
 
+
+def _download_jquery_to(dest):
+    # Note: When bumping the jquery-ui version, also update the versions in
+    # single_figure.html and all_figures.html.
+    url = "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip"
+    sha = 'f8233674366ab36b2c34c577ec77a3d70cac75d2e387d8587f3836345c0f624d'
+    if not os.path.exists(os.path.join(dest, "jquery-ui-1.12.1")):
+        os.makedirs(dest, exist_ok=True)
+        try:
+            buff = download_or_cache(url, sha)
+        except Exception:
+            raise IOError("Failed to download jquery-ui.  Please download " +
+                          "{url} and extract it to {dest}.".format(
+                              url=url, dest=dest))
+        with ZipFile(buff) as zf:
+            zf.extractall(dest)
+
+
+# Relying on versioneer's implementation detail.
+class sdist_with_jquery(cmdclass['sdist']):
+    def make_release_tree(self, base_dir, files):
+        super(sdist_with_jquery, self).make_release_tree(base_dir, files)
+        _download_jquery_to(
+            os.path.join(base_dir, "lib/matplotlib/backends/web_backend/"))
+
+
+# Affects install and bdist_wheel.
+class install_lib_with_jquery(InstallLibCommand):
+    def run(self):
+        super(install_lib_with_jquery, self).run()
+        _download_jquery_to(
+            os.path.join(self.install_dir, "matplotlib/backends/web_backend/"))
+
+
+class develop_with_jquery(DevelopCommand):
+    def run(self):
+        super(develop_with_jquery, self).run()
+        _download_jquery_to("lib/matplotlib/backends/web_backend/")
+
+
+cmdclass['sdist'] = sdist_with_jquery
+cmdclass['install_lib'] = install_lib_with_jquery
+cmdclass['develop'] = develop_with_jquery
+
+
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses
 # when using multiprocessing.
@@ -121,7 +178,9 @@ if __name__ == '__main__':
     packages = []
     namespace_packages = []
     py_modules = []
-    ext_modules = []
+    # Dummy extension to trigger build_ext, which will swap it out with real
+    # extensions that can depend on numpy for the build.
+    ext_modules = [Extension('', [])]
     package_data = {}
     package_dir = {'': 'lib'}
     install_requires = []
@@ -180,9 +239,8 @@ if __name__ == '__main__':
             packages.extend(package.get_packages())
             namespace_packages.extend(package.get_namespace_packages())
             py_modules.extend(package.get_py_modules())
-            ext = package.get_extension()
-            if ext is not None:
-                ext_modules.append(ext)
+            # Extension modules only get added in build_ext, as numpy will have
+            # been installed (as setup_requires) at that point.
             data = package.get_package_data()
             for key, val in data.items():
                 package_data.setdefault(key, [])
@@ -202,11 +260,6 @@ if __name__ == '__main__':
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
             fd.write(''.join(template_lines))
 
-        # Finalize the extension modules so they can get the Numpy include
-        # dirs
-        for mod in ext_modules:
-            mod.finalize()
-
     # Finally, pass this all along to distutils to do the heavy lifting.
     setup(
         name="matplotlib",
@@ -221,7 +274,7 @@ if __name__ == '__main__':
         development and web application servers targeting multiple user
         interfaces and hardcopy output formats.
         """,
-        license="BSD",
+        license="PSF",
         packages=packages,
         namespace_packages=namespace_packages,
         platforms='any',
@@ -232,7 +285,7 @@ if __name__ == '__main__':
         classifiers=classifiers,
         download_url="http://matplotlib.org/users/installing.html",
 
-        python_requires='>=3.5',
+        python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
         # List third-party Python packages that we require
         install_requires=install_requires,
         setup_requires=setup_requires,

@@ -7,6 +7,7 @@
 branches:
   except:
     - /auto-backport-.*/
+    - /^v\d+\.\d+\.[\dx]+-doc$/
 
 clone_depth: 50
 
@@ -15,15 +16,12 @@ environment:
   global:
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
-                 --cov-report= --cov=lib -m "not network"
+                 --cov-report= --cov=lib -m "not network" --log-level=DEBUG
 
   matrix:
     # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,
     # one for 64bit because we construct envs anyway. But using one for the
     # right python version is hopefully making it fast due to package caching.
-    - PYTHON_VERSION: "3.5"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
-      TEST_ALL: "no"
     - PYTHON_VERSION: "3.6"
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
       TEST_ALL: "no"
@@ -86,7 +84,6 @@ install:
   # and for the wheels
   - del %LIBRARY_LIB%\png.lib
   - del %LIBRARY_LIB%\z.lib
-  - set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
   # enables the local freetype build
   - set MPLLOCALFREETYPE=1
   # Show the installed packages + versions
@@ -94,6 +91,7 @@ install:
 
 test_script:
   # Now build the thing..
+  - set LINK=/LIBPATH:%cd%\lib
   - pip install -ve .
   # these should show no z, png, or freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"

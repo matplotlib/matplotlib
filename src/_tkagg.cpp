@@ -7,13 +7,17 @@
  * See LICENSE/LICENSE.PIL for details.
  *
  */
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <cstdlib>
 #include <cstdio>
 #include <sstream>
 
 #include <agg_basics.h> // agg:int8u
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
@@ -111,8 +115,10 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
         destheight = (int)(y2 - y1);
         deststride = 4 * destwidth;
 
-        destbuffer = new agg::int8u[deststride * destheight];
-        if (destbuffer == NULL) {
+        try {
+            destbuffer = new agg::int8u[deststride * destheight];
+        }
+        catch (const std::bad_alloc &) {
             TCL_APPEND_RESULT(interp, "could not allocate memory", (char *)NULL);
             return TCL_ERROR;
         }
@@ -245,15 +251,45 @@ exit:
     }
 }
 
+#ifdef _WIN32
+static PyObject *
+Win32_GetForegroundWindow(PyObject *module, PyObject *args)
+{
+    HWND handle = GetForegroundWindow();
+    if (!PyArg_ParseTuple(args, ":GetForegroundWindow")) {
+        return NULL;
+    }
+    return PyLong_FromSize_t((size_t)handle);
+}
+
+static PyObject *
+Win32_SetForegroundWindow(PyObject *module, PyObject *args)
+{
+    HWND handle;
+    if (!PyArg_ParseTuple(args, "n:SetForegroundWindow", &handle)) {
+        return NULL;
+    }
+    if (!SetForegroundWindow(handle)) {
+        return PyErr_Format(PyExc_RuntimeError, "Error setting window");
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+#endif
+
 static PyMethodDef functions[] = {
     /* Tkinter interface stuff */
-    { "tkinit", (PyCFunction)_tkinit, 1 },
-    { "blit", (PyCFunction)mpl_tk_blit, 1 },
+    { "tkinit", (PyCFunction)_tkinit, METH_VARARGS },
+    { "blit", (PyCFunction)mpl_tk_blit, METH_VARARGS },
+#ifdef _WIN32
+    { "Win32_GetForegroundWindow", (PyCFunction)Win32_GetForegroundWindow, METH_VARARGS },
+    { "Win32_SetForegroundWindow", (PyCFunction)Win32_SetForegroundWindow, METH_VARARGS },
+#endif
     { NULL, NULL } /* sentinel */
 };
 
 // Functions to fill global TCL / Tk function pointers by dynamic loading
-#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+#ifdef _WIN32
 
 /*
  * On Windows, we can't load the tkinter module to get the TCL or Tk symbols,
@@ -262,7 +298,6 @@ static PyMethodDef functions[] = {
  * Python, we scan all modules in the running process for the TCL and Tk
  * function names.
  */
-#include <windows.h>
 #define PSAPI_VERSION 1
 #include <psapi.h>
 // Must be linked with 'psapi' library

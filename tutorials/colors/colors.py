@@ -5,25 +5,28 @@ Specifying Colors
 
 Matplotlib recognizes the following formats to specify a color:
 
-* an RGB or RGBA tuple of float values in ``[0, 1]`` (e.g., ``(0.1, 0.2, 0.5)``
-  or  ``(0.1, 0.2, 0.5, 0.3)``).  RGBA is short for Red, Green, Blue, Alpha;
-* a hex RGB or RGBA string (e.g., ``'#0F0F0F'`` or ``'#0F0F0F0F'``);
+* an RGB or RGBA (red, green, blue, alpha) tuple of float values in ``[0, 1]``
+  (e.g., ``(0.1, 0.2, 0.5)`` or ``(0.1, 0.2, 0.5, 0.3)``);
+* a hex RGB or RGBA string (e.g., ``'#0f0f0f'`` or ``'#0f0f0f80'``;
+  case-insensitive);
 * a string representation of a float value in ``[0, 1]`` inclusive for gray
   level (e.g., ``'0.5'``);
 * one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``;
-* a X11/CSS4 color name;
-* a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__;
-  prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``);
-* one of ``{'tab:blue', 'tab:orange', 'tab:green',
-  'tab:red', 'tab:purple', 'tab:brown', 'tab:pink',
-  'tab:gray', 'tab:olive', 'tab:cyan'}`` which are the Tableau Colors from the
-  'T10' categorical palette (which is the default color cycle);
-* a "CN" color spec, i.e. `'C'` followed by a single digit, which is an index
-  into the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``);
-  the indexing occurs at artist creation time and defaults to black if the
+* a X11/CSS4 color name (case-insensitive);
+* a name from the `xkcd color survey`_, prefixed with ``'xkcd:'`` (e.g.,
+  ``'xkcd:sky blue'``; case insensitive);
+* one of the Tableau Colors from the 'T10' categorical palette (the default
+  color cycle): ``{'tab:blue', 'tab:orange', 'tab:green', 'tab:red',
+  'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan'}``
+  (case-insensitive);
+* a "CN" color spec, i.e. `'C'` followed by a number, which is an index into
+  the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``); the
+  indexing is intended to occur at rendering time, and defaults to black if the
   cycle does not include color.
 
-"Red", "Green" and "Blue", are the intensities of those colors, the combination
+.. _xkcd color survey: https://xkcd.com/color/rgb/
+
+"Red", "Green", and "Blue" are the intensities of those colors, the combination
 of which span the colorspace.
 
 How "Alpha" behaves depends on the ``zorder`` of the Artist.  Higher
@@ -35,8 +38,6 @@ then the RGB of the pixel is updated to:
 ``RGB = RGBOld * (1 - Alpha) + RGBnew * Alpha``.  Alpha
 of 1 means the old color is completely covered by the new Artist, Alpha of 0
 means that pixel of the Artist is transparent.
-
-All string specifications of color, other than "CN", are case-insensitive.
 
 For more information on colors in matplotlib see
 

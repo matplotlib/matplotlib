@@ -87,7 +87,7 @@ class LayoutBox(object):
         self.min_height = Variable(str(sn + 'min_height'))
         self.pref_width = Variable(str(sn + 'pref_width'))
         self.pref_height = Variable(str(sn + 'pref_height'))
-        # margis are only used for axes-position layout boxes.  maybe should
+        # margins are only used for axes-position layout boxes.  maybe should
         # be a separate subclass:
         self.left_margin = Variable(str(sn + 'left_margin'))
         self.right_margin = Variable(str(sn + 'right_margin'))
@@ -117,7 +117,7 @@ class LayoutBox(object):
         margin between the position of the axes and the outer edge of
         the axes.
 
-        Margins are variable because they change with the fogure size.
+        Margins are variable because they change with the figure size.
 
         Margin minimums are set to make room for axes decorations.  However,
         the margins can be larger if we are mathicng the position size to
@@ -234,7 +234,7 @@ class LayoutBox(object):
               self.bottom == bottom,
               self.top == top]
         for c in hc:
-            self.solver.addConstraint((c | strength))
+            self.solver.addConstraint(c | strength)
         # self.solver.updateVariables()
 
     def constrain_same(self, other, strength='strong'):
@@ -246,7 +246,7 @@ class LayoutBox(object):
               self.bottom == other.bottom,
               self.top == other.top]
         for c in hc:
-            self.solver.addConstraint((c | strength))
+            self.solver.addConstraint(c | strength)
 
     def constrain_left_margin(self, margin, strength='strong'):
         c = (self.left == self.parent.left + margin)
@@ -438,24 +438,13 @@ class LayoutBox(object):
         figLefts = [left + cellWs[2 * colNum] for colNum in range(ncols)]
         figRights = [left + cellWs[2 * colNum + 1] for colNum in range(ncols)]
 
-        rowNum, colNum = divmod(subspec.num1, ncols)
-        figBottom = figBottoms[rowNum]
-        figTop = figTops[rowNum]
-        figLeft = figLefts[colNum]
-        figRight = figRights[colNum]
+        rowNum1, colNum1 = divmod(subspec.num1, ncols)
+        rowNum2, colNum2 = divmod(subspec.num2, ncols)
+        figBottom = min(figBottoms[rowNum1], figBottoms[rowNum2])
+        figTop = max(figTops[rowNum1], figTops[rowNum2])
+        figLeft = min(figLefts[colNum1], figLefts[colNum2])
+        figRight = max(figRights[colNum1], figRights[colNum2])
 
-        if subspec.num2 is not None:
-
-            rowNum2, colNum2 = divmod(subspec.num2, ncols)
-            figBottom2 = figBottoms[rowNum2]
-            figTop2 = figTops[rowNum2]
-            figLeft2 = figLefts[colNum2]
-            figRight2 = figRights[colNum2]
-
-            figBottom = min(figBottom, figBottom2)
-            figLeft = min(figLeft, figLeft2)
-            figTop = max(figTop, figTop2)
-            figRight = max(figRight, figRight2)
         # These are numbers relative to 0,0,1,1.  Need to constrain
         # relative to parent.
 
@@ -467,7 +456,7 @@ class LayoutBox(object):
               self.width == parent.width * width,
               self.height == parent.height * height]
         for c in cs:
-            self.solver.addConstraint((c | 'required'))
+            self.solver.addConstraint(c | 'required')
 
         return lb
 
@@ -707,7 +696,6 @@ def plot_children(fig, box, level=0, printit=True):
     if printit:
         print("Level:", level)
     for child in box.children:
-        rect = child.get_rect()
         if printit:
             print(child)
         ax.add_patch(

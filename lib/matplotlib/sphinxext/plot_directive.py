@@ -148,9 +148,8 @@ import textwrap
 import traceback
 import warnings
 
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.images import Image
-align = Image.align
 import jinja2  # Sphinx dependency.
 
 import matplotlib
@@ -165,6 +164,7 @@ except UserWarning:
 else:
     import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers, cbook
+align = Image.align
 
 __version__ = 2
 
@@ -174,6 +174,7 @@ __version__ = 2
 # -----------------------------------------------------------------------------
 
 
+@cbook.deprecated("3.1", alternative="PlotDirective")
 def plot_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
     """Implementation of the ``.. plot::`` directive.
@@ -241,25 +242,42 @@ def mark_plot_labels(app, document):
                     break
 
 
+class PlotDirective(Directive):
+    """Implementation of the ``.. plot::`` directive.
+
+    See the module docstring for details.
+    """
+
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 2
+    final_argument_whitespace = False
+    option_spec = {
+        'alt': directives.unchanged,
+        'height': directives.length_or_unitless,
+        'width': directives.length_or_percentage_or_unitless,
+        'scale': directives.nonnegative_int,
+        'align': _option_align,
+        'class': directives.class_option,
+        'include-source': _option_boolean,
+        'format': _option_format,
+        'context': _option_context,
+        'nofigs': directives.flag,
+        'encoding': directives.encoding,
+        }
+
+    def run(self):
+        """Run the plot directive."""
+        return run(self.arguments, self.content, self.options,
+                   self.state_machine, self.state, self.lineno)
+
+
 def setup(app):
+    import matplotlib
     setup.app = app
     setup.config = app.config
     setup.confdir = app.confdir
-
-    options = {'alt': directives.unchanged,
-               'height': directives.length_or_unitless,
-               'width': directives.length_or_percentage_or_unitless,
-               'scale': directives.nonnegative_int,
-               'align': _option_align,
-               'class': directives.class_option,
-               'include-source': _option_boolean,
-               'format': _option_format,
-               'context': _option_context,
-               'nofigs': directives.flag,
-               'encoding': directives.encoding
-               }
-
-    app.add_directive('plot', plot_directive, True, (0, 2, False), **options)
+    app.add_directive('plot', PlotDirective)
     app.add_config_value('plot_pre_code', None, True)
     app.add_config_value('plot_include_source', False, True)
     app.add_config_value('plot_html_show_source_link', True, True)
@@ -273,7 +291,8 @@ def setup(app):
 
     app.connect('doctree-read', mark_plot_labels)
 
-    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
+    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
+                'version': matplotlib.__version__}
     return metadata
 
 
@@ -400,11 +419,13 @@ TEMPLATE = """
 {{ only_texinfo }}
 
    {% for img in images %}
+   {% if 'png' in img.formats -%}
    .. image:: {{ build_dir }}/{{ img.basename }}.png
       {% for option in options -%}
       {{ option }}
       {% endfor %}
 
+   {% endif -%}
    {% endfor %}
 
 """

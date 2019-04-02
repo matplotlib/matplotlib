@@ -1,5 +1,6 @@
 import atexit
 import codecs
+import functools
 import logging
 import math
 import os
@@ -17,7 +18,6 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import is_writable_file_like
 from matplotlib.path import Path
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
@@ -59,7 +59,7 @@ def get_fontspec():
 
 def get_preamble():
     """Get LaTeX preamble from rc."""
-    return "\n".join(rcParams["pgf.preamble"])
+    return rcParams["pgf.preamble"]
 
 ###############################################################################
 
@@ -144,32 +144,20 @@ def _font_properties_str(prop):
 
 
 def make_pdf_to_png_converter():
-    """
-    Returns a function that converts a pdf file to a png file.
-    """
-
-    tools_available = []
-    # check for pdftocairo
-    try:
-        subprocess.check_output(["pdftocairo", "-v"], stderr=subprocess.STDOUT)
-        tools_available.append("pdftocairo")
-    except OSError:
-        pass
-    # check for ghostscript
-    gs, ver = mpl.checkdep_ghostscript()
-    if gs:
-        tools_available.append("gs")
-
-    # pick converter
-    if "pdftocairo" in tools_available:
+    """Returns a function that converts a pdf file to a png file."""
+    if shutil.which("pdftocairo"):
         def cairo_convert(pdffile, pngfile, dpi):
             cmd = ["pdftocairo", "-singlefile", "-png", "-r", "%d" % dpi,
                    pdffile, os.path.splitext(pngfile)[0]]
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         return cairo_convert
-    elif "gs" in tools_available:
+    try:
+        gs_info = mpl._get_executable_info("gs")
+    except FileNotFoundError:
+        pass
+    else:
         def gs_convert(pdffile, pngfile, dpi):
-            cmd = [gs,
+            cmd = [gs_info.executable,
                    '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dNOPROMPT',
                    '-dUseCIEColor', '-dTextAlphaBits=4',
                    '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE',
@@ -177,8 +165,7 @@ def make_pdf_to_png_converter():
                    '-r%d' % dpi, pdffile]
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         return gs_convert
-    else:
-        raise RuntimeError("No suitable pdf to png renderer found.")
+    raise RuntimeError("No suitable pdf to png renderer found.")
 
 
 class LatexError(Exception):
@@ -187,6 +174,7 @@ class LatexError(Exception):
         self.latex_output = latex_output
 
 
+@cbook.deprecated("3.1")
 class LatexManagerFactory:
     previous_instance = None
 
@@ -212,7 +200,7 @@ class LatexManager:
     """
     The LatexManager opens an instance of the LaTeX application for
     determining the metrics of text elements. The LaTeX environment can be
-    modified by setting fonts and/or a custem preamble in the rc parameters.
+    modified by setting fonts and/or a custom preamble in the rc parameters.
     """
     _unclean_instances = weakref.WeakSet()
 
@@ -223,13 +211,30 @@ class LatexManager:
         # Create LaTeX header with some content, else LaTeX will load some math
         # fonts later when we don't expect the additional output on stdout.
         # TODO: is this sufficient?
-        latex_header = [r"\documentclass{minimal}",
-                        latex_preamble,
-                        latex_fontspec,
-                        r"\begin{document}",
-                        r"text $math \mu$",  # force latex to load fonts now
-                        r"\typeout{pgf_backend_query_start}"]
+        latex_header = [
+            # Include TeX program name as a comment for cache invalidation.
+            r"% !TeX program = {}".format(rcParams["pgf.texsystem"]),
+            r"\documentclass{minimal}",
+            latex_preamble,
+            latex_fontspec,
+            r"\begin{document}",
+            r"text $math \mu$",  # force latex to load fonts now
+            r"\typeout{pgf_backend_query_start}",
+        ]
         return "\n".join(latex_header)
+
+    @classmethod
+    def _get_cached_or_new(cls):
+        """
+        Return the previous LatexManager if the header and tex system did not
+        change, or a new instance otherwise.
+        """
+        return cls._get_cached_or_new_impl(cls._build_latex_header())
+
+    @classmethod
+    @functools.lru_cache(1)
+    def _get_cached_or_new_impl(cls, header):  # Helper for _get_cached_or_new.
+        return cls()
 
     @staticmethod
     def _cleanup_remaining_instances():
@@ -323,7 +328,7 @@ class LatexManager:
 
     def get_width_height_descent(self, text, prop):
         """
-        Get the width, total height and descent for a text typesetted by the
+        Get the width, total height and descent for a text typeset by the
         current LaTeX environment.
         """
 
@@ -379,8 +384,8 @@ class RendererPgf(RendererBase):
             Matplotlib figure to initialize height, width and dpi from.
         fh : file-like
             File handle for the output of the drawing commands.
-
         """
+
         RendererBase.__init__(self)
         self.dpi = figure.dpi
         self.fh = fh
@@ -388,7 +393,7 @@ class RendererPgf(RendererBase):
         self.image_counter = 0
 
         # get LatexManager instance
-        self.latexManager = LatexManagerFactory.get_latex_manager()
+        self.latexManager = LatexManager._get_cached_or_new()
 
         if dummy:
             # dummy==True deactivate all methods
@@ -406,6 +411,8 @@ class RendererPgf(RendererBase):
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
+        # docstring inherited
+
         writeln(self.fh, r"\begin{pgfscope}")
 
         # convert from display units to in
@@ -437,6 +444,7 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\end{pgfscope}")
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         writeln(self.fh, r"\begin{pgfscope}")
         # draw the path
         self._print_pgf_clip(gc)
@@ -476,7 +484,7 @@ class RendererPgf(RendererBase):
                 path.get_extents(transform).get_points()
             xmin, xmax = f * xmin, f * xmax
             ymin, ymax = f * ymin, f * ymax
-            repx, repy = int(math.ceil(xmax-xmin)), int(math.ceil(ymax-ymin))
+            repx, repy = math.ceil(xmax - xmin), math.ceil(ymax - ymin)
             writeln(self.fh,
                     r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
             for iy in range(repy):
@@ -608,19 +616,16 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgfusepath{%s}" % ",".join(actions))
 
     def option_scale_image(self):
-        """
-        pgf backend supports affine transform of image.
-        """
+        # docstring inherited
         return True
 
     def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
+        # docstring inherited
         return not rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, transform=None):
+        # docstring inherited
+
         h, w = im.shape[:2]
         if w == 0 or h == 0:
             return
@@ -655,9 +660,12 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\end{pgfscope}")
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!", mtext=None):
+        # docstring inherited
         self.draw_text(gc, x, y, s, prop, angle, ismath, mtext)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         # prepare string for tex
         s = common_texification(s)
         prop_cmds = _font_properties_str(prop)
@@ -707,6 +715,8 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\end{pgfscope}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
+
         # check if the math is supposed to be displaystyled
         s = common_texification(s)
 
@@ -719,15 +729,19 @@ class RendererPgf(RendererBase):
         return w * f, h * f, d * f
 
     def flipy(self):
+        # docstring inherited
         return False
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.figure.get_figwidth(), self.figure.get_figheight()
 
     def points_to_pixels(self, points):
+        # docstring inherited
         return points * mpl_pt_to_in * self.dpi
 
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextPgf()
 
 
@@ -747,10 +761,10 @@ class TmpDirCleaner:
     @staticmethod
     def cleanup_remaining_tmpdirs():
         for tmpdir in TmpDirCleaner.remaining_tmpdirs:
+            error_message = "error deleting tmp directory {}".format(tmpdir)
             shutil.rmtree(
                 tmpdir,
-                onerror=lambda *args: print("error deleting tmp directory %s"
-                                            % tmpdir, file=sys.stderr))
+                onerror=lambda *args: _log.error(error_message))
 
 
 class FigureCanvasPgf(FigureCanvasBase):
@@ -827,16 +841,10 @@ class FigureCanvasPgf(FigureCanvasBase):
         if kwargs.get("dryrun", False):
             self._print_pgf_to_fh(None, *args, **kwargs)
             return
-
-        # figure out where the pgf is to be written to
-        if isinstance(fname_or_fh, str):
-            with open(fname_or_fh, "w", encoding="utf-8") as fh:
-                self._print_pgf_to_fh(fh, *args, **kwargs)
-        elif is_writable_file_like(fname_or_fh):
-            fh = codecs.getwriter("utf-8")(fname_or_fh)
-            self._print_pgf_to_fh(fh, *args, **kwargs)
-        else:
-            raise ValueError("filename must be a path")
+        with cbook.open_file_cm(fname_or_fh, "w", encoding="utf-8") as file:
+            if not cbook.file_requires_unicode(file):
+                file = codecs.getwriter("utf-8")(file)
+            self._print_pgf_to_fh(file, *args, **kwargs)
 
     def _print_pdf_to_fh(self, fh, *args, **kwargs):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
@@ -881,21 +889,12 @@ class FigureCanvasPgf(FigureCanvasBase):
                 TmpDirCleaner.add(tmpdir)
 
     def print_pdf(self, fname_or_fh, *args, **kwargs):
-        """
-        Use LaTeX to compile a Pgf generated figure to PDF.
-        """
+        """Use LaTeX to compile a Pgf generated figure to PDF."""
         if kwargs.get("dryrun", False):
             self._print_pgf_to_fh(None, *args, **kwargs)
             return
-
-        # figure out where the pdf is to be written to
-        if isinstance(fname_or_fh, str):
-            with open(fname_or_fh, "wb") as fh:
-                self._print_pdf_to_fh(fh, *args, **kwargs)
-        elif is_writable_file_like(fname_or_fh):
-            self._print_pdf_to_fh(fname_or_fh, *args, **kwargs)
-        else:
-            raise ValueError("filename must be a path or a file-like object")
+        with cbook.open_file_cm(fname_or_fh, "wb") as file:
+            self._print_pdf_to_fh(file, *args, **kwargs)
 
     def _print_png_to_fh(self, fh, *args, **kwargs):
         converter = make_pdf_to_png_converter()
@@ -918,20 +917,12 @@ class FigureCanvasPgf(FigureCanvasBase):
                 TmpDirCleaner.add(tmpdir)
 
     def print_png(self, fname_or_fh, *args, **kwargs):
-        """
-        Use LaTeX to compile a pgf figure to pdf and convert it to png.
-        """
+        """Use LaTeX to compile a pgf figure to pdf and convert it to png."""
         if kwargs.get("dryrun", False):
             self._print_pgf_to_fh(None, *args, **kwargs)
             return
-
-        if isinstance(fname_or_fh, str):
-            with open(fname_or_fh, "wb") as fh:
-                self._print_png_to_fh(fh, *args, **kwargs)
-        elif is_writable_file_like(fname_or_fh):
-            self._print_png_to_fh(fname_or_fh, *args, **kwargs)
-        else:
-            raise ValueError("filename must be a path or a file-like object")
+        with cbook.open_file_cm(fname_or_fh, "wb") as file:
+            self._print_png_to_fh(file, *args, **kwargs)
 
     def get_renderer(self):
         return RendererPgf(self.figure, None, dummy=True)

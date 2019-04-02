@@ -20,7 +20,7 @@ from matplotlib.patches import Patch
 from . import proj3d
 
 
-def norm_angle(a):
+def _norm_angle(a):
     """Return the given angle normalized to -180 < *a* <= 180 degrees."""
     a = (a + 360) % 360
     if a > 180:
@@ -28,12 +28,24 @@ def norm_angle(a):
     return a
 
 
-def norm_text_angle(a):
+@cbook.deprecated("3.1")
+def norm_angle(a):
+    """Return the given angle normalized to -180 < *a* <= 180 degrees."""
+    return _norm_angle(a)
+
+
+def _norm_text_angle(a):
     """Return the given angle normalized to -90 < *a* <= 90 degrees."""
     a = (a + 180) % 180
     if a > 90:
         a = a - 180
     return a
+
+
+@cbook.deprecated("3.1")
+def norm_text_angle(a):
+    """Return the given angle normalized to -90 < *a* <= 90 degrees."""
+    return _norm_text_angle(a)
 
 
 def get_dir_vector(zdir):
@@ -109,9 +121,14 @@ class Text3D(mtext.Text):
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
         self.set_position((proj[0][0], proj[1][0]))
-        self.set_rotation(norm_text_angle(angle))
+        self.set_rotation(_norm_text_angle(angle))
         mtext.Text.draw(self, renderer)
         self.stale = False
+
+    def get_tightbbox(self, renderer):
+        # Overwriting the 2d Text behavior which is not valid for 3d.
+        # For now, just return None to exclude from layout calculation.
+        return None
 
 
 def text_2d_to_3d(obj, z=0, zdir='z'):
@@ -145,6 +162,40 @@ class Line3D(lines.Line2D):
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
+    def set_data_3d(self, *args):
+        """
+        Set the x, y and z data
+
+        Parameters
+        ----------
+        x : array_like
+            The x-data to be plotted
+        y : array_like
+            The y-data to be plotted
+        z : array_like
+            The z-data to be plotted
+
+        Notes
+        -----
+        Accepts x, y, z arguments or a single array_like (x, y, z)
+        """
+        if len(args) == 1:
+            self._verts3d = args[0]
+        else:
+            self._verts3d = args
+        self.stale = True
+
+    def get_data_3d(self):
+        """
+        Get the current data
+
+        Returns
+        -------
+        verts3d : length-3 tuple or array_likes
+            The current data as a tuple or array_likes
+        """
+        return self._verts3d
+
     @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
@@ -161,7 +212,7 @@ def line_2d_to_3d(line, zs=0, zdir='z'):
     line.set_3d_properties(zs, zdir)
 
 
-def path_to_3d_segment(path, zs=0, zdir='z'):
+def _path_to_3d_segment(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment."""
 
     zs = np.broadcast_to(zs, len(path))
@@ -171,42 +222,69 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
     return seg3d
 
 
-def paths_to_3d_segments(paths, zs=0, zdir='z'):
+@cbook.deprecated("3.1")
+def path_to_3d_segment(path, zs=0, zdir='z'):
+    """Convert a path to a 3D segment."""
+    return _path_to_3d_segment(path, zs=zs, zdir=zdir)
+
+
+def _paths_to_3d_segments(paths, zs=0, zdir='z'):
     """Convert paths from a collection object to 3D segments."""
 
     zs = np.broadcast_to(zs, len(paths))
-    segs = [path_to_3d_segment(path, pathz, zdir)
+    segs = [_path_to_3d_segment(path, pathz, zdir)
             for path, pathz in zip(paths, zs)]
     return segs
 
 
-def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
+@cbook.deprecated("3.1")
+def paths_to_3d_segments(paths, zs=0, zdir='z'):
+    """Convert paths from a collection object to 3D segments."""
+    return _paths_to_3d_segments(paths, zs=zs, zdir=zdir)
+
+
+def _path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     """Convert a path to a 3D segment with path codes."""
 
     zs = np.broadcast_to(zs, len(path))
-    seg = []
-    codes = []
     pathsegs = path.iter_segments(simplify=False, curves=False)
-    for (((x, y), code), z) in zip(pathsegs, zs):
-        seg.append((x, y, z))
-        codes.append(code)
-    seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
-    return seg3d, codes
+    seg_codes = [((x, y, z), code) for ((x, y), code), z in zip(pathsegs, zs)]
+    if seg_codes:
+        seg, codes = zip(*seg_codes)
+        seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
+    else:
+        seg3d = []
+        codes = []
+    return seg3d, list(codes)
 
 
-def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
+@cbook.deprecated("3.1")
+def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
+    """Convert a path to a 3D segment with path codes."""
+    return _path_to_3d_segment_with_codes(path, zs=zs, zdir=zdir)
+
+
+def _paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     """
     Convert paths from a collection object to 3D segments with path codes.
     """
 
     zs = np.broadcast_to(zs, len(paths))
-    segments = []
-    codes_list = []
-    for path, pathz in zip(paths, zs):
-        segs, codes = path_to_3d_segment_with_codes(path, pathz, zdir)
-        segments.append(segs)
-        codes_list.append(codes)
-    return segments, codes_list
+    segments_codes = [_path_to_3d_segment_with_codes(path, pathz, zdir)
+                      for path, pathz in zip(paths, zs)]
+    if segments_codes:
+        segments, codes = zip(*segments_codes)
+    else:
+        segments, codes = [], []
+    return list(segments), list(codes)
+
+
+@cbook.deprecated("3.1")
+def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
+    """
+    Convert paths from a collection object to 3D segments with path codes.
+    """
+    return _paths_to_3d_segments_with_codes(paths, zs=zs, zdir=zdir)
 
 
 class Line3DCollection(LineCollection):
@@ -251,7 +329,7 @@ class Line3DCollection(LineCollection):
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a LineCollection to a Line3DCollection object."""
-    segments3d = paths_to_3d_segments(col.get_paths(), zs, zdir)
+    segments3d = _paths_to_3d_segments(col.get_paths(), zs, zdir)
     col.__class__ = Line3DCollection
     col.set_segments(segments3d)
 
@@ -310,7 +388,7 @@ class PathPatch3D(Patch3D):
         return min(vzs)
 
 
-def get_patch_verts(patch):
+def _get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
     trans = patch.get_patch_transform()
     path = patch.get_path()
@@ -321,9 +399,15 @@ def get_patch_verts(patch):
         return []
 
 
+@cbook.deprecated("3.1")
+def get_patch_verts(patch):
+    """Return a list of vertices for the path of a patch."""
+    return _get_patch_verts(patch)
+
+
 def patch_2d_to_3d(patch, z=0, zdir='z'):
     """Convert a Patch to a Patch3D object."""
-    verts = get_patch_verts(patch)
+    verts = _get_patch_verts(patch)
     patch.__class__ = Patch3D
     patch.set_3d_properties(verts, z, zdir)
 
@@ -387,12 +471,12 @@ class Patch3DCollection(PatchCollection):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
 
-        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+        fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+        ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
@@ -453,12 +537,12 @@ class Path3DCollection(PathCollection):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
 
-        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+        fcs = (_zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+        ecs = (_zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
@@ -533,8 +617,8 @@ class Poly3DCollection(PolyCollection):
         """
         if zsort is True:
             cbook.warn_deprecated(
-                "3.1", "Passing True to mean 'average' for set_zsort is "
-                "deprecated and support will be removed in Matplotlib 3.3; "
+                "3.1", message="Passing True to mean 'average' for set_zsort "
+                "is deprecated and support will be removed in Matplotlib 3.3; "
                 "pass 'average' instead.")
             zsort = 'average'
         self._zsortfunc = self._zsort_functions[zsort]
@@ -603,7 +687,7 @@ class Poly3DCollection(PolyCollection):
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
 
-        txs, tys, tzs = proj3d.proj_transform_vec(self._vec, renderer.M)
+        txs, tys, tzs = proj3d._proj_transform_vec(self._vec, renderer.M)
         xyzlist = [(txs[si:ei], tys[si:ei], tzs[si:ei])
                    for si, ei in self._segis]
 
@@ -641,7 +725,7 @@ class Poly3DCollection(PolyCollection):
         # Return zorder value
         if self._sort_zpos is not None:
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-            ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
+            ztrans = proj3d._proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
         elif tzs.size > 0:
             # FIXME: Some results still don't look quite right.
@@ -660,21 +744,10 @@ class Poly3DCollection(PolyCollection):
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
 
     def set_alpha(self, alpha):
-        """
-        Set the alpha transparencies of the collection.
-
-        Parameters
-        ----------
-        alpha : float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
+        # docstring inherited
         artist.Artist.set_alpha(self, alpha)
         try:
-            self._facecolors = mcolors.to_rgba_array(
+            self._facecolors3d = mcolors.to_rgba_array(
                 self._facecolors3d, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
@@ -694,8 +767,8 @@ class Poly3DCollection(PolyCollection):
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a PolyCollection to a Poly3DCollection object."""
-    segments_3d, codes = paths_to_3d_segments_with_codes(col.get_paths(),
-                                                         zs, zdir)
+    segments_3d, codes = _paths_to_3d_segments_with_codes(
+            col.get_paths(), zs, zdir)
     col.__class__ = Poly3DCollection
     col.set_verts_and_codes(segments_3d, codes)
     col.set_3d_properties()
@@ -737,22 +810,34 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def get_colors(c, num):
+def _get_colors(c, num):
     """Stretch the color argument to provide the required number *num*."""
     return np.broadcast_to(
         mcolors.to_rgba_array(c) if len(c) else [0, 0, 0, 0],
         (num, 4))
 
 
-def zalpha(colors, zs):
+@cbook.deprecated("3.1")
+def get_colors(c, num):
+    """Stretch the color argument to provide the required number *num*."""
+    return _get_colors(c, num)
+
+
+def _zalpha(colors, zs):
     """Modify the alphas of the color list according to depth."""
     # FIXME: This only works well if the points for *zs* are well-spaced
     #        in all three dimensions. Otherwise, at certain orientations,
     #        the min and max zs are very close together.
     #        Should really normalize against the viewing depth.
-    colors = get_colors(colors, len(zs))
-    if len(zs):
-        norm = Normalize(min(zs), max(zs))
-        sats = 1 - norm(zs) * 0.7
-        colors = [(c[0], c[1], c[2], c[3] * s) for c, s in zip(colors, sats)]
-    return colors
+    if len(zs) == 0:
+        return np.zeros((0, 4))
+    norm = Normalize(min(zs), max(zs))
+    sats = 1 - norm(zs) * 0.7
+    rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
+    return np.column_stack([rgba[:, :3], rgba[:, 3] * sats])
+
+
+@cbook.deprecated("3.1")
+def zalpha(colors, zs):
+    """Modify the alphas of the color list according to depth."""
+    return _zalpha(colors, zs)

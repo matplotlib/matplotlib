@@ -28,38 +28,32 @@ per-file-ignores =
     tools/compare_backend_driver_results.py: E501
     tools/subset.py: E221, E251, E261, E302, E501
 
-    matplotlib/_cm.py: E202, E203, E302
-    matplotlib/_mathtext_data.py: E203, E261
-    matplotlib/backends/_backend_tk.py: E501
-    matplotlib/backends/backend_agg.py: E302
-    matplotlib/backends/backend_cairo.py: E203, E221, E402
-    matplotlib/backends/backend_gtk3.py: E203, E221, E222, E225, E251, E501
-    matplotlib/backends/backend_pgf.py: E731
-    matplotlib/backends/qt_editor/formlayout.py: E501
-    matplotlib/font_manager.py: E203, E221, E251, E501
-    matplotlib/fontconfig_pattern.py: E201, E203, E221, E222, E225
-    matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
-    matplotlib/projections/geo.py: E203, E221, E502
-    matplotlib/pylab.py: E501
-    matplotlib/rcsetup.py: E501
-    matplotlib/sphinxext/plot_directive.py: E402
-    matplotlib/tests/test_mathtext.py: E501
-    matplotlib/transforms.py: E201, E202, E203, E501
-    matplotlib/tri/triinterpolate.py: E201, E221
-    matplotlib/type1font.py: E731
+    lib/matplotlib/_cm.py: E202, E203, E302
+    lib/matplotlib/_mathtext_data.py: E203, E261
+    lib/matplotlib/backends/_backend_tk.py: E501
+    lib/matplotlib/backends/backend_agg.py: E302
+    lib/matplotlib/backends/backend_cairo.py: E203, E221, E402
+    lib/matplotlib/backends/backend_gtk3.py: E203, E221, E225, E251, E501
+    lib/matplotlib/backends/backend_pgf.py: E731
+    lib/matplotlib/backends/qt_editor/_formlayout.py: E501
+    lib/matplotlib/font_manager.py: E203, E221, E251, E501
+    lib/matplotlib/fontconfig_pattern.py: E201, E203, E221, E222, E225
+    lib/matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
+    lib/matplotlib/projections/geo.py: E203, E221, E502
+    lib/matplotlib/pylab.py: E501
+    lib/matplotlib/rcsetup.py: E501
+    lib/matplotlib/tests/test_mathtext.py: E501
+    lib/matplotlib/transforms.py: E201, E202, E203, E501
+    lib/matplotlib/tri/triinterpolate.py: E201, E221
+    lib/matplotlib/type1font.py: E731
 
-    mpl_toolkits/axes_grid/axes_rgb.py: E501
-    mpl_toolkits/axes_grid1/axes_divider.py: E402, E501
-    mpl_toolkits/axes_grid1/axes_grid.py: E225
-    mpl_toolkits/axes_grid1/axes_size.py: E272, E501
-    mpl_toolkits/axes_grid1/colorbar.py: E225, E501
-    mpl_toolkits/axes_grid1/inset_locator.py: E501
-    mpl_toolkits/axes_grid1/mpl_axes.py: E501
-    mpl_toolkits/axisartist/angle_helper.py: E221
-    mpl_toolkits/axisartist/clip_path.py: E225, E501
-    mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501
-    mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501
-    mpl_toolkits/tests/test_axes_grid1.py: E201, E202
+    lib/mpl_toolkits/axes_grid1/axes_divider.py: E402, E501
+    lib/mpl_toolkits/axes_grid1/axes_size.py: E272
+    lib/mpl_toolkits/axes_grid1/colorbar.py: E225, E501
+    lib/mpl_toolkits/axisartist/angle_helper.py: E221
+    lib/mpl_toolkits/axisartist/clip_path.py: E225
+    lib/mpl_toolkits/axisartist/floating_axes.py: E225, E402, E501
+    lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501
 
     doc/conf.py: E402, E501
     doc/sphinxext/github.py: E302, E501
@@ -142,11 +136,16 @@ per-file-ignores =
     examples/images_contours_and_fields/tripcolor_demo.py: E201, E402
     examples/images_contours_and_fields/triplot_demo.py: E201, E402
     examples/images_contours_and_fields/watermark_image.py: E402
+    examples/lines_bars_and_markers/errorbar_limits_simple.py: E402
     examples/lines_bars_and_markers/fill_between_demo.py: E402
     examples/lines_bars_and_markers/filled_step.py: E402
     examples/lines_bars_and_markers/joinstyle.py: E402
     examples/lines_bars_and_markers/scatter_piecharts.py: E402
+    examples/lines_bars_and_markers/scatter_with_legend.py: E402
     examples/lines_bars_and_markers/span_regions.py: E402
+    examples/lines_bars_and_markers/stem_plot.py: E402
+    examples/lines_bars_and_markers/step_demo.py: E402
+    examples/lines_bars_and_markers/timeline.py: E402
     examples/misc/agg_buffer.py: E402
     examples/misc/anchored_artists.py: E501
     examples/misc/contour_manual.py: E501
@@ -182,11 +181,10 @@ per-file-ignores =
     examples/pyplots/pyplot_formatstr.py: E231, E402
     examples/pyplots/pyplot_mathtext.py: E231, E402
     examples/pyplots/pyplot_scales.py: E402
-    examples/pyplots/pyplot_simple.py: E231
-    examples/pyplots/pyplot_simple.py: E402
+    examples/pyplots/pyplot_simple.py: E231, E402
     examples/pyplots/pyplot_text.py: E402
     examples/pyplots/pyplot_three.py: E402
-    examples/pyplots/pyplot_two_subplots.py: E302, E402
+    examples/pyplots/pyplot_two_subplots.py: E402
     examples/pyplots/text_commands.py: E231, E402
     examples/pyplots/text_layout.py: E231, E402
     examples/pyplots/whats_new_1_subplot3d.py: E402
@@ -198,6 +196,7 @@ per-file-ignores =
     examples/pyplots/whats_new_99_spines.py: E231, E402
     examples/recipes/placing_text_boxes.py: E501
     examples/scales/power_norm.py: E402
+    examples/scales/scales.py: E402
     examples/shapes_and_collections/artist_reference.py: E402
     examples/shapes_and_collections/collections.py: E402
     examples/shapes_and_collections/compound_path.py: E402
@@ -228,10 +227,12 @@ per-file-ignores =
     examples/subplots_axes_and_figures/axes_zoom_effect.py: E402
     examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
     examples/subplots_axes_and_figures/demo_tight_layout.py: E402
+    examples/subplots_axes_and_figures/secondary_axis.py: E402
     examples/subplots_axes_and_figures/two_scales.py: E402
     examples/subplots_axes_and_figures/zoom_inset_axes.py: E402
     examples/tests/backend_driver_sgskip.py: E402, E501
     examples/text_labels_and_annotations/annotation_demo.py: E501
+    examples/text_labels_and_annotations/demo_text_rotation_mode.py: E402 
     examples/text_labels_and_annotations/custom_legends.py: E402
     examples/text_labels_and_annotations/font_family_rc_sgskip.py: E402
     examples/text_labels_and_annotations/font_file.py: E402
@@ -241,6 +242,7 @@ per-file-ignores =
     examples/text_labels_and_annotations/tex_demo.py: E402
     examples/text_labels_and_annotations/watermark_text.py: E402
     examples/ticks_and_spines/auto_ticks.py: E501
+    examples/ticks_and_spines/date_concise_formatter.py: E402 
     examples/user_interfaces/canvasagg.py: E402
     examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py: E402
     examples/user_interfaces/embedding_in_gtk3_sgskip.py: E402
@@ -253,7 +255,7 @@ per-file-ignores =
     examples/user_interfaces/gtk_spreadsheet_sgskip.py: E402
     examples/user_interfaces/mathtext_wx_sgskip.py: E402, E501
     examples/user_interfaces/mpl_with_glade3_sgskip.py: E402
-    examples/user_interfaces/pylab_with_gtk_sgskip.py: E402, E501
+    examples/user_interfaces/pylab_with_gtk_sgskip.py: E302, E402
     examples/user_interfaces/toolmanager_sgskip.py: E402
     examples/userdemo/custom_boxstyle01.py: E402
     examples/userdemo/pgf_preamble_sgskip.py: E402

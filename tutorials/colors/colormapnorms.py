@@ -46,6 +46,7 @@ be seen:
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+import matplotlib.cbook as cbook
 
 N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
@@ -66,7 +67,7 @@ fig.colorbar(pcm, ax=ax[0], extend='max')
 
 pcm = ax[1].pcolor(X, Y, Z, cmap='PuBu_r')
 fig.colorbar(pcm, ax=ax[1], extend='max')
-fig.show()
+plt.show()
 
 ###############################################################################
 # Symmetric logarithmic
@@ -103,7 +104,7 @@ fig.colorbar(pcm, ax=ax[0], extend='both')
 
 pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z))
 fig.colorbar(pcm, ax=ax[1], extend='both')
-fig.show()
+plt.show()
 
 ###############################################################################
 # Power-law
@@ -135,13 +136,13 @@ fig.colorbar(pcm, ax=ax[0], extend='max')
 
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='PuBu_r')
 fig.colorbar(pcm, ax=ax[1], extend='max')
-fig.show()
+plt.show()
 
 ###############################################################################
 # Discrete bounds
 # ---------------
 #
-# Another normaization that comes with matplolib is
+# Another normaization that comes with Matplotlib is
 # :func:`colors.BoundaryNorm`.  In addition to *vmin* and *vmax*, this
 # takes as arguments boundaries between which data is to be mapped.  The
 # colors are then linearly distributed between these "bounds".  For
@@ -184,53 +185,72 @@ fig.colorbar(pcm, ax=ax[1], extend='both', orientation='vertical')
 
 pcm = ax[2].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z))
 fig.colorbar(pcm, ax=ax[2], extend='both', orientation='vertical')
-fig.show()
+plt.show()
 
 
 ###############################################################################
-# Custom normalization: Two linear ranges
-# ---------------------------------------
+# DivergingNorm: Different mapping on either side of a center
+# -----------------------------------------------------------
 #
-# It is possible to define your own normalization.  In the following
-# example, we modify :func:`colors:SymLogNorm` to use different linear
-# maps for the negative data values and the positive.  (Note that this
-# example is simple, and does not validate inputs or account for complex
-# cases such as masked data)
-#
-# .. note::
-#    This may appear soon as :func:`colors.OffsetNorm`.
-#
-#    As above, non-symmetric mapping of data to color is non-standard
-#    practice for quantitative data, and should only be used advisedly.  A
-#    practical example is having an ocean/land colormap where the land and
-#    ocean data span different ranges.
+# Sometimes we want to have a different colormap on either side of a
+# conceptual center point, and we want those two colormaps to have
+# different linear scales.  An example is a topographic map where the land
+# and ocean have a center at zero, but land typically has a greater
+# elevation range than the water has depth range, and they are often
+# represented by a different colormap.
 
-N = 100
-X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
-Z1 = np.exp(-X**2 - Y**2)
-Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
-Z = (Z1 - Z2) * 2
+filename = cbook.get_sample_data('topobathy.npz', asfileobj=False)
+with np.load(filename) as dem:
+    topo = dem['topo']
+    longitude = dem['longitude']
+    latitude = dem['latitude']
 
+fig, ax = plt.subplots()
+# make a colormap that has land and ocean clearly delineated and of the
+# same length (256 + 256)
+colors_undersea = plt.cm.terrain(np.linspace(0, 0.17, 256))
+colors_land = plt.cm.terrain(np.linspace(0.25, 1, 256))
+all_colors = np.vstack((colors_undersea, colors_land))
+terrain_map = colors.LinearSegmentedColormap.from_list('terrain_map',
+    all_colors)
+
+# make the norm:  Note the center is offset so that the land has more
+# dynamic range:
+divnorm = colors.DivergingNorm(vmin=-500., vcenter=0, vmax=4000)
+
+pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
+    cmap=terrain_map,)
+# Simple geographic plot, set aspect ratio beecause distance between lines of
+# longitude depends on latitude.
+ax.set_aspect(1 / np.cos(np.deg2rad(49)))
+fig.colorbar(pcm, shrink=0.6)
+plt.show()
+
+
+###############################################################################
+# Custom normalization: Manually implement two linear ranges
+# ----------------------------------------------------------
+#
+# The `.DivergingNorm` described above makes a useful example for
+# defining your own norm.
 
 class MidpointNormalize(colors.Normalize):
-    def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
-        self.midpoint = midpoint
+    def __init__(self, vmin=None, vmax=None, vcenter=None, clip=False):
+        self.vcenter = vcenter
         colors.Normalize.__init__(self, vmin, vmax, clip)
 
     def __call__(self, value, clip=None):
         # I'm ignoring masked values and all kinds of edge cases to make a
         # simple example...
-        x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
+        x, y = [self.vmin, self.vcenter, self.vmax], [0, 0.5, 1]
         return np.ma.masked_array(np.interp(value, x, y))
 
 
-fig, ax = plt.subplots(2, 1)
+fig, ax = plt.subplots()
+midnorm = MidpointNormalize(vmin=-500., vcenter=0, vmax=4000)
 
-pcm = ax[0].pcolormesh(X, Y, Z,
-                       norm=MidpointNormalize(midpoint=0.),
-                       cmap='RdBu_r')
-fig.colorbar(pcm, ax=ax[0], extend='both')
-
-pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z))
-fig.colorbar(pcm, ax=ax[1], extend='both')
-fig.show()
+pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=midnorm,
+    cmap=terrain_map)
+ax.set_aspect(1 / np.cos(np.deg2rad(49)))
+fig.colorbar(pcm, shrink=0.6, extend='both')
+plt.show()

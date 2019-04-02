@@ -1,0 +1,8 @@
+Deprecations
+````````````
+
+The ``verbose.fileo`` and ``verbose.level`` rcParams, which have had no effect
+ever since the switch from Matplotlib's old custom Verbose logging to the
+stdlib's `logging` module, are deprecated.
+
+The ``rcsetup.validate_verbose`` function is deprecated.

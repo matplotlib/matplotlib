@@ -1,5 +1,6 @@
 import io
 import os
+from pathlib import Path
 import sys
 import tempfile
 import warnings
@@ -132,9 +133,7 @@ def test_composite_image():
         assert len(pdf._file._images) == 2
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 def test_pdfpages_fspath():
-    from pathlib import Path
     with PdfPages(Path(os.devnull)) as pdf:
         pdf.savefig(plt.figure())
 
@@ -238,7 +237,7 @@ def test_failing_latex(tmpdir):
 
 
 def test_empty_rasterized():
-    # Check that emtpy figures that are rasterised save to pdf files fine
+    # Check that empty figures that are rasterised save to pdf files fine
     fig, ax = plt.subplots()
     ax.plot([], [], rasterized=True)
     fig.savefig(io.BytesIO(), format="pdf")

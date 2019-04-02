@@ -1,0 +1,9 @@
+Deprecations
+````````````
+
+The following (unused and never updated) attributes are deprecated:
+``NavigationToolbar2QT.buttons``, ``Line2D.verticalOffset``, ``Quiver.keytext``,
+``Quiver.keyvec``, ``SpanSelector.buttonDown``.
+
+The ``interp_at_native`` parameter to ``BboxImage``, which has no effect since
+Matplotlib 2.0, is deprecated.

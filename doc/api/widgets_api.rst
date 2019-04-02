@@ -1,10 +1,10 @@
-*******
-widgets
-*******
+**********************
+``matplotlib.widgets``
+**********************
 
+.. inheritance-diagram:: matplotlib.widgets
+   :parts: 1
 
-:mod:`matplotlib.widgets`
-=========================
 
 .. automodule:: matplotlib.widgets
    :members:

@@ -63,7 +63,7 @@ class GridSpecBase(object):
 
     def new_subplotspec(self, loc, rowspan=1, colspan=1):
         """
-        create and return a SuplotSpec instance.
+        create and return a SubplotSpec instance.
         """
         loc1, loc2 = loc
         subplotspec = self[loc1:loc1+rowspan, loc2:loc2+colspan]
@@ -142,21 +142,29 @@ class GridSpecBase(object):
         return fig_bottoms, fig_tops, fig_lefts, fig_rights
 
     def __getitem__(self, key):
-        """Create and return a SuplotSpec instance.
+        """Create and return a SubplotSpec instance.
         """
         nrows, ncols = self.get_geometry()
 
-        def _normalize(key, size):  # Includes last index.
+        def _normalize(key, size, axis):  # Includes last index.
+            orig_key = key
             if isinstance(key, slice):
                 start, stop, _ = key.indices(size)
                 if stop > start:
                     return start, stop - 1
+                raise IndexError("GridSpec slice would result in no space "
+                                 "allocated for subplot")
             else:
                 if key < 0:
-                    key += size
+                    key = key + size
                 if 0 <= key < size:
                     return key, key
-            raise IndexError("invalid index")
+                elif axis is not None:
+                    raise IndexError(f"index {orig_key} is out of bounds for "
+                                     f"axis {axis} with size {size}")
+                else:  # flat index
+                    raise IndexError(f"index {orig_key} is out of bounds for "
+                                     f"GridSpec with size {size}")
 
         if isinstance(key, tuple):
             try:
@@ -164,9 +172,10 @@ class GridSpecBase(object):
             except ValueError:
                 raise ValueError("unrecognized subplot spec")
             num1, num2 = np.ravel_multi_index(
-                [_normalize(k1, nrows), _normalize(k2, ncols)], (nrows, ncols))
+                [_normalize(k1, nrows, 0), _normalize(k2, ncols, 1)],
+                (nrows, ncols))
         else:  # Single key
-            num1, num2 = _normalize(key, nrows * ncols)
+            num1, num2 = _normalize(key, nrows * ncols, None)
 
         return SubplotSpec(self, num1, num2)
 
@@ -195,20 +204,26 @@ class GridSpec(GridSpecBase):
         ncols : int
             Number or columns in grid.
 
-        figure : ~.figure.Figure, optional
+        figure : `~.figure.Figure`, optional
 
-        left, right, top, bottom : float
+        left, right, top, bottom : float, optional
             Extent of the subplots as a fraction of figure width or height.
             Left cannot be larger than right, and bottom cannot be larger than
             top.
 
-        wspace : float
+        wspace : float, optional
             The amount of width reserved for space between subplots,
             expressed as a fraction of the average axis width.
 
-        hspace : float
+        hspace : float, optional
             The amount of height reserved for space between subplots,
             expressed as a fraction of the average axis height.
+
+        width_ratios : length *ncols* iterable, optional
+            Width ratios of the columns.
+
+        height_ratios : length *nrows* iterable, optional
+            Height ratios of the rows.
 
         Notes
         -----
@@ -234,7 +249,7 @@ class GridSpec(GridSpecBase):
                 parent=self.figure._layoutbox,
                 name='gridspec' + layoutbox.seq_id(),
                 artist=self)
-        # by default the layoutbox for a gridsepc will fill a figure.
+        # by default the layoutbox for a gridspec will fill a figure.
         # but this can change below if the gridspec is created from a
         # subplotspec. (GridSpecFromSubplotSpec)
 
@@ -255,16 +270,15 @@ class GridSpec(GridSpecBase):
 
     def update(self, **kwargs):
         """
-        Update the current values.  If any kwarg is None, default to
-        the current value, if set, otherwise to rc.
-        """
+        Update the current values.
 
+        Values set to None use the rcParams value.
+        """
         for k, v in kwargs.items():
             if k in self._AllowedKeys:
                 setattr(self, k, v)
             else:
-                raise AttributeError("%s is unknown keyword" % (k,))
-
+                raise AttributeError(f"{k} is an unknown keyword")
         for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
                 # copied from Figure.subplots_adjust
@@ -284,17 +298,11 @@ class GridSpec(GridSpecBase):
                         ax.update_params()
                         ax._set_position(ax.figbox)
 
-    def get_subplot_params(self, figure=None, fig=None):
+    def get_subplot_params(self, figure=None):
         """
         Return a dictionary of subplot layout parameters. The default
         parameters are from rcParams unless a figure attribute is set.
         """
-        if fig is not None:
-            cbook.warn_deprecated("2.2", "fig", obj_type="keyword argument",
-                                  alternative="figure")
-        if figure is None:
-            figure = fig
-
         if figure is None:
             kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
             subplotpars = mpl.figure.SubplotParams(**kw)
@@ -378,15 +386,9 @@ class GridSpecFromSubplotSpec(GridSpecBase):
                     name=subspeclb.name + '.gridspec' + layoutbox.seq_id(),
                     artist=self)
 
-    def get_subplot_params(self, figure=None, fig=None):
+    def get_subplot_params(self, figure=None):
         """Return a dictionary of subplot layout parameters.
         """
-        if fig is not None:
-            cbook.warn_deprecated("2.2", "fig", obj_type="keyword argument",
-                                  alternative="figure")
-        if figure is None:
-            figure = fig
-
         hspace = (self._hspace if self._hspace is not None
                   else figure.subplotpars.hspace if figure is not None
                   else rcParams["figure.subplot.hspace"])
@@ -414,7 +416,7 @@ class SubplotSpec(object):
         """
         The subplot will occupy the num1-th cell of the given
         gridspec.  If num2 is provided, the subplot will span between
-        num1-th cell and num2-th cell.
+        num1-th cell and num2-th cell *inclusive*.
 
         The index starts from 0.
         """
@@ -433,6 +435,17 @@ class SubplotSpec(object):
                     artist=self)
         else:
             self._layoutbox = None
+
+    # num2 is a property only to handle the case where it is None and someone
+    # mutates num1.
+
+    @property
+    def num2(self):
+        return self.num1 if self._num2 is None else self._num2
+
+    @num2.setter
+    def num2(self, value):
+        self._num2 = value
 
     def __getstate__(self):
         state = self.__dict__
@@ -468,11 +481,7 @@ class SubplotSpec(object):
         gridspec = self.get_gridspec()
         nrows, ncols = gridspec.get_geometry()
         row_start, col_start = divmod(self.num1, ncols)
-        if self.num2 is not None:
-            row_stop, col_stop = divmod(self.num2, ncols)
-        else:
-            row_stop = row_start
-            col_stop = col_start
+        row_stop, col_stop = divmod(self.num2, ncols)
         return nrows, ncols, row_start, row_stop, col_start, col_stop
 
     def get_position(self, figure, return_all=False):
@@ -480,9 +489,7 @@ class SubplotSpec(object):
         """
         gridspec = self.get_gridspec()
         nrows, ncols = gridspec.get_geometry()
-        rows, cols = np.unravel_index(
-            [self.num1] if self.num2 is None else [self.num1, self.num2],
-            (nrows, ncols))
+        rows, cols = np.unravel_index([self.num1, self.num2], (nrows, ncols))
         fig_bottoms, fig_tops, fig_lefts, fig_rights = \
             gridspec.get_grid_positions(figure)
 

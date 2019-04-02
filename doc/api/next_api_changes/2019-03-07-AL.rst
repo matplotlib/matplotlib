@@ -1,0 +1,9 @@
+API changes
+```````````
+
+Passing the ``block`` argument of ``plt.show`` positionally is deprecated; it
+should be passed by keyword.
+
+When using the nbagg backend, ``plt.show`` used to silently accept and ignore
+all combinations of positional and keyword arguments.  This behavior is
+deprecated.

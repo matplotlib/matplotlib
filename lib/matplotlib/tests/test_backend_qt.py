@@ -114,6 +114,53 @@ def test_fig_close(backend):
     assert init_figs == Gcf.figs
 
 
+@pytest.mark.backend('Qt5Agg')
+def test_fig_signals(qt_module):
+    # Create a figure
+    fig = plt.figure()
+
+    # Access QtCore
+    QtCore = qt_module[0]
+
+    # Access signals
+    import signal
+    event_loop_signal = None
+
+    # Callback to fire during event loop: save SIGINT handler, then exit
+    def fire_signal_and_quit():
+        # Save event loop signal
+        nonlocal event_loop_signal
+        event_loop_signal = signal.getsignal(signal.SIGINT)
+
+        # Request event loop exit
+        QtCore.QCoreApplication.exit()
+
+    # Timer to exit event loop
+    QtCore.QTimer.singleShot(0, fire_signal_and_quit)
+
+    # Save original SIGINT handler
+    original_signal = signal.getsignal(signal.SIGINT)
+
+    # Use our own SIGINT handler to be 100% sure this is working
+    def CustomHandler(signum, frame):
+        pass
+
+    signal.signal(signal.SIGINT, CustomHandler)
+
+    # mainloop() sets SIGINT, starts Qt event loop (which triggers timer and
+    # exits) and then mainloop() resets SIGINT
+    matplotlib.backends.backend_qt5._BackendQT5.mainloop()
+
+    # Assert: signal handler during loop execution is signal.SIG_DFL
+    assert event_loop_signal == signal.SIG_DFL
+
+    # Assert: current signal handler is the same as the one we set before
+    assert CustomHandler == signal.getsignal(signal.SIGINT)
+
+    # Reset SIGINT handler to what it was before the test
+    signal.signal(signal.SIGINT, original_signal)
+
+
 @pytest.mark.parametrize(
     'qt_key, qt_mods, answer',
     [
@@ -250,7 +297,8 @@ def test_figureoptions():
     fig, ax = plt.subplots()
     ax.plot([1, 2])
     ax.imshow([[1]])
+    ax.scatter(range(3), range(3), c=range(3))
     with mock.patch(
-            "matplotlib.backends.qt_editor.formlayout.FormDialog.exec_",
+            "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
             lambda self: None):
         fig.canvas.manager.toolbar.edit_parameters()

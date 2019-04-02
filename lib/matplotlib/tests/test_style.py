@@ -3,7 +3,6 @@ from contextlib import contextmanager
 import gc
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import warnings
 
 import pytest
 
@@ -36,16 +35,13 @@ def temp_style(style_name, settings=None):
         style.reload_library()
 
 
-def test_invalid_rc_warning_includes_filename():
+def test_invalid_rc_warning_includes_filename(capsys):
     SETTINGS = {'foo': 'bar'}
     basename = 'basename'
-    with warnings.catch_warnings(record=True) as warns:
-        with temp_style(basename, SETTINGS):
-            # style.reload_library() in temp_style() triggers the warning
-            pass
-
-    for w in warns:
-        assert basename in str(w.message)
+    with temp_style(basename, SETTINGS):
+        # style.reload_library() in temp_style() triggers the warning
+        pass
+    assert basename in capsys.readouterr().err
 
 
 def test_available():

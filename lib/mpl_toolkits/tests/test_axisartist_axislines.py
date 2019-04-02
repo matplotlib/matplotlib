@@ -51,10 +51,8 @@ def test_Axes():
     ax = Axes(fig, [0.15, 0.1, 0.65, 0.8])
     fig.add_axes(ax)
     ax.plot([1, 2, 3], [0, 1, 2])
-
     ax.set_xscale('log')
-
-    plt.show()
+    fig.canvas.draw()
 
 
 @image_comparison(baseline_images=['ParasiteAxesAuxTrans_meshplot'],

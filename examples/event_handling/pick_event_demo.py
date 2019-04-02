@@ -93,7 +93,7 @@ def pick_simple():
             xdata = thisline.get_xdata()
             ydata = thisline.get_ydata()
             ind = event.ind
-            print('onpick1 line:', zip(np.take(xdata, ind), np.take(ydata, ind)))
+            print('onpick1 line:', np.column_stack([xdata[ind], ydata[ind]]))
         elif isinstance(event.artist, Rectangle):
             patch = event.artist
             print('onpick1 patch:', patch.get_path())
@@ -129,10 +129,10 @@ def pick_custom_hit():
         d = np.sqrt(
             (xdata - mouseevent.xdata)**2 + (ydata - mouseevent.ydata)**2)
 
-        ind = np.nonzero(np.less_equal(d, maxd))
+        ind, = np.nonzero(d <= maxd)
         if len(ind):
-            pickx = np.take(xdata, ind)
-            picky = np.take(ydata, ind)
+            pickx = xdata[ind]
+            picky = ydata[ind]
             props = dict(ind=ind, pickx=pickx, picky=picky)
             return True, props
         else:
@@ -154,7 +154,7 @@ def pick_scatter_plot():
 
     def onpick3(event):
         ind = event.ind
-        print('onpick3 scatter:', ind, np.take(x, ind), np.take(y, ind))
+        print('onpick3 scatter:', ind, x[ind], y[ind])
 
     fig, ax = plt.subplots()
     col = ax.scatter(x, y, 100*s, c, picker=True)

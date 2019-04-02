@@ -6,7 +6,7 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 from matplotlib.cbook import MatplotlibDeprecationWarning
-from matplotlib.patches import Polygon, Rectangle
+from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
 from matplotlib import (
@@ -216,9 +216,8 @@ def test_patch_custom_linestyle():
 
 
 def test_patch_linestyle_accents():
-    #: Test if linestyle can also be specified with short menoics
-    #: like "--"
-    #: c.f. Gihub issue #2136
+    #: Test if linestyle can also be specified with short mnemonics like "--"
+    #: c.f. Github issue #2136
     star = mpath.Path.unit_regular_star(6)
     circle = mpath.Path.unit_circle()
     # concatenate the star with an internal cutout of the circle
@@ -394,6 +393,14 @@ def test_connection_patch():
                                    arrowstyle="->")
     ax2.add_artist(con)
 
+    xyA = (0.6, 1.0)  # in axes coordinates
+    xyB = (0.0, 0.2)  # x in axes coordinates, y in data coordinates
+    coordsA = "axes fraction"
+    coordsB = ax2.get_yaxis_transform()
+    con = mpatches.ConnectionPatch(xyA=xyA, xyB=xyB, coordsA=coordsA,
+                                    coordsB=coordsB, arrowstyle="-")
+    ax2.add_artist(con)
+
 
 def test_datetime_rectangle():
     # Check that creating a rectangle with timedeltas doesn't fail
@@ -468,3 +475,12 @@ def test_shadow(fig_test, fig_ref):
         alpha=.5)
     a2.add_patch(shadow)
     a2.add_patch(rect)
+
+
+def test_fancyarrow_units():
+    from datetime import datetime
+    # Smoke test to check that FancyArrowPatch works with units
+    dtime = datetime(2000, 1, 1)
+    fig, ax = plt.subplots()
+    arrow = FancyArrowPatch((0, dtime), (0.01, dtime))
+    ax.add_patch(arrow)

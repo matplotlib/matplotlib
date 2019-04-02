@@ -283,7 +283,6 @@ class RendererSVG(RendererBase):
             self.basename = basename
             self._imaged = {}
         self._clipd = OrderedDict()
-        self._char_defs = {}
         self._markers = {}
         self._path_collection_id = 0
         self._imaged = {}
@@ -311,7 +310,6 @@ class RendererSVG(RendererBase):
     def finalize(self):
         self._write_clips()
         self._write_hatches()
-        self._write_svgfonts()
         self.writer.close(self._start_id)
         self.writer.flush()
 
@@ -319,7 +317,9 @@ class RendererSVG(RendererBase):
         writer = self.writer
         default_style = generate_css({
             'stroke-linejoin': 'round',
-            'stroke-linecap': 'butt'})
+            'stroke-linecap': 'butt',
+            'white-space': 'pre',
+        })
         writer.start('defs')
         writer.start('style', type='text/css')
         writer.data('*{%s}\n' % default_style)
@@ -409,10 +409,7 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
     def _get_style_dict(self, gc, rgbFace):
-        """
-        return the style string.  style is generated from the
-        GraphicsContext and rgbFace
-        """
+        """Generate a style string from the GraphicsContext and rgbFace."""
         attrib = {}
 
         forced_alpha = gc.get_forced_alpha()
@@ -506,47 +503,8 @@ class RendererSVG(RendererBase):
             writer.end('clipPath')
         writer.end('defs')
 
-    def _write_svgfonts(self):
-        if not rcParams['svg.fonttype'] == 'svgfont':
-            return
-
-        writer = self.writer
-        writer.start('defs')
-        for font_fname, chars in self._fonts.items():
-            font = get_font(font_fname)
-            font.set_size(72, 72)
-            sfnt = font.get_sfnt()
-            writer.start('font', id=sfnt[1, 0, 0, 4].decode("mac_roman"))
-            writer.element(
-                'font-face',
-                attrib={
-                    'font-family': font.family_name,
-                    'font-style': font.style_name.lower(),
-                    'units-per-em': '72',
-                    'bbox': ' '.join(
-                        short_float_fmt(x / 64.0) for x in font.bbox)})
-            for char in chars:
-                glyph = font.load_char(char, flags=LOAD_NO_HINTING)
-                verts, codes = font.get_path()
-                path = Path(verts, codes)
-                path_data = self._convert_path(path)
-                # name = font.get_glyph_name(char)
-                writer.element(
-                    'glyph',
-                    d=path_data,
-                    attrib={
-                        # 'glyph-name': name,
-                        'unicode': chr(char),
-                        'horiz-adv-x':
-                        short_float_fmt(glyph.linearHoriAdvance / 65536.0)})
-            writer.end('font')
-        writer.end('defs')
-
     def open_group(self, s, gid=None):
-        """
-        Open a grouping element with label *s*. If *gid* is given, use
-        *gid* as the id of the group.
-        """
+        # docstring inherited
         if gid:
             self.writer.start('g', id=gid)
         else:
@@ -554,13 +512,11 @@ class RendererSVG(RendererBase):
             self.writer.start('g', id="%s_%d" % (s, self._groupd[s]))
 
     def close_group(self, s):
+        # docstring inherited
         self.writer.end('g')
 
     def option_image_nocomposite(self):
-        """
-        return whether to generate a composite image from multiple images on
-        a set of axes
-        """
+        # docstring inherited
         return not rcParams['image.composite_image']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None,
@@ -574,6 +530,7 @@ class RendererSVG(RendererBase):
             [b'M', b'L', b'Q', b'C', b'z'], False).decode('ascii')
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         trans_and_flip = self._make_flip_transform(transform)
         clip = (rgbFace is None and gc.get_hatch_path() is None)
         simplify = path.should_simplify and clip
@@ -596,6 +553,8 @@ class RendererSVG(RendererBase):
 
     def draw_markers(
             self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        # docstring inherited
+
         if not len(path.vertices):
             return
 
@@ -839,12 +798,15 @@ class RendererSVG(RendererBase):
         self.writer.end('g')
 
     def option_scale_image(self):
+        # docstring inherited
         return True
 
     def get_image_magnification(self):
         return self.image_dpi / 72.0
 
     def draw_image(self, gc, x, y, im, transform=None):
+        # docstring inherited
+
         h, w = im.shape[:2]
 
         if w == 0 or h == 0:
@@ -1114,10 +1076,6 @@ class RendererSVG(RendererBase):
 
                 writer.element('text', s, attrib=attrib)
 
-            if rcParams['svg.fonttype'] == 'svgfont':
-                fontset = self._fonts.setdefault(font.fname, set())
-                for c in s:
-                    fontset.add(ord(c))
         else:
             writer.comment(s)
 
@@ -1149,12 +1107,6 @@ class RendererSVG(RendererBase):
                 if thetext == 32:
                     thetext = 0xa0  # non-breaking space
                 spans.setdefault(style, []).append((new_x, -new_y, thetext))
-
-            if rcParams['svg.fonttype'] == 'svgfont':
-                for font, fontsize, thetext, new_x, new_y, metrics \
-                        in svg_glyphs:
-                    fontset = self._fonts.setdefault(font.fname, set())
-                    fontset.add(thetext)
 
             for style, chars in spans.items():
                 chars.sort()
@@ -1190,9 +1142,12 @@ class RendererSVG(RendererBase):
             writer.end('g')
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+        # docstring inherited
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # docstring inherited
+
         clipid = self._get_clip(gc)
         if clipid is not None:
             # Cannot apply clip-path directly to the text, because
@@ -1215,12 +1170,15 @@ class RendererSVG(RendererBase):
             self.writer.end('g')
 
     def flipy(self):
+        # docstring inherited
         return True
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return self.width, self.height
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        # docstring inherited
         return self._text2path.get_text_width_height_descent(s, prop, ismath)
 
 

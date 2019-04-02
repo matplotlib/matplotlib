@@ -1,10 +1,7 @@
-import warnings
-
 import pytest
 
 import matplotlib
 from matplotlib import cbook
-from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
 def pytest_configure(config):
@@ -43,9 +40,17 @@ def mpl_test_settings(request):
             # This import must come after setup() so it doesn't load the
             # default backend prematurely.
             import matplotlib.pyplot as plt
-            plt.switch_backend(backend)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+            try:
+                plt.switch_backend(backend)
+            except ImportError as exc:
+                # Should only occur for the cairo backend tests, if neither
+                # pycairo nor cairocffi are installed.
+                if 'cairo' in backend.lower():
+                    pytest.skip("Failed to switch to backend {} ({})."
+                                .format(backend, exc))
+                else:
+                    raise
+        with cbook._suppress_matplotlib_deprecation_warning():
             matplotlib.style.use(style)
         try:
             yield
@@ -82,17 +87,8 @@ def pd():
     pd = pytest.importorskip('pandas')
     try:
         from pandas.plotting import (
-            register_matplotlib_converters as register)
+            deregister_matplotlib_converters as deregister)
+        deregister()
     except ImportError:
-        from pandas.tseries.converter import register
-    register()
-    try:
-        yield pd
-    finally:
-        try:
-            from pandas.plotting import (
-                deregister_matplotlib_converters as deregister)
-        except ImportError:
-            pass
-        else:
-            deregister()
+        pass
+    return pd

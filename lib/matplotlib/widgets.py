@@ -14,7 +14,7 @@ from numbers import Integral
 
 import numpy as np
 
-from . import rcParams
+from . import cbook, rcParams
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -235,10 +235,9 @@ class Button(AxesWidget):
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call this *func* with event.
+        Connect the callback function *func* to button click events.
 
-        A connection id is returned. It can be used to disconnect
-        the button from its callback.
+        Returns a connection id, which can be used to disconnect the callback.
         """
         cid = self.cnt
         self.observers[cid] = func
@@ -246,7 +245,7 @@ class Button(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
+        """Remove the callback function with connection id *cid*."""
         try:
             del self.observers[cid]
         except KeyError:
@@ -648,9 +647,9 @@ class CheckButtons(AxesWidget):
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call *func* with button label
+        Connect the callback function *func* to button click events.
 
-        A connection id is returned which can be used to disconnect
+        Returns a connection id, which can be used to disconnect the callback.
         """
         cid = self.cnt
         self.observers[cid] = func
@@ -795,7 +794,7 @@ class TextBox(AxesWidget):
 
     def _notify_submit_observers(self):
         for cid, func in self.submit_observers.items():
-                func(self.text)
+            func(self.text)
 
     def _release(self, event):
         if self.ignore(event):
@@ -974,40 +973,40 @@ class RadioButtons(AxesWidget):
     """
     A GUI neutral radio button.
 
-    For the buttons to remain responsive
-    you must keep a reference to this object.
+    For the buttons to remain responsive you must keep a reference to this
+    object.
 
-    The following attributes are exposed:
+    Connect to the RadioButtons with the :meth:`on_clicked` method.
 
-     *ax*
-        The :class:`matplotlib.axes.Axes` instance the buttons are in
 
-     *activecolor*
-        The color of the button when clicked
+    Attributes
+    ----------
+    ax
+        The containing `~.axes.Axes` instance.
+    activecolor
+        The color of the selected button.
+    labels
+        A list of `~.text.Text` instances containing the button labels.
+    circles
+        A list of `~.patches.Circle` instances defining the buttons.
+    value_selected : str
+        The label text of the currently selected button.
 
-     *labels*
-        A list of :class:`matplotlib.text.Text` instances
-
-     *circles*
-        A list of :class:`matplotlib.patches.Circle` instances
-
-     *value_selected*
-        A string listing the current value selected
-
-    Connect to the RadioButtons with the :meth:`on_clicked` method
     """
     def __init__(self, ax, labels, active=0, activecolor='blue'):
         """
-        Add radio buttons to :class:`matplotlib.axes.Axes` instance *ax*
+        Add radio buttons to an `~.axes.Axes`.
 
-        *labels*
-            A len(buttons) list of labels as strings
-
-        *active*
-            The index into labels for the button that is active
-
-        *activecolor*
-            The color of the button when clicked
+        Parameters
+        ----------
+        ax : `~matplotlib.axes.Axes`
+            The axes to add the buttons to.
+        labels : list of str
+            The button labels.
+        active : int
+            The index of the initially selected button.
+        activecolor : color
+            The color of the selected button.
         """
         AxesWidget.__init__(self, ax)
         self.activecolor = activecolor
@@ -1059,22 +1058,20 @@ class RadioButtons(AxesWidget):
             return
         xy = self.ax.transAxes.inverted().transform_point((event.x, event.y))
         pclicked = np.array([xy[0], xy[1]])
+        distances = {}
         for i, (p, t) in enumerate(zip(self.circles, self.labels)):
             if (t.get_window_extent().contains(event.x, event.y)
                     or np.linalg.norm(pclicked - p.center) < p.radius):
-                self.set_active(i)
-                break
+                distances[i] = np.linalg.norm(pclicked - p.center)
+        if len(distances) > 0:
+            closest = min(distances, key=distances.get)
+            self.set_active(closest)
 
     def set_active(self, index):
         """
-        Trigger which radio button to make active.
-
-        *index* is an index into the original label list
-            that this object was constructed with.
-            Raise ValueError if the index is invalid.
+        Select button with number *index*.
 
         Callbacks will be triggered if :attr:`eventson` is True.
-
         """
         if 0 > index >= len(self.labels):
             raise ValueError("Invalid RadioButton index: %d" % index)
@@ -1098,9 +1095,9 @@ class RadioButtons(AxesWidget):
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call *func* with button label
+        Connect the callback function *func* to button click events.
 
-        A connection id is returned which can be used to disconnect
+        Returns a connection id, which can be used to disconnect the callback.
         """
         cid = self.cnt
         self.observers[cid] = func
@@ -1108,7 +1105,7 @@ class RadioButtons(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
+        """Remove the observer with connection id *cid*."""
         try:
             del self.observers[cid]
         except KeyError:
@@ -1133,15 +1130,6 @@ class SubplotTool(Widget):
 
         self.targetfig = targetfig
         toolfig.subplots_adjust(left=0.2, right=0.9)
-
-        class toolbarfmt:
-            def __init__(self, slider):
-                self.slider = slider
-
-            def __call__(self, x, y):
-                fmt = '%s=%s' % (self.slider.label.get_text(),
-                                 self.slider.valfmt)
-                return fmt % x
 
         self.axleft = toolfig.add_subplot(711)
         self.axleft.set_title('Click on slider to adjust subplot param')
@@ -1266,28 +1254,34 @@ class SubplotTool(Widget):
 
 class Cursor(AxesWidget):
     """
-    A horizontal and vertical line that spans the axes and moves with
-    the pointer.  You can turn off the hline or vline respectively with
-    the following attributes:
+    A crosshair cursor that spans the axes and moves with mouse cursor.
 
-      *horizOn*
-        Controls the visibility of the horizontal line
+    For the cursor to remain responsive you must keep a reference to it.
 
-      *vertOn*
-        Controls the visibility of the horizontal line
+    Parameters
+    ----------
+    ax : `matplotlib.axes.Axes`
+        The `~.axes.Axes` to attach the cursor to.
+    horizOn : bool, optional, default: True
+        Whether to draw the horizontal line.
+    vertOn : bool, optional, default: True
+        Whether to draw the vertical line.
+    useblit : bool, optional, default: False
+        Use blitting for faster drawing if supported by the backend.
 
-    and the visibility of the cursor itself with the *visible* attribute.
+    Other Parameters
+    ----------------
+    **lineprops
+        `.Line2D` properties that control the appearance of the lines.
+        See also `~.Axes.axhline`.
 
-    For the cursor to remain responsive you must keep a reference to
-    it.
+    Examples
+    --------
+    See :doc:`/gallery/widgets/cursor`.
     """
+
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
-        """
-        Add a cursor to *ax*.  If ``useblit=True``, use the backend-dependent
-        blitting features for faster updates.  *lineprops* is a dictionary of
-        line properties.
-        """
         AxesWidget.__init__(self, ax)
 
         self.connect_event('motion_notify_event', self.onmove)
@@ -1307,7 +1301,7 @@ class Cursor(AxesWidget):
         self.needclear = False
 
     def clear(self, event):
-        """clear the cursor"""
+        """Internal event handler to clear the cursor."""
         if self.ignore(event):
             return
         if self.useblit:
@@ -1316,7 +1310,7 @@ class Cursor(AxesWidget):
         self.lineh.set_visible(False)
 
     def onmove(self, event):
-        """on mouse motion draw the cursor if visible"""
+        """Internal event handler to draw the cursor when the mouse moves."""
         if self.ignore(event):
             return
         if not self.canvas.widgetlock.available(self):
@@ -1341,7 +1335,6 @@ class Cursor(AxesWidget):
         self._update()
 
     def _update(self):
-
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
@@ -1349,9 +1342,7 @@ class Cursor(AxesWidget):
             self.ax.draw_artist(self.lineh)
             self.canvas.blit(self.ax.bbox)
         else:
-
             self.canvas.draw_idle()
-
         return False
 
 
@@ -1769,8 +1760,7 @@ class SpanSelector(_SelectorWidget):
 
         rectprops['animated'] = self.useblit
 
-        if direction not in ['horizontal', 'vertical']:
-            raise ValueError("direction must be 'horizontal' or 'vertical'")
+        cbook._check_in_list(['horizontal', 'vertical'], direction=direction)
         self.direction = direction
 
         self.rect = None
@@ -1847,7 +1837,6 @@ class SpanSelector(_SelectorWidget):
         """on button release event"""
         if self.pressv is None:
             return
-        self.buttonDown = False
 
         self.rect.set_visible(False)
 
@@ -1873,6 +1862,11 @@ class SpanSelector(_SelectorWidget):
             return
         self.onselect(vmin, vmax)
         self.pressv = None
+        return False
+
+    @cbook.deprecated("3.1")
+    @property
+    def buttonDown(self):
         return False
 
     def _onmove(self, event):
@@ -2013,7 +2007,7 @@ class RectangleSelector(_SelectorWidget):
         ax.plot(x, y)
 
         toggle_selector.RS = RectangleSelector(ax, onselect, drawtype='line')
-        fig.canvas.connect('key_press_event', toggle_selector)
+        fig.canvas.mpl_connect('key_press_event', toggle_selector)
         plt.show()
     """
 
@@ -2118,9 +2112,7 @@ class RectangleSelector(_SelectorWidget):
         self.minspanx = minspanx
         self.minspany = minspany
 
-        if spancoords not in ('data', 'pixels'):
-            raise ValueError("'spancoords' must be 'data' or 'pixels'")
-
+        cbook._check_in_list(['data', 'pixels'], spancoords=spancoords)
         self.spancoords = spancoords
         self.drawtype = drawtype
 
@@ -2197,13 +2189,13 @@ class RectangleSelector(_SelectorWidget):
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
             xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
-            # calculate dimensions of box or line get values in the right
-            # order
+            # calculate dimensions of box or line get values in the right order
         elif self.spancoords == 'pixels':
             xmin, ymin = self.eventpress.x, self.eventpress.y
             xmax, ymax = self.eventrelease.x, self.eventrelease.y
         else:
-            raise ValueError('spancoords must be "data" or "pixels"')
+            cbook._check_in_list(['data', 'pixels'],
+                                 spancoords=self.spancoords)
 
         if xmin > xmax:
             xmin, xmax = xmax, xmin
@@ -2444,7 +2436,7 @@ class EllipseSelector(RectangleSelector):
         ax.plot(x, y)
 
         toggle_selector.ES = EllipseSelector(ax, onselect, drawtype='line')
-        fig.canvas.connect('key_press_event', toggle_selector)
+        fig.canvas.mpl_connect('key_press_event', toggle_selector)
         plt.show()
     """
     _shape_klass = Ellipse

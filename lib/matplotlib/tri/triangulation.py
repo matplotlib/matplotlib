@@ -1,8 +1,5 @@
 import numpy as np
 
-import matplotlib._tri as _tri
-import matplotlib._qhull as _qhull
-
 
 class Triangulation(object):
     """
@@ -39,6 +36,8 @@ class Triangulation(object):
     triangles formed from colinear points, or overlapping triangles.
     """
     def __init__(self, x, y, triangles=None, mask=None):
+        from matplotlib import _qhull
+
         self.x = np.asarray(x, dtype=np.float64)
         self.y = np.asarray(y, dtype=np.float64)
         if self.x.shape != self.y.shape or self.x.ndim != 1:
@@ -106,6 +105,7 @@ class Triangulation(object):
         Return the underlying C++ Triangulation object, creating it
         if necessary.
         """
+        from matplotlib import _tri
         if self._cpp_triangulation is None:
             self._cpp_triangulation = _tri.Triangulation(
                 self.x, self.y, self.triangles, self.mask, self._edges,
@@ -117,7 +117,7 @@ class Triangulation(object):
         Return an array of triangles that are not masked.
         """
         if self.mask is not None:
-            return self.triangles.compress(1 - self.mask, axis=0)
+            return self.triangles[~self.mask]
         else:
             return self.triangles
 

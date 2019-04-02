@@ -17,23 +17,25 @@ This pages lists API changes for the most recent version of Matplotlib.
 
    api_changes_old
 
-..
 
-   .. note::
+.. note::
 
-     The list below is a table of contents of individual files from the 'next_api_changes' folder.
-     When a release is made
+   The list below is a table of contents of individual files from the
+   'next_api_changes' folder.
 
-       - The full text list below should be moved into its own file in 'prev_api_changes'
-       - All the files in 'next_api_changes' should be moved to the bottom of this page
-       - This note, and the toctree below should be commented out
+   When a release is made
+
+    - The full text list below should be moved into its own file in
+      'prev_api_changes'
+    - All the files in 'next_api_changes' should be moved to the bottom of this page
+    - This note, and the toctree below should be commented out
 
 
-   .. toctree::
-      :glob:
-      :maxdepth: 1
+.. toctree::
+   :glob:
+   :maxdepth: 1
 
-      next_api_changes/*
+   next_api_changes/*
 
 
 API Changes for 3.0.1
@@ -42,7 +44,21 @@ API Changes for 3.0.1
 `.tight_layout.auto_adjust_subplotpars` can return ``None`` now if the new
 subplotparams will collapse axes to zero width or height.  This prevents
 ``tight_layout`` from being executed.  Similarly
-`.tight_layout.get_tight_layout_figure` will return None.  
+`.tight_layout.get_tight_layout_figure` will return None.
+
+To improve import (startup) time, private modules are now imported lazily.
+These modules are no longer available at these locations:
+
+  - `matplotlib.backends.backend_agg._png`
+  - `matplotlib.contour._contour`
+  - `matplotlib.image._png`
+  - `matplotlib.mathtext._png`
+  - `matplotlib.testing.compare._png`
+  - `matplotlib.texmanager._png`
+  - `matplotlib.tri.triangulation._tri`
+  - `matplotlib.tri.triangulation._qhull`
+  - `matplotlib.tri.tricontour._tri`
+  - `matplotlib.tri.trifinder._tri`
 
 API Changes for 3.0.0
 =====================
@@ -154,8 +170,9 @@ Different exception types for undocumented options
   and ``right`` arguments.  :meth:`~matplotlib.axes.Axes.set_ylim` and the
   3D equivalents (e.g. :meth:`~mpl_toolkits.axes.Axes3D.set_zlim3d`) had a
   corresponding problem.
-  The ``_min`` and ``_max`` arguments are now deprecated, and a ``TypeError``
-  will be raised if they would override the earlier limit arguments.
+  A ``TypeError`` will be raised if they would override the earlier
+  limit arguments.  In 3.0 these were kwargs were deprecated, but in 3.1
+  the deprecation was undone.
 
 
 Improved call signature for ``Axes.margins``
@@ -359,7 +376,7 @@ Changes regarding the text.latex.unicode rcParam
 ------------------------------------------------
 
 The rcParam now defaults to True and is deprecated (i.e., in future versions
-of Maplotlib, unicode input will always be supported).
+of Matplotlib, unicode input will always be supported).
 
 Moreover, the underlying implementation now uses ``\usepackage[utf8]{inputenc}``
 instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
@@ -514,7 +531,7 @@ Removals
 Hold machinery
 ``````````````
 
-Setting or unsetting ``hold`` (deprecated in version 2.1) has now
+Setting or unsetting ``hold`` (:ref:`deprecated in version 2.0<v200_deprecate_hold>`) has now
 been completely removed. Matplotlib now always behaves as if ``hold=True``.
 To clear an axes you can manually use :meth:`~.axes.Axes.cla()`,
 or to clear an entire figure use :meth:`~.figure.Figure.clf()`.

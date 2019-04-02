@@ -1,0 +1,5 @@
+Added support for MacOSX backend for PyPy
+-----------------------------------------
+
+Fixed issue with MacOSX backend for PyPy and also for non-framework Python
+installations.

@@ -3,7 +3,8 @@
 Group barchart with units
 =========================
 
-This is the same example as :doc:`/gallery/statistics/barchart_demo` in
+This is the same example as
+:doc:`the barchart</gallery/lines_bars_and_markers/barchart>` in
 centimeters.
 
 .. only:: builder_html
@@ -24,13 +25,12 @@ fig, ax = plt.subplots()
 
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35         # the width of the bars
-p1 = ax.bar(ind, menMeans, width, color='r', bottom=0*cm, yerr=menStd)
+p1 = ax.bar(ind, menMeans, width, bottom=0*cm, yerr=menStd)
 
 
 womenMeans = (145*cm, 149*cm, 172*cm, 165*cm, 200*cm)
 womenStd = (30*cm, 25*cm, 20*cm, 31*cm, 22*cm)
-p2 = ax.bar(ind + width, womenMeans, width,
-            color='y', bottom=0*cm, yerr=womenStd)
+p2 = ax.bar(ind + width, womenMeans, width, bottom=0*cm, yerr=womenStd)
 
 ax.set_title('Scores by group and gender')
 ax.set_xticks(ind + width / 2)

@@ -63,9 +63,7 @@ class CbarAxesBase(object):
         return cb
 
     def _config_axes(self):
-        '''
-        Make an axes patch and outline.
-        '''
+        """Make an axes patch and outline."""
         ax = self
         ax.set_navigate(False)
 
@@ -140,30 +138,31 @@ class Grid(object):
                  axes_class=None,
                  ):
         """
-        Build an :class:`Grid` instance with a grid nrows*ncols
-        :class:`~matplotlib.axes.Axes` in
-        :class:`~matplotlib.figure.Figure` *fig* with
-        *rect=[left, bottom, width, height]* (in
-        :class:`~matplotlib.figure.Figure` coordinates) or
-        the subplot position code (e.g., "121").
+        Parameters
+        ----------
+        fig : `.Figure`
+            The parent figure.
+        rect : (float, float, float, float) or int
+            The axes position, as a ``(left, bottom, width, height)`` tuple or
+            as a three-digit subplot position code (e.g., "121").
+        direction : {"row", "column"}, default: "row"
+        axes_pad : float or (float, float), default: 0.02
+            Padding or (horizontal padding, vertical padding) between axes, in
+            inches.
+        add_all : bool, default: True
+        share_all : bool, default: False
+        share_x : bool, default: True
+        share_y : bool, default: True
+        label_mode : {"L", "1", "all"}, default: "L"
+            Determines which axes will get tick labels:
 
-        Optional keyword arguments:
+            - "L": All axes on the left column get vertical tick labels;
+              all axes on the bottom row get horizontal tick labels.
+            - "1": Only the bottom left axes is labelled.
+            - "all": all axes are labelled.
 
-          ================  ========  =========================================
-          Keyword           Default   Description
-          ================  ========  =========================================
-          direction         "row"     [ "row" | "column" ]
-          axes_pad          0.02      float| pad between axes given in inches
-                                      or tuple-like of floats,
-                                      (horizontal padding, vertical padding)
-          add_all           True      bool
-          share_all         False     bool
-          share_x           True      bool
-          share_y           True      bool
-          label_mode        "L"       [ "L" | "1" | "all" ]
-          axes_class        None      a type object which must be a subclass
-                                      of :class:`~matplotlib.axes.Axes`
-          ================  ========  =========================================
+        axes_class : a type that is a subclass of `matplotlib.axes.Axes`, \
+default: None
         """
         self._nrows, self._ncols = nrows_ncols
 
@@ -326,13 +325,19 @@ class Grid(object):
 
     def get_geometry(self):
         """
-        get geometry of the grid. Returns a tuple of two integer,
-        representing number of rows and number of columns.
+        Return the number of rows and columns of the grid as (nrows, ncols).
         """
         return self._nrows, self._ncols
 
     def set_axes_pad(self, axes_pad):
-        "set axes_pad"
+        """
+        Set the padding between the axes.
+
+        Parameters
+        ----------
+        axes_pad : (float, float)
+            The padding (horizontal pad, vertical pad) in inches.
+        """
         self._axes_pad = axes_pad
 
         # These two lines actually differ from ones in _init_axes_pad
@@ -341,25 +346,37 @@ class Grid(object):
 
     def get_axes_pad(self):
         """
-        get axes_pad
+        Return the axes padding.
 
         Returns
         -------
-        tuple
-            Padding in inches, (horizontal pad, vertical pad)
+        hpad, vpad
+            Padding (horizontal pad, vertical pad) in inches.
         """
         return self._axes_pad
 
     def set_aspect(self, aspect):
-        "set aspect"
+        """Set the aspect of the SubplotDivider."""
         self._divider.set_aspect(aspect)
 
     def get_aspect(self):
-        "get aspect"
+        """Return the aspect of the SubplotDivider."""
         return self._divider.get_aspect()
 
     def set_label_mode(self, mode):
-        "set label_mode"
+        """
+        Define which axes have tick labels.
+
+        Parameters
+        ----------
+        mode : {"L", "1", "all"}
+            The label mode:
+
+            - "L": All axes on the left column get vertical tick labels;
+              all axes on the bottom row get horizontal tick labels.
+            - "1": Only the bottom left axes is labelled.
+            - "all": all axes are labelled.
+        """
         if mode == "all":
             for ax in self.axes_all:
                 _tick_only(ax, False, False)
@@ -437,38 +454,37 @@ class ImageGrid(Grid):
                  axes_class=None,
                  ):
         """
-        Build an :class:`ImageGrid` instance with a grid nrows*ncols
-        :class:`~matplotlib.axes.Axes` in
-        :class:`~matplotlib.figure.Figure` *fig* with
-        *rect=[left, bottom, width, height]* (in
-        :class:`~matplotlib.figure.Figure` coordinates) or
-        the subplot position code (e.g., "121").
+        Parameters
+        ----------
+        fig : `.Figure`
+            The parent figure.
+        rect : (float, float, float, float) or int
+            The axes position, as a ``(left, bottom, width, height)`` tuple or
+            as a three-digit subplot position code (e.g., "121").
+        direction : {"row", "column"}, default: "row"
+        axes_pad : float or (float, float), default: 0.02
+            Padding or (horizontal padding, vertical padding) between axes, in
+            inches.
+        add_all : bool, default: True
+        share_all : bool, default: False
+        aspect : bool, default: True
+        label_mode : {"L", "1", "all"}, default: "L"
+            Determines which axes will get tick labels:
 
-        Optional keyword arguments:
+            - "L": All axes on the left column get vertical tick labels;
+              all axes on the bottom row get horizontal tick labels.
+            - "1": Only the bottom left axes is labelled.
+            - "all": all axes are labelled.
 
-          ================  ========  =========================================
-          Keyword           Default   Description
-          ================  ========  =========================================
-          direction         "row"     [ "row" | "column" ]
-          axes_pad          0.02      float| pad between axes given in inches
-                                      or tuple-like of floats,
-                                      (horizontal padding, vertical padding)
-          add_all           True      bool
-          share_all         False     bool
-          aspect            True      bool
-          label_mode        "L"       [ "L" | "1" | "all" ]
-          cbar_mode         None      [ "each" | "single" | "edge" ]
-          cbar_location     "right"   [ "left" | "right" | "bottom" | "top" ]
-          cbar_pad          None
-          cbar_size         "5%"
-          cbar_set_cax      True      bool
-          axes_class        None      a type object which must be a subclass
-                                      of axes_grid's subclass of
-                                      :class:`~matplotlib.axes.Axes`
-          ================  ========  =========================================
-
-        *cbar_set_cax* : if True, each axes in the grid has a cax
-          attribute that is bind to associated cbar_axes.
+        cbar_mode : {"each", "single", "edge", None }, default: None
+        cbar_location : {"left", "right", "bottom", "top"}, default: "right"
+        cbar_pad : float, default: None
+        cbar_size : size specification (see `.Size.from_any`), default: "5%"
+        cbar_set_cax : bool, default: True
+            If True, each axes in the grid has a *cax* attribute that is bound
+            to associated *cbar_axes*.
+        axes_class : a type that is a subclass of `matplotlib.axes.Axes`, \
+default: None
         """
         self._nrows, self._ncols = nrows_ncols
 
@@ -709,7 +725,7 @@ class ImageGrid(Grid):
                         (self._colorbar_location == 'right'
                          and col == self._ncols-1)):
                     locator = self._divider.new_locator(
-                        nx=h_cb_pos[0], ny=v_ax_pos[self._nrows -1 - row])
+                        nx=h_cb_pos[0], ny=v_ax_pos[self._nrows - 1 - row])
                     self.cbar_axes[row].set_axes_locator(locator)
                 elif ((self._colorbar_location == 'bottom' and
                        row == self._nrows - 1) or

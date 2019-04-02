@@ -2,6 +2,7 @@ from collections import OrderedDict, namedtuple
 from functools import wraps
 import inspect
 import logging
+from numbers import Number
 import re
 import warnings
 
@@ -231,6 +232,9 @@ class Artist(object):
     def get_window_extent(self, renderer):
         """
         Get the axes bounding box in display space.
+
+        The bounding box' width and height are nonnegative.
+
         Subclasses should override for inclusion in the bounding box
         "tight" calculation. Default is to return an empty bounding
         box at 0, 0.
@@ -358,27 +362,8 @@ class Artist(object):
             self._transform = self._transform._as_mpl_transform(self.axes)
         return self._transform
 
-    @cbook.deprecated("2.2")
-    def hitlist(self, event):
-        """
-        List the children of the artist which contain the mouse event *event*.
-        """
-        L = []
-        try:
-            hascursor, info = self.contains(event)
-            if hascursor:
-                L.append(self)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            print("while checking", self.__class__)
-
-        for a in self.get_children():
-            L.extend(a.hitlist(event))
-        return L
-
     def get_children(self):
-        r"""Return a list of the child `.Artist`\s this `.Artist` contains."""
+        r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
 
     def contains(self, mouseevent):
@@ -401,9 +386,9 @@ class Artist(object):
         --------
         set_contains, get_contains
         """
-        if callable(self._contains):
+        if self._contains is not None:
             return self._contains(self, mouseevent)
-        _log.warning("'%s' needs 'contains' method" % self.__class__.__name__)
+        _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
     def set_contains(self, picker):
@@ -429,6 +414,8 @@ class Artist(object):
               implementation of the respective artist, but may provide
               additional information.
         """
+        if not callable(picker):
+            raise TypeError("picker is not a callable")
         self._contains = picker
 
     def get_contains(self):
@@ -449,9 +436,7 @@ class Artist(object):
         --------
         set_picker, get_picker, pick
         """
-        return (self.figure is not None and
-                self.figure.canvas is not None and
-                self._picker is not None)
+        return self.figure is not None and self._picker is not None
 
     def pick(self, mouseevent):
         """
@@ -535,11 +520,6 @@ class Artist(object):
         set_picker, pickable, pick
         """
         return self._picker
-
-    @cbook.deprecated("2.2", "artist.figure is not None")
-    def is_figure_set(self):
-        """Returns whether the artist is assigned to a `.Figure`."""
-        return self.figure is not None
 
     def get_url(self):
         """Return the url."""
@@ -899,8 +879,10 @@ class Artist(object):
 
         Parameters
         ----------
-        alpha : float
+        alpha : float or None
         """
+        if alpha is not None and not isinstance(alpha, Number):
+            raise TypeError('alpha must be a float or None')
         self._alpha = alpha
         self.pchanged()
         self.stale = True
@@ -1023,16 +1005,16 @@ class Artist(object):
     @property
     def sticky_edges(self):
         """
-        `x` and `y` sticky edge lists.
+        ``x`` and ``y`` sticky edge lists for autoscaling.
 
         When performing autoscaling, if a data limit coincides with a value in
         the corresponding sticky_edges list, then no margin will be added--the
-        view limit "sticks" to the edge. A typical usecase is histograms,
+        view limit "sticks" to the edge. A typical use case is histograms,
         where one usually expects no margin on the bottom edge (0) of the
         histogram.
 
-        This attribute cannot be assigned to; however, the `x` and `y` lists
-        can be modified in place as needed.
+        This attribute cannot be assigned to; however, the ``x`` and ``y``
+        lists can be modified in place as needed.
 
         Examples
         --------
@@ -1065,12 +1047,12 @@ class Artist(object):
         return ArtistInspector(self).properties()
 
     def set(self, **kwargs):
-        """A property batch setter. Pass *kwargs* to set properties.
-        """
+        """A property batch setter.  Pass *kwargs* to set properties."""
+        kwargs = cbook.normalize_kwargs(
+            kwargs, getattr(type(self), "_alias_map", {}))
         props = OrderedDict(
             sorted(kwargs.items(), reverse=True,
                    key=lambda x: (self._prop_order.get(x[0], 0), x[0])))
-
         return self.update(props)
 
     def findobj(self, match=None, include_self=True):
@@ -1167,8 +1149,8 @@ class Artist(object):
             data[0]
         except (TypeError, IndexError):
             data = [data]
-        data_str = ', '.join('{:0.3g}'.format(item) for item in data if
-                   isinstance(item, (np.floating, np.integer, int, float)))
+        data_str = ', '.join('{:0.3g}'.format(item) for item in data
+                             if isinstance(item, Number))
         return "[" + data_str + "]"
 
     @property
@@ -1234,7 +1216,7 @@ class ArtistInspector(object):
                 continue
             propname = re.search("`({}.*)`".format(name[:4]),  # get_.*/set_.*
                                  inspect.getdoc(func)).group(1)
-            aliases.setdefault(propname, set()).add(name[4:])
+            aliases.setdefault(propname[4:], set()).add(name[4:])
         return aliases
 
     _get_valid_values_regex = re.compile(
@@ -1395,7 +1377,6 @@ class ArtistInspector(object):
             return '%s%s: %s' % (pad, prop, accepts)
 
         attrs = sorted(self._get_setters_and_targets())
-        lines = []
 
         names = [self.aliased_name_rest(prop, target)
                  for prop, target in attrs]
@@ -1468,7 +1449,7 @@ def getp(obj, property=None):
         getp(obj, 'linestyle')  # get the linestyle property
 
     *obj* is a :class:`Artist` instance, e.g.,
-    :class:`~matplotllib.lines.Line2D` or an instance of a
+    :class:`~matplotlib.lines.Line2D` or an instance of a
     :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
     If the *property* is 'somename', this function returns
 

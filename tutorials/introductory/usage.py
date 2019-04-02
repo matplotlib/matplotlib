@@ -137,9 +137,9 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 # For example, to convert a `pandas.DataFrame` ::
 #
 #   a = pandas.DataFrame(np.random.rand(4,5), columns = list('abcde'))
-#   a_asndarray = a.values
+#   a_asarray = a.values
 #
-# and to covert a `np.matrix` ::
+# and to convert a `np.matrix` ::
 #
 #   b = np.matrix([[1,2],[3,4]])
 #   b_asarray = np.asarray(b)

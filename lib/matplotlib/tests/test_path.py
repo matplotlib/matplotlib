@@ -5,11 +5,13 @@ import numpy as np
 from numpy.testing import assert_array_equal
 import pytest
 
+from matplotlib import patches
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import transforms
+from matplotlib.backend_bases import MouseEvent
 
 
 def test_empty_closed_path():
@@ -68,6 +70,46 @@ def test_nonlinear_containment():
         ax.transData.transform_point((.5, .5)), ax.transData)
     assert not polygon.get_path().contains_point(
         ax.transData.transform_point((50, .5)), ax.transData)
+
+
+@image_comparison(
+        baseline_images=['arrow_contains_point'], extensions=['png'],
+        remove_text=True, style='mpl20')
+def test_arrow_contains_point():
+    # fix bug (#8384)
+    fig, ax = plt.subplots()
+    ax.set_xlim((0, 2))
+    ax.set_ylim((0, 2))
+
+    # create an arrow with Curve style
+    arrow = patches.FancyArrowPatch((0.5, 0.25), (1.5, 0.75),
+                                    arrowstyle='->',
+                                    mutation_scale=40)
+    ax.add_patch(arrow)
+    # create an arrow with Bracket style
+    arrow1 = patches.FancyArrowPatch((0.5, 1), (1.5, 1.25),
+                                     arrowstyle=']-[',
+                                     mutation_scale=40)
+    ax.add_patch(arrow1)
+    # create an arrow with other arrow style
+    arrow2 = patches.FancyArrowPatch((0.5, 1.5), (1.5, 1.75),
+                                     arrowstyle='fancy',
+                                     fill=False,
+                                     mutation_scale=40)
+    ax.add_patch(arrow2)
+    patches_list = [arrow, arrow1, arrow2]
+
+    # generate some points
+    X, Y = np.meshgrid(np.arange(0, 2, 0.1),
+                       np.arange(0, 2, 0.1))
+    for k, (x, y) in enumerate(zip(X.ravel(), Y.ravel())):
+        xdisp, ydisp = ax.transData.transform_point([x, y])
+        event = MouseEvent('button_press_event', fig.canvas, xdisp, ydisp)
+        for m, patch in enumerate(patches_list):
+            # set the points to red only if the arrow contains the point
+            inside, res = patch.contains(event)
+            if inside:
+                ax.scatter(x, y, s=5, c="r")
 
 
 @image_comparison(baseline_images=['path_clipping'],
@@ -229,6 +271,83 @@ def test_path_deepcopy():
     path2 = Path(verts, codes)
     copy.deepcopy(path1)
     copy.deepcopy(path2)
+
+
+def test_path_intersect_path():
+    # test for the range of intersection angles
+    base_angles = np.array([0, 15, 30, 45, 60, 75, 90, 105, 120, 135])
+    angles = np.concatenate([base_angles, base_angles + 1, base_angles - 1])
+    eps_array = [1e-5, 1e-8, 1e-10, 1e-12]
+
+    for phi in angles:
+
+        transform = transforms.Affine2D().rotate(np.deg2rad(phi))
+
+        # a and b intersect at angle phi
+        a = Path([(-2, 0), (2, 0)])
+        b = transform.transform_path(a)
+        assert a.intersects_path(b) and b.intersects_path(a)
+
+        # a and b touch at angle phi at (0, 0)
+        a = Path([(0, 0), (2, 0)])
+        b = transform.transform_path(a)
+        assert a.intersects_path(b) and b.intersects_path(a)
+
+        # a and b are orthogonal and intersect at (0, 3)
+        a = transform.transform_path(Path([(0, 1), (0, 3)]))
+        b = transform.transform_path(Path([(1, 3), (0, 3)]))
+        assert a.intersects_path(b) and b.intersects_path(a)
+
+        # a and b are collinear and intersect at (0, 3)
+        a = transform.transform_path(Path([(0, 1), (0, 3)]))
+        b = transform.transform_path(Path([(0, 5), (0, 3)]))
+        assert a.intersects_path(b) and b.intersects_path(a)
+
+        # self-intersect
+        assert a.intersects_path(a)
+
+        # a contains b
+        a = transform.transform_path(Path([(0, 0), (5, 5)]))
+        b = transform.transform_path(Path([(1, 1), (3, 3)]))
+        assert a.intersects_path(b) and b.intersects_path(a)
+
+        # a and b are collinear but do not intersect
+        a = transform.transform_path(Path([(0, 1), (0, 5)]))
+        b = transform.transform_path(Path([(3, 0), (3, 3)]))
+        assert not a.intersects_path(b) and not b.intersects_path(a)
+
+        # a and b are on the same line but do not intersect
+        a = transform.transform_path(Path([(0, 1), (0, 5)]))
+        b = transform.transform_path(Path([(0, 6), (0, 7)]))
+        assert not a.intersects_path(b) and not b.intersects_path(a)
+
+        # Note: 1e-13 is the absolute tolerance error used for
+        # `isclose` function from src/_path.h
+
+        # a and b are parallel but do not touch
+        for eps in eps_array:
+            a = transform.transform_path(Path([(0, 1), (0, 5)]))
+            b = transform.transform_path(Path([(0 + eps, 1), (0 + eps, 5)]))
+            assert not a.intersects_path(b) and not b.intersects_path(a)
+
+        # a and b are on the same line but do not intersect (really close)
+        for eps in eps_array:
+            a = transform.transform_path(Path([(0, 1), (0, 5)]))
+            b = transform.transform_path(Path([(0, 5 + eps), (0, 7)]))
+            assert not a.intersects_path(b) and not b.intersects_path(a)
+
+        # a and b are on the same line and intersect (really close)
+        for eps in eps_array:
+            a = transform.transform_path(Path([(0, 1), (0, 5)]))
+            b = transform.transform_path(Path([(0, 5 - eps), (0, 7)]))
+            assert a.intersects_path(b) and b.intersects_path(a)
+
+        # b is the same as a but with an extra point
+        a = transform.transform_path(Path([(0, 1), (0, 5)]))
+        b = transform.transform_path(Path([(0, 1), (0, 2), (0, 5)]))
+        assert a.intersects_path(b) and b.intersects_path(a)
+
+    return
 
 
 @pytest.mark.parametrize('offset', range(-720, 361, 45))

@@ -1,5 +1,7 @@
+import functools
 import logging
 import os
+from pathlib import Path
 import sys
 
 import matplotlib
@@ -11,7 +13,22 @@ from matplotlib.backend_bases import (
 from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
-from ._gtk3_compat import GLib, GObject, Gtk, Gdk
+
+try:
+    import gi
+except ImportError:
+    raise ImportError("The GTK3 backends require PyGObject")
+
+try:
+    # :raises ValueError: If module/version is already loaded, already
+    # required, or unavailable.
+    gi.require_version("Gtk", "3.0")
+except ValueError as e:
+    # in this case we want to re-raise as ImportError so the
+    # auto-backend selection logic correctly skips.
+    raise ImportError from e
+
+from gi.repository import GLib, GObject, Gtk, Gdk
 
 
 _log = logging.getLogger(__name__)
@@ -172,7 +189,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.set_double_buffered(True)
         self.set_can_focus(True)
         self._renderer_init()
-        default_context = GLib.main_context_get_thread_default() or GLib.main_context_default()
 
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
@@ -278,13 +294,12 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         pass
 
     def draw(self):
-        if self.get_visible() and self.get_mapped():
+        # docstring inherited
+        if self.is_drawable():
             self.queue_draw()
-            # do a synchronous draw (its less efficient than an async draw,
-            # but is required if/when animation is used)
-            self.get_property("window").process_updates(False)
 
     def draw_idle(self):
+        # docstring inherited
         if self._idle_draw_id != 0:
             return
         def idle_draw(*args):
@@ -296,22 +311,11 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self._idle_draw_id = GLib.idle_add(idle_draw)
 
     def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
-
-        Other Parameters
-        ----------------
-        interval : scalar
-            Timer interval in milliseconds
-        callbacks : list
-            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
-            will be executed by the timer every *interval*.
-        """
+        # docstring inherited
         return TimerGTK3(*args, **kwargs)
 
     def flush_events(self):
+        # docstring inherited
         Gdk.threads_enter()
         while Gtk.events_pending():
             Gtk.main_iteration()
@@ -492,6 +496,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.set_style(Gtk.ToolbarStyle.ICONS)
         basedir = os.path.join(rcParams['datapath'], 'images')
 
+        self._gtk_ids = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.insert(Gtk.SeparatorToolItem(), -1)
@@ -499,7 +504,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
             image.set_from_file(fname)
-            tbutton = Gtk.ToolButton()
+            self._gtk_ids[text] = tbutton = Gtk.ToolButton()
             tbutton.set_label(text)
             tbutton.set_icon_widget(image)
             self.insert(tbutton, -1)
@@ -518,6 +523,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
         self.show_all()
 
+    @cbook.deprecated("3.1")
     def get_filechooser(self):
         fc = FileChooserDialog(
             title='Save the figure',
@@ -529,24 +535,54 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         return fc
 
     def save_figure(self, *args):
-        chooser = self.get_filechooser()
-        fname, format = chooser.get_filename_from_user()
-        chooser.destroy()
-        if fname:
-            startpath = os.path.expanduser(rcParams['savefig.directory'])
-            # Save dir for next time, unless empty str (i.e., use cwd).
-            if startpath != "":
-                rcParams['savefig.directory'] = os.path.dirname(fname)
-            try:
-                self.canvas.figure.savefig(fname, format=format)
-            except Exception as e:
-                error_msg_gtk(str(e), parent=self)
+        dialog = Gtk.FileChooserDialog(
+            title="Save the figure",
+            parent=self.canvas.get_toplevel(),
+            action=Gtk.FileChooserAction.SAVE,
+            buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                     Gtk.STOCK_SAVE,   Gtk.ResponseType.OK),
+        )
+        for name, fmts \
+                in self.canvas.get_supported_filetypes_grouped().items():
+            ff = Gtk.FileFilter()
+            ff.set_name(name)
+            for fmt in fmts:
+                ff.add_pattern("*." + fmt)
+            dialog.add_filter(ff)
+            if self.canvas.get_default_filetype() in fmts:
+                dialog.set_filter(ff)
+
+        @functools.partial(dialog.connect, "notify::filter")
+        def on_notify_filter(*args):
+            name = dialog.get_filter().get_name()
+            fmt = self.canvas.get_supported_filetypes_grouped()[name][0]
+            dialog.set_current_name(
+                str(Path(dialog.get_current_name()).with_suffix("." + fmt)))
+
+        dialog.set_current_folder(rcParams["savefig.directory"])
+        dialog.set_current_name(self.canvas.get_default_filename())
+        dialog.set_do_overwrite_confirmation(True)
+
+        response = dialog.run()
+        fname = dialog.get_filename()
+        ff = dialog.get_filter()  # Doesn't autoadjust to filename :/
+        fmt = self.canvas.get_supported_filetypes_grouped()[ff.get_name()][0]
+        dialog.destroy()
+        if response == Gtk.ResponseType.CANCEL:
+            return
+        # Save dir for next time, unless empty str (which means use cwd).
+        if rcParams['savefig.directory']:
+            rcParams['savefig.directory'] = os.path.dirname(fname)
+        try:
+            self.canvas.figure.savefig(fname, format=fmt)
+        except Exception as e:
+            error_msg_gtk(str(e), parent=self)
 
     def configure_subplots(self, button):
         toolfig = Figure(figsize=(6, 3))
         canvas = self._get_canvas(toolfig)
         toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.canvas.figure, toolfig)
+        tool = SubplotTool(self.canvas.figure, toolfig)
 
         w = int(toolfig.bbox.width)
         h = int(toolfig.bbox.height)
@@ -572,7 +608,14 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
     def _get_canvas(self, fig):
         return self.canvas.__class__(fig)
 
+    def set_history_buttons(self):
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        self._gtk_ids['Back'].set_sensitive(can_backward)
+        self._gtk_ids['Forward'].set_sensitive(can_forward)
 
+
+@cbook.deprecated("3.1")
 class FileChooserDialog(Gtk.FileChooserDialog):
     """GTK+ file selector which remembers the last file/directory
     selected and presents the user with a menu of supported image formats
@@ -647,34 +690,6 @@ class FileChooserDialog(Gtk.FileChooserDialog):
             return self.get_filename(), self.ext
         else:
             return None, self.ext
-
-
-class RubberbandGTK3(backend_tools.RubberbandBase):
-    def __init__(self, *args, **kwargs):
-        backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
-        self.ctx = None
-
-    def draw_rubberband(self, x0, y0, x1, y1):
-        # 'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/
-        # Recipe/189744'
-        self.ctx = self.figure.canvas.get_property("window").cairo_create()
-
-        # todo: instead of redrawing the entire figure, copy the part of
-        # the figure that was covered by the previous rubberband rectangle
-        self.figure.canvas.draw()
-
-        height = self.figure.bbox.height
-        y1 = height - y1
-        y0 = height - y0
-        w = abs(x1 - x0)
-        h = abs(y1 - y0)
-        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
-
-        self.ctx.new_path()
-        self.ctx.set_line_width(0.5)
-        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
-        self.ctx.set_source_rgb(0, 0, 0)
-        self.ctx.stroke()
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
@@ -766,8 +781,15 @@ class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
         self.push(self._context, s)
 
 
+class RubberbandGTK3(backend_tools.RubberbandBase):
+    def draw_rubberband(self, x0, y0, x1, y1):
+        NavigationToolbar2GTK3.draw_rubberband(
+            self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
+
+
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
 
+    @cbook.deprecated("3.1")
     def get_filechooser(self):
         fc = FileChooserDialog(
             title='Save the figure',
@@ -779,26 +801,17 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
         return fc
 
     def trigger(self, *args, **kwargs):
-        chooser = self.get_filechooser()
-        fname, format_ = chooser.get_filename_from_user()
-        chooser.destroy()
-        if fname:
-            startpath = os.path.expanduser(rcParams['savefig.directory'])
-            if startpath == '':
-                # explicitly missing key or empty str signals to use cwd
-                rcParams['savefig.directory'] = startpath
-            else:
-                # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(fname)
-            try:
-                self.figure.canvas.print_figure(fname, format=format_)
-            except Exception as e:
-                error_msg_gtk(str(e), parent=self)
+
+        class PseudoToolbar:
+            canvas = self.figure.canvas
+
+        return NavigationToolbar2GTK3.save_figure(PseudoToolbar())
 
 
 class SetCursorGTK3(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
-        self.figure.canvas.get_property("window").set_cursor(cursord[cursor])
+        NavigationToolbar2GTK3.set_cursor(
+            self._make_classic_style_pseudo_toolbar(), cursor)
 
 
 class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):

@@ -21,9 +21,9 @@ def rad_fn(x, pos=None):
     elif n == 2:
         return r'$\pi$'
     elif n % 2 == 0:
-        return r'$%s\pi$' % (n/2,)
+        return fr'${n//2}\pi$'
     else:
-        return r'$%s\pi/2$' % (n,)
+        return fr'${n}\pi/2$'
 
 
 class UnitDblConverter(units.ConversionInterface):

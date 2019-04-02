@@ -418,7 +418,6 @@ savefig.pad_inches  : 0.1      # Padding to be used when bbox is set to 'tight'
 savefig.jpeg_quality: 95       # when a jpeg is saved, the default quality parameter.
 savefig.transparent : False    # setting that controls whether figures are saved with a
                                # transparent background by default
-savefig.frameon : True
 savefig.orientation : portrait
 
 # ps backend params
@@ -448,29 +447,6 @@ svg.image_inline : True       # write raster image data directly into the svg fi
 svg.fonttype : path            # How to handle SVG fonts:
 #    'none': Assume fonts are installed on the machine where the SVG will be viewed.
 #    'path': Embed characters as paths -- supported by most SVG renderers
-#    'svgfont': Embed characters as SVG fonts -- supported only by Chrome,
-#               Opera and Safari
-
-
-# Set the verbose flags.  This controls how much information
-# matplotlib gives you at runtime and where it goes.  The verbosity
-# levels are: silent, helpful, debug, debug-annoying.  Any level is
-# inclusive of all the levels below it.  If your setting is "debug",
-# you'll get all the debug and helpful messages.  When submitting
-# problems to the mailing-list, please set verbose to "helpful" or "debug"
-# and paste the output into your report.
-#
-# The "fileo" gives the destination for any calls to verbose.report.
-# These objects can a filename, or a filehandle like sys.stdout.
-#
-# You can override the rc default verbosity from the command line by
-# giving the flags --verbose-LEVEL where LEVEL is one of the legal
-# levels, e.g., --verbose-helpful.
-#
-# You can access the verbose instance in your code
-#   from matplotlib import verbose.
-verbose.level  : silent      # one of silent, helpful, debug, debug-annoying
-verbose.fileo  : sys.stdout  # a log filename, sys.stdout or sys.stderr
 
 # Event keys to interact with figures/plots via keyboard.
 # Customize these settings according to your needs.

@@ -4,10 +4,14 @@ Scales
 ======
 
 Illustrate the scale transformations applied to axes, e.g. log, symlog, logit.
+
+The last two examples are examples of using the ``'function'`` scale by
+supplying forward and inverse functions for the scale transformation.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import NullFormatter
+from matplotlib.ticker import NullFormatter, FixedLocator
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -19,8 +23,8 @@ y.sort()
 x = np.arange(len(y))
 
 # plot with various axes scales
-fig, axs = plt.subplots(2, 2, sharex=True)
-fig.subplots_adjust(left=0.08, right=0.98, wspace=0.3)
+fig, axs = plt.subplots(3, 2, figsize=(6, 8),
+                        constrained_layout=True)
 
 # linear
 ax = axs[0, 0]
@@ -51,7 +55,71 @@ ax.plot(x, y)
 ax.set_yscale('logit')
 ax.set_title('logit')
 ax.grid(True)
+# Format the minor tick labels of the y-axis into empty strings with
+# `NullFormatter`, to avoid cumbering the axis with too many labels.
 ax.yaxis.set_minor_formatter(NullFormatter())
 
 
+# Function x**(1/2)
+def forward(x):
+    return x**(1/2)
+
+
+def inverse(x):
+    return x**2
+
+
+ax = axs[2, 0]
+ax.plot(x, y)
+ax.set_yscale('function', functions=(forward, inverse))
+ax.set_title('function: $x^{1/2}$')
+ax.grid(True)
+ax.yaxis.set_major_locator(FixedLocator(np.arange(0, 1, 0.2)**2))
+ax.yaxis.set_major_locator(FixedLocator(np.arange(0, 1, 0.2)))
+
+
+# Function Mercator transform
+def forward(a):
+    a = np.deg2rad(a)
+    return np.rad2deg(np.log(np.abs(np.tan(a) + 1.0 / np.cos(a))))
+
+
+def inverse(a):
+    a = np.deg2rad(a)
+    return np.rad2deg(np.arctan(np.sinh(a)))
+
+ax = axs[2, 1]
+
+t = np.arange(-170.0, 170.0, 0.1)
+s = t / 2.
+
+ax.plot(t, s, '-', lw=2)
+
+ax.set_yscale('function', functions=(forward, inverse))
+ax.set_title('function: Mercator')
+ax.grid(True)
+ax.set_xlim([-180, 180])
+ax.yaxis.set_minor_formatter(NullFormatter())
+ax.yaxis.set_major_locator(FixedLocator(np.arange(-90, 90, 30)))
+
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.set_yscale
+matplotlib.axes.Axes.set_xscale
+matplotlib.axis.Axis.set_major_locator
+matplotlib.scale.LogitScale
+matplotlib.scale.LogScale
+matplotlib.scale.LinearScale
+matplotlib.scale.SymmetricalLogScale
+matplotlib.scale.FuncScale

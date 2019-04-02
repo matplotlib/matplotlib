@@ -8,7 +8,6 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-import matplotlib._contour as _contour
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
@@ -264,7 +263,7 @@ class ContourLabeler(object):
         if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
 
-        lev, ismath = text.Text.is_math_text(lev)
+        lev, ismath = text.Text()._preprocess_math(lev)
         if ismath == 'TeX':
             if not hasattr(self, '_TeX_manager'):
                 self._TeX_manager = texmanager.TexManager()
@@ -279,33 +278,6 @@ class ContourLabeler(object):
         else:
             # width is much less than "font size"
             lw = (len(lev)) * fsize * 0.6
-
-        return lw
-
-    @cbook.deprecated("2.2")
-    def get_real_label_width(self, lev, fmt, fsize):
-        """
-        This computes actual onscreen label width.
-        This uses some black magic to determine onscreen extent of non-drawn
-        label.  This magic may not be very robust.
-
-        This method is not being used, and may be modified or removed.
-        """
-        # Find middle of axes
-        xx = np.mean(np.asarray(self.ax.axis()).reshape(2, 2), axis=1)
-
-        # Temporarily create text object
-        t = text.Text(xx[0], xx[1])
-        self.set_label_props(t, self.get_text(lev, fmt), 'k')
-
-        # Some black magic to get onscreen extent
-        # NOTE: This will only work for already drawn figures, as the canvas
-        # does not have a renderer otherwise.  This is the reason this function
-        # can't be integrated into the rest of the code.
-        bbox = t.get_window_extent(renderer=self.ax.figure.canvas.renderer)
-
-        # difference in pixel extent of image
-        lw = np.diff(bbox.corners()[0::2, 0])[0]
 
         return lw
 
@@ -856,9 +828,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.antialiased is None and self.filled:
             self.antialiased = False  # eliminate artifacts; we are not
                                       # stroking the boundaries.
-            # The default for line contours will be taken from
-            # the LineCollection default, which uses the
-            # rcParams['lines.antialiased']
+            # The default for line contours will be taken from the
+            # LineCollection default, which uses :rc:`lines.antialiased`.
 
         self.nchunk = kwargs.pop('nchunk', 0)
         self.locator = kwargs.pop('locator', None)
@@ -870,9 +841,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             self.logscale = False
 
-        if self.origin not in [None, 'lower', 'upper', 'image']:
-            raise ValueError("If given, *origin* must be one of [ 'lower' |"
-                             " 'upper' | 'image']")
+        cbook._check_in_list([None, 'lower', 'upper', 'image'], origin=origin)
         if self.extent is not None and len(self.extent) != 4:
             raise ValueError("If given, *extent* must be '[ *None* |"
                              " (x0,x1,y0,y1) ]'")
@@ -1097,7 +1066,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.allkinds = len(args) > 2 and args[2] or None
         self.zmax = np.max(self.levels)
         self.zmin = np.min(self.levels)
-        self._auto = False
 
         # Check lengths of levels and allsegs.
         if self.filled:
@@ -1183,7 +1151,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         """
-        self._auto = True
         if self.locator is None:
             if self.logscale:
                 self.locator = ticker.LogLocator()
@@ -1217,7 +1184,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Determine the contour levels and store in self.levels.
         """
-        self._auto = False
         if self.levels is None:
             if len(args) == 0:
                 levels_arg = 7  # Default, hard-wired.
@@ -1481,6 +1447,8 @@ class QuadContourSet(ContourSet):
             self._mins = args[0]._mins
             self._maxs = args[0]._maxs
         else:
+            import matplotlib._contour as _contour
+
             self._corner_mask = kwargs.pop('corner_mask', None)
             if self._corner_mask is None:
                 self._corner_mask = mpl.rcParams['contour.corner_mask']
@@ -1661,11 +1629,9 @@ class QuadContourSet(ContourSet):
 
             contour([X, Y,] Z, [levels], **kwargs)
 
-        :func:`~matplotlib.pyplot.contour` and
-        :func:`~matplotlib.pyplot.contourf` draw contour lines and
-        filled contours, respectively.  Except as noted, function
-        signatures and return values are the same for both versions.
-
+        `.contour` and `.contourf` draw contour lines and filled contours,
+        respectively.  Except as noted, function signatures and return values
+        are the same for both versions.
 
         Parameters
         ----------
@@ -1673,7 +1639,7 @@ class QuadContourSet(ContourSet):
             The coordinates of the values in *Z*.
 
             *X* and *Y* must both be 2-D with the same shape as *Z* (e.g.
-            created via :func:`numpy.meshgrid`), or they must both be 1-D such
+            created via `numpy.meshgrid`), or they must both be 1-D such
             that ``len(X) == M`` is the number of columns in *Z* and
             ``len(Y) == N`` is the number of rows in *Z*.
 
@@ -1705,8 +1671,7 @@ class QuadContourSet(ContourSet):
             nearest those points are always masked out, other triangular
             corners comprising three unmasked points are contoured as usual.
 
-            Defaults to ``rcParams['contour.corner_mask']``, which defaults to
-            ``True``.
+            Defaults to :rc:`contour.corner_mask`, which defaults to ``True``.
 
         colors : color string or sequence of colors, optional
             The colors of the levels, i.e. the lines for `.contour` and the
@@ -1752,33 +1717,59 @@ class QuadContourSet(ContourSet):
             - 'lower': ``Z[0, 0]`` is at X=0.5, Y=0.5 in the lower left corner.
             - 'upper': ``Z[0, 0]`` is at X=N+0.5, Y=0.5 in the upper left
               corner.
-            - 'image': Use the value from :rc:`image.origin`. Note: The value
-              *None* in the rcParam is currently handled as 'lower'.
+            - 'image': Use the value from :rc:`image.origin`.
 
         extent : (x0, x1, y0, y1), optional
-            If *origin* is not *None*, then *extent* is interpreted as
-            in :func:`matplotlib.pyplot.imshow`: it gives the outer
-            pixel boundaries. In this case, the position of Z[0,0]
-            is the center of the pixel, not a corner. If *origin* is
-            *None*, then (*x0*, *y0*) is the position of Z[0,0], and
-            (*x1*, *y1*) is the position of Z[-1,-1].
+            If *origin* is not *None*, then *extent* is interpreted as in
+            `.imshow`: it gives the outer pixel boundaries. In this case, the
+            position of Z[0,0] is the center of the pixel, not a corner. If
+            *origin* is *None*, then (*x0*, *y0*) is the position of Z[0,0],
+            and (*x1*, *y1*) is the position of Z[-1,-1].
 
-            This keyword is not active if *X* and *Y* are specified in
-            the call to contour.
+            This argument is ignored if *X* and *Y* are specified in the call
+            to contour.
 
         locator : ticker.Locator subclass, optional
             The locator is used to determine the contour levels if they
             are not given explicitly via *levels*.
             Defaults to `~.ticker.MaxNLocator`.
 
-        extend : {'neither', 'both', 'min', 'max'}, optional
-            Unless this is 'neither', contour levels are automatically
-            added to one or both ends of the range so that all data
-            are included. These added ranges are then mapped to the
-            special colormap values which default to the ends of the
-            colormap range, but can be set via
-            :meth:`matplotlib.colors.Colormap.set_under` and
-            :meth:`matplotlib.colors.Colormap.set_over` methods.
+        extend : {'neither', 'both', 'min', 'max'}, optional, default: \
+'neither'
+            Determines the ``contourf``-coloring of values that are outside the
+            *levels* range.
+
+            If 'neither', values outside the *levels* range are not colored.
+            If 'min', 'max' or 'both', color the values below, above or below
+            and above the *levels* range.
+
+            Values below ``min(levels)`` and above ``max(levels)`` are mapped
+            to the under/over values of the `.Colormap`. Note, that most
+            colormaps do not have dedicated colors for these by default, so
+            that the over and under values are the edge values of the colormap.
+            You may want to set these values explicitly using
+            `.Colormap.set_under` and `.Colormap.set_over`.
+
+            .. note::
+
+                An exising `.QuadContourSet` does not get notified if
+                properties of its colormap are changed. Therefore, an explicit
+                call `.QuadContourSet.changed()` is needed after modifying the
+                colormap. The explicit call can be left out, if a colorbar is
+                assigned to the `.QuadContourSet` because it internally calls
+                `.QuadContourSet.changed()`.
+
+            Example::
+
+                x = np.arange(1, 10)
+                y = x.reshape(-1, 1)
+                h = x * y
+
+                cs = plt.contourf(h, levels=[10, 30, 50],
+                    colors=['#808080', '#A0A0A0', '#C0C0C0'], extend='both')
+                cs.cmap.set_over('red')
+                cs.cmap.set_under('blue')
+                cs.changed()
 
         xunits, yunits : registered units, optional
             Override axis units by specifying an instance of a
@@ -1830,20 +1821,17 @@ class QuadContourSet(ContourSet):
             Hatching is supported in the PostScript, PDF, SVG and Agg
             backends only.
 
-
         Notes
         -----
-        1. :func:`~matplotlib.pyplot.contourf` differs from the MATLAB
-           version in that it does not draw the polygon edges.
-           To draw edges, add line contours with
-           calls to :func:`~matplotlib.pyplot.contour`.
+        1. `.contourf` differs from the MATLAB version in that it does not draw
+           the polygon edges. To draw edges, add line contours with calls to
+           `.contour`.
 
-        2. contourf fills intervals that are closed at the top; that
-           is, for boundaries *z1* and *z2*, the filled region is::
+        2. `.contourf` fills intervals that are closed at the top; that is, for
+           boundaries *z1* and *z2*, the filled region is::
 
               z1 < Z <= z2
 
-           There is one exception: if the lowest boundary coincides with
-           the minimum value of the *Z* array, then that minimum value
-           will be included in the lowest interval.
+           except for the lowest interval, which is closed on both sides (i.e.
+           it includes the lowest value).
         """

@@ -2,13 +2,12 @@ from collections import OrderedDict
 import copy
 import os
 from unittest import mock
-import warnings
 
 from cycler import cycler, Cycler
 import pytest
 
 import matplotlib as mpl
-from matplotlib.cbook import MatplotlibDeprecationWarning
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
@@ -39,7 +38,7 @@ def test_rcparams():
         assert mpl.rcParams['text.usetex'] == (not usetex)
     assert mpl.rcParams['text.usetex'] == usetex
 
-    # test context given filename (mpl.rc sets linewdith to 33)
+    # test context given filename (mpl.rc sets linewidth to 33)
     with mpl.rc_context(fname=fname):
         assert mpl.rcParams['lines.linewidth'] == 33
     assert mpl.rcParams['lines.linewidth'] == linewidth
@@ -91,22 +90,15 @@ def test_rcparams_update():
     rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
     bad_dict = {'figure.figsize': (3.5, 42, 1)}
     # make sure validation happens on input
-    with pytest.raises(ValueError):
-
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore',
-                                message='.*(validate)',
-                                category=UserWarning)
-            rc.update(bad_dict)
+    with pytest.raises(ValueError), \
+         pytest.warns(UserWarning, match="validate"):
+        rc.update(bad_dict)
 
 
 def test_rcparams_init():
-    with pytest.raises(ValueError):
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore',
-                                message='.*(validate)',
-                                category=UserWarning)
-            mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
+    with pytest.raises(ValueError), \
+         pytest.warns(UserWarning, match="validate"):
+        mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
 
 
 def test_Bug_2543():
@@ -117,14 +109,11 @@ def test_Bug_2543():
     # We filter warnings at this stage since a number of them are raised
     # for deprecated rcparams as they should. We don't want these in the
     # printed in the test suite.
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore',
-                                category=MatplotlibDeprecationWarning)
+    with cbook._suppress_matplotlib_deprecation_warning():
         with mpl.rc_context():
             _copy = mpl.rcParams.copy()
             for key in _copy:
                 mpl.rcParams[key] = _copy[key]
-            mpl.rcParams['text.dvipnghack'] = None
         with mpl.rc_context():
             _deep_copy = copy.deepcopy(mpl.rcParams)
         # real test is that this does not raise
@@ -163,8 +152,8 @@ legend_color_test_ids = [
 @pytest.mark.parametrize('color_type, param_dict, target', legend_color_tests,
                          ids=legend_color_test_ids)
 def test_legend_colors(color_type, param_dict, target):
-    param_dict['legend.%scolor' % (color_type, )] = param_dict.pop('color')
-    get_func = 'get_%scolor' % (color_type, )
+    param_dict[f'legend.{color_type}color'] = param_dict.pop('color')
+    get_func = f'get_{color_type}color'
 
     with mpl.rc_context(param_dict):
         _, ax = plt.subplots()
@@ -306,7 +295,7 @@ def generate_validator_testcases(valid):
                      ('AABBCC', '#AABBCC'),  # RGB hex code
                      ('AABBCC00', '#AABBCC00'),  # RGBA hex code
                      ('tab:blue', 'tab:blue'),  # named color
-                     ('C0', 'C0'),  # color from cycle
+                     ('C12', 'C12'),  # color from cycle
                      ('(0, 1, 0)', [0.0, 1.0, 0.0]),  # RGB tuple
                      ((0, 1, 0), (0, 1, 0)),  # non-string version
                      ('(0, 1, 0, 1)', [0.0, 1.0, 0.0, 1.0]),  # RGBA tuple
@@ -314,7 +303,6 @@ def generate_validator_testcases(valid):
                      ('(0, 1, "0.5")', [0.0, 1.0, 0.5]),  # unusual but valid
                     ),
          'fail': (('tab:veryblue', ValueError),  # invalid name
-                  ('C123', ValueError),  # invalid RGB(A) code and cycle index
                   ('(0, 1)', ValueError),  # tuple with length < 3
                   ('(0, 1, 0, 1, 0)', ValueError),  # tuple with length > 4
                   ('(0, 1, none)', ValueError),  # cannot cast none to float
@@ -322,6 +310,7 @@ def generate_validator_testcases(valid):
         },
         {'validator': validate_hist_bins,
          'success': (('auto', 'auto'),
+                     ('fd', 'fd'),
                      ('10', 10),
                      ('1, 2, 3', [1, 2, 3]),
                      ([1, 2, 3], [1, 2, 3]),

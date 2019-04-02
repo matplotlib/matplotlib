@@ -1,9 +1,6 @@
-********
-gridspec
-********
-
-:mod:`matplotlib.gridspec`
-==========================
+***********************
+``matplotlib.gridspec``
+***********************
 
 .. currentmodule:: matplotlib.gridspec
 

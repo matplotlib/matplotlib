@@ -5,6 +5,7 @@ import pytest
 import matplotlib
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
+from matplotlib.ticker import EngFormatter
 
 
 with warnings.catch_warnings():

@@ -3,6 +3,7 @@ from copy import copy
 import io
 import os
 import sys
+from pathlib import Path
 import platform
 import urllib.request
 import warnings
@@ -14,9 +15,10 @@ from numpy.testing import assert_array_equal
 from matplotlib import (
     colors, image as mimage, patches, pyplot as plt,
     rc_context, rcParams)
+from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 
 import pytest
@@ -41,6 +43,20 @@ def test_image_interps():
     ax3 = fig.add_subplot(313)
     ax3.imshow(X, interpolation='bicubic')
     ax3.set_ylabel('bicubic')
+
+
+@image_comparison(baseline_images=['interp_alpha'],
+                  extensions=['png'], remove_text=True)
+def test_alpha_interp():
+    'Test the interpolation of the alpha channel on RGBA images'
+    fig, (axl, axr) = plt.subplots(1, 2)
+    # full green image
+    img = np.zeros((5, 5, 4))
+    img[..., 1] = np.ones((5, 5))
+    # transparent under main diagonal
+    img[..., 3] = np.tril(np.ones((5, 5), dtype=np.uint8))
+    axl.imshow(img, interpolation="none")
+    axr.imshow(img, interpolation="bilinear")
 
 
 @image_comparison(baseline_images=['interp_nearest_vs_none'],
@@ -104,6 +120,15 @@ def test_image_python_io():
     plt.imread(buffer)
 
 
+@check_figures_equal()
+def test_imshow_pil(fig_test, fig_ref):
+    pytest.importorskip("PIL")
+    img = plt.imread(os.path.join(os.path.dirname(__file__),
+                     'baseline_images', 'test_image', 'uint16.tif'))
+    fig_test.subplots().imshow(img)
+    fig_ref.subplots().imshow(np.asarray(img))
+
+
 def test_imread_pil_uint16():
     pytest.importorskip("PIL")
     img = plt.imread(os.path.join(os.path.dirname(__file__),
@@ -112,17 +137,20 @@ def test_imread_pil_uint16():
     assert np.sum(img) == 134184960
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 def test_imread_fspath():
     pytest.importorskip("PIL")
-    from pathlib import Path
     img = plt.imread(
         Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
     assert img.dtype == np.uint16
     assert np.sum(img) == 134184960
 
 
-def test_imsave():
+@pytest.mark.parametrize("fmt", ["png", "jpg", "jpeg", "tiff"])
+def test_imsave(fmt):
+    if fmt in ["jpg", "jpeg", "tiff"]:
+        pytest.importorskip("PIL")
+    has_alpha = fmt not in ["jpg", "jpeg"]
+
     # The goal here is that the user can specify an output logical DPI
     # for the image, but this will not actually add any extra pixels
     # to the image, it will merely be used for metadata purposes.
@@ -131,30 +159,31 @@ def test_imsave():
     # == 100) and read the resulting PNG files back in and make sure
     # the data is 100% identical.
     np.random.seed(1)
-    data = np.random.rand(256, 128)
+    # The height of 1856 pixels was selected because going through creating an
+    # actual dpi=100 figure to save the image to a Pillow-provided format would
+    # cause a rounding error resulting in a final image of shape 1855.
+    data = np.random.rand(1856, 2)
 
     buff_dpi1 = io.BytesIO()
-    plt.imsave(buff_dpi1, data, dpi=1)
+    plt.imsave(buff_dpi1, data, format=fmt, dpi=1)
 
     buff_dpi100 = io.BytesIO()
-    plt.imsave(buff_dpi100, data, dpi=100)
+    plt.imsave(buff_dpi100, data, format=fmt, dpi=100)
 
     buff_dpi1.seek(0)
-    arr_dpi1 = plt.imread(buff_dpi1)
+    arr_dpi1 = plt.imread(buff_dpi1, format=fmt)
 
     buff_dpi100.seek(0)
-    arr_dpi100 = plt.imread(buff_dpi100)
+    arr_dpi100 = plt.imread(buff_dpi100, format=fmt)
 
-    assert arr_dpi1.shape == (256, 128, 4)
-    assert arr_dpi100.shape == (256, 128, 4)
+    assert arr_dpi1.shape == (1856, 2, 3 + has_alpha)
+    assert arr_dpi100.shape == (1856, 2, 3 + has_alpha)
 
     assert_array_equal(arr_dpi1, arr_dpi100)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_imsave_fspath(fmt):
-    Path = pytest.importorskip("pathlib").Path
     plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
 
 
@@ -260,6 +289,31 @@ def test_cursor_data():
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
     assert im.get_cursor_data(event) is None
+
+
+@pytest.mark.parametrize(
+    "data, text_without_colorbar, text_with_colorbar", [
+        ([[10001, 10000]], "[1e+04]", "[10001]"),
+        ([[.123, .987]], "[0.123]", "[0.123]"),
+])
+def test_format_cursor_data(data, text_without_colorbar, text_with_colorbar):
+    from matplotlib.backend_bases import MouseEvent
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(data)
+
+    xdisp, ydisp = ax.transData.transform_point([0, 0])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_cursor_data(event) == data[0][0]
+    assert im.format_cursor_data(im.get_cursor_data(event)) \
+        == text_without_colorbar
+
+    fig.colorbar(im)
+    fig.canvas.draw()  # This is necessary to set up the colorbar formatter.
+
+    assert im.get_cursor_data(event) == data[0][0]
+    assert im.format_cursor_data(im.get_cursor_data(event)) \
+        == text_with_colorbar
 
 
 @image_comparison(baseline_images=['image_clip'], style='mpl20')
@@ -392,7 +446,7 @@ def test_image_composite_alpha():
                   remove_text=True, style='mpl20')
 def test_rasterize_dpi():
     # This test should check rasterized rendering with high output resolution.
-    # It plots a rasterized line and a normal image with implot.  So it will
+    # It plots a rasterized line and a normal image with imshow.  So it will
     # catch when images end up in the wrong place in case of non-standard dpi
     # setting.  Instead of high-res rasterization I use low-res.  Therefore
     # the fact that the resolution is non-standard is easily checked by
@@ -861,9 +915,8 @@ def test_imshow_bignumbers_real():
      lambda: colors.PowerNorm(1)])
 def test_empty_imshow(make_norm):
     fig, ax = plt.subplots()
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", "Attempting to set identical left==right")
+    with pytest.warns(UserWarning,
+                      match="Attempting to set identical left == right"):
         im = ax.imshow([[]], norm=make_norm())
     im.set_extent([-5, 5, -5, 5])
     fig.canvas.draw()
@@ -921,3 +974,17 @@ def test_relim():
     ax.relim()
     ax.autoscale()
     assert ax.get_xlim() == ax.get_ylim() == (0, 1)
+
+
+def test_deprecation():
+    data = [[1, 2], [3, 4]]
+    ax = plt.figure().subplots()
+    for obj in [ax, plt]:
+        with pytest.warns(None) as record:
+            obj.imshow(data)
+            assert len(record) == 0
+        with pytest.warns(MatplotlibDeprecationWarning):
+            obj.imshow(data, shape=None)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            # Enough arguments to pass "shape" positionally.
+            obj.imshow(data, *[None] * 10)

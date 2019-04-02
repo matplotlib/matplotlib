@@ -1,4 +1,5 @@
 import importlib
+import importlib.util
 import os
 import signal
 import subprocess
@@ -18,9 +19,8 @@ import matplotlib as mpl
 def _get_testable_interactive_backends():
     backends = []
     for deps, backend in [
-            # gtk3agg fails on Travis, needs to be investigated.
-            # (["cairocffi", "pgi"], "gtk3agg"),
-            (["cairocffi", "pgi"], "gtk3cairo"),
+            (["cairo", "gi"], "gtk3agg"),
+            (["cairo", "gi"], "gtk3cairo"),
             (["PyQt5"], "qt5agg"),
             (["PyQt5", "cairocffi"], "qt5cairo"),
             (["tkinter"], "tkagg"),
@@ -46,6 +46,7 @@ def _get_testable_interactive_backends():
 # we directly invoke it from the superclass instead.
 _test_script = """\
 import importlib
+import importlib.util
 import sys
 from unittest import TestCase
 
@@ -109,12 +110,16 @@ _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
 @pytest.mark.flaky(reruns=3)
 def test_interactive_backend(backend):
-    if subprocess.run([sys.executable, "-c", _test_script],
-                      env={**os.environ, "MPLBACKEND": backend},
-                      timeout=_test_timeout).returncode:
-        pytest.fail("The subprocess returned an error.")
+    proc = subprocess.run([sys.executable, "-c", _test_script],
+                          env={**os.environ, "MPLBACKEND": backend},
+                          timeout=_test_timeout)
+    if proc.returncode:
+        pytest.fail("The subprocess returned with non-zero exit status "
+                    f"{proc.returncode}.")
 
 
+@pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ,
+                    reason="this test fails an azure for unknown reasons")
 @pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
     pytest.importorskip("tornado")
@@ -125,6 +130,9 @@ def test_webagg():
     timeout = time.perf_counter() + _test_timeout
     while True:
         try:
+            retcode = proc.poll()
+            # check that the subprocess for the server is not dead
+            assert retcode is None
             conn = urllib.request.urlopen(url)
             break
         except urllib.error.URLError:

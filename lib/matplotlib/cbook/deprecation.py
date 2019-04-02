@@ -1,5 +1,7 @@
+import contextlib
 import functools
 import inspect
+import warnings
 
 
 class MatplotlibDeprecationWarning(UserWarning):
@@ -19,22 +21,22 @@ mplDeprecation = MatplotlibDeprecationWarning
 """mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead."""
 
 
-def _generate_deprecation_message(
+def _generate_deprecation_warning(
         since, message='', name='', alternative='', pending=False,
         obj_type='attribute', addendum='', *, removal=''):
-
-    if removal == "":
-        removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
-            since, "two minor releases later")
-    elif removal:
-        if pending:
+    if pending:
+        if removal:
             raise ValueError(
                 "A pending deprecation cannot have a scheduled removal")
-        removal = "in {}".format(removal)
-
+    else:
+        if removal:
+            removal = "in {}".format(removal)
+        else:
+            removal = {"2.2": "in 3.1", "3.0": "in 3.2", "3.1": "in 3.3"}.get(
+                since, "two minor releases later")
     if not message:
         message = (
-            "The %(name)s %(obj_type)s"
+            "\nThe %(name)s %(obj_type)s"
             + (" will be deprecated in a future version"
                if pending else
                (" was deprecated in Matplotlib %(since)s"
@@ -44,15 +46,16 @@ def _generate_deprecation_message(
             + "."
             + (" Use %(alternative)s instead." if alternative else "")
             + (" %(addendum)s" if addendum else ""))
-
-    return message % dict(
+    warning_cls = (PendingDeprecationWarning if pending
+                   else MatplotlibDeprecationWarning)
+    return warning_cls(message % dict(
         func=name, name=name, obj_type=obj_type, since=since, removal=removal,
-        alternative=alternative, addendum=addendum)
+        alternative=alternative, addendum=addendum))
 
 
 def warn_deprecated(
-        since, message='', name='', alternative='', pending=False,
-        obj_type='attribute', addendum='', *, removal=''):
+        since, *, message='', name='', alternative='', pending=False,
+        obj_type='attribute', addendum='', removal=''):
     """
     Used to display deprecation in a standard way.
 
@@ -81,17 +84,17 @@ def warn_deprecated(
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.  Cannot be used together with *removal*.
 
-    removal : str, optional
-        The expected removal version.  With the default (an empty string), a
-        removal version is automatically computed from *since*.  Set to other
-        Falsy values to not schedule a removal date.  Cannot be used together
-        with *pending*.
-
     obj_type : str, optional
         The object type being deprecated.
 
     addendum : str, optional
         Additional text appended directly to the final message.
+
+    removal : str, optional
+        The expected removal version.  With the default (an empty string), a
+        removal version is automatically computed from *since*.  Set to other
+        Falsy values to not schedule a removal date.  Cannot be used together
+        with *pending*.
 
     Examples
     --------
@@ -101,19 +104,16 @@ def warn_deprecated(
             # To warn of the deprecation of "matplotlib.name_of_module"
             warn_deprecated('1.4.0', name='matplotlib.name_of_module',
                             obj_type='module')
-
     """
-    message = '\n' + _generate_deprecation_message(
+    warning = _generate_deprecation_warning(
         since, message, name, alternative, pending, obj_type, addendum,
         removal=removal)
-    category = (PendingDeprecationWarning if pending
-                else MatplotlibDeprecationWarning)
     from . import _warn_external
-    _warn_external(message, category)
+    _warn_external(warning)
 
 
-def deprecated(since, message='', name='', alternative='', pending=False,
-               obj_type=None, addendum='', *, removal=''):
+def deprecated(since, *, message='', name='', alternative='', pending=False,
+               obj_type=None, addendum='', removal=''):
     """
     Decorator to mark a function, a class, or a property as deprecated.
 
@@ -155,14 +155,18 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.  Cannot be used together with *removal*.
 
+    obj_type : str, optional
+        The object type being deprecated; by default, 'function' if decorating
+        a function and 'class' if decorating a class.
+
+    addendum : str, optional
+        Additional text appended directly to the final message.
+
     removal : str, optional
         The expected removal version.  With the default (an empty string), a
         removal version is automatically computed from *since*.  Set to other
         Falsy values to not schedule a removal date.  Cannot be used together
         with *pending*.
-
-    addendum : str, optional
-        Additional text appended directly to the final message.
 
     Examples
     --------
@@ -174,22 +178,21 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                 pass
     """
 
-    if obj_type is not None:
-        warn_deprecated(
-            "3.0", "Passing 'obj_type' to the 'deprecated' decorator has no "
-            "effect, and is deprecated since Matplotlib %(since)s; support "
-            "for it will be removed %(removal)s.")
-
     def deprecate(obj, message=message, name=name, alternative=alternative,
-                  pending=pending, addendum=addendum):
+                  pending=pending, obj_type=obj_type, addendum=addendum):
+
         if isinstance(obj, type):
-            obj_type = "class"
+            if obj_type is None:
+                obj_type = "class"
             func = obj.__init__
             name = name or obj.__name__
             old_doc = obj.__doc__
 
             def finalize(wrapper, new_doc):
-                obj.__doc__ = new_doc
+                try:
+                    obj.__doc__ = new_doc
+                except AttributeError:  # Can't set on some extension objects.
+                    pass
                 obj.__init__ = wrapper
                 return obj
 
@@ -203,19 +206,19 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                 def __get__(self, instance, owner):
                     if instance is not None:
                         from . import _warn_external
-                        _warn_external(message, category)
+                        _warn_external(warning)
                     return super().__get__(instance, owner)
 
                 def __set__(self, instance, value):
                     if instance is not None:
                         from . import _warn_external
-                        _warn_external(message, category)
+                        _warn_external(warning)
                     return super().__set__(instance, value)
 
                 def __delete__(self, instance):
                     if instance is not None:
                         from . import _warn_external
-                        _warn_external(message, category)
+                        _warn_external(warning)
                     return super().__delete__(instance)
 
             def finalize(_, new_doc):
@@ -223,7 +226,8 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                     fget=obj.fget, fset=obj.fset, fdel=obj.fdel, doc=new_doc)
 
         else:
-            obj_type = "function"
+            if obj_type is None:
+                obj_type = "function"
             func = obj
             name = name or obj.__name__
             old_doc = func.__doc__
@@ -233,29 +237,184 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                 wrapper.__doc__ = new_doc
                 return wrapper
 
-        message = _generate_deprecation_message(
+        warning = _generate_deprecation_warning(
             since, message, name, alternative, pending, obj_type, addendum,
             removal=removal)
-        category = (PendingDeprecationWarning if pending
-                    else MatplotlibDeprecationWarning)
 
         def wrapper(*args, **kwargs):
             from . import _warn_external
-            _warn_external(message, category)
+            _warn_external(warning)
             return func(*args, **kwargs)
 
         old_doc = inspect.cleandoc(old_doc or '').strip('\n')
+
         message = message.strip()
-        new_doc = ('.. deprecated:: {since}\n'
-                   '   {message}\n'
+        new_doc = ('[*Deprecated*] {old_doc}\n'
                    '\n'
-                   '{old_doc}'
+                   '.. deprecated:: {since}\n'
+                   '   {message}'
                    .format(since=since, message=message, old_doc=old_doc))
         if not old_doc:
-            # This is to prevent a spurious 'unexected unindent' warning from
+            # This is to prevent a spurious 'unexpected unindent' warning from
             # docutils when the original docstring was blank.
             new_doc += r'\ '
 
         return finalize(wrapper, new_doc)
 
     return deprecate
+
+
+def _rename_parameter(since, old, new, func=None):
+    """
+    Decorator indicating that parameter *old* of *func* is renamed to *new*.
+
+    The actual implementation of *func* should use *new*, not *old*.  If *old*
+    is passed to *func*, a DeprecationWarning is emitted, and its value is
+    used, even if *new* is also passed by keyword (this is to simplify pyplot
+    wrapper functions, which always pass *new* explicitly to the Axes method).
+    If *new* is also passed but positionally, a TypeError will be raised by the
+    underlying function during argument binding.
+
+    Examples
+    --------
+
+    ::
+        @_rename_parameter("3.1", "bad_name", "good_name")
+        def func(good_name): ...
+    """
+
+    if func is None:
+        return functools.partial(_rename_parameter, since, old, new)
+
+    signature = inspect.signature(func)
+    assert old not in signature.parameters, (
+        f"Matplotlib internal error: {old!r} cannot be a parameter for "
+        f"{func.__name__}()")
+    assert new in signature.parameters, (
+        f"Matplotlib internal error: {new!r} must be a parameter for "
+        f"{func.__name__}()")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if old in kwargs:
+            warn_deprecated(
+                since, message=f"The {old!r} parameter of {func.__name__}() "
+                f"has been renamed {new!r} since Matplotlib {since}; support "
+                f"for the old name will be dropped %(removal)s.")
+            kwargs[new] = kwargs.pop(old)
+        return func(*args, **kwargs)
+
+    # wrapper() must keep the same documented signature as func(): if we
+    # instead made both *old* and *new* appear in wrapper()'s signature, they
+    # would both show up in the pyplot function for an Axes method as well and
+    # pyplot would explicitly pass both arguments to the Axes method.
+
+    return wrapper
+
+
+class _deprecated_parameter_class:
+    def __repr__(self):
+        return "<deprecated parameter>"
+
+
+_deprecated_parameter = _deprecated_parameter_class()
+
+
+def _delete_parameter(since, name, func=None):
+    """
+    Decorator indicating that parameter *name* of *func* is being deprecated.
+
+    The actual implementation of *func* should keep the *name* parameter in its
+    signature.
+
+    Parameters that come after the deprecated parameter effectively become
+    keyword-only (as they cannot be passed positionally without triggering the
+    DeprecationWarning on the deprecated parameter), and should be marked as
+    such after the deprecation period has passed and the deprecated parameter
+    is removed.
+
+    Examples
+    --------
+
+    ::
+        @_delete_parameter("3.1", "unused")
+        def func(used_arg, other_arg, unused, more_args): ...
+    """
+
+    if func is None:
+        return functools.partial(_delete_parameter, since, name)
+
+    signature = inspect.signature(func)
+    assert name in signature.parameters, (
+        f"Matplotlib internal error: {name!r} must be a parameter for "
+        f"{func.__name__}()")
+    func.__signature__ = signature.replace(parameters=[
+        param.replace(default=_deprecated_parameter) if param.name == name
+        else param
+        for param in signature.parameters.values()])
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        arguments = func.__signature__.bind(*args, **kwargs).arguments
+        # We cannot just check `name not in arguments` because the pyplot
+        # wrappers always pass all arguments explicitly.
+        if name in arguments and arguments[name] != _deprecated_parameter:
+            warn_deprecated(
+                since, message=f"The {name!r} parameter of {func.__name__}() "
+                f"is deprecated since Matplotlib {since} and will be removed "
+                f"%(removal)s.  If any parameter follows {name!r}, they "
+                f"should be pass as keyword, not positionally.")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def _make_keyword_only(since, name, func=None):
+    """
+    Decorator indicating that passing parameter *name* (or any of the following
+    ones) positionally to *func* is being deprecated.
+
+    Note that this decorator **cannot** be applied to a function that has a
+    pyplot-level wrapper, as the wrapper always pass all arguments by keyword.
+    If it is used, users will see spurious DeprecationWarnings every time they
+    call the pyplot wrapper.
+    """
+
+    if func is None:
+        return functools.partial(_make_keyword_only, since, name)
+
+    signature = inspect.signature(func)
+    POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
+    KWO = inspect.Parameter.KEYWORD_ONLY
+    assert (name in signature.parameters
+            and signature.parameters[name].kind == POK), (
+        f"Matplotlib internal error: {name!r} must be a positional-or-keyword "
+        f"parameter for {func.__name__}()")
+    names = [*signature.parameters]
+    kwonly = [name for name in names[names.index(name):]
+              if signature.parameters[name].kind == POK]
+    func.__signature__ = signature.replace(parameters=[
+        param.replace(kind=inspect.Parameter.KEYWORD_ONLY)
+        if param.name in kwonly
+        else param
+        for param in signature.parameters.values()])
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        bound = signature.bind(*args, **kwargs)
+        if name in bound.arguments and name not in kwargs:
+            warn_deprecated(
+                since, message="Passing the %(name)s %(obj_type)s "
+                "positionally is deprecated since Matplotlib %(since)s; the "
+                "parameter will become keyword-only %(removal)s.",
+                name=name, obj_type=f"parameter of {func.__name__}()")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+@contextlib.contextmanager
+def _suppress_matplotlib_deprecation_warning():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+        yield

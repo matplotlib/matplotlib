@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+Passing a non-1D (typically, (n, 1)-shaped) input to `Axes.pie` is deprecated.
+Pass a 1D array instead.

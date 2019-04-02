@@ -1,6 +1,9 @@
 import builtins
+import subprocess
+import sys
 
 import matplotlib
+from matplotlib.cbook import dedent
 
 
 def test_simple():
@@ -32,5 +35,23 @@ def test_override_builtins():
     assert not overridden
 
 
-def test_verbose():
-    assert isinstance(matplotlib.verbose, matplotlib.Verbose)
+def test_lazy_imports():
+    source = dedent("""
+    import sys
+
+    import matplotlib.figure
+    import matplotlib.backend_bases
+    import matplotlib.pyplot
+
+    assert 'matplotlib._png' not in sys.modules
+    assert 'matplotlib._tri' not in sys.modules
+    assert 'matplotlib._qhull' not in sys.modules
+    assert 'matplotlib._contour' not in sys.modules
+    assert 'urllib.request' not in sys.modules
+    """)
+
+    subprocess.check_call([
+        sys.executable,
+        '-c',
+        source
+    ])

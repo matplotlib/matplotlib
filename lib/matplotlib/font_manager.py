@@ -26,6 +26,7 @@ Future versions may implement the Level 2 or 2.1 specifications.
 from functools import lru_cache
 import json
 import logging
+from numbers import Number
 import os
 from pathlib import Path
 import subprocess
@@ -98,6 +99,10 @@ MSFontDirectories = [
     r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts',
     r'SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts']
 
+MSUserFontDirectories = [
+    os.path.join(str(Path.home()), r'AppData\Local\Microsoft\Windows\Fonts'),
+    os.path.join(str(Path.home()), r'AppData\Roaming\Microsoft\Windows\Fonts')]
+
 X11FontDirectories = [
     # an old standard installation point
     "/usr/X11R6/lib/X11/fonts/TTF/",
@@ -109,6 +114,8 @@ X11FontDirectories = [
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
     # user fonts
+    str(Path(os.environ.get('XDG_DATA_HOME',
+                            Path.home() / ".local/share")) / "fonts"),
     str(Path.home() / ".fonts"),
 ]
 
@@ -128,9 +135,12 @@ def get_fontext_synonyms(fontext):
     Return a list of file extensions extensions that are synonyms for
     the given file extension *fileext*.
     """
-    return {'ttf': ('ttf', 'otf'),
-            'otf': ('ttf', 'otf'),
-            'afm': ('afm',)}[fontext]
+    return {
+        'afm': ['afm'],
+        'otf': ['otf', 'ttc', 'ttf'],
+        'ttc': ['otf', 'ttc', 'ttf'],
+        'ttf': ['otf', 'ttc', 'ttf'],
+    }[fontext]
 
 
 def list_fonts(directory, extensions):
@@ -153,7 +163,7 @@ def win32FontDirectory():
 
       \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
 
-    If the key is not found, $WINDIR/Fonts will be returned.
+    If the key is not found, ``%WINDIR%\Fonts`` will be returned.
     """
     import winreg
     try:
@@ -163,12 +173,64 @@ def win32FontDirectory():
         return os.path.join(os.environ['WINDIR'], 'Fonts')
 
 
+def _win32RegistryFonts(reg_domain, base_dir):
+    r"""
+    Searches for fonts in the Windows registry.
+
+    Parameters
+    ----------
+    reg_domain : int
+        The top level registry domain (e.g. HKEY_LOCAL_MACHINE).
+
+    base_dir : str
+        The path to the folder where the font files are usually located (e.g.
+        C:\Windows\Fonts). If only the filename of the font is stored in the
+        registry, the absolute path is built relative to this base directory.
+
+    Returns
+    -------
+    `set`
+        `pathlib.Path` objects with the absolute path to the font files found.
+
+    """
+    import winreg
+    items = set()
+
+    for reg_path in MSFontDirectories:
+        try:
+            with winreg.OpenKey(reg_domain, reg_path) as local:
+                for j in range(winreg.QueryInfoKey(local)[1]):
+                    # value may contain the filename of the font or its
+                    # absolute path.
+                    key, value, tp = winreg.EnumValue(local, j)
+                    if not isinstance(value, str):
+                        continue
+
+                    # Work around for https://bugs.python.org/issue25778, which
+                    # is fixed in Py>=3.6.1.
+                    value = value.split("\0", 1)[0]
+
+                    try:
+                        # If value contains already an absolute path, then it
+                        # is not changed further.
+                        path = Path(base_dir, value).resolve()
+                    except RuntimeError:
+                        # Don't fail with invalid entries.
+                        continue
+
+                    items.add(path)
+        except (OSError, MemoryError):
+            continue
+
+    return items
+
+
 def win32InstalledFonts(directory=None, fontext='ttf'):
     """
     Search for fonts in the specified font directory, or use the
-    system directories if none given.  A list of TrueType font
-    filenames are returned by default, or AFM fonts if *fontext* ==
-    'afm'.
+    system directories if none given. Additionally, it is searched for user
+    fonts installed. A list of TrueType font filenames are returned by default,
+    or AFM fonts if *fontext* == 'afm'.
     """
     import winreg
 
@@ -178,27 +240,16 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
 
     items = set()
-    for fontdir in MSFontDirectories:
-        try:
-            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, fontdir) as local:
-                for j in range(winreg.QueryInfoKey(local)[1]):
-                    key, direc, tp = winreg.EnumValue(local, j)
-                    if not isinstance(direc, str):
-                        continue
-                    # Work around for https://bugs.python.org/issue25778, which
-                    # is fixed in Py>=3.6.1.
-                    direc = direc.split("\0", 1)[0]
-                    try:
-                        path = Path(directory, direc).resolve()
-                    except (FileNotFoundError, RuntimeError):
-                        # Don't fail with invalid entries (FileNotFoundError is
-                        # only necessary on Py3.5).
-                        continue
-                    if path.suffix.lower() in fontext:
-                        items.add(str(path))
-        except (OSError, MemoryError):
-            continue
-    return list(items)
+
+    # System fonts
+    items.update(_win32RegistryFonts(winreg.HKEY_LOCAL_MACHINE, directory))
+
+    # User fonts
+    for userdir in MSUserFontDirectories:
+        items.update(_win32RegistryFonts(winreg.HKEY_CURRENT_USER, userdir))
+
+    # Keep only paths with matching file extension.
+    return [str(path) for path in items if path.suffix.lower() in fontext]
 
 
 @cbook.deprecated("3.1")
@@ -250,7 +301,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
 
     if fontpaths is None:
         if sys.platform == 'win32':
-            fontpaths = [win32FontDirectory()]
+            fontpaths = MSUserFontDirectories + [win32FontDirectory()]
             # now get all installed fonts directly...
             fontfiles.update(win32InstalledFonts(fontext=fontext))
         else:
@@ -321,9 +372,13 @@ def ttfFontProperty(font):
     sfnt = font.get_sfnt()
     # These tables are actually mac_roman-encoded, but mac_roman support may be
     # missing in some alternative Python implementations and we are only going
-    # to look for ASCII substrings, where any ASCII-compatible encoding works.
-    sfnt2 = sfnt.get((1, 0, 0, 2), b'').decode('latin-1').lower()
-    sfnt4 = sfnt.get((1, 0, 0, 4), b'').decode('latin-1').lower()
+    # to look for ASCII substrings, where any ASCII-compatible encoding works
+    # - or big-endian UTF-16, since important Microsoft fonts use that.
+    sfnt2 = (sfnt.get((1, 0,      0, 2), b'').decode('latin-1').lower() or
+             sfnt.get((3, 1, 0x0409, 2), b'').decode('utf_16_be').lower())
+    sfnt4 = (sfnt.get((1, 0,      0, 4), b'').decode('latin-1').lower() or
+             sfnt.get((3, 1, 0x0409, 4), b'').decode('utf_16_be').lower())
+
     if sfnt4.find('oblique') >= 0:
         style = 'oblique'
     elif sfnt4.find('italic') >= 0:
@@ -394,7 +449,6 @@ def afmFontProperty(fontpath, font):
     -------
     `FontEntry`
         The extracted font properties.
-
     """
 
     name = font.get_familyname()
@@ -418,6 +472,8 @@ def afmFontProperty(fontpath, font):
         variant = 'normal'
 
     weight = font.get_weight().lower()
+    if weight not in weight_dict:
+        weight = 'normal'
 
     #  Stretch can be absolute and relative
     #  Absolute stretches are: ultra-condensed, extra-condensed, condensed,
@@ -463,8 +519,6 @@ def createFontList(fontfiles, fontext='ttf'):
         fname = os.path.split(fpath)[1]
         if fname in seen:
             continue
-        else:
-            seen.add(fname)
         if fontext == 'afm':
             try:
                 with open(fpath, 'rb') as fh:
@@ -477,26 +531,29 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
             try:
                 prop = afmFontProperty(fpath, font)
-            except KeyError:
+            except KeyError as exc:
+                _log.info("Could not extract properties for %s: %s",
+                          fpath, exc)
                 continue
         else:
             try:
                 font = ft2font.FT2Font(fpath)
-            except RuntimeError:
-                _log.info("Could not open font file %s", fpath)
+            except (OSError, RuntimeError) as exc:
+                _log.info("Could not open font file %s: %s", fpath, exc)
                 continue
             except UnicodeError:
                 _log.info("Cannot handle unicode filenames")
                 continue
-            except OSError:
-                _log.info("IO error - cannot open font file %s", fpath)
-                continue
             try:
                 prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError, ValueError, NotImplementedError):
+            except (KeyError, RuntimeError, ValueError,
+                    NotImplementedError) as exc:
+                _log.info("Could not extract properties for %s: %s",
+                          fpath, exc)
                 continue
 
         fontlist.append(prop)
+        seen.add(fname)
     return fontlist
 
 
@@ -546,12 +603,13 @@ class FontProperties(object):
     approach allows all text sizes to be made larger or smaller based
     on the font manager's default font size.
 
-    This class will also accept a `fontconfig
-    <https://www.freedesktop.org/wiki/Software/fontconfig/>`_ pattern, if it is
-    the only argument provided.  See the documentation on `fontconfig patterns
-    <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_.
-    This support does not require fontconfig to be installed.  We are merely
-    borrowing its pattern syntax for use here.
+    This class will also accept a fontconfig_ pattern_, if it is the only
+    argument provided.  This support does not depend on fontconfig; we are
+    merely borrowing its pattern syntax for use here.
+
+    .. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
+    .. _pattern:
+       https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
 
     Note that Matplotlib's internal font manager and fontconfig use a
     different algorithm to lookup fonts, so the results of the same pattern
@@ -567,7 +625,6 @@ class FontProperties(object):
                  stretch= None,
                  size   = None,
                  fname  = None,  # if set, it's a hardcoded filename to use
-                 _init  = None,  # used only by copy()
                  ):
         self._family = _normalize_font_family(rcParams['font.family'])
         self._slant = rcParams['font.style']
@@ -576,11 +633,6 @@ class FontProperties(object):
         self._stretch = rcParams['font.stretch']
         self._size = rcParams['font.size']
         self._file = None
-
-        # This is used only by copy()
-        if _init is not None:
-            self.__dict__.update(_init.__dict__)
-            return
 
         if isinstance(family, str):
             # Treat family as a fontconfig pattern if it is the only
@@ -680,14 +732,10 @@ class FontProperties(object):
 
     def get_fontconfig_pattern(self):
         """
-        Get a fontconfig pattern suitable for looking up the font as
+        Get a fontconfig_ pattern_ suitable for looking up the font as
         specified with fontconfig's ``fc-match`` utility.
 
-        See the documentation on `fontconfig patterns
-        <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_.
-
-        This support does not require fontconfig to be installed or
-        support for it to be enabled.  We are merely borrowing its
+        This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
         return generate_fontconfig_pattern(self)
@@ -711,8 +759,7 @@ class FontProperties(object):
         """
         if style is None:
             style = rcParams['font.style']
-        if style not in ('normal', 'italic', 'oblique'):
-            raise ValueError("style must be normal, italic or oblique")
+        cbook._check_in_list(['normal', 'italic', 'oblique'], style=style)
         self._slant = style
     set_slant = set_style
 
@@ -722,8 +769,7 @@ class FontProperties(object):
         """
         if variant is None:
             variant = rcParams['font.variant']
-        if variant not in ('normal', 'small-caps'):
-            raise ValueError("variant must be normal or small-caps")
+        cbook._check_in_list(['normal', 'small-caps'], variant=variant)
         self._variant = variant
 
     def set_weight(self, weight):
@@ -796,13 +842,9 @@ class FontProperties(object):
 
     def set_fontconfig_pattern(self, pattern):
         """
-        Set the properties by parsing a fontconfig *pattern*.
+        Set the properties by parsing a fontconfig_ *pattern*.
 
-        See the documentation on `fontconfig patterns
-        <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_.
-
-        This support does not require fontconfig to be installed or
-        support for it to be enabled.  We are merely borrowing its
+        This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
         for key, val in self._parse_fontconfig_pattern(pattern).items():
@@ -812,8 +854,10 @@ class FontProperties(object):
                 getattr(self, "set_" + key)(val)
 
     def copy(self):
-        """Return a deep copy of self"""
-        return FontProperties(_init=self)
+        """Return a copy of self."""
+        new = type(self)()
+        vars(new).update(vars(self))
+        return new
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -935,7 +979,7 @@ class FontManager(object):
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 300
+    __version__ = 310
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -963,19 +1007,13 @@ class FontManager(object):
         self.defaultFamily = {
             'ttf': 'DejaVu Sans',
             'afm': 'Helvetica'}
-        self.defaultFont = {}
 
         ttffiles = findSystemFonts(paths) + findSystemFonts()
-        self.defaultFont['ttf'] = next(
-            (fname for fname in ttffiles
-             if fname.lower().endswith("dejavusans.ttf")),
-            ttffiles[0])
         self.ttflist = createFontList(ttffiles)
 
         afmfiles = (findSystemFonts(paths, fontext='afm')
                     + findSystemFonts(fontext='afm'))
         self.afmlist = createFontList(afmfiles, fontext='afm')
-        self.defaultFont['afm'] = afmfiles[0] if afmfiles else None
 
     @cbook.deprecated("3.0")
     @property
@@ -986,6 +1024,13 @@ class FontManager(object):
     @property
     def afmfiles(self):
         return [font.fname for font in self.afmlist]
+
+    @property
+    def defaultFont(self):
+        # Lazily evaluated (findfont then caches the result) to avoid including
+        # the venv path in the json serialization.
+        return {ext: self.findfont(family, fontext=ext)
+                for ext, family in self.defaultFamily.items()}
 
     def get_default_weight(self):
         """
@@ -1053,8 +1098,8 @@ class FontManager(object):
         """
         if style1 == style2:
             return 0.0
-        elif style1 in ('italic', 'oblique') and \
-                style2 in ('italic', 'oblique'):
+        elif (style1 in ('italic', 'oblique')
+              and style2 in ('italic', 'oblique')):
             return 0.1
         return 1.0
 
@@ -1098,21 +1143,12 @@ class FontManager(object):
         the CSS numeric values of *weight1* and *weight2*, normalized between
         0.05 and 1.0.
         """
-
         # exact match of the weight names, e.g. weight1 == weight2 == "regular"
-        if (isinstance(weight1, str) and
-                isinstance(weight2, str) and
-                weight1 == weight2):
+        if cbook._str_equal(weight1, weight2):
             return 0.0
-        try:
-            weightval1 = int(weight1)
-        except ValueError:
-            weightval1 = weight_dict.get(weight1, 500)
-        try:
-            weightval2 = int(weight2)
-        except ValueError:
-            weightval2 = weight_dict.get(weight2, 500)
-        return 0.95*(abs(weightval1 - weightval2) / 1000.0) + 0.05
+        w1 = weight1 if isinstance(weight1, Number) else weight_dict[weight1]
+        w2 = weight2 if isinstance(weight2, Number) else weight_dict[weight2]
+        return 0.95 * (abs(w1 - w2) / 1000) + 0.05
 
     def score_size(self, size1, size2):
         """
@@ -1141,28 +1177,53 @@ class FontManager(object):
     def findfont(self, prop, fontext='ttf', directory=None,
                  fallback_to_default=True, rebuild_if_missing=True):
         """
-        Search the font list for the font that most closely matches
-        the :class:`FontProperties` *prop*.
+        Find a font that most closely matches the given font properties.
 
-        :meth:`findfont` performs a nearest neighbor search.  Each
-        font is given a similarity score to the target font
-        properties.  The first font with the highest score is
-        returned.  If no matches below a certain threshold are found,
-        the default font (usually DejaVu Sans) is returned.
+        Parameters
+        ----------
+        prop : str or `~matplotlib.font_manager.FontProperties`
+            The font properties to search for. This can be either a
+            `.FontProperties` object or a string defining a
+            `fontconfig patterns`_.
 
-        `directory`, is specified, will only return fonts from the
-        given directory (or subdirectory of that directory).
+        fontext : {'ttf', 'afm'}, optional, default: 'ttf'
+            The extension of the font file:
+
+            - 'ttf': TrueType and OpenType fonts (.ttf, .ttc, .otf)
+            - 'afm': Adobe Font Metrics (.afm)
+
+        directory : str, optional
+            If given, only search this directory and its subdirectories.
+        fallback_to_default : bool
+            If True, will fallback to the default font family (usually
+            "DejaVu Sans" or "Helvetica") if the first lookup hard-fails.
+        rebuild_if_missing : bool
+            Whether to rebuild the font cache and search again if no match
+            is found.
+
+        Returns
+        -------
+        fontfile : str
+            The filename of the best matching font.
+
+        Notes
+        -----
+        This performs a nearest neighbor search.  Each font is given a
+        similarity score to the target font properties.  The first font with
+        the highest score is returned.  If no matches below a certain
+        threshold are found, the default font (usually DejaVu Sans) is
+        returned.
 
         The result is cached, so subsequent lookups don't have to
         perform the O(n) nearest neighbor search.
 
-        If `fallback_to_default` is True, will fallback to the default
-        font family (usually "DejaVu Sans" or "Helvetica") if
-        the first lookup hard-fails.
-
         See the `W3C Cascading Style Sheet, Level 1
         <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ documentation
         for a description of the font finding algorithm.
+
+        .. _fontconfig patterns:
+           https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
+
         """
         # Pass the relevant rcParams (and the font manager, as `self`) to
         # _findfont_cached so to prevent using a stale cache entry after an
@@ -1180,10 +1241,9 @@ class FontManager(object):
 
         if not isinstance(prop, FontProperties):
             prop = FontProperties(prop)
-        fname = prop.get_file()
 
+        fname = prop.get_file()
         if fname is not None:
-            _log.debug('findfont returning %s', fname)
             return fname
 
         if fontext == 'afm':
@@ -1194,19 +1254,19 @@ class FontManager(object):
         best_score = 1e64
         best_font = None
 
+        _log.debug('findfont: Matching %s.', prop)
         for font in fontlist:
             if (directory is not None and
                     Path(directory) not in Path(font.fname).parents):
                 continue
-            # Matching family should have highest priority, so it is multiplied
-            # by 10.0
-            score = \
-                self.score_family(prop.get_family(), font.name) * 10.0 + \
-                self.score_style(prop.get_style(), font.style) + \
-                self.score_variant(prop.get_variant(), font.variant) + \
-                self.score_weight(prop.get_weight(), font.weight) + \
-                self.score_stretch(prop.get_stretch(), font.stretch) + \
-                self.score_size(prop.get_size(), font.size)
+            # Matching family should have top priority, so multiply it by 10.
+            score = (self.score_family(prop.get_family(), font.name) * 10
+                     + self.score_style(prop.get_style(), font.style)
+                     + self.score_variant(prop.get_variant(), font.variant)
+                     + self.score_weight(prop.get_weight(), font.weight)
+                     + self.score_stretch(prop.get_stretch(), font.stretch)
+                     + self.score_size(prop.get_size(), font.size))
+            _log.debug('findfont: score(%s) = %s', font, score)
             if score < best_score:
                 best_score = score
                 best_font = font
@@ -1216,16 +1276,16 @@ class FontManager(object):
         if best_font is None or best_score >= 10.0:
             if fallback_to_default:
                 _log.warning(
-                    'findfont: Font family %s not found. Falling back to %s.' %
-                    (prop.get_family(), self.defaultFamily[fontext]))
+                    'findfont: Font family %s not found. Falling back to %s.',
+                    prop.get_family(), self.defaultFamily[fontext])
                 default_prop = prop.copy()
                 default_prop.set_family(self.defaultFamily[fontext])
                 return self.findfont(default_prop, fontext, directory, False)
             else:
                 # This is a hard fail -- we can't find anything reasonable,
-                # so just return the DejuVuSans.ttf
-                _log.warning('findfont: Could not match %s. Returning %s.' %
-                             (prop, self.defaultFont[fontext]))
+                # so just return the DejaVuSans.ttf
+                _log.warning('findfont: Could not match %s. Returning %s.',
+                             prop, self.defaultFont[fontext])
                 result = self.defaultFont[fontext]
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',

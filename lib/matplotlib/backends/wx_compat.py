@@ -12,7 +12,7 @@ from .. import cbook
 from .backend_wx import RendererWx
 
 
-cbook.warn_deprecated("3.0", "{} is deprecated.".format(__name__))
+cbook.warn_deprecated("3.0", name=__name__, obj_type="module")
 
 backend_version = wx.VERSION_STRING
 is_phoenix = 'phoenix' in wx.PlatformInfo

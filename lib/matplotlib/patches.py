@@ -1,9 +1,9 @@
 import contextlib
 import functools
+import inspect
 import math
 from numbers import Number
 import textwrap
-import warnings
 
 import numpy as np
 
@@ -21,8 +21,8 @@ from .path import Path
     "antialiased": ["aa"],
     "edgecolor": ["ec"],
     "facecolor": ["fc"],
-    "linewidth": ["lw"],
     "linestyle": ["ls"],
+    "linewidth": ["lw"],
 })
 class Patch(artist.Artist):
     """
@@ -91,7 +91,6 @@ class Patch(artist.Artist):
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
-        self._combined_transform = transforms.IdentityTransform()
 
         if len(kwargs):
             self.update(kwargs)
@@ -128,12 +127,21 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-        if callable(self._contains):
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         radius = self._process_radius(radius)
-        inside = self.get_path().contains_point(
-            (mouseevent.x, mouseevent.y), self.get_transform(), radius)
-        return inside, {}
+        codes = self.get_path().codes
+        vertices = self.get_path().vertices
+        # if the current path is concatenated by multiple sub paths.
+        # get the indexes of the starting code(MOVETO) of all sub paths
+        idxs, = np.where(codes == Path.MOVETO)
+        # Don't split before the first MOVETO.
+        idxs = idxs[1:]
+        return any(
+            subpath.contains_point(
+                (mouseevent.x, mouseevent.y), self.get_transform(), radius)
+            for subpath in map(
+                Path, np.split(vertices, idxs), np.split(codes, idxs))), {}
 
     def contains_point(self, point, radius=None):
         """
@@ -319,19 +327,8 @@ class Patch(artist.Artist):
         self.set_edgecolor(c)
 
     def set_alpha(self, alpha):
-        """
-        Set the alpha transparency of the patch.
-
-        Parameters
-        ----------
-        alpha : float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
+        # docstring inherited
+        super().set_alpha(alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
         # stale is already True
@@ -523,8 +520,8 @@ class Patch(artist.Artist):
             except AttributeError:
                 # if we end up with a GC that does not have this method
                 cbook.warn_deprecated(
-                    "3.1", "Your backend does not support setting the hatch "
-                    "color; such backends will become unsupported in "
+                    "3.1", message="Your backend does not support setting the "
+                    "hatch color; such backends will become unsupported in "
                     "Matplotlib 3.3.")
 
         if self.get_sketch_params() is not None:
@@ -571,6 +568,14 @@ class Patch(artist.Artist):
 
     def get_window_extent(self, renderer=None):
         return self.get_path().get_extents(self.get_transform())
+
+    def _convert_xy_units(self, xy):
+        """
+        Convert x and y units for a tuple (x, y)
+        """
+        x = self.convert_xunits(xy[0])
+        y = self.convert_yunits(xy[1])
+        return (x, y)
 
 
 patchdoc = artist.kwdoc(Patch)
@@ -1252,7 +1257,7 @@ class FancyArrow(Polygon):
         else:
             length = distance + head_length
         if not length:
-            verts = []  # display nothing if empty
+            verts = np.empty([0, 2])  # display nothing if empty
         else:
             # start by drawing horizontal arrow, point at (0,0)
             hw, hl, hs, lw = head_width, head_length, overhang, width
@@ -1559,14 +1564,15 @@ class Circle(Ellipse):
 
 class Arc(Ellipse):
     """
-    An elliptical arc.  Because it performs various optimizations, it
-    can not be filled.
+    An elliptical arc, i.e. a segment of an ellipse.
 
-    The arc must be used in an :class:`~matplotlib.axes.Axes`
-    instance---it can not be added directly to a
-    :class:`~matplotlib.figure.Figure`---because it is optimized to
-    only render the segments that are inside the axes bounding box
-    with high resolution.
+    Due to internal optimizations, there are certain restrictions on using Arc:
+
+    - The arc cannot be filled.
+
+    - The arc must be used in an :class:`~.axes.Axes` instance---it can not be
+      added directly to a `.Figure`---because it is optimized to only render
+      the segments that are inside the axes bounding box with high resolution.
     """
     def __str__(self):
         pars = (self.center[0], self.center[1], self.width,
@@ -1579,32 +1585,39 @@ class Arc(Ellipse):
     def __init__(self, xy, width, height, angle=0.0,
                  theta1=0.0, theta2=360.0, **kwargs):
         """
-        The following args are supported:
+        Parameters
+        ----------
+        xy : (float, float)
+            The center of the ellipse.
 
-        *xy*
-          center of ellipse
+        width : float
+            The length of the horizontal axis.
 
-        *width*
-          length of horizontal axis
+        height : float
+            The length of the vertical axis.
 
-        *height*
-          length of vertical axis
+        angle : float
+            Rotation of the ellipse in degrees (counterclockwise).
 
-        *angle*
-          rotation in degrees (anti-clockwise)
+        theta1, theta2 : float, optional
+            Starting and ending angles of the arc in degrees. These values
+            are relative to *angle*, e.g. if *angle* = 45 and *theta1* = 90
+            the absolute starting angle is 135.
+            Default *theta1* = 0, *theta2* = 360, i.e. a complete ellipse.
+            The arc is drawn in the counterclockwise direction.
+            Angles greater than or equal to 360, or smaller than 0, are
+            represented by an equivalent angle in the range [0, 360), by
+            taking the input value mod 360.
 
-        *theta1*
-          starting angle of the arc in degrees
-
-        *theta2*
-          ending angle of the arc in degrees
-
-        If *theta1* and *theta2* are not provided, the arc will form a
-        complete ellipse.
-
-        Valid kwargs are:
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties
+            Most `.Patch` properties are supported as keyword arguments,
+            with the exception of *fill* and *facecolor* because filling is
+            not supported.
 
         %(Patch)s
+
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
@@ -1618,12 +1631,16 @@ class Arc(Ellipse):
     @artist.allow_rasterization
     def draw(self, renderer):
         """
+        Draw the arc to the given *renderer*.
+
+        Notes
+        -----
         Ellipses are normally drawn using an approximation that uses
         eight cubic Bezier splines.  The error of this approximation
         is 1.89818e-6, according to this unverified source:
 
-          Lancaster, Don.  Approximating a Circle or an Ellipse Using
-          Four Bezier Cubic Splines.
+          Lancaster, Don.  *Approximating a Circle or an Ellipse Using
+          Four Bezier Cubic Splines.*
 
           http://www.tinaja.com/glib/ellipse4.pdf
 
@@ -1639,27 +1656,27 @@ class Arc(Ellipse):
         with each visible arc using a fixed number of spline segments
         (8).  The algorithm proceeds as follows:
 
-          1. The points where the ellipse intersects the axes bounding
-             box are located.  (This is done be performing an inverse
-             transformation on the axes bbox such that it is relative
-             to the unit circle -- this makes the intersection
-             calculation much easier than doing rotated ellipse
-             intersection directly).
+        1. The points where the ellipse intersects the axes bounding
+           box are located.  (This is done be performing an inverse
+           transformation on the axes bbox such that it is relative
+           to the unit circle -- this makes the intersection
+           calculation much easier than doing rotated ellipse
+           intersection directly).
 
-             This uses the "line intersecting a circle" algorithm
-             from:
+           This uses the "line intersecting a circle" algorithm
+           from:
 
-               Vince, John.  Geometry for Computer Graphics: Formulae,
-               Examples & Proofs.  London: Springer-Verlag, 2005.
+               Vince, John.  *Geometry for Computer Graphics: Formulae,
+               Examples & Proofs.*  London: Springer-Verlag, 2005.
 
-          2. The angles of each of the intersection points are
-             calculated.
+        2. The angles of each of the intersection points are
+           calculated.
 
-          3. Proceeding counterclockwise starting in the positive
-             x-direction, each of the visible arc-segments between the
-             pairs of vertices are drawn using the Bezier arc
-             approximation technique implemented in
-             :meth:`matplotlib.path.Path.arc`.
+        3. Proceeding counterclockwise starting in the positive
+           x-direction, each of the visible arc-segments between the
+           pairs of vertices are drawn using the Bezier arc
+           approximation technique implemented in
+           :meth:`matplotlib.path.Path.arc`.
         """
         if not hasattr(self, 'axes'):
             raise RuntimeError('Arcs can only be used in Axes instances')
@@ -2420,8 +2437,8 @@ class BoxStyle(_Style):
             return Path(saw_vertices, codes)
 
     if __doc__:  # __doc__ could be None if -OO optimization is enabled
-        __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableBoxstyles": _pprint_styles(_style_list)}
+        __doc__ = inspect.cleandoc(__doc__) % {
+            "AvailableBoxstyles": _pprint_styles(_style_list)}
 
 docstring.interpd.update(
     AvailableBoxstyles=_pprint_styles(BoxStyle._style_list),
@@ -2755,28 +2772,20 @@ class ConnectionStyle(_Style):
 
         def _shrink(self, path, shrinkA, shrinkB):
             """
-            Shrink the path by fixed size (in points) with shrinkA and shrinkB
+            Shrink the path by fixed size (in points) with shrinkA and shrinkB.
             """
             if shrinkA:
-                x, y = path.vertices[0]
-                insideA = inside_circle(x, y, shrinkA)
-
+                insideA = inside_circle(*path.vertices[0], shrinkA)
                 try:
-                    left, right = split_path_inout(path, insideA)
-                    path = right
+                    left, path = split_path_inout(path, insideA)
                 except ValueError:
                     pass
-
             if shrinkB:
-                x, y = path.vertices[-1]
-                insideB = inside_circle(x, y, shrinkB)
-
+                insideB = inside_circle(*path.vertices[-1], shrinkB)
                 try:
-                    left, right = split_path_inout(path, insideB)
-                    path = left
+                    path, right = split_path_inout(path, insideB)
                 except ValueError:
                     pass
-
             return path
 
         def __call__(self, posA, posB,
@@ -3097,8 +3106,8 @@ class ConnectionStyle(_Style):
             return Path(vertices, codes)
 
     if __doc__:
-        __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableConnectorstyles": _pprint_styles(_style_list)}
+        __doc__ = inspect.cleandoc(__doc__) % {
+            "AvailableConnectorstyles": _pprint_styles(_style_list)}
 
 
 def _point_along_a_line(x0, y0, x1, y1, d):
@@ -3173,7 +3182,7 @@ class ArrowStyle(_Style):
         def ensure_quadratic_bezier(path):
             """
             Some ArrowStyle class only works with a simple quadratic Bezier
-            curve (created with Arc3Connetion or Angle3Connector). This static
+            curve (created with Arc3Connection or Angle3Connector). This static
             method is to check if the provided path is a simple quadratic
             Bezier curve and returns its control points if true.
             """
@@ -3309,30 +3318,26 @@ class ArrowStyle(_Style):
             x1, y1 = path.vertices[1]
 
             # If there is no room for an arrow and a line, then skip the arrow
-            has_begin_arrow = self.beginarrow and not (x0 == x1 and y0 == y1)
-            if has_begin_arrow:
-                verticesA, codesA, ddxA, ddyA = \
-                           self._get_arrow_wedge(x1, y1, x0, y0,
-                                                 head_dist, cos_t, sin_t,
-                                                 linewidth)
-            else:
-                verticesA, codesA = [], []
-                ddxA, ddyA = 0., 0.
+            has_begin_arrow = self.beginarrow and (x0, y0) != (x1, y1)
+            verticesA, codesA, ddxA, ddyA = (
+                self._get_arrow_wedge(x1, y1, x0, y0,
+                                      head_dist, cos_t, sin_t, linewidth)
+                if has_begin_arrow
+                else ([], [], 0, 0)
+            )
 
             # end arrow
             x2, y2 = path.vertices[-2]
             x3, y3 = path.vertices[-1]
 
             # If there is no room for an arrow and a line, then skip the arrow
-            has_end_arrow = (self.endarrow and not (x2 == x3 and y2 == y3))
-            if has_end_arrow:
-                verticesB, codesB, ddxB, ddyB = \
-                           self._get_arrow_wedge(x2, y2, x3, y3,
-                                                 head_dist, cos_t, sin_t,
-                                                 linewidth)
-            else:
-                verticesB, codesB = [], []
-                ddxB, ddyB = 0., 0.
+            has_end_arrow = self.endarrow and (x2, y2) != (x3, y3)
+            verticesB, codesB, ddxB, ddyB = (
+                self._get_arrow_wedge(x2, y2, x3, y3,
+                                      head_dist, cos_t, sin_t, linewidth)
+                if has_end_arrow
+                else ([], [], 0, 0)
+            )
 
             # This simple code will not work if ddx, ddy is greater than the
             # separation between vertices.
@@ -3709,9 +3714,8 @@ class ArrowStyle(_Style):
 
             try:
                 arrow_out, arrow_in = \
-                      split_bezier_intersecting_with_closedpath(arrow_path,
-                                                                in_f,
-                                                                tolerence=0.01)
+                    split_bezier_intersecting_with_closedpath(
+                        arrow_path, in_f, tolerance=0.01)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3792,11 +3796,8 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length)
             try:
-                path_out, path_in = \
-                          split_bezier_intersecting_with_closedpath(
-                                arrow_path,
-                                in_f,
-                                tolerence=0.01)
+                path_out, path_in = split_bezier_intersecting_with_closedpath(
+                    arrow_path, in_f, tolerance=0.01)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3810,10 +3811,7 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length * .8)
             path_out, path_in = split_bezier_intersecting_with_closedpath(
-                                        arrow_path,
-                                        in_f,
-                                        tolerence=0.01
-                                )
+                arrow_path, in_f, tolerance=0.01)
             path_tail = path_out
 
             # head
@@ -3831,10 +3829,7 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x0, y0, tail_width * .3)
             path_in, path_out = split_bezier_intersecting_with_closedpath(
-                                    arrow_path,
-                                    in_f,
-                                    tolerence=0.01
-                                )
+                arrow_path, in_f, tolerance=0.01)
             tail_start = path_in[-1]
 
             head_right, head_left = head_r, head_l
@@ -3902,8 +3897,8 @@ class ArrowStyle(_Style):
             return path, True
 
     if __doc__:
-        __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableArrowstyles": _pprint_styles(_style_list)}
+        __doc__ = inspect.cleandoc(__doc__) % {
+            "AvailableArrowstyles": _pprint_styles(_style_list)}
 
 
 docstring.interpd.update(
@@ -3948,27 +3943,28 @@ class FancyArrowPatch(Patch):
                  dpi_cor=1,
                  **kwargs):
         """
-        If *posA* and *posB* are given, a path connecting two points is
-        created according to *connectionstyle*. The path will be
-        clipped with *patchA* and *patchB* and further shrunken by
-        *shrinkA* and *shrinkB*. An arrow is drawn along this
-        resulting path using the *arrowstyle* parameter.
+        There are two ways for defining an arrow:
 
-        Alternatively if *path* is provided, an arrow is drawn along this path
-        and *patchA*, *patchB*, *shrinkA*, and *shrinkB* are ignored.
+        - If *posA* and *posB* are given, a path connecting two points is
+          created according to *connectionstyle*. The path will be
+          clipped with *patchA* and *patchB* and further shrunken by
+          *shrinkA* and *shrinkB*. An arrow is drawn along this
+          resulting path using the *arrowstyle* parameter.
+
+        - Alternatively if *path* is provided, an arrow is drawn along this
+          path and *patchA*, *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
         Parameters
         ----------
 
-        posA, posB : None, tuple, optional (default: None)
+        posA, posB : (float, float), optional (default: None)
             (x,y) coordinates of arrow tail and arrow head respectively.
 
-        path : None, Path (default: None)
-            :class:`matplotlib.path.Path` instance. If provided, an arrow is
-            drawn along this path and *patchA*, *patchB*, *shrinkA*, and
-            *shrinkB* are ignored.
+        path : `~matplotlib.path.Path`, optional (default: None)
+            If provided, an arrow is drawn along this path and *patchA*,
+            *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
-        arrowstyle : str or ArrowStyle, optional (default: 'simple')
+        arrowstyle : str or `.ArrowStyle`, optional (default: 'simple')
             Describes how the fancy arrow will be
             drawn. It can be string of the available arrowstyle names,
             with optional comma-separated attributes, or an
@@ -3979,10 +3975,10 @@ class FancyArrowPatch(Patch):
             %(AvailableArrowstyles)s
 
         arrow_transmuter
-            Ignored
+            Ignored.
 
-        connectionstyle : str, ConnectionStyle, or None, optional
-        (default: 'arc3')
+        connectionstyle : str or `.ConnectionStyle` or None, optional \
+(default: 'arc3')
             Describes how *posA* and *posB* are connected. It can be an
             instance of the :class:`ConnectionStyle` class or a string of the
             connectionstyle name, with optional comma-separated attributes. The
@@ -3991,32 +3987,37 @@ class FancyArrowPatch(Patch):
             %(AvailableConnectorstyles)s
 
         connector
-            Ignored
+            Ignored.
 
-        patchA, patchB : None, Patch, optional (default: None)
+        patchA, patchB : `.Patch`, optional (default: None)
             Head and tail patch respectively. :class:`matplotlib.patch.Patch`
             instance.
 
-        shrinkA, shrinkB : scalar, optional (default: 2)
-            Shrinking factor of the tail and head of the arrow respectively
+        shrinkA, shrinkB : float, optional (default: 2)
+            Shrinking factor of the tail and head of the arrow respectively.
 
-        mutation_scale : scalar, optional (default: 1)
+        mutation_scale : float, optional (default: 1)
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
             will be scaled.
 
-        mutation_aspect : None, scalar, optional (default: None)
+        mutation_aspect : None or float, optional (default: None)
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it.
 
-        dpi_cor : scalar, optional (default: 1)
+        dpi_cor : float, optional (default: 1)
             dpi_cor is currently used for linewidth-related things and shrink
             factor. Mutation scale is affected by this.
 
-        Notes
-        -----
-        Valid kwargs are:
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties, optional
+            Here is a list of available `.Patch` properties:
+
         %(Patch)s
+
+            In contrast to other patches, the default ``capstyle`` and
+            ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
         """
         if arrow_transmuter is not None:
             cbook.warn_deprecated(
@@ -4032,6 +4033,10 @@ class FancyArrowPatch(Patch):
                          ' and will be removed in Matplotlib 3.1'),
                 name='connector',
                 obj_type='keyword argument')
+        # Traditionally, the cap- and joinstyle for FancyArrowPatch are round
+        kwargs.setdefault("joinstyle", "round")
+        kwargs.setdefault("capstyle", "round")
+
         Patch.__init__(self, **kwargs)
 
         if posA is not None and posB is not None and path is None:
@@ -4043,7 +4048,6 @@ class FancyArrowPatch(Patch):
 
         elif posA is None and posB is None and path is not None:
             self._posA_posB = None
-            self._connetors = None
         else:
             raise ValueError("either posA and posB, or path need to provided")
 
@@ -4254,8 +4258,10 @@ class FancyArrowPatch(Patch):
         dpi_cor = self.get_dpi_cor()
 
         if self._posA_posB is not None:
-            posA = self.get_transform().transform_point(self._posA_posB[0])
-            posB = self.get_transform().transform_point(self._posA_posB[1])
+            posA = self._convert_xy_units(self._posA_posB[0])
+            posB = self._convert_xy_units(self._posA_posB[1])
+            posA = self.get_transform().transform_point(posA)
+            posB = self.get_transform().transform_point(posB)
             _path = self.get_connectionstyle()(posA, posB,
                                                patchA=self.patchA,
                                                patchB=self.patchB,
@@ -4280,11 +4286,9 @@ class FancyArrowPatch(Patch):
         if not self.get_visible():
             return
 
-        # FancyArrowPatch has traditionally forced the capstyle and joinstyle.
-        with cbook._setattr_cm(self, _capstyle='round', _joinstyle='round'), \
-                self._bind_draw_path_function(renderer) as draw_path:
+        with self._bind_draw_path_function(renderer) as draw_path:
 
-            # FIXME : dpi_cor is for the dpi-dependecy of the linewidth. There
+            # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
             # could be room for improvement.
             self.set_dpi_cor(renderer.points_to_pixels(1.))
             path, fillable = self.get_path_in_displaycoord()
@@ -4373,6 +4377,8 @@ class ConnectionPatch(FancyArrowPatch):
                             system.
         =================   ===================================================
 
+        Alternatively they can be set to any valid
+        `~matplotlib.transforms.Transform`.
         """
         if coordsB is None:
             coordsB = coordsA
@@ -4505,6 +4511,11 @@ class ConnectionPatch(FancyArrowPatch):
             #(0,0) is lower left, (1,1) is upper right of axes
             trans = axes.transAxes
             return trans.transform_point((x, y))
+        elif isinstance(s, transforms.Transform):
+            return s.transform_point((x, y))
+        else:
+            raise ValueError("{} is not a valid coordinate "
+                             "transformation.".format(s))
 
     def set_annotation_clip(self, b):
         """

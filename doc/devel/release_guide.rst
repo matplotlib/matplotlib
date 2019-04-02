@@ -6,7 +6,16 @@
  Release Guide
 ===============
 
-A guide for developers who are doing a matplotlib release.
+
+.. admonition::  This document is only relevant for matplotlib release managers.
+
+   A guide for developers who are doing a matplotlib release.
+
+
+.. note::
+
+   This assumes that a read-only remote for the canonical repository is
+   ``remote`` and a read/write remote is ``DANGER``
 
 All Releases
 ============
@@ -23,11 +32,16 @@ tagged commit should be tested locally before it is uploaded::
    pytest -n 8 .
 
 
-In addition the following two tests should be run and manually inspected::
+In addition the following test should be run and manually inspected::
 
-   python unit/memleak_hawaii3.py
+   python unit/memleak.py agg agg.pdf
+
+
+In addition the following should be run and manually inspected, but
+is currently broken::
+
    pushd examples/tests/
-   python backend_driver.py
+   python backend_driver_sgskip.py
    popd
 
 
@@ -36,25 +50,54 @@ In addition the following two tests should be run and manually inspected::
 GitHub Stats
 ------------
 
-We automatically extract GitHub issue, PRs, and authors from GitHub via the API::
+
+We automatically extract GitHub issue, PRs, and authors from GitHub via the API.
+copy the current :file:`github_stats.rst` to :file:`github_stats_X.Y.Z.rst`.
+
+To re-generate the updated ::
 
   python tools/github_stats.py --since-tag v2.2.0 --milestone=v3.0 --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
 
 Review and commit changes.  Some issue/PR titles may not be valid rst (the most common issue is
 ``*`` which is interpreted as unclosed markup).
 
+.. note
+
+   Make sure you authenticate against the github API (either via
+   keyring or via putting an oauth token in :file:`~/.ghoauth`).  If you
+   do not you will get blocked by github for going over the API rate
+   limits.
+
 
 .. _release_chkdocs:
 
-Check Docs
-----------
+Update and Validate the Docs
+----------------------------
 
-Before tagging, update the what's new listing in :file:`doc/users/whats_new.rst`
-by merging all files in :file:`doc/users/next_whats_new/` coherently. Also,
-temporarily comment out the include and toctree glob; re-instate these after a
-release. Finally, make sure that the docs build cleanly ::
+Merge the most recent 'doc' branch (``v3.0.2-doc``) into the branch you
+are going to tag on and delete the doc branch on GitHub.
 
-  make -Cdoc O=-n$(nproc) html latexpdf
+Before tagging, update the "what's new" and "API changes" listings.
+
+for the "what's new"
+
+ 1. copy the current content to a file in :file:`doc/users/prev_whats_new`
+ 2. merge all of the files in :file:`doc/users/next_whats_new/` into
+    :file:`doc/users/whats_new.rst` and delete the individual files
+ 3. comment out the next whats new glob at the top
+
+Similarly for the "API changes"
+
+ 1. copy the current api changes to a file is :file:`doc/api/prev_api_changes`
+ 2. merge all of the files in :file:`doc/api/next_api_changes/` into
+    :file:`doc//whats_new.rst`
+ 3. comment out the next API changes at the top.
+
+In both cases step 3 will have to be un-done right after the release.
+
+Finally, make sure that the docs build cleanly ::
+
+  make -Cdoc O=-j$(nproc) html latexpdf
 
 After the docs are built, check that all of the links, internal and external, are still
 valid.  We use ``linkchecker`` for this, which has not been ported to python3 yet.  You will
@@ -65,6 +108,7 @@ need to create a python2 environment with ``requests==2.9.0`` and linkchecker ::
   pip install linkchecker
   pushd doc/build/html
   linkchecker index.html --check-extern
+  popd
 
 Address any issues which may arise.  The internal links are checked on travis, this should only
 flag failed external links.
@@ -130,7 +174,11 @@ and if this is a major or minor release, also create a bug-fix branch (a
 micro release will be cut off of this branch)::
 
    git branch v2.0.x
+
+On this branch un-comment the globs from :ref:`release_chkdocs`.  And then ::
+
    git push DANGER v2.0.x
+
 
 
 
@@ -139,12 +187,14 @@ micro release will be cut off of this branch)::
 Release Management / DOI
 ------------------------
 
-Via the GitHub UI (chase down link), turn the newly pushed tag into a
-release.  If this is a pre-release remember to mark it as such.
+Via the `GitHub UI
+<https://github.com/matplotlib/matplotlib/releases>`__, turn the newly
+pushed tag into a release.  If this is a pre-release remember to mark
+it as such.
 
 For final releases also get a DOI from `zenodo
-<https://zenodo.org/>`__ and edit :file:`doc/_templates/citing.html`
-with DOI link and commit to the VER-doc branch and push to GitHub ::
+<https://zenodo.org/>`__ and edit :file:`doc/citing.rst` with DOI link
+and commit to the VER-doc branch and push to GitHub ::
 
   git checkout v2.0.0-doc
   emacs doc/_templates/citing.html
@@ -158,12 +208,20 @@ Building binaries
 We distribute mac, windows, and many linux wheels as well as a source
 tarball via pypi.  Before uploading anything, contact the various
 builders.  Mac and manylinux wheels are built on travis .  You need to
-edit the :file:`.travis.yml` file and push to master of `the build
-project <https://github.com/MacPython/matplotlib-wheels>`__.
+edit the :file:`.travis.yml` file and push to the correct branch of
+`the build project
+<https://github.com/MacPython/matplotlib-wheels>`__.  For new minor
+versions create a new branch, for bug-fixes continue to use the current
+release branch.
 
-Update the ``master`` branch (for pre-releases the ``devel`` branch)
-of the `conda-forge feedstock
-<https://github.com/conda-forge/matplotlib-feedstock>`__ via pull request.
+The auto-tick bot should open a pull request into the `conda-forge
+feedstock <https://github.com/conda-forge/matplotlib-feedstock>`__.
+Review and merge (if you have the power to).
+
+.. warning::
+
+   Because this is automated, it is extremely important to bump all branches
+   away from the tag as discussed in :ref:`release_tag`.
 
 If this is a final release the following downstream packagers should be contacted:
 
@@ -179,12 +237,14 @@ If this is a final release the following downstream packagers should be contacte
 
 This can be done ahead of collecting all of the binaries and uploading to pypi.
 
+
 .. _release_upload_bin:
 
 make distribution and upload to pypi / SF
 -----------------------------------------
 
-Once you have collected all of the wheels, generate the tarball ::
+Once you have collected all of the wheels (expect this to take about a
+day), generate the tarball ::
 
   git checkout v2.0.0
   git clean -xfd
@@ -209,7 +269,7 @@ To build the documentation you must have the tagged version installed, but
 build the docs from the ``ver-doc`` branch.  An easy way to arrange this is::
 
   pip install matplotlib
-  pip install -r doc-requirements.txt
+  pip install -r requirements/doc/doc-requirements.txt
   git checkout v2.0.0-doc
   git clean -xfd
   cd doc
@@ -228,7 +288,7 @@ there are directories containing the documentation for older versions.
 The documentation for current master are built on travis and push to
 the `devdocs <https://github.com/matplotlib/devdocs/>`__ repository.
 These are available at `matplotlib.org/devdocs
-<http://matplotlib.org/devdocs>`__.
+<https://matplotlib.org/devdocs>`__.
 
 Assuming you have this repository checked out in the same directory as
 matplotlib ::
@@ -252,6 +312,8 @@ You will need to manually edit :file:`versions.html` to show the last
 
 Congratulations you have now done the third scariest part!
 
+If you have access, clear the cloudflare caches.
+
 It typically takes about 5-10 minutes for GitHub to process the push
 and update the live web page (remember to clear your browser cache).
 
@@ -267,9 +329,9 @@ version of the release notes along with acknowledgments should be sent to
 - matplotlib-announce@python.org
 
 For final releases announcements should also be sent to the
-numpy/scipy/jupyter mailing lists and python-announce.
+numpy/scipy/scikit-image mailing lists.
 
-In addition, announcements should be made on social networks (twitter,
-g+, FB).  For major release, `NumFOCUS <http://www.numfocus.org/>`__
-should be contacted for inclusion in their newsletter and maybe to
-have something posted on their blog.
+In addition, announcements should be made on social networks (twitter
+via the ``@matplotlib`` account, any other via personal accounts).
+`NumFOCUS <https://www.numfocus.org/>`__ should be contacted for
+inclusion in their newsletter.

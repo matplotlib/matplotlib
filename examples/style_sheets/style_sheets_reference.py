@@ -91,8 +91,8 @@ def plot_histograms(ax, prng, nb_samples=10000):
         ax.hist(values, histtype="stepfilled", bins=30,
                 alpha=0.8, density=True)
     # Add a small annotation.
-    ax.annotate('Annotation', xy=(0.25, 4.25), xycoords='data',
-                xytext=(0.9, 0.9), textcoords='axes fraction',
+    ax.annotate('Annotation', xy=(0.25, 4.25),
+                xytext=(0.9, 0.9), textcoords=ax.transAxes,
                 va="top", ha="right",
                 bbox=dict(boxstyle="round", alpha=0.2),
                 arrowprops=dict(

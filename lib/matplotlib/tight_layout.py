@@ -9,12 +9,9 @@ position. This may fail if Axes.adjustable is datalim. Also, This will fail
 for some cases (for example, left or right margin is affected by xlabel).
 """
 
-import matplotlib
-from matplotlib import cbook
-from matplotlib.transforms import TransformedBbox, Bbox
-
+from matplotlib import cbook, rcParams
 from matplotlib.font_manager import FontProperties
-rcParams = matplotlib.rcParams
+from matplotlib.transforms import TransformedBbox, Bbox
 
 
 def _get_left(tight_bbox, axes_bbox):
@@ -364,7 +361,8 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
                                      ax_bbox_list=ax_bbox_list,
                                      pad=pad, h_pad=h_pad, w_pad=w_pad)
 
-    if rect is not None:
+    # kwargs can be none if tight_layout fails...
+    if rect is not None and kwargs is not None:
         # if rect is given, the whole subplots area (including
         # labels) will fit into the rect instead of the
         # figure. Note that the rect argument of
@@ -382,9 +380,6 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
             right -= (1 - kwargs["right"])
         if top is not None:
             top -= (1 - kwargs["top"])
-
-        #if h_pad is None: h_pad = pad
-        #if w_pad is None: w_pad = pad
 
         kwargs = auto_adjust_subplotpars(fig, renderer,
                                          nrows_ncols=(max_nrows, max_ncols),

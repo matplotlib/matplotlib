@@ -1,19 +1,17 @@
-import math
+from contextlib import contextmanager
 import logging
+import math
 import os.path
 import sys
-import tkinter as Tk
+import tkinter as tk
 from tkinter.simpledialog import SimpleDialog
 import tkinter.filedialog
 import tkinter.messagebox
-from contextlib import contextmanager
 
 import numpy as np
 
-from . import _tkagg
-
 import matplotlib
-from matplotlib import backend_tools, rcParams
+from matplotlib import backend_tools, cbook, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
@@ -21,9 +19,10 @@ from matplotlib.backend_managers import ToolManager
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
+from . import _tkagg
 
 try:
-    from matplotlib._windowing import GetForegroundWindow, SetForegroundWindow
+    from ._tkagg import Win32_GetForegroundWindow, Win32_SetForegroundWindow
 except ImportError:
     @contextmanager
     def _restore_foreground_window_at_end():
@@ -31,17 +30,17 @@ except ImportError:
 else:
     @contextmanager
     def _restore_foreground_window_at_end():
-        foreground = GetForegroundWindow()
+        foreground = Win32_GetForegroundWindow()
         try:
             yield
         finally:
             if rcParams['tk.window_focus']:
-                SetForegroundWindow(foreground)
+                Win32_SetForegroundWindow(foreground)
 
 
 _log = logging.getLogger(__name__)
 
-backend_version = Tk.TkVersion
+backend_version = tk.TkVersion
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -54,18 +53,6 @@ cursord = {
     cursors.SELECT_REGION: "tcross",
     cursors.WAIT: "watch",
     }
-
-
-def raise_msg_to_str(msg):
-    """msg is a return arg from a raise.  Join with new lines"""
-    if not isinstance(msg, str):
-        msg = '\n'.join(map(str, msg))
-    return msg
-
-
-def error_msg_tkpaint(msg, parent=None):
-    import tkinter.messagebox
-    tkinter.messagebox.showerror("matplotlib", msg)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):
@@ -208,10 +195,10 @@ class FigureCanvasTk(FigureCanvasBase):
         self._idle_callback = None
         t1, t2, w, h = self.figure.bbox.bounds
         w, h = int(w), int(h)
-        self._tkcanvas = Tk.Canvas(
+        self._tkcanvas = tk.Canvas(
             master=master, background="white",
             width=w, height=h, borderwidth=0, highlightthickness=0)
-        self._tkphoto = Tk.PhotoImage(
+        self._tkphoto = tk.PhotoImage(
             master=self._tkcanvas, width=w, height=h)
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
         self._resize_callback = resize_callback
@@ -261,7 +248,7 @@ class FigureCanvasTk(FigureCanvasBase):
         self.figure.set_size_inches(winch, hinch, forward=False)
 
         self._tkcanvas.delete(self._tkphoto)
-        self._tkphoto = Tk.PhotoImage(
+        self._tkphoto = tk.PhotoImage(
             master=self._tkcanvas, width=int(width), height=int(height))
         self._tkcanvas.create_image(
             int(width / 2), int(height / 2), image=self._tkphoto)
@@ -318,7 +305,7 @@ class FigureCanvasTk(FigureCanvasBase):
         #
         # 3) process it as a motion notify event.  This also has pros
         #    and cons.  The mouse is moving relative to the window, but
-        #    this may surpise an event handler writer who is getting
+        #    this may surprise an event handler writer who is getting
         #   motion_notify_events even if the mouse has not moved
 
         # here are the three scenarios
@@ -337,7 +324,7 @@ class FigureCanvasTk(FigureCanvasBase):
                 self.leave_notify_event(guiEvent)
 
     def draw_idle(self):
-        """Update the drawing area if idle."""
+        # docstring inherited
         if not self._idle:
             return
 
@@ -475,23 +462,11 @@ class FigureCanvasTk(FigureCanvasBase):
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
     def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of `.backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
-
-        Other Parameters
-        ----------------
-        interval : scalar
-            Timer interval in milliseconds
-        callbacks : list
-            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
-            will be executed by the timer every *interval*.
-
-        """
+        # docstring inherited
         return TimerTk(self._tkcanvas, *args, **kwargs)
 
     def flush_events(self):
+        # docstring inherited
         self._master.update()
 
 
@@ -521,7 +496,7 @@ class FigureManagerTk(FigureManagerBase):
         # packing toolbar first, because if space is getting low, last packed
         # widget is getting shrunk first (-> the canvas)
         self.toolbar = self._get_toolbar()
-        self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+        self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         self._num = num
 
         self.statusbar = None
@@ -597,7 +572,7 @@ class FigureManagerTk(FigureManagerBase):
         self.window.attributes('-fullscreen', not is_fullscreen)
 
 
-class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
+class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
     """
     Attributes
     ----------
@@ -609,12 +584,14 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
     """
     def __init__(self, canvas, window):
         self.canvas = canvas
+        # Avoid using self.window (prefer self.canvas.manager.window), so that
+        # Tool implementations can reuse the methods.
         self.window = window
         NavigationToolbar2.__init__(self, canvas)
 
     def destroy(self, *args):
         del self.message
-        Tk.Frame.destroy(self, *args)
+        tk.Frame.destroy(self, *args)
 
     def set_message(self, s):
         self.message.set(s)
@@ -627,38 +604,37 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
             self.canvas._tkcanvas.delete(self.lastrect)
         self.lastrect = self.canvas._tkcanvas.create_rectangle(x0, y0, x1, y1)
 
-        #self.canvas.draw()
-
     def release(self, event):
         if hasattr(self, "lastrect"):
             self.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect
 
     def set_cursor(self, cursor):
-        self.window.configure(cursor=cursord[cursor])
-        self.window.update_idletasks()
+        window = self.canvas.manager.window
+        window.configure(cursor=cursord[cursor])
+        window.update_idletasks()
 
     def _Button(self, text, file, command, extension='.gif'):
         img_file = os.path.join(
             rcParams['datapath'], 'images', file + extension)
-        im = Tk.PhotoImage(master=self, file=img_file)
-        b = Tk.Button(
+        im = tk.PhotoImage(master=self, file=img_file)
+        b = tk.Button(
             master=self, text=text, padx=2, pady=2, image=im, command=command)
         b._ntimage = im
-        b.pack(side=Tk.LEFT)
+        b.pack(side=tk.LEFT)
         return b
 
     def _Spacer(self):
         # Buttons are 30px high. Make this 26px tall +2px padding to center it.
-        s = Tk.Frame(
-            master=self, height=26, relief=Tk.RIDGE, pady=2, bg="DarkGray")
-        s.pack(side=Tk.LEFT, padx=5)
+        s = tk.Frame(
+            master=self, height=26, relief=tk.RIDGE, pady=2, bg="DarkGray")
+        s.pack(side=tk.LEFT, padx=5)
         return s
 
     def _init_toolbar(self):
         xmin, xmax = self.canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
-        Tk.Frame.__init__(self, master=self.window,
+        tk.Frame.__init__(self, master=self.window,
                           width=int(width), height=int(height),
                           borderwidth=2)
 
@@ -674,19 +650,19 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
                 if tooltip_text is not None:
                     ToolTip.createToolTip(button, tooltip_text)
 
-        self.message = Tk.StringVar(master=self)
-        self._message_label = Tk.Label(master=self, textvariable=self.message)
-        self._message_label.pack(side=Tk.RIGHT)
-        self.pack(side=Tk.BOTTOM, fill=Tk.X)
+        self.message = tk.StringVar(master=self)
+        self._message_label = tk.Label(master=self, textvariable=self.message)
+        self._message_label.pack(side=tk.RIGHT)
+        self.pack(side=tk.BOTTOM, fill=tk.X)
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6, 3))
-        window = Tk.Toplevel()
+        window = tk.Toplevel()
         canvas = type(self.canvas)(toolfig, master=window)
         toolfig.subplots_adjust(top=0.9)
         canvas.tool = SubplotTool(self.canvas.figure, toolfig)
         canvas.draw()
-        canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         window.grab_set()
 
     def save_figure(self, *args):
@@ -709,7 +685,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, Tk.Frame):
         initialdir = os.path.expanduser(rcParams['savefig.directory'])
         initialfile = self.canvas.get_default_filename()
         fname = tkinter.filedialog.asksaveasfilename(
-            master=self.window,
+            master=self.canvas.manager.window,
             title='Save the figure',
             filetypes=tk_filetypes,
             defaultextension=defaultextension,
@@ -768,7 +744,7 @@ class ToolTip(object):
         x, y, _, _ = self.widget.bbox("insert")
         x = x + self.widget.winfo_rootx() + 27
         y = y + self.widget.winfo_rooty()
-        self.tipwindow = tw = Tk.Toplevel(self.widget)
+        self.tipwindow = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(1)
         tw.wm_geometry("+%d+%d" % (x, y))
         try:
@@ -776,10 +752,10 @@ class ToolTip(object):
             tw.tk.call("::tk::unsupported::MacWindowStyle",
                        "style", tw._w,
                        "help", "noActivates")
-        except Tk.TclError:
+        except tk.TclError:
             pass
-        label = Tk.Label(tw, text=self.text, justify=Tk.LEFT,
-                         background="#ffffe0", relief=Tk.SOLID, borderwidth=1)
+        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                         background="#ffffe0", relief=tk.SOLID, borderwidth=1)
         label.pack(ipadx=1)
 
     def hidetip(self):
@@ -790,9 +766,6 @@ class ToolTip(object):
 
 
 class RubberbandTk(backend_tools.RubberbandBase):
-    def __init__(self, *args, **kwargs):
-        backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
-
     def draw_rubberband(self, x0, y0, x1, y1):
         height = self.figure.canvas.figure.bbox.height
         y0 = height - y0
@@ -810,21 +783,22 @@ class RubberbandTk(backend_tools.RubberbandBase):
 
 class SetCursorTk(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
-        self.figure.canvas.manager.window.configure(cursor=cursord[cursor])
+        NavigationToolbar2Tk.set_cursor(
+            self._make_classic_style_pseudo_toolbar(), cursor)
 
 
-class ToolbarTk(ToolContainerBase, Tk.Frame):
+class ToolbarTk(ToolContainerBase, tk.Frame):
     _icon_extension = '.gif'
 
     def __init__(self, toolmanager, window):
         ToolContainerBase.__init__(self, toolmanager)
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
         height, width = 50, xmax - xmin
-        Tk.Frame.__init__(self, master=window,
+        tk.Frame.__init__(self, master=window,
                           width=int(width), height=int(height),
                           borderwidth=2)
         self._toolitems = {}
-        self.pack(side=Tk.TOP, fill=Tk.X)
+        self.pack(side=tk.TOP, fill=tk.X)
         self._groups = {}
 
     def add_toolitem(
@@ -840,23 +814,23 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
         if group not in self._groups:
             if self._groups:
                 self._add_separator()
-            frame = Tk.Frame(master=self, borderwidth=0)
-            frame.pack(side=Tk.LEFT, fill=Tk.Y)
+            frame = tk.Frame(master=self, borderwidth=0)
+            frame.pack(side=tk.LEFT, fill=tk.Y)
             self._groups[group] = frame
         return self._groups[group]
 
     def _add_separator(self):
-        separator = Tk.Frame(master=self, bd=5, width=1, bg='black')
-        separator.pack(side=Tk.LEFT, fill=Tk.Y, padx=2)
+        separator = tk.Frame(master=self, bd=5, width=1, bg='black')
+        separator.pack(side=tk.LEFT, fill=tk.Y, padx=2)
 
     def _Button(self, text, image_file, toggle, frame):
         if image_file is not None:
-            im = Tk.PhotoImage(master=self, file=image_file)
+            im = tk.PhotoImage(master=self, file=image_file)
         else:
             im = None
 
         if not toggle:
-            b = Tk.Button(master=frame, text=text, padx=2, pady=2, image=im,
+            b = tk.Button(master=frame, text=text, padx=2, pady=2, image=im,
                           command=lambda: self._button_click(text))
         else:
             # There is a bug in tkinter included in some python 3.6 versions
@@ -864,13 +838,13 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
             # other near checkbuttons
             # https://bugs.python.org/issue29402
             # https://bugs.python.org/issue25684
-            var = Tk.IntVar()
-            b = Tk.Checkbutton(master=frame, text=text, padx=2, pady=2,
+            var = tk.IntVar()
+            b = tk.Checkbutton(master=frame, text=text, padx=2, pady=2,
                                image=im, indicatoron=False,
                                command=lambda: self._button_click(text),
                                variable=var)
         b._ntimage = im
-        b.pack(side=Tk.LEFT)
+        b.pack(side=tk.LEFT)
         return b
 
     def _button_click(self, name):
@@ -891,18 +865,18 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
         del self._toolitems[name]
 
 
-class StatusbarTk(StatusbarBase, Tk.Frame):
+class StatusbarTk(StatusbarBase, tk.Frame):
     def __init__(self, window, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
         height, width = 50, xmax - xmin
-        Tk.Frame.__init__(self, master=window,
+        tk.Frame.__init__(self, master=window,
                           width=int(width), height=int(height),
                           borderwidth=2)
-        self._message = Tk.StringVar(master=self)
-        self._message_label = Tk.Label(master=self, textvariable=self._message)
-        self._message_label.pack(side=Tk.RIGHT)
-        self.pack(side=Tk.TOP, fill=Tk.X)
+        self._message = tk.StringVar(master=self)
+        self._message_label = tk.Label(master=self, textvariable=self._message)
+        self._message_label.pack(side=tk.RIGHT)
+        self.pack(side=tk.TOP, fill=tk.X)
 
     def set_message(self, s):
         self._message.set(s)
@@ -910,47 +884,8 @@ class StatusbarTk(StatusbarBase, Tk.Frame):
 
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
-        filetypes = self.figure.canvas.get_supported_filetypes().copy()
-        default_filetype = self.figure.canvas.get_default_filetype()
-
-        # Tk doesn't provide a way to choose a default filetype,
-        # so we just have to put it first
-        default_filetype_name = filetypes.pop(default_filetype)
-        sorted_filetypes = ([(default_filetype, default_filetype_name)]
-                            + sorted(filetypes.items()))
-        tk_filetypes = [(name, '*.%s' % ext) for ext, name in sorted_filetypes]
-
-        # adding a default extension seems to break the
-        # asksaveasfilename dialog when you choose various save types
-        # from the dropdown.  Passing in the empty string seems to
-        # work - JDH!
-        # defaultextension = self.figure.canvas.get_default_filetype()
-        defaultextension = ''
-        initialdir = os.path.expanduser(rcParams['savefig.directory'])
-        initialfile = self.figure.canvas.get_default_filename()
-        fname = tkinter.filedialog.asksaveasfilename(
-            master=self.figure.canvas.manager.window,
-            title='Save the figure',
-            filetypes=tk_filetypes,
-            defaultextension=defaultextension,
-            initialdir=initialdir,
-            initialfile=initialfile,
-            )
-
-        if fname == "" or fname == ():
-            return
-        else:
-            if initialdir == '':
-                # explicitly missing key or empty str signals to use cwd
-                rcParams['savefig.directory'] = initialdir
-            else:
-                # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(str(fname))
-            try:
-                # This method will handle the delegation to the correct type
-                self.figure.savefig(fname)
-            except Exception as e:
-                tkinter.messagebox.showerror("Error saving file", str(e))
+        NavigationToolbar2Tk.save_figure(
+            self._make_classic_style_pseudo_toolbar())
 
 
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
@@ -967,13 +902,13 @@ class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
             return
 
         toolfig = Figure(figsize=(6, 3))
-        self.window = Tk.Tk()
+        self.window = tk.Tk()
 
         canvas = type(self.canvas)(toolfig, master=self.window)
         toolfig.subplots_adjust(top=0.9)
-        _tool = SubplotTool(self.figure, toolfig)
+        SubplotTool(self.figure, toolfig)
         canvas.draw()
-        canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         self.window.protocol("WM_DELETE_WINDOW", self.destroy)
 
     def destroy(self, *args, **kwargs):
@@ -1008,7 +943,7 @@ class _BackendTk(_Backend):
         Create a new figure manager instance for the given figure.
         """
         with _restore_foreground_window_at_end():
-            window = Tk.Tk(className="matplotlib")
+            window = tk.Tk(className="matplotlib")
             window.withdraw()
 
             # Put a mpl icon on the window rather than the default tk icon.
@@ -1017,7 +952,7 @@ class _BackendTk(_Backend):
             # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
             icon_fname = os.path.join(
                 rcParams['datapath'], 'images', 'matplotlib.ppm')
-            icon_img = Tk.PhotoImage(file=icon_fname, master=window)
+            icon_img = tk.PhotoImage(file=icon_fname, master=window)
             try:
                 window.iconphoto(False, icon_img)
             except Exception as exc:
@@ -1037,4 +972,6 @@ class _BackendTk(_Backend):
 
     @staticmethod
     def mainloop():
-        Tk.mainloop()
+        managers = Gcf.get_all_fig_managers()
+        if managers:
+            managers[0].window.mainloop()

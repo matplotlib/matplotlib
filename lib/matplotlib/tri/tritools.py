@@ -11,7 +11,7 @@ class TriAnalyzer(object):
     """
     Define basic tools for triangular mesh analysis and improvement.
 
-    A TriAnalizer encapsulates a :class:`~matplotlib.tri.Triangulation`
+    A TriAnalyzer encapsulates a :class:`~matplotlib.tri.Triangulation`
     object and provides basic tools for mesh analysis and mesh improvement.
 
     Parameters
@@ -180,12 +180,11 @@ class TriAnalyzer(object):
         while nadd != 0:
             # The active wavefront is the triangles from the border (unmasked
             # but with a least 1 neighbor equal to -1
-            wavefront = ((np.min(valid_neighbors, axis=1) == -1)
-                         & ~current_mask)
+            wavefront = (np.min(valid_neighbors, axis=1) == -1) & ~current_mask
             # The element from the active wavefront will be masked if their
             # circle ratio is bad.
-            added_mask = np.logical_and(wavefront, mask_bad_ratio)
-            current_mask = (added_mask | current_mask)
+            added_mask = wavefront & mask_bad_ratio
+            current_mask = added_mask | current_mask
             nadd = np.sum(added_mask)
 
             # now we have to update the tables valid_neighbors
@@ -292,8 +291,8 @@ class TriAnalyzer(object):
         if n is None:
             n = np.size(mask)
         if mask is not None:
-            renum = -np.ones(n, dtype=np.int32)  # Default num is -1
-            valid = np.arange(n, dtype=np.int32).compress(~mask, axis=0)
+            renum = np.full(n, -1, dtype=np.int32)  # Default num is -1
+            valid = np.arange(n, dtype=np.int32)[~mask]
             renum[valid] = np.arange(np.size(valid, 0), dtype=np.int32)
             return renum
         else:

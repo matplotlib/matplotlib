@@ -998,8 +998,8 @@ static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args, PyObj
 const char *PyFT2Font_get_sfnt__doc__ =
     "get_sfnt(name)\n"
     "\n"
-    "Get all values from the SFNT names table.  Result is a dictionary whose"
-    "key is the platform-ID, ISO-encoding-scheme, language-code, and"
+    "Get all values from the SFNT names table.  Result is a dictionary whose "
+    "key is the platform-ID, ISO-encoding-scheme, language-code, and "
     "description.\n";
 
 static PyObject *PyFT2Font_get_sfnt(PyFT2Font *self, PyObject *args, PyObject *kwds)

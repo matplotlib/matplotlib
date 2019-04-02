@@ -222,8 +222,6 @@ class MarkerStyle(object):
 
     def __init__(self, marker=None, fillstyle=None):
         """
-        MarkerStyle
-
         Attributes
         ----------
         markers : list of known marks
@@ -370,16 +368,16 @@ class MarkerStyle(object):
                 self._joinstyle = 'bevel'
             elif symstyle == 3:
                 cbook.warn_deprecated(
-                    "3.0", "Setting a circle marker using `(..., 3)` is "
-                    "deprecated since Matplotlib 3.0, and support for it will "
-                    "be removed in 3.2.  Directly pass 'o' instead.")
+                    "3.0", message="Setting a circle marker using `(..., 3)` "
+                    "is deprecated since Matplotlib 3.0, and support for it "
+                    "will be removed in 3.2.  Directly pass 'o' instead.")
                 self._path = Path.unit_circle()
             self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
         else:
             cbook.warn_deprecated(
-                "3.0", "Passing vertices as `(verts, 0)` is deprecated since "
-                "Matplotlib 3.0, and support for it will be removed in 3.2.  "
-                "Directly pass `verts` instead.")
+                "3.0", message="Passing vertices as `(verts, 0)` is "
+                "deprecated since Matplotlib 3.0, and support for it will be "
+                "removed in 3.2.  Directly pass `verts` instead.")
             verts = np.asarray(marker[0])
             path = Path(verts)
             self._set_custom_marker(path)
@@ -395,10 +393,7 @@ class MarkerStyle(object):
 
         # again, the properties could be initialised just once outside
         # this function
-        # Font size is irrelevant here, it will be rescaled based on
-        # the drawn size later
-        props = FontProperties(size=1.0)
-        text = TextPath(xy=(0, 0), s=self.get_marker(), fontproperties=props,
+        text = TextPath(xy=(0, 0), s=self.get_marker(),
                         usetex=rcParams['text.usetex'])
         if len(text.vertices) == 0:
             return

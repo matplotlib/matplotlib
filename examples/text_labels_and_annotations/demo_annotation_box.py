@@ -1,9 +1,14 @@
-"""
-===================
+"""===================
 Demo Annotation Box
 ===================
 
+The AnnotationBbox Artist creates an annotation using an OffsetBox. This
+example demonstrates three different OffsetBoxes: TextArea, DrawingArea and
+OffsetImage. AnnotationBbox gives more fine-grained control than using the axes
+method annotate.
+
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -72,8 +77,8 @@ ab = AnnotationBbox(im, xy,
 ax.add_artist(ab)
 
 # Annotate the 2nd position with another image (a Grace Hopper portrait)
-fn = get_sample_data("grace_hopper.png", asfileobj=False)
-arr_img = plt.imread(fn, format='png')
+with get_sample_data("grace_hopper.png") as file:
+    arr_img = plt.imread(file, format='png')
 
 imagebox = OffsetImage(arr_img, zoom=0.2)
 imagebox.image.axes = ax
@@ -95,3 +100,23 @@ ax.set_xlim(0, 1)
 ax.set_ylim(0, 1)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown in this
+# example:
+
+Circle
+TextArea
+DrawingArea
+OffsetImage
+AnnotationBbox
+get_sample_data
+plt.subplots
+plt.imread
+plt.show

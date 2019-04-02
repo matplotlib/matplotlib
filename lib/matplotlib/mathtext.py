@@ -15,6 +15,7 @@ arbitrary fonts, but results may vary without proper tweaking and
 metrics for those fonts.
 """
 
+from collections import namedtuple
 import functools
 from io import StringIO
 import logging
@@ -31,7 +32,7 @@ from pyparsing import (
 
 ParserElement.enablePackrat()
 
-from matplotlib import _png, cbook, colors as mcolors, get_data_path, rcParams
+from matplotlib import cbook, colors as mcolors, get_data_path, rcParams
 from matplotlib.afm import AFM
 from matplotlib.cbook import get_realpath_and_stat
 from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
@@ -222,9 +223,12 @@ class MathtextBackendBitmap(MathtextBackendAgg):
 
 class MathtextBackendPs(MathtextBackend):
     """
-    Store information to write a mathtext rendering to the PostScript
-    backend.
+    Store information to write a mathtext rendering to the PostScript backend.
     """
+
+    _PSResult = namedtuple(
+        "_PSResult", "width height depth pswriter used_characters")
+
     def __init__(self):
         self.pswriter = StringIO()
         self.lastfont = None
@@ -255,18 +259,19 @@ setfont
 
     def get_results(self, box, used_characters):
         ship(0, 0, box)
-        return (self.width,
-                self.height + self.depth,
-                self.depth,
-                self.pswriter,
-                used_characters)
+        return self._PSResult(self.width,
+                              self.height + self.depth,
+                              self.depth,
+                              self.pswriter,
+                              used_characters)
 
 
 class MathtextBackendPdf(MathtextBackend):
-    """
-    Store information to write a mathtext rendering to the PDF
-    backend.
-    """
+    """Store information to write a mathtext rendering to the PDF backend."""
+
+    _PDFResult = namedtuple(
+        "_PDFResult", "width height depth glyphs rects used_characters")
+
     def __init__(self):
         self.glyphs = []
         self.rects = []
@@ -283,12 +288,12 @@ class MathtextBackendPdf(MathtextBackend):
 
     def get_results(self, box, used_characters):
         ship(0, 0, box)
-        return (self.width,
-                self.height + self.depth,
-                self.depth,
-                self.glyphs,
-                self.rects,
-                used_characters)
+        return self._PDFResult(self.width,
+                               self.height + self.depth,
+                               self.depth,
+                               self.glyphs,
+                               self.rects,
+                               used_characters)
 
 
 class MathtextBackendSvg(MathtextBackend):
@@ -1591,8 +1596,8 @@ class List(Box):
             self.glue_ratio = 0.
         if o == 0:
             if len(self.children):
-                _log.warning(
-                    "%s %s: %r" % (error_type, self.__class__.__name__, self))
+                _log.warning("%s %s: %r",
+                             error_type, self.__class__.__name__, self)
 
     def shrink(self):
         for child in self.children:
@@ -2633,6 +2638,11 @@ class Parser(object):
 
         @font.setter
         def font(self, name):
+            if name == "circled":
+                cbook.warn_deprecated(
+                    "3.1", name="\\mathcircled", obj_type="mathtext command",
+                    alternative="unicode characters (e.g. '\\N{CIRCLED LATIN "
+                    "CAPITAL LETTER A}' or '\\u24b6')")
             if name in ('rm', 'it', 'bf'):
                 self.font_class = name
             self._font = name
@@ -2696,6 +2706,7 @@ class Parser(object):
                       r'\:'         : 0.22222,   # 4/18 em = 4 mu
                       r'\;'         : 0.27778,   # 5/18 em = 5 mu
                       r'\ '         : 0.33333,   # 6/18 em = 6 mu
+                      r'~'          : 0.33333,   # 6/18 em = 6 mu, nonbreakable
                       r'\enspace'   : 0.5,       # 9/18 em = 9 mu
                       r'\quad'      : 1,         # 1 em = 18 mu
                       r'\qquad'     : 2,         # 2 em = 36 mu
@@ -3017,7 +3028,7 @@ class Parser(object):
             return [result]
 
         # We remove kerning on the last character for consistency (otherwise
-        # it will compute kerning based on non-shrinked characters and may put
+        # it will compute kerning based on non-shrunk characters and may put
         # them too close together when superscripted)
         # We change the width of the last character to match the advance to
         # consider some fonts with weird metrics: e.g. stix's f has a width of
@@ -3177,6 +3188,8 @@ class Parser(object):
         return self._genfrac('', '', thickness,
                              self._math_style_dict['displaystyle'], num, den)
 
+    @cbook.deprecated("3.1", obj_type="mathtext command",
+                      alternative=r"\genfrac")
     def stackrel(self, s, loc, toks):
         assert len(toks) == 1
         assert len(toks[0]) == 2
@@ -3343,14 +3356,10 @@ class MathTextParser(object):
             font_output = StandardPsFonts(prop)
         else:
             backend = self._backend_mapping[self._output]()
-            fontset = rcParams['mathtext.fontset']
-            fontset_class = self._font_type_mapping.get(fontset.lower())
-            if fontset_class is not None:
-                font_output = fontset_class(prop, backend)
-            else:
-                raise ValueError(
-                    "mathtext.fontset must be either 'cm', 'dejavuserif', "
-                    "'dejavusans', 'stix', 'stixsans', or 'custom'")
+            fontset = rcParams['mathtext.fontset'].lower()
+            cbook._check_in_list(self._font_type_mapping, fontset=fontset)
+            fontset_class = self._font_type_mapping[fontset]
+            font_output = fontset_class(prop, backend)
 
         fontsize = prop.get_size_in_points()
 
@@ -3446,6 +3455,7 @@ class MathTextParser(object):
         Returns the offset of the baseline from the bottom of the
         image in pixels.
         """
+        from matplotlib import _png
         rgba, depth = self.to_rgba(
             texstr, color=color, dpi=dpi, fontsize=fontsize)
         _png.write_png(rgba, filename)

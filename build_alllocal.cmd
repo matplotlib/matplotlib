@@ -1,11 +1,8 @@
 :: This assumes you have installed all the dependencies via conda packages:
 :: # create a new environment with the required packages
-:: conda create -n "matplotlib_build" python=3.5 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype
-:: activate matplotlib_build
-:: if you want qt backend, you also have to install pyqt
-:: conda install pyqt
-:: # this package is only available in the conda-forge channel
-:: conda install -c conda-forge msinttypes
+:: # if you want a qt backend, add "pyqt" to the list of conda packages
+:: conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype msinttypes
+:: conda activate matplotlib_build
 
 set TARGET=bdist_wheel
 IF [%1]==[] (
@@ -25,10 +22,6 @@ set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
 mkdir lib || cmd /c "exit /b 0"
 copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
 copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
-
-:: Make the header files and the rest of the static libs available during the build
-:: CONDA_PREFIX is a env variable which is set to the currently active environment path
-set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
 
 :: build the target
 python setup.py %TARGET%

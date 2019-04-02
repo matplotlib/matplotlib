@@ -1,5 +1,4 @@
 import tempfile
-import warnings
 
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal_nulp)
@@ -127,10 +126,9 @@ class TestStride(object):
 
     def test_stride_ensure_integer_type(self):
         N = 100
-        x = np.empty(N + 20, dtype='>f4')
-        x.fill(np.NaN)
+        x = np.full(N + 20, np.nan)
         y = x[10:-10]
-        y.fill(0.3)
+        y[:] = 0.3
         # previous to #3845 lead to corrupt access
         y_strided = mlab.stride_windows(y, n=33, noverlap=0.6)
         assert_array_equal(y_strided, 0.3)
@@ -210,7 +208,7 @@ class TestWindow(object):
         if np.iterable(window):
             windowVals = window
         else:
-            windowVals = window(np.ones((NFFT,), x.dtype))
+            windowVals = window(np.ones(NFFT, x.dtype))
 
         # do the ffts of the slices
         for i in range(n):
@@ -1860,13 +1858,9 @@ class TestSpectral(object):
         assert spec.shape[1] == self.t_specgram.shape[0]
 
     def test_specgram_warn_only1seg(self):
-        """Warning should be raised if len(x) <= NFFT. """
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always", category=UserWarning)
+        """Warning should be raised if len(x) <= NFFT."""
+        with pytest.warns(UserWarning, match="Only one segment is calculated"):
             mlab.specgram(x=self.y, NFFT=len(self.y), Fs=self.Fs)
-        assert len(w) == 1
-        assert issubclass(w[0].category, UserWarning)
-        assert str(w[0].message).startswith("Only one segment is calculated")
 
     def test_psd_csd_equal(self):
         freqs = self.freqs_density

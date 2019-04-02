@@ -157,25 +157,26 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         if self.nth_coord == 0:
             xx0 = self.value
-            yy0 = (extremes[2]+extremes[3])/2.
-            dxx, dyy = 0., abs(extremes[2]-extremes[3])/1000.
+            yy0 = (extremes[2] + extremes[3]) / 2
+            dxx = 0
+            dyy = abs(extremes[2] - extremes[3]) / 1000
         elif self.nth_coord == 1:
-            xx0 = (extremes[0]+extremes[1])/2.
+            xx0 = (extremes[0] + extremes[1]) / 2
             yy0 = self.value
-            dxx, dyy = abs(extremes[0]-extremes[1])/1000., 0.
+            dxx = abs(extremes[0] - extremes[1]) / 1000
+            dyy = 0
 
         grid_finder = self.grid_helper.grid_finder
-        xx1, yy1 = grid_finder.transform_xy([xx0], [yy0])
+        (xx1,), (yy1,) = grid_finder.transform_xy([xx0], [yy0])
 
         trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
-        p = trans_passingthrough_point.transform_point([xx1[0], yy1[0]])
+        p = trans_passingthrough_point.transform_point([xx1, yy1])
 
         if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
-            xx1c, yy1c = axes.transData.transform_point([xx1[0], yy1[0]])
-            xx2, yy2 = grid_finder.transform_xy([xx0+dxx], [yy0+dyy])
-            xx2c, yy2c = axes.transData.transform_point([xx2[0], yy2[0]])
-
-            return (xx1c, yy1c), np.arctan2(yy2c-yy1c, xx2c-xx1c)/np.pi*180.
+            xx1c, yy1c = axes.transData.transform_point([xx1, yy1])
+            (xx2,), (yy2,) = grid_finder.transform_xy([xx0 + dxx], [yy0 + dyy])
+            xx2c, yy2c = axes.transData.transform_point([xx2, yy2])
+            return (xx1c, yy1c), np.rad2deg(np.arctan2(yy2c-yy1c, xx2c-xx1c))
         else:
             return None, None
 
@@ -231,8 +232,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         # find angles
         if self.nth_coord == 0:
-            xx0 = np.empty_like(yy0)
-            xx0.fill(self.value)
+            xx0 = np.full_like(yy0, self.value)
 
             xx1, yy1 = transform_xy(xx0, yy0)
 
@@ -248,8 +248,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
-            yy0 = np.empty_like(xx0)
-            yy0.fill(self.value)
+            yy0 = np.full_like(xx0, self.value)
 
             xx1, yy1 = transform_xy(xx0, yy0)
 
@@ -313,12 +312,9 @@ class GridHelperCurveLinear(GridHelperBase):
         e.g., ``x2, y2 = trans(x1, y1)``
         """
         super().__init__()
-
         self.grid_info = None
         self._old_values = None
-        # self._grid_params = dict()
         self._aux_trans = aux_trans
-
         self.grid_finder = GridFinder(aux_trans,
                                       extreme_finder,
                                       grid_locator1,
@@ -327,24 +323,18 @@ class GridHelperCurveLinear(GridHelperBase):
                                       tick_formatter2)
 
     def update_grid_finder(self, aux_trans=None, **kw):
-
         if aux_trans is not None:
             self.grid_finder.update_transform(aux_trans)
-
         self.grid_finder.update(**kw)
         self.invalidate()
 
     def _update(self, x1, x2, y1, y2):
         "bbox in 0-based image coordinates"
         # update wcsgrid
-
         if self.valid() and self._old_values == (x1, x2, y1, y2):
             return
-
         self._update_grid(x1, y1, x2, y2)
-
         self._old_values = (x1, x2, y1, y2)
-
         self._force_update = False
 
     def new_fixed_axis(self, loc,
@@ -352,19 +342,15 @@ class GridHelperCurveLinear(GridHelperBase):
                        axis_direction=None,
                        offset=None,
                        axes=None):
-
         if axes is None:
             axes = self.axes
-
         if axis_direction is None:
             axis_direction = loc
-        _helper = FixedAxisArtistHelper(self, loc,
-                                        # nth_coord,
-                                        nth_coord_ticks=nth_coord,
-                                        )
-
+        _helper = FixedAxisArtistHelper(
+            self, loc, nth_coord_ticks=nth_coord)
         axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
-
+        # Why is clip not set on axisline, unlike in new_floating_axis or in
+        # the floating_axig.GridHelperCurveLinear subclass?
         return axisline
 
     def new_floating_axis(self, nth_coord,
@@ -403,14 +389,12 @@ class GridHelperCurveLinear(GridHelperBase):
 
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
-
         if axis in ["both", "x"]:
             for gl in self.grid_info["lon"]["lines"]:
                 grid_lines.extend(gl)
         if axis in ["both", "y"]:
             for gl in self.grid_info["lat"]["lines"]:
                 grid_lines.extend(gl)
-
         return grid_lines
 
     def get_tick_iterator(self, nth_coord, axis_side, minor=False):

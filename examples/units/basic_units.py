@@ -122,9 +122,8 @@ class TaggedValue(metaclass=TaggedValueMeta):
         # generate a new subclass for value
         value_class = type(value)
         try:
-            subcls = type('TaggedValue_of_%s' % (value_class.__name__),
-                          tuple([cls, value_class]),
-                          {})
+            subcls = type(f'TaggedValue_of_{value_class.__name__}',
+                          (cls, value_class), {})
             if subcls not in units.registry:
                 units.registry[subcls] = basicConverter
             return object.__new__(subcls)
@@ -174,7 +173,10 @@ class TaggedValue(metaclass=TaggedValueMeta):
     def convert_to(self, unit):
         if unit == self.unit or not unit:
             return self
-        new_value = self.unit.convert_value_to(self.value, unit)
+        try:
+            new_value = self.unit.convert_value_to(self.value, unit)
+        except AttributeError:
+            new_value = self
         return TaggedValue(new_value, unit)
 
     def get_value(self):
@@ -193,7 +195,7 @@ class BasicUnit(object):
         self.conversions = dict()
 
     def __repr__(self):
-        return 'BasicUnit(%s)' % self.name
+        return f'BasicUnit({self.name})'
 
     def __str__(self):
         return self.fullname
@@ -311,9 +313,9 @@ def rad_fn(x, pos=None):
     elif n == -2:
         return r'$-\pi$'
     elif n % 2 == 0:
-        return r'$%s\pi$' % (n//2,)
+        return fr'${n//2}\pi$'
     else:
-        return r'$%s\pi/2$' % (n,)
+        return fr'${n}\pi/2$'
 
 
 class BasicUnitConverter(units.ConversionInterface):
@@ -345,7 +347,20 @@ class BasicUnitConverter(units.ConversionInterface):
         if units.ConversionInterface.is_numlike(val):
             return val
         if np.iterable(val):
-            return [thisval.convert_to(unit).get_value() for thisval in val]
+            if isinstance(val, np.ma.MaskedArray):
+                val = val.astype(float).filled(np.nan)
+            out = np.empty(len(val))
+            for i, thisval in enumerate(val):
+                if np.ma.is_masked(thisval):
+                    out[i] = np.nan
+                else:
+                    try:
+                        out[i] = thisval.convert_to(unit).get_value()
+                    except AttributeError:
+                        out[i] = thisval
+            return out
+        if np.ma.is_masked(val):
+            return np.nan
         else:
             return val.convert_to(unit).get_value()
 

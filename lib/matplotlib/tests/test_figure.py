@@ -1,5 +1,4 @@
-import sys
-import warnings
+from pathlib import Path
 import platform
 
 from matplotlib import rcParams
@@ -115,7 +114,7 @@ def test_clf_keyword():
 def test_figure():
     # named figure support
     fig = plt.figure('today')
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     ax.set_title(fig.get_label())
     ax.plot(np.arange(5))
     # plot red line in a different figure.
@@ -147,18 +146,16 @@ def test_gca():
 
     ax2 = fig.add_subplot(121, projection='polar')
     assert fig.gca() is ax2
-    assert fig.gca(polar=True)is ax2
+    assert fig.gca(polar=True) is ax2
 
     ax3 = fig.add_subplot(122)
     assert fig.gca() is ax3
 
     # the final request for a polar axes will end up creating one
     # with a spec of 111.
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter('always')
+    with pytest.warns(UserWarning):
         # Changing the projection will throw a warning
         assert fig.gca(polar=True) is not ax3
-        assert len(w) == 1
     assert fig.gca(polar=True) is not ax2
     assert fig.gca().get_geometry() == (1, 1, 1)
 
@@ -204,11 +201,9 @@ def test_alpha():
 
 
 def test_too_many_figures():
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
+    with pytest.warns(RuntimeWarning):
         for i in range(rcParams['figure.max_open_warning'] + 1):
             plt.figure()
-        assert len(w) == 1
 
 
 def test_iterability_axes_argument():
@@ -365,8 +360,8 @@ def test_subplots_shareax_loglabels():
 
 def test_savefig():
     fig = plt.figure()
-    msg = "savefig() takes 2 positional arguments but 3 were given"
-    with pytest.raises(TypeError, message=msg):
+    msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
+    with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
 
 
@@ -412,10 +407,8 @@ def test_add_artist(fig_test, fig_ref):
         ax2.add_artist(a)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_fspath(fmt, tmpdir):
-    from pathlib import Path
     out = Path(tmpdir, "test.{}".format(fmt))
     plt.savefig(out)
     with out.open("rb") as file:
@@ -430,20 +423,20 @@ def test_tightbbox():
     t = ax.text(1., 0.5, 'This dangles over end')
     renderer = fig.canvas.get_renderer()
     x1Nom0 = 9.035  # inches
-    assert np.abs(t.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
-    assert np.abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
-    assert np.abs(fig.get_tightbbox(renderer).x1 - x1Nom0) < 0.05
-    assert np.abs(fig.get_tightbbox(renderer).x0 - 0.679) < 0.05
+    assert abs(t.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
+    assert abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
+    assert abs(fig.get_tightbbox(renderer).x1 - x1Nom0) < 0.05
+    assert abs(fig.get_tightbbox(renderer).x0 - 0.679) < 0.05
     # now exclude t from the tight bbox so now the bbox is quite a bit
     # smaller
     t.set_in_layout(False)
     x1Nom = 7.333
-    assert np.abs(ax.get_tightbbox(renderer).x1 - x1Nom * fig.dpi) < 2
-    assert np.abs(fig.get_tightbbox(renderer).x1 - x1Nom) < 0.05
+    assert abs(ax.get_tightbbox(renderer).x1 - x1Nom * fig.dpi) < 2
+    assert abs(fig.get_tightbbox(renderer).x1 - x1Nom) < 0.05
 
     t.set_in_layout(True)
     x1Nom = 7.333
-    assert np.abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
+    assert abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
     # test bbox_extra_artists method...
-    assert np.abs(ax.get_tightbbox(renderer,
-                        bbox_extra_artists=[]).x1 - x1Nom * fig.dpi) < 2
+    assert abs(ax.get_tightbbox(renderer, bbox_extra_artists=[]).x1
+               - x1Nom * fig.dpi) < 2

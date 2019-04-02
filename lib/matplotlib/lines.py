@@ -180,30 +180,26 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             inds = inds.argmin(axis=1)
             inds = np.unique(inds)
             # return, we are done here
-            return Path(verts[inds],
-                        _slice_or_none(codes, inds))
+            return Path(verts[inds], _slice_or_none(codes, inds))
         else:
             raise ValueError(
-                '`markevery` is a tuple with len 2, but its second element is '
-                'not an int or a float; markevery=%s' % (markevery,))
+                f"markevery={markevery!r} is a tuple with len 2, but its "
+                f"second element is not an int or a float")
 
     elif isinstance(markevery, slice):
         # mazol tov, it's already a slice, just return
         return Path(verts[markevery], _slice_or_none(codes, markevery))
 
     elif np.iterable(markevery):
-        #fancy indexing
+        # fancy indexing
         try:
             return Path(verts[markevery], _slice_or_none(codes, markevery))
-
         except (ValueError, IndexError):
-            raise ValueError('`markevery` is iterable but '
-                'not a valid form of numpy fancy indexing; '
-                'markevery=%s' % (markevery,))
+            raise ValueError(
+                f"markevery={markevery!r} is iterable but not a valid numpy "
+                f"fancy index")
     else:
-        raise ValueError('Value of `markevery` is not '
-            'recognized; '
-            'markevery=%s' % (markevery,))
+        raise ValueError(f"markevery={markevery!r} is not a recognized value")
 
 
 @cbook._define_aliases({
@@ -264,17 +260,16 @@ class Line2D(Artist):
 
     def __str__(self):
         if self._label != "":
-            return "Line2D(%s)" % (self._label)
+            return f"Line2D({self._label})"
         elif self._x is None:
             return "Line2D()"
         elif len(self._x) > 3:
-            return "Line2D((%g,%g),(%g,%g),...,(%g,%g))"\
-                % (self._x[0], self._y[0], self._x[0],
-                   self._y[0], self._x[-1], self._y[-1])
+            return "Line2D((%g,%g),(%g,%g),...,(%g,%g))" % (
+                self._x[0], self._y[0], self._x[0],
+                self._y[0], self._x[-1], self._y[-1])
         else:
-            return "Line2D(%s)"\
-                % (",".join(["(%g,%g)" % (x, y) for x, y
-                             in zip(self._x, self._y)]))
+            return "Line2D(%s)" % ",".join(
+                map("({:g},{:g})".format, self._x, self._y))
 
     def __init__(self, xdata, ydata,
                  linewidth=None,  # all Nones default to rc
@@ -405,8 +400,6 @@ class Line2D(Artist):
         self.set_markeredgecolor(markeredgecolor)
         self.set_markeredgewidth(markeredgewidth)
 
-        self.verticalOffset = None
-
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support)
         self.update(kwargs)
@@ -428,6 +421,11 @@ class Line2D(Artist):
         self._x_filled = None  # used in subslicing; only x is needed
 
         self.set_data(xdata, ydata)
+
+    @cbook.deprecated("3.1")
+    @property
+    def verticalOffset(self):
+        return None
 
     def contains(self, mouseevent):
         """
@@ -575,10 +573,10 @@ class Line2D(Artist):
               along the line between markers is determined by multiplying the
               display-coordinate distance of the axes bounding-box diagonal
               by the value of every.
-            - every=(0.5, 0.1) (i.e. a length-2 tuple of float), the
-              same functionality as every=0.1 is exhibited but the first
-              marker will be 0.5 multiplied by the
-              display-cordinate-diagonal-distance along the line.
+            - every=(0.5, 0.1) (i.e. a length-2 tuple of float), the same
+              functionality as every=0.1 is exhibited but the first marker will
+              be 0.5 multiplied by the display-coordinate-diagonal-distance
+              along the line.
 
         Notes
         -----
@@ -657,7 +655,7 @@ class Line2D(Artist):
         *args : (N, 2) array or two 1D arrays
         """
         if len(args) == 1:
-            x, y = args[0]
+            (x, y), = args
         else:
             x, y = args
 
@@ -763,8 +761,8 @@ class Line2D(Artist):
         self.ind_offset = 0  # Needed for contains() method.
         if self._subslice and self.axes:
             x0, x1 = self.axes.get_xbound()
-            i0, = self._x_filled.searchsorted([x0], 'left')
-            i1, = self._x_filled.searchsorted([x1], 'right')
+            i0 = self._x_filled.searchsorted(x0, 'left')
+            i1 = self._x_filled.searchsorted(x1, 'right')
             subslice = slice(max(i0 - 1, 0), i1 + 1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
@@ -1088,8 +1086,7 @@ class Line2D(Artist):
         """
         if drawstyle is None:
             drawstyle = 'default'
-        if drawstyle not in self.drawStyles:
-            raise ValueError('Unrecognized drawstyle {!r}'.format(drawstyle))
+        cbook._check_in_list(self.drawStyles, drawstyle=drawstyle)
         if self._drawstyle != drawstyle:
             self.stale = True
             # invalidate to trigger a recache of the path
@@ -1186,13 +1183,9 @@ class Line2D(Artist):
             if ls in [' ', '', 'none']:
                 ls = 'None'
 
+            cbook._check_in_list([*self._lineStyles, *ls_mapper_r], ls=ls)
             if ls not in self._lineStyles:
-                try:
-                    ls = ls_mapper_r[ls]
-                except KeyError:
-                    raise ValueError("Invalid linestyle {!r}; see docs of "
-                                     "Line2D.set_linestyle for valid values"
-                                     .format(ls))
+                ls = ls_mapper_r[ls]
             self._linestyle = ls
         else:
             self._linestyle = '--'
@@ -1367,9 +1360,7 @@ class Line2D(Artist):
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
-        if s not in self.validJoin:
-            raise ValueError('set_dash_joinstyle passed "%s";\n' % (s,)
-                             + 'valid joinstyles are %s' % (self.validJoin,))
+        cbook._check_in_list(self.validJoin, s=s)
         if self._dashjoinstyle != s:
             self.stale = True
         self._dashjoinstyle = s
@@ -1384,10 +1375,7 @@ class Line2D(Artist):
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
-        if s not in self.validJoin:
-            raise ValueError('set_solid_joinstyle passed "%s";\n' % (s,)
-                             + 'valid joinstyles are %s' % (self.validJoin,))
-
+        cbook._check_in_list(self.validJoin, s=s)
         if self._solidjoinstyle != s:
             self.stale = True
         self._solidjoinstyle = s
@@ -1417,9 +1405,7 @@ class Line2D(Artist):
         s : {'butt', 'round', 'projecting'}
         """
         s = s.lower()
-        if s not in self.validCap:
-            raise ValueError('set_dash_capstyle passed "%s";\n' % (s,)
-                             + 'valid capstyles are %s' % (self.validCap,))
+        cbook._check_in_list(self.validCap, s=s)
         if self._dashcapstyle != s:
             self.stale = True
         self._dashcapstyle = s
@@ -1433,9 +1419,7 @@ class Line2D(Artist):
         s : {'butt', 'round', 'projecting'}
         """
         s = s.lower()
-        if s not in self.validCap:
-            raise ValueError('set_solid_capstyle passed "%s";\n' % (s,)
-                             + 'valid capstyles are %s' % (self.validCap,))
+        cbook._check_in_list(self.validCap, s=s)
         if self._solidcapstyle != s:
             self.stale = True
         self._solidcapstyle = s

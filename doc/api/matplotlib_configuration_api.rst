@@ -1,6 +1,6 @@
-The top level :mod:`matplotlib` module
-======================================
-
+**************
+``matplotlib``
+**************
 
 .. py:currentmodule:: matplotlib
 

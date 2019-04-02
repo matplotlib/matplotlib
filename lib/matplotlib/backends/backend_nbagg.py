@@ -17,7 +17,7 @@ except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.kernel.comm import Comm
 
-from matplotlib import is_interactive
+from matplotlib import cbook, is_interactive
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, NavigationToolbar2)
@@ -28,19 +28,19 @@ from matplotlib.backends.backend_webagg_core import (
 
 def connection_info():
     """
-    Return a string showing the figure and connection status for
-    the backend. This is intended as a diagnostic tool, and not for general
-    use.
+    Return a string showing the figure and connection status for the backend.
 
+    This is intended as a diagnostic tool, and not for general use.
     """
-    result = []
-    for manager in Gcf.get_all_fig_managers():
-        fig = manager.canvas.figure
-        result.append('{0} - {0}'.format((fig.get_label() or
-                                          "Figure {0}".format(manager.num)),
-                                         manager.web_sockets))
+    result = [
+        '{fig} - {socket}'.format(
+            fig=(manager.canvas.figure.get_label()
+                 or "Figure {}".format(manager.num)),
+            socket=manager.web_sockets)
+        for manager in Gcf.get_all_fig_managers()
+    ]
     if not is_interactive():
-        result.append('Figures pending show: {0}'.format(len(Gcf._activeQue)))
+        result.append('Figures pending show: {}'.format(len(Gcf._activeQue)))
     return '\n'.join(result)
 
 
@@ -144,6 +144,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
     def new_timer(self, *args, **kwargs):
+        # docstring inherited
         return TimerTornado(*args, **kwargs)
 
 
@@ -240,7 +241,13 @@ class _BackendNbAgg(_Backend):
         manager.show()
 
     @staticmethod
-    def show(*args, **kwargs):
+    def show(*args, block=None, **kwargs):
+        if args or kwargs:
+            cbook.warn_deprecated(
+                "3.1", message="Passing arguments to show(), other than "
+                "passing 'block' by keyword, is deprecated %(since)s, and "
+                "support for it will be removed %(removal)s.")
+
         ## TODO: something to do when keyword block==False ?
         from matplotlib._pylab_helpers import Gcf
 

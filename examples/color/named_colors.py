@@ -1,7 +1,7 @@
 """
-========================
-Visualizing named colors
-========================
+====================
+List of named colors
+====================
 
 This plots a list of the named colors supported in matplotlib. Note that
 :ref:`xkcd colors <xkcd-colors>` are supported as well, but are not listed here
@@ -27,11 +27,13 @@ def plot_colortable(colors, title, sort_colors=True, emptycols=0):
     topmargin = 40
 
     # Sort colors by hue, saturation, value and name.
-    by_hsv = ((tuple(mcolors.rgb_to_hsv(mcolors.to_rgba(color)[:3])), name)
-                    for name, color in colors.items())
     if sort_colors is True:
-        by_hsv = sorted(by_hsv)
-    names = [name for hsv, name in by_hsv]
+        by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))),
+                         name)
+                        for name, color in colors.items())
+        names = [name for hsv, name in by_hsv]
+    else:
+        names = list(colors)
 
     n = len(names)
     ncols = 4 - emptycols

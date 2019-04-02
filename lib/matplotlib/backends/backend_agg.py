@@ -38,7 +38,6 @@ from matplotlib.transforms import Bbox, BboxBase
 from matplotlib import colors as mcolors
 
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
-from matplotlib import _png
 
 from matplotlib.backend_bases import _has_pil
 
@@ -118,6 +117,7 @@ class RendererAgg(RendererBase):
         return np.array(region), extents
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        # docstring inherited
         nmax = rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
 
@@ -162,9 +162,8 @@ class RendererAgg(RendererBase):
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
-        """
-        Render the text
-        """
+        # docstring inherited
+
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
@@ -192,14 +191,10 @@ class RendererAgg(RendererBase):
             font, np.round(x - xd + xo), np.round(y + yd + yo) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        """
-        Get the width, height, and descent (offset from the bottom
-        to the baseline), in display coords, of the string *s* with
-        :class:`~matplotlib.font_manager.FontProperties` *prop*
-        """
+        # docstring inherited
+
         if ismath in ["TeX", "TeX!"]:
             # todo: handle props
-            size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(
@@ -222,6 +217,7 @@ class RendererAgg(RendererBase):
         return w, h, d
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+        # docstring inherited
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
 
@@ -239,7 +235,7 @@ class RendererAgg(RendererBase):
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
+        # docstring inherited
         return self.width, self.height
 
     def _get_agg_font(self, prop):
@@ -256,41 +252,38 @@ class RendererAgg(RendererBase):
         return font
 
     def points_to_pixels(self, points):
-        """
-        convert point measures to pixes using dpi and the pixels per
-        inch of the display
-        """
+        # docstring inherited
         return points * self.dpi / 72
 
-    def tostring_rgb(self):
-        return self._renderer.tostring_rgb()
+    def buffer_rgba(self):
+        return memoryview(self._renderer)
 
     def tostring_argb(self):
-        return self._renderer.tostring_argb()
+        return np.asarray(self._renderer).take([3, 0, 1, 2], axis=2).tobytes()
 
-    def buffer_rgba(self):
-        return self._renderer.buffer_rgba()
+    def tostring_rgb(self):
+        return np.asarray(self._renderer).take([0, 1, 2], axis=2).tobytes()
 
     def clear(self):
         self._renderer.clear()
 
     def option_image_nocomposite(self):
+        # docstring inherited
+
         # It is generally faster to composite each image directly to
         # the Figure, and there's no file size benefit to compositing
         # with the Agg backend
         return True
 
     def option_scale_image(self):
-        """
-        agg backend doesn't support arbitrary scaling of image.
-        """
+        # docstring inherited
         return False
 
     def restore_region(self, region, bbox=None, xy=None):
         """
         Restore the saved region. If bbox (instance of BboxBase, or
         its extents) is given, only the region specified by the bbox
-        will be restored. *xy* (a tuple of two floasts) optionally
+        will be restored. *xy* (a pair of floats) optionally
         specifies the new position (the LLC of the original region,
         not the LLC of the bbox) where the region will be restored.
 
@@ -391,17 +384,11 @@ class FigureCanvasAgg(FigureCanvasBase):
         Draw the figure using the renderer.
         """
         self.renderer = self.get_renderer(cleared=True)
-        # acquire a lock on the shared font cache
-        RendererAgg.lock.acquire()
-
-        toolbar = self.toolbar
-        try:
+        with RendererAgg.lock:
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so
             # don't forget to call the superclass.
             super().draw()
-        finally:
-            RendererAgg.lock.release()
 
     def get_renderer(self, cleared=False):
         l, b, w, h = self.figure.bbox.bounds
@@ -416,7 +403,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer
 
     def tostring_rgb(self):
-        '''Get the image as an RGB byte string.
+        """Get the image as an RGB byte string.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
@@ -424,11 +411,11 @@ class FigureCanvasAgg(FigureCanvasBase):
         Returns
         -------
         bytes
-        '''
+        """
         return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
-        '''Get the image as an ARGB byte string
+        """Get the image as an ARGB byte string.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
@@ -436,20 +423,19 @@ class FigureCanvasAgg(FigureCanvasBase):
         Returns
         -------
         bytes
-
-        '''
+        """
         return self.renderer.tostring_argb()
 
     def buffer_rgba(self):
-        '''Get the image as an RGBA byte string.
+        """Get the image as a memoryview to the renderer's buffer.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
 
         Returns
         -------
-        bytes
-        '''
+        memoryview
+        """
         return self.renderer.buffer_rgba()
 
     def print_raw(self, filename_or_obj, *args, **kwargs):
@@ -458,9 +444,12 @@ class FigureCanvasAgg(FigureCanvasBase):
         with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
                 cbook.open_file_cm(filename_or_obj, "wb") as fh:
             fh.write(renderer._renderer.buffer_rgba())
+
     print_rgba = print_raw
 
-    def print_png(self, filename_or_obj, *args, **kwargs):
+    def print_png(self, filename_or_obj, *args,
+                  metadata=None, pil_kwargs=None,
+                  **kwargs):
         """
         Write the figure to a PNG file.
 
@@ -501,21 +490,46 @@ class FigureCanvasAgg(FigureCanvasBase):
             .. _PNG specification: \
                 https://www.w3.org/TR/2003/REC-PNG-20031110/#11keywords
 
+        pil_kwargs : dict, optional
+            If set to a non-None value, use Pillow to save the figure instead
+            of Matplotlib's builtin PNG support, and pass these keyword
+            arguments to `PIL.Image.save`.
+
+            If the 'pnginfo' key is present, it completely overrides
+            *metadata*, including the default 'Software' key.
         """
-        FigureCanvasAgg.draw(self)
-        renderer = self.get_renderer()
+        from matplotlib import _png
 
-        version_str = (
-            'matplotlib version ' + __version__ + ', http://matplotlib.org/')
-        metadata = OrderedDict({'Software': version_str})
-        user_metadata = kwargs.pop("metadata", None)
-        if user_metadata is not None:
-            metadata.update(user_metadata)
+        if metadata is None:
+            metadata = {}
+        metadata = {
+            "Software":
+                f"matplotlib version{__version__}, http://matplotlib.org/",
+            **metadata,
+        }
 
-        with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
-                cbook.open_file_cm(filename_or_obj, "wb") as fh:
-            _png.write_png(renderer._renderer, fh,
-                            self.figure.dpi, metadata=metadata)
+        if pil_kwargs is not None:
+            from PIL import Image
+            from PIL.PngImagePlugin import PngInfo
+            buf, size = self.print_to_buffer()
+            # Only use the metadata kwarg if pnginfo is not set, because the
+            # semantics of duplicate keys in pnginfo is unclear.
+            if "pnginfo" not in pil_kwargs:
+                pnginfo = PngInfo()
+                for k, v in metadata.items():
+                    pnginfo.add_text(k, v)
+                pil_kwargs["pnginfo"] = pnginfo
+            pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+            (Image.frombuffer("RGBA", size, buf, "raw", "RGBA", 0, 1)
+             .save(filename_or_obj, format="png", **pil_kwargs))
+
+        else:
+            FigureCanvasAgg.draw(self)
+            renderer = self.get_renderer()
+            with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
+                    cbook.open_file_cm(filename_or_obj, "wb") as fh:
+                _png.write_png(renderer._renderer, fh,
+                               self.figure.dpi, metadata=metadata)
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
@@ -525,8 +539,13 @@ class FigureCanvasAgg(FigureCanvasBase):
                     (int(renderer.width), int(renderer.height)))
 
     if _has_pil:
-        # add JPEG support
-        def print_jpg(self, filename_or_obj, *args, dryrun=False, **kwargs):
+
+        # Note that these methods should typically be called via savefig() and
+        # print_figure(), and the latter ensures that `self.figure.dpi` already
+        # matches the dpi kwarg (if any).
+
+        def print_jpg(self, filename_or_obj, *args, dryrun=False,
+                      pil_kwargs=None, **kwargs):
             """
             Write the figure to a JPEG file.
 
@@ -551,6 +570,11 @@ class FigureCanvasAgg(FigureCanvasBase):
             progressive : bool
                 If present, indicates that this image
                 should be stored as a progressive JPEG file.
+
+            pil_kwargs : dict, optional
+                Additional keyword arguments that are passed to
+                `PIL.Image.save` when saving the figure.  These take precedence
+                over *quality*, *optimize* and *progressive*.
             """
             buf, size = self.print_to_buffer()
             if dryrun:
@@ -562,25 +586,29 @@ class FigureCanvasAgg(FigureCanvasBase):
             color = tuple([int(x * 255) for x in rgba[:3]])
             background = Image.new('RGB', size, color)
             background.paste(image, image)
-            options = {k: kwargs[k]
-                       for k in ['quality', 'optimize', 'progressive', 'dpi']
-                       if k in kwargs}
-            options.setdefault('quality', rcParams['savefig.jpeg_quality'])
-            if 'dpi' in options:
-                # Set the same dpi in both x and y directions
-                options['dpi'] = (options['dpi'], options['dpi'])
+            if pil_kwargs is None:
+                pil_kwargs = {}
+            for k in ["quality", "optimize", "progressive"]:
+                if k in kwargs:
+                    pil_kwargs.setdefault(k, kwargs[k])
+            pil_kwargs.setdefault("quality", rcParams["savefig.jpeg_quality"])
+            pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+            return background.save(
+                filename_or_obj, format='jpeg', **pil_kwargs)
 
-            return background.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
 
-        # add TIFF support
-        def print_tif(self, filename_or_obj, *args, dryrun=False, **kwargs):
+        def print_tif(self, filename_or_obj, *args, dryrun=False,
+                      pil_kwargs=None, **kwargs):
             buf, size = self.print_to_buffer()
             if dryrun:
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            dpi = (self.figure.dpi, self.figure.dpi)
-            return image.save(filename_or_obj, format='tiff', dpi=dpi)
+            if pil_kwargs is None:
+                pil_kwargs = {}
+            pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+            return image.save(filename_or_obj, format='tiff', **pil_kwargs)
+
         print_tiff = print_tif
 
 

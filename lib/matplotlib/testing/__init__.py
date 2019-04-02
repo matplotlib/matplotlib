@@ -1,15 +1,18 @@
+"""
+Helper functions for testing.
+"""
 import locale
 import logging
 import warnings
 
 import matplotlib as mpl
-from matplotlib.cbook import MatplotlibDeprecationWarning
+from matplotlib import cbook
 
 _log = logging.getLogger(__name__)
 
 
 def is_called_from_pytest():
-    """Returns whether the call was done from pytest"""
+    """Whether we are in a pytest run."""
     return getattr(mpl, '_called_from_pytest', False)
 
 
@@ -39,8 +42,7 @@ def setup():
 
     mpl.use('Agg', force=True, warn=False)  # use Agg backend for these tests
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
+    with cbook._suppress_matplotlib_deprecation_warning():
         mpl.rcdefaults()  # Start with all defaults
 
     # These settings *must* be hardcoded for running the comparison tests and

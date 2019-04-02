@@ -3,11 +3,6 @@
 
 [egg_info]
 
-[directories]
-# Uncomment to override the default basedir in setupext.py.
-# This can be a single directory or a comma-delimited list of directories.
-#basedirlist = /usr
-
 [test]
 # If you plan to develop Matplotlib and run or add to the test suite,
 # set this to True.  It will download and build a specific version of
@@ -41,8 +36,6 @@
 #
 # - Tk support requires Tk development headers and Tkinter.
 # - Mac OSX backend requires the Cocoa headers included with XCode.
-# - Windowing is MS-Windows specific, and requires the "windows.h"
-#   header.
 #
 # The other GUI toolkits do not require any extension code, and can be
 # used as long as the libraries are installed on your system --
@@ -61,7 +54,6 @@
 #agg = auto
 #macosx = auto
 #tkagg = auto
-#windowing = auto
 
 [rc_options]
 # User-configurable options

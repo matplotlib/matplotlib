@@ -208,6 +208,8 @@ want to consider sending an email to the mailing list for more visibility.
 .. seealso::
 
   * `Git documentation <https://git-scm.com/documentation>`_
+  * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
+  * `Introduction to Github  <https://lab.github.com/githubtraining/introduction-to-github>`_
   * :ref:`development-workflow`.
   * :ref:`using-git`
 
@@ -433,18 +435,22 @@ To include `logging` in your module, at the top of the module, you need to
 will log to a logger named ``matplotlib.yourmodulename``.
 
 If an end-user of Matplotlib sets up `logging` to display at levels
-more verbose than `logger.WARNING` in their code as follows::
+more verbose than `logger.WARNING` in their code with the Matplotlib-provided
+helper::
+
+  plt.set_loglevel("debug")
+
+or manually with ::
 
   import logging
-  fmt = '%(name)s:%(lineno)5d - %(levelname)s - %(message)s'
-  logging.basicConfig(level=logging.DEBUG, format=fmt)
+  logging.basicConfig(level=logging.DEBUG)
   import matplotlib.pyplot as plt
 
 Then they will receive messages like::
 
-  matplotlib.backends:   89 - INFO - backend MacOSX version unknown
-  matplotlib.yourmodulename: 347 - INFO - Here is some information
-  matplotlib.yourmodulename: 348 - DEBUG - Here is some more detailed information
+  DEBUG:matplotlib.backends:backend MacOSX version unknown
+  DEBUG:matplotlib.yourmodulename:Here is some information
+  DEBUG:matplotlib.yourmodulename:Here is some more detailed information
 
 Which logging level to use?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

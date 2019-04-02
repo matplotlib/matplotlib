@@ -32,7 +32,10 @@ import numpy as np
 
 import matplotlib
 from .deprecation import (
-    mplDeprecation, deprecated, warn_deprecated, MatplotlibDeprecationWarning)
+    deprecated, warn_deprecated,
+    _rename_parameter, _delete_parameter, _make_keyword_only,
+    _suppress_matplotlib_deprecation_warning,
+    MatplotlibDeprecationWarning, mplDeprecation)
 
 
 @deprecated("3.0")
@@ -302,11 +305,25 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
 
 def strip_math(s):
-    """remove latex formatting from mathtext"""
-    remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
-    s = s[1:-1]
-    for r in remove:
-        s = s.replace(r, '')
+    """
+    Remove latex formatting from mathtext.
+
+    Only handles fully math and fully non-math strings.
+    """
+    if len(s) >= 2 and s[0] == s[-1] == "$":
+        s = s[1:-1]
+        for tex, plain in [
+                (r"\times", "x"),  # Specifically for Formatter support.
+                (r"\mathdefault", ""),
+                (r"\rm", ""),
+                (r"\cal", ""),
+                (r"\tt", ""),
+                (r"\it", ""),
+                ("\\", ""),
+                ("{", ""),
+                ("}", ""),
+        ]:
+            s = s.replace(tex, plain)
     return s
 
 
@@ -334,6 +351,7 @@ def iterable(obj):
     return True
 
 
+@deprecated("3.1", alternative="isinstance(..., collections.abc.Hashable)")
 def is_hashable(obj):
     """Returns true if *obj* can be hashed"""
     try:
@@ -344,14 +362,14 @@ def is_hashable(obj):
 
 
 def is_writable_file_like(obj):
-    """return true if *obj* looks like a file object with a *write* method"""
+    """Return whether *obj* looks like a file object with a *write* method."""
     return callable(getattr(obj, 'write', None))
 
 
 def file_requires_unicode(x):
     """
-    Returns `True` if the given writable file-like object requires Unicode
-    to be written to it.
+    Returns whether the given writable file-like object requires Unicode to be
+    written to it.
     """
     try:
         x.write(b'')
@@ -361,19 +379,42 @@ def file_requires_unicode(x):
         return False
 
 
-@deprecated('3.0', 'isinstance(..., numbers.Number)')
+@deprecated('3.0', alternative='isinstance(..., numbers.Number)')
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
     return isinstance(obj, (numbers.Number, np.number))
 
 
-def to_filehandle(fname, flag='rU', return_opened=False, encoding=None):
+def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
-    *fname* can be an `os.PathLike` or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz.  *flag* is a
-    read/write flag for :func:`file`
+    Convert a path to an open file handle or pass-through a file-like object.
+
+    Consider using `open_file_cm` instead, as it allows one to properly close
+    newly created file objects more easily.
+
+    Parameters
+    ----------
+    fname : str or PathLike or file-like object
+        If `str` or `os.PathLike`, the file is opened using the flags specified
+        by *flag* and *encoding*.  If a file-like object, it is passed through.
+    flag : str, default 'r'
+        Passed as the *mode* argument to `open` when *fname* is `str` or
+        `os.PathLike`; ignored if *fname* is file-like.
+    return_opened : bool, default False
+        If True, return both the file object and a boolean indicating whether
+        this was a new file (that the caller needs to close).  If False, return
+        only the new file.
+    encoding : str or None, default None
+        Passed as the *mode* argument to `open` when *fname* is `str` or
+        `os.PathLike`; ignored if *fname* is file-like.
+
+    Returns
+    -------
+    fh : file-like
+    opened : bool
+        *opened* is only returned if *return_opened* is True.
     """
-    if isinstance(fname, getattr(os, "PathLike", ())):
+    if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if isinstance(fname, str):
         if fname.endswith('.gz'):
@@ -414,21 +455,6 @@ def open_file_cm(path_or_file, mode="r", encoding=None):
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
     return isinstance(val, str) or not np.iterable(val)
-
-
-def _string_to_bool(s):
-    """Parses the string argument as a boolean"""
-    if not isinstance(s, str):
-        return bool(s)
-    warn_deprecated("2.2", "Passing one of 'on', 'true', 'off', 'false' as a "
-                    "boolean is deprecated; use an actual boolean "
-                    "(True/False) instead.")
-    if s.lower() in ['on', 'true']:
-        return True
-    if s.lower() in ['off', 'false']:
-        return False
-    raise ValueError('String "%s" must be one of: '
-                     '"on", "off", "true", or "false"' % s)
 
 
 def get_sample_data(fname, asfileobj=True):
@@ -536,6 +562,7 @@ _find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 _dedent_regex = {}
 
 
+@deprecated("3.1", alternative="inspect.cleandoc")
 def dedent(s):
     """
     Remove excess indentation from docstring *s*.
@@ -706,7 +733,7 @@ class Stack(object):
                 bubbles.append(thiso)
             else:
                 self.push(thiso)
-        for thiso in bubbles:
+        for _ in bubbles:
             self.push(o)
         return o
 
@@ -754,6 +781,7 @@ def report_memory(i=0):  # argument may go away
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 
 
+@deprecated("3.1")
 def safezip(*args):
     """make sure *args* are equal len before zipping"""
     Nx = len(args[0])
@@ -842,7 +870,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
                 recurse(referent, start, all, current_path + [obj])
 
     for obj in objects:
-        outstream.write("Examining: %r\n" % (obj,))
+        outstream.write(f"Examining: {obj!r}\n")
         recurse(obj, obj, {}, [])
 
 
@@ -1037,10 +1065,70 @@ def delete_masked_points(*args):
         if len(igood) < nrecs:
             for i, x in enumerate(margs):
                 if seqlist[i]:
-                    margs[i] = x.take(igood, axis=0)
+                    margs[i] = x[igood]
     for i, x in enumerate(margs):
         if seqlist[i] and isinstance(x, np.ma.MaskedArray):
             margs[i] = x.filled()
+    return margs
+
+
+def _combine_masks(*args):
+    """
+    Find all masked and/or non-finite points in a set of arguments,
+    and return the arguments as masked arrays with a common mask.
+
+    Arguments can be in any of 5 categories:
+
+    1) 1-D masked arrays
+    2) 1-D ndarrays
+    3) ndarrays with more than one dimension
+    4) other non-string iterables
+    5) anything else
+
+    The first argument must be in one of the first four categories;
+    any argument with a length differing from that of the first
+    argument (and hence anything in category 5) then will be
+    passed through unchanged.
+
+    Masks are obtained from all arguments of the correct length
+    in categories 1, 2, and 4; a point is bad if masked in a masked
+    array or if it is a nan or inf.  No attempt is made to
+    extract a mask from categories 2 and 4 if :meth:`np.isfinite`
+    does not yield a Boolean array.  Category 3 is included to
+    support RGB or RGBA ndarrays, which are assumed to have only
+    valid values and which are passed through unchanged.
+
+    All input arguments that are not passed unchanged are returned
+    as masked arrays if any masked points are found, otherwise as
+    ndarrays.
+
+    """
+    if not len(args):
+        return ()
+    if is_scalar_or_string(args[0]):
+        raise ValueError("First argument must be a sequence")
+    nrecs = len(args[0])
+    margs = []  # Output args; some may be modified.
+    seqlist = [False] * len(args)  # Flags: True if output will be masked.
+    masks = []    # List of masks.
+    for i, x in enumerate(args):
+        if is_scalar_or_string(x) or len(x) != nrecs:
+            margs.append(x)  # Leave it unmodified.
+        else:
+            if isinstance(x, np.ma.MaskedArray) and x.ndim > 1:
+                raise ValueError("Masked arrays must be 1-D")
+            x = np.asanyarray(x)
+            if x.ndim == 1:
+                x = safe_masked_invalid(x)
+                seqlist[i] = True
+                if np.ma.is_masked(x):
+                    masks.append(np.ma.getmaskarray(x))
+            margs.append(x)  # Possibly modified.
+    if len(masks):
+        mask = np.logical_or.reduce(masks)
+        for i, x in enumerate(margs):
+            if seqlist[i]:
+                margs[i] = np.ma.array(x, mask=mask)
     return margs
 
 
@@ -1097,7 +1185,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Key        Value Description
         ========   ===================================
         label      tick label for the boxplot
-        mean       arithemetic mean value
+        mean       arithmetic mean value
         med        50th percentile
         q1         first quartile (25th percentile)
         q3         third quartile (75th percentile)
@@ -1173,7 +1261,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         # restore whis to the input values in case it got changed in the loop
         whis = input_whis
 
-        # note tricksyness, append up here and then mutate below
+        # note tricksiness, append up here and then mutate below
         bxpstats.append(stats)
 
         # if empty, bail
@@ -1225,14 +1313,14 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             hival = np.percentile(x, whis[1])
 
         # get high extreme
-        wiskhi = np.compress(x <= hival, x)
+        wiskhi = x[x <= hival]
         if len(wiskhi) == 0 or np.max(wiskhi) < q3:
             stats['whishi'] = q3
         else:
             stats['whishi'] = np.max(wiskhi)
 
         # get low extreme
-        wisklo = np.compress(x >= loval, x)
+        wisklo = x[x >= loval]
         if len(wisklo) == 0 or np.min(wisklo) > q1:
             stats['whislo'] = q1
         else:
@@ -1240,8 +1328,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
         # compute a single array of outliers
         stats['fliers'] = np.hstack([
-            np.compress(x < stats['whislo'], x),
-            np.compress(x > stats['whishi'], x)
+            x[x < stats['whislo']],
+            x[x > stats['whishi']],
         ])
 
         # add in the remaining stats
@@ -1254,51 +1342,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 # backends; the reverse mapper is for mapping full names to short ones.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 ls_mapper_r = {v: k for k, v in ls_mapper.items()}
-
-
-@deprecated('2.2')
-def align_iterators(func, *iterables):
-    """
-    This generator takes a bunch of iterables that are ordered by func
-    It sends out ordered tuples::
-
-       (func(row), [rows from all iterators matching func(row)])
-
-    It is used by :func:`matplotlib.mlab.recs_join` to join record arrays
-    """
-    class myiter:
-        def __init__(self, it):
-            self.it = it
-            self.key = self.value = None
-            self.iternext()
-
-        def iternext(self):
-            try:
-                self.value = next(self.it)
-                self.key = func(self.value)
-            except StopIteration:
-                self.value = self.key = None
-
-        def __call__(self, key):
-            retval = None
-            if key == self.key:
-                retval = self.value
-                self.iternext()
-            elif self.key and key > self.key:
-                raise ValueError("Iterator has been left behind")
-            return retval
-
-    # This can be made more efficient by not computing the minimum key for each
-    # iteration
-    iters = [myiter(it) for it in iterables]
-    minvals = minkey = True
-    while True:
-        minvals = ([_f for _f in [it.key for it in iters] if _f])
-        if minvals:
-            minkey = min(minvals)
-            yield (minkey, [it(minkey) for it in iters])
-        else:
-            break
 
 
 def contiguous_regions(mask):
@@ -1375,6 +1418,8 @@ def _reshape_2D(X, name):
     """
     # Iterate over columns for ndarrays, over rows otherwise.
     X = np.atleast_1d(X.T if isinstance(X, np.ndarray) else np.asarray(X))
+    if len(X) == 0:
+        return [[]]
     if X.ndim == 1 and not isinstance(X[0], collections.abc.Iterable):
         # 1D array of scalars: directly return it.
         return [X]
@@ -1702,9 +1747,11 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         if tmp:
             ret[canonical] = tmp[-1]
             if len(tmp) > 1:
-                _warn_external("Saw kwargs {seen!r} which are all aliases for "
-                               "{canon!r}.  Kept value from {used!r}".format(
-                               seen=seen, canon=canonical, used=seen[-1]))
+                warn_deprecated(
+                    "3.1", message=f"Saw kwargs {seen!r} which are all "
+                    f"aliases for {canonical!r}.  Kept value from "
+                    f"{seen[-1]!r}.  Passing multiple aliases for the same "
+                    f"property will raise a TypeError %(removal)s.")
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input
@@ -1732,6 +1779,7 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     return ret
 
 
+@deprecated("3.1")
 def get_label(y, default_name):
     try:
         return y.name
@@ -1990,6 +2038,9 @@ def _warn_external(message, category=None):
     """
     frame = sys._getframe()
     for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
+        if frame is None:
+            # when called in embedded context may hit frame is None
+            break
         if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
                         # Work around sphinx-gallery not setting __name__.
                         frame.f_globals.get("__name__", "")):
@@ -2062,6 +2113,12 @@ def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
 
 
 def _check_and_log_subprocess(command, logger, **kwargs):
+    """
+    Run *command* using `subprocess.check_output`.  If it succeeds, return the
+    output (stdout and stderr); if not, raise an exception whose text includes
+    the failed command and captured output.  Both the command and the output
+    are logged at DEBUG level on *logger*.
+    """
     logger.debug(command)
     try:
         report = subprocess.check_output(
@@ -2075,3 +2132,29 @@ def _check_and_log_subprocess(command, logger, **kwargs):
             .format(command, exc.output.decode('utf-8')))
     logger.debug(report)
     return report
+
+
+def _check_not_matrix(**kwargs):
+    """
+    If any value in *kwargs* is a `np.matrix`, raise a TypeError with the key
+    name in its message.
+    """
+    for k, v in kwargs.items():
+        if isinstance(v, np.matrix):
+            raise TypeError(f"Argument {k!r} cannot be a np.matrix")
+
+
+def _check_in_list(values, **kwargs):
+    """
+    For each *key, value* pair in *kwargs*, check that *value* is in *values*;
+    if not, raise an appropriate ValueError.
+
+    Examples
+    --------
+    >>> cbook._check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
+    """
+    for k, v in kwargs.items():
+        if v not in values:
+            raise ValueError(
+                "{!r} is not a valid value for {}; supported values are {}"
+                .format(v, k, ', '.join(map(repr, values))))

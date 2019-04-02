@@ -7,7 +7,8 @@ import copy
 import numpy as np
 
 from matplotlib import (
-    artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
+    artist, cbook, lines as mlines, axis as maxis, patches as mpatches,
+    rcParams)
 from . import art3d, proj3d
 
 
@@ -45,7 +46,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
 
 
 class Axis(maxis.XAxis):
-
+    """An Axis class for the 3D plots. """
     # These points from the unit cube make up the x, y and z-planes
     _PLANES = (
         (0, 3, 7, 4), (1, 2, 6, 5),     # yz planes
@@ -133,11 +134,10 @@ class Axis(maxis.XAxis):
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
 
+    @cbook.deprecated("3.1")
     def get_tick_positions(self):
         majorLocs = self.major.locator()
-        self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i)
-                       for i, val in enumerate(majorLocs)]
+        majorLabels = self.major.formatter.format_ticks(majorLocs)
         return majorLabels, majorLocs
 
     def get_major_ticks(self, numticks=None):
@@ -223,24 +223,10 @@ class Axis(maxis.XAxis):
         self.label._transform = self.axes.transData
         renderer.open_group('axis3d')
 
-        # code from XAxis
-        majorTicks = self.get_major_ticks()
-        majorLocs = self.major.locator()
+        ticks = self._update_ticks()
 
         info = self._axinfo
         index = info['i']
-
-        # filter locations here so that no extra grid lines are drawn
-        locmin, locmax = self.get_view_interval()
-        if locmin > locmax:
-            locmin, locmax = locmax, locmin
-
-        # Rudimentary clipping
-        majorLocs = [loc for loc in majorLocs if
-                     locmin <= loc <= locmax]
-        self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i)
-                       for i, val in enumerate(majorLocs)]
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
@@ -262,9 +248,9 @@ class Axis(maxis.XAxis):
 
         # Grid points where the planes meet
         xyz0 = []
-        for val in majorLocs:
+        for tick in ticks:
             coord = minmax.copy()
-            coord[index] = val
+            coord[index] = tick.get_loc()
             xyz0.append(coord)
 
         # Draw labels
@@ -296,7 +282,7 @@ class Axis(maxis.XAxis):
                                               renderer.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
-            angle = art3d.norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
+            angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
             self.label.set_rotation(angle)
         self.label.set_va(info['label']['va'])
         self.label.set_ha(info['label']['ha'])
@@ -319,7 +305,7 @@ class Axis(maxis.XAxis):
             pos[0], pos[1], pos[2], renderer.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
-        angle = art3d.norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
+        angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
         self.offsetText.set_rotation(angle)
         # Must set rotation mode to "anchor" so that
         # the alignment point is used as the "fulcrum" for rotation.
@@ -376,14 +362,14 @@ class Axis(maxis.XAxis):
             xyz1 = copy.deepcopy(xyz0)
             newindex = (index + 1) % 3
             newval = get_flip_min_max(xyz1[0], newindex, mins, maxs)
-            for i in range(len(majorLocs)):
+            for i in range(len(ticks)):
                 xyz1[i][newindex] = newval
 
             # Grid points at end of the other plane
             xyz2 = copy.deepcopy(xyz0)
             newindex = (index + 2) % 3
             newval = get_flip_min_max(xyz2[0], newindex, mins, maxs)
-            for i in range(len(majorLocs)):
+            for i in range(len(ticks)):
                 xyz2[i][newindex] = newval
 
             lines = list(zip(xyz1, xyz0, xyz2))
@@ -404,13 +390,11 @@ class Axis(maxis.XAxis):
         else:
             ticksign = -1
 
-        for tick, loc, label in zip(majorTicks, majorLocs, majorLabels):
-            if tick is None:
-                continue
+        for tick in ticks:
 
             # Get tick line positions
             pos = copy.copy(edgep1)
-            pos[index] = loc
+            pos[index] = tick.get_loc()
             pos[tickdir] = (
                 edgep1[tickdir]
                 + info['tick']['outward_factor'] * ticksign * tickdelta)
@@ -437,18 +421,17 @@ class Axis(maxis.XAxis):
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(info['tick']['linewidth'])
             tick.tick1line.set_color(info['tick']['color'])
-            tick.set_label1(label)
-            tick.set_label2(label)
             tick.draw(renderer)
 
         renderer.close_group('axis3d')
         self.stale = False
 
     def get_view_interval(self):
-        """return the Interval instance for this 3d axis view limits"""
+        # docstring inherited
         return self.v_interval
 
     def set_view_interval(self, vmin, vmax, ignore=False):
+        # docstring inherited
         if ignore:
             self.v_interval = vmin, vmax
         else:
@@ -468,17 +451,17 @@ class Axis(maxis.XAxis):
 
 class XAxis(Axis):
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.xy_dataLim.intervalx
 
 
 class YAxis(Axis):
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.xy_dataLim.intervaly
 
 
 class ZAxis(Axis):
     def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
+        # docstring inherited
         return self.axes.zz_dataLim.intervalx

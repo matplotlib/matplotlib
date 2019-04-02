@@ -1,6 +1,6 @@
 #ifndef MPL_FILE_COMPAT_H
 #define MPL_FILE_COMPAT_H
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <stdio.h>
 #include "numpy/npy_common.h"
@@ -95,6 +95,7 @@ static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *or
 #endif
     if (handle == NULL) {
         PyErr_SetString(PyExc_IOError, "Getting a FILE* from a Python file object failed");
+        return NULL;
     }
 
     /* Record the original raw file handle position */

@@ -16,7 +16,7 @@ any results.
 Copy this to backend_xxx.py and replace all instances of 'template'
 with 'xxx'.  Then implement the class methods and functions below, and
 add 'xxx' to the switchyard in matplotlib/backends/__init__.py and
-'xxx' to the backends list in the validate_backend methon in
+'xxx' to the backends list in the validate_backend method in
 matplotlib/__init__.py and you're off.  You can use your backend with::
 
   import matplotlib
@@ -113,15 +113,18 @@ class RendererTemplate(RendererBase):
         pass
 
     def flipy(self):
+        # docstring inherited
         return True
 
     def get_canvas_width_height(self):
+        # docstring inherited
         return 100, 100
 
     def get_text_width_height_descent(self, s, prop, ismath):
         return 1, 1, 1
 
     def new_gc(self):
+        # docstring inherited
         return GraphicsContextTemplate()
 
     def points_to_pixels(self, points):
@@ -170,7 +173,7 @@ def draw_if_interactive():
     """
 
 
-def show(block=None):
+def show(*, block=None):
     """
     For image backends - is not required.
     For GUI backends - show() is usually the last line of a pyplot script and

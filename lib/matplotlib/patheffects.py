@@ -94,6 +94,7 @@ class PathEffectRenderer(RendererBase):
         self._renderer = renderer
 
     def new_gc(self):
+        # docstring inherited
         return self._renderer.new_gc()
 
     def copy_with_path_effect(self, path_effects):
@@ -143,6 +144,7 @@ class PathEffectRenderer(RendererBase):
                                           *args, **kwargs)
 
     def points_to_pixels(self, points):
+        # docstring inherited
         return self._renderer.points_to_pixels(points)
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
@@ -247,10 +249,6 @@ class SimplePatchShadow(AbstractPathEffect):
         #: The dictionary of keywords to update the graphics collection with.
         self._gc = kwargs
 
-        #: The offset transform object. The offset isn't calculated yet
-        #: as we don't know how big the figure will be in pixels.
-        self._offset_tran = mtransforms.Affine2D()
-
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
         """
         Overrides the standard draw_path to add the shadow offset and
@@ -311,7 +309,6 @@ class SimpleLineShadow(AbstractPathEffect):
         **kwargs
             Extra keywords are stored and passed through to
             :meth:`AbstractPathEffect._update_gc`.
-
         """
         super().__init__(offset)
         if shadow_color is None:
@@ -320,13 +317,8 @@ class SimpleLineShadow(AbstractPathEffect):
             self._shadow_color = mcolors.to_rgba(shadow_color)
         self._alpha = alpha
         self._rho = rho
-
         #: The dictionary of keywords to update the graphics collection with.
         self._gc = kwargs
-
-        #: The offset transform object. The offset isn't calculated yet
-        #: as we don't know how big the figure will be in pixels.
-        self._offset_tran = mtransforms.Affine2D()
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
         """

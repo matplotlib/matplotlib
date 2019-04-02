@@ -133,10 +133,10 @@ Dependencies
 
 Matplotlib requires the following dependencies:
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.5)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.6)
 * `FreeType <https://www.freetype.org/>`_ (>= 2.3)
 * `libpng <http://www.libpng.org>`_ (>= 1.2)
-* `NumPy <http://www.numpy.org>`_ (>= 1.10.0)
+* `NumPy <http://www.numpy.org>`_ (>= 1.11)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.1)
@@ -152,8 +152,7 @@ optional Matplotlib backends and the capabilities they provide.
   `PySide <https://pypi.org/project/PySide>`_ (>= 1.0.3): for the Qt4-based
   backends;
 * `PyQt5 <https://pypi.org/project/PyQt5>`_: for the Qt5-based backends;
-* `PyGObject <https://pypi.org/project/PyGObject/>`_ or
-  `pgi <https://pypi.org/project/pgi/>`_ (>= 0.0.11.2): for the GTK3-based
+* `PyGObject <https://pypi.org/project/PyGObject/>`_: for the GTK3-based
   backends;
 * :term:`wxpython` (>= 4): for the WX-based backends;
 * `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`_ (>= 0.8) or
@@ -175,10 +174,35 @@ etc., you can install the following:
 
 .. note::
 
-   Matplotlib depends on non-Python libraries. `pkg-config
-   <https://www.freedesktop.org/wiki/Software/pkg-config/>`_ can be used
-   to find required non-Python libraries and thus make the install go more
-   smoothly if the libraries and headers are not in the expected locations.
+   Matplotlib depends on non-Python libraries.
+
+   On Linux and OSX, pkg-config_ can be used to find required non-Python
+   libraries and thus make the install go more smoothly if the libraries and
+   headers are not in the expected locations.
+
+   .. _pkg-config: https://www.freedesktop.org/wiki/Software/pkg-config/
+
+   If not using pkg-config (in particular on Windows), you may need to set the
+   include path (to the FreeType, libpng, and zlib headers) and link path (to
+   the FreeType, libpng, and zlib libraries) explicitly, if they are not in
+   standard locations.  This can be done using standard environment variables
+   -- on Linux and OSX:
+
+   .. code-block:: sh
+
+      export CFLAGS='-I/directory/containing/ft2build.h ...'
+      export LDFLAGS='-L/directory/containing/libfreetype.so ...'
+
+   and on Windows:
+
+   .. code-block:: bat
+
+      set CL=/IC:\directory\containing\ft2build.h ...
+      set LINK=/LIBPATH:C:\directory\containing\freetype.lib ...
+
+   where ``...`` means "also give, in the same format, the directories
+   containing ``png.h`` and ``zlib.h`` for the include path, and for
+   ``libpng.so``/``png.lib`` and ``libz.so``/``z.lib`` for the link path."
 
 .. note::
 
@@ -262,8 +286,8 @@ at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.
 There are a few possibilities to build Matplotlib on Windows:
 
 * Wheels via `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_
-* Wheels by using conda packages
-* Conda packages
+* Wheels by using conda packages (see below)
+* Conda packages (see below)
 
 Wheel builds using conda packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -272,32 +296,19 @@ This is a wheel build, but we use conda packages to get all the requirements.
 The binary requirements (png, FreeType,...) are statically linked and therefore
 not needed during the wheel install.
 
+Set up the conda environment. Note, if you want a qt backend, add ``pyqt`` to
+the list of conda packages.
+
 ::
 
-  # create a new environment with the required packages
-  conda create -n "matplotlib_build" python=3.5 numpy python-dateutil pyparsing pytz tornado cycler tk libpng zlib freetype
-  activate matplotlib_build
-  # if you want a qt backend, you also have to install pyqt (be aware that pyqt doesn't mix well if
-  # you have created the environment with conda-forge already activated...)
-  conda install pyqt
-  # this package is only available in the conda-forge channel
-  conda install -c conda-forge msinttypes
+  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype msinttypes
+  conda activate matplotlib_build
 
-  # copy the libs which have "wrong" names
-  set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
-  mkdir lib || cmd /c "exit /b 0"
-  copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
-  copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
+For building, call the script ``build_alllocal.cmd`` in the root folder of the
+repository::
 
-  # Make the header files and the rest of the static libs available during the build
-  # CONDA_DEFAULT_ENV is a env variable which is set to the currently active environment path
-  set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
+  build_alllocal.cmd
 
-  # build the wheel
-  python setup.py bdist_wheel
-
-The `build_alllocal.cmd` script in the root folder automates these steps if
-you have already created and activated the conda environment.
 
 Conda packages
 ^^^^^^^^^^^^^^

@@ -1,6 +1,8 @@
 import warnings
 
 import numpy as np
+from numpy.testing import assert_array_equal
+import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -154,15 +156,13 @@ def test_tight_layout8():
 
 @image_comparison(baseline_images=['tight_layout9'])
 def test_tight_layout9():
-    # Test tight_layout for non-visible suplots
+    # Test tight_layout for non-visible subplots
     # GH 8244
     f, axarr = plt.subplots(2, 2)
     axarr[1][1].set_visible(False)
     plt.tight_layout()
 
 
-# The following test is misleading when the text is removed.
-@image_comparison(baseline_images=['outward_ticks'], remove_text=False)
 def test_outward_ticks():
     'Test automatic use of tight_layout'
     fig = plt.figure()
@@ -173,8 +173,6 @@ def test_outward_ticks():
         tickdir='out', length=32, width=3, tick1On=True, which='minor')
     ax.yaxis.set_tick_params(
         tickdir='out', length=32, width=3, tick1On=True, which='minor')
-    # The following minor ticks are not labelled, and they
-    # are drawn over the major ticks and labels--ugly!
     ax.xaxis.set_ticks([0], minor=True)
     ax.yaxis.set_ticks([0], minor=True)
     ax = fig.add_subplot(222)
@@ -187,6 +185,15 @@ def test_outward_ticks():
     ax.xaxis.set_tick_params(tickdir='out', length=32, width=3)
     ax.yaxis.set_tick_params(tickdir='out', length=32, width=3)
     plt.tight_layout()
+    # These values were obtained after visual checking that they correspond
+    # to a tight layouting that did take the ticks into account.
+    ans = [[[0.091, 0.607], [0.433, 0.933]],
+           [[0.579, 0.607], [0.922, 0.933]],
+           [[0.091, 0.140], [0.433, 0.466]],
+           [[0.579, 0.140], [0.922, 0.466]]]
+    for nn, ax in enumerate(fig.axes):
+        assert_array_equal(np.round(ax.get_position().get_points(), 3),
+                           ans[nn])
 
 
 def add_offsetboxes(ax, size=10, margin=.1, color='black'):
@@ -261,30 +268,18 @@ def test_tight_layout_offsetboxes():
 
 
 def test_empty_layout():
-    """Tests that tight layout doesn't cause an error when there are
-    no axes.
-    """
-
+    """Test that tight layout doesn't cause an error when there are no axes."""
     fig = plt.gcf()
     fig.tight_layout()
 
 
-def test_verybig_decorators_horizontal():
-    "Test that warning emitted when xlabel too big"
+@pytest.mark.parametrize("label", ["xlabel", "ylabel"])
+def test_verybig_decorators(label):
+    """Test that warning emitted when xlabel/ylabel too big."""
     fig, ax = plt.subplots(figsize=(3, 2))
-    ax.set_xlabel('a' * 100)
-    with warnings.catch_warnings(record=True) as w:
+    ax.set(**{label: 'a' * 100})
+    with pytest.warns(UserWarning):
         fig.tight_layout()
-        assert len(w) == 1
-
-
-def test_verybig_decorators_vertical():
-    "Test that warning emitted when xlabel too big"
-    fig, ax = plt.subplots(figsize=(3, 2))
-    ax.set_ylabel('a' * 100)
-    with warnings.catch_warnings(record=True) as w:
-        fig.tight_layout()
-        assert len(w) == 1
 
 
 def test_big_decorators_horizontal():
@@ -292,9 +287,8 @@ def test_big_decorators_horizontal():
     fig, axs = plt.subplots(1, 2, figsize=(3, 2))
     axs[0].set_xlabel('a' * 30)
     axs[1].set_xlabel('b' * 30)
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning):
         fig.tight_layout()
-        assert len(w) == 1
 
 
 def test_big_decorators_vertical():
@@ -302,9 +296,8 @@ def test_big_decorators_vertical():
     fig, axs = plt.subplots(2, 1, figsize=(3, 2))
     axs[0].set_ylabel('a' * 20)
     axs[1].set_ylabel('b' * 20)
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning):
         fig.tight_layout()
-        assert len(w) == 1
 
 
 def test_badsubplotgrid():
@@ -313,13 +306,12 @@ def test_badsubplotgrid():
     ax1 = plt.subplot2grid((4, 5), (0, 0))
     # this is the bad entry:
     ax5 = plt.subplot2grid((5, 5), (0, 3), colspan=3, rowspan=5)
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning):
         plt.tight_layout()
-        assert len(w) == 1
 
 
 def test_collapsed():
-    # test that if a call to tight_layout will collapes the axes that
+    # test that if a call to tight_layout will collapses the axes that
     # it does not get applied:
     fig, ax = plt.subplots(tight_layout=True)
     ax.set_xlim([0, 1])
@@ -327,8 +319,9 @@ def test_collapsed():
 
     ax.annotate('BIG LONG STRING', xy=(1.25, 2), xytext=(10.5, 1.75),)
     p1 = ax.get_position()
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning):
         plt.tight_layout()
         p2 = ax.get_position()
         assert p1.width == p2.width
-        assert len(w) == 1
+    # test that passing a rect doesn't crash...
+    plt.tight_layout(rect=[0, 0, 0.8, 0.8])

@@ -1,5 +1,6 @@
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.collections import PolyCollection, TriMesh
 from matplotlib.colors import Normalize
 from matplotlib.tri.triangulation import Triangulation
@@ -46,9 +47,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
     """
-    if shading not in ['flat', 'gouraud']:
-        raise ValueError("shading must be one of ['flat', 'gouraud'] "
-                         "not {0}".format(shading))
+    cbook._check_in_list(['flat', 'gouraud'], shading=shading)
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
 
@@ -112,7 +111,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
             C = C[maskedTris].mean(axis=1)
         elif tri.mask is not None:
             # Remove color values of masked triangles.
-            C = C.compress(1-tri.mask)
+            C = C[~tri.mask]
 
         collection = PolyCollection(verts, **kwargs)
 

@@ -1,6 +1,5 @@
-
 """
-provides a classes of simple units that will be used with AxesDivider
+Provides classes of simple units that will be used with AxesDivider
 class (or others) to determine the size of each axes. The unit
 classes define `get_size` method that returns a tuple of two floats,
 meaning relative and absolute sizes, respectively.
@@ -8,10 +7,11 @@ meaning relative and absolute sizes, respectively.
 Note that this class is nothing more than a simple tuple of two
 floats. Take a look at the Divider class to see how these two
 values are used.
-
 """
+
 from numbers import Number
 
+from matplotlib import cbook
 from matplotlib.axes import Axes
 
 
@@ -53,7 +53,9 @@ class AddList(_Base):
 
 
 class Fixed(_Base):
-    "Simple fixed size with absolute part = *fixed_size* and relative part = 0"
+    """
+    Simple fixed size with absolute part = *fixed_size* and relative part = 0.
+    """
     def __init__(self, fixed_size):
         self.fixed_size = fixed_size
 
@@ -64,7 +66,11 @@ class Fixed(_Base):
 
 
 class Scaled(_Base):
-    "Simple scaled(?) size with absolute part = 0 and relative part = *scalable_size*"
+    """
+    Simple scaled(?) size with absolute part = 0 and
+    relative part = *scalable_size*.
+    """
+
     def __init__(self, scalable_size):
         self._scalable_size = scalable_size
 
@@ -298,8 +304,7 @@ class GetExtentHelper(object):
     }
 
     def __init__(self, ax, direction):
-        if direction not in self._get_func_map:
-            raise KeyError("direction must be one of left, right, bottom, top")
+        cbook._check_in_list(self._get_func_map, direction=direction)
         self._ax_list = [ax] if isinstance(ax, Axes) else ax
         self._direction = direction
 
