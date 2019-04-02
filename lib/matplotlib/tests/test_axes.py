@@ -6346,3 +6346,23 @@ def test_datetime_masked():
     ax.plot(x, m)
     # these are the default viewlim
     assert ax.get_xlim() == (730120.0, 733773.0)
+
+
+def test_hist_auto_bins():
+    _, bins, _ = plt.hist([[1, 2, 3], [3, 4, 5, 6]], bins='auto')
+    assert bins[0] <= 1
+    assert bins[-1] >= 6
+
+
+def test_hist_nan_data():
+    fig, (ax1, ax2) = plt.subplots(2)
+
+    data = [1, 2, 3]
+    nan_data = data + [np.nan]
+
+    bins, edges, _ = ax1.hist(data)
+    with np.errstate(invalid='ignore'):
+        nanbins, nanedges, _ = ax2.hist(nan_data)
+
+    assert np.allclose(bins, nanbins)
+    assert np.allclose(edges, nanedges)
