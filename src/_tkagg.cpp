@@ -7,7 +7,7 @@
  * See LICENSE/LICENSE.PIL for details.
  *
  */
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <cstdlib>
 #include <cstdio>
