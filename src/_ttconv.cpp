@@ -5,7 +5,7 @@
 
   Python wrapper for TrueType conversion library in ../ttconv.
  */
-
+#define PY_SSIZE_T_CLEAN
 #include "mplutils.h"
 
 #include <Python.h>

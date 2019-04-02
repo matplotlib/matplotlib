@@ -2,7 +2,7 @@
 
 #ifndef _NUMPY_CPP_H_
 #define _NUMPY_CPP_H_
-
+#define PY_SSIZE_T_CLEAN
 /***************************************************************************
  * This file is based on original work by Mark Wiebe, available at:
  *
