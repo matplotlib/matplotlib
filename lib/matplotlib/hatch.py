@@ -98,7 +98,7 @@ class Shapes(HatchPatternBase):
                                (self.num_rows // 2) * (self.num_rows))
             self.num_vertices = (self.num_shapes *
                                  len(self.shape_vertices) *
-                                 (self.filled and 1 or 2))
+                                 (1 if self.filled else 2))
 
     def set_vertices_and_codes(self, vertices, codes):
         offset = 1.0 / self.num_rows
