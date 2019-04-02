@@ -1326,10 +1326,11 @@ class Axis(martist.Artist):
         # Use the transformed view limits as scale.  1e-5 is the default rtol
         # for np.isclose.
         tol = (hi - lo) * 1e-5
-        minor_locs = [
-            loc for loc, tr_loc in zip(minor_locs, tr_minor_locs)
-            if (not remove_overlaps or
-                not np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any())]
+        if remove_overlaps:
+            minor_locs = [
+                loc for loc, tr_loc in zip(minor_locs, tr_minor_locs)
+                if ~(np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any())
+            ]
         return minor_locs
 
     def get_ticklocs(self, minor=False):
