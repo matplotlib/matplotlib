@@ -1,22 +1,24 @@
 import numpy as np
 from io import BytesIO
 import os
+import re
 import tempfile
 import warnings
 import xml.parsers.expat
 
 import pytest
 
+import matplotlib as mpl
+from matplotlib import dviread
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-import matplotlib
-from matplotlib import dviread
 
 
 with warnings.catch_warnings():
     warnings.simplefilter('ignore')
     needs_usetex = pytest.mark.skipif(
-        not matplotlib.checkdep_usetex(True),
+        not mpl.checkdep_usetex(True),
         reason="This test needs a TeX installation")
 
 
@@ -107,15 +109,10 @@ def test_bold_font_output_with_none_fonttype():
 
 def _test_determinism_save(filename, usetex):
     # This function is mostly copy&paste from "def test_visibility"
-    # To require no GUI, we use Figure and FigureCanvasSVG
-    # instead of plt.figure and fig.savefig
-    from matplotlib.figure import Figure
-    from matplotlib.backends.backend_svg import FigureCanvasSVG
-    from matplotlib import rc
-    rc('svg', hashsalt='asdf')
-    rc('text', usetex=usetex)
+    mpl.rc('svg', hashsalt='asdf')
+    mpl.rc('text', usetex=usetex)
 
-    fig = Figure()
+    fig = Figure()  # Require no GUI.
     ax = fig.add_subplot(111)
 
     x = np.linspace(0, 4 * np.pi, 50)
@@ -129,7 +126,7 @@ def _test_determinism_save(filename, usetex):
     ax.set_xlabel('A string $1+2+\\sigma$')
     ax.set_ylabel('A string $1+2+\\sigma$')
 
-    FigureCanvasSVG(fig).print_svg(filename)
+    fig.savefig(filename, format="svg")
 
 
 @pytest.mark.parametrize(
@@ -172,15 +169,30 @@ def test_determinism(filename, usetex):
 @needs_usetex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
-    from matplotlib import rc
 
     def psfont(*args, **kwargs):
         return dviread.PsFont(texname='texfont', psname='Some Font',
                               effects=None, encoding=None, filename=None)
 
     monkeypatch.setattr(dviread.PsfontsMap, '__getitem__', psfont)
-    rc('text', usetex=True)
+    mpl.rc('text', usetex=True)
     fig, ax = plt.subplots()
     ax.text(0.5, 0.5, 'hello')
     with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format='svg')
+
+
+# Use Computer Modern Sans Serif, not Helvetica (which has no \textwon).
+@pytest.mark.style('default')
+@needs_usetex
+def test_unicode_won():
+    fig = Figure()
+    fig.text(.5, .5, r'\textwon', usetex=True)
+
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode('ascii')
+
+    won_id = 'Computer_Modern_Sans_Serif-142'
+    assert re.search(r'<path d=(.|\s)*?id="{0}"/>'.format(won_id), buf)
+    assert re.search(r'<use[^/>]*? xlink:href="#{0}"/>'.format(won_id), buf)
