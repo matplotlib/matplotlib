@@ -235,8 +235,9 @@ class AbstractMovieWriter(abc.ABC):
 class MovieWriter(AbstractMovieWriter):
     '''Base class for writing movies.
 
-    This class is set up to provide for writing movie frame data to a pipe.
-    See examples for how to use these classes.
+    This is a base class for MovieWriter subclasses that write a movie frame
+    data to a pipe. You cannot instantiate this class directly.
+    See examples for how to use its subclasses.
 
     Attributes
     ----------
@@ -274,6 +275,15 @@ class MovieWriter(AbstractMovieWriter):
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
         '''
+        if self.__class__ is MovieWriter:
+            # TODO MovieWriter is still an abstract class and needs to be
+            #      extended with a mixin. This should be clearer in naming
+            #      and description. For now, just give a reasonable error
+            #      message to users.
+            raise TypeError(
+                'MovieWriter cannot be instantiated directly. Please use one '
+                'of its subclasses.')
+
         self.fps = fps
         self.frame_format = 'rgba'
 
