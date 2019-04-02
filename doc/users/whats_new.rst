@@ -1,7 +1,7 @@
-.. _whats-new:
+.. _whats=new:
 
 =============================
- What's new in Matplotlib 3.0
+ What's new in Matplotlib 3.1
 =============================
 
 For a list of all of the issues and pull requests since the last
@@ -10,251 +10,325 @@ revision, see the :ref:`github-stats`.
 .. contents:: Table of Contents
    :depth: 4
 
-
-..
-   For a release, add a new section after this, then comment out the include
-   and toctree below by indenting them. Uncomment them after the release.
-
-.. include:: next_whats_new/README.rst
-
 .. toctree::
-   :glob:
-   :maxdepth: 1
+   :maxdepth: 4
 
-   next_whats_new/*
+New Features
+=============
 
-Improved default backend selection
-----------------------------------
+`~.dates.ConciseDateFormatter`
+-------------------------------
+The automatic date formatter used by default can be quite verbose.  A new
+formatter can be accessed that tries to make the tick labels appropriately
+concise.
 
-The default backend no longer must be set as part of the build
-process.  Instead, at run time, the builtin backends are tried in
-sequence until one of them imports.
+  .. plot::
 
-Headless linux servers (identified by the DISPLAY env not being defined)
-will not select a GUI backend.
-
-Cyclic colormaps
-----------------
-
-Two new colormaps named 'twilight' and 'twilight_shifted' have been
-added.  These colormaps start and end on the same color, and have two
-symmetric halves with equal lightness, but diverging color. Since they
-wrap around, they are a good choice for cyclic data such as phase
-angles, compass directions, or time of day. Like *viridis* and
-*cividis*, *twilight* is perceptually uniform and colorblind friendly.
-
-
-Ability to scale axis by a fixed order of magnitude
----------------------------------------------------
-
-To scale an axis by a fixed order of magnitude, set the *scilimits* argument of
-`.Axes.ticklabel_format` to the same (non-zero) lower and upper limits. Say to scale
-the y axis by a million (1e6), use
-
-.. code-block:: python
-
-  ax.ticklabel_format(style='sci', scilimits=(6, 6), axis='y')
-
-The behavior of ``scilimits=(0, 0)`` is unchanged. With this setting, Matplotlib will adjust
-the order of magnitude depending on the axis values, rather than keeping it fixed. Previously, setting
-``scilimits=(m, m)`` was equivalent to setting ``scilimits=(0, 0)``.
-
-
-Add ``AnchoredDirectionArrows`` feature to mpl_toolkits
---------------------------------------------------------
-
-A new mpl_toolkits class
-:class:`~mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows`
-draws a pair of orthogonal arrows to indicate directions on a 2D plot. A
-minimal working example takes in the transformation object for the coordinate
-system (typically ax.transAxes), and arrow labels. There are several optional
-parameters that can be used to alter layout. For example, the arrow pairs can
-be rotated and the color can be changed. By default the labels and arrows have
-the same color, but the class may also pass arguments for customizing arrow
-and text layout, these are passed to :class:`matplotlib.text.TextPath` and
-`matplotlib.patches.FancyArrowPatch`. Location, length and width for both
-arrow tail and head can be adjusted, the the direction arrows and labels can
-have a frame. Padding and separation parameters can be adjusted.
-
-
-Add ``minorticks_on()/off()`` methods for colorbar
---------------------------------------------------
-
-A new method :meth:`.colorbar.Colobar.minorticks_on` has been added
-to correctly display minor ticks on a colorbar. This method
-doesn't allow the minor ticks to extend into the regions beyond vmin and vmax
-when the extend `kwarg` (used while creating the colorbar) is set to 'both',
-'max' or 'min'.
-A complementary method :meth:`.colorbar.Colobar.minorticks_off`
-has also been added to remove the minor ticks on the colorbar.
-
-
-Colorbar ticks can now be automatic
------------------------------------
-
-The number of ticks placed on colorbars was previously appropriate for a large
-colorbar, but looked bad if the colorbar was made smaller (i.e. via the ``shrink`` kwarg).
-This has been changed so that the number of ticks is now responsive to how
-large the colorbar is.
-
-
-
-Don't automatically rename duplicate file names
------------------------------------------------
-
-Previously, when saving a figure to a file using the GUI's
-save dialog box, if the default filename (based on the
-figure window title) already existed on disk, Matplotlib
-would append a suffix (e.g. `Figure_1-1.png`), preventing
-the dialog from prompting to overwrite the file. This
-behaviour has been removed. Now if the file name exists on
-disk, the user is prompted whether or not to overwrite it.
-This eliminates guesswork, and allows intentional
-overwriting, especially when the figure name has been
-manually set using `.figure.Figure.canvas.set_window_title()`.
-
-
-Legend now has a *title_fontsize* kwarg (and rcParam)
------------------------------------------------------
-
-The title for a `.Figure.legend` and `.Axes.legend` can now have its
-fontsize set via the ``title_fontsize`` kwarg.  There is also a new
-:rc:`legend.title_fontsize`.  Both default to ``None``, which means
-the legend title will have the same fontsize as the axes default fontsize
-(*not* the legend fontsize, set by the ``fontsize`` kwarg or
-:rc:`legend.fontsize`).
-
-
-Support for axes.prop_cycle property *markevery* in rcParams
-------------------------------------------------------------
-
-The Matplotlib ``rcParams`` settings object now supports configuration
-of the attribute `axes.prop_cycle` with cyclers using the `markevery`
-Line2D object property. An example of this feature is provided at
-:doc:`/gallery/lines_bars_and_markers/markevery_prop_cycle`.
-
-Multipage PDF support for pgf backend
--------------------------------------
-
-The pgf backend now also supports multipage PDF files.
-
-.. code-block:: python
-
-    from matplotlib.backends.backend_pgf import PdfPages
+    import datetime
     import matplotlib.pyplot as plt
+    import matplotlib.dates as mdates
+    import numpy as np
 
-    with PdfPages('multipage.pdf') as pdf:
-        # page 1
-        plt.plot([2, 1, 3])
-        pdf.savefig()
+    # make a timeseries...
+    base = datetime.datetime(2005, 2, 1)
+    dates = np.array([base + datetime.timedelta(hours= 2 * i)
+                      for i in range(732)])
+    N = len(dates)
+    np.random.seed(19680801)
+    y = np.cumsum(np.random.randn(N))
 
-        # page 2
-        plt.cla()
-        plt.plot([3, 1, 2])
-        pdf.savefig()
+    lims = [(np.datetime64('2005-02'), np.datetime64('2005-04')),
+            (np.datetime64('2005-02-03'), np.datetime64('2005-02-15')),
+            (np.datetime64('2005-02-03 11:00'), np.datetime64('2005-02-04 13:20'))]
+    fig, axs = plt.subplots(3, 1, constrained_layout=True)
+    for nn, ax in enumerate(axs):
+        # activate the formatter here.
+        locator = mdates.AutoDateLocator()
+        formatter = mdates.ConciseDateFormatter(locator)
+        ax.xaxis.set_major_locator(locator)
+        ax.xaxis.set_major_formatter(formatter)
 
+        ax.plot(dates, y)
+        ax.set_xlim(lims[nn])
+    axs[0].set_title('Concise Date Formatter')
 
-Pie charts are now circular by default
---------------------------------------
-We acknowledge that the majority of people do not like egg-shaped pies.
-Therefore, an axes to which a pie chart is plotted will be set to have
-equal aspect ratio by default. This ensures that the pie appears circular
-independent on the axes size or units. To revert to the previous behaviour
-set the axes' aspect ratio to automatic by using ``ax.set_aspect("auto")`` or
-``plt.axis("auto")``.
-
-Add ``ax.get_gridspec`` to `.SubplotBase`
------------------------------------------
-
-New method `.SubplotBase.get_gridspec` is added so that users can
-easily get the gridspec that went into making an axes:
-
-  .. code::
-
-    import matplotlib.pyplot as plt
-
-    fig, axs = plt.subplots(3, 2)
-    gs = axs[0, -1].get_gridspec()
-
-    # remove the last column
-    for ax in axs[:,-1].flatten():
-      ax.remove()
-
-    # make a subplot in last column that spans rows.
-    ax = fig.add_subplot(gs[:, -1])
     plt.show()
 
+Secondary x/y Axis support
+------------------------------------------------------------
+A new method provides the ability to add a second axis to an existing
+axes via `.Axes.secondary_xaxis` and `.Axes.secondary_yaxis`.  See
+:doc:`/gallery/subplots_axes_and_figures/secondary_axis` for examples.
 
-Axes titles will no longer overlap xaxis
-----------------------------------------
-
-Previously an axes title had to be moved manually if an xaxis overlapped
-(usually when the xaxis was put on the top of the axes).  Now, the title
-will be automatically moved above the xaxis and its decorators (including
-the xlabel) if they are at the top.
-
-If desired, the title can still be placed manually.  There is a slight kludge;
-the algorithm checks if the y-position of the title is 1.0 (the default),
-and moves if it is.  If the user places the title in the default location
-(i.e. ``ax.title.set_position(0.5, 1.0)``), the title will still be moved
-above the xaxis.  If the user wants to avoid this, they can
-specify a number that is close (i.e. ``ax.title.set_position(0.5, 1.01)``)
-and the title will not be moved via this algorithm.
-
-
-
-New convenience methods for GridSpec
-------------------------------------
-
-There are new convenience methods for `.gridspec.GridSpec` and
-`.gridspec.GridSpecFromSubplotSpec`.  Instead of the former we can
-now call `.Figure.add_gridspec` and for the latter `.SubplotSpec.subgridspec`.
-
-.. code-block:: python
+.. plot::
 
     import matplotlib.pyplot as plt
 
-    fig = plt.figure()
-    gs0 = fig.add_gridspec(3, 1)
-    ax1 = fig.add_subplot(gs0[0])
-    ax2 = fig.add_subplot(gs0[1])
-    gssub = gs0[2].subgridspec(1, 3)
-    for i in range(3):
-        fig.add_subplot(gssub[0, i])
+    fig, ax = plt.subplots(figsize=(5, 3))
+    ax.plot(range(360))
+    ax.secondary_xaxis('top', functions=(np.deg2rad, np.rad2deg))
 
 
-Figure has an `~.figure.Figure.add_artist` method
+`~.scale.FuncScale` for arbitrary axes scales
+----------------------------------------------
+A new `-.scale.FuncScale` class was added (and `-.scale.FuncTransform`)
+to allow the user to have arbitrary scale transformations without having to
+write a new subclass of `-.scale.ScaleBase`.  This can be accessed by
+``ax.set_yscale('function', functions=(forward, inverse))``, where
+``forward`` and ``inverse`` are callables that return the scale transform and
+its inverse.  See the last example in :doc:`/gallery/scales/scales`.
+
+
+Legend for scatter
+-------------------
+A new method for creating legends for scatter plots has been introduced.
+Previously, in order to obtain a legend for a :meth:`-.axes.Axes.scatter`
+plot, one could either plot several scatters, each with an individual label,
+or create proxy artists to show in the legend manually.
+Now, :class:`-.collections.PathCollection` provides a method
+:meth:`-.collections.PathCollection.legend_elements` to obtain the handles and labels
+for a scatter plot in an automated way. This makes creating a legend for a
+scatter plot as easy as::
+
+    scatter = plt.scatter([1,2,3], [4,5,6], c=[7,2,3])
+    plt.legend(*scatter.legend_elements())
+
+An example can be found in
+:ref:`automatedlegendcreation`.
+
+
+Figure, FigureCanvas, and Backends
+====================================
+
+Figure.frameon is now a direct proxy for the Figure patch visibility state
+---------------------------------------------------------------------------
+Accessing ``Figure.frameon`` (including via ``get_frameon`` and ``set_frameon``
+now directly forwards to the visibility of the underlying Rectangle artist
+(``Figure.patch.get_frameon``, ``Figure.patch.set_frameon``).
+
+
+*pil_kwargs* argument added to savefig
+------------------------------------------------------------
+Matplotlib uses Pillow to handle saving to the JPEG and TIFF formats.  The
+`-Figure.savefig()` function gained a *pil_kwargs* keyword argument, which can
+be used to forward arguments to Pillow's `PIL.Image.save()`.
+
+The *pil_kwargs* argument can also be used when saving to PNG.  In that case,
+Matplotlib also uses Pillow's `PIL.Image.save()` instead of going through its
+own builtin PNG support.
+
+
+Add ``inaxes`` method to `FigureCanvas`
+----------------------------------------
+The `FigureCanvas` class has now an ``inaxes`` method to check whether a point is in an axes
+and returns the topmost axes, else None.
+
+cairo backend defaults to pycairo instead of cairocffi
+------------------------------------------------------------
+This leads to faster import/runtime performance in some cases. The backend
+will fall back to cairocffi in case pycairo isn't available.
+
+
+Axes and Artists
+===================
+axes_grid1 and axisartist Axes no longer draw spines twice
+------------------------------------------------------------
+Previously, spines of `axes_grid1` and `axisartist` Axes would be drawn twice,
+leading to a "bold" appearance.  This is no longer the case.
+
+
+Return type of ArtistInspector.get_aliases changed
+--------------------------------------------------
+`ArtistInspector.get_aliases` previously returned the set of aliases as
+``{fullname: {alias1: None, alias2: None, ...}}``.  The dict-to-None mapping
+was used to simulate a set in earlier versions of Python.  It has now been
+replaced by a set, i.e. ``{fullname: {alias1, alias2, ...}}``.
+
+This value is also stored in `ArtistInspector.aliasd`, which has likewise
+changed.
+
+
+`ConnectionPatch` accepts arbitrary transforms
+-----------------------------------------------
+Alternatively to strings like ``"data"`` or ``"axes fraction"``
+`ConnectionPatch` now accepts any `-matplotlib.transforms.Transform`
+as input for the ``coordsA`` and ``coordsB`` argument. This allows to
+draw lines between points defined in different user defined coordinate
+systems. Also see the :doc:`Connect Simple01 example
+</gallery/userdemo/connect_simple01>`.
+
+
+mplot3d Line3D now allows {set,get}_data_3d
+--------------------------------------------
+Lines created with the 3d projection in mplot3d can now access the data using
+``mplot3d.art3d.Line3D.get_data_3d()`` which returns a tuple of array_likes containing
+the (x, y, z) data. The equivalent ``mplot3d.art3d.Line3D.set_data_3d(x, y, z)``
+can be used to modify the data of an existing Line3D.
+
+
+``Axes3D.voxels`` now shades the resulting voxels
+------------------------------------------------------------
+The :meth:`-mpl_toolkits.mplot3d.Axes3D.voxels` method now takes a ``shade``
+parameter that defaults to ``True``. This shades faces based on their
+orientation, behaving just like the matching parameters to
+:meth:`-mpl_toolkits.mplot3d.Axes3D.trisurf` and
+:meth:`-mpl_toolkits.mplot3d.Axes3D.bar3d`.
+The plot below shows how this affects the output.
+
+.. plot::
+
+	import matplotlib.pyplot as plt
+	import numpy as np
+
+	# prepare some coordinates
+	x, y, z = np.indices((8, 8, 8))
+
+	# draw cuboids in the top left and bottom right corners, and a link between them
+	cube1 = (x < 3) & (y < 3) & (z < 3)
+	cube2 = (x >= 5) & (y >= 5) & (z >= 5)
+	link = abs(x - y) + abs(y - z) + abs(z - x) <= 2
+
+	# combine the objects into a single boolean array
+	voxels = cube1 | cube2 | link
+
+	# set the colors of each object
+	colors = np.empty(voxels.shape, dtype=object)
+	colors[link] = 'red'
+	colors[cube1] = 'blue'
+	colors[cube2] = 'green'
+
+	# and plot everything
+	fig = plt.figure(figsize=plt.figaspect(0.5))
+	ax, ax_shaded = fig.subplots(1, 2, subplot_kw=dict(projection='3d'))
+	ax.voxels(voxels, facecolors=colors, edgecolor='k', shade=False)
+	ax.set_title("Unshaded")
+	ax_shaded.voxels(voxels, facecolors=colors, edgecolor='k', shade=True)
+	ax_shaded.set_title("Shaded (default)")
+
+	plt.show()
+
+Axis and Ticks
+===============
+
+Added `Axis.get_inverted` and `Axis.set_inverted`
 -------------------------------------------------
+The `Axis.get_inverted` and `Axis.set_inverted` methods query and set whether
+the axis uses "inverted" orientation (i.e. increasing to the left for the
+x-axis and to the bottom for the y-axis).
 
-A method `~.figure.Figure.add_artist` has been added to the
-:class:`~.figure.Figure` class, which allows artists to be added directly
-to a figure. E.g. ::
+They perform tasks similar to `Axes.xaxis_inverted`, `Axes.yaxis_inverted`,
+`Axes.invert_xaxis`, and `Axes.invert_yaxis`, with the specific difference that
+`.set_inverted` makes it easier to set the invertedness of an axis regardless
+of whether it had previously been inverted before.
 
-   circ = plt.Circle((.7, .5), .05)
-   fig.add_artist(circ)
-
-In case the added artist has no transform set previously, it will be set to
-the figure transform (``fig.transFigure``).
-This new method may be useful for adding artists to figures without axes or to
-easily position static elements in figure coordinates.
-
-
-
-``:math:`` directive renamed to ``:mathmpl:``
----------------------------------------------
-
-The ``:math:`` rst role provided by `matplotlib.sphinxext.mathmpl` has been
-renamed to ``:mathmpl:`` to avoid conflicting with the ``:math:`` role that
-Sphinx 1.8 provides by default.  (``:mathmpl:`` uses Matplotlib to render math
-expressions to images embedded in html, whereas Sphinx uses MathJax.)
-
-When using Sphinx<1.8, both names (``:math:`` and ``:mathmpl:``) remain
-available for backcompatibility.
+Adjust default minor tick spacing
+----------------------------------
+Default minor tick spacing was changed from 0.625 to 0.5 for major ticks spaced
+2.5 units apart.
 
 
-==================
-Previous Whats New
-==================
+`EngFormatter` now accepts `usetex`, `useMathText` as keyword only arguments
+----------------------------------------------------------------------------
+A public API has been added to `EngFormatter` to control how the numbers in the
+ ticklabels will be rendered. By default, ``useMathText`` evaluates to
+ ``rcParams['axes.formatter.use_mathtext']`` and ``usetex`` evaluates to
+ ``rcParams['text.usetex']``.
+
+If either is ``True`` then  the numbers will be encapsulated by ``$`` signs.
+ When using ``TeX`` this implies that the numbers will be shown in TeX's math
+ font. When using mathtext, the ``$`` signs around numbers will ensure unicode
+ rendering (as implied by mathtext). This will make sure that the minus signs
+ in the ticks are rendered as the unicode=minus (U+2212) when using mathtext
+ (without relying on the ``fix_minus`` method).
+
+
+
+Animation and Interactivity
+============================
+Support for forward/backward mouse buttons
+-------------------------------------------
+Figure managers now support a ``button_press`` event for mouse buttons, similar
+to the ``key_press`` events. This allows binding actions to mouse buttons (see
+`.MouseButton`) The first application of this mechanism is support of forward/backward mouse
+buttons in figures created with the Qt5 backend.
+
+
+*progress_callback* argument to ani.save()
+-------------------------------------------
+The method .FuncAnimation.save() gained an optional *progress_callback* argument to notify the saving progress.
+
+Add ``cache_frame_data`` keyword-only argument into ``matplotlib.animation.FuncAnimation``
+-------------------------------------------------------------------------------------------
+| ``matplotlib.animation.FuncAnimation`` has been caching frame data by default; however, this caching is not ideal in certain cases e.g. When ``FuncAnimation`` needs to be only drawn(not saved) interactively and memory required by frame data is quite large. By adding ``cache_frame_data`` keyword-only argument, users can now disable this caching; thereby, this new argument provides a fix for issue #8528.
+
+
+Endless Looping GIFs with PillowWriter
+--------------------------------------
+We acknowledge that most people want to watch a gif more than once. Saving an animation as a gif with PillowWriter now produces an endless looping gif.
+
+
+Adjusted ``matplotlib.widgets.Slider`` to have vertical orientation
+--------------------------------------------------------------------
+The :class:`matplotlib.widgets.Slider` widget now takes an optional argument
+``orientation`` which indicates the direction (``'horizontal'`` or
+``'vertical'``) that the slider should take.
+
+Improved formatting of image values under cursor when a colorbar is present
+---------------------------------------------------------------------------
+When a colorbar is present, its formatter is now used to format the image
+values under the mouse cursor in the status bar.  For example, for an image
+displaying the values 10,000 and 10,001, the statusbar will now (using default
+settings) display the values as ``10000`` and ``10001``), whereas both values
+were previously displayed as ``1e+04``.
+
+MouseEvent button attribute is now an IntEnum
+----------------------------------------------
+The :attr:`button` attribute of `-.MouseEvent` instances can take the values
+None, 1 (left button), 2 (middle button), 3 (right button), "up" (scroll), and
+"down" (scroll).  For better legibility, the 1, 2, and 3 values are now
+represented using the `IntEnum` class `matplotlib.backend_bases.MouseButton`,
+with the values `MouseButton.LEFT` (``== 1``), `MouseButton.MIDDLE` (``== 2``),
+and `MouseButton.RIGHT` (``== 3``).
+
+
+Configuration, Install, and Development
+=======================================
+
+The MATPLOTLIBRC environment variable can now point to any "file" path
+-----------------------------------------------------------------------
+This includes device files; in particular, on Unix systems, one can set
+``MATPLOTLIBRC`` to ``/dev/null`` to ignore the user's matplotlibrc file and
+fall back to Matplotlib's defaults.
+
+As a reminder, if ``MATPLOTLIBRC`` points to a directory, Matplotlib will try
+to load the matplotlibrc file from ``$MATPLOTLIBRC/matplotlibrc``.
+
+
+Allow LaTeX code ``pgf.preamble`` and ``text.latex.preamble`` in MATPLOTLIBRC file
+----------------------------------------------------------------------------------
+Previously, the rc file keys ``pgf.preamble`` and ``text.latex.preamble`` were parsed using commmas as separators. This would break valid LaTeX code, such as::
+
+\usepackage[protrusion=true, expansion=false]{microtype}
+
+The parsing has been modified to pass the complete line to the LaTeX system,
+keeping all commas. Passing a list of strings from within a Python script still works as it used to.
+
+
+Added support for MacOSX backend for PyPy
+------------------------------------------
+Fixed issue with MacOSX backend for PyPy and also for non-framework Python
+installations.
+
+
+New logging API
+----------------
+`matplotlib.set_loglevel`/`.pyplot.set_loglevel` can be called to display more
+(or less) detailed logging output.
+
+
+===================
+Previous What's New
+===================
 
 .. toctree::
    :glob:
