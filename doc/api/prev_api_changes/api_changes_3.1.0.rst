@@ -1,6 +1,19 @@
 API Changes for 3.1.0
 =====================
 
+Testing
+-------
+
+The ``--no-network`` flag to ``tests.py`` has been removed (no test requires
+internet access anymore).  If it is desired to disable internet access both for
+old and new versions of Matplotlib, use ``tests.py -m 'not network'`` (which is
+now a no-op).
+
+The image comparison test decorators now skip (rather than xfail) the test for
+uncomparable formats. The affected decorators are `~.image_comparison` and
+`~.check_figures_equal`. The deprecated `~.ImageComparisonTest` class is
+likewise changed.
+
 Dependency changes
 ------------------
 
@@ -42,8 +55,22 @@ The following API elements have been removed:
 - ``font_manager.cachedir``
 - ``__version__numpy__``
 
-Deprecations
-------------
+Signature deprecations
+----------------------
+The following signature related behaviours are deprecated:
+
+- The ``withdash`` keyword argument to ``text()``. Consider using
+  ``annotate()`` instead.
+- Passing (n, 1)-shaped error arrays to errorbar(), which was not
+  documented and did not work for ``n = 2``. Pass a 1D array instead.
+- The ``frameon`` kwarg to ``savefig`` and the ``savefig.frameon`` rcParam.
+  To emulate ``frameon = False``, set ``facecolor`` to fully
+  transparent (``"none"``, or ``(0, 0, 0, 0)``).
+- Passing a non-1D (typically, (n, 1)-shaped) input to `Axes.pie`.
+  Pass a 1D array instead.
+
+Class/method/attribute deprecations
+-----------------------------------
 
 - ``Spine.is_frame_like``
 
@@ -78,6 +105,99 @@ different behavior from the 2D Axis' `axis.Axis.get_ticks_position` method.
 - ``dates.hours()``
 - ``dates.weeks()``
 
+- ``axes3d.Axes3D.w_xaxis``
+- ``axes3d.Axes3D.w_yaxis``
+- ``axes3d.Axes3D.w_zaxis``
+
+Use ``axes3d.Axes3D.xaxis``, ``axes3d.Axes3D.yaxis``,
+and ``axes3d.Axes3D.zaxis`` instead.
+
+- ``cbook.dedent``
+- ``docstring.Appender``
+- ``docstring.dedent``
+- ``docstring.copy_dedent``
+
+Use the standard library's docstring manipulation tools instead, such as
+`inspect.cleandoc` and `inspect.getdoc`.
+
+- ``matplotlib.testing.decorators.switch_backend`` decorator
+
+Test functions should use ``pytest.mark.backend(...)``, and the mark will be
+picked up by the ``matplotlib.testing.conftest.mpl_test_settings`` fixture.
+
+- ``.color`` attribute of `Quiver` objects
+
+Instead, use (as for any `Collection`) the ``get_facecolor`` method.
+Note that setting to the ``.color`` attribute did not update the quiver artist,
+whereas calling ``set_facecolor`` does.
+
+- ``matplotlib.scale.get_scale_docs()``
+- ``matplotlib.pyplot.get_scale_docs()``
+
+These are considered internal and will be removed from the public API in a
+future version.
+
+- ``get_py2exe_datafiles``
+- ``tk_window_focus``
+
+- ``backend_gtk3.FileChooserDialog``
+- ``backend_gtk3.NavigationToolbar2GTK3.get_filechooser``
+- ``backend_gtk3.SaveFigureGTK3.get_filechooser``
+
+- ``backend_ps.PsBackendHelper``, ``backend_ps.ps_backend_helper``,
+
+- ``cbook.iterable``
+- ``cbook.get_label``
+
+- ``font_manager.OSXInstalledFonts``
+
+- ``mlab.demean``
+
+- ``TextToPath.glyph_to_path``
+
+Instead call ``font.get_path()`` and manually transform the path.
+
+- ``matplotlib.ticker.MaxNLocator.default_params`` class variable
+
+The defaults are not supposed to be user-configurable.
+
+- ``NavigationToolbar2QT.adj_window`` attribute
+
+This is unused and always ``None``.
+
+- ``LogTransformBase``
+- ``Log10Transform``
+- ``Log2Transform``,
+- ``NaturalLogTransformLog``
+- ``InvertedLogTransformBase``
+- ``InvertedLog10Transform``
+- ``InvertedLog2Transform``
+- ``InvertedNaturalLogTransform``
+
+These classes defined in :mod:`matplotlib.scales` are deprecated.
+As a replacement, use the general `LogTransform` and `InvertedLogTransform`
+classes, whose constructors take a *base* argument.
+
+- ``path.get_paths_extents``
+
+Use `~.path.get_path_collection_extents` instead.
+
+- ``Path.has_nonfinite`` attribute
+
+Use ``not np.isfinite(path.vertices).all()`` instead.
+
+- ``text.TextWithDash``
+
+
+- ``NavigationToolbar2QT.buttons``
+- ``Line2D.verticalOffset``
+- ``Quiver.keytext``
+- ``Quiver.keyvec``
+- ``SpanSelector.buttonDown``
+
+These are unused and never updated.
+
+- ``GraphicsContextPS.shouldstroke``
 
 `Text` now has a ``c`` alias for the ``color`` property
 -------------------------------------------------------
@@ -218,13 +338,6 @@ API changes
 The arguments of `matplotlib.testing.compare.calculate_rms` have been renamed
 from ``expectedImage, actualImage``, to ``expected_image, actual_image``.
 
-Deprecations
-------------
-
-The ``matplotlib.testing.decorators.switch_backend`` decorator is deprecated.
-Test functions should use ``pytest.mark.backend(...)``, and the mark will be
-picked up by the ``matplotlib.testing.conftest.mpl_test_settings`` fixture.
-
 Matplotlib.use now has an ImportError for interactive backend
 -------------------------------------------------------------
 
@@ -254,21 +367,6 @@ a non-mathtext string with ``usetex=False`` would rely on the mathtext parser
 (but not on usetex support!) to parse the string.  The mathtext parser is not
 invoked anymore, which may cause slight changes in glyph positioning.
 
-Deprecations
-------------
-
-The ``.color`` attribute of `Quiver` objects is deprecated.  Instead, use (as
-for any `Collection`) the ``get_facecolor`` method.  Note that setting to the
-``.color`` attribute did not update the quiver artist, whereas calling
-``set_facecolor`` does.
-
-Deprecations
-------------
-
-The function ``matplotlib.scale.get_scale_docs()`` and its alias
-``matplotlib.pyplot.get_scale_docs()`` are considered internal and will be
-removed from the public API in a future version.
-
 Passing a single string as *labels* to `Sankey.add`
 ---------------------------------------------------
 
@@ -282,38 +380,9 @@ is passed, it is used to label all the flows.
 API deprecations
 ----------------
 
-The following API elements are deprecated:
-
-- ``get_py2exe_datafiles``, ``tk_window_focus``,
-- ``backend_gtk3.FileChooserDialog``,
-  ``backend_gtk3.NavigationToolbar2GTK3.get_filechooser``,
-  ``backend_gtk3.SaveFigureGTK3.get_filechooser``,
-- ``backend_ps.PsBackendHelper``, ``backend_ps.ps_backend_helper``,
-- ``cbook.iterable``,
-- ``cbook.get_label``, ``cbook.iterable``,
-- ``font_manager.OSXInstalledFonts``,
-- ``mlab.demean``,
-
 The following environment variables are deprecated:
 - ``MATPLOTLIBDATA``,
 
-Deprecations
-------------
-
-The ``Path.has_nonfinite`` attribute is deprecated (use ``not
-np.isfinite(path.vertices).all()`` instead).
-
-Deprecations
-------------
-￼
-``TextToPath.glyph_to_path`` is deprecated (call ``font.get_path()`` and
-manually transform the path instead).
-
-Deprecations
-------------
-
-The (unused and always None) ``NavigationToolbar2QT.adj_window`` attribute is
-deprecated.
 
 ``OldScalarFormatter.pprint_val``, ``ScalarFormatter.pprint_val``, and ``LogFormatter.pprint_val`` are deprecated
 -----------------------------------------------------------------------------------------------------------------
@@ -466,9 +535,7 @@ on a 3D axes now raises a ``NotImplementedError``.
 Deprecations
 ------------
 
-The class variable ``matplotlib.ticker.MaxNLocator.default_params`` is
-deprecated and will be removed in a future version. The defaults are not
-supposed to be user-configurable.
+
 
 ``matplotlib.ticker.MaxNLocator`` and its ``set_params`` method will issue
 a warning on unknown keyword arguments instead of silently ignoring them.
@@ -483,9 +550,7 @@ nothing; this now is equivalent to calling ``add_subplot(111)`` instead.
 Deprecations
 ------------
 
-The following (unused and never updated) attributes are deprecated:
-``NavigationToolbar2QT.buttons``, ``Line2D.verticalOffset``, ``Quiver.keytext``,
-``Quiver.keyvec``, ``SpanSelector.buttonDown``.
+
 
 The ``interp_at_native`` parameter to ``BboxImage``, which has no effect since
 Matplotlib 2.0, is deprecated.
@@ -508,16 +573,6 @@ instead, or rely on numpy to do it).
 See Whats new for details.  The previous behavior can be achieved by passing
 ``shade=False``.
 
-Deprecations
-------------
-
-- The ``LogTransformBase``, ``Log10Transform``, ``Log2Transform``,
-  ``NaturalLogTransformLog``, ``InvertedLogTransformBase``,
-  ``InvertedLog10Transform``, ``InvertedLog2Transform``, and
-  ``InvertedNaturalLogTransform`` classes (all defined in
-  :mod:`matplotlib.scales`) are deprecated.  As a replacement, use the general
-  `LogTransform` and `InvertedLogTransform` classes, whose constructors take a
-  *base* argument.
 
 Changes to search paths for FreeType and libpng
 -----------------------------------------------
@@ -613,8 +668,8 @@ Previously, when a weight string was passed to `FontManager.score_weight`,
 
 `FontManager.score_weight` now raises an exception on such inputs.
 
-Removal of deprecated :mod:`matplotlib.mlab` code
--------------------------------------------------
+:mod:`matplotlib.mlab` removals
+-------------------------------
 
 Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
 in Matplotlib 2.2 has been removed. See below for a list:
@@ -772,9 +827,6 @@ take the renderer as argument anymore (that argument is unused).
 Deprecations
 ------------
 
-The ``text.TextWithDash`` class and the ``withdash`` keyword argument to
-``text()`` is deprecated.  Consider using ``annotate()`` instead.
-
 `~Axes.bxp` now respects :rc:`boxplot.boxprops.linewidth` even when *patch_artist* is set
 -----------------------------------------------------------------------------------------
 
@@ -829,26 +881,11 @@ Passing 'normal' to `Axes.axis()` is deprecated
 
 Use ``axis('auto')`` instead.
 
-
-The image comparison test decorators now skip (rather than xfail) the test for uncomparable formats
----------------------------------------------------------------------------------------------------
-
-The affected decorators are `~.image_comparison` and `~.check_figures_equal`.
-The deprecated `~.ImageComparisonTest` class is likewise changed.
-:orphan:
-
 Drop support for ``pgi`` in the GTK3 backends
 ---------------------------------------------
 ``pgi``, an alternative implementation to PyGObject, is no longer supported in
 the GTK3 backends. PyGObject should be used instead.
 
-API changes
------------
-
-The ``--no-network`` flag to ``tests.py`` has been removed (no test requires
-internet access anymore).  If it is desired to disable internet access both for
-old and new versions of Matplotlib, use ``tests.py -m 'not network'`` (which is
-now a no-op).
 
 Minor ticks that collide with major ticks are always hidden
 -----------------------------------------------------------
@@ -899,7 +936,7 @@ The ``collections.CIRCLE_AREA_FACTOR`` constant has been removed.
 Deprecations
 ------------
 
-``GraphicsContextPS.shouldstroke`` is deprecated.
+
 
 Stricter `~.Axes.plot` format string parsing
 --------------------------------------------
@@ -909,12 +946,6 @@ specifying more than one linestyle (e.g. ``"---."`` which specifies both
 ``"--"`` and ``"-."``); only use one of them would be used.
 
 This now raises a ValueError instead.
-
-Deprecations
-------------
-
-``path.get_paths_extents`` is deprecated; use
-`~.path.get_path_collection_extents` instead.
 
 API changes
 -----------
@@ -929,28 +960,9 @@ deprecated.
 Deprecations
 ------------
 
-Passing a non-1D (typically, (n, 1)-shaped) input to `Axes.pie` is deprecated.
-Pass a 1D array instead.
-
-Deprecations
-------------
-
 The `TextPath` constructor used to silently drop ignored arguments; this
 behavior is deprecated.
 
-Deprecations
-------------
-
-The ``frameon`` kwarg to ``savefig`` and the ``savefig.frameon`` rcParam
-are deprecated.  To emulate ``frameon = False``, set ``facecolor`` to fully
-transparent (``"none"``, or ``(0, 0, 0, 0)``).
-
-Deprecations
-------------
-
-``cbook.dedent``, ``docstring.Appender``, ``docstring.dedent``, and
-``docstring.copy_dedent`` are deprecated (use the standard library's docstring
-manipulation tools, such as `inspect.cleandoc` and `inspect.getdoc` instead).
 
 Changes to `matplotlib.axes.Axes.spy`
 -------------------------------------
@@ -1006,16 +1018,9 @@ function, except the first one (the version where the deprecation occurred),
 are now keyword-only.  The goal is to avoid accidentally setting the "message"
 argument when the "name" (or "alternative") argument was intended, as this has
 repeatedly occurred in the past.
-Deprecations
-````````````
 
-Support for passing (n, 1)-shaped error arrays to errorbar(), which was not
-documented and did not work for ``n = 2``, is deprecated (pass a 1D array
-instead).
-
-
-Removal of deprecated :mod:`matplotlib.pylab` code
---------------------------------------------------
+:mod:`matplotlib.pylab` removals
+--------------------------------
 
 Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
 in Matplotlib 2.2 has been removed. This means the following functions are
@@ -1066,13 +1071,6 @@ no longer available in the `matplotlib.pylab` module:
   - ``slopes``
   - ``stineman_interp``
   - ``vector_lengths``
-
-Deprecations
-------------
-
-``axes3d.Axes3D.w_xaxis``, ``.w_yaxis``, and ``.w_zaxis`` are deprecated (use
-``.xaxis``, ``.yaxis``, and ``.zaxis`` instead).
-
 
 Autoscaling changes
 -------------------
