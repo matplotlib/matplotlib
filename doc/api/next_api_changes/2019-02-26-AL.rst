@@ -1,5 +1,0 @@
-mplot3d is always registered by default
-```````````````````````````````````````
-
-It is not necessary to import mplot3d anymore to create 3d axes with
-``fig.add_subplot(111, projection="3d")``.
