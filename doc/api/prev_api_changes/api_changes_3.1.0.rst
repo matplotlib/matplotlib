@@ -1,3 +1,6 @@
+API Changes for 3.1.0
+=====================
+
 API removals
 ------------
 
@@ -353,7 +356,7 @@ The following keyword arguments are deprecated:
   `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface` is deprecated. This was
   an unintended implementation detail with the same semantics as
   ``shade=False``. Please use the latter code instead.API removals
-````````````
+
 
 The following deprecated APIs were removed:
 
