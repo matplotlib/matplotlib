@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import gc
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import sys
 
 import pytest
 
@@ -56,10 +57,14 @@ def test_use():
             assert mpl.rcParams[PARAM] == VALUE
 
 
-@pytest.mark.network
-def test_use_url():
+def test_use_url(tmpdir):
+    path = Path(tmpdir, 'file')
+    path.write_text('axes.facecolor: adeade')
     with temp_style('test', DUMMY_SETTINGS):
-        with style.context('https://gist.github.com/adrn/6590261/raw'):
+        url = ('file:'
+               + ('///' if sys.platform == 'win32' else '')
+               + path.resolve().as_posix())
+        with style.context(url):
             assert mpl.rcParams['axes.facecolor'] == "#adeade"
 
 

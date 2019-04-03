@@ -867,7 +867,7 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
-URL_REGEX = re.compile(r'http://|https://|ftp://|file://|file:\\')
+URL_REGEX = re.compile(r'^http://|^https://|^ftp://|^file:')
 
 
 def is_url(filename):
