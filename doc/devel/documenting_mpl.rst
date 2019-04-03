@@ -900,7 +900,7 @@ Some helpful functions::
 
 .. _ReST: http://docutils.sourceforge.net/rst.html
 .. _Sphinx: http://www.sphinx-doc.org
-.. _documentation: http://www.sphinx-doc.org/contents.html
+.. _documentation: https://www.sphinx-doc.org/en/master/contents.html
 .. _`inline markup`: http://www.sphinx-doc.org/markup/inline.html
 .. _index: http://www.sphinx-doc.org/markup/para.html#index-generating-markup
 .. _`Sphinx Gallery`: https://sphinx-gallery.readthedocs.io/en/latest/
