@@ -28,7 +28,6 @@ Glossary
       library used by matplotlib which supports TrueType, Type 1, and
       OpenType fonts.
 
-
   GDK
       The Gimp Drawing Kit for GTK+
 
@@ -88,7 +87,7 @@ Glossary
       application framework for desktop and embedded development.
 
   Qt4
-      `Qt4 <http://doc.qt.io/qt-4.8/index.html>`__ is the previous,
+      `Qt4 <https://doc.qt.io/archives/qt-4.8/index.html>`__ is the previous,
       but most widely used, version of Qt cross-platform application
       framework for desktop and embedded development.
 
