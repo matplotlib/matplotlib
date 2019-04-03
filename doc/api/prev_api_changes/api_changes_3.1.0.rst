@@ -1,6 +1,21 @@
 API Changes for 3.1.0
 =====================
 
+mplot3d
+-------
+
+Voxel shading
+~~~~~~~~~~~~~
+``Axes3D.voxels`` now shades the resulting voxels; for more details see
+What's new. The previous behavior can be achieved by passing ``shade=False``.
+
+Equal aspect axes disabled
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting the aspect on 3D axes previously returned non-sensical
+results (e.g. see https://github.com/matplotlib/matplotlib/issues/1077).
+Calling ``ax.set_aspect('equal')`` or ``ax.set_aspect(num)``
+on a 3D axes now raises a ``NotImplementedError``.
+
 Testing
 -------
 
@@ -68,6 +83,14 @@ The following signature related behaviours are deprecated:
   transparent (``"none"``, or ``(0, 0, 0, 0)``).
 - Passing a non-1D (typically, (n, 1)-shaped) input to `Axes.pie`.
   Pass a 1D array instead.
+- The `TextPath` constructor used to silently drop ignored arguments; this
+  behavior is deprecated.
+- The ``usetex`` parameter of ``TextToPath.get_text_path`` is deprecated and
+  folded into the ``ismath`` parameter, which can now take the values
+  ``False``, ``True``, and ``"TeX"``, consistently with other low-level
+  text processing functions.
+- Passing 'normal' to `Axes.axis()` is deprecated, use
+  ``axis('auto')`` instead.
 
 Class/method/attribute deprecations
 -----------------------------------
@@ -104,6 +127,15 @@ different behavior from the 2D Axis' `axis.Axis.get_ticks_position` method.
 - ``dates.minutes()``
 - ``dates.hours()``
 - ``dates.weeks()``
+
+
+- ``dates.strpdate2num``
+- ``dates.bytespdate2num``
+
+These are brittle in the presence of locale changes.  Use standard datetime
+parsers such as `time.strptime` or `dateutil.parser.parse`, and additionally
+call `matplotlib.dates.date2num` if you need to convert to Matplotlib's
+internal datetime representation; or use ``dates.datestr2num``.
 
 - ``axes3d.Axes3D.w_xaxis``
 - ``axes3d.Axes3D.w_yaxis``
@@ -199,6 +231,53 @@ These are unused and never updated.
 
 - ``GraphicsContextPS.shouldstroke``
 
+- ``matplotlib.sphinxext.mathmpl.math_directive``
+- ``matplotlib.sphinxext.plot_directive.plot_directive``
+
+This is because the ``matplotlib.sphinxext.mathmpl`` and
+``matplotlib.sphinxext.plot_directive`` interfaces have changed from the
+(Sphinx-)deprecated function-based interface to a class-based interface; this
+should not affect end users.
+
+- ``matplotlib.backends.qt_editor.formlayout`` module
+
+This module is a vendored, modified version of the official formlayout_ module
+available on PyPI. Install that module separately if you need it.
+
+.. _formlayout: https://pypi.org/project/formlayout/
+
+- ``Text.is_math_text``
+- ``TextPath.is_math_text``
+
+
+- ``TextPath.text_get_vertices_codes``
+
+As an alternative, construct a new ``TextPath`` object.
+
+- ``mpl_toolkits.axisartist.axis_artist.UnimplementedException``
+
+- ``backend_wx.IDLE_DELAY`` global variable
+
+This is unused and only relevant to the now removed wx "idling" code (note that
+as it is a module-level global, no deprecation warning is emitted when
+accessing it).
+
+- ``OldScalarFormatter.pprint_val``
+- ``ScalarFormatter.pprint_val``
+- ``LogFormatter.pprint_val``
+
+These are helper methods that do not have a consistent signature across
+formatter classes.
+
+Undeprecations
+--------------
+
+The following API elements have bee un-deprecated:
+
+- The ``obj_type`` kwarg to the ``cbook.deprecated`` decorator.
+- xmin, xmax kwargs to ``set_xlim`` and ymin, ymax kwargs to ``set_ylim``
+
+
 `Text` now has a ``c`` alias for the ``color`` property
 -------------------------------------------------------
 
@@ -223,21 +302,6 @@ Axes.tick_params argument checking
 Previously `Axes.tick_params` silently did nothing when an invalid *axis*
 parameter was supplied. This behavior has been changed to raise a ValueError
 instead.
-
-xmin, xmax, ymin, ymax kwargs un-deprecated
--------------------------------------------
-
-xmin, xmax kwargs to set_xlim and ymin, ymax kwargs to set_ylim have been
-un-deprecated. These were deprecated in 3.0, but have been re-instated due to
-user feedback.
-
-matplotlib.backends.qt_editor.formlayout module is deprecated
--------------------------------------------------------------
-
-This module is a vendored, modified version of the official formlayout_ module
-available on PyPI. Install that module separately if you need it.
-
-.. _formlayout: https://pypi.org/project/formlayout/
 
 Setting the same artist property multiple time via aliases is deprecated
 ------------------------------------------------------------------------
@@ -269,10 +333,6 @@ These have had no effect since the switch from Matplotlib's old custom Verbose
 logging to the stdlib's `logging` module. In addition the
 ``rcsetup.validate_verbose`` function is deprecated.
 
-Undeprecations
---------------
-
-The ``obj_type`` kwarg to the ``cbook.deprecated`` decorator is undeprecated.
 
 Additional positional arguments to `Axis.set_ticklabels`
 --------------------------------------------------------
@@ -346,19 +406,6 @@ regardless of whether `matplotlib.pyplot` has been imported. If the user
 tries to switch from an already-started interactive backend to a different
 interactive backend, an ImportError will be raised.
 
-Deprecations
-------------
-
-``Text.is_math_text`` is deprecated.
-
-``TextPath.is_math_text`` and ``TextPath.text_get_vertices_codes`` are
-deprecated.  As an alternative to the latter, construct a new ``TextPath``
-object.
-
-The ``usetex`` parameter of ``TextToPath.get_text_path`` is deprecated and
-folded into the ``ismath`` parameter, which can now take the values False,
-True, and "TeX", consistently with other low-level text processing functions.
-
 Behavior changes
 ----------------
 
@@ -383,21 +430,6 @@ API deprecations
 The following environment variables are deprecated:
 - ``MATPLOTLIBDATA``,
 
-
-``OldScalarFormatter.pprint_val``, ``ScalarFormatter.pprint_val``, and ``LogFormatter.pprint_val`` are deprecated
------------------------------------------------------------------------------------------------------------------
-
-They are helper methods that do not even have a consistent signatures across formatter classes.
-
-Deprecations
-------------
-
-``dates.strpdate2num`` and ``dates.bytespdate2num`` are brittle in the
-presence of locale changes, and are deprecated.  Use standard datetime
-parsers such as `time.strptime` or `dateutil.parser.parse`, and additionally
-call `matplotlib.dates.date2num` if you insist on converting to Matplotlib's
-internal datetime representation; or use ``dates.datestr2num``.
-
 Text alignment fixes made
 -------------------------
 
@@ -405,11 +437,6 @@ Text alignment was incorrect, in particular for multiline text objects
 with large descenders (i.e. subscripts) and rotated text.  These have been
 fixed and made more consistent, but could make old code that has compensated
 no longer have the correct alignment.
-
-Deprecations
-------------
-
-``mpl_toolkits.axisartist.axis_artist.UnimplementedException`` is deprecated.
 
 mplot3d is always registered by default
 ---------------------------------------
@@ -450,7 +477,9 @@ The following keyword arguments are deprecated:
 - Passing ``shade=None`` to
   `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface` is deprecated. This was
   an unintended implementation detail with the same semantics as
-  ``shade=False``. Please use the latter code instead.API removals
+  ``shade=False``. Please use the latter code instead.
+
+  API removals
 
 
 The following deprecated APIs were removed:
@@ -524,18 +553,8 @@ Passing a list of strings from within a Python script still works as it used to.
 
 Passing a list containing non-strings now fails, instead of coercing the results to strings.
 
-Equal aspect axes for 3D plots disabled
----------------------------------------
-
-Setting the aspect on 3D axes previously returned non-sensical
-results (e.g. see https://github.com/matplotlib/matplotlib/issues/1077).
-Calling ``ax.set_aspect('equal')`` or ``ax.set_aspect(num)``
-on a 3D axes now raises a ``NotImplementedError``.
-
 Deprecations
 ------------
-
-
 
 ``matplotlib.ticker.MaxNLocator`` and its ``set_params`` method will issue
 a warning on unknown keyword arguments instead of silently ignoring them.
@@ -566,12 +585,6 @@ Deprecations
 
 ``cbook.safezip`` is deprecated (manually check the lengths of the inputs
 instead, or rely on numpy to do it).
-
-``Axes3D.voxels`` now shades the resulting voxels
--------------------------------------------------
-
-See Whats new for details.  The previous behavior can be achieved by passing
-``shade=False``.
 
 
 Changes to search paths for FreeType and libpng
@@ -651,10 +664,6 @@ return 2 lists of histogram values. Previously, a single list was returned.
 
 Deprecations
 ------------
-
-The ``backend_wx.IDLE_DELAY`` global, being unused and only relevant to the now
-removed wx "idling" code, is deprecated (note that as it is a module-level
-global, no deprecation warning is emitted when accessing it).
 
 `FontManager.score_weight` is more strict with its inputs
 ---------------------------------------------------------
@@ -876,11 +885,6 @@ The following deprecated rcParams are removed:
 The associated validator functions ``rcsetup.validate_qt4`` and
 ``validate_qt5`` are deprecated.
 
-Passing 'normal' to `Axes.axis()` is deprecated
------------------------------------------------
-
-Use ``axis('auto')`` instead.
-
 Drop support for ``pgi`` in the GTK3 backends
 ---------------------------------------------
 ``pgi``, an alternative implementation to PyGObject, is no longer supported in
@@ -933,11 +937,6 @@ Removals
 
 The ``collections.CIRCLE_AREA_FACTOR`` constant has been removed.
 
-Deprecations
-------------
-
-
-
 Stricter `~.Axes.plot` format string parsing
 --------------------------------------------
 
@@ -957,13 +956,6 @@ When using the nbagg backend, ``plt.show`` used to silently accept and ignore
 all combinations of positional and keyword arguments.  This behavior is
 deprecated.
 
-Deprecations
-------------
-
-The `TextPath` constructor used to silently drop ignored arguments; this
-behavior is deprecated.
-
-
 Changes to `matplotlib.axes.Axes.spy`
 -------------------------------------
 
@@ -977,17 +969,6 @@ A bug with `spy(..., origin='lower') is fixed: So far this flipped the
 data but not the y-axis resulting in a mismatch between axes labels and
 actual data indices. Now, `origin='lower'` flips both the data and the y-axis
 labels.
-
-Deprecations
-------------
-
-The ``matplotlib.sphinxext.mathmpl`` and
-``matplotlib.sphinxext.plot_directive`` interfaces have changed from the
-(Sphinx-)deprecated function-based interface to a class-based interface.  This
-should not affect end users, but the
-``matplotlib.sphinxext.mathmpl.math_directive`` and
-``matplotlib.sphinxext.plot_directive.plot_directive`` functions are now
-deprecated.
 
 Log-scaled axes avoid having zero or only one tick
 --------------------------------------------------
