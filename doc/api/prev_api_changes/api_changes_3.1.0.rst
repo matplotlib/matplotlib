@@ -1,6 +1,135 @@
 API Changes for 3.1.0
 =====================
 
+:mod:`matplotlib.mlab` removals
+-------------------------------
+
+Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
+in Matplotlib 2.2 has been removed. See below for a list:
+
+- ``mlab.exp_safe`` (use `numpy.exp` instead)
+- ``mlab.amap``
+- ``mlab.logspace`` (use `numpy.logspace` instead)
+- ``mlab.rms_flat``
+- ``mlab.l1norm`` (use ``numpy.linalg.norm(a, ord=1)`` instead)
+- ``mlab.l2norm`` (use ``numpy.linalg.norm(a, ord=2)`` instead)
+- ``mlab.norm_flat`` (use ``numpy.linalg.norm(a.flat, ord=2)`` instead)
+- ``mlab.frange`` (use `numpy.arange` instead)
+- ``mlab.identity`` (use `numpy.identity` instead)
+- ``mlab.base_repr``
+- ``mlab.binary_repr``
+- ``mlab.ispower2``
+- ``mlab.log2`` (use `numpy.log2` instead)
+- ``mlab.isvector``
+- ``mlab.movavg``
+- ``mlab.safe_isinf`` (use `numpy.isinf` instead)
+- ``mlab.safe_isnan`` (use `numpy.isnan` instead)
+- ``mlab.cohere_pairs`` (use `scipy.signal.coherence` instead)
+- ``mlab.entropy`` (use `scipy.stats.entropy` instead)
+- ``mlab.normpdf`` (use `scipy.stats.norm.pdf` instead)
+- ``mlab.find`` (use ``np.nonzero(np.ravel(condition))`` instead)
+- ``mlab.longest_contiguous_ones``
+- ``mlab.longest_ones``
+- ``mlab.PCA``
+- ``mlab.prctile`` (use `numpy.percentile` instead)
+- ``mlab.prctile_rank``
+- ``mlab.center_matrix``
+- ``mlab.rk4`` (use `scipy.integrate.ode` instead)
+- ``mlab.bivariate_normal``
+- ``mlab.get_xyz_where``
+- ``mlab.get_sparse_matrix``
+- ``mlab.dist`` (use `numpy.hypot` instead)
+- ``mlab.dist_point_to_segment``
+- ``mlab.griddata`` (use `scipy.interpolate.griddata`)
+- ``mlab.less_simple_linear_interpolation`` (use `numpy.interp`)
+- ``mlab.slopes``
+- ``mlab.stineman_interp``
+- ``mlab.segments_intersect``
+- ``mlab.fftsurr``
+- ``mlab.offset_line``
+- ``mlab.quad2cubic``
+- ``mlab.vector_lengths``
+- ``mlab.distances_along_curve``
+- ``mlab.path_length``
+- ``mlab.cross_from_above``
+- ``mlab.cross_from_below``
+- ``mlab.contiguous_regions`` (use `.cbook.contiguous_regions` instead)
+- ``mlab.is_closed_polygon``
+- ``mlab.poly_between``
+- ``mlab.poly_below``
+- ``mlab.inside_poly``
+- ``mlab.csv2rec``
+- ``mlab.rec2csv`` (use `numpy.recarray.tofile` instead)
+- ``mlab.rec2text`` (use `numpy.recarray.tofile` instead)
+- ``mlab.rec_summarize``
+- ``mlab.rec_join``
+- ``mlab.recs_join``
+- ``mlab.rec_groupby``
+- ``mlab.rec_keep_fields``
+- ``mlab.rec_drop_fields``
+- ``mlab.rec_append_fields``
+- ``mlab.csvformat_factory``
+- ``mlab.get_formatd``
+- ``mlab.FormatDatetime`` (use `datetime.datetime.strftime` instead)
+- ``mlab.FormatDate`` (use `datetime.date.strftime` instead)
+- ``mlab.FormatMillions``, ``mlab.FormatThousands``, ``mlab.FormatPercent``,
+  ``mlab.FormatBool``, ``mlab.FormatInt``, ``mlab.FormatFloat``,
+  ``mlab.FormatFormatStr``, ``mlab.FormatString``, ``mlab.FormatObj``
+- ``mlab.donothing_callback``
+
+:mod:`matplotlib.pylab` removals
+--------------------------------
+
+Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
+in Matplotlib 2.2 has been removed. This means the following functions are
+no longer available in the `matplotlib.pylab` module:
+
+  - ``amap``
+  - ``base_repr``
+  - ``binary_repr``
+  - ``bivariate_normal``
+  - ``center_matrix``
+  - ``csv2rec`` (use `numpy.recarray.tofile` instead)
+  - ``dist`` (use `numpy.hypot` instead)
+  - ``dist_point_to_segment``
+  - ``distances_along_curve``
+  - ``entropy`` (use `scipy.stats.entropy` instead)
+  - ``exp_safe`` (use `numpy.exp` instead)
+  - ``fftsurr``
+  - ``find`` (use ``np.nonzero(np.ravel(condition))`` instead)
+  - ``frange`` (use `numpy.arange` instead)
+  - ``get_sparse_matrix``
+  - ``get_xyz_where``
+  - ``griddata`` (use `scipy.interpolate.griddata` instead)
+  - ``identity`` (use `numpy.identity` instead)
+  - ``inside_poly``
+  - ``is_closed_polygon``
+  - ``ispower2``
+  - ``isvector``
+  - ``l1norm`` (use ``numpy.linalg.norm(a, ord=1)`` instead)
+  - ``l2norm`` (use ``numpy.linalg.norm(a, ord=2)`` instead)
+  - ``log2`` (use `numpy.log2` instead)
+  - ``longest_contiguous_ones``
+  - ``longest_ones``
+  - ``movavg``
+  - ``norm_flat`` (use ``numpy.linalg.norm(a.flat, ord=2)`` instead)
+  - ``normpdf`` (use `scipy.stats.norm.pdf` instead)
+  - ``path_length``
+  - ``poly_below``
+  - ``poly_between``
+  - ``prctile`` (use `numpy.percentile` instead)
+  - ``prctile_rank``
+  - ``rec2csv`` (use `numpy.recarray.tofile` instead)
+  - ``rec_append_fields``
+  - ``rec_drop_fields``
+  - ``rec_join``
+  - ``rk4`` (use `scipy.integrate.ode` instead)
+  - ``rms_flat``
+  - ``segments_intersect``
+  - ``slopes``
+  - ``stineman_interp``
+  - ``vector_lengths``
+
 mplot3d
 -------
 
@@ -677,82 +806,6 @@ Previously, when a weight string was passed to `FontManager.score_weight`,
 
 `FontManager.score_weight` now raises an exception on such inputs.
 
-:mod:`matplotlib.mlab` removals
--------------------------------
-
-Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
-in Matplotlib 2.2 has been removed. See below for a list:
-
-- ``mlab.exp_safe`` (use `numpy.exp` instead)
-- ``mlab.amap``
-- ``mlab.logspace`` (use `numpy.logspace` instead)
-- ``mlab.rms_flat``
-- ``mlab.l1norm`` (use ``numpy.linalg.norm(a, ord=1)`` instead)
-- ``mlab.l2norm`` (use ``numpy.linalg.norm(a, ord=2)`` instead)
-- ``mlab.norm_flat`` (use ``numpy.linalg.norm(a.flat, ord=2)`` instead)
-- ``mlab.frange`` (use `numpy.arange` instead)
-- ``mlab.identity`` (use `numpy.identity` instead)
-- ``mlab.base_repr``
-- ``mlab.binary_repr``
-- ``mlab.ispower2``
-- ``mlab.log2`` (use `numpy.log2` instead)
-- ``mlab.isvector``
-- ``mlab.movavg``
-- ``mlab.safe_isinf`` (use `numpy.isinf` instead)
-- ``mlab.safe_isnan`` (use `numpy.isnan` instead)
-- ``mlab.cohere_pairs`` (use `scipy.signal.coherence` instead)
-- ``mlab.entropy`` (use `scipy.stats.entropy` instead)
-- ``mlab.normpdf`` (use `scipy.stats.norm.pdf` instead)
-- ``mlab.find`` (use ``np.nonzero(np.ravel(condition))`` instead)
-- ``mlab.longest_contiguous_ones``
-- ``mlab.longest_ones``
-- ``mlab.PCA``
-- ``mlab.prctile`` (use `numpy.percentile` instead)
-- ``mlab.prctile_rank``
-- ``mlab.center_matrix``
-- ``mlab.rk4`` (use `scipy.integrate.ode` instead)
-- ``mlab.bivariate_normal``
-- ``mlab.get_xyz_where``
-- ``mlab.get_sparse_matrix``
-- ``mlab.dist`` (use `numpy.hypot` instead)
-- ``mlab.dist_point_to_segment``
-- ``mlab.griddata`` (use `scipy.interpolate.griddata`)
-- ``mlab.less_simple_linear_interpolation`` (use `numpy.interp`)
-- ``mlab.slopes``
-- ``mlab.stineman_interp``
-- ``mlab.segments_intersect``
-- ``mlab.fftsurr``
-- ``mlab.offset_line``
-- ``mlab.quad2cubic``
-- ``mlab.vector_lengths``
-- ``mlab.distances_along_curve``
-- ``mlab.path_length``
-- ``mlab.cross_from_above``
-- ``mlab.cross_from_below``
-- ``mlab.contiguous_regions`` (use `.cbook.contiguous_regions` instead)
-- ``mlab.is_closed_polygon``
-- ``mlab.poly_between``
-- ``mlab.poly_below``
-- ``mlab.inside_poly``
-- ``mlab.csv2rec``
-- ``mlab.rec2csv`` (use `numpy.recarray.tofile` instead)
-- ``mlab.rec2text`` (use `numpy.recarray.tofile` instead)
-- ``mlab.rec_summarize``
-- ``mlab.rec_join``
-- ``mlab.recs_join``
-- ``mlab.rec_groupby``
-- ``mlab.rec_keep_fields``
-- ``mlab.rec_drop_fields``
-- ``mlab.rec_append_fields``
-- ``mlab.csvformat_factory``
-- ``mlab.get_formatd``
-- ``mlab.FormatDatetime`` (use `datetime.datetime.strftime` instead)
-- ``mlab.FormatDate`` (use `datetime.date.strftime` instead)
-- ``mlab.FormatMillions``, ``mlab.FormatThousands``, ``mlab.FormatPercent``,
-  ``mlab.FormatBool``, ``mlab.FormatInt``, ``mlab.FormatFloat``,
-  ``mlab.FormatFormatStr``, ``mlab.FormatString``, ``mlab.FormatObj``
-- ``mlab.donothing_callback``
-
 ``Cn`` colors now support ``n>=10``
 -----------------------------------
 
@@ -999,59 +1052,6 @@ function, except the first one (the version where the deprecation occurred),
 are now keyword-only.  The goal is to avoid accidentally setting the "message"
 argument when the "name" (or "alternative") argument was intended, as this has
 repeatedly occurred in the past.
-
-:mod:`matplotlib.pylab` removals
---------------------------------
-
-Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
-in Matplotlib 2.2 has been removed. This means the following functions are
-no longer available in the `matplotlib.pylab` module:
-
-  - ``amap``
-  - ``base_repr``
-  - ``binary_repr``
-  - ``bivariate_normal``
-  - ``center_matrix``
-  - ``csv2rec`` (use `numpy.recarray.tofile` instead)
-  - ``dist`` (use `numpy.hypot` instead)
-  - ``dist_point_to_segment``
-  - ``distances_along_curve``
-  - ``entropy`` (use `scipy.stats.entropy` instead)
-  - ``exp_safe`` (use `numpy.exp` instead)
-  - ``fftsurr``
-  - ``find`` (use ``np.nonzero(np.ravel(condition))`` instead)
-  - ``frange`` (use `numpy.arange` instead)
-  - ``get_sparse_matrix``
-  - ``get_xyz_where``
-  - ``griddata`` (use `scipy.interpolate.griddata` instead)
-  - ``identity`` (use `numpy.identity` instead)
-  - ``inside_poly``
-  - ``is_closed_polygon``
-  - ``ispower2``
-  - ``isvector``
-  - ``l1norm`` (use ``numpy.linalg.norm(a, ord=1)`` instead)
-  - ``l2norm`` (use ``numpy.linalg.norm(a, ord=2)`` instead)
-  - ``log2`` (use `numpy.log2` instead)
-  - ``longest_contiguous_ones``
-  - ``longest_ones``
-  - ``movavg``
-  - ``norm_flat`` (use ``numpy.linalg.norm(a.flat, ord=2)`` instead)
-  - ``normpdf`` (use `scipy.stats.norm.pdf` instead)
-  - ``path_length``
-  - ``poly_below``
-  - ``poly_between``
-  - ``prctile`` (use `numpy.percentile` instead)
-  - ``prctile_rank``
-  - ``rec2csv`` (use `numpy.recarray.tofile` instead)
-  - ``rec_append_fields``
-  - ``rec_drop_fields``
-  - ``rec_join``
-  - ``rk4`` (use `scipy.integrate.ode` instead)
-  - ``rms_flat``
-  - ``segments_intersect``
-  - ``slopes``
-  - ``stineman_interp``
-  - ``vector_lengths``
 
 Autoscaling changes
 -------------------
