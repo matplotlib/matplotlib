@@ -1,6 +1,24 @@
 API Changes for 3.1.0
 =====================
 
+Mathtext changes
+----------------
+
+- In constructs such as ``"$1~2$"``, mathtext now interprets the tilde as a
+  space, consistently with TeX (this was previously a parse error).
+
+Deprecations
+~~~~~~~~~~~~
+
+- The ``\stackrel`` mathtext command hsa been deprecated (it behaved differently
+  from LaTeX's ``\stackrel``.  To stack two mathtext expressions, use
+  ``\genfrac{left-delim}{right-delim}{fraction-bar-thickness}{}{top}{bottom}``.
+- The `\mathcircled` mathtext command (which is not a real TeX command)
+  is deprecated.  Directly use unicode characters (e.g.
+  ``"\N{CIRCLED LATIN CAPITAL LETTER A}"`` or ``"\u24b6"``) instead.
+- Support for setting :rc:`mathtext.default` to circled is deprecated.
+
+
 API removals
 ------------
 
@@ -24,17 +42,23 @@ the 2D Axis classes, and despite the similar name, it has a completely
 different behavior from the 2D Axis' `axis.Axis.get_ticks_position` method.
 
 - ``backend_pgf.LatexManagerFactory``
+
 - ``mpl_toolkits.axisartist.axislines.SimpleChainedObjects``
 - ``mpl_toolkits.Axes.AxisDict``
+
 - ``checkdep_dvipng``
 - ``checkdep_ghostscript``
 - ``checkdep_pdftops``
 - ``checkdep_inkscape``
+
 - ``ticker.decade_up``
 - ``ticker.decade_down``
+
 - ``backend_pdf.RendererPdf.afm_font_cache``
 - ``backend_ps.RendererPS.afmfontd``
+
 - ``projections.process_projection_requirements``
+
 - ``dates.seconds()``
 - ``dates.minutes()``
 - ``dates.hours()``
@@ -111,13 +135,6 @@ These have had no effect since the switch from Matplotlib's old custom Verbose
 logging to the stdlib's `logging` module. In addition the
 ``rcsetup.validate_verbose`` function is deprecated.
 
-mathtext deprecations
----------------------
-
-The ``\stackrel`` mathtext command is deprecated (it behaved differently
-from LaTeX's ``\stackrel``.  To stack two mathtext expressions, use
-``\genfrac{left-delim}{right-delim}{fraction-bar-thickness}{}{top}{bottom}``.
-
 Undeprecations
 --------------
 
@@ -167,11 +184,6 @@ The first parameter of `matplotlib.use` has been renamed from *arg* to
 as a keyword argument. The common usage pattern as a positional argument
 ``matplotlib.use('Qt5Agg')`` is not affected.
 
-``~`` now interpreted as space in mathtext
-------------------------------------------
-
-In constructs such as ``"$1~2$"``, mathtext now interprets the tilde as a
-space, consistently with TeX (this was previously a parse error).
 
 Exception on failing animations changed
 ---------------------------------------
@@ -508,15 +520,6 @@ standard environment variables ``CFLAGS``/``LDFLAGS`` on Linux or OSX, or
 ``CL``/``LINK`` on Windows, to indicate the relevant paths.
 
 See details in :file:`INSTALL.rst`.
-
-Deprecations
-------------
-
-The `\mathcircled` mathtext command (which is not a real TeX command)
-is deprecated.  Directly use unicode characters (e.g.
-``"\N{CIRCLED LATIN CAPITAL LETTER A}"`` or ``"\u24b6"``) instead.
-
-Support for setting :rc:`mathtext.default` to circled is deprecated.
 
 matplotlib.font_manager.win32InstalledFonts return value
 --------------------------------------------------------
