@@ -1,6 +1,133 @@
 API Changes for 3.1.0
 =====================
 
+Behavior changes
+----------------
+
+mplot3d auto-registration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+mplot3d is always registered by default now. It is not necessary to import
+mplot3d to create 3d axes with ``fig.add_subplot(111, projection="3d")``.
+
+Invalid points in PathCollections
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PathCollections created with `~.Axes.scatter` now keep track of invalid points.
+Previously, points with nonfinite (infinite or nan) coordinates would not be
+included in the offsets (as returned by `PathCollection.get_offsets`) of a
+`PathCollection` created by `~.Axes.scatter`, and points with nonfinite values
+(as specified by the *c* kwarg) would not be included in the array (as returned
+by `PathCollection.get_array`)
+
+Such points are now included, but masked out by returning a masked array.
+
+If the *plotnonfinite* kwarg to `~.Axes.scatter` is set, then points with
+nonfinite values are plotted using the bad color of the `PathCollection`\ 's
+colormap (as set by `Colormap.set_bad`).
+
+Autoscaling
+~~~~~~~~~~~
+On log-axes where a single value is plotted at a "full" decade (1, 10, 100,
+etc.), the autoscaling now expands the axis symmetrically around that point,
+instead of adding a decade only to the right.
+
+Log-scaled axes
+~~~~~~~~~~~~~~~
+When the default `LogLocator` would generate no ticks for an axis (e.g., an
+axis with limits from 0.31 to 0.39) or only a single tick, it now instead falls
+back on the linear `AutoLocator` to pick reasonable tick positions.
+
+add_subplot with no arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Calling `.Figure.add_subplot()` with no positional arguments used to do
+nothing; this now is equivalent to calling ``add_subplot(111)`` instead.
+
+`~Axes.bxp` and rcparams
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+`~Axes.bxp` now respects :rc:`boxplot.boxprops.linewidth` even when
+*patch_artist* is set.
+Previously, when the *patch_artist* parameter was set, `~Axes.bxp` would ignore
+:rc:`boxplot.boxprops.linewidth`.  This was an oversight -- in particular,
+`~Axes.boxplot` did not ignore it.
+
+
+Major/minor tick collisions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Minor ticks that collide with major ticks are now always hidden.
+Previously, certain locator classes (`LogLocator`, `AutoMinorLocator`)
+contained custom logic to avoid emitting tick locations that collided with
+major ticks when they were used as minor locators.
+
+This logic has now moved to the Axis class, and is used *regardless of the
+ticker class*.  ``xaxis.minor.locator()`` now includes positions that collide
+with ``xaxis.major.locator()``, but ``xaxis.get_minorticklocs()`` does not.
+
+If you were relying on both the major and minor tick labels to appear on the
+same tick, you may need to update your code.  For example, the following
+snippet labeled days using major ticks, and hours and minutes using minor
+ticks::
+
+    import numpy as np
+    import matplotlib.dates as mdates
+    import matplotlib.pyplot as plt
+
+    t = np.arange("2018-11-03", "2018-11-06", dtype="datetime64")
+    x = np.random.rand(len(t))
+
+    fig, ax = plt.subplots()
+    ax.plot(t, x)
+    ax.xaxis.set(
+        major_locator=mdates.DayLocator(),
+        major_formatter=mdates.DateFormatter("\n%a"),
+        minor_locator=mdates.HourLocator((0, 6, 12, 18)),
+        minor_formatter=mdates.DateFormatter("%H:%M"),
+    )
+
+    plt.show()
+
+and added a newline to the major ticks labels to avoid them crashing into the
+minor tick labels.
+
+With the API change, the major tick labels should also include hours and
+minutes, as the minor ticks are gone, so the ``major_formatter`` should be
+``mdates.DateFormatter("%H:%M\n%a")``.
+
+usetex support
+~~~~~~~~~~~~~~
+Previously, if :rc:`text.usetex` was True, then constructing a `TextPath` on
+a non-mathtext string with ``usetex=False`` would rely on the mathtext parser
+(but not on usetex support!) to parse the string.  The mathtext parser is not
+invoked anymore, which may cause slight changes in glyph positioning.
+
+get_window_extents
+~~~~~~~~~~~~~~~~~~
+
+`.matplotlib.axes.Axes.get_window_extent` used to return a bounding box
+that was slightly larger than the axes, presumably to take into account
+the ticks that may be on a spine.  However, it was not scaling the tick sizes
+according to the dpi of the canvas, and it did not check if the ticks were
+visible, or on the spine.
+
+Now  `.matplotlib.axes.Axes.get_window_extent` just returns the axes extent
+with no padding for ticks.
+
+This affects `.matplotlib.axes.Axes.get_tightbbox` in cases where there are
+outward ticks with no tick labels, and it also removes the (small) pad around
+axes in that case.
+
+`.spines.get_window_extent` now takes into account ticks that are on the
+spine.
+
+Sankey
+~~~~~~
+Previously, `Sankey.add` would only accept a single string as the *labels*
+argument if its length is equal to the number of flows, in which case it would
+use one character of the string for each flow.
+
+The behavior has been changed to match the documented one: when a single string
+is passed, it is used to label all the flows.
+
 Exception changes
 -----------------
 
@@ -9,7 +136,6 @@ Exception changes
 
 Removals
 --------
-
 The following deprecated APIs have been removed:
 
 Classes and methods
@@ -57,7 +183,6 @@ Other
 
 :mod:`matplotlib.mlab` removals
 -------------------------------
-
 Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
 in Matplotlib 2.2 has been removed. See below for a list:
 
@@ -133,7 +258,6 @@ in Matplotlib 2.2 has been removed. See below for a list:
 
 :mod:`matplotlib.pylab` removals
 --------------------------------
-
 Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
 in Matplotlib 2.2 has been removed. This means the following functions are
 no longer available in the `matplotlib.pylab` module:
@@ -274,6 +398,8 @@ The following signature related behaviours are deprecated:
   text processing functions.
 - Passing 'normal' to `Axes.axis()` is deprecated, use
   ``axis('auto')`` instead.
+- Passing the ``block`` argument of ``plt.show`` positionally is deprecated; it
+  should be passed by keyword.
 
 Class/method/attribute deprecations
 -----------------------------------
@@ -452,9 +578,16 @@ accessing it).
 These are helper methods that do not have a consistent signature across
 formatter classes.
 
+- ``cbook.safezip``
+
+Manually check the lengths of the inputs instead, or rely on numpy to do it.
+
+- ``cbook.is_hashable``
+
+Use ``isinstance(..., collections.abc.Hashable)`` instead.
+
 Undeprecations
 --------------
-
 The following API elements have bee un-deprecated:
 
 - The ``obj_type`` kwarg to the ``cbook.deprecated`` decorator.
@@ -463,7 +596,6 @@ The following API elements have bee un-deprecated:
 
 `Text` now has a ``c`` alias for the ``color`` property
 -------------------------------------------------------
-
 For consistency with `Line2D`, the `Text` class has gained the ``c``
 alias for the ``color`` property. For example, one can now write
 ``ax.text(.5, .5, "foo", c="red")``.
@@ -534,25 +666,6 @@ When ``manage_ticks`` is True (the default), these methods now attempt to take
 previously drawn boxplots into account when setting the axis limits, ticks, and
 tick labels.
 
-get_window_extents changes
---------------------------
-
-`.matplotlib.axes.Axes.get_window_extent` used to return a bounding box
-that was slightly larger than the axes, presumably to take into account
-the ticks that may be on a spine.  However, it was not scaling the tick sizes
-according to the dpi of the canvas, and it did not check if the ticks were
-visible, or on the spine.
-
-Now  `.matplotlib.axes.Axes.get_window_extent` just returns the axes extent
-with no padding for ticks.
-
-This affects `.matplotlib.axes.Axes.get_tightbbox` in cases where there are
-outward ticks with no tick labels, and it also removes the (small) pad around
-axes in that case.
-
-`.spines.get_window_extent` now takes into account ticks that are on the
-spine.
-
 `matplotlib.use` parameter change
 ---------------------------------
 
@@ -589,24 +702,6 @@ regardless of whether `matplotlib.pyplot` has been imported. If the user
 tries to switch from an already-started interactive backend to a different
 interactive backend, an ImportError will be raised.
 
-Behavior changes
-----------------
-
-Previously, if :rc:`text.usetex` was True, then constructing a `TextPath` on
-a non-mathtext string with ``usetex=False`` would rely on the mathtext parser
-(but not on usetex support!) to parse the string.  The mathtext parser is not
-invoked anymore, which may cause slight changes in glyph positioning.
-
-Passing a single string as *labels* to `Sankey.add`
----------------------------------------------------
-
-Previously, `Sankey.add` would only accept a single string as the *labels*
-argument if its length is equal to the number of flows, in which case it would
-use one character of the string for each flow.
-
-The behavior has been changed to match the documented one: when a single string
-is passed, it is used to label all the flows.
-
 API deprecations
 ----------------
 
@@ -620,12 +715,6 @@ Text alignment was incorrect, in particular for multiline text objects
 with large descenders (i.e. subscripts) and rotated text.  These have been
 fixed and made more consistent, but could make old code that has compensated
 no longer have the correct alignment.
-
-mplot3d is always registered by default
----------------------------------------
-
-It is not necessary to import mplot3d anymore to create 3d axes with
-``fig.add_subplot(111, projection="3d")``.
 
 Path code types like ``Path.MOVETO`` are now ``np.uint8`` instead of ``int``
 ----------------------------------------------------------------------------
@@ -695,31 +784,10 @@ Deprecations
 a warning on unknown keyword arguments instead of silently ignoring them.
 Future versions will raise an error.
 
-Behavior changes
-----------------
-
-Calling `.Figure.add_subplot()` with no positional arguments used to do
-nothing; this now is equivalent to calling ``add_subplot(111)`` instead.
-
 Deprecations
 ------------
-
-
-
 The ``interp_at_native`` parameter to ``BboxImage``, which has no effect since
 Matplotlib 2.0, is deprecated.
-
-Deprecations
-------------
-
-``cbook.is_hashable`` is deprecated (use
-``isinstance(..., collections.abc.Hashable)`` instead).
-
-Deprecations
-------------
-
-``cbook.safezip`` is deprecated (manually check the lengths of the inputs
-instead, or rely on numpy to do it).
 
 
 Changes to search paths for FreeType and libpng
@@ -797,8 +865,6 @@ Input that consists of multiple empty lists will now return a list of histogram
 values for each one of the lists. For example, an input of ``[[],[]]`` will
 return 2 lists of histogram values. Previously, a single list was returned.
 
-Deprecations
-------------
 
 `FontManager.score_weight` is more strict with its inputs
 ---------------------------------------------------------
@@ -892,15 +958,6 @@ Changes to the internal tick handling API
 The signature of the (private) ``Axis._update_ticks`` has been changed to not
 take the renderer as argument anymore (that argument is unused).
 
-`~Axes.bxp` now respects :rc:`boxplot.boxprops.linewidth` even when *patch_artist* is set
------------------------------------------------------------------------------------------
-
-Previously, when the *patch_artist* parameter was set, `~Axes.bxp` would ignore
-:rc:`boxplot.boxprops.linewidth`.  This was an oversight -- in particular,
-`~Axes.boxplot` did not ignore it.
-
-This oversight is now fixed.
-
 Deprecations
 ------------
 
@@ -947,47 +1004,6 @@ Drop support for ``pgi`` in the GTK3 backends
 the GTK3 backends. PyGObject should be used instead.
 
 
-Minor ticks that collide with major ticks are always hidden
------------------------------------------------------------
-
-Previously, certain locator classes (`LogLocator`, `AutoMinorLocator`)
-contained custom logic to avoid emitting tick locations that collided with
-major ticks when they were used as minor locators.
-
-This logic has now moved to the Axis class, and is used *regardless of the
-ticker class*.  ``xaxis.minor.locator()`` now includes positions that collide
-with ``xaxis.major.locator()``, but ``xaxis.get_minorticklocs()`` does not.
-
-If you were relying on both the major and minor tick labels to appear on the
-same tick, you may need to update your code.  For example, the following
-snippet labeled days using major ticks, and hours and minutes using minor
-ticks::
-
-    import numpy as np
-    import matplotlib.dates as mdates
-    import matplotlib.pyplot as plt
-
-    t = np.arange("2018-11-03", "2018-11-06", dtype="datetime64")
-    x = np.random.rand(len(t))
-
-    fig, ax = plt.subplots()
-    ax.plot(t, x)
-    ax.xaxis.set(
-        major_locator=mdates.DayLocator(),
-        major_formatter=mdates.DateFormatter("\n%a"),
-        minor_locator=mdates.HourLocator((0, 6, 12, 18)),
-        minor_formatter=mdates.DateFormatter("%H:%M"),
-    )
-
-    plt.show()
-
-and added a newline to the major ticks labels to avoid them crashing into the
-minor tick labels.
-
-With the API change, the major tick labels should also include hours and
-minutes, as the minor ticks are gone, so the ``major_formatter`` should be
-``mdates.DateFormatter("%H:%M\n%a")``.
-
 Removals
 --------
 
@@ -1004,9 +1020,6 @@ This now raises a ValueError instead.
 
 API changes
 -----------
-
-Passing the ``block`` argument of ``plt.show`` positionally is deprecated; it
-should be passed by keyword.
 
 When using the nbagg backend, ``plt.show`` used to silently accept and ignore
 all combinations of positional and keyword arguments.  This behavior is
@@ -1025,13 +1038,6 @@ A bug with `spy(..., origin='lower') is fixed: So far this flipped the
 data but not the y-axis resulting in a mismatch between axes labels and
 actual data indices. Now, `origin='lower'` flips both the data and the y-axis
 labels.
-
-Log-scaled axes avoid having zero or only one tick
---------------------------------------------------
-
-When the default `LogLocator` would generate no ticks for an axis (e.g., an
-axis with limits from 0.31 to 0.39) or only a single tick, it now instead falls
-back on the linear `AutoLocator` to pick reasonable tick positions.
 
 Invalid inputs
 --------------
@@ -1056,12 +1062,6 @@ are now keyword-only.  The goal is to avoid accidentally setting the "message"
 argument when the "name" (or "alternative") argument was intended, as this has
 repeatedly occurred in the past.
 
-Autoscaling changes
--------------------
-
-On log-axes where a single value is plotted at a "full" decade (1, 10, 100,
-etc.), the autoscaling now expands the axis symmetrically around that point,
-instead of adding a decade only to the right.
 
 `FigureCanvasAgg.buffer_rgba` and `RendererAgg.buffer_rgba` now return a memoryview
 -----------------------------------------------------------------------------------
@@ -1070,18 +1070,3 @@ The ``buffer_rgba`` method now allows direct access to the renderer's
 underlying buffer (as a ``(m, n, 4)``-shape memoryview) rather than copying the
 data to a new bytestring.  This is consistent with the behavior on Py2, where a
 buffer object was returned.
-
-PathCollections created with `~.Axes.scatter` now keep track of invalid points
-------------------------------------------------------------------------------
-
-Previously, points with nonfinite (infinite or nan) coordinates would not be
-included in the offsets (as returned by `PathCollection.get_offsets`) of a
-`PathCollection` created by `~.Axes.scatter`, and points with nonfinite values
-(as specified by the *c* kwarg) would not be included in the array (as returned
-by `PathCollection.get_array`)
-
-Such points are now included, but masked out by returning a masked array.
-
-If the *plotnonfinite* kwarg to `~.Axes.scatter` is set, then points with
-nonfinite values are plotted using the bad color of the `PathCollection`\ 's
-colormap (as set by `Colormap.set_bad`).
