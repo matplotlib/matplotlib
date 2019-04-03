@@ -1,6 +1,20 @@
 API Changes for 3.1.0
 =====================
 
+Dependency changes
+------------------
+
+numpy
+~~~~~
+
+Matplotlib 3.1 now requires numpy>=1.11.
+
+ghostscript
+~~~~~~~~~~~
+
+Support for ghostscript 8.60 (released in 2007) has been removed.  The oldest
+supported version of ghostscript is now 9.0 (released in 2010).
+
 Mathtext changes
 ----------------
 
@@ -465,11 +479,6 @@ Behavior changes
 
 Calling `.Figure.add_subplot()` with no positional arguments used to do
 nothing; this now is equivalent to calling ``add_subplot(111)`` instead.
-
-Numpy minimum version bump
---------------------------
-
-Matplotlib 3.1 requires numpy>=1.11.
 
 Deprecations
 ------------
@@ -1100,9 +1109,3 @@ Changed exceptions
 
 - `mpl_toolkits.axes_grid1.axes_size.GetExtentHelper` now raises `ValueError`
   for invalid directions instead of `KeyError`.
-
-ghostscript 8 support removed
------------------------------
-
-Support for ghostscript 8.60 (released in 2007) has been removed.  The oldest
-supported version of ghostscript is now 9.0 (released in 2010).
