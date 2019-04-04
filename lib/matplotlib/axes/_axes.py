@@ -394,7 +394,7 @@ class Axes(_AxesBase):
         Examples
         --------
 
-        .. plot:: gallery/text_labels_and_annotations/legend.py
+        .. plot:: /gallery/text_labels_and_annotations/legend.py
 
         """
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
@@ -1296,7 +1296,7 @@ class Axes(_AxesBase):
         Examples
         --------
 
-        .. plot:: gallery/lines_bars_and_markers/eventplot_demo.py
+        .. plot:: /gallery/lines_bars_and_markers/eventplot_demo.py
         """
         self._process_unit_info(xdata=positions,
                                 ydata=[lineoffsets, linelengths],
@@ -3904,7 +3904,7 @@ class Axes(_AxesBase):
         Examples
         --------
 
-        .. plot:: gallery/statistics/bxp.py
+        .. plot:: /gallery/statistics/bxp.py
 
         """
         # lists of artists to be output

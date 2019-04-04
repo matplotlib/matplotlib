@@ -204,6 +204,7 @@ default_role = 'obj'
 # ----------------------------
 
 plot_formats = [('png', 100), ('pdf', 100)]
+plot_path_resolution_method = 'relative'
 
 # Github extension
 

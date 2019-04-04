@@ -301,7 +301,7 @@ so plots from the examples directory can be included using
 
 .. code-block:: rst
 
-    .. plot:: gallery/lines_bars_and_markers/simple_plot.py
+    .. plot:: /gallery/lines_bars_and_markers/simple_plot.py
 
 Note that the python script that generates the plot is referred to, rather than
 any plot that is created.  Sphinx-gallery will provide the correct reference
@@ -670,7 +670,7 @@ the file :file:`examples/text_labels_and_annotations/legend.py`:
     Examples
     --------
 
-    .. plot:: gallery/text_labels_and_annotations/legend.py
+    .. plot:: /gallery/text_labels_and_annotations/legend.py
     """
 
 Note that ``examples/text_labels_and_annotations/legend.py`` has been mapped to

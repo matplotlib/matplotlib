@@ -1457,7 +1457,7 @@ class EventCollection(LineCollection):
         Examples
         --------
 
-        .. plot:: gallery/lines_bars_and_markers/eventcollection_demo.py
+        .. plot:: /gallery/lines_bars_and_markers/eventcollection_demo.py
         """
 
         segment = (lineoffset + linelength / 2.,
