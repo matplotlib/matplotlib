@@ -2949,7 +2949,7 @@ def test_errorbar_limits():
 
     # including xlower and xupper limits
     xerr = 0.2
-    yerr = np.zeros_like(x) + 0.2
+    yerr = np.full_like(x, 0.2)
     yerr[[3, 6]] = 0.3
     xlolims = lolims
     xuplims = uplims
