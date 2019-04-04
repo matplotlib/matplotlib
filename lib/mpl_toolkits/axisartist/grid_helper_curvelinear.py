@@ -115,26 +115,11 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             if e2 is not None:
                 extremes[1] = min(e2, extremes[1])
 
-        grid_info = dict()
         lon_min, lon_max, lat_min, lat_max = extremes
         lon_levs, lon_n, lon_factor = \
                   grid_finder.grid_locator1(lon_min, lon_max)
         lat_levs, lat_n, lat_factor = \
                   grid_finder.grid_locator2(lat_min, lat_max)
-        grid_info["extremes"] = extremes
-
-        grid_info["lon_info"] = lon_levs, lon_n, lon_factor
-        grid_info["lat_info"] = lat_levs, lat_n, lat_factor
-
-        grid_info["lon_labels"] = grid_finder.tick_formatter1("bottom",
-                                                              lon_factor,
-                                                              lon_levs)
-
-        grid_info["lat_labels"] = grid_finder.tick_formatter2("bottom",
-                                                              lat_factor,
-                                                              lat_levs)
-
-        grid_finder = self.grid_helper.grid_finder
 
         if self.nth_coord == 0:
             xx0 = np.linspace(self.value, self.value, self._line_num_points)
@@ -145,8 +130,16 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             yy0 = np.linspace(self.value, self.value, self._line_num_points)
             xx, yy = grid_finder.transform_xy(xx0, yy0)
 
-        grid_info["line_xy"] = xx, yy
-        self.grid_info = grid_info
+        self.grid_info = {
+            "extremes": extremes,
+            "lon_info": (lon_levs, lon_n, lon_factor),
+            "lat_info": (lat_levs, lat_n, lat_factor),
+            "lon_labels": grid_finder.tick_formatter1(
+                "bottom", lon_factor, lon_levs),
+            "lat_labels": grid_finder.tick_formatter2(
+                "bottom", lat_factor, lat_levs),
+            "line_xy": (xx, yy),
+        }
 
     def get_axislabel_transform(self, axes):
         return Affine2D()  # axes.transData
@@ -346,8 +339,7 @@ class GridHelperCurveLinear(GridHelperBase):
             axes = self.axes
         if axis_direction is None:
             axis_direction = loc
-        _helper = FixedAxisArtistHelper(
-            self, loc, nth_coord_ticks=nth_coord)
+        _helper = FixedAxisArtistHelper(self, loc, nth_coord_ticks=nth_coord)
         axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
         # Why is clip not set on axisline, unlike in new_floating_axis or in
         # the floating_axig.GridHelperCurveLinear subclass?
