@@ -1,6 +1,36 @@
 API Changes for 3.1.0
 =====================
 
+.. contents::
+   :local:
+   :depth: 1
+
+
+``pgi`` support dropped
+-----------------------
+Support for ``pgi`` in the GTK3 backends has been dropped.
+``pgi`` is an alternative implementation to PyGObject, which
+should be used instead.
+
+rcparams
+--------
+
+Removed
+~~~~~~~
+The following deprecated rcParams have been removed:
+
+- ``text.dvipnghack``,
+- ``nbagg.transparent`` (use :rc:`figure.facecolor` instead),
+- ``plugins.directory``,
+- ``axes.hold``,
+- ``backend.qt4`` and ``backend.qt5`` (set the :envvar:`QT_API` environment
+  variable instead).
+
+Deprecated
+~~~~~~~~~~
+The associated validator functions ``rcsetup.validate_qt4`` and
+``validate_qt5`` are deprecated.
+
 Behavior changes
 ----------------
 
@@ -128,11 +158,71 @@ use one character of the string for each flow.
 The behavior has been changed to match the documented one: when a single string
 is passed, it is used to label all the flows.
 
+FontManager scores
+~~~~~~~~~~~~~~~~~~
+`FontManager.score_weight` is now more strict with its inputs.
+Previously, when a weight string was passed to `FontManager.score_weight`,
+
+- if the weight was the string representation of an integer, it would be
+  converted to that integer,
+- otherwise, if the weight was not a standard weight name, it would be silently
+  replaced by a value of 500 ("normal" weight).
+
+`FontManager.score_weight` now raises an exception on such inputs.
+
+Text alignment
+~~~~~~~~~~~~~~
+Text alignment was previously incorrect, in particular for multiline text
+objects with large descenders (i.e. subscripts) and rotated text.  These have
+been fixed and made more consistent, but could make old code that has
+compensated for this no longer have the correct alignment.
+
+Upper case color strings
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support for passing single-letter colors (one of "rgbcmykw") as UPPERCASE
+characters is deprecated; these colors will become case-sensitive (lowercase)
+after the deprecation period has passed.
+
+The goal is to decrease the number of ambiguous cases when using the ``data``
+keyword to plotting methods; e.g. ``plot("X", "Y", data={"X": ..., "Y": ...})``
+will not warn about "Y" possibly being a color anymore after the deprecation
+period has passed.
+
+Degenerate limits
+~~~~~~~~~~~~~~~~~
+When bounds passed to `set_xlim` (`set_xlim`, etc.) are degenerate (i.e. the
+lower and upper value are equal), the method used to "expand" the bounds now
+matches the expansion behavior of autoscaling when the plot contains a single
+x-value, and should in particular produce nicer limits for non-linear scales.
+
+`~.Axes.plot` format string parsing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In certain cases, `~.Axes.plot` would previously accept format strings
+specifying more than one linestyle (e.g. ``"---."`` which specifies both
+``"--"`` and ``"-."``); only use one of them would be used. This now raises a
+`ValueError` instead.
+
+HTMLWriter
+~~~~~~~~~~
+The HTMLWriter constructor is more strict: it no longer normalizes unknown
+values of *default_mode* to 'loop', but errors out instead.
+
+AFM parsing
+~~~~~~~~~~~
+In accordance with the AFM spec, the AFM parser no longer truncates the
+``UnderlinePosition`` and ``UnderlineThickness`` fields to integers.
+
+The ``Notice`` field (which can only be publicly accessed by the deprecated
+``afm.parse_afm`` API) is no longer decoded to a `str`, but instead kept as
+`bytes`, to support non-conformant AFM files that use non-ASCII characters in
+that field.
+
 Exception changes
 -----------------
-
 - `mpl_toolkits.axes_grid1.axes_size.GetExtentHelper` now raises `ValueError`
   for invalid directions instead of `KeyError`.
+
 
 Removals
 --------
@@ -170,16 +260,23 @@ Arguments
 
 Other
 ~~~~~
-- svgfont support (in :rc:`svg.fonttype`) has been removed,
+The following misc API elements have been removed:
+
+- svgfont support (in :rc:`svg.fonttype`)
 - Logging is now done with the standard python ``logging`` library.
-  ``matplotlib.verbose`` and the command line switches ``--verbose-LEVEL`` are
-  removed.
+  ``matplotlib.verbose`` and the command line switches ``--verbose-LEVEL`` have
+  been removed.
 
   To control the logging output use::
 
     import logging
     logger = logging.getLogger('matplotlib')
     logger.set_level(logging.INFO)
+
+- ``collections.CIRCLE_AREA_FACTOR``
+- ``font_manager.USE_FONTCONFIG``
+- ``font_manager.cachedir``
+- ``__version__numpy__``
 
 :mod:`matplotlib.mlab` removals
 -------------------------------
@@ -352,13 +449,11 @@ supported version of ghostscript is now 9.0 (released in 2010).
 
 Mathtext changes
 ----------------
-
 - In constructs such as ``"$1~2$"``, mathtext now interprets the tilde as a
   space, consistently with TeX (this was previously a parse error).
 
 Deprecations
 ~~~~~~~~~~~~
-
 - The ``\stackrel`` mathtext command hsa been deprecated (it behaved differently
   from LaTeX's ``\stackrel``.  To stack two mathtext expressions, use
   ``\genfrac{left-delim}{right-delim}{fraction-bar-thickness}{}{top}{bottom}``.
@@ -586,6 +681,12 @@ Manually check the lengths of the inputs instead, or rely on numpy to do it.
 
 Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
+- ``bezier.find_r_to_boundary_of_closedpath`` function is deprecated
+
+This has always returned None instead of the requested radius.
+
+- The ``MATPLOTLIBDATA`` environment variable
+
 Undeprecations
 --------------
 The following API elements have bee un-deprecated:
@@ -599,17 +700,6 @@ The following API elements have bee un-deprecated:
 For consistency with `Line2D`, the `Text` class has gained the ``c``
 alias for the ``color`` property. For example, one can now write
 ``ax.text(.5, .5, "foo", c="red")``.
-
-Changes in AFM parsing
-----------------------
-
-In accordance with the AFM spec, the AFM parser no longer truncates the
-``UnderlinePosition`` and ``UnderlineThickness`` fields to integers.
-
-The ``Notice`` field (which can only be publicly accessed by the deprecated
-``afm.parse_afm`` API) is no longer decoded to a `str`, but instead kept as
-`bytes`, to support non-conformant AFM files that use non-ASCII characters in
-that field.
 
 Axes.tick_params argument checking
 ----------------------------------
@@ -706,15 +796,7 @@ API deprecations
 ----------------
 
 The following environment variables are deprecated:
-- ``MATPLOTLIBDATA``,
 
-Text alignment fixes made
--------------------------
-
-Text alignment was incorrect, in particular for multiline text objects
-with large descenders (i.e. subscripts) and rotated text.  These have been
-fixed and made more consistent, but could make old code that has compensated
-no longer have the correct alignment.
 
 Path code types like ``Path.MOVETO`` are now ``np.uint8`` instead of ``int``
 ----------------------------------------------------------------------------
@@ -733,17 +815,8 @@ of Matplotlib, unicode input will always be supported).
 Moreover, the underlying implementation now uses ``\usepackage[utf8]{inputenc}``
 instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
 
-Changes in handling of degenerate bounds passed to `set_xlim`
--------------------------------------------------------------
-
-When bounds passed to `set_xlim` (`set_xlim`, etc.) are degenerate (i.e. the
-lower and upper value are equal), the method used to "expand" the bounds now
-matches the expansion behavior of autoscaling when the plot contains a single
-x-value, and should in particular produce nicer limits for non-linear scales.
-
 Deprecations
 ------------
-
 The following keyword arguments are deprecated:
 
 - Passing ``shade=None`` to
@@ -751,17 +824,6 @@ The following keyword arguments are deprecated:
   an unintended implementation detail with the same semantics as
   ``shade=False``. Please use the latter code instead.
 
-Deprecations
-------------
-
-Support for passing single-letter colors (one of "rgbcmykw") as UPPERCASE
-characters is deprecated; these colors will become case-sensitive (lowercase)
-after the deprecation period has passed.
-
-The goal is to decrease the number of ambiguous cases when using the ``data``
-keyword to plotting methods; e.g. ``plot("X", "Y", data={"X": ..., "Y": ...})``
-will not warn about "Y" possibly being a color anymore after the deprecation
-period has passed.
 
 Allow "real" LaTeX code for ``pgf.preamble`` and ``text.latex.preamble`` in matplotlib rc file
 ----------------------------------------------------------------------------------------------
@@ -807,11 +869,6 @@ matplotlib.font_manager.win32InstalledFonts return value
 `matplotlib.font_manager.win32InstalledFonts` returns an empty list instead
 of None if no fonts are found.
 
-The HTMLWriter constructor is more strict
------------------------------------------
-
-It no longer normalizes unknown values of *default_mode* to 'loop', but errors
-out instead.
 
 New `Formatter.format_ticks` method
 -----------------------------------
@@ -866,18 +923,6 @@ values for each one of the lists. For example, an input of ``[[],[]]`` will
 return 2 lists of histogram values. Previously, a single list was returned.
 
 
-`FontManager.score_weight` is more strict with its inputs
----------------------------------------------------------
-
-Previously, when a weight string was passed to `FontManager.score_weight`,
-
-- if the weight was the string representation of an integer, it would be
-  converted to that integer,
-- otherwise, if the weight was not a standard weight name, it would be silently
-  replaced by a value of 500 ("normal" weight).
-
-`FontManager.score_weight` now raises an exception on such inputs.
-
 ``Cn`` colors now support ``n>=10``
 -----------------------------------
 
@@ -914,15 +959,9 @@ Matplotlib 3.3.
   ``filterrad``, ``resample``, and ``url`` arguments should be passed by
   keyword.
 
-Deprecations
-------------
-
-The ``bezier.find_r_to_boundary_of_closedpath`` function is deprecated (it has
-always returned None instead of the requested radius).
 
 Poly3DCollection.set_zsort
 --------------------------
-
 `Poly3DCollection.set_zsort` no longer silently ignores invalid inputs, or
 False (which was always broken).  Passing True to mean "average" is deprecated.
 
@@ -982,41 +1021,6 @@ Axes methods now raise TypeError instead of RuntimeError on mismatched calls
 In certain cases, Axes methods (and pyplot functions) used to raise a
 RuntimeError if they were called with a ``data`` kwarg and otherwise mismatched
 arguments.  They now raise a ``TypeError`` instead.
-
-Removed rcParams
-----------------
-
-The following deprecated rcParams are removed:
-
-- ``text.dvipnghack``,
-- ``nbagg.transparent`` (use :rc:`figure.facecolor` instead),
-- ``plugins.directory``,
-- ``axes.hold``,
-- ``backend.qt4`` and ``backend.qt5`` (set the :envvar:`QT_API` environment
-  variable instead).
-
-The associated validator functions ``rcsetup.validate_qt4`` and
-``validate_qt5`` are deprecated.
-
-Drop support for ``pgi`` in the GTK3 backends
----------------------------------------------
-``pgi``, an alternative implementation to PyGObject, is no longer supported in
-the GTK3 backends. PyGObject should be used instead.
-
-
-Removals
---------
-
-The ``collections.CIRCLE_AREA_FACTOR`` constant has been removed.
-
-Stricter `~.Axes.plot` format string parsing
---------------------------------------------
-
-In certain cases, `~.Axes.plot` would previously accept format strings
-specifying more than one linestyle (e.g. ``"---."`` which specifies both
-``"--"`` and ``"-."``); only use one of them would be used.
-
-This now raises a ValueError instead.
 
 API changes
 -----------
