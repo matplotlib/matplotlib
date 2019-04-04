@@ -125,9 +125,9 @@ class GridFinderBase(object):
         lons_i = np.linspace(lon_min, lon_max, 100)  # for interpolation
         lats_i = np.linspace(lat_min, lat_max, 100)
 
-        lon_lines = [self.transform_xy(np.zeros_like(lats_i) + lon, lats_i)
+        lon_lines = [self.transform_xy(np.full_like(lats_i, lon), lats_i)
                      for lon in lon_values]
-        lat_lines = [self.transform_xy(lons_i, np.zeros_like(lons_i) + lat)
+        lat_lines = [self.transform_xy(lons_i, np.full_like(lons_i, lat))
                      for lat in lat_values]
 
         return lon_lines, lat_lines
