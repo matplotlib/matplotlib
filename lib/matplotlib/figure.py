@@ -345,9 +345,9 @@ class Figure(Artist):
         if frameon is None:
             frameon = rcParams['figure.frameon']
 
-        if not np.isfinite(figsize).all():
-            raise ValueError('figure size must be finite not '
-                             '{}'.format(figsize))
+        if not np.isfinite(figsize).all() or (np.array(figsize) <= 0).any():
+            raise ValueError('figure size must be positive finite not '
+                             f'{figsize}')
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
 
         self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
@@ -895,9 +895,9 @@ default: 'top'
         # argument, so unpack them
         if h is None:
             w, h = w
-        if not all(np.isfinite(_) for _ in (w, h)):
-            raise ValueError('figure size must be finite not '
-                             '({}, {})'.format(w, h))
+        size = w, h
+        if not np.isfinite(size).all() or (np.array(size) <= 0).any():
+            raise ValueError(f'figure size must be positive finite not {size}')
         self.bbox_inches.p1 = w, h
 
         if forward:

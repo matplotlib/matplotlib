@@ -325,14 +325,23 @@ def test_change_dpi():
     assert fig.canvas.renderer.width == 200
 
 
-def test_invalid_figure_size():
+@pytest.mark.parametrize('width, height', [
+    (1, np.nan),
+    (0, 1),
+    (-1, 1),
+    (np.inf, 1)
+])
+def test_invalid_figure_size(width, height):
     with pytest.raises(ValueError):
-        plt.figure(figsize=(1, np.nan))
+        plt.figure(figsize=(width, height))
 
     fig = plt.figure()
     with pytest.raises(ValueError):
-        fig.set_size_inches(1, np.nan)
+        fig.set_size_inches(width, height)
 
+
+def test_invalid_figure_add_axes():
+    fig = plt.figure()
     with pytest.raises(ValueError):
         fig.add_axes((.1, .1, .5, np.nan))
 
