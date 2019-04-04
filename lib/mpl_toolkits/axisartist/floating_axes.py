@@ -143,7 +143,17 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
 
 class ExtremeFinderFixed(ExtremeFinderSimple):
+    # docstring inherited
+
     def __init__(self, extremes):
+        """
+        This subclass always returns the same bounding box.
+
+        Parameters
+        ----------
+        extremes : (float, float, float, float)
+            The bounding box that this helper always returns.
+        """
         self._extremes = extremes
 
     def __call__(self, transform_xy, x1, y1, x2, y2):
