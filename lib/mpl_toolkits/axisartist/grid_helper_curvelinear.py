@@ -85,12 +85,16 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         super().__init__(nth_coord, value)
         self.value = value
         self.grid_helper = grid_helper
-        self._extremes = None, None
+        self._extremes = -np.inf, np.inf
 
         self._get_line_path = None  # a method that returns a Path.
         self._line_num_points = 100  # number of points to create a line
 
     def set_extremes(self, e1, e2):
+        if e1 is None:
+            e1 = -np.inf
+        if e2 is None:
+            e2 = np.inf
         self._extremes = e1, e2
 
     def update_lim(self, axes):
@@ -102,36 +106,31 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         extremes = grid_finder.extreme_finder(grid_finder.inv_transform_xy,
                                               x1, y1, x2, y2)
 
-        extremes = list(extremes)
-        e1, e2 = self._extremes  # ranges of other coordinates
-        if self.nth_coord == 0:
-            if e1 is not None:
-                extremes[2] = max(e1, extremes[2])
-            if e2 is not None:
-                extremes[3] = min(e2, extremes[3])
-        elif self.nth_coord == 1:
-            if e1 is not None:
-                extremes[0] = max(e1, extremes[0])
-            if e2 is not None:
-                extremes[1] = min(e2, extremes[1])
-
         lon_min, lon_max, lat_min, lat_max = extremes
+        e_min, e_max = self._extremes  # ranges of other coordinates
+        if self.nth_coord == 0:
+            lat_min = max(e_min, lat_min)
+            lat_max = min(e_max, lat_max)
+        elif self.nth_coord == 1:
+            lon_min = max(e_min, lon_min)
+            lon_max = min(e_max, lon_max)
+
         lon_levs, lon_n, lon_factor = \
                   grid_finder.grid_locator1(lon_min, lon_max)
         lat_levs, lat_n, lat_factor = \
                   grid_finder.grid_locator2(lat_min, lat_max)
 
         if self.nth_coord == 0:
-            xx0 = np.linspace(self.value, self.value, self._line_num_points)
-            yy0 = np.linspace(extremes[2], extremes[3], self._line_num_points)
+            xx0 = np.full(self._line_num_points, self.value)
+            yy0 = np.linspace(lat_min, lat_max, self._line_num_points)
             xx, yy = grid_finder.transform_xy(xx0, yy0)
         elif self.nth_coord == 1:
-            xx0 = np.linspace(extremes[0], extremes[1], self._line_num_points)
-            yy0 = np.linspace(self.value, self.value, self._line_num_points)
+            xx0 = np.linspace(lon_min, lon_max, self._line_num_points)
+            yy0 = np.full(self._line_num_points, self.value)
             xx, yy = grid_finder.transform_xy(xx0, yy0)
 
         self.grid_info = {
-            "extremes": extremes,
+            "extremes": (lon_min, lon_max, lat_min, lat_max),
             "lon_info": (lon_levs, lon_n, _deprecate_factor_none(lon_factor)),
             "lat_info": (lat_levs, lat_n, _deprecate_factor_none(lat_factor)),
             "lon_labels": grid_finder.tick_formatter1(
