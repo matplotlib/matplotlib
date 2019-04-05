@@ -757,7 +757,9 @@ class RcParams(MutableMapping, dict):
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
+        self.__in_init = True
         self.update(*args, **kwargs)
+        self.__in_init = False
 
     def __setitem__(self, key, val):
         try:
@@ -790,6 +792,11 @@ class RcParams(MutableMapping, dict):
             except ValueError as ve:
                 raise ValueError("Key %s: %s" % (key, str(ve)))
             dict.__setitem__(self, key, cval)
+            # if the user sets the backend, disable the fallback behavior
+            if (key == 'backend' and
+                    'backend_fallback' in self and
+                    not self.__in_init):
+                self['backend_fallback'] = False
         except KeyError:
             raise KeyError(
                 f"{key} is not a valid rc parameter (see rcParams.keys() for "
@@ -859,6 +866,12 @@ class RcParams(MutableMapping, dict):
     def copy(self):
         return {k: dict.__getitem__(self, k) for k in self}
 
+    def update(self, *args, **kwargs):
+        inp_backend_fallback = dict(*args, **kwargs).get('backend_fallback')
+        super().update(*args, **kwargs)
+        if inp_backend_fallback is not None:
+            self['backend_fallback'] = inp_backend_fallback
+
 
 def rc_params(fail_on_error=False):
     """Return a :class:`matplotlib.RcParams` instance from the
@@ -877,7 +890,7 @@ def is_url(filename):
 
 @contextlib.contextmanager
 def _open_file_or_url(fname):
-    if is_url(fname):
+    if is_url(str(fname)):
         import urllib.request
         with urllib.request.urlopen(fname) as f:
             yield (line.decode('utf-8') for line in f)
@@ -929,11 +942,13 @@ def _rc_params_in_file(fname, fail_on_error=False):
             raise
 
     config = RcParams()
-
+    try_backend_fallback_again = None
     for key, (val, line, cnt) in rc_temp.items():
         if key in defaultParams:
             try:
                 config[key] = val  # try to convert to proper type
+                if key == 'backend_fallback':
+                    try_backend_fallback_again = val
             except Exception as msg:
                 if not fail_on_error:
                     error_details = _error_details_fmt % (cnt, line, fname)
@@ -954,7 +969,10 @@ You probably need to get an updated matplotlibrc file from
 http://github.com/matplotlib/matplotlib/blob/master/matplotlibrc.template
 or from the matplotlib source distribution""" % (key, cnt, fname),
                   file=sys.stderr)
-
+    # setting the backend will force this to false, but we should respect
+    # the users input here so re-set it.
+    if try_backend_fallback_again is not None:
+        config['backend_fallback'] = try_backend_fallback_again
     return config
 
 
@@ -976,13 +994,14 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
 
     if not use_default_template:
         return config_from_file
-
+    fallback_value = config_from_file.get('backend_fallback',
+                                          defaultParams['backend_fallback'][0])
     iter_params = defaultParams.items()
     with cbook._suppress_matplotlib_deprecation_warning():
         config = RcParams([(key, default) for key, (default, _) in iter_params
                            if key not in _all_deprecated])
     config.update(config_from_file)
-
+    config['backend_fallback'] = fallback_value
     if config['datapath'] is None:
         config['datapath'] = get_data_path()
 
@@ -1277,7 +1296,8 @@ def use(backend, warn=False, force=True):
 
     if dict.__getitem__(rcParams, 'backend') == name:
         # Nothing to do if the requested backend is already set
-        pass
+        rcParams['backend_fallback'] = \
+            rcParamsDefault['backend_fallback'] = False
     elif 'matplotlib.pyplot' in sys.modules:
         # pyplot has already been imported (which triggered backend selection)
         # and the requested backend is different from the current one.
@@ -1301,10 +1321,12 @@ def use(backend, warn=False, force=True):
         # won't change the backend.  This is a bit of overkill as 'backend'
         # is already in style.core.STYLE_BLACKLIST, but better to be safe.
         rcParams['backend'] = rcParamsDefault['backend'] = name
-
+        rcParams['backend_fallback'] = \
+            rcParamsDefault['backend_fallback'] = False
 
 if os.environ.get('MPLBACKEND'):
     rcParams['backend'] = os.environ.get('MPLBACKEND')
+    rcParams['backend_fallback'] = False
 
 
 def get_backend():

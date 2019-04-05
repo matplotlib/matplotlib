@@ -479,3 +479,61 @@ def test_if_rctemplate_would_be_valid(tmpdir):
                                 fail_on_error=True,
                                 use_default_template=False)
         assert len(record) == 0
+
+
+@pytest.mark.parametrize('target', ('agg', 'svg'))
+def test_use_no_fallback(target):
+    import matplotlib as mpl
+    mpl.use('agg')
+    mpl.rcParams['backend_fallback'] = True
+    mpl.use(target)
+    assert mpl.rcParams['backend_fallback'] == False
+
+
+_backend_fallaback_test_data = (
+    {'backend': 'agg', 'backend_fallback': True},
+    {'backend_fallback': True, 'backend': 'agg'},
+    {'backend': 'agg', 'backend_fallback': False},
+    {'backend_fallback': False, 'backend': 'agg'},
+    {'backend': 'agg'})
+
+
+@pytest.mark.parametrize('inp', _backend_fallaback_test_data)
+def test_backend_fallback_init(inp):
+    from matplotlib import RcParams
+
+    rc = RcParams(**inp)
+    assert (rc.get('backend_fallback', True) \
+            == inp.get('backend_fallback', True))
+
+    rc['backend_fallback'] = inp.get('backend_fallback', True)
+
+    rc['backend'] = 'agg'
+    assert not rc['backend_fallback']
+
+    rc2 = RcParams()
+    rc2['backend'] = 'agg'
+    assert 'backend_fallback' not in rc2
+
+
+@pytest.mark.parametrize('inp', _backend_fallaback_test_data)
+def test_backend_fallback_update(inp):
+    from matplotlib import RcParams
+
+    rc = RcParams()
+    rc.update(inp)
+    assert (rc.get('backend_fallback', True) \
+            == inp.get('backend_fallback', True))
+
+
+@pytest.mark.parametrize('inp', _backend_fallaback_test_data)
+def test_backend_fallback_file(inp, tmpdir):
+    import matplotlib as mpl
+    d = tmpdir.mkdir('test1')
+    fn = d.join('testrc')
+    with open(fn, 'w') as fout:
+        for k, v in inp.items():
+            fout.write(f'{k}: {v}\n')
+
+    rc = mpl.rc_params_from_file(fn, fail_on_error=True)
+    assert rc['backend_fallback'] == inp.get('backend_fallback', True)

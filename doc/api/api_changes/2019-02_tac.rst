@@ -1,0 +1,14 @@
+Do not use backend fallback if backend in explicitly set
+````````````````````````````````````````````````````````
+
+If the backend is selected via ``mpl.use``,  setting the
+``MPLBACKEND`` env, or directly setting ``rcParams['backend']`` prior
+to importing pyplot, do not attempt to fallback to a backend compatible
+with the currently running event loop.  If the backend in set via a
+configuration file, it will respect the value of ``'backend_fallback'``
+in the file (and continues to default to True).
+
+This is mostly relevant on headless servers.  Having a configuration
+file with an interactive backend will correctly fallback to a
+non-interactive backend but code that calls ``matplotlib.use`` will
+fail on pyplot import.
