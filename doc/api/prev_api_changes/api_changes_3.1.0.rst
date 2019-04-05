@@ -8,9 +8,10 @@ API Changes for 3.1.0
 
 ``pgi`` support dropped
 -----------------------
-Support for ``pgi`` in the GTK3 backends has been dropped.
-``pgi`` is an alternative implementation to PyGObject, which
-should be used instead.
+
+Support for ``pgi`` in the GTK3 backends has been dropped.  ``pgi`` is
+an alternative implementation to ``PyGObject``.  ``PyGObject`` should
+be used instead.
 
 rcparams
 --------
