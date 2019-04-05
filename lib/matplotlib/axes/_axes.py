@@ -96,17 +96,14 @@ def _make_inset_locator(bounds, trans, parent):
 
 class Axes(_AxesBase):
     """
-    The :class:`Axes` contains most of the figure elements:
-    :class:`~matplotlib.axis.Axis`, :class:`~matplotlib.axis.Tick`,
-    :class:`~matplotlib.lines.Line2D`, :class:`~matplotlib.text.Text`,
-    :class:`~matplotlib.patches.Polygon`, etc., and sets the
-    coordinate system.
+    The `Axes` contains most of the figure elements: `~.axis.Axis`,
+    `~.axis.Tick`, `~.lines.Line2D`, `~.text.Text`, `~.patches.Polygon`, etc.,
+    and sets the coordinate system.
 
-    The :class:`Axes` instance supports callbacks through a callbacks
-    attribute which is a :class:`~matplotlib.cbook.CallbackRegistry`
-    instance.  The events you can connect to are 'xlim_changed' and
-    'ylim_changed' and the callback will be called with func(*ax*)
-    where *ax* is the :class:`Axes` instance.
+    The `Axes` instance supports callbacks through a callbacks attribute which
+    is a `~.cbook.CallbackRegistry` instance.  The events you can connect to
+    are 'xlim_changed' and 'ylim_changed' and the callback will be called with
+    func(*ax*) where *ax* is the `Axes` instance.
 
     Attributes
     ----------
@@ -5967,10 +5964,9 @@ optional.
 
         .. note::
 
-           ``pcolormesh()`` is similar to :func:`~Axes.pcolor`. It's much
-           faster and preferred in most cases. For a detailed discussion on
-           the differences see
-           :ref:`Differences between pcolor() and pcolormesh()
+           `~Axes.pcolormesh` is similar to `~Axes.pcolor`. It's much faster
+           and preferred in most cases. For a detailed discussion on the
+           differences see :ref:`Differences between pcolor() and pcolormesh()
            <differences-pcolor-pcolormesh>`.
 
         Parameters
@@ -7951,34 +7947,23 @@ optional.
           list of the corresponding collection instances created. The
           dictionary has the following keys:
 
-            - ``bodies``: A list of the
-              :class:`matplotlib.collections.PolyCollection` instances
-              containing the filled area of each violin.
+          - ``bodies``: A list of the `~.collections.PolyCollection`
+            instances containing the filled area of each violin.
 
-            - ``cmeans``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the mean values of each of the
-              violin's distribution.
+          - ``cmeans``: A `~.collections.LineCollection` instance that marks
+            the mean values of each of the violin's distribution.
 
-            - ``cmins``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the bottom of each violin's
-              distribution.
+          - ``cmins``: A `~.collections.LineCollection` instance that marks
+            the bottom of each violin's distribution.
 
-            - ``cmaxes``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the top of each violin's
-              distribution.
+          - ``cmaxes``: A `~.collections.LineCollection` instance that marks
+            the top of each violin's distribution.
 
-            - ``cbars``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the centers of each violin's
-              distribution.
+          - ``cbars``: A `~.collections.LineCollection` instance that marks
+            the centers of each violin's distribution.
 
-            - ``cmedians``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the median values of each of the
-              violin's distribution.
+          - ``cmedians``: A `~.collections.LineCollection` instance that
+            marks the median values of each of the violin's distribution.
 
         Notes
         -----
@@ -8057,35 +8042,23 @@ optional.
           list of the corresponding collection instances created. The
           dictionary has the following keys:
 
-            - ``bodies``: A list of the
-              :class:`matplotlib.collections.PolyCollection` instances
-              containing the filled area of each violin.
+          - ``bodies``: A list of the `~.collections.PolyCollection`
+            instances containing the filled area of each violin.
 
-            - ``cmeans``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the mean values of each of the
-              violin's distribution.
+          - ``cmeans``: A `~.collections.LineCollection` instance that marks
+            the mean values of each of the violin's distribution.
 
-            - ``cmins``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the bottom of each violin's
-              distribution.
+          - ``cmins``: A `~.collections.LineCollection` instance that marks
+            the bottom of each violin's distribution.
 
-            - ``cmaxes``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the top of each violin's
-              distribution.
+          - ``cmaxes``: A `~.collections.LineCollection` instance that marks
+            the top of each violin's distribution.
 
-            - ``cbars``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the centers of each violin's
-              distribution.
+          - ``cbars``: A `~.collections.LineCollection` instance that marks
+            the centers of each violin's distribution.
 
-            - ``cmedians``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the median values of each of the
-              violin's distribution.
-
+          - ``cmedians``: A `~.collections.LineCollection` instance that
+            marks the median values of each of the violin's distribution.
         """
 
         # Statistical quantities to be plotted on the violins

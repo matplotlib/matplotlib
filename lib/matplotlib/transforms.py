@@ -3,7 +3,7 @@ matplotlib includes a framework for arbitrary geometric
 transformations that is used determine the final position of all
 elements drawn on the canvas.
 
-Transforms are composed into trees of :class:`TransformNode` objects
+Transforms are composed into trees of `TransformNode` objects
 whose actual value depends on their children.  When the contents of
 children change, their parents are automatically invalidated.  The
 next time an invalidated transform is accessed, it is recomputed to
@@ -125,9 +125,8 @@ class TransformNode(object):
 
     def invalidate(self):
         """
-        Invalidate this :class:`TransformNode` and triggers an
-        invalidation of its ancestors.  Should be called any
-        time the transform changes.
+        Invalidate this `TransformNode` and triggers an invalidation of its
+        ancestors.  Should be called any time the transform changes.
         """
         value = self.INVALID
         if self.is_affine:
@@ -251,9 +250,8 @@ class TransformNode(object):
 
 class BboxBase(TransformNode):
     """
-    This is the base class of all bounding boxes, and provides
-    read-only access to its data.  A mutable bounding box is provided
-    by the :class:`Bbox` class.
+    This is the base class of all bounding boxes, and provides read-only access
+    to its data.  A mutable bounding box is provided by the `Bbox` class.
 
     The canonical representation is as two points, with no
     restrictions on their ordering.  Convenience properties are
@@ -533,8 +531,7 @@ class BboxBase(TransformNode):
 
     def anchored(self, c, container=None):
         """
-        Return a copy of the :class:`Bbox`, shifted to position *c*
-        within a container.
+        Return a copy of the `Bbox` shifted to position *c* within *container*.
 
         Parameters
         ----------
@@ -761,25 +758,18 @@ class Bbox(BboxBase):
 
     @staticmethod
     def unit():
-        """
-        (staticmethod) Create a new unit :class:`Bbox` from (0, 0) to
-        (1, 1).
-        """
+        """Create a new unit `Bbox` from (0, 0) to (1, 1)."""
         return Bbox(np.array([[0.0, 0.0], [1.0, 1.0]], float))
 
     @staticmethod
     def null():
-        """
-        (staticmethod) Create a new null :class:`Bbox` from (inf, inf) to
-        (-inf, -inf).
-        """
+        """Create a new null `Bbox` from (inf, inf) to (-inf, -inf)."""
         return Bbox(np.array([[np.inf, np.inf], [-np.inf, -np.inf]], float))
 
     @staticmethod
     def from_bounds(x0, y0, width, height):
         """
-        (staticmethod) Create a new :class:`Bbox` from *x0*, *y0*,
-        *width* and *height*.
+        Create a new `Bbox` from *x0*, *y0*, *width* and *height*.
 
         *width* and *height* may be negative.
         """
@@ -788,8 +778,7 @@ class Bbox(BboxBase):
     @staticmethod
     def from_extents(*args):
         """
-        (staticmethod) Create a new Bbox from *left*, *bottom*,
-        *right* and *top*.
+        Create a new Bbox from *left*, *bottom*, *right* and *top*.
 
         The *y*-axis increases upwards.
         """
@@ -963,8 +952,7 @@ class Bbox(BboxBase):
 
     def set(self, other):
         """
-        Set this bounding box from the "frozen" bounds of another
-        :class:`Bbox`.
+        Set this bounding box from the "frozen" bounds of another `Bbox`.
         """
         if np.any(self._points != other.get_points()):
             self._points = other.get_points()
@@ -1196,8 +1184,7 @@ class Transform(TransformNode):
     actually perform a transformation.
 
     All non-affine transformations should be subclasses of this class.
-    New affine transformations should be subclasses of
-    :class:`Affine2D`.
+    New affine transformations should be subclasses of `Affine2D`.
 
     Subclasses of this class should override the following members (at
     minimum):
@@ -1764,8 +1751,7 @@ class Affine2DBase(AffineBase):
     @staticmethod
     def matrix_from_values(a, b, c, d, e, f):
         """
-        (staticmethod) Create a new transformation matrix as a 3x3
-        numpy array of the form::
+        Create a new transformation matrix as a 3x3 numpy array of the form::
 
           a c e
           b d f
@@ -1842,8 +1828,7 @@ class Affine2D(Affine2DBase):
     @staticmethod
     def from_values(a, b, c, d, e, f):
         """
-        (staticmethod) Create a new Affine2D instance from the given
-        values::
+        Create a new Affine2D instance from the given values::
 
           a c e
           b d f
@@ -1894,8 +1879,7 @@ class Affine2D(Affine2DBase):
     @staticmethod
     def identity():
         """
-        (staticmethod) Return a new :class:`Affine2D` object that is
-        the identity transform.
+        Return a new `Affine2D` object that is the identity transform.
 
         Unless this transform will be mutated later on, consider using
         the faster :class:`IdentityTransform` class instead.
@@ -2096,10 +2080,9 @@ class BlendedGenericTransform(Transform):
         transform the *x*-axis and *y_transform* to transform the
         *y*-axis.
 
-        You will generally not call this constructor directly but use
-        the :func:`blended_transform_factory` function instead, which
-        can determine automatically which kind of blended transform to
-        create.
+        You will generally not call this constructor directly but use the
+        `blended_transform_factory` function instead, which can determine
+        automatically which kind of blended transform to create.
         """
         # Here we ask: "Does it blend?"
 
@@ -2214,10 +2197,9 @@ class BlendedAffine2D(Affine2DBase):
         Both *x_transform* and *y_transform* must be 2D affine
         transforms.
 
-        You will generally not call this constructor directly but use
-        the :func:`blended_transform_factory` function instead, which
-        can determine automatically which kind of blended transform to
-        create.
+        You will generally not call this constructor directly but use the
+        `blended_transform_factory` function instead, which can determine
+        automatically which kind of blended transform to create.
         """
         is_affine = x_transform.is_affine and y_transform.is_affine
         is_separable = x_transform.is_separable and y_transform.is_separable
@@ -2301,10 +2283,9 @@ class CompositeGenericTransform(Transform):
         Create a new composite transform that is the result of
         applying transform *a* then transform *b*.
 
-        You will generally not call this constructor directly but use
-        the :func:`composite_transform_factory` function instead,
-        which can automatically choose the best kind of composite
-        transform instance to create.
+        You will generally not call this constructor directly but use the
+        `composite_transform_factory` function instead, which can automatically
+        choose the best kind of composite transform instance to create.
         """
         if a.output_dims != b.input_dims:
             raise ValueError("The output dimension of 'a' must be equal to "
@@ -2419,10 +2400,9 @@ class CompositeAffine2D(Affine2DBase):
 
         Both *a* and *b* must be instances of :class:`Affine2DBase`.
 
-        You will generally not call this constructor directly but use
-        the :func:`composite_transform_factory` function instead,
-        which can automatically choose the best kind of composite
-        transform instance to create.
+        You will generally not call this constructor directly but use the
+        `composite_transform_factory` function instead, which can automatically
+        choose the best kind of composite transform instance to create.
         """
         if not a.is_affine or not b.is_affine:
             raise ValueError("'a' and 'b' must be affine transforms")
@@ -2496,8 +2476,7 @@ def composite_transform_factory(a, b):
 
 class BboxTransform(Affine2DBase):
     """
-    :class:`BboxTransform` linearly transforms points from one
-    :class:`Bbox` to another :class:`Bbox`.
+    `BboxTransform` linearly transforms points from one `Bbox` to another.
     """
     is_separable = True
 
@@ -2544,9 +2523,8 @@ class BboxTransform(Affine2DBase):
 
 class BboxTransformTo(Affine2DBase):
     """
-    :class:`BboxTransformTo` is a transformation that linearly
-    transforms points from the unit bounding box to a given
-    :class:`Bbox`.
+    `BboxTransformTo` is a transformation that linearly transforms points from
+    the unit bounding box to a given `Bbox`.
     """
     is_separable = True
 
@@ -2587,9 +2565,8 @@ class BboxTransformTo(Affine2DBase):
 
 class BboxTransformToMaxOnly(BboxTransformTo):
     """
-    :class:`BboxTransformTo` is a transformation that linearly
-    transforms points from the unit bounding box to a given
-    :class:`Bbox` with a fixed upper left of (0, 0).
+    `BboxTransformTo` is a transformation that linearly transforms points from
+    the unit bounding box to a given `Bbox` with a fixed upper left of (0, 0).
     """
     def get_matrix(self):
         # docstring inherited
@@ -2608,8 +2585,8 @@ class BboxTransformToMaxOnly(BboxTransformTo):
 
 class BboxTransformFrom(Affine2DBase):
     """
-    :class:`BboxTransformFrom` linearly transforms points from a given
-    :class:`Bbox` to the unit bounding box.
+    `BboxTransformFrom` linearly transforms points from a given `Bbox` to the
+    unit bounding box.
     """
     is_separable = True
 
@@ -2680,10 +2657,9 @@ class ScaledTranslation(Affine2DBase):
 
 class TransformedPath(TransformNode):
     """
-    A :class:`TransformedPath` caches a non-affine transformed copy of
-    the :class:`~matplotlib.path.Path`.  This cached copy is
-    automatically updated when the non-affine part of the transform
-    changes.
+    A `TransformedPath` caches a non-affine transformed copy of the
+    `~.path.Path`.  This cached copy is automatically updated when the
+    non-affine part of the transform changes.
 
     .. note::
 
@@ -2693,8 +2669,10 @@ class TransformedPath(TransformNode):
     """
     def __init__(self, path, transform):
         """
-        Create a new :class:`TransformedPath` from the given
-        :class:`~matplotlib.path.Path` and :class:`Transform`.
+        Parameters
+        ----------
+        path : `~.path.Path`
+        transform : `Transform`
         """
         if not isinstance(transform, Transform):
             raise ValueError("'transform' must be an instance of "
@@ -2752,14 +2730,15 @@ class TransformedPath(TransformNode):
 
 class TransformedPatchPath(TransformedPath):
     """
-    A :class:`TransformedPatchPath` caches a non-affine transformed copy of
-    the :class:`~matplotlib.path.Patch`. This cached copy is automatically
-    updated when the non-affine part of the transform or the patch changes.
+    A `TransformedPatchPath` caches a non-affine transformed copy of the
+    `~.patch.Patch`. This cached copy is automatically updated when the
+    non-affine part of the transform or the patch changes.
     """
     def __init__(self, patch):
         """
-        Create a new :class:`TransformedPatchPath` from the given
-        :class:`~matplotlib.path.Patch`.
+        Parameters
+        ----------
+        patch : `~.patches.Patch`
         """
         TransformNode.__init__(self)
 

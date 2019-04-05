@@ -193,16 +193,12 @@ class Patch(artist.Artist):
 
     def get_extents(self):
         """
-        Return a :class:`~matplotlib.transforms.Bbox` object defining
-        the axis-aligned extents of the :class:`Patch`.
+        Return the `Patch`'s axis-aligned extents as a `~.transforms.Bbox`.
         """
         return self.get_path().get_extents(self.get_transform())
 
     def get_transform(self):
-        """
-        Return the :class:`~matplotlib.transforms.Transform` applied
-        to the :class:`Patch`.
-        """
+        """Return the `~.transforms.Transform` applied to the `Patch`."""
         return self.get_patch_transform() + artist.Artist.get_transform(self)
 
     def get_data_transform(self):
@@ -977,8 +973,7 @@ class Polygon(Patch):
         Returns
         -------
         path : Path
-           The :class:`~matplotlib.path.Path` object for
-           the polygon
+           The `~.path.Path` object for the polygon.
         """
         return self._path
 
@@ -1168,8 +1163,7 @@ class Arrow(Patch):
             Scale factor for the width of the arrow. With a default value of
             1, the tail width is 0.2 and head width is 0.6.
         **kwargs
-            Keyword arguments control the :class:`~matplotlib.patches.Patch`
-            properties:
+            Keyword arguments control the `Patch` properties:
 
             %(Patch)s
 
