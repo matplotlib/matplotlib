@@ -636,14 +636,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set both the edgecolor and the facecolor.
 
-        .. seealso::
-
-            :meth:`set_facecolor`, :meth:`set_edgecolor`
-               For setting the edge or face color individually.
-
         Parameters
         ----------
-        c : matplotlib color arg or sequence of rgba tuples
+        c : color or sequence of rgba tuples
+
+        See Also
+        --------
+        Collection.set_facecolor, Collection.set_edgecolor
+            For setting the edge or face color individually.
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)

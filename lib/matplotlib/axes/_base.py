@@ -41,11 +41,10 @@ def _process_plot_format(fmt):
     * 'r--': red dashed lines
     * 'C2--': the third color in the color cycle, dashed lines
 
-    .. seealso::
-
-        :func:`~matplotlib.Line2D.lineStyles` and
-        :attr:`~matplotlib.colors.cnames`
-            for all possible styles and color format string.
+    See Also
+    --------
+    matplotlib.Line2D.lineStyles, matplotlib.colors.cnames
+        All possible styles and color format strings.
     """
 
     linestyle = None
