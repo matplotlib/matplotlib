@@ -372,10 +372,10 @@ The following misc API elements have been removed:
     logger = logging.getLogger('matplotlib')
     logger.set_level(logging.INFO)
 
+- ``__version__numpy__``
 - ``collections.CIRCLE_AREA_FACTOR``
 - ``font_manager.USE_FONTCONFIG``
 - ``font_manager.cachedir``
-- ``__version__numpy__``
 
 :mod:`matplotlib.mlab` removals
 -------------------------------
@@ -567,14 +567,6 @@ Deprecations
 - Support for setting :rc:`mathtext.default` to circled is deprecated.
 
 
-API removals
-------------
-
-The following API elements have been removed:
-
-- ``font_manager.USE_FONTCONFIG``
-- ``font_manager.cachedir``
-- ``__version__numpy__``
 
 Signature deprecations
 ----------------------
