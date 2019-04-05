@@ -879,7 +879,8 @@ documented by the exception class.
 
 MouseEvents now include the event name in their ``str()``
 ---------------------------------------------------------
-... instead of the prefix "MPL MouseEvent".
+
+Previously they contained the prefix "MPL MouseEvent".
 
 Matplotlib.use now has an ImportError for interactive backend
 -------------------------------------------------------------
