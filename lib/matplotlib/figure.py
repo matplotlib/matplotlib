@@ -890,26 +890,19 @@ default: 'top'
         --------
         matplotlib.Figure.get_size_inches
         """
-
-        # the width and height have been passed in as a tuple to the first
-        # argument, so unpack them
-        if h is None:
+        if h is None:  # Got called with a single pair as argument.
             w, h = w
-        size = w, h
-        if not np.isfinite(size).all() or (np.array(size) <= 0).any():
+        size = np.array([w, h])
+        if not np.isfinite(size).all() or (size <= 0).any():
             raise ValueError(f'figure size must be positive finite not {size}')
-        self.bbox_inches.p1 = w, h
-
+        self.bbox_inches.p1 = size
         if forward:
             canvas = getattr(self, 'canvas')
             if canvas is not None:
-                ratio = getattr(self.canvas, '_dpi_ratio', 1)
-                dpival = self.dpi / ratio
-                canvasw = w * dpival
-                canvash = h * dpival
-                manager = getattr(self.canvas, 'manager', None)
+                dpi_ratio = getattr(canvas, '_dpi_ratio', 1)
+                manager = getattr(canvas, 'manager', None)
                 if manager is not None:
-                    manager.resize(int(canvasw), int(canvash))
+                    manager.resize(*(size * self.dpi / dpi_ratio).astype(int))
         self.stale = True
 
     def get_size_inches(self):
