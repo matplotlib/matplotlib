@@ -94,6 +94,9 @@ This logic has now moved to the Axis class, and is used *regardless of the
 ticker class*.  ``xaxis.minor.locator()`` now includes positions that collide
 with ``xaxis.major.locator()``, but ``xaxis.get_minorticklocs()`` does not.
 
+You can control this behavior via the ``.remove_overlap`` attribute on the
+minor locator.
+
 If you were relying on both the major and minor tick labels to appear on the
 same tick, you may need to update your code.  For example, the following
 snippet labeled days using major ticks, and hours and minutes using minor
@@ -114,15 +117,16 @@ ticks::
         minor_locator=mdates.HourLocator((0, 6, 12, 18)),
         minor_formatter=mdates.DateFormatter("%H:%M"),
     )
-
+    # disables tick collision suppression
+    ax.axis.minor.locator.remove_overlap = False
     plt.show()
 
 and added a newline to the major ticks labels to avoid them crashing into the
 minor tick labels.
 
-With the API change, the major tick labels should also include hours and
-minutes, as the minor ticks are gone, so the ``major_formatter`` should be
-``mdates.DateFormatter("%H:%M\n%a")``.
+The major tick labels could also be adjusted include hours and
+minutes, as the minor ticks are gone, so the ``major_formatter``
+should be ``mdates.DateFormatter("%H:%M\n%a")``.
 
 usetex support
 ~~~~~~~~~~~~~~
