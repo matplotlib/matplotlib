@@ -579,7 +579,7 @@ class Colormap(object):
         """
         Make a reversed instance of the Colormap.
 
-        .. note :: Function not implemented for base class.
+        .. note:: Function not implemented for base class.
 
         Parameters
         ----------
@@ -587,23 +587,26 @@ class Colormap(object):
             The name for the reversed colormap. If it's None the
             name will be the name of the parent colormap + "_r".
 
-        Notes
-        -----
-        See :meth:`LinearSegmentedColormap.reversed` and
-        :meth:`ListedColormap.reversed`
+        See Also
+        --------
+        LinearSegmentedColormap.reversed
+        ListedColormap.reversed
         """
         raise NotImplementedError()
 
 
 class LinearSegmentedColormap(Colormap):
-    """Colormap objects based on lookup tables using linear segments.
+    """
+    Colormap objects based on lookup tables using linear segments.
 
     The lookup table is generated using linear interpolation for each
     primary color, with the 0-1 domain divided into any number of
     segments.
     """
+
     def __init__(self, name, segmentdata, N=256, gamma=1.0):
-        """Create color map from linear mapping segments
+        """
+        Create color map from linear mapping segments
 
         segmentdata argument is a dictionary with a red, green and blue
         entries. Each entry should be a list of *x*, *y0*, *y1* tuples,
@@ -639,15 +642,14 @@ class LinearSegmentedColormap(Colormap):
 
         Hence y0 in the first row and y1 in the last row are never used.
 
+        See Also
+        --------
+        LinearSegmentedColormap.from_list
+            Static method; factory function for generating a smoothly-varying
+            LinearSegmentedColormap.
 
-        .. seealso::
-
-               :meth:`LinearSegmentedColormap.from_list`
-               Static method; factory function for generating a
-               smoothly-varying LinearSegmentedColormap.
-
-               :func:`makeMappingArray`
-               For information about making a mapping array.
+        makeMappingArray
+            For information about making a mapping array.
         """
         # True only if all colors in map are identical; needed for contouring.
         self.monochrome = False

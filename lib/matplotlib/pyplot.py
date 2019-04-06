@@ -1252,15 +1252,13 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
 def twinx(ax=None):
     """
-    Make a second axes that shares the *x*-axis.  The new axes will
-    overlay *ax* (or the current axes if *ax* is *None*).  The ticks
-    for *ax2* will be placed on the right, and the *ax2* instance is
-    returned.
+    Make and return a second axes that shares the *x*-axis.  The new axes will
+    overlay *ax* (or the current axes if *ax* is *None*), and its ticks will be
+    on the right.
 
-    .. seealso::
-
-       :doc:`/gallery/subplots_axes_and_figures/two_scales`
-
+    Examples
+    --------
+    :doc:`/gallery/subplots_axes_and_figures/two_scales`
     """
     if ax is None:
         ax = gca()
@@ -1270,10 +1268,13 @@ def twinx(ax=None):
 
 def twiny(ax=None):
     """
-    Make a second axes that shares the *y*-axis.  The new axis will
-    overlay *ax* (or the current axes if *ax* is *None*).  The ticks
-    for *ax2* will be placed on the top, and the *ax2* instance is
-    returned.
+    Make and return a second axes that shares the *y*-axis.  The new axes will
+    overlay *ax* (or the current axes if *ax* is *None*), and its ticks will be
+    on the top.
+
+    Examples
+    --------
+    :doc:`/gallery/subplots_axes_and_figures/two_scales`
     """
     if ax is None:
         ax = gca()
