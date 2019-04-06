@@ -109,15 +109,15 @@ class Sankey(object):
 
             Sankey().add().add...  .add().finish()
 
-        .. seealso::
+        See Also
+        --------
+        Sankey.add
+        Sankey.finish
 
-            :meth:`add`
-            :meth:`finish`
+        Examples
+        --------
 
-
-        **Examples:**
-
-            .. plot:: gallery/specialty_plots/sankey_basics.py
+        .. plot:: gallery/specialty_plots/sankey_basics.py
         """
         # Check the arguments.
         if gap < 0:
@@ -807,9 +807,9 @@ class Sankey(object):
                             for the labels of flows
           ===============   ===================================================
 
-        .. seealso::
-
-            :meth:`add`
+        See Also
+        --------
+        Sankey.add
         """
         self.ax.axis([self.extent[0] - self.margin,
                       self.extent[1] + self.margin,

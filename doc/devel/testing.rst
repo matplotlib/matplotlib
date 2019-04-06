@@ -54,7 +54,6 @@ commands, such as:
 
 ========================  ===========
 ``--pep8``                Perform pep8 checks (requires pytest-pep8_)
-``-m "not network"``      Disable tests that require network access
 ========================  ===========
 
 Additional arguments are passed on to pytest. See the pytest documentation for

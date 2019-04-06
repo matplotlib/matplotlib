@@ -5,6 +5,7 @@ import os
 import sys
 from pathlib import Path
 import platform
+import sys
 import urllib.request
 import warnings
 
@@ -657,9 +658,11 @@ def test_minimized_rasterized():
                 assert False
 
 
-@pytest.mark.network
 def test_load_from_url():
-    url = "http://matplotlib.org/_static/logo_sidebar_horiz.png"
+    path = Path(__file__).parent / "baseline_images/test_image/imshow.png"
+    url = ('file:'
+           + ('///' if sys.platform == 'win32' else '')
+           + path.resolve().as_posix())
     plt.imread(url)
     plt.imread(urllib.request.urlopen(url))
 

@@ -579,7 +579,7 @@ class Colormap(object):
         """
         Make a reversed instance of the Colormap.
 
-        .. note :: Function not implemented for base class.
+        .. note:: Function not implemented for base class.
 
         Parameters
         ----------
@@ -587,23 +587,26 @@ class Colormap(object):
             The name for the reversed colormap. If it's None the
             name will be the name of the parent colormap + "_r".
 
-        Notes
-        -----
-        See :meth:`LinearSegmentedColormap.reversed` and
-        :meth:`ListedColormap.reversed`
+        See Also
+        --------
+        LinearSegmentedColormap.reversed
+        ListedColormap.reversed
         """
         raise NotImplementedError()
 
 
 class LinearSegmentedColormap(Colormap):
-    """Colormap objects based on lookup tables using linear segments.
+    """
+    Colormap objects based on lookup tables using linear segments.
 
     The lookup table is generated using linear interpolation for each
     primary color, with the 0-1 domain divided into any number of
     segments.
     """
+
     def __init__(self, name, segmentdata, N=256, gamma=1.0):
-        """Create color map from linear mapping segments
+        """
+        Create color map from linear mapping segments
 
         segmentdata argument is a dictionary with a red, green and blue
         entries. Each entry should be a list of *x*, *y0*, *y1* tuples,
@@ -639,15 +642,14 @@ class LinearSegmentedColormap(Colormap):
 
         Hence y0 in the first row and y1 in the last row are never used.
 
+        See Also
+        --------
+        LinearSegmentedColormap.from_list
+            Static method; factory function for generating a smoothly-varying
+            LinearSegmentedColormap.
 
-        .. seealso::
-
-               :meth:`LinearSegmentedColormap.from_list`
-               Static method; factory function for generating a
-               smoothly-varying LinearSegmentedColormap.
-
-               :func:`makeMappingArray`
-               For information about making a mapping array.
+        makeMappingArray
+            For information about making a mapping array.
         """
         # True only if all colors in map are identical; needed for contouring.
         self.monochrome = False
@@ -745,35 +747,34 @@ class LinearSegmentedColormap(Colormap):
 
 
 class ListedColormap(Colormap):
-    """Colormap object generated from a list of colors.
+    """
+    Colormap object generated from a list of colors.
 
     This may be most useful when indexing directly into a colormap,
     but it can also be used to generate special colormaps for ordinary
     mapping.
+
+    Parameters
+    ----------
+    colors : list, array
+        List of Matplotlib color specifications, or an equivalent Nx3 or Nx4
+        floating point array (*N* rgb or rgba values).
+    name : str, optional
+        String to identify the colormap.
+    N : int, optional
+        Number of entries in the map. The default is *None*, in which case
+        there is one colormap entry for each element in the list of colors.
+        If::
+
+            N < len(colors)
+
+        the list will be truncated at *N*. If::
+
+            N > len(colors)
+
+        the list will be extended by repetition.
     """
     def __init__(self, colors, name='from_list', N=None):
-        """
-        Make a colormap from a list of colors.
-
-        *colors*
-            a list of matplotlib color specifications,
-            or an equivalent Nx3 or Nx4 floating point array
-            (*N* rgb or rgba values)
-        *name*
-            a string to identify the colormap
-        *N*
-            the number of entries in the map.  The default is *None*,
-            in which case there is one colormap entry for each
-            element in the list of colors.  If::
-
-                N < len(colors)
-
-            the list will be truncated at *N*.  If::
-
-                N > len(colors)
-
-            the list will be extended by repetition.
-        """
         self.monochrome = False  # True only if all colors in map are
                                  # identical; needed for contouring.
         if N is None:
@@ -1843,24 +1844,23 @@ class LightSource(object):
         intensity = intensity[..., 0]
         intensity = 2 * intensity - 1
 
-        # convert to rgb, then rgb to hsv
+        # Convert to rgb, then rgb to hsv
         hsv = rgb_to_hsv(rgb[:, :, 0:3])
+        hue, sat, val = np.moveaxis(hsv, -1, 0)
 
-        # modify hsv values to simulate illumination.
-        np.putmask(hsv[:, :, 1],  # i.e. A[mask] = B[mask].
-                   (np.abs(hsv[:, :, 1]) > 1.e-10) & (intensity > 0),
-                   (1 - intensity) * hsv[:, :, 1] + intensity * hsv_max_sat)
-        np.putmask(hsv[:, :, 2],
-                   intensity > 0,
-                   (1 - intensity) * hsv[:, :, 2] + intensity * hsv_max_val)
-        np.putmask(hsv[:, :, 1],
-                   (np.abs(hsv[:, :, 1]) > 1.e-10) & (intensity < 0),
-                   (1 + intensity) * hsv[:, :, 1] - intensity * hsv_min_sat)
-        np.putmask(hsv[:, :, 2],
-                   intensity < 0,
-                   (1 + intensity) * hsv[:, :, 2] - intensity * hsv_min_val)
+        # Modify hsv values (in place) to simulate illumination.
+        # putmask(A, mask, B) <=> A[mask] = B[mask]
+        np.putmask(sat, (np.abs(sat) > 1.e-10) & (intensity > 0),
+                   (1 - intensity) * sat + intensity * hsv_max_sat)
+        np.putmask(sat, (np.abs(sat) > 1.e-10) & (intensity < 0),
+                   (1 + intensity) * sat - intensity * hsv_min_sat)
+        np.putmask(val, intensity > 0,
+                   (1 - intensity) * val + intensity * hsv_max_val)
+        np.putmask(val, intensity < 0,
+                   (1 + intensity) * val - intensity * hsv_min_val)
         np.clip(hsv[:, :, 1:], 0, 1, out=hsv[:, :, 1:])
-        # convert modified hsv back to rgb.
+
+        # Convert modified hsv back to rgb.
         return hsv_to_rgb(hsv)
 
     def blend_soft_light(self, rgb, intensity):

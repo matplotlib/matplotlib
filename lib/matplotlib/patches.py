@@ -91,7 +91,6 @@ class Patch(artist.Artist):
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
-        self._combined_transform = transforms.IdentityTransform()
 
         if len(kwargs):
             self.update(kwargs)
@@ -315,32 +314,21 @@ class Patch(artist.Artist):
         """
         Set both the edgecolor and the facecolor.
 
-        .. seealso::
-
-            :meth:`set_facecolor`, :meth:`set_edgecolor`
-               For setting the edge or face color individually.
-
         Parameters
         ----------
         c : color
+
+        See Also
+        --------
+        Patch.set_facecolor, Patch.set_edgecolor
+            For setting the edge or face color individually.
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
 
     def set_alpha(self, alpha):
-        """
-        Set the alpha transparency of the patch.
-
-        Parameters
-        ----------
-        alpha : float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
+        # docstring inherited
+        super().set_alpha(alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
         # stale is already True
@@ -939,12 +927,6 @@ class PathPatch(Patch):
 
         Valid kwargs are:
         %(Patch)s
-
-        .. seealso::
-
-            :class:`Patch`
-                For additional kwargs
-
         """
         Patch.__init__(self, **kwargs)
         self._path = path
@@ -971,12 +953,6 @@ class Polygon(Patch):
 
         Valid kwargs are:
         %(Patch)s
-
-        .. seealso::
-
-            :class:`Patch`
-                For additional kwargs
-
         """
         Patch.__init__(self, **kwargs)
         self._closed = closed
@@ -1609,13 +1585,17 @@ class Arc(Ellipse):
             The length of the vertical axis.
 
         angle : float
-            Rotation of the ellipse in degrees (anti-clockwise).
+            Rotation of the ellipse in degrees (counterclockwise).
 
         theta1, theta2 : float, optional
             Starting and ending angles of the arc in degrees. These values
-            are relative to *angle*, .e.g. if *angle* = 45 and *theta1* = 90
+            are relative to *angle*, e.g. if *angle* = 45 and *theta1* = 90
             the absolute starting angle is 135.
             Default *theta1* = 0, *theta2* = 360, i.e. a complete ellipse.
+            The arc is drawn in the counterclockwise direction.
+            Angles greater than or equal to 360, or smaller than 0, are
+            represented by an equivalent angle in the range [0, 360), by
+            taking the input value mod 360.
 
         Other Parameters
         ----------------
@@ -3951,27 +3931,28 @@ class FancyArrowPatch(Patch):
                  dpi_cor=1,
                  **kwargs):
         """
-        If *posA* and *posB* are given, a path connecting two points is
-        created according to *connectionstyle*. The path will be
-        clipped with *patchA* and *patchB* and further shrunken by
-        *shrinkA* and *shrinkB*. An arrow is drawn along this
-        resulting path using the *arrowstyle* parameter.
+        There are two ways for defining an arrow:
 
-        Alternatively if *path* is provided, an arrow is drawn along this path
-        and *patchA*, *patchB*, *shrinkA*, and *shrinkB* are ignored.
+        - If *posA* and *posB* are given, a path connecting two points is
+          created according to *connectionstyle*. The path will be
+          clipped with *patchA* and *patchB* and further shrunken by
+          *shrinkA* and *shrinkB*. An arrow is drawn along this
+          resulting path using the *arrowstyle* parameter.
+
+        - Alternatively if *path* is provided, an arrow is drawn along this
+          path and *patchA*, *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
         Parameters
         ----------
 
-        posA, posB : None, tuple, optional (default: None)
+        posA, posB : (float, float), optional (default: None)
             (x,y) coordinates of arrow tail and arrow head respectively.
 
-        path : None, Path (default: None)
-            :class:`matplotlib.path.Path` instance. If provided, an arrow is
-            drawn along this path and *patchA*, *patchB*, *shrinkA*, and
-            *shrinkB* are ignored.
+        path : `~matplotlib.path.Path`, optional (default: None)
+            If provided, an arrow is drawn along this path and *patchA*,
+            *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
-        arrowstyle : str or ArrowStyle, optional (default: 'simple')
+        arrowstyle : str or `.ArrowStyle`, optional (default: 'simple')
             Describes how the fancy arrow will be
             drawn. It can be string of the available arrowstyle names,
             with optional comma-separated attributes, or an
@@ -3982,10 +3963,10 @@ class FancyArrowPatch(Patch):
             %(AvailableArrowstyles)s
 
         arrow_transmuter
-            Ignored
+            Ignored.
 
-        connectionstyle : str, ConnectionStyle, or None, optional
-        (default: 'arc3')
+        connectionstyle : str or `.ConnectionStyle` or None, optional \
+(default: 'arc3')
             Describes how *posA* and *posB* are connected. It can be an
             instance of the :class:`ConnectionStyle` class or a string of the
             connectionstyle name, with optional comma-separated attributes. The
@@ -3994,35 +3975,37 @@ class FancyArrowPatch(Patch):
             %(AvailableConnectorstyles)s
 
         connector
-            Ignored
+            Ignored.
 
-        patchA, patchB : None, Patch, optional (default: None)
+        patchA, patchB : `.Patch`, optional (default: None)
             Head and tail patch respectively. :class:`matplotlib.patch.Patch`
             instance.
 
-        shrinkA, shrinkB : scalar, optional (default: 2)
-            Shrinking factor of the tail and head of the arrow respectively
+        shrinkA, shrinkB : float, optional (default: 2)
+            Shrinking factor of the tail and head of the arrow respectively.
 
-        mutation_scale : scalar, optional (default: 1)
+        mutation_scale : float, optional (default: 1)
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
             will be scaled.
 
-        mutation_aspect : None, scalar, optional (default: None)
+        mutation_aspect : None or float, optional (default: None)
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it.
 
-        dpi_cor : scalar, optional (default: 1)
+        dpi_cor : float, optional (default: 1)
             dpi_cor is currently used for linewidth-related things and shrink
             factor. Mutation scale is affected by this.
 
-        Notes
-        -----
-        Valid kwargs are:
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties, optional
+            Here is a list of available `.Patch` properties:
+
         %(Patch)s
 
-        In contrast to other patches, the default ``capstyle`` and
-        ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
+            In contrast to other patches, the default ``capstyle`` and
+            ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.
         """
         if arrow_transmuter is not None:
             cbook.warn_deprecated(

@@ -73,10 +73,10 @@ has a number of shortcomings.
 Supporting these things is difficult, and is the "full-time job" of a
 number of other projects:
 
-  - `pango <http://www.pango.org/>`_/`harfbuzz
+  - `pango <https://www.pango.org/>`_/`harfbuzz
     <https://www.freedesktop.org/wiki/Software/HarfBuzz/>`_
   - `QtTextLayout
-    <http://doc.qt.io/qt-4.8/qtextlayout.html>`_
+    <https://doc.qt.io/archives/qt-4.8/qtextlayout.html>`_
   - `Microsoft DirectWrite
     <https://msdn.microsoft.com/en-us/library/windows/desktop/dd371554(v=vs.85).aspx>`_
   - `Apple Core Text

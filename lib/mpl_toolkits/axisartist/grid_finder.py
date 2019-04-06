@@ -55,15 +55,13 @@ class GridFinderBase(object):
         (may use update_transform)
         """
         super().__init__()
-
         self.extreme_finder = extreme_finder
         self.grid_locator1 = grid_locator1
         self.grid_locator2 = grid_locator2
         self.tick_formatter1 = tick_formatter1
         self.tick_formatter2 = tick_formatter2
 
-    def get_grid_info(self,
-                      x1, y1, x2, y2):
+    def get_grid_info(self, x1, y1, x2, y2):
         """
         lon_values, lat_values : list of grid values. if integer is given,
                            rough number of grids in each direction.
@@ -75,10 +73,8 @@ class GridFinderBase(object):
         # i.e., gridline of lon=0 will be drawn from lat_min to lat_max.
 
         lon_min, lon_max, lat_min, lat_max = extremes
-        lon_levs, lon_n, lon_factor = \
-                  self.grid_locator1(lon_min, lon_max)
-        lat_levs, lat_n, lat_factor = \
-                  self.grid_locator2(lat_min, lat_max)
+        lon_levs, lon_n, lon_factor = self.grid_locator1(lon_min, lon_max)
+        lat_levs, lat_n, lat_factor = self.grid_locator2(lat_min, lat_max)
 
         if lon_factor is None:
             lon_values = np.asarray(lon_levs[:lon_n])
@@ -98,32 +94,27 @@ class GridFinderBase(object):
         ddy = (y2-y1)*1.e-10
         bb = Bbox.from_extents(x1-ddx, y1-ddy, x2+ddx, y2+ddy)
 
-        grid_info = {}
-        grid_info["extremes"] = extremes
-        grid_info["lon_lines"] = lon_lines
-        grid_info["lat_lines"] = lat_lines
+        grid_info = {
+            "extremes": extremes,
+            "lon_lines": lon_lines,
+            "lat_lines": lat_lines,
+            "lon": self._clip_grid_lines_and_find_ticks(
+                lon_lines, lon_values, lon_levs, bb),
+            "lat": self._clip_grid_lines_and_find_ticks(
+                lat_lines, lat_values, lat_levs, bb),
+        }
 
-        grid_info["lon"] = self._clip_grid_lines_and_find_ticks(lon_lines,
-                                                                lon_values,
-                                                                lon_levs,
-                                                                bb)
-
-        grid_info["lat"] = self._clip_grid_lines_and_find_ticks(lat_lines,
-                                                                lat_values,
-                                                                lat_levs,
-                                                                bb)
-
-        tck_labels = grid_info["lon"]["tick_labels"] = dict()
+        tck_labels = grid_info["lon"]["tick_labels"] = {}
         for direction in ["left", "bottom", "right", "top"]:
             levs = grid_info["lon"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter1(direction,
-                                                         lon_factor, levs)
+            tck_labels[direction] = self.tick_formatter1(
+                direction, lon_factor, levs)
 
-        tck_labels = grid_info["lat"]["tick_labels"] = dict()
+        tck_labels = grid_info["lat"]["tick_labels"] = {}
         for direction in ["left", "bottom", "right", "top"]:
             levs = grid_info["lat"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter2(direction,
-                                                         lat_factor, levs)
+            tck_labels[direction] = self.tick_formatter2(
+                direction, lat_factor, levs)
 
         return grid_info
 
@@ -134,9 +125,9 @@ class GridFinderBase(object):
         lons_i = np.linspace(lon_min, lon_max, 100)  # for interpolation
         lats_i = np.linspace(lat_min, lat_max, 100)
 
-        lon_lines = [self.transform_xy(np.zeros_like(lats_i) + lon, lats_i)
+        lon_lines = [self.transform_xy(np.full_like(lats_i, lon), lats_i)
                      for lon in lon_values]
-        lat_lines = [self.transform_xy(lons_i, np.zeros_like(lons_i) + lat)
+        lat_lines = [self.transform_xy(lons_i, np.full_like(lons_i, lat))
                      for lat in lat_values]
 
         return lon_lines, lat_lines

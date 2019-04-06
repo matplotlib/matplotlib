@@ -1066,7 +1066,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.allkinds = len(args) > 2 and args[2] or None
         self.zmax = np.max(self.levels)
         self.zmin = np.min(self.levels)
-        self._auto = False
 
         # Check lengths of levels and allsegs.
         if self.filled:
@@ -1152,7 +1151,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         """
-        self._auto = True
         if self.locator is None:
             if self.logscale:
                 self.locator = ticker.LogLocator()
@@ -1186,7 +1184,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Determine the contour levels and store in self.levels.
         """
-        self._auto = False
         if self.levels is None:
             if len(args) == 0:
                 levels_arg = 7  # Default, hard-wired.

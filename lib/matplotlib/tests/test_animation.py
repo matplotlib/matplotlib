@@ -77,8 +77,11 @@ def test_null_movie_writer():
 
 
 def test_movie_writer_dpi_default():
-    # Test setting up movie writer with figure.dpi default.
+    class DummyMovieWriter(animation.MovieWriter):
+        def _run(self):
+            pass
 
+    # Test setting up movie writer with figure.dpi default.
     fig = plt.figure()
 
     filename = "unused.null"
@@ -87,11 +90,7 @@ def test_movie_writer_dpi_default():
     bitrate = 1
     extra_args = ["unused"]
 
-    def run():
-        pass
-
-    writer = animation.MovieWriter(fps, codec, bitrate, extra_args)
-    writer._run = run
+    writer = DummyMovieWriter(fps, codec, bitrate, extra_args)
     writer.setup(fig, filename)
     assert writer.dpi == fig.dpi
 

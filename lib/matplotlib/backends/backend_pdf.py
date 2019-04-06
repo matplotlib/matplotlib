@@ -486,7 +486,6 @@ class PdfFile(object):
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
         self.dviFontInfo = {}   # maps dvi font names to embedding information
-        self._texFontMap = None  # maps TeX font names to PostScript fonts
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
         self.used_characters = {}

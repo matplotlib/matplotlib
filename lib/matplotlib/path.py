@@ -420,16 +420,12 @@ class Path(object):
                 quantize=False, simplify=False, curves=False,
                 stroke_width=1.0, snap=False, sketch=None):
         """
-        Cleans up the path according to the parameters returning a new
-        Path instance.
+        Returns a new Path after cleaning vertices and codes according to the
+        parameters.
 
-        .. seealso::
-
-            See :meth:`iter_segments` for details of the keyword arguments.
-
-        Returns
-        -------
-        Path instance with cleaned up vertices and codes.
+        See Also
+        --------
+        Path.iter_segments : for details of the keyword arguments.
         """
         vertices, codes = _path.cleanup_path(
             self, transform, remove_nans, clip, snap, stroke_width, simplify,
@@ -443,12 +439,11 @@ class Path(object):
         """
         Return a transformed copy of the path.
 
-        .. seealso::
-
-            :class:`matplotlib.transforms.TransformedPath`
-                A specialized path class that will cache the
-                transformed result and automatically update when the
-                transform changes.
+        See Also
+        --------
+        matplotlib.transforms.TransformedPath
+            A specialized path class that will cache the transformed result and
+            automatically update when the transform changes.
         """
         return Path(transform.transform(self.vertices), self.codes,
                     self._interpolation_steps)

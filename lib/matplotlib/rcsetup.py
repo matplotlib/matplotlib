@@ -469,16 +469,33 @@ def validate_font_properties(s):
 validate_fontset = ValidateInStrings(
     'fontset',
     ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'])
-validate_mathtext_default = ValidateInStrings(
-    'default',
-    "rm cal it tt sf bf default bb frak circled scr regular".split())
-validate_verbose = ValidateInStrings(
-    'verbose',
-    ['silent', 'helpful', 'debug', 'debug-annoying'])
+
+
+def validate_mathtext_default(s):
+    if s == "circled":
+        cbook.warn_deprecated(
+            "3.1", message="Support for setting the mathtext.default rcParam "
+            "to 'circled' is deprecated since %(since)s and will be removed "
+            "%(removal)s.")
+    return ValidateInStrings(
+        'default',
+        "rm cal it tt sf bf default bb frak circled scr regular".split())(s)
+
+
 _validate_alignment = ValidateInStrings(
     'alignment',
     ['center', 'top', 'bottom', 'baseline',
      'center_baseline'])
+
+
+_validate_verbose = ValidateInStrings(
+    'verbose',
+    ['silent', 'helpful', 'debug', 'debug-annoying'])
+
+
+@cbook.deprecated("3.1")
+def validate_verbose(s):
+    return _validate_verbose(s)
 
 
 def validate_whiskers(s):
@@ -1006,7 +1023,7 @@ defaultParams = {
     'timezone':          ['UTC', validate_string],
 
     # the verbosity setting
-    'verbose.level': ['silent', validate_verbose],
+    'verbose.level': ['silent', _validate_verbose],
     'verbose.fileo': ['sys.stdout', validate_string],
 
     # line props

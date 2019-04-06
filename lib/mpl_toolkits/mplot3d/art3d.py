@@ -744,18 +744,7 @@ class Poly3DCollection(PolyCollection):
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
 
     def set_alpha(self, alpha):
-        """
-        Set the alpha transparencies of the collection.
-
-        Parameters
-        ----------
-        alpha : float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
+        # docstring inherited
         artist.Artist.set_alpha(self, alpha)
         try:
             self._facecolors3d = mcolors.to_rgba_array(

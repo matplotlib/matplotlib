@@ -425,7 +425,6 @@ class GraphicsContextWx(GraphicsContextBase):
         self.gfx_ctx = gfx_ctx
         self._pen = wx.Pen('BLACK', 1, wx.SOLID)
         gfx_ctx.SetPen(self._pen)
-        self._style = wx.SOLID
         self.renderer = renderer
 
     def select(self):
@@ -1595,7 +1594,6 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         wx.ToolBar.__init__(self, parent, -1, style=style)
         self._toolitems = {}
         self._groups = {}
-        self._last = None
 
     def add_toolitem(
         self, name, group, position, image_file, description, toggle):
@@ -1624,7 +1622,6 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         else:
             control.Bind(wx.EVT_LEFT_DOWN, handler)
 
-        self._last = tool
         self._toolitems.setdefault(name, [])
         group.insert(position, tool)
         self._toolitems[name].append((tool, handler))

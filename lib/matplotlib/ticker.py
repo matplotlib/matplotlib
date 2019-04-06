@@ -302,7 +302,13 @@ class Formatter(TickHelper):
 
 class IndexFormatter(Formatter):
     """
-    Format the position x to the nearest i-th label where i=int(x+0.5)
+    Format the position x to the nearest i-th label where ``i = int(x + 0.5)``.
+    Positions where ``i < 0`` or ``i > len(list)`` have no tick labels.
+
+    Parameters
+    ----------
+    labels : list
+        List of labels.
     """
     def __init__(self, labels):
         self.labels = labels
@@ -587,7 +593,9 @@ class ScalarFormatter(Formatter):
         """
         Turn scientific notation on or off.
 
-        .. seealso:: Method :meth:`set_powerlimits`
+        See Also
+        --------
+        ScalarFormatter.set_powerlimits
         """
         self._scientific = bool(b)
 
@@ -606,7 +614,9 @@ class ScalarFormatter(Formatter):
             pre-2007 default in which scientific notation is used for
             numbers less than 1e-3 or greater than 1e4.
 
-        .. seealso:: Method :meth:`set_scientific`
+        See Also
+        --------
+        ScalarFormatter.set_scientific
         """
         if len(lims) != 2:
             raise ValueError("'lims' must be a sequence of length 2")

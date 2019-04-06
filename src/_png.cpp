@@ -9,7 +9,7 @@
    Undefining _POSIX_C_SOURCE and _XOPEN_SOURCE stops a couple
    of harmless warnings.
 */
-
+#define PY_SSIZE_T_CLEAN
 
 extern "C" {
 #   include <png.h>

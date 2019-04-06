@@ -235,8 +235,9 @@ class AbstractMovieWriter(abc.ABC):
 class MovieWriter(AbstractMovieWriter):
     '''Base class for writing movies.
 
-    This class is set up to provide for writing movie frame data to a pipe.
-    See examples for how to use these classes.
+    This is a base class for MovieWriter subclasses that write a movie frame
+    data to a pipe. You cannot instantiate this class directly.
+    See examples for how to use its subclasses.
 
     Attributes
     ----------
@@ -274,6 +275,15 @@ class MovieWriter(AbstractMovieWriter):
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
         '''
+        if self.__class__ is MovieWriter:
+            # TODO MovieWriter is still an abstract class and needs to be
+            #      extended with a mixin. This should be clearer in naming
+            #      and description. For now, just give a reasonable error
+            #      message to users.
+            raise TypeError(
+                'MovieWriter cannot be instantiated directly. Please use one '
+                'of its subclasses.')
+
         self.fps = fps
         self.frame_format = 'rgba'
 
@@ -957,7 +967,7 @@ class Animation(object):
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
              bitrate=None, extra_args=None, metadata=None, extra_anim=None,
-             savefig_kwargs=None):
+             savefig_kwargs=None, *, progress_callback=None):
         """
         Save the animation as a movie file by drawing every frame.
 
@@ -1012,6 +1022,22 @@ class Animation(object):
            Is a dictionary containing keyword arguments to be passed
            on to the `savefig` command which is called repeatedly to
            save the individual frames.
+
+        progress_callback : function, optional
+            A callback function that will be called for every frame to notify
+            the saving progress. It must have the signature ::
+
+                def func(current_frame: int, total_frames: int) -> Any
+
+            where *current_frame* is the current frame number and
+            *total_frames* is the total number of frames to be saved.
+            *total_frames* is set to None, if the total number of frames can
+            not be determined. Return values may exist but are ignored.
+
+            Example code to write the progress to stdout::
+
+                progress_callback =\
+                    lambda i, n: print(f'Saving frame {i} of {n}')
 
         Notes
         -----
@@ -1111,10 +1137,19 @@ class Animation(object):
                 for anim in all_anim:
                     # Clear the initial frame
                     anim._init_draw()
+                frame_number = 0
+                save_count_list = [a.save_count for a in all_anim]
+                if None in save_count_list:
+                    total_frames = None
+                else:
+                    total_frames = sum(save_count_list)
                 for data in zip(*[a.new_saved_frame_seq() for a in all_anim]):
                     for anim, d in zip(all_anim, data):
                         # TODO: See if turning off blit is really necessary
                         anim._draw_next_frame(d, blit=False)
+                        if progress_callback is not None:
+                            progress_callback(frame_number, total_frames)
+                            frame_number += 1
                     writer.grab_frame(**savefig_kwargs)
 
         # Reconnect signal for first draw if necessary
