@@ -28,15 +28,6 @@ def format_axes(ax):
     ax.invert_yaxis()
 
 
-def nice_repr(text):
-    return repr(text).lstrip('u')
-
-
-def math_repr(text):
-    tx = repr(text).lstrip('u').strip("'").strip("$")
-    return r"'\${}\$'".format(tx)
-
-
 def split_list(a_list):
     i_half = len(a_list) // 2
     return (a_list[:i_half], a_list[i_half:])
@@ -45,7 +36,6 @@ def split_list(a_list):
 ###############################################################################
 # Filled and unfilled-marker types
 # ================================
-#
 #
 # Plot all un-filled markers
 
@@ -58,9 +48,9 @@ unfilled_markers = [m for m, func in Line2D.markers.items()
 
 for ax, markers in zip(axes, split_list(unfilled_markers)):
     for y, marker in enumerate(markers):
-        ax.text(-0.5, y, nice_repr(marker), **text_style)
+        ax.text(-0.5, y, repr(marker), **text_style)
         ax.plot(y * points, marker=marker, **marker_style)
-        format_axes(ax)
+    format_axes(ax)
 
 plt.show()
 
@@ -71,9 +61,9 @@ plt.show()
 fig, axes = plt.subplots(ncols=2)
 for ax, markers in zip(axes, split_list(Line2D.filled_markers)):
     for y, marker in enumerate(markers):
-        ax.text(-0.5, y, nice_repr(marker), **text_style)
+        ax.text(-0.5, y, repr(marker), **text_style)
         ax.plot(y * points, marker=marker, **marker_style)
-        format_axes(ax)
+    format_axes(ax)
 fig.suptitle('filled markers', fontsize=14)
 
 plt.show()
@@ -82,7 +72,6 @@ plt.show()
 ###############################################################################
 # Custom Markers with MathText
 # ============================
-#
 #
 # Use :doc:`MathText </tutorials/text/mathtext>`, to use custom marker symbols,
 # like e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer
@@ -99,8 +88,10 @@ markers = ["$1$", r"$\frac{1}{2}$", "$f$", "$\u266B$",
 
 
 for y, marker in enumerate(markers):
-    ax.text(-0.5, y, math_repr(marker), **text_style)
+    # Escape dollars so that the text is written "as is", not as mathtext.
+    ax.text(-0.5, y, repr(marker).replace("$", r"\$"), **text_style)
     ax.plot(y * points, marker=marker, **marker_style)
 format_axes(ax)
+fig.suptitle('mathtext markers', fontsize=14)
 
 plt.show()

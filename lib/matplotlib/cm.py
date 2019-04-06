@@ -167,19 +167,13 @@ def get_cmap(name=None, lut=None):
     """
     if name is None:
         name = mpl.rcParams['image.cmap']
-
     if isinstance(name, colors.Colormap):
         return name
-
-    if name in cmap_d:
-        if lut is None:
-            return cmap_d[name]
-        else:
-            return cmap_d[name]._resample(lut)
+    cbook._check_in_list(sorted(cmap_d), name=name)
+    if lut is None:
+        return cmap_d[name]
     else:
-        raise ValueError(
-            "Colormap %s is not recognized. Possible values are: %s"
-            % (name, ', '.join(sorted(cmap_d))))
+        return cmap_d[name]._resample(lut)
 
 
 class ScalarMappable(object):

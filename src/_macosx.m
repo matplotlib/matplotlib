@@ -1,3 +1,4 @@
+#define PY_SSIZE_T_CLEAN
 #include <Cocoa/Cocoa.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <sys/socket.h>

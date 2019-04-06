@@ -1,0 +1,8 @@
+Deprecations
+````````````
+
+The `\mathcircled` mathtext command (which is not a real TeX command)
+is deprecated.  Directly use unicode characters (e.g.
+``"\N{CIRCLED LATIN CAPITAL LETTER A}"`` or ``"\u24b6"``) instead.
+
+Support for setting :rc:`mathtext.default` to circled is deprecated.

@@ -615,7 +615,7 @@ for it in the :ref:`users-guide-index`.  And so on...  I think you get the
 idea.
 
 Matplotlib is documented using the `sphinx
-<http://www.sphinx-doc.org/index.html>`_ extensions to restructured text
+<http://www.sphinx-doc.org/en/stable/>`_ extensions to restructured text
 `(ReST) <http://docutils.sourceforge.net/rst.html>`_.  sphinx is an
 extensible python framework for documentation projects which generates
 HTML and PDF, and is pretty easy to write; you can see the source for this

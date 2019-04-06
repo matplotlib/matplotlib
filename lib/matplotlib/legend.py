@@ -593,7 +593,6 @@ class Legend(Artist):
             title_fontsize = rcParams['legend.title_fontsize']
         tprop = FontProperties(size=title_fontsize)
         self.set_title(title, prop=tprop)
-        self._last_fontsize_points = self._fontsize
         self._draggable = None
 
     def _set_artist_props(self, a):

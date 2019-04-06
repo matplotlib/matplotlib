@@ -180,6 +180,6 @@ plt.plot(data)
 # .. literalinclude:: ../../../matplotlibrc.template
 #
 #
-# .. _ggplot: http://ggplot2.org/
+# .. _ggplot: https://ggplot2.tidyverse.org/
 # .. _R: https://www.r-project.org/
 # .. _provided by Matplotlib: https://github.com/matplotlib/matplotlib/tree/master/lib/matplotlib/mpl-data/stylelib

@@ -2978,7 +2978,7 @@ def test_errorbar_limits():
 
     # including xlower and xupper limits
     xerr = 0.2
-    yerr = np.zeros_like(x) + 0.2
+    yerr = np.full_like(x, 0.2)
     yerr[[3, 6]] = 0.3
     xlolims = lolims
     xuplims = uplims
@@ -3097,6 +3097,19 @@ def test_stem(use_line_collection):
             ax.stem(*args, **kwargs)
 
     ax.legend()
+
+
+@check_figures_equal(extensions=['png'])
+def test_stem_params(fig_test, fig_ref):
+    x = np.linspace(0, 3.14, 37)
+    y = np.sin(x)
+
+    ax = fig_test.subplots()
+    ax.stem(x, y, linefmt='grey', use_line_collection=True)
+
+    ax = fig_ref.subplots()
+    with pytest.warns(UserWarning):
+        ax.stem(x, y, linefmt='grey')
 
 
 def test_stem_args():
@@ -5739,6 +5752,16 @@ def test_title_xticks_top():
     assert ax.title.get_position()[1] > 1.04
 
 
+def test_title_xticks_top_both():
+    # Test that title moves if xticks on top of axes.
+    fig, ax = plt.subplots()
+    ax.tick_params(axis="x", bottom=True, top=True,
+                             labelbottom=True, labeltop=True)
+    ax.set_title('xlabel top')
+    fig.canvas.draw()
+    assert ax.title.get_position()[1] > 1.04
+
+
 def test_offset_label_color():
     # Tests issue 6440
     fig = plt.figure()
@@ -6352,3 +6375,23 @@ def test_datetime_masked():
     ax.plot(x, m)
     # these are the default viewlim
     assert ax.get_xlim() == (730120.0, 733773.0)
+
+
+def test_hist_auto_bins():
+    _, bins, _ = plt.hist([[1, 2, 3], [3, 4, 5, 6]], bins='auto')
+    assert bins[0] <= 1
+    assert bins[-1] >= 6
+
+
+def test_hist_nan_data():
+    fig, (ax1, ax2) = plt.subplots(2)
+
+    data = [1, 2, 3]
+    nan_data = data + [np.nan]
+
+    bins, edges, _ = ax1.hist(data)
+    with np.errstate(invalid='ignore'):
+        nanbins, nanedges, _ = ax2.hist(nan_data)
+
+    assert np.allclose(bins, nanbins)
+    assert np.allclose(edges, nanedges)

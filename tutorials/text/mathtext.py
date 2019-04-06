@@ -215,12 +215,6 @@ choice of:
     ``\mathrm{\mathsf{sansserif}}``  :math-stix:`\mathrm{\mathsf{sansserif}}`
     ================================ =========================================
 
-  .. only:: html
-
-    ================================ =========================================
-    ``\mathcircled{circled}``        :math-stix:`\mathcircled{circled}`
-    ================================ =========================================
-
 There are also three global "font sets" to choose from, which are
 selected using the ``mathtext.fontset`` parameter in :ref:`matplotlibrc
 <matplotlibrc-sample>`.

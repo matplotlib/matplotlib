@@ -40,37 +40,6 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
         self.grid_helper.update_lim(axes)
         self.grid_info = self.grid_helper.grid_info
 
-    def get_axislabel_pos_angle(self, axes):
-
-        extremes = self.grid_info["extremes"]
-
-        if self.nth_coord == 0:
-            xx0 = self.value
-            yy0 = (extremes[2]+extremes[3])/2.
-            dxx, dyy = 0., abs(extremes[2]-extremes[3])/1000.
-        elif self.nth_coord == 1:
-            xx0 = (extremes[0]+extremes[1])/2.
-            yy0 = self.value
-            dxx, dyy = abs(extremes[0]-extremes[1])/1000., 0.
-
-        grid_finder = self.grid_helper.grid_finder
-        xx1, yy1 = grid_finder.transform_xy([xx0], [yy0])
-
-        trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
-        p = trans_passingthrough_point.transform_point([xx1[0], yy1[0]])
-
-        if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
-            xx1c, yy1c = axes.transData.transform_point([xx1[0], yy1[0]])
-            xx2, yy2 = grid_finder.transform_xy([xx0+dxx], [yy0+dyy])
-            xx2c, yy2c = axes.transData.transform_point([xx2[0], yy2[0]])
-
-            return (xx1c, yy1c), np.arctan2(yy2c-yy1c, xx2c-xx1c)/np.pi*180.
-        else:
-            return None, None
-
-    def get_tick_transform(self, axes):
-        return IdentityTransform()  # axes.transData
-
     def get_tick_iterators(self, axes):
         """tick_loc, tick_angle, tick_label, (optionally) tick_label"""
 
@@ -163,9 +132,6 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
                     yield [x, y], d1, d2, lab
 
         return f1(), iter([])
-
-    def get_line_transform(self, axes):
-        return axes.transData
 
     def get_line(self, axes):
 

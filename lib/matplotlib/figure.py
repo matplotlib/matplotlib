@@ -345,9 +345,9 @@ class Figure(Artist):
         if frameon is None:
             frameon = rcParams['figure.frameon']
 
-        if not np.isfinite(figsize).all():
-            raise ValueError('figure size must be finite not '
-                             '{}'.format(figsize))
+        if not np.isfinite(figsize).all() or (np.array(figsize) <= 0).any():
+            raise ValueError('figure size must be positive finite not '
+                             f'{figsize}')
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
 
         self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
@@ -890,26 +890,19 @@ default: 'top'
         --------
         matplotlib.Figure.get_size_inches
         """
-
-        # the width and height have been passed in as a tuple to the first
-        # argument, so unpack them
-        if h is None:
+        if h is None:  # Got called with a single pair as argument.
             w, h = w
-        if not all(np.isfinite(_) for _ in (w, h)):
-            raise ValueError('figure size must be finite not '
-                             '({}, {})'.format(w, h))
-        self.bbox_inches.p1 = w, h
-
+        size = np.array([w, h])
+        if not np.isfinite(size).all() or (size <= 0).any():
+            raise ValueError(f'figure size must be positive finite not {size}')
+        self.bbox_inches.p1 = size
         if forward:
             canvas = getattr(self, 'canvas')
             if canvas is not None:
-                ratio = getattr(self.canvas, '_dpi_ratio', 1)
-                dpival = self.dpi / ratio
-                canvasw = w * dpival
-                canvash = h * dpival
-                manager = getattr(self.canvas, 'manager', None)
+                dpi_ratio = getattr(canvas, '_dpi_ratio', 1)
+                manager = getattr(canvas, 'manager', None)
                 if manager is not None:
-                    manager.resize(int(canvasw), int(canvash))
+                    manager.resize(*(size * self.dpi / dpi_ratio).astype(int))
         self.stale = True
 
     def get_size_inches(self):
@@ -2297,7 +2290,6 @@ default: 'top'
         terminates input and any other key (not already used by the window
         manager) selects a point.
         """
-
         blocking_mouse_input = BlockingMouseInput(self,
                                                   mouse_add=mouse_add,
                                                   mouse_pop=mouse_pop,
@@ -2315,7 +2307,6 @@ default: 'top'
 
         If *timeout* is negative, does not timeout.
         """
-
         blocking_input = BlockingKeyMouseInput(self)
         return blocking_input(timeout=timeout)
 

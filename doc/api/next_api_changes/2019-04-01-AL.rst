@@ -1,0 +1,7 @@
+API changes
+```````````
+
+The ``--no-network`` flag to ``tests.py`` has been removed (no test requires
+internet access anymore).  If it is desired to disable internet access both for
+old and new versions of Matplotlib, use ``tests.py -m 'not network'`` (which is
+now a no-op).

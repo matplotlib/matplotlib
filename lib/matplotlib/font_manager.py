@@ -114,6 +114,8 @@ X11FontDirectories = [
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
     # user fonts
+    str(Path(os.environ.get('XDG_DATA_HOME',
+                            Path.home() / ".local/share")) / "fonts"),
     str(Path.home() / ".fonts"),
 ]
 
@@ -161,7 +163,7 @@ def win32FontDirectory():
 
       \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
 
-    If the key is not found, $WINDIR/Fonts will be returned.
+    If the key is not found, ``%WINDIR%\Fonts`` will be returned.
     """
     import winreg
     try:
@@ -602,8 +604,8 @@ class FontProperties(object):
     on the font manager's default font size.
 
     This class will also accept a fontconfig_ pattern_, if it is the only
-    argument provided.  This support does not require fontconfig to be
-    installed.  We are merely borrowing its pattern syntax for use here.
+    argument provided.  This support does not depend on fontconfig; we are
+    merely borrowing its pattern syntax for use here.
 
     .. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
     .. _pattern:
@@ -733,8 +735,7 @@ class FontProperties(object):
         Get a fontconfig_ pattern_ suitable for looking up the font as
         specified with fontconfig's ``fc-match`` utility.
 
-        This support does not require fontconfig to be installed or
-        support for it to be enabled.  We are merely borrowing its
+        This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
         return generate_fontconfig_pattern(self)
@@ -843,8 +844,7 @@ class FontProperties(object):
         """
         Set the properties by parsing a fontconfig_ *pattern*.
 
-        This support does not require fontconfig to be installed or
-        support for it to be enabled.  We are merely borrowing its
+        This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
         for key, val in self._parse_fontconfig_pattern(pattern).items():
@@ -1177,28 +1177,53 @@ class FontManager(object):
     def findfont(self, prop, fontext='ttf', directory=None,
                  fallback_to_default=True, rebuild_if_missing=True):
         """
-        Search the font list for the font that most closely matches
-        the :class:`FontProperties` *prop*.
+        Find a font that most closely matches the given font properties.
 
-        :meth:`findfont` performs a nearest neighbor search.  Each
-        font is given a similarity score to the target font
-        properties.  The first font with the highest score is
-        returned.  If no matches below a certain threshold are found,
-        the default font (usually DejaVu Sans) is returned.
+        Parameters
+        ----------
+        prop : str or `~matplotlib.font_manager.FontProperties`
+            The font properties to search for. This can be either a
+            `.FontProperties` object or a string defining a
+            `fontconfig patterns`_.
 
-        `directory`, is specified, will only return fonts from the
-        given directory (or subdirectory of that directory).
+        fontext : {'ttf', 'afm'}, optional, default: 'ttf'
+            The extension of the font file:
+
+            - 'ttf': TrueType and OpenType fonts (.ttf, .ttc, .otf)
+            - 'afm': Adobe Font Metrics (.afm)
+
+        directory : str, optional
+            If given, only search this directory and its subdirectories.
+        fallback_to_default : bool
+            If True, will fallback to the default font family (usually
+            "DejaVu Sans" or "Helvetica") if the first lookup hard-fails.
+        rebuild_if_missing : bool
+            Whether to rebuild the font cache and search again if no match
+            is found.
+
+        Returns
+        -------
+        fontfile : str
+            The filename of the best matching font.
+
+        Notes
+        -----
+        This performs a nearest neighbor search.  Each font is given a
+        similarity score to the target font properties.  The first font with
+        the highest score is returned.  If no matches below a certain
+        threshold are found, the default font (usually DejaVu Sans) is
+        returned.
 
         The result is cached, so subsequent lookups don't have to
         perform the O(n) nearest neighbor search.
 
-        If `fallback_to_default` is True, will fallback to the default
-        font family (usually "DejaVu Sans" or "Helvetica") if
-        the first lookup hard-fails.
-
         See the `W3C Cascading Style Sheet, Level 1
         <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ documentation
         for a description of the font finding algorithm.
+
+        .. _fontconfig patterns:
+           https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
+
         """
         # Pass the relevant rcParams (and the font manager, as `self`) to
         # _findfont_cached so to prevent using a stale cache entry after an

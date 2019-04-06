@@ -16,7 +16,7 @@ environment:
   global:
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
-                 --cov-report= --cov=lib -m "not network" --log-level=DEBUG
+                 --cov-report= --cov=lib --log-level=DEBUG
 
   matrix:
     # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,

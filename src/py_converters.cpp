@@ -1,5 +1,5 @@
 #define NO_IMPORT_ARRAY
-
+#define PY_SSIZE_T_CLEAN
 #include "py_converters.h"
 #include "numpy_cpp.h"
 

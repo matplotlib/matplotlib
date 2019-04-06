@@ -39,16 +39,9 @@ if __name__ == '__main__':
     from matplotlib import test
 
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('--no-network', action='store_true',
-                        help='Run tests without network connection')
     parser.add_argument('--recursionlimit', type=int, default=0,
                         help='Specify recursionlimit for test run')
     args, extra_args = parser.parse_known_args()
-
-    if args.no_network:
-        from matplotlib.testing import disable_internet
-        disable_internet.turn_off_internet()
-        extra_args.extend(['-m', 'not network'])
 
     print('Python byte-compilation optimization level:', sys.flags.optimize)
 
