@@ -1527,15 +1527,21 @@ class Axis(martist.Artist):
     def convert_units(self, x):
         # If x is already a number
         if munits.ConversionInterface.is_numlike(x):
+            if np.iterable(x):
+                is_decimal = False
+                # use iterator to avoid key error
+                for thisx in x:
+                    is_decimal = isinstance(thisx, Decimal)
+                if is_decimal:
+                    converter = np.asarray
+                    if isinstance(x, ma.MaskedArray):
+                        converter = ma.asarray
+                    return converter(x, dtype=np.float)
+                else:
+                    return x
             # need to convert when x is a Decimal
-            if isinstance(x, Decimal):
+            elif isinstance(x, Decimal):
                 return np.float(x)
-            # need to convert when x is a list of Decimal
-            elif np.iterable(x) and len(x) > 0 and isinstance(x[0], Decimal):
-                converter = np.asarray
-                if isinstance(x, ma.MaskedArray):
-                    converter = ma.asarray
-                return converter(x, dtype=np.float)
             # Otherwise, doesn't need converting
             else:
                 return x
