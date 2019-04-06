@@ -1148,14 +1148,14 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         fewer dimensions.
 
     whis : float, string, or sequence (default = 1.5)
-        As a float, determines the reach of the whiskers to the beyond the
+        As a float, determines the reach of the whiskers beyond the
         first and third quartiles. In other words, where IQR is the
         interquartile range (`Q3-Q1`), the upper whisker will extend to last
-        datum less than `Q3 + whis*IQR`). Similarly, the lower whisker will
+        datum less than `Q3 + whis*IQR`. Similarly, the lower whisker will
         extend to the first datum greater than `Q1 - whis*IQR`.
         Beyond the whiskers, data are considered outliers
-        and are plotted as individual points. This can be set this to an
-        ascending sequence of percentile (e.g., [5, 95]) to set the
+        and are plotted as individual points. This can be set to an
+        ascending sequence of percentiles (e.g., [5, 95]) to set the
         whiskers at specific percentiles of the data. Finally, `whis`
         can be the string ``'range'`` to force the whiskers to the
         minimum and maximum of the data. In the edge case that the 25th
