@@ -1531,7 +1531,7 @@ class Axis(martist.Artist):
             if isinstance(x, Decimal):
                 return np.float(x)
             # need to convert when x is a list of Decimal
-            elif np.iterable(x) and isinstance(x[0], Decimal):
+            elif np.iterable(x) and len(x) > 0 and isinstance(x[0], Decimal):
                 converter = np.asarray
                 if isinstance(x, ma.MaskedArray):
                     converter = ma.asarray
