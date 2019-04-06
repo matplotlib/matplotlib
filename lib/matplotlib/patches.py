@@ -314,14 +314,14 @@ class Patch(artist.Artist):
         """
         Set both the edgecolor and the facecolor.
 
-        .. seealso::
-
-            :meth:`set_facecolor`, :meth:`set_edgecolor`
-               For setting the edge or face color individually.
-
         Parameters
         ----------
         c : color
+
+        See Also
+        --------
+        Patch.set_facecolor, Patch.set_edgecolor
+            For setting the edge or face color individually.
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
@@ -927,12 +927,6 @@ class PathPatch(Patch):
 
         Valid kwargs are:
         %(Patch)s
-
-        .. seealso::
-
-            :class:`Patch`
-                For additional kwargs
-
         """
         Patch.__init__(self, **kwargs)
         self._path = path
@@ -959,12 +953,6 @@ class Polygon(Patch):
 
         Valid kwargs are:
         %(Patch)s
-
-        .. seealso::
-
-            :class:`Patch`
-                For additional kwargs
-
         """
         Patch.__init__(self, **kwargs)
         self._closed = closed
