@@ -1562,10 +1562,8 @@ def setp(obj, *args, **kwargs):
 
 def kwdoc(artist):
     r"""
-    Inspect an `~matplotlib.artist.Artist` class and return
-    information about its settable properties and their current values.
-
-    It use the class `.ArtistInspector`.
+    Inspect an `~matplotlib.artist.Artist` class (using `.ArtistInspector`) and
+    return information about its settable properties and their current values.
 
     Parameters
     ----------
@@ -1574,11 +1572,9 @@ def kwdoc(artist):
     Returns
     -------
     string
-        Returns a string with a list or rst table with the settable properties
-        of the *artist*. The formatting depends on the value of
-        :rc:`docstring.hardcopy`. False result in a list that is intended for
-        easy reading as a docstring and True result in a rst table intended
-        for rendering the documentation with sphinx.
+        The settable properties of *artist*, as plain text if
+        :rc:`docstring.hardcopy` is False and as a rst table (intended for
+        use in Sphinx) if it is True.
     """
     hardcopy = matplotlib.rcParams['docstring.hardcopy']
     if hardcopy:

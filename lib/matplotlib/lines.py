@@ -72,12 +72,11 @@ def _scale_dashes(offset, dashes, lw):
 
 def segment_hits(cx, cy, x, y, radius):
     """
-    Determine if any line segments are within radius of a
-    point. Returns the list of line segments that are within that
-    radius.
+    Return the indices of the segments in the polyline with coordinates (*cx*,
+    *cy*) that are within a distance *radius* of the point (*x*, *y*).
     """
     # Process single points specially
-    if len(x) < 2:
+    if len(x) <= 1:
         res, = np.nonzero((cx - x) ** 2 + (cy - y) ** 2 <= radius ** 2)
         return res
 
