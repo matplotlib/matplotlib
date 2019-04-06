@@ -6,6 +6,8 @@ import datetime
 import logging
 
 import numpy as np
+from numpy import ma
+from decimal import Decimal
 
 from matplotlib import rcParams
 import matplotlib.artist as martist
@@ -1525,9 +1527,20 @@ class Axis(martist.Artist):
         return self.converter is not None or self.units is not None
 
     def convert_units(self, x):
-        # If x is already a number, doesn't need converting
+        # If x is already a number
         if munits.ConversionInterface.is_numlike(x):
-            return x
+            # need to convert when x is a Decimal
+            if isinstance(x, Decimal):
+                return np.float(x)
+            # need to convert when x is a list of Decimal
+            elif np.iterable(x) and isinstance(x[0], Decimal):
+                converter = np.asarray
+                if isinstance(x, ma.MaskedArray):
+                    converter = ma.asarray
+                return converter(x, dtype=np.float)
+            # Otherwise, doesn't need converting
+            else:
+                return x
 
         if self.converter is None:
             self.converter = munits.registry.get_converter(x)
