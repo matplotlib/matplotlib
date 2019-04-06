@@ -582,14 +582,13 @@ class Spine(mpatches.Patch):
 
         Parameters
         ----------
-        c : color or sequence of rgba tuples
+        c : color
 
-        .. seealso::
-
-            :meth:`set_facecolor`, :meth:`set_edgecolor`
-               For setting the edge or face color individually.
+        Notes
+        -----
+        This method does not modify the facecolor (which defaults to "none"),
+        unlike the `Patch.set_color` method defined in the parent class.  Use
+        `Patch.set_facecolor` to set the facecolor.
         """
-        # The facecolor of a spine is always 'none' by default -- let
-        # the user change it manually if desired.
         self.set_edgecolor(c)
         self.stale = True
