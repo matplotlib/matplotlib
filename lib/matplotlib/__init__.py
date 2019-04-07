@@ -932,15 +932,15 @@ def _rc_params_in_file(fname, fail_on_error=False):
 
     for key, (val, line, cnt) in rc_temp.items():
         if key in defaultParams:
-            if fail_on_error:
-                config[key] = val  # try to convert to proper type or raise
-            else:
-                try:
-                    config[key] = val  # try to convert to proper type or skip
-                except Exception as msg:
+            try:
+                config[key] = val  # try to convert to proper type
+            except Exception as msg:
+                if not fail_on_error:
                     error_details = _error_details_fmt % (cnt, line, fname)
                     _log.warning('Bad val %r on %s\n\t%s',
                                  val, error_details, msg)
+                else:
+                    raise
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             cbook.warn_deprecated(
