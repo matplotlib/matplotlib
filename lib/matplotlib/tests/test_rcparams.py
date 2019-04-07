@@ -487,7 +487,7 @@ def test_use_no_fallback(target):
     import matplotlib as mpl
     mpl.rcParams['backend_fallback'] = True
     mpl.use(target)
-    assert mpl.rcParams['backend_fallback'] == False
+    assert not mpl.rcParams['backend_fallback']
 
 
 _backend_fallaback_test_data = (
@@ -503,11 +503,11 @@ def test_backend_fallback_init(inp):
     from matplotlib import RcParams
 
     rc = RcParams(**inp)
-    assert (rc.get('backend_fallback', True) \
+    assert (rc.get('backend_fallback', True)
             == inp.get('backend_fallback', True))
 
     rc['backend_fallback'] = inp.get('backend_fallback', True)
-
+    rc['backend'] = inp['backend']
     rc['backend'] = 'agg'
     assert not rc['backend_fallback']
 
@@ -522,7 +522,7 @@ def test_backend_fallback_update(inp):
 
     rc = RcParams()
     rc.update(inp)
-    assert (rc.get('backend_fallback', True) \
+    assert (rc.get('backend_fallback', True)
             == inp.get('backend_fallback', True))
 
 
