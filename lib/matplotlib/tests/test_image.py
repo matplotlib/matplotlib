@@ -213,6 +213,29 @@ def test_imsave_color_alpha():
         assert_array_equal(data, arr_buf)
 
 
+def test_imsave_pil_kwargs_png():
+    Image = pytest.importorskip("PIL.Image")
+    from PIL.PngImagePlugin import PngInfo
+    buf = io.BytesIO()
+    pnginfo = PngInfo()
+    pnginfo.add_text("Software", "test")
+    plt.imsave(buf, [[0, 1], [2, 3]],
+               format="png", pil_kwargs={"pnginfo": pnginfo})
+    im = Image.open(buf)
+    assert im.info["Software"] == "test"
+
+
+def test_imsave_pil_kwargs_tiff():
+    Image = pytest.importorskip("PIL.Image")
+    from PIL.TiffTags import TAGS_V2 as TAGS
+    buf = io.BytesIO()
+    pil_kwargs = {"description": "test image"}
+    plt.imsave(buf, [[0, 1], [2, 3]], format="tiff", pil_kwargs=pil_kwargs)
+    im = Image.open(buf)
+    tags = {TAGS[k].name: v for k, v in im.tag_v2.items()}
+    assert tags["ImageDescription"] == "test image"
+
+
 @image_comparison(baseline_images=['image_alpha'], remove_text=True)
 def test_image_alpha():
     plt.figure()

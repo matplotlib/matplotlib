@@ -1431,7 +1431,7 @@ def imread(fname, format=None):
 
 
 def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
-           origin=None, dpi=100):
+           origin=None, dpi=100, *, metadata=None, pil_kwargs=None):
     """
     Save an array as an image file.
 
@@ -1464,6 +1464,17 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     dpi : int
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.
+    metadata : dict, optional
+        Metadata in the image file.  The supported keys depend on the output
+        format, see the documentation of the respective backends for more
+        information.
+    pil_kwargs : dict, optional
+        If set to a non-None value, always use Pillow to save the figure
+        (regardless of the output format), and pass these keyword arguments to
+        `PIL.Image.save`.
+
+        If the 'pnginfo' key is present, it completely overrides
+        *metadata*, including the default 'Software' key.
     """
     from matplotlib.figure import Figure
     from matplotlib import _png
@@ -1474,10 +1485,14 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
                   else rcParams["savefig.format"]).lower()
     if format in ["pdf", "ps", "eps", "svg"]:
         # Vector formats that are not handled by PIL.
+        if pil_kwargs is not None:
+            raise ValueError(
+                f"Cannot use 'pil_kwargs' when saving to {format}")
         fig = Figure(dpi=dpi, frameon=False)
         fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin,
                      resize=True)
-        fig.savefig(fname, dpi=dpi, format=format, transparent=True)
+        fig.savefig(fname, dpi=dpi, format=format, transparent=True,
+                    metadata=metadata)
     else:
         # Don't bother creating an image; this avoids rounding errors on the
         # size when dividing and then multiplying by dpi.
@@ -1488,17 +1503,28 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         if origin == "lower":
             arr = arr[::-1]
         rgba = sm.to_rgba(arr, bytes=True)
-        if format == "png":
-            _png.write_png(rgba, fname, dpi=dpi)
+        if format == "png" and pil_kwargs is None:
+            _png.write_png(rgba, fname, dpi=dpi, metadata=metadata)
         else:
             try:
                 from PIL import Image
+                from PIL.PngImagePlugin import PngInfo
             except ImportError as exc:
-                raise ImportError(
-                    f"Saving to {format} requires Pillow") from exc
+                if pil_kwargs is not None:
+                    raise ImportError("Setting 'pil_kwargs' requires Pillow")
+                else:
+                    raise ImportError(f"Saving to {format} requires Pillow")
+            if pil_kwargs is None:
+                pil_kwargs = {}
             pil_shape = (rgba.shape[1], rgba.shape[0])
             image = Image.frombuffer(
                 "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
+            if format == "png" and metadata is not None:
+                # cf. backend_agg's print_png.
+                pnginfo = PngInfo()
+                for k, v in metadata.items():
+                    pnginfo.add_text(k, v)
+                pil_kwargs["pnginfo"] = pnginfo
             if format in ["jpg", "jpeg"]:
                 format = "jpeg"  # Pillow doesn't recognize "jpg".
                 color = tuple(
@@ -1507,7 +1533,9 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
                 background = Image.new("RGB", pil_shape, color)
                 background.paste(image, image)
                 image = background
-            image.save(fname, format=format, dpi=(dpi, dpi))
+            pil_kwargs.setdefault("format", format)
+            pil_kwargs.setdefault("dpi", (dpi, dpi))
+            image.save(fname, **pil_kwargs)
 
 
 def pil_to_array(pilImage):
