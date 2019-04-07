@@ -18,7 +18,7 @@ def test_aspect_equal_error():
         ax.set_aspect('equal')
 
 
-@image_comparison(['bar3d'], remove_text=True)
+@image_comparison(['bar3d.png'], remove_text=True)
 def test_bar3d():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -63,7 +63,7 @@ def test_bar3d_notshaded():
     fig.canvas.draw()
 
 
-@image_comparison(['contour3d'], remove_text=True, style='mpl20')
+@image_comparison(['contour3d.png'], remove_text=True, style='mpl20')
 def test_contour3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -76,7 +76,7 @@ def test_contour3d():
     ax.set_zlim(-100, 100)
 
 
-@image_comparison(['contourf3d'], remove_text=True)
+@image_comparison(['contourf3d.png'], remove_text=True)
 def test_contourf3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -89,7 +89,7 @@ def test_contourf3d():
     ax.set_zlim(-100, 100)
 
 
-@image_comparison(['contourf3d_fill'], remove_text=True)
+@image_comparison(['contourf3d_fill.png'], remove_text=True)
 def test_contourf3d_fill():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -119,7 +119,7 @@ def test_tricontour():
     ax.tricontourf(x, y, z)
 
 
-@image_comparison(['lines3d'], remove_text=True)
+@image_comparison(['lines3d.png'], remove_text=True)
 def test_lines3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -131,11 +131,7 @@ def test_lines3d():
     ax.plot(x, y, z)
 
 
-# Reason for flakiness of SVG test is still unknown.
-@image_comparison(
-    ['mixedsubplot'], remove_text=True,
-    extensions=['png', 'pdf',
-                pytest.param('svg', marks=pytest.mark.xfail(strict=False))])
+@image_comparison(['mixedsubplot.png'], remove_text=True)
 def test_mixedsubplots():
     def f(t):
         return np.cos(2*np.pi*t) * np.exp(-t)
@@ -172,7 +168,7 @@ def test_tight_layout_text(fig_test, fig_ref):
     ax2.text(.5, .5, .5, s='some string')
 
 
-@image_comparison(['scatter3d'], remove_text=True)
+@image_comparison(['scatter3d.png'], remove_text=True)
 def test_scatter3d():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -202,7 +198,7 @@ def test_plot_3d_from_2d():
     ax.plot(xs, ys, zs=0, zdir='y')
 
 
-@image_comparison(['surface3d'], remove_text=True)
+@image_comparison(['surface3d.png'], remove_text=True)
 def test_surface3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -231,7 +227,7 @@ def test_surface3d_shaded():
     ax.set_zlim(-1.01, 1.01)
 
 
-@image_comparison(['text3d'])
+@image_comparison(['text3d.png'])
 def test_text3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -255,7 +251,7 @@ def test_text3d():
     ax.set_zlabel('Z axis')
 
 
-@image_comparison(['trisurf3d'], remove_text=True, tol=0.03)
+@image_comparison(['trisurf3d.png'], remove_text=True, tol=0.03)
 def test_trisurf3d():
     n_angles = 36
     n_radii = 8
@@ -291,7 +287,7 @@ def test_trisurf3d_shaded():
     ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
 
 
-@image_comparison(['wireframe3d'], remove_text=True)
+@image_comparison(['wireframe3d.png'], remove_text=True)
 def test_wireframe3d():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -333,7 +329,7 @@ def test_mixedsamplesraises():
         ax.plot_surface(X, Y, Z, cstride=50, rcount=10)
 
 
-@image_comparison(['quiver3d'], remove_text=True)
+@image_comparison(['quiver3d.png'], remove_text=True)
 def test_quiver3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -348,7 +344,7 @@ def test_quiver3d():
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 
-@image_comparison(['quiver3d_empty'], remove_text=True)
+@image_comparison(['quiver3d_empty.png'], remove_text=True)
 def test_quiver3d_empty():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -363,7 +359,7 @@ def test_quiver3d_empty():
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 
-@image_comparison(['quiver3d_masked'], remove_text=True)
+@image_comparison(['quiver3d_masked.png'], remove_text=True)
 def test_quiver3d_masked():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -412,7 +408,7 @@ def test_quiver3d_pivot_tail():
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail', normalize=True)
 
 
-@image_comparison(['poly3dcollection_closed'], remove_text=True)
+@image_comparison(['poly3dcollection_closed.png'], remove_text=True)
 def test_poly3dcollection_closed():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -644,7 +640,7 @@ def test_autoscale():
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.4, 2.4)
 
 
-@image_comparison(['axes3d_ortho'], style='default')
+@image_comparison(['axes3d_ortho.png'], style='default')
 def test_axes3d_ortho():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
