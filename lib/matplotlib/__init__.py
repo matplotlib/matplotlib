@@ -867,8 +867,9 @@ class RcParams(MutableMapping, dict):
         return {k: dict.__getitem__(self, k) for k in self}
 
     def update(self, *args, **kwargs):
-        inp_backend_fallback = dict(*args, **kwargs).get('backend_fallback')
-        super().update(*args, **kwargs)
+        inp = dict(*args, **kwargs)
+        inp_backend_fallback = inp.get('backend_fallback')
+        super().update(inp)
         if inp_backend_fallback is not None:
             self['backend_fallback'] = inp_backend_fallback
 
