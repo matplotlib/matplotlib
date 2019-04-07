@@ -480,11 +480,11 @@ def test_if_rctemplate_would_be_valid(tmpdir):
                                 use_default_template=False)
         assert len(record) == 0
 
-
+# mark with backend so we are sure it will get re-set!
+@pytest.mark.backend('agg')
 @pytest.mark.parametrize('target', ('agg', 'svg'))
 def test_use_no_fallback(target):
     import matplotlib as mpl
-    mpl.use('agg')
     mpl.rcParams['backend_fallback'] = True
     mpl.use(target)
     assert mpl.rcParams['backend_fallback'] == False
