@@ -723,6 +723,8 @@ class Axis(martist.Artist):
             `.Axis.contains`.
         """
         martist.Artist.__init__(self)
+        self._remove_overlapping_locs = True
+
         self.set_figure(axes.figure)
 
         self.isDefault_label = True
@@ -753,6 +755,17 @@ class Axis(martist.Artist):
     # descriptor to make the tick lists lazy and instantiate them as needed.
     majorTicks = _LazyTickList(major=True)
     minorTicks = _LazyTickList(major=False)
+
+    def get_remove_overlapping_locs(self):
+        return self._remove_overlapping_locs
+
+    def set_remove_overlapping_locs(self, val):
+        self._remove_overlapping_locs = bool(val)
+
+    remove_overlapping_locs = property(
+        get_remove_overlapping_locs, set_remove_overlapping_locs,
+        doc=('If minor ticker locations that overlap with major '
+             'ticker locations should be trimmed.'))
 
     def set_label_coords(self, x, y, transform=None):
         """
@@ -1323,9 +1336,10 @@ class Axis(martist.Artist):
         # Use the transformed view limits as scale.  1e-5 is the default rtol
         # for np.isclose.
         tol = (hi - lo) * 1e-5
-        minor_locs = [
-            loc for loc, tr_loc in zip(minor_locs, tr_minor_locs)
-            if not np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any()]
+        if self.remove_overlapping_locs:
+            minor_locs = [
+                loc for loc, tr_loc in zip(minor_locs, tr_minor_locs)
+                if ~np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any()]
         return minor_locs
 
     def get_ticklocs(self, minor=False):
