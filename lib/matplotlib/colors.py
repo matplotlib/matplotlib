@@ -225,17 +225,23 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             return tuple(color)
         # string gray.
         try:
-            return (float(c),) * 3 + (alpha if alpha is not None else 1.,)
+            c = float(c)
         except ValueError:
             pass
-        raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
+        else:
+            if not (0 <= c <= 1):
+                raise ValueError(
+                    f"Invalid string grayscale value {orig_c!r}. "
+                    f"Value must be within 0-1 range")
+            return c, c, c, alpha if alpha is not None else 1.
+        raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
     # tuple color.
     c = np.array(c)
     if not np.can_cast(c.dtype, float, "same_kind") or c.ndim != 1:
         # Test the dtype explicitly as `map(float, ...)`, `np.array(...,
         # float)` and `np.array(...).astype(float)` all convert "0.5" to 0.5.
         # Test dimensionality to reject single floats.
-        raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
+        raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
     # Return a tuple to prevent the cached value from being modified.
     c = tuple(c.astype(float))
     if len(c) not in [3, 4]:
