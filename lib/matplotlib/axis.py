@@ -1405,7 +1405,7 @@ class Axis(martist.Artist):
     def get_major_ticks(self, numticks=None):
         'Get the tick instances; grow as necessary.'
         if numticks is None:
-            numticks = len(self.get_major_locator()())
+            numticks = len(self.get_majorticklocs())
 
         while len(self.majorTicks) < numticks:
             # Update the new tick label properties from the old.
@@ -1419,7 +1419,7 @@ class Axis(martist.Artist):
     def get_minor_ticks(self, numticks=None):
         'Get the minor tick instances; grow as necessary.'
         if numticks is None:
-            numticks = len(self.get_minor_locator()())
+            numticks = len(self.get_minorticklocs())
 
         while len(self.minorTicks) < numticks:
             # Update the new tick label properties from the old.
