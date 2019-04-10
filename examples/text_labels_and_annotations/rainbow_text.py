@@ -15,6 +15,7 @@ following question:
     Example:
 
     plt.ylabel("Today is cloudy.")
+
     How can I show "today" as red, "is" as green and "cloudy." as blue?
 
     Thanks.
@@ -26,43 +27,55 @@ import matplotlib.pyplot as plt
 from matplotlib import transforms
 
 
-def rainbow_text(x, y, strings, colors, ax=None, **kw):
+def rainbow_text(x, y, strings, colors, orientation='horizontal',
+                 ax=None, **kwargs):
     """
-    Take a list of ``strings`` and ``colors`` and place them next to each
+    Take a list of *strings* and *colors* and place them next to each
     other, with text strings[i] being shown in colors[i].
 
-    This example shows how to do both vertical and horizontal text, and will
-    pass all keyword arguments to plt.text, so you can set the font size,
-    family, etc.
-
-    The text will get added to the ``ax`` axes, if provided, otherwise the
-    currently active axes will be used.
+    Parameters
+    ----------
+    x, y : float
+        Text position in data coordinates.
+    strings : list of str
+        The strings to draw.
+    colors : list of color
+        The colors to use.
+    orientation : {'horizontal', 'vertical'}
+    ax : Axes, optional
+        The Axes to draw into. If None, the current axes will be used.
+    **kwargs
+        All other keyword arguments are passed to plt.text(), so you can
+        set the font size, family, etc.
     """
     if ax is None:
         ax = plt.gca()
     t = ax.transData
     canvas = ax.figure.canvas
 
-    # horizontal version
+    assert orientation in ['horizontal', 'vertical']
+    if orientation == 'vertical':
+        kwargs.update(rotation=90, verticalalignment='bottom')
+
     for s, c in zip(strings, colors):
-        text = ax.text(x, y, s + " ", color=c, transform=t, **kw)
+        text = ax.text(x, y, s + " ", color=c, transform=t, **kwargs)
+
+        # Need to draw to update the text position.
         text.draw(canvas.get_renderer())
         ex = text.get_window_extent()
-        t = transforms.offset_copy(
-            text.get_transform(), x=ex.width, units='dots')
-
-    # vertical version
-    for s, c in zip(strings, colors):
-        text = ax.text(x, y, s + " ", color=c, transform=t,
-                       rotation=90, va='bottom', ha='center', **kw)
-        text.draw(canvas.get_renderer())
-        ex = text.get_window_extent()
-        t = transforms.offset_copy(
-            text.get_transform(), y=ex.height, units='dots')
+        if orientation == 'horizontal':
+            t = transforms.offset_copy(
+                text.get_transform(), x=ex.width, units='dots')
+        else:
+            t = transforms.offset_copy(
+                text.get_transform(), y=ex.height, units='dots')
 
 
-rainbow_text(0, 0, "all unicorns poop rainbows ! ! !".split(),
-             ['red', 'cyan', 'brown', 'green', 'blue', 'purple', 'black'],
-             size=16)
+words = "all unicorns poop rainbows ! ! !".split()
+colors = ['red', 'orange', 'gold', 'lawngreen', 'lightseagreen', 'royalblue',
+          'blueviolet']
+plt.figure(figsize=(6, 6))
+rainbow_text(0.1, 0.05, words, colors, size=18)
+rainbow_text(0.05, 0.1, words, colors, orientation='vertical', size=18)
 
 plt.show()
