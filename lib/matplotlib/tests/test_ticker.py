@@ -925,7 +925,11 @@ def test_minorticks_rc():
     minorticksubplot(True, True, 4)
 
 
-def test_remove_overlap():
+@pytest.mark.parametrize('remove_overlapping_locs, expected_num',
+                         ((True, 6),
+                          (None, 6),  # this tests the default
+                          (False, 9)))
+def test_remove_overlap(remove_overlapping_locs, expected_num):
     import numpy as np
     import matplotlib.dates as mdates
 
@@ -940,7 +944,28 @@ def test_remove_overlap():
 
     ax.xaxis.set_minor_locator(mdates.HourLocator((0, 6, 12, 18)))
     ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H:%M'))
+    # force there to be extra ticks
+    ax.xaxis.get_minor_ticks(15)
+    if remove_overlapping_locs is not None:
+        ax.xaxis.remove_overlapping_locs = remove_overlapping_locs
 
-    assert len(ax.xaxis.get_minorticklocs()) == 6
-    ax.xaxis.remove_overlapping_locs = False
-    assert len(ax.xaxis.get_minorticklocs()) == 9
+    # check that getter/setter exists
+    current = ax.xaxis.remove_overlapping_locs
+    assert (current == ax.xaxis.get_remove_overlapping_locs())
+    plt.setp(ax.xaxis, remove_overlapping_locs=current)
+    new = ax.xaxis.remove_overlapping_locs
+    assert (new == ax.xaxis.remove_overlapping_locs)
+
+    # check that the accessors filter correctly
+    # this is the method that does the actual filtering
+    assert len(ax.xaxis.get_minorticklocs()) == expected_num
+    # these three are derivative
+    assert len(ax.xaxis.get_minor_ticks()) == expected_num
+    assert len(ax.xaxis.get_minorticklabels()) == expected_num
+    assert len(ax.xaxis.get_minorticklines()) == expected_num*2
+
+    # force a draw to call _update_ticks under the hood
+    fig.canvas.draw()
+    # check that the correct number of ticks report them selves as
+    # visible
+    assert sum(t.get_visible() for t in ax.xaxis.minorTicks) == expected_num
