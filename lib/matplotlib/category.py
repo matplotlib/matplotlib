@@ -1,14 +1,13 @@
 """
-Module that allows plotting of string "category" data.  i.e.
-``plot(['d', 'f', 'a'],[1, 2, 3])`` will plot three points with x-axis
-values of 'd', 'f', 'a'.
+Plotting of string "category" data: ``plot(['d', 'f', 'a'], [1, 2, 3])`` will
+plot three points with x-axis values of 'd', 'f', 'a'.
 
 See :doc:`/gallery/lines_bars_and_markers/categorical_variables` for an
 example.
 
 The module uses Matplotlib's `matplotlib.units` mechanism to convert from
-strings to integers, provides a tick locator and formatter, and the
-class:`.UnitData` that creates and stores the string-to-integer mapping.
+strings to integers and provides a tick locator, a tick formatter, and the
+`.UnitData` class that creates and stores the string-to-integer mapping.
 """
 
 from collections import OrderedDict
@@ -29,8 +28,9 @@ _log = logging.getLogger(__name__)
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
-        """Convert strings in value to floats using
-        mapping information store in the unit object.
+        """
+        Convert strings in *value* to floats using mapping information stored
+        in the *unit* object.
 
         Parameters
         ----------
@@ -39,7 +39,7 @@ class StrCategoryConverter(units.ConversionInterface):
         unit : `.UnitData`
             An object mapping strings to integers.
         axis : `~matplotlib.axis.Axis`
-            axis on which the converted value is plotted.
+            The axis on which the converted value is plotted.
 
             .. note:: *axis* is unused.
 
@@ -52,33 +52,27 @@ class StrCategoryConverter(units.ConversionInterface):
                 'Missing category information for StrCategoryConverter; '
                 'this might be caused by unintendedly mixing categorical and '
                 'numeric data')
-
         # dtype = object preserves numerical pass throughs
         values = np.atleast_1d(np.array(value, dtype=object))
-
         # pass through sequence of non binary numbers
-        if all((units.ConversionInterface.is_numlike(v) and
-                not isinstance(v, (str, bytes))) for v in values):
+        if all(units.ConversionInterface.is_numlike(v)
+               and not isinstance(v, (str, bytes))
+               for v in values):
             return np.asarray(values, dtype=float)
-
         # force an update so it also does type checking
         unit.update(values)
-
-        str2idx = np.vectorize(unit._mapping.__getitem__,
-                               otypes=[float])
-
-        mapped_value = str2idx(values)
-        return mapped_value
+        return np.vectorize(unit._mapping.__getitem__, otypes=[float])(values)
 
     @staticmethod
     def axisinfo(unit, axis):
-        """Sets the default axis ticks and labels
+        """
+        Set the default axis ticks and labels.
 
         Parameters
         ----------
         unit : `.UnitData`
             object string unit information for value
-        axis : `~matplotlib.Axis.axis`
+        axis : `~matplotlib.axis.Axis`
             axis for which information is being set
 
         Returns
@@ -96,12 +90,13 @@ class StrCategoryConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(data, axis):
-        """Sets and updates the :class:`~matplotlib.Axis.axis` units.
+        """
+        Set and update the `~matplotlib.axis.Axis` units.
 
         Parameters
         ----------
         data : string or iterable of strings
-        axis : `~matplotlib.Axis.axis`
+        axis : `~matplotlib.axis.Axis`
             axis on which the data is plotted
 
         Returns
@@ -109,8 +104,7 @@ class StrCategoryConverter(units.ConversionInterface):
         class : `.UnitData`
             object storing string to integer mapping
         """
-        # the conversion call stack is supposed to be
-        # default_units->axis_info->convert
+        # the conversion call stack is default_units -> axis_info -> convert
         if axis.units is None:
             axis.set_units(UnitData(data))
         else:
@@ -119,13 +113,12 @@ class StrCategoryConverter(units.ConversionInterface):
 
 
 class StrCategoryLocator(ticker.Locator):
-    """tick at every integer mapping of the string data"""
+    """Tick at every integer mapping of the string data."""
     def __init__(self, units_mapping):
         """
         Parameters
         -----------
         units_mapping : Dict[str, int]
-             string:integer mapping
         """
         self._units = units_mapping
 
@@ -137,13 +130,12 @@ class StrCategoryLocator(ticker.Locator):
 
 
 class StrCategoryFormatter(ticker.Formatter):
-    """String representation of the data at every tick"""
+    """String representation of the data at every tick."""
     def __init__(self, units_mapping):
         """
         Parameters
         ----------
         units_mapping : Dict[Str, int]
-            string:integer mapping
         """
         self._units = units_mapping
 
@@ -156,8 +148,7 @@ class StrCategoryFormatter(ticker.Formatter):
 
     @staticmethod
     def _text(value):
-        """Converts text values into utf-8 or ascii strings.
-        """
+        """Convert text values into utf-8 or ascii strings."""
         if isinstance(value, bytes):
             value = value.decode(encoding='utf-8')
         elif not isinstance(value, str):
@@ -183,8 +174,7 @@ class UnitData(object):
     @staticmethod
     def _str_is_convertible(val):
         """
-        Helper method to see if a string can be cast to float or
-        parsed as date.
+        Helper method to check whether a string can be parsed as float or date.
         """
         try:
             float(val)
@@ -196,7 +186,8 @@ class UnitData(object):
         return True
 
     def update(self, data):
-        """Maps new values to integer identifiers.
+        """
+        Map new values to integer identifiers.
 
         Parameters
         ----------
