@@ -164,6 +164,18 @@ def test_gca():
     assert fig.gca() is ax1
 
 
+def test_add_subplot_invalid():
+    fig = plt.figure()
+    with pytest.raises(ValueError):
+        fig.add_subplot(2, 0, 1)
+    with pytest.raises(ValueError):
+        fig.add_subplot(0, 2, 1)
+    with pytest.raises(ValueError):
+        fig.add_subplot(2, 2, 0)
+    with pytest.raises(ValueError):
+        fig.add_subplot(2, 2, 5)
+
+
 @image_comparison(baseline_images=['figure_suptitle'])
 def test_suptitle():
     fig, _ = plt.subplots()

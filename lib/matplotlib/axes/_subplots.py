@@ -48,6 +48,10 @@ class SubplotBase(object):
             rows, cols, num = args
             rows = int(rows)
             cols = int(cols)
+            if rows <= 0:
+                raise ValueError(f'Number of rows must be > 0, not {rows}')
+            if cols <= 0:
+                raise ValueError(f'Number of columns must be > 0, not {cols}')
             if isinstance(num, tuple) and len(num) == 2:
                 num = [int(n) for n in num]
                 self._subplotspec = GridSpec(
