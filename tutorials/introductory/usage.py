@@ -316,18 +316,36 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # "interactive backends") and hardcopy backends to make image files
 # (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 #
-# There are four ways to configure your backend. If they conflict each other,
-# the method mentioned last in the following list will be used, e.g. calling
-# :func:`~matplotlib.use()` will override the setting in your ``matplotlibrc``.
+#
+# There are three ways to configure your backend. If they conflict each
+# other, the method mentioned last in the following list will be used,
+# e.g. calling :func:`~matplotlib.use()` will override the setting in
+# your ``matplotlibrc``.
 #
 #
 # #. The ``backend`` parameter in your ``matplotlibrc`` file (see
 #    :doc:`/tutorials/introductory/customizing`)::
 #
-#        backend : WXAgg   # use wxpython with antigrain (agg) rendering
+#        backend : Qt5Agg   # use pyqt5 with antigrain (agg) rendering
 #
-# #. Setting the :envvar:`MPLBACKEND` environment variable, either for your
-#    current shell or for a single script.  On Unix::
+#    If you do not want to explicitly set the backend in your
+#    ``matplotlibrc`` file the default value is to detect a usable
+#    backend based event loop is currently running on your system and
+#    what is available on your system.
+#
+#    if :rc:`'backend_fallback` is True, then on import of
+#    `~matplotlib.pyplot` if your selected backend is interactive (aka,
+#    a GUI backend), and there is a running interactive framework, then
+#    Matplotlib will ignore the value of :rc:`'backend']` and
+#    instead fall back to a backend that is compatible with your current
+#    process.
+#
+#    On linux if there if the :envvar:`DISPLAY` is not set, we identify
+#    the running backend as ``"headless"``, thus on servers will
+#    auto-magically fall back to a non-interactive backend.
+#
+# #. Setting the :envvar:`MPLBACKEND` environment variable, either for
+#    your current shell or for a single script.  On Unix::
 #
 #         > export MPLBACKEND=module://my_backend
 #         > python simple_plot.py
@@ -339,11 +357,14 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #         > set MPLBACKEND=module://my_backend
 #         > python simple_plot.py
 #
-#    Setting this environment variable will override the ``backend`` parameter
-#    in *any* ``matplotlibrc``, even if there is a ``matplotlibrc`` in your
-#    current working directory. Therefore setting :envvar:`MPLBACKEND`
-#    globally, e.g. in your ``.bashrc`` or ``.profile``, is discouraged as it
-#    might lead to counter-intuitive behavior.
+#    Setting this environment variable will override the :rc:`backend`
+#    parameter in *any* ``matplotlibrc``, even if there is a
+#    ``matplotlibrc`` in your current working directory. Therefore
+#    setting :envvar:`MPLBACKEND` globally, e.g. in your ``.bashrc`` or
+#    ``.profile``, is discouraged as it might lead to counter-intuitive
+#    behavior.
+#
+#    If this is set, then :rc:`backend_fallback` is set to `False`.
 #
 # #. If your script depends on a specific backend you can use the
 #    :func:`~matplotlib.use` function::
@@ -351,23 +372,24 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #       import matplotlib
 #       matplotlib.use('PS')   # generate postscript output by default
 #
-#    If you use the :func:`~matplotlib.use` function, this must be done before
-#    importing :mod:`matplotlib.pyplot`. Calling :func:`~matplotlib.use` after
-#    pyplot has been imported will have no effect.  Using
-#    :func:`~matplotlib.use` will require changes in your code if users want to
-#    use a different backend.  Therefore, you should avoid explicitly calling
-#    :func:`~matplotlib.use` unless absolutely necessary.
+#    If you use the :func:`~matplotlib.use` function, this must be done
+#    before importing :mod:`matplotlib.pyplot`. Calling
+#    :func:`~matplotlib.use` after pyplot has been imported will attempt
+#    to change the backend.  If this is not possible,
+#    :func:`~matplotlib.use` will raise.
 #
-# .. note::
-#    Backend name specifications are not case-sensitive; e.g., 'GTK3Agg'
-#    and 'gtk3agg' are equivalent.
+#    Using :func:`~matplotlib.use` will require changes in your code if
+#    users want to use a different backend.  Therefore, you should avoid
+#    explicitly calling :func:`~matplotlib.use` unless absolutely
+#    necessary.
+#
+#    If this is set, then :rc:`backend_fallback` is set to `False`.
 #
 # With a typical installation of matplotlib, such as from a
 # binary installer or a linux distribution package, a good default
 # backend will already be set, allowing both interactive work and
 # plotting from scripts, with output to the screen and/or to
-# a file, so at least initially you will not need to use any of the
-# methods given above.
+# a file.
 #
 # If, however, you want to write graphical user interfaces, or a web
 # application server (:ref:`howto-webapp`), or need a better
