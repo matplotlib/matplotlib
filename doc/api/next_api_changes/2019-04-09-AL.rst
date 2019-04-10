@@ -1,0 +1,19 @@
+Deprecations
+````````````
+
+Support in `matplotlib.testing` for nose-based tests is deprecated (a
+deprecation is emitted if using e.g. the decorators from that module while
+both 1) matplotlib's conftests have not been called and 2) nose is in
+``sys.modules``).
+
+``testing.is_called_from_pytest`` is deprecated.
+
+During the deprecation period, to force the generation of nose base tests,
+import nose first.
+
+API changes
+```````````
+
+The default value of the "obj_type" parameter to ``cbook.warn_deprecated`` has
+been changed from "attribute" (a default that was never used internally) to the
+empty string.
