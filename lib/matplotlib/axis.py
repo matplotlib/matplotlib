@@ -1095,6 +1095,11 @@ class Axis(martist.Artist):
             tick.set_label2(label)
         ticks = [*major_ticks, *minor_ticks]
 
+        # mark the ticks that we will not be using as not visible
+        for t in (self.minorTicks[len(minor_locs):] +
+                  self.majorTicks[len(major_locs):]):
+            t.set_visible(False)
+
         view_low, view_high = self.get_view_interval()
         if view_low > view_high:
             view_low, view_high = view_high, view_low
