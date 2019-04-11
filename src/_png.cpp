@@ -300,7 +300,11 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
 #ifdef PNG_TEXT_SUPPORTED
     // Save the metadata
-    if (metadata != NULL) {
+    if (metadata != NULL && metadata != Py_None) {
+        if (!PyDict_Check(metadata)) {
+            PyErr_SetString(PyExc_TypeError, "metadata must be a dict or None");
+            goto exit;
+        }
         meta_size = PyDict_Size(metadata);
         text = new png_text[meta_size];
 
