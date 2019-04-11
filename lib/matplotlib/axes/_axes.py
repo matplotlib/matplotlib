@@ -3017,17 +3017,17 @@ class Axes(_AxesBase):
             if labeldistance is not None:
                 xt = x + labeldistance * radius * math.cos(thetam)
                 yt = y + labeldistance * radius * math.sin(thetam)
-                label_alignment_h = xt > 0 and 'left' or 'right'
+                label_alignment_h = 'left' if xt > 0 else 'right'
                 label_alignment_v = 'center'
                 label_rotation = 'horizontal'
                 if rotatelabels:
-                    label_alignment_v = yt > 0 and 'bottom' or 'top'
-                    label_rotation = np.rad2deg(thetam) + (0 if xt > 0
-                                                             else 180)
+                    label_alignment_v = 'bottom' if yt > 0 else 'top'
+                    label_rotation = (np.rad2deg(thetam)
+                                      + (0 if xt > 0 else 180))
                 props = dict(horizontalalignment=label_alignment_h,
-                            verticalalignment=label_alignment_v,
-                            rotation=label_rotation,
-                            size=rcParams['xtick.labelsize'])
+                             verticalalignment=label_alignment_v,
+                             rotation=label_rotation,
+                             size=rcParams['xtick.labelsize'])
                 props.update(textprops)
 
                 t = self.text(xt, yt, label, **props)
