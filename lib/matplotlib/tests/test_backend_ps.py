@@ -71,13 +71,12 @@ def test_savefig_to_stringio(format, use_log, rcParams):
 
 
 def test_patheffects():
-    with mpl.rc_context():
-        mpl.rcParams['path.effects'] = [
-            patheffects.withStroke(linewidth=4, foreground='w')]
-        fig, ax = plt.subplots()
-        ax.plot([1, 2, 3])
-        with io.BytesIO() as ps:
-            fig.savefig(ps, format='ps')
+    mpl.rcParams['path.effects'] = [
+        patheffects.withStroke(linewidth=4, foreground='w')]
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3])
+    with io.BytesIO() as ps:
+        fig.savefig(ps, format='ps')
 
 
 @needs_usetex
@@ -86,18 +85,17 @@ def test_tilde_in_tempfilename(tmpdir):
     # Tilde ~ in the tempdir path (e.g. TMPDIR, TMP or TEMP on windows
     # when the username is very long and windows uses a short name) breaks
     # latex before https://github.com/matplotlib/matplotlib/pull/5928
-    base_tempdir = Path(str(tmpdir), "short-1")
+    base_tempdir = Path(tmpdir, "short-1")
     base_tempdir.mkdir()
     # Change the path for new tempdirs, which is used internally by the ps
     # backend to write a file.
     with cbook._setattr_cm(tempfile, tempdir=str(base_tempdir)):
         # usetex results in the latex call, which does not like the ~
-        plt.rc('text', usetex=True)
+        mpl.rcParams['text.usetex'] = True
         plt.plot([1, 2, 3, 4])
         plt.xlabel(r'\textbf{time} (s)')
-        output_eps = os.path.join(str(base_tempdir), 'tex_demo.eps')
         # use the PS backend to write the file...
-        plt.savefig(output_eps, format="ps")
+        plt.savefig(base_tempdir / 'tex_demo.eps', format="ps")
 
 
 def test_source_date_epoch():
@@ -133,11 +131,8 @@ def test_transparency():
 @needs_usetex
 def test_failing_latex(tmpdir):
     """Test failing latex subprocess call"""
-    path = str(tmpdir.join("tmpoutput.ps"))
-
     mpl.rcParams['text.usetex'] = True
-
     # This fails with "Double subscript"
     plt.xlabel("$22_2_2$")
     with pytest.raises(RuntimeError):
-        plt.savefig(path)
+        plt.savefig(Path(tmpdir, "tmpoutput.ps"))
