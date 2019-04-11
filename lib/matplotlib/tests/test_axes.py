@@ -3091,10 +3091,10 @@ def test_stem_args():
     y = list(range(10))
 
     # Test the call signatures
-    ax.stem(y)
-    ax.stem(x, y)
-    ax.stem(x, y, 'r--')
-    ax.stem(x, y, 'r--', basefmt='b--')
+    ax.stem(y, use_line_collection=True)
+    ax.stem(x, y, use_line_collection=True)
+    ax.stem(x, y, 'r--', use_line_collection=True)
+    ax.stem(x, y, 'r--', basefmt='b--', use_line_collection=True)
 
 
 def test_stem_dates():
@@ -3106,7 +3106,7 @@ def test_stem_dates():
     x1 = parser.parse("2013-9-28 12:00:00")
     y1 = 200
 
-    ax.stem([x, x1], [y, y1], "*-")
+    ax.stem([x, x1], [y, y1], "*-", use_line_collection=True)
 
 
 @image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])

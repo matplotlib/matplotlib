@@ -908,7 +908,8 @@ class TestDetrend(object):
 
     def test_demean_1D_d1_ValueError(self):
         input = self.sig_slope
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError), \
+             pytest.warns(MatplotlibDeprecationWarning):
             mlab.demean(input, axis=1)
 
     def test_detrend_mean_2D_d2_ValueError(self):
@@ -923,7 +924,8 @@ class TestDetrend(object):
 
     def test_demean_2D_d2_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError), \
+             pytest.warns(MatplotlibDeprecationWarning):
             mlab.demean(input, axis=2)
 
     def test_detrend_linear_0D_zeros(self):

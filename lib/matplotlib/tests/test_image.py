@@ -943,13 +943,10 @@ def test_imshow_bool():
 
 
 def test_full_invalid():
-    x = np.ones((10, 10))
-    x[:] = np.nan
-
-    f, ax = plt.subplots()
-    ax.imshow(x)
-
-    f.canvas.draw()
+    fig, ax = plt.subplots()
+    ax.imshow(np.full((10, 10), np.nan))
+    with pytest.warns(UserWarning):
+        fig.canvas.draw()
 
 
 @pytest.mark.parametrize("fmt,counted",

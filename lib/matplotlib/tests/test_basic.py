@@ -1,9 +1,9 @@
 import builtins
 import subprocess
 import sys
+import textwrap
 
 import matplotlib
-from matplotlib.cbook import dedent
 
 
 def test_simple():
@@ -36,7 +36,7 @@ def test_override_builtins():
 
 
 def test_lazy_imports():
-    source = dedent("""
+    source = textwrap.dedent("""
     import sys
 
     import matplotlib.figure
