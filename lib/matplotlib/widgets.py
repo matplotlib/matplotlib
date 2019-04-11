@@ -1352,29 +1352,32 @@ class TextCursor(Cursor):
     For the cursor to remain responsive you must keep a reference to it.
     The data of the axis specified as *dataaxis* needs to be constantly growing.
     Otherwise, the `numpy.searchsorted` call might fail and the text disappears.
-    You can satisfy the requirement by sorting the data you plot and usually the data is already
-    sorted, but e.g. scatter plots might cause this problem.
+    You can satisfy the requirement by sorting the data you plot. Usually the data is already
+    sorted (if it was created e.g. using `numpy.linspace`), but e.g. scatter plots might cause this problem.
 
     Parameters
     ----------
     line : `matplotlib.lines.Line2D`
         The plot line from which the data coordinates are displayed.
-    numberformat : `python.string.format` compatible format string, default: '{0:.4g}\n{1:.4g}'
-        The displayed text is created by calling *format()* on this string with the two coordinates.
-    offset : 2D array-like, default: [5, 5]
-        The offset in display (pixel) coordinates of the text position relative to the cross hair.
-    dataaxis : {'x', 'y'}, default: 'x'
-        If 'x' is specified, the nearest x value for the current cursor position is found and
-        the y value at that x value is the other displayed cooridnate. If 'y' is specified,
-        the nearest y coordinate is found, but there might be many x values matching this y value.
-        The left one in the x data set is displayed. If you use 'y', please ensure that your
-        data is biunique.
 
+    numberformat : `python format string <https://docs.python.org/3/library/string.html#formatstrings>`_, optional, default: "{0:.4g};{1:.4g}"
+        The displayed text is created by calling *format()* on this string with the two coordinates.
+
+    offset : 2D array-like, optional, default: [5, 5]
+        The offset in display (pixel) coordinates of the text position relative to the cross hair.
+
+    dataaxis : {"x", "y"}, optional, default: "x"
+        If "x" is specified, the nearest x value for the current cursor position is found and
+        the y value at that x value is the other displayed cooridnate. If "y" is specified,
+        the nearest y coordinate is found, but there might be many x values matching this y value.
+        The left one in the x data set is displayed. If you use "y", please ensure that your
+        plot is biunique.
 
     Other Parameters
     ----------------
     textprops : `matplotlib.text` properties as dictionay
         Specifies the appearance of the rendered text object.
+
     **cursorargs : `matplotlib.widgets.Cursor` properties
         Arguments passed to the internal `~matplotlib.widgets.Cursor` instance.
         The `matplotlib.axes.Axes` argument is mandatory! The parameter *useblit* can be set to
@@ -1383,16 +1386,9 @@ class TextCursor(Cursor):
     Examples
     --------
     See :doc:`/gallery/widgets/text_cursor`.
-
-
-    See also
-    --------
-    matplotlib.widgets.Cursor : the base class for this class
     """
 
-    def __init__(self, line, numberformat="{0:.4g}\n{1:.4g}", offset=[5, 5], dataaxis='x', textprops={}, **cursorargs):
-        """Create text object and attributes. Forward call to base class."""
-
+    def __init__(self, line, numberformat="{0:.4g};{1:.4g}", offset=[5, 5], dataaxis='x', textprops={}, **cursorargs):
         #The line object, for which the coordinates are displayed
         self.line = line
         #The format string, on which .format() is called for creating the text
@@ -1415,7 +1411,7 @@ class TextCursor(Cursor):
         self.text = self.ax.text(self.ax.get_xbound()[0], self.ax.get_ybound()[0], "0, 0", animated=bool(self.useblit), visible=False, **textprops)
 
     def onmove(self, event):
-        """Overwirtten draw callback for cursor. Called when moving the mouse."""
+        """Overwritten draw callback for cursor. Called when moving the mouse."""
 
         #Leave method under the same conditions as in overwritten method
         if self.ignore(event):
@@ -1497,7 +1493,7 @@ class TextCursor(Cursor):
 
         Returns
         -------
-         : {2D array-like, None} The coordinates, which should appear in the text.
+        ret : {2D array-like, None} The coordinates, which should appear in the text.
             *None* is the fallback value.
         """
 
