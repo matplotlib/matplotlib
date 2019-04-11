@@ -295,16 +295,14 @@ class SecondaryAxis(_AxesBase):
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
             set_lim = self.set_xlim
-            trans = self.xaxis.get_transform()
         if self._orientation == 'y':
             lims = self._parent.get_ylim()
             set_lim = self.set_ylim
-            trans = self.yaxis.get_transform()
         order = lims[0] < lims[1]
         lims = self._functions[0](np.array(lims))
         neworder = lims[0] < lims[1]
         if neworder != order:
-            # flip because the transform will take care of the flipping..
+            # Flip because the transform will take care of the flipping.
             lims = lims[::-1]
         set_lim(lims)
 

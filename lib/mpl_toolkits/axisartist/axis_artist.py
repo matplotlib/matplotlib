@@ -1194,10 +1194,6 @@ class AxisArtist(martist.Artist):
         if not self.label.get_visible():
             return
 
-        fontprops = font_manager.FontProperties(
-            size=rcParams['axes.labelsize'],
-            weight=rcParams['axes.labelweight'])
-
         if self._ticklabel_add_angle != self._axislabel_add_angle:
             if ((self.major_ticks.get_visible()
                  and not self.major_ticks.get_tick_out())

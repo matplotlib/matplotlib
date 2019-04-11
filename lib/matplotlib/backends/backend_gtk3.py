@@ -235,7 +235,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         if event.is_hint:
             t, x, y, state = event.window.get_pointer()
         else:
-            x, y, state = event.x, event.y, event.get_state()
+            x, y = event.x, event.y
 
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - y
@@ -582,7 +582,8 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         toolfig = Figure(figsize=(6, 3))
         canvas = self._get_canvas(toolfig)
         toolfig.subplots_adjust(top=0.9)
-        tool = SubplotTool(self.canvas.figure, toolfig)
+        # Need to keep a reference to the tool.
+        _tool = SubplotTool(self.canvas.figure, toolfig)
 
         w = int(toolfig.bbox.width)
         h = int(toolfig.bbox.height)

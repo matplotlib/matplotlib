@@ -394,9 +394,7 @@ def _make_keyword_only(since, name, func=None):
     kwonly = [name for name in names[names.index(name):]
               if signature.parameters[name].kind == POK]
     func.__signature__ = signature.replace(parameters=[
-        param.replace(kind=inspect.Parameter.KEYWORD_ONLY)
-        if param.name in kwonly
-        else param
+        param.replace(kind=KWO) if param.name in kwonly else param
         for param in signature.parameters.values()])
 
     @functools.wraps(func)

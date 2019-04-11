@@ -61,9 +61,8 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
             bbox = self.figure.bbox
 
         allocation = self.get_allocation()
-        w, h = allocation.width, allocation.height
         x = int(bbox.x0)
-        y = h - int(bbox.y1)
+        y = allocation.height - int(bbox.y1)
         width = int(bbox.x1) - int(bbox.x0)
         height = int(bbox.y1) - int(bbox.y0)
 

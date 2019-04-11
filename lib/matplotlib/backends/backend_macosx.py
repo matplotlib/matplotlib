@@ -160,7 +160,8 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         toolfig = Figure(figsize=(6, 3))
         canvas = FigureCanvasMac(toolfig)
         toolfig.subplots_adjust(top=0.9)
-        tool = SubplotTool(self.canvas.figure, toolfig)
+        # Need to keep a reference to the tool.
+        _tool = SubplotTool(self.canvas.figure, toolfig)
         return canvas
 
     def set_message(self, message):
