@@ -147,7 +147,7 @@ class Axes(_AxesBase):
             raise ValueError("'%s' is not a valid location" % loc)
         return title.get_text()
 
-    def set_title(self, label, fontdict=None, loc="center", pad=None,
+    def set_title(self, label, fontdict=None, loc=None, pad=None,
                     **kwargs):
         """
         Set a title for the axes.
@@ -171,7 +171,7 @@ class Axes(_AxesBase):
                 'horizontalalignment': loc}
 
         loc : {'center', 'left', 'right'}, str, optional
-            Which title to set, defaults to 'center'
+            Which title to set, defaults to rcParams['axes.titlelocation']
 
         pad : float
             The offset of the title from the top of the axes, in points.
@@ -190,6 +190,9 @@ class Axes(_AxesBase):
             properties.
         """
         try:
+            if loc is None:
+                loc = rcParams['axes.titlelocation']
+
             title = {'left': self._left_title,
                      'center': self.title,
                      'right': self._right_title}[loc.lower()]
