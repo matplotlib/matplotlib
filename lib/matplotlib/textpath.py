@@ -463,12 +463,8 @@ class TextPath(Path):
 
         self._cached_vertices = None
         s, ismath = Text(usetex=usetex)._preprocess_math(s)
-        if ismath == "TeX":
-            self._vertices, self._codes = text_to_path.get_text_path(
-                prop, s, usetex=True)
-        else:
-            self._vertices, self._codes = text_to_path.get_text_path(
-                prop, s, ismath=ismath)
+        self._vertices, self._codes = text_to_path.get_text_path(
+            prop, s, ismath=ismath)
         self._should_simplify = False
         self._simplify_threshold = rcParams['path.simplify_threshold']
         self._interpolation_steps = _interpolation_steps
