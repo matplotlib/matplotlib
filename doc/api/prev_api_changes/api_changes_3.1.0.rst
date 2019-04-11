@@ -12,8 +12,8 @@ Support for ``pgi`` in the GTK3 backends has been dropped.  ``pgi`` is
 an alternative implementation to ``PyGObject``.  ``PyGObject`` should
 be used instead.
 
-rcparams
---------
+rcParam changes
+---------------
 
 Removed
 ~~~~~~~
@@ -51,12 +51,12 @@ Matplotlib.use
 Switching backends via `matplotlib.use` is now allowed by default,
 regardless of whether `matplotlib.pyplot` has been imported. If the user
 tries to switch from an already-started interactive backend to a different
-interactive backend, an ImportError will be raised.
+interactive backend, an `ImportError` will be raised.
 
 mplot3d auto-registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-mplot3d is always registered by default now. It is not necessary to import
-mplot3d to create 3d axes with ``fig.add_subplot(111, projection="3d")``.
+mplot3d is always registered by default now. It is no longer necessary to
+import mplot3d to create 3d axes with ``fig.add_subplot(111, projection="3d")``.
 
 Invalid points in PathCollections
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -596,8 +596,8 @@ no longer available in the `matplotlib.pylab` module:
   - ``stineman_interp``
   - ``vector_lengths``
 
-mplot3d
--------
+mplot3d changes
+---------------
 
 Voxel shading
 ~~~~~~~~~~~~~
