@@ -8,7 +8,6 @@ API Changes for 3.1.0
 
 ``pgi`` support dropped
 -----------------------
-
 Support for ``pgi`` in the GTK3 backends has been dropped.  ``pgi`` is
 an alternative implementation to ``PyGObject``.  ``PyGObject`` should
 be used instead.
@@ -46,9 +45,16 @@ instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
 Behavior changes
 ----------------
 
+
+Matplotlib.use
+~~~~~~~~~~~~~~
+Switching backends via `matplotlib.use` is now allowed by default,
+regardless of whether `matplotlib.pyplot` has been imported. If the user
+tries to switch from an already-started interactive backend to a different
+interactive backend, an ImportError will be raised.
+
 mplot3d auto-registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-
 mplot3d is always registered by default now. It is not necessary to import
 mplot3d to create 3d axes with ``fig.add_subplot(111, projection="3d")``.
 
@@ -86,13 +92,11 @@ nothing; this now is equivalent to calling ``add_subplot(111)`` instead.
 
 `~Axes.bxp` and rcparams
 ~~~~~~~~~~~~~~~~~~~~~~~~
-
 `~Axes.bxp` now respects :rc:`boxplot.boxprops.linewidth` even when
 *patch_artist* is set.
 Previously, when the *patch_artist* parameter was set, `~Axes.bxp` would ignore
 :rc:`boxplot.boxprops.linewidth`.  This was an oversight -- in particular,
 `~Axes.boxplot` did not ignore it.
-
 
 Major/minor tick collisions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -317,12 +321,99 @@ standard environment variables ``CFLAGS``/``LDFLAGS`` on Linux or OSX, or
 
 See details in :file:`INSTALL.rst`.
 
+Setting artist properties twice or more in the same call
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting the same artist property multiple time via aliases is deprecated.
+Previously, code such as ``plt.plot([0, 1], c="red", color="blue")`` would
+emit a warning indicating that ``c`` and ``color`` are aliases of one another,
+and only keep the ``color`` kwarg.  This behavior has been deprecated; in a
+future version, this will raise a TypeError, similar to Python's behavior when
+a keyword argument is passed twice (``plt.plot([0, 1], c="red", c="blue")``).
+
+This warning is raised by `~.cbook.normalize_kwargs`.
+
+Path code types
+~~~~~~~~~~~~~~~
+Path code types like ``Path.MOVETO`` are now ``np.uint8`` instead of ``int``
+``Path.STOP``, ``Path.MOVETO``, ``Path.LINETO``, ``Path.CURVE3``,
+``Path.CURVE4`` and ``Path.CLOSEPOLY`` are now of the type ``Path.code_type``
+(``np.uint8`` by default) instead of plain ``int``. This makes their type
+match the array value type of the ``Path.codes`` array.
+
+LaTeX code in matplotlibrc file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, the rc file keys ``pgf.preamble`` and ``text.latex.preamble`` were
+parsed using commmas as separators. This would break valid LaTeX code, such as::
+
+\usepackage[protrusion=true, expansion=false]{microtype}
+
+The parsing has been modified to pass the complete line to the LaTeX system,
+keeping all commas. Passing a list of strings from within a Python script still
+works as it used to. Passing a list containing non-strings now fails, instead
+of coercing the results to strings.
+
+`matplotlib.axes.Axes.spy`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+The method `matplotlib.axes.Axes.spy` now raises a TypeError for the keyword
+arguments 'interpolation' and 'linestyle' instead of silently ignoring them.
+
+Furthermore, `matplotlib.axes.Axes.spy` spy does now allow for an 'extent'
+argument (was silently ignored so far).
+
+A bug with `spy(..., origin='lower') is fixed: So far this flipped the
+data but not the y-axis resulting in a mismatch between axes labels and
+actual data indices. Now, `origin='lower'` flips both the data and the y-axis
+labels.
+
+Boxplot tick methods
+~~~~~~~~~~~~~~~~~~~~
+The ``manage_xticks`` parameter of `~Axes.boxplot` and `~Axes.bxp` has been
+renamed (with a deprecation period) to ``manage_ticks``, to take into account
+the fact that it manages either x or y ticks depending on the ``vert``
+parameter.
+
+When ``manage_ticks`` is True (the default), these methods now attempt to take
+previously drawn boxplots into account when setting the axis limits, ticks, and
+tick labels.
+
+MouseEvents
+~~~~~~~~~~~
+MouseEvents now include the event name in their ``str()``.
+Previously they contained the prefix "MPL MouseEvent".
+
+RGBA buffer return type
+~~~~~~~~~~~~~~~~~~~~~~~
+`FigureCanvasAgg.buffer_rgba` and `RendererAgg.buffer_rgba` now return a memoryview
+The ``buffer_rgba`` method now allows direct access to the renderer's
+underlying buffer (as a ``(m, n, 4)``-shape memoryview) rather than copying the
+data to a new bytestring.  This is consistent with the behavior on Py2, where a
+buffer object was returned.
+
+
+matplotlib.font_manager.win32InstalledFonts return type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`matplotlib.font_manager.win32InstalledFonts` returns an empty list instead
+of None if no fonts are found.
+
+``Axes.fmt_xdata`` and ``Axes.fmt_ydata`` error handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, if the user provided a ``fmt_xdata`` or ``fmt_ydata`` function that
+raised a TypeError (or set them to a non-callable), the exception would be
+silently ignored and the default formatter be used instead.  This is no longer
+the case; the exception is now propagated out.
 
 Exception changes
 -----------------
 - `mpl_toolkits.axes_grid1.axes_size.GetExtentHelper` now raises `ValueError`
   for invalid directions instead of `KeyError`.
 
+- Previously, subprocess failures in the animation framework would raise either
+  in a `RuntimeError` or a `ValueError` depending on when the error occurred.
+  They now raise a `subprocess.CalledProcessError` with attributes set as
+  documented by the exception class.
+- In certain cases, Axes methods (and pyplot functions) used to raise a
+  RuntimeError if they were called with a ``data`` kwarg and otherwise mismatched
+  arguments.  They now raise a ``TypeError`` instead.
 
 Removals
 --------
@@ -527,7 +618,6 @@ False (which was always broken).  Passing True to mean "average" is deprecated.
 
 Testing
 -------
-
 The ``--no-network`` flag to ``tests.py`` has been removed (no test requires
 internet access anymore).  If it is desired to disable internet access both for
 old and new versions of Matplotlib, use ``tests.py -m 'not network'`` (which is
@@ -543,12 +633,10 @@ Dependency changes
 
 numpy
 ~~~~~
-
 Matplotlib 3.1 now requires numpy>=1.11.
 
 ghostscript
 ~~~~~~~~~~~
-
 Support for ghostscript 8.60 (released in 2007) has been removed.  The oldest
 supported version of ghostscript is now 9.0 (released in 2010).
 
@@ -566,8 +654,6 @@ Deprecations
   is deprecated.  Directly use unicode characters (e.g.
   ``"\N{CIRCLED LATIN CAPITAL LETTER A}"`` or ``"\u24b6"``) instead.
 - Support for setting :rc:`mathtext.default` to circled is deprecated.
-
-
 
 Signature deprecations
 ----------------------
@@ -622,6 +708,11 @@ Changes in parameter names
 --------------------------
 
 - The ``arg`` parameter to `matplotlib.use` has been renamed to ``backend``.
+
+This will only affect cases where that parameter has been set
+as a keyword argument. The common usage pattern as a positional argument
+``matplotlib.use('Qt5Agg')`` is not affected.
+
 - The ``normed`` parameter to `Axes.hist2d` has been renamed to ``density``.
 - The ``s`` parameter to `Annotation` (and indirectly `Axes.annotation`) has
   been renamed to ``text``.
@@ -633,12 +724,15 @@ Changes in parameter names
   ``tolerance``.
 
 In each case, the old parameter name remains supported (it cannot be used
-simultaneously with the new name), but suppport for it will be dropped in
+simultaneously with the new name), but support for it will be dropped in
 Matplotlib 3.3.
-
 
 Class/method/attribute deprecations
 -----------------------------------
+Support for custom backends that do not provide a ``set_hatch_color`` method is
+deprecated.  We suggest that custom backends let their ``GraphicsContext``
+class inherit from `GraphicsContextBase`, to at least provide stubs for all
+required methods.
 
 - ``Spine.is_frame_like``
 
@@ -827,6 +921,9 @@ Use ``isinstance(..., collections.abc.Hashable)`` instead.
 This has always returned None instead of the requested radius.
 
 - The ``MATPLOTLIBDATA`` environment variable
+- ``Axis.iter_ticks``
+
+This only served as a helper to the private ``Axis._update_ticks``
 
 Undeprecations
 --------------
@@ -836,89 +933,29 @@ The following API elements have bee un-deprecated:
 - xmin, xmax kwargs to ``set_xlim`` and ymin, ymax kwargs to ``set_ylim``
 
 
+New features
+------------
+
 `Text` now has a ``c`` alias for the ``color`` property
--------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 For consistency with `Line2D`, the `Text` class has gained the ``c``
 alias for the ``color`` property. For example, one can now write
 ``ax.text(.5, .5, "foo", c="red")``.
 
-Setting the same artist property multiple time via aliases is deprecated
-------------------------------------------------------------------------
-Previously, code such as ``plt.plot([0, 1], c="red", color="blue")`` would
-emit a warning indicating that ``c`` and ``color`` are aliases of one another,
-and only keep the ``color`` kwarg.  This behavior has been deprecated; in a
-future version, this will raise a TypeError, similar to Python's behavior when
-a keyword argument is passed twice (``plt.plot([0, 1], c="red", c="blue")``).
+``Cn`` colors now support ``n>=10``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It is now possible to go beyond the tenth color in the property cycle using
+``Cn`` syntax, e.g. ``plt.plot([1, 2], color="C11")`` now uses the 12th color
+in the cycle.
 
-This warning is raised by `~.cbook.normalize_kwargs`.
-
-Boxplot tick methods
---------------------
-The ``manage_xticks`` parameter of `~Axes.boxplot` and `~Axes.bxp` has been
-renamed (with a deprecation period) to ``manage_ticks``, to take into account
-the fact that it manages either x or y ticks depending on the ``vert``
-parameter.
-
-When ``manage_ticks`` is True (the default), these methods now attempt to take
-previously drawn boxplots into account when setting the axis limits, ticks, and
-tick labels.
-
-`matplotlib.use` parameter change
----------------------------------
-The first parameter of `matplotlib.use` has been renamed from *arg* to
-*backend*. This will only affect cases where that parameter has been set
-as a keyword argument. The common usage pattern as a positional argument
-``matplotlib.use('Qt5Agg')`` is not affected.
-
-
-Exception on failing animations changed
----------------------------------------
-Previously, subprocess failures in the animation framework would raise either
-in a `RuntimeError` or a `ValueError` depending on when the error occurred.
-They now raise a `subprocess.CalledProcessError` with attributes set as
-documented by the exception class.
-
-MouseEvents now include the event name in their ``str()``
----------------------------------------------------------
-
-Previously they contained the prefix "MPL MouseEvent".
-
-Matplotlib.use now has an ImportError for interactive backend
--------------------------------------------------------------
-Switching backends via `matplotlib.use` is now allowed by default,
-regardless of whether `matplotlib.pyplot` has been imported. If the user
-tries to switch from an already-started interactive backend to a different
-interactive backend, an ImportError will be raised.
-
-
-Path code types like ``Path.MOVETO`` are now ``np.uint8`` instead of ``int``
-----------------------------------------------------------------------------
-``Path.STOP``, ``Path.MOVETO``, ``Path.LINETO``, ``Path.CURVE3``,
-``Path.CURVE4`` and ``Path.CLOSEPOLY`` are now of the type ``Path.code_type``
-(``np.uint8`` by default) instead of plain ``int``. This makes their type
-match the array value type of the ``Path.codes`` array.
-
-Allow "real" LaTeX code for ``pgf.preamble`` and ``text.latex.preamble`` in matplotlib rc file
-----------------------------------------------------------------------------------------------
-Previously, the rc file keys ``pgf.preamble`` and ``text.latex.preamble`` were parsed using commmas as separators. This would break valid LaTeX code, such as::
-
-\usepackage[protrusion=true, expansion=false]{microtype}
-
-The parsing has been modified to pass the complete line to the LaTeX system,
-keeping all commas.
-
-Passing a list of strings from within a Python script still works as it used to.
-
-Passing a list containing non-strings now fails, instead of coercing the results to strings.
-
-matplotlib.font_manager.win32InstalledFonts return value
---------------------------------------------------------
-`matplotlib.font_manager.win32InstalledFonts` returns an empty list instead
-of None if no fonts are found.
-
+Note that previously, a construct such as ``plt.plot([1, 2], "C11")`` would be
+interpreted as a request to use color ``C1`` and marker ``1`` (an "inverted Y").
+To obtain such a plot, one should now use ``plt.plot([1, 2], "1C1")`` (so that
+the first "1" gets correctly interpreted as a marker specification), or, more
+explicitly, ``plt.plot([1, 2], marker="1", color="C1")``.
 
 New `Formatter.format_ticks` method
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The `Formatter` class gained a new `~Formatter.format_ticks` method, which
 takes the list of all tick locations as a single argument and returns the list
 of all formatted values.  It is called by the axis tick handling code and, by
@@ -933,63 +970,6 @@ updated to use `~Formatter.format_ticks`.
 subclasses for which the formatting of a tick value depends on other tick
 values, such as `ConciseDateFormatter`.
 
-
-``Cn`` colors now support ``n>=10``
------------------------------------
-It is now possible to go beyond the tenth color in the property cycle using
-``Cn`` syntax, e.g. ``plt.plot([1, 2], color="C11")`` now uses the 12th color
-in the cycle.
-
-Note that previously, a construct such as ``plt.plot([1, 2], "C11")`` would be
-interpreted as a request to use color ``C1`` and marker ``1`` (an "inverted Y").
-To obtain such a plot, one should now use ``plt.plot([1, 2], "1C1")`` (so that
-the first "1" gets correctly interpreted as a marker specification), or, more
-explicitly, ``plt.plot([1, 2], marker="1", color="C1")``.
-
-
-Changes to the internal tick handling API
------------------------------------------
-``Axis.iter_ticks`` (which only served as a helper to the private
-``Axis._update_ticks``) is deprecated.
-
-The signature of the (private) ``Axis._update_ticks`` has been changed to not
-take the renderer as argument anymore (that argument is unused).
-
-Deprecations
-------------
-Support for custom backends that do not provide a ``set_hatch_color`` method is
-deprecated.  We suggest that custom backends let their ``GraphicsContext``
-class inherit from `GraphicsContextBase`, to at least provide stubs for all
-required methods.
-
-The fields ``Artist.aname`` and ``Axes.aname`` are deprecated. Please use
-
-``isinstance()`` or ``__class__.__name__`` checks instead.``Axes.fmt_xdata`` and ``Axes.fmt_ydata`` no longer ignore TypeErrors raised by a user-provided formatter
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Previously, if the user provided a ``fmt_xdata`` or ``fmt_ydata`` function that
-raised a TypeError (or set them to a non-callable), the exception would be
-silently ignored and the default formatter be used instead.  This is no longer
-the case; the exception is now propagated out.
-
-Axes methods now raise TypeError instead of RuntimeError on mismatched calls
-----------------------------------------------------------------------------
-In certain cases, Axes methods (and pyplot functions) used to raise a
-RuntimeError if they were called with a ``data`` kwarg and otherwise mismatched
-arguments.  They now raise a ``TypeError`` instead.
-
-Changes to `matplotlib.axes.Axes.spy`
--------------------------------------
-The method `matplotlib.axes.Axes.spy` now raises a TypeError for the keyword
-arguments 'interpolation' and 'linestyle' instead of silently ignoring them.
-
-Furthermore, `matplotlib.axes.Axes.spy` spy does now allow for an 'extent'
-argument (was silently ignored so far).
-
-A bug with `spy(..., origin='lower') is fixed: So far this flipped the
-data but not the y-axis resulting in a mismatch between axes labels and
-actual data indices. Now, `origin='lower'` flips both the data and the y-axis
-labels.
-
 Invalid inputs
 --------------
 Passing invalid locations to `legend` and `table` used to fallback on a default
@@ -1003,9 +983,5 @@ behavior is deprecated and will throw an exception in a future version.
 Passing steps less than 1 or greater than 10 to `MaxNLocator` used to result in
 undefined behavior.  It now throws a ValueError.
 
-`FigureCanvasAgg.buffer_rgba` and `RendererAgg.buffer_rgba` now return a memoryview
------------------------------------------------------------------------------------
-The ``buffer_rgba`` method now allows direct access to the renderer's
-underlying buffer (as a ``(m, n, 4)``-shape memoryview) rather than copying the
-data to a new bytestring.  This is consistent with the behavior on Py2, where a
-buffer object was returned.
+The signature of the (private) ``Axis._update_ticks`` has been changed to not
+take the renderer as argument anymore (that argument is unused).
