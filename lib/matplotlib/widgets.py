@@ -1357,6 +1357,7 @@ class TextCursor(Cursor):
     disappears. You can satisfy the requirement by sorting the data you plot.
     Usually the data is already sorted (if it was created e.g. using
     `numpy.linspace`), but e.g. scatter plots might cause this problem.
+    The cursor sticks to the plotted line.
 
     Parameters
     ----------
@@ -1373,12 +1374,15 @@ class TextCursor(Cursor):
         relative to the cross hair.
 
     dataaxis : {"x", "y"}, optional, default: "x"
-        If "x" is specified, the nearest x value for the current cursor
-        position is found and the y value at that x value is the other
-        displayed cooridnate. If "y" is specified, the nearest y coordinate is
-        found, but there might be many x values matching this y value.
-        The left one in the x data set is displayed. If you use "y",
-        please ensure that your plot is biunique.
+		If "x" is specified, the vertical cursor line sticks to the mouse
+		pointer. The horizontal cursor line sticks to the plotted line
+		at that x value. The text shows the data coordinates of the plotted
+		line at the pointed x value. If you specify "y", it works vice-versa.
+		But: For the "y" value, where the mouse points to, there might be
+		multiple matching x values, if the plotted function is not biunique.
+		Cursor and text coordinate will always refer to only one x value.
+		So if you use the parameter value "y", ensure that your function is
+		biunique.
 
     Other Parameters
     ----------------
@@ -1438,6 +1442,20 @@ class TextCursor(Cursor):
             super().onmove(event)
             return
 
+        #Get the coordinates, which should be displayed as text,
+        #if the event cooridnates are valid
+        plotpoint = None
+        if (event.xdata is not None) and (event.ydata is not None):
+            #Get plot point related to current x position.
+            #These coordinates are displayed in text.
+            plotpoint = self.setpos(event.xdata, event.ydata)
+            #Modify event, such that the cursor is displayed on the
+            #plotted line, not at the mouse pointer,
+            #if the returned plot point is valid
+            if plotpoint is not None:
+                event.xdata = plotpoint[0]
+                event.ydata = plotpoint[1]
+
         #Baseclass redraws canvas and cursor. Due to blitting,
         #the added text is removed in this call, because the
         #backround is redrawn.
@@ -1450,44 +1468,40 @@ class TextCursor(Cursor):
             return
 
         #Draw the widget, if event coordinates are valid
-        if (event.xdata is not None) and (event.ydata is not None):
-            #Get plot point related to current x position.
-            #These coordinates are displayed in text.
-            plotpoint = self.setpos(event.xdata, event.ydata)
-            #If plotpoint is valid (not None)
-            if plotpoint is not None:
-                #Update position and displayed text.
-                #Position: Where the event occured.
-                #Text: Determined by setpos() method earlier
-                #Position is transformed to pixel coordinates,
-                #an offset is added there and this is transformed back.
-                temp = [event.xdata, event.ydata]
-                temp = self.ax.transData.transform(temp)
-                temp = temp + self.offset
-                temp = self.ax.transData.inverted().transform(temp)
-                self.text.set_position(temp)
-                self.text.set_text(self.numberformat.format(*plotpoint))
-                self.text.set_visible(self.visible)
-            #otherwise, make text invisible
-            else:
-                self.text.set_visible(False)
-
-            #Draw changes. Canot use _update method of baseclass,
-            #because it would first restore the backround, which
-            #is done already and is not necessary.
-            if self.useblit:
-                self.ax.draw_artist(self.text)
-                self.canvas.blit(self.ax.bbox)
-            else:
-                #If blitting is deactivated, the overwritten _update call made
-                #by the base class immedeately returned.
-                #We still have to draw the changes.
-                self.canvas.draw_idle()
+        #If plotpoint is valid (not None)
+        if plotpoint is not None:
+            #Update position and displayed text.
+            #Position: Where the event occured.
+            #Text: Determined by setpos() method earlier
+            #Position is transformed to pixel coordinates,
+            #an offset is added there and this is transformed back.
+            temp = [event.xdata, event.ydata]
+            temp = self.ax.transData.transform(temp)
+            temp = temp + self.offset
+            temp = self.ax.transData.inverted().transform(temp)
+            self.text.set_position(temp)
+            self.text.set_text(self.numberformat.format(*plotpoint))
+            self.text.set_visible(self.visible)
 
             #Tell base class, that we drawed something.
             #Baseclass needs to know, that it needs to restore a clean
             #backround, if the cursor leaves our figure context.
             self.needclear = True
+        #otherwise, make text invisible
+        else:
+            self.text.set_visible(False)
+
+        #Draw changes. Canot use _update method of baseclass,
+        #because it would first restore the backround, which
+        #is done already and is not necessary.
+        if self.useblit:
+            self.ax.draw_artist(self.text)
+            self.canvas.blit(self.ax.bbox)
+        else:
+            #If blitting is deactivated, the overwritten _update call made
+            #by the base class immedeately returned.
+            #We still have to draw the changes.
+            self.canvas.draw_idle()
 
     def setpos(self, xpos, ypos):
         """
