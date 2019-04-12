@@ -22,9 +22,7 @@ import contextlib
 from io import BytesIO, TextIOWrapper
 import itertools
 import logging
-import os
 from pathlib import Path
-import platform
 import shutil
 import subprocess
 import sys
@@ -44,7 +42,7 @@ _log = logging.getLogger(__name__)
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
 # https://stackoverflow.com/questions/24130623/using-python-subprocess-popen-cant-prevent-exe-stopped-working-prompt
-if platform.system() == 'Windows':
+if sys.platform == 'win32':
     subprocess_creation_flags = CREATE_NO_WINDOW = 0x08000000
 else:
     # Apparently None won't work here
@@ -469,7 +467,7 @@ class FileMovieWriter(MovieWriter):
         self.clear_temp = clear_temp
         self.temp_prefix = frame_prefix
         self._frame_counter = 0  # used for generating sequential file names
-        self._temp_names = list()
+        self._temp_paths = list()
         self.fname_format_str = '%s%%07d.%s'
 
     @property
@@ -495,17 +493,17 @@ class FileMovieWriter(MovieWriter):
     def _frame_sink(self):
         # Creates a filename for saving using the basename and the current
         # counter.
-        fname = self._base_temp_name() % self._frame_counter
+        path = Path(self._base_temp_name() % self._frame_counter)
 
         # Save the filename so we can delete it later if necessary
-        self._temp_names.append(fname)
-        _log.debug('FileMovieWriter.frame_sink: saving frame %d to fname=%s',
-                   self._frame_counter, fname)
+        self._temp_paths.append(path)
+        _log.debug('FileMovieWriter.frame_sink: saving frame %d to path=%s',
+                   self._frame_counter, path)
         self._frame_counter += 1  # Ensures each created name is 'unique'
 
         # This file returned here will be closed once it's used by savefig()
         # because it will no longer be referenced and will be gc-ed.
-        return open(fname, 'wb')
+        return open(path, 'wb')
 
     def grab_frame(self, **savefig_kwargs):
         '''
@@ -532,10 +530,10 @@ class FileMovieWriter(MovieWriter):
 
         # Delete temporary files
         if self.clear_temp:
-            _log.debug('MovieWriter: clearing temporary fnames=%s',
-                       self._temp_names)
-            for fname in self._temp_names:
-                os.remove(fname)
+            _log.debug('MovieWriter: clearing temporary paths=%s',
+                       self._temp_paths)
+            for path in self._temp_paths:
+                path.unlink()
 
 
 @writers.register('pillow')
@@ -770,10 +768,10 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
 
 # Taken directly from jakevdp's JSAnimation package at
 # http://github.com/jakevdp/JSAnimation
-def _included_frames(frame_list, frame_format):
-    """frame_list should be a list of filenames"""
-    return INCLUDED_FRAMES.format(Nframes=len(frame_list),
-                                  frame_dir=os.path.dirname(frame_list[0]),
+def _included_frames(paths, frame_format):
+    """paths should be a list of Paths"""
+    return INCLUDED_FRAMES.format(Nframes=len(paths),
+                                  frame_dir=paths[0].parent,
                                   frame_format=frame_format)
 
 
@@ -816,8 +814,8 @@ class HTMLWriter(FileMovieWriter):
         super().__init__(fps, codec, bitrate, extra_args, metadata)
 
     def setup(self, fig, outfile, dpi, frame_dir=None):
-        root, ext = os.path.splitext(outfile)
-        if ext not in ['.html', '.htm']:
+        outfile = Path(outfile)
+        if outfile.suffix not in ['.html', '.htm']:
             raise ValueError("outfile must be *.htm or *.html")
 
         self._saved_frames = []
@@ -826,10 +824,9 @@ class HTMLWriter(FileMovieWriter):
 
         if not self.embed_frames:
             if frame_dir is None:
-                frame_dir = root + '_frames'
-            if not os.path.exists(frame_dir):
-                os.makedirs(frame_dir)
-            frame_prefix = os.path.join(frame_dir, 'frame')
+                frame_dir = outfile.with_name(outfile.stem + '_frames')
+            frame_dir.mkdir(parents=True, exist_ok=True)
+            frame_prefix = frame_dir / 'frame'
         else:
             frame_prefix = None
 
@@ -866,9 +863,8 @@ class HTMLWriter(FileMovieWriter):
             Nframes = len(self._saved_frames)
         else:
             # temp names is filled by FileMovieWriter
-            fill_frames = _included_frames(self._temp_names,
-                                           self.frame_format)
-            Nframes = len(self._temp_names)
+            fill_frames = _included_frames(self._temp_paths, self.frame_format)
+            Nframes = len(self._temp_paths)
         mode_dict = dict(once_checked='',
                          loop_checked='',
                          reflect_checked='')
