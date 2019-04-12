@@ -1,0 +1,4 @@
+The test suite no longer turns on the Python fault handler by default
+`````````````````````````````````````````````````````````````````````
+
+Set the standard ``PYTHONFAULTHANDLER`` environment variable to do so.

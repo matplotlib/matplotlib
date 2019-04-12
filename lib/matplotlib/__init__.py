@@ -1350,16 +1350,6 @@ default_test_modules = [
 
 
 def _init_tests():
-    # CPython's faulthandler since v3.6 handles exceptions on Windows
-    # https://bugs.python.org/issue23848 but until v3.6.4 it was printing
-    # non-fatal exceptions https://bugs.python.org/issue30557
-    import platform
-    if not (sys.platform == 'win32' and
-            (3, 6) < sys.version_info < (3, 6, 4) and
-            platform.python_implementation() == 'CPython'):
-        import faulthandler
-        faulthandler.enable()
-
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
     LOCAL_FREETYPE_VERSION = '2.6.1'
