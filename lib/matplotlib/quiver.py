@@ -163,74 +163,9 @@ See Also
 quiverkey : Add a key to a quiver plot
 """ % docstring.interpd.params
 
-_quiverkey_doc = """
-Add a key to a quiver plot.
-
-Call signature::
-
-  quiverkey(Q, X, Y, U, label, **kw)
-
-Arguments:
-
-  *Q*:
-    The Quiver instance returned by a call to quiver.
-
-  *X*, *Y*:
-    The location of the key; additional explanation follows.
-
-  *U*:
-    The length of the key
-
-  *label*:
-    A string with the length and units of the key
-
-Keyword arguments:
-
-  *angle* = 0
-    The angle of the key arrow. Measured in degrees anti-clockwise from the
-    x-axis.
-
-  *coordinates* = [ 'axes' | 'figure' | 'data' | 'inches' ]
-    Coordinate system and units for *X*, *Y*: 'axes' and 'figure' are
-    normalized coordinate systems with 0,0 in the lower left and 1,1
-    in the upper right; 'data' are the axes data coordinates (used for
-    the locations of the vectors in the quiver plot itself); 'inches'
-    is position in the figure in inches, with 0,0 at the lower left
-    corner.
-
-  *color*:
-    overrides face and edge colors from *Q*.
-
-  *labelpos* = [ 'N' | 'S' | 'E' | 'W' ]
-    Position the label above, below, to the right, to the left of the
-    arrow, respectively.
-
-  *labelsep*:
-    Distance in inches between the arrow and the label.  Default is
-    0.1
-
-  *labelcolor*:
-    defaults to default :class:`~matplotlib.text.Text` color.
-
-  *fontproperties*:
-    A dictionary with keyword arguments accepted by the
-    :class:`~matplotlib.font_manager.FontProperties` initializer:
-    *family*, *style*, *variant*, *size*, *weight*
-
-Any additional keyword arguments are used to override vector
-properties taken from *Q*.
-
-The positioning of the key depends on *X*, *Y*, *coordinates*, and
-*labelpos*.  If *labelpos* is 'N' or 'S', *X*, *Y* give the position
-of the middle of the key arrow.  If *labelpos* is 'E', *X*, *Y*
-positions the head, and if *labelpos* is 'W', *X*, *Y* positions the
-tail; in either of these two cases, *X*, *Y* is somewhere in the
-middle of the arrow+label key object.
-"""
-
 
 class QuiverKey(martist.Artist):
-    """ Labelled arrow for use as a quiver plot scale key."""
+    """Labelled arrow for use as a quiver plot scale key."""
     halign = {'N': 'center', 'S': 'center', 'E': 'left', 'W': 'right'}
     valign = {'N': 'bottom', 'S': 'top', 'E': 'center', 'W': 'center'}
     pivot = {'N': 'middle', 'S': 'middle', 'E': 'tip', 'W': 'tail'}
@@ -239,6 +174,53 @@ class QuiverKey(martist.Artist):
                  *, angle=0, coordinates='axes', color=None, labelsep=0.1,
                  labelpos='N', labelcolor=None, fontproperties=None,
                  **kw):
+        """
+        Add a key to a quiver plot.
+
+        The positioning of the key depends on *X*, *Y*, *coordinates*, and
+        *labelpos*.  If *labelpos* is 'N' or 'S', *X*, *Y* give the position of
+        the middle of the key arrow.  If *labelpos* is 'E', *X*, *Y* positions
+        the head, and if *labelpos* is 'W', *X*, *Y* positions the tail; in
+        either of these two cases, *X*, *Y* is somewhere in the middle of the
+        arrow+label key object.
+
+        Parameters
+        ----------
+        Q : `Quiver`
+            A `Quiver` object as returned by a call to `~Axes.quiver()`.
+        X, Y: float
+            The location of the key.
+        U : float
+            The length of the key
+        label : str
+            The key label (e.g., length and units of the key).
+        angle : float, default: 0
+            The angle of the key arrow, in degrees anti-clockwise from the
+            x-axis.
+        coordinates : {'axes', 'figure', 'data', 'inches'}, default: 'axes'
+            Coordinate system and units for *X*, *Y*: 'axes' and 'figure' are
+            normalized coordinate systems with 0,0 in the lower left and 1,1
+            in the upper right; 'data' are the axes data coordinates (used for
+            the locations of the vectors in the quiver plot itself); 'inches'
+            is position in the figure in inches, with 0,0 at the lower left
+            corner.
+        color : color
+            Overrides face and edge colors from *Q*.
+        labelpos : {'N', 'S', 'E', 'W'}
+            Position the label above, below, to the right, to the left of the
+            arrow, respectively.
+        labelsep : float, default: 0.1
+            Distance in inches between the arrow and the label.
+        labelcolor : color, default: :rc:`text.color`
+            Label color.
+        fontproperties : dict, optional
+            A dictionary with keyword arguments accepted by the
+            `~matplotlib.font_manager.FontProperties` initializer:
+            *family*, *style*, *variant*, *size*, *weight*
+        **kwargs
+            Any additional keyword arguments are used to override vector
+            properties taken from *Q*.
+        """
         martist.Artist.__init__(self)
         self.Q = Q
         self.X = X
@@ -291,8 +273,6 @@ class QuiverKey(martist.Artist):
         self._cid = None
         # pass the remove call up the stack
         martist.Artist.remove(self)
-
-    __init__.__doc__ = _quiverkey_doc
 
     def _init(self):
         if True:  # not self._initialized:
@@ -374,7 +354,10 @@ class QuiverKey(martist.Artist):
             return True, {}
         return False, {}
 
-    quiverkey_doc = _quiverkey_doc
+    @cbook.deprecated("3.2")
+    @property
+    def quiverkey_doc(self):
+        return self.__init__.__doc__
 
 
 # This is a helper function that parses out the various combination of
@@ -690,7 +673,7 @@ class Quiver(mcollections.PolyCollection):
         return XY
 
     def _h_arrows(self, length):
-        """ length is in arrow width units """
+        """Length is in arrow width units."""
         # It might be possible to streamline the code
         # and speed it up a bit by using complex (x,y)
         # instead of separate arrays; but any gain would be slight.

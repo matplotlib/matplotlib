@@ -4991,11 +4991,11 @@ optional.
         self.add_artist(a)
         return a
 
+    @docstring.copy(mquiver.QuiverKey.__init__)
     def quiverkey(self, Q, X, Y, U, label, **kw):
         qk = mquiver.QuiverKey(Q, X, Y, U, label, **kw)
         self.add_artist(qk)
         return qk
-    quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
     # Handle units for x and y, if they've been passed
     def _quiver_units(self, args, kw):
