@@ -785,7 +785,7 @@ def test_tri_smooth_gradient():
     # Image comparison based on example trigradient_demo.
 
     def dipole_potential(x, y):
-        """ An electric dipole potential V """
+        """.An electric dipole potential V."""
         r_sq = x**2 + y**2
         theta = np.arctan2(y, x)
         z = np.cos(theta)/r_sq

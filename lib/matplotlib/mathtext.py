@@ -897,7 +897,7 @@ class DejaVuFonts(UnicodeFonts):
             self.fontmap[name] = fullpath
 
     def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
-        """ Override prime symbol to use Bakoma """
+        # Override prime symbol to use Bakoma.
         if sym == r'\prime':
             return self.bakoma._get_glyph(
                 fontname, font_class, sym, fontsize, math)

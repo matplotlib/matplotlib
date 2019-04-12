@@ -1,9 +1,3 @@
-"""
-`ToolManager`
-    Class that makes the bridge between user interaction (key press,
-    toolbar clicks, ..) and the actions in response to the user inputs.
-"""
-
 import logging
 
 import matplotlib.cbook as cbook
@@ -15,7 +9,7 @@ _log = logging.getLogger(__name__)
 
 
 class ToolEvent(object):
-    """Event for tool manipulation (add/remove)"""
+    """Event for tool manipulation (add/remove)."""
     def __init__(self, name, sender, tool, data=None):
         self.name = name
         self.sender = sender
@@ -24,7 +18,7 @@ class ToolEvent(object):
 
 
 class ToolTriggerEvent(ToolEvent):
-    """Event to inform that a tool has been triggered"""
+    """Event to inform that a tool has been triggered."""
     def __init__(self, name, sender, tool, canvasevent=None, data=None):
         ToolEvent.__init__(self, name, sender, tool, data)
         self.canvasevent = canvasevent
@@ -32,9 +26,9 @@ class ToolTriggerEvent(ToolEvent):
 
 class ToolManagerMessageEvent(object):
     """
-    Event carrying messages from toolmanager
+    Event carrying messages from toolmanager.
 
-    Messages usually get displayed to the user by the toolbar
+    Messages usually get displayed to the user by the toolbar.
     """
     def __init__(self, name, sender, message):
         self.name = name
@@ -44,7 +38,8 @@ class ToolManagerMessageEvent(object):
 
 class ToolManager(object):
     """
-    Helper class that groups all the user interactions for a Figure.
+    Manager for actions triggered by user interactions (key press, toolbar
+    clicks, ...) on a Figure.
 
     Attributes
     ----------
@@ -76,14 +71,14 @@ class ToolManager(object):
 
     @property
     def canvas(self):
-        """Canvas managed by FigureManager"""
+        """Canvas managed by FigureManager."""
         if not self._figure:
             return None
         return self._figure.canvas
 
     @property
     def figure(self):
-        """Figure that holds the canvas"""
+        """Figure that holds the canvas."""
         return self._figure
 
     @figure.setter
@@ -138,19 +133,18 @@ class ToolManager(object):
 
     def toolmanager_disconnect(self, cid):
         """
-        Disconnect callback id *cid*
+        Disconnect callback id *cid*.
 
         Example usage::
 
-            cid = toolmanager.toolmanager_connect('tool_trigger_zoom',
-                                                  on_press)
+            cid = toolmanager.toolmanager_connect('tool_trigger_zoom', onpress)
             #...later
             toolmanager.toolmanager_disconnect(cid)
         """
         return self._callbacks.disconnect(cid)
 
     def message_event(self, message, sender=None):
-        """ Emit a `ToolManagerMessageEvent`"""
+        """Emit a `ToolManagerMessageEvent`."""
         if sender is None:
             sender = self
 
@@ -160,13 +154,12 @@ class ToolManager(object):
 
     @property
     def active_toggle(self):
-        """Currently toggled tools"""
-
+        """Currently toggled tools."""
         return self._toggled
 
     def get_tool_keymap(self, name):
         """
-        Get the keymap associated with the specified tool
+        Get the keymap associated with the specified tool.
 
         Parameters
         ----------
@@ -187,7 +180,7 @@ class ToolManager(object):
 
     def update_keymap(self, name, *keys):
         """
-        Set the keymap to associate with the specified tool
+        Set the keymap to associate with the specified tool.
 
         Parameters
         ----------
@@ -210,7 +203,7 @@ class ToolManager(object):
 
     def remove_tool(self, name):
         """
-        Remove tool from `ToolManager`
+        Remove tool named *name*.
 
         Parameters
         ----------
@@ -235,16 +228,16 @@ class ToolManager(object):
 
     def add_tool(self, name, tool, *args, **kwargs):
         """
-        Add *tool* to `ToolManager`
+        Add *tool* to `ToolManager`.
 
-        If successful adds a new event `tool_trigger_name` where **name** is
-        the **name** of the tool, this event is fired everytime
-        the tool is triggered.
+        If successful, adds a new event ``tool_trigger_{name}`` where ``name``
+        is the *name* of the tool; the event is fired everytime the tool is
+        triggered.
 
         Parameters
         ----------
         name : str
-            Name of the tool, treated as the ID, has to be unique
+            Name of the tool, treated as the ID, has to be unique.
         tool : class_like, i.e. str or type
             Reference to find the class of the Tool to added.
 
@@ -296,8 +289,8 @@ class ToolManager(object):
 
     def _handle_toggle(self, tool, sender, canvasevent, data):
         """
-        Toggle tools, need to untoggle prior to using other Toggle tool
-        Called from trigger_tool
+        Toggle tools, need to untoggle prior to using other Toggle tool.
+        Called from trigger_tool.
 
         Parameters
         ----------
@@ -356,10 +349,9 @@ class ToolManager(object):
         else:
             return None
 
-    def trigger_tool(self, name, sender=None, canvasevent=None,
-                     data=None):
+    def trigger_tool(self, name, sender=None, canvasevent=None, data=None):
         """
-        Trigger a tool and emit the tool_trigger_[name] event
+        Trigger a tool and emit the ``tool_trigger_{name}`` event.
 
         Parameters
         ----------
@@ -386,11 +378,7 @@ class ToolManager(object):
         self._callbacks.process(s, event)
 
     def _trigger_tool(self, name, sender=None, canvasevent=None, data=None):
-        """
-        Trigger on a tool
-
-        Method to actually trigger the tool
-        """
+        """Actually trigger a tool."""
         tool = self.get_tool(name)
 
         if isinstance(tool, tools.ToolToggleBase):
@@ -411,13 +399,12 @@ class ToolManager(object):
 
     @property
     def tools(self):
-        """Return the tools controlled by `ToolManager`"""
-
+        """Return the controlled tools."""
         return self._tools
 
     def get_tool(self, name, warn=True):
         """
-        Return the tool object, also accepts the actual tool for convenience
+        Return the tool object, also accepts the actual tool for convenience.
 
         Parameters
         ----------

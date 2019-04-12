@@ -16,7 +16,6 @@ import numpy as np
 # Analytical test function
 #-----------------------------------------------------------------------------
 def function_z(x, y):
-    """ A function of 2 variables """
     r1 = np.sqrt((0.5 - x)**2 + (0.5 - y)**2)
     theta1 = np.arctan2(0.5 - x, 0.5 - y)
     r2 = np.sqrt((-x - 0.2)**2 + (-y - 0.2)**2)
