@@ -1345,33 +1345,40 @@ class Cursor(AxesWidget):
             self.canvas.draw_idle()
         return False
 
+
 class TextCursor(Cursor):
     """
-    A crosshair cursor like `~matplotlib.widgets.Cursor` with a text showing the current coordinates.
+    A crosshair cursor like `~matplotlib.widgets.Cursor` with a text showing \
+    the current coordinates.
 
     For the cursor to remain responsive you must keep a reference to it.
-    The data of the axis specified as *dataaxis* needs to be constantly growing.
-    Otherwise, the `numpy.searchsorted` call might fail and the text disappears.
-    You can satisfy the requirement by sorting the data you plot. Usually the data is already
-    sorted (if it was created e.g. using `numpy.linspace`), but e.g. scatter plots might cause this problem.
+    The data of the axis specified as *dataaxis* needs to be constantly
+    growing. Otherwise, the `numpy.searchsorted` call might fail and the text
+    disappears. You can satisfy the requirement by sorting the data you plot.
+    Usually the data is already sorted (if it was created e.g. using
+    `numpy.linspace`), but e.g. scatter plots might cause this problem.
 
     Parameters
     ----------
     line : `matplotlib.lines.Line2D`
         The plot line from which the data coordinates are displayed.
 
-    numberformat : `python format string <https://docs.python.org/3/library/string.html#formatstrings>`_, optional, default: "{0:.4g};{1:.4g}"
-        The displayed text is created by calling *format()* on this string with the two coordinates.
+    numberformat : `python format string <https://docs.python.org/3/\
+    library/string.html#formatstrings>`_, optional, default: "{0:.4g};{1:.4g}"
+        The displayed text is created by calling *format()* on this string
+        with the two coordinates.
 
     offset : 2D array-like, optional, default: [5, 5]
-        The offset in display (pixel) coordinates of the text position relative to the cross hair.
+        The offset in display (pixel) coordinates of the text position
+        relative to the cross hair.
 
     dataaxis : {"x", "y"}, optional, default: "x"
-        If "x" is specified, the nearest x value for the current cursor position is found and
-        the y value at that x value is the other displayed cooridnate. If "y" is specified,
-        the nearest y coordinate is found, but there might be many x values matching this y value.
-        The left one in the x data set is displayed. If you use "y", please ensure that your
-        plot is biunique.
+        If "x" is specified, the nearest x value for the current cursor
+        position is found and the y value at that x value is the other
+        displayed cooridnate. If "y" is specified, the nearest y coordinate is
+        found, but there might be many x values matching this y value.
+        The left one in the x data set is displayed. If you use "y",
+        please ensure that your plot is biunique.
 
     Other Parameters
     ----------------
@@ -1380,15 +1387,16 @@ class TextCursor(Cursor):
 
     **cursorargs : `matplotlib.widgets.Cursor` properties
         Arguments passed to the internal `~matplotlib.widgets.Cursor` instance.
-        The `matplotlib.axes.Axes` argument is mandatory! The parameter *useblit* can be set to
-        *True* in order to achieve faster rendering.
+        The `matplotlib.axes.Axes` argument is mandatory! The parameter
+        *useblit* can be set to *True* in order to achieve faster rendering.
 
     Examples
     --------
     See :doc:`/gallery/widgets/text_cursor`.
     """
 
-    def __init__(self, line, numberformat="{0:.4g};{1:.4g}", offset=[5, 5], dataaxis='x', textprops={}, **cursorargs):
+    def __init__(self, line, numberformat="{0:.4g};{1:.4g}", offset=[5, 5], \
+        dataaxis='x', textprops={}, **cursorargs):
         #The line object, for which the coordinates are displayed
         self.line = line
         #The format string, on which .format() is called for creating the text
@@ -1408,10 +1416,13 @@ class TextCursor(Cursor):
         #Default value for position of text.
         self.setpos(self.line.get_xdata()[0], self.line.get_ydata()[0])
         #Create invisible animated text
-        self.text = self.ax.text(self.ax.get_xbound()[0], self.ax.get_ybound()[0], "0, 0", animated=bool(self.useblit), visible=False, **textprops)
+        self.text = self.ax.text(self.ax.get_xbound()[0], \
+            self.ax.get_ybound()[0], "0, 0", animated=bool(self.useblit), \
+            visible=False, **textprops)
 
     def onmove(self, event):
-        """Overwritten draw callback for cursor. Called when moving the mouse."""
+        """Overwritten draw callback for cursor. \
+        Called when moving the mouse."""
 
         #Leave method under the same conditions as in overwritten method
         if self.ignore(event):
@@ -1420,7 +1431,8 @@ class TextCursor(Cursor):
             return
 
         #If the mouse left drawable area, we now make the text invisible.
-        #Baseclass will redraw complete canvas after, which makes both text and cursor disappear.
+        #Baseclass will redraw complete canvas after, which makes both text
+        #and cursor disappear.
         if event.inaxes != self.ax:
             self.text.set_visible(False)
             super().onmove(event)
@@ -1438,21 +1450,21 @@ class TextCursor(Cursor):
             return
 
         #Draw the widget, if event coordinates are valid
-        if (event.xdata != None) and (event.ydata != None):
+        if (event.xdata is not None) and (event.ydata is not None):
             #Get plot point related to current x position.
             #These coordinates are displayed in text.
             plotpoint = self.setpos(event.xdata, event.ydata)
             #If plotpoint is valid (not None)
-            if plotpoint != None:
+            if plotpoint is not None:
                 #Update position and displayed text.
                 #Position: Where the event occured.
                 #Text: Determined by setpos() method earlier
                 #Position is transformed to pixel coordinates,
                 #an offset is added there and this is transformed back.
-                temp=[event.xdata, event.ydata]
-                temp=self.ax.transData.transform(temp)
-                temp=temp+self.offset
-                temp=self.ax.transData.inverted().transform(temp)
+                temp = [event.xdata, event.ydata]
+                temp = self.ax.transData.transform(temp)
+                temp = temp + self.offset
+                temp = self.ax.transData.inverted().transform(temp)
                 self.text.set_position(temp)
                 self.text.set_text(self.numberformat.format(*plotpoint))
                 self.text.set_visible(self.visible)
@@ -1467,20 +1479,22 @@ class TextCursor(Cursor):
                 self.ax.draw_artist(self.text)
                 self.canvas.blit(self.ax.bbox)
             else:
-                #If blitting is deactivated, the overwritten _update call made by the base class
-                #immedeately returned. We still have to draw the changes.
+                #If blitting is deactivated, the overwritten _update call made
+                #by the base class immedeately returned.
+                #We still have to draw the changes.
                 self.canvas.draw_idle()
 
             #Tell base class, that we drawed something.
-            #Baseclass needs to know, that it needs to restore a clean backround
-            #if the cursor leaves our figure context.
+            #Baseclass needs to know, that it needs to restore a clean
+            #backround, if the cursor leaves our figure context.
             self.needclear = True
 
     def setpos(self, xpos, ypos):
         """
         Finds the coordinates, which have to be shown in text.
 
-        The behaviour depends on the *dataaxis* attribute.
+        The behaviour depends on the *dataaxis* attribute. Function looks
+        up the matching plot coordinate for the given mouse position.
 
         Parameters
         ----------
@@ -1493,7 +1507,7 @@ class TextCursor(Cursor):
 
         Returns
         -------
-        ret : {2D array-like, None} The coordinates, which should appear in the text.
+        ret : {2D array-like, None} The coordinates which should be displayed.
             *None* is the fallback value.
         """
 
@@ -1501,27 +1515,31 @@ class TextCursor(Cursor):
         xdata = self.line.get_xdata()
         ydata = self.line.get_ydata()
 
-        #The dataaxis attribute decides, in which axis we look up which cursor coordinate.
+        #The dataaxis attribute decides, in which axis we look up which cursor
+        #coordinate.
         if self.dataaxis == 'x':
-            pos=xpos
-            data=xdata
-            lim=self.ax.get_xlim()
+            pos = xpos
+            data = xdata
+            lim = self.ax.get_xlim()
         elif self.dataaxis == 'y':
-            pos=ypos
-            data=ydata
-            lim=self.ax.get_ylim()
+            pos = ypos
+            data = ydata
+            lim = self.ax.get_ylim()
         else:
-            raise ValueError("The data axis specifier {} should be a string holding 'x' or 'y'".format(self.dataaxis))
+            raise ValueError(\
+                "The data axis specifier {} should be 'x' or 'y'"\
+                .format(self.dataaxis))
 
         #If position is valid
-        if pos != None:
+        if pos is not None:
             #And in valid plot data range
             if pos >= lim[0] and pos <= lim[-1]:
                 #Convert given positon to numpy array,
                 #so numpy function can be used.
                 findme = np.array([pos])
                 #Find closest x value in sorted x vector.
-                #This is the code line, which requires the plotted data to be sorted.
+                #This is the code line,
+                #which requires the plotted data to be sorted.
                 index = np.searchsorted(data, findme)
                 #Return none, if this index is out of range.
                 if (index < 0) or (index >= len(data)):
@@ -1533,10 +1551,12 @@ class TextCursor(Cursor):
         return None
 
     def clear(self, event):
-        """Overwirtten clear callback for cursor. Called right before displaying the figure."""
+        """Overwirtten clear callback for cursor. Called right before \
+        displaying the figure."""
 
         #The base class saves the clean background for blitting.
-        #Text and cursor are invisible, until the first mouse move event occurs.
+        #Text and cursor are invisible,
+        #until the first mouse move event occurs.
         super().clear(event)
         if self.ignore(event):
             return
@@ -1546,9 +1566,11 @@ class TextCursor(Cursor):
         """
         Overwritten method for eather blitting or drawing the widget canvas.
 
-        Passes call to base class if blitting is activated, only. In other cases, one draw_idle
-        call is enough, which is placed explicitly in this class (see `~matplotlib.widgets.TextCursor.onmove`.
-        In that case, `~matplotlib.widgets.Cursor` is not supposed to draw something using this method.
+        Passes call to base class if blitting is activated, only.
+        In other cases, one draw_idle call is enough, which is placed
+        explicitly in this class (see `~matplotlib.widgets.TextCursor.onmove`.
+        In that case, `~matplotlib.widgets.Cursor` is not supposed to draw
+        something using this method.
         """
 
         if self.useblit:
