@@ -267,7 +267,7 @@ if __name__ == '__main__':
         description="Python plotting package",
         author="John D. Hunter, Michael Droettboom",
         author_email="matplotlib-users@python.org",
-        url="http://matplotlib.org",
+        url="https://matplotlib.org/",
         long_description="""
         Matplotlib strives to produce publication quality 2D graphics
         for interactive graphing, scientific publishing, user interface
@@ -283,7 +283,12 @@ if __name__ == '__main__':
         package_dir=package_dir,
         package_data=package_data,
         classifiers=classifiers,
-        download_url="http://matplotlib.org/users/installing.html",
+        download_url="https://matplotlib.org/users/installing.html",
+        project_urls={
+            'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
+            'Documentation': 'https://matplotlib.org/contents.html',
+            'Source Code': 'https://github.com/matplotlib/matplotlib'
+        },
 
         python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
         # List third-party Python packages that we require
