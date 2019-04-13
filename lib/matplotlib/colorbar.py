@@ -460,11 +460,11 @@ class ColorbarBase(_ColorbarMappableDummy):
         self.draw_all()
 
     def _extend_lower(self):
-        """Returns whether the lower limit is open ended."""
+        """Return whether the lower limit is open ended."""
         return self.extend in ('both', 'min')
 
     def _extend_upper(self):
-        """Returns whether the uper limit is open ended."""
+        """Return whether the uper limit is open ended."""
         return self.extend in ('both', 'max')
 
     def _patch_ax(self):

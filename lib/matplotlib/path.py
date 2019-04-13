@@ -420,7 +420,7 @@ class Path(object):
                 quantize=False, simplify=False, curves=False,
                 stroke_width=1.0, snap=False, sketch=None):
         """
-        Returns a new Path after cleaning vertices and codes according to the
+        Return a new Path with vertices and codes cleaned according to the
         parameters.
 
         See Also
