@@ -368,7 +368,7 @@ def is_writable_file_like(obj):
 
 def file_requires_unicode(x):
     """
-    Returns whether the given writable file-like object requires Unicode to be
+    Return whether the given writable file-like object requires Unicode to be
     written to it.
     """
     try:
@@ -494,7 +494,7 @@ def get_sample_data(fname, asfileobj=True):
 
 def flatten(seq, scalarp=is_scalar_or_string):
     """
-    Returns a generator of flattened nested containers
+    Return a generator of flattened nested containers
 
     For example:
 
@@ -943,7 +943,7 @@ class Grouper(object):
         self.clean()
 
     def joined(self, a, b):
-        """Returns True if *a* and *b* are members of the same set."""
+        """Return whether *a* and *b* are members of the same set."""
         self.clean()
         return (self._mapping.get(weakref.ref(a), object())
                 is self._mapping.get(weakref.ref(b)))
@@ -966,7 +966,7 @@ class Grouper(object):
             yield [x() for x in group]
 
     def get_siblings(self, a):
-        """Returns all of the items joined with *a*, including itself."""
+        """Return all of the items joined with *a*, including itself."""
         self.clean()
         siblings = self._mapping.get(weakref.ref(a), [weakref.ref(a)])
         return [x() for x in siblings]

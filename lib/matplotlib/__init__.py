@@ -522,7 +522,7 @@ def _create_tmp_config_or_cache_dir():
 
 def _get_xdg_config_dir():
     """
-    Returns the XDG configuration directory, according to the `XDG
+    Return the XDG configuration directory, according to the `XDG
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
@@ -534,7 +534,7 @@ def _get_xdg_config_dir():
 
 def _get_xdg_cache_dir():
     """
-    Returns the XDG cache directory, according to the `XDG
+    Return the XDG cache directory, according to the `XDG
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
