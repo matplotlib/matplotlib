@@ -482,12 +482,9 @@ def test_triinterpcubic_cg_solver():
     # 1) A commonly used test involves a 2d Poisson matrix.
     def poisson_sparse_matrix(n, m):
         """
-        Sparse Poisson matrix.
-
-        Returns the sparse matrix in coo format resulting from the
+        Return the sparse, (n*m, n*m) matrix in coo format resulting from the
         discretisation of the 2-dimensional Poisson equation according to a
         finite difference numerical scheme on a uniform (n, m) grid.
-        Size of the matrix: (n*m, n*m)
         """
         l = m*n
         rows = np.concatenate([
@@ -948,8 +945,7 @@ def test_trirefine():
 
 def meshgrid_triangles(n):
     """
-    Utility function.
-    Returns triangles to mesh a np.meshgrid of n x n points
+    Return (2*(N-1)**2, 3) array of triangles to mesh (N, N)-point np.meshgrid.
     """
     tri = []
     for i in range(n-1):
