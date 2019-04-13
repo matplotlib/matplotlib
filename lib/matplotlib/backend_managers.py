@@ -230,9 +230,9 @@ class ToolManager(object):
         """
         Add *tool* to `ToolManager`.
 
-        If successful, adds a new event ``tool_trigger_{name}`` where ``name``
-        is the *name* of the tool; the event is fired everytime the tool is
-        triggered.
+        If successful, adds a new event ``tool_trigger_{name}`` where
+        ``{name}`` is the *name* of the tool; the event is fired everytime the
+        tool is triggered.
 
         Parameters
         ----------
@@ -399,7 +399,7 @@ class ToolManager(object):
 
     @property
     def tools(self):
-        """Return the controlled tools."""
+        """A dict mapping tool name -> controlled tool."""
         return self._tools
 
     def get_tool(self, name, warn=True):
