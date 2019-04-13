@@ -1,6 +1,5 @@
 from io import BytesIO
-import glob
-import os
+from pathlib import Path
 
 import pytest
 
@@ -11,11 +10,8 @@ import matplotlib.cm as cm
 
 @image_comparison(['pngsuite.png'], tol=0.03)
 def test_pngsuite():
-    dirname = os.path.join(
-        os.path.dirname(__file__),
-        'baseline_images',
-        'pngsuite')
-    files = sorted(glob.iglob(os.path.join(dirname, 'basn*.png')))
+    files = sorted(
+        (Path(__file__).parent / "baseline_images/pngsuite").glob("basn*.png"))
 
     plt.figure(figsize=(len(files), 2))
 
