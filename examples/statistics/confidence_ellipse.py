@@ -16,6 +16,7 @@ and makes use of the fact that a normalized covariance matrix (composed of
 pearson correlation coefficients and ones) is particularly easy to handle.
 """
 
+
 #############################################################################
 #
 # The plotting function itself
