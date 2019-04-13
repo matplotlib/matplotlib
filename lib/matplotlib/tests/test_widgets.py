@@ -474,14 +474,15 @@ def test_polygon_selector():
                       + polygon_place_vertex(50, 50))
     check_polygon_selector(event_sequence, expected_result, 1)
 
+
 def test_text_cursor():
     ax = get_ax()
     #Draw horizontal line
     lin = ax.plot([1, 1], [1, 1])
     ax.figure.canvas.draw()
-    tool = widgets.TextCursor(line=lin[0], numberformat="{0:.2f}\n{1:.2f}", \
-    dataaxis='x', offset=[10, 10], \
-    textprops={'color': 'blue', 'fontweight': 'bold'}, ax=ax, useblit=True, \
+    tool = widgets.TextCursor(line=lin[0], numberformat="{0:.2f}\n{1:.2f}",
+    dataaxis='x', offset=[10, 10],
+    textprops={'color': 'blue', 'fontweight': 'bold'}, ax=ax, useblit=True,
     color='red', linewidth=2)
 
     #Check that setpos returns None for invalid event region
@@ -491,4 +492,4 @@ def test_text_cursor():
     #the numpy searchsorted method will return an out of bound index.
     #The text needs to become invisible.
     do_event(tool, 'onmove', xdata=-1, ydata=1)
-    assert tool.text.get_visible() == False
+    assert tool.text.get_visible() is False

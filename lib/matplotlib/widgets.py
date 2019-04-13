@@ -1399,7 +1399,7 @@ class TextCursor(Cursor):
     See :doc:`/gallery/widgets/text_cursor`.
     """
 
-    def __init__(self, line, numberformat="{0:.4g};{1:.4g}", offset=[5, 5], \
+    def __init__(self, line, numberformat="{0:.4g};{1:.4g}", offset=[5, 5],
         dataaxis='x', textprops={}, **cursorargs):
         #The line object, for which the coordinates are displayed
         self.line = line
@@ -1420,8 +1420,8 @@ class TextCursor(Cursor):
         #Default value for position of text.
         self.setpos(self.line.get_xdata()[0], self.line.get_ydata()[0])
         #Create invisible animated text
-        self.text = self.ax.text(self.ax.get_xbound()[0], \
-            self.ax.get_ybound()[0], "0, 0", animated=bool(self.useblit), \
+        self.text = self.ax.text(self.ax.get_xbound()[0],
+            self.ax.get_ybound()[0], "0, 0", animated=bool(self.useblit),
             visible=False, **textprops)
 
     def onmove(self, event):
@@ -1540,8 +1540,8 @@ class TextCursor(Cursor):
             data = ydata
             lim = self.ax.get_ylim()
         else:
-            raise ValueError(\
-                "The data axis specifier {} should be 'x' or 'y'"\
+            raise ValueError(
+                "The data axis specifier {} should be 'x' or 'y'"
                 .format(self.dataaxis))
 
         #If position is valid
