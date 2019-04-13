@@ -564,13 +564,7 @@ class RendererBase(object):
 
         text2path = self._text2path
         fontsize = self.points_to_pixels(prop.get_size_in_points())
-
-        if ismath == "TeX":
-            verts, codes = text2path.get_text_path(prop, s, ismath=False,
-                                                   usetex=True)
-        else:
-            verts, codes = text2path.get_text_path(prop, s, ismath=ismath,
-                                                   usetex=False)
+        verts, codes = text2path.get_text_path(prop, s, ismath=ismath)
 
         path = Path(verts, codes)
         angle = np.deg2rad(angle)
