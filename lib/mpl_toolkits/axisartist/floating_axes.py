@@ -70,26 +70,19 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx0 = lon_levs
             dx = 0.001
 
-        _extremes = self.grid_helper._extremes
-        xmin, xmax = sorted(_extremes[:2])
-        ymin, ymax = sorted(_extremes[2:])
-        if self.nth_coord == 0:
-            mask = (ymin <= yy0) & (yy0 <= ymax)
-            yy0 = yy0[mask]
-        elif self.nth_coord == 1:
-            mask = (xmin <= xx0) & (xx0 <= xmax)
-            xx0 = xx0[mask]
+        extremes = self.grid_helper._extremes
+        xmin, xmax = sorted(extremes[:2])
+        ymin, ymax = sorted(extremes[2:])
 
         def transform_xy(x, y):
             x1, y1 = grid_finder.transform_xy(x, y)
-            x2y2 = axes.transData.transform(np.array([x1, y1]).transpose())
-            x2, y2 = x2y2.transpose()
+            x2, y2 = axes.transData.transform(np.array([x1, y1]).T).T
             return x2, y2
 
-        # find angles
         if self.nth_coord == 0:
+            mask = (ymin <= yy0) & (yy0 <= ymax)
+            yy0 = yy0[mask]
             xx0 = np.full_like(yy0, self.value)
-
             xx1, yy1 = transform_xy(xx0, yy0)
 
             xx00 = xx0.astype(float, copy=True)
@@ -106,8 +99,9 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
+            mask = (xmin <= xx0) & (xx0 <= xmax)
+            xx0 = xx0[mask]
             yy0 = np.full_like(xx0, self.value)
-
             xx1, yy1 = transform_xy(xx0, yy0)
 
             yy00 = yy0.astype(float, copy=True)
