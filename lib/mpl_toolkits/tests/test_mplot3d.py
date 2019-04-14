@@ -725,7 +725,7 @@ class TestVoxels(object):
         remove_text=True
     )
     def test_named_colors(self):
-        """ test with colors set to a 3d object array of strings """
+        """Test with colors set to a 3d object array of strings."""
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
         x, y, z = np.indices((10, 10, 10))
@@ -742,7 +742,7 @@ class TestVoxels(object):
         remove_text=True
     )
     def test_rgb_data(self):
-        """ test with colors set to a 4d float array of rgb data """
+        """Test with colors set to a 4d float array of rgb data."""
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
         x, y, z = np.indices((10, 10, 10))

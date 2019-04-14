@@ -578,11 +578,11 @@ class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
 
     def _get_ticklabels_offsets(self, renderer, label_direction):
         """
-        Calculates the offsets of the ticklabels from the tick and
-        their total heights. The offset only takes account the offset
-        due to the vertical alignment of the ticklabels, i.e.,if axis
-        direction is bottom and va is ;top', it will return 0. if va
-        is 'baseline', it will return (height-descent).
+        Calculates the ticklabel offsets from the tick and their total heights.
+
+        The offset only takes account the offset due to the vertical alignment
+        of the ticklabels: if axis direction is bottom and va is 'top', it will
+        return 0; if va is 'baseline', it will return (height-descent).
         """
         whd_list = self.get_texts_widths_heights_descents(renderer)
 

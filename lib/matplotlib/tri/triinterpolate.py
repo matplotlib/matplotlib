@@ -1077,7 +1077,8 @@ class _DOF_estimator():
 
 
 class _DOF_estimator_user(_DOF_estimator):
-    """ dz is imposed by user / Accounts for scaling if any """
+    """dz is imposed by user; accounts for scaling if any."""
+
     def compute_dz(self, dz):
         (dzdx, dzdy) = dz
         dzdx = dzdx * self._unit_x
@@ -1086,7 +1087,8 @@ class _DOF_estimator_user(_DOF_estimator):
 
 
 class _DOF_estimator_geom(_DOF_estimator):
-    """ Fast 'geometric' approximation, recommended for large arrays. """
+    """Fast 'geometric' approximation, recommended for large arrays."""
+
     def compute_dz(self):
         """
         self.df is computed as weighted average of _triangles sharing a common

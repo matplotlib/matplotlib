@@ -391,7 +391,7 @@ class Slider(AxesWidget):
         self.set_val(valinit)
 
     def _value_in_bounds(self, val):
-        """ Makes sure self.val is with given bounds."""
+        """Makes sure *val* is with given bounds."""
         if self.valstep:
             val = np.round((val - self.valmin)/self.valstep)*self.valstep
             val += self.valmin
@@ -417,11 +417,8 @@ class Slider(AxesWidget):
         return val
 
     def _update(self, event):
-        """update the slider position"""
-        if self.ignore(event):
-            return
-
-        if event.button != 1:
+        """Update the slider position."""
+        if self.ignore(event) or event.button != 1:
             return
 
         if event.name == 'button_press_event' and event.inaxes == self.ax:
@@ -1671,7 +1668,7 @@ class _SelectorWidget(AxesWidget):
         pass
 
     def on_key_release(self, event):
-        """Key release event handler and validator"""
+        """Key release event handler and validator."""
         if self.active:
             key = event.key or ''
             for (state, modifier) in self.state_modifier_keys.items():
@@ -1680,11 +1677,10 @@ class _SelectorWidget(AxesWidget):
             self._on_key_release(event)
 
     def _on_key_release(self, event):
-        """Key release event handler"""
-        pass
+        """Key release event handler."""
 
     def set_visible(self, visible):
-        """ Set the visibility of our artists """
+        """Set the visibility of our artists."""
         self.visible = visible
         for artist in self.artists:
             artist.set_visible(visible)

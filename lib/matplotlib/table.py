@@ -463,9 +463,8 @@ class Table(Artist):
         return Bbox.union(boxes)
 
     def _do_cell_alignment(self):
-        """ Calculate row heights and column widths.
-
-        Position cells accordingly.
+        """
+        Calculate row heights and column widths; position cells accordingly.
         """
         # Calculate row/column widths
         widths = {}
@@ -523,7 +522,7 @@ class Table(Artist):
             cell.set_width(max_width)
 
     def auto_set_font_size(self, value=True):
-        """ Automatically set font size. """
+        """Automatically set font size."""
         self._autoFontsize = value
         self.stale = True
 
