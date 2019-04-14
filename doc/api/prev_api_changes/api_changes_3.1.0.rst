@@ -67,23 +67,19 @@ Previously, when the *patch_artist* parameter was set, `~Axes.bxp` would ignore
 
 Major/minor tick collisions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Minor ticks that collide with major ticks are now always hidden.
-Previously, certain locator classes (`LogLocator`, `AutoMinorLocator`)
-contained custom logic to avoid emitting tick locations that collided with
-major ticks when they were used as minor locators.
 
-This logic has now moved to the Axis class, and is used *regardless of the
-ticker class*.  ``xaxis.minor.locator()`` now includes positions that collide
-with ``xaxis.major.locator()``, but ``xaxis.get_minorticklocs()`` does not.
-
-You can control this behavior via the ``.remove_overlap`` attribute on the
-minor locator.
+Minor ticks that collide with major ticks are now hidden by default.
+Previously, certain locator classes (`~.ticker.LogLocator`,
+`~.ticker.AutoMinorLocator`) contained custom logic to avoid emitting
+tick locations that collided with major ticks when they were used as
+minor locators.  This logic has now moved to the `~.axis.Axis` class,
+and is used regardless of the locator class.  You can control this
+behavior via the `.Axis.remove_overlaping_locs` attribute on
+`~.axis.Axis`.
 
 If you were relying on both the major and minor tick labels to appear
 on the same tick, you may need to update your code.  For example, the
-following snippet labeled days using major ticks, and hours and
-minutes using minor ticks and added a newline to the major ticks
-labels to avoid them crashing into the minor tick labels. ::
+following snippet ::
 
     import numpy as np
     import matplotlib.dates as mdates
@@ -100,12 +96,17 @@ labels to avoid them crashing into the minor tick labels. ::
         minor_locator=mdates.HourLocator((0, 6, 12, 18)),
         minor_formatter=mdates.DateFormatter("%H:%M"),
     )
-    # disable removing overlapping ticks by adding this line
+    # disable removing overlapping locations
     ax.xaxis.remove_overlapping_locs = False
     plt.show()
 
-Setting the `.Axis.remove_overlapping_locs` property (also available
-via `.Axis.set_remove_overlapping_locs` and `~.pyplot.setp`).
+labeled days using major ticks, and hours and minutes using minor
+ticks and added a newline to the major ticks labels to avoid them
+crashing into the minor tick labels.  Setting the
+`~.Axis.remove_overlapping_locs` property (also accessible via
+`~.Axis.set_remove_overlapping_locs` /
+`~.Axis.get_remove_overlapping_locs` and `~.pyplot.setp`) disables
+removing overlapping tick locations.
 
 The major tick labels could also be adjusted include hours and
 minutes, as the minor ticks are gone, so the ``major_formatter``
