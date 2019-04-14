@@ -60,7 +60,7 @@ Formatters and Locators
    Axis.set_major_locator
    Axis.set_minor_formatter
    Axis.set_minor_locator
-
+   Axis.remove_overlapping_locs
 
 Axis Label
 ----------
