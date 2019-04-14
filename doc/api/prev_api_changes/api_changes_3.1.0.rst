@@ -6,42 +6,6 @@ API Changes for 3.1.0
    :depth: 1
 
 
-``pgi`` support dropped
------------------------
-Support for ``pgi`` in the GTK3 backends has been dropped.  ``pgi`` is
-an alternative implementation to ``PyGObject``.  ``PyGObject`` should
-be used instead.
-
-rcParam changes
----------------
-
-Removed
-~~~~~~~
-The following deprecated rcParams have been removed:
-
-- ``text.dvipnghack``,
-- ``nbagg.transparent`` (use :rc:`figure.facecolor` instead),
-- ``plugins.directory``,
-- ``axes.hold``,
-- ``backend.qt4`` and ``backend.qt5`` (set the :envvar:`QT_API` environment
-  variable instead).
-
-Deprecated
-~~~~~~~~~~
-The associated validator functions ``rcsetup.validate_qt4`` and
-``validate_qt5`` are deprecated.
-
-The ``verbose.fileo`` and ``verbose.level`` rcParams have been deprecated.
-These have had no effect since the switch from Matplotlib's old custom Verbose
-logging to the stdlib's `logging` module. In addition the
-``rcsetup.validate_verbose`` function is deprecated.
-
-The ``text.latex.unicode`` rcParam now defaults to ``True`` and is
-deprecated (i.e., in future versions
-of Matplotlib, unicode input will always be supported).
-Moreover, the underlying implementation now uses ``\usepackage[utf8]{inputenc}``
-instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
-
 Behavior changes
 ----------------
 
@@ -401,6 +365,43 @@ Previously, if the user provided a ``fmt_xdata`` or ``fmt_ydata`` function that
 raised a TypeError (or set them to a non-callable), the exception would be
 silently ignored and the default formatter be used instead.  This is no longer
 the case; the exception is now propagated out.
+
+
+``pgi`` support dropped
+-----------------------
+Support for ``pgi`` in the GTK3 backends has been dropped.  ``pgi`` is
+an alternative implementation to ``PyGObject``.  ``PyGObject`` should
+be used instead.
+
+rcParam changes
+---------------
+
+Removed
+~~~~~~~
+The following deprecated rcParams have been removed:
+
+- ``text.dvipnghack``,
+- ``nbagg.transparent`` (use :rc:`figure.facecolor` instead),
+- ``plugins.directory``,
+- ``axes.hold``,
+- ``backend.qt4`` and ``backend.qt5`` (set the :envvar:`QT_API` environment
+  variable instead).
+
+Deprecated
+~~~~~~~~~~
+The associated validator functions ``rcsetup.validate_qt4`` and
+``validate_qt5`` are deprecated.
+
+The ``verbose.fileo`` and ``verbose.level`` rcParams have been deprecated.
+These have had no effect since the switch from Matplotlib's old custom Verbose
+logging to the stdlib's `logging` module. In addition the
+``rcsetup.validate_verbose`` function is deprecated.
+
+The ``text.latex.unicode`` rcParam now defaults to ``True`` and is
+deprecated (i.e., in future versions
+of Matplotlib, unicode input will always be supported).
+Moreover, the underlying implementation now uses ``\usepackage[utf8]{inputenc}``
+instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
 
 Exception changes
 -----------------
