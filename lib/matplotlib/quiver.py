@@ -188,10 +188,10 @@ class QuiverKey(martist.Artist):
         ----------
         Q : `matplotlib.quiver.Quiver`
             A `.Quiver` object as returned by a call to `~.Axes.quiver()`.
-        X, Y: float
+        X, Y : float
             The location of the key.
         U : float
-            The length of the key
+            The length of the key.
         label : str
             The key label (e.g., length and units of the key).
         angle : float, default: 0
@@ -216,7 +216,7 @@ class QuiverKey(martist.Artist):
         fontproperties : dict, optional
             A dictionary with keyword arguments accepted by the
             `~matplotlib.font_manager.FontProperties` initializer:
-            *family*, *style*, *variant*, *size*, *weight*
+            *family*, *style*, *variant*, *size*, *weight*.
         **kwargs
             Any additional keyword arguments are used to override vector
             properties taken from *Q*.
