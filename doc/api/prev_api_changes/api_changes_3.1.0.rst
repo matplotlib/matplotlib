@@ -35,9 +35,10 @@ by `PathCollection.get_array`)
 
 Such points are now included, but masked out by returning a masked array.
 
-If the *plotnonfinite* kwarg to `~.Axes.scatter` is set, then points with
-nonfinite values are plotted using the bad color of the `PathCollection`\ 's
-colormap (as set by `Colormap.set_bad`).
+If the *plotnonfinite* kwarg to `~.Axes.scatter` is set, then points
+with nonfinite values are plotted using the bad color of the
+`.collections.PathCollection`\ 's colormap (as set by
+:meth:`.colors.Colormap.set_bad`).
 
 Autoscaling
 ~~~~~~~~~~~
@@ -51,8 +52,8 @@ When the default `LogLocator` would generate no ticks for an axis (e.g., an
 axis with limits from 0.31 to 0.39) or only a single tick, it now instead falls
 back on the linear `AutoLocator` to pick reasonable tick positions.
 
-add_subplot with no arguments
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.Figure.add_subplot` with no arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Calling `.Figure.add_subplot()` with no positional arguments used to do
 nothing; this now is equivalent to calling ``add_subplot(111)`` instead.
 
@@ -103,8 +104,8 @@ labels to avoid them crashing into the minor tick labels. ::
     ax.xaxis.remove_overlapping_locs = False
     plt.show()
 
-Setting the `Axis.remove_overlapping_locs` property (also available
-via `Axis.set_remove_overlapping_locs` and `~pyplot.setp`).
+Setting the `.Axis.remove_overlapping_locs` property (also available
+via `.Axis.set_remove_overlapping_locs` and `~.pyplot.setp`).
 
 The major tick labels could also be adjusted include hours and
 minutes, as the minor ticks are gone, so the ``major_formatter``
