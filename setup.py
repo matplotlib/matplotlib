@@ -267,7 +267,7 @@ if __name__ == '__main__':
         description="Python plotting package",
         author="John D. Hunter, Michael Droettboom",
         author_email="matplotlib-users@python.org",
-        url="https://matplotlib.org/",
+        url="https://matplotlib.org",
         long_description="""
         Matplotlib strives to produce publication quality 2D graphics
         for interactive graphing, scientific publishing, user interface
