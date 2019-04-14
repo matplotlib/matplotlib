@@ -977,8 +977,8 @@ class Text(Artist):
         name or a generic font class name.  If the latter, the specific font
         names will be looked up in the corresponding rcParams.
 
-        If a `Text` instance is constructed with `fontfamily=None`, then the
-        font is set to `matplotlib.rcParams['font.family']`, and the
+        If a `Text` instance is constructed with ``fontfamily=None``, then the
+        font is set to :rc:`font.family`, and the
         same is done when `set_fontfamily()` is called on an existing
         `Text` instance.
 
