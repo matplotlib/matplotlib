@@ -209,10 +209,12 @@ def test_movie_writer_registry():
     mpl.rcParams['animation.ffmpeg_path'] = ffmpeg_path
 
 
-@pytest.mark.skipif(
-    not animation.writers.is_available(mpl.rcParams["animation.writer"]),
-    reason="animation writer not installed")
-@pytest.mark.parametrize("method_name", ["to_html5_video", "to_jshtml"])
+@pytest.mark.parametrize(
+    "method_name",
+    [pytest.param("to_html5_video", marks=pytest.mark.skipif(
+        not animation.writers.is_available(mpl.rcParams["animation.writer"]),
+        reason="animation writer not installed")),
+     "to_jshtml"])
 def test_embed_limit(method_name, caplog, tmpdir):
     caplog.set_level("WARNING")
     with tmpdir.as_cwd():
@@ -224,14 +226,12 @@ def test_embed_limit(method_name, caplog, tmpdir):
             and record.levelname == "WARNING")
 
 
-@pytest.mark.skipif(
-    not animation.writers.is_available(mpl.rcParams["animation.writer"]),
-    reason="animation writer not installed")
 @pytest.mark.parametrize(
     "method_name",
-    ["to_html5_video",
-     pytest.param("to_jshtml",
-                  marks=pytest.mark.xfail)])
+    [pytest.param("to_html5_video", marks=pytest.mark.skipif(
+        not animation.writers.is_available(mpl.rcParams["animation.writer"]),
+        reason="animation writer not installed")),
+     "to_jshtml"])
 def test_cleanup_temporaries(method_name, tmpdir):
     with tmpdir.as_cwd():
         getattr(make_animation(frames=1), method_name)()
