@@ -1119,12 +1119,14 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if isinstance(outfile, str):
-            title = outfile
-        elif is_writable_file_like(outfile):
+        if is_writable_file_like(outfile):
             title = None
         else:
-            raise ValueError("outfile must be a path or a file-like object")
+            try:
+                title = os.fspath(outfile)
+            except TypeError:
+                raise ValueError(
+                    "outfile must be a path or a file-like object")
 
         self.figure.dpi = 72  # ignore the dpi kwarg
         width, height = self.figure.get_size_inches()
