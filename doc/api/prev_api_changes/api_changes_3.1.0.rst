@@ -20,7 +20,9 @@ interactive backend, an `ImportError` will be raised.
 mplot3d auto-registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 mplot3d is always registered by default now. It is no longer necessary to
-import mplot3d to create 3d axes with ``fig.add_subplot(111, projection="3d")``.
+import mplot3d to create 3d axes with ::
+
+  ax = fig.add_subplot(111, projection="3d")
 
 Invalid points in PathCollections
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -106,7 +108,9 @@ via `Axis.set_remove_overlapping_locs` and `~pyplot.setp`).
 
 The major tick labels could also be adjusted include hours and
 minutes, as the minor ticks are gone, so the ``major_formatter``
-should be ``mdates.DateFormatter("%H:%M\n%a")``.
+would be::
+
+  mdates.DateFormatter("%H:%M\n%a")
 
 usetex support
 ~~~~~~~~~~~~~~
@@ -309,7 +313,7 @@ LaTeX code in matplotlibrc file
 Previously, the rc file keys ``pgf.preamble`` and ``text.latex.preamble`` were
 parsed using commmas as separators. This would break valid LaTeX code, such as::
 
-\usepackage[protrusion=true, expansion=false]{microtype}
+  \usepackage[protrusion=true, expansion=false]{microtype}
 
 The parsing has been modified to pass the complete line to the LaTeX system,
 keeping all commas. Passing a list of strings from within a Python script still
