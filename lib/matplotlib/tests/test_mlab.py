@@ -2189,8 +2189,10 @@ class TestGaussianKDECustom(object):
 class TestGaussianKDEEvaluate(object):
 
     def test_evaluate_diff_dim(self):
-        """Test the evaluate method when the dim's of dataset and points are
-        different dimensions"""
+        """
+        Test the evaluate method when the dim's of dataset and points have
+        different dimensions.
+        """
         x1 = np.arange(3, 10, 2)
         kde = mlab.GaussianKDE(x1)
         x2 = np.arange(3, 12, 2)
@@ -2201,9 +2203,10 @@ class TestGaussianKDEEvaluate(object):
         np.testing.assert_array_almost_equal(y, y_expected, 7)
 
     def test_evaluate_inv_dim(self):
-        """ Invert the dimensions. i.e., Give the dataset a dimension of
-        1 [3,2,4], and the points will have a dimension of 3 [[3],[2],[4]].
-        ValueError should be raised"""
+        """
+        Invert the dimensions; i.e., for a dataset of dimension 1 [3,2,4], the
+        points should have a dimension of 3 [[3],[2],[4]].
+        """
         np.random.seed(8765678)
         n_basesample = 50
         multidim_data = np.random.randn(n_basesample)
@@ -2213,7 +2216,7 @@ class TestGaussianKDEEvaluate(object):
             kde.evaluate(x2)
 
     def test_evaluate_dim_and_num(self):
-        """ Tests if evaluated against a one by one array"""
+        """Tests if evaluated against a one by one array"""
         x1 = np.arange(3, 10, 2)
         x2 = np.array([3])
         kde = mlab.GaussianKDE(x1)
@@ -2222,7 +2225,6 @@ class TestGaussianKDEEvaluate(object):
         np.testing.assert_array_almost_equal(y, y_expected, 7)
 
     def test_evaluate_point_dim_not_one(self):
-        """Test"""
         x1 = np.arange(3, 10, 2)
         x2 = [np.arange(3, 10, 2), np.arange(3, 10, 2)]
         kde = mlab.GaussianKDE(x1)
@@ -2230,7 +2232,6 @@ class TestGaussianKDEEvaluate(object):
             kde.evaluate(x2)
 
     def test_evaluate_equal_dim_and_num_lt(self):
-        """Test when line 3810 fails"""
         x1 = np.arange(3, 10, 2)
         x2 = np.arange(3, 8, 2)
         kde = mlab.GaussianKDE(x1)

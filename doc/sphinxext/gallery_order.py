@@ -1,7 +1,6 @@
 """
 Configuration for the order of gallery sections and examples.
 Paths are relative to the conf.py file.
-
 """
 
 from sphinx_gallery.sorting import ExplicitOrder
