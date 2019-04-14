@@ -380,12 +380,12 @@ Removed
 ~~~~~~~
 The following deprecated rcParams have been removed:
 
-- ``text.dvipnghack``,
-- ``nbagg.transparent`` (use :rc:`figure.facecolor` instead),
-- ``plugins.directory``,
-- ``axes.hold``,
+- ``text.dvipnghack``
+- ``nbagg.transparent`` (use :rc:`figure.facecolor` instead)
+- ``plugins.directory``
+- ``axes.hold``
 - ``backend.qt4`` and ``backend.qt5`` (set the :envvar:`QT_API` environment
-  variable instead).
+  variable instead)
 
 Deprecated
 ~~~~~~~~~~
