@@ -255,19 +255,16 @@ class TestPlotTypes(object):
 
     fids, fvalues = zip(*failing_test_cases)
 
-    PLOT_BROKEN_LIST = [Axes.scatter,
-                        pytest.param(Axes.plot, marks=pytest.mark.xfail),
-                        pytest.param(Axes.bar, marks=pytest.mark.xfail)]
+    plotters = [Axes.scatter, Axes.bar,
+                pytest.param(Axes.plot, marks=pytest.mark.xfail)]
 
-    PLOT_BROKEN_IDS = ["scatter", "plot", "bar"]
-
-    @pytest.mark.parametrize("plotter", PLOT_BROKEN_LIST, ids=PLOT_BROKEN_IDS)
+    @pytest.mark.parametrize("plotter", plotters)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
     def test_mixed_type_exception(self, ax, plotter, xdata):
         with pytest.raises(TypeError):
             plotter(ax, xdata, [1, 2])
 
-    @pytest.mark.parametrize("plotter", PLOT_BROKEN_LIST, ids=PLOT_BROKEN_IDS)
+    @pytest.mark.parametrize("plotter", plotters)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
     def test_mixed_type_update_exception(self, ax, plotter, xdata):
         with pytest.raises(TypeError):
