@@ -20,7 +20,7 @@ def test_pngsuite():
         'pngsuite')
     files = sorted(glob.iglob(os.path.join(dirname, 'basn*.png')))
 
-    fig = plt.figure(figsize=(len(files), 2))
+    plt.figure(figsize=(len(files), 2))
 
     for i, fname in enumerate(files):
         data = plt.imread(fname)

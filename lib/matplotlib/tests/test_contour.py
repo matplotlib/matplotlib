@@ -295,7 +295,7 @@ def test_corner_mask():
     z = np.ma.array(z, mask=mask)
 
     for corner_mask in [False, True]:
-        fig = plt.figure()
+        plt.figure()
         plt.contourf(z, corner_mask=corner_mask)
 
 

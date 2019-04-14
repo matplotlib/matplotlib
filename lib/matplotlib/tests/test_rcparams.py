@@ -115,7 +115,7 @@ def test_Bug_2543():
             for key in _copy:
                 mpl.rcParams[key] = _copy[key]
         with mpl.rc_context():
-            _deep_copy = copy.deepcopy(mpl.rcParams)
+            copy.deepcopy(mpl.rcParams)
         # real test is that this does not raise
         assert validate_bool_maybe_none(None) is None
         assert validate_bool_maybe_none("none") is None

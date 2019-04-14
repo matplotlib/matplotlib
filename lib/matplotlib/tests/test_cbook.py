@@ -172,12 +172,12 @@ class Test_boxplot_stats(object):
     def test_label_error(self):
         labels = [1, 2]
         with pytest.raises(ValueError):
-            results = cbook.boxplot_stats(self.data, labels=labels)
+            cbook.boxplot_stats(self.data, labels=labels)
 
     def test_bad_dims(self):
         data = np.random.normal(size=(34, 34, 34))
         with pytest.raises(ValueError):
-            results = cbook.boxplot_stats(data)
+            cbook.boxplot_stats(data)
 
     def test_boxplot_stats_autorange_false(self):
         x = np.zeros(shape=140)

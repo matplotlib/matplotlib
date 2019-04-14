@@ -40,17 +40,12 @@ def test_tight_layout2():
 @image_comparison(baseline_images=['tight_layout3'])
 def test_tight_layout3():
     'Test tight_layout for multiple subplots'
-
-    fig = plt.figure()
-
     ax1 = plt.subplot(221)
     ax2 = plt.subplot(223)
     ax3 = plt.subplot(122)
-
     example_plot(ax1)
     example_plot(ax2)
     example_plot(ax3)
-
     plt.tight_layout()
 
 
@@ -58,32 +53,23 @@ def test_tight_layout3():
                   freetype_version=('2.5.5', '2.6.1'))
 def test_tight_layout4():
     'Test tight_layout for subplot2grid'
-
-    fig = plt.figure()
-
     ax1 = plt.subplot2grid((3, 3), (0, 0))
     ax2 = plt.subplot2grid((3, 3), (0, 1), colspan=2)
     ax3 = plt.subplot2grid((3, 3), (1, 0), colspan=2, rowspan=2)
     ax4 = plt.subplot2grid((3, 3), (1, 2), rowspan=2)
-
     example_plot(ax1)
     example_plot(ax2)
     example_plot(ax3)
     example_plot(ax4)
-
     plt.tight_layout()
 
 
 @image_comparison(baseline_images=['tight_layout5'])
 def test_tight_layout5():
     'Test tight_layout for image'
-
-    fig = plt.figure()
-
     ax = plt.subplot(111)
     arr = np.arange(100).reshape((10, 10))
     ax.imshow(arr, interpolation="none")
-
     plt.tight_layout()
 
 
@@ -301,11 +287,10 @@ def test_big_decorators_vertical():
 
 
 def test_badsubplotgrid():
-    # test that we get warning for mismatched subplot grids rather
-    # than an error
-    ax1 = plt.subplot2grid((4, 5), (0, 0))
+    # test that we get warning for mismatched subplot grids, not than an error
+    plt.subplot2grid((4, 5), (0, 0))
     # this is the bad entry:
-    ax5 = plt.subplot2grid((5, 5), (0, 3), colspan=3, rowspan=5)
+    plt.subplot2grid((5, 5), (0, 3), colspan=3, rowspan=5)
     with pytest.warns(UserWarning):
         plt.tight_layout()
 

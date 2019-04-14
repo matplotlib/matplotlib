@@ -162,7 +162,6 @@ def test_valid_input_forms():
     ax.set_prop_cycle(lw=np.array([1, 2]),
                       color=np.array(['k', 'w']),
                       ls=np.array(['-', '--']))
-    assert True
 
 
 def test_cycle_reset():

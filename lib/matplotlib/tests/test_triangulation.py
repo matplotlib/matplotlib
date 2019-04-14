@@ -86,7 +86,7 @@ def test_delaunay_points_in_line():
     # Add an extra point not on the line and the triangulation is OK.
     x = np.append(x, 2.0)
     y = np.append(y, 8.0)
-    triang = mtri.Triangulation(x, y)
+    mtri.Triangulation(x, y)
 
 
 @pytest.mark.parametrize('x, y', [
@@ -187,8 +187,7 @@ def test_no_modify():
     points = np.array([(0, 0), (0, 1.1), (1, 0), (1, 1)])
 
     old_triangles = triangles.copy()
-    tri = mtri.Triangulation(points[:, 0], points[:, 1], triangles)
-    edges = tri.edges
+    mtri.Triangulation(points[:, 0], points[:, 1], triangles).edges
     assert_array_equal(old_triangles, triangles)
 
 
@@ -1029,7 +1028,7 @@ def test_trianalyzer_mismatched_indices():
     analyser = mtri.TriAnalyzer(triang)
     # numpy >= 1.10 raises a VisibleDeprecationWarning in the following line
     # prior to the fix.
-    triang2 = analyser._get_compressed_triangulation()
+    analyser._get_compressed_triangulation()
 
 
 def test_tricontourf_decreasing_levels():
