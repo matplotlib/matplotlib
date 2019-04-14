@@ -4133,7 +4133,7 @@ class Axes(_AxesBase):
                     medians=medians, fliers=fliers, means=means)
 
     @staticmethod
-    def _parse_scatter_color_args(c, edgecolors, kwargs, xshape, yshape,
+    def _parse_scatter_color_args(c, edgecolors, kwargs, xsize,
                                   get_next_color_func):
         """
         Helper function to process color related arguments of `.Axes.scatter`.
@@ -4163,8 +4163,8 @@ class Axes(_AxesBase):
             Additional kwargs. If these keys exist, we pop and process them:
             'facecolors', 'facecolor', 'edgecolor', 'color'
             Note: The dict is modified by this function.
-        xshape, yshape : tuple of int
-            The shape of the x and y arrays passed to `.Axes.scatter`.
+        xsize : int
+            The size of the x and y arrays passed to `.Axes.scatter`.
         get_next_color_func : callable
             A callable that returns a color. This color is used as facecolor
             if no other color is provided.
@@ -4187,9 +4187,6 @@ class Axes(_AxesBase):
             The edgecolor specification.
 
         """
-        xsize = functools.reduce(operator.mul, xshape, 1)
-        ysize = functools.reduce(operator.mul, yshape, 1)
-
         facecolors = kwargs.pop('facecolors', None)
         facecolors = kwargs.pop('facecolor', facecolors)
         edgecolors = kwargs.pop('edgecolor', edgecolors)
@@ -4241,9 +4238,9 @@ class Axes(_AxesBase):
         else:
             try:  # First, does 'c' look suitable for value-mapping?
                 c_array = np.asanyarray(c, dtype=float)
-                n_elem = c_array.shape[0]
-                if c_array.shape in [xshape, yshape]:
-                    c = np.ma.ravel(c_array)
+                n_elem = c_array.size
+                if n_elem == xsize:
+                    c = c_array.ravel()
                 else:
                     if c_array.shape in ((3,), (4,)):
                         _log.warning(
@@ -4263,18 +4260,17 @@ class Axes(_AxesBase):
             try:  # Then is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
                 n_elem = colors.shape[0]
-                if colors.shape[0] not in (0, 1, xsize, ysize):
+                if colors.shape[0] not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.
                     # Besides *colors* will be an empty array if c == 'none'.
                     valid_shape = False
                     raise ValueError
-            except ValueError:
+            except (ValueError, TypeError):
                 if not valid_shape:  # but at least one conversion succeeded.
                     raise ValueError(
                         "'c' argument has {nc} elements, which is not "
-                        "acceptable for use with 'x' with size {xs}, "
-                        "'y' with size {ys}."
-                            .format(nc=n_elem, xs=xsize, ys=ysize)
+                        "acceptable for use with 'x' and 'y' with size {xs}."
+                            .format(nc=n_elem, xs=xsize)
                     )
                 else:
                     # Both the mapping *and* the RGBA conversion failed: pretty
@@ -4301,7 +4297,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : array_like, shape (n, )
+        x, y : scalar or array_like, shape (n, )
             The data positions.
 
         s : scalar or array_like, shape (n, ), optional
@@ -4313,8 +4309,8 @@ class Axes(_AxesBase):
 
             - A single color format string.
             - A sequence of color specifications of length n.
-            - A sequence of n numbers to be mapped to colors using *cmap* and
-              *norm*.
+            - A scalar or sequence of n numbers to be mapped to colors using
+              *cmap* and *norm*.
             - A 2-D array in which the rows are RGB or RGBA.
 
             Note that *c* should not be a single numeric RGB or RGBA sequence
@@ -4403,7 +4399,7 @@ optional.
           plotted.
 
         * Fundamentally, scatter works with 1-D arrays; *x*, *y*, *s*, and *c*
-          may be input as 2-D arrays, but within scatter they will be
+          may be input as N-D arrays, but within scatter they will be
           flattened. The exception is *c*, which will be flattened only if its
           size matches the size of *x* and *y*.
 
@@ -4416,7 +4412,6 @@ optional.
 
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
-        xshape, yshape = np.shape(x), np.shape(y)
         x = np.ma.ravel(x)
         y = np.ma.ravel(y)
         if x.size != y.size:
@@ -4429,7 +4424,7 @@ optional.
 
         c, colors, edgecolors = \
             self._parse_scatter_color_args(
-                c, edgecolors, kwargs, xshape, yshape,
+                c, edgecolors, kwargs, x.size,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
 
         if plotnonfinite and colors is None:
