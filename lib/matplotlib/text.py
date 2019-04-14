@@ -976,7 +976,7 @@ class Text(Artist):
         strings in decreasing priority.  Each string may be either a real font
         name or a generic font class name.  If the latter, the specific font
         names will be looked up in the corresponding rcParams.
-        Defaults to `matplotlib.rcParams['font.family']`.
+
         If a `Text` instance is constructed with `fontfamily=None`, then the
         font is set to `matplotlib.rcParams['font.family']`, and the
         same is done when `set_fontfamily()` is called on an existing
