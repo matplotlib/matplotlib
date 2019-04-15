@@ -1,7 +1,0 @@
-Deprecations
-````````````
-
-``axis3d.Axis.get_tick_positions`` is deprecated.  It has never been used
-internally, no equivalent method exists on the 2D Axis classes, and, despite
-the similar name, it has a completely different behavior from the 2D Axis'
-`axis.Axis.get_ticks_position` method.
