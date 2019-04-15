@@ -1862,6 +1862,13 @@ class TestScatter(object):
         with pytest.raises(ValueError):
             plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
+    def test_scatter_size_arg_size(self):
+        x = np.arange(4)
+        with pytest.raises(ValueError):
+            plt.scatter(x, x, x[1:])
+        with pytest.raises(ValueError):
+            plt.scatter(x[1:], x[1:], x)
+
     @check_figures_equal(extensions=["png"])
     def test_scatter_invalid_color(self, fig_test, fig_ref):
         ax = fig_test.subplots()
