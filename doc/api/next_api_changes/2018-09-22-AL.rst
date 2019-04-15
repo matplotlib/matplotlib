@@ -1,4 +1,0 @@
-Additional positional arguments to `Axis.set_ticklabels`
-````````````````````````````````````````````````````````
-Passing positional arguments to `Axis.set_ticklabels` beyond `ticklabels`
-itself has no effect, and support for them is deprecated.

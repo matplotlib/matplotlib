@@ -1,4 +1,0 @@
-Passing 'normal' to `Axes.axis()` is deprecated
-```````````````````````````````````````````````
-
-Use ``axis('auto')`` instead.

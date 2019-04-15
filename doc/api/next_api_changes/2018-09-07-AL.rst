@@ -1,5 +1,0 @@
-Poly3DCollection.set_zsort
-``````````````````````````
-
-`Poly3DCollection.set_zsort` no longer silently ignores invalid inputs, or
-False (which was always broken).  Passing True to mean "average" is deprecated.

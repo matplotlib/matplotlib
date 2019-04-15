@@ -1268,6 +1268,7 @@ default: 'top'
            add_subplot(nrows, ncols, index, **kwargs)
            add_subplot(pos, **kwargs)
            add_subplot(ax)
+           add_subplot()
 
         Parameters
         ----------
@@ -1284,6 +1285,8 @@ default: 'top'
             the index of the subplot. i.e. fig.add_subplot(235) is the same as
             fig.add_subplot(2, 3, 5). Note that all integers must be less than
             10 for this form to work.
+
+            If no positional arguments are passed, defaults to (1, 1, 1).
 
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
