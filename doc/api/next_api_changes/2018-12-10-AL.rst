@@ -1,8 +1,0 @@
-Stricter `~.Axes.plot` format string parsing
-````````````````````````````````````````````
-
-In certain cases, `~.Axes.plot` would previously accept format strings
-specifying more than one linestyle (e.g. ``"---."`` which specifies both
-``"--"`` and ``"-."``); only use one of them would be used.
-
-This now raises a ValueError instead.

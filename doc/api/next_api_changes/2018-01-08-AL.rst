@@ -1,6 +1,0 @@
-Deprecations
-````````````
-
-``cbook.dedent``, ``docstring.Appender``, ``docstring.dedent``, and
-``docstring.copy_dedent`` are deprecated (use the standard library's docstring
-manipulation tools, such as `inspect.cleandoc` and `inspect.getdoc` instead).

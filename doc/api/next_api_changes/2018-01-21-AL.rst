@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-``cbook.safezip`` is deprecated (manually check the lengths of the inputs
-instead, or rely on numpy to do it).
