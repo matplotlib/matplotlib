@@ -150,7 +150,7 @@ mappable
     Note that one can create a `ScalarMappable` "on-the-fly" to generate
     colorbars not attached to a previously drawn artist, e.g. ::
 
-        fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap, ax=ax))
+        fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
 
 cax : :class:`~matplotlib.axes.Axes` object, optional
     Axes into which the colorbar will be drawn.
