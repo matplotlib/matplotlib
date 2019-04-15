@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
@@ -105,6 +106,7 @@ intersphinx_mapping = {
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
     'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'cycler': ('https://matplotlib.org/cycler', None),
+    'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
 }
 
 
@@ -350,3 +352,10 @@ latex_elements = {
     'babel': r'\usepackage{babel}',
     'fontpkg': r'\setmainfont{DejaVu Serif}',
 }
+
+def setup(app):
+    if any(st in version for st in ('post', 'rc', 'alpha', 'beta')):
+        bld_type = 'dev'
+    else:
+        bld_type = 'rel'
+    app.add_config_value('releaselevel', bld_type, 'env')

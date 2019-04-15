@@ -16,24 +16,26 @@ For API changes in older versions see
 Changes for the latest version are listed below. For new features that were
 added to Matplotlib, see :ref:`whats-new`.
 
-.. note::
+.. ifconfig:: releaselevel == 'dev'
 
-   The list below is a table of contents of individual files from the
-   'next_api_changes' folder.
+   .. note::
 
-   When a release is made
+      The list below is a table of contents of individual files from the
+      'next_api_changes' folder.
 
-    - All the files in 'next_api_changes/' should be moved to a single file in
-      'prev_api_changes/'.
-    - The include directive below should be changed to point to the new file
-      created in the previous step.
-    - This note, and the toctree below should be commented out.
+      When a release is made
+
+       - All the files in 'next_api_changes/' should be moved to a single file in
+         'prev_api_changes/'.
+       - The include directive below should be changed to point to the new file
+         created in the previous step.
+       - This note, and the toctree below should be commented out.
 
 
-.. toctree::
-   :glob:
-   :maxdepth: 1
+   .. toctree::
+      :glob:
+      :maxdepth: 1
 
-   next_api_changes/*
+      next_api_changes/*
 
 .. include:: prev_api_changes/api_changes_3.1.0.rst
