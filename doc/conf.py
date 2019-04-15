@@ -353,6 +353,7 @@ latex_elements = {
     'fontpkg': r'\setmainfont{DejaVu Serif}',
 }
 
+
 def setup(app):
     if any(st in version for st in ('post', 'rc', 'alpha', 'beta')):
         bld_type = 'dev'
