@@ -325,6 +325,15 @@ class ScalarMappable(object):
             self.norm.vmax = colors._sanitize_extrema(vmax)
         self.changed()
 
+    def get_alpha(self):
+        """
+        Returns
+        -------
+        alpha : float
+            Always returns 1.
+        """
+        return 1.
+
     def set_cmap(self, cmap):
         """
         set the colormap for luminance data
