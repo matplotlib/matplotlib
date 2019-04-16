@@ -106,6 +106,17 @@ creating a legend for a scatter plot as easy as
 An example can be found in :ref:`automatedlegendcreation`.
 
 
+Matplotlib no longer requires framework app build on MacOSX backend
+-------------------------------------------------------------------
+
+Previous versions of matplotlin required a Framework build of python to
+work. The app type was updated to no longer require this, so the MacOSX
+backend should work with non-framework python.
+
+
+This also adds support for the MacOSX backend for PyPy3.
+
+
 Figure, FigureCanvas, and Backends
 ==================================
 
@@ -359,17 +370,6 @@ would break valid LaTeX code, such as::
 The parsing has been modified to pass the complete line to the LaTeX
 system, keeping all commas. Passing a list of strings from within a
 Python script still works as it used to.
-
-
-Matplotlib no longer requires framework app build on MacOSX backend
--------------------------------------------------------------------
-
-Previous versions of matplotlin required a Framework build of python to
-work. The app type was updated to no longer require this, so the MacOSX
-backend should work with non-framework python.
-
-
-This also adds support support for the MacOSX backend for PyPy3.
 
 
 
