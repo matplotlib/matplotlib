@@ -16,6 +16,13 @@ and makes use of the fact that a normalized covariance matrix (composed of
 pearson correlation coefficients and ones) is particularly easy to handle.
 """
 
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
+import matplotlib.transforms as transforms
+
+
 #############################################################################
 #
 # The plotting function itself
@@ -29,12 +36,6 @@ pearson correlation coefficients and ones) is particularly easy to handle.
 # of standard deviations. The default value is 3 which makes the ellipse
 # enclose 99.7% of the points (given the data is normally distributed
 # like in these examples).
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
-import matplotlib.transforms as transforms
 
 
 def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
