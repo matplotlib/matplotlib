@@ -1038,6 +1038,12 @@ class DivergingNorm(Normalize):
 class LogNorm(Normalize):
     """Normalize a given value to the 0-1 range on a log scale."""
 
+    def _check_vmin_vmax(self):
+        if self.vmin > self.vmax:
+            raise ValueError("minvalue must be less than or equal to maxvalue")
+        elif self.vmin <= 0:
+            raise ValueError("minvalue must be positive")
+
     def __call__(self, value, clip=None):
         if clip is None:
             clip = self.clip
@@ -1047,12 +1053,9 @@ class LogNorm(Normalize):
         result = np.ma.masked_less_equal(result, 0, copy=False)
 
         self.autoscale_None(result)
+        self._check_vmin_vmax()
         vmin, vmax = self.vmin, self.vmax
-        if vmin > vmax:
-            raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin <= 0:
-            raise ValueError("values must all be positive")
-        elif vmin == vmax:
+        if vmin == vmax:
             result.fill(0)
         else:
             if clip:
@@ -1078,6 +1081,7 @@ class LogNorm(Normalize):
     def inverse(self, value):
         if not self.scaled():
             raise ValueError("Not invertible until scaled")
+        self._check_vmin_vmax()
         vmin, vmax = self.vmin, self.vmax
 
         if np.iterable(value):
