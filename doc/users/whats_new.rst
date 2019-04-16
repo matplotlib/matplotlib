@@ -74,9 +74,9 @@ axes via `.Axes.secondary_xaxis` and `.Axes.secondary_yaxis`.  See
 `~.scale.FuncScale` for arbitrary axes scales
 ---------------------------------------------
 
-A new `-.scale.FuncScale` class was added (and `-.scale.FuncTransform`)
+A new `~.scale.FuncScale` class was added (and `~.scale.FuncTransform`)
 to allow the user to have arbitrary scale transformations without having to
-write a new subclass of `-.scale.ScaleBase`.  This can be accessed by::
+write a new subclass of `~.scale.ScaleBase`.  This can be accessed by::
 
   ax.set_yscale('function', functions=(forward, inverse))
 
@@ -90,11 +90,11 @@ Legend for scatter
 
 A new method for creating legends for scatter plots has been
 introduced.  Previously, in order to obtain a legend for a
-:meth:`-.axes.Axes.scatter` plot, one could either plot several
+:meth:`~.axes.Axes.scatter` plot, one could either plot several
 scatters, each with an individual label, or create proxy artists to
 show in the legend manually.  Now,
-:class:`-.collections.PathCollection` provides a method
-:meth:`-.collections.PathCollection.legend_elements` to obtain the
+:class:`~.collections.PathCollection` provides a method
+:meth:`~.collections.PathCollection.legend_elements` to obtain the
 handles and labels for a scatter plot in an automated way. This makes
 creating a legend for a scatter plot as easy as
 
@@ -131,11 +131,11 @@ now directly forwards to the visibility of the underlying Rectangle artist
 --------------------------------------
 
 Matplotlib uses Pillow to handle saving to the JPEG and TIFF formats.  The
-`-Figure.savefig()` function gained a *pil_kwargs* keyword argument, which can
-be used to forward arguments to Pillow's `PIL.Image.save()`.
+`~.Figure.savefig()` function gained a *pil_kwargs* keyword argument, which can
+be used to forward arguments to Pillow's `pillow.Image.save()`.
 
 The *pil_kwargs* argument can also be used when saving to PNG.  In that case,
-Matplotlib also uses Pillow's `PIL.Image.save()` instead of going through its
+Matplotlib also uses Pillow's `pillow.Image.save()` instead of going through its
 own builtin PNG support.
 
 
@@ -159,7 +159,7 @@ Axes and Artists
 axes_grid1 and axisartist Axes no longer draw spines twice
 ----------------------------------------------------------
 
-Previously, spines of `axes_grid1` and `axisartist` Axes would be drawn twice,
+Previously, spines of `.axes_grid1` and `.axisartist` Axes would be drawn twice,
 leading to a "bold" appearance.  This is no longer the case.
 
 
@@ -178,7 +178,7 @@ changed.
 -----------------------------------------------
 
 Alternatively to strings like ``"data"`` or ``"axes fraction"``
-`ConnectionPatch` now accepts any `-matplotlib.transforms.Transform`
+`ConnectionPatch` now accepts any `~matplotlib.transforms.Transform`
 as input for the ``coordsA`` and ``coordsB`` argument. This allows to
 draw lines between points defined in different user defined coordinate
 systems. Also see the :doc:`Connect Simple01 example
@@ -198,11 +198,11 @@ an existing Line3D.
 ``Axes3D.voxels`` now shades the resulting voxels
 -------------------------------------------------
 
-The :meth:`-mpl_toolkits.mplot3d.Axes3D.voxels` method now takes a
+The :meth:`~mpl_toolkits.mplot3d.Axes3D.voxels` method now takes a
 *shade* parameter that defaults to `True`. This shades faces based
 on their orientation, behaving just like the matching parameters to
-:meth:`-mpl_toolkits.mplot3d.Axes3D.trisurf` and
-:meth:`-mpl_toolkits.mplot3d.Axes3D.bar3d`.  The plot below shows how
+:meth:`~mpl_toolkits.mplot3d.Axes3D.trisurf` and
+:meth:`~mpl_toolkits.mplot3d.Axes3D.bar3d`.  The plot below shows how
 this affects the output.
 
 .. plot::
@@ -265,8 +265,8 @@ Default minor tick spacing was changed from 0.625 to 0.5 for major ticks spaced
 A public API has been added to `EngFormatter` to control how the
 numbers in the ticklabels will be rendered. By default,
 ``useMathText`` evaluates to
-:rc:`rcParams['axes.formatter.use_mathtext']` and ``usetex`` evaluates
-to :rc:`rcParams['text.usetex']`.
+:rc:`axes.formatter.use_mathtext'` and ``usetex`` evaluates
+to :rc:`'text.usetex'`.
 
 If either is `True` then the numbers will be encapsulated by ``$``
 signs.  When using ``TeX`` this implies that the numbers will be shown
@@ -294,7 +294,7 @@ created with the Qt5 backend.
 *progress_callback* argument to `~.Animation.save()`
 ----------------------------------------------------
 
-The method .FuncAnimation.save() gained an optional
+The method `.Animation.save` gained an optional
 *progress_callback* argument to notify the saving progress.
 
 
@@ -337,7 +337,7 @@ were previously displayed as ``1e+04``.
 MouseEvent button attribute is now an IntEnum
 ---------------------------------------------
 
-The :attr:`button` attribute of `-.MouseEvent` instances can take the values
+The :attr:`button` attribute of `~.MouseEvent` instances can take the values
 None, 1 (left button), 2 (middle button), 3 (right button), "up" (scroll), and
 "down" (scroll).  For better legibility, the 1, 2, and 3 values are now
 represented using the `IntEnum` class `matplotlib.backend_bases.MouseButton`,
