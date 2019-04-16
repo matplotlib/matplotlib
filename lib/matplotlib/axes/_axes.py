@@ -3147,8 +3147,8 @@ class Axes(_AxesBase):
             draws error bars on a subset of the data. *errorevery* =N draws
             error bars on the points (x[::N], y[::N]).
             *errorevery* =(start, N) draws error bars on the points
-            (x[start::N], y[start::N]). e.g. errorevery=(6,3)
-            adds error bars to the data at (x[3], x[9], x[15], x[21], ...).
+            (x[start::N], y[start::N]). e.g. errorevery=(6, 3)
+            adds error bars to the data at (x[6], x[9], x[12], x[15], ...).
             Used to avoid overlapping error bars when two series share x-axis
             values.
 
