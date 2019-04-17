@@ -560,3 +560,9 @@ def test_make_keyword_only(recwarn):
         func(1, 2)
     with pytest.warns(MatplotlibDeprecationWarning):
         func(1, 2, 3)
+
+
+def test_warn_external(recwarn):
+    cbook._warn_external("oops")
+    assert len(recwarn) == 1
+    assert recwarn[0].filename == __file__

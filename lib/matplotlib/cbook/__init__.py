@@ -2041,7 +2041,7 @@ def _warn_external(message, category=None):
         if frame is None:
             # when called in embedded context may hit frame is None
             break
-        if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
+        if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.(?!tests\.))",
                         # Work around sphinx-gallery not setting __name__.
                         frame.f_globals.get("__name__", "")):
             break
