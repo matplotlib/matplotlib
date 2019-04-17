@@ -21,6 +21,7 @@ The easiest way to make a live animation in matplotlib is to use one of the
    :toctree: _as_gen
    :nosignatures:
 
+   Animation
    FuncAnimation
    ArtistAnimation
 

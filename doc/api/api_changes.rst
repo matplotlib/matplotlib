@@ -29,7 +29,6 @@ added to Matplotlib, see :ref:`whats-new`.
          'prev_api_changes/'.
        - The include directive below should be changed to point to the new file
          created in the previous step.
-       - This note, and the toctree below should be commented out.
 
 
    .. toctree::

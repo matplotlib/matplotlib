@@ -1,5 +1,0 @@
-*progress_callback* argument to ani.save()
--------------------------------------------------
-
-The method .FuncAnimation.save() gained an optional 
-*progress_callback* argument to notify the saving progress.

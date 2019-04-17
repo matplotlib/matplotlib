@@ -33,3 +33,5 @@
 .. autofunction:: interactive
 
 .. autofunction:: is_interactive
+
+.. autofunction:: set_loglevel
