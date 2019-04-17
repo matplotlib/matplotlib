@@ -355,7 +355,7 @@ latex_elements = {
 
 
 def setup(app):
-    if any(st in version for st in ('post', 'rc', 'alpha', 'beta')):
+    if any(st in version for st in ('post', 'alpha', 'beta')):
         bld_type = 'dev'
     else:
         bld_type = 'rel'
