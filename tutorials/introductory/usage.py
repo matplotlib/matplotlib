@@ -316,15 +316,22 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # "interactive backends") and hardcopy backends to make image files
 # (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 #
-# There are four ways to configure your backend. If they conflict each other,
+# There are three ways to configure your backend. If they conflict each other,
 # the method mentioned last in the following list will be used, e.g. calling
 # :func:`~matplotlib.use()` will override the setting in your ``matplotlibrc``.
 #
-#
-# #. The ``backend`` parameter in your ``matplotlibrc`` file (see
+# #. The :rc:`backend` parameter in your ``matplotlibrc`` file (see
 #    :doc:`/tutorials/introductory/customizing`)::
 #
-#        backend : WXAgg   # use wxpython with antigrain (agg) rendering
+#        backend : qt5agg   # use pyqt5 with antigrain (agg) rendering
+#
+#    If no backend is explicitly set in the ``matplotlibrc`` file, Matplotlib
+#    automatically detects a usable backend based on what is available on your
+#    system and on whether a GUI event loop is already running.
+#
+#    On Linux, if the environment variable :envvar:`DISPLAY` is unset, the
+#    "event loop" is identified as "headless", which causes a fallback to a
+#    noninteractive backend (agg).
 #
 # #. Setting the :envvar:`MPLBACKEND` environment variable, either for your
 #    current shell or for a single script.  On Unix::
@@ -351,12 +358,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #       import matplotlib
 #       matplotlib.use('PS')   # generate postscript output by default
 #
-#    If you use the :func:`~matplotlib.use` function, this must be done before
-#    importing :mod:`matplotlib.pyplot`. Calling :func:`~matplotlib.use` after
-#    pyplot has been imported will have no effect.  Using
-#    :func:`~matplotlib.use` will require changes in your code if users want to
+#    If you use the `~matplotlib.use` function, this should be done before
+#    importing :mod:`matplotlib.pyplot`. Calling `~matplotlib.use` after pyplot
+#    has been imported may fail to switch the backend and raise an ImportError.
+#
+#    Using `~matplotlib.use` will require changes in your code if users want to
 #    use a different backend.  Therefore, you should avoid explicitly calling
-#    :func:`~matplotlib.use` unless absolutely necessary.
+#    `~matplotlib.use` unless absolutely necessary.
 #
 # .. note::
 #    Backend name specifications are not case-sensitive; e.g., 'GTK3Agg'
