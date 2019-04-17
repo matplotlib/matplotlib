@@ -1,6 +1,6 @@
 import builtins
 import configparser
-from distutils import sysconfig
+from distutils import ccompiler, sysconfig
 from distutils.core import Extension
 from io import BytesIO
 import glob
@@ -751,31 +751,24 @@ class FreeType(SetupPackage):
             # compilation on windows
             shutil.rmtree(str(pathlib.Path(src_path, "objs")),
                           ignore_errors=True)
-            FREETYPE_BUILD_CMD = r"""
-call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
-    /Release /{xXX} /xp
-call "{vcvarsall}" {xXX}
-set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
-%MSBUILD% "builds\windows\{vc20xx}\freetype.sln" ^
-    /t:Clean;Build /p:Configuration="Release";Platform={WinXX}
-"""
-            import distutils.msvc9compiler as msvc
-            # Note: freetype has no build profile for 2014, so we don't bother...
-            vc = 'vc2010'
-            WinXX = 'x64' if platform.architecture()[0] == '64bit' else 'Win32'
-            xXX = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
-            vcvarsall = msvc.find_vcvarsall(10.0)
-            if vcvarsall is None:
-                raise RuntimeError('Microsoft VS 2010 required')
-            cmdfile = pathlib.Path("build/build_freetype.cmd")
-            cmdfile.write_text(FREETYPE_BUILD_CMD.format(
-                vc20xx=vc, WinXX=WinXX, xXX=xXX, vcvarsall=vcvarsall))
-            subprocess.check_call([str(cmdfile.resolve())],
-                                  shell=True, cwd=src_path)
+            # FreeType 2.6.1 has no build profile for VC2014.
+            vc20xx = 'vc2010'
+            winxx = 'x64' if platform.architecture()[0] == '64bit' else 'Win32'
+            cc = ccompiler.new_compiler()
+            # Setup to let cc.spawn invoke msbuild in the correct environment.
+            cc.initialize()
+            cwd = os.getcwd()
+            try:
+                os.chdir(src_path)
+                cc.spawn(["msbuild", fr"builds\windows\{vc20xx}\freetype.sln",
+                          "/t:Clean;Build",
+                          f"/p:Configuration=Release;Platform={winxx}"])
+            finally:
+                os.chdir(cwd)
             # Move to the corresponding Unix build path.
             pathlib.Path(src_path, "objs/.libs").mkdir()
             # Be robust against change of FreeType version.
-            lib_path, = (pathlib.Path(src_path, "objs", vc, xXX)
+            lib_path, = (pathlib.Path(src_path, "objs", vc20xx, winxx)
                          .glob("freetype*.lib"))
             shutil.copy2(
                 str(lib_path),
