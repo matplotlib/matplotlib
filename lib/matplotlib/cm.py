@@ -92,6 +92,7 @@ def _generate_cmap(name, lutsize):
     else:
         return colors.LinearSegmentedColormap.from_list(name, spec, lutsize)
 
+
 LUTSIZE = mpl.rcParams['image.lut']
 
 # Generate the reversed specifications (all at once, to avoid
@@ -330,6 +331,16 @@ class ScalarMappable(object):
         if vmax is not None:
             self.norm.vmax = colors._sanitize_extrema(vmax)
         self.changed()
+
+    def get_alpha(self):
+        """
+        Returns
+        -------
+        alpha : float
+            Always returns 1.
+        """
+        # This method is intended to be overridden by Artist sub-classes
+        return 1.
 
     def set_cmap(self, cmap):
         """
