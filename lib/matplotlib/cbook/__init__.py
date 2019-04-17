@@ -1687,12 +1687,15 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     Parameters
     ----------
 
-    alias_mapping, dict, optional
+    alias_mapping : dict or Artist subclass or Artist instance, optional
         A mapping between a canonical name to a list of
         aliases, in order of precedence from lowest to highest.
 
         If the canonical value is not in the list it is assumed to have
         the highest priority.
+
+        If an Artist subclass or instance is passed, use its properties alias
+        mapping.
 
     required : iterable, optional
         A tuple of fields that must be in kwargs.
@@ -1711,11 +1714,15 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     TypeError
         To match what python raises if invalid args/kwargs are passed to
         a callable.
-
     """
+    from matplotlib.artist import Artist
+
     # deal with default value of alias_mapping
     if alias_mapping is None:
         alias_mapping = dict()
+    elif (isinstance(alias_mapping, type) and issubclass(alias_mapping, Artist)
+          or isinstance(alias_mapping, Artist)):
+        alias_mapping = getattr(alias_mapping, "_alias_map", {})
 
     # make a local so we can pop
     kw = dict(kw)
