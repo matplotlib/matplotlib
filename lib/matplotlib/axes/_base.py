@@ -230,14 +230,6 @@ class _process_plot_var_args(object):
             return 'k'
         return next(self.prop_cycler)['color']
 
-    def set_lineprops(self, line, **kwargs):
-        assert self.command == 'plot', 'set_lineprops only works with "plot"'
-        line.set(**kwargs)
-
-    def set_patchprops(self, fill_poly, **kwargs):
-        assert self.command == 'fill', 'set_patchprops only works with "fill"'
-        fill_poly.set(**kwargs)
-
     def _xy_from_xy(self, x, y):
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
@@ -357,7 +349,7 @@ class _process_plot_var_args(object):
                                facecolor=facecolor,
                                fill=kwargs.get('fill', True),
                                closed=kw['closed'])
-        self.set_patchprops(seg, **kwargs)
+        seg.set(**kwargs)
         return seg
 
     def _plot_args(self, tup, kwargs):
