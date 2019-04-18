@@ -7,8 +7,6 @@ import pytest
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
-import sys
-on_win = (sys.platform == 'win32')
 
 
 @image_comparison(baseline_images=['pngsuite'], extensions=['png'],

@@ -2,7 +2,6 @@ import tempfile
 
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal_nulp)
-import numpy.ma.testutils as matest
 import numpy as np
 import datetime as datetime
 import pytest

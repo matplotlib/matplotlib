@@ -1,16 +1,14 @@
 import numpy as np
+from numpy.testing import (
+    assert_array_equal, assert_array_almost_equal, assert_array_less)
+import numpy.ma.testutils as matest
+import pytest
+
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
-import pytest
-from numpy.testing import assert_array_equal, assert_array_almost_equal,\
-    assert_array_less
-import numpy.ma.testutils as matest
-from matplotlib.testing.decorators import image_comparison
-import matplotlib.cm as cm
 from matplotlib.path import Path
-
-import sys
-on_win = (sys.platform == 'win32')
+from matplotlib.testing.decorators import image_comparison
 
 
 def test_delaunay():
@@ -729,8 +727,7 @@ def test_triinterp_transformations():
         dic_interp = {'lin': linear_interp,
                       'min_E': cubic_min_E,
                       'geom': cubic_geom}
-        # Testing that the interpolation is invariant by expansion along
-        # 1 axis...
+        # Test that the interpolation is invariant by expansion along 1 axis...
         for interp_key in ['lin', 'min_E', 'geom']:
             interpz = dic_interp[interp_key](xs, ys)
             matest.assert_array_almost_equal(interpz, interp_z0[interp_key])
