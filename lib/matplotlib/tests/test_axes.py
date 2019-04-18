@@ -5151,25 +5151,12 @@ def test_no_None():
          mpl.collections.QuadMesh),
     ]
 )
-def test_pcolorfast_colormapped(xy, cls):
+@pytest.mark.parametrize(
+    "data", [np.arange(12).reshape((3, 4)), np.random.rand(3, 4, 3)]
+)
+def test_pcolorfast(xy, data, cls):
     fig, ax = plt.subplots()
-    data = np.arange(12).reshape((3, 4))
     assert type(ax.pcolorfast(*xy, data)) == cls
-
-
-def test_pcolor_fast_RGB():
-
-    fig, ax = plt.subplots(1, 1)
-
-    np.random.seed(19680801)
-    C = np.random.rand(10, 10, 3)  # RGB image [0,1]
-    x = np.arange(11, dtype=np.float)
-    y = np.arange(11, dtype=np.float)
-
-    xv, yv = np.meshgrid(x, y)
-
-    with pytest.raises(ValueError):
-        ax.pcolorfast(xv, yv, C)
 
 
 def test_shared_scale():
