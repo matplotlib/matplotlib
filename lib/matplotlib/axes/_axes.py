@@ -1662,7 +1662,7 @@ class Axes(_AxesBase):
         additionally use any  `matplotlib.colors` spec, e.g. full names
         (``'green'``) or hex strings (``'#008000'``).
         """
-        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         lines = [*self._get_lines(*args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
@@ -2280,7 +2280,7 @@ class Axes(_AxesBase):
         %(Rectangle)s
 
         """
-        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch._alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
         color = kwargs.pop('color', None)
         if color is None:
             color = self._get_patches_for_fill.get_next_color()
@@ -3188,7 +3188,7 @@ class Axes(_AxesBase):
         .. [Notes section required for data comment. See #10189.]
 
         """
-        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # anything that comes in as 'None', drop so the default thing
         # happens down stream
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
@@ -5081,7 +5081,7 @@ optional.
         two curves.
         """
         # For compatibility(!), get aliases from Line2D rather than Patch.
-        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
 
         patches = []
         for poly in self._get_patches_for_fill(*args, data=data, **kwargs):
@@ -5176,8 +5176,7 @@ optional.
 
         """
         if not rcParams['_internal.classic_mode']:
-            kwargs = cbook.normalize_kwargs(
-                kwargs, mcoll.Collection._alias_map)
+            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
             if not any(c in kwargs for c in ('color', 'facecolor')):
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
@@ -5358,8 +5357,7 @@ optional.
 
         """
         if not rcParams['_internal.classic_mode']:
-            kwargs = cbook.normalize_kwargs(
-                kwargs, mcoll.Collection._alias_map)
+            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
             if not any(c in kwargs for c in ('color', 'facecolor')):
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
