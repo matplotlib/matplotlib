@@ -1,10 +1,11 @@
+from datetime import datetime
 from pathlib import Path
 import platform
 
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
-from matplotlib.ticker import AutoMinorLocator, FixedFormatter
+from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
@@ -461,3 +462,21 @@ def test_tightbbox():
     # test bbox_extra_artists method...
     assert abs(ax.get_tightbbox(renderer, bbox_extra_artists=[]).x1
                - x1Nom * fig.dpi) < 2
+
+
+def test_axes_removal():
+    # Check that units can set the formatter after an Axes removal
+    fig, axs = plt.subplots(1, 2, sharex=True)
+    axs[1].remove()
+    axs[0].plot([datetime(2000, 1, 1), datetime(2000, 2, 1)], [0, 1])
+    assert isinstance(axs[0].xaxis.get_major_formatter(),
+                      mdates.AutoDateFormatter)
+
+    # Check that manually setting the formatter, then removing Axes keeps
+    # the set formatter.
+    fig, axs = plt.subplots(1, 2, sharex=True)
+    axs[1].xaxis.set_major_formatter(ScalarFormatter())
+    axs[1].remove()
+    axs[0].plot([datetime(2000, 1, 1), datetime(2000, 2, 1)], [0, 1])
+    assert isinstance(axs[0].xaxis.get_major_formatter(),
+                      ScalarFormatter)
