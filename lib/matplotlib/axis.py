@@ -6,8 +6,6 @@ import datetime
 import logging
 
 import numpy as np
-from numpy import ma
-from decimal import Decimal
 
 from matplotlib import rcParams
 import matplotlib.artist as martist
@@ -1545,27 +1543,6 @@ class Axis(martist.Artist):
         return self.converter is not None or self.units is not None
 
     def convert_units(self, x):
-        # If x is already a number
-        if munits.ConversionInterface.is_numlike(x):
-            if np.iterable(x):
-                is_decimal = False
-                # use iterator to avoid key error
-                for thisx in x:
-                    is_decimal = isinstance(thisx, Decimal)
-                if is_decimal:
-                    converter = np.asarray
-                    if isinstance(x, ma.MaskedArray):
-                        converter = ma.asarray
-                    return converter(x, dtype=np.float)
-                else:
-                    return x
-            # need to convert when x is a Decimal
-            elif isinstance(x, Decimal):
-                return np.float(x)
-            # Otherwise, doesn't need converting
-            else:
-                return x
-
         if self.converter is None:
             self.converter = munits.registry.get_converter(x)
 
@@ -1574,8 +1551,16 @@ class Axis(martist.Artist):
         try:
             ret = self.converter.convert(x, self.units, self)
         except Exception as e:
-            raise munits.ConversionError('Failed to convert value(s) to axis '
-                                         f'units: {x!r}') from e
+            # If x is already number like, converters other than
+            # DecimalConverter may raise error, so check here to walk around.
+            if munits.ConversionInterface.is_numlike(x):
+                return x
+            # Try convert again
+            try:
+                ret = self.converter.convert(x, self.units, self)
+            except Exception as e2:
+                raise munits.ConversionError('Failed to convert value(s) to '
+                                         f'axis units: {x!r}') from e2
         return ret
 
     def set_units(self, u):
