@@ -404,7 +404,7 @@ def test_add_artist(fig_test, fig_ref):
     fig_test.set_dpi(100)
     fig_ref.set_dpi(100)
 
-    ax = fig_test.subplots()
+    fig_test.subplots()
     l1 = plt.Line2D([.2, .7], [.7, .7], gid='l1')
     l2 = plt.Line2D([.2, .7], [.8, .8], gid='l2')
     r1 = plt.Circle((20, 20), 100, transform=None, gid='C1')

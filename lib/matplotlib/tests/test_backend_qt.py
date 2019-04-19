@@ -117,7 +117,7 @@ def test_fig_close(backend):
 @pytest.mark.backend('Qt5Agg')
 def test_fig_signals(qt_module):
     # Create a figure
-    fig = plt.figure()
+    plt.figure()
 
     # Access QtCore
     QtCore = qt_module[0]

@@ -262,7 +262,7 @@ def test_DivergingNorm_scale():
 def test_DivergingNorm_scaleout_center():
     # test the vmin never goes above vcenter
     norm = mcolors.DivergingNorm(vcenter=0)
-    x = norm([1, 2, 3, 5])
+    norm([1, 2, 3, 5])
     assert norm.vmin == 0
     assert norm.vmax == 5
 
@@ -270,7 +270,7 @@ def test_DivergingNorm_scaleout_center():
 def test_DivergingNorm_scaleout_center_max():
     # test the vmax never goes below vcenter
     norm = mcolors.DivergingNorm(vcenter=0)
-    x = norm([-1, -2, -3, -5])
+    norm([-1, -2, -3, -5])
     assert norm.vmax == 0
     assert norm.vmin == -5
 
@@ -291,28 +291,27 @@ def test_DivergingNorm_Odd():
 
 def test_DivergingNorm_VminEqualsVcenter():
     with pytest.raises(ValueError):
-        norm = mcolors.DivergingNorm(vmin=-2, vcenter=-2, vmax=2)
+        mcolors.DivergingNorm(vmin=-2, vcenter=-2, vmax=2)
 
 
 def test_DivergingNorm_VmaxEqualsVcenter():
     with pytest.raises(ValueError):
-        norm = mcolors.DivergingNorm(vmin=-2, vcenter=2, vmax=2)
+        mcolors.DivergingNorm(vmin=-2, vcenter=2, vmax=2)
 
 
 def test_DivergingNorm_VminGTVcenter():
     with pytest.raises(ValueError):
-        norm = mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=20)
+        mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=20)
 
 
 def test_DivergingNorm_DivergingNorm_VminGTVmax():
     with pytest.raises(ValueError):
-        norm = mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=5)
+        mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=5)
 
 
 def test_DivergingNorm_VcenterGTVmax():
-    vals = np.arange(50)
     with pytest.raises(ValueError):
-        norm = mcolors.DivergingNorm(vmin=10, vcenter=25, vmax=20)
+        mcolors.DivergingNorm(vmin=10, vcenter=25, vmax=20)
 
 
 def test_DivergingNorm_premature_scaling():
@@ -346,7 +345,7 @@ def test_SymLogNorm_colorbar():
     """
     norm = mcolors.SymLogNorm(0.1, vmin=-1, vmax=1, linscale=1)
     fig = plt.figure()
-    cbar = mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
+    mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
     plt.close(fig)
 
 
