@@ -22,8 +22,8 @@ mplDeprecation = MatplotlibDeprecationWarning
 
 
 def _generate_deprecation_warning(
-        since, message='', name='', alternative='', pending=False,
-        obj_type='attribute', addendum='', *, removal=''):
+        since, message='', name='', alternative='', pending=False, obj_type='',
+        addendum='', *, removal=''):
     if pending:
         if removal:
             raise ValueError(
@@ -55,7 +55,7 @@ def _generate_deprecation_warning(
 
 def warn_deprecated(
         since, *, message='', name='', alternative='', pending=False,
-        obj_type='attribute', addendum='', removal=''):
+        obj_type='', addendum='', removal=''):
     """
     Used to display deprecation in a standard way.
 

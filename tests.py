@@ -45,6 +45,5 @@ if __name__ == '__main__':
 
     print('Python byte-compilation optimization level:', sys.flags.optimize)
 
-    retcode = test(argv=extra_args, switch_backend_warn=False,
-                   recursionlimit=args.recursionlimit)
+    retcode = test(argv=extra_args, recursionlimit=args.recursionlimit)
     sys.exit(retcode)

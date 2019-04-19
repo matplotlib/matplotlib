@@ -741,8 +741,10 @@ def scale_factory(scale, axis, **kwargs):
     if scale not in _scale_mapping:
         raise ValueError("Unknown scale type '%s'" % scale)
     return _scale_mapping[scale](axis, **kwargs)
-scale_factory.__doc__ = scale_factory.__doc__ % {
-    "names": ", ".join(get_scale_names())}
+
+if scale_factory.__doc__:
+    scale_factory.__doc__ = scale_factory.__doc__ % {
+        "names": ", ".join(get_scale_names())}
 
 
 def register_scale(scale_class):

@@ -81,7 +81,7 @@ def test_interp_nearest_vs_none():
 
 
 def do_figimage(suppressComposite):
-    """ Helper for the next two tests """
+    """Helper for the next two tests."""
     fig = plt.figure(figsize=(2, 2), dpi=100)
     fig.suppressComposite = suppressComposite
     x, y = np.ix_(np.arange(100) / 100.0, np.arange(100) / 100)
@@ -95,19 +95,14 @@ def do_figimage(suppressComposite):
     fig.figimage(img[::-1, ::-1], xo=100, yo=100, origin='lower')
 
 
-@image_comparison(baseline_images=['figimage-0'],
-                  extensions=['png', 'pdf'])
+@image_comparison(baseline_images=['figimage-0'], extensions=['png', 'pdf'])
 def test_figimage0():
-    'test the figimage method'
-
     suppressComposite = False
     do_figimage(suppressComposite)
 
 
-@image_comparison(baseline_images=['figimage-1'],
-                  extensions=['png', 'pdf'])
+@image_comparison(baseline_images=['figimage-1'], extensions=['png', 'pdf'])
 def test_figimage1():
-    'test the figimage method'
     suppressComposite = True
     do_figimage(suppressComposite)
 
@@ -943,13 +938,10 @@ def test_imshow_bool():
 
 
 def test_full_invalid():
-    x = np.ones((10, 10))
-    x[:] = np.nan
-
-    f, ax = plt.subplots()
-    ax.imshow(x)
-
-    f.canvas.draw()
+    fig, ax = plt.subplots()
+    ax.imshow(np.full((10, 10), np.nan))
+    with pytest.warns(UserWarning):
+        fig.canvas.draw()
 
 
 @pytest.mark.parametrize("fmt,counted",

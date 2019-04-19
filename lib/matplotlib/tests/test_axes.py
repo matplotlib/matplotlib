@@ -3116,10 +3116,10 @@ def test_stem_args():
     y = list(range(10))
 
     # Test the call signatures
-    ax.stem(y)
-    ax.stem(x, y)
-    ax.stem(x, y, 'r--')
-    ax.stem(x, y, 'r--', basefmt='b--')
+    ax.stem(y, use_line_collection=True)
+    ax.stem(x, y, use_line_collection=True)
+    ax.stem(x, y, 'r--', use_line_collection=True)
+    ax.stem(x, y, 'r--', basefmt='b--', use_line_collection=True)
 
 
 def test_stem_dates():
@@ -3131,7 +3131,7 @@ def test_stem_dates():
     x1 = parser.parse("2013-9-28 12:00:00")
     y1 = 200
 
-    ax.stem([x, x1], [y, y1], "*-")
+    ax.stem([x, x1], [y, y1], "*-", use_line_collection=True)
 
 
 @image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])
@@ -5326,13 +5326,16 @@ def test_title_pad():
 
 def test_title_location_roundtrip():
     fig, ax = plt.subplots()
+    # set default title location
+    plt.rcParams['axes.titlelocation'] = 'center'
+
     ax.set_title('aardvark')
     ax.set_title('left', loc='left')
     ax.set_title('right', loc='right')
 
     assert 'left' == ax.get_title(loc='left')
     assert 'right' == ax.get_title(loc='right')
-    assert 'aardvark' == ax.get_title()
+    assert 'aardvark' == ax.get_title(loc='center')
 
     with pytest.raises(ValueError):
         ax.get_title(loc='foo')
@@ -6391,3 +6394,10 @@ def test_hist_nan_data():
 
     assert np.allclose(bins, nanbins)
     assert np.allclose(edges, nanedges)
+
+
+def test_hist_range_and_density():
+    _, bins, _ = plt.hist(np.random.rand(10), "auto",
+                          range=(0, 1), density=True)
+    assert bins[0] == 0
+    assert bins[-1] == 1

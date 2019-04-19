@@ -16,8 +16,9 @@ class NonIntersectingPathException(ValueError):
 
 def get_intersection(cx1, cy1, cos_t1, sin_t1,
                      cx2, cy2, cos_t2, sin_t2):
-    """ return a intersecting point between a line through (cx1, cy1)
-    and having angle t1 and a line through (cx2, cy2) and angle t2.
+    """
+    Return the intersection between the line through (*cx1*, *cy1*) at angle
+    *t1* and the line through (*cx2, cy2) at angle *t2*.
     """
 
     # line1 => sin_t1 * (x - cx1) - cos_t1 * (y - cy1) = 0.
@@ -397,13 +398,12 @@ def get_parallels(bezier2, width):
 
 
 def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
-    """ Find control points of the bezier line through c1, mm, c2. We
-    simply assume that c1, mm, c2 which have parametric value 0, 0.5, and 1.
     """
-
+    Find control points of the Bezier curve passing through (*c1x*, *c1y*),
+    (*mmx*, *mmy*), and (*c2x*, *c2y*), at parametric values 0, 0.5, and 1.
+    """
     cmx = .5 * (4 * mmx - (c1x + c2x))
     cmy = .5 * (4 * mmy - (c1y + c2y))
-
     return [(c1x, c1y), (cmx, cmy), (c2x, c2y)]
 
 

@@ -1,8 +1,0 @@
-Deprecations
-````````````
-
-``dates.strpdate2num`` and ``dates.bytespdate2num`` are brittle in the
-presence of locale changes, and are deprecated.  Use standard datetime
-parsers such as `time.strptime` or `dateutil.parser.parse`, and additionally
-call `matplotlib.dates.date2num` if you insist on converting to Matplotlib's
-internal datetime representation; or use ``dates.datestr2num``.

@@ -1,6 +1,0 @@
-Deprecations
-````````````
-
-The ``backend_wx.IDLE_DELAY`` global, being unused and only relevant to the now
-removed wx "idling" code, is deprecated (note that as it is a module-level
-global, no deprecation warning is emitted when accessing it).

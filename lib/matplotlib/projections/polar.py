@@ -1172,11 +1172,9 @@ class PolarAxes(Axes):
 
         Returns
         -------
-        ylimits : tuple
-            Returns the new y-axis limits as (*bottom*, *top*).
-
+        bottom, top : (float, float)
+            The new y-axis limits in data coordinates.
         """
-
         if ymin is not None:
             if bottom is not None:
                 raise ValueError('Cannot supply both positional "bottom" '
@@ -1191,7 +1189,6 @@ class PolarAxes(Axes):
                 top = ymax
         if top is None and np.iterable(bottom):
             bottom, top = bottom[0], bottom[1]
-
         return super().set_ylim(bottom=bottom, top=top, emit=emit, auto=auto)
 
     def get_rlabel_position(self):

@@ -1,7 +1,0 @@
-Public use of the matplotlib.backends.qt_editor.formlayout module is deprecated
-```````````````````````````````````````````````````````````````````````````````
-
-This module is a vendored, modified version of the official formlayout_ module
-available on PyPI.  Install that module separately if you need it.
-
-.. _formlayout: https://pypi.org/project/formlayout/

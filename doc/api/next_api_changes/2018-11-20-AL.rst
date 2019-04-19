@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-The ``Path.has_nonfinite`` attribute is deprecated (use ``not
-np.isfinite(path.vertices).all()`` instead).

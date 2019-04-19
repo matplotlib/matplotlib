@@ -17,7 +17,7 @@ import numpy as np
 # Electrical potential of a dipole
 #-----------------------------------------------------------------------------
 def dipole_potential(x, y):
-    """ The electric dipole potential V """
+    """The electric dipole potential V, at position *x*, *y*."""
     r_sq = x**2 + y**2
     theta = np.arctan2(y, x)
     z = np.cos(theta)/r_sq

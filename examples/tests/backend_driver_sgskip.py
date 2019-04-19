@@ -418,7 +418,7 @@ def drive(backend, directories, python=['python'], switches=[]):
 
 
 def parse_options():
-    doc = (__doc__ and __doc__.split('\n\n')) or "  "
+    doc = __doc__.split("\n\n") if __doc__ else "  "
     op = OptionParser(description=doc[0].strip(),
                       usage='%prog [options] [--] [backends and switches]',
                       #epilog='\n'.join(doc[1:])  # epilog not supported on my python2.4 machine: JDH

@@ -1,0 +1,7 @@
+Deprecations
+````````````
+
+``mpl_toolkits.axisartist.grid_finder.GridFinderBase`` is deprecated (its
+only use is to be inherited by the `GridFinder` class which just provides
+more defaults in the constructor and directly sets the transforms, so
+``GridFinderBase``'s methods were just moved to `GridFinder`).

@@ -97,17 +97,14 @@ def _make_inset_locator(bounds, trans, parent):
 
 class Axes(_AxesBase):
     """
-    The :class:`Axes` contains most of the figure elements:
-    :class:`~matplotlib.axis.Axis`, :class:`~matplotlib.axis.Tick`,
-    :class:`~matplotlib.lines.Line2D`, :class:`~matplotlib.text.Text`,
-    :class:`~matplotlib.patches.Polygon`, etc., and sets the
-    coordinate system.
+    The `Axes` contains most of the figure elements: `~.axis.Axis`,
+    `~.axis.Tick`, `~.lines.Line2D`, `~.text.Text`, `~.patches.Polygon`, etc.,
+    and sets the coordinate system.
 
-    The :class:`Axes` instance supports callbacks through a callbacks
-    attribute which is a :class:`~matplotlib.cbook.CallbackRegistry`
-    instance.  The events you can connect to are 'xlim_changed' and
-    'ylim_changed' and the callback will be called with func(*ax*)
-    where *ax* is the :class:`Axes` instance.
+    The `Axes` instance supports callbacks through a callbacks attribute which
+    is a `~.cbook.CallbackRegistry` instance.  The events you can connect to
+    are 'xlim_changed' and 'ylim_changed' and the callback will be called with
+    func(*ax*) where *ax* is the `Axes` instance.
 
     Attributes
     ----------
@@ -151,7 +148,7 @@ class Axes(_AxesBase):
             raise ValueError("'%s' is not a valid location" % loc)
         return title.get_text()
 
-    def set_title(self, label, fontdict=None, loc="center", pad=None,
+    def set_title(self, label, fontdict=None, loc=None, pad=None,
                     **kwargs):
         """
         Set a title for the axes.
@@ -175,7 +172,7 @@ class Axes(_AxesBase):
                 'horizontalalignment': loc}
 
         loc : {'center', 'left', 'right'}, str, optional
-            Which title to set, defaults to 'center'
+            Which title to set, defaults to rcParams['axes.titlelocation']
 
         pad : float
             The offset of the title from the top of the axes, in points.
@@ -194,6 +191,9 @@ class Axes(_AxesBase):
             properties.
         """
         try:
+            if loc is None:
+                loc = rcParams['axes.titlelocation']
+
             title = {'left': self._left_title,
                      'center': self.title,
                      'right': self._right_title}[loc.lower()]
@@ -1663,7 +1663,7 @@ class Axes(_AxesBase):
         additionally use any  `matplotlib.colors` spec, e.g. full names
         (``'green'``) or hex strings (``'#008000'``).
         """
-        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         lines = [*self._get_lines(*args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
@@ -2281,7 +2281,7 @@ class Axes(_AxesBase):
         %(Rectangle)s
 
         """
-        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch._alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
         color = kwargs.pop('color', None)
         if color is None:
             color = self._get_patches_for_fill.get_next_color()
@@ -3029,17 +3029,17 @@ class Axes(_AxesBase):
             if labeldistance is not None:
                 xt = x + labeldistance * radius * math.cos(thetam)
                 yt = y + labeldistance * radius * math.sin(thetam)
-                label_alignment_h = xt > 0 and 'left' or 'right'
+                label_alignment_h = 'left' if xt > 0 else 'right'
                 label_alignment_v = 'center'
                 label_rotation = 'horizontal'
                 if rotatelabels:
-                    label_alignment_v = yt > 0 and 'bottom' or 'top'
-                    label_rotation = np.rad2deg(thetam) + (0 if xt > 0
-                                                             else 180)
+                    label_alignment_v = 'bottom' if yt > 0 else 'top'
+                    label_rotation = (np.rad2deg(thetam)
+                                      + (0 if xt > 0 else 180))
                 props = dict(horizontalalignment=label_alignment_h,
-                            verticalalignment=label_alignment_v,
-                            rotation=label_rotation,
-                            size=rcParams['xtick.labelsize'])
+                             verticalalignment=label_alignment_v,
+                             rotation=label_rotation,
+                             size=rcParams['xtick.labelsize'])
                 props.update(textprops)
 
                 t = self.text(xt, yt, label, **props)
@@ -3197,7 +3197,7 @@ class Axes(_AxesBase):
         .. [Notes section required for data comment. See #10189.]
 
         """
-        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # anything that comes in as 'None', drop so the default thing
         # happens down stream
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
@@ -5090,7 +5090,7 @@ optional.
         two curves.
         """
         # For compatibility(!), get aliases from Line2D rather than Patch.
-        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D._alias_map)
+        kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
 
         patches = []
         for poly in self._get_patches_for_fill(*args, data=data, **kwargs):
@@ -5185,8 +5185,7 @@ optional.
 
         """
         if not rcParams['_internal.classic_mode']:
-            kwargs = cbook.normalize_kwargs(
-                kwargs, mcoll.Collection._alias_map)
+            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
             if not any(c in kwargs for c in ('color', 'facecolor')):
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
@@ -5367,8 +5366,7 @@ optional.
 
         """
         if not rcParams['_internal.classic_mode']:
-            kwargs = cbook.normalize_kwargs(
-                kwargs, mcoll.Collection._alias_map)
+            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
             if not any(c in kwargs for c in ('color', 'facecolor')):
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
@@ -5976,10 +5974,9 @@ optional.
 
         .. note::
 
-           ``pcolormesh()`` is similar to :func:`~Axes.pcolor`. It's much
-           faster and preferred in most cases. For a detailed discussion on
-           the differences see
-           :ref:`Differences between pcolor() and pcolormesh()
+           `~Axes.pcolormesh` is similar to `~Axes.pcolor`. It's much faster
+           and preferred in most cases. For a detailed discussion on the
+           differences see :ref:`Differences between pcolor() and pcolormesh()
            <differences-pcolor-pcolormesh>`.
 
         Parameters
@@ -6698,7 +6695,7 @@ optional.
 
         density = bool(density) or bool(normed)
         if density and not stacked:
-            hist_kwargs = dict(density=density)
+            hist_kwargs['density'] = density
 
         # List to store all the top coordinates of the histograms
         tops = []
@@ -7960,34 +7957,23 @@ optional.
           list of the corresponding collection instances created. The
           dictionary has the following keys:
 
-            - ``bodies``: A list of the
-              :class:`matplotlib.collections.PolyCollection` instances
-              containing the filled area of each violin.
+          - ``bodies``: A list of the `~.collections.PolyCollection`
+            instances containing the filled area of each violin.
 
-            - ``cmeans``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the mean values of each of the
-              violin's distribution.
+          - ``cmeans``: A `~.collections.LineCollection` instance that marks
+            the mean values of each of the violin's distribution.
 
-            - ``cmins``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the bottom of each violin's
-              distribution.
+          - ``cmins``: A `~.collections.LineCollection` instance that marks
+            the bottom of each violin's distribution.
 
-            - ``cmaxes``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the top of each violin's
-              distribution.
+          - ``cmaxes``: A `~.collections.LineCollection` instance that marks
+            the top of each violin's distribution.
 
-            - ``cbars``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the centers of each violin's
-              distribution.
+          - ``cbars``: A `~.collections.LineCollection` instance that marks
+            the centers of each violin's distribution.
 
-            - ``cmedians``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the median values of each of the
-              violin's distribution.
+          - ``cmedians``: A `~.collections.LineCollection` instance that
+            marks the median values of each of the violin's distribution.
 
         Notes
         -----
@@ -8066,35 +8052,23 @@ optional.
           list of the corresponding collection instances created. The
           dictionary has the following keys:
 
-            - ``bodies``: A list of the
-              :class:`matplotlib.collections.PolyCollection` instances
-              containing the filled area of each violin.
+          - ``bodies``: A list of the `~.collections.PolyCollection`
+            instances containing the filled area of each violin.
 
-            - ``cmeans``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the mean values of each of the
-              violin's distribution.
+          - ``cmeans``: A `~.collections.LineCollection` instance that marks
+            the mean values of each of the violin's distribution.
 
-            - ``cmins``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the bottom of each violin's
-              distribution.
+          - ``cmins``: A `~.collections.LineCollection` instance that marks
+            the bottom of each violin's distribution.
 
-            - ``cmaxes``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the top of each violin's
-              distribution.
+          - ``cmaxes``: A `~.collections.LineCollection` instance that marks
+            the top of each violin's distribution.
 
-            - ``cbars``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the centers of each violin's
-              distribution.
+          - ``cbars``: A `~.collections.LineCollection` instance that marks
+            the centers of each violin's distribution.
 
-            - ``cmedians``: A
-              :class:`matplotlib.collections.LineCollection` instance
-              created to identify the median values of each of the
-              violin's distribution.
-
+          - ``cmedians``: A `~.collections.LineCollection` instance that
+            marks the median values of each of the violin's distribution.
         """
 
         # Statistical quantities to be plotted on the violins

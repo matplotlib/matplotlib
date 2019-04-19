@@ -225,17 +225,23 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             return tuple(color)
         # string gray.
         try:
-            return (float(c),) * 3 + (alpha if alpha is not None else 1.,)
+            c = float(c)
         except ValueError:
             pass
-        raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
+        else:
+            if not (0 <= c <= 1):
+                raise ValueError(
+                    f"Invalid string grayscale value {orig_c!r}. "
+                    f"Value must be within 0-1 range")
+            return c, c, c, alpha if alpha is not None else 1.
+        raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
     # tuple color.
     c = np.array(c)
     if not np.can_cast(c.dtype, float, "same_kind") or c.ndim != 1:
         # Test the dtype explicitly as `map(float, ...)`, `np.array(...,
         # float)` and `np.array(...).astype(float)` all convert "0.5" to 0.5.
         # Test dimensionality to reject single floats.
-        raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
+        raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
     # Return a tuple to prevent the cached value from being modified.
     c = tuple(c.astype(float))
     if len(c) not in [3, 4]:
@@ -1032,6 +1038,12 @@ class DivergingNorm(Normalize):
 class LogNorm(Normalize):
     """Normalize a given value to the 0-1 range on a log scale."""
 
+    def _check_vmin_vmax(self):
+        if self.vmin > self.vmax:
+            raise ValueError("minvalue must be less than or equal to maxvalue")
+        elif self.vmin <= 0:
+            raise ValueError("minvalue must be positive")
+
     def __call__(self, value, clip=None):
         if clip is None:
             clip = self.clip
@@ -1041,12 +1053,9 @@ class LogNorm(Normalize):
         result = np.ma.masked_less_equal(result, 0, copy=False)
 
         self.autoscale_None(result)
+        self._check_vmin_vmax()
         vmin, vmax = self.vmin, self.vmax
-        if vmin > vmax:
-            raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin <= 0:
-            raise ValueError("values must all be positive")
-        elif vmin == vmax:
+        if vmin == vmax:
             result.fill(0)
         else:
             if clip:
@@ -1072,6 +1081,7 @@ class LogNorm(Normalize):
     def inverse(self, value):
         if not self.scaled():
             raise ValueError("Not invertible until scaled")
+        self._check_vmin_vmax()
         vmin, vmax = self.vmin, self.vmax
 
         if np.iterable(value):
@@ -1531,13 +1541,11 @@ class LightSource(object):
 
     @property
     def direction(self):
-        """ The unit vector direction towards the light source """
-
+        """The unit vector direction towards the light source."""
         # Azimuth is in degrees clockwise from North. Convert to radians
         # counterclockwise from East (mathematical notation).
         az = np.radians(90 - self.azdeg)
         alt = np.radians(self.altdeg)
-
         return np.array([
             np.cos(az) * np.cos(alt),
             np.sin(az) * np.cos(alt),

@@ -9,17 +9,15 @@ Both are used in `.Line2D` and various ``Collections`` from
 `matplotlib.collections` as well as some functions that create these, e.g.
 `~matplotlib.pyplot.plot`.
 
-"""
 
-#############################################################################
-#
-# Join styles
-# """""""""""
-#
-# Join styles define how the connection between two line segments is drawn.
-#
-# See the respective ``solid_joinstyle``, ``dash_joinstyle`` or ``joinstyle``
-# parameters.
+Join styles
+===========
+
+Join styles define how the connection between two line segments is drawn.
+
+See the respective ``solid_joinstyle``, ``dash_joinstyle`` or ``joinstyle``
+parameters.
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -54,7 +52,7 @@ plt.show()
 #############################################################################
 #
 # Cap styles
-# """"""""""
+# ==========
 #
 # Cap styles define how the the end of a line is drawn.
 #

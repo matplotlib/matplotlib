@@ -1,4 +1,0 @@
-Deprecations
-````````````
-
-``mpl_toolkits.axisartist.axis_artist.UnimplementedException`` is deprecated.

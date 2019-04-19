@@ -1,12 +1,14 @@
 import numpy as np
 import pytest
 
+from matplotlib import cm
+import matplotlib.colors as mcolors
+
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.colors import (BoundaryNorm, LogNorm, PowerNorm, Normalize,
                                DivergingNorm)
-from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase, _ColorbarLogLocator
 from matplotlib.ticker import LogLocator, LogFormatter, FixedLocator
 
@@ -20,7 +22,7 @@ def _get_cmap_norms():
     colorbar_extension_length.
     """
     # Create a color map and specify the levels it represents.
-    cmap = get_cmap("RdBu", lut=5)
+    cmap = cm.get_cmap("RdBu", lut=5)
     clevs = [-5., -2.5, -.5, .5, 1.5, 3.5]
     # Define norms for the color maps.
     norms = dict()
@@ -240,7 +242,7 @@ def test_colorbar_closed_patch():
     ax4 = fig.add_axes([0.05, 0.25, 0.9, 0.1])
     ax5 = fig.add_axes([0.05, 0.05, 0.9, 0.1])
 
-    cmap = get_cmap("RdBu", lut=5)
+    cmap = cm.get_cmap("RdBu", lut=5)
 
     im = ax1.pcolormesh(np.linspace(0, 10, 16).reshape((4, 4)), cmap=cmap)
 
@@ -558,3 +560,11 @@ def test_extend_colorbar_customnorm():
     cb = fig.colorbar(pcm, ax=ax[0], extend='both')
     np.testing.assert_allclose(cb.ax.get_position().extents,
                                [0.78375, 0.536364, 0.796147, 0.9], rtol=1e-3)
+
+
+def test_mappable_no_alpha():
+    fig, ax = plt.subplots()
+    sm = cm.ScalarMappable(norm=mcolors.Normalize(), cmap='viridis')
+    fig.colorbar(sm)
+    sm.set_cmap('plasma')
+    plt.draw()

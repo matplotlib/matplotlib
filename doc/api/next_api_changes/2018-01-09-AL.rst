@@ -1,5 +1,0 @@
-Behavior changes
-````````````````
-
-Calling `.Figure.add_subplot()` with no positional arguments used to do
-nothing; this now is equivalent to calling ``add_subplot(111)`` instead.

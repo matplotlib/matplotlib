@@ -18,11 +18,11 @@ from matplotlib.cbook import (
 
 
 def test_is_hashable():
-    s = 'string'
-    assert cbook.is_hashable(s)
-
-    lst = ['list', 'of', 'stings']
-    assert not cbook.is_hashable(lst)
+    with pytest.warns(MatplotlibDeprecationWarning):
+        s = 'string'
+        assert cbook.is_hashable(s)
+        lst = ['list', 'of', 'stings']
+        assert not cbook.is_hashable(lst)
 
 
 class Test_delete_masked_points(object):
@@ -560,3 +560,9 @@ def test_make_keyword_only(recwarn):
         func(1, 2)
     with pytest.warns(MatplotlibDeprecationWarning):
         func(1, 2, 3)
+
+
+def test_warn_external(recwarn):
+    cbook._warn_external("oops")
+    assert len(recwarn) == 1
+    assert recwarn[0].filename == __file__
