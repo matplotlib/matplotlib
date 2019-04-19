@@ -1308,9 +1308,9 @@ class FontManager(object):
 @lru_cache()
 def is_opentype_cff_font(filename):
     """
-    Returns True if the given font is a Postscript Compact Font Format
-    Font embedded in an OpenType wrapper.  Used by the PostScript and
-    PDF backends that can not subset these fonts.
+    Return whether the given font is a Postscript Compact Font Format Font
+    embedded in an OpenType wrapper.  Used by the PostScript and PDF backends
+    that can not subset these fonts.
     """
     if os.path.splitext(filename)[1].lower() == '.otf':
         with open(filename, 'rb') as fd:

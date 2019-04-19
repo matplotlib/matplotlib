@@ -1,3 +1,0 @@
-Numpy minimum version bump
-``````````````````````````
-Matplotlib 3.1 requires numpy>=1.11.

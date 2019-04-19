@@ -1,6 +1,6 @@
 import numpy as np
 
-import matplotlib.ticker as mticker
+from matplotlib import cbook, ticker as mticker
 from matplotlib.transforms import Bbox, Transform
 from .clip_path import clip_line_to_rect
 
@@ -40,26 +40,38 @@ class ExtremeFinderSimple(object):
         return lon_min, lon_max, lat_min, lat_max
 
 
-class GridFinderBase(object):
+class GridFinder:
     def __init__(self,
-                 extreme_finder,
-                 grid_locator1,
-                 grid_locator2,
+                 transform,
+                 extreme_finder=None,
+                 grid_locator1=None,
+                 grid_locator2=None,
                  tick_formatter1=None,
                  tick_formatter2=None):
         """
+        transform : transform from the image coordinate (which will be
         the transData of the axes to the world coordinate.
-        locator1, locator2 : grid locator for 1st and 2nd axis.
 
-        Derived must define "transform_xy, inv_transform_xy"
-        (may use update_transform)
+        or transform = (transform_xy, inv_transform_xy)
+
+        locator1, locator2 : grid locator for 1st and 2nd axis.
         """
-        super().__init__()
+        if extreme_finder is None:
+            extreme_finder = ExtremeFinderSimple(20, 20)
+        if grid_locator1 is None:
+            grid_locator1 = MaxNLocator()
+        if grid_locator2 is None:
+            grid_locator2 = MaxNLocator()
+        if tick_formatter1 is None:
+            tick_formatter1 = FormatterPrettyPrint()
+        if tick_formatter2 is None:
+            tick_formatter2 = FormatterPrettyPrint()
         self.extreme_finder = extreme_finder
         self.grid_locator1 = grid_locator1
         self.grid_locator2 = grid_locator2
         self.tick_formatter1 = tick_formatter1
         self.tick_formatter2 = tick_formatter2
+        self.update_transform(transform)
 
     def get_grid_info(self, x1, y1, x2, y2):
         """
@@ -190,40 +202,17 @@ class GridFinderBase(object):
                 raise ValueError("unknown update property '%s'" % k)
 
 
-class GridFinder(GridFinderBase):
-
+@cbook.deprecated("3.2")
+class GridFinderBase(GridFinder):
     def __init__(self,
-                 transform,
-                 extreme_finder=None,
+                 extreme_finder,
                  grid_locator1=None,
                  grid_locator2=None,
                  tick_formatter1=None,
                  tick_formatter2=None):
-        """
-        transform : transform from the image coordinate (which will be
-        the transData of the axes to the world coordinate.
-
-        or transform = (transform_xy, inv_transform_xy)
-
-        locator1, locator2 : grid locator for 1st and 2nd axis.
-        """
-        if extreme_finder is None:
-            extreme_finder = ExtremeFinderSimple(20, 20)
-        if grid_locator1 is None:
-            grid_locator1 = MaxNLocator()
-        if grid_locator2 is None:
-            grid_locator2 = MaxNLocator()
-        if tick_formatter1 is None:
-            tick_formatter1 = FormatterPrettyPrint()
-        if tick_formatter2 is None:
-            tick_formatter2 = FormatterPrettyPrint()
-        super().__init__(
-            extreme_finder,
-            grid_locator1,
-            grid_locator2,
-            tick_formatter1,
-            tick_formatter2)
-        self.update_transform(transform)
+        super().__init__((None, None), extreme_finder,
+                         grid_locator1, grid_locator2,
+                         tick_formatter1, tick_formatter2)
 
 
 class MaxNLocator(mticker.MaxNLocator):

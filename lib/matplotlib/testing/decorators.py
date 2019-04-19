@@ -403,16 +403,16 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         #default no kwargs to savefig
         savefig_kwarg = dict()
 
-    if is_called_from_pytest():
-        return _pytest_image_comparison(
-            baseline_images=baseline_images, extensions=extensions, tol=tol,
-            freetype_version=freetype_version, remove_text=remove_text,
-            savefig_kwargs=savefig_kwarg, style=style)
-    else:
+    if mpl.testing._wants_nose():
         if baseline_images is None:
             raise ValueError('baseline_images must be specified')
 
         return ImageComparisonTest(
+            baseline_images=baseline_images, extensions=extensions, tol=tol,
+            freetype_version=freetype_version, remove_text=remove_text,
+            savefig_kwargs=savefig_kwarg, style=style)
+    else:
+        return _pytest_image_comparison(
             baseline_images=baseline_images, extensions=extensions, tol=tol,
             freetype_version=freetype_version, remove_text=remove_text,
             savefig_kwargs=savefig_kwarg, style=style)

@@ -186,8 +186,8 @@ def test_clipping_of_log():
     path = Path(points, codes)
 
     # something like this happens in plotting logarithmic histograms
-    trans = mtransforms.BlendedGenericTransform(mtransforms.Affine2D(),
-                                            LogScale.Log10Transform('clip'))
+    trans = mtransforms.BlendedGenericTransform(
+        mtransforms.Affine2D(), LogScale.LogTransform(10, 'clip'))
     tpath = trans.transform_path_non_affine(path)
     result = tpath.iter_segments(trans.get_affine(),
                                  clip=(0, 0, 100, 100),

@@ -459,8 +459,8 @@ class ImageFile(object):
 
 def out_of_date(original, derived):
     """
-    Returns True if derivative is out-of-date wrt original,
-    both of which are full file paths.
+    Return whether *derived* is out-of-date relative to *original*, both of
+    which are full file paths.
     """
     return (not os.path.exists(derived) or
             (os.path.exists(original) and

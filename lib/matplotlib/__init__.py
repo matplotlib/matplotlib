@@ -522,7 +522,7 @@ def _create_tmp_config_or_cache_dir():
 
 def _get_xdg_config_dir():
     """
-    Returns the XDG configuration directory, according to the `XDG
+    Return the XDG configuration directory, according to the `XDG
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
@@ -534,7 +534,7 @@ def _get_xdg_config_dir():
 
 def _get_xdg_cache_dir():
     """
-    Returns the XDG cache directory, according to the `XDG
+    Return the XDG cache directory, according to the `XDG
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
@@ -1262,7 +1262,6 @@ def use(backend, warn=False, force=True):
         If True and not *force*, warn that the call will have no effect if
         this is called after pyplot has been imported and a backend is set up.
 
-
     force : bool, optional, default: True
         If True, attempt to switch the backend.   An ImportError is raised if
         an interactive backend is selected, but another interactive
@@ -1281,20 +1280,17 @@ def use(backend, warn=False, force=True):
     elif 'matplotlib.pyplot' in sys.modules:
         # pyplot has already been imported (which triggered backend selection)
         # and the requested backend is different from the current one.
-
-        # If we are going to force the switch, never warn, else, if warn
-        # is True, then direct users to `plt.switch_backend`
-        if (not force) and warn:
+        if force:
+            # if we are going to force switching the backend, pull in
+            # `switch_backend` from pyplot (which is already imported).
+            from matplotlib.pyplot import switch_backend
+            switch_backend(name)
+        elif warn:
+            # Only if we are not going to force the switch *and* warn is True,
+            # then direct users to `plt.switch_backend`.
             cbook._warn_external(
                 "matplotlib.pyplot has already been imported, "
                 "this call will have no effect.")
-
-        # if we are going to force switching the backend, pull in
-        # `switch_backend` from pyplot.  This will only happen if
-        # pyplot is already imported.
-        if force:
-            from matplotlib.pyplot import switch_backend
-            switch_backend(name)
     else:
         # Finally if pyplot is not imported update both rcParams and
         # rcDefaults so restoring the defaults later with rcdefaults
@@ -1385,6 +1381,7 @@ def _init_tests():
         raise
 
 
+@cbook._delete_parameter("3.2", "switch_backend_warn")
 def test(verbosity=None, coverage=False, switch_backend_warn=True,
          recursionlimit=0, **kwargs):
     """Run the matplotlib test suite."""
@@ -1426,7 +1423,7 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
         retcode = pytest.main(args, **kwargs)
     finally:
         if old_backend.lower() != 'agg':
-            use(old_backend, warn=switch_backend_warn)
+            use(old_backend)
         if recursionlimit:
             sys.setrecursionlimit(old_recursionlimit)
 

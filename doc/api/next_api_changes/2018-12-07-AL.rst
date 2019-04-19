@@ -1,4 +1,0 @@
-``~`` now interpreted as space in mathtext
-``````````````````````````````````````````
-In constructs such as ``"$1~2$"``, mathtext now interprets the tilde as a
-space, consistently with TeX (this was previously a parse error).

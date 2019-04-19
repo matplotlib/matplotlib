@@ -1,4 +1,0 @@
-Deprecations
-````````````
-
-``projections.process_projection_requirements`` is deprecated.

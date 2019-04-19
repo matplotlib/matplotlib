@@ -1,6 +1,6 @@
 import builtins
 import configparser
-from distutils import sysconfig, version
+from distutils import sysconfig
 from distutils.core import Extension
 from io import BytesIO
 import glob
@@ -169,13 +169,6 @@ else:
 
 lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
-
-
-def is_min_version(found, minversion):
-    """
-    Returns whether *found* is a version at least as high as *minversion*.
-    """
-    return version.LooseVersion(found) >= version.LooseVersion(minversion)
 
 
 # Define the display functions only if display_status is True.

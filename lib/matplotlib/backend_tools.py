@@ -11,9 +11,10 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
     `matplotlib.backend_managers.ToolManager`
 """
 
+from enum import IntEnum
+import logging
 import re
 import time
-import logging
 from types import SimpleNamespace
 from weakref import WeakKeyDictionary
 
@@ -26,10 +27,10 @@ import matplotlib.cbook as cbook
 _log = logging.getLogger(__name__)
 
 
-class Cursors(object):
-    """Simple namespace for cursor reference"""
+class Cursors(IntEnum):  # Must subclass int for the macOS backend.
+    """Backend-independent cursor types."""
     HAND, POINTER, SELECT_REGION, MOVE, WAIT = range(5)
-cursors = Cursors()
+cursors = Cursors  # Backcompat.
 
 # Views positions tool
 _views_positions = 'viewpos'

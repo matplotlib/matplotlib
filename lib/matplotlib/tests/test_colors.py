@@ -145,6 +145,16 @@ def test_BoundaryNorm():
     assert np.all(bn(vals).mask)
 
 
+@pytest.mark.parametrize("vmin,vmax", [[-1, 2], [3, 1]])
+def test_lognorm_invalid(vmin, vmax):
+    # Check that invalid limits in LogNorm error
+    norm = mcolors.LogNorm(vmin=vmin, vmax=vmax)
+    with pytest.raises(ValueError):
+        norm(1)
+    with pytest.raises(ValueError):
+        norm.inverse(1)
+
+
 def test_LogNorm():
     """
     LogNorm ignored clip, now it has the same
@@ -471,12 +481,6 @@ def test_autoscale_masked():
     plt.draw()
 
 
-def test_colors_no_float():
-    # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
-    with pytest.raises(ValueError):
-        mcolors.to_rgba(0.4)
-
-
 @image_comparison(baseline_images=['light_source_shading_topo'],
                   extensions=['png'])
 def test_light_source_topo_surface():
@@ -754,6 +758,18 @@ def test_conversions():
     hex_color = "#1234abcd"
     assert mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True) == \
         hex_color
+
+
+def test_failed_conversions():
+    with pytest.raises(ValueError):
+        mcolors.to_rgba('5')
+    with pytest.raises(ValueError):
+        mcolors.to_rgba('-1')
+    with pytest.raises(ValueError):
+        mcolors.to_rgba('nan')
+    with pytest.raises(ValueError):
+        # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
+        mcolors.to_rgba(0.4)
 
 
 def test_grey_gray():

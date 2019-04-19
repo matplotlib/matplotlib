@@ -3,6 +3,7 @@ Helper functions for testing.
 """
 import locale
 import logging
+import sys
 import warnings
 
 import matplotlib as mpl
@@ -11,9 +12,18 @@ from matplotlib import cbook
 _log = logging.getLogger(__name__)
 
 
+@cbook.deprecated("3.2")
 def is_called_from_pytest():
     """Whether we are in a pytest run."""
     return getattr(mpl, '_called_from_pytest', False)
+
+
+def _wants_nose():
+    wants_nose = (not getattr(mpl, '_called_from_pytest', False)
+                  and 'nose' in sys.modules)
+    if wants_nose:
+        cbook.warn_deprecated("3.2", name="support for nose-based tests")
+    return wants_nose
 
 
 def set_font_settings_for_testing():

@@ -7,6 +7,11 @@ mplot3d API
 .. contents::
       :backlinks: none
 
+.. automodule:: mpl_toolkits.mplot3d
+   :no-members:
+   :no-undoc-members:
+
+
 .. currentmodule:: mpl_toolkits.mplot3d
 
 .. _toolkit_mplot3d-axesapi:

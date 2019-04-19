@@ -368,7 +368,7 @@ def is_writable_file_like(obj):
 
 def file_requires_unicode(x):
     """
-    Returns whether the given writable file-like object requires Unicode to be
+    Return whether the given writable file-like object requires Unicode to be
     written to it.
     """
     try:
@@ -494,7 +494,7 @@ def get_sample_data(fname, asfileobj=True):
 
 def flatten(seq, scalarp=is_scalar_or_string):
     """
-    Returns a generator of flattened nested containers
+    Return a generator of flattened nested containers
 
     For example:
 
@@ -943,7 +943,7 @@ class Grouper(object):
         self.clean()
 
     def joined(self, a, b):
-        """Returns True if *a* and *b* are members of the same set."""
+        """Return whether *a* and *b* are members of the same set."""
         self.clean()
         return (self._mapping.get(weakref.ref(a), object())
                 is self._mapping.get(weakref.ref(b)))
@@ -966,7 +966,7 @@ class Grouper(object):
             yield [x() for x in group]
 
     def get_siblings(self, a):
-        """Returns all of the items joined with *a*, including itself."""
+        """Return all of the items joined with *a*, including itself."""
         self.clean()
         siblings = self._mapping.get(weakref.ref(a), [weakref.ref(a)])
         return [x() for x in siblings]
@@ -1687,12 +1687,15 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     Parameters
     ----------
 
-    alias_mapping, dict, optional
+    alias_mapping : dict or Artist subclass or Artist instance, optional
         A mapping between a canonical name to a list of
         aliases, in order of precedence from lowest to highest.
 
         If the canonical value is not in the list it is assumed to have
         the highest priority.
+
+        If an Artist subclass or instance is passed, use its properties alias
+        mapping.
 
     required : iterable, optional
         A tuple of fields that must be in kwargs.
@@ -1711,11 +1714,15 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     TypeError
         To match what python raises if invalid args/kwargs are passed to
         a callable.
-
     """
+    from matplotlib.artist import Artist
+
     # deal with default value of alias_mapping
     if alias_mapping is None:
         alias_mapping = dict()
+    elif (isinstance(alias_mapping, type) and issubclass(alias_mapping, Artist)
+          or isinstance(alias_mapping, Artist)):
+        alias_mapping = getattr(alias_mapping, "_alias_map", {})
 
     # make a local so we can pop
     kw = dict(kw)
@@ -2041,7 +2048,7 @@ def _warn_external(message, category=None):
         if frame is None:
             # when called in embedded context may hit frame is None
             break
-        if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.)",
+        if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.(?!tests\.))",
                         # Work around sphinx-gallery not setting __name__.
                         frame.f_globals.get("__name__", "")):
             break

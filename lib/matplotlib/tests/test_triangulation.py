@@ -1,16 +1,14 @@
 import numpy as np
+from numpy.testing import (
+    assert_array_equal, assert_array_almost_equal, assert_array_less)
+import numpy.ma.testutils as matest
+import pytest
+
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
-import pytest
-from numpy.testing import assert_array_equal, assert_array_almost_equal,\
-    assert_array_less
-import numpy.ma.testutils as matest
-from matplotlib.testing.decorators import image_comparison
-import matplotlib.cm as cm
 from matplotlib.path import Path
-
-import sys
-on_win = (sys.platform == 'win32')
+from matplotlib.testing.decorators import image_comparison
 
 
 def test_delaunay():
@@ -482,12 +480,9 @@ def test_triinterpcubic_cg_solver():
     # 1) A commonly used test involves a 2d Poisson matrix.
     def poisson_sparse_matrix(n, m):
         """
-        Sparse Poisson matrix.
-
-        Returns the sparse matrix in coo format resulting from the
+        Return the sparse, (n*m, n*m) matrix in coo format resulting from the
         discretisation of the 2-dimensional Poisson equation according to a
         finite difference numerical scheme on a uniform (n, m) grid.
-        Size of the matrix: (n*m, n*m)
         """
         l = m*n
         rows = np.concatenate([
@@ -732,8 +727,7 @@ def test_triinterp_transformations():
         dic_interp = {'lin': linear_interp,
                       'min_E': cubic_min_E,
                       'geom': cubic_geom}
-        # Testing that the interpolation is invariant by expansion along
-        # 1 axis...
+        # Test that the interpolation is invariant by expansion along 1 axis...
         for interp_key in ['lin', 'min_E', 'geom']:
             interpz = dic_interp[interp_key](xs, ys)
             matest.assert_array_almost_equal(interpz, interp_z0[interp_key])
@@ -785,7 +779,7 @@ def test_tri_smooth_gradient():
     # Image comparison based on example trigradient_demo.
 
     def dipole_potential(x, y):
-        """ An electric dipole potential V """
+        """An electric dipole potential V."""
         r_sq = x**2 + y**2
         theta = np.arctan2(y, x)
         z = np.cos(theta)/r_sq
@@ -948,8 +942,7 @@ def test_trirefine():
 
 def meshgrid_triangles(n):
     """
-    Utility function.
-    Returns triangles to mesh a np.meshgrid of n x n points
+    Return (2*(N-1)**2, 3) array of triangles to mesh (N, N)-point np.meshgrid.
     """
     tri = []
     for i in range(n-1):

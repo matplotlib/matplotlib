@@ -1,7 +1,0 @@
-Deprecations
-````````````
-
-The ``.color`` attribute of `Quiver` objects is deprecated.  Instead, use (as
-for any `Collection`) the ``get_facecolor`` method.  Note that setting to the
-``.color`` attribute did not update the quiver artist, whereas calling
-``set_facecolor`` does.

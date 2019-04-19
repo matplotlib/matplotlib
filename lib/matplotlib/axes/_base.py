@@ -230,14 +230,6 @@ class _process_plot_var_args(object):
             return 'k'
         return next(self.prop_cycler)['color']
 
-    def set_lineprops(self, line, **kwargs):
-        assert self.command == 'plot', 'set_lineprops only works with "plot"'
-        line.set(**kwargs)
-
-    def set_patchprops(self, fill_poly, **kwargs):
-        assert self.command == 'fill', 'set_patchprops only works with "fill"'
-        fill_poly.set(**kwargs)
-
     def _xy_from_xy(self, x, y):
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
@@ -357,7 +349,7 @@ class _process_plot_var_args(object):
                                facecolor=facecolor,
                                fill=kwargs.get('fill', True),
                                closed=kw['closed'])
-        self.set_patchprops(seg, **kwargs)
+        seg.set(**kwargs)
         return seg
 
     def _plot_args(self, tup, kwargs):
@@ -682,23 +674,23 @@ class _AxesBase(martist.Artist):
 
     def get_xaxis_text1_transform(self, pad_points):
         """
-        Get the transformation used for drawing x-axis labels, which
-        will add the given amount of padding (in points) between the
-        axes and the label.  The x-direction is in data coordinates
-        and the y-direction is in axis coordinates.  Returns a
-        3-tuple of the form::
+        Returns
+        -------
+        transform : Transform
+            The transform used for drawing x-axis labels, which will add
+            *pad_points* of padding (in points) between the axes and the label.
+            The x-direction is in data coordinates and the y-direction is in
+            axis corrdinates
+        valign : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
+            The text vertical alignment.
+        halign : {'center', 'left', 'right'}
+            The text horizontal alignment.
 
-          (transform, valign, halign)
-
-        where *valign* and *halign* are requested alignments for the
-        text.
-
-        .. note::
-
-            This transformation is primarily used by the
-            `~matplotlib.axis.Axis` class, and is meant to be
-            overridden by new kinds of projections that may need to
-            place axis elements in different locations.
+        Notes
+        -----
+        This transformation is primarily used by the `~matplotlib.axis.Axis`
+        class, and is meant to be overridden by new kinds of projections that
+        may need to place axis elements in different locations.
         """
         labels_align = rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick1') +
@@ -708,23 +700,23 @@ class _AxesBase(martist.Artist):
 
     def get_xaxis_text2_transform(self, pad_points):
         """
-        Get the transformation used for drawing the secondary x-axis
-        labels, which will add the given amount of padding (in points)
-        between the axes and the label.  The x-direction is in data
-        coordinates and the y-direction is in axis coordinates.
-        Returns a 3-tuple of the form::
+        Returns
+        -------
+        transform : Transform
+            The transform used for drawing secondary x-axis labels, which will
+            add *pad_points* of padding (in points) between the axes and the
+            label.  The x-direction is in data coordinates and the y-direction
+            is in axis corrdinates
+        valign : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
+            The text vertical alignment.
+        halign : {'center', 'left', 'right'}
+            The text horizontal alignment.
 
-          (transform, valign, halign)
-
-        where *valign* and *halign* are requested alignments for the
-        text.
-
-        .. note::
-
-            This transformation is primarily used by the
-            `~matplotlib.axis.Axis` class, and is meant to be
-            overridden by new kinds of projections that may need to
-            place axis elements in different locations.
+        Notes
+        -----
+        This transformation is primarily used by the `~matplotlib.axis.Axis`
+        class, and is meant to be overridden by new kinds of projections that
+        may need to place axis elements in different locations.
         """
         labels_align = rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick2') +
@@ -758,23 +750,23 @@ class _AxesBase(martist.Artist):
 
     def get_yaxis_text1_transform(self, pad_points):
         """
-        Get the transformation used for drawing y-axis labels, which
-        will add the given amount of padding (in points) between the
-        axes and the label.  The x-direction is in axis coordinates
-        and the y-direction is in data coordinates.  Returns a 3-tuple
-        of the form::
+        Returns
+        -------
+        transform : Transform
+            The transform used for drawing y-axis labels, which will add
+            *pad_points* of padding (in points) between the axes and the label.
+            The x-direction is in axis coordinates and the y-direction is in
+            data corrdinates
+        valign : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
+            The text vertical alignment.
+        halign : {'center', 'left', 'right'}
+            The text horizontal alignment.
 
-          (transform, valign, halign)
-
-        where *valign* and *halign* are requested alignments for the
-        text.
-
-        .. note::
-
-            This transformation is primarily used by the
-            `~matplotlib.axis.Axis` class, and is meant to be
-            overridden by new kinds of projections that may need to
-            place axis elements in different locations.
+        Notes
+        -----
+        This transformation is primarily used by the `~matplotlib.axis.Axis`
+        class, and is meant to be overridden by new kinds of projections that
+        may need to place axis elements in different locations.
         """
         labels_align = rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
@@ -784,23 +776,23 @@ class _AxesBase(martist.Artist):
 
     def get_yaxis_text2_transform(self, pad_points):
         """
-        Get the transformation used for drawing the secondary y-axis
-        labels, which will add the given amount of padding (in points)
-        between the axes and the label.  The x-direction is in axis
-        coordinates and the y-direction is in data coordinates.
-        Returns a 3-tuple of the form::
+        Returns
+        -------
+        transform : Transform
+            The transform used for drawing secondart y-axis labels, which will
+            add *pad_points* of padding (in points) between the axes and the
+            label.  The x-direction is in axis coordinates and the y-direction
+            is in data corrdinates
+        valign : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
+            The text vertical alignment.
+        halign : {'center', 'left', 'right'}
+            The text horizontal alignment.
 
-          (transform, valign, halign)
-
-        where *valign* and *halign* are requested alignments for the
-        text.
-
-        .. note::
-
-            This transformation is primarily used by the
-            `~matplotlib.axis.Axis` class, and is meant to be
-            overridden by new kinds of projections that may need to
-            place axis elements in different locations.
+        Notes
+        -----
+        This transformation is primarily used by the `~matplotlib.axis.Axis`
+        class, and is meant to be overridden by new kinds of projections that
+        may need to place axis elements in different locations.
         """
         labels_align = rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick2') +
@@ -923,33 +915,35 @@ class _AxesBase(martist.Artist):
 
     def _gen_axes_patch(self):
         """
-        Returns the patch used to draw the background of the axes.  It
-        is also used as the clipping path for any data elements on the
-        axes.
+        Returns
+        -------
+        Patch
+            The patch used to draw the background of the axes.  It is also used
+            as the clipping path for any data elements on the axes.
 
-        In the standard axes, this is a rectangle, but in other
-        projections it may not be.
+            In the standard axes, this is a rectangle, but in other projections
+            it may not be.
 
-        .. note::
-
-            Intended to be overridden by new projection types.
-
+        Notes
+        -----
+        Intended to be overridden by new projection types.
         """
         return mpatches.Rectangle((0.0, 0.0), 1.0, 1.0)
 
     def _gen_axes_spines(self, locations=None, offset=0.0, units='inches'):
         """
-        Returns a dict whose keys are spine names and values are
-        Line2D or Patch instances. Each element is used to draw a
-        spine of the axes.
+        Returns
+        -------
+        dict
+            Mapping of spine names to `Line2D` or `Patch` instances that are
+            used to draw axes spines.
 
-        In the standard axes, this is a single line segment, but in
-        other projections it may not be.
+            In the standard axes, spines are single line segments, but in other
+            projections they may not be.
 
-        .. note::
-
-            Intended to be overridden by new projection types.
-
+        Notes
+        -----
+        Intended to be overridden by new projection types.
         """
         return OrderedDict((side, mspines.Spine.linear_spine(self, side))
                            for side in ['left', 'right', 'bottom', 'top'])
@@ -1410,10 +1404,11 @@ class _AxesBase(martist.Artist):
 
     def get_data_ratio(self):
         """
-        Returns the aspect ratio of the raw data.
+        Return the aspect ratio of the raw data.
 
-        This method is intended to be overridden by new projection
-        types.
+        Notes
+        -----
+        This method is intended to be overridden by new projection types.
         """
         xmin, xmax = self.get_xbound()
         ymin, ymax = self.get_ybound()
@@ -1425,8 +1420,11 @@ class _AxesBase(martist.Artist):
 
     def get_data_ratio_log(self):
         """
-        Returns the aspect ratio of the raw data in log scale.
-        Will be used when both axis scales are in log.
+        Return the aspect ratio of the raw data in log scale.
+
+        Notes
+        -----
+        Will be used when both axis are in log scale.
         """
         xmin, xmax = self.get_xbound()
         ymin, ymax = self.get_ybound()
@@ -4244,7 +4242,7 @@ class _AxesBase(martist.Artist):
 
     def contains_point(self, point):
         """
-        Returns whether *point* (pair of pixel coordinates) is inside the axes
+        Return whether *point* (pair of pixel coordinates) is inside the axes
         patch.
         """
         return self.patch.contains_point(point, radius=1.0)

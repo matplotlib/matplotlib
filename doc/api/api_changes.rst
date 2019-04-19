@@ -3,36 +3,38 @@
 API Changes
 ===========
 
-A log of changes to the most recent version of Matplotlib that affect the
-outward-facing API. If updating Matplotlib breaks your scripts, this list may
-help you figure out what caused the breakage and how to fix it by updating
-your code. For API changes in older versions see :doc:`api_changes_old`.
+If updating Matplotlib breaks your scripts, this list may help you figure out
+what caused the breakage and how to fix it by updating your code.
 
-For new features that were added to Matplotlib, see :ref:`whats-new`.
-
-This pages lists API changes for the most recent version of Matplotlib.
+For API changes in older versions see
 
 .. toctree::
    :maxdepth: 1
 
    api_changes_old
 
+Changes for the latest version are listed below. For new features that were
+added to Matplotlib, see :ref:`whats-new`.
 
-.. note::
+.. ifconfig:: releaselevel == 'dev'
 
-   The list below is a table of contents of individual files from the
-   'next_api_changes' folder.
+   .. note::
 
-   When a release is made
+      The list below is a table of contents of individual files from the
+      'next_api_changes' folder.
 
-    - The full text list below should be moved into its own file in
-      'prev_api_changes'
-    - All the files in 'next_api_changes' should be moved to the bottom of this page
-    - This note, and the toctree below should be commented out
+      When a release is made
+
+       - All the files in 'next_api_changes/' should be moved to a single file in
+         'prev_api_changes/'.
+       - The include directive below should be changed to point to the new file
+         created in the previous step.
 
 
-.. toctree::
-   :glob:
-   :maxdepth: 1
+   .. toctree::
+      :glob:
+      :maxdepth: 1
 
-   next_api_changes/*
+      next_api_changes/*
+
+.. include:: prev_api_changes/api_changes_3.1.0.rst

@@ -384,7 +384,7 @@ class MovieWriter(AbstractMovieWriter):
                          dpi=self.dpi, **savefig_kwargs)
 
     def _frame_sink(self):
-        '''Returns the place to which frames should be written.'''
+        '''Return the place to which frames should be written.'''
         return self._proc.stdin
 
     def _args(self):
@@ -413,7 +413,7 @@ class MovieWriter(AbstractMovieWriter):
     @classmethod
     def bin_path(cls):
         '''
-        Returns the binary path to the commandline tool used by a specific
+        Return the binary path to the commandline tool used by a specific
         subclass. This is a class method so that the tool can be looked for
         before making a particular MovieWriter subclass available.
         '''

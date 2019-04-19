@@ -1,0 +1,7 @@
+API changes
+```````````
+
+`matplotlib.color.is_colorlike()` used to return True for all string
+representations of floats. However, only those with values in 0-1 are valid
+colors (representing grayscale values). ``is_colorlike()`` now returns False
+for string representations of floats outside 0-1.
