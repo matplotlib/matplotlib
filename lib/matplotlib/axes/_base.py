@@ -2701,8 +2701,9 @@ class _AxesBase(martist.Artist):
             Possible values:
 
             - *True* (zorder = 0.5): Ticks and gridlines are below all Artists.
-            - 'line' (zorder = 1.5): Ticks and gridlines are above patches (
-              e.g. rectangles) but still below lines / markers.
+            - 'line' (zorder = 1.5): Ticks and gridlines are above patches
+              (e.g. rectangles, with default zorder = 1) but still below lines
+              and markers (with their default zorder = 2).
             - *False* (zorder = 2.5): Ticks and gridlines are above patches
               and lines / markers.
 
@@ -2730,17 +2731,17 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        b : bool or None
+        b : bool or None, optional
             Whether to show the grid lines. If any *kwargs* are supplied,
             it is assumed you want the grid on and *b* will be set to True.
 
             If *b* is *None* and there are no *kwargs*, this toggles the
             visibility of the lines.
 
-        which : {'major', 'minor', 'both'}
+        which : {'major', 'minor', 'both'}, optional
             The grid lines to apply the changes on.
 
-        axis : {'both', 'x', 'y'}
+        axis : {'both', 'x', 'y'}, optional
             The axis to apply the changes on.
 
         **kwargs : `.Line2D` properties
@@ -2754,7 +2755,11 @@ class _AxesBase(martist.Artist):
 
         Notes
         -----
-        The grid will be drawn according to the axes' zorder and not its own.
+        The axis is drawn as a unit, so the effective zorder for drawing the
+        grid is determined by the zorder of each axis, not by the zorder of the
+        `.Line2D` objects comprising the grid.  Therefore, to set grid zorder,
+        use `.set_axisbelow` or, for more control, call the
+        `~matplotlib.axis.Axis.set_zorder` method of each axis.
         """
         if len(kwargs):
             b = True
