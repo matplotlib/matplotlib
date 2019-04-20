@@ -1592,10 +1592,24 @@ default: 'top'
 
     def _remove_ax(self, ax):
         def _reset_loc_form(axis):
-            axis.set_major_formatter(axis.get_major_formatter())
-            axis.set_major_locator(axis.get_major_locator())
-            axis.set_minor_formatter(axis.get_minor_formatter())
-            axis.set_minor_locator(axis.get_minor_locator())
+            # Set the formatters and locators to be associated with axis
+            # (where previously they may have been associated with another
+            # Axis isntance)
+            majfmt = axis.get_major_formatter()
+            if not majfmt.axis.isDefault_majfmt:
+                axis.set_major_formatter(majfmt)
+
+            majloc = axis.get_major_locator()
+            if not majloc.axis.isDefault_majloc:
+                axis.set_major_locator(majloc)
+
+            minfmt = axis.get_minor_formatter()
+            if not minfmt.axis.isDefault_minfmt:
+                axis.set_minor_formatter(minfmt)
+
+            minloc = axis.get_minor_locator()
+            if not minfmt.axis.isDefault_minloc:
+                axis.set_minor_locator(minloc)
 
         def _break_share_link(ax, grouper):
             siblings = grouper.get_siblings(ax)
