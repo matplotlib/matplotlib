@@ -18,6 +18,11 @@ removed.
 '''
 
 
+def _stride_repeat(*args, **kwargs):
+    with pytest.warns(MatplotlibDeprecationWarning):
+        return mlab.stride_repeat(*args, **kwargs)
+
+
 class TestStride(object):
     def get_base(self, x):
         y = x
@@ -61,7 +66,7 @@ class TestStride(object):
     def test_stride_repeat_invalid_input_shape(self, shape):
         x = np.arange(np.prod(shape)).reshape(shape)
         with pytest.raises(ValueError):
-            mlab.stride_repeat(x, 5)
+            _stride_repeat(x, 5)
 
     @pytest.mark.parametrize('axis', [-1, 2],
                              ids=['axis less than 0',
@@ -69,18 +74,18 @@ class TestStride(object):
     def test_stride_repeat_invalid_axis(self, axis):
         x = np.array(0)
         with pytest.raises(ValueError):
-            mlab.stride_repeat(x, 5, axis=axis)
+            _stride_repeat(x, 5, axis=axis)
 
     def test_stride_repeat_n_lt_1_ValueError(self):
         x = np.arange(10)
         with pytest.raises(ValueError):
-            mlab.stride_repeat(x, 0)
+            _stride_repeat(x, 0)
 
     @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
     @pytest.mark.parametrize('n', [1, 5], ids=['n1', 'n5'])
     def test_stride_repeat(self, n, axis):
         x = np.arange(10)
-        y = mlab.stride_repeat(x, n, axis=axis)
+        y = _stride_repeat(x, n, axis=axis)
 
         expected_shape = [10, 10]
         expected_shape[axis] = n
@@ -137,7 +142,7 @@ class TestStride(object):
         # even previous to #3845 could not find any problematic
         # configuration however, let's be sure it's not accidentally
         # introduced
-        y_strided = mlab.stride_repeat(y, n=33.815)
+        y_strided = _stride_repeat(y, n=33.815)
         assert_array_equal(y_strided, 0.3)
 
 
@@ -185,6 +190,11 @@ def test_csv2rec_dates(tempcsv, input, kwargs):
     tempcsv.seek(0)
     array = mlab._csv2rec(tempcsv, names='a', **kwargs)
     assert_array_equal(array['a'].tolist(), expected)
+
+
+def _apply_window(*args, **kwargs):
+    with pytest.warns(MatplotlibDeprecationWarning):
+        return mlab.apply_window(*args, **kwargs)
 
 
 class TestWindow(object):
@@ -238,31 +248,31 @@ class TestWindow(object):
         x = self.sig_rand
         window = mlab.window_hanning
         with pytest.raises(ValueError):
-            mlab.apply_window(x, window, axis=1, return_window=False)
+            _apply_window(x, window, axis=1, return_window=False)
 
     def test_apply_window_1D_els_wrongsize_ValueError(self):
         x = self.sig_rand
         window = mlab.window_hanning(np.ones(x.shape[0]-1))
         with pytest.raises(ValueError):
-            mlab.apply_window(x, window)
+            _apply_window(x, window)
 
     def test_apply_window_0D_ValueError(self):
         x = np.array(0)
         window = mlab.window_hanning
         with pytest.raises(ValueError):
-            mlab.apply_window(x, window, axis=1, return_window=False)
+            _apply_window(x, window, axis=1, return_window=False)
 
     def test_apply_window_3D_ValueError(self):
         x = self.sig_rand[np.newaxis][np.newaxis]
         window = mlab.window_hanning
         with pytest.raises(ValueError):
-            mlab.apply_window(x, window, axis=1, return_window=False)
+            _apply_window(x, window, axis=1, return_window=False)
 
     def test_apply_window_hanning_1D(self):
         x = self.sig_rand
         window = mlab.window_hanning
         window1 = mlab.window_hanning(np.ones(x.shape[0]))
-        y, window2 = mlab.apply_window(x, window, return_window=True)
+        y, window2 = _apply_window(x, window, return_window=True)
         yt = window(x)
         assert yt.shape == y.shape
         assert x.shape == y.shape
@@ -272,7 +282,7 @@ class TestWindow(object):
     def test_apply_window_hanning_1D_axis0(self):
         x = self.sig_rand
         window = mlab.window_hanning
-        y = mlab.apply_window(x, window, axis=0, return_window=False)
+        y = _apply_window(x, window, axis=0, return_window=False)
         yt = window(x)
         assert yt.shape == y.shape
         assert x.shape == y.shape
@@ -282,7 +292,7 @@ class TestWindow(object):
         x = self.sig_rand
         window = mlab.window_hanning(np.ones(x.shape[0]))
         window1 = mlab.window_hanning
-        y = mlab.apply_window(x, window, axis=0, return_window=False)
+        y = _apply_window(x, window, axis=0, return_window=False)
         yt = window1(x)
         assert yt.shape == y.shape
         assert x.shape == y.shape
@@ -291,7 +301,7 @@ class TestWindow(object):
     def test_apply_window_hanning_2D_axis0(self):
         x = np.random.standard_normal([1000, 10]) + 100.
         window = mlab.window_hanning
-        y = mlab.apply_window(x, window, axis=0, return_window=False)
+        y = _apply_window(x, window, axis=0, return_window=False)
         yt = np.zeros_like(x)
         for i in range(x.shape[1]):
             yt[:, i] = window(x[:, i])
@@ -303,7 +313,7 @@ class TestWindow(object):
         x = np.random.standard_normal([1000, 10]) + 100.
         window = mlab.window_hanning(np.ones(x.shape[0]))
         window1 = mlab.window_hanning
-        y = mlab.apply_window(x, window, axis=0, return_window=False)
+        y = _apply_window(x, window, axis=0, return_window=False)
         yt = np.zeros_like(x)
         for i in range(x.shape[1]):
             yt[:, i] = window1(x[:, i])
@@ -315,7 +325,7 @@ class TestWindow(object):
         x = np.random.standard_normal([1000, 10]) + 100.
         window = mlab.window_hanning
         window1 = mlab.window_hanning(np.ones(x.shape[0]))
-        y, window2 = mlab.apply_window(x, window, axis=0, return_window=True)
+        y, window2 = _apply_window(x, window, axis=0, return_window=True)
         yt = np.zeros_like(x)
         for i in range(x.shape[1]):
             yt[:, i] = window1*x[:, i]
@@ -328,8 +338,8 @@ class TestWindow(object):
         x = np.random.standard_normal([1000, 10]) + 100.
         window = mlab.window_hanning
         window1 = mlab.window_hanning(np.ones(x.shape[0]))
-        y, window2 = mlab.apply_window(x, window, axis=0, return_window=True)
-        yt = mlab.apply_window(x, window1, axis=0, return_window=False)
+        y, window2 = _apply_window(x, window, axis=0, return_window=True)
+        yt = _apply_window(x, window1, axis=0, return_window=False)
         assert yt.shape == y.shape
         assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
@@ -338,7 +348,7 @@ class TestWindow(object):
     def test_apply_window_hanning_2D_axis1(self):
         x = np.random.standard_normal([10, 1000]) + 100.
         window = mlab.window_hanning
-        y = mlab.apply_window(x, window, axis=1, return_window=False)
+        y = _apply_window(x, window, axis=1, return_window=False)
         yt = np.zeros_like(x)
         for i in range(x.shape[0]):
             yt[i, :] = window(x[i, :])
@@ -350,7 +360,7 @@ class TestWindow(object):
         x = np.random.standard_normal([10, 1000]) + 100.
         window = mlab.window_hanning(np.ones(x.shape[1]))
         window1 = mlab.window_hanning
-        y = mlab.apply_window(x, window, axis=1, return_window=False)
+        y = _apply_window(x, window, axis=1, return_window=False)
         yt = np.zeros_like(x)
         for i in range(x.shape[0]):
             yt[i, :] = window1(x[i, :])
@@ -362,7 +372,7 @@ class TestWindow(object):
         x = np.random.standard_normal([10, 1000]) + 100.
         window = mlab.window_hanning
         window1 = mlab.window_hanning(np.ones(x.shape[1]))
-        y, window2 = mlab.apply_window(x, window, axis=1, return_window=True)
+        y, window2 = _apply_window(x, window, axis=1, return_window=True)
         yt = np.zeros_like(x)
         for i in range(x.shape[0]):
             yt[i, :] = window1 * x[i, :]
@@ -375,8 +385,8 @@ class TestWindow(object):
         x = np.random.standard_normal([10, 1000]) + 100.
         window = mlab.window_hanning
         window1 = mlab.window_hanning(np.ones(x.shape[1]))
-        y = mlab.apply_window(x, window, axis=1, return_window=False)
-        yt = mlab.apply_window(x, window1, axis=1, return_window=False)
+        y = _apply_window(x, window, axis=1, return_window=False)
+        yt = _apply_window(x, window1, axis=1, return_window=False)
         assert yt.shape == y.shape
         assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
@@ -385,7 +395,7 @@ class TestWindow(object):
         x = self.sig_rand
         window = mlab.window_hanning
         yi = mlab.stride_windows(x, n=13, noverlap=2, axis=0)
-        y = mlab.apply_window(yi, window, axis=0, return_window=False)
+        y = _apply_window(yi, window, axis=0, return_window=False)
         yt = self.check_window_apply_repeat(x, window, 13, 2)
         assert yt.shape == y.shape
         assert x.shape != y.shape
@@ -395,28 +405,28 @@ class TestWindow(object):
         ydata = np.arange(32)
         ydata1 = ydata+5
         ydata2 = ydata+3.3
-        ycontrol1 = mlab.apply_window(ydata1, mlab.window_hanning)
+        ycontrol1 = _apply_window(ydata1, mlab.window_hanning)
         ycontrol2 = mlab.window_hanning(ydata2)
         ydata = np.vstack([ydata1, ydata2])
         ycontrol = np.vstack([ycontrol1, ycontrol2])
         ydata = np.tile(ydata, (20, 1))
         ycontrol = np.tile(ycontrol, (20, 1))
-        result = mlab.apply_window(ydata, mlab.window_hanning, axis=1,
-                                   return_window=False)
+        result = _apply_window(ydata, mlab.window_hanning, axis=1,
+                               return_window=False)
         assert_allclose(ycontrol, result, atol=1e-08)
 
     def test_apply_window_hanning_2D_stack_windows_axis1(self):
         ydata = np.arange(32)
         ydata1 = ydata+5
         ydata2 = ydata+3.3
-        ycontrol1 = mlab.apply_window(ydata1, mlab.window_hanning)
+        ycontrol1 = _apply_window(ydata1, mlab.window_hanning)
         ycontrol2 = mlab.window_hanning(ydata2)
         ydata = np.vstack([ydata1, ydata2])
         ycontrol = np.vstack([ycontrol1, ycontrol2])
         ydata = np.tile(ydata, (20, 1))
         ycontrol = np.tile(ycontrol, (20, 1))
-        result = mlab.apply_window(ydata, mlab.window_hanning, axis=1,
-                                   return_window=False)
+        result = _apply_window(ydata, mlab.window_hanning, axis=1,
+                               return_window=False)
         assert_allclose(ycontrol, result, atol=1e-08)
 
     def test_apply_window_hanning_2D_stack_windows_axis1_unflatten(self):
@@ -424,7 +434,7 @@ class TestWindow(object):
         ydata = np.arange(n)
         ydata1 = ydata+5
         ydata2 = ydata+3.3
-        ycontrol1 = mlab.apply_window(ydata1, mlab.window_hanning)
+        ycontrol1 = _apply_window(ydata1, mlab.window_hanning)
         ycontrol2 = mlab.window_hanning(ydata2)
         ydata = np.vstack([ydata1, ydata2])
         ycontrol = np.vstack([ycontrol1, ycontrol2])
@@ -432,8 +442,8 @@ class TestWindow(object):
         ycontrol = np.tile(ycontrol, (20, 1))
         ydata = ydata.flatten()
         ydata1 = mlab.stride_windows(ydata, 32, noverlap=0, axis=0)
-        result = mlab.apply_window(ydata1, mlab.window_hanning, axis=0,
-                                   return_window=False)
+        result = _apply_window(ydata1, mlab.window_hanning, axis=0,
+                               return_window=False)
         assert_allclose(ycontrol.T, result, atol=1e-08)
 
 
@@ -1541,9 +1551,9 @@ class TestSpectral(object):
         ydata = np.arange(self.NFFT_density)
         ydata1 = ydata+5
         ydata2 = ydata+3.3
-        ycontrol1, windowVals = mlab.apply_window(ydata1,
-                                                  mlab.window_hanning,
-                                                  return_window=True)
+        ycontrol1, windowVals = _apply_window(ydata1,
+                                              mlab.window_hanning,
+                                              return_window=True)
         ycontrol2 = mlab.window_hanning(ydata2)
         ydata = np.vstack([ydata1, ydata2])
         ycontrol = np.vstack([ycontrol1, ycontrol2])
@@ -1587,9 +1597,9 @@ class TestSpectral(object):
         ydata2 = ydata+3.3
         ycontrol1 = ycontrol
         ycontrol2 = ycontrol
-        ycontrol1, windowVals = mlab.apply_window(ycontrol1,
-                                                  mlab.window_hanning,
-                                                  return_window=True)
+        ycontrol1, windowVals = _apply_window(ycontrol1,
+                                              mlab.window_hanning,
+                                              return_window=True)
         ycontrol2 = mlab.window_hanning(ycontrol2)
         ydata = np.vstack([ydata1, ydata2])
         ycontrol = np.vstack([ycontrol1, ycontrol2])
