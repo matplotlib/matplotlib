@@ -750,9 +750,6 @@ The following signature related behaviours are deprecated:
 - Passing ``shade=None`` to `~.axes3d.Axes3D.plot_surface` is deprecated. This
   was an unintended implementation detail with the same semantics as
   ``shade=False``. Please use the latter code instead.
-- `matplotlib.ticker.MaxNLocator` and its *set_params* method will issue
-  a warning on unknown keyword arguments instead of silently ignoring them.
-  Future versions will raise an error.
 
 Changes in parameter names
 --------------------------
@@ -937,10 +934,6 @@ classes, whose constructors take a *base* argument.
 
 Locators / Formatters
 ~~~~~~~~~~~~~~~~~~~~~
-
-- `matplotlib.ticker.MaxNLocator.default_params` class variable
-
-The defaults are not supposed to be user-configurable.
 
 - ``OldScalarFormatter.pprint_val``
 - ``ScalarFormatter.pprint_val``
