@@ -568,13 +568,10 @@ class ColorbarBase(_ColorbarMappableDummy):
         """
         contouring = ((not self.boundaries is None) and
                       (self.spacing == 'uniform'))
-        print(not contouring)
-        boo = (((type(self.norm) == colors.Normalize)
+        return (((type(self.norm) == colors.Normalize)
                     or (type(self.norm) == colors.LogNorm))
                     and not contouring)
-        print(boo)
-        return boo
-
+        
     def _reset_locator_formatter_scale(self):
         """
         Reset the locator et al to defaults.  Any user-hardcoded changes
