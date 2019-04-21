@@ -5,6 +5,16 @@ from matplotlib.transforms import Bbox, Transform
 from .clip_path import clip_line_to_rect
 
 
+def _deprecate_factor_none(factor):
+    # After the deprecation period, calls to _deprecate_factor_none can just be
+    # removed.
+    if factor is None:
+        cbook.warn_deprecated(
+            "3.2", "factor=None is deprecated; use/return factor=1 instead")
+        factor = 1
+    return factor
+
+
 # extremes finder
 class ExtremeFinderSimple(object):
     def __init__(self, nx, ny):
@@ -88,14 +98,8 @@ class GridFinder:
         lon_levs, lon_n, lon_factor = self.grid_locator1(lon_min, lon_max)
         lat_levs, lat_n, lat_factor = self.grid_locator2(lat_min, lat_max)
 
-        if lon_factor is None:
-            lon_values = np.asarray(lon_levs[:lon_n])
-        else:
-            lon_values = np.asarray(lon_levs[:lon_n]/lon_factor)
-        if lat_factor is None:
-            lat_values = np.asarray(lat_levs[:lat_n])
-        else:
-            lat_values = np.asarray(lat_levs[:lat_n]/lat_factor)
+        lon_values = lon_levs[:lon_n] / _deprecate_factor_none(lon_factor)
+        lat_values = lat_levs[:lat_n] / _deprecate_factor_none(lat_factor)
 
         lon_lines, lat_lines = self._get_raw_grid_lines(lon_values,
                                                         lat_values,
@@ -226,37 +230,29 @@ class MaxNLocator(mticker.MaxNLocator):
                                      integer=integer,
                                      symmetric=symmetric, prune=prune)
         self.create_dummy_axis()
-        self._factor = None
+        self._factor = 1
 
     def __call__(self, v1, v2):
-        if self._factor is not None:
-            self.set_bounds(v1*self._factor, v2*self._factor)
-            locs = mticker.MaxNLocator.__call__(self)
-            return np.array(locs), len(locs), self._factor
-        else:
-            self.set_bounds(v1, v2)
-            locs = mticker.MaxNLocator.__call__(self)
-            return np.array(locs), len(locs), None
+        self.set_bounds(v1 * self._factor, v2 * self._factor)
+        locs = mticker.MaxNLocator.__call__(self)
+        return np.array(locs), len(locs), self._factor
 
     def set_factor(self, f):
-        self._factor = f
+        self._factor = _deprecate_factor_none(f)
 
 
 class FixedLocator(object):
     def __init__(self, locs):
         self._locs = locs
-        self._factor = None
+        self._factor = 1
 
     def __call__(self, v1, v2):
-        if self._factor is None:
-            v1, v2 = sorted([v1, v2])
-        else:
-            v1, v2 = sorted([v1*self._factor, v2*self._factor])
+        v1, v2 = sorted([v1 * self._factor, v2 * self._factor])
         locs = np.array([l for l in self._locs if v1 <= l <= v2])
         return locs, len(locs), self._factor
 
     def set_factor(self, f):
-        self._factor = f
+        self._factor = _deprecate_factor_none(f)
 
 
 # Tick Formatter
@@ -270,9 +266,7 @@ class FormatterPrettyPrint(object):
 
     def __call__(self, direction, factor, values):
         if not self._ignore_factor:
-            if factor is None:
-                factor = 1
-            values = [v / factor for v in values]
+            values = [v / _deprecate_factor_none(factor) for v in values]
         return self._fmt.format_ticks(values)
 
 
@@ -290,13 +284,10 @@ class DictFormatter(object):
         """
         factor is ignored if value is found in the dictionary
         """
-
         if self._fallback_formatter:
             fallback_strings = self._fallback_formatter(
                 direction, factor, values)
         else:
-            fallback_strings = [""]*len(values)
-
-        r = [self._format_dict.get(k, v) for k, v in zip(values,
-                                                         fallback_strings)]
-        return r
+            fallback_strings = [""] * len(values)
+        return [self._format_dict.get(k, v)
+                for k, v in zip(values, fallback_strings)]
