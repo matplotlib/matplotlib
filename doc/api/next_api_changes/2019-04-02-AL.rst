@@ -1,0 +1,8 @@
+Deprecations
+````````````
+
+Setting ``Axis.major.locator``, ``Axis.minor.locator``, ``Axis.major.formatter``
+or ``Axis.minor.formatter`` to an object that is not a subclass of `Locator` or
+`Formatter` (respectively) is deprecated.  Note that these attributes should
+usually be set using `Axis.set_major_locator`, `Axis.set_minor_locator`, etc.
+which already raise an exception when an object of the wrong class is passed.
