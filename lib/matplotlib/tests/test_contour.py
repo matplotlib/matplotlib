@@ -403,7 +403,6 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c2, ax=ax2)
     assert cb.ax.get_ylim() == (1e-4, 1e6)
     cb = plt.colorbar(c3, ax=ax3)
-    print(cb.ax.get_ylim())
     assert_array_almost_equal(cb.ax.get_ylim(),
         [3.162277660168379e-05, 3162277.660168383], 2)
 
@@ -423,3 +422,16 @@ def test_contour_addlines():
     cb = fig.colorbar(pcm)
     cb.add_lines(cont)
     assert_array_almost_equal(cb.ax.get_ylim(), [114.3091, 9972.30735], 3)
+
+
+@image_comparison(baseline_images=['contour_uneven'],
+                  extensions=['png'], remove_text=True, style='mpl20')
+def test_contour_uneven():
+    z = np.arange(24).reshape(4, 6)
+    fig, axs = plt.subplots(1, 2)
+    ax = axs[0]
+    cs = ax.contourf(z, levels=[2, 4, 6, 10, 20])
+    fig.colorbar(cs, ax=ax, spacing='proportional')
+    ax = axs[1]
+    cs = ax.contourf(z, levels=[2, 4, 6, 10, 20])
+    fig.colorbar(cs, ax=ax, spacing='uniform')
