@@ -566,8 +566,14 @@ class ColorbarBase(_ColorbarMappableDummy):
         Return if we should use an adjustable tick locator or a fixed
         one.  (check is used twice so factored out here...)
         """
-        return ((type(self.norm) == colors.Normalize)
+        contouring = ((not self.boundaries is None) and
+                      (self.spacing == 'uniform'))
+        print(not contouring)
+        boo = (((type(self.norm) == colors.Normalize)
                     or (type(self.norm) == colors.LogNorm))
+                    and not contouring)
+        print(boo)
+        return boo
 
     def _reset_locator_formatter_scale(self):
         """
