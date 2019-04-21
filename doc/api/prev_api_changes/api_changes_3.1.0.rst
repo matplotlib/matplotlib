@@ -938,10 +938,6 @@ classes, whose constructors take a *base* argument.
 Locators / Formatters
 ~~~~~~~~~~~~~~~~~~~~~
 
-- `matplotlib.ticker.MaxNLocator.default_params` class variable
-
-The defaults are not supposed to be user-configurable.
-
 - ``OldScalarFormatter.pprint_val``
 - ``ScalarFormatter.pprint_val``
 - ``LogFormatter.pprint_val``
