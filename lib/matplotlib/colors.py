@@ -895,7 +895,7 @@ class Normalize(object):
         # ensure data passed in as an ndarray subclass are interpreted as
         # an ndarray. See issue #6622.
         mask = np.ma.getmask(value)
-        data = np.asarray(np.ma.getdata(value))
+        data = np.asarray(value)
         result = np.ma.array(data, mask=mask, dtype=dtype, copy=True)
         return result, is_scalar
 
