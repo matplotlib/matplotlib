@@ -1,5 +1,5 @@
 =======================================
- MEP28: Revised pyplot / suggested API
+ MEP30: Revised pyplot / suggested API
 =======================================
 
 .. contents::
@@ -20,13 +20,16 @@ Branches and Pull requests
 Abstract
 ========
 
-Matplotlib currently has ~4 APIs.
+Matplotlib currently has two main entry points:
 
- 1. ``pyplot`` state machine API
- 2. user written functions that may create (and may not directly
-    return) ``Axes`` / ``Figure`` objects
- 3. the ``OO`` API
- 4. user written functions which may take an ``Axes`` or ``Figure``
+1. ``pyplot`` state machine API
+2. the ``OO`` API
+
+and two secondary entry points:
+
+1. user written functions that may create (and may not directly
+   return) ``Axes`` / ``Figure`` objects
+2. user written functions which may take an ``Axes`` or ``Figure``
 
 
 This leads to a wide variety of not incorrect but conflicting
