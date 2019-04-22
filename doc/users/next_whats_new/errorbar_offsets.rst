@@ -1,5 +1,5 @@
 Errorbar plots can shift which points have error bars
-----------------------
+-----------------------------------------------------
 
 Previously, `plt.errorbar()` accepted a kwarg `errorevery` such that the
 command `plt.errorbar(x, y, yerr, errorevery=6)` would add error bars to
