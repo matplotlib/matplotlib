@@ -401,8 +401,7 @@ for cmap_category, cmap_list in cmaps.items():
 #
 # There is a lot of information available about color blindness (*e.g.*,
 # [colorblindness]_). Additionally, there are tools available to convert images
-# to how they look for different types of color vision deficiencies (*e.g.*,
-# [vischeck]_).
+# to how they look for different types of color vision deficiencies.
 #
 # The most common form of color vision deficiency involves differentiating
 # between red and green. Thus, avoiding colormaps with both red and green will
@@ -421,6 +420,5 @@ for cmap_category, cmap_list in cmaps.items():
 # .. [kovesi-colormaps] https://arxiv.org/abs/1509.03700
 # .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 # .. [colorblindness] http://www.color-blindness.com/
-# .. [vischeck] http://www.vischeck.com/vischeck/
 # .. [IBM] https://doi.org/10.1109/VISUAL.1995.480803
 # .. [palettable] https://jiffyclub.github.io/palettable/
