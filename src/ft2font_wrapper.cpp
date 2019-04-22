@@ -1066,15 +1066,10 @@ static PyObject *PyFT2Font_get_name_index(PyFT2Font *self, PyObject *args, PyObj
 {
     char *glyphname;
     long name_index;
-
-    if (!PyArg_ParseTuple(args, "es:get_name_index", "ascii", &glyphname)) {
+    if (!PyArg_ParseTuple(args, "s:get_name_index", &glyphname)) {
         return NULL;
     }
-
     CALL_CPP("get_name_index", name_index = self->x->get_name_index(glyphname));
-
-    PyMem_Free(glyphname);
-
     return PyLong_FromLong(name_index);
 }
 
@@ -1114,8 +1109,7 @@ const char *PyFT2Font_get_sfnt_table__doc__ =
 static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     char *tagname;
-
-    if (!PyArg_ParseTuple(args, "es:get_sfnt_table", "ascii", &tagname)) {
+    if (!PyArg_ParseTuple(args, "s:get_sfnt_table", &tagname)) {
         return NULL;
     }
 
@@ -1127,8 +1121,6 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
             break;
         }
     }
-
-    PyMem_Free(tagname);
 
     void *table = FT_Get_Sfnt_Table(self->x->get_face(), (FT_Sfnt_Tag)tag);
     if (!table) {
