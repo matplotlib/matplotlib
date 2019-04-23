@@ -382,8 +382,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-
-        :class:`matplotlib.legend.Legend` instance
+        legend : :class:`~matplotlib.legend.Legend`
 
         Notes
         -----
