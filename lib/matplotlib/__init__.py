@@ -167,6 +167,7 @@ __bibtex__ = r"""@Article{Hunter:2007,
 }"""
 
 
+@cbook.deprecated("3.2")
 def compare_versions(a, b):
     "Return whether version *a* is greater than or equal to version *b*."
     if isinstance(a, bytes):
