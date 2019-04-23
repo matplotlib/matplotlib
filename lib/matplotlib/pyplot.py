@@ -2069,18 +2069,14 @@ def clim(vmin=None, vmax=None):
     """
     Set the color limits of the current image.
 
-    To apply clim to all axes images do::
-
-      clim(0, 0.5)
-
     If either *vmin* or *vmax* is None, the image min/max respectively
     will be used for color scaling.
 
-    If you want to set the clim of multiple images,
-    use, for example::
+    If you want to set the clim of multiple images, use
+    `~.ScalarMappable.set_clim` on every image, for example::
 
       for im in gca().get_images():
-          im.set_clim(0, 0.05)
+          im.set_clim(0, 0.5)
 
     """
     im = gci()
