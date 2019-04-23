@@ -570,7 +570,7 @@ class SampleData(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    default_config = True
+    default_config = False
 
     def get_packages(self):
         return setuptools.find_packages("lib", include=["*.tests"])
