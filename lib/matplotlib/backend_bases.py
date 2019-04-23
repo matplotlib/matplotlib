@@ -2485,18 +2485,22 @@ def key_press_handler(event, canvas=None, toolbar=None):
     toggle_xscale_keys = rcParams['keymap.xscale']
     all_keys = dict.__getitem__(rcParams, 'keymap.all_axes')
 
-    # toggle fullscreen mode ('f', 'ctrl + f')
-    if event.key in fullscreen_keys:
-        try:
-            canvas.manager.full_screen_toggle()
-        except AttributeError:
-            pass
+    manager = canvas.manager
 
-    # quit the figure (default key 'ctrl+w')
-    if event.key in quit_keys:
-        Gcf.destroy_fig(canvas.figure)
+    # quit all figures (no default)
     if event.key in quit_all_keys:
         Gcf.destroy_all()
+
+    if manager is not None:
+        # toggle fullscreen mode ('f', 'ctrl + f')
+        if event.key in fullscreen_keys:
+            canvas.manager.full_screen_toggle()
+        # quit the figure (default key 'ctrl+w')
+        if event.key in quit_keys:
+            if Gcf.get_fig_manager(canvas.manager.num):
+                Gcf.destroy_fig(canvas.figure)
+            else:
+                manager.destroy()
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
@@ -3545,15 +3549,16 @@ class _Backend:
                 cls.trigger_manager_draw(manager)
 
     @classmethod
-    def show(cls, *, block=None):
+    def show(cls, figures=None, *, block=None):
         """
-        Show all figures.
+        Show the *figures*, defaulting to all pyplot-managed figures.
 
         `show` blocks by calling `mainloop` if *block* is ``True``, or if it
         is ``None`` and we are neither in IPython's ``%pylab`` mode, nor in
         `interactive` mode.
         """
-        managers = Gcf.get_all_fig_managers()
+        managers = ([figure.canvas.manager for figure in figures]
+                    if figures is not None else Gcf.get_all_fig_managers())
         if not managers:
             return
         for manager in managers:
