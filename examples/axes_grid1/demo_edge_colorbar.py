@@ -41,7 +41,7 @@ def demo_bottom_cbar(fig):
         im = grid[i].imshow(Z, extent=extent, interpolation="nearest",
                             cmap=cmaps[i//2])
         if i % 2:
-            cbar = grid.cbar_axes[i//2].colorbar(im)
+            grid.cbar_axes[i//2].colorbar(im)
 
     for cax in grid.cbar_axes:
         cax.toggle_label(True)

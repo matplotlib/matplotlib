@@ -108,15 +108,16 @@ def select_step(v1, v2, nv, hour=False, include_last=True,
         cycle = 360.
 
     # for degree
-    if dv > 1./threshold_factor:
+    if dv > 1 / threshold_factor:
         step, factor = _select_step(dv)
     else:
         step, factor = select_step_sub(dv*threshold_factor)
 
         factor = factor * threshold_factor
 
-    f1, f2, fstep = v1*factor, v2*factor, step/factor
-    levs = np.arange(np.floor(f1/step), np.ceil(f2/step)+0.5, dtype=int) * step
+    levs = np.arange(np.floor(v1 * factor / step),
+                     np.ceil(v2 * factor / step) + 0.5,
+                     dtype=int) * step
 
     # n : number of valid levels. If there is a cycle, e.g., [0, 90, 180,
     # 270, 360], the grid line needs to be extended from 0 to 360, so
@@ -128,7 +129,7 @@ def select_step(v1, v2, nv, hour=False, include_last=True,
     # we need to check the range of values
     # for example, -90 to 90, 0 to 360,
 
-    if factor == 1. and levs[-1] >= levs[0]+cycle:  # check for cycle
+    if factor == 1. and levs[-1] >= levs[0] + cycle:  # check for cycle
         nv = int(cycle / step)
         if include_last:
             levs = levs[0] + np.arange(0, nv+1, 1) * step

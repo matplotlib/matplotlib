@@ -788,7 +788,7 @@ def colorbar(mappable, cax=None, ax=None, **kw):
         cb.set_clim(m.get_clim())
         cb.update_bruteforce(m)
 
-    cbid = mappable.callbacksSM.connect('changed', on_changed)
+    mappable.callbacksSM.connect('changed', on_changed)
     mappable.colorbar = cb
     ax.figure.sca(ax)
     return cb
