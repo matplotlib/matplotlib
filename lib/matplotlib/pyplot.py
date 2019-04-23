@@ -912,9 +912,9 @@ def subplot(*args, **kwargs):
     Other Parameters
     ----------------
     **kwargs
-        This method also takes the keyword arguments for
-        the returned axes base class. The keyword arguments for the
-        rectilinear base class `~.axes.Axes` can be found in
+        This method also takes the keyword arguments for the returned axes
+        base class; except for the *figure* argument. The keyword arguments
+        for the rectilinear base class `~.axes.Axes` can be found in
         the following table but there might also be other keyword
         arguments if another projection is used.
         %(Axes)s

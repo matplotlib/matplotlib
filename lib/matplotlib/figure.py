@@ -1301,9 +1301,9 @@ default: 'top'
         Other Parameters
         ----------------
         **kwargs
-            This method also takes the keyword arguments for
-            the returned axes base class. The keyword arguments for the
-            rectilinear base class `~.axes.Axes` can be found in
+            This method also takes the keyword arguments for the returned axes
+            base class; except for the *figure* argument. The keyword arguments
+            for the rectilinear base class `~.axes.Axes` can be found in
             the following table but there might also be other keyword
             arguments if another projection is used.
             %(Axes)s
@@ -1375,6 +1375,12 @@ default: 'top'
                 raise ValueError("Integer subplot specification must be a "
                                  "three-digit number, not {}".format(args[0]))
             args = tuple(map(int, str(args[0])))
+
+        if 'figure' in kwargs:
+            # Axes itself allows for a 'figure' kwarg, but since we want to
+            # bind the created Axes to self, it is not allowed here.
+            raise TypeError(
+                "add_subplot() got an unexpected keyword argument 'figure'")
 
         if isinstance(args[0], SubplotBase):
 

@@ -1,0 +1,6 @@
+API changes
+```````````
+
+`.Figure.add_subplot()` and `.pyplot.subplot()` do not accept a `figure`
+keyword argument anymore. It only used to work anyway if the passed figure
+was ``self`` or the current figure, respectively.
