@@ -1,0 +1,14 @@
+Removals
+````````
+
+The following API elements have been removed:
+
+- ``backend_gtk3.PIXELS_PER_INCH``,
+- ``backend_pgf.re_escapetext``, ``backend_pgf.re_mathdefault``.
+
+Deprecations
+````````````
+
+The following API elements are deprecated:
+
+- ``backend_pgf.repl_escapetext``, ``backend_pgf.repl_mathdefault``.

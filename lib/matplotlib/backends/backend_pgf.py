@@ -68,16 +68,25 @@ mpl_in_to_pt = 1. / mpl_pt_to_in
 
 NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
 re_mathsep = re.compile(NO_ESCAPE + r"\$")
-re_escapetext = re.compile(NO_ESCAPE + "([_^$%])")
-re_mathdefault = re.compile(NO_ESCAPE + r"(\\mathdefault)")
 
 
+@cbook.deprecated("3.2")
 def repl_escapetext(m):
     return "\\" + m.group(1)
 
 
+@cbook.deprecated("3.2")
 def repl_mathdefault(m):
     return m.group(0)[:-len(m.group(1))]
+
+
+_replace_escapetext = functools.partial(
+    # When the next character is _, ^, $, or % (not preceded by an escape),
+    # insert a backslash.
+    re.compile(NO_ESCAPE + "(?=[_^$%])").sub, "\\\\")
+_replace_mathdefault = functools.partial(
+    # Replace \mathdefault (when not preceded by an escape) by empty string.
+    re.compile(NO_ESCAPE + r"(\\mathdefault)").sub, "")
 
 
 def common_texification(text):
@@ -85,22 +94,19 @@ def common_texification(text):
     Do some necessary and/or useful substitutions for texts to be included in
     LaTeX documents.
     """
-
     # Sometimes, matplotlib adds the unknown command \mathdefault.
     # Not using \mathnormal instead since this looks odd for the latex cm font.
-    text = re_mathdefault.sub(repl_mathdefault, text)
-
+    text = _replace_mathdefault(text)
     # split text into normaltext and inline math parts
     parts = re_mathsep.split(text)
     for i, s in enumerate(parts):
         if not i % 2:
             # textmode replacements
-            s = re_escapetext.sub(repl_escapetext, s)
+            s = _replace_escapetext(s)
         else:
             # mathmode replacements
             s = r"\(\displaystyle %s\)" % s
         parts[i] = s
-
     return "".join(parts)
 
 

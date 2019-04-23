@@ -23,8 +23,6 @@ except ImportError:
             "cairo backend requires that pycairo>=1.11.0 or cairocffi"
             "is installed")
 
-backend_version = cairo.version
-
 from .. import cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -33,6 +31,9 @@ from matplotlib.font_manager import ttfFontProperty
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
+
+
+backend_version = cairo.version
 
 
 if cairo.__name__ == "cairocffi":
@@ -71,31 +72,31 @@ def _append_path(ctx, path, transform, clip=None):
 
 class RendererCairo(RendererBase):
     fontweights = {
-        100          : cairo.FONT_WEIGHT_NORMAL,
-        200          : cairo.FONT_WEIGHT_NORMAL,
-        300          : cairo.FONT_WEIGHT_NORMAL,
-        400          : cairo.FONT_WEIGHT_NORMAL,
-        500          : cairo.FONT_WEIGHT_NORMAL,
-        600          : cairo.FONT_WEIGHT_BOLD,
-        700          : cairo.FONT_WEIGHT_BOLD,
-        800          : cairo.FONT_WEIGHT_BOLD,
-        900          : cairo.FONT_WEIGHT_BOLD,
-        'ultralight' : cairo.FONT_WEIGHT_NORMAL,
-        'light'      : cairo.FONT_WEIGHT_NORMAL,
-        'normal'     : cairo.FONT_WEIGHT_NORMAL,
-        'medium'     : cairo.FONT_WEIGHT_NORMAL,
-        'regular'    : cairo.FONT_WEIGHT_NORMAL,
-        'semibold'   : cairo.FONT_WEIGHT_BOLD,
-        'bold'       : cairo.FONT_WEIGHT_BOLD,
-        'heavy'      : cairo.FONT_WEIGHT_BOLD,
-        'ultrabold'  : cairo.FONT_WEIGHT_BOLD,
-        'black'      : cairo.FONT_WEIGHT_BOLD,
-                   }
+        100:          cairo.FONT_WEIGHT_NORMAL,
+        200:          cairo.FONT_WEIGHT_NORMAL,
+        300:          cairo.FONT_WEIGHT_NORMAL,
+        400:          cairo.FONT_WEIGHT_NORMAL,
+        500:          cairo.FONT_WEIGHT_NORMAL,
+        600:          cairo.FONT_WEIGHT_BOLD,
+        700:          cairo.FONT_WEIGHT_BOLD,
+        800:          cairo.FONT_WEIGHT_BOLD,
+        900:          cairo.FONT_WEIGHT_BOLD,
+        'ultralight': cairo.FONT_WEIGHT_NORMAL,
+        'light':      cairo.FONT_WEIGHT_NORMAL,
+        'normal':     cairo.FONT_WEIGHT_NORMAL,
+        'medium':     cairo.FONT_WEIGHT_NORMAL,
+        'regular':    cairo.FONT_WEIGHT_NORMAL,
+        'semibold':   cairo.FONT_WEIGHT_BOLD,
+        'bold':       cairo.FONT_WEIGHT_BOLD,
+        'heavy':      cairo.FONT_WEIGHT_BOLD,
+        'ultrabold':  cairo.FONT_WEIGHT_BOLD,
+        'black':      cairo.FONT_WEIGHT_BOLD,
+    }
     fontangles = {
-        'italic'  : cairo.FONT_SLANT_ITALIC,
-        'normal'  : cairo.FONT_SLANT_NORMAL,
-        'oblique' : cairo.FONT_SLANT_OBLIQUE,
-        }
+        'italic':  cairo.FONT_SLANT_ITALIC,
+        'normal':  cairo.FONT_SLANT_NORMAL,
+        'oblique': cairo.FONT_SLANT_OBLIQUE,
+    }
 
     def __init__(self, dpi):
         self.dpi = dpi
@@ -113,7 +114,7 @@ class RendererCairo(RendererBase):
         # for PDF/PS/SVG surfaces, which have no way to report their extents.
 
     def set_width_height(self, width, height):
-        self.width  = width
+        self.width = width
         self.height = height
 
     def _fill_and_stroke(self, ctx, fill_c, alpha, alpha_overrides):
@@ -305,16 +306,16 @@ class RendererCairo(RendererBase):
 
 class GraphicsContextCairo(GraphicsContextBase):
     _joind = {
-        'bevel' : cairo.LINE_JOIN_BEVEL,
-        'miter' : cairo.LINE_JOIN_MITER,
-        'round' : cairo.LINE_JOIN_ROUND,
-        }
+        'bevel':  cairo.LINE_JOIN_BEVEL,
+        'miter':  cairo.LINE_JOIN_MITER,
+        'round':  cairo.LINE_JOIN_ROUND,
+    }
 
     _capd = {
-        'butt'       : cairo.LINE_CAP_BUTT,
-        'projecting' : cairo.LINE_CAP_SQUARE,
-        'round'      : cairo.LINE_CAP_ROUND,
-        }
+        'butt':        cairo.LINE_CAP_BUTT,
+        'projecting':  cairo.LINE_CAP_SQUARE,
+        'round':       cairo.LINE_CAP_ROUND,
+    }
 
     def __init__(self, renderer):
         GraphicsContextBase.__init__(self)

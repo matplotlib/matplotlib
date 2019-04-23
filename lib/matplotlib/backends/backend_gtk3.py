@@ -36,17 +36,13 @@ _log = logging.getLogger(__name__)
 backend_version = "%s.%s.%s" % (
     Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
-# the true dots per inch on the screen; should be display dependent
-# see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
-PIXELS_PER_INCH = 96
-
 try:
     cursord = {
-        cursors.MOVE          : Gdk.Cursor.new(Gdk.CursorType.FLEUR),
-        cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
-        cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
-        cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
-        cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
+        cursors.MOVE:          Gdk.Cursor.new(Gdk.CursorType.FLEUR),
+        cursors.HAND:          Gdk.Cursor.new(Gdk.CursorType.HAND2),
+        cursors.POINTER:       Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
+        cursors.SELECT_REGION: Gdk.Cursor.new(Gdk.CursorType.TCROSS),
+        cursors.WAIT:          Gdk.Cursor.new(Gdk.CursorType.WATCH),
     }
 except TypeError as exc:
     # Happens when running headless.  Convert to ImportError to cooperate with
@@ -154,23 +150,23 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
     # Setting this as a static constant prevents
     # this resulting expression from leaking
-    event_mask = (Gdk.EventMask.BUTTON_PRESS_MASK   |
-                  Gdk.EventMask.BUTTON_RELEASE_MASK |
-                  Gdk.EventMask.EXPOSURE_MASK       |
-                  Gdk.EventMask.KEY_PRESS_MASK      |
-                  Gdk.EventMask.KEY_RELEASE_MASK    |
-                  Gdk.EventMask.ENTER_NOTIFY_MASK   |
-                  Gdk.EventMask.LEAVE_NOTIFY_MASK   |
-                  Gdk.EventMask.POINTER_MOTION_MASK |
-                  Gdk.EventMask.POINTER_MOTION_HINT_MASK|
-                  Gdk.EventMask.SCROLL_MASK)
+    event_mask = (Gdk.EventMask.BUTTON_PRESS_MASK
+                  | Gdk.EventMask.BUTTON_RELEASE_MASK
+                  | Gdk.EventMask.EXPOSURE_MASK
+                  | Gdk.EventMask.KEY_PRESS_MASK
+                  | Gdk.EventMask.KEY_RELEASE_MASK
+                  | Gdk.EventMask.ENTER_NOTIFY_MASK
+                  | Gdk.EventMask.LEAVE_NOTIFY_MASK
+                  | Gdk.EventMask.POINTER_MOTION_MASK
+                  | Gdk.EventMask.POINTER_MOTION_HINT_MASK
+                  | Gdk.EventMask.SCROLL_MASK)
 
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
         GObject.GObject.__init__(self)
 
-        self._idle_draw_id  = 0
-        self._lastCursor    = None
+        self._idle_draw_id = 0
+        self._lastCursor = None
 
         self.connect('scroll_event',         self.scroll_event)
         self.connect('button_press_event',   self.button_press_event)
@@ -200,10 +196,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
-        if event.direction==Gdk.ScrollDirection.UP:
-            step = 1
-        else:
-            step = -1
+        step = 1 if event.direction == Gdk.ScrollDirection.UP else -1
         FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
         return False  # finish event propagation?
 
@@ -211,14 +204,16 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
-        FigureCanvasBase.button_press_event(self, x, y, event.button, guiEvent=event)
+        FigureCanvasBase.button_press_event(
+            self, x, y, event.button, guiEvent=event)
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
-        FigureCanvasBase.button_release_event(self, x, y, event.button, guiEvent=event)
+        FigureCanvasBase.button_release_event(
+            self, x, y, event.button, guiEvent=event)
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
@@ -472,7 +467,8 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         Gtk.main_iteration()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
+        # adapted from
+        # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744
         self.ctx = self.canvas.get_property("window").cairo_create()
 
         # todo: instead of redrawing the entire figure, copy the part of
@@ -622,14 +618,14 @@ class FileChooserDialog(Gtk.FileChooserDialog):
     selected and presents the user with a menu of supported image formats
     """
     def __init__(self,
-                 title   = 'Save file',
-                 parent  = None,
-                 action  = Gtk.FileChooserAction.SAVE,
-                 buttons = (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                            Gtk.STOCK_SAVE,   Gtk.ResponseType.OK),
-                 path    = None,
-                 filetypes = [],
-                 default_filetype = None,
+                 title='Save file',
+                 parent=None,
+                 action=Gtk.FileChooserAction.SAVE,
+                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                          Gtk.STOCK_SAVE, Gtk.ResponseType.OK),
+                 path=None,
+                 filetypes=[],
+                 default_filetype=None,
                  ):
         super().__init__(title, parent, action, buttons)
         self.set_default_response(Gtk.ResponseType.OK)
@@ -961,15 +957,11 @@ def error_msg_gtk(msg, parent=None):
         parent = parent.get_toplevel()
         if not parent.is_toplevel():
             parent = None
-
     if not isinstance(msg, str):
         msg = ','.join(map(str, msg))
-
     dialog = Gtk.MessageDialog(
-        parent         = parent,
-        type           = Gtk.MessageType.ERROR,
-        buttons        = Gtk.ButtonsType.OK,
-        message_format = msg)
+        parent=parent, type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK,
+        message_format=msg)
     dialog.run()
     dialog.destroy()
 
