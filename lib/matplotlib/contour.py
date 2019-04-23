@@ -38,38 +38,28 @@ class ClabelText(text.Text):
     angle in the pixel coordinate assuming that the input rotation is
     an angle in data coordinate (or whatever transform set).
     """
+
     def get_rotation(self):
-        angle = text.Text.get_rotation(self)
-        trans = self.get_transform()
-        x, y = self.get_position()
-        new_angles = trans.transform_angles(np.array([angle]),
-                                            np.array([[x, y]]))
-        return new_angles[0]
+        new_angle, = self.get_transform().transform_angles(
+            [text.Text.get_rotation(self)], [self.get_position()])
+        return new_angle
 
 
 class ContourLabeler(object):
     """Mixin to provide labelling capability to `.ContourSet`."""
 
-    def clabel(self, *args,
+    def clabel(self, levels=None, *,
                fontsize=None, inline=True, inline_spacing=5, fmt='%1.3f',
                colors=None, use_clabeltext=False, manual=False,
                rightside_up=True):
         """
         Label a contour plot.
 
-        Call signature::
-
-          clabel(cs, [levels,] **kwargs)
-
-        Adds labels to line contours in *cs*, where *cs* is a
-        :class:`~matplotlib.contour.ContourSet` object returned by
-        ``contour()``.
+        Adds labels to line contours in this `.ContourSet` (which inherits from
+        this mixin class).
 
         Parameters
         ----------
-        cs : `.ContourSet`
-            The ContourSet to label.
-
         levels : array-like, optional
             A list of level values, that should be labeled. The list must be
             a subset of ``cs.levels``. If not given, all levels are labeled.
@@ -105,11 +95,11 @@ class ContourLabeler(object):
         fmt : string or dict, optional
             A format string for the label. Default is '%1.3f'
 
-            Alternatively, this can be a dictionary matching contour
-            levels with arbitrary strings to use for each contour level
-            (i.e., fmt[level]=string), or it can be any callable, such
-            as a :class:`~matplotlib.ticker.Formatter` instance, that
-            returns a string when called with a numeric contour level.
+            Alternatively, this can be a dictionary matching contour levels
+            with arbitrary strings to use for each contour level (i.e.,
+            fmt[level]=string), or it can be any callable, such as a
+            `.Formatter` instance, that returns a string when called with a
+            numeric contour level.
 
         manual : bool or iterable, optional
             If ``True``, contour labels will be placed manually using
@@ -161,21 +151,19 @@ class ContourLabeler(object):
         self.labelManual = manual
         self.rightside_up = rightside_up
 
-        if len(args) == 0:
+        if levels is None:
             levels = self.levels
             indices = list(range(len(self.cvalues)))
-        elif len(args) == 1:
-            levlabs = list(args[0])
+        else:
+            levlabs = list(levels)
             indices, levels = [], []
             for i, lev in enumerate(self.levels):
                 if lev in levlabs:
                     indices.append(i)
                     levels.append(lev)
             if len(levels) < len(levlabs):
-                raise ValueError("Specified levels {} don't match available "
-                                 "levels {}".format(levlabs, self.levels))
-        else:
-            raise TypeError("Illegal arguments to clabel, see help(clabel)")
+                raise ValueError(f"Specified levels {levlabs} don't match "
+                                 f"available levels {self.levels}")
         self.labelLevelList = levels
         self.labelIndiceList = indices
 
@@ -197,15 +185,12 @@ class ContourLabeler(object):
 
         if np.iterable(self.labelManual):
             for x, y in self.labelManual:
-                self.add_label_near(x, y, inline,
-                                    inline_spacing)
-
+                self.add_label_near(x, y, inline, inline_spacing)
         elif self.labelManual:
             print('Select label locations manually using first mouse button.')
             print('End manual selection with second mouse button.')
             if not inline:
                 print('Remove last label by clicking third mouse button.')
-
             blocking_contour_labeler = BlockingContourLabeler(self)
             blocking_contour_labeler(inline, inline_spacing)
         else:
@@ -262,13 +247,10 @@ class ContourLabeler(object):
         """
         if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
-
         lev, ismath = text.Text()._preprocess_math(lev)
         if ismath == 'TeX':
-            if not hasattr(self, '_TeX_manager'):
-                self._TeX_manager = texmanager.TexManager()
-            lw, _, _ = self._TeX_manager.get_text_width_height_descent(lev,
-                                                                       fsize)
+            lw, _, _ = (texmanager.TexManager()
+                        .get_text_width_height_descent(lev, fsize))
         elif ismath:
             if not hasattr(self, '_mathtext_parser'):
                 self._mathtext_parser = mathtext.MathTextParser('bitmap')
@@ -277,8 +259,7 @@ class ContourLabeler(object):
             lw = img.get_width()  # at dpi=72, the units are PostScript points
         else:
             # width is much less than "font size"
-            lw = (len(lev)) * fsize * 0.6
-
+            lw = len(lev) * fsize * 0.6
         return lw
 
     def set_label_props(self, label, text, color):
@@ -465,7 +446,6 @@ class ContourLabeler(object):
         """
         Add contour label using :class:`~matplotlib.text.Text` class.
         """
-
         t = self._get_label_text(x, y, rotation)
         self._add_label(t, x, y, lev, cvalue)
 
@@ -477,7 +457,6 @@ class ContourLabeler(object):
         # the data coordinate and create a label using ClabelText
         # class. This way, the rotation of the clabel is along the
         # contour line always.
-
         t = self._get_label_clabeltext(x, y, rotation)
         self._add_label(t, x, y, lev, cvalue)
 
@@ -633,8 +612,7 @@ class ContourLabeler(object):
             # After looping over all segments on a contour, remove old
             # paths and add new ones if inlining
             if inline:
-                del paths[:]
-                paths.extend(additions)
+                paths[:] = additions
 
 
 def _find_closest_point_on_leg(p1, p2, p0):
@@ -1032,15 +1010,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 upper = str_format(upper)
 
                 if i == 0 and self.extend in ('min', 'both'):
-                    labels.append(r'$%s \leq %s$' % (variable_name,
-                                                     lower))
+                    labels.append(fr'${variable_name} \leq {lower}s$')
                 elif i == n_levels - 1 and self.extend in ('max', 'both'):
-                    labels.append(r'$%s > %s$' % (variable_name,
-                                                  upper))
+                    labels.append(fr'${variable_name} > {upper}s$')
                 else:
-                    labels.append(r'$%s < %s \leq %s$' % (lower,
-                                                          variable_name,
-                                                          upper))
+                    labels.append(fr'${lower} < {variable_name} \leq {upper}$')
         else:
             for collection, level in zip(self.collections, self.levels):
 
@@ -1050,7 +1024,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 artists.append(patch)
                 # format the level for insertion into the labels
                 level = str_format(level)
-                labels.append(r'$%s = %s$' % (variable_name, level))
+                labels.append(fr'${variable_name} = {level}$')
 
         return artists, labels
 
@@ -1063,7 +1037,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         self.levels = args[0]
         self.allsegs = args[1]
-        self.allkinds = len(args) > 2 and args[2] or None
+        self.allkinds = args[2] if len(args) > 2 else None
         self.zmax = np.max(self.levels)
         self.zmin = np.min(self.levels)
 
