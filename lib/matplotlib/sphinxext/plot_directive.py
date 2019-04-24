@@ -566,10 +566,14 @@ def render_figures(code, code_path, output_dir, output_base, context,
     # Look for single-figure output files first
     all_exists = True
     img = ImageFile(output_base, output_dir)
-    if not any(out_of_date(code_path, img.filename(fmt))
-               for fmt, dpi in formats):
+    for format, dpi in formats:
+        if out_of_date(code_path, img.filename(format)):
+            all_exists = False
+            break
+        img.formats.append(format)
+
+    if all_exists:
         return [(code, [img])]
-    img.formats.extend(fmt for fmt, dpi in formats)
 
     # Then look for multi-figure output files
     results = []
