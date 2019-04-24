@@ -103,7 +103,6 @@ def ghuser_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     :param options: Directive options for customization.
     :param content: The directive content for customization.
     """
-    app = inliner.document.settings.env.app
     ref = 'https://www.github.com/' + text
     node = nodes.reference(rawtext, text, refuri=ref, **options)
     return [node], []

@@ -77,9 +77,9 @@ def test_contour3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    cset = ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
-    cset = ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
-    cset = ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
+    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
+    ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
+    ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
     ax.set_xlim(-40, 40)
     ax.set_ylim(-40, 40)
     ax.set_zlim(-100, 100)
@@ -90,9 +90,9 @@ def test_contourf3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    cset = ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
-    cset = ax.contourf(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
-    cset = ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
+    ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
+    ax.contourf(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
+    ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
     ax.set_xlim(-40, 40)
     ax.set_ylim(-40, 40)
     ax.set_zlim(-100, 100)
@@ -107,7 +107,7 @@ def test_contourf3d_fill():
     # This produces holes in the z=0 surface that causes rendering errors if
     # the Poly3DCollection is not aware of path code information (issue #4784)
     Z[::5, ::5] = 0.1
-    cset = ax.contourf(X, Y, Z, offset=0, levels=[-0.1, 0], cmap=cm.coolwarm)
+    ax.contourf(X, Y, Z, offset=0, levels=[-0.1, 0], cmap=cm.coolwarm)
     ax.set_xlim(-2, 2)
     ax.set_ylim(-2, 2)
     ax.set_zlim(-1, 1)
@@ -155,8 +155,7 @@ def test_mixedsubplots():
 
     fig = plt.figure(figsize=plt.figaspect(2.))
     ax = fig.add_subplot(2, 1, 1)
-    l = ax.plot(t1, f(t1), 'bo',
-                t2, f(t2), 'k--', markerfacecolor='green')
+    ax.plot(t1, f(t1), 'bo', t2, f(t2), 'k--', markerfacecolor='green')
     ax.grid(True)
 
     ax = fig.add_subplot(2, 1, 2, projection='3d')
@@ -164,8 +163,8 @@ def test_mixedsubplots():
     R = np.hypot(X, Y)
     Z = np.sin(R)
 
-    surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40,
-                           linewidth=0, antialiased=False)
+    ax.plot_surface(X, Y, Z, rcount=40, ccount=40,
+                    linewidth=0, antialiased=False)
 
     ax.set_zlim3d(-1, 1)
 
@@ -240,8 +239,8 @@ def test_surface3d_shaded():
     X, Y = np.meshgrid(X, Y)
     R = np.sqrt(X ** 2 + Y ** 2)
     Z = np.sin(R)
-    surf = ax.plot_surface(X, Y, Z, rstride=5, cstride=5,
-                           color=[0.25, 1, 0.25], lw=1, antialiased=False)
+    ax.plot_surface(X, Y, Z, rstride=5, cstride=5,
+                    color=[0.25, 1, 0.25], lw=1, antialiased=False)
     ax.set_zlim(-1.01, 1.01)
 
 
@@ -924,3 +923,20 @@ def test_proj3d_deprecated():
 
     with pytest.warns(MatplotlibDeprecationWarning):
         proj3d.proj_trans_clip_points(np.ones((4, 3)), M)
+
+
+def test_ax3d_tickcolour():
+    fig = plt.figure()
+    ax = Axes3D(fig)
+
+    ax.tick_params(axis='x', colors='red')
+    ax.tick_params(axis='y', colors='red')
+    ax.tick_params(axis='z', colors='red')
+    fig.canvas.draw()
+
+    for tick in ax.xaxis.get_major_ticks():
+        assert tick.tick1line._color == 'red'
+    for tick in ax.yaxis.get_major_ticks():
+        assert tick.tick1line._color == 'red'
+    for tick in ax.zaxis.get_major_ticks():
+        assert tick.tick1line._color == 'red'

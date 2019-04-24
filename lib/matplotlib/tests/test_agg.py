@@ -7,7 +7,6 @@ import pytest
 from matplotlib import (
     collections, path, pyplot as plt, transforms as mtransforms, rcParams)
 from matplotlib.image import imread
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import image_comparison
 
@@ -17,7 +16,6 @@ def test_repeated_save_with_alpha():
     # alpha of 0.25.
 
     fig = Figure([1, 0.4])
-    canvas = FigureCanvas(fig)
     fig.set_facecolor((0, 1, 0.4))
     fig.patch.set_alpha(0.25)
 

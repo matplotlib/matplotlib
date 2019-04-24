@@ -596,14 +596,9 @@ class ColorbarBase(_ColorbarMappableDummy):
         called whenever the tick locator and/or tick formatter changes.
         """
         ax = self.ax
-        # get the locator and formatter.  Defaults to
-        # self.locator if not None..
+        # Get the locator and formatter; defaults to self.locator if not None.
         locator, formatter = self._get_ticker_locator_formatter()
-        if self.orientation == 'vertical':
-            long_axis, short_axis = ax.yaxis, ax.xaxis
-        else:
-            long_axis, short_axis = ax.xaxis, ax.yaxis
-
+        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
         if self._use_auto_colorbar_locator():
             _log.debug('Using auto colorbar locator on colorbar')
             _log.debug('locator: %r', locator)
@@ -643,10 +638,8 @@ class ColorbarBase(_ColorbarMappableDummy):
         """Return the x ticks as a list of locations."""
         if self._manual_tick_data_values is None:
             ax = self.ax
-            if self.orientation == 'vertical':
-                long_axis, short_axis = ax.yaxis, ax.xaxis
-            else:
-                long_axis, short_axis = ax.xaxis, ax.yaxis
+            long_axis = (
+                ax.yaxis if self.orientation == 'vertical' else ax.xaxis)
             return long_axis.get_majorticklocs()
         else:
             # We made the axes manually, the old way, and the ylim is 0-1,

@@ -105,31 +105,26 @@ def test_formatter_ticker():
     ydata1 = [(1.5*y - 0.5)*units.km for y in range(10)]
     ydata2 = [(1.75*y - 1.0)*units.km for y in range(10)]
 
-    fig = plt.figure()
-    ax = plt.subplot(111)
+    ax = plt.figure().subplots()
     ax.set_xlabel("x-label 001")
 
-    fig = plt.figure()
-    ax = plt.subplot(111)
+    ax = plt.figure().subplots()
     ax.set_xlabel("x-label 001")
     ax.plot(xdata, ydata1, color='blue', xunits="sec")
 
-    fig = plt.figure()
-    ax = plt.subplot(111)
+    ax = plt.figure().subplots()
     ax.set_xlabel("x-label 001")
     ax.plot(xdata, ydata1, color='blue', xunits="sec")
     ax.set_xlabel("x-label 003")
 
-    fig = plt.figure()
-    ax = plt.subplot(111)
+    ax = plt.figure().subplots()
     ax.plot(xdata, ydata1, color='blue', xunits="sec")
     ax.plot(xdata, ydata2, color='green', xunits="hour")
     ax.set_xlabel("x-label 004")
 
     # See SF bug 2846058
     # https://sourceforge.net/tracker/?func=detail&aid=2846058&group_id=80706&atid=560720
-    fig = plt.figure()
-    ax = plt.subplot(111)
+    ax = plt.figure().subplots()
     ax.plot(xdata, ydata1, color='blue', xunits="sec")
     ax.plot(xdata, ydata2, color='green', xunits="hour")
     ax.set_xlabel("x-label 005")
@@ -157,8 +152,8 @@ def test_twin_axis_locators_formatters():
     ax1.xaxis.set_minor_locator(plt.FixedLocator([15, 35, 55, 75]))
     ax1.xaxis.set_major_formatter(plt.FormatStrFormatter('%05.2lf'))
     ax1.xaxis.set_minor_formatter(plt.FixedFormatter(['c', '3', 'p', 'o']))
-    ax2 = ax1.twiny()
-    ax3 = ax1.twinx()
+    ax1.twiny()
+    ax1.twinx()
 
 
 def test_twinx_cla():
@@ -464,34 +459,26 @@ def test_polar_coord_annotations():
 
 @image_comparison(baseline_images=['polar_alignment'], extensions=['png'])
 def test_polar_alignment():
-    '''
+    """
     Test that changing the vertical/horizontal alignment of a polar graph
-    works as expected '''
-    ranges = [(0, 5), (0, 5)]
-
+    works as expected.
+    """
     angles = np.arange(0, 360, 90)
-
-    levels = 5
+    grid_values = [0, 0.2, 0.4, 0.6, 0.8, 1]
 
     fig = plt.figure()
+    rect = [0.1, 0.1, 0.8, 0.8]
 
-    figureSize = [0.1, 0.1, 0.8, 0.8]
-
-    horizontal = fig.add_axes(figureSize, polar=True, label='horizontal')
-    vertical = fig.add_axes(figureSize, polar=True, label='vertical')
-
-    axes = [horizontal, vertical]
-
+    horizontal = fig.add_axes(rect, polar=True, label='horizontal')
     horizontal.set_thetagrids(angles)
 
+    vertical = fig.add_axes(rect, polar=True, label='vertical')
     vertical.patch.set_visible(False)
 
     for i in range(2):
-        grid = np.linspace(*ranges[i], num=levels)
-        gridValues = [0, 0.2, 0.4, 0.6, 0.8, 1]
-        axes[i].set_rgrids(gridValues, angle=angles[i],
-                           horizontalalignment='left',
-                           verticalalignment='top')
+        fig.axes[i].set_rgrids(
+            grid_values, angle=angles[i],
+            horizontalalignment='left', verticalalignment='top')
 
 
 @image_comparison(baseline_images=['fill_units'], extensions=['png'],
@@ -543,7 +530,7 @@ def test_single_point():
     matplotlib.rcParams['lines.marker'] = 'o'
     matplotlib.rcParams['axes.grid'] = True
 
-    fig = plt.figure()
+    plt.figure()
     plt.subplot(211)
     plt.plot([0], [0], 'o')
 
@@ -553,7 +540,7 @@ def test_single_point():
     # Reuse testcase from above for a labeled data test
     data = {'a': [0], 'b': [1]}
 
-    fig = plt.figure()
+    plt.figure()
     plt.subplot(211)
     plt.plot('a', 'a', 'o', data=data)
 
@@ -562,12 +549,11 @@ def test_single_point():
 
 
 @image_comparison(baseline_images=['single_date'], extensions=['png'],
-        style='mpl20')
+                  style='mpl20')
 def test_single_date():
     time1 = [721964.0]
     data1 = [-65.54]
 
-    fig = plt.figure()
     plt.subplot(211)
     plt.plot_date(time1, data1, 'o', color='r')
 
@@ -611,7 +597,6 @@ def test_shaped_data():
     y1 = np.arange(10).reshape((1, -1))
     y2 = np.arange(10).reshape((-1, 1))
 
-    fig = plt.figure()
     plt.subplot(411)
     plt.plot(y1)
     plt.subplot(412)
@@ -630,15 +615,13 @@ def test_structured_data():
     pts = np.array([(1, 1), (2, 2)], dtype=[("ones", float), ("twos", float)])
 
     # this should not read second name as a format and raise ValueError
-    fig, ax = plt.subplots(2)
-    ax[0].plot("ones", "twos", data=pts)
-    ax[1].plot("ones", "twos", "r", data=pts)
+    axs = plt.figure().subplots(2)
+    axs[0].plot("ones", "twos", data=pts)
+    axs[1].plot("ones", "twos", "r", data=pts)
 
 
 @image_comparison(baseline_images=['const_xy'])
 def test_const_xy():
-    fig = plt.figure()
-
     plt.subplot(311)
     plt.plot(np.arange(10), np.ones(10))
 
@@ -673,28 +656,19 @@ def test_polar_units():
     import matplotlib.testing.jpl_units as units
     units.register()
 
-    pi = np.pi
     deg = units.deg
     km = units.km
 
-    x1 = [pi/6.0, pi/4.0, pi/3.0, pi/2.0]
-    x2 = [30.0*deg, 45.0*deg, 60.0*deg, 90.0*deg]
+    xs = [30.0*deg, 45.0*deg, 60.0*deg, 90.0*deg]
+    ys = [1.0, 2.0, 3.0, 4.0]
 
-    y1 = [1.0, 2.0, 3.0, 4.0]
-    y2 = [4.0, 3.0, 2.0, 1.0]
+    plt.figure()
+    plt.polar(xs, ys, color="blue")
 
-    fig = plt.figure()
-
-    plt.polar(x2, y1, color="blue")
-
-    # polar(x2, y1, color = "red", xunits="rad")
-    # polar(x2, y2, color = "green")
-
-    fig = plt.figure()
-
+    plt.figure()
     # make sure runits and theta units work
-    y1 = [y*km for y in y1]
-    plt.polar(x2, y1, color="blue", thetaunits="rad", runits="km")
+    ykm = [y*km for y in ys]
+    plt.polar(xs, ykm, color="blue", thetaunits="rad", runits="km")
     assert isinstance(plt.gca().get_xaxis().get_major_formatter(),
                       units.UnitDblFormatter)
 
@@ -834,14 +808,10 @@ def test_axvspan_epoch():
     # generate some data
     t0 = units.Epoch("ET", dt=datetime(2009, 1, 20))
     tf = units.Epoch("ET", dt=datetime(2009, 1, 21))
-
     dt = units.Duration("ET", units.day.convert("sec"))
 
-    fig = plt.figure()
-
-    plt.axvspan(t0, tf, facecolor="blue", alpha=0.25)
-
     ax = plt.gca()
+    plt.axvspan(t0, tf, facecolor="blue", alpha=0.25)
     ax.set_xlim(t0 - 5.0*dt, tf + 5.0*dt)
 
 
@@ -854,14 +824,10 @@ def test_axhspan_epoch():
     # generate some data
     t0 = units.Epoch("ET", dt=datetime(2009, 1, 20))
     tf = units.Epoch("ET", dt=datetime(2009, 1, 21))
-
     dt = units.Duration("ET", units.day.convert("sec"))
 
-    fig = plt.figure()
-
-    plt.axhspan(t0, tf, facecolor="blue", alpha=0.25)
-
     ax = plt.gca()
+    ax.axhspan(t0, tf, facecolor="blue", alpha=0.25)
     ax.set_ylim(t0 - 5.0*dt, tf + 5.0*dt)
 
 
@@ -1646,18 +1612,12 @@ def test_hist_steplog():
     data_big = data_pos + 30
     weights = np.ones_like(data) * 1.e-5
 
-    ax = plt.subplot(4, 1, 1)
-    plt.hist(data, 100, histtype='stepfilled', log=True)
-
-    ax = plt.subplot(4, 1, 2)
-    plt.hist(data_pos, 100, histtype='stepfilled', log=True)
-
-    ax = plt.subplot(4, 1, 3)
-    plt.hist(data, 100, weights=weights, histtype='stepfilled', log=True)
-
-    ax = plt.subplot(4, 1, 4)
-    plt.hist(data_big, 100, histtype='stepfilled', log=True,
-             orientation='horizontal')
+    axs = plt.figure().subplots(4)
+    axs[0].hist(data, 100, histtype='stepfilled', log=True)
+    axs[1].hist(data_pos, 100, histtype='stepfilled', log=True)
+    axs[2].hist(data, 100, weights=weights, histtype='stepfilled', log=True)
+    axs[3].hist(data_big, 100, histtype='stepfilled', log=True,
+                orientation='horizontal')
 
 
 @image_comparison(baseline_images=['hist_step_filled'], remove_text=True,
@@ -1757,12 +1717,11 @@ def contour_dat():
                   remove_text=True, style='mpl20')
 def test_contour_hatching():
     x, y, z = contour_dat()
-
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    cs = ax.contourf(x, y, z, 7, hatches=['/', '\\', '//', '-'],
-                     cmap=plt.get_cmap('gray'),
-                     extend='both', alpha=0.5)
+    ax.contourf(x, y, z, 7, hatches=['/', '\\', '//', '-'],
+                cmap=plt.get_cmap('gray'),
+                extend='both', alpha=0.5)
 
 
 @image_comparison(baseline_images=['contour_colorbar'],
@@ -3404,7 +3363,7 @@ def test_eventplot_defaults():
 
     fig = plt.figure()
     axobj = fig.add_subplot(111)
-    colls = axobj.eventplot(data)
+    axobj.eventplot(data)
 
 
 @pytest.mark.parametrize(('colors'), [
@@ -3454,13 +3413,13 @@ def test_eventplot_problem_kwargs():
 
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
-        colls = axobj.eventplot(data,
-                                colors=['r', 'b'],
-                                color=['c', 'm'],
-                                linewidths=[2, 1],
-                                linewidth=[1, 2],
-                                linestyles=['solid', 'dashed'],
-                                linestyle=['dashdot', 'dotted'])
+        axobj.eventplot(data,
+                        colors=['r', 'b'],
+                        color=['c', 'm'],
+                        linewidths=[2, 1],
+                        linewidth=[1, 2],
+                        linestyles=['solid', 'dashed'],
+                        linestyle=['dashdot', 'dotted'])
 
         # check that three IgnoredKeywordWarnings were raised
         assert len(w) == 3
@@ -3670,8 +3629,6 @@ def test_mixed_collection():
     from matplotlib import patches
     from matplotlib import collections
 
-    x = list(range(10))
-
     # First illustrate basic pyplot interface, using defaults where possible.
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -3739,22 +3696,22 @@ def test_specgram_freqs():
     ax22 = fig2.add_subplot(3, 1, 2)
     ax23 = fig2.add_subplot(3, 1, 3)
 
-    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default')
-    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided')
-    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided')
+    ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default')
+    ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided')
+    ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided')
 
-    spec21 = ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
-    spec22 = ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
-    spec23 = ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
+    ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
+    ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
+    ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
 
 
 @image_comparison(baseline_images=['specgram_noise',
@@ -3787,22 +3744,22 @@ def test_specgram_noise():
     ax22 = fig2.add_subplot(3, 1, 2)
     ax23 = fig2.add_subplot(3, 1, 3)
 
-    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default')
-    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided')
-    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided')
+    ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default')
+    ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided')
+    ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided')
 
-    spec21 = ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
-    spec22 = ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
-    spec23 = ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
+    ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
+    ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
+    ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
 
 
 @image_comparison(baseline_images=['specgram_magnitude_freqs',
@@ -3843,22 +3800,22 @@ def test_specgram_magnitude_freqs():
     ax22 = fig2.add_subplot(3, 1, 2)
     ax23 = fig2.add_subplot(3, 1, 3)
 
-    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default', mode='magnitude')
-    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided', mode='magnitude')
-    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided', mode='magnitude')
+    ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default', mode='magnitude')
+    ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided', mode='magnitude')
+    ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided', mode='magnitude')
 
-    spec21 = ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default', mode='magnitude',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
-    spec22 = ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided', mode='magnitude',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
-    spec23 = ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided', mode='magnitude',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
+    ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default', mode='magnitude',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
+    ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided', mode='magnitude',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
+    ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided', mode='magnitude',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
 
 
 @image_comparison(baseline_images=['specgram_magnitude_noise',
@@ -3891,22 +3848,22 @@ def test_specgram_magnitude_noise():
     ax22 = fig2.add_subplot(3, 1, 2)
     ax23 = fig2.add_subplot(3, 1, 3)
 
-    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default', mode='magnitude')
-    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided', mode='magnitude')
-    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided', mode='magnitude')
+    ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default', mode='magnitude')
+    ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided', mode='magnitude')
+    ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided', mode='magnitude')
 
-    spec21 = ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default', mode='magnitude',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
-    spec22 = ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided', mode='magnitude',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
-    spec23 = ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided', mode='magnitude',
-                           scale='linear', norm=matplotlib.colors.LogNorm())
+    ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default', mode='magnitude',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
+    ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided', mode='magnitude',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
+    ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided', mode='magnitude',
+                  scale='linear', norm=matplotlib.colors.LogNorm())
 
 
 @image_comparison(baseline_images=['specgram_angle_freqs'],
@@ -3941,12 +3898,12 @@ def test_specgram_angle_freqs():
     ax12 = fig1.add_subplot(3, 1, 2)
     ax13 = fig1.add_subplot(3, 1, 3)
 
-    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default', mode='angle')
-    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided', mode='angle')
-    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided', mode='angle')
+    ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default', mode='angle')
+    ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided', mode='angle')
+    ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided', mode='angle')
 
     with pytest.raises(ValueError):
         ax11.specgram(y, NFFT=NFFT, Fs=Fs,
@@ -3988,12 +3945,12 @@ def test_specgram_noise_angle():
     ax12 = fig1.add_subplot(3, 1, 2)
     ax13 = fig1.add_subplot(3, 1, 3)
 
-    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default', mode='angle')
-    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided', mode='angle')
-    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided', mode='angle')
+    ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default', mode='angle')
+    ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided', mode='angle')
+    ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided', mode='angle')
 
     with pytest.raises(ValueError):
         ax11.specgram(y, NFFT=NFFT, Fs=Fs,
@@ -4043,12 +4000,12 @@ def test_specgram_freqs_phase():
     ax12 = fig1.add_subplot(3, 1, 2)
     ax13 = fig1.add_subplot(3, 1, 3)
 
-    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default', mode='phase')
-    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided', mode='phase')
-    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided', mode='phase')
+    ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default', mode='phase')
+    ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided', mode='phase')
+    ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided', mode='phase')
 
     with pytest.raises(ValueError):
         ax11.specgram(y, NFFT=NFFT, Fs=Fs,
@@ -4090,15 +4047,12 @@ def test_specgram_noise_phase():
     ax12 = fig1.add_subplot(3, 1, 2)
     ax13 = fig1.add_subplot(3, 1, 3)
 
-    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='default',
-                           mode='phase', )
-    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='onesided',
-                           mode='phase', )
-    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
-                           pad_to=pad_to, sides='twosided',
-                           mode='phase', )
+    ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='default', mode='phase')
+    ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='onesided', mode='phase')
+    ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                  pad_to=pad_to, sides='twosided', mode='phase')
 
     with pytest.raises(ValueError):
         ax11.specgram(y, NFFT=NFFT, Fs=Fs,
@@ -4780,8 +4734,8 @@ def test_pie_default():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
     fig1, ax1 = plt.subplots(figsize=(8, 6))
-    pie1 = ax1.pie(sizes, explode=explode, labels=labels, colors=colors,
-                autopct='%1.1f%%', shadow=True, startangle=90)
+    ax1.pie(sizes, explode=explode, labels=labels, colors=colors,
+            autopct='%1.1f%%', shadow=True, startangle=90)
 
 
 @image_comparison(baseline_images=['pie_linewidth_0', 'pie_linewidth_0',
@@ -5222,25 +5176,12 @@ def test_no_None():
          mpl.collections.QuadMesh),
     ]
 )
-def test_pcolorfast_colormapped(xy, cls):
+@pytest.mark.parametrize(
+    "data", [np.arange(12).reshape((3, 4)), np.random.rand(3, 4, 3)]
+)
+def test_pcolorfast(xy, data, cls):
     fig, ax = plt.subplots()
-    data = np.arange(12).reshape((3, 4))
     assert type(ax.pcolorfast(*xy, data)) == cls
-
-
-def test_pcolor_fast_RGB():
-
-    fig, ax = plt.subplots(1, 1)
-
-    np.random.seed(19680801)
-    C = np.random.rand(10, 10, 3)  # RGB image [0,1]
-    x = np.arange(11, dtype=np.float)
-    y = np.arange(11, dtype=np.float)
-
-    xv, yv = np.meshgrid(x, y)
-
-    with pytest.raises(ValueError):
-        ax.pcolorfast(xv, yv, C)
 
 
 def test_shared_scale():
@@ -5328,7 +5269,6 @@ def test_title_location_roundtrip():
     fig, ax = plt.subplots()
     # set default title location
     plt.rcParams['axes.titlelocation'] = 'center'
-
     ax.set_title('aardvark')
     ax.set_title('left', loc='left')
     ax.set_title('right', loc='right')
@@ -5619,7 +5559,7 @@ def test_axes_tick_params_xlabelside():
 
 
 def test_none_kwargs():
-    fig, ax = plt.subplots()
+    ax = plt.figure().subplots()
     ln, = ax.plot(range(32), linestyle=None)
     assert ln.get_linestyle() == '-'
 
@@ -5648,7 +5588,7 @@ def test_date_timezone_x():
                   for x in range(3)]
 
     # Same Timezone
-    fig = plt.figure(figsize=(20, 12))
+    plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
     plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
 
@@ -5666,7 +5606,7 @@ def test_date_timezone_y():
                   for x in range(3)]
 
     # Same Timezone
-    fig = plt.figure(figsize=(20, 12))
+    plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
     plt.plot_date([3] * 3,
                   time_index, tz='Canada/Eastern', xdate=False, ydate=True)
@@ -5685,7 +5625,7 @@ def test_date_timezone_x_and_y():
                   for x in range(3)]
 
     # Same Timezone
-    fig = plt.figure(figsize=(20, 12))
+    plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
     plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
 
@@ -5700,7 +5640,7 @@ def test_axisbelow():
     # Test 'line' setting added in 6287.
     # Show only grids, not frame or ticks, to make this test
     # independent of future change to drawing order of those elements.
-    fig, axs = plt.subplots(ncols=3, sharex=True, sharey=True)
+    axs = plt.figure().subplots(ncols=3, sharex=True, sharey=True)
     settings = (False, 'line', True)
 
     for ax, setting in zip(axs, settings):
@@ -6057,7 +5997,7 @@ def test_cartopy_backcompat():
 def test_gettightbbox_ignoreNaN():
     fig, ax = plt.subplots()
     remove_ticks_and_titles(fig)
-    t = ax.text(np.NaN, 1, 'Boo')
+    ax.text(np.NaN, 1, 'Boo')
     renderer = fig.canvas.get_renderer()
     np.testing.assert_allclose(ax.get_tightbbox(renderer).width, 496)
 
@@ -6118,21 +6058,21 @@ def test_secondary_xy():
         else:
             secax = ax.secondary_yaxis
 
-        axsec = secax(0.2, functions=(invert, invert))
-        axsec = secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
-        axsec = secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
-        axsec = secax(0.8)
+        secax(0.2, functions=(invert, invert))
+        secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
+        secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
+        secax(0.8)
 
 
 def test_secondary_fail():
     fig, ax = plt.subplots()
     ax.plot(np.arange(2, 11), np.arange(2, 11))
     with pytest.raises(ValueError):
-        axsec = ax.secondary_xaxis(0.2, functions=(lambda x: 1 / x))
+        ax.secondary_xaxis(0.2, functions=(lambda x: 1 / x))
     with pytest.raises(ValueError):
-        axsec = ax.secondary_xaxis('right')
+        ax.secondary_xaxis('right')
     with pytest.raises(ValueError):
-        axsec = ax.secondary_yaxis('bottom')
+        ax.secondary_yaxis('bottom')
 
 
 def test_secondary_resize():
@@ -6142,7 +6082,7 @@ def test_secondary_resize():
         with np.errstate(divide='ignore'):
             return 1 / x
 
-    axsec = ax.secondary_xaxis('top', functions=(invert, invert))
+    ax.secondary_xaxis('top', functions=(invert, invert))
     fig.canvas.draw()
     fig.set_size_inches((7, 4))
     assert_allclose(ax.get_position().extents, [0.125, 0.1, 0.9, 0.9])

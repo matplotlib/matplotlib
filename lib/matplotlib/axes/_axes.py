@@ -5000,11 +5000,11 @@ optional.
         self.add_artist(a)
         return a
 
+    @docstring.copy(mquiver.QuiverKey.__init__)
     def quiverkey(self, Q, X, Y, U, label, **kw):
         qk = mquiver.QuiverKey(Q, X, Y, U, label, **kw)
         self.add_artist(qk)
         return qk
-    quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
     # Handle units for x and y, if they've been passed
     def _quiver_units(self, args, kw):
@@ -6200,12 +6200,18 @@ optional.
         Parameters
         ----------
         C : array-like(M, N)
-            A 2D array or masked array. The values will be color-mapped.
-            This argument can only be passed positionally.
+            The image data. Supported array shapes are:
 
-            C can in some cases be 3D with the last dimension as rgb(a).
-            This is available when C qualifies for image or pcolorimage type,
-            will throw a TypeError if C is 3D and quadmesh.
+            - (M, N): an image with scalar data. The data is visualized
+              using a colormap.
+            - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
+            - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
+              i.e. including transparency.
+
+            The first two dimensions (M, N) define the rows and columns of
+            the image.
+
+            This parameter can only be passed positionally.
 
         X, Y : tuple or array-like, default: ``(0, N)``, ``(0, M)``
             *X* and *Y* are used to specify the coordinates of the
@@ -6230,9 +6236,9 @@ optional.
             - Use 2D arrays *X*, *Y* if you need an *arbitrary quadrilateral
               grid* (i.e. if the quadrilaterals are not rectangular).
 
-              In this case *X* and *Y* are 2D arrays with shape (M, N),
+              In this case *X* and *Y* are 2D arrays with shape (M + 1, N + 1),
               specifying the x and y coordinates of the corners of the colored
-              quadrilaterals. See `~.Axes.pcolormesh` for details.
+              quadrilaterals.
 
               This is the most general, but the slowest to render.  It may
               produce faster and more compact output using ps, pdf, and
@@ -6301,10 +6307,6 @@ optional.
                     else:
                         style = "pcolorimage"
             elif x.ndim == 2 and y.ndim == 2:
-                if C.ndim > 2:
-                    raise ValueError(
-                        'pcolorfast needs to use quadmesh, '
-                        'which is not supported when x and y are 2D and C 3D')
                 style = "quadmesh"
             else:
                 raise TypeError("arguments do not match valid signatures")
@@ -6314,9 +6316,15 @@ optional.
         if style == "quadmesh":
             # data point in each cell is value at lower left corner
             coords = np.stack([x, y], axis=-1)
+            if np.ndim(C) == 2:
+                qm_kwargs = {"array": np.ma.ravel(C)}
+            elif np.ndim(C) == 3:
+                qm_kwargs = {"color": np.ma.reshape(C, (-1, C.shape[-1]))}
+            else:
+                raise ValueError("C must be 2D or 3D")
             collection = mcoll.QuadMesh(
-                nc, nr, coords,
-                array=np.ma.ravel(C), alpha=alpha, cmap=cmap, norm=norm,
+                nc, nr, coords, **qm_kwargs,
+                alpha=alpha, cmap=cmap, norm=norm,
                 antialiased=False, edgecolors="none")
             self.add_collection(collection, autolim=False)
             xl, xr, yb, yt = x.min(), x.max(), y.min(), y.max()
@@ -6340,7 +6348,7 @@ optional.
 
         if vmin is not None or vmax is not None:
             ret.set_clim(vmin, vmax)
-        else:
+        elif np.ndim(C) == 2:  # C.ndim == 3 is RGB(A) so doesn't need scaling.
             ret.autoscale_None()
 
         ret.sticky_edges.x[:] = [xl, xr]

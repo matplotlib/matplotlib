@@ -25,9 +25,7 @@ class ProxyDelegate(object):
 class TaggedValueMeta(type):
     def __init__(self, name, bases, dict):
         for fn_name in self._proxies:
-            try:
-                dummy = getattr(self, fn_name)
-            except AttributeError:
+            if not hasattr(self, fn_name):
                 setattr(self, fn_name,
                         ProxyDelegate(fn_name, self._proxies[fn_name]))
 

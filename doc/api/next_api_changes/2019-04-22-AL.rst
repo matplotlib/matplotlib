@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``matplotlib.get_home`` is deprecated (use e.g. ``os.path.expanduser("~")``)
+instead.

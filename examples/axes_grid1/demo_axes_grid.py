@@ -28,13 +28,10 @@ def demo_simple_grid(fig):
                      axes_pad=0.05,
                      label_mode="1",
                      )
-
     Z, extent = get_demo_image()
     for ax in grid:
-        im = ax.imshow(Z, extent=extent, interpolation="nearest")
-
-    # This only affects axes in first column and second row as share_all =
-    # False.
+        ax.imshow(Z, extent=extent, interpolation="nearest")
+    # This only affects axes in first column and second row as share_all=False.
     grid.axes_llc.set_xticks([-2, 0, 2])
     grid.axes_llc.set_yticks([-2, 0, 2])
 

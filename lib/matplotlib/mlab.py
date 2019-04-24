@@ -84,6 +84,7 @@ def window_none(x):
     return x
 
 
+@cbook.deprecated("3.2")
 def apply_window(x, window, axis=0, return_window=None):
     '''
     Apply the given window to the given 1D or 2D array along the given axis.
@@ -376,6 +377,7 @@ def stride_windows(x, n, noverlap=None, axis=0):
     return np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
 
 
+@cbook.deprecated("3.2")
 def stride_repeat(x, n, axis=0):
     '''
     Repeat the values in an array in a memory-efficient manner.  Array x is
@@ -520,10 +522,15 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
             numFreqs = pad_to//2 + 1
         scaling_factor = 2.
 
+    if not np.iterable(window):
+        window = window(np.ones(NFFT, x.dtype))
+    if len(window) != NFFT:
+        raise ValueError(
+            "The window length must match the data's first dimension")
+
     result = stride_windows(x, NFFT, noverlap, axis=0)
     result = detrend(result, detrend_func, axis=0)
-    result, windowVals = apply_window(result, window, axis=0,
-                                      return_window=True)
+    result = result * window.reshape((-1, 1))
     result = np.fft.fft(result, n=pad_to, axis=0)[:numFreqs, :]
     freqs = np.fft.fftfreq(pad_to, 1/Fs)[:numFreqs]
 
@@ -531,18 +538,18 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         # if same_data is False, mode must be 'psd'
         resultY = stride_windows(y, NFFT, noverlap)
         resultY = detrend(resultY, detrend_func, axis=0)
-        resultY = apply_window(resultY, window, axis=0)
+        resultY = resultY * window.reshape((-1, 1))
         resultY = np.fft.fft(resultY, n=pad_to, axis=0)[:numFreqs, :]
         result = np.conj(result) * resultY
     elif mode == 'psd':
         result = np.conj(result) * result
     elif mode == 'magnitude':
-        result = np.abs(result) / np.abs(windowVals).sum()
+        result = np.abs(result) / np.abs(window).sum()
     elif mode == 'angle' or mode == 'phase':
         # we unwrap the phase later to handle the onesided vs. twosided case
         result = np.angle(result)
     elif mode == 'complex':
-        result /= np.abs(windowVals).sum()
+        result /= np.abs(window).sum()
 
     if mode == 'psd':
 
@@ -566,10 +573,10 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
             result /= Fs
             # Scale the spectrum by the norm of the window to compensate for
             # windowing loss; see Bendat & Piersol Sec 11.5.2.
-            result /= (np.abs(windowVals)**2).sum()
+            result /= (np.abs(window)**2).sum()
         else:
             # In this case, preserve power in the segment, not amplitude
-            result /= np.abs(windowVals).sum()**2
+            result /= np.abs(window).sum()**2
 
     t = np.arange(NFFT/2, len(x) - NFFT/2 + 1, NFFT - noverlap)/Fs
 

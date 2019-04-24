@@ -1,6 +1,4 @@
 Added support for RGB(A) images in pcolorfast
 `````````````````````````````````````````````
 
-pcolorfast now accepts 3D images (RGB or RGBA) arrays if the X and Y
-specifications allow image or pcolorimage rendering; they remain unsupported by
-the more general quadmesh rendering
+pcolorfast now accepts 3D images (RGB or RGBA) arrays.

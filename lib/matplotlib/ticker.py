@@ -1883,12 +1883,12 @@ class MaxNLocator(Locator):
     """
     Select no more than N intervals at nice locations.
     """
-    _default_params = dict(nbins=10,
-                           steps=None,
-                           integer=False,
-                           symmetric=False,
-                           prune=None,
-                           min_n_ticks=2)
+    default_params = dict(nbins=10,
+                          steps=None,
+                          integer=False,
+                          symmetric=False,
+                          prune=None,
+                          min_n_ticks=2)
 
     def __init__(self, *args, **kwargs):
         """
@@ -1940,7 +1940,7 @@ class MaxNLocator(Locator):
             if len(args) > 1:
                 raise ValueError(
                     "Keywords are required for all arguments except 'nbins'")
-        self.set_params(**{**self._default_params, **kwargs})
+        self.set_params(**{**self.default_params, **kwargs})
 
     @staticmethod
     def _validate_steps(steps):
@@ -1956,16 +1956,6 @@ class MaxNLocator(Locator):
         if steps[-1] != 10:
             steps = np.hstack((steps, 10))
         return steps
-
-    @cbook.deprecated("3.1")
-    @property
-    def default_params(self):
-        return self._default_params
-
-    @cbook.deprecated("3.1")
-    @default_params.setter
-    def default_params(self, params):
-        self._default_params = params
 
     @staticmethod
     def _staircase(steps):

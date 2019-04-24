@@ -35,9 +35,8 @@ def test_bbox_inches_tight():
     plt.legend([''] * 5, loc=(1.2, 0.2))
     # Add a table at the bottom of the axes
     cellText.reverse()
-    the_table = plt.table(cellText=cellText,
-                          rowLabels=rowLabels,
-                          colLabels=colLabels, loc='bottom')
+    plt.table(cellText=cellText, rowLabels=rowLabels, colLabels=colLabels,
+              loc='bottom')
 
 
 @image_comparison(baseline_images=['bbox_inches_tight_suptile_legend'],

@@ -812,10 +812,10 @@ static PyObject*
 FigureManager_set_window_title(FigureManager* self,
                                PyObject *args, PyObject *kwds)
 {
-    char* title;
-    if(!PyArg_ParseTuple(args, "es", "UTF-8", &title))
+    const char* title;
+    if (!PyArg_ParseTuple(args, "s", &title)) {
         return NULL;
-
+    }
     Window* window = self->window;
     if(window)
     {
@@ -826,7 +826,6 @@ FigureManager_set_window_title(FigureManager* self,
         [window setTitle: ns_title];
         [pool release];
     }
-    PyMem_Free(title);
     Py_RETURN_NONE;
 }
 
@@ -1369,10 +1368,10 @@ choose_save_file(PyObject* unused, PyObject* args)
 {
     int result;
     const char* title;
-    char* default_filename;
-    if(!PyArg_ParseTuple(args, "ses", &title, "UTF-8", &default_filename))
+    const char* default_filename;
+    if (!PyArg_ParseTuple(args, "ss", &title, &default_filename)) {
         return NULL;
-
+    }
     NSSavePanel* panel = [NSSavePanel savePanel];
     [panel setTitle: [NSString stringWithCString: title
                                         encoding: NSASCIIStringEncoding]];
@@ -1380,7 +1379,6 @@ choose_save_file(PyObject* unused, PyObject* args)
         [[NSString alloc]
          initWithCString: default_filename
          encoding: NSUTF8StringEncoding];
-    PyMem_Free(default_filename);
 #ifdef COMPILING_FOR_10_6
     [panel setNameFieldStringValue: ns_default_filename];
     result = [panel runModal];

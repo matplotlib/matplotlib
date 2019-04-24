@@ -167,6 +167,7 @@ __bibtex__ = r"""@Article{Hunter:2007,
 }"""
 
 
+@cbook.deprecated("3.2")
 def compare_versions(a, b):
     "Return whether version *a* is greater than or equal to version *b*."
     if isinstance(a, bytes):
@@ -497,6 +498,7 @@ def checkdep_usetex(s):
     return True
 
 
+@cbook.deprecated("3.2", alternative="os.path.expanduser('~')")
 @_logged_cached('$HOME=%s')
 def get_home():
     """
@@ -526,10 +528,7 @@ def _get_xdg_config_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    return (os.environ.get('XDG_CONFIG_HOME')
-            or (str(Path(get_home(), ".config"))
-                if get_home()
-                else None))
+    return os.environ.get('XDG_CONFIG_HOME') or str(Path.home() / ".config")
 
 
 def _get_xdg_cache_dir():
@@ -538,10 +537,7 @@ def _get_xdg_cache_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    return (os.environ.get('XDG_CACHE_HOME')
-            or (str(Path(get_home(), ".cache"))
-                if get_home()
-                else None))
+    return os.environ.get('XDG_CACHE_HOME') or str(Path.home() / ".cache")
 
 
 def _get_config_or_cache_dir(xdg_base):
@@ -550,20 +546,15 @@ def _get_config_or_cache_dir(xdg_base):
         configdir = Path(configdir).resolve()
     elif sys.platform.startswith(('linux', 'freebsd')) and xdg_base:
         configdir = Path(xdg_base, "matplotlib")
-    elif get_home():
-        configdir = Path(get_home(), ".matplotlib")
     else:
-        configdir = None
-
-    if configdir:
-        try:
-            configdir.mkdir(parents=True, exist_ok=True)
-        except OSError:
-            pass
-        else:
-            if os.access(str(configdir), os.W_OK) and configdir.is_dir():
-                return str(configdir)
-
+        configdir = Path.home() / ".matplotlib"
+    try:
+        configdir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+    else:
+        if os.access(str(configdir), os.W_OK) and configdir.is_dir():
+            return str(configdir)
     return _create_tmp_config_or_cache_dir()
 
 
@@ -824,8 +815,9 @@ class RcParams(MutableMapping, dict):
     def __repr__(self):
         class_name = self.__class__.__name__
         indent = len(class_name) + 1
-        repr_split = pprint.pformat(dict(self), indent=1,
-                                    width=80 - indent).split('\n')
+        with cbook._suppress_matplotlib_deprecation_warning():
+            repr_split = pprint.pformat(dict(self), indent=1,
+                                        width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
         return '{}({})'.format(class_name, repr_indented)
 

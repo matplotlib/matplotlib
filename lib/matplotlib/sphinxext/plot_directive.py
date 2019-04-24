@@ -518,7 +518,7 @@ def run_code(code, code_path, ns=None, function_name=None):
                 if function_name is not None:
                     exec(function_name + "()", ns)
 
-        except (Exception, SystemExit) as err:
+        except (Exception, SystemExit):
             raise PlotError(traceback.format_exc())
         finally:
             os.chdir(pwd)
@@ -568,10 +568,14 @@ def render_figures(code, code_path, output_dir, output_base, context,
     # Look for single-figure output files first
     all_exists = True
     img = ImageFile(output_base, output_dir)
-    if not any(out_of_date(code_path, img.filename(fmt))
-               for fmt, dpi in formats):
+    for format, dpi in formats:
+        if out_of_date(code_path, img.filename(format)):
+            all_exists = False
+            break
+        img.formats.append(format)
+
+    if all_exists:
         return [(code, [img])]
-    img.formats.extend(fmt for fmt, dpi in formats)
 
     # Then look for multi-figure output files
     results = []
@@ -584,11 +588,11 @@ def render_figures(code, code_path, output_dir, output_base, context,
                                 output_dir)
             else:
                 img = ImageFile('%s_%02d' % (output_base, j), output_dir)
-            for format, dpi in formats:
-                if out_of_date(code_path, img.filename(format)):
+            for fmt, dpi in formats:
+                if out_of_date(code_path, img.filename(fmt)):
                     all_exists = False
                     break
-                img.formats.append(format)
+                img.formats.append(fmt)
 
             # assume that if we have one, we have them all
             if not all_exists:
@@ -636,12 +640,12 @@ def render_figures(code, code_path, output_dir, output_base, context,
                 img = ImageFile("%s_%02d_%02d" % (output_base, i, j),
                                 output_dir)
             images.append(img)
-            for format, dpi in formats:
+            for fmt, dpi in formats:
                 try:
-                    figman.canvas.figure.savefig(img.filename(format), dpi=dpi)
-                except Exception as err:
+                    figman.canvas.figure.savefig(img.filename(fmt), dpi=dpi)
+                except Exception:
                     raise PlotError(traceback.format_exc())
-                img.formats.append(format)
+                img.formats.append(fmt)
 
         results.append((code_piece, images))
 
