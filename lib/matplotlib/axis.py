@@ -1555,12 +1555,9 @@ class Axis(martist.Artist):
             # DecimalConverter may raise error, so check here to walk around.
             if munits.ConversionInterface.is_numlike(x):
                 return x
-            # Try convert again
-            try:
-                ret = self.converter.convert(x, self.units, self)
-            except Exception as e2:
-                raise munits.ConversionError('Failed to convert value(s) to '
-                                         f'axis units: {x!r}') from e2
+            # Otherwise, the conversion fails
+            raise munits.ConversionError('Failed to convert value(s) to '
+                                         f'axis units: {x!r}') from e
         return ret
 
     def set_units(self, u):
