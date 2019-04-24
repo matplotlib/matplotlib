@@ -254,7 +254,7 @@ class TextToPath(object):
             if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
-                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
+                font.load_char(ccode, flags=LOAD_NO_HINTING)
                 glyph_map_new[char_id] = font.get_path()
 
             xpositions.append(ox)
@@ -371,9 +371,9 @@ class TextToPath(object):
             # FreeType-synthesized charmap but the native ones (we can't
             # directly identify it but it's typically an Adobe charmap), and
             # directly load the dvi glyph indices using FT_Load_Char/load_char.
-            for charmap_name, charmap_code in [
-                    ("ADOBE_CUSTOM", 1094992451),
-                    ("ADOBE_STANDARD", 1094995778),
+            for charmap_code in [
+                    1094992451,  # ADOBE_CUSTOM.
+                    1094995778,  # ADOBE_STANDARD.
             ]:
                 try:
                     font.select_charmap(charmap_code)
@@ -382,7 +382,6 @@ class TextToPath(object):
                 else:
                     break
             else:
-                charmap_name = ""
                 _log.warning("No supported encoding in font (%s).",
                              font_bunch.filename)
             enc = None

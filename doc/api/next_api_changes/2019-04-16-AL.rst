@@ -1,0 +1,7 @@
+Deprecations
+````````````
+
+Returning a factor equal to None from axisartist Locators (which are **not**
+the same as "standard" tick Locators), or passing a factor equal to None
+to axisartist Formatters (which are **not** the same as "standard" tick
+Formatters) is deprecated.  Pass a factor equal to 1 instead.

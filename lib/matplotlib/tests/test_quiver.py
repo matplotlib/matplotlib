@@ -71,12 +71,9 @@ def test_zero_headlength():
 def test_quiver_animate():
     # Tests fix for #2616
     fig, ax = plt.subplots()
-
     Q = draw_quiver(ax, animated=True)
-
-    qk = ax.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$',
-                      labelpos='W',
-                      fontproperties={'weight': 'bold'})
+    ax.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$',
+                 labelpos='W', fontproperties={'weight': 'bold'})
 
 
 @image_comparison(baseline_images=['quiver_with_key_test_image'],
@@ -84,16 +81,13 @@ def test_quiver_animate():
 def test_quiver_with_key():
     fig, ax = plt.subplots()
     ax.margins(0.1)
-
     Q = draw_quiver(ax)
-
-    qk = ax.quiverkey(Q, 0.5, 0.95, 2,
-                      r'$2\, \mathrm{m}\, \mathrm{s}^{-1}$',
-                      angle=-10,
-                      coordinates='figure',
-                      labelpos='W',
-                      fontproperties={'weight': 'bold',
-                                      'size': 'large'})
+    ax.quiverkey(Q, 0.5, 0.95, 2,
+                 r'$2\, \mathrm{m}\, \mathrm{s}^{-1}$',
+                 angle=-10,
+                 coordinates='figure',
+                 labelpos='W',
+                 fontproperties={'weight': 'bold', 'size': 'large'})
 
 
 @image_comparison(baseline_images=['quiver_single_test_image'],
@@ -101,7 +95,6 @@ def test_quiver_with_key():
 def test_quiver_single():
     fig, ax = plt.subplots()
     ax.margins(0.1)
-
     ax.quiver([1], [1], [2], [2])
 
 

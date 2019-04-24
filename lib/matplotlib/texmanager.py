@@ -227,7 +227,7 @@ class TexManager(object):
             else:
                 try:
                     fh.write(s.encode('ascii'))
-                except UnicodeEncodeError as err:
+                except UnicodeEncodeError:
                     _log.info("You are using unicode and latex, but have not "
                               "enabled the 'text.latex.unicode' rcParam.")
                     raise
@@ -289,7 +289,7 @@ class TexManager(object):
             else:
                 try:
                     fh.write(s.encode('ascii'))
-                except UnicodeEncodeError as err:
+                except UnicodeEncodeError:
                     _log.info("You are using unicode and latex, but have not "
                               "enabled the 'text.latex.unicode' rcParam.")
                     raise

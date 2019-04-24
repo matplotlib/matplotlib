@@ -83,7 +83,7 @@ def pick_simple():
     line, = ax1.plot(rand(100), 'o', picker=5)  # 5 points tolerance
 
     # pick the rectangle
-    bars = ax2.bar(range(10), rand(10), picker=True)
+    ax2.bar(range(10), rand(10), picker=True)
     for label in ax2.get_xticklabels():  # make the xtick labels pickable
         label.set_picker(True)
 
@@ -157,18 +157,17 @@ def pick_scatter_plot():
         print('onpick3 scatter:', ind, x[ind], y[ind])
 
     fig, ax = plt.subplots()
-    col = ax.scatter(x, y, 100*s, c, picker=True)
-    #fig.savefig('pscoll.eps')
+    ax.scatter(x, y, 100*s, c, picker=True)
     fig.canvas.mpl_connect('pick_event', onpick3)
 
 
 def pick_image():
     # picking images (matplotlib.image.AxesImage)
     fig, ax = plt.subplots()
-    im1 = ax.imshow(rand(10, 5), extent=(1, 2, 1, 2), picker=True)
-    im2 = ax.imshow(rand(5, 10), extent=(3, 4, 1, 2), picker=True)
-    im3 = ax.imshow(rand(20, 25), extent=(1, 2, 3, 4), picker=True)
-    im4 = ax.imshow(rand(30, 12), extent=(3, 4, 3, 4), picker=True)
+    ax.imshow(rand(10, 5), extent=(1, 2, 1, 2), picker=True)
+    ax.imshow(rand(5, 10), extent=(3, 4, 1, 2), picker=True)
+    ax.imshow(rand(20, 25), extent=(1, 2, 3, 4), picker=True)
+    ax.imshow(rand(30, 12), extent=(3, 4, 3, 4), picker=True)
     ax.axis([0, 5, 0, 5])
 
     def onpick4(event):

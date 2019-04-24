@@ -187,8 +187,8 @@ def filtered_text(ax):
     Z = (Z1 - Z2) * 2
 
     # draw
-    im = ax.imshow(Z, interpolation='bilinear', origin='lower',
-                   cmap=cm.gray, extent=(-3, 3, -2, 2))
+    ax.imshow(Z, interpolation='bilinear', origin='lower',
+              cmap=cm.gray, extent=(-3, 3, -2, 2))
     levels = np.arange(-1.2, 1.6, 0.2)
     CS = ax.contour(Z, levels,
                     origin='lower',

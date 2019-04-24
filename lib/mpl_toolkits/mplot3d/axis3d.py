@@ -81,8 +81,7 @@ class Axis(maxis.XAxis):
                            'ha': 'center'},
                  'tick': {'inward_factor': 0.2,
                           'outward_factor': 0.1,
-                          'linewidth': rcParams['lines.linewidth'],
-                          'color': 'k'},
+                          'linewidth': rcParams['lines.linewidth']},
                  'axisline': {'linewidth': 0.75,
                               'color': (0, 0, 0, 1)},
                  'grid': {'color': (0.9, 0.9, 0.9, 1),
@@ -97,10 +96,7 @@ class Axis(maxis.XAxis):
                           'outward_factor': 0.1,
                           'linewidth': rcParams.get(
                               adir + 'tick.major.width',
-                              rcParams['xtick.major.width']),
-                          'color': rcParams.get(
-                              adir + 'tick.color',
-                              rcParams['xtick.color'])},
+                              rcParams['xtick.major.width'])},
                  'axisline': {'linewidth': rcParams['axes.linewidth'],
                               'color': rcParams['axes.edgecolor']},
                  'grid': {'color': rcParams['grid.color'],
@@ -265,7 +261,7 @@ class Axis(maxis.XAxis):
         dx, dy = (self.axes.transAxes.transform([peparray[0:2, 1]]) -
                   self.axes.transAxes.transform([peparray[0:2, 0]]))[0]
 
-        lxyz = 0.5*(edgep1 + edgep2)
+        lxyz = 0.5 * (edgep1 + edgep2)
 
         # A rough estimate; points are ambiguous since 3D plots rotate
         ax_scale = self.axes.bbox.size / self.figure.bbox.size
@@ -391,7 +387,6 @@ class Axis(maxis.XAxis):
             ticksign = -1
 
         for tick in ticks:
-
             # Get tick line positions
             pos = copy.copy(edgep1)
             pos[index] = tick.get_loc()
@@ -420,7 +415,6 @@ class Axis(maxis.XAxis):
 
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(info['tick']['linewidth'])
-            tick.tick1line.set_color(info['tick']['color'])
             tick.draw(renderer)
 
         renderer.close_group('axis3d')

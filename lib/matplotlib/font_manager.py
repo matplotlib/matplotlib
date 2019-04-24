@@ -94,15 +94,13 @@ font_family_aliases = {
 #  OS Font paths
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
-
 MSFontDirectories = [
     r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts',
     r'SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts']
-
 MSUserFontDirectories = [
-    os.path.join(str(Path.home()), r'AppData\Local\Microsoft\Windows\Fonts'),
-    os.path.join(str(Path.home()), r'AppData\Roaming\Microsoft\Windows\Fonts')]
-
+    str(Path.home() / 'AppData/Local/Microsoft/Windows/Fonts'),
+    str(Path.home() / 'AppData/Roaming/Microsoft/Windows/Fonts'),
+]
 X11FontDirectories = [
     # an old standard installation point
     "/usr/X11R6/lib/X11/fonts/TTF/",
@@ -118,7 +116,6 @@ X11FontDirectories = [
                             Path.home() / ".local/share")) / "fonts"),
     str(Path.home() / ".fonts"),
 ]
-
 OSXFontDirectories = [
     "/Library/Fonts/",
     "/Network/Library/Fonts/",

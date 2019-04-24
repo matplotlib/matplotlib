@@ -455,7 +455,7 @@ class Dvi(object):
 
     @_dispatch(247, state=_dvistate.pre, args=('u1', 'u4', 'u4', 'u4', 'u1'))
     def _pre(self, i, num, den, mag, k):
-        comment = self.file.read(k)
+        self.file.read(k)  # comment in the dvi file
         if i != 2:
             raise ValueError("Unknown dvi format %d" % i)
         if num != 25400000 or den != 7227 * 2**16:

@@ -240,7 +240,6 @@ def test_patch_linestyle_accents():
     ax.set_xlim([-1, i + 1])
     ax.set_ylim([-1, i + 1])
     fig.canvas.draw()
-    assert True
 
 
 def test_wedge_movement():

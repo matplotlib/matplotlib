@@ -52,10 +52,10 @@ def _colorbar_extension_shape(spacing):
         # Create a subplot.
         cax = fig.add_subplot(4, 1, i + 1)
         # Generate the colorbar.
-        cb = ColorbarBase(cax, cmap=cmap, norm=norm,
-                boundaries=boundaries, values=values,
-                extend=extension_type, extendrect=True,
-                orientation='horizontal', spacing=spacing)
+        ColorbarBase(cax, cmap=cmap, norm=norm,
+                     boundaries=boundaries, values=values,
+                     extend=extension_type, extendrect=True,
+                     orientation='horizontal', spacing=spacing)
         # Turn off text and ticks.
         cax.tick_params(left=False, labelleft=False,
                         bottom=False, labelbottom=False)

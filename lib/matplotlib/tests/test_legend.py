@@ -299,9 +299,8 @@ class TestLegendFunction(object):
         p2, = par.plot([0, 1, 2], [0, 3, 2], label="Temperature")
 
         with mock.patch('matplotlib.legend.Legend') as Legend:
-            leg = plt.legend()
-        Legend.assert_called_with(host, [p1, p2],
-                ['Density', 'Temperature'])
+            plt.legend()
+        Legend.assert_called_with(host, [p1, p2], ['Density', 'Temperature'])
 
 
 class TestLegendFigureFunction(object):
@@ -412,13 +411,13 @@ def test_legend_repeatcheckok():
     fig, ax = plt.subplots()
     ax.scatter(0.0, 1.0, color='k', marker='o', label='test')
     ax.scatter(0.5, 0.0, color='r', marker='v', label='test')
-    hl = ax.legend()
+    ax.legend()
     hand, lab = mlegend._get_legend_handles_labels([ax])
     assert len(lab) == 2
     fig, ax = plt.subplots()
     ax.scatter(0.0, 1.0, color='k', marker='o', label='test')
     ax.scatter(0.5, 0.0, color='k', marker='v', label='test')
-    hl = ax.legend()
+    ax.legend()
     hand, lab = mlegend._get_legend_handles_labels([ax])
     assert len(lab) == 2
 
@@ -561,7 +560,7 @@ def test_warn_big_data_best_loc():
     ax.plot(np.arange(200001), label='Is this big data?')
     with pytest.warns(UserWarning) as records:
         with rc_context({'legend.loc': 'best'}):
-            l = ax.legend()
+            ax.legend()
         fig.canvas.draw()
     # The _find_best_position method of Legend is called twice, duplicating
     # the warning message.
@@ -576,6 +575,6 @@ def test_no_warn_big_data_when_loc_specified():
     fig, ax = plt.subplots()
     ax.plot(np.arange(200001), label='Is this big data?')
     with pytest.warns(None) as records:
-        l = ax.legend('best')
+        ax.legend('best')
         fig.canvas.draw()
     assert len(records) == 0

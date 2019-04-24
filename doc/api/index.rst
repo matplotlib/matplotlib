@@ -55,6 +55,7 @@ Modules
    patheffects_api.rst
    pyplot_summary.rst
    projections_api.rst
+   quiver_api.rst
    rcsetup_api.rst
    sankey_api.rst
    scale_api.rst

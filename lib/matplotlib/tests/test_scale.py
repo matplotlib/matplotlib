@@ -97,14 +97,13 @@ def test_logscale_invert_transform():
 
 
 def test_logscale_transform_repr():
-    # check that repr of log transform succeeds
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    s = repr(ax.transData)
+    repr(ax.transData)  # check that repr of log transform succeeds
 
     # check that repr of log transform succeeds
     with pytest.warns(MatplotlibDeprecationWarning):
-        s = repr(Log10Transform(nonpos='clip'))
+        repr(Log10Transform(nonpos='clip'))
 
 
 @image_comparison(baseline_images=['logscale_nonpos_values'], remove_text=True,
