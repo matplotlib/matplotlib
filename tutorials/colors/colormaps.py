@@ -5,9 +5,10 @@ Choosing Colormaps in Matplotlib
 
 Matplotlib has a number of built-in colormaps accessible via
 `.matplotlib.cm.get_cmap`.  There are also external libraries like
-[palettable]_ that have many extra colormaps.  Here we briefly discuss
-how to choose between the many options.  For help on creating your
-own colormaps, see :doc:`/tutorials/colors/colormap-manipulation`.
+[palettable]_ and [colorcet]_ that have many extra colormaps.
+Here we briefly discuss how to choose between the many options.  For
+help on creating your own colormaps, see
+:doc:`/tutorials/colors/colormap-manipulation`.
 
 Overview
 ========
@@ -412,7 +413,7 @@ for cmap_category, cmap_list in cmaps.items():
 # References
 # ==========
 #
-# .. [colorcet] https://github.com/bokeh/colorcet
+# .. [colorcet] https://colorcet.pyviz.org
 # .. [Ware] http://ccom.unh.edu/sites/default/files/publications/Ware_1988_CGA_Color_sequences_univariate_maps.pdf
 # .. [Moreland] http://www.kennethmoreland.com/color-maps/ColorMapsExpanded.pdf
 # .. [list-colormaps] https://gist.github.com/endolith/2719900#id7
