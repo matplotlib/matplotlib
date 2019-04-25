@@ -93,8 +93,8 @@ class TriContourSet(ContourSet):
             raise ValueError('z array cannot contain non-finite values')
 
         z = np.ma.masked_invalid(z, copy=False)
-        self.zmax = float(z.max())
-        self.zmin = float(z.min())
+        self.zmax = float(z_check.max())
+        self.zmin = float(z_check.min())
         if self.logscale and self.zmin <= 0:
             raise ValueError('Cannot %s log of negative values.' % fn)
         self._contour_level_args(z, args[1:])
