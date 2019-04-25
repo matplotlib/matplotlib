@@ -5065,11 +5065,9 @@ def test_rc_grid():
     }
     dict_list = [rc_dict0, rc_dict1, rc_dict2]
 
-    i = 1
-    for rc_dict in dict_list:
+    for i, rc_dict in enumerate(dict_list, 1):
         with matplotlib.rc_context(rc_dict):
             fig.add_subplot(3, 1, i)
-            i += 1
 
 
 def test_rc_tick():
