@@ -783,6 +783,7 @@ def axes(arg=None, **kwargs):
         the following table but there might also be other keyword
         arguments if another projection is used, see the actual axes
         class.
+
         %(Axes)s
 
     Returns
@@ -933,6 +934,7 @@ def subplot(*args, **kwargs):
         rectilinear base class `~.axes.Axes` can be found in
         the following table but there might also be other keyword
         arguments if another projection is used.
+
         %(Axes)s
 
     Returns

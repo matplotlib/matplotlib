@@ -151,6 +151,7 @@ class BboxPatch(Patch):
 
         **kwargs
             Patch properties. Valid arguments include:
+
             %(Patch)s
         """
         if "transform" in kwargs:
@@ -294,6 +295,7 @@ class BboxConnector(Patch):
 
         **kwargs
             Patch properties for the line drawn. Valid arguments include:
+
             %(Patch)s
         """
         if "transform" in kwargs:
@@ -352,6 +354,7 @@ class BboxConnectorPatch(BboxConnector):
 
         **kwargs
             Patch properties for the line drawn:
+
             %(Patch)s
         """
         if "transform" in kwargs:
@@ -471,6 +474,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     axes_kwargs : dict, optional
         Keyworded arguments to pass to the constructor of the inset axes.
         Valid arguments include:
+
         %(Axes)s
 
     borderpad : float, optional
@@ -588,6 +592,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
     axes_kwargs : dict, optional
         Keyworded arguments to pass to the constructor of the inset axes.
         Valid arguments include:
+
         %(Axes)s
 
     borderpad : float, optional
@@ -644,6 +649,7 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
 
     **kwargs
         Patch properties for the lines and box drawn:
+
         %(Patch)s
 
     Returns

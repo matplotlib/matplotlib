@@ -393,7 +393,6 @@ class Axes(_AxesBase):
         --------
 
         .. plot:: gallery/text_labels_and_annotations/legend.py
-
         """
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
                 [self],
@@ -645,15 +644,12 @@ class Axes(_AxesBase):
             ax.loglog(range(1, 360, 5), range(1, 360, 5))
             ax.set_xlabel('frequency [Hz]')
 
-
             def invert(x):
                 return 1 / x
 
             secax = ax.secondary_xaxis('top', functions=(invert, invert))
             secax.set_xlabel('Period [s]')
             plt.show()
-
-
         """
         if (location in ['top', 'bottom'] or isinstance(location, Number)):
             secondary_ax = SecondaryAxis(self, 'x', location, functions,
@@ -686,7 +682,6 @@ class Axes(_AxesBase):
             secax = ax.secondary_yaxis('right', functions=(np.deg2rad,
                                                            np.rad2deg))
             secax.set_ylabel('radians')
-
         """
         if location in ['left', 'right'] or isinstance(location, Number):
             secondary_ax = SecondaryAxis(self, 'y', location,
@@ -845,7 +840,6 @@ class Axes(_AxesBase):
           the xrange::
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
-
         """
         if "transform" in kwargs:
             raise ValueError(
@@ -1714,14 +1708,12 @@ class Axes(_AxesBase):
 
         %(_Line2D_docstr)s
 
-
         See Also
         --------
         matplotlib.dates : Helper functions on dates.
         matplotlib.dates.date2num : Convert dates to num.
         matplotlib.dates.num2date : Convert num to dates.
         matplotlib.dates.drange : Create an equally spaced sequence of dates.
-
 
         Notes
         -----
@@ -2294,7 +2286,6 @@ class Axes(_AxesBase):
         Other optional kwargs:
 
         %(Rectangle)s
-
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
         color = kwargs.pop('color', None)
@@ -2588,7 +2579,6 @@ class Axes(_AxesBase):
         Other optional kwargs:
 
         %(Rectangle)s
-
         """
         kwargs.setdefault('orientation', 'horizontal')
         patches = self.bar(x=left, height=height, width=width, bottom=y,
@@ -3203,7 +3193,6 @@ class Axes(_AxesBase):
             Valid kwargs for the marker properties are `.Lines2D` properties:
 
         %(_Line2D_docstr)s
-
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # anything that comes in as 'None', drop so the default thing
@@ -4642,7 +4631,6 @@ optional.
         :class:`~matplotlib.collections.Collection` parameters:
 
             %(Collection)s
-
         """
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
@@ -6058,7 +6046,6 @@ optional.
             along to the `~matplotlib.collections.QuadMesh` constructor:
 
         %(QuadMesh)s
-
 
         See Also
         --------

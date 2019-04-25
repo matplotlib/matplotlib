@@ -440,6 +440,7 @@ class _AxesBase(martist.Artist):
 
         **kwargs
             Other optional keyword arguments:
+
             %(Axes)s
 
         Returns
