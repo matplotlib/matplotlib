@@ -354,7 +354,8 @@ class MovieWriter(AbstractMovieWriter):
         # movie file.  *args* returns the sequence of command line arguments
         # from a few configuration options.
         command = self._args()
-        _log.info('MovieWriter.run: running command: %s', command)
+        _log.info('MovieWriter._run: running command: %s',
+                  cbook._pformat_subprocess(command))
         PIPE = subprocess.PIPE
         self._proc = subprocess.Popen(
             command, stdin=PIPE, stdout=PIPE, stderr=PIPE,

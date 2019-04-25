@@ -297,7 +297,7 @@ class TexManager(object):
         return texfile
 
     def _run_checked_subprocess(self, command, tex):
-        _log.debug(command)
+        _log.debug(cbook._pformat_subprocess(command))
         try:
             report = subprocess.check_output(command,
                                              cwd=self.texcache,
