@@ -250,9 +250,9 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
 
         message = message.strip()
         # Add "Deprecated" to top of docstring
-        new_doc = '[*Deprecated*] {old_doc}\n\n'.format(old_doc=old_doc)
+        new_doc = '[*Deprecated*] {old_doc}\n'.format(old_doc=old_doc)
         # Add a notes section if one isn't already present
-        note_section = 'Notes\n-----'
+        note_section = '\nNotes\n-----'
         if note_section not in new_doc:
             new_doc += note_section
         # Add deprecated message
