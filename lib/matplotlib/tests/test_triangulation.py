@@ -1115,3 +1115,27 @@ def test_qhull_large_offset():
     triang = mtri.Triangulation(x, y)
     triang_offset = mtri.Triangulation(x + offset, y + offset)
     assert len(triang.triangles) == len(triang_offset.triangles)
+
+
+def test_tricontour_non_finite_z():
+    # github issue 10167.
+    x = [0, 1, 0, 1]
+    y = [0, 0, 1, 1]
+    triang = mtri.Triangulation(x, y)
+    plt.figure()
+
+    with pytest.raises(ValueError) as excinfo:
+        plt.tricontourf(triang, [0, 1, 2, np.inf])
+    excinfo.match(r'z array cannot contain non-finite values')
+
+    with pytest.raises(ValueError) as excinfo:
+        plt.tricontourf(triang, [0, 1, 2, -np.inf])
+    excinfo.match(r'z array cannot contain non-finite values')
+
+    with pytest.raises(ValueError) as excinfo:
+        plt.tricontourf(triang, [0, 1, 2, np.nan])
+    excinfo.match(r'z array cannot contain non-finite values')
+
+    with pytest.raises(ValueError) as excinfo:
+        plt.tricontourf(triang, np.ma.array([0, 1, 2, 3], mask=[1, 0, 0, 0]))
+    excinfo.match(r'z cannot be a masked array')
