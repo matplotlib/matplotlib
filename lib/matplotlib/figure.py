@@ -1281,6 +1281,10 @@ default: 'top'
 
             If no positional arguments are passed, defaults to (1, 1, 1).
 
+            In rare circumstances, `.add_subplot` may be called with a single
+            argument, a subplot axes instance already created in the
+            present figure but not in the figure's list of axes.
+
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
             The projection type of the subplot (`~.axes.Axes`). *str* is the
@@ -1310,8 +1314,7 @@ default: 'top'
 
         Returns
         -------
-        axes : an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a \
-               subclass of `~.axes.Axes`)
+        axes : `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
 
             The axes of the subplot. The returned axes base class depends on
             the projection used. It is `~.axes.Axes` if rectilinear projection
@@ -1329,10 +1332,6 @@ default: 'top'
         *label* attribute has been exposed for this purpose: if you want
         two subplots that are otherwise identical to be added to the figure,
         make sure you give them unique labels.
-
-        In rare circumstances, `.add_subplot` may be called with a single
-        argument, a subplot axes instance already created in the
-        present figure but not in the figure's list of axes.
 
         See Also
         --------
