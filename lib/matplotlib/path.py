@@ -20,12 +20,13 @@ from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 
 class Path(object):
     """
-    :class:`Path` represents a series of possibly disconnected,
-    possibly closed, line and curve segments.
+    A series of possibly disconnected, possibly closed, line and curve
+    segments.
 
     The underlying storage is made up of two parallel numpy arrays:
-      - *vertices*: an Nx2 float array of vertices
-      - *codes*: an N-length uint8 array of vertex types
+
+    - *vertices*: an Nx2 float array of vertices
+    - *codes*: an N-length uint8 array of vertex types, or None
 
     These two arrays always have the same length in the first
     dimension.  For example, to represent a cubic curve, you must
@@ -33,37 +34,37 @@ class Path(object):
 
     The code types are:
 
-       - ``STOP``   :  1 vertex (ignored)
-           A marker for the end of the entire path (currently not
-           required and ignored)
+    - ``STOP``   :  1 vertex (ignored)
+        A marker for the end of the entire path (currently not required and
+        ignored)
 
-       - ``MOVETO`` :  1 vertex
-            Pick up the pen and move to the given vertex.
+    - ``MOVETO`` :  1 vertex
+        Pick up the pen and move to the given vertex.
 
-       - ``LINETO`` :  1 vertex
-            Draw a line from the current position to the given vertex.
+    - ``LINETO`` :  1 vertex
+        Draw a line from the current position to the given vertex.
 
-       - ``CURVE3`` :  1 control point, 1 endpoint
-          Draw a quadratic Bezier curve from the current position,
-          with the given control point, to the given end point.
+    - ``CURVE3`` :  1 control point, 1 endpoint
+        Draw a quadratic Bezier curve from the current position, with the given
+        control point, to the given end point.
 
-       - ``CURVE4`` :  2 control points, 1 endpoint
-          Draw a cubic Bezier curve from the current position, with
-          the given control points, to the given end point.
+    - ``CURVE4`` :  2 control points, 1 endpoint
+        Draw a cubic Bezier curve from the current position, with the given
+        control points, to the given end point.
 
-       - ``CLOSEPOLY`` : 1 vertex (ignored)
-          Draw a line segment to the start point of the current
-          polyline.
+    - ``CLOSEPOLY`` : 1 vertex (ignored)
+        Draw a line segment to the start point of the current polyline.
 
-    Users of Path objects should not access the vertices and codes
-    arrays directly.  Instead, they should use :meth:`iter_segments`
-    or :meth:`cleaned` to get the vertex/code pairs.  This is important,
-    since many :class:`Path` objects, as an optimization, do not store a
-    *codes* at all, but have a default one provided for them by
-    :meth:`iter_segments`.
+    If *codes* is None, it is interpreted as a ``MOVETO`` followed by a series
+    of ``LINETO``.
 
-    Some behavior of Path objects can be controlled by rcParams. See
-    the rcParams whose keys contain 'path.'.
+    Users of Path objects should not access the vertices and codes arrays
+    directly.  Instead, they should use `iter_segments` or `cleaned` to get the
+    vertex/code pairs.  This helps, in particular, to consistently handle the
+    case of *codes* being None.
+
+    Some behavior of Path objects can be controlled by rcParams. See the
+    rcParams whose keys start with 'path.'.
 
     .. note::
 
@@ -71,7 +72,6 @@ class Path(object):
         immutable -- there are a number of optimizations and assumptions
         made up front in the constructor that will not change when the
         data changes.
-
     """
 
     code_type = np.uint8
@@ -496,8 +496,7 @@ class Path(object):
 
     def get_extents(self, transform=None):
         """
-        Returns the extents (*xmin*, *ymin*, *xmax*, *ymax*) of the
-        path.
+        Returns the extents (*xmin*, *ymin*, *xmax*, *ymax*) of the path.
 
         Unlike computing the extents on the *vertices* alone, this
         algorithm will take into account the curves and deal with
@@ -524,8 +523,7 @@ class Path(object):
 
     def intersects_bbox(self, bbox, filled=True):
         """
-        Returns *True* if this path intersects a given
-        :class:`~matplotlib.transforms.Bbox`.
+        Returns whether this path intersects a given `~.transforms.Bbox`.
 
         *filled*, when True, treats the path as if it was filled.
         That is, if the path completely encloses the bounding box,
