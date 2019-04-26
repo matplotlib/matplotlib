@@ -1134,7 +1134,10 @@ class Animation(object):
                     # Clear the initial frame
                     anim._init_draw()
                 frame_number = 0
-                save_count_list = [a.save_count for a in all_anim]
+                # TODO: Currently only FuncAnimation has a save_count
+                #       attribute. Can we generalize this to all Animations?
+                save_count_list = [getattr(a, 'save_count', None)
+                                   for a in all_anim]
                 if None in save_count_list:
                     total_frames = None
                 else:
