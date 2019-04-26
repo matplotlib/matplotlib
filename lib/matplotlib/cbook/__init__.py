@@ -19,6 +19,7 @@ import operator
 import os
 from pathlib import Path
 import re
+import shlex
 import subprocess
 import sys
 import time
@@ -2119,6 +2120,12 @@ def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
     return argb32
 
 
+def _pformat_subprocess(command):
+    """Pretty-format a subprocess command for printing/logging purposes."""
+    return (command if isinstance(command, str)
+            else " ".join(shlex.quote(os.fspath(arg)) for arg in command))
+
+
 def _check_and_log_subprocess(command, logger, **kwargs):
     """
     Run *command* using `subprocess.check_output`.  If it succeeds, return the
@@ -2126,7 +2133,7 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     the failed command and captured output.  Both the command and the output
     are logged at DEBUG level on *logger*.
     """
-    logger.debug(command)
+    logger.debug('%s', _pformat_subprocess(command))
     try:
         report = subprocess.check_output(
             command, stderr=subprocess.STDOUT, **kwargs)
@@ -2136,7 +2143,7 @@ def _check_and_log_subprocess(command, logger, **kwargs):
             '    {}\n'
             'failed and generated the following output:\n'
             '{}'
-            .format(command, exc.output.decode('utf-8')))
+            .format(_pformat_subprocess(command), exc.output.decode('utf-8')))
     logger.debug(report)
     return report
 
