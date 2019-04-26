@@ -1,0 +1,4 @@
+Deprecations
+````````````
+
+``matplotlib.checkdep_ps_distiller`` is deprecated.
