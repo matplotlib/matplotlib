@@ -21,7 +21,7 @@ y2err = 0.1 + 0.1 * np.sqrt(x/2)
 
 
 # Now switch to a more OO interface to exercise more features.
-fig, (ax_l, ax_c, ax_r) = plt.subplots(nrows=1, ncols=3, 
+fig, (ax_l, ax_c, ax_r) = plt.subplots(nrows=1, ncols=3,
                                        sharex=True, figsize=(12, 6))
 
 ax_l.set_title('all errorbars')
