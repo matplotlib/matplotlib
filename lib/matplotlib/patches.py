@@ -673,7 +673,7 @@ class Shadow(Patch):
 
 class Rectangle(Patch):
     """
-    Draw a rectangle with lower left at *xy* = (*x*, *y*) with
+    A rectangle with lower left at *xy* = (*x*, *y*) with
     specified *width*, *height* and rotation *angle*.
     """
 
@@ -1064,7 +1064,7 @@ class Wedge(Patch):
     @docstring.dedent_interpd
     def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
         """
-        Draw a wedge centered at *x*, *y* center with radius *r* that
+        A wedge centered at *x*, *y* center with radius *r* that
         sweeps *theta1* to *theta2* (in degrees).  If *width* is given,
         then a partial wedge is drawn from inner radius *r* - *width*
         to outer radius *r*.
@@ -2454,7 +2454,7 @@ docstring.interpd.update(
 
 class FancyBboxPatch(Patch):
     """
-    Draw a fancy box around a rectangle with lower left at *xy*=(*x*,
+    A fancy box around a rectangle with lower left at *xy*=(*x*,
     *y*) with specified width and height.
 
     :class:`FancyBboxPatch` class is similar to :class:`Rectangle`
