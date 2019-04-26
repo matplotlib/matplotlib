@@ -248,16 +248,12 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
 
         old_doc = inspect.cleandoc(old_doc or '').strip('\n')
 
-        message = message.strip()
-        # Add "Deprecated" to top of docstring
-        new_doc = '[*Deprecated*] {old_doc}\n'.format(old_doc=old_doc)
-        # Add a notes section if one isn't already present
-        note_section = '\nNotes\n-----'
-        if note_section not in new_doc:
-            new_doc += note_section
-        # Add deprecated message
-        new_doc += ('\n.. deprecated:: {since}\n'
-                    '   {message}'.format(since=since, message=message))
+        notes_header = '\nNotes\n-----'
+        new_doc = (f"[*Deprecated*] {old_doc}\n"
+                   f"{notes_header if notes_header not in old_doc else ''}\n"
+                   f".. deprecated:: {since}\n"
+                   f"   {message.strip()}")
+
         if not old_doc:
             # This is to prevent a spurious 'unexpected unindent' warning from
             # docutils when the original docstring was blank.
