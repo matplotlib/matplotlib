@@ -2014,7 +2014,6 @@ class RectangleSelector(_SelectorWidget):
                  lineprops=None, rectprops=None, spancoords='data',
                  button=None, maxdist=10, marker_props=None,
                  interactive=False, state_modifier_keys=None):
-
         """
         Create a selector in *ax*.  When a selection is made, clear
         the span and call onselect with::

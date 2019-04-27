@@ -440,7 +440,6 @@ class XTick(Tick):
         return t
 
     def _get_text2(self):
-
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
         trans, vert, horiz = self._get_text2_transform()
