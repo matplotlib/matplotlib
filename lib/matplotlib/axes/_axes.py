@@ -2297,7 +2297,7 @@ class Axes(_AxesBase):
             if ezorder is not None:
                 # If using the bar zorder, increment slightly to make sure
                 # errorbars are drawn on top of bars
-                ezorder += 0.1
+                ezorder += 0.01
         error_kw.setdefault('zorder', ezorder)
         ecolor = kwargs.pop('ecolor', 'k')
         capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
