@@ -1658,7 +1658,14 @@ class FuncAnimation(TimedAnimation):
         elif callable(frames):
             self._iter_gen = frames
         elif np.iterable(frames):
-            self._iter_gen = lambda: iter(frames)
+            if kwargs.get('repeat', True):
+                def iter_frames(frames=frames):
+                    while True:
+                        this, frames = itertools.tee(frames, 2)
+                        yield from this
+                self._iter_gen = iter_frames
+            else:
+                self._iter_gen = lambda: iter(frames)
             if hasattr(frames, '__len__'):
                 self.save_count = len(frames)
         else:
