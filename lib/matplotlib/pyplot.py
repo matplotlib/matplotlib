@@ -327,16 +327,13 @@ def rcdefaults():
 
 def gci():
     """
-    Get the current colorable artist.  Specifically, returns the
-    current :class:`~matplotlib.cm.ScalarMappable` instance (image or
-    patch collection), or *None* if no images or patch collections
-    have been defined.  The commands :func:`~matplotlib.pyplot.imshow`
-    and :func:`~matplotlib.pyplot.figimage` create
-    :class:`~matplotlib.image.Image` instances, and the commands
-    :func:`~matplotlib.pyplot.pcolor` and
-    :func:`~matplotlib.pyplot.scatter` create
-    :class:`~matplotlib.collections.Collection` instances.  The
-    current image is an attribute of the current axes, or the nearest
+    Get the current colorable artist.
+
+    Specifically, returns the current `.ScalarMappable` instance (`.Image`
+    created by `imshow` or `figimage`, `.Collection` created by `pcolor` or
+    `scatter`, etc.), or *None* if no such instance has been defined.
+
+    The current image is an attribute of the current axes, or the nearest
     earlier axes in the current figure that contains an image.
     """
     return gcf()._gci()
@@ -473,7 +470,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     Notes
     -----
     If you are creating many figures, make sure you explicitly call
-    :func:`.pyplot.close` on the figures you are not using, because this will
+    `.pyplot.close` on the figures you are not using, because this will
     enable pyplot to properly clean up the memory.
 
     `~matplotlib.rcParams` defines the default values, which can be modified
@@ -675,19 +672,16 @@ def clf():
 
 
 def draw():
-    """Redraw the current figure.
+    """
+    Redraw the current figure.
 
     This is used to update a figure that has been altered, but not
-    automatically re-drawn.  If interactive mode is on (:func:`.ion()`), this
+    automatically re-drawn.  If interactive mode is on (via `.ion()`), this
     should be only rarely needed, but there may be ways to modify the state of
-    a figure without marking it as `stale`.  Please report these cases as
-    bugs.
+    a figure without marking it as "stale".  Please report these cases as bugs.
 
-    A more object-oriented alternative, given any
-    :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
-    was created using a :mod:`~matplotlib.pyplot` function, is::
-
-        fig.canvas.draw_idle()
+    This is equivalent to calling ``fig.canvas.draw_idle()``, where ``fig`` is
+    the current figure.
     """
     get_current_fig_manager().canvas.draw_idle()
 
@@ -1425,8 +1419,7 @@ def xticks(ticks=None, labels=None, **kwargs):
         A list of explicit labels to place at the given *locs*.
 
     **kwargs
-        :class:`.Text` properties can be used to control the appearance of
-        the labels.
+        `.Text` properties can be used to control the appearance of the labels.
 
     Returns
     -------
@@ -1501,8 +1494,7 @@ def yticks(ticks=None, labels=None, **kwargs):
         A list of explicit labels to place at the given *locs*.
 
     **kwargs
-        :class:`.Text` properties can be used to control the appearance of
-        the labels.
+        `.Text` properties can be used to control the appearance of the labels.
 
     Returns
     -------
@@ -2046,14 +2038,18 @@ def clim(vmin=None, vmax=None):
 
 def set_cmap(cmap):
     """
-    Set the default colormap.  Applies to the current image if any.
-    See help(colormaps) for more information.
+    Set the default colormap, and applies it to the current image if any.
 
-    *cmap* must be a :class:`~matplotlib.colors.Colormap` instance, or
-    the name of a registered colormap.
+    Parameters
+    ----------
+    cmap : `~matplotib.colors.Colormap` or str
+        A colormap instance or the name of a registered colormap.
 
-    See :func:`matplotlib.cm.register_cmap` and
-    :func:`matplotlib.cm.get_cmap`.
+    See Also
+    --------
+    colormaps
+    matplotlib.cm.register_cmap
+    matplotlib.cm.get_cmap
     """
     cmap = cm.get_cmap(cmap)
 
@@ -2134,9 +2130,8 @@ def polar(*args, **kwargs):
 
       polar(theta, r, **kwargs)
 
-    Multiple *theta*, *r* arguments are supported, with format
-    strings, as in :func:`~matplotlib.pyplot.plot`.
-
+    Multiple *theta*, *r* arguments are supported, with format strings, as in
+    `plot`.
     """
     # If an axis already exists, check if it has a polar projection
     if gcf().get_axes():
