@@ -1461,6 +1461,12 @@ def _label_from_arg(y, default_name):
     return None
 
 
+_DATA_DOC_TITLE = """
+
+Notes
+-----
+"""
+
 _DATA_DOC_APPENDIX = """
 
 .. note::
@@ -1498,7 +1504,10 @@ def _add_data_doc(docstring, replace_names):
             if len(replace_names) == 0 else
             "* All arguments with the following names: {}.".format(
                 ", ".join(map(repr, sorted(replace_names)))))
-    return docstring + _DATA_DOC_APPENDIX.format(replaced=repl)
+    addendum = _DATA_DOC_APPENDIX.format(replaced=repl)
+    if _DATA_DOC_TITLE not in docstring:
+        addendum = _DATA_DOC_TITLE + addendum
+    return docstring + addendum
 
 
 def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
