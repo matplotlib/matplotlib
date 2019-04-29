@@ -47,7 +47,7 @@ def test_constrained_layout1():
 def test_constrained_layout2():
     'Test constrained_layout for 2x2 subplots'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         example_plot(ax, fontsize=24)
 
 
@@ -56,7 +56,7 @@ def test_constrained_layout2():
 def test_constrained_layout3():
     'Test constrained_layout for colorbars with subplots'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for nn, ax in enumerate(axs.flatten()):
+    for nn, ax in enumerate(axs.flat):
         pcm = example_pcolor(ax, fontsize=24)
         if nn == 3:
             pad = 0.08
@@ -69,7 +69,7 @@ def test_constrained_layout3():
 def test_constrained_layout4():
     'Test constrained_layout for a single colorbar with subplots'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=24)
     fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
 
@@ -82,7 +82,7 @@ def test_constrained_layout5():
     colorbar bottom
     '''
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=24)
     fig.colorbar(pcm, ax=axs,
                  use_gridspec=False, pad=0.01, shrink=0.6,
@@ -163,7 +163,7 @@ def test_constrained_layout9():
     'Test for handling suptitle and for sharex and sharey'
     fig, axs = plt.subplots(2, 2, constrained_layout=True,
                             sharex=False, sharey=False)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=24)
         ax.set_xlabel('')
         ax.set_ylabel('')
@@ -177,7 +177,7 @@ def test_constrained_layout9():
 def test_constrained_layout10():
     'Test for handling legend outside axis'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         ax.plot(np.arange(12), label='This is a label')
     ax.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 
@@ -251,7 +251,7 @@ def test_constrained_layout12():
 def test_constrained_layout13():
     'Test that padding works.'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=12)
         fig.colorbar(pcm, ax=ax, shrink=0.6, aspect=20., pad=0.02)
     fig.set_constrained_layout_pads(w_pad=24./72., h_pad=24./72.)
@@ -262,7 +262,7 @@ def test_constrained_layout13():
 def test_constrained_layout14():
     'Test that padding works.'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=12)
         fig.colorbar(pcm, ax=ax, shrink=0.6, aspect=20., pad=0.02)
     fig.set_constrained_layout_pads(
@@ -276,7 +276,7 @@ def test_constrained_layout15():
     'Test that rcparams work.'
     rcParams['figure.constrained_layout.use'] = True
     fig, axs = plt.subplots(2, 2)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         example_plot(ax, fontsize=12)
 
 
@@ -394,7 +394,7 @@ def test_colorbar_location():
     """
 
     fig, axs = plt.subplots(4, 5, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax)
         ax.set_xlabel('')
         ax.set_ylabel('')

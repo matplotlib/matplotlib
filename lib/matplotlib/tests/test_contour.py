@@ -206,7 +206,7 @@ def test_given_colors_levels_and_extends():
     colors = ['red', 'yellow', 'pink', 'blue', 'black']
     levels = [2, 4, 8, 10]
 
-    for i, ax in enumerate(axes.flatten()):
+    for i, ax in enumerate(axes.flat):
         filled = i % 2 == 0.
         extend = ['neither', 'min', 'max', 'both'][i // 2]
 
