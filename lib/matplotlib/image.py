@@ -933,7 +933,7 @@ class AxesImage(_ImageBase):
             return arr[i, j]
 
     def format_cursor_data(self, data):
-        if self.colorbar:
+        if np.ndim(data) == 0 and self.colorbar:
             return (
                 "["
                 + cbook.strip_math(
