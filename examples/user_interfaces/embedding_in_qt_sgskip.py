@@ -46,12 +46,15 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
         self._dynamic_ax = dynamic_canvas.figure.subplots()
         self._timer = dynamic_canvas.new_timer(
-            100, [(self._update_canvas, (), {})])
+            50, [(self._update_canvas, (), {})])
         self._timer.start()
 
     def _update_canvas(self):
         self._dynamic_ax.clear()
         t = np.linspace(0, 10, 101)
+        # Use fixed vertical limits to prevent autoscaling changing the scale
+        # of the axis.
+        self._dynamic_ax.set_ylim(-1.1, 1.1)
         # Shift the sinusoid as a function of time.
         self._dynamic_ax.plot(t, np.sin(t + time.time()))
         self._dynamic_ax.figure.canvas.draw()
