@@ -18,25 +18,25 @@ import matplotlib.pyplot as plt
 
 
 N = 5
-menMeans = (150*cm, 160*cm, 146*cm, 172*cm, 155*cm)
-menStd = (20*cm, 30*cm, 32*cm, 10*cm, 20*cm)
+men_means = [150*cm, 160*cm, 146*cm, 172*cm, 155*cm]
+men_std = [20*cm, 30*cm, 32*cm, 10*cm, 20*cm]
 
 fig, ax = plt.subplots()
 
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35         # the width of the bars
-p1 = ax.bar(ind, menMeans, width, bottom=0*cm, yerr=menStd)
+ax.bar(ind, men_means, width, bottom=0*cm, yerr=men_std, label='Men')
 
-
-womenMeans = (145*cm, 149*cm, 172*cm, 165*cm, 200*cm)
-womenStd = (30*cm, 25*cm, 20*cm, 31*cm, 22*cm)
-p2 = ax.bar(ind + width, womenMeans, width, bottom=0*cm, yerr=womenStd)
+women_means = (145*cm, 149*cm, 172*cm, 165*cm, 200*cm)
+women_std = (30*cm, 25*cm, 20*cm, 31*cm, 22*cm)
+ax.bar(ind + width, women_means, width, bottom=0*cm, yerr=women_std,
+       label='Women')
 
 ax.set_title('Scores by group and gender')
 ax.set_xticks(ind + width / 2)
 ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
 
-ax.legend((p1[0], p2[0]), ('Men', 'Women'))
+ax.legend()
 ax.yaxis.set_units(inch)
 ax.autoscale_view()
 
