@@ -2874,7 +2874,10 @@ class _AxesBase(martist.Artist):
 
     def locator_params(self, axis='both', tight=None, **kwargs):
         """
-        Control behavior of tick locators.
+        Control behavior of major tick locators.
+
+        Because the locator is involved in autoscaling, `~.Axes.autoscale_view`
+        is called automatically after the parameters are changed.
 
         Parameters
         ----------
@@ -2882,25 +2885,25 @@ class _AxesBase(martist.Artist):
             The axis on which to operate.
 
         tight : bool or None, optional
-            Parameter passed to :meth:`autoscale_view`.
+            Parameter passed to `~.Axes.autoscale_view`.
             Default is None, for no change.
 
         Other Parameters
         ----------------
-        **kw
+        **kwargs
             Remaining keyword arguments are passed to directly to the
-            :meth:`~matplotlib.ticker.MaxNLocator.set_params` method.
+            ``set_params()`` method of the locator. Supported keywords depend
+            on the type of the locator. See for example
+            `~.ticker.MaxNLocator.set_params` for the `.ticker.MaxNLocator`
+            used by default for linear axes.
 
-        Typically one might want to reduce the maximum number of ticks and use
-        tight bounds when plotting small subplots, for example::
+        Examples
+        --------
+        When plotting small subplots, one might want to reduce the maximum
+        number of ticks and use tight bounds, for example::
 
             ax.locator_params(tight=True, nbins=4)
 
-        Because the locator is involved in autoscaling, :meth:`autoscale_view`
-        is called automatically after the parameters are changed.
-
-        This presently works only for the `~matplotlib.ticker.MaxNLocator` used
-        by default on linear axes, but it may be generalized.
         """
         _x = axis in ['x', 'both']
         _y = axis in ['y', 'both']
