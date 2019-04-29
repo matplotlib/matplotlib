@@ -48,7 +48,7 @@ axes[1, 1].set_title('notch=True,\nbootstrap=10000', fontsize=fs)
 axes[1, 2].boxplot(data, labels=labels, showfliers=False)
 axes[1, 2].set_title('showfliers=False', fontsize=fs)
 
-for ax in axes.flatten():
+for ax in axes.flat:
     ax.set_yscale('log')
     ax.set_yticklabels([])
 
@@ -88,7 +88,7 @@ axes[1, 1].set_title('Custom mean\nas line', fontsize=fs)
 axes[1, 2].boxplot(data, whis=[15, 85])
 axes[1, 2].set_title('whis=[15, 85]\n#percentiles', fontsize=fs)
 
-for ax in axes.flatten():
+for ax in axes.flat:
     ax.set_yscale('log')
     ax.set_yticklabels([])
 
