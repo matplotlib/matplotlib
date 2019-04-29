@@ -2615,11 +2615,6 @@ class Axes(_AxesBase):
         Returns
         -------
         collection : A :class:`~.collections.BrokenBarHCollection`
-
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         # process the unit information
         if len(xranges):
@@ -3183,10 +3178,6 @@ class Axes(_AxesBase):
 
         %(_Line2D_docstr)s
 
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # anything that comes in as 'None', drop so the default thing
@@ -3640,10 +3631,6 @@ class Axes(_AxesBase):
             the whiskers (fliers).
 
           - ``means``: points or lines representing the means.
-
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
 
         """
 
@@ -6579,10 +6566,6 @@ optional.
         --------
         hist2d : 2D histograms
 
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         # Avoid shadowing the builtin.
         bin_range = range
@@ -7299,10 +7282,6 @@ optional.
             :func:`specgram` can plot the magnitude spectrum of segments within
             the signal in a colormap.
 
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         if Fc is None:
             Fc = 0
@@ -7388,10 +7367,6 @@ optional.
             :func:`specgram` can plot the angle spectrum of segments within the
             signal in a colormap.
 
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         if Fc is None:
             Fc = 0
@@ -7463,10 +7438,6 @@ optional.
         :func:`specgram`
             :func:`specgram` can plot the phase spectrum of segments within the
             signal in a colormap.
-
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
 
         """
         if Fc is None:
@@ -7965,10 +7936,6 @@ optional.
 
           - ``cmedians``: A `~.collections.LineCollection` instance that
             marks the median values of each of the violin's distribution.
-
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
 
         """
 
