@@ -818,7 +818,6 @@ class AxesImage(_ImageBase):
                  resample=False,
                  **kwargs
                  ):
-
         """
         interpolation and cmap default to their rc settings
 
