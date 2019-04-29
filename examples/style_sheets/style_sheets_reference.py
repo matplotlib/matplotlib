@@ -115,16 +115,16 @@ def plot_figure(style_label=""):
     (fig_width, fig_height) = plt.rcParams['figure.figsize']
     fig_size = [fig_width * 2, fig_height / 2]
 
-    fig, axes = plt.subplots(ncols=6, nrows=1, num=style_label,
-                             figsize=fig_size, squeeze=True)
-    axes[0].set_ylabel(style_label)
+    fig, axs = plt.subplots(ncols=6, nrows=1, num=style_label,
+                            figsize=fig_size, squeeze=True)
+    axs[0].set_ylabel(style_label)
 
-    plot_scatter(axes[0], prng)
-    plot_image_and_patch(axes[1], prng)
-    plot_bar_graphs(axes[2], prng)
-    plot_colored_circles(axes[3], prng)
-    plot_colored_sinusoidal_lines(axes[4])
-    plot_histograms(axes[5], prng)
+    plot_scatter(axs[0], prng)
+    plot_image_and_patch(axs[1], prng)
+    plot_bar_graphs(axs[2], prng)
+    plot_colored_circles(axs[3], prng)
+    plot_colored_sinusoidal_lines(axs[4])
+    plot_histograms(axs[5], prng)
 
     fig.tight_layout()
 

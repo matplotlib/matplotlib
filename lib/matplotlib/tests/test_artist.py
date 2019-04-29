@@ -234,11 +234,11 @@ def test_setp():
     plt.setp([[]])
 
     # Check arbitrary iterables
-    fig, axes = plt.subplots()
-    lines1 = axes.plot(range(3))
-    lines2 = axes.plot(range(3))
+    fig, ax = plt.subplots()
+    lines1 = ax.plot(range(3))
+    lines2 = ax.plot(range(3))
     martist.setp(chain(lines1, lines2), 'lw', 5)
-    plt.setp(axes.spines.values(), color='green')
+    plt.setp(ax.spines.values(), color='green')
 
     # Check `file` argument
     sio = io.StringIO()

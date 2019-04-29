@@ -58,10 +58,9 @@ plt.tight_layout()
 
 ###############################################################################
 
-fig, axes = plt.subplots(nrows=3, ncols=3)
-for row in axes:
-    for ax in row:
-        example_plot(ax)
+fig, axs = plt.subplots(nrows=3, ncols=3)
+for ax in axs.flat:
+    example_plot(ax)
 plt.tight_layout()
 
 ###############################################################################

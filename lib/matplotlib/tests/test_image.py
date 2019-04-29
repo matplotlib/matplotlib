@@ -472,19 +472,19 @@ def test_rasterize_dpi():
     # image_comparison.
     img = np.asarray([[1, 2], [3, 4]])
 
-    fig, axes = plt.subplots(1, 3, figsize=(3, 1))
+    fig, axs = plt.subplots(1, 3, figsize=(3, 1))
 
-    axes[0].imshow(img)
+    axs[0].imshow(img)
 
-    axes[1].plot([0, 1], [0, 1], linewidth=20., rasterized=True)
-    axes[1].set(xlim=(0, 1), ylim=(-1, 2))
+    axs[1].plot([0, 1], [0, 1], linewidth=20., rasterized=True)
+    axs[1].set(xlim=(0, 1), ylim=(-1, 2))
 
-    axes[2].plot([0, 1], [0, 1], linewidth=20.)
-    axes[2].set(xlim=(0, 1), ylim=(-1, 2))
+    axs[2].plot([0, 1], [0, 1], linewidth=20.)
+    axs[2].set(xlim=(0, 1), ylim=(-1, 2))
 
     # Low-dpi PDF rasterization errors prevent proper image comparison tests.
     # Hide detailed structures like the axes spines.
-    for ax in axes:
+    for ax in axs:
         ax.set_xticks([])
         ax.set_yticks([])
         for spine in ax.spines.values():

@@ -1099,6 +1099,22 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         dimensions of the resulting array can be controlled with the squeeze
         keyword, see above.
 
+        Typical idioms for handling the return value are::
+
+            # using the variable ax for single a Axes
+            fig, ax = plt.subplots()
+
+            # using the variable axs for multiple Axes
+            fig, axs = plt.subplots(2, 2)
+
+            # using tuple unpacking for multiple Axes
+            fig, (ax1, ax2) = plt.subplot(1, 2)
+            fig, ((ax1, ax2), (ax3, ax4)) = plt.subplot(2, 2)
+
+        The names ``ax`` and pluralized ``axs`` are preferred over ``axes``
+        because for the latter it's not clear if it refers to a single
+        `~.axes.Axes` instance or a collection of these.
+
     Examples
     --------
     ::
@@ -1119,9 +1135,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         ax2.scatter(x, y)
 
         # Creates four polar axes, and accesses them through the returned array
-        fig, axes = plt.subplots(2, 2, subplot_kw=dict(polar=True))
-        axes[0, 0].plot(x, y)
-        axes[1, 1].scatter(x, y)
+        fig, axs = plt.subplots(2, 2, subplot_kw=dict(polar=True))
+        axs[0, 0].plot(x, y)
+        axs[1, 1].scatter(x, y)
 
         # Share a X axis with each column of subplots
         plt.subplots(2, 2, sharex='col')
@@ -1137,7 +1153,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
         # Creates figure number 10 with a single subplot
         # and clears it if it already exists.
-        fig, ax=plt.subplots(num=10, clear=True)
+        fig, ax = plt.subplots(num=10, clear=True)
 
     See Also
     --------

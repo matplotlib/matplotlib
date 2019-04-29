@@ -754,13 +754,13 @@ def test_polar_theta_limits():
     theta_maxs = np.arange(50.0, 361.0, 90.0)
     DIRECTIONS = ('out', 'in', 'inout')
 
-    fig, axes = plt.subplots(len(theta_mins), len(theta_maxs),
-                             subplot_kw={'polar': True},
-                             figsize=(8, 6))
+    fig, axs = plt.subplots(len(theta_mins), len(theta_maxs),
+                            subplot_kw={'polar': True},
+                            figsize=(8, 6))
 
     for i, start in enumerate(theta_mins):
         for j, end in enumerate(theta_maxs):
-            ax = axes[i, j]
+            ax = axs[i, j]
             ax.plot(theta, r)
             if start < end:
                 ax.set_thetamin(start)
@@ -1609,15 +1609,14 @@ def test_hist_step_filled():
 
     kwargs = [{'fill': True}, {'fill': False}, {'fill': None}, {}]*2
     types = ['step']*4+['stepfilled']*4
-    fig, axes = plt.subplots(nrows=2, ncols=4)
-    axes = axes.flatten()
+    fig, axs = plt.subplots(nrows=2, ncols=4)
 
-    for kg, _type, ax in zip(kwargs, types, axes):
+    for kg, _type, ax in zip(kwargs, types, axs.flat):
         ax.hist(x, n_bins, histtype=_type, stacked=True, **kg)
         ax.set_title('%s/%s' % (kg, _type))
         ax.set_ylim(bottom=-50)
 
-    patches = axes[0].patches
+    patches = axs[0, 0].patches
     assert all(p.get_facecolor() == p.get_edgecolor() for p in patches)
 
 
@@ -4691,10 +4690,10 @@ def test_vline_limit():
 
 def test_empty_shared_subplots():
     # empty plots with shared axes inherit limits from populated plots
-    fig, axes = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True)
-    axes[0].plot([1, 2, 3], [2, 4, 6])
-    x0, x1 = axes[1].get_xlim()
-    y0, y1 = axes[1].get_ylim()
+    fig, axs = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True)
+    axs[0].plot([1, 2, 3], [2, 4, 6])
+    x0, x1 = axs[1].get_xlim()
+    y0, y1 = axs[1].get_ylim()
     assert x0 <= 1
     assert x1 >= 3
     assert y0 <= 2
@@ -4704,40 +4703,40 @@ def test_empty_shared_subplots():
 def test_shared_with_aspect_1():
     # allow sharing one axis
     for adjustable in ['box', 'datalim']:
-        fig, axes = plt.subplots(nrows=2, sharex=True)
-        axes[0].set_aspect(2, adjustable=adjustable, share=True)
-        assert axes[1].get_aspect() == 2
-        assert axes[1].get_adjustable() == adjustable
+        fig, axs = plt.subplots(nrows=2, sharex=True)
+        axs[0].set_aspect(2, adjustable=adjustable, share=True)
+        assert axs[1].get_aspect() == 2
+        assert axs[1].get_adjustable() == adjustable
 
-        fig, axes = plt.subplots(nrows=2, sharex=True)
-        axes[0].set_aspect(2, adjustable=adjustable)
-        assert axes[1].get_aspect() == 'auto'
+        fig, axs = plt.subplots(nrows=2, sharex=True)
+        axs[0].set_aspect(2, adjustable=adjustable)
+        assert axs[1].get_aspect() == 'auto'
 
 
 def test_shared_with_aspect_2():
     # Share 2 axes only with 'box':
-    fig, axes = plt.subplots(nrows=2, sharex=True, sharey=True)
-    axes[0].set_aspect(2, share=True)
-    axes[0].plot([1, 2], [3, 4])
-    axes[1].plot([3, 4], [1, 2])
+    fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True)
+    axs[0].set_aspect(2, share=True)
+    axs[0].plot([1, 2], [3, 4])
+    axs[1].plot([3, 4], [1, 2])
     plt.draw()  # Trigger apply_aspect().
-    assert axes[0].get_xlim() == axes[1].get_xlim()
-    assert axes[0].get_ylim() == axes[1].get_ylim()
+    assert axs[0].get_xlim() == axs[1].get_xlim()
+    assert axs[0].get_ylim() == axs[1].get_ylim()
 
 
 def test_shared_with_aspect_3():
     # Different aspect ratios:
     for adjustable in ['box', 'datalim']:
-        fig, axes = plt.subplots(nrows=2, sharey=True)
-        axes[0].set_aspect(2, adjustable=adjustable)
-        axes[1].set_aspect(0.5, adjustable=adjustable)
-        axes[0].plot([1, 2], [3, 4])
-        axes[1].plot([3, 4], [1, 2])
+        fig, axs = plt.subplots(nrows=2, sharey=True)
+        axs[0].set_aspect(2, adjustable=adjustable)
+        axs[1].set_aspect(0.5, adjustable=adjustable)
+        axs[0].plot([1, 2], [3, 4])
+        axs[1].plot([3, 4], [1, 2])
         plt.draw()  # Trigger apply_aspect().
-        assert axes[0].get_xlim() != axes[1].get_xlim()
-        assert axes[0].get_ylim() == axes[1].get_ylim()
+        assert axs[0].get_xlim() != axs[1].get_xlim()
+        assert axs[0].get_ylim() == axs[1].get_ylim()
         fig_aspect = fig.bbox_inches.height / fig.bbox_inches.width
-        for ax in axes:
+        for ax in axs:
             p = ax.get_position()
             box_aspect = p.height / p.width
             lim_aspect = ax.viewLim.height / ax.viewLim.width
@@ -5492,7 +5491,7 @@ def test_adjust_numtick_aspect():
                   extensions=['png'])
 def test_auto_numticks():
     # Make tiny, empty subplots, verify that there are only 3 ticks.
-    fig, axes = plt.subplots(4, 4)
+    fig, axs = plt.subplots(4, 4)
 
 
 @image_comparison(baseline_images=["auto_numticks_log"], style='default',
@@ -5549,8 +5548,8 @@ def test_pandas_errorbar_indexing(pd):
 def test_pandas_indexing_hist(pd):
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]
-    fig, axes = plt.subplots()
-    axes.hist(ser_2)
+    fig, ax = plt.subplots()
+    ax.hist(ser_2)
 
 
 def test_pandas_bar_align_center(pd):
