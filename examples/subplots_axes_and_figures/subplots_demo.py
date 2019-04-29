@@ -104,7 +104,7 @@ ax2.plot(x, y**2, 'tab:orange')
 ax3.plot(x, -y, 'tab:green')
 ax4.plot(x, -y**2, 'tab:red')
 
-for ax in axs.flat:
+for ax in fig.get_axes():
     ax.label_outer()
 
 ###############################################################################
