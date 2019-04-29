@@ -963,9 +963,3 @@ def test_remove_overlap(remove_overlapping_locs, expected_num):
     assert len(ax.xaxis.get_minor_ticks()) == expected_num
     assert len(ax.xaxis.get_minorticklabels()) == expected_num
     assert len(ax.xaxis.get_minorticklines()) == expected_num*2
-
-    # force a draw to call _update_ticks under the hood
-    fig.canvas.draw()
-    # check that the correct number of ticks report them selves as
-    # visible
-    assert sum(t.get_visible() for t in ax.xaxis.minorTicks) == expected_num
