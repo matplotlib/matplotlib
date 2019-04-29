@@ -147,14 +147,15 @@ Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
-* :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends;
+* `Tk <https://docs.python.org/3/library/tk.html>`_ (>= 8.3, != 8.6.0 or
+  8.6.1): for the Tk-based backends;
 * `PyQt4 <https://pypi.org/project/PyQt4>`_ (>= 4.6) or
   `PySide <https://pypi.org/project/PySide>`_ (>= 1.0.3): for the Qt4-based
   backends;
 * `PyQt5 <https://pypi.org/project/PyQt5>`_: for the Qt5-based backends;
 * `PyGObject <https://pypi.org/project/PyGObject/>`_: for the GTK3-based
   backends;
-* :term:`wxpython` (>= 4): for the WX-based backends;
+* `wxPython <https://www.wxpython.org/>`_ (>= 4): for the WX-based backends;
 * `cairocffi <https://cairocffi.readthedocs.io/en/latest/>`_ (>= 0.8) or
   `pycairo <https://pypi.org/project/pycairo>`_: for the cairo-based
   backends;
