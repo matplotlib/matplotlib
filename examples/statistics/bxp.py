@@ -62,7 +62,7 @@ axes[1, 1].set_title('notch=True', fontsize=fs)
 axes[1, 2].bxp(stats, showfliers=False)
 axes[1, 2].set_title('showfliers=False', fontsize=fs)
 
-for ax in axes.flatten():
+for ax in axes.flat:
     ax.set_yscale('log')
     ax.set_yticklabels([])
 
@@ -95,7 +95,7 @@ axes[1, 1].bxp(stats, meanprops=meanlineprops, meanline=True,
                showmeans=True)
 axes[1, 1].set_title('Custom mean\nas line', fontsize=fs)
 
-for ax in axes.flatten():
+for ax in axes.flat:
     ax.set_yscale('log')
     ax.set_yticklabels([])
 

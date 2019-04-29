@@ -275,11 +275,10 @@ def test_minorticks_on_rcParams_both(fig_test, fig_ref):
 @image_comparison(baseline_images=["autoscale_tiny_range"], remove_text=True)
 def test_autoscale_tiny_range():
     # github pull #904
-    fig, ax = plt.subplots(2, 2)
-    ax = ax.flatten()
-    for i in range(4):
+    fig, axs = plt.subplots(2, 2)
+    for i, ax in enumerate(axs.flat):
         y1 = 10**(-11 - i)
-        ax[i].plot([0, 1], [1, 1 + y1])
+        ax.plot([0, 1], [1, 1 + y1])
 
 
 @pytest.mark.style('default')
@@ -358,7 +357,7 @@ def test_arrow_simple():
     kwargs = product(length_includes_head, shape, head_starts_at_zero)
 
     fig, axs = plt.subplots(3, 4)
-    for i, (ax, kwarg) in enumerate(zip(axs.flatten(), kwargs)):
+    for i, (ax, kwarg) in enumerate(zip(axs.flat, kwargs)):
         ax.set_xlim(-2, 2)
         ax.set_ylim(-2, 2)
         # Unpack kwargs

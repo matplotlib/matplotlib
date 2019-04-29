@@ -57,7 +57,7 @@ axes[1, 2].violinplot(data, pos, points=200, vert=False, widths=1.1,
                       bw_method=0.5)
 axes[1, 2].set_title('Custom violinplot 6', fontsize=fs)
 
-for ax in axes.flatten():
+for ax in axes.flat:
     ax.set_yticklabels([])
 
 fig.suptitle("Violin Plotting Examples")
